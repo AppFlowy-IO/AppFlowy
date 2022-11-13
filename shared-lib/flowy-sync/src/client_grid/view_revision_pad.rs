@@ -143,8 +143,8 @@ impl GridViewRevisionPad {
         &self,
         field_id: &str,
         field_type_rev: &FieldTypeRevision,
-    ) -> Option<Vec<Arc<FilterConfigurationRevision>>> {
-        self.filters.get_objects(field_id, field_type_rev)
+    ) -> Vec<Arc<FilterConfigurationRevision>> {
+        self.filters.get_objects(field_id, field_type_rev).unwrap_or(vec![])
     }
 
     pub fn insert_filter(

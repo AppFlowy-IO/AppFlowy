@@ -9,17 +9,17 @@ use crate::services::row::GridBlock;
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use grid_rev_model::{CellRevision, FieldId, FieldRevision, FilterConfigurationRevision, RowRevision};
-use lib_infra::future::AFFuture;
+use lib_infra::future::Fut;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
 type RowId = String;
 pub trait GridViewFilterDelegate: Send + Sync + 'static {
-    fn get_filter_configuration(&self, field_id: &str) -> AFFuture<Vec<Arc<FilterConfigurationRevision>>>;
-    fn get_field_rev(&self, field_id: &str) -> AFFuture<Option<Arc<FieldRevision>>>;
-    fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> AFFuture<Vec<Arc<FieldRevision>>>;
-    fn get_blocks(&self) -> AFFuture<Vec<GridBlock>>;
+    fn get_filter_configuration(&self, filter_id: FilterId) -> Fut<Vec<Arc<FilterConfigurationRevision>>>;
+    fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>>;
+    fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>>;
+    fn get_blocks(&self) -> Fut<Vec<GridBlock>>;
 }
 
 pub struct FilterController {
@@ -124,19 +124,15 @@ impl FilterController {
 
     pub async fn apply_changeset(&mut self, changeset: FilterChangeset) {
         if let Some(filter_id) = &changeset.insert_filter {
-            let field_ids = Some(vec![filter_id.field_id.clone()]);
-
-            // did_update_field(self.filter_cache.clone(), field_ids, &self.grid_pad).await;
+            let filter_configurations = self.delegate.get_filter_configuration(filter_id.clone()).await;
+            let _ = self.load_filters(filter_configurations).await;
         }
 
         if let Some(filter_id) = &changeset.delete_filter {
             self.filter_map.remove(filter_id);
         }
 
-        // if let Ok(blocks) = self.block_manager.get_block_snapshots(None).await {
-        // let _task = self.gen_task(blocks).await;
-        // let _ = self.scheduler.register_task(task).await;
-        // }
+        self.gen_task("");
     }
 
     async fn notify(&self, changesets: Vec<GridBlockChangesetPB>) {
@@ -147,7 +143,7 @@ impl FilterController {
         }
     }
 
-    pub async fn load_filters(&mut self, filter_configurations: Vec<Arc<FilterConfigurationRevision>>) {
+    async fn load_filters(&mut self, filter_configurations: Vec<Arc<FilterConfigurationRevision>>) {
         for configuration in filter_configurations {
             if let Some(field_rev) = self.delegate.get_field_rev(&configuration.field_id).await {
                 let filter_id = FilterId::from(&field_rev);
@@ -353,7 +349,7 @@ impl std::convert::From<&GridSettingChangesetParams> for FilterChangeset {
     }
 }
 
-#[derive(Hash, Eq, PartialEq)]
+#[derive(Hash, Eq, PartialEq, Clone)]
 pub struct FilterId {
     pub field_id: String,
     pub field_type: FieldType,

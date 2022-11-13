@@ -4,7 +4,7 @@ use crate::services::row::GridBlock;
 use flowy_sync::client_grid::GridRevisionPad;
 use flowy_task::TaskDispatcher;
 use grid_rev_model::{FieldRevision, FilterConfiguration, FilterConfigurationRevision, RowRevision};
-use lib_infra::future::{wrap_future, AFFuture};
+use lib_infra::future::{to_future, Fut};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -15,9 +15,9 @@ pub(crate) struct GridViewEditorDelegateImpl {
 }
 
 impl GridViewEditorDelegate for GridViewEditorDelegateImpl {
-    fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> AFFuture<Vec<Arc<FieldRevision>>> {
+    fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>> {
         let pad = self.pad.clone();
-        wrap_future(async move {
+        to_future(async move {
             match pad.read().await.get_field_revs(field_ids) {
                 Ok(field_revs) => field_revs,
                 Err(e) => {
@@ -28,22 +28,22 @@ impl GridViewEditorDelegate for GridViewEditorDelegateImpl {
         })
     }
 
-    fn get_field_rev(&self, field_id: &str) -> AFFuture<Option<Arc<FieldRevision>>> {
+    fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>> {
         let pad = self.pad.clone();
         let field_id = field_id.to_owned();
-        wrap_future(async move { Some(pad.read().await.get_field_rev(&field_id)?.1.clone()) })
+        to_future(async move { Some(pad.read().await.get_field_rev(&field_id)?.1.clone()) })
     }
 
-    fn index_of_row(&self, row_id: &str) -> AFFuture<Option<usize>> {
+    fn index_of_row(&self, row_id: &str) -> Fut<Option<usize>> {
         let block_manager = self.block_manager.clone();
         let row_id = row_id.to_owned();
-        wrap_future(async move { block_manager.index_of_row(&row_id).await })
+        to_future(async move { block_manager.index_of_row(&row_id).await })
     }
 
-    fn get_row_rev(&self, row_id: &str) -> AFFuture<Option<Arc<RowRevision>>> {
+    fn get_row_rev(&self, row_id: &str) -> Fut<Option<Arc<RowRevision>>> {
         let block_manager = self.block_manager.clone();
         let row_id = row_id.to_owned();
-        wrap_future(async move {
+        to_future(async move {
             match block_manager.get_row_rev(&row_id).await {
                 Ok(row_rev) => row_rev,
                 Err(_) => None,
@@ -51,10 +51,10 @@ impl GridViewEditorDelegate for GridViewEditorDelegateImpl {
         })
     }
 
-    fn get_row_revs(&self) -> AFFuture<Vec<Arc<RowRevision>>> {
+    fn get_row_revs(&self) -> Fut<Vec<Arc<RowRevision>>> {
         let block_manager = self.block_manager.clone();
 
-        wrap_future(async move {
+        to_future(async move {
             let blocks = block_manager.get_blocks(None).await.unwrap();
             blocks
                 .into_iter()
@@ -63,13 +63,9 @@ impl GridViewEditorDelegate for GridViewEditorDelegateImpl {
         })
     }
 
-    fn get_filter_configuration(&self, field_id: &str) -> AFFuture<Vec<Arc<FilterConfigurationRevision>>> {
-        todo!()
-    }
-
-    fn get_blocks(&self) -> AFFuture<Vec<GridBlock>> {
+    fn get_blocks(&self) -> Fut<Vec<GridBlock>> {
         let block_manager = self.block_manager.clone();
-        wrap_future(async move { block_manager.get_blocks(None).await.unwrap_or(vec![]) })
+        to_future(async move { block_manager.get_blocks(None).await.unwrap_or(vec![]) })
     }
 
     fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>> {

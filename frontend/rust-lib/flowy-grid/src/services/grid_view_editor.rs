@@ -5,8 +5,8 @@ use crate::services::group::{
     default_group_configuration, find_group_field, make_group_controller, Group, GroupConfigurationReader,
     GroupConfigurationWriter, GroupController, MoveGroupRowContext,
 };
-use bytes::Bytes;
 use crate::services::row::GridBlock;
+use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_http_model::revision::Revision;
@@ -20,7 +20,7 @@ use grid_rev_model::{
     gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterConfiguration, FilterConfigurationRevision,
     GroupConfigurationRevision, RowChangeset, RowRevision,
 };
-use lib_infra::future::{wrap_future, AFFuture, FutureResult};
+use lib_infra::future::{to_future, Fut, FutureResult};
 use lib_ot::core::EmptyAttributes;
 use std::future::Future;
 use std::sync::Arc;
@@ -28,14 +28,13 @@ use tokio::sync::RwLock;
 
 pub trait GridViewEditorDelegate: Send + Sync + 'static {
     /// If the field_ids is None, then it will return all the field revisions
-    fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> AFFuture<Vec<Arc<FieldRevision>>>;
-    fn get_field_rev(&self, field_id: &str) -> AFFuture<Option<Arc<FieldRevision>>>;
+    fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>>;
+    fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>>;
 
-    fn index_of_row(&self, row_id: &str) -> AFFuture<Option<usize>>;
-    fn get_row_rev(&self, row_id: &str) -> AFFuture<Option<Arc<RowRevision>>>;
-    fn get_row_revs(&self) -> AFFuture<Vec<Arc<RowRevision>>>;
-    fn get_filter_configuration(&self, field_id: &str) -> AFFuture<Vec<Arc<FilterConfigurationRevision>>>;
-    fn get_blocks(&self) -> AFFuture<Vec<GridBlock>>;
+    fn index_of_row(&self, row_id: &str) -> Fut<Option<usize>>;
+    fn get_row_rev(&self, row_id: &str) -> Fut<Option<Arc<RowRevision>>>;
+    fn get_row_revs(&self) -> Fut<Vec<Arc<RowRevision>>>;
+    fn get_blocks(&self) -> Fut<Vec<GridBlock>>;
 
     fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>>;
 }
@@ -90,6 +89,11 @@ impl GridViewRevisionEditor {
 
     pub(crate) async fn close(&self) {
         self.filter_controller.read().await.close().await;
+    }
+
+    pub(crate) async fn filter_rows(&self, block_id: &str, rows: Vec<RowPB>) -> Vec<RowPB> {
+        //
+        rows
     }
 
     pub(crate) async fn duplicate_view_data(&self) -> FlowyResult<String> {
@@ -493,12 +497,13 @@ async fn make_filter_controller(
     delegate: Arc<dyn GridViewEditorDelegate>,
     pad: Arc<RwLock<GridViewRevisionPad>>,
 ) -> Arc<RwLock<FilterController>> {
-    let filter_delegate = GridViewFilterDelegateImpl {
-        editor_delegate: delegate.clone(),
-    };
     let field_revs = delegate.get_field_revs(None).await;
     let filter_configurations = pad.read().await.get_all_filters(&field_revs);
     let task_scheduler = delegate.get_task_scheduler();
+    let filter_delegate = GridViewFilterDelegateImpl {
+        editor_delegate: delegate.clone(),
+        view_revision_pad: pad,
+    };
     let filter_controller =
         FilterController::new(view_id, filter_delegate, task_scheduler.clone(), filter_configurations).await;
     let filter_controller = Arc::new(RwLock::new(filter_controller));
@@ -528,7 +533,6 @@ struct GridViewRevisionCloudService {
 }
 
 impl RevisionCloudService for GridViewRevisionCloudService {
-    #[tracing::instrument(level = "trace", skip(self))]
     fn fetch_object(&self, _user_id: &str, _object_id: &str) -> FutureResult<Vec<Revision>, FlowyError> {
         FutureResult::new(async move { Ok(vec![]) })
     }
@@ -561,9 +565,9 @@ impl RevisionMergeable for GridViewRevisionCompress {
 struct GroupConfigurationReaderImpl(Arc<RwLock<GridViewRevisionPad>>);
 
 impl GroupConfigurationReader for GroupConfigurationReaderImpl {
-    fn get_configuration(&self) -> AFFuture<Option<Arc<GroupConfigurationRevision>>> {
+    fn get_configuration(&self) -> Fut<Option<Arc<GroupConfigurationRevision>>> {
         let view_pad = self.0.clone();
-        wrap_future(async move {
+        to_future(async move {
             let mut groups = view_pad.read().await.get_all_groups();
             if groups.is_empty() {
                 None
@@ -587,13 +591,13 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
         field_id: &str,
         field_type: FieldTypeRevision,
         group_configuration: GroupConfigurationRevision,
-    ) -> AFFuture<FlowyResult<()>> {
+    ) -> Fut<FlowyResult<()>> {
         let user_id = self.user_id.clone();
         let rev_manager = self.rev_manager.clone();
         let view_pad = self.view_pad.clone();
         let field_id = field_id.to_owned();
 
-        wrap_future(async move {
+        to_future(async move {
             let changeset = view_pad.write().await.insert_or_update_group_configuration(
                 &field_id,
                 &field_type,
@@ -632,22 +636,27 @@ pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<Field
 
 struct GridViewFilterDelegateImpl {
     editor_delegate: Arc<dyn GridViewEditorDelegate>,
+    view_revision_pad: Arc<RwLock<GridViewRevisionPad>>,
 }
 
 impl GridViewFilterDelegate for GridViewFilterDelegateImpl {
-    fn get_filter_configuration(&self, field_id: &str) -> AFFuture<Vec<Arc<FilterConfigurationRevision>>> {
-        self.editor_delegate.get_filter_configuration(field_id)
+    fn get_filter_configuration(&self, filter_id: FilterId) -> Fut<Vec<Arc<FilterConfigurationRevision>>> {
+        let pad = self.view_revision_pad.clone();
+        to_future(async move {
+            let field_type_rev: FieldTypeRevision = filter_id.field_type.into();
+            pad.read().await.get_filters(&filter_id.field_id, &field_type_rev)
+        })
     }
 
-    fn get_field_rev(&self, field_id: &str) -> AFFuture<Option<Arc<FieldRevision>>> {
+    fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>> {
         self.editor_delegate.get_field_rev(field_id)
     }
 
-    fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> AFFuture<Vec<Arc<FieldRevision>>> {
+    fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>> {
         self.editor_delegate.get_field_revs(field_ids)
     }
 
-    fn get_blocks(&self) -> AFFuture<Vec<GridBlock>> {
+    fn get_blocks(&self) -> Fut<Vec<GridBlock>> {
         self.editor_delegate.get_blocks()
     }
 }

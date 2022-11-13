@@ -25,7 +25,7 @@ use flowy_sync::errors::{CollaborateError, CollaborateResult};
 use flowy_sync::util::make_operations_from_revisions;
 use flowy_task::TaskDispatcher;
 use grid_rev_model::*;
-use lib_infra::future::{wrap_future, FutureResult};
+use lib_infra::future::{to_future, FutureResult};
 use lib_ot::core::EmptyAttributes;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -413,20 +413,10 @@ impl GridRevisionEditor {
         Ok(())
     }
 
-    pub async fn get_rows(&self, block_id: &str) -> FlowyResult<RepeatedRowPB> {
-        let block_ids = vec![block_id.to_owned()];
-        let mut blocks = self.grid_blocks(Some(block_ids)).await?;
-
-        // For the moment, we only support one block.
-        // We can save the rows into multiple blocks and load them asynchronously in the future.
-        debug_assert_eq!(blocks.len(), 1);
-        if blocks.len() == 1 {
-            let block = blocks.pop().unwrap();
-            let rows = make_rows_from_row_revs(&block.row_revs);
-            Ok(rows.into())
-        } else {
-            Ok(vec![].into())
-        }
+    pub async fn get_row_pbs(&self, block_id: &str) -> FlowyResult<Vec<RowPB>> {
+        let mut rows = self.block_manager.get_row_pbs(block_id).await?;
+        let rows = self.view_manager.filter_rows(block_id, rows).await?;
+        Ok(rows)
     }
 
     pub async fn get_row_rev(&self, row_id: &str) -> FlowyResult<Option<Arc<RowRevision>>> {
@@ -528,26 +518,23 @@ impl GridRevisionEditor {
     }
 
     pub async fn get_grid_data(&self) -> FlowyResult<GridPB> {
-        let pad_read_guard = self.grid_pad.read().await;
-        let field_orders = pad_read_guard
-            .get_field_revs(None)?
-            .iter()
-            .map(FieldIdPB::from)
-            .collect();
-        let mut block_orders = vec![];
-        for block_rev in pad_read_guard.get_block_meta_revs() {
-            let row_orders = self.block_manager.get_row_orders(&block_rev.block_id).await?;
-            let block_order = BlockPB {
+        let pad = self.grid_pad.read().await;
+        let fields = pad.get_field_revs(None)?.iter().map(FieldIdPB::from).collect();
+
+        let mut blocks = vec![];
+        for block_rev in pad.get_block_meta_revs() {
+            let rows = self.get_row_pbs(&block_rev.block_id).await?;
+            let block = BlockPB {
                 id: block_rev.block_id.clone(),
-                rows: row_orders,
+                rows,
             };
-            block_orders.push(block_order);
+            blocks.push(block);
         }
 
         Ok(GridPB {
             id: self.grid_id.clone(),
-            fields: field_orders,
-            blocks: block_orders,
+            fields,
+            blocks,
         })
     }
 
@@ -642,7 +629,7 @@ impl GridRevisionEditor {
                 let block_manager = self.block_manager.clone();
                 self.view_manager
                     .move_group_row(row_rev, to_group_id, to_row_id.clone(), |row_changeset| {
-                        wrap_future(async move {
+                        to_future(async move {
                             tracing::trace!("Row data changed: {:?}", row_changeset);
                             let cell_changesets = row_changeset
                                 .cell_by_field_id

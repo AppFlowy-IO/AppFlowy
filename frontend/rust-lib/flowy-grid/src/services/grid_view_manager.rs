@@ -6,6 +6,7 @@ use crate::manager::GridUser;
 
 use crate::services::grid_view_editor::{GridViewEditorDelegate, GridViewRevisionCompress, GridViewRevisionEditor};
 use crate::services::persistence::rev_sqlite::SQLiteGridViewRevisionPersistence;
+use crate::services::row::GridBlock;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
@@ -14,9 +15,10 @@ use flowy_revision::{
 };
 use flowy_task::TaskDispatcher;
 use grid_rev_model::{FilterConfigurationRevision, RowChangeset, RowRevision};
-use lib_infra::future::AFFuture;
+use lib_infra::future::Fut;
 use std::sync::Arc;
 use tokio::sync::RwLock;
+
 type ViewId = String;
 
 pub(crate) struct GridViewManager {
@@ -47,6 +49,12 @@ impl GridViewManager {
         if let Ok(editor) = self.get_default_view_editor().await {
             let _ = editor.close().await;
         }
+    }
+
+    pub async fn filter_rows(&self, block_id: &str, rows: Vec<RowPB>) -> FlowyResult<Vec<RowPB>> {
+        let editor = self.get_default_view_editor().await?;
+        let rows = editor.filter_rows(block_id, rows).await;
+        Ok(rows)
     }
 
     pub(crate) async fn duplicate_grid_view(&self) -> FlowyResult<String> {
@@ -145,7 +153,7 @@ impl GridViewManager {
         row_rev: Arc<RowRevision>,
         to_group_id: String,
         to_row_id: Option<String>,
-        recv_row_changeset: impl FnOnce(RowChangeset) -> AFFuture<()>,
+        recv_row_changeset: impl FnOnce(RowChangeset) -> Fut<()>,
     ) -> FlowyResult<()> {
         let mut row_changeset = RowChangeset::new(row_rev.id.clone());
         let view_editor = self.get_default_view_editor().await?;

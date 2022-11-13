@@ -591,6 +591,7 @@ impl std::convert::From<&FieldTypeRevision> for FieldType {
         FieldType::from(*ty)
     }
 }
+
 impl std::convert::From<FieldTypeRevision> for FieldType {
     fn from(ty: FieldTypeRevision) -> Self {
         match ty {

@@ -35,7 +35,7 @@ pub(crate) fn block_from_row_orders(row_orders: Vec<RowPB>) -> Vec<BlockPB> {
 //     Some((field_id, cell))
 // }
 
-pub(crate) fn make_row_orders_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Vec<RowPB> {
+pub(crate) fn make_row_pb_from_row_rev(row_revs: &[Arc<RowRevision>]) -> Vec<RowPB> {
     row_revs.iter().map(RowPB::from).collect::<Vec<_>>()
 }
 
@@ -53,36 +53,31 @@ pub(crate) fn make_rows_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Vec<RowP
     row_revs.iter().map(make_row).collect::<Vec<_>>()
 }
 
-pub(crate) fn make_grid_blocks(
-    block_ids: Option<Vec<String>>,
-    block_snapshots: Vec<GridBlock>,
-) -> FlowyResult<RepeatedBlockPB> {
+pub(crate) fn make_grid_blocks(block_ids: Option<Vec<String>>, blocks: Vec<GridBlock>) -> FlowyResult<RepeatedBlockPB> {
     match block_ids {
-        None => Ok(block_snapshots
+        None => Ok(blocks
             .into_iter()
-            .map(|snapshot| {
-                let row_orders = make_row_orders_from_row_revs(&snapshot.row_revs);
-                BlockPB::new(&snapshot.block_id, row_orders)
+            .map(|block| {
+                let row_pbs = make_row_pb_from_row_rev(&block.row_revs);
+                BlockPB::new(&block.block_id, row_pbs)
             })
             .collect::<Vec<BlockPB>>()
             .into()),
         Some(block_ids) => {
-            let block_meta_data_map: HashMap<&String, &Vec<Arc<RowRevision>>> = block_snapshots
-                .iter()
-                .map(|data| (&data.block_id, &data.row_revs))
-                .collect();
+            let row_revs_by_block_id: HashMap<&String, &Vec<Arc<RowRevision>>> =
+                blocks.iter().map(|data| (&data.block_id, &data.row_revs)).collect();
 
-            let mut grid_blocks = vec![];
+            let mut block_pbs = vec![];
             for block_id in block_ids {
-                match block_meta_data_map.get(&block_id) {
+                match row_revs_by_block_id.get(&block_id) {
                     None => {}
                     Some(row_revs) => {
-                        let row_orders = make_row_orders_from_row_revs(row_revs);
-                        grid_blocks.push(BlockPB::new(&block_id, row_orders));
+                        let row_pbs = make_row_pb_from_row_rev(row_revs);
+                        block_pbs.push(BlockPB::new(&block_id, row_pbs));
                     }
                 }
             }
-            Ok(grid_blocks.into())
+            Ok(block_pbs.into())
         }
     }
 }
