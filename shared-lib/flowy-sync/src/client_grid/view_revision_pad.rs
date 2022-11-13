@@ -116,9 +116,9 @@ impl GridViewRevisionPad {
 
     pub fn delete_group(
         &mut self,
+        group_id: &str,
         field_id: &str,
         field_type: &FieldTypeRevision,
-        group_id: &str,
     ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
         self.modify(|view| {
             if let Some(groups) = view.groups.get_mut_objects(field_id, field_type) {
@@ -156,9 +156,9 @@ impl GridViewRevisionPad {
 
     pub fn delete_filter(
         &mut self,
+        filter_id: &str,
         field_id: &str,
         field_type: &FieldTypeRevision,
-        filter_id: &str,
     ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
         self.modify(|view| {
             if let Some(filters) = view.filters.get_mut_objects(field_id, field_type) {

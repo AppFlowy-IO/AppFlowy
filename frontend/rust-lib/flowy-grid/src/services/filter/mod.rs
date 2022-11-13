@@ -4,5 +4,5 @@ mod impls;
 mod task;
 
 pub(crate) use cache::*;
-pub(crate) use controller::*;
+pub use controller::*;
 pub(crate) use task::*;

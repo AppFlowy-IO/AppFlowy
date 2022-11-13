@@ -53,31 +53,13 @@ pub(crate) fn make_rows_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Vec<RowP
     row_revs.iter().map(make_row).collect::<Vec<_>>()
 }
 
-pub(crate) fn make_grid_blocks(block_ids: Option<Vec<String>>, blocks: Vec<GridBlock>) -> FlowyResult<RepeatedBlockPB> {
-    match block_ids {
-        None => Ok(blocks
-            .into_iter()
-            .map(|block| {
-                let row_pbs = make_row_pb_from_row_rev(&block.row_revs);
-                BlockPB::new(&block.block_id, row_pbs)
-            })
-            .collect::<Vec<BlockPB>>()
-            .into()),
-        Some(block_ids) => {
-            let row_revs_by_block_id: HashMap<&String, &Vec<Arc<RowRevision>>> =
-                blocks.iter().map(|data| (&data.block_id, &data.row_revs)).collect();
-
-            let mut block_pbs = vec![];
-            for block_id in block_ids {
-                match row_revs_by_block_id.get(&block_id) {
-                    None => {}
-                    Some(row_revs) => {
-                        let row_pbs = make_row_pb_from_row_rev(row_revs);
-                        block_pbs.push(BlockPB::new(&block_id, row_pbs));
-                    }
-                }
-            }
-            Ok(block_pbs.into())
-        }
-    }
+pub(crate) fn make_block_pbs(blocks: Vec<GridBlock>) -> RepeatedBlockPB {
+    blocks
+        .into_iter()
+        .map(|block| {
+            let row_pbs = make_row_pb_from_row_rev(&block.row_revs);
+            BlockPB::new(&block.block_id, row_pbs)
+        })
+        .collect::<Vec<BlockPB>>()
+        .into()
 }

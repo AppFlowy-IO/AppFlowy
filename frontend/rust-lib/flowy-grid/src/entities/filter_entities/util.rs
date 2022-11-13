@@ -3,6 +3,7 @@ use crate::entities::{
     CheckboxCondition, DateFilterCondition, FieldType, NumberFilterCondition, SelectOptionCondition,
     TextFilterCondition,
 };
+use crate::services::filter::FilterType;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use grid_rev_model::{FieldRevision, FieldTypeRevision, FilterRevision};
@@ -10,7 +11,7 @@ use std::convert::TryInto;
 use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct FilterConfigurationPB {
+pub struct FilterPB {
     #[pb(index = 1)]
     pub id: String,
 }
@@ -18,10 +19,10 @@ pub struct FilterConfigurationPB {
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct RepeatedGridFilterConfigurationPB {
     #[pb(index = 1)]
-    pub items: Vec<FilterConfigurationPB>,
+    pub items: Vec<FilterPB>,
 }
 
-impl std::convert::From<&FilterRevision> for FilterConfigurationPB {
+impl std::convert::From<&FilterRevision> for FilterPB {
     fn from(rev: &FilterRevision) -> Self {
         Self { id: rev.id.clone() }
     }
@@ -35,8 +36,8 @@ impl std::convert::From<Vec<Arc<FilterRevision>>> for RepeatedGridFilterConfigur
     }
 }
 
-impl std::convert::From<Vec<FilterConfigurationPB>> for RepeatedGridFilterConfigurationPB {
-    fn from(items: Vec<FilterConfigurationPB>) -> Self {
+impl std::convert::From<Vec<FilterPB>> for RepeatedGridFilterConfigurationPB {
+    fn from(items: Vec<FilterPB>) -> Self {
         Self { items }
     }
 }
@@ -47,10 +48,10 @@ pub struct DeleteFilterPayloadPB {
     pub field_id: String,
 
     #[pb(index = 2)]
-    pub filter_id: String,
+    pub field_type: FieldType,
 
     #[pb(index = 3)]
-    pub field_type: FieldType,
+    pub filter_id: String,
 }
 
 impl TryInto<DeleteFilterParams> for DeleteFilterPayloadPB {
@@ -60,21 +61,23 @@ impl TryInto<DeleteFilterParams> for DeleteFilterPayloadPB {
         let field_id = NotEmptyStr::parse(self.field_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
             .0;
+
         let filter_id = NotEmptyStr::parse(self.filter_id)
             .map_err(|_| ErrorCode::UnexpectedEmptyString)?
             .0;
-        Ok(DeleteFilterParams {
+
+        let filter_type = FilterType {
             field_id,
-            filter_id,
-            field_type_rev: self.field_type.into(),
-        })
+            field_type: self.field_type,
+        };
+
+        Ok(DeleteFilterParams { filter_id, filter_type })
     }
 }
 
 pub struct DeleteFilterParams {
-    pub field_id: String,
+    pub filter_type: FilterType,
     pub filter_id: String,
-    pub field_type_rev: FieldTypeRevision,
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]
@@ -86,7 +89,7 @@ pub struct InsertFilterPayloadPB {
     pub field_type: FieldType,
 
     #[pb(index = 3)]
-    pub condition: i32,
+    pub condition: u32,
 
     #[pb(index = 4, one_of)]
     pub content: Option<String>,
@@ -94,7 +97,7 @@ pub struct InsertFilterPayloadPB {
 
 impl InsertFilterPayloadPB {
     #[allow(dead_code)]
-    pub fn new<T: Into<i32>>(field_rev: &FieldRevision, condition: T, content: Option<String>) -> Self {
+    pub fn new<T: Into<u32>>(field_rev: &FieldRevision, condition: T, content: Option<String>) -> Self {
         Self {
             field_id: field_rev.id.clone(),
             field_type: field_rev.ty.into(),

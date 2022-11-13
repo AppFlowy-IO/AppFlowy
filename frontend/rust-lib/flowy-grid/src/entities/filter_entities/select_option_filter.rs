@@ -21,9 +21,9 @@ pub enum SelectOptionCondition {
     OptionIsNotEmpty = 3,
 }
 
-impl std::convert::From<SelectOptionCondition> for i32 {
+impl std::convert::From<SelectOptionCondition> for u32 {
     fn from(value: SelectOptionCondition) -> Self {
-        value as i32
+        value as u32
     }
 }
 

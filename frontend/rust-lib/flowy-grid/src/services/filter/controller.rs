@@ -8,7 +8,7 @@ use crate::services::filter::{FilterMap, FilterResult, FILTER_HANDLER_ID};
 use crate::services::row::GridBlock;
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
-use grid_rev_model::{CellRevision, FieldId, FieldRevision, FilterRevision, RowRevision};
+use grid_rev_model::{CellRevision, FieldId, FieldRevision, FieldTypeRevision, FilterRevision, RowRevision};
 use lib_infra::future::Fut;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -16,7 +16,7 @@ use tokio::sync::RwLock;
 
 type RowId = String;
 pub trait GridViewFilterDelegate: Send + Sync + 'static {
-    fn get_filter_rev(&self, filter_id: FilterId) -> Fut<Vec<Arc<FilterRevision>>>;
+    fn get_filter_rev(&self, filter_id: FilterType) -> Fut<Vec<Arc<FilterRevision>>>;
     fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>>;
     fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>>;
     fn get_blocks(&self) -> Fut<Vec<GridBlock>>;
@@ -174,44 +174,44 @@ impl FilterController {
     async fn load_filters(&mut self, filter_revs: Vec<Arc<FilterRevision>>) {
         for filter_rev in filter_revs {
             if let Some(field_rev) = self.delegate.get_field_rev(&filter_rev.field_id).await {
-                let filter_id = FilterId::from(&field_rev);
+                let filter_type = FilterType::from(&field_rev);
                 let field_type: FieldType = field_rev.ty.into();
                 match &field_type {
                     FieldType::RichText => {
                         let _ = self
                             .filter_map
                             .text_filter
-                            .insert(filter_id, TextFilterPB::from(filter_rev));
+                            .insert(filter_type, TextFilterPB::from(filter_rev));
                     }
                     FieldType::Number => {
                         let _ = self
                             .filter_map
                             .number_filter
-                            .insert(filter_id, NumberFilterPB::from(filter_rev));
+                            .insert(filter_type, NumberFilterPB::from(filter_rev));
                     }
                     FieldType::DateTime => {
                         let _ = self
                             .filter_map
                             .date_filter
-                            .insert(filter_id, DateFilterPB::from(filter_rev));
+                            .insert(filter_type, DateFilterPB::from(filter_rev));
                     }
                     FieldType::SingleSelect | FieldType::MultiSelect => {
                         let _ = self
                             .filter_map
                             .select_option_filter
-                            .insert(filter_id, SelectOptionFilterPB::from(filter_rev));
+                            .insert(filter_type, SelectOptionFilterPB::from(filter_rev));
                     }
                     FieldType::Checkbox => {
                         let _ = self
                             .filter_map
                             .checkbox_filter
-                            .insert(filter_id, CheckboxFilterPB::from(filter_rev));
+                            .insert(filter_type, CheckboxFilterPB::from(filter_rev));
                     }
                     FieldType::URL => {
                         let _ = self
                             .filter_map
                             .url_filter
-                            .insert(filter_id, TextFilterPB::from(filter_rev));
+                            .insert(filter_type, TextFilterPB::from(filter_rev));
                     }
                 }
             }
@@ -234,13 +234,13 @@ fn filter_row(
     // Iterate each cell of the row to check its visibility
     for (field_id, cell_rev) in row_rev.cells.iter() {
         let field_rev = field_rev_by_field_id.get(field_id)?;
-        let filter_id = FilterId::from(field_rev);
+        let filter_type = FilterType::from(field_rev);
 
         // if the visibility of the cell_rew is changed, which means the visibility of the
         // row is changed too.
-        if let Some(is_visible) = filter_cell(&filter_id, field_rev, filter_map, cell_rev) {
-            let prev_is_visible = filter_result.visible_by_filter_id.get(&filter_id).cloned();
-            filter_result.visible_by_filter_id.insert(filter_id, is_visible);
+        if let Some(is_visible) = filter_cell(&filter_type, field_rev, filter_map, cell_rev) {
+            let prev_is_visible = filter_result.visible_by_filter_id.get(&filter_type).cloned();
+            filter_result.visible_by_filter_id.insert(filter_type, is_visible);
             match prev_is_visible {
                 None => {
                     if !is_visible {
@@ -260,7 +260,7 @@ fn filter_row(
 
 // Return None if there is no change in this cell after applying the filter
 fn filter_cell(
-    filter_id: &FilterId,
+    filter_id: &FilterType,
     field_rev: &Arc<FieldRevision>,
     filter_map: &FilterMap,
     cell_rev: &CellRevision,
@@ -329,19 +329,19 @@ fn filter_cell(
 }
 
 pub struct FilterChangeset {
-    insert_filter: Option<FilterId>,
-    delete_filter: Option<FilterId>,
+    insert_filter: Option<FilterType>,
+    delete_filter: Option<FilterType>,
 }
 
 impl FilterChangeset {
-    pub fn from_insert(filter_id: FilterId) -> Self {
+    pub fn from_insert(filter_id: FilterType) -> Self {
         Self {
             insert_filter: Some(filter_id),
             delete_filter: None,
         }
     }
 
-    pub fn from_delete(filter_id: FilterId) -> Self {
+    pub fn from_delete(filter_id: FilterType) -> Self {
         Self {
             insert_filter: None,
             delete_filter: Some(filter_id),
@@ -351,15 +351,15 @@ impl FilterChangeset {
 
 impl std::convert::From<&GridSettingChangesetParams> for FilterChangeset {
     fn from(params: &GridSettingChangesetParams) -> Self {
-        let insert_filter = params.insert_filter.as_ref().map(|insert_filter_params| FilterId {
+        let insert_filter = params.insert_filter.as_ref().map(|insert_filter_params| FilterType {
             field_id: insert_filter_params.field_id.clone(),
             field_type: insert_filter_params.field_type_rev.into(),
         });
 
-        let delete_filter = params.delete_filter.as_ref().map(|delete_filter_params| FilterId {
-            field_id: delete_filter_params.filter_id.clone(),
-            field_type: delete_filter_params.field_type_rev.into(),
-        });
+        let delete_filter = params
+            .delete_filter
+            .as_ref()
+            .map(|delete_filter_params| delete_filter_params.filter_type.clone());
         FilterChangeset {
             insert_filter,
             delete_filter,
@@ -368,12 +368,18 @@ impl std::convert::From<&GridSettingChangesetParams> for FilterChangeset {
 }
 
 #[derive(Hash, Eq, PartialEq, Clone)]
-pub struct FilterId {
+pub struct FilterType {
     pub field_id: String,
     pub field_type: FieldType,
 }
 
-impl std::convert::From<&Arc<FieldRevision>> for FilterId {
+impl FilterType {
+    pub fn field_type_rev(&self) -> FieldTypeRevision {
+        self.field_type.clone().into()
+    }
+}
+
+impl std::convert::From<&Arc<FieldRevision>> for FilterType {
     fn from(rev: &Arc<FieldRevision>) -> Self {
         Self {
             field_id: rev.id.clone(),
@@ -382,7 +388,7 @@ impl std::convert::From<&Arc<FieldRevision>> for FilterId {
     }
 }
 
-impl std::convert::From<&InsertFilterParams> for FilterId {
+impl std::convert::From<&InsertFilterParams> for FilterType {
     fn from(params: &InsertFilterParams) -> Self {
         let field_type: FieldType = params.field_type_rev.into();
         Self {
@@ -392,12 +398,8 @@ impl std::convert::From<&InsertFilterParams> for FilterId {
     }
 }
 
-impl std::convert::From<&DeleteFilterParams> for FilterId {
+impl std::convert::From<&DeleteFilterParams> for FilterType {
     fn from(params: &DeleteFilterParams) -> Self {
-        let field_type: FieldType = params.field_type_rev.into();
-        Self {
-            field_id: params.field_id.clone(),
-            field_type,
-        }
+        params.filter_type.clone()
     }
 }

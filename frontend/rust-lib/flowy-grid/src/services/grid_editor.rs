@@ -9,10 +9,11 @@ use crate::services::field::{
     FieldBuilder,
 };
 
+use crate::services::filter::FilterType;
 use crate::services::grid_editor_trait_impl::GridViewEditorDelegateImpl;
 use crate::services::grid_view_manager::GridViewManager;
 use crate::services::persistence::block_index::BlockIndexCache;
-use crate::services::row::{make_grid_blocks, GridBlock, RowRevisionBuilder};
+use crate::services::row::{make_block_pbs, GridBlock, RowRevisionBuilder};
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -502,14 +503,25 @@ impl GridRevisionEditor {
         }
     }
 
-    pub async fn get_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<RepeatedBlockPB> {
-        let blocks = self.grid_blocks(block_ids.clone()).await?;
-        make_grid_blocks(block_ids, blocks)
-    }
-
     pub async fn get_block_meta_revs(&self) -> FlowyResult<Vec<Arc<GridBlockMetaRevision>>> {
         let block_meta_revs = self.grid_pad.read().await.get_block_meta_revs();
         Ok(block_meta_revs)
+    }
+
+    pub async fn get_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlock>> {
+        let block_ids = match block_ids {
+            None => self
+                .grid_pad
+                .read()
+                .await
+                .get_block_meta_revs()
+                .iter()
+                .map(|block_rev| block_rev.block_id.clone())
+                .collect::<Vec<String>>(),
+            Some(block_ids) => block_ids,
+        };
+        let blocks = self.block_manager.get_blocks(Some(block_ids)).await?;
+        Ok(blocks)
     }
 
     pub async fn delete_rows(&self, row_orders: Vec<RowPB>) -> FlowyResult<()> {
@@ -520,7 +532,7 @@ impl GridRevisionEditor {
         Ok(())
     }
 
-    pub async fn get_grid_data(&self) -> FlowyResult<GridPB> {
+    pub async fn get_grid(&self) -> FlowyResult<GridPB> {
         let pad = self.grid_pad.read().await;
         let fields = pad.get_field_revs(None)?.iter().map(FieldIdPB::from).collect();
 
@@ -541,18 +553,22 @@ impl GridRevisionEditor {
         })
     }
 
-    pub async fn get_grid_setting(&self) -> FlowyResult<GridSettingPB> {
+    pub async fn get_setting(&self) -> FlowyResult<GridSettingPB> {
         self.view_manager.get_setting().await
     }
 
-    pub async fn get_grid_filter(&self) -> FlowyResult<Vec<FilterConfigurationPB>> {
+    pub async fn get_all_filters(&self) -> FlowyResult<Vec<FilterPB>> {
         Ok(self
             .view_manager
-            .get_filters()
+            .get_all_filters()
             .await?
             .into_iter()
-            .map(|filter| FilterConfigurationPB::from(filter.as_ref()))
+            .map(|filter| FilterPB::from(filter.as_ref()))
             .collect())
+    }
+
+    pub async fn get_filters(&self, filter_id: FilterType) -> FlowyResult<Vec<Arc<FilterRevision>>> {
+        self.view_manager.get_filters(&filter_id).await
     }
 
     pub async fn insert_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
@@ -571,22 +587,6 @@ impl GridRevisionEditor {
     pub async fn delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
         let _ = self.view_manager.delete_filter(params).await?;
         Ok(())
-    }
-
-    pub async fn grid_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlock>> {
-        let block_ids = match block_ids {
-            None => self
-                .grid_pad
-                .read()
-                .await
-                .get_block_meta_revs()
-                .iter()
-                .map(|block_rev| block_rev.block_id.clone())
-                .collect::<Vec<String>>(),
-            Some(block_ids) => block_ids,
-        };
-        let blocks = self.block_manager.get_blocks(Some(block_ids)).await?;
-        Ok(blocks)
     }
 
     pub async fn move_row(&self, params: MoveRowParams) -> FlowyResult<()> {

@@ -25,9 +25,9 @@ pub enum TextFilterCondition {
     TextIsNotEmpty = 7,
 }
 
-impl std::convert::From<TextFilterCondition> for i32 {
+impl std::convert::From<TextFilterCondition> for u32 {
     fn from(value: TextFilterCondition) -> Self {
-        value as i32
+        value as u32
     }
 }
 

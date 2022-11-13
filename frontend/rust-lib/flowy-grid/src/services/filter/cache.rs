@@ -1,16 +1,16 @@
 use crate::entities::{CheckboxFilterPB, DateFilterPB, FieldType, NumberFilterPB, SelectOptionFilterPB, TextFilterPB};
-use crate::services::filter::FilterId;
+use crate::services::filter::FilterType;
 
 use std::collections::HashMap;
 
 #[derive(Default)]
 pub(crate) struct FilterMap {
-    pub(crate) text_filter: HashMap<FilterId, TextFilterPB>,
-    pub(crate) url_filter: HashMap<FilterId, TextFilterPB>,
-    pub(crate) number_filter: HashMap<FilterId, NumberFilterPB>,
-    pub(crate) date_filter: HashMap<FilterId, DateFilterPB>,
-    pub(crate) select_option_filter: HashMap<FilterId, SelectOptionFilterPB>,
-    pub(crate) checkbox_filter: HashMap<FilterId, CheckboxFilterPB>,
+    pub(crate) text_filter: HashMap<FilterType, TextFilterPB>,
+    pub(crate) url_filter: HashMap<FilterType, TextFilterPB>,
+    pub(crate) number_filter: HashMap<FilterType, NumberFilterPB>,
+    pub(crate) date_filter: HashMap<FilterType, DateFilterPB>,
+    pub(crate) select_option_filter: HashMap<FilterType, SelectOptionFilterPB>,
+    pub(crate) checkbox_filter: HashMap<FilterType, CheckboxFilterPB>,
 }
 
 impl FilterMap {
@@ -49,7 +49,7 @@ impl FilterMap {
         true
     }
 
-    pub(crate) fn remove(&mut self, filter_id: &FilterId) {
+    pub(crate) fn remove(&mut self, filter_id: &FilterType) {
         let _ = match filter_id.field_type {
             FieldType::RichText => {
                 let _ = self.text_filter.remove(filter_id);
@@ -79,7 +79,7 @@ impl FilterMap {
 /// Refresh the filter according to the field id.
 #[derive(Default)]
 pub(crate) struct FilterResult {
-    pub(crate) visible_by_filter_id: HashMap<FilterId, bool>,
+    pub(crate) visible_by_filter_id: HashMap<FilterType, bool>,
 }
 
 impl FilterResult {

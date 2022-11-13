@@ -14,6 +14,7 @@ use flowy_revision::{
     RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, SQLiteRevisionSnapshotPersistence,
 };
 
+use crate::services::filter::FilterType;
 use grid_rev_model::{FilterRevision, RowChangeset, RowRevision};
 use lib_infra::future::Fut;
 use std::sync::Arc;
@@ -104,9 +105,14 @@ impl GridViewManager {
         Ok(view_editor.get_view_setting().await)
     }
 
-    pub(crate) async fn get_filters(&self) -> FlowyResult<Vec<Arc<FilterRevision>>> {
+    pub(crate) async fn get_all_filters(&self) -> FlowyResult<Vec<Arc<FilterRevision>>> {
         let view_editor = self.get_default_view_editor().await?;
-        Ok(view_editor.get_view_filters().await)
+        Ok(view_editor.get_all_view_filters().await)
+    }
+
+    pub(crate) async fn get_filters(&self, filter_id: &FilterType) -> FlowyResult<Vec<Arc<FilterRevision>>> {
+        let view_editor = self.get_default_view_editor().await?;
+        Ok(view_editor.get_view_filters(filter_id).await)
     }
 
     pub(crate) async fn insert_or_update_filter(&self, params: InsertFilterParams) -> FlowyResult<()> {

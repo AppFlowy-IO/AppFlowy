@@ -16,9 +16,9 @@ pub enum CheckboxCondition {
     IsUnChecked = 1,
 }
 
-impl std::convert::From<CheckboxCondition> for i32 {
+impl std::convert::From<CheckboxCondition> for u32 {
     fn from(value: CheckboxCondition) -> Self {
-        value as i32
+        value as u32
     }
 }
 

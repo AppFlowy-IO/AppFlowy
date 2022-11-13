@@ -3,21 +3,39 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 
-use flowy_grid::entities::{InsertFilterParams, InsertFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB};
+use futures::TryFutureExt;
+use flowy_grid::entities::{InsertFilterParams, InsertFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
+use flowy_grid::services::filter::FilterType;
 use crate::grid::grid_editor::GridEditorTest;
 
 pub enum FilterScript {
-    InsertGridTableFilter {
+    InsertFilter {
         payload: InsertFilterPayloadPB,
     },
-    AssertTableFilterCount {
+    CreateTextFilter {
+        condition: TextFilterCondition,
+        content: String,
+    },
+    CreateNumberFilter {
+        condition: NumberFilterCondition,
+        content: String,
+    },
+    AssertFilterCount {
         count: i32,
     },
-    DeleteGridTableFilter {
+    DeleteFilter {
         filter_id: String,
-        field_rev: FieldRevision,
+        filter_type: FilterType,
+    },
+    AssertFilterContent {
+        filter_type: FilterType,
+        condition: u32,
+        content: String
+    },
+    AssertNumberOfRows{
+        expected: usize,
     },
     #[allow(dead_code)]
     AssertGridSetting {
@@ -45,24 +63,52 @@ impl GridFilterTest {
 
     pub async fn run_script(&mut self, script: FilterScript) {
         match script {
-           
-            FilterScript::InsertGridTableFilter { payload } => {
-                let params: InsertFilterParams = payload.try_into().unwrap();
-                let _ = self.editor.create_filter(params).await.unwrap();
+            FilterScript::InsertFilter { payload } => {
+                self.insert_filter(payload).await;
             }
-            FilterScript::AssertTableFilterCount { count } => {
-                let filters = self.editor.get_grid_filter().await.unwrap();
+            FilterScript::CreateTextFilter { condition, content} => {
+                let field_rev = self.get_field_rev(FieldType::RichText);
+                let payload =
+                    InsertFilterPayloadPB::new(field_rev, condition, Some(content));
+                self.insert_filter(payload).await;
+            }
+            FilterScript::CreateNumberFilter {condition, content} => {
+                let field_rev = self.get_field_rev(FieldType::Number);
+                let payload =
+                    InsertFilterPayloadPB::new(field_rev, condition, Some(content));
+                self.insert_filter(payload).await;
+            }
+            FilterScript::AssertFilterCount { count } => {
+                let filters = self.editor.get_all_filters().await.unwrap();
                 assert_eq!(count as usize, filters.len());
             }
-            FilterScript::DeleteGridTableFilter { filter_id, field_rev} => {
-                let params = DeleteFilterParams { field_id: field_rev.id, filter_id, field_type_rev: field_rev.ty };
+            FilterScript::AssertFilterContent { filter_type: filter_id, condition, content} => {
+                let filter = self.editor.get_filters(filter_id).await.unwrap().pop().unwrap();
+                assert_eq!(filter.content.as_ref().unwrap(), &content);
+                assert_eq!(filter.condition as u32, condition);
+
+            }
+            FilterScript::DeleteFilter {  filter_id, filter_type } => {
+                let params = DeleteFilterParams { filter_type, filter_id };
                 let _ = self.editor.delete_filter(params).await.unwrap();
             }
             FilterScript::AssertGridSetting { expected_setting } => {
-                let setting = self.editor.get_grid_setting().await.unwrap();
+                let setting = self.editor.get_setting().await.unwrap();
                 assert_eq!(expected_setting, setting);
             }
+            FilterScript::AssertNumberOfRows { expected } => {
+                //
+                let grid = self.editor.get_grid().await.unwrap();
+                let rows = grid.blocks.into_iter().map(|block| block.rows).flatten().collect::<Vec<RowPB>>();
+                assert_eq!(rows.len(), expected);
+            }
         }
+    }
+
+    async fn insert_filter(&self, payload: InsertFilterPayloadPB) {
+
+        let params: InsertFilterParams = payload.try_into().unwrap();
+        let _ = self.editor.create_filter(params).await.unwrap();
     }
 }
 

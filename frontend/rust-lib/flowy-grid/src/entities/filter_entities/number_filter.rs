@@ -32,9 +32,9 @@ impl std::default::Default for NumberFilterCondition {
     }
 }
 
-impl std::convert::From<NumberFilterCondition> for i32 {
+impl std::convert::From<NumberFilterCondition> for u32 {
     fn from(value: NumberFilterCondition) -> Self {
-        value as i32
+        value as u32
     }
 }
 impl std::convert::TryFrom<u8> for NumberFilterCondition {

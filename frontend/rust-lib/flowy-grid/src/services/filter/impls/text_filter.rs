@@ -8,6 +8,7 @@ impl TextFilterPB {
         let cell_data = cell_data.as_ref();
         let s = cell_data.to_lowercase();
         if let Some(content) = self.content.as_ref() {
+            let content = &content.to_lowercase();
             match self.condition {
                 TextFilterCondition::Is => &s == content,
                 TextFilterCondition::IsNot => &s != content,

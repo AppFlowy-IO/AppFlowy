@@ -1,6 +1,8 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::*;
-use crate::services::filter::{FilterChangeset, FilterController, FilterId, FilterTaskHandler, GridViewFilterDelegate};
+use crate::services::filter::{
+    FilterChangeset, FilterController, FilterTaskHandler, FilterType, GridViewFilterDelegate,
+};
 use crate::services::group::{
     default_group_configuration, find_group_field, make_group_controller, Group, GroupConfigurationReader,
     GroupConfigurationWriter, GroupController, MoveGroupRowContext,
@@ -245,9 +247,14 @@ impl GridViewRevisionEditor {
         grid_setting
     }
 
-    pub(crate) async fn get_view_filters(&self) -> Vec<Arc<FilterRevision>> {
+    pub(crate) async fn get_all_view_filters(&self) -> Vec<Arc<FilterRevision>> {
         let field_revs = self.delegate.get_field_revs(None).await;
         self.pad.read().await.get_all_filters(&field_revs)
+    }
+
+    pub(crate) async fn get_view_filters(&self, filter_id: &FilterType) -> Vec<Arc<FilterRevision>> {
+        let field_type_rev: FieldTypeRevision = filter_id.field_type.clone().into();
+        self.pad.read().await.get_filters(&filter_id.field_id, &field_type_rev)
     }
 
     /// Initialize new group when grouping by a new field
@@ -275,14 +282,14 @@ impl GridViewRevisionEditor {
 
     pub(crate) async fn delete_view_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
         self.modify(|pad| {
-            let changeset = pad.delete_filter(&params.field_id, &params.field_type_rev, &params.group_id)?;
+            let changeset = pad.delete_group(&params.group_id, &params.field_id, &params.field_type_rev)?;
             Ok(changeset)
         })
         .await
     }
 
     pub(crate) async fn insert_view_filter(&self, params: InsertFilterParams) -> FlowyResult<()> {
-        let filter_id = FilterId::from(&params);
+        let filter_type = FilterType::from(&params);
         let _ = self
             .modify(|pad| {
                 let filter_rev = FilterRevision {
@@ -299,17 +306,18 @@ impl GridViewRevisionEditor {
         self.filter_controller
             .write()
             .await
-            .apply_changeset(FilterChangeset::from_insert(filter_id))
+            .apply_changeset(FilterChangeset::from_insert(filter_type))
             .await;
 
         Ok(())
     }
 
     pub(crate) async fn delete_view_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
-        let filter_id = FilterId::from(&params);
+        let filter_type = params.filter_type;
+        let field_type_rev = filter_type.field_type_rev();
         let _ = self
             .modify(|pad| {
-                let changeset = pad.delete_filter(&params.field_id, &params.field_type_rev, &params.filter_id)?;
+                let changeset = pad.delete_filter(&params.filter_id, &filter_type.field_id, &field_type_rev)?;
                 Ok(changeset)
             })
             .await?;
@@ -317,7 +325,7 @@ impl GridViewRevisionEditor {
         self.filter_controller
             .write()
             .await
-            .apply_changeset(FilterChangeset::from_delete(filter_id))
+            .apply_changeset(FilterChangeset::from_delete(filter_type))
             .await;
         Ok(())
     }
@@ -325,21 +333,13 @@ impl GridViewRevisionEditor {
     #[tracing::instrument(level = "trace", skip_all, err)]
     pub(crate) async fn did_update_view_field_type_option(&self, field_id: &str) -> FlowyResult<()> {
         if let Some(field_rev) = self.delegate.get_field_rev(field_id).await {
-            let filter_id = FilterId::from(&field_rev);
-            let filter_changeset = FilterChangeset::from_insert(filter_id);
+            let filter_type = FilterType::from(&field_rev);
+            let filter_changeset = FilterChangeset::from_insert(filter_type);
             self.filter_controller
                 .write()
                 .await
                 .apply_changeset(filter_changeset)
                 .await;
-            // =======
-            //     pub(crate) async fn did_update_view_field(&self, field_id: &str) -> FlowyResult<()> {
-            //         let grouped_field_id = self.group_controller.read().await.field_id().to_owned();
-            //         if grouped_field_id == field_id {
-            //             let _ = self.group_by_view_field(field_id).await?;
-            //         } else {
-            //             // Do nothing
-            // >>>>>>> main
         }
         Ok(())
     }
@@ -620,8 +620,8 @@ pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<Field
     let filter_configurations = view_pad
         .get_all_filters(field_revs)
         .into_iter()
-        .map(|filter| FilterConfigurationPB::from(filter.as_ref()))
-        .collect::<Vec<FilterConfigurationPB>>();
+        .map(|filter| FilterPB::from(filter.as_ref()))
+        .collect::<Vec<FilterPB>>();
 
     let group_configurations = view_pad
         .get_groups_by_field_revs(field_revs)
@@ -643,7 +643,7 @@ struct GridViewFilterDelegateImpl {
 }
 
 impl GridViewFilterDelegate for GridViewFilterDelegateImpl {
-    fn get_filter_rev(&self, filter_id: FilterId) -> Fut<Vec<Arc<FilterRevision>>> {
+    fn get_filter_rev(&self, filter_id: FilterType) -> Fut<Vec<Arc<FilterRevision>>> {
         let pad = self.view_revision_pad.clone();
         to_future(async move {
             let field_type_rev: FieldTypeRevision = filter_id.field_type.into();
