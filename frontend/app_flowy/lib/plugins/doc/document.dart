@@ -39,6 +39,9 @@ class DocumentPluginBuilder extends PluginBuilder {
   String get menuName => LocaleKeys.document_menuName.tr();
 
   @override
+  String get menuIcon => "editor/documents";
+
+  @override
   PluginType get pluginType => PluginType.editor;
 
   @override

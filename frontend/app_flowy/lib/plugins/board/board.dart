@@ -21,6 +21,9 @@ class BoardPluginBuilder implements PluginBuilder {
   String get menuName => "Board";
 
   @override
+  String get menuIcon => "editor/board";
+
+  @override
   PluginType get pluginType => PluginType.board;
 
   @override
