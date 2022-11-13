@@ -4,7 +4,6 @@ import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle_style.dar
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
@@ -16,8 +15,6 @@ class SettingsAppearanceView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,9 +26,9 @@ class SettingsAppearanceView extends StatelessWidget {
                 style: TextStyles.body1.size(FontSizes.s14),
               ),
               Toggle(
-                value: theme.isDark,
+                value: Theme.of(context).brightness == Brightness.dark,
                 onChanged: (_) => setTheme(context),
-                style: ToggleStyle.big(theme),
+                style: ToggleStyle.big,
               ),
               Text(
                 LocaleKeys.settings_appearance_darkLabel.tr(),
@@ -45,11 +42,10 @@ class SettingsAppearanceView extends StatelessWidget {
   }
 
   void setTheme(BuildContext context) {
-    final theme = context.read<AppTheme>();
-    if (theme.isDark) {
-      context.read<AppearanceSetting>().setTheme(ThemeType.light);
+    if (Theme.of(context).brightness == Brightness.dark) {
+      context.read<AppearanceSettingsCubit>().setTheme(Brightness.light);
     } else {
-      context.read<AppearanceSetting>().setTheme(ThemeType.dark);
+      context.read<AppearanceSettingsCubit>().setTheme(Brightness.dark);
     }
   }
 }

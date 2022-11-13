@@ -1,10 +1,13 @@
+import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
+import 'package:appflowy_editor/src/render/style/editor_style.dart';
 import 'package:flutter/material.dart';
 
 class LinkMenu extends StatefulWidget {
   const LinkMenu({
     Key? key,
     this.linkText,
+    this.editorState,
     required this.onSubmitted,
     required this.onOpenLink,
     required this.onCopyLink,
@@ -13,6 +16,7 @@ class LinkMenu extends StatefulWidget {
   }) : super(key: key);
 
   final String? linkText;
+  final EditorState? editorState;
   final void Function(String text) onSubmitted;
   final VoidCallback onOpenLink;
   final VoidCallback onCopyLink;
@@ -26,6 +30,8 @@ class LinkMenu extends StatefulWidget {
 class _LinkMenuState extends State<LinkMenu> {
   final _textEditingController = TextEditingController();
   final _focusNode = FocusNode();
+
+  EditorStyle? get style => widget.editorState?.editorStyle;
 
   @override
   void initState() {
@@ -48,7 +54,7 @@ class _LinkMenuState extends State<LinkMenu> {
       width: 350,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: style?.selectionMenuBackgroundColor ?? Colors.white,
           boxShadow: [
             BoxShadow(
               blurRadius: 5,
@@ -71,17 +77,19 @@ class _LinkMenuState extends State<LinkMenu> {
               if (widget.linkText != null) ...[
                 _buildIconButton(
                   iconName: 'link',
+                  color: style?.selectionMenuItemIconColor,
                   text: 'Open link',
                   onPressed: widget.onOpenLink,
                 ),
                 _buildIconButton(
                   iconName: 'copy',
-                  color: Colors.black,
+                  color: style?.selectionMenuItemIconColor,
                   text: 'Copy link',
                   onPressed: widget.onCopyLink,
                 ),
                 _buildIconButton(
                   iconName: 'delete',
+                  color: style?.selectionMenuItemIconColor,
                   text: 'Remove link',
                   onPressed: widget.onRemoveLink,
                 ),
@@ -154,8 +162,8 @@ class _LinkMenuState extends State<LinkMenu> {
       label: Text(
         text,
         textAlign: TextAlign.left,
-        style: const TextStyle(
-          color: Colors.black,
+        style: TextStyle(
+          color: style?.selectionMenuItemTextColor ?? Colors.black,
           fontSize: 14.0,
         ),
       ),

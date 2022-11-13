@@ -1,11 +1,9 @@
 import 'package:app_flowy/plugins/grid/application/setting/setting_bloc.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../application/field/field_controller.dart';
 import '../../layout/sizes.dart';
@@ -51,17 +49,15 @@ class _SettingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(260, 400)),
       offset: const Offset(0, 10),
       margin: const EdgeInsets.all(6),
       child: FlowyIconButton(
         width: 22,
-        hoverColor: theme.hover,
         icon: svgWidget(
           "grid/setting/setting",
-          color: theme.iconColor,
+          color: Theme.of(context).colorScheme.onSurface,
         ).padding(horizontal: 3, vertical: 3),
       ),
       popupBuilder: (BuildContext context) {

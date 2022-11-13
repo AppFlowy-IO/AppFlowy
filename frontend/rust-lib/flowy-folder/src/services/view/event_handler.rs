@@ -13,7 +13,7 @@ use crate::{
     errors::FlowyError,
     services::{TrashController, ViewController},
 };
-use flowy_folder_data_model::revision::TrashRevision;
+use folder_rev_model::TrashRevision;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::{convert::TryInto, sync::Arc};
 

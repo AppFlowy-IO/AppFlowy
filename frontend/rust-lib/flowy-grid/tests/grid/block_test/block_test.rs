@@ -1,7 +1,7 @@
 use crate::grid::block_test::script::GridRowTest;
 use crate::grid::block_test::script::RowScript::*;
 
-use flowy_grid_data_model::revision::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset};
+use grid_rev_model::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset};
 
 #[tokio::test]
 async fn grid_create_block() {

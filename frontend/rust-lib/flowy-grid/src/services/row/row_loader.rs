@@ -1,6 +1,6 @@
 use crate::entities::{BlockPB, RepeatedBlockPB, RowPB};
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::RowRevision;
+use grid_rev_model::RowRevision;
 use std::collections::HashMap;
 use std::sync::Arc;
 

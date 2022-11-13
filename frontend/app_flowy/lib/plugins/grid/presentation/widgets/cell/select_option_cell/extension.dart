@@ -1,34 +1,32 @@
-import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 extension SelectOptionColorExtension on SelectOptionColorPB {
   Color make(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     switch (this) {
       case SelectOptionColorPB.Purple:
-        return theme.tint1;
+        return CustomColors.tint1;
       case SelectOptionColorPB.Pink:
-        return theme.tint2;
+        return CustomColors.tint2;
       case SelectOptionColorPB.LightPink:
-        return theme.tint3;
+        return CustomColors.tint3;
       case SelectOptionColorPB.Orange:
-        return theme.tint4;
+        return CustomColors.tint4;
       case SelectOptionColorPB.Yellow:
-        return theme.tint5;
+        return CustomColors.tint5;
       case SelectOptionColorPB.Lime:
-        return theme.tint6;
+        return CustomColors.tint6;
       case SelectOptionColorPB.Green:
-        return theme.tint7;
+        return CustomColors.tint7;
       case SelectOptionColorPB.Aqua:
-        return theme.tint8;
+        return CustomColors.tint8;
       case SelectOptionColorPB.Blue:
-        return theme.tint9;
+        return CustomColors.tint9;
       default:
         throw ArgumentError;
     }
@@ -118,12 +116,10 @@ class SelectOptionTagCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return Stack(
       fit: StackFit.expand,
       children: [
         FlowyHover(
-          style: HoverStyle(hoverColor: theme.hover),
           child: InkWell(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 3),

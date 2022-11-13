@@ -1,7 +1,7 @@
 use crate::entities::{
     app::RepeatedAppPB,
     view::ViewPB,
-    workspace::{CurrentWorkspaceSettingPB, RepeatedWorkspacePB, WorkspaceIdPB, *},
+    workspace::{RepeatedWorkspacePB, WorkspaceIdPB, WorkspaceSettingPB, *},
 };
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
@@ -79,7 +79,7 @@ pub(crate) async fn read_workspaces_handler(
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub async fn read_cur_workspace_handler(
     folder: AppData<Arc<FolderManager>>,
-) -> DataResult<CurrentWorkspaceSettingPB, FlowyError> {
+) -> DataResult<WorkspaceSettingPB, FlowyError> {
     let workspace_id = get_current_workspace()?;
     let user_id = folder.user.user_id()?;
     let params = WorkspaceIdPB {
@@ -101,7 +101,7 @@ pub async fn read_cur_workspace_handler(
         .await
         .unwrap_or(None)
         .map(|view_rev| view_rev.into());
-    let setting = CurrentWorkspaceSettingPB { workspace, latest_view };
+    let setting = WorkspaceSettingPB { workspace, latest_view };
     let _ = read_workspaces_on_server(folder, user_id, params);
     data_result(setting)
 }
@@ -119,7 +119,6 @@ fn read_workspaces_on_server(
         let workspace_revs = server.read_workspace(&token, params).await?;
         let _ = persistence
             .begin_transaction(|transaction| {
-                tracing::trace!("Save {} workspace", workspace_revs.len());
                 for workspace_rev in &workspace_revs {
                     let m_workspace = workspace_rev.clone();
                     let app_revs = m_workspace.apps.clone();

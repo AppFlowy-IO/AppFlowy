@@ -4,9 +4,10 @@ use crate::editor::make_transaction_from_revisions;
 use crate::editor::queue::{Command, CommandSender, DocumentQueue};
 use crate::{DocumentEditor, DocumentUser};
 use bytes::Bytes;
+use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_http_model::ws_data::ServerRevisionWSData;
 use flowy_revision::{RevisionCloudService, RevisionManager};
-use flowy_sync::entities::ws_data::ServerRevisionWSData;
 use lib_infra::future::FutureResult;
 use lib_ot::core::Transaction;
 use lib_ws::WSConnectState;
@@ -18,17 +19,19 @@ pub struct AppFlowyDocumentEditor {
     #[allow(dead_code)]
     doc_id: String,
     command_sender: CommandSender,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
 }
 
 impl AppFlowyDocumentEditor {
     pub async fn new(
         doc_id: &str,
         user: Arc<dyn DocumentUser>,
-        mut rev_manager: RevisionManager,
+        mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
         cloud_service: Arc<dyn RevisionCloudService>,
     ) -> FlowyResult<Arc<Self>> {
-        let document = rev_manager.load::<DocumentRevisionSerde>(Some(cloud_service)).await?;
+        let document = rev_manager
+            .initialize::<DocumentRevisionSerde>(Some(cloud_service))
+            .await?;
         let rev_manager = Arc::new(rev_manager);
         let command_sender = spawn_edit_queue(user, rev_manager.clone(), document);
         let doc_id = doc_id.to_string();
@@ -70,7 +73,7 @@ impl AppFlowyDocumentEditor {
 
 fn spawn_edit_queue(
     user: Arc<dyn DocumentUser>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     document: Document,
 ) -> CommandSender {
     let (sender, receiver) = mpsc::channel(1000);
@@ -80,7 +83,13 @@ fn spawn_edit_queue(
 }
 
 impl DocumentEditor for Arc<AppFlowyDocumentEditor> {
-    fn close(&self) {}
+    #[tracing::instrument(name = "close document editor", level = "trace", skip_all)]
+    fn close(&self) {
+        let rev_manager = self.rev_manager.clone();
+        tokio::spawn(async move {
+            rev_manager.close().await;
+        });
+    }
 
     fn export(&self) -> FutureResult<String, FlowyError> {
         let this = self.clone();

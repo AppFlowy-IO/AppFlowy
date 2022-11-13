@@ -4,7 +4,7 @@ use crate::grid::field_test::util::*;
 use flowy_grid::entities::FieldChangesetParams;
 use flowy_grid::services::field::selection_type_option::SelectOptionPB;
 use flowy_grid::services::field::SingleSelectTypeOptionPB;
-use flowy_grid_data_model::revision::TypeOptionDataSerializer;
+use grid_rev_model::TypeOptionDataSerializer;
 
 #[tokio::test]
 async fn grid_create_field() {

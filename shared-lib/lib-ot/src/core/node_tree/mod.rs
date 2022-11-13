@@ -3,6 +3,7 @@
 mod node;
 mod node_serde;
 mod operation;
+mod operation_serde;
 mod path;
 mod transaction;
 mod transaction_serde;

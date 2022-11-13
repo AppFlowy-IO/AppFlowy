@@ -3,7 +3,7 @@ use crate::grid::block_test::script::{CreateRowScriptBuilder, GridRowTest};
 use crate::grid::grid_editor::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, TWITTER};
 use flowy_grid::entities::FieldType;
 use flowy_grid::services::field::{SELECTION_IDS_SEPARATOR, UNCHECK};
-use flowy_grid_data_model::revision::RowChangeset;
+use grid_rev_model::RowChangeset;
 
 #[tokio::test]
 async fn grid_create_row_count_test() {

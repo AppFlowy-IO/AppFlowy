@@ -153,11 +153,13 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
       delta: textNode.delta.slice(selection.end.offset),
     ),
   );
-  transaction.deleteText(
-    textNode,
-    selection.start.offset,
-    textNode.toPlainText().length - selection.start.offset,
-  );
+  if (selection.end.offset != textNode.toPlainText().length) {
+    transaction.deleteText(
+      textNode,
+      selection.start.offset,
+      textNode.toPlainText().length - selection.start.offset,
+    );
+  }
   if (textNode.children.isNotEmpty) {
     final children = textNode.children.toList(growable: false);
     transaction.deleteNodes(children);

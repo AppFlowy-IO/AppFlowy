@@ -6,13 +6,10 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-sync = { path = "../../../shared-lib/flowy-sync" }
+flowy-http-model = { path = "../../../shared-lib/flowy-http-model" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
-flowy-database = { path = "../flowy-database" }
-flowy-error = { path = "../flowy-error", features = ["collaboration", "ot", "http_server", "serde", "db"] }
-diesel = {version = "1.4.8", features = ["sqlite"]}
-diesel_derives = {version = "1.4.1", features = ["sqlite"]}
+flowy-error = { path = "../flowy-error" }
 tracing = { version = "0.1", features = ["log"] }
 tokio = {version = "1", features = ["sync"]}
 bytes = { version = "1.1" }
@@ -23,6 +20,13 @@ serde = { version = "1.0", features = ["derive"] }
 futures-util = "0.3.15"
 async-stream = "0.3.2"
 serde_json = {version = "1.0"}
+
+[dev-dependencies]
+nanoid = "0.4.0"
+flowy-revision = {path = "../flowy-revision", features = ["flowy_unit_test"]}
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0" }
+parking_lot = "0.12.1"
 
 [features]
 flowy_unit_test = []

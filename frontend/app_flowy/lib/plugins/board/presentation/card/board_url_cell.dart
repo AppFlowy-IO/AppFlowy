@@ -2,7 +2,6 @@ import 'package:app_flowy/plugins/board/application/card/board_url_cell_bloc.dar
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
@@ -37,7 +36,6 @@ class _BoardUrlCellState extends State<BoardUrlCell> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<BoardURLCellBloc, BoardURLCellState>(
@@ -58,7 +56,7 @@ class _BoardUrlCellState extends State<BoardUrlCell> {
                     text: state.content,
                     style: TextStyles.general(
                       fontSize: FontSizes.s14,
-                      color: theme.main2,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
                     ).underline,
                   ),
                 ),

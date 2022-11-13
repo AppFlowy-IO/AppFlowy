@@ -2,7 +2,7 @@ use crate::entities::FieldType;
 use crate::services::cell::{CellData, FromCellString};
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::CellRevision;
+use grid_rev_model::CellRevision;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 

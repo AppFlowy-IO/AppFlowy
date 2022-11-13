@@ -1,5 +1,5 @@
 use crate::entities::{
-    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB,
+    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB, UserSettingPB,
 };
 use crate::{
     dart_notification::*,
@@ -167,6 +167,13 @@ impl UserSession {
     pub fn user_dir(&self) -> Result<String, FlowyError> {
         let session = self.get_session()?;
         Ok(format!("{}/{}", self.config.root_dir, session.user_id))
+    }
+
+    pub fn user_setting(&self) -> Result<UserSettingPB, FlowyError> {
+        let user_setting = UserSettingPB {
+            user_folder: self.user_dir()?,
+        };
+        Ok(user_setting)
     }
 
     pub fn user_id(&self) -> Result<String, FlowyError> {

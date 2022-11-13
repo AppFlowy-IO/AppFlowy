@@ -1,8 +1,8 @@
-use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_operations_from_revisions};
-
-use flowy_grid_data_model::revision::{
+use flowy_http_model::revision::{RepeatedRevision, Revision};
+use flowy_http_model::util::md5;
+use grid_rev_model::{
     gen_block_id, gen_grid_id, FieldRevision, FieldTypeRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset,
     GridRevision,
 };
@@ -10,6 +10,7 @@ use lib_infra::util::move_vec_element;
 use lib_ot::core::{DeltaOperationBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
 use std::collections::HashMap;
 use std::sync::Arc;
+
 pub type GridOperations = DeltaOperations<EmptyAttributes>;
 pub type GridOperationsBuilder = DeltaOperationBuilder<EmptyAttributes>;
 
@@ -315,7 +316,7 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn md5(&self) -> String {
+    pub fn grid_md5(&self) -> String {
         md5(&self.operations.json_bytes())
     }
 
@@ -343,7 +344,7 @@ impl GridRevisionPad {
                         self.operations = self.operations.compose(&operations)?;
                         Ok(Some(GridRevisionChangeset {
                             operations,
-                            md5: self.md5(),
+                            md5: self.grid_md5(),
                         }))
                     }
                 }
@@ -409,10 +410,10 @@ pub fn make_grid_operations(grid_rev: &GridRevision) -> GridOperations {
     GridOperationsBuilder::new().insert(&json).build()
 }
 
-pub fn make_grid_revisions(user_id: &str, grid_rev: &GridRevision) -> RepeatedRevision {
+pub fn make_grid_revisions(_user_id: &str, grid_rev: &GridRevision) -> RepeatedRevision {
     let operations = make_grid_operations(grid_rev);
     let bytes = operations.json_bytes();
-    let revision = Revision::initial_revision(user_id, &grid_rev.grid_id, bytes);
+    let revision = Revision::initial_revision(&grid_rev.grid_id, bytes);
     revision.into()
 }
 

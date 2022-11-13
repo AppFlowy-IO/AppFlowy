@@ -57,6 +57,9 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
               },
             );
           },
+          switchToField: (FieldType fieldType) async {
+            await dataController.switchToField(fieldType);
+          },
         );
       },
     );
@@ -73,6 +76,8 @@ class FieldEditorEvent with _$FieldEditorEvent {
   const factory FieldEditorEvent.initial() = _InitialField;
   const factory FieldEditorEvent.updateName(String name) = _UpdateName;
   const factory FieldEditorEvent.deleteField() = _DeleteField;
+  const factory FieldEditorEvent.switchToField(FieldType fieldType) =
+      _SwitchToField;
   const factory FieldEditorEvent.didReceiveFieldChanged(FieldPB field) =
       _DidReceiveFieldChanged;
 }

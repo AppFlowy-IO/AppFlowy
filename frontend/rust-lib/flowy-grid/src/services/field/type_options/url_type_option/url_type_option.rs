@@ -6,9 +6,7 @@ use bytes::Bytes;
 use fancy_regex::Regex;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{
-    CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer,
-};
+use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 

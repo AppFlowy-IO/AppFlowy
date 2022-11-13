@@ -13,6 +13,3 @@ pub use rev_manager::*;
 pub use rev_persistence::*;
 pub use snapshot::*;
 pub use ws_manager::*;
-
-#[macro_use]
-extern crate flowy_database;

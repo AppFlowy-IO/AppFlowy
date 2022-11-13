@@ -4,7 +4,7 @@ use crate::services::field::*;
 use std::fmt::Debug;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, FieldTypeRevision};
+use grid_rev_model::{CellRevision, FieldRevision, FieldTypeRevision};
 
 /// This trait is used when doing filter/search on the grid.
 pub trait CellFilterOperation<T> {

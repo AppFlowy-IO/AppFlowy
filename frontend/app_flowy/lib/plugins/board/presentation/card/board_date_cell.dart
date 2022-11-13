@@ -1,6 +1,5 @@
 import 'package:app_flowy/plugins/board/application/card/board_date_cell_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,7 +52,7 @@ class _BoardDateCellState extends State<BoardDateCell> {
                 child: FlowyText.regular(
                   state.dateStr,
                   fontSize: 13,
-                  color: context.read<AppTheme>().shader3,
+                  color: Theme.of(context).hintColor,
                 ),
               ),
             );

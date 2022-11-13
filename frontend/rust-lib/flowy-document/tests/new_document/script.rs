@@ -3,7 +3,7 @@ use flowy_document::editor::{AppFlowyDocumentEditor, Document, DocumentTransacti
 use flowy_document::entities::DocumentVersionPB;
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
-use lib_ot::core::{Body, Changeset, NodeDataBuilder, NodeOperation, Path, Transaction};
+use lib_ot::core::{Changeset, NodeDataBuilder, NodeOperation, Path, Transaction};
 use lib_ot::text_delta::DeltaTextOperations;
 use std::sync::Arc;
 
@@ -64,7 +64,7 @@ impl DocumentEditorTest {
     async fn run_script(&self, script: EditScript) {
         match script {
             EditScript::InsertText { path, delta } => {
-                let node_data = NodeDataBuilder::new("text").insert_body(Body::Delta(delta)).build();
+                let node_data = NodeDataBuilder::new("text").insert_delta(delta).build();
                 let operation = NodeOperation::Insert {
                     path,
                     nodes: vec![node_data],

@@ -4,7 +4,7 @@ use crate::services::field::{
     SelectOptionColorPB, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction, CHECK, UNCHECK,
 };
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::FieldRevision;
+use grid_rev_model::FieldRevision;
 
 /// Handles how to transform the cell data when switching between different field types
 pub struct SelectOptionTypeOptionTransformer();

@@ -3,14 +3,15 @@ use crate::entities::{CellChangesetPB, GridBlockChangesetPB, InsertedRowPB, RowP
 use crate::manager::GridUser;
 use crate::services::block_editor::{GridBlockRevisionCompress, GridBlockRevisionEditor};
 use crate::services::persistence::block_index::BlockIndexCache;
+use crate::services::persistence::rev_sqlite::SQLiteGridBlockRevisionPersistence;
 use crate::services::row::{block_from_row_orders, make_row_from_row_rev, GridBlockSnapshot};
 use dashmap::DashMap;
+use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{
-    GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision,
+use flowy_revision::{
+    RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, SQLiteRevisionSnapshotPersistence,
 };
-use flowy_revision::disk::SQLiteGridBlockRevisionPersistence;
-use flowy_revision::{RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
+use grid_rev_model::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -44,7 +45,7 @@ impl GridBlockManager {
         match self.block_editors.get(block_id) {
             None => {
                 tracing::error!("This is a fatal error, block with id:{} is not exist", block_id);
-                let editor = Arc::new(make_block_editor(&self.user, block_id).await?);
+                let editor = Arc::new(make_grid_block_editor(&self.user, block_id).await?);
                 self.block_editors.insert(block_id.to_owned(), editor.clone());
                 Ok(editor)
             }
@@ -259,23 +260,32 @@ async fn make_block_editors(
 ) -> FlowyResult<DashMap<String, Arc<GridBlockRevisionEditor>>> {
     let editor_map = DashMap::new();
     for block_meta_rev in block_meta_revs {
-        let editor = make_block_editor(user, &block_meta_rev.block_id).await?;
+        let editor = make_grid_block_editor(user, &block_meta_rev.block_id).await?;
         editor_map.insert(block_meta_rev.block_id.clone(), Arc::new(editor));
     }
 
     Ok(editor_map)
 }
 
-async fn make_block_editor(user: &Arc<dyn GridUser>, block_id: &str) -> FlowyResult<GridBlockRevisionEditor> {
+async fn make_grid_block_editor(user: &Arc<dyn GridUser>, block_id: &str) -> FlowyResult<GridBlockRevisionEditor> {
     tracing::trace!("Open block:{} editor", block_id);
     let token = user.token()?;
     let user_id = user.user_id()?;
-    let pool = user.db_pool()?;
+    let rev_manager = make_grid_block_rev_manager(user, block_id)?;
+    GridBlockRevisionEditor::new(&user_id, &token, block_id, rev_manager).await
+}
 
+pub fn make_grid_block_rev_manager(
+    user: &Arc<dyn GridUser>,
+    block_id: &str,
+) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
+    let user_id = user.user_id()?;
+    let pool = user.db_pool()?;
     let disk_cache = SQLiteGridBlockRevisionPersistence::new(&user_id, pool.clone());
-    let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache);
+    let configuration = RevisionPersistenceConfiguration::new(4, false);
+    let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache, configuration);
     let rev_compactor = GridBlockRevisionCompress();
     let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(block_id, pool);
     let rev_manager = RevisionManager::new(&user_id, block_id, rev_persistence, rev_compactor, snapshot_persistence);
-    GridBlockRevisionEditor::new(&user_id, &token, block_id, rev_manager).await
+    Ok(rev_manager)
 }

@@ -122,12 +122,7 @@ void _resolveFolderDeps(GetIt getIt) {
 void _resolveDocDeps(GetIt getIt) {
 // Doc
   getIt.registerFactoryParam<DocumentBloc, ViewPB, void>(
-    (view, _) => DocumentBloc(
-      view: view,
-      service: DocumentService(),
-      listener: getIt<ViewListener>(param1: view),
-      trashService: getIt<TrashService>(),
-    ),
+    (view, _) => DocumentBloc(view: view),
   );
 }
 

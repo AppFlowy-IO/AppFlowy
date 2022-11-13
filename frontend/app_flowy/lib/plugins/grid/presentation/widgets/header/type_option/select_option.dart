@@ -1,7 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/field/type_option/select_option_type_option_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -45,9 +44,11 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
             const TypeOptionSeparator(),
             const OptionTitle(),
             if (state.isEditingOption)
-              const Padding(
-                padding: EdgeInsets.only(bottom: 10),
-                child: _CreateOptionTextField(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: _CreateOptionTextField(
+                  popoverMutex: popoverMutex,
+                ),
               ),
             if (state.options.isEmpty && !state.isEditingOption)
               const _AddOptionButton(),
@@ -66,14 +67,13 @@ class OptionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.read<AppTheme>();
     return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
       builder: (context, state) {
         List<Widget> children = [
           FlowyText.medium(
             LocaleKeys.grid_field_optionTitle.tr(),
             fontSize: 12,
-            color: theme.shader3,
+            color: Theme.of(context).hintColor,
           )
         ];
         if (state.options.isNotEmpty && !state.isEditingOption) {
@@ -95,7 +95,6 @@ class _OptionTitleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return SizedBox(
       width: 100,
       height: 26,
@@ -105,7 +104,6 @@ class _OptionTitleButton extends StatelessWidget {
           fontSize: 12,
           textAlign: TextAlign.center,
         ),
-        hoverColor: theme.hover,
         onTap: () {
           context
               .read<SelectOptionTypeOptionBloc>()
@@ -183,8 +181,6 @@ class _OptionCellState extends State<_OptionCell> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
     return AppFlowyPopover(
       controller: _popoverController,
       mutex: widget.popoverMutex,
@@ -201,7 +197,7 @@ class _OptionCellState extends State<_OptionCell> {
           children: [
             svgWidget(
               "grid/details",
-              color: theme.iconColor,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ],
         ),
@@ -233,26 +229,54 @@ class _AddOptionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_field_addSelectOption.tr(),
             fontSize: 12),
-        hoverColor: theme.hover,
         onTap: () {
           context
               .read<SelectOptionTypeOptionBloc>()
               .add(const SelectOptionTypeOptionEvent.addingOption());
         },
-        leftIcon: svgWidget("home/add", color: theme.iconColor),
+        leftIcon: svgWidget(
+          "home/add",
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
     );
   }
 }
 
-class _CreateOptionTextField extends StatelessWidget {
-  const _CreateOptionTextField({Key? key}) : super(key: key);
+class _CreateOptionTextField extends StatefulWidget {
+  final PopoverMutex? popoverMutex;
+  const _CreateOptionTextField({
+    Key? key,
+    this.popoverMutex,
+  }) : super(key: key);
+
+  @override
+  State<_CreateOptionTextField> createState() => _CreateOptionTextFieldState();
+}
+
+class _CreateOptionTextFieldState extends State<_CreateOptionTextField> {
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    _focusNode = FocusNode();
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) {
+        widget.popoverMutex?.close();
+      }
+    });
+    widget.popoverMutex?.listenOnPopoverChanged(() {
+      if (_focusNode.hasFocus) {
+        _focusNode.unfocus();
+      }
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -263,6 +287,7 @@ class _CreateOptionTextField extends StatelessWidget {
           autoClearWhenDone: true,
           maxLength: 30,
           text: text,
+          focusNode: _focusNode,
           onCanceled: () {
             context
                 .read<SelectOptionTypeOptionBloc>()

@@ -1,4 +1,5 @@
 mod migration;
+pub mod rev_sqlite;
 pub mod version_1;
 mod version_2;
 
@@ -9,11 +10,12 @@ use crate::{
 };
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
-use flowy_revision::disk::{RevisionRecord, RevisionState};
-use flowy_revision::mk_text_block_revision_disk_cache;
-use flowy_sync::{client_folder::FolderPad, entities::revision::Revision};
+use flowy_http_model::revision::Revision;
+use flowy_revision::disk::{RevisionDiskCache, RevisionState, SyncRecord};
+use flowy_sync::client_folder::FolderPad;
+use folder_rev_model::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 
+use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
 use flowy_sync::server_folder::FolderOperationsBuilder;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -36,7 +38,7 @@ pub trait FolderPersistenceTransaction {
     fn read_view(&self, view_id: &str) -> FlowyResult<ViewRevision>;
     fn read_views(&self, belong_to_id: &str) -> FlowyResult<Vec<ViewRevision>>;
     fn update_view(&self, changeset: ViewChangeset) -> FlowyResult<()>;
-    fn delete_view(&self, view_id: &str) -> FlowyResult<()>;
+    fn delete_view(&self, view_id: &str) -> FlowyResult<ViewRevision>;
     fn move_view(&self, view_id: &str, from: usize, to: usize) -> FlowyResult<()>;
 
     fn create_trash(&self, trashes: Vec<TrashRevision>) -> FlowyResult<()>;
@@ -110,8 +112,8 @@ impl FolderPersistence {
         let pool = self.database.db_pool()?;
         let json = folder.to_json()?;
         let delta_data = FolderOperationsBuilder::new().insert(&json).build().json_bytes();
-        let revision = Revision::initial_revision(user_id, folder_id.as_ref(), delta_data);
-        let record = RevisionRecord {
+        let revision = Revision::initial_revision(folder_id.as_ref(), delta_data);
+        let record = SyncRecord {
             revision,
             state: RevisionState::Sync,
             write_to_disk: true,
@@ -120,4 +122,11 @@ impl FolderPersistence {
         let disk_cache = mk_text_block_revision_disk_cache(user_id, pool);
         disk_cache.delete_and_insert_records(folder_id.as_ref(), None, vec![record])
     }
+}
+
+pub fn mk_text_block_revision_disk_cache(
+    user_id: &str,
+    pool: Arc<ConnectionPool>,
+) -> Arc<dyn RevisionDiskCache<Arc<ConnectionPool>, Error = FlowyError>> {
+    Arc::new(SQLiteFolderRevisionPersistence::new(user_id, pool))
 }

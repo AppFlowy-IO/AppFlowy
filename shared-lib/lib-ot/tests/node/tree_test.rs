@@ -1,10 +1,7 @@
 use crate::node::script::NodeScript::*;
-use crate::node::script::NodeTest;
-use lib_ot::core::Body;
-use lib_ot::core::Changeset;
-use lib_ot::core::OperationTransform;
+use crate::node::script::{make_node_delta_changeset, NodeTest};
+
 use lib_ot::core::{NodeData, NodeDataBuilder, Path};
-use lib_ot::text_delta::{DeltaTextOperationBuilder, DeltaTextOperations};
 
 #[test]
 fn node_insert_test() {
@@ -34,71 +31,6 @@ fn node_insert_with_empty_path_test() {
         node_data: NodeData::new("text"),
         rev_id: 1,
     }];
-    test.run_scripts(scripts);
-}
-
-#[test]
-#[should_panic]
-fn node_insert_with_not_exist_path_test() {
-    let mut test = NodeTest::new();
-    let node_data = NodeData::new("text");
-    let path: Path = vec![0, 0, 9].into();
-    let scripts = vec![
-        InsertNode {
-            path: path.clone(),
-            node_data: node_data.clone(),
-            rev_id: 1,
-        },
-        AssertNode {
-            path,
-            expected: Some(node_data),
-        },
-    ];
-    test.run_scripts(scripts);
-}
-
-#[test]
-// Append the node to the end of the list if the insert path is out of bounds.
-fn node_insert_out_of_bound_test() {
-    let mut test = NodeTest::new();
-    let image_a = NodeData::new("image_a");
-    let image_b = NodeData::new("image_b");
-    let image = NodeDataBuilder::new("image_1")
-        .add_node_data(image_a)
-        .add_node_data(image_b)
-        .build();
-    let text_node = NodeDataBuilder::new("text_1").add_node_data(image).build();
-    let image_c = NodeData::new("image_c");
-
-    let scripts = vec![
-        InsertNode {
-            path: 0.into(),
-            node_data: text_node,
-            rev_id: 1,
-        },
-        // 0:text_1
-        //      0:image_1
-        //             0:image_a
-        //             1:image_b
-        InsertNode {
-            path: vec![0, 0, 10].into(),
-            node_data: image_c.clone(),
-            rev_id: 2,
-        },
-        // 0:text_1
-        //      0:image_1
-        //             0:image_a
-        //             1:image_b
-        //             2:image_b
-        AssertNode {
-            path: vec![0, 0, 2].into(),
-            expected: Some(image_c),
-        },
-        AssertNode {
-            path: vec![0, 0, 10].into(),
-            expected: None,
-        },
-    ];
     test.run_scripts(scripts);
 }
 
@@ -438,11 +370,11 @@ fn node_delete_node_from_list_test() {
         InsertNode {
             path: 1.into(),
             node_data: text_node_2.clone(),
-            rev_id: 1,
+            rev_id: 2,
         },
         DeleteNode {
             path: 0.into(),
-            rev_id: 2,
+            rev_id: 3,
         },
         AssertNode {
             path: 1.into(),
@@ -487,7 +419,7 @@ fn node_delete_nested_node_test() {
         InsertNode {
             path: 1.into(),
             node_data: text_node_2,
-            rev_id: 1,
+            rev_id: 2,
         },
         // 0:text_1
         //      0:image_1
@@ -499,7 +431,7 @@ fn node_delete_nested_node_test() {
         //             1:image_b
         DeleteNode {
             path: vec![0, 0, 0].into(),
-            rev_id: 2,
+            rev_id: 3,
         },
         // 0:text_1
         //      0:image_1
@@ -514,7 +446,7 @@ fn node_delete_nested_node_test() {
         },
         DeleteNode {
             path: vec![0, 0].into(),
-            rev_id: 3,
+            rev_id: 4,
         },
         // 0:text_1
         // 1:text_2
@@ -676,12 +608,16 @@ fn node_reorder_nodes_test() {
         //             1:image_b
         DeleteNode {
             path: vec![0].into(),
-            rev_id: 2,
+            rev_id: 3,
+        },
+        AssertNode {
+            path: vec![0].into(),
+            expected: Some(text_node_2.clone()),
         },
         InsertNode {
             path: vec![1].into(),
             node_data: text_node_1.clone(),
-            rev_id: 3,
+            rev_id: 4,
         },
         // 0:text_2
         //      0:image_2
@@ -722,10 +658,8 @@ fn node_reorder_nodes_test() {
 #[test]
 fn node_update_body_test() {
     let mut test = NodeTest::new();
-    let (initial_delta, changeset, _, expected) = make_node_delta_changeset("Hello", "AppFlowy");
-    let node = NodeDataBuilder::new("text")
-        .insert_body(Body::Delta(initial_delta))
-        .build();
+    let (initial_delta, changeset, expected) = make_node_delta_changeset("Hello", "AppFlowy");
+    let node = NodeDataBuilder::new("text").insert_delta(initial_delta).build();
 
     let scripts = vec![
         InsertNode {
@@ -748,10 +682,8 @@ fn node_update_body_test() {
 #[test]
 fn node_inverted_body_changeset_test() {
     let mut test = NodeTest::new();
-    let (initial_delta, changeset, inverted_changeset, _expected) = make_node_delta_changeset("Hello", "AppFlowy");
-    let node = NodeDataBuilder::new("text")
-        .insert_body(Body::Delta(initial_delta.clone()))
-        .build();
+    let (initial_delta, changeset, _expected) = make_node_delta_changeset("Hello", "AppFlowy");
+    let node = NodeDataBuilder::new("text").insert_delta(initial_delta.clone()).build();
 
     let scripts = vec![
         InsertNode {
@@ -761,11 +693,11 @@ fn node_inverted_body_changeset_test() {
         },
         UpdateBody {
             path: 0.into(),
-            changeset,
+            changeset: changeset.clone(),
         },
         UpdateBody {
             path: 0.into(),
-            changeset: inverted_changeset,
+            changeset: changeset.inverted(),
         },
         AssertNodeDelta {
             path: 0.into(),
@@ -773,28 +705,4 @@ fn node_inverted_body_changeset_test() {
         },
     ];
     test.run_scripts(scripts);
-}
-
-fn make_node_delta_changeset(
-    initial_content: &str,
-    insert_str: &str,
-) -> (DeltaTextOperations, Changeset, Changeset, DeltaTextOperations) {
-    let initial_content = initial_content.to_owned();
-    let initial_delta = DeltaTextOperationBuilder::new().insert(&initial_content).build();
-    let delta = DeltaTextOperationBuilder::new()
-        .retain(initial_content.len())
-        .insert(insert_str)
-        .build();
-    let inverted = delta.invert(&initial_delta);
-    let expected = initial_delta.compose(&delta).unwrap();
-
-    let changeset = Changeset::Delta {
-        delta: delta.clone(),
-        inverted: inverted.clone(),
-    };
-    let inverted_changeset = Changeset::Delta {
-        delta: inverted,
-        inverted: delta,
-    };
-    (initial_delta, changeset, inverted_changeset, expected)
 }

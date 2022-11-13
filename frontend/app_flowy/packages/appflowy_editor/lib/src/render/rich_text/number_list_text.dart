@@ -4,10 +4,12 @@ import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
 import 'package:appflowy_editor/src/render/rich_text/default_selectable.dart';
 import 'package:appflowy_editor/src/render/rich_text/flowy_rich_text.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
+import 'package:appflowy_editor/src/render/style/plugin_styles.dart';
 import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/src/extensions/attributes_extension.dart';
 import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
+import 'package:appflowy_editor/src/extensions/theme_extension.dart';
 
 class NumberListTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
@@ -43,7 +45,7 @@ class NumberListTextNodeWidget extends BuiltInTextWidget {
 }
 
 class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
-    with SelectableMixin, DefaultSelectable, BuiltInStyleMixin {
+    with SelectableMixin, DefaultSelectable {
   @override
   final iconKey = GlobalKey();
 
@@ -58,6 +60,25 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
     return super.baseOffset.translate(0, padding.top);
   }
 
+  NumberListPluginStyle get style =>
+      Theme.of(context).extensionOrNull<NumberListPluginStyle>() ??
+      NumberListPluginStyle.light;
+
+  EdgeInsets get padding => style.padding(
+        widget.editorState,
+        widget.textNode,
+      );
+
+  TextStyle get textStyle => style.textStyle(
+        widget.editorState,
+        widget.textNode,
+      );
+
+  Widget get icon => style.icon(
+        widget.editorState,
+        widget.textNode,
+      );
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -67,12 +88,7 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
         children: [
           Container(
             key: iconKey,
-            padding: iconPadding,
-            child: Text(
-              '${widget.textNode.attributes.number.toString()}.',
-              // FIXME: customize
-              style: const TextStyle(fontSize: 16.0, color: Colors.black),
-            ),
+            child: icon,
           ),
           Flexible(
             child: FlowyRichText(
@@ -80,7 +96,7 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
               placeholderText: 'List',
               textNode: widget.textNode,
               editorState: widget.editorState,
-              lineHeight: widget.editorState.editorStyle.textStyle.lineHeight,
+              lineHeight: widget.editorState.editorStyle.lineHeight,
               placeholderTextSpanDecorator: (textSpan) =>
                   textSpan.updateTextStyle(textStyle),
               textSpanDecorator: (textSpan) =>

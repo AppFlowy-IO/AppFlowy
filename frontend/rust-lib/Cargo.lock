@@ -861,6 +861,7 @@ dependencies = [
  "flowy-derive",
  "flowy-document",
  "flowy-error",
+ "flowy-http-model",
  "flowy-revision",
  "flowy-sync",
  "flowy-test",
@@ -927,17 +928,18 @@ dependencies = [
  "flowy-document",
  "flowy-error",
  "flowy-folder",
- "flowy-folder-data-model",
+ "flowy-http-model",
  "flowy-revision",
  "flowy-sync",
  "flowy-test",
+ "folder-rev-model",
  "futures",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
  "lib-ot",
  "log",
- "parking_lot 0.11.2",
+ "parking_lot 0.12.1",
  "pin-project",
  "protobuf",
  "serde",
@@ -946,27 +948,6 @@ dependencies = [
  "strum_macros",
  "tokio",
  "tracing",
- "unicode-segmentation",
-]
-
-[[package]]
-name = "flowy-folder-data-model"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "chrono",
- "derive_more",
- "flowy-derive",
- "flowy-error-code",
- "lib-infra",
- "log",
- "nanoid",
- "protobuf",
- "serde",
- "serde_json",
- "serde_repr",
- "strum",
- "strum_macros",
  "unicode-segmentation",
 ]
 
@@ -986,11 +967,12 @@ dependencies = [
  "flowy-derive",
  "flowy-error",
  "flowy-grid",
- "flowy-grid-data-model",
+ "flowy-http-model",
  "flowy-revision",
  "flowy-sync",
  "flowy-test",
  "futures",
+ "grid-rev-model",
  "indexmap",
  "lazy_static",
  "lib-dispatch",
@@ -1013,18 +995,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-grid-data-model"
+name = "flowy-http-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "flowy-error-code",
- "indexmap",
+ "flowy-derive",
  "lib-infra",
- "nanoid",
- "serde",
- "serde_json",
- "serde_repr",
- "tracing",
+ "md5",
+ "protobuf",
 ]
 
 [[package]]
@@ -1040,9 +1018,10 @@ dependencies = [
  "flowy-document",
  "flowy-error",
  "flowy-folder",
- "flowy-folder-data-model",
+ "flowy-http-model",
  "flowy-sync",
  "flowy-user",
+ "folder-rev-model",
  "futures-util",
  "http-flowy",
  "hyper",
@@ -1052,7 +1031,7 @@ dependencies = [
  "lib-ws",
  "log",
  "nanoid",
- "parking_lot 0.11.2",
+ "parking_lot 0.12.1",
  "protobuf",
  "reqwest",
  "serde",
@@ -1071,14 +1050,14 @@ dependencies = [
  "async-stream",
  "bytes",
  "dashmap",
- "diesel",
- "diesel_derives",
- "flowy-database",
  "flowy-error",
- "flowy-sync",
+ "flowy-http-model",
+ "flowy-revision",
  "futures-util",
  "lib-infra",
  "lib-ws",
+ "nanoid",
+ "parking_lot 0.12.1",
  "serde",
  "serde_json",
  "strum",
@@ -1091,29 +1070,22 @@ dependencies = [
 name = "flowy-sdk"
 version = "0.1.0"
 dependencies = [
- "bincode",
  "bytes",
- "claim 0.5.0",
- "color-eyre",
  "flowy-database",
  "flowy-document",
  "flowy-folder",
  "flowy-grid",
- "flowy-grid-data-model",
+ "flowy-http-model",
  "flowy-net",
  "flowy-revision",
- "flowy-sync",
  "flowy-user",
  "futures-core",
- "futures-util",
+ "grid-rev-model",
  "lib-dispatch",
  "lib-infra",
  "lib-log",
  "lib-ws",
- "log",
- "parking_lot 0.11.2",
- "protobuf",
- "serde",
+ "parking_lot 0.12.1",
  "tokio",
  "tracing",
 ]
@@ -1128,14 +1100,14 @@ dependencies = [
  "dashmap",
  "dissimilar",
  "flowy-derive",
- "flowy-folder-data-model",
- "flowy-grid-data-model",
+ "flowy-http-model",
+ "folder-rev-model",
  "futures",
+ "grid-rev-model",
  "lib-infra",
  "lib-ot",
  "log",
- "md5",
- "parking_lot 0.11.2",
+ "parking_lot 0.12.1",
  "protobuf",
  "serde",
  "serde_json",
@@ -1200,7 +1172,7 @@ dependencies = [
  "log",
  "nanoid",
  "once_cell",
- "parking_lot 0.11.2",
+ "parking_lot 0.12.1",
  "protobuf",
  "quickcheck",
  "quickcheck_macros",
@@ -1222,6 +1194,20 @@ name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
+
+[[package]]
+name = "folder-rev-model"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "chrono",
+ "nanoid",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "strum",
+ "strum_macros",
+]
 
 [[package]]
 name = "foreign-types"
@@ -1416,6 +1402,19 @@ dependencies = [
  "bitflags",
  "ignore",
  "walkdir",
+]
+
+[[package]]
+name = "grid-rev-model"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "flowy-error-code",
+ "indexmap",
+ "nanoid",
+ "serde",
+ "serde_json",
+ "serde_repr",
 ]
 
 [[package]]
@@ -1818,7 +1817,7 @@ dependencies = [
  "futures-util",
  "lib-infra",
  "log",
- "parking_lot 0.11.2",
+ "parking_lot 0.12.1",
  "paste",
  "pin-project",
  "protobuf",

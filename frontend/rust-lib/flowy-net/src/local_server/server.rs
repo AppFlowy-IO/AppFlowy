@@ -4,12 +4,7 @@ use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError};
 use flowy_folder::event_map::FolderCouldServiceV1;
 use flowy_sync::{
-    entities::{
-        document::{CreateDocumentParams, DocumentIdPB, DocumentPayloadPB, ResetDocumentParams},
-        ws_data::{ClientRevisionWSData, ClientRevisionWSDataType},
-    },
     errors::CollaborateError,
-    protobuf::ClientRevisionWSData as ClientRevisionWSDataPB,
     server_document::ServerDocumentManager,
     server_folder::ServerFolderManager,
     synchronizer::{RevisionSyncResponse, RevisionUser},
@@ -258,13 +253,14 @@ use flowy_folder::entities::{
     view::{CreateViewParams, RepeatedViewIdPB, UpdateViewParams, ViewIdPB},
     workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdPB},
 };
-use flowy_folder_data_model::revision::{
-    gen_app_id, gen_workspace_id, AppRevision, TrashRevision, ViewRevision, WorkspaceRevision,
-};
+use flowy_http_model::document::{CreateDocumentParams, DocumentIdPB, DocumentPayloadPB, ResetDocumentParams};
+use flowy_http_model::protobuf::ClientRevisionWSData as ClientRevisionWSDataPB;
+use flowy_http_model::ws_data::{ClientRevisionWSData, ClientRevisionWSDataType};
 use flowy_user::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB,
 };
 use flowy_user::event_map::UserCloudService;
+use folder_rev_model::{gen_app_id, gen_workspace_id, AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use lib_infra::{future::FutureResult, util::timestamp};
 
 impl FolderCouldServiceV1 for LocalServer {

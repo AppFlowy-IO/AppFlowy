@@ -1,6 +1,4 @@
-import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 
@@ -66,12 +64,17 @@ class CellContainer extends StatelessWidget {
   }
 
   BoxDecoration _makeBoxDecoration(BuildContext context, bool isFocus) {
-    final theme = context.watch<AppTheme>();
     if (isFocus) {
-      final borderSide = BorderSide(color: theme.main1, width: 1.0);
+      final borderSide = BorderSide(
+        color: Theme.of(context).colorScheme.primary,
+        width: 1.0,
+      );
       return BoxDecoration(border: Border.fromBorderSide(borderSide));
     } else {
-      final borderSide = BorderSide(color: theme.shader5, width: 1.0);
+      final borderSide = BorderSide(
+        color: Theme.of(context).dividerColor,
+        width: 1.0,
+      );
       return BoxDecoration(
           border: Border(right: borderSide, bottom: borderSide));
     }

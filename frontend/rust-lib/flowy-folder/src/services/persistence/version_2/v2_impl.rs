@@ -3,7 +3,7 @@ use crate::services::{
     persistence::{AppChangeset, FolderPersistenceTransaction, ViewChangeset, WorkspaceChangeset},
 };
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
+use folder_rev_model::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use std::sync::Arc;
 
 impl FolderPersistenceTransaction for FolderEditor {
@@ -113,11 +113,12 @@ impl FolderPersistenceTransaction for FolderEditor {
         Ok(())
     }
 
-    fn delete_view(&self, view_id: &str) -> FlowyResult<()> {
-        if let Some(change) = self.folder.write().delete_view(view_id)? {
+    fn delete_view(&self, view_id: &str) -> FlowyResult<ViewRevision> {
+        let view = self.folder.read().read_view(view_id)?;
+        if let Some(change) = self.folder.write().delete_view(&view.app_id, view_id)? {
             let _ = self.apply_change(change)?;
         }
-        Ok(())
+        Ok(view)
     }
 
     fn move_view(&self, view_id: &str, from: usize, to: usize) -> FlowyResult<()> {
@@ -207,7 +208,7 @@ where
         (**self).update_view(changeset)
     }
 
-    fn delete_view(&self, view_id: &str) -> FlowyResult<()> {
+    fn delete_view(&self, view_id: &str) -> FlowyResult<ViewRevision> {
         (**self).delete_view(view_id)
     }
 

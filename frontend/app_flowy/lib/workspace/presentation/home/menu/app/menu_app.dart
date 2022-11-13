@@ -1,4 +1,3 @@
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
@@ -87,10 +86,7 @@ class _MenuAppState extends State<MenuApp> {
                 iconPadding: EdgeInsets.zero,
                 hasIcon: false,
               ),
-              header: ChangeNotifierProvider.value(
-                value: Provider.of<AppearanceSetting>(context, listen: true),
-                child: MenuAppHeader(widget.app),
-              ),
+              header: MenuAppHeader(widget.app),
               expanded: ViewSection(appViewData: viewDataContext),
               collapsed: const SizedBox(),
             ),

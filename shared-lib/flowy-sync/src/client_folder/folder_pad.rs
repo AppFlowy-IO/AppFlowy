@@ -3,10 +3,11 @@ use crate::server_folder::{FolderOperations, FolderOperationsBuilder};
 use crate::util::cal_diff;
 use crate::{
     client_folder::builder::FolderPadBuilder,
-    entities::revision::{md5, Revision},
     errors::{CollaborateError, CollaborateResult},
 };
-use flowy_folder_data_model::revision::{AppRevision, FolderRevision, TrashRevision, ViewRevision, WorkspaceRevision};
+use flowy_http_model::revision::Revision;
+use flowy_http_model::util::md5;
+use folder_rev_model::{AppRevision, FolderRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use lib_infra::util::move_vec_element;
 use lib_ot::core::*;
 use serde::Deserialize;
@@ -61,7 +62,7 @@ impl FolderPad {
         self.folder_rev = folder.folder_rev;
         self.operations = folder.operations;
 
-        Ok(self.md5())
+        Ok(self.folder_md5())
     }
 
     pub fn compose_remote_operations(&mut self, operations: FolderOperations) -> CollaborateResult<String> {
@@ -258,9 +259,8 @@ impl FolderPad {
     }
 
     #[tracing::instrument(level = "trace", skip(self), err)]
-    pub fn delete_view(&mut self, view_id: &str) -> CollaborateResult<Option<FolderChangeset>> {
-        let view = self.read_view(view_id)?;
-        self.with_app(&view.app_id, |app| {
+    pub fn delete_view(&mut self, app_id: &str, view_id: &str) -> CollaborateResult<Option<FolderChangeset>> {
+        self.with_app(app_id, |app| {
             app.belongings.retain(|view| view.id != view_id);
             Ok(Some(()))
         })
@@ -314,7 +314,7 @@ impl FolderPad {
         }
     }
 
-    pub fn md5(&self) -> String {
+    pub fn folder_md5(&self) -> String {
         md5(&self.operations.json_bytes())
     }
 
@@ -346,7 +346,7 @@ impl FolderPad {
                         self.operations = self.operations.compose(&operations)?;
                         Ok(Some(FolderChangeset {
                             operations,
-                            md5: self.md5(),
+                            md5: self.folder_md5(),
                         }))
                     }
                 }
@@ -384,7 +384,7 @@ impl FolderPad {
                         self.operations = self.operations.compose(&operations)?;
                         Ok(Some(FolderChangeset {
                             operations,
-                            md5: self.md5(),
+                            md5: self.folder_md5(),
                         }))
                     }
                 }
@@ -464,9 +464,7 @@ mod tests {
     use crate::client_folder::folder_pad::FolderPad;
     use crate::server_folder::{FolderOperations, FolderOperationsBuilder};
     use chrono::Utc;
-    use flowy_folder_data_model::revision::{
-        AppRevision, FolderRevision, TrashRevision, ViewRevision, WorkspaceRevision,
-    };
+    use folder_rev_model::{AppRevision, FolderRevision, TrashRevision, ViewRevision, WorkspaceRevision};
     use lib_ot::core::OperationTransform;
     use serde::Deserialize;
 
@@ -724,7 +722,7 @@ mod tests {
     #[test]
     fn folder_delete_view() {
         let (mut folder, initial_operations, view) = test_view_folder();
-        let operations = folder.delete_view(&view.id).unwrap().unwrap().operations;
+        let operations = folder.delete_view(&view.app_id, &view.id).unwrap().unwrap().operations;
 
         let new_folder = make_folder_from_operations(initial_operations, vec![operations]);
         assert_folder_equal(

@@ -10,7 +10,7 @@ use flowy_folder::entities::{
     {AppIdPB, CreateAppParams, UpdateAppParams},
 };
 use flowy_folder::event_map::FolderCouldServiceV1;
-use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
+use folder_rev_model::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use http_flowy::errors::ServerError;
 use http_flowy::response::FlowyResponse;
 use lazy_static::lazy_static;

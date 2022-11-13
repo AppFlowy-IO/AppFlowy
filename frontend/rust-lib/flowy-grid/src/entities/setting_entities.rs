@@ -1,3 +1,4 @@
+use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
     DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB, InsertFilterParams,
     InsertFilterPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedGridFilterConfigurationPB,
@@ -5,8 +6,7 @@ use crate::entities::{
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::LayoutRevision;
+use grid_rev_model::LayoutRevision;
 use std::convert::TryInto;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;

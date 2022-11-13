@@ -36,8 +36,7 @@ fn attributes_insert_text_at_middle() {
 
 #[test]
 fn delta_get_ops_in_interval_1() {
-    let operations = OperationsBuilder::new().insert("123").insert("4").build();
-    let delta = DeltaTextOperationBuilder::from_operations(operations);
+    let delta = DeltaTextOperationBuilder::new().insert("123").insert("4").build();
 
     let mut iterator = OperationIterator::from_interval(&delta, Interval::new(0, 4));
     assert_eq!(iterator.ops(), delta.ops);

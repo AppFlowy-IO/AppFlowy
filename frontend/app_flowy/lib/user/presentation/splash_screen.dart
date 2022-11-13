@@ -44,10 +44,11 @@ class SplashScreen extends StatelessWidget {
 
   void _handleAuthenticated(BuildContext context, Authenticated result) {
     final userProfile = result.userProfile;
-    FolderEventReadCurWorkspace().send().then(
+    FolderEventReadCurrentWorkspace().send().then(
       (result) {
         return result.fold(
-          (workspaceSetting) => getIt<SplashRoute>().pushHomeScreen(context, userProfile, workspaceSetting),
+          (workspaceSetting) => getIt<SplashRoute>()
+              .pushHomeScreen(context, userProfile, workspaceSetting),
           (error) async {
             Log.error(error);
             assert(error.code == ErrorCode.RecordNotFound.value);
@@ -80,7 +81,8 @@ class Body extends StatelessWidget {
                 fit: BoxFit.cover,
                 width: size.width,
                 height: size.height,
-                image: const AssetImage('assets/images/appflowy_launch_splash.jpg')),
+                image: const AssetImage(
+                    'assets/images/appflowy_launch_splash.jpg')),
             const CircularProgressIndicator.adaptive(),
           ],
         ),

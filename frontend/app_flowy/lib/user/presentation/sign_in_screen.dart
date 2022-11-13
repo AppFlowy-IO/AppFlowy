@@ -5,7 +5,6 @@ import 'package:app_flowy/user/presentation/widgets/background.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
@@ -96,21 +95,20 @@ class SignUpPrompt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         FlowyText.medium(
           LocaleKeys.signIn_dontHaveAnAccount.tr(),
           fontSize: FontSizes.s12,
-          color: theme.shader3,
+          color: Theme.of(context).hintColor,
         ),
         TextButton(
           style: TextButton.styleFrom(textStyle: TextStyles.body1),
           onPressed: () => router.pushSignUpScreen(context),
           child: Text(
             LocaleKeys.signUp_buttonText.tr(),
-            style: TextStyle(color: theme.main1),
+            style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
         ),
       ],
@@ -125,17 +123,13 @@ class LoginButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return RoundedTextButton(
       title: LocaleKeys.signIn_loginButtonText.tr(),
       height: 48,
       borderRadius: Corners.s10Border,
-      color: theme.main1,
-      onPressed: () {
-        context
-            .read<SignInBloc>()
-            .add(const SignInEvent.signedInWithUserEmailAndPassword());
-      },
+      onPressed: () => context
+          .read<SignInBloc>()
+          .add(const SignInEvent.signedInWithUserEmailAndPassword()),
     );
   }
 }
@@ -150,7 +144,6 @@ class ForgetPasswordButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return TextButton(
       style: TextButton.styleFrom(
         textStyle: TextStyles.body1,
@@ -158,7 +151,7 @@ class ForgetPasswordButton extends StatelessWidget {
       onPressed: () => router.pushForgetPasswordScreen(context),
       child: Text(
         LocaleKeys.signIn_forgotPassword.tr(),
-        style: TextStyle(color: theme.main1),
+        style: TextStyle(color: Theme.of(context).colorScheme.primary),
       ),
     );
   }
@@ -171,7 +164,6 @@ class PasswordTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return BlocBuilder<SignInBloc, SignInState>(
       buildWhen: (previous, current) =>
           previous.passwordError != current.passwordError,
@@ -182,9 +174,6 @@ class PasswordTextField extends StatelessWidget {
           obscureIcon: svgWidget("home/hide"),
           obscureHideIcon: svgWidget("home/show"),
           hintText: LocaleKeys.signIn_passwordHint.tr(),
-          normalBorderColor: theme.shader4,
-          errorBorderColor: theme.red,
-          cursorColor: theme.main1,
           errorText: context
               .read<SignInBloc>()
               .state
@@ -206,7 +195,6 @@ class EmailTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return BlocBuilder<SignInBloc, SignInState>(
       buildWhen: (previous, current) =>
           previous.emailError != current.emailError,
@@ -214,9 +202,6 @@ class EmailTextField extends StatelessWidget {
         return RoundedInputField(
           hintText: LocaleKeys.signIn_emailHint.tr(),
           style: TextStyles.body1.size(FontSizes.s14),
-          normalBorderColor: theme.shader4,
-          errorBorderColor: theme.red,
-          cursorColor: theme.main1,
           errorText: context
               .read<SignInBloc>()
               .state

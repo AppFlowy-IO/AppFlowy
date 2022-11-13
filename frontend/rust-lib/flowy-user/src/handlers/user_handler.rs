@@ -1,5 +1,6 @@
 use crate::entities::{
-    AppearanceSettingsPB, UpdateUserProfileParams, UpdateUserProfilePayloadPB, UserProfilePB, APPEARANCE_DEFAULT_THEME,
+    AppearanceSettingsPB, UpdateUserProfileParams, UpdateUserProfilePayloadPB, UserProfilePB, UserSettingPB,
+    APPEARANCE_DEFAULT_THEME,
 };
 use crate::{errors::FlowyError, services::UserSession};
 use flowy_database::kv::KV;
@@ -54,7 +55,7 @@ pub async fn set_appearance_setting(data: Data<AppearanceSettingsPB>) -> Result<
     Ok(())
 }
 
-#[tracing::instrument(err)]
+#[tracing::instrument(level = "debug", err)]
 pub async fn get_appearance_setting() -> DataResult<AppearanceSettingsPB, FlowyError> {
     match KV::get_str(APPEARANCE_SETTING_CACHE_KEY) {
         None => data_result(AppearanceSettingsPB::default()),
@@ -69,4 +70,10 @@ pub async fn get_appearance_setting() -> DataResult<AppearanceSettingsPB, FlowyE
             data_result(setting)
         }
     }
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_user_setting(session: AppData<Arc<UserSession>>) -> DataResult<UserSettingPB, FlowyError> {
+    let user_setting = session.user_setting()?;
+    data_result(user_setting)
 }

@@ -5,7 +5,7 @@
 
 use flowy_grid::entities::{InsertFilterParams, InsertFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
-use flowy_grid_data_model::revision::{FieldRevision, FieldTypeRevision};
+use grid_rev_model::{FieldRevision, FieldTypeRevision};
 use crate::grid::grid_editor::GridEditorTest;
 
 pub enum FilterScript {

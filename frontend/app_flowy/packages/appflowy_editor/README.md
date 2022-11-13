@@ -38,7 +38,7 @@ and the Flutter guide for
   * shortcut events
   * themes
   * menu options (**coming soon!**)
-* [Test-coverage](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/documentation/testing.md) and on-going maintenance by AppFlowy's core team and community of more than 1,000 builders
+* [Test-coverage](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/documentation/testing.md) and ongoing maintenance by AppFlowy's core team and community of more than 1,000 builders
 
 ## Getting Started
 
@@ -54,11 +54,9 @@ flutter pub get
 Start by creating a new empty AppFlowyEditor object. 
 
 ```dart
-final editorStyle = EditorStyle.defaultStyle();
 final editorState = EditorState.empty(); // an empty state
 final editor = AppFlowyEditor(
     editorState: editorState,
-    editorStyle: editorStyle,
 );
 ```
 
@@ -66,11 +64,9 @@ You can also create an editor from a JSON object in order to configure your init
 
 ```dart
 final json = ...;
-final editorStyle = EditorStyle.defaultStyle();
 final editorState = EditorState(Document.fromJson(data));
 final editor = AppFlowyEditor(
     editorState: editorState,
-    editorStyle: editorStyle,
 );
 ```
 
@@ -117,7 +113,7 @@ Below are some examples of shortcut event customizations:
 Please refer to the API documentation.
 
 ## Contributing
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are greatly appreciated. 
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated. 
 
 Please look at [CONTRIBUTING.md](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/contributing-to-appflowy) for details.
 
