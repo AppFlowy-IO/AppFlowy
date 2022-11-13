@@ -4,7 +4,7 @@
 #![allow(unused_imports)]
 
 use futures::TryFutureExt;
-use flowy_grid::entities::{InsertFilterParams, InsertFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition};
+use flowy_grid::entities::{InsertFilterParams, InsertFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
 use flowy_grid::services::filter::FilterType;
@@ -21,6 +21,9 @@ pub enum FilterScript {
     CreateNumberFilter {
         condition: NumberFilterCondition,
         content: String,
+    },
+    CreateCheckboxFilter {
+        condition: CheckboxFilterCondition,
     },
     AssertFilterCount {
         count: i32,
@@ -76,6 +79,12 @@ impl GridFilterTest {
                 let field_rev = self.get_field_rev(FieldType::Number);
                 let payload =
                     InsertFilterPayloadPB::new(field_rev, condition, Some(content));
+                self.insert_filter(payload).await;
+            }
+            FilterScript::CreateCheckboxFilter {condition} => {
+                let field_rev = self.get_field_rev(FieldType::Checkbox);
+                let payload =
+                    InsertFilterPayloadPB::new(field_rev, condition, Some("".to_string()));
                 self.insert_filter(payload).await;
             }
             FilterScript::AssertFilterCount { count } => {

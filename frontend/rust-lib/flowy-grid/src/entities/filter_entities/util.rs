@@ -1,6 +1,6 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
-    CheckboxCondition, DateFilterCondition, FieldType, NumberFilterCondition, SelectOptionCondition,
+    CheckboxFilterCondition, DateFilterCondition, FieldType, NumberFilterCondition, SelectOptionCondition,
     TextFilterCondition,
 };
 use crate::services::filter::FilterType;
@@ -120,7 +120,7 @@ impl TryInto<InsertFilterParams> for InsertFilterPayloadPB {
                 let _ = TextFilterCondition::try_from(condition)?;
             }
             FieldType::Checkbox => {
-                let _ = CheckboxCondition::try_from(condition)?;
+                let _ = CheckboxFilterCondition::try_from(condition)?;
             }
             FieldType::Number => {
                 let _ = NumberFilterCondition::try_from(condition)?;
