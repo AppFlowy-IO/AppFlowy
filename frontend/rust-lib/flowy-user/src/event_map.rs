@@ -19,6 +19,7 @@ pub fn create(user_session: Arc<UserSession>) -> Module {
         .event(UserEvent::CheckUser, check_user_handler)
         .event(UserEvent::SetAppearanceSetting, set_appearance_setting)
         .event(UserEvent::GetAppearanceSetting, get_appearance_setting)
+        .event(UserEvent::GetUserSetting, get_user_setting)
 }
 
 pub trait UserCloudService: Send + Sync {
@@ -62,4 +63,7 @@ pub enum UserEvent {
 
     #[event(output = "AppearanceSettingsPB")]
     GetAppearanceSetting = 8,
+
+    #[event(output = "UserSettingPB")]
+    GetUserSetting = 9,
 }
