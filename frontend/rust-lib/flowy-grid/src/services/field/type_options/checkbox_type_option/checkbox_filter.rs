@@ -1,20 +1,20 @@
-use crate::entities::{CheckboxCondition, CheckboxFilterConfigurationPB};
+use crate::entities::{CheckboxFilterCondition, CheckboxFilterPB};
 use crate::services::cell::{AnyCellData, CellData, CellFilterOperation};
 use crate::services::field::{CheckboxCellData, CheckboxTypeOptionPB};
 use flowy_error::FlowyResult;
 
-impl CheckboxFilterConfigurationPB {
+impl CheckboxFilterPB {
     pub fn is_visible(&self, cell_data: &CheckboxCellData) -> bool {
         let is_check = cell_data.is_check();
         match self.condition {
-            CheckboxCondition::IsChecked => is_check,
-            CheckboxCondition::IsUnChecked => !is_check,
+            CheckboxFilterCondition::IsChecked => is_check,
+            CheckboxFilterCondition::IsUnChecked => !is_check,
         }
     }
 }
 
-impl CellFilterOperation<CheckboxFilterConfigurationPB> for CheckboxTypeOptionPB {
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &CheckboxFilterConfigurationPB) -> FlowyResult<bool> {
+impl CellFilterOperation<CheckboxFilterPB> for CheckboxTypeOptionPB {
+    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &CheckboxFilterPB) -> FlowyResult<bool> {
         if !any_cell_data.is_checkbox() {
             return Ok(true);
         }
@@ -26,14 +26,14 @@ impl CellFilterOperation<CheckboxFilterConfigurationPB> for CheckboxTypeOptionPB
 
 #[cfg(test)]
 mod tests {
-    use crate::entities::{CheckboxCondition, CheckboxFilterConfigurationPB};
+    use crate::entities::{CheckboxFilterCondition, CheckboxFilterPB};
     use crate::services::field::CheckboxCellData;
     use std::str::FromStr;
 
     #[test]
     fn checkbox_filter_is_check_test() {
-        let checkbox_filter = CheckboxFilterConfigurationPB {
-            condition: CheckboxCondition::IsChecked,
+        let checkbox_filter = CheckboxFilterPB {
+            condition: CheckboxFilterCondition::IsChecked,
         };
         for (value, visible) in [("true", true), ("yes", true), ("false", false), ("no", false)] {
             let data = CheckboxCellData::from_str(value).unwrap();
@@ -43,8 +43,8 @@ mod tests {
 
     #[test]
     fn checkbox_filter_is_uncheck_test() {
-        let checkbox_filter = CheckboxFilterConfigurationPB {
-            condition: CheckboxCondition::IsUnChecked,
+        let checkbox_filter = CheckboxFilterPB {
+            condition: CheckboxFilterCondition::IsUnChecked,
         };
         for (value, visible) in [("false", true), ("no", true), ("true", false), ("yes", false)] {
             let data = CheckboxCellData::from_str(value).unwrap();

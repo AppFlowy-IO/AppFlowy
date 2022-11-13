@@ -112,3 +112,5 @@ impl std::convert::From<protobuf::ProtobufError> for FlowyError {
         FlowyError::internal().context(e)
     }
 }
+
+impl std::error::Error for FlowyError {}

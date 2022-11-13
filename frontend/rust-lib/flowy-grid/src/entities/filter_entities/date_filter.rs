@@ -2,13 +2,13 @@ use crate::entities::parser::NotEmptyStr;
 use crate::entities::FieldType;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use grid_rev_model::FilterConfigurationRevision;
+use grid_rev_model::FilterRevision;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct DateFilterConfigurationPB {
+pub struct DateFilterPB {
     #[pb(index = 1)]
     pub condition: DateFilterCondition,
 
@@ -98,6 +98,11 @@ pub enum DateFilterCondition {
     DateIsEmpty = 6,
 }
 
+impl std::convert::From<DateFilterCondition> for u32 {
+    fn from(value: DateFilterCondition) -> Self {
+        value as u32
+    }
+}
 impl std::default::Default for DateFilterCondition {
     fn default() -> Self {
         DateFilterCondition::DateIs
@@ -120,19 +125,15 @@ impl std::convert::TryFrom<u8> for DateFilterCondition {
         }
     }
 }
-impl std::convert::From<Arc<FilterConfigurationRevision>> for DateFilterConfigurationPB {
-    fn from(rev: Arc<FilterConfigurationRevision>) -> Self {
+impl std::convert::From<Arc<FilterRevision>> for DateFilterPB {
+    fn from(rev: Arc<FilterRevision>) -> Self {
         let condition = DateFilterCondition::try_from(rev.condition).unwrap_or(DateFilterCondition::DateIs);
-        let mut filter = DateFilterConfigurationPB {
+        let mut filter = DateFilterPB {
             condition,
             ..Default::default()
         };
 
-        if let Some(range) = rev
-            .content
-            .as_ref()
-            .and_then(|content| DateRange::from_str(content).ok())
-        {
+        if let Ok(range) = DateRange::from_str(&rev.content) {
             filter.start = range.start;
             filter.end = range.end;
         };

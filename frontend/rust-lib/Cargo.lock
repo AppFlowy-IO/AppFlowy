@@ -955,6 +955,7 @@ dependencies = [
 name = "flowy-grid"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "atomic_refcell",
  "bytes",
  "chrono",
@@ -970,6 +971,7 @@ dependencies = [
  "flowy-http-model",
  "flowy-revision",
  "flowy-sync",
+ "flowy-task",
  "flowy-test",
  "futures",
  "grid-rev-model",
@@ -1078,6 +1080,7 @@ dependencies = [
  "flowy-http-model",
  "flowy-net",
  "flowy-revision",
+ "flowy-task",
  "flowy-user",
  "futures-core",
  "grid-rev-model",
@@ -1116,6 +1119,19 @@ dependencies = [
  "tokio",
  "tracing",
  "url",
+]
+
+[[package]]
+name = "flowy-task"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "atomic_refcell",
+ "futures",
+ "lib-infra",
+ "rand 0.8.5",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 pub trait RefCountValue {
-    fn did_remove(&self);
+    fn did_remove(&self) {}
 }
 
 struct RefCountHandler<T> {

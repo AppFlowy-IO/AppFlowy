@@ -1,15 +1,15 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use grid_rev_model::FilterConfigurationRevision;
+use grid_rev_model::FilterRevision;
 use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct TextFilterConfigurationPB {
+pub struct TextFilterPB {
     #[pb(index = 1)]
     pub condition: TextFilterCondition,
 
-    #[pb(index = 2, one_of)]
-    pub content: Option<String>,
+    #[pb(index = 2)]
+    pub content: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
@@ -25,9 +25,9 @@ pub enum TextFilterCondition {
     TextIsNotEmpty = 7,
 }
 
-impl std::convert::From<TextFilterCondition> for i32 {
+impl std::convert::From<TextFilterCondition> for u32 {
     fn from(value: TextFilterCondition) -> Self {
-        value as i32
+        value as u32
     }
 }
 
@@ -54,9 +54,9 @@ impl std::convert::TryFrom<u8> for TextFilterCondition {
     }
 }
 
-impl std::convert::From<Arc<FilterConfigurationRevision>> for TextFilterConfigurationPB {
-    fn from(rev: Arc<FilterConfigurationRevision>) -> Self {
-        TextFilterConfigurationPB {
+impl std::convert::From<Arc<FilterRevision>> for TextFilterPB {
+    fn from(rev: Arc<FilterRevision>) -> Self {
+        TextFilterPB {
             condition: TextFilterCondition::try_from(rev.condition).unwrap_or(TextFilterCondition::Is),
             content: rev.content.clone(),
         }

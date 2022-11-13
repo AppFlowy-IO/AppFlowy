@@ -1,60 +1,57 @@
 use crate::entities::{
-    CreateRowParams, DeleteFilterParams, DeleteGroupParams, GridFilterConfigurationPB, GridSettingPB,
-    InsertFilterParams, InsertGroupParams, MoveGroupParams, RepeatedGridGroupPB, RowPB,
+    CreateFilterParams, CreateRowParams, DeleteFilterParams, DeleteGroupParams, GridSettingPB, InsertGroupParams,
+    MoveGroupParams, RepeatedGridGroupPB, RowPB,
 };
 use crate::manager::GridUser;
-use crate::services::grid_editor_task::GridServiceTaskScheduler;
-use crate::services::grid_view_editor::{GridViewRevisionCompress, GridViewRevisionEditor};
 
+use crate::services::grid_view_editor::{GridViewEditorDelegate, GridViewRevisionCompress, GridViewRevisionEditor};
 use crate::services::persistence::rev_sqlite::SQLiteGridViewRevisionPersistence;
+
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_revision::{
     RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, SQLiteRevisionSnapshotPersistence,
 };
-use grid_rev_model::{FieldRevision, RowChangeset, RowRevision};
-use lib_infra::future::AFFuture;
+
+use crate::services::filter::FilterType;
+use grid_rev_model::{FilterRevision, RowChangeset, RowRevision};
+use lib_infra::future::Fut;
 use std::sync::Arc;
 
 type ViewId = String;
 
-pub trait GridViewFieldDelegate: Send + Sync + 'static {
-    fn get_field_revs(&self) -> AFFuture<Vec<Arc<FieldRevision>>>;
-    fn get_field_rev(&self, field_id: &str) -> AFFuture<Option<Arc<FieldRevision>>>;
-}
-
-pub trait GridViewRowDelegate: Send + Sync + 'static {
-    fn gv_index_of_row(&self, row_id: &str) -> AFFuture<Option<usize>>;
-    fn gv_get_row_rev(&self, row_id: &str) -> AFFuture<Option<Arc<RowRevision>>>;
-    fn gv_row_revs(&self) -> AFFuture<Vec<Arc<RowRevision>>>;
-}
-
 pub(crate) struct GridViewManager {
     grid_id: String,
     user: Arc<dyn GridUser>,
-    field_delegate: Arc<dyn GridViewFieldDelegate>,
-    row_delegate: Arc<dyn GridViewRowDelegate>,
+    delegate: Arc<dyn GridViewEditorDelegate>,
     view_editors: DashMap<ViewId, Arc<GridViewRevisionEditor>>,
-    scheduler: Arc<dyn GridServiceTaskScheduler>,
 }
 
 impl GridViewManager {
     pub(crate) async fn new(
         grid_id: String,
         user: Arc<dyn GridUser>,
-        field_delegate: Arc<dyn GridViewFieldDelegate>,
-        row_delegate: Arc<dyn GridViewRowDelegate>,
-        scheduler: Arc<dyn GridServiceTaskScheduler>,
+        delegate: Arc<dyn GridViewEditorDelegate>,
     ) -> FlowyResult<Self> {
         Ok(Self {
             grid_id,
             user,
-            scheduler,
-            field_delegate,
-            row_delegate,
+            delegate,
             view_editors: DashMap::default(),
         })
+    }
+
+    pub(crate) async fn close(&self, _view_id: &str) {
+        if let Ok(editor) = self.get_default_view_editor().await {
+            let _ = editor.close().await;
+        }
+    }
+
+    pub async fn filter_rows(&self, block_id: &str, rows: Vec<Arc<RowRevision>>) -> FlowyResult<Vec<Arc<RowRevision>>> {
+        let editor = self.get_default_view_editor().await?;
+        let rows = editor.filter_rows(block_id, rows).await;
+        Ok(rows)
     }
 
     pub(crate) async fn duplicate_grid_view(&self) -> FlowyResult<String> {
@@ -79,7 +76,7 @@ impl GridViewManager {
 
     /// Insert/Delete the group's row if the corresponding cell data was changed.  
     pub(crate) async fn did_update_cell(&self, row_id: &str) {
-        match self.row_delegate.gv_get_row_rev(row_id).await {
+        match self.delegate.get_row_rev(row_id).await {
             None => {
                 tracing::warn!("Can not find the row in grid view");
             }
@@ -108,12 +105,17 @@ impl GridViewManager {
         Ok(view_editor.get_view_setting().await)
     }
 
-    pub(crate) async fn get_filters(&self) -> FlowyResult<Vec<GridFilterConfigurationPB>> {
+    pub(crate) async fn get_all_filters(&self) -> FlowyResult<Vec<Arc<FilterRevision>>> {
         let view_editor = self.get_default_view_editor().await?;
-        Ok(view_editor.get_view_filters().await)
+        Ok(view_editor.get_all_view_filters().await)
     }
 
-    pub(crate) async fn insert_or_update_filter(&self, params: InsertFilterParams) -> FlowyResult<()> {
+    pub(crate) async fn get_filters(&self, filter_id: &FilterType) -> FlowyResult<Vec<Arc<FilterRevision>>> {
+        let view_editor = self.get_default_view_editor().await?;
+        Ok(view_editor.get_view_filters(filter_id).await)
+    }
+
+    pub(crate) async fn insert_or_update_filter(&self, params: CreateFilterParams) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
         view_editor.insert_view_filter(params).await
     }
@@ -153,7 +155,7 @@ impl GridViewManager {
         row_rev: Arc<RowRevision>,
         to_group_id: String,
         to_row_id: Option<String>,
-        recv_row_changeset: impl FnOnce(RowChangeset) -> AFFuture<()>,
+        recv_row_changeset: impl FnOnce(RowChangeset) -> Fut<()>,
     ) -> FlowyResult<()> {
         let mut row_changeset = RowChangeset::new(row_rev.id.clone());
         let view_editor = self.get_default_view_editor().await?;
@@ -172,17 +174,6 @@ impl GridViewManager {
         Ok(())
     }
 
-    #[tracing::instrument(level = "trace", skip(self), err)]
-    pub(crate) async fn did_update_view_field(&self, field_id: &str) -> FlowyResult<()> {
-        let view_editor = self.get_default_view_editor().await?;
-        // Update the group if the group_id equal to the field_id
-        if view_editor.group_id().await != field_id {
-            return Ok(());
-        }
-        let _ = view_editor.did_update_view_field(field_id).await?;
-        Ok(())
-    }
-
     /// Notifies the view's field type-option data is changed
     /// For the moment, only the groups will be generated after the type-option data changed. A
     /// [FieldRevision] has a property named type_options contains a list of type-option data.
@@ -193,7 +184,11 @@ impl GridViewManager {
     #[tracing::instrument(level = "trace", skip(self), err)]
     pub(crate) async fn did_update_view_field_type_option(&self, field_id: &str) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
-        let _ = view_editor.did_update_view_field(field_id).await?;
+        if view_editor.is_grouped().await {
+            let _ = view_editor.group_by_view_field(field_id).await?;
+        }
+
+        let _ = view_editor.did_update_view_field_type_option(field_id).await?;
         Ok(())
     }
 
@@ -201,16 +196,7 @@ impl GridViewManager {
         debug_assert!(!view_id.is_empty());
         match self.view_editors.get(view_id) {
             None => {
-                let editor = Arc::new(
-                    make_view_editor(
-                        &self.user,
-                        view_id,
-                        self.field_delegate.clone(),
-                        self.row_delegate.clone(),
-                        self.scheduler.clone(),
-                    )
-                    .await?,
-                );
+                let editor = Arc::new(make_view_editor(&self.user, view_id, self.delegate.clone()).await?);
                 self.view_editors.insert(view_id.to_owned(), editor.clone());
                 Ok(editor)
             }
@@ -226,25 +212,14 @@ impl GridViewManager {
 async fn make_view_editor(
     user: &Arc<dyn GridUser>,
     view_id: &str,
-    field_delegate: Arc<dyn GridViewFieldDelegate>,
-    row_delegate: Arc<dyn GridViewRowDelegate>,
-    scheduler: Arc<dyn GridServiceTaskScheduler>,
+    delegate: Arc<dyn GridViewEditorDelegate>,
 ) -> FlowyResult<GridViewRevisionEditor> {
     let rev_manager = make_grid_view_rev_manager(user, view_id).await?;
     let user_id = user.user_id()?;
     let token = user.token()?;
     let view_id = view_id.to_owned();
 
-    GridViewRevisionEditor::new(
-        &user_id,
-        &token,
-        view_id,
-        field_delegate,
-        row_delegate,
-        scheduler,
-        rev_manager,
-    )
-    .await
+    GridViewRevisionEditor::new(&user_id, &token, view_id, delegate, rev_manager).await
 }
 
 pub async fn make_grid_view_rev_manager(

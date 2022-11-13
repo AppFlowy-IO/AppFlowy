@@ -7,7 +7,7 @@ use crate::services::field::{
     SelectOptionCellChangesetPayloadPB, SelectOptionCellDataPB, SelectOptionChangeset, SelectOptionChangesetPayloadPB,
     SelectOptionPB,
 };
-use crate::services::row::make_row_from_row_rev;
+use crate::services::row::{make_block_pbs, make_row_from_row_rev};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use grid_rev_model::FieldRevision;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
@@ -20,7 +20,7 @@ pub(crate) async fn get_grid_handler(
 ) -> DataResult<GridPB, FlowyError> {
     let grid_id: GridIdPB = data.into_inner();
     let editor = manager.open_grid(grid_id).await?;
-    let grid = editor.get_grid_data().await?;
+    let grid = editor.get_grid().await?;
     data_result(grid)
 }
 
@@ -31,7 +31,7 @@ pub(crate) async fn get_grid_setting_handler(
 ) -> DataResult<GridSettingPB, FlowyError> {
     let grid_id: GridIdPB = data.into_inner();
     let editor = manager.open_grid(grid_id).await?;
-    let grid_setting = editor.get_grid_setting().await?;
+    let grid_setting = editor.get_setting().await?;
     data_result(grid_setting)
 }
 
@@ -68,8 +68,8 @@ pub(crate) async fn get_grid_blocks_handler(
 ) -> DataResult<RepeatedBlockPB, FlowyError> {
     let params: QueryGridBlocksParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
-    let repeated_grid_block = editor.get_blocks(Some(params.block_ids)).await?;
-    data_result(repeated_grid_block)
+    let blocks = editor.get_blocks(Some(params.block_ids)).await?;
+    data_result(make_block_pbs(blocks))
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]

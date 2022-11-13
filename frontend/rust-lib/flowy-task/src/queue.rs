@@ -1,6 +1,5 @@
-use crate::services::tasks::task::{PendingTask, Task, TaskContent, TaskType};
+use crate::{PendingTask, Task};
 use atomic_refcell::AtomicRefCell;
-
 use std::cmp::Ordering;
 use std::collections::hash_map::Entry;
 use std::collections::{BinaryHeap, HashMap};
@@ -8,30 +7,25 @@ use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
 #[derive(Default)]
-pub(crate) struct GridTaskQueue {
+pub(crate) struct TaskQueue {
     // index_tasks for quick access
     index_tasks: HashMap<TaskHandlerId, Arc<AtomicRefCell<TaskList>>>,
     queue: BinaryHeap<Arc<AtomicRefCell<TaskList>>>,
 }
 
-impl GridTaskQueue {
+impl TaskQueue {
     pub(crate) fn new() -> Self {
         Self::default()
     }
 
     pub(crate) fn push(&mut self, task: &Task) {
         if task.content.is_none() {
-            tracing::warn!("Ignore task: {} with empty content", task.id);
+            tracing::warn!("The task:{} with empty content will be not executed", task.id);
             return;
         }
 
-        let task_type = match task.content.as_ref().unwrap() {
-            TaskContent::Snapshot => TaskType::Snapshot,
-            TaskContent::Group => TaskType::Group,
-            TaskContent::Filter { .. } => TaskType::Filter,
-        };
         let pending_task = PendingTask {
-            ty: task_type,
+            qos: task.qos,
             id: task.id,
         };
         match self.index_tasks.entry(task.handler_id.clone()) {

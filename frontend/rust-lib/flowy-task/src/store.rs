@@ -1,16 +1,15 @@
-use crate::services::tasks::task::Task;
-use crate::services::tasks::{TaskId, TaskStatus};
+use crate::{Task, TaskId, TaskState};
 use std::collections::HashMap;
 use std::mem;
 use std::sync::atomic::AtomicU32;
 use std::sync::atomic::Ordering::SeqCst;
 
-pub(crate) struct GridTaskStore {
+pub(crate) struct TaskStore {
     tasks: HashMap<TaskId, Task>,
     task_id_counter: AtomicU32,
 }
 
-impl GridTaskStore {
+impl TaskStore {
     pub fn new() -> Self {
         Self {
             tasks: HashMap::new(),
@@ -26,13 +25,20 @@ impl GridTaskStore {
         self.tasks.remove(task_id)
     }
 
-    #[allow(dead_code)]
+    pub(crate) fn mut_task(&mut self, task_id: &TaskId) -> Option<&mut Task> {
+        self.tasks.get_mut(task_id)
+    }
+
+    pub(crate) fn read_task(&self, task_id: &TaskId) -> Option<&Task> {
+        self.tasks.get(task_id)
+    }
+
     pub(crate) fn clear(&mut self) {
         let tasks = mem::take(&mut self.tasks);
         tasks.into_values().for_each(|mut task| {
             if task.ret.is_some() {
                 let ret = task.ret.take().unwrap();
-                task.set_status(TaskStatus::Cancel);
+                task.set_state(TaskState::Cancel);
                 let _ = ret.send(task.into());
             }
         });

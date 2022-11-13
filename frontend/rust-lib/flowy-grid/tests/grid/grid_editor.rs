@@ -3,6 +3,7 @@
 #![allow(unused_imports)]
 use crate::grid::block_test::util::GridRowTestBuilder;
 use bytes::Bytes;
+use flowy_error::FlowyResult;
 use flowy_grid::entities::*;
 use flowy_grid::services::field::SelectOptionPB;
 use flowy_grid::services::field::*;
@@ -55,7 +56,7 @@ impl GridEditorTest {
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
         let field_revs = editor.get_field_revs(None).await.unwrap();
         let block_meta_revs = editor.get_block_meta_revs().await.unwrap();
-        let row_revs = editor.grid_block_snapshots(None).await.unwrap().pop().unwrap().row_revs;
+        let row_revs = editor.get_blocks(None).await.unwrap().pop().unwrap().row_revs;
         assert_eq!(block_meta_revs.len(), 1);
 
         // It seems like you should add the field in the make_test_grid() function.
@@ -76,17 +77,11 @@ impl GridEditorTest {
     }
 
     pub async fn get_row_revs(&self) -> Vec<Arc<RowRevision>> {
-        self.editor
-            .grid_block_snapshots(None)
-            .await
-            .unwrap()
-            .pop()
-            .unwrap()
-            .row_revs
+        self.editor.get_blocks(None).await.unwrap().pop().unwrap().row_revs
     }
 
-    pub async fn grid_filters(&self) -> Vec<GridFilterConfigurationPB> {
-        self.editor.get_grid_filter().await.unwrap()
+    pub async fn grid_filters(&self) -> Vec<FilterPB> {
+        self.editor.get_all_filters().await.unwrap()
     }
 
     pub fn get_field_rev(&self, field_type: FieldType) -> &Arc<FieldRevision> {
@@ -239,7 +234,7 @@ fn make_test_grid() -> BuildGridContext {
             3 => {
                 for field_type in FieldType::iter() {
                     match field_type {
-                        FieldType::RichText => row_builder.insert_text_cell("D"),
+                        FieldType::RichText => row_builder.insert_text_cell("DA"),
                         FieldType::Number => row_builder.insert_number_cell("4"),
                         FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
                         FieldType::SingleSelect => {
@@ -253,8 +248,8 @@ fn make_test_grid() -> BuildGridContext {
             4 => {
                 for field_type in FieldType::iter() {
                     match field_type {
-                        FieldType::RichText => row_builder.insert_text_cell("E"),
-                        FieldType::Number => row_builder.insert_number_cell("5"),
+                        FieldType::RichText => row_builder.insert_text_cell("AE"),
+                        FieldType::Number => row_builder.insert_number_cell(""),
                         FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
                         FieldType::SingleSelect => {
                             row_builder.insert_single_select_cell(|mut options| options.remove(2))

@@ -36,8 +36,8 @@ impl GroupControllerSharedActions for DefaultGroupController {
         &self.field_id
     }
 
-    fn groups(&self) -> Vec<Group> {
-        vec![self.group.clone()]
+    fn groups(&self) -> Vec<&Group> {
+        vec![&self.group]
     }
 
     fn get_group(&self, _group_id: &str) -> Option<(usize, Group)> {

@@ -1,12 +1,12 @@
-mod block_entities;
+pub mod block_entities;
 mod cell_entities;
 mod field_entities;
-mod filter_entities;
+pub mod filter_entities;
 mod grid_entities;
 mod group_entities;
 pub mod parser;
 mod row_entities;
-mod setting_entities;
+pub mod setting_entities;
 
 pub use block_entities::*;
 pub use cell_entities::*;
