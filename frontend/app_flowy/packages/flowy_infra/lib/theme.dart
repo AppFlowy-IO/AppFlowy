@@ -1,3 +1,4 @@
+import 'package:flowy_infra/text_style.dart';
 import 'package:flutter/material.dart';
 
 import 'color_extension.dart';
@@ -19,7 +20,7 @@ String themeTypeToString(Brightness brightness) {
   }
 }
 
-// Color Pallettes
+// Color Palettes
 const _black = Color(0xff000000);
 const _white = Color(0xFFFFFFFF);
 
@@ -154,11 +155,10 @@ class AppTheme {
   }
 
   ThemeData get themeData {
+    final textTheme = TextStyles(font: font, color: shader1);
     return ThemeData(
       brightness: brightness,
-      textTheme: TextTheme(
-        bodyText2: TextStyle(color: shader1),
-      ),
+      textTheme: textTheme.generateTextTheme(),
       textSelectionTheme: TextSelectionThemeData(
           cursorColor: main2, selectionHandleColor: main2),
       primaryIconTheme: IconThemeData(color: hover),
