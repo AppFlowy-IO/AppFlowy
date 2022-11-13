@@ -8,25 +8,37 @@ use std::str::FromStr;
 
 impl NumberFilterPB {
     pub fn is_visible(&self, num_cell_data: &NumberCellData) -> bool {
-        if self.content.is_none() {
-            return false;
-        }
-
-        let content = self.content.as_ref().unwrap();
-        let zero_decimal = Decimal::zero();
-        let cell_decimal = num_cell_data.decimal().as_ref().unwrap_or(&zero_decimal);
-        match Decimal::from_str(content) {
-            Ok(decimal) => match self.condition {
-                NumberFilterCondition::Equal => cell_decimal == &decimal,
-                NumberFilterCondition::NotEqual => cell_decimal != &decimal,
-                NumberFilterCondition::GreaterThan => cell_decimal > &decimal,
-                NumberFilterCondition::LessThan => cell_decimal < &decimal,
-                NumberFilterCondition::GreaterThanOrEqualTo => cell_decimal >= &decimal,
-                NumberFilterCondition::LessThanOrEqualTo => cell_decimal <= &decimal,
+        match &self.content {
+            None => match self.condition {
                 NumberFilterCondition::NumberIsEmpty => num_cell_data.is_empty(),
                 NumberFilterCondition::NumberIsNotEmpty => !num_cell_data.is_empty(),
+                _ => true,
             },
-            Err(_) => false,
+            Some(content) => {
+                if content.is_empty() {
+                    match self.condition {
+                        NumberFilterCondition::NumberIsEmpty => {
+                            return num_cell_data.is_empty();
+                        }
+                        NumberFilterCondition::NumberIsNotEmpty => {
+                            return !num_cell_data.is_empty();
+                        }
+                        _ => {}
+                    }
+                }
+                let zero_decimal = Decimal::zero();
+                let cell_decimal = num_cell_data.decimal().as_ref().unwrap_or(&zero_decimal);
+                let decimal = Decimal::from_str(content).unwrap_or_else(|_| Decimal::zero());
+                match self.condition {
+                    NumberFilterCondition::Equal => cell_decimal == &decimal,
+                    NumberFilterCondition::NotEqual => cell_decimal != &decimal,
+                    NumberFilterCondition::GreaterThan => cell_decimal > &decimal,
+                    NumberFilterCondition::LessThan => cell_decimal < &decimal,
+                    NumberFilterCondition::GreaterThanOrEqualTo => cell_decimal >= &decimal,
+                    NumberFilterCondition::LessThanOrEqualTo => cell_decimal <= &decimal,
+                    _ => true,
+                }
+            }
         }
     }
 }

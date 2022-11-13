@@ -2,7 +2,6 @@ use crate::grid::filter_test::script::FilterScript::*;
 use crate::grid::filter_test::script::*;
 use flowy_grid::entities::{FieldType, InsertFilterPayloadPB, TextFilterCondition};
 use flowy_grid::services::filter::FilterType;
-use grid_rev_model::FieldRevision;
 
 #[tokio::test]
 async fn grid_filter_text_is_empty_test() {

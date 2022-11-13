@@ -249,7 +249,7 @@ fn make_test_grid() -> BuildGridContext {
                 for field_type in FieldType::iter() {
                     match field_type {
                         FieldType::RichText => row_builder.insert_text_cell("AE"),
-                        FieldType::Number => row_builder.insert_number_cell("5"),
+                        FieldType::Number => row_builder.insert_number_cell(""),
                         FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
                         FieldType::SingleSelect => {
                             row_builder.insert_single_select_cell(|mut options| options.remove(2))

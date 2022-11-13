@@ -1,5 +1,5 @@
 use crate::entities::{BlockPB, RepeatedBlockPB, RowPB};
-use flowy_error::FlowyResult;
+
 use grid_rev_model::RowRevision;
 use std::collections::HashMap;
 use std::sync::Arc;

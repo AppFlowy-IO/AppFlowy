@@ -13,7 +13,7 @@ use crate::services::filter::FilterType;
 use crate::services::grid_editor_trait_impl::GridViewEditorDelegateImpl;
 use crate::services::grid_view_manager::GridViewManager;
 use crate::services::persistence::block_index::BlockIndexCache;
-use crate::services::row::{make_block_pbs, GridBlock, RowRevisionBuilder};
+use crate::services::row::{GridBlock, RowRevisionBuilder};
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
