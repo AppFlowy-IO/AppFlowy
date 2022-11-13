@@ -4,7 +4,7 @@
 #![allow(unused_imports)]
 
 use futures::TryFutureExt;
-use flowy_grid::entities::{InsertFilterParams, InsertFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition};
+use flowy_grid::entities::{CreateFilterParams, CreateFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
 use flowy_grid::services::filter::FilterType;
@@ -12,7 +12,7 @@ use crate::grid::grid_editor::GridEditorTest;
 
 pub enum FilterScript {
     InsertFilter {
-        payload: InsertFilterPayloadPB,
+        payload: CreateFilterPayloadPB,
     },
     CreateTextFilter {
         condition: TextFilterCondition,
@@ -24,6 +24,10 @@ pub enum FilterScript {
     },
     CreateCheckboxFilter {
         condition: CheckboxFilterCondition,
+    },
+    CreateDateFilter{
+        condition: DateFilterCondition,
+        content: String,
     },
     AssertFilterCount {
         count: i32,
@@ -72,19 +76,25 @@ impl GridFilterTest {
             FilterScript::CreateTextFilter { condition, content} => {
                 let field_rev = self.get_field_rev(FieldType::RichText);
                 let payload =
-                    InsertFilterPayloadPB::new(field_rev, condition, Some(content));
+                    CreateFilterPayloadPB::new(field_rev, condition, content);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateNumberFilter {condition, content} => {
                 let field_rev = self.get_field_rev(FieldType::Number);
                 let payload =
-                    InsertFilterPayloadPB::new(field_rev, condition, Some(content));
+                    CreateFilterPayloadPB::new(field_rev, condition, content);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateCheckboxFilter {condition} => {
                 let field_rev = self.get_field_rev(FieldType::Checkbox);
                 let payload =
-                    InsertFilterPayloadPB::new(field_rev, condition, Some("".to_string()));
+                    CreateFilterPayloadPB::new(field_rev, condition, "".to_string());
+                self.insert_filter(payload).await;
+            }
+            FilterScript::CreateDateFilter { condition, content} => {
+                let field_rev = self.get_field_rev(FieldType::DateTime);
+                let payload =
+                    CreateFilterPayloadPB::new(field_rev, condition, content);
                 self.insert_filter(payload).await;
             }
             FilterScript::AssertFilterCount { count } => {
@@ -93,7 +103,7 @@ impl GridFilterTest {
             }
             FilterScript::AssertFilterContent { filter_type: filter_id, condition, content} => {
                 let filter = self.editor.get_filters(filter_id).await.unwrap().pop().unwrap();
-                assert_eq!(filter.content.as_ref().unwrap(), &content);
+                assert_eq!(&filter.content, &content);
                 assert_eq!(filter.condition as u32, condition);
 
             }
@@ -114,9 +124,9 @@ impl GridFilterTest {
         }
     }
 
-    async fn insert_filter(&self, payload: InsertFilterPayloadPB) {
+    async fn insert_filter(&self, payload: CreateFilterPayloadPB) {
 
-        let params: InsertFilterParams = payload.try_into().unwrap();
+        let params: CreateFilterParams = payload.try_into().unwrap();
         let _ = self.editor.create_filter(params).await.unwrap();
     }
 }

@@ -5,5 +5,6 @@ pub struct FilterRevision {
     pub id: String,
     pub field_id: String,
     pub condition: u8,
-    pub content: Option<String>,
+    #[serde(default)]
+    pub content: String,
 }

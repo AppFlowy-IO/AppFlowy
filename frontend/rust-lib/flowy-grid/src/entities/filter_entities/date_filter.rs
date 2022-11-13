@@ -98,6 +98,11 @@ pub enum DateFilterCondition {
     DateIsEmpty = 6,
 }
 
+impl std::convert::From<DateFilterCondition> for u32 {
+    fn from(value: DateFilterCondition) -> Self {
+        value as u32
+    }
+}
 impl std::default::Default for DateFilterCondition {
     fn default() -> Self {
         DateFilterCondition::DateIs
@@ -128,11 +133,7 @@ impl std::convert::From<Arc<FilterRevision>> for DateFilterPB {
             ..Default::default()
         };
 
-        if let Some(range) = rev
-            .content
-            .as_ref()
-            .and_then(|content| DateRange::from_str(content).ok())
-        {
+        if let Ok(range) = DateRange::from_str(&rev.content) {
             filter.start = range.start;
             filter.end = range.end;
         };

@@ -388,8 +388,8 @@ impl std::convert::From<&Arc<FieldRevision>> for FilterType {
     }
 }
 
-impl std::convert::From<&InsertFilterParams> for FilterType {
-    fn from(params: &InsertFilterParams) -> Self {
+impl std::convert::From<&CreateFilterParams> for FilterType {
+    fn from(params: &CreateFilterParams) -> Self {
         let field_type: FieldType = params.field_type_rev.into();
         Self {
             field_id: params.field_id.clone(),

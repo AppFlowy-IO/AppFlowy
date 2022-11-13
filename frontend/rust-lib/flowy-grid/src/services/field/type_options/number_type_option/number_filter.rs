@@ -8,27 +8,21 @@ use std::str::FromStr;
 
 impl NumberFilterPB {
     pub fn is_visible(&self, num_cell_data: &NumberCellData) -> bool {
-        match &self.content {
-            None => match self.condition {
-                NumberFilterCondition::NumberIsEmpty => num_cell_data.is_empty(),
-                NumberFilterCondition::NumberIsNotEmpty => !num_cell_data.is_empty(),
-                _ => true,
-            },
-            Some(content) => {
-                if content.is_empty() {
-                    match self.condition {
-                        NumberFilterCondition::NumberIsEmpty => {
-                            return num_cell_data.is_empty();
-                        }
-                        NumberFilterCondition::NumberIsNotEmpty => {
-                            return !num_cell_data.is_empty();
-                        }
-                        _ => {}
-                    }
+        if self.content.is_empty() {
+            match self.condition {
+                NumberFilterCondition::NumberIsEmpty => {
+                    return num_cell_data.is_empty();
                 }
-                let zero_decimal = Decimal::zero();
-                let cell_decimal = num_cell_data.decimal().as_ref().unwrap_or(&zero_decimal);
-                let decimal = Decimal::from_str(content).unwrap_or_else(|_| Decimal::zero());
+                NumberFilterCondition::NumberIsNotEmpty => {
+                    return !num_cell_data.is_empty();
+                }
+                _ => {}
+            }
+        }
+        match num_cell_data.decimal().as_ref() {
+            None => false,
+            Some(cell_decimal) => {
+                let decimal = Decimal::from_str(&self.content).unwrap_or_else(|_| Decimal::zero());
                 match self.condition {
                     NumberFilterCondition::Equal => cell_decimal == &decimal,
                     NumberFilterCondition::NotEqual => cell_decimal != &decimal,
@@ -64,7 +58,7 @@ mod tests {
     fn number_filter_equal_test() {
         let number_filter = NumberFilterPB {
             condition: NumberFilterCondition::Equal,
-            content: Some("123".to_owned()),
+            content: "123".to_owned(),
         };
 
         for (num_str, visible) in [("123", true), ("1234", false), ("", false)] {
@@ -82,7 +76,7 @@ mod tests {
     fn number_filter_greater_than_test() {
         let number_filter = NumberFilterPB {
             condition: NumberFilterCondition::GreaterThan,
-            content: Some("12".to_owned()),
+            content: "12".to_owned(),
         };
         for (num_str, visible) in [("123", true), ("10", false), ("30", true), ("", false)] {
             let data = NumberCellData::from_format_str(num_str, true, &NumberFormat::Num).unwrap();
@@ -94,9 +88,9 @@ mod tests {
     fn number_filter_less_than_test() {
         let number_filter = NumberFilterPB {
             condition: NumberFilterCondition::LessThan,
-            content: Some("100".to_owned()),
+            content: "100".to_owned(),
         };
-        for (num_str, visible) in [("12", true), ("1234", false), ("30", true), ("", true)] {
+        for (num_str, visible) in [("12", true), ("1234", false), ("30", true), ("", false)] {
             let data = NumberCellData::from_format_str(num_str, true, &NumberFormat::Num).unwrap();
             assert_eq!(number_filter.is_visible(&data), visible);
         }

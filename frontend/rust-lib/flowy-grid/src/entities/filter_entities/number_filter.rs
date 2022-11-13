@@ -9,8 +9,8 @@ pub struct NumberFilterPB {
     #[pb(index = 1)]
     pub condition: NumberFilterCondition,
 
-    #[pb(index = 2, one_of)]
-    pub content: Option<String>,
+    #[pb(index = 2)]
+    pub content: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]

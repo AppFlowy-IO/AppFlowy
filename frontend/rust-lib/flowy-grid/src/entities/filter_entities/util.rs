@@ -81,7 +81,7 @@ pub struct DeleteFilterParams {
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]
-pub struct InsertFilterPayloadPB {
+pub struct CreateFilterPayloadPB {
     #[pb(index = 1)]
     pub field_id: String,
 
@@ -91,13 +91,13 @@ pub struct InsertFilterPayloadPB {
     #[pb(index = 3)]
     pub condition: u32,
 
-    #[pb(index = 4, one_of)]
-    pub content: Option<String>,
+    #[pb(index = 4)]
+    pub content: String,
 }
 
-impl InsertFilterPayloadPB {
+impl CreateFilterPayloadPB {
     #[allow(dead_code)]
-    pub fn new<T: Into<u32>>(field_rev: &FieldRevision, condition: T, content: Option<String>) -> Self {
+    pub fn new<T: Into<u32>>(field_rev: &FieldRevision, condition: T, content: String) -> Self {
         Self {
             field_id: field_rev.id.clone(),
             field_type: field_rev.ty.into(),
@@ -107,10 +107,10 @@ impl InsertFilterPayloadPB {
     }
 }
 
-impl TryInto<InsertFilterParams> for InsertFilterPayloadPB {
+impl TryInto<CreateFilterParams> for CreateFilterPayloadPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<InsertFilterParams, Self::Error> {
+    fn try_into(self) -> Result<CreateFilterParams, Self::Error> {
         let field_id = NotEmptyStr::parse(self.field_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
             .0;
@@ -133,7 +133,7 @@ impl TryInto<InsertFilterParams> for InsertFilterPayloadPB {
             }
         }
 
-        Ok(InsertFilterParams {
+        Ok(CreateFilterParams {
             field_id,
             field_type_rev: self.field_type.into(),
             condition,
@@ -142,9 +142,9 @@ impl TryInto<InsertFilterParams> for InsertFilterPayloadPB {
     }
 }
 
-pub struct InsertFilterParams {
+pub struct CreateFilterParams {
     pub field_id: String,
     pub field_type_rev: FieldTypeRevision,
     pub condition: u8,
-    pub content: Option<String>,
+    pub content: String,
 }

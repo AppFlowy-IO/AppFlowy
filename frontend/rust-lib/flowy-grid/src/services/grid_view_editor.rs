@@ -288,7 +288,7 @@ impl GridViewRevisionEditor {
         .await
     }
 
-    pub(crate) async fn insert_view_filter(&self, params: InsertFilterParams) -> FlowyResult<()> {
+    pub(crate) async fn insert_view_filter(&self, params: CreateFilterParams) -> FlowyResult<()> {
         let filter_type = FilterType::from(&params);
         let _ = self
             .modify(|pad| {
