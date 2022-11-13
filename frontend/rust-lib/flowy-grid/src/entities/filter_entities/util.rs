@@ -5,7 +5,7 @@ use crate::entities::{
 };
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use grid_rev_model::{FieldRevision, FieldTypeRevision, FilterConfigurationRevision};
+use grid_rev_model::{FieldRevision, FieldTypeRevision, FilterRevision};
 use std::convert::TryInto;
 use std::sync::Arc;
 
@@ -21,14 +21,14 @@ pub struct RepeatedGridFilterConfigurationPB {
     pub items: Vec<FilterConfigurationPB>,
 }
 
-impl std::convert::From<&FilterConfigurationRevision> for FilterConfigurationPB {
-    fn from(rev: &FilterConfigurationRevision) -> Self {
+impl std::convert::From<&FilterRevision> for FilterConfigurationPB {
+    fn from(rev: &FilterRevision) -> Self {
         Self { id: rev.id.clone() }
     }
 }
 
-impl std::convert::From<Vec<Arc<FilterConfigurationRevision>>> for RepeatedGridFilterConfigurationPB {
-    fn from(revs: Vec<Arc<FilterConfigurationRevision>>) -> Self {
+impl std::convert::From<Vec<Arc<FilterRevision>>> for RepeatedGridFilterConfigurationPB {
+    fn from(revs: Vec<Arc<FilterRevision>>) -> Self {
         RepeatedGridFilterConfigurationPB {
             items: revs.into_iter().map(|rev| rev.as_ref().into()).collect(),
         }

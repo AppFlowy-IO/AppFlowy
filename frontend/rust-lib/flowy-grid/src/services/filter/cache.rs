@@ -1,24 +1,52 @@
-use crate::entities::{
-    CheckboxFilterConfigurationPB, DateFilterConfigurationPB, FieldType, NumberFilterConfigurationPB,
-    SelectOptionFilterConfigurationPB, TextFilterConfigurationPB,
-};
+use crate::entities::{CheckboxFilterPB, DateFilterPB, FieldType, NumberFilterPB, SelectOptionFilterPB, TextFilterPB};
 use crate::services::filter::FilterId;
-use grid_rev_model::RowRevision;
+
 use std::collections::HashMap;
 
 #[derive(Default)]
 pub(crate) struct FilterMap {
-    pub(crate) text_filter: HashMap<FilterId, TextFilterConfigurationPB>,
-    pub(crate) url_filter: HashMap<FilterId, TextFilterConfigurationPB>,
-    pub(crate) number_filter: HashMap<FilterId, NumberFilterConfigurationPB>,
-    pub(crate) date_filter: HashMap<FilterId, DateFilterConfigurationPB>,
-    pub(crate) select_option_filter: HashMap<FilterId, SelectOptionFilterConfigurationPB>,
-    pub(crate) checkbox_filter: HashMap<FilterId, CheckboxFilterConfigurationPB>,
+    pub(crate) text_filter: HashMap<FilterId, TextFilterPB>,
+    pub(crate) url_filter: HashMap<FilterId, TextFilterPB>,
+    pub(crate) number_filter: HashMap<FilterId, NumberFilterPB>,
+    pub(crate) date_filter: HashMap<FilterId, DateFilterPB>,
+    pub(crate) select_option_filter: HashMap<FilterId, SelectOptionFilterPB>,
+    pub(crate) checkbox_filter: HashMap<FilterId, CheckboxFilterPB>,
 }
 
 impl FilterMap {
     pub(crate) fn new() -> Self {
         Self::default()
+    }
+
+    pub(crate) fn is_empty(&self) -> bool {
+        if !self.text_filter.is_empty() {
+            return false;
+        }
+
+        if !self.url_filter.is_empty() {
+            return false;
+        }
+
+        if !self.number_filter.is_empty() {
+            return false;
+        }
+
+        if !self.number_filter.is_empty() {
+            return false;
+        }
+
+        if !self.date_filter.is_empty() {
+            return false;
+        }
+
+        if !self.select_option_filter.is_empty() {
+            return false;
+        }
+
+        if !self.checkbox_filter.is_empty() {
+            return false;
+        }
+        true
     }
 
     pub(crate) fn remove(&mut self, filter_id: &FilterId) {
@@ -49,21 +77,14 @@ impl FilterMap {
 }
 
 /// Refresh the filter according to the field id.
-
 #[derive(Default)]
 pub(crate) struct FilterResult {
-    pub(crate) visible_by_field_id: HashMap<FilterId, bool>,
+    pub(crate) visible_by_filter_id: HashMap<FilterId, bool>,
 }
 
 impl FilterResult {
-    pub(crate) fn new(_row_rev: &RowRevision) -> Self {
-        Self {
-            visible_by_field_id: HashMap::new(),
-        }
-    }
-
     pub(crate) fn is_visible(&self) -> bool {
-        for visible in self.visible_by_field_id.values() {
+        for visible in self.visible_by_filter_id.values() {
             if visible == &false {
                 return false;
             }

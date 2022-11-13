@@ -209,9 +209,9 @@ impl GridBlockManager {
         }
     }
 
-    pub async fn get_row_pbs(&self, block_id: &str) -> FlowyResult<Vec<RowPB>> {
+    pub async fn get_row_revs(&self, block_id: &str) -> FlowyResult<Vec<Arc<RowRevision>>> {
         let editor = self.get_block_editor(block_id).await?;
-        editor.get_row_pbs::<&str>(None).await
+        editor.get_row_revs::<&str>(None).await
     }
 
     pub(crate) async fn get_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlock>> {

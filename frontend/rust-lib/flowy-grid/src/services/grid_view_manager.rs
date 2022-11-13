@@ -6,18 +6,17 @@ use crate::manager::GridUser;
 
 use crate::services::grid_view_editor::{GridViewEditorDelegate, GridViewRevisionCompress, GridViewRevisionEditor};
 use crate::services::persistence::rev_sqlite::SQLiteGridViewRevisionPersistence;
-use crate::services::row::GridBlock;
+
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_revision::{
     RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, SQLiteRevisionSnapshotPersistence,
 };
-use flowy_task::TaskDispatcher;
-use grid_rev_model::{FilterConfigurationRevision, RowChangeset, RowRevision};
+
+use grid_rev_model::{FilterRevision, RowChangeset, RowRevision};
 use lib_infra::future::Fut;
 use std::sync::Arc;
-use tokio::sync::RwLock;
 
 type ViewId = String;
 
@@ -26,7 +25,6 @@ pub(crate) struct GridViewManager {
     user: Arc<dyn GridUser>,
     delegate: Arc<dyn GridViewEditorDelegate>,
     view_editors: DashMap<ViewId, Arc<GridViewRevisionEditor>>,
-    scheduler: Arc<RwLock<TaskDispatcher>>,
 }
 
 impl GridViewManager {
@@ -34,24 +32,22 @@ impl GridViewManager {
         grid_id: String,
         user: Arc<dyn GridUser>,
         delegate: Arc<dyn GridViewEditorDelegate>,
-        scheduler: Arc<RwLock<TaskDispatcher>>,
     ) -> FlowyResult<Self> {
         Ok(Self {
             grid_id,
             user,
             delegate,
             view_editors: DashMap::default(),
-            scheduler,
         })
     }
 
-    pub(crate) async fn close(&self, view_id: &str) {
+    pub(crate) async fn close(&self, _view_id: &str) {
         if let Ok(editor) = self.get_default_view_editor().await {
             let _ = editor.close().await;
         }
     }
 
-    pub async fn filter_rows(&self, block_id: &str, rows: Vec<RowPB>) -> FlowyResult<Vec<RowPB>> {
+    pub async fn filter_rows(&self, block_id: &str, rows: Vec<Arc<RowRevision>>) -> FlowyResult<Vec<Arc<RowRevision>>> {
         let editor = self.get_default_view_editor().await?;
         let rows = editor.filter_rows(block_id, rows).await;
         Ok(rows)
@@ -108,7 +104,7 @@ impl GridViewManager {
         Ok(view_editor.get_view_setting().await)
     }
 
-    pub(crate) async fn get_filters(&self) -> FlowyResult<Vec<Arc<FilterConfigurationRevision>>> {
+    pub(crate) async fn get_filters(&self) -> FlowyResult<Vec<Arc<FilterRevision>>> {
         let view_editor = self.get_default_view_editor().await?;
         Ok(view_editor.get_view_filters().await)
     }

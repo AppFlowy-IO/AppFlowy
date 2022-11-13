@@ -3,8 +3,7 @@ use crate::util::{cal_diff, make_operations_from_revisions};
 use flowy_http_model::revision::Revision;
 use flowy_http_model::util::md5;
 use grid_rev_model::{
-    FieldRevision, FieldTypeRevision, FilterConfigurationRevision, GridViewRevision, GroupConfigurationRevision,
-    LayoutRevision,
+    FieldRevision, FieldTypeRevision, FilterRevision, GridViewRevision, GroupConfigurationRevision, LayoutRevision,
 };
 use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
 use std::sync::Arc;
@@ -131,7 +130,7 @@ impl GridViewRevisionPad {
         })
     }
 
-    pub fn get_all_filters(&self, field_revs: &[Arc<FieldRevision>]) -> Vec<Arc<FilterConfigurationRevision>> {
+    pub fn get_all_filters(&self, field_revs: &[Arc<FieldRevision>]) -> Vec<Arc<FilterRevision>> {
         self.filters
             .get_objects_by_field_revs(field_revs)
             .into_values()
@@ -139,19 +138,15 @@ impl GridViewRevisionPad {
             .collect()
     }
 
-    pub fn get_filters(
-        &self,
-        field_id: &str,
-        field_type_rev: &FieldTypeRevision,
-    ) -> Vec<Arc<FilterConfigurationRevision>> {
-        self.filters.get_objects(field_id, field_type_rev).unwrap_or(vec![])
+    pub fn get_filters(&self, field_id: &str, field_type_rev: &FieldTypeRevision) -> Vec<Arc<FilterRevision>> {
+        self.filters.get_objects(field_id, field_type_rev).unwrap_or_default()
     }
 
     pub fn insert_filter(
         &mut self,
         field_id: &str,
         field_type: &FieldTypeRevision,
-        filter_rev: FilterConfigurationRevision,
+        filter_rev: FilterRevision,
     ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
         self.modify(|view| {
             view.filters.add_object(field_id, field_type, filter_rev);

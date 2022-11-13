@@ -1,10 +1,10 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use grid_rev_model::FilterConfigurationRevision;
+use grid_rev_model::FilterRevision;
 use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct TextFilterConfigurationPB {
+pub struct TextFilterPB {
     #[pb(index = 1)]
     pub condition: TextFilterCondition,
 
@@ -54,9 +54,9 @@ impl std::convert::TryFrom<u8> for TextFilterCondition {
     }
 }
 
-impl std::convert::From<Arc<FilterConfigurationRevision>> for TextFilterConfigurationPB {
-    fn from(rev: Arc<FilterConfigurationRevision>) -> Self {
-        TextFilterConfigurationPB {
+impl std::convert::From<Arc<FilterRevision>> for TextFilterPB {
+    fn from(rev: Arc<FilterRevision>) -> Self {
+        TextFilterPB {
             condition: TextFilterCondition::try_from(rev.condition).unwrap_or(TextFilterCondition::Is),
             content: rev.content.clone(),
         }

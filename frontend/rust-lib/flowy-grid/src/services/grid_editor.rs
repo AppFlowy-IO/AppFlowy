@@ -8,11 +8,11 @@ use crate::services::field::{
     default_type_option_builder_from_type, type_option_builder_from_bytes, type_option_builder_from_json_str,
     FieldBuilder,
 };
-use crate::services::filter::FILTER_HANDLER_ID;
+
 use crate::services::grid_editor_trait_impl::GridViewEditorDelegateImpl;
 use crate::services::grid_view_manager::GridViewManager;
 use crate::services::persistence::block_index::BlockIndexCache;
-use crate::services::row::{make_grid_blocks, make_rows_from_row_revs, GridBlock, RowRevisionBuilder};
+use crate::services::row::{make_grid_blocks, GridBlock, RowRevisionBuilder};
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -39,7 +39,6 @@ pub struct GridRevisionEditor {
     view_manager: Arc<GridViewManager>,
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     block_manager: Arc<GridBlockManager>,
-    task_scheduler: Arc<RwLock<TaskDispatcher>>,
 }
 
 impl Drop for GridRevisionEditor {
@@ -68,12 +67,11 @@ impl GridRevisionEditor {
         let delegate = Arc::new(GridViewEditorDelegateImpl {
             pad: grid_pad.clone(),
             block_manager: block_manager.clone(),
-            task_scheduler: task_scheduler.clone(),
+            task_scheduler,
         });
 
         // View manager
-        let view_manager =
-            Arc::new(GridViewManager::new(grid_id.to_owned(), user.clone(), delegate, task_scheduler.clone()).await?);
+        let view_manager = Arc::new(GridViewManager::new(grid_id.to_owned(), user.clone(), delegate).await?);
         let editor = Arc::new(Self {
             grid_id: grid_id.to_owned(),
             user,
@@ -81,7 +79,6 @@ impl GridRevisionEditor {
             rev_manager,
             block_manager,
             view_manager,
-            task_scheduler,
         });
 
         Ok(editor)
@@ -414,8 +411,14 @@ impl GridRevisionEditor {
     }
 
     pub async fn get_row_pbs(&self, block_id: &str) -> FlowyResult<Vec<RowPB>> {
-        let mut rows = self.block_manager.get_row_pbs(block_id).await?;
-        let rows = self.view_manager.filter_rows(block_id, rows).await?;
+        let rows = self.block_manager.get_row_revs(block_id).await?;
+        let rows = self
+            .view_manager
+            .filter_rows(block_id, rows)
+            .await?
+            .into_iter()
+            .map(|row_rev| RowPB::from(&row_rev))
+            .collect();
         Ok(rows)
     }
 

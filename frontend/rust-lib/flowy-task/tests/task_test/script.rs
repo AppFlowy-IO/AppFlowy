@@ -1,5 +1,4 @@
 use anyhow::Error;
-
 use flowy_task::{Task, TaskContent, TaskDispatcher, TaskHandler, TaskId, TaskResult, TaskRunner, TaskState};
 use futures::stream::FuturesUnordered;
 use futures::StreamExt;
@@ -18,6 +17,7 @@ pub enum SearchScript {
     AddTasks {
         tasks: Vec<Task>,
     },
+    #[allow(dead_code)]
     Wait {
         millisecond: u64,
     },

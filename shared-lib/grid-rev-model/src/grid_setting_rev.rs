@@ -1,4 +1,4 @@
-use crate::{FieldRevision, FieldTypeRevision, FilterConfigurationRevision, GroupConfigurationRevision};
+use crate::{FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision};
 use indexmap::IndexMap;
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
@@ -19,8 +19,8 @@ pub fn gen_grid_sort_id() -> String {
     nanoid!(6)
 }
 
-pub type FilterConfiguration = Configuration<FilterConfigurationRevision>;
-pub type FilterConfigurationsByFieldId = HashMap<String, Vec<Arc<FilterConfigurationRevision>>>;
+pub type FilterConfiguration = Configuration<FilterRevision>;
+pub type FilterConfigurationsByFieldId = HashMap<String, Vec<Arc<FilterRevision>>>;
 //
 pub type GroupConfiguration = Configuration<GroupConfigurationRevision>;
 pub type GroupConfigurationsByFieldId = HashMap<String, Vec<Arc<GroupConfigurationRevision>>>;

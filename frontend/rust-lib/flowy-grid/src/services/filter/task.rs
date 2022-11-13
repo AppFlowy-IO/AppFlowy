@@ -23,7 +23,7 @@ impl TaskHandler for FilterTaskHandler {
         Box::pin(async move {
             if let TaskContent::Text(predicate) = content {
                 let _ = filter_controller
-                    .read()
+                    .write()
                     .await
                     .process(&predicate)
                     .await

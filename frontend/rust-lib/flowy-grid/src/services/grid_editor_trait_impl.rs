@@ -3,7 +3,7 @@ use crate::services::grid_view_editor::GridViewEditorDelegate;
 use crate::services::row::GridBlock;
 use flowy_sync::client_grid::GridRevisionPad;
 use flowy_task::TaskDispatcher;
-use grid_rev_model::{FieldRevision, FilterConfiguration, FilterConfigurationRevision, RowRevision};
+use grid_rev_model::{FieldRevision, RowRevision};
 use lib_infra::future::{to_future, Fut};
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -65,7 +65,7 @@ impl GridViewEditorDelegate for GridViewEditorDelegateImpl {
 
     fn get_blocks(&self) -> Fut<Vec<GridBlock>> {
         let block_manager = self.block_manager.clone();
-        to_future(async move { block_manager.get_blocks(None).await.unwrap_or(vec![]) })
+        to_future(async move { block_manager.get_blocks(None).await.unwrap_or_default() })
     }
 
     fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>> {

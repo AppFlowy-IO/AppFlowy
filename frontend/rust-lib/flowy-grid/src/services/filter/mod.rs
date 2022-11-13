@@ -1,8 +1,8 @@
 mod cache;
-mod filter_controller;
+mod controller;
 mod impls;
 mod task;
 
 pub(crate) use cache::*;
-pub(crate) use filter_controller::*;
+pub(crate) use controller::*;
 pub(crate) use task::*;
