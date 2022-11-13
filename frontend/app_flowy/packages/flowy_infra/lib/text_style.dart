@@ -101,23 +101,23 @@ class TextStyles {
   TextTheme generateTextTheme() {
     return TextTheme(
       headline1: getFontStyle(
-        fontSize: 44,
+        fontSize: FontSizes.s44,
         fontWeight: FontWeight.w700,
         letterSpacing: 0.003,
         lineHeight: 52.0,
       ), // h1
       headline2: getFontStyle(
-        fontSize: 32,
+        fontSize: FontSizes.s32,
         fontWeight: FontWeight.w600,
         lineHeight: 42.0,
       ), // h2
       headline3: getFontStyle(
-        fontSize: 24,
+        fontSize: FontSizes.s24,
         fontWeight: FontWeight.w600,
         lineHeight: 34.0,
       ), // h3
       headline4: getFontStyle(
-        fontSize: 20,
+        fontSize: FontSizes.s20,
         fontWeight: FontWeight.w600,
         lineHeight: 28.0,
       ), // h4
