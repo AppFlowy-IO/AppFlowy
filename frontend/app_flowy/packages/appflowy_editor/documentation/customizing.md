@@ -293,7 +293,6 @@ final editorState = EditorState(
 );
 return AppFlowyEditor(
   editorState: editorState,
-  editorStyle: EditorStyle.defaultStyle(),
   shortcutEvents: const [],
   customBuilders: {
     'network_image': NetworkImageNodeWidgetBuilder(),

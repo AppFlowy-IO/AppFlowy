@@ -5,7 +5,6 @@ import 'package:app_flowy/plugins/grid/application/setting/property_bloc.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
@@ -87,22 +86,20 @@ class _GridPropertyCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
-    final checkmark = fieldContext.visibility
-        ? svgWidget('home/show', color: theme.iconColor)
-        : svgWidget('home/hide', color: theme.iconColor);
+    final checkmark = svgWidget(
+      fieldContext.visibility ? 'home/show' : 'home/hide',
+      color: Theme.of(context).colorScheme.onSurface,
+    );
 
     return Row(
       children: [
         Expanded(
           child: SizedBox(
             height: GridSize.typeOptionItemHeight,
-            child: _editFieldButton(theme, context),
+            child: _editFieldButton(context),
           ),
         ),
         FlowyIconButton(
-          hoverColor: theme.hover,
           width: GridSize.typeOptionItemHeight,
           onPressed: () {
             context.read<GridPropertyBloc>().add(
@@ -115,16 +112,17 @@ class _GridPropertyCell extends StatelessWidget {
     );
   }
 
-  Widget _editFieldButton(AppTheme theme, BuildContext context) {
+  Widget _editFieldButton(BuildContext context) {
     return AppFlowyPopover(
       mutex: popoverMutex,
       offset: const Offset(20, 0),
       constraints: BoxConstraints.loose(const Size(240, 400)),
       child: FlowyButton(
         text: FlowyText.medium(fieldContext.name, fontSize: 12),
-        hoverColor: theme.hover,
-        leftIcon: svgWidget(fieldContext.fieldType.iconName(),
-            color: theme.iconColor),
+        leftIcon: svgWidget(
+          fieldContext.fieldType.iconName(),
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
       popupBuilder: (BuildContext context) {
         return FieldEditor(

@@ -252,6 +252,31 @@ Delta _lineContentToDelta(String lineContent) {
   return delta;
 }
 
+void _pasteMarkdown(EditorState editorState, String markdown) {
+  final selection =
+      editorState.service.selectionService.currentSelection.value?.normalized;
+  if (selection == null) {
+    return;
+  }
+
+  final lines = markdown.split('\n');
+
+  if (lines.length == 1) {
+    _pasteSingleLine(editorState, selection, lines[0]);
+    return;
+  }
+
+  var path = selection.end.path.next;
+  final node = editorState.document.nodeAtPath(selection.end.path);
+  if (node is TextNode && node.toPlainText().isEmpty) {
+    path = selection.end.path;
+  }
+  final document = markdownToDocument(markdown);
+  final transaction = editorState.transaction;
+  transaction.insertNodes(path, document.root.children);
+  editorState.apply(transaction);
+}
+
 void _handlePastePlainText(EditorState editorState, String plainText) {
   final selection = editorState.cursorSelection?.normalized;
   if (selection == null) {
@@ -269,45 +294,7 @@ void _handlePastePlainText(EditorState editorState, String plainText) {
     // single line
     _pasteSingleLine(editorState, selection, lines.first);
   } else {
-    final firstLine = lines[0];
-    final beginOffset = selection.end.offset;
-    final remains = lines.sublist(1);
-
-    final path = [...selection.end.path];
-    if (path.isEmpty) {
-      return;
-    }
-
-    final node =
-        editorState.document.nodeAtPath(selection.end.path)! as TextNode;
-    final insertedLineSuffix = node.delta.slice(beginOffset);
-
-    path[path.length - 1]++;
-    final tb = editorState.transaction;
-    final List<TextNode> nodes =
-        remains.map((e) => TextNode(delta: _lineContentToDelta(e))).toList();
-
-    final afterSelection =
-        _computeSelectionAfterPasteMultipleNodes(editorState, nodes);
-
-    // append remain text to the last line
-    if (nodes.isNotEmpty) {
-      final last = nodes.last;
-      nodes[nodes.length - 1] =
-          TextNode(delta: last.delta..addAll(insertedLineSuffix));
-    }
-
-    // insert first line
-    tb.updateText(
-        node,
-        Delta()
-          ..retain(beginOffset)
-          ..insert(firstLine)
-          ..delete(node.delta.length - beginOffset));
-    // insert remains
-    tb.insertNodes(path, nodes);
-    tb.afterSelection = afterSelection;
-    editorState.apply(tb);
+    _pasteMarkdown(editorState, plainText);
   }
 }
 

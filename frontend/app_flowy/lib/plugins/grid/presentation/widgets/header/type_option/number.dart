@@ -3,7 +3,6 @@ import 'package:app_flowy/plugins/grid/application/field/type_option/number_form
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -50,7 +49,6 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return BlocProvider(
       create: (context) =>
           NumberTypeOptionBloc(typeOptionContext: typeOptionContext),
@@ -68,8 +66,10 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
               constraints: BoxConstraints.loose(const Size(460, 440)),
               child: FlowyButton(
                 margin: GridSize.typeOptionContentInsets,
-                hoverColor: theme.hover,
-                rightIcon: svgWidget("grid/more", color: theme.iconColor),
+                rightIcon: svgWidget(
+                  "grid/more",
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 text: Row(
                   children: [
                     FlowyText.medium(LocaleKeys.grid_field_numberFormat.tr(),
@@ -165,7 +165,6 @@ class NumberFormatCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     Widget? checkmark;
     if (isSelected) {
       checkmark = svgWidget("grid/checkmark");
@@ -175,7 +174,6 @@ class NumberFormatCell extends StatelessWidget {
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(format.title(), fontSize: 12),
-        hoverColor: theme.hover,
         onTap: () => onSelected(format),
         rightIcon: checkmark,
       ),

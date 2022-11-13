@@ -81,7 +81,7 @@ class SelectOptionCellEditorBloc
   @override
   Future<void> close() async {
     _delayOperation?.cancel();
-    cellController.dispose();
+    await cellController.dispose();
     return super.close();
   }
 

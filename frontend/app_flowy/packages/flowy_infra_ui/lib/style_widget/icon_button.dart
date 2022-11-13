@@ -20,7 +20,7 @@ class FlowyIconButton extends StatelessWidget {
     this.height,
     this.onPressed,
     this.fillColor = Colors.transparent,
-    this.hoverColor = Colors.transparent,
+    this.hoverColor,
     this.iconPadding = EdgeInsets.zero,
     this.radius,
     this.tooltipText,
@@ -35,11 +35,13 @@ class FlowyIconButton extends StatelessWidget {
     assert(size.width > iconPadding.horizontal);
     assert(size.height > iconPadding.vertical);
 
-    final childWidth = min(size.width - iconPadding.horizontal, size.height - iconPadding.vertical);
+    final childWidth = min(size.width - iconPadding.horizontal,
+        size.height - iconPadding.vertical);
     final childSize = Size(childWidth, childWidth);
 
     return ConstrainedBox(
-      constraints: BoxConstraints.tightFor(width: size.width, height: size.height),
+      constraints:
+          BoxConstraints.tightFor(width: size.width, height: size.height),
       child: Tooltip(
         message: tooltipText ?? '',
         showDuration: Duration.zero,
@@ -47,9 +49,10 @@ class FlowyIconButton extends StatelessWidget {
           visualDensity: VisualDensity.compact,
           hoverElevation: 0,
           highlightElevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: radius ?? BorderRadius.circular(2)),
+          shape: RoundedRectangleBorder(
+              borderRadius: radius ?? BorderRadius.circular(2)),
           fillColor: fillColor,
-          hoverColor: hoverColor,
+          hoverColor: hoverColor ?? Theme.of(context).colorScheme.secondary,
           focusColor: Colors.transparent,
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,

@@ -1,9 +1,7 @@
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class InputTextField extends StatefulWidget {
@@ -49,8 +47,6 @@ class _InputTextFieldState extends State<InputTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
     final height = widget.maxLength == null ? 36.0 : 56.0;
 
     return RoundedInputField(
@@ -60,9 +56,6 @@ class _InputTextFieldState extends State<InputTextField> {
       height: height,
       maxLength: widget.maxLength,
       style: TextStyles.body1.size(13),
-      normalBorderColor: theme.shader4,
-      focusBorderColor: theme.main1,
-      cursorColor: theme.main1,
       onChanged: (text) {
         if (widget.onChanged != null) {
           widget.onChanged!(text);
@@ -108,12 +101,11 @@ class TypeOptionSeparator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Container(
-        color: theme.shader4,
-        height: 0.25,
+        color: Theme.of(context).dividerColor,
+        height: 1.0,
       ),
     );
   }

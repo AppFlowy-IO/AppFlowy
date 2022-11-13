@@ -12,6 +12,12 @@ pub struct UserTokenPB {
     pub token: String,
 }
 
+#[derive(ProtoBuf, Default, Clone)]
+pub struct UserSettingPB {
+    #[pb(index = 1)]
+    pub(crate) user_folder: String,
+}
+
 #[derive(ProtoBuf, Default, Debug, PartialEq, Eq, Clone)]
 pub struct UserProfilePB {
     #[pb(index = 1)]

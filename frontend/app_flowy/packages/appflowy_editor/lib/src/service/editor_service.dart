@@ -119,7 +119,8 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
       data: widget.themeData,
       child: AppFlowyScroll(
         key: editorState.service.scrollServiceKey,
-        child: Padding(
+        child: Container(
+          color: editorStyle.backgroundColor,
           padding: editorStyle.padding!,
           child: AppFlowySelection(
             key: editorState.service.selectionServiceKey,

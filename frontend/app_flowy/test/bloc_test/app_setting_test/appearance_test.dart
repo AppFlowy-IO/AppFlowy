@@ -1,6 +1,8 @@
 import 'package:app_flowy/user/application/user_settings_service.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
-import 'package:flowy_infra/theme.dart';
+import 'package:bloc_test/bloc_test.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/user_setting.pb.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../util.dart';
@@ -12,32 +14,41 @@ void main() {
     context = await AppFlowyUnitTest.ensureInitialized();
   });
 
-  group('$AppearanceSetting', () {
-    late AppearanceSetting appearanceSetting;
+  group('$AppearanceSettingsCubit', () {
+    late AppearanceSettingsPB appearanceSetting;
     setUp(() async {
-      final setting = await SettingsFFIService().getAppearanceSetting();
-      appearanceSetting = AppearanceSetting(setting);
+      appearanceSetting = await SettingsFFIService().getAppearanceSetting();
       await blocResponseFuture();
     });
 
-    test('default theme', () {
-      expect(appearanceSetting.theme.ty, ThemeType.light);
-    });
+    blocTest<AppearanceSettingsCubit, AppearanceSettingsState>(
+      'default theme',
+      build: () => AppearanceSettingsCubit(appearanceSetting),
+      verify: (bloc) {
+        expect(bloc.state.theme.brightness, Brightness.light);
+      },
+    );
 
-    test('save key/value', () async {
-      appearanceSetting.setKeyValue("123", "456");
-    });
+    blocTest<AppearanceSettingsCubit, AppearanceSettingsState>(
+      'save key/value',
+      build: () => AppearanceSettingsCubit(appearanceSetting),
+      act: (bloc) {
+        bloc.setKeyValue("123", "456");
+      },
+      verify: (bloc) {
+        expect(bloc.getValue("123"), "456");
+      },
+    );
 
-    test('read key/value', () {
-      expect(appearanceSetting.getValue("123"), "456");
-    });
-
-    test('remove key/value', () {
-      appearanceSetting.setKeyValue("123", null);
-    });
-
-    test('read key/value', () {
-      expect(appearanceSetting.getValue("123"), null);
-    });
+    blocTest<AppearanceSettingsCubit, AppearanceSettingsState>(
+      'remove key/value',
+      build: () => AppearanceSettingsCubit(appearanceSetting),
+      act: (bloc) {
+        bloc.setKeyValue("123", null);
+      },
+      verify: (bloc) {
+        expect(bloc.getValue("123"), null);
+      },
+    );
   });
 }
