@@ -19,6 +19,7 @@ EditorStyle customEditorTheme(BuildContext context) {
     bold: editorStyle.bold?.copyWith(
       fontWeight: FontWeight.w500,
     ),
+    backgroundColor: Theme.of(context).colorScheme.surface,
   );
   return editorStyle;
 }
