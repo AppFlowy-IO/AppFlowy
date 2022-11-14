@@ -105,6 +105,7 @@ void main() {
         fieldController: boardTest.context.fieldController,
       ),
       act: (bloc) async {
+        await boardResponseFuture();
         bloc.add(GridGroupEvent.setGroupByField(
           multiSelectField.id,
           multiSelectField.fieldType,

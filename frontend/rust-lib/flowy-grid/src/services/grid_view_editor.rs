@@ -237,8 +237,8 @@ impl GridViewRevisionEditor {
         Ok(())
     }
 
-    pub(crate) async fn is_grouped(&self) -> bool {
-        self.group_controller.read().await.groups().len() > 1
+    pub(crate) async fn group_id(&self) -> String {
+        self.group_controller.read().await.field_id().to_string()
     }
 
     pub(crate) async fn get_view_setting(&self) -> GridSettingPB {

@@ -12,26 +12,27 @@ impl SelectOptionFilterPB {
         match self.condition {
             SelectOptionCondition::OptionIs => {
                 if self.option_ids.len() != selected_option_ids.len() {
-                    return true;
+                    return false;
                 }
-
                 // if selected options equal to filter's options, then the required_options will be empty.
                 let required_options = self
                     .option_ids
                     .iter()
-                    .filter(|id| !selected_option_ids.contains(id))
+                    .filter(|id| selected_option_ids.contains(id))
                     .collect::<Vec<_>>();
-
-                // https://stackoverflow.com/questions/69413164/how-to-fix-this-clippy-warning-needless-collect
-                !required_options.is_empty()
+                required_options.len() == selected_option_ids.len()
             }
             SelectOptionCondition::OptionIsNot => {
-                for option_id in selected_option_ids {
-                    if self.option_ids.contains(option_id) {
-                        return true;
-                    }
+                if self.option_ids.len() != selected_option_ids.len() {
+                    return true;
                 }
-                false
+                let required_options = self
+                    .option_ids
+                    .iter()
+                    .filter(|id| selected_option_ids.contains(id))
+                    .collect::<Vec<_>>();
+
+                required_options.len() != selected_option_ids.len()
             }
             SelectOptionCondition::OptionIsEmpty => selected_option_ids.is_empty(),
             SelectOptionCondition::OptionIsNotEmpty => !selected_option_ids.is_empty(),
@@ -67,43 +68,87 @@ mod tests {
     use crate::services::field::selection_type_option::{SelectOptionPB, SelectedSelectOptions};
 
     #[test]
-    fn select_option_filter_is_test() {
+    fn select_option_filter_is_empty_test() {
+        let option = SelectOptionPB::new("A");
+        let filter = SelectOptionFilterPB {
+            condition: SelectOptionCondition::OptionIsEmpty,
+            option_ids: vec![],
+        };
+
+        assert_eq!(filter.is_visible(&SelectedSelectOptions { options: vec![] }), true);
+
+        assert_eq!(
+            filter.is_visible(&SelectedSelectOptions { options: vec![option] }),
+            false,
+        );
+    }
+    #[test]
+    fn select_option_filter_is_not_test() {
         let option_1 = SelectOptionPB::new("A");
         let option_2 = SelectOptionPB::new("B");
         let option_3 = SelectOptionPB::new("C");
 
-        let filter_1 = SelectOptionFilterPB {
-            condition: SelectOptionCondition::OptionIs,
+        let filter = SelectOptionFilterPB {
+            condition: SelectOptionCondition::OptionIsNot,
             option_ids: vec![option_1.id.clone(), option_2.id.clone()],
         };
 
         assert_eq!(
-            filter_1.is_visible(&SelectedSelectOptions {
+            filter.is_visible(&SelectedSelectOptions {
                 options: vec![option_1.clone(), option_2.clone()],
             }),
             false
         );
 
         assert_eq!(
-            filter_1.is_visible(&SelectedSelectOptions {
+            filter.is_visible(&SelectedSelectOptions {
                 options: vec![option_1.clone(), option_2.clone(), option_3.clone()],
             }),
             true
         );
 
         assert_eq!(
-            filter_1.is_visible(&SelectedSelectOptions {
+            filter.is_visible(&SelectedSelectOptions {
                 options: vec![option_1.clone(), option_3.clone()],
             }),
             true
         );
 
-        assert_eq!(filter_1.is_visible(&SelectedSelectOptions { options: vec![] }), true);
+        assert_eq!(filter.is_visible(&SelectedSelectOptions { options: vec![] }), true);
+    }
+
+    #[test]
+    fn select_option_filter_is_test() {
+        let option_1 = SelectOptionPB::new("A");
+        let option_2 = SelectOptionPB::new("B");
+        let option_3 = SelectOptionPB::new("C");
+
+        let filter = SelectOptionFilterPB {
+            condition: SelectOptionCondition::OptionIs,
+            option_ids: vec![option_1.id.clone(), option_2.id.clone()],
+        };
+
         assert_eq!(
-            filter_1.is_visible(&SelectedSelectOptions {
-                options: vec![option_1.clone()],
+            filter.is_visible(&SelectedSelectOptions {
+                options: vec![option_1.clone(), option_2.clone()],
             }),
-            true,
+            true
         );
+
+        assert_eq!(
+            filter.is_visible(&SelectedSelectOptions {
+                options: vec![option_1.clone(), option_2.clone(), option_3.clone()],
+            }),
+            false
+        );
+
+        assert_eq!(
+            filter.is_visible(&SelectedSelectOptions {
+                options: vec![option_1.clone(), option_3.clone()],
+            }),
+            false
+        );
+
+        assert_eq!(filter.is_visible(&SelectedSelectOptions { options: vec![] }), false);
     }
 }
