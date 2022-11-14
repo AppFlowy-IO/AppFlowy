@@ -1,5 +1,3 @@
-use crate::entities::parser::NotEmptyStr;
-use crate::entities::FieldType;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use grid_rev_model::FilterRevision;
@@ -17,68 +15,25 @@ pub struct DateFilterPB {
 
     #[pb(index = 3, one_of)]
     pub end: Option<i64>,
-}
-
-#[derive(ProtoBuf, Default, Clone, Debug)]
-pub struct CreateGridDateFilterPayload {
-    #[pb(index = 1)]
-    pub field_id: String,
-
-    #[pb(index = 2)]
-    pub field_type: FieldType,
-
-    #[pb(index = 3)]
-    pub condition: DateFilterCondition,
 
     #[pb(index = 4, one_of)]
+    pub timestamp: Option<i64>,
+}
+
+#[derive(Deserialize, Serialize, Default, Clone, Debug)]
+pub struct DateFilterContent {
     pub start: Option<i64>,
-
-    #[pb(index = 5, one_of)]
     pub end: Option<i64>,
+    pub timestamp: Option<i64>,
 }
 
-pub struct CreateGridDateFilterParams {
-    pub field_id: String,
-
-    pub field_type: FieldType,
-
-    pub condition: DateFilterCondition,
-
-    pub start: Option<i64>,
-
-    pub end: Option<i64>,
-}
-
-impl TryInto<CreateGridDateFilterParams> for CreateGridDateFilterPayload {
-    type Error = ErrorCode;
-
-    fn try_into(self) -> Result<CreateGridDateFilterParams, Self::Error> {
-        let field_id = NotEmptyStr::parse(self.field_id)
-            .map_err(|_| ErrorCode::FieldIdIsEmpty)?
-            .0;
-        Ok(CreateGridDateFilterParams {
-            field_id,
-            condition: self.condition,
-            start: self.start,
-            field_type: self.field_type,
-            end: self.end,
-        })
-    }
-}
-
-#[derive(Serialize, Deserialize, Default)]
-struct DateRange {
-    start: Option<i64>,
-    end: Option<i64>,
-}
-
-impl ToString for DateRange {
+impl ToString for DateFilterContent {
     fn to_string(&self) -> String {
-        serde_json::to_string(self).unwrap_or_else(|_| "".to_string())
+        serde_json::to_string(self).unwrap()
     }
 }
 
-impl FromStr for DateRange {
+impl FromStr for DateFilterContent {
     type Err = serde_json::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -96,6 +51,7 @@ pub enum DateFilterCondition {
     DateOnOrAfter = 4,
     DateWithIn = 5,
     DateIsEmpty = 6,
+    DateIsNotEmpty = 7,
 }
 
 impl std::convert::From<DateFilterCondition> for u32 {
@@ -133,9 +89,10 @@ impl std::convert::From<Arc<FilterRevision>> for DateFilterPB {
             ..Default::default()
         };
 
-        if let Ok(range) = DateRange::from_str(&rev.content) {
-            filter.start = range.start;
-            filter.end = range.end;
+        if let Ok(content) = DateFilterContent::from_str(&rev.content) {
+            filter.start = content.start;
+            filter.end = content.end;
+            filter.timestamp = content.timestamp;
         };
 
         filter

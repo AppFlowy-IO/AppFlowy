@@ -32,8 +32,8 @@ impl DateTypeOptionPB {
         Self::default()
     }
 
-    fn today_desc_from_timestamp<T: AsRef<i64>>(&self, timestamp: T) -> DateCellDataPB {
-        let timestamp = *timestamp.as_ref();
+    fn today_desc_from_timestamp<T: Into<i64>>(&self, timestamp: T) -> DateCellDataPB {
+        let timestamp = timestamp.into();
         let native = chrono::NaiveDateTime::from_timestamp(timestamp, 0);
         if native.timestamp() == 0 {
             return DateCellDataPB::default();

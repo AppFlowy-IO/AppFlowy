@@ -41,6 +41,7 @@ impl<'a> GridRowTestBuilder<'a> {
         let value = serde_json::to_string(&DateCellChangeset {
             date: Some(data.to_string()),
             time: None,
+            is_utc: true,
         })
         .unwrap();
         let date_field = self.field_rev_with_type(&FieldType::DateTime);
