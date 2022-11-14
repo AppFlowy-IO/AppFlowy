@@ -29,10 +29,12 @@ class CellDataPersistence implements IGridCellDataPersistence<String> {
 
 @freezed
 class CalendarData with _$CalendarData {
-  const factory CalendarData({required DateTime date, String? time}) = _CalendarData;
+  const factory CalendarData({required DateTime date, String? time}) =
+      _CalendarData;
 }
 
-class DateCellDataPersistence implements IGridCellDataPersistence<CalendarData> {
+class DateCellDataPersistence
+    implements IGridCellDataPersistence<CalendarData> {
   final GridCellIdentifier cellId;
   DateCellDataPersistence({
     required this.cellId,
@@ -40,10 +42,11 @@ class DateCellDataPersistence implements IGridCellDataPersistence<CalendarData> 
 
   @override
   Future<Option<FlowyError>> save(CalendarData data) {
-    var payload = DateChangesetPayloadPB.create()..cellIdentifier = _makeCellIdPayload(cellId);
+    var payload = DateChangesetPB.create()..cellPath = _makeCellPath(cellId);
 
     final date = (data.date.millisecondsSinceEpoch ~/ 1000).toString();
     payload.date = date;
+    payload.isUtc = data.date.isUtc;
 
     if (data.time != null) {
       payload.time = data.time!;
@@ -58,8 +61,8 @@ class DateCellDataPersistence implements IGridCellDataPersistence<CalendarData> 
   }
 }
 
-GridCellIdPB _makeCellIdPayload(GridCellIdentifier cellId) {
-  return GridCellIdPB.create()
+CellPathPB _makeCellPath(GridCellIdentifier cellId) {
+  return CellPathPB.create()
     ..gridId = cellId.gridId
     ..fieldId = cellId.fieldId
     ..rowId = cellId.rowId;

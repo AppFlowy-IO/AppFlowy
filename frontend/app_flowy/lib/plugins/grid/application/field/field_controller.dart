@@ -27,7 +27,7 @@ class _GridFieldNotifier extends ChangeNotifier {
   List<GridFieldContext> get fieldContexts => _fieldContexts;
 }
 
-typedef OnChangeset = void Function(FieldChangesetPB);
+typedef OnChangeset = void Function(GridFieldChangesetPB);
 typedef OnReceiveFields = void Function(List<GridFieldContext>);
 
 class GridFieldController {
@@ -247,7 +247,7 @@ class GridRowFieldNotifierImpl extends IGridRowFieldNotifier {
 
   @override
   void onRowFieldChanged(void Function(FieldPB) callback) {
-    _onChangesetFn = (FieldChangesetPB changeset) {
+    _onChangesetFn = (GridFieldChangesetPB changeset) {
       for (final updatedField in changeset.updatedFields) {
         callback(updatedField);
       }

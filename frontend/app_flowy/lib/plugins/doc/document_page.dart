@@ -73,17 +73,14 @@ class _DocumentPageState extends State<DocumentPage> {
   }
 
   Widget _renderDocument(BuildContext context, DocumentState state) {
-    return Container(
-      color: Theme.of(context).colorScheme.surface,
-      child: Column(
-        children: [
-          if (state.isDeleted) _renderBanner(context),
-          // AppFlowy Editor
-          _renderAppFlowyEditor(
-            context.read<DocumentBloc>().editorState,
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        if (state.isDeleted) _renderBanner(context),
+        // AppFlowy Editor
+        _renderAppFlowyEditor(
+          context.read<DocumentBloc>().editorState,
+        ),
+      ],
     );
   }
 
