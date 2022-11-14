@@ -25,7 +25,7 @@ class GridCellDataLoader<T> {
     final fut = service.getCell(cellId: cellId);
     return fut.then(
       (result) => result.fold(
-        (GridCellPB cell) {
+        (CellPB cell) {
           try {
             return parser.parserData(cell.data);
           } catch (e, s) {

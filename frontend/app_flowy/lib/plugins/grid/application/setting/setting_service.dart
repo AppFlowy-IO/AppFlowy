@@ -23,7 +23,7 @@ class SettingFFIService {
     final insertGroupPayload = InsertGroupPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType;
-    final payload = GridSettingChangesetPayloadPB.create()
+    final payload = GridSettingChangesetPB.create()
       ..gridId = viewId
       ..insertGroup = insertGroupPayload;
 

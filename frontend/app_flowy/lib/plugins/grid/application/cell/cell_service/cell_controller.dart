@@ -234,7 +234,7 @@ class IGridCellController<T, D> extends Equatable {
     return data;
   }
 
-  /// Return the FieldTypeOptionDataPB that can be parsed into corresponding class using the [parser].
+  /// Return the TypeOptionPB that can be parsed into corresponding class using the [parser].
   /// [PD] is the type that the parser return.
   Future<Either<PD, FlowyError>>
       getFieldTypeOption<PD, P extends TypeOptionDataParser>(P parser) {
@@ -329,7 +329,7 @@ class GridCellFieldNotifierImpl extends IGridCellFieldNotifier {
 
   @override
   void onCellFieldChanged(void Function(FieldPB p1) callback) {
-    _onChangesetFn = (FieldChangesetPB changeset) {
+    _onChangesetFn = (GridFieldChangesetPB changeset) {
       for (final updatedField in changeset.updatedFields) {
         callback(updatedField);
       }

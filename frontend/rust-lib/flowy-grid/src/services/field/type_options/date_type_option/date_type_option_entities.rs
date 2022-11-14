@@ -1,5 +1,5 @@
 use crate::entities::CellChangesetPB;
-use crate::entities::{GridCellIdPB, GridCellIdParams};
+use crate::entities::{CellPathPB, CellPathParams};
 use crate::services::cell::{CellBytesParser, CellDataIsEmpty, FromCellChangeset, FromCellString};
 use bytes::Bytes;
 
@@ -22,9 +22,9 @@ pub struct DateCellDataPB {
 }
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
-pub struct DateChangesetPayloadPB {
+pub struct DateChangesetPB {
     #[pb(index = 1)]
-    pub cell_identifier: GridCellIdPB,
+    pub cell_identifier: CellPathPB,
 
     #[pb(index = 2, one_of)]
     pub date: Option<String>,
@@ -34,16 +34,16 @@ pub struct DateChangesetPayloadPB {
 }
 
 pub struct DateChangesetParams {
-    pub cell_identifier: GridCellIdParams,
+    pub cell_identifier: CellPathParams,
     pub date: Option<String>,
     pub time: Option<String>,
 }
 
-impl TryInto<DateChangesetParams> for DateChangesetPayloadPB {
+impl TryInto<DateChangesetParams> for DateChangesetPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<DateChangesetParams, Self::Error> {
-        let cell_identifier: GridCellIdParams = self.cell_identifier.try_into()?;
+        let cell_identifier: CellPathParams = self.cell_identifier.try_into()?;
         Ok(DateChangesetParams {
             cell_identifier,
             date: self.date,
