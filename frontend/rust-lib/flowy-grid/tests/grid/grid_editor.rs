@@ -224,7 +224,7 @@ fn make_test_grid() -> BuildGridContext {
                             row_builder.insert_single_select_cell(|mut options| options.remove(1))
                         }
                         FieldType::MultiSelect => {
-                            row_builder.insert_multi_select_cell(|mut options| vec![options.remove(0)])
+                            row_builder.insert_multi_select_cell(|mut options| vec![options.remove(1)])
                         }
                         FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
                         _ => "".to_owned(),

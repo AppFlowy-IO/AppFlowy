@@ -12,6 +12,7 @@ pub struct SelectOptionFilterPB {
     #[pb(index = 2)]
     pub option_ids: Vec<String>,
 }
+
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
 pub enum SelectOptionCondition {

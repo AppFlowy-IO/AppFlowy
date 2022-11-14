@@ -82,6 +82,26 @@ mod tests {
             false,
         );
     }
+
+    #[test]
+    fn select_option_filter_is_not_empty_test() {
+        let option_1 = SelectOptionPB::new("A");
+        let option_2 = SelectOptionPB::new("B");
+        let filter = SelectOptionFilterPB {
+            condition: SelectOptionCondition::OptionIsNotEmpty,
+            option_ids: vec![option_1.id.clone(), option_2.id.clone()],
+        };
+
+        assert_eq!(
+            filter.is_visible(&SelectedSelectOptions {
+                options: vec![option_1]
+            }),
+            true
+        );
+
+        assert_eq!(filter.is_visible(&SelectedSelectOptions { options: vec![] }), false,);
+    }
+
     #[test]
     fn select_option_filter_is_not_test() {
         let option_1 = SelectOptionPB::new("A");
