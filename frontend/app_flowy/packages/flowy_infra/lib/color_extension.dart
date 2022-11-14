@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 @immutable
-class CustomColors extends ThemeExtension<CustomColors> {
+class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
   final Color? warning;
   final Color? success;
 
@@ -20,51 +20,62 @@ class CustomColors extends ThemeExtension<CustomColors> {
   final Color lightGreyHover;
   final Color toggleOffFill;
 
-  const CustomColors({
+  final TextStyle code;
+  final TextStyle callout;
+
+  const AFThemeExtension({
     required this.warning,
     required this.success,
     required this.greyHover,
     required this.greySelect,
     required this.lightGreyHover,
     required this.toggleOffFill,
+    required this.code,
+    required this.callout,
   });
 
-  static CustomColors of(BuildContext context) {
-    return Theme.of(context).extension<CustomColors>()!;
+  static AFThemeExtension of(BuildContext context) {
+    return Theme.of(context).extension<AFThemeExtension>()!;
   }
 
   @override
-  CustomColors copyWith({
+  AFThemeExtension copyWith({
     Color? warning,
     Color? success,
     Color? greyHover,
     Color? greySelect,
     Color? lightGreyHover,
     Color? toggleOffFill,
+    TextStyle? code,
+    TextStyle? callout,
   }) {
-    return CustomColors(
+    return AFThemeExtension(
       warning: warning ?? this.warning,
       success: success ?? this.success,
       greyHover: greyHover ?? this.greyHover,
       greySelect: greySelect ?? this.greySelect,
       lightGreyHover: lightGreyHover ?? this.lightGreyHover,
       toggleOffFill: toggleOffFill ?? this.toggleOffFill,
+      code: code ?? this.code,
+      callout: callout ?? this.callout,
     );
   }
 
   @override
-  ThemeExtension<CustomColors> lerp(
-      ThemeExtension<CustomColors>? other, double t) {
-    if (other is! CustomColors) {
+  ThemeExtension<AFThemeExtension> lerp(
+      ThemeExtension<AFThemeExtension>? other, double t) {
+    if (other is! AFThemeExtension) {
       return this;
     }
-    return CustomColors(
+    return AFThemeExtension(
       warning: Color.lerp(warning, other.warning, t),
       success: Color.lerp(success, other.success, t),
       greyHover: Color.lerp(greyHover, other.greyHover, t)!,
       greySelect: Color.lerp(greySelect, other.greySelect, t)!,
       lightGreyHover: Color.lerp(lightGreyHover, other.lightGreyHover, t)!,
       toggleOffFill: Color.lerp(toggleOffFill, other.toggleOffFill, t)!,
+      code: other.code,
+      callout: other.callout,
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
 import 'package:flutter/material.dart';
 
@@ -195,13 +196,19 @@ class AppTheme {
         shadow: shadow,
       ),
       extensions: [
-        CustomColors(
+        AFThemeExtension(
           warning: yellow,
           success: green,
           greyHover: bg2,
           greySelect: bg3,
           lightGreyHover: shader6,
           toggleOffFill: shader5,
+          code: textTheme.getFontStyle(fontFamily: monospaceFont),
+          callout: textTheme.getFontStyle(
+            fontSize: FontSizes.s11,
+            fontWeight: FontWeight.w400,
+            fontColor: shader4,
+          ),
         )
       ],
     );

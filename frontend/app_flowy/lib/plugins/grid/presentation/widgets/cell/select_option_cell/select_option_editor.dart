@@ -214,7 +214,7 @@ class _CreateOptionCell extends StatelessWidget {
         const HSpace(10),
         SelectOptionTag(
           name: name,
-          color: CustomColors.of(context).lightGreyHover,
+          color: AFThemeExtension.of(context).lightGreyHover,
           onSelected: () => context
               .read<SelectOptionCellEditorBloc>()
               .add(SelectOptionEditorEvent.newOption(name)),

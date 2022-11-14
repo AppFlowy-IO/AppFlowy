@@ -82,6 +82,7 @@ class TextStyles {
   });
 
   TextStyle getFontStyle({
+    String? fontFamily,
     double? fontSize,
     FontWeight? fontWeight,
     Color? fontColor,
@@ -89,7 +90,7 @@ class TextStyles {
     double? lineHeight,
   }) =>
       TextStyle(
-        fontFamily: font,
+        fontFamily: fontFamily ?? font,
         fontSize: fontSize ?? FontSizes.s12,
         color: fontColor ?? color,
         fontWeight: fontWeight ?? FontWeight.w500,
