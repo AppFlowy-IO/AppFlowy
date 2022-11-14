@@ -1,6 +1,6 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
+use crate::services::cell::{AnyCellChangeset, CellBytes, CellData, CellDataOperation, CellDisplayable};
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder, URLCellDataPB};
 use bytes::Bytes;
 use fancy_regex::Regex;
@@ -73,7 +73,7 @@ impl CellDataOperation<URLCellDataPB, String> for URLTypeOptionPB {
 
     fn apply_changeset(
         &self,
-        changeset: CellDataChangeset<String>,
+        changeset: AnyCellChangeset<String>,
         _cell_rev: Option<CellRevision>,
     ) -> Result<String, FlowyError> {
         let content = changeset.try_into_inner()?;

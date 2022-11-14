@@ -3,7 +3,7 @@ use crate::manager::GridManager;
 use crate::services::cell::AnyCellData;
 use crate::services::field::{
     default_type_option_builder_from_type, select_type_option_from_field_rev, type_option_builder_from_json_str,
-    DateChangesetPB, DateChangesetParams, SelectOptionCellChangeset, SelectOptionCellChangesetPB,
+    DateCellChangeset, DateChangesetPB, SelectOptionCellChangeset, SelectOptionCellChangesetPB,
     SelectOptionCellChangesetParams, SelectOptionCellDataPB, SelectOptionChangeset, SelectOptionChangesetPB,
     SelectOptionPB,
 };
@@ -307,7 +307,7 @@ pub(crate) async fn update_cell_handler(
 ) -> Result<(), FlowyError> {
     let changeset: CellChangesetPB = data.into_inner();
     let editor = manager.get_grid_editor(&changeset.grid_id).await?;
-    let _ = editor.update_cell(changeset).await?;
+    let _ = editor.update_cell_with_changeset(changeset).await?;
     Ok(())
 }
 
@@ -372,7 +372,7 @@ pub(crate) async fn update_select_option_handler(
                 };
                 let cloned_editor = editor.clone();
                 tokio::spawn(async move {
-                    match cloned_editor.update_cell(changeset).await {
+                    match cloned_editor.update_cell_with_changeset(changeset).await {
                         Ok(_) => {}
                         Err(e) => tracing::error!("{}", e),
                     }
@@ -421,7 +421,7 @@ pub(crate) async fn update_select_option_cell_handler(
 ) -> Result<(), FlowyError> {
     let params: SelectOptionCellChangesetParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.cell_identifier.grid_id).await?;
-    let _ = editor.update_cell(params.into()).await?;
+    let _ = editor.update_cell_with_changeset(params.into()).await?;
     Ok(())
 }
 
@@ -430,9 +430,18 @@ pub(crate) async fn update_date_cell_handler(
     data: Data<DateChangesetPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: DateChangesetParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.cell_identifier.grid_id).await?;
-    let _ = editor.update_cell(params.into()).await?;
+    let data = data.into_inner();
+    let cell_path: CellPathParams = data.cell_path.try_into()?;
+    let content = DateCellChangeset {
+        date: data.date,
+        time: data.time,
+        is_utc: data.is_utc,
+    };
+
+    let editor = manager.get_grid_editor(&cell_path.grid_id).await?;
+    let _ = editor
+        .update_cell(cell_path.grid_id, cell_path.row_id, cell_path.field_id, content)
+        .await?;
     Ok(())
 }
 

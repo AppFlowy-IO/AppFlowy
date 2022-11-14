@@ -472,7 +472,7 @@ impl GridRevisionEditor {
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
-    pub async fn update_cell(&self, cell_changeset: CellChangesetPB) -> FlowyResult<()> {
+    pub async fn update_cell_with_changeset(&self, cell_changeset: CellChangesetPB) -> FlowyResult<()> {
         let CellChangesetPB {
             grid_id,
             row_id,
@@ -501,6 +501,23 @@ impl GridRevisionEditor {
                 Ok(())
             }
         }
+    }
+
+    #[tracing::instrument(level = "trace", skip_all, err)]
+    pub async fn update_cell<T: ToString>(
+        &self,
+        grid_id: String,
+        row_id: String,
+        field_id: String,
+        content: T,
+    ) -> FlowyResult<()> {
+        self.update_cell_with_changeset(CellChangesetPB {
+            grid_id,
+            row_id,
+            field_id,
+            content: content.to_string(),
+        })
+        .await
     }
 
     pub async fn get_block_meta_revs(&self) -> FlowyResult<Vec<Arc<GridBlockMetaRevision>>> {

@@ -42,11 +42,11 @@ class DateCellDataPersistence
 
   @override
   Future<Option<FlowyError>> save(CalendarData data) {
-    var payload = DateChangesetPB.create()
-      ..cellIdentifier = _makeCellIdPayload(cellId);
+    var payload = DateChangesetPB.create()..cellPath = _makeCellPath(cellId);
 
     final date = (data.date.millisecondsSinceEpoch ~/ 1000).toString();
     payload.date = date;
+    payload.isUtc = data.date.isUtc;
 
     if (data.time != null) {
       payload.time = data.time!;
@@ -61,7 +61,7 @@ class DateCellDataPersistence
   }
 }
 
-CellPathPB _makeCellIdPayload(GridCellIdentifier cellId) {
+CellPathPB _makeCellPath(GridCellIdentifier cellId) {
   return CellPathPB.create()
     ..gridId = cellId.gridId
     ..fieldId = cellId.fieldId
