@@ -2,7 +2,7 @@ use flowy_grid::entities::FieldType;
 use std::sync::Arc;
 
 use flowy_grid::services::field::{
-    DateCellChangesetPB, MultiSelectTypeOptionPB, SelectOptionPB, SingleSelectTypeOptionPB,
+    DateCellChangeset, MultiSelectTypeOptionPB, SelectOptionPB, SingleSelectTypeOptionPB,
 };
 use flowy_grid::services::row::RowRevisionBuilder;
 use grid_rev_model::{FieldRevision, RowRevision};
@@ -38,9 +38,10 @@ impl<'a> GridRowTestBuilder<'a> {
     }
 
     pub fn insert_date_cell(&mut self, data: &str) -> String {
-        let value = serde_json::to_string(&DateCellChangesetPB {
+        let value = serde_json::to_string(&DateCellChangeset {
             date: Some(data.to_string()),
             time: None,
+            is_utc: true,
         })
         .unwrap();
         let date_field = self.field_rev_with_type(&FieldType::DateTime);

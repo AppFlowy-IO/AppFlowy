@@ -76,7 +76,7 @@ impl std::convert::From<GridLayout> for LayoutRevision {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct GridSettingChangesetPayloadPB {
+pub struct GridSettingChangesetPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -96,7 +96,7 @@ pub struct GridSettingChangesetPayloadPB {
     pub delete_group: Option<DeleteGroupPayloadPB>,
 }
 
-impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
+impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<GridSettingChangesetParams, Self::Error> {

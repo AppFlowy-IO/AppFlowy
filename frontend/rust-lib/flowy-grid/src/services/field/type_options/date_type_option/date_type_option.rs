@@ -1,8 +1,8 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
+use crate::services::cell::{AnyCellChangeset, CellBytes, CellData, CellDataOperation, CellDisplayable};
 use crate::services::field::{
-    BoxTypeOptionBuilder, DateCellChangesetPB, DateCellDataPB, DateFormat, DateTimestamp, TimeFormat, TypeOptionBuilder,
+    BoxTypeOptionBuilder, DateCellChangeset, DateCellDataPB, DateFormat, DateTimestamp, TimeFormat, TypeOptionBuilder,
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
@@ -32,13 +32,9 @@ impl DateTypeOptionPB {
         Self::default()
     }
 
-    fn today_desc_from_timestamp<T: AsRef<i64>>(&self, timestamp: T) -> DateCellDataPB {
-        let timestamp = *timestamp.as_ref();
+    fn today_desc_from_timestamp<T: Into<i64>>(&self, timestamp: T) -> DateCellDataPB {
+        let timestamp = timestamp.into();
         let native = chrono::NaiveDateTime::from_timestamp(timestamp, 0);
-        self.date_from_native(native)
-    }
-
-    fn date_from_native(&self, native: chrono::NaiveDateTime) -> DateCellDataPB {
         if native.timestamp() == 0 {
             return DateCellDataPB::default();
         }
@@ -106,11 +102,6 @@ impl DateTypeOptionPB {
         Ok(utc.timestamp())
     }
 
-    fn utc_date_time_from_timestamp(&self, timestamp: i64) -> chrono::DateTime<chrono::Utc> {
-        let native = NaiveDateTime::from_timestamp(timestamp, 0);
-        self.utc_date_time_from_native(native)
-    }
-
     fn utc_date_time_from_native(&self, naive: chrono::NaiveDateTime) -> chrono::DateTime<chrono::Utc> {
         chrono::DateTime::<chrono::Utc>::from_utc(naive, chrono::Utc)
     }
@@ -140,7 +131,7 @@ impl CellDisplayable<DateTimestamp> for DateTypeOptionPB {
     }
 }
 
-impl CellDataOperation<DateTimestamp, DateCellChangesetPB> for DateTypeOptionPB {
+impl CellDataOperation<DateTimestamp, DateCellChangeset> for DateTypeOptionPB {
     fn decode_cell_data(
         &self,
         cell_data: CellData<DateTimestamp>,
@@ -159,7 +150,7 @@ impl CellDataOperation<DateTimestamp, DateCellChangesetPB> for DateTypeOptionPB 
 
     fn apply_changeset(
         &self,
-        changeset: CellDataChangeset<DateCellChangesetPB>,
+        changeset: AnyCellChangeset<DateCellChangeset>,
         _cell_rev: Option<CellRevision>,
     ) -> Result<String, FlowyError> {
         let changeset = changeset.try_into_inner()?;
@@ -168,7 +159,9 @@ impl CellDataOperation<DateTimestamp, DateCellChangesetPB> for DateTypeOptionPB 
             Some(date_timestamp) => match (self.include_time, changeset.time) {
                 (true, Some(time)) => {
                     let time = Some(time.trim().to_uppercase());
-                    let utc = self.utc_date_time_from_timestamp(date_timestamp);
+                    let native = NaiveDateTime::from_timestamp(date_timestamp, 0);
+
+                    let utc = self.utc_date_time_from_native(native);
                     self.timestamp_from_utc_with_time(&utc, &time)?
                 }
                 _ => date_timestamp,

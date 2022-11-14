@@ -7,7 +7,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 
-typedef UpdateFieldNotifiedValue = Either<FieldChangesetPB, FlowyError>;
+typedef UpdateFieldNotifiedValue = Either<GridFieldChangesetPB, FlowyError>;
 
 class GridFieldsListener {
   final String gridId;
@@ -30,7 +30,7 @@ class GridFieldsListener {
       case GridNotification.DidUpdateGridField:
         result.fold(
           (payload) => updateFieldsNotifier?.value =
-              left(FieldChangesetPB.fromBuffer(payload)),
+              left(GridFieldChangesetPB.fromBuffer(payload)),
           (error) => updateFieldsNotifier?.value = right(error),
         );
         break;

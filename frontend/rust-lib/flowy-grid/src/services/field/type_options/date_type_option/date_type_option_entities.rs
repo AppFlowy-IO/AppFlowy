@@ -1,11 +1,8 @@
-use crate::entities::CellChangesetPB;
-use crate::entities::{GridCellIdPB, GridCellIdParams};
+use crate::entities::CellPathPB;
 use crate::services::cell::{CellBytesParser, CellDataIsEmpty, FromCellChangeset, FromCellString};
 use bytes::Bytes;
-
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::{internal_error, ErrorCode, FlowyResult};
-
+use flowy_error::{internal_error, FlowyResult};
 use serde::{Deserialize, Serialize};
 use strum_macros::EnumIter;
 
@@ -22,59 +19,28 @@ pub struct DateCellDataPB {
 }
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
-pub struct DateChangesetPayloadPB {
+pub struct DateChangesetPB {
     #[pb(index = 1)]
-    pub cell_identifier: GridCellIdPB,
+    pub cell_path: CellPathPB,
 
     #[pb(index = 2, one_of)]
     pub date: Option<String>,
 
     #[pb(index = 3, one_of)]
     pub time: Option<String>,
-}
 
-pub struct DateChangesetParams {
-    pub cell_identifier: GridCellIdParams,
-    pub date: Option<String>,
-    pub time: Option<String>,
-}
-
-impl TryInto<DateChangesetParams> for DateChangesetPayloadPB {
-    type Error = ErrorCode;
-
-    fn try_into(self) -> Result<DateChangesetParams, Self::Error> {
-        let cell_identifier: GridCellIdParams = self.cell_identifier.try_into()?;
-        Ok(DateChangesetParams {
-            cell_identifier,
-            date: self.date,
-            time: self.time,
-        })
-    }
-}
-
-impl std::convert::From<DateChangesetParams> for CellChangesetPB {
-    fn from(params: DateChangesetParams) -> Self {
-        let changeset = DateCellChangesetPB {
-            date: params.date,
-            time: params.time,
-        };
-        let content = serde_json::to_string(&changeset).unwrap();
-        CellChangesetPB {
-            grid_id: params.cell_identifier.grid_id,
-            row_id: params.cell_identifier.row_id,
-            field_id: params.cell_identifier.field_id,
-            content,
-        }
-    }
+    #[pb(index = 4)]
+    pub is_utc: bool,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct DateCellChangesetPB {
+pub struct DateCellChangeset {
     pub date: Option<String>,
     pub time: Option<String>,
+    pub is_utc: bool,
 }
 
-impl DateCellChangesetPB {
+impl DateCellChangeset {
     pub fn date_timestamp(&self) -> Option<i64> {
         if let Some(date) = &self.date {
             match date.parse::<i64>() {
@@ -87,22 +53,30 @@ impl DateCellChangesetPB {
     }
 }
 
-impl FromCellChangeset for DateCellChangesetPB {
+impl FromCellChangeset for DateCellChangeset {
     fn from_changeset(changeset: String) -> FlowyResult<Self>
     where
         Self: Sized,
     {
-        serde_json::from_str::<DateCellChangesetPB>(&changeset).map_err(internal_error)
-    }
-}
-pub struct DateTimestamp(i64);
-impl AsRef<i64> for DateTimestamp {
-    fn as_ref(&self) -> &i64 {
-        &self.0
+        serde_json::from_str::<DateCellChangeset>(&changeset).map_err(internal_error)
     }
 }
 
+impl ToString for DateCellChangeset {
+    fn to_string(&self) -> String {
+        serde_json::to_string(self).unwrap_or_else(|_| "".to_string())
+    }
+}
+
+pub struct DateTimestamp(Option<i64>);
+
 impl std::convert::From<DateTimestamp> for i64 {
+    fn from(timestamp: DateTimestamp) -> Self {
+        timestamp.0.unwrap_or(0)
+    }
+}
+
+impl std::convert::From<DateTimestamp> for Option<i64> {
     fn from(timestamp: DateTimestamp) -> Self {
         timestamp.0
     }
@@ -113,7 +87,7 @@ impl FromCellString for DateTimestamp {
     where
         Self: Sized,
     {
-        let num = s.parse::<i64>().unwrap_or(0);
+        let num = s.parse::<i64>().ok();
         Ok(DateTimestamp(num))
     }
 }

@@ -1,6 +1,6 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
+use crate::services::cell::{AnyCellChangeset, CellBytes, CellData, CellDataOperation, CellDisplayable};
 use crate::services::field::{BoxTypeOptionBuilder, CheckboxCellData, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -80,7 +80,7 @@ impl CellDataOperation<CheckboxCellData, String> for CheckboxTypeOptionPB {
 
     fn apply_changeset(
         &self,
-        changeset: CellDataChangeset<String>,
+        changeset: AnyCellChangeset<String>,
         _cell_rev: Option<CellRevision>,
     ) -> Result<String, FlowyError> {
         let changeset = changeset.try_into_inner()?;

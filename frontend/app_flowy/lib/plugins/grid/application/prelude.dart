@@ -15,7 +15,7 @@ export 'field/type_option/date_bloc.dart';
 export 'field/type_option/number_bloc.dart';
 export 'field/type_option/single_select_type_option.dart';
 
-// GridCellPB
+// CellPB
 export 'cell/text_cell_bloc.dart';
 export 'cell/number_cell_bloc.dart';
 export 'cell/select_option_cell_bloc.dart';

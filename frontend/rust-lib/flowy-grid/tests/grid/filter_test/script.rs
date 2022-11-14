@@ -4,7 +4,7 @@
 #![allow(unused_imports)]
 
 use futures::TryFutureExt;
-use flowy_grid::entities::{CreateFilterParams, CreateFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition};
+use flowy_grid::entities::{CreateFilterParams, CreateFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition, DateFilterContent};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
 use flowy_grid::services::filter::FilterType;
@@ -27,7 +27,9 @@ pub enum FilterScript {
     },
     CreateDateFilter{
         condition: DateFilterCondition,
-        content: String,
+        start: Option<i64>,
+        end: Option<i64>,
+        timestamp: Option<i64>,
     },
     AssertFilterCount {
         count: i32,
@@ -91,10 +93,16 @@ impl GridFilterTest {
                     CreateFilterPayloadPB::new(field_rev, condition, "".to_string());
                 self.insert_filter(payload).await;
             }
-            FilterScript::CreateDateFilter { condition, content} => {
+            FilterScript::CreateDateFilter { condition, start, end, timestamp} => {
                 let field_rev = self.get_field_rev(FieldType::DateTime);
+                let content = DateFilterContent {
+                    start,
+                    end,
+                    timestamp,
+                }.to_string();
                 let payload =
                     CreateFilterPayloadPB::new(field_rev, condition, content);
+
                 self.insert_filter(payload).await;
             }
             FilterScript::AssertFilterCount { count } => {
@@ -125,7 +133,6 @@ impl GridFilterTest {
     }
 
     async fn insert_filter(&self, payload: CreateFilterPayloadPB) {
-
         let params: CreateFilterParams = payload.try_into().unwrap();
         let _ = self.editor.create_filter(params).await.unwrap();
     }

@@ -3,8 +3,8 @@ use crate::manager::GridManager;
 use crate::services::cell::AnyCellData;
 use crate::services::field::{
     default_type_option_builder_from_type, select_type_option_from_field_rev, type_option_builder_from_json_str,
-    DateChangesetParams, DateChangesetPayloadPB, SelectOptionCellChangeset, SelectOptionCellChangesetParams,
-    SelectOptionCellChangesetPayloadPB, SelectOptionCellDataPB, SelectOptionChangeset, SelectOptionChangesetPayloadPB,
+    DateCellChangeset, DateChangesetPB, SelectOptionCellChangeset, SelectOptionCellChangesetPB,
+    SelectOptionCellChangesetParams, SelectOptionCellDataPB, SelectOptionChangeset, SelectOptionChangesetPB,
     SelectOptionPB,
 };
 use crate::services::row::{make_block_pbs, make_row_from_row_rev};
@@ -37,7 +37,7 @@ pub(crate) async fn get_grid_setting_handler(
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn update_grid_setting_handler(
-    data: Data<GridSettingChangesetPayloadPB>,
+    data: Data<GridSettingChangesetPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let params: GridSettingChangesetParams = data.into_inner().try_into()?;
@@ -74,10 +74,10 @@ pub(crate) async fn get_grid_blocks_handler(
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_fields_handler(
-    data: Data<QueryFieldPayloadPB>,
+    data: Data<GetFieldPayloadPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<RepeatedFieldPB, FlowyError> {
-    let params: QueryFieldParams = data.into_inner().try_into()?;
+    let params: GetFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
     let field_orders = params
         .field_ids
@@ -92,7 +92,7 @@ pub(crate) async fn get_fields_handler(
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn update_field_handler(
-    data: Data<FieldChangesetPayloadPB>,
+    data: Data<FieldChangesetPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let changeset: FieldChangesetParams = data.into_inner().try_into()?;
@@ -103,10 +103,10 @@ pub(crate) async fn update_field_handler(
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn update_field_type_option_handler(
-    data: Data<UpdateFieldTypeOptionPayloadPB>,
+    data: Data<TypeOptionChangesetPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: UpdateFieldTypeOptionParams = data.into_inner().try_into()?;
+    let params: TypeOptionChangesetParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
     let _ = editor
         .update_field_type_option(&params.grid_id, &params.field_id, params.type_option_data)
@@ -127,7 +127,7 @@ pub(crate) async fn delete_field_handler(
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn switch_to_field_handler(
-    data: Data<EditFieldPayloadPB>,
+    data: Data<EditFieldChangesetPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let params: EditFieldParams = data.into_inner().try_into()?;
@@ -165,17 +165,17 @@ pub(crate) async fn duplicate_field_handler(
 /// Return the FieldTypeOptionData if the Field exists otherwise return record not found error.
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_field_type_option_data_handler(
-    data: Data<FieldTypeOptionIdPB>,
+    data: Data<TypeOptionPathPB>,
     manager: AppData<Arc<GridManager>>,
-) -> DataResult<FieldTypeOptionDataPB, FlowyError> {
-    let params: FieldTypeOptionIdParams = data.into_inner().try_into()?;
+) -> DataResult<TypeOptionPB, FlowyError> {
+    let params: TypeOptionPathParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
     match editor.get_field_rev(&params.field_id).await {
         None => Err(FlowyError::record_not_found()),
         Some(field_rev) => {
             let field_type = field_rev.ty.into();
             let type_option_data = get_type_option_data(&field_rev, &field_type).await?;
-            let data = FieldTypeOptionDataPB {
+            let data = TypeOptionPB {
                 grid_id: params.grid_id,
                 field: field_rev.into(),
                 type_option_data,
@@ -190,7 +190,7 @@ pub(crate) async fn get_field_type_option_data_handler(
 pub(crate) async fn create_field_type_option_data_handler(
     data: Data<CreateFieldPayloadPB>,
     manager: AppData<Arc<GridManager>>,
-) -> DataResult<FieldTypeOptionDataPB, FlowyError> {
+) -> DataResult<TypeOptionPB, FlowyError> {
     let params: CreateFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
     let field_rev = editor
@@ -199,7 +199,7 @@ pub(crate) async fn create_field_type_option_data_handler(
     let field_type: FieldType = field_rev.ty.into();
     let type_option_data = get_type_option_data(&field_rev, &field_type).await?;
 
-    data_result(FieldTypeOptionDataPB {
+    data_result(TypeOptionPB {
         grid_id: params.grid_id,
         field: field_rev.into(),
         type_option_data,
@@ -289,13 +289,13 @@ pub(crate) async fn create_table_row_handler(
 
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn get_cell_handler(
-    data: Data<GridCellIdPB>,
+    data: Data<CellPathPB>,
     manager: AppData<Arc<GridManager>>,
-) -> DataResult<GridCellPB, FlowyError> {
-    let params: GridCellIdParams = data.into_inner().try_into()?;
+) -> DataResult<CellPB, FlowyError> {
+    let params: CellPathParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
     match editor.get_cell(&params).await {
-        None => data_result(GridCellPB::empty(&params.field_id)),
+        None => data_result(CellPB::empty(&params.field_id)),
         Some(cell) => data_result(cell),
     }
 }
@@ -307,7 +307,7 @@ pub(crate) async fn update_cell_handler(
 ) -> Result<(), FlowyError> {
     let changeset: CellChangesetPB = data.into_inner();
     let editor = manager.get_grid_editor(&changeset.grid_id).await?;
-    let _ = editor.update_cell(changeset).await?;
+    let _ = editor.update_cell_with_changeset(changeset).await?;
     Ok(())
 }
 
@@ -330,7 +330,7 @@ pub(crate) async fn new_select_option_handler(
 
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_select_option_handler(
-    data: Data<SelectOptionChangesetPayloadPB>,
+    data: Data<SelectOptionChangesetPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let changeset: SelectOptionChangeset = data.into_inner().try_into()?;
@@ -372,7 +372,7 @@ pub(crate) async fn update_select_option_handler(
                 };
                 let cloned_editor = editor.clone();
                 tokio::spawn(async move {
-                    match cloned_editor.update_cell(changeset).await {
+                    match cloned_editor.update_cell_with_changeset(changeset).await {
                         Ok(_) => {}
                         Err(e) => tracing::error!("{}", e),
                     }
@@ -387,10 +387,10 @@ pub(crate) async fn update_select_option_handler(
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_select_option_handler(
-    data: Data<GridCellIdPB>,
+    data: Data<CellPathPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<SelectOptionCellDataPB, FlowyError> {
-    let params: GridCellIdParams = data.into_inner().try_into()?;
+    let params: CellPathParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
     match editor.get_field_rev(&params.field_id).await {
         None => {
@@ -416,23 +416,32 @@ pub(crate) async fn get_select_option_handler(
 
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_select_option_cell_handler(
-    data: Data<SelectOptionCellChangesetPayloadPB>,
+    data: Data<SelectOptionCellChangesetPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let params: SelectOptionCellChangesetParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.cell_identifier.grid_id).await?;
-    let _ = editor.update_cell(params.into()).await?;
+    let _ = editor.update_cell_with_changeset(params.into()).await?;
     Ok(())
 }
 
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_date_cell_handler(
-    data: Data<DateChangesetPayloadPB>,
+    data: Data<DateChangesetPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: DateChangesetParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.cell_identifier.grid_id).await?;
-    let _ = editor.update_cell(params.into()).await?;
+    let data = data.into_inner();
+    let cell_path: CellPathParams = data.cell_path.try_into()?;
+    let content = DateCellChangeset {
+        date: data.date,
+        time: data.time,
+        is_utc: data.is_utc,
+    };
+
+    let editor = manager.get_grid_editor(&cell_path.grid_id).await?;
+    let _ = editor
+        .update_cell(cell_path.grid_id, cell_path.row_id, cell_path.field_id, content)
+        .await?;
     Ok(())
 }
 

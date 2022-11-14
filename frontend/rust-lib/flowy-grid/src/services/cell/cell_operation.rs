@@ -97,7 +97,7 @@ pub trait CellDataOperation<CD, CS> {
     /// For example:
     /// SelectOptionCellChangeset,DateCellChangeset. etc.
     ///  
-    fn apply_changeset(&self, changeset: CellDataChangeset<CS>, cell_rev: Option<CellRevision>) -> FlowyResult<String>;
+    fn apply_changeset(&self, changeset: AnyCellChangeset<CS>, cell_rev: Option<CellRevision>) -> FlowyResult<String>;
 }
 
 /// changeset: It will be deserialized into specific data base on the FieldType.
@@ -276,9 +276,10 @@ pub fn insert_checkbox_cell(is_check: bool, field_rev: &FieldRevision) -> CellRe
 }
 
 pub fn insert_date_cell(timestamp: i64, field_rev: &FieldRevision) -> CellRevision {
-    let cell_data = serde_json::to_string(&DateCellChangesetPB {
+    let cell_data = serde_json::to_string(&DateCellChangeset {
         date: Some(timestamp.to_string()),
         time: None,
+        is_utc: true,
     })
     .unwrap();
     let data = apply_cell_data_changeset(cell_data, None, field_rev).unwrap();
@@ -356,9 +357,9 @@ pub trait FromCellChangeset {
         Self: Sized;
 }
 
-pub struct CellDataChangeset<T>(pub Option<T>);
+pub struct AnyCellChangeset<T>(pub Option<T>);
 
-impl<T> CellDataChangeset<T> {
+impl<T> AnyCellChangeset<T> {
     pub fn try_into_inner(self) -> FlowyResult<T> {
         match self.0 {
             None => Err(ErrorCode::InvalidData.into()),
@@ -367,22 +368,22 @@ impl<T> CellDataChangeset<T> {
     }
 }
 
-impl<T, C: ToString> std::convert::From<C> for CellDataChangeset<T>
+impl<T, C: ToString> std::convert::From<C> for AnyCellChangeset<T>
 where
     T: FromCellChangeset,
 {
     fn from(changeset: C) -> Self {
         match T::from_changeset(changeset.to_string()) {
-            Ok(data) => CellDataChangeset(Some(data)),
+            Ok(data) => AnyCellChangeset(Some(data)),
             Err(e) => {
                 tracing::error!("Deserialize CellDataChangeset failed: {}", e);
-                CellDataChangeset(None)
+                AnyCellChangeset(None)
             }
         }
     }
 }
-impl std::convert::From<String> for CellDataChangeset<String> {
+impl std::convert::From<String> for AnyCellChangeset<String> {
     fn from(s: String) -> Self {
-        CellDataChangeset(Some(s))
+        AnyCellChangeset(Some(s))
     }
 }
