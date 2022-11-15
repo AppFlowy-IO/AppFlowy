@@ -1,9 +1,10 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
-    CheckboxFilterCondition, DateFilterCondition, FieldType, NumberFilterCondition, SelectOptionCondition,
-    TextFilterCondition,
+    CheckboxFilterPB, DateFilterContent, DateFilterPB, FieldType, NumberFilterPB, SelectOptionFilterPB, TextFilterPB,
 };
+use crate::services::field::SelectOptionIds;
 use crate::services::filter::FilterType;
+use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use grid_rev_model::{FieldRevision, FieldTypeRevision, FilterRevision};
@@ -89,20 +90,17 @@ pub struct CreateFilterPayloadPB {
     pub field_type: FieldType,
 
     #[pb(index = 3)]
-    pub condition: u32,
-
-    #[pb(index = 4)]
-    pub content: String,
+    pub data: Vec<u8>,
 }
 
 impl CreateFilterPayloadPB {
     #[allow(dead_code)]
-    pub fn new<T: Into<u32>>(field_rev: &FieldRevision, condition: T, content: String) -> Self {
+    pub fn new<T: TryInto<Bytes, Error = ::protobuf::ProtobufError>>(field_rev: &FieldRevision, data: T) -> Self {
+        let data = data.try_into().unwrap_or_else(|_| Bytes::new());
         Self {
             field_id: field_rev.id.clone(),
             field_type: field_rev.ty.into(),
-            condition: condition.into(),
-            content,
+            data: data.to_vec(),
         }
     }
 }
@@ -114,22 +112,39 @@ impl TryInto<CreateFilterParams> for CreateFilterPayloadPB {
         let field_id = NotEmptyStr::parse(self.field_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
             .0;
-        let condition = self.condition as u8;
+        let condition;
+        let mut content = "".to_string();
+        let bytes: &[u8] = self.data.as_ref();
+
         match self.field_type {
             FieldType::RichText | FieldType::URL => {
-                let _ = TextFilterCondition::try_from(condition)?;
+                let filter = TextFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
+                condition = filter.condition as u8;
+                content = filter.content;
             }
             FieldType::Checkbox => {
-                let _ = CheckboxFilterCondition::try_from(condition)?;
+                let filter = CheckboxFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
+                condition = filter.condition as u8;
             }
             FieldType::Number => {
-                let _ = NumberFilterCondition::try_from(condition)?;
+                let filter = NumberFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
+                condition = filter.condition as u8;
+                content = filter.content;
             }
             FieldType::DateTime => {
-                let _ = DateFilterCondition::try_from(condition)?;
+                let filter = DateFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
+                condition = filter.condition as u8;
+                content = DateFilterContent {
+                    start: filter.start,
+                    end: filter.end,
+                    timestamp: filter.timestamp,
+                }
+                .to_string();
             }
             FieldType::SingleSelect | FieldType::MultiSelect => {
-                let _ = SelectOptionCondition::try_from(condition)?;
+                let filter = SelectOptionFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
+                condition = filter.condition as u8;
+                content = SelectOptionIds::from(filter.option_ids).to_string();
             }
         }
 
@@ -137,7 +152,7 @@ impl TryInto<CreateFilterParams> for CreateFilterPayloadPB {
             field_id,
             field_type_rev: self.field_type.into(),
             condition,
-            content: self.content,
+            content,
         })
     }
 }

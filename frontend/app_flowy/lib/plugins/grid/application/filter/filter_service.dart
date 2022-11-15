@@ -1,14 +1,15 @@
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_filter.pbenum.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/date_filter.pbenum.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_filter.pbserver.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/date_filter.pbserver.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/number_filter.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_option_filter.pbserver.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/setting_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/text_filter.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/util.pb.dart';
+import 'package:fixnum/fixnum.dart' as $fixnum;
 
 class FilterFFIService {
   final String viewId;
@@ -19,11 +20,14 @@ class FilterFFIService {
     required TextFilterCondition condition,
     String content = "",
   }) {
+    final filter = TextFilterPB()
+      ..condition = condition
+      ..content = content;
+
     return createFilter(
       fieldId: fieldId,
       fieldType: FieldType.RichText,
-      condition: condition.value,
-      content: content,
+      data: filter.writeToBuffer(),
     );
   }
 
@@ -31,10 +35,12 @@ class FilterFFIService {
     required String fieldId,
     required CheckboxFilterCondition condition,
   }) {
+    final filter = CheckboxFilterPB()..condition = condition;
+
     return createFilter(
       fieldId: fieldId,
       fieldType: FieldType.Checkbox,
-      condition: condition.value,
+      data: filter.writeToBuffer(),
     );
   }
 
@@ -43,20 +49,42 @@ class FilterFFIService {
     required NumberFilterCondition condition,
     String content = "",
   }) {
+    final filter = NumberFilterPB()
+      ..condition = condition
+      ..content = content;
+
     return createFilter(
       fieldId: fieldId,
-      fieldType: FieldType.Checkbox,
-      condition: condition.value,
-      content: content,
+      fieldType: FieldType.Number,
+      data: filter.writeToBuffer(),
     );
   }
 
   Future<Either<Unit, FlowyError>> createDateFilter({
     required String fieldId,
     required DateFilterCondition condition,
-    String content = "",
+    int? start,
+    int? end,
+    int? timestamp,
   }) {
-    throw UnimplementedError();
+    var filter = DateFilterPB();
+    if (timestamp != null) {
+      filter.timestamp = $fixnum.Int64(timestamp);
+    } else {
+      if (start != null && end != null) {
+        filter.start = $fixnum.Int64(start);
+        filter.end = $fixnum.Int64(end);
+      } else {
+        throw Exception(
+            "Start and end should not be null if the timestamp is null");
+      }
+    }
+
+    return createFilter(
+      fieldId: fieldId,
+      fieldType: FieldType.DateTime,
+      data: filter.writeToBuffer(),
+    );
   }
 
   Future<Either<Unit, FlowyError>> createURLFilter({
@@ -64,11 +92,14 @@ class FilterFFIService {
     required TextFilterCondition condition,
     String content = "",
   }) {
+    final filter = TextFilterPB()
+      ..condition = condition
+      ..content = content;
+
     return createFilter(
       fieldId: fieldId,
       fieldType: FieldType.URL,
-      condition: condition.value,
-      content: content,
+      data: filter.writeToBuffer(),
     );
   }
 
@@ -77,10 +108,14 @@ class FilterFFIService {
     required SelectOptionCondition condition,
     List<String> optionIds = const [],
   }) {
+    final filter = SelectOptionFilterPB()
+      ..condition = condition
+      ..optionIds.addAll(optionIds);
+
     return createFilter(
       fieldId: fieldId,
       fieldType: FieldType.SingleSelect,
-      condition: condition.value,
+      data: filter.writeToBuffer(),
     );
   }
 
@@ -89,26 +124,28 @@ class FilterFFIService {
     required SelectOptionCondition condition,
     List<String> optionIds = const [],
   }) {
+    final filter = SelectOptionFilterPB()
+      ..condition = condition
+      ..optionIds.addAll(optionIds);
+
     return createFilter(
       fieldId: fieldId,
       fieldType: FieldType.MultiSelect,
-      condition: condition.value,
+      data: filter.writeToBuffer(),
     );
   }
 
   Future<Either<Unit, FlowyError>> createFilter({
     required String fieldId,
     required FieldType fieldType,
-    required int condition,
-    String content = "",
+    required List<int> data,
   }) {
     TextFilterCondition.DoesNotContain.value;
 
     final insertFilterPayload = CreateFilterPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType
-      ..condition = condition
-      ..content = content;
+      ..data = data;
 
     final payload = GridSettingChangesetPB.create()
       ..gridId = viewId
