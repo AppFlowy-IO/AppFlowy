@@ -36,6 +36,10 @@ pub enum FilterScript {
         condition: SelectOptionCondition,
         option_ids: Vec<String>,
     },
+    CreateSingleSelectFilter {
+        condition: SelectOptionCondition,
+        option_ids: Vec<String>,
+    },
     AssertFilterCount {
         count: i32,
     },
@@ -112,6 +116,14 @@ impl GridFilterTest {
             }
             FilterScript::CreateMultiSelectFilter { condition, option_ids} => {
                 let field_rev = self.get_field_rev(FieldType::MultiSelect);
+                let content =
+                    SelectOptionIds::from(option_ids).to_string();
+                let payload =
+                    CreateFilterPayloadPB::new(field_rev, condition, content);
+                self.insert_filter(payload).await;
+            }
+            FilterScript::CreateSingleSelectFilter { condition, option_ids} => {
+                let field_rev = self.get_field_rev(FieldType::SingleSelect);
                 let content =
                     SelectOptionIds::from(option_ids).to_string();
                 let payload =
