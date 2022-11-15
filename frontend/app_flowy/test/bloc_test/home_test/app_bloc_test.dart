@@ -1,7 +1,7 @@
 import 'package:app_flowy/plugins/board/application/board_bloc.dart';
 import 'package:app_flowy/plugins/board/board.dart';
-import 'package:app_flowy/plugins/doc/application/doc_bloc.dart';
-import 'package:app_flowy/plugins/doc/document.dart';
+import 'package:app_flowy/plugins/document/application/doc_bloc.dart';
+import 'package:app_flowy/plugins/document/document.dart';
 import 'package:app_flowy/plugins/grid/application/grid_bloc.dart';
 import 'package:app_flowy/plugins/grid/grid.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';

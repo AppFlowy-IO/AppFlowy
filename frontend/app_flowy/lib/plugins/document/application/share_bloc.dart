@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:app_flowy/plugins/doc/application/share_service.dart';
+import 'package:app_flowy/plugins/document/application/share_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-document/entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
