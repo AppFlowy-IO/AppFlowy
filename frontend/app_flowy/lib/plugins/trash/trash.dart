@@ -21,6 +21,9 @@ class TrashPluginBuilder extends PluginBuilder {
   String get menuName => "TrashPB";
 
   @override
+  String get menuIcon => "editor/delete";
+
+  @override
   PluginType get pluginType => PluginType.trash;
 }
 

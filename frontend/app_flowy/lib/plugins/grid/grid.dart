@@ -23,6 +23,9 @@ class GridPluginBuilder implements PluginBuilder {
   String get menuName => LocaleKeys.grid_menuName.tr();
 
   @override
+  String get menuIcon => "editor/grid";
+
+  @override
   PluginType get pluginType => PluginType.grid;
 
   @override
