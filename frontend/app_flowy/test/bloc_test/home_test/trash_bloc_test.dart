@@ -1,4 +1,4 @@
-import 'package:app_flowy/plugins/doc/document.dart';
+import 'package:app_flowy/plugins/document/document.dart';
 import 'package:app_flowy/plugins/trash/application/trash_bloc.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';

@@ -64,7 +64,7 @@ impl RowChangeset {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CellRevision {
     pub data: String,
 }

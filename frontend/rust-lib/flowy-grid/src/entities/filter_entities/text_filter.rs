@@ -36,6 +36,7 @@ impl std::default::Default for TextFilterCondition {
         TextFilterCondition::Is
     }
 }
+
 impl std::convert::TryFrom<u8> for TextFilterCondition {
     type Error = ErrorCode;
 

@@ -4,7 +4,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/util.dart';
 import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/plugins/doc/application/share_bloc.dart';
+import 'package:app_flowy/plugins/document/application/share_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:app_flowy/workspace/presentation/widgets/left_bar_item.dart';
