@@ -1,4 +1,4 @@
-use crate::entities::{GroupChangesetPB, GroupViewChangesetPB, RowPB};
+use crate::entities::{GroupRowsNotificationPB, GroupViewChangesetPB, RowPB};
 use crate::services::group::action::GroupControllerSharedActions;
 use crate::services::group::{Group, GroupController, MoveGroupRowContext};
 use flowy_error::FlowyResult;
@@ -59,7 +59,7 @@ impl GroupControllerSharedActions for DefaultGroupController {
         &mut self,
         _row_rev: &RowRevision,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupChangesetPB>> {
+    ) -> FlowyResult<Vec<GroupRowsNotificationPB>> {
         Ok(vec![])
     }
 
@@ -67,11 +67,11 @@ impl GroupControllerSharedActions for DefaultGroupController {
         &mut self,
         _row_rev: &RowRevision,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupChangesetPB>> {
+    ) -> FlowyResult<Vec<GroupRowsNotificationPB>> {
         Ok(vec![])
     }
 
-    fn move_group_row(&mut self, _context: MoveGroupRowContext) -> FlowyResult<Vec<GroupChangesetPB>> {
+    fn move_group_row(&mut self, _context: MoveGroupRowContext) -> FlowyResult<Vec<GroupRowsNotificationPB>> {
         todo!()
     }
 

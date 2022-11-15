@@ -15,29 +15,49 @@ use std::sync::Arc;
 pub struct FilterPB {
     #[pb(index = 1)]
     pub id: String,
-}
 
-#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct RepeatedGridFilterConfigurationPB {
-    #[pb(index = 1)]
-    pub items: Vec<FilterPB>,
+    #[pb(index = 2)]
+    pub ty: FieldType,
+
+    #[pb(index = 3)]
+    pub data: Vec<u8>,
 }
 
 impl std::convert::From<&FilterRevision> for FilterPB {
     fn from(rev: &FilterRevision) -> Self {
-        Self { id: rev.id.clone() }
+        let field_type: FieldType = rev.field_type_rev.into();
+        let bytes: Bytes = match field_type {
+            FieldType::RichText => TextFilterPB::from(rev).try_into().unwrap(),
+            FieldType::Number => NumberFilterPB::from(rev).try_into().unwrap(),
+            FieldType::DateTime => DateFilterPB::from(rev).try_into().unwrap(),
+            FieldType::SingleSelect => SelectOptionFilterPB::from(rev).try_into().unwrap(),
+            FieldType::MultiSelect => SelectOptionFilterPB::from(rev).try_into().unwrap(),
+            FieldType::Checkbox => CheckboxFilterPB::from(rev).try_into().unwrap(),
+            FieldType::URL => TextFilterPB::from(rev).try_into().unwrap(),
+        };
+        Self {
+            id: rev.id.clone(),
+            ty: rev.field_type_rev.into(),
+            data: bytes.to_vec(),
+        }
     }
 }
 
-impl std::convert::From<Vec<Arc<FilterRevision>>> for RepeatedGridFilterConfigurationPB {
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct RepeatedFilterPB {
+    #[pb(index = 1)]
+    pub items: Vec<FilterPB>,
+}
+
+impl std::convert::From<Vec<Arc<FilterRevision>>> for RepeatedFilterPB {
     fn from(revs: Vec<Arc<FilterRevision>>) -> Self {
-        RepeatedGridFilterConfigurationPB {
+        RepeatedFilterPB {
             items: revs.into_iter().map(|rev| rev.as_ref().into()).collect(),
         }
     }
 }
 
-impl std::convert::From<Vec<FilterPB>> for RepeatedGridFilterConfigurationPB {
+impl std::convert::From<Vec<FilterPB>> for RepeatedFilterPB {
     fn from(items: Vec<FilterPB>) -> Self {
         Self { items }
     }

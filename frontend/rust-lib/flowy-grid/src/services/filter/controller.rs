@@ -181,37 +181,37 @@ impl FilterController {
                         let _ = self
                             .filter_map
                             .text_filter
-                            .insert(filter_type, TextFilterPB::from(filter_rev));
+                            .insert(filter_type, TextFilterPB::from(filter_rev.as_ref()));
                     }
                     FieldType::Number => {
                         let _ = self
                             .filter_map
                             .number_filter
-                            .insert(filter_type, NumberFilterPB::from(filter_rev));
+                            .insert(filter_type, NumberFilterPB::from(filter_rev.as_ref()));
                     }
                     FieldType::DateTime => {
                         let _ = self
                             .filter_map
                             .date_filter
-                            .insert(filter_type, DateFilterPB::from(filter_rev));
+                            .insert(filter_type, DateFilterPB::from(filter_rev.as_ref()));
                     }
                     FieldType::SingleSelect | FieldType::MultiSelect => {
                         let _ = self
                             .filter_map
                             .select_option_filter
-                            .insert(filter_type, SelectOptionFilterPB::from(filter_rev));
+                            .insert(filter_type, SelectOptionFilterPB::from(filter_rev.as_ref()));
                     }
                     FieldType::Checkbox => {
                         let _ = self
                             .filter_map
                             .checkbox_filter
-                            .insert(filter_type, CheckboxFilterPB::from(filter_rev));
+                            .insert(filter_type, CheckboxFilterPB::from(filter_rev.as_ref()));
                     }
                     FieldType::URL => {
                         let _ = self
                             .filter_map
                             .url_filter
-                            .insert(filter_type, TextFilterPB::from(filter_rev));
+                            .insert(filter_type, TextFilterPB::from(filter_rev.as_ref()));
                     }
                 }
             }

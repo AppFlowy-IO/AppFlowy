@@ -1,9 +1,11 @@
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_filter.pbserver.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_filter.pbserver.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/grid_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/number_filter.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_option_filter.pbserver.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/setting_entities.pb.dart';
@@ -14,6 +16,17 @@ import 'package:fixnum/fixnum.dart' as $fixnum;
 class FilterFFIService {
   final String viewId;
   const FilterFFIService({required this.viewId});
+
+  Future<Either<List<FilterPB>, FlowyError>> getAllFilters() {
+    final payload = GridIdPB()..value = viewId;
+
+    return GridEventGetAllFilters(payload).send().then((result) {
+      return result.fold(
+        (repeated) => left(repeated.items),
+        (r) => right(r),
+      );
+    });
+  }
 
   Future<Either<Unit, FlowyError>> createTextFilter({
     required String fieldId,
@@ -150,6 +163,40 @@ class FilterFFIService {
     final payload = GridSettingChangesetPB.create()
       ..gridId = viewId
       ..insertFilter = insertFilterPayload;
-    return GridEventUpdateGridSetting(payload).send();
+    return GridEventUpdateGridSetting(payload).send().then((result) {
+      return result.fold(
+        (l) => left(l),
+        (err) {
+          Log.error(err);
+          return right(err);
+        },
+      );
+    });
+  }
+
+  Future<Either<Unit, FlowyError>> deleteFilter({
+    required String fieldId,
+    required String filterId,
+    required FieldType fieldType,
+  }) {
+    TextFilterCondition.DoesNotContain.value;
+
+    final deleteFilterPayload = DeleteFilterPayloadPB.create()
+      ..fieldId = fieldId
+      ..filterId = filterId
+      ..fieldType = fieldType;
+
+    final payload = GridSettingChangesetPB.create()
+      ..gridId = viewId
+      ..deleteFilter = deleteFilterPayload;
+    return GridEventUpdateGridSetting(payload).send().then((result) {
+      return result.fold(
+        (l) => left(l),
+        (err) {
+          Log.error(err);
+          return right(err);
+        },
+      );
+    });
   }
 }

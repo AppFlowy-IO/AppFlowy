@@ -81,8 +81,8 @@ impl std::convert::TryFrom<u8> for DateFilterCondition {
         }
     }
 }
-impl std::convert::From<Arc<FilterRevision>> for DateFilterPB {
-    fn from(rev: Arc<FilterRevision>) -> Self {
+impl std::convert::From<&FilterRevision> for DateFilterPB {
+    fn from(rev: &FilterRevision) -> Self {
         let condition = DateFilterCondition::try_from(rev.condition).unwrap_or(DateFilterCondition::DateIs);
         let mut filter = DateFilterPB {
             condition,

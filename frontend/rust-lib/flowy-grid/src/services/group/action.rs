@@ -1,4 +1,4 @@
-use crate::entities::{GroupChangesetPB, GroupViewChangesetPB};
+use crate::entities::{GroupRowsNotificationPB, GroupViewChangesetPB};
 use crate::services::cell::CellDataIsEmpty;
 use crate::services::group::controller::MoveGroupRowContext;
 use crate::services::group::Group;
@@ -31,13 +31,17 @@ pub trait GroupControllerCustomActions: Send + Sync {
         &mut self,
         row_rev: &RowRevision,
         cell_data: &Self::CellDataType,
-    ) -> Vec<GroupChangesetPB>;
+    ) -> Vec<GroupRowsNotificationPB>;
 
     /// Deletes the row from the group
-    fn delete_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB>;
+    fn delete_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupRowsNotificationPB>;
 
     /// Move row from one group to another
-    fn move_row(&mut self, cell_data: &Self::CellDataType, context: MoveGroupRowContext) -> Vec<GroupChangesetPB>;
+    fn move_row(
+        &mut self,
+        cell_data: &Self::CellDataType,
+        context: MoveGroupRowContext,
+    ) -> Vec<GroupRowsNotificationPB>;
 }
 
 /// Defines the shared actions any group controller can perform.
@@ -62,17 +66,17 @@ pub trait GroupControllerSharedActions: Send + Sync {
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupChangesetPB>>;
+    ) -> FlowyResult<Vec<GroupRowsNotificationPB>>;
 
     /// Remove the row from the group if the row gets deleted
     fn did_delete_delete_row(
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupChangesetPB>>;
+    ) -> FlowyResult<Vec<GroupRowsNotificationPB>>;
 
     /// Move the row from one group to another group
-    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupChangesetPB>>;
+    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupRowsNotificationPB>>;
 
     /// Update the group if the corresponding field is changed
     fn did_update_group_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>>;
