@@ -84,6 +84,10 @@ pub(crate) struct FilterResult {
 
 impl FilterResult {
     pub(crate) fn is_visible(&self) -> bool {
+        if self.visible_by_filter_id.is_empty() {
+            return false;
+        }
+
         for visible in self.visible_by_filter_id.values() {
             if visible == &false {
                 return false;

@@ -126,7 +126,7 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
         FieldType::URL => URLTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
     }?;
 
-    Ok(AnyCellData::new(s, field_type).json())
+    Ok(AnyCellData::new(s, field_type).to_json())
 }
 
 pub fn decode_any_cell_data<T: TryInto<AnyCellData, Error = FlowyError> + Debug>(

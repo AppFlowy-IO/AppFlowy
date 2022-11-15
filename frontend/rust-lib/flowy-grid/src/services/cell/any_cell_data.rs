@@ -15,6 +15,15 @@ pub struct AnyCellData {
     pub field_type: FieldType,
 }
 
+impl AnyCellData {
+    pub fn from_field_type(field_type: &FieldType) -> AnyCellData {
+        Self {
+            data: "".to_string(),
+            field_type: field_type.clone(),
+        }
+    }
+}
+
 impl std::str::FromStr for AnyCellData {
     type Err = FlowyError;
 
@@ -68,7 +77,7 @@ impl AnyCellData {
         }
     }
 
-    pub fn json(&self) -> String {
+    pub fn to_json(&self) -> String {
         serde_json::to_string(self).unwrap_or_else(|_| "".to_owned())
     }
 

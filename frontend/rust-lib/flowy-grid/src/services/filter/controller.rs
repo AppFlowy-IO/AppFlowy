@@ -232,10 +232,9 @@ fn filter_row(
         .or_insert_with(FilterResult::default);
 
     // Iterate each cell of the row to check its visibility
-    for (field_id, cell_rev) in row_rev.cells.iter() {
-        let field_rev = field_rev_by_field_id.get(field_id)?;
+    for (field_id, field_rev) in field_rev_by_field_id {
         let filter_type = FilterType::from(field_rev);
-
+        let cell_rev = row_rev.cells.get(field_id);
         // if the visibility of the cell_rew is changed, which means the visibility of the
         // row is changed too.
         if let Some(is_visible) = filter_cell(&filter_type, field_rev, filter_map, cell_rev) {
@@ -255,6 +254,7 @@ fn filter_row(
             }
         }
     }
+
     None
 }
 
@@ -263,9 +263,13 @@ fn filter_cell(
     filter_id: &FilterType,
     field_rev: &Arc<FieldRevision>,
     filter_map: &FilterMap,
-    cell_rev: &CellRevision,
+    cell_rev: Option<&CellRevision>,
 ) -> Option<bool> {
-    let any_cell_data = AnyCellData::try_from(cell_rev).ok()?;
+    let any_cell_data = match cell_rev {
+        None => AnyCellData::from_field_type(&filter_id.field_type),
+        Some(cell_rev) => AnyCellData::try_from(cell_rev).ok()?,
+    };
+
     let is_visible = match &filter_id.field_type {
         FieldType::RichText => filter_map.text_filter.get(filter_id).and_then(|filter| {
             Some(

@@ -4,7 +4,8 @@
 #![allow(unused_imports)]
 
 use futures::TryFutureExt;
-use flowy_grid::entities::{CreateFilterParams, CreateFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition, DateFilterContent};
+use flowy_grid::entities::{CreateFilterParams, CreateFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition, DateFilterContent, SelectOptionCondition};
+use flowy_grid::services::field::SelectOptionIds;
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
 use flowy_grid::services::filter::FilterType;
@@ -30,6 +31,14 @@ pub enum FilterScript {
         start: Option<i64>,
         end: Option<i64>,
         timestamp: Option<i64>,
+    },
+    CreateMultiSelectFilter {
+        condition: SelectOptionCondition,
+        option_ids: Vec<String>,
+    },
+    CreateSingleSelectFilter {
+        condition: SelectOptionCondition,
+        option_ids: Vec<String>,
     },
     AssertFilterCount {
         count: i32,
@@ -103,6 +112,22 @@ impl GridFilterTest {
                 let payload =
                     CreateFilterPayloadPB::new(field_rev, condition, content);
 
+                self.insert_filter(payload).await;
+            }
+            FilterScript::CreateMultiSelectFilter { condition, option_ids} => {
+                let field_rev = self.get_field_rev(FieldType::MultiSelect);
+                let content =
+                    SelectOptionIds::from(option_ids).to_string();
+                let payload =
+                    CreateFilterPayloadPB::new(field_rev, condition, content);
+                self.insert_filter(payload).await;
+            }
+            FilterScript::CreateSingleSelectFilter { condition, option_ids} => {
+                let field_rev = self.get_field_rev(FieldType::SingleSelect);
+                let content =
+                    SelectOptionIds::from(option_ids).to_string();
+                let payload =
+                    CreateFilterPayloadPB::new(field_rev, condition, content);
                 self.insert_filter(payload).await;
             }
             FilterScript::AssertFilterCount { count } => {
