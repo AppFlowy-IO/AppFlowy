@@ -1,6 +1,7 @@
 use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::*;
 use crate::services::filter::{FilterChangeset, FilterController, FilterTaskHandler, FilterType};
+
 use crate::services::group::{
     default_group_configuration, find_group_field, make_group_controller, Group, GroupConfigurationReader,
     GroupController, MoveGroupRowContext,
@@ -15,6 +16,7 @@ use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_task::TaskDispatcher;
 use grid_rev_model::{gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterRevision, RowChangeset, RowRevision};
 use lib_infra::future::Fut;
+use lib_infra::ref_map::RefCountValue;
 use std::future::Future;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -81,8 +83,12 @@ impl GridViewRevisionEditor {
         })
     }
 
-    pub async fn close(&self) {
-        self.filter_controller.read().await.close().await;
+    #[tracing::instrument(name = "close grid view editor", level = "trace", skip_all)]
+    pub fn close(&self) {
+        let filter_controller = self.filter_controller.clone();
+        tokio::spawn(async move {
+            filter_controller.read().await.close().await;
+        });
     }
 
     pub async fn filter_rows(&self, _block_id: &str, mut rows: Vec<Arc<RowRevision>>) -> Vec<Arc<RowRevision>> {
@@ -464,6 +470,12 @@ impl GridViewRevisionEditor {
                 f(self.group_controller.clone(), field_rev).await.ok()
             }
         }
+    }
+}
+
+impl RefCountValue for GridViewRevisionEditor {
+    fn did_remove(&self) {
+        self.close();
     }
 }
 

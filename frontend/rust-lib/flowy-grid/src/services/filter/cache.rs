@@ -2,7 +2,7 @@ use crate::entities::{CheckboxFilterPB, DateFilterPB, FieldType, NumberFilterPB,
 use crate::services::filter::FilterType;
 use std::collections::HashMap;
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub(crate) struct FilterMap {
     pub(crate) text_filter: HashMap<FilterType, TextFilterPB>,
     pub(crate) url_filter: HashMap<FilterType, TextFilterPB>,

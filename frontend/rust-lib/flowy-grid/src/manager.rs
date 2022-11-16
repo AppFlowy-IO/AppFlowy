@@ -126,13 +126,10 @@ impl GridManager {
             return Ok(editor);
         }
 
+        let mut grid_editors = self.grid_editors.write().await;
         let db_pool = self.grid_user.db_pool()?;
         let editor = self.make_grid_rev_editor(grid_id, db_pool).await?;
-        self.grid_editors
-            .write()
-            .await
-            .insert(grid_id.to_string(), editor.clone());
-        // self.task_scheduler.write().await.register_handler(editor.clone());
+        grid_editors.insert(grid_id.to_string(), editor.clone());
         Ok(editor)
     }
 

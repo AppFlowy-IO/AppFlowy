@@ -153,12 +153,13 @@ impl FilterController {
         self.gen_task("").await;
     }
 
+    #[tracing::instrument(level = "trace", skip_all)]
     async fn load_filters(&mut self, filter_revs: Vec<Arc<FilterRevision>>) {
         for filter_rev in filter_revs {
             if let Some(field_rev) = self.delegate.get_field_rev(&filter_rev.field_id).await {
                 let filter_type = FilterType::from(&field_rev);
-                let field_type: FieldType = field_rev.ty.into();
-                match &field_type {
+                tracing::trace!("Create filter with type: {:?}", filter_type);
+                match &filter_type.field_type {
                     FieldType::RichText => {
                         let _ = self
                             .filter_map
@@ -202,6 +203,7 @@ impl FilterController {
 }
 
 /// Returns None if there is no change in this row after applying the filter
+#[tracing::instrument(level = "trace", skip_all)]
 fn filter_row(
     row_rev: &Arc<RowRevision>,
     filter_map: &FilterMap,
@@ -217,6 +219,11 @@ fn filter_row(
     for (field_id, field_rev) in field_rev_by_field_id {
         let filter_type = FilterType::from(field_rev);
         if !filter_map.has_filter(&filter_type) {
+            // tracing::trace!(
+            //     "Can't find filter for filter type: {:?}. Current filters: {:?}",
+            //     filter_type,
+            //     filter_map
+            // );
             continue;
         }
 
@@ -252,7 +259,7 @@ fn filter_cell(
             }
         },
     };
-    tracing::info!("filter cell: {:?}", any_cell_data);
+    tracing::trace!("filter cell: {:?}", any_cell_data);
 
     let is_visible = match &filter_id.field_type {
         FieldType::RichText => filter_map.text_filter.get(filter_id).and_then(|filter| {

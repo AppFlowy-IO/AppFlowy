@@ -8,7 +8,6 @@ use crate::services::persistence::rev_sqlite::SQLiteGridViewRevisionPersistence;
 use crate::services::view_editor::changed_notifier::*;
 use crate::services::view_editor::trait_impl::GridViewRevisionCompress;
 use crate::services::view_editor::{GridViewEditorDelegate, GridViewRevisionEditor};
-use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_revision::{
@@ -16,16 +15,15 @@ use flowy_revision::{
 };
 use grid_rev_model::{FilterRevision, RowChangeset, RowRevision};
 use lib_infra::future::Fut;
+use lib_infra::ref_map::RefCountHashMap;
 use std::sync::Arc;
-use tokio::sync::broadcast;
-
-type ViewId = String;
+use tokio::sync::{broadcast, RwLock};
 
 pub struct GridViewManager {
     grid_id: String,
     user: Arc<dyn GridUser>,
     delegate: Arc<dyn GridViewEditorDelegate>,
-    view_editors: DashMap<ViewId, Arc<GridViewRevisionEditor>>,
+    view_editors: RwLock<RefCountHashMap<Arc<GridViewRevisionEditor>>>,
     pub notifier: broadcast::Sender<GridViewChanged>,
 }
 
@@ -37,19 +35,18 @@ impl GridViewManager {
     ) -> FlowyResult<Self> {
         let (notifier, _) = broadcast::channel(100);
         tokio::spawn(GridViewChangedReceiverRunner(Some(notifier.subscribe())).run());
+        let view_editors = RwLock::new(RefCountHashMap::default());
         Ok(Self {
             grid_id,
             user,
             delegate,
-            view_editors: DashMap::default(),
+            view_editors,
             notifier,
         })
     }
 
-    pub async fn close(&self, _view_id: &str) {
-        if let Ok(editor) = self.get_default_view_editor().await {
-            let _ = editor.close().await;
-        }
+    pub async fn close(&self, view_id: &str) {
+        self.view_editors.write().await.remove(view_id);
     }
 
     pub async fn subscribe_view_changed(&self) -> broadcast::Receiver<GridViewChanged> {
@@ -70,14 +67,14 @@ impl GridViewManager {
 
     /// When the row was created, we may need to modify the [RowRevision] according to the [CreateRowParams].
     pub async fn will_create_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
-        for view_editor in self.view_editors.iter() {
+        for view_editor in self.view_editors.read().await.values() {
             view_editor.will_create_view_row(row_rev, params).await;
         }
     }
 
     /// Notify the view that the row was created. For the moment, the view is just sending notifications.
     pub async fn did_create_row(&self, row_pb: &RowPB, params: &CreateRowParams) {
-        for view_editor in self.view_editors.iter() {
+        for view_editor in self.view_editors.read().await.values() {
             view_editor.did_create_view_row(row_pb, params).await;
         }
     }
@@ -89,7 +86,7 @@ impl GridViewManager {
                 tracing::warn!("Can not find the row in grid view");
             }
             Some(row_rev) => {
-                for view_editor in self.view_editors.iter() {
+                for view_editor in self.view_editors.read().await.values() {
                     view_editor.did_update_view_cell(&row_rev).await;
                 }
             }
@@ -103,7 +100,7 @@ impl GridViewManager {
     }
 
     pub async fn did_delete_row(&self, row_rev: Arc<RowRevision>) {
-        for view_editor in self.view_editors.iter() {
+        for view_editor in self.view_editors.read().await.values() {
             view_editor.did_delete_view_row(&row_rev).await;
         }
     }
@@ -202,14 +199,14 @@ impl GridViewManager {
 
     pub async fn get_view_editor(&self, view_id: &str) -> FlowyResult<Arc<GridViewRevisionEditor>> {
         debug_assert!(!view_id.is_empty());
-        match self.view_editors.get(view_id) {
-            None => {
-                let editor = Arc::new(self.make_view_editor(view_id).await?);
-                self.view_editors.insert(view_id.to_owned(), editor.clone());
-                Ok(editor)
-            }
-            Some(view_editor) => Ok(view_editor.clone()),
+        if let Some(editor) = self.view_editors.read().await.get(view_id) {
+            return Ok(editor);
         }
+        tracing::trace!("{:p} create view_editor", self);
+        let mut view_editors = self.view_editors.write().await;
+        let editor = Arc::new(self.make_view_editor(view_id).await?);
+        view_editors.insert(view_id.to_owned(), editor.clone());
+        Ok(editor)
     }
 
     async fn get_default_view_editor(&self) -> FlowyResult<Arc<GridViewRevisionEditor>> {
