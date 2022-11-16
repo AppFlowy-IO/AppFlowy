@@ -22,6 +22,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
 
   final TextStyle code;
   final TextStyle callout;
+  final TextStyle caption;
 
   const AFThemeExtension({
     required this.warning,
@@ -32,6 +33,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     required this.toggleOffFill,
     required this.code,
     required this.callout,
+    required this.caption,
   });
 
   static AFThemeExtension of(BuildContext context) {
@@ -48,6 +50,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     Color? toggleOffFill,
     TextStyle? code,
     TextStyle? callout,
+    TextStyle? caption,
   }) {
     return AFThemeExtension(
       warning: warning ?? this.warning,
@@ -58,6 +61,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       toggleOffFill: toggleOffFill ?? this.toggleOffFill,
       code: code ?? this.code,
       callout: callout ?? this.callout,
+      caption: caption ?? this.caption,
     );
   }
 
@@ -76,6 +80,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       toggleOffFill: Color.lerp(toggleOffFill, other.toggleOffFill, t)!,
       code: other.code,
       callout: other.callout,
+      caption: other.caption,
     );
   }
 }

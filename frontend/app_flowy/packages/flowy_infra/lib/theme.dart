@@ -206,8 +206,12 @@ class AppTheme {
           code: textTheme.getFontStyle(fontFamily: monospaceFont),
           callout: textTheme.getFontStyle(
             fontSize: FontSizes.s11,
+            fontColor: shader3,
+          ),
+          caption: textTheme.getFontStyle(
+            fontSize: FontSizes.s11,
             fontWeight: FontWeight.w400,
-            fontColor: shader4,
+            fontColor: shader3,
           ),
         )
       ],
