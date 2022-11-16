@@ -14,6 +14,7 @@ pub enum GridNotification {
     DidUpdateGroupView = 60,
     DidUpdateGroup = 61,
     DidGroupByNewField = 62,
+    DidUpdateFilter = 63,
     DidUpdateGridSetting = 70,
 }
 

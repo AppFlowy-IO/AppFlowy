@@ -39,7 +39,7 @@ class GroupController {
   void startListening() {
     _listener.start(onGroupChanged: (result) {
       result.fold(
-        (GroupChangesetPB changeset) {
+        (GroupRowsNotificationPB changeset) {
           for (final deletedRow in changeset.deletedRows) {
             group.rows.removeWhere((rowPB) => rowPB.id == deletedRow);
             delegate.removeRow(group, deletedRow);

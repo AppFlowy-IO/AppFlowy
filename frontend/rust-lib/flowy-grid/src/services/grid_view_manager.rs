@@ -168,7 +168,7 @@ impl GridViewManager {
         }
 
         for group_changeset in group_changesets {
-            view_editor.notify_did_update_group(group_changeset).await;
+            view_editor.notify_did_update_group_rows(group_changeset).await;
         }
 
         Ok(())

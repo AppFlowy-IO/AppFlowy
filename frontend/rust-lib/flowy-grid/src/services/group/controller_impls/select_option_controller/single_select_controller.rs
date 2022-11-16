@@ -1,4 +1,4 @@
-use crate::entities::{GroupChangesetPB, RowPB};
+use crate::entities::{GroupRowsNotificationPB, RowPB};
 use crate::services::cell::insert_select_option_cell;
 use crate::services::field::{SelectOptionCellDataPB, SelectOptionCellDataParser, SingleSelectTypeOptionPB};
 use crate::services::group::action::GroupControllerCustomActions;
@@ -30,7 +30,7 @@ impl GroupControllerCustomActions for SingleSelectGroupController {
         &mut self,
         row_rev: &RowRevision,
         cell_data: &Self::CellDataType,
-    ) -> Vec<GroupChangesetPB> {
+    ) -> Vec<GroupRowsNotificationPB> {
         let mut changesets = vec![];
         self.group_ctx.iter_mut_status_groups(|group| {
             if let Some(changeset) = add_or_remove_select_option_row(group, cell_data, row_rev) {
@@ -40,7 +40,7 @@ impl GroupControllerCustomActions for SingleSelectGroupController {
         changesets
     }
 
-    fn delete_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB> {
+    fn delete_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupRowsNotificationPB> {
         let mut changesets = vec![];
         self.group_ctx.iter_mut_status_groups(|group| {
             if let Some(changeset) = remove_select_option_row(group, cell_data, row_rev) {
@@ -50,7 +50,11 @@ impl GroupControllerCustomActions for SingleSelectGroupController {
         changesets
     }
 
-    fn move_row(&mut self, _cell_data: &Self::CellDataType, mut context: MoveGroupRowContext) -> Vec<GroupChangesetPB> {
+    fn move_row(
+        &mut self,
+        _cell_data: &Self::CellDataType,
+        mut context: MoveGroupRowContext,
+    ) -> Vec<GroupRowsNotificationPB> {
         let mut group_changeset = vec![];
         self.group_ctx.iter_mut_groups(|group| {
             if let Some(changeset) = move_group_row(group, &mut context) {

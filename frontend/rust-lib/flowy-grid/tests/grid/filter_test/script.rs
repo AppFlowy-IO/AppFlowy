@@ -3,8 +3,9 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 
+use bytes::Bytes;
 use futures::TryFutureExt;
-use flowy_grid::entities::{CreateFilterParams, CreateFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition, DateFilterContent, SelectOptionCondition};
+use flowy_grid::entities::{CreateFilterParams, CreateFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition, DateFilterContent, SelectOptionCondition, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB};
 use flowy_grid::services::field::SelectOptionIds;
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
@@ -85,49 +86,60 @@ impl GridFilterTest {
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateTextFilter { condition, content} => {
+
                 let field_rev = self.get_field_rev(FieldType::RichText);
+                let text_filter= TextFilterPB {
+                    condition,
+                    content
+                };
                 let payload =
-                    CreateFilterPayloadPB::new(field_rev, condition, content);
+                    CreateFilterPayloadPB::new(field_rev, text_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateNumberFilter {condition, content} => {
                 let field_rev = self.get_field_rev(FieldType::Number);
+                let number_filter = NumberFilterPB {
+                    condition,
+                    content
+                };
                 let payload =
-                    CreateFilterPayloadPB::new(field_rev, condition, content);
+                    CreateFilterPayloadPB::new(field_rev, number_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateCheckboxFilter {condition} => {
                 let field_rev = self.get_field_rev(FieldType::Checkbox);
+                let checkbox_filter = CheckboxFilterPB {
+                    condition
+                };
                 let payload =
-                    CreateFilterPayloadPB::new(field_rev, condition, "".to_string());
+                    CreateFilterPayloadPB::new(field_rev, checkbox_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateDateFilter { condition, start, end, timestamp} => {
                 let field_rev = self.get_field_rev(FieldType::DateTime);
-                let content = DateFilterContent {
+                let date_filter = DateFilterPB {
+                    condition,
                     start,
                     end,
-                    timestamp,
-                }.to_string();
-                let payload =
-                    CreateFilterPayloadPB::new(field_rev, condition, content);
+                    timestamp
+                };
 
+                let payload =
+                    CreateFilterPayloadPB::new(field_rev, date_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateMultiSelectFilter { condition, option_ids} => {
                 let field_rev = self.get_field_rev(FieldType::MultiSelect);
-                let content =
-                    SelectOptionIds::from(option_ids).to_string();
+                let filter = SelectOptionFilterPB { condition, option_ids };
                 let payload =
-                    CreateFilterPayloadPB::new(field_rev, condition, content);
+                    CreateFilterPayloadPB::new(field_rev, filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateSingleSelectFilter { condition, option_ids} => {
                 let field_rev = self.get_field_rev(FieldType::SingleSelect);
-                let content =
-                    SelectOptionIds::from(option_ids).to_string();
+                let filter = SelectOptionFilterPB { condition, option_ids };
                 let payload =
-                    CreateFilterPayloadPB::new(field_rev, condition, content);
+                    CreateFilterPayloadPB::new(field_rev, filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::AssertFilterCount { count } => {

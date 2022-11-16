@@ -48,8 +48,8 @@ impl std::convert::TryFrom<u8> for SelectOptionCondition {
     }
 }
 
-impl std::convert::From<Arc<FilterRevision>> for SelectOptionFilterPB {
-    fn from(rev: Arc<FilterRevision>) -> Self {
+impl std::convert::From<&FilterRevision> for SelectOptionFilterPB {
+    fn from(rev: &FilterRevision) -> Self {
         let ids = SelectOptionIds::from(rev.content.clone());
         SelectOptionFilterPB {
             condition: SelectOptionCondition::try_from(rev.condition).unwrap_or(SelectOptionCondition::OptionIs),

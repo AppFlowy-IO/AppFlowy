@@ -55,8 +55,8 @@ impl std::convert::TryFrom<u8> for NumberFilterCondition {
     }
 }
 
-impl std::convert::From<Arc<FilterRevision>> for NumberFilterPB {
-    fn from(rev: Arc<FilterRevision>) -> Self {
+impl std::convert::From<&FilterRevision> for NumberFilterPB {
+    fn from(rev: &FilterRevision) -> Self {
         NumberFilterPB {
             condition: NumberFilterCondition::try_from(rev.condition).unwrap_or(NumberFilterCondition::Equal),
             content: rev.content.clone(),

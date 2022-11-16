@@ -61,6 +61,19 @@ pub(crate) async fn update_grid_setting_handler(
     Ok(())
 }
 
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
+pub(crate) async fn get_all_filters_handler(
+    data: Data<GridIdPB>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<RepeatedFilterPB, FlowyError> {
+    let grid_id: GridIdPB = data.into_inner();
+    let editor = manager.open_grid(grid_id).await?;
+    let filters = RepeatedFilterPB {
+        items: editor.get_all_filters().await?,
+    };
+    data_result(filters)
+}
+
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_grid_blocks_handler(
     data: Data<QueryBlocksPayloadPB>,

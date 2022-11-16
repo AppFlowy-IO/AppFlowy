@@ -157,6 +157,12 @@ class AppFlowyGridTest {
     return GridFieldCellContext(gridId: gridView.id, field: field);
   }
 
+  GridFieldContext textFieldContext() {
+    final fieldContext = fieldContexts
+        .firstWhere((element) => element.fieldType == FieldType.RichText);
+    return fieldContext;
+  }
+
   Future<void> createTestGrid() async {
     final app = await unitTest.createTestApp();
     final builder = GridPluginBuilder();

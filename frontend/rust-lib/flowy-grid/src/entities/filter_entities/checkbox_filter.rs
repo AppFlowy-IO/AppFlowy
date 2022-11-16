@@ -40,8 +40,8 @@ impl std::convert::TryFrom<u8> for CheckboxFilterCondition {
     }
 }
 
-impl std::convert::From<Arc<FilterRevision>> for CheckboxFilterPB {
-    fn from(rev: Arc<FilterRevision>) -> Self {
+impl std::convert::From<&FilterRevision> for CheckboxFilterPB {
+    fn from(rev: &FilterRevision) -> Self {
         CheckboxFilterPB {
             condition: CheckboxFilterCondition::try_from(rev.condition).unwrap_or(CheckboxFilterCondition::IsChecked),
         }

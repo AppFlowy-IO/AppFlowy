@@ -12,6 +12,7 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         .event(GridEvent::GetGridBlocks, get_grid_blocks_handler)
         .event(GridEvent::GetGridSetting, get_grid_setting_handler)
         .event(GridEvent::UpdateGridSetting, update_grid_setting_handler)
+        .event(GridEvent::GetAllFilters, get_all_filters_handler)
         // Field
         .event(GridEvent::GetFields, get_fields_handler)
         .event(GridEvent::UpdateField, update_field_handler)
@@ -77,6 +78,9 @@ pub enum GridEvent {
     /// The event handler accepts [GridSettingChangesetPB] and return errors if failed to modify the grid's settings.
     #[event(input = "GridSettingChangesetPB")]
     UpdateGridSetting = 3,
+
+    #[event(input = "GridIdPB", output = "RepeatedFilterPB")]
+    GetAllFilters = 4,
 
     /// [GetFields] event is used to get the grid's settings.
     ///
