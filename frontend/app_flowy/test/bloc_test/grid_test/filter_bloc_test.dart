@@ -1,5 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/filter/filter_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/grid_bloc.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_filter.pbenum.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/text_filter.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
@@ -84,13 +85,11 @@ void main() {
     });
 
     test('filter rows with condition: text is not empty', () async {
+      final textField = gridTest.textFieldContext();
       final filterBloc = GridFilterBloc(viewId: gridTest.gridView.id)
         ..add(const GridFilterEvent.initial());
-
       final gridBloc = GridBloc(view: gridTest.gridView)
         ..add(const GridEvent.initial());
-
-      final textField = gridTest.textFieldContext();
 
       await gridResponseFuture();
       filterBloc.add(
@@ -99,8 +98,43 @@ void main() {
             condition: TextFilterCondition.TextIsNotEmpty,
             content: ""),
       );
+      await gridResponseFuture();
+      assert(gridBloc.state.rowInfos.isEmpty);
+    });
 
-      await gridResponseFuture(milliseconds: 300);
+    test('filter rows with condition: checkbox uncheck', () async {
+      final textField = gridTest.checkboxFieldContext();
+      final filterBloc = GridFilterBloc(viewId: gridTest.gridView.id)
+        ..add(const GridFilterEvent.initial());
+      final gridBloc = GridBloc(view: gridTest.gridView)
+        ..add(const GridEvent.initial());
+
+      await gridResponseFuture();
+      filterBloc.add(
+        GridFilterEvent.createCheckboxFilter(
+          fieldId: textField.id,
+          condition: CheckboxFilterCondition.IsUnChecked,
+        ),
+      );
+      await gridResponseFuture();
+      assert(gridBloc.state.rowInfos.length == 3);
+    });
+
+    test('filter rows with condition: checkbox check', () async {
+      final textField = gridTest.checkboxFieldContext();
+      final filterBloc = GridFilterBloc(viewId: gridTest.gridView.id)
+        ..add(const GridFilterEvent.initial());
+      final gridBloc = GridBloc(view: gridTest.gridView)
+        ..add(const GridEvent.initial());
+
+      await gridResponseFuture();
+      filterBloc.add(
+        GridFilterEvent.createCheckboxFilter(
+          fieldId: textField.id,
+          condition: CheckboxFilterCondition.IsChecked,
+        ),
+      );
+      await gridResponseFuture();
       assert(gridBloc.state.rowInfos.isEmpty);
     });
   });

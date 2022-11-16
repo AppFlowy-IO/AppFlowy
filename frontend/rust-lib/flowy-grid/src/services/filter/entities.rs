@@ -41,7 +41,7 @@ impl std::convert::From<&GridSettingChangesetParams> for FilterChangeset {
     }
 }
 
-#[derive(Hash, Eq, PartialEq, Clone)]
+#[derive(Hash, Eq, PartialEq, Debug, Clone)]
 pub struct FilterType {
     pub field_id: String,
     pub field_type: FieldType,
@@ -78,8 +78,10 @@ impl std::convert::From<&DeleteFilterParams> for FilterType {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct FilterResultNotification {
+    pub view_id: String,
     pub block_id: String,
     pub visible_rows: Vec<String>,
-    pub hide_rows: Vec<String>,
+    pub invisible_rows: Vec<String>,
 }

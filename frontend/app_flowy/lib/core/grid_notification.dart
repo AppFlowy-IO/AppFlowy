@@ -9,27 +9,33 @@ import 'package:flowy_sdk/rust_stream.dart';
 import 'notification_helper.dart';
 
 // GridPB
-typedef GridNotificationCallback = void Function(GridNotification, Either<Uint8List, FlowyError>);
+typedef GridNotificationCallback = void Function(
+    GridDartNotification, Either<Uint8List, FlowyError>);
 
-class GridNotificationParser extends NotificationParser<GridNotification, FlowyError> {
-  GridNotificationParser({String? id, required GridNotificationCallback callback})
+class GridNotificationParser
+    extends NotificationParser<GridDartNotification, FlowyError> {
+  GridNotificationParser(
+      {String? id, required GridNotificationCallback callback})
       : super(
           id: id,
           callback: callback,
-          tyParser: (ty) => GridNotification.valueOf(ty),
+          tyParser: (ty) => GridDartNotification.valueOf(ty),
           errorParser: (bytes) => FlowyError.fromBuffer(bytes),
         );
 }
 
-typedef GridNotificationHandler = Function(GridNotification ty, Either<Uint8List, FlowyError> result);
+typedef GridNotificationHandler = Function(
+    GridDartNotification ty, Either<Uint8List, FlowyError> result);
 
 class GridNotificationListener {
   StreamSubscription<SubscribeObject>? _subscription;
   GridNotificationParser? _parser;
 
-  GridNotificationListener({required String objectId, required GridNotificationHandler handler})
+  GridNotificationListener(
+      {required String objectId, required GridNotificationHandler handler})
       : _parser = GridNotificationParser(id: objectId, callback: handler) {
-    _subscription = RustStreamReceiver.listen((observable) => _parser?.parse(observable));
+    _subscription =
+        RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }
 
   Future<void> stop() async {

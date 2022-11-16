@@ -1,11 +1,8 @@
-use crate::dart_notification::{send_dart_notification, GridDartNotification};
-use crate::entities::{
-    FilterPB, GridBlockChangesetPB, GridGroupConfigurationPB, GridLayout, GridLayoutPB, GridSettingPB,
-};
-use crate::services::filter::{FilterDelegate, FilterNotificationReceiver, FilterResultNotification, FilterType};
+use crate::entities::{FilterPB, GridGroupConfigurationPB, GridLayout, GridLayoutPB, GridSettingPB};
+use crate::services::filter::{FilterDelegate, FilterType};
 use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter};
 use crate::services::row::GridBlock;
-use crate::services::view_editor::{GridViewChanged, GridViewEditorDelegate};
+use crate::services::view_editor::GridViewEditorDelegate;
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
@@ -19,7 +16,7 @@ use grid_rev_model::{FieldRevision, FieldTypeRevision, FilterRevision, GroupConf
 use lib_infra::future::{to_future, Fut, FutureResult};
 use lib_ot::core::EmptyAttributes;
 use std::sync::Arc;
-use tokio::sync::{broadcast, RwLock};
+use tokio::sync::RwLock;
 
 pub(crate) struct GridViewRevisionCloudService {
     #[allow(dead_code)]
@@ -165,24 +162,5 @@ impl FilterDelegate for GridViewFilterDelegateImpl {
 
     fn get_blocks(&self) -> Fut<Vec<GridBlock>> {
         self.editor_delegate.get_blocks()
-    }
-}
-
-pub(crate) struct FilterNotificationReceiverImpl(pub(crate) broadcast::Sender<GridViewChanged>);
-impl FilterNotificationReceiver for FilterNotificationReceiverImpl {
-    fn did_receive_notifications(&self, notifications: Vec<FilterResultNotification>) {
-        for notification in notifications {
-            let changeset = GridBlockChangesetPB {
-                block_id: notification.block_id,
-                visible_rows: notification.visible_rows,
-                hide_rows: notification.hide_rows,
-                ..Default::default()
-            };
-
-            let _ = self.0.send(GridViewChanged::BlockUpdated(changeset.clone()));
-            send_dart_notification(&changeset.block_id, GridDartNotification::DidUpdateGridBlock)
-                .payload(changeset)
-                .send()
-        }
     }
 }

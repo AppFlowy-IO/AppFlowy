@@ -1,6 +1,5 @@
 use crate::entities::{CheckboxFilterPB, DateFilterPB, FieldType, NumberFilterPB, SelectOptionFilterPB, TextFilterPB};
 use crate::services::filter::FilterType;
-
 use std::collections::HashMap;
 
 #[derive(Default)]
@@ -16,6 +15,18 @@ pub(crate) struct FilterMap {
 impl FilterMap {
     pub(crate) fn new() -> Self {
         Self::default()
+    }
+
+    pub(crate) fn has_filter(&self, filter_type: &FilterType) -> bool {
+        match filter_type.field_type {
+            FieldType::RichText => self.text_filter.get(filter_type).is_some(),
+            FieldType::Number => self.number_filter.get(filter_type).is_some(),
+            FieldType::DateTime => self.date_filter.get(filter_type).is_some(),
+            FieldType::SingleSelect => self.select_option_filter.get(filter_type).is_some(),
+            FieldType::MultiSelect => self.select_option_filter.get(filter_type).is_some(),
+            FieldType::Checkbox => self.checkbox_filter.get(filter_type).is_some(),
+            FieldType::URL => self.url_filter.get(filter_type).is_some(),
+        }
     }
 
     pub(crate) fn is_empty(&self) -> bool {

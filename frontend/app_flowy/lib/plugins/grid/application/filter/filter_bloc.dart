@@ -4,7 +4,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_filter.pbenum.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_filter.pbenum.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/number_filter.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/text_filter.pbserver.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/text_filter.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/util.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

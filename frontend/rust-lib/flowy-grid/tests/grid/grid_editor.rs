@@ -220,7 +220,7 @@ fn make_test_grid() -> BuildGridContext {
             1 => {
                 for field_type in FieldType::iter() {
                     match field_type {
-                        FieldType::RichText => row_builder.insert_text_cell("B"),
+                        FieldType::RichText => row_builder.insert_text_cell(""),
                         FieldType::Number => row_builder.insert_number_cell("2"),
                         FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
                         FieldType::MultiSelect => row_builder

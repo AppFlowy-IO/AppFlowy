@@ -1,13 +1,13 @@
 use crate::entities::filter_entities::*;
 
 use crate::entities::FieldType;
-use crate::services::cell::{AnyCellData, CellFilterOperation};
+use crate::services::cell::{CellFilterOperation, TypeCellData};
 use crate::services::field::*;
 use crate::services::filter::{
     FilterChangeset, FilterMap, FilterResult, FilterResultNotification, FilterType, FILTER_HANDLER_ID,
 };
 use crate::services::row::GridBlock;
-
+use crate::services::view_editor::{GridViewChanged, GridViewChangedNotifier};
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use grid_rev_model::{CellRevision, FieldId, FieldRevision, FilterRevision, RowRevision};
@@ -24,30 +24,25 @@ pub trait FilterDelegate: Send + Sync + 'static {
     fn get_blocks(&self) -> Fut<Vec<GridBlock>>;
 }
 
-pub trait FilterNotificationReceiver: Send + Sync + 'static {
-    fn did_receive_notifications(&self, notifications: Vec<FilterResultNotification>);
-}
-
 pub struct FilterController {
     view_id: String,
     delegate: Box<dyn FilterDelegate>,
     filter_map: FilterMap,
     result_by_row_id: HashMap<RowId, FilterResult>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
-    notifier: Box<dyn FilterNotificationReceiver>,
+    notifier: GridViewChangedNotifier,
 }
 
 impl FilterController {
-    pub async fn new<T, N>(
+    pub async fn new<T>(
         view_id: &str,
         delegate: T,
         task_scheduler: Arc<RwLock<TaskDispatcher>>,
         filter_revs: Vec<Arc<FilterRevision>>,
-        notifier: N,
+        notifier: GridViewChangedNotifier,
     ) -> Self
     where
         T: FilterDelegate,
-        N: FilterNotificationReceiver,
     {
         let mut this = Self {
             view_id: view_id.to_string(),
@@ -55,7 +50,7 @@ impl FilterController {
             filter_map: FilterMap::new(),
             result_by_row_id: HashMap::default(),
             task_scheduler,
-            notifier: Box::new(notifier),
+            notifier,
         };
         this.load_filters(filter_revs).await;
         this
@@ -82,17 +77,14 @@ impl FilterController {
             return;
         }
         let field_rev_by_field_id = self.get_filter_revs_map().await;
-        let _ = row_revs
-            .iter()
-            .flat_map(|row_rev| {
-                filter_row(
-                    row_rev,
-                    &self.filter_map,
-                    &mut self.result_by_row_id,
-                    &field_rev_by_field_id,
-                )
-            })
-            .collect::<Vec<String>>();
+        row_revs.iter().for_each(|row_rev| {
+            let _ = filter_row(
+                row_rev,
+                &self.filter_map,
+                &mut self.result_by_row_id,
+                &field_rev_by_field_id,
+            );
+        });
 
         row_revs.retain(|row_rev| {
             self.result_by_row_id
@@ -111,51 +103,40 @@ impl FilterController {
             .collect::<HashMap<String, Arc<FieldRevision>>>()
     }
 
+    #[tracing::instrument(name = "receive_task_result", level = "trace", skip_all, fields(filter_result), err)]
     pub async fn process(&mut self, _predicate: &str) -> FlowyResult<()> {
         let field_rev_by_field_id = self.get_filter_revs_map().await;
-        let mut notifications = vec![];
         for block in self.delegate.get_blocks().await.into_iter() {
             // The row_ids contains the row that its visibility was changed.
-            let row_ids = block
-                .row_revs
-                .iter()
-                .flat_map(|row_rev| {
-                    filter_row(
-                        row_rev,
-                        &self.filter_map,
-                        &mut self.result_by_row_id,
-                        &field_rev_by_field_id,
-                    )
-                })
-                .collect::<Vec<String>>();
-
             let mut visible_rows = vec![];
-            let mut hide_rows = vec![];
+            let mut invisible_rows = vec![];
 
-            // Query the filter result from the cache
-            for row_id in row_ids {
-                if self
-                    .result_by_row_id
-                    .get(&row_id)
-                    .map(|result| result.is_visible())
-                    .unwrap_or(false)
-                {
-                    visible_rows.push(row_id);
+            for row_rev in &block.row_revs {
+                let (row_id, is_visible) = filter_row(
+                    row_rev,
+                    &self.filter_map,
+                    &mut self.result_by_row_id,
+                    &field_rev_by_field_id,
+                );
+                if is_visible {
+                    visible_rows.push(row_id)
                 } else {
-                    hide_rows.push(row_id);
+                    invisible_rows.push(row_id);
                 }
             }
 
-            let changeset = FilterResultNotification {
+            let notification = FilterResultNotification {
+                view_id: self.view_id.clone(),
                 block_id: block.block_id,
-                hide_rows,
+                invisible_rows,
                 visible_rows,
             };
-
-            // Save the changeset for each block
-            notifications.push(changeset);
+            tracing::Span::current().record("filter_result", &format!("{:?}", &notification).as_str());
+            let _ = self
+                .notifier
+                .send(GridViewChanged::DidReceiveFilterResult(notification));
         }
-        self.notifier.did_receive_notifications(notifications);
+
         Ok(())
     }
 
@@ -226,7 +207,7 @@ fn filter_row(
     filter_map: &FilterMap,
     result_by_row_id: &mut HashMap<RowId, FilterResult>,
     field_rev_by_field_id: &HashMap<FieldId, Arc<FieldRevision>>,
-) -> Option<String> {
+) -> (String, bool) {
     // Create a filter result cache if it's not exist
     let filter_result = result_by_row_id
         .entry(row_rev.id.clone())
@@ -235,31 +216,26 @@ fn filter_row(
     // Iterate each cell of the row to check its visibility
     for (field_id, field_rev) in field_rev_by_field_id {
         let filter_type = FilterType::from(field_rev);
+        if !filter_map.has_filter(&filter_type) {
+            continue;
+        }
+
         let cell_rev = row_rev.cells.get(field_id);
         // if the visibility of the cell_rew is changed, which means the visibility of the
         // row is changed too.
         if let Some(is_visible) = filter_cell(&filter_type, field_rev, filter_map, cell_rev) {
-            let prev_is_visible = filter_result.visible_by_filter_id.get(&filter_type).cloned();
             filter_result.visible_by_filter_id.insert(filter_type, is_visible);
-            match prev_is_visible {
-                None => {
-                    if !is_visible {
-                        return Some(row_rev.id.clone());
-                    }
-                }
-                Some(prev_is_visible) => {
-                    if prev_is_visible != is_visible {
-                        return Some(row_rev.id.clone());
-                    }
-                }
-            }
+            return (row_rev.id.clone(), is_visible);
         }
     }
 
-    None
+    (row_rev.id.clone(), true)
 }
 
-// Return None if there is no change in this cell after applying the filter
+// Returns None if there is no change in this cell after applying the filter
+// Returns Some if the visibility of the cell is changed
+
+#[tracing::instrument(level = "trace", skip_all)]
 fn filter_cell(
     filter_id: &FilterType,
     field_rev: &Arc<FieldRevision>,
@@ -267,9 +243,16 @@ fn filter_cell(
     cell_rev: Option<&CellRevision>,
 ) -> Option<bool> {
     let any_cell_data = match cell_rev {
-        None => AnyCellData::from_field_type(&filter_id.field_type),
-        Some(cell_rev) => AnyCellData::try_from(cell_rev).ok()?,
+        None => TypeCellData::from_field_type(&filter_id.field_type),
+        Some(cell_rev) => match TypeCellData::try_from(cell_rev) {
+            Ok(cell_data) => cell_data,
+            Err(err) => {
+                tracing::error!("Deserialize TypeCellData failed: {}", err);
+                TypeCellData::from_field_type(&filter_id.field_type)
+            }
+        },
     };
+    tracing::info!("filter cell: {:?}", any_cell_data);
 
     let is_visible = match &filter_id.field_type {
         FieldType::RichText => filter_map.text_filter.get(filter_id).and_then(|filter| {

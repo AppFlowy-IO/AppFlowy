@@ -163,6 +163,12 @@ class AppFlowyGridTest {
     return fieldContext;
   }
 
+  GridFieldContext checkboxFieldContext() {
+    final fieldContext = fieldContexts
+        .firstWhere((element) => element.fieldType == FieldType.Checkbox);
+    return fieldContext;
+  }
+
   Future<void> createTestGrid() async {
     final app = await unitTest.createTestApp();
     final builder = GridPluginBuilder();

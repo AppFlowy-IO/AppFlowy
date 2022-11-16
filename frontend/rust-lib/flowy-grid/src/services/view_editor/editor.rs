@@ -1,24 +1,23 @@
 use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::*;
-use crate::services::filter::{FilterChangeset, FilterController, FilterDelegate, FilterTaskHandler, FilterType};
+use crate::services::filter::{FilterChangeset, FilterController, FilterTaskHandler, FilterType};
 use crate::services::group::{
     default_group_configuration, find_group_field, make_group_controller, Group, GroupConfigurationReader,
     GroupController, MoveGroupRowContext,
 };
 use crate::services::row::GridBlock;
+use crate::services::view_editor::changed_notifier::GridViewChangedNotifier;
 use crate::services::view_editor::trait_impl::*;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
-use flowy_revision::{
-    RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
-};
+use flowy_revision::RevisionManager;
 use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_task::TaskDispatcher;
 use grid_rev_model::{gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterRevision, RowChangeset, RowRevision};
-use lib_infra::future::{to_future, Fut, FutureResult};
+use lib_infra::future::Fut;
 use std::future::Future;
 use std::sync::Arc;
-use tokio::sync::{broadcast, RwLock};
+use tokio::sync::RwLock;
 
 pub trait GridViewEditorDelegate: Send + Sync + 'static {
     /// If the field_ids is None, then it will return all the field revisions
@@ -33,11 +32,6 @@ pub trait GridViewEditorDelegate: Send + Sync + 'static {
     fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>>;
 }
 
-#[derive(Clone)]
-pub enum GridViewChanged {
-    BlockUpdated(GridBlockChangesetPB),
-}
-
 pub struct GridViewRevisionEditor {
     user_id: String,
     view_id: String,
@@ -46,8 +40,8 @@ pub struct GridViewRevisionEditor {
     delegate: Arc<dyn GridViewEditorDelegate>,
     group_controller: Arc<RwLock<Box<dyn GroupController>>>,
     filter_controller: Arc<RwLock<FilterController>>,
-    pub changed_notifier: broadcast::Sender<GridViewChanged>,
 }
+
 impl GridViewRevisionEditor {
     #[tracing::instrument(level = "trace", skip_all, err)]
     pub async fn new(
@@ -55,6 +49,7 @@ impl GridViewRevisionEditor {
         token: &str,
         view_id: String,
         delegate: Arc<dyn GridViewEditorDelegate>,
+        notifier: GridViewChangedNotifier,
         mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
     ) -> FlowyResult<Self> {
         let cloud = Arc::new(GridViewRevisionCloudService {
@@ -74,9 +69,7 @@ impl GridViewRevisionEditor {
 
         let user_id = user_id.to_owned();
         let group_controller = Arc::new(RwLock::new(group_controller));
-        let (changed_notifier, _) = broadcast::channel(100);
-        let filter_controller =
-            make_filter_controller(&view_id, delegate.clone(), changed_notifier.clone(), pad.clone()).await;
+        let filter_controller = make_filter_controller(&view_id, delegate.clone(), notifier.clone(), pad.clone()).await;
         Ok(Self {
             pad,
             user_id,
@@ -85,7 +78,6 @@ impl GridViewRevisionEditor {
             delegate,
             group_controller,
             filter_controller,
-            changed_notifier,
         })
     }
 
@@ -291,6 +283,7 @@ impl GridViewRevisionEditor {
         .await
     }
 
+    #[tracing::instrument(level = "trace", skip(self), err)]
     pub async fn insert_view_filter(&self, params: CreateFilterParams) -> FlowyResult<()> {
         let filter_type = FilterType::from(&params);
         let filter_rev = FilterRevision {
@@ -319,6 +312,7 @@ impl GridViewRevisionEditor {
         Ok(())
     }
 
+    #[tracing::instrument(level = "trace", skip(self), err)]
     pub async fn delete_view_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
         let filter_type = params.filter_type;
         let field_type_rev = filter_type.field_type_rev();
@@ -521,7 +515,7 @@ async fn new_group_controller_with_field_rev(
 async fn make_filter_controller(
     view_id: &str,
     delegate: Arc<dyn GridViewEditorDelegate>,
-    changed_notifier: broadcast::Sender<GridViewChanged>,
+    notifier: GridViewChangedNotifier,
     pad: Arc<RwLock<GridViewRevisionPad>>,
 ) -> Arc<RwLock<FilterController>> {
     let field_revs = delegate.get_field_revs(None).await;
@@ -531,7 +525,6 @@ async fn make_filter_controller(
         editor_delegate: delegate.clone(),
         view_revision_pad: pad,
     };
-    let notifier = FilterNotificationReceiverImpl(changed_notifier);
     let filter_controller =
         FilterController::new(view_id, filter_delegate, task_scheduler.clone(), filter_revs, notifier).await;
     let filter_controller = Arc::new(RwLock::new(filter_controller));

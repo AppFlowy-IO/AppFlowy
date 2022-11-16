@@ -170,7 +170,7 @@ pub struct GridBlockChangesetPB {
     pub visible_rows: Vec<String>,
 
     #[pb(index = 6)]
-    pub hide_rows: Vec<String>,
+    pub invisible_rows: Vec<String>,
 }
 impl GridBlockChangesetPB {
     pub fn insert(block_id: String, inserted_rows: Vec<InsertedRowPB>) -> Self {

@@ -287,6 +287,7 @@ class _BoardContentState extends State<BoardContent> {
       gridId: gridId,
       fields: UnmodifiableListView(fieldController.fieldContexts),
       rowPB: rowPB,
+      visible: true,
     );
 
     final dataController = GridRowDataController(
