@@ -152,7 +152,7 @@ impl std::convert::From<&RowRevision> for InsertedRowPB {
     }
 }
 
-#[derive(Debug, Default, ProtoBuf)]
+#[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct GridBlockChangesetPB {
     #[pb(index = 1)]
     pub block_id: String,

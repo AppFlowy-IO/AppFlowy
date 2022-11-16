@@ -262,8 +262,8 @@ class AppFlowyGridSelectOptionCellTest {
   }
 }
 
-Future<void> gridResponseFuture() {
-  return Future.delayed(gridResponseDuration(milliseconds: 200));
+Future<void> gridResponseFuture({int milliseconds = 200}) {
+  return Future.delayed(gridResponseDuration(milliseconds: milliseconds));
 }
 
 Duration gridResponseDuration({int milliseconds = 200}) {

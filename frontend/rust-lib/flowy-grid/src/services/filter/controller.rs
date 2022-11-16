@@ -1,43 +1,53 @@
-use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::filter_entities::*;
-use crate::entities::setting_entities::*;
-use crate::entities::{FieldType, GridBlockChangesetPB};
+
+use crate::entities::FieldType;
 use crate::services::cell::{AnyCellData, CellFilterOperation};
 use crate::services::field::*;
-use crate::services::filter::{FilterMap, FilterResult, FILTER_HANDLER_ID};
+use crate::services::filter::{
+    FilterChangeset, FilterMap, FilterResult, FilterResultNotification, FilterType, FILTER_HANDLER_ID,
+};
 use crate::services::row::GridBlock;
+
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
-use grid_rev_model::{CellRevision, FieldId, FieldRevision, FieldTypeRevision, FilterRevision, RowRevision};
+use grid_rev_model::{CellRevision, FieldId, FieldRevision, FilterRevision, RowRevision};
 use lib_infra::future::Fut;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
 type RowId = String;
-pub trait GridViewFilterDelegate: Send + Sync + 'static {
+pub trait FilterDelegate: Send + Sync + 'static {
     fn get_filter_rev(&self, filter_id: FilterType) -> Fut<Vec<Arc<FilterRevision>>>;
     fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>>;
     fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>>;
     fn get_blocks(&self) -> Fut<Vec<GridBlock>>;
 }
 
+pub trait FilterNotificationReceiver: Send + Sync + 'static {
+    fn did_receive_notifications(&self, notifications: Vec<FilterResultNotification>);
+}
+
 pub struct FilterController {
     view_id: String,
-    delegate: Box<dyn GridViewFilterDelegate>,
+    delegate: Box<dyn FilterDelegate>,
     filter_map: FilterMap,
     result_by_row_id: HashMap<RowId, FilterResult>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    notifier: Box<dyn FilterNotificationReceiver>,
 }
+
 impl FilterController {
-    pub async fn new<T>(
+    pub async fn new<T, N>(
         view_id: &str,
         delegate: T,
         task_scheduler: Arc<RwLock<TaskDispatcher>>,
         filter_revs: Vec<Arc<FilterRevision>>,
+        notifier: N,
     ) -> Self
     where
-        T: GridViewFilterDelegate,
+        T: FilterDelegate,
+        N: FilterNotificationReceiver,
     {
         let mut this = Self {
             view_id: view_id.to_string(),
@@ -45,6 +55,7 @@ impl FilterController {
             filter_map: FilterMap::new(),
             result_by_row_id: HashMap::default(),
             task_scheduler,
+            notifier: Box::new(notifier),
         };
         this.load_filters(filter_revs).await;
         this
@@ -102,7 +113,7 @@ impl FilterController {
 
     pub async fn process(&mut self, _predicate: &str) -> FlowyResult<()> {
         let field_rev_by_field_id = self.get_filter_revs_map().await;
-        let mut changesets = vec![];
+        let mut notifications = vec![];
         for block in self.delegate.get_blocks().await.into_iter() {
             // The row_ids contains the row that its visibility was changed.
             let row_ids = block
@@ -135,18 +146,16 @@ impl FilterController {
                 }
             }
 
-            let changeset = GridBlockChangesetPB {
+            let changeset = FilterResultNotification {
                 block_id: block.block_id,
                 hide_rows,
                 visible_rows,
-                ..Default::default()
             };
 
             // Save the changeset for each block
-            changesets.push(changeset);
+            notifications.push(changeset);
         }
-
-        self.notify(changesets).await;
+        self.notifier.did_receive_notifications(notifications);
         Ok(())
     }
 
@@ -161,14 +170,6 @@ impl FilterController {
         }
 
         self.gen_task("").await;
-    }
-
-    async fn notify(&self, changesets: Vec<GridBlockChangesetPB>) {
-        for changeset in changesets {
-            send_dart_notification(&self.view_id, GridNotification::DidUpdateGridBlock)
-                .payload(changeset)
-                .send();
-        }
     }
 
     async fn load_filters(&mut self, filter_revs: Vec<Arc<FilterRevision>>) {
@@ -330,80 +331,4 @@ fn filter_cell(
     }?;
 
     is_visible
-}
-
-pub struct FilterChangeset {
-    insert_filter: Option<FilterType>,
-    delete_filter: Option<FilterType>,
-}
-
-impl FilterChangeset {
-    pub fn from_insert(filter_id: FilterType) -> Self {
-        Self {
-            insert_filter: Some(filter_id),
-            delete_filter: None,
-        }
-    }
-
-    pub fn from_delete(filter_id: FilterType) -> Self {
-        Self {
-            insert_filter: None,
-            delete_filter: Some(filter_id),
-        }
-    }
-}
-
-impl std::convert::From<&GridSettingChangesetParams> for FilterChangeset {
-    fn from(params: &GridSettingChangesetParams) -> Self {
-        let insert_filter = params.insert_filter.as_ref().map(|insert_filter_params| FilterType {
-            field_id: insert_filter_params.field_id.clone(),
-            field_type: insert_filter_params.field_type_rev.into(),
-        });
-
-        let delete_filter = params
-            .delete_filter
-            .as_ref()
-            .map(|delete_filter_params| delete_filter_params.filter_type.clone());
-        FilterChangeset {
-            insert_filter,
-            delete_filter,
-        }
-    }
-}
-
-#[derive(Hash, Eq, PartialEq, Clone)]
-pub struct FilterType {
-    pub field_id: String,
-    pub field_type: FieldType,
-}
-
-impl FilterType {
-    pub fn field_type_rev(&self) -> FieldTypeRevision {
-        self.field_type.clone().into()
-    }
-}
-
-impl std::convert::From<&Arc<FieldRevision>> for FilterType {
-    fn from(rev: &Arc<FieldRevision>) -> Self {
-        Self {
-            field_id: rev.id.clone(),
-            field_type: rev.ty.into(),
-        }
-    }
-}
-
-impl std::convert::From<&CreateFilterParams> for FilterType {
-    fn from(params: &CreateFilterParams) -> Self {
-        let field_type: FieldType = params.field_type_rev.into();
-        Self {
-            field_id: params.field_id.clone(),
-            field_type,
-        }
-    }
-}
-
-impl std::convert::From<&DeleteFilterParams> for FilterType {
-    fn from(params: &DeleteFilterParams) -> Self {
-        params.filter_type.clone()
-    }
 }

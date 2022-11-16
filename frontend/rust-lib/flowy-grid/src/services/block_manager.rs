@@ -1,4 +1,4 @@
-use crate::dart_notification::{send_dart_notification, GridNotification};
+use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::{CellChangesetPB, GridBlockChangesetPB, InsertedRowPB, RowPB};
 use crate::manager::GridUser;
 use crate::services::block_editor::{GridBlockRevisionCompress, GridBlockRevisionEditor};
@@ -237,7 +237,7 @@ impl GridBlockManager {
     }
 
     async fn notify_did_update_block(&self, block_id: &str, changeset: GridBlockChangesetPB) -> FlowyResult<()> {
-        send_dart_notification(block_id, GridNotification::DidUpdateGridBlock)
+        send_dart_notification(block_id, GridDartNotification::DidUpdateGridBlock)
             .payload(changeset)
             .send();
         Ok(())
@@ -245,7 +245,7 @@ impl GridBlockManager {
 
     async fn notify_did_update_cell(&self, changeset: CellChangesetPB) -> FlowyResult<()> {
         let id = format!("{}:{}", changeset.row_id, changeset.field_id);
-        send_dart_notification(&id, GridNotification::DidUpdateCell).send();
+        send_dart_notification(&id, GridDartNotification::DidUpdateCell).send();
         Ok(())
     }
 }

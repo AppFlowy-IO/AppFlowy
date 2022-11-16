@@ -1,12 +1,12 @@
 use crate::entities::GridLayout;
 
 use crate::services::grid_editor::{GridRevisionCompress, GridRevisionEditor};
-use crate::services::grid_view_manager::make_grid_view_rev_manager;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::kv::GridKVPersistence;
 use crate::services::persistence::migration::GridMigration;
 use crate::services::persistence::rev_sqlite::SQLiteGridRevisionPersistence;
 use crate::services::persistence::GridDatabase;
+use crate::services::view_editor::make_grid_view_rev_manager;
 use bytes::Bytes;
 
 use flowy_database::ConnectionPool;
