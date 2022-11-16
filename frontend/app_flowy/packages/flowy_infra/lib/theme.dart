@@ -65,16 +65,18 @@ class AppTheme {
 
   late Color shadow;
 
+  late String font;
+  late String monospaceFont;
+
   /// Default constructor
   AppTheme({this.brightness = Brightness.light});
 
-  factory AppTheme.fromName({required String name}) {
-    return AppTheme.fromType(themeTypeFromString(name));
-  }
-
-  /// fromType factory constructor
-  factory AppTheme.fromType(Brightness themeType) {
-    switch (themeType) {
+  factory AppTheme.fromName({
+    required String themeName,
+    required String font,
+    required String monospaceFont,
+  }) {
+    switch (themeTypeFromString(themeName)) {
       case Brightness.light:
         return AppTheme(brightness: Brightness.light)
           ..surface = Colors.white
@@ -108,7 +110,9 @@ class AppTheme {
           ..textColor = _black
           ..iconColor = _black
           ..shadow = _black
-          ..disableIconColor = const Color(0xffbdbdbd);
+          ..disableIconColor = const Color(0xffbdbdbd)
+          ..font = font
+          ..monospaceFont = monospaceFont;
 
       case Brightness.dark:
         return AppTheme(brightness: Brightness.dark)
@@ -143,14 +147,18 @@ class AppTheme {
           ..textColor = _white
           ..iconColor = _white
           ..shadow = _black
-          ..disableIconColor = const Color(0xff333333);
+          ..disableIconColor = const Color(0xff333333)
+          ..font = font
+          ..monospaceFont = monospaceFont;
     }
   }
 
   ThemeData get themeData {
     return ThemeData(
       brightness: brightness,
-      textTheme: TextTheme(bodyText2: TextStyle(color: shader1)),
+      textTheme: TextTheme(
+        bodyText2: TextStyle(color: shader1),
+      ),
       textSelectionTheme: TextSelectionThemeData(
           cursorColor: main2, selectionHandleColor: main2),
       primaryIconTheme: IconThemeData(color: hover),

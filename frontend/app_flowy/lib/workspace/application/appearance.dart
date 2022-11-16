@@ -17,7 +17,12 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
 
   AppearanceSettingsCubit(AppearanceSettingsPB setting)
       : _setting = setting,
-        super(AppearanceSettingsState.initial(setting.theme, setting.locale));
+        super(AppearanceSettingsState.initial(
+          setting.theme,
+          setting.font,
+          setting.monospaceFont,
+          setting.locale,
+        ));
 
   /// Updates the current theme and notify the listeners the theme was changed.
   /// Do nothing if the passed in themeType equal to the current theme type.
@@ -29,7 +34,13 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     _setting.theme = themeTypeToString(brightness);
     _saveAppearanceSettings();
 
-    emit(state.copyWith(theme: AppTheme.fromType(brightness)));
+    emit(state.copyWith(
+      theme: AppTheme.fromName(
+        themeName: _setting.theme,
+        font: state.theme.font,
+        monospaceFont: state.theme.monospaceFont,
+      ),
+    ));
   }
 
   /// Updates the current locale and notify the listeners the locale was changed
@@ -113,10 +124,16 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
 
   factory AppearanceSettingsState.initial(
     String themeName,
+    String font,
+    String monospaceFont,
     LocaleSettingsPB locale,
   ) =>
       AppearanceSettingsState(
-        theme: AppTheme.fromName(name: themeName),
+        theme: AppTheme.fromName(
+          themeName: themeName,
+          font: font,
+          monospaceFont: monospaceFont,
+        ),
         locale: Locale(locale.languageCode, locale.countryCode),
       );
 }
