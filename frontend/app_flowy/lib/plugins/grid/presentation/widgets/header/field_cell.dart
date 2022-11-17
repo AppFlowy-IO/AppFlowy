@@ -172,6 +172,7 @@ class FieldCellButton extends StatelessWidget {
         field.fieldType.iconName(),
         color: Theme.of(context).colorScheme.onSurface,
       ),
+      radius: BorderRadius.zero,
       text: FlowyText.medium(
         text,
         fontSize: 12,
