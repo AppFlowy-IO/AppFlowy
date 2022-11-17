@@ -1,6 +1,4 @@
 import 'dart:collection';
-import 'package:app_flowy/plugins/board/application/board_data_controller.dart';
-import 'package:app_flowy/plugins/board/board.dart';
 import 'package:app_flowy/plugins/grid/application/block/block_cache.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
@@ -18,64 +16,28 @@ import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 
 import '../../util.dart';
 
-/// Create a empty Grid for test
-class AppFlowyGridTest {
-  final AppFlowyUnitTest unitTest;
-  late ViewPB gridView;
-  GridDataController? _gridDataController;
-  BoardDataController? _boardDataController;
+class GridTestContext {
+  final ViewPB gridView;
+  final GridDataController _gridDataController;
 
-  AppFlowyGridTest({required this.unitTest});
-
-  static Future<AppFlowyGridTest> ensureInitialized() async {
-    final inner = await AppFlowyUnitTest.ensureInitialized();
-    return AppFlowyGridTest(unitTest: inner);
-  }
+  GridTestContext(this.gridView, this._gridDataController);
 
   List<RowInfo> get rowInfos {
-    if (_gridDataController != null) {
-      return _gridDataController!.rowInfos;
-    }
-
-    if (_boardDataController != null) {
-      return _boardDataController!.rowInfos;
-    }
-
-    throw Exception();
+    return _gridDataController.rowInfos;
   }
 
   UnmodifiableMapView<String, GridBlockCache> get blocks {
-    if (_gridDataController != null) {
-      return _gridDataController!.blocks;
-    }
-
-    if (_boardDataController != null) {
-      return _boardDataController!.blocks;
-    }
-
-    throw Exception();
+    return _gridDataController.blocks;
   }
 
   List<GridFieldContext> get fieldContexts => fieldController.fieldContexts;
 
   GridFieldController get fieldController {
-    if (_gridDataController != null) {
-      return _gridDataController!.fieldController;
-    }
-
-    if (_boardDataController != null) {
-      return _boardDataController!.fieldController;
-    }
-
-    throw Exception();
+    return _gridDataController.fieldController;
   }
 
   Future<void> createRow() async {
-    if (_gridDataController != null) {
-      return _gridDataController!.createRow();
-    }
-
-    throw Exception();
+    return _gridDataController.createRow();
   }
 
   FieldEditorBloc createFieldEditor({
@@ -109,14 +71,7 @@ class AppFlowyGridTest {
     final RowInfo rowInfo = rowInfos.last;
     final blockCache = blocks[rowInfo.rowPB.blockId];
     final rowCache = blockCache?.rowCache;
-    late GridFieldController fieldController;
-    if (_gridDataController != null) {
-      fieldController = _gridDataController!.fieldController;
-    }
-
-    if (_boardDataController != null) {
-      fieldController = _boardDataController!.fieldController;
-    }
+    final fieldController = _gridDataController.fieldController;
 
     final rowDataController = GridRowDataController(
       rowInfo: rowInfo,
@@ -168,56 +123,51 @@ class AppFlowyGridTest {
         .firstWhere((element) => element.fieldType == FieldType.Checkbox);
     return fieldContext;
   }
+}
 
-  Future<void> createTestGrid() async {
+/// Create a empty Grid for test
+class AppFlowyGridTest {
+  final AppFlowyUnitTest unitTest;
+
+  AppFlowyGridTest({required this.unitTest});
+
+  static Future<AppFlowyGridTest> ensureInitialized() async {
+    final inner = await AppFlowyUnitTest.ensureInitialized();
+    return AppFlowyGridTest(unitTest: inner);
+  }
+
+  Future<GridTestContext> createTestGrid() async {
     final app = await unitTest.createTestApp();
     final builder = GridPluginBuilder();
-    final result = await AppService().createView(
+    final context = await AppService()
+        .createView(
       appId: app.id,
       name: "Test Grid",
       dataFormatType: builder.dataFormatType,
       pluginType: builder.pluginType,
       layoutType: builder.layoutType!,
-    );
-    await result.fold(
-      (view) async {
-        gridView = view;
-        _gridDataController = GridDataController(view: view);
-        await openGrid();
-      },
-      (error) {},
-    );
-  }
+    )
+        .then((result) {
+      return result.fold(
+        (view) async {
+          final context = GridTestContext(view, GridDataController(view: view));
+          final result = await context._gridDataController.openGrid();
+          result.fold((l) => null, (r) => throw Exception(r));
+          return context;
+        },
+        (error) {
+          throw Exception();
+        },
+      );
+    });
 
-  Future<void> openGrid() async {
-    final result = await _gridDataController!.openGrid();
-    result.fold((l) => null, (r) => throw Exception(r));
-  }
-
-  Future<void> createTestBoard() async {
-    final app = await unitTest.createTestApp();
-    final builder = BoardPluginBuilder();
-    final result = await AppService().createView(
-      appId: app.id,
-      name: "Test Board",
-      dataFormatType: builder.dataFormatType,
-      pluginType: builder.pluginType,
-      layoutType: builder.layoutType!,
-    );
-    await result.fold(
-      (view) async {
-        _boardDataController = BoardDataController(view: view);
-        final result = await _boardDataController!.openGrid();
-        result.fold((l) => null, (r) => throw Exception(r));
-        gridView = view;
-      },
-      (error) {},
-    );
+    return context;
   }
 }
 
 /// Create a new Grid for cell test
 class AppFlowyGridCellTest {
+  late GridTestContext context;
   final AppFlowyGridTest gridTest;
   AppFlowyGridCellTest({required this.gridTest});
 
@@ -226,32 +176,12 @@ class AppFlowyGridCellTest {
     return AppFlowyGridCellTest(gridTest: gridTest);
   }
 
-  Future<void> createTestRow() async {
-    await gridTest.createRow();
-  }
-
   Future<void> createTestGrid() async {
-    await gridTest.createTestGrid();
-  }
-}
-
-class AppFlowyGridSelectOptionCellTest {
-  final AppFlowyGridCellTest _gridCellTest;
-
-  AppFlowyGridSelectOptionCellTest(AppFlowyGridCellTest cellTest)
-      : _gridCellTest = cellTest;
-
-  static Future<AppFlowyGridSelectOptionCellTest> ensureInitialized() async {
-    final gridTest = await AppFlowyGridCellTest.ensureInitialized();
-    return AppFlowyGridSelectOptionCellTest(gridTest);
-  }
-
-  Future<void> createTestGrid() async {
-    await _gridCellTest.createTestGrid();
+    context = await gridTest.createTestGrid();
   }
 
   Future<void> createTestRow() async {
-    await _gridCellTest.createTestRow();
+    await context.createRow();
   }
 
   Future<GridSelectOptionCellController> makeCellController(
@@ -259,16 +189,16 @@ class AppFlowyGridSelectOptionCellTest {
     assert(fieldType == FieldType.SingleSelect ||
         fieldType == FieldType.MultiSelect);
 
-    final fieldContexts = _gridCellTest.gridTest.fieldContexts;
+    final fieldContexts = context.fieldContexts;
     final field =
         fieldContexts.firstWhere((element) => element.fieldType == fieldType);
-    final cellController = await _gridCellTest.gridTest
-        .makeCellController(field.id) as GridSelectOptionCellController;
+    final cellController = await context.makeCellController(field.id)
+        as GridSelectOptionCellController;
     return cellController;
   }
 }
 
-Future<void> gridResponseFuture({int milliseconds = 200}) {
+Future<void> gridResponseFuture({int milliseconds = 500}) {
   return Future.delayed(gridResponseDuration(milliseconds: milliseconds));
 }
 

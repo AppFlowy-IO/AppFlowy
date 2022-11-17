@@ -17,6 +17,7 @@ use flowy_task::TaskDispatcher;
 use grid_rev_model::{gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterRevision, RowChangeset, RowRevision};
 use lib_infra::future::Fut;
 use lib_infra::ref_map::RefCountValue;
+use nanoid::nanoid;
 use std::future::Future;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -537,14 +538,26 @@ async fn make_filter_controller(
         editor_delegate: delegate.clone(),
         view_revision_pad: pad,
     };
-    let filter_controller =
-        FilterController::new(view_id, filter_delegate, task_scheduler.clone(), filter_revs, notifier).await;
+    let handler_id = gen_handler_id();
+    let filter_controller = FilterController::new(
+        view_id,
+        &handler_id,
+        filter_delegate,
+        task_scheduler.clone(),
+        filter_revs,
+        notifier,
+    )
+    .await;
     let filter_controller = Arc::new(RwLock::new(filter_controller));
     task_scheduler
         .write()
         .await
-        .register_handler(FilterTaskHandler::new(filter_controller.clone()));
+        .register_handler(FilterTaskHandler::new(handler_id, filter_controller.clone()));
     filter_controller
+}
+
+fn gen_handler_id() -> String {
+    nanoid!(10)
 }
 
 #[cfg(test)]

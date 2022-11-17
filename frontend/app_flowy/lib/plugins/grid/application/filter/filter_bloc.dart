@@ -114,7 +114,7 @@ class GridFilterBloc extends Bloc<GridFilterEvent, GridFilterState> {
             (element) => !deleteFilterIds.contains(element.id),
           );
 
-          // Inserts the new fitler if it's not exist
+          // Inserts the new filter if it's not exist
           for (final newFilter in changeset.insertFilters) {
             final index =
                 filters.indexWhere((element) => element.id == newFilter.id);

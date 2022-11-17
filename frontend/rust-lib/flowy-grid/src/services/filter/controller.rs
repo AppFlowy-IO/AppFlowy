@@ -3,9 +3,7 @@ use crate::entities::filter_entities::*;
 use crate::entities::FieldType;
 use crate::services::cell::{CellFilterOperation, TypeCellData};
 use crate::services::field::*;
-use crate::services::filter::{
-    FilterChangeset, FilterMap, FilterResult, FilterResultNotification, FilterType, FILTER_HANDLER_ID,
-};
+use crate::services::filter::{FilterChangeset, FilterMap, FilterResult, FilterResultNotification, FilterType};
 use crate::services::row::GridBlock;
 use crate::services::view_editor::{GridViewChanged, GridViewChangedNotifier};
 use flowy_error::FlowyResult;
@@ -26,6 +24,7 @@ pub trait FilterDelegate: Send + Sync + 'static {
 
 pub struct FilterController {
     view_id: String,
+    handler_id: String,
     delegate: Box<dyn FilterDelegate>,
     filter_map: FilterMap,
     result_by_row_id: HashMap<RowId, FilterResult>,
@@ -36,6 +35,7 @@ pub struct FilterController {
 impl FilterController {
     pub async fn new<T>(
         view_id: &str,
+        handler_id: &str,
         delegate: T,
         task_scheduler: Arc<RwLock<TaskDispatcher>>,
         filter_revs: Vec<Arc<FilterRevision>>,
@@ -46,6 +46,7 @@ impl FilterController {
     {
         let mut this = Self {
             view_id: view_id.to_string(),
+            handler_id: handler_id.to_string(),
             delegate: Box::new(delegate),
             filter_map: FilterMap::new(),
             result_by_row_id: HashMap::default(),
@@ -57,14 +58,14 @@ impl FilterController {
     }
 
     pub async fn close(&self) {
-        self.task_scheduler.write().await.unregister_handler(FILTER_HANDLER_ID);
+        self.task_scheduler.write().await.unregister_handler(&self.handler_id);
     }
 
     #[tracing::instrument(name = "schedule_filter_task", level = "trace", skip(self))]
     async fn gen_task(&mut self, predicate: &str) {
         let task_id = self.task_scheduler.read().await.next_task_id();
         let task = Task::new(
-            FILTER_HANDLER_ID,
+            &self.handler_id,
             task_id,
             TaskContent::Text(predicate.to_owned()),
             QualityOfService::UserInteractive,

@@ -14,10 +14,11 @@ void main() {
 
   group('$GridHeaderBloc', () {
     late FieldActionSheetBloc actionSheetBloc;
+    late GridTestContext context;
     setUp(() async {
-      await gridTest.createTestGrid();
+      context = await gridTest.createTestGrid();
       actionSheetBloc = FieldActionSheetBloc(
-        fieldCellContext: gridTest.singleSelectFieldCellContext(),
+        fieldCellContext: context.singleSelectFieldCellContext(),
       );
     });
 
@@ -25,8 +26,8 @@ void main() {
       "hides property",
       build: () {
         final bloc = GridHeaderBloc(
-          gridId: gridTest.gridView.id,
-          fieldController: gridTest.fieldController,
+          gridId: context.gridView.id,
+          fieldController: context.fieldController,
         )..add(const GridHeaderEvent.initial());
         return bloc;
       },
@@ -44,8 +45,8 @@ void main() {
       "shows property",
       build: () {
         final bloc = GridHeaderBloc(
-          gridId: gridTest.gridView.id,
-          fieldController: gridTest.fieldController,
+          gridId: context.gridView.id,
+          fieldController: context.fieldController,
         )..add(const GridHeaderEvent.initial());
         return bloc;
       },
@@ -65,8 +66,8 @@ void main() {
       "duplicate property",
       build: () {
         final bloc = GridHeaderBloc(
-          gridId: gridTest.gridView.id,
-          fieldController: gridTest.fieldController,
+          gridId: context.gridView.id,
+          fieldController: context.fieldController,
         )..add(const GridHeaderEvent.initial());
         return bloc;
       },
@@ -84,8 +85,8 @@ void main() {
       "delete property",
       build: () {
         final bloc = GridHeaderBloc(
-          gridId: gridTest.gridView.id,
-          fieldController: gridTest.fieldController,
+          gridId: context.gridView.id,
+          fieldController: context.fieldController,
         )..add(const GridHeaderEvent.initial());
         return bloc;
       },
@@ -103,8 +104,8 @@ void main() {
       "update name",
       build: () {
         final bloc = GridHeaderBloc(
-          gridId: gridTest.gridView.id,
-          fieldController: gridTest.fieldController,
+          gridId: context.gridView.id,
+          fieldController: context.fieldController,
         )..add(const GridHeaderEvent.initial());
         return bloc;
       },

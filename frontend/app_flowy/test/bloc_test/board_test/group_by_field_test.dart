@@ -19,19 +19,20 @@ void main() {
   // Group by multi-select with no options
   group('Group by multi-select with no options', () {
     //
+    late BoardTestContext context;
     late FieldPB multiSelectField;
     late String expectedGroupName;
 
     setUpAll(() async {
-      await boardTest.context.createTestBoard();
+      context = await boardTest.createTestBoard();
     });
 
     test('create multi-select field', () async {
-      await boardTest.context.createField(FieldType.MultiSelect);
+      await context.createField(FieldType.MultiSelect);
       await boardResponseFuture();
 
-      assert(boardTest.context.fieldContexts.length == 3);
-      multiSelectField = boardTest.context.fieldContexts.last.field;
+      assert(context.fieldContexts.length == 3);
+      multiSelectField = context.fieldContexts.last.field;
       expectedGroupName = "No ${multiSelectField.name}";
       assert(multiSelectField.fieldType == FieldType.MultiSelect);
     });
@@ -39,8 +40,8 @@ void main() {
     blocTest<GridGroupBloc, GridGroupState>(
       "set grouped by the new multi-select field",
       build: () => GridGroupBloc(
-        viewId: boardTest.context.gridView.id,
-        fieldController: boardTest.context.fieldController,
+        viewId: context.gridView.id,
+        fieldController: context.fieldController,
       ),
       act: (bloc) async {
         bloc.add(GridGroupEvent.setGroupByField(
@@ -53,8 +54,8 @@ void main() {
 
     blocTest<BoardBloc, BoardState>(
       "assert only have the 'No status' group",
-      build: () => BoardBloc(view: boardTest.context.gridView)
-        ..add(const BoardEvent.initial()),
+      build: () =>
+          BoardBloc(view: context.gridView)..add(const BoardEvent.initial()),
       wait: boardResponseDuration(),
       verify: (bloc) {
         assert(bloc.groupControllers.values.length == 1,
@@ -69,21 +70,22 @@ void main() {
 
   group('Group by multi-select with two options', () {
     late FieldPB multiSelectField;
+    late BoardTestContext context;
 
     setUpAll(() async {
-      await boardTest.context.createTestBoard();
+      context = await boardTest.createTestBoard();
     });
 
     test('create multi-select field', () async {
-      await boardTest.context.createField(FieldType.MultiSelect);
+      await context.createField(FieldType.MultiSelect);
       await boardResponseFuture();
 
-      assert(boardTest.context.fieldContexts.length == 3);
-      multiSelectField = boardTest.context.fieldContexts.last.field;
+      assert(context.fieldContexts.length == 3);
+      multiSelectField = context.fieldContexts.last.field;
       assert(multiSelectField.fieldType == FieldType.MultiSelect);
 
       final cellController =
-          await boardTest.context.makeCellController(multiSelectField.id)
+          await context.makeCellController(multiSelectField.id)
               as GridSelectOptionCellController;
 
       final multiSelectOptionBloc =
@@ -101,8 +103,8 @@ void main() {
     blocTest<GridGroupBloc, GridGroupState>(
       "set grouped by multi-select field",
       build: () => GridGroupBloc(
-        viewId: boardTest.context.gridView.id,
-        fieldController: boardTest.context.fieldController,
+        viewId: context.gridView.id,
+        fieldController: context.fieldController,
       ),
       act: (bloc) async {
         await boardResponseFuture();
@@ -116,8 +118,8 @@ void main() {
 
     blocTest<BoardBloc, BoardState>(
       "check the groups' order",
-      build: () => BoardBloc(view: boardTest.context.gridView)
-        ..add(const BoardEvent.initial()),
+      build: () =>
+          BoardBloc(view: context.gridView)..add(const BoardEvent.initial()),
       wait: boardResponseDuration(),
       verify: (bloc) {
         assert(bloc.groupControllers.values.length == 3,
@@ -136,12 +138,13 @@ void main() {
   group('Group by checkbox field:', () {
     late BoardBloc boardBloc;
     late FieldPB checkboxField;
+    late BoardTestContext context;
     setUpAll(() async {
-      await boardTest.context.createTestBoard();
+      context = await boardTest.createTestBoard();
     });
 
     setUp(() async {
-      boardBloc = BoardBloc(view: boardTest.context.gridView)
+      boardBloc = BoardBloc(view: context.gridView)
         ..add(const BoardEvent.initial());
       await boardResponseFuture();
     });
@@ -152,24 +155,24 @@ void main() {
       wait: boardResponseDuration(),
       verify: (bloc) {
         assert(bloc.groupControllers.values.length == 4);
-        assert(boardTest.context.fieldContexts.length == 2);
+        assert(context.fieldContexts.length == 2);
       },
     );
 
     test('create checkbox field', () async {
-      await boardTest.context.createField(FieldType.Checkbox);
+      await context.createField(FieldType.Checkbox);
       await boardResponseFuture();
 
-      assert(boardTest.context.fieldContexts.length == 3);
-      checkboxField = boardTest.context.fieldContexts.last.field;
+      assert(context.fieldContexts.length == 3);
+      checkboxField = context.fieldContexts.last.field;
       assert(checkboxField.fieldType == FieldType.Checkbox);
     });
 
     blocTest<GridGroupBloc, GridGroupState>(
       "set grouped by checkbox field",
       build: () => GridGroupBloc(
-        viewId: boardTest.context.gridView.id,
-        fieldController: boardTest.context.fieldController,
+        viewId: context.gridView.id,
+        fieldController: context.fieldController,
       ),
       act: (bloc) async {
         bloc.add(GridGroupEvent.setGroupByField(
@@ -193,10 +196,12 @@ void main() {
   // Group with not support grouping field
   group('Group with not support grouping field:', () {
     late FieldEditorBloc editorBloc;
+    late BoardTestContext context;
+
     setUpAll(() async {
-      await boardTest.context.createTestBoard();
-      final fieldContext = boardTest.context.singleSelectFieldContext();
-      editorBloc = boardTest.context.createFieldEditor(
+      context = await boardTest.createTestBoard();
+      final fieldContext = context.singleSelectFieldContext();
+      editorBloc = context.createFieldEditor(
         fieldContext: fieldContext,
       )..add(const FieldEditorEvent.initial());
 
@@ -219,8 +224,8 @@ void main() {
     );
     blocTest<BoardBloc, BoardState>(
       'assert the number of groups is 1',
-      build: () => BoardBloc(view: boardTest.context.gridView)
-        ..add(const BoardEvent.initial()),
+      build: () =>
+          BoardBloc(view: context.gridView)..add(const BoardEvent.initial()),
       wait: boardResponseDuration(),
       verify: (bloc) {
         assert(bloc.groupControllers.values.length == 1,

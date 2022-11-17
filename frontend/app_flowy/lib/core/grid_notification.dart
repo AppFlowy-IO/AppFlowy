@@ -41,5 +41,6 @@ class GridNotificationListener {
   Future<void> stop() async {
     _parser = null;
     await _subscription?.cancel();
+    _subscription = null;
   }
 }

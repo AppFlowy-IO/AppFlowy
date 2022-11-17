@@ -14,10 +14,11 @@ void main() {
   group('$BoardBloc', () {
     late BoardBloc boardBloc;
     late String groupId;
+    late BoardTestContext context;
 
     setUp(() async {
-      await boardTest.context.createTestBoard();
-      boardBloc = BoardBloc(view: boardTest.context.gridView)
+      context = await boardTest.createTestBoard();
+      boardBloc = BoardBloc(view: context.gridView)
         ..add(const BoardEvent.initial());
       await boardResponseFuture();
       groupId = boardBloc.state.groupIds.first;
