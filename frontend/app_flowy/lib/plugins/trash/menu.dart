@@ -39,7 +39,7 @@ class MenuTrash extends StatelessWidget {
           ),
         ),
         const HSpace(6),
-        FlowyText.medium(LocaleKeys.trash_text.tr(), fontSize: 12),
+        FlowyText.medium(LocaleKeys.trash_text.tr()),
       ],
     );
   }

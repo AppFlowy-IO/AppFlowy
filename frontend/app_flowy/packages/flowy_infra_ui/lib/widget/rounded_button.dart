@@ -1,5 +1,5 @@
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 
 class RoundedTextButton extends StatelessWidget {
@@ -44,12 +44,10 @@ class RoundedTextButton extends StatelessWidget {
         child: SizedBox.expand(
           child: TextButton(
             onPressed: onPressed,
-            child: Text(
+            child: FlowyText.medium(
               title ?? '',
-              style: TextStyles.general(
-                fontSize: fontSize,
-                color: textColor,
-              ),
+              fontSize: fontSize,
+              color: textColor,
             ),
           ),
         ),

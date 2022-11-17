@@ -1,7 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/field/type_option/edit_select_option_bloc.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/cell/select_option_cell/extension.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -86,8 +85,7 @@ class _DeleteTag extends StatelessWidget {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(LocaleKeys.grid_selectOption_deleteTag.tr(),
-            fontSize: 12),
+        text: FlowyText.medium(LocaleKeys.grid_selectOption_deleteTag.tr()),
         leftIcon: svgWidget(
           "grid/delete",
           color: Theme.of(context).colorScheme.onSurface,
@@ -145,7 +143,6 @@ class SelectOptionColorList extends StatelessWidget {
             height: GridSize.typeOptionItemHeight,
             child: FlowyText.medium(
               LocaleKeys.grid_selectOption_colorPanelTitle.tr(),
-              fontSize: FontSizes.s12,
               textAlign: TextAlign.left,
               color: Theme.of(context).hintColor,
             ),
@@ -195,7 +192,7 @@ class _SelectOptionColorCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(color.optionName(), fontSize: 12),
+        text: FlowyText.medium(color.optionName()),
         leftIcon: colorIcon,
         rightIcon: checkmark,
         onTap: () {

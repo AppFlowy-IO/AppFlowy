@@ -61,7 +61,7 @@ class FieldTypeCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(fieldType.title(), fontSize: 12),
+        text: FlowyText.medium(fieldType.title()),
         onTap: () => onSelectField(fieldType),
         leftIcon: svgWidget(
           fieldType.iconName(),
