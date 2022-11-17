@@ -138,13 +138,13 @@ class ScrollbarState extends State<StyledScrollbar> {
         // Handle color
         var handleColor = widget.handleColor ??
             (Theme.of(context).brightness == Brightness.dark
-                ? CustomColors.of(context).greyHover.withOpacity(.2)
-                : CustomColors.of(context).greyHover);
+                ? AFThemeExtension.of(context).greyHover.withOpacity(.2)
+                : AFThemeExtension.of(context).greyHover);
         // Track color
         var trackColor = widget.trackColor ??
             (Theme.of(context).brightness == Brightness.dark
-                ? CustomColors.of(context).greyHover.withOpacity(.1)
-                : CustomColors.of(context).greyHover.withOpacity(.3));
+                ? AFThemeExtension.of(context).greyHover.withOpacity(.1)
+                : AFThemeExtension.of(context).greyHover.withOpacity(.3));
 
         //Layout the stack, it just contains a child, and
         return Stack(children: <Widget>[
