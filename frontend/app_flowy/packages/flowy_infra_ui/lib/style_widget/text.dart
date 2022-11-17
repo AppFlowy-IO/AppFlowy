@@ -61,11 +61,11 @@ class FlowyText extends StatelessWidget {
       maxLines: maxLines,
       textAlign: textAlign,
       overflow: overflow ?? TextOverflow.clip,
-      style: TextStyles.general(
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        color: color,
-      ),
+      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            fontSize: fontSize,
+            fontWeight: fontWeight,
+            color: color,
+          ),
     );
   }
 }
