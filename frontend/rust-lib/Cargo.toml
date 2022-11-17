@@ -20,8 +20,11 @@ members = [
 
 [profile.dev]
 opt-level = 0
+
+[target.'cfg(any(target_os="macos"))'.profile.dev]
 #https://doc.rust-lang.org/rustc/codegen-options/index.html#debug-assertions
 split-debuginfo = "unpacked"
+
 
 [profile.release]
 opt-level = 3
