@@ -13,7 +13,7 @@ class GridBlockCache {
   late GridRowCache _rowCache;
   late GridBlockListener _listener;
 
-  List<RowInfo> get rows => _rowCache.rows;
+  List<RowInfo> get rows => _rowCache.visibleRows;
   GridRowCache get rowCache => _rowCache;
 
   GridBlockCache({
@@ -30,7 +30,7 @@ class GridBlockCache {
     _listener = GridBlockListener(blockId: block.id);
     _listener.start((result) {
       result.fold(
-        (changesets) => _rowCache.applyChangesets(changesets),
+        (changeset) => _rowCache.applyChangesets(changeset),
         (err) => Log.error(err),
       );
     });

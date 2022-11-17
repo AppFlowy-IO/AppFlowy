@@ -1,6 +1,6 @@
 use crate::services::block_manager::GridBlockManager;
-use crate::services::grid_view_editor::GridViewEditorDelegate;
 use crate::services::row::GridBlock;
+use crate::services::view_editor::GridViewEditorDelegate;
 use flowy_sync::client_grid::GridRevisionPad;
 use flowy_task::TaskDispatcher;
 use grid_rev_model::{FieldRevision, RowRevision};

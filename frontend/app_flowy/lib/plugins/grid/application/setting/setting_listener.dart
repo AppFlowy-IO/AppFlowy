@@ -24,9 +24,9 @@ class SettingListener {
     _listener = GridNotificationListener(objectId: gridId, handler: _handler);
   }
 
-  void _handler(GridNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handler(GridDartNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridNotification.DidUpdateGridSetting:
+      case GridDartNotification.DidUpdateGridSetting:
         result.fold(
           (payload) => _updateSettingNotifier?.value = left(
             GridSettingPB.fromBuffer(payload),

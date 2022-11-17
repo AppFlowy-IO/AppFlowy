@@ -1,4 +1,4 @@
-use crate::dart_notification::{send_dart_notification, GridNotification};
+use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::CellPathParams;
 use crate::entities::*;
 use crate::manager::GridUser;
@@ -11,9 +11,9 @@ use crate::services::field::{
 
 use crate::services::filter::FilterType;
 use crate::services::grid_editor_trait_impl::GridViewEditorDelegateImpl;
-use crate::services::grid_view_manager::GridViewManager;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{GridBlock, RowRevisionBuilder};
+use crate::services::view_editor::{GridViewChanged, GridViewManager};
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -30,7 +30,7 @@ use lib_infra::future::{to_future, FutureResult};
 use lib_ot::core::EmptyAttributes;
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::RwLock;
+use tokio::sync::{broadcast, RwLock};
 
 pub struct GridRevisionEditor {
     pub grid_id: String,
@@ -73,6 +73,7 @@ impl GridRevisionEditor {
 
         // View manager
         let view_manager = Arc::new(GridViewManager::new(grid_id.to_owned(), user.clone(), delegate).await?);
+
         let editor = Arc::new(Self {
             grid_id: grid_id.to_owned(),
             user,
@@ -96,7 +97,7 @@ impl GridRevisionEditor {
         });
     }
 
-    /// Save the type-option data to disk and send a `GridNotification::DidUpdateField` notification
+    /// Save the type-option data to disk and send a `GridDartNotification::DidUpdateField` notification
     /// to dart side.
     ///
     /// It will do nothing if the passed-in type_option_data is empty
@@ -437,6 +438,10 @@ impl GridRevisionEditor {
             self.view_manager.did_delete_row(row_rev).await;
         }
         Ok(())
+    }
+
+    pub async fn subscribe_view_changed(&self) -> broadcast::Receiver<GridViewChanged> {
+        self.view_manager.subscribe_view_changed().await
     }
 
     pub async fn duplicate_row(&self, _row_id: &str) -> FlowyResult<()> {
@@ -811,7 +816,7 @@ impl GridRevisionEditor {
             let notified_changeset = GridFieldChangesetPB::update(&self.grid_id, vec![updated_field.clone()]);
             let _ = self.notify_did_update_grid(notified_changeset).await?;
 
-            send_dart_notification(field_id, GridNotification::DidUpdateField)
+            send_dart_notification(field_id, GridDartNotification::DidUpdateField)
                 .payload(updated_field)
                 .send();
         }
@@ -820,7 +825,7 @@ impl GridRevisionEditor {
     }
 
     async fn notify_did_update_grid(&self, changeset: GridFieldChangesetPB) -> FlowyResult<()> {
-        send_dart_notification(&self.grid_id, GridNotification::DidUpdateGridField)
+        send_dart_notification(&self.grid_id, GridDartNotification::DidUpdateGridField)
             .payload(changeset)
             .send();
         Ok(())

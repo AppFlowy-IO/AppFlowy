@@ -96,6 +96,7 @@ impl TryInto<DeleteFilterParams> for DeleteFilterPayloadPB {
     }
 }
 
+#[derive(Debug)]
 pub struct DeleteFilterParams {
     pub filter_type: FilterType,
     pub filter_id: String,
@@ -177,6 +178,7 @@ impl TryInto<CreateFilterParams> for CreateFilterPayloadPB {
     }
 }
 
+#[derive(Debug)]
 pub struct CreateFilterParams {
     pub field_id: String,
     pub field_type_rev: FieldTypeRevision,

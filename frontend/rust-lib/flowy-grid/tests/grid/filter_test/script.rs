@@ -3,6 +3,7 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 
+use std::time::Duration;
 use bytes::Bytes;
 use futures::TryFutureExt;
 use flowy_grid::entities::{CreateFilterParams, CreateFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition, DateFilterContent, SelectOptionCondition, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB};
@@ -10,6 +11,7 @@ use flowy_grid::services::field::SelectOptionIds;
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
 use flowy_grid::services::filter::FilterType;
+use flowy_grid::services::view_editor::GridViewChanged;
 use crate::grid::grid_editor::GridEditorTest;
 
 pub enum FilterScript {
@@ -53,13 +55,18 @@ pub enum FilterScript {
         condition: u32,
         content: String
     },
-    AssertNumberOfRows{
+    AssertNumberOfVisibleRows {
         expected: usize,
+    },
+    AssertFilterChanged{
+        visible_row_len:usize,
+        hide_row_len: usize,
     },
     #[allow(dead_code)]
     AssertGridSetting {
         expected_setting: GridSettingPB,
     },
+    Wait { millisecond: u64 }
 }
 
 pub struct GridFilterTest {
@@ -160,11 +167,22 @@ impl GridFilterTest {
                 let setting = self.editor.get_setting().await.unwrap();
                 assert_eq!(expected_setting, setting);
             }
-            FilterScript::AssertNumberOfRows { expected } => {
+            FilterScript::AssertFilterChanged { visible_row_len, hide_row_len} => {
+                let mut receiver = self.editor.subscribe_view_changed().await;
+                let changed = receiver.recv().await.unwrap();
+                match changed { GridViewChanged::DidReceiveFilterResult(changed) => {
+                    assert_eq!(changed.visible_rows.len(), visible_row_len);
+                    assert_eq!(changed.invisible_rows.len(), hide_row_len);
+                } }
+            }
+            FilterScript::AssertNumberOfVisibleRows { expected } => {
                 //
                 let grid = self.editor.get_grid().await.unwrap();
                 let rows = grid.blocks.into_iter().map(|block| block.rows).flatten().collect::<Vec<RowPB>>();
                 assert_eq!(rows.len(), expected);
+            }
+            FilterScript::Wait { millisecond } => {
+                tokio::time::sleep(Duration::from_millis(millisecond)).await;
             }
         }
     }

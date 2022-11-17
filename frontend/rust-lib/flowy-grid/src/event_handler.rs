@@ -1,6 +1,6 @@
 use crate::entities::*;
 use crate::manager::GridManager;
-use crate::services::cell::AnyCellData;
+use crate::services::cell::TypeCellData;
 use crate::services::field::{
     default_type_option_builder_from_type, select_type_option_from_field_rev, type_option_builder_from_json_str,
     DateCellChangeset, DateChangesetPB, SelectOptionCellChangeset, SelectOptionCellChangesetPB,
@@ -414,8 +414,8 @@ pub(crate) async fn get_select_option_handler(
             //
             let cell_rev = editor.get_cell_rev(&params.row_id, &params.field_id).await?;
             let type_option = select_type_option_from_field_rev(&field_rev)?;
-            let any_cell_data: AnyCellData = match cell_rev {
-                None => AnyCellData {
+            let any_cell_data: TypeCellData = match cell_rev {
+                None => TypeCellData {
                     data: "".to_string(),
                     field_type: field_rev.ty.into(),
                 },

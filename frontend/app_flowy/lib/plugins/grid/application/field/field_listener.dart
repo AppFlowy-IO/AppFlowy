@@ -27,11 +27,11 @@ class SingleFieldListener {
   }
 
   void _handler(
-    GridNotification ty,
+    GridDartNotification ty,
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case GridNotification.DidUpdateField:
+      case GridDartNotification.DidUpdateField:
         result.fold(
           (payload) =>
               _updateFieldNotifier?.value = left(FieldPB.fromBuffer(payload)),

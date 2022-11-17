@@ -956,6 +956,7 @@ name = "flowy-grid"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "async-stream",
  "atomic_refcell",
  "bytes",
  "chrono",

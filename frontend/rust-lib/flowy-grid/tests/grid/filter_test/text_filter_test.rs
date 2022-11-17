@@ -12,7 +12,27 @@ async fn grid_filter_text_is_empty_test() {
             content: "".to_string(),
         },
         AssertFilterCount { count: 1 },
-        AssertNumberOfRows { expected: 0 },
+        AssertFilterChanged {
+            visible_row_len: 1,
+            hide_row_len: 4,
+        },
+    ];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_filter_text_is_not_empty_test() {
+    let mut test = GridFilterTest::new().await;
+    let scripts = vec![
+        CreateTextFilter {
+            condition: TextFilterCondition::TextIsNotEmpty,
+            content: "".to_string(),
+        },
+        AssertFilterCount { count: 1 },
+        AssertFilterChanged {
+            visible_row_len: 4,
+            hide_row_len: 1,
+        },
     ];
     test.run_scripts(scripts).await;
 }
@@ -25,7 +45,10 @@ async fn grid_filter_is_text_test() {
             condition: TextFilterCondition::Is,
             content: "A".to_string(),
         },
-        AssertNumberOfRows { expected: 1 },
+        AssertFilterChanged {
+            visible_row_len: 1,
+            hide_row_len: 4,
+        },
     ];
     test.run_scripts(scripts).await;
 }
@@ -38,7 +61,10 @@ async fn grid_filter_contain_text_test() {
             condition: TextFilterCondition::Contains,
             content: "A".to_string(),
         },
-        AssertNumberOfRows { expected: 3 },
+        AssertFilterChanged {
+            visible_row_len: 3,
+            hide_row_len: 2,
+        },
     ];
     test.run_scripts(scripts).await;
 }
@@ -51,7 +77,10 @@ async fn grid_filter_start_with_text_test() {
             condition: TextFilterCondition::StartsWith,
             content: "A".to_string(),
         },
-        AssertNumberOfRows { expected: 2 },
+        AssertFilterChanged {
+            visible_row_len: 2,
+            hide_row_len: 3,
+        },
     ];
     test.run_scripts(scripts).await;
 }
@@ -64,7 +93,7 @@ async fn grid_filter_ends_with_text_test() {
             condition: TextFilterCondition::EndsWith,
             content: "A".to_string(),
         },
-        AssertNumberOfRows { expected: 2 },
+        AssertNumberOfVisibleRows { expected: 2 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -81,7 +110,7 @@ async fn grid_filter_delete_test() {
     let scripts = vec![
         InsertFilter { payload },
         AssertFilterCount { count: 1 },
-        AssertNumberOfRows { expected: 0 },
+        AssertNumberOfVisibleRows { expected: 1 },
     ];
     test.run_scripts(scripts).await;
 
@@ -92,7 +121,7 @@ async fn grid_filter_delete_test() {
             filter_type: FilterType::from(&field_rev),
         },
         AssertFilterCount { count: 0 },
-        AssertNumberOfRows { expected: 5 },
+        AssertNumberOfVisibleRows { expected: 5 },
     ])
     .await;
 }
