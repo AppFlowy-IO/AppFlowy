@@ -66,6 +66,7 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
         state.cells.map((cell) => cell.identifier.fieldContext).toList(),
       ),
       rowPB: state.rowPB,
+      visible: true,
     );
   }
 

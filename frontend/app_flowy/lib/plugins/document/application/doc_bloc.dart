@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:app_flowy/plugins/trash/application/trash_service.dart';
 import 'package:app_flowy/workspace/application/view/view_listener.dart';
-import 'package:app_flowy/plugins/doc/application/doc_service.dart';
+import 'package:app_flowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show EditorState, Document, Transaction;
 import 'package:flowy_sdk/protobuf/flowy-folder/trash.pb.dart';

@@ -1,5 +1,5 @@
 use crate::entities::FieldType;
-use crate::services::cell::{AnyCellData, CellBytes};
+use crate::services::cell::{CellBytes, TypeCellData};
 use crate::services::field::*;
 use std::fmt::Debug;
 
@@ -9,11 +9,11 @@ use grid_rev_model::{CellRevision, FieldRevision, FieldTypeRevision};
 /// This trait is used when doing filter/search on the grid.
 pub trait CellFilterOperation<T> {
     /// Return true if any_cell_data match the filter condition.
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &T) -> FlowyResult<bool>;
+    fn apply_filter(&self, any_cell_data: TypeCellData, filter: &T) -> FlowyResult<bool>;
 }
 
 pub trait CellGroupOperation {
-    fn apply_group(&self, any_cell_data: AnyCellData, group_content: &str) -> FlowyResult<bool>;
+    fn apply_group(&self, any_cell_data: TypeCellData, group_content: &str) -> FlowyResult<bool>;
 }
 
 /// Return object that describes the cell.
@@ -97,7 +97,7 @@ pub trait CellDataOperation<CD, CS> {
     /// For example:
     /// SelectOptionCellChangeset,DateCellChangeset. etc.
     ///  
-    fn apply_changeset(&self, changeset: CellDataChangeset<CS>, cell_rev: Option<CellRevision>) -> FlowyResult<String>;
+    fn apply_changeset(&self, changeset: AnyCellChangeset<CS>, cell_rev: Option<CellRevision>) -> FlowyResult<String>;
 }
 
 /// changeset: It will be deserialized into specific data base on the FieldType.
@@ -126,17 +126,17 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
         FieldType::URL => URLTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
     }?;
 
-    Ok(AnyCellData::new(s, field_type).json())
+    Ok(TypeCellData::new(s, field_type).to_json())
 }
 
-pub fn decode_any_cell_data<T: TryInto<AnyCellData, Error = FlowyError> + Debug>(
+pub fn decode_any_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debug>(
     data: T,
     field_rev: &FieldRevision,
 ) -> (FieldType, CellBytes) {
     let to_field_type = field_rev.ty.into();
     match data.try_into() {
         Ok(any_cell_data) => {
-            let AnyCellData { data, field_type } = any_cell_data;
+            let TypeCellData { data, field_type } = any_cell_data;
             match try_decode_cell_data(data.into(), &field_type, &to_field_type, field_rev) {
                 Ok(cell_bytes) => (field_type, cell_bytes),
                 Err(e) => {
@@ -276,9 +276,10 @@ pub fn insert_checkbox_cell(is_check: bool, field_rev: &FieldRevision) -> CellRe
 }
 
 pub fn insert_date_cell(timestamp: i64, field_rev: &FieldRevision) -> CellRevision {
-    let cell_data = serde_json::to_string(&DateCellChangesetPB {
+    let cell_data = serde_json::to_string(&DateCellChangeset {
         date: Some(timestamp.to_string()),
         time: None,
+        is_utc: true,
     })
     .unwrap();
     let data = apply_cell_data_changeset(cell_data, None, field_rev).unwrap();
@@ -356,9 +357,9 @@ pub trait FromCellChangeset {
         Self: Sized;
 }
 
-pub struct CellDataChangeset<T>(pub Option<T>);
+pub struct AnyCellChangeset<T>(pub Option<T>);
 
-impl<T> CellDataChangeset<T> {
+impl<T> AnyCellChangeset<T> {
     pub fn try_into_inner(self) -> FlowyResult<T> {
         match self.0 {
             None => Err(ErrorCode::InvalidData.into()),
@@ -367,22 +368,22 @@ impl<T> CellDataChangeset<T> {
     }
 }
 
-impl<T, C: ToString> std::convert::From<C> for CellDataChangeset<T>
+impl<T, C: ToString> std::convert::From<C> for AnyCellChangeset<T>
 where
     T: FromCellChangeset,
 {
     fn from(changeset: C) -> Self {
         match T::from_changeset(changeset.to_string()) {
-            Ok(data) => CellDataChangeset(Some(data)),
+            Ok(data) => AnyCellChangeset(Some(data)),
             Err(e) => {
                 tracing::error!("Deserialize CellDataChangeset failed: {}", e);
-                CellDataChangeset(None)
+                AnyCellChangeset(None)
             }
         }
     }
 }
-impl std::convert::From<String> for CellDataChangeset<String> {
+impl std::convert::From<String> for AnyCellChangeset<String> {
     fn from(s: String) -> Self {
-        CellDataChangeset(Some(s))
+        AnyCellChangeset(Some(s))
     }
 }

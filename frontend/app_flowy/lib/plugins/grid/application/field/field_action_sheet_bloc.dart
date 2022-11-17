@@ -18,7 +18,7 @@ class FieldActionSheetBloc
         ),
         super(
           FieldActionSheetState.initial(
-            FieldTypeOptionDataPB.create()..field_2 = fieldCellContext.field,
+            TypeOptionPB.create()..field_2 = fieldCellContext.field,
           ),
         ) {
     on<FieldActionSheetEvent>(
@@ -85,12 +85,12 @@ class FieldActionSheetEvent with _$FieldActionSheetEvent {
 @freezed
 class FieldActionSheetState with _$FieldActionSheetState {
   const factory FieldActionSheetState({
-    required FieldTypeOptionDataPB fieldTypeOptionData,
+    required TypeOptionPB fieldTypeOptionData,
     required String errorText,
     required String fieldName,
   }) = _FieldActionSheetState;
 
-  factory FieldActionSheetState.initial(FieldTypeOptionDataPB data) =>
+  factory FieldActionSheetState.initial(TypeOptionPB data) =>
       FieldActionSheetState(
         fieldTypeOptionData: data,
         errorText: '',

@@ -9,9 +9,9 @@ import 'package:bloc_test/bloc_test.dart';
 import 'util.dart';
 
 void main() {
-  late AppFlowyGridSelectOptionCellTest cellTest;
+  late AppFlowyGridCellTest cellTest;
   setUpAll(() async {
-    cellTest = await AppFlowyGridSelectOptionCellTest.ensureInitialized();
+    cellTest = await AppFlowyGridCellTest.ensureInitialized();
   });
 
   group('SingleSelectOptionBloc', () {

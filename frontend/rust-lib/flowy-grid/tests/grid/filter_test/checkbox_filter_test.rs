@@ -9,7 +9,10 @@ async fn grid_filter_checkbox_is_check_test() {
         CreateCheckboxFilter {
             condition: CheckboxFilterCondition::IsChecked,
         },
-        AssertNumberOfRows { expected: 2 },
+        AssertFilterChanged {
+            visible_row_len: 2,
+            hide_row_len: 3,
+        },
     ];
     test.run_scripts(scripts).await;
 }
@@ -21,7 +24,7 @@ async fn grid_filter_checkbox_is_uncheck_test() {
         CreateCheckboxFilter {
             condition: CheckboxFilterCondition::IsUnChecked,
         },
-        AssertNumberOfRows { expected: 3 },
+        AssertNumberOfVisibleRows { expected: 3 },
     ];
     test.run_scripts(scripts).await;
 }

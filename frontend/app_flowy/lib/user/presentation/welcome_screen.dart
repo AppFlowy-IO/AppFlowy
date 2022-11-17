@@ -56,7 +56,7 @@ class WelcomeScreen extends StatelessWidget {
       child: FlowyTextButton(
         LocaleKeys.workspace_create.tr(),
         fontSize: 14,
-        hoverColor: CustomColors.of(context).lightGreyHover,
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
         onPressed: () {
           context.read<WelcomeBloc>().add(
               WelcomeEvent.createWorkspace(LocaleKeys.workspace_hint.tr(), ""));
@@ -100,7 +100,7 @@ class WorkspaceItem extends StatelessWidget {
       height: 46,
       child: FlowyTextButton(
         workspace.name,
-        hoverColor: CustomColors.of(context).lightGreyHover,
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
         fontSize: 14,
         onPressed: () => onPressed(workspace),
       ),

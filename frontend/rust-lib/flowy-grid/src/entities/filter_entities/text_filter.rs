@@ -1,7 +1,6 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use grid_rev_model::FilterRevision;
-use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct TextFilterPB {
@@ -36,6 +35,7 @@ impl std::default::Default for TextFilterCondition {
         TextFilterCondition::Is
     }
 }
+
 impl std::convert::TryFrom<u8> for TextFilterCondition {
     type Error = ErrorCode;
 
@@ -54,8 +54,8 @@ impl std::convert::TryFrom<u8> for TextFilterCondition {
     }
 }
 
-impl std::convert::From<Arc<FilterRevision>> for TextFilterPB {
-    fn from(rev: Arc<FilterRevision>) -> Self {
+impl std::convert::From<&FilterRevision> for TextFilterPB {
+    fn from(rev: &FilterRevision) -> Self {
         TextFilterPB {
             condition: TextFilterCondition::try_from(rev.condition).unwrap_or(TextFilterCondition::Is),
             content: rev.content.clone(),

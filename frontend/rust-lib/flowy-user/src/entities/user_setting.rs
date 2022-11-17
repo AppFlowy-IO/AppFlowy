@@ -17,14 +17,20 @@ pub struct AppearanceSettingsPB {
     pub theme: String,
 
     #[pb(index = 2)]
+    pub font: String,
+
+    #[pb(index = 3)]
+    pub monospace_font: String,
+
+    #[pb(index = 4)]
     #[serde(default)]
     pub locale: LocaleSettingsPB,
 
-    #[pb(index = 3)]
+    #[pb(index = 5)]
     #[serde(default = "DEFAULT_RESET_VALUE")]
     pub reset_to_default: bool,
 
-    #[pb(index = 4)]
+    #[pb(index = 6)]
     #[serde(default)]
     pub setting_key_value: HashMap<String, String>,
 }
@@ -50,12 +56,16 @@ impl std::default::Default for LocaleSettingsPB {
 }
 
 pub const APPEARANCE_DEFAULT_THEME: &str = "light";
+pub const APPEARANCE_DEFAULT_FONT: &str = "Poppins";
+pub const APPEARANCE_DEFAULT_MONOSPACE_FONT: &str = "SF Mono";
 const APPEARANCE_RESET_AS_DEFAULT: bool = true;
 
 impl std::default::Default for AppearanceSettingsPB {
     fn default() -> Self {
         AppearanceSettingsPB {
             theme: APPEARANCE_DEFAULT_THEME.to_owned(),
+            font: APPEARANCE_DEFAULT_FONT.to_owned(),
+            monospace_font: APPEARANCE_DEFAULT_MONOSPACE_FONT.to_owned(),
             locale: LocaleSettingsPB::default(),
             reset_to_default: APPEARANCE_RESET_AS_DEFAULT,
             setting_key_value: HashMap::default(),

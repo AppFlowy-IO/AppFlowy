@@ -29,7 +29,7 @@ impl GridCellTest {
 
         match script {
             CellScript::UpdateCell { changeset, is_err } => {
-                let result = self.editor.update_cell(changeset).await;
+                let result = self.editor.update_cell_with_changeset(changeset).await;
                 if is_err {
                     assert!(result.is_err())
                 } else {

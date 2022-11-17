@@ -12,7 +12,7 @@ import 'type_option_context.dart';
 class TypeOptionDataController {
   final String gridId;
   final IFieldTypeOptionLoader loader;
-  late FieldTypeOptionDataPB _data;
+  late TypeOptionPB _data;
   final PublishNotifier<FieldPB> _fieldNotifier = PublishNotifier();
 
   /// Returns a [TypeOptionDataController] used to modify the specified
@@ -27,7 +27,7 @@ class TypeOptionDataController {
     GridFieldContext? fieldContext,
   }) {
     if (fieldContext != null) {
-      _data = FieldTypeOptionDataPB.create()
+      _data = TypeOptionPB.create()
         ..gridId = gridId
         ..field_2 = fieldContext.field;
     }
