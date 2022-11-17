@@ -1,5 +1,5 @@
 use crate::entities::FieldType;
-use crate::services::cell::{AnyCellData, CellBytes};
+use crate::services::cell::{CellBytes, TypeCellData};
 use crate::services::field::*;
 use std::fmt::Debug;
 
@@ -9,11 +9,11 @@ use grid_rev_model::{CellRevision, FieldRevision, FieldTypeRevision};
 /// This trait is used when doing filter/search on the grid.
 pub trait CellFilterOperation<T> {
     /// Return true if any_cell_data match the filter condition.
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &T) -> FlowyResult<bool>;
+    fn apply_filter(&self, any_cell_data: TypeCellData, filter: &T) -> FlowyResult<bool>;
 }
 
 pub trait CellGroupOperation {
-    fn apply_group(&self, any_cell_data: AnyCellData, group_content: &str) -> FlowyResult<bool>;
+    fn apply_group(&self, any_cell_data: TypeCellData, group_content: &str) -> FlowyResult<bool>;
 }
 
 /// Return object that describes the cell.
@@ -126,17 +126,17 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
         FieldType::URL => URLTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
     }?;
 
-    Ok(AnyCellData::new(s, field_type).to_json())
+    Ok(TypeCellData::new(s, field_type).to_json())
 }
 
-pub fn decode_any_cell_data<T: TryInto<AnyCellData, Error = FlowyError> + Debug>(
+pub fn decode_any_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debug>(
     data: T,
     field_rev: &FieldRevision,
 ) -> (FieldType, CellBytes) {
     let to_field_type = field_rev.ty.into();
     match data.try_into() {
         Ok(any_cell_data) => {
-            let AnyCellData { data, field_type } = any_cell_data;
+            let TypeCellData { data, field_type } = any_cell_data;
             match try_decode_cell_data(data.into(), &field_type, &to_field_type, field_rev) {
                 Ok(cell_bytes) => (field_type, cell_bytes),
                 Err(e) => {

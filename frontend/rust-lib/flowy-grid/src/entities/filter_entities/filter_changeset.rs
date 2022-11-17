@@ -1,4 +1,4 @@
-use crate::entities::{FilterPB, InsertedRowPB, RepeatedFilterPB, RowPB};
+use crate::entities::FilterPB;
 use flowy_derive::ProtoBuf;
 
 #[derive(Debug, Default, ProtoBuf)]

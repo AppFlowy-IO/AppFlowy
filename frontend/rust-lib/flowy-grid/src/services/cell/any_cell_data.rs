@@ -6,17 +6,17 @@ use grid_rev_model::CellRevision;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
-/// AnyCellData is a generic CellData, you can parse the cell_data according to the field_type.
+/// TypeCellData is a generic CellData, you can parse the cell_data according to the field_type.
 /// When the type of field is changed, it's different from the field_type of AnyCellData.
 /// So it will return an empty data. You could check the CellDataOperation trait for more information.
 #[derive(Debug, Serialize, Deserialize)]
-pub struct AnyCellData {
+pub struct TypeCellData {
     pub data: String,
     pub field_type: FieldType,
 }
 
-impl AnyCellData {
-    pub fn from_field_type(field_type: &FieldType) -> AnyCellData {
+impl TypeCellData {
+    pub fn from_field_type(field_type: &FieldType) -> TypeCellData {
         Self {
             data: "".to_string(),
             field_type: field_type.clone(),
@@ -24,11 +24,11 @@ impl AnyCellData {
     }
 }
 
-impl std::str::FromStr for AnyCellData {
+impl std::str::FromStr for TypeCellData {
     type Err = FlowyError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let type_option_cell_data: AnyCellData = serde_json::from_str(s).map_err(|err| {
+        let type_option_cell_data: TypeCellData = serde_json::from_str(s).map_err(|err| {
             let msg = format!("Deserialize {} to any cell data failed. Serde error: {}", s, err);
             FlowyError::internal().context(msg)
         })?;
@@ -36,15 +36,15 @@ impl std::str::FromStr for AnyCellData {
     }
 }
 
-impl std::convert::TryInto<AnyCellData> for String {
+impl std::convert::TryInto<TypeCellData> for String {
     type Error = FlowyError;
 
-    fn try_into(self) -> Result<AnyCellData, Self::Error> {
-        AnyCellData::from_str(&self)
+    fn try_into(self) -> Result<TypeCellData, Self::Error> {
+        TypeCellData::from_str(&self)
     }
 }
 
-impl std::convert::TryFrom<&CellRevision> for AnyCellData {
+impl std::convert::TryFrom<&CellRevision> for TypeCellData {
     type Error = FlowyError;
 
     fn try_from(value: &CellRevision) -> Result<Self, Self::Error> {
@@ -52,7 +52,7 @@ impl std::convert::TryFrom<&CellRevision> for AnyCellData {
     }
 }
 
-impl std::convert::TryFrom<CellRevision> for AnyCellData {
+impl std::convert::TryFrom<CellRevision> for TypeCellData {
     type Error = FlowyError;
 
     fn try_from(value: CellRevision) -> Result<Self, Self::Error> {
@@ -60,18 +60,18 @@ impl std::convert::TryFrom<CellRevision> for AnyCellData {
     }
 }
 
-impl<T> std::convert::From<AnyCellData> for CellData<T>
+impl<T> std::convert::From<TypeCellData> for CellData<T>
 where
     T: FromCellString,
 {
-    fn from(any_call_data: AnyCellData) -> Self {
+    fn from(any_call_data: TypeCellData) -> Self {
         CellData::from(any_call_data.data)
     }
 }
 
-impl AnyCellData {
+impl TypeCellData {
     pub fn new(content: String, field_type: FieldType) -> Self {
-        AnyCellData {
+        TypeCellData {
             data: content,
             field_type,
         }

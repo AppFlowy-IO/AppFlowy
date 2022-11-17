@@ -1,7 +1,7 @@
 #![allow(clippy::needless_collect)]
 
 use crate::entities::{SelectOptionCondition, SelectOptionFilterPB};
-use crate::services::cell::{AnyCellData, CellFilterOperation};
+use crate::services::cell::{CellFilterOperation, TypeCellData};
 use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
 use crate::services::field::{SelectTypeOptionSharedAction, SelectedSelectOptions};
 use flowy_error::FlowyResult;
@@ -41,7 +41,7 @@ impl SelectOptionFilterPB {
 }
 
 impl CellFilterOperation<SelectOptionFilterPB> for MultiSelectTypeOptionPB {
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &SelectOptionFilterPB) -> FlowyResult<bool> {
+    fn apply_filter(&self, any_cell_data: TypeCellData, filter: &SelectOptionFilterPB) -> FlowyResult<bool> {
         if !any_cell_data.is_multi_select() {
             return Ok(true);
         }
@@ -52,7 +52,7 @@ impl CellFilterOperation<SelectOptionFilterPB> for MultiSelectTypeOptionPB {
 }
 
 impl CellFilterOperation<SelectOptionFilterPB> for SingleSelectTypeOptionPB {
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &SelectOptionFilterPB) -> FlowyResult<bool> {
+    fn apply_filter(&self, any_cell_data: TypeCellData, filter: &SelectOptionFilterPB) -> FlowyResult<bool> {
         if !any_cell_data.is_single_select() {
             return Ok(true);
         }
