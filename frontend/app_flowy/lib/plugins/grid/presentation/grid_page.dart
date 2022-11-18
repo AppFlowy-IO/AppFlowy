@@ -1,5 +1,6 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
+import 'package:app_flowy/plugins/grid/application/filter/filter_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/grid_bloc.dart';
@@ -15,6 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import '../application/row/row_cache.dart';
+import '../application/setting/setting_bloc.dart';
 import 'controller/grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
@@ -46,8 +48,15 @@ class _GridPageState extends State<GridPage> {
     return MultiBlocProvider(
       providers: [
         BlocProvider<GridBloc>(
-          create: (context) => getIt<GridBloc>(param1: widget.view)
-            ..add(const GridEvent.initial()),
+          create: (context) =>
+              GridBloc(view: widget.view)..add(const GridEvent.initial()),
+        ),
+        BlocProvider<GridFilterBloc>(
+          create: (context) => GridFilterBloc(viewId: widget.view.id)
+            ..add(const GridFilterEvent.initial()),
+        ),
+        BlocProvider<GridSettingBloc>(
+          create: (context) => GridSettingBloc(gridId: widget.view.id),
         ),
       ],
       child: BlocBuilder<GridBloc, GridState>(
@@ -122,7 +131,7 @@ class _FlowyGridState extends State<FlowyGrid> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const _GridToolbarAdaptor(),
+            const GridToolbar(),
             _gridHeader(context, state.gridId),
             Flexible(child: child),
             const RowCountBadge(),
@@ -171,27 +180,6 @@ class _FlowyGridState extends State<FlowyGrid> {
       gridId: gridId,
       fieldController: fieldController,
       anchorScrollController: headerScrollController,
-    );
-  }
-}
-
-class _GridToolbarAdaptor extends StatelessWidget {
-  const _GridToolbarAdaptor({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocSelector<GridBloc, GridState, GridToolbarContext>(
-      selector: (state) {
-        final fieldController =
-            context.read<GridBloc>().dataController.fieldController;
-        return GridToolbarContext(
-          gridId: state.gridId,
-          fieldController: fieldController,
-        );
-      },
-      builder: (context, toolbarContext) {
-        return GridToolbar(toolbarContext: toolbarContext);
-      },
     );
   }
 }

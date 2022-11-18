@@ -84,6 +84,7 @@ class FlowyTextButton extends StatelessWidget {
   final Widget? heading;
   final Color? hoverColor;
   final Color? fillColor;
+  final Color? textColor;
   final BorderRadius? radius;
   final MainAxisAlignment mainAxisAlignment;
   final String? tooltip;
@@ -99,6 +100,7 @@ class FlowyTextButton extends StatelessWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
     this.hoverColor,
     this.fillColor,
+    this.textColor,
     this.heading,
     this.radius,
     this.mainAxisAlignment = MainAxisAlignment.start,
@@ -115,6 +117,7 @@ class FlowyTextButton extends StatelessWidget {
     children.add(
       FlowyText(
         text,
+        color: textColor,
         overflow: overflow,
         fontWeight: fontWeight,
         fontSize: fontSize,

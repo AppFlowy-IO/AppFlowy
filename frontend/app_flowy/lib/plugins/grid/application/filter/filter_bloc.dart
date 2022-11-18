@@ -106,7 +106,6 @@ class GridFilterBloc extends Bloc<GridFilterEvent, GridFilterState> {
       result.fold(
         (changeset) {
           final List<FilterPB> filters = List.from(state.filters);
-
           // Deletes the filters
           final deleteFilterIds =
               changeset.deleteFilters.map((e) => e.id).toList();
@@ -178,20 +177,20 @@ class GridFilterEvent with _$GridFilterEvent {
     required String fieldId,
     required NumberFilterCondition condition,
     required String content,
-  }) = _CreateCheckboxFitler;
+  }) = _CreateNumberFilter;
 
   const factory GridFilterEvent.createDateFilter({
     required String fieldId,
     required DateFilterCondition condition,
     required int start,
-  }) = _CreateDateFitler;
+  }) = _CreateDateFilter;
 
   const factory GridFilterEvent.createDateFilterInRange({
     required String fieldId,
     required DateFilterCondition condition,
     required int start,
     required int end,
-  }) = _CreateDateFitlerInRange;
+  }) = _CreateDateFilterInRange;
 }
 
 @freezed

@@ -25,7 +25,8 @@ class GridSettingBloc extends Bloc<GridSettingEvent, GridSettingState> {
 
 @freezed
 class GridSettingEvent with _$GridSettingEvent {
-  const factory GridSettingEvent.performAction(GridSettingAction action) = _PerformAction;
+  const factory GridSettingEvent.performAction(GridSettingAction action) =
+      _PerformAction;
 }
 
 @freezed
@@ -42,5 +43,5 @@ class GridSettingState with _$GridSettingState {
 enum GridSettingAction {
   filter,
   sortBy,
-  properties,
+  showProperties,
 }

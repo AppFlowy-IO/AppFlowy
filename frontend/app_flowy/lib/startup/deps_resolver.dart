@@ -127,11 +127,6 @@ void _resolveDocDeps(GetIt getIt) {
 }
 
 void _resolveGridDeps(GetIt getIt) {
-  // GridPB
-  getIt.registerFactoryParam<GridBloc, ViewPB, void>(
-    (view, _) => GridBloc(view: view),
-  );
-
   getIt.registerFactoryParam<GridHeaderBloc, String, GridFieldController>(
     (gridId, fieldController) => GridHeaderBloc(
       gridId: gridId,
