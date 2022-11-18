@@ -4,16 +4,22 @@ import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_service.dart';
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import 'package:appflowy_editor/src/render/style/editor_style.dart';
 =======
 import 'package:appflowy_editor/src/render/image/file_picker_dialog.dart';
 =======
 >>>>>>> c066f53cd (feat: pick local image files)
+=======
+>>>>>>> 8905208d4 (Revert "refactor: deleted obsolete file")
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+<<<<<<< HEAD
 >>>>>>> 3b501dd6c (feat: upload via file 🌟)
+=======
+>>>>>>> 8905208d4 (Revert "refactor: deleted obsolete file")
 import 'package:flutter/material.dart';
 
 OverlayEntry? _imageUploadMenu;
@@ -33,7 +39,10 @@ void showImageUploadMenu(
       left: menuService.topLeft.dx,
       child: Material(
         child: ImageUploadMenu(
+<<<<<<< HEAD
           editorState: editorState,
+=======
+>>>>>>> 8905208d4 (Revert "refactor: deleted obsolete file")
           onSubmitted: (text) {
             // _dismissImageUploadMenu();
             editorState.insertImageNode(text, 'file');
@@ -67,12 +76,18 @@ class ImageUploadMenu extends StatefulWidget {
     Key? key,
     required this.onSubmitted,
     required this.onUpload,
+<<<<<<< HEAD
     this.editorState,
+=======
+>>>>>>> 8905208d4 (Revert "refactor: deleted obsolete file")
   }) : super(key: key);
 
   final void Function(String text) onSubmitted;
   final void Function(String text) onUpload;
+<<<<<<< HEAD
   final EditorState? editorState;
+=======
+>>>>>>> 8905208d4 (Revert "refactor: deleted obsolete file")
 
   @override
   State<ImageUploadMenu> createState() => _ImageUploadMenuState();
@@ -85,6 +100,7 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
   String? src;
   List<PlatformFile>? _paths;
   String? _directoryPath;
+<<<<<<< HEAD
   String? _extension;
   bool _isLoading = false;
   bool _userAborted = false;
@@ -99,6 +115,14 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
 
 =======
 >>>>>>> 096eeec1e (feat: upload via local file 🌟)
+=======
+  bool _isLoading = false;
+  bool _userAborted = false;
+  final FileType _pickingType = FileType.any;
+
+  final _textEditingController = TextEditingController();
+  final _focusNode = FocusNode();
+>>>>>>> 8905208d4 (Revert "refactor: deleted obsolete file")
   @override
   void initState() {
     super.initState();
@@ -144,7 +168,11 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
 
   Future<void> copyFile(File path, String name) async {
     Directory appDir = await getApplicationDocumentsDirectory();
+<<<<<<< HEAD
     //TODO: Rewrite for it to autoselect dir based on release type 
+=======
+    //TODO: Rewrite for it to autoselect dir based on release type
+>>>>>>> 8905208d4 (Revert "refactor: deleted obsolete file")
     Directory('${appDir.path}/flowy_dev/image').create();
     path.copy('${appDir.path}/flowy_dev/image/$name');
     localFile = '${appDir.path}/flowy_dev/image/$name';
@@ -178,7 +206,11 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
       width: 300,
       padding: const EdgeInsets.all(24.0),
       decoration: BoxDecoration(
+<<<<<<< HEAD
         color: style?.selectionMenuBackgroundColor ?? Colors.white,
+=======
+        color: Colors.white,
+>>>>>>> 8905208d4 (Revert "refactor: deleted obsolete file")
         boxShadow: [
           BoxShadow(
             blurRadius: 5,
@@ -186,7 +218,11 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
             color: Colors.black.withOpacity(0.1),
           ),
         ],
+<<<<<<< HEAD
         // borderRadius: BorderRadius.circular(6.0),
+=======
+        borderRadius: BorderRadius.circular(6.0),
+>>>>>>> 8905208d4 (Revert "refactor: deleted obsolete file")
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,6 +272,7 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   Widget _buildHeader(BuildContext context) {
     return Text(
       'URL Image',
@@ -252,6 +289,9 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
 =======
   Widget _buildURLInput() {
 >>>>>>> 096eeec1e (feat: upload via local file 🌟)
+=======
+  Widget _buildURLInput() {
+>>>>>>> 8905208d4 (Revert "refactor: deleted obsolete file")
     return TextField(
       focusNode: _focusNode,
       style: const TextStyle(fontSize: 14.0),
