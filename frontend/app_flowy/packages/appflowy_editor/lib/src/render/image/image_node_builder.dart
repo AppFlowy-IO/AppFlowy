@@ -9,8 +9,6 @@ import 'package:appflowy_editor/src/render/image/local_image_node_widget.dart';
 import 'package:appflowy_editor/src/render/image/network_image_node_widget.dart';
 >>>>>>> c066f53cd (feat: pick local image files)
 
-import 'image_node_widget.dart';
-
 class ImageNodeBuilder extends NodeWidgetBuilder<Node> {
   @override
   Widget build(NodeWidgetContext<Node> context) {
