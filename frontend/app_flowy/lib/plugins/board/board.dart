@@ -21,10 +21,13 @@ class BoardPluginBuilder implements PluginBuilder {
   String get menuName => "Board";
 
   @override
+  String get menuIcon => "editor/board";
+
+  @override
   PluginType get pluginType => PluginType.board;
 
   @override
-  ViewDataTypePB get dataType => ViewDataTypePB.Database;
+  ViewDataFormatPB get dataFormatType => ViewDataFormatPB.DatabaseFormat;
 
   @override
   ViewLayoutTypePB? get layoutType => ViewLayoutTypePB.Board;

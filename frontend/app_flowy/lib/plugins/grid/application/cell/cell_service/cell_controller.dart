@@ -234,7 +234,7 @@ class IGridCellController<T, D> extends Equatable {
     return data;
   }
 
-  /// Return the FieldTypeOptionDataPB that can be parsed into corresponding class using the [parser].
+  /// Return the TypeOptionPB that can be parsed into corresponding class using the [parser].
   /// [PD] is the type that the parser return.
   Future<Either<PD, FlowyError>>
       getFieldTypeOption<PD, P extends TypeOptionDataParser>(P parser) {
@@ -290,20 +290,20 @@ class IGridCellController<T, D> extends Equatable {
     });
   }
 
-  void dispose() {
+  Future<void> dispose() async {
     if (_isDispose) {
       Log.error("$this should only dispose once");
       return;
     }
     _isDispose = true;
-    _cellListener?.stop();
+    await _cellListener?.stop();
     _loadDataOperation?.cancel();
     _saveDataOperation?.cancel();
     _cellDataNotifier = null;
 
     if (_onFieldChangedFn != null) {
       _fieldNotifier.unregister(_cacheKey, _onFieldChangedFn!);
-      _fieldNotifier.dispose();
+      await _fieldNotifier.dispose();
       _onFieldChangedFn = null;
     }
   }
@@ -329,7 +329,7 @@ class GridCellFieldNotifierImpl extends IGridCellFieldNotifier {
 
   @override
   void onCellFieldChanged(void Function(FieldPB p1) callback) {
-    _onChangesetFn = (FieldChangesetPB changeset) {
+    _onChangesetFn = (GridFieldChangesetPB changeset) {
       for (final updatedField in changeset.updatedFields) {
         callback(updatedField);
       }

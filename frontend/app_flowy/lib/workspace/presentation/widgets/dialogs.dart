@@ -1,17 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:app_flowy/startup/tasks/app_widget.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text_input.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
@@ -44,20 +41,22 @@ class _CreateTextFieldDialog extends State<NavigatorTextFieldDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return StyledDialog(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           ...[
-            FlowyText.medium(widget.title, color: theme.shader4),
+            FlowyText.medium(widget.title,
+                color: Theme.of(context).disabledColor),
             VSpace(Insets.sm * 1.5),
           ],
           FlowyFormTextInput(
             hintText: LocaleKeys.dialogCreatePageNameHint.tr(),
             initialValue: widget.value,
-            textStyle:
-                const TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
+            textStyle: TextStyles.general(
+              fontSize: 24,
+              fontWeight: FontWeight.w400,
+            ),
             autoFocus: true,
             onChanged: (text) {
               newValue = text;
@@ -110,14 +109,16 @@ class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return StyledDialog(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           ...[
-            FlowyText.medium(widget.title, color: theme.shader4),
+            FlowyText.medium(
+              widget.title,
+              color: Theme.of(context).disabledColor,
+            ),
           ],
           if (widget.confirm != null) ...[
             const VSpace(20),
@@ -157,19 +158,19 @@ class NavigatorOkCancelDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return StyledDialog(
       maxWidth: maxWidth ?? 500,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           if (title != null) ...[
-            FlowyText.medium(title!.toUpperCase(), color: theme.shader1),
+            FlowyText.medium(title!.toUpperCase()),
             VSpace(Insets.sm * 1.5),
-            Container(color: theme.bg1, height: 1),
+            Container(
+                color: Theme.of(context).colorScheme.surfaceVariant, height: 1),
             VSpace(Insets.m * 1.5),
           ],
-          Text(message, style: TextStyles.Body1.textHeight(1.5)),
+          FlowyText.medium(message, fontSize: FontSizes.s12),
           SizedBox(height: Insets.l),
           OkCancelButton(
             onOkPressed: () {

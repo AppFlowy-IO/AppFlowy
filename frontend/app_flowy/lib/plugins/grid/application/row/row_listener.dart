@@ -23,9 +23,9 @@ class RowListener {
     _listener = GridNotificationListener(objectId: rowId, handler: _handler);
   }
 
-  void _handler(GridNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handler(GridDartNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridNotification.DidUpdateRow:
+      case GridDartNotification.DidUpdateRow:
         result.fold(
           (payload) =>
               updateRowNotifier?.value = left(RowPB.fromBuffer(payload)),

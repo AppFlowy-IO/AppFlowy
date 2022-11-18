@@ -23,10 +23,13 @@ class GridPluginBuilder implements PluginBuilder {
   String get menuName => LocaleKeys.grid_menuName.tr();
 
   @override
+  String get menuIcon => "editor/grid";
+
+  @override
   PluginType get pluginType => PluginType.grid;
 
   @override
-  ViewDataTypePB get dataType => ViewDataTypePB.Database;
+  ViewDataFormatPB get dataFormatType => ViewDataFormatPB.DatabaseFormat;
 
   @override
   ViewLayoutTypePB? get layoutType => ViewLayoutTypePB.Grid;

@@ -2,7 +2,6 @@ import 'package:app_flowy/plugins/grid/application/row/row_action_sheet_bloc.dar
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -56,23 +55,23 @@ class _RowActionCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(
           action.title(),
           fontSize: 12,
-          color: action.enable() ? theme.textColor : theme.shader3,
+          color: action.enable() ? null : Theme.of(context).disabledColor,
         ),
-        hoverColor: theme.hover,
         onTap: () {
           if (action.enable()) {
             action.performAction(context);
           }
         },
-        leftIcon: svgWidget(action.iconName(), color: theme.iconColor),
+        leftIcon: svgWidget(
+          action.iconName(),
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
     );
   }

@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'package:app_flowy/plugins/grid/presentation/widgets/cell/prelude.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import '../../layout/sizes.dart';
+import 'package:textstyle_extensions/textstyle_extensions.dart';
 import 'cell_builder.dart';
 
 class GridTextCellStyle extends GridCellStyle {
@@ -58,16 +62,22 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
           }
         },
         child: Padding(
-          padding: GridSize.cellContentInsets,
+          padding: EdgeInsets.only(
+            left: GridSize.cellContentInsets.left,
+            right: GridSize.cellContentInsets.right,
+          ),
           child: TextField(
             controller: _controller,
             focusNode: focusNode,
             onChanged: (value) => focusChanged(),
             onEditingComplete: () => focusNode.unfocus(),
             maxLines: null,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            style: TextStyles.body1.size(FontSizes.s14),
             decoration: InputDecoration(
-              contentPadding: EdgeInsets.zero,
+              contentPadding: EdgeInsets.only(
+                top: GridSize.cellContentInsets.top,
+                bottom: GridSize.cellContentInsets.bottom,
+              ),
               border: InputBorder.none,
               hintText: widget.cellStyle?.placeholder,
               isDense: true,

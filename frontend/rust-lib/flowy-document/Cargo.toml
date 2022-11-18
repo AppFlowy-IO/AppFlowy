@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 flowy-sync = { path = "../../../shared-lib/flowy-sync"}
+flowy-http-model = { path = "../../../shared-lib/flowy-http-model"}
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
@@ -28,6 +29,7 @@ tokio = {version = "1", features = ["sync"]}
 tracing = { version = "0.1", features = ["log"] }
 
 bytes = { version = "1.1" }
+md5 = "0.7.0"
 strum = "0.21"
 strum_macros = "0.21"
 dashmap = "5"
@@ -50,7 +52,7 @@ criterion = "0.3"
 rand = "0.8.5"
 
 [build-dependencies]
-lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen", "proto_gen"] }
+lib-infra = { path = "../../../shared-lib/lib-infra", features = [ "proto_gen"] }
 
 [features]
 sync = []

@@ -1,37 +1,32 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_infra/language.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class SettingsLanguageView extends StatelessWidget {
   const SettingsLanguageView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    context.watch<AppTheme>();
-    return ChangeNotifierProvider.value(
-      value: Provider.of<AppearanceSetting>(context, listen: true),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  LocaleKeys.settings_menu_language.tr(),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const LanguageSelectorDropdown(),
-              ],
-            ),
-          ],
-        ),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                LocaleKeys.settings_menu_language.tr(),
+                style: TextStyles.body1.size(FontSizes.s14),
+              ),
+              const LanguageSelectorDropdown(),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -49,7 +44,6 @@ class LanguageSelectorDropdown extends StatefulWidget {
 
 class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
   Color currHoverColor = Colors.white.withOpacity(0.0);
-  late Color themedHoverColor;
   void hoverExitLanguage() {
     setState(() {
       currHoverColor = Colors.white.withOpacity(0.0);
@@ -58,15 +52,12 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
 
   void hoverEnterLanguage() {
     setState(() {
-      currHoverColor = themedHoverColor;
+      currHoverColor = Theme.of(context).colorScheme.primary;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-    themedHoverColor = theme.main2;
-
     return MouseRegion(
       onEnter: (event) => {hoverEnterLanguage()},
       onExit: (event) => {hoverExitLanguage()},
@@ -78,10 +69,12 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
         ),
         child: DropdownButtonHideUnderline(
           child: DropdownButton<Locale>(
-            value: context.read<AppearanceSetting>().locale,
+            value: context.locale,
             onChanged: (val) {
               setState(() {
-                context.read<AppearanceSetting>().setLocale(context, val!);
+                context
+                    .read<AppearanceSettingsCubit>()
+                    .setLocale(context, val!);
               });
             },
             icon: const Visibility(
@@ -96,11 +89,7 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
                     languageFromLocale(locale),
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: theme.textColor,
-                    ),
+                    style: TextStyles.body1.size(FontSizes.s14),
                   ),
                 ),
               );

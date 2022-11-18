@@ -14,7 +14,7 @@ class GridFFIService {
     required this.gridId,
   });
 
-  Future<Either<GridPB, FlowyError>> loadGrid() async {
+  Future<Either<GridPB, FlowyError>> openGrid() async {
     await FolderEventSetLatestView(ViewIdPB(value: gridId)).send();
 
     final payload = GridIdPB(value: gridId);
@@ -44,7 +44,7 @@ class GridFFIService {
 
   Future<Either<RepeatedFieldPB, FlowyError>> getFields(
       {required List<FieldIdPB> fieldIds}) {
-    final payload = QueryFieldPayloadPB.create()
+    final payload = GetFieldPayloadPB.create()
       ..gridId = gridId
       ..fieldIds = RepeatedFieldIdPB(items: fieldIds);
     return GridEventGetFields(payload).send();

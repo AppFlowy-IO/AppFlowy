@@ -2,7 +2,7 @@ use crate::client_document::InsertExt;
 pub use auto_exit_block::*;
 pub use auto_format::*;
 pub use default_insert::*;
-use lib_ot::text_delta::TextOperations;
+use lib_ot::text_delta::DeltaTextOperations;
 pub use preserve_block_format::*;
 pub use preserve_inline_format::*;
 pub use reset_format_on_new_line::*;
@@ -22,11 +22,11 @@ impl InsertExt for InsertEmbedsExt {
 
     fn apply(
         &self,
-        _delta: &TextOperations,
+        _delta: &DeltaTextOperations,
         _replace_len: usize,
         _text: &str,
         _index: usize,
-    ) -> Option<TextOperations> {
+    ) -> Option<DeltaTextOperations> {
         None
     }
 }
@@ -39,11 +39,11 @@ impl InsertExt for ForceNewlineForInsertsAroundEmbedExt {
 
     fn apply(
         &self,
-        _delta: &TextOperations,
+        _delta: &DeltaTextOperations,
         _replace_len: usize,
         _text: &str,
         _index: usize,
-    ) -> Option<TextOperations> {
+    ) -> Option<DeltaTextOperations> {
         None
     }
 }

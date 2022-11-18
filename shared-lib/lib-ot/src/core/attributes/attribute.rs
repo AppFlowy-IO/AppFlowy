@@ -1,7 +1,7 @@
 use crate::core::{OperationAttributes, OperationTransform};
 use crate::errors::OTError;
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::fmt;
 use std::fmt::Display;
 
@@ -12,7 +12,14 @@ pub struct AttributeEntry {
 }
 
 impl AttributeEntry {
-    pub fn remove_value(&mut self) {
+    pub fn new<K: Into<AttributeKey>, V: Into<AttributeValue>>(key: K, value: V) -> Self {
+        Self {
+            key: key.into(),
+            value: value.into(),
+        }
+    }
+
+    pub fn clear(&mut self) {
         self.value.ty = None;
         self.value.value = None;
     }
@@ -27,10 +34,10 @@ impl std::convert::From<AttributeEntry> for AttributeHashMap {
 }
 
 #[derive(Default, Clone, Serialize, Deserialize, Eq, PartialEq, Debug)]
-pub struct AttributeHashMap(HashMap<AttributeKey, AttributeValue>);
+pub struct AttributeHashMap(IndexMap<AttributeKey, AttributeValue>);
 
 impl std::ops::Deref for AttributeHashMap {
-    type Target = HashMap<AttributeKey, AttributeValue>;
+    type Target = IndexMap<AttributeKey, AttributeValue>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
@@ -45,12 +52,16 @@ impl std::ops::DerefMut for AttributeHashMap {
 
 impl AttributeHashMap {
     pub fn new() -> AttributeHashMap {
-        AttributeHashMap(HashMap::new())
+        AttributeHashMap(IndexMap::new())
     }
 
-    pub fn from_value(attribute_map: HashMap<AttributeKey, AttributeValue>) -> Self {
-        Self(attribute_map)
+    pub fn into_inner(self) -> IndexMap<AttributeKey, AttributeValue> {
+        self.0
     }
+
+    // pub fn from_value(attribute_map: HashMap<AttributeKey, AttributeValue>) -> Self {
+    //     Self(attribute_map)
+    // }
 
     pub fn insert<K: ToString, V: Into<AttributeValue>>(&mut self, key: K, value: V) {
         self.0.insert(key.to_string(), value.into());
@@ -103,6 +114,10 @@ impl AttributeHashMap {
 
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
+    }
+
+    pub fn to_json(&self) -> Result<String, OTError> {
+        serde_json::to_string(self).map_err(|err| OTError::serde().context(err))
     }
 }
 
@@ -199,11 +214,10 @@ impl AttributeValue {
     pub fn none() -> Self {
         Self { ty: None, value: None }
     }
-    pub fn from_int(val: usize) -> Self {
-        let value = if val > 0_usize { Some(val.to_string()) } else { None };
+    pub fn from_int(val: i64) -> Self {
         Self {
             ty: Some(ValueType::IntType),
-            value,
+            value: Some(val.to_string()),
         }
     }
 
@@ -215,10 +229,10 @@ impl AttributeValue {
     }
 
     pub fn from_bool(val: bool) -> Self {
-        let value = if val { Some(val.to_string()) } else { None };
+        // let value = if val { Some(val.to_string()) } else { None };
         Self {
             ty: Some(ValueType::BoolType),
-            value,
+            value: Some(val.to_string()),
         }
     }
     pub fn from_string(s: &str) -> Self {
@@ -257,7 +271,7 @@ impl std::convert::From<bool> for AttributeValue {
 
 impl std::convert::From<usize> for AttributeValue {
     fn from(value: usize) -> Self {
-        AttributeValue::from_int(value)
+        AttributeValue::from_int(value as i64)
     }
 }
 
@@ -270,6 +284,12 @@ impl std::convert::From<&str> for AttributeValue {
 impl std::convert::From<String> for AttributeValue {
     fn from(value: String) -> Self {
         AttributeValue::from_string(&value)
+    }
+}
+
+impl std::convert::From<f64> for AttributeValue {
+    fn from(value: f64) -> Self {
+        AttributeValue::from_float(value)
     }
 }
 

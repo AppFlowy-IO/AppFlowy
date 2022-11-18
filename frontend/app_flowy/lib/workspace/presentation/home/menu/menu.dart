@@ -6,9 +6,9 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/trash/menu.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfilePB;
@@ -26,8 +26,8 @@ import 'package:app_flowy/core/frameless_window.dart';
 // import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:easy_localization/easy_localization.dart';
 
+import '../navigation.dart';
 import 'app/menu_app.dart';
 import 'app/create_button.dart';
 import 'menu_user.dart';
@@ -35,7 +35,7 @@ import 'menu_user.dart';
 class HomeMenu extends StatelessWidget {
   final PublishNotifier<bool> _collapsedNotifier;
   final UserProfilePB user;
-  final CurrentWorkspaceSettingPB workspaceSetting;
+  final WorkspaceSettingPB workspaceSetting;
 
   const HomeMenu({
     Key? key,
@@ -51,8 +51,10 @@ class HomeMenu extends StatelessWidget {
       providers: [
         BlocProvider<MenuBloc>(
           create: (context) {
-            final menuBloc = getIt<MenuBloc>(
-                param1: user, param2: workspaceSetting.workspace.id);
+            final menuBloc = MenuBloc(
+              user: user,
+              workspace: workspaceSetting.workspace,
+            );
             menuBloc.add(const MenuEvent.initial());
             return menuBloc;
           },
@@ -82,9 +84,8 @@ class HomeMenu extends StatelessWidget {
 
   Widget _renderBody(BuildContext context) {
     // nested column: https://siddharthmolleti.com/flutter-box-constraints-nested-column-s-row-s-3dfacada7361
-    final theme = context.watch<AppTheme>();
     return Container(
-      color: theme.bg1,
+      color: Theme.of(context).colorScheme.surfaceVariant,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -201,43 +202,41 @@ class MenuTopBar extends StatelessWidget {
     if (Platform.isMacOS) {
       return Container();
     }
-    final theme = context.watch<AppTheme>();
-    return (theme.isDark
+    return (Theme.of(context).brightness == Brightness.dark
         ? svgWithSize("flowy_logo_dark_mode", const Size(92, 17))
         : svgWithSize("flowy_logo_with_text", const Size(92, 17)));
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return BlocBuilder<MenuBloc, MenuState>(
       builder: (context, state) {
         return SizedBox(
           height: HomeSizes.topBarHeight,
           child: MoveWindowDetector(
-              child: Row(
-            children: [
-              renderIcon(context),
-              const Spacer(),
-              Tooltip(
-                  richMessage: TextSpan(children: [
-                    TextSpan(
-                        text: "${LocaleKeys.sideBar_closeSidebar.tr()}\n"),
-                    TextSpan(
-                      text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
-                      style: const TextStyle(color: Colors.white60),
-                    ),
-                  ]),
+            child: Row(
+              children: [
+                renderIcon(context),
+                const Spacer(),
+                Tooltip(
+                  richMessage: sidebarTooltipTextSpan(
+                      LocaleKeys.sideBar_closeSidebar.tr()),
                   child: FlowyIconButton(
                     width: 28,
+                    hoverColor: Colors.transparent,
                     onPressed: () => context
                         .read<HomeBloc>()
                         .add(const HomeEvent.collapseMenu()),
                     iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-                    icon: svgWidget("home/hide_menu", color: theme.iconColor),
-                  ))
-            ],
-          )),
+                    icon: svgWidget(
+                      "home/hide_menu",
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
         );
       },
     );

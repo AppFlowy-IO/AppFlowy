@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use crate::core::{AttributeEntry, AttributeHashMap, AttributeKey};
-use crate::text_delta::TextOperation;
+use crate::text_delta::DeltaTextOperation;
 use crate::{inline_attribute_entry, inline_list_attribute_entry};
 use lazy_static::lazy_static;
 use std::str::FromStr;
@@ -12,7 +12,7 @@ pub fn empty_attributes() -> AttributeHashMap {
     AttributeHashMap::default()
 }
 
-pub fn attributes_except_header(op: &TextOperation) -> AttributeHashMap {
+pub fn attributes_except_header(op: &DeltaTextOperation) -> AttributeHashMap {
     let mut attributes = op.get_attributes();
     attributes.remove_key(BuildInTextAttributeKey::Header);
     attributes

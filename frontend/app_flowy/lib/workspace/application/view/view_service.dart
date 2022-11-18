@@ -10,7 +10,8 @@ class ViewService {
     return FolderEventReadView(request).send();
   }
 
-  Future<Either<ViewPB, FlowyError>> updateView({required String viewId, String? name, String? desc}) {
+  Future<Either<ViewPB, FlowyError>> updateView(
+      {required String viewId, String? name, String? desc}) {
     final request = UpdateViewPayloadPB.create()..viewId = viewId;
 
     if (name != null) {
@@ -29,8 +30,7 @@ class ViewService {
     return FolderEventDeleteView(request).send();
   }
 
-  Future<Either<Unit, FlowyError>> duplicate({required String viewId}) {
-    final request = ViewIdPB(value: viewId);
-    return FolderEventDuplicateView(request).send();
+  Future<Either<Unit, FlowyError>> duplicate({required ViewPB view}) {
+    return FolderEventDuplicateView(view).send();
   }
 }

@@ -1,14 +1,14 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/application/user_settings_service.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:window_size/window_size.dart';
-import 'package:bloc/bloc.dart';
 import 'package:flowy_sdk/log.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:window_size/window_size.dart';
 
 class InitAppWidgetTask extends LaunchTask {
   @override
@@ -17,10 +17,9 @@ class InitAppWidgetTask extends LaunchTask {
   @override
   Future<void> initialize(LaunchContext context) async {
     final widget = context.getIt<EntryPoint>().create();
-    final setting = await SettingsFFIService().getAppearanceSetting();
-    final settingModel = AppearanceSetting(setting);
+    final appearanceSetting = await SettingsFFIService().getAppearanceSetting();
     final app = ApplicationWidget(
-      settingModel: settingModel,
+      appearanceSetting: appearanceSetting,
       child: widget,
     );
     Bloc.observer = ApplicationBlocObserver();
@@ -42,6 +41,7 @@ class InitAppWidgetTask extends LaunchTask {
           Locale('pl', 'PL'),
           Locale('pt', 'BR'),
           Locale('ru', 'RU'),
+          Locale('sv'),
           Locale('tr', 'TR'),
           Locale('zh', 'CN'),
         ],
@@ -59,49 +59,38 @@ class InitAppWidgetTask extends LaunchTask {
 
 class ApplicationWidget extends StatelessWidget {
   final Widget child;
-  final AppearanceSetting settingModel;
+  final AppearanceSettingsPB appearanceSetting;
 
   const ApplicationWidget({
     Key? key,
     required this.child,
-    required this.settingModel,
+    required this.appearanceSetting,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: settingModel,
-      builder: (context, _) {
-        const ratio = 1.73;
-        const minWidth = 600.0;
-        setWindowMinSize(const Size(minWidth, minWidth / ratio));
-        settingModel.readLocaleWhenAppLaunch(context);
-        AppTheme theme = context.select<AppearanceSetting, AppTheme>(
-          (value) => value.theme,
-        );
-        Locale locale = context.select<AppearanceSetting, Locale>(
-          (value) => value.locale,
-        );
+    const ratio = 1.73;
+    const minWidth = 600.0;
+    setWindowMinSize(const Size(minWidth, minWidth / ratio));
 
-        return MultiProvider(
-          providers: [
-            Provider.value(value: theme),
-            Provider.value(value: locale),
-          ],
-          builder: (context, _) {
-            return MaterialApp(
-              builder: overlayManagerBuilder(),
-              debugShowCheckedModeBanner: false,
-              theme: theme.themeData,
-              localizationsDelegates: context.localizationDelegates,
-              supportedLocales: context.supportedLocales,
-              locale: locale,
-              navigatorKey: AppGlobals.rootNavKey,
-              home: child,
-            );
-          },
-        );
-      },
+    final cubit = AppearanceSettingsCubit(appearanceSetting)
+      ..readLocaleWhenAppLaunch(context);
+
+    return BlocProvider(
+      create: (context) => cubit,
+      child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+        builder: (context, state) => MaterialApp(
+          builder: overlayManagerBuilder(),
+          debugShowCheckedModeBanner: false,
+          theme: state.theme.themeData,
+          localizationsDelegates: context.localizationDelegates +
+              [AppFlowyEditorLocalizations.delegate],
+          supportedLocales: context.supportedLocales,
+          locale: state.locale,
+          navigatorKey: AppGlobals.rootNavKey,
+          home: child,
+        ),
+      ),
     );
   }
 }

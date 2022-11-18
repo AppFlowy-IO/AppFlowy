@@ -1,4 +1,4 @@
-use crate::entities::{GroupChangesetPB, InsertedRowPB, RowPB};
+use crate::entities::{GroupRowsNotificationPB, InsertedRowPB, RowPB};
 use crate::services::field::{CheckboxCellData, CheckboxCellDataParser, CheckboxTypeOptionPB, CHECK, UNCHECK};
 use crate::services::group::action::GroupControllerCustomActions;
 use crate::services::group::configuration::GroupContext;
@@ -8,9 +8,7 @@ use crate::services::group::controller::{
 
 use crate::services::cell::insert_checkbox_cell;
 use crate::services::group::{move_group_row, GeneratedGroupConfig, GeneratedGroupContext};
-use flowy_grid_data_model::revision::{
-    CellRevision, CheckboxGroupConfigurationRevision, FieldRevision, GroupRevision, RowRevision,
-};
+use grid_rev_model::{CellRevision, CheckboxGroupConfigurationRevision, FieldRevision, GroupRevision, RowRevision};
 
 pub type CheckboxGroupController = GenericGroupController<
     CheckboxGroupConfigurationRevision,
@@ -39,10 +37,10 @@ impl GroupControllerCustomActions for CheckboxGroupController {
         &mut self,
         row_rev: &RowRevision,
         cell_data: &Self::CellDataType,
-    ) -> Vec<GroupChangesetPB> {
+    ) -> Vec<GroupRowsNotificationPB> {
         let mut changesets = vec![];
         self.group_ctx.iter_mut_status_groups(|group| {
-            let mut changeset = GroupChangesetPB::new(group.id.clone());
+            let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
             let is_not_contained = !group.contains_row(&row_rev.id);
             if group.id == CHECK {
                 if cell_data.is_uncheck() {
@@ -81,10 +79,10 @@ impl GroupControllerCustomActions for CheckboxGroupController {
         changesets
     }
 
-    fn delete_row(&mut self, row_rev: &RowRevision, _cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB> {
+    fn delete_row(&mut self, row_rev: &RowRevision, _cell_data: &Self::CellDataType) -> Vec<GroupRowsNotificationPB> {
         let mut changesets = vec![];
         self.group_ctx.iter_mut_groups(|group| {
-            let mut changeset = GroupChangesetPB::new(group.id.clone());
+            let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
             if group.contains_row(&row_rev.id) {
                 changeset.deleted_rows.push(row_rev.id.clone());
                 group.remove_row(&row_rev.id);
@@ -97,7 +95,11 @@ impl GroupControllerCustomActions for CheckboxGroupController {
         changesets
     }
 
-    fn move_row(&mut self, _cell_data: &Self::CellDataType, mut context: MoveGroupRowContext) -> Vec<GroupChangesetPB> {
+    fn move_row(
+        &mut self,
+        _cell_data: &Self::CellDataType,
+        mut context: MoveGroupRowContext,
+    ) -> Vec<GroupRowsNotificationPB> {
         let mut group_changeset = vec![];
         self.group_ctx.iter_mut_groups(|group| {
             if let Some(changeset) = move_group_row(group, &mut context) {

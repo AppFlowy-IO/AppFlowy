@@ -25,7 +25,8 @@ class ToolbarItemWidget extends StatelessWidget {
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: IconButton(
-            highlightColor: Colors.yellow,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
             padding: EdgeInsets.zero,
             icon: item.iconBuilder(isHighlight),
             iconSize: 28,

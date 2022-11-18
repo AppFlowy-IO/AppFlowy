@@ -1,10 +1,10 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::{FieldRevision, FieldTypeRevision};
+use grid_rev_model::{FieldRevision, FieldTypeRevision};
 use serde_repr::*;
 use std::sync::Arc;
 
+use crate::entities::parser::NotEmptyStr;
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
 /// [FieldPB] defines a Field's attributes. Such as the name, field_type, and width. etc.
@@ -84,7 +84,7 @@ impl std::convert::From<&Arc<FieldRevision>> for FieldIdPB {
     }
 }
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct FieldChangesetPB {
+pub struct GridFieldChangesetPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -98,7 +98,7 @@ pub struct FieldChangesetPB {
     pub updated_fields: Vec<FieldPB>,
 }
 
-impl FieldChangesetPB {
+impl GridFieldChangesetPB {
     pub fn insert(grid_id: &str, inserted_fields: Vec<IndexFieldPB>) -> Self {
         Self {
             grid_id: grid_id.to_owned(),
@@ -146,18 +146,6 @@ impl IndexFieldPB {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct GetEditFieldContextPayloadPB {
-    #[pb(index = 1)]
-    pub grid_id: String,
-
-    #[pb(index = 2, one_of)]
-    pub field_id: Option<String>,
-
-    #[pb(index = 3)]
-    pub field_type: FieldType,
-}
-
-#[derive(Debug, Default, ProtoBuf)]
 pub struct CreateFieldPayloadPB {
     #[pb(index = 1)]
     pub grid_id: String,
@@ -190,7 +178,7 @@ impl TryInto<CreateFieldParams> for CreateFieldPayloadPB {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct EditFieldPayloadPB {
+pub struct EditFieldChangesetPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -210,7 +198,7 @@ pub struct EditFieldParams {
     pub field_type: FieldType,
 }
 
-impl TryInto<EditFieldParams> for EditFieldPayloadPB {
+impl TryInto<EditFieldParams> for EditFieldChangesetPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<EditFieldParams, Self::Error> {
@@ -225,7 +213,7 @@ impl TryInto<EditFieldParams> for EditFieldPayloadPB {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct FieldTypeOptionIdPB {
+pub struct TypeOptionPathPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -236,19 +224,19 @@ pub struct FieldTypeOptionIdPB {
     pub field_type: FieldType,
 }
 
-pub struct FieldTypeOptionIdParams {
+pub struct TypeOptionPathParams {
     pub grid_id: String,
     pub field_id: String,
     pub field_type: FieldType,
 }
 
-impl TryInto<FieldTypeOptionIdParams> for FieldTypeOptionIdPB {
+impl TryInto<TypeOptionPathParams> for TypeOptionPathPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<FieldTypeOptionIdParams, Self::Error> {
+    fn try_into(self) -> Result<TypeOptionPathParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-        Ok(FieldTypeOptionIdParams {
+        Ok(TypeOptionPathParams {
             grid_id: grid_id.0,
             field_id: field_id.0,
             field_type: self.field_type,
@@ -257,7 +245,7 @@ impl TryInto<FieldTypeOptionIdParams> for FieldTypeOptionIdPB {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct FieldTypeOptionDataPB {
+pub struct TypeOptionPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -320,35 +308,35 @@ impl std::convert::From<String> for RepeatedFieldIdPB {
     }
 }
 
-/// [UpdateFieldTypeOptionPayloadPB] is used to update the type-option data.
+/// [TypeOptionChangesetPB] is used to update the type-option data.
 #[derive(ProtoBuf, Default)]
-pub struct UpdateFieldTypeOptionPayloadPB {
+pub struct TypeOptionChangesetPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
     #[pb(index = 2)]
     pub field_id: String,
 
-    /// Check out [FieldTypeOptionDataPB] for more details.
+    /// Check out [TypeOptionPB] for more details.
     #[pb(index = 3)]
     pub type_option_data: Vec<u8>,
 }
 
 #[derive(Clone)]
-pub struct UpdateFieldTypeOptionParams {
+pub struct TypeOptionChangesetParams {
     pub grid_id: String,
     pub field_id: String,
     pub type_option_data: Vec<u8>,
 }
 
-impl TryInto<UpdateFieldTypeOptionParams> for UpdateFieldTypeOptionPayloadPB {
+impl TryInto<TypeOptionChangesetParams> for TypeOptionChangesetPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<UpdateFieldTypeOptionParams, Self::Error> {
+    fn try_into(self) -> Result<TypeOptionChangesetParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         let _ = NotEmptyStr::parse(self.field_id.clone()).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
 
-        Ok(UpdateFieldTypeOptionParams {
+        Ok(TypeOptionChangesetParams {
             grid_id: grid_id.0,
             field_id: self.field_id,
             type_option_data: self.type_option_data,
@@ -357,7 +345,7 @@ impl TryInto<UpdateFieldTypeOptionParams> for UpdateFieldTypeOptionPayloadPB {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct QueryFieldPayloadPB {
+pub struct GetFieldPayloadPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -365,31 +353,31 @@ pub struct QueryFieldPayloadPB {
     pub field_ids: RepeatedFieldIdPB,
 }
 
-pub struct QueryFieldParams {
+pub struct GetFieldParams {
     pub grid_id: String,
     pub field_ids: RepeatedFieldIdPB,
 }
 
-impl TryInto<QueryFieldParams> for QueryFieldPayloadPB {
+impl TryInto<GetFieldParams> for GetFieldPayloadPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<QueryFieldParams, Self::Error> {
+    fn try_into(self) -> Result<GetFieldParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        Ok(QueryFieldParams {
+        Ok(GetFieldParams {
             grid_id: grid_id.0,
             field_ids: self.field_ids,
         })
     }
 }
 
-/// [FieldChangesetPayloadPB] is used to modify the corresponding field. It defines which properties of
+/// [FieldChangesetPB] is used to modify the corresponding field. It defines which properties of
 /// the field can be modified.
 ///
 /// Pass in None if you don't want to modify a property
 /// Pass in Some(Value) if you want to modify a property
 ///
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct FieldChangesetPayloadPB {
+pub struct FieldChangesetPB {
     #[pb(index = 1)]
     pub field_id: String,
 
@@ -418,7 +406,7 @@ pub struct FieldChangesetPayloadPB {
     pub type_option_data: Option<Vec<u8>>,
 }
 
-impl TryInto<FieldChangesetParams> for FieldChangesetPayloadPB {
+impl TryInto<FieldChangesetParams> for FieldChangesetPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<FieldChangesetParams, Self::Error> {
@@ -464,18 +452,6 @@ pub struct FieldChangesetParams {
     pub width: Option<i32>,
 
     pub type_option_data: Option<Vec<u8>>,
-}
-
-impl FieldChangesetParams {
-    pub fn has_changes(&self) -> bool {
-        self.name.is_some()
-            || self.desc.is_some()
-            || self.field_type.is_some()
-            || self.frozen.is_some()
-            || self.type_option_data.is_some()
-            || self.frozen.is_some()
-            || self.width.is_some()
-    }
 }
 /// Certain field types have user-defined options such as color, date format, number format,
 /// or a list of values for a multi-select list. These options are defined within a specialization
@@ -603,6 +579,7 @@ impl std::convert::From<&FieldTypeRevision> for FieldType {
         FieldType::from(*ty)
     }
 }
+
 impl std::convert::From<FieldTypeRevision> for FieldType {
     fn from(ty: FieldTypeRevision) -> Self {
         match ty {

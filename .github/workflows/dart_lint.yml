@@ -9,12 +9,14 @@ on:
   push:
     branches:
       - "main"
+      - "release/*"
     paths:
       - "frontend/app_flowy/**"
 
   pull_request:
     branches:
       - "main"
+      - "release/*"
     paths:
       - "frontend/app_flowy/**"
 
@@ -73,7 +75,7 @@ jobs:
         run: |
           cargo make --profile development-linux-x86_64 flowy-sdk-dev
 
-      - name: Code Generation
+      - name: Flutter Code Generation
         working-directory: frontend/app_flowy
         run: |
           flutter packages pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations -s en.json

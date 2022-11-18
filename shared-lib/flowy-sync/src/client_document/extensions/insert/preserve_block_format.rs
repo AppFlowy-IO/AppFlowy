@@ -1,8 +1,8 @@
 use crate::{client_document::InsertExt, util::is_newline};
 use lib_ot::core::AttributeHashMap;
 use lib_ot::{
-    core::{OperationBuilder, OperationIterator, NEW_LINE},
-    text_delta::{attributes_except_header, empty_attributes, BuildInTextAttributeKey, TextOperations},
+    core::{DeltaOperationBuilder, OperationIterator, NEW_LINE},
+    text_delta::{attributes_except_header, empty_attributes, BuildInTextAttributeKey, DeltaTextOperations},
 };
 
 pub struct PreserveBlockFormatOnInsert {}
@@ -11,7 +11,13 @@ impl InsertExt for PreserveBlockFormatOnInsert {
         "PreserveBlockFormatOnInsert"
     }
 
-    fn apply(&self, delta: &TextOperations, replace_len: usize, text: &str, index: usize) -> Option<TextOperations> {
+    fn apply(
+        &self,
+        delta: &DeltaTextOperations,
+        replace_len: usize,
+        text: &str,
+        index: usize,
+    ) -> Option<DeltaTextOperations> {
         if !is_newline(text) {
             return None;
         }
@@ -32,7 +38,7 @@ impl InsertExt for PreserveBlockFormatOnInsert {
                 }
 
                 let lines: Vec<_> = text.split(NEW_LINE).collect();
-                let mut new_delta = OperationBuilder::new().retain(index + replace_len).build();
+                let mut new_delta = DeltaOperationBuilder::new().retain(index + replace_len).build();
                 lines.iter().enumerate().for_each(|(i, line)| {
                     if !line.is_empty() {
                         new_delta.insert(line, empty_attributes());

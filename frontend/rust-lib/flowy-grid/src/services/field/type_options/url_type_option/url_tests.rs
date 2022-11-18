@@ -4,7 +4,7 @@ mod tests {
     use crate::services::cell::{CellData, CellDataOperation};
     use crate::services::field::{FieldBuilder, URLCellDataParser};
     use crate::services::field::{URLCellDataPB, URLTypeOptionPB};
-    use flowy_grid_data_model::revision::FieldRevision;
+    use grid_rev_model::FieldRevision;
 
     /// The expected_str will equal to the input string, but the expected_url will be empty if there's no
     /// http url in the input string.

@@ -23,13 +23,15 @@ You are in charge of your data and customizations.
     <a href="https://twitter.com/appflowy"><b>Twitter</b></a>
 </p>
 
-<p align="center"><img src="https://user-images.githubusercontent.com/12026239/174754661-682980e4-e386-4685-bb6f-2da357390b61.png" alt="The Open Source Alternative To Notion." width="1000px" /></p>
+<p align="center"><img src="https://user-images.githubusercontent.com/12026239/200787830-96be260b-d0a0-4152-864e-6730b19095cd.png" alt="The Open Source Alternative To Notion." width="1000px" /></p>
 <p align="center"><img src="https://user-images.githubusercontent.com/12026239/174753177-98e4c899-2356-4137-bb42-374bba2b127b.png" alt="The Open Source Alternative To Notion." width="1000px" /></p>
 <p align="center"><img src="https://user-images.githubusercontent.com/12026239/190650183-a940f1e0-a2c5-4797-ab3a-56758f6f696c.png" alt="The Open Source Alternative To Notion." width="1000px" /></p>
 
 ## User Installation
 
-Please view the [documentation](https://appflowy.gitbook.io/docs/essential-documentation/install-appflowy/installation-methods) for OS specific installation instructions.
+* [Windows/Mac/Linux](https://appflowy.gitbook.io/docs/essential-documentation/install-appflowy/installation-methods/mac-windows-linux-packages)
+* [Docker](https://appflowy.gitbook.io/docs/essential-documentation/install-appflowy/installation-methods/installing-with-docker)
+* [Source](https://appflowy.gitbook.io/docs/essential-documentation/install-appflowy/installation-methods/from-source)
 
 ## Built With
 
@@ -49,7 +51,9 @@ Please view the [documentation](https://appflowy.gitbook.io/docs/essential-docum
 - [AppFlowy Roadmap ReadMe](https://appflowy.gitbook.io/docs/essential-documentation/roadmap)
 - [AppFlowy Public Roadmap](https://github.com/orgs/AppFlowy-IO/projects/5/views/12)
 
-If you'd like to propose a feature, submit an issue [here](https://github.com/AppFlowy-IO/appflowy/issues).
+
+If you'd like to propose a feature, submit a feature request [here](https://github.com/AppFlowy-IO/AppFlowy/issues/new?assignees=&labels=&template=feature_request.yaml&title=%5BFR%5D+) <br/>
+If you'd like to report a bug, submit bug report [here](https://github.com/AppFlowy-IO/AppFlowy/issues/new?assignees=&labels=&template=bug_report.yaml&title=%5BBug%5D+)
 
 ## **Releases**
 
@@ -91,7 +95,7 @@ To be honest, we do not claim to outperform Notion in terms of functionality and
 
 ## License
 
-Distributed under the AGPLv3 License. See `LICENSE.md` for more information.
+Distributed under the AGPLv3 License. See [`LICENSE.md`](https://github.com/AppFlowy-IO/AppFlowy/blob/main/LICENSE) for more information.
 
 ## Acknowledgements
 

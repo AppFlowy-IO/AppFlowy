@@ -3,7 +3,7 @@ use crate::services::cell::{
     insert_url_cell,
 };
 
-use flowy_grid_data_model::revision::{gen_row_id, CellRevision, FieldRevision, RowRevision, DEFAULT_ROW_HEIGHT};
+use grid_rev_model::{gen_row_id, CellRevision, FieldRevision, RowRevision, DEFAULT_ROW_HEIGHT};
 use indexmap::IndexMap;
 use std::collections::HashMap;
 use std::sync::Arc;

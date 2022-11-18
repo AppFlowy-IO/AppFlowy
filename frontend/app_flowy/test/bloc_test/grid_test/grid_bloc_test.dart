@@ -9,36 +9,36 @@ void main() {
     gridTest = await AppFlowyGridTest.ensureInitialized();
   });
 
-  group('GridBloc', () {
+  group('Edit Grid:', () {
+    late GridTestContext context;
+    setUp(() async {
+      context = await gridTest.createTestGrid();
+    });
+    // The initial number of rows is 3 for each grid.
     blocTest<GridBloc, GridState>(
-      "Create row",
+      "create a row",
       build: () =>
-          GridBloc(view: gridTest.gridView)..add(const GridEvent.initial()),
+          GridBloc(view: context.gridView)..add(const GridEvent.initial()),
       act: (bloc) => bloc.add(const GridEvent.createRow()),
       wait: const Duration(milliseconds: 300),
       verify: (bloc) {
         assert(bloc.state.rowInfos.length == 4);
       },
     );
-  });
 
-  group('GridBloc', () {
-    late GridBloc gridBloc;
-    setUpAll(() async {
-      gridBloc = GridBloc(view: gridTest.gridView)
-        ..add(const GridEvent.initial());
-      await gridResponseFuture();
-    });
-
-    // The initial number of rows is three
-    test('', () async {
-      assert(gridBloc.state.rowInfos.length == 3);
-    });
-
-    test('delete row', () async {
-      gridBloc.add(GridEvent.deleteRow(gridBloc.state.rowInfos.last));
-      await gridResponseFuture();
-      assert(gridBloc.state.rowInfos.length == 2);
-    });
+    blocTest<GridBloc, GridState>(
+      "delete the last row",
+      build: () =>
+          GridBloc(view: context.gridView)..add(const GridEvent.initial()),
+      act: (bloc) async {
+        await gridResponseFuture();
+        bloc.add(GridEvent.deleteRow(bloc.state.rowInfos.last));
+      },
+      wait: const Duration(milliseconds: 300),
+      verify: (bloc) {
+        assert(bloc.state.rowInfos.length == 2,
+            "Expected 2, but receive ${bloc.state.rowInfos.length}");
+      },
+    );
   });
 }

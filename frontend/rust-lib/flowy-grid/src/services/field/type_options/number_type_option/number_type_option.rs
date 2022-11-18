@@ -1,14 +1,12 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
+use crate::services::cell::{AnyCellChangeset, CellBytes, CellData, CellDataOperation, CellDisplayable};
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{BoxTypeOptionBuilder, NumberCellData, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{
-    CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer,
-};
+use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 
 use rust_decimal::Decimal;
 
@@ -148,7 +146,7 @@ impl CellDataOperation<String, String> for NumberTypeOptionPB {
 
     fn apply_changeset(
         &self,
-        changeset: CellDataChangeset<String>,
+        changeset: AnyCellChangeset<String>,
         _cell_rev: Option<CellRevision>,
     ) -> Result<String, FlowyError> {
         let changeset = changeset.try_into_inner()?;

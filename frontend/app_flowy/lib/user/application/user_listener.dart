@@ -10,7 +10,8 @@ import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_sdk/protobuf/dart-notify/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/dart_notification.pb.dart' as user;
+import 'package:flowy_sdk/protobuf/flowy-user/dart_notification.pb.dart'
+    as user;
 import 'package:flowy_sdk/rust_stream.dart';
 
 typedef UserProfileNotifyValue = Either<UserProfilePB, FlowyError>;
@@ -39,7 +40,8 @@ class UserListener {
       _authNotifier?.addPublishListener(onAuthChanged);
     }
 
-    _userParser = UserNotificationParser(id: _userProfile.token, callback: _userNotificationCallback);
+    _userParser = UserNotificationParser(
+        id: _userProfile.token, callback: _userNotificationCallback);
     _subscription = RustStreamReceiver.listen((observable) {
       _userParser?.parse(observable);
     });
@@ -55,7 +57,8 @@ class UserListener {
     _authNotifier = null;
   }
 
-  void _userNotificationCallback(user.UserNotification ty, Either<Uint8List, FlowyError> result) {
+  void _userNotificationCallback(
+      user.UserNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
       case user.UserNotification.UserUnauthorized:
         result.fold(
@@ -65,7 +68,8 @@ class UserListener {
         break;
       case user.UserNotification.UserProfileUpdated:
         result.fold(
-          (payload) => _profileNotifier?.value = left(UserProfilePB.fromBuffer(payload)),
+          (payload) =>
+              _profileNotifier?.value = left(UserProfilePB.fromBuffer(payload)),
           (error) => _profileNotifier?.value = right(error),
         );
         break;
@@ -76,12 +80,14 @@ class UserListener {
 }
 
 typedef WorkspaceListNotifyValue = Either<List<WorkspacePB>, FlowyError>;
-typedef WorkspaceSettingNotifyValue = Either<CurrentWorkspaceSettingPB, FlowyError>;
+typedef WorkspaceSettingNotifyValue = Either<WorkspaceSettingPB, FlowyError>;
 
 class UserWorkspaceListener {
   PublishNotifier<AuthNotifyValue>? _authNotifier = PublishNotifier();
-  PublishNotifier<WorkspaceListNotifyValue>? _workspacesChangedNotifier = PublishNotifier();
-  PublishNotifier<WorkspaceSettingNotifyValue>? _settingChangedNotifier = PublishNotifier();
+  PublishNotifier<WorkspaceListNotifyValue>? _workspacesChangedNotifier =
+      PublishNotifier();
+  PublishNotifier<WorkspaceSettingNotifyValue>? _settingChangedNotifier =
+      PublishNotifier();
 
   FolderNotificationListener? _listener;
   final UserProfilePB _userProfile;
@@ -113,26 +119,30 @@ class UserWorkspaceListener {
     );
   }
 
-  void _handleObservableType(FolderNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handleObservableType(
+      FolderNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
       case FolderNotification.UserCreateWorkspace:
       case FolderNotification.UserDeleteWorkspace:
       case FolderNotification.WorkspaceListUpdated:
         result.fold(
-          (payload) => _workspacesChangedNotifier?.value = left(RepeatedWorkspacePB.fromBuffer(payload).items),
+          (payload) => _workspacesChangedNotifier?.value =
+              left(RepeatedWorkspacePB.fromBuffer(payload).items),
           (error) => _workspacesChangedNotifier?.value = right(error),
         );
         break;
       case FolderNotification.WorkspaceSetting:
         result.fold(
-          (payload) => _settingChangedNotifier?.value = left(CurrentWorkspaceSettingPB.fromBuffer(payload)),
+          (payload) => _settingChangedNotifier?.value =
+              left(WorkspaceSettingPB.fromBuffer(payload)),
           (error) => _settingChangedNotifier?.value = right(error),
         );
         break;
       case FolderNotification.UserUnauthorized:
         result.fold(
           (_) {},
-          (error) => _authNotifier?.value = right(FlowyError.create()..code = ErrorCode.UserUnauthorized.value),
+          (error) => _authNotifier?.value = right(
+              FlowyError.create()..code = ErrorCode.UserUnauthorized.value),
         );
         break;
       default:

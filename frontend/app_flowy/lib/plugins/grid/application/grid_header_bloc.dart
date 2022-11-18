@@ -23,7 +23,13 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
             _startListening();
           },
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
-            emit(state.copyWith(fields: value.fields));
+            emit(
+              state.copyWith(
+                fields: value.fields
+                    .where((element) => element.visibility)
+                    .toList(),
+              ),
+            );
           },
           moveField: (_MoveField value) async {
             await _moveField(value, emit);

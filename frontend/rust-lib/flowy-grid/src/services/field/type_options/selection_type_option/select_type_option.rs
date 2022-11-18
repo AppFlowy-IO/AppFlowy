@@ -1,4 +1,5 @@
-use crate::entities::{CellChangesetPB, FieldType, GridCellIdPB, GridCellIdParams};
+use crate::entities::parser::NotEmptyStr;
+use crate::entities::{CellChangesetPB, CellPathPB, CellPathParams, FieldType};
 use crate::services::cell::{
     CellBytes, CellBytesParser, CellData, CellDataIsEmpty, CellDisplayable, FromCellChangeset, FromCellString,
 };
@@ -7,8 +8,7 @@ use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
-use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::{FieldRevision, TypeOptionDataSerializer};
+use grid_rev_model::{FieldRevision, TypeOptionDataSerializer};
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 
@@ -101,7 +101,7 @@ pub trait SelectTypeOptionSharedAction: TypeOptionDataSerializer + Send + Sync {
     }
 
     fn create_option(&self, name: &str) -> SelectOptionPB {
-        let color = select_option_color_from_index(self.options().len());
+        let color = new_select_option_color(self.options());
         SelectOptionPB::with_color(name, color)
     }
 
@@ -215,8 +215,20 @@ pub fn select_type_option_from_field_rev(
     }
 }
 
-pub fn select_option_color_from_index(index: usize) -> SelectOptionColorPB {
-    match index % 8 {
+pub fn new_select_option_color(options: &Vec<SelectOptionPB>) -> SelectOptionColorPB {
+    let mut freq: Vec<usize> = vec![0; 9];
+
+    for option in options {
+        freq[option.color.to_owned() as usize] += 1;
+    }
+
+    match freq
+        .into_iter()
+        .enumerate()
+        .min_by_key(|(_, v)| *v)
+        .map(|(idx, _val)| idx)
+        .unwrap()
+    {
         0 => SelectOptionColorPB::Purple,
         1 => SelectOptionColorPB::Pink,
         2 => SelectOptionColorPB::LightPink,
@@ -341,9 +353,9 @@ impl CellBytesParser for SelectOptionCellDataParser {
 }
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
-pub struct SelectOptionCellChangesetPayloadPB {
+pub struct SelectOptionCellChangesetPB {
     #[pb(index = 1)]
-    pub cell_identifier: GridCellIdPB,
+    pub cell_identifier: CellPathPB,
 
     #[pb(index = 2)]
     pub insert_option_ids: Vec<String>,
@@ -353,7 +365,7 @@ pub struct SelectOptionCellChangesetPayloadPB {
 }
 
 pub struct SelectOptionCellChangesetParams {
-    pub cell_identifier: GridCellIdParams,
+    pub cell_identifier: CellPathParams,
     pub insert_option_ids: Vec<String>,
     pub delete_option_ids: Vec<String>,
 }
@@ -374,11 +386,11 @@ impl std::convert::From<SelectOptionCellChangesetParams> for CellChangesetPB {
     }
 }
 
-impl TryInto<SelectOptionCellChangesetParams> for SelectOptionCellChangesetPayloadPB {
+impl TryInto<SelectOptionCellChangesetParams> for SelectOptionCellChangesetPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<SelectOptionCellChangesetParams, Self::Error> {
-        let cell_identifier: GridCellIdParams = self.cell_identifier.try_into()?;
+        let cell_identifier: CellPathParams = self.cell_identifier.try_into()?;
         let insert_option_ids = self
             .insert_option_ids
             .into_iter()
@@ -473,12 +485,12 @@ pub struct SelectOptionCellDataPB {
     pub select_options: Vec<SelectOptionPB>,
 }
 
-/// [SelectOptionChangesetPayloadPB] describes the changes of a FieldTypeOptionData. For the moment,
+/// [SelectOptionChangesetPB] describes the changes of a FieldTypeOptionData. For the moment,
 /// it is used by [MultiSelectTypeOptionPB] and [SingleSelectTypeOptionPB].
 #[derive(Clone, Debug, Default, ProtoBuf)]
-pub struct SelectOptionChangesetPayloadPB {
+pub struct SelectOptionChangesetPB {
     #[pb(index = 1)]
-    pub cell_identifier: GridCellIdPB,
+    pub cell_identifier: CellPathPB,
 
     #[pb(index = 2)]
     pub insert_options: Vec<SelectOptionPB>,
@@ -491,13 +503,13 @@ pub struct SelectOptionChangesetPayloadPB {
 }
 
 pub struct SelectOptionChangeset {
-    pub cell_identifier: GridCellIdParams,
+    pub cell_identifier: CellPathParams,
     pub insert_options: Vec<SelectOptionPB>,
     pub update_options: Vec<SelectOptionPB>,
     pub delete_options: Vec<SelectOptionPB>,
 }
 
-impl TryInto<SelectOptionChangeset> for SelectOptionChangesetPayloadPB {
+impl TryInto<SelectOptionChangeset> for SelectOptionChangesetPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<SelectOptionChangeset, Self::Error> {

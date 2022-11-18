@@ -1,21 +1,23 @@
-use crate::entities::{DocumentSnapshotPB, EditParams, EditPayloadPB, ExportDataPB, ExportParams, ExportPayloadPB};
+use crate::entities::{
+    DocumentSnapshotPB, EditParams, EditPayloadPB, ExportDataPB, ExportParams, ExportPayloadPB, OpenDocumentContextPB,
+};
 use crate::DocumentManager;
 use flowy_error::FlowyError;
-use flowy_sync::entities::document::DocumentIdPB;
+
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::convert::TryInto;
 use std::sync::Arc;
 
 pub(crate) async fn get_document_handler(
-    data: Data<DocumentIdPB>,
+    data: Data<OpenDocumentContextPB>,
     manager: AppData<Arc<DocumentManager>>,
 ) -> DataResult<DocumentSnapshotPB, FlowyError> {
-    let document_id: DocumentIdPB = data.into_inner();
-    let editor = manager.open_document_editor(&document_id).await?;
-    let operations_str = editor.get_operation_str().await?;
+    let context: OpenDocumentContextPB = data.into_inner();
+    let editor = manager.open_document_editor(&context.document_id).await?;
+    let document_data = editor.export().await?;
     data_result(DocumentSnapshotPB {
-        doc_id: document_id.into(),
-        snapshot: operations_str,
+        doc_id: context.document_id,
+        snapshot: document_data,
     })
 }
 
@@ -35,9 +37,9 @@ pub(crate) async fn export_handler(
 ) -> DataResult<ExportDataPB, FlowyError> {
     let params: ExportParams = data.into_inner().try_into()?;
     let editor = manager.open_document_editor(&params.view_id).await?;
-    let operations_str = editor.get_operation_str().await?;
+    let document_data = editor.export().await?;
     data_result(ExportDataPB {
-        data: operations_str,
+        data: document_data,
         export_type: params.export_type,
     })
 }

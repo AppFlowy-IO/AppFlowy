@@ -1,14 +1,11 @@
-use crate::entities::FieldType;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::FilterConfigurationRevision;
+use grid_rev_model::FilterRevision;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
-use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct DateFilterConfigurationPB {
+pub struct DateFilterPB {
     #[pb(index = 1)]
     pub condition: DateFilterCondition,
 
@@ -17,68 +14,25 @@ pub struct DateFilterConfigurationPB {
 
     #[pb(index = 3, one_of)]
     pub end: Option<i64>,
-}
-
-#[derive(ProtoBuf, Default, Clone, Debug)]
-pub struct CreateGridDateFilterPayload {
-    #[pb(index = 1)]
-    pub field_id: String,
-
-    #[pb(index = 2)]
-    pub field_type: FieldType,
-
-    #[pb(index = 3)]
-    pub condition: DateFilterCondition,
 
     #[pb(index = 4, one_of)]
+    pub timestamp: Option<i64>,
+}
+
+#[derive(Deserialize, Serialize, Default, Clone, Debug)]
+pub struct DateFilterContent {
     pub start: Option<i64>,
-
-    #[pb(index = 5, one_of)]
     pub end: Option<i64>,
+    pub timestamp: Option<i64>,
 }
 
-pub struct CreateGridDateFilterParams {
-    pub field_id: String,
-
-    pub field_type: FieldType,
-
-    pub condition: DateFilterCondition,
-
-    pub start: Option<i64>,
-
-    pub end: Option<i64>,
-}
-
-impl TryInto<CreateGridDateFilterParams> for CreateGridDateFilterPayload {
-    type Error = ErrorCode;
-
-    fn try_into(self) -> Result<CreateGridDateFilterParams, Self::Error> {
-        let field_id = NotEmptyStr::parse(self.field_id)
-            .map_err(|_| ErrorCode::FieldIdIsEmpty)?
-            .0;
-        Ok(CreateGridDateFilterParams {
-            field_id,
-            condition: self.condition,
-            start: self.start,
-            field_type: self.field_type,
-            end: self.end,
-        })
-    }
-}
-
-#[derive(Serialize, Deserialize, Default)]
-struct DateRange {
-    start: Option<i64>,
-    end: Option<i64>,
-}
-
-impl ToString for DateRange {
+impl ToString for DateFilterContent {
     fn to_string(&self) -> String {
-        serde_json::to_string(self).unwrap_or_else(|_| "".to_string())
+        serde_json::to_string(self).unwrap()
     }
 }
 
-impl FromStr for DateRange {
+impl FromStr for DateFilterContent {
     type Err = serde_json::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -96,8 +50,14 @@ pub enum DateFilterCondition {
     DateOnOrAfter = 4,
     DateWithIn = 5,
     DateIsEmpty = 6,
+    DateIsNotEmpty = 7,
 }
 
+impl std::convert::From<DateFilterCondition> for u32 {
+    fn from(value: DateFilterCondition) -> Self {
+        value as u32
+    }
+}
 impl std::default::Default for DateFilterCondition {
     fn default() -> Self {
         DateFilterCondition::DateIs
@@ -120,21 +80,18 @@ impl std::convert::TryFrom<u8> for DateFilterCondition {
         }
     }
 }
-impl std::convert::From<Arc<FilterConfigurationRevision>> for DateFilterConfigurationPB {
-    fn from(rev: Arc<FilterConfigurationRevision>) -> Self {
+impl std::convert::From<&FilterRevision> for DateFilterPB {
+    fn from(rev: &FilterRevision) -> Self {
         let condition = DateFilterCondition::try_from(rev.condition).unwrap_or(DateFilterCondition::DateIs);
-        let mut filter = DateFilterConfigurationPB {
+        let mut filter = DateFilterPB {
             condition,
             ..Default::default()
         };
 
-        if let Some(range) = rev
-            .content
-            .as_ref()
-            .and_then(|content| DateRange::from_str(content).ok())
-        {
-            filter.start = range.start;
-            filter.end = range.end;
+        if let Ok(content) = DateFilterContent::from_str(&rev.content) {
+            filter.start = content.start;
+            filter.end = content.end;
+            filter.timestamp = content.timestamp;
         };
 
         filter

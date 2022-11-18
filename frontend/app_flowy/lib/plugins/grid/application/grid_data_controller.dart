@@ -65,8 +65,8 @@ class GridDataController {
   }
 
   // Loads the rows from each block
-  Future<Either<Unit, FlowyError>> loadData() async {
-    final result = await _gridFFIService.loadGrid();
+  Future<Either<Unit, FlowyError>> openGrid() async {
+    final result = await _gridFFIService.openGrid();
     return Future(
       () => result.fold(
         (grid) async {
@@ -79,8 +79,8 @@ class GridDataController {
     );
   }
 
-  void createRow() {
-    _gridFFIService.createRow();
+  Future<void> createRow() async {
+    await _gridFFIService.createRow();
   }
 
   Future<void> dispose() async {
@@ -105,11 +105,9 @@ class GridDataController {
         fieldController: fieldController,
       );
 
-      cache.addListener(
-        onRowsChanged: (reason) {
-          _onRowChanged?.call(rowInfos, reason);
-        },
-      );
+      cache.addListener(onRowsChanged: (reason) {
+        _onRowChanged?.call(rowInfos, reason);
+      });
 
       _blocks[block.id] = cache;
     }

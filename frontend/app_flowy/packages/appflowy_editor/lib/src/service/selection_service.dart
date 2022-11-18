@@ -1,7 +1,8 @@
+import 'package:appflowy_editor/src/flutter/overlay.dart';
 import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:appflowy_editor/src/service/context_menu/built_in_context_menu_item.dart';
 import 'package:appflowy_editor/src/service/context_menu/context_menu.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Overlay, OverlayEntry;
 
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/core/document/node_iterator.dart';
@@ -512,9 +513,12 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
       return;
     }
 
+    final baseOffset =
+        editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
+    final offset = details.globalPosition + const Offset(10, 10) - baseOffset;
     final contextMenu = OverlayEntry(
       builder: (context) => ContextMenu(
-        position: details.globalPosition,
+        position: offset,
         editorState: editorState,
         items: builtInContextMenuItems,
         onPressed: () => _clearContextMenu(),

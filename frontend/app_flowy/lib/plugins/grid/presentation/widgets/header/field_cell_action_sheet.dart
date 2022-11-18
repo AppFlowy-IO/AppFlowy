@@ -5,7 +5,6 @@ import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -72,8 +71,6 @@ class _EditFieldButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
     return BlocBuilder<FieldActionSheetBloc, FieldActionSheetState>(
       builder: (context, state) {
         return SizedBox(
@@ -83,7 +80,6 @@ class _EditFieldButton extends StatelessWidget {
               LocaleKeys.grid_field_editProperty.tr(),
               fontSize: 12,
             ),
-            hoverColor: theme.hover,
             onTap: onTap,
           ),
         );
@@ -151,14 +147,12 @@ class FieldActionCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return FlowyButton(
       text: FlowyText.medium(
         action.title(),
         fontSize: 12,
-        color: enable ? null : theme.shader4,
+        color: enable ? null : Theme.of(context).disabledColor,
       ),
-      hoverColor: theme.hover,
       onTap: () {
         if (enable) {
           action.run(context, fieldContext);
@@ -167,7 +161,9 @@ class FieldActionCell extends StatelessWidget {
       },
       leftIcon: svgWidget(
         action.iconName(),
-        color: enable ? theme.iconColor : theme.disableIconColor,
+        color: enable
+            ? Theme.of(context).colorScheme.onSurface
+            : Theme.of(context).disabledColor,
       ),
     );
   }

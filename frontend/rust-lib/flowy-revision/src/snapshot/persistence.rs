@@ -2,17 +2,15 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 use crate::{RevisionSnapshotDiskCache, RevisionSnapshotInfo};
-use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
-use std::sync::Arc;
 
-pub struct SQLiteRevisionSnapshotPersistence {
+pub struct SQLiteRevisionSnapshotPersistence<Connection> {
     object_id: String,
-    pool: Arc<ConnectionPool>,
+    pool: Connection,
 }
 
-impl SQLiteRevisionSnapshotPersistence {
-    pub fn new(object_id: &str, pool: Arc<ConnectionPool>) -> Self {
+impl<Connection: 'static> SQLiteRevisionSnapshotPersistence<Connection> {
+    pub fn new(object_id: &str, pool: Connection) -> Self {
         Self {
             object_id: object_id.to_string(),
             pool,
@@ -20,7 +18,10 @@ impl SQLiteRevisionSnapshotPersistence {
     }
 }
 
-impl RevisionSnapshotDiskCache for SQLiteRevisionSnapshotPersistence {
+impl<Connection> RevisionSnapshotDiskCache for SQLiteRevisionSnapshotPersistence<Connection>
+where
+    Connection: Send + Sync + 'static,
+{
     fn write_snapshot(&self, object_id: &str, rev_id: i64, data: Vec<u8>) -> FlowyResult<()> {
         todo!()
     }

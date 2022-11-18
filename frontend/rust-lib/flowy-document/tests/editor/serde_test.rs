@@ -1,8 +1,8 @@
-use flowy_sync::client_document::{ClientDocument, EmptyDoc};
-use lib_ot::text_delta::TextOperation;
+use flowy_sync::client_document::{ClientDocument, EmptyDocument};
+use lib_ot::text_delta::DeltaTextOperation;
 use lib_ot::{
     core::*,
-    text_delta::{BuildInTextAttribute, TextOperations},
+    text_delta::{BuildInTextAttribute, DeltaTextOperations},
 };
 
 #[test]
@@ -15,7 +15,7 @@ fn operation_insert_serialize_test() {
     let json = serde_json::to_string(&operation).unwrap();
     eprintln!("{}", json);
 
-    let insert_op: TextOperation = serde_json::from_str(&json).unwrap();
+    let insert_op: DeltaTextOperation = serde_json::from_str(&json).unwrap();
     assert_eq!(insert_op, operation);
 }
 
@@ -24,15 +24,15 @@ fn operation_retain_serialize_test() {
     let operation = DeltaOperation::Retain(12.into());
     let json = serde_json::to_string(&operation).unwrap();
     eprintln!("{}", json);
-    let insert_op: TextOperation = serde_json::from_str(&json).unwrap();
+    let insert_op: DeltaTextOperation = serde_json::from_str(&json).unwrap();
     assert_eq!(insert_op, operation);
 }
 
 #[test]
 fn operation_delete_serialize_test() {
-    let operation = TextOperation::Delete(2);
+    let operation = DeltaTextOperation::Delete(2);
     let json = serde_json::to_string(&operation).unwrap();
-    let insert_op: TextOperation = serde_json::from_str(&json).unwrap();
+    let insert_op: DeltaTextOperation = serde_json::from_str(&json).unwrap();
     assert_eq!(insert_op, operation);
 }
 
@@ -77,7 +77,7 @@ fn delta_deserialize_test() {
         {"retain":2,"attributes":{"italic":true,"bold":true}},
         {"retain":2,"attributes":{"italic":true,"bold":true}}
      ]"#;
-    let delta = TextOperations::from_json(json).unwrap();
+    let delta = DeltaTextOperations::from_json(json).unwrap();
     eprintln!("{}", delta);
 }
 
@@ -86,12 +86,12 @@ fn delta_deserialize_null_test() {
     let json = r#"[
         {"retain":7,"attributes":{"bold":null}}
      ]"#;
-    let delta1 = TextOperations::from_json(json).unwrap();
+    let delta1 = DeltaTextOperations::from_json(json).unwrap();
 
     let mut attribute = BuildInTextAttribute::Bold(true);
-    attribute.remove_value();
+    attribute.clear();
 
-    let delta2 = OperationBuilder::new()
+    let delta2 = DeltaOperationBuilder::new()
         .retain_with_attributes(7, attribute.into())
         .build();
 
@@ -101,7 +101,7 @@ fn delta_deserialize_null_test() {
 
 #[test]
 fn document_insert_serde_test() {
-    let mut document = ClientDocument::new::<EmptyDoc>();
+    let mut document = ClientDocument::new::<EmptyDocument>();
     document.insert(0, "\n").unwrap();
     document.insert(0, "123").unwrap();
     let json = document.get_operations_json();

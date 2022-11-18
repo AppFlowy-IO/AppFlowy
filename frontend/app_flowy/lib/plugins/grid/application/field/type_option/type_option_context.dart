@@ -143,11 +143,11 @@ abstract class TypeOptionFieldDelegate {
 
 abstract class IFieldTypeOptionLoader {
   String get gridId;
-  Future<Either<FieldTypeOptionDataPB, FlowyError>> load();
+  Future<Either<TypeOptionPB, FlowyError>> load();
 
   Future<Either<Unit, FlowyError>> switchToField(
       String fieldId, FieldType fieldType) {
-    final payload = EditFieldPayloadPB.create()
+    final payload = EditFieldChangesetPB.create()
       ..gridId = gridId
       ..fieldId = fieldId
       ..fieldType = fieldType;
@@ -156,23 +156,46 @@ abstract class IFieldTypeOptionLoader {
   }
 }
 
+/// Uses when creating a new field
 class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
+  TypeOptionPB? fieldTypeOption;
+
   @override
   final String gridId;
   NewFieldTypeOptionLoader({
     required this.gridId,
   });
 
+  /// Creates the field type option if the fieldTypeOption is null.
+  /// Otherwise, it loads the type option data from the backend.
   @override
-  Future<Either<FieldTypeOptionDataPB, FlowyError>> load() {
-    final payload = CreateFieldPayloadPB.create()
-      ..gridId = gridId
-      ..fieldType = FieldType.RichText;
+  Future<Either<TypeOptionPB, FlowyError>> load() {
+    if (fieldTypeOption != null) {
+      final payload = TypeOptionPathPB.create()
+        ..gridId = gridId
+        ..fieldId = fieldTypeOption!.field_2.id
+        ..fieldType = fieldTypeOption!.field_2.fieldType;
 
-    return GridEventCreateFieldTypeOption(payload).send();
+      return GridEventGetFieldTypeOption(payload).send();
+    } else {
+      final payload = CreateFieldPayloadPB.create()
+        ..gridId = gridId
+        ..fieldType = FieldType.RichText;
+
+      return GridEventCreateFieldTypeOption(payload).send().then((result) {
+        return result.fold(
+          (newFieldTypeOption) {
+            fieldTypeOption = newFieldTypeOption;
+            return left(newFieldTypeOption);
+          },
+          (err) => right(err),
+        );
+      });
+    }
   }
 }
 
+/// Uses when editing a existing field
 class FieldTypeOptionLoader extends IFieldTypeOptionLoader {
   @override
   final String gridId;
@@ -184,8 +207,8 @@ class FieldTypeOptionLoader extends IFieldTypeOptionLoader {
   });
 
   @override
-  Future<Either<FieldTypeOptionDataPB, FlowyError>> load() {
-    final payload = FieldTypeOptionIdPB.create()
+  Future<Either<TypeOptionPB, FlowyError>> load() {
+    final payload = TypeOptionPathPB.create()
       ..gridId = gridId
       ..fieldId = field.id
       ..fieldType = field.fieldType;

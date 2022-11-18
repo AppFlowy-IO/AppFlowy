@@ -38,11 +38,14 @@ impl OTError {
     static_ot_error!(revision_id_conflict, OTErrorCode::RevisionIDConflict);
     static_ot_error!(internal, OTErrorCode::Internal);
     static_ot_error!(serde, OTErrorCode::SerdeError);
+    static_ot_error!(path_not_found, OTErrorCode::PathNotFound);
+    static_ot_error!(compose, OTErrorCode::ComposeOperationFail);
+    static_ot_error!(record_not_found, OTErrorCode::RecordNotFound);
 }
 
 impl fmt::Display for OTError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "incompatible lengths")
+        write!(f, "{:?}: {}", self.code, self.msg)
     }
 }
 
@@ -74,7 +77,8 @@ pub enum OTErrorCode {
     Internal,
     PathNotFound,
     PathIsEmpty,
-    UnexpectedEmpty,
+    InvalidPath,
+    RecordNotFound,
 }
 
 pub struct ErrorBuilder {

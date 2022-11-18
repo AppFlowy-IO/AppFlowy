@@ -1,6 +1,6 @@
 use crate::{client_document::InsertExt, util::is_newline};
-use lib_ot::core::{is_empty_line_at_index, OperationBuilder, OperationIterator};
-use lib_ot::text_delta::{attributes_except_header, BuildInTextAttributeKey, TextOperations};
+use lib_ot::core::{is_empty_line_at_index, DeltaOperationBuilder, OperationIterator};
+use lib_ot::text_delta::{attributes_except_header, BuildInTextAttributeKey, DeltaTextOperations};
 
 pub struct AutoExitBlock {}
 
@@ -9,7 +9,13 @@ impl InsertExt for AutoExitBlock {
         "AutoExitBlock"
     }
 
-    fn apply(&self, delta: &TextOperations, replace_len: usize, text: &str, index: usize) -> Option<TextOperations> {
+    fn apply(
+        &self,
+        delta: &DeltaTextOperations,
+        replace_len: usize,
+        text: &str,
+        index: usize,
+    ) -> Option<DeltaTextOperations> {
         // Auto exit block will be triggered by enter two new lines
         if !is_newline(text) {
             return None;
@@ -45,7 +51,7 @@ impl InsertExt for AutoExitBlock {
         attributes.retain_values(&[BuildInTextAttributeKey::Header.as_ref()]);
 
         Some(
-            OperationBuilder::new()
+            DeltaOperationBuilder::new()
                 .retain(index + replace_len)
                 .retain_with_attributes(1, attributes)
                 .build(),

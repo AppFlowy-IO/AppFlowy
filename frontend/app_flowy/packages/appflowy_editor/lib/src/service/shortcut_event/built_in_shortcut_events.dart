@@ -220,7 +220,7 @@ List<ShortcutEvent> builtInShortcutEvents = [
   ),
   ShortcutEvent(
     key: 'selection menu',
-    command: 'slash',
+    command: 'slash,shift+slash',
     handler: slashShortcutHandler,
   ),
   ShortcutEvent(
@@ -284,6 +284,11 @@ List<ShortcutEvent> builtInShortcutEvents = [
     key: 'Exit editing mode',
     command: 'escape',
     handler: exitEditingModeEventHandler,
+  ),
+  ShortcutEvent(
+    key: 'Underscore to italic',
+    command: 'shift+underscore',
+    handler: underscoreToItalicHandler,
   ),
   // https://github.com/flutter/flutter/issues/104944
   // Workaround: Using space editing on the web platform often results in errors,

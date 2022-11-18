@@ -6,15 +6,15 @@ pub enum NetworkType {
     Wifi = 1,
     Cell = 2,
     Ethernet = 3,
+    Bluetooth = 4,
+    VPN = 5,
 }
 
 impl NetworkType {
     pub fn is_connect(&self) -> bool {
         match self {
-            NetworkType::UnknownNetworkType => false,
-            NetworkType::Wifi => true,
-            NetworkType::Cell => true,
-            NetworkType::Ethernet => true,
+            NetworkType::UnknownNetworkType | NetworkType::Bluetooth => false,
+            NetworkType::Wifi | NetworkType::Cell | NetworkType::Ethernet | NetworkType::VPN => true,
         }
     }
 }

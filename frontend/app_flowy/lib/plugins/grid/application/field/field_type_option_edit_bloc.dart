@@ -25,6 +25,9 @@ class FieldTypeOptionEditBloc
           didReceiveFieldUpdated: (field) {
             emit(state.copyWith(field: field));
           },
+          switchToField: (FieldType fieldType) async {
+            await _dataController.switchToField(fieldType);
+          },
         );
       },
     );
@@ -42,6 +45,8 @@ class FieldTypeOptionEditBloc
 @freezed
 class FieldTypeOptionEditEvent with _$FieldTypeOptionEditEvent {
   const factory FieldTypeOptionEditEvent.initial() = _Initial;
+  const factory FieldTypeOptionEditEvent.switchToField(FieldType fieldType) =
+      _SwitchToField;
   const factory FieldTypeOptionEditEvent.didReceiveFieldUpdated(FieldPB field) =
       _DidReceiveFieldUpdated;
 }
@@ -53,8 +58,9 @@ class FieldTypeOptionEditState with _$FieldTypeOptionEditState {
   }) = _FieldTypeOptionEditState;
 
   factory FieldTypeOptionEditState.initial(
-          TypeOptionDataController fieldContext) =>
+    TypeOptionDataController typeOptionDataController,
+  ) =>
       FieldTypeOptionEditState(
-        field: fieldContext.field,
+        field: typeOptionDataController.field,
       );
 }

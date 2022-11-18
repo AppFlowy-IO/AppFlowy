@@ -23,8 +23,21 @@ use serde::{Deserialize, Serialize};
 /// The path of  Node A-1 will be [0,0]
 /// The path of  Node A-2 will be [0,1]
 /// The path of  Node B-2 will be [1,1]
-#[derive(Clone, Serialize, Deserialize, Eq, PartialEq, Debug)]
+#[derive(Clone, Serialize, Deserialize, Eq, PartialEq, Debug, Default, Hash)]
 pub struct Path(pub Vec<usize>);
+
+impl Path {
+    pub fn is_valid(&self) -> bool {
+        if self.is_empty() {
+            return false;
+        }
+        true
+    }
+
+    pub fn is_root(&self) -> bool {
+        self.0.len() == 1 && self.0[0] == 0
+    }
+}
 
 impl std::ops::Deref for Path {
     type Target = Vec<usize>;

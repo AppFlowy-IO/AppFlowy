@@ -126,6 +126,12 @@ pub enum ErrorCode {
     #[display(fmt = "Invalid data")]
     InvalidData = 1000,
 
+    #[display(fmt = "Serde")]
+    Serde = 1001,
+
+    #[display(fmt = "Protobuf serde")]
+    ProtobufSerde = 1002,
+
     #[display(fmt = "Out of bounds")]
     OutOfBounds = 10001,
 }

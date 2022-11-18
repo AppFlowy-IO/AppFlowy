@@ -87,6 +87,15 @@ class AppFlowyUnitTest {
       (error) => throw Exception(error),
     );
   }
+
+  Future<List<AppPB>> loadApps() async {
+    final result = await workspaceService.getApps();
+
+    return result.fold(
+      (apps) => apps,
+      (error) => throw Exception(error),
+    );
+  }
 }
 
 void _pathProviderInitialized() {
@@ -104,6 +113,10 @@ class FlowyTestApp implements EntryPoint {
   }
 }
 
-Duration blocResponseDuration({int millseconds = 100}) {
-  return Duration(milliseconds: millseconds);
+Future<void> blocResponseFuture({int millisecond = 200}) {
+  return Future.delayed(Duration(milliseconds: millisecond));
+}
+
+Duration blocResponseDuration({int milliseconds = 200}) {
+  return Duration(milliseconds: milliseconds);
 }

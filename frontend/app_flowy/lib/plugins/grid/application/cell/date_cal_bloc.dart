@@ -139,7 +139,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
       cellController.removeListener(_onCellChangedFn!);
       _onCellChangedFn = null;
     }
-    cellController.dispose();
+    await cellController.dispose();
     return super.close();
   }
 

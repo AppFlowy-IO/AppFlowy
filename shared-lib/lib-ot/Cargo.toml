@@ -8,8 +8,6 @@ edition = "2018"
 [dependencies]
 bytecount = "0.6.0"
 serde = { version = "1.0", features = ["derive", "rc"] }
-#flowy-revision = { path = "../../frontend/rust-lib/flowy-revision" }
-#protobuf = {version = "2.18.0"}
 tokio = { version = "1", features = ["sync"] }
 dashmap = "5"
 md5 = "0.7.0"
@@ -19,6 +17,7 @@ thiserror = "1.0"
 serde_json = { version = "1.0" }
 serde_repr = { version = "0.1" }
 derive_more = { version = "0.99", features = ["display"] }
+indexmap = {version = "1.9.1", features = ["serde"]}
 log = "0.4"
 tracing = { version = "0.1", features = ["log"] }
 lazy_static = "1.4.0"

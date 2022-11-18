@@ -1,7 +1,7 @@
+use crate::entities::parser::NotEmptyStr;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::RowRevision;
+use grid_rev_model::RowRevision;
 use std::sync::Arc;
 
 /// [BlockPB] contains list of row ids. The rows here does not contain any data, just the id
@@ -152,7 +152,7 @@ impl std::convert::From<&RowRevision> for InsertedRowPB {
     }
 }
 
-#[derive(Debug, Default, ProtoBuf)]
+#[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct GridBlockChangesetPB {
     #[pb(index = 1)]
     pub block_id: String,
@@ -170,7 +170,7 @@ pub struct GridBlockChangesetPB {
     pub visible_rows: Vec<String>,
 
     #[pb(index = 6)]
-    pub hide_rows: Vec<String>,
+    pub invisible_rows: Vec<String>,
 }
 impl GridBlockChangesetPB {
     pub fn insert(block_id: String, inserted_rows: Vec<InsertedRowPB>) -> Self {

@@ -1,16 +1,14 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    decode_cell_data_to_string, CellBytes, CellBytesParser, CellData, CellDataChangeset, CellDataIsEmpty,
+    decode_cell_data_to_string, AnyCellChangeset, CellBytes, CellBytesParser, CellData, CellDataIsEmpty,
     CellDataOperation, CellDisplayable, FromCellString,
 };
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{
-    CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer,
-};
+use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
 
 #[derive(Default)]
@@ -85,7 +83,7 @@ impl CellDataOperation<String, String> for RichTextTypeOptionPB {
 
     fn apply_changeset(
         &self,
-        changeset: CellDataChangeset<String>,
+        changeset: AnyCellChangeset<String>,
         _cell_rev: Option<CellRevision>,
     ) -> Result<String, FlowyError> {
         let data = changeset.try_into_inner()?;

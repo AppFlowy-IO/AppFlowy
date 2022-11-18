@@ -1,6 +1,6 @@
-use crate::entities::view::ViewDataTypePB;
-use crate::entities::ViewLayoutTypePB;
-use crate::services::folder_editor::FolderRevisionCompactor;
+use crate::entities::view::ViewDataFormatPB;
+use crate::entities::{ViewLayoutTypePB, ViewPB};
+use crate::services::folder_editor::FolderRevisionCompress;
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
     entities::workspace::RepeatedWorkspacePB,
@@ -12,14 +12,19 @@ use crate::{
     },
 };
 use bytes::Bytes;
+use flowy_document::editor::initial_read_me;
 use flowy_error::FlowyError;
-use flowy_folder_data_model::user_default;
-use flowy_revision::disk::SQLiteDocumentRevisionPersistence;
-use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence};
-use flowy_sync::client_document::default::{initial_document_str, initial_read_me};
-use flowy_sync::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
+use flowy_revision::{
+    RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket,
+    SQLiteRevisionSnapshotPersistence,
+};
+use folder_rev_model::user_default;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
+
+use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
+use flowy_http_model::ws_data::ServerRevisionWSData;
+use flowy_sync::client_folder::FolderPad;
 use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};
 use tokio::sync::RwLock as TokioRwLock;
 lazy_static! {
@@ -63,7 +68,6 @@ pub struct FolderManager {
     pub(crate) trash_controller: Arc<TrashController>,
     web_socket: Arc<dyn RevisionWebSocket>,
     folder_editor: Arc<TokioRwLock<Option<Arc<FolderEditor>>>>,
-    data_processors: ViewDataProcessorMap,
 }
 
 impl FolderManager {
@@ -94,7 +98,7 @@ impl FolderManager {
             persistence.clone(),
             cloud_service.clone(),
             trash_controller.clone(),
-            data_processors.clone(),
+            data_processors,
         ));
 
         let app_controller = Arc::new(AppController::new(
@@ -121,7 +125,6 @@ impl FolderManager {
             trash_controller,
             web_socket,
             folder_editor,
-            data_processors,
         }
     }
 
@@ -150,6 +153,7 @@ impl FolderManager {
         }
     }
 
+    /// Called immediately after the application launched with the user sign in/sign up.
     #[tracing::instrument(level = "trace", skip(self), err)]
     pub async fn initialize(&self, user_id: &str, token: &str) -> FlowyResult<()> {
         let mut write_guard = INIT_FOLDER_FLAG.write().await;
@@ -164,9 +168,10 @@ impl FolderManager {
 
         let pool = self.persistence.db_pool()?;
         let object_id = folder_id.as_ref();
-        let disk_cache = SQLiteDocumentRevisionPersistence::new(user_id, pool.clone());
-        let rev_persistence = RevisionPersistence::new(user_id, object_id, disk_cache);
-        let rev_compactor = FolderRevisionCompactor();
+        let disk_cache = SQLiteFolderRevisionPersistence::new(user_id, pool.clone());
+        let configuration = RevisionPersistenceConfiguration::new(100, false);
+        let rev_persistence = RevisionPersistence::new(user_id, object_id, disk_cache, configuration);
+        let rev_compactor = FolderRevisionCompress();
         // let history_persistence = SQLiteRevisionHistoryPersistence::new(object_id, pool.clone());
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(object_id, pool);
         let rev_manager = RevisionManager::new(
@@ -183,17 +188,24 @@ impl FolderManager {
 
         let _ = self.app_controller.initialize()?;
         let _ = self.view_controller.initialize()?;
-
-        self.data_processors.iter().for_each(|(_, processor)| {
-            processor.initialize();
-        });
-
         write_guard.insert(user_id.to_owned(), true);
         Ok(())
     }
 
-    pub async fn initialize_with_new_user(&self, user_id: &str, token: &str) -> FlowyResult<()> {
-        DefaultFolderBuilder::build(token, user_id, self.persistence.clone(), self.view_controller.clone()).await?;
+    pub async fn initialize_with_new_user(
+        &self,
+        user_id: &str,
+        token: &str,
+        view_data_format: ViewDataFormatPB,
+    ) -> FlowyResult<()> {
+        DefaultFolderBuilder::build(
+            token,
+            user_id,
+            self.persistence.clone(),
+            self.view_controller.clone(),
+            || (view_data_format.clone(), Bytes::from(initial_read_me())),
+        )
+        .await?;
         self.initialize(user_id, token).await
     }
 
@@ -204,27 +216,26 @@ impl FolderManager {
 
 struct DefaultFolderBuilder();
 impl DefaultFolderBuilder {
-    async fn build(
+    async fn build<F: Fn() -> (ViewDataFormatPB, Bytes)>(
         token: &str,
         user_id: &str,
         persistence: Arc<FolderPersistence>,
         view_controller: Arc<ViewController>,
+        create_view_fn: F,
     ) -> FlowyResult<()> {
         log::debug!("Create user default workspace");
         let workspace_rev = user_default::create_default_workspace();
         set_current_workspace(&workspace_rev.id);
         for app in workspace_rev.apps.iter() {
             for (index, view) in app.belongings.iter().enumerate() {
-                let view_data = if index == 0 {
-                    initial_read_me().json_str()
-                } else {
-                    initial_document_str()
-                };
-                let _ = view_controller.set_latest_view(&view.id);
-                let layout_type = ViewLayoutTypePB::from(view.layout.clone());
-                let _ = view_controller
-                    .create_view(&view.id, ViewDataTypePB::Text, layout_type, Bytes::from(view_data))
-                    .await?;
+                let (view_data_type, view_data) = create_view_fn();
+                if index == 0 {
+                    let _ = view_controller.set_latest_view(&view.id);
+                    let layout_type = ViewLayoutTypePB::from(view.layout.clone());
+                    let _ = view_controller
+                        .create_view(&view.id, view_data_type, layout_type, view_data)
+                        .await?;
+                }
             }
         }
         let folder = FolderPad::new(vec![workspace_rev.clone()], vec![])?;
@@ -248,25 +259,24 @@ impl FolderManager {
 }
 
 pub trait ViewDataProcessor {
-    fn initialize(&self) -> FutureResult<(), FlowyError>;
-
-    fn create_container(
+    fn create_view(
         &self,
         user_id: &str,
         view_id: &str,
         layout: ViewLayoutTypePB,
-        delta_data: Bytes,
+        view_data: Bytes,
     ) -> FutureResult<(), FlowyError>;
 
-    fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError>;
+    fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError>;
 
-    fn get_view_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError>;
+    fn get_view_data(&self, view: &ViewPB) -> FutureResult<Bytes, FlowyError>;
 
     fn create_default_view(
         &self,
         user_id: &str,
         view_id: &str,
         layout: ViewLayoutTypePB,
+        data_format: ViewDataFormatPB,
     ) -> FutureResult<Bytes, FlowyError>;
 
     fn create_view_from_delta_data(
@@ -277,7 +287,7 @@ pub trait ViewDataProcessor {
         layout: ViewLayoutTypePB,
     ) -> FutureResult<Bytes, FlowyError>;
 
-    fn data_type(&self) -> ViewDataTypePB;
+    fn data_types(&self) -> Vec<ViewDataFormatPB>;
 }
 
-pub type ViewDataProcessorMap = Arc<HashMap<ViewDataTypePB, Arc<dyn ViewDataProcessor + Send + Sync>>>;
+pub type ViewDataProcessorMap = Arc<HashMap<ViewDataFormatPB, Arc<dyn ViewDataProcessor + Send + Sync>>>;

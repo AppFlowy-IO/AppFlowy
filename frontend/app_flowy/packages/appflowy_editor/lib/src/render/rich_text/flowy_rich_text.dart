@@ -26,7 +26,7 @@ class FlowyRichText extends StatefulWidget {
   const FlowyRichText({
     Key? key,
     this.cursorHeight,
-    this.cursorWidth = 1.0,
+    this.cursorWidth = 1.5,
     this.lineHeight = 1.0,
     this.textSpanDecorator,
     this.placeholderText = ' ',
@@ -55,7 +55,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
   RenderParagraph get _renderParagraph =>
       _textKey.currentContext?.findRenderObject() as RenderParagraph;
 
-  RenderParagraph get _placeholderRenderParagraph =>
+  RenderParagraph? get _placeholderRenderParagraph =>
       _placeholderTextKey.currentContext?.findRenderObject() as RenderParagraph;
 
   @override
@@ -79,7 +79,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
 
   @override
   Position end() => Position(
-      path: widget.textNode.path, offset: widget.textNode.delta.length);
+      path: widget.textNode.path, offset: widget.textNode.toPlainText().length);
 
   @override
   Rect? getCursorRectInPosition(Position position) {
@@ -90,12 +90,13 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
         _renderParagraph.getOffsetForCaret(textPosition, Rect.zero);
     if (cursorHeight == null) {
       cursorHeight =
-          _placeholderRenderParagraph.getFullHeightForCaret(textPosition);
-      cursorOffset = _placeholderRenderParagraph.getOffsetForCaret(
-          textPosition, Rect.zero);
+          _placeholderRenderParagraph?.getFullHeightForCaret(textPosition);
+      cursorOffset = _placeholderRenderParagraph?.getOffsetForCaret(
+              textPosition, Rect.zero) ??
+          Offset.zero;
     }
     final rect = Rect.fromLTWH(
-      cursorOffset.dx - (widget.cursorWidth / 2),
+      cursorOffset.dx - (widget.cursorWidth / 2.0),
       cursorOffset.dy,
       widget.cursorWidth,
       widget.cursorHeight ?? cursorHeight ?? 16.0,
@@ -201,12 +202,13 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
   }
 
   TextSpan get _placeholderTextSpan {
-    final style = widget.editorState.editorStyle.textStyle;
+    final placeholderTextStyle =
+        widget.editorState.editorStyle.placeholderTextStyle;
     return TextSpan(
       children: [
         TextSpan(
           text: widget.placeholderText,
-          style: style.defaultPlaceholderTextStyle,
+          style: placeholderTextStyle,
         ),
       ],
     );
@@ -215,10 +217,10 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
   TextSpan get _textSpan {
     var offset = 0;
     List<TextSpan> textSpans = [];
-    final style = widget.editorState.editorStyle.textStyle;
+    final style = widget.editorState.editorStyle;
     final textInserts = widget.textNode.delta.whereType<TextInsert>();
     for (final textInsert in textInserts) {
-      var textStyle = style.defaultTextStyle;
+      var textStyle = style.textStyle!;
       GestureRecognizer? recognizer;
       final attributes = textInsert.attributes;
       if (attributes != null) {
@@ -297,6 +299,8 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
 
         timer = Timer(const Duration(milliseconds: 200), () {
           tapCount = 0;
+          widget.editorState.service.selectionService
+              .updateSelection(selection);
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
             showLinkMenu(
               context,

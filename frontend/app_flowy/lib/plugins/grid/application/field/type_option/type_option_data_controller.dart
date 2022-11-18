@@ -12,16 +12,22 @@ import 'type_option_context.dart';
 class TypeOptionDataController {
   final String gridId;
   final IFieldTypeOptionLoader loader;
-  late FieldTypeOptionDataPB _data;
+  late TypeOptionPB _data;
   final PublishNotifier<FieldPB> _fieldNotifier = PublishNotifier();
 
+  /// Returns a [TypeOptionDataController] used to modify the specified
+  /// [FieldPB]'s data
+  ///
+  /// Should call [loadTypeOptionData] if the passed-in [GridFieldContext]
+  /// is null
+  ///
   TypeOptionDataController({
     required this.gridId,
     required this.loader,
     GridFieldContext? fieldContext,
   }) {
     if (fieldContext != null) {
-      _data = FieldTypeOptionDataPB.create()
+      _data = TypeOptionPB.create()
         ..gridId = gridId
         ..field_2 = fieldContext.field;
     }
@@ -77,18 +83,17 @@ class TypeOptionDataController {
     );
   }
 
-  Future<void> switchToField(FieldType newFieldType) {
-    return loader.switchToField(field.id, newFieldType).then((result) {
-      return result.fold(
-        (_) {
-          // Should load the type-option data after switching to a new field.
-          // After loading the type-option data, the editor widget that uses
-          // the type-option data will be rebuild.
-          loadTypeOptionData();
-        },
-        (err) => Log.error(err),
-      );
-    });
+  Future<void> switchToField(FieldType newFieldType) async {
+    final result = await loader.switchToField(field.id, newFieldType);
+    await result.fold(
+      (_) {
+        // Should load the type-option data after switching to a new field.
+        // After loading the type-option data, the editor widget that uses
+        // the type-option data will be rebuild.
+        loadTypeOptionData();
+      },
+      (err) => Future(() => Log.error(err)),
+    );
   }
 
   void Function() addFieldListener(void Function(FieldPB) callback) {

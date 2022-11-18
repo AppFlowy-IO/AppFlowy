@@ -1,18 +1,18 @@
 use crate::entities::{GroupPB, GroupViewChangesetPB};
 use crate::services::group::{default_group_configuration, GeneratedGroupContext, Group};
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{
+use grid_rev_model::{
     FieldRevision, FieldTypeRevision, GroupConfigurationContentSerde, GroupConfigurationRevision, GroupRevision,
 };
 use indexmap::IndexMap;
-use lib_infra::future::AFFuture;
+use lib_infra::future::Fut;
 use std::collections::HashMap;
 use std::fmt::Formatter;
 use std::marker::PhantomData;
 use std::sync::Arc;
 
 pub trait GroupConfigurationReader: Send + Sync + 'static {
-    fn get_configuration(&self) -> AFFuture<Option<Arc<GroupConfigurationRevision>>>;
+    fn get_configuration(&self) -> Fut<Option<Arc<GroupConfigurationRevision>>>;
 }
 
 pub trait GroupConfigurationWriter: Send + Sync + 'static {
@@ -21,7 +21,7 @@ pub trait GroupConfigurationWriter: Send + Sync + 'static {
         field_id: &str,
         field_type: FieldTypeRevision,
         group_configuration: GroupConfigurationRevision,
-    ) -> AFFuture<FlowyResult<()>>;
+    ) -> Fut<FlowyResult<()>>;
 }
 
 impl<T> std::fmt::Display for GroupContext<T> {

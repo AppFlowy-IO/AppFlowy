@@ -6,8 +6,9 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-folder-data-model = { path = "../../../shared-lib/flowy-folder-data-model" }
+folder-rev-model = { path = "../../../shared-lib/folder-rev-model" }
 flowy-sync = { path = "../../../shared-lib/flowy-sync" }
+flowy-http-model = { path = "../../../shared-lib/flowy-http-model" }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
@@ -19,7 +20,7 @@ dart-notify = { path = "../dart-notify" }
 lib-dispatch = { path = "../lib-dispatch" }
 flowy-revision = { path = "../flowy-revision" }
 
-parking_lot = "0.11"
+parking_lot = "0.12.1"
 protobuf = {version = "2.18.0"}
 log = "0.4.14"
 diesel = {version = "1.4.8", features = ["sqlite"]}
@@ -41,7 +42,7 @@ flowy-folder = { path = "../flowy-folder", features = ["flowy_unit_test"]}
 flowy-test = { path = "../flowy-test" }
 
 [build-dependencies]
-lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen", "proto_gen"] }
+lib-infra = { path = "../../../shared-lib/lib-infra", features = [ "proto_gen"] }
 
 [features]
 default = []

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
-import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
@@ -46,19 +45,29 @@ class SelectOptionCellEditorBloc
             ));
           },
           deleteOption: (_DeleteOption value) {
-            _deleteOption(value.option);
+            _deleteOption([value.option]);
+          },
+          deleteAllOptions: (_DeleteAllOptions value) {
+            if (state.allOptions.isNotEmpty) {
+              _deleteOption(state.allOptions);
+            }
           },
           updateOption: (_UpdateOption value) {
             _updateOption(value.option);
           },
           selectOption: (_SelectOption value) {
-            _onSelectOption(value.optionId);
+            _selectOptionService.select(optionIds: [value.optionId]);
+          },
+          unSelectOption: (_UnSelectOption value) {
+            _selectOptionService.unSelect(optionIds: [value.optionId]);
           },
           trySelectOption: (_TrySelectOption value) {
             _trySelectOption(value.optionName, emit);
           },
           selectMultipleOptions: (_SelectMultipleOptions value) {
-            _selectMultipleOptions(value.optionNames);
+            if (value.optionNames.isNotEmpty) {
+              _selectMultipleOptions(value.optionNames);
+            }
             _filterOption(value.remainder, emit);
           },
           filterOption: (_SelectOptionFilter value) {
@@ -72,7 +81,7 @@ class SelectOptionCellEditorBloc
   @override
   Future<void> close() async {
     _delayOperation?.cancel();
-    cellController.dispose();
+    await cellController.dispose();
     return super.close();
   }
 
@@ -81,11 +90,8 @@ class SelectOptionCellEditorBloc
     result.fold((l) => {}, (err) => Log.error(err));
   }
 
-  void _deleteOption(SelectOptionPB option) async {
-    final result = await _selectOptionService.delete(
-      option: option,
-    );
-
+  void _deleteOption(List<SelectOptionPB> options) async {
+    final result = await _selectOptionService.delete(options: options);
     result.fold((l) => null, (err) => Log.error(err));
   }
 
@@ -95,16 +101,6 @@ class SelectOptionCellEditorBloc
     );
 
     result.fold((l) => null, (err) => Log.error(err));
-  }
-
-  void _onSelectOption(String optionId) {
-    final hasSelected = state.selectedOptions
-        .firstWhereOrNull((option) => option.id == optionId);
-    if (hasSelected != null) {
-      _selectOptionService.unSelect(optionIds: [optionId]);
-    } else {
-      _selectOptionService.select(optionIds: [optionId]);
-    }
   }
 
   void _trySelectOption(
@@ -138,9 +134,19 @@ class SelectOptionCellEditorBloc
   }
 
   void _selectMultipleOptions(List<String> optionNames) {
-    final optionIds = state.options
-        .where((e) => optionNames.contains(e.name))
-        .map((e) => e.id);
+    // The options are unordered. So in order to keep the inserted [optionNames]
+    // order, it needs to get the option id in the [optionNames] order.
+    final lowerCaseNames = optionNames.map((e) => e.toLowerCase());
+    final Map<String, String> optionIdsMap = {};
+    for (final option in state.options) {
+      optionIdsMap[option.name.toLowerCase()] = option.id;
+    }
+
+    final optionIds = lowerCaseNames
+        .where((name) => optionIdsMap[name] != null)
+        .map((name) => optionIdsMap[name]!)
+        .toList();
+
     _selectOptionService.select(optionIds: optionIds);
   }
 
@@ -162,8 +168,10 @@ class SelectOptionCellEditorBloc
           return;
         }
         return result.fold(
-          (data) => add(SelectOptionEditorEvent.didReceiveOptions(
-              data.options, data.selectOptions)),
+          (data) => add(
+            SelectOptionEditorEvent.didReceiveOptions(
+                data.options, data.selectOptions),
+          ),
           (err) {
             Log.error(err);
             return null;
@@ -225,10 +233,13 @@ class SelectOptionEditorEvent with _$SelectOptionEditorEvent {
       _NewOption;
   const factory SelectOptionEditorEvent.selectOption(String optionId) =
       _SelectOption;
+  const factory SelectOptionEditorEvent.unSelectOption(String optionId) =
+      _UnSelectOption;
   const factory SelectOptionEditorEvent.updateOption(SelectOptionPB option) =
       _UpdateOption;
   const factory SelectOptionEditorEvent.deleteOption(SelectOptionPB option) =
       _DeleteOption;
+  const factory SelectOptionEditorEvent.deleteAllOptions() = _DeleteAllOptions;
   const factory SelectOptionEditorEvent.filterOption(String optionName) =
       _SelectOptionFilter;
   const factory SelectOptionEditorEvent.trySelectOption(String optionName) =

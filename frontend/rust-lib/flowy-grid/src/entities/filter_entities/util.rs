@@ -1,42 +1,64 @@
+use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
-    CheckboxCondition, DateFilterCondition, FieldType, NumberFilterCondition, SelectOptionCondition,
-    TextFilterCondition,
+    CheckboxFilterPB, DateFilterContent, DateFilterPB, FieldType, NumberFilterPB, SelectOptionFilterPB, TextFilterPB,
 };
+use crate::services::field::SelectOptionIds;
+use crate::services::filter::FilterType;
+use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::{FieldRevision, FieldTypeRevision, FilterConfigurationRevision};
+use grid_rev_model::{FieldRevision, FieldTypeRevision, FilterRevision};
 use std::convert::TryInto;
 use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct GridFilterConfigurationPB {
+pub struct FilterPB {
     #[pb(index = 1)]
     pub id: String,
+
+    #[pb(index = 2)]
+    pub ty: FieldType,
+
+    #[pb(index = 3)]
+    pub data: Vec<u8>,
 }
 
-#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct RepeatedGridFilterConfigurationPB {
-    #[pb(index = 1)]
-    pub items: Vec<GridFilterConfigurationPB>,
-}
-
-impl std::convert::From<&FilterConfigurationRevision> for GridFilterConfigurationPB {
-    fn from(rev: &FilterConfigurationRevision) -> Self {
-        Self { id: rev.id.clone() }
+impl std::convert::From<&FilterRevision> for FilterPB {
+    fn from(rev: &FilterRevision) -> Self {
+        let field_type: FieldType = rev.field_type_rev.into();
+        let bytes: Bytes = match field_type {
+            FieldType::RichText => TextFilterPB::from(rev).try_into().unwrap(),
+            FieldType::Number => NumberFilterPB::from(rev).try_into().unwrap(),
+            FieldType::DateTime => DateFilterPB::from(rev).try_into().unwrap(),
+            FieldType::SingleSelect => SelectOptionFilterPB::from(rev).try_into().unwrap(),
+            FieldType::MultiSelect => SelectOptionFilterPB::from(rev).try_into().unwrap(),
+            FieldType::Checkbox => CheckboxFilterPB::from(rev).try_into().unwrap(),
+            FieldType::URL => TextFilterPB::from(rev).try_into().unwrap(),
+        };
+        Self {
+            id: rev.id.clone(),
+            ty: rev.field_type_rev.into(),
+            data: bytes.to_vec(),
+        }
     }
 }
 
-impl std::convert::From<Vec<Arc<FilterConfigurationRevision>>> for RepeatedGridFilterConfigurationPB {
-    fn from(revs: Vec<Arc<FilterConfigurationRevision>>) -> Self {
-        RepeatedGridFilterConfigurationPB {
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct RepeatedFilterPB {
+    #[pb(index = 1)]
+    pub items: Vec<FilterPB>,
+}
+
+impl std::convert::From<Vec<Arc<FilterRevision>>> for RepeatedFilterPB {
+    fn from(revs: Vec<Arc<FilterRevision>>) -> Self {
+        RepeatedFilterPB {
             items: revs.into_iter().map(|rev| rev.as_ref().into()).collect(),
         }
     }
 }
 
-impl std::convert::From<Vec<GridFilterConfigurationPB>> for RepeatedGridFilterConfigurationPB {
-    fn from(items: Vec<GridFilterConfigurationPB>) -> Self {
+impl std::convert::From<Vec<FilterPB>> for RepeatedFilterPB {
+    fn from(items: Vec<FilterPB>) -> Self {
         Self { items }
     }
 }
@@ -47,10 +69,10 @@ pub struct DeleteFilterPayloadPB {
     pub field_id: String,
 
     #[pb(index = 2)]
-    pub filter_id: String,
+    pub field_type: FieldType,
 
     #[pb(index = 3)]
-    pub field_type: FieldType,
+    pub filter_id: String,
 }
 
 impl TryInto<DeleteFilterParams> for DeleteFilterPayloadPB {
@@ -60,25 +82,28 @@ impl TryInto<DeleteFilterParams> for DeleteFilterPayloadPB {
         let field_id = NotEmptyStr::parse(self.field_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
             .0;
+
         let filter_id = NotEmptyStr::parse(self.filter_id)
             .map_err(|_| ErrorCode::UnexpectedEmptyString)?
             .0;
-        Ok(DeleteFilterParams {
+
+        let filter_type = FilterType {
             field_id,
-            filter_id,
-            field_type_rev: self.field_type.into(),
-        })
+            field_type: self.field_type,
+        };
+
+        Ok(DeleteFilterParams { filter_id, filter_type })
     }
 }
 
+#[derive(Debug)]
 pub struct DeleteFilterParams {
-    pub field_id: String,
+    pub filter_type: FilterType,
     pub filter_id: String,
-    pub field_type_rev: FieldTypeRevision,
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]
-pub struct InsertFilterPayloadPB {
+pub struct CreateFilterPayloadPB {
     #[pb(index = 1)]
     pub field_id: String,
 
@@ -86,62 +111,77 @@ pub struct InsertFilterPayloadPB {
     pub field_type: FieldType,
 
     #[pb(index = 3)]
-    pub condition: i32,
-
-    #[pb(index = 4, one_of)]
-    pub content: Option<String>,
+    pub data: Vec<u8>,
 }
 
-impl InsertFilterPayloadPB {
+impl CreateFilterPayloadPB {
     #[allow(dead_code)]
-    pub fn new<T: Into<i32>>(field_rev: &FieldRevision, condition: T, content: Option<String>) -> Self {
+    pub fn new<T: TryInto<Bytes, Error = ::protobuf::ProtobufError>>(field_rev: &FieldRevision, data: T) -> Self {
+        let data = data.try_into().unwrap_or_else(|_| Bytes::new());
         Self {
             field_id: field_rev.id.clone(),
             field_type: field_rev.ty.into(),
-            condition: condition.into(),
-            content,
+            data: data.to_vec(),
         }
     }
 }
 
-impl TryInto<InsertFilterParams> for InsertFilterPayloadPB {
+impl TryInto<CreateFilterParams> for CreateFilterPayloadPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<InsertFilterParams, Self::Error> {
+    fn try_into(self) -> Result<CreateFilterParams, Self::Error> {
         let field_id = NotEmptyStr::parse(self.field_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
             .0;
-        let condition = self.condition as u8;
+        let condition;
+        let mut content = "".to_string();
+        let bytes: &[u8] = self.data.as_ref();
+
         match self.field_type {
             FieldType::RichText | FieldType::URL => {
-                let _ = TextFilterCondition::try_from(condition)?;
+                let filter = TextFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
+                condition = filter.condition as u8;
+                content = filter.content;
             }
             FieldType::Checkbox => {
-                let _ = CheckboxCondition::try_from(condition)?;
+                let filter = CheckboxFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
+                condition = filter.condition as u8;
             }
             FieldType::Number => {
-                let _ = NumberFilterCondition::try_from(condition)?;
+                let filter = NumberFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
+                condition = filter.condition as u8;
+                content = filter.content;
             }
             FieldType::DateTime => {
-                let _ = DateFilterCondition::try_from(condition)?;
+                let filter = DateFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
+                condition = filter.condition as u8;
+                content = DateFilterContent {
+                    start: filter.start,
+                    end: filter.end,
+                    timestamp: filter.timestamp,
+                }
+                .to_string();
             }
             FieldType::SingleSelect | FieldType::MultiSelect => {
-                let _ = SelectOptionCondition::try_from(condition)?;
+                let filter = SelectOptionFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
+                condition = filter.condition as u8;
+                content = SelectOptionIds::from(filter.option_ids).to_string();
             }
         }
 
-        Ok(InsertFilterParams {
+        Ok(CreateFilterParams {
             field_id,
             field_type_rev: self.field_type.into(),
             condition,
-            content: self.content,
+            content,
         })
     }
 }
 
-pub struct InsertFilterParams {
+#[derive(Debug)]
+pub struct CreateFilterParams {
     pub field_id: String,
     pub field_type_rev: FieldTypeRevision,
     pub condition: u8,
-    pub content: Option<String>,
+    pub content: String,
 }

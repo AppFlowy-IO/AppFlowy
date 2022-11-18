@@ -10,7 +10,7 @@ use crate::{
     },
 };
 use flowy_database::kv::KV;
-use flowy_folder_data_model::revision::{AppRevision, WorkspaceRevision};
+use folder_rev_model::{AppRevision, WorkspaceRevision};
 use std::sync::Arc;
 
 pub struct WorkspaceController {
@@ -221,11 +221,11 @@ pub async fn notify_workspace_setting_did_change(
             )?;
 
             let setting = match transaction.read_view(view_id) {
-                Ok(latest_view) => CurrentWorkspaceSettingPB {
+                Ok(latest_view) => WorkspaceSettingPB {
                     workspace,
                     latest_view: Some(latest_view.into()),
                 },
-                Err(_) => CurrentWorkspaceSettingPB {
+                Err(_) => WorkspaceSettingPB {
                     workspace,
                     latest_view: None,
                 },

@@ -1,12 +1,11 @@
+use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
-    DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB, InsertFilterParams,
-    InsertFilterPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedGridFilterConfigurationPB,
-    RepeatedGridGroupConfigurationPB,
+    CreateFilterParams, CreateFilterPayloadPB, DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams,
+    DeleteGroupPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterPB, RepeatedGridGroupConfigurationPB,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::LayoutRevision;
+use grid_rev_model::LayoutRevision;
 use std::convert::TryInto;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
@@ -21,7 +20,7 @@ pub struct GridSettingPB {
     pub layout_type: GridLayout,
 
     #[pb(index = 3)]
-    pub filter_configurations: RepeatedGridFilterConfigurationPB,
+    pub filter_configurations: RepeatedFilterPB,
 
     #[pb(index = 4)]
     pub group_configurations: RepeatedGridGroupConfigurationPB,
@@ -76,7 +75,7 @@ impl std::convert::From<GridLayout> for LayoutRevision {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct GridSettingChangesetPayloadPB {
+pub struct GridSettingChangesetPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -84,7 +83,7 @@ pub struct GridSettingChangesetPayloadPB {
     pub layout_type: GridLayout,
 
     #[pb(index = 3, one_of)]
-    pub insert_filter: Option<InsertFilterPayloadPB>,
+    pub insert_filter: Option<CreateFilterPayloadPB>,
 
     #[pb(index = 4, one_of)]
     pub delete_filter: Option<DeleteFilterPayloadPB>,
@@ -96,7 +95,7 @@ pub struct GridSettingChangesetPayloadPB {
     pub delete_group: Option<DeleteGroupPayloadPB>,
 }
 
-impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
+impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<GridSettingChangesetParams, Self::Error> {
@@ -138,7 +137,7 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
 pub struct GridSettingChangesetParams {
     pub grid_id: String,
     pub layout_type: LayoutRevision,
-    pub insert_filter: Option<InsertFilterParams>,
+    pub insert_filter: Option<CreateFilterParams>,
     pub delete_filter: Option<DeleteFilterParams>,
     pub insert_group: Option<InsertGroupParams>,
     pub delete_group: Option<DeleteGroupParams>,

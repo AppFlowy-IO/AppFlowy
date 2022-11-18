@@ -1,17 +1,17 @@
 use crate::services::field::SelectOptionIds;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use flowy_grid_data_model::revision::FilterConfigurationRevision;
-use std::sync::Arc;
+use grid_rev_model::FilterRevision;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct SelectOptionFilterConfigurationPB {
+pub struct SelectOptionFilterPB {
     #[pb(index = 1)]
     pub condition: SelectOptionCondition,
 
     #[pb(index = 2)]
     pub option_ids: Vec<String>,
 }
+
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
 pub enum SelectOptionCondition {
@@ -21,9 +21,9 @@ pub enum SelectOptionCondition {
     OptionIsNotEmpty = 3,
 }
 
-impl std::convert::From<SelectOptionCondition> for i32 {
+impl std::convert::From<SelectOptionCondition> for u32 {
     fn from(value: SelectOptionCondition) -> Self {
-        value as i32
+        value as u32
     }
 }
 
@@ -47,10 +47,10 @@ impl std::convert::TryFrom<u8> for SelectOptionCondition {
     }
 }
 
-impl std::convert::From<Arc<FilterConfigurationRevision>> for SelectOptionFilterConfigurationPB {
-    fn from(rev: Arc<FilterConfigurationRevision>) -> Self {
+impl std::convert::From<&FilterRevision> for SelectOptionFilterPB {
+    fn from(rev: &FilterRevision) -> Self {
         let ids = SelectOptionIds::from(rev.content.clone());
-        SelectOptionFilterConfigurationPB {
+        SelectOptionFilterPB {
             condition: SelectOptionCondition::try_from(rev.condition).unwrap_or(SelectOptionCondition::OptionIs),
             option_ids: ids.into_inner(),
         }

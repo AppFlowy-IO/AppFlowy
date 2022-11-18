@@ -52,7 +52,7 @@ impl ProtoGenerator {
 fn write_proto_files(crate_contexts: &[ProtobufCrateContext]) {
     let file_path_content_map = crate_contexts
         .iter()
-        .map(|ctx| {
+        .flat_map(|ctx| {
             ctx.files
                 .iter()
                 .map(|file| {
@@ -66,7 +66,6 @@ fn write_proto_files(crate_contexts: &[ProtobufCrateContext]) {
                 })
                 .collect::<HashMap<String, ProtoFileSymbol>>()
         })
-        .flatten()
         .collect::<HashMap<String, ProtoFileSymbol>>();
 
     for context in crate_contexts {
@@ -152,12 +151,11 @@ impl ProtoCache {
     fn from_crate_contexts(crate_contexts: &[ProtobufCrateContext]) -> Self {
         let proto_files = crate_contexts
             .iter()
-            .map(|crate_info| &crate_info.files)
-            .flatten()
+            .flat_map(|crate_info| &crate_info.files)
             .collect::<Vec<&ProtoFile>>();
 
-        let structs: Vec<String> = proto_files.iter().map(|info| info.structs.clone()).flatten().collect();
-        let enums: Vec<String> = proto_files.iter().map(|info| info.enums.clone()).flatten().collect();
+        let structs: Vec<String> = proto_files.iter().flat_map(|info| info.structs.clone()).collect();
+        let enums: Vec<String> = proto_files.iter().flat_map(|info| info.enums.clone()).collect();
         Self { structs, enums }
     }
 }

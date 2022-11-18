@@ -2,7 +2,7 @@ import 'package:app_flowy/core/network_monitor.dart';
 import 'package:app_flowy/user/application/user_listener.dart';
 import 'package:app_flowy/user/application/user_service.dart';
 import 'package:app_flowy/workspace/application/app/prelude.dart';
-import 'package:app_flowy/plugins/doc/application/prelude.dart';
+import 'package:app_flowy/plugins/document/application/prelude.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:app_flowy/workspace/application/user/prelude.dart';
 import 'package:app_flowy/workspace/application/workspace/prelude.dart';
@@ -89,16 +89,6 @@ void _resolveFolderDeps(GetIt getIt) {
   getIt.registerFactoryParam<ViewBloc, ViewPB, void>(
     (view, _) => ViewBloc(
       view: view,
-      service: ViewService(),
-      listener: getIt<ViewListener>(param1: view),
-    ),
-  );
-
-  //Menu
-  getIt.registerFactoryParam<MenuBloc, UserProfilePB, String>(
-    (user, workspaceId) => MenuBloc(
-      workspaceId: workspaceId,
-      listener: getIt<WorkspaceListener>(param1: user, param2: workspaceId),
     ),
   );
 
@@ -125,22 +115,14 @@ void _resolveFolderDeps(GetIt getIt) {
   getIt.registerLazySingleton<TrashService>(() => TrashService());
   getIt.registerLazySingleton<TrashListener>(() => TrashListener());
   getIt.registerFactory<TrashBloc>(
-    () => TrashBloc(
-      service: getIt<TrashService>(),
-      listener: getIt<TrashListener>(),
-    ),
+    () => TrashBloc(),
   );
 }
 
 void _resolveDocDeps(GetIt getIt) {
 // Doc
   getIt.registerFactoryParam<DocumentBloc, ViewPB, void>(
-    (view, _) => DocumentBloc(
-      view: view,
-      service: DocumentService(),
-      listener: getIt<ViewListener>(param1: view),
-      trashService: getIt<TrashService>(),
-    ),
+    (view, _) => DocumentBloc(view: view),
   );
 }
 
@@ -158,10 +140,7 @@ void _resolveGridDeps(GetIt getIt) {
   );
 
   getIt.registerFactoryParam<FieldActionSheetBloc, GridFieldCellContext, void>(
-    (data, _) => FieldActionSheetBloc(
-      field: data.field,
-      fieldService: FieldService(gridId: data.gridId, fieldId: data.field.id),
-    ),
+    (data, _) => FieldActionSheetBloc(fieldCellContext: data),
   );
 
   getIt.registerFactoryParam<TextCellBloc, GridCellController, void>(

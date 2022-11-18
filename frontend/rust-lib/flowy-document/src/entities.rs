@@ -9,13 +9,13 @@ pub enum ExportType {
     Link = 2,
 }
 
-impl std::default::Default for ExportType {
+impl Default for ExportType {
     fn default() -> Self {
         ExportType::Text
     }
 }
 
-impl std::convert::From<i32> for ExportType {
+impl From<i32> for ExportType {
     fn from(val: i32) -> Self {
         match val {
             0 => ExportType::Text,
@@ -37,10 +37,6 @@ pub struct EditPayloadPB {
     // Encode in JSON format
     #[pb(index = 2)]
     pub operations: String,
-
-    // Encode in JSON format
-    #[pb(index = 3)]
-    pub operations_str: String,
 }
 
 #[derive(Default)]
@@ -49,9 +45,6 @@ pub struct EditParams {
 
     // Encode in JSON format
     pub operations: String,
-
-    // Encode in JSON format
-    pub operations_str: String,
 }
 
 impl TryInto<EditParams> for EditPayloadPB {
@@ -60,7 +53,6 @@ impl TryInto<EditParams> for EditPayloadPB {
         Ok(EditParams {
             doc_id: self.doc_id,
             operations: self.operations,
-            operations_str: self.operations_str,
         })
     }
 }
@@ -82,12 +74,41 @@ pub struct ExportPayloadPB {
 
     #[pb(index = 2)]
     pub export_type: ExportType,
+
+    #[pb(index = 3)]
+    pub document_version: DocumentVersionPB,
+}
+
+#[derive(PartialEq, Debug, ProtoBuf_Enum, Clone)]
+pub enum DocumentVersionPB {
+    /// this version's content of the document is build from `Delta`. It uses
+    /// `DeltaDocumentEditor`.
+    V0 = 0,
+    /// this version's content of the document is build from `NodeTree`. It uses
+    /// `AppFlowyDocumentEditor`
+    V1 = 1,
+}
+
+impl std::default::Default for DocumentVersionPB {
+    fn default() -> Self {
+        Self::V0
+    }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct OpenDocumentContextPB {
+    #[pb(index = 1)]
+    pub document_id: String,
+
+    #[pb(index = 2)]
+    pub document_version: DocumentVersionPB,
 }
 
 #[derive(Default, Debug)]
 pub struct ExportParams {
     pub view_id: String,
     pub export_type: ExportType,
+    pub document_version: DocumentVersionPB,
 }
 
 impl TryInto<ExportParams> for ExportPayloadPB {
@@ -96,6 +117,7 @@ impl TryInto<ExportParams> for ExportPayloadPB {
         Ok(ExportParams {
             view_id: self.view_id,
             export_type: self.export_type,
+            document_version: self.document_version,
         })
     }
 }

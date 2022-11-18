@@ -42,10 +42,10 @@ class CellService {
     return GridEventUpdateCell(payload).send();
   }
 
-  Future<Either<GridCellPB, FlowyError>> getCell({
+  Future<Either<CellPB, FlowyError>> getCell({
     required GridCellIdentifier cellId,
   }) {
-    final payload = GridCellIdPB.create()
+    final payload = CellPathPB.create()
       ..gridId = cellId.gridId
       ..fieldId = cellId.fieldId
       ..rowId = cellId.rowId;

@@ -57,8 +57,8 @@ class Document {
 
     final parent = nodeAtPath(path.parent);
     if (parent != null) {
-      for (final node in nodes) {
-        parent.insert(node, index: path.last);
+      for (var i = 0; i < nodes.length; i++) {
+        parent.insert(nodes.elementAt(i), index: path.last + i);
       }
       return true;
     }
@@ -108,6 +108,24 @@ class Document {
     }
     target.delta = target.delta.compose(delta);
     return true;
+  }
+
+  bool get isEmpty {
+    if (root.children.isEmpty) {
+      return true;
+    }
+
+    if (root.children.length > 1) {
+      return false;
+    }
+
+    final node = root.children.first;
+    if (node is TextNode &&
+        (node.delta.isEmpty || node.delta.toPlainText().isEmpty)) {
+      return true;
+    }
+
+    return false;
   }
 
   Map<String, Object> toJson() {

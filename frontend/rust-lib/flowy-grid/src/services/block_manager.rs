@@ -1,16 +1,17 @@
-use crate::dart_notification::{send_dart_notification, GridNotification};
+use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::{CellChangesetPB, GridBlockChangesetPB, InsertedRowPB, RowPB};
 use crate::manager::GridUser;
-use crate::services::block_editor::{GridBlockRevisionCompactor, GridBlockRevisionEditor};
+use crate::services::block_editor::{GridBlockRevisionCompress, GridBlockRevisionEditor};
 use crate::services::persistence::block_index::BlockIndexCache;
-use crate::services::row::{block_from_row_orders, make_row_from_row_rev, GridBlockSnapshot};
+use crate::services::persistence::rev_sqlite::SQLiteGridBlockRevisionPersistence;
+use crate::services::row::{block_from_row_orders, make_row_from_row_rev, GridBlock};
 use dashmap::DashMap;
+use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{
-    GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision,
+use flowy_revision::{
+    RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, SQLiteRevisionSnapshotPersistence,
 };
-use flowy_revision::disk::SQLiteGridBlockRevisionPersistence;
-use flowy_revision::{RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
+use grid_rev_model::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -44,7 +45,7 @@ impl GridBlockManager {
         match self.block_editors.get(block_id) {
             None => {
                 tracing::error!("This is a fatal error, block with id:{} is not exist", block_id);
-                let editor = Arc::new(make_block_editor(&self.user, block_id).await?);
+                let editor = Arc::new(make_grid_block_editor(&self.user, block_id).await?);
                 self.block_editors.insert(block_id.to_owned(), editor.clone());
                 Ok(editor)
             }
@@ -208,38 +209,35 @@ impl GridBlockManager {
         }
     }
 
-    pub async fn get_row_orders(&self, block_id: &str) -> FlowyResult<Vec<RowPB>> {
+    pub async fn get_row_revs(&self, block_id: &str) -> FlowyResult<Vec<Arc<RowRevision>>> {
         let editor = self.get_block_editor(block_id).await?;
-        editor.get_row_infos::<&str>(None).await
+        editor.get_row_revs::<&str>(None).await
     }
 
-    pub(crate) async fn get_block_snapshots(
-        &self,
-        block_ids: Option<Vec<String>>,
-    ) -> FlowyResult<Vec<GridBlockSnapshot>> {
-        let mut snapshots = vec![];
+    pub(crate) async fn get_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlock>> {
+        let mut blocks = vec![];
         match block_ids {
             None => {
                 for iter in self.block_editors.iter() {
                     let editor = iter.value();
                     let block_id = editor.block_id.clone();
                     let row_revs = editor.get_row_revs::<&str>(None).await?;
-                    snapshots.push(GridBlockSnapshot { block_id, row_revs });
+                    blocks.push(GridBlock { block_id, row_revs });
                 }
             }
             Some(block_ids) => {
                 for block_id in block_ids {
                     let editor = self.get_block_editor(&block_id).await?;
                     let row_revs = editor.get_row_revs::<&str>(None).await?;
-                    snapshots.push(GridBlockSnapshot { block_id, row_revs });
+                    blocks.push(GridBlock { block_id, row_revs });
                 }
             }
         }
-        Ok(snapshots)
+        Ok(blocks)
     }
 
     async fn notify_did_update_block(&self, block_id: &str, changeset: GridBlockChangesetPB) -> FlowyResult<()> {
-        send_dart_notification(block_id, GridNotification::DidUpdateGridBlock)
+        send_dart_notification(block_id, GridDartNotification::DidUpdateGridBlock)
             .payload(changeset)
             .send();
         Ok(())
@@ -247,7 +245,7 @@ impl GridBlockManager {
 
     async fn notify_did_update_cell(&self, changeset: CellChangesetPB) -> FlowyResult<()> {
         let id = format!("{}:{}", changeset.row_id, changeset.field_id);
-        send_dart_notification(&id, GridNotification::DidUpdateCell).send();
+        send_dart_notification(&id, GridDartNotification::DidUpdateCell).send();
         Ok(())
     }
 }
@@ -259,23 +257,32 @@ async fn make_block_editors(
 ) -> FlowyResult<DashMap<String, Arc<GridBlockRevisionEditor>>> {
     let editor_map = DashMap::new();
     for block_meta_rev in block_meta_revs {
-        let editor = make_block_editor(user, &block_meta_rev.block_id).await?;
+        let editor = make_grid_block_editor(user, &block_meta_rev.block_id).await?;
         editor_map.insert(block_meta_rev.block_id.clone(), Arc::new(editor));
     }
 
     Ok(editor_map)
 }
 
-async fn make_block_editor(user: &Arc<dyn GridUser>, block_id: &str) -> FlowyResult<GridBlockRevisionEditor> {
+async fn make_grid_block_editor(user: &Arc<dyn GridUser>, block_id: &str) -> FlowyResult<GridBlockRevisionEditor> {
     tracing::trace!("Open block:{} editor", block_id);
     let token = user.token()?;
     let user_id = user.user_id()?;
-    let pool = user.db_pool()?;
+    let rev_manager = make_grid_block_rev_manager(user, block_id)?;
+    GridBlockRevisionEditor::new(&user_id, &token, block_id, rev_manager).await
+}
 
+pub fn make_grid_block_rev_manager(
+    user: &Arc<dyn GridUser>,
+    block_id: &str,
+) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
+    let user_id = user.user_id()?;
+    let pool = user.db_pool()?;
     let disk_cache = SQLiteGridBlockRevisionPersistence::new(&user_id, pool.clone());
-    let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache);
-    let rev_compactor = GridBlockRevisionCompactor();
+    let configuration = RevisionPersistenceConfiguration::new(4, false);
+    let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache, configuration);
+    let rev_compactor = GridBlockRevisionCompress();
     let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(block_id, pool);
     let rev_manager = RevisionManager::new(&user_id, block_id, rev_persistence, rev_compactor, snapshot_persistence);
-    GridBlockRevisionEditor::new(&user_id, &token, block_id, rev_manager).await
+    Ok(rev_manager)
 }

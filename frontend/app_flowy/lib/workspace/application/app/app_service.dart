@@ -19,7 +19,7 @@ class AppService {
     required String appId,
     required String name,
     String? desc,
-    required ViewDataTypePB dataType,
+    required ViewDataFormatPB dataFormatType,
     required PluginType pluginType,
     required ViewLayoutTypePB layoutType,
   }) {
@@ -27,7 +27,7 @@ class AppService {
       ..belongToId = appId
       ..name = name
       ..desc = desc ?? ""
-      ..dataType = dataType
+      ..dataFormat = dataFormatType
       ..layout = layoutType;
 
     return FolderEventCreateView(payload).send();

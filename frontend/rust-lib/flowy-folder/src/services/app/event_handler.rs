@@ -3,7 +3,7 @@ use crate::{
     errors::FlowyError,
     services::{AppController, TrashController, ViewController},
 };
-use flowy_folder_data_model::revision::TrashRevision;
+use folder_rev_model::TrashRevision;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::{convert::TryInto, sync::Arc};
 
@@ -34,7 +34,7 @@ pub(crate) async fn delete_app_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, controller))]
+#[tracing::instrument(level = "trace", skip(data, controller))]
 pub(crate) async fn update_app_handler(
     data: Data<UpdateAppPayloadPB>,
     controller: AppData<Arc<AppController>>,
@@ -44,7 +44,7 @@ pub(crate) async fn update_app_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "info", skip(data, app_controller, view_controller), err)]
+#[tracing::instrument(level = "trace", skip(data, app_controller, view_controller), err)]
 pub(crate) async fn read_app_handler(
     data: Data<AppIdPB>,
     app_controller: AppData<Arc<AppController>>,

@@ -47,9 +47,11 @@ abstract class PluginBuilder {
 
   String get menuName;
 
+  String get menuIcon;
+
   PluginType get pluginType;
 
-  ViewDataTypePB get dataType => ViewDataTypePB.Text;
+  ViewDataFormatPB get dataFormatType => ViewDataFormatPB.TreeFormat;
 
   ViewLayoutTypePB? get layoutType => ViewLayoutTypePB.Document;
 }

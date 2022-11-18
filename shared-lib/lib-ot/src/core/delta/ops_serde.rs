@@ -1,6 +1,6 @@
 use crate::core::delta::operation::OperationAttributes;
 use crate::core::delta::DeltaOperations;
-use serde::de::DeserializeOwned;
+
 use serde::{
     de::{SeqAccess, Visitor},
     ser::SerializeSeq,

@@ -27,7 +27,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
         await event.when(
           initial: () async {
             _startListening();
-            await _loadGrid(emit);
+            await _openGrid(emit);
           },
           createRow: () {
             state.loadingState.when(
@@ -95,8 +95,8 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     );
   }
 
-  Future<void> _loadGrid(Emitter<GridState> emit) async {
-    final result = await dataController.loadData();
+  Future<void> _openGrid(Emitter<GridState> emit) async {
+    final result = await dataController.openGrid();
     result.fold(
       (grid) {
         if (_createRowOperation != null) {

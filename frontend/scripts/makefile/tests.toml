@@ -1,4 +1,12 @@
 
+[tasks.dart_unit_test]
+dependencies = ["build-test-lib"]
+description = "Run flutter unit tests"
+script = '''
+cd app_flowy
+flutter test --dart-define=RUST_LOG=${TEST_RUST_LOG} --concurrency=1
+'''
+
 [tasks.rust_unit_test]
 run_task = { name = ["rust_lib_unit_test", "shared_lib_unit_test"] }
 

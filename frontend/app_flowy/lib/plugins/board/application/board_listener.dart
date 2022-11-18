@@ -32,18 +32,18 @@ class BoardListener {
   }
 
   void _handler(
-    GridNotification ty,
+    GridDartNotification ty,
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case GridNotification.DidUpdateGroupView:
+      case GridDartNotification.DidUpdateGroupView:
         result.fold(
           (payload) => _groupUpdateNotifier?.value =
               left(GroupViewChangesetPB.fromBuffer(payload)),
           (error) => _groupUpdateNotifier?.value = right(error),
         );
         break;
-      case GridNotification.DidGroupByNewField:
+      case GridDartNotification.DidGroupByNewField:
         result.fold(
           (payload) => _groupByNewFieldNotifier?.value =
               left(GroupViewChangesetPB.fromBuffer(payload).newGroups),

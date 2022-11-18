@@ -1,9 +1,8 @@
-import 'dart:collection';
-
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_service.dart';
+import 'package:appflowy_editor/src/render/style/editor_style.dart';
 import 'package:flutter/material.dart';
 
 OverlayEntry? _imageUploadMenu;
@@ -22,6 +21,7 @@ void showImageUploadMenu(
       left: menuService.topLeft.dx,
       child: Material(
         child: ImageUploadMenu(
+          editorState: editorState,
           onSubmitted: (text) {
             // _dismissImageUploadMenu();
             editorState.insertImageNode(text);
@@ -55,10 +55,12 @@ class ImageUploadMenu extends StatefulWidget {
     Key? key,
     required this.onSubmitted,
     required this.onUpload,
+    this.editorState,
   }) : super(key: key);
 
   final void Function(String text) onSubmitted;
   final void Function(String text) onUpload;
+  final EditorState? editorState;
 
   @override
   State<ImageUploadMenu> createState() => _ImageUploadMenuState();
@@ -67,6 +69,8 @@ class ImageUploadMenu extends StatefulWidget {
 class _ImageUploadMenuState extends State<ImageUploadMenu> {
   final _textEditingController = TextEditingController();
   final _focusNode = FocusNode();
+
+  EditorStyle? get style => widget.editorState?.editorStyle;
 
   @override
   void initState() {
@@ -86,7 +90,7 @@ class _ImageUploadMenuState extends State<ImageUploadMenu> {
       width: 300,
       padding: const EdgeInsets.all(24.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: style?.selectionMenuBackgroundColor ?? Colors.white,
         boxShadow: [
           BoxShadow(
             blurRadius: 5,
@@ -94,7 +98,7 @@ class _ImageUploadMenuState extends State<ImageUploadMenu> {
             color: Colors.black.withOpacity(0.1),
           ),
         ],
-        borderRadius: BorderRadius.circular(6.0),
+        // borderRadius: BorderRadius.circular(6.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,12 +114,12 @@ class _ImageUploadMenuState extends State<ImageUploadMenu> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    return const Text(
+    return Text(
       'URL Image',
       textAlign: TextAlign.left,
       style: TextStyle(
         fontSize: 14.0,
-        color: Colors.black,
+        color: style?.selectionMenuItemTextColor ?? Colors.black,
         fontWeight: FontWeight.w500,
       ),
     );
@@ -185,12 +189,12 @@ extension on EditorState {
     }
     final imageNode = Node(
       type: 'image',
-      children: LinkedList(),
       attributes: {
         'image_src': src,
         'align': 'center',
       },
     );
+    final transaction = this.transaction;
     transaction.insertNode(
       selection.start.path,
       imageNode,

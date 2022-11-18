@@ -23,7 +23,7 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
     let path: &str = c_str.to_str().unwrap();
 
     let server_config = get_client_server_configuration().unwrap();
-    let config = FlowySDKConfig::new(path, server_config, "appflowy").log_filter("debug");
+    let config = FlowySDKConfig::new(path, "appflowy", server_config).log_filter("info");
     FLOWY_SDK.get_or_init(|| FlowySDK::new(config));
 
     0
@@ -44,7 +44,7 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
             log::error!("sdk not init yet.");
             return;
         }
-        Some(e) => e.dispatcher.clone(),
+        Some(e) => e.event_dispatcher.clone(),
     };
     let _ = EventDispatcher::async_send_with_callback(dispatcher, request, move |resp: EventResponse| {
         log::trace!("[FFI]: Post data to dart through {} port", port);
@@ -62,7 +62,7 @@ pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
             log::error!("sdk not init yet.");
             return forget_rust(Vec::default());
         }
-        Some(e) => e.dispatcher.clone(),
+        Some(e) => e.event_dispatcher.clone(),
     };
     let _response = EventDispatcher::sync_send(dispatcher, request);
 
