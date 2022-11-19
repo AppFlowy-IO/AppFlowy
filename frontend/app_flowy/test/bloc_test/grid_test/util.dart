@@ -123,6 +123,26 @@ class GridTestContext {
         .firstWhere((element) => element.fieldType == FieldType.Checkbox);
     return fieldContext;
   }
+
+  Future<GridSelectOptionCellController> makeSelectOptionCellController(
+      FieldType fieldType) async {
+    assert(fieldType == FieldType.SingleSelect ||
+        fieldType == FieldType.MultiSelect);
+
+    final field =
+        fieldContexts.firstWhere((element) => element.fieldType == fieldType);
+    final cellController =
+        await makeCellController(field.id) as GridSelectOptionCellController;
+    return cellController;
+  }
+
+  Future<GridCellController> makeTextCellController() async {
+    final field = fieldContexts
+        .firstWhere((element) => element.fieldType == FieldType.RichText);
+    final cellController =
+        await makeCellController(field.id) as GridCellController;
+    return cellController;
+  }
 }
 
 /// Create a empty Grid for test
@@ -186,15 +206,7 @@ class AppFlowyGridCellTest {
 
   Future<GridSelectOptionCellController> makeCellController(
       FieldType fieldType) async {
-    assert(fieldType == FieldType.SingleSelect ||
-        fieldType == FieldType.MultiSelect);
-
-    final fieldContexts = context.fieldContexts;
-    final field =
-        fieldContexts.firstWhere((element) => element.fieldType == fieldType);
-    final cellController = await context.makeCellController(field.id)
-        as GridSelectOptionCellController;
-    return cellController;
+    return context.makeSelectOptionCellController(fieldType);
   }
 }
 

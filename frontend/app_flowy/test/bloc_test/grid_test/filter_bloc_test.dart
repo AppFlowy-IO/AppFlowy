@@ -70,19 +70,47 @@ void main() {
     final context = await gridTest.createTestGrid();
     final filterBloc = GridFilterBloc(viewId: context.gridView.id)
       ..add(const GridFilterEvent.initial());
-
     final gridBloc = GridBloc(view: context.gridView)
       ..add(const GridEvent.initial());
+    await gridResponseFuture();
 
     final textField = context.textFieldContext();
-    await gridResponseFuture();
     filterBloc.add(
       GridFilterEvent.createTextFilter(
           fieldId: textField.id,
           condition: TextFilterCondition.TextIsEmpty,
           content: ""),
     );
+    await gridResponseFuture();
 
+    assert(gridBloc.state.rowInfos.length == 3);
+  });
+
+  test('filter rows with condition: text is empty(After edit the row)',
+      () async {
+    final context = await gridTest.createTestGrid();
+    final filterBloc = GridFilterBloc(viewId: context.gridView.id)
+      ..add(const GridFilterEvent.initial());
+
+    final gridBloc = GridBloc(view: context.gridView)
+      ..add(const GridEvent.initial());
+    await gridResponseFuture();
+
+    final textField = context.textFieldContext();
+    filterBloc.add(
+      GridFilterEvent.createTextFilter(
+          fieldId: textField.id,
+          condition: TextFilterCondition.TextIsEmpty,
+          content: ""),
+    );
+    await gridResponseFuture();
+
+    final controller = await context.makeTextCellController();
+    controller.saveCellData("edit text cell content");
+    await gridResponseFuture();
+    assert(gridBloc.state.rowInfos.length == 2);
+
+    controller.saveCellData("");
     await gridResponseFuture();
     assert(gridBloc.state.rowInfos.length == 3);
   });

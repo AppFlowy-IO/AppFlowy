@@ -7,9 +7,10 @@ use std::time::Duration;
 use bytes::Bytes;
 use futures::TryFutureExt;
 use flowy_grid::entities::{CreateFilterParams, CreateFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition, DateFilterContent, SelectOptionCondition, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB};
-use flowy_grid::services::field::SelectOptionIds;
+use flowy_grid::services::field::{SelectOptionCellChangeset, SelectOptionIds};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
+use flowy_grid::services::cell::insert_select_option_cell;
 use flowy_grid::services::filter::FilterType;
 use flowy_grid::services::view_editor::GridViewChanged;
 use crate::grid::grid_editor::GridEditorTest;
@@ -18,6 +19,10 @@ pub enum FilterScript {
     UpdateTextCell {
         row_index: usize,
         text: String,
+    },
+    UpdateSingleSelectCell {
+        row_index: usize,
+        option_id: String,
     },
     InsertFilter {
         payload: CreateFilterPayloadPB,
@@ -95,6 +100,10 @@ impl GridFilterTest {
         match script {
             FilterScript::UpdateTextCell { row_index, text} => {
                 self.update_text_cell(row_index, &text).await;
+            }
+
+            FilterScript::UpdateSingleSelectCell { row_index, option_id} => {
+                self.update_single_select_cell(row_index, &option_id).await;
             }
             FilterScript::InsertFilter { payload } => {
                 self.insert_filter(payload).await;
@@ -214,6 +223,23 @@ impl GridFilterTest {
             row_id: row_rev.id.clone(),
             field_id: field_rev.id.clone(),
             content: content.to_string(),
+        };
+        self.editor.update_cell_with_changeset(changeset).await.unwrap();
+
+    }
+    async fn update_single_select_cell(&self, row_index: usize, option_id: &str) {
+        let row_rev = &self.inner.row_revs[row_index];
+        let field_rev = self.inner.field_revs.iter().find(|field_rev| {
+            let field_type: FieldType = field_rev.ty.into();
+            field_type == FieldType::SingleSelect
+        }).unwrap();
+
+        let content = SelectOptionCellChangeset::from_insert_option_id(&option_id).to_str();
+        let changeset =CellChangesetPB {
+            grid_id: self.grid_id.clone(),
+            row_id: row_rev.id.clone(),
+            field_id: field_rev.id.clone(),
+            content,
         };
         self.editor.update_cell_with_changeset(changeset).await.unwrap();
 

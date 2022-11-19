@@ -82,3 +82,36 @@ async fn grid_filter_single_select_is_test() {
     ];
     test.run_scripts(scripts).await;
 }
+
+#[tokio::test]
+async fn grid_filter_single_select_is_test2() {
+    let mut test = GridFilterTest::new().await;
+    let mut options = test.get_single_select_type_option();
+    let option = options.remove(0);
+    let scripts = vec![
+        CreateSingleSelectFilter {
+            condition: SelectOptionCondition::OptionIs,
+            option_ids: vec![option.id.clone()],
+        },
+        AssertNumberOfVisibleRows { expected: 2 },
+        UpdateSingleSelectCell {
+            row_index: 1,
+            option_id: option.id.clone(),
+        },
+        AssertFilterChanged {
+            visible_row_len: 3,
+            hide_row_len: 2,
+        },
+        AssertNumberOfVisibleRows { expected: 3 },
+        UpdateSingleSelectCell {
+            row_index: 1,
+            option_id: "".to_string(),
+        },
+        AssertFilterChanged {
+            visible_row_len: 0,
+            hide_row_len: 1,
+        },
+        AssertNumberOfVisibleRows { expected: 2 },
+    ];
+    test.run_scripts(scripts).await;
+}
