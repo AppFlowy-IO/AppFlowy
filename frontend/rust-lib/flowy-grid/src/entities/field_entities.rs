@@ -349,13 +349,13 @@ pub struct GetFieldPayloadPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
-    #[pb(index = 2)]
-    pub field_ids: RepeatedFieldIdPB,
+    #[pb(index = 2, one_of)]
+    pub field_ids: Option<RepeatedFieldIdPB>,
 }
 
 pub struct GetFieldParams {
     pub grid_id: String,
-    pub field_ids: RepeatedFieldIdPB,
+    pub field_ids: Option<Vec<String>>,
 }
 
 impl TryInto<GetFieldParams> for GetFieldPayloadPB {
@@ -363,9 +363,19 @@ impl TryInto<GetFieldParams> for GetFieldPayloadPB {
 
     fn try_into(self) -> Result<GetFieldParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let field_ids = self.field_ids.and_then(|repeated| {
+            Some(
+                repeated
+                    .items
+                    .into_iter()
+                    .map(|item| item.field_id)
+                    .collect::<Vec<String>>(),
+            )
+        });
+
         Ok(GetFieldParams {
             grid_id: grid_id.0,
-            field_ids: self.field_ids,
+            field_ids,
         })
     }
 }

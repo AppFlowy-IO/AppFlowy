@@ -92,13 +92,7 @@ pub(crate) async fn get_fields_handler(
 ) -> DataResult<RepeatedFieldPB, FlowyError> {
     let params: GetFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
-    let field_orders = params
-        .field_ids
-        .items
-        .into_iter()
-        .map(|field_order| field_order.field_id)
-        .collect();
-    let field_revs = editor.get_field_revs(Some(field_orders)).await?;
+    let field_revs = editor.get_field_revs(params.field_ids).await?;
     let repeated_field: RepeatedFieldPB = field_revs.into_iter().map(FieldPB::from).collect::<Vec<_>>().into();
     data_result(repeated_field)
 }

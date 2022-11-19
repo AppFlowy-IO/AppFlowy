@@ -17,9 +17,12 @@ pub struct FilterPB {
     pub id: String,
 
     #[pb(index = 2)]
-    pub ty: FieldType,
+    pub field_id: String,
 
     #[pb(index = 3)]
+    pub ty: FieldType,
+
+    #[pb(index = 4)]
     pub data: Vec<u8>,
 }
 
@@ -37,6 +40,7 @@ impl std::convert::From<&FilterRevision> for FilterPB {
         };
         Self {
             id: rev.id.clone(),
+            field_id: rev.field_id.clone(),
             ty: rev.field_type_rev.into(),
             data: bytes.to_vec(),
         }

@@ -159,6 +159,7 @@
   "grid": {
     "settings": {
       "filter": "Filter",
+      "addFilter": "Add Filter",
       "sortBy": "Sort by",
       "Properties": "Properties",
       "group": "Group"

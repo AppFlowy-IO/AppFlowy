@@ -41,7 +41,7 @@ class GridSettingState with _$GridSettingState {
 }
 
 enum GridSettingAction {
-  filter,
+  showFilters,
   sortBy,
   showProperties,
 }

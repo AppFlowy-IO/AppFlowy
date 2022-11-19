@@ -1,6 +1,7 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/filter/filter_bloc.dart';
+import 'package:app_flowy/plugins/grid/application/filter/filter_menu_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/grid_bloc.dart';
@@ -26,6 +27,7 @@ import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
 import 'widgets/row/row_detail.dart';
 import 'widgets/shortcuts.dart';
+import 'widgets/toolbar/grid_filter_menu.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
 
 class GridPage extends StatefulWidget {
@@ -54,6 +56,10 @@ class _GridPageState extends State<GridPage> {
         BlocProvider<GridFilterBloc>(
           create: (context) => GridFilterBloc(viewId: widget.view.id)
             ..add(const GridFilterEvent.initial()),
+        ),
+        BlocProvider<GridFilterMenuBloc>(
+          create: (context) => GridFilterMenuBloc(viewId: widget.view.id)
+            ..add(const GridFilterMenuEvent.initial()),
         ),
         BlocProvider<GridSettingBloc>(
           create: (context) => GridSettingBloc(gridId: widget.view.id),
@@ -132,6 +138,7 @@ class _FlowyGridState extends State<FlowyGrid> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const GridToolbar(),
+            const GridFilterMenu(),
             _gridHeader(context, state.gridId),
             Flexible(child: child),
             const RowCountBadge(),

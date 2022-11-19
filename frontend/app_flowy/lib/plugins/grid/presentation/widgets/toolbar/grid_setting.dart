@@ -88,7 +88,7 @@ class _SettingItem extends StatelessWidget {
 extension _GridSettingExtension on GridSettingAction {
   String iconName() {
     switch (this) {
-      case GridSettingAction.filter:
+      case GridSettingAction.showFilters:
         return 'grid/setting/filter';
       case GridSettingAction.sortBy:
         return 'grid/setting/sort';
@@ -99,7 +99,7 @@ extension _GridSettingExtension on GridSettingAction {
 
   String title() {
     switch (this) {
-      case GridSettingAction.filter:
+      case GridSettingAction.showFilters:
         return LocaleKeys.grid_settings_filter.tr();
       case GridSettingAction.sortBy:
         return LocaleKeys.grid_settings_sortBy.tr();
