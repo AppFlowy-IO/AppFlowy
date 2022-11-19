@@ -12,7 +12,7 @@ use flowy_revision::{
 };
 use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_sync::util::make_operations_from_revisions;
-use grid_rev_model::{FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision};
+use grid_rev_model::{FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, RowRevision};
 use lib_infra::future::{to_future, Fut, FutureResult};
 use lib_ot::core::EmptyAttributes;
 use std::sync::Arc;
@@ -162,5 +162,9 @@ impl FilterDelegate for GridViewFilterDelegateImpl {
 
     fn get_blocks(&self) -> Fut<Vec<GridBlock>> {
         self.editor_delegate.get_blocks()
+    }
+
+    fn get_row_rev(&self, row_id: &str) -> Fut<Option<Arc<RowRevision>>> {
+        self.editor_delegate.get_row_rev(row_id)
     }
 }

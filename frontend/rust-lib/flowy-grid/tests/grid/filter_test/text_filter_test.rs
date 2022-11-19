@@ -70,6 +70,26 @@ async fn grid_filter_contain_text_test() {
 }
 
 #[tokio::test]
+async fn grid_filter_contain_text_test2() {
+    let mut test = GridFilterTest::new().await;
+    let scripts = vec![
+        CreateTextFilter {
+            condition: TextFilterCondition::Contains,
+            content: "A".to_string(),
+        },
+        UpdateTextCell {
+            row_index: 1,
+            text: "ABC".to_string(),
+        },
+        AssertFilterChanged {
+            visible_row_len: 4,
+            hide_row_len: 1,
+        },
+    ];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
 async fn grid_filter_start_with_text_test() {
     let mut test = GridFilterTest::new().await;
     let scripts = vec![
@@ -124,4 +144,29 @@ async fn grid_filter_delete_test() {
         AssertNumberOfVisibleRows { expected: 5 },
     ])
     .await;
+}
+
+#[tokio::test]
+async fn grid_filter_update_empty_text_cell_test() {
+    let mut test = GridFilterTest::new().await;
+    let scripts = vec![
+        CreateTextFilter {
+            condition: TextFilterCondition::TextIsEmpty,
+            content: "".to_string(),
+        },
+        AssertFilterCount { count: 1 },
+        AssertFilterChanged {
+            visible_row_len: 1,
+            hide_row_len: 4,
+        },
+        UpdateTextCell {
+            row_index: 0,
+            text: "".to_string(),
+        },
+        AssertFilterChanged {
+            visible_row_len: 1,
+            hide_row_len: 0,
+        },
+    ];
+    test.run_scripts(scripts).await;
 }

@@ -85,3 +85,14 @@ pub struct FilterResultNotification {
     pub visible_rows: Vec<String>,
     pub invisible_rows: Vec<String>,
 }
+
+impl FilterResultNotification {
+    pub fn new(view_id: String, block_id: String) -> Self {
+        Self {
+            view_id,
+            block_id,
+            visible_rows: vec![],
+            invisible_rows: vec![],
+        }
+    }
+}

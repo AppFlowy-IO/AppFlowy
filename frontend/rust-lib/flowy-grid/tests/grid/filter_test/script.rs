@@ -6,7 +6,7 @@
 use std::time::Duration;
 use bytes::Bytes;
 use futures::TryFutureExt;
-use flowy_grid::entities::{CreateFilterParams, CreateFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition, DateFilterContent, SelectOptionCondition, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB};
+use flowy_grid::entities::{CreateFilterParams, CreateFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition, DateFilterContent, SelectOptionCondition, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB};
 use flowy_grid::services::field::SelectOptionIds;
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
@@ -15,6 +15,10 @@ use flowy_grid::services::view_editor::GridViewChanged;
 use crate::grid::grid_editor::GridEditorTest;
 
 pub enum FilterScript {
+    UpdateTextCell {
+        row_index: usize,
+        text: String,
+    },
     InsertFilter {
         payload: CreateFilterPayloadPB,
     },
@@ -89,6 +93,9 @@ impl GridFilterTest {
 
     pub async fn run_script(&mut self, script: FilterScript) {
         match script {
+            FilterScript::UpdateTextCell { row_index, text} => {
+                self.update_text_cell(row_index, &text).await;
+            }
             FilterScript::InsertFilter { payload } => {
                 self.insert_filter(payload).await;
             }
@@ -169,11 +176,15 @@ impl GridFilterTest {
             }
             FilterScript::AssertFilterChanged { visible_row_len, hide_row_len} => {
                 let mut receiver = self.editor.subscribe_view_changed().await;
-                let changed = receiver.recv().await.unwrap();
-                match changed { GridViewChanged::DidReceiveFilterResult(changed) => {
-                    assert_eq!(changed.visible_rows.len(), visible_row_len);
-                    assert_eq!(changed.invisible_rows.len(), hide_row_len);
-                } }
+                match tokio::time::timeout(Duration::from_secs(2), receiver.recv()).await {
+                    Ok(changed) =>  match changed.unwrap() { GridViewChanged::DidReceiveFilterResult(changed) => {
+                        assert_eq!(changed.visible_rows.len(), visible_row_len);
+                        assert_eq!(changed.invisible_rows.len(), hide_row_len);
+                    } },
+                    Err(e) => {
+                        panic!("Process task timeout: {:?}", e);
+                    }
+                }
             }
             FilterScript::AssertNumberOfVisibleRows { expected } => {
                 //
@@ -190,6 +201,22 @@ impl GridFilterTest {
     async fn insert_filter(&self, payload: CreateFilterPayloadPB) {
         let params: CreateFilterParams = payload.try_into().unwrap();
         let _ = self.editor.create_filter(params).await.unwrap();
+    }
+
+    async fn update_text_cell(&self, row_index: usize, content: &str) {
+        let row_rev = &self.inner.row_revs[row_index];
+        let field_rev = self.inner.field_revs.iter().find(|field_rev| {
+            let field_type: FieldType = field_rev.ty.into();
+            field_type == FieldType::RichText
+        }).unwrap();
+        let changeset =CellChangesetPB {
+            grid_id: self.grid_id.clone(),
+            row_id: row_rev.id.clone(),
+            field_id: field_rev.id.clone(),
+            content: content.to_string(),
+        };
+        self.editor.update_cell_with_changeset(changeset).await.unwrap();
+
     }
 }
 

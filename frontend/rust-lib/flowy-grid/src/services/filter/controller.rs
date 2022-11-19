@@ -10,7 +10,9 @@ use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use grid_rev_model::{CellRevision, FieldId, FieldRevision, FilterRevision, RowRevision};
 use lib_infra::future::Fut;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::str::FromStr;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -20,6 +22,7 @@ pub trait FilterDelegate: Send + Sync + 'static {
     fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>>;
     fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>>;
     fn get_blocks(&self) -> Fut<Vec<GridBlock>>;
+    fn get_row_rev(&self, rows_id: &str) -> Fut<Option<Arc<RowRevision>>>;
 }
 
 pub struct FilterController {
@@ -62,12 +65,12 @@ impl FilterController {
     }
 
     #[tracing::instrument(name = "schedule_filter_task", level = "trace", skip(self))]
-    async fn gen_task(&mut self, predicate: &str) {
+    async fn gen_task(&mut self, task_type: FilterEvent) {
         let task_id = self.task_scheduler.read().await.next_task_id();
         let task = Task::new(
             &self.handler_id,
             task_id,
-            TaskContent::Text(predicate.to_owned()),
+            TaskContent::Text(task_type.to_string()),
             QualityOfService::UserInteractive,
         );
         self.task_scheduler.write().await.add_task(task);
@@ -105,7 +108,38 @@ impl FilterController {
     }
 
     #[tracing::instrument(name = "receive_task_result", level = "trace", skip_all, fields(filter_result), err)]
-    pub async fn process(&mut self, _predicate: &str) -> FlowyResult<()> {
+    pub async fn process(&mut self, predicate: &str) -> FlowyResult<()> {
+        let event_type = FilterEvent::from_str(predicate).unwrap();
+        match event_type {
+            FilterEvent::FilterDidChanged => self.filter_all_rows().await?,
+            FilterEvent::RowDidChanged(row_id) => self.filter_row(row_id).await?,
+        }
+        Ok(())
+    }
+
+    async fn filter_row(&mut self, row_id: String) -> FlowyResult<()> {
+        if let Some(row_rev) = self.delegate.get_row_rev(&row_id).await {
+            let field_rev_by_field_id = self.get_filter_revs_map().await;
+            let mut notification = FilterResultNotification::new(self.view_id.clone(), row_rev.block_id.clone());
+            let (row_id, is_visible) = filter_row(
+                &row_rev,
+                &self.filter_map,
+                &mut self.result_by_row_id,
+                &field_rev_by_field_id,
+            );
+            if is_visible {
+                notification.visible_rows.push(row_id)
+            } else {
+                notification.invisible_rows.push(row_id);
+            }
+            let _ = self
+                .notifier
+                .send(GridViewChanged::DidReceiveFilterResult(notification));
+        }
+        Ok(())
+    }
+
+    async fn filter_all_rows(&mut self) -> FlowyResult<()> {
         let field_rev_by_field_id = self.get_filter_revs_map().await;
         for block in self.delegate.get_blocks().await.into_iter() {
             // The row_ids contains the row that its visibility was changed.
@@ -137,11 +171,14 @@ impl FilterController {
                 .notifier
                 .send(GridViewChanged::DidReceiveFilterResult(notification));
         }
-
         Ok(())
     }
 
-    pub async fn apply_changeset(&mut self, changeset: FilterChangeset) {
+    pub async fn did_receive_row_changed(&mut self, row_id: &str) {
+        self.gen_task(FilterEvent::RowDidChanged(row_id.to_string())).await
+    }
+
+    pub async fn did_receive_filter_changed(&mut self, changeset: FilterChangeset) {
         if let Some(filter_id) = &changeset.insert_filter {
             let filter_revs = self.delegate.get_filter_rev(filter_id.clone()).await;
             let _ = self.load_filters(filter_revs).await;
@@ -151,7 +188,7 @@ impl FilterController {
             self.filter_map.remove(filter_id);
         }
 
-        self.gen_task("").await;
+        let _ = self.gen_task(FilterEvent::FilterDidChanged).await;
     }
 
     #[tracing::instrument(level = "trace", skip_all)]
@@ -322,4 +359,23 @@ fn filter_cell(
     }?;
 
     is_visible
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+enum FilterEvent {
+    FilterDidChanged,
+    RowDidChanged(String),
+}
+
+impl ToString for FilterEvent {
+    fn to_string(&self) -> String {
+        serde_json::to_string(self).unwrap()
+    }
+}
+
+impl FromStr for FilterEvent {
+    type Err = serde_json::Error;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        serde_json::from_str(s)
+    }
 }

@@ -1,7 +1,6 @@
 use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::*;
 use crate::services::filter::{FilterChangeset, FilterController, FilterTaskHandler, FilterType};
-
 use crate::services::group::{
     default_group_configuration, find_group_field, make_group_controller, Group, GroupConfigurationReader,
     GroupController, MoveGroupRowContext,
@@ -166,6 +165,12 @@ impl GridViewRevisionEditor {
                 self.notify_did_update_group_rows(changeset).await;
             }
         }
+
+        let filter_controller = self.filter_controller.clone();
+        let row_id = row_rev.id.clone();
+        tokio::spawn(async move {
+            filter_controller.write().await.did_receive_row_changed(&row_id).await;
+        });
     }
 
     pub async fn move_view_group_row(
@@ -311,7 +316,7 @@ impl GridViewRevisionEditor {
         self.filter_controller
             .write()
             .await
-            .apply_changeset(FilterChangeset::from_insert(filter_type))
+            .did_receive_filter_changed(FilterChangeset::from_insert(filter_type))
             .await;
 
         let changeset = FilterChangesetNotificationPB::from_insert(&self.view_id, vec![filter_pb]);
@@ -339,7 +344,7 @@ impl GridViewRevisionEditor {
         self.filter_controller
             .write()
             .await
-            .apply_changeset(FilterChangeset::from_delete(filter_type))
+            .did_receive_filter_changed(FilterChangeset::from_delete(filter_type))
             .await;
 
         let changeset = FilterChangesetNotificationPB::from_delete(&self.view_id, filters);
@@ -355,7 +360,7 @@ impl GridViewRevisionEditor {
             self.filter_controller
                 .write()
                 .await
-                .apply_changeset(filter_changeset)
+                .did_receive_filter_changed(filter_changeset)
                 .await;
         }
         Ok(())
