@@ -127,7 +127,6 @@ class ActionCellWidget<T extends PopoverAction> extends StatelessWidget {
               Expanded(
                 child: FlowyText.medium(
                   actionCell.name,
-                  fontSize: 12,
                   overflow: TextOverflow.visible,
                 ),
               ),

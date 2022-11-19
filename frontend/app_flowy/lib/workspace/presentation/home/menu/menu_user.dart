@@ -67,7 +67,6 @@ class MenuUser extends StatelessWidget {
     }
     return FlowyText.medium(
       name,
-      fontSize: FontSizes.s12,
       overflow: TextOverflow.ellipsis,
     );
   }

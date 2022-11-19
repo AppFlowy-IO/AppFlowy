@@ -111,7 +111,6 @@ class _SwitchFieldButton extends StatelessWidget {
     return FlowyButton(
       text: FlowyText.medium(
         bloc.state.field.fieldType.title(),
-        fontSize: 12,
       ),
       margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       leftIcon: svgWidget(

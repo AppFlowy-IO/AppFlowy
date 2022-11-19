@@ -49,8 +49,7 @@ class TrashPlugin extends Plugin {
 
 class TrashPluginDisplay extends PluginDisplay {
   @override
-  Widget get leftBarItem =>
-      FlowyText.medium(LocaleKeys.trash_text.tr(), fontSize: 12);
+  Widget get leftBarItem => FlowyText.medium(LocaleKeys.trash_text.tr());
 
   @override
   Widget? get rightBarItem => null;

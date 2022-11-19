@@ -191,7 +191,10 @@ class EllipsisNaviItem extends NavigationItem {
   });
 
   @override
-  Widget get leftBarItem => const FlowyText.medium('...');
+  Widget get leftBarItem => FlowyText.medium(
+        '...',
+        fontSize: FontSizes.s16,
+      );
 
   @override
   NavigationCallback get action => (id) {};

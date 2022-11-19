@@ -1,4 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:app_flowy/workspace/application/user/settings_user_bloc.dart';
@@ -93,7 +94,10 @@ class _CurrentIcon extends StatelessWidget {
               context: context,
               builder: (BuildContext context) {
                 return SimpleDialog(
-                    title: const FlowyText.medium('Select an Icon'),
+                    title: FlowyText.medium(
+                      'Select an Icon',
+                      fontSize: FontSizes.s16,
+                    ),
                     children: <Widget>[
                       SizedBox(
                           height: 300, width: 300, child: IconGallery(_setIcon))

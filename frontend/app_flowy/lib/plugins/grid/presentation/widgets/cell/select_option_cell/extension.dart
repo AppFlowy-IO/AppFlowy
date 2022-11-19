@@ -91,7 +91,6 @@ class SelectOptionTag extends StatelessWidget {
       pressElevation: 1,
       label: FlowyText.medium(
         name,
-        fontSize: 12,
         overflow: TextOverflow.clip,
       ),
       selectedColor: color,

@@ -3,7 +3,6 @@ import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -125,7 +124,6 @@ class FlowyVersionDescription extends CustomActionCell {
           if (snapshot.hasError) {
             return FlowyText(
               "Error: ${snapshot.error}",
-              fontSize: FontSizes.s12,
               color: Theme.of(context).disabledColor,
             );
           }
@@ -148,7 +146,6 @@ class FlowyVersionDescription extends CustomActionCell {
                 const VSpace(6),
                 FlowyText(
                   "$appName $version.$buildNumber",
-                  fontSize: FontSizes.s12,
                   color: Theme.of(context).hintColor,
                 ),
               ],
@@ -171,7 +168,7 @@ class BubbleActionWrapper extends ActionCell {
 
   BubbleActionWrapper(this.inner);
   @override
-  Widget? icon(Color iconColor) => FlowyText.regular(inner.emoji, fontSize: 12);
+  Widget? icon(Color iconColor) => FlowyText.regular(inner.emoji);
 
   @override
   String get name => inner.name;
