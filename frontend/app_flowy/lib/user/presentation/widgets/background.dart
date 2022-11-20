@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +48,7 @@ class FlowyLogoTitle extends StatelessWidget {
           const VSpace(30),
           FlowyText.semibold(
             title,
-            fontSize: 24,
+            fontSize: FontSizes.s24,
           ),
         ],
       ),

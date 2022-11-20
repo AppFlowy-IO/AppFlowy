@@ -3,7 +3,6 @@ import 'package:app_flowy/user/presentation/router.dart';
 import 'package:app_flowy/user/presentation/widgets/background.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -61,22 +60,29 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             InkWell(
+              hoverColor: Colors.transparent,
+              onTap: () =>
+                  _launchURL('https://github.com/AppFlowy-IO/appflowy'),
               child: Text(
                 LocaleKeys.githubStarText.tr(),
-                style: TextStyles.general(color: Colors.blue).underline,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium!
+                    .textColor(Theme.of(context).colorScheme.primary)
+                    .underline,
               ),
-              onTap: () {
-                _launchURL('https://github.com/AppFlowy-IO/appflowy');
-              },
             ),
             InkWell(
+              hoverColor: Colors.transparent,
+              onTap: () => _launchURL('https://www.appflowy.io/blog'),
               child: Text(
                 LocaleKeys.subscribeNewsletterText.tr(),
-                style: TextStyles.general(color: Colors.blue).underline,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium!
+                    .textColor(Theme.of(context).colorScheme.primary)
+                    .underline,
               ),
-              onTap: () {
-                _launchURL('https://www.appflowy.io/blog');
-              },
             ),
           ],
         )

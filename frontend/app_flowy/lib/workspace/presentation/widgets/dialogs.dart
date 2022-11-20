@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
@@ -11,6 +10,7 @@ import 'package:flowy_infra_ui/style_widget/text_input.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class NavigatorTextFieldDialog extends StatefulWidget {
   final String value;
@@ -56,10 +56,8 @@ class _CreateTextFieldDialog extends State<NavigatorTextFieldDialog> {
           FlowyFormTextInput(
             hintText: LocaleKeys.dialogCreatePageNameHint.tr(),
             initialValue: widget.value,
-            textStyle: TextStyles.general(
-              fontSize: 24,
-              fontWeight: FontWeight.w400,
-            ),
+            textStyle:
+                Theme.of(context).textTheme.bodySmall!.size(FontSizes.s24),
             autoFocus: true,
             onChanged: (text) {
               newValue = text;
