@@ -115,7 +115,6 @@ class SignUpButton extends StatelessWidget {
     return RoundedTextButton(
       title: LocaleKeys.signUp_getStartedText.tr(),
       height: 48,
-      color: Theme.of(context).colorScheme.primary,
       onPressed: () {
         context
             .read<SignUpBloc>()

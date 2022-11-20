@@ -141,9 +141,9 @@ class GoButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return RoundedTextButton(
       title: LocaleKeys.letsGoButtonText.tr(),
+      fontSize: FontSizes.s16,
       height: 50,
       borderRadius: Corners.s10Border,
-      color: Theme.of(context).colorScheme.primary,
       onPressed: onPressed,
     );
   }
