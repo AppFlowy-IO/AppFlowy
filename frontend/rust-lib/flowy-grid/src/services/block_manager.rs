@@ -1,10 +1,10 @@
-use crate::dart_notification::{send_dart_notification, GridNotification};
+use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::{CellChangesetPB, GridBlockChangesetPB, InsertedRowPB, RowPB};
 use crate::manager::GridUser;
 use crate::services::block_editor::{GridBlockRevisionCompress, GridBlockRevisionEditor};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::rev_sqlite::SQLiteGridBlockRevisionPersistence;
-use crate::services::row::{block_from_row_orders, make_row_from_row_rev, GridBlockSnapshot};
+use crate::services::row::{block_from_row_orders, make_row_from_row_rev, GridBlock};
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
@@ -209,38 +209,35 @@ impl GridBlockManager {
         }
     }
 
-    pub async fn get_row_orders(&self, block_id: &str) -> FlowyResult<Vec<RowPB>> {
+    pub async fn get_row_revs(&self, block_id: &str) -> FlowyResult<Vec<Arc<RowRevision>>> {
         let editor = self.get_block_editor(block_id).await?;
-        editor.get_row_infos::<&str>(None).await
+        editor.get_row_revs::<&str>(None).await
     }
 
-    pub(crate) async fn get_block_snapshots(
-        &self,
-        block_ids: Option<Vec<String>>,
-    ) -> FlowyResult<Vec<GridBlockSnapshot>> {
-        let mut snapshots = vec![];
+    pub(crate) async fn get_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlock>> {
+        let mut blocks = vec![];
         match block_ids {
             None => {
                 for iter in self.block_editors.iter() {
                     let editor = iter.value();
                     let block_id = editor.block_id.clone();
                     let row_revs = editor.get_row_revs::<&str>(None).await?;
-                    snapshots.push(GridBlockSnapshot { block_id, row_revs });
+                    blocks.push(GridBlock { block_id, row_revs });
                 }
             }
             Some(block_ids) => {
                 for block_id in block_ids {
                     let editor = self.get_block_editor(&block_id).await?;
                     let row_revs = editor.get_row_revs::<&str>(None).await?;
-                    snapshots.push(GridBlockSnapshot { block_id, row_revs });
+                    blocks.push(GridBlock { block_id, row_revs });
                 }
             }
         }
-        Ok(snapshots)
+        Ok(blocks)
     }
 
     async fn notify_did_update_block(&self, block_id: &str, changeset: GridBlockChangesetPB) -> FlowyResult<()> {
-        send_dart_notification(block_id, GridNotification::DidUpdateGridBlock)
+        send_dart_notification(block_id, GridDartNotification::DidUpdateGridBlock)
             .payload(changeset)
             .send();
         Ok(())
@@ -248,7 +245,7 @@ impl GridBlockManager {
 
     async fn notify_did_update_cell(&self, changeset: CellChangesetPB) -> FlowyResult<()> {
         let id = format!("{}:{}", changeset.row_id, changeset.field_id);
-        send_dart_notification(&id, GridNotification::DidUpdateCell).send();
+        send_dart_notification(&id, GridDartNotification::DidUpdateCell).send();
         Ok(())
     }
 }

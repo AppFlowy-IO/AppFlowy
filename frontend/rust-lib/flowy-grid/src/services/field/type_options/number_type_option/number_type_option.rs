@@ -1,6 +1,6 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
+use crate::services::cell::{AnyCellChangeset, CellBytes, CellData, CellDataOperation, CellDisplayable};
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{BoxTypeOptionBuilder, NumberCellData, TypeOptionBuilder};
 use bytes::Bytes;
@@ -146,7 +146,7 @@ impl CellDataOperation<String, String> for NumberTypeOptionPB {
 
     fn apply_changeset(
         &self,
-        changeset: CellDataChangeset<String>,
+        changeset: AnyCellChangeset<String>,
         _cell_rev: Option<CellRevision>,
     ) -> Result<String, FlowyError> {
         let changeset = changeset.try_into_inner()?;

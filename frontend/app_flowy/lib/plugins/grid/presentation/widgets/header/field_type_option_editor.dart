@@ -17,8 +17,8 @@ import 'field_type_list.dart';
 import 'type_option/builder.dart';
 
 typedef UpdateFieldCallback = void Function(FieldPB, Uint8List);
-typedef SwitchToFieldCallback
-    = Future<Either<FieldTypeOptionDataPB, FlowyError>> Function(
+typedef SwitchToFieldCallback = Future<Either<TypeOptionPB, FlowyError>>
+    Function(
   String fieldId,
   FieldType fieldType,
 );
@@ -111,7 +111,6 @@ class _SwitchFieldButton extends StatelessWidget {
     return FlowyButton(
       text: FlowyText.medium(
         bloc.state.field.fieldType.title(),
-        fontSize: 12,
       ),
       margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       leftIcon: svgWidget(

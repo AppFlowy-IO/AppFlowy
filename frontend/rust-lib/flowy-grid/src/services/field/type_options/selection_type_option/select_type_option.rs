@@ -1,5 +1,5 @@
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::{CellChangesetPB, FieldType, GridCellIdPB, GridCellIdParams};
+use crate::entities::{CellChangesetPB, CellPathPB, CellPathParams, FieldType};
 use crate::services::cell::{
     CellBytes, CellBytesParser, CellData, CellDataIsEmpty, CellDisplayable, FromCellChangeset, FromCellString,
 };
@@ -353,9 +353,9 @@ impl CellBytesParser for SelectOptionCellDataParser {
 }
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
-pub struct SelectOptionCellChangesetPayloadPB {
+pub struct SelectOptionCellChangesetPB {
     #[pb(index = 1)]
-    pub cell_identifier: GridCellIdPB,
+    pub cell_identifier: CellPathPB,
 
     #[pb(index = 2)]
     pub insert_option_ids: Vec<String>,
@@ -365,7 +365,7 @@ pub struct SelectOptionCellChangesetPayloadPB {
 }
 
 pub struct SelectOptionCellChangesetParams {
-    pub cell_identifier: GridCellIdParams,
+    pub cell_identifier: CellPathParams,
     pub insert_option_ids: Vec<String>,
     pub delete_option_ids: Vec<String>,
 }
@@ -386,11 +386,11 @@ impl std::convert::From<SelectOptionCellChangesetParams> for CellChangesetPB {
     }
 }
 
-impl TryInto<SelectOptionCellChangesetParams> for SelectOptionCellChangesetPayloadPB {
+impl TryInto<SelectOptionCellChangesetParams> for SelectOptionCellChangesetPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<SelectOptionCellChangesetParams, Self::Error> {
-        let cell_identifier: GridCellIdParams = self.cell_identifier.try_into()?;
+        let cell_identifier: CellPathParams = self.cell_identifier.try_into()?;
         let insert_option_ids = self
             .insert_option_ids
             .into_iter()
@@ -485,12 +485,12 @@ pub struct SelectOptionCellDataPB {
     pub select_options: Vec<SelectOptionPB>,
 }
 
-/// [SelectOptionChangesetPayloadPB] describes the changes of a FieldTypeOptionData. For the moment,
+/// [SelectOptionChangesetPB] describes the changes of a FieldTypeOptionData. For the moment,
 /// it is used by [MultiSelectTypeOptionPB] and [SingleSelectTypeOptionPB].
 #[derive(Clone, Debug, Default, ProtoBuf)]
-pub struct SelectOptionChangesetPayloadPB {
+pub struct SelectOptionChangesetPB {
     #[pb(index = 1)]
-    pub cell_identifier: GridCellIdPB,
+    pub cell_identifier: CellPathPB,
 
     #[pb(index = 2)]
     pub insert_options: Vec<SelectOptionPB>,
@@ -503,13 +503,13 @@ pub struct SelectOptionChangesetPayloadPB {
 }
 
 pub struct SelectOptionChangeset {
-    pub cell_identifier: GridCellIdParams,
+    pub cell_identifier: CellPathParams,
     pub insert_options: Vec<SelectOptionPB>,
     pub update_options: Vec<SelectOptionPB>,
     pub delete_options: Vec<SelectOptionPB>,
 }
 
-impl TryInto<SelectOptionChangeset> for SelectOptionChangesetPayloadPB {
+impl TryInto<SelectOptionChangeset> for SelectOptionChangesetPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<SelectOptionChangeset, Self::Error> {

@@ -36,7 +36,7 @@ class FieldService {
     double? width,
     List<int>? typeOptionData,
   }) {
-    var payload = FieldChangesetPayloadPB.create()
+    var payload = FieldChangesetPB.create()
       ..gridId = gridId
       ..fieldId = fieldId;
 
@@ -72,7 +72,7 @@ class FieldService {
     required String fieldId,
     required List<int> typeOptionData,
   }) {
-    var payload = UpdateFieldTypeOptionPayloadPB.create()
+    var payload = TypeOptionChangesetPB.create()
       ..gridId = gridId
       ..fieldId = fieldId
       ..typeOptionData = typeOptionData;
@@ -96,10 +96,10 @@ class FieldService {
     return GridEventDuplicateField(payload).send();
   }
 
-  Future<Either<FieldTypeOptionDataPB, FlowyError>> getFieldTypeOptionData({
+  Future<Either<TypeOptionPB, FlowyError>> getFieldTypeOptionData({
     required FieldType fieldType,
   }) {
-    final payload = FieldTypeOptionIdPB.create()
+    final payload = TypeOptionPathPB.create()
       ..gridId = gridId
       ..fieldId = fieldId
       ..fieldType = fieldType;

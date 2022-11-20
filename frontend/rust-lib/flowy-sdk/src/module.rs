@@ -11,20 +11,14 @@ pub fn mk_modules(
     folder_manager: &Arc<FolderManager>,
     grid_manager: &Arc<GridManager>,
     user_session: &Arc<UserSession>,
-    text_block_manager: &Arc<DocumentManager>,
+    document_manager: &Arc<DocumentManager>,
 ) -> Vec<Module> {
     let user_module = mk_user_module(user_session.clone());
     let folder_module = mk_folder_module(folder_manager.clone());
     let network_module = mk_network_module(ws_conn.clone());
     let grid_module = mk_grid_module(grid_manager.clone());
-    let text_block_module = mk_text_block_module(text_block_manager.clone());
-    vec![
-        user_module,
-        folder_module,
-        network_module,
-        grid_module,
-        text_block_module,
-    ]
+    let document_module = mk_text_block_module(document_manager.clone());
+    vec![user_module, folder_module, network_module, grid_module, document_module]
 }
 
 fn mk_user_module(user_session: Arc<UserSession>) -> Module {

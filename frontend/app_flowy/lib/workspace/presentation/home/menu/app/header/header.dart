@@ -169,7 +169,6 @@ class AppActionList extends StatelessWidget {
             selector: (state) => state.app,
             builder: (context, app) => FlowyText.medium(
               app.name,
-              fontSize: 12,
               overflow: TextOverflow.ellipsis,
             ),
           ),

@@ -44,7 +44,7 @@ class GridFFIService {
 
   Future<Either<RepeatedFieldPB, FlowyError>> getFields(
       {required List<FieldIdPB> fieldIds}) {
-    final payload = QueryFieldPayloadPB.create()
+    final payload = GetFieldPayloadPB.create()
       ..gridId = gridId
       ..fieldIds = RepeatedFieldIdPB(items: fieldIds);
     return GridEventGetFields(payload).send();

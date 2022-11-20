@@ -1,4 +1,4 @@
-use crate::{FieldRevision, FieldTypeRevision, FilterConfigurationRevision, GroupConfigurationRevision};
+use crate::{FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision};
 use indexmap::IndexMap;
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
@@ -19,8 +19,8 @@ pub fn gen_grid_sort_id() -> String {
     nanoid!(6)
 }
 
-pub type FilterConfiguration = Configuration<FilterConfigurationRevision>;
-pub type FilterConfigurationsByFieldId = HashMap<String, Vec<Arc<FilterConfigurationRevision>>>;
+pub type FilterConfiguration = Configuration<FilterRevision>;
+pub type FilterConfigurationsByFieldId = HashMap<String, Vec<Arc<FilterRevision>>>;
 //
 pub type GroupConfiguration = Configuration<GroupConfigurationRevision>;
 pub type GroupConfigurationsByFieldId = HashMap<String, Vec<Arc<GroupConfigurationRevision>>>;
@@ -60,7 +60,7 @@ where
             .cloned()
     }
 
-    pub fn get_objects_by_field_revs(&self, field_revs: &[Arc<FieldRevision>]) -> Option<HashMap<String, Vec<Arc<T>>>> {
+    pub fn get_objects_by_field_revs(&self, field_revs: &[Arc<FieldRevision>]) -> HashMap<String, Vec<Arc<T>>> {
         // Get the objects according to the FieldType, so we need iterate the field_revs.
         let objects_by_field_id = field_revs
             .iter()
@@ -73,7 +73,7 @@ where
                 Some((field_rev.id.clone(), objects))
             })
             .collect::<HashMap<String, Vec<Arc<T>>>>();
-        Some(objects_by_field_id)
+        objects_by_field_id
     }
 
     pub fn get_all_objects(&self) -> Vec<Arc<T>> {

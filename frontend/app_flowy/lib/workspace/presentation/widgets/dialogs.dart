@@ -46,8 +46,11 @@ class _CreateTextFieldDialog extends State<NavigatorTextFieldDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           ...[
-            FlowyText.medium(widget.title,
-                color: Theme.of(context).disabledColor),
+            FlowyText.medium(
+              widget.title,
+              color: Theme.of(context).disabledColor,
+              fontSize: FontSizes.s16,
+            ),
             VSpace(Insets.sm * 1.5),
           ],
           FlowyFormTextInput(
@@ -117,6 +120,7 @@ class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
           ...[
             FlowyText.medium(
               widget.title,
+              fontSize: FontSizes.s16,
               color: Theme.of(context).disabledColor,
             ),
           ],
@@ -164,13 +168,16 @@ class NavigatorOkCancelDialog extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           if (title != null) ...[
-            FlowyText.medium(title!.toUpperCase()),
+            FlowyText.medium(
+              title!.toUpperCase(),
+              fontSize: FontSizes.s16,
+            ),
             VSpace(Insets.sm * 1.5),
             Container(
                 color: Theme.of(context).colorScheme.surfaceVariant, height: 1),
             VSpace(Insets.m * 1.5),
           ],
-          FlowyText.medium(message, fontSize: FontSizes.s12),
+          FlowyText.medium(message),
           SizedBox(height: Insets.l),
           OkCancelButton(
             onOkPressed: () {

@@ -1,6 +1,6 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
+use crate::services::cell::{AnyCellChangeset, CellBytes, CellData, CellDataOperation, CellDisplayable};
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::field::{
@@ -49,7 +49,7 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSel
 
     fn apply_changeset(
         &self,
-        changeset: CellDataChangeset<SelectOptionCellChangeset>,
+        changeset: AnyCellChangeset<SelectOptionCellChangeset>,
         _cell_rev: Option<CellRevision>,
     ) -> Result<String, FlowyError> {
         let content_changeset = changeset.try_into_inner()?;

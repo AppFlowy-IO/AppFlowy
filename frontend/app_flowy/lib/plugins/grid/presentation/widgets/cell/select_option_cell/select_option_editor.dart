@@ -190,7 +190,6 @@ class _Title extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 6),
         child: FlowyText.medium(
           LocaleKeys.grid_selectOption_panelTitle.tr(),
-          fontSize: 12,
           color: Theme.of(context).hintColor,
         ),
       ),
@@ -208,13 +207,12 @@ class _CreateOptionCell extends StatelessWidget {
       children: [
         FlowyText.medium(
           LocaleKeys.grid_selectOption_create.tr(),
-          fontSize: 12,
           color: Theme.of(context).hintColor,
         ),
         const HSpace(10),
         SelectOptionTag(
           name: name,
-          color: CustomColors.of(context).lightGreyHover,
+          color: AFThemeExtension.of(context).lightGreyHover,
           onSelected: () => context
               .read<SelectOptionCellEditorBloc>()
               .add(SelectOptionEditorEvent.newOption(name)),

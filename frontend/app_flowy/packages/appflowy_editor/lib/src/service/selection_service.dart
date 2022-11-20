@@ -508,6 +508,11 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
   void _showContextMenu(TapDownDetails details) {
     _clearContextMenu();
 
+    // For now, only support the text node.
+    if (!currentSelectedNodes.every((element) => element is TextNode)) {
+      return;
+    }
+
     final baseOffset =
         editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
     final offset = details.globalPosition + const Offset(10, 10) - baseOffset;

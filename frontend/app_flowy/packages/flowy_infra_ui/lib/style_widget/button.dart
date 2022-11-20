@@ -1,4 +1,4 @@
-import 'package:flowy_infra/text_style.dart';
+import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -150,7 +150,7 @@ class FlowyTextButton extends StatelessWidget {
     if (tooltip != null) {
       child = Tooltip(
         message: tooltip!,
-        textStyle: TextStyles.caption.textColor(Colors.white),
+        textStyle: AFThemeExtension.of(context).caption.textColor(Colors.white),
         child: child,
       );
     }

@@ -25,14 +25,17 @@ class TrashCell extends StatelessWidget {
     return Row(
       children: [
         SizedBox(
-            width: TrashSizes.fileNameWidth,
-            child: FlowyText(object.name, fontSize: 12)),
+          width: TrashSizes.fileNameWidth,
+          child: FlowyText(object.name),
+        ),
         SizedBox(
-            width: TrashSizes.lashModifyWidth,
-            child: FlowyText(dateFormatter(object.modifiedTime), fontSize: 12)),
+          width: TrashSizes.lashModifyWidth,
+          child: FlowyText(dateFormatter(object.modifiedTime)),
+        ),
         SizedBox(
-            width: TrashSizes.createTimeWidth,
-            child: FlowyText(dateFormatter(object.createTime), fontSize: 12)),
+          width: TrashSizes.createTimeWidth,
+          child: FlowyText(dateFormatter(object.createTime)),
+        ),
         const Spacer(),
         FlowyIconButton(
           width: 26,

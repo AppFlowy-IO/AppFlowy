@@ -72,12 +72,10 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
                 ),
                 text: Row(
                   children: [
-                    FlowyText.medium(LocaleKeys.grid_field_numberFormat.tr(),
-                        fontSize: 12),
+                    FlowyText.medium(LocaleKeys.grid_field_numberFormat.tr()),
                     // const HSpace(6),
                     const Spacer(),
-                    FlowyText.regular(state.typeOption.format.title(),
-                        fontSize: 12),
+                    FlowyText.regular(state.typeOption.format.title()),
                   ],
                 ),
               ),
@@ -173,7 +171,7 @@ class NumberFormatCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(format.title(), fontSize: 12),
+        text: FlowyText.medium(format.title()),
         onTap: () => onSelected(format),
         rightIcon: checkmark,
       ),

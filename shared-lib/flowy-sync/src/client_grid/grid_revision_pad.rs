@@ -189,14 +189,6 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn get_field_rev(&self, field_id: &str) -> Option<(usize, &Arc<FieldRevision>)> {
-        self.grid_rev
-            .fields
-            .iter()
-            .enumerate()
-            .find(|(_, field)| field.id == field_id)
-    }
-
     pub fn replace_field_rev(
         &mut self,
         field_rev: Arc<FieldRevision>,
@@ -236,6 +228,14 @@ impl GridRevisionPad {
 
     pub fn contain_field(&self, field_id: &str) -> bool {
         self.grid_rev.fields.iter().any(|field| field.id == field_id)
+    }
+
+    pub fn get_field_rev(&self, field_id: &str) -> Option<(usize, &Arc<FieldRevision>)> {
+        self.grid_rev
+            .fields
+            .iter()
+            .enumerate()
+            .find(|(_, field)| field.id == field_id)
     }
 
     pub fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> CollaborateResult<Vec<Arc<FieldRevision>>> {

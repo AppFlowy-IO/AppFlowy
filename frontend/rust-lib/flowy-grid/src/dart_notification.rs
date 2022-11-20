@@ -3,7 +3,7 @@ use flowy_derive::ProtoBuf_Enum;
 const OBSERVABLE_CATEGORY: &str = "Grid";
 
 #[derive(ProtoBuf_Enum, Debug)]
-pub enum GridNotification {
+pub enum GridDartNotification {
     Unknown = 0,
     DidCreateBlock = 11,
     DidUpdateGridBlock = 20,
@@ -14,22 +14,23 @@ pub enum GridNotification {
     DidUpdateGroupView = 60,
     DidUpdateGroup = 61,
     DidGroupByNewField = 62,
+    DidUpdateFilter = 63,
     DidUpdateGridSetting = 70,
 }
 
-impl std::default::Default for GridNotification {
+impl std::default::Default for GridDartNotification {
     fn default() -> Self {
-        GridNotification::Unknown
+        GridDartNotification::Unknown
     }
 }
 
-impl std::convert::From<GridNotification> for i32 {
-    fn from(notification: GridNotification) -> Self {
+impl std::convert::From<GridDartNotification> for i32 {
+    fn from(notification: GridDartNotification) -> Self {
         notification as i32
     }
 }
 
 #[tracing::instrument(level = "trace")]
-pub fn send_dart_notification(id: &str, ty: GridNotification) -> DartNotifyBuilder {
+pub fn send_dart_notification(id: &str, ty: GridDartNotification) -> DartNotifyBuilder {
     DartNotifyBuilder::new(id, ty, OBSERVABLE_CATEGORY)
 }

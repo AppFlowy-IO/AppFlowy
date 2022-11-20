@@ -1,16 +1,14 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use grid_rev_model::FilterConfigurationRevision;
-
-use std::sync::Arc;
+use grid_rev_model::FilterRevision;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct NumberFilterConfigurationPB {
+pub struct NumberFilterPB {
     #[pb(index = 1)]
     pub condition: NumberFilterCondition,
 
-    #[pb(index = 2, one_of)]
-    pub content: Option<String>,
+    #[pb(index = 2)]
+    pub content: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
@@ -32,9 +30,9 @@ impl std::default::Default for NumberFilterCondition {
     }
 }
 
-impl std::convert::From<NumberFilterCondition> for i32 {
+impl std::convert::From<NumberFilterCondition> for u32 {
     fn from(value: NumberFilterCondition) -> Self {
-        value as i32
+        value as u32
     }
 }
 impl std::convert::TryFrom<u8> for NumberFilterCondition {
@@ -55,9 +53,9 @@ impl std::convert::TryFrom<u8> for NumberFilterCondition {
     }
 }
 
-impl std::convert::From<Arc<FilterConfigurationRevision>> for NumberFilterConfigurationPB {
-    fn from(rev: Arc<FilterConfigurationRevision>) -> Self {
-        NumberFilterConfigurationPB {
+impl std::convert::From<&FilterRevision> for NumberFilterPB {
+    fn from(rev: &FilterRevision) -> Self {
+        NumberFilterPB {
             condition: NumberFilterCondition::try_from(rev.condition).unwrap_or(NumberFilterCondition::Equal),
             content: rev.content.clone(),
         }

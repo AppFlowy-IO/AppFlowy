@@ -16,6 +16,7 @@ grid-rev-model = { path = "../../../shared-lib/grid-rev-model" }
 flowy-database = { path = "../flowy-database" }
 flowy-document = { path = "../flowy-document", default-features = false }
 flowy-revision = { path = "../flowy-revision" }
+flowy-task = { path = "../flowy-task" }
 
 tracing = { version = "0.1" }
 futures-core = { version = "0.3", default-features = false }

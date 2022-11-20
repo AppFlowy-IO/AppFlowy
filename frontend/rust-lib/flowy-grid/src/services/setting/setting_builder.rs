@@ -1,4 +1,4 @@
-use crate::entities::{DeleteFilterParams, GridLayout, GridSettingChangesetParams, InsertFilterParams};
+use crate::entities::{CreateFilterParams, DeleteFilterParams, GridLayout, GridSettingChangesetParams};
 
 pub struct GridSettingChangesetBuilder {
     params: GridSettingChangesetParams,
@@ -17,7 +17,7 @@ impl GridSettingChangesetBuilder {
         Self { params }
     }
 
-    pub fn insert_filter(mut self, params: InsertFilterParams) -> Self {
+    pub fn insert_filter(mut self, params: CreateFilterParams) -> Self {
         self.params.insert_filter = Some(params);
         self
     }

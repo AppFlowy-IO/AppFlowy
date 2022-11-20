@@ -1,3 +1,5 @@
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/text_style.dart';
 import 'package:flutter/material.dart';
 
 import 'color_extension.dart';
@@ -19,7 +21,7 @@ String themeTypeToString(Brightness brightness) {
   }
 }
 
-// Color Pallettes
+// Color Palettes
 const _black = Color(0xff000000);
 const _white = Color(0xFFFFFFFF);
 
@@ -65,16 +67,18 @@ class AppTheme {
 
   late Color shadow;
 
+  late String font;
+  late String monospaceFont;
+
   /// Default constructor
   AppTheme({this.brightness = Brightness.light});
 
-  factory AppTheme.fromName({required String name}) {
-    return AppTheme.fromType(themeTypeFromString(name));
-  }
-
-  /// fromType factory constructor
-  factory AppTheme.fromType(Brightness themeType) {
-    switch (themeType) {
+  factory AppTheme.fromName({
+    required String themeName,
+    required String font,
+    required String monospaceFont,
+  }) {
+    switch (themeTypeFromString(themeName)) {
       case Brightness.light:
         return AppTheme(brightness: Brightness.light)
           ..surface = Colors.white
@@ -108,7 +112,9 @@ class AppTheme {
           ..textColor = _black
           ..iconColor = _black
           ..shadow = _black
-          ..disableIconColor = const Color(0xffbdbdbd);
+          ..disableIconColor = const Color(0xffbdbdbd)
+          ..font = font
+          ..monospaceFont = monospaceFont;
 
       case Brightness.dark:
         return AppTheme(brightness: Brightness.dark)
@@ -143,14 +149,17 @@ class AppTheme {
           ..textColor = _white
           ..iconColor = _white
           ..shadow = _black
-          ..disableIconColor = const Color(0xff333333);
+          ..disableIconColor = const Color(0xff333333)
+          ..font = font
+          ..monospaceFont = monospaceFont;
     }
   }
 
   ThemeData get themeData {
+    final textTheme = TextStyles(font: font, color: shader1);
     return ThemeData(
       brightness: brightness,
-      textTheme: TextTheme(bodyText2: TextStyle(color: shader1)),
+      textTheme: textTheme.generateTextTheme(),
       textSelectionTheme: TextSelectionThemeData(
           cursorColor: main2, selectionHandleColor: main2),
       primaryIconTheme: IconThemeData(color: hover),
@@ -187,13 +196,23 @@ class AppTheme {
         shadow: shadow,
       ),
       extensions: [
-        CustomColors(
+        AFThemeExtension(
           warning: yellow,
           success: green,
           greyHover: bg2,
           greySelect: bg3,
           lightGreyHover: shader6,
           toggleOffFill: shader5,
+          code: textTheme.getFontStyle(fontFamily: monospaceFont),
+          callout: textTheme.getFontStyle(
+            fontSize: FontSizes.s11,
+            fontColor: shader3,
+          ),
+          caption: textTheme.getFontStyle(
+            fontSize: FontSizes.s11,
+            fontWeight: FontWeight.w400,
+            fontColor: shader3,
+          ),
         )
       ],
     );

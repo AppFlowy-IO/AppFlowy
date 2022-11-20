@@ -85,7 +85,11 @@ class HomeMenu extends StatelessWidget {
   Widget _renderBody(BuildContext context) {
     // nested column: https://siddharthmolleti.com/flutter-box-constraints-nested-column-s-row-s-3dfacada7361
     return Container(
-      color: Theme.of(context).colorScheme.surfaceVariant,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceVariant,
+        border:
+            Border(right: BorderSide(color: Theme.of(context).dividerColor)),
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [

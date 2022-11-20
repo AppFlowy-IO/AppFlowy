@@ -1,4 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -16,7 +17,11 @@ class FlowyMessageToast extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: FlowyText.medium(message, color: Colors.white),
+        child: FlowyText.medium(
+          message,
+          color: Colors.white,
+          fontSize: FontSizes.s16,
+        ),
       ),
     );
   }

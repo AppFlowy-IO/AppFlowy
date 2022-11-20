@@ -7,7 +7,6 @@ import 'package:app_flowy/plugins/grid/presentation/widgets/toolbar/grid_propert
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -105,10 +104,7 @@ class _SettingItem extends StatelessWidget {
       height: 30,
       child: FlowyButton(
         isSelected: isSelected,
-        text: FlowyText.medium(
-          action.title(),
-          fontSize: FontSizes.s12,
-        ),
+        text: FlowyText.medium(action.title()),
         onTap: () {
           context
               .read<BoardSettingBloc>()

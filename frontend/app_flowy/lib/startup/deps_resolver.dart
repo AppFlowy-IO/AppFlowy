@@ -2,7 +2,7 @@ import 'package:app_flowy/core/network_monitor.dart';
 import 'package:app_flowy/user/application/user_listener.dart';
 import 'package:app_flowy/user/application/user_service.dart';
 import 'package:app_flowy/workspace/application/app/prelude.dart';
-import 'package:app_flowy/plugins/doc/application/prelude.dart';
+import 'package:app_flowy/plugins/document/application/prelude.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:app_flowy/workspace/application/user/prelude.dart';
 import 'package:app_flowy/workspace/application/workspace/prelude.dart';

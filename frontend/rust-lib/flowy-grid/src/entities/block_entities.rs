@@ -152,7 +152,7 @@ impl std::convert::From<&RowRevision> for InsertedRowPB {
     }
 }
 
-#[derive(Debug, Default, ProtoBuf)]
+#[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct GridBlockChangesetPB {
     #[pb(index = 1)]
     pub block_id: String,
@@ -170,7 +170,7 @@ pub struct GridBlockChangesetPB {
     pub visible_rows: Vec<String>,
 
     #[pb(index = 6)]
-    pub hide_rows: Vec<String>,
+    pub invisible_rows: Vec<String>,
 }
 impl GridBlockChangesetPB {
     pub fn insert(block_id: String, inserted_rows: Vec<InsertedRowPB>) -> Self {

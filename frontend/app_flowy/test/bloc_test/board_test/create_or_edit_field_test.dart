@@ -16,22 +16,23 @@ void main() {
   group('The grouped field is not changed after editing a field:', () {
     late BoardBloc boardBloc;
     late FieldEditorBloc editorBloc;
+    late BoardTestContext context;
     setUpAll(() async {
-      await boardTest.context.createTestBoard();
+      context = await boardTest.createTestBoard();
     });
 
     setUp(() async {
-      boardBloc = BoardBloc(view: boardTest.context.gridView)
+      boardBloc = BoardBloc(view: context.gridView)
         ..add(const BoardEvent.initial());
 
-      final fieldContext = boardTest.context.singleSelectFieldContext();
+      final fieldContext = context.singleSelectFieldContext();
       final loader = FieldTypeOptionLoader(
-        gridId: boardTest.context.gridView.id,
+        gridId: context.gridView.id,
         field: fieldContext.field,
       );
 
       editorBloc = FieldEditorBloc(
-        gridId: boardTest.context.gridView.id,
+        gridId: context.gridView.id,
         fieldName: fieldContext.name,
         isGroupField: fieldContext.isGroupField,
         loader: loader,
@@ -46,7 +47,7 @@ void main() {
       wait: boardResponseDuration(),
       verify: (bloc) {
         assert(bloc.groupControllers.values.length == 4);
-        assert(boardTest.context.fieldContexts.length == 2);
+        assert(context.fieldContexts.length == 2);
       },
     );
 
@@ -75,19 +76,20 @@ void main() {
         assert(bloc.groupControllers.values.length == 4,
             "Expected 4, but receive ${bloc.groupControllers.values.length}");
 
-        assert(boardTest.context.fieldContexts.length == 2,
-            "Expected 2, but receive ${boardTest.context.fieldContexts.length}");
+        assert(context.fieldContexts.length == 2,
+            "Expected 2, but receive ${context.fieldContexts.length}");
       },
     );
   });
   group('The grouped field is not changed after creating a new field:', () {
     late BoardBloc boardBloc;
+    late BoardTestContext context;
     setUpAll(() async {
-      await boardTest.context.createTestBoard();
+      context = await boardTest.createTestBoard();
     });
 
     setUp(() async {
-      boardBloc = BoardBloc(view: boardTest.context.gridView)
+      boardBloc = BoardBloc(view: context.gridView)
         ..add(const BoardEvent.initial());
       await boardResponseFuture();
     });
@@ -98,14 +100,14 @@ void main() {
       wait: boardResponseDuration(),
       verify: (bloc) {
         assert(bloc.groupControllers.values.length == 4);
-        assert(boardTest.context.fieldContexts.length == 2);
+        assert(context.fieldContexts.length == 2);
       },
     );
 
     test('create a field', () async {
-      await boardTest.context.createField(FieldType.Checkbox);
+      await context.createField(FieldType.Checkbox);
       await boardResponseFuture();
-      final checkboxField = boardTest.context.fieldContexts.last.field;
+      final checkboxField = context.fieldContexts.last.field;
       assert(checkboxField.fieldType == FieldType.Checkbox);
     });
 
@@ -117,8 +119,8 @@ void main() {
         assert(bloc.groupControllers.values.length == 4,
             "Expected 4, but receive ${bloc.groupControllers.values.length}");
 
-        assert(boardTest.context.fieldContexts.length == 3,
-            "Expected 3, but receive ${boardTest.context.fieldContexts.length}");
+        assert(context.fieldContexts.length == 3,
+            "Expected 3, but receive ${context.fieldContexts.length}");
       },
     );
   });

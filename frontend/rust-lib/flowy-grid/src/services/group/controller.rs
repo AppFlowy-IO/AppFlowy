@@ -1,4 +1,4 @@
-use crate::entities::{GroupChangesetPB, GroupViewChangesetPB, InsertedRowPB, RowPB};
+use crate::entities::{GroupRowsNotificationPB, GroupViewChangesetPB, InsertedRowPB, RowPB};
 use crate::services::cell::{decode_any_cell_data, CellBytesParser, CellDataIsEmpty};
 use crate::services::group::action::{GroupControllerCustomActions, GroupControllerSharedActions};
 use crate::services::group::configuration::GroupContext;
@@ -89,8 +89,8 @@ where
     fn update_default_group(
         &mut self,
         row_rev: &RowRevision,
-        other_group_changesets: &[GroupChangesetPB],
-    ) -> Option<GroupChangesetPB> {
+        other_group_changesets: &[GroupRowsNotificationPB],
+    ) -> Option<GroupRowsNotificationPB> {
         let default_group = self.group_ctx.get_mut_no_status_group()?;
 
         // [other_group_inserted_row] contains all the inserted rows except the default group.
@@ -113,7 +113,7 @@ where
             })
             .collect::<Vec<String>>();
 
-        let mut changeset = GroupChangesetPB::new(default_group.id.clone());
+        let mut changeset = GroupRowsNotificationPB::new(default_group.id.clone());
         if !default_group_inserted_row.is_empty() {
             changeset.inserted_rows.push(InsertedRowPB::new(row_rev.into()));
             default_group.add_row(row_rev.into());
@@ -165,8 +165,8 @@ where
         &self.field_id
     }
 
-    fn groups(&self) -> Vec<Group> {
-        self.group_ctx.groups().into_iter().cloned().collect()
+    fn groups(&self) -> Vec<&Group> {
+        self.group_ctx.groups()
     }
 
     fn get_group(&self, group_id: &str) -> Option<(usize, Group)> {
@@ -222,7 +222,7 @@ where
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupChangesetPB>> {
+    ) -> FlowyResult<Vec<GroupRowsNotificationPB>> {
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
             let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev).1;
             let cell_data = cell_bytes.parser::<P>()?;
@@ -244,7 +244,7 @@ where
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupChangesetPB>> {
+    ) -> FlowyResult<Vec<GroupRowsNotificationPB>> {
         // if the cell_rev is none, then the row must in the default group.
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
             let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev).1;
@@ -264,7 +264,7 @@ where
                 if !no_status_group.contains_row(&row_rev.id) {
                     tracing::error!("The row: {} should be in the no status group", row_rev.id);
                 }
-                Ok(vec![GroupChangesetPB::delete(
+                Ok(vec![GroupRowsNotificationPB::delete(
                     no_status_group.id.clone(),
                     vec![row_rev.id.clone()],
                 )])
@@ -273,7 +273,7 @@ where
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
-    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupChangesetPB>> {
+    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupRowsNotificationPB>> {
         let cell_rev = match context.row_rev.cells.get(&self.field_id) {
             Some(cell_rev) => Some(cell_rev.clone()),
             None => self.default_cell_rev(),

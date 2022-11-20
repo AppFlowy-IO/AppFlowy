@@ -9,6 +9,7 @@ edition = "2021"
 lib-dispatch = { path = "../lib-dispatch" }
 dart-notify = { path = "../dart-notify" }
 flowy-revision = { path = "../flowy-revision" }
+flowy-task= { path = "../flowy-task" }
 flowy-error = { path = "../flowy-error", features = ["db"]}
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
@@ -17,6 +18,7 @@ grid-rev-model = { path = "../../../shared-lib/grid-rev-model" }
 flowy-sync = { path = "../../../shared-lib/flowy-sync" }
 flowy-http-model = { path = "../../../shared-lib/flowy-http-model" }
 flowy-database = { path = "../flowy-database" }
+anyhow = "1.0"
 
 strum = "0.21"
 strum_macros = "0.21"
@@ -42,6 +44,7 @@ url = { version = "2"}
 futures = "0.3.15"
 atomic_refcell = "0.1.8"
 crossbeam-utils = "0.8.7"
+async-stream = "0.3.2"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }

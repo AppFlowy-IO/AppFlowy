@@ -118,7 +118,7 @@ class _GridPropertyCell extends StatelessWidget {
       offset: const Offset(20, 0),
       constraints: BoxConstraints.loose(const Size(240, 400)),
       child: FlowyButton(
-        text: FlowyText.medium(fieldContext.name, fontSize: 12),
+        text: FlowyText.medium(fieldContext.name),
         leftIcon: svgWidget(
           fieldContext.fieldType.iconName(),
           color: Theme.of(context).colorScheme.onSurface,

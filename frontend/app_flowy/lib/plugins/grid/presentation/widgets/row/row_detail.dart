@@ -198,11 +198,8 @@ class _CreateFieldButtonState extends State<_CreateFieldButton> {
         height: 40,
         decoration: _makeBoxDecoration(context),
         child: FlowyButton(
-          text: FlowyText.medium(
-            LocaleKeys.grid_field_newColumn.tr(),
-            fontSize: 12,
-          ),
-          hoverColor: CustomColors.of(context).lightGreyHover,
+          text: FlowyText.medium(LocaleKeys.grid_field_newColumn.tr()),
+          hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onTap: () {},
           leftIcon: svgWidget("home/add"),
         ),

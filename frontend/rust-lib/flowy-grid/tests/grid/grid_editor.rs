@@ -3,6 +3,7 @@
 #![allow(unused_imports)]
 use crate::grid::block_test::util::GridRowTestBuilder;
 use bytes::Bytes;
+use flowy_error::FlowyResult;
 use flowy_grid::entities::*;
 use flowy_grid::services::field::SelectOptionPB;
 use flowy_grid::services::field::*;
@@ -44,18 +45,23 @@ impl GridEditorTest {
     pub async fn new(layout: GridLayout) -> Self {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
-        let build_context = make_test_grid();
-        let view_data: Bytes = build_context.into();
-
         let test = match layout {
-            GridLayout::Table => ViewTest::new_grid_view(&sdk, view_data.to_vec()).await,
-            GridLayout::Board => ViewTest::new_board_view(&sdk, view_data.to_vec()).await,
+            GridLayout::Table => {
+                let build_context = make_test_grid();
+                let view_data: Bytes = build_context.into();
+                ViewTest::new_grid_view(&sdk, view_data.to_vec()).await
+            }
+            GridLayout::Board => {
+                let build_context = make_test_board();
+                let view_data: Bytes = build_context.into();
+                ViewTest::new_board_view(&sdk, view_data.to_vec()).await
+            }
         };
 
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
         let field_revs = editor.get_field_revs(None).await.unwrap();
         let block_meta_revs = editor.get_block_meta_revs().await.unwrap();
-        let row_revs = editor.grid_block_snapshots(None).await.unwrap().pop().unwrap().row_revs;
+        let row_revs = editor.get_blocks(None).await.unwrap().pop().unwrap().row_revs;
         assert_eq!(block_meta_revs.len(), 1);
 
         // It seems like you should add the field in the make_test_grid() function.
@@ -76,17 +82,11 @@ impl GridEditorTest {
     }
 
     pub async fn get_row_revs(&self) -> Vec<Arc<RowRevision>> {
-        self.editor
-            .grid_block_snapshots(None)
-            .await
-            .unwrap()
-            .pop()
-            .unwrap()
-            .row_revs
+        self.editor.get_blocks(None).await.unwrap().pop().unwrap().row_revs
     }
 
-    pub async fn grid_filters(&self) -> Vec<GridFilterConfigurationPB> {
-        self.editor.get_grid_filter().await.unwrap()
+    pub async fn grid_filters(&self) -> Vec<FilterPB> {
+        self.editor.get_all_filters().await.unwrap()
     }
 
     pub fn get_field_rev(&self, field_type: FieldType) -> &Arc<FieldRevision> {
@@ -101,6 +101,23 @@ impl GridEditorTest {
             .unwrap()
     }
 
+    pub fn get_multi_select_type_option(&self) -> Vec<SelectOptionPB> {
+        let field_type = FieldType::MultiSelect;
+        let field_rev = self.get_field_rev(field_type.clone());
+        let type_option = field_rev
+            .get_type_option::<MultiSelectTypeOptionPB>(field_type.into())
+            .unwrap();
+        type_option.options
+    }
+
+    pub fn get_single_select_type_option(&self) -> Vec<SelectOptionPB> {
+        let field_type = FieldType::SingleSelect;
+        let field_rev = self.get_field_rev(field_type.clone());
+        let type_option = field_rev
+            .get_type_option::<SingleSelectTypeOptionPB>(field_type.into())
+            .unwrap();
+        type_option.options
+    }
     pub fn block_id(&self) -> &str {
         &self.block_meta_revs.last().unwrap().block_id
     }
@@ -116,6 +133,159 @@ pub const PAUSED: &str = "Paused";
 
 // This grid is assumed to contain all the Fields.
 fn make_test_grid() -> BuildGridContext {
+    let mut grid_builder = GridBuilder::new();
+    // Iterate through the FieldType to create the corresponding Field.
+    for field_type in FieldType::iter() {
+        let field_type: FieldType = field_type;
+
+        // The
+        match field_type {
+            FieldType::RichText => {
+                let text_field = FieldBuilder::new(RichTextTypeOptionBuilder::default())
+                    .name("Name")
+                    .visibility(true)
+                    .primary(true)
+                    .build();
+                grid_builder.add_field(text_field);
+            }
+            FieldType::Number => {
+                // Number
+                let number = NumberTypeOptionBuilder::default().set_format(NumberFormat::USD);
+                let number_field = FieldBuilder::new(number).name("Price").visibility(true).build();
+                grid_builder.add_field(number_field);
+            }
+            FieldType::DateTime => {
+                // Date
+                let date = DateTypeOptionBuilder::default()
+                    .date_format(DateFormat::US)
+                    .time_format(TimeFormat::TwentyFourHour);
+                let date_field = FieldBuilder::new(date).name("Time").visibility(true).build();
+                grid_builder.add_field(date_field);
+            }
+            FieldType::SingleSelect => {
+                // Single Select
+                let single_select = SingleSelectTypeOptionBuilder::default()
+                    .add_option(SelectOptionPB::new(COMPLETED))
+                    .add_option(SelectOptionPB::new(PLANNED))
+                    .add_option(SelectOptionPB::new(PAUSED));
+                let single_select_field = FieldBuilder::new(single_select).name("Status").visibility(true).build();
+                grid_builder.add_field(single_select_field);
+            }
+            FieldType::MultiSelect => {
+                // MultiSelect
+                let multi_select = MultiSelectTypeOptionBuilder::default()
+                    .add_option(SelectOptionPB::new(GOOGLE))
+                    .add_option(SelectOptionPB::new(FACEBOOK))
+                    .add_option(SelectOptionPB::new(TWITTER));
+                let multi_select_field = FieldBuilder::new(multi_select)
+                    .name("Platform")
+                    .visibility(true)
+                    .build();
+                grid_builder.add_field(multi_select_field);
+            }
+            FieldType::Checkbox => {
+                // Checkbox
+                let checkbox = CheckboxTypeOptionBuilder::default();
+                let checkbox_field = FieldBuilder::new(checkbox).name("is urgent").visibility(true).build();
+                grid_builder.add_field(checkbox_field);
+            }
+            FieldType::URL => {
+                // URL
+                let url = URLTypeOptionBuilder::default();
+                let url_field = FieldBuilder::new(url).name("link").visibility(true).build();
+                grid_builder.add_field(url_field);
+            }
+        }
+    }
+
+    // We have many assumptions base on the number of the rows, so do not change the number of the loop.
+    for i in 0..5 {
+        let block_id = grid_builder.block_id().to_owned();
+        let field_revs = grid_builder.field_revs();
+        let mut row_builder = GridRowTestBuilder::new(&block_id, field_revs);
+        match i {
+            0 => {
+                for field_type in FieldType::iter() {
+                    match field_type {
+                        FieldType::RichText => row_builder.insert_text_cell("A"),
+                        FieldType::Number => row_builder.insert_number_cell("1"),
+                        FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
+                        FieldType::MultiSelect => row_builder
+                            .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(0)]),
+                        FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
+                        _ => "".to_owned(),
+                    };
+                }
+            }
+            1 => {
+                for field_type in FieldType::iter() {
+                    match field_type {
+                        FieldType::RichText => row_builder.insert_text_cell(""),
+                        FieldType::Number => row_builder.insert_number_cell("2"),
+                        FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
+                        FieldType::MultiSelect => row_builder
+                            .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(0)]),
+                        FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
+                        _ => "".to_owned(),
+                    };
+                }
+            }
+            2 => {
+                for field_type in FieldType::iter() {
+                    match field_type {
+                        FieldType::RichText => row_builder.insert_text_cell("C"),
+                        FieldType::Number => row_builder.insert_number_cell("3"),
+                        FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
+                        FieldType::SingleSelect => {
+                            row_builder.insert_single_select_cell(|mut options| options.remove(0))
+                        }
+                        FieldType::MultiSelect => {
+                            row_builder.insert_multi_select_cell(|mut options| vec![options.remove(1)])
+                        }
+                        FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
+                        _ => "".to_owned(),
+                    };
+                }
+            }
+            3 => {
+                for field_type in FieldType::iter() {
+                    match field_type {
+                        FieldType::RichText => row_builder.insert_text_cell("DA"),
+                        FieldType::Number => row_builder.insert_number_cell("4"),
+                        FieldType::DateTime => row_builder.insert_date_cell("1668704685"),
+                        FieldType::SingleSelect => {
+                            row_builder.insert_single_select_cell(|mut options| options.remove(0))
+                        }
+                        FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
+                        _ => "".to_owned(),
+                    };
+                }
+            }
+            4 => {
+                for field_type in FieldType::iter() {
+                    match field_type {
+                        FieldType::RichText => row_builder.insert_text_cell("AE"),
+                        FieldType::Number => row_builder.insert_number_cell(""),
+                        FieldType::DateTime => row_builder.insert_date_cell("1668359085"),
+                        FieldType::SingleSelect => {
+                            row_builder.insert_single_select_cell(|mut options| options.remove(1))
+                        }
+
+                        FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
+                        _ => "".to_owned(),
+                    };
+                }
+            }
+            _ => {}
+        }
+
+        let row_rev = row_builder.build();
+        grid_builder.add_row(row_rev);
+    }
+    grid_builder.build()
+}
+
+fn make_test_board() -> BuildGridContext {
     let mut grid_builder = GridBuilder::new();
     // Iterate through the FieldType to create the corresponding Field.
     for field_type in FieldType::iter() {
@@ -239,9 +409,9 @@ fn make_test_grid() -> BuildGridContext {
             3 => {
                 for field_type in FieldType::iter() {
                     match field_type {
-                        FieldType::RichText => row_builder.insert_text_cell("D"),
+                        FieldType::RichText => row_builder.insert_text_cell("DA"),
                         FieldType::Number => row_builder.insert_number_cell("4"),
-                        FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
+                        FieldType::DateTime => row_builder.insert_date_cell("1668704685"),
                         FieldType::SingleSelect => {
                             row_builder.insert_single_select_cell(|mut options| options.remove(1))
                         }
@@ -253,9 +423,9 @@ fn make_test_grid() -> BuildGridContext {
             4 => {
                 for field_type in FieldType::iter() {
                     match field_type {
-                        FieldType::RichText => row_builder.insert_text_cell("E"),
-                        FieldType::Number => row_builder.insert_number_cell("5"),
-                        FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
+                        FieldType::RichText => row_builder.insert_text_cell("AE"),
+                        FieldType::Number => row_builder.insert_number_cell(""),
+                        FieldType::DateTime => row_builder.insert_date_cell("1668359085"),
                         FieldType::SingleSelect => {
                             row_builder.insert_single_select_cell(|mut options| options.remove(2))
                         }

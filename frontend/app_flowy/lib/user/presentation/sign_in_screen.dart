@@ -100,7 +100,6 @@ class SignUpPrompt extends StatelessWidget {
       children: [
         FlowyText.medium(
           LocaleKeys.signIn_dontHaveAnAccount.tr(),
-          fontSize: FontSizes.s12,
           color: Theme.of(context).hintColor,
         ),
         TextButton(

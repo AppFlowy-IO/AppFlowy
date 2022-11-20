@@ -10,14 +10,15 @@ void main() {
   });
 
   group('Edit Grid:', () {
+    late GridTestContext context;
     setUp(() async {
-      await gridTest.createTestGrid();
+      context = await gridTest.createTestGrid();
     });
     // The initial number of rows is 3 for each grid.
     blocTest<GridBloc, GridState>(
       "create a row",
       build: () =>
-          GridBloc(view: gridTest.gridView)..add(const GridEvent.initial()),
+          GridBloc(view: context.gridView)..add(const GridEvent.initial()),
       act: (bloc) => bloc.add(const GridEvent.createRow()),
       wait: const Duration(milliseconds: 300),
       verify: (bloc) {
@@ -28,7 +29,7 @@ void main() {
     blocTest<GridBloc, GridState>(
       "delete the last row",
       build: () =>
-          GridBloc(view: gridTest.gridView)..add(const GridEvent.initial()),
+          GridBloc(view: context.gridView)..add(const GridEvent.initial()),
       act: (bloc) async {
         await gridResponseFuture();
         bloc.add(GridEvent.deleteRow(bloc.state.rowInfos.last));

@@ -78,7 +78,6 @@ class _EditFieldButton extends StatelessWidget {
           child: FlowyButton(
             text: FlowyText.medium(
               LocaleKeys.grid_field_editProperty.tr(),
-              fontSize: 12,
             ),
             onTap: onTap,
           ),
@@ -150,7 +149,6 @@ class FieldActionCell extends StatelessWidget {
     return FlowyButton(
       text: FlowyText.medium(
         action.title(),
-        fontSize: 12,
         color: enable ? null : Theme.of(context).disabledColor,
       ),
       onTap: () {
