@@ -28,7 +28,7 @@ class NewAppButton extends StatelessWidget {
     return SizedBox(
       height: HomeSizes.menuAddButtonHeight,
       child: child,
-    ).topBorder(color: Colors.grey.shade300);
+    ).topBorder(color: Theme.of(context).dividerColor);
   }
 
   Future<void> _showCreateAppDialog(BuildContext context) async {
