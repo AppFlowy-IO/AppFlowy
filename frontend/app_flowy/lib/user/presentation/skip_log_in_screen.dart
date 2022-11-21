@@ -4,6 +4,7 @@ import 'package:app_flowy/user/presentation/widgets/background.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/uuid.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/log.dart';
@@ -12,7 +13,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:app_flowy/generated/locale_keys.g.dart';
@@ -63,25 +63,19 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
               hoverColor: Colors.transparent,
               onTap: () =>
                   _launchURL('https://github.com/AppFlowy-IO/appflowy'),
-              child: Text(
+              child: FlowyText.medium(
                 LocaleKeys.githubStarText.tr(),
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
-                    .textColor(Theme.of(context).colorScheme.primary)
-                    .underline,
+                color: Theme.of(context).colorScheme.primary,
+                decoration: TextDecoration.underline,
               ),
             ),
             InkWell(
               hoverColor: Colors.transparent,
               onTap: () => _launchURL('https://www.appflowy.io/blog'),
-              child: Text(
+              child: FlowyText.medium(
                 LocaleKeys.subscribeNewsletterText.tr(),
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
-                    .textColor(Theme.of(context).colorScheme.primary)
-                    .underline,
+                color: Theme.of(context).colorScheme.primary,
+                decoration: TextDecoration.underline,
               ),
             ),
           ],
