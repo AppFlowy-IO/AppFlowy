@@ -28,7 +28,6 @@ import '../../header/type_option/date.dart';
 final kToday = DateTime.now();
 final kFirstDay = DateTime(kToday.year, kToday.month - 3, kToday.day);
 final kLastDay = DateTime(kToday.year, kToday.month + 3, kToday.day);
-const kMargin = EdgeInsets.symmetric(horizontal: 6, vertical: 10);
 
 class DateCellEditor extends StatefulWidget {
   final VoidCallback onDismissed;
@@ -115,7 +114,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
     return BlocProvider.value(
       value: bloc,
       child: BlocBuilder<DateCalBloc, DateCalState>(
-        buildWhen: (p, c) => false,
+        buildWhen: (p, c) => p != c,
         builder: (context, state) {
           List<Widget> children = [
             _buildCalendar(context),
@@ -124,17 +123,16 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
                 bloc: context.read<DateCalBloc>(),
                 popoverMutex: popoverMutex,
               ),
-            Divider(height: 1, color: Theme.of(context).dividerColor),
+            Divider(height: 1.0, color: Theme.of(context).dividerColor),
             const _IncludeTimeButton(),
+            Divider(height: 1.0, color: Theme.of(context).dividerColor),
             _DateTypeOptionButton(popoverMutex: popoverMutex)
           ];
 
           return ListView.separated(
             shrinkWrap: true,
             controller: ScrollController(),
-            separatorBuilder: (context, index) {
-              return VSpace(GridSize.typeOptionSeparatorHeight);
-            },
+            separatorBuilder: (context, index) => VSpace(GridSize.cellVPadding),
             itemCount: children.length,
             itemBuilder: (BuildContext context, int index) {
               return children[index];
@@ -165,9 +163,9 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
           firstDay: kFirstDay,
           lastDay: kLastDay,
           focusedDay: state.focusedDay,
-          rowHeight: 40,
+          rowHeight: GridSize.typeOptionItemHeight,
           calendarFormat: state.format,
-          daysOfWeekHeight: 40,
+          daysOfWeekHeight: GridSize.typeOptionItemHeight,
           headerStyle: HeaderStyle(
             formatButtonVisible: false,
             titleCentered: true,
@@ -237,9 +235,9 @@ class _IncludeTimeButton extends StatelessWidget {
       selector: (state) => state.dateTypeOptionPB.includeTime,
       builder: (context, includeTime) {
         return SizedBox(
-          height: 50,
+          height: GridSize.typeOptionItemHeight,
           child: Padding(
-            padding: kMargin,
+            padding: GridSize.typeOptionContentInsets,
             child: Row(
               children: [
                 svgWidget(
@@ -288,23 +286,25 @@ class _TimeTextFieldState extends State<_TimeTextField> {
   void initState() {
     _focusNode = FocusNode();
     _controller = TextEditingController(text: widget.bloc.state.time);
-    if (widget.bloc.state.dateTypeOptionPB.includeTime) {
-      _focusNode.addListener(() {
-        if (mounted) {
-          widget.bloc.add(DateCalEvent.setTime(_controller.text));
-        }
 
-        if (_focusNode.hasFocus) {
-          widget.popoverMutex.close();
-        }
-      });
+    _focusNode.addListener(() {
+      if (mounted) {
+        widget.bloc.add(DateCalEvent.setTime(_controller.text));
+      }
+    });
 
-      widget.popoverMutex.listenOnPopoverChanged(() {
-        if (_focusNode.hasFocus) {
-          _focusNode.unfocus();
-        }
-      });
-    }
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) {
+        widget.popoverMutex.close();
+      }
+    });
+
+    widget.popoverMutex.listenOnPopoverChanged(() {
+      if (_focusNode.hasFocus) {
+        _focusNode.unfocus();
+      }
+    });
+
     super.initState();
   }
 
@@ -316,7 +316,7 @@ class _TimeTextFieldState extends State<_TimeTextField> {
     return Padding(
       padding: GridSize.typeOptionContentInsets,
       child: RoundedInputField(
-        height: 33,
+        height: GridSize.typeOptionItemHeight,
         focusNode: _focusNode,
         autoFocus: true,
         hintText: widget.bloc.state.timeHintText,
@@ -441,9 +441,8 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
       child: ListView.separated(
         shrinkWrap: true,
         controller: ScrollController(),
-        separatorBuilder: (context, index) {
-          return VSpace(GridSize.typeOptionSeparatorHeight);
-        },
+        separatorBuilder: (context, index) =>
+            VSpace(GridSize.typeOptionSeparatorHeight),
         itemCount: children.length,
         itemBuilder: (BuildContext context, int index) {
           return children[index];
