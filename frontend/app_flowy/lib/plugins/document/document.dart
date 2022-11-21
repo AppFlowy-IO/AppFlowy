@@ -14,7 +14,6 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:clipboard/clipboard.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
@@ -176,9 +175,6 @@ class ShareActionList extends StatelessWidget {
       buildChild: (controller) {
         return RoundedTextButton(
           title: LocaleKeys.shareAction_buttonText.tr(),
-          fontSize: FontSizes.s12,
-          borderRadius: Corners.s6Border,
-          color: Theme.of(context).colorScheme.primary,
           onPressed: () => controller.show(),
         );
       },

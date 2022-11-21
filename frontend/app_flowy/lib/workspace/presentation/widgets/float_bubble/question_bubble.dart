@@ -3,6 +3,7 @@ import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -45,11 +46,9 @@ class BubbleActionList extends StatelessWidget {
         return FlowyTextButton(
           '?',
           tooltip: LocaleKeys.questionBubble_help.tr(),
-          fontSize: 12,
           fontWeight: FontWeight.w600,
-          fillColor: Theme.of(context).colorScheme.secondaryContainer,
           mainAxisAlignment: MainAxisAlignment.center,
-          radius: BorderRadius.circular(10),
+          radius: Corners.s10Border,
           onPressed: () => controller.show(),
         );
       },
