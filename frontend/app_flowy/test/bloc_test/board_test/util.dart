@@ -78,14 +78,14 @@ class BoardTestContext {
     return _boardDataController.blocks;
   }
 
-  List<GridFieldContext> get fieldContexts => fieldController.fieldContexts;
+  List<GridFieldInfo> get fieldContexts => fieldController.fieldContexts;
 
   GridFieldController get fieldController {
     return _boardDataController.fieldController;
   }
 
   FieldEditorBloc createFieldEditor({
-    GridFieldContext? fieldContext,
+    GridFieldInfo? fieldContext,
   }) {
     IFieldTypeOptionLoader loader;
     if (fieldContext == null) {
@@ -146,7 +146,7 @@ class BoardTestContext {
     return Future(() => editorBloc);
   }
 
-  GridFieldContext singleSelectFieldContext() {
+  GridFieldInfo singleSelectFieldContext() {
     final fieldContext = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.SingleSelect);
     return fieldContext;
@@ -157,13 +157,13 @@ class BoardTestContext {
     return GridFieldCellContext(gridId: gridView.id, field: field);
   }
 
-  GridFieldContext textFieldContext() {
+  GridFieldInfo textFieldContext() {
     final fieldContext = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.RichText);
     return fieldContext;
   }
 
-  GridFieldContext checkboxFieldContext() {
+  GridFieldInfo checkboxFieldContext() {
     final fieldContext = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.Checkbox);
     return fieldContext;

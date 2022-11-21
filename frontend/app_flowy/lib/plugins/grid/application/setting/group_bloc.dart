@@ -12,7 +12,7 @@ part 'group_bloc.freezed.dart';
 class GridGroupBloc extends Bloc<GridGroupEvent, GridGroupState> {
   final GridFieldController _fieldController;
   final SettingFFIService _settingFFIService;
-  Function(List<GridFieldContext>)? _onFieldsFn;
+  Function(List<GridFieldInfo>)? _onFieldsFn;
 
   GridGroupBloc({
     required String viewId,
@@ -68,18 +68,18 @@ class GridGroupEvent with _$GridGroupEvent {
     FieldType fieldType,
   ) = _GroupByField;
   const factory GridGroupEvent.didReceiveFieldUpdate(
-      List<GridFieldContext> fields) = _DidReceiveFieldUpdate;
+      List<GridFieldInfo> fields) = _DidReceiveFieldUpdate;
 }
 
 @freezed
 class GridGroupState with _$GridGroupState {
   const factory GridGroupState({
     required String gridId,
-    required List<GridFieldContext> fieldContexts,
+    required List<GridFieldInfo> fieldContexts,
   }) = _GridGroupState;
 
   factory GridGroupState.initial(
-          String gridId, List<GridFieldContext> fieldContexts) =>
+          String gridId, List<GridFieldInfo> fieldContexts) =>
       GridGroupState(
         gridId: gridId,
         fieldContexts: fieldContexts,

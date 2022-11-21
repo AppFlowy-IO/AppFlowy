@@ -130,7 +130,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
 
 TypeOptionContext<T> makeTypeOptionContext<T extends GeneratedMessage>({
   required String gridId,
-  required GridFieldContext fieldContext,
+  required GridFieldInfo fieldContext,
 }) {
   final loader =
       FieldTypeOptionLoader(gridId: gridId, field: fieldContext.field);

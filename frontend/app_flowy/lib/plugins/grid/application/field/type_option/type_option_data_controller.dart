@@ -18,13 +18,13 @@ class TypeOptionDataController {
   /// Returns a [TypeOptionDataController] used to modify the specified
   /// [FieldPB]'s data
   ///
-  /// Should call [loadTypeOptionData] if the passed-in [GridFieldContext]
+  /// Should call [loadTypeOptionData] if the passed-in [GridFieldInfo]
   /// is null
   ///
   TypeOptionDataController({
     required this.gridId,
     required this.loader,
-    GridFieldContext? fieldContext,
+    GridFieldInfo? fieldContext,
   }) {
     if (fieldContext != null) {
       _data = TypeOptionPB.create()

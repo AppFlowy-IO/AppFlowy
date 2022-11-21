@@ -12,7 +12,7 @@ import 'field/field_controller.dart';
 import 'prelude.dart';
 import 'row/row_cache.dart';
 
-typedef OnFieldsChanged = void Function(UnmodifiableListView<GridFieldContext>);
+typedef OnFieldsChanged = void Function(UnmodifiableListView<GridFieldInfo>);
 typedef OnGridChanged = void Function(GridPB);
 
 typedef OnRowsChanged = void Function(

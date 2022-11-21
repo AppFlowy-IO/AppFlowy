@@ -27,7 +27,7 @@ class GridToolbar extends StatelessWidget {
           SizedBox(width: GridSize.leadingHeaderPadding),
           const SettingButton(),
           const Spacer(),
-          const FilterButton(),
+          FilterButton(),
         ],
       ),
     );

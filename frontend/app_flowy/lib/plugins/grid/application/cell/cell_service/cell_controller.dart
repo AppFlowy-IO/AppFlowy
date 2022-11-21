@@ -163,7 +163,7 @@ class IGridCellController<T, D> extends Equatable {
 
   String get fieldId => cellId.fieldContext.id;
 
-  GridFieldContext get fieldContext => cellId.fieldContext;
+  GridFieldInfo get fieldContext => cellId.fieldContext;
 
   FieldType get fieldType => cellId.fieldContext.fieldType;
 

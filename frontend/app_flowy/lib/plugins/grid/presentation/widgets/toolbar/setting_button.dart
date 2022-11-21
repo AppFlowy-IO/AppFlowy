@@ -47,13 +47,13 @@ class _SettingButtonState extends State<SettingButton> {
           margin: const EdgeInsets.all(6),
           triggerActions: PopoverTriggerFlags.none,
           child: FlowyIconButton(
-            width: 32,
+            height: 26,
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
             onPressed: () => popoverController.show(),
             icon: svgWidget(
               "grid/setting/setting",
               color: Theme.of(context).colorScheme.onSurface,
-            ).padding(horizontal: 6, vertical: 4),
+            ).padding(horizontal: 4, vertical: 4),
           ),
           popupBuilder: (BuildContext context) {
             return _GridSettingListPopover(settingContext: settingContext);

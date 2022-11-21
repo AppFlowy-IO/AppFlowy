@@ -74,7 +74,7 @@ class _GridPropertyListState extends State<GridPropertyList> {
 }
 
 class _GridPropertyCell extends StatelessWidget {
-  final GridFieldContext fieldContext;
+  final GridFieldInfo fieldContext;
   final String gridId;
   final PopoverMutex popoverMutex;
   const _GridPropertyCell({

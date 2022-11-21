@@ -88,6 +88,7 @@ class FlowyTextButton extends StatelessWidget {
   final BorderRadius? radius;
   final MainAxisAlignment mainAxisAlignment;
   final String? tooltip;
+  final BoxConstraints constraints;
 
   // final HoverDisplayConfig? hoverDisplay;
   const FlowyTextButton(
@@ -105,6 +106,7 @@ class FlowyTextButton extends StatelessWidget {
     this.radius,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.tooltip,
+    this.constraints = const BoxConstraints(minWidth: 58.0, minHeight: 30.0),
   }) : super(key: key);
 
   @override
@@ -139,13 +141,15 @@ class FlowyTextButton extends StatelessWidget {
       hoverElevation: 0,
       highlightElevation: 0,
       shape: RoundedRectangleBorder(
-          borderRadius: radius ?? BorderRadius.circular(2)),
+        borderRadius: radius ?? BorderRadius.circular(2),
+      ),
       fillColor: fillColor,
       hoverColor: hoverColor ?? Theme.of(context).colorScheme.secondary,
       focusColor: Colors.transparent,
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       elevation: 0,
+      constraints: constraints,
       onPressed: onPressed,
       child: child,
     );
@@ -161,18 +165,3 @@ class FlowyTextButton extends StatelessWidget {
     return child;
   }
 }
-// return TextButton(
-//   style: ButtonStyle(
-//     textStyle: MaterialStateProperty.all(TextStyle(fontSize: fontSize)),
-//     alignment: Alignment.centerLeft,
-//     foregroundColor: MaterialStateProperty.all(Colors.black),
-//     padding: MaterialStateProperty.all<EdgeInsets>(
-//         const EdgeInsets.symmetric(horizontal: 2)),
-//   ),
-//   onPressed: onPressed,
-//   child: Text(
-//     text,
-//     overflow: TextOverflow.ellipsis,
-//     softWrap: false,
-//   ),
-// );
