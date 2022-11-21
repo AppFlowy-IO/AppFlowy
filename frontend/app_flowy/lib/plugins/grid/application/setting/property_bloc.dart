@@ -15,8 +15,7 @@ class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
   GridPropertyBloc(
       {required String gridId, required GridFieldController fieldController})
       : _fieldController = fieldController,
-        super(
-            GridPropertyState.initial(gridId, fieldController.fieldContexts)) {
+        super(GridPropertyState.initial(gridId, fieldController.fieldInfos)) {
     on<GridPropertyEvent>(
       (event, emit) async {
         await event.map(

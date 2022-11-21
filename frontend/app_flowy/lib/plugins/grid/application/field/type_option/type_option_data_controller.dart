@@ -24,12 +24,12 @@ class TypeOptionDataController {
   TypeOptionDataController({
     required this.gridId,
     required this.loader,
-    GridFieldInfo? fieldContext,
+    GridFieldInfo? fieldInfo,
   }) {
-    if (fieldContext != null) {
+    if (fieldInfo != null) {
       _data = TypeOptionPB.create()
         ..gridId = gridId
-        ..field_2 = fieldContext.field;
+        ..field_2 = fieldInfo.field;
     }
   }
 

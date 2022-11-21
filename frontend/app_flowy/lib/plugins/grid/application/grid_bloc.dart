@@ -19,9 +19,8 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   final GridDataController dataController;
   void Function()? _createRowOperation;
 
-  GridBloc({required ViewPB view})
-      : dataController = GridDataController(view: view),
-        super(GridState.initial(view.id)) {
+  GridBloc({required ViewPB view, required this.dataController})
+      : super(GridState.initial(view.id)) {
     on<GridEvent>(
       (event, emit) async {
         await event.when(
@@ -124,7 +123,7 @@ class GridEvent with _$GridEvent {
     RowsChangedReason listState,
   ) = _DidReceiveRowUpdate;
   const factory GridEvent.didReceiveFieldUpdate(
-    UnmodifiableListView<GridFieldInfo> fields,
+    List<GridFieldInfo> fields,
   ) = _DidReceiveFieldUpdate;
 
   const factory GridEvent.didReceiveGridUpdate(
@@ -163,9 +162,9 @@ class GridLoadingState with _$GridLoadingState {
 }
 
 class GridFieldEquatable extends Equatable {
-  final UnmodifiableListView<GridFieldInfo> _fields;
+  final List<GridFieldInfo> _fields;
   const GridFieldEquatable(
-    UnmodifiableListView<GridFieldInfo> fields,
+    List<GridFieldInfo> fields,
   ) : _fields = fields;
 
   @override

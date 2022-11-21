@@ -1,5 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/filter/filter_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/grid_bloc.dart';
+import 'package:app_flowy/plugins/grid/application/grid_data_controller.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_filter.pbenum.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/text_filter.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,20 +13,22 @@ void main() {
     gridTest = await AppFlowyGridTest.ensureInitialized();
   });
 
-  group('$GridFilterBloc', () {
+  group('$GridFilterEditBloc', () {
     late GridTestContext context;
     setUp(() async {
       context = await gridTest.createTestGrid();
     });
 
-    blocTest<GridFilterBloc, GridFilterState>(
+    blocTest<GridFilterEditBloc, GridFilterEditState>(
       "create a text filter",
-      build: () => GridFilterBloc(viewId: context.gridView.id)
-        ..add(const GridFilterEvent.initial()),
+      build: () => GridFilterEditBloc(
+        viewId: context.gridView.id,
+        fieldController: context.fieldController,
+      )..add(const GridFilterEditEvent.initial()),
       act: (bloc) async {
         final textField = context.textFieldContext();
         bloc.add(
-          GridFilterEvent.createTextFilter(
+          GridFilterEditEvent.createTextFilter(
               fieldId: textField.id,
               condition: TextFilterCondition.TextIsEmpty,
               content: ""),
@@ -37,14 +40,16 @@ void main() {
       },
     );
 
-    blocTest<GridFilterBloc, GridFilterState>(
+    blocTest<GridFilterEditBloc, GridFilterEditState>(
       "delete a text filter",
-      build: () => GridFilterBloc(viewId: context.gridView.id)
-        ..add(const GridFilterEvent.initial()),
+      build: () => GridFilterEditBloc(
+        viewId: context.gridView.id,
+        fieldController: context.fieldController,
+      )..add(const GridFilterEditEvent.initial()),
       act: (bloc) async {
         final textField = context.textFieldContext();
         bloc.add(
-          GridFilterEvent.createTextFilter(
+          GridFilterEditEvent.createTextFilter(
               fieldId: textField.id,
               condition: TextFilterCondition.TextIsEmpty,
               content: ""),
@@ -52,7 +57,7 @@ void main() {
         await gridResponseFuture();
         final filter = bloc.state.filters.first;
         bloc.add(
-          GridFilterEvent.deleteFilter(
+          GridFilterEditEvent.deleteFilter(
             fieldId: textField.id,
             filterId: filter.id,
             fieldType: textField.fieldType,
@@ -68,15 +73,20 @@ void main() {
 
   test('filter rows with condition: text is empty', () async {
     final context = await gridTest.createTestGrid();
-    final filterBloc = GridFilterBloc(viewId: context.gridView.id)
-      ..add(const GridFilterEvent.initial());
-    final gridBloc = GridBloc(view: context.gridView)
-      ..add(const GridEvent.initial());
+    final filterBloc = GridFilterEditBloc(
+      viewId: context.gridView.id,
+      fieldController: context.fieldController,
+    )..add(const GridFilterEditEvent.initial());
+    final dataController = GridDataController(view: context.gridView);
+    final gridBloc = GridBloc(
+      view: context.gridView,
+      dataController: dataController,
+    )..add(const GridEvent.initial());
     await gridResponseFuture();
 
     final textField = context.textFieldContext();
     filterBloc.add(
-      GridFilterEvent.createTextFilter(
+      GridFilterEditEvent.createTextFilter(
           fieldId: textField.id,
           condition: TextFilterCondition.TextIsEmpty,
           content: ""),
@@ -89,16 +99,20 @@ void main() {
   test('filter rows with condition: text is empty(After edit the row)',
       () async {
     final context = await gridTest.createTestGrid();
-    final filterBloc = GridFilterBloc(viewId: context.gridView.id)
-      ..add(const GridFilterEvent.initial());
-
-    final gridBloc = GridBloc(view: context.gridView)
-      ..add(const GridEvent.initial());
+    final filterBloc = GridFilterEditBloc(
+      viewId: context.gridView.id,
+      fieldController: context.fieldController,
+    )..add(const GridFilterEditEvent.initial());
+    final dataController = GridDataController(view: context.gridView);
+    final gridBloc = GridBloc(
+      view: context.gridView,
+      dataController: dataController,
+    )..add(const GridEvent.initial());
     await gridResponseFuture();
 
     final textField = context.textFieldContext();
     filterBloc.add(
-      GridFilterEvent.createTextFilter(
+      GridFilterEditEvent.createTextFilter(
           fieldId: textField.id,
           condition: TextFilterCondition.TextIsEmpty,
           content: ""),
@@ -117,13 +131,15 @@ void main() {
 
   test('filter rows with condition: text is not empty', () async {
     final context = await gridTest.createTestGrid();
-    final filterBloc = GridFilterBloc(viewId: context.gridView.id)
-      ..add(const GridFilterEvent.initial());
+    final filterBloc = GridFilterEditBloc(
+      viewId: context.gridView.id,
+      fieldController: context.fieldController,
+    )..add(const GridFilterEditEvent.initial());
 
     final textField = context.textFieldContext();
     await gridResponseFuture();
     filterBloc.add(
-      GridFilterEvent.createTextFilter(
+      GridFilterEditEvent.createTextFilter(
           fieldId: textField.id,
           condition: TextFilterCondition.TextIsNotEmpty,
           content: ""),
@@ -135,14 +151,19 @@ void main() {
   test('filter rows with condition: checkbox uncheck', () async {
     final context = await gridTest.createTestGrid();
     final checkboxField = context.checkboxFieldContext();
-    final filterBloc = GridFilterBloc(viewId: context.gridView.id)
-      ..add(const GridFilterEvent.initial());
-    final gridBloc = GridBloc(view: context.gridView)
-      ..add(const GridEvent.initial());
+    final filterBloc = GridFilterEditBloc(
+      viewId: context.gridView.id,
+      fieldController: context.fieldController,
+    )..add(const GridFilterEditEvent.initial());
+    final dataController = GridDataController(view: context.gridView);
+    final gridBloc = GridBloc(
+      view: context.gridView,
+      dataController: dataController,
+    )..add(const GridEvent.initial());
 
     await gridResponseFuture();
     filterBloc.add(
-      GridFilterEvent.createCheckboxFilter(
+      GridFilterEditEvent.createCheckboxFilter(
         fieldId: checkboxField.id,
         condition: CheckboxFilterCondition.IsUnChecked,
       ),
@@ -154,14 +175,19 @@ void main() {
   test('filter rows with condition: checkbox check', () async {
     final context = await gridTest.createTestGrid();
     final checkboxField = context.checkboxFieldContext();
-    final filterBloc = GridFilterBloc(viewId: context.gridView.id)
-      ..add(const GridFilterEvent.initial());
-    final gridBloc = GridBloc(view: context.gridView)
-      ..add(const GridEvent.initial());
+    final filterBloc = GridFilterEditBloc(
+      viewId: context.gridView.id,
+      fieldController: context.fieldController,
+    )..add(const GridFilterEditEvent.initial());
+    final dataController = GridDataController(view: context.gridView);
+    final gridBloc = GridBloc(
+      view: context.gridView,
+      dataController: dataController,
+    )..add(const GridEvent.initial());
 
     await gridResponseFuture();
     filterBloc.add(
-      GridFilterEvent.createCheckboxFilter(
+      GridFilterEditEvent.createCheckboxFilter(
         fieldId: checkboxField.id,
         condition: CheckboxFilterCondition.IsChecked,
       ),

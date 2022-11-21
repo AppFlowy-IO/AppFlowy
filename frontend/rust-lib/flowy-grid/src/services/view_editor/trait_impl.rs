@@ -1,4 +1,4 @@
-use crate::entities::{FilterPB, GridGroupConfigurationPB, GridLayout, GridLayoutPB, GridSettingPB};
+use crate::entities::{FilterConfigurationPB, FilterPB, GridLayout, GridLayoutPB, GridSettingPB, GroupConfigurationPB};
 use crate::services::filter::{FilterDelegate, FilterType};
 use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter};
 use crate::services::row::GridBlock;
@@ -118,18 +118,8 @@ pub(crate) async fn apply_change(
 
 pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<FieldRevision>]) -> GridSettingPB {
     let layout_type: GridLayout = view_pad.layout.clone().into();
-    let filter_configurations = view_pad
-        .get_all_filters(field_revs)
-        .into_iter()
-        .map(|filter| FilterPB::from(filter.as_ref()))
-        .collect::<Vec<FilterPB>>();
-
-    let group_configurations = view_pad
-        .get_groups_by_field_revs(field_revs)
-        .into_iter()
-        .map(|group| GridGroupConfigurationPB::from(group.as_ref()))
-        .collect::<Vec<GridGroupConfigurationPB>>();
-
+    let filter_configurations = view_pad.get_all_filters(field_revs);
+    let group_configurations = view_pad.get_groups_by_field_revs(field_revs);
     GridSettingPB {
         layouts: GridLayoutPB::all(),
         layout_type,

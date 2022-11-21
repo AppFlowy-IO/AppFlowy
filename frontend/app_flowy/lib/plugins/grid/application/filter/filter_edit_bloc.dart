@@ -1,5 +1,4 @@
-import 'package:app_flowy/plugins/grid/application/filter/filter_listener.dart';
-import 'package:flowy_sdk/log.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_filter.pbenum.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_filter.pbenum.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
@@ -11,22 +10,22 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'filter_service.dart';
 
-part 'filter_bloc.freezed.dart';
+part 'filter_edit_bloc.freezed.dart';
 
-class GridFilterBloc extends Bloc<GridFilterEvent, GridFilterState> {
+class GridFilterEditBloc
+    extends Bloc<GridFilterEditEvent, GridFilterEditState> {
   final String viewId;
   final FilterFFIService _ffiService;
-  final FilterListener _listener;
-  GridFilterBloc({required this.viewId})
+  final GridFieldController fieldController;
+  void Function(List<FilterPB>)? _onFilterFn;
+  GridFilterEditBloc({required this.viewId, required this.fieldController})
       : _ffiService = FilterFFIService(viewId: viewId),
-        _listener = FilterListener(viewId: viewId),
-        super(GridFilterState.initial()) {
-    on<GridFilterEvent>(
+        super(GridFilterEditState.initial()) {
+    on<GridFilterEditEvent>(
       (event, emit) async {
         event.when(
           initial: () async {
             _startListening();
-            await _loadFilters();
           },
           deleteFilter: (
             String fieldId,
@@ -102,90 +101,58 @@ class GridFilterBloc extends Bloc<GridFilterEvent, GridFilterState> {
   }
 
   void _startListening() {
-    _listener.start(onFilterChanged: (result) {
-      result.fold(
-        (changeset) {
-          final List<FilterPB> filters = List.from(state.filters);
-          // Deletes the filters
-          final deleteFilterIds =
-              changeset.deleteFilters.map((e) => e.id).toList();
-          filters.retainWhere(
-            (element) => !deleteFilterIds.contains(element.id),
-          );
-
-          // Inserts the new filter if it's not exist
-          for (final newFilter in changeset.insertFilters) {
-            final index =
-                filters.indexWhere((element) => element.id == newFilter.id);
-            if (index == -1) {
-              filters.add(newFilter);
-            }
-          }
-
-          if (!isClosed) {
-            add(GridFilterEvent.didReceiveFilters(filters));
-          }
-        },
-        (err) => Log.error(err),
-      );
-    });
-  }
-
-  Future<void> _loadFilters() async {
-    final result = await _ffiService.getAllFilters();
-    result.fold(
-      (filters) {
-        if (!isClosed) {
-          add(GridFilterEvent.didReceiveFilters(filters));
-        }
-      },
-      (err) => Log.error(err),
-    );
+    _onFilterFn = (filters) {
+      add(GridFilterEditEvent.didReceiveFilters(filters));
+    };
+    fieldController.addListener(onFilters: _onFilterFn);
   }
 
   @override
   Future<void> close() async {
-    await _listener.stop();
+    if (_onFilterFn != null) {
+      fieldController.removeListener(onFiltersListener: _onFilterFn);
+      _onFilterFn = null;
+    }
     return super.close();
   }
 }
 
 @freezed
-class GridFilterEvent with _$GridFilterEvent {
-  const factory GridFilterEvent.initial() = _Initial;
-  const factory GridFilterEvent.didReceiveFilters(List<FilterPB> filters) =
+class GridFilterEditEvent with _$GridFilterEditEvent {
+  const factory GridFilterEditEvent.initial() = _Initial;
+  const factory GridFilterEditEvent.didReceiveFilters(List<FilterPB> filters) =
       _DidReceiveFilters;
 
-  const factory GridFilterEvent.deleteFilter({
+  const factory GridFilterEditEvent.deleteFilter({
     required String fieldId,
     required String filterId,
     required FieldType fieldType,
   }) = _DeleteFilter;
 
-  const factory GridFilterEvent.createTextFilter({
+  const factory GridFilterEditEvent.createTextFilter({
     required String fieldId,
     required TextFilterCondition condition,
     required String content,
   }) = _CreateTextFilter;
 
-  const factory GridFilterEvent.createCheckboxFilter({
+  const factory GridFilterEditEvent.createCheckboxFilter({
     required String fieldId,
     required CheckboxFilterCondition condition,
   }) = _CreateCheckboxFilter;
 
-  const factory GridFilterEvent.createNumberFilter({
+  const factory GridFilterEditEvent.createNumberFilter({
     required String fieldId,
     required NumberFilterCondition condition,
     required String content,
   }) = _CreateNumberFilter;
 
-  const factory GridFilterEvent.createDateFilter({
+  const factory GridFilterEditEvent.createDateFilter({
     required String fieldId,
     required DateFilterCondition condition,
     required int start,
   }) = _CreateDateFilter;
 
-  const factory GridFilterEvent.createDateFilterInRange({
+  const factory GridFilterEditEvent.createDateFilterInRange({
     required String fieldId,
     required DateFilterCondition condition,
     required int start,
@@ -194,12 +161,12 @@ class GridFilterEvent with _$GridFilterEvent {
 }
 
 @freezed
-class GridFilterState with _$GridFilterState {
-  const factory GridFilterState({
+class GridFilterEditState with _$GridFilterEditState {
+  const factory GridFilterEditState({
     required List<FilterPB> filters,
   }) = _GridFilterState;
 
-  factory GridFilterState.initial() => const GridFilterState(
+  factory GridFilterEditState.initial() => const GridFilterEditState(
         filters: [],
       );
 }

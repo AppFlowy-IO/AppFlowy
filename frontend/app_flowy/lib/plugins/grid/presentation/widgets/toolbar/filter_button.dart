@@ -1,5 +1,4 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:app_flowy/plugins/grid/application/filter/filter_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/filter/filter_menu_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -17,7 +16,7 @@ class FilterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GridFilterBloc, GridFilterState>(
+    return BlocBuilder<GridFilterMenuBloc, GridFilterMenuState>(
       builder: (context, state) {
         final textColor = state.filters.isEmpty
             ? null
@@ -58,8 +57,10 @@ class FilterButton extends StatelessWidget {
       child: child,
       popupBuilder: (BuildContext context) {
         final bloc = buildContext.read<GridFilterMenuBloc>();
-        bloc.add(const GridFilterMenuEvent.loadFields());
-        return GridFilterPropertyList(viewId: bloc.viewId);
+        return GridFilterPropertyList(
+          viewId: bloc.viewId,
+          fieldController: bloc.fieldController,
+        );
       },
     );
   }

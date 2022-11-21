@@ -4,7 +4,6 @@ import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/row_entities.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -15,7 +14,7 @@ typedef RowUpdateCallback = void Function();
 abstract class IGridRowFieldNotifier {
   UnmodifiableListView<GridFieldInfo> get fields;
   void onRowFieldsChanged(VoidCallback callback);
-  void onRowFieldChanged(void Function(FieldPB) callback);
+  void onRowFieldChanged(void Function(GridFieldInfo) callback);
   void onRowDispose();
 }
 
@@ -242,7 +241,7 @@ class GridRowCache {
         cellDataMap[field.id] = GridCellIdentifier(
           rowId: rowId,
           gridId: gridId,
-          fieldContext: field,
+          fieldInfo: field,
         );
       }
     }

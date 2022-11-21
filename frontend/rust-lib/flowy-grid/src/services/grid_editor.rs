@@ -740,7 +740,7 @@ impl GridRevisionEditor {
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
-    pub async fn load_groups(&self) -> FlowyResult<RepeatedGridGroupPB> {
+    pub async fn load_groups(&self) -> FlowyResult<RepeatedGroupPB> {
         self.view_manager.load_groups().await
     }
 

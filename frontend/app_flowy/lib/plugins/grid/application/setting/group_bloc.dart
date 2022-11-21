@@ -19,7 +19,7 @@ class GridGroupBloc extends Bloc<GridGroupEvent, GridGroupState> {
     required GridFieldController fieldController,
   })  : _fieldController = fieldController,
         _settingFFIService = SettingFFIService(viewId: viewId),
-        super(GridGroupState.initial(viewId, fieldController.fieldContexts)) {
+        super(GridGroupState.initial(viewId, fieldController.fieldInfos)) {
     on<GridGroupEvent>(
       (event, emit) async {
         event.when(

@@ -51,7 +51,7 @@ class _GridPropertyListState extends State<GridPropertyList> {
             return _GridPropertyCell(
               popoverMutex: _popoverMutex,
               gridId: widget.gridId,
-              fieldContext: field,
+              fieldInfo: field,
               key: ValueKey(field.id),
             );
           }).toList();
@@ -74,12 +74,12 @@ class _GridPropertyListState extends State<GridPropertyList> {
 }
 
 class _GridPropertyCell extends StatelessWidget {
-  final GridFieldInfo fieldContext;
+  final GridFieldInfo fieldInfo;
   final String gridId;
   final PopoverMutex popoverMutex;
   const _GridPropertyCell({
     required this.gridId,
-    required this.fieldContext,
+    required this.fieldInfo,
     required this.popoverMutex,
     Key? key,
   }) : super(key: key);
@@ -87,7 +87,7 @@ class _GridPropertyCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final checkmark = svgWidget(
-      fieldContext.visibility ? 'home/show' : 'home/hide',
+      fieldInfo.visibility ? 'home/show' : 'home/hide',
       color: Theme.of(context).colorScheme.onSurface,
     );
 
@@ -104,7 +104,7 @@ class _GridPropertyCell extends StatelessWidget {
           onPressed: () {
             context.read<GridPropertyBloc>().add(
                 GridPropertyEvent.setFieldVisibility(
-                    fieldContext.id, !fieldContext.visibility));
+                    fieldInfo.id, !fieldInfo.visibility));
           },
           icon: checkmark.padding(all: 6),
         )
@@ -118,19 +118,19 @@ class _GridPropertyCell extends StatelessWidget {
       offset: const Offset(20, 0),
       constraints: BoxConstraints.loose(const Size(240, 400)),
       child: FlowyButton(
-        text: FlowyText.medium(fieldContext.name, fontSize: 12),
+        text: FlowyText.medium(fieldInfo.name, fontSize: 12),
         leftIcon: svgWidget(
-          fieldContext.fieldType.iconName(),
+          fieldInfo.fieldType.iconName(),
           color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
       popupBuilder: (BuildContext context) {
         return FieldEditor(
           gridId: gridId,
-          fieldName: fieldContext.name,
+          fieldName: fieldInfo.name,
           typeOptionLoader: FieldTypeOptionLoader(
             gridId: gridId,
-            field: fieldContext.field,
+            field: fieldInfo.field,
           ),
         );
       },

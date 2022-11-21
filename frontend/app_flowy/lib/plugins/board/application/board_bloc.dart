@@ -136,9 +136,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   void _groupItemStartEditing(GroupPB group, RowPB row, bool isEdit) {
-    final fieldContext = fieldController.getField(group.fieldId);
-    if (fieldContext == null) {
-      Log.warn("FieldContext should not be null");
+    final fieldInfo = fieldController.getField(group.fieldId);
+    if (fieldInfo == null) {
+      Log.warn("fieldInfo should not be null");
       return;
     }
 
@@ -147,7 +147,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     //   group.groupId,
     //   GroupItem(
     //     row: row,
-    //     fieldContext: fieldContext,
+    //     fieldInfo: fieldInfo,
     //     isDraggable: !isEdit,
     //   ),
     // );
@@ -204,7 +204,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         items: _buildGroupItems(group),
         customData: GroupData(
           group: group,
-          fieldContext: fieldController.getField(group.fieldId)!,
+          fieldInfo: fieldController.getField(group.fieldId)!,
         ),
       );
     }).toList();
@@ -275,10 +275,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   List<AppFlowyGroupItem> _buildGroupItems(GroupPB group) {
     final items = group.rows.map((row) {
-      final fieldContext = fieldController.getField(group.fieldId);
+      final fieldInfo = fieldController.getField(group.fieldId);
       return GroupItem(
         row: row,
-        fieldContext: fieldContext!,
+        fieldInfo: fieldInfo!,
       );
     }).toList();
 
@@ -374,11 +374,11 @@ class GridFieldEquatable extends Equatable {
 
 class GroupItem extends AppFlowyGroupItem {
   final RowPB row;
-  final GridFieldInfo fieldContext;
+  final GridFieldInfo fieldInfo;
 
   GroupItem({
     required this.row,
-    required this.fieldContext,
+    required this.fieldInfo,
     bool draggable = true,
   }) {
     super.draggable = draggable;
@@ -401,22 +401,22 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
 
   @override
   void insertRow(GroupPB group, RowPB row, int? index) {
-    final fieldContext = fieldController.getField(group.fieldId);
-    if (fieldContext == null) {
-      Log.warn("FieldContext should not be null");
+    final fieldInfo = fieldController.getField(group.fieldId);
+    if (fieldInfo == null) {
+      Log.warn("fieldInfo should not be null");
       return;
     }
 
     if (index != null) {
       final item = GroupItem(
         row: row,
-        fieldContext: fieldContext,
+        fieldInfo: fieldInfo,
       );
       controller.insertGroupItem(group.groupId, index, item);
     } else {
       final item = GroupItem(
         row: row,
-        fieldContext: fieldContext,
+        fieldInfo: fieldInfo,
       );
       controller.addGroupItem(group.groupId, item);
     }
@@ -429,30 +429,30 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
 
   @override
   void updateRow(GroupPB group, RowPB row) {
-    final fieldContext = fieldController.getField(group.fieldId);
-    if (fieldContext == null) {
-      Log.warn("FieldContext should not be null");
+    final fieldInfo = fieldController.getField(group.fieldId);
+    if (fieldInfo == null) {
+      Log.warn("fieldInfo should not be null");
       return;
     }
     controller.updateGroupItem(
       group.groupId,
       GroupItem(
         row: row,
-        fieldContext: fieldContext,
+        fieldInfo: fieldInfo,
       ),
     );
   }
 
   @override
   void addNewRow(GroupPB group, RowPB row, int? index) {
-    final fieldContext = fieldController.getField(group.fieldId);
-    if (fieldContext == null) {
-      Log.warn("FieldContext should not be null");
+    final fieldInfo = fieldController.getField(group.fieldId);
+    if (fieldInfo == null) {
+      Log.warn("fieldInfo should not be null");
       return;
     }
     final item = GroupItem(
       row: row,
-      fieldContext: fieldContext,
+      fieldInfo: fieldInfo,
       draggable: false,
     );
 
@@ -479,10 +479,10 @@ class BoardEditingRow {
 
 class GroupData {
   final GroupPB group;
-  final GridFieldInfo fieldContext;
+  final GridFieldInfo fieldInfo;
   GroupData({
     required this.group,
-    required this.fieldContext,
+    required this.fieldInfo,
   });
 
   CheckboxGroup? asCheckboxGroup() {
@@ -490,7 +490,7 @@ class GroupData {
     return CheckboxGroup(group);
   }
 
-  FieldType get fieldType => fieldContext.fieldType;
+  FieldType get fieldType => fieldInfo.fieldType;
 }
 
 class CheckboxGroup {

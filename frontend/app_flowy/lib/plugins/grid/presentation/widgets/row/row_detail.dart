@@ -284,7 +284,7 @@ class _RowDetailCellState extends State<_RowDetailCell> {
                 width: 150,
                 child: FieldCellButton(
                   maxLines: null,
-                  field: widget.cellId.fieldContext.field,
+                  field: widget.cellId.fieldInfo.field,
                   onTap: () => popover.show(),
                 ),
               ),
@@ -300,11 +300,11 @@ class _RowDetailCellState extends State<_RowDetailCell> {
   Widget buildFieldEditor() {
     return FieldEditor(
       gridId: widget.cellId.gridId,
-      fieldName: widget.cellId.fieldContext.field.name,
-      isGroupField: widget.cellId.fieldContext.isGroupField,
+      fieldName: widget.cellId.fieldInfo.field.name,
+      isGroupField: widget.cellId.fieldInfo.isGroupField,
       typeOptionLoader: FieldTypeOptionLoader(
         gridId: widget.cellId.gridId,
-        field: widget.cellId.fieldContext.field,
+        field: widget.cellId.fieldInfo.field,
       ),
       onDeleted: (fieldId) {
         popover.close();

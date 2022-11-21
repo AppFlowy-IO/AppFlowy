@@ -1,9 +1,8 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
-import 'package:app_flowy/plugins/grid/application/filter/filter_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/filter/filter_menu_bloc.dart';
+import 'package:app_flowy/plugins/grid/application/grid_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
-import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/grid_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
@@ -32,13 +31,15 @@ import 'widgets/toolbar/grid_toolbar.dart';
 
 class GridPage extends StatefulWidget {
   final ViewPB view;
+  final GridDataController dataController;
   final VoidCallback? onDeleted;
 
   GridPage({
     required this.view,
     this.onDeleted,
     Key? key,
-  }) : super(key: ValueKey(view.id));
+  })  : dataController = GridDataController(view: view),
+        super(key: ValueKey(view.id));
 
   @override
   State<GridPage> createState() => _GridPageState();
@@ -50,16 +51,16 @@ class _GridPageState extends State<GridPage> {
     return MultiBlocProvider(
       providers: [
         BlocProvider<GridBloc>(
-          create: (context) =>
-              GridBloc(view: widget.view)..add(const GridEvent.initial()),
-        ),
-        BlocProvider<GridFilterBloc>(
-          create: (context) => GridFilterBloc(viewId: widget.view.id)
-            ..add(const GridFilterEvent.initial()),
+          create: (context) => GridBloc(
+            view: widget.view,
+            dataController: widget.dataController,
+          )..add(const GridEvent.initial()),
         ),
         BlocProvider<GridFilterMenuBloc>(
-          create: (context) => GridFilterMenuBloc(viewId: widget.view.id)
-            ..add(const GridFilterMenuEvent.initial()),
+          create: (context) => GridFilterMenuBloc(
+            viewId: widget.view.id,
+            fieldController: widget.dataController.fieldController,
+          )..add(const GridFilterMenuEvent.initial()),
         ),
         BlocProvider<GridSettingBloc>(
           create: (context) => GridSettingBloc(gridId: widget.view.id),

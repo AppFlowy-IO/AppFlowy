@@ -150,22 +150,22 @@ class IGridCellController<T, D> extends Equatable {
         _fieldNotifier = fieldNotifier,
         _fieldService = FieldService(
           gridId: cellId.gridId,
-          fieldId: cellId.fieldContext.id,
+          fieldId: cellId.fieldInfo.id,
         ),
         _cacheKey = GridCellCacheKey(
           rowId: cellId.rowId,
-          fieldId: cellId.fieldContext.id,
+          fieldId: cellId.fieldInfo.id,
         );
 
   String get gridId => cellId.gridId;
 
   String get rowId => cellId.rowId;
 
-  String get fieldId => cellId.fieldContext.id;
+  String get fieldId => cellId.fieldInfo.id;
 
-  GridFieldInfo get fieldContext => cellId.fieldContext;
+  GridFieldInfo get fieldInfo => cellId.fieldInfo;
 
-  FieldType get fieldType => cellId.fieldContext.fieldType;
+  FieldType get fieldType => cellId.fieldInfo.fieldType;
 
   VoidCallback? startListening({
     required void Function(T?) onCellChanged,
@@ -179,7 +179,7 @@ class IGridCellController<T, D> extends Equatable {
 
     _cellDataNotifier = ValueNotifier(_cellsCache.get(_cacheKey));
     _cellListener =
-        CellListener(rowId: cellId.rowId, fieldId: cellId.fieldContext.id);
+        CellListener(rowId: cellId.rowId, fieldId: cellId.fieldInfo.id);
 
     /// 1.Listen on user edit event and load the new cell data if needed.
     /// For example:
@@ -310,30 +310,33 @@ class IGridCellController<T, D> extends Equatable {
 
   @override
   List<Object> get props =>
-      [_cellsCache.get(_cacheKey) ?? "", cellId.rowId + cellId.fieldContext.id];
+      [_cellsCache.get(_cacheKey) ?? "", cellId.rowId + cellId.fieldInfo.id];
 }
 
 class GridCellFieldNotifierImpl extends IGridCellFieldNotifier {
-  final GridFieldController _cache;
-  OnChangeset? _onChangesetFn;
+  final GridFieldController _fieldController;
+  OnReceiveUpdateFields? _onChangesetFn;
 
-  GridCellFieldNotifierImpl(GridFieldController cache) : _cache = cache;
+  GridCellFieldNotifierImpl(GridFieldController cache)
+      : _fieldController = cache;
 
   @override
   void onCellDispose() {
     if (_onChangesetFn != null) {
-      _cache.removeListener(onChangesetListener: _onChangesetFn!);
+      _fieldController.removeListener(onChangesetListener: _onChangesetFn!);
       _onChangesetFn = null;
     }
   }
 
   @override
-  void onCellFieldChanged(void Function(FieldPB p1) callback) {
-    _onChangesetFn = (GridFieldChangesetPB changeset) {
-      for (final updatedField in changeset.updatedFields) {
-        callback(updatedField);
+  void onCellFieldChanged(void Function(GridFieldInfo) callback) {
+    _onChangesetFn = (List<GridFieldInfo> filedInfos) {
+      for (final field in filedInfos) {
+        callback(field);
       }
     };
-    _cache.addListener(onChangeset: _onChangesetFn);
+    _fieldController.addListener(
+      onFieldsUpdated: _onChangesetFn,
+    );
   }
 }

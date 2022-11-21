@@ -1,4 +1,5 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/filter/filter_menu_bloc.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -93,12 +94,11 @@ class _AddFilterButtonState extends State<AddFilterButton> {
       triggerActions: PopoverTriggerFlags.none,
       child: child,
       popupBuilder: (BuildContext context) {
-        buildContext
-            .read<GridFilterMenuBloc>()
-            .add(const GridFilterMenuEvent.loadFields());
+        final fieldController =
+            buildContext.read<GridFilterMenuBloc>().fieldController;
         return GridFilterPropertyList(
           viewId: widget.viewId,
-          properties: [],
+          fieldController: fieldController,
         );
       },
     );
@@ -107,10 +107,10 @@ class _AddFilterButtonState extends State<AddFilterButton> {
 
 class GridFilterPropertyList extends StatefulWidget {
   final String viewId;
-  final List<FilterPropertyInfo> properties;
+  final GridFieldController fieldController;
   const GridFilterPropertyList({
     required this.viewId,
-    required this.properties,
+    required this.fieldController,
     Key? key,
   }) : super(key: key);
 
@@ -129,10 +129,15 @@ class _GridFilterPropertyListState extends State<GridFilterPropertyList> {
 
   @override
   Widget build(BuildContext context) {
-    final cells = widget.properties.map((field) {
+    final cells = widget.fieldController.fieldInfos.map((field) {
       return _FilterPropertyCell(info: field);
     }).toList();
-
+//  BlocProvider<GridFilterEditBloc>(
+//           create: (context) => GridFilterEditBloc(
+//             viewId: widget.view.id,
+//             fieldController: widget.dataController.fieldController,
+//           )..add(const GridFilterEditEvent.initial()),
+//         ),
     return ListView.separated(
       controller: ScrollController(),
       shrinkWrap: true,
@@ -148,7 +153,7 @@ class _GridFilterPropertyListState extends State<GridFilterPropertyList> {
 }
 
 class _FilterPropertyCell extends StatelessWidget {
-  final FilterPropertyInfo info;
+  final GridFieldInfo info;
   const _FilterPropertyCell({
     required this.info,
     Key? key,

@@ -7,16 +7,16 @@ import 'util.dart';
 
 Future<FieldEditorBloc> createEditorBloc(AppFlowyGridTest gridTest) async {
   final context = await gridTest.createTestGrid();
-  final fieldContext = context.singleSelectFieldContext();
+  final fieldInfo = context.singleSelectFieldContext();
   final loader = FieldTypeOptionLoader(
     gridId: context.gridView.id,
-    field: fieldContext.field,
+    field: fieldInfo.field,
   );
 
   return FieldEditorBloc(
     gridId: context.gridView.id,
-    fieldName: fieldContext.name,
-    isGroupField: fieldContext.isGroupField,
+    fieldName: fieldInfo.name,
+    isGroupField: fieldInfo.isGroupField,
     loader: loader,
   )..add(const FieldEditorEvent.initial());
 }
@@ -33,16 +33,16 @@ void main() {
 
     setUp(() async {
       final context = await gridTest.createTestGrid();
-      final fieldContext = context.singleSelectFieldContext();
+      final fieldInfo = context.singleSelectFieldContext();
       final loader = FieldTypeOptionLoader(
         gridId: context.gridView.id,
-        field: fieldContext.field,
+        field: fieldInfo.field,
       );
 
       editorBloc = FieldEditorBloc(
         gridId: context.gridView.id,
-        fieldName: fieldContext.name,
-        isGroupField: fieldContext.isGroupField,
+        fieldName: fieldInfo.name,
+        isGroupField: fieldInfo.isGroupField,
         loader: loader,
       )..add(const FieldEditorEvent.initial());
 

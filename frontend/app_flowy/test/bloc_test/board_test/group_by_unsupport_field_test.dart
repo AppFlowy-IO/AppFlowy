@@ -14,9 +14,9 @@ void main() {
   setUpAll(() async {
     boardTest = await AppFlowyBoardTest.ensureInitialized();
     context = await boardTest.createTestBoard();
-    final fieldContext = context.singleSelectFieldContext();
+    final fieldInfo = context.singleSelectFieldContext();
     editorBloc = context.createFieldEditor(
-      fieldContext: fieldContext,
+      fieldInfo: fieldInfo,
     )..add(const FieldEditorEvent.initial());
 
     await boardResponseFuture();

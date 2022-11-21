@@ -30,7 +30,7 @@ class GridTestContext {
     return _gridDataController.blocks;
   }
 
-  List<GridFieldInfo> get fieldContexts => fieldController.fieldContexts;
+  List<GridFieldInfo> get fieldContexts => fieldController.fieldInfos;
 
   GridFieldController get fieldController {
     return _gridDataController.fieldController;
@@ -41,19 +41,19 @@ class GridTestContext {
   }
 
   FieldEditorBloc createFieldEditor({
-    GridFieldInfo? fieldContext,
+    GridFieldInfo? fieldInfo,
   }) {
     IFieldTypeOptionLoader loader;
-    if (fieldContext == null) {
+    if (fieldInfo == null) {
       loader = NewFieldTypeOptionLoader(gridId: gridView.id);
     } else {
       loader =
-          FieldTypeOptionLoader(gridId: gridView.id, field: fieldContext.field);
+          FieldTypeOptionLoader(gridId: gridView.id, field: fieldInfo.field);
     }
 
     final editorBloc = FieldEditorBloc(
-      fieldName: fieldContext?.name ?? '',
-      isGroupField: fieldContext?.isGroupField ?? false,
+      fieldName: fieldInfo?.name ?? '',
+      isGroupField: fieldInfo?.isGroupField ?? false,
       loader: loader,
       gridId: gridView.id,
     );
@@ -102,9 +102,9 @@ class GridTestContext {
   }
 
   GridFieldInfo singleSelectFieldContext() {
-    final fieldContext = fieldContexts
+    final fieldInfo = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.SingleSelect);
-    return fieldContext;
+    return fieldInfo;
   }
 
   GridFieldCellContext singleSelectFieldCellContext() {
@@ -113,15 +113,15 @@ class GridTestContext {
   }
 
   GridFieldInfo textFieldContext() {
-    final fieldContext = fieldContexts
+    final fieldInfo = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.RichText);
-    return fieldContext;
+    return fieldInfo;
   }
 
   GridFieldInfo checkboxFieldContext() {
-    final fieldContext = fieldContexts
+    final fieldInfo = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.Checkbox);
-    return fieldContext;
+    return fieldInfo;
   }
 
   Future<GridSelectOptionCellController> makeSelectOptionCellController(

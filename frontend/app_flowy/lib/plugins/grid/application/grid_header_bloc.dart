@@ -15,7 +15,7 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   GridHeaderBloc({
     required this.gridId,
     required this.fieldController,
-  }) : super(GridHeaderState.initial(fieldController.fieldContexts)) {
+  }) : super(GridHeaderState.initial(fieldController.fieldInfos)) {
     on<GridHeaderEvent>(
       (event, emit) async {
         await event.map(

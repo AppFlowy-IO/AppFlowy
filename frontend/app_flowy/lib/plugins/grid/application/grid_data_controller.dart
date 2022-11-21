@@ -7,12 +7,14 @@ import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/grid_entities.pb.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/util.pb.dart';
 import 'block/block_cache.dart';
 import 'field/field_controller.dart';
 import 'prelude.dart';
 import 'row/row_cache.dart';
 
-typedef OnFieldsChanged = void Function(UnmodifiableListView<GridFieldInfo>);
+typedef OnFieldsChanged = void Function(List<GridFieldInfo>);
+typedef OnFiltersChanged = void Function(List<FilterPB>);
 typedef OnGridChanged = void Function(GridPB);
 
 typedef OnRowsChanged = void Function(
@@ -25,15 +27,14 @@ class GridDataController {
   final String gridId;
   final GridFFIService _gridFFIService;
   final GridFieldController fieldController;
+  OnRowsChanged? _onRowChanged;
+  OnGridChanged? _onGridChanged;
 
+  // Getters
   // key: the block id
   final LinkedHashMap<String, GridBlockCache> _blocks;
   UnmodifiableMapView<String, GridBlockCache> get blocks =>
       UnmodifiableMapView(_blocks);
-
-  OnRowsChanged? _onRowChanged;
-  OnFieldsChanged? _onFieldsChanged;
-  OnGridChanged? _onGridChanged;
 
   List<RowInfo> get rowInfos {
     final List<RowInfo> rows = [];
@@ -51,17 +52,18 @@ class GridDataController {
         fieldController = GridFieldController(gridId: view.id);
 
   void addListener({
-    required OnGridChanged onGridChanged,
-    required OnRowsChanged onRowsChanged,
-    required OnFieldsChanged onFieldsChanged,
+    OnGridChanged? onGridChanged,
+    OnRowsChanged? onRowsChanged,
+    OnFieldsChanged? onFieldsChanged,
+    OnFiltersChanged? onFiltersChanged,
   }) {
     _onGridChanged = onGridChanged;
     _onRowChanged = onRowsChanged;
-    _onFieldsChanged = onFieldsChanged;
 
-    fieldController.addListener(onFields: (fields) {
-      _onFieldsChanged?.call(UnmodifiableListView(fields));
-    });
+    fieldController.addListener(
+      onFields: onFieldsChanged,
+      onFilters: onFiltersChanged,
+    );
   }
 
   // Loads the rows from each block
