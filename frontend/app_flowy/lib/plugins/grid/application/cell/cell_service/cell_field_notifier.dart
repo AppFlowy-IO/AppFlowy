@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'cell_service.dart';
 
 abstract class IGridCellFieldNotifier {
-  void onCellFieldChanged(void Function(GridFieldInfo) callback);
+  void onCellFieldChanged(void Function(FieldInfo) callback);
   void onCellDispose();
 }
 

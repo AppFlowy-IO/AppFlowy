@@ -5,6 +5,7 @@ import 'package:app_flowy/plugins/grid/application/filter/filter_service.dart';
 import 'package:app_flowy/plugins/grid/application/grid_service.dart';
 import 'package:app_flowy/plugins/grid/application/setting/setting_listener.dart';
 import 'package:app_flowy/plugins/grid/application/setting/setting_service.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
@@ -16,9 +17,9 @@ import 'package:flutter/foundation.dart';
 import '../row/row_cache.dart';
 
 class _GridFieldNotifier extends ChangeNotifier {
-  List<GridFieldInfo> _fieldInfos = [];
+  List<FieldInfo> _fieldInfos = [];
 
-  set fieldInfos(List<GridFieldInfo> fieldInfos) {
+  set fieldInfos(List<FieldInfo> fieldInfos) {
     _fieldInfos = fieldInfos;
     notifyListeners();
   }
@@ -27,13 +28,13 @@ class _GridFieldNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<GridFieldInfo> get fieldInfos => _fieldInfos;
+  List<FieldInfo> get fieldInfos => _fieldInfos;
 }
 
 class _GridFilterNotifier extends ChangeNotifier {
-  List<FilterPB> _filters = [];
+  List<FilterInfo> _filters = [];
 
-  set filters(List<FilterPB> filters) {
+  set filters(List<FilterInfo> filters) {
     _filters = filters;
     notifyListeners();
   }
@@ -42,12 +43,12 @@ class _GridFilterNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<FilterPB> get filters => _filters;
+  List<FilterInfo> get filters => _filters;
 }
 
-typedef OnReceiveUpdateFields = void Function(List<GridFieldInfo>);
-typedef OnReceiveFields = void Function(List<GridFieldInfo>);
-typedef OnReceiveFilters = void Function(List<FilterPB>);
+typedef OnReceiveUpdateFields = void Function(List<FieldInfo>);
+typedef OnReceiveFields = void Function(List<FieldInfo>);
+typedef OnReceiveFilters = void Function(List<FilterInfo>);
 
 class GridFieldController {
   final String gridId;
@@ -66,7 +67,7 @@ class GridFieldController {
   _GridFieldNotifier? _fieldNotifier = _GridFieldNotifier();
 
   // Field updated callbacks
-  final Map<OnReceiveUpdateFields, void Function(List<GridFieldInfo>)>
+  final Map<OnReceiveUpdateFields, void Function(List<FieldInfo>)>
       _updatedFieldCallbacks = {};
 
   // Group callbacks
@@ -78,9 +79,9 @@ class GridFieldController {
   final Map<String, FilterConfigurationPB> _filterConfigurationByFieldId = {};
 
   // Getters
-  List<GridFieldInfo> get fieldInfos => [..._fieldNotifier?.fieldInfos ?? []];
-  List<FilterPB> get filterInfos => [..._filterNotifier?.filters ?? []];
-  GridFieldInfo? getField(String fieldId) {
+  List<FieldInfo> get fieldInfos => [..._fieldNotifier?.fieldInfos ?? []];
+  List<FilterInfo> get filterInfos => [..._filterNotifier?.filters ?? []];
+  FieldInfo? getField(String fieldId) {
     final fields = _fieldNotifier?.fieldInfos
             .where((element) => element.id == fieldId)
             .toList() ??
@@ -92,9 +93,9 @@ class GridFieldController {
     return fields.first;
   }
 
-  FilterPB? getFilter(String filterId) {
+  FilterInfo? getFilter(String filterId) {
     final filters = _filterNotifier?.filters
-            .where((element) => element.id == filterId)
+            .where((element) => element.filter.id == filterId)
             .toList() ??
         [];
     if (filters.isEmpty) {
@@ -133,20 +134,23 @@ class GridFieldController {
     _filterListener.start(onFilterChanged: (result) {
       result.fold(
         (changeset) {
-          final List<FilterPB> filters = filterInfos;
+          final List<FilterInfo> filters = filterInfos;
           // Deletes the filters
           final deleteFilterIds =
               changeset.deleteFilters.map((e) => e.id).toList();
           filters.retainWhere(
-            (element) => !deleteFilterIds.contains(element.id),
+            (element) => !deleteFilterIds.contains(element.filter.id),
           );
 
           // Inserts the new filter if it's not exist
           for (final newFilter in changeset.insertFilters) {
-            final index =
-                filters.indexWhere((element) => element.id == newFilter.id);
-            if (index == -1) {
-              filters.add(newFilter);
+            final filterIndex = filters
+                .indexWhere((element) => element.filter.id == newFilter.id);
+            final fieldIndex = fieldInfos
+                .indexWhere((element) => element.id == newFilter.fieldId);
+
+            if (filterIndex == -1 && fieldIndex != -1) {
+              filters.add(FilterInfo(newFilter, fieldInfos[fieldIndex]));
             }
           }
           _filterNotifier?.filters = filters;
@@ -230,7 +234,7 @@ class GridFieldController {
       () => result.fold(
         (newFields) {
           _fieldNotifier?.fieldInfos =
-              newFields.map((field) => GridFieldInfo(field: field)).toList();
+              newFields.map((field) => FieldInfo(field: field)).toList();
           _loadFilters();
           _updateFieldInfos();
           return left(unit);
@@ -243,7 +247,16 @@ class GridFieldController {
   Future<Either<Unit, FlowyError>> _loadFilters() async {
     return _filterFFIService.getAllFilters().then((result) {
       return result.fold(
-        (filters) {
+        (filterPBs) {
+          final List<FilterInfo> filters = [];
+          for (final filterPB in filterPBs) {
+            final fieldIndex = fieldInfos
+                .indexWhere((element) => element.id == filterPB.fieldId);
+            if (fieldIndex != -1) {
+              filters.add(FilterInfo(filterPB, fieldInfos[fieldIndex]));
+            }
+          }
+
           _filterNotifier?.filters = filters;
           _updateFieldInfos();
           return left(unit);
@@ -260,7 +273,7 @@ class GridFieldController {
     bool Function()? listenWhen,
   }) {
     if (onFieldsUpdated != null) {
-      callback(List<GridFieldInfo> updateFields) {
+      callback(List<FieldInfo> updateFields) {
         if (listenWhen != null && listenWhen() == false) {
           return;
         }
@@ -318,7 +331,7 @@ class GridFieldController {
     if (deletedFields.isEmpty) {
       return;
     }
-    final List<GridFieldInfo> newFields = fieldInfos;
+    final List<FieldInfo> newFields = fieldInfos;
     final Map<String, FieldIdPB> deletedFieldMap = {
       for (var fieldOrder in deletedFields) fieldOrder.fieldId: fieldOrder
     };
@@ -331,9 +344,9 @@ class GridFieldController {
     if (insertedFields.isEmpty) {
       return;
     }
-    final List<GridFieldInfo> newFields = fieldInfos;
+    final List<FieldInfo> newFields = fieldInfos;
     for (final indexField in insertedFields) {
-      final gridField = GridFieldInfo(field: indexField.field_1);
+      final gridField = FieldInfo(field: indexField.field_1);
       if (newFields.length > indexField.index) {
         newFields.insert(indexField.index, gridField);
       } else {
@@ -343,19 +356,19 @@ class GridFieldController {
     _fieldNotifier?.fieldInfos = newFields;
   }
 
-  List<GridFieldInfo> _updateFields(List<FieldPB> updatedFieldPBs) {
+  List<FieldInfo> _updateFields(List<FieldPB> updatedFieldPBs) {
     if (updatedFieldPBs.isEmpty) {
       return [];
     }
 
-    final List<GridFieldInfo> newFields = fieldInfos;
-    final List<GridFieldInfo> updatedFields = [];
+    final List<FieldInfo> newFields = fieldInfos;
+    final List<FieldInfo> updatedFields = [];
     for (final updatedFieldPB in updatedFieldPBs) {
       final index =
           newFields.indexWhere((field) => field.id == updatedFieldPB.id);
       if (index != -1) {
         newFields.removeAt(index);
-        final fieldInfo = GridFieldInfo(field: updatedFieldPB);
+        final fieldInfo = FieldInfo(field: updatedFieldPB);
         newFields.insert(index, fieldInfo);
         updatedFields.add(fieldInfo);
       }
@@ -375,7 +388,7 @@ class GridRowFieldNotifierImpl extends IGridRowFieldNotifier {
   GridRowFieldNotifierImpl(GridFieldController cache) : _cache = cache;
 
   @override
-  UnmodifiableListView<GridFieldInfo> get fields =>
+  UnmodifiableListView<FieldInfo> get fields =>
       UnmodifiableListView(_cache.fieldInfos);
 
   @override
@@ -385,8 +398,8 @@ class GridRowFieldNotifierImpl extends IGridRowFieldNotifier {
   }
 
   @override
-  void onRowFieldChanged(void Function(GridFieldInfo) callback) {
-    _onChangesetFn = (List<GridFieldInfo> fieldInfos) {
+  void onRowFieldChanged(void Function(FieldInfo) callback) {
+    _onChangesetFn = (List<FieldInfo> fieldInfos) {
       for (final updatedField in fieldInfos) {
         callback(updatedField);
       }
@@ -409,7 +422,7 @@ class GridRowFieldNotifierImpl extends IGridRowFieldNotifier {
   }
 }
 
-class GridFieldInfo {
+class FieldInfo {
   final FieldPB _field;
   bool _isGroupField = false;
 
@@ -453,5 +466,5 @@ class GridFieldInfo {
     return false;
   }
 
-  GridFieldInfo({required FieldPB field}) : _field = field;
+  FieldInfo({required FieldPB field}) : _field = field;
 }

@@ -3,15 +3,15 @@ import 'package:flowy_sdk/protobuf/flowy-grid/util.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import 'filter_service.dart';
 
 part 'text_filter_bloc.freezed.dart';
 
 class TextFilterBloc extends Bloc<TextFilterEvent, TextFilterState> {
   final String viewId;
-  final FilterFFIService _ffiService;
+  // final FilterFFIService _ffiService;
   TextFilterBloc({required this.viewId, required FilterPB filter})
-      : _ffiService = FilterFFIService(viewId: viewId),
+      :
+        // _ffiService = FilterFFIService(viewId: viewId),
         super(TextFilterState.initial(filter)) {
     on<TextFilterEvent>(
       (event, emit) async {

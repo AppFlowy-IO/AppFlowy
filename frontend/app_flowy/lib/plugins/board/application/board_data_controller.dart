@@ -12,7 +12,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
 
 import 'board_listener.dart';
 
-typedef OnFieldsChanged = void Function(UnmodifiableListView<GridFieldInfo>);
+typedef OnFieldsChanged = void Function(UnmodifiableListView<FieldInfo>);
 typedef OnGridChanged = void Function(GridPB);
 typedef DidLoadGroups = void Function(List<GroupPB>);
 typedef OnUpdatedGroup = void Function(List<GroupPB>);

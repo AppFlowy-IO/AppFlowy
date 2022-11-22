@@ -2,7 +2,7 @@ import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'sizes.dart';
 
 class GridLayout {
-  static double headerWidth(List<GridFieldInfo> fields) {
+  static double headerWidth(List<FieldInfo> fields) {
     if (fields.isEmpty) return 0;
 
     final fieldsWidth = fields

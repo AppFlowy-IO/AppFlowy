@@ -374,7 +374,7 @@ class GridFieldEquatable extends Equatable {
 
 class GroupItem extends AppFlowyGroupItem {
   final RowPB row;
-  final GridFieldInfo fieldInfo;
+  final FieldInfo fieldInfo;
 
   GroupItem({
     required this.row,
@@ -479,7 +479,7 @@ class BoardEditingRow {
 
 class GroupData {
   final GroupPB group;
-  final GridFieldInfo fieldInfo;
+  final FieldInfo fieldInfo;
   GroupData({
     required this.group,
     required this.fieldInfo,

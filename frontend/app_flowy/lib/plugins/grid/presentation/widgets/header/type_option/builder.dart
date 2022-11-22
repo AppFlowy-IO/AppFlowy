@@ -11,7 +11,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/single_select_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/text_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/url_type_option.pb.dart';
-import 'package:protobuf/protobuf.dart';
+import 'package:protobuf/protobuf.dart' hide FieldInfo;
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'checkbox.dart';
@@ -130,7 +130,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
 
 TypeOptionContext<T> makeTypeOptionContext<T extends GeneratedMessage>({
   required String gridId,
-  required GridFieldInfo fieldInfo,
+  required FieldInfo fieldInfo,
 }) {
   final loader = FieldTypeOptionLoader(gridId: gridId, field: fieldInfo.field);
   final dataController = TypeOptionDataController(

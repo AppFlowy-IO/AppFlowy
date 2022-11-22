@@ -19,7 +19,7 @@ class GridCreateFilterBloc
   final String viewId;
   final FilterFFIService _ffiService;
   final GridFieldController fieldController;
-  void Function(List<GridFieldInfo>)? _onFieldFn;
+  void Function(List<FieldInfo>)? _onFieldFn;
   GridCreateFilterBloc({required this.viewId, required this.fieldController})
       : _ffiService = FilterFFIService(viewId: viewId),
         super(GridCreateFilterState.initial(fieldController.fieldInfos)) {
@@ -29,7 +29,7 @@ class GridCreateFilterBloc
           initial: () async {
             _startListening();
           },
-          didReceiveFields: (List<GridFieldInfo> fields) {
+          didReceiveFields: (List<FieldInfo> fields) {
             emit(
               state.copyWith(
                 allFields: fields,
@@ -45,19 +45,20 @@ class GridCreateFilterBloc
               ),
             );
           },
-          createDefaultFilter: (GridFieldInfo field) async {
-            await _createDefaultFilter(field);
+          createDefaultFilter: (FieldInfo field) {
+            emit(state.copyWith(didCreateFilter: true));
+            _createDefaultFilter(field);
           },
         );
       },
     );
   }
 
-  List<GridFieldInfo> _filterFields(
-    List<GridFieldInfo> fields,
+  List<FieldInfo> _filterFields(
+    List<FieldInfo> fields,
     String filterText,
   ) {
-    final List<GridFieldInfo> allFields = List.from(fields);
+    final List<FieldInfo> allFields = List.from(fields);
     final keyword = filterText.toLowerCase();
     allFields.retainWhere((field) {
       if (field.hasFilter) {
@@ -82,8 +83,7 @@ class GridCreateFilterBloc
     fieldController.addListener(onFields: _onFieldFn);
   }
 
-  Future<Either<Unit, FlowyError>> _createDefaultFilter(
-      GridFieldInfo field) async {
+  Future<Either<Unit, FlowyError>> _createDefaultFilter(FieldInfo field) async {
     final fieldId = field.id;
     switch (field.fieldType) {
       case FieldType.Checkbox:
@@ -142,11 +142,10 @@ class GridCreateFilterBloc
 @freezed
 class GridCreateFilterEvent with _$GridCreateFilterEvent {
   const factory GridCreateFilterEvent.initial() = _Initial;
+  const factory GridCreateFilterEvent.didReceiveFields(List<FieldInfo> fields) =
+      _DidReceiveFields;
 
-  const factory GridCreateFilterEvent.didReceiveFields(
-      List<GridFieldInfo> fields) = _DidReceiveFields;
-
-  const factory GridCreateFilterEvent.createDefaultFilter(GridFieldInfo field) =
+  const factory GridCreateFilterEvent.createDefaultFilter(FieldInfo field) =
       _CreateDefaultFilter;
 
   const factory GridCreateFilterEvent.didReceiveFilterText(String text) =
@@ -157,16 +156,18 @@ class GridCreateFilterEvent with _$GridCreateFilterEvent {
 class GridCreateFilterState with _$GridCreateFilterState {
   const factory GridCreateFilterState({
     required String filterText,
-    required List<GridFieldInfo> displaiedFields,
-    required List<GridFieldInfo> allFields,
+    required List<FieldInfo> displaiedFields,
+    required List<FieldInfo> allFields,
+    required bool didCreateFilter,
   }) = _GridFilterState;
 
-  factory GridCreateFilterState.initial(List<GridFieldInfo> fields) {
+  factory GridCreateFilterState.initial(List<FieldInfo> fields) {
     fields.retainWhere((element) => !element.hasFilter);
     return GridCreateFilterState(
       filterText: "",
       displaiedFields: fields,
       allFields: fields,
+      didCreateFilter: false,
     );
   }
 }

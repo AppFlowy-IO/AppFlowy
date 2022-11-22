@@ -58,7 +58,7 @@ class BoardDateCellState with _$BoardDateCellState {
   const factory BoardDateCellState({
     required DateCellDataPB? data,
     required String dateStr,
-    required GridFieldInfo fieldInfo,
+    required FieldInfo fieldInfo,
   }) = _BoardDateCellState;
 
   factory BoardDateCellState.initial(GridDateCellController context) {

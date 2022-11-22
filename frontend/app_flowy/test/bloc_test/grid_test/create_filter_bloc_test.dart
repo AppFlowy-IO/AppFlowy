@@ -34,10 +34,10 @@ void main() {
         content: "");
     await gridResponseFuture();
 
-    final filter = context.fieldController.filterInfos.first;
+    final filterInfo = context.fieldController.filterInfos.first;
     service.deleteFilter(
       fieldId: textField.id,
-      filterId: filter.id,
+      filterId: filterInfo.filter.id,
       fieldType: textField.fieldType,
     );
     await gridResponseFuture();

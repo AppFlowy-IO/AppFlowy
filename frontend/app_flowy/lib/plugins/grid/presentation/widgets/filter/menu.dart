@@ -4,12 +4,16 @@ import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/color_extension.dart';
+import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../toolbar/grid_create_filter_list.dart';
+import 'filter_info.dart';
 import 'menu_item.dart';
 
 class GridFilterMenu extends StatelessWidget {
@@ -20,25 +24,54 @@ class GridFilterMenu extends StatelessWidget {
     return BlocBuilder<GridFilterMenuBloc, GridFilterMenuState>(
       builder: (context, state) {
         if (state.isVisible) {
-          final List<Widget> children = state.filters
-              .map((filter) => FilterMenuItem(filter: filter))
-              .toList();
-
-          return Row(
+          return _wrapPadding(Column(
             children: [
-              SizedBox(width: GridSize.leadingHeaderPadding),
-              SingleChildScrollView(
-                controller: ScrollController(),
-                scrollDirection: Axis.horizontal,
-                child: Wrap(spacing: 4, children: children),
-              ),
-              AddFilterButton(viewId: state.viewId),
+              buildDivider(context),
+              const VSpace(6),
+              buildFilterItems(state.viewId, state.filters),
             ],
-          );
+          ));
         } else {
           return const SizedBox();
         }
       },
+    );
+  }
+
+  Widget _wrapPadding(Widget child) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: GridSize.leadingHeaderPadding,
+        vertical: 6,
+      ),
+      child: child,
+    );
+  }
+
+  Widget buildDivider(BuildContext context) {
+    return Divider(
+      height: 1.0,
+      color: AFThemeExtension.of(context).toggleOffFill,
+    );
+  }
+
+  Widget buildFilterItems(String viewId, List<FilterInfo> filters) {
+    final List<Widget> children = filters
+        .map((filterInfo) => FilterMenuItem(filterInfo: filterInfo))
+        .toList();
+    return Row(
+      children: [
+        SingleChildScrollView(
+          controller: ScrollController(),
+          scrollDirection: Axis.horizontal,
+          child: Wrap(
+            spacing: 4,
+            children: children,
+          ),
+        ),
+        const HSpace(4),
+        AddFilterButton(viewId: viewId),
+      ],
     );
   }
 }
@@ -64,13 +97,22 @@ class _AddFilterButtonState extends State<AddFilterButton> {
   Widget build(BuildContext context) {
     return wrapPopover(
       context,
-      FlowyTextButton(
-        LocaleKeys.grid_settings_addFilter.tr(),
-        fontSize: 14,
-        hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        onPressed: () {
-          popoverController.show();
-        },
+      SizedBox(
+        height: 28,
+        child: FlowyButton(
+          text: FlowyText(
+            LocaleKeys.grid_settings_addFilter.tr(),
+            fontSize: 12,
+          ),
+          hoverColor: AFThemeExtension.of(context).lightGreyHover,
+          leftIcon: svgWidget(
+            "home/add",
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+          onTap: () {
+            popoverController.show();
+          },
+        ),
       ),
     );
   }
@@ -87,6 +129,7 @@ class _AddFilterButtonState extends State<AddFilterButton> {
         return GridCreateFilterList(
           viewId: widget.viewId,
           fieldController: bloc.fieldController,
+          onClosed: () => popoverController.close(),
         );
       },
     );

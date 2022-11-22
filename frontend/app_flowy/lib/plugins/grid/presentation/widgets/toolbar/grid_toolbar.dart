@@ -25,9 +25,9 @@ class GridToolbar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(width: GridSize.leadingHeaderPadding),
-          const SettingButton(),
           const Spacer(),
           const FilterButton(),
+          const SettingButton(),
         ],
       ),
     );

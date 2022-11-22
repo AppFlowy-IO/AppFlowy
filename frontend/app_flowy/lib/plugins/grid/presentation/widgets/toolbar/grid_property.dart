@@ -74,7 +74,7 @@ class _GridPropertyListState extends State<GridPropertyList> {
 }
 
 class _GridPropertyCell extends StatelessWidget {
-  final GridFieldInfo fieldInfo;
+  final FieldInfo fieldInfo;
   final String gridId;
   final PopoverMutex popoverMutex;
   const _GridPropertyCell({
@@ -116,6 +116,7 @@ class _GridPropertyCell extends StatelessWidget {
     return AppFlowyPopover(
       mutex: popoverMutex,
       offset: const Offset(20, 0),
+      direction: PopoverDirection.leftWithTopAligned,
       constraints: BoxConstraints.loose(const Size(240, 400)),
       child: FlowyButton(
         text: FlowyText.medium(fieldInfo.name, fontSize: 12),

@@ -4,7 +4,7 @@ import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
 import 'package:dartz/dartz.dart';
-import 'package:protobuf/protobuf.dart';
+import 'package:protobuf/protobuf.dart' hide FieldInfo;
 import 'package:flowy_sdk/log.dart';
 
 import 'type_option_context.dart';
@@ -18,13 +18,13 @@ class TypeOptionDataController {
   /// Returns a [TypeOptionDataController] used to modify the specified
   /// [FieldPB]'s data
   ///
-  /// Should call [loadTypeOptionData] if the passed-in [GridFieldInfo]
+  /// Should call [loadTypeOptionData] if the passed-in [FieldInfo]
   /// is null
   ///
   TypeOptionDataController({
     required this.gridId,
     required this.loader,
-    GridFieldInfo? fieldInfo,
+    FieldInfo? fieldInfo,
   }) {
     if (fieldInfo != null) {
       _data = TypeOptionPB.create()

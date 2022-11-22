@@ -30,7 +30,7 @@ class GridTestContext {
     return _gridController.blocks;
   }
 
-  List<GridFieldInfo> get fieldContexts => fieldController.fieldInfos;
+  List<FieldInfo> get fieldContexts => fieldController.fieldInfos;
 
   GridFieldController get fieldController {
     return _gridController.fieldController;
@@ -41,7 +41,7 @@ class GridTestContext {
   }
 
   FieldEditorBloc createFieldEditor({
-    GridFieldInfo? fieldInfo,
+    FieldInfo? fieldInfo,
   }) {
     IFieldTypeOptionLoader loader;
     if (fieldInfo == null) {
@@ -101,7 +101,7 @@ class GridTestContext {
     return Future(() => editorBloc);
   }
 
-  GridFieldInfo singleSelectFieldContext() {
+  FieldInfo singleSelectFieldContext() {
     final fieldInfo = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.SingleSelect);
     return fieldInfo;
@@ -112,13 +112,13 @@ class GridTestContext {
     return GridFieldCellContext(gridId: gridView.id, field: field);
   }
 
-  GridFieldInfo textFieldContext() {
+  FieldInfo textFieldContext() {
     final fieldInfo = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.RichText);
     return fieldInfo;
   }
 
-  GridFieldInfo checkboxFieldContext() {
+  FieldInfo checkboxFieldContext() {
     final fieldInfo = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.Checkbox);
     return fieldInfo;

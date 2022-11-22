@@ -123,7 +123,7 @@ class GridEvent with _$GridEvent {
     RowsChangedReason listState,
   ) = _DidReceiveRowUpdate;
   const factory GridEvent.didReceiveFieldUpdate(
-    List<GridFieldInfo> fields,
+    List<FieldInfo> fields,
   ) = _DidReceiveFieldUpdate;
 
   const factory GridEvent.didReceiveGridUpdate(
@@ -162,9 +162,9 @@ class GridLoadingState with _$GridLoadingState {
 }
 
 class GridFieldEquatable extends Equatable {
-  final List<GridFieldInfo> _fields;
+  final List<FieldInfo> _fields;
   const GridFieldEquatable(
-    List<GridFieldInfo> fields,
+    List<FieldInfo> fields,
   ) : _fields = fields;
 
   @override
@@ -181,6 +181,5 @@ class GridFieldEquatable extends Equatable {
     ];
   }
 
-  UnmodifiableListView<GridFieldInfo> get value =>
-      UnmodifiableListView(_fields);
+  UnmodifiableListView<FieldInfo> get value => UnmodifiableListView(_fields);
 }

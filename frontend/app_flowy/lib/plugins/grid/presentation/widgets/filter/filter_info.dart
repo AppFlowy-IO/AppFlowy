@@ -3,7 +3,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/util.pb.dart';
 
 class FilterInfo {
   final FilterPB filter;
-  final GridFieldInfo field;
+  final FieldInfo field;
 
   FilterInfo(this.filter, this.field);
 }

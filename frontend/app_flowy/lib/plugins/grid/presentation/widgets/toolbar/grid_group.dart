@@ -61,7 +61,7 @@ class GridGroupList extends StatelessWidget {
 
 class _GridGroupCell extends StatelessWidget {
   final VoidCallback onSelected;
-  final GridFieldInfo fieldInfo;
+  final FieldInfo fieldInfo;
   const _GridGroupCell({
     required this.fieldInfo,
     required this.onSelected,

@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:app_flowy/plugins/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
@@ -7,14 +8,13 @@ import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/grid_entities.pb.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/util.pb.dart';
 import 'block/block_cache.dart';
 import 'field/field_controller.dart';
 import 'prelude.dart';
 import 'row/row_cache.dart';
 
-typedef OnFieldsChanged = void Function(List<GridFieldInfo>);
-typedef OnFiltersChanged = void Function(List<FilterPB>);
+typedef OnFieldsChanged = void Function(List<FieldInfo>);
+typedef OnFiltersChanged = void Function(List<FilterInfo>);
 typedef OnGridChanged = void Function(GridPB);
 
 typedef OnRowsChanged = void Function(

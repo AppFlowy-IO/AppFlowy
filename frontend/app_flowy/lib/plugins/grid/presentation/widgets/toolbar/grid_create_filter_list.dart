@@ -18,10 +18,12 @@ import 'package:textstyle_extensions/textstyle_extensions.dart';
 class GridCreateFilterList extends StatefulWidget {
   final String viewId;
   final GridFieldController fieldController;
+  final VoidCallback onClosed;
 
   const GridCreateFilterList({
     required this.viewId,
     required this.fieldController,
+    required this.onClosed,
     Key? key,
   }) : super(key: key);
 
@@ -45,58 +47,65 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: editBloc,
-      child: BlocBuilder<GridCreateFilterBloc, GridCreateFilterState>(
-        builder: (context, state) {
-          final cells = state.displaiedFields.map((fieldInfo) {
-            return SizedBox(
-              height: GridSize.typeOptionItemHeight,
-              child: _FilterPropertyCell(
-                fieldInfo: fieldInfo,
-                onTap: (fieldInfo) => createFilter(fieldInfo),
-              ),
-            );
-          }).toList();
+      child: BlocListener<GridCreateFilterBloc, GridCreateFilterState>(
+        listener: (context, state) {
+          if (state.didCreateFilter) {
+            widget.onClosed();
+          }
+        },
+        child: BlocBuilder<GridCreateFilterBloc, GridCreateFilterState>(
+          builder: (context, state) {
+            final cells = state.displaiedFields.map((fieldInfo) {
+              return SizedBox(
+                height: GridSize.typeOptionItemHeight,
+                child: _FilterPropertyCell(
+                  fieldInfo: fieldInfo,
+                  onTap: (fieldInfo) => createFilter(fieldInfo),
+                ),
+              );
+            }).toList();
 
-          List<Widget> slivers = [
-            SliverToBoxAdapter(
-              child: ListView.separated(
-                controller: ScrollController(),
-                shrinkWrap: true,
-                itemCount: cells.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return cells[index];
-                },
-                separatorBuilder: (BuildContext context, int index) {
-                  return VSpace(GridSize.typeOptionSeparatorHeight);
-                },
-              ),
-            ),
-          ];
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: SizedBox(
-                  height: 36,
-                  child: _FilterTextField(
-                    onChanged: (text) {
-                      context.read<GridCreateFilterBloc>().add(
-                          GridCreateFilterEvent.didReceiveFilterText(text));
-                    },
-                  ),
+            List<Widget> slivers = [
+              SliverToBoxAdapter(
+                child: ListView.separated(
+                  controller: ScrollController(),
+                  shrinkWrap: true,
+                  itemCount: cells.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return cells[index];
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return VSpace(GridSize.typeOptionSeparatorHeight);
+                  },
                 ),
               ),
-              Flexible(
-                  child: CustomScrollView(
-                slivers: slivers,
-                controller: ScrollController(),
-                physics: StyledScrollPhysics(),
-              )),
-            ],
-          );
-        },
+            ];
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: SizedBox(
+                    height: 36,
+                    child: _FilterTextField(
+                      onChanged: (text) {
+                        context.read<GridCreateFilterBloc>().add(
+                            GridCreateFilterEvent.didReceiveFilterText(text));
+                      },
+                    ),
+                  ),
+                ),
+                Flexible(
+                    child: CustomScrollView(
+                  slivers: slivers,
+                  controller: ScrollController(),
+                  physics: StyledScrollPhysics(),
+                )),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -107,14 +116,14 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
     super.dispose();
   }
 
-  void createFilter(GridFieldInfo field) {
+  void createFilter(FieldInfo field) {
     editBloc.add(GridCreateFilterEvent.createDefaultFilter(field));
   }
 }
 
 class _FilterPropertyCell extends StatelessWidget {
-  final GridFieldInfo fieldInfo;
-  final Function(GridFieldInfo) onTap;
+  final FieldInfo fieldInfo;
+  final Function(FieldInfo) onTap;
   const _FilterPropertyCell({
     required this.fieldInfo,
     required this.onTap,

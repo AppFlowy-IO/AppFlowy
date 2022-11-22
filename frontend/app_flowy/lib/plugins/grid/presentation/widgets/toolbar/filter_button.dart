@@ -67,6 +67,7 @@ class _FilterButtonState extends State<FilterButton> {
         return GridCreateFilterList(
           viewId: bloc.viewId,
           fieldController: bloc.fieldController,
+          onClosed: () => _popoverController.close(),
         );
       },
     );

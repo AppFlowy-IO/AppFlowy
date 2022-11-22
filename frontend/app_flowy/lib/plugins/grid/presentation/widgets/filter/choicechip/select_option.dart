@@ -1,13 +1,15 @@
-import 'package:flowy_sdk/protobuf/flowy-grid/util.pb.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:flutter/material.dart';
 
+import 'choicechip.dart';
+
 class SelectOptionFilterChoicechip extends StatelessWidget {
-  final FilterPB filter;
-  const SelectOptionFilterChoicechip({required this.filter, Key? key})
+  final FilterInfo filterInfo;
+  const SelectOptionFilterChoicechip({required this.filterInfo, Key? key})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return ChoiceChipButton(filterInfo: filterInfo);
   }
 }

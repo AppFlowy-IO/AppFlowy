@@ -60,7 +60,7 @@ class GridCellIdentifier with _$GridCellIdentifier {
   const factory GridCellIdentifier({
     required String gridId,
     required String rowId,
-    required GridFieldInfo fieldInfo,
+    required FieldInfo fieldInfo,
   }) = _GridCellIdentifier;
 
   // ignore: unused_element

@@ -163,7 +163,7 @@ class IGridCellController<T, D> extends Equatable {
 
   String get fieldId => cellId.fieldInfo.id;
 
-  GridFieldInfo get fieldInfo => cellId.fieldInfo;
+  FieldInfo get fieldInfo => cellId.fieldInfo;
 
   FieldType get fieldType => cellId.fieldInfo.fieldType;
 
@@ -329,8 +329,8 @@ class GridCellFieldNotifierImpl extends IGridCellFieldNotifier {
   }
 
   @override
-  void onCellFieldChanged(void Function(GridFieldInfo) callback) {
-    _onChangesetFn = (List<GridFieldInfo> filedInfos) {
+  void onCellFieldChanged(void Function(FieldInfo) callback) {
+    _onChangesetFn = (List<FieldInfo> filedInfos) {
       for (final field in filedInfos) {
         callback(field);
       }

@@ -12,9 +12,9 @@ part 'row_cache.freezed.dart';
 typedef RowUpdateCallback = void Function();
 
 abstract class IGridRowFieldNotifier {
-  UnmodifiableListView<GridFieldInfo> get fields;
+  UnmodifiableListView<FieldInfo> get fields;
   void onRowFieldsChanged(VoidCallback callback);
-  void onRowFieldChanged(void Function(GridFieldInfo) callback);
+  void onRowFieldChanged(void Function(FieldInfo) callback);
   void onRowDispose();
 }
 
@@ -310,7 +310,7 @@ class _RowChangesetNotifier extends ChangeNotifier {
 class RowInfo with _$RowInfo {
   factory RowInfo({
     required String gridId,
-    required UnmodifiableListView<GridFieldInfo> fields,
+    required UnmodifiableListView<FieldInfo> fields,
     required RowPB rowPB,
     required bool visible,
   }) = _RowInfo;
