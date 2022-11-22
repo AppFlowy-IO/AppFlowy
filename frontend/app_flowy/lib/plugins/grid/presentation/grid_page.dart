@@ -26,19 +26,19 @@ import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
 import 'widgets/row/row_detail.dart';
 import 'widgets/shortcuts.dart';
-import 'widgets/toolbar/grid_filter_menu.dart';
+import 'widgets/filter/menu.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
 
 class GridPage extends StatefulWidget {
   final ViewPB view;
-  final GridDataController dataController;
+  final GridController gridController;
   final VoidCallback? onDeleted;
 
   GridPage({
     required this.view,
     this.onDeleted,
     Key? key,
-  })  : dataController = GridDataController(view: view),
+  })  : gridController = GridController(view: view),
         super(key: ValueKey(view.id));
 
   @override
@@ -53,13 +53,13 @@ class _GridPageState extends State<GridPage> {
         BlocProvider<GridBloc>(
           create: (context) => GridBloc(
             view: widget.view,
-            dataController: widget.dataController,
+            gridController: widget.gridController,
           )..add(const GridEvent.initial()),
         ),
         BlocProvider<GridFilterMenuBloc>(
           create: (context) => GridFilterMenuBloc(
             viewId: widget.view.id,
-            fieldController: widget.dataController.fieldController,
+            fieldController: widget.gridController.fieldController,
           )..add(const GridFilterMenuEvent.initial()),
         ),
         BlocProvider<GridSettingBloc>(
@@ -183,7 +183,7 @@ class _FlowyGridState extends State<FlowyGrid> {
 
   Widget _gridHeader(BuildContext context, String gridId) {
     final fieldController =
-        context.read<GridBloc>().dataController.fieldController;
+        context.read<GridBloc>().gridController.fieldController;
     return GridHeaderSliverAdaptor(
       gridId: gridId,
       fieldController: fieldController,
@@ -254,7 +254,7 @@ class _GridRowsState extends State<_GridRows> {
     if (rowCache == null) return const SizedBox();
 
     final fieldController =
-        context.read<GridBloc>().dataController.fieldController;
+        context.read<GridBloc>().gridController.fieldController;
     final dataController = GridRowDataController(
       rowInfo: rowInfo,
       fieldController: fieldController,

@@ -1,5 +1,5 @@
 use crate::entities::{
-    CreateFilterParams, CreateRowParams, DeleteFilterParams, DeleteGroupParams, GridSettingPB, InsertGroupParams,
+    AlterFilterParams, CreateRowParams, DeleteFilterParams, DeleteGroupParams, GridSettingPB, InsertGroupParams,
     MoveGroupParams, RepeatedGroupPB, RowPB,
 };
 use crate::manager::GridUser;
@@ -120,7 +120,7 @@ impl GridViewManager {
         Ok(view_editor.get_view_filters(filter_id).await)
     }
 
-    pub async fn insert_or_update_filter(&self, params: CreateFilterParams) -> FlowyResult<()> {
+    pub async fn create_or_update_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
         view_editor.insert_view_filter(params).await
     }

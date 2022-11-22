@@ -1,4 +1,4 @@
-use crate::entities::{FilterConfigurationPB, FilterPB, GridLayout, GridLayoutPB, GridSettingPB, GroupConfigurationPB};
+use crate::entities::{GridLayout, GridLayoutPB, GridSettingPB};
 use crate::services::filter::{FilterDelegate, FilterType};
 use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter};
 use crate::services::row::GridBlock;

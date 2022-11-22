@@ -1,6 +1,6 @@
 use crate::grid::filter_test::script::FilterScript::*;
 use crate::grid::filter_test::script::*;
-use flowy_grid::entities::{CreateFilterPayloadPB, FieldType, TextFilterCondition, TextFilterPB};
+use flowy_grid::entities::{AlterFilterPayloadPB, FieldType, TextFilterCondition, TextFilterPB};
 use flowy_grid::services::filter::FilterType;
 
 #[tokio::test]
@@ -126,7 +126,7 @@ async fn grid_filter_delete_test() {
         condition: TextFilterCondition::TextIsEmpty,
         content: "".to_string(),
     };
-    let payload = CreateFilterPayloadPB::new(&field_rev, text_filter);
+    let payload = AlterFilterPayloadPB::new(&field_rev, text_filter);
     let scripts = vec![
         InsertFilter { payload },
         AssertFilterCount { count: 1 },

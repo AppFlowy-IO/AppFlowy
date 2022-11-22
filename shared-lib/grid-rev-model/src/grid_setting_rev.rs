@@ -47,16 +47,28 @@ where
         let value = self
             .inner
             .get_mut(field_id)
-            .and_then(|object_rev_map| object_rev_map.get_mut(field_type));
+            .and_then(|object_map| object_map.get_mut(field_type));
         if value.is_none() {
             eprintln!("[Configuration] Can't find the {:?} with", std::any::type_name::<T>());
         }
         value
     }
+
+    pub fn get_mut_object(
+        &mut self,
+        field_id: &str,
+        field_type: &FieldTypeRevision,
+        predicate: impl Fn(&Arc<T>) -> bool,
+    ) -> Option<&mut Arc<T>> {
+        let objects = self.get_mut_objects(field_id, field_type)?;
+        let index = objects.iter().position(|object| predicate(object))?;
+        objects.get_mut(index)
+    }
+
     pub fn get_objects(&self, field_id: &str, field_type_rev: &FieldTypeRevision) -> Option<Vec<Arc<T>>> {
         self.inner
             .get(field_id)
-            .and_then(|object_rev_map| object_rev_map.get(field_type_rev))
+            .and_then(|object_map| object_map.get(field_type_rev))
             .cloned()
     }
 

@@ -601,8 +601,8 @@ impl GridRevisionEditor {
         self.view_manager.delete_group(params).await
     }
 
-    pub async fn create_filter(&self, params: CreateFilterParams) -> FlowyResult<()> {
-        let _ = self.view_manager.insert_or_update_filter(params).await?;
+    pub async fn create_or_update_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
+        let _ = self.view_manager.create_or_update_filter(params).await?;
         Ok(())
     }
 

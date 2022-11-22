@@ -222,8 +222,9 @@ class GridFieldController {
     _filterNotifier = null;
   }
 
-  Future<Either<Unit, FlowyError>> loadFields(
-      {required List<FieldIdPB> fieldIds}) async {
+  Future<Either<Unit, FlowyError>> loadFields({
+    required List<FieldIdPB> fieldIds,
+  }) async {
     final result = await _gridFFIService.getFields(fieldIds: fieldIds);
     return Future(
       () => result.fold(

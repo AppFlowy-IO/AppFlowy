@@ -1,5 +1,4 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/filter/filter_menu_bloc.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -7,10 +6,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/util.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../toolbar/grid_create_filter_list.dart';
+import 'menu_item.dart';
 
 class GridFilterMenu extends StatelessWidget {
   const GridFilterMenu({Key? key}) : super(key: key);
@@ -40,16 +40,6 @@ class GridFilterMenu extends StatelessWidget {
         }
       },
     );
-  }
-}
-
-class FilterMenuItem extends StatelessWidget {
-  final FilterPB filter;
-  const FilterMenuItem({required this.filter, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(filter.id);
   }
 }
 
@@ -88,79 +78,17 @@ class _AddFilterButtonState extends State<AddFilterButton> {
   Widget wrapPopover(BuildContext buildContext, Widget child) {
     return AppFlowyPopover(
       controller: popoverController,
-      constraints: BoxConstraints.loose(const Size(260, 400)),
-      offset: const Offset(0, 10),
+      constraints: BoxConstraints.loose(const Size(260, 300)),
       margin: const EdgeInsets.all(6),
       triggerActions: PopoverTriggerFlags.none,
       child: child,
       popupBuilder: (BuildContext context) {
-        final fieldController =
-            buildContext.read<GridFilterMenuBloc>().fieldController;
-        return GridFilterPropertyList(
+        final bloc = buildContext.read<GridFilterMenuBloc>();
+        return GridCreateFilterList(
           viewId: widget.viewId,
-          fieldController: fieldController,
+          fieldController: bloc.fieldController,
         );
       },
     );
-  }
-}
-
-class GridFilterPropertyList extends StatefulWidget {
-  final String viewId;
-  final GridFieldController fieldController;
-  const GridFilterPropertyList({
-    required this.viewId,
-    required this.fieldController,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => _GridFilterPropertyListState();
-}
-
-class _GridFilterPropertyListState extends State<GridFilterPropertyList> {
-  late PopoverMutex _popoverMutex;
-
-  @override
-  void initState() {
-    _popoverMutex = PopoverMutex();
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cells = widget.fieldController.fieldInfos.map((field) {
-      return _FilterPropertyCell(info: field);
-    }).toList();
-//  BlocProvider<GridFilterEditBloc>(
-//           create: (context) => GridFilterEditBloc(
-//             viewId: widget.view.id,
-//             fieldController: widget.dataController.fieldController,
-//           )..add(const GridFilterEditEvent.initial()),
-//         ),
-    return ListView.separated(
-      controller: ScrollController(),
-      shrinkWrap: true,
-      itemCount: cells.length,
-      itemBuilder: (BuildContext context, int index) {
-        return cells[index];
-      },
-      separatorBuilder: (BuildContext context, int index) {
-        return VSpace(GridSize.typeOptionSeparatorHeight);
-      },
-    );
-  }
-}
-
-class _FilterPropertyCell extends StatelessWidget {
-  final GridFieldInfo info;
-  const _FilterPropertyCell({
-    required this.info,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(width: 100, height: 30, color: Colors.red);
   }
 }

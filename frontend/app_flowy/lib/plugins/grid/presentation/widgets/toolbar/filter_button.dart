@@ -8,11 +8,17 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'grid_filter_menu.dart';
+import 'grid_create_filter_list.dart';
 
-class FilterButton extends StatelessWidget {
+class FilterButton extends StatefulWidget {
+  const FilterButton({Key? key}) : super(key: key);
+
+  @override
+  State<FilterButton> createState() => _FilterButtonState();
+}
+
+class _FilterButtonState extends State<FilterButton> {
   final _popoverController = PopoverController();
-  FilterButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -50,14 +56,15 @@ class FilterButton extends StatelessWidget {
   Widget wrapPopover(BuildContext buildContext, Widget child) {
     return AppFlowyPopover(
       controller: _popoverController,
-      constraints: BoxConstraints.loose(const Size(260, 400)),
+      direction: PopoverDirection.leftWithTopAligned,
+      constraints: BoxConstraints.loose(const Size(260, 300)),
       offset: const Offset(0, 10),
       margin: const EdgeInsets.all(6),
       triggerActions: PopoverTriggerFlags.none,
       child: child,
       popupBuilder: (BuildContext context) {
         final bloc = buildContext.read<GridFilterMenuBloc>();
-        return GridFilterPropertyList(
+        return GridCreateFilterList(
           viewId: bloc.viewId,
           fieldController: bloc.fieldController,
         );

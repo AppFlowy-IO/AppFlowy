@@ -16,10 +16,10 @@ import 'row/row_service.dart';
 part 'grid_bloc.freezed.dart';
 
 class GridBloc extends Bloc<GridEvent, GridState> {
-  final GridDataController dataController;
+  final GridController gridController;
   void Function()? _createRowOperation;
 
-  GridBloc({required ViewPB view, required this.dataController})
+  GridBloc({required ViewPB view, required this.gridController})
       : super(GridState.initial(view.id)) {
     on<GridEvent>(
       (event, emit) async {
@@ -31,9 +31,9 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           createRow: () {
             state.loadingState.when(
               loading: () {
-                _createRowOperation = () => dataController.createRow();
+                _createRowOperation = () => gridController.createRow();
               },
-              finish: (_) => dataController.createRow(),
+              finish: (_) => gridController.createRow(),
             );
           },
           deleteRow: (rowInfo) async {
@@ -65,17 +65,17 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
   @override
   Future<void> close() async {
-    await dataController.dispose();
+    await gridController.dispose();
     return super.close();
   }
 
   GridRowCache? getRowCache(String blockId, String rowId) {
-    final GridBlockCache? blockCache = dataController.blocks[blockId];
+    final GridBlockCache? blockCache = gridController.blocks[blockId];
     return blockCache?.rowCache;
   }
 
   void _startListening() {
-    dataController.addListener(
+    gridController.addListener(
       onGridChanged: (grid) {
         if (!isClosed) {
           add(GridEvent.didReceiveGridUpdate(grid));
@@ -95,7 +95,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   }
 
   Future<void> _openGrid(Emitter<GridState> emit) async {
-    final result = await dataController.openGrid();
+    final result = await gridController.openGrid();
     result.fold(
       (grid) {
         if (_createRowOperation != null) {

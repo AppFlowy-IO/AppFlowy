@@ -61,7 +61,6 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
                 SliverToBoxAdapter(
                   child: _TextField(popoverMutex: popoverMutex),
                 ),
-                const SliverToBoxAdapter(child: VSpace(6)),
                 const SliverToBoxAdapter(child: TypeOptionSeparator()),
                 const SliverToBoxAdapter(child: VSpace(6)),
                 const SliverToBoxAdapter(child: _Title()),
@@ -145,7 +144,7 @@ class _TextField extends StatelessWidget {
             value: (option) => option);
 
         return SizedBox(
-          height: 62,
+          height: 52,
           child: SelectOptionTextField(
             options: state.options,
             selectedOptionMap: optionMap,

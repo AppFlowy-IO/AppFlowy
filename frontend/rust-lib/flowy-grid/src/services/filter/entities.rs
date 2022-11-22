@@ -1,4 +1,4 @@
-use crate::entities::{CreateFilterParams, DeleteFilterParams, FieldType, GridSettingChangesetParams};
+use crate::entities::{AlterFilterParams, DeleteFilterParams, FieldType, GridSettingChangesetParams};
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
 use std::sync::Arc;
 
@@ -27,7 +27,7 @@ impl std::convert::From<&GridSettingChangesetParams> for FilterChangeset {
     fn from(params: &GridSettingChangesetParams) -> Self {
         let insert_filter = params.insert_filter.as_ref().map(|insert_filter_params| FilterType {
             field_id: insert_filter_params.field_id.clone(),
-            field_type: insert_filter_params.field_type_rev.into(),
+            field_type: insert_filter_params.field_type.into(),
         });
 
         let delete_filter = params
@@ -62,9 +62,9 @@ impl std::convert::From<&Arc<FieldRevision>> for FilterType {
     }
 }
 
-impl std::convert::From<&CreateFilterParams> for FilterType {
-    fn from(params: &CreateFilterParams) -> Self {
-        let field_type: FieldType = params.field_type_rev.into();
+impl std::convert::From<&AlterFilterParams> for FilterType {
+    fn from(params: &AlterFilterParams) -> Self {
+        let field_type: FieldType = params.field_type.into();
         Self {
             field_id: params.field_id.clone(),
             field_type,

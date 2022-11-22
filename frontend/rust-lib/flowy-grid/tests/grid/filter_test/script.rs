@@ -6,7 +6,7 @@
 use std::time::Duration;
 use bytes::Bytes;
 use futures::TryFutureExt;
-use flowy_grid::entities::{CreateFilterParams, CreateFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition, DateFilterContent, SelectOptionCondition, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB};
+use flowy_grid::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition, DateFilterContent, SelectOptionCondition, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB};
 use flowy_grid::services::field::{SelectOptionCellChangeset, SelectOptionIds};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
@@ -25,7 +25,7 @@ pub enum FilterScript {
         option_id: String,
     },
     InsertFilter {
-        payload: CreateFilterPayloadPB,
+        payload: AlterFilterPayloadPB,
     },
     CreateTextFilter {
         condition: TextFilterCondition,
@@ -116,7 +116,7 @@ impl GridFilterTest {
                     content
                 };
                 let payload =
-                    CreateFilterPayloadPB::new(field_rev, text_filter);
+                    AlterFilterPayloadPB::new(field_rev, text_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateNumberFilter {condition, content} => {
@@ -126,7 +126,7 @@ impl GridFilterTest {
                     content
                 };
                 let payload =
-                    CreateFilterPayloadPB::new(field_rev, number_filter);
+                    AlterFilterPayloadPB::new(field_rev, number_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateCheckboxFilter {condition} => {
@@ -135,7 +135,7 @@ impl GridFilterTest {
                     condition
                 };
                 let payload =
-                    CreateFilterPayloadPB::new(field_rev, checkbox_filter);
+                    AlterFilterPayloadPB::new(field_rev, checkbox_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateDateFilter { condition, start, end, timestamp} => {
@@ -148,21 +148,21 @@ impl GridFilterTest {
                 };
 
                 let payload =
-                    CreateFilterPayloadPB::new(field_rev, date_filter);
+                    AlterFilterPayloadPB::new(field_rev, date_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateMultiSelectFilter { condition, option_ids} => {
                 let field_rev = self.get_field_rev(FieldType::MultiSelect);
                 let filter = SelectOptionFilterPB { condition, option_ids };
                 let payload =
-                    CreateFilterPayloadPB::new(field_rev, filter);
+                    AlterFilterPayloadPB::new(field_rev, filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateSingleSelectFilter { condition, option_ids} => {
                 let field_rev = self.get_field_rev(FieldType::SingleSelect);
                 let filter = SelectOptionFilterPB { condition, option_ids };
                 let payload =
-                    CreateFilterPayloadPB::new(field_rev, filter);
+                    AlterFilterPayloadPB::new(field_rev, filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::AssertFilterCount { count } => {
@@ -207,9 +207,9 @@ impl GridFilterTest {
         }
     }
 
-    async fn insert_filter(&self, payload: CreateFilterPayloadPB) {
-        let params: CreateFilterParams = payload.try_into().unwrap();
-        let _ = self.editor.create_filter(params).await.unwrap();
+    async fn insert_filter(&self, payload: AlterFilterPayloadPB) {
+        let params: AlterFilterParams = payload.try_into().unwrap();
+        let _ = self.editor.create_or_update_filter(params).await.unwrap();
     }
 
     async fn update_text_cell(&self, row_index: usize, content: &str) {

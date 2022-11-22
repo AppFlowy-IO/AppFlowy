@@ -23,7 +23,7 @@ typedef OnRowsChanged = void Function(
 );
 typedef ListenOnRowChangedCondition = bool Function();
 
-class GridDataController {
+class GridController {
   final String gridId;
   final GridFFIService _gridFFIService;
   final GridFieldController fieldController;
@@ -44,7 +44,7 @@ class GridDataController {
     return rows;
   }
 
-  GridDataController({required ViewPB view})
+  GridController({required ViewPB view})
       : gridId = view.id,
         // ignore: prefer_collection_literals
         _blocks = LinkedHashMap(),

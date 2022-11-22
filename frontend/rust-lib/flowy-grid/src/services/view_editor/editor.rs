@@ -296,29 +296,47 @@ impl GridViewRevisionEditor {
     }
 
     #[tracing::instrument(level = "trace", skip(self), err)]
-    pub async fn insert_view_filter(&self, params: CreateFilterParams) -> FlowyResult<()> {
+    pub async fn insert_view_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
         let filter_type = FilterType::from(&params);
+        let is_exist = params.filter_id.is_some();
+        let filter_id = match params.filter_id {
+            None => gen_grid_filter_id(),
+            Some(filter_id) => filter_id,
+        };
         let filter_rev = FilterRevision {
-            id: gen_grid_filter_id(),
+            id: filter_id,
             field_id: params.field_id.clone(),
-            field_type_rev: params.field_type_rev,
+            field_type: params.field_type,
             condition: params.condition,
             content: params.content,
         };
         let filter_pb = FilterPB::from(&filter_rev);
-        let _ = self
-            .modify(|pad| {
-                let changeset = pad.insert_filter(&params.field_id, &params.field_type_rev, filter_rev)?;
-                Ok(changeset)
-            })
-            .await?;
-
+        if is_exist {
+            let _ = self
+                .modify(|pad| {
+                    let changeset = pad.update_filter(
+                        &params.field_id,
+                        &filter_rev.id,
+                        filter_rev.field_type,
+                        filter_rev.condition,
+                        filter_rev.content,
+                    )?;
+                    Ok(changeset)
+                })
+                .await?;
+        } else {
+            let _ = self
+                .modify(|pad| {
+                    let changeset = pad.insert_filter(&params.field_id, &params.field_type, filter_rev)?;
+                    Ok(changeset)
+                })
+                .await?;
+        }
         self.filter_controller
             .write()
             .await
             .did_receive_filter_changed(FilterChangeset::from_insert(filter_type))
             .await;
-
         let changeset = FilterChangesetNotificationPB::from_insert(&self.view_id, vec![filter_pb]);
         self.notify_did_update_filter(changeset).await;
         Ok(())

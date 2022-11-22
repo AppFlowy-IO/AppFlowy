@@ -28,8 +28,9 @@ class FilterFFIService {
     });
   }
 
-  Future<Either<Unit, FlowyError>> createTextFilter({
+  Future<Either<Unit, FlowyError>> insertTextFilter({
     required String fieldId,
+    String? filterId,
     required TextFilterCondition condition,
     String content = "",
   }) {
@@ -37,28 +38,32 @@ class FilterFFIService {
       ..condition = condition
       ..content = content;
 
-    return createFilter(
+    return insertFilter(
       fieldId: fieldId,
+      filterId: filterId,
       fieldType: FieldType.RichText,
       data: filter.writeToBuffer(),
     );
   }
 
-  Future<Either<Unit, FlowyError>> createCheckboxFilter({
+  Future<Either<Unit, FlowyError>> insertCheckboxFilter({
     required String fieldId,
+    String? filterId,
     required CheckboxFilterCondition condition,
   }) {
     final filter = CheckboxFilterPB()..condition = condition;
 
-    return createFilter(
+    return insertFilter(
       fieldId: fieldId,
+      filterId: filterId,
       fieldType: FieldType.Checkbox,
       data: filter.writeToBuffer(),
     );
   }
 
-  Future<Either<Unit, FlowyError>> createNumberFilter({
+  Future<Either<Unit, FlowyError>> insertNumberFilter({
     required String fieldId,
+    String? filterId,
     required NumberFilterCondition condition,
     String content = "",
   }) {
@@ -66,15 +71,17 @@ class FilterFFIService {
       ..condition = condition
       ..content = content;
 
-    return createFilter(
+    return insertFilter(
       fieldId: fieldId,
+      filterId: filterId,
       fieldType: FieldType.Number,
       data: filter.writeToBuffer(),
     );
   }
 
-  Future<Either<Unit, FlowyError>> createDateFilter({
+  Future<Either<Unit, FlowyError>> insertDateFilter({
     required String fieldId,
+    String? filterId,
     required DateFilterCondition condition,
     int? start,
     int? end,
@@ -93,15 +100,17 @@ class FilterFFIService {
       }
     }
 
-    return createFilter(
+    return insertFilter(
       fieldId: fieldId,
+      filterId: filterId,
       fieldType: FieldType.DateTime,
       data: filter.writeToBuffer(),
     );
   }
 
-  Future<Either<Unit, FlowyError>> createURLFilter({
+  Future<Either<Unit, FlowyError>> insertURLFilter({
     required String fieldId,
+    String? filterId,
     required TextFilterCondition condition,
     String content = "",
   }) {
@@ -109,15 +118,17 @@ class FilterFFIService {
       ..condition = condition
       ..content = content;
 
-    return createFilter(
+    return insertFilter(
       fieldId: fieldId,
+      filterId: filterId,
       fieldType: FieldType.URL,
       data: filter.writeToBuffer(),
     );
   }
 
-  Future<Either<Unit, FlowyError>> createSingleSelectFilter({
+  Future<Either<Unit, FlowyError>> insertSingleSelectFilter({
     required String fieldId,
+    String? filterId,
     required SelectOptionCondition condition,
     List<String> optionIds = const [],
   }) {
@@ -125,15 +136,17 @@ class FilterFFIService {
       ..condition = condition
       ..optionIds.addAll(optionIds);
 
-    return createFilter(
+    return insertFilter(
       fieldId: fieldId,
+      filterId: filterId,
       fieldType: FieldType.SingleSelect,
       data: filter.writeToBuffer(),
     );
   }
 
-  Future<Either<Unit, FlowyError>> createMultiSelectFilter({
+  Future<Either<Unit, FlowyError>> insertMultiSelectFilter({
     required String fieldId,
+    String? filterId,
     required SelectOptionCondition condition,
     List<String> optionIds = const [],
   }) {
@@ -141,21 +154,23 @@ class FilterFFIService {
       ..condition = condition
       ..optionIds.addAll(optionIds);
 
-    return createFilter(
+    return insertFilter(
       fieldId: fieldId,
+      filterId: filterId,
       fieldType: FieldType.MultiSelect,
       data: filter.writeToBuffer(),
     );
   }
 
-  Future<Either<Unit, FlowyError>> createFilter({
+  Future<Either<Unit, FlowyError>> insertFilter({
     required String fieldId,
+    String? filterId,
     required FieldType fieldType,
     required List<int> data,
   }) {
     TextFilterCondition.DoesNotContain.value;
 
-    final insertFilterPayload = CreateFilterPayloadPB.create()
+    final insertFilterPayload = AlterFilterPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType
       ..data = data;

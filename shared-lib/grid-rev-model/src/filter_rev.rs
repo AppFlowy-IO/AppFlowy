@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 pub struct FilterRevision {
     pub id: String,
     pub field_id: String,
-    pub field_type_rev: FieldTypeRevision,
+    pub field_type: FieldTypeRevision,
     pub condition: u8,
     #[serde(default)]
     pub content: String,

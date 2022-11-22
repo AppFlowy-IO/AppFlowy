@@ -154,6 +154,29 @@ impl GridViewRevisionPad {
         })
     }
 
+    pub fn update_filter(
+        &mut self,
+        field_id: &str,
+        filter_id: &str,
+        field_type: FieldTypeRevision,
+        condition: u8,
+        content: String,
+    ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
+        self.modify(|view| {
+            if let Some(filter) = view
+                .filters
+                .get_mut_object(field_id, &field_type, |filter| filter.id == filter_id)
+            {
+                let filter = Arc::make_mut(filter);
+                filter.condition = condition;
+                filter.content = content;
+                Ok(Some(()))
+            } else {
+                Ok(None)
+            }
+        })
+    }
+
     pub fn delete_filter(
         &mut self,
         filter_id: &str,

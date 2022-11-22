@@ -363,14 +363,12 @@ impl TryInto<GetFieldParams> for GetFieldPayloadPB {
 
     fn try_into(self) -> Result<GetFieldParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        let field_ids = self.field_ids.and_then(|repeated| {
-            Some(
-                repeated
-                    .items
-                    .into_iter()
-                    .map(|item| item.field_id)
-                    .collect::<Vec<String>>(),
-            )
+        let field_ids = self.field_ids.map(|repeated| {
+            repeated
+                .items
+                .into_iter()
+                .map(|item| item.field_id)
+                .collect::<Vec<String>>()
         });
 
         Ok(GetFieldParams {
