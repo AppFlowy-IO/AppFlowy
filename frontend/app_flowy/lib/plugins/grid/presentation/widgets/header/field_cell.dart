@@ -175,7 +175,6 @@ class FieldCellButton extends StatelessWidget {
       radius: BorderRadius.zero,
       text: FlowyText.medium(
         text,
-        fontSize: 12,
         maxLines: maxLines,
         overflow: TextOverflow.ellipsis,
       ),

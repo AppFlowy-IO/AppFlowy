@@ -3,9 +3,7 @@ import 'package:app_flowy/plugins/grid/presentation/widgets/header/field_type_ex
 import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 

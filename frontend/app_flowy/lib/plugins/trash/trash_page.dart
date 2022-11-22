@@ -4,6 +4,7 @@ import 'package:app_flowy/plugins/trash/src/trash_header.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
@@ -86,12 +87,14 @@ class _TrashPageState extends State<TrashPage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          FlowyText.semibold(LocaleKeys.trash_text.tr()),
+          FlowyText.semibold(
+            LocaleKeys.trash_text.tr(),
+            fontSize: FontSizes.s16,
+          ),
           const Spacer(),
           IntrinsicWidth(
             child: FlowyButton(
-              text: FlowyText.medium(LocaleKeys.trash_restoreAll.tr(),
-                  fontSize: 12),
+              text: FlowyText.medium(LocaleKeys.trash_restoreAll.tr()),
               leftIcon: svgWidget(
                 'editor/restore',
                 color: Theme.of(context).colorScheme.onSurface,
@@ -104,8 +107,7 @@ class _TrashPageState extends State<TrashPage> {
           const HSpace(6),
           IntrinsicWidth(
             child: FlowyButton(
-              text: FlowyText.medium(LocaleKeys.trash_deleteAll.tr(),
-                  fontSize: 12),
+              text: FlowyText.medium(LocaleKeys.trash_deleteAll.tr()),
               leftIcon: svgWidget(
                 'editor/delete',
                 color: Theme.of(context).colorScheme.onSurface,

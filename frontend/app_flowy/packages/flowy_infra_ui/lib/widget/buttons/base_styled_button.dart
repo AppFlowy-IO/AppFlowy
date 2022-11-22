@@ -1,5 +1,4 @@
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flutter/material.dart';
 
 class BaseStyledButton extends StatefulWidget {
@@ -106,7 +105,8 @@ class BaseStyledBtnState extends State<BaseStyledButton> {
       child: RawMaterialButton(
         focusNode: _focusNode,
         autofocus: widget.autoFocus,
-        textStyle: widget.useBtnText ? TextStyles.body1 : null,
+        textStyle:
+            widget.useBtnText ? Theme.of(context).textTheme.bodyMedium : null,
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         // visualDensity: VisualDensity.compact,
         splashColor: Colors.transparent,

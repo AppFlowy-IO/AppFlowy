@@ -10,23 +10,23 @@ extension SelectOptionColorExtension on SelectOptionColorPB {
   Color make(BuildContext context) {
     switch (this) {
       case SelectOptionColorPB.Purple:
-        return AFThemeExtension.tint1;
+        return AFThemeExtension.of(context).tint1;
       case SelectOptionColorPB.Pink:
-        return AFThemeExtension.tint2;
+        return AFThemeExtension.of(context).tint2;
       case SelectOptionColorPB.LightPink:
-        return AFThemeExtension.tint3;
+        return AFThemeExtension.of(context).tint3;
       case SelectOptionColorPB.Orange:
-        return AFThemeExtension.tint4;
+        return AFThemeExtension.of(context).tint4;
       case SelectOptionColorPB.Yellow:
-        return AFThemeExtension.tint5;
+        return AFThemeExtension.of(context).tint5;
       case SelectOptionColorPB.Lime:
-        return AFThemeExtension.tint6;
+        return AFThemeExtension.of(context).tint6;
       case SelectOptionColorPB.Green:
-        return AFThemeExtension.tint7;
+        return AFThemeExtension.of(context).tint7;
       case SelectOptionColorPB.Aqua:
-        return AFThemeExtension.tint8;
+        return AFThemeExtension.of(context).tint8;
       case SelectOptionColorPB.Blue:
-        return AFThemeExtension.tint9;
+        return AFThemeExtension.of(context).tint9;
       default:
         throw ArgumentError;
     }
@@ -91,7 +91,6 @@ class SelectOptionTag extends StatelessWidget {
       pressElevation: 1,
       label: FlowyText.medium(
         name,
-        fontSize: 12,
         overflow: TextOverflow.clip,
       ),
       selectedColor: color,

@@ -1,4 +1,5 @@
-import 'package:flowy_infra/text_style.dart';
+import 'package:flowy_infra/color_extension.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -82,16 +83,16 @@ class FlowyButton extends StatelessWidget {
 
 class FlowyTextButton extends StatelessWidget {
   final String text;
-  final double fontSize;
+  final FontWeight? fontWeight;
+  final Color? fontColor;
+  final double? fontSize;
   final TextOverflow overflow;
-  final FontWeight fontWeight;
 
   final VoidCallback? onPressed;
   final EdgeInsets padding;
   final Widget? heading;
   final Color? hoverColor;
   final Color? fillColor;
-  final Color? textColor;
   final BorderRadius? radius;
   final MainAxisAlignment mainAxisAlignment;
   final String? tooltip;
@@ -102,13 +103,13 @@ class FlowyTextButton extends StatelessWidget {
     this.text, {
     Key? key,
     this.onPressed,
-    this.fontSize = 16,
+    this.fontSize,
+    this.fontColor,
     this.overflow = TextOverflow.ellipsis,
-    this.fontWeight = FontWeight.w400,
+    this.fontWeight,
     this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
     this.hoverColor,
     this.fillColor,
-    this.textColor,
     this.heading,
     this.radius,
     this.mainAxisAlignment = MainAxisAlignment.start,
@@ -126,10 +127,10 @@ class FlowyTextButton extends StatelessWidget {
     children.add(
       FlowyText(
         text,
-        color: textColor,
         overflow: overflow,
         fontWeight: fontWeight,
         fontSize: fontSize,
+        color: fontColor ?? Theme.of(context).colorScheme.onSecondary,
         textAlign: TextAlign.center,
       ),
     );
@@ -147,10 +148,8 @@ class FlowyTextButton extends StatelessWidget {
       visualDensity: VisualDensity.compact,
       hoverElevation: 0,
       highlightElevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: radius ?? BorderRadius.circular(2),
-      ),
-      fillColor: fillColor,
+      shape: RoundedRectangleBorder(borderRadius: radius ?? Corners.s6Border),
+      fillColor: fillColor ?? Theme.of(context).colorScheme.secondaryContainer,
       hoverColor: hoverColor ?? Theme.of(context).colorScheme.secondary,
       focusColor: Colors.transparent,
       splashColor: Colors.transparent,
@@ -164,7 +163,7 @@ class FlowyTextButton extends StatelessWidget {
     if (tooltip != null) {
       child = Tooltip(
         message: tooltip!,
-        textStyle: TextStyles.caption.textColor(Colors.white),
+        textStyle: AFThemeExtension.of(context).caption.textColor(Colors.white),
         child: child,
       );
     }

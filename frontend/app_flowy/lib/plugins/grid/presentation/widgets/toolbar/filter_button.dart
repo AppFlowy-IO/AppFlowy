@@ -35,7 +35,7 @@ class _FilterButtonState extends State<FilterButton> {
             child: FlowyTextButton(
               LocaleKeys.grid_settings_filter.tr(),
               fontSize: 14,
-              textColor: textColor,
+              fontColor: textColor,
               hoverColor: AFThemeExtension.of(context).lightGreyHover,
               padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
               onPressed: () {

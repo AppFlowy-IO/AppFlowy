@@ -72,7 +72,6 @@ class _SettingItem extends StatelessWidget {
       child: FlowyButton(
         text: FlowyText.medium(
           action.title(),
-          fontSize: 12,
           color: action.enable() ? null : Theme.of(context).disabledColor,
         ),
         onTap: () => onAction(action),

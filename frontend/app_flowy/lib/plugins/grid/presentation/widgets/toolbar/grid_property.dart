@@ -119,7 +119,7 @@ class _GridPropertyCell extends StatelessWidget {
       direction: PopoverDirection.leftWithTopAligned,
       constraints: BoxConstraints.loose(const Size(240, 400)),
       child: FlowyButton(
-        text: FlowyText.medium(fieldInfo.name, fontSize: 12),
+        text: FlowyText.medium(fieldInfo.name),
         leftIcon: svgWidget(
           fieldInfo.fieldType.iconName(),
           color: Theme.of(context).colorScheme.onSurface,
