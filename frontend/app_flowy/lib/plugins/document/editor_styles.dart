@@ -8,6 +8,7 @@ EditorStyle customEditorTheme(BuildContext context) {
       ? EditorStyle.dark
       : EditorStyle.light;
   editorStyle = editorStyle.copyWith(
+    padding: const EdgeInsets.all(0),
     textStyle: editorStyle.textStyle?.copyWith(
       fontFamily: 'poppins',
       fontSize: _baseFontSize,

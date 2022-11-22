@@ -96,6 +96,7 @@ class _DocumentPageState extends State<DocumentPage> {
 
   Widget _renderAppFlowyEditor(EditorState editorState) {
     final theme = Theme.of(context);
+    final editorMaxWidth = MediaQuery.of(context).size.width * 0.6;
     final editor = AppFlowyEditor(
       editorState: editorState,
       autoFocus: editorState.document.isEmpty,
@@ -112,8 +113,13 @@ class _DocumentPageState extends State<DocumentPage> {
       ]),
     );
     return Expanded(
-      child: SizedBox.expand(
-        child: editor,
+      child: Center(
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: editorMaxWidth,
+          ),
+          child: editor,
+        ),
       ),
     );
   }
