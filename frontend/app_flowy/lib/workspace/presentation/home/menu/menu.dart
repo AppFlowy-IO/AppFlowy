@@ -224,7 +224,9 @@ class MenuTopBar extends StatelessWidget {
                 const Spacer(),
                 Tooltip(
                   richMessage: sidebarTooltipTextSpan(
-                      LocaleKeys.sideBar_closeSidebar.tr()),
+                    context,
+                    LocaleKeys.sideBar_closeSidebar.tr(),
+                  ),
                   child: FlowyIconButton(
                     width: 28,
                     hoverColor: Colors.transparent,

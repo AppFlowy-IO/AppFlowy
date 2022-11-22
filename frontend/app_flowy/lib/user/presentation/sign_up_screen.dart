@@ -3,8 +3,7 @@ import 'package:app_flowy/user/application/sign_up_bloc.dart';
 import 'package:app_flowy/user/presentation/router.dart';
 import 'package:app_flowy/user/presentation/widgets/background.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -16,7 +15,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class SignUpScreen extends StatelessWidget {
   final AuthRouter router;
@@ -90,15 +88,18 @@ class SignUpPrompt extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
+        FlowyText.medium(
           LocaleKeys.signUp_alreadyHaveAnAccount.tr(),
-          style: TextStyle(color: Theme.of(context).hintColor, fontSize: 12),
+          color: Theme.of(context).hintColor,
         ),
         TextButton(
-          style: TextButton.styleFrom(textStyle: TextStyles.body1),
+          style: TextButton.styleFrom(
+              textStyle: Theme.of(context).textTheme.bodyMedium),
           onPressed: () => Navigator.pop(context),
-          child: Text(LocaleKeys.signIn_buttonText.tr(),
-              style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+          child: FlowyText.medium(
+            LocaleKeys.signIn_buttonText.tr(),
+            color: Theme.of(context).colorScheme.primary,
+          ),
         ),
       ],
     );
@@ -139,7 +140,6 @@ class PasswordTextField extends StatelessWidget {
           obscureText: true,
           obscureIcon: svgWidget("home/hide"),
           obscureHideIcon: svgWidget("home/show"),
-          style: TextStyles.body1.size(FontSizes.s14),
           hintText: LocaleKeys.signUp_passwordHint.tr(),
           normalBorderColor: Theme.of(context).colorScheme.outline,
           errorBorderColor: Theme.of(context).colorScheme.error,
@@ -173,7 +173,6 @@ class RepeatPasswordTextField extends StatelessWidget {
           obscureText: true,
           obscureIcon: svgWidget("home/hide"),
           obscureHideIcon: svgWidget("home/show"),
-          style: TextStyles.body1.size(FontSizes.s14),
           hintText: LocaleKeys.signUp_repeatPasswordHint.tr(),
           normalBorderColor: Theme.of(context).colorScheme.outline,
           errorBorderColor: Theme.of(context).colorScheme.error,
