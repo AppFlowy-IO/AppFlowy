@@ -4,7 +4,6 @@ import 'package:app_flowy/user/presentation/router.dart';
 import 'package:app_flowy/user/presentation/widgets/background.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
@@ -17,7 +16,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class SignInScreen extends StatelessWidget {
   final AuthRouter router;
@@ -103,7 +101,8 @@ class SignUpPrompt extends StatelessWidget {
           color: Theme.of(context).hintColor,
         ),
         TextButton(
-          style: TextButton.styleFrom(textStyle: TextStyles.body1),
+          style: TextButton.styleFrom(
+              textStyle: Theme.of(context).textTheme.bodyMedium),
           onPressed: () => router.pushSignUpScreen(context),
           child: Text(
             LocaleKeys.signUp_buttonText.tr(),
@@ -145,8 +144,7 @@ class ForgetPasswordButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       style: TextButton.styleFrom(
-        textStyle: TextStyles.body1,
-      ),
+          textStyle: Theme.of(context).textTheme.bodyMedium),
       onPressed: () => router.pushForgetPasswordScreen(context),
       child: Text(
         LocaleKeys.signIn_forgotPassword.tr(),
@@ -169,7 +167,6 @@ class PasswordTextField extends StatelessWidget {
       builder: (context, state) {
         return RoundedInputField(
           obscureText: true,
-          style: TextStyles.body1.size(FontSizes.s14),
           obscureIcon: svgWidget("home/hide"),
           obscureHideIcon: svgWidget("home/show"),
           hintText: LocaleKeys.signIn_passwordHint.tr(),
@@ -200,7 +197,6 @@ class EmailTextField extends StatelessWidget {
       builder: (context, state) {
         return RoundedInputField(
           hintText: LocaleKeys.signIn_emailHint.tr(),
-          style: TextStyles.body1.size(FontSizes.s14),
           errorText: context
               .read<SignInBloc>()
               .state

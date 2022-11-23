@@ -1,4 +1,5 @@
 import 'package:flowy_infra/color_extension.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -75,9 +76,10 @@ class FlowyButton extends StatelessWidget {
 
 class FlowyTextButton extends StatelessWidget {
   final String text;
-  final double fontSize;
+  final FontWeight? fontWeight;
+  final Color? fontColor;
+  final double? fontSize;
   final TextOverflow overflow;
-  final FontWeight fontWeight;
 
   final VoidCallback? onPressed;
   final EdgeInsets padding;
@@ -93,9 +95,10 @@ class FlowyTextButton extends StatelessWidget {
     this.text, {
     Key? key,
     this.onPressed,
-    this.fontSize = 16,
+    this.fontSize,
+    this.fontColor,
     this.overflow = TextOverflow.ellipsis,
-    this.fontWeight = FontWeight.w400,
+    this.fontWeight,
     this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
     this.hoverColor,
     this.fillColor,
@@ -118,6 +121,7 @@ class FlowyTextButton extends StatelessWidget {
         overflow: overflow,
         fontWeight: fontWeight,
         fontSize: fontSize,
+        color: fontColor ?? Theme.of(context).colorScheme.onSecondary,
         textAlign: TextAlign.center,
       ),
     );
@@ -135,9 +139,8 @@ class FlowyTextButton extends StatelessWidget {
       visualDensity: VisualDensity.compact,
       hoverElevation: 0,
       highlightElevation: 0,
-      shape: RoundedRectangleBorder(
-          borderRadius: radius ?? BorderRadius.circular(2)),
-      fillColor: fillColor,
+      shape: RoundedRectangleBorder(borderRadius: radius ?? Corners.s6Border),
+      fillColor: fillColor ?? Theme.of(context).colorScheme.secondaryContainer,
       hoverColor: hoverColor ?? Theme.of(context).colorScheme.secondary,
       focusColor: Colors.transparent,
       splashColor: Colors.transparent,
