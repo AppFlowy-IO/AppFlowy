@@ -1,6 +1,6 @@
 use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::*;
-use crate::services::filter::{FilterChangeset, FilterController, FilterTaskHandler, FilterType};
+use crate::services::filter::{FilterChangeset, FilterController, FilterTaskHandler, FilterType, UpdatedFilterType};
 use crate::services::group::{
     default_group_configuration, find_group_field, make_group_controller, Group, GroupConfigurationReader,
     GroupController, MoveGroupRowContext,
@@ -8,6 +8,7 @@ use crate::services::group::{
 use crate::services::row::GridBlock;
 use crate::services::view_editor::changed_notifier::GridViewChangedNotifier;
 use crate::services::view_editor::trait_impl::*;
+use crate::services::view_editor::GridViewChangedReceiverRunner;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_revision::RevisionManager;
@@ -19,7 +20,7 @@ use lib_infra::ref_map::RefCountValue;
 use nanoid::nanoid;
 use std::future::Future;
 use std::sync::Arc;
-use tokio::sync::RwLock;
+use tokio::sync::{broadcast, RwLock};
 
 pub trait GridViewEditorDelegate: Send + Sync + 'static {
     /// If the field_ids is None, then it will return all the field revisions
@@ -42,6 +43,7 @@ pub struct GridViewRevisionEditor {
     delegate: Arc<dyn GridViewEditorDelegate>,
     group_controller: Arc<RwLock<Box<dyn GroupController>>>,
     filter_controller: Arc<RwLock<FilterController>>,
+    pub notifier: GridViewChangedNotifier,
 }
 
 impl GridViewRevisionEditor {
@@ -51,9 +53,10 @@ impl GridViewRevisionEditor {
         token: &str,
         view_id: String,
         delegate: Arc<dyn GridViewEditorDelegate>,
-        notifier: GridViewChangedNotifier,
         mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
     ) -> FlowyResult<Self> {
+        let (notifier, _) = broadcast::channel(100);
+        tokio::spawn(GridViewChangedReceiverRunner(Some(notifier.subscribe())).run());
         let cloud = Arc::new(GridViewRevisionCloudService {
             token: token.to_owned(),
         });
@@ -80,6 +83,7 @@ impl GridViewRevisionEditor {
             delegate,
             group_controller,
             filter_controller,
+            notifier,
         })
     }
 
@@ -367,9 +371,15 @@ impl GridViewRevisionEditor {
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
-    pub async fn did_update_view_field_type_option(&self, field_id: &str) -> FlowyResult<()> {
+    pub async fn did_update_view_field_type_option(
+        &self,
+        field_id: &str,
+        old_field_rev: Option<Arc<FieldRevision>>,
+    ) -> FlowyResult<()> {
         if let Some(field_rev) = self.delegate.get_field_rev(field_id).await {
-            let filter_type = FilterType::from(&field_rev);
+            let old = old_field_rev.map(|old_field_rev| FilterType::from(&old_field_rev));
+            let new = FilterType::from(&field_rev);
+            let filter_type = UpdatedFilterType::new(old, new);
             let filter_changeset = FilterChangeset::from_update(filter_type);
             if let Some(changeset) = self
                 .filter_controller

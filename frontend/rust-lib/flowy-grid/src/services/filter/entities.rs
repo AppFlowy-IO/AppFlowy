@@ -2,10 +2,23 @@ use crate::entities::{AlterFilterParams, DeleteFilterParams, FieldType, GridSett
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
 use std::sync::Arc;
 
+#[derive(Debug)]
 pub struct FilterChangeset {
     pub(crate) insert_filter: Option<FilterType>,
-    pub(crate) update_filter: Option<FilterType>,
+    pub(crate) update_filter: Option<UpdatedFilterType>,
     pub(crate) delete_filter: Option<FilterType>,
+}
+
+#[derive(Debug)]
+pub struct UpdatedFilterType {
+    pub old: Option<FilterType>,
+    pub new: FilterType,
+}
+
+impl UpdatedFilterType {
+    pub fn new(old: Option<FilterType>, new: FilterType) -> UpdatedFilterType {
+        Self { old, new }
+    }
 }
 
 impl FilterChangeset {
@@ -17,7 +30,7 @@ impl FilterChangeset {
         }
     }
 
-    pub fn from_update(filter_type: FilterType) -> Self {
+    pub fn from_update(filter_type: UpdatedFilterType) -> Self {
         Self {
             insert_filter: None,
             update_filter: Some(filter_type),

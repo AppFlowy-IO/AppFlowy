@@ -159,7 +159,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
         Ok(())
     }
 
-    #[tracing::instrument(level = "trace", skip_all, err)]
+    // #[tracing::instrument(level = "trace", skip_all, err)]
     pub async fn add_local_revision(&self, revision: &Revision) -> Result<(), FlowyError> {
         if revision.bytes.is_empty() {
             return Err(FlowyError::internal().context("Local revisions is empty"));

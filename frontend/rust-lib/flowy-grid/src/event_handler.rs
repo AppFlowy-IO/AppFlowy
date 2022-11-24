@@ -115,8 +115,14 @@ pub(crate) async fn update_field_type_option_handler(
 ) -> Result<(), FlowyError> {
     let params: TypeOptionChangesetParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let old_field_rev = editor.get_field_rev(&params.field_id).await;
     let _ = editor
-        .update_field_type_option(&params.grid_id, &params.field_id, params.type_option_data)
+        .did_update_field_type_option(
+            &params.grid_id,
+            &params.field_id,
+            params.type_option_data,
+            old_field_rev,
+        )
         .await?;
     Ok(())
 }
@@ -139,20 +145,21 @@ pub(crate) async fn switch_to_field_handler(
 ) -> Result<(), FlowyError> {
     let params: EditFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let old_field_rev = editor.get_field_rev(&params.field_id).await;
     editor
         .switch_to_field_type(&params.field_id, &params.field_type)
         .await?;
 
     // Get the field_rev with field_id, if it doesn't exist, we create the default FieldRevision from the FieldType.
-    let field_rev = editor
+    let new_field_rev = editor
         .get_field_rev(&params.field_id)
         .await
         .unwrap_or(Arc::new(editor.next_field_rev(&params.field_type).await?));
 
     // Update the type-option data after the field type has been changed
-    let type_option_data = get_type_option_data(&field_rev, &params.field_type).await?;
+    let type_option_data = get_type_option_data(&new_field_rev, &params.field_type).await?;
     let _ = editor
-        .update_field_type_option(&params.grid_id, &field_rev.id, type_option_data)
+        .did_update_field_type_option(&params.grid_id, &new_field_rev.id, type_option_data, old_field_rev)
         .await?;
 
     Ok(())

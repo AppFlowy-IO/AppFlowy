@@ -17,7 +17,7 @@ use tokio::sync::RwLock;
 
 type RowId = String;
 pub trait FilterDelegate: Send + Sync + 'static {
-    fn get_filter_rev(&self, filter_type: FilterType) -> Fut<Vec<Arc<FilterRevision>>>;
+    fn get_filter_rev(&self, filter_type: FilterType) -> Fut<Option<Arc<FilterRevision>>>;
     fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>>;
     fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>>;
     fn get_blocks(&self) -> Fut<Vec<GridBlock>>;
@@ -177,27 +177,40 @@ impl FilterController {
         self.gen_task(FilterEvent::RowDidChanged(row_id.to_string())).await
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     pub async fn did_receive_filter_changed(
         &mut self,
         changeset: FilterChangeset,
     ) -> Option<FilterChangesetNotificationPB> {
         let mut notification: Option<FilterChangesetNotificationPB> = None;
         if let Some(filter_type) = &changeset.insert_filter {
-            let filter_revs = self.delegate.get_filter_rev(filter_type.clone()).await;
-            let filters = self.filters_from_filter_type(filter_type).await;
-            notification = Some(FilterChangesetNotificationPB::from_insert(&self.view_id, filters));
-            let _ = self.cache_filters(filter_revs).await;
+            if let Some(filter) = self.filters_from_filter_type(filter_type).await {
+                notification = Some(FilterChangesetNotificationPB::from_insert(&self.view_id, vec![filter]));
+            }
+            if let Some(filter_rev) = self.delegate.get_filter_rev(filter_type.clone()).await {
+                let _ = self.cache_filters(vec![filter_rev]).await;
+            }
         }
 
-        if let Some(filter_type) = &changeset.update_filter {
-            let filters = self.filters_from_filter_type(filter_type).await;
-            notification = Some(FilterChangesetNotificationPB::from_update(&self.view_id, filters));
-            let _ = self.update_filter(filter_type).await;
+        if let Some(updated_filter_type) = changeset.update_filter {
+            if let Some(old_filter_type) = updated_filter_type.old {
+                if let Some(filter) = self.filters_from_filter_type(&old_filter_type).await {
+                    let updated_filter = UpdatedFilter {
+                        filter_id: filter.id,
+                        filter: self.filters_from_filter_type(&updated_filter_type.new).await,
+                    };
+                    notification = Some(FilterChangesetNotificationPB::from_update(
+                        &self.view_id,
+                        vec![updated_filter],
+                    ));
+                }
+            }
         }
 
         if let Some(filter_type) = &changeset.delete_filter {
-            let filters = self.filters_from_filter_type(filter_type).await;
-            notification = Some(FilterChangesetNotificationPB::from_delete(&self.view_id, filters));
+            if let Some(filter) = self.filters_from_filter_type(filter_type).await {
+                notification = Some(FilterChangesetNotificationPB::from_delete(&self.view_id, vec![filter]));
+            }
             self.filter_map.remove(filter_type);
         }
 
@@ -205,15 +218,11 @@ impl FilterController {
         notification
     }
 
-    async fn update_filter(&mut self, filter_type: &FilterType) {}
-
-    async fn filters_from_filter_type(&self, filter_type: &FilterType) -> Vec<FilterPB> {
+    async fn filters_from_filter_type(&self, filter_type: &FilterType) -> Option<FilterPB> {
         self.delegate
             .get_filter_rev(filter_type.clone())
             .await
-            .into_iter()
             .map(|filter| FilterPB::from(filter.as_ref()))
-            .collect()
     }
 
     #[tracing::instrument(level = "trace", skip_all)]

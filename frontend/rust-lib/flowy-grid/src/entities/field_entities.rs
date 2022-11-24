@@ -409,9 +409,8 @@ pub struct FieldChangesetPB {
 
     #[pb(index = 8, one_of)]
     pub width: Option<i32>,
-
-    #[pb(index = 9, one_of)]
-    pub type_option_data: Option<Vec<u8>>,
+    // #[pb(index = 9, one_of)]
+    // pub type_option_data: Option<Vec<u8>>,
 }
 
 impl TryInto<FieldChangesetParams> for FieldChangesetPB {
@@ -421,11 +420,11 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         let field_type = self.field_type.map(FieldTypeRevision::from);
-        if let Some(type_option_data) = self.type_option_data.as_ref() {
-            if type_option_data.is_empty() {
-                return Err(ErrorCode::TypeOptionDataIsEmpty);
-            }
-        }
+        // if let Some(type_option_data) = self.type_option_data.as_ref() {
+        //     if type_option_data.is_empty() {
+        //         return Err(ErrorCode::TypeOptionDataIsEmpty);
+        //     }
+        // }
 
         Ok(FieldChangesetParams {
             field_id: field_id.0,
@@ -436,7 +435,7 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
             frozen: self.frozen,
             visibility: self.visibility,
             width: self.width,
-            type_option_data: self.type_option_data,
+            // type_option_data: self.type_option_data,
         })
     }
 }
@@ -458,8 +457,7 @@ pub struct FieldChangesetParams {
     pub visibility: Option<bool>,
 
     pub width: Option<i32>,
-
-    pub type_option_data: Option<Vec<u8>>,
+    // pub type_option_data: Option<Vec<u8>>,
 }
 /// Certain field types have user-defined options such as color, date format, number format,
 /// or a list of values for a multi-select list. These options are defined within a specialization

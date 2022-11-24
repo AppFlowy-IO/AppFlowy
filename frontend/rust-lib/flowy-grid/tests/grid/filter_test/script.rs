@@ -184,7 +184,7 @@ impl GridFilterTest {
                 assert_eq!(expected_setting, setting);
             }
             FilterScript::AssertFilterChanged { visible_row_len, hide_row_len} => {
-                let mut receiver = self.editor.subscribe_view_changed().await;
+                let mut receiver = self.editor.subscribe_view_changed(&self.grid_id).await.unwrap();
                 match tokio::time::timeout(Duration::from_secs(2), receiver.recv()).await {
                     Ok(changed) =>  match changed.unwrap() { GridViewChanged::DidReceiveFilterResult(changed) => {
                         assert_eq!(changed.visible_rows.len(), visible_row_len);

@@ -4,7 +4,6 @@ use crate::grid::field_test::util::*;
 use flowy_grid::entities::FieldChangesetParams;
 use flowy_grid::services::field::selection_type_option::SelectOptionPB;
 use flowy_grid::services::field::SingleSelectTypeOptionPB;
-use grid_rev_model::TypeOptionDataSerializer;
 
 #[tokio::test]
 async fn grid_create_field() {
@@ -86,7 +85,6 @@ async fn grid_update_field() {
         grid_id: test.grid_id(),
         frozen: Some(true),
         width: Some(1000),
-        type_option_data: Some(single_select_type_option.protobuf_bytes().to_vec()),
         ..Default::default()
     };
 
@@ -98,9 +96,9 @@ async fn grid_update_field() {
 
     let scripts = vec![
         UpdateField { changeset },
-        AssertFieldTypeOptionEqual {
+        AssertFieldFrozen {
             field_index: create_field_index,
-            expected_type_option_data: expected_field_rev.get_type_option_str(expected_field_rev.ty).unwrap(),
+            frozen: true,
         },
     ];
     test.run_scripts(scripts).await;

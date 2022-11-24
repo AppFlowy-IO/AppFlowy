@@ -77,13 +77,17 @@ async fn grid_filter_contain_text_test2() {
             condition: TextFilterCondition::Contains,
             content: "A".to_string(),
         },
+        AssertFilterChanged {
+            visible_row_len: 3,
+            hide_row_len: 2,
+        },
         UpdateTextCell {
             row_index: 1,
             text: "ABC".to_string(),
         },
         AssertFilterChanged {
-            visible_row_len: 4,
-            hide_row_len: 1,
+            visible_row_len: 1,
+            hide_row_len: 0,
         },
     ];
     test.run_scripts(scripts).await;

@@ -138,9 +138,11 @@ class GridFieldController {
           // Deletes the filters
           final deleteFilterIds =
               changeset.deleteFilters.map((e) => e.id).toList();
-          filters.retainWhere(
-            (element) => !deleteFilterIds.contains(element.filter.id),
-          );
+          if (deleteFilterIds.isNotEmpty) {
+            filters.retainWhere(
+              (element) => !deleteFilterIds.contains(element.filter.id),
+            );
+          }
 
           // Inserts the new filter if it's not exist
           for (final newFilter in changeset.insertFilters) {
@@ -155,17 +157,30 @@ class GridFieldController {
           }
 
           for (final updatedFilter in changeset.updateFilters) {
-            final filterIndex = filters
-                .indexWhere((element) => element.filter.id == updatedFilter.id);
-            if (filterIndex == -1) {
-              final fieldInfo =
-                  _findFieldInfoForFilter(fieldInfos, updatedFilter);
+            final filterIndex = filters.indexWhere(
+              (element) => element.filter.id == updatedFilter.filterId,
+            );
+            if (filterIndex != -1) {
+              filters.removeAt(filterIndex);
+            }
+
+            if (updatedFilter.hasFilter()) {
+              final fieldInfo = _findFieldInfoForFilter(
+                fieldInfos,
+                updatedFilter.filter,
+              );
+
               if (fieldInfo != null) {
-                filters.removeAt(filterIndex);
-                filters.insert(
-                  filterIndex,
-                  FilterInfo(updatedFilter, fieldInfo),
-                );
+                if (filterIndex != -1) {
+                  filters.insert(
+                    filterIndex,
+                    FilterInfo(updatedFilter.filter, fieldInfo),
+                  );
+                } else {
+                  filters.add(
+                    FilterInfo(updatedFilter.filter, fieldInfo),
+                  );
+                }
               }
             }
           }

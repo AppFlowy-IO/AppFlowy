@@ -13,7 +13,16 @@ pub struct FilterChangesetNotificationPB {
     pub delete_filters: Vec<FilterPB>,
 
     #[pb(index = 4)]
-    pub update_filters: Vec<FilterPB>,
+    pub update_filters: Vec<UpdatedFilter>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct UpdatedFilter {
+    #[pb(index = 1)]
+    pub filter_id: String,
+
+    #[pb(index = 2, one_of)]
+    pub filter: Option<FilterPB>,
 }
 
 impl FilterChangesetNotificationPB {
@@ -33,7 +42,8 @@ impl FilterChangesetNotificationPB {
             update_filters: Default::default(),
         }
     }
-    pub fn from_update(view_id: &str, filters: Vec<FilterPB>) -> Self {
+
+    pub fn from_update(view_id: &str, filters: Vec<UpdatedFilter>) -> Self {
         Self {
             view_id: view_id.to_string(),
             insert_filters: Default::default(),

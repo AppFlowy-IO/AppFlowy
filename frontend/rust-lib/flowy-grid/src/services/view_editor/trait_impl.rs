@@ -134,11 +134,17 @@ pub(crate) struct GridViewFilterDelegateImpl {
 }
 
 impl FilterDelegate for GridViewFilterDelegateImpl {
-    fn get_filter_rev(&self, filter_id: FilterType) -> Fut<Vec<Arc<FilterRevision>>> {
+    fn get_filter_rev(&self, filter_id: FilterType) -> Fut<Option<Arc<FilterRevision>>> {
         let pad = self.view_revision_pad.clone();
         to_future(async move {
             let field_type_rev: FieldTypeRevision = filter_id.field_type.into();
-            pad.read().await.get_filters(&filter_id.field_id, &field_type_rev)
+            let mut filters = pad.read().await.get_filters(&filter_id.field_id, &field_type_rev);
+            if filters.is_empty() {
+                None
+            } else {
+                debug_assert_eq!(filters.len(), 1);
+                filters.pop()
+            }
         })
     }
 

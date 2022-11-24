@@ -13,7 +13,7 @@ use flowy_error::FlowyResult;
 use flowy_revision::{
     RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, SQLiteRevisionSnapshotPersistence,
 };
-use grid_rev_model::{FilterRevision, RowChangeset, RowRevision};
+use grid_rev_model::{FieldRevision, FilterRevision, RowChangeset, RowRevision};
 use lib_infra::future::Fut;
 use lib_infra::ref_map::RefCountHashMap;
 use std::sync::Arc;
@@ -24,7 +24,6 @@ pub struct GridViewManager {
     user: Arc<dyn GridUser>,
     delegate: Arc<dyn GridViewEditorDelegate>,
     view_editors: RwLock<RefCountHashMap<Arc<GridViewRevisionEditor>>>,
-    pub notifier: broadcast::Sender<GridViewChanged>,
 }
 
 impl GridViewManager {
@@ -33,15 +32,12 @@ impl GridViewManager {
         user: Arc<dyn GridUser>,
         delegate: Arc<dyn GridViewEditorDelegate>,
     ) -> FlowyResult<Self> {
-        let (notifier, _) = broadcast::channel(100);
-        tokio::spawn(GridViewChangedReceiverRunner(Some(notifier.subscribe())).run());
         let view_editors = RwLock::new(RefCountHashMap::default());
         Ok(Self {
             grid_id,
             user,
             delegate,
             view_editors,
-            notifier,
         })
     }
 
@@ -49,8 +45,8 @@ impl GridViewManager {
         self.view_editors.write().await.remove(view_id);
     }
 
-    pub async fn subscribe_view_changed(&self) -> broadcast::Receiver<GridViewChanged> {
-        self.notifier.subscribe()
+    pub async fn subscribe_view_changed(&self, view_id: &str) -> FlowyResult<broadcast::Receiver<GridViewChanged>> {
+        Ok(self.get_view_editor(view_id).await?.notifier.subscribe())
     }
 
     pub async fn filter_rows(&self, block_id: &str, rows: Vec<Arc<RowRevision>>) -> FlowyResult<Vec<Arc<RowRevision>>> {
@@ -187,13 +183,19 @@ impl GridViewManager {
     /// * `field_id`: the id of the field in current view
     ///
     #[tracing::instrument(level = "trace", skip(self), err)]
-    pub async fn did_update_view_field_type_option(&self, field_id: &str) -> FlowyResult<()> {
+    pub async fn did_update_view_field_type_option(
+        &self,
+        field_id: &str,
+        old_field_rev: Option<Arc<FieldRevision>>,
+    ) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
         if view_editor.group_id().await == field_id {
             let _ = view_editor.group_by_view_field(field_id).await?;
         }
 
-        let _ = view_editor.did_update_view_field_type_option(field_id).await?;
+        let _ = view_editor
+            .did_update_view_field_type_option(field_id, old_field_rev)
+            .await?;
         Ok(())
     }
 
@@ -219,15 +221,7 @@ impl GridViewManager {
         let token = self.user.token()?;
         let view_id = view_id.to_owned();
 
-        GridViewRevisionEditor::new(
-            &user_id,
-            &token,
-            view_id,
-            self.delegate.clone(),
-            self.notifier.clone(),
-            rev_manager,
-        )
-        .await
+        GridViewRevisionEditor::new(&user_id, &token, view_id, self.delegate.clone(), rev_manager).await
     }
 }
 

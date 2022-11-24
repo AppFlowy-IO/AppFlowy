@@ -34,7 +34,6 @@ class FieldService {
     bool? frozen,
     bool? visibility,
     double? width,
-    List<int>? typeOptionData,
   }) {
     var payload = FieldChangesetPB.create()
       ..gridId = gridId
@@ -58,10 +57,6 @@ class FieldService {
 
     if (width != null) {
       payload.width = width.toInt();
-    }
-
-    if (typeOptionData != null) {
-      payload.typeOptionData = typeOptionData;
     }
 
     return GridEventUpdateField(payload).send();
