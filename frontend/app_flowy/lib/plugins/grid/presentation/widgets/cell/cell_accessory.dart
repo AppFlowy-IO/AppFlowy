@@ -1,6 +1,5 @@
 import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -73,7 +72,7 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
     } else {
       return Tooltip(
         message: LocaleKeys.tooltip_openAsPage.tr(),
-        textStyle: TextStyles.caption.textColor(Colors.white),
+        textStyle: AFThemeExtension.of(context).caption.textColor(Colors.white),
         child: svgWidget(
           "grid/expander",
           color: Theme.of(context).colorScheme.primary,

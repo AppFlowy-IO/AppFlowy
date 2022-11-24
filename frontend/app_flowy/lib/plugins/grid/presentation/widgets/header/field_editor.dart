@@ -4,7 +4,6 @@ import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show none;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
@@ -186,9 +185,7 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
           return RoundedInputField(
             height: 36,
             focusNode: focusNode,
-            style: TextStyles.general(
-              fontSize: 13,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium,
             controller: controller,
             errorText: context.read<FieldEditorBloc>().state.errorText,
             onChanged: (newName) {

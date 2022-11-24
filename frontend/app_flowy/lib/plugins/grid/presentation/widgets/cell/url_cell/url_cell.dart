@@ -5,14 +5,12 @@ import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../layout/sizes.dart';
 import '../cell_accessory.dart';
@@ -119,15 +117,10 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
         builder: (context, state) {
           final richText = Padding(
             padding: GridSize.cellContentInsets,
-            child: RichText(
-              textAlign: TextAlign.left,
-              text: TextSpan(
-                text: state.content,
-                style: TextStyles.general(
-                  fontSize: FontSizes.s14,
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                ).underline,
-              ),
+            child: FlowyText.medium(
+              state.content,
+              color: Theme.of(context).colorScheme.primary,
+              decoration: TextDecoration.underline,
             ),
           );
 
