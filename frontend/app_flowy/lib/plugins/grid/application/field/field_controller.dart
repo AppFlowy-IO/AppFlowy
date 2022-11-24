@@ -160,10 +160,13 @@ class GridFieldController {
             final filterIndex = filters.indexWhere(
               (element) => element.filter.id == updatedFilter.filterId,
             );
+            // Remove the old filter
             if (filterIndex != -1) {
               filters.removeAt(filterIndex);
             }
 
+            // Insert the filter if there is a fitler and its field info is
+            // not null
             if (updatedFilter.hasFilter()) {
               final fieldInfo = _findFieldInfoForFilter(
                 fieldInfos,
@@ -171,6 +174,8 @@ class GridFieldController {
               );
 
               if (fieldInfo != null) {
+                // Insert the filter with the position: filterIndex, otherwise,
+                // append it to the end of the list.
                 if (filterIndex != -1) {
                   filters.insert(
                     filterIndex,
@@ -184,7 +189,6 @@ class GridFieldController {
               }
             }
           }
-
           _filterNotifier?.filters = filters;
         },
         (err) => Log.error(err),

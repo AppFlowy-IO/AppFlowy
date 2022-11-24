@@ -184,7 +184,7 @@ impl FilterController {
     ) -> Option<FilterChangesetNotificationPB> {
         let mut notification: Option<FilterChangesetNotificationPB> = None;
         if let Some(filter_type) = &changeset.insert_filter {
-            if let Some(filter) = self.filters_from_filter_type(filter_type).await {
+            if let Some(filter) = self.filter_from_filter_type(filter_type).await {
                 notification = Some(FilterChangesetNotificationPB::from_insert(&self.view_id, vec![filter]));
             }
             if let Some(filter_rev) = self.delegate.get_filter_rev(filter_type.clone()).await {
@@ -194,10 +194,17 @@ impl FilterController {
 
         if let Some(updated_filter_type) = changeset.update_filter {
             if let Some(old_filter_type) = updated_filter_type.old {
-                if let Some(filter) = self.filters_from_filter_type(&old_filter_type).await {
+                let new_filter = self.filter_from_filter_type(&updated_filter_type.new).await;
+                let old_filter = self.filter_from_filter_type(&old_filter_type).await;
+                let mut filter_id = old_filter.map(|filter| filter.id);
+                if filter_id.is_none() {
+                    filter_id = new_filter.as_ref().map(|filter| filter.id.clone());
+                }
+
+                if let Some(filter_id) = filter_id {
                     let updated_filter = UpdatedFilter {
-                        filter_id: filter.id,
-                        filter: self.filters_from_filter_type(&updated_filter_type.new).await,
+                        filter_id,
+                        filter: new_filter,
                     };
                     notification = Some(FilterChangesetNotificationPB::from_update(
                         &self.view_id,
@@ -208,17 +215,18 @@ impl FilterController {
         }
 
         if let Some(filter_type) = &changeset.delete_filter {
-            if let Some(filter) = self.filters_from_filter_type(filter_type).await {
+            if let Some(filter) = self.filter_from_filter_type(filter_type).await {
                 notification = Some(FilterChangesetNotificationPB::from_delete(&self.view_id, vec![filter]));
             }
             self.filter_map.remove(filter_type);
         }
 
         let _ = self.gen_task(FilterEvent::FilterDidChanged).await;
+        tracing::trace!("{:?}", notification);
         notification
     }
 
-    async fn filters_from_filter_type(&self, filter_type: &FilterType) -> Option<FilterPB> {
+    async fn filter_from_filter_type(&self, filter_type: &FilterType) -> Option<FilterPB> {
         self.delegate
             .get_filter_rev(filter_type.clone())
             .await
