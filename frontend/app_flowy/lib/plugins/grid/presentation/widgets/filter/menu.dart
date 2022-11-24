@@ -104,6 +104,7 @@ class _AddFilterButtonState extends State<AddFilterButton> {
             LocaleKeys.grid_settings_addFilter.tr(),
             fontSize: 12,
           ),
+          useIntrinsicWidth: true,
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           leftIcon: svgWidget(
             "home/add",

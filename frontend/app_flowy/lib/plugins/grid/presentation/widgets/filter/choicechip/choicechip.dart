@@ -36,6 +36,7 @@ class ChoiceChipButton extends StatelessWidget {
       height: 28,
       child: FlowyButton(
         decoration: decoration,
+        useIntrinsicWidth: true,
         text: FlowyText(filterInfo.field.name, fontSize: 12),
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         radius: const BorderRadius.all(Radius.circular(14)),

@@ -4,21 +4,31 @@ use std::sync::Arc;
 
 pub struct FilterChangeset {
     pub(crate) insert_filter: Option<FilterType>,
+    pub(crate) update_filter: Option<FilterType>,
     pub(crate) delete_filter: Option<FilterType>,
 }
 
 impl FilterChangeset {
-    pub fn from_insert(filter_id: FilterType) -> Self {
+    pub fn from_insert(filter_type: FilterType) -> Self {
         Self {
-            insert_filter: Some(filter_id),
+            insert_filter: Some(filter_type),
+            update_filter: None,
             delete_filter: None,
         }
     }
 
-    pub fn from_delete(filter_id: FilterType) -> Self {
+    pub fn from_update(filter_type: FilterType) -> Self {
         Self {
             insert_filter: None,
-            delete_filter: Some(filter_id),
+            update_filter: Some(filter_type),
+            delete_filter: None,
+        }
+    }
+    pub fn from_delete(filter_type: FilterType) -> Self {
+        Self {
+            insert_filter: None,
+            update_filter: None,
+            delete_filter: Some(filter_type),
         }
     }
 }
@@ -36,6 +46,7 @@ impl std::convert::From<&GridSettingChangesetParams> for FilterChangeset {
             .map(|delete_filter_params| delete_filter_params.filter_type.clone());
         FilterChangeset {
             insert_filter,
+            update_filter: None,
             delete_filter,
         }
     }

@@ -146,13 +146,30 @@ class GridFieldController {
           for (final newFilter in changeset.insertFilters) {
             final filterIndex = filters
                 .indexWhere((element) => element.filter.id == newFilter.id);
-            final fieldIndex = fieldInfos
-                .indexWhere((element) => element.id == newFilter.fieldId);
-
-            if (filterIndex == -1 && fieldIndex != -1) {
-              filters.add(FilterInfo(newFilter, fieldInfos[fieldIndex]));
+            if (filterIndex == -1) {
+              final fieldInfo = _findFieldInfoForFilter(fieldInfos, newFilter);
+              if (fieldInfo != null) {
+                filters.add(FilterInfo(newFilter, fieldInfo));
+              }
             }
           }
+
+          for (final updatedFilter in changeset.updateFilters) {
+            final filterIndex = filters
+                .indexWhere((element) => element.filter.id == updatedFilter.id);
+            if (filterIndex == -1) {
+              final fieldInfo =
+                  _findFieldInfoForFilter(fieldInfos, updatedFilter);
+              if (fieldInfo != null) {
+                filters.removeAt(filterIndex);
+                filters.insert(
+                  filterIndex,
+                  FilterInfo(updatedFilter, fieldInfo),
+                );
+              }
+            }
+          }
+
           _filterNotifier?.filters = filters;
         },
         (err) => Log.error(err),
@@ -250,10 +267,9 @@ class GridFieldController {
         (filterPBs) {
           final List<FilterInfo> filters = [];
           for (final filterPB in filterPBs) {
-            final fieldIndex = fieldInfos
-                .indexWhere((element) => element.id == filterPB.fieldId);
-            if (fieldIndex != -1) {
-              filters.add(FilterInfo(filterPB, fieldInfos[fieldIndex]));
+            final fieldInfo = _findFieldInfoForFilter(fieldInfos, filterPB);
+            if (fieldInfo != null) {
+              filters.add(FilterInfo(filterPB, fieldInfo));
             }
           }
 
@@ -419,6 +435,19 @@ class GridRowFieldNotifierImpl extends IGridRowFieldNotifier {
       _cache.removeListener(onChangesetListener: _onChangesetFn!);
       _onChangesetFn = null;
     }
+  }
+}
+
+FieldInfo? _findFieldInfoForFilter(
+    List<FieldInfo> fieldInfos, FilterPB filter) {
+  final fieldIndex = fieldInfos.indexWhere((element) {
+    return element.id == filter.fieldId &&
+        element.fieldType == filter.fieldType;
+  });
+  if (fieldIndex != -1) {
+    return fieldInfos[fieldIndex];
+  } else {
+    return null;
   }
 }
 

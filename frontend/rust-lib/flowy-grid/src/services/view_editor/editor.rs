@@ -310,7 +310,6 @@ impl GridViewRevisionEditor {
             condition: params.condition,
             content: params.content,
         };
-        let filter_pb = FilterPB::from(&filter_rev);
         if is_exist {
             let _ = self
                 .modify(|pad| {
@@ -332,13 +331,15 @@ impl GridViewRevisionEditor {
                 })
                 .await?;
         }
-        self.filter_controller
+        if let Some(changeset) = self
+            .filter_controller
             .write()
             .await
             .did_receive_filter_changed(FilterChangeset::from_insert(filter_type))
-            .await;
-        let changeset = FilterChangesetNotificationPB::from_insert(&self.view_id, vec![filter_pb]);
-        self.notify_did_update_filter(changeset).await;
+            .await
+        {
+            self.notify_did_update_filter(changeset).await;
+        }
         Ok(())
     }
 
@@ -346,12 +347,12 @@ impl GridViewRevisionEditor {
     pub async fn delete_view_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
         let filter_type = params.filter_type;
         let field_type_rev = filter_type.field_type_rev();
-        let filters = self
-            .get_view_filters(&filter_type)
+        let changeset = self
+            .filter_controller
+            .write()
             .await
-            .into_iter()
-            .map(|filter| FilterPB::from(filter.as_ref()))
-            .collect();
+            .did_receive_filter_changed(FilterChangeset::from_delete(filter_type.clone()))
+            .await;
         let _ = self
             .modify(|pad| {
                 let changeset = pad.delete_filter(&params.filter_id, &filter_type.field_id, &field_type_rev)?;
@@ -359,14 +360,9 @@ impl GridViewRevisionEditor {
             })
             .await?;
 
-        self.filter_controller
-            .write()
-            .await
-            .did_receive_filter_changed(FilterChangeset::from_delete(filter_type))
-            .await;
-
-        let changeset = FilterChangesetNotificationPB::from_delete(&self.view_id, filters);
-        self.notify_did_update_filter(changeset).await;
+        if changeset.is_some() {
+            self.notify_did_update_filter(changeset.unwrap()).await;
+        }
         Ok(())
     }
 
@@ -374,12 +370,16 @@ impl GridViewRevisionEditor {
     pub async fn did_update_view_field_type_option(&self, field_id: &str) -> FlowyResult<()> {
         if let Some(field_rev) = self.delegate.get_field_rev(field_id).await {
             let filter_type = FilterType::from(&field_rev);
-            let filter_changeset = FilterChangeset::from_insert(filter_type);
-            self.filter_controller
+            let filter_changeset = FilterChangeset::from_update(filter_type);
+            if let Some(changeset) = self
+                .filter_controller
                 .write()
                 .await
                 .did_receive_filter_changed(filter_changeset)
-                .await;
+                .await
+            {
+                self.notify_did_update_filter(changeset).await;
+            }
         }
         Ok(())
     }

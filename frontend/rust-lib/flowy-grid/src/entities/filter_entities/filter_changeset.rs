@@ -11,6 +11,9 @@ pub struct FilterChangesetNotificationPB {
 
     #[pb(index = 3)]
     pub delete_filters: Vec<FilterPB>,
+
+    #[pb(index = 4)]
+    pub update_filters: Vec<FilterPB>,
 }
 
 impl FilterChangesetNotificationPB {
@@ -19,6 +22,7 @@ impl FilterChangesetNotificationPB {
             view_id: view_id.to_string(),
             insert_filters: filters,
             delete_filters: Default::default(),
+            update_filters: Default::default(),
         }
     }
     pub fn from_delete(view_id: &str, filters: Vec<FilterPB>) -> Self {
@@ -26,6 +30,15 @@ impl FilterChangesetNotificationPB {
             view_id: view_id.to_string(),
             insert_filters: Default::default(),
             delete_filters: filters,
+            update_filters: Default::default(),
+        }
+    }
+    pub fn from_update(view_id: &str, filters: Vec<FilterPB>) -> Self {
+        Self {
+            view_id: view_id.to_string(),
+            insert_filters: Default::default(),
+            delete_filters: Default::default(),
+            update_filters: filters,
         }
     }
 }

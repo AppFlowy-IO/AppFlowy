@@ -17,6 +17,7 @@ class FlowyButton extends StatelessWidget {
   final bool isSelected;
   final BorderRadius radius;
   final BoxDecoration? decoration;
+  final bool useIntrinsicWidth;
 
   const FlowyButton({
     Key? key,
@@ -30,6 +31,7 @@ class FlowyButton extends StatelessWidget {
     this.isSelected = false,
     this.radius = const BorderRadius.all(Radius.circular(6)),
     this.decoration,
+    this.useIntrinsicWidth = false,
   }) : super(key: key);
 
   @override
@@ -65,17 +67,21 @@ class FlowyButton extends StatelessWidget {
           SizedBox.fromSize(size: const Size.square(16), child: rightIcon!));
     }
 
+    Widget child = Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: children,
+    );
+
+    if (useIntrinsicWidth) {
+      child = IntrinsicWidth(child: child);
+    }
+
     return Container(
       decoration: decoration,
       child: Padding(
         padding: margin,
-        child: IntrinsicWidth(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: children,
-          ),
-        ),
+        child: child,
       ),
     );
   }
