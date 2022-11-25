@@ -165,6 +165,7 @@ class AppTheme {
       primaryIconTheme: IconThemeData(color: hover),
       iconTheme: IconThemeData(color: shader1),
       scrollbarTheme: ScrollbarThemeData(
+        interactive: false,
         thumbColor: MaterialStateProperty.all(Colors.transparent),
       ),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
