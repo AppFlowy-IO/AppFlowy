@@ -100,7 +100,7 @@ class HomeMenu extends StatelessWidget {
             ).padding(horizontal: Insets.l),
           ),
           const VSpace(20),
-          const MenuTrash().padding(horizontal: Insets.l),
+          const MenuTrash(),
           const VSpace(20),
           _renderNewAppButton(context),
         ],
@@ -174,6 +174,8 @@ class MenuSharedState {
   }
 
   ViewPB? get latestOpenView => _latestOpenView.value;
+
+  ValueNotifier<ViewPB?> get notifier => _latestOpenView;
 
   set latestOpenView(ViewPB? view) {
     if (_latestOpenView.value != view) {
