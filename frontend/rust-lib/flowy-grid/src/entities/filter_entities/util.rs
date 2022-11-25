@@ -12,42 +12,6 @@ use std::convert::TryInto;
 use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct FilterConfigurationPB {
-    #[pb(index = 1)]
-    pub id: String,
-
-    #[pb(index = 2)]
-    pub field_id: String,
-
-    #[pb(index = 3)]
-    pub ty: FieldType,
-}
-
-impl std::convert::From<&FilterRevision> for FilterConfigurationPB {
-    fn from(rev: &FilterRevision) -> Self {
-        Self {
-            id: rev.id.clone(),
-            field_id: rev.field_id.clone(),
-            ty: rev.field_type.into(),
-        }
-    }
-}
-
-#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct RepeatedFilterConfigurationPB {
-    #[pb(index = 1)]
-    pub items: Vec<FilterConfigurationPB>,
-}
-
-impl std::convert::From<Vec<Arc<FilterRevision>>> for RepeatedFilterConfigurationPB {
-    fn from(revs: Vec<Arc<FilterRevision>>) -> Self {
-        RepeatedFilterConfigurationPB {
-            items: revs.into_iter().map(|rev| rev.as_ref().into()).collect(),
-        }
-    }
-}
-
-#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct FilterPB {
     #[pb(index = 1)]
     pub id: String,

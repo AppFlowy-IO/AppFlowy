@@ -33,7 +33,7 @@ class GridCreateFilterBloc
             emit(
               state.copyWith(
                 allFields: fields,
-                displaiedFields: _filterFields(fields, state.filterText),
+                creatableFields: _filterFields(fields, state.filterText),
               ),
             );
           },
@@ -41,7 +41,7 @@ class GridCreateFilterBloc
             emit(
               state.copyWith(
                 filterText: text,
-                displaiedFields: _filterFields(state.allFields, text),
+                creatableFields: _filterFields(state.allFields, text),
               ),
             );
           },
@@ -156,18 +156,23 @@ class GridCreateFilterEvent with _$GridCreateFilterEvent {
 class GridCreateFilterState with _$GridCreateFilterState {
   const factory GridCreateFilterState({
     required String filterText,
-    required List<FieldInfo> displaiedFields,
+    required List<FieldInfo> creatableFields,
     required List<FieldInfo> allFields,
     required bool didCreateFilter,
   }) = _GridFilterState;
 
   factory GridCreateFilterState.initial(List<FieldInfo> fields) {
-    fields.retainWhere((element) => !element.hasFilter);
     return GridCreateFilterState(
       filterText: "",
-      displaiedFields: fields,
+      creatableFields: getCreatableFilter(fields),
       allFields: fields,
       didCreateFilter: false,
     );
   }
+}
+
+List<FieldInfo> getCreatableFilter(List<FieldInfo> fieldInfos) {
+  final List<FieldInfo> creatableFields = List.from(fieldInfos);
+  creatableFields.retainWhere((element) => !element.hasFilter);
+  return creatableFields;
 }

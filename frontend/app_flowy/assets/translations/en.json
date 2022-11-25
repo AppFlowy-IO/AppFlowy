@@ -163,7 +163,8 @@
       "Properties": "Properties",
       "group": "Group",
       "addFilter": "Add Filter",
-      "filterBy": "Filter by..."
+      "filterBy": "Filter by...",
+      "typeAValue": "Type a value..."
     },
     "field": {
       "hide": "Hide",

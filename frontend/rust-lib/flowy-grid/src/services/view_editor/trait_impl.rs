@@ -123,7 +123,7 @@ pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<Field
     GridSettingPB {
         layouts: GridLayoutPB::all(),
         layout_type,
-        filter_configurations: filter_configurations.into(),
+        filters: filter_configurations.into(),
         group_configurations: group_configurations.into(),
     }
 }

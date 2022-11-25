@@ -1,8 +1,7 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
     AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams,
-    DeleteGroupPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterConfigurationPB,
-    RepeatedGroupConfigurationPB,
+    DeleteGroupPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterPB, RepeatedGroupConfigurationPB,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -21,7 +20,7 @@ pub struct GridSettingPB {
     pub layout_type: GridLayout,
 
     #[pb(index = 3)]
-    pub filter_configurations: RepeatedFilterConfigurationPB,
+    pub filters: RepeatedFilterPB,
 
     #[pb(index = 4)]
     pub group_configurations: RepeatedGroupConfigurationPB,

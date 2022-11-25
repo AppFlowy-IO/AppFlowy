@@ -76,7 +76,7 @@ class GridFieldController {
   // Filter callbacks
   final Map<OnReceiveFilters, VoidCallback> _filterCallbacks = {};
   _GridFilterNotifier? _filterNotifier = _GridFilterNotifier();
-  final Map<String, FilterConfigurationPB> _filterConfigurationByFieldId = {};
+  final Map<String, FilterPB> _filterPBByFieldId = {};
 
   // Getters
   List<FieldInfo> get fieldInfos => [..._fieldNotifier?.fieldInfos ?? []];
@@ -163,6 +163,8 @@ class GridFieldController {
             // Remove the old filter
             if (filterIndex != -1) {
               filters.removeAt(filterIndex);
+              _filterPBByFieldId.removeWhere(
+                  (key, value) => value.id == updatedFilter.filterId);
             }
 
             // Insert the filter if there is a fitler and its field info is
@@ -176,17 +178,16 @@ class GridFieldController {
               if (fieldInfo != null) {
                 // Insert the filter with the position: filterIndex, otherwise,
                 // append it to the end of the list.
+                final filterInfo = FilterInfo(updatedFilter.filter, fieldInfo);
                 if (filterIndex != -1) {
-                  filters.insert(
-                    filterIndex,
-                    FilterInfo(updatedFilter.filter, fieldInfo),
-                  );
+                  filters.insert(filterIndex, filterInfo);
                 } else {
-                  filters.add(
-                    FilterInfo(updatedFilter.filter, fieldInfo),
-                  );
+                  filters.add(filterInfo);
                 }
+                _filterPBByFieldId[fieldInfo.id] = updatedFilter.filter;
               }
+
+              _updateFieldInfos();
             }
           }
           _filterNotifier?.filters = filters;
@@ -230,8 +231,8 @@ class GridFieldController {
       _groupConfigurationByFieldId[configuration.fieldId] = configuration;
     }
 
-    for (final configuration in setting.filterConfigurations.items) {
-      _filterConfigurationByFieldId[configuration.fieldId] = configuration;
+    for (final configuration in setting.filters.items) {
+      _filterPBByFieldId[configuration.fieldId] = configuration;
     }
 
     _updateFieldInfos();
@@ -241,7 +242,7 @@ class GridFieldController {
     if (_fieldNotifier != null) {
       for (var field in _fieldNotifier!.fieldInfos) {
         field._isGroupField = _groupConfigurationByFieldId[field.id] != null;
-        field._hasFilter = _filterConfigurationByFieldId[field.id] != null;
+        field._hasFilter = _filterPBByFieldId[field.id] != null;
       }
       _fieldNotifier?.notify();
     }
