@@ -6,7 +6,7 @@
 use std::time::Duration;
 use bytes::Bytes;
 use futures::TryFutureExt;
-use flowy_grid::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition, DateFilterContent, SelectOptionCondition, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB};
+use flowy_grid::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition, DateFilterContent, SelectOptionCondition, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB, FilterPB};
 use flowy_grid::services::field::{SelectOptionCellChangeset, SelectOptionIds};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
@@ -28,6 +28,11 @@ pub enum FilterScript {
         payload: AlterFilterPayloadPB,
     },
     CreateTextFilter {
+        condition: TextFilterCondition,
+        content: String,
+    },
+    UpdateTextFilter {
+        filter: FilterPB,
         condition: TextFilterCondition,
         content: String,
     },
@@ -90,6 +95,10 @@ impl GridFilterTest {
         }
     }
 
+    pub async fn get_all_filters(&self) -> Vec<FilterPB> {
+        self.editor.get_all_filters().await.unwrap()
+    }
+
     pub async fn run_scripts(&mut self, scripts: Vec<FilterScript>) {
         for script in scripts {
             self.run_script(script).await;
@@ -118,6 +127,16 @@ impl GridFilterTest {
                 let payload =
                     AlterFilterPayloadPB::new(field_rev, text_filter);
                 self.insert_filter(payload).await;
+            }
+            FilterScript::UpdateTextFilter { filter, condition, content} => {
+                let params = AlterFilterParams {
+                    field_id: filter.field_id,
+                    filter_id: Some(filter.id),
+                    field_type: filter.field_type.into(),
+                    condition: condition as u8,
+                    content
+                };
+                self.editor.create_or_update_filter(params).await.unwrap();
             }
             FilterScript::CreateNumberFilter {condition, content} => {
                 let field_rev = self.get_field_rev(FieldType::Number);

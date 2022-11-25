@@ -5,10 +5,16 @@ import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class FilterTextField extends StatefulWidget {
   final String hintText;
-  final void Function(String) onChanged;
+  final String text;
+  final void Function(String)? onChanged;
+  final void Function(String)? onSubmitted;
+  final bool autoFucous;
   const FilterTextField({
     this.hintText = "",
-    required this.onChanged,
+    this.text = "",
+    this.onChanged,
+    this.onSubmitted,
+    this.autoFucous = true,
     Key? key,
   }) : super(key: key);
 
@@ -24,10 +30,12 @@ class FilterTextFieldState extends State<FilterTextField> {
   void initState() {
     focusNode = FocusNode();
     controller = TextEditingController();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      focusNode.requestFocus();
-    });
+    controller.text = widget.text;
+    if (widget.autoFucous) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        focusNode.requestFocus();
+      });
+    }
     super.initState();
   }
 
@@ -37,11 +45,15 @@ class FilterTextFieldState extends State<FilterTextField> {
       controller: controller,
       focusNode: focusNode,
       onChanged: (text) {
-        widget.onChanged(text);
+        widget.onChanged?.call(text);
+      },
+      onSubmitted: (text) {
+        widget.onSubmitted?.call(text);
       },
       maxLines: 1,
-      style: TextStyles.body1.size(FontSizes.s14),
+      style: TextStyles.body1.size(FontSizes.s12),
       decoration: InputDecoration(
+        contentPadding: const EdgeInsets.all(10),
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.primary,
@@ -56,7 +68,7 @@ class FilterTextFieldState extends State<FilterTextField> {
             color: Theme.of(context).colorScheme.primary,
             width: 1.0,
           ),
-          borderRadius: Corners.s10Border,
+          borderRadius: Corners.s8Border,
         ),
       ),
     );

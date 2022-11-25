@@ -170,10 +170,14 @@ class FilterFFIService {
   }) {
     TextFilterCondition.DoesNotContain.value;
 
-    final insertFilterPayload = AlterFilterPayloadPB.create()
+    var insertFilterPayload = AlterFilterPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType
       ..data = data;
+
+    if (filterId != null) {
+      insertFilterPayload.filterId = filterId;
+    }
 
     final payload = GridSettingChangesetPB.create()
       ..gridId = viewId
@@ -204,6 +208,7 @@ class FilterFFIService {
     final payload = GridSettingChangesetPB.create()
       ..gridId = viewId
       ..deleteFilter = deleteFilterPayload;
+
     return GridEventUpdateGridSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),

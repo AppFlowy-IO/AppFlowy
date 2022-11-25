@@ -196,9 +196,16 @@ impl FilterController {
             if let Some(old_filter_type) = updated_filter_type.old {
                 let new_filter = self.filter_from_filter_type(&updated_filter_type.new).await;
                 let old_filter = self.filter_from_filter_type(&old_filter_type).await;
+
+                // Get the filter id
                 let mut filter_id = old_filter.map(|filter| filter.id);
                 if filter_id.is_none() {
                     filter_id = new_filter.as_ref().map(|filter| filter.id.clone());
+                }
+
+                // Update the cached filter
+                if let Some(filter_rev) = self.delegate.get_filter_rev(updated_filter_type.new.clone()).await {
+                    let _ = self.cache_filters(vec![filter_rev]).await;
                 }
 
                 if let Some(filter_id) = filter_id {
@@ -322,7 +329,7 @@ fn filter_row(
 // Returns None if there is no change in this cell after applying the filter
 // Returns Some if the visibility of the cell is changed
 
-#[tracing::instrument(level = "trace", skip_all)]
+#[tracing::instrument(level = "trace", skip_all, fields(cell_content))]
 fn filter_cell(
     filter_id: &FilterType,
     field_rev: &Arc<FieldRevision>,
@@ -339,8 +346,7 @@ fn filter_cell(
             }
         },
     };
-    tracing::trace!("filter cell: {:?}", any_cell_data);
-
+    let cloned_cell_data = any_cell_data.data.clone();
     let is_visible = match &filter_id.field_type {
         FieldType::RichText => filter_map.text_filter.get(filter_id).and_then(|filter| {
             Some(
@@ -399,7 +405,10 @@ fn filter_cell(
             )
         }),
     }?;
-
+    tracing::Span::current().record(
+        "cell_content",
+        &format!("{} => {:?}", cloned_cell_data, is_visible.unwrap()).as_str(),
+    );
     is_visible
 }
 

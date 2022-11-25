@@ -9,10 +9,12 @@ import 'dart:math' as math;
 
 class ChoiceChipButton extends StatelessWidget {
   final FilterInfo filterInfo;
+  final VoidCallback? onTap;
 
   const ChoiceChipButton({
     Key? key,
     required this.filterInfo,
+    this.onTap,
   }) : super(key: key);
 
   @override
@@ -46,6 +48,7 @@ class ChoiceChipButton extends StatelessWidget {
         ),
         rightIcon: arrow,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        onTap: onTap,
       ),
     );
   }

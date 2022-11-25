@@ -51,8 +51,8 @@ pub(crate) async fn update_grid_setting_handler(
         let _ = editor.delete_group(delete_params).await?;
     }
 
-    if let Some(create_filter) = params.insert_filter {
-        let _ = editor.create_or_update_filter(create_filter).await?;
+    if let Some(alter_filter) = params.insert_filter {
+        let _ = editor.create_or_update_filter(alter_filter).await?;
     }
 
     if let Some(delete_filter) = params.delete_filter {

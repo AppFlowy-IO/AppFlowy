@@ -151,7 +151,7 @@ class GridFieldController {
             if (filterIndex == -1) {
               final fieldInfo = _findFieldInfoForFilter(fieldInfos, newFilter);
               if (fieldInfo != null) {
-                filters.add(FilterInfo(newFilter, fieldInfo));
+                filters.add(FilterInfo(gridId, newFilter, fieldInfo));
               }
             }
           }
@@ -178,7 +178,8 @@ class GridFieldController {
               if (fieldInfo != null) {
                 // Insert the filter with the position: filterIndex, otherwise,
                 // append it to the end of the list.
-                final filterInfo = FilterInfo(updatedFilter.filter, fieldInfo);
+                final filterInfo =
+                    FilterInfo(gridId, updatedFilter.filter, fieldInfo);
                 if (filterIndex != -1) {
                   filters.insert(filterIndex, filterInfo);
                 } else {
@@ -250,6 +251,9 @@ class GridFieldController {
 
   Future<void> dispose() async {
     await _fieldListener.stop();
+    await _filterListener.stop();
+    await _settingListener.stop();
+
     for (final callback in _fieldCallbacks.values) {
       _fieldNotifier?.removeListener(callback);
     }
@@ -289,7 +293,7 @@ class GridFieldController {
           for (final filterPB in filterPBs) {
             final fieldInfo = _findFieldInfoForFilter(fieldInfos, filterPB);
             if (fieldInfo != null) {
-              final filterInfo = FilterInfo(filterPB, fieldInfo);
+              final filterInfo = FilterInfo(gridId, filterPB, fieldInfo);
               filters.add(filterInfo);
             }
           }

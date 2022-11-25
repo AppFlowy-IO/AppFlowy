@@ -308,40 +308,42 @@ impl GridViewRevisionEditor {
             Some(filter_id) => filter_id,
         };
         let filter_rev = FilterRevision {
-            id: filter_id,
+            id: filter_id.clone(),
             field_id: params.field_id.clone(),
             field_type: params.field_type,
             condition: params.condition,
             content: params.content,
         };
-        if is_exist {
-            let _ = self
-                .modify(|pad| {
-                    let changeset = pad.update_filter(
-                        &params.field_id,
-                        &filter_rev.id,
-                        filter_rev.field_type,
-                        filter_rev.condition,
-                        filter_rev.content,
-                    )?;
-                    Ok(changeset)
-                })
-                .await?;
+        let mut filter_controller = self.filter_controller.write().await;
+        let changeset = if is_exist {
+            let old_filter_type = self
+                .delegate
+                .get_field_rev(&params.field_id)
+                .await
+                .map(|field| FilterType::from(&field));
+            self.modify(|pad| {
+                let changeset = pad.update_filter(&params.field_id, filter_rev)?;
+                Ok(changeset)
+            })
+            .await?;
+            filter_controller
+                .did_receive_filter_changed(FilterChangeset::from_update(UpdatedFilterType::new(
+                    old_filter_type,
+                    filter_type,
+                )))
+                .await
         } else {
-            let _ = self
-                .modify(|pad| {
-                    let changeset = pad.insert_filter(&params.field_id, &params.field_type, filter_rev)?;
-                    Ok(changeset)
-                })
-                .await?;
-        }
-        if let Some(changeset) = self
-            .filter_controller
-            .write()
-            .await
-            .did_receive_filter_changed(FilterChangeset::from_insert(filter_type))
-            .await
-        {
+            self.modify(|pad| {
+                let changeset = pad.insert_filter(&params.field_id, filter_rev)?;
+                Ok(changeset)
+            })
+            .await?;
+            filter_controller
+                .did_receive_filter_changed(FilterChangeset::from_insert(filter_type))
+                .await
+        };
+
+        if let Some(changeset) = changeset {
             self.notify_did_update_filter(changeset).await;
         }
         Ok(())

@@ -54,6 +54,17 @@ where
         value
     }
 
+    pub fn get_object(
+        &self,
+        field_id: &str,
+        field_type: &FieldTypeRevision,
+        predicate: impl Fn(&Arc<T>) -> bool,
+    ) -> Option<Arc<T>> {
+        let objects = self.get_objects(field_id, field_type)?;
+        let index = objects.iter().position(|object| predicate(object))?;
+        objects.get(index).map(|object| object.clone())
+    }
+
     pub fn get_mut_object(
         &mut self,
         field_id: &str,
