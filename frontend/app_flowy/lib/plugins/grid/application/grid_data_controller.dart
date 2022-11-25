@@ -68,17 +68,20 @@ class GridController {
 
   // Loads the rows from each block
   Future<Either<Unit, FlowyError>> openGrid() async {
-    final result = await _gridFFIService.openGrid();
-    return Future(
-      () => result.fold(
+    return _gridFFIService.openGrid().then((result) {
+      return result.fold(
         (grid) async {
           _initialBlocks(grid.blocks);
           _onGridChanged?.call(grid);
-          return await fieldController.loadFields(fieldIds: grid.fields);
+
+          final result = await fieldController.loadFields(
+            fieldIds: grid.fields,
+          );
+          return result;
         },
         (err) => right(err),
-      ),
-    );
+      );
+    });
   }
 
   Future<void> createRow() async {

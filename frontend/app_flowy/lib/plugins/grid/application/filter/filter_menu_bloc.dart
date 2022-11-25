@@ -21,7 +21,7 @@ class GridFilterMenuBloc
     on<GridFilterMenuEvent>(
       (event, emit) async {
         event.when(
-          initial: () async {
+          initial: () {
             _startListening();
           },
           didReceiveFilters: (filters) {

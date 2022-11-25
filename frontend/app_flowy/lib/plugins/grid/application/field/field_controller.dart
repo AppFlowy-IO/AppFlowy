@@ -123,7 +123,7 @@ class GridFieldController {
 
     _settingFFIService.getSetting().then((result) {
       result.fold(
-        (setting) => _updateGroupConfiguration(setting),
+        (setting) => _updateSettingConfiguration(setting),
         (err) => Log.error(err),
       );
     });
@@ -200,7 +200,7 @@ class GridFieldController {
     //Listen on setting changes
     _settingListener.start(onSettingUpdated: (result) {
       result.fold(
-        (setting) => _updateGroupConfiguration(setting),
+        (setting) => _updateSettingConfiguration(setting),
         (r) => Log.error(r),
       );
     });
@@ -224,7 +224,7 @@ class GridFieldController {
     });
   }
 
-  void _updateGroupConfiguration(GridSettingPB setting) {
+  void _updateSettingConfiguration(GridSettingPB setting) {
     _groupConfigurationByFieldId.clear();
     for (final configuration in setting.groupConfigurations.items) {
       _groupConfigurationByFieldId[configuration.fieldId] = configuration;
@@ -288,12 +288,13 @@ class GridFieldController {
           for (final filterPB in filterPBs) {
             final fieldInfo = _findFieldInfoForFilter(fieldInfos, filterPB);
             if (fieldInfo != null) {
-              filters.add(FilterInfo(filterPB, fieldInfo));
+              final filterInfo = FilterInfo(filterPB, fieldInfo);
+              filters.add(filterInfo);
             }
           }
 
-          _filterNotifier?.filters = filters;
           _updateFieldInfos();
+          _filterNotifier?.filters = filters;
           return left(unit);
         },
         (err) => right(err),
@@ -339,6 +340,7 @@ class GridFieldController {
       }
 
       _filterCallbacks[onFilters] = callback;
+      callback();
       _filterNotifier?.addListener(callback);
     }
   }

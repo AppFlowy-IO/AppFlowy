@@ -39,7 +39,7 @@ class GridPage extends StatefulWidget {
     this.onDeleted,
     Key? key,
   })  : gridController = GridController(view: view),
-        super(key: ValueKey(view.id));
+        super(key: key);
 
   @override
   State<GridPage> createState() => _GridPageState();

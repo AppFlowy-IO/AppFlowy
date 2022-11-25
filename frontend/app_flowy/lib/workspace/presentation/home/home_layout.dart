@@ -1,6 +1,6 @@
 import 'dart:io' show Platform;
 
-import 'package:app_flowy/workspace/application/home/home_bloc.dart';
+import 'package:app_flowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 // ignore: import_of_legacy_library_into_null_safe
@@ -20,20 +20,19 @@ class HomeLayout {
   late double menuSpacing;
   late Duration animDuration;
 
-  HomeLayout(BuildContext context, BoxConstraints homeScreenConstraint,
-      bool forceCollapse) {
-    final homeBlocState = context.read<HomeBloc>().state;
+  HomeLayout(BuildContext context, BoxConstraints homeScreenConstraint) {
+    final homeSetting = context.read<HomeSettingBloc>().state;
 
-    showEditPanel = homeBlocState.panelContext.isSome();
+    showEditPanel = homeSetting.panelContext.isSome();
 
     menuWidth = Sizes.sideBarMed;
     if (context.widthPx >= PageBreaks.desktop) {
       menuWidth = Sizes.sideBarLg;
     }
 
-    menuWidth += homeBlocState.resizeOffset;
+    menuWidth += homeSetting.resizeOffset;
 
-    if (forceCollapse) {
+    if (homeSetting.forceCollapse) {
       showMenu = false;
     } else {
       showMenu = true;
@@ -43,7 +42,7 @@ class HomeLayout {
     homePageLOffset = (showMenu && !menuIsDrawer) ? menuWidth : 0.0;
 
     menuSpacing = !showMenu && Platform.isMacOS ? 80.0 : 0.0;
-    animDuration = homeBlocState.resizeType.duration();
+    animDuration = homeSetting.resizeType.duration();
 
     editPanelWidth = HomeSizes.editPanelWidth;
     homePageROffset = showEditPanel ? editPanelWidth : 0;

@@ -4,6 +4,7 @@ export './app/menu_app.dart';
 import 'dart:io' show Platform;
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/trash/menu.dart';
+import 'package:app_flowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -21,7 +22,6 @@ import 'package:expandable/expandable.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
-import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:app_flowy/core/frameless_window.dart';
 // import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:flowy_infra/image.dart';
@@ -68,7 +68,7 @@ class HomeMenu extends StatelessWidget {
               getIt<HomeStackManager>().setPlugin(state.plugin);
             },
           ),
-          BlocListener<HomeBloc, HomeState>(
+          BlocListener<HomeSettingBloc, HomeSettingState>(
             listenWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed,
             listener: (context, state) {
               _collapsedNotifier.value = state.isMenuCollapsed;
@@ -231,8 +231,8 @@ class MenuTopBar extends StatelessWidget {
                     width: 28,
                     hoverColor: Colors.transparent,
                     onPressed: () => context
-                        .read<HomeBloc>()
-                        .add(const HomeEvent.collapseMenu()),
+                        .read<HomeSettingBloc>()
+                        .add(const HomeSettingEvent.collapseMenu()),
                     iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
                     icon: svgWidget(
                       "home/hide_menu",
