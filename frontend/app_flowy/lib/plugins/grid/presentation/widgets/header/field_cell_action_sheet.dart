@@ -88,9 +88,9 @@ class _EditFieldButton extends StatelessWidget {
 }
 
 class _FieldOperationList extends StatelessWidget {
-  final GridFieldCellContext fieldContext;
+  final GridFieldCellContext fieldInfo;
   final VoidCallback onDismissed;
-  const _FieldOperationList(this.fieldContext, this.onDismissed, {Key? key})
+  const _FieldOperationList(this.fieldInfo, this.onDismissed, {Key? key})
       : super(key: key);
 
   @override
@@ -113,14 +113,14 @@ class _FieldOperationList extends StatelessWidget {
         bool enable = true;
         switch (action) {
           case FieldAction.delete:
-            enable = !fieldContext.field.isPrimary;
+            enable = !fieldInfo.field.isPrimary;
             break;
           default:
             break;
         }
 
         return FieldActionCell(
-          fieldContext: fieldContext,
+          fieldInfo: fieldInfo,
           action: action,
           onTap: onDismissed,
           enable: enable,
@@ -131,13 +131,13 @@ class _FieldOperationList extends StatelessWidget {
 }
 
 class FieldActionCell extends StatelessWidget {
-  final GridFieldCellContext fieldContext;
+  final GridFieldCellContext fieldInfo;
   final VoidCallback onTap;
   final FieldAction action;
   final bool enable;
 
   const FieldActionCell({
-    required this.fieldContext,
+    required this.fieldInfo,
     required this.action,
     required this.onTap,
     required this.enable,
@@ -153,7 +153,7 @@ class FieldActionCell extends StatelessWidget {
       ),
       onTap: () {
         if (enable) {
-          action.run(context, fieldContext);
+          action.run(context, fieldInfo);
           onTap();
         }
       },
@@ -196,7 +196,7 @@ extension _FieldActionExtension on FieldAction {
     }
   }
 
-  void run(BuildContext context, GridFieldCellContext fieldContext) {
+  void run(BuildContext context, GridFieldCellContext fieldInfo) {
     switch (this) {
       case FieldAction.hide:
         context
@@ -207,8 +207,8 @@ extension _FieldActionExtension on FieldAction {
         PopoverContainer.of(context).close();
 
         FieldService(
-          gridId: fieldContext.gridId,
-          fieldId: fieldContext.field.id,
+          gridId: fieldInfo.gridId,
+          fieldId: fieldInfo.field.id,
         ).duplicateField();
 
         break;
@@ -219,8 +219,8 @@ extension _FieldActionExtension on FieldAction {
           title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
           confirm: () {
             FieldService(
-              gridId: fieldContext.gridId,
-              fieldId: fieldContext.field.id,
+              gridId: fieldInfo.gridId,
+              fieldId: fieldInfo.field.id,
             ).deleteField();
           },
         ).show(context);

@@ -40,12 +40,12 @@ impl GridViewEditorDelegate for GridViewEditorDelegateImpl {
         to_future(async move { block_manager.index_of_row(&row_id).await })
     }
 
-    fn get_row_rev(&self, row_id: &str) -> Fut<Option<Arc<RowRevision>>> {
+    fn get_row_rev(&self, row_id: &str) -> Fut<Option<(usize, Arc<RowRevision>)>> {
         let block_manager = self.block_manager.clone();
         let row_id = row_id.to_owned();
         to_future(async move {
             match block_manager.get_row_rev(&row_id).await {
-                Ok(row_rev) => row_rev,
+                Ok(indexed_row) => indexed_row,
                 Err(_) => None,
             }
         })

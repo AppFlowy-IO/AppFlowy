@@ -18,10 +18,12 @@ where
     };
 
     if let Some(mut type_option) = get_type_option.await {
+        let old_field_rev = editor.get_field_rev(field_id).await;
+
         action(&mut type_option);
         let bytes = type_option.protobuf_bytes().to_vec();
         let _ = editor
-            .update_field_type_option(&editor.grid_id, field_id, bytes)
+            .did_update_field_type_option(&editor.grid_id, field_id, bytes, old_field_rev)
             .await?;
     }
 

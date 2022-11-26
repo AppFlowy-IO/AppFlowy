@@ -1,4 +1,4 @@
-use crate::entities::{FilterPB, GridGroupConfigurationPB, GridLayout, GridLayoutPB, GridSettingPB};
+use crate::entities::{GridLayout, GridLayoutPB, GridSettingPB};
 use crate::services::filter::{FilterDelegate, FilterType};
 use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter};
 use crate::services::row::GridBlock;
@@ -12,7 +12,7 @@ use flowy_revision::{
 };
 use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_sync::util::make_operations_from_revisions;
-use grid_rev_model::{FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision};
+use grid_rev_model::{FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, RowRevision};
 use lib_infra::future::{to_future, Fut, FutureResult};
 use lib_ot::core::EmptyAttributes;
 use std::sync::Arc;
@@ -118,22 +118,12 @@ pub(crate) async fn apply_change(
 
 pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<FieldRevision>]) -> GridSettingPB {
     let layout_type: GridLayout = view_pad.layout.clone().into();
-    let filter_configurations = view_pad
-        .get_all_filters(field_revs)
-        .into_iter()
-        .map(|filter| FilterPB::from(filter.as_ref()))
-        .collect::<Vec<FilterPB>>();
-
-    let group_configurations = view_pad
-        .get_groups_by_field_revs(field_revs)
-        .into_iter()
-        .map(|group| GridGroupConfigurationPB::from(group.as_ref()))
-        .collect::<Vec<GridGroupConfigurationPB>>();
-
+    let filter_configurations = view_pad.get_all_filters(field_revs);
+    let group_configurations = view_pad.get_groups_by_field_revs(field_revs);
     GridSettingPB {
         layouts: GridLayoutPB::all(),
         layout_type,
-        filter_configurations: filter_configurations.into(),
+        filters: filter_configurations.into(),
         group_configurations: group_configurations.into(),
     }
 }
@@ -144,11 +134,17 @@ pub(crate) struct GridViewFilterDelegateImpl {
 }
 
 impl FilterDelegate for GridViewFilterDelegateImpl {
-    fn get_filter_rev(&self, filter_id: FilterType) -> Fut<Vec<Arc<FilterRevision>>> {
+    fn get_filter_rev(&self, filter_id: FilterType) -> Fut<Option<Arc<FilterRevision>>> {
         let pad = self.view_revision_pad.clone();
         to_future(async move {
             let field_type_rev: FieldTypeRevision = filter_id.field_type.into();
-            pad.read().await.get_filters(&filter_id.field_id, &field_type_rev)
+            let mut filters = pad.read().await.get_filters(&filter_id.field_id, &field_type_rev);
+            if filters.is_empty() {
+                None
+            } else {
+                debug_assert_eq!(filters.len(), 1);
+                filters.pop()
+            }
         })
     }
 
@@ -162,5 +158,9 @@ impl FilterDelegate for GridViewFilterDelegateImpl {
 
     fn get_blocks(&self) -> Fut<Vec<GridBlock>> {
         self.editor_delegate.get_blocks()
+    }
+
+    fn get_row_rev(&self, row_id: &str) -> Fut<Option<(usize, Arc<RowRevision>)>> {
+        self.editor_delegate.get_row_rev(row_id)
     }
 }

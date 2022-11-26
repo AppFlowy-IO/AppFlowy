@@ -35,7 +35,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
           },
           didReceiveCells: (_DidReceiveCells value) async {
             final cells = value.gridCellMap.values
-                .map((e) => GridCellEquatable(e.fieldContext))
+                .map((e) => GridCellEquatable(e.fieldInfo))
                 .toList();
             emit(state.copyWith(
               gridCellMap: value.gridCellMap,
@@ -88,16 +88,16 @@ class RowState with _$RowState {
         gridCellMap: cellDataMap,
         cells: UnmodifiableListView(
           cellDataMap.values
-              .map((e) => GridCellEquatable(e.fieldContext))
+              .map((e) => GridCellEquatable(e.fieldInfo))
               .toList(),
         ),
       );
 }
 
 class GridCellEquatable extends Equatable {
-  final GridFieldContext _fieldContext;
+  final FieldInfo _fieldContext;
 
-  const GridCellEquatable(GridFieldContext field) : _fieldContext = field;
+  const GridCellEquatable(FieldInfo field) : _fieldContext = field;
 
   @override
   List<Object?> get props => [

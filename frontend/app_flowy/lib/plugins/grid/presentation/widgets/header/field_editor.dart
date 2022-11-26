@@ -115,7 +115,7 @@ class _FieldTypeOptionCell extends StatelessWidget {
       builder: (context, state) {
         return state.field.fold(
           () => const SizedBox(),
-          (fieldContext) {
+          (fieldInfo) {
             final dataController =
                 context.read<FieldEditorBloc>().dataController;
             return FieldTypeOptionEditor(

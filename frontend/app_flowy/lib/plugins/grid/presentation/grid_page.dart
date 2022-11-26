@@ -1,7 +1,8 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
+import 'package:app_flowy/plugins/grid/application/filter/filter_menu_bloc.dart';
+import 'package:app_flowy/plugins/grid/application/grid_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
-import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/grid_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
@@ -15,6 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import '../application/row/row_cache.dart';
+import '../application/setting/setting_bloc.dart';
 import 'controller/grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
@@ -24,17 +26,20 @@ import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
 import 'widgets/row/row_detail.dart';
 import 'widgets/shortcuts.dart';
+import 'widgets/filter/menu.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
 
 class GridPage extends StatefulWidget {
   final ViewPB view;
+  final GridController gridController;
   final VoidCallback? onDeleted;
 
   GridPage({
     required this.view,
     this.onDeleted,
     Key? key,
-  }) : super(key: ValueKey(view.id));
+  })  : gridController = GridController(view: view),
+        super(key: key);
 
   @override
   State<GridPage> createState() => _GridPageState();
@@ -46,8 +51,19 @@ class _GridPageState extends State<GridPage> {
     return MultiBlocProvider(
       providers: [
         BlocProvider<GridBloc>(
-          create: (context) => getIt<GridBloc>(param1: widget.view)
-            ..add(const GridEvent.initial()),
+          create: (context) => GridBloc(
+            view: widget.view,
+            gridController: widget.gridController,
+          )..add(const GridEvent.initial()),
+        ),
+        BlocProvider<GridFilterMenuBloc>(
+          create: (context) => GridFilterMenuBloc(
+            viewId: widget.view.id,
+            fieldController: widget.gridController.fieldController,
+          )..add(const GridFilterMenuEvent.initial()),
+        ),
+        BlocProvider<GridSettingBloc>(
+          create: (context) => GridSettingBloc(gridId: widget.view.id),
         ),
       ],
       child: BlocBuilder<GridBloc, GridState>(
@@ -122,7 +138,8 @@ class _FlowyGridState extends State<FlowyGrid> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const _GridToolbarAdaptor(),
+            const GridToolbar(),
+            const GridFilterMenu(),
             _gridHeader(context, state.gridId),
             Flexible(child: child),
             const RowCountBadge(),
@@ -166,32 +183,11 @@ class _FlowyGridState extends State<FlowyGrid> {
 
   Widget _gridHeader(BuildContext context, String gridId) {
     final fieldController =
-        context.read<GridBloc>().dataController.fieldController;
+        context.read<GridBloc>().gridController.fieldController;
     return GridHeaderSliverAdaptor(
       gridId: gridId,
       fieldController: fieldController,
       anchorScrollController: headerScrollController,
-    );
-  }
-}
-
-class _GridToolbarAdaptor extends StatelessWidget {
-  const _GridToolbarAdaptor({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocSelector<GridBloc, GridState, GridToolbarContext>(
-      selector: (state) {
-        final fieldController =
-            context.read<GridBloc>().dataController.fieldController;
-        return GridToolbarContext(
-          gridId: state.gridId,
-          fieldController: fieldController,
-        );
-      },
-      builder: (context, toolbarContext) {
-        return GridToolbar(toolbarContext: toolbarContext);
-      },
     );
   }
 }
@@ -222,7 +218,7 @@ class _GridRowsState extends State<_GridRows> {
               _key.currentState?.removeItem(
                 item.index,
                 (context, animation) =>
-                    _renderRow(context, item.row, animation),
+                    _renderRow(context, item.rowInfo, animation),
               );
             }
           },
@@ -235,9 +231,13 @@ class _GridRowsState extends State<_GridRows> {
           initialItemCount: context.read<GridBloc>().state.rowInfos.length,
           itemBuilder:
               (BuildContext context, int index, Animation<double> animation) {
-            final RowInfo rowInfo =
-                context.read<GridBloc>().state.rowInfos[index];
-            return _renderRow(context, rowInfo, animation);
+            final rowInfos = context.read<GridBloc>().state.rowInfos;
+            if (index >= rowInfos.length) {
+              return const SizedBox();
+            } else {
+              final RowInfo rowInfo = rowInfos[index];
+              return _renderRow(context, rowInfo, animation);
+            }
           },
         );
       },
@@ -258,7 +258,7 @@ class _GridRowsState extends State<_GridRows> {
     if (rowCache == null) return const SizedBox();
 
     final fieldController =
-        context.read<GridBloc>().dataController.fieldController;
+        context.read<GridBloc>().gridController.fieldController;
     final dataController = GridRowDataController(
       rowInfo: rowInfo,
       fieldController: fieldController,

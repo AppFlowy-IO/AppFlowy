@@ -16,12 +16,11 @@ import 'row/row_service.dart';
 part 'grid_bloc.freezed.dart';
 
 class GridBloc extends Bloc<GridEvent, GridState> {
-  final GridDataController dataController;
+  final GridController gridController;
   void Function()? _createRowOperation;
 
-  GridBloc({required ViewPB view})
-      : dataController = GridDataController(view: view),
-        super(GridState.initial(view.id)) {
+  GridBloc({required ViewPB view, required this.gridController})
+      : super(GridState.initial(view.id)) {
     on<GridEvent>(
       (event, emit) async {
         await event.when(
@@ -32,9 +31,9 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           createRow: () {
             state.loadingState.when(
               loading: () {
-                _createRowOperation = () => dataController.createRow();
+                _createRowOperation = () => gridController.createRow();
               },
-              finish: (_) => dataController.createRow(),
+              finish: (_) => gridController.createRow(),
             );
           },
           deleteRow: (rowInfo) async {
@@ -66,17 +65,17 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
   @override
   Future<void> close() async {
-    await dataController.dispose();
+    await gridController.dispose();
     return super.close();
   }
 
   GridRowCache? getRowCache(String blockId, String rowId) {
-    final GridBlockCache? blockCache = dataController.blocks[blockId];
+    final GridBlockCache? blockCache = gridController.blocks[blockId];
     return blockCache?.rowCache;
   }
 
   void _startListening() {
-    dataController.addListener(
+    gridController.addListener(
       onGridChanged: (grid) {
         if (!isClosed) {
           add(GridEvent.didReceiveGridUpdate(grid));
@@ -96,7 +95,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   }
 
   Future<void> _openGrid(Emitter<GridState> emit) async {
-    final result = await dataController.openGrid();
+    final result = await gridController.openGrid();
     result.fold(
       (grid) {
         if (_createRowOperation != null) {
@@ -124,7 +123,7 @@ class GridEvent with _$GridEvent {
     RowsChangedReason listState,
   ) = _DidReceiveRowUpdate;
   const factory GridEvent.didReceiveFieldUpdate(
-    UnmodifiableListView<GridFieldContext> fields,
+    List<FieldInfo> fields,
   ) = _DidReceiveFieldUpdate;
 
   const factory GridEvent.didReceiveGridUpdate(
@@ -163,9 +162,9 @@ class GridLoadingState with _$GridLoadingState {
 }
 
 class GridFieldEquatable extends Equatable {
-  final UnmodifiableListView<GridFieldContext> _fields;
+  final List<FieldInfo> _fields;
   const GridFieldEquatable(
-    UnmodifiableListView<GridFieldContext> fields,
+    List<FieldInfo> fields,
   ) : _fields = fields;
 
   @override
@@ -182,6 +181,5 @@ class GridFieldEquatable extends Equatable {
     ];
   }
 
-  UnmodifiableListView<GridFieldContext> get value =>
-      UnmodifiableListView(_fields);
+  UnmodifiableListView<FieldInfo> get value => UnmodifiableListView(_fields);
 }

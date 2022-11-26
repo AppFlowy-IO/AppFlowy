@@ -212,7 +212,7 @@ pub enum GridEvent {
     #[event(input = "DateChangesetPB")]
     UpdateDateCell = 80,
 
-    #[event(input = "GridIdPB", output = "RepeatedGridGroupPB")]
+    #[event(input = "GridIdPB", output = "RepeatedGroupPB")]
     GetGroup = 100,
 
     #[event(input = "CreateBoardCardPayloadPB", output = "RowPB")]

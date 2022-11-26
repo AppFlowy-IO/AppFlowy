@@ -94,7 +94,6 @@ class _BuildEmojiPickerViewState extends State<BuildEmojiPickerView> {
     return Stack(
       children: [
         Positioned(
-          //TODO @gaganyadav80: Not sure about the calculated position.
           top: widget.offset!.dy -
               MediaQuery.of(context).size.height / 2.83 -
               30,
@@ -103,7 +102,6 @@ class _BuildEmojiPickerViewState extends State<BuildEmojiPickerView> {
           child: Material(
             borderRadius: BorderRadius.circular(8.0),
             child: SizedBox(
-              //TODO @gaganyadav80: FIXIT: Gets too large when fullscreen.
               height: MediaQuery.of(context).size.height / 2.83 + 20,
               width: MediaQuery.of(context).size.width / 3.92,
               child: ClipRRect(

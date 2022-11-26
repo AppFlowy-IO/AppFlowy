@@ -109,9 +109,8 @@ impl GridBlockRevisionEditor {
         self.pad.read().await.index_of_row(row_id)
     }
 
-    pub async fn get_row_rev(&self, row_id: &str) -> FlowyResult<Option<Arc<RowRevision>>> {
-        let row_ids = vec![Cow::Borrowed(row_id)];
-        let row_rev = self.get_row_revs(Some(row_ids)).await?.pop();
+    pub async fn get_row_rev(&self, row_id: &str) -> FlowyResult<Option<(usize, Arc<RowRevision>)>> {
+        let row_rev = self.pad.read().await.get_row_rev(row_id);
         Ok(row_rev)
     }
 
