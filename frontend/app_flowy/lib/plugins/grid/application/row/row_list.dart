@@ -46,11 +46,10 @@ class RowList {
       insertedIndex = _rowInfos.length;
     }
 
-    if (contains(rowId)) {
-      final oldIndex =
-          _rowInfos.indexWhere((element) => element.rowPB.id == rowId);
-      _rowInfos.removeAt(oldIndex);
+    final oldRowInfo = get(rowId);
+    if (oldRowInfo != null) {
       _rowInfos.insert(insertedIndex, rowInfo);
+      _rowInfos.remove(oldRowInfo);
     } else {
       _rowInfos.insert(insertedIndex, rowInfo);
     }
