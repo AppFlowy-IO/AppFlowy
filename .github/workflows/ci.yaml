@@ -97,4 +97,4 @@ jobs:
       - name: Build
         working-directory: frontend
         run: |
-          cargo make --profile ${{ matrix.flutter_profile }} appflowy
+          cargo make --profile ${{ matrix.flutter_profile }} appflowy-dev
