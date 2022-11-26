@@ -1,34 +1,34 @@
 # cargo make --profile production task
 
 # Run the task with profile, e.g.
-# cargo make --profile development-mac flowy-sdk-dev
-# cargo make --profile production-windows-x86 flowy-sdk-dev
+# cargo make --profile development-mac appflowy-sdk-dev
+# cargo make --profile production-windows-x86 appflowy-sdk-dev
 
 [tasks.env_check]
 dependencies = ["echo_env", "install_protobuf"]
 condition = { env_set = [ "BUILD_FLAG", "RUST_COMPILE_TARGET", "CRATE_TYPE", "TARGET_OS"],  channels = ["stable"] }
 
-[tasks.flowy-sdk-dev]
-mac_alias = "flowy-sdk-dev-macos"
-windows_alias = "flowy-sdk-dev-windows"
-linux_alias = "flowy-sdk-dev-linux"
+[tasks.appflowy-sdk-dev]
+mac_alias = "appflowy-sdk-dev-macos"
+windows_alias = "appflowy-sdk-dev-windows"
+linux_alias = "appflowy-sdk-dev-linux"
 
-[tasks.flowy-sdk-dev-android]
+[tasks.appflowy-sdk-dev-android]
 category = "Build"
 dependencies = ["env_check"]
 run_task = { name = ["setup-crate-type","sdk-build-android", "restore-crate-type"] }
 
-[tasks.flowy-sdk-dev-macos]
+[tasks.appflowy-sdk-dev-macos]
 category = "Build"
 dependencies = ["env_check"]
 run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type"] }
 
-[tasks.flowy-sdk-dev-windows]
+[tasks.appflowy-sdk-dev-windows]
 category = "Build"
 dependencies = ["env_check"]
 run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type"] }
 
-[tasks.flowy-sdk-dev-linux]
+[tasks.appflowy-sdk-dev-linux]
 category = "Build"
 dependencies = ["env_check"]
 run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type"] }
@@ -86,7 +86,7 @@ script = [
 script_runner = "@duckscript"
 
 #
-[tasks.flowy-sdk-release]
+[tasks.appflowy-sdk-release]
 description = "Build flowy sdk in release mode"
 category = "Build"
 dependencies = ["env_check"]
