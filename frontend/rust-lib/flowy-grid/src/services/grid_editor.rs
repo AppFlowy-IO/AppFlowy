@@ -467,7 +467,7 @@ impl GridRevisionEditor {
     pub async fn get_row_rev(&self, row_id: &str) -> FlowyResult<Option<Arc<RowRevision>>> {
         match self.block_manager.get_row_rev(row_id).await? {
             None => Ok(None),
-            Some(row_rev) => Ok(Some(row_rev)),
+            Some((_, row_rev)) => Ok(Some(row_rev)),
         }
     }
 
@@ -500,16 +500,15 @@ impl GridRevisionEditor {
 
     async fn decode_any_cell_data(&self, params: &CellPathParams) -> Option<(FieldType, CellBytes)> {
         let field_rev = self.get_field_rev(&params.field_id).await?;
-        let row_rev = self.block_manager.get_row_rev(&params.row_id).await.ok()??;
+        let (_, row_rev) = self.block_manager.get_row_rev(&params.row_id).await.ok()??;
         let cell_rev = row_rev.cells.get(&params.field_id)?.clone();
         Some(decode_any_cell_data(cell_rev.data, &field_rev))
     }
 
     pub async fn get_cell_rev(&self, row_id: &str, field_id: &str) -> FlowyResult<Option<CellRevision>> {
-        let row_rev = self.block_manager.get_row_rev(row_id).await?;
-        match row_rev {
+        match self.block_manager.get_row_rev(row_id).await? {
             None => Ok(None),
-            Some(row_rev) => {
+            Some((_, row_rev)) => {
                 let cell_rev = row_rev.cells.get(field_id).cloned();
                 Ok(cell_rev)
             }
@@ -660,7 +659,7 @@ impl GridRevisionEditor {
 
         match self.block_manager.get_row_rev(&from_row_id).await? {
             None => tracing::warn!("Move row failed, can not find the row:{}", from_row_id),
-            Some(row_rev) => {
+            Some((_, row_rev)) => {
                 match (
                     self.block_manager.index_of_row(&from_row_id).await,
                     self.block_manager.index_of_row(&to_row_id).await,
@@ -690,7 +689,7 @@ impl GridRevisionEditor {
 
         match self.block_manager.get_row_rev(&from_row_id).await? {
             None => tracing::warn!("Move row failed, can not find the row:{}", from_row_id),
-            Some(row_rev) => {
+            Some((_, row_rev)) => {
                 let block_manager = self.block_manager.clone();
                 self.view_manager
                     .move_group_row(row_rev, to_group_id, to_row_id.clone(), |row_changeset| {

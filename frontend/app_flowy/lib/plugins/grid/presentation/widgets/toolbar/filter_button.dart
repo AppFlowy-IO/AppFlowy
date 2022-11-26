@@ -8,7 +8,7 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'grid_create_filter_list.dart';
+import '../filter/create_filter_list.dart';
 
 class FilterButton extends StatefulWidget {
   const FilterButton({Key? key}) : super(key: key);

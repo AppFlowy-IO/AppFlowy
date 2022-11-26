@@ -28,7 +28,7 @@ pub trait GridViewEditorDelegate: Send + Sync + 'static {
     fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>>;
 
     fn index_of_row(&self, row_id: &str) -> Fut<Option<usize>>;
-    fn get_row_rev(&self, row_id: &str) -> Fut<Option<Arc<RowRevision>>>;
+    fn get_row_rev(&self, row_id: &str) -> Fut<Option<(usize, Arc<RowRevision>)>>;
     fn get_row_revs(&self) -> Fut<Vec<Arc<RowRevision>>>;
     fn get_blocks(&self) -> Fut<Vec<GridBlock>>;
 

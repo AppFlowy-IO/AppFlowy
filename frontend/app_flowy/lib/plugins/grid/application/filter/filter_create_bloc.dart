@@ -113,6 +113,7 @@ class GridCreateFilterBloc
         return _ffiService.insertTextFilter(
           fieldId: fieldId,
           condition: TextFilterCondition.Contains,
+          content: '',
         );
       case FieldType.SingleSelect:
         return _ffiService.insertSingleSelectFilter(

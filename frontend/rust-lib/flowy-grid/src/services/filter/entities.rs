@@ -1,4 +1,4 @@
-use crate::entities::{AlterFilterParams, DeleteFilterParams, FieldType, GridSettingChangesetParams};
+use crate::entities::{AlterFilterParams, DeleteFilterParams, FieldType, GridSettingChangesetParams, InsertedRowPB};
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
 use std::sync::Arc;
 
@@ -106,7 +106,7 @@ impl std::convert::From<&DeleteFilterParams> for FilterType {
 pub struct FilterResultNotification {
     pub view_id: String,
     pub block_id: String,
-    pub visible_rows: Vec<String>,
+    pub visible_rows: Vec<InsertedRowPB>,
     pub invisible_rows: Vec<String>,
 }
 

@@ -12,7 +12,7 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../toolbar/grid_create_filter_list.dart';
+import 'create_filter_list.dart';
 import 'filter_info.dart';
 import 'menu_item.dart';
 

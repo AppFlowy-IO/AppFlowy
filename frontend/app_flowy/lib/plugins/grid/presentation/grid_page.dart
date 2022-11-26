@@ -205,7 +205,7 @@ class _GridRowsState extends State<_GridRows> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<GridBloc, GridState>(
-      // listenWhen: (previous, current) => previous.reason != current.reason,
+      listenWhen: (previous, current) => previous.reason != current.reason,
       listener: (context, state) {
         state.reason.mapOrNull(
           insert: (value) {
@@ -218,7 +218,7 @@ class _GridRowsState extends State<_GridRows> {
               _key.currentState?.removeItem(
                 item.index,
                 (context, animation) =>
-                    _renderRow(context, item.row, animation),
+                    _renderRow(context, item.rowInfo, animation),
               );
             }
           },

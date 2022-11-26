@@ -81,7 +81,7 @@ impl GridViewManager {
             None => {
                 tracing::warn!("Can not find the row in grid view");
             }
-            Some(row_rev) => {
+            Some((_, row_rev)) => {
                 for view_editor in self.view_editors.read().await.values() {
                     view_editor.did_update_view_cell(&row_rev).await;
                 }

@@ -11,6 +11,14 @@ class FilterInfo {
 
   FilterInfo(this.viewId, this.filter, this.field);
 
+  FilterInfo copyWith({FilterPB? filter, FieldInfo? field}) {
+    return FilterInfo(
+      viewId,
+      filter ?? this.filter,
+      field ?? this.field,
+    );
+  }
+
   DateFilterPB? dateFilter() {
     if (filter.fieldType != FieldType.DateTime) {
       return null;

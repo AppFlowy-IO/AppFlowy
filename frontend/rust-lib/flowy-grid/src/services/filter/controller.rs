@@ -1,5 +1,5 @@
 use crate::entities::filter_entities::*;
-use crate::entities::FieldType;
+use crate::entities::{FieldType, InsertedRowPB, RowPB};
 use crate::services::cell::{CellFilterOperation, TypeCellData};
 use crate::services::field::*;
 use crate::services::filter::{FilterChangeset, FilterMap, FilterResult, FilterResultNotification, FilterType};
@@ -21,7 +21,7 @@ pub trait FilterDelegate: Send + Sync + 'static {
     fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>>;
     fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>>;
     fn get_blocks(&self) -> Fut<Vec<GridBlock>>;
-    fn get_row_rev(&self, rows_id: &str) -> Fut<Option<Arc<RowRevision>>>;
+    fn get_row_rev(&self, rows_id: &str) -> Fut<Option<(usize, Arc<RowRevision>)>>;
 }
 
 pub struct FilterController {
@@ -117,20 +117,27 @@ impl FilterController {
     }
 
     async fn filter_row(&mut self, row_id: String) -> FlowyResult<()> {
-        if let Some(row_rev) = self.delegate.get_row_rev(&row_id).await {
+        if let Some((_, row_rev)) = self.delegate.get_row_rev(&row_id).await {
             let field_rev_by_field_id = self.get_filter_revs_map().await;
             let mut notification = FilterResultNotification::new(self.view_id.clone(), row_rev.block_id.clone());
-            let (row_id, is_visible) = filter_row(
+            if let Some((row_id, is_visible)) = filter_row(
                 &row_rev,
                 &self.filter_map,
                 &mut self.result_by_row_id,
                 &field_rev_by_field_id,
-            );
-            if is_visible {
-                notification.visible_rows.push(row_id)
-            } else {
-                notification.invisible_rows.push(row_id);
+            ) {
+                if is_visible {
+                    if let Some((index, row_rev)) = self.delegate.get_row_rev(&row_id).await {
+                        let row_pb = RowPB::from(row_rev.as_ref());
+                        notification
+                            .visible_rows
+                            .push(InsertedRowPB::with_index(row_pb, index as i32))
+                    }
+                } else {
+                    notification.invisible_rows.push(row_id);
+                }
             }
+
             let _ = self
                 .notifier
                 .send(GridViewChanged::DidReceiveFilterResult(notification));
@@ -145,17 +152,19 @@ impl FilterController {
             let mut visible_rows = vec![];
             let mut invisible_rows = vec![];
 
-            for row_rev in &block.row_revs {
-                let (row_id, is_visible) = filter_row(
+            for (index, row_rev) in block.row_revs.iter().enumerate() {
+                if let Some((row_id, is_visible)) = filter_row(
                     row_rev,
                     &self.filter_map,
                     &mut self.result_by_row_id,
                     &field_rev_by_field_id,
-                );
-                if is_visible {
-                    visible_rows.push(row_id)
-                } else {
-                    invisible_rows.push(row_id);
+                ) {
+                    if is_visible {
+                        let row_pb = RowPB::from(row_rev.as_ref());
+                        visible_rows.push(InsertedRowPB::with_index(row_pb, index as i32))
+                    } else {
+                        invisible_rows.push(row_id);
+                    }
                 }
             }
 
@@ -296,7 +305,7 @@ fn filter_row(
     filter_map: &FilterMap,
     result_by_row_id: &mut HashMap<RowId, FilterResult>,
     field_rev_by_field_id: &HashMap<FieldId, Arc<FieldRevision>>,
-) -> (String, bool) {
+) -> Option<(String, bool)> {
     // Create a filter result cache if it's not exist
     let filter_result = result_by_row_id
         .entry(row_rev.id.clone())
@@ -306,11 +315,6 @@ fn filter_row(
     for (field_id, field_rev) in field_rev_by_field_id {
         let filter_type = FilterType::from(field_rev);
         if !filter_map.has_filter(&filter_type) {
-            // tracing::trace!(
-            //     "Can't find filter for filter type: {:?}. Current filters: {:?}",
-            //     filter_type,
-            //     filter_map
-            // );
             continue;
         }
 
@@ -318,12 +322,16 @@ fn filter_row(
         // if the visibility of the cell_rew is changed, which means the visibility of the
         // row is changed too.
         if let Some(is_visible) = filter_cell(&filter_type, field_rev, filter_map, cell_rev) {
+            let old_is_visible = filter_result.visible_by_filter_id.get(&filter_type).cloned();
             filter_result.visible_by_filter_id.insert(filter_type, is_visible);
-            return (row_rev.id.clone(), is_visible);
+            return if old_is_visible != Some(is_visible) {
+                Some((row_rev.id.clone(), is_visible))
+            } else {
+                None
+            };
         }
     }
-
-    (row_rev.id.clone(), true)
+    None
 }
 
 // Returns None if there is no change in this cell after applying the filter

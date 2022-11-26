@@ -32,7 +32,7 @@ class FilterFFIService {
     required String fieldId,
     String? filterId,
     required TextFilterCondition condition,
-    String content = "",
+    required String content,
   }) {
     final filter = TextFilterPB()
       ..condition = condition

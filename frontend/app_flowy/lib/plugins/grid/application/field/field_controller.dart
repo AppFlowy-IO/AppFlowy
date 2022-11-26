@@ -55,7 +55,7 @@ class GridFieldController {
   // Listeners
   final GridFieldsListener _fieldListener;
   final SettingListener _settingListener;
-  final FilterListener _filterListener;
+  final FiltersListener _filterListener;
 
   // FFI services
   final GridFFIService _gridFFIService;
@@ -108,7 +108,7 @@ class GridFieldController {
   GridFieldController({required this.gridId})
       : _fieldListener = GridFieldsListener(gridId: gridId),
         _settingListener = SettingListener(gridId: gridId),
-        _filterListener = FilterListener(viewId: gridId),
+        _filterListener = FiltersListener(viewId: gridId),
         _gridFFIService = GridFFIService(gridId: gridId),
         _filterFFIService = FilterFFIService(viewId: gridId),
         _settingFFIService = SettingFFIService(viewId: gridId) {

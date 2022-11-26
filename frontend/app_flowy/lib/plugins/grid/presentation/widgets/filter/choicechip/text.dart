@@ -66,9 +66,9 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
             child: Column(
               children: [
-                _buildFilterPannel(context),
+                _buildFilterPannel(context, state),
                 const VSpace(4),
-                _buildFilterTextField(context),
+                _buildFilterTextField(context, state),
               ],
             ),
           );
@@ -77,15 +77,15 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
     );
   }
 
-  Widget _buildFilterPannel(BuildContext context) {
+  Widget _buildFilterPannel(BuildContext context, TextFilterEditorState state) {
     return SizedBox(
       height: 20,
       child: Row(
         children: [
-          FlowyText(widget.filterInfo.field.name),
+          FlowyText(state.filterInfo.field.name),
           const HSpace(4),
           TextFilterConditionList(
-            filterInfo: widget.filterInfo,
+            filterInfo: state.filterInfo,
             popoverMutex: popoverMutex,
             onCondition: (condition) {
               context
@@ -111,8 +111,9 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
     );
   }
 
-  Widget _buildFilterTextField(BuildContext context) {
-    final textFilter = widget.filterInfo.textFilter()!;
+  Widget _buildFilterTextField(
+      BuildContext context, TextFilterEditorState state) {
+    final textFilter = state.filterInfo.textFilter()!;
     return FilterTextField(
       text: textFilter.content,
       hintText: LocaleKeys.grid_settings_typeAValue.tr(),

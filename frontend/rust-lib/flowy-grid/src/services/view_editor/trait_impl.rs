@@ -160,7 +160,7 @@ impl FilterDelegate for GridViewFilterDelegateImpl {
         self.editor_delegate.get_blocks()
     }
 
-    fn get_row_rev(&self, row_id: &str) -> Fut<Option<Arc<RowRevision>>> {
+    fn get_row_rev(&self, row_id: &str) -> Fut<Option<(usize, Arc<RowRevision>)>> {
         self.editor_delegate.get_row_rev(row_id)
     }
 }
