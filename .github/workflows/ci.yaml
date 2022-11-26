@@ -78,10 +78,10 @@ jobs:
           cargo install cargo-make
           cargo install duckscript_cli
 
-      - name: Cargo make flowy_dev
+      - name: Cargo make appflowy-deps-tools
         working-directory: frontend
         run: |
-          cargo make flowy_dev
+          cargo make appflowy-deps-tools
 
       - name: Config Flutter
         run: |
@@ -97,4 +97,4 @@ jobs:
       - name: Build
         working-directory: frontend
         run: |
-          cargo make --profile ${{ matrix.flutter_profile }} appflowy-dev
+          cargo make --profile ${{ matrix.flutter_profile }} appflowy
