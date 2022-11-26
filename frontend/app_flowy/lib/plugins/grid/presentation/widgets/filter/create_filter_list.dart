@@ -64,6 +64,10 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
             }).toList();
 
             List<Widget> slivers = [
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _FilterTextFieldDelegate(),
+              ),
               SliverToBoxAdapter(
                 child: ListView.separated(
                   controller: ScrollController(),
@@ -78,30 +82,11 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
                 ),
               ),
             ];
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: SizedBox(
-                    height: 36,
-                    child: FilterTextField(
-                      hintText: LocaleKeys.grid_settings_filterBy.tr(),
-                      onChanged: (text) {
-                        context.read<GridCreateFilterBloc>().add(
-                            GridCreateFilterEvent.didReceiveFilterText(text));
-                      },
-                    ),
-                  ),
-                ),
-                Flexible(
-                    child: CustomScrollView(
-                  slivers: slivers,
-                  controller: ScrollController(),
-                  physics: StyledScrollPhysics(),
-                )),
-              ],
+            return CustomScrollView(
+              shrinkWrap: true,
+              slivers: slivers,
+              controller: ScrollController(),
+              physics: StyledScrollPhysics(),
             );
           },
         ),
@@ -117,6 +102,43 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
 
   void createFilter(FieldInfo field) {
     editBloc.add(GridCreateFilterEvent.createDefaultFilter(field));
+  }
+}
+
+class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
+  _FilterTextFieldDelegate();
+
+  double fixHeight = 46;
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Container(
+        color: Theme.of(context).colorScheme.background,
+        height: fixHeight,
+        child: FilterTextField(
+          hintText: LocaleKeys.grid_settings_filterBy.tr(),
+          onChanged: (text) {
+            context
+                .read<GridCreateFilterBloc>()
+                .add(GridCreateFilterEvent.didReceiveFilterText(text));
+          },
+        ),
+      ),
+    );
+  }
+
+  @override
+  double get maxExtent => fixHeight;
+
+  @override
+  double get minExtent => fixHeight;
+
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+    return false;
   }
 }
 

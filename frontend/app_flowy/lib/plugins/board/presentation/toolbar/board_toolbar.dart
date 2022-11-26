@@ -1,10 +1,12 @@
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/image.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../generated/locale_keys.g.dart';
 import 'board_setting.dart';
 
 class BoardToolbarContext {
@@ -30,6 +32,7 @@ class BoardToolbar extends StatelessWidget {
       height: 40,
       child: Row(
         children: [
+          const Spacer(),
           _SettingButton(
             settingContext: BoardSettingContext.from(toolbarContext),
           ),
@@ -61,16 +64,18 @@ class _SettingButtonState extends State<_SettingButton> {
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       controller: popoverController,
+      direction: PopoverDirection.leftWithTopAligned,
+      triggerActions: PopoverTriggerFlags.none,
       constraints: BoxConstraints.loose(const Size(260, 400)),
-      child: FlowyIconButton(
-        width: 22,
-        icon: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 3.0),
-          child: svgWidget(
-            "grid/setting/setting",
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
+      child: FlowyTextButton(
+        LocaleKeys.settings_title.tr(),
+        fontSize: 14,
+        fillColor: Colors.transparent,
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+        onPressed: () {
+          popoverController.show();
+        },
       ),
       popupBuilder: (BuildContext popoverContext) {
         return BoardSettingListPopover(

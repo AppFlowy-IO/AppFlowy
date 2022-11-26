@@ -121,7 +121,7 @@ class _AddFilterButtonState extends State<AddFilterButton> {
   Widget wrapPopover(BuildContext buildContext, Widget child) {
     return AppFlowyPopover(
       controller: popoverController,
-      constraints: BoxConstraints.loose(const Size(260, 300)),
+      constraints: BoxConstraints.loose(const Size(200, 300)),
       margin: const EdgeInsets.all(6),
       triggerActions: PopoverTriggerFlags.none,
       child: child,

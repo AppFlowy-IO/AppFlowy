@@ -58,7 +58,7 @@ class _FilterButtonState extends State<FilterButton> {
     return AppFlowyPopover(
       controller: _popoverController,
       direction: PopoverDirection.leftWithTopAligned,
-      constraints: BoxConstraints.loose(const Size(260, 300)),
+      constraints: BoxConstraints.loose(const Size(200, 300)),
       offset: const Offset(0, 10),
       margin: const EdgeInsets.all(6),
       triggerActions: PopoverTriggerFlags.none,
