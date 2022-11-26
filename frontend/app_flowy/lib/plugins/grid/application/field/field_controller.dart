@@ -498,6 +498,7 @@ class FieldInfo {
   FieldPB get field => _field;
 
   bool get isGroupField => _isGroupField;
+
   bool get hasFilter => _hasFilter;
 
   bool get canGroup {
@@ -519,6 +520,14 @@ class FieldInfo {
     }
 
     return false;
+  }
+
+  bool get canCreateFilter {
+    if (hasFilter) return false;
+
+    if (_field.fieldType != FieldType.RichText) return false;
+
+    return true;
   }
 
   FieldInfo({required FieldPB field}) : _field = field;

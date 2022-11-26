@@ -87,7 +87,7 @@ class _SwitchFieldButton extends StatelessWidget {
     final widget = AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(460, 540)),
       asBarrier: true,
-      triggerActions: PopoverTriggerFlags.click | PopoverTriggerFlags.hover,
+      triggerActions: PopoverTriggerFlags.click,
       mutex: popoverMutex,
       offset: const Offset(20, 0),
       popupBuilder: (popOverContext) {

@@ -7,6 +7,8 @@ import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/row_entities.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'row_list.dart';
 part 'row_cache.freezed.dart';
 
 typedef RowUpdateCallback = void Function();
@@ -29,17 +31,14 @@ class GridRowCache {
 
   /// _rows containers the current block's rows
   /// Use List to reverse the order of the GridRow.
-  List<RowInfo> _rowInfos = [];
-
-  /// Use Map for faster access the raw row data.
-  final HashMap<String, RowInfo> _rowInfoByRowId;
+  final RowList _rowList = RowList();
 
   final GridCellCache _cellCache;
   final IGridRowFieldNotifier _fieldNotifier;
   final _RowChangesetNotifier _rowChangeReasonNotifier;
 
   UnmodifiableListView<RowInfo> get visibleRows {
-    var visibleRows = [..._rowInfos];
+    var visibleRows = [..._rowList.rows];
     visibleRows.retainWhere((element) => element.visible);
     return UnmodifiableListView(visibleRows);
   }
@@ -51,7 +50,6 @@ class GridRowCache {
     required this.block,
     required IGridRowFieldNotifier notifier,
   })  : _cellCache = GridCellCache(gridId: gridId),
-        _rowInfoByRowId = HashMap(),
         _rowChangeReasonNotifier = _RowChangesetNotifier(),
         _fieldNotifier = notifier {
     //
@@ -62,8 +60,7 @@ class GridRowCache {
 
     for (final row in block.rows) {
       final rowInfo = buildGridRow(row);
-      _rowInfos.add(rowInfo);
-      _rowInfoByRowId[rowInfo.rowPB.id] = rowInfo;
+      _rowList.add(rowInfo);
     }
   }
 
@@ -77,120 +74,53 @@ class GridRowCache {
     _deleteRows(changeset.deletedRows);
     _insertRows(changeset.insertedRows);
     _updateRows(changeset.updatedRows);
-    _showRows(changeset.visibleRows);
     _hideRows(changeset.invisibleRows);
+    _showRows(changeset.visibleRows);
   }
 
   void _deleteRows(List<String> deletedRows) {
-    if (deletedRows.isEmpty) {
-      return;
+    if (deletedRows.isEmpty) return;
+
+    final deletedIndex = _rowList.removeRows(deletedRows);
+    if (deletedIndex.isNotEmpty) {
+      _rowChangeReasonNotifier.receive(RowsChangedReason.delete(deletedIndex));
     }
-
-    final List<RowInfo> newRows = [];
-    final DeletedIndexs deletedIndex = [];
-    final Map<String, String> deletedRowByRowId = {
-      for (var rowId in deletedRows) rowId: rowId
-    };
-
-    _rowInfos.asMap().forEach((index, RowInfo rowInfo) {
-      if (deletedRowByRowId[rowInfo.rowPB.id] == null) {
-        newRows.add(rowInfo);
-      } else {
-        _rowInfoByRowId.remove(rowInfo.rowPB.id);
-        deletedIndex.add(DeletedIndex(index: index, rowInfo: rowInfo));
-      }
-    });
-    _rowInfos = newRows;
-    _rowChangeReasonNotifier.receive(RowsChangedReason.delete(deletedIndex));
   }
 
   void _insertRows(List<InsertedRowPB> insertRows) {
-    if (insertRows.isEmpty) {
-      return;
-    }
+    if (insertRows.isEmpty) return;
 
-    InsertedIndexs insertIndexs = [];
-    for (final InsertedRowPB insertRow in insertRows) {
-      var index = insertRow.index;
-      final rowInfo = buildGridRow(insertRow.row);
-      if (_rowInfos.length > insertRow.index) {
-        _rowInfos.insert(insertRow.index, rowInfo);
-      } else {
-        index = _rowInfos.length;
-        _rowInfos.add(rowInfo);
-      }
-      insertIndexs.add(InsertedIndex(
-        index: index,
-        rowId: insertRow.row.id,
-      ));
-      _rowInfoByRowId[rowInfo.rowPB.id] = rowInfo;
+    InsertedIndexs insertIndexs =
+        _rowList.insertRows(insertRows, (rowPB) => buildGridRow(rowPB));
+    if (insertIndexs.isNotEmpty) {
+      _rowChangeReasonNotifier.receive(RowsChangedReason.insert(insertIndexs));
     }
-
-    _rowChangeReasonNotifier.receive(RowsChangedReason.insert(insertIndexs));
   }
 
   void _updateRows(List<RowPB> updatedRows) {
-    if (updatedRows.isEmpty) {
-      return;
+    if (updatedRows.isEmpty) return;
+
+    final updatedIndexs =
+        _rowList.updateRows(updatedRows, (rowPB) => buildGridRow(rowPB));
+    if (updatedIndexs.isNotEmpty) {
+      _rowChangeReasonNotifier.receive(RowsChangedReason.update(updatedIndexs));
     }
-
-    final UpdatedIndexMap updatedIndexs = UpdatedIndexMap();
-    for (final RowPB updatedRow in updatedRows) {
-      final rowId = updatedRow.id;
-      final index = _rowInfos.indexWhere(
-        (rowInfo) => rowInfo.rowPB.id == rowId,
-      );
-      if (index != -1) {
-        final rowInfo = buildGridRow(updatedRow);
-        _rowInfoByRowId[rowId] = rowInfo;
-
-        _rowInfos.removeAt(index);
-        _rowInfos.insert(index, rowInfo);
-        updatedIndexs[rowId] = UpdatedIndex(index: index, rowId: rowId);
-      }
-    }
-
-    _rowChangeReasonNotifier.receive(RowsChangedReason.update(updatedIndexs));
   }
 
   void _hideRows(List<String> invisibleRows) {
-    final List<DeletedIndex> deletedRows = [];
+    if (invisibleRows.isEmpty) return;
 
-    for (final rowId in invisibleRows) {
-      final rowInfo = _rowInfoByRowId[rowId];
-      if (rowInfo != null) {
-        rowInfo.visible = false;
-        final index = _rowInfos.indexOf(rowInfo);
-        if (index != -1) {
-          deletedRows.add(DeletedIndex(index: index, rowInfo: rowInfo));
-
-          _rowInfoByRowId.remove(rowInfo.rowPB.id);
-          _rowInfos.remove(rowInfo);
-        }
-      }
-    }
-
+    final List<DeletedIndex> deletedRows = _rowList.removeRows(invisibleRows);
     if (deletedRows.isNotEmpty) {
       _rowChangeReasonNotifier.receive(RowsChangedReason.delete(deletedRows));
     }
   }
 
   void _showRows(List<InsertedRowPB> visibleRows) {
-    final List<InsertedIndex> insertedRows = [];
-    for (final indexedRow in visibleRows) {
-      final rowId = indexedRow.row.id;
-      var index = indexedRow.index;
-      final newRowInfo = buildGridRow(indexedRow.row);
-      _rowInfoByRowId[rowId] = newRowInfo;
+    if (visibleRows.isEmpty) return;
 
-      if (_rowInfos.length > index) {
-        _rowInfos.insert(index, newRowInfo);
-      } else {
-        index = _rowInfos.length;
-        _rowInfos.add(newRowInfo);
-      }
-      insertedRows.add(InsertedIndex(index: index, rowId: rowId));
-    }
+    final List<InsertedIndex> insertedRows =
+        _rowList.insertRows(visibleRows, (rowPB) => buildGridRow(rowPB));
     if (insertedRows.isNotEmpty) {
       _rowChangeReasonNotifier.receive(RowsChangedReason.insert(insertedRows));
     }
@@ -214,7 +144,7 @@ class GridRowCache {
 
       notifyUpdate() {
         if (onCellUpdated != null) {
-          final rowInfo = _rowInfoByRowId[rowId];
+          final rowInfo = _rowList.get(rowId);
           if (rowInfo != null) {
             final GridCellMap cellDataMap =
                 _makeGridCells(rowId, rowInfo.rowPB);
@@ -240,7 +170,7 @@ class GridRowCache {
   }
 
   GridCellMap loadGridCells(String rowId) {
-    final RowPB? data = _rowInfoByRowId[rowId]?.rowPB;
+    final RowPB? data = _rowList.get(rowId)?.rowPB;
     if (data == null) {
       _loadRow(rowId);
     }
@@ -282,26 +212,20 @@ class GridRowCache {
     final updatedRow = optionRow.row;
     updatedRow.freeze();
 
-    final index =
-        _rowInfos.indexWhere((rowInfo) => rowInfo.rowPB.id == updatedRow.id);
-    if (index != -1) {
-      // update the corresponding row in _rows if they are not the same
-      if (_rowInfos[index].rowPB != updatedRow) {
-        final rowInfo = _rowInfos.removeAt(index).copyWith(rowPB: updatedRow);
-        _rowInfos.insert(index, rowInfo);
-        _rowInfoByRowId[rowInfo.rowPB.id] = rowInfo;
+    final rowInfo = _rowList.get(updatedRow.id);
+    final rowIndex = _rowList.indexOfRow(updatedRow.id);
+    if (rowInfo != null && rowIndex != null) {
+      final updatedRowInfo = rowInfo.copyWith(rowPB: updatedRow);
+      _rowList.remove(updatedRow.id);
+      _rowList.insert(rowIndex, updatedRowInfo);
 
-        // Calculate the update index
-        final UpdatedIndexMap updatedIndexs = UpdatedIndexMap();
-        updatedIndexs[rowInfo.rowPB.id] = UpdatedIndex(
-          index: index,
-          rowId: rowInfo.rowPB.id,
-        );
+      final UpdatedIndexMap updatedIndexs = UpdatedIndexMap();
+      updatedIndexs[rowInfo.rowPB.id] = UpdatedIndex(
+        index: rowIndex,
+        rowId: updatedRowInfo.rowPB.id,
+      );
 
-        //
-        _rowChangeReasonNotifier
-            .receive(RowsChangedReason.update(updatedIndexs));
-      }
+      _rowChangeReasonNotifier.receive(RowsChangedReason.update(updatedIndexs));
     }
   }
 

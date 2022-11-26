@@ -61,7 +61,7 @@ class GridCreateFilterBloc
     final List<FieldInfo> allFields = List.from(fields);
     final keyword = filterText.toLowerCase();
     allFields.retainWhere((field) {
-      if (field.hasFilter) {
+      if (field.canCreateFilter) {
         return false;
       }
 
@@ -174,6 +174,6 @@ class GridCreateFilterState with _$GridCreateFilterState {
 
 List<FieldInfo> getCreatableFilter(List<FieldInfo> fieldInfos) {
   final List<FieldInfo> creatableFields = List.from(fieldInfos);
-  creatableFields.retainWhere((element) => !element.hasFilter);
+  creatableFields.retainWhere((element) => element.canCreateFilter);
   return creatableFields;
 }

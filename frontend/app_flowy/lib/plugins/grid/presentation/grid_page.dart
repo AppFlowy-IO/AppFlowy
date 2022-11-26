@@ -231,9 +231,13 @@ class _GridRowsState extends State<_GridRows> {
           initialItemCount: context.read<GridBloc>().state.rowInfos.length,
           itemBuilder:
               (BuildContext context, int index, Animation<double> animation) {
-            final RowInfo rowInfo =
-                context.read<GridBloc>().state.rowInfos[index];
-            return _renderRow(context, rowInfo, animation);
+            final rowInfos = context.read<GridBloc>().state.rowInfos;
+            if (index >= rowInfos.length) {
+              return const SizedBox();
+            } else {
+              final RowInfo rowInfo = rowInfos[index];
+              return _renderRow(context, rowInfo, animation);
+            }
           },
         );
       },
