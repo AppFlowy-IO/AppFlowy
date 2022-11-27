@@ -77,7 +77,7 @@ class GridCreateFilterBloc
 
   void _startListening() {
     _onFieldFn = (fields) {
-      fields.retainWhere((field) => field.hasFilter == false);
+      fields.retainWhere((field) => field.canCreateFilter);
       add(GridCreateFilterEvent.didReceiveFields(fields));
     };
     fieldController.addListener(onFields: _onFieldFn);

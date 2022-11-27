@@ -39,10 +39,10 @@ class RowList {
     _rowInfoByRowId[rowId] = rowInfo;
   }
 
-  void insert(int index, RowInfo rowInfo) {
+  InsertedIndex? insert(int index, RowInfo rowInfo) {
     final rowId = rowInfo.rowPB.id;
     var insertedIndex = index;
-    if (_rowInfos.length < insertedIndex) {
+    if (_rowInfos.length <= insertedIndex) {
       insertedIndex = _rowInfos.length;
     }
 
@@ -50,13 +50,16 @@ class RowList {
     if (oldRowInfo != null) {
       _rowInfos.insert(insertedIndex, rowInfo);
       _rowInfos.remove(oldRowInfo);
+      _rowInfoByRowId[rowId] = rowInfo;
+      return null;
     } else {
       _rowInfos.insert(insertedIndex, rowInfo);
+      _rowInfoByRowId[rowId] = rowInfo;
+      return InsertedIndex(index: insertedIndex, rowId: rowId);
     }
-    _rowInfoByRowId[rowId] = rowInfo;
   }
 
-  RowInfo? remove(String rowId) {
+  DeletedIndex? remove(String rowId) {
     final rowInfo = _rowInfoByRowId[rowId];
     if (rowInfo != null) {
       final index = _rowInfos.indexOf(rowInfo);
@@ -64,8 +67,10 @@ class RowList {
         _rowInfoByRowId.remove(rowInfo.rowPB.id);
         _rowInfos.remove(rowInfo);
       }
+      return DeletedIndex(index: index, rowInfo: rowInfo);
+    } else {
+      return null;
     }
-    return rowInfo;
   }
 
   InsertedIndexs insertRows(

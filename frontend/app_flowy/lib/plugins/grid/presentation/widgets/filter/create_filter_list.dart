@@ -17,11 +17,13 @@ class GridCreateFilterList extends StatefulWidget {
   final String viewId;
   final GridFieldController fieldController;
   final VoidCallback onClosed;
+  final VoidCallback? onCreateFilter;
 
   const GridCreateFilterList({
     required this.viewId,
     required this.fieldController,
     required this.onClosed,
+    this.onCreateFilter,
     Key? key,
   }) : super(key: key);
 
@@ -102,6 +104,7 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
 
   void createFilter(FieldInfo field) {
     editBloc.add(GridCreateFilterEvent.createDefaultFilter(field));
+    widget.onCreateFilter?.call();
   }
 }
 

@@ -142,6 +142,9 @@ class GridFieldController {
             filters.retainWhere(
               (element) => !deleteFilterIds.contains(element.filter.id),
             );
+
+            _filterPBByFieldId.removeWhere(
+                (key, value) => deleteFilterIds.contains(value.id));
           }
 
           // Inserts the new filter if it's not exist
@@ -151,6 +154,7 @@ class GridFieldController {
             if (filterIndex == -1) {
               final fieldInfo = _findFieldInfoForFilter(fieldInfos, newFilter);
               if (fieldInfo != null) {
+                _filterPBByFieldId[fieldInfo.id] = newFilter;
                 filters.add(FilterInfo(gridId, newFilter, fieldInfo));
               }
             }
@@ -187,10 +191,9 @@ class GridFieldController {
                 }
                 _filterPBByFieldId[fieldInfo.id] = updatedFilter.filter;
               }
-
-              _updateFieldInfos();
             }
           }
+          _updateFieldInfos();
           _filterNotifier?.filters = filters;
         },
         (err) => Log.error(err),
@@ -345,7 +348,6 @@ class GridFieldController {
       }
 
       _filterCallbacks[onFilters] = callback;
-      callback();
       _filterNotifier?.addListener(callback);
     }
   }

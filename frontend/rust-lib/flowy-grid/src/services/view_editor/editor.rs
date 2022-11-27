@@ -359,6 +359,7 @@ impl GridViewRevisionEditor {
             .await
             .did_receive_filter_changed(FilterChangeset::from_delete(filter_type.clone()))
             .await;
+
         let _ = self
             .modify(|pad| {
                 let changeset = pad.delete_filter(&params.filter_id, &filter_type.field_id, &field_type_rev)?;

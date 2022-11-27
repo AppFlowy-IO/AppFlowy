@@ -11,6 +11,7 @@ class GridFilterMenuBloc
   final String viewId;
   final GridFieldController fieldController;
   void Function(List<FilterInfo>)? _onFilterFn;
+  void Function(List<FieldInfo>)? _onFieldFn;
 
   GridFilterMenuBloc({required this.viewId, required this.fieldController})
       : super(GridFilterMenuState.initial(
@@ -32,7 +33,12 @@ class GridFilterMenuBloc
             emit(state.copyWith(isVisible: isVisible));
           },
           didReceiveFields: (List<FieldInfo> fields) {
-            emit(state.copyWith(fields: fields));
+            emit(
+              state.copyWith(
+                fields: fields,
+                creatableFields: getCreatableFilter(fields),
+              ),
+            );
           },
         );
       },
@@ -44,9 +50,18 @@ class GridFilterMenuBloc
       add(GridFilterMenuEvent.didReceiveFilters(filters));
     };
 
-    fieldController.addListener(onFilters: (filters) {
-      _onFilterFn?.call(filters);
-    });
+    _onFieldFn = (fields) {
+      add(GridFilterMenuEvent.didReceiveFields(fields));
+    };
+
+    fieldController.addListener(
+      onFilters: (filters) {
+        _onFilterFn?.call(filters);
+      },
+      onFields: (fields) {
+        _onFieldFn?.call(fields);
+      },
+    );
   }
 
   @override
@@ -54,6 +69,10 @@ class GridFilterMenuBloc
     if (_onFilterFn != null) {
       fieldController.removeListener(onFiltersListener: _onFilterFn!);
       _onFilterFn = null;
+    }
+    if (_onFieldFn != null) {
+      fieldController.removeListener(onFieldsListener: _onFieldFn!);
+      _onFieldFn = null;
     }
     return super.close();
   }
@@ -75,6 +94,7 @@ class GridFilterMenuState with _$GridFilterMenuState {
     required String viewId,
     required List<FilterInfo> filters,
     required List<FieldInfo> fields,
+    required List<FieldInfo> creatableFields,
     required bool isVisible,
   }) = _GridFilterMenuState;
 
@@ -87,6 +107,13 @@ class GridFilterMenuState with _$GridFilterMenuState {
         viewId: viewId,
         filters: filterInfos,
         fields: fields,
+        creatableFields: getCreatableFilter(fields),
         isVisible: false,
       );
+}
+
+List<FieldInfo> getCreatableFilter(List<FieldInfo> fieldInfos) {
+  final List<FieldInfo> creatableFields = List.from(fieldInfos);
+  creatableFields.retainWhere((element) => element.canCreateFilter);
+  return creatableFields;
 }

@@ -207,20 +207,16 @@ class _GridRowsState extends State<_GridRows> {
     return BlocConsumer<GridBloc, GridState>(
       listenWhen: (previous, current) => previous.reason != current.reason,
       listener: (context, state) {
-        state.reason.mapOrNull(
-          insert: (value) {
-            for (final item in value.items) {
-              _key.currentState?.insertItem(item.index);
-            }
+        state.reason.whenOrNull(
+          insert: (item) {
+            _key.currentState?.insertItem(item.index);
           },
-          delete: (value) {
-            for (final item in value.items) {
-              _key.currentState?.removeItem(
-                item.index,
-                (context, animation) =>
-                    _renderRow(context, item.rowInfo, animation),
-              );
-            }
+          delete: (item) {
+            _key.currentState?.removeItem(
+              item.index,
+              (context, animation) =>
+                  _renderRow(context, item.rowInfo, animation),
+            );
           },
         );
       },

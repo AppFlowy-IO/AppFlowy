@@ -69,6 +69,11 @@ class _FilterButtonState extends State<FilterButton> {
           viewId: bloc.viewId,
           fieldController: bloc.fieldController,
           onClosed: () => _popoverController.close(),
+          onCreateFilter: () {
+            if (!bloc.state.isVisible) {
+              bloc.add(const GridFilterMenuEvent.toggleMenu());
+            }
+          },
         );
       },
     );

@@ -10,19 +10,17 @@ import 'dart:math' as math;
 class ChoiceChipButton extends StatelessWidget {
   final FilterInfo filterInfo;
   final VoidCallback? onTap;
+  final String filterDesc;
 
   const ChoiceChipButton({
     Key? key,
     required this.filterInfo,
+    this.filterDesc = '',
     this.onTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final arrow = Transform.rotate(
-      angle: -math.pi / 2,
-      child: svgWidget("home/arrow_left"),
-    );
     final borderSide = BorderSide(
       color: AFThemeExtension.of(context).toggleOffFill,
       width: 1.0,
@@ -46,9 +44,32 @@ class ChoiceChipButton extends StatelessWidget {
           filterInfo.field.fieldType.iconName(),
           color: Theme.of(context).colorScheme.onSurface,
         ),
-        rightIcon: arrow,
+        rightIcon: _ChoicechipFilterDesc(filterDesc: filterDesc),
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         onTap: onTap,
+      ),
+    );
+  }
+}
+
+class _ChoicechipFilterDesc extends StatelessWidget {
+  final String filterDesc;
+  const _ChoicechipFilterDesc({this.filterDesc = '', Key? key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final arrow = Transform.rotate(
+      angle: -math.pi / 2,
+      child: svgWidget("home/arrow_left"),
+    );
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: Row(
+        children: [
+          if (filterDesc.isNotEmpty) FlowyText(': $filterDesc'),
+          arrow,
+        ],
       ),
     );
   }

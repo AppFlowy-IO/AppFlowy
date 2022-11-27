@@ -1209,7 +1209,7 @@ packages:
       name: textfield_tags
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0+1"
+    version: "2.0.2"
   textstyle_extensions:
     dependency: "direct main"
     description:

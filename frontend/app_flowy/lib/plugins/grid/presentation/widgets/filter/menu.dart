@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'create_filter_list.dart';
-import 'filter_info.dart';
 import 'menu_item.dart';
 
 class GridFilterMenu extends StatelessWidget {
@@ -28,7 +27,7 @@ class GridFilterMenu extends StatelessWidget {
             children: [
               buildDivider(context),
               const VSpace(6),
-              buildFilterItems(state.viewId, state.filters),
+              buildFilterItems(state.viewId, state),
             ],
           ));
         } else {
@@ -55,8 +54,8 @@ class GridFilterMenu extends StatelessWidget {
     );
   }
 
-  Widget buildFilterItems(String viewId, List<FilterInfo> filters) {
-    final List<Widget> children = filters
+  Widget buildFilterItems(String viewId, GridFilterMenuState state) {
+    final List<Widget> children = state.filters
         .map((filterInfo) => FilterMenuItem(filterInfo: filterInfo))
         .toList();
     return Row(
@@ -70,7 +69,7 @@ class GridFilterMenu extends StatelessWidget {
           ),
         ),
         const HSpace(4),
-        AddFilterButton(viewId: viewId),
+        if (state.creatableFields.isNotEmpty) AddFilterButton(viewId: viewId),
       ],
     );
   }
@@ -110,9 +109,7 @@ class _AddFilterButtonState extends State<AddFilterButton> {
             "home/add",
             color: Theme.of(context).colorScheme.onSurface,
           ),
-          onTap: () {
-            popoverController.show();
-          },
+          onTap: () => popoverController.show(),
         ),
       ),
     );
