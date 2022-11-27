@@ -212,19 +212,19 @@ impl FilterController {
                     filter_id = new_filter.as_ref().map(|filter| filter.id.clone());
                 }
 
-                // Update the cached filter
+                // Update the corresponding filter in the cache
                 if let Some(filter_rev) = self.delegate.get_filter_rev(updated_filter_type.new.clone()).await {
                     let _ = self.cache_filters(vec![filter_rev]).await;
                 }
 
+                debug_assert!(filter_id.is_some());
                 if let Some(filter_id) = filter_id {
-                    let updated_filter = UpdatedFilter {
-                        filter_id,
-                        filter: new_filter,
-                    };
                     notification = Some(FilterChangesetNotificationPB::from_update(
                         &self.view_id,
-                        vec![updated_filter],
+                        vec![UpdatedFilter {
+                            filter_id,
+                            filter: new_filter,
+                        }],
                     ));
                 }
             }
@@ -331,7 +331,7 @@ fn filter_row(
             };
         }
     }
-    None
+    Some((row_rev.id.clone(), true))
 }
 
 // Returns None if there is no change in this cell after applying the filter
