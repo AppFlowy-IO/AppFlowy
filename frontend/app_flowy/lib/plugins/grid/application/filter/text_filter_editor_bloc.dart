@@ -1,5 +1,4 @@
 import 'package:app_flowy/plugins/grid/presentation/widgets/filter/filter_info.dart';
-import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/text_filter.pbserver.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/util.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,26 +29,20 @@ class TextFilterEditorBloc
             _startListening();
           },
           updateCondition: (TextFilterCondition condition) {
-            final textFilter = filterInfo.textFilter()!;
             _ffiService.insertTextFilter(
               filterId: filterInfo.filter.id,
               fieldId: filterInfo.field.id,
               condition: condition,
-              content: textFilter.content,
+              content: state.filter.content,
             );
           },
           updateContent: (content) {
-            final textFilter = filterInfo.textFilter();
-            if (textFilter != null) {
-              _ffiService.insertTextFilter(
-                filterId: filterInfo.filter.id,
-                fieldId: filterInfo.field.id,
-                condition: textFilter.condition,
-                content: content,
-              );
-            } else {
-              Log.error("Invalid text filter");
-            }
+            _ffiService.insertTextFilter(
+              filterId: filterInfo.filter.id,
+              fieldId: filterInfo.field.id,
+              condition: state.filter.condition,
+              content: content,
+            );
           },
           delete: () {
             _ffiService.deleteFilter(
@@ -60,9 +53,10 @@ class TextFilterEditorBloc
           },
           didReceiveFilter: (FilterPB filter) {
             final filterInfo = state.filterInfo.copyWith(filter: filter);
+            final textFilter = filterInfo.textFilter()!;
             emit(state.copyWith(
               filterInfo: filterInfo,
-              filter: filterInfo.textFilter()!,
+              filter: textFilter,
             ));
           },
         );

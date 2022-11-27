@@ -78,22 +78,20 @@ class GridRowCache {
     _showRows(changeset.visibleRows);
   }
 
-  void _deleteRows(List<String> deletedRows) {
-    if (deletedRows.isEmpty) return;
-
-    final deletedIndex = _rowList.removeRows(deletedRows);
-    if (deletedIndex.isNotEmpty) {
-      _rowChangeReasonNotifier.receive(RowsChangedReason.delete(deletedIndex));
+  void _deleteRows(List<String> deletedRowIds) {
+    for (final rowId in deletedRowIds) {
+      final deletedRow = _rowList.remove(rowId);
+      if (deletedRow != null) {
+        _rowChangeReasonNotifier.receive(RowsChangedReason.delete(deletedRow));
+      }
     }
   }
 
   void _insertRows(List<InsertedRowPB> insertRows) {
-    if (insertRows.isEmpty) return;
-
-    InsertedIndexs insertIndexs =
-        _rowList.insertRows(insertRows, (rowPB) => buildGridRow(rowPB));
-    if (insertIndexs.isNotEmpty) {
-      _rowChangeReasonNotifier.receive(RowsChangedReason.insert(insertIndexs));
+    for (final insertedRow in insertRows) {
+      InsertedIndex insertedIndex =
+          _rowList.insert(insertedRow.index, buildGridRow(insertedRow.row));
+      _rowChangeReasonNotifier.receive(RowsChangedReason.insert(insertedIndex));
     }
   }
 
@@ -108,21 +106,19 @@ class GridRowCache {
   }
 
   void _hideRows(List<String> invisibleRows) {
-    if (invisibleRows.isEmpty) return;
-
-    final List<DeletedIndex> deletedRows = _rowList.removeRows(invisibleRows);
-    if (deletedRows.isNotEmpty) {
-      _rowChangeReasonNotifier.receive(RowsChangedReason.delete(deletedRows));
+    for (final rowId in invisibleRows) {
+      final deletedRow = _rowList.remove(rowId);
+      if (deletedRow != null) {
+        _rowChangeReasonNotifier.receive(RowsChangedReason.delete(deletedRow));
+      }
     }
   }
 
   void _showRows(List<InsertedRowPB> visibleRows) {
-    if (visibleRows.isEmpty) return;
-
-    final List<InsertedIndex> insertedRows =
-        _rowList.insertRows(visibleRows, (rowPB) => buildGridRow(rowPB));
-    if (insertedRows.isNotEmpty) {
-      _rowChangeReasonNotifier.receive(RowsChangedReason.insert(insertedRows));
+    for (final insertedRow in visibleRows) {
+      InsertedIndex insertedIndex =
+          _rowList.insert(insertedRow.index, buildGridRow(insertedRow.row));
+      _rowChangeReasonNotifier.receive(RowsChangedReason.insert(insertedIndex));
     }
   }
 
@@ -274,8 +270,8 @@ typedef UpdatedIndexMap = LinkedHashMap<String, UpdatedIndex>;
 
 @freezed
 class RowsChangedReason with _$RowsChangedReason {
-  const factory RowsChangedReason.insert(InsertedIndexs items) = _Insert;
-  const factory RowsChangedReason.delete(DeletedIndexs items) = _Delete;
+  const factory RowsChangedReason.insert(InsertedIndex item) = _Insert;
+  const factory RowsChangedReason.delete(DeletedIndex item) = _Delete;
   const factory RowsChangedReason.update(UpdatedIndexMap indexs) = _Update;
   const factory RowsChangedReason.fieldDidChange() = _FieldDidChange;
   const factory RowsChangedReason.initial() = InitialListState;
