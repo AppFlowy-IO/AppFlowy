@@ -47,13 +47,11 @@ class _InputTextFieldState extends State<InputTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final height = widget.maxLength == null ? 36.0 : 56.0;
-
     return RoundedInputField(
       controller: _controller,
       focusNode: _focusNode,
       autoFocus: true,
-      height: height,
+      height: 36.0,
       maxLength: widget.maxLength,
       style: TextStyles.body1.size(13),
       onChanged: (text) {

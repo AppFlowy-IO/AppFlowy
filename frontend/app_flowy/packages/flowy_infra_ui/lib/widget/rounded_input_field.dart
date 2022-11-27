@@ -73,6 +73,14 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
     super.initState();
   }
 
+  String? _suffixText() {
+    if (widget.maxLength != null) {
+      return ' ${widget.controller!.text.length}/${widget.maxLength}';
+    } else {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var borderColor =
@@ -117,8 +125,12 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
           decoration: InputDecoration(
             contentPadding: widget.contentPadding,
             hintText: widget.hintText,
-            hintStyle:
-                Theme.of(context).textTheme.bodySmall!.textColor(borderColor),
+            hintStyle: Theme.of(context)
+                .textTheme
+                .bodySmall!
+                .textColor(Theme.of(context).hintColor),
+            suffixText: _suffixText(),
+            counterText: "",
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: borderColor,
