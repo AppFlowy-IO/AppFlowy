@@ -157,7 +157,7 @@ class _FilterPropertyCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
-      text: FlowyText.medium(fieldInfo.name, fontSize: 12),
+      text: FlowyText.medium(fieldInfo.name),
       onTap: () => onTap(fieldInfo),
       leftIcon: svgWidget(
         fieldInfo.fieldType.iconName(),

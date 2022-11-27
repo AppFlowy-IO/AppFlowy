@@ -206,7 +206,6 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
     if (widget.selectOptions.isEmpty && widget.cellStyle != null) {
       child = FlowyText.medium(
         widget.cellStyle!.placeholder,
-        fontSize: 14,
         color: Theme.of(context).hintColor,
       );
     } else {

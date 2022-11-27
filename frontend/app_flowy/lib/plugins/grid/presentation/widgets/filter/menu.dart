@@ -99,10 +99,7 @@ class _AddFilterButtonState extends State<AddFilterButton> {
       SizedBox(
         height: 28,
         child: FlowyButton(
-          text: FlowyText(
-            LocaleKeys.grid_settings_addFilter.tr(),
-            fontSize: 12,
-          ),
+          text: FlowyText(LocaleKeys.grid_settings_addFilter.tr()),
           useIntrinsicWidth: true,
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           leftIcon: svgWidget(
