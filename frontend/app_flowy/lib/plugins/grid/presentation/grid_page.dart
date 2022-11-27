@@ -11,7 +11,6 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
@@ -230,7 +229,6 @@ class _GridRowsState extends State<_GridRows> {
               (BuildContext context, int index, Animation<double> animation) {
             final rowInfos = context.read<GridBloc>().state.rowInfos;
             if (index >= rowInfos.length) {
-              Log.error("Out of bounds error");
               return const SizedBox();
             } else {
               final RowInfo rowInfo = rowInfos[index];

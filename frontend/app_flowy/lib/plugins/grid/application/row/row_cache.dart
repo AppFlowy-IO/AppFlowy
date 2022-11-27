@@ -89,9 +89,12 @@ class GridRowCache {
 
   void _insertRows(List<InsertedRowPB> insertRows) {
     for (final insertedRow in insertRows) {
-      InsertedIndex insertedIndex =
+      final insertedIndex =
           _rowList.insert(insertedRow.index, buildGridRow(insertedRow.row));
-      _rowChangeReasonNotifier.receive(RowsChangedReason.insert(insertedIndex));
+      if (insertedIndex != null) {
+        _rowChangeReasonNotifier
+            .receive(RowsChangedReason.insert(insertedIndex));
+      }
     }
   }
 
@@ -116,9 +119,12 @@ class GridRowCache {
 
   void _showRows(List<InsertedRowPB> visibleRows) {
     for (final insertedRow in visibleRows) {
-      InsertedIndex insertedIndex =
+      final insertedIndex =
           _rowList.insert(insertedRow.index, buildGridRow(insertedRow.row));
-      _rowChangeReasonNotifier.receive(RowsChangedReason.insert(insertedIndex));
+      if (insertedIndex != null) {
+        _rowChangeReasonNotifier
+            .receive(RowsChangedReason.insert(insertedIndex));
+      }
     }
   }
 
