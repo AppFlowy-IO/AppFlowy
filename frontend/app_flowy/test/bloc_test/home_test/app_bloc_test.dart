@@ -24,7 +24,7 @@ void main() {
     assert(bloc.state.app.name == 'Hello world');
   });
 
-  test('delete ap test', () async {
+  test('delete app test', () async {
     final app = await testContext.createTestApp();
     final bloc = AppBloc(app: app)..add(const AppEvent.initial());
     await blocResponseFuture();
@@ -64,9 +64,11 @@ void main() {
     await blocResponseFuture();
     bloc.add(AppEvent.createView("3", DocumentPluginBuilder()));
     await blocResponseFuture();
+    assert(bloc.state.views.length == 3);
 
     final appViewData = AppViewDataContext(appId: app.id);
     appViewData.views = bloc.state.views;
+
     final viewSectionBloc = ViewSectionBloc(
       appViewData: appViewData,
     )..add(const ViewSectionEvent.initial());

@@ -98,20 +98,16 @@ async fn grid_filter_single_select_is_test2() {
             row_index: 1,
             option_id: option.id.clone(),
         },
-        AssertFilterChanged {
-            visible_row_len: 1,
-            hide_row_len: 0,
-        },
         AssertNumberOfVisibleRows { expected: 3 },
         UpdateSingleSelectCell {
             row_index: 1,
             option_id: "".to_string(),
         },
-        // AssertFilterChanged {
-        //     visible_row_len: 0,
-        //     hide_row_len: 1,
-        // },
-        // AssertNumberOfVisibleRows { expected: 2 },
+        AssertFilterChanged {
+            visible_row_len: 0,
+            hide_row_len: 1,
+        },
+        AssertNumberOfVisibleRows { expected: 2 },
     ];
     test.run_scripts(scripts).await;
 }

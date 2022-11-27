@@ -206,8 +206,8 @@ impl GridFilterTest {
                 let mut receiver = self.editor.subscribe_view_changed(&self.grid_id).await.unwrap();
                 match tokio::time::timeout(Duration::from_secs(2), receiver.recv()).await {
                     Ok(changed) =>  match changed.unwrap() { GridViewChanged::DidReceiveFilterResult(changed) => {
-                        assert_eq!(changed.visible_rows.len(), visible_row_len);
-                        assert_eq!(changed.invisible_rows.len(), hide_row_len);
+                        assert_eq!(changed.visible_rows.len(), visible_row_len, "visible rows not match");
+                        assert_eq!(changed.invisible_rows.len(), hide_row_len, "invisible rows not match");
                     } },
                     Err(e) => {
                         panic!("Process task timeout: {:?}", e);
