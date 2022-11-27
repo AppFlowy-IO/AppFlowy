@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -110,7 +109,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
             maxLength: widget.maxLength,
             maxLengthEnforcement:
                 MaxLengthEnforcement.truncateAfterCompositionEnds,
-            style: TextStyles.body1.size(FontSizes.s14),
+            style: Theme.of(context).textTheme.bodyMedium,
             decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
