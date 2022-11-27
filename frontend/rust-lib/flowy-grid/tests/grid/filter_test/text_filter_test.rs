@@ -13,7 +13,7 @@ async fn grid_filter_text_is_empty_test() {
         },
         AssertFilterCount { count: 1 },
         AssertFilterChanged {
-            visible_row_len: 1,
+            visible_row_len: 0,
             hide_row_len: 4,
         },
     ];
@@ -23,6 +23,7 @@ async fn grid_filter_text_is_empty_test() {
 #[tokio::test]
 async fn grid_filter_text_is_not_empty_test() {
     let mut test = GridFilterTest::new().await;
+    // Only one row's text of the initial rows is ""
     let scripts = vec![
         CreateTextFilter {
             condition: TextFilterCondition::TextIsNotEmpty,
@@ -30,23 +31,38 @@ async fn grid_filter_text_is_not_empty_test() {
         },
         AssertFilterCount { count: 1 },
         AssertFilterChanged {
-            visible_row_len: 4,
+            visible_row_len: 0,
             hide_row_len: 1,
         },
     ];
     test.run_scripts(scripts).await;
+
+    let filter = test.grid_filters().await.pop().unwrap();
+    let field_rev = test.get_field_rev(FieldType::RichText).clone();
+    test.run_scripts(vec![
+        DeleteFilter {
+            filter_id: filter.id,
+            filter_type: FilterType::from(&field_rev),
+        },
+        // AssertFilterChanged {
+        //     visible_row_len: 1,
+        //     hide_row_len: 0,
+        // },
+    ])
+    .await;
 }
 
 #[tokio::test]
 async fn grid_filter_is_text_test() {
     let mut test = GridFilterTest::new().await;
+    // Only one row's text of the initial rows is "A"
     let scripts = vec![
         CreateTextFilter {
             condition: TextFilterCondition::Is,
             content: "A".to_string(),
         },
         AssertFilterChanged {
-            visible_row_len: 1,
+            visible_row_len: 0,
             hide_row_len: 4,
         },
     ];
@@ -62,7 +78,7 @@ async fn grid_filter_contain_text_test() {
             content: "A".to_string(),
         },
         AssertFilterChanged {
-            visible_row_len: 3,
+            visible_row_len: 0,
             hide_row_len: 2,
         },
     ];
@@ -78,7 +94,7 @@ async fn grid_filter_contain_text_test2() {
             content: "A".to_string(),
         },
         AssertFilterChanged {
-            visible_row_len: 3,
+            visible_row_len: 0,
             hide_row_len: 2,
         },
         UpdateTextCell {
@@ -96,18 +112,20 @@ async fn grid_filter_contain_text_test2() {
 #[tokio::test]
 async fn grid_filter_does_not_contain_text_test() {
     let mut test = GridFilterTest::new().await;
+    // None of the initial rows contains the text "AB"
     let scripts = vec![
         CreateTextFilter {
             condition: TextFilterCondition::DoesNotContain,
             content: "AB".to_string(),
         },
         AssertFilterChanged {
-            visible_row_len: 5,
+            visible_row_len: 0,
             hide_row_len: 0,
         },
     ];
     test.run_scripts(scripts).await;
 }
+
 #[tokio::test]
 async fn grid_filter_start_with_text_test() {
     let mut test = GridFilterTest::new().await;
@@ -117,7 +135,7 @@ async fn grid_filter_start_with_text_test() {
             content: "A".to_string(),
         },
         AssertFilterChanged {
-            visible_row_len: 2,
+            visible_row_len: 0,
             hide_row_len: 3,
         },
     ];
@@ -201,7 +219,7 @@ async fn grid_filter_update_empty_text_cell_test() {
         },
         AssertFilterCount { count: 1 },
         AssertFilterChanged {
-            visible_row_len: 1,
+            visible_row_len: 0,
             hide_row_len: 4,
         },
         UpdateTextCell {

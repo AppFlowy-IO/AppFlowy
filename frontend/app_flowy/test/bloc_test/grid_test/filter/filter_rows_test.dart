@@ -11,6 +11,58 @@ void main() {
     gridTest = await AppFlowyGridTest.ensureInitialized();
   });
 
+  test('filter rows by text is empty condition)', () async {
+    final context = await createTestFilterGrid(gridTest);
+
+    final service = FilterFFIService(viewId: context.gridView.id);
+    final textField = context.textFieldContext();
+    // create a new filter
+    await service.insertTextFilter(
+        fieldId: textField.id,
+        condition: TextFilterCondition.TextIsEmpty,
+        content: "");
+    await gridResponseFuture();
+    assert(context.fieldController.filterInfos.length == 1,
+        "expect 1 but receive ${context.fieldController.filterInfos.length}");
+    assert(context.rowInfos.length == 1,
+        "expect 1 but receive ${context.rowInfos.length}");
+
+    // delete the filter
+    final textFilter = context.fieldController.filterInfos.first;
+    await service.deleteFilter(
+      fieldId: textField.id,
+      filterId: textFilter.filter.id,
+      fieldType: textField.fieldType,
+    );
+    await gridResponseFuture();
+    assert(context.rowInfos.length == 3);
+  });
+
+  test('filter rows by text is not empty condition)', () async {
+    final context = await createTestFilterGrid(gridTest);
+
+    final service = FilterFFIService(viewId: context.gridView.id);
+    final textField = context.textFieldContext();
+    // create a new filter
+    await service.insertTextFilter(
+        fieldId: textField.id,
+        condition: TextFilterCondition.TextIsNotEmpty,
+        content: "");
+    await gridResponseFuture();
+    assert(context.rowInfos.length == 2,
+        "expect 2 but receive ${context.rowInfos.length}");
+
+    // delete the filter
+    final textFilter = context.fieldController.filterInfos.first;
+    await service.deleteFilter(
+      fieldId: textField.id,
+      filterId: textFilter.filter.id,
+      fieldType: textField.fieldType,
+    );
+    await gridResponseFuture();
+    assert(context.rowInfos.length == 3);
+  });
+
   test('filter rows by text is empty or is not empty condition)', () async {
     final context = await createTestFilterGrid(gridTest);
 

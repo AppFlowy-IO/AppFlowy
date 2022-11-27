@@ -315,6 +315,7 @@ fn filter_row(
     for (field_id, field_rev) in field_rev_by_field_id {
         let filter_type = FilterType::from(field_rev);
         if !filter_map.has_filter(&filter_type) {
+            filter_result.visible_by_filter_id.remove(&filter_type);
             continue;
         }
 
