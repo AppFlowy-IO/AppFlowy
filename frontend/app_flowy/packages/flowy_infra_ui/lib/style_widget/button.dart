@@ -63,8 +63,7 @@ class FlowyButton extends StatelessWidget {
     children.add(Expanded(child: text));
 
     if (rightIcon != null) {
-      children.add(
-          SizedBox.fromSize(size: const Size.square(16), child: rightIcon!));
+      children.add(rightIcon!);
     }
 
     Widget child = Row(

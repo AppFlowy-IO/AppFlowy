@@ -217,7 +217,6 @@ impl FilterController {
                     let _ = self.cache_filters(vec![filter_rev]).await;
                 }
 
-                debug_assert!(filter_id.is_some());
                 if let Some(filter_id) = filter_id {
                     notification = Some(FilterChangesetNotificationPB::from_update(
                         &self.view_id,

@@ -26,27 +26,62 @@ class TextFilterChoicechip extends StatefulWidget {
 }
 
 class _TextFilterChoicechipState extends State<TextFilterChoicechip> {
+  late TextFilterEditorBloc bloc;
+
+  @override
+  void initState() {
+    bloc = TextFilterEditorBloc(filterInfo: widget.filterInfo)
+      ..add(const TextFilterEditorEvent.initial());
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    bloc.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AppFlowyPopover(
-      controller: PopoverController(),
-      constraints: BoxConstraints.loose(const Size(200, 76)),
-      direction: PopoverDirection.bottomWithCenterAligned,
-      popupBuilder: (BuildContext context) {
-        return TextFilterEditor(filterInfo: widget.filterInfo);
-      },
-      child: ChoiceChipButton(
-        filterInfo: widget.filterInfo,
-        onTap: () {},
+    return BlocProvider.value(
+      value: bloc,
+      child: BlocBuilder<TextFilterEditorBloc, TextFilterEditorState>(
+        builder: (blocContext, state) {
+          return AppFlowyPopover(
+            controller: PopoverController(),
+            constraints: BoxConstraints.loose(const Size(200, 76)),
+            direction: PopoverDirection.bottomWithCenterAligned,
+            popupBuilder: (BuildContext context) {
+              return TextFilterEditor(bloc: bloc);
+            },
+            child: ChoiceChipButton(
+              filterInfo: widget.filterInfo,
+              filterDesc: _makeFilterDesc(state),
+            ),
+          );
+        },
       ),
     );
+  }
+
+  String _makeFilterDesc(TextFilterEditorState state) {
+    String filterDesc = state.filter.condition.choicechipPrefix;
+    if (state.filter.condition == TextFilterCondition.TextIsEmpty ||
+        state.filter.condition == TextFilterCondition.TextIsNotEmpty) {
+      return filterDesc;
+    }
+
+    if (state.filter.content.isNotEmpty) {
+      filterDesc += " ${state.filter.content}";
+    }
+
+    return filterDesc;
   }
 }
 
 class TextFilterEditor extends StatefulWidget {
-  final FilterInfo filterInfo;
-  const TextFilterEditor({required this.filterInfo, Key? key})
-      : super(key: key);
+  final TextFilterEditorBloc bloc;
+  const TextFilterEditor({required this.bloc, Key? key}) : super(key: key);
 
   @override
   State<TextFilterEditor> createState() => _TextFilterEditorState();
@@ -57,20 +92,23 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => TextFilterEditorBloc(filterInfo: widget.filterInfo)
-        ..add(const TextFilterEditorEvent.initial()),
+    return BlocProvider.value(
+      value: widget.bloc,
       child: BlocBuilder<TextFilterEditorBloc, TextFilterEditorState>(
         builder: (context, state) {
+          final List<Widget> children = [
+            _buildFilterPannel(context, state),
+          ];
+
+          if (state.filter.condition != TextFilterCondition.TextIsEmpty &&
+              state.filter.condition != TextFilterCondition.TextIsNotEmpty) {
+            children.add(const VSpace(4));
+            children.add(_buildFilterTextField(context, state));
+          }
+
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-            child: Column(
-              children: [
-                _buildFilterPannel(context, state),
-                const VSpace(4),
-                _buildFilterTextField(context, state),
-              ],
-            ),
+            child: IntrinsicHeight(child: Column(children: children)),
           );
         },
       ),
@@ -113,9 +151,8 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
 
   Widget _buildFilterTextField(
       BuildContext context, TextFilterEditorState state) {
-    final textFilter = state.filterInfo.textFilter()!;
     return FilterTextField(
-      text: textFilter.content,
+      text: state.filter.content,
       hintText: LocaleKeys.grid_settings_typeAValue.tr(),
       autoFucous: false,
       onSubmitted: (text) {
@@ -205,6 +242,25 @@ extension TextFilterConditionExtension on TextFilterCondition {
         return LocaleKeys.grid_textFilter_isEmpty.tr();
       case TextFilterCondition.TextIsNotEmpty:
         return LocaleKeys.grid_textFilter_isNotEmpty.tr();
+      default:
+        return "";
+    }
+  }
+
+  String get choicechipPrefix {
+    switch (this) {
+      case TextFilterCondition.DoesNotContain:
+        return LocaleKeys.grid_textFilter_choicechipPrefix_isNot.tr();
+      case TextFilterCondition.EndsWith:
+        return LocaleKeys.grid_textFilter_choicechipPrefix_endWith.tr();
+      case TextFilterCondition.IsNot:
+        return LocaleKeys.grid_textFilter_choicechipPrefix_isNot.tr();
+      case TextFilterCondition.StartsWith:
+        return LocaleKeys.grid_textFilter_choicechipPrefix_startWith.tr();
+      case TextFilterCondition.TextIsEmpty:
+        return LocaleKeys.grid_textFilter_choicechipPrefix_isEmpty.tr();
+      case TextFilterCondition.TextIsNotEmpty:
+        return LocaleKeys.grid_textFilter_choicechipPrefix_isNotEmpty.tr();
       default:
         return "";
     }

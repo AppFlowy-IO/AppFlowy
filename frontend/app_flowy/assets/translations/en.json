@@ -175,7 +175,14 @@
       "is": "Is",
       "isNot": "Is not",
       "isEmpty": "Is empty",
-      "isNotEmpty": "Is not empty"
+      "isNotEmpty": "Is not empty",
+      "choicechipPrefix": {
+        "isNot": "Not",
+        "startWith": "Starts with",
+        "endWith": "Ends with",
+        "isEmpty": "is empty",
+        "isNotEmpty": "is not empty"
+      }
     },
     "field": {
       "hide": "Hide",

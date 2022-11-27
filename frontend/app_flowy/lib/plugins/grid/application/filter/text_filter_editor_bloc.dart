@@ -60,7 +60,10 @@ class TextFilterEditorBloc
           },
           didReceiveFilter: (FilterPB filter) {
             final filterInfo = state.filterInfo.copyWith(filter: filter);
-            emit(state.copyWith(filterInfo: filterInfo));
+            emit(state.copyWith(
+              filterInfo: filterInfo,
+              filter: filterInfo.textFilter()!,
+            ));
           },
         );
       },
@@ -99,12 +102,15 @@ class TextFilterEditorEvent with _$TextFilterEditorEvent {
 
 @freezed
 class TextFilterEditorState with _$TextFilterEditorState {
-  const factory TextFilterEditorState({required FilterInfo filterInfo}) =
-      _GridFilterState;
+  const factory TextFilterEditorState({
+    required FilterInfo filterInfo,
+    required TextFilterPB filter,
+  }) = _GridFilterState;
 
   factory TextFilterEditorState.initial(FilterInfo filterInfo) {
     return TextFilterEditorState(
       filterInfo: filterInfo,
+      filter: filterInfo.textFilter()!,
     );
   }
 }
