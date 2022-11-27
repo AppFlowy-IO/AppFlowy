@@ -527,9 +527,15 @@ class FieldInfo {
   bool get canCreateFilter {
     if (hasFilter) return false;
 
-    if (_field.fieldType != FieldType.RichText) return false;
-
-    return true;
+    switch (_field.fieldType) {
+      case FieldType.Checkbox:
+      // case FieldType.MultiSelect:
+      case FieldType.RichText:
+        // case FieldType.SingleSelect:
+        return true;
+      default:
+        return false;
+    }
   }
 
   FieldInfo({required FieldPB field}) : _field = field;

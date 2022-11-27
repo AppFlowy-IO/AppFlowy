@@ -184,6 +184,13 @@
         "isNotEmpty": "is not empty"
       }
     },
+    "checkboxFilter": {
+      "isChecked": "Checked",
+      "isUnchecked": "Unchecked",
+      "choicechipPrefix": {
+        "is": "is"
+      }
+    },
     "field": {
       "hide": "Hide",
       "insertLeft": "Insert Left",

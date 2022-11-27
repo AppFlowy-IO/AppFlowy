@@ -309,6 +309,7 @@ fn filter_row(
     let filter_result = result_by_row_id
         .entry(row_rev.id.clone())
         .or_insert_with(FilterResult::default);
+    let old_is_visible = filter_result.is_visible();
 
     // Iterate each cell of the row to check its visibility
     for (field_id, field_rev) in field_rev_by_field_id {
@@ -321,16 +322,16 @@ fn filter_row(
         // if the visibility of the cell_rew is changed, which means the visibility of the
         // row is changed too.
         if let Some(is_visible) = filter_cell(&filter_type, field_rev, filter_map, cell_rev) {
-            let old_is_visible = filter_result.visible_by_filter_id.get(&filter_type).cloned();
             filter_result.visible_by_filter_id.insert(filter_type, is_visible);
-            return if old_is_visible != Some(is_visible) {
-                Some((row_rev.id.clone(), is_visible))
-            } else {
-                None
-            };
         }
     }
-    Some((row_rev.id.clone(), true))
+
+    let is_visible = filter_result.is_visible();
+    return if old_is_visible != is_visible {
+        Some((row_rev.id.clone(), is_visible))
+    } else {
+        None
+    };
 }
 
 // Returns None if there is no change in this cell after applying the filter
