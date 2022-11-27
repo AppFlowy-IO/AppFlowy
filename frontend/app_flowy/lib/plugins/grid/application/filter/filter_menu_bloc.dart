@@ -32,7 +32,8 @@ class GridFilterMenuBloc
             emit(state.copyWith(isVisible: isVisible));
           },
           didReceiveFields: (List<FieldInfo> fields) {
-            emit(state.copyWith(fields: fields));
+            emit(state.copyWith(
+                fields: fields, creatableFields: getCreatableFilter(fields)));
           },
         );
       },
@@ -75,6 +76,7 @@ class GridFilterMenuState with _$GridFilterMenuState {
     required String viewId,
     required List<FilterInfo> filters,
     required List<FieldInfo> fields,
+    required List<FieldInfo> creatableFields,
     required bool isVisible,
   }) = _GridFilterMenuState;
 
@@ -87,6 +89,13 @@ class GridFilterMenuState with _$GridFilterMenuState {
         viewId: viewId,
         filters: filterInfos,
         fields: fields,
+        creatableFields: getCreatableFilter(fields),
         isVisible: false,
       );
+}
+
+List<FieldInfo> getCreatableFilter(List<FieldInfo> fieldInfos) {
+  final List<FieldInfo> creatableFields = List.from(fieldInfos);
+  creatableFields.retainWhere((element) => element.canCreateFilter);
+  return creatableFields;
 }
