@@ -18,26 +18,26 @@ import '../../util.dart';
 
 class GridTestContext {
   final ViewPB gridView;
-  final GridController _gridController;
+  final GridController gridController;
 
-  GridTestContext(this.gridView, this._gridController);
+  GridTestContext(this.gridView, this.gridController);
 
   List<RowInfo> get rowInfos {
-    return _gridController.rowInfos;
+    return gridController.rowInfos;
   }
 
   UnmodifiableMapView<String, GridBlockCache> get blocks {
-    return _gridController.blocks;
+    return gridController.blocks;
   }
 
   List<FieldInfo> get fieldContexts => fieldController.fieldInfos;
 
   GridFieldController get fieldController {
-    return _gridController.fieldController;
+    return gridController.fieldController;
   }
 
   Future<void> createRow() async {
-    return _gridController.createRow();
+    return gridController.createRow();
   }
 
   FieldEditorBloc createFieldEditor({
@@ -71,7 +71,7 @@ class GridTestContext {
     final RowInfo rowInfo = rowInfos.last;
     final blockCache = blocks[rowInfo.rowPB.blockId];
     final rowCache = blockCache?.rowCache;
-    final fieldController = _gridController.fieldController;
+    final fieldController = gridController.fieldController;
 
     final rowDataController = GridRowDataController(
       rowInfo: rowInfo,
@@ -171,7 +171,7 @@ class AppFlowyGridTest {
       return result.fold(
         (view) async {
           final context = GridTestContext(view, GridController(view: view));
-          final result = await context._gridController.openGrid();
+          final result = await context.gridController.openGrid();
           result.fold((l) => null, (r) => throw Exception(r));
           return context;
         },
