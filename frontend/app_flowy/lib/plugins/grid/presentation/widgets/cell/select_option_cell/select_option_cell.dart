@@ -223,7 +223,7 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
       ).toList();
 
       child = Wrap(
-        runSpacing: 2,
+        runSpacing: 4,
         children: children,
       );
     }

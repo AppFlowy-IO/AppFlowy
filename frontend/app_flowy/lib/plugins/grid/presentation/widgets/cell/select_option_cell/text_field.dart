@@ -113,7 +113,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
             decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).colorScheme.outline,
                   width: 1.0,
                 ),
                 borderRadius: Corners.s10Border,
