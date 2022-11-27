@@ -4,7 +4,8 @@ import 'package:app_flowy/plugins/grid/application/grid_data_controller.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_filter.pbenum.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/text_filter.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'util.dart';
+
+import '../util.dart';
 
 void main() {
   late AppFlowyGridTest gridTest;
@@ -16,11 +17,12 @@ void main() {
     final context = await gridTest.createTestGrid();
     final service = FilterFFIService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
-    service.insertTextFilter(
+    await service.insertTextFilter(
         fieldId: textField.id,
         condition: TextFilterCondition.TextIsEmpty,
         content: "");
     await gridResponseFuture();
+
     assert(context.fieldController.filterInfos.length == 1);
   });
 
@@ -28,14 +30,14 @@ void main() {
     final context = await gridTest.createTestGrid();
     final service = FilterFFIService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
-    service.insertTextFilter(
+    await service.insertTextFilter(
         fieldId: textField.id,
         condition: TextFilterCondition.TextIsEmpty,
         content: "");
     await gridResponseFuture();
 
     final filterInfo = context.fieldController.filterInfos.first;
-    service.deleteFilter(
+    await service.deleteFilter(
       fieldId: textField.id,
       filterId: filterInfo.filter.id,
       fieldType: textField.fieldType,
@@ -77,13 +79,13 @@ void main() {
     await gridResponseFuture();
 
     final textField = context.textFieldContext();
-    service.insertTextFilter(
+    await service.insertTextFilter(
         fieldId: textField.id,
         condition: TextFilterCondition.TextIsEmpty,
         content: "");
     await gridResponseFuture();
 
-    final controller = await context.makeTextCellController();
+    final controller = await context.makeTextCellController(0);
     controller.saveCellData("edit text cell content");
     await gridResponseFuture();
     assert(gridBloc.state.rowInfos.length == 2);
@@ -98,7 +100,7 @@ void main() {
     final service = FilterFFIService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
     await gridResponseFuture();
-    service.insertTextFilter(
+    await service.insertTextFilter(
         fieldId: textField.id,
         condition: TextFilterCondition.TextIsNotEmpty,
         content: "");
@@ -117,7 +119,7 @@ void main() {
     )..add(const GridEvent.initial());
 
     await gridResponseFuture();
-    service.insertCheckboxFilter(
+    await service.insertCheckboxFilter(
       fieldId: checkboxField.id,
       condition: CheckboxFilterCondition.IsUnChecked,
     );
@@ -136,7 +138,7 @@ void main() {
     )..add(const GridEvent.initial());
 
     await gridResponseFuture();
-    service.insertCheckboxFilter(
+    await service.insertCheckboxFilter(
       fieldId: checkboxField.id,
       condition: CheckboxFilterCondition.IsChecked,
     );

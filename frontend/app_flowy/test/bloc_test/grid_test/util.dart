@@ -18,26 +18,26 @@ import '../../util.dart';
 
 class GridTestContext {
   final ViewPB gridView;
-  final GridController _gridController;
+  final GridController gridController;
 
-  GridTestContext(this.gridView, this._gridController);
+  GridTestContext(this.gridView, this.gridController);
 
   List<RowInfo> get rowInfos {
-    return _gridController.rowInfos;
+    return gridController.rowInfos;
   }
 
   UnmodifiableMapView<String, GridBlockCache> get blocks {
-    return _gridController.blocks;
+    return gridController.blocks;
   }
 
   List<FieldInfo> get fieldContexts => fieldController.fieldInfos;
 
   GridFieldController get fieldController {
-    return _gridController.fieldController;
+    return gridController.fieldController;
   }
 
   Future<void> createRow() async {
-    return _gridController.createRow();
+    return gridController.createRow();
   }
 
   FieldEditorBloc createFieldEditor({
@@ -60,18 +60,20 @@ class GridTestContext {
     return editorBloc;
   }
 
-  Future<IGridCellController> makeCellController(String fieldId) async {
-    final builder = await makeCellControllerBuilder(fieldId);
+  Future<IGridCellController> makeCellController(
+      String fieldId, int rowIndex) async {
+    final builder = await makeCellControllerBuilder(fieldId, rowIndex);
     return builder.build();
   }
 
   Future<GridCellControllerBuilder> makeCellControllerBuilder(
     String fieldId,
+    int rowIndex,
   ) async {
-    final RowInfo rowInfo = rowInfos.last;
+    final RowInfo rowInfo = rowInfos[rowIndex];
     final blockCache = blocks[rowInfo.rowPB.blockId];
     final rowCache = blockCache?.rowCache;
-    final fieldController = _gridController.fieldController;
+    final fieldController = gridController.fieldController;
 
     final rowDataController = GridRowDataController(
       rowInfo: rowInfo,
@@ -125,22 +127,22 @@ class GridTestContext {
   }
 
   Future<GridSelectOptionCellController> makeSelectOptionCellController(
-      FieldType fieldType) async {
+      FieldType fieldType, int rowIndex) async {
     assert(fieldType == FieldType.SingleSelect ||
         fieldType == FieldType.MultiSelect);
 
     final field =
         fieldContexts.firstWhere((element) => element.fieldType == fieldType);
-    final cellController =
-        await makeCellController(field.id) as GridSelectOptionCellController;
+    final cellController = await makeCellController(field.id, rowIndex)
+        as GridSelectOptionCellController;
     return cellController;
   }
 
-  Future<GridCellController> makeTextCellController() async {
+  Future<GridCellController> makeTextCellController(int rowIndex) async {
     final field = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.RichText);
     final cellController =
-        await makeCellController(field.id) as GridCellController;
+        await makeCellController(field.id, rowIndex) as GridCellController;
     return cellController;
   }
 }
@@ -171,7 +173,7 @@ class AppFlowyGridTest {
       return result.fold(
         (view) async {
           final context = GridTestContext(view, GridController(view: view));
-          final result = await context._gridController.openGrid();
+          final result = await context.gridController.openGrid();
           result.fold((l) => null, (r) => throw Exception(r));
           return context;
         },
@@ -205,12 +207,12 @@ class AppFlowyGridCellTest {
   }
 
   Future<GridSelectOptionCellController> makeCellController(
-      FieldType fieldType) async {
-    return context.makeSelectOptionCellController(fieldType);
+      FieldType fieldType, int rowIndex) async {
+    return context.makeSelectOptionCellController(fieldType, rowIndex);
   }
 }
 
-Future<void> gridResponseFuture({int milliseconds = 500}) {
+Future<void> gridResponseFuture({int milliseconds = 200}) {
   return Future.delayed(gridResponseDuration(milliseconds: milliseconds));
 }
 

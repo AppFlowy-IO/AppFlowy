@@ -5,7 +5,8 @@ import 'package:app_flowy/plugins/grid/application/filter/filter_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/text_filter.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'util.dart';
+
+import '../util.dart';
 
 void main() {
   late AppFlowyGridTest gridTest;
@@ -25,7 +26,7 @@ void main() {
     )..add(const GridFilterMenuEvent.initial());
 
     // Insert filter for the text field
-    service.insertTextFilter(
+    await service.insertTextFilter(
         fieldId: textField.id,
         condition: TextFilterCondition.TextIsEmpty,
         content: "");

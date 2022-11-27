@@ -39,7 +39,6 @@ class GridRowCache {
 
   UnmodifiableListView<RowInfo> get visibleRows {
     var visibleRows = [..._rowList.rows];
-    visibleRows.retainWhere((element) => element.visible);
     return UnmodifiableListView(visibleRows);
   }
 
@@ -236,7 +235,6 @@ class GridRowCache {
       gridId: gridId,
       fields: _fieldNotifier.fields,
       rowPB: rowPB,
-      visible: true,
     );
   }
 }
@@ -264,7 +262,6 @@ class RowInfo with _$RowInfo {
     required String gridId,
     required UnmodifiableListView<FieldInfo> fields,
     required RowPB rowPB,
-    required bool visible,
   }) = _RowInfo;
 }
 

@@ -3,7 +3,7 @@ import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'util.dart';
+import '../util.dart';
 
 Future<FieldEditorBloc> createEditorBloc(AppFlowyGridTest gridTest) async {
   final context = await gridTest.createTestGrid();
