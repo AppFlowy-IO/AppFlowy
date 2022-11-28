@@ -1,9 +1,10 @@
+import 'package:app_flowy/plugins/document/document.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
-
-const _baseFontSize = 14.0;
+import 'package:provider/provider.dart';
 
 EditorStyle customEditorTheme(BuildContext context) {
+  final documentStyle = context.watch<DocumentStyle>();
   var editorStyle = Theme.of(context).brightness == Brightness.dark
       ? EditorStyle.dark
       : EditorStyle.light;
@@ -11,11 +12,11 @@ EditorStyle customEditorTheme(BuildContext context) {
     padding: const EdgeInsets.all(0),
     textStyle: editorStyle.textStyle?.copyWith(
       fontFamily: 'poppins',
-      fontSize: _baseFontSize,
+      fontSize: documentStyle.fontSize,
     ),
     placeholderTextStyle: editorStyle.placeholderTextStyle?.copyWith(
       fontFamily: 'poppins',
-      fontSize: _baseFontSize,
+      fontSize: documentStyle.fontSize,
     ),
     bold: editorStyle.bold?.copyWith(
       fontWeight: FontWeight.w500,
@@ -26,22 +27,24 @@ EditorStyle customEditorTheme(BuildContext context) {
 }
 
 Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
+  final documentStyle = context.watch<DocumentStyle>();
   const basePadding = 12.0;
   var headingPluginStyle = Theme.of(context).brightness == Brightness.dark
       ? HeadingPluginStyle.dark
       : HeadingPluginStyle.light;
   headingPluginStyle = headingPluginStyle.copyWith(
     textStyle: (EditorState editorState, Node node) {
+      final baseFontSize = documentStyle.fontSize;
       final headingToFontSize = {
-        'h1': _baseFontSize + 12,
-        'h2': _baseFontSize + 8,
-        'h3': _baseFontSize + 4,
-        'h4': _baseFontSize,
-        'h5': _baseFontSize,
-        'h6': _baseFontSize,
+        'h1': baseFontSize + 12,
+        'h2': baseFontSize + 8,
+        'h3': baseFontSize + 4,
+        'h4': baseFontSize,
+        'h5': baseFontSize,
+        'h6': baseFontSize,
       };
       final fontSize =
-          headingToFontSize[node.attributes.heading] ?? _baseFontSize;
+          headingToFontSize[node.attributes.heading] ?? baseFontSize;
       return TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600);
     },
     padding: (EditorState editorState, Node node) {

@@ -40,6 +40,12 @@
     "markdown": "Markdown",
     "copyLink": "Copy Link"
   },
+  "moreAction": {
+    "small": "small",
+    "medium": "medium",
+    "large": "large",
+    "fontSize": "Font Size"
+  },
   "disclosureAction": {
     "rename": "Rename",
     "delete": "Delete",
