@@ -64,7 +64,9 @@ impl CellDisplayable<CheckboxCellData> for CheckboxTypeOptionPB {
     }
 }
 
-impl CellDataOperation<CheckboxCellData, String> for CheckboxTypeOptionPB {
+pub type CheckboxCellChangeset = String;
+
+impl CellDataOperation<CheckboxCellData, CheckboxCellChangeset> for CheckboxTypeOptionPB {
     fn decode_cell_data(
         &self,
         cell_data: CellData<CheckboxCellData>,

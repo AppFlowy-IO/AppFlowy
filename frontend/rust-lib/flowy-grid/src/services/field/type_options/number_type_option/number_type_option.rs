@@ -130,7 +130,9 @@ impl CellDisplayable<String> for NumberTypeOptionPB {
     }
 }
 
-impl CellDataOperation<String, String> for NumberTypeOptionPB {
+pub type NumberCellChangeset = String;
+
+impl CellDataOperation<String, NumberCellChangeset> for NumberTypeOptionPB {
     fn decode_cell_data(
         &self,
         cell_data: CellData<String>,

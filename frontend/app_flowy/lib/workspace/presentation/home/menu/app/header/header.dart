@@ -187,7 +187,7 @@ class DisclosureActionWrapper extends ActionCell {
 
   DisclosureActionWrapper(this.inner);
   @override
-  Widget? icon(Color iconColor) => inner.icon(iconColor);
+  Widget? leftIcon(Color iconColor) => inner.icon(iconColor);
 
   @override
   String get name => inner.name;

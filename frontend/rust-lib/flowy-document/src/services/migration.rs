@@ -39,8 +39,8 @@ impl DocumentMigration {
             }
 
             let document_id = revisions.first().unwrap().object_id.clone();
-            match make_operations_from_revisions(revisions) {
-                Ok(delta) => match DeltaRevisionMigration::run(delta) {
+            if let Ok(delta) = make_operations_from_revisions(revisions) {
+                match DeltaRevisionMigration::run(delta) {
                     Ok(transaction) => {
                         let bytes = Bytes::from(transaction.to_bytes()?);
                         let md5 = format!("{:x}", md5::compute(&bytes));
@@ -59,9 +59,6 @@ impl DocumentMigration {
                             err
                         );
                     }
-                },
-                Err(e) => {
-                    tracing::error!("[Document migration]: Make delta from revisions failed: {:?}", e);
                 }
             }
         }

@@ -236,7 +236,7 @@ class _BoardContentState extends State<BoardContent> {
       child: BoardCard(
         gridId: gridId,
         groupId: groupData.group.groupId,
-        fieldId: groupItem.fieldContext.id,
+        fieldId: groupItem.fieldInfo.id,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
         dataController: cardController,
@@ -285,9 +285,8 @@ class _BoardContentState extends State<BoardContent> {
   ) {
     final rowInfo = RowInfo(
       gridId: gridId,
-      fields: UnmodifiableListView(fieldController.fieldContexts),
+      fields: UnmodifiableListView(fieldController.fieldInfos),
       rowPB: rowPB,
-      visible: true,
     );
 
     final dataController = GridRowDataController(

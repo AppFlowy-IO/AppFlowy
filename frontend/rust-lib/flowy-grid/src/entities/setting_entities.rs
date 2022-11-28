@@ -1,7 +1,7 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
-    CreateFilterParams, CreateFilterPayloadPB, DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams,
-    DeleteGroupPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterPB, RepeatedGridGroupConfigurationPB,
+    AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams,
+    DeleteGroupPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterPB, RepeatedGroupConfigurationPB,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -20,10 +20,10 @@ pub struct GridSettingPB {
     pub layout_type: GridLayout,
 
     #[pb(index = 3)]
-    pub filter_configurations: RepeatedFilterPB,
+    pub filters: RepeatedFilterPB,
 
     #[pb(index = 4)]
-    pub group_configurations: RepeatedGridGroupConfigurationPB,
+    pub group_configurations: RepeatedGroupConfigurationPB,
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -83,7 +83,7 @@ pub struct GridSettingChangesetPB {
     pub layout_type: GridLayout,
 
     #[pb(index = 3, one_of)]
-    pub insert_filter: Option<CreateFilterPayloadPB>,
+    pub insert_filter: Option<AlterFilterPayloadPB>,
 
     #[pb(index = 4, one_of)]
     pub delete_filter: Option<DeleteFilterPayloadPB>,
@@ -137,7 +137,7 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPB {
 pub struct GridSettingChangesetParams {
     pub grid_id: String,
     pub layout_type: LayoutRevision,
-    pub insert_filter: Option<CreateFilterParams>,
+    pub insert_filter: Option<AlterFilterParams>,
     pub delete_filter: Option<DeleteFilterParams>,
     pub insert_group: Option<InsertGroupParams>,
     pub delete_group: Option<DeleteGroupParams>,

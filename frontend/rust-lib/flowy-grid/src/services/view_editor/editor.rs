@@ -1,7 +1,6 @@
 use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::*;
-use crate::services::filter::{FilterChangeset, FilterController, FilterTaskHandler, FilterType};
-
+use crate::services::filter::{FilterChangeset, FilterController, FilterTaskHandler, FilterType, UpdatedFilterType};
 use crate::services::group::{
     default_group_configuration, find_group_field, make_group_controller, Group, GroupConfigurationReader,
     GroupController, MoveGroupRowContext,
@@ -9,6 +8,7 @@ use crate::services::group::{
 use crate::services::row::GridBlock;
 use crate::services::view_editor::changed_notifier::GridViewChangedNotifier;
 use crate::services::view_editor::trait_impl::*;
+use crate::services::view_editor::GridViewChangedReceiverRunner;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_revision::RevisionManager;
@@ -20,7 +20,7 @@ use lib_infra::ref_map::RefCountValue;
 use nanoid::nanoid;
 use std::future::Future;
 use std::sync::Arc;
-use tokio::sync::RwLock;
+use tokio::sync::{broadcast, RwLock};
 
 pub trait GridViewEditorDelegate: Send + Sync + 'static {
     /// If the field_ids is None, then it will return all the field revisions
@@ -28,7 +28,7 @@ pub trait GridViewEditorDelegate: Send + Sync + 'static {
     fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>>;
 
     fn index_of_row(&self, row_id: &str) -> Fut<Option<usize>>;
-    fn get_row_rev(&self, row_id: &str) -> Fut<Option<Arc<RowRevision>>>;
+    fn get_row_rev(&self, row_id: &str) -> Fut<Option<(usize, Arc<RowRevision>)>>;
     fn get_row_revs(&self) -> Fut<Vec<Arc<RowRevision>>>;
     fn get_blocks(&self) -> Fut<Vec<GridBlock>>;
 
@@ -43,6 +43,7 @@ pub struct GridViewRevisionEditor {
     delegate: Arc<dyn GridViewEditorDelegate>,
     group_controller: Arc<RwLock<Box<dyn GroupController>>>,
     filter_controller: Arc<RwLock<FilterController>>,
+    pub notifier: GridViewChangedNotifier,
 }
 
 impl GridViewRevisionEditor {
@@ -52,9 +53,10 @@ impl GridViewRevisionEditor {
         token: &str,
         view_id: String,
         delegate: Arc<dyn GridViewEditorDelegate>,
-        notifier: GridViewChangedNotifier,
         mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
     ) -> FlowyResult<Self> {
+        let (notifier, _) = broadcast::channel(100);
+        tokio::spawn(GridViewChangedReceiverRunner(Some(notifier.subscribe())).run());
         let cloud = Arc::new(GridViewRevisionCloudService {
             token: token.to_owned(),
         });
@@ -81,6 +83,7 @@ impl GridViewRevisionEditor {
             delegate,
             group_controller,
             filter_controller,
+            notifier,
         })
     }
 
@@ -166,6 +169,12 @@ impl GridViewRevisionEditor {
                 self.notify_did_update_group_rows(changeset).await;
             }
         }
+
+        let filter_controller = self.filter_controller.clone();
+        let row_id = row_rev.id.clone();
+        tokio::spawn(async move {
+            filter_controller.write().await.did_receive_row_changed(&row_id).await;
+        });
     }
 
     pub async fn move_view_group_row(
@@ -291,31 +300,52 @@ impl GridViewRevisionEditor {
     }
 
     #[tracing::instrument(level = "trace", skip(self), err)]
-    pub async fn insert_view_filter(&self, params: CreateFilterParams) -> FlowyResult<()> {
+    pub async fn insert_view_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
         let filter_type = FilterType::from(&params);
+        let is_exist = params.filter_id.is_some();
+        let filter_id = match params.filter_id {
+            None => gen_grid_filter_id(),
+            Some(filter_id) => filter_id,
+        };
         let filter_rev = FilterRevision {
-            id: gen_grid_filter_id(),
+            id: filter_id.clone(),
             field_id: params.field_id.clone(),
-            field_type_rev: params.field_type_rev,
+            field_type: params.field_type,
             condition: params.condition,
             content: params.content,
         };
-        let filter_pb = FilterPB::from(&filter_rev);
-        let _ = self
-            .modify(|pad| {
-                let changeset = pad.insert_filter(&params.field_id, &params.field_type_rev, filter_rev)?;
+        let mut filter_controller = self.filter_controller.write().await;
+        let changeset = if is_exist {
+            let old_filter_type = self
+                .delegate
+                .get_field_rev(&params.field_id)
+                .await
+                .map(|field| FilterType::from(&field));
+            self.modify(|pad| {
+                let changeset = pad.update_filter(&params.field_id, filter_rev)?;
                 Ok(changeset)
             })
             .await?;
+            filter_controller
+                .did_receive_filter_changed(FilterChangeset::from_update(UpdatedFilterType::new(
+                    old_filter_type,
+                    filter_type,
+                )))
+                .await
+        } else {
+            self.modify(|pad| {
+                let changeset = pad.insert_filter(&params.field_id, filter_rev)?;
+                Ok(changeset)
+            })
+            .await?;
+            filter_controller
+                .did_receive_filter_changed(FilterChangeset::from_insert(filter_type))
+                .await
+        };
 
-        self.filter_controller
-            .write()
-            .await
-            .apply_changeset(FilterChangeset::from_insert(filter_type))
-            .await;
-
-        let changeset = FilterChangesetNotificationPB::from_insert(&self.view_id, vec![filter_pb]);
-        self.notify_did_update_filter(changeset).await;
+        if let Some(changeset) = changeset {
+            self.notify_did_update_filter(changeset).await;
+        }
         Ok(())
     }
 
@@ -323,12 +353,13 @@ impl GridViewRevisionEditor {
     pub async fn delete_view_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
         let filter_type = params.filter_type;
         let field_type_rev = filter_type.field_type_rev();
-        let filters = self
-            .get_view_filters(&filter_type)
+        let changeset = self
+            .filter_controller
+            .write()
             .await
-            .into_iter()
-            .map(|filter| FilterPB::from(filter.as_ref()))
-            .collect();
+            .did_receive_filter_changed(FilterChangeset::from_delete(filter_type.clone()))
+            .await;
+
         let _ = self
             .modify(|pad| {
                 let changeset = pad.delete_filter(&params.filter_id, &filter_type.field_id, &field_type_rev)?;
@@ -336,27 +367,32 @@ impl GridViewRevisionEditor {
             })
             .await?;
 
-        self.filter_controller
-            .write()
-            .await
-            .apply_changeset(FilterChangeset::from_delete(filter_type))
-            .await;
-
-        let changeset = FilterChangesetNotificationPB::from_delete(&self.view_id, filters);
-        self.notify_did_update_filter(changeset).await;
+        if changeset.is_some() {
+            self.notify_did_update_filter(changeset.unwrap()).await;
+        }
         Ok(())
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
-    pub async fn did_update_view_field_type_option(&self, field_id: &str) -> FlowyResult<()> {
+    pub async fn did_update_view_field_type_option(
+        &self,
+        field_id: &str,
+        old_field_rev: Option<Arc<FieldRevision>>,
+    ) -> FlowyResult<()> {
         if let Some(field_rev) = self.delegate.get_field_rev(field_id).await {
-            let filter_type = FilterType::from(&field_rev);
-            let filter_changeset = FilterChangeset::from_insert(filter_type);
-            self.filter_controller
+            let old = old_field_rev.map(|old_field_rev| FilterType::from(&old_field_rev));
+            let new = FilterType::from(&field_rev);
+            let filter_type = UpdatedFilterType::new(old, new);
+            let filter_changeset = FilterChangeset::from_update(filter_type);
+            if let Some(changeset) = self
+                .filter_controller
                 .write()
                 .await
-                .apply_changeset(filter_changeset)
-                .await;
+                .did_receive_filter_changed(filter_changeset)
+                .await
+            {
+                self.notify_did_update_filter(changeset).await;
+            }
         }
         Ok(())
     }

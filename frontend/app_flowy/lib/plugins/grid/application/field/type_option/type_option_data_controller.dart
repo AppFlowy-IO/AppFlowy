@@ -4,7 +4,7 @@ import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
 import 'package:dartz/dartz.dart';
-import 'package:protobuf/protobuf.dart';
+import 'package:protobuf/protobuf.dart' hide FieldInfo;
 import 'package:flowy_sdk/log.dart';
 
 import 'type_option_context.dart';
@@ -18,29 +18,29 @@ class TypeOptionDataController {
   /// Returns a [TypeOptionDataController] used to modify the specified
   /// [FieldPB]'s data
   ///
-  /// Should call [loadTypeOptionData] if the passed-in [GridFieldContext]
+  /// Should call [loadTypeOptionData] if the passed-in [FieldInfo]
   /// is null
   ///
   TypeOptionDataController({
     required this.gridId,
     required this.loader,
-    GridFieldContext? fieldContext,
+    FieldInfo? fieldInfo,
   }) {
-    if (fieldContext != null) {
+    if (fieldInfo != null) {
       _data = TypeOptionPB.create()
         ..gridId = gridId
-        ..field_2 = fieldContext.field;
+        ..field_2 = fieldInfo.field;
     }
   }
 
-  Future<Either<Unit, FlowyError>> loadTypeOptionData() async {
+  Future<Either<TypeOptionPB, FlowyError>> loadTypeOptionData() async {
     final result = await loader.load();
     return result.fold(
       (data) {
         data.freeze();
         _data = data;
         _fieldNotifier.value = data.field_2;
-        return left(unit);
+        return left(data);
       },
       (err) {
         Log.error(err);

@@ -2,6 +2,7 @@ import 'package:app_flowy/plugins/blank/blank.dart';
 import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:app_flowy/workspace/application/home/home_service.dart';
+import 'package:app_flowy/workspace/application/home/home_setting_bloc.dart';
 
 import 'package:app_flowy/workspace/presentation/home/hotkeys.dart';
 import 'package:app_flowy/workspace/application/view/view_ext.dart';
@@ -44,6 +45,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ..add(const HomeEvent.initial());
           },
         ),
+        BlocProvider<HomeSettingBloc>(
+          create: (context) {
+            return HomeSettingBloc(widget.user, widget.workspaceSetting)
+              ..add(const HomeSettingEvent.initial());
+          },
+        ),
       ],
       child: HomeHotKeys(
           child: Scaffold(
@@ -54,20 +61,20 @@ class _HomeScreenState extends State<HomeScreen> {
               Log.error("Push to login screen when user token was invalid");
             }
           },
-          child: BlocBuilder<HomeBloc, HomeState>(
+          child: BlocBuilder<HomeSettingBloc, HomeSettingState>(
             buildWhen: (previous, current) => previous != current,
             builder: (context, state) {
               final collapsedNotifier =
                   getIt<HomeStackManager>().collapsedNotifier;
               collapsedNotifier.addPublishListener((isCollapsed) {
                 context
-                    .read<HomeBloc>()
-                    .add(HomeEvent.forceCollapse(isCollapsed));
+                    .read<HomeSettingBloc>()
+                    .add(HomeSettingEvent.forceCollapse(isCollapsed));
               });
               return FlowyContainer(
                 Theme.of(context).colorScheme.surface,
                 // Colors.white,
-                child: _buildBody(context, state),
+                child: _buildBody(context),
               );
             },
           ),
@@ -76,25 +83,22 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildBody(BuildContext context, HomeState state) {
+  Widget _buildBody(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        final layout = HomeLayout(context, constraints, state.forceCollapse);
+        final layout = HomeLayout(context, constraints);
         final homeStack = HomeStack(
           layout: layout,
           delegate: HomeScreenStackAdaptor(
             buildContext: context,
-            homeState: state,
           ),
         );
         final menu = _buildHomeMenu(
           layout: layout,
           context: context,
-          state: state,
         );
         final homeMenuResizer = _buildHomeMenuResizer(context: context);
         final editPanel = _buildEditPanel(
-          homeState: state,
           layout: layout,
           context: context,
         );
@@ -111,11 +115,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHomeMenu(
-      {required HomeLayout layout,
-      required BuildContext context,
-      required HomeState state}) {
-    final workspaceSetting = state.workspaceSetting;
+  Widget _buildHomeMenu({
+    required HomeLayout layout,
+    required BuildContext context,
+  }) {
+    final workspaceSetting = widget.workspaceSetting;
     final homeMenu = HomeMenu(
       user: widget.user,
       workspaceSetting: workspaceSetting,
@@ -144,12 +148,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
   }
 
-  Widget _buildEditPanel(
-      {required HomeState homeState,
-      required BuildContext context,
-      required HomeLayout layout}) {
-    final homeBloc = context.read<HomeBloc>();
-    return BlocBuilder<HomeBloc, HomeState>(
+  Widget _buildEditPanel({
+    required BuildContext context,
+    required HomeLayout layout,
+  }) {
+    final homeBloc = context.read<HomeSettingBloc>();
+    return BlocBuilder<HomeSettingBloc, HomeSettingState>(
       buildWhen: (previous, current) =>
           previous.panelContext != current.panelContext,
       builder: (context, state) {
@@ -160,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: EditPanel(
                 panelContext: panelContext,
                 onEndEdit: () =>
-                    homeBloc.add(const HomeEvent.dismissEditPanel()),
+                    homeBloc.add(const HomeSettingEvent.dismissEditPanel()),
               ),
             ),
           ),
@@ -177,17 +181,17 @@ class _HomeScreenState extends State<HomeScreen> {
       child: GestureDetector(
           dragStartBehavior: DragStartBehavior.down,
           onHorizontalDragStart: (details) => context
-              .read<HomeBloc>()
-              .add(const HomeEvent.editPanelResizeStart()),
+              .read<HomeSettingBloc>()
+              .add(const HomeSettingEvent.editPanelResizeStart()),
           onHorizontalDragUpdate: (details) => context
-              .read<HomeBloc>()
-              .add(HomeEvent.editPanelResized(details.localPosition.dx)),
+              .read<HomeSettingBloc>()
+              .add(HomeSettingEvent.editPanelResized(details.localPosition.dx)),
           onHorizontalDragEnd: (details) => context
-              .read<HomeBloc>()
-              .add(const HomeEvent.editPanelResizeEnd()),
+              .read<HomeSettingBloc>()
+              .add(const HomeSettingEvent.editPanelResizeEnd()),
           onHorizontalDragCancel: () => context
-              .read<HomeBloc>()
-              .add(const HomeEvent.editPanelResizeEnd()),
+              .read<HomeSettingBloc>()
+              .add(const HomeSettingEvent.editPanelResizeEnd()),
           behavior: HitTestBehavior.translucent,
           child: SizedBox(
             width: 10,
@@ -252,11 +256,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class HomeScreenStackAdaptor extends HomeStackDelegate {
   final BuildContext buildContext;
-  final HomeState homeState;
 
   HomeScreenStackAdaptor({
     required this.buildContext,
-    required this.homeState,
   });
 
   @override

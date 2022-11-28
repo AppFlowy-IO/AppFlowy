@@ -63,7 +63,7 @@ jobs:
           source $HOME/.cargo/env
           cargo install --force cargo-make
           cargo install --force duckscript_cli
-          cargo make flowy_dev
+          cargo make appflowy-deps-tools
 
       - name: Build Linux app
         working-directory: frontend
@@ -161,7 +161,7 @@ jobs:
           source $HOME/.cargo/env
           cargo install --force cargo-make
           cargo install --force duckscript_cli
-          cargo make flowy_dev
+          cargo make appflowy-deps-tools
 
       - name: Build macOS app for x86_64
         working-directory: frontend
@@ -213,6 +213,7 @@ jobs:
     env:
       WINDOWS_APP_RELEASE_PATH: frontend\app_flowy\product\${{ github.ref_name }}\windows
       WINDOWS_ZIP_NAME: AppFlowy-windows-x86_64.zip
+      WINDOWS_INSTALLER_NAME: AppFlowy-${{ github.ref_name }}-windows-x86_64
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -234,7 +235,7 @@ jobs:
           vcpkg integrate install
           cargo install --force cargo-make
           cargo install --force duckscript_cli
-          cargo make flowy_dev
+          cargo make appflowy-deps-tools
 
       - name: Build Windows app
         working-directory: frontend
@@ -246,6 +247,16 @@ jobs:
         with:
           files: ${{ env.WINDOWS_APP_RELEASE_PATH }}\
           dest: ${{ env.WINDOWS_APP_RELEASE_PATH }}\${{ env.WINDOWS_ZIP_NAME }}
+      
+      - name: Copy installer config & icon file
+        working-directory: frontend
+        run: |
+          cp scripts/windows_installer/* ../${{ env.WINDOWS_APP_RELEASE_PATH }}
+
+      - name: Build installer executable
+        working-directory: ${{ env.WINDOWS_APP_RELEASE_PATH }}
+        run: |
+          iscc /F${{ env.WINDOWS_INSTALLER_NAME }} inno_setup_config.iss /DAppVersion=${{ github.ref_name }}
 
       - name: Upload Release Asset
         id: upload-release-asset
@@ -256,4 +267,15 @@ jobs:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ env.WINDOWS_APP_RELEASE_PATH }}\${{ env.WINDOWS_ZIP_NAME }}
           asset_name: ${{ env.WINDOWS_ZIP_NAME }}
+          asset_content_type: application/octet-stream
+
+      - name: Upload Installer Asset
+        id: upload-installer-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.WINDOWS_APP_RELEASE_PATH }}\Output\${{ env.WINDOWS_INSTALLER_NAME }}.exe
+          asset_name: ${{ env.WINDOWS_INSTALLER_NAME }}.exe
           asset_content_type: application/octet-stream

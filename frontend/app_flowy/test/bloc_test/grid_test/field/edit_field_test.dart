@@ -3,20 +3,20 @@ import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'util.dart';
+import '../util.dart';
 
 Future<FieldEditorBloc> createEditorBloc(AppFlowyGridTest gridTest) async {
   final context = await gridTest.createTestGrid();
-  final fieldContext = context.singleSelectFieldContext();
+  final fieldInfo = context.singleSelectFieldContext();
   final loader = FieldTypeOptionLoader(
     gridId: context.gridView.id,
-    field: fieldContext.field,
+    field: fieldInfo.field,
   );
 
   return FieldEditorBloc(
     gridId: context.gridView.id,
-    fieldName: fieldContext.name,
-    isGroupField: fieldContext.isGroupField,
+    fieldName: fieldInfo.name,
+    isGroupField: fieldInfo.isGroupField,
     loader: loader,
   )..add(const FieldEditorEvent.initial());
 }
@@ -33,16 +33,16 @@ void main() {
 
     setUp(() async {
       final context = await gridTest.createTestGrid();
-      final fieldContext = context.singleSelectFieldContext();
+      final fieldInfo = context.singleSelectFieldContext();
       final loader = FieldTypeOptionLoader(
         gridId: context.gridView.id,
-        field: fieldContext.field,
+        field: fieldInfo.field,
       );
 
       editorBloc = FieldEditorBloc(
         gridId: context.gridView.id,
-        fieldName: fieldContext.name,
-        isGroupField: fieldContext.isGroupField,
+        fieldName: fieldInfo.name,
+        isGroupField: fieldInfo.isGroupField,
         loader: loader,
       )..add(const FieldEditorEvent.initial());
 

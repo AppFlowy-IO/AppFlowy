@@ -213,7 +213,7 @@ class ShareActionWrapper extends ActionCell {
   ShareActionWrapper(this.inner);
 
   @override
-  Widget? icon(Color iconColor) => null;
+  Widget? leftIcon(Color iconColor) => null;
 
   @override
   String get name => inner.name;

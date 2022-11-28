@@ -54,7 +54,7 @@ class AddButtonActionWrapper extends ActionCell {
   AddButtonActionWrapper({required this.pluginBuilder});
 
   @override
-  Widget? icon(Color iconColor) =>
+  Widget? leftIcon(Color iconColor) =>
       svgWidget(pluginBuilder.menuIcon, color: iconColor);
 
   @override

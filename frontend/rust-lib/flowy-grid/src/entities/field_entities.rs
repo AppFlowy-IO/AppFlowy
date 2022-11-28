@@ -349,13 +349,13 @@ pub struct GetFieldPayloadPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
-    #[pb(index = 2)]
-    pub field_ids: RepeatedFieldIdPB,
+    #[pb(index = 2, one_of)]
+    pub field_ids: Option<RepeatedFieldIdPB>,
 }
 
 pub struct GetFieldParams {
     pub grid_id: String,
-    pub field_ids: RepeatedFieldIdPB,
+    pub field_ids: Option<Vec<String>>,
 }
 
 impl TryInto<GetFieldParams> for GetFieldPayloadPB {
@@ -363,9 +363,17 @@ impl TryInto<GetFieldParams> for GetFieldPayloadPB {
 
     fn try_into(self) -> Result<GetFieldParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let field_ids = self.field_ids.map(|repeated| {
+            repeated
+                .items
+                .into_iter()
+                .map(|item| item.field_id)
+                .collect::<Vec<String>>()
+        });
+
         Ok(GetFieldParams {
             grid_id: grid_id.0,
-            field_ids: self.field_ids,
+            field_ids,
         })
     }
 }
@@ -401,9 +409,8 @@ pub struct FieldChangesetPB {
 
     #[pb(index = 8, one_of)]
     pub width: Option<i32>,
-
-    #[pb(index = 9, one_of)]
-    pub type_option_data: Option<Vec<u8>>,
+    // #[pb(index = 9, one_of)]
+    // pub type_option_data: Option<Vec<u8>>,
 }
 
 impl TryInto<FieldChangesetParams> for FieldChangesetPB {
@@ -413,11 +420,11 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         let field_type = self.field_type.map(FieldTypeRevision::from);
-        if let Some(type_option_data) = self.type_option_data.as_ref() {
-            if type_option_data.is_empty() {
-                return Err(ErrorCode::TypeOptionDataIsEmpty);
-            }
-        }
+        // if let Some(type_option_data) = self.type_option_data.as_ref() {
+        //     if type_option_data.is_empty() {
+        //         return Err(ErrorCode::TypeOptionDataIsEmpty);
+        //     }
+        // }
 
         Ok(FieldChangesetParams {
             field_id: field_id.0,
@@ -428,7 +435,7 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
             frozen: self.frozen,
             visibility: self.visibility,
             width: self.width,
-            type_option_data: self.type_option_data,
+            // type_option_data: self.type_option_data,
         })
     }
 }
@@ -450,8 +457,7 @@ pub struct FieldChangesetParams {
     pub visibility: Option<bool>,
 
     pub width: Option<i32>,
-
-    pub type_option_data: Option<Vec<u8>>,
+    // pub type_option_data: Option<Vec<u8>>,
 }
 /// Certain field types have user-defined options such as color, date format, number format,
 /// or a list of values for a multi-select list. These options are defined within a specialization

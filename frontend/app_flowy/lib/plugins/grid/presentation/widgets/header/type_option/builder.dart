@@ -11,7 +11,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/single_select_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/text_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/url_type_option.pb.dart';
-import 'package:protobuf/protobuf.dart';
+import 'package:protobuf/protobuf.dart' hide FieldInfo;
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'checkbox.dart';
@@ -130,20 +130,53 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
 
 TypeOptionContext<T> makeTypeOptionContext<T extends GeneratedMessage>({
   required String gridId,
-  required GridFieldContext fieldContext,
+  required FieldInfo fieldInfo,
 }) {
-  final loader =
-      FieldTypeOptionLoader(gridId: gridId, field: fieldContext.field);
+  final loader = FieldTypeOptionLoader(gridId: gridId, field: fieldInfo.field);
   final dataController = TypeOptionDataController(
     gridId: gridId,
     loader: loader,
-    fieldContext: fieldContext,
+    fieldInfo: fieldInfo,
   );
   return makeTypeOptionContextWithDataController(
     gridId: gridId,
-    fieldType: fieldContext.fieldType,
+    fieldType: fieldInfo.fieldType,
     dataController: dataController,
   );
+}
+
+TypeOptionContext<SingleSelectTypeOptionPB> makeSingleSelectTypeOptionContext({
+  required String gridId,
+  required FieldPB fieldPB,
+}) {
+  return makeSelectTypeOptionContext(gridId: gridId, fieldPB: fieldPB);
+}
+
+TypeOptionContext<MultiSelectTypeOptionPB> makeMultiSelectTypeOptionContext({
+  required String gridId,
+  required FieldPB fieldPB,
+}) {
+  return makeSelectTypeOptionContext(gridId: gridId, fieldPB: fieldPB);
+}
+
+TypeOptionContext<T> makeSelectTypeOptionContext<T extends GeneratedMessage>({
+  required String gridId,
+  required FieldPB fieldPB,
+}) {
+  final loader = FieldTypeOptionLoader(
+    gridId: gridId,
+    field: fieldPB,
+  );
+  final dataController = TypeOptionDataController(
+    gridId: gridId,
+    loader: loader,
+  );
+  final typeOptionContext = makeTypeOptionContextWithDataController<T>(
+    gridId: gridId,
+    fieldType: fieldPB.fieldType,
+    dataController: dataController,
+  );
+  return typeOptionContext;
 }
 
 TypeOptionContext<T>

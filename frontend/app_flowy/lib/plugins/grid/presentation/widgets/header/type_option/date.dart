@@ -53,13 +53,22 @@ class DateTypeOptionWidget extends TypeOptionWidget {
         listener: (context, state) =>
             typeOptionContext.typeOption = state.typeOption,
         builder: (context, state) {
-          return Column(
-            children: [
-              const TypeOptionSeparator(),
-              _renderDateFormatButton(context, state.typeOption.dateFormat),
-              _renderTimeFormatButton(context, state.typeOption.timeFormat),
-              const _IncludeTimeButton(),
-            ],
+          final List<Widget> children = [
+            const TypeOptionSeparator(),
+            _renderDateFormatButton(context, state.typeOption.dateFormat),
+            _renderTimeFormatButton(context, state.typeOption.timeFormat),
+            const _IncludeTimeButton(),
+          ];
+
+          return ListView.separated(
+            shrinkWrap: true,
+            controller: ScrollController(),
+            separatorBuilder: (context, index) =>
+                VSpace(GridSize.typeOptionSeparatorHeight),
+            itemCount: children.length,
+            itemBuilder: (BuildContext context, int index) {
+              return children[index];
+            },
           );
         },
       ),

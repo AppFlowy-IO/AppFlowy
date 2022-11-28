@@ -110,8 +110,8 @@ impl GridBlockManager {
         let _ = editor.update_row(changeset.clone()).await?;
         match editor.get_row_rev(&changeset.row_id).await? {
             None => tracing::error!("Update row failed, can't find the row with id: {}", changeset.row_id),
-            Some(row_rev) => {
-                let row_pb = make_row_from_row_rev(row_rev.clone());
+            Some((_, row_rev)) => {
+                let row_pb = make_row_from_row_rev(row_rev);
                 let block_order_changeset = GridBlockChangesetPB::update(&editor.block_id, vec![row_pb]);
                 let _ = self
                     .notify_did_update_block(&editor.block_id, block_order_changeset)
@@ -128,7 +128,7 @@ impl GridBlockManager {
         let editor = self.get_block_editor(&block_id).await?;
         match editor.get_row_rev(&row_id).await? {
             None => Ok(None),
-            Some(row_rev) => {
+            Some((_, row_rev)) => {
                 let _ = editor.delete_rows(vec![Cow::Borrowed(&row_id)]).await?;
                 let _ = self
                     .notify_did_update_block(
@@ -198,15 +198,9 @@ impl GridBlockManager {
         Ok(())
     }
 
-    pub async fn get_row_rev(&self, row_id: &str) -> FlowyResult<Option<Arc<RowRevision>>> {
+    pub async fn get_row_rev(&self, row_id: &str) -> FlowyResult<Option<(usize, Arc<RowRevision>)>> {
         let editor = self.get_editor_from_row_id(row_id).await?;
-        let row_ids = vec![Cow::Borrowed(row_id)];
-        let mut row_revs = editor.get_row_revs(Some(row_ids)).await?;
-        if row_revs.is_empty() {
-            Ok(None)
-        } else {
-            Ok(row_revs.pop())
-        }
+        editor.get_row_rev(row_id).await
     }
 
     pub async fn get_row_revs(&self, block_id: &str) -> FlowyResult<Vec<Arc<RowRevision>>> {
