@@ -31,7 +31,7 @@ class TextFilterEditorBloc
           updateCondition: (TextFilterCondition condition) {
             _ffiService.insertTextFilter(
               filterId: filterInfo.filter.id,
-              fieldId: filterInfo.field.id,
+              fieldId: filterInfo.fieldInfo.id,
               condition: condition,
               content: state.filter.content,
             );
@@ -39,16 +39,16 @@ class TextFilterEditorBloc
           updateContent: (content) {
             _ffiService.insertTextFilter(
               filterId: filterInfo.filter.id,
-              fieldId: filterInfo.field.id,
+              fieldId: filterInfo.fieldInfo.id,
               condition: state.filter.condition,
               content: content,
             );
           },
           delete: () {
             _ffiService.deleteFilter(
-              fieldId: filterInfo.field.id,
+              fieldId: filterInfo.fieldInfo.id,
               filterId: filterInfo.filter.id,
-              fieldType: filterInfo.field.fieldType,
+              fieldType: filterInfo.fieldInfo.fieldType,
             );
           },
           didReceiveFilter: (FilterPB filter) {

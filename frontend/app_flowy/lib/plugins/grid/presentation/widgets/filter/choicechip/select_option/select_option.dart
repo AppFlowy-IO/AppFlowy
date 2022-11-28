@@ -6,6 +6,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_option_filter.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,6 +14,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../choicechip.dart';
 import 'condition_list.dart';
 import 'option_list.dart';
+import 'select_option_loader.dart';
 
 class SelectOptionFilterChoicechip extends StatefulWidget {
   final FilterInfo filterInfo;
@@ -30,8 +32,18 @@ class _SelectOptionFilterChoicechipState
 
   @override
   void initState() {
-    bloc = SelectOptionFilterEditorBloc(filterInfo: widget.filterInfo)
-      ..add(const SelectOptionFilterEditorEvent.initial());
+    if (widget.filterInfo.fieldInfo.fieldType == FieldType.SingleSelect) {
+      bloc = SelectOptionFilterEditorBloc(
+        filterInfo: widget.filterInfo,
+        delegate: SingleSelectOptionFilterDelegateImpl(widget.filterInfo),
+      );
+    } else {
+      bloc = SelectOptionFilterEditorBloc(
+        filterInfo: widget.filterInfo,
+        delegate: MultiSelectOptionFilterDelegateImpl(widget.filterInfo),
+      );
+    }
+    bloc.add(const SelectOptionFilterEditorEvent.initial());
     super.initState();
   }
 
@@ -97,8 +109,7 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
             slivers.add(
               SliverToBoxAdapter(
                 child: SelectOptionFilterList(
-                  viewId: state.filterInfo.viewId,
-                  fieldInfo: state.filterInfo.field,
+                  filterInfo: state.filterInfo,
                   selectedOptionIds: state.filter.optionIds,
                   onSelectedOptions: (optionIds) {
                     context.read<SelectOptionFilterEditorBloc>().add(
@@ -129,7 +140,7 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
       height: 20,
       child: Row(
         children: [
-          FlowyText(state.filterInfo.field.name),
+          FlowyText(state.filterInfo.fieldInfo.name),
           const HSpace(4),
           SelectOptionFilterConditionList(
             filterInfo: state.filterInfo,

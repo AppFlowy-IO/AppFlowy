@@ -32,7 +32,7 @@ class SelectOptionFilterConditionList extends StatelessWidget {
             (action) => ConditionWrapper(
               action,
               selectOptionFilter.condition == action,
-              filterInfo.field.fieldType,
+              filterInfo.fieldInfo.fieldType,
             ),
           )
           .toList(),
@@ -50,7 +50,7 @@ class SelectOptionFilterConditionList extends StatelessWidget {
   }
 
   String filterName(SelectOptionFilterPB filter) {
-    if (filterInfo.field.fieldType == FieldType.SingleSelect) {
+    if (filterInfo.fieldInfo.fieldType == FieldType.SingleSelect) {
       return filter.condition.singleSelectFilterName;
     } else {
       return filter.condition.multiSelectFilterName;

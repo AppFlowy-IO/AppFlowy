@@ -9,15 +9,15 @@ import 'package:flowy_sdk/protobuf/flowy-grid/util.pb.dart';
 class FilterInfo {
   final String viewId;
   final FilterPB filter;
-  final FieldInfo field;
+  final FieldInfo fieldInfo;
 
-  FilterInfo(this.viewId, this.filter, this.field);
+  FilterInfo(this.viewId, this.filter, this.fieldInfo);
 
-  FilterInfo copyWith({FilterPB? filter, FieldInfo? field}) {
+  FilterInfo copyWith({FilterPB? filter, FieldInfo? fieldInfo}) {
     return FilterInfo(
       viewId,
       filter ?? this.filter,
-      field ?? this.field,
+      fieldInfo ?? this.fieldInfo,
     );
   }
 
