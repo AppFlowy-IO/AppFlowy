@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - '*'
-
 jobs:
   create-release:
     runs-on: ubuntu-latest
@@ -170,7 +169,7 @@ jobs:
           cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-mac-x86_64 appflowy
 
       - name: Create MacOS dmg
-        working-directory: frontend
+        working-directory: ${{ env.MACOS_APP_RELEASE_PATH }}
         run: |
             brew install create-dmg
             create-dmg \
