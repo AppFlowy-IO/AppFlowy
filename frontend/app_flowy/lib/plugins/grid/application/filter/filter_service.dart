@@ -151,8 +151,6 @@ class FilterFFIService {
     required FieldType fieldType,
     required List<int> data,
   }) {
-    TextFilterCondition.DoesNotContain.value;
-
     var insertFilterPayload = AlterFilterPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType

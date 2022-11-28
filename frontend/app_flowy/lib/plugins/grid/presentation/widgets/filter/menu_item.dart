@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'choicechip/checkbox.dart';
 import 'choicechip/date.dart';
 import 'choicechip/number.dart';
-import 'choicechip/select_option.dart';
+import 'choicechip/select_option/select_option.dart';
 import 'choicechip/text.dart';
 import 'choicechip/url.dart';
 import 'filter_info.dart';

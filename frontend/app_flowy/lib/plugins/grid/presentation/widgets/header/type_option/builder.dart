@@ -145,6 +145,40 @@ TypeOptionContext<T> makeTypeOptionContext<T extends GeneratedMessage>({
   );
 }
 
+TypeOptionContext<SingleSelectTypeOptionPB> makeSingleSelectTypeOptionContext({
+  required String gridId,
+  required FieldPB fieldPB,
+}) {
+  return makeSelectTypeOptionContext(gridId: gridId, fieldPB: fieldPB);
+}
+
+TypeOptionContext<MultiSelectTypeOptionPB> makeMultiSelectTypeOptionContext({
+  required String gridId,
+  required FieldPB fieldPB,
+}) {
+  return makeSelectTypeOptionContext(gridId: gridId, fieldPB: fieldPB);
+}
+
+TypeOptionContext<T> makeSelectTypeOptionContext<T extends GeneratedMessage>({
+  required String gridId,
+  required FieldPB fieldPB,
+}) {
+  final loader = FieldTypeOptionLoader(
+    gridId: gridId,
+    field: fieldPB,
+  );
+  final dataController = TypeOptionDataController(
+    gridId: gridId,
+    loader: loader,
+  );
+  final typeOptionContext = makeTypeOptionContextWithDataController<T>(
+    gridId: gridId,
+    fieldType: fieldPB.fieldType,
+    dataController: dataController,
+  );
+  return typeOptionContext;
+}
+
 TypeOptionContext<T>
     makeTypeOptionContextWithDataController<T extends GeneratedMessage>({
   required String gridId,

@@ -1,4 +1,7 @@
+import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/filter/filter_info.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/header/type_option/builder.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_option_filter.pbserver.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/util.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,6 +17,7 @@ class SelectOptionFilterEditorBloc
   final FilterInfo filterInfo;
   final FilterFFIService _ffiService;
   final FilterListener _listener;
+  final SingleSelectTypeOptionContext typeOptionContext;
 
   SelectOptionFilterEditorBloc({required this.filterInfo})
       : _ffiService = FilterFFIService(viewId: filterInfo.viewId),
@@ -21,12 +25,17 @@ class SelectOptionFilterEditorBloc
           viewId: filterInfo.viewId,
           filterId: filterInfo.filter.id,
         ),
+        typeOptionContext = makeSingleSelectTypeOptionContext(
+          gridId: filterInfo.viewId,
+          fieldPB: filterInfo.field.field,
+        ),
         super(SelectOptionFilterEditorState.initial(filterInfo)) {
     on<SelectOptionFilterEditorEvent>(
       (event, emit) async {
         event.when(
           initial: () async {
             _startListening();
+            _loadOptions();
           },
           updateCondition: (SelectOptionCondition condition) {
             _ffiService.insertSelectOptionFilter(
@@ -61,6 +70,9 @@ class SelectOptionFilterEditorBloc
               filter: selectOptionFilter,
             ));
           },
+          updateFilterDescription: (String desc) {
+            emit(state.copyWith(filterDesc: desc));
+          },
         );
       },
     );
@@ -76,6 +88,24 @@ class SelectOptionFilterEditorBloc
           add(SelectOptionFilterEditorEvent.didReceiveFilter(filter));
         }
       },
+    );
+  }
+
+  void _loadOptions() {
+    typeOptionContext.loadTypeOptionData(
+      onCompleted: (value) {
+        if (!isClosed) {
+          String filterDesc = '';
+          for (final option in value.options) {
+            if (state.filter.optionIds.contains(option.id)) {
+              filterDesc += "${option.name} ";
+            }
+          }
+          add(SelectOptionFilterEditorEvent.updateFilterDescription(
+              filterDesc));
+        }
+      },
+      onError: (error) => Log.error(error),
     );
   }
 
@@ -95,6 +125,8 @@ class SelectOptionFilterEditorEvent with _$SelectOptionFilterEditorEvent {
       SelectOptionCondition condition) = _UpdateCondition;
   const factory SelectOptionFilterEditorEvent.updateContent(
       List<String> optionIds) = _UpdateContent;
+  const factory SelectOptionFilterEditorEvent.updateFilterDescription(
+      String desc) = _UpdateDesc;
   const factory SelectOptionFilterEditorEvent.delete() = _Delete;
 }
 
@@ -103,12 +135,14 @@ class SelectOptionFilterEditorState with _$SelectOptionFilterEditorState {
   const factory SelectOptionFilterEditorState({
     required FilterInfo filterInfo,
     required SelectOptionFilterPB filter,
+    required String filterDesc,
   }) = _GridFilterState;
 
   factory SelectOptionFilterEditorState.initial(FilterInfo filterInfo) {
     return SelectOptionFilterEditorState(
       filterInfo: filterInfo,
       filter: filterInfo.selectOptionFilter()!,
+      filterDesc: '',
     );
   }
 }

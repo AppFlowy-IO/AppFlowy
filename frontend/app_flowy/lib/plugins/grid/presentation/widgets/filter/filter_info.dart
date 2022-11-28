@@ -43,10 +43,11 @@ class FilterInfo {
   }
 
   SelectOptionFilterPB? selectOptionFilter() {
-    if (filter.fieldType != FieldType.SingleSelect ||
-        filter.fieldType != FieldType.MultiSelect) {
+    if (filter.fieldType == FieldType.SingleSelect ||
+        filter.fieldType == FieldType.MultiSelect) {
+      return SelectOptionFilterPB.fromBuffer(filter.data);
+    } else {
       return null;
     }
-    return SelectOptionFilterPB.fromBuffer(filter.data);
   }
 }
