@@ -28,7 +28,11 @@ class DocumentMoreButton extends StatelessWidget {
           )
         ];
       },
-      child: svgWithSize('editor/details', const Size(18, 18)),
+      child: svgWidget(
+        'editor/details',
+        size: const Size(18, 18),
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
     );
   }
 }

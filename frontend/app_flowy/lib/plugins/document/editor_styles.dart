@@ -28,13 +28,13 @@ EditorStyle customEditorTheme(BuildContext context) {
 
 Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
   final documentStyle = context.watch<DocumentStyle>();
+  final baseFontSize = documentStyle.fontSize;
   const basePadding = 12.0;
   var headingPluginStyle = Theme.of(context).brightness == Brightness.dark
       ? HeadingPluginStyle.dark
       : HeadingPluginStyle.light;
   headingPluginStyle = headingPluginStyle.copyWith(
     textStyle: (EditorState editorState, Node node) {
-      final baseFontSize = documentStyle.fontSize;
       final headingToFontSize = {
         'h1': baseFontSize + 12,
         'h2': baseFontSize + 8,
@@ -60,10 +60,28 @@ Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
       return EdgeInsets.only(bottom: padding);
     },
   );
+  var numberListPluginStyle = Theme.of(context).brightness == Brightness.dark
+      ? NumberListPluginStyle.dark
+      : NumberListPluginStyle.light;
+
+  numberListPluginStyle = numberListPluginStyle.copyWith(
+    icon: (_, textNode) {
+      const iconPadding = EdgeInsets.only(left: 5.0, right: 5.0);
+      return Container(
+        padding: iconPadding,
+        child: Text(
+          '${textNode.attributes.number.toString()}.',
+          style: customEditorTheme(context).textStyle,
+        ),
+      );
+    },
+  );
   final pluginTheme = Theme.of(context).brightness == Brightness.dark
       ? darkPlguinStyleExtension
       : lightPlguinStyleExtension;
   return pluginTheme.toList()
-    ..removeWhere((element) => element is HeadingPluginStyle)
-    ..add(headingPluginStyle);
+    ..removeWhere((element) =>
+        element is HeadingPluginStyle || element is NumberListPluginStyle)
+    ..add(headingPluginStyle)
+    ..add(numberListPluginStyle);
 }

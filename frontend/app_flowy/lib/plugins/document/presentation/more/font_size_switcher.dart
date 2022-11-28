@@ -3,8 +3,9 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:provider/provider.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tuple/tuple.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class FontSizeSwitcher extends StatefulWidget {
   const FontSizeSwitcher({
@@ -15,13 +16,28 @@ class FontSizeSwitcher extends StatefulWidget {
   State<FontSizeSwitcher> createState() => _FontSizeSwitcherState();
 }
 
+const String _kSelectFontSize = 'kSelectFontSize';
+
 class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
-  final _selectedFontSizes = [false, true, false];
+  final List<bool> _selectedFontSizes = [false, true, false];
   final List<Tuple2<String, double>> _fontSizes = [
     Tuple2(LocaleKeys.moreAction_small.tr(), 12.0),
     Tuple2(LocaleKeys.moreAction_medium.tr(), 14.0),
     Tuple2(LocaleKeys.moreAction_large.tr(), 18.0),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    SharedPreferences.getInstance().then((prefs) {
+      final index = _fontSizes.indexWhere(
+          (element) => element.item2 == prefs.getDouble(_kSelectFontSize));
+      if (index != -1) {
+        _updateSelectedFontSize(index);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,12 +54,7 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
         ToggleButtons(
           isSelected: _selectedFontSizes,
           onPressed: (int index) {
-            setState(() {
-              for (int i = 0; i < _selectedFontSizes.length; i++) {
-                _selectedFontSizes[i] = i == index;
-              }
-              context.read<DocumentStyle>().fontSize = _fontSizes[index].item2;
-            });
+            _updateSelectedFontSize(index);
           },
           borderRadius: const BorderRadius.all(Radius.circular(5)),
           selectedBorderColor: Theme.of(context).colorScheme.primaryContainer,
@@ -54,22 +65,27 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
             minHeight: 40.0,
             minWidth: 80.0,
           ),
-          children: const [
-            Text(
-              'small',
-              style: TextStyle(fontSize: 12),
-            ),
-            Text(
-              'medium',
-              style: TextStyle(fontSize: 14),
-            ),
-            Text(
-              'large',
-              style: TextStyle(fontSize: 18),
-            )
-          ],
-        )
+          children: _fontSizes
+              .map((e) => Text(
+                    e.item1,
+                    style: TextStyle(fontSize: e.item2),
+                  ))
+              .toList(),
+        ),
       ],
     );
+  }
+
+  void _updateSelectedFontSize(int index) {
+    final fontSize = _fontSizes[index].item2;
+    context.read<DocumentStyle>().fontSize = fontSize;
+    SharedPreferences.getInstance().then(
+      (prefs) => prefs.setDouble(_kSelectFontSize, fontSize),
+    );
+    setState(() {
+      for (int i = 0; i < _selectedFontSizes.length; i++) {
+        _selectedFontSizes[i] = i == index;
+      }
+    });
   }
 }

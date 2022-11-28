@@ -12,6 +12,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DocumentPluginBuilder extends PluginBuilder {
   @override
@@ -37,13 +38,20 @@ class DocumentPluginBuilder extends PluginBuilder {
 }
 
 class DocumentStyle with ChangeNotifier {
-  DocumentStyle();
+  DocumentStyle() {
+    sync();
+  }
 
   double _fontSize = 14.0;
   double get fontSize => _fontSize;
   set fontSize(double fontSize) {
     _fontSize = fontSize;
     notifyListeners();
+  }
+
+  void sync() async {
+    final prefs = await SharedPreferences.getInstance();
+    fontSize = prefs.getDouble('kSelectFontSize') ?? _fontSize;
   }
 }
 
