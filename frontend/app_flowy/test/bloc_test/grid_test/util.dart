@@ -145,6 +145,14 @@ class GridTestContext {
         await makeCellController(field.id, rowIndex) as GridCellController;
     return cellController;
   }
+
+  Future<GridCellController> makeCheckboxCellController(int rowIndex) async {
+    final field = fieldContexts
+        .firstWhere((element) => element.fieldType == FieldType.Checkbox);
+    final cellController =
+        await makeCellController(field.id, rowIndex) as GridCellController;
+    return cellController;
+  }
 }
 
 /// Create a empty Grid for test

@@ -126,10 +126,11 @@ class FilterFFIService {
     );
   }
 
-  Future<Either<Unit, FlowyError>> insertSingleSelectFilter({
+  Future<Either<Unit, FlowyError>> insertSelectOptionFilter({
     required String fieldId,
-    String? filterId,
+    required FieldType fieldType,
     required SelectOptionCondition condition,
+    String? filterId,
     List<String> optionIds = const [],
   }) {
     final filter = SelectOptionFilterPB()
@@ -139,25 +140,7 @@ class FilterFFIService {
     return insertFilter(
       fieldId: fieldId,
       filterId: filterId,
-      fieldType: FieldType.SingleSelect,
-      data: filter.writeToBuffer(),
-    );
-  }
-
-  Future<Either<Unit, FlowyError>> insertMultiSelectFilter({
-    required String fieldId,
-    String? filterId,
-    required SelectOptionCondition condition,
-    List<String> optionIds = const [],
-  }) {
-    final filter = SelectOptionFilterPB()
-      ..condition = condition
-      ..optionIds.addAll(optionIds);
-
-    return insertFilter(
-      fieldId: fieldId,
-      filterId: filterId,
-      fieldType: FieldType.MultiSelect,
+      fieldType: fieldType,
       data: filter.writeToBuffer(),
     );
   }
@@ -168,8 +151,6 @@ class FilterFFIService {
     required FieldType fieldType,
     required List<int> data,
   }) {
-    TextFilterCondition.DoesNotContain.value;
-
     var insertFilterPayload = AlterFilterPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType

@@ -191,6 +191,18 @@
         "is": "is"
       }
     },
+    "singleSelectOptionFilter": {
+      "is": "Is",
+      "isNot": "Is not",
+      "isEmpty": "Is empty",
+      "isNotEmpty": "Is not empty"
+    },
+    "multiSelectOptionFilter": {
+      "contains": "Contains",
+      "doesNotContain": "Does not contain",
+      "isEmpty": "Is empty",
+      "isNotEmpty": "Is not empty"
+    },
     "field": {
       "hide": "Hide",
       "insertLeft": "Insert Left",

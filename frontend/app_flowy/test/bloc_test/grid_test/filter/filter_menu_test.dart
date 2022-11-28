@@ -17,7 +17,7 @@ void main() {
         viewId: context.gridView.id, fieldController: context.fieldController)
       ..add(const GridFilterMenuEvent.initial());
     await gridResponseFuture();
-    assert(menuBloc.state.creatableFields.length == 2);
+    assert(menuBloc.state.creatableFields.length == 3);
 
     final service = FilterFFIService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
@@ -26,7 +26,7 @@ void main() {
         condition: TextFilterCondition.TextIsEmpty,
         content: "");
     await gridResponseFuture();
-    assert(menuBloc.state.creatableFields.length == 1);
+    assert(menuBloc.state.creatableFields.length == 2);
   });
 
   test('test filter menu after update existing text filter)', () async {

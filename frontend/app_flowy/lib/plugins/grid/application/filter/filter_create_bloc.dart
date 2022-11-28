@@ -99,9 +99,10 @@ class GridCreateFilterBloc
           timestamp: timestamp,
         );
       case FieldType.MultiSelect:
-        return _ffiService.insertSingleSelectFilter(
+        return _ffiService.insertSelectOptionFilter(
           fieldId: fieldId,
           condition: SelectOptionCondition.OptionIs,
+          fieldType: FieldType.MultiSelect,
         );
       case FieldType.Number:
         return _ffiService.insertNumberFilter(
@@ -116,9 +117,10 @@ class GridCreateFilterBloc
           content: '',
         );
       case FieldType.SingleSelect:
-        return _ffiService.insertSingleSelectFilter(
+        return _ffiService.insertSelectOptionFilter(
           fieldId: fieldId,
           condition: SelectOptionCondition.OptionIs,
+          fieldType: FieldType.SingleSelect,
         );
       case FieldType.URL:
         return _ffiService.insertURLFilter(
