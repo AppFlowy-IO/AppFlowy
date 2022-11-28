@@ -1,6 +1,8 @@
+import 'package:app_flowy/plugins/document/document.dart';
 import 'package:app_flowy/plugins/document/presentation/more/font_size_switcher.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DocumentMoreButton extends StatelessWidget {
   const DocumentMoreButton({
@@ -13,14 +15,16 @@ class DocumentMoreButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<int>(
+      offset: const Offset(0, 30),
       itemBuilder: (context) {
         return [
-          const PopupMenuItem(
+          PopupMenuItem(
             value: 1,
             enabled: false,
-            child: FontSizeSwitcher(
-                // documentStyle: documentStyle,
-                ),
+            child: ChangeNotifierProvider.value(
+              value: context.read<DocumentStyle>(),
+              child: const FontSizeSwitcher(),
+            ),
           )
         ];
       },
