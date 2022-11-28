@@ -189,86 +189,87 @@
       "isUnchecked": "Unchecked",
       "choicechipPrefix": {
         "is": "is"
-      },
-      "singleSelectOptionFilter": {
-        "is": "Is",
-        "isNot": "Is not",
-        "isEmpty": "Is empty",
-        "isNotEmpty": "Is not empty"
-      },
-      "multiSelectOptionFilter": {
-        "contains": "Contains",
-        "doesNotContain": "Does not contain",
-        "isEmpty": "Is empty",
-        "isNotEmpty": "Is not empty"
-      },
-      "field": {
-        "hide": "Hide",
-        "insertLeft": "Insert Left",
-        "insertRight": "Insert Right",
-        "duplicate": "Duplicate",
-        "delete": "Delete",
-        "textFieldName": "Text",
-        "checkboxFieldName": "Checkbox",
-        "dateFieldName": "Date",
-        "numberFieldName": "Numbers",
-        "singleSelectFieldName": "Select",
-        "multiSelectFieldName": "Multiselect",
-        "urlFieldName": "URL",
-        "numberFormat": " Number format",
-        "dateFormat": " Date format",
-        "includeTime": " Include time",
-        "dateFormatFriendly": "Month Day,Year",
-        "dateFormatISO": "Year-Month-Day",
-        "dateFormatLocal": "Month/Day/Year",
-        "dateFormatUS": "Year/Month/Day",
-        "timeFormat": " Time format",
-        "invalidTimeFormat": "Invalid format",
-        "timeFormatTwelveHour": "12 hour",
-        "timeFormatTwentyFourHour": "24 hour",
-        "addSelectOption": "Add an option",
-        "optionTitle": "Options",
-        "addOption": "Add option",
-        "editProperty": "Edit property",
-        "newColumn": "New column",
-        "deleteFieldPromptMessage": "Are you sure? This property will be deleted"
-      },
-      "row": {
-        "duplicate": "Duplicate",
-        "delete": "Delete",
-        "textPlaceholder": "Empty",
-        "copyProperty": "Copied property to clipboard",
-        "count": "Count",
-        "newRow": "New row"
-      },
-      "selectOption": {
-        "create": "Create",
-        "purpleColor": "Purple",
-        "pinkColor": "Pink",
-        "lightPinkColor": "Light Pink",
-        "orangeColor": "Orange",
-        "yellowColor": "Yellow",
-        "limeColor": "Lime",
-        "greenColor": "Green",
-        "aquaColor": "Aqua",
-        "blueColor": "Blue",
-        "deleteTag": "Delete tag",
-        "colorPanelTitle": "Colors",
-        "panelTitle": "Select an option or create one",
-        "searchOption": "Search for an option"
-      },
-      "menuName": "Grid"
-    },
-    "document": {
-      "menuName": "Document",
-      "date": {
-        "timeHintTextInTwelveHour": "01:00 PM",
-        "timeHintTextInTwentyFourHour": "13:00"
       }
     },
-    "board": {
-      "column": {
-        "create_new_card": "New"
-      }
+    "singleSelectOptionFilter": {
+      "is": "Is",
+      "isNot": "Is not",
+      "isEmpty": "Is empty",
+      "isNotEmpty": "Is not empty"
+    },
+    "multiSelectOptionFilter": {
+      "contains": "Contains",
+      "doesNotContain": "Does not contain",
+      "isEmpty": "Is empty",
+      "isNotEmpty": "Is not empty"
+    },
+    "field": {
+      "hide": "Hide",
+      "insertLeft": "Insert Left",
+      "insertRight": "Insert Right",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "textFieldName": "Text",
+      "checkboxFieldName": "Checkbox",
+      "dateFieldName": "Date",
+      "numberFieldName": "Numbers",
+      "singleSelectFieldName": "Select",
+      "multiSelectFieldName": "Multiselect",
+      "urlFieldName": "URL",
+      "numberFormat": " Number format",
+      "dateFormat": " Date format",
+      "includeTime": " Include time",
+      "dateFormatFriendly": "Month Day,Year",
+      "dateFormatISO": "Year-Month-Day",
+      "dateFormatLocal": "Month/Day/Year",
+      "dateFormatUS": "Year/Month/Day",
+      "timeFormat": " Time format",
+      "invalidTimeFormat": "Invalid format",
+      "timeFormatTwelveHour": "12 hour",
+      "timeFormatTwentyFourHour": "24 hour",
+      "addSelectOption": "Add an option",
+      "optionTitle": "Options",
+      "addOption": "Add option",
+      "editProperty": "Edit property",
+      "newColumn": "New column",
+      "deleteFieldPromptMessage": "Are you sure? This property will be deleted"
+    },
+    "row": {
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "textPlaceholder": "Empty",
+      "copyProperty": "Copied property to clipboard",
+      "count": "Count",
+      "newRow": "New row"
+    },
+    "selectOption": {
+      "create": "Create",
+      "purpleColor": "Purple",
+      "pinkColor": "Pink",
+      "lightPinkColor": "Light Pink",
+      "orangeColor": "Orange",
+      "yellowColor": "Yellow",
+      "limeColor": "Lime",
+      "greenColor": "Green",
+      "aquaColor": "Aqua",
+      "blueColor": "Blue",
+      "deleteTag": "Delete tag",
+      "colorPanelTitle": "Colors",
+      "panelTitle": "Select an option or create one",
+      "searchOption": "Search for an option"
+    },
+    "menuName": "Grid"
+  },
+  "document": {
+    "menuName": "Document",
+    "date": {
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
+    }
+  },
+  "board": {
+    "column": {
+      "create_new_card": "New"
     }
   }
+}

@@ -10,7 +10,7 @@ import 'filter_service.dart';
 part 'select_option_filter_bloc.freezed.dart';
 
 class SelectOptionFilterEditorBloc
-    extends Bloc<SelectOpitonFilterEditorEvent, SelectOptionFilterEditorState> {
+    extends Bloc<SelectOptionFilterEditorEvent, SelectOptionFilterEditorState> {
   final FilterInfo filterInfo;
   final FilterFFIService _ffiService;
   final FilterListener _listener;
@@ -22,7 +22,7 @@ class SelectOptionFilterEditorBloc
           filterId: filterInfo.filter.id,
         ),
         super(SelectOptionFilterEditorState.initial(filterInfo)) {
-    on<SelectOpitonFilterEditorEvent>(
+    on<SelectOptionFilterEditorEvent>(
       (event, emit) async {
         event.when(
           initial: () async {
@@ -69,11 +69,11 @@ class SelectOptionFilterEditorBloc
   void _startListening() {
     _listener.start(
       onDeleted: () {
-        if (!isClosed) add(const SelectOpitonFilterEditorEvent.delete());
+        if (!isClosed) add(const SelectOptionFilterEditorEvent.delete());
       },
       onUpdated: (filter) {
         if (!isClosed) {
-          add(SelectOpitonFilterEditorEvent.didReceiveFilter(filter));
+          add(SelectOptionFilterEditorEvent.didReceiveFilter(filter));
         }
       },
     );
@@ -87,15 +87,15 @@ class SelectOptionFilterEditorBloc
 }
 
 @freezed
-class SelectOpitonFilterEditorEvent with _$SelectOpitonFilterEditorEvent {
-  const factory SelectOpitonFilterEditorEvent.initial() = _Initial;
-  const factory SelectOpitonFilterEditorEvent.didReceiveFilter(
+class SelectOptionFilterEditorEvent with _$SelectOptionFilterEditorEvent {
+  const factory SelectOptionFilterEditorEvent.initial() = _Initial;
+  const factory SelectOptionFilterEditorEvent.didReceiveFilter(
       FilterPB filter) = _DidReceiveFilter;
-  const factory SelectOpitonFilterEditorEvent.updateCondition(
+  const factory SelectOptionFilterEditorEvent.updateCondition(
       SelectOptionCondition condition) = _UpdateCondition;
-  const factory SelectOpitonFilterEditorEvent.updateContent(
+  const factory SelectOptionFilterEditorEvent.updateContent(
       List<String> optionIds) = _UpdateContent;
-  const factory SelectOpitonFilterEditorEvent.delete() = _Delete;
+  const factory SelectOptionFilterEditorEvent.delete() = _Delete;
 }
 
 @freezed
