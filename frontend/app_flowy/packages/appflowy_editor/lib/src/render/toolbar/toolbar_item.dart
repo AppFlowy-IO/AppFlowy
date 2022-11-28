@@ -255,7 +255,9 @@ List<ToolbarItem> defaultToolbarItems = [
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.backgroundColor,
-      (value) => value != null,
+      (value) {
+        return value != null && value != '0x00000000'; // transparent color;
+      },
     ),
     handler: (editorState, context) => formatHighlight(
       editorState,
