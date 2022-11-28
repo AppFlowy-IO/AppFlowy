@@ -1,9 +1,8 @@
-import 'package:app_flowy/plugins/document/document.dart';
+import 'package:app_flowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tuple/tuple.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -15,8 +14,6 @@ class FontSizeSwitcher extends StatefulWidget {
   @override
   State<FontSizeSwitcher> createState() => _FontSizeSwitcherState();
 }
-
-const String _kSelectFontSize = 'kSelectFontSize';
 
 class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
   final List<bool> _selectedFontSizes = [false, true, false];
@@ -30,13 +27,10 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
   void initState() {
     super.initState();
 
-    SharedPreferences.getInstance().then((prefs) {
-      final index = _fontSizes.indexWhere(
-          (element) => element.item2 == prefs.getDouble(_kSelectFontSize));
-      if (index != -1) {
-        _updateSelectedFontSize(index);
-      }
-    });
+    final fontSize =
+        context.read<DocumentAppearanceCubit>().documentAppearance.fontSize;
+    final index = _fontSizes.indexWhere((element) => element.item2 == fontSize);
+    _updateSelectedFontSize(index);
   }
 
   @override
@@ -55,6 +49,7 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
           isSelected: _selectedFontSizes,
           onPressed: (int index) {
             _updateSelectedFontSize(index);
+            _sync(index);
           },
           borderRadius: const BorderRadius.all(Radius.circular(5)),
           selectedBorderColor: Theme.of(context).colorScheme.primaryContainer,
@@ -77,15 +72,18 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
   }
 
   void _updateSelectedFontSize(int index) {
-    final fontSize = _fontSizes[index].item2;
-    context.read<DocumentStyle>().fontSize = fontSize;
-    SharedPreferences.getInstance().then(
-      (prefs) => prefs.setDouble(_kSelectFontSize, fontSize),
-    );
     setState(() {
       for (int i = 0; i < _selectedFontSizes.length; i++) {
         _selectedFontSizes[i] = i == index;
       }
     });
+  }
+
+  void _sync(int index) {
+    if (index < 0 || index >= _fontSizes.length) return;
+    final fontSize = _fontSizes[index].item2;
+    final cubit = context.read<DocumentAppearanceCubit>();
+    final documentAppearance = cubit.documentAppearance;
+    cubit.sync(documentAppearance.copyWith(fontSize: fontSize));
   }
 }

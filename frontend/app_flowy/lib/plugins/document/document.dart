@@ -2,6 +2,7 @@ library document_plugin;
 
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/document/document_page.dart';
+import 'package:app_flowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:app_flowy/plugins/document/presentation/more/more_button.dart';
 import 'package:app_flowy/plugins/document/presentation/share/share_button.dart';
 import 'package:app_flowy/plugins/util.dart';
@@ -11,8 +12,7 @@ import 'package:app_flowy/workspace/presentation/widgets/left_bar_item.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocumentPluginBuilder extends PluginBuilder {
   @override
@@ -37,27 +37,9 @@ class DocumentPluginBuilder extends PluginBuilder {
   ViewDataFormatPB get dataFormatType => ViewDataFormatPB.TreeFormat;
 }
 
-class DocumentStyle with ChangeNotifier {
-  DocumentStyle() {
-    sync();
-  }
-
-  double _fontSize = 14.0;
-  double get fontSize => _fontSize;
-  set fontSize(double fontSize) {
-    _fontSize = fontSize;
-    notifyListeners();
-  }
-
-  void sync() async {
-    final prefs = await SharedPreferences.getInstance();
-    fontSize = prefs.getDouble('kSelectFontSize') ?? _fontSize;
-  }
-}
-
 class DocumentPlugin extends Plugin<int> {
   late PluginType _pluginType;
-  late final DocumentStyle _documentStyle;
+  late final DocumentAppearanceCubit _documentAppearanceCubit;
 
   @override
   final ViewPluginNotifier notifier;
@@ -68,12 +50,12 @@ class DocumentPlugin extends Plugin<int> {
     Key? key,
   }) : notifier = ViewPluginNotifier(view: view) {
     _pluginType = pluginType;
-    _documentStyle = DocumentStyle();
+    _documentAppearanceCubit = DocumentAppearanceCubit();
   }
 
   @override
   void dispose() {
-    _documentStyle.dispose();
+    _documentAppearanceCubit.close();
     super.dispose();
   }
 
@@ -81,7 +63,7 @@ class DocumentPlugin extends Plugin<int> {
   PluginDisplay get display {
     return DocumentPluginDisplay(
       notifier: notifier,
-      documentStyle: _documentStyle,
+      documentAppearanceCubit: _documentAppearanceCubit,
     );
   }
 
@@ -96,11 +78,11 @@ class DocumentPluginDisplay extends PluginDisplay with NavigationItem {
   final ViewPluginNotifier notifier;
   ViewPB get view => notifier.view;
   int? deletedViewIndex;
-  DocumentStyle documentStyle;
+  DocumentAppearanceCubit documentAppearanceCubit;
 
   DocumentPluginDisplay({
     required this.notifier,
-    required this.documentStyle,
+    required this.documentAppearanceCubit,
     Key? key,
   });
 
@@ -114,12 +96,16 @@ class DocumentPluginDisplay extends PluginDisplay with NavigationItem {
       });
     });
 
-    return ChangeNotifierProvider.value(
-      value: documentStyle,
-      child: DocumentPage(
-        view: view,
-        onDeleted: () => context.onDeleted(view, deletedViewIndex),
-        key: ValueKey(view.id),
+    return BlocProvider.value(
+      value: documentAppearanceCubit,
+      child: BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
+        builder: (_, state) {
+          return DocumentPage(
+            view: view,
+            onDeleted: () => context.onDeleted(view, deletedViewIndex),
+            key: ValueKey(view.id),
+          );
+        },
       ),
     );
   }
@@ -133,8 +119,8 @@ class DocumentPluginDisplay extends PluginDisplay with NavigationItem {
       children: [
         DocumentShareButton(view: view),
         const SizedBox(width: 10),
-        ChangeNotifierProvider.value(
-          value: documentStyle,
+        BlocProvider.value(
+          value: documentAppearanceCubit,
           child: const DocumentMoreButton(),
         ),
       ],

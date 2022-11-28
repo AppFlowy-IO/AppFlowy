@@ -1,10 +1,11 @@
-import 'package:app_flowy/plugins/document/document.dart';
+import 'package:app_flowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 EditorStyle customEditorTheme(BuildContext context) {
-  final documentStyle = context.watch<DocumentStyle>();
+  final documentStyle =
+      context.watch<DocumentAppearanceCubit>().documentAppearance;
   var editorStyle = Theme.of(context).brightness == Brightness.dark
       ? EditorStyle.dark
       : EditorStyle.light;
@@ -27,7 +28,8 @@ EditorStyle customEditorTheme(BuildContext context) {
 }
 
 Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
-  final documentStyle = context.watch<DocumentStyle>();
+  final documentStyle =
+      context.watch<DocumentAppearanceCubit>().documentAppearance;
   final baseFontSize = documentStyle.fontSize;
   const basePadding = 12.0;
   var headingPluginStyle = Theme.of(context).brightness == Brightness.dark
