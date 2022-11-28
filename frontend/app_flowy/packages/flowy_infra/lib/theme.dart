@@ -178,9 +178,9 @@ class AppTheme {
       colorScheme: ColorScheme(
         brightness: brightness,
         primary: main1,
-        onPrimary: shader7,
+        onPrimary: _white,
         primaryContainer: main2,
-        onPrimaryContainer: shader7,
+        onPrimaryContainer: _white,
         secondary: hover,
         onSecondary: shader1,
         secondaryContainer: selector,
