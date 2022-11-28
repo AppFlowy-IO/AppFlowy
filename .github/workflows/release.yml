@@ -170,13 +170,12 @@ jobs:
           cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-mac-x86_64 appflowy
 
       - name: Create MacOS dmg
-        working-directory: frontend
         run: |
             brew install create-dmg
             create-dmg \
             --volname ${{ env.MACOS_DMG_NAME }} \
             --hide-extension "AppFlowy.app" \
-            --background scripts/dmg_assets/AppFlowyInstallerBackground.jpg \
+            --background frontend/scripts/dmg_assets/AppFlowyInstallerBackground.jpg \
             --window-size 600 450 \
             --icon-size 94 \
             --icon "AppFlowy.app" 141 249 \
