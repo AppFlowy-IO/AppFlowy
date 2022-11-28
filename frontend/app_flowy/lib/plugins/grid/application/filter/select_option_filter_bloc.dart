@@ -1,7 +1,5 @@
-import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/filter/choicechip/select_option/select_option_loader.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/filter/filter_info.dart';
-import 'package:app_flowy/plugins/grid/presentation/widgets/header/type_option/builder.dart';
-import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_option_filter.pbserver.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/util.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,17 +15,15 @@ class SelectOptionFilterEditorBloc
   final FilterInfo filterInfo;
   final FilterFFIService _ffiService;
   final FilterListener _listener;
-  final SingleSelectTypeOptionContext typeOptionContext;
+  final SelectOptionFilterDelegate delegate;
 
-  SelectOptionFilterEditorBloc({required this.filterInfo})
-      : _ffiService = FilterFFIService(viewId: filterInfo.viewId),
+  SelectOptionFilterEditorBloc({
+    required this.filterInfo,
+    required this.delegate,
+  })  : _ffiService = FilterFFIService(viewId: filterInfo.viewId),
         _listener = FilterListener(
           viewId: filterInfo.viewId,
           filterId: filterInfo.filter.id,
-        ),
-        typeOptionContext = makeSingleSelectTypeOptionContext(
-          gridId: filterInfo.viewId,
-          fieldPB: filterInfo.field.field,
         ),
         super(SelectOptionFilterEditorState.initial(filterInfo)) {
     on<SelectOptionFilterEditorEvent>(
@@ -40,26 +36,26 @@ class SelectOptionFilterEditorBloc
           updateCondition: (SelectOptionCondition condition) {
             _ffiService.insertSelectOptionFilter(
               filterId: filterInfo.filter.id,
-              fieldId: filterInfo.field.id,
+              fieldId: filterInfo.fieldInfo.id,
               condition: condition,
               optionIds: state.filter.optionIds,
-              fieldType: state.filterInfo.field.fieldType,
+              fieldType: state.filterInfo.fieldInfo.fieldType,
             );
           },
           updateContent: (List<String> optionIds) {
             _ffiService.insertSelectOptionFilter(
               filterId: filterInfo.filter.id,
-              fieldId: filterInfo.field.id,
+              fieldId: filterInfo.fieldInfo.id,
               condition: state.filter.condition,
               optionIds: optionIds,
-              fieldType: state.filterInfo.field.fieldType,
+              fieldType: state.filterInfo.fieldInfo.fieldType,
             );
           },
           delete: () {
             _ffiService.deleteFilter(
-              fieldId: filterInfo.field.id,
+              fieldId: filterInfo.fieldInfo.id,
               filterId: filterInfo.filter.id,
-              fieldType: filterInfo.field.fieldType,
+              fieldType: filterInfo.fieldInfo.fieldType,
             );
           },
           didReceiveFilter: (FilterPB filter) {
@@ -92,21 +88,17 @@ class SelectOptionFilterEditorBloc
   }
 
   void _loadOptions() {
-    typeOptionContext.loadTypeOptionData(
-      onCompleted: (value) {
-        if (!isClosed) {
-          String filterDesc = '';
-          for (final option in value.options) {
-            if (state.filter.optionIds.contains(option.id)) {
-              filterDesc += "${option.name} ";
-            }
+    delegate.loadOptions().then((options) {
+      if (!isClosed) {
+        String filterDesc = '';
+        for (final option in options) {
+          if (state.filter.optionIds.contains(option.id)) {
+            filterDesc += "${option.name} ";
           }
-          add(SelectOptionFilterEditorEvent.updateFilterDescription(
-              filterDesc));
         }
-      },
-      onError: (error) => Log.error(error),
-    );
+        add(SelectOptionFilterEditorEvent.updateFilterDescription(filterDesc));
+      }
+    });
   }
 
   @override

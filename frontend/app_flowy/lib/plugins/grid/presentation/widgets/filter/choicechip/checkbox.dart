@@ -107,7 +107,7 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
       height: 20,
       child: Row(
         children: [
-          FlowyText(state.filterInfo.field.name),
+          FlowyText(state.filterInfo.fieldInfo.name),
           const HSpace(4),
           CheckboxFilterConditionList(
             filterInfo: state.filterInfo,

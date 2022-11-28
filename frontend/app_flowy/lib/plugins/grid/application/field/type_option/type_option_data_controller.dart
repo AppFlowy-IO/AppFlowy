@@ -33,14 +33,14 @@ class TypeOptionDataController {
     }
   }
 
-  Future<Either<Unit, FlowyError>> loadTypeOptionData() async {
+  Future<Either<TypeOptionPB, FlowyError>> loadTypeOptionData() async {
     final result = await loader.load();
     return result.fold(
       (data) {
         data.freeze();
         _data = data;
         _fieldNotifier.value = data.field_2;
-        return left(unit);
+        return left(data);
       },
       (err) {
         Log.error(err);

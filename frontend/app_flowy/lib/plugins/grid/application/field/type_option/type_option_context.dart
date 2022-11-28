@@ -109,15 +109,16 @@ class TypeOptionContext<T extends GeneratedMessage> {
 
   String get fieldId => _dataController.field.id;
 
-  Future<void> loadTypeOptionData({
-    required void Function(T) onCompleted,
+  Future<T> loadTypeOptionData({
+    void Function(T)? onCompleted,
     required void Function(FlowyError) onError,
   }) async {
     await _dataController.loadTypeOptionData().then((result) {
       result.fold((l) => null, (err) => onError(err));
     });
 
-    onCompleted(typeOption);
+    onCompleted?.call(typeOption);
+    return typeOption;
   }
 
   T get typeOption {

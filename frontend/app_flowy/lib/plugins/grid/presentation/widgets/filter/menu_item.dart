@@ -20,7 +20,7 @@ class FilterMenuItem extends StatelessWidget {
 }
 
 Widget buildFilterChoicechip(FilterInfo filterInfo) {
-  switch (filterInfo.field.fieldType) {
+  switch (filterInfo.fieldInfo.fieldType) {
     case FieldType.Checkbox:
       return CheckboxFilterChoicechip(filterInfo: filterInfo);
     case FieldType.DateTime:

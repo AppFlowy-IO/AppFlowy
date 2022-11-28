@@ -1,8 +1,6 @@
 import 'dart:async';
 
-import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
-import 'package:app_flowy/plugins/grid/presentation/widgets/header/type_option/builder.dart';
-import 'package:flowy_sdk/log.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/filter/choicechip/select_option/select_option_loader.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,16 +10,13 @@ part 'select_option_filter_list_bloc.freezed.dart';
 
 class SelectOptionFilterListBloc<T>
     extends Bloc<SelectOptionFilterListEvent, SelectOptionFilterListState> {
-  final SingleSelectTypeOptionContext typeOptionContext;
+  final SelectOptionFilterDelegate delegate;
   SelectOptionFilterListBloc({
     required String viewId,
     required FieldPB fieldPB,
+    required this.delegate,
     required List<String> selectedOptionIds,
-  })  : typeOptionContext = makeSingleSelectTypeOptionContext(
-          gridId: viewId,
-          fieldPB: fieldPB,
-        ),
-        super(SelectOptionFilterListState.initial(selectedOptionIds)) {
+  }) : super(SelectOptionFilterListState.initial(selectedOptionIds)) {
     on<SelectOptionFilterListEvent>(
       (event, emit) async {
         await event.when(
@@ -103,14 +98,11 @@ class SelectOptionFilterListBloc<T>
   }
 
   void _loadOptions() {
-    typeOptionContext.loadTypeOptionData(
-      onCompleted: (value) {
-        if (!isClosed) {
-          add(SelectOptionFilterListEvent.didReceiveOptions(value.options));
-        }
-      },
-      onError: (error) => Log.error(error),
-    );
+    delegate.loadOptions().then((options) {
+      if (!isClosed) {
+        add(SelectOptionFilterListEvent.didReceiveOptions(options));
+      }
+    });
   }
 
   void _startListening() {}

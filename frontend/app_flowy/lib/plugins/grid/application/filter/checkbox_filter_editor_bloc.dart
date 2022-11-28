@@ -31,15 +31,15 @@ class CheckboxFilterEditorBloc
           updateCondition: (CheckboxFilterCondition condition) {
             _ffiService.insertCheckboxFilter(
               filterId: filterInfo.filter.id,
-              fieldId: filterInfo.field.id,
+              fieldId: filterInfo.fieldInfo.id,
               condition: condition,
             );
           },
           delete: () {
             _ffiService.deleteFilter(
-              fieldId: filterInfo.field.id,
+              fieldId: filterInfo.fieldInfo.id,
               filterId: filterInfo.filter.id,
-              fieldType: filterInfo.field.fieldType,
+              fieldType: filterInfo.fieldInfo.fieldType,
             );
           },
           didReceiveFilter: (FilterPB filter) {

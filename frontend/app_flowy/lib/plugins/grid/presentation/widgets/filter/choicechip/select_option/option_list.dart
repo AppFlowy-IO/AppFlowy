@@ -1,22 +1,23 @@
-import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/filter/select_option_filter_list_bloc.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/cell/select_option_cell/extension.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pbenum.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'select_option_loader.dart';
+
 class SelectOptionFilterList extends StatelessWidget {
-  final String viewId;
-  final FieldInfo fieldInfo;
+  final FilterInfo filterInfo;
   final List<String> selectedOptionIds;
   final Function(List<String>) onSelectedOptions;
   const SelectOptionFilterList({
-    required this.viewId,
-    required this.fieldInfo,
+    required this.filterInfo,
     required this.selectedOptionIds,
     required this.onSelectedOptions,
     Key? key,
@@ -25,11 +26,27 @@ class SelectOptionFilterList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SelectOptionFilterListBloc(
-        viewId: viewId,
-        fieldPB: fieldInfo.field,
-        selectedOptionIds: selectedOptionIds,
-      )..add(const SelectOptionFilterListEvent.initial()),
+      create: (context) {
+        late SelectOptionFilterListBloc bloc;
+        if (filterInfo.fieldInfo.fieldType == FieldType.SingleSelect) {
+          bloc = SelectOptionFilterListBloc(
+            viewId: filterInfo.viewId,
+            fieldPB: filterInfo.fieldInfo.field,
+            selectedOptionIds: selectedOptionIds,
+            delegate: SingleSelectOptionFilterDelegateImpl(filterInfo),
+          );
+        } else {
+          bloc = SelectOptionFilterListBloc(
+            viewId: filterInfo.viewId,
+            fieldPB: filterInfo.fieldInfo.field,
+            selectedOptionIds: selectedOptionIds,
+            delegate: MultiSelectOptionFilterDelegateImpl(filterInfo),
+          );
+        }
+
+        bloc.add(const SelectOptionFilterListEvent.initial());
+        return bloc;
+      },
       child:
           BlocListener<SelectOptionFilterListBloc, SelectOptionFilterListState>(
         listenWhen: (previous, current) =>
