@@ -58,7 +58,9 @@ impl CellDisplayable<URLCellDataPB> for URLTypeOptionPB {
     }
 }
 
-impl CellDataOperation<URLCellDataPB, String> for URLTypeOptionPB {
+pub type URLCellChangeset = String;
+
+impl CellDataOperation<URLCellDataPB, URLCellChangeset> for URLTypeOptionPB {
     fn decode_cell_data(
         &self,
         cell_data: CellData<URLCellDataPB>,

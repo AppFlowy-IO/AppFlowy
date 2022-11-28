@@ -10,13 +10,12 @@ part 'property_bloc.freezed.dart';
 
 class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
   final GridFieldController _fieldController;
-  Function(List<GridFieldContext>)? _onFieldsFn;
+  Function(List<FieldInfo>)? _onFieldsFn;
 
   GridPropertyBloc(
       {required String gridId, required GridFieldController fieldController})
       : _fieldController = fieldController,
-        super(
-            GridPropertyState.initial(gridId, fieldController.fieldContexts)) {
+        super(GridPropertyState.initial(gridId, fieldController.fieldInfos)) {
     on<GridPropertyEvent>(
       (event, emit) async {
         await event.map(
@@ -69,7 +68,7 @@ class GridPropertyEvent with _$GridPropertyEvent {
   const factory GridPropertyEvent.setFieldVisibility(
       String fieldId, bool visibility) = _SetFieldVisibility;
   const factory GridPropertyEvent.didReceiveFieldUpdate(
-      List<GridFieldContext> fields) = _DidReceiveFieldUpdate;
+      List<FieldInfo> fields) = _DidReceiveFieldUpdate;
   const factory GridPropertyEvent.moveField(int fromIndex, int toIndex) =
       _MoveField;
 }
@@ -78,12 +77,12 @@ class GridPropertyEvent with _$GridPropertyEvent {
 class GridPropertyState with _$GridPropertyState {
   const factory GridPropertyState({
     required String gridId,
-    required List<GridFieldContext> fieldContexts,
+    required List<FieldInfo> fieldContexts,
   }) = _GridPropertyState;
 
   factory GridPropertyState.initial(
     String gridId,
-    List<GridFieldContext> fieldContexts,
+    List<FieldInfo> fieldContexts,
   ) =>
       GridPropertyState(
         gridId: gridId,

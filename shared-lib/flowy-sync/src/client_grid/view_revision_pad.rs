@@ -142,15 +142,45 @@ impl GridViewRevisionPad {
         self.filters.get_objects(field_id, field_type_rev).unwrap_or_default()
     }
 
+    pub fn get_filter(
+        &self,
+        field_id: &str,
+        field_type_rev: &FieldTypeRevision,
+        filter_id: &str,
+    ) -> Option<Arc<FilterRevision>> {
+        self.filters
+            .get_object(field_id, field_type_rev, |filter| filter.id == filter_id)
+    }
+
     pub fn insert_filter(
         &mut self,
         field_id: &str,
-        field_type: &FieldTypeRevision,
         filter_rev: FilterRevision,
     ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
         self.modify(|view| {
-            view.filters.add_object(field_id, field_type, filter_rev);
+            let field_type = filter_rev.field_type;
+            view.filters.add_object(field_id, &field_type, filter_rev);
             Ok(Some(()))
+        })
+    }
+
+    pub fn update_filter(
+        &mut self,
+        field_id: &str,
+        filter_rev: FilterRevision,
+    ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
+        self.modify(|view| {
+            if let Some(filter) = view
+                .filters
+                .get_mut_object(field_id, &filter_rev.field_type, |filter| filter.id == filter_rev.id)
+            {
+                let filter = Arc::make_mut(filter);
+                filter.condition = filter_rev.condition;
+                filter.content = filter_rev.content;
+                Ok(Some(()))
+            } else {
+                Ok(None)
+            }
         })
     }
 

@@ -167,7 +167,7 @@ class BubbleActionWrapper extends ActionCell {
 
   BubbleActionWrapper(this.inner);
   @override
-  Widget? icon(Color iconColor) => FlowyText.regular(inner.emoji);
+  Widget? leftIcon(Color iconColor) => FlowyText.regular(inner.emoji);
 
   @override
   String get name => inner.name;

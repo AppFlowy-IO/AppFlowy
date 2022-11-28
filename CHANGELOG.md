@@ -1,11 +1,14 @@
 # Release Notes
+## Version 0.0.7 - 11/27/2022 
+### New features
+- Support adding filters by the text property in Grid
 
 ## Version 0.0.6.2 - 10/30/2022
 - Fix some bugs
 
 ## Version 0.0.6.1 - 10/26/2022
 ### New features
-- Optimzie appflowy_editor dark mode style
+- Optimize appflowy_editor dark mode style
 
 ### Bug Fixes
 - Unable to copy the text with checkbox or link style

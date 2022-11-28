@@ -130,14 +130,3 @@ class DocumentPluginDisplay extends PluginDisplay with NavigationItem {
   @override
   List<NavigationItem> get navigationItems => [this];
 }
-
-extension QuestionBubbleExtension on ShareAction {
-  String get name {
-    switch (this) {
-      case ShareAction.markdown:
-        return LocaleKeys.shareAction_markdown.tr();
-      case ShareAction.copyLink:
-        return LocaleKeys.shareAction_copyLink.tr();
-    }
-  }
-}

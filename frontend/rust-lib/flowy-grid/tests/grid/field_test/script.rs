@@ -13,6 +13,10 @@ pub enum FieldScript {
         field_rev: FieldRevision,
     },
     AssertFieldCount(usize),
+    AssertFieldFrozen {
+        field_index: usize,
+        frozen: bool,
+    },
     AssertFieldTypeOptionEqual {
         field_index: usize,
         expected_type_option_data: String,
@@ -69,6 +73,11 @@ impl GridFieldTest {
             }
             FieldScript::AssertFieldCount(count) => {
                 assert_eq!(self.editor.get_field_revs(None).await.unwrap().len(), count);
+            }
+            FieldScript::AssertFieldFrozen { field_index, frozen } => {
+                let field_revs = self.editor.get_field_revs(None).await.unwrap();
+                let field_rev = field_revs[field_index].as_ref();
+                assert_eq!(field_rev.frozen, frozen);
             }
             FieldScript::AssertFieldTypeOptionEqual {
                 field_index,

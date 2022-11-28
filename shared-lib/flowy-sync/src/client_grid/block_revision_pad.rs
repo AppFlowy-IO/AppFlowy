@@ -93,6 +93,15 @@ impl GridBlockRevisionPad {
         })
     }
 
+    pub fn get_row_rev(&self, row_id: &str) -> Option<(usize, Arc<RowRevision>)> {
+        for (index, row) in self.block.rows.iter().enumerate() {
+            if row.id == row_id {
+                return Some((index, row.clone()));
+            }
+        }
+        None
+    }
+
     pub fn get_row_revs<T>(&self, row_ids: Option<Vec<Cow<'_, T>>>) -> CollaborateResult<Vec<Arc<RowRevision>>>
     where
         T: AsRef<str> + ToOwned + ?Sized,

@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:app_flowy/workspace/application/home/home_bloc.dart';
+import 'package:app_flowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra/image.dart';
@@ -36,26 +36,6 @@ class NavigationNotifier with ChangeNotifier {
   }
 }
 
-// [[diagram: HomeStack navigation flow]]
-//                                                                              ┌───────────────────────┐
-//                     2.notify listeners                                ┌──────│DefaultHomeStackContext│
-//  ┌────────────────┐           ┌───────────┐   ┌────────────────┐      │      └───────────────────────┘
-//  │HomeStackNotifie│◀──────────│ HomeStack │◀──│HomeStackContext│◀─ impl
-//  └────────────────┘           └───────────┘   └────────────────┘      │       ┌───────────────────┐
-//           │                         ▲                                 └───────│  DocStackContext  │
-//           │                         │                                         └───────────────────┘
-//    3.notify change            1.set context
-//           │                         │
-//           ▼                         │
-// ┌───────────────────┐     ┌──────────────────┐
-// │NavigationNotifier │     │ ViewSectionItem  │
-// └───────────────────┘     └──────────────────┘
-//           │
-//           │
-//           ▼
-//  ┌─────────────────┐
-//  │ FlowyNavigation │   4.render navigation items
-//  └─────────────────┘
 class FlowyNavigation extends StatelessWidget {
   const FlowyNavigation({Key? key}) : super(key: key);
 
@@ -109,7 +89,9 @@ class FlowyNavigation extends StatelessWidget {
                     hoverColor: Colors.transparent,
                     onPressed: () {
                       notifier.value = false;
-                      ctx.read<HomeBloc>().add(const HomeEvent.collapseMenu());
+                      ctx
+                          .read<HomeSettingBloc>()
+                          .add(const HomeSettingEvent.collapseMenu());
                     },
                     iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
                     icon: svgWidget(

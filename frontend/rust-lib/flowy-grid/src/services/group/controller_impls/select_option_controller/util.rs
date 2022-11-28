@@ -99,7 +99,7 @@ pub fn move_group_row(group: &mut Group, context: &mut MoveGroupRowContext) -> O
                     inserted_row.index = Some(to_index as i32);
                     group.insert_row(to_index, row_pb);
                 } else {
-                    tracing::warn!("Mote to index: {} is out of bounds", to_index);
+                    tracing::warn!("Move to index: {} is out of bounds", to_index);
                     tracing::debug!("Group:{} append row:{}", group.id, row_rev.id);
                     group.add_row(row_pb);
                 }

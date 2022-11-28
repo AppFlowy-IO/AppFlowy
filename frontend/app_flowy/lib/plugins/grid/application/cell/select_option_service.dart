@@ -11,7 +11,7 @@ class SelectOptionService {
   SelectOptionService({required this.cellId});
 
   String get gridId => cellId.gridId;
-  String get fieldId => cellId.fieldContext.id;
+  String get fieldId => cellId.fieldInfo.id;
   String get rowId => cellId.rowId;
 
   Future<Either<Unit, FlowyError>> create({required String name}) {

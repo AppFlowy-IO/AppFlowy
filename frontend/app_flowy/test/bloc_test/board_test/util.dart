@@ -78,26 +78,26 @@ class BoardTestContext {
     return _boardDataController.blocks;
   }
 
-  List<GridFieldContext> get fieldContexts => fieldController.fieldContexts;
+  List<FieldInfo> get fieldContexts => fieldController.fieldInfos;
 
   GridFieldController get fieldController {
     return _boardDataController.fieldController;
   }
 
   FieldEditorBloc createFieldEditor({
-    GridFieldContext? fieldContext,
+    FieldInfo? fieldInfo,
   }) {
     IFieldTypeOptionLoader loader;
-    if (fieldContext == null) {
+    if (fieldInfo == null) {
       loader = NewFieldTypeOptionLoader(gridId: gridView.id);
     } else {
       loader =
-          FieldTypeOptionLoader(gridId: gridView.id, field: fieldContext.field);
+          FieldTypeOptionLoader(gridId: gridView.id, field: fieldInfo.field);
     }
 
     final editorBloc = FieldEditorBloc(
-      fieldName: fieldContext?.name ?? '',
-      isGroupField: fieldContext?.isGroupField ?? false,
+      fieldName: fieldInfo?.name ?? '',
+      isGroupField: fieldInfo?.isGroupField ?? false,
       loader: loader,
       gridId: gridView.id,
     );
@@ -146,10 +146,10 @@ class BoardTestContext {
     return Future(() => editorBloc);
   }
 
-  GridFieldContext singleSelectFieldContext() {
-    final fieldContext = fieldContexts
+  FieldInfo singleSelectFieldContext() {
+    final fieldInfo = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.SingleSelect);
-    return fieldContext;
+    return fieldInfo;
   }
 
   GridFieldCellContext singleSelectFieldCellContext() {
@@ -157,15 +157,15 @@ class BoardTestContext {
     return GridFieldCellContext(gridId: gridView.id, field: field);
   }
 
-  GridFieldContext textFieldContext() {
-    final fieldContext = fieldContexts
+  FieldInfo textFieldContext() {
+    final fieldInfo = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.RichText);
-    return fieldContext;
+    return fieldInfo;
   }
 
-  GridFieldContext checkboxFieldContext() {
-    final fieldContext = fieldContexts
+  FieldInfo checkboxFieldContext() {
+    final fieldInfo = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.Checkbox);
-    return fieldContext;
+    return fieldInfo;
   }
 }

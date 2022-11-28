@@ -167,7 +167,35 @@
       "filter": "Filter",
       "sortBy": "Sort by",
       "Properties": "Properties",
-      "group": "Group"
+      "group": "Group",
+      "addFilter": "Add Filter",
+      "deleteFilter": "Delete filter",
+      "filterBy": "Filter by...",
+      "typeAValue": "Type a value..."
+    },
+    "textFilter": {
+      "contains": "Contains",
+      "doesNotContain": "Does not contain",
+      "endsWith": "Ends with",
+      "startWith": "Starts with",
+      "is": "Is",
+      "isNot": "Is not",
+      "isEmpty": "Is empty",
+      "isNotEmpty": "Is not empty",
+      "choicechipPrefix": {
+        "isNot": "Not",
+        "startWith": "Starts with",
+        "endWith": "Ends with",
+        "isEmpty": "is empty",
+        "isNotEmpty": "is not empty"
+      }
+    },
+    "checkboxFilter": {
+      "isChecked": "Checked",
+      "isUnchecked": "Unchecked",
+      "choicechipPrefix": {
+        "is": "is"
+      }
     },
     "field": {
       "hide": "Hide",
