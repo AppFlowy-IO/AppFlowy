@@ -39,7 +39,8 @@ class DocumentPluginBuilder extends PluginBuilder {
 
 class DocumentPlugin extends Plugin<int> {
   late PluginType _pluginType;
-  late final DocumentAppearanceCubit _documentAppearanceCubit;
+  final DocumentAppearanceCubit _documentAppearanceCubit =
+      DocumentAppearanceCubit();
 
   @override
   final ViewPluginNotifier notifier;
@@ -50,7 +51,7 @@ class DocumentPlugin extends Plugin<int> {
     Key? key,
   }) : notifier = ViewPluginNotifier(view: view) {
     _pluginType = pluginType;
-    _documentAppearanceCubit = DocumentAppearanceCubit();
+    _documentAppearanceCubit.fetch();
   }
 
   @override

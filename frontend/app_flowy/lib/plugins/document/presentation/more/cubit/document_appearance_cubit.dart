@@ -20,9 +20,7 @@ class DocumentAppearance {
 }
 
 class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
-  DocumentAppearanceCubit() : super(const DocumentAppearance(fontSize: 14.0)) {
-    fetch();
-  }
+  DocumentAppearanceCubit() : super(const DocumentAppearance(fontSize: 14.0));
 
   late DocumentAppearance documentAppearance;
 
