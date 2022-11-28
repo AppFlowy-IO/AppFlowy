@@ -20,7 +20,8 @@ EditorStyle customEditorTheme(BuildContext context) {
       fontSize: documentStyle.fontSize,
     ),
     bold: editorStyle.bold?.copyWith(
-      fontWeight: FontWeight.w500,
+      fontWeight: FontWeight.w600,
+      fontFamily: 'poppins-Bold',
     ),
     backgroundColor: Theme.of(context).colorScheme.surface,
   );
