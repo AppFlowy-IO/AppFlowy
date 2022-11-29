@@ -2,6 +2,7 @@ import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_filter.pbenum.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/checklist_filter.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_filter.pbenum.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/number_filter.pb.dart';
@@ -103,6 +104,11 @@ class GridCreateFilterBloc
           fieldId: fieldId,
           condition: SelectOptionCondition.OptionIs,
           fieldType: FieldType.MultiSelect,
+        );
+      case FieldType.CheckList:
+        return _ffiService.insertChecklistFilter(
+          fieldId: fieldId,
+          condition: ChecklistFilterCondition.IsIncomplete,
         );
       case FieldType.Number:
         return _ffiService.insertNumberFilter(

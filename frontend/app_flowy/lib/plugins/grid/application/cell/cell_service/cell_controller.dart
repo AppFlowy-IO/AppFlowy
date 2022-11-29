@@ -81,6 +81,7 @@ class GridCellControllerBuilder {
         );
       case FieldType.MultiSelect:
       case FieldType.SingleSelect:
+      case FieldType.CheckList:
         final cellDataLoader = GridCellDataLoader(
           cellId: _cellId,
           parser: SelectOptionCellDataParser(),

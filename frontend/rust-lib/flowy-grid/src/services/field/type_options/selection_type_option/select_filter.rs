@@ -1,8 +1,8 @@
 #![allow(clippy::needless_collect)]
 
-use crate::entities::{SelectOptionCondition, SelectOptionFilterPB};
+use crate::entities::{ChecklistFilterPB, SelectOptionCondition, SelectOptionFilterPB};
 use crate::services::cell::{CellFilterOperation, TypeCellData};
-use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
+use crate::services::field::{ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
 use crate::services::field::{SelectTypeOptionSharedAction, SelectedSelectOptions};
 use flowy_error::FlowyResult;
 
@@ -54,6 +54,16 @@ impl CellFilterOperation<SelectOptionFilterPB> for MultiSelectTypeOptionPB {
 impl CellFilterOperation<SelectOptionFilterPB> for SingleSelectTypeOptionPB {
     fn apply_filter(&self, any_cell_data: TypeCellData, filter: &SelectOptionFilterPB) -> FlowyResult<bool> {
         if !any_cell_data.is_single_select() {
+            return Ok(true);
+        }
+        let selected_options = SelectedSelectOptions::from(self.get_selected_options(any_cell_data.into()));
+        Ok(filter.is_visible(&selected_options))
+    }
+}
+
+impl CellFilterOperation<ChecklistFilterPB> for ChecklistTypeOptionPB {
+    fn apply_filter(&self, any_cell_data: TypeCellData, filter: &ChecklistFilterPB) -> FlowyResult<bool> {
+        if !any_cell_data.is_checklist() {
             return Ok(true);
         }
         let selected_options = SelectedSelectOptions::from(self.get_selected_options(any_cell_data.into()));

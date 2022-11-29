@@ -104,6 +104,9 @@ impl TypeCellData {
     pub fn is_multi_select(&self) -> bool {
         self.field_type == FieldType::MultiSelect
     }
+    pub fn is_checklist(&self) -> bool {
+        self.field_type == FieldType::CheckList
+    }
 
     pub fn is_url(&self) -> bool {
         self.field_type == FieldType::URL

@@ -80,7 +80,7 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSele
                 }
 
                 new_cell_data = select_ids.to_string();
-                tracing::trace!("Multi select cell data: {}", &new_cell_data);
+                tracing::trace!("Multi-select cell data: {}", &new_cell_data);
             }
         }
 

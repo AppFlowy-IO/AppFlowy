@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'board_cell.dart';
 import 'board_checkbox_cell.dart';
+import 'board_checklist_cell.dart';
 import 'board_date_cell.dart';
 import 'board_number_cell.dart';
 import 'board_select_option_cell.dart';
@@ -56,6 +57,10 @@ class BoardCellBuilder {
           groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
           editableNotifier: cellNotifier,
+          key: key,
+        );
+      case FieldType.CheckList:
+        return BoardChecklistCell(
           key: key,
         );
       case FieldType.Number:

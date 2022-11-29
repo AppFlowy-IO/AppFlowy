@@ -2,6 +2,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pbenum.dart';
 import 'package:flutter/material.dart';
 
 import 'choicechip/checkbox.dart';
+import 'choicechip/checklist.dart';
 import 'choicechip/date.dart';
 import 'choicechip/number.dart';
 import 'choicechip/select_option/select_option.dart';
@@ -35,6 +36,8 @@ Widget buildFilterChoicechip(FilterInfo filterInfo) {
       return SelectOptionFilterChoicechip(filterInfo: filterInfo);
     case FieldType.URL:
       return URLFilterChoicechip(filterInfo: filterInfo);
+    case FieldType.CheckList:
+      return ChecklistFilterChoicechip(filterInfo: filterInfo);
     default:
       return const SizedBox();
   }

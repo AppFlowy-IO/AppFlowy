@@ -331,6 +331,10 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
       return SelectOptionCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
       );
+    case FieldType.CheckList:
+      return SelectOptionCellStyle(
+        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+      );
     case FieldType.Number:
       return null;
     case FieldType.RichText:

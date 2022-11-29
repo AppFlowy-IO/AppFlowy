@@ -10,11 +10,3 @@ class BoardGroupService {
     groupField = field;
   }
 }
-
-abstract class CanBeGroupField {
-  String get groupContent;
-}
-
-// class SingleSelectGroup extends CanBeGroupField {
-//   final SingleSelectTypeOptionContext typeOptionContext;
-// }

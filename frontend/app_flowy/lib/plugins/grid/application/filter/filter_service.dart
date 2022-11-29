@@ -3,6 +3,7 @@ import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_filter.pbserver.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/checklist_filter.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_filter.pbserver.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/grid_entities.pb.dart';
@@ -141,6 +142,24 @@ class FilterFFIService {
       fieldId: fieldId,
       filterId: filterId,
       fieldType: fieldType,
+      data: filter.writeToBuffer(),
+    );
+  }
+
+  Future<Either<Unit, FlowyError>> insertChecklistFilter({
+    required String fieldId,
+    required ChecklistFilterCondition condition,
+    String? filterId,
+    List<String> optionIds = const [],
+  }) {
+    final filter = ChecklistFilterPB()
+      ..condition = condition
+      ..optionIds.addAll(optionIds);
+
+    return insertFilter(
+      fieldId: fieldId,
+      filterId: filterId,
+      fieldType: FieldType.CheckList,
       data: filter.writeToBuffer(),
     );
   }
