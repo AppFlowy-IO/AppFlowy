@@ -38,7 +38,7 @@ async fn grid_filter_text_is_not_empty_test() {
     test.run_scripts(scripts).await;
 
     let filter = test.grid_filters().await.pop().unwrap();
-    let field_rev = test.get_field_rev(FieldType::RichText).clone();
+    let field_rev = test.get_first_field_rev(FieldType::RichText).clone();
     test.run_scripts(vec![
         DeleteFilter {
             filter_id: filter.id,
@@ -184,7 +184,7 @@ async fn grid_update_text_filter_test() {
 #[tokio::test]
 async fn grid_filter_delete_test() {
     let mut test = GridFilterTest::new().await;
-    let field_rev = test.get_field_rev(FieldType::RichText).clone();
+    let field_rev = test.get_first_field_rev(FieldType::RichText).clone();
     let text_filter = TextFilterPB {
         condition: TextFilterCondition::TextIsEmpty,
         content: "".to_string(),

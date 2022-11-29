@@ -89,7 +89,19 @@ impl GridEditorTest {
         self.editor.get_all_filters().await.unwrap()
     }
 
-    pub fn get_field_rev(&self, field_type: FieldType) -> &Arc<FieldRevision> {
+    pub fn get_field_rev(&self, field_id: &str, field_type: FieldType) -> &Arc<FieldRevision> {
+        self.field_revs
+            .iter()
+            .filter(|field_rev| {
+                let t_field_type: FieldType = field_rev.ty.into();
+                field_rev.id == field_id && t_field_type == field_type
+            })
+            .collect::<Vec<_>>()
+            .pop()
+            .unwrap()
+    }
+
+    pub fn get_first_field_rev(&self, field_type: FieldType) -> &Arc<FieldRevision> {
         self.field_revs
             .iter()
             .filter(|field_rev| {
@@ -101,23 +113,33 @@ impl GridEditorTest {
             .unwrap()
     }
 
-    pub fn get_multi_select_type_option(&self) -> Vec<SelectOptionPB> {
+    pub fn get_multi_select_type_option(&self, field_id: &str) -> Vec<SelectOptionPB> {
         let field_type = FieldType::MultiSelect;
-        let field_rev = self.get_field_rev(field_type.clone());
+        let field_rev = self.get_field_rev(field_id, field_type.clone());
         let type_option = field_rev
             .get_type_option::<MultiSelectTypeOptionPB>(field_type.into())
             .unwrap();
         type_option.options
     }
 
-    pub fn get_single_select_type_option(&self) -> Vec<SelectOptionPB> {
+    pub fn get_single_select_type_option(&self, field_id: &str) -> SingleSelectTypeOptionPB {
         let field_type = FieldType::SingleSelect;
-        let field_rev = self.get_field_rev(field_type.clone());
+        let field_rev = self.get_field_rev(field_id, field_type.clone());
         let type_option = field_rev
             .get_type_option::<SingleSelectTypeOptionPB>(field_type.into())
             .unwrap();
-        type_option.options
+        type_option
     }
+
+    pub fn get_checkbox_type_option(&self, field_id: &str) -> CheckboxTypeOptionPB {
+        let field_type = FieldType::Checkbox;
+        let field_rev = self.get_field_rev(field_id, field_type.clone());
+        let type_option = field_rev
+            .get_type_option::<CheckboxTypeOptionPB>(field_type.into())
+            .unwrap();
+        type_option
+    }
+
     pub fn block_id(&self) -> &str {
         &self.block_meta_revs.last().unwrap().block_id
     }

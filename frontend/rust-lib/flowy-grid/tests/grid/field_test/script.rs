@@ -1,5 +1,5 @@
 use crate::grid::grid_editor::GridEditorTest;
-use flowy_grid::entities::{CreateFieldParams, FieldChangesetParams};
+use flowy_grid::entities::{CreateFieldParams, FieldChangesetParams, FieldType};
 use grid_rev_model::FieldRevision;
 
 pub enum FieldScript {
@@ -11,6 +11,14 @@ pub enum FieldScript {
     },
     DeleteField {
         field_rev: FieldRevision,
+    },
+    SwitchToField {
+        field_id: String,
+        new_field_type: FieldType,
+    },
+    UpdateTypeOption {
+        field_id: String,
+        type_option: Vec<u8>,
     },
     AssertFieldCount(usize),
     AssertFieldFrozen {
@@ -70,6 +78,25 @@ impl GridFieldTest {
                 self.editor.delete_field(&field_rev.id).await.unwrap();
                 self.field_revs = self.editor.get_field_revs(None).await.unwrap();
                 assert_eq!(self.field_count, self.field_revs.len());
+            }
+            FieldScript::SwitchToField {
+                field_id,
+                new_field_type,
+            } => {
+                //
+                self.editor
+                    .switch_to_field_type(&field_id, &new_field_type)
+                    .await
+                    .unwrap();
+                self.field_revs = self.editor.get_field_revs(None).await.unwrap();
+            }
+            FieldScript::UpdateTypeOption { field_id, type_option } => {
+                //
+                self.editor
+                    .update_field_type_option(&self.grid_id, &field_id, type_option, None)
+                    .await
+                    .unwrap();
+                self.field_revs = self.editor.get_field_revs(None).await.unwrap();
             }
             FieldScript::AssertFieldCount(count) => {
                 assert_eq!(self.editor.get_field_revs(None).await.unwrap().len(), count);
