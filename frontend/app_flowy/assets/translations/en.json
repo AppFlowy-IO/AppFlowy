@@ -265,6 +265,9 @@
       "panelTitle": "Select an option or create one",
       "searchOption": "Search for an option"
     },
+    "checklist": {
+      "panelTitle": "Search an option or create one"
+    },
     "menuName": "Grid"
   },
   "document": {

@@ -105,7 +105,7 @@ class GridCreateFilterBloc
           condition: SelectOptionCondition.OptionIs,
           fieldType: FieldType.MultiSelect,
         );
-      case FieldType.CheckList:
+      case FieldType.Checklist:
         return _ffiService.insertChecklistFilter(
           fieldId: fieldId,
           condition: ChecklistFilterCondition.IsIncomplete,

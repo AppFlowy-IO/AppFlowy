@@ -291,7 +291,7 @@ impl FilterController {
                             .url_filter
                             .insert(filter_type, TextFilterPB::from(filter_rev.as_ref()));
                     }
-                    FieldType::CheckList => {
+                    FieldType::Checklist => {
                         let _ = self
                             .filter_map
                             .checklist_filter
@@ -419,7 +419,7 @@ fn filter_cell(
                     .ok(),
             )
         }),
-        FieldType::CheckList => filter_map.checklist_filter.get(filter_id).and_then(|filter| {
+        FieldType::Checklist => filter_map.checklist_filter.get(filter_id).and_then(|filter| {
             Some(
                 field_rev
                     .get_type_option::<ChecklistTypeOptionPB>(field_rev.ty)?

@@ -59,7 +59,7 @@ class BoardCellBuilder {
           editableNotifier: cellNotifier,
           key: key,
         );
-      case FieldType.CheckList:
+      case FieldType.Checklist:
         return BoardChecklistCell(
           key: key,
         );

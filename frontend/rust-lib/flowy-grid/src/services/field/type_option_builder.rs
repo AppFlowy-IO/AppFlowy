@@ -38,7 +38,7 @@ pub fn default_type_option_builder_from_type(field_type: &FieldType) -> Box<dyn 
         FieldType::MultiSelect => MultiSelectTypeOptionPB::default().into(),
         FieldType::Checkbox => CheckboxTypeOptionPB::default().into(),
         FieldType::URL => URLTypeOptionPB::default().into(),
-        FieldType::CheckList => ChecklistTypeOptionPB::default().into(),
+        FieldType::Checklist => ChecklistTypeOptionPB::default().into(),
     };
 
     type_option_builder_from_json_str(&s, field_type)
@@ -53,7 +53,7 @@ pub fn type_option_builder_from_json_str(s: &str, field_type: &FieldType) -> Box
         FieldType::MultiSelect => Box::new(MultiSelectTypeOptionBuilder::from_json_str(s)),
         FieldType::Checkbox => Box::new(CheckboxTypeOptionBuilder::from_json_str(s)),
         FieldType::URL => Box::new(URLTypeOptionBuilder::from_json_str(s)),
-        FieldType::CheckList => Box::new(ChecklistTypeOptionBuilder::from_json_str(s)),
+        FieldType::Checklist => Box::new(ChecklistTypeOptionBuilder::from_json_str(s)),
     }
 }
 
@@ -67,6 +67,6 @@ pub fn type_option_builder_from_bytes<T: Into<Bytes>>(bytes: T, field_type: &Fie
         FieldType::MultiSelect => Box::new(MultiSelectTypeOptionBuilder::from_protobuf_bytes(bytes)),
         FieldType::Checkbox => Box::new(CheckboxTypeOptionBuilder::from_protobuf_bytes(bytes)),
         FieldType::URL => Box::new(URLTypeOptionBuilder::from_protobuf_bytes(bytes)),
-        FieldType::CheckList => Box::new(ChecklistTypeOptionBuilder::from_protobuf_bytes(bytes)),
+        FieldType::Checklist => Box::new(ChecklistTypeOptionBuilder::from_protobuf_bytes(bytes)),
     }
 }

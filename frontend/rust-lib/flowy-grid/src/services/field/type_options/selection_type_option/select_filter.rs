@@ -67,7 +67,7 @@ impl CellFilterOperation<ChecklistFilterPB> for ChecklistTypeOptionPB {
             return Ok(true);
         }
         let selected_options = SelectedSelectOptions::from(self.get_selected_options(any_cell_data.into()));
-        Ok(filter.is_visible(&selected_options))
+        Ok(filter.is_visible(&self.options, &selected_options))
     }
 }
 

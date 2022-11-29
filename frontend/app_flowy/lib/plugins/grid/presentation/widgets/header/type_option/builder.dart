@@ -5,10 +5,10 @@ import 'package:app_flowy/plugins/grid/application/field/type_option/type_option
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_data_controller.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/checklist_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/multi_select_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/single_select_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/text_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/url_type_option.pb.dart';
@@ -127,7 +127,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
         ),
       );
 
-    case FieldType.CheckList:
+    case FieldType.Checklist:
       return ChecklistTypeOptionWidgetBuilder(
         makeTypeOptionContextWithDataController<ChecklistTypeOptionPB>(
           gridId: gridId,
@@ -217,7 +217,7 @@ TypeOptionContext<T>
         dataController: dataController,
         dataParser: MultiSelectTypeOptionWidgetDataParser(),
       ) as TypeOptionContext<T>;
-    case FieldType.CheckList:
+    case FieldType.Checklist:
       return ChecklistTypeOptionContext(
         dataController: dataController,
         dataParser: ChecklistTypeOptionWidgetDataParser(),

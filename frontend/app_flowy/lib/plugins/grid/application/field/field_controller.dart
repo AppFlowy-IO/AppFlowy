@@ -503,7 +503,7 @@ class FieldInfo {
 
   bool get hasFilter => _hasFilter;
 
-  bool get canGroup {
+  bool get canBeGroup {
     switch (_field.fieldType) {
       case FieldType.Checkbox:
       case FieldType.MultiSelect:

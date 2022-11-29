@@ -10,3 +10,5 @@ export 'src/flowy_overlay/list_overlay.dart';
 export 'src/flowy_overlay/option_overlay.dart';
 export 'src/flowy_overlay/flowy_dialog.dart';
 export 'src/flowy_overlay/appflowy_popover.dart';
+export 'style_widget/text.dart';
+export 'style_widget/text_field.dart';

@@ -36,7 +36,7 @@ impl std::convert::From<&FilterRevision> for FilterPB {
             FieldType::DateTime => DateFilterPB::from(rev).try_into().unwrap(),
             FieldType::SingleSelect => SelectOptionFilterPB::from(rev).try_into().unwrap(),
             FieldType::MultiSelect => SelectOptionFilterPB::from(rev).try_into().unwrap(),
-            FieldType::CheckList => ChecklistFilterPB::from(rev).try_into().unwrap(),
+            FieldType::Checklist => ChecklistFilterPB::from(rev).try_into().unwrap(),
             FieldType::Checkbox => CheckboxFilterPB::from(rev).try_into().unwrap(),
             FieldType::URL => TextFilterPB::from(rev).try_into().unwrap(),
         };
@@ -176,7 +176,7 @@ impl TryInto<AlterFilterParams> for AlterFilterPayloadPB {
                 }
                 .to_string();
             }
-            FieldType::SingleSelect | FieldType::MultiSelect | FieldType::CheckList => {
+            FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => {
                 let filter = SelectOptionFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
                 condition = filter.condition as u8;
                 content = SelectOptionIds::from(filter.option_ids).to_string();

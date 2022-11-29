@@ -1,4 +1,3 @@
-use crate::services::field::SelectOptionIds;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use grid_rev_model::FilterRevision;
@@ -7,9 +6,6 @@ use grid_rev_model::FilterRevision;
 pub struct ChecklistFilterPB {
     #[pb(index = 1)]
     pub condition: ChecklistFilterCondition,
-
-    #[pb(index = 2)]
-    pub option_ids: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
@@ -45,11 +41,9 @@ impl std::convert::TryFrom<u8> for ChecklistFilterCondition {
 
 impl std::convert::From<&FilterRevision> for ChecklistFilterPB {
     fn from(rev: &FilterRevision) -> Self {
-        let ids = SelectOptionIds::from(rev.content.clone());
         ChecklistFilterPB {
             condition: ChecklistFilterCondition::try_from(rev.condition)
                 .unwrap_or(ChecklistFilterCondition::IsIncomplete),
-            option_ids: ids.into_inner(),
         }
     }
 }

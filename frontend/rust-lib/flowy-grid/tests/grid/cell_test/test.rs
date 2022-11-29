@@ -31,7 +31,7 @@ async fn grid_cell_update() {
                     let type_option = MultiSelectTypeOptionPB::from(field_rev);
                     SelectOptionCellChangeset::from_insert_option_id(&type_option.options.first().unwrap().id).to_str()
                 }
-                FieldType::CheckList => {
+                FieldType::Checklist => {
                     let type_option = ChecklistTypeOptionPB::from(field_rev);
                     SelectOptionCellChangeset::from_insert_option_id(&type_option.options.first().unwrap().id).to_str()
                 }

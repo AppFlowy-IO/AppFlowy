@@ -22,7 +22,7 @@ pub struct ChecklistTypeOptionPB {
     #[pb(index = 2)]
     pub disable_color: bool,
 }
-impl_type_option!(ChecklistTypeOptionPB, FieldType::CheckList);
+impl_type_option!(ChecklistTypeOptionPB, FieldType::Checklist);
 
 impl SelectTypeOptionSharedAction for ChecklistTypeOptionPB {
     fn number_of_max_options(&self) -> Option<usize> {
@@ -101,7 +101,7 @@ impl ChecklistTypeOptionBuilder {
 
 impl TypeOptionBuilder for ChecklistTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
-        FieldType::CheckList
+        FieldType::Checklist
     }
 
     fn serializer(&self) -> &dyn TypeOptionDataSerializer {

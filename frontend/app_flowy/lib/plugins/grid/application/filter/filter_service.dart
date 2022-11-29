@@ -152,14 +152,12 @@ class FilterFFIService {
     String? filterId,
     List<String> optionIds = const [],
   }) {
-    final filter = ChecklistFilterPB()
-      ..condition = condition
-      ..optionIds.addAll(optionIds);
+    final filter = ChecklistFilterPB()..condition = condition;
 
     return insertFilter(
       fieldId: fieldId,
       filterId: filterId,
-      fieldType: FieldType.CheckList,
+      fieldType: FieldType.Checklist,
       data: filter.writeToBuffer(),
     );
   }

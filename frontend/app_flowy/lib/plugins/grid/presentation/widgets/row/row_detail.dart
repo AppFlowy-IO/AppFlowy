@@ -9,7 +9,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
@@ -331,7 +330,7 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
       return SelectOptionCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
       );
-    case FieldType.CheckList:
+    case FieldType.Checklist:
       return SelectOptionCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
       );

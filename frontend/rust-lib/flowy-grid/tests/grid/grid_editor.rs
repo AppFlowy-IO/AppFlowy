@@ -131,6 +131,14 @@ impl GridEditorTest {
         type_option
     }
 
+    pub fn get_checklist_type_option(&self, field_id: &str) -> ChecklistTypeOptionPB {
+        let field_type = FieldType::Checklist;
+        let field_rev = self.get_field_rev(field_id, field_type.clone());
+        let type_option = field_rev
+            .get_type_option::<ChecklistTypeOptionPB>(field_type.into())
+            .unwrap();
+        type_option
+    }
     pub fn get_checkbox_type_option(&self, field_id: &str) -> CheckboxTypeOptionPB {
         let field_type = FieldType::Checkbox;
         let field_rev = self.get_field_rev(field_id, field_type.clone());
@@ -220,7 +228,7 @@ fn make_test_grid() -> BuildGridContext {
                 let url_field = FieldBuilder::new(url).name("link").visibility(true).build();
                 grid_builder.add_field(url_field);
             }
-            FieldType::CheckList => {
+            FieldType::Checklist => {
                 let checklist = ChecklistTypeOptionBuilder::default()
                     .add_option(SelectOptionPB::new(FIRST_THING))
                     .add_option(SelectOptionPB::new(SECOND_THING))
@@ -245,7 +253,7 @@ fn make_test_grid() -> BuildGridContext {
                         FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
                         FieldType::MultiSelect => row_builder
                             .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(0)]),
-                        FieldType::CheckList => row_builder.insert_checklist_cell(|options| options),
+                        FieldType::Checklist => row_builder.insert_checklist_cell(|options| options),
                         FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
                         _ => "".to_owned(),
                     };
@@ -382,7 +390,7 @@ fn make_test_board() -> BuildGridContext {
                 let url_field = FieldBuilder::new(url).name("link").visibility(true).build();
                 grid_builder.add_field(url_field);
             }
-            FieldType::CheckList => {}
+            FieldType::Checklist => {}
         }
     }
 

@@ -36,7 +36,7 @@ Widget buildFilterChoicechip(FilterInfo filterInfo) {
       return SelectOptionFilterChoicechip(filterInfo: filterInfo);
     case FieldType.URL:
       return URLFilterChoicechip(filterInfo: filterInfo);
-    case FieldType.CheckList:
+    case FieldType.Checklist:
       return ChecklistFilterChoicechip(filterInfo: filterInfo);
     default:
       return const SizedBox();

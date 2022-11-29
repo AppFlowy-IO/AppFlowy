@@ -29,7 +29,7 @@ impl FilterMap {
             FieldType::MultiSelect => self.select_option_filter.get(filter_type).is_some(),
             FieldType::Checkbox => self.checkbox_filter.get(filter_type).is_some(),
             FieldType::URL => self.url_filter.get(filter_type).is_some(),
-            FieldType::CheckList => self.checklist_filter.get(filter_type).is_some(),
+            FieldType::Checklist => self.checklist_filter.get(filter_type).is_some(),
         }
     }
 
@@ -61,6 +61,9 @@ impl FilterMap {
         if !self.checkbox_filter.is_empty() {
             return false;
         }
+        if !self.checklist_filter.is_empty() {
+            return false;
+        }
         true
     }
 
@@ -87,7 +90,7 @@ impl FilterMap {
             FieldType::URL => {
                 let _ = self.url_filter.remove(filter_id);
             }
-            FieldType::CheckList => {
+            FieldType::Checklist => {
                 let _ = self.checklist_filter.remove(filter_id);
             }
         };

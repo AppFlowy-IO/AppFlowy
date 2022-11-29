@@ -6,7 +6,7 @@
 use std::time::Duration;
 use bytes::Bytes;
 use futures::TryFutureExt;
-use flowy_grid::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition, DateFilterContent, SelectOptionCondition, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB, FilterPB};
+use flowy_grid::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition, DateFilterContent, SelectOptionCondition, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB, FilterPB, ChecklistFilterCondition, ChecklistFilterPB};
 use flowy_grid::services::field::{SelectOptionCellChangeset, SelectOptionIds};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
@@ -56,6 +56,9 @@ pub enum FilterScript {
     CreateSingleSelectFilter {
         condition: SelectOptionCondition,
         option_ids: Vec<String>,
+    },
+    CreateChecklistFilter {
+        condition: ChecklistFilterCondition,
     },
     AssertFilterCount {
         count: i32,
@@ -180,6 +183,14 @@ impl GridFilterTest {
             FilterScript::CreateSingleSelectFilter { condition, option_ids} => {
                 let field_rev = self.get_first_field_rev(FieldType::SingleSelect);
                 let filter = SelectOptionFilterPB { condition, option_ids };
+                let payload =
+                    AlterFilterPayloadPB::new(field_rev, filter);
+                self.insert_filter(payload).await;
+            }
+            FilterScript::CreateChecklistFilter { condition} => {
+                let field_rev = self.get_first_field_rev(FieldType::Checklist);
+                // let type_option = self.get_checklist_type_option(&field_rev.id);
+                let filter = ChecklistFilterPB { condition };
                 let payload =
                     AlterFilterPayloadPB::new(field_rev, filter);
                 self.insert_filter(payload).await;

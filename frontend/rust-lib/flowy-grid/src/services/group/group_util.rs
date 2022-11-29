@@ -123,7 +123,7 @@ pub fn default_group_configuration(field_rev: &FieldRevision) -> GroupConfigurat
             SelectOptionGroupConfigurationRevision::default(),
         )
         .unwrap(),
-        FieldType::CheckList => GroupConfigurationRevision::new(
+        FieldType::Checklist => GroupConfigurationRevision::new(
             field_id,
             field_type_rev,
             SelectOptionGroupConfigurationRevision::default(),

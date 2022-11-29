@@ -1,13 +1,13 @@
 import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 
-class FilterTextField extends StatefulWidget {
+class FlowyTextField extends StatefulWidget {
   final String hintText;
   final String text;
   final void Function(String)? onChanged;
   final void Function(String)? onSubmitted;
   final bool autoFucous;
-  const FilterTextField({
+  const FlowyTextField({
     this.hintText = "",
     this.text = "",
     this.onChanged,
@@ -17,10 +17,10 @@ class FilterTextField extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<FilterTextField> createState() => FilterTextFieldState();
+  State<FlowyTextField> createState() => FlowyTextFieldState();
 }
 
-class FilterTextFieldState extends State<FilterTextField> {
+class FlowyTextFieldState extends State<FlowyTextField> {
   late FocusNode focusNode;
   late TextEditingController controller;
 

@@ -94,12 +94,12 @@ impl<'a> GridRowTestBuilder<'a> {
     where
         F: Fn(Vec<SelectOptionPB>) -> Vec<SelectOptionPB>,
     {
-        let checklist_field = self.field_rev_with_type(&FieldType::CheckList);
+        let checklist_field = self.field_rev_with_type(&FieldType::Checklist);
         let type_option = ChecklistTypeOptionPB::from(&checklist_field);
         let options = f(type_option.options);
         let ops_ids = options.iter().map(|option| option.id.clone()).collect::<Vec<_>>();
         self.inner_builder
-            .insert_select_option_cell(&multi_select_field.id, ops_ids);
+            .insert_select_option_cell(&checklist_field.id, ops_ids);
 
         checklist_field.id.clone()
     }

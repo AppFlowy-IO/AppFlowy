@@ -226,7 +226,7 @@ impl GridRowTest {
                 assert_eq!(s, expected);
             }
 
-            FieldType::CheckList => {
+            FieldType::Checklist => {
                 let cell_data = self
                     .editor
                     .get_cell_bytes(&cell_id)
