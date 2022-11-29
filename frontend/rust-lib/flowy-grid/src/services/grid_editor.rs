@@ -108,7 +108,7 @@ impl GridRevisionEditor {
     /// * `type_option_data`: the updated type-option data. The `type-option` data might be empty
     /// if there is no type-option config for that field. For example, the `RichTextTypeOptionPB`.
     ///  
-    pub async fn did_update_field_type_option(
+    pub async fn update_field_type_option(
         &self,
         _grid_id: &str,
         field_id: &str,
@@ -271,11 +271,11 @@ impl GridRevisionEditor {
         };
 
         let type_option_transform =
-            |prev_field_type: FieldTypeRevision, prev_type_option: Option<String>, current_type_option: String| {
-                let prev_field_type: FieldType = prev_field_type.into();
-                let mut type_option_builder = type_option_builder_from_json_str(&current_type_option, new_field_type);
-                if let Some(prev_type_option) = prev_type_option {
-                    type_option_builder.transform(&prev_field_type, prev_type_option)
+            |old_field_type: FieldTypeRevision, old_type_option: Option<String>, new_type_option: String| {
+                let old_field_type: FieldType = old_field_type.into();
+                let mut type_option_builder = type_option_builder_from_json_str(&new_type_option, new_field_type);
+                if let Some(old_type_option) = old_type_option {
+                    type_option_builder.transform(&old_field_type, old_type_option)
                 }
                 type_option_builder.serializer().json_str()
             };
@@ -329,72 +329,6 @@ impl GridRevisionEditor {
         }
         Ok(field_revs)
     }
-
-    // /// Apply the changeset to field. Including the `name`,`field_type`,`width`,`visibility`,and `type_option_data`.
-    // /// Do nothing if the passed-in params doesn't carry any changes.
-    // ///
-    // /// # Arguments
-    // ///
-    // /// * `params`: contains the changesets that is going to applied to the field.
-    // /// Ignore the change if one of the properties is None.
-    // ///
-    // /// * `field_type`: is used by `TypeOptionJsonDeserializer` to deserialize the type_option_data
-    // ///
-    // #[tracing::instrument(level = "debug", skip_all, err)]
-    // async fn did_update_field_rev(
-    //     &self,
-    //     params: FieldChangesetParams,
-    //     field_type: FieldType,
-    //     old_field_rev: Option<Arc<FieldRevision>>,
-    // ) -> FlowyResult<()> {
-    //     let mut is_type_option_changed = false;
-    //     let _ = self
-    //         .modify(|grid| {
-    //             let changeset = grid.modify_field(&params.field_id, |field| {
-    //                 if let Some(name) = params.name {
-    //                     field.name = name;
-    //                 }
-    //                 if let Some(desc) = params.desc {
-    //                     field.desc = desc;
-    //                 }
-    //                 if let Some(field_type) = params.field_type {
-    //                     field.ty = field_type;
-    //                 }
-    //                 if let Some(frozen) = params.frozen {
-    //                     field.frozen = frozen;
-    //                 }
-    //                 if let Some(visibility) = params.visibility {
-    //                     field.visibility = visibility;
-    //                 }
-    //                 if let Some(width) = params.width {
-    //                     field.width = width;
-    //                 }
-    //                 if let Some(type_option_data) = params.type_option_data {
-    //                     let deserializer = TypeOptionJsonDeserializer(field_type);
-    //                     is_type_option_changed = true;
-    //                     match deserializer.deserialize(type_option_data) {
-    //                         Ok(json_str) => {
-    //                             let field_type = field.ty;
-    //                             field.insert_type_option_str(&field_type, json_str);
-    //                         }
-    //                         Err(err) => {
-    //                             tracing::error!("Deserialize data to type option json failed: {}", err);
-    //                         }
-    //                     }
-    //                 }
-    //                 Ok(Some(()))
-    //             })?;
-    //             Ok(changeset)
-    //         })
-    //         .await?;
-    //     if is_type_option_changed {
-    //         let _ = self
-    //             .view_manager
-    //             .did_update_view_field_type_option(&params.field_id, old_field_rev)
-    //             .await?;
-    //     }
-    //     Ok(())
-    // }
 
     pub async fn create_block(&self, block_meta_rev: GridBlockMetaRevision) -> FlowyResult<()> {
         let _ = self

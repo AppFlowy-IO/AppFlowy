@@ -328,11 +328,11 @@ fn filter_row(
     }
 
     let is_visible = filter_result.is_visible();
-    return if old_is_visible != is_visible {
+    if old_is_visible != is_visible {
         Some((row_rev.id.clone(), is_visible))
     } else {
         None
-    };
+    }
 }
 
 // Returns None if there is no change in this cell after applying the filter

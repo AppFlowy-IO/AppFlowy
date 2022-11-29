@@ -1,9 +1,10 @@
 use crate::grid::field_test::script::FieldScript::*;
 use crate::grid::field_test::script::GridFieldTest;
 use crate::grid::field_test::util::*;
-use flowy_grid::entities::FieldChangesetParams;
+use bytes::Bytes;
+use flowy_grid::entities::{FieldChangesetParams, FieldType};
 use flowy_grid::services::field::selection_type_option::SelectOptionPB;
-use flowy_grid::services::field::SingleSelectTypeOptionPB;
+use flowy_grid::services::field::{gen_option_id, SingleSelectTypeOptionPB, CHECK, UNCHECK};
 
 #[tokio::test]
 async fn grid_create_field() {
@@ -120,4 +121,61 @@ async fn grid_delete_field() {
         AssertFieldCount(original_field_count),
     ];
     test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_switch_from_select_option_to_checkbox_test() {
+    let mut test = GridFieldTest::new().await;
+    let field_rev = test.get_first_field_rev(FieldType::SingleSelect);
+
+    // Update the type option data of single select option
+    let mut single_select_type_option = test.get_single_select_type_option(&field_rev.id);
+    single_select_type_option.options.clear();
+    // Add a new option with name CHECK
+    single_select_type_option.options.push(SelectOptionPB {
+        id: gen_option_id(),
+        name: CHECK.to_string(),
+        color: Default::default(),
+    });
+    // Add a new option with name UNCHECK
+    single_select_type_option.options.push(SelectOptionPB {
+        id: gen_option_id(),
+        name: UNCHECK.to_string(),
+        color: Default::default(),
+    });
+
+    let bytes: Bytes = single_select_type_option.try_into().unwrap();
+    let scripts = vec![
+        UpdateTypeOption {
+            field_id: field_rev.id.clone(),
+            type_option: bytes.to_vec(),
+        },
+        SwitchToField {
+            field_id: field_rev.id.clone(),
+            new_field_type: FieldType::Checkbox,
+        },
+    ];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_switch_from_checkbox_to_select_option_test() {
+    let mut test = GridFieldTest::new().await;
+    let field_rev = test.get_first_field_rev(FieldType::Checkbox).clone();
+    let scripts = vec![SwitchToField {
+        field_id: field_rev.id.clone(),
+        new_field_type: FieldType::SingleSelect,
+    }];
+    test.run_scripts(scripts).await;
+
+    let single_select_type_option = test.get_single_select_type_option(&field_rev.id);
+    assert_eq!(single_select_type_option.options.len(), 2);
+    assert!(single_select_type_option
+        .options
+        .iter()
+        .any(|option| option.name == UNCHECK));
+    assert!(single_select_type_option
+        .options
+        .iter()
+        .any(|option| option.name == CHECK));
 }

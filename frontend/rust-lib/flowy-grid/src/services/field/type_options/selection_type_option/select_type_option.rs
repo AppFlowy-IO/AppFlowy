@@ -27,10 +27,14 @@ pub struct SelectOptionPB {
     pub color: SelectOptionColorPB,
 }
 
+pub fn gen_option_id() -> String {
+    nanoid!(4)
+}
+
 impl SelectOptionPB {
     pub fn new(name: &str) -> Self {
         SelectOptionPB {
-            id: nanoid!(4),
+            id: gen_option_id(),
             name: name.to_owned(),
             color: SelectOptionColorPB::default(),
         }

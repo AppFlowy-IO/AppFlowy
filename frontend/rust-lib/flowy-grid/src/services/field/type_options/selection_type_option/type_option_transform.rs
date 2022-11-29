@@ -9,6 +9,13 @@ use grid_rev_model::FieldRevision;
 /// Handles how to transform the cell data when switching between different field types
 pub struct SelectOptionTypeOptionTransformer();
 impl SelectOptionTypeOptionTransformer {
+    /// Transform the TypeOptionData from 'field_type' to single select option type.
+    ///
+    /// # Arguments
+    ///
+    /// * `field_type`: the FieldType of the passed-in TypeOptionData
+    /// * `type_option_data`: the data that can be parsed into corresponding TypeOptionData.
+    ///
     pub fn transform_type_option<T>(shared: &mut T, field_type: &FieldType, _type_option_data: String)
     where
         T: SelectTypeOptionSharedAction,
