@@ -1,7 +1,5 @@
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flutter/material.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class FilterTextField extends StatefulWidget {
   final String hintText;
@@ -51,7 +49,7 @@ class FilterTextFieldState extends State<FilterTextField> {
         widget.onSubmitted?.call(text);
       },
       maxLines: 1,
-      style: TextStyles.body1.size(FontSizes.s12),
+      style: Theme.of(context).textTheme.bodyMedium,
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.all(10),
         enabledBorder: OutlineInputBorder(
