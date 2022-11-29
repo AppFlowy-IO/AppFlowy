@@ -72,7 +72,7 @@ class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
       child: FlowyRichText(
         key: _richTextKey,
         textNode: widget.textNode,
-        textSpanDecorator: (textSpan) => textSpan.updateTextStyle(textStyle),
+        textSpanDecorator: (textSpan) => textSpan,
         placeholderTextSpanDecorator: (textSpan) =>
             textSpan.updateTextStyle(textStyle),
         lineHeight: widget.editorState.editorStyle.lineHeight,
