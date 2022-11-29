@@ -117,7 +117,7 @@ pub(crate) async fn update_field_type_option_handler(
     let editor = manager.get_grid_editor(&params.grid_id).await?;
     let old_field_rev = editor.get_field_rev(&params.field_id).await;
     let _ = editor
-        .did_update_field_type_option(
+        .update_field_type_option(
             &params.grid_id,
             &params.field_id,
             params.type_option_data,
@@ -159,7 +159,7 @@ pub(crate) async fn switch_to_field_handler(
     // Update the type-option data after the field type has been changed
     let type_option_data = get_type_option_data(&new_field_rev, &params.field_type).await?;
     let _ = editor
-        .did_update_field_type_option(&params.grid_id, &new_field_rev.id, type_option_data, old_field_rev)
+        .update_field_type_option(&params.grid_id, &new_field_rev.id, type_option_data, old_field_rev)
         .await?;
 
     Ok(())

@@ -1,6 +1,6 @@
 use crate::grid::filter_test::script::FilterScript::*;
 use crate::grid::filter_test::script::GridFilterTest;
-use flowy_grid::entities::SelectOptionCondition;
+use flowy_grid::entities::{FieldType, SelectOptionCondition};
 
 #[tokio::test]
 async fn grid_filter_multi_select_is_empty_test() {
@@ -31,7 +31,8 @@ async fn grid_filter_multi_select_is_not_empty_test() {
 #[tokio::test]
 async fn grid_filter_multi_select_is_test() {
     let mut test = GridFilterTest::new().await;
-    let mut options = test.get_multi_select_type_option();
+    let field_rev = test.get_first_field_rev(FieldType::MultiSelect);
+    let mut options = test.get_multi_select_type_option(&field_rev.id);
     let scripts = vec![
         CreateMultiSelectFilter {
             condition: SelectOptionCondition::OptionIs,
@@ -45,7 +46,8 @@ async fn grid_filter_multi_select_is_test() {
 #[tokio::test]
 async fn grid_filter_multi_select_is_test2() {
     let mut test = GridFilterTest::new().await;
-    let mut options = test.get_multi_select_type_option();
+    let field_rev = test.get_first_field_rev(FieldType::MultiSelect);
+    let mut options = test.get_multi_select_type_option(&field_rev.id);
     let scripts = vec![
         CreateMultiSelectFilter {
             condition: SelectOptionCondition::OptionIs,
@@ -72,7 +74,8 @@ async fn grid_filter_single_select_is_empty_test() {
 #[tokio::test]
 async fn grid_filter_single_select_is_test() {
     let mut test = GridFilterTest::new().await;
-    let mut options = test.get_single_select_type_option();
+    let field_rev = test.get_first_field_rev(FieldType::SingleSelect);
+    let mut options = test.get_single_select_type_option(&field_rev.id).options;
     let scripts = vec![
         CreateSingleSelectFilter {
             condition: SelectOptionCondition::OptionIs,
@@ -86,7 +89,8 @@ async fn grid_filter_single_select_is_test() {
 #[tokio::test]
 async fn grid_filter_single_select_is_test2() {
     let mut test = GridFilterTest::new().await;
-    let mut options = test.get_single_select_type_option();
+    let field_rev = test.get_first_field_rev(FieldType::SingleSelect);
+    let mut options = test.get_single_select_type_option(&field_rev.id).options;
     let option = options.remove(0);
     let scripts = vec![
         CreateSingleSelectFilter {

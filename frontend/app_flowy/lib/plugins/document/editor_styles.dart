@@ -1,9 +1,11 @@
+import 'package:app_flowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
-
-const _baseFontSize = 14.0;
+import 'package:provider/provider.dart';
 
 EditorStyle customEditorTheme(BuildContext context) {
+  final documentStyle =
+      context.watch<DocumentAppearanceCubit>().documentAppearance;
   var editorStyle = Theme.of(context).brightness == Brightness.dark
       ? EditorStyle.dark
       : EditorStyle.light;
@@ -11,14 +13,15 @@ EditorStyle customEditorTheme(BuildContext context) {
     padding: const EdgeInsets.all(0),
     textStyle: editorStyle.textStyle?.copyWith(
       fontFamily: 'poppins',
-      fontSize: _baseFontSize,
+      fontSize: documentStyle.fontSize,
     ),
     placeholderTextStyle: editorStyle.placeholderTextStyle?.copyWith(
       fontFamily: 'poppins',
-      fontSize: _baseFontSize,
+      fontSize: documentStyle.fontSize,
     ),
     bold: editorStyle.bold?.copyWith(
-      fontWeight: FontWeight.w500,
+      fontWeight: FontWeight.w600,
+      fontFamily: 'poppins-Bold',
     ),
     backgroundColor: Theme.of(context).colorScheme.surface,
   );
@@ -26,6 +29,9 @@ EditorStyle customEditorTheme(BuildContext context) {
 }
 
 Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
+  final documentStyle =
+      context.watch<DocumentAppearanceCubit>().documentAppearance;
+  final baseFontSize = documentStyle.fontSize;
   const basePadding = 12.0;
   var headingPluginStyle = Theme.of(context).brightness == Brightness.dark
       ? HeadingPluginStyle.dark
@@ -33,15 +39,15 @@ Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
   headingPluginStyle = headingPluginStyle.copyWith(
     textStyle: (EditorState editorState, Node node) {
       final headingToFontSize = {
-        'h1': _baseFontSize + 12,
-        'h2': _baseFontSize + 8,
-        'h3': _baseFontSize + 4,
-        'h4': _baseFontSize,
-        'h5': _baseFontSize,
-        'h6': _baseFontSize,
+        'h1': baseFontSize + 12,
+        'h2': baseFontSize + 8,
+        'h3': baseFontSize + 4,
+        'h4': baseFontSize,
+        'h5': baseFontSize,
+        'h6': baseFontSize,
       };
       final fontSize =
-          headingToFontSize[node.attributes.heading] ?? _baseFontSize;
+          headingToFontSize[node.attributes.heading] ?? baseFontSize;
       return TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600);
     },
     padding: (EditorState editorState, Node node) {
@@ -57,10 +63,28 @@ Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
       return EdgeInsets.only(bottom: padding);
     },
   );
+  var numberListPluginStyle = Theme.of(context).brightness == Brightness.dark
+      ? NumberListPluginStyle.dark
+      : NumberListPluginStyle.light;
+
+  numberListPluginStyle = numberListPluginStyle.copyWith(
+    icon: (_, textNode) {
+      const iconPadding = EdgeInsets.only(left: 5.0, right: 5.0);
+      return Container(
+        padding: iconPadding,
+        child: Text(
+          '${textNode.attributes.number.toString()}.',
+          style: customEditorTheme(context).textStyle,
+        ),
+      );
+    },
+  );
   final pluginTheme = Theme.of(context).brightness == Brightness.dark
       ? darkPlguinStyleExtension
       : lightPlguinStyleExtension;
   return pluginTheme.toList()
-    ..removeWhere((element) => element is HeadingPluginStyle)
-    ..add(headingPluginStyle);
+    ..removeWhere((element) =>
+        element is HeadingPluginStyle || element is NumberListPluginStyle)
+    ..add(headingPluginStyle)
+    ..add(numberListPluginStyle);
 }
