@@ -1,7 +1,7 @@
 # Release Notes
 ## Version 0.0.7 - 11/27/2022 
 ### New features
-- Support adding filters by the text property in Grid
+- Support adding filters by the text/checkbox/single-select property in Grid
 
 ## Version 0.0.6.2 - 10/30/2022
 - Fix some bugs

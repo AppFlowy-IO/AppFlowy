@@ -529,9 +529,9 @@ class FieldInfo {
 
     switch (_field.fieldType) {
       case FieldType.Checkbox:
-      // case FieldType.MultiSelect:
+      case FieldType.MultiSelect:
       case FieldType.RichText:
-        // case FieldType.SingleSelect:
+      case FieldType.SingleSelect:
         return true;
       default:
         return false;

@@ -41,7 +41,7 @@ class ChoiceChipButton extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         radius: const BorderRadius.all(Radius.circular(14)),
         leftIcon: svgWidget(
-          filterInfo.field.fieldType.iconName(),
+          filterInfo.fieldInfo.fieldType.iconName(),
           color: Theme.of(context).colorScheme.onSurface,
         ),
         rightIcon: _ChoicechipFilterDesc(filterDesc: filterDesc),

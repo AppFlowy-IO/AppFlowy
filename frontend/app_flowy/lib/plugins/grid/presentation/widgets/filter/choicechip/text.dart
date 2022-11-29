@@ -120,7 +120,7 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
       height: 20,
       child: Row(
         children: [
-          FlowyText(state.filterInfo.field.name),
+          FlowyText(state.filterInfo.fieldInfo.name),
           const HSpace(4),
           TextFilterConditionList(
             filterInfo: state.filterInfo,
