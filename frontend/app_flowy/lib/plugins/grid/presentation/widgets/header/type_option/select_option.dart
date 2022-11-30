@@ -193,9 +193,12 @@ class _OptionCellState extends State<_OptionCell> {
             _popoverController.show();
           },
           children: [
-            svgWidget(
-              "grid/details",
-              color: Theme.of(context).colorScheme.onSurface,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6.0),
+              child: svgWidget(
+                "grid/details",
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
           ],
         ),

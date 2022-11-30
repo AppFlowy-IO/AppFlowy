@@ -1,8 +1,6 @@
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class InputTextField extends StatefulWidget {
   final void Function(String)? onDone;
@@ -47,15 +45,13 @@ class _InputTextFieldState extends State<InputTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final height = widget.maxLength == null ? 36.0 : 56.0;
-
     return RoundedInputField(
       controller: _controller,
       focusNode: _focusNode,
       autoFocus: true,
-      height: height,
+      height: 36.0,
       maxLength: widget.maxLength,
-      style: TextStyles.body1.size(13),
+      style: Theme.of(context).textTheme.bodyMedium,
       onChanged: (text) {
         if (widget.onChanged != null) {
           widget.onChanged!(text);
