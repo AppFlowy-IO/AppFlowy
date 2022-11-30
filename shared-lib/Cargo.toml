@@ -13,4 +13,6 @@ members = [
 ]
 
 [profile.dev]
-split-debuginfo = "unpacked"
+opt-level = 0
+#https://doc.rust-lang.org/rustc/codegen-options/index.html#debug-assertions
+#split-debuginfo = "unpacked"
