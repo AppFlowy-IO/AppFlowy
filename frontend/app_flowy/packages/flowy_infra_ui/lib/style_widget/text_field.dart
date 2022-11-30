@@ -1,6 +1,7 @@
 import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class FlowyTextField extends StatefulWidget {
   final String hintText;
@@ -8,17 +9,18 @@ class FlowyTextField extends StatefulWidget {
   final void Function(String)? onChanged;
   final void Function(String)? onSubmitted;
   final void Function()? onCanceled;
-  final bool autoFucous;
+  final bool autoFocus;
   final int? maxLength;
   final TextEditingController? controller;
   final bool autoClearWhenDone;
+
   const FlowyTextField({
     this.hintText = "",
     this.text = "",
     this.onChanged,
     this.onSubmitted,
     this.onCanceled,
-    this.autoFucous = true,
+    this.autoFocus = true,
     this.maxLength,
     this.controller,
     this.autoClearWhenDone = false,
@@ -32,7 +34,6 @@ class FlowyTextField extends StatefulWidget {
 class FlowyTextFieldState extends State<FlowyTextField> {
   late FocusNode focusNode;
   late TextEditingController controller;
-  var textLength = 0;
 
   @override
   void initState() {
@@ -45,7 +46,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       controller = TextEditingController();
       controller.text = widget.text;
     }
-    if (widget.autoFucous) {
+    if (widget.autoFocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         focusNode.requestFocus();
       });
@@ -60,6 +61,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       focusNode: focusNode,
       onChanged: (text) {
         widget.onChanged?.call(text);
+        setState(() {});
       },
       onSubmitted: (text) {
         widget.onSubmitted?.call(text);
@@ -71,9 +73,10 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       maxLines: 1,
       maxLength: widget.maxLength,
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
-      style: Theme.of(context).textTheme.bodySmall,
+      style: Theme.of(context).textTheme.bodyMedium,
       decoration: InputDecoration(
-        contentPadding: const EdgeInsets.all(10),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 10, vertical: 13),
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.primary,
@@ -83,6 +86,10 @@ class FlowyTextFieldState extends State<FlowyTextField> {
         ),
         isDense: true,
         hintText: widget.hintText,
+        hintStyle: Theme.of(context)
+            .textTheme
+            .bodySmall!
+            .textColor(Theme.of(context).hintColor),
         suffixText: _suffixText(),
         counterText: "",
         focusedBorder: OutlineInputBorder(
@@ -115,7 +122,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
 
   String? _suffixText() {
     if (widget.maxLength != null) {
-      return '${textLength.toString()}/${widget.maxLength.toString()}';
+      return ' ${controller.text.length}/${widget.maxLength}';
     } else {
       return null;
     }
