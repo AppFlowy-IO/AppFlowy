@@ -1,7 +1,6 @@
 import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class FlowyTextField extends StatefulWidget {
   final String hintText;
@@ -72,7 +71,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       maxLines: 1,
       maxLength: widget.maxLength,
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
-      style: TextStyles.body1.size(FontSizes.s12),
+      style: Theme.of(context).textTheme.bodySmall,
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.all(10),
         enabledBorder: OutlineInputBorder(
