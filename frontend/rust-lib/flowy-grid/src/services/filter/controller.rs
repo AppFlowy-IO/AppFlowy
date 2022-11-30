@@ -291,6 +291,12 @@ impl FilterController {
                             .url_filter
                             .insert(filter_type, TextFilterPB::from(filter_rev.as_ref()));
                     }
+                    FieldType::Checklist => {
+                        let _ = self
+                            .filter_map
+                            .checklist_filter
+                            .insert(filter_type, ChecklistFilterPB::from(filter_rev.as_ref()));
+                    }
                 }
             }
         }
@@ -409,6 +415,14 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<URLTypeOptionPB>(field_rev.ty)?
+                    .apply_filter(any_cell_data, filter)
+                    .ok(),
+            )
+        }),
+        FieldType::Checklist => filter_map.checklist_filter.get(filter_id).and_then(|filter| {
+            Some(
+                field_rev
+                    .get_type_option::<ChecklistTypeOptionPB>(field_rev.ty)?
                     .apply_filter(any_cell_data, filter)
                     .ok(),
             )

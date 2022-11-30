@@ -226,6 +226,24 @@ impl GridRowTest {
                 assert_eq!(s, expected);
             }
 
+            FieldType::Checklist => {
+                let cell_data = self
+                    .editor
+                    .get_cell_bytes(&cell_id)
+                    .await
+                    .unwrap()
+                    .parser::<SelectOptionCellDataParser>()
+                    .unwrap();
+
+                let s = cell_data
+                    .select_options
+                    .into_iter()
+                    .map(|option| option.name)
+                    .collect::<Vec<String>>()
+                    .join(SELECTION_IDS_SEPARATOR);
+
+                assert_eq!(s, expected);
+            }
             FieldType::Checkbox => {
                 let cell_data = self
                     .editor

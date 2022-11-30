@@ -222,6 +222,7 @@
       "singleSelectFieldName": "Select",
       "multiSelectFieldName": "Multiselect",
       "urlFieldName": "URL",
+      "checklistFieldName": "Checklist",
       "numberFormat": " Number format",
       "dateFormat": " Date format",
       "includeTime": " Include time",
@@ -263,6 +264,9 @@
       "colorPanelTitle": "Colors",
       "panelTitle": "Select an option or create one",
       "searchOption": "Search for an option"
+    },
+    "checklist": {
+      "panelTitle": "Search an option or create one"
     },
     "menuName": "Grid"
   },

@@ -5,6 +5,8 @@ typedef GridCheckboxCellController = IGridCellController<String, String>;
 typedef GridNumberCellController = IGridCellController<String, String>;
 typedef GridSelectOptionCellController
     = IGridCellController<SelectOptionCellDataPB, String>;
+typedef GridChecklistCellController
+    = IGridCellController<SelectOptionCellDataPB, String>;
 typedef GridDateCellController
     = IGridCellController<DateCellDataPB, CalendarData>;
 typedef GridURLCellController = IGridCellController<URLCellDataPB, String>;
@@ -81,6 +83,7 @@ class GridCellControllerBuilder {
         );
       case FieldType.MultiSelect:
       case FieldType.SingleSelect:
+      case FieldType.Checklist:
         final cellDataLoader = GridCellDataLoader(
           cellId: _cellId,
           parser: SelectOptionCellDataParser(),

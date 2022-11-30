@@ -1,4 +1,6 @@
-use crate::entities::{CheckboxFilterPB, DateFilterPB, FieldType, NumberFilterPB, SelectOptionFilterPB, TextFilterPB};
+use crate::entities::{
+    CheckboxFilterPB, ChecklistFilterPB, DateFilterPB, FieldType, NumberFilterPB, SelectOptionFilterPB, TextFilterPB,
+};
 use crate::services::filter::FilterType;
 use std::collections::HashMap;
 
@@ -10,6 +12,7 @@ pub(crate) struct FilterMap {
     pub(crate) date_filter: HashMap<FilterType, DateFilterPB>,
     pub(crate) select_option_filter: HashMap<FilterType, SelectOptionFilterPB>,
     pub(crate) checkbox_filter: HashMap<FilterType, CheckboxFilterPB>,
+    pub(crate) checklist_filter: HashMap<FilterType, ChecklistFilterPB>,
 }
 
 impl FilterMap {
@@ -26,6 +29,7 @@ impl FilterMap {
             FieldType::MultiSelect => self.select_option_filter.get(filter_type).is_some(),
             FieldType::Checkbox => self.checkbox_filter.get(filter_type).is_some(),
             FieldType::URL => self.url_filter.get(filter_type).is_some(),
+            FieldType::Checklist => self.checklist_filter.get(filter_type).is_some(),
         }
     }
 
@@ -57,6 +61,9 @@ impl FilterMap {
         if !self.checkbox_filter.is_empty() {
             return false;
         }
+        if !self.checklist_filter.is_empty() {
+            return false;
+        }
         true
     }
 
@@ -82,6 +89,9 @@ impl FilterMap {
             }
             FieldType::URL => {
                 let _ = self.url_filter.remove(filter_id);
+            }
+            FieldType::Checklist => {
+                let _ = self.checklist_filter.remove(filter_id);
             }
         };
     }

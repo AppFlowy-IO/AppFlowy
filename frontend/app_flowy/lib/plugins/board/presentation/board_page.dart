@@ -358,6 +358,8 @@ Widget? _buildHeaderIcon(GroupData customData) {
       break;
     case FieldType.URL:
       break;
+    case FieldType.Checklist:
+      break;
   }
 
   if (widget != null) {

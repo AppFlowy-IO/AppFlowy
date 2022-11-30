@@ -4,6 +4,7 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter/material.dart';
@@ -18,10 +19,14 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
   final SelectOptionPB option;
   final VoidCallback onDeleted;
   final Function(SelectOptionPB) onUpdated;
+  final bool showOptions;
+  final bool autoFocus;
   const SelectOptionTypeOptionEditor({
     required this.option,
     required this.onDeleted,
     required this.onUpdated,
+    this.showOptions = true,
+    this.autoFocus = true,
     Key? key,
   }) : super(key: key);
 
@@ -50,14 +55,21 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
           builder: (context, state) {
             List<Widget> slivers = [
               SliverToBoxAdapter(
-                  child: _OptionNameTextField(state.option.name)),
+                  child: _OptionNameTextField(
+                name: state.option.name,
+                autoFocus: autoFocus,
+              )),
               const SliverToBoxAdapter(child: VSpace(10)),
               const SliverToBoxAdapter(child: _DeleteTag()),
-              const SliverToBoxAdapter(child: TypeOptionSeparator()),
-              SliverToBoxAdapter(
-                  child:
-                      SelectOptionColorList(selectedColor: state.option.color)),
             ];
+
+            if (showOptions) {
+              slivers
+                  .add(const SliverToBoxAdapter(child: TypeOptionSeparator()));
+              slivers.add(SliverToBoxAdapter(
+                  child: SelectOptionColorList(
+                      selectedColor: state.option.color)));
+            }
 
             return SizedBox(
               width: 160,
@@ -65,6 +77,7 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
                 padding: const EdgeInsets.all(6.0),
                 child: CustomScrollView(
                   slivers: slivers,
+                  shrinkWrap: true,
                   controller: ScrollController(),
                   physics: StyledScrollPhysics(),
                 ),
@@ -102,19 +115,21 @@ class _DeleteTag extends StatelessWidget {
 
 class _OptionNameTextField extends StatelessWidget {
   final String name;
-  const _OptionNameTextField(this.name, {Key? key}) : super(key: key);
+  final bool autoFocus;
+  const _OptionNameTextField(
+      {required this.name, required this.autoFocus, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return InputTextField(
+    return FlowyTextField(
+      autoFucous: autoFocus,
       text: name,
-      maxLength: 30,
-      onCanceled: () {},
-      onDone: (optionName) {
-        if (name != optionName) {
+      onSubmitted: (newName) {
+        if (name != newName) {
           context
               .read<EditSelectOptionBloc>()
-              .add(EditSelectOptionEvent.updateName(optionName));
+              .add(EditSelectOptionEvent.updateName(newName));
         }
       },
     );

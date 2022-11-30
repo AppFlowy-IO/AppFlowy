@@ -4,7 +4,7 @@ use crate::services::cell::{
     CellBytes, CellBytesParser, CellData, CellDataIsEmpty, CellDisplayable, FromCellChangeset, FromCellString,
 };
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
-use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
+use crate::services::field::{ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
@@ -210,6 +210,10 @@ pub fn select_type_option_from_field_rev(
         }
         FieldType::MultiSelect => {
             let type_option = MultiSelectTypeOptionPB::from(field_rev);
+            Ok(Box::new(type_option))
+        }
+        FieldType::Checklist => {
+            let type_option = ChecklistTypeOptionPB::from(field_rev);
             Ok(Box::new(type_option))
         }
         ty => {

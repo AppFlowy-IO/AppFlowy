@@ -48,7 +48,7 @@ impl SelectOptionTypeOptionTransformer {
         T: SelectTypeOptionSharedAction,
     {
         match decoded_field_type {
-            FieldType::SingleSelect | FieldType::MultiSelect => {
+            FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => {
                 //
                 CellBytes::from(shared.get_selected_options(cell_data))
             }

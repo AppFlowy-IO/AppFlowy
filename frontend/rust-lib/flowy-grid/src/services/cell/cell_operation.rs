@@ -122,6 +122,7 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
             SingleSelectTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev)
         }
         FieldType::MultiSelect => MultiSelectTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::Checklist => ChecklistTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
         FieldType::Checkbox => CheckboxTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
         FieldType::URL => URLTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
     }?;
@@ -180,6 +181,9 @@ pub fn decode_cell_data_to_string(
             FieldType::MultiSelect => field_rev
                 .get_type_option::<MultiSelectTypeOptionPB>(field_type)?
                 .displayed_cell_string(cell_data.into(), from_field_type, field_rev),
+            FieldType::Checklist => field_rev
+                .get_type_option::<ChecklistTypeOptionPB>(field_type)?
+                .displayed_cell_string(cell_data.into(), from_field_type, field_rev),
             FieldType::Checkbox => field_rev
                 .get_type_option::<CheckboxTypeOptionPB>(field_type)?
                 .displayed_cell_string(cell_data.into(), from_field_type, field_rev),
@@ -229,6 +233,9 @@ pub fn try_decode_cell_data(
                 .decode_cell_data(cell_data.into(), from_field_type, field_rev),
             FieldType::MultiSelect => field_rev
                 .get_type_option::<MultiSelectTypeOptionPB>(field_type)?
+                .decode_cell_data(cell_data.into(), from_field_type, field_rev),
+            FieldType::Checklist => field_rev
+                .get_type_option::<ChecklistTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), from_field_type, field_rev),
             FieldType::Checkbox => field_rev
                 .get_type_option::<CheckboxTypeOptionPB>(field_type)?

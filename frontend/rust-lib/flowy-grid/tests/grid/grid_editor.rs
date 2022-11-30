@@ -131,6 +131,14 @@ impl GridEditorTest {
         type_option
     }
 
+    pub fn get_checklist_type_option(&self, field_id: &str) -> ChecklistTypeOptionPB {
+        let field_type = FieldType::Checklist;
+        let field_rev = self.get_field_rev(field_id, field_type.clone());
+        let type_option = field_rev
+            .get_type_option::<ChecklistTypeOptionPB>(field_type.into())
+            .unwrap();
+        type_option
+    }
     pub fn get_checkbox_type_option(&self, field_id: &str) -> CheckboxTypeOptionPB {
         let field_type = FieldType::Checkbox;
         let field_rev = self.get_field_rev(field_id, field_type.clone());
@@ -153,6 +161,9 @@ pub const COMPLETED: &str = "Completed";
 pub const PLANNED: &str = "Planned";
 pub const PAUSED: &str = "Paused";
 
+pub const FIRST_THING: &str = "Wake up at 6:00 am";
+pub const SECOND_THING: &str = "Get some coffee";
+pub const THIRD_THING: &str = "Start working";
 // This grid is assumed to contain all the Fields.
 fn make_test_grid() -> BuildGridContext {
     let mut grid_builder = GridBuilder::new();
@@ -217,6 +228,14 @@ fn make_test_grid() -> BuildGridContext {
                 let url_field = FieldBuilder::new(url).name("link").visibility(true).build();
                 grid_builder.add_field(url_field);
             }
+            FieldType::Checklist => {
+                let checklist = ChecklistTypeOptionBuilder::default()
+                    .add_option(SelectOptionPB::new(FIRST_THING))
+                    .add_option(SelectOptionPB::new(SECOND_THING))
+                    .add_option(SelectOptionPB::new(THIRD_THING));
+                let checklist_field = FieldBuilder::new(checklist).name("TODO").visibility(true).build();
+                grid_builder.add_field(checklist_field);
+            }
         }
     }
 
@@ -234,6 +253,7 @@ fn make_test_grid() -> BuildGridContext {
                         FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
                         FieldType::MultiSelect => row_builder
                             .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(0)]),
+                        FieldType::Checklist => row_builder.insert_checklist_cell(|options| options),
                         FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
                         _ => "".to_owned(),
                     };
@@ -369,6 +389,14 @@ fn make_test_board() -> BuildGridContext {
                 let url = URLTypeOptionBuilder::default();
                 let url_field = FieldBuilder::new(url).name("link").visibility(true).build();
                 grid_builder.add_field(url_field);
+            }
+            FieldType::Checklist => {
+                let checklist = ChecklistTypeOptionBuilder::default()
+                    .add_option(SelectOptionPB::new(FIRST_THING))
+                    .add_option(SelectOptionPB::new(SECOND_THING))
+                    .add_option(SelectOptionPB::new(THIRD_THING));
+                let checklist_field = FieldBuilder::new(checklist).name("TODO").visibility(true).build();
+                grid_builder.add_field(checklist_field);
             }
         }
     }

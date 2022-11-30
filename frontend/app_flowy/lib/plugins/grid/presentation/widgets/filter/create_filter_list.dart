@@ -2,13 +2,13 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/filter/filter_create_bloc.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
-import 'package:app_flowy/plugins/grid/presentation/widgets/filter/text_field.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -121,7 +121,7 @@ class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
       child: Container(
         color: Theme.of(context).colorScheme.background,
         height: fixHeight,
-        child: FilterTextField(
+        child: FlowyTextField(
           hintText: LocaleKeys.grid_settings_filterBy.tr(),
           onChanged: (text) {
             context

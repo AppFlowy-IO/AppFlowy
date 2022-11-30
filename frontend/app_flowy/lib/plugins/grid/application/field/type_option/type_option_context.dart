@@ -1,6 +1,7 @@
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/checklist_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:dartz/dartz.dart';
@@ -92,6 +93,17 @@ class MultiSelectTypeOptionWidgetDataParser
   @override
   MultiSelectTypeOptionPB fromBuffer(List<int> buffer) {
     return MultiSelectTypeOptionPB.fromBuffer(buffer);
+  }
+}
+
+// Multi-select
+typedef ChecklistTypeOptionContext = TypeOptionContext<ChecklistTypeOptionPB>;
+
+class ChecklistTypeOptionWidgetDataParser
+    extends TypeOptionDataParser<ChecklistTypeOptionPB> {
+  @override
+  ChecklistTypeOptionPB fromBuffer(List<int> buffer) {
+    return ChecklistTypeOptionPB.fromBuffer(buffer);
   }
 }
 
