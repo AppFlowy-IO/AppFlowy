@@ -42,7 +42,7 @@ class _SliverChecklistPrograssBarDelegate
     extends SliverPersistentHeaderDelegate {
   _SliverChecklistPrograssBarDelegate();
 
-  double fixHeight = 60;
+  double fixHeight = 54;
 
   @override
   Widget build(
@@ -68,11 +68,10 @@ class _SliverChecklistPrograssBarDelegate
                       .add(ChecklistCellEditorEvent.newOption(text));
                 },
               ),
-              if (state.percent != 0)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: ChecklistPrograssBar(percent: state.percent),
-                ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: ChecklistPrograssBar(percent: state.percent),
+              ),
             ],
           ),
         );
@@ -88,6 +87,6 @@ class _SliverChecklistPrograssBarDelegate
 
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    return false;
+    return true;
   }
 }

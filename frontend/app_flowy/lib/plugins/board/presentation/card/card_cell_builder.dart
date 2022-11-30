@@ -61,6 +61,7 @@ class BoardCellBuilder {
         );
       case FieldType.Checklist:
         return BoardChecklistCell(
+          cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.Number:

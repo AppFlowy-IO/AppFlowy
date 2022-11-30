@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'cell_service/cell_service.dart';
+import 'checklist_cell_editor_bloc.dart';
 import 'select_option_service.dart';
 part 'checklist_cell_bloc.freezed.dart';
 
@@ -27,8 +28,7 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
             emit(state.copyWith(
               allOptions: data.options,
               selectedOptions: data.selectOptions,
-              percent: data.selectOptions.length.toDouble() /
-                  data.options.length.toDouble(),
+              percent: percentFromSelectOptionCellData(data),
             ));
           },
         );

@@ -26,11 +26,12 @@ class ChecklistCellEditorBloc
         await event.when(
           initial: () async {
             _startListening();
+            _loadOptions();
           },
           didReceiveOptions: (data) {
             emit(state.copyWith(
               allOptions: _makeChecklistSelectOptions(data, state.predicate),
-              percent: _percentFromSelectOptionCellData(data),
+              percent: percentFromSelectOptionCellData(data),
             ));
           },
           newOption: (optionName) {
@@ -143,18 +144,21 @@ class ChecklistCellEditorState with _$ChecklistCellEditorState {
     return ChecklistCellEditorState(
       allOptions: _makeChecklistSelectOptions(data, ''),
       createOption: none(),
-      percent: _percentFromSelectOptionCellData(data),
+      percent: percentFromSelectOptionCellData(data),
       predicate: '',
     );
   }
 }
 
-double _percentFromSelectOptionCellData(SelectOptionCellDataPB? data) {
+double percentFromSelectOptionCellData(SelectOptionCellDataPB? data) {
   if (data == null) return 0;
 
-  final a = data.selectOptions.length.toDouble();
   final b = data.options.length.toDouble();
+  if (b == 0) {
+    return 0;
+  }
 
+  final a = data.selectOptions.length.toDouble();
   if (a > b) return 1.0;
 
   return a / b;
