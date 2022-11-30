@@ -152,7 +152,7 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
     return FlowyTextField(
       text: state.filter.content,
       hintText: LocaleKeys.grid_settings_typeAValue.tr(),
-      autoFucous: false,
+      autoFocus: false,
       onSubmitted: (text) {
         context
             .read<TextFilterEditorBloc>()

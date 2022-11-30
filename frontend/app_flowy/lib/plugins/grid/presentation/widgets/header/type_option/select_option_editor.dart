@@ -123,8 +123,9 @@ class _OptionNameTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyTextField(
-      autoFucous: autoFocus,
+      autoFocus: autoFocus,
       text: name,
+      maxLength: 30,
       onSubmitted: (newName) {
         if (name != newName) {
           context
