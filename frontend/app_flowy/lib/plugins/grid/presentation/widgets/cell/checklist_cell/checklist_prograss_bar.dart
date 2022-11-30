@@ -17,6 +17,7 @@ class ChecklistPrograssBar extends StatelessWidget {
     return LinearPercentIndicator(
       lineHeight: 10.0,
       percent: percent,
+      padding: EdgeInsets.zero,
       progressColor: Theme.of(context).colorScheme.primary,
       backgroundColor: AFThemeExtension.of(context).tint9,
       barRadius: const Radius.circular(5),
@@ -54,21 +55,18 @@ class _SliverChecklistPrograssBarDelegate
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: ChecklistPrograssBar(percent: state.percent),
               ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: FlowyTextField(
-                hintText: LocaleKeys.grid_checklist_panelTitle.tr(),
-                onChanged: (text) {
-                  context
-                      .read<ChecklistCellEditorBloc>()
-                      .add(ChecklistCellEditorEvent.filterOption(text));
-                },
-                onSubmitted: (text) {
-                  context
-                      .read<ChecklistCellEditorBloc>()
-                      .add(ChecklistCellEditorEvent.newOption(text));
-                },
-              ),
+            FlowyTextField(
+              hintText: LocaleKeys.grid_checklist_panelTitle.tr(),
+              onChanged: (text) {
+                context
+                    .read<ChecklistCellEditorBloc>()
+                    .add(ChecklistCellEditorEvent.filterOption(text));
+              },
+              onSubmitted: (text) {
+                context
+                    .read<ChecklistCellEditorBloc>()
+                    .add(ChecklistCellEditorEvent.newOption(text));
+              },
             )
           ],
         );

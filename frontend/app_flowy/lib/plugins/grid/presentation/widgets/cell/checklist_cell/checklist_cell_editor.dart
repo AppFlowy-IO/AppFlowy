@@ -2,6 +2,11 @@ import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_servic
 import 'package:app_flowy/plugins/grid/application/cell/checklist_cell_editor_bloc.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/cell/checklist_cell/checklist_prograss_bar.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/header/type_option/select_option_editor.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +47,8 @@ class _GridChecklistCellEditorState extends State<GridChecklistCellEditor> {
           final List<Widget> slivers = [
             const SliverChecklistPrograssBar(),
             SliverToBoxAdapter(
+                child: Container(color: Colors.red, height: 2, width: 2100)),
+            SliverToBoxAdapter(
               child: ListView.separated(
                 controller: ScrollController(),
                 shrinkWrap: true,
@@ -55,11 +62,14 @@ class _GridChecklistCellEditorState extends State<GridChecklistCellEditor> {
               ),
             ),
           ];
-          return CustomScrollView(
-            shrinkWrap: true,
-            slivers: slivers,
-            controller: ScrollController(),
-            physics: StyledScrollPhysics(),
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: CustomScrollView(
+              shrinkWrap: true,
+              slivers: slivers,
+              controller: ScrollController(),
+              physics: StyledScrollPhysics(),
+            ),
           );
         },
       ),
@@ -67,7 +77,7 @@ class _GridChecklistCellEditorState extends State<GridChecklistCellEditor> {
   }
 }
 
-class _ChecklistOptionCell extends StatelessWidget {
+class _ChecklistOptionCell extends StatefulWidget {
   final ChecklistSelectOption option;
   const _ChecklistOptionCell({
     required this.option,
@@ -75,7 +85,69 @@ class _ChecklistOptionCell extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<_ChecklistOptionCell> createState() => _ChecklistOptionCellState();
+}
+
+class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
+  late PopoverController _popoverController;
+
+  @override
+  void initState() {
+    _popoverController = PopoverController();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(height: 20, width: 100, color: Colors.red);
+    final icon = widget.option.isSelected
+        ? svgWidget('editor/editor_check')
+        : svgWidget('editor/editor_uncheck');
+    return _wrapPopover(
+      SizedBox(
+        height: GridSize.typeOptionItemHeight,
+        child: Row(
+          children: [
+            icon,
+            const HSpace(6),
+            FlowyText(widget.option.data.name),
+            const Spacer(),
+            _disclosureButton(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _disclosureButton() {
+    return FlowyIconButton(
+      width: 20,
+      onPressed: () => _popoverController.show(),
+      hoverColor: Colors.transparent,
+      iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+      icon: svgWidget(
+        "editor/details",
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
+    );
+  }
+
+  Widget _wrapPopover(Widget child) {
+    return AppFlowyPopover(
+      controller: _popoverController,
+      offset: const Offset(20, 0),
+      asBarrier: true,
+      constraints: BoxConstraints.loose(const Size(200, 300)),
+      child: child,
+      popupBuilder: (BuildContext popoverContext) {
+        return SelectOptionTypeOptionEditor(
+          option: widget.option.data,
+          onDeleted: () {},
+          onUpdated: (updatedOption) {},
+          key: ValueKey(
+            widget.option.data.id,
+          ), // Use ValueKey to refresh the UI, otherwise, it will remain the old value.
+        );
+      },
+    );
   }
 }
