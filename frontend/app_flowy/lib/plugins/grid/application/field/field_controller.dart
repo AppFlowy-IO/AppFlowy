@@ -522,6 +522,7 @@ class FieldInfo {
       case FieldType.MultiSelect:
       case FieldType.RichText:
       case FieldType.SingleSelect:
+        // case FieldType.Checklist:
         return true;
       default:
         return false;

@@ -15,7 +15,6 @@ class ChecklistCellEditorBloc
     extends Bloc<ChecklistCellEditorEvent, ChecklistCellEditorState> {
   final SelectOptionFFIService _selectOptionService;
   final GridChecklistCellController cellController;
-  Timer? _delayOperation;
 
   ChecklistCellEditorBloc({
     required this.cellController,
@@ -27,7 +26,6 @@ class ChecklistCellEditorBloc
         await event.when(
           initial: () async {
             _startListening();
-            _loadOptions();
           },
           didReceiveOptions: (data) {
             emit(state.copyWith(
@@ -47,11 +45,12 @@ class ChecklistCellEditorBloc
           updateOption: (option) {
             _updateOption(option);
           },
-          selectOption: (optionId) {
-            _selectOptionService.select(optionIds: [optionId]);
-          },
-          unSelectOption: (optionId) {
-            _selectOptionService.unSelect(optionIds: [optionId]);
+          selectOption: (option) async {
+            if (option.isSelected) {
+              await _selectOptionService.unSelect(optionIds: [option.data.id]);
+            } else {
+              await _selectOptionService.select(optionIds: [option.data.id]);
+            }
           },
           filterOption: (String predicate) {},
         );
@@ -61,7 +60,6 @@ class ChecklistCellEditorBloc
 
   @override
   Future<void> close() async {
-    _delayOperation?.cancel();
     await cellController.dispose();
     return super.close();
   }
@@ -119,10 +117,8 @@ class ChecklistCellEditorEvent with _$ChecklistCellEditorEvent {
       SelectOptionCellDataPB data) = _DidReceiveOptions;
   const factory ChecklistCellEditorEvent.newOption(String optionName) =
       _NewOption;
-  const factory ChecklistCellEditorEvent.selectOption(String optionId) =
-      _SelectOption;
-  const factory ChecklistCellEditorEvent.unSelectOption(String optionId) =
-      _UnSelectOption;
+  const factory ChecklistCellEditorEvent.selectOption(
+      ChecklistSelectOption option) = _SelectOption;
   const factory ChecklistCellEditorEvent.updateOption(SelectOptionPB option) =
       _UpdateOption;
   const factory ChecklistCellEditorEvent.deleteOption(SelectOptionPB option) =

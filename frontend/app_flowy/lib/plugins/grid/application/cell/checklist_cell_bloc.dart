@@ -51,7 +51,11 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
       onCellFieldChanged: () {
         _loadOptions();
       },
-      onCellChanged: (_) {},
+      onCellChanged: (data) {
+        if (!isClosed && data != null) {
+          add(ChecklistCellEvent.didReceiveOptions(data));
+        }
+      },
     );
   }
 

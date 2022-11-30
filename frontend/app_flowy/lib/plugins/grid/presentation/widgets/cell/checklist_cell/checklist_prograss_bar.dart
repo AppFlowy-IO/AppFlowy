@@ -1,5 +1,6 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/cell/checklist_cell_editor_bloc.dart';
+import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -41,34 +42,39 @@ class _SliverChecklistPrograssBarDelegate
     extends SliverPersistentHeaderDelegate {
   _SliverChecklistPrograssBarDelegate();
 
-  double fixHeight = 80;
+  double fixHeight = 60;
 
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     return BlocBuilder<ChecklistCellEditorBloc, ChecklistCellEditorState>(
       builder: (context, state) {
-        return Column(
-          children: [
-            if (state.percent != 0)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: ChecklistPrograssBar(percent: state.percent),
+        return Container(
+          color: Theme.of(context).colorScheme.background,
+          padding: GridSize.typeOptionContentInsets,
+          child: Column(
+            children: [
+              FlowyTextField(
+                autoClearWhenDone: true,
+                hintText: LocaleKeys.grid_checklist_panelTitle.tr(),
+                onChanged: (text) {
+                  context
+                      .read<ChecklistCellEditorBloc>()
+                      .add(ChecklistCellEditorEvent.filterOption(text));
+                },
+                onSubmitted: (text) {
+                  context
+                      .read<ChecklistCellEditorBloc>()
+                      .add(ChecklistCellEditorEvent.newOption(text));
+                },
               ),
-            FlowyTextField(
-              hintText: LocaleKeys.grid_checklist_panelTitle.tr(),
-              onChanged: (text) {
-                context
-                    .read<ChecklistCellEditorBloc>()
-                    .add(ChecklistCellEditorEvent.filterOption(text));
-              },
-              onSubmitted: (text) {
-                context
-                    .read<ChecklistCellEditorBloc>()
-                    .add(ChecklistCellEditorEvent.newOption(text));
-              },
-            )
-          ],
+              if (state.percent != 0)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: ChecklistPrograssBar(percent: state.percent),
+                ),
+            ],
+          ),
         );
       },
     );

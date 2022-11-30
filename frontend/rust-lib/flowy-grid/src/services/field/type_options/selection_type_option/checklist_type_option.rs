@@ -80,10 +80,10 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for Checklist
                 }
 
                 new_cell_data = select_ids.to_string();
-                tracing::trace!("checklist's cell data: {}", &new_cell_data);
             }
         }
 
+        tracing::trace!("checklist's cell data: {}", &new_cell_data);
         Ok(new_cell_data)
     }
 }

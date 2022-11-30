@@ -36,20 +36,16 @@ class GridChecklistCellState extends State<GridChecklistCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
-        builder: (context, state) {
-          return Stack(
-            alignment: AlignmentDirectional.center,
-            fit: StackFit.expand,
-            children: [
-              Padding(
-                padding: GridSize.cellContentInsets,
-                child: _wrapPopover(const ChecklistProgressBar()),
-              ),
-              InkWell(onTap: () => _popover.show()),
-            ],
-          );
-        },
+      child: Stack(
+        alignment: AlignmentDirectional.center,
+        fit: StackFit.expand,
+        children: [
+          Padding(
+            padding: GridSize.cellContentInsets,
+            child: _wrapPopover(const ChecklistProgressBar()),
+          ),
+          InkWell(onTap: () => _popover.show()),
+        ],
       ),
     );
   }

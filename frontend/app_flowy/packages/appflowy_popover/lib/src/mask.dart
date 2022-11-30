@@ -88,7 +88,8 @@ class _PopoverMaskState extends State<PopoverMask> {
   }
 
   bool _handleGlobalKeyEvent(KeyEvent event) {
-    if (event.logicalKey == LogicalKeyboardKey.escape) {
+    if (event.logicalKey == LogicalKeyboardKey.escape &&
+        event is KeyDownEvent) {
       if (widget.onExit != null) {
         widget.onExit!();
       }

@@ -6,6 +6,7 @@ import 'package:app_flowy/plugins/grid/presentation/widgets/header/type_option/s
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -24,9 +25,11 @@ class GridChecklistCellEditor extends StatefulWidget {
 
 class _GridChecklistCellEditorState extends State<GridChecklistCellEditor> {
   late ChecklistCellEditorBloc bloc;
+  late PopoverMutex popoverMutex;
 
   @override
   void initState() {
+    popoverMutex = PopoverMutex();
     bloc = ChecklistCellEditorBloc(cellController: widget.cellController);
     bloc.add(const ChecklistCellEditorEvent.initial());
     super.initState();
@@ -47,23 +50,28 @@ class _GridChecklistCellEditorState extends State<GridChecklistCellEditor> {
           final List<Widget> slivers = [
             const SliverChecklistPrograssBar(),
             SliverToBoxAdapter(
-                child: Container(color: Colors.red, height: 2, width: 2100)),
-            SliverToBoxAdapter(
-              child: ListView.separated(
-                controller: ScrollController(),
-                shrinkWrap: true,
-                itemCount: state.allOptions.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return _ChecklistOptionCell(option: state.allOptions[index]);
-                },
-                separatorBuilder: (BuildContext context, int index) {
-                  return VSpace(GridSize.typeOptionSeparatorHeight);
-                },
+              child: Padding(
+                padding: GridSize.typeOptionContentInsets,
+                child: ListView.separated(
+                  controller: ScrollController(),
+                  shrinkWrap: true,
+                  itemCount: state.allOptions.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return _ChecklistOptionCell(
+                      option: state.allOptions[index],
+                      popoverMutex: popoverMutex,
+                    );
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return VSpace(GridSize.typeOptionSeparatorHeight);
+                  },
+                ),
               ),
             ),
           ];
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+
+          return ScrollConfiguration(
+            behavior: const ScrollBehavior().copyWith(scrollbars: false),
             child: CustomScrollView(
               shrinkWrap: true,
               slivers: slivers,
@@ -79,8 +87,10 @@ class _GridChecklistCellEditorState extends State<GridChecklistCellEditor> {
 
 class _ChecklistOptionCell extends StatefulWidget {
   final ChecklistSelectOption option;
+  final PopoverMutex popoverMutex;
   const _ChecklistOptionCell({
     required this.option,
+    required this.popoverMutex,
     Key? key,
   }) : super(key: key);
 
@@ -107,10 +117,15 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
         height: GridSize.typeOptionItemHeight,
         child: Row(
           children: [
-            icon,
-            const HSpace(6),
-            FlowyText(widget.option.data.name),
-            const Spacer(),
+            Expanded(
+              child: FlowyButton(
+                text: FlowyText(widget.option.data.name),
+                leftIcon: icon,
+                onTap: () => context
+                    .read<ChecklistCellEditorBloc>()
+                    .add(ChecklistCellEditorEvent.selectOption(widget.option)),
+              ),
+            ),
             _disclosureButton(),
           ],
         ),
@@ -122,8 +137,7 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
     return FlowyIconButton(
       width: 20,
       onPressed: () => _popoverController.show(),
-      hoverColor: Colors.transparent,
-      iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+      iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
       icon: svgWidget(
         "editor/details",
         color: Theme.of(context).colorScheme.onSurface,
@@ -137,15 +151,30 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
       offset: const Offset(20, 0),
       asBarrier: true,
       constraints: BoxConstraints.loose(const Size(200, 300)),
+      mutex: widget.popoverMutex,
+      triggerActions: PopoverTriggerFlags.none,
       child: child,
       popupBuilder: (BuildContext popoverContext) {
         return SelectOptionTypeOptionEditor(
           option: widget.option.data,
-          onDeleted: () {},
-          onUpdated: (updatedOption) {},
+          onDeleted: () {
+            context.read<ChecklistCellEditorBloc>().add(
+                  ChecklistCellEditorEvent.deleteOption(widget.option.data),
+                );
+
+            _popoverController.close();
+          },
+          onUpdated: (updatedOption) {
+            context.read<ChecklistCellEditorBloc>().add(
+                  ChecklistCellEditorEvent.updateOption(widget.option.data),
+                );
+          },
+          showOptions: false,
+          autoFocus: false,
+          // Use ValueKey to refresh the UI, otherwise, it will remain the old value.
           key: ValueKey(
             widget.option.data.id,
-          ), // Use ValueKey to refresh the UI, otherwise, it will remain the old value.
+          ),
         );
       },
     );

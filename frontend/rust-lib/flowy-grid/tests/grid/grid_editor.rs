@@ -390,7 +390,14 @@ fn make_test_board() -> BuildGridContext {
                 let url_field = FieldBuilder::new(url).name("link").visibility(true).build();
                 grid_builder.add_field(url_field);
             }
-            FieldType::Checklist => {}
+            FieldType::Checklist => {
+                let checklist = ChecklistTypeOptionBuilder::default()
+                    .add_option(SelectOptionPB::new(FIRST_THING))
+                    .add_option(SelectOptionPB::new(SECOND_THING))
+                    .add_option(SelectOptionPB::new(THIRD_THING));
+                let checklist_field = FieldBuilder::new(checklist).name("TODO").visibility(true).build();
+                grid_builder.add_field(checklist_field);
+            }
         }
     }
 
