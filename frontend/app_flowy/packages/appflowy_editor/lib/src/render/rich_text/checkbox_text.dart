@@ -83,7 +83,6 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
         children: [
           GestureDetector(
             key: iconKey,
-            child: icon,
             behavior: HitTestBehavior.opaque,
             onTap: () async {
               await widget.editorState.formatTextToCheckbox(
@@ -92,6 +91,7 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
                 textNode: widget.textNode,
               );
             },
+            child: icon,
           ),
           Flexible(
             child: FlowyRichText(

@@ -207,8 +207,8 @@ class MenuTopBar extends StatelessWidget {
       return Container();
     }
     return (Theme.of(context).brightness == Brightness.dark
-        ? svgWithSize("flowy_logo_dark_mode", const Size(92, 17))
-        : svgWithSize("flowy_logo_with_text", const Size(92, 17)));
+        ? svgWidget("flowy_logo_dark_mode", size: const Size(92, 17))
+        : svgWidget("flowy_logo_with_text", size: const Size(92, 17)));
   }
 
   @override
