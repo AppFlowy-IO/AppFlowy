@@ -155,13 +155,26 @@ class AppTheme {
     }
   }
 
-  ThemeData get themeData {
-    final textTheme = TextStyles(font: font, color: shader1);
+  ThemeData getThemeData(Locale locale) {
+    // Poppins and SF Mono are not well supported in some languages, so use the
+    // built-in font for the following languages.
+    final useBuiltInFontLanguages = [
+      const Locale('zh', 'CN'),
+      const Locale('zh', 'TW'),
+    ];
+    TextStyles textTheme;
+    if (useBuiltInFontLanguages.contains(locale)) {
+      textTheme = TextStyles(font: '', color: shader1);
+    } else {
+      textTheme = TextStyles(font: font, color: shader1);
+    }
     return ThemeData(
       brightness: brightness,
       textTheme: textTheme.generateTextTheme(),
       textSelectionTheme: TextSelectionThemeData(
-          cursorColor: main2, selectionHandleColor: main2),
+        cursorColor: main2,
+        selectionHandleColor: main2,
+      ),
       primaryIconTheme: IconThemeData(color: hover),
       iconTheme: IconThemeData(color: shader1),
       scrollbarTheme: ScrollbarThemeData(
