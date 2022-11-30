@@ -118,7 +118,7 @@ class _CurrentIcon extends StatelessWidget {
                   margin: const EdgeInsets.all(5.0),
                   decoration:
                       BoxDecoration(border: Border.all(color: Colors.grey)),
-                  child: svgWithSize('emoji/$iconUrl', const Size(60, 60)),
+                  child: svgWidget('emoji/$iconUrl', size: const Size(60, 60)),
                 )),
           ])),
     );
