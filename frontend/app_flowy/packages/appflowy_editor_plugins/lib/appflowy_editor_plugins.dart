@@ -1,7 +1,4 @@
 library appflowy_editor_plugins;
 
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
-}
+export 'src/divider/divider_node_widget.dart';
+export 'src/divider/divider_shortcut_event.dart';

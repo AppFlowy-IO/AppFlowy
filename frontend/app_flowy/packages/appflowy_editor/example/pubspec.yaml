@@ -45,6 +45,8 @@ dependencies:
   universal_html: ^2.0.8
   highlight: ^0.7.0
   flutter_math_fork: ^0.6.3+1
+  appflowy_editor_plugins:
+    path: ../../../packages/appflowy_editor_plugins
 
 dev_dependencies:
   flutter_test:
