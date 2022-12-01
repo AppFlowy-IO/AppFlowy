@@ -1,5 +1,5 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use lib_dispatch::prelude::{EventResponse, Payload, StatusCode};
+use lib_dispatch::prelude::{AFPluginEventResponse, Payload, StatusCode};
 
 #[derive(ProtoBuf_Enum, Clone, Copy)]
 pub enum FFIStatusCode {
@@ -23,8 +23,8 @@ pub struct FFIResponse {
     code: FFIStatusCode,
 }
 
-impl std::convert::From<EventResponse> for FFIResponse {
-    fn from(resp: EventResponse) -> Self {
+impl std::convert::From<AFPluginEventResponse> for FFIResponse {
+    fn from(resp: AFPluginEventResponse) -> Self {
         let payload = match resp.payload {
             Payload::Bytes(bytes) => bytes.to_vec(),
             Payload::None => vec![],

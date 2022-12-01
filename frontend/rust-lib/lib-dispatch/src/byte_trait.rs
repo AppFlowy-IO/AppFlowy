@@ -39,12 +39,12 @@ where
 
 // From bytes
 
-pub trait FromBytes: Sized {
+pub trait AFPluginFromBytes: Sized {
     fn parse_from_bytes(bytes: Bytes) -> Result<Self, DispatchError>;
 }
 
 #[cfg(feature = "use_protobuf")]
-impl<T> FromBytes for T
+impl<T> AFPluginFromBytes for T
 where
     // // https://stackoverflow.com/questions/62871045/tryfromu8-trait-bound-in-trait
     // T: for<'a> std::convert::TryFrom<&'a Bytes, Error =
@@ -67,7 +67,7 @@ where
 }
 
 #[cfg(feature = "use_serde")]
-impl<T> FromBytes for T
+impl<T> AFPluginFromBytes for T
 where
     T: serde::de::DeserializeOwned + 'static,
 {

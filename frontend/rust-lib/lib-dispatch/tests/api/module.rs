@@ -12,11 +12,11 @@ async fn test() {
 
     let event = "1";
     let runtime = tokio_default_runtime().unwrap();
-    let dispatch = Arc::new(EventDispatcher::construct(runtime, || {
-        vec![Module::new().event(event, hello)]
+    let dispatch = Arc::new(AFPluginDispatcher::construct(runtime, || {
+        vec![AFPlugin::new().event(event, hello)]
     }));
-    let request = ModuleRequest::new(event);
-    let _ = EventDispatcher::async_send_with_callback(dispatch.clone(), request, |resp| {
+    let request = AFPluginRequest::new(event);
+    let _ = AFPluginDispatcher::async_send_with_callback(dispatch.clone(), request, |resp| {
         Box::pin(async move {
             dbg!(&resp);
         })

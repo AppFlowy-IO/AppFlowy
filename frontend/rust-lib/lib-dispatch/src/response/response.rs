@@ -1,9 +1,9 @@
 use crate::{
-    byte_trait::FromBytes,
-    data::Data,
+    byte_trait::AFPluginFromBytes,
+    data::AFPluginData,
     errors::DispatchError,
-    request::{EventRequest, Payload},
-    response::Responder,
+    request::{AFPluginEventRequest, Payload},
+    response::AFPluginResponder,
 };
 use derivative::*;
 use std::{convert::TryFrom, fmt, fmt::Formatter};
@@ -19,15 +19,15 @@ pub enum StatusCode {
 // serde user guide: https://serde.rs/field-attrs.html
 #[derive(Debug, Clone, Derivative)]
 #[cfg_attr(feature = "use_serde", derive(serde::Serialize))]
-pub struct EventResponse {
+pub struct AFPluginEventResponse {
     #[derivative(Debug = "ignore")]
     pub payload: Payload,
     pub status_code: StatusCode,
 }
 
-impl EventResponse {
+impl AFPluginEventResponse {
     pub fn new(status_code: StatusCode) -> Self {
-        EventResponse {
+        AFPluginEventResponse {
             payload: Payload::None,
             status_code,
         }
@@ -35,23 +35,23 @@ impl EventResponse {
 
     pub fn parse<T, E>(self) -> Result<Result<T, E>, DispatchError>
     where
-        T: FromBytes,
-        E: FromBytes,
+        T: AFPluginFromBytes,
+        E: AFPluginFromBytes,
     {
         match self.status_code {
             StatusCode::Ok => {
-                let data = <Data<T>>::try_from(self.payload)?;
+                let data = <AFPluginData<T>>::try_from(self.payload)?;
                 Ok(Ok(data.into_inner()))
             }
             StatusCode::Err | StatusCode::Internal => {
-                let err = <Data<E>>::try_from(self.payload)?;
+                let err = <AFPluginData<E>>::try_from(self.payload)?;
                 Ok(Err(err.into_inner()))
             }
         }
     }
 }
 
-impl std::fmt::Display for EventResponse {
+impl std::fmt::Display for AFPluginEventResponse {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.write_fmt(format_args!("Status_Code: {:?}", self.status_code))?;
 
@@ -64,18 +64,18 @@ impl std::fmt::Display for EventResponse {
     }
 }
 
-impl Responder for EventResponse {
+impl AFPluginResponder for AFPluginEventResponse {
     #[inline]
-    fn respond_to(self, _: &EventRequest) -> EventResponse {
+    fn respond_to(self, _: &AFPluginEventRequest) -> AFPluginEventResponse {
         self
     }
 }
 
-pub type DataResult<T, E> = std::result::Result<Data<T>, E>;
+pub type DataResult<T, E> = std::result::Result<AFPluginData<T>, E>;
 
-pub fn data_result<T, E>(data: T) -> Result<Data<T>, E>
+pub fn data_result<T, E>(data: T) -> Result<AFPluginData<T>, E>
 where
     E: Into<DispatchError>,
 {
-    Ok(Data(data))
+    Ok(AFPluginData(data))
 }

@@ -1,7 +1,7 @@
 use crate::{
-    byte_trait::FromBytes,
-    request::EventRequest,
-    response::{EventResponse, ResponseBuilder},
+    byte_trait::AFPluginFromBytes,
+    request::AFPluginEventRequest,
+    response::{AFPluginEventResponse, ResponseBuilder},
 };
 use bytes::Bytes;
 use dyn_clone::DynClone;
@@ -10,7 +10,7 @@ use std::fmt;
 use tokio::{sync::mpsc::error::SendError, task::JoinError};
 
 pub trait Error: fmt::Debug + DynClone + Send + Sync {
-    fn as_response(&self) -> EventResponse;
+    fn as_response(&self) -> AFPluginEventResponse;
 }
 
 dyn_clone::clone_trait_object!(Error);
@@ -54,8 +54,8 @@ impl std::error::Error for DispatchError {
     }
 }
 
-impl From<SendError<EventRequest>> for DispatchError {
-    fn from(err: SendError<EventRequest>) -> Self {
+impl From<SendError<AFPluginEventRequest>> for DispatchError {
+    fn from(err: SendError<AFPluginEventRequest>) -> Self {
         InternalError::Other(format!("{}", err)).into()
     }
 }
@@ -73,14 +73,14 @@ impl From<protobuf::ProtobufError> for DispatchError {
     }
 }
 
-impl FromBytes for DispatchError {
+impl AFPluginFromBytes for DispatchError {
     fn parse_from_bytes(bytes: Bytes) -> Result<Self, DispatchError> {
         let s = String::from_utf8(bytes.to_vec()).unwrap();
         Ok(InternalError::DeserializeFromBytes(s).into())
     }
 }
 
-impl From<DispatchError> for EventResponse {
+impl From<DispatchError> for AFPluginEventResponse {
     fn from(err: DispatchError) -> Self {
         err.inner_error().as_response()
     }
@@ -121,7 +121,7 @@ impl fmt::Display for InternalError {
 }
 
 impl Error for InternalError {
-    fn as_response(&self) -> EventResponse {
+    fn as_response(&self) -> AFPluginEventResponse {
         let error = format!("{}", self).into_bytes();
         ResponseBuilder::Internal().data(error).build()
     }
