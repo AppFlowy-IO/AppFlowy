@@ -2,7 +2,7 @@ use crate::proto_buf::util::*;
 use flowy_ast::*;
 use proc_macro2::{Span, TokenStream};
 
-pub fn make_de_token_steam(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStream> {
+pub fn make_de_token_steam(ctxt: &ASTResult, ast: &ASTContainer) -> Option<TokenStream> {
     let pb_ty = ast.attrs.pb_struct_type()?;
     let struct_ident = &ast.ident;
 
@@ -58,7 +58,7 @@ pub fn make_de_token_steam(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStrea
     // None
 }
 
-fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream> {
+fn token_stream_for_one_of(ctxt: &ASTResult, field: &ASTField) -> Option<TokenStream> {
     let member = &field.member;
     let ident = get_member_ident(ctxt, member)?;
     let ty_info = match parse_ty(ctxt, field.ty) {
@@ -118,9 +118,14 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
     }
 }
 
-fn token_stream_for_field(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_option: bool) -> Option<TokenStream> {
-    let ident = get_member_ident(ctxt, member)?;
-    let ty_info = match parse_ty(ctxt, ty) {
+fn token_stream_for_field(
+    ast_result: &ASTResult,
+    member: &syn::Member,
+    ty: &syn::Type,
+    is_option: bool,
+) -> Option<TokenStream> {
+    let ident = get_member_ident(ast_result, member)?;
+    let ty_info = match parse_ty(ast_result, ty) {
         Ok(ty_info) => ty_info,
         Err(e) => {
             eprintln!("token_stream_for_field: {:?} with error: {}", member, e);
@@ -129,12 +134,12 @@ fn token_stream_for_field(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_
     }?;
     match ident_category(ty_info.ident) {
         TypeCategory::Array => {
-            assert_bracket_ty_is_some(ctxt, &ty_info);
-            token_stream_for_vec(ctxt, member, &ty_info.bracket_ty_info.unwrap())
+            assert_bracket_ty_is_some(ast_result, &ty_info);
+            token_stream_for_vec(ast_result, member, &ty_info.bracket_ty_info.unwrap())
         }
         TypeCategory::Map => {
-            assert_bracket_ty_is_some(ctxt, &ty_info);
-            token_stream_for_map(ctxt, member, &ty_info.bracket_ty_info.unwrap())
+            assert_bracket_ty_is_some(ast_result, &ty_info);
+            token_stream_for_map(ast_result, member, &ty_info.bracket_ty_info.unwrap())
         }
         TypeCategory::Protobuf => {
             // if the type wrapped by SingularPtrField, should call take first
@@ -174,7 +179,7 @@ fn token_stream_for_field(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_
                 })
             }
         }
-        TypeCategory::Opt => token_stream_for_field(ctxt, member, ty_info.bracket_ty_info.unwrap().ty, true),
+        TypeCategory::Opt => token_stream_for_field(ast_result, member, ty_info.bracket_ty_info.unwrap().ty, true),
         TypeCategory::Primitive | TypeCategory::Bytes => {
             // eprintln!("😄 #{:?}", &field.name().unwrap());
             if is_option {
@@ -186,7 +191,7 @@ fn token_stream_for_field(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_
     }
 }
 
-fn token_stream_for_vec(ctxt: &Ctxt, member: &syn::Member, bracketed_type: &TyInfo) -> Option<TokenStream> {
+fn token_stream_for_vec(ctxt: &ASTResult, member: &syn::Member, bracketed_type: &TyInfo) -> Option<TokenStream> {
     let ident = get_member_ident(ctxt, member)?;
 
     match ident_category(bracketed_type.ident) {
@@ -218,8 +223,8 @@ fn token_stream_for_vec(ctxt: &Ctxt, member: &syn::Member, bracketed_type: &TyIn
     }
 }
 
-fn token_stream_for_map(ctxt: &Ctxt, member: &syn::Member, ty_info: &TyInfo) -> Option<TokenStream> {
-    let ident = get_member_ident(ctxt, member)?;
+fn token_stream_for_map(ast_result: &ASTResult, member: &syn::Member, ty_info: &TyInfo) -> Option<TokenStream> {
+    let ident = get_member_ident(ast_result, member)?;
     let take_ident = format_ident!("take_{}", ident.to_string());
     let ty = ty_info.ty;
 

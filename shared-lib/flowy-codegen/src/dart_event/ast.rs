@@ -1,4 +1,4 @@
-use crate::ASTEnumAttrVariant;
+use flowy_ast::ASTEnumAttrVariant;
 
 pub struct EventASTContext {
     pub event: syn::Ident,

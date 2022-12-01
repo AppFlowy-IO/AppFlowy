@@ -11,7 +11,7 @@ protobuf = {version = "2.18.0"}
 derive_more = {version = "0.99", features = ["display"]}
 
 [build-dependencies]
-flowy-codegen= { path = "../flowy-codegen"}
+flowy-codegen= { path = "../flowy-codegen", features = ["proto_gen"]}
 
 
 [features]

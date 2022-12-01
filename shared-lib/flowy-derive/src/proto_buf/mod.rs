@@ -11,40 +11,40 @@ use proc_macro2::TokenStream;
 use std::default::Default;
 
 pub fn expand_derive(input: &syn::DeriveInput) -> Result<TokenStream, Vec<syn::Error>> {
-    let ctxt = Ctxt::new();
-    let cont = match ASTContainer::from_ast(&ctxt, input) {
+    let ast_result = ASTResult::new();
+    let cont = match ASTContainer::from_ast(&ast_result, input) {
         Some(cont) => cont,
-        None => return Err(ctxt.check().unwrap_err()),
+        None => return Err(ast_result.check().unwrap_err()),
     };
 
     let mut token_stream: TokenStream = TokenStream::default();
 
-    if let Some(de_token_stream) = make_de_token_steam(&ctxt, &cont) {
+    if let Some(de_token_stream) = make_de_token_steam(&ast_result, &cont) {
         token_stream.extend(de_token_stream);
     }
 
-    if let Some(se_token_stream) = make_se_token_stream(&ctxt, &cont) {
+    if let Some(se_token_stream) = make_se_token_stream(&ast_result, &cont) {
         token_stream.extend(se_token_stream);
     }
 
-    ctxt.check()?;
+    ast_result.check()?;
     Ok(token_stream)
 }
 
 pub fn expand_enum_derive(input: &syn::DeriveInput) -> Result<TokenStream, Vec<syn::Error>> {
-    let ctxt = Ctxt::new();
-    let cont = match ASTContainer::from_ast(&ctxt, input) {
+    let ast_result = ASTResult::new();
+    let cont = match ASTContainer::from_ast(&ast_result, input) {
         Some(cont) => cont,
-        None => return Err(ctxt.check().unwrap_err()),
+        None => return Err(ast_result.check().unwrap_err()),
     };
 
     let mut token_stream: TokenStream = TokenStream::default();
 
-    if let Some(enum_token_stream) = make_enum_token_stream(&ctxt, &cont) {
+    if let Some(enum_token_stream) = make_enum_token_stream(&ast_result, &cont) {
         token_stream.extend(enum_token_stream);
     }
 
-    ctxt.check()?;
+    ast_result.check()?;
     Ok(token_stream)
 }
 // #[macro_use]

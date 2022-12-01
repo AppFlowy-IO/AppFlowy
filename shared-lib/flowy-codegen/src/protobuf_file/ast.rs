@@ -115,11 +115,11 @@ pub fn get_ast_structs(ast: &syn::File) -> Vec<Struct> {
     // let mut content = format!("{:#?}", &ast);
     // let mut file = File::create("./foo.txt").unwrap();
     // file.write_all(content.as_bytes()).unwrap();
-    let ctxt = Ctxt::new();
+    let ast_result = ASTResult::new();
     let mut proto_structs: Vec<Struct> = vec![];
     ast.items.iter().for_each(|item| {
         if let Item::Struct(item_struct) = item {
-            let (_, fields) = struct_from_ast(&ctxt, &item_struct.fields);
+            let (_, fields) = struct_from_ast(&ast_result, &item_struct.fields);
 
             if fields.iter().filter(|f| f.attrs.pb_index().is_some()).count() > 0 {
                 proto_structs.push(Struct {
@@ -129,25 +129,25 @@ pub fn get_ast_structs(ast: &syn::File) -> Vec<Struct> {
             }
         }
     });
-    ctxt.check().unwrap();
+    ast_result.check().unwrap();
     proto_structs
 }
 
 pub fn get_ast_enums(ast: &syn::File) -> Vec<FlowyEnum> {
     let mut flowy_enums: Vec<FlowyEnum> = vec![];
-    let ctxt = Ctxt::new();
+    let ast_result = ASTResult::new();
 
     ast.items.iter().for_each(|item| {
         // https://docs.rs/syn/1.0.54/syn/enum.Item.html
         if let Item::Enum(item_enum) = item {
-            let attrs = flowy_ast::enum_from_ast(&ctxt, &item_enum.ident, &item_enum.variants, &ast.attrs);
+            let attrs = flowy_ast::enum_from_ast(&ast_result, &item_enum.ident, &item_enum.variants, &ast.attrs);
             flowy_enums.push(FlowyEnum {
                 name: item_enum.ident.to_string(),
                 attrs,
             });
         }
     });
-    ctxt.check().unwrap();
+    ast_result.check().unwrap();
     flowy_enums
 }
 

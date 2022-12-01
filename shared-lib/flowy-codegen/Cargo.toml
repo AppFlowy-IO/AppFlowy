@@ -10,6 +10,7 @@ log = "0.4.14"
 serde = { version = "1.0", features = ["derive"]}
 serde_json = "1.0"
 flowy-ast = { path = "../flowy-ast"}
+quote = "1.0"
 
 cmd_lib = { version = "1", optional = true }
 protoc-rust = { version = "2", optional = true }
@@ -24,7 +25,6 @@ phf = { version = "0.8.0", features = ["macros"], optional = true }
 console = {version = "0.14.0", optional = true}
 protoc-bin-vendored = { version = "3.0", optional = true }
 toml = {version = "0.5.8", optional = true}
-
 
 
 

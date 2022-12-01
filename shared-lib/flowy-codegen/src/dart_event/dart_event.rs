@@ -1,7 +1,8 @@
 use super::event_template::*;
+use crate::dart_event::ast::EventASTContext;
 use crate::flowy_toml::{parse_crate_config_from, CrateConfig};
 use crate::util::{is_crate_dir, is_hidden, path_string_with_component, read_file};
-use flowy_ast::{event_ast::*, *};
+use flowy_ast::ASTResult;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
@@ -117,10 +118,14 @@ pub fn parse_event_crate(event_crate: &DartEventCrate) -> Vec<EventASTContext> {
                 .iter()
                 .map(|item| match item {
                     Item::Enum(item_enum) => {
-                        let ctxt = Ctxt::new();
-                        let attrs =
-                            flowy_ast::enum_from_ast(&ctxt, &item_enum.ident, &item_enum.variants, &item_enum.attrs);
-                        ctxt.check().unwrap();
+                        let ast_result = ASTResult::new();
+                        let attrs = flowy_ast::enum_from_ast(
+                            &ast_result,
+                            &item_enum.ident,
+                            &item_enum.variants,
+                            &item_enum.attrs,
+                        );
+                        ast_result.check().unwrap();
                         attrs
                             .iter()
                             .filter(|attr| !attr.attrs.event_attrs.ignore)

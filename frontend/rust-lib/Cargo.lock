@@ -830,6 +830,7 @@ dependencies = [
  "phf 0.8.0",
  "protoc-bin-vendored",
  "protoc-rust",
+ "quote",
  "serde",
  "serde_json",
  "similar",

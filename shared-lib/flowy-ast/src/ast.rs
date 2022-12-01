@@ -1,7 +1,7 @@
 #![allow(clippy::all)]
 #![allow(unused_attributes)]
 #![allow(unused_assignments)]
-use crate::{attr, ty_ext::*, AttrsContainer, Ctxt};
+use crate::{attr, ty_ext::*, ASTResult, AttrsContainer};
 use syn::{self, punctuated::Punctuated};
 
 pub struct ASTContainer<'a> {
@@ -14,8 +14,8 @@ pub struct ASTContainer<'a> {
 }
 
 impl<'a> ASTContainer<'a> {
-    pub fn from_ast(cx: &Ctxt, ast: &'a syn::DeriveInput) -> Option<ASTContainer<'a>> {
-        let attrs = AttrsContainer::from_ast(cx, ast);
+    pub fn from_ast(ast_result: &ASTResult, ast: &'a syn::DeriveInput) -> Option<ASTContainer<'a>> {
+        let attrs = AttrsContainer::from_ast(ast_result, ast);
         // syn::DeriveInput
         //  1. syn::DataUnion
         //  2. syn::DataStruct
@@ -23,16 +23,16 @@ impl<'a> ASTContainer<'a> {
         let data = match &ast.data {
             syn::Data::Struct(data) => {
                 // https://docs.rs/syn/1.0.48/syn/struct.DataStruct.html
-                let (style, fields) = struct_from_ast(cx, &data.fields);
+                let (style, fields) = struct_from_ast(ast_result, &data.fields);
                 ASTData::Struct(style, fields)
             }
             syn::Data::Union(_) => {
-                cx.error_spanned_by(ast, "Does not support derive for unions");
+                ast_result.error_spanned_by(ast, "Does not support derive for unions");
                 return None;
             }
             syn::Data::Enum(data) => {
                 // https://docs.rs/syn/1.0.48/syn/struct.DataEnum.html
-                ASTData::Enum(enum_from_ast(cx, &ast.ident, &data.variants, &ast.attrs))
+                ASTData::Enum(enum_from_ast(ast_result, &ast.ident, &data.variants, &ast.attrs))
             }
         };
 
@@ -115,7 +115,7 @@ pub struct ASTField<'a> {
 }
 
 impl<'a> ASTField<'a> {
-    pub fn new(cx: &Ctxt, field: &'a syn::Field, index: usize) -> Result<Self, String> {
+    pub fn new(cx: &ASTResult, field: &'a syn::Field, index: usize) -> Result<Self, String> {
         let mut bracket_inner_ty = None;
         let mut bracket_ty = None;
         let mut bracket_category = Some(BracketCategory::Other);
@@ -202,7 +202,7 @@ pub enum ASTStyle {
     Unit,
 }
 
-pub fn struct_from_ast<'a>(cx: &Ctxt, fields: &'a syn::Fields) -> (ASTStyle, Vec<ASTField<'a>>) {
+pub fn struct_from_ast<'a>(cx: &ASTResult, fields: &'a syn::Fields) -> (ASTStyle, Vec<ASTField<'a>>) {
     match fields {
         syn::Fields::Named(fields) => (ASTStyle::Struct, fields_from_ast(cx, &fields.named)),
         syn::Fields::Unnamed(fields) if fields.unnamed.len() == 1 => {
@@ -214,7 +214,7 @@ pub fn struct_from_ast<'a>(cx: &Ctxt, fields: &'a syn::Fields) -> (ASTStyle, Vec
 }
 
 pub fn enum_from_ast<'a>(
-    cx: &Ctxt,
+    cx: &ASTResult,
     ident: &syn::Ident,
     variants: &'a Punctuated<syn::Variant, Token![,]>,
     enum_attrs: &[syn::Attribute],
@@ -235,7 +235,7 @@ pub fn enum_from_ast<'a>(
         .collect()
 }
 
-fn fields_from_ast<'a>(cx: &Ctxt, fields: &'a Punctuated<syn::Field, Token![,]>) -> Vec<ASTField<'a>> {
+fn fields_from_ast<'a>(cx: &ASTResult, fields: &'a Punctuated<syn::Field, Token![,]>) -> Vec<ASTField<'a>> {
     fields
         .iter()
         .enumerate()
