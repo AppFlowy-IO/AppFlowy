@@ -1,4 +1,4 @@
-use crate::code_gen::util::get_tera;
+use crate::util::get_tera;
 use tera::Context;
 
 pub struct EventTemplate {

@@ -570,10 +570,10 @@ dependencies = [
  "crossbeam-utils",
  "dart-notify",
  "ffi-support",
+ "flowy-codegen",
  "flowy-derive",
  "flowy-sdk",
  "lib-dispatch",
- "lib-infra",
  "log",
  "once_cell",
  "protobuf",
@@ -588,10 +588,10 @@ version = "0.1.0"
 dependencies = [
  "allo-isolate",
  "bytes",
+ "flowy-codegen",
  "flowy-derive",
  "lazy_static",
  "lib-dispatch",
- "lib-infra",
  "log",
  "protobuf",
 ]
@@ -817,6 +817,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-codegen"
+version = "0.1.0"
+dependencies = [
+ "cmd_lib",
+ "console",
+ "fancy-regex",
+ "flowy-ast",
+ "itertools",
+ "lazy_static",
+ "log",
+ "phf 0.8.0",
+ "protoc-bin-vendored",
+ "protoc-rust",
+ "serde",
+ "serde_json",
+ "similar",
+ "syn",
+ "tera",
+ "toml",
+ "walkdir",
+]
+
+[[package]]
 name = "flowy-database"
 version = "0.1.0"
 dependencies = [
@@ -834,8 +857,8 @@ version = "0.1.0"
 dependencies = [
  "dashmap",
  "flowy-ast",
+ "flowy-codegen",
  "lazy_static",
- "lib-infra",
  "proc-macro2",
  "quote",
  "serde_json",
@@ -857,6 +880,7 @@ dependencies = [
  "derive_more",
  "diesel",
  "diesel_derives",
+ "flowy-codegen",
  "flowy-database",
  "flowy-derive",
  "flowy-document",
@@ -891,13 +915,13 @@ name = "flowy-error"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "flowy-codegen",
  "flowy-database",
  "flowy-derive",
  "flowy-error-code",
  "flowy-sync",
  "http-flowy",
  "lib-dispatch",
- "lib-infra",
  "lib-ot",
  "lib-sqlite",
  "protobuf",
@@ -910,8 +934,8 @@ name = "flowy-error-code"
 version = "0.1.0"
 dependencies = [
  "derive_more",
+ "flowy-codegen",
  "flowy-derive",
- "lib-infra",
  "protobuf",
 ]
 
@@ -923,6 +947,7 @@ dependencies = [
  "dart-notify",
  "diesel",
  "diesel_derives",
+ "flowy-codegen",
  "flowy-database",
  "flowy-derive",
  "flowy-document",
@@ -965,6 +990,7 @@ dependencies = [
  "dashmap",
  "diesel",
  "fancy-regex",
+ "flowy-codegen",
  "flowy-database",
  "flowy-derive",
  "flowy-error",
@@ -1002,6 +1028,7 @@ name = "flowy-http-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "flowy-codegen",
  "flowy-derive",
  "lib-infra",
  "md5",
@@ -1017,6 +1044,7 @@ dependencies = [
  "bytes",
  "config",
  "dashmap",
+ "flowy-codegen",
  "flowy-derive",
  "flowy-document",
  "flowy-error",
@@ -1178,6 +1206,7 @@ dependencies = [
  "diesel_derives",
  "fake",
  "fancy-regex",
+ "flowy-codegen",
  "flowy-database",
  "flowy-derive",
  "flowy-error",
@@ -1740,27 +1769,10 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "chrono",
- "cmd_lib",
- "console",
- "fancy-regex",
- "flowy-ast",
  "futures-core",
- "itertools",
- "lazy_static",
- "log",
- "phf 0.8.0",
  "pin-project",
- "protoc-bin-vendored",
- "protoc-rust",
  "rand 0.8.5",
- "serde",
- "serde_json",
- "similar",
- "syn",
- "tera",
  "tokio",
- "toml",
- "walkdir",
 ]
 
 [[package]]
@@ -1827,6 +1839,7 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "dashmap",
+ "flowy-codegen",
  "flowy-derive",
  "futures",
  "futures-channel",

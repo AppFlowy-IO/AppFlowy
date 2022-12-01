@@ -1,7 +1,7 @@
 use dashmap::{DashMap, DashSet};
 use flowy_ast::{Ctxt, TyInfo};
+use flowy_codegen::ProtoCache;
 use lazy_static::lazy_static;
-use lib_infra::code_gen::ProtoCache;
 use std::fs::File;
 use std::io::Read;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -50,7 +50,7 @@ pub fn category_from_str(type_str: String) -> TypeCategory {
         IS_LOAD.store(true, Ordering::SeqCst);
         // Dependents on another crate file is not good, just leave it here.
         // Maybe find another way to read the .cache in the future.
-        let cache_dir = format!("{}/../lib-infra/.cache", env!("CARGO_MANIFEST_DIR"));
+        let cache_dir = format!("{}/../flowy-codegen/.cache", env!("CARGO_MANIFEST_DIR"));
         for path in WalkDir::new(cache_dir)
             .into_iter()
             .filter_map(|e| e.ok())

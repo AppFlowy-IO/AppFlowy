@@ -1,5 +1,5 @@
-use crate::code_gen::protobuf_file::ast::FlowyEnum;
-use crate::code_gen::util::get_tera;
+use crate::protobuf_file::ast::FlowyEnum;
+use crate::util::get_tera;
 use tera::Context;
 
 pub struct EnumTemplate {

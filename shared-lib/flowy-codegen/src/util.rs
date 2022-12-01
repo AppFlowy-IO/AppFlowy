@@ -142,7 +142,7 @@ pub fn suffix_relative_to_path(path: &str, base: &str) -> String {
 }
 
 pub fn get_tera(directory: &str) -> Tera {
-    let mut root = format!("{}/src/code_gen/", env!("CARGO_MANIFEST_DIR"));
+    let mut root = format!("{}/src/", env!("CARGO_MANIFEST_DIR"));
     root.push_str(directory);
 
     let root_absolute_path = match std::fs::canonicalize(&root) {

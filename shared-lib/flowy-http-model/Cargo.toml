@@ -13,5 +13,6 @@ protobuf = {version = "2.18.0"}
 md5 = "0.7.0"
 
 [build-dependencies]
-lib-infra = { path = "../lib-infra", features = ["proto_gen"] }
+flowy-codegen= { path = "../flowy-codegen"}
+
 

@@ -1,6 +1,6 @@
 use super::event_template::*;
-use crate::code_gen::flowy_toml::{parse_crate_config_from, CrateConfig};
-use crate::code_gen::util::{is_crate_dir, is_hidden, path_string_with_component, read_file};
+use crate::flowy_toml::{parse_crate_config_from, CrateConfig};
+use crate::util::{is_crate_dir, is_hidden, path_string_with_component, read_file};
 use flowy_ast::{event_ast::*, *};
 use std::fs::File;
 use std::io::Write;

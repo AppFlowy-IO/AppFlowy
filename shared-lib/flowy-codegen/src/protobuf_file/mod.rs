@@ -6,7 +6,7 @@ mod proto_gen;
 mod proto_info;
 mod template;
 
-use crate::code_gen::util::path_string_with_component;
+use crate::util::path_string_with_component;
 use itertools::Itertools;
 use log::info;
 pub use proto_gen::*;

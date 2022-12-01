@@ -11,7 +11,8 @@ protobuf = {version = "2.18.0"}
 derive_more = {version = "0.99", features = ["display"]}
 
 [build-dependencies]
-lib-infra = { path = "../lib-infra", features = ["proto_gen"] }
+flowy-codegen= { path = "../flowy-codegen"}
+
 
 [features]
-dart = ["lib-infra/dart"]
+dart = ["flowy-codegen/dart"]

@@ -1,6 +1,6 @@
 #![allow(dead_code)]
-use crate::code_gen::flowy_toml::{parse_crate_config_from, CrateConfig, FlowyConfig};
-use crate::code_gen::util::*;
+use crate::flowy_toml::{parse_crate_config_from, CrateConfig, FlowyConfig};
+use crate::util::*;
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::PathBuf;
