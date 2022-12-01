@@ -1,7 +1,7 @@
 use std::future::Future;
 
 use crate::{
-    request::{payload::Payload, EventRequest},
+    request::{payload::Payload, AFPluginEventRequest},
     response::EventResponse,
 };
 
@@ -13,7 +13,7 @@ pub trait Service<Request> {
     fn call(&self, req: Request) -> Self::Future;
 }
 
-pub trait ServiceFactory<Request> {
+pub trait AFPluginServiceFactory<Request> {
     type Response;
     type Error;
     type Service: Service<Request, Response = Self::Response, Error = Self::Error>;
@@ -23,33 +23,33 @@ pub trait ServiceFactory<Request> {
     fn new_service(&self, cfg: Self::Context) -> Self::Future;
 }
 
-pub struct ServiceRequest {
-    req: EventRequest,
+pub(crate) struct ServiceRequest {
+    req: AFPluginEventRequest,
     payload: Payload,
 }
 
 impl ServiceRequest {
-    pub fn new(req: EventRequest, payload: Payload) -> Self {
+    pub(crate) fn new(req: AFPluginEventRequest, payload: Payload) -> Self {
         Self { req, payload }
     }
 
     #[inline]
-    pub fn into_parts(self) -> (EventRequest, Payload) {
+    pub(crate) fn into_parts(self) -> (AFPluginEventRequest, Payload) {
         (self.req, self.payload)
     }
 }
 
 pub struct ServiceResponse {
-    request: EventRequest,
+    request: AFPluginEventRequest,
     response: EventResponse,
 }
 
 impl ServiceResponse {
-    pub fn new(request: EventRequest, response: EventResponse) -> Self {
+    pub fn new(request: AFPluginEventRequest, response: EventResponse) -> Self {
         ServiceResponse { request, response }
     }
 
-    pub fn into_parts(self) -> (EventRequest, EventResponse) {
+    pub fn into_parts(self) -> (AFPluginEventRequest, EventResponse) {
         (self.request, self.response)
     }
 }

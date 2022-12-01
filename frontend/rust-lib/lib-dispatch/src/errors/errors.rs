@@ -1,6 +1,6 @@
 use crate::{
-    byte_trait::FromBytes,
-    request::EventRequest,
+    byte_trait::AFPluginFromBytes,
+    request::AFPluginEventRequest,
     response::{EventResponse, ResponseBuilder},
 };
 use bytes::Bytes;
@@ -54,8 +54,8 @@ impl std::error::Error for DispatchError {
     }
 }
 
-impl From<SendError<EventRequest>> for DispatchError {
-    fn from(err: SendError<EventRequest>) -> Self {
+impl From<SendError<AFPluginEventRequest>> for DispatchError {
+    fn from(err: SendError<AFPluginEventRequest>) -> Self {
         InternalError::Other(format!("{}", err)).into()
     }
 }
@@ -73,7 +73,7 @@ impl From<protobuf::ProtobufError> for DispatchError {
     }
 }
 
-impl FromBytes for DispatchError {
+impl AFPluginFromBytes for DispatchError {
     fn parse_from_bytes(bytes: Bytes) -> Result<Self, DispatchError> {
         let s = String::from_utf8(bytes.to_vec()).unwrap();
         Ok(InternalError::DeserializeFromBytes(s).into())

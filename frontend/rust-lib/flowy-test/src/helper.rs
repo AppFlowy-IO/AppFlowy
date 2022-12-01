@@ -13,7 +13,7 @@ use flowy_user::{
     errors::FlowyError,
     event_map::UserEvent::{InitUser, SignIn, SignOut, SignUp},
 };
-use lib_dispatch::prelude::{EventDispatcher, ModuleRequest, ToBytes};
+use lib_dispatch::prelude::{AFPluginDispatcher, AFPluginRequest, ToBytes};
 use std::{fs, path::PathBuf, sync::Arc};
 
 pub struct ViewTest {
@@ -161,7 +161,7 @@ pub struct SignUpContext {
     pub password: String,
 }
 
-pub fn sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
+pub fn sign_up(dispatch: Arc<AFPluginDispatcher>) -> SignUpContext {
     let password = login_password();
     let payload = SignUpPayloadPB {
         email: random_email(),
@@ -171,8 +171,8 @@ pub fn sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
     .into_bytes()
     .unwrap();
 
-    let request = ModuleRequest::new(SignUp).payload(payload);
-    let user_profile = EventDispatcher::sync_send(dispatch, request)
+    let request = AFPluginRequest::new(SignUp).payload(payload);
+    let user_profile = AFPluginDispatcher::sync_send(dispatch, request)
         .parse::<UserProfilePB, FlowyError>()
         .unwrap()
         .unwrap();
@@ -180,7 +180,7 @@ pub fn sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
     SignUpContext { user_profile, password }
 }
 
-pub async fn async_sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
+pub async fn async_sign_up(dispatch: Arc<AFPluginDispatcher>) -> SignUpContext {
     let password = login_password();
     let email = random_email();
     let payload = SignUpPayloadPB {
@@ -191,8 +191,8 @@ pub async fn async_sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
     .into_bytes()
     .unwrap();
 
-    let request = ModuleRequest::new(SignUp).payload(payload);
-    let user_profile = EventDispatcher::async_send(dispatch.clone(), request)
+    let request = AFPluginRequest::new(SignUp).payload(payload);
+    let user_profile = AFPluginDispatcher::async_send(dispatch.clone(), request)
         .await
         .parse::<UserProfilePB, FlowyError>()
         .unwrap()
@@ -202,13 +202,13 @@ pub async fn async_sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
     SignUpContext { user_profile, password }
 }
 
-pub async fn init_user_setting(dispatch: Arc<EventDispatcher>) {
-    let request = ModuleRequest::new(InitUser);
-    let _ = EventDispatcher::async_send(dispatch.clone(), request).await;
+pub async fn init_user_setting(dispatch: Arc<AFPluginDispatcher>) {
+    let request = AFPluginRequest::new(InitUser);
+    let _ = AFPluginDispatcher::async_send(dispatch.clone(), request).await;
 }
 
 #[allow(dead_code)]
-fn sign_in(dispatch: Arc<EventDispatcher>) -> UserProfilePB {
+fn sign_in(dispatch: Arc<AFPluginDispatcher>) -> UserProfilePB {
     let payload = SignInPayloadPB {
         email: login_email(),
         password: login_password(),
@@ -217,14 +217,14 @@ fn sign_in(dispatch: Arc<EventDispatcher>) -> UserProfilePB {
     .into_bytes()
     .unwrap();
 
-    let request = ModuleRequest::new(SignIn).payload(payload);
-    EventDispatcher::sync_send(dispatch, request)
+    let request = AFPluginRequest::new(SignIn).payload(payload);
+    AFPluginDispatcher::sync_send(dispatch, request)
         .parse::<UserProfilePB, FlowyError>()
         .unwrap()
         .unwrap()
 }
 
 #[allow(dead_code)]
-fn logout(dispatch: Arc<EventDispatcher>) {
-    let _ = EventDispatcher::sync_send(dispatch, ModuleRequest::new(SignOut));
+fn logout(dispatch: Arc<AFPluginDispatcher>) {
+    let _ = AFPluginDispatcher::sync_send(dispatch, AFPluginRequest::new(SignOut));
 }

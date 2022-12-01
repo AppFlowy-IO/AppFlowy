@@ -31,7 +31,7 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
 
 #[no_mangle]
 pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
-    let request: ModuleRequest = FFIRequest::from_u8_pointer(input, len).into();
+    let request: AFPluginRequest = FFIRequest::from_u8_pointer(input, len).into();
     log::trace!(
         "[FFI]: {} Async Event: {:?} with {} port",
         &request.id,
@@ -46,7 +46,7 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
         }
         Some(e) => e.event_dispatcher.clone(),
     };
-    let _ = EventDispatcher::async_send_with_callback(dispatcher, request, move |resp: EventResponse| {
+    let _ = AFPluginDispatcher::async_send_with_callback(dispatcher, request, move |resp: EventResponse| {
         log::trace!("[FFI]: Post data to dart through {} port", port);
         Box::pin(post_to_flutter(resp, port))
     });
@@ -54,7 +54,7 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
 
 #[no_mangle]
 pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
-    let request: ModuleRequest = FFIRequest::from_u8_pointer(input, len).into();
+    let request: AFPluginRequest = FFIRequest::from_u8_pointer(input, len).into();
     log::trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
 
     let dispatcher = match FLOWY_SDK.get() {
@@ -64,7 +64,7 @@ pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
         }
         Some(e) => e.event_dispatcher.clone(),
     };
-    let _response = EventDispatcher::sync_send(dispatcher, request);
+    let _response = AFPluginDispatcher::sync_send(dispatcher, request);
 
     // FFIResponse {  }
     let response_bytes = vec![];

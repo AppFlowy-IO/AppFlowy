@@ -1,9 +1,9 @@
-use crate::runtime::FlowyRuntime;
+use crate::runtime::AFPluginRuntime;
 use crate::{
     errors::{DispatchError, Error, InternalError},
-    module::{as_module_map, Module, ModuleMap, ModuleRequest},
+    module::{as_plugin_map, AFPlugin, AFPluginMap, AFPluginRequest},
     response::EventResponse,
-    service::{Service, ServiceFactory},
+    service::{AFPluginServiceFactory, Service},
 };
 use derivative::*;
 use futures_core::future::BoxFuture;
@@ -12,42 +12,43 @@ use pin_project::pin_project;
 use std::{future::Future, sync::Arc};
 use tokio::macros::support::{Pin, Poll};
 
-pub struct EventDispatcher {
-    module_map: ModuleMap,
-    runtime: FlowyRuntime,
+pub struct AFPluginDispatcher {
+    plugins: AFPluginMap,
+    runtime: AFPluginRuntime,
 }
 
-impl EventDispatcher {
-    pub fn construct<F>(runtime: FlowyRuntime, module_factory: F) -> EventDispatcher
+impl AFPluginDispatcher {
+    pub fn construct<F>(runtime: AFPluginRuntime, module_factory: F) -> AFPluginDispatcher
     where
-        F: FnOnce() -> Vec<Module>,
+        F: FnOnce() -> Vec<AFPlugin>,
     {
-        let modules = module_factory();
-        tracing::trace!("{}", module_info(&modules));
-        let module_map = as_module_map(modules);
-
-        EventDispatcher { module_map, runtime }
+        let plugins = module_factory();
+        tracing::trace!("{}", plugin_info(&plugins));
+        AFPluginDispatcher {
+            plugins: as_plugin_map(plugins),
+            runtime,
+        }
     }
 
-    pub fn async_send<Req>(dispatch: Arc<EventDispatcher>, request: Req) -> DispatchFuture<EventResponse>
+    pub fn async_send<Req>(dispatch: Arc<AFPluginDispatcher>, request: Req) -> DispatchFuture<EventResponse>
     where
-        Req: std::convert::Into<ModuleRequest>,
+        Req: std::convert::Into<AFPluginRequest>,
     {
-        EventDispatcher::async_send_with_callback(dispatch, request, |_| Box::pin(async {}))
+        AFPluginDispatcher::async_send_with_callback(dispatch, request, |_| Box::pin(async {}))
     }
 
     pub fn async_send_with_callback<Req, Callback>(
-        dispatch: Arc<EventDispatcher>,
+        dispatch: Arc<AFPluginDispatcher>,
         request: Req,
         callback: Callback,
     ) -> DispatchFuture<EventResponse>
     where
-        Req: std::convert::Into<ModuleRequest>,
+        Req: std::convert::Into<AFPluginRequest>,
         Callback: FnOnce(EventResponse) -> BoxFuture<'static, ()> + 'static + Send + Sync,
     {
-        let request: ModuleRequest = request.into();
-        let module_map = dispatch.module_map.clone();
-        let service = Box::new(DispatchService { module_map });
+        let request: AFPluginRequest = request.into();
+        let plugins = dispatch.plugins.clone();
+        let service = Box::new(DispatchService { plugins });
         tracing::trace!("Async event: {:?}", &request.event);
         let service_ctx = DispatchContext {
             request,
@@ -72,9 +73,9 @@ impl EventDispatcher {
         }
     }
 
-    pub fn sync_send(dispatch: Arc<EventDispatcher>, request: ModuleRequest) -> EventResponse {
+    pub fn sync_send(dispatch: Arc<AFPluginDispatcher>, request: AFPluginRequest) -> EventResponse {
         futures::executor::block_on(async {
-            EventDispatcher::async_send_with_callback(dispatch, request, |_| Box::pin(async {})).await
+            AFPluginDispatcher::async_send_with_callback(dispatch, request, |_| Box::pin(async {})).await
         })
     }
 
@@ -109,20 +110,20 @@ pub type BoxFutureCallback = Box<dyn FnOnce(EventResponse) -> BoxFuture<'static,
 #[derive(Derivative)]
 #[derivative(Debug)]
 pub struct DispatchContext {
-    pub request: ModuleRequest,
+    pub request: AFPluginRequest,
     #[derivative(Debug = "ignore")]
     pub callback: Option<BoxFutureCallback>,
 }
 
 impl DispatchContext {
-    pub(crate) fn into_parts(self) -> (ModuleRequest, Option<BoxFutureCallback>) {
+    pub(crate) fn into_parts(self) -> (AFPluginRequest, Option<BoxFutureCallback>) {
         let DispatchContext { request, callback } = self;
         (request, callback)
     }
 }
 
 pub(crate) struct DispatchService {
-    pub(crate) module_map: ModuleMap,
+    pub(crate) plugins: AFPluginMap,
 }
 
 impl Service<DispatchContext> for DispatchService {
@@ -135,7 +136,7 @@ impl Service<DispatchContext> for DispatchService {
         tracing::instrument(name = "DispatchService", level = "debug", skip(self, ctx))
     )]
     fn call(&self, ctx: DispatchContext) -> Self::Future {
-        let module_map = self.module_map.clone();
+        let module_map = self.plugins.clone();
         let (request, callback) = ctx.into_parts();
 
         Box::pin(async move {
@@ -168,17 +169,17 @@ impl Service<DispatchContext> for DispatchService {
 }
 
 #[allow(dead_code)]
-fn module_info(modules: &[Module]) -> String {
-    let mut info = format!("{} modules loaded\n", modules.len());
-    for module in modules {
+fn plugin_info(plugins: &[AFPlugin]) -> String {
+    let mut info = format!("{} plugins loaded\n", plugins.len());
+    for module in plugins {
         info.push_str(&format!("-> {} loaded \n", module.name));
     }
     info
 }
 
 #[allow(dead_code)]
-fn print_module_map_info(module_map: &ModuleMap) {
-    module_map.iter().for_each(|(k, v)| {
-        tracing::info!("Event: {:?} module: {:?}", k, v.name);
+fn print_plugins(plugins: &AFPluginMap) {
+    plugins.iter().for_each(|(k, v)| {
+        tracing::info!("Event: {:?} plugin : {:?}", k, v.name);
     })
 }

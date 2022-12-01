@@ -2,7 +2,7 @@ use std::future::Future;
 
 use crate::{
     errors::{DispatchError, InternalError},
-    module::{Event, ModuleDataMap},
+    module::{AFPluginEvent, AFPluginStateMap},
     request::payload::Payload,
     util::ready::{ready, Ready},
 };
@@ -16,31 +16,31 @@ use std::{
 };
 
 #[derive(Clone, Debug, Derivative)]
-pub struct EventRequest {
+pub struct AFPluginEventRequest {
     #[allow(dead_code)]
     pub(crate) id: String,
-    pub(crate) event: Event,
+    pub(crate) event: AFPluginEvent,
     #[derivative(Debug = "ignore")]
-    pub(crate) module_data: Arc<ModuleDataMap>,
+    pub(crate) states: Arc<AFPluginStateMap>,
 }
 
-impl EventRequest {
-    pub fn new<E>(id: String, event: E, module_data: Arc<ModuleDataMap>) -> EventRequest
+impl AFPluginEventRequest {
+    pub fn new<E>(id: String, event: E, module_data: Arc<AFPluginStateMap>) -> AFPluginEventRequest
     where
-        E: Into<Event>,
+        E: Into<AFPluginEvent>,
     {
         Self {
             id,
             event: event.into(),
-            module_data,
+            states: module_data,
         }
     }
 
-    pub fn module_data<T: 'static>(&self) -> Option<&T>
+    pub fn get_state<T: 'static>(&self) -> Option<&T>
     where
         T: Send + Sync,
     {
-        if let Some(data) = self.module_data.get::<T>() {
+        if let Some(data) = self.states.get::<T>() {
             return Some(data);
         }
 
@@ -48,29 +48,29 @@ impl EventRequest {
     }
 }
 
-pub trait FromRequest: Sized {
+pub trait FromAFPluginRequest: Sized {
     type Error: Into<DispatchError>;
     type Future: Future<Output = Result<Self, Self::Error>>;
 
-    fn from_request(req: &EventRequest, payload: &mut Payload) -> Self::Future;
+    fn from_request(req: &AFPluginEventRequest, payload: &mut Payload) -> Self::Future;
 }
 
 #[doc(hidden)]
-impl FromRequest for () {
+impl FromAFPluginRequest for () {
     type Error = DispatchError;
     type Future = Ready<Result<(), DispatchError>>;
 
-    fn from_request(_req: &EventRequest, _payload: &mut Payload) -> Self::Future {
+    fn from_request(_req: &AFPluginEventRequest, _payload: &mut Payload) -> Self::Future {
         ready(Ok(()))
     }
 }
 
 #[doc(hidden)]
-impl FromRequest for String {
+impl FromAFPluginRequest for String {
     type Error = DispatchError;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn from_request(req: &EventRequest, payload: &mut Payload) -> Self::Future {
+    fn from_request(req: &AFPluginEventRequest, payload: &mut Payload) -> Self::Future {
         match &payload {
             Payload::None => ready(Err(unexpected_none_payload(req))),
             Payload::Bytes(buf) => ready(Ok(String::from_utf8_lossy(buf).into_owned())),
@@ -78,20 +78,20 @@ impl FromRequest for String {
     }
 }
 
-pub fn unexpected_none_payload(request: &EventRequest) -> DispatchError {
+pub fn unexpected_none_payload(request: &AFPluginEventRequest) -> DispatchError {
     log::warn!("{:?} expected payload", &request.event);
     InternalError::UnexpectedNone("Expected payload".to_string()).into()
 }
 
 #[doc(hidden)]
-impl<T> FromRequest for Result<T, T::Error>
+impl<T> FromAFPluginRequest for Result<T, T::Error>
 where
-    T: FromRequest,
+    T: FromAFPluginRequest,
 {
     type Error = DispatchError;
     type Future = FromRequestFuture<T::Future>;
 
-    fn from_request(req: &EventRequest, payload: &mut Payload) -> Self::Future {
+    fn from_request(req: &AFPluginEventRequest, payload: &mut Payload) -> Self::Future {
         FromRequestFuture {
             fut: T::from_request(req, payload),
         }

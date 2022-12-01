@@ -5,9 +5,9 @@ use lib_dispatch::prelude::*;
 use std::sync::Arc;
 use strum_macros::Display;
 
-pub fn create(grid_manager: Arc<GridManager>) -> Module {
-    let mut module = Module::new().name(env!("CARGO_PKG_NAME")).data(grid_manager);
-    module = module
+pub fn init(grid_manager: Arc<GridManager>) -> AFPlugin {
+    let mut plugin = AFPlugin::new().name(env!("CARGO_PKG_NAME")).state(grid_manager);
+    plugin = plugin
         .event(GridEvent::GetGrid, get_grid_handler)
         .event(GridEvent::GetGridBlocks, get_grid_blocks_handler)
         .event(GridEvent::GetGridSetting, get_grid_setting_handler)
@@ -45,7 +45,7 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         .event(GridEvent::MoveGroupRow, move_group_row_handler)
         .event(GridEvent::GetGroup, get_groups_handler);
 
-    module
+    plugin
 }
 
 /// [GridEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)

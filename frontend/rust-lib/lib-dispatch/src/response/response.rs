@@ -1,9 +1,9 @@
 use crate::{
-    byte_trait::FromBytes,
-    data::Data,
+    byte_trait::AFPluginFromBytes,
+    data::AFPluginData,
     errors::DispatchError,
-    request::{EventRequest, Payload},
-    response::Responder,
+    request::{AFPluginEventRequest, Payload},
+    response::AFPluginResponder,
 };
 use derivative::*;
 use std::{convert::TryFrom, fmt, fmt::Formatter};
@@ -35,16 +35,16 @@ impl EventResponse {
 
     pub fn parse<T, E>(self) -> Result<Result<T, E>, DispatchError>
     where
-        T: FromBytes,
-        E: FromBytes,
+        T: AFPluginFromBytes,
+        E: AFPluginFromBytes,
     {
         match self.status_code {
             StatusCode::Ok => {
-                let data = <Data<T>>::try_from(self.payload)?;
+                let data = <AFPluginData<T>>::try_from(self.payload)?;
                 Ok(Ok(data.into_inner()))
             }
             StatusCode::Err | StatusCode::Internal => {
-                let err = <Data<E>>::try_from(self.payload)?;
+                let err = <AFPluginData<E>>::try_from(self.payload)?;
                 Ok(Err(err.into_inner()))
             }
         }
@@ -64,18 +64,18 @@ impl std::fmt::Display for EventResponse {
     }
 }
 
-impl Responder for EventResponse {
+impl AFPluginResponder for EventResponse {
     #[inline]
-    fn respond_to(self, _: &EventRequest) -> EventResponse {
+    fn respond_to(self, _: &AFPluginEventRequest) -> EventResponse {
         self
     }
 }
 
-pub type DataResult<T, E> = std::result::Result<Data<T>, E>;
+pub type DataResult<T, E> = std::result::Result<AFPluginData<T>, E>;
 
-pub fn data_result<T, E>(data: T) -> Result<Data<T>, E>
+pub fn data_result<T, E>(data: T) -> Result<AFPluginData<T>, E>
 where
     E: Into<DispatchError>,
 {
-    Ok(Data(data))
+    Ok(AFPluginData(data))
 }
