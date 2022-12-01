@@ -113,17 +113,25 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
   Widget _buildMathEquation(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width,
+      constraints: const BoxConstraints(minHeight: 50),
       padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-        color: _isHover ? Colors.grey[200] : Colors.transparent,
+        color: _isHover || _mathEquation.isEmpty
+            ? Colors.grey[200]
+            : Colors.transparent,
       ),
       child: Center(
-        child: Math.tex(
-          _mathEquation,
-          textStyle: const TextStyle(fontSize: 20),
-          mathStyle: MathStyle.display,
-        ),
+        child: _mathEquation.isEmpty
+            ? Text(
+                'Add a Math Equation',
+                style: widget.editorState.editorStyle.placeholderTextStyle,
+              )
+            : Math.tex(
+                _mathEquation,
+                textStyle: const TextStyle(fontSize: 20),
+                mathStyle: MathStyle.display,
+              ),
       ),
     );
   }
