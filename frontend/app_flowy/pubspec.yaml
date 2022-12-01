@@ -91,6 +91,8 @@ dependencies:
   google_fonts: ^3.0.1
   file_picker: <=5.0.0
   percent_indicator: ^4.0.1
+  appflowy_editor_plugins:
+    path: packages/appflowy_editor_plugins
 
 dev_dependencies:
   flutter_lints: ^2.0.1

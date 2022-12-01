@@ -43,6 +43,7 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
     with SelectableMixin, DefaultSelectable {
   final _richTextKey = GlobalKey(debugLabel: kCodeBlockType);
   final _padding = const EdgeInsets.only(left: 20, top: 30, bottom: 30);
+  bool _isHover = false;
   String? get _language =>
       widget.textNode.attributes[kCodeBlockAttrLanguage] as String?;
   String? _detectLanguage;
@@ -59,17 +60,24 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        _buildCodeBlock(context),
-        _buildSwitchCodeButton(context),
-        _buildDeleteButton(context),
-      ],
+    return InkWell(
+      onHover: (value) {
+        setState(() {
+          _isHover = value;
+        });
+      },
+      onTap: () {},
+      child: Stack(
+        children: [
+          _buildCodeBlock(context),
+          _buildSwitchCodeButton(context),
+          if (_isHover) _buildDeleteButton(context),
+        ],
+      ),
     );
   }
 
   Widget _buildCodeBlock(BuildContext context) {
-    final plainText = widget.textNode.toPlainText();
     final result = highlight.highlight.parse(
       widget.textNode.toPlainText(),
       language: _language,

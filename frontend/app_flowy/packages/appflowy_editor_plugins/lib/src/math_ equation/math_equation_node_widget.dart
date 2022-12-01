@@ -168,9 +168,9 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
               if (key is! RawKeyDownEvent) return;
               if (key.logicalKey == LogicalKeyboardKey.enter &&
                   !key.isShiftPressed) {
-                _updateMathEquation(controller.text);
+                _updateMathEquation(controller.text, context);
               } else if (key.logicalKey == LogicalKeyboardKey.escape) {
-                _dismiss();
+                _dismiss(context);
               }
             },
             child: TextField(
@@ -185,11 +185,11 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
           ),
           actions: [
             TextButton(
-              onPressed: () => _dismiss(),
+              onPressed: () => _dismiss(context),
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () => _updateMathEquation(controller.text),
+              onPressed: () => _updateMathEquation(controller.text, context),
               child: const Text('Done'),
             ),
           ],
@@ -198,9 +198,9 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
     );
   }
 
-  void _updateMathEquation(String mathEquation) {
-    _dismiss();
+  void _updateMathEquation(String mathEquation, BuildContext context) {
     if (mathEquation == _mathEquation) {
+      _dismiss(context);
       return;
     }
     final transaction = widget.editorState.transaction;
@@ -211,9 +211,10 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
       },
     );
     widget.editorState.apply(transaction);
+    _dismiss(context);
   }
 
-  void _dismiss() {
+  void _dismiss(BuildContext context) {
     Navigator.of(context).pop();
   }
 }
