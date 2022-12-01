@@ -41,16 +41,23 @@ class SimpleEditor extends StatelessWidget {
               kDividerType: DividerWidgetBuilder(),
               // Math Equation
               kMathEquationType: MathEquationNodeWidgetBuidler(),
+              // Code Block
+              kCodeBlockType: CodeBlockNodeWidgetBuilder(),
             },
             shortcutEvents: [
               // Divider
               insertDividerEvent,
+              // Code Block
+              enterInCodeBlock,
+              ignoreKeysInCodeBlock,
             ],
             selectionMenuItems: [
               // Divider
               dividerMenuItem,
               // Math Equation
               mathEquationMenuItem,
+              // Code Block
+              codeBlockMenuItem,
             ],
           );
         } else {

@@ -6,3 +6,7 @@ export 'src/divider/divider_shortcut_event.dart';
 
 // Math Equation
 export 'src/math_ equation/math_equation_node_widget.dart';
+
+// Code Block
+export 'src/code_block/code_block_node_widget.dart';
+export 'src/code_block/code_block_shortcut_event.dart';

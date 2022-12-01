@@ -1,93 +1,12 @@
-import 'dart:collection';
-
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:highlight/highlight.dart' as highlight;
 import 'package:highlight/languages/all.dart';
 
-ShortcutEvent enterInCodeBlock = ShortcutEvent(
-  key: 'Enter in code block',
-  command: 'enter',
-  handler: _enterInCodeBlockHandler,
-);
-
-ShortcutEvent ignoreKeysInCodeBlock = ShortcutEvent(
-  key: 'White space in code block',
-  command: 'space,slash,shift+underscore',
-  handler: _ignorekHandler,
-);
-
-ShortcutEventHandler _enterInCodeBlockHandler = (editorState, event) {
-  final selection = editorState.service.selectionService.currentSelection.value;
-  final nodes = editorState.service.selectionService.currentSelectedNodes;
-  final codeBlockNode =
-      nodes.whereType<TextNode>().where((node) => node.id == 'text/code_block');
-  if (codeBlockNode.length != 1 || selection == null) {
-    return KeyEventResult.ignored;
-  }
-  if (selection.isCollapsed) {
-    final transaction = editorState.transaction
-      ..insertText(codeBlockNode.first, selection.end.offset, '\n');
-    editorState.apply(transaction);
-    return KeyEventResult.handled;
-  }
-  return KeyEventResult.ignored;
-};
-
-ShortcutEventHandler _ignorekHandler = (editorState, event) {
-  final nodes = editorState.service.selectionService.currentSelectedNodes;
-  final codeBlockNodes =
-      nodes.whereType<TextNode>().where((node) => node.id == 'text/code_block');
-  if (codeBlockNodes.length == 1) {
-    return KeyEventResult.skipRemainingHandlers;
-  }
-  return KeyEventResult.ignored;
-};
-
-SelectionMenuItem codeBlockMenuItem = SelectionMenuItem(
-  name: () => 'Code Block',
-  icon: (_, __) => const Icon(
-    Icons.abc,
-    color: Colors.black,
-    size: 18.0,
-  ),
-  keywords: ['code block'],
-  handler: (editorState, _, __) {
-    final selection =
-        editorState.service.selectionService.currentSelection.value;
-    final textNodes = editorState.service.selectionService.currentSelectedNodes
-        .whereType<TextNode>();
-    if (selection == null || textNodes.isEmpty) {
-      return;
-    }
-    if (textNodes.first.toPlainText().isEmpty) {
-      final transaction = editorState.transaction
-        ..updateNode(textNodes.first, {
-          'subtype': 'code_block',
-          'theme': 'vs',
-          'language': null,
-        })
-        ..afterSelection = selection;
-      editorState.apply(transaction);
-    } else {
-      final transaction = editorState.transaction
-        ..insertNode(
-          selection.end.path.next,
-          TextNode(
-            children: LinkedList(),
-            attributes: {
-              'subtype': 'code_block',
-              'theme': 'vs',
-              'language': null,
-            },
-            delta: Delta()..insert('\n'),
-          ),
-        )
-        ..afterSelection = selection;
-      editorState.apply(transaction);
-    }
-  },
-);
+const String kCodeBlockType = 'text/$kCodeBlockSubType';
+const String kCodeBlockSubType = 'code_block';
+const String kCodeBlockAttrTheme = 'theme';
+const String kCodeBlockAttrLanguage = 'language';
 
 class CodeBlockNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
@@ -101,7 +20,8 @@ class CodeBlockNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
 
   @override
   NodeValidator<Node> get nodeValidator => (node) {
-        return node is TextNode && node.attributes['theme'] is String;
+        return node is TextNode &&
+            node.attributes[kCodeBlockAttrTheme] is String;
       };
 }
 
@@ -121,9 +41,10 @@ class _CodeBlockNodeWidge extends StatefulWidget {
 
 class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
     with SelectableMixin, DefaultSelectable {
-  final _richTextKey = GlobalKey(debugLabel: 'code_block_text');
-  final _padding = const EdgeInsets.only(left: 20, top: 20, bottom: 20);
-  String? get _language => widget.textNode.attributes['language'] as String?;
+  final _richTextKey = GlobalKey(debugLabel: kCodeBlockType);
+  final _padding = const EdgeInsets.only(left: 20, top: 30, bottom: 30);
+  String? get _language =>
+      widget.textNode.attributes[kCodeBlockAttrLanguage] as String?;
   String? _detectLanguage;
 
   @override
@@ -142,11 +63,13 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
       children: [
         _buildCodeBlock(context),
         _buildSwitchCodeButton(context),
+        _buildDeleteButton(context),
       ],
     );
   }
 
   Widget _buildCodeBlock(BuildContext context) {
+    final plainText = widget.textNode.toPlainText();
     final result = highlight.highlight.parse(
       widget.textNode.toPlainText(),
       language: _language,
@@ -177,25 +100,49 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
   Widget _buildSwitchCodeButton(BuildContext context) {
     return Positioned(
       top: -5,
-      right: 0,
-      child: DropdownButton<String>(
-        value: _detectLanguage,
-        onChanged: (value) {
+      left: 10,
+      child: SizedBox(
+        height: 35,
+        child: DropdownButton<String>(
+          value: _detectLanguage,
+          iconSize: 14.0,
+          onChanged: (value) {
+            final transaction = widget.editorState.transaction
+              ..updateNode(widget.textNode, {
+                kCodeBlockAttrLanguage: value,
+              });
+            widget.editorState.apply(transaction);
+          },
+          items:
+              allLanguages.keys.map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(
+                value,
+                style: const TextStyle(fontSize: 12.0),
+              ),
+            );
+          }).toList(growable: false),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeleteButton(BuildContext context) {
+    return Positioned(
+      top: -5,
+      right: -5,
+      child: IconButton(
+        icon: Icon(
+          Icons.delete_forever_outlined,
+          color: widget.editorState.editorStyle.selectionMenuItemIconColor,
+          size: 16,
+        ),
+        onPressed: () {
           final transaction = widget.editorState.transaction
-            ..updateNode(widget.textNode, {
-              'language': value,
-            });
+            ..deleteNode(widget.textNode);
           widget.editorState.apply(transaction);
         },
-        items: allLanguages.keys.map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(
-              value,
-              style: const TextStyle(fontSize: 12.0),
-            ),
-          );
-        }).toList(growable: false),
       ),
     );
   }

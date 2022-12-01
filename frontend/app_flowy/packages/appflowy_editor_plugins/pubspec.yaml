@@ -15,6 +15,7 @@ dependencies:
   appflowy_editor: 
     path: ../appflowy_editor
   flutter_math_fork: ^0.6.3+1
+  highlight: ^0.7.0
 
 dev_dependencies:
   flutter_test:
