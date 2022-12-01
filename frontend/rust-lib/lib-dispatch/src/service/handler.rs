@@ -11,11 +11,12 @@ use pin_project::pin_project;
 use crate::{
     errors::DispatchError,
     request::{payload::Payload, AFPluginEventRequest, FromAFPluginRequest},
-    response::{AFPluginResponder, EventResponse},
+    response::{AFPluginEventResponse, AFPluginResponder},
     service::{AFPluginServiceFactory, Service, ServiceRequest, ServiceResponse},
     util::ready::*,
 };
 
+/// A closure that is run every time for the specified plugin event
 pub trait AFPluginHandler<T, R>: Clone + 'static + Sync + Send
 where
     R: Future + Send + Sync,
@@ -135,7 +136,7 @@ where
                         Err(err) => {
                             let req = req.take().unwrap();
                             let system_err: DispatchError = err.into();
-                            let res: EventResponse = system_err.into();
+                            let res: AFPluginEventResponse = system_err.into();
                             return Poll::Ready(Ok(ServiceResponse::new(req, res)));
                         }
                     };

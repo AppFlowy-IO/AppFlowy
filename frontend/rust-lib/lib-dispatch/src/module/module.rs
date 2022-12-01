@@ -2,7 +2,7 @@ use crate::{
     errors::{DispatchError, InternalError},
     module::{container::AFPluginStateMap, AFPluginState},
     request::{payload::Payload, AFPluginEventRequest, FromAFPluginRequest},
-    response::{AFPluginResponder, EventResponse},
+    response::{AFPluginEventResponse, AFPluginResponder},
     service::{
         factory, AFPluginHandler, AFPluginHandlerService, AFPluginServiceFactory, BoxService, BoxServiceFactory,
         Service, ServiceRequest, ServiceResponse,
@@ -45,9 +45,21 @@ impl<T: Display + Eq + Hash + Debug + Clone> std::convert::From<T> for AFPluginE
     }
 }
 
+/// A plugin is used to handle the events that the plugin can handle.
+///
+/// When an event is a dispatched by the `AFPluginDispatcher`, the dispatcher will
+/// find the corresponding plugin to handle the event. The name of the event must be unique,
+/// which means only one handler will get called.
+///
 pub struct AFPlugin {
     pub name: String,
+
+    /// a list of `AFPluginState` that the plugin registers. The state can be read by the plugin's handler.
     states: Arc<AFPluginStateMap>,
+
+    /// Contains a list of factories that are used to generate the services used to handle the passed-in
+    /// `ServiceRequest`.
+    ///
     event_service_factory:
         Arc<HashMap<AFPluginEvent, BoxServiceFactory<(), ServiceRequest, ServiceResponse, DispatchError>>>,
 }
@@ -89,12 +101,12 @@ impl AFPlugin {
     {
         let event: AFPluginEvent = event.into();
         if self.event_service_factory.contains_key(&event) {
-            log::error!("Duplicate Event: {:?}", &event);
+            panic!("Register duplicate Event: {:?}", &event);
+        } else {
+            Arc::get_mut(&mut self.event_service_factory)
+                .unwrap()
+                .insert(event, factory(AFPluginHandlerService::new(handler)));
         }
-
-        Arc::get_mut(&mut self.event_service_factory)
-            .unwrap()
-            .insert(event, factory(AFPluginHandlerService::new(handler)));
         self
     }
 
@@ -103,6 +115,10 @@ impl AFPlugin {
     }
 }
 
+/// A request that will be passed to the corresponding plugin.
+///
+/// Each request can carry the payload that will be deserialized into the corresponding data struct.
+///
 #[derive(Debug, Clone)]
 pub struct AFPluginRequest {
     pub id: String,
@@ -138,7 +154,7 @@ impl std::fmt::Display for AFPluginRequest {
 }
 
 impl AFPluginServiceFactory<AFPluginRequest> for AFPlugin {
-    type Response = EventResponse;
+    type Response = AFPluginEventResponse;
     type Error = DispatchError;
     type Service = BoxService<AFPluginRequest, Self::Response, Self::Error>;
     type Context = ();
@@ -160,7 +176,7 @@ pub struct AFPluginService {
 }
 
 impl Service<AFPluginRequest> for AFPluginService {
-    type Response = EventResponse;
+    type Response = AFPluginEventResponse;
     type Error = DispatchError;
     type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
 
@@ -196,7 +212,7 @@ pub struct AFPluginServiceFuture {
 }
 
 impl Future for AFPluginServiceFuture {
-    type Output = Result<EventResponse, DispatchError>;
+    type Output = Result<AFPluginEventResponse, DispatchError>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let (_, response) = ready!(self.as_mut().project().fut.poll(cx))?.into_parts();

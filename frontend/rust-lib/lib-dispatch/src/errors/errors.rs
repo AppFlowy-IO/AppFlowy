@@ -1,7 +1,7 @@
 use crate::{
     byte_trait::AFPluginFromBytes,
     request::AFPluginEventRequest,
-    response::{EventResponse, ResponseBuilder},
+    response::{AFPluginEventResponse, ResponseBuilder},
 };
 use bytes::Bytes;
 use dyn_clone::DynClone;
@@ -10,7 +10,7 @@ use std::fmt;
 use tokio::{sync::mpsc::error::SendError, task::JoinError};
 
 pub trait Error: fmt::Debug + DynClone + Send + Sync {
-    fn as_response(&self) -> EventResponse;
+    fn as_response(&self) -> AFPluginEventResponse;
 }
 
 dyn_clone::clone_trait_object!(Error);
@@ -80,7 +80,7 @@ impl AFPluginFromBytes for DispatchError {
     }
 }
 
-impl From<DispatchError> for EventResponse {
+impl From<DispatchError> for AFPluginEventResponse {
     fn from(err: DispatchError) -> Self {
         err.inner_error().as_response()
     }
@@ -121,7 +121,7 @@ impl fmt::Display for InternalError {
 }
 
 impl Error for InternalError {
-    fn as_response(&self) -> EventResponse {
+    fn as_response(&self) -> AFPluginEventResponse {
         let error = format!("{}", self).into_bytes();
         ResponseBuilder::Internal().data(error).build()
     }

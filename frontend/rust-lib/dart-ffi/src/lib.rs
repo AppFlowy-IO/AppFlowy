@@ -46,7 +46,7 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
         }
         Some(e) => e.event_dispatcher.clone(),
     };
-    let _ = AFPluginDispatcher::async_send_with_callback(dispatcher, request, move |resp: EventResponse| {
+    let _ = AFPluginDispatcher::async_send_with_callback(dispatcher, request, move |resp: AFPluginEventResponse| {
         log::trace!("[FFI]: Post data to dart through {} port", port);
         Box::pin(post_to_flutter(resp, port))
     });
@@ -83,7 +83,7 @@ pub extern "C" fn set_stream_port(port: i64) -> i32 {
 pub extern "C" fn link_me_please() {}
 
 #[inline(always)]
-async fn post_to_flutter(response: EventResponse, port: i64) {
+async fn post_to_flutter(response: AFPluginEventResponse, port: i64) {
     let isolate = allo_isolate::Isolate::new(port);
     match isolate
         .catch_unwind(async {

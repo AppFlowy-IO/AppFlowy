@@ -2,18 +2,18 @@
 use crate::errors::{DispatchError, InternalError};
 use crate::{
     request::AFPluginEventRequest,
-    response::{EventResponse, ResponseBuilder},
+    response::{AFPluginEventResponse, ResponseBuilder},
 };
 use bytes::Bytes;
 
 pub trait AFPluginResponder {
-    fn respond_to(self, req: &AFPluginEventRequest) -> EventResponse;
+    fn respond_to(self, req: &AFPluginEventRequest) -> AFPluginEventResponse;
 }
 
 macro_rules! impl_responder {
     ($res: ty) => {
         impl AFPluginResponder for $res {
-            fn respond_to(self, _: &AFPluginEventRequest) -> EventResponse {
+            fn respond_to(self, _: &AFPluginEventRequest) -> AFPluginEventResponse {
                 ResponseBuilder::Ok().data(self).build()
             }
         }
@@ -32,7 +32,7 @@ where
     T: AFPluginResponder,
     E: Into<DispatchError>,
 {
-    fn respond_to(self, request: &AFPluginEventRequest) -> EventResponse {
+    fn respond_to(self, request: &AFPluginEventRequest) -> AFPluginEventResponse {
         match self {
             Ok(val) => val.respond_to(request),
             Err(e) => e.into().into(),

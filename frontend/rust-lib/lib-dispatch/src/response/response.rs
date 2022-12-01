@@ -19,15 +19,15 @@ pub enum StatusCode {
 // serde user guide: https://serde.rs/field-attrs.html
 #[derive(Debug, Clone, Derivative)]
 #[cfg_attr(feature = "use_serde", derive(serde::Serialize))]
-pub struct EventResponse {
+pub struct AFPluginEventResponse {
     #[derivative(Debug = "ignore")]
     pub payload: Payload,
     pub status_code: StatusCode,
 }
 
-impl EventResponse {
+impl AFPluginEventResponse {
     pub fn new(status_code: StatusCode) -> Self {
-        EventResponse {
+        AFPluginEventResponse {
             payload: Payload::None,
             status_code,
         }
@@ -51,7 +51,7 @@ impl EventResponse {
     }
 }
 
-impl std::fmt::Display for EventResponse {
+impl std::fmt::Display for AFPluginEventResponse {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.write_fmt(format_args!("Status_Code: {:?}", self.status_code))?;
 
@@ -64,9 +64,9 @@ impl std::fmt::Display for EventResponse {
     }
 }
 
-impl AFPluginResponder for EventResponse {
+impl AFPluginResponder for AFPluginEventResponse {
     #[inline]
-    fn respond_to(self, _: &AFPluginEventRequest) -> EventResponse {
+    fn respond_to(self, _: &AFPluginEventRequest) -> AFPluginEventResponse {
         self
     }
 }

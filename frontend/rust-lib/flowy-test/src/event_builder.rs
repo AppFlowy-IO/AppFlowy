@@ -1,7 +1,7 @@
 use crate::FlowySDKTest;
 use flowy_user::{entities::UserProfilePB, errors::FlowyError};
 use lib_dispatch::prelude::{
-    AFPluginDispatcher, AFPluginFromBytes, AFPluginRequest, EventResponse, StatusCode, ToBytes, *,
+    AFPluginDispatcher, AFPluginEventResponse, AFPluginFromBytes, AFPluginRequest, StatusCode, ToBytes, *,
 };
 use std::{
     convert::TryFrom,
@@ -124,7 +124,7 @@ where
         self.context.sdk.dispatcher()
     }
 
-    fn get_response(&self) -> EventResponse {
+    fn get_response(&self) -> AFPluginEventResponse {
         self.context
             .response
             .as_ref()
@@ -141,7 +141,7 @@ where
 pub struct TestContext {
     pub sdk: FlowySDKTest,
     request: Option<AFPluginRequest>,
-    response: Option<EventResponse>,
+    response: Option<AFPluginEventResponse>,
 }
 
 impl TestContext {

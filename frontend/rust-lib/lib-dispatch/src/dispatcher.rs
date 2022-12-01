@@ -2,7 +2,7 @@ use crate::runtime::AFPluginRuntime;
 use crate::{
     errors::{DispatchError, Error, InternalError},
     module::{as_plugin_map, AFPlugin, AFPluginMap, AFPluginRequest},
-    response::EventResponse,
+    response::AFPluginEventResponse,
     service::{AFPluginServiceFactory, Service},
 };
 use derivative::*;
@@ -30,7 +30,7 @@ impl AFPluginDispatcher {
         }
     }
 
-    pub fn async_send<Req>(dispatch: Arc<AFPluginDispatcher>, request: Req) -> DispatchFuture<EventResponse>
+    pub fn async_send<Req>(dispatch: Arc<AFPluginDispatcher>, request: Req) -> DispatchFuture<AFPluginEventResponse>
     where
         Req: std::convert::Into<AFPluginRequest>,
     {
@@ -41,10 +41,10 @@ impl AFPluginDispatcher {
         dispatch: Arc<AFPluginDispatcher>,
         request: Req,
         callback: Callback,
-    ) -> DispatchFuture<EventResponse>
+    ) -> DispatchFuture<AFPluginEventResponse>
     where
         Req: std::convert::Into<AFPluginRequest>,
-        Callback: FnOnce(EventResponse) -> BoxFuture<'static, ()> + 'static + Send + Sync,
+        Callback: FnOnce(AFPluginEventResponse) -> BoxFuture<'static, ()> + 'static + Send + Sync,
     {
         let request: AFPluginRequest = request.into();
         let plugins = dispatch.plugins.clone();
@@ -73,7 +73,7 @@ impl AFPluginDispatcher {
         }
     }
 
-    pub fn sync_send(dispatch: Arc<AFPluginDispatcher>, request: AFPluginRequest) -> EventResponse {
+    pub fn sync_send(dispatch: Arc<AFPluginDispatcher>, request: AFPluginRequest) -> AFPluginEventResponse {
         futures::executor::block_on(async {
             AFPluginDispatcher::async_send_with_callback(dispatch, request, |_| Box::pin(async {})).await
         })
@@ -105,7 +105,7 @@ where
     }
 }
 
-pub type BoxFutureCallback = Box<dyn FnOnce(EventResponse) -> BoxFuture<'static, ()> + 'static + Send + Sync>;
+pub type BoxFutureCallback = Box<dyn FnOnce(AFPluginEventResponse) -> BoxFuture<'static, ()> + 'static + Send + Sync>;
 
 #[derive(Derivative)]
 #[derivative(Debug)]
@@ -127,7 +127,7 @@ pub(crate) struct DispatchService {
 }
 
 impl Service<DispatchContext> for DispatchService {
-    type Response = EventResponse;
+    type Response = AFPluginEventResponse;
     type Error = DispatchError;
     type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
 

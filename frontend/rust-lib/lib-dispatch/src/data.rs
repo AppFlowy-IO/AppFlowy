@@ -2,7 +2,7 @@ use crate::{
     byte_trait::*,
     errors::{DispatchError, InternalError},
     request::{unexpected_none_payload, AFPluginEventRequest, FromAFPluginRequest, Payload},
-    response::{AFPluginResponder, EventResponse, ResponseBuilder},
+    response::{AFPluginEventResponse, AFPluginResponder, ResponseBuilder},
     util::ready::{ready, Ready},
 };
 use bytes::Bytes;
@@ -53,7 +53,7 @@ impl<T> AFPluginResponder for AFPluginData<T>
 where
     T: ToBytes,
 {
-    fn respond_to(self, _request: &AFPluginEventRequest) -> EventResponse {
+    fn respond_to(self, _request: &AFPluginEventRequest) -> AFPluginEventResponse {
         match self.into_inner().into_bytes() {
             Ok(bytes) => {
                 log::trace!("Serialize Data: {:?} to event response", std::any::type_name::<T>());
