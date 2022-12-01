@@ -1,6 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/src/code_block/code_block_node_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 ShortcutEvent enterInCodeBlock = ShortcutEvent(
   key: 'Press Enter In Code Block',
@@ -12,6 +13,14 @@ ShortcutEvent ignoreKeysInCodeBlock = ShortcutEvent(
   key: 'White space in code block',
   command: 'space, slash, shift+underscore',
   handler: _ignorekHandler,
+);
+
+ShortcutEvent pasteInCodeBlock = ShortcutEvent(
+  key: 'Paste in code block',
+  command: 'meta+v',
+  windowsCommand: 'ctrl+v',
+  linuxCommand: 'ctrl+v',
+  handler: _pasteHandler,
 );
 
 ShortcutEventHandler _enterInCodeBlockHandler = (editorState, event) {
@@ -41,6 +50,30 @@ ShortcutEventHandler _ignorekHandler = (editorState, event) {
       nodes.whereType<TextNode>().where((node) => node.id == kCodeBlockType);
   if (codeBlockNodes.length == 1) {
     return KeyEventResult.skipRemainingHandlers;
+  }
+  return KeyEventResult.ignored;
+};
+
+ShortcutEventHandler _pasteHandler = (editorState, event) {
+  final selection = editorState.service.selectionService.currentSelection.value;
+  final nodes = editorState.service.selectionService.currentSelectedNodes;
+  final codeBlockNodes =
+      nodes.whereType<TextNode>().where((node) => node.id == kCodeBlockType);
+  if (selection != null &&
+      selection.isCollapsed &&
+      codeBlockNodes.length == 1) {
+    Clipboard.getData(Clipboard.kTextPlain).then((value) {
+      final text = value?.text;
+      if (text == null) return;
+      final transaction = editorState.transaction;
+      transaction.insertText(
+        codeBlockNodes.first,
+        selection.startIndex,
+        text,
+      );
+      editorState.apply(transaction);
+    });
+    return KeyEventResult.handled;
   }
   return KeyEventResult.ignored;
 };

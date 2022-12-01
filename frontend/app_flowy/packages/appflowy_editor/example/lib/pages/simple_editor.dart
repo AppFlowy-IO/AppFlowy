@@ -50,6 +50,7 @@ class SimpleEditor extends StatelessWidget {
               // Code Block
               enterInCodeBlock,
               ignoreKeysInCodeBlock,
+              pasteInCodeBlock,
             ],
             selectionMenuItems: [
               // Divider
