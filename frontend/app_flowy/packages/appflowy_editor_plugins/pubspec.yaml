@@ -1,7 +1,9 @@
 name: appflowy_editor_plugins
 description: A new Flutter package project.
 version: 0.0.1
-homepage:
+homepage: https://github.com/AppFlowy-IO/AppFlowy
+
+publish_to: none
 
 environment:
   sdk: ">=2.17.6 <3.0.0"
@@ -10,6 +12,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  appflowy_editor: 
+    path: ../appflowy_editor
 
 dev_dependencies:
   flutter_test:
