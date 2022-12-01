@@ -1,5 +1,0 @@
-enum {{ enum_name }} {
-    {%- for item in items %}
-    {{ item }}
-    {%- endfor %}
-}
