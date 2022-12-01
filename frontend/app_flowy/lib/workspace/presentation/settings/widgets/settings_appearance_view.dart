@@ -21,8 +21,10 @@ class SettingsAppearanceView extends StatelessWidget {
             children: [
               FlowyText.medium(LocaleKeys.settings_appearance_lightLabel.tr()),
               Toggle(
-                value: Theme.of(context).brightness == Brightness.dark,
-                onChanged: (_) => setTheme(context),
+                value:
+                    context.watch<AppearanceSettingsCubit>().state.themeMode ==
+                        ThemeMode.system,
+                onChanged: (_) => setThemeMode(context),
                 style: ToggleStyle.big,
               ),
               FlowyText.medium(LocaleKeys.settings_appearance_darkLabel.tr())
@@ -33,11 +35,12 @@ class SettingsAppearanceView extends StatelessWidget {
     );
   }
 
-  void setTheme(BuildContext context) {
-    if (Theme.of(context).brightness == Brightness.dark) {
-      context.read<AppearanceSettingsCubit>().setTheme(Brightness.light);
+  void setThemeMode(BuildContext context) {
+    if (context.read<AppearanceSettingsCubit>().state.themeMode ==
+        ThemeMode.system) {
+      context.read<AppearanceSettingsCubit>().setThemeMode(ThemeMode.light);
     } else {
-      context.read<AppearanceSettingsCubit>().setTheme(Brightness.dark);
+      context.read<AppearanceSettingsCubit>().setThemeMode(ThemeMode.system);
     }
   }
 }
