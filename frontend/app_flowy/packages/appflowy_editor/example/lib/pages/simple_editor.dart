@@ -37,13 +37,20 @@ class SimpleEditor extends StatelessWidget {
             themeData: themeData,
             autoFocus: editorState.document.isEmpty,
             customBuilders: {
+              // Divider
               kDividerType: DividerWidgetBuilder(),
+              // Math Equation
+              kMathEquationType: MathEquationNodeWidgetBuidler(),
             },
             shortcutEvents: [
+              // Divider
               insertDividerEvent,
             ],
             selectionMenuItems: [
+              // Divider
               dividerMenuItem,
+              // Math Equation
+              mathEquationMenuItem,
             ],
           );
         } else {
