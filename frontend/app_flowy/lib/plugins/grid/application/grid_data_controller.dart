@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:app_flowy/plugins/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
@@ -12,7 +13,8 @@ import 'field/field_controller.dart';
 import 'prelude.dart';
 import 'row/row_cache.dart';
 
-typedef OnFieldsChanged = void Function(UnmodifiableListView<GridFieldContext>);
+typedef OnFieldsChanged = void Function(List<FieldInfo>);
+typedef OnFiltersChanged = void Function(List<FilterInfo>);
 typedef OnGridChanged = void Function(GridPB);
 
 typedef OnRowsChanged = void Function(
@@ -21,19 +23,18 @@ typedef OnRowsChanged = void Function(
 );
 typedef ListenOnRowChangedCondition = bool Function();
 
-class GridDataController {
+class GridController {
   final String gridId;
   final GridFFIService _gridFFIService;
   final GridFieldController fieldController;
+  OnRowsChanged? _onRowChanged;
+  OnGridChanged? _onGridChanged;
 
+  // Getters
   // key: the block id
   final LinkedHashMap<String, GridBlockCache> _blocks;
   UnmodifiableMapView<String, GridBlockCache> get blocks =>
       UnmodifiableMapView(_blocks);
-
-  OnRowsChanged? _onRowChanged;
-  OnFieldsChanged? _onFieldsChanged;
-  OnGridChanged? _onGridChanged;
 
   List<RowInfo> get rowInfos {
     final List<RowInfo> rows = [];
@@ -43,7 +44,7 @@ class GridDataController {
     return rows;
   }
 
-  GridDataController({required ViewPB view})
+  GridController({required ViewPB view})
       : gridId = view.id,
         // ignore: prefer_collection_literals
         _blocks = LinkedHashMap(),
@@ -51,32 +52,36 @@ class GridDataController {
         fieldController = GridFieldController(gridId: view.id);
 
   void addListener({
-    required OnGridChanged onGridChanged,
-    required OnRowsChanged onRowsChanged,
-    required OnFieldsChanged onFieldsChanged,
+    OnGridChanged? onGridChanged,
+    OnRowsChanged? onRowsChanged,
+    OnFieldsChanged? onFieldsChanged,
+    OnFiltersChanged? onFiltersChanged,
   }) {
     _onGridChanged = onGridChanged;
     _onRowChanged = onRowsChanged;
-    _onFieldsChanged = onFieldsChanged;
 
-    fieldController.addListener(onFields: (fields) {
-      _onFieldsChanged?.call(UnmodifiableListView(fields));
-    });
+    fieldController.addListener(
+      onFields: onFieldsChanged,
+      onFilters: onFiltersChanged,
+    );
   }
 
   // Loads the rows from each block
   Future<Either<Unit, FlowyError>> openGrid() async {
-    final result = await _gridFFIService.openGrid();
-    return Future(
-      () => result.fold(
+    return _gridFFIService.openGrid().then((result) {
+      return result.fold(
         (grid) async {
           _initialBlocks(grid.blocks);
           _onGridChanged?.call(grid);
-          return await fieldController.loadFields(fieldIds: grid.fields);
+
+          final result = await fieldController.loadFields(
+            fieldIds: grid.fields,
+          );
+          return result;
         },
         (err) => right(err),
-      ),
-    );
+      );
+    });
   }
 
   Future<void> createRow() async {

@@ -133,6 +133,14 @@ impl InsertedRowPB {
             is_new: false,
         }
     }
+
+    pub fn with_index(row: RowPB, index: i32) -> Self {
+        Self {
+            row,
+            index: Some(index),
+            is_new: false,
+        }
+    }
 }
 
 impl std::convert::From<RowPB> for InsertedRowPB {
@@ -152,7 +160,7 @@ impl std::convert::From<&RowRevision> for InsertedRowPB {
     }
 }
 
-#[derive(Debug, Default, ProtoBuf)]
+#[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct GridBlockChangesetPB {
     #[pb(index = 1)]
     pub block_id: String,
@@ -167,10 +175,10 @@ pub struct GridBlockChangesetPB {
     pub updated_rows: Vec<RowPB>,
 
     #[pb(index = 5)]
-    pub visible_rows: Vec<String>,
+    pub visible_rows: Vec<InsertedRowPB>,
 
     #[pb(index = 6)]
-    pub hide_rows: Vec<String>,
+    pub invisible_rows: Vec<String>,
 }
 impl GridBlockChangesetPB {
     pub fn insert(block_id: String, inserted_rows: Vec<InsertedRowPB>) -> Self {

@@ -1,4 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/grid_bloc.dart';
+import 'package:app_flowy/plugins/grid/application/grid_data_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'util.dart';
@@ -10,14 +11,17 @@ void main() {
   });
 
   group('Edit Grid:', () {
+    late GridTestContext context;
     setUp(() async {
-      await gridTest.createTestGrid();
+      context = await gridTest.createTestGrid();
     });
     // The initial number of rows is 3 for each grid.
     blocTest<GridBloc, GridState>(
       "create a row",
-      build: () =>
-          GridBloc(view: gridTest.gridView)..add(const GridEvent.initial()),
+      build: () => GridBloc(
+          view: context.gridView,
+          gridController: GridController(view: context.gridView))
+        ..add(const GridEvent.initial()),
       act: (bloc) => bloc.add(const GridEvent.createRow()),
       wait: const Duration(milliseconds: 300),
       verify: (bloc) {
@@ -27,8 +31,10 @@ void main() {
 
     blocTest<GridBloc, GridState>(
       "delete the last row",
-      build: () =>
-          GridBloc(view: gridTest.gridView)..add(const GridEvent.initial()),
+      build: () => GridBloc(
+          view: context.gridView,
+          gridController: GridController(view: context.gridView))
+        ..add(const GridEvent.initial()),
       act: (bloc) async {
         await gridResponseFuture();
         bloc.add(GridEvent.deleteRow(bloc.state.rowInfos.last));

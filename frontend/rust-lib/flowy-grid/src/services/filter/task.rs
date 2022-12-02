@@ -4,22 +4,27 @@ use lib_infra::future::BoxResultFuture;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-pub const FILTER_HANDLER_ID: &str = "grid_filter";
+pub struct FilterTaskHandler {
+    handler_id: String,
+    filter_controller: Arc<RwLock<FilterController>>,
+}
 
-pub struct FilterTaskHandler(Arc<RwLock<FilterController>>);
 impl FilterTaskHandler {
-    pub fn new(filter_controller: Arc<RwLock<FilterController>>) -> Self {
-        Self(filter_controller)
+    pub fn new(handler_id: String, filter_controller: Arc<RwLock<FilterController>>) -> Self {
+        Self {
+            handler_id,
+            filter_controller,
+        }
     }
 }
 
 impl TaskHandler for FilterTaskHandler {
     fn handler_id(&self) -> &str {
-        FILTER_HANDLER_ID
+        &self.handler_id
     }
 
     fn run(&self, content: TaskContent) -> BoxResultFuture<(), anyhow::Error> {
-        let filter_controller = self.0.clone();
+        let filter_controller = self.filter_controller.clone();
         Box::pin(async move {
             if let TaskContent::Text(predicate) = content {
                 let _ = filter_controller

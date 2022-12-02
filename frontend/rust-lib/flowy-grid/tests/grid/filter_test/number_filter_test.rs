@@ -10,7 +10,7 @@ async fn grid_filter_number_is_equal_test() {
             condition: NumberFilterCondition::Equal,
             content: "1".to_string(),
         },
-        AssertNumberOfRows { expected: 1 },
+        AssertNumberOfVisibleRows { expected: 1 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -23,7 +23,7 @@ async fn grid_filter_number_is_less_than_test() {
             condition: NumberFilterCondition::LessThan,
             content: "3".to_string(),
         },
-        AssertNumberOfRows { expected: 2 },
+        AssertNumberOfVisibleRows { expected: 2 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -37,7 +37,7 @@ async fn grid_filter_number_is_less_than_test2() {
             condition: NumberFilterCondition::LessThan,
             content: "$3".to_string(),
         },
-        AssertNumberOfRows { expected: 2 },
+        AssertNumberOfVisibleRows { expected: 2 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -50,7 +50,7 @@ async fn grid_filter_number_is_less_than_or_equal_test() {
             condition: NumberFilterCondition::LessThanOrEqualTo,
             content: "3".to_string(),
         },
-        AssertNumberOfRows { expected: 3 },
+        AssertNumberOfVisibleRows { expected: 3 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -63,7 +63,7 @@ async fn grid_filter_number_is_empty_test() {
             condition: NumberFilterCondition::NumberIsEmpty,
             content: "".to_string(),
         },
-        AssertNumberOfRows { expected: 1 },
+        AssertNumberOfVisibleRows { expected: 1 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -76,7 +76,7 @@ async fn grid_filter_number_is_not_empty_test() {
             condition: NumberFilterCondition::NumberIsNotEmpty,
             content: "".to_string(),
         },
-        AssertNumberOfRows { expected: 4 },
+        AssertNumberOfVisibleRows { expected: 4 },
     ];
     test.run_scripts(scripts).await;
 }

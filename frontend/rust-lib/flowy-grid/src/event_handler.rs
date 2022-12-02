@@ -1,6 +1,6 @@
 use crate::entities::*;
 use crate::manager::GridManager;
-use crate::services::cell::AnyCellData;
+use crate::services::cell::TypeCellData;
 use crate::services::field::{
     default_type_option_builder_from_type, select_type_option_from_field_rev, type_option_builder_from_json_str,
     DateCellChangeset, DateChangesetPB, SelectOptionCellChangeset, SelectOptionCellChangesetPB,
@@ -51,8 +51,8 @@ pub(crate) async fn update_grid_setting_handler(
         let _ = editor.delete_group(delete_params).await?;
     }
 
-    if let Some(create_filter) = params.insert_filter {
-        let _ = editor.create_filter(create_filter).await?;
+    if let Some(alter_filter) = params.insert_filter {
+        let _ = editor.create_or_update_filter(alter_filter).await?;
     }
 
     if let Some(delete_filter) = params.delete_filter {
@@ -92,13 +92,7 @@ pub(crate) async fn get_fields_handler(
 ) -> DataResult<RepeatedFieldPB, FlowyError> {
     let params: GetFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
-    let field_orders = params
-        .field_ids
-        .items
-        .into_iter()
-        .map(|field_order| field_order.field_id)
-        .collect();
-    let field_revs = editor.get_field_revs(Some(field_orders)).await?;
+    let field_revs = editor.get_field_revs(params.field_ids).await?;
     let repeated_field: RepeatedFieldPB = field_revs.into_iter().map(FieldPB::from).collect::<Vec<_>>().into();
     data_result(repeated_field)
 }
@@ -121,8 +115,14 @@ pub(crate) async fn update_field_type_option_handler(
 ) -> Result<(), FlowyError> {
     let params: TypeOptionChangesetParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let old_field_rev = editor.get_field_rev(&params.field_id).await;
     let _ = editor
-        .update_field_type_option(&params.grid_id, &params.field_id, params.type_option_data)
+        .did_update_field_type_option(
+            &params.grid_id,
+            &params.field_id,
+            params.type_option_data,
+            old_field_rev,
+        )
         .await?;
     Ok(())
 }
@@ -145,20 +145,21 @@ pub(crate) async fn switch_to_field_handler(
 ) -> Result<(), FlowyError> {
     let params: EditFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let old_field_rev = editor.get_field_rev(&params.field_id).await;
     editor
         .switch_to_field_type(&params.field_id, &params.field_type)
         .await?;
 
     // Get the field_rev with field_id, if it doesn't exist, we create the default FieldRevision from the FieldType.
-    let field_rev = editor
+    let new_field_rev = editor
         .get_field_rev(&params.field_id)
         .await
         .unwrap_or(Arc::new(editor.next_field_rev(&params.field_type).await?));
 
     // Update the type-option data after the field type has been changed
-    let type_option_data = get_type_option_data(&field_rev, &params.field_type).await?;
+    let type_option_data = get_type_option_data(&new_field_rev, &params.field_type).await?;
     let _ = editor
-        .update_field_type_option(&params.grid_id, &field_rev.id, type_option_data)
+        .did_update_field_type_option(&params.grid_id, &new_field_rev.id, type_option_data, old_field_rev)
         .await?;
 
     Ok(())
@@ -414,8 +415,8 @@ pub(crate) async fn get_select_option_handler(
             //
             let cell_rev = editor.get_cell_rev(&params.row_id, &params.field_id).await?;
             let type_option = select_type_option_from_field_rev(&field_rev)?;
-            let any_cell_data: AnyCellData = match cell_rev {
-                None => AnyCellData {
+            let any_cell_data: TypeCellData = match cell_rev {
+                None => TypeCellData {
                     data: "".to_string(),
                     field_type: field_rev.ty.into(),
                 },
@@ -462,7 +463,7 @@ pub(crate) async fn update_date_cell_handler(
 pub(crate) async fn get_groups_handler(
     data: Data<GridIdPB>,
     manager: AppData<Arc<GridManager>>,
-) -> DataResult<RepeatedGridGroupPB, FlowyError> {
+) -> DataResult<RepeatedGroupPB, FlowyError> {
     let params: GridIdPB = data.into_inner();
     let editor = manager.get_grid_editor(&params.value).await?;
     let group = editor.load_groups().await?;

@@ -1,32 +1,26 @@
-use crate::dart_notification::{send_dart_notification, GridNotification};
+use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::*;
-use crate::services::filter::{
-    FilterChangeset, FilterController, FilterTaskHandler, FilterType, GridViewFilterDelegate,
-};
+use crate::services::filter::{FilterChangeset, FilterController, FilterTaskHandler, FilterType, UpdatedFilterType};
 use crate::services::group::{
     default_group_configuration, find_group_field, make_group_controller, Group, GroupConfigurationReader,
-    GroupConfigurationWriter, GroupController, MoveGroupRowContext,
+    GroupController, MoveGroupRowContext,
 };
 use crate::services::row::GridBlock;
-use bytes::Bytes;
+use crate::services::view_editor::changed_notifier::GridViewChangedNotifier;
+use crate::services::view_editor::trait_impl::*;
+use crate::services::view_editor::GridViewChangedReceiverRunner;
 use flowy_database::ConnectionPool;
-use flowy_error::{FlowyError, FlowyResult};
-use flowy_http_model::revision::Revision;
-use flowy_revision::{
-    RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
-};
+use flowy_error::FlowyResult;
+use flowy_revision::RevisionManager;
 use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
-use flowy_sync::util::make_operations_from_revisions;
 use flowy_task::TaskDispatcher;
-use grid_rev_model::{
-    gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, RowChangeset,
-    RowRevision,
-};
-use lib_infra::future::{to_future, Fut, FutureResult};
-use lib_ot::core::EmptyAttributes;
+use grid_rev_model::{gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterRevision, RowChangeset, RowRevision};
+use lib_infra::future::Fut;
+use lib_infra::ref_map::RefCountValue;
+use nanoid::nanoid;
 use std::future::Future;
 use std::sync::Arc;
-use tokio::sync::RwLock;
+use tokio::sync::{broadcast, RwLock};
 
 pub trait GridViewEditorDelegate: Send + Sync + 'static {
     /// If the field_ids is None, then it will return all the field revisions
@@ -34,14 +28,13 @@ pub trait GridViewEditorDelegate: Send + Sync + 'static {
     fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>>;
 
     fn index_of_row(&self, row_id: &str) -> Fut<Option<usize>>;
-    fn get_row_rev(&self, row_id: &str) -> Fut<Option<Arc<RowRevision>>>;
+    fn get_row_rev(&self, row_id: &str) -> Fut<Option<(usize, Arc<RowRevision>)>>;
     fn get_row_revs(&self) -> Fut<Vec<Arc<RowRevision>>>;
     fn get_blocks(&self) -> Fut<Vec<GridBlock>>;
 
     fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>>;
 }
 
-#[allow(dead_code)]
 pub struct GridViewRevisionEditor {
     user_id: String,
     view_id: String,
@@ -50,16 +43,20 @@ pub struct GridViewRevisionEditor {
     delegate: Arc<dyn GridViewEditorDelegate>,
     group_controller: Arc<RwLock<Box<dyn GroupController>>>,
     filter_controller: Arc<RwLock<FilterController>>,
+    pub notifier: GridViewChangedNotifier,
 }
+
 impl GridViewRevisionEditor {
     #[tracing::instrument(level = "trace", skip_all, err)]
-    pub(crate) async fn new(
+    pub async fn new(
         user_id: &str,
         token: &str,
         view_id: String,
         delegate: Arc<dyn GridViewEditorDelegate>,
         mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
     ) -> FlowyResult<Self> {
+        let (notifier, _) = broadcast::channel(100);
+        tokio::spawn(GridViewChangedReceiverRunner(Some(notifier.subscribe())).run());
         let cloud = Arc::new(GridViewRevisionCloudService {
             token: token.to_owned(),
         });
@@ -77,7 +74,7 @@ impl GridViewRevisionEditor {
 
         let user_id = user_id.to_owned();
         let group_controller = Arc::new(RwLock::new(group_controller));
-        let filter_controller = make_filter_controller(&view_id, delegate.clone(), pad.clone()).await;
+        let filter_controller = make_filter_controller(&view_id, delegate.clone(), notifier.clone(), pad.clone()).await;
         Ok(Self {
             pad,
             user_id,
@@ -86,24 +83,29 @@ impl GridViewRevisionEditor {
             delegate,
             group_controller,
             filter_controller,
+            notifier,
         })
     }
 
-    pub(crate) async fn close(&self) {
-        self.filter_controller.read().await.close().await;
+    #[tracing::instrument(name = "close grid view editor", level = "trace", skip_all)]
+    pub fn close(&self) {
+        let filter_controller = self.filter_controller.clone();
+        tokio::spawn(async move {
+            filter_controller.read().await.close().await;
+        });
     }
 
-    pub(crate) async fn filter_rows(&self, _block_id: &str, mut rows: Vec<Arc<RowRevision>>) -> Vec<Arc<RowRevision>> {
+    pub async fn filter_rows(&self, _block_id: &str, mut rows: Vec<Arc<RowRevision>>) -> Vec<Arc<RowRevision>> {
         self.filter_controller.write().await.filter_row_revs(&mut rows).await;
         rows
     }
 
-    pub(crate) async fn duplicate_view_data(&self) -> FlowyResult<String> {
+    pub async fn duplicate_view_data(&self) -> FlowyResult<String> {
         let json_str = self.pad.read().await.json_str()?;
         Ok(json_str)
     }
 
-    pub(crate) async fn will_create_view_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
+    pub async fn will_create_view_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
         if params.group_id.is_none() {
             return;
         }
@@ -116,7 +118,7 @@ impl GridViewRevisionEditor {
             .await;
     }
 
-    pub(crate) async fn did_create_view_row(&self, row_pb: &RowPB, params: &CreateRowParams) {
+    pub async fn did_create_view_row(&self, row_pb: &RowPB, params: &CreateRowParams) {
         // Send the group notification if the current view has groups
         match params.group_id.as_ref() {
             None => {}
@@ -139,7 +141,7 @@ impl GridViewRevisionEditor {
     }
 
     #[tracing::instrument(level = "trace", skip_all)]
-    pub(crate) async fn did_delete_view_row(&self, row_rev: &RowRevision) {
+    pub async fn did_delete_view_row(&self, row_rev: &RowRevision) {
         // Send the group notification if the current view has groups;
         let changesets = self
             .mut_group_controller(|group_controller, field_rev| {
@@ -155,7 +157,7 @@ impl GridViewRevisionEditor {
         }
     }
 
-    pub(crate) async fn did_update_view_cell(&self, row_rev: &RowRevision) {
+    pub async fn did_update_view_cell(&self, row_rev: &RowRevision) {
         let changesets = self
             .mut_group_controller(|group_controller, field_rev| {
                 group_controller.did_update_group_row(row_rev, &field_rev)
@@ -167,9 +169,15 @@ impl GridViewRevisionEditor {
                 self.notify_did_update_group_rows(changeset).await;
             }
         }
+
+        let filter_controller = self.filter_controller.clone();
+        let row_id = row_rev.id.clone();
+        tokio::spawn(async move {
+            filter_controller.write().await.did_receive_row_changed(&row_id).await;
+        });
     }
 
-    pub(crate) async fn move_view_group_row(
+    pub async fn move_view_group_row(
         &self,
         row_rev: &RowRevision,
         row_changeset: &mut RowChangeset,
@@ -195,7 +203,7 @@ impl GridViewRevisionEditor {
     }
     /// Only call once after grid view editor initialized
     #[tracing::instrument(level = "trace", skip(self))]
-    pub(crate) async fn load_view_groups(&self) -> FlowyResult<Vec<GroupPB>> {
+    pub async fn load_view_groups(&self) -> FlowyResult<Vec<GroupPB>> {
         let groups = self
             .group_controller
             .read()
@@ -209,7 +217,7 @@ impl GridViewRevisionEditor {
     }
 
     #[tracing::instrument(level = "trace", skip(self), err)]
-    pub(crate) async fn move_view_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
+    pub async fn move_view_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
         let _ = self
             .group_controller
             .write()
@@ -237,22 +245,22 @@ impl GridViewRevisionEditor {
         Ok(())
     }
 
-    pub(crate) async fn group_id(&self) -> String {
+    pub async fn group_id(&self) -> String {
         self.group_controller.read().await.field_id().to_string()
     }
 
-    pub(crate) async fn get_view_setting(&self) -> GridSettingPB {
+    pub async fn get_view_setting(&self) -> GridSettingPB {
         let field_revs = self.delegate.get_field_revs(None).await;
         let grid_setting = make_grid_setting(&*self.pad.read().await, &field_revs);
         grid_setting
     }
 
-    pub(crate) async fn get_all_view_filters(&self) -> Vec<Arc<FilterRevision>> {
+    pub async fn get_all_view_filters(&self) -> Vec<Arc<FilterRevision>> {
         let field_revs = self.delegate.get_field_revs(None).await;
         self.pad.read().await.get_all_filters(&field_revs)
     }
 
-    pub(crate) async fn get_view_filters(&self, filter_type: &FilterType) -> Vec<Arc<FilterRevision>> {
+    pub async fn get_view_filters(&self, filter_type: &FilterType) -> Vec<Arc<FilterRevision>> {
         let field_type_rev: FieldTypeRevision = filter_type.field_type.clone().into();
         self.pad
             .read()
@@ -262,7 +270,7 @@ impl GridViewRevisionEditor {
 
     /// Initialize new group when grouping by a new field
     ///
-    pub(crate) async fn initialize_new_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
+    pub async fn initialize_new_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
         if let Some(field_rev) = self.delegate.get_field_rev(&params.field_id).await {
             let _ = self
                 .modify(|pad| {
@@ -283,7 +291,7 @@ impl GridViewRevisionEditor {
         Ok(())
     }
 
-    pub(crate) async fn delete_view_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
+    pub async fn delete_view_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
         self.modify(|pad| {
             let changeset = pad.delete_group(&params.group_id, &params.field_id, &params.field_type_rev)?;
             Ok(changeset)
@@ -291,43 +299,67 @@ impl GridViewRevisionEditor {
         .await
     }
 
-    pub(crate) async fn insert_view_filter(&self, params: CreateFilterParams) -> FlowyResult<()> {
+    #[tracing::instrument(level = "trace", skip(self), err)]
+    pub async fn insert_view_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
         let filter_type = FilterType::from(&params);
+        let is_exist = params.filter_id.is_some();
+        let filter_id = match params.filter_id {
+            None => gen_grid_filter_id(),
+            Some(filter_id) => filter_id,
+        };
         let filter_rev = FilterRevision {
-            id: gen_grid_filter_id(),
+            id: filter_id.clone(),
             field_id: params.field_id.clone(),
-            field_type_rev: params.field_type_rev,
+            field_type: params.field_type,
             condition: params.condition,
             content: params.content,
         };
-        let filter_pb = FilterPB::from(&filter_rev);
-        let _ = self
-            .modify(|pad| {
-                let changeset = pad.insert_filter(&params.field_id, &params.field_type_rev, filter_rev)?;
+        let mut filter_controller = self.filter_controller.write().await;
+        let changeset = if is_exist {
+            let old_filter_type = self
+                .delegate
+                .get_field_rev(&params.field_id)
+                .await
+                .map(|field| FilterType::from(&field));
+            self.modify(|pad| {
+                let changeset = pad.update_filter(&params.field_id, filter_rev)?;
                 Ok(changeset)
             })
             .await?;
+            filter_controller
+                .did_receive_filter_changed(FilterChangeset::from_update(UpdatedFilterType::new(
+                    old_filter_type,
+                    filter_type,
+                )))
+                .await
+        } else {
+            self.modify(|pad| {
+                let changeset = pad.insert_filter(&params.field_id, filter_rev)?;
+                Ok(changeset)
+            })
+            .await?;
+            filter_controller
+                .did_receive_filter_changed(FilterChangeset::from_insert(filter_type))
+                .await
+        };
 
-        self.filter_controller
-            .write()
-            .await
-            .apply_changeset(FilterChangeset::from_insert(filter_type))
-            .await;
-
-        let changeset = FilterChangesetNotificationPB::from_insert(&self.view_id, vec![filter_pb]);
-        self.notify_did_update_filter(changeset).await;
+        if let Some(changeset) = changeset {
+            self.notify_did_update_filter(changeset).await;
+        }
         Ok(())
     }
 
-    pub(crate) async fn delete_view_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
+    #[tracing::instrument(level = "trace", skip(self), err)]
+    pub async fn delete_view_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
         let filter_type = params.filter_type;
         let field_type_rev = filter_type.field_type_rev();
-        let filters = self
-            .get_view_filters(&filter_type)
+        let changeset = self
+            .filter_controller
+            .write()
             .await
-            .into_iter()
-            .map(|filter| FilterPB::from(filter.as_ref()))
-            .collect();
+            .did_receive_filter_changed(FilterChangeset::from_delete(filter_type.clone()))
+            .await;
+
         let _ = self
             .modify(|pad| {
                 let changeset = pad.delete_filter(&params.filter_id, &filter_type.field_id, &field_type_rev)?;
@@ -335,27 +367,32 @@ impl GridViewRevisionEditor {
             })
             .await?;
 
-        self.filter_controller
-            .write()
-            .await
-            .apply_changeset(FilterChangeset::from_delete(filter_type))
-            .await;
-
-        let changeset = FilterChangesetNotificationPB::from_delete(&self.view_id, filters);
-        self.notify_did_update_filter(changeset).await;
+        if changeset.is_some() {
+            self.notify_did_update_filter(changeset.unwrap()).await;
+        }
         Ok(())
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
-    pub(crate) async fn did_update_view_field_type_option(&self, field_id: &str) -> FlowyResult<()> {
+    pub async fn did_update_view_field_type_option(
+        &self,
+        field_id: &str,
+        old_field_rev: Option<Arc<FieldRevision>>,
+    ) -> FlowyResult<()> {
         if let Some(field_rev) = self.delegate.get_field_rev(field_id).await {
-            let filter_type = FilterType::from(&field_rev);
-            let filter_changeset = FilterChangeset::from_insert(filter_type);
-            self.filter_controller
+            let old = old_field_rev.map(|old_field_rev| FilterType::from(&old_field_rev));
+            let new = FilterType::from(&field_rev);
+            let filter_type = UpdatedFilterType::new(old, new);
+            let filter_changeset = FilterChangeset::from_update(filter_type);
+            if let Some(changeset) = self
+                .filter_controller
                 .write()
                 .await
-                .apply_changeset(filter_changeset)
-                .await;
+                .did_receive_filter_changed(filter_changeset)
+                .await
+            {
+                self.notify_did_update_filter(changeset).await;
+            }
         }
         Ok(())
     }
@@ -367,7 +404,7 @@ impl GridViewRevisionEditor {
     /// * `field_id`:
     ///
     #[tracing::instrument(level = "debug", skip_all, err)]
-    pub(crate) async fn group_by_view_field(&self, field_id: &str) -> FlowyResult<()> {
+    pub async fn group_by_view_field(&self, field_id: &str) -> FlowyResult<()> {
         if let Some(field_rev) = self.delegate.get_field_rev(field_id).await {
             let row_revs = self.delegate.get_row_revs().await;
             let new_group_controller = new_group_controller_with_field_rev(
@@ -395,7 +432,7 @@ impl GridViewRevisionEditor {
 
             debug_assert!(!changeset.is_empty());
             if !changeset.is_empty() {
-                send_dart_notification(&changeset.view_id, GridNotification::DidGroupByNewField)
+                send_dart_notification(&changeset.view_id, GridDartNotification::DidGroupByNewField)
                     .payload(changeset)
                     .send();
             }
@@ -405,25 +442,25 @@ impl GridViewRevisionEditor {
 
     async fn notify_did_update_setting(&self) {
         let setting = self.get_view_setting().await;
-        send_dart_notification(&self.view_id, GridNotification::DidUpdateGridSetting)
+        send_dart_notification(&self.view_id, GridDartNotification::DidUpdateGridSetting)
             .payload(setting)
             .send();
     }
 
     pub async fn notify_did_update_group_rows(&self, payload: GroupRowsNotificationPB) {
-        send_dart_notification(&payload.group_id, GridNotification::DidUpdateGroup)
+        send_dart_notification(&payload.group_id, GridDartNotification::DidUpdateGroup)
             .payload(payload)
             .send();
     }
 
     pub async fn notify_did_update_filter(&self, changeset: FilterChangesetNotificationPB) {
-        send_dart_notification(&changeset.view_id, GridNotification::DidUpdateFilter)
+        send_dart_notification(&changeset.view_id, GridDartNotification::DidUpdateFilter)
             .payload(changeset)
             .send();
     }
 
     async fn notify_did_update_view(&self, changeset: GroupViewChangesetPB) {
-        send_dart_notification(&self.view_id, GridNotification::DidUpdateGroupView)
+        send_dart_notification(&self.view_id, GridDartNotification::DidUpdateGroupView)
             .payload(changeset)
             .send();
     }
@@ -470,6 +507,12 @@ impl GridViewRevisionEditor {
                 f(self.group_controller.clone(), field_rev).await.ok()
             }
         }
+    }
+}
+
+impl RefCountValue for GridViewRevisionEditor {
+    fn did_remove(&self) {
+        self.close();
     }
 }
 
@@ -521,6 +564,7 @@ async fn new_group_controller_with_field_rev(
 async fn make_filter_controller(
     view_id: &str,
     delegate: Arc<dyn GridViewEditorDelegate>,
+    notifier: GridViewChangedNotifier,
     pad: Arc<RwLock<GridViewRevisionPad>>,
 ) -> Arc<RwLock<FilterController>> {
     let field_revs = delegate.get_field_revs(None).await;
@@ -530,160 +574,26 @@ async fn make_filter_controller(
         editor_delegate: delegate.clone(),
         view_revision_pad: pad,
     };
-    let filter_controller = FilterController::new(view_id, filter_delegate, task_scheduler.clone(), filter_revs).await;
+    let handler_id = gen_handler_id();
+    let filter_controller = FilterController::new(
+        view_id,
+        &handler_id,
+        filter_delegate,
+        task_scheduler.clone(),
+        filter_revs,
+        notifier,
+    )
+    .await;
     let filter_controller = Arc::new(RwLock::new(filter_controller));
     task_scheduler
         .write()
         .await
-        .register_handler(FilterTaskHandler::new(filter_controller.clone()));
+        .register_handler(FilterTaskHandler::new(handler_id, filter_controller.clone()));
     filter_controller
 }
 
-async fn apply_change(
-    _user_id: &str,
-    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
-    change: GridViewRevisionChangeset,
-) -> FlowyResult<()> {
-    let GridViewRevisionChangeset { operations: delta, md5 } = change;
-    let (base_rev_id, rev_id) = rev_manager.next_rev_id_pair();
-    let delta_data = delta.json_bytes();
-    let revision = Revision::new(&rev_manager.object_id, base_rev_id, rev_id, delta_data, md5);
-    let _ = rev_manager.add_local_revision(&revision).await?;
-    Ok(())
-}
-
-struct GridViewRevisionCloudService {
-    #[allow(dead_code)]
-    token: String,
-}
-
-impl RevisionCloudService for GridViewRevisionCloudService {
-    fn fetch_object(&self, _user_id: &str, _object_id: &str) -> FutureResult<Vec<Revision>, FlowyError> {
-        FutureResult::new(async move { Ok(vec![]) })
-    }
-}
-
-pub struct GridViewRevisionSerde();
-impl RevisionObjectDeserializer for GridViewRevisionSerde {
-    type Output = GridViewRevisionPad;
-
-    fn deserialize_revisions(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
-        let pad = GridViewRevisionPad::from_revisions(object_id, revisions)?;
-        Ok(pad)
-    }
-}
-
-impl RevisionObjectSerializer for GridViewRevisionSerde {
-    fn combine_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
-        Ok(operations.json_bytes())
-    }
-}
-
-pub struct GridViewRevisionCompress();
-impl RevisionMergeable for GridViewRevisionCompress {
-    fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        GridViewRevisionSerde::combine_revisions(revisions)
-    }
-}
-
-struct GroupConfigurationReaderImpl(Arc<RwLock<GridViewRevisionPad>>);
-
-impl GroupConfigurationReader for GroupConfigurationReaderImpl {
-    fn get_configuration(&self) -> Fut<Option<Arc<GroupConfigurationRevision>>> {
-        let view_pad = self.0.clone();
-        to_future(async move {
-            let mut groups = view_pad.read().await.get_all_groups();
-            if groups.is_empty() {
-                None
-            } else {
-                debug_assert_eq!(groups.len(), 1);
-                Some(groups.pop().unwrap())
-            }
-        })
-    }
-}
-
-struct GroupConfigurationWriterImpl {
-    user_id: String,
-    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
-    view_pad: Arc<RwLock<GridViewRevisionPad>>,
-}
-
-impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
-    fn save_configuration(
-        &self,
-        field_id: &str,
-        field_type: FieldTypeRevision,
-        group_configuration: GroupConfigurationRevision,
-    ) -> Fut<FlowyResult<()>> {
-        let user_id = self.user_id.clone();
-        let rev_manager = self.rev_manager.clone();
-        let view_pad = self.view_pad.clone();
-        let field_id = field_id.to_owned();
-
-        to_future(async move {
-            let changeset = view_pad.write().await.insert_or_update_group_configuration(
-                &field_id,
-                &field_type,
-                group_configuration,
-            )?;
-
-            if let Some(changeset) = changeset {
-                let _ = apply_change(&user_id, rev_manager, changeset).await?;
-            }
-            Ok(())
-        })
-    }
-}
-
-pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<FieldRevision>]) -> GridSettingPB {
-    let layout_type: GridLayout = view_pad.layout.clone().into();
-    let filter_configurations = view_pad
-        .get_all_filters(field_revs)
-        .into_iter()
-        .map(|filter| FilterPB::from(filter.as_ref()))
-        .collect::<Vec<FilterPB>>();
-
-    let group_configurations = view_pad
-        .get_groups_by_field_revs(field_revs)
-        .into_iter()
-        .map(|group| GridGroupConfigurationPB::from(group.as_ref()))
-        .collect::<Vec<GridGroupConfigurationPB>>();
-
-    GridSettingPB {
-        layouts: GridLayoutPB::all(),
-        layout_type,
-        filter_configurations: filter_configurations.into(),
-        group_configurations: group_configurations.into(),
-    }
-}
-
-struct GridViewFilterDelegateImpl {
-    editor_delegate: Arc<dyn GridViewEditorDelegate>,
-    view_revision_pad: Arc<RwLock<GridViewRevisionPad>>,
-}
-
-impl GridViewFilterDelegate for GridViewFilterDelegateImpl {
-    fn get_filter_rev(&self, filter_id: FilterType) -> Fut<Vec<Arc<FilterRevision>>> {
-        let pad = self.view_revision_pad.clone();
-        to_future(async move {
-            let field_type_rev: FieldTypeRevision = filter_id.field_type.into();
-            pad.read().await.get_filters(&filter_id.field_id, &field_type_rev)
-        })
-    }
-
-    fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>> {
-        self.editor_delegate.get_field_rev(field_id)
-    }
-
-    fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>> {
-        self.editor_delegate.get_field_revs(field_ids)
-    }
-
-    fn get_blocks(&self) -> Fut<Vec<GridBlock>> {
-        self.editor_delegate.get_blocks()
-    }
+fn gen_handler_id() -> String {
+    nanoid!(10)
 }
 
 #[cfg(test)]

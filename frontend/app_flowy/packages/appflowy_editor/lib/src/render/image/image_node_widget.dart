@@ -34,6 +34,8 @@ class ImageNodeWidget extends StatefulWidget {
 
 class _ImageNodeWidgetState extends State<ImageNodeWidget>
     with SelectableMixin {
+  RenderBox get _renderBox => context.findRenderObject() as RenderBox;
+
   final _imageKey = GlobalKey();
 
   double? _imageWidth;
@@ -77,6 +79,12 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget>
   }
 
   @override
+  bool get shouldCursorBlink => false;
+
+  @override
+  CursorStyle get cursorStyle => CursorStyle.borderLine;
+
+  @override
   Position start() {
     return Position(path: widget.node.path, offset: 0);
   }
@@ -93,7 +101,8 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget>
 
   @override
   Rect? getCursorRectInPosition(Position position) {
-    return null;
+    final size = _renderBox.size;
+    return Rect.fromLTWH(-size.width / 2.0, 0, size.width, size.height);
   }
 
   @override

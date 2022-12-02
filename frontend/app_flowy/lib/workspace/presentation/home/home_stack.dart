@@ -219,7 +219,7 @@ class HomeTopBar extends StatelessWidget {
           .padding(
             horizontal: HomeInsets.topBarTitlePadding,
           )
-          .bottomBorder(color: Colors.grey.shade300),
+          .bottomBorder(color: Theme.of(context).dividerColor),
     );
   }
 }

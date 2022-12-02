@@ -61,7 +61,6 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
                 SliverToBoxAdapter(
                   child: _TextField(popoverMutex: popoverMutex),
                 ),
-                const SliverToBoxAdapter(child: VSpace(6)),
                 const SliverToBoxAdapter(child: TypeOptionSeparator()),
                 const SliverToBoxAdapter(child: VSpace(6)),
                 const SliverToBoxAdapter(child: _Title()),
@@ -145,7 +144,7 @@ class _TextField extends StatelessWidget {
             value: (option) => option);
 
         return SizedBox(
-          height: 62,
+          height: 52,
           child: SelectOptionTextField(
             options: state.options,
             selectedOptionMap: optionMap,
@@ -190,7 +189,6 @@ class _Title extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 6),
         child: FlowyText.medium(
           LocaleKeys.grid_selectOption_panelTitle.tr(),
-          fontSize: 12,
           color: Theme.of(context).hintColor,
         ),
       ),
@@ -208,13 +206,12 @@ class _CreateOptionCell extends StatelessWidget {
       children: [
         FlowyText.medium(
           LocaleKeys.grid_selectOption_create.tr(),
-          fontSize: 12,
           color: Theme.of(context).hintColor,
         ),
         const HSpace(10),
         SelectOptionTag(
           name: name,
-          color: CustomColors.of(context).lightGreyHover,
+          color: AFThemeExtension.of(context).lightGreyHover,
           onSelected: () => context
               .read<SelectOptionCellEditorBloc>()
               .add(SelectOptionEditorEvent.newOption(name)),

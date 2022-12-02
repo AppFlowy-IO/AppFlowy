@@ -66,7 +66,6 @@ class _FieldEditorState extends State<FieldEditor> {
           children: [
             FlowyText.medium(
               LocaleKeys.grid_field_editProperty.tr(),
-              fontSize: 12,
             ),
             const VSpace(10),
             _FieldNameTextField(popoverMutex: popoverMutex),
@@ -116,7 +115,7 @@ class _FieldTypeOptionCell extends StatelessWidget {
       builder: (context, state) {
         return state.field.fold(
           () => const SizedBox(),
-          (fieldContext) {
+          (fieldInfo) {
             final dataController =
                 context.read<FieldEditorBloc>().dataController;
             return FieldTypeOptionEditor(
@@ -223,7 +222,6 @@ class _DeleteFieldButton extends StatelessWidget {
         Widget button = FlowyButton(
           text: FlowyText.medium(
             LocaleKeys.grid_field_delete.tr(),
-            fontSize: 12,
             color: enable ? null : Theme.of(context).disabledColor,
           ),
           onTap: () => onDeleted?.call(),

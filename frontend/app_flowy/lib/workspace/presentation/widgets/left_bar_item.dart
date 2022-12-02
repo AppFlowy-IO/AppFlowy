@@ -1,11 +1,8 @@
 import 'package:app_flowy/workspace/application/view/view_listener.dart';
 import 'package:app_flowy/workspace/application/view/view_service.dart';
-import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class ViewLeftBarItem extends StatefulWidget {
   final ViewPB view;
@@ -63,11 +60,11 @@ class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
         focusNode: _focusNode,
         scrollPadding: EdgeInsets.zero,
         decoration: const InputDecoration(
-          contentPadding: EdgeInsets.zero,
+          contentPadding: EdgeInsets.symmetric(vertical: 4.0),
           border: InputBorder.none,
           isDense: true,
         ),
-        style: TextStyles.body1.size(FontSizes.s14),
+        style: Theme.of(context).textTheme.bodyMedium,
         // cursorColor: widget.cursorColor,
         // obscureText: widget.enableObscure,
       ),

@@ -1,4 +1,5 @@
-import 'package:flowy_infra/text_style.dart';
+import 'package:flowy_infra/color_extension.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -15,6 +16,8 @@ class FlowyButton extends StatelessWidget {
   final Color? hoverColor;
   final bool isSelected;
   final BorderRadius radius;
+  final BoxDecoration? decoration;
+  final bool useIntrinsicWidth;
 
   const FlowyButton({
     Key? key,
@@ -27,6 +30,8 @@ class FlowyButton extends StatelessWidget {
     this.hoverColor,
     this.isSelected = false,
     this.radius = const BorderRadius.all(Radius.circular(6)),
+    this.decoration,
+    this.useIntrinsicWidth = false,
   }) : super(key: key);
 
   @override
@@ -58,16 +63,24 @@ class FlowyButton extends StatelessWidget {
     children.add(Expanded(child: text));
 
     if (rightIcon != null) {
-      children.add(
-          SizedBox.fromSize(size: const Size.square(16), child: rightIcon!));
+      children.add(rightIcon!);
     }
 
-    return Padding(
-      padding: margin,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: children,
+    Widget child = Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: children,
+    );
+
+    if (useIntrinsicWidth) {
+      child = IntrinsicWidth(child: child);
+    }
+
+    return Container(
+      decoration: decoration,
+      child: Padding(
+        padding: margin,
+        child: child,
       ),
     );
   }
@@ -75,9 +88,10 @@ class FlowyButton extends StatelessWidget {
 
 class FlowyTextButton extends StatelessWidget {
   final String text;
-  final double fontSize;
+  final FontWeight? fontWeight;
+  final Color? fontColor;
+  final double? fontSize;
   final TextOverflow overflow;
-  final FontWeight fontWeight;
 
   final VoidCallback? onPressed;
   final EdgeInsets padding;
@@ -87,15 +101,17 @@ class FlowyTextButton extends StatelessWidget {
   final BorderRadius? radius;
   final MainAxisAlignment mainAxisAlignment;
   final String? tooltip;
+  final BoxConstraints constraints;
 
   // final HoverDisplayConfig? hoverDisplay;
   const FlowyTextButton(
     this.text, {
     Key? key,
     this.onPressed,
-    this.fontSize = 16,
+    this.fontSize,
+    this.fontColor,
     this.overflow = TextOverflow.ellipsis,
-    this.fontWeight = FontWeight.w400,
+    this.fontWeight,
     this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
     this.hoverColor,
     this.fillColor,
@@ -103,6 +119,7 @@ class FlowyTextButton extends StatelessWidget {
     this.radius,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.tooltip,
+    this.constraints = const BoxConstraints(minWidth: 58.0, minHeight: 30.0),
   }) : super(key: key);
 
   @override
@@ -118,6 +135,7 @@ class FlowyTextButton extends StatelessWidget {
         overflow: overflow,
         fontWeight: fontWeight,
         fontSize: fontSize,
+        color: fontColor ?? Theme.of(context).colorScheme.onSecondary,
         textAlign: TextAlign.center,
       ),
     );
@@ -135,14 +153,14 @@ class FlowyTextButton extends StatelessWidget {
       visualDensity: VisualDensity.compact,
       hoverElevation: 0,
       highlightElevation: 0,
-      shape: RoundedRectangleBorder(
-          borderRadius: radius ?? BorderRadius.circular(2)),
-      fillColor: fillColor,
+      shape: RoundedRectangleBorder(borderRadius: radius ?? Corners.s6Border),
+      fillColor: fillColor ?? Theme.of(context).colorScheme.secondaryContainer,
       hoverColor: hoverColor ?? Theme.of(context).colorScheme.secondary,
       focusColor: Colors.transparent,
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       elevation: 0,
+      constraints: constraints,
       onPressed: onPressed,
       child: child,
     );
@@ -150,7 +168,7 @@ class FlowyTextButton extends StatelessWidget {
     if (tooltip != null) {
       child = Tooltip(
         message: tooltip!,
-        textStyle: TextStyles.caption.textColor(Colors.white),
+        textStyle: AFThemeExtension.of(context).caption.textColor(Colors.white),
         child: child,
       );
     }
@@ -158,18 +176,3 @@ class FlowyTextButton extends StatelessWidget {
     return child;
   }
 }
-// return TextButton(
-//   style: ButtonStyle(
-//     textStyle: MaterialStateProperty.all(TextStyle(fontSize: fontSize)),
-//     alignment: Alignment.centerLeft,
-//     foregroundColor: MaterialStateProperty.all(Colors.black),
-//     padding: MaterialStateProperty.all<EdgeInsets>(
-//         const EdgeInsets.symmetric(horizontal: 2)),
-//   ),
-//   onPressed: onPressed,
-//   child: Text(
-//     text,
-//     overflow: TextOverflow.ellipsis,
-//     softWrap: false,
-//   ),
-// );

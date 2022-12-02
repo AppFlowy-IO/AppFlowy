@@ -3,20 +3,36 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 
+use std::time::Duration;
 use bytes::Bytes;
 use futures::TryFutureExt;
-use flowy_grid::entities::{CreateFilterParams, CreateFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition, DateFilterContent, SelectOptionCondition, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB};
-use flowy_grid::services::field::SelectOptionIds;
+use flowy_grid::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition, DateFilterContent, SelectOptionCondition, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB, FilterPB};
+use flowy_grid::services::field::{SelectOptionCellChangeset, SelectOptionIds};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
+use flowy_grid::services::cell::insert_select_option_cell;
 use flowy_grid::services::filter::FilterType;
+use flowy_grid::services::view_editor::GridViewChanged;
 use crate::grid::grid_editor::GridEditorTest;
 
 pub enum FilterScript {
+    UpdateTextCell {
+        row_index: usize,
+        text: String,
+    },
+    UpdateSingleSelectCell {
+        row_index: usize,
+        option_id: String,
+    },
     InsertFilter {
-        payload: CreateFilterPayloadPB,
+        payload: AlterFilterPayloadPB,
     },
     CreateTextFilter {
+        condition: TextFilterCondition,
+        content: String,
+    },
+    UpdateTextFilter {
+        filter: FilterPB,
         condition: TextFilterCondition,
         content: String,
     },
@@ -53,13 +69,18 @@ pub enum FilterScript {
         condition: u32,
         content: String
     },
-    AssertNumberOfRows{
+    AssertNumberOfVisibleRows {
         expected: usize,
+    },
+    AssertFilterChanged{
+        visible_row_len:usize,
+        hide_row_len: usize,
     },
     #[allow(dead_code)]
     AssertGridSetting {
         expected_setting: GridSettingPB,
     },
+    Wait { millisecond: u64 }
 }
 
 pub struct GridFilterTest {
@@ -74,6 +95,10 @@ impl GridFilterTest {
         }
     }
 
+    pub async fn get_all_filters(&self) -> Vec<FilterPB> {
+        self.editor.get_all_filters().await.unwrap()
+    }
+
     pub async fn run_scripts(&mut self, scripts: Vec<FilterScript>) {
         for script in scripts {
             self.run_script(script).await;
@@ -82,6 +107,13 @@ impl GridFilterTest {
 
     pub async fn run_script(&mut self, script: FilterScript) {
         match script {
+            FilterScript::UpdateTextCell { row_index, text} => {
+                self.update_text_cell(row_index, &text).await;
+            }
+
+            FilterScript::UpdateSingleSelectCell { row_index, option_id} => {
+                self.update_single_select_cell(row_index, &option_id).await;
+            }
             FilterScript::InsertFilter { payload } => {
                 self.insert_filter(payload).await;
             }
@@ -93,8 +125,18 @@ impl GridFilterTest {
                     content
                 };
                 let payload =
-                    CreateFilterPayloadPB::new(field_rev, text_filter);
+                    AlterFilterPayloadPB::new(field_rev, text_filter);
                 self.insert_filter(payload).await;
+            }
+            FilterScript::UpdateTextFilter { filter, condition, content} => {
+                let params = AlterFilterParams {
+                    field_id: filter.field_id,
+                    filter_id: Some(filter.id),
+                    field_type: filter.field_type.into(),
+                    condition: condition as u8,
+                    content
+                };
+                self.editor.create_or_update_filter(params).await.unwrap();
             }
             FilterScript::CreateNumberFilter {condition, content} => {
                 let field_rev = self.get_field_rev(FieldType::Number);
@@ -103,7 +145,7 @@ impl GridFilterTest {
                     content
                 };
                 let payload =
-                    CreateFilterPayloadPB::new(field_rev, number_filter);
+                    AlterFilterPayloadPB::new(field_rev, number_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateCheckboxFilter {condition} => {
@@ -112,7 +154,7 @@ impl GridFilterTest {
                     condition
                 };
                 let payload =
-                    CreateFilterPayloadPB::new(field_rev, checkbox_filter);
+                    AlterFilterPayloadPB::new(field_rev, checkbox_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateDateFilter { condition, start, end, timestamp} => {
@@ -125,21 +167,21 @@ impl GridFilterTest {
                 };
 
                 let payload =
-                    CreateFilterPayloadPB::new(field_rev, date_filter);
+                    AlterFilterPayloadPB::new(field_rev, date_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateMultiSelectFilter { condition, option_ids} => {
                 let field_rev = self.get_field_rev(FieldType::MultiSelect);
                 let filter = SelectOptionFilterPB { condition, option_ids };
                 let payload =
-                    CreateFilterPayloadPB::new(field_rev, filter);
+                    AlterFilterPayloadPB::new(field_rev, filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateSingleSelectFilter { condition, option_ids} => {
                 let field_rev = self.get_field_rev(FieldType::SingleSelect);
                 let filter = SelectOptionFilterPB { condition, option_ids };
                 let payload =
-                    CreateFilterPayloadPB::new(field_rev, filter);
+                    AlterFilterPayloadPB::new(field_rev, filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::AssertFilterCount { count } => {
@@ -160,18 +202,66 @@ impl GridFilterTest {
                 let setting = self.editor.get_setting().await.unwrap();
                 assert_eq!(expected_setting, setting);
             }
-            FilterScript::AssertNumberOfRows { expected } => {
+            FilterScript::AssertFilterChanged { visible_row_len, hide_row_len} => {
+                let mut receiver = self.editor.subscribe_view_changed(&self.grid_id).await.unwrap();
+                match tokio::time::timeout(Duration::from_secs(2), receiver.recv()).await {
+                    Ok(changed) =>  match changed.unwrap() { GridViewChanged::DidReceiveFilterResult(changed) => {
+                        assert_eq!(changed.visible_rows.len(), visible_row_len, "visible rows not match");
+                        assert_eq!(changed.invisible_rows.len(), hide_row_len, "invisible rows not match");
+                    } },
+                    Err(e) => {
+                        panic!("Process task timeout: {:?}", e);
+                    }
+                }
+            }
+            FilterScript::AssertNumberOfVisibleRows { expected } => {
                 //
                 let grid = self.editor.get_grid().await.unwrap();
                 let rows = grid.blocks.into_iter().map(|block| block.rows).flatten().collect::<Vec<RowPB>>();
                 assert_eq!(rows.len(), expected);
             }
+            FilterScript::Wait { millisecond } => {
+                tokio::time::sleep(Duration::from_millis(millisecond)).await;
+            }
         }
     }
 
-    async fn insert_filter(&self, payload: CreateFilterPayloadPB) {
-        let params: CreateFilterParams = payload.try_into().unwrap();
-        let _ = self.editor.create_filter(params).await.unwrap();
+    async fn insert_filter(&self, payload: AlterFilterPayloadPB) {
+        let params: AlterFilterParams = payload.try_into().unwrap();
+        let _ = self.editor.create_or_update_filter(params).await.unwrap();
+    }
+
+    async fn update_text_cell(&self, row_index: usize, content: &str) {
+        let row_rev = &self.inner.row_revs[row_index];
+        let field_rev = self.inner.field_revs.iter().find(|field_rev| {
+            let field_type: FieldType = field_rev.ty.into();
+            field_type == FieldType::RichText
+        }).unwrap();
+        let changeset =CellChangesetPB {
+            grid_id: self.grid_id.clone(),
+            row_id: row_rev.id.clone(),
+            field_id: field_rev.id.clone(),
+            content: content.to_string(),
+        };
+        self.editor.update_cell_with_changeset(changeset).await.unwrap();
+
+    }
+    async fn update_single_select_cell(&self, row_index: usize, option_id: &str) {
+        let row_rev = &self.inner.row_revs[row_index];
+        let field_rev = self.inner.field_revs.iter().find(|field_rev| {
+            let field_type: FieldType = field_rev.ty.into();
+            field_type == FieldType::SingleSelect
+        }).unwrap();
+
+        let content = SelectOptionCellChangeset::from_insert_option_id(&option_id).to_str();
+        let changeset =CellChangesetPB {
+            grid_id: self.grid_id.clone(),
+            row_id: row_rev.id.clone(),
+            field_id: field_rev.id.clone(),
+            content,
+        };
+        self.editor.update_cell_with_changeset(changeset).await.unwrap();
+
     }
 }
 

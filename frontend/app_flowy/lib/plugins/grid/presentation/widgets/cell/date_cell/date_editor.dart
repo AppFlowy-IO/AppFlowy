@@ -9,7 +9,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -29,7 +28,6 @@ import '../../header/type_option/date.dart';
 final kToday = DateTime.now();
 final kFirstDay = DateTime(kToday.year, kToday.month - 3, kToday.day);
 final kLastDay = DateTime(kToday.year, kToday.month + 3, kToday.day);
-const kMargin = EdgeInsets.symmetric(horizontal: 6, vertical: 10);
 
 class DateCellEditor extends StatefulWidget {
   final VoidCallback onDismissed;
@@ -116,25 +114,25 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
     return BlocProvider.value(
       value: bloc,
       child: BlocBuilder<DateCalBloc, DateCalState>(
-        buildWhen: (p, c) => false,
+        buildWhen: (p, c) => p != c,
         builder: (context, state) {
           List<Widget> children = [
             _buildCalendar(context),
-            _TimeTextField(
-              bloc: context.read<DateCalBloc>(),
-              popoverMutex: popoverMutex,
-            ),
-            Divider(height: 1, color: Theme.of(context).dividerColor),
+            if (state.dateTypeOptionPB.includeTime)
+              _TimeTextField(
+                bloc: context.read<DateCalBloc>(),
+                popoverMutex: popoverMutex,
+              ),
+            Divider(height: 1.0, color: Theme.of(context).dividerColor),
             const _IncludeTimeButton(),
+            Divider(height: 1.0, color: Theme.of(context).dividerColor),
             _DateTypeOptionButton(popoverMutex: popoverMutex)
           ];
 
           return ListView.separated(
             shrinkWrap: true,
             controller: ScrollController(),
-            separatorBuilder: (context, index) {
-              return VSpace(GridSize.typeOptionSeparatorHeight);
-            },
+            separatorBuilder: (context, index) => VSpace(GridSize.cellVPadding),
             itemCount: children.length,
             itemBuilder: (BuildContext context, int index) {
               return children[index];
@@ -155,17 +153,23 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
   Widget _buildCalendar(BuildContext context) {
     return BlocBuilder<DateCalBloc, DateCalState>(
       builder: (context, state) {
+        final textStyle = Theme.of(context).textTheme.bodyMedium!;
+        final boxDecoration = BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          shape: BoxShape.rectangle,
+          borderRadius: Corners.s6Border,
+        );
         return TableCalendar(
           firstDay: kFirstDay,
           lastDay: kLastDay,
           focusedDay: state.focusedDay,
-          rowHeight: 40,
+          rowHeight: GridSize.typeOptionItemHeight,
           calendarFormat: state.format,
-          daysOfWeekHeight: 40,
+          daysOfWeekHeight: GridSize.typeOptionItemHeight,
           headerStyle: HeaderStyle(
             formatButtonVisible: false,
             titleCentered: true,
-            titleTextStyle: TextStyles.body1.size(FontSizes.s14),
+            titleTextStyle: textStyle,
             leftChevronMargin: EdgeInsets.zero,
             leftChevronPadding: EdgeInsets.zero,
             leftChevronIcon: svgWidget("home/arrow_left"),
@@ -177,57 +181,25 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
           daysOfWeekStyle: DaysOfWeekStyle(
             dowTextFormatter: (date, locale) =>
                 DateFormat.E(locale).format(date).toUpperCase(),
-            weekdayStyle: TextStyles.general(
-              fontSize: 13,
-              fontWeight: FontWeight.w400,
-              color: Theme.of(context).hintColor,
-            ),
-            weekendStyle: TextStyles.general(
-              fontSize: 13,
-              fontWeight: FontWeight.w400,
-              color: Theme.of(context).hintColor,
-            ),
+            weekdayStyle: AFThemeExtension.of(context).caption,
+            weekendStyle: AFThemeExtension.of(context).caption,
           ),
           calendarStyle: CalendarStyle(
             cellMargin: const EdgeInsets.all(3),
-            defaultDecoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              shape: BoxShape.rectangle,
-              borderRadius: const BorderRadius.all(Radius.circular(6)),
-            ),
-            selectedDecoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-              shape: BoxShape.rectangle,
-              borderRadius: const BorderRadius.all(Radius.circular(6)),
-            ),
-            todayDecoration: BoxDecoration(
-              color: CustomColors.of(context).lightGreyHover,
-              shape: BoxShape.rectangle,
-              borderRadius: const BorderRadius.all(Radius.circular(6)),
-            ),
-            weekendDecoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              shape: BoxShape.rectangle,
-              borderRadius: const BorderRadius.all(Radius.circular(6)),
-            ),
-            outsideDecoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              shape: BoxShape.rectangle,
-              borderRadius: const BorderRadius.all(Radius.circular(6)),
-            ),
-            defaultTextStyle: TextStyles.body1.size(FontSizes.s14),
-            weekendTextStyle: TextStyles.body1.size(FontSizes.s14),
-            selectedTextStyle: TextStyles.general(
-              fontSize: FontSizes.s14,
-              color: Theme.of(context).colorScheme.surface,
-            ),
-            todayTextStyle: TextStyles.general(
-              fontSize: FontSizes.s14,
-            ),
-            outsideTextStyle: TextStyles.general(
-              fontSize: FontSizes.s14,
-              color: Theme.of(context).disabledColor,
-            ),
+            defaultDecoration: boxDecoration,
+            selectedDecoration: boxDecoration.copyWith(
+                color: Theme.of(context).colorScheme.primary),
+            todayDecoration: boxDecoration.copyWith(
+                color: AFThemeExtension.of(context).lightGreyHover),
+            weekendDecoration: boxDecoration,
+            outsideDecoration: boxDecoration,
+            defaultTextStyle: textStyle,
+            weekendTextStyle: textStyle,
+            selectedTextStyle:
+                textStyle.textColor(Theme.of(context).colorScheme.surface),
+            todayTextStyle: textStyle,
+            outsideTextStyle:
+                textStyle.textColor(Theme.of(context).disabledColor),
           ),
           selectedDayPredicate: (day) {
             return state.calData.fold(
@@ -263,9 +235,9 @@ class _IncludeTimeButton extends StatelessWidget {
       selector: (state) => state.dateTypeOptionPB.includeTime,
       builder: (context, includeTime) {
         return SizedBox(
-          height: 50,
+          height: GridSize.typeOptionItemHeight,
           child: Padding(
-            padding: kMargin,
+            padding: GridSize.typeOptionContentInsets,
             child: Row(
               children: [
                 svgWidget(
@@ -273,10 +245,7 @@ class _IncludeTimeButton extends StatelessWidget {
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
                 const HSpace(4),
-                FlowyText.medium(
-                  LocaleKeys.grid_field_includeTime.tr(),
-                  fontSize: FontSizes.s14,
-                ),
+                FlowyText.medium(LocaleKeys.grid_field_includeTime.tr()),
                 const Spacer(),
                 Toggle(
                   value: includeTime,
@@ -298,6 +267,7 @@ class _IncludeTimeButton extends StatelessWidget {
 class _TimeTextField extends StatefulWidget {
   final DateCalBloc bloc;
   final PopoverMutex popoverMutex;
+
   const _TimeTextField({
     required this.bloc,
     required this.popoverMutex,
@@ -316,58 +286,51 @@ class _TimeTextFieldState extends State<_TimeTextField> {
   void initState() {
     _focusNode = FocusNode();
     _controller = TextEditingController(text: widget.bloc.state.time);
-    if (widget.bloc.state.dateTypeOptionPB.includeTime) {
-      _focusNode.addListener(() {
-        if (mounted) {
-          widget.bloc.add(DateCalEvent.setTime(_controller.text));
-        }
 
-        if (_focusNode.hasFocus) {
-          widget.popoverMutex.close();
-        }
-      });
+    _focusNode.addListener(() {
+      if (mounted) {
+        widget.bloc.add(DateCalEvent.setTime(_controller.text));
+      }
+    });
 
-      widget.popoverMutex.listenOnPopoverChanged(() {
-        if (_focusNode.hasFocus) {
-          _focusNode.unfocus();
-        }
-      });
-    }
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) {
+        widget.popoverMutex.close();
+      }
+    });
+
+    widget.popoverMutex.listenOnPopoverChanged(() {
+      if (_focusNode.hasFocus) {
+        _focusNode.unfocus();
+      }
+    });
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<DateCalBloc, DateCalState>(
-      listener: (context, state) {
-        _controller.text = state.time ?? "";
-      },
-      listenWhen: (p, c) => p.time != c.time,
-      builder: (context, state) {
-        if (state.dateTypeOptionPB.includeTime) {
-          return Padding(
-            padding: kMargin,
-            child: RoundedInputField(
-              height: 40,
-              focusNode: _focusNode,
-              autoFocus: true,
-              hintText: state.timeHintText,
-              controller: _controller,
-              style: TextStyles.body1.size(FontSizes.s14),
-              normalBorderColor: Theme.of(context).colorScheme.outline,
-              errorBorderColor: Theme.of(context).colorScheme.error,
-              focusBorderColor: Theme.of(context).colorScheme.primary,
-              cursorColor: Theme.of(context).colorScheme.primary,
-              errorText: state.timeFormatError.fold(() => "", (error) => error),
-              onEditingComplete: (value) {
-                widget.bloc.add(DateCalEvent.setTime(value));
-              },
-            ),
-          );
-        } else {
-          return const SizedBox();
-        }
-      },
+    _controller.text = widget.bloc.state.time ?? "";
+    _controller.selection =
+        TextSelection.collapsed(offset: _controller.text.length);
+    return Padding(
+      padding: GridSize.typeOptionContentInsets,
+      child: RoundedInputField(
+        height: GridSize.typeOptionItemHeight,
+        focusNode: _focusNode,
+        autoFocus: true,
+        hintText: widget.bloc.state.timeHintText,
+        controller: _controller,
+        style: Theme.of(context).textTheme.bodyMedium!,
+        normalBorderColor: Theme.of(context).colorScheme.outline,
+        errorBorderColor: Theme.of(context).colorScheme.error,
+        focusBorderColor: Theme.of(context).colorScheme.primary,
+        cursorColor: Theme.of(context).colorScheme.primary,
+        errorText:
+            widget.bloc.state.timeFormatError.fold(() => "", (error) => error),
+        onEditingComplete: (value) =>
+            widget.bloc.add(DateCalEvent.setTime(value)),
+      ),
     );
   }
 
@@ -397,12 +360,14 @@ class _DateTypeOptionButton extends StatelessWidget {
           triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
           offset: const Offset(20, 0),
           constraints: BoxConstraints.loose(const Size(140, 100)),
-          child: FlowyButton(
-            text: FlowyText.medium(title, fontSize: 14),
-            margin: kMargin,
-            rightIcon: svgWidget(
-              "grid/more",
-              color: Theme.of(context).colorScheme.onSurface,
+          child: SizedBox(
+            height: GridSize.typeOptionItemHeight,
+            child: FlowyButton(
+              text: FlowyText.medium(title),
+              rightIcon: svgWidget(
+                "grid/more",
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
           ),
           popupBuilder: (BuildContext popContext) {
@@ -476,9 +441,8 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
       child: ListView.separated(
         shrinkWrap: true,
         controller: ScrollController(),
-        separatorBuilder: (context, index) {
-          return VSpace(GridSize.typeOptionSeparatorHeight);
-        },
+        separatorBuilder: (context, index) =>
+            VSpace(GridSize.typeOptionSeparatorHeight),
         itemCount: children.length,
         itemBuilder: (BuildContext context, int index) {
           return children[index];

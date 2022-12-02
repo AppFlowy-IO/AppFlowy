@@ -39,7 +39,7 @@ impl TryInto<CreateRowParams> for CreateBoardCardPayloadPB {
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct GridGroupConfigurationPB {
+pub struct GroupConfigurationPB {
     #[pb(index = 1)]
     pub id: String,
 
@@ -47,9 +47,9 @@ pub struct GridGroupConfigurationPB {
     pub field_id: String,
 }
 
-impl std::convert::From<&GroupConfigurationRevision> for GridGroupConfigurationPB {
+impl std::convert::From<&GroupConfigurationRevision> for GroupConfigurationPB {
     fn from(rev: &GroupConfigurationRevision) -> Self {
-        GridGroupConfigurationPB {
+        GroupConfigurationPB {
             id: rev.id.clone(),
             field_id: rev.field_id.clone(),
         }
@@ -57,19 +57,19 @@ impl std::convert::From<&GroupConfigurationRevision> for GridGroupConfigurationP
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]
-pub struct RepeatedGridGroupPB {
+pub struct RepeatedGroupPB {
     #[pb(index = 1)]
     pub items: Vec<GroupPB>,
 }
 
-impl std::ops::Deref for RepeatedGridGroupPB {
+impl std::ops::Deref for RepeatedGroupPB {
     type Target = Vec<GroupPB>;
     fn deref(&self) -> &Self::Target {
         &self.items
     }
 }
 
-impl std::ops::DerefMut for RepeatedGridGroupPB {
+impl std::ops::DerefMut for RepeatedGroupPB {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.items
     }
@@ -110,20 +110,20 @@ impl std::convert::From<Group> for GroupPB {
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct RepeatedGridGroupConfigurationPB {
+pub struct RepeatedGroupConfigurationPB {
     #[pb(index = 1)]
-    pub items: Vec<GridGroupConfigurationPB>,
+    pub items: Vec<GroupConfigurationPB>,
 }
 
-impl std::convert::From<Vec<GridGroupConfigurationPB>> for RepeatedGridGroupConfigurationPB {
-    fn from(items: Vec<GridGroupConfigurationPB>) -> Self {
+impl std::convert::From<Vec<GroupConfigurationPB>> for RepeatedGroupConfigurationPB {
+    fn from(items: Vec<GroupConfigurationPB>) -> Self {
         Self { items }
     }
 }
 
-impl std::convert::From<Vec<Arc<GroupConfigurationRevision>>> for RepeatedGridGroupConfigurationPB {
+impl std::convert::From<Vec<Arc<GroupConfigurationRevision>>> for RepeatedGroupConfigurationPB {
     fn from(revs: Vec<Arc<GroupConfigurationRevision>>) -> Self {
-        RepeatedGridGroupConfigurationPB {
+        RepeatedGroupConfigurationPB {
             items: revs.iter().map(|rev| rev.as_ref().into()).collect(),
         }
     }

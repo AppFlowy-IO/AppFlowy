@@ -6,12 +6,12 @@ import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
-import 'util.dart';
+import '../util.dart';
 
 void main() {
-  late AppFlowyGridSelectOptionCellTest cellTest;
+  late AppFlowyGridCellTest cellTest;
   setUpAll(() async {
-    cellTest = await AppFlowyGridSelectOptionCellTest.ensureInitialized();
+    cellTest = await AppFlowyGridCellTest.ensureInitialized();
   });
 
   group('SingleSelectOptionBloc', () {
@@ -19,9 +19,8 @@ void main() {
     setUp(() async {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
-      cellController = await cellTest.makeCellController(
-        FieldType.SingleSelect,
-      );
+      cellController =
+          await cellTest.makeCellController(FieldType.SingleSelect, 0);
     });
 
     blocTest<SelectOptionCellEditorBloc, SelectOptionEditorState>(

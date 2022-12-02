@@ -48,7 +48,7 @@
 		{
 			"label": "AF: build_flowy_sdk_for_android",
 			"type": "shell",
-			"command": "cargo make --profile development-android flowy-sdk-dev-android",
+			"command": "cargo make --profile development-android appflowy-sdk-dev-android",
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}"

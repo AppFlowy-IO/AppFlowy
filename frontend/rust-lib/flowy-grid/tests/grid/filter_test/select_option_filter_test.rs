@@ -10,7 +10,7 @@ async fn grid_filter_multi_select_is_empty_test() {
             condition: SelectOptionCondition::OptionIsEmpty,
             option_ids: vec![],
         },
-        AssertNumberOfRows { expected: 2 },
+        AssertNumberOfVisibleRows { expected: 2 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -23,7 +23,7 @@ async fn grid_filter_multi_select_is_not_empty_test() {
             condition: SelectOptionCondition::OptionIsNotEmpty,
             option_ids: vec![],
         },
-        AssertNumberOfRows { expected: 3 },
+        AssertNumberOfVisibleRows { expected: 3 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -37,7 +37,7 @@ async fn grid_filter_multi_select_is_test() {
             condition: SelectOptionCondition::OptionIs,
             option_ids: vec![options.remove(0).id, options.remove(0).id],
         },
-        AssertNumberOfRows { expected: 2 },
+        AssertNumberOfVisibleRows { expected: 2 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -51,7 +51,7 @@ async fn grid_filter_multi_select_is_test2() {
             condition: SelectOptionCondition::OptionIs,
             option_ids: vec![options.remove(1).id],
         },
-        AssertNumberOfRows { expected: 1 },
+        AssertNumberOfVisibleRows { expected: 1 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -64,7 +64,7 @@ async fn grid_filter_single_select_is_empty_test() {
             condition: SelectOptionCondition::OptionIsEmpty,
             option_ids: vec![],
         },
-        AssertNumberOfRows { expected: 2 },
+        AssertNumberOfVisibleRows { expected: 2 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -78,7 +78,36 @@ async fn grid_filter_single_select_is_test() {
             condition: SelectOptionCondition::OptionIs,
             option_ids: vec![options.remove(0).id],
         },
-        AssertNumberOfRows { expected: 2 },
+        AssertNumberOfVisibleRows { expected: 2 },
+    ];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_filter_single_select_is_test2() {
+    let mut test = GridFilterTest::new().await;
+    let mut options = test.get_single_select_type_option();
+    let option = options.remove(0);
+    let scripts = vec![
+        CreateSingleSelectFilter {
+            condition: SelectOptionCondition::OptionIs,
+            option_ids: vec![option.id.clone()],
+        },
+        AssertNumberOfVisibleRows { expected: 2 },
+        UpdateSingleSelectCell {
+            row_index: 1,
+            option_id: option.id.clone(),
+        },
+        AssertNumberOfVisibleRows { expected: 3 },
+        UpdateSingleSelectCell {
+            row_index: 1,
+            option_id: "".to_string(),
+        },
+        AssertFilterChanged {
+            visible_row_len: 0,
+            hide_row_len: 1,
+        },
+        AssertNumberOfVisibleRows { expected: 2 },
     ];
     test.run_scripts(scripts).await;
 }

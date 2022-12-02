@@ -17,15 +17,18 @@ pub struct FilterPB {
     pub id: String,
 
     #[pb(index = 2)]
-    pub ty: FieldType,
+    pub field_id: String,
 
     #[pb(index = 3)]
+    pub field_type: FieldType,
+
+    #[pb(index = 4)]
     pub data: Vec<u8>,
 }
 
 impl std::convert::From<&FilterRevision> for FilterPB {
     fn from(rev: &FilterRevision) -> Self {
-        let field_type: FieldType = rev.field_type_rev.into();
+        let field_type: FieldType = rev.field_type.into();
         let bytes: Bytes = match field_type {
             FieldType::RichText => TextFilterPB::from(rev).try_into().unwrap(),
             FieldType::Number => NumberFilterPB::from(rev).try_into().unwrap(),
@@ -37,7 +40,8 @@ impl std::convert::From<&FilterRevision> for FilterPB {
         };
         Self {
             id: rev.id.clone(),
-            ty: rev.field_type_rev.into(),
+            field_id: rev.field_id.clone(),
+            field_type: rev.field_type.into(),
             data: bytes.to_vec(),
         }
     }
@@ -96,42 +100,51 @@ impl TryInto<DeleteFilterParams> for DeleteFilterPayloadPB {
     }
 }
 
+#[derive(Debug)]
 pub struct DeleteFilterParams {
     pub filter_type: FilterType,
     pub filter_id: String,
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]
-pub struct CreateFilterPayloadPB {
+pub struct AlterFilterPayloadPB {
     #[pb(index = 1)]
     pub field_id: String,
 
     #[pb(index = 2)]
     pub field_type: FieldType,
 
-    #[pb(index = 3)]
+    #[pb(index = 3, one_of)]
+    pub filter_id: Option<String>,
+
+    #[pb(index = 4)]
     pub data: Vec<u8>,
 }
 
-impl CreateFilterPayloadPB {
+impl AlterFilterPayloadPB {
     #[allow(dead_code)]
     pub fn new<T: TryInto<Bytes, Error = ::protobuf::ProtobufError>>(field_rev: &FieldRevision, data: T) -> Self {
         let data = data.try_into().unwrap_or_else(|_| Bytes::new());
         Self {
             field_id: field_rev.id.clone(),
             field_type: field_rev.ty.into(),
+            filter_id: None,
             data: data.to_vec(),
         }
     }
 }
 
-impl TryInto<CreateFilterParams> for CreateFilterPayloadPB {
+impl TryInto<AlterFilterParams> for AlterFilterPayloadPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<CreateFilterParams, Self::Error> {
+    fn try_into(self) -> Result<AlterFilterParams, Self::Error> {
         let field_id = NotEmptyStr::parse(self.field_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
             .0;
+        let filter_id = match self.filter_id {
+            None => None,
+            Some(filter_id) => Some(NotEmptyStr::parse(filter_id).map_err(|_| ErrorCode::FilterIdIsEmpty)?.0),
+        };
         let condition;
         let mut content = "".to_string();
         let bytes: &[u8] = self.data.as_ref();
@@ -168,18 +181,21 @@ impl TryInto<CreateFilterParams> for CreateFilterPayloadPB {
             }
         }
 
-        Ok(CreateFilterParams {
+        Ok(AlterFilterParams {
             field_id,
-            field_type_rev: self.field_type.into(),
+            filter_id,
+            field_type: self.field_type.into(),
             condition,
             content,
         })
     }
 }
 
-pub struct CreateFilterParams {
+#[derive(Debug)]
+pub struct AlterFilterParams {
     pub field_id: String,
-    pub field_type_rev: FieldTypeRevision,
+    pub filter_id: Option<String>,
+    pub field_type: FieldTypeRevision,
     pub condition: u8,
     pub content: String,
 }

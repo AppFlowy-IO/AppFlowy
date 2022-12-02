@@ -53,13 +53,22 @@ class DateTypeOptionWidget extends TypeOptionWidget {
         listener: (context, state) =>
             typeOptionContext.typeOption = state.typeOption,
         builder: (context, state) {
-          return Column(
-            children: [
-              const TypeOptionSeparator(),
-              _renderDateFormatButton(context, state.typeOption.dateFormat),
-              _renderTimeFormatButton(context, state.typeOption.timeFormat),
-              const _IncludeTimeButton(),
-            ],
+          final List<Widget> children = [
+            const TypeOptionSeparator(),
+            _renderDateFormatButton(context, state.typeOption.dateFormat),
+            _renderTimeFormatButton(context, state.typeOption.timeFormat),
+            const _IncludeTimeButton(),
+          ];
+
+          return ListView.separated(
+            shrinkWrap: true,
+            controller: ScrollController(),
+            separatorBuilder: (context, index) =>
+                VSpace(GridSize.typeOptionSeparatorHeight),
+            itemCount: children.length,
+            itemBuilder: (BuildContext context, int index) {
+              return children[index];
+            },
           );
         },
       ),
@@ -122,8 +131,7 @@ class DateFormatButton extends StatelessWidget {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(LocaleKeys.grid_field_dateFormat.tr(),
-            fontSize: 12),
+        text: FlowyText.medium(LocaleKeys.grid_field_dateFormat.tr()),
         margin: GridSize.typeOptionContentInsets,
         onTap: onTap,
         onHover: onHover,
@@ -149,8 +157,7 @@ class TimeFormatButton extends StatelessWidget {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(LocaleKeys.grid_field_timeFormat.tr(),
-            fontSize: 12),
+        text: FlowyText.medium(LocaleKeys.grid_field_timeFormat.tr()),
         margin: GridSize.typeOptionContentInsets,
         onTap: onTap,
         onHover: onHover,
@@ -177,8 +184,7 @@ class _IncludeTimeButton extends StatelessWidget {
             padding: GridSize.typeOptionContentInsets,
             child: Row(
               children: [
-                FlowyText.medium(LocaleKeys.grid_field_includeTime.tr(),
-                    fontSize: 12),
+                FlowyText.medium(LocaleKeys.grid_field_includeTime.tr()),
                 const Spacer(),
                 Toggle(
                   value: includeTime,
@@ -254,7 +260,7 @@ class DateFormatCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(dateFormat.title(), fontSize: 12),
+        text: FlowyText.medium(dateFormat.title()),
         rightIcon: checkmark,
         onTap: () => onSelected(dateFormat),
       ),
@@ -336,7 +342,7 @@ class TimeFormatCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(timeFormat.title(), fontSize: 12),
+        text: FlowyText.medium(timeFormat.title()),
         rightIcon: checkmark,
         onTap: () => onSelected(timeFormat),
       ),

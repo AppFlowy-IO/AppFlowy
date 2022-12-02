@@ -3,8 +3,8 @@ import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
+import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra/icon_data.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
 import 'package:flutter/material.dart';
@@ -102,7 +102,7 @@ class MenuAppHeader extends StatelessWidget {
   Widget _renderCreateViewButton(BuildContext context) {
     return Tooltip(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
-      textStyle: TextStyles.caption.textColor(Colors.white),
+      textStyle: AFThemeExtension.of(context).caption.textColor(Colors.white),
       child: AddButton(
         onSelected: (pluginBuilder) {
           context.read<AppBloc>().add(
@@ -169,7 +169,6 @@ class AppActionList extends StatelessWidget {
             selector: (state) => state.app,
             builder: (context, app) => FlowyText.medium(
               app.name,
-              fontSize: 12,
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -188,7 +187,7 @@ class DisclosureActionWrapper extends ActionCell {
 
   DisclosureActionWrapper(this.inner);
   @override
-  Widget? icon(Color iconColor) => inner.icon(iconColor);
+  Widget? leftIcon(Color iconColor) => inner.icon(iconColor);
 
   @override
   String get name => inner.name;

@@ -1,66 +1,75 @@
-use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::filter_entities::*;
-use crate::entities::setting_entities::*;
-use crate::entities::{FieldType, GridBlockChangesetPB};
-use crate::services::cell::{AnyCellData, CellFilterOperation};
+use crate::entities::{FieldType, InsertedRowPB, RowPB};
+use crate::services::cell::{CellFilterOperation, TypeCellData};
 use crate::services::field::*;
-use crate::services::filter::{FilterMap, FilterResult, FILTER_HANDLER_ID};
+use crate::services::filter::{FilterChangeset, FilterMap, FilterResult, FilterResultNotification, FilterType};
 use crate::services::row::GridBlock;
+use crate::services::view_editor::{GridViewChanged, GridViewChangedNotifier};
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
-use grid_rev_model::{CellRevision, FieldId, FieldRevision, FieldTypeRevision, FilterRevision, RowRevision};
+use grid_rev_model::{CellRevision, FieldId, FieldRevision, FilterRevision, RowRevision};
 use lib_infra::future::Fut;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::str::FromStr;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
 type RowId = String;
-pub trait GridViewFilterDelegate: Send + Sync + 'static {
-    fn get_filter_rev(&self, filter_id: FilterType) -> Fut<Vec<Arc<FilterRevision>>>;
+pub trait FilterDelegate: Send + Sync + 'static {
+    fn get_filter_rev(&self, filter_type: FilterType) -> Fut<Option<Arc<FilterRevision>>>;
     fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>>;
     fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>>;
     fn get_blocks(&self) -> Fut<Vec<GridBlock>>;
+    fn get_row_rev(&self, rows_id: &str) -> Fut<Option<(usize, Arc<RowRevision>)>>;
 }
 
 pub struct FilterController {
     view_id: String,
-    delegate: Box<dyn GridViewFilterDelegate>,
+    handler_id: String,
+    delegate: Box<dyn FilterDelegate>,
     filter_map: FilterMap,
     result_by_row_id: HashMap<RowId, FilterResult>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    notifier: GridViewChangedNotifier,
 }
+
 impl FilterController {
     pub async fn new<T>(
         view_id: &str,
+        handler_id: &str,
         delegate: T,
         task_scheduler: Arc<RwLock<TaskDispatcher>>,
         filter_revs: Vec<Arc<FilterRevision>>,
+        notifier: GridViewChangedNotifier,
     ) -> Self
     where
-        T: GridViewFilterDelegate,
+        T: FilterDelegate,
     {
         let mut this = Self {
             view_id: view_id.to_string(),
+            handler_id: handler_id.to_string(),
             delegate: Box::new(delegate),
             filter_map: FilterMap::new(),
             result_by_row_id: HashMap::default(),
             task_scheduler,
+            notifier,
         };
-        this.load_filters(filter_revs).await;
+        this.cache_filters(filter_revs).await;
         this
     }
 
     pub async fn close(&self) {
-        self.task_scheduler.write().await.unregister_handler(FILTER_HANDLER_ID);
+        self.task_scheduler.write().await.unregister_handler(&self.handler_id);
     }
 
     #[tracing::instrument(name = "schedule_filter_task", level = "trace", skip(self))]
-    async fn gen_task(&mut self, predicate: &str) {
+    async fn gen_task(&mut self, task_type: FilterEvent) {
         let task_id = self.task_scheduler.read().await.next_task_id();
         let task = Task::new(
-            FILTER_HANDLER_ID,
+            &self.handler_id,
             task_id,
-            TaskContent::Text(predicate.to_owned()),
+            TaskContent::Text(task_type.to_string()),
             QualityOfService::UserInteractive,
         );
         self.task_scheduler.write().await.add_task(task);
@@ -71,17 +80,14 @@ impl FilterController {
             return;
         }
         let field_rev_by_field_id = self.get_filter_revs_map().await;
-        let _ = row_revs
-            .iter()
-            .flat_map(|row_rev| {
-                filter_row(
-                    row_rev,
-                    &self.filter_map,
-                    &mut self.result_by_row_id,
-                    &field_rev_by_field_id,
-                )
-            })
-            .collect::<Vec<String>>();
+        row_revs.iter().for_each(|row_rev| {
+            let _ = filter_row(
+                row_rev,
+                &self.filter_map,
+                &mut self.result_by_row_id,
+                &field_rev_by_field_id,
+            );
+        });
 
         row_revs.retain(|row_rev| {
             self.result_by_row_id
@@ -100,83 +106,155 @@ impl FilterController {
             .collect::<HashMap<String, Arc<FieldRevision>>>()
     }
 
-    pub async fn process(&mut self, _predicate: &str) -> FlowyResult<()> {
-        let field_rev_by_field_id = self.get_filter_revs_map().await;
-        let mut changesets = vec![];
-        for block in self.delegate.get_blocks().await.into_iter() {
-            // The row_ids contains the row that its visibility was changed.
-            let row_ids = block
-                .row_revs
-                .iter()
-                .flat_map(|row_rev| {
-                    filter_row(
-                        row_rev,
-                        &self.filter_map,
-                        &mut self.result_by_row_id,
-                        &field_rev_by_field_id,
-                    )
-                })
-                .collect::<Vec<String>>();
-
-            let mut visible_rows = vec![];
-            let mut hide_rows = vec![];
-
-            // Query the filter result from the cache
-            for row_id in row_ids {
-                if self
-                    .result_by_row_id
-                    .get(&row_id)
-                    .map(|result| result.is_visible())
-                    .unwrap_or(false)
-                {
-                    visible_rows.push(row_id);
-                } else {
-                    hide_rows.push(row_id);
-                }
-            }
-
-            let changeset = GridBlockChangesetPB {
-                block_id: block.block_id,
-                hide_rows,
-                visible_rows,
-                ..Default::default()
-            };
-
-            // Save the changeset for each block
-            changesets.push(changeset);
+    #[tracing::instrument(name = "receive_task_result", level = "trace", skip_all, fields(filter_result), err)]
+    pub async fn process(&mut self, predicate: &str) -> FlowyResult<()> {
+        let event_type = FilterEvent::from_str(predicate).unwrap();
+        match event_type {
+            FilterEvent::FilterDidChanged => self.filter_all_rows().await?,
+            FilterEvent::RowDidChanged(row_id) => self.filter_row(row_id).await?,
         }
-
-        self.notify(changesets).await;
         Ok(())
     }
 
-    pub async fn apply_changeset(&mut self, changeset: FilterChangeset) {
-        if let Some(filter_id) = &changeset.insert_filter {
-            let filter_revs = self.delegate.get_filter_rev(filter_id.clone()).await;
-            let _ = self.load_filters(filter_revs).await;
-        }
+    async fn filter_row(&mut self, row_id: String) -> FlowyResult<()> {
+        if let Some((_, row_rev)) = self.delegate.get_row_rev(&row_id).await {
+            let field_rev_by_field_id = self.get_filter_revs_map().await;
+            let mut notification = FilterResultNotification::new(self.view_id.clone(), row_rev.block_id.clone());
+            if let Some((row_id, is_visible)) = filter_row(
+                &row_rev,
+                &self.filter_map,
+                &mut self.result_by_row_id,
+                &field_rev_by_field_id,
+            ) {
+                if is_visible {
+                    if let Some((index, row_rev)) = self.delegate.get_row_rev(&row_id).await {
+                        let row_pb = RowPB::from(row_rev.as_ref());
+                        notification
+                            .visible_rows
+                            .push(InsertedRowPB::with_index(row_pb, index as i32))
+                    }
+                } else {
+                    notification.invisible_rows.push(row_id);
+                }
+            }
 
-        if let Some(filter_id) = &changeset.delete_filter {
-            self.filter_map.remove(filter_id);
+            let _ = self
+                .notifier
+                .send(GridViewChanged::DidReceiveFilterResult(notification));
         }
-
-        self.gen_task("").await;
+        Ok(())
     }
 
-    async fn notify(&self, changesets: Vec<GridBlockChangesetPB>) {
-        for changeset in changesets {
-            send_dart_notification(&self.view_id, GridNotification::DidUpdateGridBlock)
-                .payload(changeset)
-                .send();
+    async fn filter_all_rows(&mut self) -> FlowyResult<()> {
+        let field_rev_by_field_id = self.get_filter_revs_map().await;
+        for block in self.delegate.get_blocks().await.into_iter() {
+            // The row_ids contains the row that its visibility was changed.
+            let mut visible_rows = vec![];
+            let mut invisible_rows = vec![];
+
+            for (index, row_rev) in block.row_revs.iter().enumerate() {
+                if let Some((row_id, is_visible)) = filter_row(
+                    row_rev,
+                    &self.filter_map,
+                    &mut self.result_by_row_id,
+                    &field_rev_by_field_id,
+                ) {
+                    if is_visible {
+                        let row_pb = RowPB::from(row_rev.as_ref());
+                        visible_rows.push(InsertedRowPB::with_index(row_pb, index as i32))
+                    } else {
+                        invisible_rows.push(row_id);
+                    }
+                }
+            }
+
+            let notification = FilterResultNotification {
+                view_id: self.view_id.clone(),
+                block_id: block.block_id,
+                invisible_rows,
+                visible_rows,
+            };
+            tracing::Span::current().record("filter_result", &format!("{:?}", &notification).as_str());
+            let _ = self
+                .notifier
+                .send(GridViewChanged::DidReceiveFilterResult(notification));
         }
+        Ok(())
     }
 
-    async fn load_filters(&mut self, filter_revs: Vec<Arc<FilterRevision>>) {
+    pub async fn did_receive_row_changed(&mut self, row_id: &str) {
+        self.gen_task(FilterEvent::RowDidChanged(row_id.to_string())).await
+    }
+
+    #[tracing::instrument(level = "trace", skip(self))]
+    pub async fn did_receive_filter_changed(
+        &mut self,
+        changeset: FilterChangeset,
+    ) -> Option<FilterChangesetNotificationPB> {
+        let mut notification: Option<FilterChangesetNotificationPB> = None;
+        if let Some(filter_type) = &changeset.insert_filter {
+            if let Some(filter) = self.filter_from_filter_type(filter_type).await {
+                notification = Some(FilterChangesetNotificationPB::from_insert(&self.view_id, vec![filter]));
+            }
+            if let Some(filter_rev) = self.delegate.get_filter_rev(filter_type.clone()).await {
+                let _ = self.cache_filters(vec![filter_rev]).await;
+            }
+        }
+
+        if let Some(updated_filter_type) = changeset.update_filter {
+            if let Some(old_filter_type) = updated_filter_type.old {
+                let new_filter = self.filter_from_filter_type(&updated_filter_type.new).await;
+                let old_filter = self.filter_from_filter_type(&old_filter_type).await;
+
+                // Get the filter id
+                let mut filter_id = old_filter.map(|filter| filter.id);
+                if filter_id.is_none() {
+                    filter_id = new_filter.as_ref().map(|filter| filter.id.clone());
+                }
+
+                // Update the corresponding filter in the cache
+                if let Some(filter_rev) = self.delegate.get_filter_rev(updated_filter_type.new.clone()).await {
+                    let _ = self.cache_filters(vec![filter_rev]).await;
+                }
+
+                if let Some(filter_id) = filter_id {
+                    notification = Some(FilterChangesetNotificationPB::from_update(
+                        &self.view_id,
+                        vec![UpdatedFilter {
+                            filter_id,
+                            filter: new_filter,
+                        }],
+                    ));
+                }
+            }
+        }
+
+        if let Some(filter_type) = &changeset.delete_filter {
+            if let Some(filter) = self.filter_from_filter_type(filter_type).await {
+                notification = Some(FilterChangesetNotificationPB::from_delete(&self.view_id, vec![filter]));
+            }
+            self.filter_map.remove(filter_type);
+        }
+
+        let _ = self.gen_task(FilterEvent::FilterDidChanged).await;
+        tracing::trace!("{:?}", notification);
+        notification
+    }
+
+    async fn filter_from_filter_type(&self, filter_type: &FilterType) -> Option<FilterPB> {
+        self.delegate
+            .get_filter_rev(filter_type.clone())
+            .await
+            .map(|filter| FilterPB::from(filter.as_ref()))
+    }
+
+    #[tracing::instrument(level = "trace", skip_all)]
+    async fn cache_filters(&mut self, filter_revs: Vec<Arc<FilterRevision>>) {
         for filter_rev in filter_revs {
             if let Some(field_rev) = self.delegate.get_field_rev(&filter_rev.field_id).await {
                 let filter_type = FilterType::from(&field_rev);
-                let field_type: FieldType = field_rev.ty.into();
-                match &field_type {
+                tracing::trace!("Create filter with type: {:?}", filter_type);
+                match &filter_type.field_type {
                     FieldType::RichText => {
                         let _ = self
                             .filter_map
@@ -220,45 +298,47 @@ impl FilterController {
 }
 
 /// Returns None if there is no change in this row after applying the filter
+#[tracing::instrument(level = "trace", skip_all)]
 fn filter_row(
     row_rev: &Arc<RowRevision>,
     filter_map: &FilterMap,
     result_by_row_id: &mut HashMap<RowId, FilterResult>,
     field_rev_by_field_id: &HashMap<FieldId, Arc<FieldRevision>>,
-) -> Option<String> {
+) -> Option<(String, bool)> {
     // Create a filter result cache if it's not exist
     let filter_result = result_by_row_id
         .entry(row_rev.id.clone())
         .or_insert_with(FilterResult::default);
+    let old_is_visible = filter_result.is_visible();
 
     // Iterate each cell of the row to check its visibility
     for (field_id, field_rev) in field_rev_by_field_id {
         let filter_type = FilterType::from(field_rev);
+        if !filter_map.has_filter(&filter_type) {
+            filter_result.visible_by_filter_id.remove(&filter_type);
+            continue;
+        }
+
         let cell_rev = row_rev.cells.get(field_id);
         // if the visibility of the cell_rew is changed, which means the visibility of the
         // row is changed too.
         if let Some(is_visible) = filter_cell(&filter_type, field_rev, filter_map, cell_rev) {
-            let prev_is_visible = filter_result.visible_by_filter_id.get(&filter_type).cloned();
             filter_result.visible_by_filter_id.insert(filter_type, is_visible);
-            match prev_is_visible {
-                None => {
-                    if !is_visible {
-                        return Some(row_rev.id.clone());
-                    }
-                }
-                Some(prev_is_visible) => {
-                    if prev_is_visible != is_visible {
-                        return Some(row_rev.id.clone());
-                    }
-                }
-            }
         }
     }
 
-    None
+    let is_visible = filter_result.is_visible();
+    return if old_is_visible != is_visible {
+        Some((row_rev.id.clone(), is_visible))
+    } else {
+        None
+    };
 }
 
-// Return None if there is no change in this cell after applying the filter
+// Returns None if there is no change in this cell after applying the filter
+// Returns Some if the visibility of the cell is changed
+
+#[tracing::instrument(level = "trace", skip_all, fields(cell_content))]
 fn filter_cell(
     filter_id: &FilterType,
     field_rev: &Arc<FieldRevision>,
@@ -266,10 +346,16 @@ fn filter_cell(
     cell_rev: Option<&CellRevision>,
 ) -> Option<bool> {
     let any_cell_data = match cell_rev {
-        None => AnyCellData::from_field_type(&filter_id.field_type),
-        Some(cell_rev) => AnyCellData::try_from(cell_rev).ok()?,
+        None => TypeCellData::from_field_type(&filter_id.field_type),
+        Some(cell_rev) => match TypeCellData::try_from(cell_rev) {
+            Ok(cell_data) => cell_data,
+            Err(err) => {
+                tracing::error!("Deserialize TypeCellData failed: {}", err);
+                TypeCellData::from_field_type(&filter_id.field_type)
+            }
+        },
     };
-
+    let cloned_cell_data = any_cell_data.data.clone();
     let is_visible = match &filter_id.field_type {
         FieldType::RichText => filter_map.text_filter.get(filter_id).and_then(|filter| {
             Some(
@@ -328,82 +414,28 @@ fn filter_cell(
             )
         }),
     }?;
-
+    tracing::Span::current().record(
+        "cell_content",
+        &format!("{} => {:?}", cloned_cell_data, is_visible.unwrap()).as_str(),
+    );
     is_visible
 }
 
-pub struct FilterChangeset {
-    insert_filter: Option<FilterType>,
-    delete_filter: Option<FilterType>,
+#[derive(Serialize, Deserialize, Clone, Debug)]
+enum FilterEvent {
+    FilterDidChanged,
+    RowDidChanged(String),
 }
 
-impl FilterChangeset {
-    pub fn from_insert(filter_id: FilterType) -> Self {
-        Self {
-            insert_filter: Some(filter_id),
-            delete_filter: None,
-        }
-    }
-
-    pub fn from_delete(filter_id: FilterType) -> Self {
-        Self {
-            insert_filter: None,
-            delete_filter: Some(filter_id),
-        }
+impl ToString for FilterEvent {
+    fn to_string(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 
-impl std::convert::From<&GridSettingChangesetParams> for FilterChangeset {
-    fn from(params: &GridSettingChangesetParams) -> Self {
-        let insert_filter = params.insert_filter.as_ref().map(|insert_filter_params| FilterType {
-            field_id: insert_filter_params.field_id.clone(),
-            field_type: insert_filter_params.field_type_rev.into(),
-        });
-
-        let delete_filter = params
-            .delete_filter
-            .as_ref()
-            .map(|delete_filter_params| delete_filter_params.filter_type.clone());
-        FilterChangeset {
-            insert_filter,
-            delete_filter,
-        }
-    }
-}
-
-#[derive(Hash, Eq, PartialEq, Clone)]
-pub struct FilterType {
-    pub field_id: String,
-    pub field_type: FieldType,
-}
-
-impl FilterType {
-    pub fn field_type_rev(&self) -> FieldTypeRevision {
-        self.field_type.clone().into()
-    }
-}
-
-impl std::convert::From<&Arc<FieldRevision>> for FilterType {
-    fn from(rev: &Arc<FieldRevision>) -> Self {
-        Self {
-            field_id: rev.id.clone(),
-            field_type: rev.ty.into(),
-        }
-    }
-}
-
-impl std::convert::From<&CreateFilterParams> for FilterType {
-    fn from(params: &CreateFilterParams) -> Self {
-        let field_type: FieldType = params.field_type_rev.into();
-        Self {
-            field_id: params.field_id.clone(),
-            field_type,
-        }
-    }
-}
-
-impl std::convert::From<&DeleteFilterParams> for FilterType {
-    fn from(params: &DeleteFilterParams) -> Self {
-        params.filter_type.clone()
+impl FromStr for FilterEvent {
+    type Err = serde_json::Error;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        serde_json::from_str(s)
     }
 }

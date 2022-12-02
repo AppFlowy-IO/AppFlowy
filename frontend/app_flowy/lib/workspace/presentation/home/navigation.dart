@@ -1,18 +1,19 @@
 import 'dart:io';
 
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:app_flowy/workspace/application/home/home_bloc.dart';
+import 'package:app_flowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
+import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 typedef NaviAction = void Function();
 
@@ -35,26 +36,6 @@ class NavigationNotifier with ChangeNotifier {
   }
 }
 
-// [[diagram: HomeStack navigation flow]]
-//                                                                              ┌───────────────────────┐
-//                     2.notify listeners                                ┌──────│DefaultHomeStackContext│
-//  ┌────────────────┐           ┌───────────┐   ┌────────────────┐      │      └───────────────────────┘
-//  │HomeStackNotifie│◀──────────│ HomeStack │◀──│HomeStackContext│◀─ impl
-//  └────────────────┘           └───────────┘   └────────────────┘      │       ┌───────────────────┐
-//           │                         ▲                                 └───────│  DocStackContext  │
-//           │                         │                                         └───────────────────┘
-//    3.notify change            1.set context
-//           │                         │
-//           ▼                         │
-// ┌───────────────────┐     ┌──────────────────┐
-// │NavigationNotifier │     │ ViewSectionItem  │
-// └───────────────────┘     └──────────────────┘
-//           │
-//           │
-//           ▼
-//  ┌─────────────────┐
-//  │ FlowyNavigation │   4.render navigation items
-//  └─────────────────┘
 class FlowyNavigation extends StatelessWidget {
   const FlowyNavigation({Key? key}) : super(key: key);
 
@@ -100,13 +81,17 @@ class FlowyNavigation extends StatelessWidget {
               turns: const AlwaysStoppedAnimation(180 / 360),
               child: Tooltip(
                   richMessage: sidebarTooltipTextSpan(
-                      LocaleKeys.sideBar_openSidebar.tr()),
+                    context,
+                    LocaleKeys.sideBar_openSidebar.tr(),
+                  ),
                   child: FlowyIconButton(
                     width: 24,
                     hoverColor: Colors.transparent,
                     onPressed: () {
                       notifier.value = false;
-                      ctx.read<HomeBloc>().add(const HomeEvent.collapseMenu());
+                      ctx
+                          .read<HomeSettingBloc>()
+                          .add(const HomeSettingEvent.collapseMenu());
                     },
                     iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
                     icon: svgWidget(
@@ -191,24 +176,25 @@ class EllipsisNaviItem extends NavigationItem {
   });
 
   @override
-  Widget get leftBarItem => const FlowyText.medium('...');
+  Widget get leftBarItem => FlowyText.medium(
+        '...',
+        fontSize: FontSizes.s16,
+      );
 
   @override
   NavigationCallback get action => (id) {};
 }
 
-TextSpan sidebarTooltipTextSpan(String hintText) => TextSpan(
+TextSpan sidebarTooltipTextSpan(BuildContext context, String hintText) =>
+    TextSpan(
       children: [
         TextSpan(
           text: "$hintText\n",
-          style: TextStyles.caption,
+          style: AFThemeExtension.of(context).callout.textColor(Colors.white),
         ),
         TextSpan(
           text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
-          style: TextStyles.general(
-            fontSize: FontSizes.s11,
-            color: Colors.white60,
-          ),
+          style: AFThemeExtension.of(context).caption.textColor(Colors.white60),
         ),
       ],
     );

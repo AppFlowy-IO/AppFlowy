@@ -45,7 +45,7 @@ class _GridFieldCellState extends State<GridFieldCell> {
         builder: (context, state) {
           final button = AppFlowyPopover(
             triggerActions: PopoverTriggerFlags.none,
-            constraints: BoxConstraints.loose(const Size(240, 840)),
+            constraints: BoxConstraints.loose(const Size(240, 440)),
             direction: PopoverDirection.bottomWithLeftAligned,
             controller: popoverController,
             popupBuilder: (BuildContext context) {
@@ -166,15 +166,15 @@ class FieldCellButton extends StatelessWidget {
         .replaceAll(Characters(''), Characters('\u{200B}'))
         .toString();
     return FlowyButton(
-      hoverColor: CustomColors.of(context).lightGreyHover,
+      hoverColor: AFThemeExtension.of(context).lightGreyHover,
       onTap: onTap,
       leftIcon: svgWidget(
         field.fieldType.iconName(),
         color: Theme.of(context).colorScheme.onSurface,
       ),
+      radius: BorderRadius.zero,
       text: FlowyText.medium(
         text,
-        fontSize: 12,
         maxLines: maxLines,
         overflow: TextOverflow.ellipsis,
       ),

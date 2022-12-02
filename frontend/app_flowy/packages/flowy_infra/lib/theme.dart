@@ -1,3 +1,5 @@
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/text_style.dart';
 import 'package:flutter/material.dart';
 
 import 'color_extension.dart';
@@ -19,7 +21,7 @@ String themeTypeToString(Brightness brightness) {
   }
 }
 
-// Color Pallettes
+// Color Palettes
 const _black = Color(0xff000000);
 const _white = Color(0xFFFFFFFF);
 
@@ -154,11 +156,10 @@ class AppTheme {
   }
 
   ThemeData get themeData {
+    final textTheme = TextStyles(font: font, color: shader1);
     return ThemeData(
       brightness: brightness,
-      textTheme: TextTheme(
-        bodyText2: TextStyle(color: shader1),
-      ),
+      textTheme: textTheme.generateTextTheme(),
       textSelectionTheme: TextSelectionThemeData(
           cursorColor: main2, selectionHandleColor: main2),
       primaryIconTheme: IconThemeData(color: hover),
@@ -195,13 +196,32 @@ class AppTheme {
         shadow: shadow,
       ),
       extensions: [
-        CustomColors(
+        AFThemeExtension(
           warning: yellow,
           success: green,
+          tint1: tint1,
+          tint2: tint2,
+          tint3: tint3,
+          tint4: tint4,
+          tint5: tint5,
+          tint6: tint6,
+          tint7: tint7,
+          tint8: tint8,
+          tint9: tint9,
           greyHover: bg2,
           greySelect: bg3,
           lightGreyHover: shader6,
           toggleOffFill: shader5,
+          code: textTheme.getFontStyle(fontFamily: monospaceFont),
+          callout: textTheme.getFontStyle(
+            fontSize: FontSizes.s11,
+            fontColor: shader3,
+          ),
+          caption: textTheme.getFontStyle(
+            fontSize: FontSizes.s11,
+            fontWeight: FontWeight.w400,
+            fontColor: shader3,
+          ),
         )
       ],
     );

@@ -63,7 +63,7 @@ jobs:
           source $HOME/.cargo/env
           cargo install --force cargo-make
           cargo install --force duckscript_cli
-          cargo make flowy_dev
+          cargo make appflowy-deps-tools
 
       - name: Build Linux app
         working-directory: frontend
@@ -161,7 +161,7 @@ jobs:
           source $HOME/.cargo/env
           cargo install --force cargo-make
           cargo install --force duckscript_cli
-          cargo make flowy_dev
+          cargo make appflowy-deps-tools
 
       - name: Build macOS app for x86_64
         working-directory: frontend
@@ -234,7 +234,7 @@ jobs:
           vcpkg integrate install
           cargo install --force cargo-make
           cargo install --force duckscript_cli
-          cargo make flowy_dev
+          cargo make appflowy-deps-tools
 
       - name: Build Windows app
         working-directory: frontend

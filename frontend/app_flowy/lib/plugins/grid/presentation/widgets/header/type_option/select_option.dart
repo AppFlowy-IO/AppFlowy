@@ -72,7 +72,6 @@ class OptionTitle extends StatelessWidget {
         List<Widget> children = [
           FlowyText.medium(
             LocaleKeys.grid_field_optionTitle.tr(),
-            fontSize: 12,
             color: Theme.of(context).hintColor,
           )
         ];
@@ -101,7 +100,6 @@ class _OptionTitleButton extends StatelessWidget {
       child: FlowyButton(
         text: FlowyText.medium(
           LocaleKeys.grid_field_addOption.tr(),
-          fontSize: 12,
           textAlign: TextAlign.center,
         ),
         onTap: () {
@@ -232,8 +230,7 @@ class _AddOptionButton extends StatelessWidget {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(LocaleKeys.grid_field_addSelectOption.tr(),
-            fontSize: 12),
+        text: FlowyText.medium(LocaleKeys.grid_field_addSelectOption.tr()),
         onTap: () {
           context
               .read<SelectOptionTypeOptionBloc>()

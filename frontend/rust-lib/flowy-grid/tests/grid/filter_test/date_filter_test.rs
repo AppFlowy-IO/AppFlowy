@@ -12,7 +12,7 @@ async fn grid_filter_date_is_test() {
             end: None,
             timestamp: Some(1647251762),
         },
-        AssertNumberOfRows { expected: 3 },
+        AssertNumberOfVisibleRows { expected: 3 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -27,7 +27,7 @@ async fn grid_filter_date_after_test() {
             end: None,
             timestamp: Some(1647251762),
         },
-        AssertNumberOfRows { expected: 2 },
+        AssertNumberOfVisibleRows { expected: 2 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -42,7 +42,7 @@ async fn grid_filter_date_on_or_after_test() {
             end: None,
             timestamp: Some(1668359085),
         },
-        AssertNumberOfRows { expected: 2 },
+        AssertNumberOfVisibleRows { expected: 2 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -57,7 +57,7 @@ async fn grid_filter_date_on_or_before_test() {
             end: None,
             timestamp: Some(1668359085),
         },
-        AssertNumberOfRows { expected: 4 },
+        AssertNumberOfVisibleRows { expected: 4 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -72,7 +72,7 @@ async fn grid_filter_date_within_test() {
             end: Some(1668704685),
             timestamp: None,
         },
-        AssertNumberOfRows { expected: 5 },
+        AssertNumberOfVisibleRows { expected: 5 },
     ];
     test.run_scripts(scripts).await;
 }

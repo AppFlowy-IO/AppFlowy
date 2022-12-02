@@ -1,5 +1,5 @@
 use crate::entities::{DateFilterCondition, DateFilterPB};
-use crate::services::cell::{AnyCellData, CellData, CellFilterOperation};
+use crate::services::cell::{CellData, CellFilterOperation, TypeCellData};
 use crate::services::field::{DateTimestamp, DateTypeOptionPB};
 use chrono::NaiveDateTime;
 use flowy_error::FlowyResult;
@@ -60,7 +60,7 @@ impl DateFilterPB {
 }
 
 impl CellFilterOperation<DateFilterPB> for DateTypeOptionPB {
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &DateFilterPB) -> FlowyResult<bool> {
+    fn apply_filter(&self, any_cell_data: TypeCellData, filter: &DateFilterPB) -> FlowyResult<bool> {
         if !any_cell_data.is_date() {
             return Ok(true);
         }

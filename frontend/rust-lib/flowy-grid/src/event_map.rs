@@ -161,8 +161,8 @@ pub enum GridEvent {
     /// [UpdateSelectOption] event is used to update a FieldTypeOptionData whose field_type is
     /// FieldType::SingleSelect or FieldType::MultiSelect.
     ///
-    /// This event may trigger the GridNotification::DidUpdateCell event.
-    /// For example, GridNotification::DidUpdateCell will be triggered if the [SelectOptionChangesetPB]
+    /// This event may trigger the GridDartNotification::DidUpdateCell event.
+    /// For example, GridDartNotification::DidUpdateCell will be triggered if the [SelectOptionChangesetPB]
     /// carries a change that updates the name of the option.
     #[event(input = "SelectOptionChangesetPB")]
     UpdateSelectOption = 32,
@@ -212,7 +212,7 @@ pub enum GridEvent {
     #[event(input = "DateChangesetPB")]
     UpdateDateCell = 80,
 
-    #[event(input = "GridIdPB", output = "RepeatedGridGroupPB")]
+    #[event(input = "GridIdPB", output = "RepeatedGroupPB")]
     GetGroup = 100,
 
     #[event(input = "CreateBoardCardPayloadPB", output = "RowPB")]

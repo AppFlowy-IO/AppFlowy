@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/home/home_bloc.dart';
+import 'package:app_flowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flutter/material.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
@@ -22,7 +22,9 @@ class HomeHotKeys extends StatelessWidget {
     hotKeyManager.register(
       hotKey,
       keyDownHandler: (hotKey) {
-        context.read<HomeBloc>().add(const HomeEvent.collapseMenu());
+        context
+            .read<HomeSettingBloc>()
+            .add(const HomeSettingEvent.collapseMenu());
         getIt<HomeStackManager>().collapsedNotifier.value =
             !getIt<HomeStackManager>().collapsedNotifier.currentValue!;
       },

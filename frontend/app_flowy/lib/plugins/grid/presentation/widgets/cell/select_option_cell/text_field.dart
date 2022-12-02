@@ -49,6 +49,7 @@ class SelectOptionTextField extends StatefulWidget {
 class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
   late FocusNode focusNode;
   late TextEditingController controller;
+  var textLength = 0;
 
   @override
   void initState() {
@@ -59,6 +60,14 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
       focusNode.requestFocus();
     });
     super.initState();
+  }
+
+  String? _suffixText() {
+    if (widget.maxLength != null) {
+      return '${textLength.toString()}/${widget.maxLength.toString()}';
+    } else {
+      return null;
+    }
   }
 
   @override
@@ -83,6 +92,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
             focusNode: focusNode,
             onTap: widget.onClick,
             onChanged: (text) {
+              textLength = text.length;
               if (onChanged != null) {
                 onChanged(text);
               }
@@ -114,6 +124,8 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
               isDense: true,
               prefixIcon: _renderTags(context, sc),
               hintText: LocaleKeys.grid_selectOption_searchOption.tr(),
+              suffixText: _suffixText(),
+              counterText: "",
               prefixIconConstraints:
                   BoxConstraints(maxWidth: widget.distanceToText),
               focusedBorder: OutlineInputBorder(
