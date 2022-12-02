@@ -258,3 +258,9 @@ impl std::convert::From<Vec<NodeOperation>> for NodeOperations {
         Self::from_operations(operations)
     }
 }
+
+impl std::convert::From<NodeOperation> for NodeOperations {
+    fn from(operation: NodeOperation) -> Self {
+        Self::from_operations(vec![operation])
+    }
+}

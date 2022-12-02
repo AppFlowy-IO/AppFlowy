@@ -4,10 +4,10 @@ use crate::errors::{OTError, OTErrorCode};
 use indextree::{Arena, FollowingSiblings, NodeId};
 use std::sync::Arc;
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct NodeTreeContext {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct NodeTree {
     arena: Arena<Node>,
     root: NodeId,
@@ -46,6 +46,20 @@ impl NodeTree {
             Err(e) => {
                 tracing::error!("{}", e);
                 vec![]
+            }
+        }
+    }
+
+    pub fn to_json(&self, pretty: bool) -> Result<String, OTError> {
+        if pretty {
+            match serde_json::to_string_pretty(self) {
+                Ok(json) => Ok(json),
+                Err(err) => Err(OTError::serde().context(err)),
+            }
+        } else {
+            match serde_json::to_string(self) {
+                Ok(json) => Ok(json),
+                Err(err) => Err(OTError::serde().context(err)),
             }
         }
     }
@@ -260,8 +274,8 @@ impl NodeTree {
         Ok(())
     }
 
-    pub fn apply_op(&mut self, op: Arc<NodeOperation>) -> Result<(), OTError> {
-        let op = match Arc::try_unwrap(op) {
+    pub fn apply_op<T: Into<Arc<NodeOperation>>>(&mut self, op: T) -> Result<(), OTError> {
+        let op = match Arc::try_unwrap(op.into()) {
             Ok(op) => op,
             Err(op) => op.as_ref().clone(),
         };
