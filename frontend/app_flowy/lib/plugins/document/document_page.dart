@@ -1,8 +1,8 @@
 import 'package:app_flowy/plugins/document/editor_styles.dart';
-import 'package:app_flowy/plugins/document/presentation/plugins/horizontal_rule_node_widget.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
@@ -101,10 +101,28 @@ class _DocumentPageState extends State<DocumentPage> {
       editorState: editorState,
       autoFocus: editorState.document.isEmpty,
       customBuilders: {
-        'horizontal_rule': HorizontalRuleWidgetBuilder(),
+        // Divider
+        kDividerType: DividerWidgetBuilder(),
+        // Math Equation
+        kMathEquationType: MathEquationNodeWidgetBuidler(),
+        // Code Block
+        kCodeBlockType: CodeBlockNodeWidgetBuilder(),
       },
       shortcutEvents: [
-        insertHorizontalRule,
+        // Divider
+        insertDividerEvent,
+        // Code Block
+        enterInCodeBlock,
+        ignoreKeysInCodeBlock,
+        pasteInCodeBlock,
+      ],
+      selectionMenuItems: [
+        // Divider
+        dividerMenuItem,
+        // Math Equation
+        mathEquationMenuItem,
+        // Code Block
+        codeBlockMenuItem,
       ],
       themeData: theme.copyWith(extensions: [
         ...theme.extensions.values,

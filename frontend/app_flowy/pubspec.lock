@@ -36,6 +36,13 @@ packages:
       relative: true
     source: path
     version: "0.0.7"
+  appflowy_editor_plugins:
+    dependency: "direct main"
+    description:
+      path: "packages/appflowy_editor_plugins"
+      relative: true
+    source: path
+    version: "0.0.1"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -471,6 +478,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_math_fork:
+    dependency: transitive
+    description:
+      name: flutter_math_fork
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.6.3+1"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -556,6 +570,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
+  highlight:
+    dependency: transitive
+    description:
+      name: highlight
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.7.0"
   hotkey_manager:
     dependency: "direct main"
     description:
@@ -1402,5 +1423,5 @@ packages:
     source: hosted
     version: "3.1.1"
 sdks:
-  dart: ">=2.17.0 <3.0.0"
+  dart: ">=2.17.6 <3.0.0"
   flutter: ">=3.0.0"
