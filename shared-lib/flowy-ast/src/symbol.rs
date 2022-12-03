@@ -34,11 +34,16 @@ pub const EVENT_ERR: Symbol = Symbol("event_err");
 
 // Node
 pub const NODE_ATTRS: Symbol = Symbol("node");
+pub const NODES_ATTRS: Symbol = Symbol("nodes");
+pub const NODE_TYPE: Symbol = Symbol("node_type");
+pub const NODE_INDEX: Symbol = Symbol("index");
+pub const NODE_RENAME: Symbol = Symbol("rename");
+pub const NODE_CHILDREN: Symbol = Symbol("children");
 pub const SKIP_NODE_ATTRS: Symbol = Symbol("skip_node_attribute");
 pub const GET_NODE_VALUE_WITH: Symbol = Symbol("get_value_with");
 pub const SET_NODE_VALUE_WITH: Symbol = Symbol("set_value_with");
-//#[node(index = "1")]
-pub const NODE_INDEX: Symbol = Symbol("index");
+pub const GET_VEC_ELEMENT_WITH: Symbol = Symbol("get_element_with");
+pub const GET_MUT_VEC_ELEMENT_WITH: Symbol = Symbol("get_mut_element_with");
 
 impl PartialEq<Symbol> for Ident {
     fn eq(&self, word: &Symbol) -> bool {

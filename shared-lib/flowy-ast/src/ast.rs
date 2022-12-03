@@ -4,14 +4,18 @@
 
 use crate::event_attrs::EventEnumAttrs;
 use crate::node_attrs::NodeStructAttrs;
-use crate::{is_recognizable_field, pb_attrs, ty_ext::*, ASTResult, PBAttrsContainer, PBStructAttrs};
+use crate::{is_recognizable_field, pb_attrs, ty_ext::*, ASTResult, PBAttrsContainer, PBStructAttrs, NODE_TYPE};
+use proc_macro2::Ident;
+use syn::Meta::NameValue;
 use syn::{self, punctuated::Punctuated};
 
 pub struct ASTContainer<'a> {
     /// The struct or enum name (without generics).
     pub ident: syn::Ident,
+
+    pub node_type: Option<String>,
     /// Attributes on the structure.
-    pub attrs: PBAttrsContainer,
+    pub pb_attrs: PBAttrsContainer,
     /// The contents of the struct or enum.
     pub data: ASTData<'a>,
 }
@@ -40,7 +44,13 @@ impl<'a> ASTContainer<'a> {
         };
 
         let ident = ast.ident.clone();
-        let item = ASTContainer { ident, attrs, data };
+        let node_type = get_node_type(ast_result, &ident, &ast.attrs);
+        let item = ASTContainer {
+            ident,
+            pb_attrs: attrs,
+            node_type,
+            data,
+        };
         Some(item)
     }
 }
@@ -182,7 +192,6 @@ impl<'a> ASTField<'a> {
         }
     }
 
-    #[allow(dead_code)]
     pub fn name(&self) -> Option<syn::Ident> {
         if let syn::Member::Named(ident) = &self.member {
             Some(ident.clone())
@@ -248,4 +257,22 @@ fn fields_from_ast<'a>(cx: &ASTResult, fields: &'a Punctuated<syn::Field, Token!
             }
         })
         .collect()
+}
+
+fn get_node_type(ast_result: &ASTResult, struct_name: &Ident, attrs: &[syn::Attribute]) -> Option<String> {
+    let mut node_type = None;
+    attrs
+        .iter()
+        .filter(|attr| attr.path.segments.iter().any(|s| s.ident == NODE_TYPE))
+        .for_each(|attr| {
+            if let Ok(NameValue(named_value)) = attr.parse_meta() {
+                if node_type.is_some() {
+                    ast_result.error_spanned_by(struct_name, "Duplicate node type definition");
+                }
+                if let syn::Lit::Str(s) = named_value.lit {
+                    node_type = Some(s.value());
+                }
+            }
+        });
+    node_type
 }

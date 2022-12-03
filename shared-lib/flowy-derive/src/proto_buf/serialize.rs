@@ -4,7 +4,7 @@ use flowy_ast::*;
 use proc_macro2::TokenStream;
 
 pub fn make_se_token_stream(ast_result: &ASTResult, ast: &ASTContainer) -> Option<TokenStream> {
-    let pb_ty = ast.attrs.pb_struct_type()?;
+    let pb_ty = ast.pb_attrs.pb_struct_type()?;
     let struct_ident = &ast.ident;
 
     let build_set_pb_fields = ast

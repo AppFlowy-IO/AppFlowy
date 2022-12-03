@@ -114,7 +114,7 @@ impl<'c, T> ASTAttr<'c, T> {
         }
     }
 
-    fn set_if_none(&mut self, value: T) {
+    pub(crate) fn set_if_none(&mut self, value: T) {
         if self.value.is_none() {
             self.value = Some(value);
         }
@@ -260,7 +260,7 @@ pub enum Default {
 }
 
 pub fn is_recognizable_attribute(attr: &syn::Attribute) -> bool {
-    attr.path == PB_ATTRS || attr.path == EVENT || attr.path == NODE_ATTRS
+    attr.path == PB_ATTRS || attr.path == EVENT || attr.path == NODE_ATTRS || attr.path == NODES_ATTRS
 }
 
 pub fn get_pb_meta_items(cx: &ASTResult, attr: &syn::Attribute) -> Result<Vec<syn::NestedMeta>, ()> {
@@ -286,17 +286,14 @@ pub fn get_pb_meta_items(cx: &ASTResult, attr: &syn::Attribute) -> Result<Vec<sy
 
 pub fn get_node_meta_items(cx: &ASTResult, attr: &syn::Attribute) -> Result<Vec<syn::NestedMeta>, ()> {
     // Only handle the attribute that we have defined
-    if attr.path != NODE_ATTRS {
+    if attr.path != NODE_ATTRS && attr.path != NODES_ATTRS {
         return Ok(vec![]);
     }
 
     // http://strymon.systems.ethz.ch/typename/syn/enum.Meta.html
     match attr.parse_meta() {
         Ok(List(meta)) => Ok(meta.nested.into_iter().collect()),
-        Ok(other) => {
-            cx.error_spanned_by(other, "expected #[node(...)]");
-            Err(())
-        }
+        Ok(_) => Ok(vec![]),
         Err(err) => {
             cx.error_spanned_by(attr, "attribute must be str, e.g. #[node(xx = \"xxx\")]");
             cx.syn_error(err);
@@ -304,6 +301,7 @@ pub fn get_node_meta_items(cx: &ASTResult, attr: &syn::Attribute) -> Result<Vec<
         }
     }
 }
+
 pub fn get_event_meta_items(cx: &ASTResult, attr: &syn::Attribute) -> Result<Vec<syn::NestedMeta>, ()> {
     // Only handle the attribute that we have defined
     if attr.path != EVENT {

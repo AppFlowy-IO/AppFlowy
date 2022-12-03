@@ -37,7 +37,7 @@ pub fn derive_dart_event(input: TokenStream) -> TokenStream {
         .into()
 }
 
-#[proc_macro_derive(Node, attributes(node))]
+#[proc_macro_derive(Node, attributes(node, nodes, node_type))]
 pub fn derive_node(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     node::expand_derive(&input).unwrap_or_else(to_compile_errors).into()

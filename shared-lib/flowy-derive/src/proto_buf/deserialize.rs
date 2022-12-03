@@ -2,8 +2,8 @@ use crate::proto_buf::util::*;
 use flowy_ast::*;
 use proc_macro2::{Span, TokenStream};
 
-pub fn make_de_token_steam(ctxt: &ASTResult, ast: &ASTContainer) -> Option<TokenStream> {
-    let pb_ty = ast.attrs.pb_struct_type()?;
+pub fn make_de_token_steam(ast_result: &ASTResult, ast: &ASTContainer) -> Option<TokenStream> {
+    let pb_ty = ast.pb_attrs.pb_struct_type()?;
     let struct_ident = &ast.ident;
 
     let build_take_fields = ast
@@ -15,9 +15,9 @@ pub fn make_de_token_steam(ctxt: &ASTResult, ast: &ASTContainer) -> Option<Token
                 let member = &field.member;
                 Some(quote! { o.#member=#struct_ident::#func(pb); })
             } else if field.pb_attrs.is_one_of() {
-                token_stream_for_one_of(ctxt, field)
+                token_stream_for_one_of(ast_result, field)
             } else {
-                token_stream_for_field(ctxt, &field.member, field.ty, false)
+                token_stream_for_field(ast_result, &field.member, field.ty, false)
             }
         });
 
@@ -58,10 +58,10 @@ pub fn make_de_token_steam(ctxt: &ASTResult, ast: &ASTContainer) -> Option<Token
     // None
 }
 
-fn token_stream_for_one_of(ctxt: &ASTResult, field: &ASTField) -> Option<TokenStream> {
+fn token_stream_for_one_of(ast_result: &ASTResult, field: &ASTField) -> Option<TokenStream> {
     let member = &field.member;
-    let ident = get_member_ident(ctxt, member)?;
-    let ty_info = match parse_ty(ctxt, field.ty) {
+    let ident = get_member_ident(ast_result, member)?;
+    let ty_info = match parse_ty(ast_result, field.ty) {
         Ok(ty_info) => ty_info,
         Err(e) => {
             eprintln!("token_stream_for_one_of failed: {:?} with error: {}", member, e);
