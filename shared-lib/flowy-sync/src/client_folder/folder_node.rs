@@ -11,8 +11,45 @@ use std::sync::Arc;
 
 pub type AtomicNodeTree = RwLock<NodeTree>;
 
+// pub struct FolderNodePad2 {
+//     tree: Arc<AtomicNodeTree>,
+//
+//     #[node(rename = "workspaces", revision = "WorkspaceRevision")]
+//     workspaces: Vec<Arc<WorkspaceNode>>,
+// }
+//
+// impl FolderNodePad2 {
+//     pub fn get_workspace() {}
+//     pub fn get_mut_workspace() {}
+//     pub fn add_workspace() {}
+//     pub fn remove_workspace() {}
+//     pub fn to_json() {}
+// }
+//
+// #[derive(Debug, Clone)]
+// pub struct WorkspaceNode2 {
+//     tree: Arc<AtomicNodeTree>,
+//     pub id: String,
+//     pub name: String,
+//     pub path: Path,
+// }
+//
+// impl WorkspaceNode2 {
+//     pub fn get_id() {}
+//     pub fn set_id() {}
+//     pub fn get_name() {}
+//     pub fn set_name() {}
+//     pub fn get_apps() {}
+//
+//     pub fn get_app() {}
+//     pub fn get_mut_app() {}
+//     pub fn add_app() {}
+//     pub fn remove_app() {}
+// }
+
 pub struct FolderNodePad {
     tree: Arc<AtomicNodeTree>,
+    // name: workspaces, index of the node,
     workspaces: Vec<Arc<WorkspaceNode>>,
     trash: Vec<Arc<TrashNode>>,
 }

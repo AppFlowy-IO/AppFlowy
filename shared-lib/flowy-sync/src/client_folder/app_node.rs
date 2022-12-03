@@ -60,8 +60,8 @@ impl AppNode {
         get_attributes_str_value(self.tree.clone(), &self.path, "name")
     }
 
-    pub fn set_name(&self, name: &str) -> CollaborateResult<()> {
-        set_attributes_str_value(self.tree.clone(), &self.path, "name", name.to_string())
+    pub fn set_name(&self, name: String) -> CollaborateResult<()> {
+        set_attributes_str_value(self.tree.clone(), &self.path, "name", name)
     }
 
     fn get_workspace_id(&self) -> Option<String> {

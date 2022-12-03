@@ -130,7 +130,7 @@ pub fn parse_event_crate(event_crate: &DartEventCrate) -> Vec<EventASTContext> {
                             .iter()
                             .filter(|attr| !attr.attrs.event_attrs.ignore)
                             .enumerate()
-                            .map(|(_index, attr)| EventASTContext::from(&attr.attrs))
+                            .map(|(_index, variant)| EventASTContext::from(&variant.attrs))
                             .collect::<Vec<_>>()
                     }
                     _ => vec![],

@@ -10,7 +10,7 @@ pub fn make_se_token_stream(ast_result: &ASTResult, ast: &ASTContainer) -> Optio
     let build_set_pb_fields = ast
         .data
         .all_fields()
-        .filter(|f| !f.attrs.skip_serializing())
+        .filter(|f| !f.pb_attrs.skip_pb_serializing())
         .flat_map(|field| se_token_stream_for_field(ast_result, field, false));
 
     let se_token_stream: TokenStream = quote! {
@@ -38,10 +38,10 @@ pub fn make_se_token_stream(ast_result: &ASTResult, ast: &ASTContainer) -> Optio
 }
 
 fn se_token_stream_for_field(ast_result: &ASTResult, field: &ASTField, _take: bool) -> Option<TokenStream> {
-    if let Some(func) = &field.attrs.serialize_with() {
+    if let Some(func) = &field.pb_attrs.serialize_pb_with() {
         let member = &field.member;
         Some(quote! { pb.#member=o.#func(); })
-    } else if field.attrs.is_one_of() {
+    } else if field.pb_attrs.is_one_of() {
         token_stream_for_one_of(ast_result, field)
     } else {
         gen_token_stream(ast_result, &field.member, field.ty, false)

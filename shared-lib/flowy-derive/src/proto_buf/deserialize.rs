@@ -9,12 +9,12 @@ pub fn make_de_token_steam(ctxt: &ASTResult, ast: &ASTContainer) -> Option<Token
     let build_take_fields = ast
         .data
         .all_fields()
-        .filter(|f| !f.attrs.skip_deserializing())
+        .filter(|f| !f.pb_attrs.skip_pb_deserializing())
         .flat_map(|field| {
-            if let Some(func) = field.attrs.deserialize_with() {
+            if let Some(func) = field.pb_attrs.deserialize_pb_with() {
                 let member = &field.member;
                 Some(quote! { o.#member=#struct_ident::#func(pb); })
-            } else if field.attrs.is_one_of() {
+            } else if field.pb_attrs.is_one_of() {
                 token_stream_for_one_of(ctxt, field)
             } else {
                 token_stream_for_field(ctxt, &field.member, field.ty, false)

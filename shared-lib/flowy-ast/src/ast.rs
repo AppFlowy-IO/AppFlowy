@@ -1,21 +1,24 @@
 #![allow(clippy::all)]
 #![allow(unused_attributes)]
 #![allow(unused_assignments)]
-use crate::{attr, ty_ext::*, ASTResult, AttrsContainer};
+
+use crate::event_attrs::EventEnumAttrs;
+use crate::node_attrs::NodeStructAttrs;
+use crate::{is_recognizable_field, pb_attrs, ty_ext::*, ASTResult, PBAttrsContainer, PBStructAttrs};
 use syn::{self, punctuated::Punctuated};
 
 pub struct ASTContainer<'a> {
     /// The struct or enum name (without generics).
     pub ident: syn::Ident,
     /// Attributes on the structure.
-    pub attrs: AttrsContainer,
+    pub attrs: PBAttrsContainer,
     /// The contents of the struct or enum.
     pub data: ASTData<'a>,
 }
 
 impl<'a> ASTContainer<'a> {
     pub fn from_ast(ast_result: &ASTResult, ast: &'a syn::DeriveInput) -> Option<ASTContainer<'a>> {
-        let attrs = AttrsContainer::from_ast(ast_result, ast);
+        let attrs = PBAttrsContainer::from_ast(ast_result, ast);
         // syn::DeriveInput
         //  1. syn::DataUnion
         //  2. syn::DataStruct
@@ -55,7 +58,7 @@ impl<'a> ASTData<'a> {
         }
     }
 
-    pub fn all_variants(&'a self) -> Box<dyn Iterator<Item = &'a attr::ASTEnumAttrVariant> + 'a> {
+    pub fn all_variants(&'a self) -> Box<dyn Iterator<Item = &'a EventEnumAttrs> + 'a> {
         match self {
             ASTData::Enum(variants) => {
                 let iter = variants.iter().map(|variant| &variant.attrs);
@@ -85,7 +88,7 @@ impl<'a> ASTData<'a> {
 /// A variant of an enum.
 pub struct ASTEnumVariant<'a> {
     pub ident: syn::Ident,
-    pub attrs: attr::ASTEnumAttrVariant,
+    pub attrs: EventEnumAttrs,
     pub style: ASTStyle,
     pub fields: Vec<ASTField<'a>>,
     pub original: &'a syn::Variant,
@@ -106,7 +109,8 @@ pub enum BracketCategory {
 
 pub struct ASTField<'a> {
     pub member: syn::Member,
-    pub attrs: attr::ASTAttrField,
+    pub pb_attrs: PBStructAttrs,
+    pub node_attrs: NodeStructAttrs,
     pub ty: &'a syn::Type,
     pub original: &'a syn::Field,
     pub bracket_ty: Option<syn::Ident>,
@@ -161,7 +165,8 @@ impl<'a> ASTField<'a> {
                 Some(ident) => syn::Member::Named(ident.clone()),
                 None => syn::Member::Unnamed(index.into()),
             },
-            attrs: attr::ASTAttrField::from_ast(cx, index, field),
+            pb_attrs: PBStructAttrs::from_ast(cx, index, field),
+            node_attrs: NodeStructAttrs::from_ast(cx, index, field),
             ty: &field.ty,
             original: field,
             bracket_ty,
@@ -184,10 +189,6 @@ impl<'a> ASTField<'a> {
         } else {
             None
         }
-    }
-
-    pub fn is_option(&self) -> bool {
-        attr::is_option(self.ty)
     }
 }
 
@@ -222,7 +223,7 @@ pub fn enum_from_ast<'a>(
     variants
         .iter()
         .flat_map(|variant| {
-            let attrs = attr::ASTEnumAttrVariant::from_ast(cx, ident, variant, enum_attrs);
+            let attrs = EventEnumAttrs::from_ast(cx, ident, variant, enum_attrs);
             let (style, fields) = struct_from_ast(cx, &variant.fields);
             Some(ASTEnumVariant {
                 ident: variant.ident.clone(),
@@ -239,6 +240,12 @@ fn fields_from_ast<'a>(cx: &ASTResult, fields: &'a Punctuated<syn::Field, Token!
     fields
         .iter()
         .enumerate()
-        .flat_map(|(index, field)| ASTField::new(cx, field, index).ok())
+        .flat_map(|(index, field)| {
+            if is_recognizable_field(field) {
+                ASTField::new(cx, field, index).ok()
+            } else {
+                None
+            }
+        })
         .collect()
 }

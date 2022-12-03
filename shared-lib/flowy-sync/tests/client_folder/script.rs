@@ -5,6 +5,7 @@ use std::sync::Arc;
 pub enum FolderNodePadScript {
     CreateApp { id: String, name: String },
     DeleteApp { id: String },
+    UpdateApp { id: String, name: String },
     AssertApp { id: String, expected: Option<AppRevision> },
     AssertAppContent { id: String, name: String },
     AssertNumberOfApps { expected: usize },
@@ -58,7 +59,12 @@ impl FolderNodePadTest {
                 let workspace_node = Arc::make_mut(workspace_node);
                 workspace_node.remove_app(&id);
             }
-
+            FolderNodePadScript::UpdateApp { id, name } => {
+                let workspace_node = self.folder_pad.get_mut_workspace("1").unwrap();
+                let workspace_node = Arc::make_mut(workspace_node);
+                let app_node = Arc::make_mut(workspace_node.get_mut_app(&id).unwrap());
+                app_node.set_name(name).unwrap();
+            }
             FolderNodePadScript::AssertApp { id, expected } => {
                 let workspace_node = self.folder_pad.get_workspace("1").unwrap();
                 let app = workspace_node.get_app(&id);

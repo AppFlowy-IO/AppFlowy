@@ -32,3 +32,22 @@ fn client_folder_delete_app_test() {
         },
     ]);
 }
+
+#[test]
+fn client_folder_update_app_test() {
+    let mut test = FolderNodePadTest::new();
+    test.run_scripts(vec![
+        CreateApp {
+            id: "1".to_string(),
+            name: "my first app".to_string(),
+        },
+        UpdateApp {
+            id: "1".to_string(),
+            name: "TODO".to_string(),
+        },
+        AssertAppContent {
+            id: "1".to_string(),
+            name: "TODO".to_string(),
+        },
+    ]);
+}

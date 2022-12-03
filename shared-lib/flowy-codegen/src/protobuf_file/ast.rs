@@ -66,7 +66,7 @@ fn parse_files_protobuf(proto_crate_path: &Path, proto_output_path: &Path) -> Ve
 
             s.fields
                 .iter()
-                .filter(|field| field.attrs.pb_index().is_some())
+                .filter(|field| field.pb_attrs.pb_index().is_some())
                 .for_each(|field| {
                     ref_types.push(field.ty_as_str());
                     struct_template.set_field(field);
@@ -121,7 +121,7 @@ pub fn get_ast_structs(ast: &syn::File) -> Vec<Struct> {
         if let Item::Struct(item_struct) = item {
             let (_, fields) = struct_from_ast(&ast_result, &item_struct.fields);
 
-            if fields.iter().filter(|f| f.attrs.pb_index().is_some()).count() > 0 {
+            if fields.iter().filter(|f| f.pb_attrs.pb_index().is_some()).count() > 0 {
                 proto_structs.push(Struct {
                     name: item_struct.ident.to_string(),
                     fields,

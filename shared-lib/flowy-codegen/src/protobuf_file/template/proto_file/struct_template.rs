@@ -36,7 +36,7 @@ impl StructTemplate {
     pub fn set_field(&mut self, field: &ASTField) {
         // {{ field_type }} {{ field_name }} = {{index}};
         let name = field.name().unwrap().to_string();
-        let index = field.attrs.pb_index().unwrap();
+        let index = field.pb_attrs.pb_index().unwrap();
 
         let ty: &str = &field.ty_as_str();
         let mut mapped_ty: &str = ty;

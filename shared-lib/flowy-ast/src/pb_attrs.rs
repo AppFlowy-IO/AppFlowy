@@ -1,5 +1,7 @@
 #![allow(clippy::all)]
+
 use crate::{symbol::*, ASTResult};
+use proc_macro2::{Group, Span, TokenStream, TokenTree};
 use quote::ToTokens;
 use syn::{
     self,
@@ -8,16 +10,14 @@ use syn::{
     NestedMeta::{Lit, Meta},
 };
 
-use proc_macro2::{Group, Span, TokenStream, TokenTree};
-
 #[allow(dead_code)]
-pub struct AttrsContainer {
+pub struct PBAttrsContainer {
     name: String,
     pb_struct_type: Option<syn::Type>,
     pb_enum_type: Option<syn::Type>,
 }
 
-impl AttrsContainer {
+impl PBAttrsContainer {
     /// Extract out the `#[pb(...)]` attributes from an item.
     pub fn from_ast(ast_result: &ASTResult, item: &syn::DeriveInput) -> Self {
         let mut pb_struct_type = ASTAttr::none(ast_result, PB_STRUCT);
@@ -25,7 +25,7 @@ impl AttrsContainer {
         for meta_item in item
             .attrs
             .iter()
-            .flat_map(|attr| get_meta_items(ast_result, attr))
+            .flat_map(|attr| get_pb_meta_items(ast_result, attr))
             .flatten()
         {
             match &meta_item {
@@ -45,11 +45,11 @@ impl AttrsContainer {
 
                 Meta(meta_item) => {
                     let path = meta_item.path().into_token_stream().to_string().replace(' ', "");
-                    ast_result.error_spanned_by(meta_item.path(), format!("unknown pb container attribute `{}`", path));
+                    ast_result.error_spanned_by(meta_item.path(), format!("unknown container attribute `{}`", path));
                 }
 
                 Lit(lit) => {
-                    ast_result.error_spanned_by(lit, "unexpected literal in pb container attribute");
+                    ast_result.error_spanned_by(lit, "unexpected literal in container attribute");
                 }
             }
         }
@@ -63,7 +63,7 @@ impl AttrsContainer {
             _ => {}
         }
 
-        AttrsContainer {
+        PBAttrsContainer {
             name: item.ident.to_string(),
             pb_struct_type: pb_struct_type.get(),
             pb_enum_type: pb_enum_type.get(),
@@ -79,7 +79,7 @@ impl AttrsContainer {
     }
 }
 
-struct ASTAttr<'c, T> {
+pub struct ASTAttr<'c, T> {
     ast_result: &'c ASTResult,
     name: Symbol,
     tokens: TokenStream,
@@ -87,7 +87,7 @@ struct ASTAttr<'c, T> {
 }
 
 impl<'c, T> ASTAttr<'c, T> {
-    fn none(ast_result: &'c ASTResult, name: Symbol) -> Self {
+    pub(crate) fn none(ast_result: &'c ASTResult, name: Symbol) -> Self {
         ASTAttr {
             ast_result,
             name,
@@ -96,7 +96,7 @@ impl<'c, T> ASTAttr<'c, T> {
         }
     }
 
-    fn set<A: ToTokens>(&mut self, obj: A, value: T) {
+    pub(crate) fn set<A: ToTokens>(&mut self, obj: A, value: T) {
         let tokens = obj.into_token_stream();
 
         if self.value.is_some() {
@@ -120,7 +120,7 @@ impl<'c, T> ASTAttr<'c, T> {
         }
     }
 
-    fn get(self) -> Option<T> {
+    pub(crate) fn get(self) -> Option<T> {
         self.value
     }
 
@@ -133,26 +133,30 @@ impl<'c, T> ASTAttr<'c, T> {
     }
 }
 
-pub struct ASTAttrField {
+pub struct PBStructAttrs {
     #[allow(dead_code)]
     name: String,
     pb_index: Option<syn::LitInt>,
     pb_one_of: bool,
-    skip_serializing: bool,
-    skip_deserializing: bool,
-    serialize_with: Option<syn::ExprPath>,
-    deserialize_with: Option<syn::ExprPath>,
+    skip_pb_serializing: bool,
+    skip_pb_deserializing: bool,
+    serialize_pb_with: Option<syn::ExprPath>,
+    deserialize_pb_with: Option<syn::ExprPath>,
 }
 
-impl ASTAttrField {
+pub fn is_recognizable_field(field: &syn::Field) -> bool {
+    field.attrs.iter().any(|attr| is_recognizable_attribute(attr))
+}
+
+impl PBStructAttrs {
     /// Extract out the `#[pb(...)]` attributes from a struct field.
     pub fn from_ast(ast_result: &ASTResult, index: usize, field: &syn::Field) -> Self {
         let mut pb_index = ASTAttr::none(ast_result, PB_INDEX);
         let mut pb_one_of = BoolAttr::none(ast_result, PB_ONE_OF);
-        let mut serialize_with = ASTAttr::none(ast_result, SERIALIZE_WITH);
-        let mut skip_serializing = BoolAttr::none(ast_result, SKIP_SERIALIZING);
-        let mut deserialize_with = ASTAttr::none(ast_result, DESERIALIZE_WITH);
-        let mut skip_deserializing = BoolAttr::none(ast_result, SKIP_DESERIALIZING);
+        let mut serialize_pb_with = ASTAttr::none(ast_result, SERIALIZE_PB_WITH);
+        let mut skip_pb_serializing = BoolAttr::none(ast_result, SKIP_PB_SERIALIZING);
+        let mut deserialize_pb_with = ASTAttr::none(ast_result, DESERIALIZE_PB_WITH);
+        let mut skip_pb_deserializing = BoolAttr::none(ast_result, SKIP_PB_DESERIALIZING);
 
         let ident = match &field.ident {
             Some(ident) => ident.to_string(),
@@ -162,14 +166,14 @@ impl ASTAttrField {
         for meta_item in field
             .attrs
             .iter()
-            .flat_map(|attr| get_meta_items(ast_result, attr))
+            .flat_map(|attr| get_pb_meta_items(ast_result, attr))
             .flatten()
         {
             match &meta_item {
                 // Parse `#[pb(skip)]`
                 Meta(Path(word)) if word == SKIP => {
-                    skip_serializing.set_true(word);
-                    skip_deserializing.set_true(word);
+                    skip_pb_serializing.set_true(word);
+                    skip_pb_deserializing.set_true(word);
                 }
 
                 // Parse '#[pb(index = x)]'
@@ -184,39 +188,39 @@ impl ASTAttrField {
                     pb_one_of.set_true(path);
                 }
 
-                // Parse `#[pb(serialize_with = "...")]`
-                Meta(NameValue(m)) if m.path == SERIALIZE_WITH => {
-                    if let Ok(path) = parse_lit_into_expr_path(ast_result, SERIALIZE_WITH, &m.lit) {
-                        serialize_with.set(&m.path, path);
+                // Parse `#[pb(serialize_pb_with = "...")]`
+                Meta(NameValue(m)) if m.path == SERIALIZE_PB_WITH => {
+                    if let Ok(path) = parse_lit_into_expr_path(ast_result, SERIALIZE_PB_WITH, &m.lit) {
+                        serialize_pb_with.set(&m.path, path);
                     }
                 }
 
-                // Parse `#[pb(deserialize_with = "...")]`
-                Meta(NameValue(m)) if m.path == DESERIALIZE_WITH => {
-                    if let Ok(path) = parse_lit_into_expr_path(ast_result, DESERIALIZE_WITH, &m.lit) {
-                        deserialize_with.set(&m.path, path);
+                // Parse `#[pb(deserialize_pb_with = "...")]`
+                Meta(NameValue(m)) if m.path == DESERIALIZE_PB_WITH => {
+                    if let Ok(path) = parse_lit_into_expr_path(ast_result, DESERIALIZE_PB_WITH, &m.lit) {
+                        deserialize_pb_with.set(&m.path, path);
                     }
                 }
 
                 Meta(meta_item) => {
                     let path = meta_item.path().into_token_stream().to_string().replace(' ', "");
-                    ast_result.error_spanned_by(meta_item.path(), format!("unknown field attribute `{}`", path));
+                    ast_result.error_spanned_by(meta_item.path(), format!("unknown pb field attribute `{}`", path));
                 }
 
                 Lit(lit) => {
-                    ast_result.error_spanned_by(lit, "unexpected literal in pb field attribute");
+                    ast_result.error_spanned_by(lit, "unexpected literal in field attribute");
                 }
             }
         }
 
-        ASTAttrField {
+        PBStructAttrs {
             name: ident,
             pb_index: pb_index.get(),
             pb_one_of: pb_one_of.get(),
-            skip_serializing: skip_serializing.get(),
-            skip_deserializing: skip_deserializing.get(),
-            serialize_with: serialize_with.get(),
-            deserialize_with: deserialize_with.get(),
+            skip_pb_serializing: skip_pb_serializing.get(),
+            skip_pb_deserializing: skip_pb_deserializing.get(),
+            serialize_pb_with: serialize_pb_with.get(),
+            deserialize_pb_with: deserialize_pb_with.get(),
         }
     }
 
@@ -229,20 +233,20 @@ impl ASTAttrField {
         self.pb_one_of
     }
 
-    pub fn serialize_with(&self) -> Option<&syn::ExprPath> {
-        self.serialize_with.as_ref()
+    pub fn serialize_pb_with(&self) -> Option<&syn::ExprPath> {
+        self.serialize_pb_with.as_ref()
     }
 
-    pub fn deserialize_with(&self) -> Option<&syn::ExprPath> {
-        self.deserialize_with.as_ref()
+    pub fn deserialize_pb_with(&self) -> Option<&syn::ExprPath> {
+        self.deserialize_pb_with.as_ref()
     }
 
-    pub fn skip_serializing(&self) -> bool {
-        self.skip_serializing
+    pub fn skip_pb_serializing(&self) -> bool {
+        self.skip_pb_serializing
     }
 
-    pub fn skip_deserializing(&self) -> bool {
-        self.skip_deserializing
+    pub fn skip_pb_deserializing(&self) -> bool {
+        self.skip_pb_deserializing
     }
 }
 
@@ -255,146 +259,13 @@ pub enum Default {
     Path(syn::ExprPath),
 }
 
-#[derive(Debug, Clone)]
-pub struct EventAttrs {
-    input: Option<syn::Path>,
-    output: Option<syn::Path>,
-    error_ty: Option<String>,
-    pub ignore: bool,
+pub fn is_recognizable_attribute(attr: &syn::Attribute) -> bool {
+    attr.path == PB_ATTRS || attr.path == EVENT || attr.path == NODE_ATTRS
 }
 
-#[derive(Debug, Clone)]
-pub struct ASTEnumAttrVariant {
-    pub enum_name: String,
-    pub enum_item_name: String,
-    pub value: String,
-    pub event_attrs: EventAttrs,
-}
-
-impl ASTEnumAttrVariant {
-    pub fn from_ast(
-        ast_result: &ASTResult,
-        ident: &syn::Ident,
-        variant: &syn::Variant,
-        enum_attrs: &[syn::Attribute],
-    ) -> Self {
-        let enum_item_name = variant.ident.to_string();
-        let enum_name = ident.to_string();
-        let mut value = String::new();
-        if variant.discriminant.is_some() {
-            if let syn::Expr::Lit(ref expr_list) = variant.discriminant.as_ref().unwrap().1 {
-                let lit_int = if let syn::Lit::Int(ref int_value) = expr_list.lit {
-                    int_value
-                } else {
-                    unimplemented!()
-                };
-                value = lit_int.base10_digits().to_string();
-            }
-        }
-        let event_attrs = get_event_attrs_from(ast_result, &variant.attrs, enum_attrs);
-        ASTEnumAttrVariant {
-            enum_name,
-            enum_item_name,
-            value,
-            event_attrs,
-        }
-    }
-
-    pub fn event_input(&self) -> Option<syn::Path> {
-        self.event_attrs.input.clone()
-    }
-
-    pub fn event_output(&self) -> Option<syn::Path> {
-        self.event_attrs.output.clone()
-    }
-
-    pub fn event_error(&self) -> String {
-        self.event_attrs.error_ty.as_ref().unwrap().clone()
-    }
-}
-
-fn get_event_attrs_from(
-    ast_result: &ASTResult,
-    variant_attrs: &[syn::Attribute],
-    enum_attrs: &[syn::Attribute],
-) -> EventAttrs {
-    let mut event_attrs = EventAttrs {
-        input: None,
-        output: None,
-        error_ty: None,
-        ignore: false,
-    };
-
-    enum_attrs
-        .iter()
-        .filter(|attr| attr.path.segments.iter().any(|s| s.ident == EVENT_ERR))
-        .for_each(|attr| {
-            if let Ok(NameValue(named_value)) = attr.parse_meta() {
-                if let syn::Lit::Str(s) = named_value.lit {
-                    event_attrs.error_ty = Some(s.value());
-                } else {
-                    eprintln!("❌ {} should not be empty", EVENT_ERR);
-                }
-            } else {
-                eprintln!("❌ Can not find any {} on attr: {:#?}", EVENT_ERR, attr);
-            }
-        });
-
-    let mut extract_event_attr = |attr: &syn::Attribute, meta_item: &syn::NestedMeta| match &meta_item {
-        Meta(NameValue(name_value)) => {
-            if name_value.path == EVENT_INPUT {
-                if let syn::Lit::Str(s) = &name_value.lit {
-                    let input_type = parse_lit_str(s)
-                        .map_err(|_| {
-                            ast_result
-                                .error_spanned_by(s, format!("failed to parse request deserializer {:?}", s.value()))
-                        })
-                        .unwrap();
-                    event_attrs.input = Some(input_type);
-                }
-            }
-
-            if name_value.path == EVENT_OUTPUT {
-                if let syn::Lit::Str(s) = &name_value.lit {
-                    let output_type = parse_lit_str(s)
-                        .map_err(|_| {
-                            ast_result
-                                .error_spanned_by(s, format!("failed to parse response deserializer {:?}", s.value()))
-                        })
-                        .unwrap();
-                    event_attrs.output = Some(output_type);
-                }
-            }
-        }
-        Meta(Path(word)) => {
-            if word == EVENT_IGNORE && attr.path == EVENT {
-                event_attrs.ignore = true;
-            }
-        }
-        Lit(s) => ast_result.error_spanned_by(s, "unexpected attribute"),
-        _ => ast_result.error_spanned_by(meta_item, "unexpected attribute"),
-    };
-
-    let attr_meta_items_info = variant_attrs
-        .iter()
-        .flat_map(|attr| match get_meta_items(ast_result, attr) {
-            Ok(items) => Some((attr, items)),
-            Err(_) => None,
-        })
-        .collect::<Vec<(&syn::Attribute, Vec<syn::NestedMeta>)>>();
-
-    for (attr, nested_metas) in attr_meta_items_info {
-        nested_metas
-            .iter()
-            .for_each(|meta_item| extract_event_attr(attr, meta_item))
-    }
-
-    // eprintln!("😁{:#?}", event_attrs);
-    event_attrs
-}
-
-pub fn get_meta_items(cx: &ASTResult, attr: &syn::Attribute) -> Result<Vec<syn::NestedMeta>, ()> {
-    if attr.path != PB_ATTRS && attr.path != EVENT {
+pub fn get_pb_meta_items(cx: &ASTResult, attr: &syn::Attribute) -> Result<Vec<syn::NestedMeta>, ()> {
+    // Only handle the attribute that we have defined
+    if attr.path != PB_ATTRS {
         return Ok(vec![]);
     }
 
@@ -402,7 +273,7 @@ pub fn get_meta_items(cx: &ASTResult, attr: &syn::Attribute) -> Result<Vec<syn::
     match attr.parse_meta() {
         Ok(List(meta)) => Ok(meta.nested.into_iter().collect()),
         Ok(other) => {
-            cx.error_spanned_by(other, "expected #[pb(...)] or or #[event(...)]");
+            cx.error_spanned_by(other, "expected #[pb(...)]");
             Err(())
         }
         Err(err) => {
@@ -413,7 +284,52 @@ pub fn get_meta_items(cx: &ASTResult, attr: &syn::Attribute) -> Result<Vec<syn::
     }
 }
 
-fn parse_lit_into_expr_path(ast_result: &ASTResult, attr_name: Symbol, lit: &syn::Lit) -> Result<syn::ExprPath, ()> {
+pub fn get_node_meta_items(cx: &ASTResult, attr: &syn::Attribute) -> Result<Vec<syn::NestedMeta>, ()> {
+    // Only handle the attribute that we have defined
+    if attr.path != NODE_ATTRS {
+        return Ok(vec![]);
+    }
+
+    // http://strymon.systems.ethz.ch/typename/syn/enum.Meta.html
+    match attr.parse_meta() {
+        Ok(List(meta)) => Ok(meta.nested.into_iter().collect()),
+        Ok(other) => {
+            cx.error_spanned_by(other, "expected #[node(...)]");
+            Err(())
+        }
+        Err(err) => {
+            cx.error_spanned_by(attr, "attribute must be str, e.g. #[node(xx = \"xxx\")]");
+            cx.syn_error(err);
+            Err(())
+        }
+    }
+}
+pub fn get_event_meta_items(cx: &ASTResult, attr: &syn::Attribute) -> Result<Vec<syn::NestedMeta>, ()> {
+    // Only handle the attribute that we have defined
+    if attr.path != EVENT {
+        return Ok(vec![]);
+    }
+
+    // http://strymon.systems.ethz.ch/typename/syn/enum.Meta.html
+    match attr.parse_meta() {
+        Ok(List(meta)) => Ok(meta.nested.into_iter().collect()),
+        Ok(other) => {
+            cx.error_spanned_by(other, "expected #[event(...)]");
+            Err(())
+        }
+        Err(err) => {
+            cx.error_spanned_by(attr, "attribute must be str, e.g. #[event(xx = \"xxx\")]");
+            cx.syn_error(err);
+            Err(())
+        }
+    }
+}
+
+pub fn parse_lit_into_expr_path(
+    ast_result: &ASTResult,
+    attr_name: Symbol,
+    lit: &syn::Lit,
+) -> Result<syn::ExprPath, ()> {
     let string = get_lit_str(ast_result, attr_name, lit)?;
     parse_lit_str(string)
         .map_err(|_| ast_result.error_spanned_by(lit, format!("failed to parse path: {:?}", string.value())))

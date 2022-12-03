@@ -3,22 +3,42 @@ use syn::{Ident, Path};
 
 #[derive(Copy, Clone)]
 pub struct Symbol(&'static str);
-pub const PB_ATTRS: Symbol = Symbol("pb");
-pub const SKIP: Symbol = Symbol("skip"); //#[pb(skip)]
-pub const PB_INDEX: Symbol = Symbol("index"); //#[pb(index = "1")]
-pub const PB_ONE_OF: Symbol = Symbol("one_of"); //#[pb(one_of)]
-pub const DESERIALIZE_WITH: Symbol = Symbol("deserialize_with");
-pub const SKIP_DESERIALIZING: Symbol = Symbol("skip_deserializing");
-pub const SERIALIZE_WITH: Symbol = Symbol("serialize_with"); //#[pb(serialize_with = "...")]
-pub const SKIP_SERIALIZING: Symbol = Symbol("skip_serializing"); //#[pb(skip_serializing)]
-pub const PB_STRUCT: Symbol = Symbol("struct"); //#[pb(struct="some struct")]
-pub const PB_ENUM: Symbol = Symbol("enum"); //#[pb(enum="some enum")]
 
+// Protobuf
+pub const PB_ATTRS: Symbol = Symbol("pb");
+//#[pb(skip)]
+pub const SKIP: Symbol = Symbol("skip");
+//#[pb(index = "1")]
+pub const PB_INDEX: Symbol = Symbol("index");
+//#[pb(one_of)]
+pub const PB_ONE_OF: Symbol = Symbol("one_of");
+//#[pb(skip_pb_deserializing = "...")]
+pub const SKIP_PB_DESERIALIZING: Symbol = Symbol("skip_pb_deserializing");
+//#[pb(skip_pb_serializing)]
+pub const SKIP_PB_SERIALIZING: Symbol = Symbol("skip_pb_serializing");
+//#[pb(serialize_pb_with = "...")]
+pub const SERIALIZE_PB_WITH: Symbol = Symbol("serialize_pb_with");
+//#[pb(deserialize_pb_with = "...")]
+pub const DESERIALIZE_PB_WITH: Symbol = Symbol("deserialize_pb_with");
+//#[pb(struct="some struct")]
+pub const PB_STRUCT: Symbol = Symbol("struct");
+//#[pb(enum="some enum")]
+pub const PB_ENUM: Symbol = Symbol("enum");
+
+// Event
 pub const EVENT_INPUT: Symbol = Symbol("input");
 pub const EVENT_OUTPUT: Symbol = Symbol("output");
 pub const EVENT_IGNORE: Symbol = Symbol("ignore");
 pub const EVENT: Symbol = Symbol("event");
 pub const EVENT_ERR: Symbol = Symbol("event_err");
+
+// Node
+pub const NODE_ATTRS: Symbol = Symbol("node");
+pub const SKIP_NODE_ATTRS: Symbol = Symbol("skip_node_attribute");
+pub const GET_NODE_VALUE_WITH: Symbol = Symbol("get_value_with");
+pub const SET_NODE_VALUE_WITH: Symbol = Symbol("set_value_with");
+//#[node(index = "1")]
+pub const NODE_INDEX: Symbol = Symbol("index");
 
 impl PartialEq<Symbol> for Ident {
     fn eq(&self, word: &Symbol) -> bool {
