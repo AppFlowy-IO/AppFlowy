@@ -11,8 +11,9 @@ use syn::{
 
 pub struct NodeStructAttrs {
     pub rename: Option<LitStr>,
-    pub is_children: bool,
-    node_index: Option<syn::LitInt>,
+    pub has_child: bool,
+    pub child_name: Option<LitStr>,
+    pub child_index: Option<syn::LitInt>,
     get_node_value_with: Option<syn::ExprPath>,
     set_node_value_with: Option<syn::ExprPath>,
 }
@@ -20,9 +21,9 @@ pub struct NodeStructAttrs {
 impl NodeStructAttrs {
     /// Extract out the `#[node(...)]` attributes from a struct field.
     pub fn from_ast(ast_result: &ASTResult, index: usize, field: &syn::Field) -> Self {
-        let mut node_index = ASTAttr::none(ast_result, NODE_INDEX);
-        let mut rename = ASTAttr::none(ast_result, NODE_RENAME);
-        let mut is_children = ASTAttr::none(ast_result, NODE_CHILDREN);
+        let mut rename = ASTAttr::none(ast_result, RENAME_NODE);
+        let mut child_name = ASTAttr::none(ast_result, CHILD_NODE_NAME);
+        let mut child_index = ASTAttr::none(ast_result, CHILD_NODE_INDEX);
         let mut get_node_value_with = ASTAttr::none(ast_result, GET_NODE_VALUE_WITH);
         let mut set_node_value_with = ASTAttr::none(ast_result, SET_NODE_VALUE_WITH);
 
@@ -33,25 +34,27 @@ impl NodeStructAttrs {
             .flatten()
         {
             match &meta_item {
-                // Parse '#[node(index = x)]'
-                Meta(NameValue(m)) if m.path == NODE_INDEX => {
-                    if let syn::Lit::Int(lit) = &m.lit {
-                        node_index.set(&m.path, lit.clone());
-                    }
-                }
-
-                // Parse '#[node(children)]'
-                Meta(Path(path)) if path == NODE_CHILDREN => {
-                    eprintln!("😄 {:?}", path);
-                    is_children.set(path, true);
-                }
-
                 // Parse '#[node(rename = x)]'
-                Meta(NameValue(m)) if m.path == NODE_RENAME => {
+                Meta(NameValue(m)) if m.path == RENAME_NODE => {
                     if let syn::Lit::Str(lit) = &m.lit {
                         rename.set(&m.path, lit.clone());
                     }
                 }
+
+                // Parse '#[node(child_name = x)]'
+                Meta(NameValue(m)) if m.path == CHILD_NODE_NAME => {
+                    if let syn::Lit::Str(lit) = &m.lit {
+                        child_name.set(&m.path, lit.clone());
+                    }
+                }
+
+                // Parse '#[node(child_index = x)]'
+                Meta(NameValue(m)) if m.path == CHILD_NODE_INDEX => {
+                    if let syn::Lit::Int(lit) = &m.lit {
+                        child_index.set(&m.path, lit.clone());
+                    }
+                }
+
                 // Parse `#[node(get_node_value_with = "...")]`
                 Meta(NameValue(m)) if m.path == GET_NODE_VALUE_WITH => {
                     if let Ok(path) = parse_lit_into_expr_path(ast_result, GET_NODE_VALUE_WITH, &m.lit) {
@@ -76,11 +79,12 @@ impl NodeStructAttrs {
                 }
             }
         }
-
+        let child_name = child_name.get();
         NodeStructAttrs {
             rename: rename.get(),
-            node_index: node_index.get(),
-            is_children: is_children.get().unwrap_or(false),
+            child_index: child_index.get(),
+            has_child: child_name.is_some(),
+            child_name,
             get_node_value_with: get_node_value_with.get(),
             set_node_value_with: set_node_value_with.get(),
         }

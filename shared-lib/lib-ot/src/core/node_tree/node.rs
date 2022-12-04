@@ -10,6 +10,15 @@ pub trait ToNodeData: Send + Sync {
     fn to_node_data(&self) -> NodeData;
 }
 
+impl<T> ToNodeData for Box<T>
+where
+    T: ToNodeData,
+{
+    fn to_node_data(&self) -> NodeData {
+        (**self).to_node_data()
+    }
+}
+
 #[derive(Default, Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub struct NodeData {
     #[serde(rename = "type")]

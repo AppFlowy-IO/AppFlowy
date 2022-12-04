@@ -9,18 +9,98 @@ pub fn expand_derive(input: &syn::DeriveInput) -> Result<TokenStream, Vec<syn::E
     };
 
     let mut token_stream: TokenStream = TokenStream::default();
+    token_stream.extend(make_helper_funcs_token_stream(&cont));
     token_stream.extend(make_to_node_data_token_stream(&cont));
 
     if let Some(get_value_token_stream) = make_get_set_value_token_steam(&cont) {
         token_stream.extend(get_value_token_stream);
     }
 
+    token_stream.extend(make_alter_children_token_stream(&ast_result, &cont));
     ast_result.check()?;
     Ok(token_stream)
 }
 
-pub fn make_alter_children_token_stream(ast: &ASTContainer) -> TokenStream {
+pub fn make_helper_funcs_token_stream(ast: &ASTContainer) -> TokenStream {
     let mut token_streams = TokenStream::default();
+    let struct_ident = &ast.ident;
+    token_streams.extend(quote! {
+      impl #struct_ident {
+            pub fn get_path(&self) -> Path {
+                self.tree.read().path_from_node_id(self.node_id.clone())
+            }
+        }
+    });
+    token_streams
+}
+
+pub fn make_alter_children_token_stream(ast_result: &ASTResult, ast: &ASTContainer) -> TokenStream {
+    let mut token_streams = TokenStream::default();
+    let children_fields = ast
+        .data
+        .all_fields()
+        .filter(|field| field.node_attrs.has_child)
+        .collect::<Vec<&ASTField>>();
+
+    if !children_fields.is_empty() {
+        let struct_ident = &ast.ident;
+        if children_fields.len() > 1 {
+            ast_result.error_spanned_by(struct_ident, "Only one children property");
+            return token_streams;
+        }
+        let children_field = children_fields.first().unwrap();
+        let field_name = children_field.name().unwrap();
+        eprintln!("😄 {:?} {:?}", struct_ident, field_name);
+        let child_name = children_field.node_attrs.child_name.as_ref().unwrap();
+        let get_func_name = format_ident!("get_{}", child_name.value());
+        let get_mut_func_name = format_ident!("get_mut_{}", child_name.value());
+        let add_func_name = format_ident!("add_{}", child_name.value());
+        let remove_func_name = format_ident!("remove_{}", child_name.value());
+        let ty = children_field.bracket_inner_ty.as_ref().unwrap().clone();
+
+        token_streams.extend(quote! {
+             impl #struct_ident {
+                pub fn #get_func_name(&self, id: &str) -> Option<&#ty> {
+                     self.#field_name.iter().find(|element| element.id == id)
+                }
+
+                pub fn #get_mut_func_name(&mut self, id: &str) -> Option<&mut #ty> {
+                     self.#field_name.iter_mut().find(|element| element.id == id)
+                }
+
+                pub fn #remove_func_name(&mut self, id: &str) {
+                     if let Some(index) = self.#field_name.iter().position(|element| element.id == id) {
+                        let element = self.#field_name.remove(index);
+                        let element_path = element.get_path();
+
+                        let mut write_guard = self.tree.write();
+                        let mut nodes = vec![];
+                        if let Some(node_data) = write_guard.get_node_data(element.node_id.clone()) {
+                            nodes.push(node_data);
+                        }
+                        let _ = write_guard.apply_op(NodeOperation::Delete {
+                            path: element_path,
+                            nodes,
+                        });
+                    }
+                }
+
+                pub fn #add_func_name(&mut self, value: #ty) {
+                    let mut transaction = Transaction::new();
+                    let parent_path = self.get_path();
+                    let path = parent_path.clone_with(self.#field_name.len());
+                    let node_data = value.to_node_data();
+                    transaction.push_operation(NodeOperation::Insert {
+                        path,
+                        nodes: vec![node_data],
+                     });
+
+                    let _ = self.tree.write().apply_transaction(transaction);
+                    self.#field_name.push(value);
+                }
+             }
+        });
+    }
 
     token_streams
 }
@@ -35,7 +115,7 @@ pub fn make_to_node_data_token_stream(ast: &ASTContainer) -> TokenStream {
     let set_key_values = ast
         .data
         .all_fields()
-        .filter(|field| !field.node_attrs.is_children)
+        .filter(|field| !field.node_attrs.has_child)
         .flat_map(|field| {
             let mut field_name = field.name().expect("the name of the field should not be empty");
             let original_field_name = field.name().expect("the name of the field should not be empty");
@@ -51,7 +131,7 @@ pub fn make_to_node_data_token_stream(ast: &ASTContainer) -> TokenStream {
     let children_fields = ast
         .data
         .all_fields()
-        .filter(|field| field.node_attrs.is_children)
+        .filter(|field| field.node_attrs.has_child)
         .collect::<Vec<&ASTField>>();
 
     let childrens_token_streams = match children_fields.is_empty() {
@@ -72,8 +152,8 @@ pub fn make_to_node_data_token_stream(ast: &ASTContainer) -> TokenStream {
     };
 
     token_streams.extend(quote! {
-      impl #struct_ident {
-            pub fn to_node_data(&self) -> NodeData {
+      impl ToNodeData for #struct_ident {
+            fn to_node_data(&self) -> NodeData {
                 #childrens_token_streams
 
                 let builder = NodeDataBuilder::new(#node_type)
@@ -94,7 +174,7 @@ pub fn make_get_set_value_token_steam(ast: &ASTContainer) -> Option<TokenStream>
 
     let tree = format_ident!("tree");
     for field in ast.data.all_fields() {
-        if field.node_attrs.is_children {
+        if field.node_attrs.has_child {
             continue;
         }
 
@@ -113,7 +193,7 @@ pub fn make_get_set_value_token_steam(ast: &ASTContainer) -> Option<TokenStream>
             token_streams.extend(quote! {
               impl #struct_ident {
                     pub fn #get_func_name(&self) -> Option<#get_value_return_ty> {
-                        #get_value_with_fn(self.#tree.clone(), &self.path, #field_name_str)
+                        #get_value_with_fn(self.#tree.clone(), &self.node_id, #field_name_str)
                     }
                 }
             });
@@ -123,12 +203,11 @@ pub fn make_get_set_value_token_steam(ast: &ASTContainer) -> Option<TokenStream>
             token_streams.extend(quote! {
               impl #struct_ident {
                     pub fn #set_func_name(&self, value: #set_value_input_ty) {
-                        let _ = #set_value_with_fn(self.#tree.clone(), &self.path, #field_name_str, value);
+                        let _ = #set_value_with_fn(self.#tree.clone(), &self.node_id, #field_name_str, value);
                     }
                 }
             });
         }
     }
-    ast.data.all_fields().for_each(|field| {});
     Some(token_streams)
 }

@@ -11,42 +11,6 @@ use std::sync::Arc;
 
 pub type AtomicNodeTree = RwLock<NodeTree>;
 
-// pub struct FolderNodePad2 {
-//     tree: Arc<AtomicNodeTree>,
-//
-//     #[node(rename = "workspaces", revision = "WorkspaceRevision")]
-//     workspaces: Vec<Arc<WorkspaceNode>>,
-// }
-//
-// impl FolderNodePad2 {
-//     pub fn get_workspace() {}
-//     pub fn get_mut_workspace() {}
-//     pub fn add_workspace() {}
-//     pub fn remove_workspace() {}
-//     pub fn to_json() {}
-// }
-//
-// #[derive(Debug, Clone)]
-// pub struct WorkspaceNode2 {
-//     tree: Arc<AtomicNodeTree>,
-//     pub id: String,
-//     pub name: String,
-//     pub path: Path,
-// }
-//
-// impl WorkspaceNode2 {
-//     pub fn get_id() {}
-//     pub fn set_id() {}
-//     pub fn get_name() {}
-//     pub fn set_name() {}
-//     pub fn get_apps() {}
-//
-//     pub fn get_app() {}
-//     pub fn get_mut_app() {}
-//     pub fn add_app() {}
-//     pub fn remove_app() {}
-// }
-
 pub struct FolderNodePad {
     tree: Arc<AtomicNodeTree>,
     // name: workspaces, index of the node,
@@ -71,31 +35,29 @@ impl FolderNodePad {
 
     pub fn remove_workspace(&mut self, workspace_id: &str) {
         if let Some(workspace) = self.workspaces.iter().find(|workspace| workspace.id == workspace_id) {
+            let mut write_guard = self.tree.write();
             let mut nodes = vec![];
-            let workspace_node = self.tree.read().get_node_data_at_path(&workspace.path);
-            debug_assert!(workspace_node.is_some());
 
-            if let Some(node_data) = workspace_node {
+            if let Some(node_data) = write_guard.get_node_data_at_path(&workspace.path) {
                 nodes.push(node_data);
             }
-            let delete_operation = NodeOperation::Delete {
+            let _ = write_guard.apply_op(NodeOperation::Delete {
                 path: workspace.path.clone(),
                 nodes,
-            };
-            let _ = self.tree.write().apply_op(delete_operation);
+            });
         }
     }
 
     pub fn add_workspace(&mut self, revision: WorkspaceRevision) -> CollaborateResult<()> {
         let mut transaction = Transaction::new();
-        let workspace_node = WorkspaceNode::from_workspace_revision(
+        let node = WorkspaceNode::from_workspace_revision(
             &mut transaction,
             revision,
             self.tree.clone(),
             workspaces_path().clone_with(self.workspaces.len()),
         )?;
         let _ = self.tree.write().apply_transaction(transaction)?;
-        self.workspaces.push(Arc::new(workspace_node));
+        self.workspaces.push(Arc::new(node));
         Ok(())
     }
 

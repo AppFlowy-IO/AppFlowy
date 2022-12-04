@@ -123,7 +123,9 @@ pub struct ASTField<'a> {
     pub node_attrs: NodeStructAttrs,
     pub ty: &'a syn::Type,
     pub original: &'a syn::Field,
+    // If the field is Vec<String>, then the bracket_ty will be Vec
     pub bracket_ty: Option<syn::Ident>,
+    // If the field is Vec<String>, then the bracket_inner_ty will be String
     pub bracket_inner_ty: Option<syn::Ident>,
     pub bracket_category: Option<BracketCategory>,
 }
