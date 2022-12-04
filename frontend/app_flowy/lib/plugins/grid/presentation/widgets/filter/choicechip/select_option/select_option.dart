@@ -61,7 +61,7 @@ class _SelectOptionFilterChoicechipState
         builder: (blocContext, state) {
           return AppFlowyPopover(
             controller: PopoverController(),
-            constraints: BoxConstraints.loose(const Size(200, 160)),
+            constraints: BoxConstraints.loose(const Size(240, 160)),
             direction: PopoverDirection.bottomWithCenterAligned,
             popupBuilder: (BuildContext context) {
               return SelectOptionFilterEditor(bloc: bloc);
