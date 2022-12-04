@@ -12,7 +12,7 @@ impl SelectOptionFilterPB {
         match self.condition {
             SelectOptionCondition::OptionIs => match field_type {
                 FieldType::SingleSelect => {
-                    if self.option_ids.is_empty() && selected_options.options.is_empty() {
+                    if self.option_ids.is_empty() {
                         return true;
                     }
 
@@ -20,9 +20,13 @@ impl SelectOptionFilterPB {
                         return false;
                     }
 
-                    let first_selected_option_id = self.option_ids.first().unwrap();
-                    let first_selected_option = selected_options.options.first().unwrap();
-                    &first_selected_option.id == first_selected_option_id
+                    let required_options = self
+                        .option_ids
+                        .iter()
+                        .filter(|id| selected_option_ids.contains(id))
+                        .collect::<Vec<_>>();
+
+                    !required_options.is_empty()
                 }
                 FieldType::MultiSelect => {
                     if self.option_ids.is_empty() {
@@ -41,17 +45,21 @@ impl SelectOptionFilterPB {
             },
             SelectOptionCondition::OptionIsNot => match field_type {
                 FieldType::SingleSelect => {
-                    if self.option_ids.is_empty() && !selected_options.options.is_empty() {
+                    if self.option_ids.is_empty() {
                         return true;
                     }
 
                     if selected_options.options.is_empty() {
-                        return true;
+                        return false;
                     }
 
-                    let first_selected_option_id = self.option_ids.first().unwrap();
-                    let first_selected_option = selected_options.options.first().unwrap();
-                    &first_selected_option.id != first_selected_option_id
+                    let required_options = self
+                        .option_ids
+                        .iter()
+                        .filter(|id| selected_option_ids.contains(id))
+                        .collect::<Vec<_>>();
+
+                    required_options.is_empty()
                 }
                 FieldType::MultiSelect => {
                     let required_options = self
@@ -181,16 +189,61 @@ mod tests {
     fn single_select_option_filter_is_not_test() {
         let option_1 = SelectOptionPB::new("A");
         let option_2 = SelectOptionPB::new("B");
+        let option_3 = SelectOptionPB::new("C");
         let filter = SelectOptionFilterPB {
             condition: SelectOptionCondition::OptionIsNot,
             option_ids: vec![option_1.id.clone(), option_2.id.clone()],
         };
 
         for (options, is_visible) in vec![
-            // In single select, only compare the first option
-            (vec![option_2.clone()], true),
+            (vec![option_2.clone()], false),
             (vec![option_1.clone()], false),
+            (vec![option_3.clone()], true),
             (vec![option_1.clone(), option_2.clone()], false),
+        ] {
+            assert_eq!(
+                filter.is_visible(&SelectedSelectOptions { options }, FieldType::SingleSelect),
+                is_visible
+            );
+        }
+    }
+
+    #[test]
+    fn single_select_option_filter_is_test() {
+        let option_1 = SelectOptionPB::new("A");
+        let option_2 = SelectOptionPB::new("B");
+        let option_3 = SelectOptionPB::new("c");
+
+        let filter = SelectOptionFilterPB {
+            condition: SelectOptionCondition::OptionIs,
+            option_ids: vec![option_1.id.clone()],
+        };
+        for (options, is_visible) in vec![
+            (vec![option_1.clone()], true),
+            (vec![option_2.clone()], false),
+            (vec![option_3.clone()], false),
+            (vec![option_1.clone(), option_2.clone()], true),
+        ] {
+            assert_eq!(
+                filter.is_visible(&SelectedSelectOptions { options }, FieldType::SingleSelect),
+                is_visible
+            );
+        }
+    }
+
+    #[test]
+    fn single_select_option_filter_is_test2() {
+        let option_1 = SelectOptionPB::new("A");
+        let option_2 = SelectOptionPB::new("B");
+
+        let filter = SelectOptionFilterPB {
+            condition: SelectOptionCondition::OptionIs,
+            option_ids: vec![],
+        };
+        for (options, is_visible) in vec![
+            (vec![option_1.clone()], true),
+            (vec![option_2.clone()], true),
+            (vec![option_1.clone(), option_2.clone()], true),
         ] {
             assert_eq!(
                 filter.is_visible(&SelectedSelectOptions { options }, FieldType::SingleSelect),
@@ -223,45 +276,6 @@ mod tests {
             );
         }
     }
-
-    #[test]
-    fn single_select_option_filter_is_test() {
-        let option_1 = SelectOptionPB::new("A");
-        let option_2 = SelectOptionPB::new("B");
-
-        let filter = SelectOptionFilterPB {
-            condition: SelectOptionCondition::OptionIs,
-            option_ids: vec![option_1.id.clone(), option_2.id.clone()],
-        };
-        for (options, is_visible) in vec![
-            (vec![option_1.clone()], true),
-            // In single select, only compare the first option
-            (vec![option_1.clone(), option_2.clone()], true),
-            (vec![option_2.clone(), option_1.clone()], false),
-        ] {
-            assert_eq!(
-                filter.is_visible(&SelectedSelectOptions { options }, FieldType::SingleSelect),
-                is_visible
-            );
-        }
-
-        let filter = SelectOptionFilterPB {
-            condition: SelectOptionCondition::OptionIs,
-            option_ids: vec![option_1.id.clone()],
-        };
-        for (options, is_visible) in vec![
-            (vec![option_1.clone()], true),
-            // In single select, only compare the first option
-            (vec![option_1.clone(), option_2.clone()], true),
-            (vec![option_2.clone(), option_1.clone()], false),
-        ] {
-            assert_eq!(
-                filter.is_visible(&SelectedSelectOptions { options }, FieldType::SingleSelect),
-                is_visible
-            );
-        }
-    }
-
     #[test]
     fn multi_select_option_filter_contains_test() {
         let option_1 = SelectOptionPB::new("A");

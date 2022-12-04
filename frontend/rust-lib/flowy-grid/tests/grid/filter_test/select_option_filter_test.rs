@@ -38,7 +38,7 @@ async fn grid_filter_multi_select_is_test() {
             condition: SelectOptionCondition::OptionIs,
             option_ids: vec![options.remove(0).id, options.remove(0).id],
         },
-        AssertNumberOfVisibleRows { expected: 2 },
+        AssertNumberOfVisibleRows { expected: 3 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -53,7 +53,7 @@ async fn grid_filter_multi_select_is_test2() {
             condition: SelectOptionCondition::OptionIs,
             option_ids: vec![options.remove(1).id],
         },
-        AssertNumberOfVisibleRows { expected: 1 },
+        AssertNumberOfVisibleRows { expected: 3 },
     ];
     test.run_scripts(scripts).await;
 }
