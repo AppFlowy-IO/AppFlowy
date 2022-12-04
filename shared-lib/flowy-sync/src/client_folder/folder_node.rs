@@ -1,21 +1,53 @@
+use crate::client_folder::trash_node::TrashNode;
 use crate::client_folder::workspace_node::WorkspaceNode;
 use crate::errors::{CollaborateError, CollaborateResult};
-use folder_rev_model::{AppRevision, ViewRevision, WorkspaceRevision};
-use lib_ot::core::{
-    AttributeEntry, AttributeHashMap, AttributeValue, Changeset, Node, NodeDataBuilder, NodeOperation, NodeTree, Path,
-    Transaction,
-};
+use flowy_derive::Node;
+use lib_ot::core::NodeTree;
+use lib_ot::core::*;
 use parking_lot::RwLock;
-use std::string::ToString;
 use std::sync::Arc;
 
 pub type AtomicNodeTree = RwLock<NodeTree>;
 
 pub struct FolderNodePad {
-    tree: Arc<AtomicNodeTree>,
-    // name: workspaces, index of the node,
-    workspaces: Vec<Arc<WorkspaceNode>>,
-    trash: Vec<Arc<TrashNode>>,
+    pub tree: Arc<AtomicNodeTree>,
+    pub node_id: NodeId,
+    pub workspaces: WorkspaceList,
+    pub trash: TrashList,
+}
+
+#[derive(Clone, Node)]
+#[node_type = "workspaces"]
+pub struct WorkspaceList {
+    pub tree: Arc<AtomicNodeTree>,
+    pub node_id: Option<NodeId>,
+
+    #[node(child_name = "workspace")]
+    inner: Vec<WorkspaceNode>,
+}
+
+impl std::ops::Deref for WorkspaceList {
+    type Target = Vec<WorkspaceNode>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl std::ops::DerefMut for WorkspaceList {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
+}
+
+#[derive(Clone, Node)]
+#[node_type = "trash"]
+pub struct TrashList {
+    pub tree: Arc<AtomicNodeTree>,
+    pub node_id: Option<NodeId>,
+
+    #[node(child_name = "trash")]
+    inner: Vec<TrashNode>,
 }
 
 impl FolderNodePad {
@@ -23,42 +55,27 @@ impl FolderNodePad {
         Self::default()
     }
 
-    pub fn get_workspace(&self, workspace_id: &str) -> Option<&Arc<WorkspaceNode>> {
+    pub fn get_workspace(&self, workspace_id: &str) -> Option<&WorkspaceNode> {
         self.workspaces.iter().find(|workspace| workspace.id == workspace_id)
     }
 
-    pub fn get_mut_workspace(&mut self, workspace_id: &str) -> Option<&mut Arc<WorkspaceNode>> {
+    pub fn get_mut_workspace(&mut self, workspace_id: &str) -> Option<&mut WorkspaceNode> {
         self.workspaces
             .iter_mut()
             .find(|workspace| workspace.id == workspace_id)
     }
 
-    pub fn remove_workspace(&mut self, workspace_id: &str) {
-        if let Some(workspace) = self.workspaces.iter().find(|workspace| workspace.id == workspace_id) {
-            let mut write_guard = self.tree.write();
-            let mut nodes = vec![];
+    pub fn add_workspace(&mut self, mut workspace: WorkspaceNode) {
+        let path = workspaces_path().clone_with(self.workspaces.len());
+        let op = NodeOperation::Insert {
+            path: path.clone(),
+            nodes: vec![workspace.to_node_data()],
+        };
+        self.tree.write().apply_op(op).unwrap();
 
-            if let Some(node_data) = write_guard.get_node_data_at_path(&workspace.path) {
-                nodes.push(node_data);
-            }
-            let _ = write_guard.apply_op(NodeOperation::Delete {
-                path: workspace.path.clone(),
-                nodes,
-            });
-        }
-    }
-
-    pub fn add_workspace(&mut self, revision: WorkspaceRevision) -> CollaborateResult<()> {
-        let mut transaction = Transaction::new();
-        let node = WorkspaceNode::from_workspace_revision(
-            &mut transaction,
-            revision,
-            self.tree.clone(),
-            workspaces_path().clone_with(self.workspaces.len()),
-        )?;
-        let _ = self.tree.write().apply_transaction(transaction)?;
-        self.workspaces.push(Arc::new(node));
-        Ok(())
+        let node_id = self.tree.read().node_id_at_path(path).unwrap();
+        workspace.node_id = Some(node_id);
+        self.workspaces.push(workspace);
     }
 
     pub fn to_json(&self, pretty: bool) -> CollaborateResult<String> {
@@ -66,6 +83,49 @@ impl FolderNodePad {
             .read()
             .to_json(pretty)
             .map_err(|e| CollaborateError::serde().context(e))
+    }
+}
+
+impl std::default::Default for FolderNodePad {
+    fn default() -> Self {
+        let tree = Arc::new(RwLock::new(NodeTree::default()));
+
+        // Workspace
+        let mut workspaces = WorkspaceList {
+            tree: tree.clone(),
+            node_id: None,
+            inner: vec![],
+        };
+        let workspace_node = workspaces.to_node_data();
+
+        // Trash
+        let mut trash = TrashList {
+            tree: tree.clone(),
+            node_id: None,
+            inner: vec![],
+        };
+        let trash_node = trash.to_node_data();
+
+        let folder_node = NodeDataBuilder::new("folder")
+            .add_node_data(workspace_node)
+            .add_node_data(trash_node)
+            .build();
+
+        let operation = NodeOperation::Insert {
+            path: folder_path(),
+            nodes: vec![folder_node],
+        };
+        let _ = tree.write().apply_op(operation).unwrap();
+        let node_id = tree.read().node_id_at_path(folder_path()).unwrap();
+        workspaces.node_id = Some(tree.read().node_id_at_path(workspaces_path()).unwrap());
+        trash.node_id = Some(tree.read().node_id_at_path(trash_path()).unwrap());
+
+        Self {
+            tree,
+            node_id,
+            workspaces,
+            trash,
+        }
     }
 }
 
@@ -79,76 +139,4 @@ fn workspaces_path() -> Path {
 
 fn trash_path() -> Path {
     folder_path().clone_with(1)
-}
-
-pub fn get_attributes(tree: Arc<AtomicNodeTree>, path: &Path) -> Option<AttributeHashMap> {
-    tree.read()
-        .get_node_at_path(&path)
-        .and_then(|node| Some(node.attributes.clone()))
-}
-
-pub fn get_attributes_value(tree: Arc<AtomicNodeTree>, path: &Path, key: &str) -> Option<AttributeValue> {
-    tree.read()
-        .get_node_at_path(&path)
-        .and_then(|node| node.attributes.get(key).cloned())
-}
-
-pub fn get_attributes_str_value(tree: Arc<AtomicNodeTree>, path: &Path, key: &str) -> Option<String> {
-    tree.read()
-        .get_node_at_path(&path)
-        .and_then(|node| node.attributes.get(key).cloned())
-        .and_then(|value| value.str_value())
-}
-
-pub fn set_attributes_str_value(
-    tree: Arc<AtomicNodeTree>,
-    path: &Path,
-    key: &str,
-    value: String,
-) -> CollaborateResult<()> {
-    let old_attributes = match get_attributes(tree.clone(), path) {
-        None => AttributeHashMap::new(),
-        Some(attributes) => attributes,
-    };
-    let mut new_attributes = old_attributes.clone();
-    new_attributes.insert(key, value);
-
-    let update_operation = NodeOperation::Update {
-        path: path.clone(),
-        changeset: Changeset::Attributes {
-            new: new_attributes,
-            old: old_attributes,
-        },
-    };
-    let _ = tree.write().apply_op(update_operation)?;
-    Ok(())
-}
-
-impl std::default::Default for FolderNodePad {
-    fn default() -> Self {
-        let workspace_node = NodeDataBuilder::new("workspaces").build();
-        let trash_node = NodeDataBuilder::new("trash").build();
-        let folder_node = NodeDataBuilder::new("folder")
-            .add_node_data(workspace_node)
-            .add_node_data(trash_node)
-            .build();
-
-        let operation = NodeOperation::Insert {
-            path: folder_path(),
-            nodes: vec![folder_node],
-        };
-        let mut tree = NodeTree::default();
-        let _ = tree.apply_op(operation).unwrap();
-
-        Self {
-            tree: Arc::new(RwLock::new(tree)),
-            workspaces: vec![],
-            trash: vec![],
-        }
-    }
-}
-
-pub struct TrashNode {
-    tree: Arc<AtomicNodeTree>,
-    parent_path: Path,
 }

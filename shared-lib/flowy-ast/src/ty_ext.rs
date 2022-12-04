@@ -62,7 +62,9 @@ pub fn parse_ty<'a>(ast_result: &ASTResult, ty: &'a syn::Type) -> Result<Option<
                 "Vec" => generate_vec_ty_info(ast_result, seg, bracketed),
                 "Option" => generate_option_ty_info(ast_result, ty, seg, bracketed),
                 _ => {
-                    return Err(format!("Unsupported ty {}", seg.ident));
+                    let msg = format!("Unsupported type: {}", seg.ident);
+                    ast_result.error_spanned_by(&seg.ident, &msg);
+                    return Err(msg);
                 }
             }
         } else {

@@ -1,9 +1,6 @@
 #[macro_use]
 extern crate syn;
 
-#[macro_use]
-extern crate quote;
-
 mod ast;
 mod ctxt;
 mod pb_attrs;

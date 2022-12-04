@@ -1,6 +1,39 @@
 use crate::client_folder::script::FolderNodePadScript::*;
 use crate::client_folder::script::FolderNodePadTest;
-use flowy_sync::client_folder::FolderNodePad;
+
+#[test]
+fn client_folder_create_multi_workspaces_test() {
+    let mut test = FolderNodePadTest::new();
+    test.run_scripts(vec![
+        AssertPathOfWorkspace {
+            id: "1".to_string(),
+            expected_path: vec![0, 0, 0].into(),
+        },
+        CreateWorkspace {
+            id: "a".to_string(),
+            name: "workspace a".to_string(),
+        },
+        AssertPathOfWorkspace {
+            id: "a".to_string(),
+            expected_path: vec![0, 0, 1].into(),
+        },
+        CreateWorkspace {
+            id: "b".to_string(),
+            name: "workspace b".to_string(),
+        },
+        AssertPathOfWorkspace {
+            id: "b".to_string(),
+            expected_path: vec![0, 0, 2].into(),
+        },
+        AssertNumberOfWorkspace { expected: 3 },
+        // The path of the workspace 'b' will be changed after deleting the 'a' workspace.
+        DeleteWorkspace { id: "a".to_string() },
+        AssertPathOfWorkspace {
+            id: "b".to_string(),
+            expected_path: vec![0, 0, 1].into(),
+        },
+    ]);
+}
 
 #[test]
 fn client_folder_create_app_test() {

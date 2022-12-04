@@ -1,10 +1,8 @@
 use crate::{get_event_meta_items, parse_lit_str, symbol::*, ASTResult};
 
-
 use syn::{
     self,
-    parse::{self, Parse},
-    Meta::{List, NameValue, Path},
+    Meta::{NameValue, Path},
     NestedMeta::{Lit, Meta},
 };
 

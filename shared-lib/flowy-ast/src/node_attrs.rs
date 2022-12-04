@@ -1,11 +1,8 @@
-use crate::{get_node_meta_items, get_pb_meta_items, parse_lit_into_expr_path, symbol::*, ASTAttr, ASTResult};
-use proc_macro2::{Group, Ident, Span, TokenStream, TokenTree};
+use crate::{get_node_meta_items, parse_lit_into_expr_path, symbol::*, ASTAttr, ASTResult};
 use quote::ToTokens;
 use syn::{
-    self,
-    parse::{self, Parse},
-    LitStr,
-    Meta::{List, NameValue, Path},
+    self, LitStr,
+    Meta::NameValue,
     NestedMeta::{Lit, Meta},
 };
 
@@ -14,18 +11,20 @@ pub struct NodeStructAttrs {
     pub has_child: bool,
     pub child_name: Option<LitStr>,
     pub child_index: Option<syn::LitInt>,
-    get_node_value_with: Option<syn::ExprPath>,
-    set_node_value_with: Option<syn::ExprPath>,
+    pub get_node_value_with: Option<syn::ExprPath>,
+    pub set_node_value_with: Option<syn::ExprPath>,
+    pub with_children: Option<syn::ExprPath>,
 }
 
 impl NodeStructAttrs {
     /// Extract out the `#[node(...)]` attributes from a struct field.
-    pub fn from_ast(ast_result: &ASTResult, index: usize, field: &syn::Field) -> Self {
+    pub fn from_ast(ast_result: &ASTResult, _index: usize, field: &syn::Field) -> Self {
         let mut rename = ASTAttr::none(ast_result, RENAME_NODE);
         let mut child_name = ASTAttr::none(ast_result, CHILD_NODE_NAME);
         let mut child_index = ASTAttr::none(ast_result, CHILD_NODE_INDEX);
         let mut get_node_value_with = ASTAttr::none(ast_result, GET_NODE_VALUE_WITH);
         let mut set_node_value_with = ASTAttr::none(ast_result, SET_NODE_VALUE_WITH);
+        let mut with_children = ASTAttr::none(ast_result, WITH_CHILDREN);
 
         for meta_item in field
             .attrs
@@ -69,6 +68,13 @@ impl NodeStructAttrs {
                     }
                 }
 
+                // Parse `#[node(with_children= "...")]`
+                Meta(NameValue(m)) if m.path == WITH_CHILDREN => {
+                    if let Ok(path) = parse_lit_into_expr_path(ast_result, WITH_CHILDREN, &m.lit) {
+                        with_children.set(&m.path, path);
+                    }
+                }
+
                 Meta(meta_item) => {
                     let path = meta_item.path().into_token_stream().to_string().replace(' ', "");
                     ast_result.error_spanned_by(meta_item.path(), format!("unknown node field attribute `{}`", path));
@@ -87,14 +93,7 @@ impl NodeStructAttrs {
             child_name,
             get_node_value_with: get_node_value_with.get(),
             set_node_value_with: set_node_value_with.get(),
+            with_children: with_children.get(),
         }
-    }
-
-    pub fn set_node_value_with(&self) -> Option<&syn::ExprPath> {
-        self.set_node_value_with.as_ref()
-    }
-
-    pub fn get_node_value_with(&self) -> Option<&syn::ExprPath> {
-        self.get_node_value_with.as_ref()
     }
 }

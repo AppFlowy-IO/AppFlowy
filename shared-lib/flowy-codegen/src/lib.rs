@@ -15,6 +15,3 @@ pub struct ProtoCache {
     pub structs: Vec<String>,
     pub enums: Vec<String>,
 }
-
-#[macro_use]
-extern crate quote;

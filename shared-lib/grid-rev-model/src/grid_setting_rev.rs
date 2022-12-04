@@ -61,8 +61,8 @@ where
         predicate: impl Fn(&Arc<T>) -> bool,
     ) -> Option<Arc<T>> {
         let objects = self.get_objects(field_id, field_type)?;
-        let index = objects.iter().position(|object| predicate(object))?;
-        objects.get(index).map(|object| object.clone())
+        let index = objects.iter().position(predicate)?;
+        objects.get(index).cloned()
     }
 
     pub fn get_mut_object(
@@ -72,7 +72,7 @@ where
         predicate: impl Fn(&Arc<T>) -> bool,
     ) -> Option<&mut Arc<T>> {
         let objects = self.get_mut_objects(field_id, field_type)?;
-        let index = objects.iter().position(|object| predicate(object))?;
+        let index = objects.iter().position(predicate)?;
         objects.get_mut(index)
     }
 

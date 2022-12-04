@@ -45,6 +45,7 @@ pub const GET_NODE_VALUE_WITH: Symbol = Symbol("get_value_with");
 pub const SET_NODE_VALUE_WITH: Symbol = Symbol("set_value_with");
 pub const GET_VEC_ELEMENT_WITH: Symbol = Symbol("get_element_with");
 pub const GET_MUT_VEC_ELEMENT_WITH: Symbol = Symbol("get_mut_element_with");
+pub const WITH_CHILDREN: Symbol = Symbol("with_children");
 
 impl PartialEq<Symbol> for Ident {
     fn eq(&self, word: &Symbol) -> bool {

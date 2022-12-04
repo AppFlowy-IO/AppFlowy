@@ -4,7 +4,7 @@
 
 use crate::event_attrs::EventEnumAttrs;
 use crate::node_attrs::NodeStructAttrs;
-use crate::{is_recognizable_field, pb_attrs, ty_ext::*, ASTResult, PBAttrsContainer, PBStructAttrs, NODE_TYPE};
+use crate::{is_recognizable_field, ty_ext::*, ASTResult, PBAttrsContainer, PBStructAttrs, NODE_TYPE};
 use proc_macro2::Ident;
 use syn::Meta::NameValue;
 use syn::{self, punctuated::Punctuated};

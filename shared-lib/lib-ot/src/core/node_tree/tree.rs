@@ -196,7 +196,7 @@ impl NodeTree {
             path.push(counter);
             current_node = parent_node;
         }
-
+        path.reverse();
         Path(path)
     }
 

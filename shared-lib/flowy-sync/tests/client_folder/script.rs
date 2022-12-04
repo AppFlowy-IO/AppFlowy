@@ -1,14 +1,18 @@
-use flowy_sync::client_folder::FolderNodePad;
-use folder_rev_model::{AppRevision, WorkspaceRevision};
-use std::sync::Arc;
+use flowy_sync::client_folder::{AppNode, FolderNodePad, WorkspaceNode};
+use folder_rev_model::AppRevision;
+use lib_ot::core::Path;
 
 pub enum FolderNodePadScript {
+    CreateWorkspace { id: String, name: String },
+    DeleteWorkspace { id: String },
+    AssertPathOfWorkspace { id: String, expected_path: Path },
+    AssertNumberOfWorkspace { expected: usize },
     CreateApp { id: String, name: String },
     DeleteApp { id: String },
     UpdateApp { id: String, name: String },
     AssertApp { id: String, expected: Option<AppRevision> },
     AssertAppContent { id: String, name: String },
-    AssertNumberOfApps { expected: usize },
+    // AssertNumberOfApps { expected: usize },
 }
 
 pub struct FolderNodePadTest {
@@ -18,15 +22,8 @@ pub struct FolderNodePadTest {
 impl FolderNodePadTest {
     pub fn new() -> FolderNodePadTest {
         let mut folder_pad = FolderNodePad::default();
-        let workspace = WorkspaceRevision {
-            id: "1".to_string(),
-            name: "workspace name".to_string(),
-            desc: "".to_string(),
-            apps: vec![],
-            modified_time: 0,
-            create_time: 0,
-        };
-        let _ = folder_pad.add_workspace(workspace).unwrap();
+        let workspace = WorkspaceNode::new(folder_pad.tree.clone(), "1".to_string(), "workspace name".to_string());
+        let _ = folder_pad.workspaces.add_workspace(workspace).unwrap();
         Self { folder_pad }
     }
 
@@ -38,32 +35,34 @@ impl FolderNodePadTest {
 
     pub fn run_script(&mut self, script: FolderNodePadScript) {
         match script {
+            FolderNodePadScript::CreateWorkspace { id, name } => {
+                let workspace = WorkspaceNode::new(self.folder_pad.tree.clone(), id, name);
+                self.folder_pad.workspaces.add_workspace(workspace).unwrap();
+            }
+            FolderNodePadScript::DeleteWorkspace { id } => {
+                self.folder_pad.workspaces.remove_workspace(id);
+            }
+            FolderNodePadScript::AssertPathOfWorkspace { id, expected_path } => {
+                let workspace_node: &WorkspaceNode = self.folder_pad.workspaces.get_workspace(id).unwrap();
+                let node_id = workspace_node.node_id.unwrap();
+                let path = self.folder_pad.tree.read().path_from_node_id(node_id);
+                assert_eq!(path, expected_path);
+            }
+            FolderNodePadScript::AssertNumberOfWorkspace { expected } => {
+                assert_eq!(self.folder_pad.workspaces.len(), expected);
+            }
             FolderNodePadScript::CreateApp { id, name } => {
-                let revision = AppRevision {
-                    id,
-                    workspace_id: "1".to_string(),
-                    name,
-                    desc: "".to_string(),
-                    belongings: vec![],
-                    version: 0,
-                    modified_time: 0,
-                    create_time: 0,
-                };
-
+                let app_node = AppNode::new(self.folder_pad.tree.clone(), id, name);
                 let workspace_node = self.folder_pad.get_mut_workspace("1").unwrap();
-                let workspace_node = Arc::make_mut(workspace_node);
-                let _ = workspace_node.add_app(revision).unwrap();
+                let _ = workspace_node.add_app(app_node).unwrap();
             }
             FolderNodePadScript::DeleteApp { id } => {
                 let workspace_node = self.folder_pad.get_mut_workspace("1").unwrap();
-                let workspace_node = Arc::make_mut(workspace_node);
                 workspace_node.remove_app(&id);
             }
             FolderNodePadScript::UpdateApp { id, name } => {
                 let workspace_node = self.folder_pad.get_mut_workspace("1").unwrap();
-                let workspace_node = Arc::make_mut(workspace_node);
-                let app_node = Arc::make_mut(workspace_node.get_mut_app(&id).unwrap());
-                app_node.set_name(name).unwrap();
+                workspace_node.get_mut_app(&id).unwrap().set_name(name);
             }
             FolderNodePadScript::AssertApp { id, expected } => {
                 let workspace_node = self.folder_pad.get_workspace("1").unwrap();
@@ -73,7 +72,7 @@ impl FolderNodePadTest {
                     Some(expected_app) => {
                         let app_node = app.unwrap();
                         assert_eq!(expected_app.name, app_node.get_name().unwrap());
-                        assert_eq!(expected_app.id, app_node.id);
+                        assert_eq!(expected_app.id, app_node.get_id().unwrap());
                     }
                 }
             }
@@ -81,11 +80,10 @@ impl FolderNodePadTest {
                 let workspace_node = self.folder_pad.get_workspace("1").unwrap();
                 let app = workspace_node.get_app(&id).unwrap();
                 assert_eq!(app.get_name().unwrap(), name)
-            }
-            FolderNodePadScript::AssertNumberOfApps { expected } => {
-                let workspace_node = self.folder_pad.get_workspace("1").unwrap();
-                assert_eq!(workspace_node.get_all_apps().len(), expected);
-            }
+            } // FolderNodePadScript::AssertNumberOfApps { expected } => {
+              //     let workspace_node = self.folder_pad.get_workspace("1").unwrap();
+              //     assert_eq!(workspace_node.apps.len(), expected);
+              // }
         }
     }
 }
