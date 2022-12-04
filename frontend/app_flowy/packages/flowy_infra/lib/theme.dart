@@ -6,6 +6,19 @@ import 'color_extension.dart';
 
 enum ThemeType { light, dark, anne }
 
+Color getCardColor(ThemeType ty) {
+  switch (ty) {
+    case ThemeType.light:
+      return const Color.fromARGB(255, 214, 214, 218);
+    case ThemeType.dark:
+      return const Color(0xff000000);
+    case ThemeType.anne:
+      return const Color(0xFFFFCE31);
+    default:
+      return const Color.fromARGB(255, 214, 214, 218);
+  }
+}
+
 ThemeType themeTypeFromString(String name) {
   ThemeType themeType = ThemeType.light;
   if (name == "dark") {
@@ -187,7 +200,7 @@ class AppTheme {
           ..tint8 = const Color(0xffdefff1)
           ..tint9 = const Color(0xffe1fbff)
           ..main1 = const Color(0xffe21f74)
-          ..main2 = const Color(0xffe21f74)
+          ..main2 = const Color.fromARGB(255, 224, 25, 111)
           ..textColor = _black
           ..iconColor = const Color(0xff9327ff)
           ..shadow = _black
