@@ -4,20 +4,26 @@ import 'package:flutter/material.dart';
 
 import 'color_extension.dart';
 
-Brightness themeTypeFromString(String name) {
-  Brightness themeType = Brightness.light;
+enum ThemeType { light, dark, anne }
+
+ThemeType themeTypeFromString(String name) {
+  ThemeType themeType = ThemeType.light;
   if (name == "dark") {
-    themeType = Brightness.dark;
+    themeType = ThemeType.dark;
+  } else if (name == "anne") {
+    themeType = ThemeType.anne;
   }
   return themeType;
 }
 
-String themeTypeToString(Brightness brightness) {
-  switch (brightness) {
-    case Brightness.light:
+String themeTypeToString(ThemeType themeType) {
+  switch (themeType) {
+    case ThemeType.light:
       return "light";
-    case Brightness.dark:
+    case ThemeType.dark:
       return "dark";
+    case ThemeType.anne:
+      return "anne";
   }
 }
 
@@ -79,7 +85,7 @@ class AppTheme {
     required String monospaceFont,
   }) {
     switch (themeTypeFromString(themeName)) {
-      case Brightness.light:
+      case ThemeType.light:
         return AppTheme(brightness: Brightness.light)
           ..surface = Colors.white
           ..hover = const Color(0xFFe0f8ff)
@@ -116,7 +122,7 @@ class AppTheme {
           ..font = font
           ..monospaceFont = monospaceFont;
 
-      case Brightness.dark:
+      case ThemeType.dark:
         return AppTheme(brightness: Brightness.dark)
           ..surface = const Color(0xff292929)
           ..hover = const Color(0xff1f1f1f)
@@ -148,6 +154,42 @@ class AppTheme {
           ..main2 = const Color(0xff009cc7)
           ..textColor = _white
           ..iconColor = _white
+          ..shadow = _black
+          ..disableIconColor = const Color(0xff333333)
+          ..font = font
+          ..monospaceFont = monospaceFont;
+      case ThemeType.anne:
+        return AppTheme(brightness: Brightness.light)
+          ..surface = Colors.white
+          ..hover = const Color(0xFFe0f8ff) //
+          ..selector = const Color(0xfff2fcff)
+          ..red = const Color(0xfffb006d)
+          ..yellow = const Color(0xffffd667)
+          ..green = const Color(0xff66cf80)
+          ..shader1 = const Color(0xff333333)
+          ..shader2 = const Color(0xff4f4f4f)
+          ..shader3 = const Color(0xff828282)
+          ..shader4 = const Color(0xffbdbdbd)
+          ..shader5 = const Color(0xffe0e0e0)
+          ..shader6 = const Color(0xfff2f2f2)
+          ..shader7 = const Color(0xffffffff)
+          ..bg1 = const Color(0xFFFFCE31)
+          ..bg2 = const Color(0xffedeef2)
+          ..bg3 = const Color(0xffe2e4eb)
+          ..bg4 = const Color(0xff2c144b)
+          ..tint1 = const Color(0xffe8e0ff)
+          ..tint2 = const Color(0xffffe7fd)
+          ..tint3 = const Color(0xffffe7ee)
+          ..tint4 = const Color(0xffffefe3)
+          ..tint5 = const Color(0xfffff2cd)
+          ..tint6 = const Color(0xfff5ffdc)
+          ..tint7 = const Color(0xffddffd6)
+          ..tint8 = const Color(0xffdefff1)
+          ..tint9 = const Color(0xffe1fbff)
+          ..main1 = const Color(0xffe21f74)
+          ..main2 = const Color(0xffe21f74)
+          ..textColor = _black
+          ..iconColor = const Color(0xff9327ff)
           ..shadow = _black
           ..disableIconColor = const Color(0xff333333)
           ..font = font
