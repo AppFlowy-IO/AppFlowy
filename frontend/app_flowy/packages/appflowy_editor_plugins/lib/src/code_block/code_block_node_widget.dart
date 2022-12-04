@@ -162,7 +162,7 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
     var currentSpans = spans;
     List<List<TextSpan>> stack = [];
 
-    _traverse(highlight.Node node) {
+    traverse(highlight.Node node) {
       if (node.value != null) {
         currentSpans.add(node.className == null
             ? TextSpan(text: node.value)
@@ -177,7 +177,7 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
         currentSpans = tmp;
 
         for (var n in node.children!) {
-          _traverse(n);
+          traverse(n);
           if (n == node.children!.last) {
             currentSpans = stack.isEmpty ? spans : stack.removeLast();
           }
@@ -186,7 +186,7 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
     }
 
     for (var node in nodes) {
-      _traverse(node);
+      traverse(node);
     }
 
     return spans;
