@@ -47,7 +47,7 @@ class SettingsAppearanceView extends StatelessWidget {
       case ThemeType.dark:
         return LocaleKeys.settings_appearance_darkLabel.tr();
       case ThemeType.anne:
-        return "Anne";
+        return "Anne Mode";
       default:
         return "Try Me";
     }
