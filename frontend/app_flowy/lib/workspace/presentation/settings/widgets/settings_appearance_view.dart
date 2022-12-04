@@ -53,19 +53,6 @@ class SettingsAppearanceView extends StatelessWidget {
     }
   }
 
-  Color getCardColor(ThemeType ty) {
-    switch (ty) {
-      case ThemeType.light:
-        return const Color(0xfff7f8fc);
-      case ThemeType.dark:
-        return const Color(0xff000000);
-      case ThemeType.anne:
-        return const Color(0xFFFFCE31);
-      default:
-        return const Color(0xffedeef2);
-    }
-  }
-
   void setTheme(BuildContext context, ThemeType ty) {
     context.read<AppearanceSettingsCubit>().setTheme(ty);
   }
