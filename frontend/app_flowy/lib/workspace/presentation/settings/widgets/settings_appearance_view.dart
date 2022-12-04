@@ -22,7 +22,7 @@ class SettingsAppearanceView extends StatelessWidget {
               itemBuilder: (context, index) {
                 final itemAppTheme = ThemeType.values[index];
                 return Card(
-                  color: Colors.amber,
+                  color: getCardColor(itemAppTheme),
                   child: ListTile(
                     title: Text(
                       getThemeName(itemAppTheme),
@@ -50,6 +50,19 @@ class SettingsAppearanceView extends StatelessWidget {
         return "Anne";
       default:
         return "Try Me";
+    }
+  }
+
+  Color getCardColor(ThemeType ty) {
+    switch (ty) {
+      case ThemeType.light:
+        return const Color(0xfff7f8fc);
+      case ThemeType.dark:
+        return const Color(0xff000000);
+      case ThemeType.anne:
+        return const Color(0xFFFFCE31);
+      default:
+        return const Color(0xffedeef2);
     }
   }
 
