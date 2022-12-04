@@ -4,7 +4,6 @@ import 'package:app_flowy/workspace/presentation/widgets/emoji_picker/emoji_pick
 class FlowyEmojiStyleButton extends StatefulWidget {
   // final Attribute attribute;
   final String normalIcon;
-  // TODO: enable insert emoji in appflowy_editor
   // final QuillController controller;
   final String tooltipText;
 

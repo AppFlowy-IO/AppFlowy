@@ -6,7 +6,6 @@ import 'package:flutter_math_fork/flutter_math.dart';
 const String kMathEquationType = 'math_equation';
 const String kMathEquationAttr = 'math_equation';
 
-// TODO: l10n
 SelectionMenuItem mathEquationMenuItem = SelectionMenuItem(
   name: () => 'Math Equation',
   icon: (editorState, onSelected) => Icon(
