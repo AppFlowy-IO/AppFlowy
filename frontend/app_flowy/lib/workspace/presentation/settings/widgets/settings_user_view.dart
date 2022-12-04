@@ -79,7 +79,7 @@ class _CurrentIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _setIcon(String iconUrl) {
+    setIcon(String iconUrl) {
       context
           .read<SettingsUserViewBloc>()
           .add(SettingsUserEvent.updateUserIcon(iconUrl));
@@ -100,7 +100,7 @@ class _CurrentIcon extends StatelessWidget {
                     ),
                     children: <Widget>[
                       SizedBox(
-                          height: 300, width: 300, child: IconGallery(_setIcon))
+                          height: 300, width: 300, child: IconGallery(setIcon))
                     ]);
               },
             );
