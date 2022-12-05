@@ -293,6 +293,18 @@ impl std::convert::From<f64> for AttributeValue {
     }
 }
 
+impl std::convert::From<i64> for AttributeValue {
+    fn from(value: i64) -> Self {
+        AttributeValue::from_int(value)
+    }
+}
+
+impl std::convert::From<i32> for AttributeValue {
+    fn from(value: i32) -> Self {
+        AttributeValue::from_int(value as i64)
+    }
+}
+
 #[derive(Default)]
 pub struct AttributeBuilder {
     attributes: AttributeHashMap,

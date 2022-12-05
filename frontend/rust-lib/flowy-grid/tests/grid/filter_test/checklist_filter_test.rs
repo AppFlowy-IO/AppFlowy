@@ -1,6 +1,6 @@
 use crate::grid::filter_test::script::FilterScript::*;
 use crate::grid::filter_test::script::GridFilterTest;
-use flowy_grid::entities::{ChecklistFilterCondition, SelectOptionCondition};
+use flowy_grid::entities::ChecklistFilterCondition;
 
 #[tokio::test]
 async fn grid_filter_checklist_is_incomplete_test() {

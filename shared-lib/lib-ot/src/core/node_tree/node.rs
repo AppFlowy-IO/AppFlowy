@@ -6,6 +6,19 @@ use crate::errors::OTError;
 use crate::text_delta::DeltaTextOperations;
 use serde::{Deserialize, Serialize};
 
+pub trait ToNodeData: Send + Sync {
+    fn to_node_data(&self) -> NodeData;
+}
+
+impl<T> ToNodeData for Box<T>
+where
+    T: ToNodeData,
+{
+    fn to_node_data(&self) -> NodeData {
+        (**self).to_node_data()
+    }
+}
+
 #[derive(Default, Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub struct NodeData {
     #[serde(rename = "type")]
@@ -63,6 +76,11 @@ impl NodeDataBuilder {
     /// Appends a new node to the end of the builder's node children.
     pub fn add_node_data(mut self, node: NodeData) -> Self {
         self.node.children.push(node);
+        self
+    }
+
+    pub fn extend_node_data(mut self, node: Vec<NodeData>) -> Self {
+        self.node.children.extend(node);
         self
     }
 

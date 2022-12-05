@@ -34,6 +34,12 @@ impl Path {
         true
     }
 
+    pub fn clone_with(&self, element: usize) -> Self {
+        let mut cloned_self = self.clone();
+        cloned_self.push(element);
+        cloned_self
+    }
+
     pub fn is_root(&self) -> bool {
         self.0.len() == 1 && self.0[0] == 0
     }
@@ -44,6 +50,12 @@ impl std::ops::Deref for Path {
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl std::ops::DerefMut for Path {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 
