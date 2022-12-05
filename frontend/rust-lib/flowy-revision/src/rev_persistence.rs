@@ -100,7 +100,7 @@ where
     }
 
     /// Append the revision that already existed in the local DB state to sync sequence
-    #[tracing::instrument(level = "trace", skip(self), fields(rev_id, object_id=%self.object_id), err)]
+    // #[tracing::instrument(level = "trace", skip(self), fields(rev_id, object_id=%self.object_id), err)]
     pub(crate) async fn sync_revision(&self, revision: &Revision) -> FlowyResult<()> {
         tracing::Span::current().record("rev_id", &revision.rev_id);
         self.add(revision.clone(), RevisionState::Sync, false).await?;

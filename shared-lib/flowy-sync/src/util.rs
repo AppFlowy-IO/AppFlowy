@@ -35,7 +35,7 @@ pub fn contain_newline(s: &str) -> bool {
 #[tracing::instrument(level = "trace", skip(revisions), err)]
 pub fn make_operations_from_revisions<T>(revisions: Vec<Revision>) -> CollaborateResult<DeltaOperations<T>>
 where
-    T: OperationAttributes + DeserializeOwned,
+    T: OperationAttributes + DeserializeOwned + OperationAttributes + serde::Serialize,
 {
     let mut new_operations = DeltaOperations::<T>::new();
     for revision in revisions {

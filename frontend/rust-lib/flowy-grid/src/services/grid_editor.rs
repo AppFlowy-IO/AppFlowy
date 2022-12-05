@@ -90,8 +90,11 @@ impl GridRevisionEditor {
     pub fn close(&self) {
         let rev_manager = self.rev_manager.clone();
         let view_manager = self.view_manager.clone();
+        let block_manager = self.block_manager.clone();
         let view_id = self.grid_id.clone();
         tokio::spawn(async move {
+            block_manager.close().await;
+            rev_manager.write_snapshot().await;
             rev_manager.close().await;
             view_manager.close(&view_id).await;
         });

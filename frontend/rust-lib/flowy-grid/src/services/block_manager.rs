@@ -39,6 +39,12 @@ impl GridBlockManager {
         Ok(manager)
     }
 
+    pub async fn close(&self) {
+        for block_editor in self.block_editors.iter() {
+            block_editor.close().await;
+        }
+    }
+
     // #[tracing::instrument(level = "trace", skip(self))]
     pub(crate) async fn get_block_editor(&self, block_id: &str) -> FlowyResult<Arc<GridBlockRevisionEditor>> {
         debug_assert!(!block_id.is_empty());

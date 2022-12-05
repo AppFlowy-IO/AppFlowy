@@ -90,7 +90,10 @@ impl GridViewRevisionEditor {
     #[tracing::instrument(name = "close grid view editor", level = "trace", skip_all)]
     pub fn close(&self) {
         let filter_controller = self.filter_controller.clone();
+        let rev_manager = self.rev_manager.clone();
         tokio::spawn(async move {
+            rev_manager.write_snapshot().await;
+            rev_manager.close().await;
             filter_controller.read().await.close().await;
         });
     }

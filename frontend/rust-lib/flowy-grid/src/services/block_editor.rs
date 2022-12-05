@@ -47,6 +47,11 @@ impl GridBlockRevisionEditor {
         })
     }
 
+    pub async fn close(&self) {
+        self.rev_manager.write_snapshot().await;
+        self.rev_manager.close().await;
+    }
+
     pub async fn duplicate_block(&self, duplicated_block_id: &str) -> GridBlockRevision {
         self.pad.read().await.duplicate_data(duplicated_block_id).await
     }

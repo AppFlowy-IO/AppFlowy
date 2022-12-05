@@ -69,7 +69,6 @@ pub struct RevisionManager<Connection> {
     user_id: String,
     rev_id_counter: RevIdCounter,
     rev_persistence: Arc<RevisionPersistence<Connection>>,
-    #[allow(dead_code)]
     rev_snapshot: Arc<RevisionSnapshotManager>,
     rev_compress: Arc<dyn RevisionMergeable>,
     #[cfg(feature = "flowy_unit_test")]
@@ -105,7 +104,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
         }
     }
 
-    #[tracing::instrument(level = "debug", skip_all, fields(object_id) err)]
+    #[tracing::instrument(level = "debug", skip_all, fields(deserializer) err)]
     pub async fn initialize<B>(&mut self, cloud: Option<Arc<dyn RevisionCloudService>>) -> FlowyResult<B::Output>
     where
         B: RevisionObjectDeserializer,
@@ -119,12 +118,23 @@ impl<Connection: 'static> RevisionManager<Connection> {
         .load()
         .await?;
         self.rev_id_counter.set(rev_id);
-        tracing::Span::current().record("object_id", &self.object_id.as_str());
+        tracing::Span::current().record("deserializer", &std::any::type_name::<B>());
         B::deserialize_revisions(&self.object_id, revisions)
     }
 
     pub async fn close(&self) {
         let _ = self.rev_persistence.compact_lagging_revisions(&self.rev_compress).await;
+    }
+
+    pub async fn write_snapshot(&self) {
+        match self
+            .load_revisions()
+            .await
+            .and_then(|revisions| self.rev_compress.combine_revisions(revisions))
+        {
+            Ok(_bytes) => {}
+            Err(_) => {}
+        }
     }
 
     pub async fn load_revisions(&self) -> FlowyResult<Vec<Revision>> {
@@ -256,6 +266,7 @@ pub struct RevisionLoader<Connection> {
 }
 
 impl<Connection: 'static> RevisionLoader<Connection> {
+    #[tracing::instrument(level = "trace", skip_all, err)]
     pub async fn load(&self) -> Result<(Vec<Revision>, i64), FlowyError> {
         let records = self.rev_persistence.load_all_records(&self.object_id)?;
         let revisions: Vec<Revision>;

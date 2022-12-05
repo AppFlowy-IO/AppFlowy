@@ -64,10 +64,14 @@ impl AppFlowyDocumentEditor {
     }
 
     pub async fn duplicate_document(&self) -> FlowyResult<String> {
-        let revisions = self.rev_manager.load_revisions().await?;
-        let transaction = make_transaction_from_revisions(&revisions)?;
+        let transaction = self.document_transaction().await?;
         let json = transaction.to_json()?;
         Ok(json)
+    }
+
+    pub async fn document_transaction(&self) -> FlowyResult<Transaction> {
+        let revisions = self.rev_manager.load_revisions().await?;
+        make_transaction_from_revisions(&revisions)
     }
 }
 
@@ -87,6 +91,7 @@ impl DocumentEditor for Arc<AppFlowyDocumentEditor> {
     fn close(&self) {
         let rev_manager = self.rev_manager.clone();
         tokio::spawn(async move {
+            rev_manager.write_snapshot().await;
             rev_manager.close().await;
         });
     }

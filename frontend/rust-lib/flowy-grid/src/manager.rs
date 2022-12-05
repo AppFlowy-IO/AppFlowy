@@ -152,6 +152,7 @@ impl GridManager {
         Ok(grid_editor)
     }
 
+    #[tracing::instrument(level = "trace", skip(self, pool), err)]
     pub fn make_grid_rev_manager(
         &self,
         grid_id: &str,
