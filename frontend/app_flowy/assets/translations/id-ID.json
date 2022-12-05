@@ -145,8 +145,12 @@
       "open": "Buka Pengaturan"
     },
     "appearance": {
-      "lightLabel": "Mode Terang",
-      "darkLabel": "Mode Gelap"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Mode Terang",
+        "dark": "Mode Gelap",
+        "system": "Adapt to System"
+      }
     }
   },
   "grid": {

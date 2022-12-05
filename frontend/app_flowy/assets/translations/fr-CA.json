@@ -138,8 +138,12 @@
       "open": "Ouvrir les paramètres"
     },
     "appearance": {
-      "lightLabel": "Mode clair",
-      "darkLabel": "Mode sombre"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Mode clair",
+        "dark": "Mode sombre",
+        "system": "Adapt to System"
+      }
     }
   },
   "sideBar": {

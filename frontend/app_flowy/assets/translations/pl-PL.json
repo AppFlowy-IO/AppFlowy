@@ -138,8 +138,12 @@
       "open": "Otwórz Ustawienia"
     },
     "appearance": {
-      "lightLabel": "Tryb Jasny",
-      "darkLabel": "Tryb Ciemny"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Tryb Jasny",
+        "dark": "Tryb Ciemny",
+        "system": "Adapt to System"
+      }
     }
   },
   "sideBar": {
