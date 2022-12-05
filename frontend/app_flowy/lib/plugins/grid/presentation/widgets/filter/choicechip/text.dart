@@ -106,7 +106,11 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
 
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-            child: IntrinsicHeight(child: Column(children: children)),
+            child: IntrinsicWidth(
+              child: IntrinsicHeight(
+                child: Column(children: children),
+              ),
+            ),
           );
         },
       ),

@@ -79,14 +79,6 @@ class _PopoverContainer extends StatelessWidget {
         decoration: decoration,
         constraints: constraints,
         child: child,
-
-        // SingleChildScrollView(
-        //   scrollDirection: Axis.horizontal,
-        //   child: ConstrainedBox(
-        //     constraints: constraints,
-        //     child: child,
-        //   ),
-        // ),
       ),
     );
   }
