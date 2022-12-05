@@ -61,11 +61,7 @@ impl GridViewRevisionPad {
     }
 
     pub fn get_groups_by_field_revs(&self, field_revs: &[Arc<FieldRevision>]) -> Vec<Arc<GroupConfigurationRevision>> {
-        self.groups
-            .get_objects_by_field_revs(field_revs)
-            .into_values()
-            .flatten()
-            .collect()
+        self.groups.get_objects_by_field_revs(field_revs)
     }
 
     pub fn get_all_groups(&self) -> Vec<Arc<GroupConfigurationRevision>> {
@@ -131,11 +127,7 @@ impl GridViewRevisionPad {
     }
 
     pub fn get_all_filters(&self, field_revs: &[Arc<FieldRevision>]) -> Vec<Arc<FilterRevision>> {
-        self.filters
-            .get_objects_by_field_revs(field_revs)
-            .into_values()
-            .flatten()
-            .collect()
+        self.filters.get_objects_by_field_revs(field_revs)
     }
 
     pub fn get_filters(&self, field_id: &str, field_type_rev: &FieldTypeRevision) -> Vec<Arc<FilterRevision>> {

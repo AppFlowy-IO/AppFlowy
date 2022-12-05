@@ -83,9 +83,9 @@ where
             .cloned()
     }
 
-    pub fn get_objects_by_field_revs(&self, field_revs: &[Arc<FieldRevision>]) -> HashMap<String, Vec<Arc<T>>> {
+    pub fn get_objects_by_field_revs(&self, field_revs: &[Arc<FieldRevision>]) -> Vec<Arc<T>> {
         // Get the objects according to the FieldType, so we need iterate the field_revs.
-        let objects_by_field_id = field_revs
+        let objects = field_revs
             .iter()
             .flat_map(|field_rev| {
                 let field_type = &field_rev.ty;
@@ -93,10 +93,11 @@ where
 
                 let object_rev_map = self.inner.get(field_id)?;
                 let objects: Vec<Arc<T>> = object_rev_map.get(field_type)?.clone();
-                Some((field_rev.id.clone(), objects))
+                Some(objects)
             })
-            .collect::<HashMap<String, Vec<Arc<T>>>>();
-        objects_by_field_id
+            .flatten()
+            .collect::<Vec<Arc<T>>>();
+        objects
     }
 
     pub fn get_all_objects(&self) -> Vec<Arc<T>> {
