@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +15,7 @@ class FlowyTextField extends StatefulWidget {
   final int? maxLength;
   final TextEditingController? controller;
   final bool autoClearWhenDone;
+  final Duration? debounceDuration;
 
   const FlowyTextField({
     this.hintText = "",
@@ -24,6 +27,7 @@ class FlowyTextField extends StatefulWidget {
     this.maxLength,
     this.controller,
     this.autoClearWhenDone = false,
+    this.debounceDuration,
     Key? key,
   }) : super(key: key);
 
@@ -34,6 +38,7 @@ class FlowyTextField extends StatefulWidget {
 class FlowyTextFieldState extends State<FlowyTextField> {
   late FocusNode focusNode;
   late TextEditingController controller;
+  Timer? _debounceOnChanged;
 
   @override
   void initState() {
@@ -54,22 +59,40 @@ class FlowyTextFieldState extends State<FlowyTextField> {
     super.initState();
   }
 
+  void _debounceOnChangedText(Duration duration, String text) {
+    _debounceOnChanged?.cancel();
+    _debounceOnChanged = Timer(duration, () async {
+      if (mounted) {
+        _onChanged(text);
+      }
+    });
+  }
+
+  void _onChanged(String text) {
+    widget.onChanged?.call(text);
+    setState(() {});
+  }
+
+  void _onSubmitted(String text) {
+    widget.onSubmitted?.call(text);
+    if (widget.autoClearWhenDone) {
+      controller.text = "";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
       focusNode: focusNode,
       onChanged: (text) {
-        widget.onChanged?.call(text);
-        setState(() {});
-      },
-      onSubmitted: (text) {
-        widget.onSubmitted?.call(text);
-
-        if (widget.autoClearWhenDone) {
-          controller.text = "";
+        if (widget.debounceDuration != null) {
+          _debounceOnChangedText(widget.debounceDuration!, text);
+        } else {
+          _onChanged(text);
         }
       },
+      onSubmitted: (text) => _onSubmitted(text),
       maxLines: 1,
       maxLength: widget.maxLength,
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
