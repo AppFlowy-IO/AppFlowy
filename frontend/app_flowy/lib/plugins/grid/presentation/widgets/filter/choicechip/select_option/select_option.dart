@@ -167,3 +167,12 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
     );
   }
 }
+
+class _FilterPannel extends StatelessWidget {
+  const _FilterPannel({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
