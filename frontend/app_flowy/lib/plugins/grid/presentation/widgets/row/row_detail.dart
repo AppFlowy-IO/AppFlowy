@@ -114,7 +114,7 @@ class _PropertyList extends StatelessWidget {
       builder: (context, state) {
         return Column(
           children: [
-            Expanded(child: _wrapScrollbar(buildList(state))),
+            Expanded(child: _wrapScrollbar(buildRowCells(state))),
             const VSpace(10),
             _CreateFieldButton(
               viewId: viewId,
@@ -126,7 +126,7 @@ class _PropertyList extends StatelessWidget {
     );
   }
 
-  Widget buildList(RowDetailState state) {
+  Widget buildRowCells(RowDetailState state) {
     return ListView.separated(
       controller: _scrollController,
       itemCount: state.gridCells.length,
