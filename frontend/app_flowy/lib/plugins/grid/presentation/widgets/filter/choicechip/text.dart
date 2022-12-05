@@ -152,8 +152,9 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
     return FlowyTextField(
       text: state.filter.content,
       hintText: LocaleKeys.grid_settings_typeAValue.tr(),
+      debounceDuration: const Duration(milliseconds: 300),
       autoFocus: false,
-      onSubmitted: (text) {
+      onChanged: (text) {
         context
             .read<TextFilterEditorBloc>()
             .add(TextFilterEditorEvent.updateContent(text));
