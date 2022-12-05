@@ -61,7 +61,7 @@ where
         predicate: impl Fn(&Arc<T>) -> bool,
     ) -> Option<Arc<T>> {
         let objects = self.get_objects(field_id, field_type)?;
-        let index = objects.iter().position(|object| predicate(object))?;
+        let index = objects.iter().position(predicate)?;
         objects.get(index).cloned()
     }
 

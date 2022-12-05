@@ -376,13 +376,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-codegen"
+version = "0.1.0"
+dependencies = [
+ "cmd_lib",
+ "console",
+ "fancy-regex",
+ "flowy-ast",
+ "itertools",
+ "lazy_static",
+ "log",
+ "phf 0.8.0",
+ "protoc-bin-vendored",
+ "protoc-rust",
+ "quote",
+ "serde",
+ "serde_json",
+ "similar",
+ "syn",
+ "tera",
+ "toml",
+ "walkdir",
+]
+
+[[package]]
 name = "flowy-derive"
 version = "0.1.0"
 dependencies = [
  "dashmap",
  "flowy-ast",
+ "flowy-codegen",
  "lazy_static",
- "lib-infra",
  "log",
  "proc-macro2",
  "quote",
@@ -398,8 +422,8 @@ name = "flowy-error-code"
 version = "0.1.0"
 dependencies = [
  "derive_more",
+ "flowy-codegen",
  "flowy-derive",
- "lib-infra",
  "protobuf",
 ]
 
@@ -408,6 +432,7 @@ name = "flowy-http-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "flowy-codegen",
  "flowy-derive",
  "lib-infra",
  "md5",
@@ -785,27 +810,10 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "chrono",
- "cmd_lib",
- "console",
- "fancy-regex",
- "flowy-ast",
  "futures-core",
- "itertools",
- "lazy_static",
- "log",
- "phf 0.8.0",
  "pin-project",
- "protoc-bin-vendored",
- "protoc-rust",
  "rand 0.8.5",
- "serde",
- "serde_json",
- "similar",
- "syn",
- "tera",
  "tokio",
- "toml",
- "walkdir",
 ]
 
 [[package]]
@@ -839,6 +847,7 @@ dependencies = [
  "bytes",
  "dashmap",
  "env_logger",
+ "flowy-codegen",
  "flowy-derive",
  "futures",
  "futures-channel",

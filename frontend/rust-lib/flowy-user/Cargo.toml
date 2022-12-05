@@ -45,7 +45,7 @@ rand_core = "0.6.3"
 rand = "0.8.5"
 
 [features]
-dart = ["lib-infra/dart"]
+dart = ["flowy-codegen/dart"]
 
 [build-dependencies]
-lib-infra = { path = "../../../shared-lib/lib-infra", features = ["proto_gen"] }
+flowy-codegen= { path = "../../../shared-lib/flowy-codegen"}

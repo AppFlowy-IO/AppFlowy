@@ -34,6 +34,7 @@ impl CollaborateError {
         self
     }
 
+    static_error!(serde, ErrorCode::SerdeError);
     static_error!(internal, ErrorCode::InternalError);
     static_error!(undo, ErrorCode::UndoFail);
     static_error!(redo, ErrorCode::RedoFail);
@@ -51,14 +52,15 @@ impl fmt::Display for CollaborateError {
 
 #[derive(Debug, Clone, Display, PartialEq, Eq)]
 pub enum ErrorCode {
-    DocIdInvalid = 0,
-    DocNotfound = 1,
+    DocumentIdInvalid = 0,
+    DocumentNotfound = 1,
     UndoFail = 200,
     RedoFail = 201,
     OutOfBound = 202,
     RevisionConflict = 203,
     RecordNotFound = 300,
     CannotDeleteThePrimaryField = 301,
+    SerdeError = 999,
     InternalError = 1000,
 }
 

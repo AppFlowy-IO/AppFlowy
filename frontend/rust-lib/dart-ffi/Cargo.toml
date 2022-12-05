@@ -37,6 +37,7 @@ http_sync = ["flowy-sdk/http_sync", "flowy-sdk/use_bunyan"]
 openssl_vendored = ["flowy-sdk/openssl_vendored"]
 
 [build-dependencies]
-lib-infra = { path = "../../../shared-lib/lib-infra", features = [
+flowy-codegen= { path = "../../../shared-lib/flowy-codegen", features = [
     "dart",
-] }
+]}
+

@@ -8,6 +8,7 @@ members = [
   "lib-infra",
   "flowy-derive",
   "flowy-ast",
+  "flowy-codegen",
   "flowy-error-code",
   "grid-rev-model",
 ]

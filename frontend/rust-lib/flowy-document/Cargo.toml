@@ -52,10 +52,11 @@ criterion = "0.3"
 rand = "0.8.5"
 
 [build-dependencies]
-lib-infra = { path = "../../../shared-lib/lib-infra", features = [ "proto_gen"] }
+flowy-codegen= { path = "../../../shared-lib/flowy-codegen"}
+
 
 [features]
 sync = []
 cloud_sync = ["sync"]
 flowy_unit_test = ["lib-ot/flowy_unit_test", "flowy-revision/flowy_unit_test"]
-dart = ["lib-infra/dart"]
+dart = ["flowy-codegen/dart"]
