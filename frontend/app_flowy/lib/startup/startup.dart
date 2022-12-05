@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flowy_sdk/flowy_sdk.dart';
+import 'package:app_flowy/workspace/application/settings/settings_location_cubit.dart';
 
 // [[diagram: flowy startup flow]]
 //                   ┌──────────┐
@@ -29,6 +30,8 @@ final getIt = GetIt.instance;
 
 abstract class EntryPoint {
   Widget create();
+
+  // List<dynamic> get args;
 }
 
 class FlowyRunner {
@@ -38,7 +41,11 @@ class FlowyRunner {
     initGetIt(getIt, env, f);
 
     // add task
-    getIt<AppLauncher>().addTask(InitRustSDKTask());
+    getIt<AppLauncher>().addTask(InitRustSDKTask(
+      directory: getIt<SettingsLocationCubit>()
+          .fetchLocation()
+          .then((value) => Directory(value)),
+    ));
     getIt<AppLauncher>().addTask(PluginLoadTask());
 
     if (!env.isTest()) {

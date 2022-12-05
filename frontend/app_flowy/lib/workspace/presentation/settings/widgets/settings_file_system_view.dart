@@ -1,0 +1,122 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:app_flowy/startup/tasks/prelude.dart';
+import 'package:app_flowy/workspace/application/settings/settings_location_cubit.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
+
+class SettingsFileSystemView extends StatefulWidget {
+  const SettingsFileSystemView({
+    super.key,
+  });
+
+  @override
+  State<SettingsFileSystemView> createState() => _SettingsFileSystemViewState();
+}
+
+class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
+  final _locationCubit = SettingsLocationCubit()..fetchLocation();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return _buildLocationCustomizer();
+        }
+        return Container();
+      },
+      separatorBuilder: (context, index) {
+        return const Divider();
+      },
+      itemCount: 1,
+    );
+  }
+
+  // Customize Default Location
+  ListTile _buildLocationCustomizer() {
+    return ListTile(
+      title: FlowyText.regular(
+        LocaleKeys.settings_files_defaultLocation.tr(),
+        fontSize: 16.0,
+      ),
+      subtitle: FutureBuilder<String>(
+        future: _getCustomLocation(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData &&
+              snapshot.connectionState == ConnectionState.done) {
+            return GestureDetector(
+              onTap: () {
+                _getCustomLocation().then((value) {
+                  Clipboard.setData(ClipboardData(
+                    text: value,
+                  ));
+                });
+              },
+              child: FlowyText.regular(
+                snapshot.data!,
+                fontSize: 12.0,
+              ),
+            );
+          } else {
+            return Container();
+          }
+        },
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Tooltip(
+            message: 'Restore Location',
+            child: FlowyIconButton(
+              icon: const Icon(Icons.restore_outlined),
+              onPressed: () async {
+                final result = await appFlowyDocumentDirectory();
+                await _setCustomLocation(result.path);
+                setState(() {});
+              },
+            ),
+          ),
+          Tooltip(
+            message: 'Customize Location',
+            child: FlowyIconButton(
+              icon: const Icon(Icons.folder_open_outlined),
+              onPressed: () async {
+                final result = await FilePicker.platform.getDirectoryPath();
+                await _setCustomLocation(result);
+                setState(() {});
+              },
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<void> _setCustomLocation(String? path) async {
+    // Using default location if path equals null.
+    final location = path ?? (await appFlowyDocumentDirectory()).path;
+    if (mounted) {
+      _locationCubit.setLocation(location);
+    }
+
+    // The location could not save into the KV db, because the db initialize is later than the rust sdk initialize.
+    /*
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      context
+          .read<AppearanceSettingsCubit>()
+          .setKeyValue(AppearanceKeys.defaultLocation, location);
+    }
+    */
+  }
+
+  Future<String> _getCustomLocation() async {
+    return _locationCubit.fetchLocation();
+  }
+}

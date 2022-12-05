@@ -4,6 +4,7 @@ import 'package:app_flowy/user/application/user_service.dart';
 import 'package:app_flowy/workspace/application/app/prelude.dart';
 import 'package:app_flowy/plugins/document/application/prelude.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
+import 'package:app_flowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:app_flowy/workspace/application/user/prelude.dart';
 import 'package:app_flowy/workspace/application/workspace/prelude.dart';
 import 'package:app_flowy/workspace/application/edit_panel/edit_panel_bloc.dart';
@@ -99,6 +100,11 @@ void _resolveFolderDeps(GetIt getIt) {
   //Settings
   getIt.registerFactoryParam<SettingsDialogBloc, UserProfilePB, void>(
     (user, _) => SettingsDialogBloc(user),
+  );
+
+  // Location
+  getIt.registerFactory<SettingsLocationCubit>(
+    () => SettingsLocationCubit(),
   );
 
   //User

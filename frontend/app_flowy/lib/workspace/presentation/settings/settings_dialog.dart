@@ -1,6 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_appearance_view.dart';
+import 'package:app_flowy/workspace/presentation/settings/widgets/settings_file_system_view.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_menu.dart';
@@ -14,15 +15,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class SettingsDialog extends StatelessWidget {
   final UserProfilePB user;
   SettingsDialog(this.user, {Key? key}) : super(key: ValueKey(user.id));
-
-  Widget getSettingsView(int index, UserProfilePB user) {
-    final List<Widget> settingsViews = [
-      const SettingsAppearanceView(),
-      const SettingsLanguageView(),
-      SettingsUserView(user),
-    ];
-    return settingsViews[index];
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,5 +56,22 @@ class SettingsDialog extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget getSettingsView(int index, UserProfilePB user) {
+    switch (index) {
+      case 0:
+        return const SettingsAppearanceView();
+      case 1:
+        return const SettingsLanguageView();
+      case 2:
+        // File System..
+        return const SettingsFileSystemView();
+        return Container();
+      case 3:
+        return SettingsUserView(user);
+      default:
+        return Container();
+    }
   }
 }

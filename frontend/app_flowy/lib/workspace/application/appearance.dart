@@ -11,6 +11,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'appearance.freezed.dart';
 
+class AppearanceKeys {
+  static const defaultLocation = 'defaultLocation';
+}
+
 /// [AppearanceSettingsCubit] is used to modify the appear setting of AppFlowy application. Includes the [Locale] and [AppTheme].
 class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   final AppearanceSettingsPB _setting;

@@ -40,6 +40,16 @@ class SettingsMenu extends StatelessWidget {
         SettingsMenuElement(
           index: 2,
           currentIndex: currentIndex,
+          label: LocaleKeys.settings_menu_files.tr(),
+          icon: Icons.file_present_outlined,
+          changeSelectedIndex: changeSelectedIndex,
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        SettingsMenuElement(
+          index: 3,
+          currentIndex: currentIndex,
           label: LocaleKeys.settings_menu_user.tr(),
           icon: Icons.account_box_outlined,
           changeSelectedIndex: changeSelectedIndex,

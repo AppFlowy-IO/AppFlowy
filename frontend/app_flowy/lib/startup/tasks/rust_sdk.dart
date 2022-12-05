@@ -4,14 +4,28 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flowy_sdk/flowy_sdk.dart';
 
 class InitRustSDKTask extends LaunchTask {
+  InitRustSDKTask({
+    this.directory,
+  });
+
+  // Customize the RustSDK initialization path
+  final Future<Directory>? directory;
+
   @override
   LaunchTaskType get type => LaunchTaskType.dataProcessing;
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    await appFlowyDocumentDirectory().then((directory) async {
-      await context.getIt<FlowySDK>().init(directory);
-    });
+    // use the custom directory
+    if (directory != null) {
+      return directory!.then((directory) async {
+        await context.getIt<FlowySDK>().init(directory);
+      });
+    } else {
+      return appFlowyDocumentDirectory().then((directory) async {
+        await context.getIt<FlowySDK>().init(directory);
+      });
+    }
   }
 }
 
