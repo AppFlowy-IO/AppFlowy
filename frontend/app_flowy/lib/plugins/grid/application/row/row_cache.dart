@@ -97,11 +97,22 @@ class GridRowCache {
     }
   }
 
-  void _updateRows(List<RowPB> updatedRows) {
+  void _updateRows(List<UpdatedRowPB> updatedRows) {
     if (updatedRows.isEmpty) return;
+    List<RowPB> rowPBs = [];
+    for (final updatedRow in updatedRows) {
+      for (final fieldId in updatedRow.fieldIds) {
+        final key = GridCellCacheKey(
+          fieldId: fieldId,
+          rowId: updatedRow.row.id,
+        );
+        _cellCache.remove(key);
+      }
+      rowPBs.add(updatedRow.row);
+    }
 
     final updatedIndexs =
-        _rowList.updateRows(updatedRows, (rowPB) => buildGridRow(rowPB));
+        _rowList.updateRows(rowPBs, (rowPB) => buildGridRow(rowPB));
     if (updatedIndexs.isNotEmpty) {
       _rowChangeReasonNotifier.receive(RowsChangedReason.update(updatedIndexs));
     }

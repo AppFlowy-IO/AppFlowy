@@ -1,5 +1,5 @@
 use crate::dart_notification::{send_dart_notification, GridDartNotification};
-use crate::entities::{CellChangesetPB, GridBlockChangesetPB, InsertedRowPB, RowPB};
+use crate::entities::{CellChangesetPB, GridBlockChangesetPB, InsertedRowPB, RowPB, UpdatedRowPB};
 use crate::manager::GridUser;
 use crate::services::block_editor::{GridBlockRevisionCompress, GridBlockRevisionEditor};
 use crate::services::persistence::block_index::BlockIndexCache;
@@ -111,8 +111,12 @@ impl GridBlockManager {
         match editor.get_row_rev(&changeset.row_id).await? {
             None => tracing::error!("Update row failed, can't find the row with id: {}", changeset.row_id),
             Some((_, row_rev)) => {
-                let row_pb = make_row_from_row_rev(row_rev);
-                let block_order_changeset = GridBlockChangesetPB::update(&editor.block_id, vec![row_pb]);
+                let changed_field_ids = changeset.cell_by_field_id.keys().cloned().collect::<Vec<String>>();
+                let updated_row = UpdatedRowPB {
+                    row: make_row_from_row_rev(row_rev),
+                    field_ids: changed_field_ids,
+                };
+                let block_order_changeset = GridBlockChangesetPB::update(&editor.block_id, vec![updated_row]);
                 let _ = self
                     .notify_did_update_block(&editor.block_id, block_order_changeset)
                     .await?;

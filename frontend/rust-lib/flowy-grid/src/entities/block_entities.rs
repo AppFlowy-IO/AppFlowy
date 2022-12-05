@@ -160,6 +160,16 @@ impl std::convert::From<&RowRevision> for InsertedRowPB {
     }
 }
 
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct UpdatedRowPB {
+    #[pb(index = 1)]
+    pub row: RowPB,
+
+    // represents as the cells that were updated in this row.
+    #[pb(index = 2)]
+    pub field_ids: Vec<String>,
+}
+
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct GridBlockChangesetPB {
     #[pb(index = 1)]
@@ -172,7 +182,7 @@ pub struct GridBlockChangesetPB {
     pub deleted_rows: Vec<String>,
 
     #[pb(index = 4)]
-    pub updated_rows: Vec<RowPB>,
+    pub updated_rows: Vec<UpdatedRowPB>,
 
     #[pb(index = 5)]
     pub visible_rows: Vec<InsertedRowPB>,
@@ -197,7 +207,7 @@ impl GridBlockChangesetPB {
         }
     }
 
-    pub fn update(block_id: &str, updated_rows: Vec<RowPB>) -> Self {
+    pub fn update(block_id: &str, updated_rows: Vec<UpdatedRowPB>) -> Self {
         Self {
             block_id: block_id.to_owned(),
             updated_rows,
