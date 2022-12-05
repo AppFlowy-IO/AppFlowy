@@ -37,7 +37,6 @@ class GridTextCell extends GridCellWidget {
 class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
   late TextCellBloc _cellBloc;
   late TextEditingController _controller;
-  Timer? _delayOperation;
 
   @override
   void initState() {
@@ -66,7 +65,9 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
           child: TextField(
             controller: _controller,
             focusNode: focusNode,
-            onChanged: (value) => focusChanged(),
+            onSubmitted: (text) => _cellBloc.add(
+              TextCellEvent.updateText(text),
+            ),
             onEditingComplete: () => focusNode.unfocus(),
             maxLines: null,
             style: Theme.of(context).textTheme.bodyMedium,
@@ -87,22 +88,8 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
 
   @override
   Future<void> dispose() async {
-    _delayOperation = null;
     _cellBloc.close();
     super.dispose();
-  }
-
-  @override
-  Future<void> focusChanged() async {
-    if (mounted) {
-      _delayOperation?.cancel();
-      _delayOperation = Timer(const Duration(milliseconds: 30), () {
-        if (_cellBloc.isClosed == false &&
-            _controller.text != _cellBloc.state.content) {
-          _cellBloc.add(TextCellEvent.updateText(_controller.text));
-        }
-      });
-    }
   }
 
   @override
