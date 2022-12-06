@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -6,7 +7,6 @@ import 'package:app_flowy/startup/tasks/prelude.dart';
 import 'package:app_flowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -82,7 +82,6 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
                   onPressed: () async {
                     final result = await appFlowyDocumentDirectory();
                     await _setCustomLocation(result.path);
-                    setState(() {});
                   },
                 ),
               ),
@@ -95,8 +94,10 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
                   icon: const Icon(Icons.folder_open_outlined),
                   onPressed: () async {
                     final result = await FilePicker.platform.getDirectoryPath();
-                    await _setCustomLocation(result);
-                    _showToast(LocaleKeys.settings_files_restartApp.tr());
+                    if (result != null) {
+                      await _setCustomLocation(result);
+                      _showToast(LocaleKeys.settings_files_restartApp.tr());
+                    }
                   },
                 ),
               )
