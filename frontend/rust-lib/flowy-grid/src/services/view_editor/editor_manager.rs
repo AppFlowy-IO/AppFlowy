@@ -4,15 +4,15 @@ use crate::entities::{
 };
 use crate::manager::GridUser;
 use crate::services::filter::FilterType;
-use crate::services::persistence::rev_sqlite::SQLiteGridViewRevisionPersistence;
+use crate::services::persistence::rev_sqlite::{
+    SQLiteGridRevisionSnapshotPersistence, SQLiteGridViewRevisionPersistence,
+};
 use crate::services::view_editor::changed_notifier::*;
 use crate::services::view_editor::trait_impl::GridViewRevisionCompress;
 use crate::services::view_editor::{GridViewEditorDelegate, GridViewRevisionEditor};
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
-use flowy_revision::{
-    RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, SQLiteRevisionSnapshotPersistence,
-};
+use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration};
 use grid_rev_model::{FieldRevision, FilterRevision, RowChangeset, RowRevision};
 use lib_infra::future::Fut;
 use lib_infra::ref_map::RefCountHashMap;
@@ -237,7 +237,7 @@ pub async fn make_grid_view_rev_manager(
     let rev_persistence = RevisionPersistence::new(&user_id, view_id, disk_cache, configuration);
     let rev_compactor = GridViewRevisionCompress();
 
-    let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(view_id, pool);
+    let snapshot_persistence = SQLiteGridRevisionSnapshotPersistence::new(view_id, pool);
     Ok(RevisionManager::new(
         &user_id,
         view_id,

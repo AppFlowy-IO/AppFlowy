@@ -11,8 +11,8 @@ use flowy_error::FlowyResult;
 use flowy_http_model::util::md5;
 use flowy_http_model::{document::DocumentIdPB, revision::Revision, ws_data::ServerRevisionWSData};
 use flowy_revision::{
-    RevisionCloudService, RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket,
-    SQLiteRevisionSnapshotPersistence,
+    PhantomSnapshotPersistence, RevisionCloudService, RevisionManager, RevisionPersistence,
+    RevisionPersistenceConfiguration, RevisionWebSocket,
 };
 use flowy_sync::client_document::initial_delta_document_content;
 use lib_infra::future::FutureResult;
@@ -254,18 +254,15 @@ impl DocumentManager {
         pool: Arc<ConnectionPool>,
     ) -> Result<RevisionManager<Arc<ConnectionPool>>, FlowyError> {
         let user_id = self.user.user_id()?;
-        let disk_cache = SQLiteDocumentRevisionPersistence::new(&user_id, pool.clone());
+        let disk_cache = SQLiteDocumentRevisionPersistence::new(&user_id, pool);
         let configuration = RevisionPersistenceConfiguration::new(100, true);
         let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache, configuration);
-        // let history_persistence = SQLiteRevisionHistoryPersistence::new(doc_id, pool.clone());
-        let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(doc_id, pool);
         Ok(RevisionManager::new(
             &user_id,
             doc_id,
             rev_persistence,
             DocumentRevisionCompress(),
-            // history_persistence,
-            snapshot_persistence,
+            PhantomSnapshotPersistence(),
         ))
     }
 
@@ -275,18 +272,15 @@ impl DocumentManager {
         pool: Arc<ConnectionPool>,
     ) -> Result<RevisionManager<Arc<ConnectionPool>>, FlowyError> {
         let user_id = self.user.user_id()?;
-        let disk_cache = SQLiteDeltaDocumentRevisionPersistence::new(&user_id, pool.clone());
+        let disk_cache = SQLiteDeltaDocumentRevisionPersistence::new(&user_id, pool);
         let configuration = RevisionPersistenceConfiguration::new(100, true);
         let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache, configuration);
-        // let history_persistence = SQLiteRevisionHistoryPersistence::new(doc_id, pool.clone());
-        let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(doc_id, pool);
         Ok(RevisionManager::new(
             &user_id,
             doc_id,
             rev_persistence,
             DeltaDocumentRevisionCompress(),
-            // history_persistence,
-            snapshot_persistence,
+            PhantomSnapshotPersistence(),
         ))
     }
 }

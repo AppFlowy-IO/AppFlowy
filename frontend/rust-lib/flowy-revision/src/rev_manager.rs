@@ -1,5 +1,8 @@
 use crate::disk::RevisionState;
-use crate::{RevisionPersistence, RevisionSnapshotDiskCache, RevisionSnapshotManager, WSDataProviderDataSource};
+use crate::{
+    RevisionPersistence, RevisionSnapshot, RevisionSnapshotController, RevisionSnapshotDiskCache,
+    WSDataProviderDataSource,
+};
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_http_model::revision::{Revision, RevisionRange};
@@ -69,7 +72,7 @@ pub struct RevisionManager<Connection> {
     user_id: String,
     rev_id_counter: RevIdCounter,
     rev_persistence: Arc<RevisionPersistence<Connection>>,
-    rev_snapshot: Arc<RevisionSnapshotManager>,
+    rev_snapshot: Arc<RevisionSnapshotController>,
     rev_compress: Arc<dyn RevisionMergeable>,
     #[cfg(feature = "flowy_unit_test")]
     rev_ack_notifier: tokio::sync::broadcast::Sender<i64>,
@@ -90,14 +93,14 @@ impl<Connection: 'static> RevisionManager<Connection> {
         let rev_id_counter = RevIdCounter::new(0);
         let rev_compress = Arc::new(rev_compress);
         let rev_persistence = Arc::new(rev_persistence);
-        let rev_snapshot = Arc::new(RevisionSnapshotManager::new(user_id, object_id, snapshot_persistence));
+        let rev_snapshot = RevisionSnapshotController::new(user_id, object_id, snapshot_persistence);
 
         Self {
             object_id: object_id.to_string(),
             user_id: user_id.to_owned(),
             rev_id_counter,
             rev_persistence,
-            rev_snapshot,
+            rev_snapshot: Arc::new(rev_snapshot),
             rev_compress,
             #[cfg(feature = "flowy_unit_test")]
             rev_ack_notifier: tokio::sync::broadcast::channel(1).0,
@@ -132,8 +135,22 @@ impl<Connection: 'static> RevisionManager<Connection> {
             .await
             .and_then(|revisions| self.rev_compress.combine_revisions(revisions))
         {
-            Ok(_bytes) => {}
-            Err(_) => {}
+            Ok(bytes) => {
+                let rev_id = self.rev_id_counter.value();
+                if let Err(e) = self.rev_snapshot.add_snapshot(rev_id, bytes.to_vec()) {
+                    tracing::error!("Save snapshot failed: {}", e);
+                }
+            }
+            Err(e) => {
+                tracing::error!("Generate snapshot data failed: {}", e);
+            }
+        }
+    }
+
+    pub async fn read_snapshot(&self, rev_id: Option<i64>) -> FlowyResult<Option<RevisionSnapshot>> {
+        match rev_id {
+            None => self.rev_snapshot.read_latest_snapshot(),
+            Some(rev_id) => self.rev_snapshot.read_snapshot(rev_id),
         }
     }
 

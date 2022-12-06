@@ -157,7 +157,15 @@ impl GridRevisionEditor {
         Ok(field_rev)
     }
 
-    pub async fn create_new_field_rev(
+    pub async fn create_new_field_rev(&self, field_rev: FieldRevision) -> FlowyResult<()> {
+        let field_id = field_rev.id.clone();
+        let _ = self.modify(|grid| Ok(grid.create_field_rev(field_rev, None)?)).await?;
+        let _ = self.notify_did_insert_grid_field(&field_id).await?;
+
+        Ok(())
+    }
+
+    pub async fn create_new_field_rev_with_type_option(
         &self,
         field_type: &FieldType,
         type_option_data: Option<Vec<u8>>,
@@ -812,6 +820,10 @@ impl GridRevisionEditor {
 impl GridRevisionEditor {
     pub fn rev_manager(&self) -> Arc<RevisionManager<Arc<ConnectionPool>>> {
         self.rev_manager.clone()
+    }
+
+    pub fn grid_pad(&self) -> Arc<RwLock<GridRevisionPad>> {
+        self.grid_pad.clone()
     }
 }
 

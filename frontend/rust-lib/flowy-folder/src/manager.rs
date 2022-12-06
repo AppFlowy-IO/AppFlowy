@@ -15,8 +15,8 @@ use bytes::Bytes;
 use flowy_document::editor::initial_read_me;
 use flowy_error::FlowyError;
 use flowy_revision::{
-    RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket,
-    SQLiteRevisionSnapshotPersistence,
+    PhantomSnapshotPersistence, RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration,
+    RevisionWebSocket,
 };
 use folder_rev_model::user_default;
 use lazy_static::lazy_static;
@@ -172,15 +172,12 @@ impl FolderManager {
         let configuration = RevisionPersistenceConfiguration::new(100, false);
         let rev_persistence = RevisionPersistence::new(user_id, object_id, disk_cache, configuration);
         let rev_compactor = FolderRevisionCompress();
-        // let history_persistence = SQLiteRevisionHistoryPersistence::new(object_id, pool.clone());
-        let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(object_id, pool);
         let rev_manager = RevisionManager::new(
             user_id,
             folder_id.as_ref(),
             rev_persistence,
             rev_compactor,
-            // history_persistence,
-            snapshot_persistence,
+            PhantomSnapshotPersistence(),
         );
 
         let folder_editor = FolderEditor::new(user_id, &folder_id, token, rev_manager, self.web_socket.clone()).await?;

@@ -3,14 +3,14 @@ use crate::entities::{CellChangesetPB, GridBlockChangesetPB, InsertedRowPB, RowP
 use crate::manager::GridUser;
 use crate::services::block_editor::{GridBlockRevisionCompress, GridBlockRevisionEditor};
 use crate::services::persistence::block_index::BlockIndexCache;
-use crate::services::persistence::rev_sqlite::SQLiteGridBlockRevisionPersistence;
+use crate::services::persistence::rev_sqlite::{
+    SQLiteGridBlockRevisionPersistence, SQLiteGridRevisionSnapshotPersistence,
+};
 use crate::services::row::{block_from_row_orders, make_row_from_row_rev, GridBlock};
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
-use flowy_revision::{
-    RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, SQLiteRevisionSnapshotPersistence,
-};
+use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration};
 use grid_rev_model::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision};
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -286,7 +286,7 @@ pub fn make_grid_block_rev_manager(
     let configuration = RevisionPersistenceConfiguration::new(4, false);
     let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache, configuration);
     let rev_compactor = GridBlockRevisionCompress();
-    let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(block_id, pool);
+    let snapshot_persistence = SQLiteGridRevisionSnapshotPersistence::new(block_id, pool);
     let rev_manager = RevisionManager::new(&user_id, block_id, rev_persistence, rev_compactor, snapshot_persistence);
     Ok(rev_manager)
 }

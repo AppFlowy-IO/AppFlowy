@@ -4,7 +4,7 @@ use crate::services::grid_editor::{GridRevisionCompress, GridRevisionEditor};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::kv::GridKVPersistence;
 use crate::services::persistence::migration::GridMigration;
-use crate::services::persistence::rev_sqlite::SQLiteGridRevisionPersistence;
+use crate::services::persistence::rev_sqlite::{SQLiteGridRevisionPersistence, SQLiteGridRevisionSnapshotPersistence};
 use crate::services::persistence::GridDatabase;
 use crate::services::view_editor::make_grid_view_rev_manager;
 use bytes::Bytes;
@@ -12,10 +12,7 @@ use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_http_model::revision::Revision;
-use flowy_revision::{
-    RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket,
-    SQLiteRevisionSnapshotPersistence,
-};
+use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket};
 use flowy_sync::client_grid::{make_grid_block_operations, make_grid_operations, make_grid_view_operations};
 use grid_rev_model::{BuildGridContext, GridRevision, GridViewRevision};
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
@@ -160,9 +157,9 @@ impl GridManager {
     ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
         let user_id = self.grid_user.user_id()?;
         let disk_cache = SQLiteGridRevisionPersistence::new(&user_id, pool.clone());
-        let configuration = RevisionPersistenceConfiguration::new(2, false);
+        let configuration = RevisionPersistenceConfiguration::new(4, false);
         let rev_persistence = RevisionPersistence::new(&user_id, grid_id, disk_cache, configuration);
-        let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(grid_id, pool);
+        let snapshot_persistence = SQLiteGridRevisionSnapshotPersistence::new(grid_id, pool);
         let rev_compactor = GridRevisionCompress();
         let rev_manager = RevisionManager::new(&user_id, grid_id, rev_persistence, rev_compactor, snapshot_persistence);
         Ok(rev_manager)

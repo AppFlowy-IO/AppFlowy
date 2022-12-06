@@ -61,11 +61,8 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for Checklist
             .filter(|insert_option_id| self.options.iter().any(|option| &option.id == insert_option_id))
             .collect::<Vec<String>>();
 
-        let new_cell_data: String;
         match cell_rev {
-            None => {
-                new_cell_data = SelectOptionIds::from(insert_option_ids).to_string();
-            }
+            None => Ok(SelectOptionIds::from(insert_option_ids).to_string()),
             Some(cell_rev) => {
                 let cell_data = get_cell_data(&cell_rev);
                 let mut select_ids: SelectOptionIds = cell_data.into();
@@ -79,12 +76,9 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for Checklist
                     select_ids.retain(|id| id != &delete_option_id);
                 }
 
-                new_cell_data = select_ids.to_string();
+                Ok(select_ids.to_string())
             }
         }
-
-        tracing::trace!("checklist's cell data: {}", &new_cell_data);
-        Ok(new_cell_data)
     }
 }
 

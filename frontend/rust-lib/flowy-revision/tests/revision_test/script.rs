@@ -3,8 +3,7 @@ use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_revision::disk::{RevisionChangeset, RevisionDiskCache, SyncRecord};
 use flowy_revision::{
     RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionPersistence,
-    RevisionPersistenceConfiguration, RevisionSnapshotDiskCache, RevisionSnapshotInfo,
-    REVISION_WRITE_INTERVAL_IN_MILLIS,
+    RevisionPersistenceConfiguration, RevisionSnapshot, RevisionSnapshotDiskCache, REVISION_WRITE_INTERVAL_IN_MILLIS,
 };
 
 use flowy_http_model::revision::{Revision, RevisionRange};
@@ -291,12 +290,16 @@ impl RevisionDiskCache<RevisionConnectionMock> for RevisionDiskCacheMock {
 pub struct RevisionConnectionMock {}
 pub struct RevisionSnapshotMock {}
 impl RevisionSnapshotDiskCache for RevisionSnapshotMock {
-    fn write_snapshot(&self, _object_id: &str, _rev_id: i64, _data: Vec<u8>) -> FlowyResult<()> {
+    fn write_snapshot(&self, _rev_id: i64, _data: Vec<u8>) -> FlowyResult<()> {
         todo!()
     }
 
-    fn read_snapshot(&self, _object_id: &str, _rev_id: i64) -> FlowyResult<RevisionSnapshotInfo> {
+    fn read_snapshot(&self, _rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>> {
         todo!()
+    }
+
+    fn read_latest_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>> {
+        Ok(None)
     }
 }
 

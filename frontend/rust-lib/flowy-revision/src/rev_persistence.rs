@@ -16,7 +16,12 @@ pub const REVISION_WRITE_INTERVAL_IN_MILLIS: u64 = 600;
 
 #[derive(Clone)]
 pub struct RevisionPersistenceConfiguration {
+    // If the number of revisions that didn't sync to the server greater than the merge_threshold
+    // then these revisions will be merged into one revision.
     merge_threshold: usize,
+
+    /// Indicates that the revisions that didn't sync to the server can be merged into one when
+    /// `compact_lagging_revisions` get called.
     merge_lagging: bool,
 }
 

@@ -208,7 +208,7 @@ pub(crate) async fn create_field_type_option_data_handler(
     let params: CreateFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
     let field_rev = editor
-        .create_new_field_rev(&params.field_type, params.type_option_data)
+        .create_new_field_rev_with_type_option(&params.field_type, params.type_option_data)
         .await?;
     let field_type: FieldType = field_rev.ty.into();
     let type_option_data = get_type_option_data(&field_rev, &field_type).await?;
