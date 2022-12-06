@@ -22,21 +22,18 @@ class SettingsLocation {
 class SettingsLocationCubit extends Cubit<SettingsLocation> {
   SettingsLocationCubit() : super(SettingsLocation(path: null));
 
-  String? getLocation() {
-    return state.path;
-  }
-
   Future<String> fetchLocation() async {
     final prefs = await SharedPreferences.getInstance();
     final path = prefs.getString(_kSettingsLocationDefaultLocation) ??
         (await appFlowyDocumentDirectory()).path;
-    state.path = path;
+    emit(state.copyWith(path: path));
     return Future.value(path);
   }
 
-  Future<bool> setLocation(String? path) async {
+  Future<void> setLocation(String? path) async {
     path = path ?? (await appFlowyDocumentDirectory()).path;
     final prefs = await SharedPreferences.getInstance();
-    return prefs.setString(_kSettingsLocationDefaultLocation, path);
+    prefs.setString(_kSettingsLocationDefaultLocation, path);
+    emit(state.copyWith(path: path));
   }
 }

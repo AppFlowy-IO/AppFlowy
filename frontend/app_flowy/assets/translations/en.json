@@ -169,7 +169,11 @@
       "darkLabel": "Dark Mode"
     },
     "files": {
-      "defaultLocation": "Default location for new notes"
+      "defaultLocation": "Default location for new notes",
+      "doubleTapToCopy": "Double tap to copy the path",
+      "restoreLocation": "Restore to default location",
+      "customizeLocation": "Customize location",
+      "restartApp": "Please restart app for the changes to take effect."
     }
   },
   "grid": {
