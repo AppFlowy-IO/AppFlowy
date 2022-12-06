@@ -22,19 +22,19 @@ class DocumentAppearance {
 class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
   DocumentAppearanceCubit() : super(const DocumentAppearance(fontSize: 14.0));
 
-  late DocumentAppearance documentAppearance;
-
   void fetch() async {
     final prefs = await SharedPreferences.getInstance();
     final fontSize = prefs.getDouble(_kDocumentAppearenceFontSize) ?? 14.0;
-    documentAppearance = DocumentAppearance(fontSize: fontSize);
-    emit(documentAppearance);
+    emit(state.copyWith(
+      fontSize: fontSize,
+    ));
   }
 
-  void sync(DocumentAppearance documentAppearance) async {
+  void syncFontSize(double fontSize) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setDouble(_kDocumentAppearenceFontSize, documentAppearance.fontSize);
-    this.documentAppearance = documentAppearance;
-    emit(documentAppearance);
+    prefs.setDouble(_kDocumentAppearenceFontSize, fontSize);
+    emit(state.copyWith(
+      fontSize: fontSize,
+    ));
   }
 }

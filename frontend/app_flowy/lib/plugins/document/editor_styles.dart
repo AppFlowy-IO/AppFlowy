@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 EditorStyle customEditorTheme(BuildContext context) {
-  final documentStyle =
-      context.watch<DocumentAppearanceCubit>().documentAppearance;
+  final documentStyle = context.watch<DocumentAppearanceCubit>().state;
   var editorStyle = Theme.of(context).brightness == Brightness.dark
       ? EditorStyle.dark
       : EditorStyle.light;
@@ -29,8 +28,7 @@ EditorStyle customEditorTheme(BuildContext context) {
 }
 
 Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
-  final documentStyle =
-      context.watch<DocumentAppearanceCubit>().documentAppearance;
+  final documentStyle = context.watch<DocumentAppearanceCubit>().state;
   final baseFontSize = documentStyle.fontSize;
   const basePadding = 12.0;
   var headingPluginStyle = Theme.of(context).brightness == Brightness.dark
