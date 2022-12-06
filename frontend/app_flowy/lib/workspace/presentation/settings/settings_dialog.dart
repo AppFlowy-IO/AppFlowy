@@ -65,9 +65,7 @@ class SettingsDialog extends StatelessWidget {
       case 1:
         return const SettingsLanguageView();
       case 2:
-        // File System..
         return const SettingsFileSystemView();
-        return Container();
       case 3:
         return SettingsUserView(user);
       default:

@@ -43,7 +43,7 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
         return Container();
       },
       separatorBuilder: (context, index) => const Divider(),
-      itemCount: 1,
+      itemCount: 2, // make the divider taking effect.
     );
   }
 
@@ -56,7 +56,7 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
         return ListTile(
           title: FlowyText.regular(
             LocaleKeys.settings_files_defaultLocation.tr(),
-            fontSize: 16.0,
+            fontSize: 15.0,
           ),
           subtitle: Tooltip(
             message: LocaleKeys.settings_files_doubleTapToCopy.tr(),
@@ -68,7 +68,7 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
               },
               child: FlowyText.regular(
                 state.path ?? '',
-                fontSize: 12.0,
+                fontSize: 10.0,
               ),
             ),
           ),
@@ -85,6 +85,9 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
                     setState(() {});
                   },
                 ),
+              ),
+              const SizedBox(
+                width: 5,
               ),
               Tooltip(
                 message: LocaleKeys.settings_files_customizeLocation.tr(),

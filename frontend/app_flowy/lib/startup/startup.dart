@@ -30,8 +30,6 @@ final getIt = GetIt.instance;
 
 abstract class EntryPoint {
   Widget create();
-
-  // List<dynamic> get args;
 }
 
 class FlowyRunner {
