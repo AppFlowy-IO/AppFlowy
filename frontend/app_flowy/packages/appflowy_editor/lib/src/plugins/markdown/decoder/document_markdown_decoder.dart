@@ -80,6 +80,8 @@ class DocumentMarkdownDecoder extends Converter<String, Document> {
           BuiltInAttributeKey.subtype: BuiltInAttributeKey.quote,
         },
       );
+    } else if (RegExp(r'^-*').stringMatch(text) == text) {
+      return Node(type: 'divider');
     }
 
     if (text.isNotEmpty) {
