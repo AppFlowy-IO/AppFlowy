@@ -40,7 +40,7 @@ class TextNodeParser extends NodeParser {
         }
       } else if (subtype == 'quote') {
         result = '> $markdown';
-      } else if (subtype == 'code-block') {
+      } else if (subtype == 'code_block') {
         result = '```\n$markdown\n```';
       } else if (subtype == 'bulleted-list') {
         result = '* $markdown';
