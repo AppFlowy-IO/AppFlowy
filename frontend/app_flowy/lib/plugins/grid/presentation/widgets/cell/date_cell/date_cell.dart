@@ -1,5 +1,5 @@
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
@@ -43,7 +43,6 @@ class GridDateCell extends GridCellWidget {
 class _DateCellState extends GridCellState<GridDateCell> {
   late PopoverController _popover;
   late DateCellBloc _cellBloc;
-  bool isSelected = false;
 
   @override
   void initState() {
@@ -72,30 +71,22 @@ class _DateCellState extends GridCellState<GridDateCell> {
             margin: EdgeInsets.zero,
             child: SizedBox.expand(
               child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    _popover.show();
-                    setState(() {
-                      isSelected = true;
-                    });
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            color: isSelected
-                                ? Theme.of(context).colorScheme.primary
-                                : Colors.transparent)),
-                    child: Align(
-                      alignment: alignment,
-                      child: Padding(
-                        padding: GridSize.cellContentInsets,
-                        child: FlowyText.medium(
-                          state.dateStr,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  _popover.show();
+                  widget.onCellEditing.value = true;
+                },
+                child: Align(
+                  alignment: alignment,
+                  child: Padding(
+                    padding: GridSize.cellContentInsets,
+                    child: FlowyText.medium(
+                      state.dateStr,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  )),
+                  ),
+                ),
+              ),
             ),
             popupBuilder: (BuildContext popoverContent) {
               return DateCellEditor(
@@ -106,9 +97,6 @@ class _DateCellState extends GridCellState<GridDateCell> {
             },
             onClose: () {
               widget.onCellEditing.value = false;
-              setState(() {
-                isSelected = false;
-              });
             },
           );
         },
