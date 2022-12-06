@@ -82,6 +82,7 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
                   onPressed: () async {
                     final result = await appFlowyDocumentDirectory();
                     await _setCustomLocation(result.path);
+                    _showToast(LocaleKeys.settings_files_restartApp.tr());
                   },
                 ),
               ),
