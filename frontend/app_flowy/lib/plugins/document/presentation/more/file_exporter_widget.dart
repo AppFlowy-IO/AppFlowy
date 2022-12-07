@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+
 class FileExporterWidget extends StatefulWidget {
   const FileExporterWidget({Key? key}) : super(key: key);
 
@@ -25,8 +27,8 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const FlowyText.medium(
-          'Select the files that need to be export',
+        FlowyText.medium(
+          LocaleKeys.settings_files_selectFiles.tr(),
           fontSize: 16.0,
         ),
         const VSpace(8),
@@ -101,26 +103,7 @@ class __ExpandedListState extends State<_ExpandedList> {
   List<AppPB> get apps => widget.apps;
   List<bool> expanded = [];
   List<bool> selectedApps = [];
-  List<List<bool>> _selectedItems = [];
-  List<List<bool>> get selectedItems => _selectedItems;
-  set selectedItems(List<List<bool>> value) {
-    _selectedItems = value;
-
-    Map<String, List<String>> result = {};
-    for (var i = 0; i < selectedItems.length; i++) {
-      final selectedItem = selectedItems[i];
-      final ids = <String>[];
-      for (var j = 0; j < selectedItem.length; j++) {
-        if (selectedItem[j]) {
-          ids.add(apps[i].belongings.items[j].id);
-        }
-      }
-      if (ids.isNotEmpty) {
-        result[apps[i].id] = ids;
-      }
-    }
-    widget.onChanged(result);
-  }
+  List<List<bool>> selectedItems = [];
 
   @override
   void initState() {
@@ -162,6 +145,7 @@ class __ExpandedListState extends State<_ExpandedList> {
           onChanged: (value) {
             setState(() {
               selectedItems[index][i] = !selectedItems[index][i];
+              widget.onChanged(_getSelectedPages());
             });
           },
           title: FlowyText.regular(name),
@@ -189,6 +173,23 @@ class __ExpandedListState extends State<_ExpandedList> {
         ...expandedChildren,
       ],
     );
+  }
+
+  Map<String, List<String>> _getSelectedPages() {
+    Map<String, List<String>> result = {};
+    for (var i = 0; i < selectedItems.length; i++) {
+      final selectedItem = selectedItems[i];
+      final ids = <String>[];
+      for (var j = 0; j < selectedItem.length; j++) {
+        if (selectedItem[j]) {
+          ids.add(apps[i].belongings.items[j].id);
+        }
+      }
+      if (ids.isNotEmpty) {
+        result[apps[i].id] = ids;
+      }
+    }
+    return result;
   }
 }
 

@@ -1,3 +1,4 @@
+import 'package:app_flowy/plugins/document/presentation/more/file_exporter_widget.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +10,6 @@ import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -39,11 +39,13 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
       itemBuilder: (context, index) {
         if (index == 0) {
           return _buildLocationCustomizer();
+        } else if (index == 1) {
+          return _buildExportDatabaseButton();
         }
         return Container();
       },
       separatorBuilder: (context, index) => const Divider(),
-      itemCount: 2, // make the divider taking effect.
+      itemCount: 3, // make the divider taking effect.
     );
   }
 
@@ -106,6 +108,26 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
           ),
         );
       }),
+    );
+  }
+
+  // Export databse
+  Widget _buildExportDatabaseButton() {
+    return ListTile(
+      title: FlowyText.regular(
+        LocaleKeys.settings_files_exportDatabase.tr(),
+        fontSize: 15.0,
+      ),
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return const FlowyDialog(
+              child: FileExporterWidget(),
+            );
+          },
+        );
+      },
     );
   }
 

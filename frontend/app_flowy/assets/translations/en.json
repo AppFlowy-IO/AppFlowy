@@ -173,7 +173,9 @@
       "doubleTapToCopy": "Double tap to copy the path",
       "restoreLocation": "Restore to default location",
       "customizeLocation": "Customize location",
-      "restartApp": "Please restart app for the changes to take effect."
+      "restartApp": "Please restart app for the changes to take effect.",
+      "exportDatabase": "Export databae",
+      "selectFiles": "Select the files that need to be export"
     }
   },
   "grid": {
