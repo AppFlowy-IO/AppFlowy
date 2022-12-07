@@ -126,6 +126,7 @@ class __ExpandedListState extends State<_ExpandedList> {
       children.add(_buildExpandedItem(context, i));
     }
     return Material(
+      color: Colors.transparent,
       child: SingleChildScrollView(
         child: Column(
           children: children,
@@ -148,7 +149,7 @@ class __ExpandedListState extends State<_ExpandedList> {
               widget.onChanged(_getSelectedPages());
             });
           },
-          title: FlowyText.regular(name),
+          title: FlowyText.regular('  $name'),
         );
         expandedChildren.add(checkbox);
       }
