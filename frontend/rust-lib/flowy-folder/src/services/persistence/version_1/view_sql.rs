@@ -21,7 +21,7 @@ impl ViewTableSql {
     pub(crate) fn create_view(view_rev: ViewRevision, conn: &SqliteConnection) -> Result<(), FlowyError> {
         let view_table = ViewTable::new(view_rev);
         match diesel_record_count!(view_table, &view_table.id, conn) {
-            0 => diesel_insert_table!(view_table, &view_table, conn),
+            0 => diesel_insert_table!(view_table, view_table.clone(), conn),
             _ => {
                 let changeset = ViewChangeset::from_table(view_table);
                 diesel_update_table!(view_table, changeset, conn)

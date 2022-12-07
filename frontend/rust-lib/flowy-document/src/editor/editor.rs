@@ -8,6 +8,7 @@ use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_http_model::ws_data::ServerRevisionWSData;
 use flowy_revision::{RevisionCloudService, RevisionManager};
+use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use lib_ot::core::Transaction;
 use lib_ws::WSConnectState;
@@ -86,14 +87,12 @@ fn spawn_edit_queue(
     sender
 }
 
+#[async_trait]
 impl DocumentEditor for Arc<AppFlowyDocumentEditor> {
     #[tracing::instrument(name = "close document editor", level = "trace", skip_all)]
-    fn close(&self) {
-        let rev_manager = self.rev_manager.clone();
-        tokio::spawn(async move {
-            rev_manager.write_snapshot().await;
-            rev_manager.close().await;
-        });
+    async fn close(&self) {
+        self.rev_manager.write_snapshot().await;
+        self.rev_manager.close().await;
     }
 
     fn export(&self) -> FutureResult<String, FlowyError> {

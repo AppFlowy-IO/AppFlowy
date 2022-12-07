@@ -45,10 +45,30 @@ where
         }
 
         let operations = DeltaOperations::<T>::from_bytes(revision.bytes).map_err(|e| {
-            let err_msg = format!("Deserialize remote revision failed: {:?}", e);
+            let err_msg = format!("Deserialize revision failed: {:?}", e);
             CollaborateError::internal().context(err_msg)
         })?;
-        new_operations = new_operations.compose(&operations)?;
+
+        match new_operations.compose(&operations) {
+            Ok(composed_operations) => {
+                new_operations = composed_operations;
+                // if composed_operations.content().is_ok() {
+                //     new_operations = composed_operations;
+                // } else {
+                //     tracing::error!(
+                //         "Compose operation failed: rev_id: {}, object_id: {} {:?}",
+                //         revision.rev_id,
+                //         revision.object_id,
+                //         operations
+                //     );
+                //     return Ok(new_operations);
+                // }
+            }
+            Err(e) => {
+                tracing::error!("Compose operation failed: {},  {:?}", e, operations);
+                return Ok(new_operations);
+            }
+        }
     }
     Ok(new_operations)
 }

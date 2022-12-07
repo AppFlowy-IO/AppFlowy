@@ -15,6 +15,7 @@ use flowy_revision::RevisionManager;
 use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_task::TaskDispatcher;
 use grid_rev_model::{gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterRevision, RowChangeset, RowRevision};
+use lib_infra::async_trait::async_trait;
 use lib_infra::future::Fut;
 use lib_infra::ref_map::RefCountValue;
 use nanoid::nanoid;
@@ -88,14 +89,10 @@ impl GridViewRevisionEditor {
     }
 
     #[tracing::instrument(name = "close grid view editor", level = "trace", skip_all)]
-    pub fn close(&self) {
-        let filter_controller = self.filter_controller.clone();
-        let rev_manager = self.rev_manager.clone();
-        tokio::spawn(async move {
-            rev_manager.write_snapshot().await;
-            rev_manager.close().await;
-            filter_controller.read().await.close().await;
-        });
+    pub async fn close(&self) {
+        self.rev_manager.write_snapshot().await;
+        self.rev_manager.close().await;
+        self.filter_controller.read().await.close().await;
     }
 
     pub async fn filter_rows(&self, _block_id: &str, mut rows: Vec<Arc<RowRevision>>) -> Vec<Arc<RowRevision>> {
@@ -513,9 +510,10 @@ impl GridViewRevisionEditor {
     }
 }
 
+#[async_trait]
 impl RefCountValue for GridViewRevisionEditor {
-    fn did_remove(&self) {
-        self.close();
+    async fn did_remove(&self) {
+        self.close().await;
     }
 }
 

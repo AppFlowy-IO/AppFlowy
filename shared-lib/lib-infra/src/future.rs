@@ -8,7 +8,7 @@ use std::{
     task::{Context, Poll},
 };
 
-pub fn to_future<T, O>(f: T) -> Fut<O>
+pub fn to_fut<T, O>(f: T) -> Fut<O>
 where
     T: Future<Output = O> + Send + Sync + 'static,
 {

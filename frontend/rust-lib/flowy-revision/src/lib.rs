@@ -2,6 +2,7 @@ mod cache;
 mod conflict_resolve;
 mod rev_manager;
 mod rev_persistence;
+mod rev_queue;
 mod rev_snapshot;
 mod ws_manager;
 

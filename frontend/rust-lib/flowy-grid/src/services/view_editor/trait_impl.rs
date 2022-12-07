@@ -13,7 +13,7 @@ use flowy_revision::{
 use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_sync::util::make_operations_from_revisions;
 use grid_rev_model::{FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, RowRevision};
-use lib_infra::future::{to_future, Fut, FutureResult};
+use lib_infra::future::{to_fut, Fut, FutureResult};
 use lib_ot::core::EmptyAttributes;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -58,7 +58,7 @@ pub(crate) struct GroupConfigurationReaderImpl(pub(crate) Arc<RwLock<GridViewRev
 impl GroupConfigurationReader for GroupConfigurationReaderImpl {
     fn get_configuration(&self) -> Fut<Option<Arc<GroupConfigurationRevision>>> {
         let view_pad = self.0.clone();
-        to_future(async move {
+        to_fut(async move {
             let mut groups = view_pad.read().await.get_all_groups();
             if groups.is_empty() {
                 None
@@ -88,7 +88,7 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
         let view_pad = self.view_pad.clone();
         let field_id = field_id.to_owned();
 
-        to_future(async move {
+        to_fut(async move {
             let changeset = view_pad.write().await.insert_or_update_group_configuration(
                 &field_id,
                 &field_type,
@@ -109,10 +109,8 @@ pub(crate) async fn apply_change(
     change: GridViewRevisionChangeset,
 ) -> FlowyResult<()> {
     let GridViewRevisionChangeset { operations: delta, md5 } = change;
-    let (base_rev_id, rev_id) = rev_manager.next_rev_id_pair();
-    let delta_data = delta.json_bytes();
-    let revision = Revision::new(&rev_manager.object_id, base_rev_id, rev_id, delta_data, md5);
-    let _ = rev_manager.add_local_revision(&revision).await?;
+    let data = delta.json_bytes();
+    let _ = rev_manager.add_local_revision(data, md5).await?;
     Ok(())
 }
 
@@ -136,7 +134,7 @@ pub(crate) struct GridViewFilterDelegateImpl {
 impl FilterDelegate for GridViewFilterDelegateImpl {
     fn get_filter_rev(&self, filter_id: FilterType) -> Fut<Option<Arc<FilterRevision>>> {
         let pad = self.view_revision_pad.clone();
-        to_future(async move {
+        to_fut(async move {
             let field_type_rev: FieldTypeRevision = filter_id.field_type.into();
             let mut filters = pad.read().await.get_filters(&filter_id.field_id, &field_type_rev);
             if filters.is_empty() {

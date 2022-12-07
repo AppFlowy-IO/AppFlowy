@@ -5,7 +5,6 @@ use crate::services::rev_sqlite::{SQLiteDeltaDocumentRevisionPersistence, SQLite
 use crate::services::DocumentPersistence;
 use crate::{errors::FlowyError, DocumentCloudService};
 use bytes::Bytes;
-
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_http_model::util::md5;
@@ -15,6 +14,7 @@ use flowy_revision::{
     RevisionPersistenceConfiguration, RevisionWebSocket,
 };
 use flowy_sync::client_document::initial_delta_document_content;
+use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
 use lib_ws::WSConnectState;
@@ -32,9 +32,10 @@ pub trait DocumentDatabase: Send + Sync {
     fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError>;
 }
 
+#[async_trait]
 pub trait DocumentEditor: Send + Sync {
     /// Called when the document get closed
-    fn close(&self);
+    async fn close(&self);
 
     /// Exports the document content. The content is encoded in the corresponding
     /// editor data format.
@@ -129,7 +130,7 @@ impl DocumentManager {
     pub async fn close_document_editor<T: AsRef<str>>(&self, editor_id: T) -> Result<(), FlowyError> {
         let editor_id = editor_id.as_ref();
         tracing::Span::current().record("editor_id", &editor_id);
-        self.editor_map.write().await.remove(editor_id);
+        self.editor_map.write().await.remove(editor_id).await;
         Ok(())
     }
 
@@ -314,9 +315,10 @@ impl RevisionCloudService for DocumentRevisionCloudService {
 #[derive(Clone)]
 struct RefCountDocumentHandler(Arc<dyn DocumentEditor>);
 
+#[async_trait]
 impl RefCountValue for RefCountDocumentHandler {
-    fn did_remove(&self) {
-        self.0.close();
+    async fn did_remove(&self) {
+        self.0.close().await;
     }
 }
 

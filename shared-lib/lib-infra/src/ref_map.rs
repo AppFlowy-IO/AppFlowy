@@ -1,8 +1,10 @@
+use async_trait::async_trait;
 use std::collections::HashMap;
 use std::sync::Arc;
 
+#[async_trait]
 pub trait RefCountValue {
-    fn did_remove(&self) {}
+    async fn did_remove(&self) {}
 }
 
 struct RefCountHandler<T> {
@@ -30,7 +32,7 @@ impl<T> std::default::Default for RefCountHashMap<T> {
 
 impl<T> RefCountHashMap<T>
 where
-    T: Clone + Send + Sync + RefCountValue,
+    T: Clone + Send + Sync + RefCountValue + 'static,
 {
     pub fn new() -> Self {
         Self::default()
@@ -53,7 +55,7 @@ where
         }
     }
 
-    pub fn remove(&mut self, key: &str) {
+    pub async fn remove(&mut self, key: &str) {
         let mut should_remove = false;
         if let Some(value) = self.0.get_mut(key) {
             if value.ref_count > 0 {
@@ -64,17 +66,20 @@ where
 
         if should_remove {
             if let Some(handler) = self.0.remove(key) {
-                handler.inner.did_remove();
+                tokio::spawn(async move {
+                    handler.inner.did_remove().await;
+                });
             }
         }
     }
 }
 
+#[async_trait]
 impl<T> RefCountValue for Arc<T>
 where
-    T: RefCountValue,
+    T: RefCountValue + Sync + Send,
 {
-    fn did_remove(&self) {
-        (**self).did_remove()
+    async fn did_remove(&self) {
+        (**self).did_remove().await
     }
 }

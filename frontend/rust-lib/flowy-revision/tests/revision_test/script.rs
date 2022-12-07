@@ -15,35 +15,14 @@ use std::sync::Arc;
 use std::time::Duration;
 
 pub enum RevisionScript {
-    AddLocalRevision {
-        content: String,
-        base_rev_id: i64,
-        rev_id: i64,
-    },
-    AddLocalRevision2 {
-        content: String,
-        pair_rev_id: (i64, i64),
-    },
-    AddInvalidLocalRevision {
-        bytes: Vec<u8>,
-        base_rev_id: i64,
-        rev_id: i64,
-    },
-    AckRevision {
-        rev_id: i64,
-    },
-    AssertNextSyncRevisionId {
-        rev_id: Option<i64>,
-    },
-    AssertNumberOfSyncRevisions {
-        num: usize,
-    },
-    AssertNumberOfRevisionsInDisk {
-        num: usize,
-    },
-    AssertNextSyncRevisionContent {
-        expected: String,
-    },
+    AddLocalRevision { content: String },
+    AddLocalRevision2 { content: String },
+    AddInvalidLocalRevision { bytes: Vec<u8> },
+    AckRevision { rev_id: i64 },
+    AssertNextSyncRevisionId { rev_id: Option<i64> },
+    AssertNumberOfSyncRevisions { num: usize },
+    AssertNumberOfRevisionsInDisk { num: usize },
+    AssertNextSyncRevisionContent { expected: String },
     WaitWhenWriteToDisk,
 }
 
@@ -106,56 +85,32 @@ impl RevisionTest {
         }
     }
 
-    pub fn next_rev_id_pair(&self) -> (i64, i64) {
-        self.rev_manager.next_rev_id_pair()
-    }
-
     pub async fn run_script(&self, script: RevisionScript) {
         match script {
-            RevisionScript::AddLocalRevision {
-                content,
-                base_rev_id,
-                rev_id,
-            } => {
+            RevisionScript::AddLocalRevision { content } => {
                 let object = RevisionObjectMock::new(&content);
                 let bytes = object.to_bytes();
                 let md5 = md5(&bytes);
-                let revision = Revision::new(
-                    &self.rev_manager.object_id,
-                    base_rev_id,
-                    rev_id,
-                    Bytes::from(bytes),
-                    md5,
-                );
-                self.rev_manager.add_local_revision(&revision).await.unwrap();
+                self.rev_manager
+                    .add_local_revision(Bytes::from(bytes), md5)
+                    .await
+                    .unwrap();
             }
-            RevisionScript::AddLocalRevision2 { content, pair_rev_id } => {
+            RevisionScript::AddLocalRevision2 { content } => {
                 let object = RevisionObjectMock::new(&content);
                 let bytes = object.to_bytes();
                 let md5 = md5(&bytes);
-                let revision = Revision::new(
-                    &self.rev_manager.object_id,
-                    pair_rev_id.0,
-                    pair_rev_id.1,
-                    Bytes::from(bytes),
-                    md5,
-                );
-                self.rev_manager.add_local_revision(&revision).await.unwrap();
+                self.rev_manager
+                    .add_local_revision(Bytes::from(bytes), md5)
+                    .await
+                    .unwrap();
             }
-            RevisionScript::AddInvalidLocalRevision {
-                bytes,
-                base_rev_id,
-                rev_id,
-            } => {
+            RevisionScript::AddInvalidLocalRevision { bytes } => {
                 let md5 = md5(&bytes);
-                let revision = Revision::new(
-                    &self.rev_manager.object_id,
-                    base_rev_id,
-                    rev_id,
-                    Bytes::from(bytes),
-                    md5,
-                );
-                self.rev_manager.add_local_revision(&revision).await.unwrap();
+                self.rev_manager
+                    .add_local_revision(Bytes::from(bytes), md5)
+                    .await
+                    .unwrap();
             }
             RevisionScript::AckRevision { rev_id } => {
                 //

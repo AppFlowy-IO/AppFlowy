@@ -1,5 +1,5 @@
 use crate::grid::grid_editor::GridEditorTest;
-use flowy_grid::entities::CreateFieldParams;
+
 use flowy_http_model::revision::Revision;
 use flowy_revision::{RevisionSnapshot, REVISION_WRITE_INTERVAL_IN_MILLIS};
 use flowy_sync::client_grid::{GridOperations, GridRevisionPad};

@@ -2,6 +2,7 @@ use anyhow::Error;
 use flowy_task::{Task, TaskContent, TaskDispatcher, TaskHandler, TaskId, TaskResult, TaskRunner, TaskState};
 use futures::stream::FuturesUnordered;
 use futures::StreamExt;
+use lib_infra::async_trait::async_trait;
 use lib_infra::future::BoxResultFuture;
 use lib_infra::ref_map::RefCountValue;
 use rand::Rng;
@@ -83,7 +84,7 @@ impl SearchTest {
                 tokio::time::sleep(Duration::from_millis(millisecond)).await;
             }
             SearchScript::UnregisterHandler { handler_id } => {
-                self.scheduler.write().await.unregister_handler(handler_id);
+                self.scheduler.write().await.unregister_handler(handler_id).await;
             }
             SearchScript::AssertTaskStatus {
                 task_id,
@@ -109,8 +110,9 @@ impl SearchTest {
 }
 
 pub struct MockTextTaskHandler();
+#[async_trait]
 impl RefCountValue for MockTextTaskHandler {
-    fn did_remove(&self) {}
+    async fn did_remove(&self) {}
 }
 
 impl TaskHandler for MockTextTaskHandler {
@@ -146,8 +148,9 @@ pub fn make_text_user_interactive_task(task_id: TaskId, s: &str) -> (Task, Recei
 }
 
 pub struct MockBlobTaskHandler();
+#[async_trait]
 impl RefCountValue for MockBlobTaskHandler {
-    fn did_remove(&self) {}
+    async fn did_remove(&self) {}
 }
 
 impl TaskHandler for MockBlobTaskHandler {

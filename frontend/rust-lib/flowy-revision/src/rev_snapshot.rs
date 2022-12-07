@@ -45,17 +45,13 @@ impl RevisionSnapshotController {
             disk_cache,
         }
     }
+}
 
-    pub fn add_snapshot(&self, rev_id: i64, data: Vec<u8>) -> FlowyResult<()> {
-        self.disk_cache.write_snapshot(rev_id, data)
-    }
+impl std::ops::Deref for RevisionSnapshotController {
+    type Target = Arc<dyn RevisionSnapshotDiskCache>;
 
-    pub fn read_snapshot(&self, rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>> {
-        self.disk_cache.read_snapshot(rev_id)
-    }
-
-    pub fn read_latest_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>> {
-        self.disk_cache.read_latest_snapshot()
+    fn deref(&self) -> &Self::Target {
+        &self.disk_cache
     }
 }
 

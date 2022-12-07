@@ -42,7 +42,7 @@ impl GridViewManager {
     }
 
     pub async fn close(&self, view_id: &str) {
-        self.view_editors.write().await.remove(view_id);
+        self.view_editors.write().await.remove(view_id).await;
     }
 
     pub async fn subscribe_view_changed(&self, view_id: &str) -> FlowyResult<broadcast::Receiver<GridViewChanged>> {

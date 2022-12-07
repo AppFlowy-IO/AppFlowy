@@ -1,6 +1,5 @@
 use crate::grid::field_test::util::create_text_field;
 use crate::grid::snapshot_test::script::{GridSnapshotTest, SnapshotScript::*};
-use flowy_sync::client_grid::{GridOperations, GridRevisionPad};
 
 #[tokio::test]
 async fn snapshot_create_test() {

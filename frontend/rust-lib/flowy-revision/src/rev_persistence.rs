@@ -51,6 +51,9 @@ impl std::default::Default for RevisionPersistenceConfiguration {
     }
 }
 
+/// Represents as the persistence of revisions including memory or disk cache.
+/// The generic parameter, `Connection`, represents as the disk backend's connection.
+/// If the backend is SQLite, then the Connect will be SQLiteConnect.
 pub struct RevisionPersistence<Connection> {
     user_id: String,
     object_id: String,
@@ -104,15 +107,6 @@ where
         self.add(revision.clone(), RevisionState::Ack, true).await
     }
 
-    /// Append the revision that already existed in the local DB state to sync sequence
-    // #[tracing::instrument(level = "trace", skip(self), fields(rev_id, object_id=%self.object_id), err)]
-    pub(crate) async fn sync_revision(&self, revision: &Revision) -> FlowyResult<()> {
-        tracing::Span::current().record("rev_id", &revision.rev_id);
-        self.add(revision.clone(), RevisionState::Sync, false).await?;
-        self.sync_seq.write().await.recv(revision.rev_id)?;
-        Ok(())
-    }
-
     #[tracing::instrument(level = "trace", skip_all, err)]
     pub async fn compact_lagging_revisions<'a>(
         &'a self,
@@ -149,22 +143,32 @@ where
         Ok(())
     }
 
+    /// Sync the each record's revision to remote if its state is `RevisionState::Sync`.
+    ///
+    pub(crate) async fn sync_revision_record(&self, record: &SyncRecord) -> FlowyResult<()> {
+        if record.state == RevisionState::Sync {
+            self.add(record.revision.clone(), RevisionState::Sync, false).await?;
+            self.sync_seq.write().await.recv(record.revision.rev_id)?; // Sync the records if their state is RevisionState::Sync.
+        }
+
+        Ok(())
+    }
+
     /// Save the revision to disk and append it to the end of the sync sequence.
     #[tracing::instrument(level = "trace", skip_all, fields(rev_id, compact_range, object_id=%self.object_id), err)]
-    pub(crate) async fn add_sync_revision<'a>(
+    pub(crate) async fn add_local_revision<'a>(
         &'a self,
-        new_revision: &'a Revision,
+        new_revision: Revision,
         rev_compress: &Arc<dyn RevisionMergeable + 'a>,
     ) -> FlowyResult<i64> {
         let mut sync_seq = self.sync_seq.write().await;
-        let compact_length = sync_seq.compact_length;
 
         // Before the new_revision is pushed into the sync_seq, we check if the current `compact_length` of the
         // sync_seq is less equal to or greater than the merge threshold. If yes, it's needs to merged
         // with the new_revision into one revision.
         let mut compact_seq = VecDeque::default();
         // tracing::info!("{}", compact_seq)
-        if compact_length >= self.configuration.merge_threshold - 1 {
+        if sync_seq.compact_length >= self.configuration.merge_threshold - 1 {
             compact_seq.extend(sync_seq.compact());
         }
         if !compact_seq.is_empty() {
@@ -177,7 +181,7 @@ where
             let mut revisions = self.revisions_in_range(&range).await?;
             debug_assert_eq!(range.len() as usize, revisions.len());
             // append the new revision
-            revisions.push(new_revision.clone());
+            revisions.push(new_revision);
 
             // compact multiple revisions into one
             let merged_revision = rev_compress.merge_revisions(&self.user_id, &self.object_id, revisions)?;
@@ -189,10 +193,11 @@ where
             self.compact(&range, merged_revision).await?;
             Ok(rev_id)
         } else {
-            tracing::Span::current().record("rev_id", &new_revision.rev_id);
-            self.add(new_revision.clone(), RevisionState::Sync, true).await?;
-            sync_seq.merge_recv(new_revision.rev_id)?;
-            Ok(new_revision.rev_id)
+            let rev_id = new_revision.rev_id;
+            tracing::Span::current().record("rev_id", &rev_id);
+            self.add(new_revision, RevisionState::Sync, true).await?;
+            sync_seq.merge_recv(rev_id)?;
+            Ok(rev_id)
         }
     }
 
