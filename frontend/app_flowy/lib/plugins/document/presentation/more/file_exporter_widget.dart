@@ -13,33 +13,57 @@ class FileExporterWidget extends StatefulWidget {
 }
 
 class _FileExporterWidgetState extends State<FileExporterWidget> {
-  List<AppPB> apps = [];
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<dartz.Either<WorkspaceSettingPB, FlowyError>>(
+      future: FolderEventReadCurrentWorkspace().send(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData &&
+            snapshot.connectionState == ConnectionState.done) {
+          final workspaces = snapshot.data?.getLeftOrNull<WorkspaceSettingPB>();
+          if (workspaces != null) {
+            return _ExpandedList(
+              apps: workspaces.workspace.apps.items,
+            );
+          }
+        }
+        return const CircularProgressIndicator();
+      },
+    );
+  }
+}
+
+class _ExpandedList extends StatefulWidget {
+  const _ExpandedList({
+    Key? key,
+    required this.apps,
+  }) : super(key: key);
+
+  final List<AppPB> apps;
+
+  @override
+  State<_ExpandedList> createState() => __ExpandedListState();
+}
+
+class __ExpandedListState extends State<_ExpandedList> {
+  List<AppPB> get apps => widget.apps;
   List<bool> expanded = [];
+  List<bool> selectedApps = [];
+  List<List<bool>> selectedItems = [];
 
   @override
   void initState() {
     super.initState();
+
+    expanded = apps.map((e) => false).toList();
+    selectedApps = apps.map((e) => true).toList();
+    selectedItems =
+        apps.map((e) => e.belongings.items.map((e) => true).toList()).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<dartz.Either<WorkspaceSettingPB, FlowyError>>(
-        future: FolderEventReadCurrentWorkspace().send(),
-        builder: ((context, snapshot) {
-          if (snapshot.hasData &&
-              snapshot.connectionState == ConnectionState.done) {
-            final workspaces =
-                snapshot.data?.getLeftOrNull<WorkspaceSettingPB>();
-            if (workspaces != null) {
-              apps = workspaces.workspace.apps.items;
-              if (expanded.isEmpty) {
-                expanded = apps.map((e) => true).toList();
-              }
-              return _buildExpandedList(context);
-            }
-          }
-          return const CircularProgressIndicator();
-        }));
+    return _buildExpandedList(context);
   }
 
   Widget _buildExpandedList(BuildContext context) {
@@ -57,6 +81,22 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
   }
 
   Widget _buildExpandedItem(BuildContext context, int index) {
+    List<Widget> expandedChildren = [];
+    if (expanded[index] == true) {
+      for (var i = 0; i < selectedItems[index].length; i++) {
+        final name = apps[index].belongings.items[i].name;
+        final checkbox = CheckboxListTile(
+          value: selectedItems[index][i],
+          onChanged: (value) {
+            setState(() {
+              selectedItems[index][i] = !selectedItems[index][i];
+            });
+          },
+          title: Text(name),
+        );
+        expandedChildren.add(checkbox);
+      }
+    }
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,26 +105,17 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
           onTap: () => setState(() {
             expanded[index] = !expanded[index];
           }),
-          child: CheckboxListTile(
-            value: expanded[index],
-            onChanged: (value) {
-              setState(() {
-                expanded[index] = !expanded[index];
-              });
-            },
+          child: ListTile(
+            // value: selectedApps[index],
+            // onChanged: (value) {
+            //   setState(() {
+            //     selectedApps[index] = !selectedApps[index];
+            //   });
+            // },
             title: Text(apps[index].name),
           ),
         ),
-        if (expanded[index] == true)
-          ...apps[index]
-              .belongings
-              .items
-              .map((e) => CheckboxListTile(
-                    value: false,
-                    onChanged: (value) {},
-                    title: Text(e.name),
-                  ))
-              .toList(),
+        ...expandedChildren,
       ],
     );
   }
