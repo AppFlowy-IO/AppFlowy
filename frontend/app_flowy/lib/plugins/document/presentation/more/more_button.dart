@@ -3,7 +3,6 @@ import 'package:app_flowy/plugins/document/presentation/more/file_exporter_widge
 import 'package:app_flowy/plugins/document/presentation/more/font_size_switcher.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -38,7 +37,9 @@ class DocumentMoreButton extends StatelessWidget {
           showDialog(
             context: context,
             builder: (context) {
-              return const FlowyDialog(child: FileExporterWidget());
+              return const FlowyDialog(
+                child: FileExporterWidget(),
+              );
             },
           );
         }
