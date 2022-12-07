@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart' as dartz;
+import 'package:file_picker/file_picker.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -52,10 +53,13 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
         const HSpace(8),
         FlowyTextButton(
           LocaleKeys.button_OK.tr(),
-          onPressed: () {
-            Navigator.of(context).pop();
+          onPressed: () async {
             // TODO: Export Data
-            print(_selectedPages);
+            await FilePicker.platform.getDirectoryPath().then((exportPath) {
+              print(exportPath);
+              print(_selectedPages);
+              Navigator.of(context).pop();
+            });
           },
         ),
       ],
@@ -113,6 +117,7 @@ class __ExpandedListState extends State<_ExpandedList> {
     selectedApps = apps.map((e) => true).toList();
     selectedItems =
         apps.map((e) => e.belongings.items.map((e) => true).toList()).toList();
+    widget.onChanged(_getSelectedPages());
   }
 
   @override
@@ -163,7 +168,7 @@ class __ExpandedListState extends State<_ExpandedList> {
             expanded[index] = !expanded[index];
           }),
           child: ListTile(
-            title: FlowyText.regular(apps[index].name),
+            title: FlowyText.medium(apps[index].name),
             trailing: Icon(
               isExpaned
                   ? Icons.arrow_drop_down_rounded
