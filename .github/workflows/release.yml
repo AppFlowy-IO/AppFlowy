@@ -78,15 +78,7 @@ jobs:
           mkdir -p ../${{ env.LINUX_APP_RELEASE_PATH }}/package/usr/share/applications
           cp -r ./scripts/linux_installer ../${{ env.LINUX_APP_RELEASE_PATH }}/package/DEBIAN
           cd ../${{ env.LINUX_APP_RELEASE_PATH }}/package/DEBIAN
-          # Create control file
-          printf 'Package: AppFlowy
-          Version: %s
-          Depends: libkeybinder-3.0-0
-          Architecture: amd64
-          Essential: no
-          Priority: optional
-          Maintainer: AppFlowy
-          Description: An Open Source Alternative to Notion\n' "${{ github.ref_name }}" > control
+          grep -rl "\[CHANGE_THIS\]" ./control | xargs sed -i "s/\[CHANGE_THIS\]/${{ github.ref_name }}/"
           chmod 0755 {postinst,postrm}
 
       - name: Build Linux package
@@ -171,15 +163,7 @@ jobs:
           mkdir -p ../${{ env.LINUX_APP_RELEASE_PATH }}/package/usr/share/applications
           cp -r ./scripts/linux_installer ../${{ env.LINUX_APP_RELEASE_PATH }}/package/DEBIAN
           cd ../${{ env.LINUX_APP_RELEASE_PATH }}/package/DEBIAN
-          # Create control file
-          printf 'Package: AppFlowy
-          Version: %s
-          Depends: libkeybinder-3.0-0
-          Architecture: amd64
-          Essential: no
-          Priority: optional
-          Maintainer: AppFlowy
-          Description: An Open Source Alternative to Notion\n' "${{ github.ref_name }}" > control
+          grep -rl "\[CHANGE_THIS\]" ./control | xargs sed -i "s/\[CHANGE_THIS\]/${{ github.ref_name }}/"
           chmod 0755 {postinst,postrm}
 
       - name: Build Linux package
