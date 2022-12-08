@@ -34,7 +34,7 @@ class AppFlowyClipboard {
   }
 
   static Future<AppFlowyClipboardData> getData() async {
-    final data = await AppFlowyClipboard.getData();
+    final data = await RichClipboard.getData();
     final text = data.text;
     var html = data.html;
 
