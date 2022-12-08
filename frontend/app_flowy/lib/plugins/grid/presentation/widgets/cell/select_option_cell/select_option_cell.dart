@@ -168,10 +168,7 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
       alignment: AlignmentDirectional.center,
       fit: StackFit.expand,
       children: [
-        Padding(
-          padding: GridSize.cellContentInsets,
-          child: _wrapPopover(child),
-        ),
+        _wrapPopover(child),
         InkWell(onTap: () => _popover.show()),
       ],
     );
@@ -196,7 +193,10 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
         );
       },
       onClose: () => widget.onFocus?.call(false),
-      child: child,
+      child: Padding(
+        padding: GridSize.cellContentInsets,
+        child: child,
+      ),
     );
   }
 

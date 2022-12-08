@@ -40,10 +40,7 @@ class GridChecklistCellState extends State<GridChecklistCell> {
         alignment: AlignmentDirectional.center,
         fit: StackFit.expand,
         children: [
-          Padding(
-            padding: GridSize.cellContentInsets,
-            child: _wrapPopover(const ChecklistProgressBar()),
-          ),
+          _wrapPopover(const ChecklistProgressBar()),
           InkWell(onTap: () => _popover.show()),
         ],
       ),
@@ -66,7 +63,10 @@ class GridChecklistCellState extends State<GridChecklistCell> {
         );
       },
       onClose: () => widget.onCellEditing.value = false,
-      child: child,
+      child: Padding(
+        padding: GridSize.cellContentInsets,
+        child: child,
+      ),
     );
   }
 }
