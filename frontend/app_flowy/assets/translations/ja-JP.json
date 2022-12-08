@@ -138,8 +138,12 @@
       "open": "設定"
     },
     "appearance": {
-      "lightLabel": "ライトモード",
-      "darkLabel": "ダークモード"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "ライトモード",
+        "dark": "ダークモード",
+        "system": "Adapt to System"
+      }
     }
   },
   "grid": {

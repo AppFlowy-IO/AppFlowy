@@ -1,4 +1,4 @@
-use flowy_derive::ProtoBuf;
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -17,25 +17,42 @@ pub struct AppearanceSettingsPB {
     pub theme: String,
 
     #[pb(index = 2)]
-    pub font: String,
+    #[serde(default)]
+    pub theme_mode: ThemeModePB,
 
     #[pb(index = 3)]
-    pub monospace_font: String,
+    pub font: String,
 
     #[pb(index = 4)]
+    pub monospace_font: String,
+
+    #[pb(index = 5)]
     #[serde(default)]
     pub locale: LocaleSettingsPB,
 
-    #[pb(index = 5)]
+    #[pb(index = 6)]
     #[serde(default = "DEFAULT_RESET_VALUE")]
     pub reset_to_default: bool,
 
-    #[pb(index = 6)]
+    #[pb(index = 7)]
     #[serde(default)]
     pub setting_key_value: HashMap<String, String>,
 }
 
 const DEFAULT_RESET_VALUE: fn() -> bool = || APPEARANCE_RESET_AS_DEFAULT;
+
+#[derive(ProtoBuf_Enum, Serialize, Deserialize, Clone, Debug)]
+pub enum ThemeModePB {
+    Light = 0,
+    Dark = 1,
+    System = 2,
+}
+
+impl std::default::Default for ThemeModePB {
+    fn default() -> Self {
+        ThemeModePB::System
+    }
+}
 
 #[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone)]
 pub struct LocaleSettingsPB {
@@ -64,6 +81,7 @@ impl std::default::Default for AppearanceSettingsPB {
     fn default() -> Self {
         AppearanceSettingsPB {
             theme: APPEARANCE_DEFAULT_THEME.to_owned(),
+            theme_mode: ThemeModePB::default(),
             font: APPEARANCE_DEFAULT_FONT.to_owned(),
             monospace_font: APPEARANCE_DEFAULT_MONOSPACE_FONT.to_owned(),
             locale: LocaleSettingsPB::default(),

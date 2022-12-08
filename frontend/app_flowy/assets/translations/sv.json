@@ -152,8 +152,12 @@
       "open": "Öppna inställningarna"
     },
     "appearance": {
-      "lightLabel": "Ljust läge",
-      "darkLabel": "Mörkt läge"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Ljust läge",
+        "dark": "Mörkt läge",
+        "system": "Adapt to System"
+      }
     }
   },
   "grid": {

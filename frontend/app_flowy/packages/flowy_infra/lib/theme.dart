@@ -73,12 +73,12 @@ class AppTheme {
   /// Default constructor
   AppTheme({this.brightness = Brightness.light});
 
-  factory AppTheme.fromName({
-    required String themeName,
+  factory AppTheme.fromBrightness({
+    required Brightness brightness,
     required String font,
     required String monospaceFont,
   }) {
-    switch (themeTypeFromString(themeName)) {
+    switch (brightness) {
       case Brightness.light:
         return AppTheme(brightness: Brightness.light)
           ..surface = Colors.white

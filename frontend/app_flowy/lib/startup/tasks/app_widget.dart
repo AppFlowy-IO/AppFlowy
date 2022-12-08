@@ -83,6 +83,8 @@ class ApplicationWidget extends StatelessWidget {
           builder: overlayManagerBuilder(),
           debugShowCheckedModeBanner: false,
           theme: state.theme.getThemeData(state.locale),
+          darkTheme: state.darkTheme.getThemeData(state.locale),
+          themeMode: state.themeMode,
           localizationsDelegates: context.localizationDelegates +
               [AppFlowyEditorLocalizations.delegate],
           supportedLocales: context.supportedLocales,

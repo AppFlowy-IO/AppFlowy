@@ -158,8 +158,12 @@
       "open": "Open Settings"
     },
     "appearance": {
-      "lightLabel": "Light Mode",
-      "darkLabel": "Dark Mode"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Light Mode",
+        "dark": "Dark Mode",
+        "system": "Adapt to System"
+      }
     }
   },
   "grid": {
