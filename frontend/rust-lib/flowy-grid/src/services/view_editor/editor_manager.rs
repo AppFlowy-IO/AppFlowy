@@ -230,19 +230,23 @@ pub async fn make_grid_view_rev_manager(
     view_id: &str,
 ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
     let user_id = user.user_id()?;
-    let pool = user.db_pool()?;
 
+    // Create revision persistence
+    let pool = user.db_pool()?;
     let disk_cache = SQLiteGridViewRevisionPersistence::new(&user_id, pool.clone());
     let configuration = RevisionPersistenceConfiguration::new(2, false);
     let rev_persistence = RevisionPersistence::new(&user_id, view_id, disk_cache, configuration);
-    let rev_compactor = GridViewRevisionMergeable();
 
-    let snapshot_persistence = SQLiteGridRevisionSnapshotPersistence::new(view_id, pool);
+    // Create snapshot persistence
+    let snapshot_object_id = format!("grid_view:{}", view_id);
+    let snapshot_persistence = SQLiteGridRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
+
+    let rev_compress = GridViewRevisionMergeable();
     Ok(RevisionManager::new(
         &user_id,
         view_id,
         rev_persistence,
-        rev_compactor,
+        rev_compress,
         snapshot_persistence,
     ))
 }

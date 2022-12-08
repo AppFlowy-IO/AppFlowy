@@ -143,14 +143,16 @@ where
         Ok(())
     }
 
-    /// Sync the each record's revision to remote if its state is `RevisionState::Sync`.
+    /// Sync the each records' revisions to remote if its state is `RevisionState::Sync`.
     ///
-    pub(crate) async fn sync_revision_record(&self, record: &SyncRecord) -> FlowyResult<()> {
-        if record.state == RevisionState::Sync {
-            self.add(record.revision.clone(), RevisionState::Sync, false).await?;
-            self.sync_seq.write().await.recv(record.revision.rev_id)?; // Sync the records if their state is RevisionState::Sync.
+    pub(crate) async fn sync_revision_records(&self, records: &[SyncRecord]) -> FlowyResult<()> {
+        let mut sync_seq = self.sync_seq.write().await;
+        for record in records {
+            if record.state == RevisionState::Sync {
+                self.add(record.revision.clone(), RevisionState::Sync, false).await?;
+                sync_seq.recv(record.revision.rev_id)?; // Sync the records if their state is RevisionState::Sync.
+            }
         }
-
         Ok(())
     }
 
@@ -316,11 +318,6 @@ where
                 .map_err(internal_error)??;
 
             if records.len() != range_len {
-                // #[cfg(debug_assertions)]
-                // records.iter().for_each(|record| {
-                //     let delta = PlainDelta::from_bytes(&record.revision.delta_data).unwrap();
-                //     tracing::trace!("{}", delta.to_string());
-                // });
                 tracing::error!("Expect revision len {},but receive {}", range_len, records.len());
             }
         }
@@ -328,6 +325,14 @@ where
             .into_iter()
             .map(|record| record.revision)
             .collect::<Vec<Revision>>())
+    }
+
+    #[allow(dead_code)]
+    pub fn delete_revisions_from_range(&self, range: RevisionRange) -> FlowyResult<()> {
+        let _ = self
+            .disk_cache
+            .delete_revision_records(&self.object_id, Some(range.to_rev_ids()))?;
+        Ok(())
     }
 }
 

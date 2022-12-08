@@ -36,7 +36,7 @@ impl Revision {
         let rev_id = rev_id;
 
         if base_rev_id != 0 {
-            debug_assert!(base_rev_id != rev_id);
+            debug_assert!(base_rev_id <= rev_id);
         }
 
         Self {

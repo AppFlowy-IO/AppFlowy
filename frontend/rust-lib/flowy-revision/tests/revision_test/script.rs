@@ -257,7 +257,7 @@ impl RevisionSnapshotDiskCache for RevisionSnapshotMock {
         Ok(None)
     }
 
-    fn latest_snapshot_from(&self, rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>> {
+    fn latest_snapshot_from(&self, _rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>> {
         todo!()
     }
 }

@@ -9,6 +9,7 @@ use tokio::time::sleep;
 
 pub enum SnapshotScript {
     WriteSnapshot,
+    #[allow(dead_code)]
     AssertSnapshot {
         rev_id: i64,
         expected: Option<RevisionSnapshot>,

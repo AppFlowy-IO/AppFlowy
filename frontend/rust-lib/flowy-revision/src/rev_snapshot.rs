@@ -65,5 +65,6 @@ impl std::ops::Deref for RevisionSnapshotController {
 pub struct RevisionSnapshot {
     pub rev_id: i64,
     pub base_rev_id: i64,
+    pub timestamp: i64,
     pub data: Bytes,
 }

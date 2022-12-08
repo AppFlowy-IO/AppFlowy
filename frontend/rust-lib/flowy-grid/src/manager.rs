@@ -155,12 +155,18 @@ impl GridManager {
         pool: Arc<ConnectionPool>,
     ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
         let user_id = self.grid_user.user_id()?;
+
+        // Create revision persistence
         let disk_cache = SQLiteGridRevisionPersistence::new(&user_id, pool.clone());
         let configuration = RevisionPersistenceConfiguration::new(4, false);
         let rev_persistence = RevisionPersistence::new(&user_id, grid_id, disk_cache, configuration);
-        let snapshot_persistence = SQLiteGridRevisionSnapshotPersistence::new(grid_id, pool);
-        let rev_compactor = GridRevisionMergeable();
-        let rev_manager = RevisionManager::new(&user_id, grid_id, rev_persistence, rev_compactor, snapshot_persistence);
+
+        // Create snapshot persistence
+        let snapshot_object_id = format!("grid:{}", grid_id);
+        let snapshot_persistence = SQLiteGridRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
+
+        let rev_compress = GridRevisionMergeable();
+        let rev_manager = RevisionManager::new(&user_id, grid_id, rev_persistence, rev_compress, snapshot_persistence);
         Ok(rev_manager)
     }
 }

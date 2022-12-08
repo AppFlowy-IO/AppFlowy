@@ -8,7 +8,6 @@ use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_http_model::revision::{Revision, RevisionRange};
 use flowy_http_model::util::md5;
 use lib_infra::future::FutureResult;
-
 use std::sync::atomic::AtomicI64;
 use std::sync::atomic::Ordering::SeqCst;
 use std::sync::Arc;
@@ -120,38 +119,32 @@ impl<Connection: 'static> RevisionManager<Connection> {
     }
 
     #[tracing::instrument(level = "debug", skip_all, fields(deserializer, object) err)]
-    pub async fn initialize<B>(&mut self, cloud: Option<Arc<dyn RevisionCloudService>>) -> FlowyResult<B::Output>
+    pub async fn initialize<B>(&mut self, _cloud: Option<Arc<dyn RevisionCloudService>>) -> FlowyResult<B::Output>
     where
         B: RevisionObjectDeserializer,
     {
-        let (revisions, rev_id) = RevisionLoader {
-            object_id: self.object_id.clone(),
-            user_id: self.user_id.clone(),
-            cloud,
-            rev_persistence: self.rev_persistence.clone(),
-        }
-        .load()
-        .await?;
-        self.rev_id_counter.set(rev_id);
+        let revision_records = self.rev_persistence.load_all_records(&self.object_id)?;
         tracing::Span::current().record("object", &self.object_id.as_str());
         tracing::Span::current().record("deserializer", &std::any::type_name::<B>());
+        let revisions: Vec<Revision> = revision_records.iter().map(|record| record.revision.clone()).collect();
+        let current_rev_id = revisions.last().as_ref().map(|revision| revision.rev_id).unwrap_or(0);
         match B::deserialize_revisions(&self.object_id, revisions) {
-            Ok(object) => Ok(object),
-            Err(err) => {
-                if let Ok(Some(snapshot)) = self.rev_snapshot.latest_snapshot_from(rev_id) {
-                    let revision = Revision::new(
-                        &self.object_id,
-                        snapshot.base_rev_id,
-                        snapshot.rev_id,
-                        snapshot.data,
-                        "".to_owned(),
-                    );
-                    tracing::trace!("Restore {} from snapshot with rev_id: {}", self.object_id, rev_id);
-                    B::deserialize_revisions(&self.object_id, vec![revision])
-                } else {
-                    Err(err)
-                }
+            Ok(object) => {
+                let _ = self.rev_persistence.sync_revision_records(&revision_records).await?;
+                self.rev_id_counter.set(current_rev_id);
+                Ok(object)
             }
+            Err(err) => match self.restore_from_snapshot::<B>(current_rev_id) {
+                None => Err(err),
+                Some((object, snapshot_rev)) => {
+                    let snapshot_rev_id = snapshot_rev.rev_id;
+                    let _ = self.rev_persistence.reset(vec![snapshot_rev]).await;
+                    // revision_records.retain(|record| record.revision.rev_id <= snapshot_rev_id);
+                    // let _ = self.rev_persistence.sync_revision_records(&revision_records).await?;
+                    self.rev_id_counter.set(snapshot_rev_id);
+                    Ok(object)
+                }
+            },
         }
     }
 
@@ -182,6 +175,32 @@ impl<Connection: 'static> RevisionManager<Connection> {
             None => self.rev_snapshot.read_last_snapshot(),
             Some(rev_id) => self.rev_snapshot.read_snapshot(rev_id),
         }
+    }
+
+    /// Find the nearest revision base on the passed-in rev_id
+    fn restore_from_snapshot<B>(&self, rev_id: i64) -> Option<(B::Output, Revision)>
+    where
+        B: RevisionObjectDeserializer,
+    {
+        tracing::trace!("Try read {}'s snapshot with rev_id: {}", self.object_id, rev_id);
+        let snapshot = self.rev_snapshot.latest_snapshot_from(rev_id).ok()??;
+        let snapshot_rev_id = snapshot.rev_id;
+        let revision = Revision::new(
+            &self.object_id,
+            snapshot.base_rev_id,
+            snapshot.rev_id,
+            snapshot.data,
+            "".to_owned(),
+        );
+        tracing::trace!("Snapshot: {}, {}", snapshot.base_rev_id, snapshot.rev_id);
+        let object = B::deserialize_revisions(&self.object_id, vec![revision.clone()]).ok()?;
+        tracing::trace!(
+            "Restore {} from snapshot with rev_id: {}",
+            self.object_id,
+            snapshot_rev_id
+        );
+
+        Some((object, revision))
     }
 
     pub async fn load_revisions(&self) -> FlowyResult<Vec<Revision>> {
@@ -312,38 +331,6 @@ pub struct RevisionLoader<Connection> {
 }
 
 impl<Connection: 'static> RevisionLoader<Connection> {
-    #[tracing::instrument(level = "trace", skip_all, err)]
-    pub async fn load(&self) -> Result<(Vec<Revision>, i64), FlowyError> {
-        let records = self.rev_persistence.load_all_records(&self.object_id)?;
-        let revisions: Vec<Revision>;
-        let mut rev_id = 0;
-        if records.is_empty() && self.cloud.is_some() {
-            let remote_revisions = self
-                .cloud
-                .as_ref()
-                .unwrap()
-                .fetch_object(&self.user_id, &self.object_id)
-                .await?;
-            for revision in &remote_revisions {
-                rev_id = revision.rev_id;
-                let _ = self.rev_persistence.add_ack_revision(revision).await?;
-            }
-            revisions = remote_revisions;
-        } else {
-            for record in &records {
-                rev_id = record.revision.rev_id;
-                let _ = self.rev_persistence.sync_revision_record(record).await?;
-            }
-            revisions = records.into_iter().map(|record| record.revision).collect::<_>();
-        }
-
-        if let Some(revision) = revisions.last() {
-            debug_assert_eq!(rev_id, revision.rev_id);
-        }
-
-        Ok((revisions, rev_id))
-    }
-
     pub async fn load_revisions(&self) -> Result<Vec<Revision>, FlowyError> {
         let records = self.rev_persistence.load_all_records(&self.object_id)?;
         let revisions = records.into_iter().map(|record| record.revision).collect::<_>();
@@ -431,6 +418,7 @@ impl RevIdCounter {
         let _ = self.0.fetch_add(1, SeqCst);
         self.value()
     }
+
     pub fn value(&self) -> i64 {
         self.0.load(SeqCst)
     }

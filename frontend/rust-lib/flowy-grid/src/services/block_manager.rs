@@ -281,12 +281,18 @@ pub fn make_grid_block_rev_manager(
     block_id: &str,
 ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
     let user_id = user.user_id()?;
+
+    // Create revision persistence
     let pool = user.db_pool()?;
     let disk_cache = SQLiteGridBlockRevisionPersistence::new(&user_id, pool.clone());
     let configuration = RevisionPersistenceConfiguration::new(4, false);
     let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache, configuration);
-    let rev_compactor = GridBlockRevisionMergeable();
-    let snapshot_persistence = SQLiteGridRevisionSnapshotPersistence::new(block_id, pool);
-    let rev_manager = RevisionManager::new(&user_id, block_id, rev_persistence, rev_compactor, snapshot_persistence);
+
+    // Create snapshot persistence
+    let snapshot_object_id = format!("grid_block:{}", block_id);
+    let snapshot_persistence = SQLiteGridRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
+
+    let rev_compress = GridBlockRevisionMergeable();
+    let rev_manager = RevisionManager::new(&user_id, block_id, rev_persistence, rev_compress, snapshot_persistence);
     Ok(rev_manager)
 }

@@ -67,13 +67,13 @@ where
             self.disk_cache.clone(),
             configuration,
         ));
-        let (revisions, _) = RevisionLoader {
+        let revisions = RevisionLoader {
             object_id: self.target.target_id().to_owned(),
             user_id: self.user_id.clone(),
             cloud: None,
             rev_persistence,
         }
-        .load()
+        .load_revisions()
         .await?;
 
         let bytes = self.target.reset_data(revisions)?;
