@@ -119,7 +119,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
         }
     }
 
-    #[tracing::instrument(level = "debug", skip_all, fields(deserializer) err)]
+    #[tracing::instrument(level = "debug", skip_all, fields(deserializer, object) err)]
     pub async fn initialize<B>(&mut self, cloud: Option<Arc<dyn RevisionCloudService>>) -> FlowyResult<B::Output>
     where
         B: RevisionObjectDeserializer,
@@ -133,15 +133,33 @@ impl<Connection: 'static> RevisionManager<Connection> {
         .load()
         .await?;
         self.rev_id_counter.set(rev_id);
+        tracing::Span::current().record("object", &self.object_id.as_str());
         tracing::Span::current().record("deserializer", &std::any::type_name::<B>());
-        B::deserialize_revisions(&self.object_id, revisions)
+        match B::deserialize_revisions(&self.object_id, revisions) {
+            Ok(object) => Ok(object),
+            Err(err) => {
+                if let Ok(Some(snapshot)) = self.rev_snapshot.latest_snapshot_from(rev_id) {
+                    let revision = Revision::new(
+                        &self.object_id,
+                        snapshot.base_rev_id,
+                        snapshot.rev_id,
+                        snapshot.data,
+                        "".to_owned(),
+                    );
+                    tracing::trace!("Restore {} from snapshot with rev_id: {}", self.object_id, rev_id);
+                    B::deserialize_revisions(&self.object_id, vec![revision])
+                } else {
+                    Err(err)
+                }
+            }
+        }
     }
 
     pub async fn close(&self) {
         let _ = self.rev_persistence.compact_lagging_revisions(&self.rev_compress).await;
     }
 
-    pub async fn write_snapshot(&self) {
+    pub async fn generate_snapshot(&self) {
         match self
             .load_revisions()
             .await
@@ -161,7 +179,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
 
     pub async fn read_snapshot(&self, rev_id: Option<i64>) -> FlowyResult<Option<RevisionSnapshot>> {
         match rev_id {
-            None => self.rev_snapshot.read_latest_snapshot(),
+            None => self.rev_snapshot.read_last_snapshot(),
             Some(rev_id) => self.rev_snapshot.read_snapshot(rev_id),
         }
     }

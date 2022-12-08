@@ -1,13 +1,15 @@
 #![allow(clippy::all)]
 #![allow(dead_code)]
 #![allow(unused_variables)]
+use bytes::Bytes;
 use flowy_error::FlowyResult;
 use std::sync::Arc;
 
 pub trait RevisionSnapshotDiskCache: Send + Sync {
     fn write_snapshot(&self, rev_id: i64, data: Vec<u8>) -> FlowyResult<()>;
     fn read_snapshot(&self, rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>>;
-    fn read_latest_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>>;
+    fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>>;
+    fn latest_snapshot_from(&self, rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>>;
 }
 
 /// Do nothing but just used to clam the rust compiler about the generic parameter `SP` of `RevisionManager`
@@ -22,7 +24,11 @@ impl RevisionSnapshotDiskCache for PhantomSnapshotPersistence {
         Ok(None)
     }
 
-    fn read_latest_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>> {
+    fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>> {
+        Ok(None)
+    }
+
+    fn latest_snapshot_from(&self, rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>> {
         Ok(None)
     }
 }
@@ -58,5 +64,6 @@ impl std::ops::Deref for RevisionSnapshotController {
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct RevisionSnapshot {
     pub rev_id: i64,
-    pub data: Vec<u8>,
+    pub base_rev_id: i64,
+    pub data: Bytes,
 }

@@ -1,7 +1,7 @@
 use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::{CellChangesetPB, GridBlockChangesetPB, InsertedRowPB, RowPB, UpdatedRowPB};
 use crate::manager::GridUser;
-use crate::services::block_editor::{GridBlockRevisionCompress, GridBlockRevisionEditor};
+use crate::services::block_editor::{GridBlockRevisionEditor, GridBlockRevisionMergeable};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::rev_sqlite::{
     SQLiteGridBlockRevisionPersistence, SQLiteGridRevisionSnapshotPersistence,
@@ -285,7 +285,7 @@ pub fn make_grid_block_rev_manager(
     let disk_cache = SQLiteGridBlockRevisionPersistence::new(&user_id, pool.clone());
     let configuration = RevisionPersistenceConfiguration::new(4, false);
     let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache, configuration);
-    let rev_compactor = GridBlockRevisionCompress();
+    let rev_compactor = GridBlockRevisionMergeable();
     let snapshot_persistence = SQLiteGridRevisionSnapshotPersistence::new(block_id, pool);
     let rev_manager = RevisionManager::new(&user_id, block_id, rev_persistence, rev_compactor, snapshot_persistence);
     Ok(rev_manager)

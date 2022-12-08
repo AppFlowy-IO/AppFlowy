@@ -91,7 +91,7 @@ fn spawn_edit_queue(
 impl DocumentEditor for Arc<AppFlowyDocumentEditor> {
     #[tracing::instrument(name = "close document editor", level = "trace", skip_all)]
     async fn close(&self) {
-        self.rev_manager.write_snapshot().await;
+        self.rev_manager.generate_snapshot().await;
         self.rev_manager.close().await;
     }
 

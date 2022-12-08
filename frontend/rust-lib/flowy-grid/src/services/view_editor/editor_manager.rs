@@ -8,7 +8,7 @@ use crate::services::persistence::rev_sqlite::{
     SQLiteGridRevisionSnapshotPersistence, SQLiteGridViewRevisionPersistence,
 };
 use crate::services::view_editor::changed_notifier::*;
-use crate::services::view_editor::trait_impl::GridViewRevisionCompress;
+use crate::services::view_editor::trait_impl::GridViewRevisionMergeable;
 use crate::services::view_editor::{GridViewEditorDelegate, GridViewRevisionEditor};
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
@@ -235,7 +235,7 @@ pub async fn make_grid_view_rev_manager(
     let disk_cache = SQLiteGridViewRevisionPersistence::new(&user_id, pool.clone());
     let configuration = RevisionPersistenceConfiguration::new(2, false);
     let rev_persistence = RevisionPersistence::new(&user_id, view_id, disk_cache, configuration);
-    let rev_compactor = GridViewRevisionCompress();
+    let rev_compactor = GridViewRevisionMergeable();
 
     let snapshot_persistence = SQLiteGridRevisionSnapshotPersistence::new(view_id, pool);
     Ok(RevisionManager::new(

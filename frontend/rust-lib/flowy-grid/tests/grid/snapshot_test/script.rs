@@ -66,7 +66,7 @@ impl GridSnapshotTest {
         match script {
             SnapshotScript::WriteSnapshot => {
                 sleep(Duration::from_millis(2 * REVISION_WRITE_INTERVAL_IN_MILLIS)).await;
-                rev_manager.write_snapshot().await;
+                rev_manager.generate_snapshot().await;
                 self.current_snapshot = rev_manager.read_snapshot(None).await.unwrap();
             }
             SnapshotScript::AssertSnapshot { rev_id, expected } => {

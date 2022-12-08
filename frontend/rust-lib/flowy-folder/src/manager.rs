@@ -1,6 +1,6 @@
 use crate::entities::view::ViewDataFormatPB;
 use crate::entities::{ViewLayoutTypePB, ViewPB};
-use crate::services::folder_editor::FolderRevisionCompress;
+use crate::services::folder_editor::FolderRevisionMergeable;
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
     entities::workspace::RepeatedWorkspacePB,
@@ -171,7 +171,7 @@ impl FolderManager {
         let disk_cache = SQLiteFolderRevisionPersistence::new(user_id, pool.clone());
         let configuration = RevisionPersistenceConfiguration::new(100, false);
         let rev_persistence = RevisionPersistence::new(user_id, object_id, disk_cache, configuration);
-        let rev_compactor = FolderRevisionCompress();
+        let rev_compactor = FolderRevisionMergeable();
         let rev_manager = RevisionManager::new(
             user_id,
             folder_id.as_ref(),

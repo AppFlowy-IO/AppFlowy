@@ -48,7 +48,7 @@ impl GridBlockRevisionEditor {
     }
 
     pub async fn close(&self) {
-        self.rev_manager.write_snapshot().await;
+        self.rev_manager.generate_snapshot().await;
         self.rev_manager.close().await;
     }
 
@@ -206,8 +206,8 @@ impl RevisionObjectSerializer for GridBlockRevisionSerde {
     }
 }
 
-pub struct GridBlockRevisionCompress();
-impl RevisionMergeable for GridBlockRevisionCompress {
+pub struct GridBlockRevisionMergeable();
+impl RevisionMergeable for GridBlockRevisionMergeable {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         GridBlockRevisionSerde::combine_revisions(revisions)
     }

@@ -46,8 +46,8 @@ impl RevisionObjectSerializer for GridViewRevisionSerde {
     }
 }
 
-pub(crate) struct GridViewRevisionCompress();
-impl RevisionMergeable for GridViewRevisionCompress {
+pub(crate) struct GridViewRevisionMergeable();
+impl RevisionMergeable for GridViewRevisionMergeable {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         GridViewRevisionSerde::combine_revisions(revisions)
     }

@@ -1,4 +1,5 @@
 // use diesel::dsl::exists;
+use bytes::Bytes;
 use diesel::dsl::exists;
 use flowy_database::{
     prelude::*,
@@ -62,7 +63,7 @@ impl RevisionSnapshotDiskCache for SQLiteGridRevisionSnapshotPersistence {
         Ok(Some(record.into()))
     }
 
-    fn read_latest_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>> {
+    fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>> {
         let conn = self.pool.get().map_err(internal_error)?;
         let latest_record = dsl::rev_snapshot
             .order(dsl::rev_id.desc())
@@ -70,6 +71,31 @@ impl RevisionSnapshotDiskCache for SQLiteGridRevisionSnapshotPersistence {
             // .select((dsl::id, dsl::object_id, dsl::rev_id, dsl::data))
             .first::<GridSnapshotRecord>(&*conn)?;
         Ok(Some(latest_record.into()))
+    }
+
+    fn latest_snapshot_from(&self, rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>> {
+        let conn = self.pool.get().map_err(internal_error)?;
+        let records = dsl::rev_snapshot
+            .filter(dsl::object_id.eq(&self.object_id))
+            .filter(dsl::rev_id.ge(rev_id))
+            .filter(dsl::rev_id.le(rev_id))
+            .load::<GridSnapshotRecord>(&*conn)?;
+
+        let mut record: Option<RevisionSnapshot> = None;
+        let mut min_offset: Option<i64> = None;
+        for element in records.into_iter() {
+            let offset = element.rev_id - rev_id;
+            if let Some(min_offset) = &mut min_offset {
+                if *min_offset > offset {
+                    *min_offset = offset;
+                    record = Some(element.into());
+                }
+            } else {
+                min_offset = Some(offset);
+                record = Some(element.into());
+            }
+        }
+        Ok(record)
     }
 }
 
@@ -84,9 +110,12 @@ struct GridSnapshotRecord {
 
 impl std::convert::From<GridSnapshotRecord> for RevisionSnapshot {
     fn from(record: GridSnapshotRecord) -> Self {
+        let base_rev_id = if record.rev_id > 0 { record.rev_id - 1 } else { 0 };
+        let rev_id = record.rev_id;
         RevisionSnapshot {
-            rev_id: record.rev_id,
-            data: record.data,
+            rev_id,
+            base_rev_id,
+            data: Bytes::from(record.data),
         }
     }
 }

@@ -89,7 +89,7 @@ impl GridRevisionEditor {
     #[tracing::instrument(name = "close grid editor", level = "trace", skip_all)]
     pub async fn close(&self) {
         self.block_manager.close().await;
-        self.rev_manager.write_snapshot().await;
+        self.rev_manager.generate_snapshot().await;
         self.rev_manager.close().await;
         self.view_manager.close(&self.grid_id).await;
     }

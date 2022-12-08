@@ -44,7 +44,7 @@ impl RevisionTest {
         let configuration = RevisionPersistenceConfiguration::new(merge_threshold as usize, false);
         let disk_cache = RevisionDiskCacheMock::new(vec![]);
         let persistence = RevisionPersistence::new(&user_id, &object_id, disk_cache, configuration.clone());
-        let compress = RevisionCompressMock {};
+        let compress = RevisionMergeableMock {};
         let snapshot = RevisionSnapshotMock {};
         let mut rev_manager = RevisionManager::new(&user_id, &object_id, persistence, compress, snapshot);
         rev_manager.initialize::<RevisionObjectMockSerde>(None).await.unwrap();
@@ -67,7 +67,7 @@ impl RevisionTest {
             configuration.clone(),
         );
 
-        let compress = RevisionCompressMock {};
+        let compress = RevisionMergeableMock {};
         let snapshot = RevisionSnapshotMock {};
         let mut rev_manager =
             RevisionManager::new(&old_test.user_id, &old_test.object_id, persistence, compress, snapshot);
@@ -253,14 +253,18 @@ impl RevisionSnapshotDiskCache for RevisionSnapshotMock {
         todo!()
     }
 
-    fn read_latest_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>> {
+    fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>> {
         Ok(None)
+    }
+
+    fn latest_snapshot_from(&self, rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>> {
+        todo!()
     }
 }
 
-pub struct RevisionCompressMock {}
+pub struct RevisionMergeableMock {}
 
-impl RevisionMergeable for RevisionCompressMock {
+impl RevisionMergeable for RevisionMergeableMock {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let mut object = RevisionObjectMock::new("");
         for revision in revisions {

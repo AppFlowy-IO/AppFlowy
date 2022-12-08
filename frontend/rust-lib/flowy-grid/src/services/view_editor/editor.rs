@@ -90,7 +90,7 @@ impl GridViewRevisionEditor {
 
     #[tracing::instrument(name = "close grid view editor", level = "trace", skip_all)]
     pub async fn close(&self) {
-        self.rev_manager.write_snapshot().await;
+        self.rev_manager.generate_snapshot().await;
         self.rev_manager.close().await;
         self.filter_controller.read().await.close().await;
     }

@@ -269,8 +269,8 @@ impl RevisionObjectSerializer for DeltaDocumentRevisionSerde {
     }
 }
 
-pub(crate) struct DeltaDocumentRevisionCompress();
-impl RevisionMergeable for DeltaDocumentRevisionCompress {
+pub(crate) struct DeltaDocumentRevisionMergeable();
+impl RevisionMergeable for DeltaDocumentRevisionMergeable {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         DeltaDocumentRevisionSerde::combine_revisions(revisions)
     }

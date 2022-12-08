@@ -1,6 +1,6 @@
-use crate::editor::{initial_document_content, AppFlowyDocumentEditor, DocumentRevisionCompress};
+use crate::editor::{initial_document_content, AppFlowyDocumentEditor, DocumentRevisionMergeable};
 use crate::entities::{DocumentVersionPB, EditParams};
-use crate::old_editor::editor::{DeltaDocumentEditor, DeltaDocumentRevisionCompress};
+use crate::old_editor::editor::{DeltaDocumentEditor, DeltaDocumentRevisionMergeable};
 use crate::services::rev_sqlite::{SQLiteDeltaDocumentRevisionPersistence, SQLiteDocumentRevisionPersistence};
 use crate::services::DocumentPersistence;
 use crate::{errors::FlowyError, DocumentCloudService};
@@ -262,7 +262,7 @@ impl DocumentManager {
             &user_id,
             doc_id,
             rev_persistence,
-            DocumentRevisionCompress(),
+            DocumentRevisionMergeable(),
             PhantomSnapshotPersistence(),
         ))
     }
@@ -280,7 +280,7 @@ impl DocumentManager {
             &user_id,
             doc_id,
             rev_persistence,
-            DeltaDocumentRevisionCompress(),
+            DeltaDocumentRevisionMergeable(),
             PhantomSnapshotPersistence(),
         ))
     }

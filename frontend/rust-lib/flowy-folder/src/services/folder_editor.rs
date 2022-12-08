@@ -114,8 +114,8 @@ impl RevisionObjectSerializer for FolderRevisionSerde {
     }
 }
 
-pub struct FolderRevisionCompress();
-impl RevisionMergeable for FolderRevisionCompress {
+pub struct FolderRevisionMergeable();
+impl RevisionMergeable for FolderRevisionMergeable {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         FolderRevisionSerde::combine_revisions(revisions)
     }
