@@ -73,7 +73,7 @@ pub struct RevisionManager<Connection> {
     user_id: String,
     rev_id_counter: Arc<RevIdCounter>,
     rev_persistence: Arc<RevisionPersistence<Connection>>,
-    rev_snapshot: Arc<RevisionSnapshotController>,
+    rev_snapshot: Arc<RevisionSnapshotController<Connection>>,
     rev_compress: Arc<dyn RevisionMergeable>,
     #[cfg(feature = "flowy_unit_test")]
     rev_ack_notifier: tokio::sync::broadcast::Sender<i64>,
@@ -95,7 +95,14 @@ impl<Connection: 'static> RevisionManager<Connection> {
         let rev_id_counter = Arc::new(RevIdCounter::new(0));
         let rev_compress = Arc::new(rev_compress);
         let rev_persistence = Arc::new(rev_persistence);
-        let rev_snapshot = RevisionSnapshotController::new(user_id, object_id, snapshot_persistence);
+        let rev_snapshot = RevisionSnapshotController::new(
+            user_id,
+            object_id,
+            snapshot_persistence,
+            rev_id_counter.clone(),
+            rev_persistence.clone(),
+            rev_compress.clone(),
+        );
         let (rev_queue, receiver) = mpsc::channel(1000);
         let queue = RevQueue::new(
             object_id.to_owned(),
@@ -134,7 +141,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
                 self.rev_id_counter.set(current_rev_id);
                 Ok(object)
             }
-            Err(err) => match self.restore_from_snapshot::<B>(current_rev_id) {
+            Err(err) => match self.rev_snapshot.restore_from_snapshot::<B>(current_rev_id) {
                 None => Err(err),
                 Some((object, snapshot_rev)) => {
                     let snapshot_rev_id = snapshot_rev.rev_id;
@@ -153,21 +160,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
     }
 
     pub async fn generate_snapshot(&self) {
-        match self
-            .load_revisions()
-            .await
-            .and_then(|revisions| self.rev_compress.combine_revisions(revisions))
-        {
-            Ok(bytes) => {
-                let rev_id = self.rev_id_counter.value();
-                if let Err(e) = self.rev_snapshot.write_snapshot(rev_id, bytes.to_vec()) {
-                    tracing::error!("Save snapshot failed: {}", e);
-                }
-            }
-            Err(e) => {
-                tracing::error!("Generate snapshot data failed: {}", e);
-            }
-        }
+        self.rev_snapshot.generate_snapshot().await;
     }
 
     pub async fn read_snapshot(&self, rev_id: Option<i64>) -> FlowyResult<Option<RevisionSnapshot>> {
@@ -175,36 +168,6 @@ impl<Connection: 'static> RevisionManager<Connection> {
             None => self.rev_snapshot.read_last_snapshot(),
             Some(rev_id) => self.rev_snapshot.read_snapshot(rev_id),
         }
-    }
-
-    /// Find the nearest revision base on the passed-in rev_id
-    fn restore_from_snapshot<B>(&self, rev_id: i64) -> Option<(B::Output, Revision)>
-    where
-        B: RevisionObjectDeserializer,
-    {
-        tracing::trace!("Try to find if {} has snapshot", self.object_id);
-        let snapshot = self.rev_snapshot.read_last_snapshot().ok()??;
-        let snapshot_rev_id = snapshot.rev_id;
-        let revision = Revision::new(
-            &self.object_id,
-            snapshot.base_rev_id,
-            snapshot.rev_id,
-            snapshot.data,
-            "".to_owned(),
-        );
-        tracing::trace!(
-            "Try to restore from snapshot: {}, {}",
-            snapshot.base_rev_id,
-            snapshot.rev_id
-        );
-        let object = B::deserialize_revisions(&self.object_id, vec![revision.clone()]).ok()?;
-        tracing::trace!(
-            "Restore {} from snapshot with rev_id: {}",
-            self.object_id,
-            snapshot_rev_id
-        );
-
-        Some((object, revision))
     }
 
     pub async fn load_revisions(&self) -> FlowyResult<Vec<Revision>> {
@@ -244,6 +207,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
         if data.is_empty() {
             return Err(FlowyError::internal().context("The data of the revisions is empty"));
         }
+        self.rev_snapshot.generate_snapshot_if_need();
         let (ret, rx) = oneshot::channel();
         self.rev_queue
             .send(RevCommand::RevisionData { data, object_md5, ret })

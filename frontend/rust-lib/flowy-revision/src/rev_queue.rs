@@ -80,12 +80,13 @@ where
                 let rev_id = self.rev_id_counter.next_id();
                 let revision = Revision::new(&self.object_id, base_rev_id, rev_id, data, data_md5);
 
-                let rev_id = self
+                let new_rev_id = self
                     .rev_persistence
                     .add_local_revision(revision, &self.rev_compress)
                     .await?;
-                self.rev_id_counter.set(rev_id);
-                let _ = ret.send(Ok(rev_id));
+
+                self.rev_id_counter.set(new_rev_id);
+                let _ = ret.send(Ok(new_rev_id));
             }
         }
         Ok(())

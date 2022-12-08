@@ -133,35 +133,35 @@ void main() {
     workspaceSetting.latestView.id == document1.id;
   });
 
-  test('open latest grid test', () async {
+  test('open latest document test', () async {
     final app = await testContext.createTestApp();
     final bloc = AppBloc(app: app)..add(const AppEvent.initial());
     await blocResponseFuture();
 
-    bloc.add(AppEvent.createView("grid 1", GridPluginBuilder()));
+    bloc.add(AppEvent.createView("document 1", DocumentPluginBuilder()));
     await blocResponseFuture();
-    final grid1 = bloc.state.latestCreatedView;
-    assert(grid1!.name == "grid 1");
+    final document = bloc.state.latestCreatedView;
+    assert(document!.name == "document 1");
 
     bloc.add(AppEvent.createView("grid 2", GridPluginBuilder()));
     await blocResponseFuture();
-    final grid2 = bloc.state.latestCreatedView;
-    assert(grid2!.name == "grid 2");
+    final grid = bloc.state.latestCreatedView;
+    assert(grid!.name == "grid 2");
 
     var workspaceSetting = await FolderEventReadCurrentWorkspace()
         .send()
         .then((result) => result.fold((l) => l, (r) => throw Exception()));
-    workspaceSetting.latestView.id == grid1!.id;
+    workspaceSetting.latestView.id == grid!.id;
 
     // Open grid 1
     // ignore: unused_local_variable
-    final documentBloc = DocumentBloc(view: grid1)
+    final documentBloc = DocumentBloc(view: document!)
       ..add(const DocumentEvent.initial());
     await blocResponseFuture();
 
     workspaceSetting = await FolderEventReadCurrentWorkspace()
         .send()
         .then((result) => result.fold((l) => l, (r) => throw Exception()));
-    workspaceSetting.latestView.id == grid1.id;
+    workspaceSetting.latestView.id == document.id;
   });
 }

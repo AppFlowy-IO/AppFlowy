@@ -7,7 +7,8 @@ use crate::memory::RevisionMemoryCache;
 use crate::RevisionMergeable;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_http_model::revision::{Revision, RevisionRange};
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
+
 use std::{borrow::Cow, sync::Arc};
 use tokio::sync::RwLock;
 use tokio::task::spawn_blocking;
@@ -157,6 +158,8 @@ where
     }
 
     /// Save the revision to disk and append it to the end of the sync sequence.
+    /// The returned value,rev_id, will be different with the passed-in revision's rev_id if
+    /// multiple revisions are merged into one.
     #[tracing::instrument(level = "trace", skip_all, fields(rev_id, compact_range, object_id=%self.object_id), err)]
     pub(crate) async fn add_local_revision<'a>(
         &'a self,
@@ -302,7 +305,16 @@ where
     }
 
     pub fn load_all_records(&self, object_id: &str) -> FlowyResult<Vec<SyncRecord>> {
-        self.disk_cache.read_revision_records(object_id, None)
+        let mut record_ids = HashMap::new();
+        let mut records = vec![];
+        for record in self.disk_cache.read_revision_records(object_id, None)? {
+            let rev_id = record.revision.rev_id;
+            if record_ids.get(&rev_id).is_none() {
+                records.push(record);
+            }
+            record_ids.insert(rev_id, rev_id);
+        }
+        Ok(records)
     }
 
     // Read the revision which rev_id >= range.start && rev_id <= range.end
@@ -393,9 +405,8 @@ impl DeferSyncSequence {
         // The last revision's rev_id must be greater than the new one.
         if let Some(rev_id) = self.rev_ids.back() {
             if *rev_id >= new_rev_id {
-                return Err(
-                    FlowyError::internal().context(format!("The new revision's id must be greater than {}", rev_id))
-                );
+                tracing::error!("The new revision's id must be greater than {}", rev_id);
+                return Ok(());
             }
         }
         self.rev_ids.push_back(new_rev_id);
