@@ -9,7 +9,6 @@ pub trait RevisionSnapshotDiskCache: Send + Sync {
     fn write_snapshot(&self, rev_id: i64, data: Vec<u8>) -> FlowyResult<()>;
     fn read_snapshot(&self, rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>>;
     fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>>;
-    fn latest_snapshot_from(&self, rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>>;
 }
 
 /// Do nothing but just used to clam the rust compiler about the generic parameter `SP` of `RevisionManager`
@@ -25,10 +24,6 @@ impl RevisionSnapshotDiskCache for PhantomSnapshotPersistence {
     }
 
     fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>> {
-        Ok(None)
-    }
-
-    fn latest_snapshot_from(&self, rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>> {
         Ok(None)
     }
 }

@@ -11,10 +11,13 @@ use crate::services::view_editor::trait_impl::*;
 use crate::services::view_editor::GridViewChangedReceiverRunner;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
+use flowy_http_model::revision::Revision;
 use flowy_revision::RevisionManager;
-use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
+use flowy_sync::client_grid::{make_grid_view_operations, GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_task::TaskDispatcher;
-use grid_rev_model::{gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterRevision, RowChangeset, RowRevision};
+use grid_rev_model::{
+    gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterRevision, LayoutRevision, RowChangeset, RowRevision,
+};
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::Fut;
 use lib_infra::ref_map::RefCountValue;
@@ -61,13 +64,26 @@ impl GridViewRevisionEditor {
         let cloud = Arc::new(GridViewRevisionCloudService {
             token: token.to_owned(),
         });
-        let view_revision_pad = rev_manager.initialize::<GridViewRevisionSerde>(Some(cloud)).await?;
-        let pad = Arc::new(RwLock::new(view_revision_pad));
+
+        let view_rev_pad = match rev_manager.initialize::<GridViewRevisionSerde>(Some(cloud)).await {
+            Ok(pad) => pad,
+            Err(err) => {
+                // It shouldn't be here, because the snapshot should come to recue.
+                tracing::error!("Deserialize grid view revisions failed: {}", err);
+                let view = GridViewRevisionPad::new(view_id.to_owned(), view_id.to_owned(), LayoutRevision::Table);
+                let bytes = make_grid_view_operations(&view).json_bytes();
+                let reset_revision = Revision::initial_revision(&view_id, bytes);
+                let _ = rev_manager.reset_object(vec![reset_revision]).await;
+                view
+            }
+        };
+
+        let view_rev_pad = Arc::new(RwLock::new(view_rev_pad));
         let rev_manager = Arc::new(rev_manager);
         let group_controller = new_group_controller(
             user_id.to_owned(),
             view_id.clone(),
-            pad.clone(),
+            view_rev_pad.clone(),
             rev_manager.clone(),
             delegate.clone(),
         )
@@ -75,9 +91,10 @@ impl GridViewRevisionEditor {
 
         let user_id = user_id.to_owned();
         let group_controller = Arc::new(RwLock::new(group_controller));
-        let filter_controller = make_filter_controller(&view_id, delegate.clone(), notifier.clone(), pad.clone()).await;
+        let filter_controller =
+            make_filter_controller(&view_id, delegate.clone(), notifier.clone(), view_rev_pad.clone()).await;
         Ok(Self {
-            pad,
+            pad: view_rev_pad,
             user_id,
             view_id,
             rev_manager,

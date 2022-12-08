@@ -91,31 +91,7 @@ impl RevisionSnapshotDiskCache for SQLiteGridRevisionSnapshotPersistence {
             .first::<GridSnapshotRecord>(&*conn)?;
         Ok(Some(latest_record.into()))
     }
-
-    fn latest_snapshot_from(&self, rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>> {
-        let conn = self.pool.get().map_err(internal_error)?;
-        let records = dsl::grid_rev_snapshot
-            .filter(dsl::object_id.eq(&self.object_id))
-            .load::<GridSnapshotRecord>(&*conn)?;
-
-        let mut record: Option<RevisionSnapshot> = None;
-        let mut min_offset: Option<i64> = None;
-        for element in records.into_iter() {
-            let offset = element.rev_id - rev_id;
-            if let Some(min_offset) = &mut min_offset {
-                if *min_offset > offset {
-                    *min_offset = offset;
-                    record = Some(element.into());
-                }
-            } else {
-                min_offset = Some(offset);
-                record = Some(element.into());
-            }
-        }
-        Ok(record)
-    }
 }
-
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[table_name = "grid_rev_snapshot"]
 #[primary_key("snapshot_id")]
@@ -138,3 +114,35 @@ impl std::convert::From<GridSnapshotRecord> for RevisionSnapshot {
         }
     }
 }
+
+// pub(crate) fn get_latest_rev_id_from(rev_ids: Vec<i64>, anchor: i64) -> Option<i64> {
+//     let mut target_rev_id = None;
+//     let mut old_step: Option<i64> = None;
+//     for rev_id in rev_ids {
+//         let step = (rev_id - anchor).abs();
+//         if let Some(old_step) = &mut old_step {
+//             if *old_step > step {
+//                 *old_step = step;
+//                 target_rev_id = Some(rev_id);
+//             }
+//         } else {
+//             old_step = Some(step);
+//             target_rev_id = Some(rev_id);
+//         }
+//     }
+//     target_rev_id
+// }
+
+// #[cfg(test)]
+// mod tests {
+//     use crate::services::persistence::rev_sqlite::get_latest_rev_id_from;
+//
+//     #[test]
+//     fn test_latest_rev_id() {
+//         let ids = vec![1, 2, 3, 4, 5, 6];
+//         for (anchor, expected_value) in vec![(3, 3), (7, 6), (1, 1)] {
+//             let value = get_latest_rev_id_from(ids.clone(), anchor).unwrap();
+//             assert_eq!(value, expected_value);
+//         }
+//     }
+// }

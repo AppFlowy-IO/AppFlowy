@@ -182,8 +182,8 @@ impl<Connection: 'static> RevisionManager<Connection> {
     where
         B: RevisionObjectDeserializer,
     {
-        tracing::trace!("Try read {}'s snapshot with rev_id: {}", self.object_id, rev_id);
-        let snapshot = self.rev_snapshot.latest_snapshot_from(rev_id).ok()??;
+        tracing::trace!("Try to find if {} has snapshot", self.object_id);
+        let snapshot = self.rev_snapshot.read_last_snapshot().ok()??;
         let snapshot_rev_id = snapshot.rev_id;
         let revision = Revision::new(
             &self.object_id,
@@ -192,7 +192,11 @@ impl<Connection: 'static> RevisionManager<Connection> {
             snapshot.data,
             "".to_owned(),
         );
-        tracing::trace!("Snapshot: {}, {}", snapshot.base_rev_id, snapshot.rev_id);
+        tracing::trace!(
+            "Try to restore from snapshot: {}, {}",
+            snapshot.base_rev_id,
+            snapshot.rev_id
+        );
         let object = B::deserialize_revisions(&self.object_id, vec![revision.clone()]).ok()?;
         tracing::trace!(
             "Restore {} from snapshot with rev_id: {}",

@@ -256,10 +256,6 @@ impl RevisionSnapshotDiskCache for RevisionSnapshotMock {
     fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>> {
         Ok(None)
     }
-
-    fn latest_snapshot_from(&self, _rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>> {
-        todo!()
-    }
 }
 
 pub struct RevisionMergeableMock {}
