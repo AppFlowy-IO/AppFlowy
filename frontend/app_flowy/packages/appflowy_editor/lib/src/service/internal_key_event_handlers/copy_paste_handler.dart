@@ -361,8 +361,6 @@ void _deleteSelectedContent(EditorState editorState) {
   editorState.apply(tb);
 }
 
-void _setDataToClipboard({String? html, String? text}) {}
-
 ShortcutEventHandler copyEventHandler = (editorState, event) {
   _handleCopy(editorState);
   return KeyEventResult.handled;
