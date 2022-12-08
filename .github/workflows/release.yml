@@ -81,6 +81,7 @@ jobs:
           # Create control file
           printf 'Package: AppFlowy
           Version: %s
+          Depends: libkeybinder-3.0-0
           Architecture: amd64
           Essential: no
           Priority: optional
@@ -173,6 +174,7 @@ jobs:
           # Create control file
           printf 'Package: AppFlowy
           Version: %s
+          Depends: libkeybinder-3.0-0
           Architecture: amd64
           Essential: no
           Priority: optional
