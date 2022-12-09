@@ -48,6 +48,7 @@ impl GridLayoutPB {
 pub enum GridLayout {
     Table = 0,
     Board = 1,
+    Calendar = 2,
 }
 
 impl std::default::Default for GridLayout {
@@ -61,6 +62,7 @@ impl std::convert::From<LayoutRevision> for GridLayout {
         match rev {
             LayoutRevision::Table => GridLayout::Table,
             LayoutRevision::Board => GridLayout::Board,
+            LayoutRevision::Calendar => GridLayout::Calendar,
         }
     }
 }
@@ -70,6 +72,7 @@ impl std::convert::From<GridLayout> for LayoutRevision {
         match layout {
             GridLayout::Table => LayoutRevision::Table,
             GridLayout::Board => LayoutRevision::Board,
+            GridLayout::Calendar => LayoutRevision::Calendar,
         }
     }
 }
