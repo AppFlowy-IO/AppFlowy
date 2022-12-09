@@ -4,7 +4,7 @@ import 'package:appflowy_editor/src/l10n/l10n.dart';
 import 'package:appflowy_editor/src/render/image/image_upload_widget.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.dart';
 import 'package:appflowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
-
+import 'package:appflowy_editor/src/render/emoji/emoji_select_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/src/core/legacy/built_in_attribute_keys.dart';
 
@@ -180,6 +180,13 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
         _selectionMenuIcon('image', editorState, onSelected),
     keywords: ['image'],
     handler: showImageUploadMenu,
+  ),
+  SelectionMenuItem(
+    name: () => AppFlowyEditorLocalizations.current.emoji,
+    icon: (editorState, onSelected) =>
+        _selectionMenuIcon('image', editorState, onSelected),
+    keywords: ['emoji'],
+    handler: showEmojiSelectionMenu,
   ),
   SelectionMenuItem(
     name: () => AppFlowyEditorLocalizations.current.bulletedList,
