@@ -1,4 +1,3 @@
-use crate::entities::RowPB;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_http_model::revision::Revision;
@@ -134,26 +133,6 @@ impl GridBlockRevisionEditor {
     ) -> FlowyResult<Vec<CellRevision>> {
         let cell_revs = self.pad.read().await.get_cell_revs(field_id, row_ids)?;
         Ok(cell_revs)
-    }
-
-    pub async fn get_row_pb(&self, row_id: &str) -> FlowyResult<Option<RowPB>> {
-        let row_ids = Some(vec![Cow::Borrowed(row_id)]);
-        Ok(self.get_row_pbs(row_ids).await?.pop())
-    }
-
-    pub async fn get_row_pbs<T>(&self, row_ids: Option<Vec<Cow<'_, T>>>) -> FlowyResult<Vec<RowPB>>
-    where
-        T: AsRef<str> + ToOwned + ?Sized,
-    {
-        let row_infos = self
-            .pad
-            .read()
-            .await
-            .get_row_revs(row_ids)?
-            .iter()
-            .map(RowPB::from)
-            .collect::<Vec<RowPB>>();
-        Ok(row_infos)
     }
 
     async fn modify<F>(&self, f: F) -> FlowyResult<()>

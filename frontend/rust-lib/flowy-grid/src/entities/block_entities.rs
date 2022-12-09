@@ -173,7 +173,7 @@ pub struct UpdatedRowPB {
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct GridBlockChangesetPB {
     #[pb(index = 1)]
-    pub block_id: String,
+    pub view_id: String,
 
     #[pb(index = 2)]
     pub inserted_rows: Vec<InsertedRowPB>,
@@ -191,9 +191,9 @@ pub struct GridBlockChangesetPB {
     pub invisible_rows: Vec<String>,
 }
 impl GridBlockChangesetPB {
-    pub fn insert(block_id: String, inserted_rows: Vec<InsertedRowPB>) -> Self {
+    pub fn insert(view_id: String, inserted_rows: Vec<InsertedRowPB>) -> Self {
         Self {
-            block_id,
+            view_id,
             inserted_rows,
             ..Default::default()
         }
@@ -201,7 +201,7 @@ impl GridBlockChangesetPB {
 
     pub fn delete(block_id: &str, deleted_rows: Vec<String>) -> Self {
         Self {
-            block_id: block_id.to_owned(),
+            view_id: block_id.to_owned(),
             deleted_rows,
             ..Default::default()
         }
@@ -209,7 +209,7 @@ impl GridBlockChangesetPB {
 
     pub fn update(block_id: &str, updated_rows: Vec<UpdatedRowPB>) -> Self {
         Self {
-            block_id: block_id.to_owned(),
+            view_id: block_id.to_owned(),
             updated_rows,
             ..Default::default()
         }

@@ -15,10 +15,7 @@ class RowActionSheetBloc
   final RowFFIService _rowService;
 
   RowActionSheetBloc({required RowInfo rowInfo})
-      : _rowService = RowFFIService(
-          gridId: rowInfo.gridId,
-          blockId: rowInfo.rowPB.blockId,
-        ),
+      : _rowService = RowFFIService(gridId: rowInfo.gridId),
         super(RowActionSheetState.initial(rowInfo)) {
     on<RowActionSheetEvent>(
       (event, emit) async {

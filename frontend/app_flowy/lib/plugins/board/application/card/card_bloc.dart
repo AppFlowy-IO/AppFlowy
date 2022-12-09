@@ -23,7 +23,6 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
     required bool isEditing,
   })  : _rowService = RowFFIService(
           gridId: gridId,
-          blockId: dataController.rowPB.blockId,
         ),
         _dataController = dataController,
         super(

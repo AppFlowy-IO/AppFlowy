@@ -4,6 +4,7 @@ import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/row_entities.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -73,6 +74,17 @@ class GridRowCache {
     _deleteRows(changeset.deletedRows);
     _insertRows(changeset.insertedRows);
     _updateRows(changeset.updatedRows);
+    _hideRows(changeset.invisibleRows);
+    _showRows(changeset.visibleRows);
+  }
+
+  void applyRowsChanged(GridViewRowsChangesetPB changeset) {
+    _deleteRows(changeset.deletedRows);
+    _insertRows(changeset.insertedRows);
+    _updateRows(changeset.updatedRows);
+  }
+
+  void applyRowsVisibility(GridRowsVisibilityChangesetPB changeset) {
     _hideRows(changeset.invisibleRows);
     _showRows(changeset.visibleRows);
   }
@@ -192,7 +204,6 @@ class GridRowCache {
   Future<void> _loadRow(String rowId) async {
     final payload = RowIdPB.create()
       ..gridId = gridId
-      ..blockId = block.id
       ..rowId = rowId;
 
     final result = await GridEventGetRow(payload).send();

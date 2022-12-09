@@ -9,15 +9,11 @@ pub struct RowIdPB {
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub block_id: String,
-
-    #[pb(index = 3)]
     pub row_id: String,
 }
 
 pub struct RowIdParams {
     pub grid_id: String,
-    pub block_id: String,
     pub row_id: String,
 }
 
@@ -26,12 +22,10 @@ impl TryInto<RowIdParams> for RowIdPB {
 
     fn try_into(self) -> Result<RowIdParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        let block_id = NotEmptyStr::parse(self.block_id).map_err(|_| ErrorCode::BlockIdIsEmpty)?;
         let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
 
         Ok(RowIdParams {
             grid_id: grid_id.0,
-            block_id: block_id.0,
             row_id: row_id.0,
         })
     }

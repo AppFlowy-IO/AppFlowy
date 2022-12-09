@@ -3,6 +3,7 @@ use crate::entities::{
     MoveGroupParams, RepeatedGroupPB, RowPB,
 };
 use crate::manager::GridUser;
+use crate::services::block_manager::GridBlockEvent;
 use crate::services::filter::FilterType;
 use crate::services::persistence::rev_sqlite::{
     SQLiteGridRevisionSnapshotPersistence, SQLiteGridViewRevisionPersistence,
@@ -24,6 +25,7 @@ pub struct GridViewManager {
     user: Arc<dyn GridUser>,
     delegate: Arc<dyn GridViewEditorDelegate>,
     view_editors: RwLock<RefCountHashMap<Arc<GridViewRevisionEditor>>>,
+    block_event_rx: broadcast::Receiver<GridBlockEvent>,
 }
 
 impl GridViewManager {
@@ -31,6 +33,7 @@ impl GridViewManager {
         grid_id: String,
         user: Arc<dyn GridUser>,
         delegate: Arc<dyn GridViewEditorDelegate>,
+        block_event_rx: broadcast::Receiver<GridBlockEvent>,
     ) -> FlowyResult<Self> {
         let view_editors = RwLock::new(RefCountHashMap::default());
         Ok(Self {
@@ -38,6 +41,7 @@ impl GridViewManager {
             user,
             delegate,
             view_editors,
+            block_event_rx,
         })
     }
 
@@ -47,6 +51,10 @@ impl GridViewManager {
 
     pub async fn subscribe_view_changed(&self, view_id: &str) -> FlowyResult<broadcast::Receiver<GridViewChanged>> {
         Ok(self.get_view_editor(view_id).await?.notifier.subscribe())
+    }
+
+    pub async fn get_rows(&self) -> FlowyResult<Vec<Arc<RowRevision>>> {
+        todo!()
     }
 
     pub async fn filter_rows(&self, block_id: &str, rows: Vec<Arc<RowRevision>>) -> FlowyResult<Vec<Arc<RowRevision>>> {

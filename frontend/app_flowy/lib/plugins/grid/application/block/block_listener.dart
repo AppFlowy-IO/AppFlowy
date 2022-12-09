@@ -32,7 +32,7 @@ class GridBlockListener {
 
   void _handler(GridDartNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridDartNotification.DidUpdateGridBlock:
+      case GridDartNotification.DidUpdateGridRows:
         result.fold(
           (payload) => _rowsUpdateNotifier?.value =
               left(GridBlockChangesetPB.fromBuffer(payload)),

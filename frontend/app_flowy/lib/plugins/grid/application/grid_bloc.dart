@@ -38,7 +38,6 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           },
           deleteRow: (rowInfo) async {
             final rowService = RowFFIService(
-              blockId: rowInfo.rowPB.blockId,
               gridId: rowInfo.gridId,
             );
             await rowService.deleteRow(rowInfo.rowPB.id);

@@ -1,17 +1,17 @@
 import 'dart:async';
+import 'package:app_flowy/plugins/grid/application/view/grid_view_listener.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 
 import '../field/field_controller.dart';
 import '../row/row_cache.dart';
-import 'block_listener.dart';
 
 /// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid for more information
 class GridBlockCache {
   final String gridId;
   final BlockPB block;
   late GridRowCache _rowCache;
-  late GridBlockListener _listener;
+  final GridViewListener _gridViewListener;
 
   List<RowInfo> get rows => _rowCache.visibleRows;
   GridRowCache get rowCache => _rowCache;
@@ -20,24 +20,31 @@ class GridBlockCache {
     required this.gridId,
     required this.block,
     required GridFieldController fieldController,
-  }) {
+  }) : _gridViewListener = GridViewListener(viewId: gridId) {
     _rowCache = GridRowCache(
       gridId: gridId,
       block: block,
       notifier: GridRowFieldNotifierImpl(fieldController),
     );
 
-    _listener = GridBlockListener(blockId: block.id);
-    _listener.start((result) {
-      result.fold(
-        (changeset) => _rowCache.applyChangesets(changeset),
-        (err) => Log.error(err),
-      );
-    });
+    _gridViewListener.start(
+      onRowsChanged: (result) {
+        result.fold(
+          (changeset) => _rowCache.applyRowsChanged(changeset),
+          (err) => Log.error(err),
+        );
+      },
+      onRowsVisibilityChanged: (result) {
+        result.fold(
+          (changeset) => _rowCache.applyRowsVisibility(changeset),
+          (err) => Log.error(err),
+        );
+      },
+    );
   }
 
   Future<void> dispose() async {
-    await _listener.stop();
+    await _gridViewListener.stop();
     await _rowCache.dispose();
   }
 

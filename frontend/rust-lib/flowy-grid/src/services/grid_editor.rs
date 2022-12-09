@@ -63,8 +63,9 @@ impl GridRevisionEditor {
         let grid_pad = Arc::new(RwLock::new(grid_pad));
 
         // Block manager
+        let (block_event_tx, block_event_rx) = broadcast::channel(100);
         let block_meta_revs = grid_pad.read().await.get_block_meta_revs();
-        let block_manager = Arc::new(GridBlockManager::new(&user, block_meta_revs, persistence).await?);
+        let block_manager = Arc::new(GridBlockManager::new(&user, block_meta_revs, persistence, block_event_tx).await?);
         let delegate = Arc::new(GridViewEditorDelegateImpl {
             pad: grid_pad.clone(),
             block_manager: block_manager.clone(),
@@ -72,7 +73,8 @@ impl GridRevisionEditor {
         });
 
         // View manager
-        let view_manager = Arc::new(GridViewManager::new(grid_id.to_owned(), user.clone(), delegate).await?);
+        let view_manager =
+            Arc::new(GridViewManager::new(grid_id.to_owned(), user.clone(), delegate, block_event_rx).await?);
 
         let editor = Arc::new(Self {
             grid_id: grid_id.to_owned(),
@@ -391,6 +393,7 @@ impl GridRevisionEditor {
         Ok(())
     }
 
+    /// Returns all the rows in this block.
     pub async fn get_row_pbs(&self, block_id: &str) -> FlowyResult<Vec<RowPB>> {
         let rows = self.block_manager.get_row_revs(block_id).await?;
         let rows = self
@@ -801,7 +804,7 @@ impl GridRevisionEditor {
     }
 
     async fn notify_did_update_grid(&self, changeset: GridFieldChangesetPB) -> FlowyResult<()> {
-        send_dart_notification(&self.grid_id, GridDartNotification::DidUpdateGridField)
+        send_dart_notification(&self.grid_id, GridDartNotification::DidUpdateGridFields)
             .payload(changeset)
             .send();
         Ok(())

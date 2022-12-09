@@ -14,13 +14,28 @@ use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceCo
 use grid_rev_model::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision};
 use std::borrow::Cow;
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
+use tokio::sync::{broadcast, RwLock};
+
+pub trait GridBlockDelegate: Send + Sync + 'static {
+    fn notify_did_insert_row(&self, row: InsertedRowPB);
+    fn notify_did_update_row(&self, row: UpdatedRowPB);
+    fn notify_did_delete_row(&self, row_id: String);
+}
+
+#[derive(Debug, Clone)]
+pub enum GridBlockEvent {
+    DidInsertRow { row: InsertedRowPB },
+    UpdateRow { row: UpdatedRowPB },
+    DeleteRow { row_id: String },
+}
 
 type BlockId = String;
 pub(crate) struct GridBlockManager {
     user: Arc<dyn GridUser>,
     persistence: Arc<BlockIndexCache>,
     block_editors: DashMap<BlockId, Arc<GridBlockRevisionEditor>>,
+    notifier: broadcast::Sender<GridBlockEvent>,
 }
 
 impl GridBlockManager {
@@ -28,6 +43,7 @@ impl GridBlockManager {
         user: &Arc<dyn GridUser>,
         block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
         persistence: Arc<BlockIndexCache>,
+        block_event_tx: broadcast::Sender<GridBlockEvent>,
     ) -> FlowyResult<Self> {
         let block_editors = make_block_editors(user, block_meta_revs).await?;
         let user = user.clone();
@@ -35,6 +51,7 @@ impl GridBlockManager {
             user,
             block_editors,
             persistence,
+            notifier: block_event_tx,
         };
         Ok(manager)
     }
@@ -180,7 +197,7 @@ impl GridBlockManager {
         };
 
         let notified_changeset = GridBlockChangesetPB {
-            block_id: editor.block_id.clone(),
+            view_id: editor.block_id.clone(),
             inserted_rows: vec![insert_row],
             deleted_rows: vec![delete_row_id],
             ..Default::default()
@@ -241,7 +258,7 @@ impl GridBlockManager {
     }
 
     async fn notify_did_update_block(&self, block_id: &str, changeset: GridBlockChangesetPB) -> FlowyResult<()> {
-        send_dart_notification(block_id, GridDartNotification::DidUpdateGridBlock)
+        send_dart_notification(block_id, GridDartNotification::DidUpdateGridRows)
             .payload(changeset)
             .send();
         Ok(())

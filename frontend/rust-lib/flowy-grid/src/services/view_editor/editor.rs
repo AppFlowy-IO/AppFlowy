@@ -6,6 +6,7 @@ use crate::services::group::{
     GroupController, MoveGroupRowContext,
 };
 use crate::services::row::GridBlock;
+use crate::services::sort::SortController;
 use crate::services::view_editor::changed_notifier::GridViewChangedNotifier;
 use crate::services::view_editor::trait_impl::*;
 use crate::services::view_editor::GridViewChangedReceiverRunner;
@@ -29,11 +30,22 @@ use tokio::sync::{broadcast, RwLock};
 pub trait GridViewEditorDelegate: Send + Sync + 'static {
     /// If the field_ids is None, then it will return all the field revisions
     fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>>;
+
+    /// Returns the field with the field_id
     fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>>;
 
+    /// Returns the index of the row with row_id
     fn index_of_row(&self, row_id: &str) -> Fut<Option<usize>>;
+
+    /// Get the row with row_id
     fn get_row_rev(&self, row_id: &str) -> Fut<Option<(usize, Arc<RowRevision>)>>;
+
+    /// Get all the rows that the current Grid has
+    /// One block has a list of rows
     fn get_row_revs(&self) -> Fut<Vec<Arc<RowRevision>>>;
+
+    /// Get all the blocks that the current Grid has.
+    /// One grid has a list of blocks
     fn get_blocks(&self) -> Fut<Vec<GridBlock>>;
 
     fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>>;
@@ -47,6 +59,7 @@ pub struct GridViewRevisionEditor {
     delegate: Arc<dyn GridViewEditorDelegate>,
     group_controller: Arc<RwLock<Box<dyn GroupController>>>,
     filter_controller: Arc<RwLock<FilterController>>,
+    sort_controller: Arc<RwLock<SortController>>,
     pub notifier: GridViewChangedNotifier,
 }
 
@@ -89,6 +102,8 @@ impl GridViewRevisionEditor {
         )
         .await?;
 
+        let sort_controller = Arc::new(RwLock::new(SortController::new()));
+
         let user_id = user_id.to_owned();
         let group_controller = Arc::new(RwLock::new(group_controller));
         let filter_controller =
@@ -101,6 +116,7 @@ impl GridViewRevisionEditor {
             delegate,
             group_controller,
             filter_controller,
+            sort_controller,
             notifier,
         })
     }
@@ -110,6 +126,10 @@ impl GridViewRevisionEditor {
         self.rev_manager.generate_snapshot().await;
         self.rev_manager.close().await;
         self.filter_controller.read().await.close().await;
+    }
+
+    pub async fn notify_rows_did_changed(&self) {
+        //
     }
 
     pub async fn filter_rows(&self, _block_id: &str, mut rows: Vec<Arc<RowRevision>>) -> Vec<Arc<RowRevision>> {
