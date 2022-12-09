@@ -1,4 +1,11 @@
 # Release Notes
+## Version 0.0.8.1 - 12/09/2022
+### New features
+- Support following your default system theme
+- Improve the filter in Grid
+### Bug Fixes
+- Copy/Paste
+
 ## Version 0.0.8 - 11/30/2022
 ### New features
 - Table-view database
