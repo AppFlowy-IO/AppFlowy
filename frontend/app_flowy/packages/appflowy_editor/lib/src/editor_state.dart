@@ -73,6 +73,7 @@ class EditorState {
 
   // TODO: only for testing.
   bool disableSealTimer = false;
+  bool disbaleRules = false;
 
   bool editable = true;
 
@@ -124,6 +125,7 @@ class EditorState {
     Transaction transaction, {
     ApplyOptions options = const ApplyOptions(recordUndo: true),
     ruleCount = 0,
+    withUpdateCursor = true,
   }) {
     if (!editable) {
       return;
@@ -137,7 +139,9 @@ class EditorState {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _applyRules(ruleCount);
-      updateCursorSelection(transaction.afterSelection);
+      if (withUpdateCursor) {
+        updateCursorSelection(transaction.afterSelection);
+      }
     });
 
     if (options.recordUndo) {
@@ -187,7 +191,7 @@ class EditorState {
 
   void _applyRules(int ruleCount) {
     // Set a maximum count to prevent a dead loop.
-    if (ruleCount >= 5) {
+    if (ruleCount >= 5 || disbaleRules) {
       return;
     }
 
@@ -197,7 +201,7 @@ class EditorState {
     _insureLastNodeEditable(tr);
 
     if (tr.operations.isNotEmpty) {
-      apply(tr, ruleCount: ruleCount + 1);
+      apply(tr, ruleCount: ruleCount + 1, withUpdateCursor: false);
     }
   }
 
