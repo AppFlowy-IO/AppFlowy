@@ -11,7 +11,7 @@ use flowy_folder::{
 };
 use flowy_grid::entities::GridLayout;
 use flowy_grid::manager::{make_grid_view_data, GridManager};
-use flowy_grid::util::{make_default_board, make_default_grid};
+use flowy_grid::util::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_http_model::revision::Revision;
 use flowy_http_model::ws_data::ClientRevisionWSData;
 use flowy_net::ClientServerConfiguration;
@@ -264,6 +264,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         let (build_context, layout) = match layout {
             ViewLayoutTypePB::Grid => (make_default_grid(), GridLayout::Table),
             ViewLayoutTypePB::Board => (make_default_board(), GridLayout::Board),
+            ViewLayoutTypePB::Calendar => (make_default_calendar(), GridLayout::Calendar),
             ViewLayoutTypePB::Document => {
                 return FutureResult::new(async move {
                     Err(FlowyError::internal().context(format!("Can't handle {:?} layout type", layout)))
@@ -293,6 +294,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         let layout = match layout {
             ViewLayoutTypePB::Grid => GridLayout::Table,
             ViewLayoutTypePB::Board => GridLayout::Board,
+            ViewLayoutTypePB::Calendar => GridLayout::Calendar,
             ViewLayoutTypePB::Document => {
                 return FutureResult::new(async move {
                     Err(FlowyError::internal().context(format!("Can't handle {:?} layout type", layout)))

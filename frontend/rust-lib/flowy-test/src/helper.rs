@@ -51,6 +51,10 @@ impl ViewTest {
         Self::new(sdk, ViewDataFormatPB::DatabaseFormat, ViewLayoutTypePB::Board, data).await
     }
 
+    pub async fn new_calendar_view(sdk: &FlowySDKTest, data: Vec<u8>) -> Self {
+        Self::new(sdk, ViewDataFormatPB::DatabaseFormat, ViewLayoutTypePB::Calendar, data).await
+    }
+
     pub async fn new_document_view(sdk: &FlowySDKTest) -> Self {
         let view_data_format = match sdk.document_version() {
             DocumentVersionPB::V0 => ViewDataFormatPB::DeltaFormat,

@@ -74,17 +74,14 @@ where
     Ok(group_controller)
 }
 
-pub fn find_group_field(field_revs: &[Arc<FieldRevision>], layout: &LayoutRevision) -> Option<Arc<FieldRevision>> {
-    match layout {
-        LayoutRevision::Table => field_revs.iter().find(|field_rev| field_rev.is_primary).cloned(),
-        LayoutRevision::Board => field_revs
-            .iter()
-            .find(|field_rev| {
-                let field_type: FieldType = field_rev.ty.into();
-                field_type.can_be_group()
-            })
-            .cloned(),
-    }
+pub fn find_group_field(field_revs: &[Arc<FieldRevision>], _layout: &LayoutRevision) -> Option<Arc<FieldRevision>> {
+    field_revs
+        .iter()
+        .find(|field_rev| {
+            let field_type: FieldType = field_rev.ty.into();
+            field_type.can_be_group()
+        })
+        .cloned()
 }
 
 /// Returns a `default` group configuration for the [FieldRevision]
