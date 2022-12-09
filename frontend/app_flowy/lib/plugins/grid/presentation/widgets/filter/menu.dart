@@ -54,21 +54,26 @@ class GridFilterMenu extends StatelessWidget {
   }
 
   Widget buildFilterItems(String viewId, GridFilterMenuState state) {
-    final List<Widget> children = state.filters
-        .map((filterInfo) => FilterMenuItem(filterInfo: filterInfo))
-        .toList();
+    final List<Widget> children = [];
+    children.addAll(
+      state.filters
+          .map((filterInfo) => FilterMenuItem(filterInfo: filterInfo))
+          .toList(),
+    );
+
+    if (state.creatableFields.isNotEmpty) {
+      children.add(AddFilterButton(viewId: viewId));
+    }
+
     return Row(
       children: [
-        SingleChildScrollView(
-          controller: ScrollController(),
-          scrollDirection: Axis.horizontal,
+        Expanded(
           child: Wrap(
-            spacing: 4,
+            spacing: 6,
+            runSpacing: 4,
             children: children,
           ),
         ),
-        const HSpace(4),
-        if (state.creatableFields.isNotEmpty) AddFilterButton(viewId: viewId),
       ],
     );
   }

@@ -62,7 +62,7 @@ class GridCreateFilterBloc
     final List<FieldInfo> allFields = List.from(fields);
     final keyword = filterText.toLowerCase();
     allFields.retainWhere((field) {
-      if (field.canCreateFilter) {
+      if (!field.canCreateFilter) {
         return false;
       }
 
