@@ -60,7 +60,7 @@ impl GridFieldTest {
             FieldScript::CreateField { params } => {
                 self.field_count += 1;
                 self.editor
-                    .create_new_field_rev(&params.field_type, params.type_option_data)
+                    .create_new_field_rev_with_type_option(&params.field_type, params.type_option_data)
                     .await
                     .unwrap();
                 self.field_revs = self.editor.get_field_revs(None).await.unwrap();

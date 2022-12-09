@@ -1,13 +1,17 @@
-use crate::disk::RevisionState;
-use crate::{RevisionPersistence, RevisionSnapshotDiskCache, RevisionSnapshotManager, WSDataProviderDataSource};
+use crate::rev_queue::{RevCommand, RevCommandSender, RevQueue};
+use crate::{
+    RevisionPersistence, RevisionSnapshot, RevisionSnapshotController, RevisionSnapshotDiskCache,
+    WSDataProviderDataSource,
+};
 use bytes::Bytes;
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_http_model::revision::{Revision, RevisionRange};
 use flowy_http_model::util::md5;
 use lib_infra::future::FutureResult;
 use std::sync::atomic::AtomicI64;
 use std::sync::atomic::Ordering::SeqCst;
 use std::sync::Arc;
+use tokio::sync::{mpsc, oneshot};
 
 pub trait RevisionCloudService: Send + Sync {
     /// Read the object's revision from remote
@@ -67,13 +71,13 @@ pub trait RevisionMergeable: Send + Sync {
 pub struct RevisionManager<Connection> {
     pub object_id: String,
     user_id: String,
-    rev_id_counter: RevIdCounter,
+    rev_id_counter: Arc<RevIdCounter>,
     rev_persistence: Arc<RevisionPersistence<Connection>>,
-    #[allow(dead_code)]
-    rev_snapshot: Arc<RevisionSnapshotManager>,
+    rev_snapshot: Arc<RevisionSnapshotController<Connection>>,
     rev_compress: Arc<dyn RevisionMergeable>,
     #[cfg(feature = "flowy_unit_test")]
     rev_ack_notifier: tokio::sync::broadcast::Sender<i64>,
+    rev_queue: RevCommandSender,
 }
 
 impl<Connection: 'static> RevisionManager<Connection> {
@@ -88,43 +92,82 @@ impl<Connection: 'static> RevisionManager<Connection> {
         SP: 'static + RevisionSnapshotDiskCache,
         C: 'static + RevisionMergeable,
     {
-        let rev_id_counter = RevIdCounter::new(0);
+        let rev_id_counter = Arc::new(RevIdCounter::new(0));
         let rev_compress = Arc::new(rev_compress);
         let rev_persistence = Arc::new(rev_persistence);
-        let rev_snapshot = Arc::new(RevisionSnapshotManager::new(user_id, object_id, snapshot_persistence));
-
+        let rev_snapshot = RevisionSnapshotController::new(
+            user_id,
+            object_id,
+            snapshot_persistence,
+            rev_id_counter.clone(),
+            rev_persistence.clone(),
+            rev_compress.clone(),
+        );
+        let (rev_queue, receiver) = mpsc::channel(1000);
+        let queue = RevQueue::new(
+            object_id.to_owned(),
+            rev_id_counter.clone(),
+            rev_persistence.clone(),
+            rev_compress.clone(),
+            receiver,
+        );
+        tokio::spawn(queue.run());
         Self {
             object_id: object_id.to_string(),
             user_id: user_id.to_owned(),
             rev_id_counter,
             rev_persistence,
-            rev_snapshot,
+            rev_snapshot: Arc::new(rev_snapshot),
             rev_compress,
             #[cfg(feature = "flowy_unit_test")]
             rev_ack_notifier: tokio::sync::broadcast::channel(1).0,
+            rev_queue,
         }
     }
 
-    #[tracing::instrument(level = "debug", skip_all, fields(object_id) err)]
-    pub async fn initialize<B>(&mut self, cloud: Option<Arc<dyn RevisionCloudService>>) -> FlowyResult<B::Output>
+    #[tracing::instrument(level = "debug", skip_all, fields(deserializer, object) err)]
+    pub async fn initialize<B>(&mut self, _cloud: Option<Arc<dyn RevisionCloudService>>) -> FlowyResult<B::Output>
     where
         B: RevisionObjectDeserializer,
     {
-        let (revisions, rev_id) = RevisionLoader {
-            object_id: self.object_id.clone(),
-            user_id: self.user_id.clone(),
-            cloud,
-            rev_persistence: self.rev_persistence.clone(),
+        let revision_records = self.rev_persistence.load_all_records(&self.object_id)?;
+        tracing::Span::current().record("object", &self.object_id.as_str());
+        tracing::Span::current().record("deserializer", &std::any::type_name::<B>());
+        let revisions: Vec<Revision> = revision_records.iter().map(|record| record.revision.clone()).collect();
+        let current_rev_id = revisions.last().as_ref().map(|revision| revision.rev_id).unwrap_or(0);
+        match B::deserialize_revisions(&self.object_id, revisions) {
+            Ok(object) => {
+                let _ = self.rev_persistence.sync_revision_records(&revision_records).await?;
+                self.rev_id_counter.set(current_rev_id);
+                Ok(object)
+            }
+            Err(err) => match self.rev_snapshot.restore_from_snapshot::<B>(current_rev_id) {
+                None => Err(err),
+                Some((object, snapshot_rev)) => {
+                    let snapshot_rev_id = snapshot_rev.rev_id;
+                    let _ = self.rev_persistence.reset(vec![snapshot_rev]).await;
+                    // revision_records.retain(|record| record.revision.rev_id <= snapshot_rev_id);
+                    // let _ = self.rev_persistence.sync_revision_records(&revision_records).await?;
+                    self.rev_id_counter.set(snapshot_rev_id);
+                    Ok(object)
+                }
+            },
         }
-        .load()
-        .await?;
-        self.rev_id_counter.set(rev_id);
-        tracing::Span::current().record("object_id", &self.object_id.as_str());
-        B::deserialize_revisions(&self.object_id, revisions)
     }
 
     pub async fn close(&self) {
         let _ = self.rev_persistence.compact_lagging_revisions(&self.rev_compress).await;
+    }
+
+    pub async fn generate_snapshot(&self) {
+        self.rev_snapshot.generate_snapshot().await;
+    }
+
+    pub async fn read_snapshot(&self, rev_id: Option<i64>) -> FlowyResult<Option<RevisionSnapshot>> {
+        match rev_id {
+            None => self.rev_snapshot.read_last_snapshot(),
+            Some(rev_id) => self.rev_snapshot.read_snapshot(rev_id),
+        }
     }
 
     pub async fn load_revisions(&self) -> FlowyResult<Vec<Revision>> {
@@ -154,23 +197,23 @@ impl<Connection: 'static> RevisionManager<Connection> {
         }
 
         let _ = self.rev_persistence.add_ack_revision(revision).await?;
-        // self.rev_history.add_revision(revision).await;
         self.rev_id_counter.set(revision.rev_id);
         Ok(())
     }
 
+    /// Adds the revision that generated by user editing
     // #[tracing::instrument(level = "trace", skip_all, err)]
-    pub async fn add_local_revision(&self, revision: &Revision) -> Result<(), FlowyError> {
-        if revision.bytes.is_empty() {
-            return Err(FlowyError::internal().context("Local revisions is empty"));
+    pub async fn add_local_revision(&self, data: Bytes, object_md5: String) -> Result<i64, FlowyError> {
+        if data.is_empty() {
+            return Err(FlowyError::internal().context("The data of the revisions is empty"));
         }
-        let rev_id = self
-            .rev_persistence
-            .add_sync_revision(revision, &self.rev_compress)
-            .await?;
-        // self.rev_history.add_revision(revision).await;
-        self.rev_id_counter.set(rev_id);
-        Ok(())
+        self.rev_snapshot.generate_snapshot_if_need();
+        let (ret, rx) = oneshot::channel();
+        self.rev_queue
+            .send(RevCommand::RevisionData { data, object_md5, ret })
+            .await
+            .map_err(internal_error)?;
+        rx.await.map_err(internal_error)?
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
@@ -256,40 +299,6 @@ pub struct RevisionLoader<Connection> {
 }
 
 impl<Connection: 'static> RevisionLoader<Connection> {
-    pub async fn load(&self) -> Result<(Vec<Revision>, i64), FlowyError> {
-        let records = self.rev_persistence.load_all_records(&self.object_id)?;
-        let revisions: Vec<Revision>;
-        let mut rev_id = 0;
-        if records.is_empty() && self.cloud.is_some() {
-            let remote_revisions = self
-                .cloud
-                .as_ref()
-                .unwrap()
-                .fetch_object(&self.user_id, &self.object_id)
-                .await?;
-            for revision in &remote_revisions {
-                rev_id = revision.rev_id;
-                let _ = self.rev_persistence.add_ack_revision(revision).await?;
-            }
-            revisions = remote_revisions;
-        } else {
-            for record in &records {
-                rev_id = record.revision.rev_id;
-                if record.state == RevisionState::Sync {
-                    // Sync the records if their state is RevisionState::Sync.
-                    let _ = self.rev_persistence.sync_revision(&record.revision).await?;
-                }
-            }
-            revisions = records.into_iter().map(|record| record.revision).collect::<_>();
-        }
-
-        if let Some(revision) = revisions.last() {
-            debug_assert_eq!(rev_id, revision.rev_id);
-        }
-
-        Ok((revisions, rev_id))
-    }
-
     pub async fn load_revisions(&self) -> Result<Vec<Revision>, FlowyError> {
         let records = self.rev_persistence.load_all_records(&self.object_id)?;
         let revisions = records.into_iter().map(|record| record.revision).collect::<_>();
@@ -377,6 +386,7 @@ impl RevIdCounter {
         let _ = self.0.fetch_add(1, SeqCst);
         self.value()
     }
+
     pub fn value(&self) -> i64 {
         self.0.load(SeqCst)
     }

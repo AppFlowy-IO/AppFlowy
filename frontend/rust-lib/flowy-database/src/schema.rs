@@ -1,4 +1,6 @@
-table! {
+// @generated automatically by Diesel CLI.
+
+diesel::table! {
     app_table (id) {
         id -> Text,
         workspace_id -> Text,
@@ -13,7 +15,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     document_rev_table (id) {
         id -> Integer,
         document_id -> Text,
@@ -24,14 +26,14 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     grid_block_index_table (row_id) {
         row_id -> Text,
         block_id -> Text,
     }
 }
 
-table! {
+diesel::table! {
     grid_meta_rev_table (id) {
         id -> Integer,
         object_id -> Text,
@@ -42,7 +44,18 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
+    grid_rev_snapshot (snapshot_id) {
+        snapshot_id -> Text,
+        object_id -> Text,
+        rev_id -> BigInt,
+        base_rev_id -> BigInt,
+        timestamp -> BigInt,
+        data -> Binary,
+    }
+}
+
+diesel::table! {
     grid_rev_table (id) {
         id -> Integer,
         object_id -> Text,
@@ -53,7 +66,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     grid_view_rev_table (id) {
         id -> Integer,
         object_id -> Text,
@@ -64,14 +77,14 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     kv_table (key) {
         key -> Text,
         value -> Binary,
     }
 }
 
-table! {
+diesel::table! {
     rev_snapshot (id) {
         id -> Integer,
         object_id -> Text,
@@ -80,7 +93,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     rev_table (id) {
         id -> Integer,
         doc_id -> Text,
@@ -92,7 +105,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     trash_table (id) {
         id -> Text,
         name -> Text,
@@ -103,7 +116,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     user_table (id) {
         id -> Text,
         name -> Text,
@@ -114,7 +127,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     view_table (id) {
         id -> Text,
         belong_to_id -> Text,
@@ -130,7 +143,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     workspace_table (id) {
         id -> Text,
         name -> Text,
@@ -142,11 +155,12 @@ table! {
     }
 }
 
-allow_tables_to_appear_in_same_query!(
+diesel::allow_tables_to_appear_in_same_query!(
     app_table,
     document_rev_table,
     grid_block_index_table,
     grid_meta_rev_table,
+    grid_rev_snapshot,
     grid_rev_table,
     grid_view_rev_table,
     kv_table,

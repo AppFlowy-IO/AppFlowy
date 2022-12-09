@@ -60,7 +60,11 @@ impl FilterController {
     }
 
     pub async fn close(&self) {
-        self.task_scheduler.write().await.unregister_handler(&self.handler_id);
+        self.task_scheduler
+            .write()
+            .await
+            .unregister_handler(&self.handler_id)
+            .await;
     }
 
     #[tracing::instrument(name = "schedule_filter_task", level = "trace", skip(self))]

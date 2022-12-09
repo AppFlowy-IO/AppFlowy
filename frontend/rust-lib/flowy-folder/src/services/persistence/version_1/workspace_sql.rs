@@ -15,7 +15,7 @@ impl WorkspaceTableSql {
     ) -> Result<(), FlowyError> {
         let table = WorkspaceTable::new(workspace_rev, user_id);
         match diesel_record_count!(workspace_table, &table.id, conn) {
-            0 => diesel_insert_table!(workspace_table, &table, conn),
+            0 => diesel_insert_table!(workspace_table, table.clone(), conn),
             _ => {
                 let changeset = WorkspaceChangeset::from_table(table);
                 diesel_update_table!(workspace_table, changeset, conn);

@@ -1,16 +1,16 @@
 use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::{CellChangesetPB, GridBlockChangesetPB, InsertedRowPB, RowPB, UpdatedRowPB};
 use crate::manager::GridUser;
-use crate::services::block_editor::{GridBlockRevisionCompress, GridBlockRevisionEditor};
+use crate::services::block_editor::{GridBlockRevisionEditor, GridBlockRevisionMergeable};
 use crate::services::persistence::block_index::BlockIndexCache;
-use crate::services::persistence::rev_sqlite::SQLiteGridBlockRevisionPersistence;
+use crate::services::persistence::rev_sqlite::{
+    SQLiteGridBlockRevisionPersistence, SQLiteGridRevisionSnapshotPersistence,
+};
 use crate::services::row::{block_from_row_orders, make_row_from_row_rev, GridBlock};
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
-use flowy_revision::{
-    RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, SQLiteRevisionSnapshotPersistence,
-};
+use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration};
 use grid_rev_model::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision};
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -37,6 +37,12 @@ impl GridBlockManager {
             persistence,
         };
         Ok(manager)
+    }
+
+    pub async fn close(&self) {
+        for block_editor in self.block_editors.iter() {
+            block_editor.close().await;
+        }
     }
 
     // #[tracing::instrument(level = "trace", skip(self))]
@@ -275,12 +281,18 @@ pub fn make_grid_block_rev_manager(
     block_id: &str,
 ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
     let user_id = user.user_id()?;
+
+    // Create revision persistence
     let pool = user.db_pool()?;
     let disk_cache = SQLiteGridBlockRevisionPersistence::new(&user_id, pool.clone());
     let configuration = RevisionPersistenceConfiguration::new(4, false);
     let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache, configuration);
-    let rev_compactor = GridBlockRevisionCompress();
-    let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(block_id, pool);
-    let rev_manager = RevisionManager::new(&user_id, block_id, rev_persistence, rev_compactor, snapshot_persistence);
+
+    // Create snapshot persistence
+    let snapshot_object_id = format!("grid_block:{}", block_id);
+    let snapshot_persistence = SQLiteGridRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
+
+    let rev_compress = GridBlockRevisionMergeable();
+    let rev_manager = RevisionManager::new(&user_id, block_id, rev_persistence, rev_compress, snapshot_persistence);
     Ok(rev_manager)
 }

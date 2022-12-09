@@ -99,7 +99,6 @@ pub struct DeltaRevisionSql {}
 impl DeltaRevisionSql {
     fn create(revision_records: Vec<SyncRecord>, conn: &SqliteConnection) -> Result<(), FlowyError> {
         // Batch insert: https://diesel.rs/guides/all-about-inserts.html
-
         let records = revision_records
             .into_iter()
             .map(|record| {

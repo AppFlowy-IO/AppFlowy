@@ -47,6 +47,11 @@ impl GridBlockRevisionEditor {
         })
     }
 
+    pub async fn close(&self) {
+        self.rev_manager.generate_snapshot().await;
+        self.rev_manager.close().await;
+    }
+
     pub async fn duplicate_block(&self, duplicated_block_id: &str) -> GridBlockRevision {
         self.pad.read().await.duplicate_data(duplicated_block_id).await
     }
@@ -167,10 +172,8 @@ impl GridBlockRevisionEditor {
 
     async fn apply_change(&self, change: GridBlockRevisionChangeset) -> FlowyResult<()> {
         let GridBlockRevisionChangeset { operations: delta, md5 } = change;
-        let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
-        let delta_data = delta.json_bytes();
-        let revision = Revision::new(&self.rev_manager.object_id, base_rev_id, rev_id, delta_data, md5);
-        let _ = self.rev_manager.add_local_revision(&revision).await?;
+        let data = delta.json_bytes();
+        let _ = self.rev_manager.add_local_revision(data, md5).await?;
         Ok(())
     }
 }
@@ -203,8 +206,8 @@ impl RevisionObjectSerializer for GridBlockRevisionSerde {
     }
 }
 
-pub struct GridBlockRevisionCompress();
-impl RevisionMergeable for GridBlockRevisionCompress {
+pub struct GridBlockRevisionMergeable();
+impl RevisionMergeable for GridBlockRevisionMergeable {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         GridBlockRevisionSerde::combine_revisions(revisions)
     }

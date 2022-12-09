@@ -4,12 +4,8 @@ use crate::revision_test::script::{InvalidRevisionObject, RevisionTest};
 #[tokio::test]
 async fn revision_write_to_disk_test() {
     let test = RevisionTest::new_with_configuration(2).await;
-    let (base_rev_id, rev_id) = test.next_rev_id_pair();
-
     test.run_script(AddLocalRevision {
         content: "123".to_string(),
-        base_rev_id,
-        rev_id,
     })
     .await;
 
@@ -25,11 +21,8 @@ async fn revision_write_to_disk_test() {
 async fn revision_write_to_disk_with_merge_test() {
     let test = RevisionTest::new_with_configuration(100).await;
     for i in 0..1000 {
-        let (base_rev_id, rev_id) = test.next_rev_id_pair();
         test.run_script(AddLocalRevision {
             content: format!("{}", i),
-            base_rev_id,
-            rev_id,
         })
         .await;
     }
@@ -46,12 +39,9 @@ async fn revision_write_to_disk_with_merge_test() {
 #[tokio::test]
 async fn revision_read_from_disk_test() {
     let test = RevisionTest::new_with_configuration(2).await;
-    let (base_rev_id, rev_id) = test.next_rev_id_pair();
     test.run_scripts(vec![
         AddLocalRevision {
             content: "123".to_string(),
-            base_rev_id,
-            rev_id,
         },
         AssertNumberOfRevisionsInDisk { num: 0 },
         WaitWhenWriteToDisk,
@@ -60,16 +50,13 @@ async fn revision_read_from_disk_test() {
     .await;
 
     let test = RevisionTest::new_with_other(test).await;
-    let (base_rev_id, rev_id) = test.next_rev_id_pair();
     test.run_scripts(vec![
         AssertNextSyncRevisionId { rev_id: Some(1) },
         AddLocalRevision {
             content: "456".to_string(),
-            base_rev_id,
-            rev_id,
         },
         AckRevision { rev_id: 1 },
-        AssertNextSyncRevisionId { rev_id: Some(rev_id) },
+        AssertNextSyncRevisionId { rev_id: Some(2) },
     ])
     .await;
 }
@@ -77,20 +64,14 @@ async fn revision_read_from_disk_test() {
 #[tokio::test]
 async fn revision_read_from_disk_with_invalid_record_test() {
     let test = RevisionTest::new_with_configuration(2).await;
-    let (base_rev_id, rev_id) = test.next_rev_id_pair();
     test.run_scripts(vec![AddLocalRevision {
         content: "123".to_string(),
-        base_rev_id,
-        rev_id,
     }])
     .await;
 
-    let (base_rev_id, rev_id) = test.next_rev_id_pair();
     test.run_scripts(vec![
         AddInvalidLocalRevision {
             bytes: InvalidRevisionObject::new().to_bytes(),
-            base_rev_id,
-            rev_id,
         },
         WaitWhenWriteToDisk,
     ])
