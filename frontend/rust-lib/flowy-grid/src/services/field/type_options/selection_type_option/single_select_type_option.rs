@@ -121,7 +121,7 @@ mod tests {
     }
 
     #[test]
-    fn single_select_transform_with_multiselect_option_test() {
+    fn single_select_transform_with_multi_select_type_option_test() {
         let mut multiselect_type_option_builder = MultiSelectTypeOptionBuilder::default();
 
         let google = SelectOptionPB::new("Google");
