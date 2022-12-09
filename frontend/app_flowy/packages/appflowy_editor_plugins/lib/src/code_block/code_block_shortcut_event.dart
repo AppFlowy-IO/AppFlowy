@@ -97,7 +97,8 @@ SelectionMenuItem codeBlockMenuItem = SelectionMenuItem(
       return;
     }
     final transaction = editorState.transaction;
-    if (textNodes.first.toPlainText().isEmpty) {
+    final textNode = textNodes.first;
+    if (textNode.toPlainText().isEmpty && textNode.next is TextNode) {
       transaction.updateNode(textNodes.first, {
         BuiltInAttributeKey.subtype: kCodeBlockSubType,
         kCodeBlockAttrTheme: 'vs',
