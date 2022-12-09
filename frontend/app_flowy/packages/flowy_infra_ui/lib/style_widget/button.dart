@@ -24,7 +24,7 @@ class FlowyButton extends StatelessWidget {
     required this.text,
     this.onTap,
     this.onHover,
-    this.margin = const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+    this.margin = const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
     this.leftIcon,
     this.rightIcon,
     this.hoverColor,
@@ -63,9 +63,9 @@ class FlowyButton extends StatelessWidget {
     children.add(Expanded(child: text));
 
     if (rightIcon != null) {
-      children.add(const HSpace(6));
-      children.add(
-          SizedBox.fromSize(size: const Size.square(16), child: rightIcon!));
+      children.add(const HSpace(10));
+      // No need to define the size of rightIcon. Just use its intrinsic width
+      children.add(rightIcon!);
     }
 
     Widget child = Row(
