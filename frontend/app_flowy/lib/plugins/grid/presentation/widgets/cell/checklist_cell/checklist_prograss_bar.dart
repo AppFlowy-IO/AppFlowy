@@ -42,7 +42,7 @@ class _SliverChecklistPrograssBarDelegate
     extends SliverPersistentHeaderDelegate {
   _SliverChecklistPrograssBarDelegate();
 
-  double fixHeight = 54;
+  double fixHeight = 60;
 
   @override
   Widget build(
@@ -69,7 +69,7 @@ class _SliverChecklistPrograssBarDelegate
                 },
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 10.0),
+                padding: const EdgeInsets.only(top: 6.0),
                 child: ChecklistPrograssBar(percent: state.percent),
               ),
             ],
