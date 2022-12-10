@@ -13,7 +13,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 import '../../../layout/sizes.dart';
-import '../../common/text_field.dart';
+import '../../common/type_option_separator.dart';
 
 class SelectOptionTypeOptionEditor extends StatelessWidget {
   final SelectOptionPB option;
@@ -126,6 +126,7 @@ class _OptionNameTextField extends StatelessWidget {
       autoFocus: autoFocus,
       text: name,
       maxLength: 30,
+      submitOnLeave: true,
       onSubmitted: (newName) {
         if (name != newName) {
           context

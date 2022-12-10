@@ -13,7 +13,7 @@ import 'package:easy_localization/easy_localization.dart' hide NumberFormat;
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 import '../../../layout/sizes.dart';
-import '../../common/text_field.dart';
+import '../../common/type_option_separator.dart';
 import '../field_type_option_editor.dart';
 import 'builder.dart';
 
@@ -182,12 +182,10 @@ class _FilterTextField extends StatelessWidget {
   const _FilterTextField({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return InputTextField(
-      text: "",
-      onCanceled: () {},
-      onChanged: (text) {
-        context.read<NumberFormatBloc>().add(NumberFormatEvent.setFilter(text));
-      },
+    return FlowyTextField(
+      onChanged: (text) => context
+          .read<NumberFormatBloc>()
+          .add(NumberFormatEvent.setFilter(text)),
     );
   }
 }

@@ -9,24 +9,30 @@ class FlowyTextField extends StatefulWidget {
   final String hintText;
   final String text;
   final void Function(String)? onChanged;
+  final void Function()? onEditingComplete;
   final void Function(String)? onSubmitted;
   final void Function()? onCanceled;
+  final FocusNode? focusNode;
   final bool autoFocus;
   final int? maxLength;
   final TextEditingController? controller;
   final bool autoClearWhenDone;
+  final bool submitOnLeave;
   final Duration? debounceDuration;
 
   const FlowyTextField({
     this.hintText = "",
     this.text = "",
     this.onChanged,
+    this.onEditingComplete,
     this.onSubmitted,
     this.onCanceled,
+    this.focusNode,
     this.autoFocus = true,
     this.maxLength,
     this.controller,
     this.autoClearWhenDone = false,
+    this.submitOnLeave = false,
     this.debounceDuration,
     Key? key,
   }) : super(key: key);
@@ -42,7 +48,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
 
   @override
   void initState() {
-    focusNode = FocusNode();
+    focusNode = widget.focusNode ?? FocusNode();
     focusNode.addListener(notifyDidEndEditing);
 
     if (widget.controller != null) {
@@ -77,6 +83,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
     widget.onSubmitted?.call(text);
     if (widget.autoClearWhenDone) {
       controller.text = "";
+      setState(() {});
     }
   }
 
@@ -93,6 +100,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
         }
       },
       onSubmitted: (text) => _onSubmitted(text),
+      onEditingComplete: widget.onEditingComplete,
       maxLines: 1,
       maxLength: widget.maxLength,
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
@@ -102,7 +110,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
             const EdgeInsets.symmetric(horizontal: 10, vertical: 13),
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.primary,
+            color: Theme.of(context).colorScheme.outline,
             width: 1.0,
           ),
           borderRadius: Corners.s10Border,
@@ -135,10 +143,10 @@ class FlowyTextFieldState extends State<FlowyTextField> {
 
   void notifyDidEndEditing() {
     if (!focusNode.hasFocus) {
-      if (controller.text.isEmpty) {
-        widget.onCanceled?.call();
-      } else {
+      if (controller.text.isNotEmpty && widget.submitOnLeave) {
         widget.onSubmitted?.call(controller.text);
+      } else {
+        widget.onCanceled?.call();
       }
     }
   }
