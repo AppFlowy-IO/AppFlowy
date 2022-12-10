@@ -2,7 +2,7 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
 import 'package:flutter/material.dart';
 
-import 'color_extension.dart';
+import 'theme_extension.dart';
 
 Brightness themeTypeFromString(String name) {
   Brightness themeType = Brightness.light;
