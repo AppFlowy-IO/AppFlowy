@@ -3,6 +3,7 @@ import 'package:app_flowy/user/application/user_settings_service.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
@@ -82,8 +83,10 @@ class ApplicationWidget extends StatelessWidget {
         builder: (context, state) => MaterialApp(
           builder: overlayManagerBuilder(),
           debugShowCheckedModeBanner: false,
-          theme: state.theme.getThemeData(state.locale),
-          darkTheme: state.darkTheme.getThemeData(state.locale),
+          theme: getThemeData(
+              state.theme, Brightness.light, state.textTheme, state.locale),
+          darkTheme: getThemeData(
+              state.theme, Brightness.dark, state.textTheme, state.locale),
           themeMode: state.themeMode,
           localizationsDelegates: context.localizationDelegates +
               [AppFlowyEditorLocalizations.delegate],

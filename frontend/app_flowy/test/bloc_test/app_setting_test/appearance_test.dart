@@ -2,7 +2,6 @@ import 'package:app_flowy/user/application/user_settings_service.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_setting.pb.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../util.dart';
@@ -25,7 +24,7 @@ void main() {
       'default theme',
       build: () => AppearanceSettingsCubit(appearanceSetting),
       verify: (bloc) {
-        expect(bloc.state.theme.brightness, Brightness.light);
+        expect(bloc.state.themeName, "light");
       },
     );
 

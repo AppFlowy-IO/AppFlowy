@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:app_flowy/user/application/user_settings_service.dart';
+import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_setting.pb.dart';
@@ -11,7 +12,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'appearance.freezed.dart';
 
-/// [AppearanceSettingsCubit] is used to modify the appear setting of AppFlowy application. Includes the [Locale] and [AppTheme].
+/// [AppearanceSettingsCubit] is used to modify the appearance of AppFlowy.
+/// It includes the [AppTheme], [ThemeMode], [TextStyles] and [Locale].
 class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   final AppearanceSettingsPB _setting;
 
@@ -25,40 +27,23 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
           setting.locale,
         ));
 
-  /// Updates the current theme and notify the listeners the theme was changed.
-  /// Do nothing if the passed in themeType equal to the current theme type.
-  // void setTheme(Brightness brightness) {
-  //   if (state.theme.brightness == brightness) {
-  //     return;
-  //   }
+  /// Update selected theme in the user's settings and emit an updated state
+  /// with the AppTheme named [themeName].
+  void setTheme(String themeName) {
+    _setting.theme = themeName;
+    _saveAppearanceSettings();
+    emit(state.copyWith(theme: AppTheme.fromName(themeName: themeName)));
+  }
 
-  //   _setting.theme = themeTypeToString(brightness);
-  //   _saveAppearanceSettings();
-
-  //   emit(state.copyWith(
-  //     theme: AppTheme.fromBrightness(
-  //       brightness: _setting.themeMode,
-  //       font: state.theme.font,
-  //       monospaceFont: state.theme.monospaceFont,
-  //     ),
-  //   ));
-  // }
-
-  /// Updates the current theme and notify the listeners the theme was changed.
-  /// Do nothing if the passed in themeType equal to the current theme type.
+  /// Update the theme mode in the user's settings and emit an updated state.
   void setThemeMode(ThemeMode themeMode) {
-    if (state.themeMode == themeMode) {
-      return;
-    }
-
     _setting.themeMode = _themeModeToPB(themeMode);
     _saveAppearanceSettings();
-
     emit(state.copyWith(themeMode: themeMode));
   }
 
-  /// Updates the current locale and notify the listeners the locale was changed
-  /// Fallback to [en] locale If the newLocale is not supported.
+  /// Updates the current locale and notify the listeners the locale was
+  /// changed. Fallback to [en] locale if [newLocale] is not supported.
   void setLocale(BuildContext context, Locale newLocale) {
     if (!context.supportedLocales.contains(newLocale)) {
       Log.warn("Unsupported locale: $newLocale, Fallback to locale: en");
@@ -106,8 +91,8 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     return _setting.settingKeyValue[key];
   }
 
-  /// Called when the application launch.
-  /// Uses the device locale when open the application for the first time
+  /// Called when the application launches.
+  /// Uses the device locale when the application is opened for the first time.
   void readLocaleWhenAppLaunch(BuildContext context) {
     if (_setting.resetToDefault) {
       _setting.resetToDefault = false;
@@ -157,8 +142,8 @@ ThemeModePB _themeModeToPB(ThemeMode themeMode) {
 class AppearanceSettingsState with _$AppearanceSettingsState {
   const factory AppearanceSettingsState({
     required AppTheme theme,
-    required AppTheme darkTheme,
     required ThemeMode themeMode,
+    required TextStyles textTheme,
     required Locale locale,
   }) = _AppearanceSettingsState;
 
@@ -170,17 +155,9 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     LocaleSettingsPB locale,
   ) =>
       AppearanceSettingsState(
-        theme: AppTheme.fromBrightness(
-          brightness: Brightness.light,
-          font: font,
-          monospaceFont: monospaceFont,
-        ),
-        darkTheme: AppTheme.fromBrightness(
-          brightness: Brightness.dark,
-          font: font,
-          monospaceFont: monospaceFont,
-        ),
+        theme: AppTheme.fromName(themeName: themeName),
         themeMode: _themeModeFromPB(themeMode),
+        textTheme: TextStyles(font: font, monospaceFont: monospaceFont),
         locale: Locale(locale.languageCode, locale.countryCode),
       );
 }
