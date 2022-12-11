@@ -1,11 +1,12 @@
 use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::*;
+use crate::services::block_manager::GridBlockEvent;
 use crate::services::filter::{FilterChangeset, FilterController, FilterTaskHandler, FilterType, UpdatedFilterType};
 use crate::services::group::{
     default_group_configuration, find_group_field, make_group_controller, Group, GroupConfigurationReader,
     GroupController, MoveGroupRowContext,
 };
-use crate::services::row::GridBlock;
+use crate::services::row::GridBlockRowRevision;
 use crate::services::sort::SortController;
 use crate::services::view_editor::changed_notifier::GridViewChangedNotifier;
 use crate::services::view_editor::trait_impl::*;
@@ -23,6 +24,7 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::future::Fut;
 use lib_infra::ref_map::RefCountValue;
 use nanoid::nanoid;
+use std::borrow::Cow;
 use std::future::Future;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
@@ -46,7 +48,7 @@ pub trait GridViewEditorDelegate: Send + Sync + 'static {
 
     /// Get all the blocks that the current Grid has.
     /// One grid has a list of blocks
-    fn get_blocks(&self) -> Fut<Vec<GridBlock>>;
+    fn get_blocks(&self) -> Fut<Vec<GridBlockRowRevision>>;
 
     fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>>;
 }
@@ -126,6 +128,35 @@ impl GridViewRevisionEditor {
         self.rev_manager.generate_snapshot().await;
         self.rev_manager.close().await;
         self.filter_controller.read().await.close().await;
+    }
+
+    pub async fn handle_block_event(&self, event: Cow<'_, GridBlockEvent>) {
+        let changeset = match event.into_owned() {
+            GridBlockEvent::InsertRow { block_id: _, row } => {
+                //
+                GridViewRowsChangesetPB::from_insert(self.view_id.clone(), vec![row])
+            }
+            GridBlockEvent::UpdateRow { block_id: _, row } => {
+                //
+                GridViewRowsChangesetPB::from_update(self.view_id.clone(), vec![row])
+            }
+            GridBlockEvent::DeleteRow { block_id: _, row_id } => {
+                //
+                GridViewRowsChangesetPB::from_delete(self.view_id.clone(), vec![row_id])
+            }
+            GridBlockEvent::Move {
+                block_id: _,
+                deleted_row_id,
+                inserted_row,
+            } => {
+                //
+                GridViewRowsChangesetPB::from_move(self.view_id.clone(), vec![deleted_row_id], vec![inserted_row])
+            }
+        };
+
+        send_dart_notification(&self.view_id, GridDartNotification::DidUpdateGridViewRows)
+            .payload(changeset)
+            .send();
     }
 
     pub async fn notify_rows_did_changed(&self) {

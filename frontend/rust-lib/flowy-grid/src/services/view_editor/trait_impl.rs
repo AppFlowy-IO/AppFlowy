@@ -1,7 +1,7 @@
 use crate::entities::{GridLayout, GridLayoutPB, GridSettingPB};
 use crate::services::filter::{FilterDelegate, FilterType};
 use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter};
-use crate::services::row::GridBlock;
+use crate::services::row::GridBlockRowRevision;
 use crate::services::view_editor::GridViewEditorDelegate;
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
@@ -154,7 +154,7 @@ impl FilterDelegate for GridViewFilterDelegateImpl {
         self.editor_delegate.get_field_revs(field_ids)
     }
 
-    fn get_blocks(&self) -> Fut<Vec<GridBlock>> {
+    fn get_blocks(&self) -> Fut<Vec<GridBlockRowRevision>> {
         self.editor_delegate.get_blocks()
     }
 

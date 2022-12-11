@@ -7,7 +7,7 @@ use crate::services::field::{
     SelectOptionCellChangesetParams, SelectOptionCellDataPB, SelectOptionChangeset, SelectOptionChangesetPB,
     SelectOptionPB,
 };
-use crate::services::row::{make_block_pbs, make_row_from_row_rev};
+use crate::services::row::make_row_from_row_rev;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use grid_rev_model::FieldRevision;
 use lib_dispatch::prelude::{data_result, AFPluginData, AFPluginState, DataResult};
@@ -72,17 +72,6 @@ pub(crate) async fn get_all_filters_handler(
         items: editor.get_all_filters().await?,
     };
     data_result(filters)
-}
-
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn get_grid_blocks_handler(
-    data: AFPluginData<QueryBlocksPayloadPB>,
-    manager: AFPluginState<Arc<GridManager>>,
-) -> DataResult<RepeatedBlockPB, FlowyError> {
-    let params: QueryGridBlocksParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id).await?;
-    let blocks = editor.get_blocks(Some(params.block_ids)).await?;
-    data_result(make_block_pbs(blocks))
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]

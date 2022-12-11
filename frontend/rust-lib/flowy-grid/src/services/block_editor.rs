@@ -113,6 +113,10 @@ impl GridBlockRevisionEditor {
         self.pad.read().await.index_of_row(row_id)
     }
 
+    pub async fn number_of_rows(&self) -> i32 {
+        self.pad.read().await.rows.len() as i32
+    }
+
     pub async fn get_row_rev(&self, row_id: &str) -> FlowyResult<Option<(usize, Arc<RowRevision>)>> {
         let row_rev = self.pad.read().await.get_row_rev(row_id);
         Ok(row_rev)

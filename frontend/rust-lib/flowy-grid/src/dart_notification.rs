@@ -6,7 +6,6 @@ const OBSERVABLE_CATEGORY: &str = "Grid";
 pub enum GridDartNotification {
     Unknown = 0,
     DidCreateBlock = 11,
-    DidUpdateGridRows = 19,
     DidUpdateGridViewRows = 20,
     DidUpdateGridViewRowsVisibility = 21,
     DidUpdateGridFields = 22,

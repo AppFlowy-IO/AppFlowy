@@ -30,7 +30,7 @@ pub struct GridEditorTest {
     pub block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
     pub row_revs: Vec<Arc<RowRevision>>,
     pub field_count: usize,
-    pub row_order_by_row_id: HashMap<String, RowPB>,
+    pub row_by_row_id: HashMap<String, RowPB>,
 }
 
 impl GridEditorTest {
@@ -77,7 +77,7 @@ impl GridEditorTest {
             block_meta_revs,
             row_revs,
             field_count: FieldType::COUNT,
-            row_order_by_row_id: HashMap::default(),
+            row_by_row_id: HashMap::default(),
         }
     }
 

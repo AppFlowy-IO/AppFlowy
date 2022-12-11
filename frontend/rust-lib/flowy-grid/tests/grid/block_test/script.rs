@@ -1,9 +1,9 @@
 use crate::grid::block_test::script::RowScript::{AssertCell, CreateRow};
 use crate::grid::block_test::util::GridRowTestBuilder;
 use crate::grid::grid_editor::GridEditorTest;
-
 use flowy_grid::entities::{CellPathParams, CreateRowParams, FieldType, GridLayout, RowPB};
 use flowy_grid::services::field::*;
+use flowy_grid::services::row::GridBlockRow;
 use grid_rev_model::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -82,28 +82,27 @@ impl GridRowTest {
                     layout: GridLayout::Table,
                 };
                 let row_order = self.editor.create_row(params).await.unwrap();
-                self.row_order_by_row_id
-                    .insert(row_order.row_id().to_owned(), row_order);
+                self.row_by_row_id.insert(row_order.row_id().to_owned(), row_order);
                 self.row_revs = self.get_row_revs().await;
                 self.block_meta_revs = self.editor.get_block_meta_revs().await.unwrap();
             }
             RowScript::CreateRow { row_rev } => {
                 let row_orders = self.editor.insert_rows(vec![row_rev]).await.unwrap();
                 for row_order in row_orders {
-                    self.row_order_by_row_id
-                        .insert(row_order.row_id().to_owned(), row_order);
+                    self.row_by_row_id.insert(row_order.row_id().to_owned(), row_order);
                 }
                 self.row_revs = self.get_row_revs().await;
                 self.block_meta_revs = self.editor.get_block_meta_revs().await.unwrap();
             }
             RowScript::UpdateRow { changeset: change } => self.editor.update_row(change).await.unwrap(),
             RowScript::DeleteRows { row_ids } => {
-                let row_orders = row_ids
+                let row_pbs = row_ids
                     .into_iter()
-                    .map(|row_id| self.row_order_by_row_id.get(&row_id).unwrap().clone())
+                    .map(|row_id| self.row_by_row_id.get(&row_id).unwrap().clone())
                     .collect::<Vec<RowPB>>();
 
-                self.editor.delete_rows(row_orders).await.unwrap();
+                let block_rows = block_from_row_pbs(row_pbs);
+                self.editor.delete_rows(block_rows).await.unwrap();
                 self.row_revs = self.get_row_revs().await;
                 self.block_meta_revs = self.editor.get_block_meta_revs().await.unwrap();
             }
@@ -268,6 +267,19 @@ impl GridRowTest {
             }
         }
     }
+}
+
+fn block_from_row_pbs(row_orders: Vec<RowPB>) -> Vec<GridBlockRow> {
+    let mut map: HashMap<String, GridBlockRow> = HashMap::new();
+    row_orders.into_iter().for_each(|row_pb| {
+        let block_id = row_pb.block_id().to_owned();
+        let cloned_block_id = block_id.clone();
+        map.entry(block_id)
+            .or_insert_with(|| GridBlockRow::new(cloned_block_id, vec![]))
+            .row_ids
+            .push(row_pb.id);
+    });
+    map.into_values().collect::<Vec<_>>()
 }
 
 impl std::ops::Deref for GridRowTest {

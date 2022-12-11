@@ -1,5 +1,3 @@
-import 'dart:collection';
-import 'package:app_flowy/plugins/grid/application/block/block_cache.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_editor_bloc.dart';
@@ -24,10 +22,6 @@ class GridTestContext {
 
   List<RowInfo> get rowInfos {
     return gridController.rowInfos;
-  }
-
-  UnmodifiableMapView<String, GridBlockCache> get blocks {
-    return gridController.blocks;
   }
 
   List<FieldInfo> get fieldContexts => fieldController.fieldInfos;
@@ -71,14 +65,13 @@ class GridTestContext {
     int rowIndex,
   ) async {
     final RowInfo rowInfo = rowInfos[rowIndex];
-    final blockCache = blocks[rowInfo.rowPB.blockId];
-    final rowCache = blockCache?.rowCache;
+    final rowCache = gridController.rowCache;
     final fieldController = gridController.fieldController;
 
     final rowDataController = GridRowDataController(
       rowInfo: rowInfo,
       fieldController: fieldController,
-      rowCache: rowCache!,
+      rowCache: rowCache,
     );
 
     final rowBloc = RowBloc(

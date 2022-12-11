@@ -3,7 +3,7 @@ use crate::entities::{FieldType, InsertedRowPB, RowPB};
 use crate::services::cell::{CellFilterOperation, TypeCellData};
 use crate::services::field::*;
 use crate::services::filter::{FilterChangeset, FilterMap, FilterResult, FilterResultNotification, FilterType};
-use crate::services::row::GridBlock;
+use crate::services::row::GridBlockRowRevision;
 use crate::services::view_editor::{GridViewChanged, GridViewChangedNotifier};
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
@@ -20,7 +20,7 @@ pub trait FilterDelegate: Send + Sync + 'static {
     fn get_filter_rev(&self, filter_type: FilterType) -> Fut<Option<Arc<FilterRevision>>>;
     fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>>;
     fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>>;
-    fn get_blocks(&self) -> Fut<Vec<GridBlock>>;
+    fn get_blocks(&self) -> Fut<Vec<GridBlockRowRevision>>;
     fn get_row_rev(&self, rows_id: &str) -> Fut<Option<(usize, Arc<RowRevision>)>>;
 }
 

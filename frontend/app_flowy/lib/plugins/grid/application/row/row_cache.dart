@@ -3,9 +3,7 @@ import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_servic
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/row_entities.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -28,7 +26,7 @@ abstract class IGridRowFieldNotifier {
 
 class GridRowCache {
   final String gridId;
-  final BlockPB block;
+  final List<RowPB> rows;
 
   /// _rows containers the current block's rows
   /// Use List to reverse the order of the GridRow.
@@ -47,7 +45,7 @@ class GridRowCache {
 
   GridRowCache({
     required this.gridId,
-    required this.block,
+    required this.rows,
     required IGridRowFieldNotifier notifier,
   })  : _cellCache = GridCellCache(gridId: gridId),
         _rowChangeReasonNotifier = _RowChangesetNotifier(),
@@ -57,8 +55,10 @@ class GridRowCache {
         .receive(const RowsChangedReason.fieldDidChange()));
     notifier.onRowFieldChanged(
         (field) => _cellCache.removeCellWithFieldId(field.id));
+  }
 
-    for (final row in block.rows) {
+  void initializeRows(List<RowPB> rows) {
+    for (final row in rows) {
       final rowInfo = buildGridRow(row);
       _rowList.add(rowInfo);
     }
@@ -68,14 +68,6 @@ class GridRowCache {
     _fieldNotifier.onRowDispose();
     _rowChangeReasonNotifier.dispose();
     await _cellCache.dispose();
-  }
-
-  void applyChangesets(GridBlockChangesetPB changeset) {
-    _deleteRows(changeset.deletedRows);
-    _insertRows(changeset.insertedRows);
-    _updateRows(changeset.updatedRows);
-    _hideRows(changeset.invisibleRows);
-    _showRows(changeset.visibleRows);
   }
 
   void applyRowsChanged(GridViewRowsChangesetPB changeset) {

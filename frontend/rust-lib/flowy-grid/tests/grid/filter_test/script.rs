@@ -226,10 +226,8 @@ impl GridFilterTest {
                 }
             }
             FilterScript::AssertNumberOfVisibleRows { expected } => {
-                //
                 let grid = self.editor.get_grid().await.unwrap();
-                let rows = grid.blocks.into_iter().map(|block| block.rows).flatten().collect::<Vec<RowPB>>();
-                assert_eq!(rows.len(), expected);
+                assert_eq!(grid.rows.len(), expected);
             }
             FilterScript::Wait { millisecond } => {
                 tokio::time::sleep(Duration::from_millis(millisecond)).await;

@@ -12,7 +12,7 @@ use crate::services::field::{
 use crate::services::filter::FilterType;
 use crate::services::grid_editor_trait_impl::GridViewEditorDelegateImpl;
 use crate::services::persistence::block_index::BlockIndexCache;
-use crate::services::row::{GridBlock, RowRevisionBuilder};
+use crate::services::row::{GridBlockRow, GridBlockRowRevision, RowRevisionBuilder};
 use crate::services::view_editor::{GridViewChanged, GridViewManager};
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
@@ -511,7 +511,7 @@ impl GridRevisionEditor {
         Ok(block_meta_revs)
     }
 
-    pub async fn get_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlock>> {
+    pub async fn get_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlockRowRevision>> {
         let block_ids = match block_ids {
             None => self
                 .grid_pad
@@ -527,8 +527,8 @@ impl GridRevisionEditor {
         Ok(blocks)
     }
 
-    pub async fn delete_rows(&self, row_orders: Vec<RowPB>) -> FlowyResult<()> {
-        let changesets = self.block_manager.delete_rows(row_orders).await?;
+    pub async fn delete_rows(&self, block_rows: Vec<GridBlockRow>) -> FlowyResult<()> {
+        let changesets = self.block_manager.delete_rows(block_rows).await?;
         for changeset in changesets {
             let _ = self.update_block(changeset).await?;
         }
@@ -538,21 +538,17 @@ impl GridRevisionEditor {
     pub async fn get_grid(&self) -> FlowyResult<GridPB> {
         let pad = self.grid_pad.read().await;
         let fields = pad.get_field_revs(None)?.iter().map(FieldIdPB::from).collect();
-
-        let mut blocks = vec![];
+        let mut all_rows = vec![];
         for block_rev in pad.get_block_meta_revs() {
-            let rows = self.get_row_pbs(&block_rev.block_id).await?;
-            let block = BlockPB {
-                id: block_rev.block_id.clone(),
-                rows,
-            };
-            blocks.push(block);
+            if let Ok(rows) = self.get_row_pbs(&block_rev.block_id).await {
+                all_rows.extend(rows);
+            }
         }
 
         Ok(GridPB {
             id: self.grid_id.clone(),
             fields,
-            blocks,
+            rows: all_rows,
         })
     }
 

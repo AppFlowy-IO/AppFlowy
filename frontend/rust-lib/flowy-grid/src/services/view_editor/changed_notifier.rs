@@ -1,5 +1,5 @@
 use crate::dart_notification::{send_dart_notification, GridDartNotification};
-use crate::entities::{GridBlockChangesetPB, GridRowsVisibilityChangesetPB};
+use crate::entities::GridRowsVisibilityChangesetPB;
 use crate::services::filter::FilterResultNotification;
 use async_stream::stream;
 use futures::stream::StreamExt;

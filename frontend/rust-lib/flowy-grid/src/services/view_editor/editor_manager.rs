@@ -17,6 +17,7 @@ use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceCo
 use grid_rev_model::{FieldRevision, FilterRevision, RowChangeset, RowRevision};
 use lib_infra::future::Fut;
 use lib_infra::ref_map::RefCountHashMap;
+use std::borrow::Cow;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
@@ -24,8 +25,7 @@ pub struct GridViewManager {
     grid_id: String,
     user: Arc<dyn GridUser>,
     delegate: Arc<dyn GridViewEditorDelegate>,
-    view_editors: RwLock<RefCountHashMap<Arc<GridViewRevisionEditor>>>,
-    block_event_rx: broadcast::Receiver<GridBlockEvent>,
+    view_editors: Arc<RwLock<RefCountHashMap<Arc<GridViewRevisionEditor>>>>,
 }
 
 impl GridViewManager {
@@ -35,13 +35,13 @@ impl GridViewManager {
         delegate: Arc<dyn GridViewEditorDelegate>,
         block_event_rx: broadcast::Receiver<GridBlockEvent>,
     ) -> FlowyResult<Self> {
-        let view_editors = RwLock::new(RefCountHashMap::default());
+        let view_editors = Arc::new(RwLock::new(RefCountHashMap::default()));
+        listen_on_grid_block_event(block_event_rx, view_editors.clone());
         Ok(Self {
             grid_id,
             user,
             delegate,
             view_editors,
-            block_event_rx,
         })
     }
 
@@ -233,6 +233,27 @@ impl GridViewManager {
     }
 }
 
+fn listen_on_grid_block_event(
+    mut block_event_rx: broadcast::Receiver<GridBlockEvent>,
+    view_editors: Arc<RwLock<RefCountHashMap<Arc<GridViewRevisionEditor>>>>,
+) {
+    tokio::spawn(async move {
+        loop {
+            while let Ok(event) = block_event_rx.recv().await {
+                let read_guard = view_editors.read().await;
+                let view_editors = read_guard.values();
+                let event = if view_editors.len() == 1 {
+                    Cow::Owned(event)
+                } else {
+                    Cow::Borrowed(&event)
+                };
+                for view_editor in view_editors.iter() {
+                    view_editor.handle_block_event(event.clone()).await;
+                }
+            }
+        }
+    });
+}
 pub async fn make_grid_view_rev_manager(
     user: &Arc<dyn GridUser>,
     view_id: &str,
