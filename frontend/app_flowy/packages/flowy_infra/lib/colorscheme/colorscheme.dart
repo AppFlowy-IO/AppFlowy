@@ -69,9 +69,9 @@ abstract class FlowyColorScheme {
   factory FlowyColorScheme.builtIn(String themeName, Brightness brightness) {
     switch (brightness) {
       case Brightness.light:
-        return DefaultColorScheme.light();
+        return const DefaultColorScheme.light();
       case Brightness.dark:
-        return DefaultColorScheme.dark();
+        return const DefaultColorScheme.dark();
     }
   }
 

@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:app_flowy/user/application/user_settings_service.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +13,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'appearance.freezed.dart';
+
+const _white = Color(0xFFFFFFFF);
 
 /// [AppearanceSettingsCubit] is used to modify the appearance of AppFlowy.
 /// It includes the [AppTheme], [ThemeMode], [TextStyles] and [Locale].
@@ -32,7 +36,15 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   void setTheme(String themeName) {
     _setting.theme = themeName;
     _saveAppearanceSettings();
-    emit(state.copyWith(theme: AppTheme.fromName(themeName: themeName)));
+    final appTheme = AppTheme.fromName(themeName: themeName);
+    final textTheme =
+        TextStyles(font: _setting.font, monospaceFont: _setting.monospaceFont);
+    emit(state.copyWith(
+      lightTheme:
+          _getThemeData(appTheme, Brightness.light, textTheme, state.locale),
+      darkTheme:
+          _getThemeData(appTheme, Brightness.dark, textTheme, state.locale),
+    ));
   }
 
   /// Update the theme mode in the user's settings and emit an updated state.
@@ -138,26 +150,118 @@ ThemeModePB _themeModeToPB(ThemeMode themeMode) {
   }
 }
 
+ThemeData _getThemeData(AppTheme appTheme, Brightness brightness,
+    TextStyles textTheme, Locale locale) {
+  // Poppins and SF Mono are not well supported in some languages, so use the
+  // built-in font for the following languages.
+  final useBuiltInFontLanguages = [
+    const Locale('zh', 'CN'),
+    const Locale('zh', 'TW'),
+  ];
+  if (useBuiltInFontLanguages.contains(locale)) {
+    textTheme = TextStyles(font: '', monospaceFont: '');
+  }
+
+  final theme =
+      brightness == Brightness.light ? appTheme.lightTheme : appTheme.darkTheme;
+
+  return ThemeData(
+    brightness: brightness,
+    textTheme: textTheme.getTextTheme(fontColor: theme.shader1),
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: theme.main2,
+      selectionHandleColor: theme.main2,
+    ),
+    primaryIconTheme: IconThemeData(color: theme.hover),
+    iconTheme: IconThemeData(color: theme.shader1),
+    scrollbarTheme: ScrollbarThemeData(
+      thumbColor: MaterialStateProperty.all(Colors.transparent),
+    ),
+    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    canvasColor: theme.shader6,
+    dividerColor: theme.shader6,
+    hintColor: theme.shader3,
+    disabledColor: theme.shader4,
+    highlightColor: theme.main1,
+    indicatorColor: theme.main1,
+    toggleableActiveColor: theme.main1,
+    colorScheme: ColorScheme(
+      brightness: brightness,
+      primary: theme.main1,
+      onPrimary: _white,
+      primaryContainer: theme.main2,
+      onPrimaryContainer: _white,
+      secondary: theme.hover,
+      onSecondary: theme.shader1,
+      secondaryContainer: theme.selector,
+      onSecondaryContainer: theme.shader1,
+      background: theme.surface,
+      onBackground: theme.shader1,
+      surface: theme.surface,
+      onSurface: theme.shader1,
+      onError: theme.shader7,
+      error: theme.red,
+      outline: theme.shader4,
+      surfaceVariant: theme.bg1,
+      shadow: theme.shadow,
+    ),
+    extensions: [
+      AFThemeExtension(
+        warning: theme.yellow,
+        success: theme.green,
+        tint1: theme.tint1,
+        tint2: theme.tint2,
+        tint3: theme.tint3,
+        tint4: theme.tint4,
+        tint5: theme.tint5,
+        tint6: theme.tint6,
+        tint7: theme.tint7,
+        tint8: theme.tint8,
+        tint9: theme.tint9,
+        greyHover: theme.bg2,
+        greySelect: theme.bg3,
+        lightGreyHover: theme.shader6,
+        toggleOffFill: theme.shader5,
+        code: textTheme.getMonospaceFontSyle(fontColor: theme.shader1),
+        callout: textTheme.getFontStyle(
+          fontSize: FontSizes.s11,
+          fontColor: theme.shader3,
+        ),
+        caption: textTheme.getFontStyle(
+          fontSize: FontSizes.s11,
+          fontWeight: FontWeight.w400,
+          fontColor: theme.shader3,
+        ),
+      )
+    ],
+  );
+}
+
 @freezed
 class AppearanceSettingsState with _$AppearanceSettingsState {
   const factory AppearanceSettingsState({
-    required AppTheme theme,
+    required ThemeData lightTheme,
+    required ThemeData darkTheme,
     required ThemeMode themeMode,
-    required TextStyles textTheme,
     required Locale locale,
   }) = _AppearanceSettingsState;
 
   factory AppearanceSettingsState.initial(
     String themeName,
-    ThemeModePB themeMode,
+    ThemeModePB themeModePB,
     String font,
     String monospaceFont,
-    LocaleSettingsPB locale,
-  ) =>
-      AppearanceSettingsState(
-        theme: AppTheme.fromName(themeName: themeName),
-        themeMode: _themeModeFromPB(themeMode),
-        textTheme: TextStyles(font: font, monospaceFont: monospaceFont),
-        locale: Locale(locale.languageCode, locale.countryCode),
-      );
+    LocaleSettingsPB localePB,
+  ) {
+    final textTheme = TextStyles(font: font, monospaceFont: monospaceFont);
+    final appTheme = AppTheme.fromName(themeName: themeName);
+    final locale = Locale(localePB.languageCode, localePB.countryCode);
+
+    return AppearanceSettingsState(
+      lightTheme: _getThemeData(appTheme, Brightness.light, textTheme, locale),
+      darkTheme: _getThemeData(appTheme, Brightness.dark, textTheme, locale),
+      themeMode: _themeModeFromPB(themeModePB),
+      locale: locale,
+    );
+  }
 }
