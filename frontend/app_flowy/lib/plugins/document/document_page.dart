@@ -1,6 +1,3 @@
-import 'package:app_flowy/plugins/document/editor_styles.dart';
-import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -8,7 +5,11 @@ import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+
+import '../../startup/startup.dart';
 import 'application/doc_bloc.dart';
+import 'editor_styles.dart';
+import 'presentation/banner.dart';
 
 class DocumentPage extends StatefulWidget {
   final VoidCallback onDeleted;
@@ -123,6 +124,8 @@ class _DocumentPageState extends State<DocumentPage> {
         mathEquationMenuItem,
         // Code Block
         codeBlockMenuItem,
+        // Emoji
+        emojiMenuItem,
       ],
       themeData: theme.copyWith(extensions: [
         ...theme.extensions.values,

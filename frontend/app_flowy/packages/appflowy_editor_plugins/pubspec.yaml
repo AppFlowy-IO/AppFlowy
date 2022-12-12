@@ -14,8 +14,11 @@ dependencies:
     sdk: flutter
   appflowy_editor: 
     path: ../appflowy_editor
+  flowy_infra_ui: 
+    path: ../flowy_infra_ui
   flutter_math_fork: ^0.6.3+1
   highlight: ^0.7.0
+  shared_preferences: ^2.0.15
 
 dev_dependencies:
   flutter_test:

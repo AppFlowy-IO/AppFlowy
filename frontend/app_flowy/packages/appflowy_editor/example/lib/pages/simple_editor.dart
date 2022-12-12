@@ -59,6 +59,8 @@ class SimpleEditor extends StatelessWidget {
               mathEquationMenuItem,
               // Code Block
               codeBlockMenuItem,
+              // Emoji
+              emojiMenuItem,
             ],
           );
         } else {
