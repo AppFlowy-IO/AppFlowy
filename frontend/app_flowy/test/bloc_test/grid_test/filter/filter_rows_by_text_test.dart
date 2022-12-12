@@ -19,7 +19,7 @@ void main() {
     // create a new filter
     await service.insertTextFilter(
         fieldId: textField.id,
-        condition: TextFilterCondition.TextIsEmpty,
+        condition: TextFilterConditionPB.TextIsEmpty,
         content: "");
     await gridResponseFuture();
     assert(context.fieldController.filterInfos.length == 1,
@@ -46,7 +46,7 @@ void main() {
     // create a new filter
     await service.insertTextFilter(
         fieldId: textField.id,
-        condition: TextFilterCondition.TextIsNotEmpty,
+        condition: TextFilterConditionPB.TextIsNotEmpty,
         content: "");
     await gridResponseFuture();
     assert(context.rowInfos.length == 2,
@@ -71,7 +71,7 @@ void main() {
     // create a new filter
     await service.insertTextFilter(
         fieldId: textField.id,
-        condition: TextFilterCondition.TextIsEmpty,
+        condition: TextFilterConditionPB.TextIsEmpty,
         content: "");
     await gridResponseFuture();
     assert(context.fieldController.filterInfos.length == 1,
@@ -84,7 +84,7 @@ void main() {
     await service.insertTextFilter(
         fieldId: textField.id,
         filterId: textFilter.filter.id,
-        condition: TextFilterCondition.TextIsNotEmpty,
+        condition: TextFilterConditionPB.TextIsNotEmpty,
         content: "");
     await gridResponseFuture();
     assert(context.rowInfos.length == 2);
@@ -106,7 +106,9 @@ void main() {
     final textField = context.textFieldContext();
     // create a new filter
     await service.insertTextFilter(
-        fieldId: textField.id, condition: TextFilterCondition.Is, content: "A");
+        fieldId: textField.id,
+        condition: TextFilterConditionPB.Is,
+        content: "A");
     await gridResponseFuture();
     assert(context.rowInfos.length == 1,
         "expect 1 but receive ${context.rowInfos.length}");
@@ -116,7 +118,7 @@ void main() {
     await service.insertTextFilter(
         fieldId: textField.id,
         filterId: textFilter.filter.id,
-        condition: TextFilterCondition.Is,
+        condition: TextFilterConditionPB.Is,
         content: "B");
     await gridResponseFuture();
     assert(context.rowInfos.length == 1);
@@ -125,7 +127,7 @@ void main() {
     await service.insertTextFilter(
         fieldId: textField.id,
         filterId: textFilter.filter.id,
-        condition: TextFilterCondition.Is,
+        condition: TextFilterConditionPB.Is,
         content: "b");
     await gridResponseFuture();
     assert(context.rowInfos.length == 1);
@@ -134,7 +136,7 @@ void main() {
     await service.insertTextFilter(
         fieldId: textField.id,
         filterId: textFilter.filter.id,
-        condition: TextFilterCondition.Is,
+        condition: TextFilterConditionPB.Is,
         content: "C");
     await gridResponseFuture();
     assert(context.rowInfos.isEmpty);

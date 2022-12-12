@@ -99,6 +99,7 @@ impl CellDataIsEmpty for NumberCellData {
         self.decimal.is_none()
     }
 }
+
 pub struct NumberCellDataParser();
 impl CellBytesParser for NumberCellDataParser {
     type Object = NumberCellData;

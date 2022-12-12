@@ -5,7 +5,7 @@ use grid_rev_model::FilterRevision;
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct TextFilterPB {
     #[pb(index = 1)]
-    pub condition: TextFilterCondition,
+    pub condition: TextFilterConditionPB,
 
     #[pb(index = 2)]
     pub content: String,
@@ -13,7 +13,7 @@ pub struct TextFilterPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
-pub enum TextFilterCondition {
+pub enum TextFilterConditionPB {
     Is = 0,
     IsNot = 1,
     Contains = 2,
@@ -24,31 +24,31 @@ pub enum TextFilterCondition {
     TextIsNotEmpty = 7,
 }
 
-impl std::convert::From<TextFilterCondition> for u32 {
-    fn from(value: TextFilterCondition) -> Self {
+impl std::convert::From<TextFilterConditionPB> for u32 {
+    fn from(value: TextFilterConditionPB) -> Self {
         value as u32
     }
 }
 
-impl std::default::Default for TextFilterCondition {
+impl std::default::Default for TextFilterConditionPB {
     fn default() -> Self {
-        TextFilterCondition::Is
+        TextFilterConditionPB::Is
     }
 }
 
-impl std::convert::TryFrom<u8> for TextFilterCondition {
+impl std::convert::TryFrom<u8> for TextFilterConditionPB {
     type Error = ErrorCode;
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value {
-            0 => Ok(TextFilterCondition::Is),
-            1 => Ok(TextFilterCondition::IsNot),
-            2 => Ok(TextFilterCondition::Contains),
-            3 => Ok(TextFilterCondition::DoesNotContain),
-            4 => Ok(TextFilterCondition::StartsWith),
-            5 => Ok(TextFilterCondition::EndsWith),
-            6 => Ok(TextFilterCondition::TextIsEmpty),
-            7 => Ok(TextFilterCondition::TextIsNotEmpty),
+            0 => Ok(TextFilterConditionPB::Is),
+            1 => Ok(TextFilterConditionPB::IsNot),
+            2 => Ok(TextFilterConditionPB::Contains),
+            3 => Ok(TextFilterConditionPB::DoesNotContain),
+            4 => Ok(TextFilterConditionPB::StartsWith),
+            5 => Ok(TextFilterConditionPB::EndsWith),
+            6 => Ok(TextFilterConditionPB::TextIsEmpty),
+            7 => Ok(TextFilterConditionPB::TextIsNotEmpty),
             _ => Err(ErrorCode::InvalidData),
         }
     }
@@ -57,7 +57,7 @@ impl std::convert::TryFrom<u8> for TextFilterCondition {
 impl std::convert::From<&FilterRevision> for TextFilterPB {
     fn from(rev: &FilterRevision) -> Self {
         TextFilterPB {
-            condition: TextFilterCondition::try_from(rev.condition).unwrap_or(TextFilterCondition::Is),
+            condition: TextFilterConditionPB::try_from(rev.condition).unwrap_or(TextFilterConditionPB::Is),
             content: rev.content.clone(),
         }
     }

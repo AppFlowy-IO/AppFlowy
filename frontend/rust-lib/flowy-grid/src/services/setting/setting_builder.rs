@@ -13,6 +13,8 @@ impl GridSettingChangesetBuilder {
             delete_filter: None,
             insert_group: None,
             delete_group: None,
+            alert_sort: None,
+            delete_sort: None,
         };
         Self { params }
     }

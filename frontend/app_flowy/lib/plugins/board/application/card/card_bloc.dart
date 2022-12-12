@@ -3,7 +3,7 @@ import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_servic
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_service.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/row_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -23,7 +23,6 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
     required bool isEditing,
   })  : _rowService = RowFFIService(
           gridId: gridId,
-          blockId: dataController.rowPB.blockId,
         ),
         _dataController = dataController,
         super(

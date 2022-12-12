@@ -1,13 +1,13 @@
 use crate::entities::FieldType;
-use crate::services::cell::{CellData, FromCellString};
+use crate::services::cell::{FromCellString, IntoCellData};
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use grid_rev_model::CellRevision;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
-/// TypeCellData is a generic CellData, you can parse the cell_data according to the field_type.
-/// When the type of field is changed, it's different from the field_type of AnyCellData.
+/// TypeCellData is a generic CellData, you can parse the type_cell_data according to the field_type.
+/// When the type of field is changed, it's different from the field_type of TypeCellData.
 /// So it will return an empty data. You could check the CellDataOperation trait for more information.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TypeCellData {
@@ -60,12 +60,12 @@ impl std::convert::TryFrom<CellRevision> for TypeCellData {
     }
 }
 
-impl<T> std::convert::From<TypeCellData> for CellData<T>
+impl<T> std::convert::From<TypeCellData> for IntoCellData<T>
 where
     T: FromCellString,
 {
     fn from(any_call_data: TypeCellData) -> Self {
-        CellData::from(any_call_data.data)
+        IntoCellData::from(any_call_data.data)
     }
 }
 

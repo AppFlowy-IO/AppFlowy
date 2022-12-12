@@ -1,5 +1,5 @@
 use crate::services::block_manager::GridBlockManager;
-use crate::services::row::GridBlock;
+use crate::services::row::GridBlockRowRevision;
 use crate::services::view_editor::GridViewEditorDelegate;
 use flowy_sync::client_grid::GridRevisionPad;
 use flowy_task::TaskDispatcher;
@@ -51,11 +51,11 @@ impl GridViewEditorDelegate for GridViewEditorDelegateImpl {
         })
     }
 
-    fn get_row_revs(&self) -> Fut<Vec<Arc<RowRevision>>> {
+    fn get_row_revs(&self, block_id: Option<Vec<String>>) -> Fut<Vec<Arc<RowRevision>>> {
         let block_manager = self.block_manager.clone();
 
         to_fut(async move {
-            let blocks = block_manager.get_blocks(None).await.unwrap();
+            let blocks = block_manager.get_blocks(block_id).await.unwrap();
             blocks
                 .into_iter()
                 .flat_map(|block| block.row_revs)
@@ -63,7 +63,7 @@ impl GridViewEditorDelegate for GridViewEditorDelegateImpl {
         })
     }
 
-    fn get_blocks(&self) -> Fut<Vec<GridBlock>> {
+    fn get_blocks(&self) -> Fut<Vec<GridBlockRowRevision>> {
         let block_manager = self.block_manager.clone();
         to_fut(async move { block_manager.get_blocks(None).await.unwrap_or_default() })
     }

@@ -1,7 +1,8 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
-    AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams,
-    DeleteGroupPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterPB, RepeatedGroupConfigurationPB,
+    AlterFilterParams, AlterFilterPayloadPB, AlterSortParams, AlterSortPayloadPB, DeleteFilterParams,
+    DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB, DeleteSortParams, DeleteSortPayloadPB,
+    InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterPB, RepeatedGroupConfigurationPB,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -83,7 +84,7 @@ pub struct GridSettingChangesetPB {
     pub layout_type: GridLayout,
 
     #[pb(index = 3, one_of)]
-    pub insert_filter: Option<AlterFilterPayloadPB>,
+    pub alter_filter: Option<AlterFilterPayloadPB>,
 
     #[pb(index = 4, one_of)]
     pub delete_filter: Option<DeleteFilterPayloadPB>,
@@ -93,6 +94,12 @@ pub struct GridSettingChangesetPB {
 
     #[pb(index = 6, one_of)]
     pub delete_group: Option<DeleteGroupPayloadPB>,
+
+    #[pb(index = 7, one_of)]
+    pub alter_sort: Option<AlterSortPayloadPB>,
+
+    #[pb(index = 8, one_of)]
+    pub delete_sort: Option<DeleteSortPayloadPB>,
 }
 
 impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPB {
@@ -103,7 +110,7 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPB {
             .map_err(|_| ErrorCode::ViewIdInvalid)?
             .0;
 
-        let insert_filter = match self.insert_filter {
+        let insert_filter = match self.alter_filter {
             None => None,
             Some(payload) => Some(payload.try_into()?),
         };
@@ -123,6 +130,16 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPB {
             None => None,
         };
 
+        let alert_sort = match self.alter_sort {
+            None => None,
+            Some(payload) => Some(payload.try_into()?),
+        };
+
+        let delete_sort = match self.delete_sort {
+            None => None,
+            Some(payload) => Some(payload.try_into()?),
+        };
+
         Ok(GridSettingChangesetParams {
             grid_id: view_id,
             layout_type: self.layout_type.into(),
@@ -130,6 +147,8 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPB {
             delete_filter,
             insert_group,
             delete_group,
+            alert_sort,
+            delete_sort,
         })
     }
 }
@@ -141,6 +160,8 @@ pub struct GridSettingChangesetParams {
     pub delete_filter: Option<DeleteFilterParams>,
     pub insert_group: Option<InsertGroupParams>,
     pub delete_group: Option<DeleteGroupParams>,
+    pub alert_sort: Option<AlterSortParams>,
+    pub delete_sort: Option<DeleteSortParams>,
 }
 
 impl GridSettingChangesetParams {

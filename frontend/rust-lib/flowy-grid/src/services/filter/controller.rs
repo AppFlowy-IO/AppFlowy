@@ -1,9 +1,9 @@
 use crate::entities::filter_entities::*;
 use crate::entities::{FieldType, InsertedRowPB, RowPB};
-use crate::services::cell::{CellFilterOperation, TypeCellData};
+use crate::services::cell::{CellFilterable, TypeCellData};
 use crate::services::field::*;
 use crate::services::filter::{FilterChangeset, FilterMap, FilterResult, FilterResultNotification, FilterType};
-use crate::services::row::GridBlock;
+use crate::services::row::GridBlockRowRevision;
 use crate::services::view_editor::{GridViewChanged, GridViewChangedNotifier};
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
@@ -20,7 +20,7 @@ pub trait FilterDelegate: Send + Sync + 'static {
     fn get_filter_rev(&self, filter_type: FilterType) -> Fut<Option<Arc<FilterRevision>>>;
     fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>>;
     fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>>;
-    fn get_blocks(&self) -> Fut<Vec<GridBlock>>;
+    fn get_blocks(&self) -> Fut<Vec<GridBlockRowRevision>>;
     fn get_row_rev(&self, rows_id: &str) -> Fut<Option<(usize, Arc<RowRevision>)>>;
 }
 
@@ -44,7 +44,7 @@ impl FilterController {
         notifier: GridViewChangedNotifier,
     ) -> Self
     where
-        T: FilterDelegate,
+        T: FilterDelegate + 'static,
     {
         let mut this = Self {
             view_id: view_id.to_string(),
@@ -55,7 +55,7 @@ impl FilterController {
             task_scheduler,
             notifier,
         };
-        this.cache_filters(filter_revs).await;
+        this.refresh_filters(filter_revs).await;
         this
     }
 
@@ -191,17 +191,14 @@ impl FilterController {
     }
 
     #[tracing::instrument(level = "trace", skip(self))]
-    pub async fn did_receive_filter_changed(
-        &mut self,
-        changeset: FilterChangeset,
-    ) -> Option<FilterChangesetNotificationPB> {
+    pub async fn did_receive_changes(&mut self, changeset: FilterChangeset) -> Option<FilterChangesetNotificationPB> {
         let mut notification: Option<FilterChangesetNotificationPB> = None;
         if let Some(filter_type) = &changeset.insert_filter {
             if let Some(filter) = self.filter_from_filter_type(filter_type).await {
                 notification = Some(FilterChangesetNotificationPB::from_insert(&self.view_id, vec![filter]));
             }
             if let Some(filter_rev) = self.delegate.get_filter_rev(filter_type.clone()).await {
-                let _ = self.cache_filters(vec![filter_rev]).await;
+                let _ = self.refresh_filters(vec![filter_rev]).await;
             }
         }
 
@@ -218,7 +215,7 @@ impl FilterController {
 
                 // Update the corresponding filter in the cache
                 if let Some(filter_rev) = self.delegate.get_filter_rev(updated_filter_type.new.clone()).await {
-                    let _ = self.cache_filters(vec![filter_rev]).await;
+                    let _ = self.refresh_filters(vec![filter_rev]).await;
                 }
 
                 if let Some(filter_id) = filter_id {
@@ -253,7 +250,7 @@ impl FilterController {
     }
 
     #[tracing::instrument(level = "trace", skip_all)]
-    async fn cache_filters(&mut self, filter_revs: Vec<Arc<FilterRevision>>) {
+    async fn refresh_filters(&mut self, filter_revs: Vec<Arc<FilterRevision>>) {
         for filter_rev in filter_revs {
             if let Some(field_rev) = self.delegate.get_field_rev(&filter_rev.field_id).await {
                 let filter_type = FilterType::from(&field_rev);
@@ -355,7 +352,7 @@ fn filter_cell(
     filter_map: &FilterMap,
     cell_rev: Option<&CellRevision>,
 ) -> Option<bool> {
-    let any_cell_data = match cell_rev {
+    let type_cell_data = match cell_rev {
         None => TypeCellData::from_field_type(&filter_id.field_type),
         Some(cell_rev) => match TypeCellData::try_from(cell_rev) {
             Ok(cell_data) => cell_data,
@@ -365,13 +362,13 @@ fn filter_cell(
             }
         },
     };
-    let cloned_cell_data = any_cell_data.data.clone();
+    let cloned_type_cell_data = type_cell_data.data.clone();
     let is_visible = match &filter_id.field_type {
         FieldType::RichText => filter_map.text_filter.get(filter_id).and_then(|filter| {
             Some(
                 field_rev
                     .get_type_option::<RichTextTypeOptionPB>(field_rev.ty)?
-                    .apply_filter(any_cell_data, filter)
+                    .apply_filter(type_cell_data, filter)
                     .ok(),
             )
         }),
@@ -379,7 +376,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<NumberTypeOptionPB>(field_rev.ty)?
-                    .apply_filter(any_cell_data, filter)
+                    .apply_filter(type_cell_data, filter)
                     .ok(),
             )
         }),
@@ -387,7 +384,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<DateTypeOptionPB>(field_rev.ty)?
-                    .apply_filter(any_cell_data, filter)
+                    .apply_filter(type_cell_data, filter)
                     .ok(),
             )
         }),
@@ -395,7 +392,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<SingleSelectTypeOptionPB>(field_rev.ty)?
-                    .apply_filter(any_cell_data, filter)
+                    .apply_filter(type_cell_data, filter)
                     .ok(),
             )
         }),
@@ -403,7 +400,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<MultiSelectTypeOptionPB>(field_rev.ty)?
-                    .apply_filter(any_cell_data, filter)
+                    .apply_filter(type_cell_data, filter)
                     .ok(),
             )
         }),
@@ -411,7 +408,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<CheckboxTypeOptionPB>(field_rev.ty)?
-                    .apply_filter(any_cell_data, filter)
+                    .apply_filter(type_cell_data, filter)
                     .ok(),
             )
         }),
@@ -419,7 +416,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<URLTypeOptionPB>(field_rev.ty)?
-                    .apply_filter(any_cell_data, filter)
+                    .apply_filter(type_cell_data, filter)
                     .ok(),
             )
         }),
@@ -427,14 +424,14 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<ChecklistTypeOptionPB>(field_rev.ty)?
-                    .apply_filter(any_cell_data, filter)
+                    .apply_filter(type_cell_data, filter)
                     .ok(),
             )
         }),
     }?;
     tracing::Span::current().record(
         "cell_content",
-        &format!("{} => {:?}", cloned_cell_data, is_visible.unwrap()).as_str(),
+        &format!("{} => {:?}", cloned_type_cell_data, is_visible.unwrap()).as_str(),
     );
     is_visible
 }

@@ -5,35 +5,35 @@ use grid_rev_model::FilterRevision;
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct ChecklistFilterPB {
     #[pb(index = 1)]
-    pub condition: ChecklistFilterCondition,
+    pub condition: ChecklistFilterConditionPB,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
-pub enum ChecklistFilterCondition {
+pub enum ChecklistFilterConditionPB {
     IsComplete = 0,
     IsIncomplete = 1,
 }
 
-impl std::convert::From<ChecklistFilterCondition> for u32 {
-    fn from(value: ChecklistFilterCondition) -> Self {
+impl std::convert::From<ChecklistFilterConditionPB> for u32 {
+    fn from(value: ChecklistFilterConditionPB) -> Self {
         value as u32
     }
 }
 
-impl std::default::Default for ChecklistFilterCondition {
+impl std::default::Default for ChecklistFilterConditionPB {
     fn default() -> Self {
-        ChecklistFilterCondition::IsIncomplete
+        ChecklistFilterConditionPB::IsIncomplete
     }
 }
 
-impl std::convert::TryFrom<u8> for ChecklistFilterCondition {
+impl std::convert::TryFrom<u8> for ChecklistFilterConditionPB {
     type Error = ErrorCode;
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value {
-            0 => Ok(ChecklistFilterCondition::IsComplete),
-            1 => Ok(ChecklistFilterCondition::IsIncomplete),
+            0 => Ok(ChecklistFilterConditionPB::IsComplete),
+            1 => Ok(ChecklistFilterConditionPB::IsIncomplete),
             _ => Err(ErrorCode::InvalidData),
         }
     }
@@ -42,8 +42,8 @@ impl std::convert::TryFrom<u8> for ChecklistFilterCondition {
 impl std::convert::From<&FilterRevision> for ChecklistFilterPB {
     fn from(rev: &FilterRevision) -> Self {
         ChecklistFilterPB {
-            condition: ChecklistFilterCondition::try_from(rev.condition)
-                .unwrap_or(ChecklistFilterCondition::IsIncomplete),
+            condition: ChecklistFilterConditionPB::try_from(rev.condition)
+                .unwrap_or(ChecklistFilterConditionPB::IsIncomplete),
         }
     }
 }

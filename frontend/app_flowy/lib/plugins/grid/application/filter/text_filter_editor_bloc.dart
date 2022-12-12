@@ -28,7 +28,7 @@ class TextFilterEditorBloc
           initial: () async {
             _startListening();
           },
-          updateCondition: (TextFilterCondition condition) {
+          updateCondition: (TextFilterConditionPB condition) {
             _ffiService.insertTextFilter(
               filterId: filterInfo.filter.id,
               fieldId: filterInfo.fieldInfo.id,
@@ -88,7 +88,7 @@ class TextFilterEditorEvent with _$TextFilterEditorEvent {
   const factory TextFilterEditorEvent.didReceiveFilter(FilterPB filter) =
       _DidReceiveFilter;
   const factory TextFilterEditorEvent.updateCondition(
-      TextFilterCondition condition) = _UpdateCondition;
+      TextFilterConditionPB condition) = _UpdateCondition;
   const factory TextFilterEditorEvent.updateContent(String content) =
       _UpdateContent;
   const factory TextFilterEditorEvent.delete() = _Delete;

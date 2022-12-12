@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
-    use crate::services::cell::{CellData, CellDataOperation};
+    use crate::services::cell::{CellDataOperation, IntoCellData};
     use crate::services::field::{FieldBuilder, URLCellDataParser};
-    use crate::services::field::{URLCellDataPB, URLTypeOptionPB};
+    use crate::services::field::{URLCellData, URLTypeOptionPB};
     use grid_rev_model::FieldRevision;
 
     /// The expected_str will equal to the input string, but the expected_url will be empty if there's no
@@ -175,12 +175,12 @@ mod tests {
         assert_eq!(expected_url.to_owned(), decode_cell_data.url);
     }
 
-    fn decode_cell_data<T: Into<CellData<URLCellDataPB>>>(
+    fn decode_cell_data<T: Into<IntoCellData<URLCellData>>>(
         encoded_data: T,
         type_option: &URLTypeOptionPB,
         field_rev: &FieldRevision,
         field_type: &FieldType,
-    ) -> URLCellDataPB {
+    ) -> URLCellData {
         type_option
             .decode_cell_data(encoded_data.into(), field_type, field_rev)
             .unwrap()

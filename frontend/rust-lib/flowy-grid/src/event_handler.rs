@@ -7,7 +7,7 @@ use crate::services::field::{
     SelectOptionCellChangesetParams, SelectOptionCellDataPB, SelectOptionChangeset, SelectOptionChangesetPB,
     SelectOptionPB,
 };
-use crate::services::row::{make_block_pbs, make_row_from_row_rev};
+use crate::services::row::make_row_from_row_rev;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use grid_rev_model::FieldRevision;
 use lib_dispatch::prelude::{data_result, AFPluginData, AFPluginState, DataResult};
@@ -19,8 +19,8 @@ pub(crate) async fn get_grid_handler(
     manager: AFPluginState<Arc<GridManager>>,
 ) -> DataResult<GridPB, FlowyError> {
     let grid_id: GridIdPB = data.into_inner();
-    let editor = manager.open_grid(grid_id).await?;
-    let grid = editor.get_grid().await?;
+    let editor = manager.open_grid(grid_id.as_ref()).await?;
+    let grid = editor.get_grid(grid_id.as_ref()).await?;
     data_result(grid)
 }
 
@@ -58,6 +58,13 @@ pub(crate) async fn update_grid_setting_handler(
     if let Some(delete_filter) = params.delete_filter {
         let _ = editor.delete_filter(delete_filter).await?;
     }
+
+    if let Some(alter_sort) = params.alert_sort {
+        let _ = editor.create_or_update_sort(alter_sort).await?;
+    }
+    if let Some(delete_sort) = params.delete_sort {
+        let _ = editor.delete_sort(delete_sort).await?;
+    }
     Ok(())
 }
 
@@ -72,17 +79,6 @@ pub(crate) async fn get_all_filters_handler(
         items: editor.get_all_filters().await?,
     };
     data_result(filters)
-}
-
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn get_grid_blocks_handler(
-    data: AFPluginData<QueryBlocksPayloadPB>,
-    manager: AFPluginState<Arc<GridManager>>,
-) -> DataResult<RepeatedBlockPB, FlowyError> {
-    let params: QueryGridBlocksParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id).await?;
-    let blocks = editor.get_blocks(Some(params.block_ids)).await?;
-    data_result(make_block_pbs(blocks))
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
@@ -415,14 +411,14 @@ pub(crate) async fn get_select_option_handler(
             //
             let cell_rev = editor.get_cell_rev(&params.row_id, &params.field_id).await?;
             let type_option = select_type_option_from_field_rev(&field_rev)?;
-            let any_cell_data: TypeCellData = match cell_rev {
+            let type_cell_data: TypeCellData = match cell_rev {
                 None => TypeCellData {
                     data: "".to_string(),
                     field_type: field_rev.ty.into(),
                 },
                 Some(cell_rev) => cell_rev.try_into()?,
             };
-            let selected_options = type_option.get_selected_options(any_cell_data.into());
+            let selected_options = type_option.get_selected_options(type_cell_data.into());
             data_result(selected_options)
         }
     }

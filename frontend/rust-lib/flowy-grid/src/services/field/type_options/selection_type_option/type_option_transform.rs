@@ -1,5 +1,5 @@
 use crate::entities::FieldType;
-use crate::services::cell::{CellBytes, CellData};
+use crate::services::cell::{CellBytes, IntoCellData};
 use crate::services::field::{
     MultiSelectTypeOptionPB, SelectOptionColorPB, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction,
     SingleSelectTypeOptionPB, CHECK, UNCHECK,
@@ -57,7 +57,7 @@ impl SelectOptionTypeOptionTransformer {
 
     pub fn transform_type_option_cell_data<T>(
         shared: &T,
-        cell_data: CellData<SelectOptionIds>,
+        cell_data: IntoCellData<SelectOptionIds>,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes>
@@ -78,7 +78,7 @@ impl SelectOptionTypeOptionTransformer {
                         transformed_ids.push(option.id.clone());
                     }
                 });
-                let transformed_cell_data = CellData::from(SelectOptionIds::from(transformed_ids));
+                let transformed_cell_data = IntoCellData::from(SelectOptionIds::from(transformed_ids));
                 CellBytes::from(shared.get_selected_options(transformed_cell_data))
             }
             _ => Ok(CellBytes::default()),

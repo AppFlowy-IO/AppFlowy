@@ -1,8 +1,8 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    decode_cell_data_to_string, AnyCellChangeset, CellBytes, CellBytesParser, CellData, CellDataIsEmpty,
-    CellDataOperation, CellDisplayable, FromCellString,
+    decode_cell_data_to_string, AnyCellChangeset, CellBytes, CellBytesParser, CellDataIsEmpty, CellDataOperation,
+    CellDataSerialize, FromCellString, IntoCellData,
 };
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
@@ -39,32 +39,32 @@ pub struct RichTextTypeOptionPB {
 }
 impl_type_option!(RichTextTypeOptionPB, FieldType::RichText);
 
-impl CellDisplayable<String> for RichTextTypeOptionPB {
-    fn displayed_cell_bytes(
+impl CellDataSerialize<RichTextCellData> for RichTextTypeOptionPB {
+    fn serialize_cell_data_to_bytes(
         &self,
-        cell_data: CellData<String>,
+        cell_data: IntoCellData<RichTextCellData>,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        let cell_str: String = cell_data.try_into_inner()?;
+        let cell_str: RichTextCellData = cell_data.try_into_inner()?;
         Ok(CellBytes::new(cell_str))
     }
 
-    fn displayed_cell_string(
+    fn serialize_cell_data_to_str(
         &self,
-        cell_data: CellData<String>,
+        cell_data: IntoCellData<RichTextCellData>,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<String> {
-        let cell_str: String = cell_data.try_into_inner()?;
+        let cell_str: RichTextCellData = cell_data.try_into_inner()?;
         Ok(cell_str)
     }
 }
 
-impl CellDataOperation<String, String> for RichTextTypeOptionPB {
+impl CellDataOperation<RichTextCellData, String> for RichTextTypeOptionPB {
     fn decode_cell_data(
         &self,
-        cell_data: CellData<String>,
+        cell_data: IntoCellData<RichTextCellData>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
@@ -77,7 +77,7 @@ impl CellDataOperation<String, String> for RichTextTypeOptionPB {
             let s = decode_cell_data_to_string(cell_data, decoded_field_type, decoded_field_type, field_rev);
             Ok(CellBytes::new(s.unwrap_or_else(|_| "".to_owned())))
         } else {
-            self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
+            self.serialize_cell_data_to_bytes(cell_data, decoded_field_type, field_rev)
         }
     }
 
@@ -141,3 +141,5 @@ impl CellBytesParser for TextCellDataParser {
         }
     }
 }
+
+pub type RichTextCellData = String;

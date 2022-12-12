@@ -1,6 +1,6 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellData, CellDataOperation, CellDisplayable};
+use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataOperation, CellDataSerialize, IntoCellData};
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
 use crate::services::field::type_options::util::get_cell_data;
 use crate::services::field::{
@@ -41,11 +41,11 @@ impl SelectTypeOptionSharedAction for MultiSelectTypeOptionPB {
 impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSelectTypeOptionPB {
     fn decode_cell_data(
         &self,
-        cell_data: CellData<SelectOptionIds>,
+        cell_data: IntoCellData<SelectOptionIds>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
+        self.serialize_cell_data_to_bytes(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(
