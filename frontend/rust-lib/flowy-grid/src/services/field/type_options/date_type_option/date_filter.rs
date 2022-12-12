@@ -1,4 +1,4 @@
-use crate::entities::{DateFilterCondition, DateFilterPB};
+use crate::entities::{DateFilterConditionPB, DateFilterPB};
 use crate::services::cell::{CellData, CellFilterOperation, TypeCellData};
 use crate::services::field::{DateTimestamp, DateTypeOptionPB};
 use chrono::NaiveDateTime;
@@ -7,13 +7,13 @@ use flowy_error::FlowyResult;
 impl DateFilterPB {
     pub fn is_visible<T: Into<Option<i64>>>(&self, cell_timestamp: T) -> bool {
         match cell_timestamp.into() {
-            None => DateFilterCondition::DateIsEmpty == self.condition,
+            None => DateFilterConditionPB::DateIsEmpty == self.condition,
             Some(timestamp) => {
                 match self.condition {
-                    DateFilterCondition::DateIsNotEmpty => {
+                    DateFilterConditionPB::DateIsNotEmpty => {
                         return true;
                     }
-                    DateFilterCondition::DateIsEmpty => {
+                    DateFilterConditionPB::DateIsEmpty => {
                         return false;
                     }
                     _ => {}
@@ -45,11 +45,11 @@ impl DateFilterPB {
 
                         // We assume that the cell_timestamp doesn't contain hours, just day.
                         match self.condition {
-                            DateFilterCondition::DateIs => cell_date == expected_date,
-                            DateFilterCondition::DateBefore => cell_date < expected_date,
-                            DateFilterCondition::DateAfter => cell_date > expected_date,
-                            DateFilterCondition::DateOnOrBefore => cell_date <= expected_date,
-                            DateFilterCondition::DateOnOrAfter => cell_date >= expected_date,
+                            DateFilterConditionPB::DateIs => cell_date == expected_date,
+                            DateFilterConditionPB::DateBefore => cell_date < expected_date,
+                            DateFilterConditionPB::DateAfter => cell_date > expected_date,
+                            DateFilterConditionPB::DateOnOrBefore => cell_date <= expected_date,
+                            DateFilterConditionPB::DateOnOrAfter => cell_date >= expected_date,
                             _ => true,
                         }
                     }
@@ -73,12 +73,12 @@ impl CellFilterOperation<DateFilterPB> for DateTypeOptionPB {
 #[cfg(test)]
 mod tests {
     #![allow(clippy::all)]
-    use crate::entities::{DateFilterCondition, DateFilterPB};
+    use crate::entities::{DateFilterConditionPB, DateFilterPB};
 
     #[test]
     fn date_filter_is_test() {
         let filter = DateFilterPB {
-            condition: DateFilterCondition::DateIs,
+            condition: DateFilterConditionPB::DateIs,
             timestamp: Some(1668387885),
             end: None,
             start: None,
@@ -91,7 +91,7 @@ mod tests {
     #[test]
     fn date_filter_before_test() {
         let filter = DateFilterPB {
-            condition: DateFilterCondition::DateBefore,
+            condition: DateFilterConditionPB::DateBefore,
             timestamp: Some(1668387885),
             start: None,
             end: None,
@@ -105,7 +105,7 @@ mod tests {
     #[test]
     fn date_filter_before_or_on_test() {
         let filter = DateFilterPB {
-            condition: DateFilterCondition::DateOnOrBefore,
+            condition: DateFilterConditionPB::DateOnOrBefore,
             timestamp: Some(1668387885),
             start: None,
             end: None,
@@ -118,7 +118,7 @@ mod tests {
     #[test]
     fn date_filter_after_test() {
         let filter = DateFilterPB {
-            condition: DateFilterCondition::DateAfter,
+            condition: DateFilterConditionPB::DateAfter,
             timestamp: Some(1668387885),
             start: None,
             end: None,
@@ -132,7 +132,7 @@ mod tests {
     #[test]
     fn date_filter_within_test() {
         let filter = DateFilterPB {
-            condition: DateFilterCondition::DateWithIn,
+            condition: DateFilterConditionPB::DateWithIn,
             start: Some(1668272685), // 11/13
             end: Some(1668618285),   // 11/17
             timestamp: None,
@@ -150,7 +150,7 @@ mod tests {
     #[test]
     fn date_filter_is_empty_test() {
         let filter = DateFilterPB {
-            condition: DateFilterCondition::DateIsEmpty,
+            condition: DateFilterConditionPB::DateIsEmpty,
             start: None,
             end: None,
             timestamp: None,

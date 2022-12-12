@@ -32,7 +32,7 @@ class FilterFFIService {
   Future<Either<Unit, FlowyError>> insertTextFilter({
     required String fieldId,
     String? filterId,
-    required TextFilterCondition condition,
+    required TextFilterConditionPB condition,
     required String content,
   }) {
     final filter = TextFilterPB()
@@ -50,7 +50,7 @@ class FilterFFIService {
   Future<Either<Unit, FlowyError>> insertCheckboxFilter({
     required String fieldId,
     String? filterId,
-    required CheckboxFilterCondition condition,
+    required CheckboxFilterConditionPB condition,
   }) {
     final filter = CheckboxFilterPB()..condition = condition;
 
@@ -65,7 +65,7 @@ class FilterFFIService {
   Future<Either<Unit, FlowyError>> insertNumberFilter({
     required String fieldId,
     String? filterId,
-    required NumberFilterCondition condition,
+    required NumberFilterConditionPB condition,
     String content = "",
   }) {
     final filter = NumberFilterPB()
@@ -83,7 +83,7 @@ class FilterFFIService {
   Future<Either<Unit, FlowyError>> insertDateFilter({
     required String fieldId,
     String? filterId,
-    required DateFilterCondition condition,
+    required DateFilterConditionPB condition,
     int? start,
     int? end,
     int? timestamp,
@@ -112,7 +112,7 @@ class FilterFFIService {
   Future<Either<Unit, FlowyError>> insertURLFilter({
     required String fieldId,
     String? filterId,
-    required TextFilterCondition condition,
+    required TextFilterConditionPB condition,
     String content = "",
   }) {
     final filter = TextFilterPB()
@@ -130,7 +130,7 @@ class FilterFFIService {
   Future<Either<Unit, FlowyError>> insertSelectOptionFilter({
     required String fieldId,
     required FieldType fieldType,
-    required SelectOptionCondition condition,
+    required SelectOptionConditionPB condition,
     String? filterId,
     List<String> optionIds = const [],
   }) {
@@ -148,7 +148,7 @@ class FilterFFIService {
 
   Future<Either<Unit, FlowyError>> insertChecklistFilter({
     required String fieldId,
-    required ChecklistFilterCondition condition,
+    required ChecklistFilterConditionPB condition,
     String? filterId,
     List<String> optionIds = const [],
   }) {
@@ -196,7 +196,7 @@ class FilterFFIService {
     required String filterId,
     required FieldType fieldType,
   }) {
-    TextFilterCondition.DoesNotContain.value;
+    TextFilterConditionPB.DoesNotContain.value;
 
     final deleteFilterPayload = DeleteFilterPayloadPB.create()
       ..fieldId = fieldId

@@ -28,7 +28,7 @@ class CheckboxFilterEditorBloc
           initial: () async {
             _startListening();
           },
-          updateCondition: (CheckboxFilterCondition condition) {
+          updateCondition: (CheckboxFilterConditionPB condition) {
             _ffiService.insertCheckboxFilter(
               filterId: filterInfo.filter.id,
               fieldId: filterInfo.fieldInfo.id,
@@ -79,7 +79,7 @@ class CheckboxFilterEditorEvent with _$CheckboxFilterEditorEvent {
   const factory CheckboxFilterEditorEvent.didReceiveFilter(FilterPB filter) =
       _DidReceiveFilter;
   const factory CheckboxFilterEditorEvent.updateCondition(
-      CheckboxFilterCondition condition) = _UpdateCondition;
+      CheckboxFilterConditionPB condition) = _UpdateCondition;
   const factory CheckboxFilterEditorEvent.delete() = _Delete;
 }
 

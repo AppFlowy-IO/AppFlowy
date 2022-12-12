@@ -6,6 +6,7 @@ mod group_entities;
 pub mod parser;
 mod row_entities;
 pub mod setting_entities;
+mod sort_entities;
 mod view_entities;
 
 pub use cell_entities::*;
@@ -15,4 +16,5 @@ pub use grid_entities::*;
 pub use group_entities::*;
 pub use row_entities::*;
 pub use setting_entities::*;
+pub use sort_entities::*;
 pub use view_entities::*;

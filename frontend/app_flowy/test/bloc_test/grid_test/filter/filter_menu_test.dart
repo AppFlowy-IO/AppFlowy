@@ -23,7 +23,7 @@ void main() {
     final textField = context.textFieldContext();
     await service.insertTextFilter(
         fieldId: textField.id,
-        condition: TextFilterCondition.TextIsEmpty,
+        condition: TextFilterConditionPB.TextIsEmpty,
         content: "");
     await gridResponseFuture();
     assert(menuBloc.state.creatableFields.length == 2);
@@ -42,7 +42,7 @@ void main() {
     // Create filter
     await service.insertTextFilter(
         fieldId: textField.id,
-        condition: TextFilterCondition.TextIsEmpty,
+        condition: TextFilterConditionPB.TextIsEmpty,
         content: "");
     await gridResponseFuture();
 
@@ -51,11 +51,11 @@ void main() {
     await service.insertTextFilter(
         fieldId: textField.id,
         filterId: textFilter.filter.id,
-        condition: TextFilterCondition.Is,
+        condition: TextFilterConditionPB.Is,
         content: "ABC");
     await gridResponseFuture();
     assert(menuBloc.state.filters.first.textFilter()!.condition ==
-        TextFilterCondition.Is);
+        TextFilterConditionPB.Is);
     assert(menuBloc.state.filters.first.textFilter()!.content == "ABC");
   });
 }

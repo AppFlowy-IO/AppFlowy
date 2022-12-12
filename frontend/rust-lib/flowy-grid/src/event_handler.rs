@@ -58,6 +58,13 @@ pub(crate) async fn update_grid_setting_handler(
     if let Some(delete_filter) = params.delete_filter {
         let _ = editor.delete_filter(delete_filter).await?;
     }
+
+    if let Some(alter_sort) = params.alert_sort {
+        let _ = editor.create_or_update_sort(alter_sort).await?;
+    }
+    if let Some(delete_sort) = params.delete_sort {
+        let _ = editor.delete_sort(delete_sort).await?;
+    }
     Ok(())
 }
 

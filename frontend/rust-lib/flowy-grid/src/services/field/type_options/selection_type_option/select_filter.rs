@@ -1,6 +1,6 @@
 #![allow(clippy::needless_collect)]
 
-use crate::entities::{ChecklistFilterPB, FieldType, SelectOptionCondition, SelectOptionFilterPB};
+use crate::entities::{ChecklistFilterPB, FieldType, SelectOptionConditionPB, SelectOptionFilterPB};
 use crate::services::cell::{CellFilterOperation, TypeCellData};
 use crate::services::field::{ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
 use crate::services::field::{SelectTypeOptionSharedAction, SelectedSelectOptions};
@@ -10,7 +10,7 @@ impl SelectOptionFilterPB {
     pub fn is_visible(&self, selected_options: &SelectedSelectOptions, field_type: FieldType) -> bool {
         let selected_option_ids: Vec<&String> = selected_options.options.iter().map(|option| &option.id).collect();
         match self.condition {
-            SelectOptionCondition::OptionIs => match field_type {
+            SelectOptionConditionPB::OptionIs => match field_type {
                 FieldType::SingleSelect => {
                     if self.option_ids.is_empty() {
                         return true;
@@ -43,7 +43,7 @@ impl SelectOptionFilterPB {
                 }
                 _ => false,
             },
-            SelectOptionCondition::OptionIsNot => match field_type {
+            SelectOptionConditionPB::OptionIsNot => match field_type {
                 FieldType::SingleSelect => {
                     if self.option_ids.is_empty() {
                         return true;
@@ -72,8 +72,8 @@ impl SelectOptionFilterPB {
                 }
                 _ => false,
             },
-            SelectOptionCondition::OptionIsEmpty => selected_option_ids.is_empty(),
-            SelectOptionCondition::OptionIsNotEmpty => !selected_option_ids.is_empty(),
+            SelectOptionConditionPB::OptionIsEmpty => selected_option_ids.is_empty(),
+            SelectOptionConditionPB::OptionIsNotEmpty => !selected_option_ids.is_empty(),
         }
     }
 }
@@ -112,14 +112,14 @@ impl CellFilterOperation<ChecklistFilterPB> for ChecklistTypeOptionPB {
 #[cfg(test)]
 mod tests {
     #![allow(clippy::all)]
-    use crate::entities::{FieldType, SelectOptionCondition, SelectOptionFilterPB};
+    use crate::entities::{FieldType, SelectOptionConditionPB, SelectOptionFilterPB};
     use crate::services::field::selection_type_option::{SelectOptionPB, SelectedSelectOptions};
 
     #[test]
     fn select_option_filter_is_empty_test() {
         let option = SelectOptionPB::new("A");
         let filter = SelectOptionFilterPB {
-            condition: SelectOptionCondition::OptionIsEmpty,
+            condition: SelectOptionConditionPB::OptionIsEmpty,
             option_ids: vec![],
         };
 
@@ -152,7 +152,7 @@ mod tests {
         let option_1 = SelectOptionPB::new("A");
         let option_2 = SelectOptionPB::new("B");
         let filter = SelectOptionFilterPB {
-            condition: SelectOptionCondition::OptionIsNotEmpty,
+            condition: SelectOptionConditionPB::OptionIsNotEmpty,
             option_ids: vec![option_1.id.clone(), option_2.id.clone()],
         };
 
@@ -191,7 +191,7 @@ mod tests {
         let option_2 = SelectOptionPB::new("B");
         let option_3 = SelectOptionPB::new("C");
         let filter = SelectOptionFilterPB {
-            condition: SelectOptionCondition::OptionIsNot,
+            condition: SelectOptionConditionPB::OptionIsNot,
             option_ids: vec![option_1.id.clone(), option_2.id.clone()],
         };
 
@@ -215,7 +215,7 @@ mod tests {
         let option_3 = SelectOptionPB::new("c");
 
         let filter = SelectOptionFilterPB {
-            condition: SelectOptionCondition::OptionIs,
+            condition: SelectOptionConditionPB::OptionIs,
             option_ids: vec![option_1.id.clone()],
         };
         for (options, is_visible) in vec![
@@ -237,7 +237,7 @@ mod tests {
         let option_2 = SelectOptionPB::new("B");
 
         let filter = SelectOptionFilterPB {
-            condition: SelectOptionCondition::OptionIs,
+            condition: SelectOptionConditionPB::OptionIs,
             option_ids: vec![],
         };
         for (options, is_visible) in vec![
@@ -258,7 +258,7 @@ mod tests {
         let option_2 = SelectOptionPB::new("B");
         let option_3 = SelectOptionPB::new("C");
         let filter = SelectOptionFilterPB {
-            condition: SelectOptionCondition::OptionIsNot,
+            condition: SelectOptionConditionPB::OptionIsNot,
             option_ids: vec![option_1.id.clone(), option_2.id.clone()],
         };
 
@@ -283,7 +283,7 @@ mod tests {
         let option_3 = SelectOptionPB::new("C");
 
         let filter = SelectOptionFilterPB {
-            condition: SelectOptionCondition::OptionIs,
+            condition: SelectOptionConditionPB::OptionIs,
             option_ids: vec![option_1.id.clone(), option_2.id.clone()],
         };
         for (options, is_visible) in vec![
@@ -305,7 +305,7 @@ mod tests {
         let option_1 = SelectOptionPB::new("A");
 
         let filter = SelectOptionFilterPB {
-            condition: SelectOptionCondition::OptionIs,
+            condition: SelectOptionConditionPB::OptionIs,
             option_ids: vec![],
         };
         for (options, is_visible) in vec![(vec![option_1.clone()], true), (vec![], true)] {

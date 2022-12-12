@@ -133,6 +133,7 @@ impl GridViewRevisionEditor {
         self.rev_manager.generate_snapshot().await;
         self.rev_manager.close().await;
         self.filter_controller.read().await.close().await;
+        self.sort_controller.read().await.close().await;
     }
 
     pub async fn handle_block_event(&self, event: Cow<'_, GridBlockEvent>) {

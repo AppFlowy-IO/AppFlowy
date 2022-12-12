@@ -6,7 +6,7 @@
 use std::time::Duration;
 use bytes::Bytes;
 use futures::TryFutureExt;
-use flowy_grid::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterCondition, FieldType, NumberFilterCondition, CheckboxFilterCondition, DateFilterCondition, DateFilterContent, SelectOptionCondition, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB, FilterPB, ChecklistFilterCondition, ChecklistFilterPB};
+use flowy_grid::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterConditionPB, FieldType, NumberFilterConditionPB, CheckboxFilterConditionPB, DateFilterConditionPB, DateFilterContentPB, SelectOptionConditionPB, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB, FilterPB, ChecklistFilterConditionPB, ChecklistFilterPB};
 use flowy_grid::services::field::{SelectOptionCellChangeset, SelectOptionIds};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
@@ -28,37 +28,37 @@ pub enum FilterScript {
         payload: AlterFilterPayloadPB,
     },
     CreateTextFilter {
-        condition: TextFilterCondition,
+        condition: TextFilterConditionPB,
         content: String,
     },
     UpdateTextFilter {
         filter: FilterPB,
-        condition: TextFilterCondition,
+        condition: TextFilterConditionPB,
         content: String,
     },
     CreateNumberFilter {
-        condition: NumberFilterCondition,
+        condition: NumberFilterConditionPB,
         content: String,
     },
     CreateCheckboxFilter {
-        condition: CheckboxFilterCondition,
+        condition: CheckboxFilterConditionPB,
     },
     CreateDateFilter{
-        condition: DateFilterCondition,
+        condition: DateFilterConditionPB,
         start: Option<i64>,
         end: Option<i64>,
         timestamp: Option<i64>,
     },
     CreateMultiSelectFilter {
-        condition: SelectOptionCondition,
+        condition: SelectOptionConditionPB,
         option_ids: Vec<String>,
     },
     CreateSingleSelectFilter {
-        condition: SelectOptionCondition,
+        condition: SelectOptionConditionPB,
         option_ids: Vec<String>,
     },
     CreateChecklistFilter {
-        condition: ChecklistFilterCondition,
+        condition: ChecklistFilterConditionPB,
     },
     AssertFilterCount {
         count: i32,

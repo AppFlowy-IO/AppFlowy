@@ -1,6 +1,6 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
-    CheckboxFilterPB, ChecklistFilterPB, DateFilterContent, DateFilterPB, FieldType, NumberFilterPB,
+    CheckboxFilterPB, ChecklistFilterPB, DateFilterContentPB, DateFilterPB, FieldType, NumberFilterPB,
     SelectOptionFilterPB, TextFilterPB,
 };
 use crate::services::field::SelectOptionIds;
@@ -116,6 +116,7 @@ pub struct AlterFilterPayloadPB {
     #[pb(index = 2)]
     pub field_type: FieldType,
 
+    /// Create a new filter if the filter_id is None
     #[pb(index = 3, one_of)]
     pub filter_id: Option<String>,
 
@@ -169,7 +170,7 @@ impl TryInto<AlterFilterParams> for AlterFilterPayloadPB {
             FieldType::DateTime => {
                 let filter = DateFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
                 condition = filter.condition as u8;
-                content = DateFilterContent {
+                content = DateFilterContentPB {
                     start: filter.start,
                     end: filter.end,
                     timestamp: filter.timestamp,
@@ -196,6 +197,7 @@ impl TryInto<AlterFilterParams> for AlterFilterPayloadPB {
 #[derive(Debug)]
 pub struct AlterFilterParams {
     pub field_id: String,
+    /// Create a new filter if the filter_id is None
     pub filter_id: Option<String>,
     pub field_type: FieldTypeRevision,
     pub condition: u8,
