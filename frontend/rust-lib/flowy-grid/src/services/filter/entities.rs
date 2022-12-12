@@ -71,12 +71,11 @@ pub struct FilterType {
     pub field_type: FieldType,
 }
 
-impl FilterType {
-    pub fn field_type_rev(&self) -> FieldTypeRevision {
-        self.field_type.clone().into()
+impl Into<FieldTypeRevision> for FilterType {
+    fn into(self) -> FieldTypeRevision {
+        self.field_type.into()
     }
 }
-
 impl std::convert::From<&Arc<FieldRevision>> for FilterType {
     fn from(rev: &Arc<FieldRevision>) -> Self {
         Self {

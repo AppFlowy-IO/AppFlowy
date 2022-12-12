@@ -394,11 +394,11 @@ impl GridRevisionEditor {
     }
 
     /// Returns all the rows in this block.
-    pub async fn get_row_pbs(&self, block_id: &str) -> FlowyResult<Vec<RowPB>> {
-        let rows = self.block_manager.get_row_revs(block_id).await?;
+    pub async fn get_row_pbs(&self, view_id: &str, block_id: &str) -> FlowyResult<Vec<RowPB>> {
+        let rows = self.view_manager.get_row_revs(view_id, block_id).await?;
         let rows = self
             .view_manager
-            .filter_rows(block_id, rows)
+            .filter_rows(view_id, block_id, rows)
             .await?
             .into_iter()
             .map(|row_rev| RowPB::from(&row_rev))
@@ -535,12 +535,12 @@ impl GridRevisionEditor {
         Ok(())
     }
 
-    pub async fn get_grid(&self) -> FlowyResult<GridPB> {
+    pub async fn get_grid(&self, view_id: &str) -> FlowyResult<GridPB> {
         let pad = self.grid_pad.read().await;
         let fields = pad.get_field_revs(None)?.iter().map(FieldIdPB::from).collect();
         let mut all_rows = vec![];
         for block_rev in pad.get_block_meta_revs() {
-            if let Ok(rows) = self.get_row_pbs(&block_rev.block_id).await {
+            if let Ok(rows) = self.get_row_pbs(view_id, &block_rev.block_id).await {
                 all_rows.extend(rows);
             }
         }

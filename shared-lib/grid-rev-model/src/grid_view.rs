@@ -1,4 +1,4 @@
-use crate::{FilterConfiguration, GroupConfiguration};
+use crate::{FilterConfiguration, GroupConfiguration, SortConfiguration};
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 use serde_repr::*;
@@ -41,10 +41,9 @@ pub struct GridViewRevision {
 
     #[serde(default)]
     pub groups: GroupConfiguration,
-    // // For the moment, we just use the order returned from the GridRevision
-    // #[allow(dead_code)]
-    // #[serde(skip, rename = "rows")]
-    // pub row_orders: Vec<RowOrderRevision>,
+
+    #[serde(default)]
+    pub sorts: SortConfiguration,
 }
 
 impl GridViewRevision {
@@ -55,7 +54,7 @@ impl GridViewRevision {
             layout,
             filters: Default::default(),
             groups: Default::default(),
-            // row_orders: vec![],
+            sorts: Default::default(),
         }
     }
 
@@ -81,6 +80,7 @@ mod tests {
             layout: Default::default(),
             filters: Default::default(),
             groups: Default::default(),
+            sorts: Default::default(),
         };
         let s = serde_json::to_string(&grid_view_revision).unwrap();
         assert_eq!(

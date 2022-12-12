@@ -44,7 +44,7 @@ impl FilterController {
         notifier: GridViewChangedNotifier,
     ) -> Self
     where
-        T: FilterDelegate,
+        T: FilterDelegate + 'static,
     {
         let mut this = Self {
             view_id: view_id.to_string(),

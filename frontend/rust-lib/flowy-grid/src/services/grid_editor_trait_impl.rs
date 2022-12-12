@@ -51,11 +51,11 @@ impl GridViewEditorDelegate for GridViewEditorDelegateImpl {
         })
     }
 
-    fn get_row_revs(&self) -> Fut<Vec<Arc<RowRevision>>> {
+    fn get_row_revs(&self, block_id: Option<Vec<String>>) -> Fut<Vec<Arc<RowRevision>>> {
         let block_manager = self.block_manager.clone();
 
         to_fut(async move {
-            let blocks = block_manager.get_blocks(None).await.unwrap();
+            let blocks = block_manager.get_blocks(block_id).await.unwrap();
             blocks
                 .into_iter()
                 .flat_map(|block| block.row_revs)

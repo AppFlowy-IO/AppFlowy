@@ -19,8 +19,8 @@ pub(crate) async fn get_grid_handler(
     manager: AFPluginState<Arc<GridManager>>,
 ) -> DataResult<GridPB, FlowyError> {
     let grid_id: GridIdPB = data.into_inner();
-    let editor = manager.open_grid(grid_id).await?;
-    let grid = editor.get_grid().await?;
+    let editor = manager.open_grid(grid_id.as_ref()).await?;
+    let grid = editor.get_grid(grid_id.as_ref()).await?;
     data_result(grid)
 }
 
