@@ -35,16 +35,19 @@ impl std::default::Default for GridSortConditionPB {
 #[derive(ProtoBuf, Debug, Default, Clone)]
 pub struct AlterSortPayloadPB {
     #[pb(index = 1)]
-    pub field_id: String,
+    pub view_id: String,
 
     #[pb(index = 2)]
+    pub field_id: String,
+
+    #[pb(index = 3)]
     pub field_type: FieldType,
 
     /// Create a new filter if the filter_id is None
-    #[pb(index = 3, one_of)]
+    #[pb(index = 4, one_of)]
     pub sort_id: Option<String>,
 
-    #[pb(index = 4)]
+    #[pb(index = 5)]
     pub condition: GridSortConditionPB,
 }
 
@@ -52,6 +55,10 @@ impl TryInto<AlterSortParams> for AlterSortPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<AlterSortParams, Self::Error> {
+        let view_id = NotEmptyStr::parse(self.view_id)
+            .map_err(|_| ErrorCode::GridViewIdIsEmpty)?
+            .0;
+
         let field_id = NotEmptyStr::parse(self.field_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
             .0;
@@ -61,6 +68,7 @@ impl TryInto<AlterSortParams> for AlterSortPayloadPB {
         };
 
         Ok(AlterSortParams {
+            view_id,
             field_id,
             sort_id,
             field_type: self.field_type.into(),
@@ -71,6 +79,7 @@ impl TryInto<AlterSortParams> for AlterSortPayloadPB {
 
 #[derive(Debug)]
 pub struct AlterSortParams {
+    pub view_id: String,
     pub field_id: String,
     /// Create a new sort if the sort is None
     pub sort_id: Option<String>,
@@ -81,12 +90,15 @@ pub struct AlterSortParams {
 #[derive(ProtoBuf, Debug, Default, Clone)]
 pub struct DeleteSortPayloadPB {
     #[pb(index = 1)]
-    pub field_id: String,
+    pub view_id: String,
 
     #[pb(index = 2)]
-    pub field_type: FieldType,
+    pub field_id: String,
 
     #[pb(index = 3)]
+    pub field_type: FieldType,
+
+    #[pb(index = 4)]
     pub sort_id: String,
 }
 
@@ -94,6 +106,9 @@ impl TryInto<DeleteSortParams> for DeleteSortPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<DeleteSortParams, Self::Error> {
+        let view_id = NotEmptyStr::parse(self.view_id)
+            .map_err(|_| ErrorCode::GridViewIdIsEmpty)?
+            .0;
         let field_id = NotEmptyStr::parse(self.field_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
             .0;
@@ -107,12 +122,32 @@ impl TryInto<DeleteSortParams> for DeleteSortPayloadPB {
             field_type: self.field_type,
         };
 
-        Ok(DeleteSortParams { sort_type, sort_id })
+        Ok(DeleteSortParams {
+            view_id,
+            sort_type,
+            sort_id,
+        })
     }
 }
 
 #[derive(Debug)]
 pub struct DeleteSortParams {
+    pub view_id: String,
     pub sort_type: SortType,
     pub sort_id: String,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct SortChangesetNotificationPB {
+    #[pb(index = 1)]
+    pub view_id: String,
+
+    #[pb(index = 2)]
+    pub insert_sorts: Vec<GridSortPB>,
+
+    #[pb(index = 3)]
+    pub delete_sorts: Vec<GridSortPB>,
+
+    #[pb(index = 4)]
+    pub update_sorts: Vec<GridSortPB>,
 }

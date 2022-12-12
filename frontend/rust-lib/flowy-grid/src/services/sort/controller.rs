@@ -1,4 +1,5 @@
-use crate::services::sort::SortType;
+use crate::entities::{GridSortPB, SortChangesetNotificationPB};
+use crate::services::sort::{SortChangeset, SortType};
 use flowy_task::TaskDispatcher;
 use grid_rev_model::{FieldRevision, RowRevision, SortRevision};
 use lib_infra::future::Fut;
@@ -16,6 +17,7 @@ pub struct SortController {
     handler_id: String,
     delegate: Box<dyn SortDelegate>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    sorts: Vec<GridSortPB>,
 }
 
 impl SortController {
@@ -28,6 +30,7 @@ impl SortController {
             handler_id: handler_id.to_string(),
             delegate: Box::new(delegate),
             task_scheduler,
+            sorts: vec![],
         }
     }
 
@@ -40,6 +43,10 @@ impl SortController {
     }
 
     pub fn sort_rows(&self, rows: &mut Vec<Arc<RowRevision>>) {
+        todo!()
+    }
+
+    pub async fn did_receive_changes(&self, changeset: SortChangeset) -> Option<SortChangesetNotificationPB> {
         todo!()
     }
 }

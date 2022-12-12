@@ -7,7 +7,7 @@ use crate::services::group::{
     GroupController, MoveGroupRowContext,
 };
 use crate::services::row::GridBlockRowRevision;
-use crate::services::sort::{SortController, SortTaskHandler};
+use crate::services::sort::{SortChangeset, SortController, SortTaskHandler, SortType};
 use crate::services::view_editor::changed_notifier::GridViewChangedNotifier;
 use crate::services::view_editor::trait_impl::*;
 use crate::services::view_editor::GridViewChangedReceiverRunner;
@@ -18,7 +18,8 @@ use flowy_revision::RevisionManager;
 use flowy_sync::client_grid::{make_grid_view_operations, GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_task::TaskDispatcher;
 use grid_rev_model::{
-    gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterRevision, LayoutRevision, RowChangeset, RowRevision,
+    gen_grid_filter_id, gen_grid_sort_id, FieldRevision, FieldTypeRevision, FilterRevision, LayoutRevision,
+    RowChangeset, RowRevision, SortRevision,
 };
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::Fut;
@@ -373,6 +374,70 @@ impl GridViewRevisionEditor {
         .await
     }
 
+    pub async fn insert_view_sort(&self, params: AlterSortParams) -> FlowyResult<()> {
+        let sort_type = SortType::from(&params);
+        let is_exist = params.sort_id.is_some();
+        let sort_id = match params.sort_id {
+            None => gen_grid_sort_id(),
+            Some(sort_id) => sort_id,
+        };
+
+        let sort_rev = SortRevision {
+            id: sort_id,
+            field_id: params.field_id.clone(),
+            field_type: params.field_type,
+            condition: params.condition,
+        };
+
+        let mut sort_controller = self.sort_controller.write().await;
+        let changeset = if is_exist {
+            self.modify(|pad| {
+                let changeset = pad.update_sort(&params.field_id, sort_rev)?;
+                Ok(changeset)
+            })
+            .await?;
+            sort_controller
+                .did_receive_changes(SortChangeset::from_update(sort_type))
+                .await
+        } else {
+            self.modify(|pad| {
+                let changeset = pad.insert_sort(&params.field_id, sort_rev)?;
+                Ok(changeset)
+            })
+            .await?;
+            sort_controller
+                .did_receive_changes(SortChangeset::from_insert(sort_type))
+                .await
+        };
+
+        if let Some(changeset) = changeset {
+            self.notify_did_update_sort(changeset).await;
+        }
+        Ok(())
+    }
+
+    pub async fn delete_view_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
+        let sort_type = SortType::from(&params);
+        let changeset = self
+            .sort_controller
+            .write()
+            .await
+            .did_receive_changes(SortChangeset::from_delete(sort_type.clone()))
+            .await;
+
+        let _ = self
+            .modify(|pad| {
+                let changeset = pad.delete_sort(&params.sort_id, &sort_type.field_id, sort_type.field_type)?;
+                Ok(changeset)
+            })
+            .await?;
+
+        if changeset.is_some() {
+            self.notify_did_update_sort(changeset.unwrap()).await;
+        }
+        Ok(())
+    }
+
     #[tracing::instrument(level = "trace", skip(self), err)]
     pub async fn insert_view_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
         let filter_type = FilterType::from(&params);
@@ -401,7 +466,7 @@ impl GridViewRevisionEditor {
             })
             .await?;
             filter_controller
-                .did_receive_filter_changed(FilterChangeset::from_update(UpdatedFilterType::new(
+                .did_receive_changes(FilterChangeset::from_update(UpdatedFilterType::new(
                     old_filter_type,
                     filter_type,
                 )))
@@ -413,7 +478,7 @@ impl GridViewRevisionEditor {
             })
             .await?;
             filter_controller
-                .did_receive_filter_changed(FilterChangeset::from_insert(filter_type))
+                .did_receive_changes(FilterChangeset::from_insert(filter_type))
                 .await
         };
 
@@ -430,7 +495,7 @@ impl GridViewRevisionEditor {
             .filter_controller
             .write()
             .await
-            .did_receive_filter_changed(FilterChangeset::from_delete(filter_type.clone()))
+            .did_receive_changes(FilterChangeset::from_delete(filter_type.clone()))
             .await;
 
         let _ = self
@@ -461,7 +526,7 @@ impl GridViewRevisionEditor {
                 .filter_controller
                 .write()
                 .await
-                .did_receive_filter_changed(filter_changeset)
+                .did_receive_changes(filter_changeset)
                 .await
             {
                 self.notify_did_update_filter(changeset).await;
@@ -528,6 +593,12 @@ impl GridViewRevisionEditor {
 
     pub async fn notify_did_update_filter(&self, changeset: FilterChangesetNotificationPB) {
         send_dart_notification(&changeset.view_id, GridDartNotification::DidUpdateFilter)
+            .payload(changeset)
+            .send();
+    }
+
+    pub async fn notify_did_update_sort(&self, changeset: SortChangesetNotificationPB) {
+        send_dart_notification(&changeset.view_id, GridDartNotification::DidUpdateSort)
             .payload(changeset)
             .send();
     }

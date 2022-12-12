@@ -10,6 +10,7 @@ use flowy_grid::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilter
 use flowy_grid::services::field::{SelectOptionCellChangeset, SelectOptionIds};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
+use flowy_database::schema::view_table::dsl::view_table;
 use flowy_grid::services::cell::insert_select_option_cell;
 use flowy_grid::services::filter::FilterType;
 use flowy_grid::services::view_editor::GridViewChanged;
@@ -98,6 +99,10 @@ impl GridFilterTest {
         }
     }
 
+     fn view_id(&self) -> String {
+        self.grid_id.clone()
+    }
+
     pub async fn get_all_filters(&self) -> Vec<FilterPB> {
         self.editor.get_all_filters().await.unwrap()
     }
@@ -128,11 +133,14 @@ impl GridFilterTest {
                     content
                 };
                 let payload =
-                    AlterFilterPayloadPB::new(field_rev, text_filter);
+                    AlterFilterPayloadPB::new(
+                       view_id: self.view_id(),
+                        field_rev, text_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::UpdateTextFilter { filter, condition, content} => {
                 let params = AlterFilterParams {
+                    view_id: self.view_id(),
                     field_id: filter.field_id,
                     filter_id: Some(filter.id),
                     field_type: filter.field_type.into(),
@@ -148,7 +156,9 @@ impl GridFilterTest {
                     content
                 };
                 let payload =
-                    AlterFilterPayloadPB::new(field_rev, number_filter);
+                    AlterFilterPayloadPB::new(
+                        view_id: self.view_id(),
+                        field_rev, number_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateCheckboxFilter {condition} => {
@@ -157,7 +167,7 @@ impl GridFilterTest {
                     condition
                 };
                 let payload =
-                    AlterFilterPayloadPB::new(field_rev, checkbox_filter);
+                    AlterFilterPayloadPB::new(view_id: self.view_id(), field_rev, checkbox_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateDateFilter { condition, start, end, timestamp} => {
@@ -170,21 +180,21 @@ impl GridFilterTest {
                 };
 
                 let payload =
-                    AlterFilterPayloadPB::new(field_rev, date_filter);
+                    AlterFilterPayloadPB::new(view_id: self.view_id(), field_rev, date_filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateMultiSelectFilter { condition, option_ids} => {
                 let field_rev = self.get_first_field_rev(FieldType::MultiSelect);
                 let filter = SelectOptionFilterPB { condition, option_ids };
                 let payload =
-                    AlterFilterPayloadPB::new(field_rev, filter);
+                    AlterFilterPayloadPB::new(view_id: self.view_id(),field_rev, filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateSingleSelectFilter { condition, option_ids} => {
                 let field_rev = self.get_first_field_rev(FieldType::SingleSelect);
                 let filter = SelectOptionFilterPB { condition, option_ids };
                 let payload =
-                    AlterFilterPayloadPB::new(field_rev, filter);
+                    AlterFilterPayloadPB::new(view_id: self.view_id(),field_rev, filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateChecklistFilter { condition} => {
@@ -192,7 +202,7 @@ impl GridFilterTest {
                 // let type_option = self.get_checklist_type_option(&field_rev.id);
                 let filter = ChecklistFilterPB { condition };
                 let payload =
-                    AlterFilterPayloadPB::new(field_rev, filter);
+                    AlterFilterPayloadPB::new(view_id: self.view_id(),field_rev, filter);
                 self.insert_filter(payload).await;
             }
             FilterScript::AssertFilterCount { count } => {
@@ -206,7 +216,7 @@ impl GridFilterTest {
 
             }
             FilterScript::DeleteFilter {  filter_id, filter_type } => {
-                let params = DeleteFilterParams { filter_type, filter_id };
+                let params = DeleteFilterParams { view_id: self.view_id(),filter_type, filter_id };
                 let _ = self.editor.delete_filter(params).await.unwrap();
             }
             FilterScript::AssertGridSetting { expected_setting } => {
@@ -226,7 +236,7 @@ impl GridFilterTest {
                 }
             }
             FilterScript::AssertNumberOfVisibleRows { expected } => {
-                let grid = self.editor.get_grid().await.unwrap();
+                let grid = self.editor.get_grid(&self.view_id()).await.unwrap();
                 assert_eq!(grid.rows.len(), expected);
             }
             FilterScript::Wait { millisecond } => {

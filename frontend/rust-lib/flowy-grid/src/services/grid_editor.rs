@@ -589,11 +589,13 @@ impl GridRevisionEditor {
     }
 
     pub async fn delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
-        todo!()
+        let _ = self.view_manager.delete_sort(params).await?;
+        Ok(())
     }
 
     pub async fn create_or_update_sort(&self, params: AlterSortParams) -> FlowyResult<()> {
-        todo!()
+        let _ = self.view_manager.create_or_update_sort(params).await?;
+        Ok(())
     }
 
     pub async fn move_row(&self, params: MoveRowParams) -> FlowyResult<()> {

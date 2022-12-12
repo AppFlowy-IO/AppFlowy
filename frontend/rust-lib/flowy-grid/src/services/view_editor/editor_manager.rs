@@ -1,6 +1,6 @@
 use crate::entities::{
-    AlterFilterParams, CreateRowParams, DeleteFilterParams, DeleteGroupParams, GridSettingPB, InsertGroupParams,
-    MoveGroupParams, RepeatedGroupPB, RowPB,
+    AlterFilterParams, AlterSortParams, CreateRowParams, DeleteFilterParams, DeleteGroupParams, DeleteSortParams,
+    GridSettingPB, InsertGroupParams, MoveGroupParams, RepeatedGroupPB, RowPB,
 };
 use crate::manager::GridUser;
 use crate::services::block_manager::GridBlockEvent;
@@ -136,13 +136,23 @@ impl GridViewManager {
     }
 
     pub async fn create_or_update_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
-        let view_editor = self.get_default_view_editor().await?;
+        let view_editor = self.get_view_editor(&params.view_id).await?;
         view_editor.insert_view_filter(params).await
     }
 
     pub async fn delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
-        let view_editor = self.get_default_view_editor().await?;
+        let view_editor = self.get_view_editor(&params.view_id).await?;
         view_editor.delete_view_filter(params).await
+    }
+
+    pub async fn create_or_update_sort(&self, params: AlterSortParams) -> FlowyResult<()> {
+        let view_editor = self.get_view_editor(&params.view_id).await?;
+        view_editor.insert_view_sort(params).await
+    }
+
+    pub async fn delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
+        let view_editor = self.get_view_editor(&params.view_id).await?;
+        view_editor.delete_view_sort(params).await
     }
 
     pub async fn load_groups(&self) -> FlowyResult<RepeatedGroupPB> {

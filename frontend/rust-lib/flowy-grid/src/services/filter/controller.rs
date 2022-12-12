@@ -55,7 +55,7 @@ impl FilterController {
             task_scheduler,
             notifier,
         };
-        this.cache_filters(filter_revs).await;
+        this.refresh_filters(filter_revs).await;
         this
     }
 
@@ -191,17 +191,14 @@ impl FilterController {
     }
 
     #[tracing::instrument(level = "trace", skip(self))]
-    pub async fn did_receive_filter_changed(
-        &mut self,
-        changeset: FilterChangeset,
-    ) -> Option<FilterChangesetNotificationPB> {
+    pub async fn did_receive_changes(&mut self, changeset: FilterChangeset) -> Option<FilterChangesetNotificationPB> {
         let mut notification: Option<FilterChangesetNotificationPB> = None;
         if let Some(filter_type) = &changeset.insert_filter {
             if let Some(filter) = self.filter_from_filter_type(filter_type).await {
                 notification = Some(FilterChangesetNotificationPB::from_insert(&self.view_id, vec![filter]));
             }
             if let Some(filter_rev) = self.delegate.get_filter_rev(filter_type.clone()).await {
-                let _ = self.cache_filters(vec![filter_rev]).await;
+                let _ = self.refresh_filters(vec![filter_rev]).await;
             }
         }
 
@@ -218,7 +215,7 @@ impl FilterController {
 
                 // Update the corresponding filter in the cache
                 if let Some(filter_rev) = self.delegate.get_filter_rev(updated_filter_type.new.clone()).await {
-                    let _ = self.cache_filters(vec![filter_rev]).await;
+                    let _ = self.refresh_filters(vec![filter_rev]).await;
                 }
 
                 if let Some(filter_id) = filter_id {
@@ -253,7 +250,7 @@ impl FilterController {
     }
 
     #[tracing::instrument(level = "trace", skip_all)]
-    async fn cache_filters(&mut self, filter_revs: Vec<Arc<FilterRevision>>) {
+    async fn refresh_filters(&mut self, filter_revs: Vec<Arc<FilterRevision>>) {
         for filter_rev in filter_revs {
             if let Some(field_rev) = self.delegate.get_field_rev(&filter_rev.field_id).await {
                 let filter_type = FilterType::from(&field_rev);

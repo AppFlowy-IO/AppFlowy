@@ -171,6 +171,7 @@ class FilterFFIService {
     var insertFilterPayload = AlterFilterPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType
+      ..viewId = viewId
       ..data = data;
 
     if (filterId != null) {
@@ -179,7 +180,7 @@ class FilterFFIService {
 
     final payload = GridSettingChangesetPB.create()
       ..gridId = viewId
-      ..insertFilter = insertFilterPayload;
+      ..alterFilter = insertFilterPayload;
     return GridEventUpdateGridSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
@@ -201,6 +202,7 @@ class FilterFFIService {
     final deleteFilterPayload = DeleteFilterPayloadPB.create()
       ..fieldId = fieldId
       ..filterId = filterId
+      ..viewId = viewId
       ..fieldType = fieldType;
 
     final payload = GridSettingChangesetPB.create()

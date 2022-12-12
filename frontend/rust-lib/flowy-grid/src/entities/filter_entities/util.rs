@@ -79,12 +79,18 @@ pub struct DeleteFilterPayloadPB {
 
     #[pb(index = 3)]
     pub filter_id: String,
+
+    #[pb(index = 4)]
+    pub view_id: String,
 }
 
 impl TryInto<DeleteFilterParams> for DeleteFilterPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<DeleteFilterParams, Self::Error> {
+        let view_id = NotEmptyStr::parse(self.view_id)
+            .map_err(|_| ErrorCode::GridViewIdIsEmpty)?
+            .0;
         let field_id = NotEmptyStr::parse(self.field_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
             .0;
@@ -98,12 +104,17 @@ impl TryInto<DeleteFilterParams> for DeleteFilterPayloadPB {
             field_type: self.field_type,
         };
 
-        Ok(DeleteFilterParams { filter_id, filter_type })
+        Ok(DeleteFilterParams {
+            view_id,
+            filter_id,
+            filter_type,
+        })
     }
 }
 
 #[derive(Debug)]
 pub struct DeleteFilterParams {
+    pub view_id: String,
     pub filter_type: FilterType,
     pub filter_id: String,
 }
@@ -122,13 +133,21 @@ pub struct AlterFilterPayloadPB {
 
     #[pb(index = 4)]
     pub data: Vec<u8>,
+
+    #[pb(index = 5)]
+    pub view_id: String,
 }
 
 impl AlterFilterPayloadPB {
     #[allow(dead_code)]
-    pub fn new<T: TryInto<Bytes, Error = ::protobuf::ProtobufError>>(field_rev: &FieldRevision, data: T) -> Self {
+    pub fn new<T: TryInto<Bytes, Error = ::protobuf::ProtobufError>>(
+        view_id: &str,
+        field_rev: &FieldRevision,
+        data: T,
+    ) -> Self {
         let data = data.try_into().unwrap_or_else(|_| Bytes::new());
         Self {
+            view_id: view_id.to_owned(),
             field_id: field_rev.id.clone(),
             field_type: field_rev.ty.into(),
             filter_id: None,
@@ -141,6 +160,10 @@ impl TryInto<AlterFilterParams> for AlterFilterPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<AlterFilterParams, Self::Error> {
+        let view_id = NotEmptyStr::parse(self.view_id)
+            .map_err(|_| ErrorCode::GridViewIdIsEmpty)?
+            .0;
+
         let field_id = NotEmptyStr::parse(self.field_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
             .0;
@@ -185,6 +208,7 @@ impl TryInto<AlterFilterParams> for AlterFilterPayloadPB {
         }
 
         Ok(AlterFilterParams {
+            view_id,
             field_id,
             filter_id,
             field_type: self.field_type.into(),
@@ -196,6 +220,7 @@ impl TryInto<AlterFilterParams> for AlterFilterPayloadPB {
 
 #[derive(Debug)]
 pub struct AlterFilterParams {
+    pub view_id: String,
     pub field_id: String,
     /// Create a new filter if the filter_id is None
     pub filter_id: Option<String>,

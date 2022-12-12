@@ -146,6 +146,18 @@ impl GridViewRevisionPad {
             .get_object(field_id, field_type_rev, |sort| sort.id == sort_id)
     }
 
+    pub fn insert_sort(
+        &mut self,
+        sort_id: &str,
+        sort_rev: SortRevision,
+    ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
+        self.modify(|view| {
+            let field_type = sort_rev.field_type;
+            view.sorts.add_object(sort_id, &field_type, sort_rev);
+            Ok(Some(()))
+        })
+    }
+
     pub fn update_sort(
         &mut self,
         field_id: &str,
@@ -165,14 +177,15 @@ impl GridViewRevisionPad {
         })
     }
 
-    pub fn delete_sort(
+    pub fn delete_sort<T: Into<FieldTypeRevision>>(
         &mut self,
         sort_id: &str,
         field_id: &str,
-        field_type: &FieldTypeRevision,
+        field_type: T,
     ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
+        let field_type = field_type.into();
         self.modify(|view| {
-            if let Some(sorts) = view.sorts.get_mut_objects(field_id, field_type) {
+            if let Some(sorts) = view.sorts.get_mut_objects(field_id, &field_type) {
                 sorts.retain(|sort| sort.id != sort_id);
                 Ok(Some(()))
             } else {
