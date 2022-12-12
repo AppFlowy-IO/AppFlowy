@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:app_flowy/user/application/user_settings_service.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_sdk/log.dart';
@@ -37,13 +36,11 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     _setting.theme = themeName;
     _saveAppearanceSettings();
     final appTheme = AppTheme.fromName(themeName: themeName);
-    final textTheme =
-        TextStyles(font: _setting.font, monospaceFont: _setting.monospaceFont);
     emit(state.copyWith(
-      lightTheme:
-          _getThemeData(appTheme, Brightness.light, textTheme, state.locale),
-      darkTheme:
-          _getThemeData(appTheme, Brightness.dark, textTheme, state.locale),
+      lightTheme: _getThemeData(appTheme, Brightness.light, _setting.font,
+          _setting.monospaceFont, state.locale),
+      darkTheme: _getThemeData(appTheme, Brightness.dark, _setting.font,
+          _setting.monospaceFont, state.locale),
     ));
   }
 
@@ -151,7 +148,7 @@ ThemeModePB _themeModeToPB(ThemeMode themeMode) {
 }
 
 ThemeData _getThemeData(AppTheme appTheme, Brightness brightness,
-    TextStyles textTheme, Locale locale) {
+    String fontFamily, String monospaceFontFamily, Locale locale) {
   // Poppins and SF Mono are not well supported in some languages, so use the
   // built-in font for the following languages.
   final useBuiltInFontLanguages = [
@@ -159,7 +156,8 @@ ThemeData _getThemeData(AppTheme appTheme, Brightness brightness,
     const Locale('zh', 'TW'),
   ];
   if (useBuiltInFontLanguages.contains(locale)) {
-    textTheme = TextStyles(font: '', monospaceFont: '');
+    fontFamily = '';
+    monospaceFontFamily = '';
   }
 
   final theme =
@@ -167,7 +165,7 @@ ThemeData _getThemeData(AppTheme appTheme, Brightness brightness,
 
   return ThemeData(
     brightness: brightness,
-    textTheme: textTheme.getTextTheme(fontColor: theme.shader1),
+    textTheme: _getTextTheme(fontFamily: fontFamily, fontColor: theme.shader1),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: theme.main2,
       selectionHandleColor: theme.main2,
@@ -222,18 +220,95 @@ ThemeData _getThemeData(AppTheme appTheme, Brightness brightness,
         greySelect: theme.bg3,
         lightGreyHover: theme.shader6,
         toggleOffFill: theme.shader5,
-        code: textTheme.getMonospaceFontSyle(fontColor: theme.shader1),
-        callout: textTheme.getFontStyle(
+        code: _getFontStyle(
+          fontFamily: monospaceFontFamily,
+          fontColor: theme.shader3,
+        ),
+        callout: _getFontStyle(
+          fontFamily: fontFamily,
           fontSize: FontSizes.s11,
           fontColor: theme.shader3,
         ),
-        caption: textTheme.getFontStyle(
+        caption: _getFontStyle(
+          fontFamily: fontFamily,
           fontSize: FontSizes.s11,
           fontWeight: FontWeight.w400,
           fontColor: theme.shader3,
         ),
       )
     ],
+  );
+}
+
+TextStyle _getFontStyle({
+  String? fontFamily,
+  double? fontSize,
+  FontWeight? fontWeight,
+  Color? fontColor,
+  double? letterSpacing,
+  double? lineHeight,
+}) =>
+    TextStyle(
+      fontFamily: fontFamily,
+      fontSize: fontSize ?? FontSizes.s12,
+      color: fontColor,
+      fontWeight: fontWeight ?? FontWeight.w500,
+      fontFamilyFallback: const ["Noto Color Emoji"],
+      letterSpacing: (fontSize ?? FontSizes.s12) * (letterSpacing ?? 0.005),
+      height: lineHeight,
+    );
+
+TextTheme _getTextTheme(
+    {required String fontFamily, required Color fontColor}) {
+  return TextTheme(
+    displayLarge: _getFontStyle(
+      fontFamily: fontFamily,
+      fontSize: FontSizes.s32,
+      fontColor: fontColor,
+      fontWeight: FontWeight.w600,
+      lineHeight: 42.0,
+    ), // h2
+    displayMedium: _getFontStyle(
+      fontFamily: fontFamily,
+      fontSize: FontSizes.s24,
+      fontColor: fontColor,
+      fontWeight: FontWeight.w600,
+      lineHeight: 34.0,
+    ), // h3
+    displaySmall: _getFontStyle(
+      fontFamily: fontFamily,
+      fontSize: FontSizes.s20,
+      fontColor: fontColor,
+      fontWeight: FontWeight.w600,
+      lineHeight: 28.0,
+    ), // h4
+    titleLarge: _getFontStyle(
+      fontFamily: fontFamily,
+      fontSize: FontSizes.s18,
+      fontColor: fontColor,
+      fontWeight: FontWeight.w600,
+    ), // title
+    titleMedium: _getFontStyle(
+      fontFamily: fontFamily,
+      fontSize: FontSizes.s16,
+      fontColor: fontColor,
+      fontWeight: FontWeight.w600,
+    ), // heading
+    titleSmall: _getFontStyle(
+      fontFamily: fontFamily,
+      fontSize: FontSizes.s14,
+      fontColor: fontColor,
+      fontWeight: FontWeight.w600,
+    ), // subheading
+    bodyMedium: _getFontStyle(
+      fontFamily: fontFamily,
+      fontColor: fontColor,
+    ), // body-regular
+    bodySmall: _getFontStyle(
+      fontFamily: fontFamily,
+      fontColor: fontColor,
+      fontWeight: FontWeight.w400,
+    ), // body-thin
   );
 }
 
@@ -253,13 +328,14 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     String monospaceFont,
     LocaleSettingsPB localePB,
   ) {
-    final textTheme = TextStyles(font: font, monospaceFont: monospaceFont);
     final appTheme = AppTheme.fromName(themeName: themeName);
     final locale = Locale(localePB.languageCode, localePB.countryCode);
 
     return AppearanceSettingsState(
-      lightTheme: _getThemeData(appTheme, Brightness.light, textTheme, locale),
-      darkTheme: _getThemeData(appTheme, Brightness.dark, textTheme, locale),
+      lightTheme: _getThemeData(
+          appTheme, Brightness.light, font, monospaceFont, locale),
+      darkTheme:
+          _getThemeData(appTheme, Brightness.dark, font, monospaceFont, locale),
       themeMode: _themeModeFromPB(themeModePB),
       locale: locale,
     );
