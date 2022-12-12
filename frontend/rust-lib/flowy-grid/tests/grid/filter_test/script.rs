@@ -224,12 +224,20 @@ impl GridFilterTest {
                 assert_eq!(expected_setting, setting);
             }
             FilterScript::AssertFilterChanged { visible_row_len, hide_row_len} => {
-                let mut receiver = self.editor.subscribe_view_changed(&self.grid_id).await.unwrap();
+                let editor = self.editor.clone();
+                let view_id = self.view_id();
+                let mut receiver =
+                tokio::spawn(async move {
+                     editor.subscribe_view_changed(&view_id).await.unwrap()
+                }).await.unwrap();
                 match tokio::time::timeout(Duration::from_secs(2), receiver.recv()).await {
-                    Ok(changed) =>  match changed.unwrap() { GridViewChanged::DidReceiveFilterResult(changed) => {
-                        assert_eq!(changed.visible_rows.len(), visible_row_len, "visible rows not match");
-                        assert_eq!(changed.invisible_rows.len(), hide_row_len, "invisible rows not match");
-                    } },
+                    Ok(changed) =>  {
+                        //
+                        match changed.unwrap() { GridViewChanged::DidReceiveFilterResult(changed) => {
+                            assert_eq!(changed.visible_rows.len(), visible_row_len, "visible rows not match");
+                            assert_eq!(changed.invisible_rows.len(), hide_row_len, "invisible rows not match");
+                        } }
+                    },
                     Err(e) => {
                         panic!("Process task timeout: {:?}", e);
                     }

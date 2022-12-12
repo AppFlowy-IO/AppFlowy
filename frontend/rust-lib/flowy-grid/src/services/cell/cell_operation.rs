@@ -1,6 +1,7 @@
 use crate::entities::FieldType;
 use crate::services::cell::{CellBytes, TypeCellData};
 use crate::services::field::*;
+use std::cmp::Ordering;
 use std::fmt::Debug;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -13,7 +14,7 @@ pub trait CellFilterable<T> {
 }
 
 pub trait CellComparable {
-    fn apply_cmp(&self, type_cell_data: &TypeCellData, other_type_cell_data: &TypeCellData) -> FlowyResult<bool>;
+    fn apply_cmp(&self, type_cell_data: &TypeCellData, other_type_cell_data: &TypeCellData) -> FlowyResult<Ordering>;
 }
 
 /// Serialize the cell data in Protobuf/String format.
