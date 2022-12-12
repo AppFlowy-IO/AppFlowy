@@ -6,6 +6,8 @@
   "@bulletedList": {},
   "checkbox": "Checkbox",
   "@checkbox": {},
+  "pickEmoji": "Pick Emoji",
+  "emoji": "emoji",
   "embedCode": "Embed Code",
   "@embedCode": {},
   "heading1": "H1",

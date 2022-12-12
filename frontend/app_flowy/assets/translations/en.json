@@ -136,6 +136,9 @@
     "lastName": "Last Name",
     "stepX": "Step {X}"
   },
+  "emoji": {
+    "pickEmoji": "Pick Emoji"
+  },
   "oAuth": {
     "err": {
       "failedTitle": "Unable to connect to your account.",

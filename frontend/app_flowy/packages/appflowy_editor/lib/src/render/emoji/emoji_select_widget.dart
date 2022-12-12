@@ -1,17 +1,14 @@
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/infra/flowy_svg.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
+
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_service.dart';
 import 'package:appflowy_editor/src/render/style/editor_style.dart';
 import 'package:flutter/material.dart';
 import 'package:app_flowy/workspace/presentation/widgets/emoji_picker/src/emoji_picker.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
-
-import 'package:app_flowy/workspace/presentation/widgets/emoji_picker/src/models/emoji_model.dart';
+import 'package:appflowy_editor/src/core/transform/transaction.dart';
 import 'package:app_flowy/workspace/presentation/widgets/emoji_picker/src/config.dart';
-import 'package:app_flowy/workspace/presentation/widgets/emoji_picker/src/emoji_button.dart';
-import 'dart:collection';
-
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -70,7 +67,7 @@ class EmojiSelectionMenu extends StatefulWidget {
     this.editorState,
   }) : super(key: key);
 
-  final void Function(Emoji Emoji) onSubmitted;
+  final void Function(String Emoji) onSubmitted;
   final void Function() onExit;
   final EditorState? editorState;
 
@@ -129,7 +126,6 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(context),
-          FlowyEmojiStyleButton(normalIcon: '', tooltipText: ''),
           const SizedBox(height: 10.0),
           _buildEmojiBox(context),
         ],
@@ -139,7 +135,7 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
 
   Widget _buildHeader(BuildContext context) {
     return Text(
-      'Pick Emoji',
+      LocaleKeys.settings_menu_language.tr(),
       textAlign: TextAlign.left,
       style: TextStyle(
         fontSize: 14.0,
@@ -153,8 +149,8 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
     return SizedBox(
       height: 300,
       child: EmojiPicker(
-        onEmojiSelected: (category, emoji) => widget.onSubmitted(emoji),
-        config: const Config(
+        onEmojiSelected: (category, emoji) => widget.onSubmitted(emoji.emoji),
+        config: Config(
           columns: 8,
           emojiSizeMax: 28,
           bgColor: Color(0xffF2F2F2),
@@ -171,7 +167,22 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
 }
 
 extension on EditorState {
-  void insertEmojiNode(Emoji emoji) {
+  void insertEmojiNode(String emoji) {
+    final selection = service.selectionService.currentSelection.value;
+    final textNodes =
+        service.selectionService.currentSelectedNodes.whereType<TextNode>();
+    if (selection == null || textNodes.isEmpty) {
+      return;
+    }
+    // final transaction = this.transaction;
+    // transaction.insertNode(
+    //   selection.end.path,
+    //   TextNode(
+    //     delta: Delta()..insert(emoji),
+    //   ),
+    // );
+    // apply(transaction);
+
     final selectionService = service.selectionService;
     final currentSelection = selectionService.currentSelection.value;
 
@@ -181,7 +192,7 @@ extension on EditorState {
 
     final textNode = selectionService.currentSelectedNodes.first as TextNode;
     final transaction = this.transaction;
-    transaction.insertText(textNode, currentSelection.endIndex, emoji.emoji);
+    transaction.insertText(textNode, currentSelection.endIndex, emoji);
     apply(transaction);
   }
 }

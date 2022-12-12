@@ -33,6 +33,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "image": MessageLookupByLibrary.simpleMessage("Image"),
         "italic": MessageLookupByLibrary.simpleMessage("Italic"),
         "link": MessageLookupByLibrary.simpleMessage("Link"),
+        "emoji": MessageLookupByLibrary.simpleMessage("Emoji"),
+        "pickEmoji": MessageLookupByLibrary.simpleMessage("Pick Emoji"),
         "numberedList": MessageLookupByLibrary.simpleMessage("Numbered List"),
         "quote": MessageLookupByLibrary.simpleMessage("Quote"),
         "strikethrough": MessageLookupByLibrary.simpleMessage("Strikethrough"),

@@ -141,6 +141,16 @@ class AppFlowyEditorLocalizations {
     );
   }
 
+  /// `Pick Emoji`
+  String get pickEmoji {
+    return Intl.message(
+      'Pick Emoji',
+      name: 'pickEmoji',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Image`
   String get image {
     return Intl.message(
