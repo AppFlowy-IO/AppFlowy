@@ -417,7 +417,7 @@ impl GridViewRevisionEditor {
     }
 
     pub async fn delete_view_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
-        let sort_type = SortType::from(&params);
+        let sort_type = params.sort_type;
         let changeset = self
             .sort_controller
             .write()

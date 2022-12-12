@@ -1,3 +1,5 @@
+#![allow(clippy::all)]
+#[allow(unused_attributes)]
 use crate::entities::{GridSortPB, SortChangesetNotificationPB};
 use crate::services::sort::{SortChangeset, SortType};
 use flowy_task::TaskDispatcher;
@@ -13,10 +15,14 @@ pub trait SortDelegate: Send + Sync {
 }
 
 pub struct SortController {
+    #[allow(dead_code)]
     view_id: String,
+    #[allow(dead_code)]
     handler_id: String,
+    #[allow(dead_code)]
     delegate: Box<dyn SortDelegate>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    #[allow(dead_code)]
     sorts: Vec<GridSortPB>,
 }
 
@@ -42,11 +48,11 @@ impl SortController {
             .await;
     }
 
-    pub fn sort_rows(&self, rows: &mut Vec<Arc<RowRevision>>) {
-        todo!()
+    pub fn sort_rows(&self, _rows: &mut Vec<Arc<RowRevision>>) {
+        //
     }
 
-    pub async fn did_receive_changes(&self, changeset: SortChangeset) -> Option<SortChangesetNotificationPB> {
-        todo!()
+    pub async fn did_receive_changes(&mut self, _changeset: SortChangeset) -> Option<SortChangesetNotificationPB> {
+        None
     }
 }

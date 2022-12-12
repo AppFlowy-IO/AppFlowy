@@ -71,9 +71,9 @@ pub struct FilterType {
     pub field_type: FieldType,
 }
 
-impl Into<FieldTypeRevision> for FilterType {
-    fn into(self) -> FieldTypeRevision {
-        self.field_type.into()
+impl From<FilterType> for FieldTypeRevision {
+    fn from(filter_type: FilterType) -> Self {
+        filter_type.field_type.into()
     }
 }
 impl std::convert::From<&Arc<FieldRevision>> for FilterType {

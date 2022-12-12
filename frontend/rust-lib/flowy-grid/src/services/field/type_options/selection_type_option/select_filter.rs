@@ -1,7 +1,7 @@
 #![allow(clippy::needless_collect)]
 
 use crate::entities::{ChecklistFilterPB, FieldType, SelectOptionConditionPB, SelectOptionFilterPB};
-use crate::services::cell::{CellFilterOperation, TypeCellData};
+use crate::services::cell::{CellFilterable, TypeCellData};
 use crate::services::field::{ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
 use crate::services::field::{SelectTypeOptionSharedAction, SelectedSelectOptions};
 use flowy_error::FlowyResult;
@@ -78,33 +78,33 @@ impl SelectOptionFilterPB {
     }
 }
 
-impl CellFilterOperation<SelectOptionFilterPB> for MultiSelectTypeOptionPB {
-    fn apply_filter(&self, any_cell_data: TypeCellData, filter: &SelectOptionFilterPB) -> FlowyResult<bool> {
-        if !any_cell_data.is_multi_select() {
+impl CellFilterable<SelectOptionFilterPB> for MultiSelectTypeOptionPB {
+    fn apply_filter(&self, type_cell_data: TypeCellData, filter: &SelectOptionFilterPB) -> FlowyResult<bool> {
+        if !type_cell_data.is_multi_select() {
             return Ok(true);
         }
 
-        let selected_options = SelectedSelectOptions::from(self.get_selected_options(any_cell_data.into()));
+        let selected_options = SelectedSelectOptions::from(self.get_selected_options(type_cell_data.into()));
         Ok(filter.is_visible(&selected_options, FieldType::MultiSelect))
     }
 }
 
-impl CellFilterOperation<SelectOptionFilterPB> for SingleSelectTypeOptionPB {
-    fn apply_filter(&self, any_cell_data: TypeCellData, filter: &SelectOptionFilterPB) -> FlowyResult<bool> {
-        if !any_cell_data.is_single_select() {
+impl CellFilterable<SelectOptionFilterPB> for SingleSelectTypeOptionPB {
+    fn apply_filter(&self, type_cell_data: TypeCellData, filter: &SelectOptionFilterPB) -> FlowyResult<bool> {
+        if !type_cell_data.is_single_select() {
             return Ok(true);
         }
-        let selected_options = SelectedSelectOptions::from(self.get_selected_options(any_cell_data.into()));
+        let selected_options = SelectedSelectOptions::from(self.get_selected_options(type_cell_data.into()));
         Ok(filter.is_visible(&selected_options, FieldType::SingleSelect))
     }
 }
 
-impl CellFilterOperation<ChecklistFilterPB> for ChecklistTypeOptionPB {
-    fn apply_filter(&self, any_cell_data: TypeCellData, filter: &ChecklistFilterPB) -> FlowyResult<bool> {
-        if !any_cell_data.is_checklist() {
+impl CellFilterable<ChecklistFilterPB> for ChecklistTypeOptionPB {
+    fn apply_filter(&self, type_cell_data: TypeCellData, filter: &ChecklistFilterPB) -> FlowyResult<bool> {
+        if !type_cell_data.is_checklist() {
             return Ok(true);
         }
-        let selected_options = SelectedSelectOptions::from(self.get_selected_options(any_cell_data.into()));
+        let selected_options = SelectedSelectOptions::from(self.get_selected_options(type_cell_data.into()));
         Ok(filter.is_visible(&self.options, &selected_options))
     }
 }

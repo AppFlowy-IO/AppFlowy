@@ -8,9 +8,9 @@ pub struct SortType {
     pub field_type: FieldType,
 }
 
-impl Into<FieldTypeRevision> for SortType {
-    fn into(self) -> FieldTypeRevision {
-        self.field_type.into()
+impl From<SortType> for FieldTypeRevision {
+    fn from(sort_type: SortType) -> Self {
+        sort_type.field_type.into()
     }
 }
 
@@ -32,6 +32,7 @@ impl std::convert::From<&Arc<FieldRevision>> for SortType {
     }
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct SortChangeset {
     pub(crate) insert_sort: Option<SortType>,

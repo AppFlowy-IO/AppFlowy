@@ -2,7 +2,6 @@ use crate::{FieldRevision, FieldTypeRevision, FilterRevision, GroupConfiguration
 use indexmap::IndexMap;
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::fmt::Debug;
 use std::sync::Arc;
 

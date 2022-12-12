@@ -189,7 +189,7 @@ async fn grid_filter_delete_test() {
         condition: TextFilterConditionPB::TextIsEmpty,
         content: "".to_string(),
     };
-    let payload = AlterFilterPayloadPB::new(&field_rev, text_filter);
+    let payload = AlterFilterPayloadPB::new(&test.view_id(), &field_rev, text_filter);
     let scripts = vec![
         InsertFilter { payload },
         AssertFilterCount { count: 1 },

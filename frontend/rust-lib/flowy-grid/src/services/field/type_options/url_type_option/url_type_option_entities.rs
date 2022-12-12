@@ -4,7 +4,7 @@ use flowy_derive::ProtoBuf;
 use flowy_error::{internal_error, FlowyResult};
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
+#[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct URLCellDataPB {
     #[pb(index = 1)]
     pub url: String,
@@ -13,7 +13,22 @@ pub struct URLCellDataPB {
     pub content: String,
 }
 
-impl URLCellDataPB {
+impl From<URLCellData> for URLCellDataPB {
+    fn from(data: URLCellData) -> Self {
+        Self {
+            url: data.url,
+            content: data.content,
+        }
+    }
+}
+
+#[derive(Clone, Default, Serialize, Deserialize)]
+pub struct URLCellData {
+    pub url: String,
+    pub content: String,
+}
+
+impl URLCellData {
     pub fn new(s: &str) -> Self {
         Self {
             url: "".to_string(),
@@ -26,7 +41,7 @@ impl URLCellDataPB {
     }
 }
 
-impl CellDataIsEmpty for URLCellDataPB {
+impl CellDataIsEmpty for URLCellData {
     fn is_empty(&self) -> bool {
         self.content.is_empty()
     }
@@ -34,15 +49,18 @@ impl CellDataIsEmpty for URLCellDataPB {
 
 pub struct URLCellDataParser();
 impl CellBytesParser for URLCellDataParser {
-    type Object = URLCellDataPB;
+    type Object = URLCellData;
 
     fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
-        URLCellDataPB::try_from(bytes.as_ref()).map_err(internal_error)
+        match String::from_utf8(bytes.to_vec()) {
+            Ok(s) => URLCellData::from_cell_str(&s),
+            Err(_) => Ok(URLCellData::default()),
+        }
     }
 }
 
-impl FromCellString for URLCellDataPB {
+impl FromCellString for URLCellData {
     fn from_cell_str(s: &str) -> FlowyResult<Self> {
-        serde_json::from_str::<URLCellDataPB>(s).map_err(internal_error)
+        serde_json::from_str::<URLCellData>(s).map_err(internal_error)
     }
 }

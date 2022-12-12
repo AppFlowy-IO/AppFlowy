@@ -1,6 +1,6 @@
 use crate::entities::filter_entities::*;
 use crate::entities::{FieldType, InsertedRowPB, RowPB};
-use crate::services::cell::{CellFilterOperation, TypeCellData};
+use crate::services::cell::{CellFilterable, TypeCellData};
 use crate::services::field::*;
 use crate::services::filter::{FilterChangeset, FilterMap, FilterResult, FilterResultNotification, FilterType};
 use crate::services::row::GridBlockRowRevision;
@@ -352,7 +352,7 @@ fn filter_cell(
     filter_map: &FilterMap,
     cell_rev: Option<&CellRevision>,
 ) -> Option<bool> {
-    let any_cell_data = match cell_rev {
+    let type_cell_data = match cell_rev {
         None => TypeCellData::from_field_type(&filter_id.field_type),
         Some(cell_rev) => match TypeCellData::try_from(cell_rev) {
             Ok(cell_data) => cell_data,
@@ -362,13 +362,13 @@ fn filter_cell(
             }
         },
     };
-    let cloned_cell_data = any_cell_data.data.clone();
+    let cloned_type_cell_data = type_cell_data.data.clone();
     let is_visible = match &filter_id.field_type {
         FieldType::RichText => filter_map.text_filter.get(filter_id).and_then(|filter| {
             Some(
                 field_rev
                     .get_type_option::<RichTextTypeOptionPB>(field_rev.ty)?
-                    .apply_filter(any_cell_data, filter)
+                    .apply_filter(type_cell_data, filter)
                     .ok(),
             )
         }),
@@ -376,7 +376,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<NumberTypeOptionPB>(field_rev.ty)?
-                    .apply_filter(any_cell_data, filter)
+                    .apply_filter(type_cell_data, filter)
                     .ok(),
             )
         }),
@@ -384,7 +384,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<DateTypeOptionPB>(field_rev.ty)?
-                    .apply_filter(any_cell_data, filter)
+                    .apply_filter(type_cell_data, filter)
                     .ok(),
             )
         }),
@@ -392,7 +392,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<SingleSelectTypeOptionPB>(field_rev.ty)?
-                    .apply_filter(any_cell_data, filter)
+                    .apply_filter(type_cell_data, filter)
                     .ok(),
             )
         }),
@@ -400,7 +400,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<MultiSelectTypeOptionPB>(field_rev.ty)?
-                    .apply_filter(any_cell_data, filter)
+                    .apply_filter(type_cell_data, filter)
                     .ok(),
             )
         }),
@@ -408,7 +408,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<CheckboxTypeOptionPB>(field_rev.ty)?
-                    .apply_filter(any_cell_data, filter)
+                    .apply_filter(type_cell_data, filter)
                     .ok(),
             )
         }),
@@ -416,7 +416,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<URLTypeOptionPB>(field_rev.ty)?
-                    .apply_filter(any_cell_data, filter)
+                    .apply_filter(type_cell_data, filter)
                     .ok(),
             )
         }),
@@ -424,14 +424,14 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<ChecklistTypeOptionPB>(field_rev.ty)?
-                    .apply_filter(any_cell_data, filter)
+                    .apply_filter(type_cell_data, filter)
                     .ok(),
             )
         }),
     }?;
     tracing::Span::current().record(
         "cell_content",
-        &format!("{} => {:?}", cloned_cell_data, is_visible.unwrap()).as_str(),
+        &format!("{} => {:?}", cloned_type_cell_data, is_visible.unwrap()).as_str(),
     );
     is_visible
 }

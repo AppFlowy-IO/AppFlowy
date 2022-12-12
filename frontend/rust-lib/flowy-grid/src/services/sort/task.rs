@@ -6,6 +6,7 @@ use tokio::sync::RwLock;
 
 pub struct SortTaskHandler {
     handler_id: String,
+    #[allow(dead_code)]
     sort_controller: Arc<RwLock<SortController>>,
 }
 
@@ -23,7 +24,7 @@ impl TaskHandler for SortTaskHandler {
         &self.handler_id
     }
 
-    fn run(&self, content: TaskContent) -> BoxResultFuture<(), anyhow::Error> {
+    fn run(&self, _content: TaskContent) -> BoxResultFuture<(), anyhow::Error> {
         todo!();
     }
 }

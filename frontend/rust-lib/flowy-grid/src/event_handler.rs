@@ -411,14 +411,14 @@ pub(crate) async fn get_select_option_handler(
             //
             let cell_rev = editor.get_cell_rev(&params.row_id, &params.field_id).await?;
             let type_option = select_type_option_from_field_rev(&field_rev)?;
-            let any_cell_data: TypeCellData = match cell_rev {
+            let type_cell_data: TypeCellData = match cell_rev {
                 None => TypeCellData {
                     data: "".to_string(),
                     field_type: field_rev.ty.into(),
                 },
                 Some(cell_rev) => cell_rev.try_into()?,
             };
-            let selected_options = type_option.get_selected_options(any_cell_data.into());
+            let selected_options = type_option.get_selected_options(type_cell_data.into());
             data_result(selected_options)
         }
     }

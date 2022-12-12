@@ -1,10 +1,10 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::FieldType;
 use crate::services::sort::SortType;
-use bytes::Bytes;
+
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use grid_rev_model::{FieldRevision, FieldTypeRevision};
+use grid_rev_model::FieldTypeRevision;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct GridSortPB {

@@ -85,7 +85,7 @@ mod tests {
         let s = serde_json::to_string(&grid_view_revision).unwrap();
         assert_eq!(
             s,
-            r#"{"view_id":"1","grid_id":"1","layout":0,"filters":[],"groups":[]}"#
+            r#"{"view_id":"1","grid_id":"1","layout":0,"filters":[],"groups":[],"sorts":[]}"#
         );
     }
 }

@@ -1,6 +1,6 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellData, CellDataOperation, CellDisplayable};
+use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataOperation, CellDataSerialize, IntoCellData};
 use crate::services::field::{
     BoxTypeOptionBuilder, DateCellChangeset, DateCellDataPB, DateFormat, DateTimestamp, TimeFormat, TypeOptionBuilder,
 };
@@ -107,21 +107,21 @@ impl DateTypeOptionPB {
     }
 }
 
-impl CellDisplayable<DateTimestamp> for DateTypeOptionPB {
-    fn displayed_cell_bytes(
+impl CellDataSerialize<DateTimestamp> for DateTypeOptionPB {
+    fn serialize_cell_data_to_bytes(
         &self,
-        cell_data: CellData<DateTimestamp>,
+        cell_data: IntoCellData<DateTimestamp>,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
         let timestamp = cell_data.try_into_inner()?;
-        let date_cell_data = self.today_desc_from_timestamp(timestamp);
-        CellBytes::from(date_cell_data)
+        let cell_data_pb = self.today_desc_from_timestamp(timestamp);
+        CellBytes::from(cell_data_pb)
     }
 
-    fn displayed_cell_string(
+    fn serialize_cell_data_to_str(
         &self,
-        cell_data: CellData<DateTimestamp>,
+        cell_data: IntoCellData<DateTimestamp>,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<String> {
@@ -134,7 +134,7 @@ impl CellDisplayable<DateTimestamp> for DateTypeOptionPB {
 impl CellDataOperation<DateTimestamp, DateCellChangeset> for DateTypeOptionPB {
     fn decode_cell_data(
         &self,
-        cell_data: CellData<DateTimestamp>,
+        cell_data: IntoCellData<DateTimestamp>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
@@ -145,7 +145,7 @@ impl CellDataOperation<DateTimestamp, DateCellChangeset> for DateTypeOptionPB {
         if !decoded_field_type.is_date() {
             return Ok(CellBytes::default());
         }
-        self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
+        self.serialize_cell_data_to_bytes(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(
