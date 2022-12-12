@@ -14,7 +14,7 @@ pub trait CellFilterable<T> {
 }
 
 pub trait CellComparable {
-    fn apply_cmp(&self, type_cell_data: &TypeCellData, other_type_cell_data: &TypeCellData) -> FlowyResult<Ordering>;
+    fn apply_cmp(&self, type_cell_data: &TypeCellData, other_type_cell_data: &TypeCellData) -> Ordering;
 }
 
 /// Serialize the cell data in Protobuf/String format.

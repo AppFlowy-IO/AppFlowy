@@ -1,12 +1,15 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataOperation, CellDataSerialize, IntoCellData};
+use crate::services::cell::{
+    AnyCellChangeset, CellBytes, CellComparable, CellDataOperation, CellDataSerialize, IntoCellData, TypeCellData,
+};
 use crate::services::field::{BoxTypeOptionBuilder, CheckboxCellData, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 use std::str::FromStr;
 
 #[derive(Default)]
@@ -88,5 +91,11 @@ impl CellDataOperation<CheckboxCellData, CheckboxCellChangeset> for CheckboxType
         let changeset = changeset.try_into_inner()?;
         let cell_data = CheckboxCellData::from_str(&changeset)?;
         Ok(cell_data.to_string())
+    }
+}
+
+impl CellComparable for CheckboxTypeOptionPB {
+    fn apply_cmp(&self, type_cell_data: &TypeCellData, other_type_cell_data: &TypeCellData) -> Ordering {
+        Ordering::Equal
     }
 }

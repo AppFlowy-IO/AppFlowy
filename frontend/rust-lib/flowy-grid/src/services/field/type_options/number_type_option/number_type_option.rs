@@ -1,6 +1,8 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataOperation, CellDataSerialize, IntoCellData};
+use crate::services::cell::{
+    AnyCellChangeset, CellBytes, CellComparable, CellDataOperation, CellDataSerialize, IntoCellData, TypeCellData,
+};
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{BoxTypeOptionBuilder, NumberCellData, TypeOptionBuilder};
 use bytes::Bytes;
@@ -9,6 +11,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 use std::str::FromStr;
 
 #[derive(Default)]
@@ -155,7 +158,11 @@ impl CellDataOperation<String, NumberCellChangeset> for NumberTypeOptionPB {
         Ok(data)
     }
 }
-
+impl CellComparable for NumberTypeOptionPB {
+    fn apply_cmp(&self, type_cell_data: &TypeCellData, other_type_cell_data: &TypeCellData) -> Ordering {
+        Ordering::Equal
+    }
+}
 impl std::default::Default for NumberTypeOptionPB {
     fn default() -> Self {
         let format = NumberFormat::default();

@@ -1,8 +1,8 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    decode_cell_data_to_string, AnyCellChangeset, CellBytes, CellBytesParser, CellDataIsEmpty, CellDataOperation,
-    CellDataSerialize, FromCellString, IntoCellData,
+    decode_cell_data_to_string, AnyCellChangeset, CellBytes, CellBytesParser, CellComparable, CellDataIsEmpty,
+    CellDataOperation, CellDataSerialize, FromCellString, IntoCellData, TypeCellData,
 };
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
@@ -10,6 +10,7 @@ use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 
 #[derive(Default)]
 pub struct RichTextTypeOptionBuilder(RichTextTypeOptionPB);
@@ -92,6 +93,12 @@ impl CellDataOperation<RichTextCellData, String> for RichTextTypeOptionPB {
         } else {
             Ok(data)
         }
+    }
+}
+
+impl CellComparable for RichTextTypeOptionPB {
+    fn apply_cmp(&self, type_cell_data: &TypeCellData, other_type_cell_data: &TypeCellData) -> Ordering {
+        Ordering::Equal
     }
 }
 

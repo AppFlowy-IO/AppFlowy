@@ -386,7 +386,7 @@ impl GridViewRevisionEditor {
             id: sort_id,
             field_id: params.field_id.clone(),
             field_type: params.field_type,
-            condition: params.condition,
+            condition: params.condition.into(),
         };
 
         let mut sort_controller = self.sort_controller.write().await;

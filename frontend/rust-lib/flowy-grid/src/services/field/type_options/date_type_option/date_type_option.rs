@@ -1,6 +1,8 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataOperation, CellDataSerialize, IntoCellData};
+use crate::services::cell::{
+    AnyCellChangeset, CellBytes, CellComparable, CellDataOperation, CellDataSerialize, IntoCellData, TypeCellData,
+};
 use crate::services::field::{
     BoxTypeOptionBuilder, DateCellChangeset, DateCellDataPB, DateFormat, DateTimestamp, TimeFormat, TypeOptionBuilder,
 };
@@ -11,6 +13,7 @@ use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 
 // Date
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
@@ -169,6 +172,12 @@ impl CellDataOperation<DateTimestamp, DateCellChangeset> for DateTypeOptionPB {
         };
 
         Ok(cell_data.to_string())
+    }
+}
+
+impl CellComparable for DateTypeOptionPB {
+    fn apply_cmp(&self, type_cell_data: &TypeCellData, other_type_cell_data: &TypeCellData) -> Ordering {
+        Ordering::Equal
     }
 }
 

@@ -31,6 +31,7 @@ impl CellFilterable<TextFilterPB> for RichTextTypeOptionPB {
         Ok(filter.is_visible(text_cell_data))
     }
 }
+
 #[cfg(test)]
 mod tests {
     #![allow(clippy::all)]

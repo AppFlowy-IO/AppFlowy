@@ -1,7 +1,8 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{CellChangesetPB, CellPathPB, CellPathParams, FieldType};
 use crate::services::cell::{
-    CellBytes, CellBytesParser, CellDataIsEmpty, CellDataSerialize, FromCellChangeset, FromCellString, IntoCellData,
+    CellBytes, CellBytesParser, CellComparable, CellDataIsEmpty, CellDataSerialize, FromCellChangeset, FromCellString,
+    IntoCellData, TypeCellData,
 };
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
 use crate::services::field::{ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
@@ -11,6 +12,7 @@ use flowy_error::{internal_error, ErrorCode, FlowyResult};
 use grid_rev_model::{FieldRevision, TypeOptionDataSerializer};
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 
 pub const SELECTION_IDS_SEPARATOR: &str = ",";
 
@@ -201,6 +203,15 @@ where
             .map(|option| option.name)
             .collect::<Vec<String>>()
             .join(SELECTION_IDS_SEPARATOR))
+    }
+}
+
+impl<T> CellComparable for T
+where
+    T: SelectTypeOptionSharedAction,
+{
+    fn apply_cmp(&self, type_cell_data: &TypeCellData, other_type_cell_data: &TypeCellData) -> Ordering {
+        Ordering::Equal
     }
 }
 

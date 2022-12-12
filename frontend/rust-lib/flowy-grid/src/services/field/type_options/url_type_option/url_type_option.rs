@@ -1,6 +1,8 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataOperation, CellDataSerialize, IntoCellData};
+use crate::services::cell::{
+    AnyCellChangeset, CellBytes, CellComparable, CellDataOperation, CellDataSerialize, IntoCellData, TypeCellData,
+};
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder, URLCellData, URLCellDataPB};
 use bytes::Bytes;
 use fancy_regex::Regex;
@@ -9,6 +11,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 
 #[derive(Default)]
 pub struct URLTypeOptionBuilder(URLTypeOptionPB);
@@ -85,6 +88,12 @@ impl CellDataOperation<URLCellData, URLCellChangeset> for URLTypeOptionPB {
             url = auto_append_scheme(m.as_str());
         }
         URLCellData { url, content }.to_json()
+    }
+}
+
+impl CellComparable for URLTypeOptionPB {
+    fn apply_cmp(&self, type_cell_data: &TypeCellData, other_type_cell_data: &TypeCellData) -> Ordering {
+        Ordering::Equal
     }
 }
 
