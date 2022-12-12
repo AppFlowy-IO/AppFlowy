@@ -1,23 +1,21 @@
-
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'emoji_picker.dart';
 
-SelectionMenuItem emojiMenuItem = 
-  SelectionMenuItem(
-    name: () => 'emoji',
-    icon: (editorState, onSelected) => Icon(
-      Icons.emoji_emotions_outlined,
-      color: onSelected
-          ? editorState.editorStyle.selectionMenuItemSelectedIconColor
-          : editorState.editorStyle.selectionMenuItemIconColor,
-      size: 18.0,
-    ),
-    keywords: ['emoji'],
-    handler: _showEmojiSelectionMenu,
-  );
+SelectionMenuItem emojiMenuItem = SelectionMenuItem(
+  name: () => 'emoji',
+  icon: (editorState, onSelected) => Icon(
+    Icons.emoji_emotions_outlined,
+    color: onSelected
+        ? editorState.editorStyle.selectionMenuItemSelectedIconColor
+        : editorState.editorStyle.selectionMenuItemIconColor,
+    size: 18.0,
+  ),
+  keywords: ['emoji'],
+  handler: _showEmojiSelectionMenu,
+);
 
 OverlayEntry? _emojiSelectionMenu;
 EditorState? _editorState;
@@ -33,9 +31,8 @@ void _showEmojiSelectionMenu(
   _emojiSelectionMenu?.remove();
   _emojiSelectionMenu = OverlayEntry(builder: (context) {
     return Positioned(
-      top: aligment == Alignment.bottomRight ? offset.dy : null,
-      bottom:
-            aligment == Alignment.topRight ? offset.dy : null,
+      top: aligment == Alignment.bottomLeft ? offset.dy : null,
+      bottom: aligment == Alignment.topLeft ? offset.dy : null,
       left: offset.dx,
       child: Material(
         child: EmojiSelectionMenu(
@@ -73,19 +70,19 @@ class EmojiSelectionMenu extends StatefulWidget {
     Key? key,
     required this.onSubmitted,
     required this.onExit,
-    this.editorState,
+    required this.editorState,
   }) : super(key: key);
 
   final void Function(Emoji emoji) onSubmitted;
   final void Function() onExit;
-  final EditorState? editorState;
+  final EditorState editorState;
 
   @override
   State<EmojiSelectionMenu> createState() => _EmojiSelectionMenuState();
 }
 
 class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
-  EditorStyle? get style => widget.editorState?.editorStyle;
+  EditorStyle get style => widget.editorState.editorStyle;
 
   @override
   void initState() {
@@ -119,9 +116,9 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
   Widget build(BuildContext context) {
     return Container(
       width: 300,
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        color: style?.selectionMenuBackgroundColor ?? Colors.white,
+        color: style.selectionMenuBackgroundColor,
         boxShadow: [
           BoxShadow(
             blurRadius: 5,
@@ -129,45 +126,26 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
             color: Colors.black.withOpacity(0.1),
           ),
         ],
-        // borderRadius: BorderRadius.circular(6.0),
+        borderRadius: BorderRadius.circular(6.0),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(context),
-          // FlowyEmojiStyleButton(normalIcon: '', tooltipText: ''),
-          const SizedBox(height: 10.0),
-          _buildEmojiBox(context),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Text(
-      'Pick Emoji',
-      textAlign: TextAlign.left,
-      style: TextStyle(
-        fontSize: 14.0,
-        color: style?.selectionMenuItemTextColor ?? Colors.black,
-        fontWeight: FontWeight.w500,
-      ),
+      child: _buildEmojiBox(context),
     );
   }
 
   Widget _buildEmojiBox(BuildContext context) {
     return SizedBox(
-      height: 300,
+      height: 200,
       child: EmojiPicker(
         onEmojiSelected: (category, emoji) => widget.onSubmitted(emoji),
-        config: const Config(
+        config: Config(
           columns: 8,
           emojiSizeMax: 28,
-          bgColor: Color(0xffF2F2F2),
+          bgColor:
+              style.selectionMenuBackgroundColor ?? const Color(0xffF2F2F2),
           iconColor: Colors.grey,
-          iconColorSelected: Color(0xff333333),
-          indicatorColor: Color(0xff333333),
-          progressIndicatorColor: Color(0xff333333),
+          iconColorSelected: const Color(0xff333333),
+          indicatorColor: const Color(0xff333333),
+          progressIndicatorColor: const Color(0xff333333),
           buttonMode: ButtonMode.CUPERTINO,
           initCategory: Category.RECENT,
         ),
@@ -181,12 +159,18 @@ extension on EditorState {
     final selectionService = service.selectionService;
     final currentSelection = selectionService.currentSelection.value;
     final nodes = selectionService.currentSelectedNodes;
-    if (currentSelection == null || !currentSelection.isCollapsed || nodes.first is! TextNode) {
+    if (currentSelection == null ||
+        !currentSelection.isCollapsed ||
+        nodes.first is! TextNode) {
       return;
     }
     final textNode = nodes.first as TextNode;
     final tr = transaction;
-    tr.insertText(textNode, currentSelection.endIndex, emoji.emoji,);
+    tr.insertText(
+      textNode,
+      currentSelection.endIndex,
+      emoji.emoji,
+    );
     apply(tr);
   }
 }

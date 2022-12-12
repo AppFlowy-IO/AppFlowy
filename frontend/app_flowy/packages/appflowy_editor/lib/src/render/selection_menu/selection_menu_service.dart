@@ -80,16 +80,16 @@ class SelectionMenu implements SelectionMenuService {
       // show above
       offset = topRight - menuOffset;
       showBelow = false;
-      _alignment = Alignment.topRight;
+      _alignment = Alignment.topLeft;
     }
     _topLeft = offset;
-    _offset = Offset(offset.dx, showBelow ? offset.dy : MediaQuery.of(context).size.height - offset.dy);
+    _offset = Offset(offset.dx,
+        showBelow ? offset.dy : MediaQuery.of(context).size.height - offset.dy);
 
     _selectionMenuEntry = OverlayEntry(builder: (context) {
       return Positioned(
         top: showBelow ? _offset.dy : null,
-        bottom:
-            showBelow ? null : _offset.dy,
+        bottom: showBelow ? null : _offset.dy,
         left: offset.dx,
         child: SelectionMenuWidget(
           items: [
