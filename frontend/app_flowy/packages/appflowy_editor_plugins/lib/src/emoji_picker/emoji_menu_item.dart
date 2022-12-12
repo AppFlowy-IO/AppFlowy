@@ -1,42 +1,48 @@
-import 'package:appflowy_editor/src/core/document/node.dart';
-import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/infra/flowy_svg.dart';
-import 'package:appflowy_editor/src/render/selection_menu/selection_menu_service.dart';
-import 'package:appflowy_editor/src/render/style/editor_style.dart';
-import 'package:flutter/material.dart';
-import 'package:app_flowy/workspace/presentation/widgets/emoji_picker/src/emoji_picker.dart';
+
 import 'package:appflowy_editor/appflowy_editor.dart';
-
-import 'package:app_flowy/workspace/presentation/widgets/emoji_picker/src/models/emoji_model.dart';
-import 'package:app_flowy/workspace/presentation/widgets/emoji_picker/src/config.dart';
-import 'package:app_flowy/workspace/presentation/widgets/emoji_picker/src/emoji_button.dart';
-import 'dart:collection';
-
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart' as foundation;
 
-OverlayEntry? _imojiSelectionMenu;
+import 'emoji_picker.dart';
+
+SelectionMenuItem emojiMenuItem = 
+  SelectionMenuItem(
+    name: () => 'emoji',
+    icon: (editorState, onSelected) => Icon(
+      Icons.emoji_emotions_outlined,
+      color: onSelected
+          ? editorState.editorStyle.selectionMenuItemSelectedIconColor
+          : editorState.editorStyle.selectionMenuItemIconColor,
+      size: 18.0,
+    ),
+    keywords: ['emoji'],
+    handler: _showEmojiSelectionMenu,
+  );
+
+OverlayEntry? _emojiSelectionMenu;
 EditorState? _editorState;
-void showEmojiSelectionMenu(
+void _showEmojiSelectionMenu(
   EditorState editorState,
   SelectionMenuService menuService,
   BuildContext context,
 ) {
+  final aligment = menuService.alignment;
+  final offset = menuService.offset;
   menuService.dismiss();
 
-  _imojiSelectionMenu?.remove();
-  _imojiSelectionMenu = OverlayEntry(builder: (context) {
+  _emojiSelectionMenu?.remove();
+  _emojiSelectionMenu = OverlayEntry(builder: (context) {
     return Positioned(
-      top: menuService.topLeft.dy,
-      left: menuService.topLeft.dx,
+      top: aligment == Alignment.bottomRight ? offset.dy : null,
+      bottom:
+            aligment == Alignment.topRight ? offset.dy : null,
+      left: offset.dx,
       child: Material(
         child: EmojiSelectionMenu(
           editorState: editorState,
           onSubmitted: (text) {
             // insert emoji
-            editorState.insertEmojiNode(text);
+            editorState.insertEmoji(text);
           },
           onExit: () {
             _dismissEmojiSelectionMenu();
@@ -47,15 +53,15 @@ void showEmojiSelectionMenu(
     );
   });
 
-  Overlay.of(context)?.insert(_imojiSelectionMenu!);
+  Overlay.of(context)?.insert(_emojiSelectionMenu!);
 
   editorState.service.selectionService.currentSelection
       .addListener(_dismissEmojiSelectionMenu);
 }
 
 void _dismissEmojiSelectionMenu() {
-  _imojiSelectionMenu?.remove();
-  _imojiSelectionMenu = null;
+  _emojiSelectionMenu?.remove();
+  _emojiSelectionMenu = null;
 
   _editorState?.service.selectionService.currentSelection
       .removeListener(_dismissEmojiSelectionMenu);
@@ -70,7 +76,7 @@ class EmojiSelectionMenu extends StatefulWidget {
     this.editorState,
   }) : super(key: key);
 
-  final void Function(Emoji Emoji) onSubmitted;
+  final void Function(Emoji emoji) onSubmitted;
   final void Function() onExit;
   final EditorState? editorState;
 
@@ -129,7 +135,7 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(context),
-          FlowyEmojiStyleButton(normalIcon: '', tooltipText: ''),
+          // FlowyEmojiStyleButton(normalIcon: '', tooltipText: ''),
           const SizedBox(height: 10.0),
           _buildEmojiBox(context),
         ],
@@ -171,17 +177,16 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
 }
 
 extension on EditorState {
-  void insertEmojiNode(Emoji emoji) {
+  void insertEmoji(Emoji emoji) {
     final selectionService = service.selectionService;
     final currentSelection = selectionService.currentSelection.value;
-
-    if (currentSelection == null) {
+    final nodes = selectionService.currentSelectedNodes;
+    if (currentSelection == null || !currentSelection.isCollapsed || nodes.first is! TextNode) {
       return;
     }
-
-    final textNode = selectionService.currentSelectedNodes.first as TextNode;
-    final transaction = this.transaction;
-    transaction.insertText(textNode, currentSelection.endIndex, emoji.emoji);
-    apply(transaction);
+    final textNode = nodes.first as TextNode;
+    final tr = transaction;
+    tr.insertText(textNode, currentSelection.endIndex, emoji.emoji,);
+    apply(tr);
   }
 }

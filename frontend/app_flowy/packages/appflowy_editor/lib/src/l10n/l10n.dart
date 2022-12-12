@@ -131,16 +131,6 @@ class AppFlowyEditorLocalizations {
     );
   }
 
-  /// `Emoji`
-  String get emoji {
-    return Intl.message(
-      'Emoji',
-      name: 'emoji',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Image`
   String get image {
     return Intl.message(

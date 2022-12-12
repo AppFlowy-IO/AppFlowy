@@ -1,15 +1,17 @@
-import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/infra/flowy_svg.dart';
-import 'package:appflowy_editor/src/l10n/l10n.dart';
-import 'package:appflowy_editor/src/render/image/image_upload_widget.dart';
-import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.dart';
-import 'package:appflowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
-import 'package:appflowy_editor/src/render/emoji/emoji_select_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:appflowy_editor/src/core/legacy/built_in_attribute_keys.dart';
+
+import '../../core/legacy/built_in_attribute_keys.dart';
+import '../../editor_state.dart';
+import '../../infra/flowy_svg.dart';
+import '../../l10n/l10n.dart';
+import '../../service/default_text_operations/format_rich_text_style.dart';
+import '../image/image_upload_widget.dart';
+import 'selection_menu_widget.dart';
 
 abstract class SelectionMenuService {
   Offset get topLeft;
+  Offset get offset;
+  Alignment get alignment;
 
   void show();
   void dismiss();
@@ -27,6 +29,8 @@ class SelectionMenu implements SelectionMenuService {
   OverlayEntry? _selectionMenuEntry;
   bool _selectionUpdateByInner = false;
   Offset? _topLeft;
+  Offset _offset = Offset.zero;
+  Alignment _alignment = Alignment.topLeft;
 
   @override
   void dismiss() {
@@ -67,6 +71,7 @@ class SelectionMenu implements SelectionMenuService {
 
     // show below defualt
     var showBelow = true;
+    _alignment = Alignment.bottomLeft;
     final bottomRight = selectionRects.first.bottomRight;
     final topRight = selectionRects.first.topRight;
     var offset = bottomRight + menuOffset;
@@ -75,14 +80,16 @@ class SelectionMenu implements SelectionMenuService {
       // show above
       offset = topRight - menuOffset;
       showBelow = false;
+      _alignment = Alignment.topRight;
     }
     _topLeft = offset;
+    _offset = Offset(offset.dx, showBelow ? offset.dy : MediaQuery.of(context).size.height - offset.dy);
 
     _selectionMenuEntry = OverlayEntry(builder: (context) {
       return Positioned(
-        top: showBelow ? offset.dy : null,
+        top: showBelow ? _offset.dy : null,
         bottom:
-            showBelow ? null : MediaQuery.of(context).size.height - offset.dy,
+            showBelow ? null : _offset.dy,
         left: offset.dx,
         child: SelectionMenuWidget(
           items: [
@@ -112,6 +119,16 @@ class SelectionMenu implements SelectionMenuService {
   @override
   Offset get topLeft {
     return _topLeft ?? Offset.zero;
+  }
+
+  @override
+  Alignment get alignment {
+    return _alignment;
+  }
+
+  @override
+  Offset get offset {
+    return _offset;
   }
 
   void _onSelectionChange() {
@@ -180,13 +197,6 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
         _selectionMenuIcon('image', editorState, onSelected),
     keywords: ['image'],
     handler: showImageUploadMenu,
-  ),
-  SelectionMenuItem(
-    name: () => AppFlowyEditorLocalizations.current.emoji,
-    icon: (editorState, onSelected) =>
-        _selectionMenuIcon('image', editorState, onSelected),
-    keywords: ['emoji'],
-    handler: showEmojiSelectionMenu,
   ),
   SelectionMenuItem(
     name: () => AppFlowyEditorLocalizations.current.bulletedList,
