@@ -37,7 +37,7 @@ class SplashScreen extends StatelessWidget {
       return _buildChild(context);
     } else {
       return FutureBuilder<void>(
-        future: _register(),
+        future: _registerIfNeeded(),
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
             return Container();
@@ -90,15 +90,22 @@ class SplashScreen extends StatelessWidget {
     getIt<SplashRoute>().pushSkipLoginScreen(context);
   }
 
-  Future<void> _register() async {
-    const password = "AppFlowy123@";
-    final uid = uuid();
-    final userEmail = "$uid@appflowy.io";
-    await getIt<AuthService>().signUp(
-      name: LocaleKeys.defaultUsername.tr(),
-      password: password,
-      email: userEmail,
-    );
+  Future<void> _registerIfNeeded() async {
+    final result = await UserEventCheckUser().send();
+    if (result.isLeft()) {
+      // authenticated
+      return;
+    } else {
+      // unauthenticated
+      const password = "AppFlowy123@";
+      final uid = uuid();
+      final userEmail = "$uid@appflowy.io";
+      await getIt<AuthService>().signUp(
+        name: LocaleKeys.defaultUsername.tr(),
+        password: password,
+        email: userEmail,
+      );
+    }
   }
 }
 

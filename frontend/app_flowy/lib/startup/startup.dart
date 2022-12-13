@@ -72,7 +72,9 @@ Future<void> initGetIt(
   LaunchConfiguration config,
 ) async {
   getIt.registerFactory<EntryPoint>(() => f);
-  getIt.registerLazySingleton<FlowySDK>(() => const FlowySDK());
+  getIt.registerLazySingleton<FlowySDK>(() {
+    return FlowySDK();
+  });
   getIt.registerLazySingleton<AppLauncher>(
     () => AppLauncher(
       context: LaunchContext(

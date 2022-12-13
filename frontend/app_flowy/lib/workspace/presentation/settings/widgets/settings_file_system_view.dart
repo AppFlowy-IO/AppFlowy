@@ -8,6 +8,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../../../generated/locale_keys.g.dart';
+import '../../../../main.dart';
+import '../../../../startup/launch_configuration.dart';
+import '../../../../startup/startup.dart';
 import '../../../../startup/tasks/prelude.dart';
 import '../../../application/settings/settings_location_cubit.dart';
 import '../../home/toast.dart';
@@ -100,6 +103,12 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
                     if (result != null) {
                       await _setCustomLocation(result);
                       _showToast(LocaleKeys.settings_files_restartApp.tr());
+                      await FlowyRunner.run(
+                        FlowyApp(),
+                        config: const LaunchConfiguration(
+                          autoRegistrationSupported: true,
+                        ),
+                      );
                     }
                   },
                 ),
