@@ -1,6 +1,3 @@
-import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/user/application/user_settings_service.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -10,13 +7,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:window_size/window_size.dart';
 
+import '../../user/application/user_settings_service.dart';
+import '../../workspace/application/appearance.dart';
+import '../startup.dart';
+
 class InitAppWidgetTask extends LaunchTask {
   @override
   LaunchTaskType get type => LaunchTaskType.appLauncher;
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    final widget = context.getIt<EntryPoint>().create();
+    final widget = context.getIt<EntryPoint>().create(context.args);
     final appearanceSetting = await SettingsFFIService().getAppearanceSetting();
     final app = ApplicationWidget(
       appearanceSetting: appearanceSetting,

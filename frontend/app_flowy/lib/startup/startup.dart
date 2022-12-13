@@ -1,13 +1,14 @@
 import 'dart:io';
 
-import 'package:app_flowy/startup/plugin/plugin.dart';
-import 'package:app_flowy/startup/tasks/prelude.dart';
-import 'package:app_flowy/startup/deps_resolver.dart';
+import 'package:flowy_sdk/flowy_sdk.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:flowy_sdk/flowy_sdk.dart';
-import 'package:app_flowy/workspace/application/settings/settings_location_cubit.dart';
+
+import '../workspace/application/settings/settings_location_cubit.dart';
+import 'deps_resolver.dart';
+import 'plugin/plugin.dart';
+import 'tasks/prelude.dart';
 
 // [[diagram: flowy startup flow]]
 //                   ┌──────────┐
@@ -29,14 +30,20 @@ import 'package:app_flowy/workspace/application/settings/settings_location_cubit
 final getIt = GetIt.instance;
 
 abstract class EntryPoint {
-  Widget create();
+  Widget create(List<String> args);
 }
 
 class FlowyRunner {
-  static Future<void> run(EntryPoint f) async {
+  static Future<void> run(
+    EntryPoint f, {
+    List<String> args = const [],
+  }) async {
+    // Clear all the states in case of rebuilding.
+    await getIt.reset();
+
     // Specify the env
     final env = integrationEnv();
-    initGetIt(getIt, env, f);
+    initGetIt(getIt, env, f, args);
 
     // add task
     getIt<AppLauncher>().addTask(InitRustSDKTask(
@@ -60,10 +67,15 @@ Future<void> initGetIt(
   GetIt getIt,
   IntegrationMode env,
   EntryPoint f,
+  List<String> args,
 ) async {
   getIt.registerFactory<EntryPoint>(() => f);
   getIt.registerLazySingleton<FlowySDK>(() => const FlowySDK());
-  getIt.registerLazySingleton<AppLauncher>(() => AppLauncher(env, getIt));
+  getIt.registerLazySingleton<AppLauncher>(
+    () => AppLauncher(
+      context: LaunchContext(getIt, env, args),
+    ),
+  );
   getIt.registerSingleton<PluginSandbox>(PluginSandbox());
 
   await DependencyResolver.resolve(getIt);
@@ -72,7 +84,8 @@ Future<void> initGetIt(
 class LaunchContext {
   GetIt getIt;
   IntegrationMode env;
-  LaunchContext(this.getIt, this.env);
+  List<String> args;
+  LaunchContext(this.getIt, this.env, this.args);
 }
 
 enum LaunchTaskType {
@@ -89,17 +102,16 @@ abstract class LaunchTask {
 
 class AppLauncher {
   List<LaunchTask> tasks;
-  IntegrationMode env;
-  GetIt getIt;
 
-  AppLauncher(this.env, this.getIt) : tasks = List.from([]);
+  final LaunchContext context;
+
+  AppLauncher({required this.context}) : tasks = List.from([]);
 
   void addTask(LaunchTask task) {
     tasks.add(task);
   }
 
   Future<void> launch() async {
-    final context = LaunchContext(getIt, env);
     for (var task in tasks) {
       await task.initialize(context);
     }

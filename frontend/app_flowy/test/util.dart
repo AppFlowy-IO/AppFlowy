@@ -108,7 +108,7 @@ void _pathProviderInitialized() {
 
 class FlowyTestApp implements EntryPoint {
   @override
-  Widget create() {
+  Widget create(List<String> args) {
     return Container();
   }
 }

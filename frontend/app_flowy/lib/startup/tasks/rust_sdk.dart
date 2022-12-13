@@ -1,7 +1,9 @@
 import 'dart:io';
-import 'package:app_flowy/startup/startup.dart';
-import 'package:path_provider/path_provider.dart';
+
 import 'package:flowy_sdk/flowy_sdk.dart';
+import 'package:path_provider/path_provider.dart';
+
+import '../startup.dart';
 
 class InitRustSDKTask extends LaunchTask {
   InitRustSDKTask({
@@ -16,6 +18,7 @@ class InitRustSDKTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    print('RUSTSDK HASDCODE: ${context.getIt<FlowySDK>().hashCode}');
     // use the custom directory
     if (directory != null) {
       return directory!.then((directory) async {

@@ -1,6 +1,9 @@
-import 'package:app_flowy/startup/tasks/prelude.dart';
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../startup/tasks/prelude.dart';
 
 const String _kSettingsLocationDefaultLocation =
     'kSettingsLocationDefaultLocation';
@@ -34,6 +37,7 @@ class SettingsLocationCubit extends Cubit<SettingsLocation> {
     path = path ?? (await appFlowyDocumentDirectory()).path;
     final prefs = await SharedPreferences.getInstance();
     prefs.setString(_kSettingsLocationDefaultLocation, path);
+    await Directory(path).create(recursive: true);
     emit(state.copyWith(path: path));
   }
 }

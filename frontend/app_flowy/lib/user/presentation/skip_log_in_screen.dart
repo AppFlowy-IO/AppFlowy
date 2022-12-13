@@ -14,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../generated/locale_keys.g.dart';
+import '../../main.dart';
+import '../../startup/startup.dart';
 import '../application/auth_service.dart';
 import 'folder/folder_widget.dart';
 import 'router.dart';
@@ -60,7 +62,13 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
         const VSpace(20),
         SizedBox(
           width: MediaQuery.of(context).size.width * 0.8,
-          child: const FolderWidget(),
+          child: FolderWidget(
+            createFolderCallback: () async {
+              await FlowyRunner.run(FlowyApp(), args: [
+                'autoRegister=true',
+              ]);
+            },
+          ),
         ),
         const VSpace(20),
         SizedBox(
@@ -106,7 +114,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     }
   }
 
-  void _autoRegister(BuildContext context) async {
+  Future<void> _autoRegister(BuildContext context) async {
     const password = "AppFlowy123@";
     final uid = uuid();
     final userEmail = "$uid@appflowy.io";

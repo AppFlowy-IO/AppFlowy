@@ -6,6 +6,9 @@ import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 
+import '../../../startup/startup.dart';
+import '../../../workspace/application/settings/settings_location_cubit.dart';
+
 enum _FolderPage {
   options,
   create,
@@ -13,7 +16,12 @@ enum _FolderPage {
 }
 
 class FolderWidget extends StatefulWidget {
-  const FolderWidget({Key? key}) : super(key: key);
+  const FolderWidget({
+    Key? key,
+    required this.createFolderCallback,
+  }) : super(key: key);
+
+  final VoidCallback createFolderCallback;
 
   @override
   State<FolderWidget> createState() => _FolderWidgetState();
@@ -42,10 +50,11 @@ class _FolderWidgetState extends State<FolderWidget> {
           },
         );
       case _FolderPage.create:
-        return OpenFolderWidget(
+        return CreateFolderWidget(
           onPressedBack: () {
             setState(() => page = _FolderPage.options);
           },
+          onPressedCreate: widget.createFolderCallback,
         );
       case _FolderPage.open:
         break;
@@ -105,21 +114,23 @@ class FolderOptionsWidget extends StatelessWidget {
   }
 }
 
-class OpenFolderWidget extends StatefulWidget {
-  const OpenFolderWidget({
+class CreateFolderWidget extends StatefulWidget {
+  const CreateFolderWidget({
     Key? key,
     required this.onPressedBack,
+    required this.onPressedCreate,
   }) : super(key: key);
 
   final VoidCallback onPressedBack;
+  final VoidCallback onPressedCreate;
 
   @override
-  State<OpenFolderWidget> createState() => _OpenFolderWidgetState();
+  State<CreateFolderWidget> createState() => _CreateFolderWidgetState();
 }
 
-class _OpenFolderWidgetState extends State<OpenFolderWidget> {
+class _CreateFolderWidgetState extends State<CreateFolderWidget> {
   var _folderName = '';
-  var _path = '';
+  var _directory = '';
 
   @override
   Widget build(BuildContext context) {
@@ -145,6 +156,11 @@ class _OpenFolderWidgetState extends State<OpenFolderWidget> {
                 onChanged: (name) {
                   _folderName = name;
                 },
+                onSubmitted: (name) {
+                  setState(() {
+                    _folderName = name;
+                  });
+                },
               ),
             ),
             // isThreeLine: true,
@@ -158,22 +174,31 @@ class _OpenFolderWidgetState extends State<OpenFolderWidget> {
               final directory = await FilePicker.platform.getDirectoryPath();
               if (directory != null) {
                 setState(() {
-                  if (Platform.isMacOS) {
-                    _path = directory.replaceAll('/Volumes/Macintosh HD', '');
-                  } else {
-                    _path = directory;
-                  }
-                  _path += '/$_folderName';
+                  _directory = directory;
                 });
               }
             }),
           ),
         ),
         Card(
-          child: _buildTextButton(context, 'create', () {}),
+          child: _buildTextButton(context, 'create', () async {
+            await getIt<SettingsLocationCubit>().setLocation(_path);
+            widget.onPressedCreate();
+          }),
         )
       ],
     );
+  }
+
+  String get _path {
+    if (_directory.isEmpty) return '';
+    final String path;
+    if (Platform.isMacOS) {
+      path = _directory.replaceAll('/Volumes/Macintosh HD', '');
+    } else {
+      path = _directory;
+    }
+    return '$path/$_folderName';
   }
 }
 
