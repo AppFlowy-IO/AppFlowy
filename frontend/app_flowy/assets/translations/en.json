@@ -183,6 +183,7 @@
       "openFolderDesc": "Open folder ...",
       "folderHintText": "folder name",
       "location": "Location",
+      "locationDesc": "Pick a name for your location",
       "browser": "Browser",
       "create": "create",
       "locationCannotBeEmpty": "Location cannot be empty"

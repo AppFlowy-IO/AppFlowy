@@ -1,17 +1,17 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
-import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:app_flowy/startup/tasks/prelude.dart';
-import 'package:app_flowy/workspace/application/settings/settings_location_cubit.dart';
-import 'package:app_flowy/workspace/presentation/home/toast.dart';
-import 'package:app_flowy/workspace/presentation/settings/widgets/settings_file_exporter_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+
+import '../../../../generated/locale_keys.g.dart';
+import '../../../../startup/tasks/prelude.dart';
+import '../../../application/settings/settings_location_cubit.dart';
+import '../../home/toast.dart';
+import 'settings_file_exporter_widget.dart';
 
 class SettingsFileSystemView extends StatefulWidget {
   const SettingsFileSystemView({
@@ -40,12 +40,12 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
         if (index == 0) {
           return _buildLocationCustomizer();
         } else if (index == 1) {
-          return _buildExportDatabaseButton();
+          // return _buildExportDatabaseButton();
         }
         return Container();
       },
       separatorBuilder: (context, index) => const Divider(),
-      itemCount: 3, // make the divider taking effect.
+      itemCount: 2, // make the divider taking effect.
     );
   }
 

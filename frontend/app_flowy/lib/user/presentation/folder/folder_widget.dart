@@ -159,10 +159,10 @@ class _CreateFolderWidgetState extends State<CreateFolderWidget> {
         Card(
           child: ListTile(
             title: FlowyText.medium(
-              LocaleKeys.settings_files_openFolder.tr(),
+              LocaleKeys.settings_files_location.tr(),
             ),
             subtitle: FlowyText.regular(
-              LocaleKeys.settings_files_openFolderDesc.tr(),
+              LocaleKeys.settings_files_locationDesc.tr(),
             ),
             trailing: SizedBox(
               width: 100,
