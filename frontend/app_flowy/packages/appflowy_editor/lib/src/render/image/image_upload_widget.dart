@@ -133,7 +133,7 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
 
   Future<void> copyFile(File path, String name) async {
     Directory appDir = await getApplicationDocumentsDirectory();
-    Directory('${appDir.path}/flowy_dev/image').create();
+    //TODO: Select the release type and copy image to folder
     path.copy('${appDir.path}/flowy_dev/image/$name');
     localFile = '${appDir.path}/flowy_dev/image/$name';
     widget.onSubmitted(localFile!);

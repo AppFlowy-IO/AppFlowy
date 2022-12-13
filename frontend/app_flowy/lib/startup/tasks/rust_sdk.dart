@@ -19,9 +19,13 @@ Future<Directory> appFlowyDocumentDirectory() async {
   switch (integrationEnv()) {
     case IntegrationMode.develop:
       Directory documentsDir = await getApplicationDocumentsDirectory();
+      Directory('${documentsDir.path}/flowy_dev/images')
+          .create(recursive: true);
       return Directory('${documentsDir.path}/flowy_dev').create();
     case IntegrationMode.release:
       Directory documentsDir = await getApplicationDocumentsDirectory();
+      Directory('${documentsDir.path}/flowy/images')
+          .create(recursive: true);
       return Directory('${documentsDir.path}/flowy').create();
     case IntegrationMode.test:
       return Directory("${Directory.current.path}/.sandbox");
