@@ -1,13 +1,17 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
+import '../../../generated/locale_keys.g.dart';
 import '../../../startup/startup.dart';
 import '../../../workspace/application/settings/settings_location_cubit.dart';
+import '../../../workspace/presentation/home/toast.dart';
 
 enum _FolderPage {
   options,
@@ -81,32 +85,32 @@ class FolderOptionsWidget extends StatelessWidget {
       children: <Widget>[
         Card(
           child: ListTile(
-            title: const FlowyText.medium('Create a new folder'),
-            subtitle: const FlowyText.regular('Create a new folder ...'),
-            trailing: SizedBox(
-              width: 60,
-              height: 30,
-              child: RoundedTextButton(
-                title: 'Create',
-                onPressed: onPressedCreate,
-              ),
+            title: FlowyText.medium(
+              LocaleKeys.settings_files_createNewFolder.tr(),
             ),
-            // isThreeLine: true,
+            subtitle: FlowyText.regular(
+              LocaleKeys.settings_files_createNewFolderDesc.tr(),
+            ),
+            trailing: _buildTextButton(
+              context,
+              LocaleKeys.settings_files_create.tr(),
+              onPressedCreate,
+            ),
           ),
         ),
         Card(
           child: ListTile(
-            title: const FlowyText.medium('Open folder'),
-            subtitle: const FlowyText.regular('Open folder ...'),
-            trailing: SizedBox(
-              width: 60,
-              height: 30,
-              child: RoundedTextButton(
-                title: 'Open',
-                onPressed: onPressedOpen,
-              ),
+            title: FlowyText.medium(
+              LocaleKeys.settings_files_openFolder.tr(),
             ),
-            // isThreeLine: true,
+            subtitle: FlowyText.regular(
+              LocaleKeys.settings_files_openFolderDesc.tr(),
+            ),
+            trailing: _buildTextButton(
+              context,
+              LocaleKeys.settings_files_open.tr(),
+              onPressedCreate,
+            ),
           ),
         ),
       ],
@@ -129,8 +133,16 @@ class CreateFolderWidget extends StatefulWidget {
 }
 
 class _CreateFolderWidgetState extends State<CreateFolderWidget> {
-  var _folderName = '';
+  var _folderName = 'appflowy';
   var _directory = '';
+
+  final _fToast = FToast();
+
+  @override
+  void initState() {
+    super.initState();
+    _fToast.init(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -146,13 +158,17 @@ class _CreateFolderWidgetState extends State<CreateFolderWidget> {
         ),
         Card(
           child: ListTile(
-            title: const FlowyText.medium('Folder name'),
-            subtitle: const FlowyText.regular('Open folder ...'),
+            title: FlowyText.medium(
+              LocaleKeys.settings_files_openFolder.tr(),
+            ),
+            subtitle: FlowyText.regular(
+              LocaleKeys.settings_files_openFolderDesc.tr(),
+            ),
             trailing: SizedBox(
               width: 100,
               height: 36,
               child: FlowyTextField(
-                hintText: 'folder name',
+                hintText: LocaleKeys.settings_files_folderHintText.tr(),
                 onChanged: (name) {
                   _folderName = name;
                 },
@@ -163,14 +179,14 @@ class _CreateFolderWidgetState extends State<CreateFolderWidget> {
                 },
               ),
             ),
-            // isThreeLine: true,
           ),
         ),
         Card(
           child: ListTile(
-            title: const FlowyText.medium('Location'),
+            title: FlowyText.medium(LocaleKeys.settings_files_location.tr()),
             subtitle: FlowyText.regular(_path),
-            trailing: _buildTextButton(context, 'Browse', () async {
+            trailing: _buildTextButton(
+                context, LocaleKeys.settings_files_browser.tr(), () async {
               final directory = await FilePicker.platform.getDirectoryPath();
               if (directory != null) {
                 setState(() {
@@ -182,8 +198,12 @@ class _CreateFolderWidgetState extends State<CreateFolderWidget> {
         ),
         Card(
           child: _buildTextButton(context, 'create', () async {
-            await getIt<SettingsLocationCubit>().setLocation(_path);
-            widget.onPressedCreate();
+            if (_path.isEmpty) {
+              _showToast(LocaleKeys.settings_files_locationCannotBeEmpty.tr());
+            } else {
+              await getIt<SettingsLocationCubit>().setLocation(_path);
+              widget.onPressedCreate();
+            }
           }),
         )
       ],
@@ -200,12 +220,19 @@ class _CreateFolderWidgetState extends State<CreateFolderWidget> {
     }
     return '$path/$_folderName';
   }
+
+  void _showToast(String message) {
+    _fToast.showToast(
+      child: FlowyMessageToast(message: message),
+      gravity: ToastGravity.CENTER,
+    );
+  }
 }
 
 Widget _buildTextButton(
     BuildContext context, String title, VoidCallback onPressed) {
   return SizedBox(
-    width: 60,
+    width: 70,
     height: 36,
     child: RoundedTextButton(
       title: title,

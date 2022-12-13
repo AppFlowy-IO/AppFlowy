@@ -175,7 +175,17 @@
       "customizeLocation": "Customize location",
       "restartApp": "Please restart app for the changes to take effect.",
       "exportDatabase": "Export databae",
-      "selectFiles": "Select the files that need to be export"
+      "selectFiles": "Select the files that need to be export",
+      "createNewFolder": "Create a new folder",
+      "createNewFolderDesc": "Create a new folder ...",
+      "open": "Open",
+      "openFolder": "Open folder",
+      "openFolderDesc": "Open folder ...",
+      "folderHintText": "folder name",
+      "location": "Location",
+      "browser": "Browser",
+      "create": "create",
+      "locationCannotBeEmpty": "Location cannot be empty"
     }
   },
   "grid": {

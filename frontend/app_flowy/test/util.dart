@@ -1,3 +1,4 @@
+import 'package:app_flowy/startup/launch_configuration.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/application/auth_service.dart';
 import 'package:app_flowy/user/application/user_service.dart';
@@ -108,7 +109,7 @@ void _pathProviderInitialized() {
 
 class FlowyTestApp implements EntryPoint {
   @override
-  Widget create(List<String> args) {
+  Widget create(LaunchConfiguration config) {
     return Container();
   }
 }

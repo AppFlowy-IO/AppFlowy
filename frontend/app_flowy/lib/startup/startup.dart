@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 
 import '../workspace/application/settings/settings_location_cubit.dart';
 import 'deps_resolver.dart';
+import 'launch_configuration.dart';
 import 'plugin/plugin.dart';
 import 'tasks/prelude.dart';
 
@@ -30,20 +31,21 @@ import 'tasks/prelude.dart';
 final getIt = GetIt.instance;
 
 abstract class EntryPoint {
-  Widget create(List<String> args);
+  Widget create(LaunchConfiguration args);
 }
 
 class FlowyRunner {
   static Future<void> run(
     EntryPoint f, {
-    List<String> args = const [],
+    LaunchConfiguration config =
+        const LaunchConfiguration(autoRegistrationSupported: false),
   }) async {
     // Clear all the states in case of rebuilding.
     await getIt.reset();
 
     // Specify the env
     final env = integrationEnv();
-    initGetIt(getIt, env, f, args);
+    initGetIt(getIt, env, f, config);
 
     // add task
     getIt<AppLauncher>().addTask(InitRustSDKTask(
@@ -67,13 +69,17 @@ Future<void> initGetIt(
   GetIt getIt,
   IntegrationMode env,
   EntryPoint f,
-  List<String> args,
+  LaunchConfiguration config,
 ) async {
   getIt.registerFactory<EntryPoint>(() => f);
   getIt.registerLazySingleton<FlowySDK>(() => const FlowySDK());
   getIt.registerLazySingleton<AppLauncher>(
     () => AppLauncher(
-      context: LaunchContext(getIt, env, args),
+      context: LaunchContext(
+        getIt,
+        env,
+        config,
+      ),
     ),
   );
   getIt.registerSingleton<PluginSandbox>(PluginSandbox());
@@ -84,7 +90,7 @@ Future<void> initGetIt(
 class LaunchContext {
   GetIt getIt;
   IntegrationMode env;
-  List<String> args;
+  LaunchConfiguration args;
   LaunchContext(this.getIt, this.env, this.args);
 }
 

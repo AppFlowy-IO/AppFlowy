@@ -15,6 +15,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../generated/locale_keys.g.dart';
 import '../../main.dart';
+import '../../startup/launch_configuration.dart';
 import '../../startup/startup.dart';
 import '../application/auth_service.dart';
 import 'folder/folder_widget.dart';
@@ -64,9 +65,12 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
           width: MediaQuery.of(context).size.width * 0.8,
           child: FolderWidget(
             createFolderCallback: () async {
-              await FlowyRunner.run(FlowyApp(), args: [
-                'autoRegister=true',
-              ]);
+              await FlowyRunner.run(
+                FlowyApp(),
+                config: const LaunchConfiguration(
+                  autoRegistrationSupported: true,
+                ),
+              );
             },
           ),
         ),
