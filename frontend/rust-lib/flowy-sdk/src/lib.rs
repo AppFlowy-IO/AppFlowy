@@ -267,14 +267,14 @@ async fn _listen_user_status(
                     let _ = grid_manager.initialize(&user_id, &token).await?;
                     let _ = ws_conn.start(token, user_id).await?;
                 }
-                UserStatus::Logout { .. } => {
+                UserStatus::Logout { token:_, user_id } => {
                     tracing::trace!("User did logout");
-                    folder_manager.clear().await;
+                    folder_manager.clear(&user_id).await;
                     let _ = ws_conn.stop().await;
                 }
-                UserStatus::Expired { .. } => {
+                UserStatus::Expired {token:_, user_id } => {
                     tracing::trace!("User session has been expired");
-                    folder_manager.clear().await;
+                    folder_manager.clear(&user_id).await;
                     let _ = ws_conn.stop().await;
                 }
                 UserStatus::SignUp { profile, ret } => {

@@ -119,7 +119,7 @@ impl UserSession {
             diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*(self.db_connection()?))?;
         let _ = self.database.close_user_db(&session.user_id)?;
         let _ = self.set_session(None)?;
-        self.notifier.notify_logout(&session.token);
+        self.notifier.notify_logout(&session.token, &session.user_id);
         let _ = self.sign_out_on_server(&session.token).await?;
 
         Ok(())

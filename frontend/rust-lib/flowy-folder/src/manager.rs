@@ -209,9 +209,9 @@ impl FolderManager {
 
     /// Called when the current user logout
     ///
-    pub async fn clear(&self) {
+    pub async fn clear(&self, user_id: &str) {
         self.view_controller.clear_latest_view();
-        clear_current_workspace();
+        clear_current_workspace(user_id);
         *self.folder_editor.write().await = None;
     }
 }
@@ -227,7 +227,7 @@ impl DefaultFolderBuilder {
     ) -> FlowyResult<()> {
         log::debug!("Create user default workspace");
         let workspace_rev = user_default::create_default_workspace();
-        set_current_workspace(&workspace_rev.id);
+        set_current_workspace(&workspace_rev.id, user_id);
         for app in workspace_rev.apps.iter() {
             for (index, view) in app.belongings.iter().enumerate() {
                 let (view_data_type, view_data) = create_view_fn();
