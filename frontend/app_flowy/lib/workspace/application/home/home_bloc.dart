@@ -3,6 +3,7 @@ import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart'
     show WorkspaceSettingPB;
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
@@ -23,6 +24,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       (event, emit) async {
         await event.map(
           initial: (_Initial value) {
+            Future.delayed(const Duration(milliseconds: 300), () {
+              add(HomeEvent.didReceiveWorkspaceSetting(workspaceSetting));
+            });
+
             _listener.start(
               onAuthChanged: (result) => _authDidChanged(result),
               onSettingUpdated: (result) {
@@ -38,7 +43,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             emit(state.copyWith(isLoading: e.isLoading));
           },
           didReceiveWorkspaceSetting: (_DidReceiveWorkspaceSetting value) {
-            emit(state.copyWith(workspaceSetting: value.setting));
+            final latestView = workspaceSetting.hasLatestView()
+                ? workspaceSetting.latestView
+                : state.latestView;
+
+            emit(state.copyWith(
+              workspaceSetting: value.setting,
+              latestView: latestView,
+            ));
           },
           unauthorized: (_Unauthorized value) {
             emit(state.copyWith(unauthorized: true));
@@ -93,12 +105,14 @@ class HomeState with _$HomeState {
   const factory HomeState({
     required bool isLoading,
     required WorkspaceSettingPB workspaceSetting,
+    ViewPB? latestView,
     required bool unauthorized,
   }) = _HomeState;
 
   factory HomeState.initial(WorkspaceSettingPB workspaceSetting) => HomeState(
         isLoading: false,
         workspaceSetting: workspaceSetting,
+        latestView: null,
         unauthorized: false,
       );
 }

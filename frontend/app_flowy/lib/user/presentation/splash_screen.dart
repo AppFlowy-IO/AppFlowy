@@ -70,8 +70,11 @@ class SplashScreen extends StatelessWidget {
     FolderEventReadCurrentWorkspace().send().then(
       (result) {
         return result.fold(
-          (workspaceSetting) => getIt<SplashRoute>()
-              .pushHomeScreen(context, userProfile, workspaceSetting),
+          (workspaceSetting) {
+            // getIt<SplashRoute>().popHomeScreen(context);
+            getIt<SplashRoute>()
+                .pushHomeScreen(context, userProfile, workspaceSetting);
+          },
           (error) async {
             Log.error(error);
             assert(error.code == ErrorCode.RecordNotFound.value);
@@ -91,6 +94,7 @@ class SplashScreen extends StatelessWidget {
     final result = await UserEventCheckUser().send();
     if (!result.isLeft()) {
       // unauthenticated
+      // getIt<SplashRoute>().popHomeScreen(context);
       await getIt<AuthService>().signUpWithRandomUser();
     }
   }
