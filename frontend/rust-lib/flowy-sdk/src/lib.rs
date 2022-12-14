@@ -337,7 +337,7 @@ fn mk_user_session(
     local_server: &Option<Arc<LocalServer>>,
     server_config: &ClientServerConfiguration,
 ) -> Arc<UserSession> {
-    let session_cache_key = format!("{}_session_cache", &config.name);
+    let session_cache_key = format!("{}_{}_session_cache", &config.name, &config.root);
     let user_config = UserSessionConfig::new(&config.root, &session_cache_key);
     let cloud_service = UserDepsResolver::resolve(local_server, server_config);
     Arc::new(UserSession::new(user_config, cloud_service))
