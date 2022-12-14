@@ -25,7 +25,7 @@ class FolderWidget extends StatefulWidget {
     required this.createFolderCallback,
   }) : super(key: key);
 
-  final VoidCallback createFolderCallback;
+  final Future<void> Function() createFolderCallback;
 
   @override
   State<FolderWidget> createState() => _FolderWidgetState();
@@ -71,7 +71,7 @@ class _FolderWidgetState extends State<FolderWidget> {
     final directory = await FilePicker.platform.getDirectoryPath();
     if (directory != null) {
       await getIt<SettingsLocationCubit>().setLocation(directory);
-      widget.createFolderCallback();
+      await widget.createFolderCallback();
     }
   }
 }
@@ -134,7 +134,7 @@ class CreateFolderWidget extends StatefulWidget {
   }) : super(key: key);
 
   final VoidCallback onPressedBack;
-  final VoidCallback onPressedCreate;
+  final Future<void> Function() onPressedCreate;
 
   @override
   State<CreateFolderWidget> createState() => _CreateFolderWidgetState();
@@ -210,7 +210,7 @@ class _CreateFolderWidgetState extends State<CreateFolderWidget> {
               _showToast(LocaleKeys.settings_files_locationCannotBeEmpty.tr());
             } else {
               await getIt<SettingsLocationCubit>().setLocation(_path);
-              widget.onPressedCreate();
+              await widget.onPressedCreate();
             }
           }),
         )

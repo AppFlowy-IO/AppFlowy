@@ -861,7 +861,7 @@ dependencies = [
  "diesel_migrations",
  "lazy_static",
  "lib-sqlite",
- "log",
+ "tracing",
 ]
 
 [[package]]

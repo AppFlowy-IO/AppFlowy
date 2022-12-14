@@ -17,21 +17,25 @@ use flowy_database::{
     schema::{user_table, user_table::dsl},
     DBConnection, ExpressionMethods, UserDatabaseConnection,
 };
-use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::mpsc;
 
 pub struct UserSessionConfig {
     root_dir: String,
+
+    /// Used as the key of `Session` when saving session information to KV.
     session_cache_key: String,
 }
 
 impl UserSessionConfig {
-    pub fn new(root_dir: &str, session_cache_key: &str) -> Self {
+    /// The `root_dir` represents as the root of the user folders. It must be unique for each
+    /// users.
+    pub fn new(root_dir: &str) -> Self {
+        let session_cache_key = format!("appflowy_session_cache");
         Self {
             root_dir: root_dir.to_owned(),
-            session_cache_key: session_cache_key.to_owned(),
+            session_cache_key,
         }
     }
 }
@@ -40,7 +44,6 @@ pub struct UserSession {
     database: UserDB,
     config: UserSessionConfig,
     cloud_service: Arc<dyn UserCloudService>,
-    session: RwLock<Option<Session>>,
     pub notifier: UserNotifier,
 }
 
@@ -52,7 +55,6 @@ impl UserSession {
             database: db,
             config,
             cloud_service,
-            session: RwLock::new(None),
             notifier,
         }
     }
@@ -253,25 +255,16 @@ impl UserSession {
             None => KV::remove(&self.config.session_cache_key).map_err(|e| FlowyError::new(ErrorCode::Internal, &e))?,
             Some(session) => KV::set_str(&self.config.session_cache_key, session.clone().into()),
         }
-        *self.session.write() = session;
         Ok(())
     }
 
     fn get_session(&self) -> Result<Session, FlowyError> {
-        let mut session = { (*self.session.read()).clone() };
-        if session.is_none() {
-            match KV::get_str(&self.config.session_cache_key) {
-                None => {}
-                Some(s) => {
-                    session = Some(Session::from(s));
-                    let _ = self.set_session(session.clone())?;
-                }
-            }
-        }
-
-        match session {
+        match KV::get_str(&self.config.session_cache_key) {
             None => Err(FlowyError::unauthorized()),
-            Some(session) => Ok(session),
+            Some(s) => {
+                tracing::debug!("Get user session: {:?}", s);
+                Ok(Session::from(s))
+            }
         }
     }
 

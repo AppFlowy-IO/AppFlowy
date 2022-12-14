@@ -36,7 +36,7 @@ impl std::default::Default for FlowySDKTest {
 impl FlowySDKTest {
     pub fn new(document_version: DocumentVersionPB) -> Self {
         let server_config = get_client_server_configuration().unwrap();
-        let config = FlowySDKConfig::new(&root_dir(), &nanoid!(6), server_config)
+        let config = FlowySDKConfig::new(&root_dir(),  server_config)
             .with_document_version(document_version)
             .log_filter("info");
         let sdk = std::thread::spawn(|| FlowySDK::new(config)).join().unwrap();

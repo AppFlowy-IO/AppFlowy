@@ -35,7 +35,6 @@ static INIT_LOG: AtomicBool = AtomicBool::new(false);
 
 #[derive(Clone)]
 pub struct FlowySDKConfig {
-    name: String,
     // Panics if the `root` path is not existing
     root: String,
     log_filter: String,
@@ -54,9 +53,8 @@ impl fmt::Debug for FlowySDKConfig {
 }
 
 impl FlowySDKConfig {
-    pub fn new(root: &str, name: &str, server_config: ClientServerConfiguration) -> Self {
+    pub fn new(root: &str,  server_config: ClientServerConfiguration) -> Self {
         FlowySDKConfig {
-            name: name.to_owned(),
             root: root.to_owned(),
             log_filter: crate_log_filter("info".to_owned()),
             server_config,
@@ -93,7 +91,7 @@ fn crate_log_filter(level: String) -> String {
     // filters.push(format!("lib_dispatch={}", level));
 
     filters.push(format!("dart_ffi={}", "info"));
-    filters.push(format!("flowy_database={}", "info"));
+    filters.push(format!("flowy_database={}", level));
     filters.push(format!("flowy_net={}", "info"));
     filters.join(",")
 }
@@ -338,8 +336,7 @@ fn mk_user_session(
     local_server: &Option<Arc<LocalServer>>,
     server_config: &ClientServerConfiguration,
 ) -> Arc<UserSession> {
-    let session_cache_key = format!("{}_{}_session_cache", &config.name, &config.root);
-    let user_config = UserSessionConfig::new(&config.root, &session_cache_key);
+    let user_config = UserSessionConfig::new(&config.root);
     let cloud_service = UserDepsResolver::resolve(local_server, server_config);
     Arc::new(UserSession::new(user_config, cloud_service))
 }
