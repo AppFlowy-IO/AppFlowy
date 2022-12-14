@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
-use lib_dispatch::prelude::ModuleRequest;
+use lib_dispatch::prelude::AFPluginRequest;
 use std::convert::TryFrom;
 
 #[derive(Default, ProtoBuf)]
@@ -21,8 +21,8 @@ impl FFIRequest {
     }
 }
 
-impl std::convert::From<FFIRequest> for ModuleRequest {
+impl std::convert::From<FFIRequest> for AFPluginRequest {
     fn from(ffi_request: FFIRequest) -> Self {
-        ModuleRequest::new(ffi_request.event).payload(ffi_request.payload)
+        AFPluginRequest::new(ffi_request.event).payload(ffi_request.payload)
     }
 }

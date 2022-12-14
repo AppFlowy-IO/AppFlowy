@@ -503,25 +503,15 @@ class FieldInfo {
 
   bool get hasFilter => _hasFilter;
 
-  bool get canGroup {
+  bool get canBeGroup {
     switch (_field.fieldType) {
       case FieldType.Checkbox:
-        return true;
-      case FieldType.DateTime:
-        return false;
       case FieldType.MultiSelect:
-        return true;
-      case FieldType.Number:
-        return false;
-      case FieldType.RichText:
-        return false;
       case FieldType.SingleSelect:
         return true;
-      case FieldType.URL:
+      default:
         return false;
     }
-
-    return false;
   }
 
   bool get canCreateFilter {
@@ -532,6 +522,7 @@ class FieldInfo {
       case FieldType.MultiSelect:
       case FieldType.RichText:
       case FieldType.SingleSelect:
+      case FieldType.Checklist:
         return true;
       default:
         return false;

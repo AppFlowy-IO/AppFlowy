@@ -4,13 +4,13 @@ use crate::entities::{
 use crate::DocumentManager;
 use flowy_error::FlowyError;
 
-use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
+use lib_dispatch::prelude::{data_result, AFPluginData, AFPluginState, DataResult};
 use std::convert::TryInto;
 use std::sync::Arc;
 
 pub(crate) async fn get_document_handler(
-    data: Data<OpenDocumentContextPB>,
-    manager: AppData<Arc<DocumentManager>>,
+    data: AFPluginData<OpenDocumentContextPB>,
+    manager: AFPluginState<Arc<DocumentManager>>,
 ) -> DataResult<DocumentSnapshotPB, FlowyError> {
     let context: OpenDocumentContextPB = data.into_inner();
     let editor = manager.open_document_editor(&context.document_id).await?;
@@ -22,8 +22,8 @@ pub(crate) async fn get_document_handler(
 }
 
 pub(crate) async fn apply_edit_handler(
-    data: Data<EditPayloadPB>,
-    manager: AppData<Arc<DocumentManager>>,
+    data: AFPluginData<EditPayloadPB>,
+    manager: AFPluginState<Arc<DocumentManager>>,
 ) -> Result<(), FlowyError> {
     let params: EditParams = data.into_inner().try_into()?;
     let _ = manager.apply_edit(params).await?;
@@ -32,8 +32,8 @@ pub(crate) async fn apply_edit_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn export_handler(
-    data: Data<ExportPayloadPB>,
-    manager: AppData<Arc<DocumentManager>>,
+    data: AFPluginData<ExportPayloadPB>,
+    manager: AFPluginState<Arc<DocumentManager>>,
 ) -> DataResult<ExportDataPB, FlowyError> {
     let params: ExportParams = data.into_inner().try_into()?;
     let editor = manager.open_document_editor(&params.view_id).await?;

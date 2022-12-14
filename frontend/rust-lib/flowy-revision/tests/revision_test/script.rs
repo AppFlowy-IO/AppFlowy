@@ -3,8 +3,7 @@ use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_revision::disk::{RevisionChangeset, RevisionDiskCache, SyncRecord};
 use flowy_revision::{
     RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionPersistence,
-    RevisionPersistenceConfiguration, RevisionSnapshotDiskCache, RevisionSnapshotInfo,
-    REVISION_WRITE_INTERVAL_IN_MILLIS,
+    RevisionPersistenceConfiguration, RevisionSnapshot, RevisionSnapshotDiskCache, REVISION_WRITE_INTERVAL_IN_MILLIS,
 };
 
 use flowy_http_model::revision::{Revision, RevisionRange};
@@ -16,35 +15,14 @@ use std::sync::Arc;
 use std::time::Duration;
 
 pub enum RevisionScript {
-    AddLocalRevision {
-        content: String,
-        base_rev_id: i64,
-        rev_id: i64,
-    },
-    AddLocalRevision2 {
-        content: String,
-        pair_rev_id: (i64, i64),
-    },
-    AddInvalidLocalRevision {
-        bytes: Vec<u8>,
-        base_rev_id: i64,
-        rev_id: i64,
-    },
-    AckRevision {
-        rev_id: i64,
-    },
-    AssertNextSyncRevisionId {
-        rev_id: Option<i64>,
-    },
-    AssertNumberOfSyncRevisions {
-        num: usize,
-    },
-    AssertNumberOfRevisionsInDisk {
-        num: usize,
-    },
-    AssertNextSyncRevisionContent {
-        expected: String,
-    },
+    AddLocalRevision { content: String },
+    AddLocalRevision2 { content: String },
+    AddInvalidLocalRevision { bytes: Vec<u8> },
+    AckRevision { rev_id: i64 },
+    AssertNextSyncRevisionId { rev_id: Option<i64> },
+    AssertNumberOfSyncRevisions { num: usize },
+    AssertNumberOfRevisionsInDisk { num: usize },
+    AssertNextSyncRevisionContent { expected: String },
     WaitWhenWriteToDisk,
 }
 
@@ -66,7 +44,7 @@ impl RevisionTest {
         let configuration = RevisionPersistenceConfiguration::new(merge_threshold as usize, false);
         let disk_cache = RevisionDiskCacheMock::new(vec![]);
         let persistence = RevisionPersistence::new(&user_id, &object_id, disk_cache, configuration.clone());
-        let compress = RevisionCompressMock {};
+        let compress = RevisionMergeableMock {};
         let snapshot = RevisionSnapshotMock {};
         let mut rev_manager = RevisionManager::new(&user_id, &object_id, persistence, compress, snapshot);
         rev_manager.initialize::<RevisionObjectMockSerde>(None).await.unwrap();
@@ -89,7 +67,7 @@ impl RevisionTest {
             configuration.clone(),
         );
 
-        let compress = RevisionCompressMock {};
+        let compress = RevisionMergeableMock {};
         let snapshot = RevisionSnapshotMock {};
         let mut rev_manager =
             RevisionManager::new(&old_test.user_id, &old_test.object_id, persistence, compress, snapshot);
@@ -107,56 +85,32 @@ impl RevisionTest {
         }
     }
 
-    pub fn next_rev_id_pair(&self) -> (i64, i64) {
-        self.rev_manager.next_rev_id_pair()
-    }
-
     pub async fn run_script(&self, script: RevisionScript) {
         match script {
-            RevisionScript::AddLocalRevision {
-                content,
-                base_rev_id,
-                rev_id,
-            } => {
+            RevisionScript::AddLocalRevision { content } => {
                 let object = RevisionObjectMock::new(&content);
                 let bytes = object.to_bytes();
                 let md5 = md5(&bytes);
-                let revision = Revision::new(
-                    &self.rev_manager.object_id,
-                    base_rev_id,
-                    rev_id,
-                    Bytes::from(bytes),
-                    md5,
-                );
-                self.rev_manager.add_local_revision(&revision).await.unwrap();
+                self.rev_manager
+                    .add_local_revision(Bytes::from(bytes), md5)
+                    .await
+                    .unwrap();
             }
-            RevisionScript::AddLocalRevision2 { content, pair_rev_id } => {
+            RevisionScript::AddLocalRevision2 { content } => {
                 let object = RevisionObjectMock::new(&content);
                 let bytes = object.to_bytes();
                 let md5 = md5(&bytes);
-                let revision = Revision::new(
-                    &self.rev_manager.object_id,
-                    pair_rev_id.0,
-                    pair_rev_id.1,
-                    Bytes::from(bytes),
-                    md5,
-                );
-                self.rev_manager.add_local_revision(&revision).await.unwrap();
+                self.rev_manager
+                    .add_local_revision(Bytes::from(bytes), md5)
+                    .await
+                    .unwrap();
             }
-            RevisionScript::AddInvalidLocalRevision {
-                bytes,
-                base_rev_id,
-                rev_id,
-            } => {
+            RevisionScript::AddInvalidLocalRevision { bytes } => {
                 let md5 = md5(&bytes);
-                let revision = Revision::new(
-                    &self.rev_manager.object_id,
-                    base_rev_id,
-                    rev_id,
-                    Bytes::from(bytes),
-                    md5,
-                );
-                self.rev_manager.add_local_revision(&revision).await.unwrap();
+                self.rev_manager
+                    .add_local_revision(Bytes::from(bytes), md5)
+                    .await
+                    .unwrap();
             }
             RevisionScript::AckRevision { rev_id } => {
                 //
@@ -291,18 +245,22 @@ impl RevisionDiskCache<RevisionConnectionMock> for RevisionDiskCacheMock {
 pub struct RevisionConnectionMock {}
 pub struct RevisionSnapshotMock {}
 impl RevisionSnapshotDiskCache for RevisionSnapshotMock {
-    fn write_snapshot(&self, _object_id: &str, _rev_id: i64, _data: Vec<u8>) -> FlowyResult<()> {
+    fn write_snapshot(&self, _rev_id: i64, _data: Vec<u8>) -> FlowyResult<()> {
         todo!()
     }
 
-    fn read_snapshot(&self, _object_id: &str, _rev_id: i64) -> FlowyResult<RevisionSnapshotInfo> {
+    fn read_snapshot(&self, _rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>> {
         todo!()
+    }
+
+    fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>> {
+        Ok(None)
     }
 }
 
-pub struct RevisionCompressMock {}
+pub struct RevisionMergeableMock {}
 
-impl RevisionMergeable for RevisionCompressMock {
+impl RevisionMergeable for RevisionMergeableMock {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let mut object = RevisionObjectMock::new("");
         for revision in revisions {

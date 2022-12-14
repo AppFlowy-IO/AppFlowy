@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flutter/material.dart';
 
 class SimpleEditor extends StatelessWidget {
@@ -30,10 +31,37 @@ class SimpleEditor extends StatelessWidget {
             ),
           );
           onEditorStateChange(editorState);
+
           return AppFlowyEditor(
             editorState: editorState,
             themeData: themeData,
             autoFocus: editorState.document.isEmpty,
+            customBuilders: {
+              // Divider
+              kDividerType: DividerWidgetBuilder(),
+              // Math Equation
+              kMathEquationType: MathEquationNodeWidgetBuidler(),
+              // Code Block
+              kCodeBlockType: CodeBlockNodeWidgetBuilder(),
+            },
+            shortcutEvents: [
+              // Divider
+              insertDividerEvent,
+              // Code Block
+              enterInCodeBlock,
+              ignoreKeysInCodeBlock,
+              pasteInCodeBlock,
+            ],
+            selectionMenuItems: [
+              // Divider
+              dividerMenuItem,
+              // Math Equation
+              mathEquationMenuItem,
+              // Code Block
+              codeBlockMenuItem,
+              // Emoji
+              emojiMenuItem,
+            ],
           );
         } else {
           return const Center(

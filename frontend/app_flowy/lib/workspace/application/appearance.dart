@@ -19,6 +19,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
       : _setting = setting,
         super(AppearanceSettingsState.initial(
           setting.theme,
+          setting.themeMode,
           setting.font,
           setting.monospaceFont,
           setting.locale,
@@ -26,21 +27,34 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
 
   /// Updates the current theme and notify the listeners the theme was changed.
   /// Do nothing if the passed in themeType equal to the current theme type.
-  void setTheme(Brightness brightness) {
-    if (state.theme.brightness == brightness) {
+  // void setTheme(Brightness brightness) {
+  //   if (state.theme.brightness == brightness) {
+  //     return;
+  //   }
+
+  //   _setting.theme = themeTypeToString(brightness);
+  //   _saveAppearanceSettings();
+
+  //   emit(state.copyWith(
+  //     theme: AppTheme.fromBrightness(
+  //       brightness: _setting.themeMode,
+  //       font: state.theme.font,
+  //       monospaceFont: state.theme.monospaceFont,
+  //     ),
+  //   ));
+  // }
+
+  /// Updates the current theme and notify the listeners the theme was changed.
+  /// Do nothing if the passed in themeType equal to the current theme type.
+  void setThemeMode(ThemeMode themeMode) {
+    if (state.themeMode == themeMode) {
       return;
     }
 
-    _setting.theme = themeTypeToString(brightness);
+    _setting.themeMode = _themeModeToPB(themeMode);
     _saveAppearanceSettings();
 
-    emit(state.copyWith(
-      theme: AppTheme.fromName(
-        themeName: _setting.theme,
-        font: state.theme.font,
-        monospaceFont: state.theme.monospaceFont,
-      ),
-    ));
+    emit(state.copyWith(themeMode: themeMode));
   }
 
   /// Updates the current locale and notify the listeners the locale was changed
@@ -115,25 +129,58 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   }
 }
 
+ThemeMode _themeModeFromPB(ThemeModePB themeModePB) {
+  switch (themeModePB) {
+    case ThemeModePB.Light:
+      return ThemeMode.light;
+    case ThemeModePB.Dark:
+      return ThemeMode.dark;
+    case ThemeModePB.System:
+    default:
+      return ThemeMode.system;
+  }
+}
+
+ThemeModePB _themeModeToPB(ThemeMode themeMode) {
+  switch (themeMode) {
+    case ThemeMode.light:
+      return ThemeModePB.Light;
+    case ThemeMode.dark:
+      return ThemeModePB.Dark;
+    case ThemeMode.system:
+    default:
+      return ThemeModePB.System;
+  }
+}
+
 @freezed
 class AppearanceSettingsState with _$AppearanceSettingsState {
   const factory AppearanceSettingsState({
     required AppTheme theme,
+    required AppTheme darkTheme,
+    required ThemeMode themeMode,
     required Locale locale,
   }) = _AppearanceSettingsState;
 
   factory AppearanceSettingsState.initial(
     String themeName,
+    ThemeModePB themeMode,
     String font,
     String monospaceFont,
     LocaleSettingsPB locale,
   ) =>
       AppearanceSettingsState(
-        theme: AppTheme.fromName(
-          themeName: themeName,
+        theme: AppTheme.fromBrightness(
+          brightness: Brightness.light,
           font: font,
           monospaceFont: monospaceFont,
         ),
+        darkTheme: AppTheme.fromBrightness(
+          brightness: Brightness.dark,
+          font: font,
+          monospaceFont: monospaceFont,
+        ),
+        themeMode: _themeModeFromPB(themeMode),
         locale: Locale(locale.languageCode, locale.countryCode),
       );
 }

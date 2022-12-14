@@ -85,6 +85,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-trait"
+version = "0.1.59"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "31e6e93155431f3931513b243d371981bb2770112b370c82745a1d19d2f99364"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "atomic"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -570,10 +581,10 @@ dependencies = [
  "crossbeam-utils",
  "dart-notify",
  "ffi-support",
+ "flowy-codegen",
  "flowy-derive",
  "flowy-sdk",
  "lib-dispatch",
- "lib-infra",
  "log",
  "once_cell",
  "protobuf",
@@ -588,10 +599,10 @@ version = "0.1.0"
 dependencies = [
  "allo-isolate",
  "bytes",
+ "flowy-codegen",
  "flowy-derive",
  "lazy_static",
  "lib-dispatch",
- "lib-infra",
  "log",
  "protobuf",
 ]
@@ -817,6 +828,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-codegen"
+version = "0.1.0"
+dependencies = [
+ "cmd_lib",
+ "console",
+ "fancy-regex",
+ "flowy-ast",
+ "itertools",
+ "lazy_static",
+ "log",
+ "phf 0.8.0",
+ "protoc-bin-vendored",
+ "protoc-rust",
+ "quote",
+ "serde",
+ "serde_json",
+ "similar",
+ "syn",
+ "tera",
+ "toml",
+ "walkdir",
+]
+
+[[package]]
 name = "flowy-database"
 version = "0.1.0"
 dependencies = [
@@ -834,8 +869,8 @@ version = "0.1.0"
 dependencies = [
  "dashmap",
  "flowy-ast",
+ "flowy-codegen",
  "lazy_static",
- "lib-infra",
  "proc-macro2",
  "quote",
  "serde_json",
@@ -857,6 +892,7 @@ dependencies = [
  "derive_more",
  "diesel",
  "diesel_derives",
+ "flowy-codegen",
  "flowy-database",
  "flowy-derive",
  "flowy-document",
@@ -891,13 +927,13 @@ name = "flowy-error"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "flowy-codegen",
  "flowy-database",
  "flowy-derive",
  "flowy-error-code",
  "flowy-sync",
  "http-flowy",
  "lib-dispatch",
- "lib-infra",
  "lib-ot",
  "lib-sqlite",
  "protobuf",
@@ -910,8 +946,8 @@ name = "flowy-error-code"
 version = "0.1.0"
 dependencies = [
  "derive_more",
+ "flowy-codegen",
  "flowy-derive",
- "lib-infra",
  "protobuf",
 ]
 
@@ -923,6 +959,7 @@ dependencies = [
  "dart-notify",
  "diesel",
  "diesel_derives",
+ "flowy-codegen",
  "flowy-database",
  "flowy-derive",
  "flowy-document",
@@ -965,6 +1002,7 @@ dependencies = [
  "dashmap",
  "diesel",
  "fancy-regex",
+ "flowy-codegen",
  "flowy-database",
  "flowy-derive",
  "flowy-error",
@@ -1002,6 +1040,7 @@ name = "flowy-http-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "flowy-codegen",
  "flowy-derive",
  "lib-infra",
  "md5",
@@ -1017,6 +1056,7 @@ dependencies = [
  "bytes",
  "config",
  "dashmap",
+ "flowy-codegen",
  "flowy-derive",
  "flowy-document",
  "flowy-error",
@@ -1056,6 +1096,7 @@ dependencies = [
  "flowy-error",
  "flowy-http-model",
  "flowy-revision",
+ "futures",
  "futures-util",
  "lib-infra",
  "lib-ws",
@@ -1178,6 +1219,7 @@ dependencies = [
  "diesel_derives",
  "fake",
  "fancy-regex",
+ "flowy-codegen",
  "flowy-database",
  "flowy-derive",
  "flowy-error",
@@ -1738,29 +1780,13 @@ dependencies = [
 name = "lib-infra"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "bytes",
  "chrono",
- "cmd_lib",
- "console",
- "fancy-regex",
- "flowy-ast",
  "futures-core",
- "itertools",
- "lazy_static",
- "log",
- "phf 0.8.0",
  "pin-project",
- "protoc-bin-vendored",
- "protoc-rust",
  "rand 0.8.5",
- "serde",
- "serde_json",
- "similar",
- "syn",
- "tera",
  "tokio",
- "toml",
- "walkdir",
 ]
 
 [[package]]
@@ -1827,6 +1853,7 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "dashmap",
+ "flowy-codegen",
  "flowy-derive",
  "futures",
  "futures-channel",
@@ -2455,11 +2482,11 @@ checksum = "dbf0c48bc1d91375ae5c3cd81e3722dff1abcf81a30960240640d223f59fe0e5"
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.36"
+version = "1.0.47"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7342d5883fbccae1cc37a2353b09c87c9b0f3afd73f5fb9bba687a1f733b029"
+checksum = "5ea3d908b0e36316caf9e9e2c4625cdde190a7e6f440d794667ed17a1855e725"
 dependencies = [
- "unicode-xid",
+ "unicode-ident",
 ]
 
 [[package]]
@@ -3141,13 +3168,13 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.85"
+version = "1.0.105"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a684ac3dcd8913827e18cd09a68384ee66c1de24157e3c556c9ab16d85695fb7"
+checksum = "60b9b43d45702de4c839cb9b51d9f529c5dd26a4aff255b42b1ebc03e88ee908"
 dependencies = [
  "proc-macro2",
  "quote",
- "unicode-xid",
+ "unicode-ident",
 ]
 
 [[package]]
@@ -3589,6 +3616,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1a01404663e3db436ed2746d9fefef640d868edae3cceb81c3b8d5732fda678f"
 
 [[package]]
+name = "unicode-ident"
+version = "1.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ceab39d59e4c9499d4e5a8ee0e2735b891bb7308ac83dfb4e80cad195c9f6f3"
+
+[[package]]
 name = "unicode-normalization"
 version = "0.1.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3608,12 +3641,6 @@ name = "unicode-width"
 version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3ed742d4ea2bd1176e236172c8429aaf54486e7ac098db29ffe6529e0ce50973"
-
-[[package]]
-name = "unicode-xid"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ccb82d61f80a663efe1f787a51b16b5a51e3314d6ac365b08639f52387b33f3"
 
 [[package]]
 name = "url"

@@ -1,5 +1,5 @@
-use crate::entities::{NumberFilterCondition, NumberFilterPB};
-use crate::services::cell::{CellFilterOperation, TypeCellData};
+use crate::entities::{NumberFilterConditionPB, NumberFilterPB};
+use crate::services::cell::{CellFilterable, TypeCellData};
 use crate::services::field::{NumberCellData, NumberTypeOptionPB};
 use flowy_error::FlowyResult;
 use rust_decimal::prelude::Zero;
@@ -10,10 +10,10 @@ impl NumberFilterPB {
     pub fn is_visible(&self, num_cell_data: &NumberCellData) -> bool {
         if self.content.is_empty() {
             match self.condition {
-                NumberFilterCondition::NumberIsEmpty => {
+                NumberFilterConditionPB::NumberIsEmpty => {
                     return num_cell_data.is_empty();
                 }
-                NumberFilterCondition::NumberIsNotEmpty => {
+                NumberFilterConditionPB::NumberIsNotEmpty => {
                     return !num_cell_data.is_empty();
                 }
                 _ => {}
@@ -24,12 +24,12 @@ impl NumberFilterPB {
             Some(cell_decimal) => {
                 let decimal = Decimal::from_str(&self.content).unwrap_or_else(|_| Decimal::zero());
                 match self.condition {
-                    NumberFilterCondition::Equal => cell_decimal == &decimal,
-                    NumberFilterCondition::NotEqual => cell_decimal != &decimal,
-                    NumberFilterCondition::GreaterThan => cell_decimal > &decimal,
-                    NumberFilterCondition::LessThan => cell_decimal < &decimal,
-                    NumberFilterCondition::GreaterThanOrEqualTo => cell_decimal >= &decimal,
-                    NumberFilterCondition::LessThanOrEqualTo => cell_decimal <= &decimal,
+                    NumberFilterConditionPB::Equal => cell_decimal == &decimal,
+                    NumberFilterConditionPB::NotEqual => cell_decimal != &decimal,
+                    NumberFilterConditionPB::GreaterThan => cell_decimal > &decimal,
+                    NumberFilterConditionPB::LessThan => cell_decimal < &decimal,
+                    NumberFilterConditionPB::GreaterThanOrEqualTo => cell_decimal >= &decimal,
+                    NumberFilterConditionPB::LessThanOrEqualTo => cell_decimal <= &decimal,
                     _ => true,
                 }
             }
@@ -37,13 +37,13 @@ impl NumberFilterPB {
     }
 }
 
-impl CellFilterOperation<NumberFilterPB> for NumberTypeOptionPB {
-    fn apply_filter(&self, any_cell_data: TypeCellData, filter: &NumberFilterPB) -> FlowyResult<bool> {
-        if !any_cell_data.is_number() {
+impl CellFilterable<NumberFilterPB> for NumberTypeOptionPB {
+    fn apply_filter(&self, type_cell_data: TypeCellData, filter: &NumberFilterPB) -> FlowyResult<bool> {
+        if !type_cell_data.is_number() {
             return Ok(true);
         }
 
-        let cell_data = any_cell_data.data;
+        let cell_data = type_cell_data.data;
         let num_cell_data = self.format_cell_data(&cell_data)?;
 
         Ok(filter.is_visible(&num_cell_data))
@@ -52,12 +52,12 @@ impl CellFilterOperation<NumberFilterPB> for NumberTypeOptionPB {
 
 #[cfg(test)]
 mod tests {
-    use crate::entities::{NumberFilterCondition, NumberFilterPB};
+    use crate::entities::{NumberFilterConditionPB, NumberFilterPB};
     use crate::services::field::{NumberCellData, NumberFormat};
     #[test]
     fn number_filter_equal_test() {
         let number_filter = NumberFilterPB {
-            condition: NumberFilterCondition::Equal,
+            condition: NumberFilterConditionPB::Equal,
             content: "123".to_owned(),
         };
 
@@ -75,7 +75,7 @@ mod tests {
     #[test]
     fn number_filter_greater_than_test() {
         let number_filter = NumberFilterPB {
-            condition: NumberFilterCondition::GreaterThan,
+            condition: NumberFilterConditionPB::GreaterThan,
             content: "12".to_owned(),
         };
         for (num_str, visible) in [("123", true), ("10", false), ("30", true), ("", false)] {
@@ -87,7 +87,7 @@ mod tests {
     #[test]
     fn number_filter_less_than_test() {
         let number_filter = NumberFilterPB {
-            condition: NumberFilterCondition::LessThan,
+            condition: NumberFilterConditionPB::LessThan,
             content: "100".to_owned(),
         };
         for (num_str, visible) in [("12", true), ("1234", false), ("30", true), ("", false)] {

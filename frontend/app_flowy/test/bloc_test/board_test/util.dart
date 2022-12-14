@@ -1,8 +1,5 @@
-import 'dart:collection';
-
 import 'package:app_flowy/plugins/board/application/board_data_controller.dart';
 import 'package:app_flowy/plugins/board/board.dart';
-import 'package:app_flowy/plugins/grid/application/block/block_cache.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_editor_bloc.dart';
@@ -74,10 +71,6 @@ class BoardTestContext {
     return _boardDataController.rowInfos;
   }
 
-  UnmodifiableMapView<String, GridBlockCache> get blocks {
-    return _boardDataController.blocks;
-  }
-
   List<FieldInfo> get fieldContexts => fieldController.fieldInfos;
 
   GridFieldController get fieldController {
@@ -113,15 +106,13 @@ class BoardTestContext {
     String fieldId,
   ) async {
     final RowInfo rowInfo = rowInfos.last;
-    final blockCache = blocks[rowInfo.rowPB.blockId];
-    final rowCache = blockCache?.rowCache;
-
+    final rowCache = _boardDataController.rowCache;
     final fieldController = _boardDataController.fieldController;
 
     final rowDataController = GridRowDataController(
       rowInfo: rowInfo,
       fieldController: fieldController,
-      rowCache: rowCache!,
+      rowCache: rowCache,
     );
 
     final rowBloc = RowBloc(

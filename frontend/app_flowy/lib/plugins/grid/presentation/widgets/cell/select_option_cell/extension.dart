@@ -1,4 +1,5 @@
-import 'package:flowy_infra/color_extension.dart';
+import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
@@ -87,17 +88,13 @@ class SelectOptionTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChoiceChip(
-      pressElevation: 1,
-      label: FlowyText.medium(
-        name,
-        overflow: TextOverflow.clip,
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: Corners.s6Border,
       ),
-      selectedColor: color,
-      backgroundColor: color,
-      labelPadding: const EdgeInsets.symmetric(horizontal: 6),
-      selected: true,
-      onSelected: (_) => onSelected?.call(),
+      child: FlowyText.medium(name, overflow: TextOverflow.ellipsis),
     );
   }
 }
@@ -115,30 +112,29 @@ class SelectOptionTagCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        FlowyHover(
-          child: InkWell(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 3),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SelectOptionTag.fromOption(
+    return FlowyHover(
+      child: InkWell(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: SelectOptionTag.fromOption(
                     context: context,
                     option: option,
                     onSelected: () => onSelected(option),
                   ),
-                  const Spacer(),
-                  ...children,
-                ],
+                ),
               ),
             ),
-            onTap: () => onSelected(option),
-          ),
+            ...children,
+          ],
         ),
-      ],
+        onTap: () => onSelected(option),
+      ),
     );
   }
 }

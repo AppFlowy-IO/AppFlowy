@@ -1,5 +1,5 @@
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::{BlockPB, FieldIdPB};
+use crate::entities::{FieldIdPB, RowPB};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 
@@ -13,7 +13,7 @@ pub struct GridPB {
     pub fields: Vec<FieldIdPB>,
 
     #[pb(index = 3)]
-    pub blocks: Vec<BlockPB>,
+    pub rows: Vec<RowPB>,
 }
 
 #[derive(ProtoBuf, Default)]

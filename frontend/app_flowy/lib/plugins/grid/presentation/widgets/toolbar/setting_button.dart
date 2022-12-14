@@ -3,7 +3,7 @@ import 'package:app_flowy/plugins/grid/application/grid_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/setting/setting_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/color_extension.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +49,7 @@ class _SettingButtonState extends State<SettingButton> {
           triggerActions: PopoverTriggerFlags.none,
           child: FlowyTextButton(
             LocaleKeys.settings_title.tr(),
-            fontSize: 14,
+            fontSize: 13,
             fillColor: Colors.transparent,
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
             padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),

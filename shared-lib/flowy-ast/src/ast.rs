@@ -1,21 +1,28 @@
 #![allow(clippy::all)]
 #![allow(unused_attributes)]
 #![allow(unused_assignments)]
-use crate::{attr, ty_ext::*, AttrsContainer, Ctxt};
+
+use crate::event_attrs::EventEnumAttrs;
+use crate::node_attrs::NodeStructAttrs;
+use crate::{is_recognizable_field, ty_ext::*, ASTResult, PBAttrsContainer, PBStructAttrs, NODE_TYPE};
+use proc_macro2::Ident;
+use syn::Meta::NameValue;
 use syn::{self, punctuated::Punctuated};
 
 pub struct ASTContainer<'a> {
     /// The struct or enum name (without generics).
     pub ident: syn::Ident,
+
+    pub node_type: Option<String>,
     /// Attributes on the structure.
-    pub attrs: AttrsContainer,
+    pub pb_attrs: PBAttrsContainer,
     /// The contents of the struct or enum.
     pub data: ASTData<'a>,
 }
 
 impl<'a> ASTContainer<'a> {
-    pub fn from_ast(cx: &Ctxt, ast: &'a syn::DeriveInput) -> Option<ASTContainer<'a>> {
-        let attrs = AttrsContainer::from_ast(cx, ast);
+    pub fn from_ast(ast_result: &ASTResult, ast: &'a syn::DeriveInput) -> Option<ASTContainer<'a>> {
+        let attrs = PBAttrsContainer::from_ast(ast_result, ast);
         // syn::DeriveInput
         //  1. syn::DataUnion
         //  2. syn::DataStruct
@@ -23,21 +30,27 @@ impl<'a> ASTContainer<'a> {
         let data = match &ast.data {
             syn::Data::Struct(data) => {
                 // https://docs.rs/syn/1.0.48/syn/struct.DataStruct.html
-                let (style, fields) = struct_from_ast(cx, &data.fields);
+                let (style, fields) = struct_from_ast(ast_result, &data.fields);
                 ASTData::Struct(style, fields)
             }
             syn::Data::Union(_) => {
-                cx.error_spanned_by(ast, "Does not support derive for unions");
+                ast_result.error_spanned_by(ast, "Does not support derive for unions");
                 return None;
             }
             syn::Data::Enum(data) => {
                 // https://docs.rs/syn/1.0.48/syn/struct.DataEnum.html
-                ASTData::Enum(enum_from_ast(cx, &ast.ident, &data.variants, &ast.attrs))
+                ASTData::Enum(enum_from_ast(ast_result, &ast.ident, &data.variants, &ast.attrs))
             }
         };
 
         let ident = ast.ident.clone();
-        let item = ASTContainer { ident, attrs, data };
+        let node_type = get_node_type(ast_result, &ident, &ast.attrs);
+        let item = ASTContainer {
+            ident,
+            pb_attrs: attrs,
+            node_type,
+            data,
+        };
         Some(item)
     }
 }
@@ -55,7 +68,7 @@ impl<'a> ASTData<'a> {
         }
     }
 
-    pub fn all_variants(&'a self) -> Box<dyn Iterator<Item = &'a attr::ASTEnumAttrVariant> + 'a> {
+    pub fn all_variants(&'a self) -> Box<dyn Iterator<Item = &'a EventEnumAttrs> + 'a> {
         match self {
             ASTData::Enum(variants) => {
                 let iter = variants.iter().map(|variant| &variant.attrs);
@@ -85,7 +98,7 @@ impl<'a> ASTData<'a> {
 /// A variant of an enum.
 pub struct ASTEnumVariant<'a> {
     pub ident: syn::Ident,
-    pub attrs: attr::ASTEnumAttrVariant,
+    pub attrs: EventEnumAttrs,
     pub style: ASTStyle,
     pub fields: Vec<ASTField<'a>>,
     pub original: &'a syn::Variant,
@@ -106,16 +119,19 @@ pub enum BracketCategory {
 
 pub struct ASTField<'a> {
     pub member: syn::Member,
-    pub attrs: attr::ASTAttrField,
+    pub pb_attrs: PBStructAttrs,
+    pub node_attrs: NodeStructAttrs,
     pub ty: &'a syn::Type,
     pub original: &'a syn::Field,
+    // If the field is Vec<String>, then the bracket_ty will be Vec
     pub bracket_ty: Option<syn::Ident>,
+    // If the field is Vec<String>, then the bracket_inner_ty will be String
     pub bracket_inner_ty: Option<syn::Ident>,
     pub bracket_category: Option<BracketCategory>,
 }
 
 impl<'a> ASTField<'a> {
-    pub fn new(cx: &Ctxt, field: &'a syn::Field, index: usize) -> Result<Self, String> {
+    pub fn new(cx: &ASTResult, field: &'a syn::Field, index: usize) -> Result<Self, String> {
         let mut bracket_inner_ty = None;
         let mut bracket_ty = None;
         let mut bracket_category = Some(BracketCategory::Other);
@@ -161,7 +177,8 @@ impl<'a> ASTField<'a> {
                 Some(ident) => syn::Member::Named(ident.clone()),
                 None => syn::Member::Unnamed(index.into()),
             },
-            attrs: attr::ASTAttrField::from_ast(cx, index, field),
+            pb_attrs: PBStructAttrs::from_ast(cx, index, field),
+            node_attrs: NodeStructAttrs::from_ast(cx, index, field),
             ty: &field.ty,
             original: field,
             bracket_ty,
@@ -177,17 +194,12 @@ impl<'a> ASTField<'a> {
         }
     }
 
-    #[allow(dead_code)]
     pub fn name(&self) -> Option<syn::Ident> {
         if let syn::Member::Named(ident) = &self.member {
             Some(ident.clone())
         } else {
             None
         }
-    }
-
-    pub fn is_option(&self) -> bool {
-        attr::is_option(self.ty)
     }
 }
 
@@ -202,7 +214,7 @@ pub enum ASTStyle {
     Unit,
 }
 
-pub fn struct_from_ast<'a>(cx: &Ctxt, fields: &'a syn::Fields) -> (ASTStyle, Vec<ASTField<'a>>) {
+pub fn struct_from_ast<'a>(cx: &ASTResult, fields: &'a syn::Fields) -> (ASTStyle, Vec<ASTField<'a>>) {
     match fields {
         syn::Fields::Named(fields) => (ASTStyle::Struct, fields_from_ast(cx, &fields.named)),
         syn::Fields::Unnamed(fields) if fields.unnamed.len() == 1 => {
@@ -214,7 +226,7 @@ pub fn struct_from_ast<'a>(cx: &Ctxt, fields: &'a syn::Fields) -> (ASTStyle, Vec
 }
 
 pub fn enum_from_ast<'a>(
-    cx: &Ctxt,
+    cx: &ASTResult,
     ident: &syn::Ident,
     variants: &'a Punctuated<syn::Variant, Token![,]>,
     enum_attrs: &[syn::Attribute],
@@ -222,7 +234,7 @@ pub fn enum_from_ast<'a>(
     variants
         .iter()
         .flat_map(|variant| {
-            let attrs = attr::ASTEnumAttrVariant::from_ast(cx, ident, variant, enum_attrs);
+            let attrs = EventEnumAttrs::from_ast(cx, ident, variant, enum_attrs);
             let (style, fields) = struct_from_ast(cx, &variant.fields);
             Some(ASTEnumVariant {
                 ident: variant.ident.clone(),
@@ -235,10 +247,34 @@ pub fn enum_from_ast<'a>(
         .collect()
 }
 
-fn fields_from_ast<'a>(cx: &Ctxt, fields: &'a Punctuated<syn::Field, Token![,]>) -> Vec<ASTField<'a>> {
+fn fields_from_ast<'a>(cx: &ASTResult, fields: &'a Punctuated<syn::Field, Token![,]>) -> Vec<ASTField<'a>> {
     fields
         .iter()
         .enumerate()
-        .flat_map(|(index, field)| ASTField::new(cx, field, index).ok())
+        .flat_map(|(index, field)| {
+            if is_recognizable_field(field) {
+                ASTField::new(cx, field, index).ok()
+            } else {
+                None
+            }
+        })
         .collect()
+}
+
+fn get_node_type(ast_result: &ASTResult, struct_name: &Ident, attrs: &[syn::Attribute]) -> Option<String> {
+    let mut node_type = None;
+    attrs
+        .iter()
+        .filter(|attr| attr.path.segments.iter().any(|s| s.ident == NODE_TYPE))
+        .for_each(|attr| {
+            if let Ok(NameValue(named_value)) = attr.parse_meta() {
+                if node_type.is_some() {
+                    ast_result.error_spanned_by(struct_name, "Duplicate node type definition");
+                }
+                if let syn::Lit::Str(s) = named_value.lit {
+                    node_type = Some(s.value());
+                }
+            }
+        });
+    node_type
 }

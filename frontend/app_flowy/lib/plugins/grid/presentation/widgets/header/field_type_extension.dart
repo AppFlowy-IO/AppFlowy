@@ -19,6 +19,8 @@ extension FieldTypeListExtension on FieldType {
         return "grid/field/single_select";
       case FieldType.URL:
         return "grid/field/url";
+      case FieldType.Checklist:
+        return "grid/field/checklist";
     }
     throw UnimplementedError;
   }
@@ -39,6 +41,8 @@ extension FieldTypeListExtension on FieldType {
         return LocaleKeys.grid_field_singleSelectFieldName.tr();
       case FieldType.URL:
         return LocaleKeys.grid_field_urlFieldName.tr();
+      case FieldType.Checklist:
+        return LocaleKeys.grid_field_checklistFieldName.tr();
     }
     throw UnimplementedError;
   }

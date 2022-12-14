@@ -1,6 +1,6 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellData, CellDataOperation, CellDisplayable};
+use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataOperation, CellDataSerialize, IntoCellData};
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::field::{
@@ -40,11 +40,11 @@ impl SelectTypeOptionSharedAction for SingleSelectTypeOptionPB {
 impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSelectTypeOptionPB {
     fn decode_cell_data(
         &self,
-        cell_data: CellData<SelectOptionIds>,
+        cell_data: IntoCellData<SelectOptionIds>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
+        self.serialize_cell_data_to_bytes(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(
@@ -117,6 +117,27 @@ mod tests {
 
         // Already contain the yes/no option. It doesn't need to insert new options
         single_select.transform(&FieldType::Checkbox, checkbox_type_option_data);
+        debug_assert_eq!(single_select.0.options.len(), 2);
+    }
+
+    #[test]
+    fn single_select_transform_with_multi_select_type_option_test() {
+        let mut multiselect_type_option_builder = MultiSelectTypeOptionBuilder::default();
+
+        let google = SelectOptionPB::new("Google");
+        multiselect_type_option_builder = multiselect_type_option_builder.add_option(google);
+
+        let facebook = SelectOptionPB::new("Facebook");
+        multiselect_type_option_builder = multiselect_type_option_builder.add_option(facebook);
+
+        let multiselect_type_option_data = multiselect_type_option_builder.serializer().json_str();
+
+        let mut single_select = SingleSelectTypeOptionBuilder::default();
+        single_select.transform(&FieldType::MultiSelect, multiselect_type_option_data.clone());
+        debug_assert_eq!(single_select.0.options.len(), 2);
+
+        // Already contain the yes/no option. It doesn't need to insert new options
+        single_select.transform(&FieldType::MultiSelect, multiselect_type_option_data);
         debug_assert_eq!(single_select.0.options.len(), 2);
     }
 

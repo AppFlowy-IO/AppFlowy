@@ -4,3 +4,4 @@ mod field_test;
 mod filter_test;
 mod grid_editor;
 mod group_test;
+mod snapshot_test;

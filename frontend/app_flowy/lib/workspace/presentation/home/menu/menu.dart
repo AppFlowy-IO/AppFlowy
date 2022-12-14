@@ -104,7 +104,7 @@ class HomeMenu extends StatelessWidget {
             ).padding(horizontal: Insets.l),
           ),
           const VSpace(20),
-          const MenuTrash().padding(horizontal: Insets.l),
+          const MenuTrash(),
           const VSpace(20),
           _renderNewAppButton(context),
         ],
@@ -178,6 +178,7 @@ class MenuSharedState {
   }
 
   ViewPB? get latestOpenView => _latestOpenView.value;
+  ValueNotifier<ViewPB?> get notifier => _latestOpenView;
 
   set latestOpenView(ViewPB? view) {
     if (_latestOpenView.value != view) {
@@ -207,8 +208,8 @@ class MenuTopBar extends StatelessWidget {
       return Container();
     }
     return (Theme.of(context).brightness == Brightness.dark
-        ? svgWithSize("flowy_logo_dark_mode", const Size(92, 17))
-        : svgWithSize("flowy_logo_with_text", const Size(92, 17)));
+        ? svgWidget("flowy_logo_dark_mode", size: const Size(92, 17))
+        : svgWidget("flowy_logo_with_text", size: const Size(92, 17)));
   }
 
   @override

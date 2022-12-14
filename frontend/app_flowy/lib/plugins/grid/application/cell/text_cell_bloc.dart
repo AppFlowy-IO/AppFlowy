@@ -18,8 +18,10 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
             _startListening();
           },
           updateText: (text) {
-            cellController.saveCellData(text);
-            emit(state.copyWith(content: text));
+            if (state.content != text) {
+              cellController.saveCellData(text);
+              emit(state.copyWith(content: text));
+            }
           },
           didReceiveCellUpdate: (content) {
             emit(state.copyWith(content: content));

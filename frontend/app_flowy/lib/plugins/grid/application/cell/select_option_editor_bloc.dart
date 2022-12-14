@@ -1,26 +1,24 @@
 import 'dart:async';
-
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
 import 'select_option_service.dart';
 
 part 'select_option_editor_bloc.freezed.dart';
 
 class SelectOptionCellEditorBloc
     extends Bloc<SelectOptionEditorEvent, SelectOptionEditorState> {
-  final SelectOptionService _selectOptionService;
+  final SelectOptionFFIService _selectOptionService;
   final GridSelectOptionCellController cellController;
   Timer? _delayOperation;
 
   SelectOptionCellEditorBloc({
     required this.cellController,
   })  : _selectOptionService =
-            SelectOptionService(cellId: cellController.cellId),
+            SelectOptionFFIService(cellId: cellController.cellId),
         super(SelectOptionEditorState.initial(cellController)) {
     on<SelectOptionEditorEvent>(
       (event, emit) async {

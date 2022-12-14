@@ -1,23 +1,23 @@
-use crate::service::{Service, ServiceFactory};
+use crate::service::{AFPluginServiceFactory, Service};
 use futures_core::future::BoxFuture;
 
 pub fn factory<SF, Req>(factory: SF) -> BoxServiceFactory<SF::Context, Req, SF::Response, SF::Error>
 where
-    SF: ServiceFactory<Req> + 'static + Sync + Send,
+    SF: AFPluginServiceFactory<Req> + 'static + Sync + Send,
     Req: 'static,
     SF::Response: 'static,
     SF::Service: 'static,
     SF::Future: 'static,
     SF::Error: 'static + Send + Sync,
-    <SF as ServiceFactory<Req>>::Service: Sync + Send,
-    <<SF as ServiceFactory<Req>>::Service as Service<Req>>::Future: Send + Sync,
-    <SF as ServiceFactory<Req>>::Future: Send + Sync,
+    <SF as AFPluginServiceFactory<Req>>::Service: Sync + Send,
+    <<SF as AFPluginServiceFactory<Req>>::Service as Service<Req>>::Future: Send + Sync,
+    <SF as AFPluginServiceFactory<Req>>::Future: Send + Sync,
 {
     BoxServiceFactory(Box::new(FactoryWrapper(factory)))
 }
 
 type Inner<Cfg, Req, Res, Err> = Box<
-    dyn ServiceFactory<
+    dyn AFPluginServiceFactory<
             Req,
             Context = Cfg,
             Response = Res,
@@ -29,7 +29,7 @@ type Inner<Cfg, Req, Res, Err> = Box<
 >;
 
 pub struct BoxServiceFactory<Cfg, Req, Res, Err>(Inner<Cfg, Req, Res, Err>);
-impl<Cfg, Req, Res, Err> ServiceFactory<Req> for BoxServiceFactory<Cfg, Req, Res, Err>
+impl<Cfg, Req, Res, Err> AFPluginServiceFactory<Req> for BoxServiceFactory<Cfg, Req, Res, Err>
 where
     Req: 'static,
     Res: 'static,
@@ -98,16 +98,16 @@ where
 
 struct FactoryWrapper<SF>(SF);
 
-impl<SF, Req, Cfg, Res, Err> ServiceFactory<Req> for FactoryWrapper<SF>
+impl<SF, Req, Cfg, Res, Err> AFPluginServiceFactory<Req> for FactoryWrapper<SF>
 where
     Req: 'static,
     Res: 'static,
     Err: 'static,
-    SF: ServiceFactory<Req, Context = Cfg, Response = Res, Error = Err>,
+    SF: AFPluginServiceFactory<Req, Context = Cfg, Response = Res, Error = Err>,
     SF::Future: 'static,
     SF::Service: 'static + Send + Sync,
-    <<SF as ServiceFactory<Req>>::Service as Service<Req>>::Future: Send + Sync + 'static,
-    <SF as ServiceFactory<Req>>::Future: Send + Sync,
+    <<SF as AFPluginServiceFactory<Req>>::Service as Service<Req>>::Future: Send + Sync + 'static,
+    <SF as AFPluginServiceFactory<Req>>::Future: Send + Sync,
 {
     type Response = Res;
     type Error = Err;

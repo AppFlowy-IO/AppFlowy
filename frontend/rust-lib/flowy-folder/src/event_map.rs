@@ -34,17 +34,17 @@ pub trait WorkspaceDatabase: Send + Sync {
     }
 }
 
-pub fn create(folder: Arc<FolderManager>) -> Module {
-    let mut module = Module::new()
+pub fn init(folder: Arc<FolderManager>) -> AFPlugin {
+    let mut plugin = AFPlugin::new()
         .name("Flowy-Workspace")
-        .data(folder.workspace_controller.clone())
-        .data(folder.app_controller.clone())
-        .data(folder.view_controller.clone())
-        .data(folder.trash_controller.clone())
-        .data(folder.clone());
+        .state(folder.workspace_controller.clone())
+        .state(folder.app_controller.clone())
+        .state(folder.view_controller.clone())
+        .state(folder.trash_controller.clone())
+        .state(folder.clone());
 
     // Workspace
-    module = module
+    plugin = plugin
         .event(FolderEvent::CreateWorkspace, create_workspace_handler)
         .event(FolderEvent::ReadCurrentWorkspace, read_cur_workspace_handler)
         .event(FolderEvent::ReadWorkspaces, read_workspaces_handler)
@@ -52,14 +52,14 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
         .event(FolderEvent::ReadWorkspaceApps, read_workspace_apps_handler);
 
     // App
-    module = module
+    plugin = plugin
         .event(FolderEvent::CreateApp, create_app_handler)
         .event(FolderEvent::ReadApp, read_app_handler)
         .event(FolderEvent::UpdateApp, update_app_handler)
         .event(FolderEvent::DeleteApp, delete_app_handler);
 
     // View
-    module = module
+    plugin = plugin
         .event(FolderEvent::CreateView, create_view_handler)
         .event(FolderEvent::ReadView, read_view_handler)
         .event(FolderEvent::UpdateView, update_view_handler)
@@ -71,14 +71,14 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
         .event(FolderEvent::MoveFolderItem, move_item_handler);
 
     // Trash
-    module = module
+    plugin = plugin
         .event(FolderEvent::ReadTrash, read_trash_handler)
         .event(FolderEvent::PutbackTrash, putback_trash_handler)
         .event(FolderEvent::DeleteTrash, delete_trash_handler)
         .event(FolderEvent::RestoreAllTrash, restore_all_trash_handler)
         .event(FolderEvent::DeleteAllTrash, delete_all_trash_handler);
 
-    module
+    plugin
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]

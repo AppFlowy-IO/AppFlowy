@@ -158,8 +158,12 @@
       "open": "Open Settings"
     },
     "appearance": {
-      "lightLabel": "Light Mode",
-      "darkLabel": "Dark Mode"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Light Mode",
+        "dark": "Dark Mode",
+        "system": "Adapt to System"
+      }
     }
   },
   "grid": {
@@ -197,6 +201,10 @@
         "is": "is"
       }
     },
+    "checklistFilter": {
+      "isComplete": "is complete",
+      "isIncomplted": "is incomplete"
+    },
     "singleSelectOptionFilter": {
       "is": "Is",
       "isNot": "Is not",
@@ -222,6 +230,7 @@
       "singleSelectFieldName": "Select",
       "multiSelectFieldName": "Multiselect",
       "urlFieldName": "URL",
+      "checklistFieldName": "Checklist",
       "numberFormat": " Number format",
       "dateFormat": " Date format",
       "includeTime": " Include time",
@@ -263,6 +272,9 @@
       "colorPanelTitle": "Colors",
       "panelTitle": "Select an option or create one",
       "searchOption": "Search for an option"
+    },
+    "checklist": {
+      "panelTitle": "Add an item"
     },
     "menuName": "Grid"
   },

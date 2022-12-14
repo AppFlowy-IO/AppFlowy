@@ -1,4 +1,4 @@
-use crate::Ctxt;
+use crate::ASTResult;
 use syn::{self, AngleBracketedGenericArguments, PathSegment};
 
 #[derive(Eq, PartialEq, Debug)]
@@ -41,7 +41,7 @@ impl<'a> TyInfo<'a> {
     }
 }
 
-pub fn parse_ty<'a>(ctxt: &Ctxt, ty: &'a syn::Type) -> Result<Option<TyInfo<'a>>, String> {
+pub fn parse_ty<'a>(ast_result: &ASTResult, ty: &'a syn::Type) -> Result<Option<TyInfo<'a>>, String> {
     // Type -> TypePath -> Path -> PathSegment -> PathArguments ->
     // AngleBracketedGenericArguments -> GenericArgument -> Type.
     if let syn::Type::Path(ref p) = ty {
@@ -58,11 +58,13 @@ pub fn parse_ty<'a>(ctxt: &Ctxt, ty: &'a syn::Type) -> Result<Option<TyInfo<'a>>
 
         return if let syn::PathArguments::AngleBracketed(ref bracketed) = seg.arguments {
             match seg.ident.to_string().as_ref() {
-                "HashMap" => generate_hashmap_ty_info(ctxt, ty, seg, bracketed),
-                "Vec" => generate_vec_ty_info(ctxt, seg, bracketed),
-                "Option" => generate_option_ty_info(ctxt, ty, seg, bracketed),
+                "HashMap" => generate_hashmap_ty_info(ast_result, ty, seg, bracketed),
+                "Vec" => generate_vec_ty_info(ast_result, seg, bracketed),
+                "Option" => generate_option_ty_info(ast_result, ty, seg, bracketed),
                 _ => {
-                    return Err(format!("Unsupported ty {}", seg.ident));
+                    let msg = format!("Unsupported type: {}", seg.ident);
+                    ast_result.error_spanned_by(&seg.ident, &msg);
+                    return Err(msg);
                 }
             }
         } else {
@@ -92,7 +94,7 @@ fn parse_bracketed(bracketed: &AngleBracketedGenericArguments) -> Vec<&syn::Type
 }
 
 pub fn generate_hashmap_ty_info<'a>(
-    ctxt: &Ctxt,
+    ast_result: &ASTResult,
     ty: &'a syn::Type,
     path_segment: &'a PathSegment,
     bracketed: &'a AngleBracketedGenericArguments,
@@ -102,9 +104,9 @@ pub fn generate_hashmap_ty_info<'a>(
         return Ok(None);
     }
     let types = parse_bracketed(bracketed);
-    let key = parse_ty(ctxt, types[0])?.unwrap().ident.to_string();
-    let value = parse_ty(ctxt, types[1])?.unwrap().ident.to_string();
-    let bracket_ty_info = Box::new(parse_ty(ctxt, types[1])?);
+    let key = parse_ty(ast_result, types[0])?.unwrap().ident.to_string();
+    let value = parse_ty(ast_result, types[1])?.unwrap().ident.to_string();
+    let bracket_ty_info = Box::new(parse_ty(ast_result, types[1])?);
     Ok(Some(TyInfo {
         ident: &path_segment.ident,
         ty,
@@ -114,14 +116,14 @@ pub fn generate_hashmap_ty_info<'a>(
 }
 
 fn generate_option_ty_info<'a>(
-    ctxt: &Ctxt,
+    ast_result: &ASTResult,
     ty: &'a syn::Type,
     path_segment: &'a PathSegment,
     bracketed: &'a AngleBracketedGenericArguments,
 ) -> Result<Option<TyInfo<'a>>, String> {
     assert_eq!(path_segment.ident.to_string(), "Option".to_string());
     let types = parse_bracketed(bracketed);
-    let bracket_ty_info = Box::new(parse_ty(ctxt, types[0])?);
+    let bracket_ty_info = Box::new(parse_ty(ast_result, types[0])?);
     Ok(Some(TyInfo {
         ident: &path_segment.ident,
         ty,
@@ -131,7 +133,7 @@ fn generate_option_ty_info<'a>(
 }
 
 fn generate_vec_ty_info<'a>(
-    ctxt: &Ctxt,
+    ast_result: &ASTResult,
     path_segment: &'a PathSegment,
     bracketed: &'a AngleBracketedGenericArguments,
 ) -> Result<Option<TyInfo<'a>>, String> {
@@ -139,7 +141,7 @@ fn generate_vec_ty_info<'a>(
         return Ok(None);
     }
     if let syn::GenericArgument::Type(ref bracketed_type) = bracketed.args.first().unwrap() {
-        let bracketed_ty_info = Box::new(parse_ty(ctxt, bracketed_type)?);
+        let bracketed_ty_info = Box::new(parse_ty(ast_result, bracketed_type)?);
         return Ok(Some(TyInfo {
             ident: &path_segment.ident,
             ty: bracketed_type,

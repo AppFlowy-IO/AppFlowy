@@ -338,12 +338,11 @@ class RowCountBadge extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              FlowyText.regular(
+              FlowyText.medium(
                 '${LocaleKeys.grid_row_count.tr()} : ',
-                fontSize: 13,
                 color: Theme.of(context).hintColor,
               ),
-              FlowyText.regular(rowCount.toString(), fontSize: 13),
+              FlowyText.medium(rowCount.toString()),
             ],
           ),
         );

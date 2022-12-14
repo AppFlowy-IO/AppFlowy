@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +48,6 @@ class SelectOptionTextField extends StatefulWidget {
 class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
   late FocusNode focusNode;
   late TextEditingController controller;
-  var textLength = 0;
 
   @override
   void initState() {
@@ -64,7 +62,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
 
   String? _suffixText() {
     if (widget.maxLength != null) {
-      return '${textLength.toString()}/${widget.maxLength.toString()}';
+      return ' ${controller.text.length}/${widget.maxLength}';
     } else {
       return null;
     }
@@ -92,7 +90,6 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
             focusNode: focusNode,
             onTap: widget.onClick,
             onChanged: (text) {
-              textLength = text.length;
               if (onChanged != null) {
                 onChanged(text);
               }
@@ -112,11 +109,11 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
             maxLength: widget.maxLength,
             maxLengthEnforcement:
                 MaxLengthEnforcement.truncateAfterCompositionEnds,
-            style: TextStyles.body1.size(FontSizes.s14),
+            style: Theme.of(context).textTheme.bodyMedium,
             decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).colorScheme.outline,
                   width: 1.0,
                 ),
                 borderRadius: Corners.s10Border,
@@ -124,6 +121,10 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
               isDense: true,
               prefixIcon: _renderTags(context, sc),
               hintText: LocaleKeys.grid_selectOption_searchOption.tr(),
+              hintStyle: Theme.of(context)
+                  .textTheme
+                  .bodySmall!
+                  .textColor(Theme.of(context).hintColor),
               suffixText: _suffixText(),
               counterText: "",
               prefixIconConstraints:

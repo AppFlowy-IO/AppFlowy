@@ -37,7 +37,7 @@ class GridGroupList extends StatelessWidget {
               key: ValueKey(fieldInfo.id),
             );
 
-            if (!fieldInfo.canGroup) {
+            if (!fieldInfo.canBeGroup) {
               cell = IgnorePointer(child: Opacity(opacity: 0.3, child: cell));
             }
             return cell;

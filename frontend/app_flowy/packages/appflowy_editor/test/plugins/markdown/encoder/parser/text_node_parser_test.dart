@@ -86,7 +86,7 @@ void main() async {
       final node = TextNode(
         delta: Delta(operations: [TextInsert(text)]),
         attributes: {
-          BuiltInAttributeKey.subtype: 'code-block',
+          BuiltInAttributeKey.subtype: 'code_block',
         },
       );
       expect(const TextNodeParser().transform(node), '```\n$text\n```');

@@ -1,10 +1,10 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{CellChangesetPB, CellPathPB, CellPathParams, FieldType};
 use crate::services::cell::{
-    CellBytes, CellBytesParser, CellData, CellDataIsEmpty, CellDisplayable, FromCellChangeset, FromCellString,
+    CellBytes, CellBytesParser, CellDataIsEmpty, CellDataSerialize, FromCellChangeset, FromCellString, IntoCellData,
 };
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
-use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
+use crate::services::field::{ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
@@ -69,7 +69,10 @@ impl std::default::Default for SelectOptionColorPB {
     }
 }
 
-pub fn make_selected_options(cell_data: CellData<SelectOptionIds>, options: &[SelectOptionPB]) -> Vec<SelectOptionPB> {
+pub fn make_selected_options(
+    cell_data: IntoCellData<SelectOptionIds>,
+    options: &[SelectOptionPB],
+) -> Vec<SelectOptionPB> {
     if let Ok(ids) = cell_data.try_into_inner() {
         ids.iter()
             .flat_map(|option_id| options.iter().find(|option| &option.id == option_id).cloned())
@@ -110,7 +113,7 @@ pub trait SelectTypeOptionSharedAction: TypeOptionDataSerializer + Send + Sync {
     }
 
     /// Return a list of options that are selected by user
-    fn get_selected_options(&self, cell_data: CellData<SelectOptionIds>) -> SelectOptionCellDataPB {
+    fn get_selected_options(&self, cell_data: IntoCellData<SelectOptionIds>) -> SelectOptionCellDataPB {
         let mut select_options = make_selected_options(cell_data, self.options());
         match self.number_of_max_options() {
             None => {}
@@ -126,7 +129,7 @@ pub trait SelectTypeOptionSharedAction: TypeOptionDataSerializer + Send + Sync {
 
     fn transform_cell_data(
         &self,
-        cell_data: CellData<SelectOptionIds>,
+        cell_data: IntoCellData<SelectOptionIds>,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
@@ -150,7 +153,9 @@ pub trait SelectTypeOptionSharedAction: TypeOptionDataSerializer + Send + Sync {
                     })
                 });
 
-                return CellBytes::from(self.get_selected_options(CellData(Some(SelectOptionIds(transformed_ids)))));
+                return CellBytes::from(
+                    self.get_selected_options(IntoCellData(Some(SelectOptionIds(transformed_ids)))),
+                );
             }
             _ => {
                 return Ok(CellBytes::default());
@@ -165,13 +170,13 @@ pub trait SelectTypeOptionSharedAction: TypeOptionDataSerializer + Send + Sync {
     fn mut_options(&mut self) -> &mut Vec<SelectOptionPB>;
 }
 
-impl<T> CellDisplayable<SelectOptionIds> for T
+impl<T> CellDataSerialize<SelectOptionIds> for T
 where
     T: SelectTypeOptionSharedAction,
 {
-    fn displayed_cell_bytes(
+    fn serialize_cell_data_to_bytes(
         &self,
-        cell_data: CellData<SelectOptionIds>,
+        cell_data: IntoCellData<SelectOptionIds>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
@@ -183,9 +188,9 @@ where
         )
     }
 
-    fn displayed_cell_string(
+    fn serialize_cell_data_to_str(
         &self,
-        cell_data: CellData<SelectOptionIds>,
+        cell_data: IntoCellData<SelectOptionIds>,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<String> {
@@ -210,6 +215,10 @@ pub fn select_type_option_from_field_rev(
         }
         FieldType::MultiSelect => {
             let type_option = MultiSelectTypeOptionPB::from(field_rev);
+            Ok(Box::new(type_option))
+        }
+        FieldType::Checklist => {
+            let type_option = ChecklistTypeOptionPB::from(field_rev);
             Ok(Box::new(type_option))
         }
         ty => {

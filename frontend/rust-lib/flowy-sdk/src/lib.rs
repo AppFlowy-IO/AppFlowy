@@ -19,7 +19,7 @@ use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::services::{notifier::UserStatus, UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::tokio_default_runtime;
-use module::mk_modules;
+use module::make_plugins;
 pub use module::*;
 use std::time::Duration;
 use std::{
@@ -105,7 +105,7 @@ pub struct FlowySDK {
     pub document_manager: Arc<DocumentManager>,
     pub folder_manager: Arc<FolderManager>,
     pub grid_manager: Arc<GridManager>,
-    pub event_dispatcher: Arc<EventDispatcher>,
+    pub event_dispatcher: Arc<AFPluginDispatcher>,
     pub ws_conn: Arc<FlowyWebSocketConnect>,
     pub local_server: Option<Arc<LocalServer>>,
     pub task_dispatcher: Arc<RwLock<TaskDispatcher>>,
@@ -158,8 +158,8 @@ impl FlowySDK {
             )
         });
 
-        let event_dispatcher = Arc::new(EventDispatcher::construct(runtime, || {
-            mk_modules(
+        let event_dispatcher = Arc::new(AFPluginDispatcher::construct(runtime, || {
+            make_plugins(
                 &ws_conn,
                 &folder_manager,
                 &grid_manager,
@@ -191,14 +191,14 @@ impl FlowySDK {
         }
     }
 
-    pub fn dispatcher(&self) -> Arc<EventDispatcher> {
+    pub fn dispatcher(&self) -> Arc<AFPluginDispatcher> {
         self.event_dispatcher.clone()
     }
 }
 
 fn _start_listening(
     config: &FlowySDKConfig,
-    event_dispatch: &EventDispatcher,
+    event_dispatcher: &AFPluginDispatcher,
     ws_conn: &Arc<FlowyWebSocketConnect>,
     user_session: &Arc<UserSession>,
     document_manager: &Arc<DocumentManager>,
@@ -215,7 +215,7 @@ fn _start_listening(
     let document_manager = document_manager.clone();
     let config = config.clone();
 
-    event_dispatch.spawn(async move {
+    event_dispatcher.spawn(async move {
         user_session.init();
         listen_on_websocket(ws_conn.clone());
         _listen_user_status(
@@ -229,7 +229,7 @@ fn _start_listening(
         .await;
     });
 
-    event_dispatch.spawn(async move {
+    event_dispatcher.spawn(async move {
         _listen_network_status(subscribe_network_type, cloned_folder_manager).await;
     });
 }

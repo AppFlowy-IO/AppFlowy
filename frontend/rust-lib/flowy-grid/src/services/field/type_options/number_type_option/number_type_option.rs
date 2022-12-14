@@ -1,15 +1,13 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellData, CellDataOperation, CellDisplayable};
+use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataOperation, CellDataSerialize, IntoCellData};
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{BoxTypeOptionBuilder, NumberCellData, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
-
 use rust_decimal::Decimal;
-
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -105,10 +103,10 @@ pub(crate) fn strip_currency_symbol<T: ToString>(s: T) -> String {
     s
 }
 
-impl CellDisplayable<String> for NumberTypeOptionPB {
-    fn displayed_cell_bytes(
+impl CellDataSerialize<String> for NumberTypeOptionPB {
+    fn serialize_cell_data_to_bytes(
         &self,
-        cell_data: CellData<String>,
+        cell_data: IntoCellData<String>,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
@@ -119,9 +117,9 @@ impl CellDisplayable<String> for NumberTypeOptionPB {
         }
     }
 
-    fn displayed_cell_string(
+    fn serialize_cell_data_to_str(
         &self,
-        cell_data: CellData<String>,
+        cell_data: IntoCellData<String>,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<String> {
@@ -135,7 +133,7 @@ pub type NumberCellChangeset = String;
 impl CellDataOperation<String, NumberCellChangeset> for NumberTypeOptionPB {
     fn decode_cell_data(
         &self,
-        cell_data: CellData<String>,
+        cell_data: IntoCellData<String>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
@@ -143,7 +141,7 @@ impl CellDataOperation<String, NumberCellChangeset> for NumberTypeOptionPB {
             return Ok(CellBytes::default());
         }
 
-        self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
+        self.serialize_cell_data_to_bytes(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(

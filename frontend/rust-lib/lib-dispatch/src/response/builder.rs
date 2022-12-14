@@ -1,6 +1,6 @@
 use crate::{
     request::Payload,
-    response::{EventResponse, StatusCode},
+    response::{AFPluginEventResponse, StatusCode},
 };
 
 macro_rules! static_response {
@@ -30,8 +30,8 @@ impl ResponseBuilder {
         self
     }
 
-    pub fn build(self) -> EventResponse {
-        EventResponse {
+    pub fn build(self) -> AFPluginEventResponse {
+        AFPluginEventResponse {
             payload: self.payload,
             status_code: self.status,
         }

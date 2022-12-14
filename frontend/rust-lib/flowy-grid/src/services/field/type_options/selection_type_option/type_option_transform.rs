@@ -1,10 +1,12 @@
 use crate::entities::FieldType;
-use crate::services::cell::{CellBytes, CellData};
+use crate::services::cell::{CellBytes, IntoCellData};
 use crate::services::field::{
-    SelectOptionColorPB, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction, CHECK, UNCHECK,
+    MultiSelectTypeOptionPB, SelectOptionColorPB, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction,
+    SingleSelectTypeOptionPB, CHECK, UNCHECK,
 };
 use flowy_error::FlowyResult;
 use grid_rev_model::FieldRevision;
+use serde_json;
 
 /// Handles how to transform the cell data when switching between different field types
 pub struct SelectOptionTypeOptionTransformer();
@@ -33,14 +35,29 @@ impl SelectOptionTypeOptionTransformer {
                     shared.mut_options().push(uncheck_option);
                 }
             }
-            FieldType::MultiSelect => {}
+            FieldType::MultiSelect => {
+                let option_pb: MultiSelectTypeOptionPB = serde_json::from_str(_type_option_data.as_str()).unwrap();
+                option_pb.options.iter().for_each(|new_option| {
+                    if !shared.options().iter().any(|option| option.name == new_option.name) {
+                        shared.mut_options().push(new_option.clone());
+                    }
+                })
+            }
+            FieldType::SingleSelect => {
+                let option_pb: SingleSelectTypeOptionPB = serde_json::from_str(_type_option_data.as_str()).unwrap();
+                option_pb.options.iter().for_each(|new_option| {
+                    if !shared.options().iter().any(|option| option.name == new_option.name) {
+                        shared.mut_options().push(new_option.clone());
+                    }
+                })
+            }
             _ => {}
         }
     }
 
     pub fn transform_type_option_cell_data<T>(
         shared: &T,
-        cell_data: CellData<SelectOptionIds>,
+        cell_data: IntoCellData<SelectOptionIds>,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes>
@@ -48,7 +65,7 @@ impl SelectOptionTypeOptionTransformer {
         T: SelectTypeOptionSharedAction,
     {
         match decoded_field_type {
-            FieldType::SingleSelect | FieldType::MultiSelect => {
+            FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => {
                 //
                 CellBytes::from(shared.get_selected_options(cell_data))
             }
@@ -61,7 +78,7 @@ impl SelectOptionTypeOptionTransformer {
                         transformed_ids.push(option.id.clone());
                     }
                 });
-                let transformed_cell_data = CellData::from(SelectOptionIds::from(transformed_ids));
+                let transformed_cell_data = IntoCellData::from(SelectOptionIds::from(transformed_ids));
                 CellBytes::from(shared.get_selected_options(transformed_cell_data))
             }
             _ => Ok(CellBytes::default()),

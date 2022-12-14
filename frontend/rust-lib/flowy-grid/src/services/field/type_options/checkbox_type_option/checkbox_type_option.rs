@@ -1,6 +1,6 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellData, CellDataOperation, CellDisplayable};
+use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataOperation, CellDataSerialize, IntoCellData};
 use crate::services::field::{BoxTypeOptionBuilder, CheckboxCellData, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -42,10 +42,10 @@ pub struct CheckboxTypeOptionPB {
 }
 impl_type_option!(CheckboxTypeOptionPB, FieldType::Checkbox);
 
-impl CellDisplayable<CheckboxCellData> for CheckboxTypeOptionPB {
-    fn displayed_cell_bytes(
+impl CellDataSerialize<CheckboxCellData> for CheckboxTypeOptionPB {
+    fn serialize_cell_data_to_bytes(
         &self,
-        cell_data: CellData<CheckboxCellData>,
+        cell_data: IntoCellData<CheckboxCellData>,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
@@ -53,9 +53,9 @@ impl CellDisplayable<CheckboxCellData> for CheckboxTypeOptionPB {
         Ok(CellBytes::new(cell_data))
     }
 
-    fn displayed_cell_string(
+    fn serialize_cell_data_to_str(
         &self,
-        cell_data: CellData<CheckboxCellData>,
+        cell_data: IntoCellData<CheckboxCellData>,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<String> {
@@ -69,7 +69,7 @@ pub type CheckboxCellChangeset = String;
 impl CellDataOperation<CheckboxCellData, CheckboxCellChangeset> for CheckboxTypeOptionPB {
     fn decode_cell_data(
         &self,
-        cell_data: CellData<CheckboxCellData>,
+        cell_data: IntoCellData<CheckboxCellData>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
@@ -77,7 +77,7 @@ impl CellDataOperation<CheckboxCellData, CheckboxCellChangeset> for CheckboxType
             return Ok(CellBytes::default());
         }
 
-        self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
+        self.serialize_cell_data_to_bytes(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(

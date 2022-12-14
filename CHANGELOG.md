@@ -1,4 +1,23 @@
 # Release Notes
+## Version 0.0.8.1 - 12/09/2022
+### New features
+- Support following your default system theme
+- Improve the filter in Grid
+### Bug Fixes
+- Copy/Paste
+
+## Version 0.0.8 - 11/30/2022
+### New features
+- Table-view database
+  - support column type: Checklist 
+- Board-view database
+  - support column type: Checklist 
+- Customize font size: small, medium, large
+
+## Version 0.0.7.1 - 11/30/2022
+### Bug Fixes
+- Fix some bugs 
+
 ## Version 0.0.7 - 11/27/2022 
 ### New features
 - Support adding filters by the text/checkbox/single-select property in Grid
@@ -129,7 +148,7 @@ v0.0.4 - beta.1 is pre-release
 
 ### New features
 - Table-view database
-   - supported column types: Text, Checkbox, Single-select, Multi-select, Numbers
+   - support column types: Text, Checkbox, Single-select, Multi-select, Numbers
    - hide / delete columns
    - insert rows
 

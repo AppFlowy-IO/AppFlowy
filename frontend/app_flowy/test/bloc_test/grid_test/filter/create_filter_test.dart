@@ -19,7 +19,7 @@ void main() {
     final textField = context.textFieldContext();
     await service.insertTextFilter(
         fieldId: textField.id,
-        condition: TextFilterCondition.TextIsEmpty,
+        condition: TextFilterConditionPB.TextIsEmpty,
         content: "");
     await gridResponseFuture();
 
@@ -32,7 +32,7 @@ void main() {
     final textField = context.textFieldContext();
     await service.insertTextFilter(
         fieldId: textField.id,
-        condition: TextFilterCondition.TextIsEmpty,
+        condition: TextFilterConditionPB.TextIsEmpty,
         content: "");
     await gridResponseFuture();
 
@@ -60,7 +60,7 @@ void main() {
     final textField = context.textFieldContext();
     service.insertTextFilter(
         fieldId: textField.id,
-        condition: TextFilterCondition.TextIsEmpty,
+        condition: TextFilterConditionPB.TextIsEmpty,
         content: "");
     await gridResponseFuture();
 
@@ -81,7 +81,7 @@ void main() {
     final textField = context.textFieldContext();
     await service.insertTextFilter(
         fieldId: textField.id,
-        condition: TextFilterCondition.TextIsEmpty,
+        condition: TextFilterConditionPB.TextIsEmpty,
         content: "");
     await gridResponseFuture();
 
@@ -102,7 +102,7 @@ void main() {
     await gridResponseFuture();
     await service.insertTextFilter(
         fieldId: textField.id,
-        condition: TextFilterCondition.TextIsNotEmpty,
+        condition: TextFilterConditionPB.TextIsNotEmpty,
         content: "");
     await gridResponseFuture();
     assert(context.rowInfos.isEmpty);
@@ -121,7 +121,7 @@ void main() {
     await gridResponseFuture();
     await service.insertCheckboxFilter(
       fieldId: checkboxField.id,
-      condition: CheckboxFilterCondition.IsUnChecked,
+      condition: CheckboxFilterConditionPB.IsUnChecked,
     );
     await gridResponseFuture();
     assert(gridBloc.state.rowInfos.length == 3);
@@ -140,7 +140,7 @@ void main() {
     await gridResponseFuture();
     await service.insertCheckboxFilter(
       fieldId: checkboxField.id,
-      condition: CheckboxFilterCondition.IsChecked,
+      condition: CheckboxFilterConditionPB.IsChecked,
     );
     await gridResponseFuture();
     assert(gridBloc.state.rowInfos.isEmpty);

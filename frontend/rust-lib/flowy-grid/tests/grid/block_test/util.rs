@@ -2,7 +2,7 @@ use flowy_grid::entities::FieldType;
 use std::sync::Arc;
 
 use flowy_grid::services::field::{
-    DateCellChangeset, MultiSelectTypeOptionPB, SelectOptionPB, SingleSelectTypeOptionPB,
+    ChecklistTypeOptionPB, DateCellChangeset, MultiSelectTypeOptionPB, SelectOptionPB, SingleSelectTypeOptionPB,
 };
 use flowy_grid::services::row::RowRevisionBuilder;
 use grid_rev_model::{FieldRevision, RowRevision};
@@ -90,6 +90,19 @@ impl<'a> GridRowTestBuilder<'a> {
         multi_select_field.id.clone()
     }
 
+    pub fn insert_checklist_cell<F>(&mut self, f: F) -> String
+    where
+        F: Fn(Vec<SelectOptionPB>) -> Vec<SelectOptionPB>,
+    {
+        let checklist_field = self.field_rev_with_type(&FieldType::Checklist);
+        let type_option = ChecklistTypeOptionPB::from(&checklist_field);
+        let options = f(type_option.options);
+        let ops_ids = options.iter().map(|option| option.id.clone()).collect::<Vec<_>>();
+        self.inner_builder
+            .insert_select_option_cell(&checklist_field.id, ops_ids);
+
+        checklist_field.id.clone()
+    }
     pub fn field_rev_with_type(&self, field_type: &FieldType) -> FieldRevision {
         self.field_revs
             .iter()

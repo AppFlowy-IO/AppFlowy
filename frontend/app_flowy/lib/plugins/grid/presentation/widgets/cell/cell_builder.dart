@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'cell_accessory.dart';
 import 'cell_shortcuts.dart';
 import 'checkbox_cell.dart';
+import 'checklist_cell/checklist_cell.dart';
 import 'date_cell/date_cell.dart';
 import 'number_cell.dart';
 import 'select_option_cell/select_option_cell.dart';
@@ -53,6 +54,11 @@ class GridCellBuilder {
         return GridMultiSelectCell(
           cellControllerBuilder: cellControllerBuilder,
           style: style,
+          key: key,
+        );
+      case FieldType.Checklist:
+        return GridChecklistCell(
+          cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.Number:

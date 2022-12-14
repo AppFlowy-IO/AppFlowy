@@ -7,7 +7,7 @@ use std::str::FromStr;
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct DateFilterPB {
     #[pb(index = 1)]
-    pub condition: DateFilterCondition,
+    pub condition: DateFilterConditionPB,
 
     #[pb(index = 2, one_of)]
     pub start: Option<i64>,
@@ -20,19 +20,19 @@ pub struct DateFilterPB {
 }
 
 #[derive(Deserialize, Serialize, Default, Clone, Debug)]
-pub struct DateFilterContent {
+pub struct DateFilterContentPB {
     pub start: Option<i64>,
     pub end: Option<i64>,
     pub timestamp: Option<i64>,
 }
 
-impl ToString for DateFilterContent {
+impl ToString for DateFilterContentPB {
     fn to_string(&self) -> String {
         serde_json::to_string(self).unwrap()
     }
 }
 
-impl FromStr for DateFilterContent {
+impl FromStr for DateFilterContentPB {
     type Err = serde_json::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -42,7 +42,7 @@ impl FromStr for DateFilterContent {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
-pub enum DateFilterCondition {
+pub enum DateFilterConditionPB {
     DateIs = 0,
     DateBefore = 1,
     DateAfter = 2,
@@ -53,42 +53,42 @@ pub enum DateFilterCondition {
     DateIsNotEmpty = 7,
 }
 
-impl std::convert::From<DateFilterCondition> for u32 {
-    fn from(value: DateFilterCondition) -> Self {
+impl std::convert::From<DateFilterConditionPB> for u32 {
+    fn from(value: DateFilterConditionPB) -> Self {
         value as u32
     }
 }
-impl std::default::Default for DateFilterCondition {
+impl std::default::Default for DateFilterConditionPB {
     fn default() -> Self {
-        DateFilterCondition::DateIs
+        DateFilterConditionPB::DateIs
     }
 }
 
-impl std::convert::TryFrom<u8> for DateFilterCondition {
+impl std::convert::TryFrom<u8> for DateFilterConditionPB {
     type Error = ErrorCode;
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value {
-            0 => Ok(DateFilterCondition::DateIs),
-            1 => Ok(DateFilterCondition::DateBefore),
-            2 => Ok(DateFilterCondition::DateAfter),
-            3 => Ok(DateFilterCondition::DateOnOrBefore),
-            4 => Ok(DateFilterCondition::DateOnOrAfter),
-            5 => Ok(DateFilterCondition::DateWithIn),
-            6 => Ok(DateFilterCondition::DateIsEmpty),
+            0 => Ok(DateFilterConditionPB::DateIs),
+            1 => Ok(DateFilterConditionPB::DateBefore),
+            2 => Ok(DateFilterConditionPB::DateAfter),
+            3 => Ok(DateFilterConditionPB::DateOnOrBefore),
+            4 => Ok(DateFilterConditionPB::DateOnOrAfter),
+            5 => Ok(DateFilterConditionPB::DateWithIn),
+            6 => Ok(DateFilterConditionPB::DateIsEmpty),
             _ => Err(ErrorCode::InvalidData),
         }
     }
 }
 impl std::convert::From<&FilterRevision> for DateFilterPB {
     fn from(rev: &FilterRevision) -> Self {
-        let condition = DateFilterCondition::try_from(rev.condition).unwrap_or(DateFilterCondition::DateIs);
+        let condition = DateFilterConditionPB::try_from(rev.condition).unwrap_or(DateFilterConditionPB::DateIs);
         let mut filter = DateFilterPB {
             condition,
             ..Default::default()
         };
 
-        if let Ok(content) = DateFilterContent::from_str(&rev.content) {
+        if let Ok(content) = DateFilterContentPB::from_str(&rev.content) {
             filter.start = content.start;
             filter.end = content.end;
             filter.timestamp = content.timestamp;

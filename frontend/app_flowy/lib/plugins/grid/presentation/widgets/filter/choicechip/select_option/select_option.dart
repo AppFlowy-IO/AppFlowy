@@ -4,7 +4,6 @@ import 'package:app_flowy/plugins/grid/presentation/widgets/filter/filter_info.d
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_option_filter.pb.dart';
@@ -62,7 +61,7 @@ class _SelectOptionFilterChoicechipState
         builder: (blocContext, state) {
           return AppFlowyPopover(
             controller: PopoverController(),
-            constraints: BoxConstraints.loose(const Size(200, 160)),
+            constraints: BoxConstraints.loose(const Size(240, 160)),
             direction: PopoverDirection.bottomWithCenterAligned,
             popupBuilder: (BuildContext context) {
               return SelectOptionFilterEditor(bloc: bloc);
@@ -102,9 +101,9 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
             SliverToBoxAdapter(child: _buildFilterPannel(context, state)),
           ];
 
-          if (state.filter.condition != SelectOptionCondition.OptionIsEmpty &&
+          if (state.filter.condition != SelectOptionConditionPB.OptionIsEmpty &&
               state.filter.condition !=
-                  SelectOptionCondition.OptionIsNotEmpty) {
+                  SelectOptionConditionPB.OptionIsNotEmpty) {
             slivers.add(const SliverToBoxAdapter(child: VSpace(4)));
             slivers.add(
               SliverToBoxAdapter(

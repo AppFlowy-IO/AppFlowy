@@ -1,5 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_filter.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/checklist_filter.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_filter.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_option_filter.pbserver.dart';
@@ -46,6 +47,14 @@ class FilterInfo {
     if (filter.fieldType == FieldType.SingleSelect ||
         filter.fieldType == FieldType.MultiSelect) {
       return SelectOptionFilterPB.fromBuffer(filter.data);
+    } else {
+      return null;
+    }
+  }
+
+  ChecklistFilterPB? checklistFilter() {
+    if (filter.fieldType == FieldType.Checklist) {
+      return ChecklistFilterPB.fromBuffer(filter.data);
     } else {
       return null;
     }

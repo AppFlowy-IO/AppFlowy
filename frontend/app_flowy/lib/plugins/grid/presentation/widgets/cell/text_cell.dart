@@ -1,13 +1,10 @@
 import 'dart:async';
 import 'package:app_flowy/plugins/grid/presentation/widgets/cell/prelude.dart';
-import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import '../../layout/sizes.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 import 'cell_builder.dart';
 
 class GridTextCellStyle extends GridCellStyle {
@@ -40,7 +37,6 @@ class GridTextCell extends GridCellWidget {
 class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
   late TextCellBloc _cellBloc;
   late TextEditingController _controller;
-  Timer? _delayOperation;
 
   @override
   void initState() {
@@ -69,10 +65,8 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
           child: TextField(
             controller: _controller,
             focusNode: focusNode,
-            onChanged: (value) => focusChanged(),
-            onEditingComplete: () => focusNode.unfocus(),
             maxLines: null,
-            style: TextStyles.body1.size(FontSizes.s14),
+            style: Theme.of(context).textTheme.bodyMedium,
             decoration: InputDecoration(
               contentPadding: EdgeInsets.only(
                 top: GridSize.cellContentInsets.top,
@@ -90,22 +84,8 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
 
   @override
   Future<void> dispose() async {
-    _delayOperation = null;
     _cellBloc.close();
     super.dispose();
-  }
-
-  @override
-  Future<void> focusChanged() async {
-    if (mounted) {
-      _delayOperation?.cancel();
-      _delayOperation = Timer(const Duration(milliseconds: 30), () {
-        if (_cellBloc.isClosed == false &&
-            _controller.text != _cellBloc.state.content) {
-          _cellBloc.add(TextCellEvent.updateText(_controller.text));
-        }
-      });
-    }
   }
 
   @override
@@ -114,5 +94,13 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
   @override
   void onInsert(String value) {
     _cellBloc.add(TextCellEvent.updateText(value));
+  }
+
+  @override
+  Future<void> focusChanged() {
+    _cellBloc.add(
+      TextCellEvent.updateText(_controller.text),
+    );
+    return super.focusChanged();
   }
 }

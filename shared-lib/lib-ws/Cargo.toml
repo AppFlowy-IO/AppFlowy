@@ -28,11 +28,11 @@ parking_lot = "0.12.1"
 dashmap = "5"
 
 [build-dependencies]
-lib-infra = { path = "../lib-infra", features = ["proto_gen"] }
+flowy-codegen= { path = "../flowy-codegen"}
 
 [dev-dependencies]
 tokio = {version = "1", features = ["full"]}
 env_logger = "0.8.2"
 
 [features]
-dart = ["lib-infra/dart"]
+dart = ["flowy-codegen/dart"]

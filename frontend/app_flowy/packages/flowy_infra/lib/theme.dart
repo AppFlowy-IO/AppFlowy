@@ -2,7 +2,7 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
 import 'package:flutter/material.dart';
 
-import 'color_extension.dart';
+import 'theme_extension.dart';
 
 Brightness themeTypeFromString(String name) {
   Brightness themeType = Brightness.light;
@@ -73,12 +73,12 @@ class AppTheme {
   /// Default constructor
   AppTheme({this.brightness = Brightness.light});
 
-  factory AppTheme.fromName({
-    required String themeName,
+  factory AppTheme.fromBrightness({
+    required Brightness brightness,
     required String font,
     required String monospaceFont,
   }) {
-    switch (themeTypeFromString(themeName)) {
+    switch (brightness) {
       case Brightness.light:
         return AppTheme(brightness: Brightness.light)
           ..surface = Colors.white
@@ -155,13 +155,26 @@ class AppTheme {
     }
   }
 
-  ThemeData get themeData {
-    final textTheme = TextStyles(font: font, color: shader1);
+  ThemeData getThemeData(Locale locale) {
+    // Poppins and SF Mono are not well supported in some languages, so use the
+    // built-in font for the following languages.
+    final useBuiltInFontLanguages = [
+      const Locale('zh', 'CN'),
+      const Locale('zh', 'TW'),
+    ];
+    TextStyles textTheme;
+    if (useBuiltInFontLanguages.contains(locale)) {
+      textTheme = TextStyles(font: '', color: shader1);
+    } else {
+      textTheme = TextStyles(font: font, color: shader1);
+    }
     return ThemeData(
       brightness: brightness,
       textTheme: textTheme.generateTextTheme(),
       textSelectionTheme: TextSelectionThemeData(
-          cursorColor: main2, selectionHandleColor: main2),
+        cursorColor: main2,
+        selectionHandleColor: main2,
+      ),
       primaryIconTheme: IconThemeData(color: hover),
       iconTheme: IconThemeData(color: shader1),
       scrollbarTheme: ScrollbarThemeData(
@@ -178,9 +191,9 @@ class AppTheme {
       colorScheme: ColorScheme(
         brightness: brightness,
         primary: main1,
-        onPrimary: shader7,
+        onPrimary: _white,
         primaryContainer: main2,
-        onPrimaryContainer: shader7,
+        onPrimaryContainer: _white,
         secondary: hover,
         onSecondary: shader1,
         secondaryContainer: selector,

@@ -13,6 +13,7 @@ use flowy_revision::{
     RevisionWebSocket,
 };
 use flowy_sync::{errors::CollaborateResult, util::make_operations_from_revisions};
+use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use lib_ot::core::{AttributeEntry, AttributeHashMap};
 use lib_ot::{
@@ -145,8 +146,9 @@ impl DeltaDocumentEditor {
     }
 }
 
+#[async_trait]
 impl DocumentEditor for Arc<DeltaDocumentEditor> {
-    fn close(&self) {
+    async fn close(&self) {
         #[cfg(feature = "sync")]
         self.ws_manager.stop();
     }
@@ -267,8 +269,8 @@ impl RevisionObjectSerializer for DeltaDocumentRevisionSerde {
     }
 }
 
-pub(crate) struct DeltaDocumentRevisionCompress();
-impl RevisionMergeable for DeltaDocumentRevisionCompress {
+pub(crate) struct DeltaDocumentRevisionMergeable();
+impl RevisionMergeable for DeltaDocumentRevisionMergeable {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         DeltaDocumentRevisionSerde::combine_revisions(revisions)
     }

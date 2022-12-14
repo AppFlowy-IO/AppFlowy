@@ -8,7 +8,6 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_filter.pbenum.dart';
 import 'package:flutter/material.dart';
@@ -109,7 +108,7 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
         children: [
           FlowyText(state.filterInfo.fieldInfo.name),
           const HSpace(4),
-          CheckboxFilterConditionList(
+          CheckboxFilterConditionPBList(
             filterInfo: state.filterInfo,
             popoverMutex: popoverMutex,
             onCondition: (condition) {
@@ -137,11 +136,11 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
   }
 }
 
-class CheckboxFilterConditionList extends StatelessWidget {
+class CheckboxFilterConditionPBList extends StatelessWidget {
   final FilterInfo filterInfo;
   final PopoverMutex popoverMutex;
-  final Function(CheckboxFilterCondition) onCondition;
-  const CheckboxFilterConditionList({
+  final Function(CheckboxFilterConditionPB) onCondition;
+  const CheckboxFilterConditionPBList({
     required this.filterInfo,
     required this.popoverMutex,
     required this.onCondition,
@@ -155,7 +154,7 @@ class CheckboxFilterConditionList extends StatelessWidget {
       asBarrier: true,
       mutex: popoverMutex,
       direction: PopoverDirection.bottomWithCenterAligned,
-      actions: CheckboxFilterCondition.values
+      actions: CheckboxFilterConditionPB.values
           .map(
             (action) => ConditionWrapper(
               action,
@@ -178,7 +177,7 @@ class CheckboxFilterConditionList extends StatelessWidget {
 }
 
 class ConditionWrapper extends ActionCell {
-  final CheckboxFilterCondition inner;
+  final CheckboxFilterConditionPB inner;
   final bool isSelected;
 
   ConditionWrapper(this.inner, this.isSelected);
@@ -196,12 +195,12 @@ class ConditionWrapper extends ActionCell {
   String get name => inner.filterName;
 }
 
-extension TextFilterConditionExtension on CheckboxFilterCondition {
+extension TextFilterConditionPBExtension on CheckboxFilterConditionPB {
   String get filterName {
     switch (this) {
-      case CheckboxFilterCondition.IsChecked:
+      case CheckboxFilterConditionPB.IsChecked:
         return LocaleKeys.grid_checkboxFilter_isChecked.tr();
-      case CheckboxFilterCondition.IsUnChecked:
+      case CheckboxFilterConditionPB.IsUnChecked:
         return LocaleKeys.grid_checkboxFilter_isUnchecked.tr();
       default:
         return "";

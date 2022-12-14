@@ -3,13 +3,11 @@ import 'package:app_flowy/plugins/grid/application/filter/text_filter_editor_blo
 import 'package:app_flowy/plugins/grid/presentation/widgets/filter/condition_button.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/filter/disclosure_button.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/filter/filter_info.dart';
-import 'package:app_flowy/plugins/grid/presentation/widgets/filter/text_field.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/text_filter.pb.dart';
 import 'package:flutter/material.dart';
@@ -66,8 +64,8 @@ class _TextFilterChoicechipState extends State<TextFilterChoicechip> {
 
   String _makeFilterDesc(TextFilterEditorState state) {
     String filterDesc = state.filter.condition.choicechipPrefix;
-    if (state.filter.condition == TextFilterCondition.TextIsEmpty ||
-        state.filter.condition == TextFilterCondition.TextIsNotEmpty) {
+    if (state.filter.condition == TextFilterConditionPB.TextIsEmpty ||
+        state.filter.condition == TextFilterConditionPB.TextIsNotEmpty) {
       return filterDesc;
     }
 
@@ -100,8 +98,8 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
             _buildFilterPannel(context, state),
           ];
 
-          if (state.filter.condition != TextFilterCondition.TextIsEmpty &&
-              state.filter.condition != TextFilterCondition.TextIsNotEmpty) {
+          if (state.filter.condition != TextFilterConditionPB.TextIsEmpty &&
+              state.filter.condition != TextFilterConditionPB.TextIsNotEmpty) {
             children.add(const VSpace(4));
             children.add(_buildFilterTextField(context, state));
           }
@@ -122,7 +120,7 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
         children: [
           FlowyText(state.filterInfo.fieldInfo.name),
           const HSpace(4),
-          TextFilterConditionList(
+          TextFilterConditionPBList(
             filterInfo: state.filterInfo,
             popoverMutex: popoverMutex,
             onCondition: (condition) {
@@ -151,11 +149,12 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
 
   Widget _buildFilterTextField(
       BuildContext context, TextFilterEditorState state) {
-    return FilterTextField(
+    return FlowyTextField(
       text: state.filter.content,
       hintText: LocaleKeys.grid_settings_typeAValue.tr(),
-      autoFucous: false,
-      onSubmitted: (text) {
+      debounceDuration: const Duration(milliseconds: 300),
+      autoFocus: false,
+      onChanged: (text) {
         context
             .read<TextFilterEditorBloc>()
             .add(TextFilterEditorEvent.updateContent(text));
@@ -164,11 +163,11 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
   }
 }
 
-class TextFilterConditionList extends StatelessWidget {
+class TextFilterConditionPBList extends StatelessWidget {
   final FilterInfo filterInfo;
   final PopoverMutex popoverMutex;
-  final Function(TextFilterCondition) onCondition;
-  const TextFilterConditionList({
+  final Function(TextFilterConditionPB) onCondition;
+  const TextFilterConditionPBList({
     required this.filterInfo,
     required this.popoverMutex,
     required this.onCondition,
@@ -182,7 +181,7 @@ class TextFilterConditionList extends StatelessWidget {
       asBarrier: true,
       mutex: popoverMutex,
       direction: PopoverDirection.bottomWithCenterAligned,
-      actions: TextFilterCondition.values
+      actions: TextFilterConditionPB.values
           .map(
             (action) => ConditionWrapper(
               action,
@@ -205,7 +204,7 @@ class TextFilterConditionList extends StatelessWidget {
 }
 
 class ConditionWrapper extends ActionCell {
-  final TextFilterCondition inner;
+  final TextFilterConditionPB inner;
   final bool isSelected;
 
   ConditionWrapper(this.inner, this.isSelected);
@@ -223,24 +222,24 @@ class ConditionWrapper extends ActionCell {
   String get name => inner.filterName;
 }
 
-extension TextFilterConditionExtension on TextFilterCondition {
+extension TextFilterConditionPBExtension on TextFilterConditionPB {
   String get filterName {
     switch (this) {
-      case TextFilterCondition.Contains:
+      case TextFilterConditionPB.Contains:
         return LocaleKeys.grid_textFilter_contains.tr();
-      case TextFilterCondition.DoesNotContain:
+      case TextFilterConditionPB.DoesNotContain:
         return LocaleKeys.grid_textFilter_doesNotContain.tr();
-      case TextFilterCondition.EndsWith:
+      case TextFilterConditionPB.EndsWith:
         return LocaleKeys.grid_textFilter_endsWith.tr();
-      case TextFilterCondition.Is:
+      case TextFilterConditionPB.Is:
         return LocaleKeys.grid_textFilter_is.tr();
-      case TextFilterCondition.IsNot:
+      case TextFilterConditionPB.IsNot:
         return LocaleKeys.grid_textFilter_isNot.tr();
-      case TextFilterCondition.StartsWith:
+      case TextFilterConditionPB.StartsWith:
         return LocaleKeys.grid_textFilter_startWith.tr();
-      case TextFilterCondition.TextIsEmpty:
+      case TextFilterConditionPB.TextIsEmpty:
         return LocaleKeys.grid_textFilter_isEmpty.tr();
-      case TextFilterCondition.TextIsNotEmpty:
+      case TextFilterConditionPB.TextIsNotEmpty:
         return LocaleKeys.grid_textFilter_isNotEmpty.tr();
       default:
         return "";
@@ -249,17 +248,17 @@ extension TextFilterConditionExtension on TextFilterCondition {
 
   String get choicechipPrefix {
     switch (this) {
-      case TextFilterCondition.DoesNotContain:
+      case TextFilterConditionPB.DoesNotContain:
         return LocaleKeys.grid_textFilter_choicechipPrefix_isNot.tr();
-      case TextFilterCondition.EndsWith:
+      case TextFilterConditionPB.EndsWith:
         return LocaleKeys.grid_textFilter_choicechipPrefix_endWith.tr();
-      case TextFilterCondition.IsNot:
+      case TextFilterConditionPB.IsNot:
         return LocaleKeys.grid_textFilter_choicechipPrefix_isNot.tr();
-      case TextFilterCondition.StartsWith:
+      case TextFilterConditionPB.StartsWith:
         return LocaleKeys.grid_textFilter_choicechipPrefix_startWith.tr();
-      case TextFilterCondition.TextIsEmpty:
+      case TextFilterConditionPB.TextIsEmpty:
         return LocaleKeys.grid_textFilter_choicechipPrefix_isEmpty.tr();
-      case TextFilterCondition.TextIsNotEmpty:
+      case TextFilterConditionPB.TextIsNotEmpty:
         return LocaleKeys.grid_textFilter_choicechipPrefix_isNotEmpty.tr();
       default:
         return "";

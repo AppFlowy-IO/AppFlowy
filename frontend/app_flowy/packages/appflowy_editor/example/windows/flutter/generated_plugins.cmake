@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  flowy_infra_ui
   url_launcher_windows
 )
 

@@ -1,7 +1,7 @@
 use dashmap::{DashMap, DashSet};
-use flowy_ast::{Ctxt, TyInfo};
+use flowy_ast::{ASTResult, TyInfo};
+use flowy_codegen::ProtoCache;
 use lazy_static::lazy_static;
-use lib_infra::code_gen::ProtoCache;
 use std::fs::File;
 use std::io::Read;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -12,18 +12,18 @@ pub fn ident_category(ident: &syn::Ident) -> TypeCategory {
     category_from_str(ident_str)
 }
 
-pub(crate) fn get_member_ident<'a>(ctxt: &Ctxt, member: &'a syn::Member) -> Option<&'a syn::Ident> {
+pub(crate) fn get_member_ident<'a>(ast_result: &ASTResult, member: &'a syn::Member) -> Option<&'a syn::Ident> {
     if let syn::Member::Named(ref ident) = member {
         Some(ident)
     } else {
-        ctxt.error_spanned_by(member, "Unsupported member, shouldn't be self.0".to_string());
+        ast_result.error_spanned_by(member, "Unsupported member, shouldn't be self.0".to_string());
         None
     }
 }
 
-pub fn assert_bracket_ty_is_some(ctxt: &Ctxt, ty_info: &TyInfo) {
+pub fn assert_bracket_ty_is_some(ast_result: &ASTResult, ty_info: &TyInfo) {
     if ty_info.bracket_ty_info.is_none() {
-        ctxt.error_spanned_by(ty_info.ty, "Invalid bracketed type when gen de token steam".to_string());
+        ast_result.error_spanned_by(ty_info.ty, "Invalid bracketed type when gen de token steam".to_string());
     }
 }
 
@@ -50,7 +50,7 @@ pub fn category_from_str(type_str: String) -> TypeCategory {
         IS_LOAD.store(true, Ordering::SeqCst);
         // Dependents on another crate file is not good, just leave it here.
         // Maybe find another way to read the .cache in the future.
-        let cache_dir = format!("{}/../lib-infra/.cache", env!("CARGO_MANIFEST_DIR"));
+        let cache_dir = format!("{}/../flowy-codegen/.cache", env!("CARGO_MANIFEST_DIR"));
         for path in WalkDir::new(cache_dir)
             .into_iter()
             .filter_map(|e| e.ok())

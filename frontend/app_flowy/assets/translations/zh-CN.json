@@ -152,8 +152,12 @@
       "open": "打开设置"
     },
     "appearance": {
-      "lightLabel": "日间模式",
-      "darkLabel": "夜间模式"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "日间模式",
+        "dark": "夜间模式",
+        "system": "Adapt to System"
+      }
     }
   },
   "grid": {
