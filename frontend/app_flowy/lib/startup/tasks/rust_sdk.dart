@@ -18,7 +18,6 @@ class InitRustSDKTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    print('RUSTSDK HASDCODE: ${context.getIt<FlowySDK>().hashCode}');
     // use the custom directory
     if (directory != null) {
       return directory!.then((directory) async {

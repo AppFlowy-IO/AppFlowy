@@ -14,7 +14,6 @@ import '../../../../startup/startup.dart';
 import '../../../../startup/tasks/prelude.dart';
 import '../../../application/settings/settings_location_cubit.dart';
 import '../../home/toast.dart';
-import 'settings_file_exporter_widget.dart';
 
 class SettingsFileSystemView extends StatefulWidget {
   const SettingsFileSystemView({
@@ -121,6 +120,7 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
   }
 
   // Export databse
+  /*
   Widget _buildExportDatabaseButton() {
     return ListTile(
       title: FlowyText.regular(
@@ -139,6 +139,7 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
       },
     );
   }
+  */
 
   Future<void> _setCustomLocation(String? path) async {
     // Using default location if path equals null.

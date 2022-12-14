@@ -122,7 +122,6 @@ class _DragToExpandLine extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onHorizontalDragUpdate: (value) {
-          debugPrint("update new width: ${value.delta.dx}");
           context
               .read<FieldCellBloc>()
               .add(FieldCellEvent.startUpdateWidth(value.delta.dx));
