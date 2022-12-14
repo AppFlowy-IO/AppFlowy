@@ -105,7 +105,6 @@ impl FolderPersistence {
 
         let _ = migrations.run_v2_migration(folder_id).await?;
         let _ = migrations.run_v3_migration(folder_id).await?;
-        let _ = migrations.run_v4_migration(folder_id).await?;
         Ok(())
     }
 

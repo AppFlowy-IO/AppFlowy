@@ -242,20 +242,19 @@ pub async fn notify_workspace_setting_did_change(
     Ok(())
 }
 
-fn current_workspace_id(user_id: &str) -> String {
-    format!("{}:workspace", user_id)
+
+const CURRENT_WORKSPACE_ID: &str = "current_workspace_id";
+
+pub fn set_current_workspace(_user_id: &str, workspace_id: &str) {
+    KV::set_str(CURRENT_WORKSPACE_ID, workspace_id.to_owned());
 }
 
-pub fn set_current_workspace(user_id: &str, workspace_id: &str) {
-    KV::set_str(&current_workspace_id(user_id), workspace_id.to_owned());
+pub fn clear_current_workspace(_user_id: &str) {
+    let _ = KV::remove(CURRENT_WORKSPACE_ID);
 }
 
-pub fn clear_current_workspace(user_id: &str) {
-    let _ = KV::remove(&current_workspace_id(user_id));
-}
-
-pub fn get_current_workspace(user_id: &str) -> Result<String, FlowyError> {
-    match KV::get_str(&current_workspace_id(user_id)) {
+pub fn get_current_workspace(_user_id: &str) -> Result<String, FlowyError> {
+    match KV::get_str(CURRENT_WORKSPACE_ID) {
         None => {
             Err(FlowyError::record_not_found()
                 .context("Current workspace not found or should call open workspace first"))

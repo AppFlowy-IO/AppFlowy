@@ -16,12 +16,10 @@ use folder_rev_model::{AppRevision, FolderRevision, ViewRevision, WorkspaceRevis
 use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
 use flowy_http_model::util::md5;
 use std::sync::Arc;
-use crate::services::set_current_workspace;
 
 const V1_MIGRATION: &str = "FOLDER_V1_MIGRATION";
 const V2_MIGRATION: &str = "FOLDER_V2_MIGRATION";
 const V3_MIGRATION: &str = "FOLDER_V3_MIGRATION";
-const V4_MIGRATION: &str = "FOLDER_V4_MIGRATION";
 
 pub(crate) struct FolderMigration {
     user_id: String,
@@ -109,15 +107,6 @@ impl FolderMigration {
         Ok(())
     }
 
-    pub async fn run_v4_migration(&self, _folder_id: &FolderId) -> FlowyResult<()> {
-        const CURRENT_WORKSPACE_ID: &str = "current_workspace_id";
-        let key = migration_flag_key(&self.user_id, V4_MIGRATION);
-        if let Some(value) = KV::get_str(CURRENT_WORKSPACE_ID) {
-             set_current_workspace(&self.user_id, &value);
-        }
-        KV::set_bool(&key, true);
-        Ok(())
-    }
     pub async fn migration_folder_rev_struct(&self, folder_id: &FolderId) -> FlowyResult<()> {
         let object = FolderRevisionResettable {
             folder_id: folder_id.as_ref().to_owned(),
