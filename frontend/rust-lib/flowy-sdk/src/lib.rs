@@ -36,6 +36,7 @@ static INIT_LOG: AtomicBool = AtomicBool::new(false);
 #[derive(Clone)]
 pub struct FlowySDKConfig {
     name: String,
+    // Panics if the `root` path is not existing
     root: String,
     log_filter: String,
     server_config: ClientServerConfiguration,

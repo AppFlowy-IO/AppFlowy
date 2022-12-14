@@ -56,7 +56,7 @@ impl WorkspaceController {
         send_dart_notification(&token, FolderNotification::UserCreateWorkspace)
             .payload(repeated_workspace)
             .send();
-        set_current_workspace(&workspace.id, &user_id);
+        set_current_workspace(&user_id, &workspace.id);
         Ok(workspace)
     }
 
@@ -106,7 +106,7 @@ impl WorkspaceController {
                 .persistence
                 .begin_transaction(|transaction| self.read_local_workspace(workspace_id, &user_id, &transaction))
                 .await?;
-            set_current_workspace(&workspace.id, &user_id);
+            set_current_workspace( &user_id, &workspace.id);
             Ok(workspace)
         } else {
             Err(FlowyError::workspace_id().context("Opened workspace id should not be empty"))

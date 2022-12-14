@@ -225,9 +225,9 @@ impl DefaultFolderBuilder {
         view_controller: Arc<ViewController>,
         create_view_fn: F,
     ) -> FlowyResult<()> {
-        log::debug!("Create user default workspace");
         let workspace_rev = user_default::create_default_workspace();
-        set_current_workspace(&workspace_rev.id, user_id);
+        tracing::debug!("Create user:{} default workspace:{}", user_id, workspace_rev.id);
+        set_current_workspace(user_id, &workspace_rev.id);
         for app in workspace_rev.apps.iter() {
             for (index, view) in app.belongings.iter().enumerate() {
                 let (view_data_type, view_data) = create_view_fn();

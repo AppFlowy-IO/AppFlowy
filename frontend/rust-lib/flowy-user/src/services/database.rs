@@ -17,6 +17,7 @@ impl UserDB {
         }
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     fn open_user_db_if_need(&self, user_id: &str) -> Result<Arc<ConnectionPool>, FlowyError> {
         if user_id.is_empty() {
             return Err(ErrorCode::UserIdIsEmpty.into());
