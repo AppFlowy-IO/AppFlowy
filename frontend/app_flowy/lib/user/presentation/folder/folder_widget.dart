@@ -50,7 +50,7 @@ class _FolderWidgetState extends State<FolderWidget> {
             setState(() => page = _FolderPage.create);
           },
           onPressedOpen: () {
-            setState(() => page = _FolderPage.open);
+            _openFolder();
           },
         );
       case _FolderPage.create:
@@ -65,6 +65,14 @@ class _FolderWidgetState extends State<FolderWidget> {
       default:
     }
     return Container();
+  }
+
+  Future<void> _openFolder() async {
+    final directory = await FilePicker.platform.getDirectoryPath();
+    if (directory != null) {
+      await getIt<SettingsLocationCubit>().setLocation(directory);
+      widget.createFolderCallback();
+    }
   }
 }
 
@@ -109,7 +117,7 @@ class FolderOptionsWidget extends StatelessWidget {
             trailing: _buildTextButton(
               context,
               LocaleKeys.settings_files_open.tr(),
-              onPressedCreate,
+              onPressedOpen,
             ),
           ),
         ),
