@@ -6,10 +6,6 @@ use lazy_static::lazy_static;
 use parking_lot::RwLock;
 use std::{collections::HashMap, sync::Arc, time::Duration};
 
-lazy_static! {
-    static ref DB: RwLock<Option<Database>> = RwLock::new(None);
-}
-
 pub struct UserDB {
     db_dir: String,
 }

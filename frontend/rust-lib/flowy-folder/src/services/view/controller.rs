@@ -188,6 +188,11 @@ impl ViewController {
         Ok(())
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
+    pub(crate) fn clear_latest_view(&self)  {
+        let _ = KV::remove(LATEST_VIEW_ID);
+    }
+
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn close_view(&self, view_id: &str) -> Result<(), FlowyError> {
         let processor = self.get_data_processor_from_view_id(view_id).await?;

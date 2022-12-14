@@ -27,6 +27,7 @@ use flowy_http_model::ws_data::ServerRevisionWSData;
 use flowy_sync::client_folder::FolderPad;
 use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};
 use tokio::sync::RwLock as TokioRwLock;
+use crate::services::clear_current_workspace;
 lazy_static! {
     static ref INIT_FOLDER_FLAG: TokioRwLock<HashMap<String, bool>> = TokioRwLock::new(HashMap::new());
 }
@@ -206,7 +207,11 @@ impl FolderManager {
         self.initialize(user_id, token).await
     }
 
+    /// Called when the current user logout
+    ///
     pub async fn clear(&self) {
+        self.view_controller.clear_latest_view();
+        clear_current_workspace();
         *self.folder_editor.write().await = None;
     }
 }

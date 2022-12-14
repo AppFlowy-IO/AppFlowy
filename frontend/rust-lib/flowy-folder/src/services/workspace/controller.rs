@@ -247,6 +247,10 @@ pub fn set_current_workspace(workspace_id: &str) {
     KV::set_str(CURRENT_WORKSPACE_ID, workspace_id.to_owned());
 }
 
+pub fn clear_current_workspace() {
+    let _ = KV::remove(CURRENT_WORKSPACE_ID);
+}
+
 pub fn get_current_workspace() -> Result<String, FlowyError> {
     match KV::get_str(CURRENT_WORKSPACE_ID) {
         None => {
