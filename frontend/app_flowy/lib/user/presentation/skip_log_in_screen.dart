@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -49,7 +48,6 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   Widget _renderBody(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.max,
       children: [
         FlowyLogoTitle(
           title: LocaleKeys.welcomeText.tr(),
@@ -57,7 +55,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
         ),
         const VSpace(40),
         SizedBox(
-          width: 400,
+          width: 250,
           child: GoButton(onPressed: () => _autoRegister(context)),
         ),
         const VSpace(20),
@@ -119,14 +117,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   }
 
   Future<void> _autoRegister(BuildContext context) async {
-    const password = "AppFlowy123@";
-    final uid = uuid();
-    final userEmail = "$uid@appflowy.io";
-    final result = await widget.authService.signUp(
-      name: LocaleKeys.defaultUsername.tr(),
-      password: password,
-      email: userEmail,
-    );
+    final result = await widget.authService.signUpWithRandomUser();
     result.fold(
       (user) {
         FolderEventReadCurrentWorkspace().send().then((result) {

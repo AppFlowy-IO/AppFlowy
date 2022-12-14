@@ -1,12 +1,9 @@
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../generated/locale_keys.g.dart';
 import '../../startup/startup.dart';
 import '../application/auth_service.dart';
 import '../application/splash_bloc.dart';
@@ -92,19 +89,9 @@ class SplashScreen extends StatelessWidget {
 
   Future<void> _registerIfNeeded() async {
     final result = await UserEventCheckUser().send();
-    if (result.isLeft()) {
-      // authenticated
-      return;
-    } else {
+    if (!result.isLeft()) {
       // unauthenticated
-      const password = "AppFlowy123@";
-      final uid = uuid();
-      final userEmail = "$uid@appflowy.io";
-      await getIt<AuthService>().signUp(
-        name: LocaleKeys.defaultUsername.tr(),
-        password: password,
-        email: userEmail,
-      );
+      await getIt<AuthService>().signUpWithRandomUser();
     }
   }
 }

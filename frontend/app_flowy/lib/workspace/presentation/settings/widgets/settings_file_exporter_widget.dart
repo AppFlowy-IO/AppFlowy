@@ -1,5 +1,7 @@
 import 'package:dartz/dartz.dart' as dartz;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -8,10 +10,8 @@ import 'package:flowy_sdk/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
-import '../../../../generated/locale_keys.g.dart';
 
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import '../../../../generated/locale_keys.g.dart';
 
 class FileExporterWidget extends StatefulWidget {
   const FileExporterWidget({Key? key}) : super(key: key);
