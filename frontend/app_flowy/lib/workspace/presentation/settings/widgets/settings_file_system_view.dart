@@ -5,7 +5,6 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../../../generated/locale_keys.g.dart';
 import '../../../../main.dart';
@@ -13,7 +12,6 @@ import '../../../../startup/launch_configuration.dart';
 import '../../../../startup/startup.dart';
 import '../../../../startup/tasks/prelude.dart';
 import '../../../application/settings/settings_location_cubit.dart';
-import '../../home/toast.dart';
 
 class SettingsFileSystemView extends StatefulWidget {
   const SettingsFileSystemView({
@@ -26,14 +24,6 @@ class SettingsFileSystemView extends StatefulWidget {
 
 class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
   final _locationCubit = SettingsLocationCubit()..fetchLocation();
-  final _fToast = FToast();
-
-  @override
-  void initState() {
-    super.initState();
-
-    _fToast.init(context);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +76,15 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
                   onPressed: () async {
                     final result = await appFlowyDocumentDirectory();
                     await _setCustomLocation(result.path);
-                    _showToast(LocaleKeys.settings_files_restartApp.tr());
+                    await FlowyRunner.run(
+                      FlowyApp(),
+                      config: const LaunchConfiguration(
+                        autoRegistrationSupported: true,
+                      ),
+                    );
+                    if (mounted) {
+                      Navigator.of(context).pop();
+                    }
                   },
                 ),
               ),
@@ -101,13 +99,15 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
                     final result = await FilePicker.platform.getDirectoryPath();
                     if (result != null) {
                       await _setCustomLocation(result);
-                      _showToast(LocaleKeys.settings_files_restartApp.tr());
                       await FlowyRunner.run(
                         FlowyApp(),
                         config: const LaunchConfiguration(
                           autoRegistrationSupported: true,
                         ),
                       );
+                      if (mounted) {
+                        Navigator.of(context).pop();
+                      }
                     }
                   },
                 ),
@@ -157,12 +157,5 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
           .setKeyValue(AppearanceKeys.defaultLocation, location);
     }
     */
-  }
-
-  void _showToast(String message) {
-    _fToast.showToast(
-      child: FlowyMessageToast(message: message),
-      gravity: ToastGravity.CENTER,
-    );
   }
 }
