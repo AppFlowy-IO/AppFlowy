@@ -137,12 +137,14 @@ class CreateFolderWidget extends StatefulWidget {
   final Future<void> Function() onPressedCreate;
 
   @override
-  State<CreateFolderWidget> createState() => _CreateFolderWidgetState();
+  State<CreateFolderWidget> createState() => CreateFolderWidgetState();
 }
 
-class _CreateFolderWidgetState extends State<CreateFolderWidget> {
+@visibleForTesting
+class CreateFolderWidgetState extends State<CreateFolderWidget> {
   var _folderName = 'appflowy';
-  var _directory = '';
+  @visibleForTesting
+  var directory = '';
 
   final _fToast = FToast();
 
@@ -195,10 +197,10 @@ class _CreateFolderWidgetState extends State<CreateFolderWidget> {
             subtitle: FlowyText.regular(_path),
             trailing: _buildTextButton(
                 context, LocaleKeys.settings_files_browser.tr(), () async {
-              final directory = await FilePicker.platform.getDirectoryPath();
-              if (directory != null) {
+              final dir = await FilePicker.platform.getDirectoryPath();
+              if (dir != null) {
                 setState(() {
-                  _directory = directory;
+                  directory = dir;
                 });
               }
             }),
@@ -219,12 +221,12 @@ class _CreateFolderWidgetState extends State<CreateFolderWidget> {
   }
 
   String get _path {
-    if (_directory.isEmpty) return '';
+    if (directory.isEmpty) return '';
     final String path;
     if (Platform.isMacOS) {
-      path = _directory.replaceAll('/Volumes/Macintosh HD', '');
+      path = directory.replaceAll('/Volumes/Macintosh HD', '');
     } else {
-      path = _directory;
+      path = directory;
     }
     return '$path/$_folderName';
   }
