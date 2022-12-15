@@ -77,4 +77,5 @@ jobs:
         working-directory: frontend/app_flowy
         run: |
           flutter pub get
+          flutter test integration_test -d linux
           flutter test
