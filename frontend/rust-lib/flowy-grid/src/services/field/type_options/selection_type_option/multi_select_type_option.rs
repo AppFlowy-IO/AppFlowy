@@ -1,16 +1,14 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{
-    AnyCellChangeset, CellBytes, CellDataOperation, CellDataSerialize, IntoCellData, TypeCellData,
-};
+use crate::services::cell::{AnyCellChangeset, CellDataChangeset, TypeCellData};
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
 use crate::services::field::{
     BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction,
-    TypeOptionBuilder,
+    TypeOption, TypeOptionBuilder,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::FlowyError;
 use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
 
@@ -24,6 +22,11 @@ pub struct MultiSelectTypeOptionPB {
     pub disable_color: bool,
 }
 impl_type_option!(MultiSelectTypeOptionPB, FieldType::MultiSelect);
+
+impl TypeOption for MultiSelectTypeOptionPB {
+    type CellData = SelectOptionIds;
+    type CellChangeset = SelectOptionCellChangeset;
+}
 
 impl SelectTypeOptionSharedAction for MultiSelectTypeOptionPB {
     fn number_of_max_options(&self) -> Option<usize> {
@@ -39,16 +42,7 @@ impl SelectTypeOptionSharedAction for MultiSelectTypeOptionPB {
     }
 }
 
-impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSelectTypeOptionPB {
-    fn decode_cell_data(
-        &self,
-        cell_data: IntoCellData<SelectOptionIds>,
-        decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        self.serialize_cell_data_to_bytes(cell_data, decoded_field_type, field_rev)
-    }
-
+impl CellDataChangeset for MultiSelectTypeOptionPB {
     fn apply_changeset(
         &self,
         changeset: AnyCellChangeset<SelectOptionCellChangeset>,
@@ -69,7 +63,7 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSele
             }
             Some(cell_rev) => {
                 let cell_data = TypeCellData::try_from(cell_rev)
-                    .and_then(|data| Ok(data.into_inner()))
+                    .map(|data| data.into_inner())
                     .unwrap_or_default();
                 let mut select_ids: SelectOptionIds = cell_data.into();
                 for insert_option_id in insert_option_ids {
@@ -118,7 +112,7 @@ impl TypeOptionBuilder for MultiSelectTypeOptionBuilder {
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
-    use crate::services::cell::CellDataOperation;
+    use crate::services::cell::CellDataChangeset;
     use crate::services::field::type_options::selection_type_option::*;
     use crate::services::field::{CheckboxTypeOptionBuilder, FieldBuilder, TypeOptionBuilder};
     use crate::services::field::{MultiSelectTypeOptionBuilder, MultiSelectTypeOptionPB};

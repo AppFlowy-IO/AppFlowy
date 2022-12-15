@@ -1,5 +1,5 @@
 use crate::entities::{GroupRowsNotificationPB, GroupViewChangesetPB, InsertedRowPB, RowPB};
-use crate::services::cell::{decode_type_cell_data, CellBytesParser, CellDataIsEmpty};
+use crate::services::cell::{decode_type_cell_data, CellBytesParser, DecodedCellData};
 use crate::services::group::action::{GroupControllerCustomActions, GroupControllerSharedActions};
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::entities::Group;

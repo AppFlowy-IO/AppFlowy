@@ -1,8 +1,9 @@
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
-    use crate::services::cell::CellDataOperation;
+    use crate::services::cell::CellDataDecoder;
     use crate::services::field::FieldBuilder;
+
     use crate::services::field::*;
 
     // Test parser the cell data which field's type is FieldType::Date to cell data
@@ -15,7 +16,7 @@ mod tests {
 
         assert_eq!(
             type_option
-                .decode_cell_data(1647251762.into(), &field_type, &field_rev)
+                .try_decode_cell_data(1647251762.to_string().into(), &field_type, &field_rev)
                 .unwrap()
                 .parser::<TextCellDataParser>()
                 .unwrap()
@@ -38,7 +39,7 @@ mod tests {
 
         assert_eq!(
             type_option
-                .decode_cell_data(option_id.into(), &field_type, &field_rev)
+                .try_decode_cell_data(option_id.into(), &field_type, &field_rev)
                 .unwrap()
                 .parser::<TextCellDataParser>()
                 .unwrap()

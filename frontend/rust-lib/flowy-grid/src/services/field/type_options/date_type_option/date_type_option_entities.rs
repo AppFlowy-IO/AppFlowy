@@ -1,5 +1,5 @@
 use crate::entities::CellPathPB;
-use crate::services::cell::{CellBytesParser, CellDataIsEmpty, FromCellChangeset, FromCellString};
+use crate::services::cell::{CellBytesParser, DecodedCellData, FromCellChangeset, FromCellString};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, FlowyResult};
@@ -174,7 +174,9 @@ impl std::default::Default for TimeFormat {
     }
 }
 
-impl CellDataIsEmpty for DateCellDataPB {
+impl DecodedCellData for DateCellDataPB {
+    type Object = DateCellDataPB;
+
     fn is_empty(&self) -> bool {
         self.date.is_empty()
     }

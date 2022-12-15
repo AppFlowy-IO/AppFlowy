@@ -1,4 +1,4 @@
-use crate::services::cell::{CellBytesParser, CellDataIsEmpty, FromCellString};
+use crate::services::cell::{CellBytesParser, DecodedCellData, FromCellString};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{internal_error, FlowyResult};
@@ -41,7 +41,9 @@ impl URLCellData {
     }
 }
 
-impl CellDataIsEmpty for URLCellData {
+impl DecodedCellData for URLCellData {
+    type Object = URLCellData;
+
     fn is_empty(&self) -> bool {
         self.content.is_empty()
     }

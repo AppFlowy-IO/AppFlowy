@@ -1,11 +1,10 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    AnyCellChangeset, CellBytes, CellComparable, CellDataOperation, CellDataOperation2, CellDataSerialize,
-    CellStringParser, IntoCellData, TypeCellData,
+    AnyCellChangeset, CellBytes, CellComparable, CellDataChangeset, CellDataDecoder, CellStringParser, IntoCellData,
 };
 use crate::services::field::type_options::number_type_option::format::*;
-use crate::services::field::{BoxTypeOptionBuilder, NumberCellData, TypeOptionBuilder};
+use crate::services::field::{BoxTypeOptionBuilder, NumberCellData, StrCellData, TypeOption, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
@@ -75,6 +74,11 @@ pub struct NumberTypeOptionPB {
 }
 impl_type_option!(NumberTypeOptionPB, FieldType::Number);
 
+impl TypeOption for NumberTypeOptionPB {
+    type CellData = StrCellData;
+    type CellChangeset = NumberCellChangeset;
+}
+
 impl NumberTypeOptionPB {
     pub fn new() -> Self {
         Self::default()
@@ -118,48 +122,23 @@ impl CellStringParser for NumberTypeOptionPB {
     }
 }
 
-impl CellDataOperation2 for NumberTypeOptionPB {
-    fn decode_cell_data2(
+impl CellDataDecoder for NumberTypeOptionPB {
+    fn decode_cell_data(
         &self,
-        cell_data: <Self as CellStringParser>::Object,
-        decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        todo!()
-    }
-}
-
-impl CellDataSerialize<String> for NumberTypeOptionPB {
-    fn serialize_cell_data_to_bytes(
-        &self,
-        cell_data: IntoCellData<String>,
+        cell_data: IntoCellData<StrCellData>,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        let cell_data: String = cell_data.try_into_inner()?;
+        let cell_data = cell_data.try_into_inner()?.0;
         match self.format_cell_data(&cell_data) {
             Ok(num) => Ok(CellBytes::new(num.to_string())),
             Err(_) => Ok(CellBytes::default()),
         }
     }
 
-    fn serialize_cell_data_to_str(
+    fn try_decode_cell_data(
         &self,
-        cell_data: IntoCellData<String>,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<String> {
-        let cell_data: String = cell_data.try_into_inner()?;
-        Ok(cell_data)
-    }
-}
-
-pub type NumberCellChangeset = String;
-
-impl CellDataOperation<String, NumberCellChangeset> for NumberTypeOptionPB {
-    fn decode_cell_data(
-        &self,
-        cell_data: IntoCellData<String>,
+        cell_data: IntoCellData<StrCellData>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
@@ -167,12 +146,26 @@ impl CellDataOperation<String, NumberCellChangeset> for NumberTypeOptionPB {
             return Ok(CellBytes::default());
         }
 
-        self.serialize_cell_data_to_bytes(cell_data, decoded_field_type, field_rev)
+        self.decode_cell_data(cell_data, decoded_field_type, field_rev)
     }
 
+    fn decode_cell_data_to_str(
+        &self,
+        cell_data: IntoCellData<StrCellData>,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<String> {
+        let cell_data: String = cell_data.try_into_inner()?.0;
+        Ok(cell_data)
+    }
+}
+
+pub type NumberCellChangeset = String;
+
+impl CellDataChangeset for NumberTypeOptionPB {
     fn apply_changeset(
         &self,
-        changeset: AnyCellChangeset<String>,
+        changeset: AnyCellChangeset<NumberCellChangeset>,
         _cell_rev: Option<CellRevision>,
     ) -> Result<String, FlowyError> {
         let changeset = changeset.try_into_inner()?;
@@ -184,7 +177,7 @@ impl CellDataOperation<String, NumberCellChangeset> for NumberTypeOptionPB {
 impl CellComparable for NumberTypeOptionPB {
     type CellData = NumberCellData;
 
-    fn apply_cmp(&self, cell_data: &Self::CellData, other_cell_data: &Self::CellData) -> Ordering {
+    fn apply_cmp(&self, _cell_data: &Self::CellData, _other_cell_data: &Self::CellData) -> Ordering {
         Ordering::Equal
     }
 }

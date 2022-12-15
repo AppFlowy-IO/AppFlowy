@@ -1,7 +1,8 @@
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
-    use crate::services::cell::{CellDataOperation, IntoCellData};
+    use crate::services::cell::{CellDataChangeset, CellDataDecoder, IntoCellData};
+
     use crate::services::field::{FieldBuilder, URLCellDataParser};
     use crate::services::field::{URLCellData, URLTypeOptionPB};
     use grid_rev_model::FieldRevision;
@@ -182,7 +183,7 @@ mod tests {
         field_type: &FieldType,
     ) -> URLCellData {
         type_option
-            .decode_cell_data(encoded_data.into(), field_type, field_rev)
+            .try_decode_cell_data(encoded_data.into(), field_type, field_rev)
             .unwrap()
             .parser::<URLCellDataParser>()
             .unwrap()

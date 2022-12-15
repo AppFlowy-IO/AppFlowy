@@ -1,10 +1,10 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    decode_cell_data_to_string, AnyCellChangeset, CellBytes, CellBytesParser, CellComparable, CellDataIsEmpty,
-    CellDataOperation, CellDataSerialize, CellStringParser, FromCellString, IntoCellData, TypeCellData,
+    stringify_cell_data, try_decode_cell_data, AnyCellChangeset, CellBytes, CellBytesParser, CellComparable,
+    CellDataChangeset, CellDataDecoder, CellStringParser, DecodedCellData, FromCellString, IntoCellData,
 };
-use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
+use crate::services::field::{BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
@@ -40,40 +40,33 @@ pub struct RichTextTypeOptionPB {
 }
 impl_type_option!(RichTextTypeOptionPB, FieldType::RichText);
 
+impl TypeOption for RichTextTypeOptionPB {
+    type CellData = StrCellData;
+    type CellChangeset = String;
+}
+
 impl CellStringParser for RichTextTypeOptionPB {
-    type Object = RichTextCellData;
+    type Object = StrCellData;
 
     fn parser_cell_str(&self, s: &str) -> Option<Self::Object> {
-        Some(s.to_owned())
+        Some(s.into())
     }
 }
 
-impl CellDataSerialize<RichTextCellData> for RichTextTypeOptionPB {
-    fn serialize_cell_data_to_bytes(
+impl CellDataDecoder for RichTextTypeOptionPB {
+    fn decode_cell_data(
         &self,
-        cell_data: IntoCellData<RichTextCellData>,
+        cell_data: IntoCellData<StrCellData>,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        let cell_str: RichTextCellData = cell_data.try_into_inner()?;
+        let cell_str = cell_data.try_into_inner()?;
         Ok(CellBytes::new(cell_str))
     }
 
-    fn serialize_cell_data_to_str(
+    fn try_decode_cell_data(
         &self,
-        cell_data: IntoCellData<RichTextCellData>,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<String> {
-        let cell_str: RichTextCellData = cell_data.try_into_inner()?;
-        Ok(cell_str)
-    }
-}
-
-impl CellDataOperation<RichTextCellData, String> for RichTextTypeOptionPB {
-    fn decode_cell_data(
-        &self,
-        cell_data: IntoCellData<RichTextCellData>,
+        cell_data: IntoCellData<StrCellData>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
@@ -83,13 +76,25 @@ impl CellDataOperation<RichTextCellData, String> for RichTextTypeOptionPB {
             || decoded_field_type.is_number()
             || decoded_field_type.is_url()
         {
-            let s = decode_cell_data_to_string(cell_data, decoded_field_type, decoded_field_type, field_rev);
-            Ok(CellBytes::new(s.unwrap_or_else(|_| "".to_owned())))
+            let cell_data = cell_data.try_into_inner()?;
+            Ok(stringify_cell_data(cell_data.into(), decoded_field_type, field_rev))
         } else {
-            self.serialize_cell_data_to_bytes(cell_data, decoded_field_type, field_rev)
+            self.decode_cell_data(cell_data, decoded_field_type, field_rev)
         }
     }
 
+    fn decode_cell_data_to_str(
+        &self,
+        cell_data: IntoCellData<StrCellData>,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<String> {
+        let cell_str = cell_data.try_into_inner()?.0;
+        Ok(cell_str.into())
+    }
+}
+
+impl CellDataChangeset for RichTextTypeOptionPB {
     fn apply_changeset(
         &self,
         changeset: AnyCellChangeset<String>,
@@ -142,7 +147,9 @@ impl ToString for TextCellData {
     }
 }
 
-impl CellDataIsEmpty for TextCellData {
+impl DecodedCellData for TextCellData {
+    type Object = TextCellData;
+
     fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
@@ -159,4 +166,46 @@ impl CellBytesParser for TextCellDataParser {
     }
 }
 
-pub type RichTextCellData = String;
+pub struct StrCellData(pub String);
+impl std::ops::Deref for StrCellData {
+    type Target = String;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl std::ops::DerefMut for StrCellData {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl FromCellString for StrCellData {
+    fn from_cell_str(s: &str) -> FlowyResult<Self> {
+        Ok(Self(s.to_owned()))
+    }
+}
+
+impl std::convert::From<String> for StrCellData {
+    fn from(s: String) -> Self {
+        Self(s)
+    }
+}
+
+impl std::convert::From<StrCellData> for String {
+    fn from(value: StrCellData) -> Self {
+        value.0
+    }
+}
+impl std::convert::From<&str> for StrCellData {
+    fn from(s: &str) -> Self {
+        Self(s.to_owned())
+    }
+}
+
+impl AsRef<[u8]> for StrCellData {
+    fn as_ref(&self) -> &[u8] {
+        self.0.as_ref()
+    }
+}

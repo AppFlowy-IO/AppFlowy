@@ -4,7 +4,6 @@ use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use grid_rev_model::CellRevision;
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
 
 /// TypeCellData is a generic CellData, you can parse the type_cell_data according to the field_type.
 /// The `data` is encoded by JSON format. You can use `IntoCellData` to decode the opaque data to
@@ -135,12 +134,13 @@ impl TypeCellData {
 #[derive(Default, Debug)]
 pub struct CellBytes(pub Bytes);
 
-pub trait CellDataIsEmpty {
+pub trait DecodedCellData {
+    type Object;
     fn is_empty(&self) -> bool;
 }
 
 pub trait CellBytesParser {
-    type Object: CellDataIsEmpty;
+    type Object: DecodedCellData;
     fn parser(bytes: &Bytes) -> FlowyResult<Self::Object>;
 }
 

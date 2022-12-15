@@ -2,24 +2,18 @@
 
 use crate::entities::FieldType;
 #[allow(unused_attributes)]
-use crate::entities::{GridSortPB, SortChangesetNotificationPB};
-use crate::services::cell::{CellComparable, TypeCellData};
-use crate::services::field::{
-    CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, MultiSelectTypeOptionPB, NumberTypeOptionPB,
-    RichTextTypeOptionPB, SingleSelectTypeOptionPB, URLTypeOptionPB,
-};
+use crate::entities::SortChangesetNotificationPB;
+
 use crate::services::sort::{SortChangeset, SortType};
-use diesel::dsl::Or;
-use flowy_error::FlowyResult;
+
 use flowy_task::TaskDispatcher;
 use grid_rev_model::{CellRevision, FieldRevision, RowRevision, SortCondition, SortRevision};
 use lib_infra::future::Fut;
-use rayon::prelude::ParallelSliceMut;
+
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::field::Field;
 
 pub trait SortDelegate: Send + Sync {
     fn get_sort_rev(&self, sort_type: SortType) -> Fut<Vec<Arc<SortRevision>>>;
@@ -63,7 +57,7 @@ impl SortController {
             .await;
     }
 
-    pub fn sort_rows(&self, rows: &mut Vec<Arc<RowRevision>>) {
+    pub fn sort_rows(&self, _rows: &mut Vec<Arc<RowRevision>>) {
         // rows.par_sort_by(|left, right| cmp_row(left, right, &self.sorts));
     }
 
@@ -106,9 +100,9 @@ fn cmp_row(
 }
 
 fn cmp_cell(
-    left: &CellRevision,
-    right: &CellRevision,
-    field_rev: &Arc<FieldRevision>,
+    _left: &CellRevision,
+    _right: &CellRevision,
+    _field_rev: &Arc<FieldRevision>,
     field_type: FieldType,
 ) -> Ordering {
     let cal_order = || {

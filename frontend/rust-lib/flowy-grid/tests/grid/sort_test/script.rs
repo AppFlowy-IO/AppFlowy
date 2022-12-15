@@ -31,7 +31,7 @@ impl GridSortTest {
                 //
                 self.editor.delete_sort(params).await.unwrap();
             }
-            SortScript::AssertTextOrder { orders } => {
+            SortScript::AssertTextOrder { orders: _ } => {
                 //
             }
         }

@@ -1,9 +1,10 @@
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
-    use crate::services::cell::CellDataOperation;
+    use crate::services::cell::CellDataDecoder;
     use crate::services::field::type_options::checkbox_type_option::*;
     use crate::services::field::FieldBuilder;
+
     use grid_rev_model::FieldRevision;
 
     #[test]
@@ -35,7 +36,7 @@ mod tests {
     ) {
         assert_eq!(
             type_option
-                .decode_cell_data(input_str.to_owned().into(), field_type, field_rev)
+                .try_decode_cell_data(input_str.to_owned().into(), field_type, field_rev)
                 .unwrap()
                 .to_string(),
             expected_str.to_owned()

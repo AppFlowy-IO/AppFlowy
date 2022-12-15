@@ -1,18 +1,17 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{CellChangesetPB, CellPathPB, CellPathParams, FieldType};
 use crate::services::cell::{
-    CellBytes, CellBytesParser, CellComparable, CellDataIsEmpty, CellDataSerialize, CellStringParser,
-    FromCellChangeset, FromCellString, IntoCellData, TypeCellData,
+    CellBytes, CellBytesParser, CellDataDecoder, CellStringParser, DecodedCellData, FromCellChangeset, FromCellString,
+    IntoCellData,
 };
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
-use crate::services::field::{ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
+use crate::services::field::{ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB, TypeOption};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 use grid_rev_model::{FieldRevision, TypeOptionDataSerializer};
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
 
 pub const SELECTION_IDS_SEPARATOR: &str = ",";
 
@@ -183,13 +182,13 @@ where
     }
 }
 
-impl<T> CellDataSerialize<SelectOptionIds> for T
+impl<T> CellDataDecoder for T
 where
-    T: SelectTypeOptionSharedAction,
+    T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds>,
 {
-    fn serialize_cell_data_to_bytes(
+    fn decode_cell_data(
         &self,
-        cell_data: IntoCellData<SelectOptionIds>,
+        cell_data: IntoCellData<<T as TypeOption>::CellData>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
@@ -201,9 +200,18 @@ where
         )
     }
 
-    fn serialize_cell_data_to_str(
+    fn try_decode_cell_data(
         &self,
-        cell_data: IntoCellData<SelectOptionIds>,
+        cell_data: IntoCellData<<T as TypeOption>::CellData>,
+        decoded_field_type: &FieldType,
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<CellBytes> {
+        self.decode_cell_data(cell_data, decoded_field_type, field_rev)
+    }
+
+    fn decode_cell_data_to_str(
+        &self,
+        cell_data: IntoCellData<<T as TypeOption>::CellData>,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<String> {
@@ -346,7 +354,9 @@ impl std::ops::DerefMut for SelectOptionIds {
     }
 }
 
-impl CellDataIsEmpty for SelectOptionIds {
+impl DecodedCellData for SelectOptionIds {
+    type Object = SelectOptionIds;
+
     fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
@@ -363,7 +373,9 @@ impl CellBytesParser for SelectOptionIdsParser {
     }
 }
 
-impl CellDataIsEmpty for SelectOptionCellDataPB {
+impl DecodedCellData for SelectOptionCellDataPB {
+    type Object = SelectOptionCellDataPB;
+
     fn is_empty(&self) -> bool {
         self.select_options.is_empty()
     }

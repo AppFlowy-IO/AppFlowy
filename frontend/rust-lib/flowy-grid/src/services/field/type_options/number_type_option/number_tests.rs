@@ -1,8 +1,9 @@
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
-    use crate::services::cell::CellDataOperation;
+    use crate::services::cell::CellDataDecoder;
     use crate::services::field::FieldBuilder;
+
     use crate::services::field::{strip_currency_symbol, NumberFormat, NumberTypeOptionPB};
     use grid_rev_model::FieldRevision;
     use strum::IntoEnumIterator;
@@ -438,7 +439,7 @@ mod tests {
     ) {
         assert_eq!(
             type_option
-                .decode_cell_data(input_str.to_owned().into(), field_type, field_rev)
+                .try_decode_cell_data(input_str.to_owned().into(), field_type, field_rev)
                 .unwrap()
                 .to_string(),
             expected_str.to_owned()

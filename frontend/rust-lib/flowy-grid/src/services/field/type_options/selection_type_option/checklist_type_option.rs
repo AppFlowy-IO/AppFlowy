@@ -1,16 +1,14 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{
-    AnyCellChangeset, CellBytes, CellDataOperation, CellDataSerialize, IntoCellData, TypeCellData,
-};
+use crate::services::cell::{AnyCellChangeset, CellDataChangeset, TypeCellData};
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
 use crate::services::field::{
     BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction,
-    TypeOptionBuilder,
+    TypeOption, TypeOptionBuilder,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::FlowyError;
 use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
 
@@ -24,6 +22,11 @@ pub struct ChecklistTypeOptionPB {
     pub disable_color: bool,
 }
 impl_type_option!(ChecklistTypeOptionPB, FieldType::Checklist);
+
+impl TypeOption for ChecklistTypeOptionPB {
+    type CellData = SelectOptionIds;
+    type CellChangeset = SelectOptionCellChangeset;
+}
 
 impl SelectTypeOptionSharedAction for ChecklistTypeOptionPB {
     fn number_of_max_options(&self) -> Option<usize> {
@@ -39,16 +42,7 @@ impl SelectTypeOptionSharedAction for ChecklistTypeOptionPB {
     }
 }
 
-impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for ChecklistTypeOptionPB {
-    fn decode_cell_data(
-        &self,
-        cell_data: IntoCellData<SelectOptionIds>,
-        decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        self.serialize_cell_data_to_bytes(cell_data, decoded_field_type, field_rev)
-    }
-
+impl CellDataChangeset for ChecklistTypeOptionPB {
     fn apply_changeset(
         &self,
         changeset: AnyCellChangeset<SelectOptionCellChangeset>,
@@ -66,7 +60,7 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for Checklist
             None => Ok(SelectOptionIds::from(insert_option_ids).to_string()),
             Some(cell_rev) => {
                 let cell_data = TypeCellData::try_from(cell_rev)
-                    .and_then(|data| Ok(data.into_inner()))
+                    .map(|data| data.into_inner())
                     .unwrap_or_default();
                 let mut select_ids: SelectOptionIds = cell_data.into();
                 for insert_option_id in insert_option_ids {

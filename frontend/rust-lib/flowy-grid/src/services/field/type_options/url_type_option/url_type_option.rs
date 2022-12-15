@@ -1,10 +1,9 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    AnyCellChangeset, CellBytes, CellComparable, CellDataOperation, CellDataSerialize, CellStringParser,
-    FromCellString, IntoCellData, TypeCellData,
+    AnyCellChangeset, CellBytes, CellDataChangeset, CellDataDecoder, CellStringParser, IntoCellData,
 };
-use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder, URLCellData, URLCellDataPB};
+use crate::services::field::{BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, URLCellData, URLCellDataPB};
 use bytes::Bytes;
 use fancy_regex::Regex;
 use flowy_derive::ProtoBuf;
@@ -12,7 +11,6 @@ use flowy_error::{internal_error, FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
 
 #[derive(Default)]
 pub struct URLTypeOptionBuilder(URLTypeOptionPB);
@@ -40,6 +38,11 @@ pub struct URLTypeOptionPB {
 }
 impl_type_option!(URLTypeOptionPB, FieldType::URL);
 
+impl TypeOption for URLTypeOptionPB {
+    type CellData = URLCellData;
+    type CellChangeset = URLCellChangeset;
+}
+
 impl CellStringParser for URLTypeOptionPB {
     type Object = URLCellData;
 
@@ -51,8 +54,8 @@ impl CellStringParser for URLTypeOptionPB {
     }
 }
 
-impl CellDataSerialize<URLCellData> for URLTypeOptionPB {
-    fn serialize_cell_data_to_bytes(
+impl CellDataDecoder for URLTypeOptionPB {
+    fn decode_cell_data(
         &self,
         cell_data: IntoCellData<URLCellData>,
         _decoded_field_type: &FieldType,
@@ -62,7 +65,20 @@ impl CellDataSerialize<URLCellData> for URLTypeOptionPB {
         CellBytes::from(cell_data_pb)
     }
 
-    fn serialize_cell_data_to_str(
+    fn try_decode_cell_data(
+        &self,
+        cell_data: IntoCellData<URLCellData>,
+        decoded_field_type: &FieldType,
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<CellBytes> {
+        if !decoded_field_type.is_url() {
+            return Ok(CellBytes::default());
+        }
+
+        self.decode_cell_data(cell_data, decoded_field_type, field_rev)
+    }
+
+    fn decode_cell_data_to_str(
         &self,
         cell_data: IntoCellData<URLCellData>,
         _decoded_field_type: &FieldType,
@@ -75,23 +91,10 @@ impl CellDataSerialize<URLCellData> for URLTypeOptionPB {
 
 pub type URLCellChangeset = String;
 
-impl CellDataOperation<URLCellData, URLCellChangeset> for URLTypeOptionPB {
-    fn decode_cell_data(
-        &self,
-        cell_data: IntoCellData<URLCellData>,
-        decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        if !decoded_field_type.is_url() {
-            return Ok(CellBytes::default());
-        }
-        let cell_data = cell_data.try_into_inner()?.to_json()?;
-        Ok(CellBytes::new(cell_data))
-    }
-
+impl CellDataChangeset for URLTypeOptionPB {
     fn apply_changeset(
         &self,
-        changeset: AnyCellChangeset<String>,
+        changeset: AnyCellChangeset<URLCellChangeset>,
         _cell_rev: Option<CellRevision>,
     ) -> Result<String, FlowyError> {
         let content = changeset.try_into_inner()?;

@@ -1,11 +1,11 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    AnyCellChangeset, CellBytes, CellComparable, CellDataOperation, CellDataSerialize, CellStringParser,
-    FromCellString, IntoCellData, TypeCellData,
+    AnyCellChangeset, CellBytes, CellDataChangeset, CellDataDecoder, CellStringParser, IntoCellData,
 };
 use crate::services::field::{
-    BoxTypeOptionBuilder, DateCellChangeset, DateCellDataPB, DateFormat, DateTimestamp, TimeFormat, TypeOptionBuilder,
+    BoxTypeOptionBuilder, DateCellChangeset, DateCellDataPB, DateFormat, DateTimestamp, TimeFormat, TypeOption,
+    TypeOptionBuilder,
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
@@ -14,7 +14,6 @@ use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
 
 // Date
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
@@ -29,6 +28,11 @@ pub struct DateTypeOptionPB {
     pub include_time: bool,
 }
 impl_type_option!(DateTypeOptionPB, FieldType::DateTime);
+
+impl TypeOption for DateTypeOptionPB {
+    type CellData = DateTimestamp;
+    type CellChangeset = DateCellChangeset;
+}
 
 impl DateTypeOptionPB {
     #[allow(dead_code)]
@@ -120,8 +124,8 @@ impl CellStringParser for DateTypeOptionPB {
     }
 }
 
-impl CellDataSerialize<DateTimestamp> for DateTypeOptionPB {
-    fn serialize_cell_data_to_bytes(
+impl CellDataDecoder for DateTypeOptionPB {
+    fn decode_cell_data(
         &self,
         cell_data: IntoCellData<DateTimestamp>,
         _decoded_field_type: &FieldType,
@@ -132,20 +136,7 @@ impl CellDataSerialize<DateTimestamp> for DateTypeOptionPB {
         CellBytes::from(cell_data_pb)
     }
 
-    fn serialize_cell_data_to_str(
-        &self,
-        cell_data: IntoCellData<DateTimestamp>,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<String> {
-        let timestamp = cell_data.try_into_inner()?;
-        let date_cell_data = self.today_desc_from_timestamp(timestamp);
-        Ok(date_cell_data.date)
-    }
-}
-
-impl CellDataOperation<DateTimestamp, DateCellChangeset> for DateTypeOptionPB {
-    fn decode_cell_data(
+    fn try_decode_cell_data(
         &self,
         cell_data: IntoCellData<DateTimestamp>,
         decoded_field_type: &FieldType,
@@ -158,9 +149,23 @@ impl CellDataOperation<DateTimestamp, DateCellChangeset> for DateTypeOptionPB {
         if !decoded_field_type.is_date() {
             return Ok(CellBytes::default());
         }
-        self.serialize_cell_data_to_bytes(cell_data, decoded_field_type, field_rev)
+
+        self.decode_cell_data(cell_data, decoded_field_type, field_rev)
     }
 
+    fn decode_cell_data_to_str(
+        &self,
+        cell_data: IntoCellData<DateTimestamp>,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<String> {
+        let timestamp = cell_data.try_into_inner()?;
+        let date_cell_data = self.today_desc_from_timestamp(timestamp);
+        Ok(date_cell_data.date)
+    }
+}
+
+impl CellDataChangeset for DateTypeOptionPB {
     fn apply_changeset(
         &self,
         changeset: AnyCellChangeset<DateCellChangeset>,

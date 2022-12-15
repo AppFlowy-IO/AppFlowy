@@ -2,7 +2,7 @@ use crate::entities::FieldType;
 use crate::services::cell::{CellBytes, IntoCellData};
 use crate::services::field::{
     MultiSelectTypeOptionPB, SelectOptionColorPB, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction,
-    SingleSelectTypeOptionPB, CHECK, UNCHECK,
+    SingleSelectTypeOptionPB, TypeOption, CHECK, UNCHECK,
 };
 use flowy_error::FlowyResult;
 use grid_rev_model::FieldRevision;
@@ -57,12 +57,12 @@ impl SelectOptionTypeOptionTransformer {
 
     pub fn transform_type_option_cell_data<T>(
         shared: &T,
-        cell_data: IntoCellData<SelectOptionIds>,
+        cell_data: IntoCellData<<T as TypeOption>::CellData>,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes>
     where
-        T: SelectTypeOptionSharedAction,
+        T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds>,
     {
         match decoded_field_type {
             FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => {

@@ -1,14 +1,14 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataOperation, CellDataSerialize, IntoCellData};
+use crate::services::cell::{AnyCellChangeset, CellDataChangeset};
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
-use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
+use crate::services::field::{BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder};
 use crate::services::field::{
     SelectOptionCellChangeset, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::FlowyError;
 use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
 
@@ -22,6 +22,11 @@ pub struct SingleSelectTypeOptionPB {
     pub disable_color: bool,
 }
 impl_type_option!(SingleSelectTypeOptionPB, FieldType::SingleSelect);
+
+impl TypeOption for SingleSelectTypeOptionPB {
+    type CellData = SelectOptionIds;
+    type CellChangeset = SelectOptionCellChangeset;
+}
 
 impl SelectTypeOptionSharedAction for SingleSelectTypeOptionPB {
     fn number_of_max_options(&self) -> Option<usize> {
@@ -37,16 +42,7 @@ impl SelectTypeOptionSharedAction for SingleSelectTypeOptionPB {
     }
 }
 
-impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSelectTypeOptionPB {
-    fn decode_cell_data(
-        &self,
-        cell_data: IntoCellData<SelectOptionIds>,
-        decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        self.serialize_cell_data_to_bytes(cell_data, decoded_field_type, field_rev)
-    }
-
+impl CellDataChangeset for SingleSelectTypeOptionPB {
     fn apply_changeset(
         &self,
         changeset: AnyCellChangeset<SelectOptionCellChangeset>,
@@ -102,7 +98,7 @@ impl TypeOptionBuilder for SingleSelectTypeOptionBuilder {
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
-    use crate::services::cell::CellDataOperation;
+    use crate::services::cell::CellDataChangeset;
     use crate::services::field::type_options::*;
     use crate::services::field::{FieldBuilder, TypeOptionBuilder};
 
