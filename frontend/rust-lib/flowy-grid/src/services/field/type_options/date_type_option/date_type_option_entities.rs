@@ -68,7 +68,7 @@ impl ToString for DateCellChangeset {
     }
 }
 
-pub struct DateTimestamp(Option<i64>);
+pub struct DateTimestamp(pub Option<i64>);
 
 impl std::convert::From<DateTimestamp> for i64 {
     fn from(timestamp: DateTimestamp) -> Self {

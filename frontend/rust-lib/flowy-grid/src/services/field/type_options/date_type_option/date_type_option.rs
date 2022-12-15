@@ -1,7 +1,8 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    AnyCellChangeset, CellBytes, CellComparable, CellDataOperation, CellDataSerialize, IntoCellData, TypeCellData,
+    AnyCellChangeset, CellBytes, CellComparable, CellDataOperation, CellDataSerialize, CellStringParser,
+    FromCellString, IntoCellData, TypeCellData,
 };
 use crate::services::field::{
     BoxTypeOptionBuilder, DateCellChangeset, DateCellDataPB, DateFormat, DateTimestamp, TimeFormat, TypeOptionBuilder,
@@ -110,6 +111,15 @@ impl DateTypeOptionPB {
     }
 }
 
+impl CellStringParser for DateTypeOptionPB {
+    type Object = DateTimestamp;
+
+    fn parser_cell_str(&self, s: &str) -> Option<Self::Object> {
+        let num = s.parse::<i64>().ok();
+        Some(DateTimestamp(num))
+    }
+}
+
 impl CellDataSerialize<DateTimestamp> for DateTypeOptionPB {
     fn serialize_cell_data_to_bytes(
         &self,
@@ -172,12 +182,6 @@ impl CellDataOperation<DateTimestamp, DateCellChangeset> for DateTypeOptionPB {
         };
 
         Ok(cell_data.to_string())
-    }
-}
-
-impl CellComparable for DateTypeOptionPB {
-    fn apply_cmp(&self, type_cell_data: &TypeCellData, other_type_cell_data: &TypeCellData) -> Ordering {
-        Ordering::Equal
     }
 }
 

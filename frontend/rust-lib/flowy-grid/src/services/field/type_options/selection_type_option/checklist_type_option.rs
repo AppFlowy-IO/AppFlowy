@@ -1,8 +1,9 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataOperation, CellDataSerialize, IntoCellData};
+use crate::services::cell::{
+    AnyCellChangeset, CellBytes, CellDataOperation, CellDataSerialize, IntoCellData, TypeCellData,
+};
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
-use crate::services::field::type_options::util::get_cell_data;
 use crate::services::field::{
     BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction,
     TypeOptionBuilder,
@@ -64,7 +65,9 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for Checklist
         match cell_rev {
             None => Ok(SelectOptionIds::from(insert_option_ids).to_string()),
             Some(cell_rev) => {
-                let cell_data = get_cell_data(&cell_rev);
+                let cell_data = TypeCellData::try_from(cell_rev)
+                    .and_then(|data| Ok(data.into_inner()))
+                    .unwrap_or_default();
                 let mut select_ids: SelectOptionIds = cell_data.into();
                 for insert_option_id in insert_option_ids {
                     if !select_ids.contains(&insert_option_id) {

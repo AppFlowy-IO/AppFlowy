@@ -4,7 +4,6 @@ pub mod number_type_option;
 pub mod selection_type_option;
 pub mod text_type_option;
 pub mod url_type_option;
-mod util;
 
 pub use checkbox_type_option::*;
 pub use date_type_option::*;

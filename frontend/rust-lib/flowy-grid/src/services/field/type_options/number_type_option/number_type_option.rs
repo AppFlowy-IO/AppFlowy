@@ -1,7 +1,8 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    AnyCellChangeset, CellBytes, CellComparable, CellDataOperation, CellDataSerialize, IntoCellData, TypeCellData,
+    AnyCellChangeset, CellBytes, CellComparable, CellDataOperation, CellDataOperation2, CellDataSerialize,
+    CellStringParser, IntoCellData, TypeCellData,
 };
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{BoxTypeOptionBuilder, NumberCellData, TypeOptionBuilder};
@@ -106,6 +107,28 @@ pub(crate) fn strip_currency_symbol<T: ToString>(s: T) -> String {
     s
 }
 
+impl CellStringParser for NumberTypeOptionPB {
+    type Object = NumberCellData;
+
+    fn parser_cell_str(&self, s: &str) -> Option<Self::Object> {
+        match self.format_cell_data(s) {
+            Ok(num) => Some(num),
+            Err(_) => None,
+        }
+    }
+}
+
+impl CellDataOperation2 for NumberTypeOptionPB {
+    fn decode_cell_data2(
+        &self,
+        cell_data: <Self as CellStringParser>::Object,
+        decoded_field_type: &FieldType,
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<CellBytes> {
+        todo!()
+    }
+}
+
 impl CellDataSerialize<String> for NumberTypeOptionPB {
     fn serialize_cell_data_to_bytes(
         &self,
@@ -159,10 +182,13 @@ impl CellDataOperation<String, NumberCellChangeset> for NumberTypeOptionPB {
     }
 }
 impl CellComparable for NumberTypeOptionPB {
-    fn apply_cmp(&self, type_cell_data: &TypeCellData, other_type_cell_data: &TypeCellData) -> Ordering {
+    type CellData = NumberCellData;
+
+    fn apply_cmp(&self, cell_data: &Self::CellData, other_cell_data: &Self::CellData) -> Ordering {
         Ordering::Equal
     }
 }
+
 impl std::default::Default for NumberTypeOptionPB {
     fn default() -> Self {
         let format = NumberFormat::default();

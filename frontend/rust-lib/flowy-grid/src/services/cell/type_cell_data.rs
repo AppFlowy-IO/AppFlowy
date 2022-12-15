@@ -7,8 +7,14 @@ use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
 /// TypeCellData is a generic CellData, you can parse the type_cell_data according to the field_type.
-/// When the type of field is changed, it's different from the field_type of TypeCellData.
-/// So it will return an empty data. You could check the CellDataOperation trait for more information.
+/// The `data` is encoded by JSON format. You can use `IntoCellData` to decode the opaque data to
+/// concrete cell type.
+/// TypeCellData -> IntoCellData<T> -> T
+///
+/// The `TypeCellData` is the same as the cell data that was saved to disk except it carries the
+/// field_type. The field_type indicates the cell data original `FieldType`. The field_type will
+/// be changed if the current Field's type switch from one to another.  
+///
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TypeCellData {
     pub data: String,
@@ -22,41 +28,25 @@ impl TypeCellData {
             field_type: field_type.clone(),
         }
     }
-}
 
-impl std::str::FromStr for TypeCellData {
-    type Err = FlowyError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let type_option_cell_data: TypeCellData = serde_json::from_str(s).map_err(|err| {
-            let msg = format!("Deserialize {} to any cell data failed. Serde error: {}", s, err);
+    pub fn from_json_str(s: &str) -> FlowyResult<Self> {
+        let type_cell_data: TypeCellData = serde_json::from_str(s).map_err(|err| {
+            let msg = format!("Deserialize {} to any cell data failed.{}", s, err);
             FlowyError::internal().context(msg)
         })?;
-        Ok(type_option_cell_data)
+        Ok(type_cell_data)
+    }
+
+    pub fn into_inner(self) -> String {
+        self.data
     }
 }
 
-impl std::convert::TryInto<TypeCellData> for String {
+impl std::convert::TryFrom<String> for TypeCellData {
     type Error = FlowyError;
 
-    fn try_into(self) -> Result<TypeCellData, Self::Error> {
-        TypeCellData::from_str(&self)
-    }
-}
-
-impl std::convert::TryFrom<&CellRevision> for TypeCellData {
-    type Error = FlowyError;
-
-    fn try_from(value: &CellRevision) -> Result<Self, Self::Error> {
-        Self::from_str(&value.data)
-    }
-}
-
-impl std::convert::TryFrom<CellRevision> for TypeCellData {
-    type Error = FlowyError;
-
-    fn try_from(value: CellRevision) -> Result<Self, Self::Error> {
-        Self::try_from(&value)
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        TypeCellData::from_json_str(&value)
     }
 }
 
@@ -66,6 +56,22 @@ where
 {
     fn from(any_call_data: TypeCellData) -> Self {
         IntoCellData::from(any_call_data.data)
+    }
+}
+
+impl std::convert::TryFrom<&CellRevision> for TypeCellData {
+    type Error = FlowyError;
+
+    fn try_from(value: &CellRevision) -> Result<Self, Self::Error> {
+        Self::from_json_str(&value.data)
+    }
+}
+
+impl std::convert::TryFrom<CellRevision> for TypeCellData {
+    type Error = FlowyError;
+
+    fn try_from(value: CellRevision) -> Result<Self, Self::Error> {
+        Self::try_from(&value)
     }
 }
 
@@ -104,6 +110,7 @@ impl TypeCellData {
     pub fn is_multi_select(&self) -> bool {
         self.field_type == FieldType::MultiSelect
     }
+
     pub fn is_checklist(&self) -> bool {
         self.field_type == FieldType::Checklist
     }
@@ -135,6 +142,11 @@ pub trait CellDataIsEmpty {
 pub trait CellBytesParser {
     type Object: CellDataIsEmpty;
     fn parser(bytes: &Bytes) -> FlowyResult<Self::Object>;
+}
+
+pub trait CellStringParser {
+    type Object;
+    fn parser_cell_str(&self, s: &str) -> Option<Self::Object>;
 }
 
 pub trait CellBytesCustomParser {

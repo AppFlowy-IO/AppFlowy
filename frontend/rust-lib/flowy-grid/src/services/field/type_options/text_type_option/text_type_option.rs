@@ -2,7 +2,7 @@ use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
     decode_cell_data_to_string, AnyCellChangeset, CellBytes, CellBytesParser, CellComparable, CellDataIsEmpty,
-    CellDataOperation, CellDataSerialize, FromCellString, IntoCellData, TypeCellData,
+    CellDataOperation, CellDataSerialize, CellStringParser, FromCellString, IntoCellData, TypeCellData,
 };
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
@@ -39,6 +39,14 @@ pub struct RichTextTypeOptionPB {
     data: String,
 }
 impl_type_option!(RichTextTypeOptionPB, FieldType::RichText);
+
+impl CellStringParser for RichTextTypeOptionPB {
+    type Object = RichTextCellData;
+
+    fn parser_cell_str(&self, s: &str) -> Option<Self::Object> {
+        Some(s.to_owned())
+    }
+}
 
 impl CellDataSerialize<RichTextCellData> for RichTextTypeOptionPB {
     fn serialize_cell_data_to_bytes(
@@ -97,8 +105,10 @@ impl CellDataOperation<RichTextCellData, String> for RichTextTypeOptionPB {
 }
 
 impl CellComparable for RichTextTypeOptionPB {
-    fn apply_cmp(&self, type_cell_data: &TypeCellData, other_type_cell_data: &TypeCellData) -> Ordering {
-        Ordering::Equal
+    type CellData = String;
+
+    fn apply_cmp(&self, cell_data: &Self::CellData, other_cell_data: &Self::CellData) -> Ordering {
+        cell_data.cmp(other_cell_data)
     }
 }
 

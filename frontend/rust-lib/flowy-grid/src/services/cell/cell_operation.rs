@@ -1,6 +1,7 @@
 use crate::entities::FieldType;
-use crate::services::cell::{CellBytes, TypeCellData};
+use crate::services::cell::{CellBytes, CellStringParser, TypeCellData};
 use crate::services::field::*;
+use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
@@ -14,8 +15,14 @@ pub trait CellFilterable<T> {
 }
 
 pub trait CellComparable {
-    fn apply_cmp(&self, type_cell_data: &TypeCellData, other_type_cell_data: &TypeCellData) -> Ordering;
+    type CellData;
+    fn apply_cmp(&self, cell_data: &Self::CellData, other_cell_data: &Self::CellData) -> Ordering;
 }
+//
+// pub trait CellComparable2 {
+//     type CellData;
+//     fn apply_cmp(&self, cell_data: Cow<Self::CellData>, other_cell_data: Cow<Self::CellData>) -> Ordering;
+// }
 
 /// Serialize the cell data in Protobuf/String format.
 ///
@@ -108,6 +115,18 @@ pub trait CellDataOperation<CD, CS> {
     /// SelectOptionCellChangeset,DateCellChangeset. etc.
     ///  
     fn apply_changeset(&self, changeset: AnyCellChangeset<CS>, cell_rev: Option<CellRevision>) -> FlowyResult<String>;
+}
+
+pub trait CellDataOperation2<T = <Self as CellStringParser>::Object>
+where
+    Self: CellStringParser,
+{
+    fn decode_cell_data2(
+        &self,
+        cell_data: T,
+        decoded_field_type: &FieldType,
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<CellBytes>;
 }
 
 /// changeset: It will be deserialized into specific data base on the FieldType.
@@ -214,10 +233,21 @@ pub fn decode_cell_data_to_string<C: Into<IntoCellData<String>>>(
     }
 }
 
-/// Use the `to_field_type`'s TypeOption to parse the cell data into `from_field_type` type's data.
+/// Decode the opaque cell data from one field type to another using the corresponding type option builder
 ///
-/// Each `FieldType` has its corresponding `TypeOption` that implements the `CellDisplayable`
-/// and `CellDataOperation` traits.
+/// The cell data might become an empty string depends on these two fields' `TypeOptionBuilder`
+/// support transform or not.
+///
+/// # Arguments
+///
+/// * `cell_data`: the opaque cell data
+/// * `from_field_type`: the original field type of the passed-in cell data. Check the `TypeCellData`
+/// that is used to save the origin field type of the cell data.
+/// * `to_field_type`: decode the passed-in cell data to this field type. It will use the to_field_type's
+/// TypeOption to decode this cell data.
+/// * `field_rev`: used to get the corresponding TypeOption for the specified field type.
+///
+/// returns: CellBytes
 ///
 pub fn try_decode_cell_data(
     cell_data: IntoCellData<String>,
@@ -322,7 +352,8 @@ pub trait FromCellString {
         Self: Sized;
 }
 
-/// IntoCellData is a helper struct. String will be parser into Option<T> only if the T impl the FromCellString trait.
+/// IntoCellData is a helper struct used to deserialize string into a specific data type that implements
+/// the `CellStringParser` trait.
 ///
 pub struct IntoCellData<T>(pub Option<T>);
 impl<T> IntoCellData<T> {

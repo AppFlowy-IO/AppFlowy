@@ -1,7 +1,8 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    AnyCellChangeset, CellBytes, CellComparable, CellDataOperation, CellDataSerialize, IntoCellData, TypeCellData,
+    AnyCellChangeset, CellBytes, CellComparable, CellDataOperation, CellDataSerialize, CellStringParser, IntoCellData,
+    TypeCellData,
 };
 use crate::services::field::{BoxTypeOptionBuilder, CheckboxCellData, TypeOptionBuilder};
 use bytes::Bytes;
@@ -44,6 +45,17 @@ pub struct CheckboxTypeOptionPB {
     pub is_selected: bool,
 }
 impl_type_option!(CheckboxTypeOptionPB, FieldType::Checkbox);
+
+impl CellStringParser for CheckboxTypeOptionPB {
+    type Object = CheckboxCellData;
+
+    fn parser_cell_str(&self, s: &str) -> Option<Self::Object> {
+        match CheckboxCellData::from_str(s) {
+            Ok(data) => Some(data),
+            Err(_) => None,
+        }
+    }
+}
 
 impl CellDataSerialize<CheckboxCellData> for CheckboxTypeOptionPB {
     fn serialize_cell_data_to_bytes(
@@ -91,11 +103,5 @@ impl CellDataOperation<CheckboxCellData, CheckboxCellChangeset> for CheckboxType
         let changeset = changeset.try_into_inner()?;
         let cell_data = CheckboxCellData::from_str(&changeset)?;
         Ok(cell_data.to_string())
-    }
-}
-
-impl CellComparable for CheckboxTypeOptionPB {
-    fn apply_cmp(&self, type_cell_data: &TypeCellData, other_type_cell_data: &TypeCellData) -> Ordering {
-        Ordering::Equal
     }
 }

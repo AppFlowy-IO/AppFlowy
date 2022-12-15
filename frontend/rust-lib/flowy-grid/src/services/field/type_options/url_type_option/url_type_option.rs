@@ -1,13 +1,14 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    AnyCellChangeset, CellBytes, CellComparable, CellDataOperation, CellDataSerialize, IntoCellData, TypeCellData,
+    AnyCellChangeset, CellBytes, CellComparable, CellDataOperation, CellDataSerialize, CellStringParser,
+    FromCellString, IntoCellData, TypeCellData,
 };
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder, URLCellData, URLCellDataPB};
 use bytes::Bytes;
 use fancy_regex::Regex;
 use flowy_derive::ProtoBuf;
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{internal_error, FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
@@ -38,6 +39,17 @@ pub struct URLTypeOptionPB {
     data: String, //It's not used yet.
 }
 impl_type_option!(URLTypeOptionPB, FieldType::URL);
+
+impl CellStringParser for URLTypeOptionPB {
+    type Object = URLCellData;
+
+    fn parser_cell_str(&self, s: &str) -> Option<Self::Object> {
+        match serde_json::from_str::<URLCellData>(s).map_err(internal_error) {
+            Ok(data) => Some(data),
+            Err(_) => None,
+        }
+    }
+}
 
 impl CellDataSerialize<URLCellData> for URLTypeOptionPB {
     fn serialize_cell_data_to_bytes(
@@ -88,12 +100,6 @@ impl CellDataOperation<URLCellData, URLCellChangeset> for URLTypeOptionPB {
             url = auto_append_scheme(m.as_str());
         }
         URLCellData { url, content }.to_json()
-    }
-}
-
-impl CellComparable for URLTypeOptionPB {
-    fn apply_cmp(&self, type_cell_data: &TypeCellData, other_type_cell_data: &TypeCellData) -> Ordering {
-        Ordering::Equal
     }
 }
 

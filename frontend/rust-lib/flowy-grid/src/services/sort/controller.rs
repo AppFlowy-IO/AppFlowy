@@ -76,14 +76,17 @@ fn cmp_row(
     left: &Arc<RowRevision>,
     right: &Arc<RowRevision>,
     sorts: &[SortRevision],
-    field_rev: &Arc<FieldRevision>,
+    field_revs: &[Arc<FieldRevision>],
 ) -> Ordering {
     let mut order = Ordering::Equal;
     for sort in sorts.iter() {
         let cmp_order = match (left.cells.get(&sort.field_id), right.cells.get(&sort.field_id)) {
             (Some(left_cell), Some(right_cell)) => {
                 let field_type: FieldType = sort.field_type.into();
-                cmp_cell(left_cell, right_cell, field_rev, field_type)
+                match field_revs.iter().find(|field_rev| field_rev.id == sort.field_id) {
+                    None => Ordering::Equal,
+                    Some(field_rev) => cmp_cell(left_cell, right_cell, field_rev, field_type),
+                }
             }
             (Some(_), None) => Ordering::Greater,
             (None, Some(_)) => Ordering::Less,
@@ -109,16 +112,17 @@ fn cmp_cell(
     field_type: FieldType,
 ) -> Ordering {
     let cal_order = || {
-        let left_cell = TypeCellData::try_from(left).ok()?;
-        let right_cell = TypeCellData::try_from(right).ok()?;
-
         let order = match &field_type {
-            FieldType::RichText => field_rev
-                .get_type_option::<RichTextTypeOptionPB>(field_rev.ty)?
-                .apply_cmp(&left_cell, &right_cell),
-            FieldType::Number => field_rev
-                .get_type_option::<NumberTypeOptionPB>(field_rev.ty)?
-                .apply_cmp(&left_cell, &right_cell),
+            // FieldType::RichText => {
+            //     let left_cell = TypeCellData::try_from(left).ok()?.into();
+            //     let right_cell = TypeCellData::try_from(right).ok()?.into();
+            //     field_rev
+            //         .get_type_option::<RichTextTypeOptionPB>(field_rev.ty)?
+            //         .apply_cmp(&left_cell, &right_cell)
+            // }
+            // FieldType::Number => field_rev
+            //     .get_type_option::<NumberTypeOptionPB>(field_rev.ty)?
+            //     .apply_cmp(&left_cell, &right_cell),
             _ => Ordering::Equal,
         };
         Option::<Ordering>::Some(order)

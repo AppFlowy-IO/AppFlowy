@@ -1,8 +1,8 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{CellChangesetPB, CellPathPB, CellPathParams, FieldType};
 use crate::services::cell::{
-    CellBytes, CellBytesParser, CellComparable, CellDataIsEmpty, CellDataSerialize, FromCellChangeset, FromCellString,
-    IntoCellData, TypeCellData,
+    CellBytes, CellBytesParser, CellComparable, CellDataIsEmpty, CellDataSerialize, CellStringParser,
+    FromCellChangeset, FromCellString, IntoCellData, TypeCellData,
 };
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
 use crate::services::field::{ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
@@ -172,6 +172,17 @@ pub trait SelectTypeOptionSharedAction: TypeOptionDataSerializer + Send + Sync {
     fn mut_options(&mut self) -> &mut Vec<SelectOptionPB>;
 }
 
+impl<T> CellStringParser for T
+where
+    T: SelectTypeOptionSharedAction,
+{
+    type Object = SelectOptionIds;
+
+    fn parser_cell_str(&self, s: &str) -> Option<Self::Object> {
+        Some(SelectOptionIds::from(s.to_owned()))
+    }
+}
+
 impl<T> CellDataSerialize<SelectOptionIds> for T
 where
     T: SelectTypeOptionSharedAction,
@@ -203,15 +214,6 @@ where
             .map(|option| option.name)
             .collect::<Vec<String>>()
             .join(SELECTION_IDS_SEPARATOR))
-    }
-}
-
-impl<T> CellComparable for T
-where
-    T: SelectTypeOptionSharedAction,
-{
-    fn apply_cmp(&self, type_cell_data: &TypeCellData, other_type_cell_data: &TypeCellData) -> Ordering {
-        Ordering::Equal
     }
 }
 
