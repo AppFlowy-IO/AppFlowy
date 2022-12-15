@@ -15,7 +15,7 @@ class FlowyApp implements EntryPoint {
   }
 }
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
 

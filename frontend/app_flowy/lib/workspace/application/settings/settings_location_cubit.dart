@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../startup/tasks/prelude.dart';
 
-const String _kSettingsLocationDefaultLocation =
+@visibleForTesting
+const String kSettingsLocationDefaultLocation =
     'kSettingsLocationDefaultLocation';
 
 class SettingsLocation {
@@ -27,7 +29,7 @@ class SettingsLocationCubit extends Cubit<SettingsLocation> {
 
   Future<String> fetchLocation() async {
     final prefs = await SharedPreferences.getInstance();
-    final path = prefs.getString(_kSettingsLocationDefaultLocation) ??
+    final path = prefs.getString(kSettingsLocationDefaultLocation) ??
         (await appFlowyDocumentDirectory()).path;
     emit(state.copyWith(path: path));
     return Future.value(path);
@@ -36,7 +38,7 @@ class SettingsLocationCubit extends Cubit<SettingsLocation> {
   Future<void> setLocation(String? path) async {
     path = path ?? (await appFlowyDocumentDirectory()).path;
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString(_kSettingsLocationDefaultLocation, path);
+    prefs.setString(kSettingsLocationDefaultLocation, path);
     await Directory(path).create(recursive: true);
     emit(state.copyWith(path: path));
   }
