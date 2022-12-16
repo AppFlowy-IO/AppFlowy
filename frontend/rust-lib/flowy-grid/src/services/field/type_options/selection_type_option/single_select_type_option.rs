@@ -1,14 +1,17 @@
-use crate::entities::FieldType;
+use crate::entities::{FieldType, SelectOptionFilterPB};
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellDataChangeset};
+use crate::services::cell::{AnyCellChangeset, CellDataChangeset, FromCellString};
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
-use crate::services::field::{BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder};
+use crate::services::field::{
+    BoxTypeOptionBuilder, SelectOptionCellDataPB, TypeOption, TypeOptionBuilder, TypeOptionCellData,
+    TypeOptionConfiguration,
+};
 use crate::services::field::{
     SelectOptionCellChangeset, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
-use flowy_error::FlowyError;
+use flowy_error::{FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
 
@@ -26,6 +29,17 @@ impl_type_option!(SingleSelectTypeOptionPB, FieldType::SingleSelect);
 impl TypeOption for SingleSelectTypeOptionPB {
     type CellData = SelectOptionIds;
     type CellChangeset = SelectOptionCellChangeset;
+    type CellPBType = SelectOptionCellDataPB;
+}
+
+impl TypeOptionConfiguration for SingleSelectTypeOptionPB {
+    type CellFilterConfiguration = SelectOptionFilterPB;
+}
+
+impl TypeOptionCellData for SingleSelectTypeOptionPB {
+    fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        SelectOptionIds::from_cell_str(&cell_data)
+    }
 }
 
 impl SelectTypeOptionSharedAction for SingleSelectTypeOptionPB {

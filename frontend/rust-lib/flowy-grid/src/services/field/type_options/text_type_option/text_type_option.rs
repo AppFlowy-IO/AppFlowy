@@ -1,10 +1,12 @@
-use crate::entities::FieldType;
+use crate::entities::{FieldType, TextFilterPB};
 use crate::impl_type_option;
 use crate::services::cell::{
-    stringify_cell_data, try_decode_cell_data, AnyCellChangeset, CellBytes, CellBytesParser, CellComparable,
-    CellDataChangeset, CellDataDecoder, CellStringParser, DecodedCellData, FromCellString, IntoCellData,
+    stringify_cell_data, AnyCellChangeset, CellBytes, CellBytesParser, CellComparable, CellDataChangeset,
+    CellDataDecoder, DecodedCellData, FromCellString,
 };
-use crate::services::field::{BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder};
+use crate::services::field::{
+    BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
+};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
@@ -43,30 +45,33 @@ impl_type_option!(RichTextTypeOptionPB, FieldType::RichText);
 impl TypeOption for RichTextTypeOptionPB {
     type CellData = StrCellData;
     type CellChangeset = String;
+    type CellPBType = StrCellData;
 }
 
-impl CellStringParser for RichTextTypeOptionPB {
-    type Object = StrCellData;
+impl TypeOptionConfiguration for RichTextTypeOptionPB {
+    type CellFilterConfiguration = TextFilterPB;
+}
 
-    fn parser_cell_str(&self, s: &str) -> Option<Self::Object> {
-        Some(s.into())
+impl TypeOptionCellData for RichTextTypeOptionPB {
+    fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        StrCellData::from_cell_str(&cell_data)
     }
 }
 
 impl CellDataDecoder for RichTextTypeOptionPB {
     fn decode_cell_data(
         &self,
-        cell_data: IntoCellData<StrCellData>,
+        cell_data: String,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        let cell_str = cell_data.try_into_inner()?;
-        Ok(CellBytes::new(cell_str))
+        let cell_data = StrCellData::from_cell_str(&cell_data)?;
+        Ok(CellBytes::new(cell_data))
     }
 
     fn try_decode_cell_data(
         &self,
-        cell_data: IntoCellData<StrCellData>,
+        cell_data: String,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
@@ -76,8 +81,7 @@ impl CellDataDecoder for RichTextTypeOptionPB {
             || decoded_field_type.is_number()
             || decoded_field_type.is_url()
         {
-            let cell_data = cell_data.try_into_inner()?;
-            Ok(stringify_cell_data(cell_data.into(), decoded_field_type, field_rev))
+            Ok(stringify_cell_data(cell_data, decoded_field_type, field_rev))
         } else {
             self.decode_cell_data(cell_data, decoded_field_type, field_rev)
         }
@@ -85,11 +89,11 @@ impl CellDataDecoder for RichTextTypeOptionPB {
 
     fn decode_cell_data_to_str(
         &self,
-        cell_data: IntoCellData<StrCellData>,
+        cell_data: String,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<String> {
-        let cell_str = cell_data.try_into_inner()?.0;
+        let cell_str = StrCellData::from_cell_str(&cell_data)?;
         Ok(cell_str.into())
     }
 }
@@ -207,5 +211,10 @@ impl std::convert::From<&str> for StrCellData {
 impl AsRef<[u8]> for StrCellData {
     fn as_ref(&self) -> &[u8] {
         self.0.as_ref()
+    }
+}
+impl AsRef<str> for StrCellData {
+    fn as_ref(&self) -> &str {
+        self.0.as_str()
     }
 }

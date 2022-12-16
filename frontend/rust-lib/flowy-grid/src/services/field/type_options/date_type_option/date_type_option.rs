@@ -1,11 +1,9 @@
-use crate::entities::FieldType;
+use crate::entities::{DateFilterPB, FieldType};
 use crate::impl_type_option;
-use crate::services::cell::{
-    AnyCellChangeset, CellBytes, CellDataChangeset, CellDataDecoder, CellStringParser, IntoCellData,
-};
+use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataChangeset, CellDataDecoder, FromCellString};
 use crate::services::field::{
-    BoxTypeOptionBuilder, DateCellChangeset, DateCellDataPB, DateFormat, DateTimestamp, TimeFormat, TypeOption,
-    TypeOptionBuilder,
+    BoxTypeOptionBuilder, DateCellChangeset, DateCellData, DateCellDataPB, DateFormat, TimeFormat, TypeOption,
+    TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
@@ -30,8 +28,19 @@ pub struct DateTypeOptionPB {
 impl_type_option!(DateTypeOptionPB, FieldType::DateTime);
 
 impl TypeOption for DateTypeOptionPB {
-    type CellData = DateTimestamp;
+    type CellData = DateCellData;
     type CellChangeset = DateCellChangeset;
+    type CellPBType = DateCellDataPB;
+}
+
+impl TypeOptionConfiguration for DateTypeOptionPB {
+    type CellFilterConfiguration = DateFilterPB;
+}
+
+impl TypeOptionCellData for DateTypeOptionPB {
+    fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        DateCellData::from_cell_str(&cell_data)
+    }
 }
 
 impl DateTypeOptionPB {
@@ -115,30 +124,21 @@ impl DateTypeOptionPB {
     }
 }
 
-impl CellStringParser for DateTypeOptionPB {
-    type Object = DateTimestamp;
-
-    fn parser_cell_str(&self, s: &str) -> Option<Self::Object> {
-        let num = s.parse::<i64>().ok();
-        Some(DateTimestamp(num))
-    }
-}
-
 impl CellDataDecoder for DateTypeOptionPB {
     fn decode_cell_data(
         &self,
-        cell_data: IntoCellData<DateTimestamp>,
+        cell_data: String,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        let timestamp = cell_data.try_into_inner()?;
-        let cell_data_pb = self.today_desc_from_timestamp(timestamp);
+        let cell_data = self.decode_type_option_cell_data(cell_data)?;
+        let cell_data_pb = self.today_desc_from_timestamp(cell_data);
         CellBytes::from(cell_data_pb)
     }
 
     fn try_decode_cell_data(
         &self,
-        cell_data: IntoCellData<DateTimestamp>,
+        cell_data: String,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
@@ -155,13 +155,13 @@ impl CellDataDecoder for DateTypeOptionPB {
 
     fn decode_cell_data_to_str(
         &self,
-        cell_data: IntoCellData<DateTimestamp>,
+        cell_data: String,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<String> {
-        let timestamp = cell_data.try_into_inner()?;
-        let date_cell_data = self.today_desc_from_timestamp(timestamp);
-        Ok(date_cell_data.date)
+        let cell_data = self.decode_type_option_cell_data(cell_data)?;
+        let cell_data_pb = self.today_desc_from_timestamp(cell_data);
+        Ok(cell_data_pb.date)
     }
 }
 

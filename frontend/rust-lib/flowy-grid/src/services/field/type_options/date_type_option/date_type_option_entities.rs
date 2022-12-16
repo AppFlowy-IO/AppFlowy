@@ -68,27 +68,27 @@ impl ToString for DateCellChangeset {
     }
 }
 
-pub struct DateTimestamp(pub Option<i64>);
+pub struct DateCellData(pub Option<i64>);
 
-impl std::convert::From<DateTimestamp> for i64 {
-    fn from(timestamp: DateTimestamp) -> Self {
+impl std::convert::From<DateCellData> for i64 {
+    fn from(timestamp: DateCellData) -> Self {
         timestamp.0.unwrap_or(0)
     }
 }
 
-impl std::convert::From<DateTimestamp> for Option<i64> {
-    fn from(timestamp: DateTimestamp) -> Self {
+impl std::convert::From<DateCellData> for Option<i64> {
+    fn from(timestamp: DateCellData) -> Self {
         timestamp.0
     }
 }
 
-impl FromCellString for DateTimestamp {
+impl FromCellString for DateCellData {
     fn from_cell_str(s: &str) -> FlowyResult<Self>
     where
         Self: Sized,
     {
         let num = s.parse::<i64>().ok();
-        Ok(DateTimestamp(num))
+        Ok(DateCellData(num))
     }
 }
 

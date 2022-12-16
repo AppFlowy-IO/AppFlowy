@@ -1,17 +1,19 @@
 use crate::entities::FieldType;
-use crate::services::cell::{CellBytes, CellStringParser, TypeCellData};
+use crate::services::cell::{CellBytes, TypeCellData};
 use crate::services::field::*;
-
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use grid_rev_model::{CellRevision, FieldRevision};
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use grid_rev_model::{CellRevision, FieldRevision, FieldTypeRevision};
-
 /// This trait is used when doing filter/search on the grid.
-pub trait CellFilterable<T> {
+pub trait CellFilterable: TypeOptionConfiguration {
     /// Return true if type_cell_data match the filter condition.
-    fn apply_filter(&self, type_cell_data: TypeCellData, filter: &T) -> FlowyResult<bool>;
+    fn apply_filter(
+        &self,
+        type_cell_data: TypeCellData,
+        filter: &<Self as TypeOptionConfiguration>::CellFilterConfiguration,
+    ) -> FlowyResult<bool>;
 }
 
 pub trait CellComparable {
@@ -53,7 +55,7 @@ pub trait CellDataDecoder: TypeOption {
     /// return the id of the option. Otherwise, return a default value of `CellBytes`./
     fn decode_cell_data(
         &self,
-        cell_data: IntoCellData<<Self as TypeOption>::CellData>,
+        cell_data: String,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes>;
@@ -64,7 +66,7 @@ pub trait CellDataDecoder: TypeOption {
     /// of `decode_cell_data`.
     fn try_decode_cell_data(
         &self,
-        cell_data: IntoCellData<<Self as TypeOption>::CellData>,
+        cell_data: String,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes>;
@@ -72,7 +74,7 @@ pub trait CellDataDecoder: TypeOption {
     /// Same as `decode_cell_data` does but Decode the cell data to readable `String`
     fn decode_cell_data_to_str(
         &self,
-        cell_data: IntoCellData<<Self as TypeOption>::CellData>,
+        cell_data: String,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<String>;
@@ -240,7 +242,7 @@ pub trait FromCellString {
 }
 
 /// IntoCellData is a helper struct used to deserialize string into a specific data type that implements
-/// the `CellStringParser` trait.
+/// the `FromCellString` trait.
 ///
 pub struct IntoCellData<T>(pub Option<T>);
 impl<T> IntoCellData<T> {

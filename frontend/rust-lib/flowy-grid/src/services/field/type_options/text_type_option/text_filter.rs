@@ -1,6 +1,6 @@
 use crate::entities::{TextFilterConditionPB, TextFilterPB};
-use crate::services::cell::{CellFilterable, IntoCellData, TypeCellData};
-use crate::services::field::{RichTextTypeOptionPB, TextCellData};
+use crate::services::cell::{CellFilterable, TypeCellData};
+use crate::services::field::{RichTextTypeOptionPB, TypeOptionCellData, TypeOptionConfiguration};
 use flowy_error::FlowyResult;
 
 impl TextFilterPB {
@@ -20,14 +20,17 @@ impl TextFilterPB {
     }
 }
 
-impl CellFilterable<TextFilterPB> for RichTextTypeOptionPB {
-    fn apply_filter(&self, type_cell_data: TypeCellData, filter: &TextFilterPB) -> FlowyResult<bool> {
+impl CellFilterable for RichTextTypeOptionPB {
+    fn apply_filter(
+        &self,
+        type_cell_data: TypeCellData,
+        filter: &<Self as TypeOptionConfiguration>::CellFilterConfiguration,
+    ) -> FlowyResult<bool> {
         if !type_cell_data.is_text() {
             return Ok(false);
         }
 
-        let cell_data: IntoCellData<TextCellData> = type_cell_data.into();
-        let text_cell_data = cell_data.try_into_inner()?;
+        let text_cell_data = self.decode_type_cell_data(type_cell_data)?;
         Ok(filter.is_visible(text_cell_data))
     }
 }

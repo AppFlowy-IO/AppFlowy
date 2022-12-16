@@ -1,9 +1,9 @@
-use crate::entities::FieldType;
+use crate::entities::{CheckboxFilterPB, FieldType};
 use crate::impl_type_option;
-use crate::services::cell::{
-    AnyCellChangeset, CellBytes, CellDataChangeset, CellDataDecoder, CellStringParser, IntoCellData,
+use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataChangeset, CellDataDecoder, FromCellString};
+use crate::services::field::{
+    BoxTypeOptionBuilder, CheckboxCellData, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
 };
-use crate::services::field::{BoxTypeOptionBuilder, CheckboxCellData, TypeOption, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
@@ -48,33 +48,33 @@ impl_type_option!(CheckboxTypeOptionPB, FieldType::Checkbox);
 impl TypeOption for CheckboxTypeOptionPB {
     type CellData = CheckboxCellData;
     type CellChangeset = CheckboxCellChangeset;
+    type CellPBType = CheckboxCellData;
 }
 
-impl CellStringParser for CheckboxTypeOptionPB {
-    type Object = CheckboxCellData;
+impl TypeOptionConfiguration for CheckboxTypeOptionPB {
+    type CellFilterConfiguration = CheckboxFilterPB;
+}
 
-    fn parser_cell_str(&self, s: &str) -> Option<Self::Object> {
-        match CheckboxCellData::from_str(s) {
-            Ok(data) => Some(data),
-            Err(_) => None,
-        }
+impl TypeOptionCellData for CheckboxTypeOptionPB {
+    fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        CheckboxCellData::from_cell_str(&cell_data)
     }
 }
 
 impl CellDataDecoder for CheckboxTypeOptionPB {
     fn decode_cell_data(
         &self,
-        cell_data: IntoCellData<CheckboxCellData>,
+        cell_data: String,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        let cell_data = cell_data.try_into_inner()?;
+        let cell_data = self.decode_type_option_cell_data(cell_data)?;
         Ok(CellBytes::new(cell_data))
     }
 
     fn try_decode_cell_data(
         &self,
-        cell_data: IntoCellData<CheckboxCellData>,
+        cell_data: String,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
@@ -87,12 +87,11 @@ impl CellDataDecoder for CheckboxTypeOptionPB {
 
     fn decode_cell_data_to_str(
         &self,
-        cell_data: IntoCellData<CheckboxCellData>,
+        cell_data: String,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<String> {
-        let cell_data = cell_data.try_into_inner()?;
-        Ok(cell_data.to_string())
+        Ok(cell_data)
     }
 }
 

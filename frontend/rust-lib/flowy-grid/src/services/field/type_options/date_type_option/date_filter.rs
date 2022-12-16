@@ -1,7 +1,8 @@
 use crate::entities::{DateFilterConditionPB, DateFilterPB};
-use crate::services::cell::{CellFilterable, IntoCellData, TypeCellData};
-use crate::services::field::{DateTimestamp, DateTypeOptionPB};
+use crate::services::cell::{CellFilterable, TypeCellData};
+use crate::services::field::{DateTypeOptionPB, TypeOptionCellData, TypeOptionConfiguration};
 use chrono::NaiveDateTime;
+
 use flowy_error::FlowyResult;
 
 impl DateFilterPB {
@@ -59,14 +60,18 @@ impl DateFilterPB {
     }
 }
 
-impl CellFilterable<DateFilterPB> for DateTypeOptionPB {
-    fn apply_filter(&self, type_cell_data: TypeCellData, filter: &DateFilterPB) -> FlowyResult<bool> {
+impl CellFilterable for DateTypeOptionPB {
+    fn apply_filter(
+        &self,
+        type_cell_data: TypeCellData,
+        filter: &<Self as TypeOptionConfiguration>::CellFilterConfiguration,
+    ) -> FlowyResult<bool> {
         if !type_cell_data.is_date() {
             return Ok(true);
         }
-        let cell_data: IntoCellData<DateTimestamp> = type_cell_data.into();
-        let timestamp = cell_data.try_into_inner()?;
-        Ok(filter.is_visible(timestamp))
+
+        let date_cell_data = self.decode_type_cell_data(type_cell_data)?;
+        Ok(filter.is_visible(date_cell_data))
     }
 }
 

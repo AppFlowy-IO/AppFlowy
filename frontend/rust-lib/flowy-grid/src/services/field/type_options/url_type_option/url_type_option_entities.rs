@@ -41,6 +41,12 @@ impl URLCellData {
     }
 }
 
+impl AsRef<str> for URLCellData {
+    fn as_ref(&self) -> &str {
+        &self.url
+    }
+}
+
 impl DecodedCellData for URLCellData {
     type Object = URLCellData;
 

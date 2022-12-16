@@ -1,13 +1,14 @@
-use crate::entities::FieldType;
+use crate::entities::{FieldType, TextFilterPB};
 use crate::impl_type_option;
-use crate::services::cell::{
-    AnyCellChangeset, CellBytes, CellDataChangeset, CellDataDecoder, CellStringParser, IntoCellData,
+use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataChangeset, CellDataDecoder, FromCellString};
+use crate::services::field::{
+    BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration, URLCellData,
+    URLCellDataPB,
 };
-use crate::services::field::{BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, URLCellData, URLCellDataPB};
 use bytes::Bytes;
 use fancy_regex::Regex;
 use flowy_derive::ProtoBuf;
-use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_error::{FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
@@ -41,33 +42,33 @@ impl_type_option!(URLTypeOptionPB, FieldType::URL);
 impl TypeOption for URLTypeOptionPB {
     type CellData = URLCellData;
     type CellChangeset = URLCellChangeset;
+    type CellPBType = URLCellDataPB;
 }
 
-impl CellStringParser for URLTypeOptionPB {
-    type Object = URLCellData;
+impl TypeOptionConfiguration for URLTypeOptionPB {
+    type CellFilterConfiguration = TextFilterPB;
+}
 
-    fn parser_cell_str(&self, s: &str) -> Option<Self::Object> {
-        match serde_json::from_str::<URLCellData>(s).map_err(internal_error) {
-            Ok(data) => Some(data),
-            Err(_) => None,
-        }
+impl TypeOptionCellData for URLTypeOptionPB {
+    fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        URLCellData::from_cell_str(&cell_data)
     }
 }
 
 impl CellDataDecoder for URLTypeOptionPB {
     fn decode_cell_data(
         &self,
-        cell_data: IntoCellData<URLCellData>,
+        cell_data: String,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        let cell_data_pb: URLCellDataPB = cell_data.try_into_inner()?.into();
-        CellBytes::from(cell_data_pb)
+        let cell_data = self.decode_type_option_cell_data(cell_data)?.to_json()?;
+        CellBytes::from(cell_data)
     }
 
     fn try_decode_cell_data(
         &self,
-        cell_data: IntoCellData<URLCellData>,
+        cell_data: String,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
@@ -80,11 +81,11 @@ impl CellDataDecoder for URLTypeOptionPB {
 
     fn decode_cell_data_to_str(
         &self,
-        cell_data: IntoCellData<URLCellData>,
+        cell_data: String,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<String> {
-        let cell_data: URLCellData = cell_data.try_into_inner()?;
+        let cell_data = self.decode_type_option_cell_data(cell_data)?;
         Ok(cell_data.content)
     }
 }

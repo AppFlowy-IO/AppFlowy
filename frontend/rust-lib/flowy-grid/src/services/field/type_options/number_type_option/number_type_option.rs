@@ -1,10 +1,11 @@
-use crate::entities::FieldType;
+use crate::entities::{FieldType, NumberFilterPB};
 use crate::impl_type_option;
-use crate::services::cell::{
-    AnyCellChangeset, CellBytes, CellComparable, CellDataChangeset, CellDataDecoder, CellStringParser, IntoCellData,
-};
+use crate::services::cell::{AnyCellChangeset, CellBytes, CellComparable, CellDataChangeset, CellDataDecoder};
 use crate::services::field::type_options::number_type_option::format::*;
-use crate::services::field::{BoxTypeOptionBuilder, NumberCellData, StrCellData, TypeOption, TypeOptionBuilder};
+use crate::services::field::{
+    BoxTypeOptionBuilder, NumberCellData, StrCellData, TypeOption, TypeOptionBuilder, TypeOptionCellData,
+    TypeOptionConfiguration,
+};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
@@ -77,6 +78,17 @@ impl_type_option!(NumberTypeOptionPB, FieldType::Number);
 impl TypeOption for NumberTypeOptionPB {
     type CellData = StrCellData;
     type CellChangeset = NumberCellChangeset;
+    type CellPBType = StrCellData;
+}
+
+impl TypeOptionConfiguration for NumberTypeOptionPB {
+    type CellFilterConfiguration = NumberFilterPB;
+}
+
+impl TypeOptionCellData for NumberTypeOptionPB {
+    fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        Ok(cell_data.into())
+    }
 }
 
 impl NumberTypeOptionPB {
@@ -111,34 +123,25 @@ pub(crate) fn strip_currency_symbol<T: ToString>(s: T) -> String {
     s
 }
 
-impl CellStringParser for NumberTypeOptionPB {
-    type Object = NumberCellData;
-
-    fn parser_cell_str(&self, s: &str) -> Option<Self::Object> {
-        match self.format_cell_data(s) {
-            Ok(num) => Some(num),
-            Err(_) => None,
-        }
-    }
-}
-
 impl CellDataDecoder for NumberTypeOptionPB {
     fn decode_cell_data(
         &self,
-        cell_data: IntoCellData<StrCellData>,
+        cell_data: String,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        let cell_data = cell_data.try_into_inner()?.0;
-        match self.format_cell_data(&cell_data) {
-            Ok(num) => Ok(CellBytes::new(num.to_string())),
+        match self
+            .decode_type_option_cell_data(cell_data)
+            .and_then(|s| self.format_cell_data(&s))
+        {
+            Ok(s) => Ok(CellBytes::new(s.to_string())),
             Err(_) => Ok(CellBytes::default()),
         }
     }
 
     fn try_decode_cell_data(
         &self,
-        cell_data: IntoCellData<StrCellData>,
+        cell_data: String,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
@@ -151,11 +154,10 @@ impl CellDataDecoder for NumberTypeOptionPB {
 
     fn decode_cell_data_to_str(
         &self,
-        cell_data: IntoCellData<StrCellData>,
+        cell_data: String,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<String> {
-        let cell_data: String = cell_data.try_into_inner()?.0;
         Ok(cell_data)
     }
 }
