@@ -1,5 +1,6 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/presentation/settings/settings_dialog.dart';
+import 'package:app_flowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -48,10 +49,28 @@ extension AppFlowySettings on WidgetTester {
 
   /// Restore the AppFlowy data storage location
   Future<void> restoreLocation() async {
-    final restoreButton =
+    final buton =
         find.byTooltip(LocaleKeys.settings_files_restoreLocation.tr());
-    expect(restoreButton, findsOneWidget);
-    await tapButton(restoreButton);
+    expect(buton, findsOneWidget);
+    await tapButton(buton);
     return;
+  }
+
+  Future<void> tapCustomLocationButton() async {
+    final buton =
+        find.byTooltip(LocaleKeys.settings_files_customizeLocation.tr());
+    expect(buton, findsOneWidget);
+    await tapButton(buton);
+    return;
+  }
+
+  /// Enter user name
+  Future<void> enterUserName(String name) async {
+    final uni = find.byType(UserNameInput);
+    expect(uni, findsOneWidget);
+    await enterText(uni, name);
+    await pump();
+    await testTextInput.receiveAction(TextInputAction.done);
+    await pump();
   }
 }

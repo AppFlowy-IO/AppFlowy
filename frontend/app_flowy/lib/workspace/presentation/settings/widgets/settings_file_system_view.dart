@@ -19,10 +19,11 @@ class SettingsFileSystemView extends StatefulWidget {
   });
 
   @override
-  State<SettingsFileSystemView> createState() => _SettingsFileSystemViewState();
+  State<SettingsFileSystemView> createState() => SettingsFileSystemViewState();
 }
 
-class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
+@visibleForTesting
+class SettingsFileSystemViewState extends State<SettingsFileSystemView> {
   final _locationCubit = SettingsLocationCubit()..fetchLocation();
 
   @override
@@ -99,15 +100,7 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
                     final result = await FilePicker.platform.getDirectoryPath();
                     if (result != null) {
                       await _setCustomLocation(result);
-                      await FlowyRunner.run(
-                        FlowyApp(),
-                        config: const LaunchConfiguration(
-                          autoRegistrationSupported: true,
-                        ),
-                      );
-                      if (mounted) {
-                        Navigator.of(context).pop();
-                      }
+                      await reloadApp();
                     }
                   },
                 ),
@@ -157,5 +150,18 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
           .setKeyValue(AppearanceKeys.defaultLocation, location);
     }
     */
+  }
+
+  Future<void> reloadApp() async {
+    await FlowyRunner.run(
+      FlowyApp(),
+      config: const LaunchConfiguration(
+        autoRegistrationSupported: true,
+      ),
+    );
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
+    return;
   }
 }

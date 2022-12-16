@@ -1,4 +1,5 @@
 import 'package:app_flowy/user/presentation/folder/folder_widget.dart';
+import 'package:app_flowy/workspace/presentation/settings/widgets/settings_file_system_view.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -18,6 +19,10 @@ void main() {
 
     tearDown(() async {
       await TestFolder.cleanTestLocation(location);
+    });
+
+    tearDownAll(() async {
+      await TestFolder.cleanTestLocation(null);
     });
 
     testWidgets(
@@ -71,6 +76,81 @@ void main() {
       await TestFolder.cleanTestLocation(folderName);
     });
 
+    testWidgets('switch to B from A, then switch to A again', (tester) async {
+      const String userA = 'userA';
+      const String userB = 'userB';
+
+      await TestFolder.cleanTestLocation(userA);
+      await TestFolder.setTestLocation(userA);
+
+      await tester.initializeAppFlowy();
+
+      await tester.tapGoButton();
+      await tester.expectToSeeWelcomePage();
+
+      // swith to user B
+      {
+        await tester.openSettings();
+        await tester.openSettingsPage(SettingsPage.user);
+        await tester.enterUserName(userA);
+
+        await tester.openSettingsPage(SettingsPage.files);
+        await tester.pumpAndSettle();
+
+        // mock the file_picker result
+        // await tester.tapCustomLocationButton();
+        await TestFolder.setTestLocation(userB);
+        final SettingsFileSystemViewState sfsvs =
+            tester.state(find.byType(SettingsFileSystemView));
+        await sfsvs.reloadApp();
+
+        await tester.pumpAndSettle();
+        await tester.expectToSeeWelcomePage();
+      }
+
+      // switch to the userA
+      {
+        await tester.openSettings();
+        await tester.openSettingsPage(SettingsPage.user);
+        await tester.enterUserName(userB);
+
+        await tester.openSettingsPage(SettingsPage.files);
+        await tester.pumpAndSettle();
+
+        // mock the file_picker result
+        // await tester.tapCustomLocationButton();
+        await TestFolder.setTestLocation(userA);
+        final SettingsFileSystemViewState sfsvs =
+            tester.state(find.byType(SettingsFileSystemView));
+        await sfsvs.reloadApp();
+
+        await tester.pumpAndSettle();
+        await tester.expectToSeeWelcomePage();
+        expect(find.textContaining(userA), findsOneWidget);
+      }
+
+      // swith to the userB again
+      {
+        await tester.openSettings();
+        await tester.openSettingsPage(SettingsPage.files);
+        await tester.pumpAndSettle();
+
+        // mock the file_picker result
+        // await tester.tapCustomLocationButton();
+        await TestFolder.setTestLocation(userB);
+        final SettingsFileSystemViewState sfsvs =
+            tester.state(find.byType(SettingsFileSystemView));
+        await sfsvs.reloadApp();
+
+        await tester.pumpAndSettle();
+        await tester.expectToSeeWelcomePage();
+        expect(find.textContaining(userB), findsOneWidget);
+      }
+
+      await TestFolder.cleanTestLocation(userA);
+      await TestFolder.cleanTestLocation(userB);
+    });
+
     testWidgets('reset to default location', (tester) async {
       await tester.initializeAppFlowy();
 
@@ -84,8 +164,10 @@ void main() {
       await tester.openSettingsPage(SettingsPage.files);
       await tester.restoreLocation();
 
-      expect(await TestFolder.defaultDevelopmentLocation(),
-          await TestFolder.currentLocation());
+      expect(
+        await TestFolder.defaultDevelopmentLocation(),
+        await TestFolder.currentLocation(),
+      );
     });
   });
 }

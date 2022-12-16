@@ -27,7 +27,7 @@ class TestFolder {
   }
 
   /// Clean the location.
-  static Future<void> cleanTestLocation(String name) async {
+  static Future<void> cleanTestLocation(String? name) async {
     final dir = await testLocation(name);
     await dir.delete(recursive: true);
     return;
@@ -64,6 +64,7 @@ extension AppFlowyTestBase on WidgetTester {
         // do nothing
       }
     });
+
     await app.main();
     await wait(3000);
     await pumpAndSettle(const Duration(seconds: 2));
@@ -87,6 +88,18 @@ extension AppFlowyTestBase on WidgetTester {
     int milliseconds = 500,
   }) async {
     final button = find.textContaining(tr);
+    await tapButton(
+      button,
+      milliseconds: milliseconds,
+    );
+    return;
+  }
+
+  Future<void> tapButtonWithTooltip(
+    String tr, {
+    int milliseconds = 500,
+  }) async {
+    final button = find.byTooltip(tr);
     await tapButton(
       button,
       milliseconds: milliseconds,
