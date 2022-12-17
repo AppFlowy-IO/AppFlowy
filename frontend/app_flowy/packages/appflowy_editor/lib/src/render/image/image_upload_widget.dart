@@ -323,7 +323,6 @@ extension on EditorState {
         'type': type,
       },
     );
-    print(imageNode);
     final transaction = this.transaction;
     transaction.insertNode(
       selection.start.path,
