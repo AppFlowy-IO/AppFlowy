@@ -4,7 +4,7 @@ use crate::services::cell::{AnyCellChangeset, CellComparable, CellDataChangeset,
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{
     BoxTypeOptionBuilder, NumberCellData, StrCellData, TypeOption, TypeOptionBuilder, TypeOptionCellData,
-    TypeOptionConfiguration,
+    TypeOptionConfiguration, TypeOptionTransform,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -51,9 +51,6 @@ impl TypeOptionBuilder for NumberTypeOptionBuilder {
     fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
     }
-    fn transform(&mut self, _field_type: &FieldType, _type_option_data: String) {
-        // Do nothing
-    }
 }
 
 // Number
@@ -79,7 +76,7 @@ impl_type_option!(NumberTypeOptionPB, FieldType::Number);
 impl TypeOption for NumberTypeOptionPB {
     type CellData = StrCellData;
     type CellChangeset = NumberCellChangeset;
-    type CellPBType = StrCellData;
+    type CellProtobufType = StrCellData;
 }
 
 impl TypeOptionConfiguration for NumberTypeOptionPB {
@@ -87,7 +84,7 @@ impl TypeOptionConfiguration for NumberTypeOptionPB {
 }
 
 impl TypeOptionCellData for NumberTypeOptionPB {
-    fn convert_into_pb_type(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellPBType {
+    fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {
         cell_data
     }
 
@@ -127,6 +124,8 @@ pub(crate) fn strip_currency_symbol<T: ToString>(s: T) -> String {
     }
     s
 }
+
+impl TypeOptionTransform for NumberTypeOptionPB {}
 
 impl CellDataDecoder for NumberTypeOptionPB {
     fn try_decode_cell_data(

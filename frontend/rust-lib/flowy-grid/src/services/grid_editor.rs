@@ -5,8 +5,7 @@ use crate::manager::GridUser;
 use crate::services::block_manager::GridBlockManager;
 use crate::services::cell::{apply_cell_data_changeset, decode_type_cell_data, CellProtobufBlob};
 use crate::services::field::{
-    default_type_option_builder_from_type, type_option_builder_from_bytes, type_option_builder_from_json_str,
-    FieldBuilder,
+    default_type_option_builder_from_type, transform_type_option, type_option_builder_from_bytes, FieldBuilder,
 };
 
 use crate::services::filter::FilterType;
@@ -280,11 +279,13 @@ impl GridRevisionEditor {
         let type_option_transform =
             |old_field_type: FieldTypeRevision, old_type_option: Option<String>, new_type_option: String| {
                 let old_field_type: FieldType = old_field_type.into();
-                let mut type_option_builder = type_option_builder_from_json_str(&new_type_option, new_field_type);
-                if let Some(old_type_option) = old_type_option {
-                    type_option_builder.transform(&old_field_type, old_type_option)
-                }
-                type_option_builder.serializer().json_str()
+                // let mut type_option_builder = type_option_builder_from_json_str(&new_type_option, new_field_type);
+                // if let Some(old_type_option) = old_type_option {
+                //     type_option_builder.transform(&old_field_type, old_type_option)
+                // }
+                // type_option_builder.serializer().json_str()
+
+                transform_type_option(&new_type_option, new_field_type, old_type_option, old_field_type)
             };
 
         let _ = self

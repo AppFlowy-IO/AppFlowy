@@ -1,7 +1,7 @@
 use crate::entities::{FieldType, SelectOptionFilterPB};
 use crate::impl_type_option;
 use crate::services::cell::{AnyCellChangeset, CellDataChangeset, FromCellString, TypeCellData};
-use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
+
 use crate::services::field::{
     BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds, SelectOptionPB,
     SelectTypeOptionSharedAction, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
@@ -26,7 +26,7 @@ impl_type_option!(MultiSelectTypeOptionPB, FieldType::MultiSelect);
 impl TypeOption for MultiSelectTypeOptionPB {
     type CellData = SelectOptionIds;
     type CellChangeset = SelectOptionCellChangeset;
-    type CellPBType = SelectOptionCellDataPB;
+    type CellProtobufType = SelectOptionCellDataPB;
 }
 
 impl TypeOptionConfiguration for MultiSelectTypeOptionPB {
@@ -34,7 +34,7 @@ impl TypeOptionConfiguration for MultiSelectTypeOptionPB {
 }
 
 impl TypeOptionCellData for MultiSelectTypeOptionPB {
-    fn convert_into_pb_type(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellPBType {
+    fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {
         self.get_selected_options(cell_data)
     }
 
@@ -119,17 +119,14 @@ impl TypeOptionBuilder for MultiSelectTypeOptionBuilder {
     fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
     }
-
-    fn transform(&mut self, field_type: &FieldType, type_option_data: String) {
-        SelectOptionTypeOptionTransformer::transform_type_option(&mut self.0, field_type, type_option_data)
-    }
 }
+
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
     use crate::services::cell::CellDataChangeset;
     use crate::services::field::type_options::selection_type_option::*;
-    use crate::services::field::{CheckboxTypeOptionBuilder, FieldBuilder, TypeOptionBuilder};
+    use crate::services::field::{CheckboxTypeOptionBuilder, FieldBuilder, TypeOptionBuilder, TypeOptionTransform};
     use crate::services::field::{MultiSelectTypeOptionBuilder, MultiSelectTypeOptionPB};
 
     #[test]
@@ -137,13 +134,13 @@ mod tests {
         let checkbox_type_option_builder = CheckboxTypeOptionBuilder::default();
         let checkbox_type_option_data = checkbox_type_option_builder.serializer().json_str();
 
-        let mut multi_select = MultiSelectTypeOptionBuilder::default();
-        multi_select.transform(&FieldType::Checkbox, checkbox_type_option_data.clone());
-        debug_assert_eq!(multi_select.0.options.len(), 2);
+        let mut multi_select = MultiSelectTypeOptionBuilder::default().0;
+        multi_select.transform_type_option(FieldType::Checkbox, checkbox_type_option_data.clone());
+        debug_assert_eq!(multi_select.options.len(), 2);
 
         // Already contain the yes/no option. It doesn't need to insert new options
-        multi_select.transform(&FieldType::Checkbox, checkbox_type_option_data);
-        debug_assert_eq!(multi_select.0.options.len(), 2);
+        multi_select.transform_type_option(FieldType::Checkbox, checkbox_type_option_data);
+        debug_assert_eq!(multi_select.options.len(), 2);
     }
 
     #[test]
@@ -158,13 +155,13 @@ mod tests {
 
         let singleselect_type_option_data = singleselect_type_option_builder.serializer().json_str();
 
-        let mut multi_select = MultiSelectTypeOptionBuilder::default();
-        multi_select.transform(&FieldType::MultiSelect, singleselect_type_option_data.clone());
-        debug_assert_eq!(multi_select.0.options.len(), 2);
+        let mut multi_select = MultiSelectTypeOptionBuilder::default().0;
+        multi_select.transform_type_option(FieldType::MultiSelect, singleselect_type_option_data.clone());
+        debug_assert_eq!(multi_select.options.len(), 2);
 
         // Already contain the yes/no option. It doesn't need to insert new options
-        multi_select.transform(&FieldType::MultiSelect, singleselect_type_option_data);
-        debug_assert_eq!(multi_select.0.options.len(), 2);
+        multi_select.transform_type_option(FieldType::MultiSelect, singleselect_type_option_data);
+        debug_assert_eq!(multi_select.options.len(), 2);
     }
 
     // #[test]

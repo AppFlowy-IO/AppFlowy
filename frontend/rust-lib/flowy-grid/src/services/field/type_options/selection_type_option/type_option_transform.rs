@@ -5,24 +5,22 @@ use crate::services::field::{
     SingleSelectTypeOptionPB, TypeOption, CHECK, UNCHECK,
 };
 
-use grid_rev_model::FieldRevision;
-use serde_json;
+use grid_rev_model::TypeOptionDataDeserializer;
 
 /// Handles how to transform the cell data when switching between different field types
-pub struct SelectOptionTypeOptionTransformer();
-impl SelectOptionTypeOptionTransformer {
+pub(crate) struct SelectOptionTypeOptionTransformHelper();
+impl SelectOptionTypeOptionTransformHelper {
     /// Transform the TypeOptionData from 'field_type' to single select option type.
     ///
     /// # Arguments
     ///
-    /// * `field_type`: the FieldType of the passed-in TypeOptionData
-    /// * `type_option_data`: the data that can be parsed into corresponding TypeOptionData.
+    /// * `old_field_type`: the FieldType of the passed-in TypeOptionData
     ///
-    pub fn transform_type_option<T>(shared: &mut T, field_type: &FieldType, _type_option_data: String)
+    pub fn transform_type_option<T>(shared: &mut T, old_field_type: &FieldType, old_type_option_data: String)
     where
-        T: SelectTypeOptionSharedAction,
+        T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds>,
     {
-        match field_type {
+        match old_field_type {
             FieldType::Checkbox => {
                 //add Yes and No options if it does not exist.
                 if !shared.options().iter().any(|option| option.name == CHECK) {
@@ -36,16 +34,16 @@ impl SelectOptionTypeOptionTransformer {
                 }
             }
             FieldType::MultiSelect => {
-                let option_pb: MultiSelectTypeOptionPB = serde_json::from_str(_type_option_data.as_str()).unwrap();
-                option_pb.options.iter().for_each(|new_option| {
+                let options = MultiSelectTypeOptionPB::from_json_str(&old_type_option_data).options;
+                options.iter().for_each(|new_option| {
                     if !shared.options().iter().any(|option| option.name == new_option.name) {
                         shared.mut_options().push(new_option.clone());
                     }
                 })
             }
             FieldType::SingleSelect => {
-                let option_pb: SingleSelectTypeOptionPB = serde_json::from_str(_type_option_data.as_str()).unwrap();
-                option_pb.options.iter().for_each(|new_option| {
+                let options = SingleSelectTypeOptionPB::from_json_str(&old_type_option_data).options;
+                options.iter().for_each(|new_option| {
                     if !shared.options().iter().any(|option| option.name == new_option.name) {
                         shared.mut_options().push(new_option.clone());
                     }
@@ -59,7 +57,6 @@ impl SelectOptionTypeOptionTransformer {
         shared: &T,
         cell_data: <T as TypeOption>::CellData,
         decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
     ) -> <T as TypeOption>::CellData
     where
         T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds>,
@@ -75,7 +72,6 @@ impl SelectOptionTypeOptionTransformer {
                         transformed_ids.push(option.id.clone());
                     }
                 });
-
                 SelectOptionIds::from(transformed_ids)
             }
             _ => SelectOptionIds::from(vec![]),

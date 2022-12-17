@@ -165,7 +165,7 @@ mod tests {
         let decoded_data = type_option
             .try_decode_cell_data(encoded_data, &FieldType::DateTime, field_rev)
             .unwrap();
-        let decoded_data = type_option.convert_into_pb_type(decoded_data);
+        let decoded_data = type_option.convert_to_protobuf(decoded_data);
         if type_option.include_time {
             format!("{} {}", decoded_data.date, decoded_data.time)
                 .trim_end()

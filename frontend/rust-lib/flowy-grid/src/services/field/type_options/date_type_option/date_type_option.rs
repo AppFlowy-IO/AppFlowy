@@ -3,7 +3,7 @@ use crate::impl_type_option;
 use crate::services::cell::{AnyCellChangeset, CellDataChangeset, CellDataDecoder, FromCellString};
 use crate::services::field::{
     BoxTypeOptionBuilder, DateCellChangeset, DateCellData, DateCellDataPB, DateFormat, TimeFormat, TypeOption,
-    TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
+    TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration, TypeOptionTransform,
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
@@ -30,7 +30,7 @@ impl_type_option!(DateTypeOptionPB, FieldType::DateTime);
 impl TypeOption for DateTypeOptionPB {
     type CellData = DateCellData;
     type CellChangeset = DateCellChangeset;
-    type CellPBType = DateCellDataPB;
+    type CellProtobufType = DateCellDataPB;
 }
 
 impl TypeOptionConfiguration for DateTypeOptionPB {
@@ -38,7 +38,7 @@ impl TypeOptionConfiguration for DateTypeOptionPB {
 }
 
 impl TypeOptionCellData for DateTypeOptionPB {
-    fn convert_into_pb_type(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellPBType {
+    fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {
         self.today_desc_from_timestamp(cell_data)
     }
 
@@ -128,6 +128,8 @@ impl DateTypeOptionPB {
     }
 }
 
+impl TypeOptionTransform for DateTypeOptionPB {}
+
 impl CellDataDecoder for DateTypeOptionPB {
     fn try_decode_cell_data(
         &self,
@@ -206,8 +208,5 @@ impl TypeOptionBuilder for DateTypeOptionBuilder {
 
     fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
-    }
-    fn transform(&mut self, _field_type: &FieldType, _type_option_data: String) {
-        // Do nothing
     }
 }
