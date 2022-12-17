@@ -164,10 +164,8 @@ mod tests {
     fn decode_cell_data(encoded_data: String, type_option: &DateTypeOptionPB, field_rev: &FieldRevision) -> String {
         let decoded_data = type_option
             .try_decode_cell_data(encoded_data, &FieldType::DateTime, field_rev)
-            .unwrap()
-            .parser::<DateCellDataParser>()
             .unwrap();
-
+        let decoded_data = type_option.convert_into_pb_type(decoded_data);
         if type_option.include_time {
             format!("{} {}", decoded_data.date, decoded_data.time)
                 .trim_end()

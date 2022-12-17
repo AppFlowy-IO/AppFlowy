@@ -1,5 +1,5 @@
 use crate::entities::{GroupRowsNotificationPB, GroupViewChangesetPB, InsertedRowPB, RowPB};
-use crate::services::cell::{decode_type_cell_data, CellBytesParser, DecodedCellData};
+use crate::services::cell::{decode_type_cell_data, CellProtobufBlobParser, DecodedCellData};
 use crate::services::group::action::{GroupControllerCustomActions, GroupControllerSharedActions};
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::entities::Group;
@@ -55,7 +55,7 @@ pub struct MoveGroupRowContext<'a> {
 /// C: represents the group configuration that impl [GroupConfigurationSerde]
 /// T: the type-option data deserializer that impl [TypeOptionDataDeserializer]
 /// G: the group generator, [GroupGenerator]
-/// P: the parser that impl [CellBytesParser] for the CellBytes
+/// P: the parser that impl [CellProtobufBlobParser] for the CellBytes
 pub struct GenericGroupController<C, T, G, P> {
     pub field_id: String,
     pub type_option: Option<T>,
@@ -154,7 +154,7 @@ where
 
 impl<C, T, G, P> GroupControllerSharedActions for GenericGroupController<C, T, G, P>
 where
-    P: CellBytesParser,
+    P: CellProtobufBlobParser,
     C: GroupConfigurationContentSerde,
     T: TypeOptionDataDeserializer,
     G: GroupGenerator<Context = GroupContext<C>, TypeOptionType = T>,

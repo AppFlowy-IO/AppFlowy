@@ -1,4 +1,4 @@
-use crate::services::cell::{CellBytesCustomParser, CellBytesParser, DecodedCellData};
+use crate::services::cell::{CellBytesCustomParser, CellProtobufBlobParser, DecodedCellData};
 use crate::services::field::number_currency::Currency;
 use crate::services::field::{strip_currency_symbol, NumberFormat, STRIP_SYMBOL};
 use bytes::Bytes;
@@ -103,7 +103,7 @@ impl DecodedCellData for NumberCellData {
 }
 
 pub struct NumberCellDataParser();
-impl CellBytesParser for NumberCellDataParser {
+impl CellProtobufBlobParser for NumberCellDataParser {
     type Object = NumberCellData;
     fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
         match String::from_utf8(bytes.to_vec()) {

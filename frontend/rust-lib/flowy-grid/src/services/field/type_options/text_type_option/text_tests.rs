@@ -18,9 +18,7 @@ mod tests {
             type_option
                 .try_decode_cell_data(1647251762.to_string(), &field_type, &field_rev)
                 .unwrap()
-                .parser::<TextCellDataParser>()
-                .unwrap()
-                .as_ref(),
+                .as_str(),
             "Mar 14,2022"
         );
     }
@@ -40,8 +38,6 @@ mod tests {
         assert_eq!(
             type_option
                 .try_decode_cell_data(option_id, &field_type, &field_rev)
-                .unwrap()
-                .parser::<TextCellDataParser>()
                 .unwrap()
                 .to_string(),
             done_option.name,

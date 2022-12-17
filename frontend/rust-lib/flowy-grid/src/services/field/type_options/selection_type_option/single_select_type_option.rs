@@ -37,6 +37,10 @@ impl TypeOptionConfiguration for SingleSelectTypeOptionPB {
 }
 
 impl TypeOptionCellData for SingleSelectTypeOptionPB {
+    fn convert_into_pb_type(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellPBType {
+        self.get_selected_options(cell_data)
+    }
+
     fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
         SelectOptionIds::from_cell_str(&cell_data)
     }

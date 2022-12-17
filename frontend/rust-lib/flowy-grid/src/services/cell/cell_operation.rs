@@ -1,5 +1,5 @@
 use crate::entities::FieldType;
-use crate::services::cell::{CellBytes, TypeCellData};
+use crate::services::cell::{CellProtobufBlob, TypeCellData};
 use crate::services::field::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision};
@@ -20,56 +20,27 @@ pub trait CellComparable {
     type CellData;
     fn apply_cmp(&self, cell_data: &Self::CellData, other_cell_data: &Self::CellData) -> Ordering;
 }
-//
-// pub trait CellComparable2 {
-//     type CellData;
-//     fn apply_cmp(&self, cell_data: Cow<Self::CellData>, other_cell_data: Cow<Self::CellData>) -> Ordering;
-// }
 
-/// Decode the opaque cell data into readable format content and then encode it into `CellBytes`
+/// Decode the opaque cell data into readable format content
 pub trait CellDataDecoder: TypeOption {
-    /// Using the corresponding data format to deserialize the data. There are two kind of data format here.
     ///
-    /// 1.`utf8`
-    /// Decode the cell data if the cell data use `String` as its data container. For example, the cell data
-    /// is timestamp if its field type is `FieldType::Date`. This cell data can not directly show to user.
-    /// So it needs to be encode as the date string with custom format setting. Encode `1647251762`
-    /// to `"Mar 14,2022`
-    ///
-    /// 2. `protobuf`
-    /// Decode the cell data if the cell data use `Protobuf struct` as its data container.
-    /// For example:
-    ///    FieldType::URL => URLCellDataPB
-    ///    FieldType::Date=> DateCellDataPB
-    ///
-    /// When switching the field type of the `FieldRevision` to another field type. The `field_type`
-    /// of the `FieldRevision` is not equal to the `decoded_field_type`. The cell data is need to do
-    /// some custom transformation.
+    /// Tries to decode the opaque cell data to `decoded_field_type`. Sometimes, the `field_type`
+    /// of the `FieldRevision` is not equal to the `decoded_field_type`(This happened When switching
+    /// the field type of the `FieldRevision` to another field type). So the cell data is need to do
+    /// some transformation.
     ///
     /// For example, the current field type of the `FieldRevision` is a checkbox. When switching the field
-    /// type from the checkbox to single select, the `TypeOptionBuilder`'s transform method gets called.
-    /// It will create two new options,`Yes` and `No`, if they don't exist. But the cell data didn't change,
-    /// because we can't iterate all the rows to transform the cell data that can be parsed by the current
-    /// field type. One approach is to transform the cell data when it get read. For the moment,
-    /// the cell data is a string, `Yes` or `No`. It needs to compare with the option's name, if match
-    /// return the id of the option. Otherwise, return a default value of `CellBytes`./
-    fn decode_cell_data(
-        &self,
-        cell_data: String,
-        decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes>;
-
-    /// Tries to decode the cell data to `decoded_field_type` type.
-    /// Sometimes, different field type's cell data can be converted to each other. If the cell data
-    /// doesn't support converting to other field type cell data. Then this method is does the same thing
-    /// of `decode_cell_data`.
+    /// type from the checkbox to single select, it will create two new options,`Yes` and `No`, if they don't exist.
+    /// But the data of the cell doesn't change. We can't iterate all the rows to transform the cell
+    /// data that can be parsed by the current field type. One approach is to transform the cell data
+    /// when it get read. For the moment, the cell data is a string, `Yes` or `No`. It needs to compare
+    /// with the option's name, if match return the id of the option.
     fn try_decode_cell_data(
         &self,
         cell_data: String,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes>;
+    ) -> FlowyResult<<Self as TypeOption>::CellData>;
 
     /// Same as `decode_cell_data` does but Decode the cell data to readable `String`
     fn decode_cell_data_to_str(
@@ -125,7 +96,7 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
 pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debug>(
     data: T,
     field_rev: &FieldRevision,
-) -> (FieldType, CellBytes) {
+) -> (FieldType, CellProtobufBlob) {
     let to_field_type = field_rev.ty.into();
     match data.try_into() {
         Ok(type_cell_data) => {
@@ -134,7 +105,7 @@ pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debu
                 Ok(cell_bytes) => (field_type, cell_bytes),
                 Err(e) => {
                     tracing::error!("Decode cell data failed, {:?}", e);
-                    (field_type, CellBytes::default())
+                    (field_type, CellProtobufBlob::default())
                 }
             }
         }
@@ -143,7 +114,7 @@ pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debu
             // display the existing cell data. For example, the UI of the text cell will be blank if
             // the type of the data of cell is Number.
 
-            (to_field_type, CellBytes::default())
+            (to_field_type, CellProtobufBlob::default())
         }
     }
 }
@@ -169,20 +140,17 @@ pub fn try_decode_cell_data(
     from_field_type: &FieldType,
     to_field_type: &FieldType,
     field_rev: &FieldRevision,
-) -> FlowyResult<CellBytes> {
+) -> FlowyResult<CellProtobufBlob> {
     match FieldRevisionExt::new(field_rev).get_type_option_handler(to_field_type) {
-        None => Ok(CellBytes::default()),
+        None => Ok(CellProtobufBlob::default()),
         Some(handler) => handler.handle_cell_data(cell_data, from_field_type, field_rev),
     }
 }
 
-pub fn stringify_cell_data(cell_data: String, field_type: &FieldType, field_rev: &FieldRevision) -> CellBytes {
+pub fn stringify_cell_data(cell_data: String, field_type: &FieldType, field_rev: &FieldRevision) -> String {
     match FieldRevisionExt::new(field_rev).get_type_option_handler(field_type) {
-        None => CellBytes::default(),
-        Some(handler) => {
-            let s = handler.stringify_cell_data(cell_data, field_type, field_rev);
-            CellBytes::new(s)
-        }
+        None => "".to_string(),
+        Some(handler) => handler.stringify_cell_data(cell_data, field_type, field_rev),
     }
 }
 

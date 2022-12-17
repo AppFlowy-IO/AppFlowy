@@ -1,11 +1,13 @@
-use crate::services::cell::{CellBytesParser, DecodedCellData, FromCellString};
+use crate::services::cell::{CellProtobufBlobParser, DecodedCellData, FromCellString};
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
+use protobuf::ProtobufError;
 use std::str::FromStr;
 
 pub const CHECK: &str = "Yes";
 pub const UNCHECK: &str = "No";
 
+#[derive(Default, Debug)]
 pub struct CheckboxCellData(String);
 
 impl CheckboxCellData {
@@ -47,6 +49,14 @@ impl FromStr for CheckboxCellData {
     }
 }
 
+impl std::convert::TryFrom<CheckboxCellData> for Bytes {
+    type Error = ProtobufError;
+
+    fn try_from(value: CheckboxCellData) -> Result<Self, Self::Error> {
+        Ok(Bytes::from(value.0))
+    }
+}
+
 impl FromCellString for CheckboxCellData {
     fn from_cell_str(s: &str) -> FlowyResult<Self>
     where
@@ -71,7 +81,7 @@ impl DecodedCellData for CheckboxCellData {
 }
 
 pub struct CheckboxCellDataParser();
-impl CellBytesParser for CheckboxCellDataParser {
+impl CellProtobufBlobParser for CheckboxCellDataParser {
     type Object = CheckboxCellData;
     fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
         match String::from_utf8(bytes.to_vec()) {

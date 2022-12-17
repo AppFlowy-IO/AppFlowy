@@ -31,6 +31,7 @@ pub struct SortController {
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     #[allow(dead_code)]
     sorts: Vec<SortRevision>,
+    #[allow(dead_code)]
     row_orders: HashMap<String, usize>,
 }
 
@@ -66,6 +67,7 @@ impl SortController {
     }
 }
 
+#[allow(dead_code)]
 fn cmp_row(
     left: &Arc<RowRevision>,
     right: &Arc<RowRevision>,
@@ -99,6 +101,7 @@ fn cmp_row(
     order
 }
 
+#[allow(dead_code)]
 fn cmp_cell(
     _left: &CellRevision,
     _right: &CellRevision,

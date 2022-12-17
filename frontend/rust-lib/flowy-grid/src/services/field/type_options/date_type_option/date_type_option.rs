@@ -1,6 +1,6 @@
 use crate::entities::{DateFilterPB, FieldType};
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataChangeset, CellDataDecoder, FromCellString};
+use crate::services::cell::{AnyCellChangeset, CellDataChangeset, CellDataDecoder, FromCellString};
 use crate::services::field::{
     BoxTypeOptionBuilder, DateCellChangeset, DateCellData, DateCellDataPB, DateFormat, TimeFormat, TypeOption,
     TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
@@ -38,6 +38,10 @@ impl TypeOptionConfiguration for DateTypeOptionPB {
 }
 
 impl TypeOptionCellData for DateTypeOptionPB {
+    fn convert_into_pb_type(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellPBType {
+        self.today_desc_from_timestamp(cell_data)
+    }
+
     fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
         DateCellData::from_cell_str(&cell_data)
     }
@@ -125,32 +129,21 @@ impl DateTypeOptionPB {
 }
 
 impl CellDataDecoder for DateTypeOptionPB {
-    fn decode_cell_data(
-        &self,
-        cell_data: String,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        let cell_data = self.decode_type_option_cell_data(cell_data)?;
-        let cell_data_pb = self.today_desc_from_timestamp(cell_data);
-        CellBytes::from(cell_data_pb)
-    }
-
     fn try_decode_cell_data(
         &self,
         cell_data: String,
         decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
         // Return default data if the type_option_cell_data is not FieldType::DateTime.
         // It happens when switching from one field to another.
         // For example:
         // FieldType::RichText -> FieldType::DateTime, it will display empty content on the screen.
         if !decoded_field_type.is_date() {
-            return Ok(CellBytes::default());
+            return Ok(Default::default());
         }
 
-        self.decode_cell_data(cell_data, decoded_field_type, field_rev)
+        self.decode_type_option_cell_data(cell_data)
     }
 
     fn decode_cell_data_to_str(

@@ -30,7 +30,7 @@ impl CellFilterable for RichTextTypeOptionPB {
             return Ok(false);
         }
 
-        let text_cell_data = self.decode_type_cell_data(type_cell_data)?;
+        let text_cell_data = self.decode_type_option_cell_data(type_cell_data.data)?;
         Ok(filter.is_visible(text_cell_data))
     }
 }

@@ -1,4 +1,4 @@
-use crate::services::cell::{CellBytesParser, DecodedCellData, FromCellString};
+use crate::services::cell::{CellProtobufBlobParser, DecodedCellData, FromCellString};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{internal_error, FlowyResult};
@@ -19,6 +19,14 @@ impl From<URLCellData> for URLCellDataPB {
             url: data.url,
             content: data.content,
         }
+    }
+}
+
+impl DecodedCellData for URLCellDataPB {
+    type Object = URLCellDataPB;
+
+    fn is_empty(&self) -> bool {
+        self.content.is_empty()
     }
 }
 
@@ -56,14 +64,11 @@ impl DecodedCellData for URLCellData {
 }
 
 pub struct URLCellDataParser();
-impl CellBytesParser for URLCellDataParser {
-    type Object = URLCellData;
+impl CellProtobufBlobParser for URLCellDataParser {
+    type Object = URLCellDataPB;
 
     fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
-        match String::from_utf8(bytes.to_vec()) {
-            Ok(s) => URLCellData::from_cell_str(&s),
-            Err(_) => Ok(URLCellData::default()),
-        }
+        URLCellDataPB::try_from(bytes.as_ref()).map_err(internal_error)
     }
 }
 

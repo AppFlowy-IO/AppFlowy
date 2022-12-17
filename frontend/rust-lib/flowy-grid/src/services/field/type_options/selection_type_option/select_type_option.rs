@@ -1,8 +1,9 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{CellChangesetPB, CellPathPB, CellPathParams, FieldType};
 use crate::services::cell::{
-    CellBytes, CellBytesParser, CellDataDecoder, DecodedCellData, FromCellChangeset, FromCellString,
+    CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangeset, FromCellString,
 };
+
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
 use crate::services::field::{
     ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB, TypeOption, TypeOptionCellData,
@@ -131,28 +132,19 @@ impl<T> CellDataDecoder for T
 where
     T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + TypeOptionCellData,
 {
-    fn decode_cell_data(
-        &self,
-        cell_data: String,
-        decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        let cell_data = self.decode_type_option_cell_data(cell_data)?;
-        SelectOptionTypeOptionTransformer::transform_type_option_cell_data(
-            self,
-            cell_data,
-            decoded_field_type,
-            field_rev,
-        )
-    }
-
     fn try_decode_cell_data(
         &self,
         cell_data: String,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        self.decode_cell_data(cell_data, decoded_field_type, field_rev)
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
+        let cell_data = self.decode_type_option_cell_data(cell_data)?;
+        Ok(SelectOptionTypeOptionTransformer::transform_type_option_cell_data(
+            self,
+            cell_data,
+            decoded_field_type,
+            field_rev,
+        ))
     }
 
     fn decode_cell_data_to_str(
@@ -310,7 +302,7 @@ impl DecodedCellData for SelectOptionIds {
 }
 
 pub struct SelectOptionIdsParser();
-impl CellBytesParser for SelectOptionIdsParser {
+impl CellProtobufBlobParser for SelectOptionIdsParser {
     type Object = SelectOptionIds;
     fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
         match String::from_utf8(bytes.to_vec()) {
@@ -329,7 +321,7 @@ impl DecodedCellData for SelectOptionCellDataPB {
 }
 
 pub struct SelectOptionCellDataParser();
-impl CellBytesParser for SelectOptionCellDataParser {
+impl CellProtobufBlobParser for SelectOptionCellDataParser {
     type Object = SelectOptionCellDataPB;
 
     fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {

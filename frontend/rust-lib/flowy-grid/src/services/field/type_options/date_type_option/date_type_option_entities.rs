@@ -1,5 +1,5 @@
 use crate::entities::CellPathPB;
-use crate::services::cell::{CellBytesParser, DecodedCellData, FromCellChangeset, FromCellString};
+use crate::services::cell::{CellProtobufBlobParser, DecodedCellData, FromCellChangeset, FromCellString};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, FlowyResult};
@@ -68,6 +68,7 @@ impl ToString for DateCellChangeset {
     }
 }
 
+#[derive(Default)]
 pub struct DateCellData(pub Option<i64>);
 
 impl std::convert::From<DateCellData> for i64 {
@@ -183,7 +184,7 @@ impl DecodedCellData for DateCellDataPB {
 }
 
 pub struct DateCellDataParser();
-impl CellBytesParser for DateCellDataParser {
+impl CellProtobufBlobParser for DateCellDataParser {
     type Object = DateCellDataPB;
 
     fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {

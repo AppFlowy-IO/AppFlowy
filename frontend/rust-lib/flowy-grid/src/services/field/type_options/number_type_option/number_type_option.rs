@@ -1,6 +1,6 @@
 use crate::entities::{FieldType, NumberFilterPB};
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellComparable, CellDataChangeset, CellDataDecoder};
+use crate::services::cell::{AnyCellChangeset, CellComparable, CellDataChangeset, CellDataDecoder};
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{
     BoxTypeOptionBuilder, NumberCellData, StrCellData, TypeOption, TypeOptionBuilder, TypeOptionCellData,
@@ -13,6 +13,7 @@ use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, Ty
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
+use std::default::Default;
 use std::str::FromStr;
 
 #[derive(Default)]
@@ -86,6 +87,10 @@ impl TypeOptionConfiguration for NumberTypeOptionPB {
 }
 
 impl TypeOptionCellData for NumberTypeOptionPB {
+    fn convert_into_pb_type(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellPBType {
+        cell_data
+    }
+
     fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
         Ok(cell_data.into())
     }
@@ -124,32 +129,19 @@ pub(crate) fn strip_currency_symbol<T: ToString>(s: T) -> String {
 }
 
 impl CellDataDecoder for NumberTypeOptionPB {
-    fn decode_cell_data(
-        &self,
-        cell_data: String,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        match self
-            .decode_type_option_cell_data(cell_data)
-            .and_then(|s| self.format_cell_data(&s))
-        {
-            Ok(s) => Ok(CellBytes::new(s.to_string())),
-            Err(_) => Ok(CellBytes::default()),
-        }
-    }
-
     fn try_decode_cell_data(
         &self,
         cell_data: String,
         decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
         if decoded_field_type.is_date() {
-            return Ok(CellBytes::default());
+            return Ok(Default::default());
         }
 
-        self.decode_cell_data(cell_data, decoded_field_type, field_rev)
+        let str_cell_data = self.decode_type_option_cell_data(cell_data)?;
+        let s = self.format_cell_data(&str_cell_data)?.to_string();
+        Ok(s.into())
     }
 
     fn decode_cell_data_to_str(

@@ -1,8 +1,8 @@
 use crate::entities::{FieldType, TextFilterPB};
 use crate::impl_type_option;
 use crate::services::cell::{
-    stringify_cell_data, AnyCellChangeset, CellBytes, CellBytesParser, CellComparable, CellDataChangeset,
-    CellDataDecoder, DecodedCellData, FromCellString,
+    stringify_cell_data, AnyCellChangeset, CellComparable, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser,
+    DecodedCellData, FromCellString,
 };
 use crate::services::field::{
     BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
@@ -11,6 +11,7 @@ use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use protobuf::ProtobufError;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 
@@ -53,37 +54,31 @@ impl TypeOptionConfiguration for RichTextTypeOptionPB {
 }
 
 impl TypeOptionCellData for RichTextTypeOptionPB {
+    fn convert_into_pb_type(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellPBType {
+        cell_data
+    }
+
     fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
         StrCellData::from_cell_str(&cell_data)
     }
 }
 
 impl CellDataDecoder for RichTextTypeOptionPB {
-    fn decode_cell_data(
-        &self,
-        cell_data: String,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        let cell_data = StrCellData::from_cell_str(&cell_data)?;
-        Ok(CellBytes::new(cell_data))
-    }
-
     fn try_decode_cell_data(
         &self,
         cell_data: String,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
         if decoded_field_type.is_date()
             || decoded_field_type.is_single_select()
             || decoded_field_type.is_multi_select()
             || decoded_field_type.is_number()
             || decoded_field_type.is_url()
         {
-            Ok(stringify_cell_data(cell_data, decoded_field_type, field_rev))
+            Ok(stringify_cell_data(cell_data, decoded_field_type, field_rev).into())
         } else {
-            self.decode_cell_data(cell_data, decoded_field_type, field_rev)
+            StrCellData::from_cell_str(&cell_data)
         }
     }
 
@@ -160,7 +155,7 @@ impl DecodedCellData for TextCellData {
 }
 
 pub struct TextCellDataParser();
-impl CellBytesParser for TextCellDataParser {
+impl CellProtobufBlobParser for TextCellDataParser {
     type Object = TextCellData;
     fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
         match String::from_utf8(bytes.to_vec()) {
@@ -170,6 +165,7 @@ impl CellBytesParser for TextCellDataParser {
     }
 }
 
+#[derive(Default, Debug)]
 pub struct StrCellData(pub String);
 impl std::ops::Deref for StrCellData {
     type Target = String;
@@ -202,9 +198,18 @@ impl std::convert::From<StrCellData> for String {
         value.0
     }
 }
+
 impl std::convert::From<&str> for StrCellData {
     fn from(s: &str) -> Self {
         Self(s.to_owned())
+    }
+}
+
+impl std::convert::TryFrom<StrCellData> for Bytes {
+    type Error = ProtobufError;
+
+    fn try_from(value: StrCellData) -> Result<Self, Self::Error> {
+        Ok(Bytes::from(value.0))
     }
 }
 

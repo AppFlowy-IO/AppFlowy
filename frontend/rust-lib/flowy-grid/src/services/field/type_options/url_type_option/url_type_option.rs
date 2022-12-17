@@ -1,6 +1,6 @@
 use crate::entities::{FieldType, TextFilterPB};
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataChangeset, CellDataDecoder, FromCellString};
+use crate::services::cell::{AnyCellChangeset, CellDataChangeset, CellDataDecoder, FromCellString};
 use crate::services::field::{
     BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration, URLCellData,
     URLCellDataPB,
@@ -50,33 +50,27 @@ impl TypeOptionConfiguration for URLTypeOptionPB {
 }
 
 impl TypeOptionCellData for URLTypeOptionPB {
+    fn convert_into_pb_type(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellPBType {
+        cell_data.into()
+    }
+
     fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
         URLCellData::from_cell_str(&cell_data)
     }
 }
 
 impl CellDataDecoder for URLTypeOptionPB {
-    fn decode_cell_data(
-        &self,
-        cell_data: String,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        let cell_data = self.decode_type_option_cell_data(cell_data)?.to_json()?;
-        CellBytes::from(cell_data)
-    }
-
     fn try_decode_cell_data(
         &self,
         cell_data: String,
         decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
         if !decoded_field_type.is_url() {
-            return Ok(CellBytes::default());
+            return Ok(Default::default());
         }
 
-        self.decode_cell_data(cell_data, decoded_field_type, field_rev)
+        self.decode_type_option_cell_data(cell_data)
     }
 
     fn decode_cell_data_to_str(

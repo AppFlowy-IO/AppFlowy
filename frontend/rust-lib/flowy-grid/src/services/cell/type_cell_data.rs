@@ -58,6 +58,12 @@ where
     }
 }
 
+impl ToString for TypeCellData {
+    fn to_string(&self) -> String {
+        self.data.clone()
+    }
+}
+
 impl std::convert::TryFrom<&CellRevision> for TypeCellData {
     type Error = FlowyError;
 
@@ -127,19 +133,19 @@ impl TypeCellData {
 ///
 /// For example:
 ///
-/// * Use DateCellData to parse the data when the FieldType is Date.
-/// * Use URLCellData to parse the data when the FieldType is URL.
+/// * Use DateCellDataPB to parse the data when the FieldType is Date.
+/// * Use URLCellDataPB to parse the data when the FieldType is URL.
 /// * Use String to parse the data when the FieldType is RichText, Number, or Checkbox.
 /// * Check out the implementation of CellDataOperation trait for more information.
 #[derive(Default, Debug)]
-pub struct CellBytes(pub Bytes);
+pub struct CellProtobufBlob(pub Bytes);
 
 pub trait DecodedCellData {
     type Object;
     fn is_empty(&self) -> bool;
 }
 
-pub trait CellBytesParser {
+pub trait CellProtobufBlobParser {
     type Object: DecodedCellData;
     fn parser(bytes: &Bytes) -> FlowyResult<Self::Object>;
 }
@@ -154,7 +160,7 @@ pub trait CellBytesCustomParser {
     fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object>;
 }
 
-impl CellBytes {
+impl CellProtobufBlob {
     pub fn new<T: AsRef<[u8]>>(data: T) -> Self {
         let bytes = Bytes::from(data.as_ref().to_vec());
         Self(bytes)
@@ -170,7 +176,7 @@ impl CellBytes {
 
     pub fn parser<P>(&self) -> FlowyResult<P::Object>
     where
-        P: CellBytesParser,
+        P: CellProtobufBlobParser,
     {
         P::parser(&self.0)
     }
@@ -190,7 +196,7 @@ impl CellBytes {
     // }
 }
 
-impl ToString for CellBytes {
+impl ToString for CellProtobufBlob {
     fn to_string(&self) -> String {
         match String::from_utf8(self.0.to_vec()) {
             Ok(s) => s,
@@ -202,7 +208,7 @@ impl ToString for CellBytes {
     }
 }
 
-impl std::ops::Deref for CellBytes {
+impl std::ops::Deref for CellProtobufBlob {
     type Target = Bytes;
 
     fn deref(&self) -> &Self::Target {
