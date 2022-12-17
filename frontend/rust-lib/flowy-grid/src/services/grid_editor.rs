@@ -3,7 +3,7 @@ use crate::entities::CellPathParams;
 use crate::entities::*;
 use crate::manager::GridUser;
 use crate::services::block_manager::GridBlockManager;
-use crate::services::cell::{apply_cell_data_changeset, decode_type_cell_data, CellBytes};
+use crate::services::cell::{apply_cell_data_changeset, decode_type_cell_data, CellProtobufBlob};
 use crate::services::field::{
     default_type_option_builder_from_type, type_option_builder_from_bytes, type_option_builder_from_json_str,
     FieldBuilder,
@@ -435,12 +435,12 @@ impl GridRevisionEditor {
         Some(CellPB::new(&params.field_id, field_type, cell_bytes.to_vec()))
     }
 
-    pub async fn get_cell_bytes(&self, params: &CellPathParams) -> Option<CellBytes> {
+    pub async fn get_cell_bytes(&self, params: &CellPathParams) -> Option<CellProtobufBlob> {
         let (_, cell_data) = self.decode_cell_data_from(params).await?;
         Some(cell_data)
     }
 
-    async fn decode_cell_data_from(&self, params: &CellPathParams) -> Option<(FieldType, CellBytes)> {
+    async fn decode_cell_data_from(&self, params: &CellPathParams) -> Option<(FieldType, CellProtobufBlob)> {
         let field_rev = self.get_field_rev(&params.field_id).await?;
         let (_, row_rev) = self.block_manager.get_row_rev(&params.row_id).await.ok()??;
         let cell_rev = row_rev.cells.get(&params.field_id)?.clone();

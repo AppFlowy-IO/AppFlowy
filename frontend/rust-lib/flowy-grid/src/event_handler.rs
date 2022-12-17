@@ -1,11 +1,11 @@
 use crate::entities::*;
 use crate::manager::GridManager;
-use crate::services::cell::TypeCellData;
+use crate::services::cell::{FromCellString, TypeCellData};
 use crate::services::field::{
     default_type_option_builder_from_type, select_type_option_from_field_rev, type_option_builder_from_json_str,
     DateCellChangeset, DateChangesetPB, SelectOptionCellChangeset, SelectOptionCellChangesetPB,
     SelectOptionCellChangesetParams, SelectOptionCellDataPB, SelectOptionChangeset, SelectOptionChangesetPB,
-    SelectOptionPB,
+    SelectOptionIds, SelectOptionPB,
 };
 use crate::services::row::make_row_from_row_rev;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -418,7 +418,8 @@ pub(crate) async fn get_select_option_handler(
                 },
                 Some(cell_rev) => cell_rev.try_into()?,
             };
-            let selected_options = type_option.get_selected_options(type_cell_data.into());
+            let ids = SelectOptionIds::from_cell_str(&type_cell_data.data)?;
+            let selected_options = type_option.get_selected_options(ids);
             data_result(selected_options)
         }
     }

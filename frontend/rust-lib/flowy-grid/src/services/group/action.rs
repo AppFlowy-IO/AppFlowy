@@ -1,5 +1,5 @@
 use crate::entities::{GroupRowsNotificationPB, GroupViewChangesetPB};
-use crate::services::cell::CellDataIsEmpty;
+use crate::services::cell::DecodedCellData;
 use crate::services::group::controller::MoveGroupRowContext;
 use crate::services::group::Group;
 use flowy_error::FlowyResult;
@@ -11,7 +11,7 @@ use std::sync::Arc;
 /// For example, the `CheckboxGroupController` implements this trait to provide custom behavior.
 ///
 pub trait GroupControllerCustomActions: Send + Sync {
-    type CellDataType: CellDataIsEmpty;
+    type CellDataType: DecodedCellData;
     /// Returns the a value of the cell, default value is None
     ///
     /// Determine which group the row is placed in based on the data of the cell. If the cell data

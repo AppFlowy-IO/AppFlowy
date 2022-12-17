@@ -1,11 +1,10 @@
-use crate::entities::FieldType;
+use crate::entities::{ChecklistFilterPB, FieldType};
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataOperation, CellDataSerialize, IntoCellData};
+use crate::services::cell::{AnyCellChangeset, CellDataChangeset, FromCellString, TypeCellData};
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
-use crate::services::field::type_options::util::get_cell_data;
 use crate::services::field::{
-    BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction,
-    TypeOptionBuilder,
+    BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds, SelectOptionPB,
+    SelectTypeOptionSharedAction, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -24,6 +23,26 @@ pub struct ChecklistTypeOptionPB {
 }
 impl_type_option!(ChecklistTypeOptionPB, FieldType::Checklist);
 
+impl TypeOption for ChecklistTypeOptionPB {
+    type CellData = SelectOptionIds;
+    type CellChangeset = SelectOptionCellChangeset;
+    type CellPBType = SelectOptionCellDataPB;
+}
+
+impl TypeOptionConfiguration for ChecklistTypeOptionPB {
+    type CellFilterConfiguration = ChecklistFilterPB;
+}
+
+impl TypeOptionCellData for ChecklistTypeOptionPB {
+    fn convert_into_pb_type(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellPBType {
+        self.get_selected_options(cell_data)
+    }
+
+    fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        SelectOptionIds::from_cell_str(&cell_data)
+    }
+}
+
 impl SelectTypeOptionSharedAction for ChecklistTypeOptionPB {
     fn number_of_max_options(&self) -> Option<usize> {
         None
@@ -38,16 +57,7 @@ impl SelectTypeOptionSharedAction for ChecklistTypeOptionPB {
     }
 }
 
-impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for ChecklistTypeOptionPB {
-    fn decode_cell_data(
-        &self,
-        cell_data: IntoCellData<SelectOptionIds>,
-        decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        self.serialize_cell_data_to_bytes(cell_data, decoded_field_type, field_rev)
-    }
-
+impl CellDataChangeset for ChecklistTypeOptionPB {
     fn apply_changeset(
         &self,
         changeset: AnyCellChangeset<SelectOptionCellChangeset>,
@@ -64,7 +74,9 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for Checklist
         match cell_rev {
             None => Ok(SelectOptionIds::from(insert_option_ids).to_string()),
             Some(cell_rev) => {
-                let cell_data = get_cell_data(&cell_rev);
+                let cell_data = TypeCellData::try_from(cell_rev)
+                    .map(|data| data.into_inner())
+                    .unwrap_or_default();
                 let mut select_ids: SelectOptionIds = cell_data.into();
                 for insert_option_id in insert_option_ids {
                     if !select_ids.contains(&insert_option_id) {

@@ -1,113 +1,66 @@
 use crate::entities::FieldType;
-use crate::services::cell::{CellBytes, TypeCellData};
+use crate::services::cell::{CellProtobufBlob, TypeCellData};
 use crate::services::field::*;
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use grid_rev_model::{CellRevision, FieldRevision};
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use grid_rev_model::{CellRevision, FieldRevision, FieldTypeRevision};
-
 /// This trait is used when doing filter/search on the grid.
-pub trait CellFilterable<T> {
+pub trait CellFilterable: TypeOptionConfiguration {
     /// Return true if type_cell_data match the filter condition.
-    fn apply_filter(&self, type_cell_data: TypeCellData, filter: &T) -> FlowyResult<bool>;
+    fn apply_filter(
+        &self,
+        type_cell_data: TypeCellData,
+        filter: &<Self as TypeOptionConfiguration>::CellFilterConfiguration,
+    ) -> FlowyResult<bool>;
 }
 
 pub trait CellComparable {
-    fn apply_cmp(&self, type_cell_data: &TypeCellData, other_type_cell_data: &TypeCellData) -> FlowyResult<Ordering>;
+    type CellData;
+    fn apply_cmp(&self, cell_data: &Self::CellData, other_cell_data: &Self::CellData) -> Ordering;
 }
 
-/// Serialize the cell data in Protobuf/String format.
-///
-/// Each cell data is a opaque data, it needs to deserialized to a concrete data struct.
-/// Essentially when the field type is SingleSelect/Multi-Select, the cell data contains a
-/// list of option ids. So it need to be decoded including convert the option's id to
-/// option's name
-///
-pub trait CellDataSerialize<CD> {
-    /// Serialize the cell data into `CellBytes` that will be posted to the `Dart` side. Using the
-    /// corresponding protobuf struct implemented in `Dart` to deserialize the data.
+/// Decode the opaque cell data into readable format content
+pub trait CellDataDecoder: TypeOption {
     ///
-    /// Using `utf8` to encode the cell data if the cell data use `String` as its data container.
-    /// Using `protobuf` to encode the cell data if the cell data use `Protobuf struct` as its data container.
-    ///
-    /// When switching the field type of the `FieldRevision` to another field type. The `field_type`
-    /// of the `FieldRevision` is not equal to the `decoded_field_type`. The cell data is need to do
-    /// some custom transformation.
+    /// Tries to decode the opaque cell data to `decoded_field_type`. Sometimes, the `field_type`
+    /// of the `FieldRevision` is not equal to the `decoded_field_type`(This happened When switching
+    /// the field type of the `FieldRevision` to another field type). So the cell data is need to do
+    /// some transformation.
     ///
     /// For example, the current field type of the `FieldRevision` is a checkbox. When switching the field
-    /// type from the checkbox to single select, the `TypeOptionBuilder`'s transform method gets called.
-    /// It will create two new options,`Yes` and `No`, if they don't exist. But the cell data didn't change,
-    /// because we can't iterate all the rows to transform the cell data that can be parsed by the current
-    /// field type. One approach is to transform the cell data when it get read. For the moment,
-    /// the cell data is a string, `Yes` or `No`. It needs to compare with the option's name, if match
-    /// return the id of the option. Otherwise, return a default value of `CellBytes`.
-    ///
-    /// # Arguments
-    ///
-    /// * `cell_data`: the generic annotation `CD` represents as the deserialize data type of the cell.
-    /// * `decoded_field_type`: the field type of the cell_data when doing serialization
-    ///
-    /// returns: Result<CellBytes, FlowyError>
-    ///
-    fn serialize_cell_data_to_bytes(
+    /// type from the checkbox to single select, it will create two new options,`Yes` and `No`, if they don't exist.
+    /// But the data of the cell doesn't change. We can't iterate all the rows to transform the cell
+    /// data that can be parsed by the current field type. One approach is to transform the cell data
+    /// when it get read. For the moment, the cell data is a string, `Yes` or `No`. It needs to compare
+    /// with the option's name, if match return the id of the option.
+    fn try_decode_cell_data(
         &self,
-        cell_data: IntoCellData<CD>,
+        cell_data: String,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes>;
+    ) -> FlowyResult<<Self as TypeOption>::CellData>;
 
-    /// Serialize the cell data into `String` that is readable
-    ///
-    /// The cell data is not readable which means it can't display the cell data directly to user.
-    /// For example,
-    /// 1. the cell data is timestamp if its field type is FieldType::Date that is not readable.
-    /// So it needs to be parsed as the date string with custom format setting.
-    ///
-    /// 2. the cell data is a commas separated id if its field type if FieldType::MultiSelect that is not readable.
-    /// So it needs to be parsed as a commas separated option name.
-    ///
-    fn serialize_cell_data_to_str(
+    /// Same as `decode_cell_data` does but Decode the cell data to readable `String`
+    fn decode_cell_data_to_str(
         &self,
-        cell_data: IntoCellData<CD>,
+        cell_data: String,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<String>;
 }
 
-pub trait CellDataOperation<CD, CS> {
-    /// The generic annotation `CD` represents as the deserialize data type of the cell data.
-    /// The Serialize/Deserialize struct of the cell is base on the field type of the cell.
-    ///
-    /// For example:
-    /// FieldType::URL => URLCellData
-    /// FieldType::Date=> DateCellData
-    ///
-    /// Each cell data is a opaque data, it needs to deserialized to a concrete data struct.
-    /// Essentially when the field type is SingleSelect/Multi-Select, the cell data contains a
-    /// list of option ids. So it need to be decoded including convert the option's id to
-    /// option's name
-    ///
-    /// `cell_data`: the opaque data of the cell.
-    /// `decoded_field_type`: the field type of the cell data when doing serialization
-    /// `field_rev`: the field of the cell data
-    ///
-    /// Returns the error if the cell data can't be parsed into `CD`.
-    ///
-    fn decode_cell_data(
-        &self,
-        cell_data: IntoCellData<CD>,
-        decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes>;
-
-    /// The changeset is able to parse into the concrete data struct if CS implements  
-    /// the `FromCellChangeset` trait.
-    ///
-    /// For example:
-    /// SelectOptionCellChangeset,DateCellChangeset. etc.
+pub trait CellDataChangeset: TypeOption {
+    /// The changeset is able to parse into the concrete data struct if `TypeOption::CellChangeset`
+    /// implements the `FromCellChangeset` trait.
+    /// For example,the SelectOptionCellChangeset,DateCellChangeset. etc.
     ///  
-    fn apply_changeset(&self, changeset: AnyCellChangeset<CS>, cell_rev: Option<CellRevision>) -> FlowyResult<String>;
+    fn apply_changeset(
+        &self,
+        changeset: AnyCellChangeset<<Self as TypeOption>::CellChangeset>,
+        cell_rev: Option<CellRevision>,
+    ) -> FlowyResult<String>;
 }
 
 /// changeset: It will be deserialized into specific data base on the FieldType.
@@ -143,16 +96,16 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
 pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debug>(
     data: T,
     field_rev: &FieldRevision,
-) -> (FieldType, CellBytes) {
+) -> (FieldType, CellProtobufBlob) {
     let to_field_type = field_rev.ty.into();
     match data.try_into() {
         Ok(type_cell_data) => {
             let TypeCellData { data, field_type } = type_cell_data;
-            match try_decode_cell_data(data.into(), &field_type, &to_field_type, field_rev) {
+            match try_decode_cell_data(data, &field_type, &to_field_type, field_rev) {
                 Ok(cell_bytes) => (field_type, cell_bytes),
                 Err(e) => {
                     tracing::error!("Decode cell data failed, {:?}", e);
-                    (field_type, CellBytes::default())
+                    (field_type, CellProtobufBlob::default())
                 }
             }
         }
@@ -161,109 +114,43 @@ pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debu
             // display the existing cell data. For example, the UI of the text cell will be blank if
             // the type of the data of cell is Number.
 
-            (to_field_type, CellBytes::default())
+            (to_field_type, CellProtobufBlob::default())
         }
     }
 }
 
-pub fn decode_cell_data_to_string<C: Into<IntoCellData<String>>>(
-    cell_data: C,
-    from_field_type: &FieldType,
-    to_field_type: &FieldType,
-    field_rev: &FieldRevision,
-) -> FlowyResult<String> {
-    let cell_data = cell_data.into().try_into_inner()?;
-    let get_cell_display_str = || {
-        let field_type: FieldTypeRevision = to_field_type.into();
-        let result = match to_field_type {
-            FieldType::RichText => field_rev
-                .get_type_option::<RichTextTypeOptionPB>(field_type)?
-                .serialize_cell_data_to_str(cell_data.into(), from_field_type, field_rev),
-            FieldType::Number => field_rev
-                .get_type_option::<NumberTypeOptionPB>(field_type)?
-                .serialize_cell_data_to_str(cell_data.into(), from_field_type, field_rev),
-            FieldType::DateTime => field_rev
-                .get_type_option::<DateTypeOptionPB>(field_type)?
-                .serialize_cell_data_to_str(cell_data.into(), from_field_type, field_rev),
-            FieldType::SingleSelect => field_rev
-                .get_type_option::<SingleSelectTypeOptionPB>(field_type)?
-                .serialize_cell_data_to_str(cell_data.into(), from_field_type, field_rev),
-            FieldType::MultiSelect => field_rev
-                .get_type_option::<MultiSelectTypeOptionPB>(field_type)?
-                .serialize_cell_data_to_str(cell_data.into(), from_field_type, field_rev),
-            FieldType::Checklist => field_rev
-                .get_type_option::<ChecklistTypeOptionPB>(field_type)?
-                .serialize_cell_data_to_str(cell_data.into(), from_field_type, field_rev),
-            FieldType::Checkbox => field_rev
-                .get_type_option::<CheckboxTypeOptionPB>(field_type)?
-                .serialize_cell_data_to_str(cell_data.into(), from_field_type, field_rev),
-            FieldType::URL => field_rev
-                .get_type_option::<URLTypeOptionPB>(field_type)?
-                .serialize_cell_data_to_str(cell_data.into(), from_field_type, field_rev),
-        };
-        Some(result)
-    };
-
-    match get_cell_display_str() {
-        Some(Ok(s)) => Ok(s),
-        Some(Err(err)) => {
-            tracing::error!("{:?}", err);
-            Ok("".to_owned())
-        }
-        None => Ok("".to_owned()),
-    }
-}
-
-/// Use the `to_field_type`'s TypeOption to parse the cell data into `from_field_type` type's data.
+/// Decode the opaque cell data from one field type to another using the corresponding type option builder
 ///
-/// Each `FieldType` has its corresponding `TypeOption` that implements the `CellDisplayable`
-/// and `CellDataOperation` traits.
+/// The cell data might become an empty string depends on these two fields' `TypeOptionBuilder`
+/// support transform or not.
+///
+/// # Arguments
+///
+/// * `cell_data`: the opaque cell data
+/// * `from_field_type`: the original field type of the passed-in cell data. Check the `TypeCellData`
+/// that is used to save the origin field type of the cell data.
+/// * `to_field_type`: decode the passed-in cell data to this field type. It will use the to_field_type's
+/// TypeOption to decode this cell data.
+/// * `field_rev`: used to get the corresponding TypeOption for the specified field type.
+///
+/// returns: CellBytes
 ///
 pub fn try_decode_cell_data(
-    cell_data: IntoCellData<String>,
+    cell_data: String,
     from_field_type: &FieldType,
     to_field_type: &FieldType,
     field_rev: &FieldRevision,
-) -> FlowyResult<CellBytes> {
-    let cell_data = cell_data.try_into_inner()?;
-    let get_cell_data = || {
-        let field_type: FieldTypeRevision = to_field_type.into();
-        let data = match to_field_type {
-            FieldType::RichText => field_rev
-                .get_type_option::<RichTextTypeOptionPB>(field_type)?
-                .decode_cell_data(cell_data.into(), from_field_type, field_rev),
-            FieldType::Number => field_rev
-                .get_type_option::<NumberTypeOptionPB>(field_type)?
-                .decode_cell_data(cell_data.into(), from_field_type, field_rev),
-            FieldType::DateTime => field_rev
-                .get_type_option::<DateTypeOptionPB>(field_type)?
-                .decode_cell_data(cell_data.into(), from_field_type, field_rev),
-            FieldType::SingleSelect => field_rev
-                .get_type_option::<SingleSelectTypeOptionPB>(field_type)?
-                .decode_cell_data(cell_data.into(), from_field_type, field_rev),
-            FieldType::MultiSelect => field_rev
-                .get_type_option::<MultiSelectTypeOptionPB>(field_type)?
-                .decode_cell_data(cell_data.into(), from_field_type, field_rev),
-            FieldType::Checklist => field_rev
-                .get_type_option::<ChecklistTypeOptionPB>(field_type)?
-                .decode_cell_data(cell_data.into(), from_field_type, field_rev),
-            FieldType::Checkbox => field_rev
-                .get_type_option::<CheckboxTypeOptionPB>(field_type)?
-                .decode_cell_data(cell_data.into(), from_field_type, field_rev),
-            FieldType::URL => field_rev
-                .get_type_option::<URLTypeOptionPB>(field_type)?
-                .decode_cell_data(cell_data.into(), from_field_type, field_rev),
-        };
-        Some(data)
-    };
+) -> FlowyResult<CellProtobufBlob> {
+    match FieldRevisionExt::new(field_rev).get_type_option_handler(to_field_type) {
+        None => Ok(CellProtobufBlob::default()),
+        Some(handler) => handler.handle_cell_data(cell_data, from_field_type, field_rev),
+    }
+}
 
-    match get_cell_data() {
-        Some(Ok(data)) => Ok(data),
-        Some(Err(err)) => {
-            tracing::error!("{:?}", err);
-            Ok(CellBytes::default())
-        }
-        None => Ok(CellBytes::default()),
+pub fn stringify_cell_data(cell_data: String, field_type: &FieldType, field_rev: &FieldRevision) -> String {
+    match FieldRevisionExt::new(field_rev).get_type_option_handler(field_type) {
+        None => "".to_string(),
+        Some(handler) => handler.stringify_cell_data(cell_data, field_type, field_rev),
     }
 }
 
@@ -322,7 +209,8 @@ pub trait FromCellString {
         Self: Sized;
 }
 
-/// IntoCellData is a helper struct. String will be parser into Option<T> only if the T impl the FromCellString trait.
+/// IntoCellData is a helper struct used to deserialize string into a specific data type that implements
+/// the `FromCellString` trait.
 ///
 pub struct IntoCellData<T>(pub Option<T>);
 impl<T> IntoCellData<T> {
@@ -349,15 +237,15 @@ where
     }
 }
 
-impl std::convert::From<usize> for IntoCellData<String> {
-    fn from(n: usize) -> Self {
-        IntoCellData(Some(n.to_string()))
-    }
-}
-
 impl<T> std::convert::From<T> for IntoCellData<T> {
     fn from(val: T) -> Self {
         IntoCellData(Some(val))
+    }
+}
+
+impl std::convert::From<usize> for IntoCellData<String> {
+    fn from(n: usize) -> Self {
+        IntoCellData(Some(n.to_string()))
     }
 }
 

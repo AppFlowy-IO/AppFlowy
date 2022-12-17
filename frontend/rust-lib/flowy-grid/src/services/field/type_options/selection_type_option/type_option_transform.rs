@@ -1,10 +1,10 @@
 use crate::entities::FieldType;
-use crate::services::cell::{CellBytes, IntoCellData};
+
 use crate::services::field::{
     MultiSelectTypeOptionPB, SelectOptionColorPB, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction,
-    SingleSelectTypeOptionPB, CHECK, UNCHECK,
+    SingleSelectTypeOptionPB, TypeOption, CHECK, UNCHECK,
 };
-use flowy_error::FlowyResult;
+
 use grid_rev_model::FieldRevision;
 use serde_json;
 
@@ -57,31 +57,28 @@ impl SelectOptionTypeOptionTransformer {
 
     pub fn transform_type_option_cell_data<T>(
         shared: &T,
-        cell_data: IntoCellData<SelectOptionIds>,
+        cell_data: <T as TypeOption>::CellData,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes>
+    ) -> <T as TypeOption>::CellData
     where
-        T: SelectTypeOptionSharedAction,
+        T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds>,
     {
         match decoded_field_type {
-            FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => {
-                //
-                CellBytes::from(shared.get_selected_options(cell_data))
-            }
+            FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => cell_data,
             FieldType::Checkbox => {
                 // transform the cell data to the option id
                 let mut transformed_ids = Vec::new();
                 let options = shared.options();
-                cell_data.try_into_inner()?.iter().for_each(|name| {
+                cell_data.iter().for_each(|name| {
                     if let Some(option) = options.iter().find(|option| &option.name == name) {
                         transformed_ids.push(option.id.clone());
                     }
                 });
-                let transformed_cell_data = IntoCellData::from(SelectOptionIds::from(transformed_ids));
-                CellBytes::from(shared.get_selected_options(transformed_cell_data))
+
+                SelectOptionIds::from(transformed_ids)
             }
-            _ => Ok(CellBytes::default()),
+            _ => SelectOptionIds::from(vec![]),
         }
     }
 }

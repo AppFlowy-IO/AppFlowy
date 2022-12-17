@@ -1,10 +1,13 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{CellChangesetPB, CellPathPB, CellPathParams, FieldType};
 use crate::services::cell::{
-    CellBytes, CellBytesParser, CellDataIsEmpty, CellDataSerialize, FromCellChangeset, FromCellString, IntoCellData,
+    CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangeset, FromCellString,
 };
+
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
-use crate::services::field::{ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
+use crate::services::field::{
+    ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB, TypeOption, TypeOptionCellData,
+};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
@@ -69,17 +72,10 @@ impl std::default::Default for SelectOptionColorPB {
     }
 }
 
-pub fn make_selected_options(
-    cell_data: IntoCellData<SelectOptionIds>,
-    options: &[SelectOptionPB],
-) -> Vec<SelectOptionPB> {
-    if let Ok(ids) = cell_data.try_into_inner() {
-        ids.iter()
-            .flat_map(|option_id| options.iter().find(|option| &option.id == option_id).cloned())
-            .collect()
-    } else {
-        vec![]
-    }
+pub fn make_selected_options(ids: SelectOptionIds, options: &[SelectOptionPB]) -> Vec<SelectOptionPB> {
+    ids.iter()
+        .flat_map(|option_id| options.iter().find(|option| &option.id == option_id).cloned())
+        .collect()
 }
 /// Defines the shared actions used by SingleSelect or Multi-Select.
 pub trait SelectTypeOptionSharedAction: TypeOptionDataSerializer + Send + Sync {
@@ -113,8 +109,8 @@ pub trait SelectTypeOptionSharedAction: TypeOptionDataSerializer + Send + Sync {
     }
 
     /// Return a list of options that are selected by user
-    fn get_selected_options(&self, cell_data: IntoCellData<SelectOptionIds>) -> SelectOptionCellDataPB {
-        let mut select_options = make_selected_options(cell_data, self.options());
+    fn get_selected_options(&self, ids: SelectOptionIds) -> SelectOptionCellDataPB {
+        let mut select_options = make_selected_options(ids, self.options());
         match self.number_of_max_options() {
             None => {}
             Some(number_of_max_options) => {
@@ -127,75 +123,39 @@ pub trait SelectTypeOptionSharedAction: TypeOptionDataSerializer + Send + Sync {
         }
     }
 
-    fn transform_cell_data(
-        &self,
-        cell_data: IntoCellData<SelectOptionIds>,
-        decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        match decoded_field_type {
-            FieldType::SingleSelect | FieldType::MultiSelect => {
-                // Do nothing
-            }
-            FieldType::Checkbox => {
-                // transform the cell data to the option id
-                let mut transformed_ids = Vec::new();
-                let options = self.options();
-                cell_data.0.iter().for_each(|ids| {
-                    ids.0.iter().for_each(|name| {
-                        let id = options
-                            .iter()
-                            .find(|option| option.name == name.clone())
-                            .unwrap()
-                            .id
-                            .clone();
-                        transformed_ids.push(id);
-                    })
-                });
-
-                return CellBytes::from(
-                    self.get_selected_options(IntoCellData(Some(SelectOptionIds(transformed_ids)))),
-                );
-            }
-            _ => {
-                return Ok(CellBytes::default());
-            }
-        }
-
-        CellBytes::from(self.get_selected_options(cell_data))
-    }
-
     fn options(&self) -> &Vec<SelectOptionPB>;
 
     fn mut_options(&mut self) -> &mut Vec<SelectOptionPB>;
 }
 
-impl<T> CellDataSerialize<SelectOptionIds> for T
+impl<T> CellDataDecoder for T
 where
-    T: SelectTypeOptionSharedAction,
+    T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + TypeOptionCellData,
 {
-    fn serialize_cell_data_to_bytes(
+    fn try_decode_cell_data(
         &self,
-        cell_data: IntoCellData<SelectOptionIds>,
+        cell_data: String,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        SelectOptionTypeOptionTransformer::transform_type_option_cell_data(
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
+        let cell_data = self.decode_type_option_cell_data(cell_data)?;
+        Ok(SelectOptionTypeOptionTransformer::transform_type_option_cell_data(
             self,
             cell_data,
             decoded_field_type,
             field_rev,
-        )
+        ))
     }
 
-    fn serialize_cell_data_to_str(
+    fn decode_cell_data_to_str(
         &self,
-        cell_data: IntoCellData<SelectOptionIds>,
+        cell_data: String,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<String> {
+        let ids = self.decode_type_option_cell_data(cell_data)?;
         Ok(self
-            .get_selected_options(cell_data)
+            .get_selected_options(ids)
             .select_options
             .into_iter()
             .map(|option| option.name)
@@ -333,14 +293,16 @@ impl std::ops::DerefMut for SelectOptionIds {
     }
 }
 
-impl CellDataIsEmpty for SelectOptionIds {
+impl DecodedCellData for SelectOptionIds {
+    type Object = SelectOptionIds;
+
     fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 }
 
 pub struct SelectOptionIdsParser();
-impl CellBytesParser for SelectOptionIdsParser {
+impl CellProtobufBlobParser for SelectOptionIdsParser {
     type Object = SelectOptionIds;
     fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
         match String::from_utf8(bytes.to_vec()) {
@@ -350,14 +312,16 @@ impl CellBytesParser for SelectOptionIdsParser {
     }
 }
 
-impl CellDataIsEmpty for SelectOptionCellDataPB {
+impl DecodedCellData for SelectOptionCellDataPB {
+    type Object = SelectOptionCellDataPB;
+
     fn is_empty(&self) -> bool {
         self.select_options.is_empty()
     }
 }
 
 pub struct SelectOptionCellDataParser();
-impl CellBytesParser for SelectOptionCellDataParser {
+impl CellProtobufBlobParser for SelectOptionCellDataParser {
     type Object = SelectOptionCellDataPB;
 
     fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {

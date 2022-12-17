@@ -1,8 +1,9 @@
-use crate::entities::FieldType;
+use crate::entities::{DateFilterPB, FieldType};
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataOperation, CellDataSerialize, IntoCellData};
+use crate::services::cell::{AnyCellChangeset, CellDataChangeset, CellDataDecoder, FromCellString};
 use crate::services::field::{
-    BoxTypeOptionBuilder, DateCellChangeset, DateCellDataPB, DateFormat, DateTimestamp, TimeFormat, TypeOptionBuilder,
+    BoxTypeOptionBuilder, DateCellChangeset, DateCellData, DateCellDataPB, DateFormat, TimeFormat, TypeOption,
+    TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
@@ -25,6 +26,26 @@ pub struct DateTypeOptionPB {
     pub include_time: bool,
 }
 impl_type_option!(DateTypeOptionPB, FieldType::DateTime);
+
+impl TypeOption for DateTypeOptionPB {
+    type CellData = DateCellData;
+    type CellChangeset = DateCellChangeset;
+    type CellPBType = DateCellDataPB;
+}
+
+impl TypeOptionConfiguration for DateTypeOptionPB {
+    type CellFilterConfiguration = DateFilterPB;
+}
+
+impl TypeOptionCellData for DateTypeOptionPB {
+    fn convert_into_pb_type(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellPBType {
+        self.today_desc_from_timestamp(cell_data)
+    }
+
+    fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        DateCellData::from_cell_str(&cell_data)
+    }
+}
 
 impl DateTypeOptionPB {
     #[allow(dead_code)]
@@ -107,47 +128,37 @@ impl DateTypeOptionPB {
     }
 }
 
-impl CellDataSerialize<DateTimestamp> for DateTypeOptionPB {
-    fn serialize_cell_data_to_bytes(
+impl CellDataDecoder for DateTypeOptionPB {
+    fn try_decode_cell_data(
         &self,
-        cell_data: IntoCellData<DateTimestamp>,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        let timestamp = cell_data.try_into_inner()?;
-        let cell_data_pb = self.today_desc_from_timestamp(timestamp);
-        CellBytes::from(cell_data_pb)
-    }
-
-    fn serialize_cell_data_to_str(
-        &self,
-        cell_data: IntoCellData<DateTimestamp>,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<String> {
-        let timestamp = cell_data.try_into_inner()?;
-        let date_cell_data = self.today_desc_from_timestamp(timestamp);
-        Ok(date_cell_data.date)
-    }
-}
-
-impl CellDataOperation<DateTimestamp, DateCellChangeset> for DateTypeOptionPB {
-    fn decode_cell_data(
-        &self,
-        cell_data: IntoCellData<DateTimestamp>,
+        cell_data: String,
         decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
         // Return default data if the type_option_cell_data is not FieldType::DateTime.
         // It happens when switching from one field to another.
         // For example:
         // FieldType::RichText -> FieldType::DateTime, it will display empty content on the screen.
         if !decoded_field_type.is_date() {
-            return Ok(CellBytes::default());
+            return Ok(Default::default());
         }
-        self.serialize_cell_data_to_bytes(cell_data, decoded_field_type, field_rev)
+
+        self.decode_type_option_cell_data(cell_data)
     }
 
+    fn decode_cell_data_to_str(
+        &self,
+        cell_data: String,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<String> {
+        let cell_data = self.decode_type_option_cell_data(cell_data)?;
+        let cell_data_pb = self.today_desc_from_timestamp(cell_data);
+        Ok(cell_data_pb.date)
+    }
+}
+
+impl CellDataChangeset for DateTypeOptionPB {
     fn apply_changeset(
         &self,
         changeset: AnyCellChangeset<DateCellChangeset>,

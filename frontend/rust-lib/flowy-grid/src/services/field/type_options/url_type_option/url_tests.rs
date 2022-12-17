@@ -1,8 +1,9 @@
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
-    use crate::services::cell::{CellDataOperation, IntoCellData};
-    use crate::services::field::{FieldBuilder, URLCellDataParser};
+    use crate::services::cell::{CellDataChangeset, CellDataDecoder};
+
+    use crate::services::field::FieldBuilder;
     use crate::services::field::{URLCellData, URLTypeOptionPB};
     use grid_rev_model::FieldRevision;
 
@@ -175,16 +176,14 @@ mod tests {
         assert_eq!(expected_url.to_owned(), decode_cell_data.url);
     }
 
-    fn decode_cell_data<T: Into<IntoCellData<URLCellData>>>(
-        encoded_data: T,
+    fn decode_cell_data(
+        encoded_data: String,
         type_option: &URLTypeOptionPB,
         field_rev: &FieldRevision,
         field_type: &FieldType,
     ) -> URLCellData {
         type_option
-            .decode_cell_data(encoded_data.into(), field_type, field_rev)
-            .unwrap()
-            .parser::<URLCellDataParser>()
+            .try_decode_cell_data(encoded_data, field_type, field_rev)
             .unwrap()
     }
 }

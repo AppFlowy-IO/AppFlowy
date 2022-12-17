@@ -2,7 +2,9 @@
 
 use crate::entities::{ChecklistFilterPB, FieldType, SelectOptionConditionPB, SelectOptionFilterPB};
 use crate::services::cell::{CellFilterable, TypeCellData};
-use crate::services::field::{ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
+use crate::services::field::{
+    ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB, TypeOptionCellData,
+};
 use crate::services::field::{SelectTypeOptionSharedAction, SelectedSelectOptions};
 use flowy_error::FlowyResult;
 
@@ -78,33 +80,35 @@ impl SelectOptionFilterPB {
     }
 }
 
-impl CellFilterable<SelectOptionFilterPB> for MultiSelectTypeOptionPB {
+impl CellFilterable for MultiSelectTypeOptionPB {
     fn apply_filter(&self, type_cell_data: TypeCellData, filter: &SelectOptionFilterPB) -> FlowyResult<bool> {
         if !type_cell_data.is_multi_select() {
             return Ok(true);
         }
-
-        let selected_options = SelectedSelectOptions::from(self.get_selected_options(type_cell_data.into()));
+        let ids = self.decode_type_option_cell_data(type_cell_data.data)?;
+        let selected_options = SelectedSelectOptions::from(self.get_selected_options(ids));
         Ok(filter.is_visible(&selected_options, FieldType::MultiSelect))
     }
 }
 
-impl CellFilterable<SelectOptionFilterPB> for SingleSelectTypeOptionPB {
+impl CellFilterable for SingleSelectTypeOptionPB {
     fn apply_filter(&self, type_cell_data: TypeCellData, filter: &SelectOptionFilterPB) -> FlowyResult<bool> {
         if !type_cell_data.is_single_select() {
             return Ok(true);
         }
-        let selected_options = SelectedSelectOptions::from(self.get_selected_options(type_cell_data.into()));
+        let ids = self.decode_type_option_cell_data(type_cell_data.data)?;
+        let selected_options = SelectedSelectOptions::from(self.get_selected_options(ids));
         Ok(filter.is_visible(&selected_options, FieldType::SingleSelect))
     }
 }
 
-impl CellFilterable<ChecklistFilterPB> for ChecklistTypeOptionPB {
+impl CellFilterable for ChecklistTypeOptionPB {
     fn apply_filter(&self, type_cell_data: TypeCellData, filter: &ChecklistFilterPB) -> FlowyResult<bool> {
         if !type_cell_data.is_checklist() {
             return Ok(true);
         }
-        let selected_options = SelectedSelectOptions::from(self.get_selected_options(type_cell_data.into()));
+        let ids = self.decode_type_option_cell_data(type_cell_data.data)?;
+        let selected_options = SelectedSelectOptions::from(self.get_selected_options(ids));
         Ok(filter.is_visible(&self.options, &selected_options))
     }
 }
