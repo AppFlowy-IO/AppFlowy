@@ -3,6 +3,7 @@ use crate::impl_type_option;
 use crate::services::cell::{AnyCellChangeset, CellDataChangeset, CellDataDecoder, FromCellString};
 use crate::services::field::{
     BoxTypeOptionBuilder, CheckboxCellData, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
+    TypeOptionTransform,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -31,10 +32,6 @@ impl TypeOptionBuilder for CheckboxTypeOptionBuilder {
     fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
     }
-
-    fn transform(&mut self, _field_type: &FieldType, _type_option_data: String) {
-        // Do nothing
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, ProtoBuf)]
@@ -47,15 +44,17 @@ impl_type_option!(CheckboxTypeOptionPB, FieldType::Checkbox);
 impl TypeOption for CheckboxTypeOptionPB {
     type CellData = CheckboxCellData;
     type CellChangeset = CheckboxCellChangeset;
-    type CellPBType = CheckboxCellData;
+    type CellProtobufType = CheckboxCellData;
 }
+
+impl TypeOptionTransform for CheckboxTypeOptionPB {}
 
 impl TypeOptionConfiguration for CheckboxTypeOptionPB {
     type CellFilterConfiguration = CheckboxFilterPB;
 }
 
 impl TypeOptionCellData for CheckboxTypeOptionPB {
-    fn convert_into_pb_type(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellPBType {
+    fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {
         cell_data
     }
 

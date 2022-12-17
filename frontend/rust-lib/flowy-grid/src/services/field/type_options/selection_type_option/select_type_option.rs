@@ -4,9 +4,10 @@ use crate::services::cell::{
     CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangeset, FromCellString,
 };
 
-use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
+use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
     ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB, TypeOption, TypeOptionCellData,
+    TypeOptionTransform,
 };
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
@@ -128,6 +129,31 @@ pub trait SelectTypeOptionSharedAction: TypeOptionDataSerializer + Send + Sync {
     fn mut_options(&mut self) -> &mut Vec<SelectOptionPB>;
 }
 
+impl<T> TypeOptionTransform for T
+where
+    T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + TypeOptionDataSerializer,
+{
+    fn transformable(&self) -> bool {
+        true
+    }
+
+    fn transform_type_option(&mut self, old_type_option_field_type: FieldType, old_type_option_data: String) {
+        SelectOptionTypeOptionTransformHelper::transform_type_option(
+            self,
+            &old_type_option_field_type,
+            old_type_option_data,
+        );
+    }
+
+    fn transform_type_option_cell_data(
+        &self,
+        cell_data: <Self as TypeOption>::CellData,
+        decoded_field_type: &FieldType,
+    ) -> <Self as TypeOption>::CellData {
+        SelectOptionTypeOptionTransformHelper::transform_type_option_cell_data(self, cell_data, decoded_field_type)
+    }
+}
+
 impl<T> CellDataDecoder for T
 where
     T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + TypeOptionCellData,
@@ -135,16 +161,10 @@ where
     fn try_decode_cell_data(
         &self,
         cell_data: String,
-        decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
     ) -> FlowyResult<<Self as TypeOption>::CellData> {
-        let cell_data = self.decode_type_option_cell_data(cell_data)?;
-        Ok(SelectOptionTypeOptionTransformer::transform_type_option_cell_data(
-            self,
-            cell_data,
-            decoded_field_type,
-            field_rev,
-        ))
+        self.decode_type_option_cell_data(cell_data)
     }
 
     fn decode_cell_data_to_str(

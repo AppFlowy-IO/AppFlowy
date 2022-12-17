@@ -2,8 +2,8 @@ use crate::entities::{FieldType, TextFilterPB};
 use crate::impl_type_option;
 use crate::services::cell::{AnyCellChangeset, CellDataChangeset, CellDataDecoder, FromCellString};
 use crate::services::field::{
-    BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration, URLCellData,
-    URLCellDataPB,
+    BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
+    TypeOptionTransform, URLCellData, URLCellDataPB,
 };
 use bytes::Bytes;
 use fancy_regex::Regex;
@@ -26,10 +26,6 @@ impl TypeOptionBuilder for URLTypeOptionBuilder {
     fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
     }
-
-    fn transform(&mut self, _field_type: &FieldType, _type_option_data: String) {
-        // Do nothing
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, ProtoBuf)]
@@ -42,15 +38,17 @@ impl_type_option!(URLTypeOptionPB, FieldType::URL);
 impl TypeOption for URLTypeOptionPB {
     type CellData = URLCellData;
     type CellChangeset = URLCellChangeset;
-    type CellPBType = URLCellDataPB;
+    type CellProtobufType = URLCellDataPB;
 }
+
+impl TypeOptionTransform for URLTypeOptionPB {}
 
 impl TypeOptionConfiguration for URLTypeOptionPB {
     type CellFilterConfiguration = TextFilterPB;
 }
 
 impl TypeOptionCellData for URLTypeOptionPB {
-    fn convert_into_pb_type(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellPBType {
+    fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {
         cell_data.into()
     }
 

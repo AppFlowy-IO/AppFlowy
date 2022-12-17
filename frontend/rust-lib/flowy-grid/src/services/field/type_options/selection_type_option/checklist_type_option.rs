@@ -1,7 +1,7 @@
 use crate::entities::{ChecklistFilterPB, FieldType};
 use crate::impl_type_option;
 use crate::services::cell::{AnyCellChangeset, CellDataChangeset, FromCellString, TypeCellData};
-use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
+
 use crate::services::field::{
     BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds, SelectOptionPB,
     SelectTypeOptionSharedAction, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
@@ -26,7 +26,7 @@ impl_type_option!(ChecklistTypeOptionPB, FieldType::Checklist);
 impl TypeOption for ChecklistTypeOptionPB {
     type CellData = SelectOptionIds;
     type CellChangeset = SelectOptionCellChangeset;
-    type CellPBType = SelectOptionCellDataPB;
+    type CellProtobufType = SelectOptionCellDataPB;
 }
 
 impl TypeOptionConfiguration for ChecklistTypeOptionPB {
@@ -34,7 +34,7 @@ impl TypeOptionConfiguration for ChecklistTypeOptionPB {
 }
 
 impl TypeOptionCellData for ChecklistTypeOptionPB {
-    fn convert_into_pb_type(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellPBType {
+    fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {
         self.get_selected_options(cell_data)
     }
 
@@ -112,9 +112,5 @@ impl TypeOptionBuilder for ChecklistTypeOptionBuilder {
 
     fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
-    }
-
-    fn transform(&mut self, field_type: &FieldType, type_option_data: String) {
-        SelectOptionTypeOptionTransformer::transform_type_option(&mut self.0, field_type, type_option_data)
     }
 }

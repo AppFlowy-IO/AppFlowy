@@ -9,24 +9,6 @@ pub trait TypeOptionBuilder {
 
     /// Returns a serializer that can be used to serialize the type-option data
     fn serializer(&self) -> &dyn TypeOptionDataSerializer;
-
-    /// Transform the data from passed-in type-option to current type-option
-    ///
-    /// The current type-option data may be changed if it supports transform
-    /// the data from the other kind of type-option data.
-    ///
-    /// For example, when switching from `checkbox` type-option to `single-select`
-    /// type-option, adding the `Yes` option if the `single-select` type-option doesn't contain it.
-    /// But the cell content is a string, `Yes`, it's need to do the cell content transform.
-    /// The `Yes` string will be transformed to the `Yes` option id.
-    ///
-    ///
-    /// # Arguments
-    ///
-    /// * `field_type`: represents as the field type of the passed-in type-option data
-    /// * `type_option_data`: passed-in type-option data
-    //
-    fn transform(&mut self, field_type: &FieldType, type_option_data: String);
 }
 
 pub fn default_type_option_builder_from_type(field_type: &FieldType) -> Box<dyn TypeOptionBuilder> {
