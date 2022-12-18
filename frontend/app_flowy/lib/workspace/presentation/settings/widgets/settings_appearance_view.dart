@@ -3,6 +3,7 @@ import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
@@ -20,11 +21,60 @@ class SettingsAppearanceView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ThemeModeSetting(currentThemeMode: state.themeMode),
+              const ThemeNameSetting(),
             ],
           );
         },
       ),
     );
+  }
+}
+
+class ThemeNameSetting extends StatelessWidget {
+  const ThemeNameSetting({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const FlowyText.medium(
+          "Theme Type",
+          overflow: TextOverflow.ellipsis,
+        ),
+        SizedBox(
+            height: 500,
+            child: ListView.builder(
+              padding: const EdgeInsets.all(2),
+              itemCount: ThemeType.values.length,
+              itemBuilder: (context, index) {
+                final itemAppTheme = ThemeType.values[index];
+                return Card(
+                  child: ListTile(
+                    title: FlowyText.regular(
+                      getThemeName(itemAppTheme),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    onTap: () {
+                      context
+                          .read<AppearanceSettingsCubit>()
+                          .setTheme(getThemeName(itemAppTheme));
+                    },
+                  ),
+                );
+              },
+            )),
+      ],
+    );
+  }
+
+  String getThemeName(ThemeType ty) {
+    switch (ty) {
+      case ThemeType.official:
+        return "Default Flowy Theme";
+      case ThemeType.dandelion:
+        return "Dandelion Community Theme";
+    }
   }
 }
 

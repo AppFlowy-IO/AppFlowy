@@ -1,6 +1,8 @@
 import 'package:flowy_infra/colorscheme/colorscheme.dart';
 import 'package:flutter/material.dart';
 
+enum ThemeType { official, dandelion }
+
 const List<String> builtInThemes = [
   'light',
 ];
