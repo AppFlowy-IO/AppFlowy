@@ -47,7 +47,7 @@ class ThemeTypeSetting extends StatelessWidget {
         AppFlowyPopover(
           direction: PopoverDirection.bottomWithRightAligned,
           child: FlowyTextButton(
-            _themeTypeLabelText(currentThemeType),
+            _getThemeName(currentThemeType),
             fillColor: Colors.transparent,
             hoverColor: Theme.of(context).colorScheme.secondary,
             onPressed: () {},
@@ -72,14 +72,14 @@ class ThemeTypeSetting extends StatelessWidget {
     return SizedBox(
       height: 32,
       child: FlowyButton(
-        text: FlowyText.medium(_themeTypeLabelText(themeType)),
+        text: FlowyText.medium(_getThemeName(themeType)),
         rightIcon: currentThemeType == themeType
             ? svgWidget("grid/checkmark")
             : const SizedBox(),
         onTap: () {
           context
               .read<AppearanceSettingsCubit>()
-              .setTheme(getThemeName(themeType));
+              .setTheme(_getThemeName(themeType));
           if (currentThemeType != themeType) {
             context.read<AppearanceSettingsCubit>().setThemeType(themeType);
           }
@@ -88,23 +88,14 @@ class ThemeTypeSetting extends StatelessWidget {
     );
   }
 
-  String _themeTypeLabelText(ThemeType themeType) {
+  String _getThemeName(ThemeType themeType) {
     switch (themeType) {
-      case (ThemeType.official):
-        return "Default Flowy Theme";
-      case (ThemeType.dandelion):
-        return "Dandelion Community Theme";
-      default:
-        return "";
-    }
-  }
-
-  String getThemeName(ThemeType ty) {
-    switch (ty) {
       case ThemeType.official:
         return "Default Flowy Theme";
       case ThemeType.dandelion:
         return "Dandelion Community Theme";
+      default:
+        throw Exception("Unknown ThemeType");
     }
   }
 }
@@ -147,8 +138,8 @@ class ThemeTypeSetting extends StatelessWidget {
 //     );
 //   }
 
-//   String getThemeName(ThemeType ty) {
-//     switch (ty) {
+//   String getThemeName(ThemeType themeType) {
+//     switch (themeType) {
 //       case ThemeType.official:
 //         return "Default Flowy Theme";
 //       case ThemeType.dandelion:
