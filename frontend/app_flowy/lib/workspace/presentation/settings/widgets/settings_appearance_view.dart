@@ -21,7 +21,7 @@ class SettingsAppearanceView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ThemeModeSetting(currentThemeMode: state.themeMode),
-              const ThemeNameSetting(),
+              ThemeTypeSetting(currentThemeType: state.themeType),
             ],
           );
         },
@@ -30,42 +30,73 @@ class SettingsAppearanceView extends StatelessWidget {
   }
 }
 
-class ThemeNameSetting extends StatelessWidget {
-  const ThemeNameSetting({super.key});
+class ThemeTypeSetting extends StatelessWidget {
+  final ThemeType currentThemeType;
+  const ThemeTypeSetting({required this.currentThemeType, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        const FlowyText.medium(
-          "Theme Type",
-          overflow: TextOverflow.ellipsis,
+        const Expanded(
+          child: FlowyText.medium(
+            "Theme Type",
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
-        SizedBox(
-            height: 500,
-            child: ListView.builder(
-              padding: const EdgeInsets.all(2),
-              itemCount: ThemeType.values.length,
-              itemBuilder: (context, index) {
-                final itemAppTheme = ThemeType.values[index];
-                return Card(
-                  child: ListTile(
-                    title: FlowyText.regular(
-                      getThemeName(itemAppTheme),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    onTap: () {
-                      context
-                          .read<AppearanceSettingsCubit>()
-                          .setTheme(getThemeName(itemAppTheme));
-                    },
-                  ),
-                );
-              },
-            )),
+        AppFlowyPopover(
+          direction: PopoverDirection.bottomWithRightAligned,
+          child: FlowyTextButton(
+            _themeTypeLabelText(currentThemeType),
+            fillColor: Colors.transparent,
+            hoverColor: Theme.of(context).colorScheme.secondary,
+            onPressed: () {},
+          ),
+          popupBuilder: (BuildContext context) {
+            return IntrinsicWidth(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _themeTypeItemButton(context, ThemeType.official),
+                  _themeTypeItemButton(context, ThemeType.dandelion),
+                ],
+              ),
+            );
+          },
+        ),
       ],
     );
+  }
+
+  Widget _themeTypeItemButton(BuildContext context, ThemeType themeType) {
+    return SizedBox(
+      height: 32,
+      child: FlowyButton(
+        text: FlowyText.medium(_themeTypeLabelText(themeType)),
+        rightIcon: currentThemeType == themeType
+            ? svgWidget("grid/checkmark")
+            : const SizedBox(),
+        onTap: () {
+          context
+              .read<AppearanceSettingsCubit>()
+              .setTheme(getThemeName(themeType));
+          if (currentThemeType != themeType) {
+            context.read<AppearanceSettingsCubit>().setThemeType(themeType);
+          }
+        },
+      ),
+    );
+  }
+
+  String _themeTypeLabelText(ThemeType themeType) {
+    switch (themeType) {
+      case (ThemeType.official):
+        return "Default Flowy Theme";
+      case (ThemeType.dandelion):
+        return "Dandelion Community Theme";
+      default:
+        return "";
+    }
   }
 
   String getThemeName(ThemeType ty) {
@@ -77,6 +108,54 @@ class ThemeNameSetting extends StatelessWidget {
     }
   }
 }
+
+// class ThemeNameSetting extends StatelessWidget {
+//   const ThemeNameSetting({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         const FlowyText.medium(
+//           "Theme Type",
+//           overflow: TextOverflow.ellipsis,
+//         ),
+//         SizedBox(
+//             height: 500,
+//             child: ListView.builder(
+//               padding: const EdgeInsets.all(2),
+//               itemCount: ThemeType.values.length,
+//               itemBuilder: (context, index) {
+//                 final itemAppTheme = ThemeType.values[index];
+//                 return Card(
+//                   child: ListTile(
+//                     title: FlowyText.regular(
+//                       getThemeName(itemAppTheme),
+//                       overflow: TextOverflow.ellipsis,
+//                     ),
+//                     onTap: () {
+//                       context
+//                           .read<AppearanceSettingsCubit>()
+//                           .setTheme(getThemeName(itemAppTheme));
+//                     },
+//                   ),
+//                 );
+//               },
+//             )),
+//       ],
+//     );
+//   }
+
+//   String getThemeName(ThemeType ty) {
+//     switch (ty) {
+//       case ThemeType.official:
+//         return "Default Flowy Theme";
+//       case ThemeType.dandelion:
+//         return "Dandelion Community Theme";
+//     }
+//   }
+// }
 
 class ThemeModeSetting extends StatelessWidget {
   final ThemeMode currentThemeMode;

@@ -45,6 +45,11 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     emit(state.copyWith(themeMode: themeMode));
   }
 
+  /// Update the theme type in the user's settings and emit an updated state.
+  void setThemeType(ThemeType themeType) {
+    emit(state.copyWith(themeType: themeType));
+  }
+
   /// Updates the current locale and notify the listeners the locale was
   /// changed. Fallback to [en] locale if [newLocale] is not supported.
   void setLocale(BuildContext context, Locale newLocale) {
@@ -147,6 +152,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
 
   const factory AppearanceSettingsState({
     required AppTheme appTheme,
+    required ThemeType themeType,
     required ThemeMode themeMode,
     required String font,
     required String monospaceFont,
@@ -162,6 +168,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
   ) {
     return AppearanceSettingsState(
       appTheme: AppTheme.fromName(themeName: themeName),
+      themeType: ThemeType.official,
       font: font,
       monospaceFont: monospaceFont,
       themeMode: _themeModeFromPB(themeModePB),
