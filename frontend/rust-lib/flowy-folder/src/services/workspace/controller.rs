@@ -106,7 +106,7 @@ impl WorkspaceController {
                 .persistence
                 .begin_transaction(|transaction| self.read_local_workspace(workspace_id, &user_id, &transaction))
                 .await?;
-            set_current_workspace( &user_id, &workspace.id);
+            set_current_workspace(&user_id, &workspace.id);
             Ok(workspace)
         } else {
             Err(FlowyError::workspace_id().context("Opened workspace id should not be empty"))
@@ -241,7 +241,6 @@ pub async fn notify_workspace_setting_did_change(
         .send();
     Ok(())
 }
-
 
 const CURRENT_WORKSPACE_ID: &str = "current_workspace_id";
 

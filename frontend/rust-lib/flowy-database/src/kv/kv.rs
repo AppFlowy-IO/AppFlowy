@@ -46,9 +46,7 @@ pub struct KV {
 
 impl KV {
     fn new() -> Self {
-        KV {
-            database: None,
-        }
+        KV { database: None }
     }
 
     fn set(value: KeyValue) -> Result<(), String> {

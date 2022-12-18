@@ -35,7 +35,9 @@ static INIT_LOG: AtomicBool = AtomicBool::new(false);
 
 #[derive(Clone)]
 pub struct FlowySDKConfig {
-    // Panics if the `root` path is not existing
+    /// Different `FlowySDK` instance should have different name
+    name: String,
+    /// Panics if the `root` path is not existing
     root: String,
     log_filter: String,
     server_config: ClientServerConfiguration,
@@ -53,8 +55,9 @@ impl fmt::Debug for FlowySDKConfig {
 }
 
 impl FlowySDKConfig {
-    pub fn new(root: &str,  server_config: ClientServerConfiguration) -> Self {
+    pub fn new(root: &str, name: String, server_config: ClientServerConfiguration) -> Self {
         FlowySDKConfig {
+            name,
             root: root.to_owned(),
             log_filter: crate_log_filter("info".to_owned()),
             server_config,
@@ -266,12 +269,12 @@ async fn _listen_user_status(
                     let _ = grid_manager.initialize(&user_id, &token).await?;
                     let _ = ws_conn.start(token, user_id).await?;
                 }
-                UserStatus::Logout { token:_, user_id } => {
+                UserStatus::Logout { token: _, user_id } => {
                     tracing::trace!("User did logout");
                     folder_manager.clear(&user_id).await;
                     let _ = ws_conn.stop().await;
                 }
-                UserStatus::Expired {token:_, user_id } => {
+                UserStatus::Expired { token: _, user_id } => {
                     tracing::trace!("User session has been expired");
                     folder_manager.clear(&user_id).await;
                     let _ = ws_conn.stop().await;
@@ -336,7 +339,7 @@ fn mk_user_session(
     local_server: &Option<Arc<LocalServer>>,
     server_config: &ClientServerConfiguration,
 ) -> Arc<UserSession> {
-    let user_config = UserSessionConfig::new(&config.root);
+    let user_config = UserSessionConfig::new(&config.name, &config.root);
     let cloud_service = UserDepsResolver::resolve(local_server, server_config);
     Arc::new(UserSession::new(user_config, cloud_service))
 }

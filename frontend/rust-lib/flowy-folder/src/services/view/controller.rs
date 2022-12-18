@@ -189,7 +189,7 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "trace", skip(self))]
-    pub(crate) fn clear_latest_view(&self)  {
+    pub(crate) fn clear_latest_view(&self) {
         let _ = KV::remove(LATEST_VIEW_ID);
     }
 

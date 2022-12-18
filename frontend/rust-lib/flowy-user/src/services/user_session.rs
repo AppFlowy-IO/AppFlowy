@@ -31,8 +31,8 @@ pub struct UserSessionConfig {
 impl UserSessionConfig {
     /// The `root_dir` represents as the root of the user folders. It must be unique for each
     /// users.
-    pub fn new(root_dir: &str) -> Self {
-        let session_cache_key = format!("appflowy_session_cache");
+    pub fn new(name: &str, root_dir: &str) -> Self {
+        let session_cache_key = format!("{}_session_cache", name);
         Self {
             root_dir: root_dir.to_owned(),
             session_cache_key,

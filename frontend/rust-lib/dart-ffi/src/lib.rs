@@ -10,11 +10,11 @@ use crate::{
 };
 use flowy_sdk::get_client_server_configuration;
 use flowy_sdk::*;
+use lazy_static::lazy_static;
 use lib_dispatch::prelude::ToBytes;
 use lib_dispatch::prelude::*;
-use std::{ffi::CStr, os::raw::c_char};
-use lazy_static::lazy_static;
 use parking_lot::RwLock;
+use std::{ffi::CStr, os::raw::c_char};
 
 lazy_static! {
     static ref FLOWY_SDK: RwLock<Option<FlowySDK>> = RwLock::new(None);
@@ -26,7 +26,7 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
     let path: &str = c_str.to_str().unwrap();
 
     let server_config = get_client_server_configuration().unwrap();
-    let config = FlowySDKConfig::new(path, server_config).log_filter("info");
+    let config = FlowySDKConfig::new(path, "appflowy".to_string(), server_config).log_filter("info");
     *FLOWY_SDK.write() = Some(FlowySDK::new(config));
 
     0

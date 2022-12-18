@@ -226,10 +226,7 @@ impl GridFilterTest {
             FilterScript::AssertFilterChanged { visible_row_len, hide_row_len} => {
                 let editor = self.editor.clone();
                 let view_id = self.view_id();
-                let mut receiver =
-                tokio::spawn(async move {
-                     editor.subscribe_view_changed(&view_id).await.unwrap()
-                }).await.unwrap();
+                let mut receiver = editor.subscribe_view_changed(&view_id).await.unwrap();
                 match tokio::time::timeout(Duration::from_secs(2), receiver.recv()).await {
                     Ok(changed) =>  {
                         //
