@@ -71,7 +71,6 @@ class SplashScreen extends StatelessWidget {
       (result) {
         return result.fold(
           (workspaceSetting) {
-            // getIt<SplashRoute>().popHomeScreen(context);
             getIt<SplashRoute>()
                 .pushHomeScreen(context, userProfile, workspaceSetting);
           },
@@ -93,8 +92,6 @@ class SplashScreen extends StatelessWidget {
   Future<void> _registerIfNeeded() async {
     final result = await UserEventCheckUser().send();
     if (!result.isLeft()) {
-      // unauthenticated
-      // getIt<SplashRoute>().popHomeScreen(context);
       await getIt<AuthService>().signUpWithRandomUser();
     }
   }
