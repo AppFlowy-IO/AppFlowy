@@ -38,9 +38,9 @@ class ThemeTypeSetting extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Expanded(
+        Expanded(
           child: FlowyText.medium(
-            "Theme Type",
+            LocaleKeys.settings_appearance_themeType_label.tr(),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -91,9 +91,9 @@ class ThemeTypeSetting extends StatelessWidget {
   String _getThemeName(ThemeType themeType) {
     switch (themeType) {
       case ThemeType.official:
-        return "Default Flowy Theme";
+        return LocaleKeys.settings_appearance_themeType_defaultTheme.tr();
       case ThemeType.dandelion:
-        return "Dandelion Community Theme";
+        return LocaleKeys.settings_appearance_themeType_dandelionCommunity.tr();
       default:
         throw Exception("Unknown ThemeType");
     }
