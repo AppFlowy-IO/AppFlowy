@@ -116,10 +116,12 @@ impl GridFilterTest {
     pub async fn run_script(&mut self, script: FilterScript) {
         match script {
             FilterScript::UpdateTextCell { row_index, text} => {
+                tokio::time::sleep(Duration::from_millis(300)).await;
                 self.update_text_cell(row_index, &text).await;
             }
 
             FilterScript::UpdateSingleSelectCell { row_index, option_id} => {
+                tokio::time::sleep(Duration::from_millis(300)).await;
                 self.update_single_select_cell(row_index, &option_id).await;
             }
             FilterScript::InsertFilter { payload } => {

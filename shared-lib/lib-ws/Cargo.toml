@@ -15,7 +15,7 @@ futures-channel = "0.3.17"
 tokio = {version = "1", features = ["full"]}
 futures = "0.3.17"
 bytes = "1.0"
-pin-project = "1.0.0"
+pin-project = "1.0"
 futures-core = { version = "0.3", default-features = false }
 paste = "1"
 url = "2.2.2"
