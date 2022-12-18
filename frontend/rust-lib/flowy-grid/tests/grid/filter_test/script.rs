@@ -6,6 +6,7 @@
 use std::time::Duration;
 use bytes::Bytes;
 use futures::TryFutureExt;
+use tokio::sync::broadcast::Receiver;
 use flowy_grid::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterConditionPB, FieldType, NumberFilterConditionPB, CheckboxFilterConditionPB, DateFilterConditionPB, DateFilterContentPB, SelectOptionConditionPB, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB, FilterPB, ChecklistFilterConditionPB, ChecklistFilterPB};
 use flowy_grid::services::field::{SelectOptionCellChangeset, SelectOptionIds};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
@@ -89,13 +90,15 @@ pub enum FilterScript {
 
 pub struct GridFilterTest {
     inner: GridEditorTest,
+    recv: Option<Receiver<GridViewChanged>>,
 }
 
 impl GridFilterTest {
     pub async fn new() -> Self {
         let editor_test =  GridEditorTest::new_table().await;
         Self {
-            inner: editor_test
+            inner: editor_test,
+            recv: None,
         }
     }
 
@@ -116,19 +119,19 @@ impl GridFilterTest {
     pub async fn run_script(&mut self, script: FilterScript) {
         match script {
             FilterScript::UpdateTextCell { row_index, text} => {
-                tokio::time::sleep(Duration::from_millis(300)).await;
+                self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 self.update_text_cell(row_index, &text).await;
             }
-
             FilterScript::UpdateSingleSelectCell { row_index, option_id} => {
-                tokio::time::sleep(Duration::from_millis(300)).await;
+                self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 self.update_single_select_cell(row_index, &option_id).await;
             }
             FilterScript::InsertFilter { payload } => {
+                self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateTextFilter { condition, content} => {
-
+                self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 let field_rev = self.get_first_field_rev(FieldType::RichText);
                 let text_filter= TextFilterPB {
                     condition,
@@ -141,6 +144,7 @@ impl GridFilterTest {
                 self.insert_filter(payload).await;
             }
             FilterScript::UpdateTextFilter { filter, condition, content} => {
+                self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 let params = AlterFilterParams {
                     view_id: self.view_id(),
                     field_id: filter.field_id,
@@ -152,6 +156,7 @@ impl GridFilterTest {
                 self.editor.create_or_update_filter(params).await.unwrap();
             }
             FilterScript::CreateNumberFilter {condition, content} => {
+                self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 let field_rev = self.get_first_field_rev(FieldType::Number);
                 let number_filter = NumberFilterPB {
                     condition,
@@ -164,6 +169,7 @@ impl GridFilterTest {
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateCheckboxFilter {condition} => {
+                self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 let field_rev = self.get_first_field_rev(FieldType::Checkbox);
                 let checkbox_filter = CheckboxFilterPB {
                     condition
@@ -173,6 +179,7 @@ impl GridFilterTest {
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateDateFilter { condition, start, end, timestamp} => {
+                self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 let field_rev = self.get_first_field_rev(FieldType::DateTime);
                 let date_filter = DateFilterPB {
                     condition,
@@ -186,6 +193,7 @@ impl GridFilterTest {
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateMultiSelectFilter { condition, option_ids} => {
+                self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 let field_rev = self.get_first_field_rev(FieldType::MultiSelect);
                 let filter = SelectOptionFilterPB { condition, option_ids };
                 let payload =
@@ -193,6 +201,7 @@ impl GridFilterTest {
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateSingleSelectFilter { condition, option_ids} => {
+                self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 let field_rev = self.get_first_field_rev(FieldType::SingleSelect);
                 let filter = SelectOptionFilterPB { condition, option_ids };
                 let payload =
@@ -200,6 +209,7 @@ impl GridFilterTest {
                 self.insert_filter(payload).await;
             }
             FilterScript::CreateChecklistFilter { condition} => {
+                self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 let field_rev = self.get_first_field_rev(FieldType::Checklist);
                 // let type_option = self.get_checklist_type_option(&field_rev.id);
                 let filter = ChecklistFilterPB { condition };
@@ -218,6 +228,7 @@ impl GridFilterTest {
 
             }
             FilterScript::DeleteFilter {  filter_id, filter_type } => {
+                self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 let params = DeleteFilterParams { view_id: self.view_id(),filter_type, filter_id };
                 let _ = self.editor.delete_filter(params).await.unwrap();
             }
@@ -226,24 +237,21 @@ impl GridFilterTest {
                 assert_eq!(expected_setting, setting);
             }
             FilterScript::AssertFilterChanged { visible_row_len, hide_row_len} => {
-                let editor = self.editor.clone();
-                let view_id = self.view_id();
-                let mut receiver =
-                tokio::spawn(async move {
-                     editor.subscribe_view_changed(&view_id).await.unwrap()
-                }).await.unwrap();
-                match tokio::time::timeout(Duration::from_secs(2), receiver.recv()).await {
-                    Ok(changed) =>  {
-                        //
-                        match changed.unwrap() { GridViewChanged::DidReceiveFilterResult(changed) => {
-                            assert_eq!(changed.visible_rows.len(), visible_row_len, "visible rows not match");
-                            assert_eq!(changed.invisible_rows.len(), hide_row_len, "invisible rows not match");
-                        } }
-                    },
-                    Err(e) => {
-                        panic!("Process task timeout: {:?}", e);
+                if let Some(mut receiver) = self.recv.take() {
+                    match tokio::time::timeout(Duration::from_secs(2), receiver.recv()).await {
+                        Ok(changed) =>  {
+                            //
+                            match changed.unwrap() { GridViewChanged::DidReceiveFilterResult(changed) => {
+                                assert_eq!(changed.visible_rows.len(), visible_row_len, "visible rows not match");
+                                assert_eq!(changed.invisible_rows.len(), hide_row_len, "invisible rows not match");
+                            } }
+                        },
+                        Err(e) => {
+                            panic!("Process task timeout: {:?}", e);
+                        }
                     }
                 }
+
             }
             FilterScript::AssertNumberOfVisibleRows { expected } => {
                 let grid = self.editor.get_grid(&self.view_id()).await.unwrap();
