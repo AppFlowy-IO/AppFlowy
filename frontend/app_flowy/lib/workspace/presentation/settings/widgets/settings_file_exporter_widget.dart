@@ -98,10 +98,10 @@ class _ExpandedList extends StatefulWidget {
   // final void Function(Map<String, List<String>> selectedPages) onChanged;
 
   @override
-  State<_ExpandedList> createState() => __ExpandedListState();
+  State<_ExpandedList> createState() => _ExpandedListState();
 }
 
-class __ExpandedListState extends State<_ExpandedList> {
+class _ExpandedListState extends State<_ExpandedList> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SettingsFileExporterCubit, SettingsFileExportState>(
