@@ -64,6 +64,7 @@ jobs:
             sudo apt-get install keybinder-3.0
           elif [ "$RUNNER_OS" == "Windows" ]; then
             vcpkg integrate install
+            cargo install --force duckscript_cli
           elif [ "$RUNNER_OS" == "macOS" ]; then
             echo 'do nothing'
           fi
