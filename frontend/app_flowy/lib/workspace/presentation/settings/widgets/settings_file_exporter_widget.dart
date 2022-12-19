@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/application/settings/settings_file_exporter_cubit.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
@@ -7,9 +8,9 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pbserver.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../generated/locale_keys.g.dart';
 
@@ -73,11 +74,10 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
             snapshot.connectionState == ConnectionState.done) {
           final workspaces = snapshot.data?.getLeftOrNull<WorkspaceSettingPB>();
           if (workspaces != null) {
-            return _ExpandedList(
-              apps: workspaces.workspace.apps.items,
-              onChanged: (selectedPages) {
-                // _selectedPages = selectedPages;
-              },
+            final apps = workspaces.workspace.apps.items;
+            return BlocProvider<SettingsFileExporterCubit>(
+              create: (_) => SettingsFileExporterCubit(apps: apps),
+              child: const _ExpandedList(),
             );
           }
         }
@@ -90,47 +90,36 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
 class _ExpandedList extends StatefulWidget {
   const _ExpandedList({
     Key? key,
-    required this.apps,
-    required this.onChanged,
+    // required this.apps,
+    // required this.onChanged,
   }) : super(key: key);
 
-  final List<AppPB> apps;
-  final void Function(Map<String, List<String>> selectedPages) onChanged;
+  // final List<AppPB> apps;
+  // final void Function(Map<String, List<String>> selectedPages) onChanged;
 
   @override
   State<_ExpandedList> createState() => __ExpandedListState();
 }
 
 class __ExpandedListState extends State<_ExpandedList> {
-  List<AppPB> get apps => widget.apps;
-  List<bool> expanded = [];
-  List<bool> selectedApps = [];
-  List<List<bool>> selectedItems = [];
-
-  @override
-  void initState() {
-    super.initState();
-
-    expanded = apps.map((e) => true).toList();
-    selectedApps = apps.map((e) => true).toList();
-    selectedItems =
-        apps.map((e) => e.belongings.items.map((e) => true).toList()).toList();
-    widget.onChanged(_getSelectedPages());
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: SingleChildScrollView(
-        child: Column(
-          children: _buildChildren(context),
-        ),
-      ),
+    return BlocBuilder<SettingsFileExporterCubit, SettingsFileExportState>(
+      builder: (context, state) {
+        return Material(
+          color: Colors.transparent,
+          child: SingleChildScrollView(
+            child: Column(
+              children: _buildChildren(context),
+            ),
+          ),
+        );
+      },
     );
   }
 
   List<Widget> _buildChildren(BuildContext context) {
+    final apps = context.read<SettingsFileExporterCubit>().state.apps;
     List<Widget> children = [];
     for (var i = 0; i < apps.length; i++) {
       children.add(_buildExpandedItem(context, i));
@@ -139,6 +128,10 @@ class __ExpandedListState extends State<_ExpandedList> {
   }
 
   Widget _buildExpandedItem(BuildContext context, int index) {
+    final state = context.read<SettingsFileExporterCubit>().state;
+    final apps = state.apps;
+    final expanded = state.expanded;
+    final selectedItems = state.selectedItems;
     final isExpaned = expanded[index] == true;
     List<Widget> expandedChildren = [];
     if (isExpaned) {
@@ -147,10 +140,10 @@ class __ExpandedListState extends State<_ExpandedList> {
         final checkbox = CheckboxListTile(
           value: selectedItems[index][i],
           onChanged: (value) {
-            setState(() {
-              selectedItems[index][i] = !selectedItems[index][i];
-              widget.onChanged(_getSelectedPages());
-            });
+            // update selected item
+            context
+                .read<SettingsFileExporterCubit>()
+                .selectOrDeselectItem(index, i);
           },
           title: FlowyText.regular('  $name'),
         );
@@ -162,9 +155,9 @@ class __ExpandedListState extends State<_ExpandedList> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         GestureDetector(
-          onTap: () => setState(() {
-            expanded[index] = !expanded[index];
-          }),
+          onTap: () => context
+              .read<SettingsFileExporterCubit>()
+              .expandOrUnexpandApp(index),
           child: ListTile(
             title: FlowyText.medium(apps[index].name),
             trailing: Icon(
@@ -177,23 +170,6 @@ class __ExpandedListState extends State<_ExpandedList> {
         ...expandedChildren,
       ],
     );
-  }
-
-  Map<String, List<String>> _getSelectedPages() {
-    Map<String, List<String>> result = {};
-    for (var i = 0; i < selectedItems.length; i++) {
-      final selectedItem = selectedItems[i];
-      final ids = <String>[];
-      for (var j = 0; j < selectedItem.length; j++) {
-        if (selectedItem[j]) {
-          ids.add(apps[i].belongings.items[j].id);
-        }
-      }
-      if (ids.isNotEmpty) {
-        result[apps[i].id] = ids;
-      }
-    }
-    return result;
   }
 }
 
