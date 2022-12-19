@@ -3,10 +3,9 @@ use crate::entities::CellPathParams;
 use crate::entities::*;
 use crate::manager::GridUser;
 use crate::services::block_manager::GridBlockManager;
-use crate::services::cell::{apply_cell_data_changeset, decode_type_cell_data, CellBytes};
+use crate::services::cell::{apply_cell_data_changeset, decode_type_cell_data, CellProtobufBlob};
 use crate::services::field::{
-    default_type_option_builder_from_type, type_option_builder_from_bytes, type_option_builder_from_json_str,
-    FieldBuilder,
+    default_type_option_builder_from_type, transform_type_option, type_option_builder_from_bytes, FieldBuilder,
 };
 
 use crate::services::filter::FilterType;
@@ -280,11 +279,13 @@ impl GridRevisionEditor {
         let type_option_transform =
             |old_field_type: FieldTypeRevision, old_type_option: Option<String>, new_type_option: String| {
                 let old_field_type: FieldType = old_field_type.into();
-                let mut type_option_builder = type_option_builder_from_json_str(&new_type_option, new_field_type);
-                if let Some(old_type_option) = old_type_option {
-                    type_option_builder.transform(&old_field_type, old_type_option)
-                }
-                type_option_builder.serializer().json_str()
+                // let mut type_option_builder = type_option_builder_from_json_str(&new_type_option, new_field_type);
+                // if let Some(old_type_option) = old_type_option {
+                //     type_option_builder.transform(&old_field_type, old_type_option)
+                // }
+                // type_option_builder.serializer().json_str()
+
+                transform_type_option(&new_type_option, new_field_type, old_type_option, old_field_type)
             };
 
         let _ = self
@@ -435,12 +436,12 @@ impl GridRevisionEditor {
         Some(CellPB::new(&params.field_id, field_type, cell_bytes.to_vec()))
     }
 
-    pub async fn get_cell_bytes(&self, params: &CellPathParams) -> Option<CellBytes> {
+    pub async fn get_cell_bytes(&self, params: &CellPathParams) -> Option<CellProtobufBlob> {
         let (_, cell_data) = self.decode_cell_data_from(params).await?;
         Some(cell_data)
     }
 
-    async fn decode_cell_data_from(&self, params: &CellPathParams) -> Option<(FieldType, CellBytes)> {
+    async fn decode_cell_data_from(&self, params: &CellPathParams) -> Option<(FieldType, CellProtobufBlob)> {
         let field_rev = self.get_field_rev(&params.field_id).await?;
         let (_, row_rev) = self.block_manager.get_row_rev(&params.row_id).await.ok()??;
         let cell_rev = row_rev.cells.get(&params.field_id)?.clone();

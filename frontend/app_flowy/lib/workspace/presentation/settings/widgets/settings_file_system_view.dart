@@ -9,11 +9,10 @@ class SettingsFileSystemView extends StatefulWidget {
   });
 
   @override
-  State<SettingsFileSystemView> createState() => SettingsFileSystemViewState();
+  State<SettingsFileSystemView> createState() => _SettingsFileSystemViewState();
 }
 
-@visibleForTesting
-class SettingsFileSystemViewState extends State<SettingsFileSystemView> {
+class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
   final _locationCubit = SettingsLocationCubit()..fetchLocation();
 
   @override

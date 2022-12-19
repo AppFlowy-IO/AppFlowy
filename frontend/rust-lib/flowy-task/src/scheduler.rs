@@ -71,12 +71,12 @@ impl TaskDispatcher {
                 Ok(result) => match result {
                     Ok(_) => task.set_state(TaskState::Done),
                     Err(e) => {
-                        tracing::error!("Process task failed: {:?}", e);
+                        tracing::error!("Process {} task failed: {:?}", handler.handler_id(), e);
                         task.set_state(TaskState::Failure);
                     }
                 },
                 Err(e) => {
-                    tracing::error!("Process task timeout: {:?}", e);
+                    tracing::error!("Process {} task timeout: {:?}", handler.handler_id(), e);
                     task.set_state(TaskState::Timeout);
                 }
             }

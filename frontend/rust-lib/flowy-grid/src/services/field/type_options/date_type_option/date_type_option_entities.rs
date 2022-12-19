@@ -1,5 +1,5 @@
 use crate::entities::CellPathPB;
-use crate::services::cell::{CellBytesParser, CellDataIsEmpty, FromCellChangeset, FromCellString};
+use crate::services::cell::{CellProtobufBlobParser, DecodedCellData, FromCellChangeset, FromCellString};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, FlowyResult};
@@ -68,27 +68,28 @@ impl ToString for DateCellChangeset {
     }
 }
 
-pub struct DateTimestamp(Option<i64>);
+#[derive(Default)]
+pub struct DateCellData(pub Option<i64>);
 
-impl std::convert::From<DateTimestamp> for i64 {
-    fn from(timestamp: DateTimestamp) -> Self {
+impl std::convert::From<DateCellData> for i64 {
+    fn from(timestamp: DateCellData) -> Self {
         timestamp.0.unwrap_or(0)
     }
 }
 
-impl std::convert::From<DateTimestamp> for Option<i64> {
-    fn from(timestamp: DateTimestamp) -> Self {
+impl std::convert::From<DateCellData> for Option<i64> {
+    fn from(timestamp: DateCellData) -> Self {
         timestamp.0
     }
 }
 
-impl FromCellString for DateTimestamp {
+impl FromCellString for DateCellData {
     fn from_cell_str(s: &str) -> FlowyResult<Self>
     where
         Self: Sized,
     {
         let num = s.parse::<i64>().ok();
-        Ok(DateTimestamp(num))
+        Ok(DateCellData(num))
     }
 }
 
@@ -174,14 +175,16 @@ impl std::default::Default for TimeFormat {
     }
 }
 
-impl CellDataIsEmpty for DateCellDataPB {
+impl DecodedCellData for DateCellDataPB {
+    type Object = DateCellDataPB;
+
     fn is_empty(&self) -> bool {
         self.date.is_empty()
     }
 }
 
 pub struct DateCellDataParser();
-impl CellBytesParser for DateCellDataParser {
+impl CellProtobufBlobParser for DateCellDataParser {
     type Object = DateCellDataPB;
 
     fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {

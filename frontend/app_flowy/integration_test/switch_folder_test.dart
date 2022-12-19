@@ -1,4 +1,5 @@
 import 'package:app_flowy/user/presentation/folder/folder_widget.dart';
+import 'package:app_flowy/workspace/presentation/settings/widgets/settings_file_customize_location_view.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_file_system_view.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -100,9 +101,9 @@ void main() {
         // mock the file_picker result
         // await tester.tapCustomLocationButton();
         await TestFolder.setTestLocation(userB);
-        final SettingsFileSystemViewState sfsvs =
-            tester.state(find.byType(SettingsFileSystemView));
-        await sfsvs.reloadApp();
+        final SettingsFileLocationCustomzierState state =
+            tester.state(find.byType(SettingsFileLocationCustomzier));
+        await state.reloadApp();
 
         await tester.pumpAndSettle();
         await tester.expectToSeeWelcomePage();
@@ -120,9 +121,9 @@ void main() {
         // mock the file_picker result
         // await tester.tapCustomLocationButton();
         await TestFolder.setTestLocation(userA);
-        final SettingsFileSystemViewState sfsvs =
+        final SettingsFileLocationCustomzierState state =
             tester.state(find.byType(SettingsFileSystemView));
-        await sfsvs.reloadApp();
+        await state.reloadApp();
 
         await tester.pumpAndSettle();
         await tester.expectToSeeWelcomePage();
@@ -138,9 +139,9 @@ void main() {
         // mock the file_picker result
         // await tester.tapCustomLocationButton();
         await TestFolder.setTestLocation(userB);
-        final SettingsFileSystemViewState sfsvs =
+        final SettingsFileLocationCustomzierState state =
             tester.state(find.byType(SettingsFileSystemView));
-        await sfsvs.reloadApp();
+        await state.reloadApp();
 
         await tester.pumpAndSettle();
         await tester.expectToSeeWelcomePage();

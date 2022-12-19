@@ -68,14 +68,9 @@ impl FilterController {
     }
 
     #[tracing::instrument(name = "schedule_filter_task", level = "trace", skip(self))]
-    async fn gen_task(&mut self, task_type: FilterEvent) {
+    async fn gen_task(&mut self, task_type: FilterEvent, qos: QualityOfService) {
         let task_id = self.task_scheduler.read().await.next_task_id();
-        let task = Task::new(
-            &self.handler_id,
-            task_id,
-            TaskContent::Text(task_type.to_string()),
-            QualityOfService::UserInteractive,
-        );
+        let task = Task::new(&self.handler_id, task_id, TaskContent::Text(task_type.to_string()), qos);
         self.task_scheduler.write().await.add_task(task);
     }
 
@@ -187,7 +182,11 @@ impl FilterController {
     }
 
     pub async fn did_receive_row_changed(&mut self, row_id: &str) {
-        self.gen_task(FilterEvent::RowDidChanged(row_id.to_string())).await
+        self.gen_task(
+            FilterEvent::RowDidChanged(row_id.to_string()),
+            QualityOfService::UserInteractive,
+        )
+        .await
     }
 
     #[tracing::instrument(level = "trace", skip(self))]
@@ -237,7 +236,9 @@ impl FilterController {
             self.filter_map.remove(filter_type);
         }
 
-        let _ = self.gen_task(FilterEvent::FilterDidChanged).await;
+        let _ = self
+            .gen_task(FilterEvent::FilterDidChanged, QualityOfService::Background)
+            .await;
         tracing::trace!("{:?}", notification);
         notification
     }

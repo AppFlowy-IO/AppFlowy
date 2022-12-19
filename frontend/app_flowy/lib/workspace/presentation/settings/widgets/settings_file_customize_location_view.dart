@@ -25,10 +25,11 @@ class SettingsFileLocationCustomzier extends StatefulWidget {
 
   @override
   State<SettingsFileLocationCustomzier> createState() =>
-      _SettingsFileLocationCustomzierState();
+      SettingsFileLocationCustomzierState();
 }
 
-class _SettingsFileLocationCustomzierState
+@visibleForTesting
+class SettingsFileLocationCustomzierState
     extends State<SettingsFileLocationCustomzier> {
   @override
   Widget build(BuildContext context) {
