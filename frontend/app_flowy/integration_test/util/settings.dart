@@ -56,6 +56,13 @@ extension AppFlowySettings on WidgetTester {
     return;
   }
 
+  Future<void> tapOpenFolderButton() async {
+    final buton = find.text(LocaleKeys.settings_files_open.tr());
+    expect(buton, findsOneWidget);
+    await tapButton(buton);
+    return;
+  }
+
   Future<void> tapCustomLocationButton() async {
     final buton =
         find.byTooltip(LocaleKeys.settings_files_customizeLocation.tr());
@@ -68,9 +75,10 @@ extension AppFlowySettings on WidgetTester {
   Future<void> enterUserName(String name) async {
     final uni = find.byType(UserNameInput);
     expect(uni, findsOneWidget);
+    await tap(uni);
     await enterText(uni, name);
-    await pump();
+    await wait(300); //
     await testTextInput.receiveAction(TextInputAction.done);
-    await pump();
+    await pumpAndSettle();
   }
 }

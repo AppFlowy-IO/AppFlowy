@@ -1,9 +1,9 @@
+import 'package:app_flowy/util/file_picker/file_picker_service.dart';
 import 'package:app_flowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/services.dart';
@@ -86,7 +86,8 @@ class SettingsFileLocationCustomzierState
                 child: FlowyIconButton(
                   icon: const Icon(Icons.folder_open_outlined),
                   onPressed: () async {
-                    final result = await FilePicker.platform.getDirectoryPath();
+                    final result =
+                        await getIt<FilePickerService>().getDirectoryPath();
                     if (result != null) {
                       await _setCustomLocation(result);
                       await reloadApp();

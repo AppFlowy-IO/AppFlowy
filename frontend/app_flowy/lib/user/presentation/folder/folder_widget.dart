@@ -1,7 +1,7 @@
 import 'dart:io';
 
+import 'package:app_flowy/util/file_picker/file_picker_service.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
@@ -66,7 +66,7 @@ class _FolderWidgetState extends State<FolderWidget> {
   }
 
   Future<void> _openFolder() async {
-    final directory = await FilePicker.platform.getDirectoryPath();
+    final directory = await getIt<FilePickerService>().getDirectoryPath();
     if (directory != null) {
       await getIt<SettingsLocationCubit>().setLocation(directory);
       await widget.createFolderCallback();
@@ -195,7 +195,7 @@ class CreateFolderWidgetState extends State<CreateFolderWidget> {
             subtitle: FlowyText.regular(_path),
             trailing: _buildTextButton(
                 context, LocaleKeys.settings_files_browser.tr(), () async {
-              final dir = await FilePicker.platform.getDirectoryPath();
+              final dir = await getIt<FilePickerService>().getDirectoryPath();
               if (dir != null) {
                 setState(() {
                   directory = dir;

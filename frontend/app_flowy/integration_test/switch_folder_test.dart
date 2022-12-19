@@ -1,10 +1,9 @@
 import 'package:app_flowy/user/presentation/folder/folder_widget.dart';
-import 'package:app_flowy/workspace/presentation/settings/widgets/settings_file_customize_location_view.dart';
-import 'package:app_flowy/workspace/presentation/settings/widgets/settings_file_system_view.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+import 'util/mock/mock_file_picker.dart';
 import 'util/util.dart';
 
 void main() {
@@ -65,11 +64,9 @@ void main() {
 
       await tester.initializeAppFlowy();
 
-      // set custom folder
-      final cfw = find.byType(FolderWidget);
-      expect(cfw, findsOneWidget);
-      await TestFolder.setTestLocation(folderName);
-      (tester.widget(cfw) as FolderWidget).createFolderCallback();
+      // tap open button
+      await mockGetDirectoryPath(folderName);
+      await tester.tapOpenFolderButton();
 
       await tester.wait(1000);
       await tester.expectToSeeWelcomePage();
@@ -99,12 +96,8 @@ void main() {
         await tester.pumpAndSettle();
 
         // mock the file_picker result
-        // await tester.tapCustomLocationButton();
-        await TestFolder.setTestLocation(userB);
-        final SettingsFileLocationCustomzierState state =
-            tester.state(find.byType(SettingsFileLocationCustomzier));
-        await state.reloadApp();
-
+        await mockGetDirectoryPath(userB);
+        await tester.tapCustomLocationButton();
         await tester.pumpAndSettle();
         await tester.expectToSeeWelcomePage();
       }
@@ -119,11 +112,8 @@ void main() {
         await tester.pumpAndSettle();
 
         // mock the file_picker result
-        // await tester.tapCustomLocationButton();
-        await TestFolder.setTestLocation(userA);
-        final SettingsFileLocationCustomzierState state =
-            tester.state(find.byType(SettingsFileSystemView));
-        await state.reloadApp();
+        await mockGetDirectoryPath(userA);
+        await tester.tapCustomLocationButton();
 
         await tester.pumpAndSettle();
         await tester.expectToSeeWelcomePage();
@@ -137,11 +127,8 @@ void main() {
         await tester.pumpAndSettle();
 
         // mock the file_picker result
-        // await tester.tapCustomLocationButton();
-        await TestFolder.setTestLocation(userB);
-        final SettingsFileLocationCustomzierState state =
-            tester.state(find.byType(SettingsFileSystemView));
-        await state.reloadApp();
+        await mockGetDirectoryPath(userB);
+        await tester.tapCustomLocationButton();
 
         await tester.pumpAndSettle();
         await tester.expectToSeeWelcomePage();

@@ -1,6 +1,8 @@
 import 'package:app_flowy/core/network_monitor.dart';
 import 'package:app_flowy/user/application/user_listener.dart';
 import 'package:app_flowy/user/application/user_service.dart';
+import 'package:app_flowy/util/file_picker/file_picker_impl.dart';
+import 'package:app_flowy/util/file_picker/file_picker_service.dart';
 import 'package:app_flowy/workspace/application/app/prelude.dart';
 import 'package:app_flowy/plugins/document/application/prelude.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
@@ -35,7 +37,13 @@ class DependencyResolver {
     _resolveDocDeps(getIt);
 
     _resolveGridDeps(getIt);
+
+    _resolveCommonService(getIt);
   }
+}
+
+void _resolveCommonService(GetIt getIt) {
+  getIt.registerFactory<FilePickerService>(() => FilePicker());
 }
 
 void _resolveUserDeps(GetIt getIt) {
