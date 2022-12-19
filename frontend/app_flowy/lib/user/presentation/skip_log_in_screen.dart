@@ -91,7 +91,9 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
           fontColor: Theme.of(context).colorScheme.primary,
           decoration: TextDecoration.underline,
           hoverColor: Colors.transparent,
-          onPressed: _launchURL('https://github.com/AppFlowy-IO/appflowy'),
+          fillColor: Colors.transparent,
+          onPressed: () =>
+              _launchURL('https://github.com/AppFlowy-IO/appflowy'),
         ),
         FlowyTextButton(
           LocaleKeys.subscribeNewsletterText.tr(),
@@ -99,7 +101,8 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
           fontColor: Theme.of(context).colorScheme.primary,
           decoration: TextDecoration.underline,
           hoverColor: Colors.transparent,
-          onPressed: _launchURL('https://www.appflowy.io/blog'),
+          fillColor: Colors.transparent,
+          onPressed: () => _launchURL('https://www.appflowy.io/blog'),
         ),
       ],
     );
