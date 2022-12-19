@@ -30,6 +30,7 @@ async fn grid_filter_text_is_not_empty_test() {
             content: "".to_string(),
         },
         AssertFilterCount { count: 1 },
+        // There is only one row in the test data that its text is empty
         AssertFilterChanged {
             visible_row_len: 0,
             hide_row_len: 1,
@@ -44,10 +45,11 @@ async fn grid_filter_text_is_not_empty_test() {
             filter_id: filter.id,
             filter_type: FilterType::from(&field_rev),
         },
-        // AssertFilterChanged {
-        //     visible_row_len: 1,
-        //     hide_row_len: 0,
-        // },
+        AssertFilterCount { count: 0 },
+        AssertFilterChanged {
+            visible_row_len: 1,
+            hide_row_len: 0,
+        },
     ])
     .await;
 }
