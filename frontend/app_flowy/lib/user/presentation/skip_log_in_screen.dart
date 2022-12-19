@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
@@ -85,23 +85,21 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        InkWell(
+        FlowyTextButton(
+          LocaleKeys.githubStarText.tr(),
+          fontWeight: FontWeight.w500,
+          fontColor: Theme.of(context).colorScheme.primary,
+          decoration: TextDecoration.underline,
           hoverColor: Colors.transparent,
-          onTap: () => _launchURL('https://github.com/AppFlowy-IO/appflowy'),
-          child: FlowyText.medium(
-            LocaleKeys.githubStarText.tr(),
-            color: Theme.of(context).colorScheme.primary,
-            decoration: TextDecoration.underline,
-          ),
+          onPressed: _launchURL('https://github.com/AppFlowy-IO/appflowy'),
         ),
-        InkWell(
+        FlowyTextButton(
+          LocaleKeys.subscribeNewsletterText.tr(),
+          fontWeight: FontWeight.w500,
+          fontColor: Theme.of(context).colorScheme.primary,
+          decoration: TextDecoration.underline,
           hoverColor: Colors.transparent,
-          onTap: () => _launchURL('https://www.appflowy.io/blog'),
-          child: FlowyText.medium(
-            LocaleKeys.subscribeNewsletterText.tr(),
-            color: Theme.of(context).colorScheme.primary,
-            decoration: TextDecoration.underline,
-          ),
+          onPressed: _launchURL('https://www.appflowy.io/blog'),
         ),
       ],
     );

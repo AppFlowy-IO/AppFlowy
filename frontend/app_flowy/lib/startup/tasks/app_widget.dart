@@ -17,7 +17,7 @@ class InitAppWidgetTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    final widget = context.getIt<EntryPoint>().create(context.args);
+    final widget = context.getIt<EntryPoint>().create(context.config);
     final appearanceSetting = await SettingsFFIService().getAppearanceSetting();
     final app = ApplicationWidget(
       appearanceSetting: appearanceSetting,

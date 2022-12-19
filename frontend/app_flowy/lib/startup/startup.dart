@@ -31,7 +31,7 @@ import 'tasks/prelude.dart';
 final getIt = GetIt.instance;
 
 abstract class EntryPoint {
-  Widget create(LaunchConfiguration args);
+  Widget create(LaunchConfiguration config);
 }
 
 class FlowyRunner {
@@ -92,8 +92,8 @@ Future<void> initGetIt(
 class LaunchContext {
   GetIt getIt;
   IntegrationMode env;
-  LaunchConfiguration args;
-  LaunchContext(this.getIt, this.env, this.args);
+  LaunchConfiguration config;
+  LaunchContext(this.getIt, this.env, this.config);
 }
 
 enum LaunchTaskType {

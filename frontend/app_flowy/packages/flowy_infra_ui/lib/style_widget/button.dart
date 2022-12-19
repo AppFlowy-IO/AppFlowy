@@ -105,6 +105,8 @@ class FlowyTextButton extends StatelessWidget {
   final String? tooltip;
   final BoxConstraints constraints;
 
+  final TextDecoration? decoration;
+
   // final HoverDisplayConfig? hoverDisplay;
   const FlowyTextButton(
     this.text, {
@@ -122,6 +124,7 @@ class FlowyTextButton extends StatelessWidget {
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.tooltip,
     this.constraints = const BoxConstraints(minWidth: 58.0, minHeight: 30.0),
+    this.decoration,
   }) : super(key: key);
 
   @override
@@ -139,6 +142,7 @@ class FlowyTextButton extends StatelessWidget {
         fontSize: fontSize,
         color: fontColor ?? Theme.of(context).colorScheme.onSecondary,
         textAlign: TextAlign.center,
+        decoration: decoration,
       ),
     );
 

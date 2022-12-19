@@ -120,22 +120,22 @@ class __ExpandedListState extends State<_ExpandedList> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildExpandedList(context);
-  }
-
-  Widget _buildExpandedList(BuildContext context) {
-    List<Widget> children = [];
-    for (var i = 0; i < apps.length; i++) {
-      children.add(_buildExpandedItem(context, i));
-    }
     return Material(
       color: Colors.transparent,
       child: SingleChildScrollView(
         child: Column(
-          children: children,
+          children: _buildChildren(context),
         ),
       ),
     );
+  }
+
+  List<Widget> _buildChildren(BuildContext context) {
+    List<Widget> children = [];
+    for (var i = 0; i < apps.length; i++) {
+      children.add(_buildExpandedItem(context, i));
+    }
+    return children;
   }
 
   Widget _buildExpandedItem(BuildContext context, int index) {

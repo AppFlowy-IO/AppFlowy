@@ -61,10 +61,8 @@ class _FolderWidgetState extends State<FolderWidget> {
           onPressedCreate: widget.createFolderCallback,
         );
       case _FolderPage.open:
-        break;
-      default:
+        return Container();
     }
-    return Container();
   }
 
   Future<void> _openFolder() async {
