@@ -164,9 +164,7 @@
         "light": "Light Mode",
         "dark": "Dark Mode",
         "system": "Adapt to System"
-      },
-      "lightLabel": "Light Mode",
-      "darkLabel": "Dark Mode"
+      }
     },
     "files": {
       "defaultLocation": "Default location for new notes",

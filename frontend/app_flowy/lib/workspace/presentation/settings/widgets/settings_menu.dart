@@ -1,4 +1,5 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:app_flowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -6,53 +7,53 @@ import 'package:flutter/material.dart';
 class SettingsMenu extends StatelessWidget {
   const SettingsMenu({
     Key? key,
-    required this.changeSelectedIndex,
-    required this.currentIndex,
+    required this.changeSelectedPage,
+    required this.currentPage,
   }) : super(key: key);
 
-  final Function changeSelectedIndex;
-  final int currentIndex;
+  final Function changeSelectedPage;
+  final SettingsPage currentPage;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         SettingsMenuElement(
-          index: 0,
-          currentIndex: currentIndex,
+          page: SettingsPage.appearance,
+          selectedPage: currentPage,
           label: LocaleKeys.settings_menu_appearance.tr(),
           icon: Icons.brightness_4,
-          changeSelectedIndex: changeSelectedIndex,
+          changeSelectedPage: changeSelectedPage,
         ),
         const SizedBox(
           height: 10,
         ),
         SettingsMenuElement(
-          index: 1,
-          currentIndex: currentIndex,
+          page: SettingsPage.language,
+          selectedPage: currentPage,
           label: LocaleKeys.settings_menu_language.tr(),
           icon: Icons.translate,
-          changeSelectedIndex: changeSelectedIndex,
+          changeSelectedPage: changeSelectedPage,
         ),
         const SizedBox(
           height: 10,
         ),
         SettingsMenuElement(
-          index: 2,
-          currentIndex: currentIndex,
+          page: SettingsPage.files,
+          selectedPage: currentPage,
           label: LocaleKeys.settings_menu_files.tr(),
           icon: Icons.file_present_outlined,
-          changeSelectedIndex: changeSelectedIndex,
+          changeSelectedPage: changeSelectedPage,
         ),
         const SizedBox(
           height: 10,
         ),
         SettingsMenuElement(
-          index: 3,
-          currentIndex: currentIndex,
+          page: SettingsPage.user,
+          selectedPage: currentPage,
           label: LocaleKeys.settings_menu_user.tr(),
           icon: Icons.account_box_outlined,
-          changeSelectedIndex: changeSelectedIndex,
+          changeSelectedPage: changeSelectedPage,
         ),
       ],
     );

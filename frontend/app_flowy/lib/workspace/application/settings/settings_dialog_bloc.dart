@@ -8,7 +8,15 @@ import 'package:dartz/dartz.dart';
 
 part 'settings_dialog_bloc.freezed.dart';
 
-class SettingsDialogBloc extends Bloc<SettingsDialogEvent, SettingsDialogState> {
+enum SettingsPage {
+  appearance,
+  language,
+  files,
+  user,
+}
+
+class SettingsDialogBloc
+    extends Bloc<SettingsDialogEvent, SettingsDialogState> {
   final UserListener _userListener;
   final UserProfilePB userProfile;
 
@@ -23,8 +31,8 @@ class SettingsDialogBloc extends Bloc<SettingsDialogEvent, SettingsDialogState> 
         didReceiveUserProfile: (UserProfilePB newUserProfile) {
           emit(state.copyWith(userProfile: newUserProfile));
         },
-        setViewIndex: (int viewIndex) {
-          emit(state.copyWith(viewIndex: viewIndex));
+        setSelectedPage: (SettingsPage page) {
+          emit(state.copyWith(page: page));
         },
       );
     });
@@ -38,7 +46,8 @@ class SettingsDialogBloc extends Bloc<SettingsDialogEvent, SettingsDialogState> 
 
   void _profileUpdated(Either<UserProfilePB, FlowyError> userProfileOrFailed) {
     userProfileOrFailed.fold(
-      (newUserProfile) => add(SettingsDialogEvent.didReceiveUserProfile(newUserProfile)),
+      (newUserProfile) =>
+          add(SettingsDialogEvent.didReceiveUserProfile(newUserProfile)),
       (err) => Log.error(err),
     );
   }
@@ -47,8 +56,10 @@ class SettingsDialogBloc extends Bloc<SettingsDialogEvent, SettingsDialogState> 
 @freezed
 class SettingsDialogEvent with _$SettingsDialogEvent {
   const factory SettingsDialogEvent.initial() = _Initial;
-  const factory SettingsDialogEvent.didReceiveUserProfile(UserProfilePB newUserProfile) = _DidReceiveUserProfile;
-  const factory SettingsDialogEvent.setViewIndex(int index) = _SetViewIndex;
+  const factory SettingsDialogEvent.didReceiveUserProfile(
+      UserProfilePB newUserProfile) = _DidReceiveUserProfile;
+  const factory SettingsDialogEvent.setSelectedPage(SettingsPage page) =
+      _SetViewIndex;
 }
 
 @freezed
@@ -56,12 +67,13 @@ class SettingsDialogState with _$SettingsDialogState {
   const factory SettingsDialogState({
     required UserProfilePB userProfile,
     required Either<Unit, String> successOrFailure,
-    required int viewIndex,
+    required SettingsPage page,
   }) = _SettingsDialogState;
 
-  factory SettingsDialogState.initial(UserProfilePB userProfile) => SettingsDialogState(
+  factory SettingsDialogState.initial(UserProfilePB userProfile) =>
+      SettingsDialogState(
         userProfile: userProfile,
         successOrFailure: left(unit),
-        viewIndex: 0,
+        page: SettingsPage.appearance,
       );
 }

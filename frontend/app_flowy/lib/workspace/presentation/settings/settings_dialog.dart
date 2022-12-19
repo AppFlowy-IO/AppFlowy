@@ -34,20 +34,19 @@ class SettingsDialog extends StatelessWidget {
               SizedBox(
                 width: 200,
                 child: SettingsMenu(
-                  changeSelectedIndex: (index) {
+                  changeSelectedPage: (index) {
                     context
                         .read<SettingsDialogBloc>()
-                        .add(SettingsDialogEvent.setViewIndex(index));
+                        .add(SettingsDialogEvent.setSelectedPage(index));
                   },
-                  currentIndex:
-                      context.read<SettingsDialogBloc>().state.viewIndex,
+                  currentPage: context.read<SettingsDialogBloc>().state.page,
                 ),
               ),
               const VerticalDivider(),
               const SizedBox(width: 10),
               Expanded(
                 child: getSettingsView(
-                  context.read<SettingsDialogBloc>().state.viewIndex,
+                  context.read<SettingsDialogBloc>().state.page,
                   context.read<SettingsDialogBloc>().state.userProfile,
                 ),
               )
@@ -58,15 +57,15 @@ class SettingsDialog extends StatelessWidget {
     );
   }
 
-  Widget getSettingsView(int index, UserProfilePB user) {
-    switch (index) {
-      case 0:
+  Widget getSettingsView(SettingsPage page, UserProfilePB user) {
+    switch (page) {
+      case SettingsPage.appearance:
         return const SettingsAppearanceView();
-      case 1:
+      case SettingsPage.language:
         return const SettingsLanguageView();
-      case 2:
+      case SettingsPage.files:
         return const SettingsFileSystemView();
-      case 3:
+      case SettingsPage.user:
         return SettingsUserView(user);
       default:
         return Container();
