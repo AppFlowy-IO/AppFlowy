@@ -79,15 +79,16 @@ pub trait TypeOptionTransform: TypeOption {
     /// # Arguments
     ///
     /// * `cell_data`: the cell data of the current field type
-    /// * `decoded_field_type`: the field type of the cell data that's going to be transformed into.
+    /// * `decoded_field_type`: the field type of the cell data that's going to be transformed into
+    /// current `TypeOption` field type.
     ///
     fn transform_type_option_cell_data(
         &self,
-        cell_data: <Self as TypeOption>::CellData,
+        _cell_data: &str,
         _decoded_field_type: &FieldType,
-    ) -> <Self as TypeOption>::CellData {
-        // Do nothing, just return the passed-in cell data
-        cell_data
+        _field_rev: &FieldRevision,
+    ) -> Option<<Self as TypeOption>::CellData> {
+        None
     }
 }
 
@@ -130,13 +131,17 @@ where
     fn handle_cell_data(
         &self,
         cell_data: String,
-        field_type: &FieldType,
+        decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellProtobufBlob> {
-        let mut cell_data = self.try_decode_cell_data(cell_data, field_type, field_rev)?;
-        if self.transformable() {
-            cell_data = self.transform_type_option_cell_data(cell_data, field_type);
-        }
+        let cell_data = if self.transformable() {
+            match self.transform_type_option_cell_data(&cell_data, decoded_field_type, field_rev) {
+                None => self.decode_cell_data(cell_data, decoded_field_type, field_rev)?,
+                Some(new_cell_data) => new_cell_data,
+            }
+        } else {
+            self.decode_cell_data(cell_data, decoded_field_type, field_rev)?
+        };
         CellProtobufBlob::from(self.convert_to_protobuf(cell_data))
     }
 
@@ -146,8 +151,16 @@ where
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> String {
-        self.decode_cell_data_to_str(cell_data, decoded_field_type, field_rev)
-            .unwrap_or_default()
+        if self.transformable() {
+            let cell_data = self.transform_type_option_cell_data(&cell_data, decoded_field_type, field_rev);
+            if let Some(cell_data) = cell_data {
+                return self.decode_cell_data_to_str(cell_data);
+            }
+        }
+        match <Self as TypeOption>::CellData::from_cell_str(&cell_data) {
+            Ok(cell_data) => self.decode_cell_data_to_str(cell_data),
+            Err(_) => "".to_string(),
+        }
     }
 }
 

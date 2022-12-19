@@ -6,8 +6,8 @@ use crate::services::cell::{
 
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
-    ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB, TypeOption, TypeOptionCellData,
-    TypeOptionTransform,
+    CheckboxCellData, ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB, TypeOption,
+    TypeOptionCellData, TypeOptionTransform,
 };
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
@@ -131,7 +131,10 @@ pub trait SelectTypeOptionSharedAction: TypeOptionDataSerializer + Send + Sync {
 
 impl<T> TypeOptionTransform for T
 where
-    T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + TypeOptionDataSerializer,
+    T: SelectTypeOptionSharedAction
+        + TypeOption<CellData = SelectOptionIds>
+        + TypeOptionDataSerializer
+        + CellDataDecoder,
 {
     fn transformable(&self) -> bool {
         true
@@ -147,10 +150,26 @@ where
 
     fn transform_type_option_cell_data(
         &self,
-        cell_data: <Self as TypeOption>::CellData,
+        cell_data: &str,
         decoded_field_type: &FieldType,
-    ) -> <Self as TypeOption>::CellData {
-        SelectOptionTypeOptionTransformHelper::transform_type_option_cell_data(self, cell_data, decoded_field_type)
+        _field_rev: &FieldRevision,
+    ) -> Option<<Self as TypeOption>::CellData> {
+        match decoded_field_type {
+            FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => None,
+            FieldType::Checkbox => match CheckboxCellData::from_cell_str(cell_data) {
+                Ok(checkbox_cell_data) => {
+                    let cell_content = checkbox_cell_data.to_string();
+                    let mut transformed_ids = Vec::new();
+                    let options = self.options();
+                    if let Some(option) = options.iter().find(|option| option.name == cell_content) {
+                        transformed_ids.push(option.id.clone());
+                    }
+                    Some(SelectOptionIds::from(transformed_ids))
+                }
+                Err(_) => None,
+            },
+            _ => Some(SelectOptionIds::from(vec![])),
+        }
     }
 }
 
@@ -158,7 +177,7 @@ impl<T> CellDataDecoder for T
 where
     T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + TypeOptionCellData,
 {
-    fn try_decode_cell_data(
+    fn decode_cell_data(
         &self,
         cell_data: String,
         _decoded_field_type: &FieldType,
@@ -167,20 +186,13 @@ where
         self.decode_type_option_cell_data(cell_data)
     }
 
-    fn decode_cell_data_to_str(
-        &self,
-        cell_data: String,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<String> {
-        let ids = self.decode_type_option_cell_data(cell_data)?;
-        Ok(self
-            .get_selected_options(ids)
+    fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+        self.get_selected_options(cell_data)
             .select_options
             .into_iter()
             .map(|option| option.name)
             .collect::<Vec<String>>()
-            .join(SELECTION_IDS_SEPARATOR))
+            .join(SELECTION_IDS_SEPARATOR)
     }
 }
 
@@ -375,7 +387,7 @@ impl std::convert::From<SelectOptionCellChangesetParams> for CellChangesetPB {
         };
         let content = serde_json::to_string(&changeset).unwrap();
         CellChangesetPB {
-            grid_id: params.cell_identifier.grid_id,
+            grid_id: params.cell_identifier.view_id,
             row_id: params.cell_identifier.row_id,
             field_id: params.cell_identifier.field_id,
             content,

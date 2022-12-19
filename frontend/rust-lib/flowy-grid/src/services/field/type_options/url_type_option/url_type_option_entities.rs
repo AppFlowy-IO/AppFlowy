@@ -77,3 +77,9 @@ impl FromCellString for URLCellData {
         serde_json::from_str::<URLCellData>(s).map_err(internal_error)
     }
 }
+
+impl ToString for URLCellData {
+    fn to_string(&self) -> String {
+        self.content.clone()
+    }
+}

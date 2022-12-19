@@ -53,28 +53,30 @@ impl SelectOptionTypeOptionTransformHelper {
         }
     }
 
-    pub fn transform_type_option_cell_data<T>(
-        shared: &T,
-        cell_data: <T as TypeOption>::CellData,
-        decoded_field_type: &FieldType,
-    ) -> <T as TypeOption>::CellData
-    where
-        T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds>,
-    {
-        match decoded_field_type {
-            FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => cell_data,
-            FieldType::Checkbox => {
-                // transform the cell data to the option id
-                let mut transformed_ids = Vec::new();
-                let options = shared.options();
-                cell_data.iter().for_each(|name| {
-                    if let Some(option) = options.iter().find(|option| &option.name == name) {
-                        transformed_ids.push(option.id.clone());
-                    }
-                });
-                SelectOptionIds::from(transformed_ids)
-            }
-            _ => SelectOptionIds::from(vec![]),
-        }
-    }
+    // pub fn transform_e_option_cell_data<T>(
+    //     //     shared: &T,
+    //     //     cell_data: String,
+    //     //     decoded_field_type: &FieldType,
+    //     // ) -> <T as TypeOption>::CellData
+    //     // where
+    //     //     T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + CellDataDecoder,
+    //     // {
+    //     //     match decoded_field_type {
+    //     //         FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => {
+    //     //             self.try_decode_cell_data(cell_data)
+    //     //         }
+    //     //         FieldType::Checkbox => {
+    //     //             // transform the cell data to the option id
+    //     //             let mut transformed_ids = Vec::new();
+    //     //             let options = shared.options();
+    //     //             cell_data.iter().for_each(|name| {
+    //     //                 if let Some(option) = options.iter().find(|option| &option.name == name) {
+    //     //                     transformed_ids.push(option.id.clone());
+    //     //                 }
+    //     //             });
+    //     //             SelectOptionIds::from(transformed_ids)
+    //     //         }
+    //     //         _ => SelectOptionIds::from(vec![]),
+    //     //     }
+    //     // }typ
 }

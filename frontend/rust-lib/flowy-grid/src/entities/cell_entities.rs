@@ -51,7 +51,7 @@ pub struct CellPathPB {
 }
 
 pub struct CellPathParams {
-    pub grid_id: String,
+    pub view_id: String,
     pub field_id: String,
     pub row_id: String,
 }
@@ -64,7 +64,7 @@ impl TryInto<CellPathParams> for CellPathPB {
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
         Ok(CellPathParams {
-            grid_id: grid_id.0,
+            view_id: grid_id.0,
             field_id: field_id.0,
             row_id: row_id.0,
         })

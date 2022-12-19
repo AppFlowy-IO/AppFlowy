@@ -112,6 +112,8 @@ pub enum ErrorCode {
     FieldInvalidOperation = 444,
     #[display(fmt = "Filter id is empty")]
     FilterIdIsEmpty = 445,
+    #[display(fmt = "Field is not exist")]
+    FieldRecordNotFound = 446,
 
     #[display(fmt = "Field's type-option data should not be empty")]
     TypeOptionDataIsEmpty = 450,

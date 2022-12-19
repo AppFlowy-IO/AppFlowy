@@ -303,7 +303,7 @@ pub(crate) async fn get_cell_handler(
     manager: AFPluginState<Arc<GridManager>>,
 ) -> DataResult<CellPB, FlowyError> {
     let params: CellPathParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let editor = manager.get_grid_editor(&params.view_id).await?;
     match editor.get_cell(&params).await {
         None => data_result(CellPB::empty(&params.field_id)),
         Some(cell) => data_result(cell),
@@ -344,7 +344,7 @@ pub(crate) async fn update_select_option_handler(
     manager: AFPluginState<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let changeset: SelectOptionChangeset = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&changeset.cell_identifier.grid_id).await?;
+    let editor = manager.get_grid_editor(&changeset.cell_identifier.view_id).await?;
 
     let _ = editor
         .modify_field_rev(&changeset.cell_identifier.field_id, |field_rev| {
@@ -375,7 +375,7 @@ pub(crate) async fn update_select_option_handler(
 
             if let Some(cell_content_changeset) = cell_content_changeset {
                 let changeset = CellChangesetPB {
-                    grid_id: changeset.cell_identifier.grid_id,
+                    grid_id: changeset.cell_identifier.view_id,
                     row_id: changeset.cell_identifier.row_id,
                     field_id: changeset.cell_identifier.field_id.clone(),
                     content: cell_content_changeset,
@@ -401,7 +401,7 @@ pub(crate) async fn get_select_option_handler(
     manager: AFPluginState<Arc<GridManager>>,
 ) -> DataResult<SelectOptionCellDataPB, FlowyError> {
     let params: CellPathParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let editor = manager.get_grid_editor(&params.view_id).await?;
     match editor.get_field_rev(&params.field_id).await {
         None => {
             tracing::error!("Can't find the select option field with id: {}", params.field_id);
@@ -431,7 +431,7 @@ pub(crate) async fn update_select_option_cell_handler(
     manager: AFPluginState<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let params: SelectOptionCellChangesetParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.cell_identifier.grid_id).await?;
+    let editor = manager.get_grid_editor(&params.cell_identifier.view_id).await?;
     let _ = editor.update_cell_with_changeset(params.into()).await?;
     Ok(())
 }
@@ -449,9 +449,9 @@ pub(crate) async fn update_date_cell_handler(
         is_utc: data.is_utc,
     };
 
-    let editor = manager.get_grid_editor(&cell_path.grid_id).await?;
+    let editor = manager.get_grid_editor(&cell_path.view_id).await?;
     let _ = editor
-        .update_cell(cell_path.grid_id, cell_path.row_id, cell_path.field_id, content)
+        .update_cell(cell_path.view_id, cell_path.row_id, cell_path.field_id, content)
         .await?;
     Ok(())
 }

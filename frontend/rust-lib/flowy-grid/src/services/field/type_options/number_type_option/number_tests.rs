@@ -439,7 +439,7 @@ mod tests {
     ) {
         assert_eq!(
             type_option
-                .try_decode_cell_data(input_str.to_owned(), field_type, field_rev)
+                .decode_cell_data(input_str.to_owned(), field_type, field_rev)
                 .unwrap()
                 .to_string(),
             expected_str.to_owned()
