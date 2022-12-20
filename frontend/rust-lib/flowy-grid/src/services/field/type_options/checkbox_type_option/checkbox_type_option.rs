@@ -1,14 +1,14 @@
 use crate::entities::{CheckboxFilterPB, FieldType};
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellDataChangeset, CellDataDecoder, FromCellString};
+use crate::services::cell::{CellDataChangeset, CellDataDecoder, FromCellString, TypeCellData};
 use crate::services::field::{
     BoxTypeOptionBuilder, CheckboxCellData, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
     TypeOptionTransform,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
-use flowy_error::{FlowyError, FlowyResult};
-use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use flowy_error::FlowyResult;
+use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -87,10 +87,9 @@ pub type CheckboxCellChangeset = String;
 impl CellDataChangeset for CheckboxTypeOptionPB {
     fn apply_changeset(
         &self,
-        changeset: AnyCellChangeset<CheckboxCellChangeset>,
-        _cell_rev: Option<CellRevision>,
-    ) -> Result<String, FlowyError> {
-        let changeset = changeset.try_into_inner()?;
+        changeset: <Self as TypeOption>::CellChangeset,
+        _type_cell_data: Option<TypeCellData>,
+    ) -> FlowyResult<String> {
         let cell_data = CheckboxCellData::from_str(&changeset)?;
         Ok(cell_data.to_string())
     }

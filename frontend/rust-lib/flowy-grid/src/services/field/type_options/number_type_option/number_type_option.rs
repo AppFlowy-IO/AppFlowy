@@ -1,6 +1,6 @@
 use crate::entities::{FieldType, NumberFilterPB};
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellComparable, CellDataChangeset, CellDataDecoder};
+use crate::services::cell::{CellComparable, CellDataChangeset, CellDataDecoder, TypeCellData};
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{
     BoxTypeOptionBuilder, NumberCellData, StrCellData, TypeOption, TypeOptionBuilder, TypeOptionCellData,
@@ -8,8 +8,8 @@ use crate::services::field::{
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
-use flowy_error::{FlowyError, FlowyResult};
-use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use flowy_error::FlowyResult;
+use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -156,10 +156,9 @@ pub type NumberCellChangeset = String;
 impl CellDataChangeset for NumberTypeOptionPB {
     fn apply_changeset(
         &self,
-        changeset: AnyCellChangeset<NumberCellChangeset>,
-        _cell_rev: Option<CellRevision>,
-    ) -> Result<String, FlowyError> {
-        let changeset = changeset.try_into_inner()?;
+        changeset: <Self as TypeOption>::CellChangeset,
+        _type_cell_data: Option<TypeCellData>,
+    ) -> FlowyResult<String> {
         let data = changeset.trim().to_string();
         let _ = self.format_cell_data(&data)?;
         Ok(data)

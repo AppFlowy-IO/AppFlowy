@@ -55,8 +55,8 @@ pub trait CellDataChangeset: TypeOption {
     ///  
     fn apply_changeset(
         &self,
-        changeset: AnyCellChangeset<<Self as TypeOption>::CellChangeset>,
-        cell_rev: Option<CellRevision>,
+        changeset: <Self as TypeOption>::CellChangeset,
+        type_cell_data: Option<TypeCellData>,
     ) -> FlowyResult<String>;
 }
 
@@ -73,21 +73,18 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
 ) -> Result<String, FlowyError> {
     let field_rev = field_rev.as_ref();
     let changeset = changeset.to_string();
-    let field_type = field_rev.ty.into();
-    let s = match field_type {
-        FieldType::RichText => RichTextTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
-        FieldType::Number => NumberTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
-        FieldType::DateTime => DateTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
-        FieldType::SingleSelect => {
-            SingleSelectTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev)
-        }
-        FieldType::MultiSelect => MultiSelectTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
-        FieldType::Checklist => ChecklistTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
-        FieldType::Checkbox => CheckboxTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
-        FieldType::URL => URLTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
-    }?;
+    let field_type: FieldType = field_rev.ty.into();
 
-    Ok(TypeCellData::new(s, field_type).to_json())
+    let type_cell_data = cell_rev.and_then(|cell_rev| match TypeCellData::try_from(cell_rev) {
+        Ok(type_cell_data) => Some(type_cell_data),
+        Err(_) => None,
+    });
+
+    let cell_data = match FieldRevisionExt::new(field_rev).get_type_option_cell_data_handler(&field_type) {
+        None => "".to_string(),
+        Some(handler) => handler.handle_cell_changeset(changeset, type_cell_data)?,
+    };
+    Ok(TypeCellData::new(cell_data, field_type).to_json())
 }
 
 pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debug>(
@@ -138,7 +135,7 @@ pub fn try_decode_cell_data(
     to_field_type: &FieldType,
     field_rev: &FieldRevision,
 ) -> FlowyResult<CellProtobufBlob> {
-    match FieldRevisionExt::new(field_rev).get_type_option_handler(to_field_type) {
+    match FieldRevisionExt::new(field_rev).get_type_option_cell_data_handler(to_field_type) {
         None => Ok(CellProtobufBlob::default()),
         Some(handler) => handler.handle_cell_data(cell_data, from_field_type, field_rev),
     }
@@ -154,7 +151,7 @@ pub fn stringify_cell_data(
     to_field_type: &FieldType,
     field_rev: &FieldRevision,
 ) -> String {
-    match FieldRevisionExt::new(field_rev).get_type_option_handler(to_field_type) {
+    match FieldRevisionExt::new(field_rev).get_type_option_cell_data_handler(to_field_type) {
         None => "".to_string(),
         Some(handler) => handler.stringify_cell_data(cell_data, from_field_type, field_rev),
     }
@@ -269,6 +266,15 @@ pub trait FromCellChangeset {
         Self: Sized;
 }
 
+impl FromCellChangeset for String {
+    fn from_changeset(changeset: String) -> FlowyResult<Self>
+    where
+        Self: Sized,
+    {
+        Ok(changeset)
+    }
+}
+
 pub struct AnyCellChangeset<T>(pub Option<T>);
 
 impl<T> AnyCellChangeset<T> {
@@ -294,8 +300,8 @@ where
         }
     }
 }
-impl std::convert::From<String> for AnyCellChangeset<String> {
-    fn from(s: String) -> Self {
-        AnyCellChangeset(Some(s))
-    }
-}
+// impl std::convert::From<String> for AnyCellChangeset<String> {
+//     fn from(s: String) -> Self {
+//         AnyCellChangeset(Some(s))
+//     }
+// }

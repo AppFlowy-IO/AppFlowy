@@ -1,6 +1,6 @@
 use crate::entities::{FieldType, TextFilterPB};
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellDataChangeset, CellDataDecoder, FromCellString};
+use crate::services::cell::{CellDataChangeset, CellDataDecoder, FromCellString, TypeCellData};
 use crate::services::field::{
     BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
     TypeOptionTransform, URLCellData, URLCellDataPB,
@@ -8,8 +8,8 @@ use crate::services::field::{
 use bytes::Bytes;
 use fancy_regex::Regex;
 use flowy_derive::ProtoBuf;
-use flowy_error::{FlowyError, FlowyResult};
-use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use flowy_error::FlowyResult;
+use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 
@@ -81,15 +81,18 @@ pub type URLCellChangeset = String;
 impl CellDataChangeset for URLTypeOptionPB {
     fn apply_changeset(
         &self,
-        changeset: AnyCellChangeset<URLCellChangeset>,
-        _cell_rev: Option<CellRevision>,
-    ) -> Result<String, FlowyError> {
-        let content = changeset.try_into_inner()?;
+        changeset: <Self as TypeOption>::CellChangeset,
+        _type_cell_data: Option<TypeCellData>,
+    ) -> FlowyResult<String> {
         let mut url = "".to_string();
-        if let Ok(Some(m)) = URL_REGEX.find(&content) {
+        if let Ok(Some(m)) = URL_REGEX.find(&changeset) {
             url = auto_append_scheme(m.as_str());
         }
-        URLCellData { url, content }.to_json()
+        URLCellData {
+            url,
+            content: changeset,
+        }
+        .to_json()
     }
 }
 

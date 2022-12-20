@@ -1,8 +1,8 @@
 use crate::entities::{FieldType, TextFilterPB};
 use crate::impl_type_option;
 use crate::services::cell::{
-    stringify_cell_data, AnyCellChangeset, CellComparable, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser,
-    DecodedCellData, FromCellString,
+    stringify_cell_data, CellComparable, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser, DecodedCellData,
+    FromCellString, TypeCellData,
 };
 use crate::services::field::{
     BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
@@ -11,7 +11,7 @@ use crate::services::field::{
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use protobuf::ProtobufError;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -90,14 +90,13 @@ impl CellDataDecoder for RichTextTypeOptionPB {
 impl CellDataChangeset for RichTextTypeOptionPB {
     fn apply_changeset(
         &self,
-        changeset: AnyCellChangeset<String>,
-        _cell_rev: Option<CellRevision>,
-    ) -> Result<String, FlowyError> {
-        let data = changeset.try_into_inner()?;
-        if data.len() > 10000 {
+        changeset: <Self as TypeOption>::CellChangeset,
+        _type_cell_data: Option<TypeCellData>,
+    ) -> FlowyResult<String> {
+        if changeset.len() > 10000 {
             Err(FlowyError::text_too_long().context("The len of the text should not be more than 10000"))
         } else {
-            Ok(data)
+            Ok(changeset)
         }
     }
 }

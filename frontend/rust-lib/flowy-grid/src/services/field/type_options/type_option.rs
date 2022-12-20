@@ -1,5 +1,7 @@
 use crate::entities::FieldType;
-use crate::services::cell::{CellDataChangeset, CellDataDecoder, CellProtobufBlob, FromCellString};
+use crate::services::cell::{
+    CellDataChangeset, CellDataDecoder, CellProtobufBlob, FromCellChangeset, FromCellString, TypeCellData,
+};
 use crate::services::field::{
     CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, MultiSelectTypeOptionPB, NumberTypeOptionPB,
     RichTextTypeOptionPB, SingleSelectTypeOptionPB, URLTypeOptionPB,
@@ -23,8 +25,11 @@ pub trait TypeOption {
     ///
     type CellData: FromCellString + Default;
 
-    ///
-    type CellChangeset;
+    /// Represents as the corresponding field type cell changeset.
+    /// The changeset must implements the `FromCellChangeset` trait. The `CellChangeset` is implemented
+    /// for `String`.
+    ///  
+    type CellChangeset: FromCellChangeset;
 
     ///  For the moment, the protobuf type only be used in the FFI of `Dart`. If the decoded cell
     /// struct is just a `String`, then use the `StrCellData` as its `CellProtobufType`.
@@ -92,6 +97,7 @@ pub trait TypeOptionTransform: TypeOption {
     }
 }
 
+/// A helper trait that used to erase the `Self` of `TypeOption` trait to make it become a Object-safe trait.
 pub trait TypeOptionTransformHandler {
     fn transform(&mut self, old_type_option_field_type: FieldType, old_type_option_data: String);
 
@@ -113,6 +119,12 @@ where
     }
 }
 
+/// A helper trait that used to erase the `Self` of `TypeOption` trait to make it become a Object-safe trait
+/// Only object-safe traits can be made into trait objects.
+/// > Object-safe traits are traits with methods that follow these two rules:
+/// 1.the return type is not Self.
+/// 2.there are no generic types parameters.
+///
 pub trait TypeOptionCellDataHandler {
     fn handle_cell_data(
         &self,
@@ -120,6 +132,12 @@ pub trait TypeOptionCellDataHandler {
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellProtobufBlob>;
+
+    fn handle_cell_changeset(
+        &self,
+        cell_changeset: String,
+        old_type_cell_data: Option<TypeCellData>,
+    ) -> FlowyResult<String>;
 
     fn stringify_cell_data(&self, cell_data: String, field_type: &FieldType, field_rev: &FieldRevision) -> String;
 }
@@ -143,6 +161,16 @@ where
             self.decode_cell_data(cell_data, decoded_field_type, field_rev)?
         };
         CellProtobufBlob::from(self.convert_to_protobuf(cell_data))
+    }
+
+    fn handle_cell_changeset(
+        &self,
+        cell_changeset: String,
+        old_type_cell_data: Option<TypeCellData>,
+    ) -> FlowyResult<String> {
+        let changeset = <Self as TypeOption>::CellChangeset::from_changeset(cell_changeset)?;
+        let cell_data = self.apply_changeset(changeset, old_type_cell_data)?;
+        Ok(cell_data)
     }
 
     fn stringify_cell_data(
@@ -173,7 +201,10 @@ impl<'a> FieldRevisionExt<'a> {
         Self { field_rev }
     }
 
-    pub fn get_type_option_handler(&self, field_type: &FieldType) -> Option<Box<dyn TypeOptionCellDataHandler>> {
+    pub fn get_type_option_cell_data_handler(
+        &self,
+        field_type: &FieldType,
+    ) -> Option<Box<dyn TypeOptionCellDataHandler>> {
         match field_type {
             FieldType::RichText => self
                 .field_rev

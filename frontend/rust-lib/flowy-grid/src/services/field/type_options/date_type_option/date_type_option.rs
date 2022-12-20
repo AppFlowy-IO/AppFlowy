@@ -1,6 +1,6 @@
 use crate::entities::{DateFilterPB, FieldType};
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellDataChangeset, CellDataDecoder, FromCellString};
+use crate::services::cell::{CellDataChangeset, CellDataDecoder, FromCellString, TypeCellData};
 use crate::services::field::{
     BoxTypeOptionBuilder, DateCellChangeset, DateCellData, DateCellDataPB, DateFormat, TimeFormat, TypeOption,
     TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration, TypeOptionTransform,
@@ -10,7 +10,7 @@ use chrono::format::strftime::StrftimeItems;
 use chrono::{NaiveDateTime, Timelike};
 use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
 
 // Date
@@ -156,10 +156,9 @@ impl CellDataDecoder for DateTypeOptionPB {
 impl CellDataChangeset for DateTypeOptionPB {
     fn apply_changeset(
         &self,
-        changeset: AnyCellChangeset<DateCellChangeset>,
-        _cell_rev: Option<CellRevision>,
-    ) -> Result<String, FlowyError> {
-        let changeset = changeset.try_into_inner()?;
+        changeset: <Self as TypeOption>::CellChangeset,
+        _type_cell_data: Option<TypeCellData>,
+    ) -> FlowyResult<String> {
         let cell_data = match changeset.date_timestamp() {
             None => 0,
             Some(date_timestamp) => match (self.include_time, changeset.time) {

@@ -1,6 +1,6 @@
 use crate::entities::{ChecklistFilterPB, FieldType};
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellDataChangeset, FromCellString, TypeCellData};
+use crate::services::cell::{CellDataChangeset, FromCellString, TypeCellData};
 
 use crate::services::field::{
     BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds, SelectOptionPB,
@@ -8,8 +8,8 @@ use crate::services::field::{
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
-use flowy_error::{FlowyError, FlowyResult};
-use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use flowy_error::FlowyResult;
+use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
 
 // Multiple select
@@ -60,31 +60,26 @@ impl SelectTypeOptionSharedAction for ChecklistTypeOptionPB {
 impl CellDataChangeset for ChecklistTypeOptionPB {
     fn apply_changeset(
         &self,
-        changeset: AnyCellChangeset<SelectOptionCellChangeset>,
-        cell_rev: Option<CellRevision>,
-    ) -> Result<String, FlowyError> {
-        let content_changeset = changeset.try_into_inner()?;
-
-        let insert_option_ids = content_changeset
+        changeset: <Self as TypeOption>::CellChangeset,
+        type_cell_data: Option<TypeCellData>,
+    ) -> FlowyResult<String> {
+        let insert_option_ids = changeset
             .insert_option_ids
             .into_iter()
             .filter(|insert_option_id| self.options.iter().any(|option| &option.id == insert_option_id))
             .collect::<Vec<String>>();
 
-        match cell_rev {
+        match type_cell_data {
             None => Ok(SelectOptionIds::from(insert_option_ids).to_string()),
-            Some(cell_rev) => {
-                let cell_data = TypeCellData::try_from(cell_rev)
-                    .map(|data| data.into_inner())
-                    .unwrap_or_default();
-                let mut select_ids: SelectOptionIds = cell_data.into();
+            Some(type_cell_data) => {
+                let mut select_ids: SelectOptionIds = type_cell_data.data.into();
                 for insert_option_id in insert_option_ids {
                     if !select_ids.contains(&insert_option_id) {
                         select_ids.push(insert_option_id);
                     }
                 }
 
-                for delete_option_id in content_changeset.delete_option_ids {
+                for delete_option_id in changeset.delete_option_ids {
                     select_ids.retain(|id| id != &delete_option_id);
                 }
 
