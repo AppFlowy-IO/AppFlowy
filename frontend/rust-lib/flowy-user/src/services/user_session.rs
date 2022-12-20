@@ -261,10 +261,7 @@ impl UserSession {
     fn get_session(&self) -> Result<Session, FlowyError> {
         match KV::get_str(&self.config.session_cache_key) {
             None => Err(FlowyError::unauthorized()),
-            Some(s) => {
-                tracing::debug!("Get user session: {:?}", s);
-                Ok(Session::from(s))
-            }
+            Some(s) => Ok(Session::from(s)),
         }
     }
 
