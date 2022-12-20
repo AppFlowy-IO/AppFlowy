@@ -69,6 +69,7 @@ jobs:
             echo 'do nothing'
           fi
         shell: bash
+        
       - if: steps.cache-cargo.outputs.cache-hit != 'true'
         name: Rust Deps
         working-directory: frontend

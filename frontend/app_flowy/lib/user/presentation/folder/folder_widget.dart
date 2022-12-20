@@ -141,6 +141,7 @@ class CreateFolderWidget extends StatefulWidget {
 @visibleForTesting
 class CreateFolderWidgetState extends State<CreateFolderWidget> {
   var _folderName = 'appflowy';
+
   @visibleForTesting
   var directory = '';
 
