@@ -43,4 +43,37 @@ mod tests {
             done_option.name,
         );
     }
+    /*
+    - [Unit Test] Testing the switching from Multi-selection type to Text type
+    - Tracking : https://github.com/AppFlowy-IO/AppFlowy/issues/1183
+     */
+    #[test]
+    fn multiselect_to_text_type() {
+        let text_type_option = RichTextTypeOptionPB::default();
+        let field_type = FieldType::MultiSelect;
+
+        let France = SelectOptionPB::new("France");
+        let france_optionId = France.id.clone();
+
+        let Argentina = SelectOptionPB::new("Argentina");
+        let argentina_optionId = Argentina.id.clone();
+
+        let multi_select = MultiSelectTypeOptionBuilder::default()
+            .add_option(France.clone())
+            .add_option(Argentina.clone());
+
+        let field_rev = FieldBuilder::new(multi_select).build();
+
+        assert_eq!(
+            text_type_option
+                .decode_cell_data(
+                    format!("{},{}", france_optionId, argentina_optionId),
+                    &field_type,
+                    &field_rev
+                )
+                .unwrap()
+                .to_string(),
+            format!("{},{}", France.name, Argentina.name)
+        );
+    }
 }
