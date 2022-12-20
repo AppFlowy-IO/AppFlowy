@@ -9,7 +9,7 @@ use flowy_grid::services::field::{gen_option_id, SingleSelectTypeOptionPB, CHECK
 #[tokio::test]
 async fn grid_create_field() {
     let mut test = GridFieldTest::new().await;
-    let (params, field_rev) = create_text_field(&test.grid_id());
+    let (params, field_rev) = create_text_field(&test.view_id());
 
     let scripts = vec![
         CreateField { params },
@@ -20,7 +20,7 @@ async fn grid_create_field() {
     ];
     test.run_scripts(scripts).await;
 
-    let (params, field_rev) = create_single_select_field(&test.grid_id());
+    let (params, field_rev) = create_single_select_field(&test.view_id());
     let scripts = vec![
         CreateField { params },
         AssertFieldTypeOptionEqual {
@@ -34,7 +34,7 @@ async fn grid_create_field() {
 #[tokio::test]
 async fn grid_create_duplicate_field() {
     let mut test = GridFieldTest::new().await;
-    let (params, _) = create_text_field(&test.grid_id());
+    let (params, _) = create_text_field(&test.view_id());
     let field_count = test.field_count();
     let expected_field_count = field_count + 1;
     let scripts = vec![
@@ -47,7 +47,7 @@ async fn grid_create_duplicate_field() {
 #[tokio::test]
 async fn grid_update_field_with_empty_change() {
     let mut test = GridFieldTest::new().await;
-    let (params, _) = create_single_select_field(&test.grid_id());
+    let (params, _) = create_single_select_field(&test.view_id());
     let create_field_index = test.field_count();
     let scripts = vec![CreateField { params }];
     test.run_scripts(scripts).await;
@@ -55,7 +55,7 @@ async fn grid_update_field_with_empty_change() {
     let field_rev = (&*test.field_revs.clone().pop().unwrap()).clone();
     let changeset = FieldChangesetParams {
         field_id: field_rev.id.clone(),
-        grid_id: test.grid_id(),
+        grid_id: test.view_id(),
         ..Default::default()
     };
 
@@ -72,7 +72,7 @@ async fn grid_update_field_with_empty_change() {
 #[tokio::test]
 async fn grid_update_field() {
     let mut test = GridFieldTest::new().await;
-    let (params, _) = create_single_select_field(&test.grid_id());
+    let (params, _) = create_single_select_field(&test.view_id());
     let scripts = vec![CreateField { params }];
     let create_field_index = test.field_count();
     test.run_scripts(scripts).await;
@@ -83,7 +83,7 @@ async fn grid_update_field() {
 
     let changeset = FieldChangesetParams {
         field_id: single_select_field.id.clone(),
-        grid_id: test.grid_id(),
+        grid_id: test.view_id(),
         frozen: Some(true),
         width: Some(1000),
         ..Default::default()
@@ -109,7 +109,7 @@ async fn grid_update_field() {
 async fn grid_delete_field() {
     let mut test = GridFieldTest::new().await;
     let original_field_count = test.field_count();
-    let (params, _) = create_text_field(&test.grid_id());
+    let (params, _) = create_text_field(&test.view_id());
     let scripts = vec![CreateField { params }];
     test.run_scripts(scripts).await;
 
@@ -162,10 +162,20 @@ async fn grid_switch_from_select_option_to_checkbox_test() {
 async fn grid_switch_from_checkbox_to_select_option_test() {
     let mut test = GridFieldTest::new().await;
     let field_rev = test.get_first_field_rev(FieldType::Checkbox).clone();
-    let scripts = vec![SwitchToField {
-        field_id: field_rev.id.clone(),
-        new_field_type: FieldType::SingleSelect,
-    }];
+    let scripts = vec![
+        SwitchToField {
+            field_id: field_rev.id.clone(),
+            new_field_type: FieldType::SingleSelect,
+        },
+        AssertCellContent {
+            field_id: field_rev.id.clone(),
+            // the mock data of the checkbox with row_index one is "true"
+            row_index: 1,
+            from_field_type: FieldType::Checkbox,
+            // The content of the checkbox should transform to the corresponding option name.
+            expected_content: CHECK.to_string(),
+        },
+    ];
     test.run_scripts(scripts).await;
 
     let single_select_type_option = test.get_single_select_type_option(&field_rev.id);

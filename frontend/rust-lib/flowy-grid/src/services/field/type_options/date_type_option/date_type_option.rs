@@ -131,7 +131,7 @@ impl DateTypeOptionPB {
 impl TypeOptionTransform for DateTypeOptionPB {}
 
 impl CellDataDecoder for DateTypeOptionPB {
-    fn try_decode_cell_data(
+    fn decode_cell_data(
         &self,
         cell_data: String,
         decoded_field_type: &FieldType,
@@ -148,15 +148,8 @@ impl CellDataDecoder for DateTypeOptionPB {
         self.decode_type_option_cell_data(cell_data)
     }
 
-    fn decode_cell_data_to_str(
-        &self,
-        cell_data: String,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<String> {
-        let cell_data = self.decode_type_option_cell_data(cell_data)?;
-        let cell_data_pb = self.today_desc_from_timestamp(cell_data);
-        Ok(cell_data_pb.date)
+    fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+        self.today_desc_from_timestamp(cell_data).date
     }
 }
 

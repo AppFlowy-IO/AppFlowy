@@ -35,7 +35,7 @@ pub trait CellDataDecoder: TypeOption {
     /// data that can be parsed by the current field type. One approach is to transform the cell data
     /// when it get read. For the moment, the cell data is a string, `Yes` or `No`. It needs to compare
     /// with the option's name, if match return the id of the option.
-    fn try_decode_cell_data(
+    fn decode_cell_data(
         &self,
         cell_data: String,
         decoded_field_type: &FieldType,
@@ -43,12 +43,9 @@ pub trait CellDataDecoder: TypeOption {
     ) -> FlowyResult<<Self as TypeOption>::CellData>;
 
     /// Same as `decode_cell_data` does but Decode the cell data to readable `String`
-    fn decode_cell_data_to_str(
-        &self,
-        cell_data: String,
-        decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<String>;
+    /// For example, The string of the Multi-Select cell will be a list of the option's name
+    /// separated by a comma.
+    fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String;
 }
 
 pub trait CellDataChangeset: TypeOption {
@@ -119,10 +116,10 @@ pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debu
     }
 }
 
-/// Decode the opaque cell data from one field type to another using the corresponding type option builder
+/// Decode the opaque cell data from one field type to another using the corresponding `TypeOption`
 ///
-/// The cell data might become an empty string depends on these two fields' `TypeOptionBuilder`
-/// support transform or not.
+/// The cell data might become an empty string depends on the to_field_type's `TypeOption`   
+/// support transform the from_field_type's cell data or not.
 ///
 /// # Arguments
 ///
@@ -147,10 +144,19 @@ pub fn try_decode_cell_data(
     }
 }
 
-pub fn stringify_cell_data(cell_data: String, field_type: &FieldType, field_rev: &FieldRevision) -> String {
-    match FieldRevisionExt::new(field_rev).get_type_option_handler(field_type) {
+/// Returns a string that represents the current field_type's cell data.
+/// If the cell data of the `FieldType` doesn't support displaying in String then will return an
+/// empty string. For example, The string of the Multi-Select cell will be a list of the option's name
+/// separated by a comma.
+pub fn stringify_cell_data(
+    cell_data: String,
+    from_field_type: &FieldType,
+    to_field_type: &FieldType,
+    field_rev: &FieldRevision,
+) -> String {
+    match FieldRevisionExt::new(field_rev).get_type_option_handler(to_field_type) {
         None => "".to_string(),
-        Some(handler) => handler.stringify_cell_data(cell_data, field_type, field_rev),
+        Some(handler) => handler.stringify_cell_data(cell_data, from_field_type, field_rev),
     }
 }
 

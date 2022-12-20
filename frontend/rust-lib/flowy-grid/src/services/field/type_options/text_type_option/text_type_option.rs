@@ -64,7 +64,7 @@ impl TypeOptionCellData for RichTextTypeOptionPB {
 }
 
 impl CellDataDecoder for RichTextTypeOptionPB {
-    fn try_decode_cell_data(
+    fn decode_cell_data(
         &self,
         cell_data: String,
         decoded_field_type: &FieldType,
@@ -76,20 +76,14 @@ impl CellDataDecoder for RichTextTypeOptionPB {
             || decoded_field_type.is_number()
             || decoded_field_type.is_url()
         {
-            Ok(stringify_cell_data(cell_data, decoded_field_type, field_rev).into())
+            Ok(stringify_cell_data(cell_data, decoded_field_type, decoded_field_type, field_rev).into())
         } else {
             StrCellData::from_cell_str(&cell_data)
         }
     }
 
-    fn decode_cell_data_to_str(
-        &self,
-        cell_data: String,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<String> {
-        let cell_str = StrCellData::from_cell_str(&cell_data)?;
-        Ok(cell_str.into())
+    fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+        cell_data.to_string()
     }
 }
 
@@ -190,6 +184,12 @@ impl FromCellString for StrCellData {
 impl std::convert::From<String> for StrCellData {
     fn from(s: String) -> Self {
         Self(s)
+    }
+}
+
+impl ToString for StrCellData {
+    fn to_string(&self) -> String {
+        self.0.clone()
     }
 }
 

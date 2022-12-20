@@ -279,12 +279,6 @@ impl GridRevisionEditor {
         let type_option_transform =
             |old_field_type: FieldTypeRevision, old_type_option: Option<String>, new_type_option: String| {
                 let old_field_type: FieldType = old_field_type.into();
-                // let mut type_option_builder = type_option_builder_from_json_str(&new_type_option, new_field_type);
-                // if let Some(old_type_option) = old_type_option {
-                //     type_option_builder.transform(&old_field_type, old_type_option)
-                // }
-                // type_option_builder.serializer().json_str()
-
                 transform_type_option(&new_type_option, new_field_type, old_type_option, old_field_type)
             };
 

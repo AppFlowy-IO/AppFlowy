@@ -64,7 +64,7 @@ impl TypeOptionCellData for CheckboxTypeOptionPB {
 }
 
 impl CellDataDecoder for CheckboxTypeOptionPB {
-    fn try_decode_cell_data(
+    fn decode_cell_data(
         &self,
         cell_data: String,
         decoded_field_type: &FieldType,
@@ -77,13 +77,8 @@ impl CellDataDecoder for CheckboxTypeOptionPB {
         self.decode_type_option_cell_data(cell_data)
     }
 
-    fn decode_cell_data_to_str(
-        &self,
-        cell_data: String,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<String> {
-        Ok(cell_data)
+    fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+        cell_data.to_string()
     }
 }
 
