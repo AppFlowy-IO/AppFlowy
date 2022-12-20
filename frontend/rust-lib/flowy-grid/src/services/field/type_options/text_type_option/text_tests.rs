@@ -43,7 +43,7 @@ mod tests {
             done_option.name,
         );
     }
-     /*
+    /*
     - [Unit Test] Testing the switching from Multi-selection type to Text type
     - Tracking : https://github.com/AppFlowy-IO/AppFlowy/issues/1183
      */
