@@ -92,6 +92,7 @@ pub trait TypeOptionTransform: TypeOption {
     }
 }
 
+/// A helper trait that used to erase the `Self` of `TypeOption` trait to make it become a Object-safe trait.
 pub trait TypeOptionTransformHandler {
     fn transform(&mut self, old_type_option_field_type: FieldType, old_type_option_data: String);
 
@@ -113,6 +114,12 @@ where
     }
 }
 
+/// A helper trait that used to erase the `Self` of `TypeOption` trait to make it become a Object-safe trait
+/// Only object-safe traits can be made into trait objects.
+/// > Object-safe traits are traits with methods that follow these two rules:
+/// 1.the return type is not Self.
+/// 2.there are no generic types parameters.
+///
 pub trait TypeOptionCellDataHandler {
     fn handle_cell_data(
         &self,
