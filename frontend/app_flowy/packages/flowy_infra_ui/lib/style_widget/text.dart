@@ -9,6 +9,7 @@ class FlowyText extends StatelessWidget {
   final int? maxLines;
   final Color? color;
   final TextDecoration? decoration;
+  final bool selectable;
 
   const FlowyText(
     this.title, {
@@ -20,6 +21,7 @@ class FlowyText extends StatelessWidget {
     this.color,
     this.maxLines = 1,
     this.decoration,
+    this.selectable = false,
   }) : super(key: key);
 
   const FlowyText.regular(
@@ -31,6 +33,7 @@ class FlowyText extends StatelessWidget {
     this.textAlign,
     this.maxLines = 1,
     this.decoration,
+    this.selectable = false,
   })  : fontWeight = FontWeight.w400,
         super(key: key);
 
@@ -43,6 +46,7 @@ class FlowyText extends StatelessWidget {
     this.textAlign,
     this.maxLines = 1,
     this.decoration,
+    this.selectable = false,
   })  : fontWeight = FontWeight.w500,
         super(key: key);
 
@@ -55,22 +59,37 @@ class FlowyText extends StatelessWidget {
     this.textAlign,
     this.maxLines = 1,
     this.decoration,
+    this.selectable = false,
   })  : fontWeight = FontWeight.w600,
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      title,
-      maxLines: maxLines,
-      textAlign: textAlign,
-      overflow: overflow ?? TextOverflow.clip,
-      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-            fontSize: fontSize,
-            fontWeight: fontWeight,
-            color: color,
-            decoration: decoration,
-          ),
-    );
+    if (selectable) {
+      return SelectableText(
+        title,
+        maxLines: maxLines,
+        textAlign: textAlign,
+        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              fontSize: fontSize,
+              fontWeight: fontWeight,
+              color: color,
+              decoration: decoration,
+            ),
+      );
+    } else {
+      return Text(
+        title,
+        maxLines: maxLines,
+        textAlign: textAlign,
+        overflow: overflow ?? TextOverflow.clip,
+        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              fontSize: fontSize,
+              fontWeight: fontWeight,
+              color: color,
+              decoration: decoration,
+            ),
+      );
+    }
   }
 }

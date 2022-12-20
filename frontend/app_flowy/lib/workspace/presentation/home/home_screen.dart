@@ -54,13 +54,35 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
       child: HomeHotKeys(
           child: Scaffold(
-        body: BlocListener<HomeBloc, HomeState>(
-          listenWhen: (p, c) => p.unauthorized != c.unauthorized,
-          listener: (context, state) {
-            if (state.unauthorized) {
-              Log.error("Push to login screen when user token was invalid");
-            }
-          },
+        body: MultiBlocListener(
+          listeners: [
+            BlocListener<HomeBloc, HomeState>(
+              listenWhen: (p, c) => p.unauthorized != c.unauthorized,
+              listener: (context, state) {
+                if (state.unauthorized) {
+                  Log.error("Push to login screen when user token was invalid");
+                }
+              },
+            ),
+            BlocListener<HomeBloc, HomeState>(
+              listenWhen: (p, c) => p.latestView != c.latestView,
+              listener: (context, state) {
+                final view = state.latestView;
+                if (view != null) {
+                  // Only open the last opened view if the [HomeStackManager] current opened plugin is blank and the last opened view is not null.
+                  // All opened widgets that display on the home screen are in the form of plugins. There is a list of built-in plugins defined in the [PluginType] enum, including board, grid and trash.
+                  if (getIt<HomeStackManager>().plugin.ty == PluginType.blank) {
+                    final plugin = makePlugin(
+                      pluginType: view.pluginType,
+                      data: view,
+                    );
+                    getIt<HomeStackManager>().setPlugin(plugin);
+                    getIt<MenuSharedState>().latestOpenView = view;
+                  }
+                }
+              },
+            ),
+          ],
           child: BlocBuilder<HomeSettingBloc, HomeSettingState>(
             buildWhen: (previous, current) => previous != current,
             builder: (context, state) {
@@ -125,25 +147,6 @@ class _HomeScreenState extends State<HomeScreen> {
       workspaceSetting: workspaceSetting,
       collapsedNotifier: getIt<HomeStackManager>().collapsedNotifier,
     );
-
-    // Only open the last opened view if the [HomeStackManager] current opened
-    // plugin is blank and the last opened view is not null.
-    //
-    // All opened widgets that display on the home screen are in the form
-    // of plugins. There is a list of built-in plugins defined in the
-    // [PluginType] enum, including board, grid and trash.
-    if (getIt<HomeStackManager>().plugin.ty == PluginType.blank) {
-      // Open the last opened view.
-      if (workspaceSetting.hasLatestView()) {
-        final view = workspaceSetting.latestView;
-        final plugin = makePlugin(
-          pluginType: view.pluginType,
-          data: view,
-        );
-        getIt<HomeStackManager>().setPlugin(plugin);
-        getIt<MenuSharedState>().latestOpenView = view;
-      }
-    }
 
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
   }

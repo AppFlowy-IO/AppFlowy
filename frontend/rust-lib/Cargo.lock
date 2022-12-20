@@ -584,9 +584,10 @@ dependencies = [
  "flowy-codegen",
  "flowy-derive",
  "flowy-sdk",
+ "lazy_static",
  "lib-dispatch",
  "log",
- "once_cell",
+ "parking_lot 0.12.1",
  "protobuf",
  "serde",
  "serde_json",
@@ -860,7 +861,7 @@ dependencies = [
  "diesel_migrations",
  "lazy_static",
  "lib-sqlite",
- "log",
+ "tracing",
 ]
 
 [[package]]

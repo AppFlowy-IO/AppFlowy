@@ -155,6 +155,7 @@
       "appearance": "Appearance",
       "language": "Language",
       "user": "User",
+      "files": "Files",
       "open": "Open Settings"
     },
     "appearance": {
@@ -164,6 +165,26 @@
         "dark": "Dark Mode",
         "system": "Adapt to System"
       }
+    },
+    "files": {
+      "defaultLocation": "Default location for new notes",
+      "doubleTapToCopy": "Double tap to copy the path",
+      "restoreLocation": "Restore to default location",
+      "customizeLocation": "Customize location",
+      "restartApp": "Please restart app for the changes to take effect.",
+      "exportDatabase": "Export databae",
+      "selectFiles": "Select the files that need to be export",
+      "createNewFolder": "Create a new folder",
+      "createNewFolderDesc": "Create a new folder ...",
+      "open": "Open",
+      "openFolder": "Open folder",
+      "openFolderDesc": "Open folder ...",
+      "folderHintText": "folder name",
+      "location": "Location",
+      "locationDesc": "Pick a name for your location",
+      "browser": "Browser",
+      "create": "create",
+      "locationCannotBeEmpty": "Location cannot be empty"
     }
   },
   "grid": {

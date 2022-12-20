@@ -274,7 +274,6 @@ class FlowyOverlayState extends State<FlowyOverlay> {
     OverlapBehaviour? overlapBehaviour,
     FlowyOverlayDelegate? delegate,
   }) {
-    debugPrint("Show overlay: $identifier");
     Widget overlay = widget;
     final offset = anchorOffset ?? Offset.zero;
     final focusNode = FocusNode();
