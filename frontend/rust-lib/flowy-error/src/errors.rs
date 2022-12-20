@@ -2,11 +2,15 @@ use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error_code::ErrorCode;
 use lib_dispatch::prelude::{AFPluginEventResponse, ResponseBuilder};
-use std::{convert::TryInto, fmt, fmt::Debug};
+use std::{convert::TryInto, fmt::Debug};
+use anyhow::Result;
+use thiserror::Error;
 
-pub type FlowyResult<T> = std::result::Result<T, FlowyError>;
 
-#[derive(Debug, Default, Clone, ProtoBuf)]
+pub type FlowyResult<T> = anyhow::Result<T, FlowyError>;
+
+#[derive(Debug, Default, Clone, ProtoBuf, Error)]
+#[error("{code:?}: {msg}")]
 pub struct FlowyError {
     #[pb(index = 1)]
     pub code: i32,
@@ -87,12 +91,13 @@ where
     FlowyError::internal().context(e)
 }
 
-impl fmt::Display for FlowyError {
+// Not needed because of thiserror derive macro
+/* impl fmt::Display for FlowyError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}: {}", &self.code, &self.msg)
     }
 }
-
+ */
 impl lib_dispatch::Error for FlowyError {
     fn as_response(&self) -> AFPluginEventResponse {
         let bytes: Bytes = self.clone().try_into().unwrap();
@@ -114,4 +119,4 @@ impl std::convert::From<protobuf::ProtobufError> for FlowyError {
     }
 }
 
-impl std::error::Error for FlowyError {}
+//impl std::error::Error for FlowyError {}
