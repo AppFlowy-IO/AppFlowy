@@ -22,7 +22,7 @@ jobs:
   tests:
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -69,7 +69,6 @@ jobs:
             echo 'do nothing'
           fi
         shell: bash
-
       - if: steps.cache-cargo.outputs.cache-hit != 'true'
         name: Rust Deps
         working-directory: frontend
