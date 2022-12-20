@@ -66,7 +66,7 @@ mod tests {
 
         assert_eq!(
             text_type_option
-                .try_decode_cell_data(
+                .decode_cell_data(
                     format!("{},{}", france_optionId, argentina_optionId),
                     &field_type,
                     &field_rev
