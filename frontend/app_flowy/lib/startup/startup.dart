@@ -47,12 +47,12 @@ class FlowyRunner {
     final env = integrationEnv();
     initGetIt(getIt, env, f, config);
 
+    final directory = getIt<SettingsLocationCubit>()
+        .fetchLocation()
+        .then((value) => Directory(value));
+
     // add task
-    getIt<AppLauncher>().addTask(InitRustSDKTask(
-      directory: getIt<SettingsLocationCubit>()
-          .fetchLocation()
-          .then((value) => Directory(value)),
-    ));
+    getIt<AppLauncher>().addTask(InitRustSDKTask(directory: directory));
     getIt<AppLauncher>().addTask(PluginLoadTask());
 
     if (!env.isTest()) {
@@ -61,7 +61,7 @@ class FlowyRunner {
     }
 
     // execute the tasks
-    getIt<AppLauncher>().launch();
+    await getIt<AppLauncher>().launch();
   }
 }
 
