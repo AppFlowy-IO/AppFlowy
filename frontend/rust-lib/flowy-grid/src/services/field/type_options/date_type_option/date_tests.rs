@@ -147,13 +147,12 @@ mod tests {
         expected_str: &str,
         field_rev: &FieldRevision,
     ) {
-        let s = serde_json::to_string(&DateCellChangeset {
+        let changeset = DateCellChangeset {
             date: Some(timestamp.to_string()),
             time: include_time_str,
             is_utc: false,
-        })
-        .unwrap();
-        let encoded_data = type_option.apply_changeset(s.into(), None).unwrap();
+        };
+        let encoded_data = type_option.apply_changeset(changeset, None).unwrap();
 
         assert_eq!(
             decode_cell_data(encoded_data, type_option, field_rev),
