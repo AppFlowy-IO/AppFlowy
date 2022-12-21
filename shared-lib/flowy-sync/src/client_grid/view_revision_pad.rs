@@ -3,8 +3,8 @@ use crate::util::{cal_diff, make_operations_from_revisions};
 use flowy_http_model::revision::Revision;
 use flowy_http_model::util::md5;
 use grid_rev_model::{
-    FieldRevision, FieldTypeRevision, FilterConfigurationRevision, FilterConfigurationsByFieldId, GridViewRevision,
-    GroupConfigurationRevision, GroupConfigurationsByFieldId, LayoutRevision,
+    FieldRevision, FieldTypeRevision, FilterRevision, GridViewRevision, GroupConfigurationRevision, LayoutRevision,
+    SortRevision,
 };
 use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
 use std::sync::Arc;
@@ -61,7 +61,7 @@ impl GridViewRevisionPad {
         Self::from_operations(view_id, operations)
     }
 
-    pub fn get_groups_by_field_revs(&self, field_revs: &[Arc<FieldRevision>]) -> Option<GroupConfigurationsByFieldId> {
+    pub fn get_groups_by_field_revs(&self, field_revs: &[Arc<FieldRevision>]) -> Vec<Arc<GroupConfigurationRevision>> {
         self.groups.get_objects_by_field_revs(field_revs)
     }
 
@@ -113,9 +113,9 @@ impl GridViewRevisionPad {
 
     pub fn delete_group(
         &mut self,
+        group_id: &str,
         field_id: &str,
         field_type: &FieldTypeRevision,
-        group_id: &str,
     ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
         self.modify(|view| {
             if let Some(groups) = view.groups.get_mut_objects(field_id, field_type) {
@@ -127,38 +127,133 @@ impl GridViewRevisionPad {
         })
     }
 
-    pub fn get_all_filters(&self, field_revs: &[Arc<FieldRevision>]) -> Option<FilterConfigurationsByFieldId> {
-        self.filters.get_objects_by_field_revs(field_revs)
+    pub fn get_all_sorts(&self, field_revs: &[Arc<FieldRevision>]) -> Vec<Arc<SortRevision>> {
+        self.sorts.get_objects_by_field_revs(field_revs)
     }
 
-    pub fn get_filters(
+    /// For the moment, a field type only have one filter.
+    pub fn get_sorts(&self, field_id: &str, field_type_rev: &FieldTypeRevision) -> Vec<Arc<SortRevision>> {
+        self.sorts.get_objects(field_id, field_type_rev).unwrap_or_default()
+    }
+
+    pub fn get_sort(
         &self,
         field_id: &str,
         field_type_rev: &FieldTypeRevision,
-    ) -> Option<Vec<Arc<FilterConfigurationRevision>>> {
-        self.filters.get_objects(field_id, field_type_rev)
+        sort_id: &str,
+    ) -> Option<Arc<SortRevision>> {
+        self.sorts
+            .get_object(field_id, field_type_rev, |sort| sort.id == sort_id)
+    }
+
+    pub fn insert_sort(
+        &mut self,
+        sort_id: &str,
+        sort_rev: SortRevision,
+    ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
+        self.modify(|view| {
+            let field_type = sort_rev.field_type;
+            view.sorts.add_object(sort_id, &field_type, sort_rev);
+            Ok(Some(()))
+        })
+    }
+
+    pub fn update_sort(
+        &mut self,
+        field_id: &str,
+        sort_rev: SortRevision,
+    ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
+        self.modify(|view| {
+            if let Some(sort) = view
+                .sorts
+                .get_mut_object(field_id, &sort_rev.field_type, |sort| sort.id == sort_rev.id)
+            {
+                let sort = Arc::make_mut(sort);
+                sort.condition = sort_rev.condition;
+                Ok(Some(()))
+            } else {
+                Ok(None)
+            }
+        })
+    }
+
+    pub fn delete_sort<T: Into<FieldTypeRevision>>(
+        &mut self,
+        sort_id: &str,
+        field_id: &str,
+        field_type: T,
+    ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
+        let field_type = field_type.into();
+        self.modify(|view| {
+            if let Some(sorts) = view.sorts.get_mut_objects(field_id, &field_type) {
+                sorts.retain(|sort| sort.id != sort_id);
+                Ok(Some(()))
+            } else {
+                Ok(None)
+            }
+        })
+    }
+
+    pub fn get_all_filters(&self, field_revs: &[Arc<FieldRevision>]) -> Vec<Arc<FilterRevision>> {
+        self.filters.get_objects_by_field_revs(field_revs)
+    }
+
+    /// For the moment, a field type only have one filter.
+    pub fn get_filters(&self, field_id: &str, field_type_rev: &FieldTypeRevision) -> Vec<Arc<FilterRevision>> {
+        self.filters.get_objects(field_id, field_type_rev).unwrap_or_default()
+    }
+
+    pub fn get_filter(
+        &self,
+        field_id: &str,
+        field_type_rev: &FieldTypeRevision,
+        filter_id: &str,
+    ) -> Option<Arc<FilterRevision>> {
+        self.filters
+            .get_object(field_id, field_type_rev, |filter| filter.id == filter_id)
     }
 
     pub fn insert_filter(
         &mut self,
         field_id: &str,
-        field_type: &FieldTypeRevision,
-        filter_rev: FilterConfigurationRevision,
+        filter_rev: FilterRevision,
     ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
         self.modify(|view| {
-            view.filters.add_object(field_id, field_type, filter_rev);
+            let field_type = filter_rev.field_type;
+            view.filters.add_object(field_id, &field_type, filter_rev);
             Ok(Some(()))
         })
     }
 
-    pub fn delete_filter(
+    pub fn update_filter(
         &mut self,
         field_id: &str,
-        field_type: &FieldTypeRevision,
-        filter_id: &str,
+        filter_rev: FilterRevision,
     ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
         self.modify(|view| {
-            if let Some(filters) = view.filters.get_mut_objects(field_id, field_type) {
+            if let Some(filter) = view
+                .filters
+                .get_mut_object(field_id, &filter_rev.field_type, |filter| filter.id == filter_rev.id)
+            {
+                let filter = Arc::make_mut(filter);
+                filter.condition = filter_rev.condition;
+                filter.content = filter_rev.content;
+                Ok(Some(()))
+            } else {
+                Ok(None)
+            }
+        })
+    }
+
+    pub fn delete_filter<T: Into<FieldTypeRevision>>(
+        &mut self,
+        filter_id: &str,
+        field_id: &str,
+        field_type: T,
+    ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
+        let field_type = field_type.into();
+        self.modify(|view| {
+            if let Some(filters) = view.filters.get_mut_objects(field_id, &field_type) {
                 filters.retain(|filter| filter.id != filter_id);
                 Ok(Some(()))
             } else {

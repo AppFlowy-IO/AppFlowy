@@ -1,4 +1,3 @@
-use crate::entities::RowPB;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_http_model::revision::Revision;
@@ -45,6 +44,11 @@ impl GridBlockRevisionEditor {
             pad,
             rev_manager,
         })
+    }
+
+    pub async fn close(&self) {
+        self.rev_manager.generate_snapshot().await;
+        self.rev_manager.close().await;
     }
 
     pub async fn duplicate_block(&self, duplicated_block_id: &str) -> GridBlockRevision {
@@ -109,9 +113,12 @@ impl GridBlockRevisionEditor {
         self.pad.read().await.index_of_row(row_id)
     }
 
-    pub async fn get_row_rev(&self, row_id: &str) -> FlowyResult<Option<Arc<RowRevision>>> {
-        let row_ids = vec![Cow::Borrowed(row_id)];
-        let row_rev = self.get_row_revs(Some(row_ids)).await?.pop();
+    pub async fn number_of_rows(&self) -> i32 {
+        self.pad.read().await.rows.len() as i32
+    }
+
+    pub async fn get_row_rev(&self, row_id: &str) -> FlowyResult<Option<(usize, Arc<RowRevision>)>> {
+        let row_rev = self.pad.read().await.get_row_rev(row_id);
         Ok(row_rev)
     }
 
@@ -132,26 +139,6 @@ impl GridBlockRevisionEditor {
         Ok(cell_revs)
     }
 
-    pub async fn get_row_pb(&self, row_id: &str) -> FlowyResult<Option<RowPB>> {
-        let row_ids = Some(vec![Cow::Borrowed(row_id)]);
-        Ok(self.get_row_infos(row_ids).await?.pop())
-    }
-
-    pub async fn get_row_infos<T>(&self, row_ids: Option<Vec<Cow<'_, T>>>) -> FlowyResult<Vec<RowPB>>
-    where
-        T: AsRef<str> + ToOwned + ?Sized,
-    {
-        let row_infos = self
-            .pad
-            .read()
-            .await
-            .get_row_revs(row_ids)?
-            .iter()
-            .map(RowPB::from)
-            .collect::<Vec<RowPB>>();
-        Ok(row_infos)
-    }
-
     async fn modify<F>(&self, f: F) -> FlowyResult<()>
     where
         F: for<'a> FnOnce(&'a mut GridBlockRevisionPad) -> FlowyResult<Option<GridBlockRevisionChangeset>>,
@@ -168,10 +155,8 @@ impl GridBlockRevisionEditor {
 
     async fn apply_change(&self, change: GridBlockRevisionChangeset) -> FlowyResult<()> {
         let GridBlockRevisionChangeset { operations: delta, md5 } = change;
-        let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
-        let delta_data = delta.json_bytes();
-        let revision = Revision::new(&self.rev_manager.object_id, base_rev_id, rev_id, delta_data, md5);
-        let _ = self.rev_manager.add_local_revision(&revision).await?;
+        let data = delta.json_bytes();
+        let _ = self.rev_manager.add_local_revision(data, md5).await?;
         Ok(())
     }
 }
@@ -204,8 +189,8 @@ impl RevisionObjectSerializer for GridBlockRevisionSerde {
     }
 }
 
-pub struct GridBlockRevisionCompress();
-impl RevisionMergeable for GridBlockRevisionCompress {
+pub struct GridBlockRevisionMergeable();
+impl RevisionMergeable for GridBlockRevisionMergeable {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         GridBlockRevisionSerde::combine_revisions(revisions)
     }

@@ -6,7 +6,6 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import '../../../application/field/field_controller.dart';
@@ -31,33 +30,11 @@ class GridSettingList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => GridSettingBloc(gridId: settingContext.gridId),
-      child: BlocListener<GridSettingBloc, GridSettingState>(
-        listenWhen: (previous, current) =>
-            previous.selectedAction != current.selectedAction,
-        listener: (context, state) {
-          state.selectedAction.foldLeft(null, (_, action) {
-            onAction(action, settingContext);
-          });
-        },
-        child: BlocBuilder<GridSettingBloc, GridSettingState>(
-          builder: (context, state) {
-            return _renderList();
-          },
-        ),
-      ),
-    );
-  }
-
-  String identifier() {
-    return toString();
-  }
-
-  Widget _renderList() {
     final cells =
         GridSettingAction.values.where((value) => value.enable()).map((action) {
-      return _SettingItem(action: action);
+      return _SettingItem(
+          action: action,
+          onAction: (action) => onAction(action, settingContext));
     }).toList();
 
     return SizedBox(
@@ -80,34 +57,24 @@ class GridSettingList extends StatelessWidget {
 
 class _SettingItem extends StatelessWidget {
   final GridSettingAction action;
+  final Function(GridSettingAction) onAction;
 
   const _SettingItem({
     required this.action,
+    required this.onAction,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final isSelected = context
-        .read<GridSettingBloc>()
-        .state
-        .selectedAction
-        .foldLeft(false, (_, selectedAction) => selectedAction == action);
-
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
-        isSelected: isSelected,
         text: FlowyText.medium(
           action.title(),
-          fontSize: 12,
           color: action.enable() ? null : Theme.of(context).disabledColor,
         ),
-        onTap: () {
-          context
-              .read<GridSettingBloc>()
-              .add(GridSettingEvent.performAction(action));
-        },
+        onTap: () => onAction(action),
         leftIcon: svgWidget(
           action.iconName(),
           color: Theme.of(context).colorScheme.onSurface,
@@ -120,29 +87,29 @@ class _SettingItem extends StatelessWidget {
 extension _GridSettingExtension on GridSettingAction {
   String iconName() {
     switch (this) {
-      case GridSettingAction.filter:
+      case GridSettingAction.showFilters:
         return 'grid/setting/filter';
       case GridSettingAction.sortBy:
         return 'grid/setting/sort';
-      case GridSettingAction.properties:
+      case GridSettingAction.showProperties:
         return 'grid/setting/properties';
     }
   }
 
   String title() {
     switch (this) {
-      case GridSettingAction.filter:
+      case GridSettingAction.showFilters:
         return LocaleKeys.grid_settings_filter.tr();
       case GridSettingAction.sortBy:
         return LocaleKeys.grid_settings_sortBy.tr();
-      case GridSettingAction.properties:
+      case GridSettingAction.showProperties:
         return LocaleKeys.grid_settings_Properties.tr();
     }
   }
 
   bool enable() {
     switch (this) {
-      case GridSettingAction.properties:
+      case GridSettingAction.showProperties:
         return true;
       default:
         return false;

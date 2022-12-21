@@ -1,11 +1,41 @@
 # Release Notes
 
+## Version 0.0.9 - 12/21/2022
+### New features
+- Enable the user to define where to store their data
+- Support inserting Emojis through the slash command
+### Bug Fixes
+- Fix some bugs 
+
+## Version 0.0.8.1 - 12/09/2022
+### New features
+- Support following your default system theme
+- Improve the filter in Grid
+### Bug Fixes
+- Copy/Paste
+
+## Version 0.0.8 - 11/30/2022
+### New features
+- Table-view database
+  - support column type: Checklist 
+- Board-view database
+  - support column type: Checklist 
+- Customize font size: small, medium, large
+
+## Version 0.0.7.1 - 11/30/2022
+### Bug Fixes
+- Fix some bugs 
+
+## Version 0.0.7 - 11/27/2022 
+### New features
+- Support adding filters by the text/checkbox/single-select property in Grid
+
 ## Version 0.0.6.2 - 10/30/2022
 - Fix some bugs
 
 ## Version 0.0.6.1 - 10/26/2022
 ### New features
-- Optimzie appflowy_editor dark mode style
+- Optimize appflowy_editor dark mode style
 
 ### Bug Fixes
 - Unable to copy the text with checkbox or link style
@@ -126,7 +156,7 @@ v0.0.4 - beta.1 is pre-release
 
 ### New features
 - Table-view database
-   - supported column types: Text, Checkbox, Single-select, Multi-select, Numbers
+   - support column types: Text, Checkbox, Single-select, Multi-select, Numbers
    - hide / delete columns
    - insert rows
 

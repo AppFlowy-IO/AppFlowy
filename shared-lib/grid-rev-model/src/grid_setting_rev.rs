@@ -1,8 +1,7 @@
-use crate::{FieldRevision, FieldTypeRevision, FilterConfigurationRevision, GroupConfigurationRevision};
+use crate::{FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, SortRevision};
 use indexmap::IndexMap;
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::fmt::Debug;
 use std::sync::Arc;
 
@@ -19,11 +18,11 @@ pub fn gen_grid_sort_id() -> String {
     nanoid!(6)
 }
 
-pub type FilterConfiguration = Configuration<FilterConfigurationRevision>;
-pub type FilterConfigurationsByFieldId = HashMap<String, Vec<Arc<FilterConfigurationRevision>>>;
-//
+pub type FilterConfiguration = Configuration<FilterRevision>;
+
 pub type GroupConfiguration = Configuration<GroupConfigurationRevision>;
-pub type GroupConfigurationsByFieldId = HashMap<String, Vec<Arc<GroupConfigurationRevision>>>;
+
+pub type SortConfiguration = Configuration<SortRevision>;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(transparent)]
@@ -47,22 +46,45 @@ where
         let value = self
             .inner
             .get_mut(field_id)
-            .and_then(|object_rev_map| object_rev_map.get_mut(field_type));
+            .and_then(|object_map| object_map.get_mut(field_type));
         if value.is_none() {
             eprintln!("[Configuration] Can't find the {:?} with", std::any::type_name::<T>());
         }
         value
     }
+
+    pub fn get_object(
+        &self,
+        field_id: &str,
+        field_type: &FieldTypeRevision,
+        predicate: impl Fn(&Arc<T>) -> bool,
+    ) -> Option<Arc<T>> {
+        let objects = self.get_objects(field_id, field_type)?;
+        let index = objects.iter().position(predicate)?;
+        objects.get(index).cloned()
+    }
+
+    pub fn get_mut_object(
+        &mut self,
+        field_id: &str,
+        field_type: &FieldTypeRevision,
+        predicate: impl Fn(&Arc<T>) -> bool,
+    ) -> Option<&mut Arc<T>> {
+        let objects = self.get_mut_objects(field_id, field_type)?;
+        let index = objects.iter().position(predicate)?;
+        objects.get_mut(index)
+    }
+
     pub fn get_objects(&self, field_id: &str, field_type_rev: &FieldTypeRevision) -> Option<Vec<Arc<T>>> {
         self.inner
             .get(field_id)
-            .and_then(|object_rev_map| object_rev_map.get(field_type_rev))
+            .and_then(|object_map| object_map.get(field_type_rev))
             .cloned()
     }
 
-    pub fn get_objects_by_field_revs(&self, field_revs: &[Arc<FieldRevision>]) -> Option<HashMap<String, Vec<Arc<T>>>> {
+    pub fn get_objects_by_field_revs(&self, field_revs: &[Arc<FieldRevision>]) -> Vec<Arc<T>> {
         // Get the objects according to the FieldType, so we need iterate the field_revs.
-        let objects_by_field_id = field_revs
+        let objects = field_revs
             .iter()
             .flat_map(|field_rev| {
                 let field_type = &field_rev.ty;
@@ -70,10 +92,11 @@ where
 
                 let object_rev_map = self.inner.get(field_id)?;
                 let objects: Vec<Arc<T>> = object_rev_map.get(field_type)?.clone();
-                Some((field_rev.id.clone(), objects))
+                Some(objects)
             })
-            .collect::<HashMap<String, Vec<Arc<T>>>>();
-        Some(objects_by_field_id)
+            .flatten()
+            .collect::<Vec<Arc<T>>>();
+        objects
     }
 
     pub fn get_all_objects(&self) -> Vec<Arc<T>> {

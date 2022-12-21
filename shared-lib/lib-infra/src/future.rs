@@ -8,20 +8,20 @@ use std::{
     task::{Context, Poll},
 };
 
-pub fn wrap_future<T, O>(f: T) -> AFFuture<O>
+pub fn to_fut<T, O>(f: T) -> Fut<O>
 where
     T: Future<Output = O> + Send + Sync + 'static,
 {
-    AFFuture { fut: Box::pin(f) }
+    Fut { fut: Box::pin(f) }
 }
 
 #[pin_project]
-pub struct AFFuture<T> {
+pub struct Fut<T> {
     #[pin]
     pub fut: Pin<Box<dyn Future<Output = T> + Sync + Send>>,
 }
 
-impl<T> Future for AFFuture<T>
+impl<T> Future for Fut<T>
 where
     T: Send + Sync,
 {

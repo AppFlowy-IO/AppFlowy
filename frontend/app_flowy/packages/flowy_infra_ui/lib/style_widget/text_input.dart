@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class FlowyFormTextInput extends StatelessWidget {
@@ -51,7 +49,7 @@ class FlowyFormTextInput extends StatelessWidget {
       initialValue: initialValue,
       onChanged: onChanged,
       onFocusCreated: onFocusCreated,
-      style: textStyle ?? TextStyles.body1,
+      style: textStyle ?? Theme.of(context).textTheme.bodyMedium,
       onEditingComplete: onEditingComplete,
       onFocusChanged: onFocusChanged,
       controller: controller,
@@ -196,7 +194,7 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
         obscureText: widget.obscureText ?? false,
         autocorrect: widget.autoCorrect ?? false,
         enableSuggestions: widget.enableSuggestions ?? false,
-        style: widget.style ?? TextStyles.body1,
+        style: widget.style ?? Theme.of(context).textTheme.bodyMedium,
         cursorColor: Theme.of(context).colorScheme.primary,
         controller: _controller,
         showCursor: true,
@@ -205,19 +203,21 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
         textCapitalization: widget.capitalization ?? TextCapitalization.none,
         decoration: widget.inputDecoration ??
             InputDecoration(
-                prefixIcon: widget.prefixIcon,
-                suffixIcon: widget.suffixIcon,
-                contentPadding:
-                    widget.contentPadding ?? EdgeInsets.all(Insets.m),
-                border: const OutlineInputBorder(borderSide: BorderSide.none),
-                isDense: true,
-                icon: widget.icon == null ? null : Icon(widget.icon),
-                errorText: widget.errorText,
-                errorMaxLines: 2,
-                hintText: widget.hintText,
-                hintStyle:
-                    TextStyles.body1.textColor(Theme.of(context).hintColor),
-                labelText: widget.label),
+              prefixIcon: widget.prefixIcon,
+              suffixIcon: widget.suffixIcon,
+              contentPadding: widget.contentPadding ?? EdgeInsets.all(Insets.m),
+              border: const OutlineInputBorder(borderSide: BorderSide.none),
+              isDense: true,
+              icon: widget.icon == null ? null : Icon(widget.icon),
+              errorText: widget.errorText,
+              errorMaxLines: 2,
+              hintText: widget.hintText,
+              hintStyle: Theme.of(context)
+                  .textTheme
+                  .bodyMedium!
+                  .textColor(Theme.of(context).hintColor),
+              labelText: widget.label,
+            ),
       ),
     );
   }

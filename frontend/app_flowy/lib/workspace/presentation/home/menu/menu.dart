@@ -4,6 +4,7 @@ export './app/menu_app.dart';
 import 'dart:io' show Platform;
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/trash/menu.dart';
+import 'package:app_flowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -21,7 +22,6 @@ import 'package:expandable/expandable.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
-import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:app_flowy/core/frameless_window.dart';
 // import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:flowy_infra/image.dart';
@@ -68,7 +68,7 @@ class HomeMenu extends StatelessWidget {
               getIt<HomeStackManager>().setPlugin(state.plugin);
             },
           ),
-          BlocListener<HomeBloc, HomeState>(
+          BlocListener<HomeSettingBloc, HomeSettingState>(
             listenWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed,
             listener: (context, state) {
               _collapsedNotifier.value = state.isMenuCollapsed;
@@ -85,7 +85,11 @@ class HomeMenu extends StatelessWidget {
   Widget _renderBody(BuildContext context) {
     // nested column: https://siddharthmolleti.com/flutter-box-constraints-nested-column-s-row-s-3dfacada7361
     return Container(
-      color: Theme.of(context).colorScheme.surfaceVariant,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceVariant,
+        border:
+            Border(right: BorderSide(color: Theme.of(context).dividerColor)),
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -100,7 +104,7 @@ class HomeMenu extends StatelessWidget {
             ).padding(horizontal: Insets.l),
           ),
           const VSpace(20),
-          const MenuTrash().padding(horizontal: Insets.l),
+          const MenuTrash(),
           const VSpace(20),
           _renderNewAppButton(context),
         ],
@@ -174,6 +178,7 @@ class MenuSharedState {
   }
 
   ViewPB? get latestOpenView => _latestOpenView.value;
+  ValueNotifier<ViewPB?> get notifier => _latestOpenView;
 
   set latestOpenView(ViewPB? view) {
     if (_latestOpenView.value != view) {
@@ -203,8 +208,8 @@ class MenuTopBar extends StatelessWidget {
       return Container();
     }
     return (Theme.of(context).brightness == Brightness.dark
-        ? svgWithSize("flowy_logo_dark_mode", const Size(92, 17))
-        : svgWithSize("flowy_logo_with_text", const Size(92, 17)));
+        ? svgWidget("flowy_logo_dark_mode", size: const Size(92, 17))
+        : svgWidget("flowy_logo_with_text", size: const Size(92, 17)));
   }
 
   @override
@@ -220,13 +225,15 @@ class MenuTopBar extends StatelessWidget {
                 const Spacer(),
                 Tooltip(
                   richMessage: sidebarTooltipTextSpan(
-                      LocaleKeys.sideBar_closeSidebar.tr()),
+                    context,
+                    LocaleKeys.sideBar_closeSidebar.tr(),
+                  ),
                   child: FlowyIconButton(
                     width: 28,
                     hoverColor: Colors.transparent,
                     onPressed: () => context
-                        .read<HomeBloc>()
-                        .add(const HomeEvent.collapseMenu()),
+                        .read<HomeSettingBloc>()
+                        .add(const HomeSettingEvent.collapseMenu()),
                     iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
                     icon: svgWidget(
                       "home/hide_menu",

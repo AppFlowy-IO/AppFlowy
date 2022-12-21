@@ -39,7 +39,7 @@ impl TryInto<CreateSelectOptionParams> for CreateSelectOptionPayloadPB {
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct GridCellIdPB {
+pub struct CellPathPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -50,28 +50,28 @@ pub struct GridCellIdPB {
     pub row_id: String,
 }
 
-pub struct GridCellIdParams {
-    pub grid_id: String,
+pub struct CellPathParams {
+    pub view_id: String,
     pub field_id: String,
     pub row_id: String,
 }
 
-impl TryInto<GridCellIdParams> for GridCellIdPB {
+impl TryInto<CellPathParams> for CellPathPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<GridCellIdParams, Self::Error> {
+    fn try_into(self) -> Result<CellPathParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
-        Ok(GridCellIdParams {
-            grid_id: grid_id.0,
+        Ok(CellPathParams {
+            view_id: grid_id.0,
             field_id: field_id.0,
             row_id: row_id.0,
         })
     }
 }
 #[derive(Debug, Default, ProtoBuf)]
-pub struct GridCellPB {
+pub struct CellPB {
     #[pb(index = 1)]
     pub field_id: String,
 
@@ -83,7 +83,7 @@ pub struct GridCellPB {
     pub field_type: Option<FieldType>,
 }
 
-impl GridCellPB {
+impl CellPB {
     pub fn new(field_id: &str, field_type: FieldType, data: Vec<u8>) -> Self {
         Self {
             field_id: field_id.to_owned(),
@@ -104,11 +104,11 @@ impl GridCellPB {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct RepeatedCellPB {
     #[pb(index = 1)]
-    pub items: Vec<GridCellPB>,
+    pub items: Vec<CellPB>,
 }
 
 impl std::ops::Deref for RepeatedCellPB {
-    type Target = Vec<GridCellPB>;
+    type Target = Vec<CellPB>;
     fn deref(&self) -> &Self::Target {
         &self.items
     }
@@ -120,8 +120,8 @@ impl std::ops::DerefMut for RepeatedCellPB {
     }
 }
 
-impl std::convert::From<Vec<GridCellPB>> for RepeatedCellPB {
-    fn from(items: Vec<GridCellPB>) -> Self {
+impl std::convert::From<Vec<CellPB>> for RepeatedCellPB {
+    fn from(items: Vec<CellPB>) -> Self {
         Self { items }
     }
 }
@@ -139,7 +139,7 @@ pub struct CellChangesetPB {
     pub field_id: String,
 
     #[pb(index = 4)]
-    pub content: String,
+    pub type_cell_data: String,
 }
 
 impl std::convert::From<CellChangesetPB> for RowChangeset {
@@ -147,7 +147,7 @@ impl std::convert::From<CellChangesetPB> for RowChangeset {
         let mut cell_by_field_id = HashMap::with_capacity(1);
         let field_id = changeset.field_id;
         let cell_rev = CellRevision {
-            data: changeset.content,
+            type_cell_data: changeset.type_cell_data,
         };
         cell_by_field_id.insert(field_id, cell_rev);
 

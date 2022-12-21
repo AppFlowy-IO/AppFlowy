@@ -46,11 +46,9 @@ class BubbleActionList extends StatelessWidget {
         return FlowyTextButton(
           '?',
           tooltip: LocaleKeys.questionBubble_help.tr(),
-          fontSize: 12,
           fontWeight: FontWeight.w600,
-          fillColor: Theme.of(context).colorScheme.secondaryContainer,
           mainAxisAlignment: MainAxisAlignment.center,
-          radius: BorderRadius.circular(10),
+          radius: Corners.s10Border,
           onPressed: () => controller.show(),
         );
       },
@@ -125,7 +123,6 @@ class FlowyVersionDescription extends CustomActionCell {
           if (snapshot.hasError) {
             return FlowyText(
               "Error: ${snapshot.error}",
-              fontSize: FontSizes.s12,
               color: Theme.of(context).disabledColor,
             );
           }
@@ -148,7 +145,6 @@ class FlowyVersionDescription extends CustomActionCell {
                 const VSpace(6),
                 FlowyText(
                   "$appName $version.$buildNumber",
-                  fontSize: FontSizes.s12,
                   color: Theme.of(context).hintColor,
                 ),
               ],
@@ -171,7 +167,7 @@ class BubbleActionWrapper extends ActionCell {
 
   BubbleActionWrapper(this.inner);
   @override
-  Widget? icon(Color iconColor) => FlowyText.regular(inner.emoji, fontSize: 12);
+  Widget? leftIcon(Color iconColor) => FlowyText.regular(inner.emoji);
 
   @override
   String get name => inner.name;

@@ -1,8 +1,8 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
-    DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB, InsertFilterParams,
-    InsertFilterPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedGridFilterConfigurationPB,
-    RepeatedGridGroupConfigurationPB,
+    AlterFilterParams, AlterFilterPayloadPB, AlterSortParams, AlterSortPayloadPB, DeleteFilterParams,
+    DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB, DeleteSortParams, DeleteSortPayloadPB,
+    InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterPB, RepeatedGroupConfigurationPB,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -21,10 +21,10 @@ pub struct GridSettingPB {
     pub layout_type: GridLayout,
 
     #[pb(index = 3)]
-    pub filter_configurations: RepeatedGridFilterConfigurationPB,
+    pub filters: RepeatedFilterPB,
 
     #[pb(index = 4)]
-    pub group_configurations: RepeatedGridGroupConfigurationPB,
+    pub group_configurations: RepeatedGroupConfigurationPB,
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -76,7 +76,7 @@ impl std::convert::From<GridLayout> for LayoutRevision {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct GridSettingChangesetPayloadPB {
+pub struct GridSettingChangesetPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -84,7 +84,7 @@ pub struct GridSettingChangesetPayloadPB {
     pub layout_type: GridLayout,
 
     #[pb(index = 3, one_of)]
-    pub insert_filter: Option<InsertFilterPayloadPB>,
+    pub alter_filter: Option<AlterFilterPayloadPB>,
 
     #[pb(index = 4, one_of)]
     pub delete_filter: Option<DeleteFilterPayloadPB>,
@@ -94,9 +94,15 @@ pub struct GridSettingChangesetPayloadPB {
 
     #[pb(index = 6, one_of)]
     pub delete_group: Option<DeleteGroupPayloadPB>,
+
+    #[pb(index = 7, one_of)]
+    pub alter_sort: Option<AlterSortPayloadPB>,
+
+    #[pb(index = 8, one_of)]
+    pub delete_sort: Option<DeleteSortPayloadPB>,
 }
 
-impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
+impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<GridSettingChangesetParams, Self::Error> {
@@ -104,7 +110,7 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
             .map_err(|_| ErrorCode::ViewIdInvalid)?
             .0;
 
-        let insert_filter = match self.insert_filter {
+        let insert_filter = match self.alter_filter {
             None => None,
             Some(payload) => Some(payload.try_into()?),
         };
@@ -124,6 +130,16 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
             None => None,
         };
 
+        let alert_sort = match self.alter_sort {
+            None => None,
+            Some(payload) => Some(payload.try_into()?),
+        };
+
+        let delete_sort = match self.delete_sort {
+            None => None,
+            Some(payload) => Some(payload.try_into()?),
+        };
+
         Ok(GridSettingChangesetParams {
             grid_id: view_id,
             layout_type: self.layout_type.into(),
@@ -131,6 +147,8 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
             delete_filter,
             insert_group,
             delete_group,
+            alert_sort,
+            delete_sort,
         })
     }
 }
@@ -138,10 +156,12 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
 pub struct GridSettingChangesetParams {
     pub grid_id: String,
     pub layout_type: LayoutRevision,
-    pub insert_filter: Option<InsertFilterParams>,
+    pub insert_filter: Option<AlterFilterParams>,
     pub delete_filter: Option<DeleteFilterParams>,
     pub insert_group: Option<InsertGroupParams>,
     pub delete_group: Option<DeleteGroupParams>,
+    pub alert_sort: Option<AlterSortParams>,
+    pub delete_sort: Option<DeleteSortParams>,
 }
 
 impl GridSettingChangesetParams {

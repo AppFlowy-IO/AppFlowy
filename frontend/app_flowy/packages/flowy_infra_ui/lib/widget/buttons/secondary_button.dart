@@ -1,7 +1,7 @@
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:flowy_infra/size.dart';
+
 import 'base_styled_button.dart';
 
 class SecondaryTextButton extends StatelessWidget {

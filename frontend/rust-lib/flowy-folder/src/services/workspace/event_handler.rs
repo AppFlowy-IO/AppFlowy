@@ -9,13 +9,13 @@ use crate::{
     manager::FolderManager,
     services::{get_current_workspace, read_local_workspace_apps, WorkspaceController},
 };
-use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
+use lib_dispatch::prelude::{data_result, AFPluginData, AFPluginState, DataResult};
 use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(level = "debug", skip(data, controller), err)]
 pub(crate) async fn create_workspace_handler(
-    data: Data<CreateWorkspacePayloadPB>,
-    controller: AppData<Arc<WorkspaceController>>,
+    data: AFPluginData<CreateWorkspacePayloadPB>,
+    controller: AFPluginState<Arc<WorkspaceController>>,
 ) -> DataResult<WorkspacePB, FlowyError> {
     let controller = controller.get_ref().clone();
     let params: CreateWorkspaceParams = data.into_inner().try_into()?;
@@ -25,7 +25,7 @@ pub(crate) async fn create_workspace_handler(
 
 #[tracing::instrument(level = "debug", skip(controller), err)]
 pub(crate) async fn read_workspace_apps_handler(
-    controller: AppData<Arc<WorkspaceController>>,
+    controller: AFPluginState<Arc<WorkspaceController>>,
 ) -> DataResult<RepeatedAppPB, FlowyError> {
     let items = controller
         .read_current_workspace_apps()
@@ -39,8 +39,8 @@ pub(crate) async fn read_workspace_apps_handler(
 
 #[tracing::instrument(level = "debug", skip(data, controller), err)]
 pub(crate) async fn open_workspace_handler(
-    data: Data<WorkspaceIdPB>,
-    controller: AppData<Arc<WorkspaceController>>,
+    data: AFPluginData<WorkspaceIdPB>,
+    controller: AFPluginState<Arc<WorkspaceController>>,
 ) -> DataResult<WorkspacePB, FlowyError> {
     let params: WorkspaceIdPB = data.into_inner();
     let workspaces = controller.open_workspace(params).await?;
@@ -49,8 +49,8 @@ pub(crate) async fn open_workspace_handler(
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn read_workspaces_handler(
-    data: Data<WorkspaceIdPB>,
-    folder: AppData<Arc<FolderManager>>,
+    data: AFPluginData<WorkspaceIdPB>,
+    folder: AFPluginState<Arc<FolderManager>>,
 ) -> DataResult<RepeatedWorkspacePB, FlowyError> {
     let params: WorkspaceIdPB = data.into_inner();
     let user_id = folder.user.user_id()?;
@@ -78,10 +78,10 @@ pub(crate) async fn read_workspaces_handler(
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub async fn read_cur_workspace_handler(
-    folder: AppData<Arc<FolderManager>>,
+    folder: AFPluginState<Arc<FolderManager>>,
 ) -> DataResult<WorkspaceSettingPB, FlowyError> {
-    let workspace_id = get_current_workspace()?;
     let user_id = folder.user.user_id()?;
+    let workspace_id = get_current_workspace(&user_id)?;
     let params = WorkspaceIdPB {
         value: Some(workspace_id.clone()),
     };
@@ -108,7 +108,7 @@ pub async fn read_cur_workspace_handler(
 
 #[tracing::instrument(level = "trace", skip(folder_manager), err)]
 fn read_workspaces_on_server(
-    folder_manager: AppData<Arc<FolderManager>>,
+    folder_manager: AFPluginState<Arc<FolderManager>>,
     user_id: String,
     params: WorkspaceIdPB,
 ) -> Result<(), FlowyError> {

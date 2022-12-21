@@ -43,6 +43,14 @@ class FontSizes {
   static double get s16 => 16 * scale;
 
   static double get s18 => 18 * scale;
+
+  static double get s20 => 20 * scale;
+
+  static double get s24 => 24 * scale;
+
+  static double get s32 => 32 * scale;
+
+  static double get s44 => 44 * scale;
 }
 
 class Sizes {

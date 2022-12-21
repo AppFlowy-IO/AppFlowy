@@ -4,7 +4,7 @@ import 'package:app_flowy/workspace/application/view/view_ext.dart';
 import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/color_extension.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -51,7 +51,7 @@ class ViewSectionItem extends StatelessWidget {
               onTap: () => onSelected(blocContext.read<ViewBloc>().state.view),
               child: FlowyHover(
                 style: HoverStyle(
-                  hoverColor: CustomColors.of(context).greySelect,
+                  hoverColor: AFThemeExtension.of(context).greySelect,
                 ),
                 // If current state.isEditing is true, the hover should not
                 // rebuild when onEnter/onExit events happened.
@@ -87,7 +87,6 @@ class ViewSectionItem extends StatelessWidget {
       Expanded(
         child: FlowyText.regular(
           state.view.name,
-          fontSize: 12,
           overflow: TextOverflow.ellipsis,
         ),
       ),
@@ -212,7 +211,7 @@ class ViewDisclosureActionWrapper extends ActionCell {
 
   ViewDisclosureActionWrapper(this.inner);
   @override
-  Widget? icon(Color iconColor) => inner.icon(iconColor);
+  Widget? leftIcon(Color iconColor) => inner.icon(iconColor);
 
   @override
   String get name => inner.name;

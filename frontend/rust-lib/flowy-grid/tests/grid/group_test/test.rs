@@ -462,7 +462,7 @@ async fn group_insert_single_select_option_test() {
         AssertGroupCount(5),
     ];
     test.run_scripts(scripts).await;
-    let new_group = test.group_at_index(1).await;
+    let new_group = test.group_at_index(4).await;
     assert_eq!(new_group.desc, new_option_name);
 }
 

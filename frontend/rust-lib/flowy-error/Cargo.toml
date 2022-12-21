@@ -27,7 +27,7 @@ ot = ["lib-ot"]
 serde = ["serde_json"]
 http_server = ["http-flowy"]
 db = ["flowy-database", "lib-sqlite", "r2d2"]
-dart = ["flowy-error-code/dart", "lib-infra/dart"]
+dart = ["flowy-error-code/dart", "flowy-codegen/dart"]
 
 [build-dependencies]
-lib-infra = { path = "../../../shared-lib/lib-infra", features = ["proto_gen"] }
+flowy-codegen= { path = "../../../shared-lib/flowy-codegen"}

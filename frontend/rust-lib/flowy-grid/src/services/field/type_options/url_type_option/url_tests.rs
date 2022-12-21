@@ -1,9 +1,10 @@
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
-    use crate::services::cell::{CellData, CellDataOperation};
-    use crate::services::field::{FieldBuilder, URLCellDataParser};
-    use crate::services::field::{URLCellDataPB, URLTypeOptionPB};
+    use crate::services::cell::{CellDataChangeset, CellDataDecoder};
+
+    use crate::services::field::FieldBuilder;
+    use crate::services::field::{URLCellData, URLTypeOptionPB};
     use grid_rev_model::FieldRevision;
 
     /// The expected_str will equal to the input string, but the expected_url will be empty if there's no
@@ -169,22 +170,20 @@ mod tests {
         field_type: &FieldType,
         field_rev: &FieldRevision,
     ) {
-        let encoded_data = type_option.apply_changeset(input_str.to_owned().into(), None).unwrap();
+        let encoded_data = type_option.apply_changeset(input_str.to_owned(), None).unwrap();
         let decode_cell_data = decode_cell_data(encoded_data, type_option, field_rev, field_type);
         assert_eq!(expected_str.to_owned(), decode_cell_data.content);
         assert_eq!(expected_url.to_owned(), decode_cell_data.url);
     }
 
-    fn decode_cell_data<T: Into<CellData<URLCellDataPB>>>(
-        encoded_data: T,
+    fn decode_cell_data(
+        encoded_data: String,
         type_option: &URLTypeOptionPB,
         field_rev: &FieldRevision,
         field_type: &FieldType,
-    ) -> URLCellDataPB {
+    ) -> URLCellData {
         type_option
-            .decode_cell_data(encoded_data.into(), field_type, field_rev)
-            .unwrap()
-            .parser::<URLCellDataParser>()
+            .decode_cell_str(encoded_data, field_type, field_rev)
             .unwrap()
     }
 }

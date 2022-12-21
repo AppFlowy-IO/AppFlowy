@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 export 'package:styled_widget/styled_widget.dart';
 
 extension FlowyStyledWidget on Widget {
-  Widget bottomBorder({double width = 0.5, Color color = Colors.grey}) {
+  Widget bottomBorder({double width = 1.0, Color color = Colors.grey}) {
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -13,7 +13,7 @@ extension FlowyStyledWidget on Widget {
     );
   }
 
-  Widget topBorder({double width = 0.5, Color color = Colors.grey}) {
+  Widget topBorder({double width = 1.0, Color color = Colors.grey}) {
     return Container(
       decoration: BoxDecoration(
         border: Border(

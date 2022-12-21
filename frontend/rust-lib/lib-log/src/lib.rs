@@ -1,12 +1,9 @@
 mod layer;
-
-use log::LevelFilter;
-
-use tracing::subscriber::set_global_default;
-
 use crate::layer::*;
 use lazy_static::lazy_static;
+use log::LevelFilter;
 use std::sync::RwLock;
+use tracing::subscriber::set_global_default;
 use tracing_appender::{non_blocking::WorkerGuard, rolling::RollingFileAppender};
 use tracing_bunyan_formatter::JsonStorageLayer;
 use tracing_log::LogTracer;

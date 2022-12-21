@@ -1,15 +1,16 @@
-use crate::entities::FieldType;
+use crate::entities::{DateFilterPB, FieldType};
 use crate::impl_type_option;
-use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
+use crate::services::cell::{CellDataChangeset, CellDataDecoder, FromCellString, TypeCellData};
 use crate::services::field::{
-    BoxTypeOptionBuilder, DateCellChangesetPB, DateCellDataPB, DateFormat, DateTimestamp, TimeFormat, TypeOptionBuilder,
+    BoxTypeOptionBuilder, DateCellChangeset, DateCellData, DateCellDataPB, DateFormat, TimeFormat, TypeOption,
+    TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration, TypeOptionTransform,
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
 use chrono::{NaiveDateTime, Timelike};
 use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
 
 // Date
@@ -26,19 +27,35 @@ pub struct DateTypeOptionPB {
 }
 impl_type_option!(DateTypeOptionPB, FieldType::DateTime);
 
+impl TypeOption for DateTypeOptionPB {
+    type CellData = DateCellData;
+    type CellChangeset = DateCellChangeset;
+    type CellProtobufType = DateCellDataPB;
+}
+
+impl TypeOptionConfiguration for DateTypeOptionPB {
+    type CellFilterConfiguration = DateFilterPB;
+}
+
+impl TypeOptionCellData for DateTypeOptionPB {
+    fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {
+        self.today_desc_from_timestamp(cell_data)
+    }
+
+    fn decode_type_option_cell_str(&self, cell_str: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        DateCellData::from_cell_str(&cell_str)
+    }
+}
+
 impl DateTypeOptionPB {
     #[allow(dead_code)]
     pub fn new() -> Self {
         Self::default()
     }
 
-    fn today_desc_from_timestamp<T: AsRef<i64>>(&self, timestamp: T) -> DateCellDataPB {
-        let timestamp = *timestamp.as_ref();
+    fn today_desc_from_timestamp<T: Into<i64>>(&self, timestamp: T) -> DateCellDataPB {
+        let timestamp = timestamp.into();
         let native = chrono::NaiveDateTime::from_timestamp(timestamp, 0);
-        self.date_from_native(native)
-    }
-
-    fn date_from_native(&self, native: chrono::NaiveDateTime) -> DateCellDataPB {
         if native.timestamp() == 0 {
             return DateCellDataPB::default();
         }
@@ -106,69 +123,50 @@ impl DateTypeOptionPB {
         Ok(utc.timestamp())
     }
 
-    fn utc_date_time_from_timestamp(&self, timestamp: i64) -> chrono::DateTime<chrono::Utc> {
-        let native = NaiveDateTime::from_timestamp(timestamp, 0);
-        self.utc_date_time_from_native(native)
-    }
-
     fn utc_date_time_from_native(&self, naive: chrono::NaiveDateTime) -> chrono::DateTime<chrono::Utc> {
         chrono::DateTime::<chrono::Utc>::from_utc(naive, chrono::Utc)
     }
 }
 
-impl CellDisplayable<DateTimestamp> for DateTypeOptionPB {
-    fn displayed_cell_bytes(
-        &self,
-        cell_data: CellData<DateTimestamp>,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        let timestamp = cell_data.try_into_inner()?;
-        let date_cell_data = self.today_desc_from_timestamp(timestamp);
-        CellBytes::from(date_cell_data)
-    }
+impl TypeOptionTransform for DateTypeOptionPB {}
 
-    fn displayed_cell_string(
+impl CellDataDecoder for DateTypeOptionPB {
+    fn decode_cell_str(
         &self,
-        cell_data: CellData<DateTimestamp>,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<String> {
-        let timestamp = cell_data.try_into_inner()?;
-        let date_cell_data = self.today_desc_from_timestamp(timestamp);
-        Ok(date_cell_data.date)
-    }
-}
-
-impl CellDataOperation<DateTimestamp, DateCellChangesetPB> for DateTypeOptionPB {
-    fn decode_cell_data(
-        &self,
-        cell_data: CellData<DateTimestamp>,
+        cell_str: String,
         decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
         // Return default data if the type_option_cell_data is not FieldType::DateTime.
         // It happens when switching from one field to another.
         // For example:
         // FieldType::RichText -> FieldType::DateTime, it will display empty content on the screen.
         if !decoded_field_type.is_date() {
-            return Ok(CellBytes::default());
+            return Ok(Default::default());
         }
-        self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
+
+        self.decode_type_option_cell_str(cell_str)
     }
 
+    fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+        self.today_desc_from_timestamp(cell_data).date
+    }
+}
+
+impl CellDataChangeset for DateTypeOptionPB {
     fn apply_changeset(
         &self,
-        changeset: CellDataChangeset<DateCellChangesetPB>,
-        _cell_rev: Option<CellRevision>,
-    ) -> Result<String, FlowyError> {
-        let changeset = changeset.try_into_inner()?;
+        changeset: <Self as TypeOption>::CellChangeset,
+        _type_cell_data: Option<TypeCellData>,
+    ) -> FlowyResult<String> {
         let cell_data = match changeset.date_timestamp() {
             None => 0,
             Some(date_timestamp) => match (self.include_time, changeset.time) {
                 (true, Some(time)) => {
                     let time = Some(time.trim().to_uppercase());
-                    let utc = self.utc_date_time_from_timestamp(date_timestamp);
+                    let native = NaiveDateTime::from_timestamp(date_timestamp, 0);
+
+                    let utc = self.utc_date_time_from_native(native);
                     self.timestamp_from_utc_with_time(&utc, &time)?
                 }
                 _ => date_timestamp,
@@ -202,8 +200,5 @@ impl TypeOptionBuilder for DateTypeOptionBuilder {
 
     fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
-    }
-    fn transform(&mut self, _field_type: &FieldType, _type_option_data: String) {
-        // Do nothing
     }
 }

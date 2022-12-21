@@ -54,7 +54,7 @@ jobs:
         working-directory: frontend
         run: |
           cargo install cargo-make
-          cargo make flowy_dev
+          cargo make appflowy-deps-tools
 
       - name: Flutter Deps
         working-directory: frontend/app_flowy

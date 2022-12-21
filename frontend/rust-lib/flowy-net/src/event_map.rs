@@ -4,10 +4,10 @@ use lib_dispatch::prelude::*;
 use std::sync::Arc;
 use strum_macros::Display;
 
-pub fn create(ws_conn: Arc<FlowyWebSocketConnect>) -> Module {
-    Module::new()
+pub fn init(ws_conn: Arc<FlowyWebSocketConnect>) -> AFPlugin {
+    AFPlugin::new()
         .name("Flowy-Network")
-        .data(ws_conn)
+        .state(ws_conn)
         .event(NetworkEvent::UpdateNetworkType, update_network_ty)
 }
 

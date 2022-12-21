@@ -5,13 +5,14 @@ use lib_dispatch::prelude::*;
 use std::sync::Arc;
 use strum_macros::Display;
 
-pub fn create(grid_manager: Arc<GridManager>) -> Module {
-    let mut module = Module::new().name(env!("CARGO_PKG_NAME")).data(grid_manager);
-    module = module
+pub fn init(grid_manager: Arc<GridManager>) -> AFPlugin {
+    let mut plugin = AFPlugin::new().name(env!("CARGO_PKG_NAME")).state(grid_manager);
+    plugin = plugin
         .event(GridEvent::GetGrid, get_grid_handler)
-        .event(GridEvent::GetGridBlocks, get_grid_blocks_handler)
+        // .event(GridEvent::GetGridBlocks, get_grid_blocks_handler)
         .event(GridEvent::GetGridSetting, get_grid_setting_handler)
         .event(GridEvent::UpdateGridSetting, update_grid_setting_handler)
+        .event(GridEvent::GetAllFilters, get_all_filters_handler)
         // Field
         .event(GridEvent::GetFields, get_fields_handler)
         .event(GridEvent::UpdateField, update_field_handler)
@@ -44,7 +45,7 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         .event(GridEvent::MoveGroupRow, move_group_row_handler)
         .event(GridEvent::GetGroup, get_groups_handler);
 
-    module
+    plugin
 }
 
 /// [GridEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -58,13 +59,6 @@ pub enum GridEvent {
     #[event(input = "GridIdPB", output = "GridPB")]
     GetGrid = 0,
 
-    /// [GetGridBlocks] event is used to get the grid's block.
-    ///
-    /// The event handler accepts a [QueryBlocksPayloadPB] and returns a [RepeatedBlockPB]
-    /// if there are no errors.
-    #[event(input = "QueryBlocksPayloadPB", output = "RepeatedBlockPB")]
-    GetGridBlocks = 1,
-
     /// [GetGridSetting] event is used to get the grid's settings.
     ///
     /// The event handler accepts [GridIdPB] and return [GridSettingPB]
@@ -74,22 +68,25 @@ pub enum GridEvent {
 
     /// [UpdateGridSetting] event is used to update the grid's settings.
     ///
-    /// The event handler accepts [GridSettingChangesetPayloadPB] and return errors if failed to modify the grid's settings.
-    #[event(input = "GridSettingChangesetPayloadPB")]
+    /// The event handler accepts [GridSettingChangesetPB] and return errors if failed to modify the grid's settings.
+    #[event(input = "GridSettingChangesetPB")]
     UpdateGridSetting = 3,
+
+    #[event(input = "GridIdPB", output = "RepeatedFilterPB")]
+    GetAllFilters = 4,
 
     /// [GetFields] event is used to get the grid's settings.
     ///
-    /// The event handler accepts a [QueryFieldPayloadPB] and returns a [RepeatedFieldPB]
+    /// The event handler accepts a [GetFieldPayloadPB] and returns a [RepeatedFieldPB]
     /// if there are no errors.
-    #[event(input = "QueryFieldPayloadPB", output = "RepeatedFieldPB")]
+    #[event(input = "GetFieldPayloadPB", output = "RepeatedFieldPB")]
     GetFields = 10,
 
     /// [UpdateField] event is used to update a field's attributes.
     ///
-    /// The event handler accepts a [FieldChangesetPayloadPB] and returns errors if failed to modify the
+    /// The event handler accepts a [FieldChangesetPB] and returns errors if failed to modify the
     /// field.
-    #[event(input = "FieldChangesetPayloadPB")]
+    #[event(input = "FieldChangesetPB")]
     UpdateField = 11,
 
     /// [UpdateFieldTypeOption] event is used to update the field's type-option data. Certain field
@@ -100,9 +97,9 @@ pub enum GridEvent {
     /// Check out [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid#fieldtype)
     /// for more information.
     ///
-    /// The event handler accepts a [UpdateFieldTypeOptionPayloadPB] and returns errors if failed to modify the
+    /// The event handler accepts a [TypeOptionChangesetPB] and returns errors if failed to modify the
     /// field.
-    #[event(input = "UpdateFieldTypeOptionPayloadPB")]
+    #[event(input = "TypeOptionChangesetPB")]
     UpdateFieldTypeOption = 12,
 
     /// [DeleteField] event is used to delete a Field. [DeleteFieldPayloadPB] is the context that
@@ -113,7 +110,7 @@ pub enum GridEvent {
     /// [SwitchToField] event is used to update the current Field's type.
     /// It will insert a new FieldTypeOptionData if the new FieldType doesn't exist before, otherwise
     /// reuse the existing FieldTypeOptionData. You could check the [GridRevisionPad] for more details.
-    #[event(input = "EditFieldPayloadPB")]
+    #[event(input = "EditFieldChangesetPB")]
     SwitchToField = 20,
 
     /// [DuplicateField] event is used to duplicate a Field. The duplicated field data is kind of
@@ -130,17 +127,17 @@ pub enum GridEvent {
     #[event(input = "MoveFieldPayloadPB")]
     MoveField = 22,
 
-    /// [FieldTypeOptionIdPB] event is used to get the FieldTypeOption data for a specific field type.
+    /// [TypeOptionPathPB] event is used to get the FieldTypeOption data for a specific field type.
     ///
-    /// Check out the [FieldTypeOptionDataPB] for more details. If the [FieldTypeOptionData] does exist
+    /// Check out the [TypeOptionPB] for more details. If the [FieldTypeOptionData] does exist
     /// for the target type, the [TypeOptionBuilder] will create the default data for that type.
     ///
-    /// Return the [FieldTypeOptionDataPB] if there are no errors.
-    #[event(input = "FieldTypeOptionIdPB", output = "FieldTypeOptionDataPB")]
+    /// Return the [TypeOptionPB] if there are no errors.
+    #[event(input = "TypeOptionPathPB", output = "TypeOptionPB")]
     GetFieldTypeOption = 23,
 
     /// [CreateFieldTypeOption] event is used to create a new FieldTypeOptionData.
-    #[event(input = "CreateFieldPayloadPB", output = "FieldTypeOptionDataPB")]
+    #[event(input = "CreateFieldPayloadPB", output = "TypeOptionPB")]
     CreateFieldTypeOption = 24,
 
     /// [NewSelectOption] event is used to create a new select option. Returns a [SelectOptionPB] if
@@ -149,18 +146,18 @@ pub enum GridEvent {
     NewSelectOption = 30,
 
     /// [GetSelectOptionCellData] event is used to get the select option data for cell editing.
-    /// [GridCellIdPB] locate which cell data that will be read from. The return value, [SelectOptionCellDataPB]
+    /// [CellPathPB] locate which cell data that will be read from. The return value, [SelectOptionCellDataPB]
     /// contains the available options and the currently selected options.
-    #[event(input = "GridCellIdPB", output = "SelectOptionCellDataPB")]
+    #[event(input = "CellPathPB", output = "SelectOptionCellDataPB")]
     GetSelectOptionCellData = 31,
 
     /// [UpdateSelectOption] event is used to update a FieldTypeOptionData whose field_type is
     /// FieldType::SingleSelect or FieldType::MultiSelect.
     ///
-    /// This event may trigger the GridNotification::DidUpdateCell event.
-    /// For example, GridNotification::DidUpdateCell will be triggered if the [SelectOptionChangesetPayloadPB]
+    /// This event may trigger the GridDartNotification::DidUpdateCell event.
+    /// For example, GridDartNotification::DidUpdateCell will be triggered if the [SelectOptionChangesetPB]
     /// carries a change that updates the name of the option.
-    #[event(input = "SelectOptionChangesetPayloadPB")]
+    #[event(input = "SelectOptionChangesetPB")]
     UpdateSelectOption = 32,
 
     #[event(input = "CreateTableRowPayloadPB", output = "RowPB")]
@@ -180,7 +177,7 @@ pub enum GridEvent {
     #[event(input = "MoveRowPayloadPB")]
     MoveRow = 54,
 
-    #[event(input = "GridCellIdPB", output = "GridCellPB")]
+    #[event(input = "CellPathPB", output = "CellPB")]
     GetCell = 70,
 
     /// [UpdateCell] event is used to update the cell content. The passed in data, [CellChangesetPB],
@@ -196,19 +193,19 @@ pub enum GridEvent {
     #[event(input = "CellChangesetPB")]
     UpdateCell = 71,
 
-    /// [UpdateSelectOptionCell] event is used to update a select option cell's data. [SelectOptionCellChangesetPayloadPB]
+    /// [UpdateSelectOptionCell] event is used to update a select option cell's data. [SelectOptionCellChangesetPB]
     /// contains options that will be deleted or inserted. It can be cast to [CellChangesetPB] that
     /// will be used by the `update_cell` function.
-    #[event(input = "SelectOptionCellChangesetPayloadPB")]
+    #[event(input = "SelectOptionCellChangesetPB")]
     UpdateSelectOptionCell = 72,
 
-    /// [UpdateDateCell] event is used to update a date cell's data. [DateChangesetPayloadPB]
+    /// [UpdateDateCell] event is used to update a date cell's data. [DateChangesetPB]
     /// contains the date and the time string. It can be cast to [CellChangesetPB] that
     /// will be used by the `update_cell` function.
-    #[event(input = "DateChangesetPayloadPB")]
+    #[event(input = "DateChangesetPB")]
     UpdateDateCell = 80,
 
-    #[event(input = "GridIdPB", output = "RepeatedGridGroupPB")]
+    #[event(input = "GridIdPB", output = "RepeatedGroupPB")]
     GetGroup = 100,
 
     #[event(input = "CreateBoardCardPayloadPB", output = "RowPB")]

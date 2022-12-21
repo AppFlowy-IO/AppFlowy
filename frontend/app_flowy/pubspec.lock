@@ -36,6 +36,13 @@ packages:
       relative: true
     source: path
     version: "0.0.7"
+  appflowy_editor_plugins:
+    dependency: "direct main"
+    description:
+      path: "packages/appflowy_editor_plugins"
+      relative: true
+    source: path
+    version: "0.0.1"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -212,12 +219,12 @@ packages:
     source: hosted
     version: "1.2.4"
   connectivity_plus_platform_interface:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: connectivity_plus_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.0"
+    version: "1.2.3"
   connectivity_plus_web:
     dependency: transitive
     description:
@@ -471,6 +478,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_math_fork:
+    dependency: transitive
+    description:
+      name: flutter_math_fork
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.6.3+1"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -556,6 +570,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
+  highlight:
+    dependency: transitive
+    description:
+      name: highlight
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.7.0"
   hotkey_manager:
     dependency: "direct main"
     description:
@@ -862,6 +883,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.6"
+  percent_indicator:
+    dependency: "direct main"
+    description:
+      name: percent_indicator
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.2.2"
   petitparser:
     dependency: transitive
     description:
@@ -1209,7 +1237,7 @@ packages:
       name: textfield_tags
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0+1"
+    version: "2.0.2"
   textstyle_extensions:
     dependency: "direct main"
     description:
@@ -1395,5 +1423,5 @@ packages:
     source: hosted
     version: "3.1.1"
 sdks:
-  dart: ">=2.17.0 <3.0.0"
+  dart: ">=2.17.6 <3.0.0"
   flutter: ">=3.0.0"

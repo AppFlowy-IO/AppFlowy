@@ -1,6 +1,8 @@
 use crate::FlowySDKTest;
 use flowy_user::{entities::UserProfilePB, errors::FlowyError};
-use lib_dispatch::prelude::{EventDispatcher, EventResponse, FromBytes, ModuleRequest, StatusCode, ToBytes, *};
+use lib_dispatch::prelude::{
+    AFPluginDispatcher, AFPluginEventResponse, AFPluginFromBytes, AFPluginRequest, StatusCode, ToBytes, *,
+};
 use std::{
     convert::TryFrom,
     fmt::{Debug, Display},
@@ -30,7 +32,7 @@ pub struct EventBuilder<E> {
 
 impl<E> EventBuilder<E>
 where
-    E: FromBytes + Debug,
+    E: AFPluginFromBytes + Debug,
 {
     fn test(context: TestContext) -> Self {
         Self {
@@ -60,27 +62,27 @@ where
     where
         Event: Eq + Hash + Debug + Clone + Display,
     {
-        self.context.request = Some(ModuleRequest::new(event));
+        self.context.request = Some(AFPluginRequest::new(event));
         self
     }
 
     pub fn sync_send(mut self) -> Self {
         let request = self.get_request();
-        let resp = EventDispatcher::sync_send(self.dispatch(), request);
+        let resp = AFPluginDispatcher::sync_send(self.dispatch(), request);
         self.context.response = Some(resp);
         self
     }
 
     pub async fn async_send(mut self) -> Self {
         let request = self.get_request();
-        let resp = EventDispatcher::async_send(self.dispatch(), request).await;
+        let resp = AFPluginDispatcher::async_send(self.dispatch(), request).await;
         self.context.response = Some(resp);
         self
     }
 
     pub fn parse<R>(self) -> R
     where
-        R: FromBytes,
+        R: AFPluginFromBytes,
     {
         let response = self.get_response();
         match response.clone().parse::<R, E>() {
@@ -105,7 +107,7 @@ where
     pub fn error(self) -> E {
         let response = self.get_response();
         assert_eq!(response.status_code, StatusCode::Err);
-        <Data<E>>::try_from(response.payload).unwrap().into_inner()
+        <AFPluginData<E>>::try_from(response.payload).unwrap().into_inner()
     }
 
     pub fn assert_error(self) -> Self {
@@ -118,11 +120,11 @@ where
         self
     }
 
-    fn dispatch(&self) -> Arc<EventDispatcher> {
+    fn dispatch(&self) -> Arc<AFPluginDispatcher> {
         self.context.sdk.dispatcher()
     }
 
-    fn get_response(&self) -> EventResponse {
+    fn get_response(&self) -> AFPluginEventResponse {
         self.context
             .response
             .as_ref()
@@ -130,7 +132,7 @@ where
             .clone()
     }
 
-    fn get_request(&mut self) -> ModuleRequest {
+    fn get_request(&mut self) -> AFPluginRequest {
         self.context.request.take().expect("must call event first")
     }
 }
@@ -138,8 +140,8 @@ where
 #[derive(Clone)]
 pub struct TestContext {
     pub sdk: FlowySDKTest,
-    request: Option<ModuleRequest>,
-    response: Option<EventResponse>,
+    request: Option<AFPluginRequest>,
+    response: Option<AFPluginEventResponse>,
 }
 
 impl TestContext {

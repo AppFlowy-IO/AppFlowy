@@ -144,8 +144,12 @@
       "open": "Abrir ajustes"
     },
     "appearance": {
-      "lightLabel": "Modo Claro",
-      "darkLabel": "Modo Oscuro"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Modo Claro",
+        "dark": "Modo Oscuro",
+        "system": "Adapt to System"
+      }
     }
   },
   "grid": {
@@ -218,7 +222,7 @@
     "openSidebar": "Abrir panel lateral",
     "closeSidebar": "Cerrar panel lateral"
   },
-    "board": {
+  "board": {
     "column": {
       "create_new_card": "Nuevo"
     }

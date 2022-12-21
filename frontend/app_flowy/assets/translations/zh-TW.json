@@ -145,8 +145,12 @@
       "open": "開啟設定"
     },
     "appearance": {
-      "lightLabel": "亮色模式",
-      "darkLabel": "暗色模式"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "亮色模式",
+        "dark": "暗色模式",
+        "system": "Adapt to System"
+      }
     }
   },
   "grid": {

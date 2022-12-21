@@ -1,19 +1,18 @@
-import 'package:app_flowy/plugins/grid/application/field/field_cell_bloc.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../layout/sizes.dart';
-import 'field_type_extension.dart';
 
+import '../../../application/field/field_cell_bloc.dart';
+import '../../../application/field/field_service.dart';
+import '../../layout/sizes.dart';
 import 'field_cell_action_sheet.dart';
+import 'field_type_extension.dart';
 
 class GridFieldCell extends StatefulWidget {
   final GridFieldCellContext cellContext;
@@ -45,7 +44,7 @@ class _GridFieldCellState extends State<GridFieldCell> {
         builder: (context, state) {
           final button = AppFlowyPopover(
             triggerActions: PopoverTriggerFlags.none,
-            constraints: BoxConstraints.loose(const Size(240, 840)),
+            constraints: BoxConstraints.loose(const Size(240, 440)),
             direction: PopoverDirection.bottomWithLeftAligned,
             controller: popoverController,
             popupBuilder: (BuildContext context) {
@@ -123,7 +122,6 @@ class _DragToExpandLine extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onHorizontalDragUpdate: (value) {
-          debugPrint("update new width: ${value.delta.dx}");
           context
               .read<FieldCellBloc>()
               .add(FieldCellEvent.startUpdateWidth(value.delta.dx));
@@ -166,15 +164,15 @@ class FieldCellButton extends StatelessWidget {
         .replaceAll(Characters(''), Characters('\u{200B}'))
         .toString();
     return FlowyButton(
-      hoverColor: CustomColors.of(context).lightGreyHover,
+      hoverColor: AFThemeExtension.of(context).lightGreyHover,
       onTap: onTap,
       leftIcon: svgWidget(
         field.fieldType.iconName(),
         color: Theme.of(context).colorScheme.onSurface,
       ),
+      radius: BorderRadius.zero,
       text: FlowyText.medium(
         text,
-        fontSize: 12,
         maxLines: maxLines,
         overflow: TextOverflow.ellipsis,
       ),

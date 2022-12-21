@@ -5,11 +5,10 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/color_extension.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -178,11 +177,8 @@ class CreateFieldButton extends StatelessWidget {
       constraints: BoxConstraints.loose(const Size(240, 600)),
       child: FlowyButton(
         radius: BorderRadius.zero,
-        text: FlowyText.medium(
-          LocaleKeys.grid_field_newColumn.tr(),
-          fontSize: 12,
-        ),
-        hoverColor: CustomColors.of(context).lightGreyHover,
+        text: FlowyText.medium(LocaleKeys.grid_field_newColumn.tr()),
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
         onTap: () {},
         leftIcon: svgWidget(
           "home/add",

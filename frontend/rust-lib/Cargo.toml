@@ -15,12 +15,13 @@ members = [
   "flowy-error",
   "flowy-revision",
   "flowy-grid",
+  "flowy-task",
 ]
 
 [profile.dev]
 opt-level = 0
 #https://doc.rust-lang.org/rustc/codegen-options/index.html#debug-assertions
-split-debuginfo = "unpacked"
+#split-debuginfo = "unpacked"
 
 [profile.release]
 opt-level = 3

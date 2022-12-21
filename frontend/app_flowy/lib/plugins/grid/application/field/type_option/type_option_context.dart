@@ -1,6 +1,7 @@
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/checklist_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:dartz/dartz.dart';
@@ -95,6 +96,17 @@ class MultiSelectTypeOptionWidgetDataParser
   }
 }
 
+// Multi-select
+typedef ChecklistTypeOptionContext = TypeOptionContext<ChecklistTypeOptionPB>;
+
+class ChecklistTypeOptionWidgetDataParser
+    extends TypeOptionDataParser<ChecklistTypeOptionPB> {
+  @override
+  ChecklistTypeOptionPB fromBuffer(List<int> buffer) {
+    return ChecklistTypeOptionPB.fromBuffer(buffer);
+  }
+}
+
 class TypeOptionContext<T extends GeneratedMessage> {
   T? _typeOptionObject;
   final TypeOptionDataParser<T> dataParser;
@@ -109,15 +121,16 @@ class TypeOptionContext<T extends GeneratedMessage> {
 
   String get fieldId => _dataController.field.id;
 
-  Future<void> loadTypeOptionData({
-    required void Function(T) onCompleted,
+  Future<T> loadTypeOptionData({
+    void Function(T)? onCompleted,
     required void Function(FlowyError) onError,
   }) async {
     await _dataController.loadTypeOptionData().then((result) {
       result.fold((l) => null, (err) => onError(err));
     });
 
-    onCompleted(typeOption);
+    onCompleted?.call(typeOption);
+    return typeOption;
   }
 
   T get typeOption {
@@ -143,11 +156,11 @@ abstract class TypeOptionFieldDelegate {
 
 abstract class IFieldTypeOptionLoader {
   String get gridId;
-  Future<Either<FieldTypeOptionDataPB, FlowyError>> load();
+  Future<Either<TypeOptionPB, FlowyError>> load();
 
   Future<Either<Unit, FlowyError>> switchToField(
       String fieldId, FieldType fieldType) {
-    final payload = EditFieldPayloadPB.create()
+    final payload = EditFieldChangesetPB.create()
       ..gridId = gridId
       ..fieldId = fieldId
       ..fieldType = fieldType;
@@ -158,7 +171,7 @@ abstract class IFieldTypeOptionLoader {
 
 /// Uses when creating a new field
 class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
-  FieldTypeOptionDataPB? fieldTypeOption;
+  TypeOptionPB? fieldTypeOption;
 
   @override
   final String gridId;
@@ -169,9 +182,9 @@ class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
   /// Creates the field type option if the fieldTypeOption is null.
   /// Otherwise, it loads the type option data from the backend.
   @override
-  Future<Either<FieldTypeOptionDataPB, FlowyError>> load() {
+  Future<Either<TypeOptionPB, FlowyError>> load() {
     if (fieldTypeOption != null) {
-      final payload = FieldTypeOptionIdPB.create()
+      final payload = TypeOptionPathPB.create()
         ..gridId = gridId
         ..fieldId = fieldTypeOption!.field_2.id
         ..fieldType = fieldTypeOption!.field_2.fieldType;
@@ -207,8 +220,8 @@ class FieldTypeOptionLoader extends IFieldTypeOptionLoader {
   });
 
   @override
-  Future<Either<FieldTypeOptionDataPB, FlowyError>> load() {
-    final payload = FieldTypeOptionIdPB.create()
+  Future<Either<TypeOptionPB, FlowyError>> load() {
+    final payload = TypeOptionPathPB.create()
       ..gridId = gridId
       ..fieldId = field.id
       ..fieldType = field.fieldType;

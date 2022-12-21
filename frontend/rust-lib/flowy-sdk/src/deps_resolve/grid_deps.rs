@@ -6,22 +6,29 @@ use flowy_grid::services::persistence::GridDatabase;
 use flowy_http_model::ws_data::ClientRevisionWSData;
 use flowy_net::ws::connection::FlowyWebSocketConnect;
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
+use flowy_task::TaskDispatcher;
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
 use lib_infra::future::BoxResultFuture;
 use lib_ws::{WSChannel, WebSocketRawMessage};
 use std::convert::TryInto;
 use std::sync::Arc;
+use tokio::sync::RwLock;
 
 pub struct GridDepsResolver();
 
 impl GridDepsResolver {
-    pub async fn resolve(ws_conn: Arc<FlowyWebSocketConnect>, user_session: Arc<UserSession>) -> Arc<GridManager> {
+    pub async fn resolve(
+        ws_conn: Arc<FlowyWebSocketConnect>,
+        user_session: Arc<UserSession>,
+        task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    ) -> Arc<GridManager> {
         let user = Arc::new(GridUserImpl(user_session.clone()));
         let rev_web_socket = Arc::new(GridRevisionWebSocket(ws_conn));
         let grid_manager = Arc::new(GridManager::new(
             user.clone(),
             rev_web_socket,
+            task_scheduler,
             Arc::new(GridDatabaseImpl(user_session)),
         ));
 

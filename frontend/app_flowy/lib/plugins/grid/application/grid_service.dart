@@ -2,7 +2,6 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/grid_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/group.pb.dart';
@@ -42,12 +41,16 @@ class GridFFIService {
     return GridEventCreateBoardCard(payload).send();
   }
 
-  Future<Either<RepeatedFieldPB, FlowyError>> getFields(
-      {required List<FieldIdPB> fieldIds}) {
-    final payload = QueryFieldPayloadPB.create()
-      ..gridId = gridId
-      ..fieldIds = RepeatedFieldIdPB(items: fieldIds);
-    return GridEventGetFields(payload).send();
+  Future<Either<List<FieldPB>, FlowyError>> getFields(
+      {List<FieldIdPB>? fieldIds}) {
+    var payload = GetFieldPayloadPB.create()..gridId = gridId;
+
+    if (fieldIds != null) {
+      payload.fieldIds = RepeatedFieldIdPB(items: fieldIds);
+    }
+    return GridEventGetFields(payload).send().then((result) {
+      return result.fold((l) => left(l.items), (r) => right(r));
+    });
   }
 
   Future<Either<Unit, FlowyError>> closeGrid() {
@@ -55,7 +58,7 @@ class GridFFIService {
     return FolderEventCloseView(request).send();
   }
 
-  Future<Either<RepeatedGridGroupPB, FlowyError>> loadGroups() {
+  Future<Either<RepeatedGroupPB, FlowyError>> loadGroups() {
     final payload = GridIdPB(value: gridId);
     return GridEventGetGroup(payload).send();
   }

@@ -3,7 +3,6 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter/material.dart';
@@ -72,7 +71,6 @@ class OptionTitle extends StatelessWidget {
         List<Widget> children = [
           FlowyText.medium(
             LocaleKeys.grid_field_optionTitle.tr(),
-            fontSize: 12,
             color: Theme.of(context).hintColor,
           )
         ];
@@ -101,7 +99,6 @@ class _OptionTitleButton extends StatelessWidget {
       child: FlowyButton(
         text: FlowyText.medium(
           LocaleKeys.grid_field_addOption.tr(),
-          fontSize: 12,
           textAlign: TextAlign.center,
         ),
         onTap: () {
@@ -195,9 +192,12 @@ class _OptionCellState extends State<_OptionCell> {
             _popoverController.show();
           },
           children: [
-            svgWidget(
-              "grid/details",
-              color: Theme.of(context).colorScheme.onSurface,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6.0),
+              child: svgWidget(
+                "grid/details",
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
           ],
         ),
@@ -232,8 +232,7 @@ class _AddOptionButton extends StatelessWidget {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(LocaleKeys.grid_field_addSelectOption.tr(),
-            fontSize: 12),
+        text: FlowyText.medium(LocaleKeys.grid_field_addSelectOption.tr()),
         onTap: () {
           context
               .read<SelectOptionTypeOptionBloc>()

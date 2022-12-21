@@ -3,7 +3,6 @@ import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/grid_entities.pb.dart';
-import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'field_service.freezed.dart';
@@ -34,9 +33,8 @@ class FieldService {
     bool? frozen,
     bool? visibility,
     double? width,
-    List<int>? typeOptionData,
   }) {
-    var payload = FieldChangesetPayloadPB.create()
+    var payload = FieldChangesetPB.create()
       ..gridId = gridId
       ..fieldId = fieldId;
 
@@ -60,10 +58,6 @@ class FieldService {
       payload.width = width.toInt();
     }
 
-    if (typeOptionData != null) {
-      payload.typeOptionData = typeOptionData;
-    }
-
     return GridEventUpdateField(payload).send();
   }
 
@@ -72,7 +66,7 @@ class FieldService {
     required String fieldId,
     required List<int> typeOptionData,
   }) {
-    var payload = UpdateFieldTypeOptionPayloadPB.create()
+    var payload = TypeOptionChangesetPB.create()
       ..gridId = gridId
       ..fieldId = fieldId
       ..typeOptionData = typeOptionData;
@@ -96,10 +90,10 @@ class FieldService {
     return GridEventDuplicateField(payload).send();
   }
 
-  Future<Either<FieldTypeOptionDataPB, FlowyError>> getFieldTypeOptionData({
+  Future<Either<TypeOptionPB, FlowyError>> getFieldTypeOptionData({
     required FieldType fieldType,
   }) {
-    final payload = FieldTypeOptionIdPB.create()
+    final payload = TypeOptionPathPB.create()
       ..gridId = gridId
       ..fieldId = fieldId
       ..fieldType = fieldType;

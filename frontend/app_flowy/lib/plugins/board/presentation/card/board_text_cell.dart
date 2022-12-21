@@ -2,7 +2,6 @@ import 'package:app_flowy/plugins/board/application/card/board_text_cell_bloc.da
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/cell/cell_builder.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -153,7 +152,7 @@ class _BoardTextCellState extends State<BoardTextCell> {
         onChanged: (value) => focusChanged(),
         onEditingComplete: () => focusNode.unfocus(),
         maxLines: null,
-        style: TextStyles.body1.size(FontSizes.s14),
+        style: Theme.of(context).textTheme.bodyMedium!.size(FontSizes.s14),
         decoration: InputDecoration(
           // Magic number 4 makes the textField take up the same space as FlowyText
           contentPadding: EdgeInsets.symmetric(

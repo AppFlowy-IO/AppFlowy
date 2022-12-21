@@ -110,6 +110,10 @@ pub enum ErrorCode {
     FieldNotExists = 443,
     #[display(fmt = "The operation in this field is invalid")]
     FieldInvalidOperation = 444,
+    #[display(fmt = "Filter id is empty")]
+    FilterIdIsEmpty = 445,
+    #[display(fmt = "Field is not exist")]
+    FieldRecordNotFound = 446,
 
     #[display(fmt = "Field's type-option data should not be empty")]
     TypeOptionDataIsEmpty = 450,
@@ -128,6 +132,9 @@ pub enum ErrorCode {
 
     #[display(fmt = "Serde")]
     Serde = 1001,
+
+    #[display(fmt = "Protobuf serde")]
+    ProtobufSerde = 1002,
 
     #[display(fmt = "Out of bounds")]
     OutOfBounds = 10001,

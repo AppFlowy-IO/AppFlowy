@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
@@ -5,18 +6,18 @@ import 'package:flutter/material.dart';
 class SettingsMenuElement extends StatelessWidget {
   const SettingsMenuElement({
     Key? key,
-    required this.index,
+    required this.page,
     required this.label,
     required this.icon,
-    required this.changeSelectedIndex,
-    required this.currentIndex,
+    required this.changeSelectedPage,
+    required this.selectedPage,
   }) : super(key: key);
 
-  final int index;
-  final int currentIndex;
+  final SettingsPage page;
+  final SettingsPage selectedPage;
   final String label;
   final IconData icon;
-  final Function changeSelectedIndex;
+  final Function changeSelectedPage;
 
   @override
   Widget build(BuildContext context) {
@@ -24,14 +25,14 @@ class SettingsMenuElement extends StatelessWidget {
       leading: Icon(
         icon,
         size: 16,
-        color: index == currentIndex
+        color: page == selectedPage
             ? Theme.of(context).colorScheme.onSurface
             : Theme.of(context).colorScheme.onSurface,
       ),
       onTap: () {
-        changeSelectedIndex(index);
+        changeSelectedPage(page);
       },
-      selected: index == currentIndex,
+      selected: page == selectedPage,
       selectedColor: Theme.of(context).colorScheme.onSurface,
       selectedTileColor: Theme.of(context).colorScheme.primaryContainer,
       hoverColor: Theme.of(context).colorScheme.primary,

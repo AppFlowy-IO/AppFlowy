@@ -39,6 +39,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-trait"
+version = "0.1.59"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "31e6e93155431f3931513b243d371981bb2770112b370c82745a1d19d2f99364"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -376,13 +387,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-codegen"
+version = "0.1.0"
+dependencies = [
+ "cmd_lib",
+ "console",
+ "fancy-regex",
+ "flowy-ast",
+ "itertools",
+ "lazy_static",
+ "log",
+ "phf 0.8.0",
+ "protoc-bin-vendored",
+ "protoc-rust",
+ "quote",
+ "serde",
+ "serde_json",
+ "similar",
+ "syn",
+ "tera",
+ "toml",
+ "walkdir",
+]
+
+[[package]]
 name = "flowy-derive"
 version = "0.1.0"
 dependencies = [
  "dashmap",
  "flowy-ast",
+ "flowy-codegen",
  "lazy_static",
- "lib-infra",
  "log",
  "proc-macro2",
  "quote",
@@ -398,8 +433,8 @@ name = "flowy-error-code"
 version = "0.1.0"
 dependencies = [
  "derive_more",
+ "flowy-codegen",
  "flowy-derive",
- "lib-infra",
  "protobuf",
 ]
 
@@ -408,6 +443,7 @@ name = "flowy-http-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "flowy-codegen",
  "flowy-derive",
  "lib-infra",
  "md5",
@@ -783,29 +819,13 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 name = "lib-infra"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "bytes",
  "chrono",
- "cmd_lib",
- "console",
- "fancy-regex",
- "flowy-ast",
  "futures-core",
- "itertools",
- "lazy_static",
- "log",
- "phf 0.8.0",
  "pin-project",
- "protoc-bin-vendored",
- "protoc-rust",
  "rand 0.8.5",
- "serde",
- "serde_json",
- "similar",
- "syn",
- "tera",
  "tokio",
- "toml",
- "walkdir",
 ]
 
 [[package]]
@@ -839,6 +859,7 @@ dependencies = [
  "bytes",
  "dashmap",
  "env_logger",
+ "flowy-codegen",
  "flowy-derive",
  "futures",
  "futures-channel",
@@ -1200,18 +1221,18 @@ dependencies = [
 
 [[package]]
 name = "pin-project"
-version = "1.0.8"
+version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "576bc800220cc65dac09e99e97b08b358cfab6e17078de8dc5fee223bd2d0c08"
+checksum = "ad29a609b6bcd67fee905812e544992d216af9d755757c05ed2d0e15a74c6ecc"
 dependencies = [
  "pin-project-internal",
 ]
 
 [[package]]
 name = "pin-project-internal"
-version = "1.0.8"
+version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6e8fe8163d14ce7f0cdac2e040116f22eac817edabff0be91e8aff7e9accf389"
+checksum = "069bdb1e05adc7a8990dce9cc75370895fbe4e3d58b9b73bf1aee56359344a55"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1274,11 +1295,11 @@ checksum = "bc881b2c22681370c6a780e47af9840ef841837bc98118431d4e1868bd0c1086"
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.32"
+version = "1.0.47"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba508cc11742c0dc5c1659771673afbab7a0efab23aa17e854cbab0837ed0b43"
+checksum = "5ea3d908b0e36316caf9e9e2c4625cdde190a7e6f440d794667ed17a1855e725"
 dependencies = [
- "unicode-xid",
+ "unicode-ident",
 ]
 
 [[package]]
@@ -1670,13 +1691,13 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.81"
+version = "1.0.105"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f2afee18b8beb5a596ecb4a2dce128c719b4ba399d34126b9e4396e3f9860966"
+checksum = "60b9b43d45702de4c839cb9b51d9f529c5dd26a4aff255b42b1ebc03e88ee908"
 dependencies = [
  "proc-macro2",
  "quote",
- "unicode-xid",
+ "unicode-ident",
 ]
 
 [[package]]
@@ -1986,6 +2007,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1a01404663e3db436ed2746d9fefef640d868edae3cceb81c3b8d5732fda678f"
 
 [[package]]
+name = "unicode-ident"
+version = "1.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ceab39d59e4c9499d4e5a8ee0e2735b891bb7308ac83dfb4e80cad195c9f6f3"
+
+[[package]]
 name = "unicode-normalization"
 version = "0.1.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2005,12 +2032,6 @@ name = "unicode-width"
 version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3ed742d4ea2bd1176e236172c8429aaf54486e7ac098db29ffe6529e0ce50973"
-
-[[package]]
-name = "unicode-xid"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ccb82d61f80a663efe1f787a51b16b5a51e3314d6ac365b08639f52387b33f3"
 
 [[package]]
 name = "url"

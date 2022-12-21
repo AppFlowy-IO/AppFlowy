@@ -33,7 +33,7 @@ cd appflowy/frontend && \
 source $HOME/.cargo/env && \
 cargo install --force cargo-make && \
 cargo install --force duckscript_cli && \
-cargo make flowy_dev && \
+cargo make appflowy-deps-tools && \
 cargo make -p production-linux-x86_64 appflowy-linux
 
 CMD ["/home/makepkg/appflowy/frontend/app_flowy/build/linux/x64/release/bundle/app_flowy"]

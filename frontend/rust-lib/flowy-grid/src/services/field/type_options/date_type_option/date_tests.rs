@@ -1,9 +1,12 @@
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
-    use crate::services::cell::CellDataOperation;
+    use crate::services::cell::{CellDataChangeset, CellDataDecoder};
+
     use crate::services::field::*;
     // use crate::services::field::{DateCellChangeset, DateCellData, DateFormat, DateTypeOptionPB, TimeFormat};
+    use chrono::format::strftime::StrftimeItems;
+    use chrono::{FixedOffset, NaiveDateTime};
     use grid_rev_model::FieldRevision;
     use strum::IntoEnumIterator;
 
@@ -113,6 +116,30 @@ mod tests {
             &field_rev,
         );
     }
+
+    #[test]
+    fn utc_to_native_test() {
+        let native_timestamp = 1647251762;
+        let native = NaiveDateTime::from_timestamp(native_timestamp, 0);
+
+        let utc = chrono::DateTime::<chrono::Utc>::from_utc(native, chrono::Utc);
+        // utc_timestamp doesn't  carry timezone
+        let utc_timestamp = utc.timestamp();
+        assert_eq!(native_timestamp, utc_timestamp);
+
+        let format = "%m/%d/%Y %I:%M %p".to_string();
+        let native_time_str = format!("{}", native.format_with_items(StrftimeItems::new(&format)));
+        let utc_time_str = format!("{}", utc.format_with_items(StrftimeItems::new(&format)));
+        assert_eq!(native_time_str, utc_time_str);
+
+        // Mon Mar 14 2022 17:56:02 GMT+0800 (China Standard Time)
+        let gmt_8_offset = FixedOffset::east(8 * 3600);
+        let china_local = chrono::DateTime::<chrono::Local>::from_utc(native, gmt_8_offset);
+        let china_local_time = format!("{}", china_local.format_with_items(StrftimeItems::new(&format)));
+
+        assert_eq!(china_local_time, "03/14/2022 05:56 PM");
+    }
+
     fn assert_date<T: ToString>(
         type_option: &DateTypeOptionPB,
         timestamp: T,
@@ -120,12 +147,12 @@ mod tests {
         expected_str: &str,
         field_rev: &FieldRevision,
     ) {
-        let s = serde_json::to_string(&DateCellChangesetPB {
+        let changeset = DateCellChangeset {
             date: Some(timestamp.to_string()),
             time: include_time_str,
-        })
-        .unwrap();
-        let encoded_data = type_option.apply_changeset(s.into(), None).unwrap();
+            is_utc: false,
+        };
+        let encoded_data = type_option.apply_changeset(changeset, None).unwrap();
 
         assert_eq!(
             decode_cell_data(encoded_data, type_option, field_rev),
@@ -135,11 +162,9 @@ mod tests {
 
     fn decode_cell_data(encoded_data: String, type_option: &DateTypeOptionPB, field_rev: &FieldRevision) -> String {
         let decoded_data = type_option
-            .decode_cell_data(encoded_data.into(), &FieldType::DateTime, field_rev)
-            .unwrap()
-            .parser::<DateCellDataParser>()
+            .decode_cell_str(encoded_data, &FieldType::DateTime, field_rev)
             .unwrap();
-
+        let decoded_data = type_option.convert_to_protobuf(decoded_data);
         if type_option.include_time {
             format!("{} {}", decoded_data.date, decoded_data.time)
                 .trim_end()

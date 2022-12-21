@@ -16,8 +16,8 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/row_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../grid/application/row/row_cache.dart';
@@ -236,7 +236,7 @@ class _BoardContentState extends State<BoardContent> {
       child: BoardCard(
         gridId: gridId,
         groupId: groupData.group.groupId,
-        fieldId: groupItem.fieldContext.id,
+        fieldId: groupItem.fieldInfo.id,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
         dataController: cardController,
@@ -285,7 +285,7 @@ class _BoardContentState extends State<BoardContent> {
   ) {
     final rowInfo = RowInfo(
       gridId: gridId,
-      fields: UnmodifiableListView(fieldController.fieldContexts),
+      fields: UnmodifiableListView(fieldController.fieldInfos),
       rowPB: rowPB,
     );
 
@@ -357,6 +357,8 @@ Widget? _buildHeaderIcon(GroupData customData) {
     case FieldType.SingleSelect:
       break;
     case FieldType.URL:
+      break;
+    case FieldType.Checklist:
       break;
   }
 

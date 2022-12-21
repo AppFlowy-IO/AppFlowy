@@ -4,7 +4,6 @@ import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show none;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
@@ -66,7 +65,6 @@ class _FieldEditorState extends State<FieldEditor> {
           children: [
             FlowyText.medium(
               LocaleKeys.grid_field_editProperty.tr(),
-              fontSize: 12,
             ),
             const VSpace(10),
             _FieldNameTextField(popoverMutex: popoverMutex),
@@ -116,7 +114,7 @@ class _FieldTypeOptionCell extends StatelessWidget {
       builder: (context, state) {
         return state.field.fold(
           () => const SizedBox(),
-          (fieldContext) {
+          (fieldInfo) {
             final dataController =
                 context.read<FieldEditorBloc>().dataController;
             return FieldTypeOptionEditor(
@@ -187,9 +185,7 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
           return RoundedInputField(
             height: 36,
             focusNode: focusNode,
-            style: TextStyles.general(
-              fontSize: 13,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium,
             controller: controller,
             errorText: context.read<FieldEditorBloc>().state.errorText,
             onChanged: (newName) {
@@ -223,7 +219,6 @@ class _DeleteFieldButton extends StatelessWidget {
         Widget button = FlowyButton(
           text: FlowyText.medium(
             LocaleKeys.grid_field_delete.tr(),
-            fontSize: 12,
             color: enable ? null : Theme.of(context).disabledColor,
           ),
           onTap: () => onDeleted?.call(),

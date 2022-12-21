@@ -145,8 +145,12 @@
       "open": "Buka Pengaturan"
     },
     "appearance": {
-      "lightLabel": "Mode Terang",
-      "darkLabel": "Mode Gelap"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Mode Terang",
+        "dark": "Mode Gelap",
+        "system": "Adapt to System"
+      }
     }
   },
   "grid": {
@@ -209,7 +213,7 @@
     "menuName": "Grid"
   },
   "document": {
-    "menuName": "Doc",
+    "menuName": "Dokter",
     "date": {
       "timeHintTextInTwelveHour": "01:00 PM",
       "timeHintTextInTwentyFourHour": "13:00"

@@ -1,4 +1,4 @@
-use crate::services::cell::{CellBytesCustomParser, CellBytesParser, CellDataIsEmpty};
+use crate::services::cell::{CellBytesCustomParser, CellProtobufBlobParser, DecodedCellData};
 use crate::services::field::number_currency::Currency;
 use crate::services::field::{strip_currency_symbol, NumberFormat, STRIP_SYMBOL};
 use bytes::Bytes;
@@ -94,13 +94,16 @@ impl ToString for NumberCellData {
     }
 }
 
-impl CellDataIsEmpty for NumberCellData {
+impl DecodedCellData for NumberCellData {
+    type Object = NumberCellData;
+
     fn is_empty(&self) -> bool {
         self.decimal.is_none()
     }
 }
+
 pub struct NumberCellDataParser();
-impl CellBytesParser for NumberCellDataParser {
+impl CellProtobufBlobParser for NumberCellDataParser {
     type Object = NumberCellData;
     fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
         match String::from_utf8(bytes.to_vec()) {

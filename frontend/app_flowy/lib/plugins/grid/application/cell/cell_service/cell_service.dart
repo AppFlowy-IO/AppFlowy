@@ -38,14 +38,14 @@ class CellService {
       ..gridId = cellId.gridId
       ..fieldId = cellId.fieldId
       ..rowId = cellId.rowId
-      ..content = data;
+      ..typeCellData = data;
     return GridEventUpdateCell(payload).send();
   }
 
-  Future<Either<GridCellPB, FlowyError>> getCell({
+  Future<Either<CellPB, FlowyError>> getCell({
     required GridCellIdentifier cellId,
   }) {
-    final payload = GridCellIdPB.create()
+    final payload = CellPathPB.create()
       ..gridId = cellId.gridId
       ..fieldId = cellId.fieldId
       ..rowId = cellId.rowId;
@@ -60,17 +60,17 @@ class GridCellIdentifier with _$GridCellIdentifier {
   const factory GridCellIdentifier({
     required String gridId,
     required String rowId,
-    required GridFieldContext fieldContext,
+    required FieldInfo fieldInfo,
   }) = _GridCellIdentifier;
 
   // ignore: unused_element
   const GridCellIdentifier._();
 
-  String get fieldId => fieldContext.id;
+  String get fieldId => fieldInfo.id;
 
-  FieldType get fieldType => fieldContext.fieldType;
+  FieldType get fieldType => fieldInfo.fieldType;
 
   ValueKey key() {
-    return ValueKey("$rowId$fieldId${fieldContext.fieldType}");
+    return ValueKey("$rowId$fieldId${fieldInfo.fieldType}");
   }
 }

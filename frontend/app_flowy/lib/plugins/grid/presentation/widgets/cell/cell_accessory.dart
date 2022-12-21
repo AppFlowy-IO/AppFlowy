@@ -1,6 +1,5 @@
-import 'package:flowy_infra/color_extension.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -73,7 +72,7 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
     } else {
       return Tooltip(
         message: LocaleKeys.tooltip_openAsPage.tr(),
-        textStyle: TextStyles.caption.textColor(Colors.white),
+        textStyle: AFThemeExtension.of(context).caption.textColor(Colors.white),
         child: svgWidget(
           "grid/expander",
           color: Theme.of(context).colorScheme.primary,
@@ -189,7 +188,7 @@ class _Background extends StatelessWidget {
           return FlowyHoverContainer(
             style: HoverStyle(
               borderRadius: Corners.s6Border,
-              hoverColor: CustomColors.of(context).lightGreyHover,
+              hoverColor: AFThemeExtension.of(context).lightGreyHover,
             ),
           );
         } else {
@@ -210,7 +209,8 @@ class CellAccessoryContainer extends StatelessWidget {
     final children =
         accessories.where((accessory) => accessory.enable()).map((accessory) {
       final hover = FlowyHover(
-        style: HoverStyle(hoverColor: CustomColors.of(context).lightGreyHover),
+        style:
+            HoverStyle(hoverColor: AFThemeExtension.of(context).lightGreyHover),
         builder: (_, onHover) => Container(
           width: 26,
           height: 26,

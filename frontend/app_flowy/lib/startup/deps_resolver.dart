@@ -1,9 +1,12 @@
 import 'package:app_flowy/core/network_monitor.dart';
 import 'package:app_flowy/user/application/user_listener.dart';
 import 'package:app_flowy/user/application/user_service.dart';
+import 'package:app_flowy/util/file_picker/file_picker_impl.dart';
+import 'package:app_flowy/util/file_picker/file_picker_service.dart';
 import 'package:app_flowy/workspace/application/app/prelude.dart';
-import 'package:app_flowy/plugins/doc/application/prelude.dart';
+import 'package:app_flowy/plugins/document/application/prelude.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
+import 'package:app_flowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:app_flowy/workspace/application/user/prelude.dart';
 import 'package:app_flowy/workspace/application/workspace/prelude.dart';
 import 'package:app_flowy/workspace/application/edit_panel/edit_panel_bloc.dart';
@@ -34,7 +37,13 @@ class DependencyResolver {
     _resolveDocDeps(getIt);
 
     _resolveGridDeps(getIt);
+
+    _resolveCommonService(getIt);
   }
+}
+
+void _resolveCommonService(GetIt getIt) {
+  getIt.registerFactory<FilePickerService>(() => FilePicker());
 }
 
 void _resolveUserDeps(GetIt getIt) {
@@ -101,6 +110,11 @@ void _resolveFolderDeps(GetIt getIt) {
     (user, _) => SettingsDialogBloc(user),
   );
 
+  // Location
+  getIt.registerFactory<SettingsLocationCubit>(
+    () => SettingsLocationCubit(),
+  );
+
   //User
   getIt.registerFactoryParam<SettingsUserViewBloc, UserProfilePB, void>(
     (user, _) => SettingsUserViewBloc(user),
@@ -127,11 +141,6 @@ void _resolveDocDeps(GetIt getIt) {
 }
 
 void _resolveGridDeps(GetIt getIt) {
-  // GridPB
-  getIt.registerFactoryParam<GridBloc, ViewPB, void>(
-    (view, _) => GridBloc(view: view),
-  );
-
   getIt.registerFactoryParam<GridHeaderBloc, String, GridFieldController>(
     (gridId, fieldController) => GridHeaderBloc(
       gridId: gridId,

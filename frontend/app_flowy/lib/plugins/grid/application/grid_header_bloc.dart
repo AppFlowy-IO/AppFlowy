@@ -15,7 +15,7 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   GridHeaderBloc({
     required this.gridId,
     required this.fieldController,
-  }) : super(GridHeaderState.initial(fieldController.fieldContexts)) {
+  }) : super(GridHeaderState.initial(fieldController.fieldInfos)) {
     on<GridHeaderEvent>(
       (event, emit) async {
         await event.map(
@@ -41,7 +41,7 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
 
   Future<void> _moveField(
       _MoveField value, Emitter<GridHeaderState> emit) async {
-    final fields = List<GridFieldContext>.from(state.fields);
+    final fields = List<FieldInfo>.from(state.fields);
     fields.insert(value.toIndex, fields.removeAt(value.fromIndex));
     emit(state.copyWith(fields: fields));
 
@@ -69,18 +69,18 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
 @freezed
 class GridHeaderEvent with _$GridHeaderEvent {
   const factory GridHeaderEvent.initial() = _InitialHeader;
-  const factory GridHeaderEvent.didReceiveFieldUpdate(
-      List<GridFieldContext> fields) = _DidReceiveFieldUpdate;
+  const factory GridHeaderEvent.didReceiveFieldUpdate(List<FieldInfo> fields) =
+      _DidReceiveFieldUpdate;
   const factory GridHeaderEvent.moveField(
       FieldPB field, int fromIndex, int toIndex) = _MoveField;
 }
 
 @freezed
 class GridHeaderState with _$GridHeaderState {
-  const factory GridHeaderState({required List<GridFieldContext> fields}) =
+  const factory GridHeaderState({required List<FieldInfo> fields}) =
       _GridHeaderState;
 
-  factory GridHeaderState.initial(List<GridFieldContext> fields) {
+  factory GridHeaderState.initial(List<FieldInfo> fields) {
     // final List<FieldPB> newFields = List.from(fields);
     // newFields.retainWhere((field) => field.visibility);
     return GridHeaderState(fields: fields);

@@ -3,13 +3,12 @@ import 'package:app_flowy/plugins/grid/application/field/type_option/type_option
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_detail_bloc.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:flowy_infra/color_extension.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
@@ -115,7 +114,7 @@ class _PropertyList extends StatelessWidget {
       builder: (context, state) {
         return Column(
           children: [
-            Expanded(child: _wrapScrollbar(buildList(state))),
+            Expanded(child: _wrapScrollbar(buildRowCells(state))),
             const VSpace(10),
             _CreateFieldButton(
               viewId: viewId,
@@ -127,7 +126,7 @@ class _PropertyList extends StatelessWidget {
     );
   }
 
-  Widget buildList(RowDetailState state) {
+  Widget buildRowCells(RowDetailState state) {
     return ListView.separated(
       controller: _scrollController,
       itemCount: state.gridCells.length,
@@ -198,11 +197,8 @@ class _CreateFieldButtonState extends State<_CreateFieldButton> {
         height: 40,
         decoration: _makeBoxDecoration(context),
         child: FlowyButton(
-          text: FlowyText.medium(
-            LocaleKeys.grid_field_newColumn.tr(),
-            fontSize: 12,
-          ),
-          hoverColor: CustomColors.of(context).lightGreyHover,
+          text: FlowyText.medium(LocaleKeys.grid_field_newColumn.tr()),
+          hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onTap: () {},
           leftIcon: svgWidget("home/add"),
         ),
@@ -284,7 +280,7 @@ class _RowDetailCellState extends State<_RowDetailCell> {
                 width: 150,
                 child: FieldCellButton(
                   maxLines: null,
-                  field: widget.cellId.fieldContext.field,
+                  field: widget.cellId.fieldInfo.field,
                   onTap: () => popover.show(),
                 ),
               ),
@@ -300,11 +296,11 @@ class _RowDetailCellState extends State<_RowDetailCell> {
   Widget buildFieldEditor() {
     return FieldEditor(
       gridId: widget.cellId.gridId,
-      fieldName: widget.cellId.fieldContext.field.name,
-      isGroupField: widget.cellId.fieldContext.isGroupField,
+      fieldName: widget.cellId.fieldInfo.field.name,
+      isGroupField: widget.cellId.fieldInfo.isGroupField,
       typeOptionLoader: FieldTypeOptionLoader(
         gridId: widget.cellId.gridId,
-        field: widget.cellId.fieldContext.field,
+        field: widget.cellId.fieldInfo.field,
       ),
       onDeleted: (fieldId) {
         popover.close();
@@ -331,6 +327,10 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
         alignment: Alignment.centerLeft,
       );
     case FieldType.MultiSelect:
+      return SelectOptionCellStyle(
+        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+      );
+    case FieldType.Checklist:
       return SelectOptionCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
       );

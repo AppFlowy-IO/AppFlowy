@@ -14,6 +14,7 @@ use std::sync::Arc;
 pub type GridOperations = DeltaOperations<EmptyAttributes>;
 pub type GridOperationsBuilder = DeltaOperationBuilder<EmptyAttributes>;
 
+#[derive(Clone)]
 pub struct GridRevisionPad {
     grid_rev: Arc<GridRevision>,
     operations: GridOperations,
@@ -168,7 +169,6 @@ impl GridRevisionPad {
                     let old_field_type_option = mut_field_rev.get_type_option_str(mut_field_rev.ty);
                     match mut_field_rev.get_type_option_str(new_field_type) {
                         Some(new_field_type_option) => {
-                            //
                             let transformed_type_option =
                                 type_option_transform(old_field_type_rev, old_field_type_option, new_field_type_option);
                             mut_field_rev.insert_type_option_str(&new_field_type, transformed_type_option);
@@ -187,14 +187,6 @@ impl GridRevisionPad {
                 }
             }
         })
-    }
-
-    pub fn get_field_rev(&self, field_id: &str) -> Option<(usize, &Arc<FieldRevision>)> {
-        self.grid_rev
-            .fields
-            .iter()
-            .enumerate()
-            .find(|(_, field)| field.id == field_id)
     }
 
     pub fn replace_field_rev(
@@ -236,6 +228,14 @@ impl GridRevisionPad {
 
     pub fn contain_field(&self, field_id: &str) -> bool {
         self.grid_rev.fields.iter().any(|field| field.id == field_id)
+    }
+
+    pub fn get_field_rev(&self, field_id: &str) -> Option<(usize, &Arc<FieldRevision>)> {
+        self.grid_rev
+            .fields
+            .iter()
+            .enumerate()
+            .find(|(_, field)| field.id == field_id)
     }
 
     pub fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> CollaborateResult<Vec<Arc<FieldRevision>>> {

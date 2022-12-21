@@ -388,9 +388,11 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
     // TODO: need to be refactored.
     Offset? toolbarOffset;
+    Alignment? alignment;
     LayerLink? layerLink;
     final editorOffset =
         editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
+    final editorSize = editorState.renderBox?.size ?? Size.zero;
 
     final backwardNodes =
         selection.isBackward ? nodes : nodes.reversed.toList(growable: false);
@@ -438,10 +440,33 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
         // TODO: Need to compute more precise location.
         if ((selectionRect.topLeft.dy - editorOffset.dy) <=
             baseToolbarOffset.dy) {
-          toolbarOffset ??= rect.bottomLeft;
+          if (selectionRect.topLeft.dx <=
+              editorSize.width / 3.0 + editorOffset.dx) {
+            toolbarOffset ??= rect.bottomLeft;
+            alignment ??= Alignment.topLeft;
+          } else if (selectionRect.topRight.dx >=
+              editorSize.width * 2.0 / 3.0 + editorOffset.dx) {
+            toolbarOffset ??= rect.bottomRight;
+            alignment ??= Alignment.topRight;
+          } else {
+            toolbarOffset ??= rect.bottomCenter;
+            alignment ??= Alignment.topCenter;
+          }
         } else {
-          toolbarOffset ??= rect.topLeft - baseToolbarOffset;
+          if (selectionRect.topLeft.dx <=
+              editorSize.width / 3.0 + editorOffset.dx) {
+            toolbarOffset ??= rect.topLeft - baseToolbarOffset;
+            alignment ??= Alignment.topLeft;
+          } else if (selectionRect.topRight.dx >=
+              editorSize.width * 2.0 / 3.0 + editorOffset.dx) {
+            toolbarOffset ??= rect.topRight - baseToolbarOffset;
+            alignment ??= Alignment.topRight;
+          } else {
+            toolbarOffset ??= rect.topCenter - baseToolbarOffset;
+            alignment ??= Alignment.topCenter;
+          }
         }
+
         layerLink ??= node.layerLink;
 
         final overlay = OverlayEntry(
@@ -460,6 +485,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     if (toolbarOffset != null && layerLink != null) {
       editorState.service.toolbarService?.showInOffset(
         toolbarOffset,
+        alignment!,
         layerLink,
       );
     }
@@ -507,6 +533,11 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
   void _showContextMenu(TapDownDetails details) {
     _clearContextMenu();
+
+    // For now, only support the text node.
+    if (!currentSelectedNodes.every((element) => element is TextNode)) {
+      return;
+    }
 
     final baseOffset =
         editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;

@@ -1,10 +1,10 @@
 import 'package:app_flowy/plugins/grid/application/field/type_option/edit_select_option_bloc.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/cell/select_option_cell/extension.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter/material.dart';
@@ -19,10 +19,14 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
   final SelectOptionPB option;
   final VoidCallback onDeleted;
   final Function(SelectOptionPB) onUpdated;
+  final bool showOptions;
+  final bool autoFocus;
   const SelectOptionTypeOptionEditor({
     required this.option,
     required this.onDeleted,
     required this.onUpdated,
+    this.showOptions = true,
+    this.autoFocus = true,
     Key? key,
   }) : super(key: key);
 
@@ -51,14 +55,21 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
           builder: (context, state) {
             List<Widget> slivers = [
               SliverToBoxAdapter(
-                  child: _OptionNameTextField(state.option.name)),
+                  child: _OptionNameTextField(
+                name: state.option.name,
+                autoFocus: autoFocus,
+              )),
               const SliverToBoxAdapter(child: VSpace(10)),
               const SliverToBoxAdapter(child: _DeleteTag()),
-              const SliverToBoxAdapter(child: TypeOptionSeparator()),
-              SliverToBoxAdapter(
-                  child:
-                      SelectOptionColorList(selectedColor: state.option.color)),
             ];
+
+            if (showOptions) {
+              slivers
+                  .add(const SliverToBoxAdapter(child: TypeOptionSeparator()));
+              slivers.add(SliverToBoxAdapter(
+                  child: SelectOptionColorList(
+                      selectedColor: state.option.color)));
+            }
 
             return SizedBox(
               width: 160,
@@ -66,6 +77,7 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
                 padding: const EdgeInsets.all(6.0),
                 child: CustomScrollView(
                   slivers: slivers,
+                  shrinkWrap: true,
                   controller: ScrollController(),
                   physics: StyledScrollPhysics(),
                 ),
@@ -86,8 +98,7 @@ class _DeleteTag extends StatelessWidget {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(LocaleKeys.grid_selectOption_deleteTag.tr(),
-            fontSize: 12),
+        text: FlowyText.medium(LocaleKeys.grid_selectOption_deleteTag.tr()),
         leftIcon: svgWidget(
           "grid/delete",
           color: Theme.of(context).colorScheme.onSurface,
@@ -104,19 +115,22 @@ class _DeleteTag extends StatelessWidget {
 
 class _OptionNameTextField extends StatelessWidget {
   final String name;
-  const _OptionNameTextField(this.name, {Key? key}) : super(key: key);
+  final bool autoFocus;
+  const _OptionNameTextField(
+      {required this.name, required this.autoFocus, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return InputTextField(
+    return FlowyTextField(
+      autoFocus: autoFocus,
       text: name,
       maxLength: 30,
-      onCanceled: () {},
-      onDone: (optionName) {
-        if (name != optionName) {
+      onSubmitted: (newName) {
+        if (name != newName) {
           context
               .read<EditSelectOptionBloc>()
-              .add(EditSelectOptionEvent.updateName(optionName));
+              .add(EditSelectOptionEvent.updateName(newName));
         }
       },
     );
@@ -145,7 +159,6 @@ class SelectOptionColorList extends StatelessWidget {
             height: GridSize.typeOptionItemHeight,
             child: FlowyText.medium(
               LocaleKeys.grid_selectOption_colorPanelTitle.tr(),
-              fontSize: FontSizes.s12,
               textAlign: TextAlign.left,
               color: Theme.of(context).hintColor,
             ),
@@ -195,7 +208,7 @@ class _SelectOptionColorCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(color.optionName(), fontSize: 12),
+        text: FlowyText.medium(color.optionName()),
         leftIcon: colorIcon,
         rightIcon: checkmark,
         onTap: () {

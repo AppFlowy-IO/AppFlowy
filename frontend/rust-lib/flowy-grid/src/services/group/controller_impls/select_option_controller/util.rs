@@ -1,4 +1,4 @@
-use crate::entities::{FieldType, GroupChangesetPB, InsertedRowPB, RowPB};
+use crate::entities::{FieldType, GroupRowsNotificationPB, InsertedRowPB, RowPB};
 use crate::services::cell::{insert_checkbox_cell, insert_select_option_cell};
 use crate::services::field::{SelectOptionCellDataPB, SelectOptionPB, CHECK};
 use crate::services::group::configuration::GroupContext;
@@ -12,8 +12,8 @@ pub fn add_or_remove_select_option_row(
     group: &mut Group,
     cell_data: &SelectOptionCellDataPB,
     row_rev: &RowRevision,
-) -> Option<GroupChangesetPB> {
-    let mut changeset = GroupChangesetPB::new(group.id.clone());
+) -> Option<GroupRowsNotificationPB> {
+    let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
     if cell_data.select_options.is_empty() {
         if group.contains_row(&row_rev.id) {
             changeset.deleted_rows.push(row_rev.id.clone());
@@ -45,8 +45,8 @@ pub fn remove_select_option_row(
     group: &mut Group,
     cell_data: &SelectOptionCellDataPB,
     row_rev: &RowRevision,
-) -> Option<GroupChangesetPB> {
-    let mut changeset = GroupChangesetPB::new(group.id.clone());
+) -> Option<GroupRowsNotificationPB> {
+    let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
     cell_data.select_options.iter().for_each(|option| {
         if option.id == group.id && group.contains_row(&row_rev.id) {
             changeset.deleted_rows.push(row_rev.id.clone());
@@ -61,8 +61,8 @@ pub fn remove_select_option_row(
     }
 }
 
-pub fn move_group_row(group: &mut Group, context: &mut MoveGroupRowContext) -> Option<GroupChangesetPB> {
-    let mut changeset = GroupChangesetPB::new(group.id.clone());
+pub fn move_group_row(group: &mut Group, context: &mut MoveGroupRowContext) -> Option<GroupRowsNotificationPB> {
+    let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
     let MoveGroupRowContext {
         row_rev,
         row_changeset,
@@ -99,7 +99,7 @@ pub fn move_group_row(group: &mut Group, context: &mut MoveGroupRowContext) -> O
                     inserted_row.index = Some(to_index as i32);
                     group.insert_row(to_index, row_pb);
                 } else {
-                    tracing::warn!("Mote to index: {} is out of bounds", to_index);
+                    tracing::warn!("Move to index: {} is out of bounds", to_index);
                     tracing::debug!("Group:{} append row:{}", group.id, row_rev.id);
                     group.add_row(row_pb);
                 }

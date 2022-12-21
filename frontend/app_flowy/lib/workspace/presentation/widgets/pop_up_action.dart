@@ -1,28 +1,31 @@
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
   final List<T> actions;
+  final PopoverMutex? mutex;
   final Function(T, PopoverController) onSelected;
   final BoxConstraints constraints;
   final PopoverDirection direction;
   final Widget Function(PopoverController) buildChild;
   final VoidCallback? onClosed;
+  final bool asBarrier;
 
   const PopoverActionList({
     required this.actions,
     required this.buildChild,
     required this.onSelected,
+    this.mutex,
     this.onClosed,
     this.direction = PopoverDirection.rightWithTopAligned,
+    this.asBarrier = false,
     this.constraints = const BoxConstraints(
       minWidth: 120,
-      maxWidth: 360,
+      maxWidth: 460,
       maxHeight: 300,
     ),
     Key? key,
@@ -47,9 +50,11 @@ class _PopoverActionListState<T extends PopoverAction>
     final child = widget.buildChild(popoverController);
 
     return AppFlowyPopover(
+      asBarrier: widget.asBarrier,
       controller: popoverController,
       constraints: widget.constraints,
       direction: widget.direction,
+      mutex: widget.mutex,
       triggerActions: PopoverTriggerFlags.none,
       onClose: widget.onClosed,
       popupBuilder: (BuildContext popoverContext) {
@@ -82,7 +87,8 @@ class _PopoverActionListState<T extends PopoverAction>
 }
 
 abstract class ActionCell extends PopoverAction {
-  Widget? icon(Color iconColor);
+  Widget? leftIcon(Color iconColor) => null;
+  Widget? rightIcon(Color iconColor) => null;
   String get name;
 }
 
@@ -113,7 +119,11 @@ class ActionCellWidget<T extends PopoverAction> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final actionCell = action as ActionCell;
-    final icon = actionCell.icon(Theme.of(context).colorScheme.onSurface);
+    final leftIcon =
+        actionCell.leftIcon(Theme.of(context).colorScheme.onSurface);
+
+    final rightIcon =
+        actionCell.rightIcon(Theme.of(context).colorScheme.onSurface);
 
     return FlowyHover(
       child: GestureDetector(
@@ -123,14 +133,20 @@ class ActionCellWidget<T extends PopoverAction> extends StatelessWidget {
           height: itemHeight,
           child: Row(
             children: [
-              if (icon != null) ...[icon, HSpace(ActionListSizes.itemHPadding)],
+              if (leftIcon != null) ...[
+                leftIcon,
+                HSpace(ActionListSizes.itemHPadding)
+              ],
               Expanded(
                 child: FlowyText.medium(
                   actionCell.name,
-                  fontSize: 12,
                   overflow: TextOverflow.visible,
                 ),
               ),
+              if (rightIcon != null) ...[
+                HSpace(ActionListSizes.itemHPadding),
+                rightIcon,
+              ],
             ],
           ),
         ).padding(

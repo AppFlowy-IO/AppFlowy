@@ -1,5 +1,4 @@
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_infra/time/duration.dart';
@@ -16,7 +15,7 @@ class RoundedInputField extends StatefulWidget {
   final Color? cursorColor;
   final Color? focusBorderColor;
   final String errorText;
-  final TextStyle style;
+  final TextStyle? style;
   final ValueChanged<String>? onChanged;
   final Function(String)? onEditingComplete;
   final String? initialValue;
@@ -43,7 +42,7 @@ class RoundedInputField extends StatefulWidget {
     this.errorBorderColor,
     this.focusBorderColor,
     this.cursorColor,
-    this.style = const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+    this.style,
     this.margin = EdgeInsets.zero,
     this.padding = EdgeInsets.zero,
     this.contentPadding = const EdgeInsets.symmetric(horizontal: 10),
@@ -72,6 +71,14 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
     }
 
     super.initState();
+  }
+
+  String? _suffixText() {
+    if (widget.maxLength != null) {
+      return ' ${widget.controller!.text.length}/${widget.maxLength}';
+    } else {
+      return null;
+    }
   }
 
   @override
@@ -114,11 +121,16 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
           cursorColor:
               widget.cursorColor ?? Theme.of(context).colorScheme.primary,
           obscureText: obscuteText,
-          style: widget.style,
+          style: widget.style ?? Theme.of(context).textTheme.bodyMedium,
           decoration: InputDecoration(
             contentPadding: widget.contentPadding,
             hintText: widget.hintText,
-            hintStyle: TextStyles.body1.textColor(borderColor),
+            hintStyle: Theme.of(context)
+                .textTheme
+                .bodySmall!
+                .textColor(Theme.of(context).hintColor),
+            suffixText: _suffixText(),
+            counterText: "",
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: borderColor,

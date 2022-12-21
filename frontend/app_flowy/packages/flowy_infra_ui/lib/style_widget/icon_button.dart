@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 
 class FlowyIconButton extends StatelessWidget {
@@ -49,8 +50,8 @@ class FlowyIconButton extends StatelessWidget {
           visualDensity: VisualDensity.compact,
           hoverElevation: 0,
           highlightElevation: 0,
-          shape: RoundedRectangleBorder(
-              borderRadius: radius ?? BorderRadius.circular(2)),
+          shape:
+              RoundedRectangleBorder(borderRadius: radius ?? Corners.s6Border),
           fillColor: fillColor,
           hoverColor: hoverColor ?? Theme.of(context).colorScheme.secondary,
           focusColor: Colors.transparent,

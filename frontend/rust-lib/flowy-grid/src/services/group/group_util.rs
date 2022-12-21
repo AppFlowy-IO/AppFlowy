@@ -123,6 +123,12 @@ pub fn default_group_configuration(field_rev: &FieldRevision) -> GroupConfigurat
             SelectOptionGroupConfigurationRevision::default(),
         )
         .unwrap(),
+        FieldType::Checklist => GroupConfigurationRevision::new(
+            field_id,
+            field_type_rev,
+            SelectOptionGroupConfigurationRevision::default(),
+        )
+        .unwrap(),
         FieldType::Checkbox => {
             GroupConfigurationRevision::new(field_id, field_type_rev, CheckboxGroupConfigurationRevision::default())
                 .unwrap()

@@ -1,5 +1,5 @@
-use crate::entities::{GroupChangesetPB, GroupViewChangesetPB};
-use crate::services::cell::CellDataIsEmpty;
+use crate::entities::{GroupRowsNotificationPB, GroupViewChangesetPB};
+use crate::services::cell::DecodedCellData;
 use crate::services::group::controller::MoveGroupRowContext;
 use crate::services::group::Group;
 use flowy_error::FlowyResult;
@@ -11,7 +11,7 @@ use std::sync::Arc;
 /// For example, the `CheckboxGroupController` implements this trait to provide custom behavior.
 ///
 pub trait GroupControllerCustomActions: Send + Sync {
-    type CellDataType: CellDataIsEmpty;
+    type CellDataType: DecodedCellData;
     /// Returns the a value of the cell, default value is None
     ///
     /// Determine which group the row is placed in based on the data of the cell. If the cell data
@@ -31,13 +31,17 @@ pub trait GroupControllerCustomActions: Send + Sync {
         &mut self,
         row_rev: &RowRevision,
         cell_data: &Self::CellDataType,
-    ) -> Vec<GroupChangesetPB>;
+    ) -> Vec<GroupRowsNotificationPB>;
 
     /// Deletes the row from the group
-    fn delete_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB>;
+    fn delete_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupRowsNotificationPB>;
 
     /// Move row from one group to another
-    fn move_row(&mut self, cell_data: &Self::CellDataType, context: MoveGroupRowContext) -> Vec<GroupChangesetPB>;
+    fn move_row(
+        &mut self,
+        cell_data: &Self::CellDataType,
+        context: MoveGroupRowContext,
+    ) -> Vec<GroupRowsNotificationPB>;
 }
 
 /// Defines the shared actions any group controller can perform.
@@ -46,7 +50,7 @@ pub trait GroupControllerSharedActions: Send + Sync {
     fn field_id(&self) -> &str;
 
     /// Returns number of groups the current field has
-    fn groups(&self) -> Vec<Group>;
+    fn groups(&self) -> Vec<&Group>;
 
     /// Returns the index and the group data with group_id
     fn get_group(&self, group_id: &str) -> Option<(usize, Group)>;
@@ -62,17 +66,17 @@ pub trait GroupControllerSharedActions: Send + Sync {
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupChangesetPB>>;
+    ) -> FlowyResult<Vec<GroupRowsNotificationPB>>;
 
     /// Remove the row from the group if the row gets deleted
     fn did_delete_delete_row(
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupChangesetPB>>;
+    ) -> FlowyResult<Vec<GroupRowsNotificationPB>>;
 
     /// Move the row from one group to another group
-    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupChangesetPB>>;
+    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupRowsNotificationPB>>;
 
     /// Update the group if the corresponding field is changed
     fn did_update_group_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>>;

@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error_code::ErrorCode;
-use lib_dispatch::prelude::{EventResponse, ResponseBuilder};
+use lib_dispatch::prelude::{AFPluginEventResponse, ResponseBuilder};
 use std::{convert::TryInto, fmt, fmt::Debug};
 
 pub type FlowyResult<T> = std::result::Result<T, FlowyError>;
@@ -68,6 +68,7 @@ impl FlowyError {
     static_flowy_error!(invalid_data, ErrorCode::InvalidData);
     static_flowy_error!(out_of_bounds, ErrorCode::OutOfBounds);
     static_flowy_error!(serde, ErrorCode::Serde);
+    static_flowy_error!(field_record_not_found, ErrorCode::FieldRecordNotFound);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {
@@ -93,7 +94,7 @@ impl fmt::Display for FlowyError {
 }
 
 impl lib_dispatch::Error for FlowyError {
-    fn as_response(&self) -> EventResponse {
+    fn as_response(&self) -> AFPluginEventResponse {
         let bytes: Bytes = self.clone().try_into().unwrap();
 
         println!("Serialize FlowyError: {:?} to event response", self);
@@ -112,3 +113,5 @@ impl std::convert::From<protobuf::ProtobufError> for FlowyError {
         FlowyError::internal().context(e)
     }
 }
+
+impl std::error::Error for FlowyError {}

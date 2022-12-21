@@ -1,5 +1,5 @@
-import 'package:app_flowy/plugins/doc/application/doc_bloc.dart';
-import 'package:app_flowy/plugins/doc/document.dart';
+import 'package:app_flowy/plugins/document/application/doc_bloc.dart';
+import 'package:app_flowy/plugins/document/document.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';

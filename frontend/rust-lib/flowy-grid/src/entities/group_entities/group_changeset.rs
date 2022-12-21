@@ -5,7 +5,7 @@ use flowy_error::ErrorCode;
 use std::fmt::Formatter;
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct GroupChangesetPB {
+pub struct GroupRowsNotificationPB {
     #[pb(index = 1)]
     pub group_id: String,
 
@@ -22,7 +22,7 @@ pub struct GroupChangesetPB {
     pub updated_rows: Vec<RowPB>,
 }
 
-impl std::fmt::Display for GroupChangesetPB {
+impl std::fmt::Display for GroupRowsNotificationPB {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         for inserted_row in &self.inserted_rows {
             let _ = f.write_fmt(format_args!(
@@ -39,7 +39,7 @@ impl std::fmt::Display for GroupChangesetPB {
     }
 }
 
-impl GroupChangesetPB {
+impl GroupRowsNotificationPB {
     pub fn is_empty(&self) -> bool {
         self.group_name.is_none()
             && self.inserted_rows.is_empty()

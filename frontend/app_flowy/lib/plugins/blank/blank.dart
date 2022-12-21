@@ -16,6 +16,9 @@ class BlankPluginBuilder extends PluginBuilder {
   String get menuName => "Blank";
 
   @override
+  String get menuIcon => "";
+
+  @override
   PluginType get pluginType => PluginType.blank;
 }
 
@@ -37,8 +40,7 @@ class BlankPagePlugin extends Plugin {
 
 class BlankPagePluginDisplay extends PluginDisplay with NavigationItem {
   @override
-  Widget get leftBarItem =>
-      FlowyText.medium(LocaleKeys.blankPageTitle.tr(), fontSize: 12);
+  Widget get leftBarItem => FlowyText.medium(LocaleKeys.blankPageTitle.tr());
 
   @override
   Widget buildWidget(PluginContext context) => const BlankPage();

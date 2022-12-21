@@ -3,7 +3,6 @@ import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 // ignore: unused_import
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
@@ -169,10 +168,7 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
       alignment: AlignmentDirectional.center,
       fit: StackFit.expand,
       children: [
-        Padding(
-          padding: GridSize.cellContentInsets,
-          child: _wrapPopover(child),
-        ),
+        _wrapPopover(child),
         InkWell(onTap: () => _popover.show()),
       ],
     );
@@ -197,7 +193,10 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
         );
       },
       onClose: () => widget.onFocus?.call(false),
-      child: child,
+      child: Padding(
+        padding: GridSize.cellContentInsets,
+        child: child,
+      ),
     );
   }
 
@@ -206,7 +205,6 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
     if (widget.selectOptions.isEmpty && widget.cellStyle != null) {
       child = FlowyText.medium(
         widget.cellStyle!.placeholder,
-        fontSize: 14,
         color: Theme.of(context).hintColor,
       );
     } else {
@@ -223,7 +221,7 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
       ).toList();
 
       child = Wrap(
-        runSpacing: 2,
+        runSpacing: 4,
         children: children,
       );
     }

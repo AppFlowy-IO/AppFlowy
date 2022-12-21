@@ -30,14 +30,14 @@ class GridGroupList extends StatelessWidget {
       )..add(const GridGroupEvent.initial()),
       child: BlocBuilder<GridGroupBloc, GridGroupState>(
         builder: (context, state) {
-          final cells = state.fieldContexts.map((fieldContext) {
+          final cells = state.fieldContexts.map((fieldInfo) {
             Widget cell = _GridGroupCell(
-              fieldContext: fieldContext,
+              fieldInfo: fieldInfo,
               onSelected: () => onDismissed(),
-              key: ValueKey(fieldContext.id),
+              key: ValueKey(fieldInfo.id),
             );
 
-            if (!fieldContext.canGroup) {
+            if (!fieldInfo.canBeGroup) {
               cell = IgnorePointer(child: Opacity(opacity: 0.3, child: cell));
             }
             return cell;
@@ -61,9 +61,9 @@ class GridGroupList extends StatelessWidget {
 
 class _GridGroupCell extends StatelessWidget {
   final VoidCallback onSelected;
-  final GridFieldContext fieldContext;
+  final FieldInfo fieldInfo;
   const _GridGroupCell({
-    required this.fieldContext,
+    required this.fieldInfo,
     required this.onSelected,
     Key? key,
   }) : super(key: key);
@@ -71,7 +71,7 @@ class _GridGroupCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget? rightIcon;
-    if (fieldContext.isGroupField) {
+    if (fieldInfo.isGroupField) {
       rightIcon = Padding(
         padding: const EdgeInsets.all(2.0),
         child: svgWidget("grid/checkmark"),
@@ -81,17 +81,17 @@ class _GridGroupCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(fieldContext.name, fontSize: 12),
+        text: FlowyText.medium(fieldInfo.name),
         leftIcon: svgWidget(
-          fieldContext.fieldType.iconName(),
+          fieldInfo.fieldType.iconName(),
           color: Theme.of(context).colorScheme.onSurface,
         ),
         rightIcon: rightIcon,
         onTap: () {
           context.read<GridGroupBloc>().add(
                 GridGroupEvent.setGroupByField(
-                  fieldContext.id,
-                  fieldContext.fieldType,
+                  fieldInfo.id,
+                  fieldInfo.fieldType,
                 ),
               );
           onSelected();

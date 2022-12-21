@@ -4,7 +4,7 @@
   "welcomeText": "Welcome to @:appName",
   "githubStarText": "Star on GitHub",
   "subscribeNewsletterText": "Subscribe to Newsletter",
-  "letsGoButtonText": "Let's Go",
+  "letsGoButtonText": "Quick Start",
   "title": "Title",
   "signUp": {
     "buttonText": "Sign Up",
@@ -39,6 +39,12 @@
     "workInProgress": "Coming soon",
     "markdown": "Markdown",
     "copyLink": "Copy Link"
+  },
+  "moreAction": {
+    "small": "small",
+    "medium": "medium",
+    "large": "large",
+    "fontSize": "Font Size"
   },
   "disclosureAction": {
     "rename": "Rename",
@@ -149,11 +155,37 @@
       "appearance": "Appearance",
       "language": "Language",
       "user": "User",
+      "files": "Files",
       "open": "Open Settings"
     },
     "appearance": {
-      "lightLabel": "Light Mode",
-      "darkLabel": "Dark Mode"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Light Mode",
+        "dark": "Dark Mode",
+        "system": "Adapt to System"
+      }
+    },
+    "files": {
+      "defaultLocation": "Where your data is stored now",
+      "doubleTapToCopy": "Double tap to copy the path",
+      "restoreLocation": "Restore to AppFlowy default path",
+      "customizeLocation": "Open another folder",
+      "restartApp": "Please restart app for the changes to take effect.",
+      "exportDatabase": "Export databae",
+      "selectFiles": "Select the files that need to be export",
+      "createNewFolder": "Create a new folder",
+      "createNewFolderDesc": "Tell us where you want to store your data ...",
+      "open": "Open",
+      "openFolder": "Open an existing folder",
+      "openFolderDesc": "Read and write it to your existing AppFlowy folder ...",
+      "folderHintText": "folder name",
+      "location": "Creating a new folder",
+      "locationDesc": "Pick a name for your AppFlowy data folder",
+      "browser": "Browse",
+      "create": "Create",
+      "folderPath": "Path to store your folder",
+      "locationCannotBeEmpty": "Path cannot be empty"
     }
   },
   "grid": {
@@ -161,7 +193,51 @@
       "filter": "Filter",
       "sortBy": "Sort by",
       "Properties": "Properties",
-      "group": "Group"
+      "group": "Group",
+      "addFilter": "Add Filter",
+      "deleteFilter": "Delete filter",
+      "filterBy": "Filter by...",
+      "typeAValue": "Type a value..."
+    },
+    "textFilter": {
+      "contains": "Contains",
+      "doesNotContain": "Does not contain",
+      "endsWith": "Ends with",
+      "startWith": "Starts with",
+      "is": "Is",
+      "isNot": "Is not",
+      "isEmpty": "Is empty",
+      "isNotEmpty": "Is not empty",
+      "choicechipPrefix": {
+        "isNot": "Not",
+        "startWith": "Starts with",
+        "endWith": "Ends with",
+        "isEmpty": "is empty",
+        "isNotEmpty": "is not empty"
+      }
+    },
+    "checkboxFilter": {
+      "isChecked": "Checked",
+      "isUnchecked": "Unchecked",
+      "choicechipPrefix": {
+        "is": "is"
+      }
+    },
+    "checklistFilter": {
+      "isComplete": "is complete",
+      "isIncomplted": "is incomplete"
+    },
+    "singleSelectOptionFilter": {
+      "is": "Is",
+      "isNot": "Is not",
+      "isEmpty": "Is empty",
+      "isNotEmpty": "Is not empty"
+    },
+    "multiSelectOptionFilter": {
+      "contains": "Contains",
+      "doesNotContain": "Does not contain",
+      "isEmpty": "Is empty",
+      "isNotEmpty": "Is not empty"
     },
     "field": {
       "hide": "Hide",
@@ -176,6 +252,7 @@
       "singleSelectFieldName": "Select",
       "multiSelectFieldName": "Multiselect",
       "urlFieldName": "URL",
+      "checklistFieldName": "Checklist",
       "numberFormat": " Number format",
       "dateFormat": " Date format",
       "includeTime": " Include time",
@@ -218,10 +295,13 @@
       "panelTitle": "Select an option or create one",
       "searchOption": "Search for an option"
     },
+    "checklist": {
+      "panelTitle": "Add an item"
+    },
     "menuName": "Grid"
   },
   "document": {
-    "menuName": "Doc",
+    "menuName": "Document",
     "date": {
       "timeHintTextInTwelveHour": "01:00 PM",
       "timeHintTextInTwentyFourHour": "13:00"

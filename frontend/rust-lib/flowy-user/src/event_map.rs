@@ -6,10 +6,10 @@ use lib_dispatch::prelude::*;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
 
-pub fn create(user_session: Arc<UserSession>) -> Module {
-    Module::new()
+pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
+    AFPlugin::new()
         .name("Flowy-User")
-        .data(user_session)
+        .state(user_session)
         .event(UserEvent::SignIn, sign_in)
         .event(UserEvent::SignUp, sign_up)
         .event(UserEvent::InitUser, init_user_handler)

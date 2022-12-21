@@ -1,4 +1,5 @@
-import 'package:flowy_infra/color_extension.dart';
+import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
@@ -10,23 +11,23 @@ extension SelectOptionColorExtension on SelectOptionColorPB {
   Color make(BuildContext context) {
     switch (this) {
       case SelectOptionColorPB.Purple:
-        return CustomColors.tint1;
+        return AFThemeExtension.of(context).tint1;
       case SelectOptionColorPB.Pink:
-        return CustomColors.tint2;
+        return AFThemeExtension.of(context).tint2;
       case SelectOptionColorPB.LightPink:
-        return CustomColors.tint3;
+        return AFThemeExtension.of(context).tint3;
       case SelectOptionColorPB.Orange:
-        return CustomColors.tint4;
+        return AFThemeExtension.of(context).tint4;
       case SelectOptionColorPB.Yellow:
-        return CustomColors.tint5;
+        return AFThemeExtension.of(context).tint5;
       case SelectOptionColorPB.Lime:
-        return CustomColors.tint6;
+        return AFThemeExtension.of(context).tint6;
       case SelectOptionColorPB.Green:
-        return CustomColors.tint7;
+        return AFThemeExtension.of(context).tint7;
       case SelectOptionColorPB.Aqua:
-        return CustomColors.tint8;
+        return AFThemeExtension.of(context).tint8;
       case SelectOptionColorPB.Blue:
-        return CustomColors.tint9;
+        return AFThemeExtension.of(context).tint9;
       default:
         throw ArgumentError;
     }
@@ -87,18 +88,13 @@ class SelectOptionTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChoiceChip(
-      pressElevation: 1,
-      label: FlowyText.medium(
-        name,
-        fontSize: 12,
-        overflow: TextOverflow.clip,
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: Corners.s6Border,
       ),
-      selectedColor: color,
-      backgroundColor: color,
-      labelPadding: const EdgeInsets.symmetric(horizontal: 6),
-      selected: true,
-      onSelected: (_) => onSelected?.call(),
+      child: FlowyText.medium(name, overflow: TextOverflow.ellipsis),
     );
   }
 }
@@ -116,30 +112,29 @@ class SelectOptionTagCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        FlowyHover(
-          child: InkWell(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 3),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SelectOptionTag.fromOption(
+    return FlowyHover(
+      child: InkWell(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: SelectOptionTag.fromOption(
                     context: context,
                     option: option,
                     onSelected: () => onSelected(option),
                   ),
-                  const Spacer(),
-                  ...children,
-                ],
+                ),
               ),
             ),
-            onTap: () => onSelected(option),
-          ),
+            ...children,
+          ],
         ),
-      ],
+        onTap: () => onSelected(option),
+      ),
     );
   }
 }

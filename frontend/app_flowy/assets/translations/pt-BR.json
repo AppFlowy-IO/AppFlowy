@@ -152,8 +152,12 @@
       "open": "Abrir as Configurações"
     },
     "appearance": {
-      "lightLabel": "Modo Claro",
-      "darkLabel": "Modo Escuro"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Modo Claro",
+        "dark": "Modo Escuro",
+        "system": "Adapt to System"
+      }
     }
   },
   "grid": {
@@ -220,10 +224,10 @@
     "menuName": "Grade"
   },
   "document": {
-    "menuName": "Doc",
+    "menuName": "Documento",
     "date": {
-      "timeHintTextInTwelveHour": "12:00 AM",
-      "timeHintTextInTwentyFourHour": "12:00"
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
     }
   },
   "board": {

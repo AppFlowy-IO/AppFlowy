@@ -1,6 +1,4 @@
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';
@@ -69,7 +67,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
             controller: _popover,
             triggerActions: PopoverTriggerFlags.none,
             direction: PopoverDirection.bottomWithLeftAligned,
-            constraints: BoxConstraints.loose(const Size(320, 520)),
+            constraints: BoxConstraints.loose(const Size(260, 500)),
             margin: EdgeInsets.zero,
             child: SizedBox.expand(
               child: GestureDetector(
@@ -81,7 +79,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
                     padding: GridSize.cellContentInsets,
                     child: FlowyText.medium(
                       state.dateStr,
-                      fontSize: FontSizes.s14,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),

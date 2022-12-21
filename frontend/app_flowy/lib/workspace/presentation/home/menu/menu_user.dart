@@ -2,9 +2,9 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:app_flowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_user_view.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfilePB;
@@ -67,7 +67,6 @@ class MenuUser extends StatelessWidget {
     }
     return FlowyText.medium(
       name,
-      fontSize: FontSizes.s12,
       overflow: TextOverflow.ellipsis,
     );
   }
@@ -76,7 +75,7 @@ class MenuUser extends StatelessWidget {
     final userProfile = context.read<MenuUserBloc>().state.userProfile;
     return Tooltip(
       message: LocaleKeys.settings_menu_open.tr(),
-      textStyle: TextStyles.caption.textColor(Colors.white),
+      textStyle: AFThemeExtension.of(context).caption.textColor(Colors.white),
       child: IconButton(
         onPressed: () {
           showDialog(

@@ -5,7 +5,6 @@ import 'package:dartz/dartz.dart' show Either;
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +16,8 @@ import 'field_type_list.dart';
 import 'type_option/builder.dart';
 
 typedef UpdateFieldCallback = void Function(FieldPB, Uint8List);
-typedef SwitchToFieldCallback
-    = Future<Either<FieldTypeOptionDataPB, FlowyError>> Function(
+typedef SwitchToFieldCallback = Future<Either<TypeOptionPB, FlowyError>>
+    Function(
   String fieldId,
   FieldType fieldType,
 );
@@ -87,7 +86,7 @@ class _SwitchFieldButton extends StatelessWidget {
     final widget = AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(460, 540)),
       asBarrier: true,
-      triggerActions: PopoverTriggerFlags.click | PopoverTriggerFlags.hover,
+      triggerActions: PopoverTriggerFlags.click,
       mutex: popoverMutex,
       offset: const Offset(20, 0),
       popupBuilder: (popOverContext) {
@@ -111,7 +110,6 @@ class _SwitchFieldButton extends StatelessWidget {
     return FlowyButton(
       text: FlowyText.medium(
         bloc.state.field.fieldType.title(),
-        fontSize: 12,
       ),
       margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       leftIcon: svgWidget(

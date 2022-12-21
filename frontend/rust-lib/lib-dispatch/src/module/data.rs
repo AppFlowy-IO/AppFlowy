@@ -1,18 +1,18 @@
 use crate::{
     errors::{DispatchError, InternalError},
-    request::{payload::Payload, EventRequest, FromRequest},
+    request::{payload::Payload, AFPluginEventRequest, FromAFPluginRequest},
     util::ready::{ready, Ready},
 };
 use std::{any::type_name, ops::Deref, sync::Arc};
 
-pub struct AppData<T: ?Sized + Send + Sync>(Arc<T>);
+pub struct AFPluginState<T: ?Sized + Send + Sync>(Arc<T>);
 
-impl<T> AppData<T>
+impl<T> AFPluginState<T>
 where
     T: Send + Sync,
 {
     pub fn new(data: T) -> Self {
-        AppData(Arc::new(data))
+        AFPluginState(Arc::new(data))
     }
 
     pub fn get_ref(&self) -> &T {
@@ -20,7 +20,7 @@ where
     }
 }
 
-impl<T> Deref for AppData<T>
+impl<T> Deref for AFPluginState<T>
 where
     T: ?Sized + Send + Sync,
 {
@@ -31,25 +31,25 @@ where
     }
 }
 
-impl<T> Clone for AppData<T>
+impl<T> Clone for AFPluginState<T>
 where
     T: ?Sized + Send + Sync,
 {
-    fn clone(&self) -> AppData<T> {
-        AppData(self.0.clone())
+    fn clone(&self) -> AFPluginState<T> {
+        AFPluginState(self.0.clone())
     }
 }
 
-impl<T> From<Arc<T>> for AppData<T>
+impl<T> From<Arc<T>> for AFPluginState<T>
 where
     T: ?Sized + Send + Sync,
 {
     fn from(arc: Arc<T>) -> Self {
-        AppData(arc)
+        AFPluginState(arc)
     }
 }
 
-impl<T> FromRequest for AppData<T>
+impl<T> FromAFPluginRequest for AFPluginState<T>
 where
     T: ?Sized + Send + Sync + 'static,
 {
@@ -57,11 +57,11 @@ where
     type Future = Ready<Result<Self, DispatchError>>;
 
     #[inline]
-    fn from_request(req: &EventRequest, _: &mut Payload) -> Self::Future {
-        if let Some(data) = req.module_data::<AppData<T>>() {
-            ready(Ok(data.clone()))
+    fn from_request(req: &AFPluginEventRequest, _: &mut Payload) -> Self::Future {
+        if let Some(state) = req.get_state::<AFPluginState<T>>() {
+            ready(Ok(state.clone()))
         } else {
-            let msg = format!("Failed to get the module data of type: {}", type_name::<T>());
+            let msg = format!("Failed to get the plugin state of type: {}", type_name::<T>());
             log::error!("{}", msg,);
             ready(Err(InternalError::Other(msg).into()))
         }

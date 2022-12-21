@@ -2,14 +2,13 @@ import 'dart:collection';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/application/cell/select_option_editor_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/color_extension.dart';
+import 'package:flowy_infra/theme_extension.dart';
 
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,22 +52,24 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
       )..add(const SelectOptionEditorEvent.initial()),
       child: BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
         builder: (context, state) {
+          final List<Widget> children = [
+            _TextField(popoverMutex: popoverMutex),
+            const TypeOptionSeparator(),
+            const _Title(),
+            _OptionList(popoverMutex: popoverMutex),
+          ];
+
           return Padding(
             padding: const EdgeInsets.all(6.0),
-            child: CustomScrollView(
+            child: ListView.separated(
               shrinkWrap: true,
-              slivers: [
-                SliverToBoxAdapter(
-                  child: _TextField(popoverMutex: popoverMutex),
-                ),
-                const SliverToBoxAdapter(child: VSpace(6)),
-                const SliverToBoxAdapter(child: TypeOptionSeparator()),
-                const SliverToBoxAdapter(child: VSpace(6)),
-                const SliverToBoxAdapter(child: _Title()),
-                SliverToBoxAdapter(
-                  child: _OptionList(popoverMutex: popoverMutex),
-                ),
-              ],
+              itemCount: children.length,
+              itemBuilder: (BuildContext context, int index) {
+                return children[index];
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return VSpace(GridSize.typeOptionSeparatorHeight);
+              },
             ),
           );
         },
@@ -144,35 +145,32 @@ class _TextField extends StatelessWidget {
             key: (option) => option.name,
             value: (option) => option);
 
-        return SizedBox(
-          height: 62,
-          child: SelectOptionTextField(
-            options: state.options,
-            selectedOptionMap: optionMap,
-            distanceToText: _editorPanelWidth * 0.7,
-            maxLength: 30,
-            tagController: _tagController,
-            textSeparators: const [','],
-            onClick: () => popoverMutex.close(),
-            newText: (text) {
-              context
-                  .read<SelectOptionCellEditorBloc>()
-                  .add(SelectOptionEditorEvent.filterOption(text));
-            },
-            onSubmitted: (tagName) {
-              context
-                  .read<SelectOptionCellEditorBloc>()
-                  .add(SelectOptionEditorEvent.trySelectOption(tagName));
-            },
-            onPaste: (tagNames, remainder) {
-              context
-                  .read<SelectOptionCellEditorBloc>()
-                  .add(SelectOptionEditorEvent.selectMultipleOptions(
-                    tagNames,
-                    remainder,
-                  ));
-            },
-          ),
+        return SelectOptionTextField(
+          options: state.options,
+          selectedOptionMap: optionMap,
+          distanceToText: _editorPanelWidth * 0.7,
+          maxLength: 30,
+          tagController: _tagController,
+          textSeparators: const [','],
+          onClick: () => popoverMutex.close(),
+          newText: (text) {
+            context
+                .read<SelectOptionCellEditorBloc>()
+                .add(SelectOptionEditorEvent.filterOption(text));
+          },
+          onSubmitted: (tagName) {
+            context
+                .read<SelectOptionCellEditorBloc>()
+                .add(SelectOptionEditorEvent.trySelectOption(tagName));
+          },
+          onPaste: (tagNames, remainder) {
+            context
+                .read<SelectOptionCellEditorBloc>()
+                .add(SelectOptionEditorEvent.selectMultipleOptions(
+                  tagNames,
+                  remainder,
+                ));
+          },
         );
       },
     );
@@ -190,7 +188,6 @@ class _Title extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 6),
         child: FlowyText.medium(
           LocaleKeys.grid_selectOption_panelTitle.tr(),
-          fontSize: 12,
           color: Theme.of(context).hintColor,
         ),
       ),
@@ -208,16 +205,20 @@ class _CreateOptionCell extends StatelessWidget {
       children: [
         FlowyText.medium(
           LocaleKeys.grid_selectOption_create.tr(),
-          fontSize: 12,
           color: Theme.of(context).hintColor,
         ),
         const HSpace(10),
-        SelectOptionTag(
-          name: name,
-          color: CustomColors.of(context).lightGreyHover,
-          onSelected: () => context
-              .read<SelectOptionCellEditorBloc>()
-              .add(SelectOptionEditorEvent.newOption(name)),
+        Expanded(
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: SelectOptionTag(
+              name: name,
+              color: AFThemeExtension.of(context).lightGreyHover,
+              onSelected: () => context
+                  .read<SelectOptionCellEditorBloc>()
+                  .add(SelectOptionEditorEvent.newOption(name)),
+            ),
+          ),
         ),
       ],
     );
@@ -274,14 +275,13 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
           children: [
             if (widget.isSelected)
               Padding(
-                padding: const EdgeInsets.only(right: 6),
+                padding: const EdgeInsets.only(left: 6),
                 child: svgWidget("grid/checkmark"),
               ),
             FlowyIconButton(
-              width: 30,
               onPressed: () => _popoverController.show(),
               hoverColor: Colors.transparent,
-              iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+              iconPadding: const EdgeInsets.symmetric(horizontal: 6.0),
               icon: svgWidget(
                 "editor/details",
                 color: Theme.of(context).colorScheme.onSurface,

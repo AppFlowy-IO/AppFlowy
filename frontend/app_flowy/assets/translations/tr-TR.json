@@ -138,8 +138,12 @@
       "open": "Ayarları Aç"
     },
     "appearance": {
-      "lightLabel": "Aydınlık Mod",
-      "darkLabel": "Karanlık Mod"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Aydınlık Mod",
+        "dark": "Karanlık Mod",
+        "system": "Adapt to System"
+      }
     }
   },
   "sideBar": {

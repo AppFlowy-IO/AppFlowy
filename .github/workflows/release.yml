@@ -63,7 +63,7 @@ jobs:
           source $HOME/.cargo/env
           cargo install --force cargo-make
           cargo install --force duckscript_cli
-          cargo make flowy_dev
+          cargo make appflowy-deps-tools
 
       - name: Build Linux app
         working-directory: frontend
@@ -71,45 +71,29 @@ jobs:
           flutter config --enable-linux-desktop
           cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-linux-x86_64 appflowy
 
+      - name: Configuring Linux Package
+        working-directory: frontend
+        run: |
+          mkdir -p ../${{ env.LINUX_APP_RELEASE_PATH }}/package/opt
+          mkdir -p ../${{ env.LINUX_APP_RELEASE_PATH }}/package/usr/share/applications
+          cp -r ./scripts/linux_installer ../${{ env.LINUX_APP_RELEASE_PATH }}/package/DEBIAN
+          cd ../${{ env.LINUX_APP_RELEASE_PATH }}/package/DEBIAN
+          grep -rl "\[CHANGE_THIS\]" ./control | xargs sed -i "s/\[CHANGE_THIS\]/${{ github.ref_name }}/"
+          chmod 0755 {postinst,postrm}
+
       - name: Build Linux package
         working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
         run: |
-          mkdir -p package/opt && mv AppFlowy package/opt/
-          cd package && mkdir DEBIAN
-          # Create control file
-          printf 'Package: AppFlowy
-          Version: %s
-          Architecture: amd64
-          Essential: no
-          Priority: optional
-          Maintainer: AppFlowy
-          Description: An Open Source Alternative to Notion\n' "${{ github.ref_name }}" > DEBIAN/control
+          mv AppFlowy package/opt/
+          cd package
 
-          # postinst script for creating symlink
-          printf '#!/bin/bash
-          if [ -e /usr/local/bin/appflowy ]; then
-            echo "Symlink already exists, skipping."
-          else
-            echo "Creating Symlink in /usr/local/bin/appflowy"
-            ln -s /opt/AppFlowy/app_flowy /usr/local/bin/appflowy
-          fi' > DEBIAN/postinst
-          chmod 0755 DEBIAN/postinst
-
-          # postrm script for cleaning up residuals
-          printf '#!/bin/bash
-          if [ -e /usr/local/bin/appflowy ]; then
-            rm /usr/local/bin/appflowy
-          fi' > DEBIAN/postrm
-          chmod 0755 DEBIAN/postrm
-
-          mkdir -p usr/share/applications
           # Update Exec & icon path in desktop entry
           grep -rl "\[CHANGE_THIS\]" ./opt/AppFlowy/appflowy.desktop.temp | xargs sed -i "s/\[CHANGE_THIS\]/\/opt/"
           # Add desktop entry in package
           mv ./opt/AppFlowy/appflowy.desktop.temp ./usr/share/applications/appflowy.desktop
 
           # Build
-          cd ../ && dpkg-deb --build --root-owner-group package ${{ env.LINUX_PACKAGE_NAME }}
+          cd ../ && dpkg-deb --build --root-owner-group -Z xz package ${{ env.LINUX_PACKAGE_NAME }}
 
       - name: Upload Release Asset
         id: upload-release-asset
@@ -123,6 +107,80 @@ jobs:
           asset_content_type: application/octet-stream
 
       - name: Upload Release Asset Install Package
+        id: upload-release-asset-install-package
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_NAME }}
+          asset_name: ${{ env.LINUX_PACKAGE_NAME }}
+          asset_content_type: application/octet-stream
+
+  build-linux-x86-alt:
+    runs-on: ubuntu-18.04
+    needs: create-release
+    env:
+      LINUX_APP_RELEASE_PATH: frontend/app_flowy/product/${{ github.ref_name }}/linux/Release
+      LINUX_PACKAGE_NAME: AppFlowy_${{ github.ref_name }}_linux-amd64-alt.deb
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup environment - Rust and Cargo
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 'stable-2022-04-07'
+
+      - name: Setup environment - Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.0.5'
+
+      - name: Pre build
+        working-directory: frontend
+        run: |
+          sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+          sudo apt-get update
+          sudo apt-get install -y build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
+          sudo apt-get install keybinder-3.0
+          source $HOME/.cargo/env
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
+          cargo make appflowy-deps-tools
+
+      - name: Build Linux app
+        working-directory: frontend
+        run: |
+          flutter config --enable-linux-desktop
+          cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-linux-x86_64 appflowy
+
+      - name: Configuring Linux Package
+        working-directory: frontend
+        run: |
+          mkdir -p ../${{ env.LINUX_APP_RELEASE_PATH }}/package/opt
+          mkdir -p ../${{ env.LINUX_APP_RELEASE_PATH }}/package/usr/share/applications
+          cp -r ./scripts/linux_installer ../${{ env.LINUX_APP_RELEASE_PATH }}/package/DEBIAN
+          cd ../${{ env.LINUX_APP_RELEASE_PATH }}/package/DEBIAN
+          grep -rl "\[CHANGE_THIS\]" ./control | xargs sed -i "s/\[CHANGE_THIS\]/${{ github.ref_name }}/"
+          chmod 0755 {postinst,postrm}
+
+      - name: Build Linux package
+        working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
+        run: |
+          mv AppFlowy package/opt/
+          cd package
+
+          # Update Exec & icon path in desktop entry
+          grep -rl "\[CHANGE_THIS\]" ./opt/AppFlowy/appflowy.desktop.temp | xargs sed -i "s/\[CHANGE_THIS\]/\/opt/"
+          # Add desktop entry in package
+          mv ./opt/AppFlowy/appflowy.desktop.temp ./usr/share/applications/appflowy.desktop
+
+          # Build
+          cd ../ && dpkg-deb --build --root-owner-group -Z xz package ${{ env.LINUX_PACKAGE_NAME }}
+
+      - name: Upload Alternative Release Asset Install Package
         id: upload-release-asset-install-package
         uses: actions/upload-release-asset@v1
         env:
@@ -161,7 +219,7 @@ jobs:
           source $HOME/.cargo/env
           cargo install --force cargo-make
           cargo install --force duckscript_cli
-          cargo make flowy_dev
+          cargo make appflowy-deps-tools
 
       - name: Build macOS app for x86_64
         working-directory: frontend
@@ -170,13 +228,12 @@ jobs:
           cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-mac-x86_64 appflowy
 
       - name: Create MacOS dmg
-        working-directory: frontend
         run: |
             brew install create-dmg
             create-dmg \
             --volname ${{ env.MACOS_DMG_NAME }} \
             --hide-extension "AppFlowy.app" \
-            --background scripts/dmg_assets/AppFlowyInstallerBackground.jpg \
+            --background frontend/scripts/dmg_assets/AppFlowyInstallerBackground.jpg \
             --window-size 600 450 \
             --icon-size 94 \
             --icon "AppFlowy.app" 141 249 \
@@ -213,6 +270,7 @@ jobs:
     env:
       WINDOWS_APP_RELEASE_PATH: frontend\app_flowy\product\${{ github.ref_name }}\windows
       WINDOWS_ZIP_NAME: AppFlowy-windows-x86_64.zip
+      WINDOWS_INSTALLER_NAME: AppFlowy-${{ github.ref_name }}-windows-x86_64
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -234,7 +292,7 @@ jobs:
           vcpkg integrate install
           cargo install --force cargo-make
           cargo install --force duckscript_cli
-          cargo make flowy_dev
+          cargo make appflowy-deps-tools
 
       - name: Build Windows app
         working-directory: frontend
@@ -246,6 +304,16 @@ jobs:
         with:
           files: ${{ env.WINDOWS_APP_RELEASE_PATH }}\
           dest: ${{ env.WINDOWS_APP_RELEASE_PATH }}\${{ env.WINDOWS_ZIP_NAME }}
+      
+      - name: Copy installer config & icon file
+        working-directory: frontend
+        run: |
+          cp scripts/windows_installer/* ../${{ env.WINDOWS_APP_RELEASE_PATH }}
+
+      - name: Build installer executable
+        working-directory: ${{ env.WINDOWS_APP_RELEASE_PATH }}
+        run: |
+          iscc /F${{ env.WINDOWS_INSTALLER_NAME }} inno_setup_config.iss /DAppVersion=${{ github.ref_name }}
 
       - name: Upload Release Asset
         id: upload-release-asset
@@ -256,4 +324,15 @@ jobs:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ env.WINDOWS_APP_RELEASE_PATH }}\${{ env.WINDOWS_ZIP_NAME }}
           asset_name: ${{ env.WINDOWS_ZIP_NAME }}
+          asset_content_type: application/octet-stream
+
+      - name: Upload Installer Asset
+        id: upload-installer-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.WINDOWS_APP_RELEASE_PATH }}\Output\${{ env.WINDOWS_INSTALLER_NAME }}.exe
+          asset_name: ${{ env.WINDOWS_INSTALLER_NAME }}.exe
           asset_content_type: application/octet-stream

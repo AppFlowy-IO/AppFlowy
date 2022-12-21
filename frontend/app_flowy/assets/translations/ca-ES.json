@@ -138,8 +138,12 @@
       "open": "Obrir la configuració"
     },
     "appearance": {
-      "lightLabel": "Mode Clar",
-      "darkLabel": "Mode Fosc"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Mode Clar",
+        "dark": "Mode Fosc",
+        "system": "Adapt to System"
+      }
     }
   },
   "sideBar": {

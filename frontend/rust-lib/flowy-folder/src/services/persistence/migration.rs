@@ -19,7 +19,6 @@ use std::sync::Arc;
 
 const V1_MIGRATION: &str = "FOLDER_V1_MIGRATION";
 const V2_MIGRATION: &str = "FOLDER_V2_MIGRATION";
-#[allow(dead_code)]
 const V3_MIGRATION: &str = "FOLDER_V3_MIGRATION";
 
 pub(crate) struct FolderMigration {

@@ -1,11 +1,8 @@
 import 'dart:async';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
-import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 import '../../layout/sizes.dart';
 import 'cell_builder.dart';
@@ -57,7 +54,7 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
             onEditingComplete: () => focusNode.unfocus(),
             onSubmitted: (_) => focusNode.unfocus(),
             maxLines: 1,
-            style: TextStyles.body1.size(FontSizes.s14),
+            style: Theme.of(context).textTheme.bodyMedium,
             textInputAction: TextInputAction.done,
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.zero,
