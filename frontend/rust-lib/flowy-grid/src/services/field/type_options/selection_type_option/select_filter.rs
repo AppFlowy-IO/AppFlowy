@@ -85,7 +85,7 @@ impl CellFilterable for MultiSelectTypeOptionPB {
         if !type_cell_data.is_multi_select() {
             return Ok(true);
         }
-        let ids = self.decode_type_option_cell_data(type_cell_data.data)?;
+        let ids = self.decode_type_option_cell_str(type_cell_data.cell_str)?;
         let selected_options = SelectedSelectOptions::from(self.get_selected_options(ids));
         Ok(filter.is_visible(&selected_options, FieldType::MultiSelect))
     }
@@ -96,7 +96,7 @@ impl CellFilterable for SingleSelectTypeOptionPB {
         if !type_cell_data.is_single_select() {
             return Ok(true);
         }
-        let ids = self.decode_type_option_cell_data(type_cell_data.data)?;
+        let ids = self.decode_type_option_cell_str(type_cell_data.cell_str)?;
         let selected_options = SelectedSelectOptions::from(self.get_selected_options(ids));
         Ok(filter.is_visible(&selected_options, FieldType::SingleSelect))
     }
@@ -107,7 +107,7 @@ impl CellFilterable for ChecklistTypeOptionPB {
         if !type_cell_data.is_checklist() {
             return Ok(true);
         }
-        let ids = self.decode_type_option_cell_data(type_cell_data.data)?;
+        let ids = self.decode_type_option_cell_str(type_cell_data.cell_str)?;
         let selected_options = SelectedSelectOptions::from(self.get_selected_options(ids));
         Ok(filter.is_visible(&self.options, &selected_options))
     }

@@ -378,7 +378,7 @@ pub(crate) async fn update_select_option_handler(
                     grid_id: changeset.cell_identifier.view_id,
                     row_id: changeset.cell_identifier.row_id,
                     field_id: changeset.cell_identifier.field_id.clone(),
-                    content: cell_content_changeset,
+                    type_cell_data: cell_content_changeset,
                 };
                 let cloned_editor = editor.clone();
                 tokio::spawn(async move {
@@ -413,12 +413,12 @@ pub(crate) async fn get_select_option_handler(
             let type_option = select_type_option_from_field_rev(&field_rev)?;
             let type_cell_data: TypeCellData = match cell_rev {
                 None => TypeCellData {
-                    data: "".to_string(),
+                    cell_str: "".to_string(),
                     field_type: field_rev.ty.into(),
                 },
                 Some(cell_rev) => cell_rev.try_into()?,
             };
-            let ids = SelectOptionIds::from_cell_str(&type_cell_data.data)?;
+            let ids = SelectOptionIds::from_cell_str(&type_cell_data.cell_str)?;
             let selected_options = type_option.get_selected_options(ids);
             data_result(selected_options)
         }

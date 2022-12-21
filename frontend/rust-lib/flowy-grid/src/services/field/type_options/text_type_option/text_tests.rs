@@ -16,7 +16,7 @@ mod tests {
 
         assert_eq!(
             type_option
-                .decode_cell_data(1647251762.to_string(), &field_type, &field_rev)
+                .decode_cell_str(1647251762.to_string(), &field_type, &field_rev)
                 .unwrap()
                 .as_str(),
             "Mar 14,2022"
@@ -37,7 +37,7 @@ mod tests {
 
         assert_eq!(
             type_option
-                .decode_cell_data(option_id, &field_type, &field_rev)
+                .decode_cell_str(option_id, &field_type, &field_rev)
                 .unwrap()
                 .to_string(),
             done_option.name,

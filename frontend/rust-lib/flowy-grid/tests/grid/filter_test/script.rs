@@ -278,7 +278,7 @@ impl GridFilterTest {
             grid_id: self.grid_id.clone(),
             row_id: row_rev.id.clone(),
             field_id: field_rev.id.clone(),
-            content: content.to_string(),
+            type_cell_data: content.to_string(),
         };
         self.editor.update_cell_with_changeset(changeset).await.unwrap();
 
@@ -295,7 +295,7 @@ impl GridFilterTest {
             grid_id: self.grid_id.clone(),
             row_id: row_rev.id.clone(),
             field_id: field_rev.id.clone(),
-            content,
+            type_cell_data: content,
         };
         self.editor.update_cell_with_changeset(changeset).await.unwrap();
 

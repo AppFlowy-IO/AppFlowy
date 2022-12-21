@@ -24,7 +24,7 @@ pub trait CellComparable {
 /// Decode the opaque cell data into readable format content
 pub trait CellDataDecoder: TypeOption {
     ///
-    /// Tries to decode the opaque cell data to `decoded_field_type`. Sometimes, the `field_type`
+    /// Tries to decode the opaque cell string to `decoded_field_type`'s cell data. Sometimes, the `field_type`
     /// of the `FieldRevision` is not equal to the `decoded_field_type`(This happened When switching
     /// the field type of the `FieldRevision` to another field type). So the cell data is need to do
     /// some transformation.
@@ -35,9 +35,9 @@ pub trait CellDataDecoder: TypeOption {
     /// data that can be parsed by the current field type. One approach is to transform the cell data
     /// when it get read. For the moment, the cell data is a string, `Yes` or `No`. It needs to compare
     /// with the option's name, if match return the id of the option.
-    fn decode_cell_data(
+    fn decode_cell_str(
         &self,
-        cell_data: String,
+        cell_str: String,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<<Self as TypeOption>::CellData>;
@@ -94,8 +94,8 @@ pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debu
     let to_field_type = field_rev.ty.into();
     match data.try_into() {
         Ok(type_cell_data) => {
-            let TypeCellData { data, field_type } = type_cell_data;
-            match try_decode_cell_data(data, &field_type, &to_field_type, field_rev) {
+            let TypeCellData { cell_str, field_type } = type_cell_data;
+            match try_decode_cell_str(cell_str, &field_type, &to_field_type, field_rev) {
                 Ok(cell_bytes) => (field_type, cell_bytes),
                 Err(e) => {
                     tracing::error!("Decode cell data failed, {:?}", e);
@@ -120,7 +120,7 @@ pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debu
 ///
 /// # Arguments
 ///
-/// * `cell_data`: the opaque cell data
+/// * `cell_str`: the opaque cell string
 /// * `from_field_type`: the original field type of the passed-in cell data. Check the `TypeCellData`
 /// that is used to save the origin field type of the cell data.
 /// * `to_field_type`: decode the passed-in cell data to this field type. It will use the to_field_type's
@@ -129,15 +129,15 @@ pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debu
 ///
 /// returns: CellBytes
 ///
-pub fn try_decode_cell_data(
-    cell_data: String,
+pub fn try_decode_cell_str(
+    cell_str: String,
     from_field_type: &FieldType,
     to_field_type: &FieldType,
     field_rev: &FieldRevision,
 ) -> FlowyResult<CellProtobufBlob> {
     match FieldRevisionExt::new(field_rev).get_type_option_cell_data_handler(to_field_type) {
         None => Ok(CellProtobufBlob::default()),
-        Some(handler) => handler.handle_cell_data(cell_data, from_field_type, field_rev),
+        Some(handler) => handler.handle_cell_str(cell_str, from_field_type, field_rev),
     }
 }
 
@@ -153,7 +153,7 @@ pub fn stringify_cell_data(
 ) -> String {
     match FieldRevisionExt::new(field_rev).get_type_option_cell_data_handler(to_field_type) {
         None => "".to_string(),
-        Some(handler) => handler.stringify_cell_data(cell_data, from_field_type, field_rev),
+        Some(handler) => handler.stringify_cell_str(cell_data, from_field_type, field_rev),
     }
 }
 

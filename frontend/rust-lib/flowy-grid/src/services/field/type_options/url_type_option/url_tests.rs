@@ -183,7 +183,7 @@ mod tests {
         field_type: &FieldType,
     ) -> URLCellData {
         type_option
-            .decode_cell_data(encoded_data, field_type, field_rev)
+            .decode_cell_str(encoded_data, field_type, field_rev)
             .unwrap()
     }
 }

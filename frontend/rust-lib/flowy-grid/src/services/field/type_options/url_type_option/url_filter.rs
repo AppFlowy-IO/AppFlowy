@@ -12,7 +12,7 @@ impl CellFilterable for URLTypeOptionPB {
             return Ok(true);
         }
 
-        let url_cell_data = self.decode_type_option_cell_data(type_cell_data.data)?;
+        let url_cell_data = self.decode_type_option_cell_str(type_cell_data.cell_str)?;
         Ok(filter.is_visible(&url_cell_data))
     }
 }
