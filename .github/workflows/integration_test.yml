@@ -87,6 +87,7 @@ jobs:
           elif [ "$RUNNER_OS" == "Windows" ]; then
             cargo make --profile production-windows-x86 appflowy
           fi
+        shell: bash
 
       - name: Config Flutter
         run: |
