@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:app_flowy/user/presentation/folder/folder_widget.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,12 +15,16 @@ void main() {
     const location = 'appflowy';
 
     setUp(() async {
-      await TestFolder.cleanTestLocation(location);
+      if (!Platform.isWindows) {
+        await TestFolder.cleanTestLocation(location);
+      }
       await TestFolder.setTestLocation(location);
     });
 
     tearDown(() async {
-      await TestFolder.cleanTestLocation(location);
+      if (!Platform.isWindows) {
+        await TestFolder.cleanTestLocation(location);
+      }
     });
 
     tearDownAll(() async {

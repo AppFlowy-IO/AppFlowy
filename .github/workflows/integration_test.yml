@@ -22,7 +22,7 @@ jobs:
   tests:
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]
+        os: [macos-latest, windows-2019, ubuntu-test]
 
     runs-on: ${{ matrix.os }}
 
