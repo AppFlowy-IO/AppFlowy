@@ -47,7 +47,7 @@ impl CellFilterable for NumberTypeOptionPB {
             return Ok(true);
         }
 
-        let cell_data = type_cell_data.data;
+        let cell_data = type_cell_data.cell_data;
         let num_cell_data = self.format_cell_data(&cell_data)?;
 
         Ok(filter.is_visible(&num_cell_data))

@@ -7,9 +7,12 @@ use crate::services::field::{
     RichTextTypeOptionPB, SingleSelectTypeOptionPB, URLTypeOptionPB,
 };
 use bytes::Bytes;
+use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use lazy_static::lazy_static;
 use protobuf::ProtobufError;
+use std::cmp::Ordering;
 use std::fmt::Debug;
 
 pub trait TypeOption {
@@ -53,6 +56,14 @@ pub trait TypeOptionCellData: TypeOption {
     // data can not directly show to user. So it needs to be encode as the date string with custom
     // format setting. Encode `1647251762` to `"Mar 14,2022`
     fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData>;
+}
+
+pub trait TypeOptionCellDataComparable: TypeOption {
+    fn apply_cmp(
+        &self,
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering;
 }
 
 pub trait TypeOptionConfiguration {
@@ -139,12 +150,14 @@ pub trait TypeOptionCellDataHandler {
         old_type_cell_data: Option<TypeCellData>,
     ) -> FlowyResult<String>;
 
+    fn handle_cell_cmp(&self, left_cell_data: &str, right_cell_data: &str, field_rev: &FieldRevision) -> Ordering;
+
     fn stringify_cell_data(&self, cell_data: String, field_type: &FieldType, field_rev: &FieldRevision) -> String;
 }
 
 impl<T> TypeOptionCellDataHandler for T
 where
-    T: TypeOption + CellDataDecoder + CellDataChangeset + TypeOptionCellData + TypeOptionTransform,
+    T: TypeOption + CellDataDecoder + CellDataChangeset + TypeOptionCellData + TypeOptionTransform, // + TypeOptionCellDataComparable,
 {
     fn handle_cell_data(
         &self,
@@ -173,6 +186,34 @@ where
         Ok(cell_data)
     }
 
+    fn handle_cell_cmp(&self, left_cell_data: &str, right_cell_data: &str, field_rev: &FieldRevision) -> Ordering {
+        if !TYPEOPTION_CELL_CACHE.contains_key(left_cell_data) {
+            TYPEOPTION_CELL_CACHE
+                .entry(left_cell_data.to_owned())
+                .or_insert_with(|| {
+                    let cell_data = self
+                        .decode_cell_data(left_cell_data.to_owned(), &FieldType::RichText, field_rev)
+                        .unwrap();
+                    self.decode_cell_data_to_str(cell_data)
+                });
+        }
+
+        if !TYPEOPTION_CELL_CACHE.contains_key(right_cell_data) {
+            TYPEOPTION_CELL_CACHE
+                .entry(right_cell_data.to_owned())
+                .or_insert_with(|| {
+                    let cell_data = self
+                        .decode_cell_data(right_cell_data.to_owned(), &FieldType::RichText, field_rev)
+                        .unwrap();
+                    self.decode_cell_data_to_str(cell_data)
+                });
+        }
+        let left = TYPEOPTION_CELL_CACHE.get(left_cell_data).unwrap();
+        let right = TYPEOPTION_CELL_CACHE.get(left_cell_data).unwrap();
+        // left.cmp(&right)
+        todo!()
+    }
+
     fn stringify_cell_data(
         &self,
         cell_data: String,
@@ -190,6 +231,10 @@ where
             Err(_) => "".to_string(),
         }
     }
+}
+
+lazy_static! {
+    pub(crate) static ref TYPEOPTION_CELL_CACHE: DashMap<String, String> = DashMap::new();
 }
 
 pub struct FieldRevisionExt<'a> {

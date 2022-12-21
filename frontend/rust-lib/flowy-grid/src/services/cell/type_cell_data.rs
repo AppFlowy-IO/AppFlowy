@@ -16,14 +16,15 @@ use serde::{Deserialize, Serialize};
 ///
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TypeCellData {
-    pub data: String,
+    #[serde(rename = "data")]
+    pub cell_data: String,
     pub field_type: FieldType,
 }
 
 impl TypeCellData {
     pub fn from_field_type(field_type: &FieldType) -> TypeCellData {
         Self {
-            data: "".to_string(),
+            cell_data: "".to_string(),
             field_type: field_type.clone(),
         }
     }
@@ -37,7 +38,7 @@ impl TypeCellData {
     }
 
     pub fn into_inner(self) -> String {
-        self.data
+        self.cell_data
     }
 }
 
@@ -54,13 +55,13 @@ where
     T: FromCellString,
 {
     fn from(any_call_data: TypeCellData) -> Self {
-        IntoCellData::from(any_call_data.data)
+        IntoCellData::from(any_call_data.cell_data)
     }
 }
 
 impl ToString for TypeCellData {
     fn to_string(&self) -> String {
-        self.data.clone()
+        self.cell_data.clone()
     }
 }
 
@@ -68,7 +69,7 @@ impl std::convert::TryFrom<&CellRevision> for TypeCellData {
     type Error = FlowyError;
 
     fn try_from(value: &CellRevision) -> Result<Self, Self::Error> {
-        Self::from_json_str(&value.data)
+        Self::from_json_str(&value.type_cell_data)
     }
 }
 
@@ -83,7 +84,7 @@ impl std::convert::TryFrom<CellRevision> for TypeCellData {
 impl TypeCellData {
     pub fn new(content: String, field_type: FieldType) -> Self {
         TypeCellData {
-            data: content,
+            cell_data: content,
             field_type,
         }
     }

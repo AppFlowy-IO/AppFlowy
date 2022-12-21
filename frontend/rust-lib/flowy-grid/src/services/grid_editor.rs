@@ -439,7 +439,7 @@ impl GridRevisionEditor {
         let field_rev = self.get_field_rev(&params.field_id).await?;
         let (_, row_rev) = self.block_manager.get_row_rev(&params.row_id).await.ok()??;
         let cell_rev = row_rev.cells.get(&params.field_id)?.clone();
-        Some(decode_type_cell_data(cell_rev.data, &field_rev))
+        Some(decode_type_cell_data(cell_rev.type_cell_data, &field_rev))
     }
 
     pub async fn get_cell_rev(&self, row_id: &str, field_id: &str) -> FlowyResult<Option<CellRevision>> {
@@ -645,7 +645,7 @@ impl GridRevisionEditor {
                                     grid_id: view_id.clone(),
                                     row_id: row_changeset.row_id.clone(),
                                     field_id,
-                                    content: cell_rev.data,
+                                    content: cell_rev.type_cell_data,
                                 })
                                 .collect::<Vec<CellChangesetPB>>();
 

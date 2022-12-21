@@ -94,8 +94,8 @@ pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debu
     let to_field_type = field_rev.ty.into();
     match data.try_into() {
         Ok(type_cell_data) => {
-            let TypeCellData { data, field_type } = type_cell_data;
-            match try_decode_cell_data(data, &field_type, &to_field_type, field_rev) {
+            let TypeCellData { cell_data, field_type } = type_cell_data;
+            match try_decode_cell_data(cell_data, &field_type, &to_field_type, field_rev) {
                 Ok(cell_bytes) => (field_type, cell_bytes),
                 Err(e) => {
                     tracing::error!("Decode cell data failed, {:?}", e);

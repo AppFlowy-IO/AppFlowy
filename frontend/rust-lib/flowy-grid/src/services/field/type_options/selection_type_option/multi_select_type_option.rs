@@ -75,7 +75,7 @@ impl CellDataChangeset for MultiSelectTypeOptionPB {
                 new_cell_data = SelectOptionIds::from(insert_option_ids).to_string();
             }
             Some(type_cell_data) => {
-                let mut select_ids: SelectOptionIds = type_cell_data.data.into();
+                let mut select_ids: SelectOptionIds = type_cell_data.cell_data.into();
                 for insert_option_id in insert_option_ids {
                     if !select_ids.contains(&insert_option_id) {
                         select_ids.push(insert_option_id);

@@ -22,16 +22,11 @@ pub trait SortDelegate: Send + Sync {
 }
 
 pub struct SortController {
-    #[allow(dead_code)]
     view_id: String,
-    #[allow(dead_code)]
     handler_id: String,
-    #[allow(dead_code)]
     delegate: Box<dyn SortDelegate>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
-    #[allow(dead_code)]
     sorts: Vec<SortRevision>,
-    #[allow(dead_code)]
     row_orders: HashMap<String, usize>,
 }
 

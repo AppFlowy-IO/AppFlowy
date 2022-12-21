@@ -137,7 +137,7 @@ impl GridFieldTest {
 
                 let cell_rev = row_rev.cells.get(&field_id).unwrap().clone();
                 let type_cell_data: TypeCellData = cell_rev.try_into().unwrap();
-                let content = stringify_cell_data(type_cell_data.data, &from_field_type, &field_type, &field_rev);
+                let content = stringify_cell_data(type_cell_data.cell_data, &from_field_type, &field_type, &field_rev);
                 assert_eq!(content, expected_content);
             }
         }
