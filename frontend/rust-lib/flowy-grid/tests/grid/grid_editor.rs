@@ -101,6 +101,8 @@ impl GridEditorTest {
             .unwrap()
     }
 
+    /// returns the first `FieldRevision` in the build-in test grid.
+    /// Not support duplicate `FieldType` in test grid yet.  
     pub fn get_first_field_rev(&self, field_type: FieldType) -> &Arc<FieldRevision> {
         self.field_revs
             .iter()
