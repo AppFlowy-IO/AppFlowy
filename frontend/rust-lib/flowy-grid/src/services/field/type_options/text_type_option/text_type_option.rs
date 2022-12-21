@@ -58,15 +58,15 @@ impl TypeOptionCellData for RichTextTypeOptionPB {
         cell_data
     }
 
-    fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
-        StrCellData::from_cell_str(&cell_data)
+    fn decode_type_option_cell_str(&self, cell_str: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        StrCellData::from_cell_str(&cell_str)
     }
 }
 
 impl CellDataDecoder for RichTextTypeOptionPB {
-    fn decode_cell_data(
+    fn decode_cell_str(
         &self,
-        cell_data: String,
+        cell_str: String,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<<Self as TypeOption>::CellData> {
@@ -76,9 +76,9 @@ impl CellDataDecoder for RichTextTypeOptionPB {
             || decoded_field_type.is_number()
             || decoded_field_type.is_url()
         {
-            Ok(stringify_cell_data(cell_data, decoded_field_type, decoded_field_type, field_rev).into())
+            Ok(stringify_cell_data(cell_str, decoded_field_type, decoded_field_type, field_rev).into())
         } else {
-            StrCellData::from_cell_str(&cell_data)
+            StrCellData::from_cell_str(&cell_str)
         }
     }
 

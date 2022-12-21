@@ -88,8 +88,8 @@ impl TypeOptionCellData for NumberTypeOptionPB {
         cell_data
     }
 
-    fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
-        Ok(cell_data.into())
+    fn decode_type_option_cell_str(&self, cell_str: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        Ok(cell_str.into())
     }
 }
 
@@ -128,9 +128,9 @@ pub(crate) fn strip_currency_symbol<T: ToString>(s: T) -> String {
 impl TypeOptionTransform for NumberTypeOptionPB {}
 
 impl CellDataDecoder for NumberTypeOptionPB {
-    fn decode_cell_data(
+    fn decode_cell_str(
         &self,
-        cell_data: String,
+        cell_str: String,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<<Self as TypeOption>::CellData> {
@@ -138,7 +138,7 @@ impl CellDataDecoder for NumberTypeOptionPB {
             return Ok(Default::default());
         }
 
-        let str_cell_data = self.decode_type_option_cell_data(cell_data)?;
+        let str_cell_data = self.decode_type_option_cell_str(cell_str)?;
         let s = self.format_cell_data(&str_cell_data)?.to_string();
         Ok(s.into())
     }

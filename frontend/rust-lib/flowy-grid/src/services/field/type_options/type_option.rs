@@ -48,11 +48,11 @@ pub trait TypeOptionCellData: TypeOption {
     ///    FieldType::Date=> DateCellDataPB
     fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType;
 
-    /// Decodes the opaque cell data to corresponding data struct.
+    /// Decodes the opaque cell string to corresponding data struct.
     // For example, the cell data is timestamp if its field type is `FieldType::Date`. This cell
     // data can not directly show to user. So it needs to be encode as the date string with custom
     // format setting. Encode `1647251762` to `"Mar 14,2022`
-    fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData>;
+    fn decode_type_option_cell_str(&self, cell_str: String) -> FlowyResult<<Self as TypeOption>::CellData>;
 }
 
 pub trait TypeOptionConfiguration {
@@ -83,13 +83,13 @@ pub trait TypeOptionTransform: TypeOption {
     ///
     /// # Arguments
     ///
-    /// * `cell_data`: the cell data of the current field type
+    /// * `cell_str`: the cell string of the current field type
     /// * `decoded_field_type`: the field type of the cell data that's going to be transformed into
     /// current `TypeOption` field type.
     ///
-    fn transform_type_option_cell_data(
+    fn transform_type_option_cell_str(
         &self,
-        _cell_data: &str,
+        _cell_str: &str,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> Option<<Self as TypeOption>::CellData> {
@@ -126,9 +126,9 @@ where
 /// 2.there are no generic types parameters.
 ///
 pub trait TypeOptionCellDataHandler {
-    fn handle_cell_data(
+    fn handle_cell_str(
         &self,
-        cell_data: String,
+        cell_str: String,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellProtobufBlob>;
@@ -139,26 +139,28 @@ pub trait TypeOptionCellDataHandler {
         old_type_cell_data: Option<TypeCellData>,
     ) -> FlowyResult<String>;
 
-    fn stringify_cell_data(&self, cell_data: String, field_type: &FieldType, field_rev: &FieldRevision) -> String;
+    /// Decode the cell_str to corresponding cell data, and then return the display string of the
+    /// cell data.
+    fn stringify_cell_str(&self, cell_str: String, field_type: &FieldType, field_rev: &FieldRevision) -> String;
 }
 
 impl<T> TypeOptionCellDataHandler for T
 where
     T: TypeOption + CellDataDecoder + CellDataChangeset + TypeOptionCellData + TypeOptionTransform,
 {
-    fn handle_cell_data(
+    fn handle_cell_str(
         &self,
-        cell_data: String,
+        cell_str: String,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellProtobufBlob> {
         let cell_data = if self.transformable() {
-            match self.transform_type_option_cell_data(&cell_data, decoded_field_type, field_rev) {
-                None => self.decode_cell_data(cell_data, decoded_field_type, field_rev)?,
-                Some(new_cell_data) => new_cell_data,
+            match self.transform_type_option_cell_str(&cell_str, decoded_field_type, field_rev) {
+                None => self.decode_cell_str(cell_str, decoded_field_type, field_rev)?,
+                Some(cell_data) => cell_data,
             }
         } else {
-            self.decode_cell_data(cell_data, decoded_field_type, field_rev)?
+            self.decode_cell_str(cell_str, decoded_field_type, field_rev)?
         };
         CellProtobufBlob::from(self.convert_to_protobuf(cell_data))
     }
@@ -173,19 +175,14 @@ where
         Ok(cell_data)
     }
 
-    fn stringify_cell_data(
-        &self,
-        cell_data: String,
-        decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> String {
+    fn stringify_cell_str(&self, cell_str: String, field_type: &FieldType, field_rev: &FieldRevision) -> String {
         if self.transformable() {
-            let cell_data = self.transform_type_option_cell_data(&cell_data, decoded_field_type, field_rev);
+            let cell_data = self.transform_type_option_cell_str(&cell_str, field_type, field_rev);
             if let Some(cell_data) = cell_data {
                 return self.decode_cell_data_to_str(cell_data);
             }
         }
-        match <Self as TypeOption>::CellData::from_cell_str(&cell_data) {
+        match <Self as TypeOption>::CellData::from_cell_str(&cell_str) {
             Ok(cell_data) => self.decode_cell_data_to_str(cell_data),
             Err(_) => "".to_string(),
         }

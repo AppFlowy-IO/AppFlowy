@@ -148,15 +148,15 @@ where
         );
     }
 
-    fn transform_type_option_cell_data(
+    fn transform_type_option_cell_str(
         &self,
-        cell_data: &str,
-        decoded_field_type: &FieldType,
+        cell_str: &str,
+        _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> Option<<Self as TypeOption>::CellData> {
-        match decoded_field_type {
+        match _decoded_field_type {
             FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => None,
-            FieldType::Checkbox => match CheckboxCellData::from_cell_str(cell_data) {
+            FieldType::Checkbox => match CheckboxCellData::from_cell_str(cell_str) {
                 Ok(checkbox_cell_data) => {
                     let cell_content = checkbox_cell_data.to_string();
                     let mut transformed_ids = Vec::new();
@@ -177,13 +177,13 @@ impl<T> CellDataDecoder for T
 where
     T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + TypeOptionCellData,
 {
-    fn decode_cell_data(
+    fn decode_cell_str(
         &self,
-        cell_data: String,
+        cell_str: String,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<<Self as TypeOption>::CellData> {
-        self.decode_type_option_cell_data(cell_data)
+        self.decode_type_option_cell_str(cell_str)
     }
 
     fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
@@ -390,7 +390,7 @@ impl std::convert::From<SelectOptionCellChangesetParams> for CellChangesetPB {
             grid_id: params.cell_identifier.view_id,
             row_id: params.cell_identifier.row_id,
             field_id: params.cell_identifier.field_id,
-            content,
+            type_cell_data: content,
         }
     }
 }
