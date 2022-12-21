@@ -18,6 +18,8 @@
   "@heading3": {},
   "highlight": "Highlight",
   "@highlight": {},
+  "color": "Color",
+  "@color": {},
   "image": "Image",
   "@image": {},
   "italic": "Italic",

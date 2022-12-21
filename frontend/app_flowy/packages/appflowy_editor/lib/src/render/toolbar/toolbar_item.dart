@@ -4,6 +4,7 @@ import 'package:appflowy_editor/src/extensions/url_launcher_extension.dart';
 import 'package:appflowy_editor/src/flutter/overlay.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/link_menu/link_menu.dart';
+import 'package:appflowy_editor/src/render/color_menu/color_menu.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
 import 'package:appflowy_editor/src/extensions/editor_state_extensions.dart';
 import 'package:appflowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
@@ -254,7 +255,7 @@ List<ToolbarItem> defaultToolbarItems = [
     validator: _showInBuiltInTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
-      BuiltInAttributeKey.backgroundColor,
+      BuiltInAttributeKey.color,
       (value) {
         return value != null && value != '0x00000000'; // transparent color;
       },
@@ -262,6 +263,25 @@ List<ToolbarItem> defaultToolbarItems = [
     handler: (editorState, context) => formatHighlight(
       editorState,
       editorState.editorStyle.highlightColorHex!,
+    ),
+  ),
+  ToolbarItem(
+    id: 'appflowy.toolbar.color',
+    type: 4,
+    tooltipsMessage: AppFlowyEditorLocalizations.current.highlight,
+    iconBuilder: (isHighlight) => FlowySvg(
+      name: 'toolbar/highlight',
+      color: isHighlight ? Colors.lightBlue : null,
+    ),
+    validator: _showInBuiltInTextSelection,
+    highlightCallback: (editorState) => _allSatisfy(
+      editorState,
+      BuiltInAttributeKey.color,
+      (value) => value != null,
+    ),
+    handler: (editorState, context) => showColorMenu(
+      context,
+      editorState,
     ),
   ),
 ];
@@ -301,6 +321,8 @@ bool _allSatisfy(
 }
 
 OverlayEntry? _linkMenuOverlay;
+OverlayEntry? _colorMenuOverlay;
+
 EditorState? _editorState;
 bool _changeSelectionInner = false;
 void showLinkMenu(
@@ -343,6 +365,7 @@ void showLinkMenu(
       BuiltInAttributeKey.href,
     );
   }
+
   _linkMenuOverlay = OverlayEntry(builder: (context) {
     return Positioned(
       top: matchRect.bottom + 5.0,
@@ -360,6 +383,7 @@ void showLinkMenu(
               text,
               textNode: textNode,
             );
+
             _dismissLinkMenu();
           },
           onCopyLink: () {
@@ -418,4 +442,121 @@ void _dismissLinkMenu() {
   _editorState?.service.selectionService.currentSelection
       .removeListener(_dismissLinkMenu);
   _editorState = null;
+}
+
+void _dismissColorMenu() {
+  // workaround: SelectionService has been released after hot reload.
+  final isSelectionDisposed =
+      _editorState?.service.selectionServiceKey.currentState == null;
+  if (isSelectionDisposed) {
+    return;
+  }
+  if (_editorState?.service.selectionService.currentSelection.value == null) {
+    return;
+  }
+  if (_changeSelectionInner) {
+    _changeSelectionInner = false;
+    return;
+  }
+  _colorMenuOverlay?.remove();
+  _colorMenuOverlay = null;
+
+  _editorState?.service.scrollService?.enable();
+  _editorState?.service.keyboardService?.enable();
+  _editorState?.service.selectionService.currentSelection
+      .removeListener(_dismissColorMenu);
+  _editorState = null;
+}
+
+void showColorMenu(
+  BuildContext context,
+  EditorState editorState, {
+  Selection? customSelection,
+}) {
+  final rects = editorState.service.selectionService.selectionRects;
+  var maxBottom = 0.0;
+  late Rect matchRect;
+  for (final rect in rects) {
+    if (rect.bottom > maxBottom) {
+      maxBottom = rect.bottom;
+      matchRect = rect;
+    }
+  }
+  final baseOffset =
+      editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
+  matchRect = matchRect.shift(-baseOffset);
+
+  _dismissColorMenu();
+  _editorState = editorState;
+
+  // Since the link menu will only show in single text selection,
+  // We get the text node directly instead of judging details again.
+  final selection = customSelection ??
+      editorState.service.selectionService.currentSelection.value;
+
+  final node = editorState.service.selectionService.currentSelectedNodes;
+  if (selection == null || node.isEmpty || node.first is! TextNode) {
+    return;
+  }
+  final index =
+      selection.isBackward ? selection.start.offset : selection.end.offset;
+  final length = (selection.start.offset - selection.end.offset).abs();
+  final textNode = node.first as TextNode;
+
+  String? backgroundColor;
+  if (textNode.allSatisfyBackgroundColorInSelection(selection)) {
+    backgroundColor = textNode.getAttributeInSelection<String>(
+      selection,
+      BuiltInAttributeKey.backgroundColor,
+    );
+  }
+  String? fontColor;
+  if (textNode.allSatisfyFontColorInSelection(selection)) {
+    fontColor = textNode.getAttributeInSelection<String>(
+      selection,
+      BuiltInAttributeKey.color,
+    );
+  }
+
+  _colorMenuOverlay = OverlayEntry(builder: (context) {
+    return Positioned(
+      top: matchRect.bottom + 5.0,
+      left: matchRect.left + 10,
+      child: Material(
+        child: ColorMenu(
+          backgroundColor: backgroundColor,
+          fontColor: fontColor,
+          editorState: editorState,
+          onSubmittedbackgroundColor: (color) async {
+            formatHighlightColor(
+              editorState,
+              color,
+            );
+            _dismissColorMenu();
+          },
+          onSubmittedFontColor: (color) async {
+            formatFontColor(
+              editorState,
+              color,
+            );
+
+            _dismissColorMenu();
+          },
+          onFocusChange: (value) {
+            if (value && customSelection != null) {
+              _changeSelectionInner = true;
+              editorState.service.selectionService
+                  .updateSelection(customSelection);
+            }
+          },
+        ),
+      ),
+    );
+  });
+  Overlay.of(context)?.insert(_colorMenuOverlay!);
+
+  editorState.service.scrollService?.disable();
+  editorState.service.keyboardService?.disable();
+  editorState.service.selectionService.currentSelection
+      .addListener(_dismissColorMenu);
 }

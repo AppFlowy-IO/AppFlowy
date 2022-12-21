@@ -30,6 +30,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "heading2": MessageLookupByLibrary.simpleMessage("H2"),
         "heading3": MessageLookupByLibrary.simpleMessage("H3"),
         "highlight": MessageLookupByLibrary.simpleMessage("Highlight"),
+        "color": MessageLookupByLibrary.simpleMessage("Color"),
         "image": MessageLookupByLibrary.simpleMessage("Image"),
         "italic": MessageLookupByLibrary.simpleMessage("Italic"),
         "link": MessageLookupByLibrary.simpleMessage("Link"),

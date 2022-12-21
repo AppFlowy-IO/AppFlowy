@@ -90,7 +90,8 @@
     "inlineCode": "Código embebido",
     "quote": "Cita",
     "header": "Título",
-    "highlight": "Resaltado"
+    "highlight": "Resaltado",
+    "color": "Color"
   },
   "tooltip": {
     "lightMode": "Cambiar a modo Claro",
@@ -218,7 +219,7 @@
     "openSidebar": "Abrir panel lateral",
     "closeSidebar": "Cerrar panel lateral"
   },
-    "board": {
+  "board": {
     "column": {
       "create_new_card": "Nuevo"
     }

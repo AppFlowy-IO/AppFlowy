@@ -173,6 +173,34 @@ bool formatHighlight(EditorState editorState, String colorHex) {
   );
 }
 
+bool formatHighlightColor(EditorState editorState, String colorHex) {
+  bool value = _allSatisfyInSelection(
+    editorState,
+    BuiltInAttributeKey.backgroundColor,
+    colorHex,
+  );
+
+  return formatRichTextPartialStyle(
+    editorState,
+    BuiltInAttributeKey.backgroundColor,
+    customValue: colorHex,
+  );
+}
+
+bool formatFontColor(EditorState editorState, String colorHex) {
+  bool value = _allSatisfyInSelection(
+    editorState,
+    BuiltInAttributeKey.color,
+    colorHex,
+  );
+
+  return formatRichTextPartialStyle(
+    editorState,
+    BuiltInAttributeKey.color,
+    customValue: value ? '0x00000000' : colorHex,
+  );
+}
+
 bool formatRichTextPartialStyle(EditorState editorState, String styleKey,
     {Object? customValue}) {
   Attributes attributes = {
