@@ -436,6 +436,7 @@ dependencies = [
  "flowy-codegen",
  "flowy-derive",
  "protobuf",
+ "thiserror",
 ]
 
 [[package]]
