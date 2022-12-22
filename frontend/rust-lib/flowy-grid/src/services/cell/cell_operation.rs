@@ -85,7 +85,7 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
     let cell_data =
         match FieldRevisionExt::new(field_rev, cell_data_cache).get_type_option_cell_data_handler(&field_type) {
             None => "".to_string(),
-            Some(handler) => handler.handle_cell_changeset(changeset, type_cell_data)?,
+            Some(handler) => handler.handle_cell_changeset(changeset, type_cell_data, field_rev)?,
         };
     Ok(TypeCellData::new(cell_data, field_type).to_json())
 }

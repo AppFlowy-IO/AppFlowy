@@ -150,6 +150,7 @@ pub trait TypeOptionCellDataHandler {
         &self,
         cell_changeset: String,
         old_type_cell_data: Option<TypeCellData>,
+        field_rev: &FieldRevision,
     ) -> FlowyResult<String>;
 
     fn handle_cell_cmp(&self, left_cell_data: &str, right_cell_data: &str, field_rev: &FieldRevision) -> Ordering;
@@ -166,6 +167,8 @@ impl<T> TypeOptionCellDataHandlerImpl<T> {
     pub fn new(inner: T, cell_data_cache: Option<AtomicCellDataCache>) -> Self {
         Self { inner, cell_data_cache }
     }
+
+    // pub fn get_cache_cell_data(&self, field_rev: )
 }
 
 impl<T> std::ops::Deref for TypeOptionCellDataHandlerImpl<T> {
@@ -210,6 +213,7 @@ where
         &self,
         cell_changeset: String,
         old_type_cell_data: Option<TypeCellData>,
+        field_rev: &FieldRevision,
     ) -> FlowyResult<String> {
         let changeset = <Self as TypeOption>::CellChangeset::from_changeset(cell_changeset)?;
         let cell_data = self.apply_changeset(changeset, old_type_cell_data)?;
