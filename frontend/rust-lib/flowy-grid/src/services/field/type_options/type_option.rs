@@ -1,6 +1,7 @@
 use crate::entities::FieldType;
 use crate::services::cell::{
-    CellDataChangeset, CellDataDecoder, CellProtobufBlob, FromCellChangeset, FromCellString, TypeCellData,
+    AtomicCellDataCache, CellDataCache, CellDataChangeset, CellDataDecoder, CellProtobufBlob, FromCellChangeset,
+    FromCellString, TypeCellData,
 };
 use crate::services::field::{
     CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, MultiSelectTypeOptionPB, NumberTypeOptionPB,
@@ -14,6 +15,7 @@ use lazy_static::lazy_static;
 use protobuf::ProtobufError;
 use std::cmp::Ordering;
 use std::fmt::Debug;
+use std::sync::Arc;
 
 pub trait TypeOption {
     /// `CellData` represents as the decoded model for current type option. Each of them impl the
@@ -155,7 +157,35 @@ pub trait TypeOptionCellDataHandler {
     fn stringify_cell_data(&self, cell_data: String, field_type: &FieldType, field_rev: &FieldRevision) -> String;
 }
 
-impl<T> TypeOptionCellDataHandler for T
+struct TypeOptionCellDataHandlerImpl<T> {
+    inner: T,
+    cell_data_cache: Option<AtomicCellDataCache>,
+}
+
+impl<T> TypeOptionCellDataHandlerImpl<T> {
+    pub fn new(inner: T, cell_data_cache: Option<AtomicCellDataCache>) -> Self {
+        Self { inner, cell_data_cache }
+    }
+}
+
+impl<T> std::ops::Deref for TypeOptionCellDataHandlerImpl<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl<T> TypeOption for TypeOptionCellDataHandlerImpl<T>
+where
+    T: TypeOption,
+{
+    type CellData = T::CellData;
+    type CellChangeset = T::CellChangeset;
+    type CellProtobufType = T::CellProtobufType;
+}
+
+impl<T> TypeOptionCellDataHandler for TypeOptionCellDataHandlerImpl<T>
 where
     T: TypeOption + CellDataDecoder + CellDataChangeset + TypeOptionCellData + TypeOptionTransform, // + TypeOptionCellDataComparable,
 {
@@ -239,11 +269,15 @@ lazy_static! {
 
 pub struct FieldRevisionExt<'a> {
     field_rev: &'a FieldRevision,
+    cell_data_cache: Option<AtomicCellDataCache>,
 }
 
 impl<'a> FieldRevisionExt<'a> {
-    pub fn new(field_rev: &'a FieldRevision) -> Self {
-        Self { field_rev }
+    pub fn new(field_rev: &'a FieldRevision, cell_data_cache: Option<AtomicCellDataCache>) -> Self {
+        Self {
+            field_rev,
+            cell_data_cache,
+        }
     }
 
     pub fn get_type_option_cell_data_handler(
@@ -254,35 +288,75 @@ impl<'a> FieldRevisionExt<'a> {
             FieldType::RichText => self
                 .field_rev
                 .get_type_option::<RichTextTypeOptionPB>(field_type.into())
-                .map(|type_option| Box::new(type_option) as Box<dyn TypeOptionCellDataHandler>),
+                .map(|type_option| {
+                    Box::new(TypeOptionCellDataHandlerImpl::new(
+                        type_option,
+                        self.cell_data_cache.clone(),
+                    )) as Box<dyn TypeOptionCellDataHandler>
+                }),
             FieldType::Number => self
                 .field_rev
                 .get_type_option::<NumberTypeOptionPB>(field_type.into())
-                .map(|type_option| Box::new(type_option) as Box<dyn TypeOptionCellDataHandler>),
+                .map(|type_option| {
+                    Box::new(TypeOptionCellDataHandlerImpl::new(
+                        type_option,
+                        self.cell_data_cache.clone(),
+                    )) as Box<dyn TypeOptionCellDataHandler>
+                }),
             FieldType::DateTime => self
                 .field_rev
                 .get_type_option::<DateTypeOptionPB>(field_type.into())
-                .map(|type_option| Box::new(type_option) as Box<dyn TypeOptionCellDataHandler>),
+                .map(|type_option| {
+                    Box::new(TypeOptionCellDataHandlerImpl::new(
+                        type_option,
+                        self.cell_data_cache.clone(),
+                    )) as Box<dyn TypeOptionCellDataHandler>
+                }),
             FieldType::SingleSelect => self
                 .field_rev
                 .get_type_option::<SingleSelectTypeOptionPB>(field_type.into())
-                .map(|type_option| Box::new(type_option) as Box<dyn TypeOptionCellDataHandler>),
+                .map(|type_option| {
+                    Box::new(TypeOptionCellDataHandlerImpl::new(
+                        type_option,
+                        self.cell_data_cache.clone(),
+                    )) as Box<dyn TypeOptionCellDataHandler>
+                }),
             FieldType::MultiSelect => self
                 .field_rev
                 .get_type_option::<MultiSelectTypeOptionPB>(field_type.into())
-                .map(|type_option| Box::new(type_option) as Box<dyn TypeOptionCellDataHandler>),
+                .map(|type_option| {
+                    Box::new(TypeOptionCellDataHandlerImpl::new(
+                        type_option,
+                        self.cell_data_cache.clone(),
+                    )) as Box<dyn TypeOptionCellDataHandler>
+                }),
             FieldType::Checkbox => self
                 .field_rev
                 .get_type_option::<CheckboxTypeOptionPB>(field_type.into())
-                .map(|type_option| Box::new(type_option) as Box<dyn TypeOptionCellDataHandler>),
+                .map(|type_option| {
+                    Box::new(TypeOptionCellDataHandlerImpl::new(
+                        type_option,
+                        self.cell_data_cache.clone(),
+                    )) as Box<dyn TypeOptionCellDataHandler>
+                }),
             FieldType::URL => self
                 .field_rev
                 .get_type_option::<URLTypeOptionPB>(field_type.into())
-                .map(|type_option| Box::new(type_option) as Box<dyn TypeOptionCellDataHandler>),
+                .map(|type_option| {
+                    Box::new(TypeOptionCellDataHandlerImpl::new(
+                        type_option,
+                        self.cell_data_cache.clone(),
+                    )) as Box<dyn TypeOptionCellDataHandler>
+                }),
             FieldType::Checklist => self
                 .field_rev
                 .get_type_option::<ChecklistTypeOptionPB>(field_type.into())
-                .map(|type_option| Box::new(type_option) as Box<dyn TypeOptionCellDataHandler>),
+                .map(|type_option| {
+                    Box::new(TypeOptionCellDataHandlerImpl::new(
+                        type_option,
+                        self.cell_data_cache.clone(),
+                    )) as Box<dyn TypeOptionCellDataHandler>
+                }),
         }
     }
 }
