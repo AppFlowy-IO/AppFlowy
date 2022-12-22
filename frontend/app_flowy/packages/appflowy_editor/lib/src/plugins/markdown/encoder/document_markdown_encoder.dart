@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:appflowy_editor/src/core/document/document.dart';
+import 'package:appflowy_editor/src/plugins/markdown/encoder/parser/divider_node_parser.dart';
 import 'package:appflowy_editor/src/plugins/markdown/encoder/parser/image_node_parser.dart';
 import 'package:appflowy_editor/src/plugins/markdown/encoder/parser/node_parser.dart';
 import 'package:appflowy_editor/src/plugins/markdown/encoder/parser/text_node_parser.dart';
@@ -10,6 +11,7 @@ class DocumentMarkdownEncoder extends Converter<Document, String> {
     this.parsers = const [
       TextNodeParser(),
       ImageNodeParser(),
+      DividerNodeParser(),
     ],
   });
 

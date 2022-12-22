@@ -15,7 +15,7 @@ impl AppTableSql {
     pub(crate) fn create_app(app_rev: AppRevision, conn: &SqliteConnection) -> Result<(), FlowyError> {
         let app_table = AppTable::new(app_rev);
         match diesel_record_count!(app_table, &app_table.id, conn) {
-            0 => diesel_insert_table!(app_table, &app_table, conn),
+            0 => diesel_insert_table!(app_table, app_table.clone(), conn),
             _ => {
                 let changeset = AppChangeset::from_table(app_table);
                 diesel_update_table!(app_table, changeset, conn)

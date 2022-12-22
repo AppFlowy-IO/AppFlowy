@@ -15,7 +15,7 @@ futures-channel = "0.3.17"
 tokio = {version = "1", features = ["full"]}
 futures = "0.3.17"
 bytes = "1.0"
-pin-project = "1.0.0"
+pin-project = "1.0"
 futures-core = { version = "0.3", default-features = false }
 paste = "1"
 url = "2.2.2"
@@ -28,11 +28,11 @@ parking_lot = "0.12.1"
 dashmap = "5"
 
 [build-dependencies]
-lib-infra = { path = "../lib-infra", features = ["proto_gen"] }
+flowy-codegen= { path = "../flowy-codegen"}
 
 [dev-dependencies]
 tokio = {version = "1", features = ["full"]}
 env_logger = "0.8.2"
 
 [features]
-dart = ["lib-infra/dart"]
+dart = ["flowy-codegen/dart"]

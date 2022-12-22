@@ -1,6 +1,6 @@
 use crate::grid::filter_test::script::FilterScript::*;
 use crate::grid::filter_test::script::GridFilterTest;
-use flowy_grid::entities::CheckboxFilterCondition;
+use flowy_grid::entities::CheckboxFilterConditionPB;
 
 #[tokio::test]
 async fn grid_filter_checkbox_is_check_test() {
@@ -9,7 +9,7 @@ async fn grid_filter_checkbox_is_check_test() {
     // The initial number of checked is 2
     let scripts = vec![
         CreateCheckboxFilter {
-            condition: CheckboxFilterCondition::IsChecked,
+            condition: CheckboxFilterConditionPB::IsChecked,
         },
         AssertFilterChanged {
             visible_row_len: 0,
@@ -24,7 +24,7 @@ async fn grid_filter_checkbox_is_uncheck_test() {
     let mut test = GridFilterTest::new().await;
     let scripts = vec![
         CreateCheckboxFilter {
-            condition: CheckboxFilterCondition::IsUnChecked,
+            condition: CheckboxFilterConditionPB::IsUnChecked,
         },
         AssertNumberOfVisibleRows { expected: 3 },
     ];

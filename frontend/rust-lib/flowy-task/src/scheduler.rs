@@ -2,6 +2,7 @@ use crate::queue::TaskQueue;
 use crate::store::TaskStore;
 use crate::{Task, TaskContent, TaskId, TaskState};
 use anyhow::Error;
+use lib_infra::async_trait::async_trait;
 use lib_infra::future::BoxResultFuture;
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
 use std::sync::Arc;
@@ -41,8 +42,8 @@ impl TaskDispatcher {
         self.handlers.insert(handler_id, RefCountTaskHandler(Arc::new(handler)));
     }
 
-    pub fn unregister_handler<T: AsRef<str>>(&mut self, handler_id: T) {
-        self.handlers.remove(handler_id.as_ref());
+    pub async fn unregister_handler<T: AsRef<str>>(&mut self, handler_id: T) {
+        self.handlers.remove(handler_id.as_ref()).await;
     }
 
     pub fn stop(&mut self) {
@@ -70,12 +71,12 @@ impl TaskDispatcher {
                 Ok(result) => match result {
                     Ok(_) => task.set_state(TaskState::Done),
                     Err(e) => {
-                        tracing::error!("Process task failed: {:?}", e);
+                        tracing::error!("Process {} task failed: {:?}", handler.handler_id(), e);
                         task.set_state(TaskState::Failure);
                     }
                 },
                 Err(e) => {
-                    tracing::error!("Process task timeout: {:?}", e);
+                    tracing::error!("Process {} task timeout: {:?}", handler.handler_id(), e);
                     task.set_state(TaskState::Timeout);
                 }
             }
@@ -174,8 +175,9 @@ where
 #[derive(Clone)]
 struct RefCountTaskHandler(Arc<dyn TaskHandler>);
 
+#[async_trait]
 impl RefCountValue for RefCountTaskHandler {
-    fn did_remove(&self) {}
+    async fn did_remove(&self) {}
 }
 
 impl std::ops::Deref for RefCountTaskHandler {

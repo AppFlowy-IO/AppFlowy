@@ -30,7 +30,7 @@ pub struct GridEditorTest {
     pub block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
     pub row_revs: Vec<Arc<RowRevision>>,
     pub field_count: usize,
-    pub row_order_by_row_id: HashMap<String, RowPB>,
+    pub row_by_row_id: HashMap<String, RowPB>,
 }
 
 impl GridEditorTest {
@@ -77,7 +77,7 @@ impl GridEditorTest {
             block_meta_revs,
             row_revs,
             field_count: FieldType::COUNT,
-            row_order_by_row_id: HashMap::default(),
+            row_by_row_id: HashMap::default(),
         }
     }
 
@@ -101,6 +101,8 @@ impl GridEditorTest {
             .unwrap()
     }
 
+    /// returns the first `FieldRevision` in the build-in test grid.
+    /// Not support duplicate `FieldType` in test grid yet.  
     pub fn get_first_field_rev(&self, field_type: FieldType) -> &Arc<FieldRevision> {
         self.field_revs
             .iter()
@@ -164,7 +166,9 @@ pub const PAUSED: &str = "Paused";
 pub const FIRST_THING: &str = "Wake up at 6:00 am";
 pub const SECOND_THING: &str = "Get some coffee";
 pub const THIRD_THING: &str = "Start working";
-// This grid is assumed to contain all the Fields.
+
+/// The build-in test data for grid. Currently, there are five rows in this grid, if you want to add
+/// more rows or alter the data in this grid. Some tests may fail. So you need to fix the failed tests.
 fn make_test_grid() -> BuildGridContext {
     let mut grid_builder = GridBuilder::new();
     // Iterate through the FieldType to create the corresponding Field.
@@ -239,7 +243,6 @@ fn make_test_grid() -> BuildGridContext {
         }
     }
 
-    // We have many assumptions base on the number of the rows, so do not change the number of the loop.
     for i in 0..5 {
         let block_id = grid_builder.block_id().to_owned();
         let field_revs = grid_builder.field_revs();
@@ -412,6 +415,7 @@ fn make_test_board() -> BuildGridContext {
                     match field_type {
                         FieldType::RichText => row_builder.insert_text_cell("A"),
                         FieldType::Number => row_builder.insert_number_cell("1"),
+                        // 1647251762 => Mar 14,2022
                         FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
                         FieldType::SingleSelect => {
                             row_builder.insert_single_select_cell(|mut options| options.remove(0))
@@ -428,6 +432,7 @@ fn make_test_board() -> BuildGridContext {
                     match field_type {
                         FieldType::RichText => row_builder.insert_text_cell("B"),
                         FieldType::Number => row_builder.insert_number_cell("2"),
+                        // 1647251762 => Mar 14,2022
                         FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
                         FieldType::SingleSelect => {
                             row_builder.insert_single_select_cell(|mut options| options.remove(0))
@@ -444,6 +449,7 @@ fn make_test_board() -> BuildGridContext {
                     match field_type {
                         FieldType::RichText => row_builder.insert_text_cell("C"),
                         FieldType::Number => row_builder.insert_number_cell("3"),
+                        // 1647251762 => Mar 14,2022
                         FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
                         FieldType::SingleSelect => {
                             row_builder.insert_single_select_cell(|mut options| options.remove(1))

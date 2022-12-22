@@ -10,7 +10,7 @@ diesel = { version = "1.4.8", features = ["sqlite"] }
 diesel_derives = { version = "1.4.1", features = ["sqlite"] }
 diesel_migrations = { version = "1.4.0", features = ["sqlite"] }
 lib-sqlite = { path = "../lib-sqlite" }
-log = "0.4"
+tracing = { version = "0.1", features = ["log"] }
 lazy_static = "1.4.0"
 
 [features]

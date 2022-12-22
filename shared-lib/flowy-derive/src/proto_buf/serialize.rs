@@ -3,15 +3,15 @@ use crate::proto_buf::util::{get_member_ident, ident_category, TypeCategory};
 use flowy_ast::*;
 use proc_macro2::TokenStream;
 
-pub fn make_se_token_stream(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStream> {
-    let pb_ty = ast.attrs.pb_struct_type()?;
+pub fn make_se_token_stream(ast_result: &ASTResult, ast: &ASTContainer) -> Option<TokenStream> {
+    let pb_ty = ast.pb_attrs.pb_struct_type()?;
     let struct_ident = &ast.ident;
 
     let build_set_pb_fields = ast
         .data
         .all_fields()
-        .filter(|f| !f.attrs.skip_serializing())
-        .flat_map(|field| se_token_stream_for_field(ctxt, field, false));
+        .filter(|f| !f.pb_attrs.skip_pb_serializing())
+        .flat_map(|field| se_token_stream_for_field(ast_result, field, false));
 
     let se_token_stream: TokenStream = quote! {
 
@@ -37,21 +37,21 @@ pub fn make_se_token_stream(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStre
     Some(se_token_stream)
 }
 
-fn se_token_stream_for_field(ctxt: &Ctxt, field: &ASTField, _take: bool) -> Option<TokenStream> {
-    if let Some(func) = &field.attrs.serialize_with() {
+fn se_token_stream_for_field(ast_result: &ASTResult, field: &ASTField, _take: bool) -> Option<TokenStream> {
+    if let Some(func) = &field.pb_attrs.serialize_pb_with() {
         let member = &field.member;
         Some(quote! { pb.#member=o.#func(); })
-    } else if field.attrs.is_one_of() {
-        token_stream_for_one_of(ctxt, field)
+    } else if field.pb_attrs.is_one_of() {
+        token_stream_for_one_of(ast_result, field)
     } else {
-        gen_token_stream(ctxt, &field.member, field.ty, false)
+        gen_token_stream(ast_result, &field.member, field.ty, false)
     }
 }
 
-fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream> {
+fn token_stream_for_one_of(ast_result: &ASTResult, field: &ASTField) -> Option<TokenStream> {
     let member = &field.member;
-    let ident = get_member_ident(ctxt, member)?;
-    let ty_info = match parse_ty(ctxt, field.ty) {
+    let ident = get_member_ident(ast_result, member)?;
+    let ty_info = match parse_ty(ast_result, field.ty) {
         Ok(ty_info) => ty_info,
         Err(e) => {
             eprintln!("token_stream_for_one_of failed: {:?} with error: {}", member, e);
@@ -85,8 +85,13 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
     }
 }
 
-fn gen_token_stream(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_option: bool) -> Option<TokenStream> {
-    let ty_info = match parse_ty(ctxt, ty) {
+fn gen_token_stream(
+    ast_result: &ASTResult,
+    member: &syn::Member,
+    ty: &syn::Type,
+    is_option: bool,
+) -> Option<TokenStream> {
+    let ty_info = match parse_ty(ast_result, ty) {
         Ok(ty_info) => ty_info,
         Err(e) => {
             eprintln!("gen_token_stream failed: {:?} with error: {}", member, e);
@@ -94,8 +99,8 @@ fn gen_token_stream(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_option
         }
     }?;
     match ident_category(ty_info.ident) {
-        TypeCategory::Array => token_stream_for_vec(ctxt, member, ty_info.bracket_ty_info.unwrap().ty),
-        TypeCategory::Map => token_stream_for_map(ctxt, member, ty_info.bracket_ty_info.unwrap().ty),
+        TypeCategory::Array => token_stream_for_vec(ast_result, member, ty_info.bracket_ty_info.unwrap().ty),
+        TypeCategory::Map => token_stream_for_map(ast_result, member, ty_info.bracket_ty_info.unwrap().ty),
         TypeCategory::Str => {
             if is_option {
                 Some(quote! {
@@ -109,7 +114,7 @@ fn gen_token_stream(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_option
             }
         }
         TypeCategory::Protobuf => Some(quote! { pb.#member =  ::protobuf::SingularPtrField::some(o.#member.into()); }),
-        TypeCategory::Opt => gen_token_stream(ctxt, member, ty_info.bracket_ty_info.unwrap().ty, true),
+        TypeCategory::Opt => gen_token_stream(ast_result, member, ty_info.bracket_ty_info.unwrap().ty, true),
         TypeCategory::Enum => {
             // let pb_enum_ident = format_ident!("{}", ty_info.ident.to_string());
             // Some(quote! {
@@ -124,8 +129,8 @@ fn gen_token_stream(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_option
 }
 
 // e.g. pub cells: Vec<CellData>, the member will be cells, ty would be Vec
-fn token_stream_for_vec(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Option<TokenStream> {
-    let ty_info = match parse_ty(ctxt, ty) {
+fn token_stream_for_vec(ast_result: &ASTResult, member: &syn::Member, ty: &syn::Type) -> Option<TokenStream> {
+    let ty_info = match parse_ty(ast_result, ty) {
         Ok(ty_info) => ty_info,
         Err(e) => {
             eprintln!("token_stream_for_vec failed: {:?} with error: {}", member, e);
@@ -150,9 +155,9 @@ fn token_stream_for_vec(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Op
 }
 
 // e.g. pub cells: HashMap<xx, xx>
-fn token_stream_for_map(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Option<TokenStream> {
+fn token_stream_for_map(ast_result: &ASTResult, member: &syn::Member, ty: &syn::Type) -> Option<TokenStream> {
     // The key of the hashmap must be string
-    let ty_info = match parse_ty(ctxt, ty) {
+    let ty_info = match parse_ty(ast_result, ty) {
         Ok(ty_info) => ty_info,
         Err(e) => {
             eprintln!("token_stream_for_map failed: {:?} with error: {}", member, e);

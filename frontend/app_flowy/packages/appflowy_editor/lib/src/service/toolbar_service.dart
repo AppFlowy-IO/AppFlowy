@@ -8,7 +8,7 @@ import 'package:appflowy_editor/src/extensions/object_extensions.dart';
 
 abstract class AppFlowyToolbarService {
   /// Show the toolbar widget beside the offset.
-  void showInOffset(Offset offset, LayerLink layerLink);
+  void showInOffset(Offset offset, Alignment alignment, LayerLink layerLink);
 
   /// Hide the toolbar widget.
   void hide();
@@ -37,7 +37,7 @@ class _FlowyToolbarState extends State<FlowyToolbar>
   final _toolbarWidgetKey = GlobalKey(debugLabel: '_toolbar_widget');
 
   @override
-  void showInOffset(Offset offset, LayerLink layerLink) {
+  void showInOffset(Offset offset, Alignment alignment, LayerLink layerLink) {
     hide();
     final items = _filterItems(defaultToolbarItems);
     if (items.isEmpty) {
@@ -50,6 +50,7 @@ class _FlowyToolbarState extends State<FlowyToolbar>
         layerLink: layerLink,
         offset: offset,
         items: items,
+        aligment: alignment,
       ),
     );
     Overlay.of(context)?.insert(_toolbarOverlay!);

@@ -16,12 +16,14 @@ class ToolbarWidget extends StatefulWidget {
     required this.layerLink,
     required this.offset,
     required this.items,
+    this.aligment = Alignment.topLeft,
   }) : super(key: key);
 
   final EditorState editorState;
   final LayerLink layerLink;
   final Offset offset;
   final List<ToolbarItem> items;
+  final Alignment aligment;
 
   @override
   State<ToolbarWidget> createState() => _ToolbarWidgetState();
@@ -39,6 +41,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget> with ToolbarMixin {
         link: widget.layerLink,
         showWhenUnlinked: true,
         offset: widget.offset,
+        followerAnchor: widget.aligment,
         child: _buildToolbar(context),
       ),
     );

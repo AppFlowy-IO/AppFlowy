@@ -145,8 +145,12 @@
       "open": "Abrir ajustes"
     },
     "appearance": {
-      "lightLabel": "Modo Claro",
-      "darkLabel": "Modo Oscuro"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Modo Claro",
+        "dark": "Modo Oscuro",
+        "system": "Adapt to System"
+      }
     }
   },
   "grid": {

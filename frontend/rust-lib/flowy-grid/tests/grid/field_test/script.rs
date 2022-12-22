@@ -1,5 +1,6 @@
 use crate::grid::grid_editor::GridEditorTest;
 use flowy_grid::entities::{CreateFieldParams, FieldChangesetParams, FieldType};
+use flowy_grid::services::cell::{stringify_cell_data, TypeCellData};
 use grid_rev_model::FieldRevision;
 
 pub enum FieldScript {
@@ -29,6 +30,12 @@ pub enum FieldScript {
         field_index: usize,
         expected_type_option_data: String,
     },
+    AssertCellContent {
+        field_id: String,
+        row_index: usize,
+        from_field_type: FieldType,
+        expected_content: String,
+    },
 }
 
 pub struct GridFieldTest {
@@ -41,7 +48,7 @@ impl GridFieldTest {
         Self { inner: editor_test }
     }
 
-    pub fn grid_id(&self) -> String {
+    pub fn view_id(&self) -> String {
         self.grid_id.clone()
     }
 
@@ -60,7 +67,7 @@ impl GridFieldTest {
             FieldScript::CreateField { params } => {
                 self.field_count += 1;
                 self.editor
-                    .create_new_field_rev(&params.field_type, params.type_option_data)
+                    .create_new_field_rev_with_type_option(&params.field_type, params.type_option_data)
                     .await
                     .unwrap();
                 self.field_revs = self.editor.get_field_revs(None).await.unwrap();
@@ -114,6 +121,24 @@ impl GridFieldTest {
                 let field_rev = field_revs[field_index].as_ref();
                 let type_option_data = field_rev.get_type_option_str(field_rev.ty).unwrap();
                 assert_eq!(type_option_data, expected_type_option_data);
+            }
+            FieldScript::AssertCellContent {
+                field_id,
+                row_index,
+                from_field_type,
+                expected_content,
+            } => {
+                let field_rev = self.editor.get_field_rev(&field_id).await.unwrap();
+                let field_type: FieldType = field_rev.ty.into();
+
+                let rows = self.editor.get_grid(&self.view_id()).await.unwrap().rows;
+                let row = rows.get(row_index).unwrap();
+                let row_rev = self.editor.get_row_rev(&row.id).await.unwrap().unwrap();
+
+                let cell_rev = row_rev.cells.get(&field_id).unwrap().clone();
+                let type_cell_data: TypeCellData = cell_rev.try_into().unwrap();
+                let content = stringify_cell_data(type_cell_data.cell_str, &from_field_type, &field_type, &field_rev);
+                assert_eq!(content, expected_content);
             }
         }
     }

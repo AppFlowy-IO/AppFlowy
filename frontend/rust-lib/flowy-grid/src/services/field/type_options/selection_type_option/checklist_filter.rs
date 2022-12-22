@@ -1,4 +1,4 @@
-use crate::entities::{ChecklistFilterCondition, ChecklistFilterPB};
+use crate::entities::{ChecklistFilterConditionPB, ChecklistFilterPB};
 use crate::services::field::{SelectOptionPB, SelectedSelectOptions};
 
 impl ChecklistFilterPB {
@@ -14,8 +14,8 @@ impl ChecklistFilterPB {
             .map(|option| option.id.as_str())
             .collect::<Vec<&str>>();
 
-        return match self.condition {
-            ChecklistFilterCondition::IsComplete => {
+        match self.condition {
+            ChecklistFilterConditionPB::IsComplete => {
                 if selected_option_ids.is_empty() {
                     return false;
                 }
@@ -23,7 +23,7 @@ impl ChecklistFilterPB {
                 all_option_ids.retain(|option_id| !selected_option_ids.contains(option_id));
                 all_option_ids.is_empty()
             }
-            ChecklistFilterCondition::IsIncomplete => {
+            ChecklistFilterConditionPB::IsIncomplete => {
                 if selected_option_ids.is_empty() {
                     return true;
                 }
@@ -31,6 +31,6 @@ impl ChecklistFilterPB {
                 all_option_ids.retain(|option_id| !selected_option_ids.contains(option_id));
                 !all_option_ids.is_empty()
             }
-        };
+        }
     }
 }

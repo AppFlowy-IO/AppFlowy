@@ -1,7 +1,8 @@
 use crate::entities::{GridLayout, GridLayoutPB, GridSettingPB};
 use crate::services::filter::{FilterDelegate, FilterType};
 use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter};
-use crate::services::row::GridBlock;
+use crate::services::row::GridBlockRowRevision;
+use crate::services::sort::{SortDelegate, SortType};
 use crate::services::view_editor::GridViewEditorDelegate;
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
@@ -12,8 +13,10 @@ use flowy_revision::{
 };
 use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_sync::util::make_operations_from_revisions;
-use grid_rev_model::{FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, RowRevision};
-use lib_infra::future::{to_future, Fut, FutureResult};
+use grid_rev_model::{
+    FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, RowRevision, SortRevision,
+};
+use lib_infra::future::{to_fut, Fut, FutureResult};
 use lib_ot::core::EmptyAttributes;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -46,8 +49,8 @@ impl RevisionObjectSerializer for GridViewRevisionSerde {
     }
 }
 
-pub(crate) struct GridViewRevisionCompress();
-impl RevisionMergeable for GridViewRevisionCompress {
+pub(crate) struct GridViewRevisionMergeable();
+impl RevisionMergeable for GridViewRevisionMergeable {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         GridViewRevisionSerde::combine_revisions(revisions)
     }
@@ -58,7 +61,7 @@ pub(crate) struct GroupConfigurationReaderImpl(pub(crate) Arc<RwLock<GridViewRev
 impl GroupConfigurationReader for GroupConfigurationReaderImpl {
     fn get_configuration(&self) -> Fut<Option<Arc<GroupConfigurationRevision>>> {
         let view_pad = self.0.clone();
-        to_future(async move {
+        to_fut(async move {
             let mut groups = view_pad.read().await.get_all_groups();
             if groups.is_empty() {
                 None
@@ -88,7 +91,7 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
         let view_pad = self.view_pad.clone();
         let field_id = field_id.to_owned();
 
-        to_future(async move {
+        to_fut(async move {
             let changeset = view_pad.write().await.insert_or_update_group_configuration(
                 &field_id,
                 &field_type,
@@ -109,10 +112,8 @@ pub(crate) async fn apply_change(
     change: GridViewRevisionChangeset,
 ) -> FlowyResult<()> {
     let GridViewRevisionChangeset { operations: delta, md5 } = change;
-    let (base_rev_id, rev_id) = rev_manager.next_rev_id_pair();
-    let delta_data = delta.json_bytes();
-    let revision = Revision::new(&rev_manager.object_id, base_rev_id, rev_id, delta_data, md5);
-    let _ = rev_manager.add_local_revision(&revision).await?;
+    let data = delta.json_bytes();
+    let _ = rev_manager.add_local_revision(data, md5).await?;
     Ok(())
 }
 
@@ -134,11 +135,11 @@ pub(crate) struct GridViewFilterDelegateImpl {
 }
 
 impl FilterDelegate for GridViewFilterDelegateImpl {
-    fn get_filter_rev(&self, filter_id: FilterType) -> Fut<Option<Arc<FilterRevision>>> {
+    fn get_filter_rev(&self, filter_type: FilterType) -> Fut<Option<Arc<FilterRevision>>> {
         let pad = self.view_revision_pad.clone();
-        to_future(async move {
-            let field_type_rev: FieldTypeRevision = filter_id.field_type.into();
-            let mut filters = pad.read().await.get_filters(&filter_id.field_id, &field_type_rev);
+        to_fut(async move {
+            let field_type_rev: FieldTypeRevision = filter_type.field_type.into();
+            let mut filters = pad.read().await.get_filters(&filter_type.field_id, &field_type_rev);
             if filters.is_empty() {
                 None
             } else {
@@ -156,11 +157,34 @@ impl FilterDelegate for GridViewFilterDelegateImpl {
         self.editor_delegate.get_field_revs(field_ids)
     }
 
-    fn get_blocks(&self) -> Fut<Vec<GridBlock>> {
+    fn get_blocks(&self) -> Fut<Vec<GridBlockRowRevision>> {
         self.editor_delegate.get_blocks()
     }
 
     fn get_row_rev(&self, row_id: &str) -> Fut<Option<(usize, Arc<RowRevision>)>> {
         self.editor_delegate.get_row_rev(row_id)
+    }
+}
+
+pub(crate) struct GridViewSortDelegateImpl {
+    pub(crate) editor_delegate: Arc<dyn GridViewEditorDelegate>,
+    pub(crate) view_revision_pad: Arc<RwLock<GridViewRevisionPad>>,
+}
+
+impl SortDelegate for GridViewSortDelegateImpl {
+    fn get_sort_rev(&self, sort_type: SortType) -> Fut<Vec<Arc<SortRevision>>> {
+        let pad = self.view_revision_pad.clone();
+        to_fut(async move {
+            let field_type_rev: FieldTypeRevision = sort_type.field_type.into();
+            pad.read().await.get_sorts(&sort_type.field_id, &field_type_rev)
+        })
+    }
+
+    fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>> {
+        self.editor_delegate.get_field_rev(field_id)
+    }
+
+    fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>> {
+        self.editor_delegate.get_field_revs(field_ids)
     }
 }

@@ -1,9 +1,9 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/infra/clipboard.dart';
 import 'package:appflowy_editor/src/infra/html_converter.dart';
 import 'package:appflowy_editor/src/core/document/node_iterator.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/number_list_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:rich_clipboard/rich_clipboard.dart';
 
 int _textLengthOfNode(Node node) {
   if (node is TextNode) {
@@ -38,14 +38,15 @@ void _handleCopy(EditorState editorState) async {
               startOffset: selection.start.offset,
               endOffset: selection.end.offset)
           .toHTMLString();
+      final textString = textNode.toPlainText().substring(
+            selection.startIndex,
+            selection.endIndex,
+          );
       Log.keyboard.debug('copy html: $htmlString');
-      RichClipboard.setData(RichClipboardData(
+      AppFlowyClipboard.setData(
+        text: textString,
         html: htmlString,
-        text: textNode.toPlainText().substring(
-              selection.startIndex,
-              selection.endIndex,
-            ),
-      ));
+      );
     } else {
       Log.keyboard.debug('unimplemented: copy non-text');
     }
@@ -79,7 +80,10 @@ void _handleCopy(EditorState editorState) async {
     }
     text += '\n';
   }
-  RichClipboard.setData(RichClipboardData(html: html, text: text));
+  AppFlowyClipboard.setData(
+    text: text,
+    html: html,
+  );
 }
 
 void _pasteHTML(EditorState editorState, String html) {
@@ -186,7 +190,7 @@ void _pasteMultipleLinesInText(
 }
 
 void _handlePaste(EditorState editorState) async {
-  final data = await RichClipboard.getData();
+  final data = await AppFlowyClipboard.getData();
 
   if (editorState.cursorSelection?.isCollapsed ?? false) {
     _pastRichClipboard(editorState, data);
@@ -200,7 +204,7 @@ void _handlePaste(EditorState editorState) async {
   });
 }
 
-void _pastRichClipboard(EditorState editorState, RichClipboardData data) {
+void _pastRichClipboard(EditorState editorState, AppFlowyClipboardData data) {
   if (data.html != null) {
     _pasteHTML(editorState, data.html!);
     return;

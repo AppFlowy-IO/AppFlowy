@@ -51,10 +51,11 @@ flowy-test = { path = "../flowy-test" }
 flowy-grid = { path = "../flowy-grid", features = ["flowy_unit_test"]}
 
 [build-dependencies]
-lib-infra = { path = "../../../shared-lib/lib-infra", features = ["proto_gen"] }
+flowy-codegen= { path = "../../../shared-lib/flowy-codegen"}
+
 
 
 [features]
 default = []
-dart = ["lib-infra/dart"]
+dart = ["flowy-codegen/dart"]
 flowy_unit_test = ["flowy-revision/flowy_unit_test"]

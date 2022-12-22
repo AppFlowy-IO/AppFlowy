@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 class SelectOptionFilterConditionList extends StatelessWidget {
   final FilterInfo filterInfo;
   final PopoverMutex popoverMutex;
-  final Function(SelectOptionCondition) onCondition;
+  final Function(SelectOptionConditionPB) onCondition;
   const SelectOptionFilterConditionList({
     required this.filterInfo,
     required this.popoverMutex,
@@ -27,7 +27,7 @@ class SelectOptionFilterConditionList extends StatelessWidget {
       asBarrier: true,
       mutex: popoverMutex,
       direction: PopoverDirection.bottomWithCenterAligned,
-      actions: SelectOptionCondition.values
+      actions: SelectOptionConditionPB.values
           .map(
             (action) => ConditionWrapper(
               action,
@@ -59,7 +59,7 @@ class SelectOptionFilterConditionList extends StatelessWidget {
 }
 
 class ConditionWrapper extends ActionCell {
-  final SelectOptionCondition inner;
+  final SelectOptionConditionPB inner;
   final bool isSelected;
   final FieldType fieldType;
 
@@ -84,16 +84,16 @@ class ConditionWrapper extends ActionCell {
   }
 }
 
-extension SelectOptionConditionExtension on SelectOptionCondition {
+extension SelectOptionConditionPBExtension on SelectOptionConditionPB {
   String get singleSelectFilterName {
     switch (this) {
-      case SelectOptionCondition.OptionIs:
+      case SelectOptionConditionPB.OptionIs:
         return LocaleKeys.grid_singleSelectOptionFilter_is.tr();
-      case SelectOptionCondition.OptionIsEmpty:
+      case SelectOptionConditionPB.OptionIsEmpty:
         return LocaleKeys.grid_singleSelectOptionFilter_isEmpty.tr();
-      case SelectOptionCondition.OptionIsNot:
+      case SelectOptionConditionPB.OptionIsNot:
         return LocaleKeys.grid_singleSelectOptionFilter_isNot.tr();
-      case SelectOptionCondition.OptionIsNotEmpty:
+      case SelectOptionConditionPB.OptionIsNotEmpty:
         return LocaleKeys.grid_singleSelectOptionFilter_isNotEmpty.tr();
       default:
         return "";
@@ -102,13 +102,13 @@ extension SelectOptionConditionExtension on SelectOptionCondition {
 
   String get multiSelectFilterName {
     switch (this) {
-      case SelectOptionCondition.OptionIs:
+      case SelectOptionConditionPB.OptionIs:
         return LocaleKeys.grid_multiSelectOptionFilter_contains.tr();
-      case SelectOptionCondition.OptionIsEmpty:
+      case SelectOptionConditionPB.OptionIsEmpty:
         return LocaleKeys.grid_multiSelectOptionFilter_isEmpty.tr();
-      case SelectOptionCondition.OptionIsNot:
+      case SelectOptionConditionPB.OptionIsNot:
         return LocaleKeys.grid_multiSelectOptionFilter_doesNotContain.tr();
-      case SelectOptionCondition.OptionIsNotEmpty:
+      case SelectOptionConditionPB.OptionIsNotEmpty:
         return LocaleKeys.grid_multiSelectOptionFilter_isNotEmpty.tr();
       default:
         return "";

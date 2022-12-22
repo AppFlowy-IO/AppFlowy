@@ -1,6 +1,6 @@
 use crate::grid::filter_test::script::FilterScript::*;
 use crate::grid::filter_test::script::*;
-use flowy_grid::entities::{AlterFilterPayloadPB, FieldType, TextFilterCondition, TextFilterPB};
+use flowy_grid::entities::{AlterFilterPayloadPB, FieldType, TextFilterConditionPB, TextFilterPB};
 use flowy_grid::services::filter::FilterType;
 
 #[tokio::test]
@@ -8,7 +8,7 @@ async fn grid_filter_text_is_empty_test() {
     let mut test = GridFilterTest::new().await;
     let scripts = vec![
         CreateTextFilter {
-            condition: TextFilterCondition::TextIsEmpty,
+            condition: TextFilterConditionPB::TextIsEmpty,
             content: "".to_string(),
         },
         AssertFilterCount { count: 1 },
@@ -26,10 +26,11 @@ async fn grid_filter_text_is_not_empty_test() {
     // Only one row's text of the initial rows is ""
     let scripts = vec![
         CreateTextFilter {
-            condition: TextFilterCondition::TextIsNotEmpty,
+            condition: TextFilterConditionPB::TextIsNotEmpty,
             content: "".to_string(),
         },
         AssertFilterCount { count: 1 },
+        // There is only one row in the test data that its text is empty
         AssertFilterChanged {
             visible_row_len: 0,
             hide_row_len: 1,
@@ -44,10 +45,11 @@ async fn grid_filter_text_is_not_empty_test() {
             filter_id: filter.id,
             filter_type: FilterType::from(&field_rev),
         },
-        // AssertFilterChanged {
-        //     visible_row_len: 1,
-        //     hide_row_len: 0,
-        // },
+        AssertFilterCount { count: 0 },
+        AssertFilterChanged {
+            visible_row_len: 1,
+            hide_row_len: 0,
+        },
     ])
     .await;
 }
@@ -58,7 +60,7 @@ async fn grid_filter_is_text_test() {
     // Only one row's text of the initial rows is "A"
     let scripts = vec![
         CreateTextFilter {
-            condition: TextFilterCondition::Is,
+            condition: TextFilterConditionPB::Is,
             content: "A".to_string(),
         },
         AssertFilterChanged {
@@ -74,7 +76,7 @@ async fn grid_filter_contain_text_test() {
     let mut test = GridFilterTest::new().await;
     let scripts = vec![
         CreateTextFilter {
-            condition: TextFilterCondition::Contains,
+            condition: TextFilterConditionPB::Contains,
             content: "A".to_string(),
         },
         AssertFilterChanged {
@@ -90,7 +92,7 @@ async fn grid_filter_contain_text_test2() {
     let mut test = GridFilterTest::new().await;
     let scripts = vec![
         CreateTextFilter {
-            condition: TextFilterCondition::Contains,
+            condition: TextFilterConditionPB::Contains,
             content: "A".to_string(),
         },
         AssertFilterChanged {
@@ -115,7 +117,7 @@ async fn grid_filter_does_not_contain_text_test() {
     // None of the initial rows contains the text "AB"
     let scripts = vec![
         CreateTextFilter {
-            condition: TextFilterCondition::DoesNotContain,
+            condition: TextFilterConditionPB::DoesNotContain,
             content: "AB".to_string(),
         },
         AssertFilterChanged {
@@ -131,7 +133,7 @@ async fn grid_filter_start_with_text_test() {
     let mut test = GridFilterTest::new().await;
     let scripts = vec![
         CreateTextFilter {
-            condition: TextFilterCondition::StartsWith,
+            condition: TextFilterConditionPB::StartsWith,
             content: "A".to_string(),
         },
         AssertFilterChanged {
@@ -147,7 +149,7 @@ async fn grid_filter_ends_with_text_test() {
     let mut test = GridFilterTest::new().await;
     let scripts = vec![
         CreateTextFilter {
-            condition: TextFilterCondition::EndsWith,
+            condition: TextFilterConditionPB::EndsWith,
             content: "A".to_string(),
         },
         AssertNumberOfVisibleRows { expected: 2 },
@@ -160,7 +162,7 @@ async fn grid_update_text_filter_test() {
     let mut test = GridFilterTest::new().await;
     let scripts = vec![
         CreateTextFilter {
-            condition: TextFilterCondition::EndsWith,
+            condition: TextFilterConditionPB::EndsWith,
             content: "A".to_string(),
         },
         AssertNumberOfVisibleRows { expected: 2 },
@@ -172,7 +174,7 @@ async fn grid_update_text_filter_test() {
     let scripts = vec![
         UpdateTextFilter {
             filter,
-            condition: TextFilterCondition::Is,
+            condition: TextFilterConditionPB::Is,
             content: "A".to_string(),
         },
         AssertNumberOfVisibleRows { expected: 1 },
@@ -186,10 +188,10 @@ async fn grid_filter_delete_test() {
     let mut test = GridFilterTest::new().await;
     let field_rev = test.get_first_field_rev(FieldType::RichText).clone();
     let text_filter = TextFilterPB {
-        condition: TextFilterCondition::TextIsEmpty,
+        condition: TextFilterConditionPB::TextIsEmpty,
         content: "".to_string(),
     };
-    let payload = AlterFilterPayloadPB::new(&field_rev, text_filter);
+    let payload = AlterFilterPayloadPB::new(&test.view_id(), &field_rev, text_filter);
     let scripts = vec![
         InsertFilter { payload },
         AssertFilterCount { count: 1 },
@@ -214,7 +216,7 @@ async fn grid_filter_update_empty_text_cell_test() {
     let mut test = GridFilterTest::new().await;
     let scripts = vec![
         CreateTextFilter {
-            condition: TextFilterCondition::TextIsEmpty,
+            condition: TextFilterConditionPB::TextIsEmpty,
             content: "".to_string(),
         },
         AssertFilterCount { count: 1 },

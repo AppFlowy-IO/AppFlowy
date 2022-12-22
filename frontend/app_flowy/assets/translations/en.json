@@ -4,7 +4,7 @@
   "welcomeText": "Welcome to @:appName",
   "githubStarText": "Star on GitHub",
   "subscribeNewsletterText": "Subscribe to Newsletter",
-  "letsGoButtonText": "Let's Go",
+  "letsGoButtonText": "Quick Start",
   "title": "Title",
   "signUp": {
     "buttonText": "Sign Up",
@@ -159,11 +159,37 @@
       "appearance": "Appearance",
       "language": "Language",
       "user": "User",
+      "files": "Files",
       "open": "Open Settings"
     },
     "appearance": {
-      "lightLabel": "Light Mode",
-      "darkLabel": "Dark Mode"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Light Mode",
+        "dark": "Dark Mode",
+        "system": "Adapt to System"
+      }
+    },
+    "files": {
+      "defaultLocation": "Where your data is stored now",
+      "doubleTapToCopy": "Double tap to copy the path",
+      "restoreLocation": "Restore to AppFlowy default path",
+      "customizeLocation": "Open another folder",
+      "restartApp": "Please restart app for the changes to take effect.",
+      "exportDatabase": "Export databae",
+      "selectFiles": "Select the files that need to be export",
+      "createNewFolder": "Create a new folder",
+      "createNewFolderDesc": "Tell us where you want to store your data ...",
+      "open": "Open",
+      "openFolder": "Open an existing folder",
+      "openFolderDesc": "Read and write it to your existing AppFlowy folder ...",
+      "folderHintText": "folder name",
+      "location": "Creating a new folder",
+      "locationDesc": "Pick a name for your AppFlowy data folder",
+      "browser": "Browse",
+      "create": "Create",
+      "folderPath": "Path to store your folder",
+      "locationCannotBeEmpty": "Path cannot be empty"
     }
   },
   "grid": {

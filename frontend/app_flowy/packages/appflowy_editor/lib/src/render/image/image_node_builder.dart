@@ -1,7 +1,7 @@
 import 'package:appflowy_editor/src/core/document/node.dart';
+import 'package:appflowy_editor/src/infra/clipboard.dart';
 import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
-import 'package:rich_clipboard/rich_clipboard.dart';
 
 import 'image_node_widget.dart';
 
@@ -21,7 +21,7 @@ class ImageNodeBuilder extends NodeWidgetBuilder<Node> {
       width: width,
       alignment: _textToAlignment(align),
       onCopy: () {
-        RichClipboard.setData(RichClipboardData(text: src));
+        AppFlowyClipboard.setData(text: src);
       },
       onDelete: () {
         final transaction = context.editorState.transaction

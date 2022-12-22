@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
-import 'package:flowy_infra/color_extension.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra/size.dart';

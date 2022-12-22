@@ -1,4 +1,4 @@
-import 'package:flowy_infra/color_extension.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -24,7 +24,7 @@ class FlowyButton extends StatelessWidget {
     required this.text,
     this.onTap,
     this.onHover,
-    this.margin = const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+    this.margin = const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
     this.leftIcon,
     this.rightIcon,
     this.hoverColor,
@@ -63,6 +63,8 @@ class FlowyButton extends StatelessWidget {
     children.add(Expanded(child: text));
 
     if (rightIcon != null) {
+      children.add(const HSpace(10));
+      // No need to define the size of rightIcon. Just use its intrinsic width
       children.add(rightIcon!);
     }
 
@@ -103,6 +105,8 @@ class FlowyTextButton extends StatelessWidget {
   final String? tooltip;
   final BoxConstraints constraints;
 
+  final TextDecoration? decoration;
+
   // final HoverDisplayConfig? hoverDisplay;
   const FlowyTextButton(
     this.text, {
@@ -120,6 +124,7 @@ class FlowyTextButton extends StatelessWidget {
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.tooltip,
     this.constraints = const BoxConstraints(minWidth: 58.0, minHeight: 30.0),
+    this.decoration,
   }) : super(key: key);
 
   @override
@@ -137,6 +142,7 @@ class FlowyTextButton extends StatelessWidget {
         fontSize: fontSize,
         color: fontColor ?? Theme.of(context).colorScheme.onSecondary,
         textAlign: TextAlign.center,
+        decoration: decoration,
       ),
     );
 

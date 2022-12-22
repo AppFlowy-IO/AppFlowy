@@ -14,6 +14,7 @@ use std::sync::Arc;
 pub type GridOperations = DeltaOperations<EmptyAttributes>;
 pub type GridOperationsBuilder = DeltaOperationBuilder<EmptyAttributes>;
 
+#[derive(Clone)]
 pub struct GridRevisionPad {
     grid_rev: Arc<GridRevision>,
     operations: GridOperations,

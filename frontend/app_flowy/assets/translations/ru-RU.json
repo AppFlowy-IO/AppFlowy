@@ -151,8 +151,12 @@
       "open": "Открыть настройки"
     },
     "appearance": {
-      "lightLabel": "Светлая",
-      "darkLabel": "Тёмная"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Светлая",
+        "dark": "Тёмная",
+        "system": "Adapt to System"
+      }
     }
   },
   "grid": {

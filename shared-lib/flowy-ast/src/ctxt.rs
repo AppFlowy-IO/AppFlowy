@@ -2,13 +2,13 @@ use quote::ToTokens;
 use std::{cell::RefCell, fmt::Display, thread};
 
 #[derive(Default)]
-pub struct Ctxt {
+pub struct ASTResult {
     errors: RefCell<Option<Vec<syn::Error>>>,
 }
 
-impl Ctxt {
+impl ASTResult {
     pub fn new() -> Self {
-        Ctxt {
+        ASTResult {
             errors: RefCell::new(Some(Vec::new())),
         }
     }
@@ -34,7 +34,7 @@ impl Ctxt {
     }
 }
 
-impl Drop for Ctxt {
+impl Drop for ASTResult {
     fn drop(&mut self) {
         if !thread::panicking() && self.errors.borrow().is_some() {
             panic!("forgot to check for errors");

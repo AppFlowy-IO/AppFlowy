@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.dart';
 import 'package:appflowy_editor/src/render/style/editor_style.dart';
@@ -72,6 +73,7 @@ class EditorState {
 
   // TODO: only for testing.
   bool disableSealTimer = false;
+  bool disbaleRules = false;
 
   bool editable = true;
 
@@ -119,8 +121,12 @@ class EditorState {
   ///
   /// The options can be used to determine whether the editor
   /// should record the transaction in undo/redo stack.
-  apply(Transaction transaction,
-      [ApplyOptions options = const ApplyOptions(recordUndo: true)]) {
+  void apply(
+    Transaction transaction, {
+    ApplyOptions options = const ApplyOptions(recordUndo: true),
+    ruleCount = 0,
+    withUpdateCursor = true,
+  }) {
     if (!editable) {
       return;
     }
@@ -132,7 +138,10 @@ class EditorState {
     _observer.add(transaction);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      updateCursorSelection(transaction.afterSelection);
+      _applyRules(ruleCount);
+      if (withUpdateCursor) {
+        updateCursorSelection(transaction.afterSelection);
+      }
     });
 
     if (options.recordUndo) {
@@ -153,7 +162,7 @@ class EditorState {
     }
   }
 
-  _debouncedSealHistoryItem() {
+  void _debouncedSealHistoryItem() {
     if (disableSealTimer) {
       return;
     }
@@ -168,7 +177,7 @@ class EditorState {
     });
   }
 
-  _applyOperation(Operation op) {
+  void _applyOperation(Operation op) {
     if (op is InsertOperation) {
       document.insert(op.path, op.nodes);
     } else if (op is UpdateOperation) {
@@ -177,6 +186,29 @@ class EditorState {
       document.delete(op.path, op.nodes.length);
     } else if (op is UpdateTextOperation) {
       document.updateText(op.path, op.delta);
+    }
+  }
+
+  void _applyRules(int ruleCount) {
+    // Set a maximum count to prevent a dead loop.
+    if (ruleCount >= 5 || disbaleRules) {
+      return;
+    }
+
+    final tr = transaction;
+
+    // Rules
+    _insureLastNodeEditable(tr);
+
+    if (tr.operations.isNotEmpty) {
+      apply(tr, ruleCount: ruleCount + 1, withUpdateCursor: false);
+    }
+  }
+
+  void _insureLastNodeEditable(Transaction tr) {
+    if (document.root.children.isEmpty ||
+        document.root.children.last.id != 'text') {
+      tr.insertNode([document.root.children.length], TextNode.empty());
     }
   }
 }

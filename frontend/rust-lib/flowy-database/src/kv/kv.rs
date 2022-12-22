@@ -3,7 +3,7 @@ use ::diesel::{query_dsl::*, ExpressionMethods};
 use diesel::{Connection, SqliteConnection};
 use lazy_static::lazy_static;
 use lib_sqlite::{DBConnection, Database, PoolConfig};
-use std::{collections::HashMap, path::Path, sync::RwLock};
+use std::{path::Path, sync::RwLock};
 
 macro_rules! impl_get_func {
     (
@@ -29,7 +29,7 @@ macro_rules! impl_set_func {
             match KV::set(item) {
                 Ok(_) => {}
                 Err(e) => {
-                    log::error!("{:?}", e)
+                    tracing::error!("{:?}", e)
                 }
             };
         }
@@ -42,21 +42,15 @@ lazy_static! {
 
 pub struct KV {
     database: Option<Database>,
-    cache: HashMap<String, KeyValue>,
 }
 
 impl KV {
     fn new() -> Self {
-        KV {
-            database: None,
-            cache: HashMap::new(),
-        }
+        KV { database: None }
     }
 
     fn set(value: KeyValue) -> Result<(), String> {
-        log::trace!("[KV]: set value: {:?}", value);
-        update_cache(value.clone());
-
+        // tracing::trace!("[KV]: set value: {:?}", value);
         let _ = diesel::replace_into(kv_table::table)
             .values(&value)
             .execute(&*(get_connection()?))
@@ -66,31 +60,18 @@ impl KV {
     }
 
     fn get(key: &str) -> Result<KeyValue, String> {
-        if let Some(value) = read_cache(key) {
-            return Ok(value);
-        }
-
         let conn = get_connection()?;
         let value = dsl::kv_table
             .filter(kv_table::key.eq(key))
             .first::<KeyValue>(&*conn)
             .map_err(|e| format!("KV get error: {:?}", e))?;
 
-        update_cache(value.clone());
-
         Ok(value)
     }
 
     #[allow(dead_code)]
     pub fn remove(key: &str) -> Result<(), String> {
-        log::debug!("remove key: {}", key);
-        match KV_HOLDER.write() {
-            Ok(mut guard) => {
-                guard.cache.remove(key);
-            }
-            Err(e) => log::error!("Require write lock failed: {:?}", e),
-        };
-
+        // tracing::debug!("remove key: {}", key);
         let conn = get_connection()?;
         let sql = dsl::kv_table.filter(kv_table::key.eq(key));
         let _ = diesel::delete(sql)
@@ -99,6 +80,7 @@ impl KV {
         Ok(())
     }
 
+    #[tracing::instrument(level = "trace", err)]
     pub fn init(root: &str) -> Result<(), String> {
         if !Path::new(root).exists() {
             return Err(format!("Init KVStore failed. {} not exists", root));
@@ -112,6 +94,7 @@ impl KV {
         let mut store = KV_HOLDER
             .write()
             .map_err(|e| format!("KVStore write failed: {:?}", e))?;
+        tracing::trace!("Init kv with path: {}", root);
         store.database = Some(database);
 
         Ok(())
@@ -139,25 +122,6 @@ impl KV {
     impl_get_func!(get_float,float_value=>f64);
 }
 
-fn read_cache(key: &str) -> Option<KeyValue> {
-    match KV_HOLDER.read() {
-        Ok(guard) => guard.cache.get(key).cloned(),
-        Err(e) => {
-            log::error!("Require read lock failed: {:?}", e);
-            None
-        }
-    }
-}
-
-fn update_cache(value: KeyValue) {
-    match KV_HOLDER.write() {
-        Ok(mut guard) => {
-            guard.cache.insert(value.key.clone(), value);
-        }
-        Err(e) => log::error!("Require write lock failed: {:?}", e),
-    };
-}
-
 fn get_connection() -> Result<DBConnection, String> {
     match KV_HOLDER.read() {
         Ok(store) => {
@@ -171,7 +135,7 @@ fn get_connection() -> Result<DBConnection, String> {
         }
         Err(e) => {
             let msg = format!("KVStore get connection failed: {:?}", e);
-            log::error!("{:?}", msg);
+            tracing::error!("{:?}", msg);
             Err(msg)
         }
     }

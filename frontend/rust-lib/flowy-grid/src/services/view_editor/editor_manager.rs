@@ -1,21 +1,23 @@
 use crate::entities::{
-    AlterFilterParams, CreateRowParams, DeleteFilterParams, DeleteGroupParams, GridSettingPB, InsertGroupParams,
-    MoveGroupParams, RepeatedGroupPB, RowPB,
+    AlterFilterParams, AlterSortParams, CreateRowParams, DeleteFilterParams, DeleteGroupParams, DeleteSortParams,
+    GridSettingPB, InsertGroupParams, MoveGroupParams, RepeatedGroupPB, RowPB,
 };
 use crate::manager::GridUser;
+use crate::services::block_manager::GridBlockEvent;
 use crate::services::filter::FilterType;
-use crate::services::persistence::rev_sqlite::SQLiteGridViewRevisionPersistence;
+use crate::services::persistence::rev_sqlite::{
+    SQLiteGridRevisionSnapshotPersistence, SQLiteGridViewRevisionPersistence,
+};
 use crate::services::view_editor::changed_notifier::*;
-use crate::services::view_editor::trait_impl::GridViewRevisionCompress;
+use crate::services::view_editor::trait_impl::GridViewRevisionMergeable;
 use crate::services::view_editor::{GridViewEditorDelegate, GridViewRevisionEditor};
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
-use flowy_revision::{
-    RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, SQLiteRevisionSnapshotPersistence,
-};
+use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration};
 use grid_rev_model::{FieldRevision, FilterRevision, RowChangeset, RowRevision};
 use lib_infra::future::Fut;
 use lib_infra::ref_map::RefCountHashMap;
+use std::borrow::Cow;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
@@ -23,7 +25,7 @@ pub struct GridViewManager {
     grid_id: String,
     user: Arc<dyn GridUser>,
     delegate: Arc<dyn GridViewEditorDelegate>,
-    view_editors: RwLock<RefCountHashMap<Arc<GridViewRevisionEditor>>>,
+    view_editors: Arc<RwLock<RefCountHashMap<Arc<GridViewRevisionEditor>>>>,
 }
 
 impl GridViewManager {
@@ -31,8 +33,10 @@ impl GridViewManager {
         grid_id: String,
         user: Arc<dyn GridUser>,
         delegate: Arc<dyn GridViewEditorDelegate>,
+        block_event_rx: broadcast::Receiver<GridBlockEvent>,
     ) -> FlowyResult<Self> {
-        let view_editors = RwLock::new(RefCountHashMap::default());
+        let view_editors = Arc::new(RwLock::new(RefCountHashMap::default()));
+        listen_on_grid_block_event(block_event_rx, view_editors.clone());
         Ok(Self {
             grid_id,
             user,
@@ -42,16 +46,31 @@ impl GridViewManager {
     }
 
     pub async fn close(&self, view_id: &str) {
-        self.view_editors.write().await.remove(view_id);
+        self.view_editors.write().await.remove(view_id).await;
     }
 
     pub async fn subscribe_view_changed(&self, view_id: &str) -> FlowyResult<broadcast::Receiver<GridViewChanged>> {
         Ok(self.get_view_editor(view_id).await?.notifier.subscribe())
     }
 
-    pub async fn filter_rows(&self, block_id: &str, rows: Vec<Arc<RowRevision>>) -> FlowyResult<Vec<Arc<RowRevision>>> {
-        let editor = self.get_default_view_editor().await?;
-        let rows = editor.filter_rows(block_id, rows).await;
+    pub async fn get_row_revs(&self, view_id: &str, block_id: &str) -> FlowyResult<Vec<Arc<RowRevision>>> {
+        let mut row_revs = self.delegate.get_row_revs(Some(vec![block_id.to_owned()])).await;
+        if let Ok(view_editor) = self.get_view_editor(view_id).await {
+            view_editor.sort_rows(&mut row_revs).await;
+        }
+        Ok(row_revs)
+    }
+
+    pub async fn filter_rows(
+        &self,
+        view_id: &str,
+        block_id: &str,
+        rows: Vec<Arc<RowRevision>>,
+    ) -> FlowyResult<Vec<Arc<RowRevision>>> {
+        let rows = match self.get_view_editor(view_id).await {
+            Ok(view_editor) => view_editor.filter_rows(block_id, rows).await,
+            Err(_) => rows,
+        };
         Ok(rows)
     }
 
@@ -117,13 +136,23 @@ impl GridViewManager {
     }
 
     pub async fn create_or_update_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
-        let view_editor = self.get_default_view_editor().await?;
+        let view_editor = self.get_view_editor(&params.view_id).await?;
         view_editor.insert_view_filter(params).await
     }
 
     pub async fn delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
-        let view_editor = self.get_default_view_editor().await?;
+        let view_editor = self.get_view_editor(&params.view_id).await?;
         view_editor.delete_view_filter(params).await
+    }
+
+    pub async fn create_or_update_sort(&self, params: AlterSortParams) -> FlowyResult<()> {
+        let view_editor = self.get_view_editor(&params.view_id).await?;
+        view_editor.insert_view_sort(params).await
+    }
+
+    pub async fn delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
+        let view_editor = self.get_view_editor(&params.view_id).await?;
+        view_editor.delete_view_sort(params).await
     }
 
     pub async fn load_groups(&self) -> FlowyResult<RepeatedGroupPB> {
@@ -225,24 +254,49 @@ impl GridViewManager {
     }
 }
 
+fn listen_on_grid_block_event(
+    mut block_event_rx: broadcast::Receiver<GridBlockEvent>,
+    view_editors: Arc<RwLock<RefCountHashMap<Arc<GridViewRevisionEditor>>>>,
+) {
+    tokio::spawn(async move {
+        loop {
+            while let Ok(event) = block_event_rx.recv().await {
+                let read_guard = view_editors.read().await;
+                let view_editors = read_guard.values();
+                let event = if view_editors.len() == 1 {
+                    Cow::Owned(event)
+                } else {
+                    Cow::Borrowed(&event)
+                };
+                for view_editor in view_editors.iter() {
+                    view_editor.handle_block_event(event.clone()).await;
+                }
+            }
+        }
+    });
+}
 pub async fn make_grid_view_rev_manager(
     user: &Arc<dyn GridUser>,
     view_id: &str,
 ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
     let user_id = user.user_id()?;
-    let pool = user.db_pool()?;
 
+    // Create revision persistence
+    let pool = user.db_pool()?;
     let disk_cache = SQLiteGridViewRevisionPersistence::new(&user_id, pool.clone());
     let configuration = RevisionPersistenceConfiguration::new(2, false);
     let rev_persistence = RevisionPersistence::new(&user_id, view_id, disk_cache, configuration);
-    let rev_compactor = GridViewRevisionCompress();
 
-    let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(view_id, pool);
+    // Create snapshot persistence
+    let snapshot_object_id = format!("grid_view:{}", view_id);
+    let snapshot_persistence = SQLiteGridRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
+
+    let rev_compress = GridViewRevisionMergeable();
     Ok(RevisionManager::new(
         &user_id,
         view_id,
         rev_persistence,
-        rev_compactor,
+        rev_compress,
         snapshot_persistence,
     ))
 }

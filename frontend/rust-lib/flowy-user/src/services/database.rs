@@ -6,10 +6,6 @@ use lazy_static::lazy_static;
 use parking_lot::RwLock;
 use std::{collections::HashMap, sync::Arc, time::Duration};
 
-lazy_static! {
-    static ref DB: RwLock<Option<Database>> = RwLock::new(None);
-}
-
 pub struct UserDB {
     db_dir: String,
 }
@@ -21,6 +17,7 @@ impl UserDB {
         }
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     fn open_user_db_if_need(&self, user_id: &str) -> Result<Arc<ConnectionPool>, FlowyError> {
         if user_id.is_empty() {
             return Err(ErrorCode::UserIdIsEmpty.into());

@@ -32,7 +32,7 @@ class ChecklistFilterEditorBloc
           initial: () async {
             _startListening();
           },
-          updateCondition: (ChecklistFilterCondition condition) {
+          updateCondition: (ChecklistFilterConditionPB condition) {
             _ffiService.insertChecklistFilter(
               filterId: filterInfo.filter.id,
               fieldId: filterInfo.fieldInfo.id,
@@ -85,7 +85,7 @@ class ChecklistFilterEditorEvent with _$ChecklistFilterEditorEvent {
   const factory ChecklistFilterEditorEvent.didReceiveFilter(FilterPB filter) =
       _DidReceiveFilter;
   const factory ChecklistFilterEditorEvent.updateCondition(
-      ChecklistFilterCondition condition) = _UpdateCondition;
+      ChecklistFilterConditionPB condition) = _UpdateCondition;
   const factory ChecklistFilterEditorEvent.delete() = _Delete;
 }
 

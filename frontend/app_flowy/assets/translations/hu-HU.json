@@ -138,8 +138,12 @@
       "open": "Beállítások megnyitása"
     },
     "appearance": {
-      "lightLabel": "Világos mód",
-      "darkLabel": "Éjjeli mód"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Világos mód",
+        "dark": "Éjjeli mód",
+        "system": "Adapt to System"
+      }
     }
   },
   "sideBar": {

@@ -51,7 +51,7 @@ pub struct CellPathPB {
 }
 
 pub struct CellPathParams {
-    pub grid_id: String,
+    pub view_id: String,
     pub field_id: String,
     pub row_id: String,
 }
@@ -64,7 +64,7 @@ impl TryInto<CellPathParams> for CellPathPB {
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
         Ok(CellPathParams {
-            grid_id: grid_id.0,
+            view_id: grid_id.0,
             field_id: field_id.0,
             row_id: row_id.0,
         })
@@ -139,7 +139,7 @@ pub struct CellChangesetPB {
     pub field_id: String,
 
     #[pb(index = 4)]
-    pub content: String,
+    pub type_cell_data: String,
 }
 
 impl std::convert::From<CellChangesetPB> for RowChangeset {
@@ -147,7 +147,7 @@ impl std::convert::From<CellChangesetPB> for RowChangeset {
         let mut cell_by_field_id = HashMap::with_capacity(1);
         let field_id = changeset.field_id;
         let cell_rev = CellRevision {
-            data: changeset.content,
+            type_cell_data: changeset.type_cell_data,
         };
         cell_by_field_id.insert(field_id, cell_rev);
 

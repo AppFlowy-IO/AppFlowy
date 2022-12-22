@@ -42,10 +42,10 @@ nanoid = "0.4.0"
 [features]
 http_server = []
 dart = [
-    "lib-infra/dart",
+    "flowy-codegen/dart",
     "flowy-user/dart",
     "flowy-error/dart",
 ]
 
 [build-dependencies]
-lib-infra = { path = "../../../shared-lib/lib-infra", features = ["proto_gen"] }
+flowy-codegen = { path = "../../../shared-lib/flowy-codegen"}

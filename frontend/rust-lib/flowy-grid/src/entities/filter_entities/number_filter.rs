@@ -5,7 +5,7 @@ use grid_rev_model::FilterRevision;
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct NumberFilterPB {
     #[pb(index = 1)]
-    pub condition: NumberFilterCondition,
+    pub condition: NumberFilterConditionPB,
 
     #[pb(index = 2)]
     pub content: String,
@@ -13,7 +13,7 @@ pub struct NumberFilterPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
-pub enum NumberFilterCondition {
+pub enum NumberFilterConditionPB {
     Equal = 0,
     NotEqual = 1,
     GreaterThan = 2,
@@ -24,30 +24,30 @@ pub enum NumberFilterCondition {
     NumberIsNotEmpty = 7,
 }
 
-impl std::default::Default for NumberFilterCondition {
+impl std::default::Default for NumberFilterConditionPB {
     fn default() -> Self {
-        NumberFilterCondition::Equal
+        NumberFilterConditionPB::Equal
     }
 }
 
-impl std::convert::From<NumberFilterCondition> for u32 {
-    fn from(value: NumberFilterCondition) -> Self {
+impl std::convert::From<NumberFilterConditionPB> for u32 {
+    fn from(value: NumberFilterConditionPB) -> Self {
         value as u32
     }
 }
-impl std::convert::TryFrom<u8> for NumberFilterCondition {
+impl std::convert::TryFrom<u8> for NumberFilterConditionPB {
     type Error = ErrorCode;
 
     fn try_from(n: u8) -> Result<Self, Self::Error> {
         match n {
-            0 => Ok(NumberFilterCondition::Equal),
-            1 => Ok(NumberFilterCondition::NotEqual),
-            2 => Ok(NumberFilterCondition::GreaterThan),
-            3 => Ok(NumberFilterCondition::LessThan),
-            4 => Ok(NumberFilterCondition::GreaterThanOrEqualTo),
-            5 => Ok(NumberFilterCondition::LessThanOrEqualTo),
-            6 => Ok(NumberFilterCondition::NumberIsEmpty),
-            7 => Ok(NumberFilterCondition::NumberIsNotEmpty),
+            0 => Ok(NumberFilterConditionPB::Equal),
+            1 => Ok(NumberFilterConditionPB::NotEqual),
+            2 => Ok(NumberFilterConditionPB::GreaterThan),
+            3 => Ok(NumberFilterConditionPB::LessThan),
+            4 => Ok(NumberFilterConditionPB::GreaterThanOrEqualTo),
+            5 => Ok(NumberFilterConditionPB::LessThanOrEqualTo),
+            6 => Ok(NumberFilterConditionPB::NumberIsEmpty),
+            7 => Ok(NumberFilterConditionPB::NumberIsNotEmpty),
             _ => Err(ErrorCode::InvalidData),
         }
     }
@@ -56,7 +56,7 @@ impl std::convert::TryFrom<u8> for NumberFilterCondition {
 impl std::convert::From<&FilterRevision> for NumberFilterPB {
     fn from(rev: &FilterRevision) -> Self {
         NumberFilterPB {
-            condition: NumberFilterCondition::try_from(rev.condition).unwrap_or(NumberFilterCondition::Equal),
+            condition: NumberFilterConditionPB::try_from(rev.condition).unwrap_or(NumberFilterConditionPB::Equal),
             content: rev.content.clone(),
         }
     }

@@ -37,7 +37,7 @@ macro_rules! diesel_insert_table {
     ) => {
         {
         let _ = diesel::insert_into($table_name::table)
-                    .values($table.clone())
+                    .values($table)
                     // .on_conflict($table_name::dsl::id)
                     // .do_update()
                     // .set(WorkspaceTableChangeset::from_table(workspace_table))
@@ -55,6 +55,21 @@ macro_rules! diesel_record_count {
     ) => {
         $table_name::dsl::$table_name
             .filter($table_name::dsl::id.eq($id.clone()))
+            .count()
+            .get_result($connection)
+            .unwrap_or(0);
+    };
+}
+
+#[macro_export]
+macro_rules! diesel_revision_record_count {
+    (
+        $table_name:expr,
+        $filter:expr,
+        $connection:expr
+    ) => {
+        $table_name
+            .filter($table_name::dsl::id.eq($id))
             .count()
             .get_result($connection)
             .unwrap_or(0);

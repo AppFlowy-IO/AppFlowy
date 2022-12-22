@@ -16,7 +16,7 @@ flowy-derive = {path = "../../../shared-lib/flowy-derive" }
 lib-dispatch = {path = "../lib-dispatch" }
 
 [features]
-dart = ["lib-infra/dart"]
+dart = ["flowy-codegen/dart"]
 
 [build-dependencies]
-lib-infra = { path = "../../../shared-lib/lib-infra", features = ["proto_gen"] }
+flowy-codegen= { path = "../../../shared-lib/flowy-codegen"}

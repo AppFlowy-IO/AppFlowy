@@ -1,5 +1,5 @@
 import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle_style.dart';
-import 'package:flowy_infra/color_extension.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 class Toggle extends StatelessWidget {

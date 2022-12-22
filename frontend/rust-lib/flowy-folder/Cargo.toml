@@ -26,7 +26,7 @@ log = "0.4.14"
 diesel = {version = "1.4.8", features = ["sqlite"]}
 diesel_derives = {version = "1.4.1", features = ["sqlite"]}
 futures = "0.3.15"
-pin-project = "1.0.0"
+pin-project = "1.0"
 strum = "0.21"
 strum_macros = "0.21"
 tokio = { version = "1", features = ["rt"] }
@@ -42,11 +42,12 @@ flowy-folder = { path = "../flowy-folder", features = ["flowy_unit_test"]}
 flowy-test = { path = "../flowy-test" }
 
 [build-dependencies]
-lib-infra = { path = "../../../shared-lib/lib-infra", features = [ "proto_gen"] }
+flowy-codegen= { path = "../../../shared-lib/flowy-codegen"}
+
 
 [features]
 default = []
 sync = []
 cloud_sync = ["sync"]
 flowy_unit_test = ["lib-ot/flowy_unit_test", "flowy-revision/flowy_unit_test"]
-dart = ["lib-infra/dart"]
+dart = ["flowy-codegen/dart"]

@@ -21,9 +21,9 @@ log = "0.4.14"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0" }
 bytes = { version = "1.0" }
-once_cell = "1"
 crossbeam-utils = "0.8.7"
-
+lazy_static = "1.4.0"
+parking_lot = "0.12.1"
 
 lib-dispatch = { path = "../lib-dispatch" }
 flowy-sdk = { path = "../flowy-sdk" }
@@ -37,6 +37,7 @@ http_sync = ["flowy-sdk/http_sync", "flowy-sdk/use_bunyan"]
 openssl_vendored = ["flowy-sdk/openssl_vendored"]
 
 [build-dependencies]
-lib-infra = { path = "../../../shared-lib/lib-infra", features = [
+flowy-codegen= { path = "../../../shared-lib/flowy-codegen", features = [
     "dart",
-] }
+]}
+

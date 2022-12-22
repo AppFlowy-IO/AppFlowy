@@ -68,6 +68,7 @@ impl FlowyError {
     static_flowy_error!(invalid_data, ErrorCode::InvalidData);
     static_flowy_error!(out_of_bounds, ErrorCode::OutOfBounds);
     static_flowy_error!(serde, ErrorCode::Serde);
+    static_flowy_error!(field_record_not_found, ErrorCode::FieldRecordNotFound);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {

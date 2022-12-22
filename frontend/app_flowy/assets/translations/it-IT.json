@@ -138,15 +138,19 @@
       "open": "aprire le impostazioni"
     },
     "appearance": {
-      "lightLabel": "Modalità Chiara",
-      "darkLabel": "Modalità Scura"
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Modalità Chiara",
+        "dark": "Modalità Scura",
+        "system": "Adapt to System"
+      }
     }
   },
   "grid": {
-    "menuName":"Griglia"
+    "menuName": "Griglia"
   },
-  "document":{
-    "menuName":"Documento"
+  "document": {
+    "menuName": "Documento"
   },
   "sideBar": {
     "openSidebar": "Open sidebar",

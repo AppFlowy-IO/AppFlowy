@@ -67,19 +67,12 @@ script_runner = "@shell"
 script = [
   """
   echo --- Running coverage tests ---
-
-  # Install Protobuf compiler
-  cargo make install_protobuf_compiler
-  export PATH="$PATH":"$HOME/.pub-cache/bin"
-  export PATH="$PATH":"$HOME/.cargo/bin/"
-
   cd rust-lib/
 
   CARGO_INCREMENTAL=0 \
   RUSTFLAGS='-C instrument-coverage' \
   LLVM_PROFILE_FILE='prof-%p-%m.profraw' \
   cargo test --no-default-features --features="sync"
-
   """
 ]
 
@@ -89,18 +82,12 @@ script_runner = "@shell"
 script = [
   """
   echo --- Running coverage tests ---
-
-  # Install Protobuf compiler
-  cargo make install_protobuf_compiler
-  export PATH="$PATH":"$HOME/.pub-cache/bin"
-  export PATH="$PATH":"$HOME/.cargo/bin/"
-
   cd ../shared-lib
 
   CARGO_INCREMENTAL=0 \
   RUSTFLAGS='-C instrument-coverage' \
   LLVM_PROFILE_FILE='prof-%p-%m.profraw' \
-  cargo test --no-default-features 
+  cargo test --no-default-features
 
   """
 ]
@@ -110,7 +97,7 @@ description = "Get `grcov` HTML report for test coverage for rust-lib"
 script_runner = "@shell"
 script = [
   """
-  echo --- Getting 'grcov' results for 'rust-lib' --- 
+  echo --- Getting 'grcov' results for 'rust-lib' ---
   cd rust-lib/
 
   grcov . \
@@ -131,7 +118,7 @@ description = "Get `grcov` HTML report for test coverage shared-lib"
 script_runner = "@shell"
 script = [
   """
-  echo --- Getting 'grcov' results 'shared-lib' --- 
+  echo --- Getting 'grcov' results 'shared-lib' ---
   cd ../shared-lib
 
   grcov . \
@@ -205,22 +192,13 @@ run_task = { name = [
   "get_rustlib_lcov_report"
 ], parallel = true }
 
-[tasks.get_ci_test_coverage]
-description = "Get LCOV coverage reports for CI"
+[tasks.rust_unit_test_with_coverage]
+description = "Run rust unit test with code coverage"
 run_task = { name = [
     "check_grcov",
+    'appflowy-deps-tools',
     "run_rustlib_coverage_tests",
     "run_sharedlib_coverage_tests",
     "get_lcov_report",
-    "clean_profraw_files"
-  ]}
-
-[tasks.get_test_coverage]
-description = "Get human readable test coverage reports"
-run_task = { name = [
-    "check_grcov",
-    "run_rustlib_coverage_tests",
-    "run_sharedlib_coverage_tests",
-    "get_grcov_report",
     "clean_profraw_files"
   ]}

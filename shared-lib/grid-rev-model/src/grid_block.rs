@@ -46,6 +46,8 @@ pub struct RowChangeset {
     pub row_id: String,
     pub height: Option<i32>,
     pub visibility: Option<bool>,
+    // Contains the key/value changes represents as the update of the cells. For example,
+    // if there is one cell was changed, then the `cell_by_field_id` will only have one key/value.
     pub cell_by_field_id: HashMap<FieldId, CellRevision>,
 }
 
@@ -66,15 +68,16 @@ impl RowChangeset {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CellRevision {
-    pub data: String,
+    #[serde(rename = "data")]
+    pub type_cell_data: String,
 }
 
 impl CellRevision {
     pub fn new(data: String) -> Self {
-        Self { data }
+        Self { type_cell_data: data }
     }
 
     pub fn is_empty(&self) -> bool {
-        self.data.is_empty()
+        self.type_cell_data.is_empty()
     }
 }

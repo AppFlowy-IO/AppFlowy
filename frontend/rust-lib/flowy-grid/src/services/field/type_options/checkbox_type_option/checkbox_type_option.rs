@@ -1,11 +1,14 @@
-use crate::entities::FieldType;
+use crate::entities::{CheckboxFilterPB, FieldType};
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellData, CellDataOperation, CellDisplayable};
-use crate::services::field::{BoxTypeOptionBuilder, CheckboxCellData, TypeOptionBuilder};
+use crate::services::cell::{CellDataChangeset, CellDataDecoder, FromCellString, TypeCellData};
+use crate::services::field::{
+    BoxTypeOptionBuilder, CheckboxCellData, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
+    TypeOptionTransform,
+};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
-use flowy_error::{FlowyError, FlowyResult};
-use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use flowy_error::FlowyResult;
+use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -29,10 +32,6 @@ impl TypeOptionBuilder for CheckboxTypeOptionBuilder {
     fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
     }
-
-    fn transform(&mut self, _field_type: &FieldType, _type_option_data: String) {
-        // Do nothing
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, ProtoBuf)]
@@ -42,50 +41,55 @@ pub struct CheckboxTypeOptionPB {
 }
 impl_type_option!(CheckboxTypeOptionPB, FieldType::Checkbox);
 
-impl CellDisplayable<CheckboxCellData> for CheckboxTypeOptionPB {
-    fn displayed_cell_bytes(
-        &self,
-        cell_data: CellData<CheckboxCellData>,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        let cell_data = cell_data.try_into_inner()?;
-        Ok(CellBytes::new(cell_data))
+impl TypeOption for CheckboxTypeOptionPB {
+    type CellData = CheckboxCellData;
+    type CellChangeset = CheckboxCellChangeset;
+    type CellProtobufType = CheckboxCellData;
+}
+
+impl TypeOptionTransform for CheckboxTypeOptionPB {}
+
+impl TypeOptionConfiguration for CheckboxTypeOptionPB {
+    type CellFilterConfiguration = CheckboxFilterPB;
+}
+
+impl TypeOptionCellData for CheckboxTypeOptionPB {
+    fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {
+        cell_data
     }
 
-    fn displayed_cell_string(
+    fn decode_type_option_cell_str(&self, cell_str: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        CheckboxCellData::from_cell_str(&cell_str)
+    }
+}
+
+impl CellDataDecoder for CheckboxTypeOptionPB {
+    fn decode_cell_str(
         &self,
-        cell_data: CellData<CheckboxCellData>,
-        _decoded_field_type: &FieldType,
+        cell_str: String,
+        decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<String> {
-        let cell_data = cell_data.try_into_inner()?;
-        Ok(cell_data.to_string())
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
+        if !decoded_field_type.is_checkbox() {
+            return Ok(Default::default());
+        }
+
+        self.decode_type_option_cell_str(cell_str)
+    }
+
+    fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+        cell_data.to_string()
     }
 }
 
 pub type CheckboxCellChangeset = String;
 
-impl CellDataOperation<CheckboxCellData, CheckboxCellChangeset> for CheckboxTypeOptionPB {
-    fn decode_cell_data(
-        &self,
-        cell_data: CellData<CheckboxCellData>,
-        decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        if !decoded_field_type.is_checkbox() {
-            return Ok(CellBytes::default());
-        }
-
-        self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
-    }
-
+impl CellDataChangeset for CheckboxTypeOptionPB {
     fn apply_changeset(
         &self,
-        changeset: AnyCellChangeset<String>,
-        _cell_rev: Option<CellRevision>,
-    ) -> Result<String, FlowyError> {
-        let changeset = changeset.try_into_inner()?;
+        changeset: <Self as TypeOption>::CellChangeset,
+        _type_cell_data: Option<TypeCellData>,
+    ) -> FlowyResult<String> {
         let cell_data = CheckboxCellData::from_str(&changeset)?;
         Ok(cell_data.to_string())
     }
