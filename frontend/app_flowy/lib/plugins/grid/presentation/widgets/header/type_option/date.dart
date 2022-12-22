@@ -131,7 +131,6 @@ class DateFormatButton extends StatelessWidget {
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_field_dateFormat.tr()),
-        margin: GridSize.typeOptionContentInsets,
         onTap: onTap,
         onHover: onHover,
         rightIcon: svgWidget(
@@ -157,7 +156,6 @@ class TimeFormatButton extends StatelessWidget {
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_field_timeFormat.tr()),
-        margin: GridSize.typeOptionContentInsets,
         onTap: onTap,
         onHover: onHover,
         rightIcon: svgWidget(
