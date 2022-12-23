@@ -1,8 +1,22 @@
 use crate::entities::{
     CheckboxFilterPB, ChecklistFilterPB, DateFilterPB, FieldType, NumberFilterPB, SelectOptionFilterPB, TextFilterPB,
 };
+
 use crate::services::filter::FilterType;
+
+use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
+use std::hash::Hasher;
+
+struct CellFilterCacheKey();
+impl CellFilterCacheKey {
+    pub fn new(field_id: &str, field_type: FieldType) -> u64 {
+        let mut hasher = DefaultHasher::new();
+        hasher.write(field_id.as_bytes());
+        hasher.write_u8(field_type as u8);
+        hasher.finish()
+    }
+}
 
 #[derive(Default, Debug)]
 pub(crate) struct FilterMap {

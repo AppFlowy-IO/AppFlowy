@@ -4,7 +4,7 @@ use crate::services::cell::{CellDataChangeset, FromCellString, TypeCellData};
 
 use crate::services::field::{
     BoxTypeOptionBuilder, SelectOptionCellDataPB, SelectedSelectOptions, TypeOption, TypeOptionBuilder,
-    TypeOptionCellData, TypeOptionCellDataFilter, TypeOptionConfiguration,
+    TypeOptionCellData, TypeOptionCellDataFilter,
 };
 use crate::services::field::{
     SelectOptionCellChangeset, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction,
@@ -31,10 +31,6 @@ impl TypeOption for SingleSelectTypeOptionPB {
     type CellChangeset = SelectOptionCellChangeset;
     type CellProtobufType = SelectOptionCellDataPB;
     type CellFilter = SelectOptionFilterPB;
-}
-
-impl TypeOptionConfiguration for SingleSelectTypeOptionPB {
-    type CellFilterConfiguration = SelectOptionFilterPB;
 }
 
 impl TypeOptionCellData for SingleSelectTypeOptionPB {

@@ -1,7 +1,7 @@
 use crate::entities::{NumberFilterConditionPB, NumberFilterPB};
-use crate::services::cell::{CellFilterable, TypeCellData};
-use crate::services::field::{NumberCellData, NumberTypeOptionPB, TypeOptionConfiguration};
-use flowy_error::FlowyResult;
+
+use crate::services::field::NumberCellData;
+
 use rust_decimal::prelude::Zero;
 use rust_decimal::Decimal;
 use std::str::FromStr;
@@ -34,22 +34,6 @@ impl NumberFilterPB {
                 }
             }
         }
-    }
-}
-
-impl CellFilterable for NumberTypeOptionPB {
-    fn apply_filter(
-        &self,
-        type_cell_data: TypeCellData,
-        filter: &<Self as TypeOptionConfiguration>::CellFilterConfiguration,
-    ) -> FlowyResult<bool> {
-        if !type_cell_data.is_number() {
-            return Ok(true);
-        }
-        let cell_data = type_cell_data.cell_str;
-        let num_cell_data = self.format_cell_data(&cell_data)?;
-
-        Ok(filter.is_visible(&num_cell_data))
     }
 }
 

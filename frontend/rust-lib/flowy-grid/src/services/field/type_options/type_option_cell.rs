@@ -8,10 +8,10 @@ use crate::services::field::{
     RichTextTypeOptionPB, SingleSelectTypeOptionPB, TypeOption, TypeOptionCellData, TypeOptionCellDataFilter,
     TypeOptionTransform, URLTypeOptionPB,
 };
-use crate::services::filter::FromFilterString;
+use crate::services::filter::FilterType;
 
 use flowy_error::FlowyResult;
-use grid_rev_model::{FieldRevision, FilterRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 
 use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;
@@ -43,8 +43,8 @@ pub trait TypeOptionCellDataHandler {
 
     fn filter_cell_str(
         &self,
+        filter_type: &FilterType,
         field_rev: &FieldRevision,
-        filter_rev: &FilterRevision,
         type_cell_data: TypeCellData,
     ) -> bool;
 
@@ -53,14 +53,20 @@ pub trait TypeOptionCellDataHandler {
     fn stringify_cell_str(&self, cell_str: String, field_type: &FieldType, field_rev: &FieldRevision) -> String;
 }
 
-struct CellDataCacheKeyCal();
-impl CellDataCacheKeyCal {
-    pub fn new(field_rev: &FieldRevision, decoded_field_type: FieldType, cell_str: &str) -> u64 {
+struct CellDataCacheKey(u64);
+impl CellDataCacheKey {
+    pub fn new(field_rev: &FieldRevision, decoded_field_type: FieldType, cell_str: &str) -> Self {
         let mut hasher = DefaultHasher::new();
         hasher.write(field_rev.id.as_bytes());
         hasher.write_u8(decoded_field_type as u8);
         hasher.write(cell_str.as_bytes());
-        hasher.finish()
+        Self(hasher.finish())
+    }
+}
+
+impl AsRef<u64> for CellDataCacheKey {
+    fn as_ref(&self) -> &u64 {
+        &self.0
     }
 }
 
@@ -114,10 +120,10 @@ where
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<<Self as TypeOption>::CellData> {
-        let key = CellDataCacheKeyCal::new(field_rev, decoded_field_type.clone(), &cell_str);
+        let key = CellDataCacheKey::new(field_rev, decoded_field_type.clone(), &cell_str);
         if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
             let read_guard = cell_data_cache.read();
-            let cell_data = read_guard.get(&key).cloned();
+            let cell_data = read_guard.get(key.as_ref()).cloned();
             if cell_data.is_some() {
                 tracing::trace!("Cell cache hit: {}:{}", decoded_field_type, cell_str);
                 return Ok(cell_data.unwrap());
@@ -126,7 +132,7 @@ where
 
         let cell_data = self.decode_cell_str(cell_str, decoded_field_type, field_rev)?;
         if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
-            cell_data_cache.write().insert(&key, cell_data.clone());
+            cell_data_cache.write().insert(key.as_ref(), cell_data.clone());
         }
         Ok(cell_data)
     }
@@ -136,8 +142,8 @@ where
             let field_type: FieldType = field_rev.ty.into();
             let cell_str = cell_data.to_string();
             tracing::trace!("Update cell cache {}:{}", field_type, cell_str);
-            let key = CellDataCacheKeyCal::new(field_rev, field_type, &cell_str);
-            cell_data_cache.write().insert(&key, cell_data);
+            let key = CellDataCacheKey::new(field_rev, field_type, &cell_str);
+            cell_data_cache.write().insert(key.as_ref(), cell_data);
         }
     }
 }
@@ -212,17 +218,22 @@ where
 
     fn filter_cell_str(
         &self,
+        filter_type: &FilterType,
         field_rev: &FieldRevision,
-        filter_rev: &FilterRevision,
         type_cell_data: TypeCellData,
     ) -> bool {
-        let TypeCellData { cell_str, field_type } = type_cell_data;
-        match self.get_decoded_cell_data(cell_str, &field_type, field_rev) {
-            Ok(cell_data) => {
-                let filter = <T as TypeOption>::CellFilter::from_filter_rev(filter_rev);
-                self.apply_filter2(&filter, &field_type, &cell_data)
-            }
-            Err(_) => false,
+        if self.cell_filter_cache.is_none() {
+            return true;
+        }
+        let cell_filter_cache = self.cell_filter_cache.as_ref().unwrap().read();
+        let filter: &<Self as TypeOption>::CellFilter = cell_filter_cache.get(&filter_type).unwrap();
+        let TypeCellData {
+            cell_str,
+            field_type: _,
+        } = type_cell_data;
+        match self.get_decoded_cell_data(cell_str, &filter_type.field_type, field_rev) {
+            Ok(cell_data) => self.apply_filter2(&filter, &filter_type.field_type, &cell_data),
+            Err(_) => true,
         }
     }
 
@@ -247,7 +258,10 @@ pub struct TypeOptionCellExt<'a> {
 }
 
 impl<'a> TypeOptionCellExt<'a> {
-    pub fn new(field_rev: &'a FieldRevision, cell_data_cache: Option<AtomicCellDataCache>) -> Self {
+    pub fn new_with_cell_data_cache(
+        field_rev: &'a FieldRevision,
+        cell_data_cache: Option<AtomicCellDataCache>,
+    ) -> Self {
         Self {
             field_rev,
             cell_data_cache,
@@ -255,13 +269,13 @@ impl<'a> TypeOptionCellExt<'a> {
         }
     }
 
-    pub fn new_with_cell_filter_cache(
+    pub fn new(
         field_rev: &'a FieldRevision,
         cell_data_cache: Option<AtomicCellDataCache>,
-        cell_filter_cache: AtomicCellFilterCache,
+        cell_filter_cache: Option<AtomicCellFilterCache>,
     ) -> Self {
-        let mut this = Self::new(field_rev, cell_data_cache);
-        this.cell_filter_cache = Some(cell_filter_cache);
+        let mut this = Self::new_with_cell_data_cache(field_rev, cell_data_cache);
+        this.cell_filter_cache = cell_filter_cache;
         this
     }
 
@@ -274,49 +288,81 @@ impl<'a> TypeOptionCellExt<'a> {
                 .field_rev
                 .get_type_option::<RichTextTypeOptionPB>(field_type.into())
                 .map(|type_option| {
-                    TypeOptionCellDataHandlerImpl::from_cell_data_cache(type_option, self.cell_data_cache.clone())
+                    TypeOptionCellDataHandlerImpl::new(
+                        type_option,
+                        self.cell_filter_cache.clone(),
+                        self.cell_data_cache.clone(),
+                    )
                 }),
             FieldType::Number => self
                 .field_rev
                 .get_type_option::<NumberTypeOptionPB>(field_type.into())
                 .map(|type_option| {
-                    TypeOptionCellDataHandlerImpl::from_cell_data_cache(type_option, self.cell_data_cache.clone())
+                    TypeOptionCellDataHandlerImpl::new(
+                        type_option,
+                        self.cell_filter_cache.clone(),
+                        self.cell_data_cache.clone(),
+                    )
                 }),
             FieldType::DateTime => self
                 .field_rev
                 .get_type_option::<DateTypeOptionPB>(field_type.into())
                 .map(|type_option| {
-                    TypeOptionCellDataHandlerImpl::from_cell_data_cache(type_option, self.cell_data_cache.clone())
+                    TypeOptionCellDataHandlerImpl::new(
+                        type_option,
+                        self.cell_filter_cache.clone(),
+                        self.cell_data_cache.clone(),
+                    )
                 }),
             FieldType::SingleSelect => self
                 .field_rev
                 .get_type_option::<SingleSelectTypeOptionPB>(field_type.into())
                 .map(|type_option| {
-                    TypeOptionCellDataHandlerImpl::from_cell_data_cache(type_option, self.cell_data_cache.clone())
+                    TypeOptionCellDataHandlerImpl::new(
+                        type_option,
+                        self.cell_filter_cache.clone(),
+                        self.cell_data_cache.clone(),
+                    )
                 }),
             FieldType::MultiSelect => self
                 .field_rev
                 .get_type_option::<MultiSelectTypeOptionPB>(field_type.into())
                 .map(|type_option| {
-                    TypeOptionCellDataHandlerImpl::from_cell_data_cache(type_option, self.cell_data_cache.clone())
+                    TypeOptionCellDataHandlerImpl::new(
+                        type_option,
+                        self.cell_filter_cache.clone(),
+                        self.cell_data_cache.clone(),
+                    )
                 }),
             FieldType::Checkbox => self
                 .field_rev
                 .get_type_option::<CheckboxTypeOptionPB>(field_type.into())
                 .map(|type_option| {
-                    TypeOptionCellDataHandlerImpl::from_cell_data_cache(type_option, self.cell_data_cache.clone())
+                    TypeOptionCellDataHandlerImpl::new(
+                        type_option,
+                        self.cell_filter_cache.clone(),
+                        self.cell_data_cache.clone(),
+                    )
                 }),
             FieldType::URL => self
                 .field_rev
                 .get_type_option::<URLTypeOptionPB>(field_type.into())
                 .map(|type_option| {
-                    TypeOptionCellDataHandlerImpl::from_cell_data_cache(type_option, self.cell_data_cache.clone())
+                    TypeOptionCellDataHandlerImpl::new(
+                        type_option,
+                        self.cell_filter_cache.clone(),
+                        self.cell_data_cache.clone(),
+                    )
                 }),
             FieldType::Checklist => self
                 .field_rev
                 .get_type_option::<ChecklistTypeOptionPB>(field_type.into())
                 .map(|type_option| {
-                    TypeOptionCellDataHandlerImpl::from_cell_data_cache(type_option, self.cell_data_cache.clone())
+                    TypeOptionCellDataHandlerImpl::new(
+                        type_option,
+                        self.cell_filter_cache.clone(),
+                        self.cell_data_cache.clone(),
+                    )
                 }),
         }
     }

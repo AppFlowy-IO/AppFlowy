@@ -44,7 +44,7 @@ impl URLCellData {
         }
     }
 
-    pub(crate) fn to_json(&self) -> FlowyResult<String> {
+    pub fn to_json(&self) -> FlowyResult<String> {
         serde_json::to_string(self).map_err(internal_error)
     }
 }

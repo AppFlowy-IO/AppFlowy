@@ -3,7 +3,7 @@ use crate::impl_type_option;
 use crate::services::cell::{CellDataChangeset, CellDataDecoder, FromCellString, TypeCellData};
 use crate::services::field::{
     BoxTypeOptionBuilder, DateCellChangeset, DateCellData, DateCellDataPB, DateFormat, TimeFormat, TypeOption,
-    TypeOptionBuilder, TypeOptionCellData, TypeOptionCellDataFilter, TypeOptionConfiguration, TypeOptionTransform,
+    TypeOptionBuilder, TypeOptionCellData, TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
@@ -32,10 +32,6 @@ impl TypeOption for DateTypeOptionPB {
     type CellChangeset = DateCellChangeset;
     type CellProtobufType = DateCellDataPB;
     type CellFilter = DateFilterPB;
-}
-
-impl TypeOptionConfiguration for DateTypeOptionPB {
-    type CellFilterConfiguration = DateFilterPB;
 }
 
 impl TypeOptionCellData for DateTypeOptionPB {

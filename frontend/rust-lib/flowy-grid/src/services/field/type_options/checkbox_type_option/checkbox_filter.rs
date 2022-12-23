@@ -1,10 +1,6 @@
 use crate::entities::{CheckboxFilterConditionPB, CheckboxFilterPB};
-use crate::services::cell::{CellFilterable, TypeCellData};
-use crate::services::field::{
-    CheckboxCellData, CheckboxTypeOptionPB, TypeOption, TypeOptionCellData, TypeOptionCellDataFilter,
-    TypeOptionConfiguration,
-};
-use flowy_error::FlowyResult;
+use crate::services::cell::TypeCellData;
+use crate::services::field::CheckboxCellData;
 
 impl CheckboxFilterPB {
     pub fn is_visible(&self, cell_data: &CheckboxCellData) -> bool {
@@ -13,19 +9,6 @@ impl CheckboxFilterPB {
             CheckboxFilterConditionPB::IsChecked => is_check,
             CheckboxFilterConditionPB::IsUnChecked => !is_check,
         }
-    }
-}
-impl CellFilterable for CheckboxTypeOptionPB {
-    fn apply_filter(
-        &self,
-        type_cell_data: TypeCellData,
-        filter: &<Self as TypeOptionConfiguration>::CellFilterConfiguration,
-    ) -> FlowyResult<bool> {
-        if !type_cell_data.is_checkbox() {
-            return Ok(true);
-        }
-        let checkbox_cell_data = self.decode_type_option_cell_str(type_cell_data.cell_str)?;
-        Ok(filter.is_visible(&checkbox_cell_data))
     }
 }
 

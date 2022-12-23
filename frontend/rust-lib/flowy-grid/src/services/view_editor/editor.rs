@@ -1,6 +1,7 @@
 use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::*;
 use crate::services::block_manager::GridBlockEvent;
+use crate::services::cell::AtomicCellDataCache;
 use crate::services::filter::{FilterChangeset, FilterController, FilterTaskHandler, FilterType, UpdatedFilterType};
 use crate::services::group::{
     default_group_configuration, find_group_field, make_group_controller, Group, GroupConfigurationReader,
@@ -78,6 +79,7 @@ impl GridViewRevisionEditor {
         token: &str,
         view_id: String,
         delegate: Arc<dyn GridViewEditorDelegate>,
+        cell_data_cache: AtomicCellDataCache,
         mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
     ) -> FlowyResult<Self> {
         let (notifier, _) = broadcast::channel(100);
@@ -114,8 +116,14 @@ impl GridViewRevisionEditor {
 
         let user_id = user_id.to_owned();
         let group_controller = Arc::new(RwLock::new(group_controller));
-        let filter_controller =
-            make_filter_controller(&view_id, delegate.clone(), notifier.clone(), view_rev_pad.clone()).await;
+        let filter_controller = make_filter_controller(
+            &view_id,
+            delegate.clone(),
+            notifier.clone(),
+            cell_data_cache,
+            view_rev_pad.clone(),
+        )
+        .await;
         Ok(Self {
             pad: view_rev_pad,
             user_id,
@@ -710,6 +718,7 @@ async fn make_filter_controller(
     view_id: &str,
     delegate: Arc<dyn GridViewEditorDelegate>,
     notifier: GridViewChangedNotifier,
+    cell_data_cache: AtomicCellDataCache,
     pad: Arc<RwLock<GridViewRevisionPad>>,
 ) -> Arc<RwLock<FilterController>> {
     let field_revs = delegate.get_field_revs(None).await;
@@ -726,6 +735,7 @@ async fn make_filter_controller(
         filter_delegate,
         task_scheduler.clone(),
         filter_revs,
+        cell_data_cache,
         notifier,
     )
     .await;

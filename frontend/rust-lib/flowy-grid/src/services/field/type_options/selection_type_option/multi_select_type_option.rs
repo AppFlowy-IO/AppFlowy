@@ -5,7 +5,7 @@ use crate::services::cell::{CellDataChangeset, FromCellString, TypeCellData};
 use crate::services::field::{
     BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds, SelectOptionPB,
     SelectTypeOptionSharedAction, SelectedSelectOptions, TypeOption, TypeOptionBuilder, TypeOptionCellData,
-    TypeOptionCellDataFilter, TypeOptionConfiguration,
+    TypeOptionCellDataFilter,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -29,10 +29,6 @@ impl TypeOption for MultiSelectTypeOptionPB {
     type CellChangeset = SelectOptionCellChangeset;
     type CellProtobufType = SelectOptionCellDataPB;
     type CellFilter = SelectOptionFilterPB;
-}
-
-impl TypeOptionConfiguration for MultiSelectTypeOptionPB {
-    type CellFilterConfiguration = SelectOptionFilterPB;
 }
 
 impl TypeOptionCellData for MultiSelectTypeOptionPB {

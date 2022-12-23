@@ -170,8 +170,7 @@ mod tests {
         field_type: &FieldType,
         field_rev: &FieldRevision,
     ) {
-        let encoded_data = type_option.apply_changeset(input_str.to_owned(), None).unwrap();
-        let decode_cell_data = decode_cell_data(encoded_data.to_string(), type_option, field_rev, field_type);
+        let decode_cell_data = type_option.apply_changeset(input_str.to_owned(), None).unwrap();
         assert_eq!(expected_str.to_owned(), decode_cell_data.content);
         assert_eq!(expected_url.to_owned(), decode_cell_data.url);
     }

@@ -3,7 +3,7 @@ use crate::impl_type_option;
 use crate::services::cell::{CellDataChangeset, CellDataDecoder, FromCellString, TypeCellData};
 use crate::services::field::{
     BoxTypeOptionBuilder, CheckboxCellData, TypeOption, TypeOptionBuilder, TypeOptionCellData,
-    TypeOptionCellDataFilter, TypeOptionConfiguration, TypeOptionTransform,
+    TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -49,10 +49,6 @@ impl TypeOption for CheckboxTypeOptionPB {
 }
 
 impl TypeOptionTransform for CheckboxTypeOptionPB {}
-
-impl TypeOptionConfiguration for CheckboxTypeOptionPB {
-    type CellFilterConfiguration = CheckboxFilterPB;
-}
 
 impl TypeOptionCellData for CheckboxTypeOptionPB {
     fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {

@@ -6,7 +6,7 @@ use crate::services::cell::{
 };
 use crate::services::field::{
     BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionCellDataFilter,
-    TypeOptionConfiguration, TypeOptionTransform,
+    TypeOptionTransform,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -49,10 +49,6 @@ impl TypeOption for RichTextTypeOptionPB {
 }
 
 impl TypeOptionTransform for RichTextTypeOptionPB {}
-
-impl TypeOptionConfiguration for RichTextTypeOptionPB {
-    type CellFilterConfiguration = TextFilterPB;
-}
 
 impl TypeOptionCellData for RichTextTypeOptionPB {
     fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {

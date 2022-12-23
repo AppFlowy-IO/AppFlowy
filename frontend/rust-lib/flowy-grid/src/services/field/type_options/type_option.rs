@@ -43,7 +43,7 @@ pub trait TypeOption {
     type CellProtobufType: TryInto<Bytes, Error = ProtobufError> + Debug;
 
     /// Represents as the filter configuration for this type option.
-    type CellFilter: FromFilterString;
+    type CellFilter: FromFilterString + Send + Sync + 'static;
 }
 
 pub trait TypeOptionCellData: TypeOption {
@@ -105,10 +105,6 @@ pub trait TypeOptionCellDataFilter: TypeOption + CellDataDecoder {
         field_type: &FieldType,
         cell_data: &<Self as TypeOption>::CellData,
     ) -> bool;
-}
-
-pub trait TypeOptionConfiguration {
-    type CellFilterConfiguration;
 }
 
 pub trait TypeOptionCellDataComparable: TypeOption {

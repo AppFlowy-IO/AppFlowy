@@ -3,19 +3,22 @@ use std::any::{type_name, Any};
 
 use std::collections::HashMap;
 
+use crate::services::filter::FilterType;
 use std::fmt::Debug;
-use std::hash::Hasher;
+use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 
-pub type AtomicCellDataCache = Arc<RwLock<AnyTypeCache>>;
-pub type AtomicCellFilterCache = Arc<RwLock<AnyTypeCache>>;
-pub type TypeValueKey = u64;
+pub type AtomicCellDataCache = Arc<RwLock<AnyTypeCache<u64>>>;
+pub type AtomicCellFilterCache = Arc<RwLock<AnyTypeCache<FilterType>>>;
 
 #[derive(Default, Debug)]
-pub struct AnyTypeCache(HashMap<TypeValueKey, TypeValue>);
+pub struct AnyTypeCache<TypeValueKey>(HashMap<TypeValueKey, TypeValue>);
 
-impl AnyTypeCache {
-    pub fn new() -> AtomicCellDataCache {
+impl<TypeValueKey> AnyTypeCache<TypeValueKey>
+where
+    TypeValueKey: Clone + Hash + Eq,
+{
+    pub fn new() -> Arc<RwLock<AnyTypeCache<TypeValueKey>>> {
         Arc::new(RwLock::new(AnyTypeCache(HashMap::default())))
     }
 
@@ -23,17 +26,19 @@ impl AnyTypeCache {
     where
         T: 'static + Send + Sync,
     {
-        self.0
-            .insert(key.to_owned(), TypeValue::new(val))
-            .and_then(downcast_owned)
+        self.0.insert(key.clone(), TypeValue::new(val)).and_then(downcast_owned)
     }
 
-    pub fn remove<T>(&mut self, key: &TypeValueKey) -> Option<T>
-    where
-        T: 'static + Send + Sync,
-    {
-        self.0.remove(key).and_then(downcast_owned)
+    pub fn remove(&mut self, key: &TypeValueKey) {
+        self.0.remove(key);
     }
+
+    // pub fn remove<T, K: AsRef<TypeValueKey>>(&mut self, key: K) -> Option<T>
+    //     where
+    //         T: 'static + Send + Sync,
+    // {
+    //     self.0.remove(key.as_ref()).and_then(downcast_owned)
+    // }
 
     pub fn get<T>(&self, key: &TypeValueKey) -> Option<&T>
     where
@@ -51,10 +56,7 @@ impl AnyTypeCache {
             .and_then(|type_value| type_value.boxed.downcast_mut())
     }
 
-    pub fn contains<T>(&self, key: &TypeValueKey) -> bool
-    where
-        T: 'static + Send + Sync,
-    {
+    pub fn contains(&self, key: &TypeValueKey) -> bool {
         self.0.contains_key(key)
     }
 

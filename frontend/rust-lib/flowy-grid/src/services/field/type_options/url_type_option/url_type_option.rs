@@ -3,7 +3,7 @@ use crate::impl_type_option;
 use crate::services::cell::{CellDataChangeset, CellDataDecoder, FromCellString, TypeCellData};
 use crate::services::field::{
     BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionCellDataFilter,
-    TypeOptionConfiguration, TypeOptionTransform, URLCellData, URLCellDataPB,
+    TypeOptionTransform, URLCellData, URLCellDataPB,
 };
 use bytes::Bytes;
 use fancy_regex::Regex;
@@ -43,10 +43,6 @@ impl TypeOption for URLTypeOptionPB {
 }
 
 impl TypeOptionTransform for URLTypeOptionPB {}
-
-impl TypeOptionConfiguration for URLTypeOptionPB {
-    type CellFilterConfiguration = TextFilterPB;
-}
 
 impl TypeOptionCellData for URLTypeOptionPB {
     fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {

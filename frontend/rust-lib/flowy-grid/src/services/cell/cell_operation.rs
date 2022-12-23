@@ -6,16 +6,6 @@ use grid_rev_model::{CellRevision, FieldRevision};
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
-/// This trait is used when doing filter/search on the grid.
-pub trait CellFilterable: TypeOptionConfiguration {
-    /// Return true if type_cell_data match the filter condition.
-    fn apply_filter(
-        &self,
-        type_cell_data: TypeCellData,
-        filter: &<Self as TypeOptionConfiguration>::CellFilterConfiguration,
-    ) -> FlowyResult<bool>;
-}
-
 pub trait CellComparable {
     type CellData;
     fn apply_cmp(&self, cell_data: &Self::CellData, other_cell_data: &Self::CellData) -> Ordering;
@@ -81,11 +71,12 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
         Err(_) => None,
     });
 
-    let cell_data =
-        match TypeOptionCellExt::new(field_rev, cell_data_cache).get_type_option_cell_data_handler(&field_type) {
-            None => "".to_string(),
-            Some(handler) => handler.handle_cell_changeset(changeset, type_cell_data, field_rev)?,
-        };
+    let cell_data = match TypeOptionCellExt::new_with_cell_data_cache(field_rev, cell_data_cache)
+        .get_type_option_cell_data_handler(&field_type)
+    {
+        None => "".to_string(),
+        Some(handler) => handler.handle_cell_changeset(changeset, type_cell_data, field_rev)?,
+    };
     Ok(TypeCellData::new(cell_data, field_type).to_json())
 }
 
@@ -139,7 +130,9 @@ pub fn try_decode_cell_str(
     field_rev: &FieldRevision,
     cell_data_cache: Option<AtomicCellDataCache>,
 ) -> FlowyResult<CellProtobufBlob> {
-    match TypeOptionCellExt::new(field_rev, cell_data_cache).get_type_option_cell_data_handler(to_field_type) {
+    match TypeOptionCellExt::new_with_cell_data_cache(field_rev, cell_data_cache)
+        .get_type_option_cell_data_handler(to_field_type)
+    {
         None => Ok(CellProtobufBlob::default()),
         Some(handler) => handler.handle_cell_str(cell_str, from_field_type, field_rev),
     }
@@ -155,7 +148,8 @@ pub fn stringify_cell_data(
     to_field_type: &FieldType,
     field_rev: &FieldRevision,
 ) -> String {
-    match TypeOptionCellExt::new(field_rev, None).get_type_option_cell_data_handler(to_field_type) {
+    match TypeOptionCellExt::new_with_cell_data_cache(field_rev, None).get_type_option_cell_data_handler(to_field_type)
+    {
         None => "".to_string(),
         Some(handler) => handler.stringify_cell_str(cell_data, from_field_type, field_rev),
     }

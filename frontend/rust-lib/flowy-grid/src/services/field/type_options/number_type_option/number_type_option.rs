@@ -4,7 +4,7 @@ use crate::services::cell::{CellComparable, CellDataChangeset, CellDataDecoder, 
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{
     BoxTypeOptionBuilder, NumberCellData, StrCellData, TypeOption, TypeOptionBuilder, TypeOptionCellData,
-    TypeOptionCellDataFilter, TypeOptionConfiguration, TypeOptionTransform,
+    TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -78,10 +78,6 @@ impl TypeOption for NumberTypeOptionPB {
     type CellChangeset = NumberCellChangeset;
     type CellProtobufType = StrCellData;
     type CellFilter = NumberFilterPB;
-}
-
-impl TypeOptionConfiguration for NumberTypeOptionPB {
-    type CellFilterConfiguration = NumberFilterPB;
 }
 
 impl TypeOptionCellData for NumberTypeOptionPB {
