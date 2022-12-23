@@ -33,10 +33,12 @@ extension TextNodeExtension on TextNode {
       allSatisfyInSelection(selection, BuiltInAttributeKey.href, (value) {
         return value != null;
       });
+
   bool allSatisfyFontColorInSelection(Selection selection) =>
       allSatisfyInSelection(selection, BuiltInAttributeKey.color, (value) {
         return value != null;
       });
+
   bool allSatisfyBackgroundColorInSelection(Selection selection) =>
       allSatisfyInSelection(selection, BuiltInAttributeKey.backgroundColor,
           (value) {

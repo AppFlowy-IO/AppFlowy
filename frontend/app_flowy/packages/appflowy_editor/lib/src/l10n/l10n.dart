@@ -131,11 +131,11 @@ class AppFlowyEditorLocalizations {
     );
   }
 
-  /// `Emoji`
-  String get emoji {
+  /// `Color`
+  String get color {
     return Intl.message(
-      'Emoji',
-      name: 'emoji',
+      'Color',
+      name: 'color',
       desc: '',
       args: [],
     );

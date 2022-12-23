@@ -22,5 +22,4 @@
     },
     "editor.formatOnSave": true,
     "files.eol": "\n",
-    "cmake.sourceDirectory": "${workspaceFolder}/app_flowy/linux",
 }
