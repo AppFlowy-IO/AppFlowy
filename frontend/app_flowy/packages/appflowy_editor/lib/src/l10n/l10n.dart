@@ -220,6 +220,206 @@ class AppFlowyEditorLocalizations {
       args: [],
     );
   }
+
+  /// `Default`
+  String get fontColorDefault {
+    return Intl.message(
+      'Default',
+      name: 'fontColorDefault',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gray`
+  String get fontColorGray {
+    return Intl.message(
+      'Gray',
+      name: 'fontColorGray',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Brown`
+  String get fontColorBrown {
+    return Intl.message(
+      'Brown',
+      name: 'fontColorBrown',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Orange`
+  String get fontColorOrange {
+    return Intl.message(
+      'Orange',
+      name: 'fontColorOrange',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Yellow`
+  String get fontColorYellow {
+    return Intl.message(
+      'Yellow',
+      name: 'fontColorYellow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Green`
+  String get fontColorGreen {
+    return Intl.message(
+      'Green',
+      name: 'fontColorGreen',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Blue`
+  String get fontColorBlue {
+    return Intl.message(
+      'Blue',
+      name: 'fontColorBlue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Purple`
+  String get fontColorPurple {
+    return Intl.message(
+      'Purple',
+      name: 'fontColorPurple',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pink`
+  String get fontColorPink {
+    return Intl.message(
+      'Pink',
+      name: 'fontColorPink',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Red`
+  String get fontColorRed {
+    return Intl.message(
+      'Red',
+      name: 'fontColorRed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Default background`
+  String get backgroundColorDefault {
+    return Intl.message(
+      'Default background',
+      name: 'backgroundColorDefault',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gray background`
+  String get backgroundColorGray {
+    return Intl.message(
+      'Gray background',
+      name: 'backgroundColorGray',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Brown background`
+  String get backgroundColorBrown {
+    return Intl.message(
+      'Brown background',
+      name: 'backgroundColorBrown',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Orange background`
+  String get backgroundColorOrange {
+    return Intl.message(
+      'Orange background',
+      name: 'backgroundColorOrange',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Yellow background`
+  String get backgroundColorYellow {
+    return Intl.message(
+      'Yellow background',
+      name: 'backgroundColorYellow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Green background`
+  String get backgroundColorGreen {
+    return Intl.message(
+      'Green background',
+      name: 'backgroundColorGreen',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Blue background`
+  String get backgroundColorBlue {
+    return Intl.message(
+      'Blue background',
+      name: 'backgroundColorBlue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Purple background`
+  String get backgroundColorPurple {
+    return Intl.message(
+      'Purple background',
+      name: 'backgroundColorPurple',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pink background`
+  String get backgroundColorPink {
+    return Intl.message(
+      'Pink background',
+      name: 'backgroundColorPink',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Red background`
+  String get backgroundColorRed {
+    return Intl.message(
+      'Red background',
+      name: 'backgroundColorRed',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate

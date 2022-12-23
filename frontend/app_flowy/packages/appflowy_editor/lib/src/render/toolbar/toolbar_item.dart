@@ -4,8 +4,8 @@ import 'package:appflowy_editor/src/extensions/url_launcher_extension.dart';
 import 'package:appflowy_editor/src/flutter/overlay.dart';
 import 'package:appflowy_editor/src/infra/clipboard.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
+import 'package:appflowy_editor/src/render/color_menu/color_picker.dart';
 import 'package:appflowy_editor/src/render/link_menu/link_menu.dart';
-import 'package:appflowy_editor/src/render/color_menu/color_menu.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
 import 'package:appflowy_editor/src/extensions/editor_state_extensions.dart';
 import 'package:appflowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
@@ -255,7 +255,7 @@ List<ToolbarItem> defaultToolbarItems = [
     validator: _showInBuiltInTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
-      BuiltInAttributeKey.color,
+      BuiltInAttributeKey.backgroundColor,
       (value) {
         return value != null && value != '0x00000000'; // transparent color;
       },
@@ -268,17 +268,24 @@ List<ToolbarItem> defaultToolbarItems = [
   ToolbarItem(
     id: 'appflowy.toolbar.color',
     type: 4,
-    tooltipsMessage: AppFlowyEditorLocalizations.current.highlight,
-    iconBuilder: (isHighlight) => FlowySvg(
-      name: 'toolbar/highlight',
-      color: isHighlight ? Colors.lightBlue : null,
+    tooltipsMessage: AppFlowyEditorLocalizations.current.color,
+    iconBuilder: (isHighlight) => Icon(
+      Icons.color_lens_outlined,
+      size: 14,
+      color: isHighlight ? Colors.lightBlue : Colors.white,
     ),
     validator: _showInBuiltInTextSelection,
-    highlightCallback: (editorState) => _allSatisfy(
-      editorState,
-      BuiltInAttributeKey.color,
-      (value) => value != null,
-    ),
+    highlightCallback: (editorState) =>
+        _allSatisfy(
+          editorState,
+          BuiltInAttributeKey.color,
+          (value) => value != null,
+        ) ||
+        _allSatisfy(
+          editorState,
+          BuiltInAttributeKey.backgroundColor,
+          (value) => value != null,
+        ),
     handler: (editorState, context) => showColorMenu(
       context,
       editorState,
@@ -498,56 +505,55 @@ void showColorMenu(
   if (selection == null || node.isEmpty || node.first is! TextNode) {
     return;
   }
-  final index =
-      selection.isBackward ? selection.start.offset : selection.end.offset;
-  final length = (selection.start.offset - selection.end.offset).abs();
   final textNode = node.first as TextNode;
 
-  String? backgroundColor;
+  String? backgroundColorHex;
   if (textNode.allSatisfyBackgroundColorInSelection(selection)) {
-    backgroundColor = textNode.getAttributeInSelection<String>(
+    backgroundColorHex = textNode.getAttributeInSelection<String>(
       selection,
       BuiltInAttributeKey.backgroundColor,
     );
   }
-  String? fontColor;
+  String? fontColorHex;
   if (textNode.allSatisfyFontColorInSelection(selection)) {
-    fontColor = textNode.getAttributeInSelection<String>(
+    fontColorHex = textNode.getAttributeInSelection<String>(
       selection,
       BuiltInAttributeKey.color,
     );
+  } else {
+    fontColorHex = editorState.editorStyle.textStyle?.color?.toHex();
   }
 
+  final style = editorState.editorStyle;
   _colorMenuOverlay = OverlayEntry(builder: (context) {
     return Positioned(
       top: matchRect.bottom + 5.0,
       left: matchRect.left + 10,
       child: Material(
-        child: ColorMenu(
-          backgroundColor: backgroundColor,
-          fontColor: fontColor,
-          editorState: editorState,
-          onSubmittedbackgroundColor: (color) async {
+        color: Colors.transparent,
+        child: ColorPicker(
+          pickerBackgroundColor:
+              style.selectionMenuBackgroundColor ?? Colors.white,
+          pickerItemHoverColor: style.selectionMenuItemSelectedColor ??
+              Colors.blue.withOpacity(0.3),
+          pickerItemTextColor: style.selectionMenuItemTextColor ?? Colors.black,
+          selectedFontColorHex: fontColorHex,
+          selectedBackgroundColorHex: backgroundColorHex,
+          fontColorOptions: _generateFontColorOptions(editorState),
+          backgroundColorOptions: _generateBackgroundColorOptions(editorState),
+          onSubmittedbackgroundColorHex: (color) {
             formatHighlightColor(
               editorState,
               color,
             );
             _dismissColorMenu();
           },
-          onSubmittedFontColor: (color) async {
+          onSubmittedFontColorHex: (color) {
             formatFontColor(
               editorState,
               color,
             );
-
             _dismissColorMenu();
-          },
-          onFocusChange: (value) {
-            if (value && customSelection != null) {
-              _changeSelectionInner = true;
-              editorState.service.selectionService
-                  .updateSelection(customSelection);
-            }
           },
         ),
       ),
@@ -559,4 +565,96 @@ void showColorMenu(
   editorState.service.keyboardService?.disable();
   editorState.service.selectionService.currentSelection
       .addListener(_dismissColorMenu);
+}
+
+List<ColorOption> _generateFontColorOptions(EditorState editorState) {
+  final defaultColor =
+      editorState.editorStyle.textStyle?.color ?? Colors.black; // black
+  return [
+    ColorOption(
+      colorHex: defaultColor.toHex(),
+      name: AppFlowyEditorLocalizations.current.fontColorDefault,
+    ),
+    ColorOption(
+      colorHex: Colors.grey.toHex(),
+      name: AppFlowyEditorLocalizations.current.fontColorGray,
+    ),
+    ColorOption(
+      colorHex: Colors.brown.toHex(),
+      name: AppFlowyEditorLocalizations.current.fontColorBrown,
+    ),
+    ColorOption(
+      colorHex: Colors.yellow.toHex(),
+      name: AppFlowyEditorLocalizations.current.fontColorYellow,
+    ),
+    ColorOption(
+      colorHex: Colors.green.toHex(),
+      name: AppFlowyEditorLocalizations.current.fontColorGreen,
+    ),
+    ColorOption(
+      colorHex: Colors.blue.toHex(),
+      name: AppFlowyEditorLocalizations.current.fontColorBlue,
+    ),
+    ColorOption(
+      colorHex: Colors.purple.toHex(),
+      name: AppFlowyEditorLocalizations.current.fontColorPurple,
+    ),
+    ColorOption(
+      colorHex: Colors.pink.toHex(),
+      name: AppFlowyEditorLocalizations.current.fontColorPink,
+    ),
+    ColorOption(
+      colorHex: Colors.red.toHex(),
+      name: AppFlowyEditorLocalizations.current.fontColorRed,
+    ),
+  ];
+}
+
+List<ColorOption> _generateBackgroundColorOptions(EditorState editorState) {
+  final defaultBackgroundColorHex =
+      editorState.editorStyle.highlightColorHex ?? '0x6000BCF0';
+  return [
+    ColorOption(
+      colorHex: defaultBackgroundColorHex,
+      name: AppFlowyEditorLocalizations.current.fontColorDefault,
+    ),
+    ColorOption(
+      colorHex: Colors.grey.withOpacity(0.3).toHex(),
+      name: AppFlowyEditorLocalizations.current.fontColorGray,
+    ),
+    ColorOption(
+      colorHex: Colors.brown.withOpacity(0.3).toHex(),
+      name: AppFlowyEditorLocalizations.current.fontColorBrown,
+    ),
+    ColorOption(
+      colorHex: Colors.yellow.withOpacity(0.3).toHex(),
+      name: AppFlowyEditorLocalizations.current.fontColorYellow,
+    ),
+    ColorOption(
+      colorHex: Colors.green.withOpacity(0.3).toHex(),
+      name: AppFlowyEditorLocalizations.current.fontColorGreen,
+    ),
+    ColorOption(
+      colorHex: Colors.blue.withOpacity(0.3).toHex(),
+      name: AppFlowyEditorLocalizations.current.fontColorBlue,
+    ),
+    ColorOption(
+      colorHex: Colors.purple.withOpacity(0.3).toHex(),
+      name: AppFlowyEditorLocalizations.current.fontColorPurple,
+    ),
+    ColorOption(
+      colorHex: Colors.pink.withOpacity(0.3).toHex(),
+      name: AppFlowyEditorLocalizations.current.fontColorPink,
+    ),
+    ColorOption(
+      colorHex: Colors.red.withOpacity(0.3).toHex(),
+      name: AppFlowyEditorLocalizations.current.fontColorRed,
+    ),
+  ];
+}
+
+extension on Color {
+  String toHex() {
+    return '0x${value.toRadixString(16)}';
+  }
 }
