@@ -3,6 +3,24 @@ import 'package:flutter/material.dart';
 
 enum ThemeType { official, dandelion }
 
+const String _defaultThemeName = "Default Flowy Theme";
+const String _dandelionCommunityThemeName = 'Dandelion Community Theme';
+
+String _getThemeNameForSaving(ThemeType themeType) {
+  switch (themeType) {
+    case ThemeType.official:
+      return _defaultThemeName;
+    case ThemeType.dandelion:
+      return _dandelionCommunityThemeName;
+    default:
+      throw Exception("Unknown ThemeType");
+  }
+}
+
+extension ThemeTypeExtension on ThemeType {
+  String get name => _getThemeNameForSaving(this);
+}
+
 const List<String> builtInThemes = [
   'light',
 ];

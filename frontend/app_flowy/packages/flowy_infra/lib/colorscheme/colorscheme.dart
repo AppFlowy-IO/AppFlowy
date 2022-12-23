@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-
 import 'default_colorscheme.dart';
 import 'dandelion.dart';
+
+const String _themeName = 'Dandelion Community Theme';
 
 @immutable
 abstract class FlowyColorScheme {
@@ -68,7 +69,7 @@ abstract class FlowyColorScheme {
   });
 
   factory FlowyColorScheme.builtIn(String themeName, Brightness brightness) {
-    if (themeName == 'Dandelion Community Theme') {
+    if (themeName == _themeName) {
       switch (brightness) {
         case Brightness.light:
           return const DandelionColorScheme.light();

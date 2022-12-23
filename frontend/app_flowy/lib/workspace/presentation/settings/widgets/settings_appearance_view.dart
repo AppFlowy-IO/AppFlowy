@@ -47,7 +47,7 @@ class ThemeTypeSetting extends StatelessWidget {
         AppFlowyPopover(
           direction: PopoverDirection.bottomWithRightAligned,
           child: FlowyTextButton(
-            _getThemeName(currentThemeType),
+            _getThemeNameForDisplaying(currentThemeType),
             fillColor: Colors.transparent,
             hoverColor: Theme.of(context).colorScheme.secondary,
             onPressed: () {},
@@ -72,14 +72,12 @@ class ThemeTypeSetting extends StatelessWidget {
     return SizedBox(
       height: 32,
       child: FlowyButton(
-        text: FlowyText.medium(_getThemeName(themeType)),
+        text: FlowyText.medium(_getThemeNameForDisplaying(themeType)),
         rightIcon: currentThemeType == themeType
             ? svgWidget("grid/checkmark")
             : const SizedBox(),
         onTap: () {
-          context
-              .read<AppearanceSettingsCubit>()
-              .setTheme(_getThemeName(themeType));
+          context.read<AppearanceSettingsCubit>().setTheme(themeType.name);
           if (currentThemeType != themeType) {
             context.read<AppearanceSettingsCubit>().setThemeType(themeType);
           }
@@ -88,7 +86,7 @@ class ThemeTypeSetting extends StatelessWidget {
     );
   }
 
-  String _getThemeName(ThemeType themeType) {
+  String _getThemeNameForDisplaying(ThemeType themeType) {
     switch (themeType) {
       case ThemeType.official:
         return LocaleKeys.settings_appearance_themeType_defaultTheme.tr();
@@ -99,54 +97,6 @@ class ThemeTypeSetting extends StatelessWidget {
     }
   }
 }
-
-// class ThemeNameSetting extends StatelessWidget {
-//   const ThemeNameSetting({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         const FlowyText.medium(
-//           "Theme Type",
-//           overflow: TextOverflow.ellipsis,
-//         ),
-//         SizedBox(
-//             height: 500,
-//             child: ListView.builder(
-//               padding: const EdgeInsets.all(2),
-//               itemCount: ThemeType.values.length,
-//               itemBuilder: (context, index) {
-//                 final itemAppTheme = ThemeType.values[index];
-//                 return Card(
-//                   child: ListTile(
-//                     title: FlowyText.regular(
-//                       getThemeName(itemAppTheme),
-//                       overflow: TextOverflow.ellipsis,
-//                     ),
-//                     onTap: () {
-//                       context
-//                           .read<AppearanceSettingsCubit>()
-//                           .setTheme(getThemeName(itemAppTheme));
-//                     },
-//                   ),
-//                 );
-//               },
-//             )),
-//       ],
-//     );
-//   }
-
-//   String getThemeName(ThemeType themeType) {
-//     switch (themeType) {
-//       case ThemeType.official:
-//         return "Default Flowy Theme";
-//       case ThemeType.dandelion:
-//         return "Dandelion Community Theme";
-//     }
-//   }
-// }
 
 class ThemeModeSetting extends StatelessWidget {
   final ThemeMode currentThemeMode;
