@@ -52,15 +52,15 @@ impl TypeOptionCellData for URLTypeOptionPB {
         cell_data.into()
     }
 
-    fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
-        URLCellData::from_cell_str(&cell_data)
+    fn decode_type_option_cell_str(&self, cell_str: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        URLCellData::from_cell_str(&cell_str)
     }
 }
 
 impl CellDataDecoder for URLTypeOptionPB {
-    fn decode_cell_data(
+    fn decode_cell_str(
         &self,
-        cell_data: String,
+        cell_str: String,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<<Self as TypeOption>::CellData> {
@@ -68,7 +68,7 @@ impl CellDataDecoder for URLTypeOptionPB {
             return Ok(Default::default());
         }
 
-        self.decode_type_option_cell_data(cell_data)
+        self.decode_type_option_cell_str(cell_str)
     }
 
     fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {

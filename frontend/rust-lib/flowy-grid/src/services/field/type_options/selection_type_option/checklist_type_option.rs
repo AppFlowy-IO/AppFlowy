@@ -38,8 +38,8 @@ impl TypeOptionCellData for ChecklistTypeOptionPB {
         self.get_selected_options(cell_data)
     }
 
-    fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
-        SelectOptionIds::from_cell_str(&cell_data)
+    fn decode_type_option_cell_str(&self, cell_str: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        SelectOptionIds::from_cell_str(&cell_str)
     }
 }
 
@@ -72,7 +72,7 @@ impl CellDataChangeset for ChecklistTypeOptionPB {
         match type_cell_data {
             None => Ok(SelectOptionIds::from(insert_option_ids)),
             Some(type_cell_data) => {
-                let mut select_ids: SelectOptionIds = type_cell_data.cell_data.into();
+                let mut select_ids: SelectOptionIds = type_cell_data.cell_str.into();
                 for insert_option_id in insert_option_ids {
                     if !select_ids.contains(&insert_option_id) {
                         select_ids.push(insert_option_id);

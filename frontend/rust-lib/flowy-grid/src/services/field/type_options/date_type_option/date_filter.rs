@@ -70,7 +70,7 @@ impl CellFilterable for DateTypeOptionPB {
             return Ok(true);
         }
 
-        let date_cell_data = self.decode_type_option_cell_data(type_cell_data.cell_data)?;
+        let date_cell_data = self.decode_type_option_cell_str(type_cell_data.cell_str)?;
         Ok(filter.is_visible(date_cell_data))
     }
 }

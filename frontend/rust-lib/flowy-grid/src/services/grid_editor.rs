@@ -467,7 +467,7 @@ impl GridRevisionEditor {
             grid_id,
             row_id,
             field_id,
-            mut content,
+            type_cell_data: mut content,
         } = cell_changeset;
 
         match self.grid_pad.read().await.get_field_rev(&field_id) {
@@ -484,7 +484,7 @@ impl GridRevisionEditor {
                     grid_id,
                     row_id: row_id.clone(),
                     field_id: field_id.clone(),
-                    content,
+                    type_cell_data: content,
                 };
                 let _ = self.block_manager.update_cell(cell_changeset).await?;
                 self.view_manager.did_update_cell(&row_id).await;
@@ -505,7 +505,7 @@ impl GridRevisionEditor {
             grid_id,
             row_id,
             field_id,
-            content: content.to_string(),
+            type_cell_data: content.to_string(),
         })
         .await
     }
@@ -654,7 +654,7 @@ impl GridRevisionEditor {
                                     grid_id: view_id.clone(),
                                     row_id: row_changeset.row_id.clone(),
                                     field_id,
-                                    content: cell_rev.type_cell_data,
+                                    type_cell_data: cell_rev.type_cell_data,
                                 })
                                 .collect::<Vec<CellChangesetPB>>();
 

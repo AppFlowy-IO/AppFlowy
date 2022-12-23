@@ -22,7 +22,7 @@ impl CellFilterable for CheckboxTypeOptionPB {
         if !type_cell_data.is_checkbox() {
             return Ok(true);
         }
-        let checkbox_cell_data = self.decode_type_option_cell_data(type_cell_data.cell_data)?;
+        let checkbox_cell_data = self.decode_type_option_cell_str(type_cell_data.cell_str)?;
         Ok(filter.is_visible(&checkbox_cell_data))
     }
 }

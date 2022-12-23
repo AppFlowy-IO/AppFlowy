@@ -163,14 +163,21 @@ async fn grid_switch_from_checkbox_to_select_option_test() {
     let mut test = GridFieldTest::new().await;
     let field_rev = test.get_first_field_rev(FieldType::Checkbox).clone();
     let scripts = vec![
+        // switch to single-select field type
         SwitchToField {
             field_id: field_rev.id.clone(),
             new_field_type: FieldType::SingleSelect,
         },
+        // Assert the cell content after switch the field type. The cell content will be changed if
+        // the FieldType::SingleSelect implement the cell data TypeOptionTransform. Check out the
+        // TypeOptionTransform trait for more information.
+        //
+        // Make sure which cell of the row you want to check.
         AssertCellContent {
             field_id: field_rev.id.clone(),
             // the mock data of the checkbox with row_index one is "true"
             row_index: 1,
+            // the from_field_type represents as the current field type
             from_field_type: FieldType::Checkbox,
             // The content of the checkbox should transform to the corresponding option name.
             expected_content: CHECK.to_string(),
@@ -189,3 +196,36 @@ async fn grid_switch_from_checkbox_to_select_option_test() {
         .iter()
         .any(|option| option.name == CHECK));
 }
+
+// Test when switching the current field from Multi-select to Text test
+// The build-in test data is located in `make_test_grid` method(flowy-grid/tests/grid_editor.rs).
+// input:
+//      option1, option2 -> "option1.name, option2.name"
+#[tokio::test]
+async fn grid_switch_from_multi_select_to_text_test() {}
+
+// Test when switching the current field from Checkbox to Text test
+// input:
+//      check -> "Yes"
+//      unchecked -> ""
+#[tokio::test]
+async fn grid_switch_from_checkbox_to_text_test() {}
+
+// Test when switching the current field from Checkbox to Text test
+// input:
+//      "Yes" -> check
+//      "" -> unchecked
+#[tokio::test]
+async fn grid_switch_from_text_to_checkbox_test() {}
+
+// Test when switching the current field from Date to Text test
+// input:
+//      1647251762 -> Mar 14,2022 (This string will be different base on current data setting)
+#[tokio::test]
+async fn grid_switch_from_date_to_text_test() {}
+
+// Test when switching the current field from Number to Text test
+// input:
+//      $1 -> "$1"(This string will be different base on current data setting)
+#[tokio::test]
+async fn grid_switch_from_number_to_text_test() {}

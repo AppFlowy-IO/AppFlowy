@@ -17,7 +17,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 
 import '../../../layout/sizes.dart';
-import '../../common/text_field.dart';
+import '../../common/type_option_separator.dart';
 import '../../header/type_option/select_option_editor.dart';
 import 'extension.dart';
 import 'text_field.dart';

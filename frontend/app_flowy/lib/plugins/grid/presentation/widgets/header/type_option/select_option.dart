@@ -12,7 +12,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 
 import '../../../layout/sizes.dart';
 import '../../cell/select_option_cell/extension.dart';
-import '../../common/text_field.dart';
+import '../../common/type_option_separator.dart';
 import 'select_option_editor.dart';
 
 class SelectOptionTypeOptionWidget extends StatelessWidget {
@@ -282,7 +282,7 @@ class _CreateOptionTextFieldState extends State<_CreateOptionTextField> {
     return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
       builder: (context, state) {
         final text = state.newOptionName.foldRight("", (a, previous) => a);
-        return InputTextField(
+        return FlowyTextField(
           autoClearWhenDone: true,
           maxLength: 30,
           text: text,
@@ -292,7 +292,8 @@ class _CreateOptionTextFieldState extends State<_CreateOptionTextField> {
                 .read<SelectOptionTypeOptionBloc>()
                 .add(const SelectOptionTypeOptionEvent.endAddingOption());
           },
-          onDone: (optionName) {
+          onEditingComplete: () {},
+          onSubmitted: (optionName) {
             context
                 .read<SelectOptionTypeOptionBloc>()
                 .add(SelectOptionTypeOptionEvent.createOption(optionName));

@@ -191,7 +191,7 @@ class CreateFolderWidgetState extends State<CreateFolderWidget> {
         ),
         Card(
           child: ListTile(
-            title: FlowyText.medium(LocaleKeys.settings_files_location.tr()),
+            title: FlowyText.medium(LocaleKeys.settings_files_folderPath.tr()),
             subtitle: FlowyText.regular(_path),
             trailing: _buildTextButton(
                 context, LocaleKeys.settings_files_browser.tr(), () async {
@@ -205,7 +205,8 @@ class CreateFolderWidgetState extends State<CreateFolderWidget> {
           ),
         ),
         Card(
-          child: _buildTextButton(context, 'create', () async {
+          child: _buildTextButton(
+              context, LocaleKeys.settings_files_create.tr(), () async {
             if (_path.isEmpty) {
               _showToast(LocaleKeys.settings_files_locationCannotBeEmpty.tr());
             } else {

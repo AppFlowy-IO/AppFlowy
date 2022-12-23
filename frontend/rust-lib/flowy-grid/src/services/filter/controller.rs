@@ -363,7 +363,7 @@ fn filter_cell(
             }
         },
     };
-    let cloned_type_cell_data = type_cell_data.cell_data.clone();
+    let cloned_type_cell_data = type_cell_data.cell_str.clone();
     let is_visible = match &filter_id.field_type {
         FieldType::RichText => filter_map.text_filter.get(filter_id).and_then(|filter| {
             Some(

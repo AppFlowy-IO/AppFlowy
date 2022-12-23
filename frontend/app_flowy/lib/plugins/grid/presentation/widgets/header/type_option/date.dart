@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import '../../../layout/sizes.dart';
-import '../../common/text_field.dart';
+import '../../common/type_option_separator.dart';
 import '../field_type_option_editor.dart';
 import 'builder.dart';
 

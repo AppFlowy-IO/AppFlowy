@@ -4,7 +4,7 @@
   "welcomeText": "Welcome to @:appName",
   "githubStarText": "Star on GitHub",
   "subscribeNewsletterText": "Subscribe to Newsletter",
-  "letsGoButtonText": "Let's Go",
+  "letsGoButtonText": "Quick Start",
   "title": "Title",
   "signUp": {
     "buttonText": "Sign Up",
@@ -167,24 +167,25 @@
       }
     },
     "files": {
-      "defaultLocation": "Default location for new notes",
+      "defaultLocation": "Where your data is stored now",
       "doubleTapToCopy": "Double tap to copy the path",
-      "restoreLocation": "Restore to default location",
-      "customizeLocation": "Customize location",
+      "restoreLocation": "Restore to AppFlowy default path",
+      "customizeLocation": "Open another folder",
       "restartApp": "Please restart app for the changes to take effect.",
       "exportDatabase": "Export databae",
       "selectFiles": "Select the files that need to be export",
       "createNewFolder": "Create a new folder",
-      "createNewFolderDesc": "Create a new folder ...",
+      "createNewFolderDesc": "Tell us where you want to store your data ...",
       "open": "Open",
-      "openFolder": "Open folder",
-      "openFolderDesc": "Open folder ...",
+      "openFolder": "Open an existing folder",
+      "openFolderDesc": "Read and write it to your existing AppFlowy folder ...",
       "folderHintText": "folder name",
-      "location": "Location",
-      "locationDesc": "Pick a name for your location",
-      "browser": "Browser",
-      "create": "create",
-      "locationCannotBeEmpty": "Location cannot be empty"
+      "location": "Creating a new folder",
+      "locationDesc": "Pick a name for your AppFlowy data folder",
+      "browser": "Browse",
+      "create": "Create",
+      "folderPath": "Path to store your folder",
+      "locationCannotBeEmpty": "Path cannot be empty"
     }
   },
   "grid": {

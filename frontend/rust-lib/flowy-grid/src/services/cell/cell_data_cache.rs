@@ -79,7 +79,7 @@ impl CellDataCacheKeyCal {
     pub fn new(field_rev: &FieldRevision, decoded_field_type: &FieldType, cell_str: &str) -> u64 {
         let mut hasher = DefaultHasher::new();
         hasher.write(field_rev.id.as_bytes());
-        hasher.write_u8(decoded_field_type as u8);
+        hasher.write_u8(decoded_field_type.clone() as u8);
         hasher.write(cell_str.as_bytes());
         hasher.finish()
     }
