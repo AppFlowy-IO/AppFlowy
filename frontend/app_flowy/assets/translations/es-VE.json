@@ -90,7 +90,8 @@
     "inlineCode": "Código embebido",
     "quote": "Cita",
     "header": "Título",
-    "highlight": "Resaltado"
+    "highlight": "Resaltado",
+    "color": "Color"
   },
   "tooltip": {
     "lightMode": "Cambiar a modo Claro",

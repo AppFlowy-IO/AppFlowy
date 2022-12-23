@@ -96,7 +96,8 @@
     "inlineCode": "Inline Code",
     "quote": "Quote Block",
     "header": "Header",
-    "highlight": "Highlight"
+    "highlight": "Highlight",
+    "color": "Color"
   },
   "tooltip": {
     "lightMode": "Switch to Light mode",
