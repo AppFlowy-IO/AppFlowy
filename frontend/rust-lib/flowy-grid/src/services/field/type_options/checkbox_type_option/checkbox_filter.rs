@@ -1,6 +1,9 @@
 use crate::entities::{CheckboxFilterConditionPB, CheckboxFilterPB};
 use crate::services::cell::{CellFilterable, TypeCellData};
-use crate::services::field::{CheckboxCellData, CheckboxTypeOptionPB, TypeOptionCellData, TypeOptionConfiguration};
+use crate::services::field::{
+    CheckboxCellData, CheckboxTypeOptionPB, TypeOption, TypeOptionCellData, TypeOptionCellDataFilter,
+    TypeOptionConfiguration,
+};
 use flowy_error::FlowyResult;
 
 impl CheckboxFilterPB {
@@ -12,7 +15,6 @@ impl CheckboxFilterPB {
         }
     }
 }
-
 impl CellFilterable for CheckboxTypeOptionPB {
     fn apply_filter(
         &self,

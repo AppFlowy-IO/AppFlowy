@@ -4,7 +4,8 @@ use crate::services::cell::{CellDataChangeset, FromCellString, TypeCellData};
 
 use crate::services::field::{
     BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds, SelectOptionPB,
-    SelectTypeOptionSharedAction, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
+    SelectTypeOptionSharedAction, SelectedSelectOptions, TypeOption, TypeOptionBuilder, TypeOptionCellData,
+    TypeOptionCellDataFilter, TypeOptionConfiguration,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -27,6 +28,7 @@ impl TypeOption for ChecklistTypeOptionPB {
     type CellData = SelectOptionIds;
     type CellChangeset = SelectOptionCellChangeset;
     type CellProtobufType = SelectOptionCellDataPB;
+    type CellFilter = ChecklistFilterPB;
 }
 
 impl TypeOptionConfiguration for ChecklistTypeOptionPB {
@@ -86,6 +88,20 @@ impl CellDataChangeset for ChecklistTypeOptionPB {
                 Ok(select_ids)
             }
         }
+    }
+}
+impl TypeOptionCellDataFilter for ChecklistTypeOptionPB {
+    fn apply_filter2(
+        &self,
+        filter: &<Self as TypeOption>::CellFilter,
+        field_type: &FieldType,
+        cell_data: &<Self as TypeOption>::CellData,
+    ) -> bool {
+        if !field_type.is_check_list() {
+            return true;
+        }
+        let selected_options = SelectedSelectOptions::from(self.get_selected_options(cell_data.clone()));
+        filter.is_visible(&self.options, &selected_options)
     }
 }
 

@@ -5,8 +5,8 @@ use crate::services::cell::{
     FromCellString, TypeCellData,
 };
 use crate::services::field::{
-    BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
-    TypeOptionTransform,
+    BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionCellDataFilter,
+    TypeOptionConfiguration, TypeOptionTransform,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -45,6 +45,7 @@ impl TypeOption for RichTextTypeOptionPB {
     type CellData = StrCellData;
     type CellChangeset = String;
     type CellProtobufType = StrCellData;
+    type CellFilter = TextFilterPB;
 }
 
 impl TypeOptionTransform for RichTextTypeOptionPB {}
@@ -109,6 +110,20 @@ impl CellComparable for RichTextTypeOptionPB {
     }
 }
 
+impl TypeOptionCellDataFilter for RichTextTypeOptionPB {
+    fn apply_filter2(
+        &self,
+        filter: &<Self as TypeOption>::CellFilter,
+        field_type: &FieldType,
+        cell_data: &<Self as TypeOption>::CellData,
+    ) -> bool {
+        if !field_type.is_text() {
+            return false;
+        }
+
+        filter.is_visible(cell_data)
+    }
+}
 #[derive(Clone)]
 pub struct TextCellData(pub String);
 impl AsRef<str> for TextCellData {

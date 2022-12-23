@@ -3,7 +3,7 @@ use crate::impl_type_option;
 use crate::services::cell::{CellDataChangeset, CellDataDecoder, FromCellString, TypeCellData};
 use crate::services::field::{
     BoxTypeOptionBuilder, DateCellChangeset, DateCellData, DateCellDataPB, DateFormat, TimeFormat, TypeOption,
-    TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration, TypeOptionTransform,
+    TypeOptionBuilder, TypeOptionCellData, TypeOptionCellDataFilter, TypeOptionConfiguration, TypeOptionTransform,
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
@@ -31,6 +31,7 @@ impl TypeOption for DateTypeOptionPB {
     type CellData = DateCellData;
     type CellChangeset = DateCellChangeset;
     type CellProtobufType = DateCellDataPB;
+    type CellFilter = DateFilterPB;
 }
 
 impl TypeOptionConfiguration for DateTypeOptionPB {
@@ -174,6 +175,21 @@ impl CellDataChangeset for DateTypeOptionPB {
         };
 
         Ok(DateCellData(Some(cell_data)))
+    }
+}
+
+impl TypeOptionCellDataFilter for DateTypeOptionPB {
+    fn apply_filter2(
+        &self,
+        filter: &<Self as TypeOption>::CellFilter,
+        field_type: &FieldType,
+        cell_data: &<Self as TypeOption>::CellData,
+    ) -> bool {
+        if !field_type.is_date() {
+            return true;
+        }
+
+        filter.is_visible(cell_data.0)
     }
 }
 

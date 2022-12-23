@@ -1,21 +1,18 @@
 use crate::entities::FieldType;
 use crate::services::cell::{
-    AtomicCellDataCache, CellDataCache, CellDataCacheKeyCal, CellDataChangeset, CellDataDecoder, CellProtobufBlob,
-    FromCellChangeset, FromCellString, TypeCellData,
+    AnyTypeCache, AtomicCellDataCache, CellDataChangeset, CellDataDecoder, CellProtobufBlob, FromCellChangeset,
+    FromCellString, TypeCellData,
 };
-use crate::services::field::{
-    CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, MultiSelectTypeOptionPB, NumberTypeOptionPB,
-    RichTextTypeOptionPB, SingleSelectTypeOptionPB, URLTypeOptionPB,
-};
+
+use crate::services::filter::FromFilterString;
 use bytes::Bytes;
-use dashmap::DashMap;
+
 use flowy_error::FlowyResult;
-use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
-use lazy_static::lazy_static;
+use grid_rev_model::FieldRevision;
+
 use protobuf::ProtobufError;
 use std::cmp::Ordering;
 use std::fmt::Debug;
-use std::sync::Arc;
 
 pub trait TypeOption {
     /// `CellData` represents as the decoded model for current type option. Each of them impl the
@@ -44,6 +41,9 @@ pub trait TypeOption {
     ///     FieldType::URL => URLCellDataPB
     ///
     type CellProtobufType: TryInto<Bytes, Error = ProtobufError> + Debug;
+
+    /// Represents as the filter configuration for this type option.
+    type CellFilter: FromFilterString;
 }
 
 pub trait TypeOptionCellData: TypeOption {
@@ -58,18 +58,6 @@ pub trait TypeOptionCellData: TypeOption {
     // data can not directly show to user. So it needs to be encode as the date string with custom
     // format setting. Encode `1647251762` to `"Mar 14,2022`
     fn decode_type_option_cell_str(&self, cell_str: String) -> FlowyResult<<Self as TypeOption>::CellData>;
-}
-
-pub trait TypeOptionCellDataComparable: TypeOption {
-    fn apply_cmp(
-        &self,
-        cell_data: &<Self as TypeOption>::CellData,
-        other_cell_data: &<Self as TypeOption>::CellData,
-    ) -> Ordering;
-}
-
-pub trait TypeOptionConfiguration {
-    type CellFilterConfiguration;
 }
 
 pub trait TypeOptionTransform: TypeOption {
@@ -108,4 +96,25 @@ pub trait TypeOptionTransform: TypeOption {
     ) -> Option<<Self as TypeOption>::CellData> {
         None
     }
+}
+
+pub trait TypeOptionCellDataFilter: TypeOption + CellDataDecoder {
+    fn apply_filter2(
+        &self,
+        filter: &<Self as TypeOption>::CellFilter,
+        field_type: &FieldType,
+        cell_data: &<Self as TypeOption>::CellData,
+    ) -> bool;
+}
+
+pub trait TypeOptionConfiguration {
+    type CellFilterConfiguration;
+}
+
+pub trait TypeOptionCellDataComparable: TypeOption {
+    fn apply_cmp(
+        &self,
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering;
 }

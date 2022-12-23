@@ -2,8 +2,8 @@ use crate::entities::{FieldType, TextFilterPB};
 use crate::impl_type_option;
 use crate::services::cell::{CellDataChangeset, CellDataDecoder, FromCellString, TypeCellData};
 use crate::services::field::{
-    BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
-    TypeOptionTransform, URLCellData, URLCellDataPB,
+    BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionCellDataFilter,
+    TypeOptionConfiguration, TypeOptionTransform, URLCellData, URLCellDataPB,
 };
 use bytes::Bytes;
 use fancy_regex::Regex;
@@ -39,6 +39,7 @@ impl TypeOption for URLTypeOptionPB {
     type CellData = URLCellData;
     type CellChangeset = URLCellChangeset;
     type CellProtobufType = URLCellDataPB;
+    type CellFilter = TextFilterPB;
 }
 
 impl TypeOptionTransform for URLTypeOptionPB {}
@@ -92,6 +93,21 @@ impl CellDataChangeset for URLTypeOptionPB {
             url,
             content: changeset,
         })
+    }
+}
+
+impl TypeOptionCellDataFilter for URLTypeOptionPB {
+    fn apply_filter2(
+        &self,
+        filter: &<Self as TypeOption>::CellFilter,
+        field_type: &FieldType,
+        cell_data: &<Self as TypeOption>::CellData,
+    ) -> bool {
+        if !field_type.is_url() {
+            return true;
+        }
+
+        filter.is_visible(&cell_data)
     }
 }
 

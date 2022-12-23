@@ -1,11 +1,10 @@
 use crate::entities::FieldType;
-use crate::services::cell::{AtomicCellDataCache, CellDataCache, CellProtobufBlob, TypeCellData};
+use crate::services::cell::{AtomicCellDataCache, CellProtobufBlob, TypeCellData};
 use crate::services::field::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision};
 use std::cmp::Ordering;
 use std::fmt::Debug;
-use std::sync::Arc;
 
 /// This trait is used when doing filter/search on the grid.
 pub trait CellFilterable: TypeOptionConfiguration {
@@ -83,7 +82,7 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
     });
 
     let cell_data =
-        match TypeOptionCellDataExt::new(field_rev, cell_data_cache).get_type_option_cell_data_handler(&field_type) {
+        match TypeOptionCellExt::new(field_rev, cell_data_cache).get_type_option_cell_data_handler(&field_type) {
             None => "".to_string(),
             Some(handler) => handler.handle_cell_changeset(changeset, type_cell_data, field_rev)?,
         };
@@ -140,7 +139,7 @@ pub fn try_decode_cell_str(
     field_rev: &FieldRevision,
     cell_data_cache: Option<AtomicCellDataCache>,
 ) -> FlowyResult<CellProtobufBlob> {
-    match TypeOptionCellDataExt::new(field_rev, cell_data_cache).get_type_option_cell_data_handler(to_field_type) {
+    match TypeOptionCellExt::new(field_rev, cell_data_cache).get_type_option_cell_data_handler(to_field_type) {
         None => Ok(CellProtobufBlob::default()),
         Some(handler) => handler.handle_cell_str(cell_str, from_field_type, field_rev),
     }
@@ -156,7 +155,7 @@ pub fn stringify_cell_data(
     to_field_type: &FieldType,
     field_rev: &FieldRevision,
 ) -> String {
-    match TypeOptionCellDataExt::new(field_rev, None).get_type_option_cell_data_handler(to_field_type) {
+    match TypeOptionCellExt::new(field_rev, None).get_type_option_cell_data_handler(to_field_type) {
         None => "".to_string(),
         Some(handler) => handler.stringify_cell_str(cell_data, from_field_type, field_rev),
     }

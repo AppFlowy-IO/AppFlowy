@@ -2,8 +2,8 @@ use crate::entities::{CheckboxFilterPB, FieldType};
 use crate::impl_type_option;
 use crate::services::cell::{CellDataChangeset, CellDataDecoder, FromCellString, TypeCellData};
 use crate::services::field::{
-    BoxTypeOptionBuilder, CheckboxCellData, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
-    TypeOptionTransform,
+    BoxTypeOptionBuilder, CheckboxCellData, TypeOption, TypeOptionBuilder, TypeOptionCellData,
+    TypeOptionCellDataFilter, TypeOptionConfiguration, TypeOptionTransform,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -45,6 +45,7 @@ impl TypeOption for CheckboxTypeOptionPB {
     type CellData = CheckboxCellData;
     type CellChangeset = CheckboxCellChangeset;
     type CellProtobufType = CheckboxCellData;
+    type CellFilter = CheckboxFilterPB;
 }
 
 impl TypeOptionTransform for CheckboxTypeOptionPB {}
@@ -92,5 +93,19 @@ impl CellDataChangeset for CheckboxTypeOptionPB {
     ) -> FlowyResult<<Self as TypeOption>::CellData> {
         let checkbox_cell_data = CheckboxCellData::from_str(&changeset)?;
         Ok(checkbox_cell_data)
+    }
+}
+
+impl TypeOptionCellDataFilter for CheckboxTypeOptionPB {
+    fn apply_filter2(
+        &self,
+        filter: &<Self as TypeOption>::CellFilter,
+        field_type: &FieldType,
+        cell_data: &<Self as TypeOption>::CellData,
+    ) -> bool {
+        if !field_type.is_checkbox() {
+            return true;
+        }
+        filter.is_visible(cell_data)
     }
 }

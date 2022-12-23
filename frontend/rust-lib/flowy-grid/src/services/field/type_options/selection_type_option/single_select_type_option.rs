@@ -3,8 +3,8 @@ use crate::impl_type_option;
 use crate::services::cell::{CellDataChangeset, FromCellString, TypeCellData};
 
 use crate::services::field::{
-    BoxTypeOptionBuilder, SelectOptionCellDataPB, TypeOption, TypeOptionBuilder, TypeOptionCellData,
-    TypeOptionConfiguration,
+    BoxTypeOptionBuilder, SelectOptionCellDataPB, SelectedSelectOptions, TypeOption, TypeOptionBuilder,
+    TypeOptionCellData, TypeOptionCellDataFilter, TypeOptionConfiguration,
 };
 use crate::services::field::{
     SelectOptionCellChangeset, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction,
@@ -30,6 +30,7 @@ impl TypeOption for SingleSelectTypeOptionPB {
     type CellData = SelectOptionIds;
     type CellChangeset = SelectOptionCellChangeset;
     type CellProtobufType = SelectOptionCellDataPB;
+    type CellFilter = SelectOptionFilterPB;
 }
 
 impl TypeOptionConfiguration for SingleSelectTypeOptionPB {
@@ -85,6 +86,20 @@ impl CellDataChangeset for SingleSelectTypeOptionPB {
     }
 }
 
+impl TypeOptionCellDataFilter for SingleSelectTypeOptionPB {
+    fn apply_filter2(
+        &self,
+        filter: &<Self as TypeOption>::CellFilter,
+        field_type: &FieldType,
+        cell_data: &<Self as TypeOption>::CellData,
+    ) -> bool {
+        if !field_type.is_single_select() {
+            return true;
+        }
+        let selected_options = SelectedSelectOptions::from(self.get_selected_options(cell_data.clone()));
+        filter.is_visible(&selected_options, FieldType::SingleSelect)
+    }
+}
 #[derive(Default)]
 pub struct SingleSelectTypeOptionBuilder(SingleSelectTypeOptionPB);
 impl_into_box_type_option_builder!(SingleSelectTypeOptionBuilder);

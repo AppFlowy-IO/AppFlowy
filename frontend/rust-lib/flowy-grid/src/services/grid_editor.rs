@@ -4,7 +4,7 @@ use crate::entities::*;
 use crate::manager::GridUser;
 use crate::services::block_manager::GridBlockManager;
 use crate::services::cell::{
-    apply_cell_data_changeset, decode_type_cell_data, AtomicCellDataCache, CellDataCache, CellProtobufBlob,
+    apply_cell_data_changeset, decode_type_cell_data, AnyTypeCache, AtomicCellDataCache, CellProtobufBlob,
 };
 use crate::services::field::{
     default_type_option_builder_from_type, transform_type_option, type_option_builder_from_bytes, FieldBuilder,
@@ -63,7 +63,7 @@ impl GridRevisionEditor {
         let grid_pad = rev_manager.initialize::<GridRevisionSerde>(Some(cloud)).await?;
         let rev_manager = Arc::new(rev_manager);
         let grid_pad = Arc::new(RwLock::new(grid_pad));
-        let cell_data_cache = CellDataCache::new();
+        let cell_data_cache = AnyTypeCache::new();
 
         // Block manager
         let (block_event_tx, block_event_rx) = broadcast::channel(100);

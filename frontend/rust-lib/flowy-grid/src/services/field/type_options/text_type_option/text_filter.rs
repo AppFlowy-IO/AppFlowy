@@ -1,6 +1,8 @@
 use crate::entities::{TextFilterConditionPB, TextFilterPB};
 use crate::services::cell::{CellFilterable, TypeCellData};
-use crate::services::field::{RichTextTypeOptionPB, TypeOptionCellData, TypeOptionConfiguration};
+use crate::services::field::{
+    RichTextTypeOptionPB, TypeOption, TypeOptionCellData, TypeOptionCellDataFilter, TypeOptionConfiguration,
+};
 use flowy_error::FlowyResult;
 
 impl TextFilterPB {

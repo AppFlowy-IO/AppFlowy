@@ -24,6 +24,12 @@ pub trait FilterDelegate: Send + Sync + 'static {
     fn get_row_rev(&self, rows_id: &str) -> Fut<Option<(usize, Arc<RowRevision>)>>;
 }
 
+pub trait FromFilterString {
+    fn from_filter_rev(filter_rev: &FilterRevision) -> Self
+    where
+        Self: Sized;
+}
+
 pub struct FilterController {
     view_id: String,
     handler_id: String,

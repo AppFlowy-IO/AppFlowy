@@ -1,5 +1,7 @@
 use crate::services::cell::{CellFilterable, TypeCellData};
-use crate::services::field::{TypeOptionCellData, TypeOptionConfiguration, URLTypeOptionPB};
+use crate::services::field::{
+    TypeOption, TypeOptionCellData, TypeOptionCellDataFilter, TypeOptionConfiguration, URLTypeOptionPB,
+};
 use flowy_error::FlowyResult;
 
 impl CellFilterable for URLTypeOptionPB {
