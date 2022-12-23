@@ -58,7 +58,7 @@ pub trait CellDataChangeset: TypeOption {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<String>;
+    ) -> FlowyResult<<Self as TypeOption>::CellData>;
 }
 
 /// changeset: It will be deserialized into specific data base on the FieldType.

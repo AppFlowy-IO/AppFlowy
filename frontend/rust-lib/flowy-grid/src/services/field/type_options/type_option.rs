@@ -1,7 +1,7 @@
 use crate::entities::FieldType;
 use crate::services::cell::{
-    AtomicCellDataCache, CellDataCache, CellDataChangeset, CellDataDecoder, CellProtobufBlob, FromCellChangeset,
-    FromCellString, TypeCellData,
+    AtomicCellDataCache, CellDataCache, CellDataCacheKeyCal, CellDataChangeset, CellDataDecoder, CellProtobufBlob,
+    FromCellChangeset, FromCellString, TypeCellData,
 };
 use crate::services::field::{
     CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, MultiSelectTypeOptionPB, NumberTypeOptionPB,
@@ -28,7 +28,7 @@ pub trait TypeOption {
     ///
     /// Uses `StrCellData` for any `TypeOption` if their cell data is pure `String`.
     ///
-    type CellData: FromCellString + Default;
+    type CellData: FromCellString + ToString + Default + Send + Sync + Clone + 'static;
 
     /// Represents as the corresponding field type cell changeset.
     /// The changeset must implements the `FromCellChangeset` trait. The `CellChangeset` is implemented
@@ -167,8 +167,35 @@ impl<T> TypeOptionCellDataHandlerImpl<T> {
     pub fn new(inner: T, cell_data_cache: Option<AtomicCellDataCache>) -> Self {
         Self { inner, cell_data_cache }
     }
-
     // pub fn get_cache_cell_data(&self, field_rev: )
+}
+
+impl<T> TypeOptionCellDataHandlerImpl<T>
+where
+    T: TypeOption + CellDataDecoder,
+{
+    fn get_decoded_cell_data(
+        &self,
+        field_rev: &FieldRevision,
+        decoded_field_type: &FieldType,
+        cell_str: &str,
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
+        if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
+            let key = CellDataCacheKeyCal::new(field_rev, decoded_field_type, cell_str);
+            let read_guard = cell_data_cache.read();
+            let cell_data = read_guard.get(&key).cloned();
+            if cell_data.is_some() {
+                return Ok(cell_data.unwrap());
+            }
+        }
+
+        // self.decode_cell_data()
+        todo!()
+    }
+
+    fn set_decoded_cell_data(&self, cell_data: <Self as TypeOption>::CellData, field_rev: &FieldRevision) {
+        todo!()
+    }
 }
 
 impl<T> std::ops::Deref for TypeOptionCellDataHandlerImpl<T> {
@@ -217,7 +244,7 @@ where
     ) -> FlowyResult<String> {
         let changeset = <Self as TypeOption>::CellChangeset::from_changeset(cell_changeset)?;
         let cell_data = self.apply_changeset(changeset, old_type_cell_data)?;
-        Ok(cell_data)
+        Ok(cell_data.to_string())
     }
 
     fn handle_cell_cmp(&self, left_cell_data: &str, right_cell_data: &str, field_rev: &FieldRevision) -> Ordering {

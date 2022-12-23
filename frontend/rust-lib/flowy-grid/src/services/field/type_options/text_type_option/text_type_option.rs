@@ -92,11 +92,11 @@ impl CellDataChangeset for RichTextTypeOptionPB {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         _type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<String> {
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
         if changeset.len() > 10000 {
             Err(FlowyError::text_too_long().context("The len of the text should not be more than 10000"))
         } else {
-            Ok(changeset)
+            Ok(StrCellData(changeset))
         }
     }
 }
@@ -109,6 +109,7 @@ impl CellComparable for RichTextTypeOptionPB {
     }
 }
 
+#[derive(Clone)]
 pub struct TextCellData(pub String);
 impl AsRef<str> for TextCellData {
     fn as_ref(&self) -> &str {
@@ -158,7 +159,7 @@ impl CellProtobufBlobParser for TextCellDataParser {
     }
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct StrCellData(pub String);
 impl std::ops::Deref for StrCellData {
     type Target = String;

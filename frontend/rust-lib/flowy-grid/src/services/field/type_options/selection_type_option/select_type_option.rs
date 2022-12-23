@@ -252,7 +252,7 @@ pub fn new_select_option_color(options: &Vec<SelectOptionPB>) -> SelectOptionCol
 /// Calls [to_string] will return a string consists list of ids,
 /// placing a commas separator between each
 ///
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct SelectOptionIds(Vec<String>);
 
 impl SelectOptionIds {

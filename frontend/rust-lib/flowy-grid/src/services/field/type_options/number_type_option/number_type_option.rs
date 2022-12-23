@@ -158,10 +158,10 @@ impl CellDataChangeset for NumberTypeOptionPB {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         _type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<String> {
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
         let data = changeset.trim().to_string();
         let _ = self.format_cell_data(&data)?;
-        Ok(data)
+        Ok(StrCellData(data))
     }
 }
 impl CellComparable for NumberTypeOptionPB {

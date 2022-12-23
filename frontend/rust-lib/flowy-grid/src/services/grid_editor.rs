@@ -63,7 +63,7 @@ impl GridRevisionEditor {
         let grid_pad = rev_manager.initialize::<GridRevisionSerde>(Some(cloud)).await?;
         let rev_manager = Arc::new(rev_manager);
         let grid_pad = Arc::new(RwLock::new(grid_pad));
-        let cell_data_cache = Arc::new(CellDataCache::new());
+        let cell_data_cache = CellDataCache::new();
 
         // Block manager
         let (block_event_tx, block_event_rx) = broadcast::channel(100);

@@ -1,22 +1,26 @@
 use crate::entities::FieldType;
+use grid_rev_model::FieldRevision;
+use parking_lot::RwLock;
 use std::any::{type_name, Any, TypeId};
+use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
 use std::fmt;
 use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 
-pub type AtomicCellDataCache = Arc<CellDataCache>;
+pub type AtomicCellDataCache = Arc<RwLock<CellDataCache>>;
+pub type CellDataCacheKey = u64;
 
 #[derive(Default, Debug)]
-pub struct CellDataCache(HashMap<String, TypeValue>);
+pub struct CellDataCache(HashMap<CellDataCacheKey, TypeValue>);
 
 impl CellDataCache {
-    pub fn new() -> CellDataCache {
-        CellDataCache(HashMap::default())
+    pub fn new() -> AtomicCellDataCache {
+        Arc::new(RwLock::new(CellDataCache(HashMap::default())))
     }
 
-    pub fn insert<T>(&mut self, key: &str, val: T) -> Option<T>
+    pub fn insert<T>(&mut self, key: &CellDataCacheKey, val: T) -> Option<T>
     where
         T: 'static + Send + Sync,
     {
@@ -25,21 +29,21 @@ impl CellDataCache {
             .and_then(downcast_owned)
     }
 
-    pub fn remove<T>(&mut self, key: &str) -> Option<T>
+    pub fn remove<T>(&mut self, key: &CellDataCacheKey) -> Option<T>
     where
         T: 'static + Send + Sync,
     {
         self.0.remove(key).and_then(downcast_owned)
     }
 
-    pub fn get<T>(&self, key: &str) -> Option<&T>
+    pub fn get<T>(&self, key: &CellDataCacheKey) -> Option<&T>
     where
         T: 'static + Send + Sync,
     {
         self.0.get(key).and_then(|type_value| type_value.boxed.downcast_ref())
     }
 
-    pub fn get_mut<T>(&mut self, key: &str) -> Option<&mut T>
+    pub fn get_mut<T>(&mut self, key: &CellDataCacheKey) -> Option<&mut T>
     where
         T: 'static + Send + Sync,
     {
@@ -48,7 +52,7 @@ impl CellDataCache {
             .and_then(|type_value| type_value.boxed.downcast_mut())
     }
 
-    pub fn contains<T>(&self, key: &str) -> bool
+    pub fn contains<T>(&self, key: &CellDataCacheKey) -> bool
     where
         T: 'static + Send + Sync,
     {
@@ -70,10 +74,14 @@ struct TypeValue {
     ty: &'static str,
 }
 
-pub struct CellDataCacheKey();
-impl CellDataCacheKey {
-    pub fn new(field_id: &str, field_type: &FieldType, cell_str: &str) -> String {
-        todo!()
+pub struct CellDataCacheKeyCal();
+impl CellDataCacheKeyCal {
+    pub fn new(field_rev: &FieldRevision, decoded_field_type: &FieldType, cell_str: &str) -> u64 {
+        let mut hasher = DefaultHasher::new();
+        hasher.write(field_rev.id.as_bytes());
+        hasher.write_u8(decoded_field_type as u8);
+        hasher.write(cell_str.as_bytes());
+        hasher.finish()
     }
 }
 
@@ -103,20 +111,20 @@ impl std::ops::DerefMut for TypeValue {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::services::cell::CellDataCache;
-
-    #[test]
-    fn test() {
-        let mut ext = CellDataCache::new();
-        ext.insert("1", "a".to_string());
-        ext.insert("2", 2);
-
-        let a: &String = ext.get("1").unwrap();
-        assert_eq!(a, "a");
-
-        let a: Option<&usize> = ext.get("1");
-        assert!(a.is_none());
-    }
-}
+// #[cfg(test)]
+// mod tests {
+//     use crate::services::cell::CellDataCache;
+//
+//     #[test]
+//     fn test() {
+//         let mut ext = CellDataCache::new();
+//         ext.insert("1", "a".to_string());
+//         ext.insert("2", 2);
+//
+//         let a: &String = ext.get("1").unwrap();
+//         assert_eq!(a, "a");
+//
+//         let a: Option<&usize> = ext.get("1");
+//         assert!(a.is_none());
+//     }
+// }

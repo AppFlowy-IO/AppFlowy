@@ -89,8 +89,8 @@ impl CellDataChangeset for CheckboxTypeOptionPB {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         _type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<String> {
-        let cell_data = CheckboxCellData::from_str(&changeset)?;
-        Ok(cell_data.to_string())
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
+        let checkbox_cell_data = CheckboxCellData::from_str(&changeset)?;
+        Ok(checkbox_cell_data)
     }
 }
