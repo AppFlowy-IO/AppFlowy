@@ -174,12 +174,6 @@ bool formatHighlight(EditorState editorState, String colorHex) {
 }
 
 bool formatHighlightColor(EditorState editorState, String colorHex) {
-  bool value = _allSatisfyInSelection(
-    editorState,
-    BuiltInAttributeKey.backgroundColor,
-    colorHex,
-  );
-
   return formatRichTextPartialStyle(
     editorState,
     BuiltInAttributeKey.backgroundColor,
@@ -188,16 +182,10 @@ bool formatHighlightColor(EditorState editorState, String colorHex) {
 }
 
 bool formatFontColor(EditorState editorState, String colorHex) {
-  bool value = _allSatisfyInSelection(
-    editorState,
-    BuiltInAttributeKey.color,
-    colorHex,
-  );
-
   return formatRichTextPartialStyle(
     editorState,
     BuiltInAttributeKey.color,
-    customValue: value ? '0x00000000' : colorHex,
+    customValue: colorHex,
   );
 }
 

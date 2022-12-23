@@ -48,7 +48,6 @@ class ColorPicker extends StatefulWidget {
 class _ColorPickerState extends State<ColorPicker> {
   @override
   Widget build(BuildContext context) {
-    // TODO: why the hover color doesn't work.
     return Container(
       decoration: BoxDecoration(
         color: widget.pickerBackgroundColor,
@@ -61,14 +60,14 @@ class _ColorPickerState extends State<ColorPicker> {
         ],
         borderRadius: BorderRadius.circular(6.0),
       ),
-      height: 200,
-      width: 150,
+      height: 250,
+      width: 220,
       padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
       child: ScrollConfiguration(
         behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               // font color
@@ -133,8 +132,8 @@ class _ColorPickerState extends State<ColorPicker> {
           }
         },
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             // padding
             const SizedBox(width: 6),
@@ -151,12 +150,14 @@ class _ColorPickerState extends State<ColorPicker> {
             // padding
             const SizedBox(width: 10),
             // text
-            Text(
-              option.name,
-              style: TextStyle(color: widget.pickerItemTextColor),
+            Expanded(
+              child: Text(
+                option.name,
+                style:
+                    TextStyle(fontSize: 12, color: widget.pickerItemTextColor),
+              ),
             ),
             // checkbox
-            const Spacer(),
             if (isChecked) const FlowySvg(name: 'checkmark'),
             const SizedBox(width: 6),
           ],

@@ -279,12 +279,17 @@ List<ToolbarItem> defaultToolbarItems = [
         _allSatisfy(
           editorState,
           BuiltInAttributeKey.color,
-          (value) => value != null,
+          (value) =>
+              value != null &&
+              value != _generateFontColorOptions(editorState).first.colorHex,
         ) ||
         _allSatisfy(
           editorState,
           BuiltInAttributeKey.backgroundColor,
-          (value) => value != null,
+          (value) =>
+              value != null &&
+              value !=
+                  _generateBackgroundColorOptions(editorState).first.colorHex,
         ),
     handler: (editorState, context) => showColorMenu(
       context,
@@ -616,39 +621,39 @@ List<ColorOption> _generateBackgroundColorOptions(EditorState editorState) {
   return [
     ColorOption(
       colorHex: defaultBackgroundColorHex,
-      name: AppFlowyEditorLocalizations.current.fontColorDefault,
+      name: AppFlowyEditorLocalizations.current.backgroundColorDefault,
     ),
     ColorOption(
       colorHex: Colors.grey.withOpacity(0.3).toHex(),
-      name: AppFlowyEditorLocalizations.current.fontColorGray,
+      name: AppFlowyEditorLocalizations.current.backgroundColorGray,
     ),
     ColorOption(
       colorHex: Colors.brown.withOpacity(0.3).toHex(),
-      name: AppFlowyEditorLocalizations.current.fontColorBrown,
+      name: AppFlowyEditorLocalizations.current.backgroundColorBrown,
     ),
     ColorOption(
       colorHex: Colors.yellow.withOpacity(0.3).toHex(),
-      name: AppFlowyEditorLocalizations.current.fontColorYellow,
+      name: AppFlowyEditorLocalizations.current.backgroundColorYellow,
     ),
     ColorOption(
       colorHex: Colors.green.withOpacity(0.3).toHex(),
-      name: AppFlowyEditorLocalizations.current.fontColorGreen,
+      name: AppFlowyEditorLocalizations.current.backgroundColorGreen,
     ),
     ColorOption(
       colorHex: Colors.blue.withOpacity(0.3).toHex(),
-      name: AppFlowyEditorLocalizations.current.fontColorBlue,
+      name: AppFlowyEditorLocalizations.current.backgroundColorBlue,
     ),
     ColorOption(
       colorHex: Colors.purple.withOpacity(0.3).toHex(),
-      name: AppFlowyEditorLocalizations.current.fontColorPurple,
+      name: AppFlowyEditorLocalizations.current.backgroundColorPurple,
     ),
     ColorOption(
       colorHex: Colors.pink.withOpacity(0.3).toHex(),
-      name: AppFlowyEditorLocalizations.current.fontColorPink,
+      name: AppFlowyEditorLocalizations.current.backgroundColorPink,
     ),
     ColorOption(
       colorHex: Colors.red.withOpacity(0.3).toHex(),
-      name: AppFlowyEditorLocalizations.current.fontColorRed,
+      name: AppFlowyEditorLocalizations.current.backgroundColorRed,
     ),
   ];
 }
