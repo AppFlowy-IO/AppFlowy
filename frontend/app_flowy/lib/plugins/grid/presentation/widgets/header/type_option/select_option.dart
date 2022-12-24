@@ -45,9 +45,7 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
             if (state.isEditingOption)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
-                child: _CreateOptionTextField(
-                  popoverMutex: popoverMutex,
-                ),
+                child: _CreateOptionTextField(popoverMutex: popoverMutex),
               ),
             if (state.options.isEmpty && !state.isEditingOption)
               const _AddOptionButton(),

@@ -53,34 +53,43 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
         ],
         child: BlocBuilder<EditSelectOptionBloc, EditSelectOptionState>(
           builder: (context, state) {
-            List<Widget> slivers = [
-              SliverToBoxAdapter(
-                  child: _OptionNameTextField(
+            List<Widget> cells = [
+              _OptionNameTextField(
                 name: state.option.name,
                 autoFocus: autoFocus,
-              )),
-              const SliverToBoxAdapter(child: VSpace(10)),
-              const SliverToBoxAdapter(child: _DeleteTag()),
+              ),
+              const VSpace(10),
+              const _DeleteTag(),
             ];
 
             if (showOptions) {
-              slivers
-                  .add(const SliverToBoxAdapter(child: TypeOptionSeparator()));
-              slivers.add(SliverToBoxAdapter(
-                  child: SelectOptionColorList(
-                      selectedColor: state.option.color)));
+              cells.add(const TypeOptionSeparator());
+              cells.add(
+                  SelectOptionColorList(selectedColor: state.option.color));
             }
 
             return SizedBox(
-              width: 160,
-              child: Padding(
-                padding: const EdgeInsets.all(6.0),
-                child: CustomScrollView(
-                  slivers: slivers,
-                  shrinkWrap: true,
-                  controller: ScrollController(),
-                  physics: StyledScrollPhysics(),
-                ),
+              width: 180,
+              child: ListView.builder(
+                shrinkWrap: true,
+                controller: ScrollController(),
+                physics: StyledScrollPhysics(),
+                itemCount: cells.length,
+                itemBuilder: (context, index) {
+                  if (cells[index] is TypeOptionSeparator) {
+                    return cells[index];
+                  } else {
+                    return Padding(
+                      padding: GridSize.optionListItemPadding(
+                        length: cells.length,
+                        index: index,
+                        vertical: 6.0,
+                        horizontal: 6.0,
+                      ),
+                      child: cells[index],
+                    );
+                  }
+                },
               ),
             );
           },

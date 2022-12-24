@@ -1,6 +1,7 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/cell/date_cal_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -62,12 +63,9 @@ class _DateCellEditor extends State<DateCellEditor> {
   Widget _buildWidget(AsyncSnapshot<Either<dynamic, FlowyError>> snapshot) {
     return snapshot.data!.fold(
       (dateTypeOptionPB) {
-        return Padding(
-          padding: const EdgeInsets.all(12),
-          child: _CellCalendarWidget(
-            cellContext: widget.cellController,
-            dateTypeOptionPB: dateTypeOptionPB,
-          ),
+        return _CellCalendarWidget(
+          cellContext: widget.cellController,
+          dateTypeOptionPB: dateTypeOptionPB,
         );
       },
       (err) {
@@ -117,24 +115,37 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
         builder: (context, state) {
           List<Widget> children = [
             _buildCalendar(context),
-            if (state.dateTypeOptionPB.includeTime)
+            if (state.dateTypeOptionPB.includeTime) ...[
+              const VSpace(12.0),
               _TimeTextField(
                 bloc: context.read<DateCalBloc>(),
                 popoverMutex: popoverMutex,
               ),
-            Divider(height: 1.0, color: Theme.of(context).dividerColor),
+            ],
+            const TypeOptionSeparator(spacing: 12.0),
             const _IncludeTimeButton(),
-            Divider(height: 1.0, color: Theme.of(context).dividerColor),
+            const TypeOptionSeparator(spacing: 12.0),
             _DateTypeOptionButton(popoverMutex: popoverMutex)
           ];
 
-          return ListView.separated(
+          return ListView.builder(
             shrinkWrap: true,
             controller: ScrollController(),
-            separatorBuilder: (context, index) => VSpace(GridSize.cellVPadding),
             itemCount: children.length,
             itemBuilder: (BuildContext context, int index) {
-              return children[index];
+              if (children[index] is TypeOptionSeparator) {
+                return children[index];
+              } else {
+                return Padding(
+                  padding: GridSize.optionListItemPadding(
+                    length: children.length,
+                    index: index,
+                    vertical: 12.0,
+                    horizontal: 12.0,
+                  ),
+                  child: children[index],
+                );
+              }
             },
           );
         },

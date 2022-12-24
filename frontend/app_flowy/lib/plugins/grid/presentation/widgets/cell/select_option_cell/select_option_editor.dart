@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/application/cell/select_option_editor_bloc.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme_extension.dart';
 
@@ -17,12 +18,12 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 
 import '../../../layout/sizes.dart';
-import '../../common/type_option_separator.dart';
 import '../../header/type_option/select_option_editor.dart';
 import 'extension.dart';
 import 'text_field.dart';
 
 const double _editorPanelWidth = 300;
+const double _padding = 12.0;
 
 class SelectOptionCellEditor extends StatefulWidget {
   final GridSelectOptionCellController cellController;
@@ -52,25 +53,18 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
       )..add(const SelectOptionEditorEvent.initial()),
       child: BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
         builder: (context, state) {
-          final List<Widget> children = [
-            _TextField(popoverMutex: popoverMutex),
-            const TypeOptionSeparator(),
-            const _Title(),
-            _OptionList(popoverMutex: popoverMutex),
-          ];
-
-          return Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: ListView.separated(
-              shrinkWrap: true,
-              itemCount: children.length,
-              itemBuilder: (BuildContext context, int index) {
-                return children[index];
-              },
-              separatorBuilder: (BuildContext context, int index) {
-                return VSpace(GridSize.typeOptionSeparatorHeight);
-              },
-            ),
+          return Flex(
+            direction: Axis.vertical,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _TextField(popoverMutex: popoverMutex),
+              const TypeOptionSeparator(spacing: 0.0),
+              Flexible(
+                fit: FlexFit.loose,
+                child: _OptionList(popoverMutex: popoverMutex),
+              ),
+            ],
           );
         },
       ),
@@ -90,6 +84,7 @@ class _OptionList extends StatelessWidget {
     return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
       builder: (context, state) {
         List<Widget> cells = [];
+        cells.add(const _Title());
         cells.addAll(state.options.map((option) {
           return _SelectOptionCell(
             option: option,
@@ -114,14 +109,20 @@ class _OptionList extends StatelessWidget {
           },
           physics: StyledScrollPhysics(),
           itemBuilder: (BuildContext context, int index) {
-            return cells[index];
+            return Padding(
+              padding: GridSize.optionListItemPadding(
+                length: cells.length,
+                index: index,
+                horizontal: _padding,
+                top: 6.0,
+                bottom: _padding,
+              ),
+              child: cells[index],
+            );
           },
         );
 
-        return Padding(
-          padding: const EdgeInsets.all(3.0),
-          child: list,
-        );
+        return list;
       },
     );
   }
@@ -145,32 +146,35 @@ class _TextField extends StatelessWidget {
             key: (option) => option.name,
             value: (option) => option);
 
-        return SelectOptionTextField(
-          options: state.options,
-          selectedOptionMap: optionMap,
-          distanceToText: _editorPanelWidth * 0.7,
-          maxLength: 30,
-          tagController: _tagController,
-          textSeparators: const [','],
-          onClick: () => popoverMutex.close(),
-          newText: (text) {
-            context
-                .read<SelectOptionCellEditorBloc>()
-                .add(SelectOptionEditorEvent.filterOption(text));
-          },
-          onSubmitted: (tagName) {
-            context
-                .read<SelectOptionCellEditorBloc>()
-                .add(SelectOptionEditorEvent.trySelectOption(tagName));
-          },
-          onPaste: (tagNames, remainder) {
-            context
-                .read<SelectOptionCellEditorBloc>()
-                .add(SelectOptionEditorEvent.selectMultipleOptions(
-                  tagNames,
-                  remainder,
-                ));
-          },
+        return Padding(
+          padding: const EdgeInsets.all(_padding),
+          child: SelectOptionTextField(
+            options: state.options,
+            selectedOptionMap: optionMap,
+            distanceToText: _editorPanelWidth * 0.7,
+            maxLength: 30,
+            tagController: _tagController,
+            textSeparators: const [','],
+            onClick: () => popoverMutex.close(),
+            newText: (text) {
+              context
+                  .read<SelectOptionCellEditorBloc>()
+                  .add(SelectOptionEditorEvent.filterOption(text));
+            },
+            onSubmitted: (tagName) {
+              context
+                  .read<SelectOptionCellEditorBloc>()
+                  .add(SelectOptionEditorEvent.trySelectOption(tagName));
+            },
+            onPaste: (tagNames, remainder) {
+              context
+                  .read<SelectOptionCellEditorBloc>()
+                  .add(SelectOptionEditorEvent.selectMultipleOptions(
+                    tagNames,
+                    remainder,
+                  ));
+            },
+          ),
         );
       },
     );
@@ -184,12 +188,9 @@ class _Title extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6),
-        child: FlowyText.medium(
-          LocaleKeys.grid_selectOption_panelTitle.tr(),
-          color: Theme.of(context).hintColor,
-        ),
+      child: FlowyText.medium(
+        LocaleKeys.grid_selectOption_panelTitle.tr(),
+        color: Theme.of(context).hintColor,
       ),
     );
   }
@@ -201,26 +202,29 @@ class _CreateOptionCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        FlowyText.medium(
-          LocaleKeys.grid_selectOption_create.tr(),
-          color: Theme.of(context).hintColor,
-        ),
-        const HSpace(10),
-        Expanded(
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: SelectOptionTag(
-              name: name,
-              color: AFThemeExtension.of(context).lightGreyHover,
-              onSelected: () => context
-                  .read<SelectOptionCellEditorBloc>()
-                  .add(SelectOptionEditorEvent.newOption(name)),
+    return SizedBox(
+      height: GridSize.typeOptionItemHeight,
+      child: Row(
+        children: [
+          FlowyText.medium(
+            LocaleKeys.grid_selectOption_create.tr(),
+            color: Theme.of(context).hintColor,
+          ),
+          const HSpace(10),
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: SelectOptionTag(
+                name: name,
+                color: AFThemeExtension.of(context).lightGreyHover,
+                onSelected: () => context
+                    .read<SelectOptionCellEditorBloc>()
+                    .add(SelectOptionEditorEvent.newOption(name)),
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -254,8 +258,9 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
     return AppFlowyPopover(
       controller: _popoverController,
       offset: const Offset(20, 0),
+      margin: EdgeInsets.zero,
       asBarrier: true,
-      constraints: BoxConstraints.loose(const Size(200, 300)),
+      constraints: BoxConstraints.loose(const Size(200, 460)),
       mutex: widget.popoverMutex,
       child: SizedBox(
         height: GridSize.typeOptionItemHeight,
