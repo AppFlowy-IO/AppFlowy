@@ -62,11 +62,23 @@ class DateTypeOptionWidget extends TypeOptionWidget {
           return ListView.separated(
             shrinkWrap: true,
             controller: ScrollController(),
-            separatorBuilder: (context, index) =>
-                VSpace(GridSize.typeOptionSeparatorHeight),
+            separatorBuilder: (context, index) {
+              if (index == 0) {
+                return const SizedBox();
+              } else {
+                return VSpace(GridSize.typeOptionSeparatorHeight);
+              }
+            },
             itemCount: children.length,
             itemBuilder: (BuildContext context, int index) {
-              return children[index];
+              if (children[index] is TypeOptionSeparator) {
+                return children[index];
+              } else {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: children[index],
+                );
+              }
             },
           );
         },

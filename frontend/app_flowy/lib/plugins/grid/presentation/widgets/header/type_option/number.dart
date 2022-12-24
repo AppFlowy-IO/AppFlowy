@@ -30,10 +30,11 @@ class NumberTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
 
   @override
   Widget? build(BuildContext context) {
-    return Column(children: [
-      const TypeOptionSeparator(),
-      _widget,
-    ]);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0)
+          .copyWith(top: GridSize.typeOptionSeparatorHeight),
+      child: _widget,
+    );
   }
 }
 

@@ -51,6 +51,12 @@ class _FieldEditorState extends State<FieldEditor> {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> children = [
+      _FieldNameTextField(popoverMutex: popoverMutex),
+      const VSpace(10),
+      if (widget.onDeleted != null) _addDeleteFieldButton(),
+      _FieldTypeOptionCell(popoverMutex: popoverMutex),
+    ];
     return BlocProvider(
       create: (context) => FieldEditorBloc(
         gridId: widget.gridId,
@@ -58,44 +64,42 @@ class _FieldEditorState extends State<FieldEditor> {
         isGroupField: widget.isGroupField,
         loader: widget.typeOptionLoader,
       )..add(const FieldEditorEvent.initial()),
-      child: Padding(
-        padding: GridSize.typeOptionContentInsets,
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            FlowyText.medium(
-              LocaleKeys.grid_field_editProperty.tr(),
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: children.length,
+        itemBuilder: (context, index) {
+          double horizontalSpacing = 12.0;
+          if (children[index] is _FieldTypeOptionCell) {
+            horizontalSpacing = 0.0;
+          }
+          return Padding(
+            padding: GridSize.optionListItemPadding(
+              length: children.length,
+              index: index,
+              horizontal: horizontalSpacing,
+              vertical: 12.0,
             ),
-            const VSpace(10),
-            _FieldNameTextField(popoverMutex: popoverMutex),
-            const VSpace(10),
-            ..._addDeleteFieldButton(),
-            _FieldTypeOptionCell(popoverMutex: popoverMutex),
-          ],
-        ),
+            child: children[index],
+          );
+        },
       ),
     );
   }
 
-  List<Widget> _addDeleteFieldButton() {
-    if (widget.onDeleted == null) {
-      return [];
-    }
-    return [
-      BlocBuilder<FieldEditorBloc, FieldEditorState>(
-        builder: (context, state) {
-          return _DeleteFieldButton(
-            popoverMutex: popoverMutex,
-            onDeleted: () {
-              state.field.fold(
-                () => Log.error('Can not delete the field'),
-                (field) => widget.onDeleted?.call(field.id),
-              );
-            },
-          );
-        },
-      ),
-    ];
+  Widget _addDeleteFieldButton() {
+    return BlocBuilder<FieldEditorBloc, FieldEditorState>(
+      builder: (context, state) {
+        return _DeleteFieldButton(
+          popoverMutex: popoverMutex,
+          onDeleted: () {
+            state.field.fold(
+              () => Log.error('Can not delete the field'),
+              (field) => widget.onDeleted?.call(field.id),
+            );
+          },
+        );
+      },
+    );
   }
 }
 
@@ -224,7 +228,7 @@ class _DeleteFieldButton extends StatelessWidget {
           onTap: () => onDeleted?.call(),
           onHover: (_) => popoverMutex.close(),
         );
-        return SizedBox(height: 36, child: button);
+        return SizedBox(height: GridSize.typeOptionItemHeight, child: button);
       },
     );
   }

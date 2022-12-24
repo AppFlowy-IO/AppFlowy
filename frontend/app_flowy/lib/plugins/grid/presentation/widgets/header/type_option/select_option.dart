@@ -43,16 +43,28 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
             const TypeOptionSeparator(),
             const OptionTitle(),
             if (state.isEditingOption)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: _CreateOptionTextField(popoverMutex: popoverMutex),
-              ),
+              _CreateOptionTextField(popoverMutex: popoverMutex),
+            if (state.options.isNotEmpty && state.isEditingOption)
+              const VSpace(10),
             if (state.options.isEmpty && !state.isEditingOption)
               const _AddOptionButton(),
             _OptionList(popoverMutex: popoverMutex)
           ];
 
-          return Column(children: children);
+          return ListView.builder(
+            shrinkWrap: true,
+            itemCount: children.length,
+            itemBuilder: (context, index) {
+              if (children[index] is TypeOptionSeparator) {
+                return children[index];
+              } else {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: children[index],
+                );
+              }
+            },
+          );
         },
       ),
     );
@@ -180,8 +192,9 @@ class _OptionCellState extends State<_OptionCell> {
       controller: _popoverController,
       mutex: widget.popoverMutex,
       offset: const Offset(20, 0),
+      margin: EdgeInsets.zero,
       asBarrier: true,
-      constraints: BoxConstraints.loose(const Size(460, 440)),
+      constraints: BoxConstraints.loose(const Size(460, 460)),
       child: SizedBox(
         height: GridSize.typeOptionItemHeight,
         child: SelectOptionTagCell(
