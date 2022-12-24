@@ -1,8 +1,5 @@
 use crate::entities::FieldType;
-use crate::services::cell::{
-    AnyTypeCache, AtomicCellDataCache, CellDataChangeset, CellDataDecoder, CellProtobufBlob, FromCellChangeset,
-    FromCellString, TypeCellData,
-};
+use crate::services::cell::{CellDataDecoder, FromCellChangeset, FromCellString};
 
 use crate::services::filter::FromFilterString;
 use bytes::Bytes;
@@ -99,7 +96,7 @@ pub trait TypeOptionTransform: TypeOption {
 }
 
 pub trait TypeOptionCellDataFilter: TypeOption + CellDataDecoder {
-    fn apply_filter2(
+    fn apply_filter(
         &self,
         filter: &<Self as TypeOption>::CellFilter,
         field_type: &FieldType,
@@ -107,7 +104,7 @@ pub trait TypeOptionCellDataFilter: TypeOption + CellDataDecoder {
     ) -> bool;
 }
 
-pub trait TypeOptionCellDataComparable: TypeOption {
+pub trait TypeOptionCellDataCompare: TypeOption {
     fn apply_cmp(
         &self,
         cell_data: &<Self as TypeOption>::CellData,

@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use crate::services::filter::FilterType;
 use std::fmt::Debug;
-use std::hash::{Hash, Hasher};
+use std::hash::Hash;
 use std::sync::Arc;
 
 pub type AtomicCellDataCache = Arc<RwLock<AnyTypeCache<u64>>>;
@@ -72,6 +72,7 @@ fn downcast_owned<T: 'static + Send + Sync>(type_value: TypeValue) -> Option<T> 
 #[derive(Debug)]
 struct TypeValue {
     boxed: Box<dyn Any + Send + Sync + 'static>,
+    #[allow(dead_code)]
     ty: &'static str,
 }
 

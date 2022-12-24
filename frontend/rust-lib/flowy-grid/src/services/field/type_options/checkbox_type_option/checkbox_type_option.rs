@@ -93,7 +93,7 @@ impl CellDataChangeset for CheckboxTypeOptionPB {
 }
 
 impl TypeOptionCellDataFilter for CheckboxTypeOptionPB {
-    fn apply_filter2(
+    fn apply_filter(
         &self,
         filter: &<Self as TypeOption>::CellFilter,
         field_type: &FieldType,

@@ -107,7 +107,7 @@ impl CellComparable for RichTextTypeOptionPB {
 }
 
 impl TypeOptionCellDataFilter for RichTextTypeOptionPB {
-    fn apply_filter2(
+    fn apply_filter(
         &self,
         filter: &<Self as TypeOption>::CellFilter,
         field_type: &FieldType,

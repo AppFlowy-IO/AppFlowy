@@ -163,7 +163,7 @@ impl CellDataChangeset for NumberTypeOptionPB {
 }
 
 impl TypeOptionCellDataFilter for NumberTypeOptionPB {
-    fn apply_filter2(
+    fn apply_filter(
         &self,
         filter: &<Self as TypeOption>::CellFilter,
         field_type: &FieldType,

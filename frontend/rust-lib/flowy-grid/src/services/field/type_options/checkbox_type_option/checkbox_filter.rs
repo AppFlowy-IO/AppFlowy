@@ -1,5 +1,4 @@
 use crate::entities::{CheckboxFilterConditionPB, CheckboxFilterPB};
-use crate::services::cell::TypeCellData;
 use crate::services::field::CheckboxCellData;
 
 impl CheckboxFilterPB {

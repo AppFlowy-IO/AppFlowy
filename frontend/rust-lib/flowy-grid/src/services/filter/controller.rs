@@ -378,7 +378,7 @@ fn filter_cell(
     )
     .get_type_option_cell_data_handler(&filter_type.field_type)?;
 
-    let is_visible = handler.filter_cell_str(filter_type, field_rev.as_ref(), type_cell_data);
+    let is_visible = handler.handle_cell_filter(filter_type, field_rev.as_ref(), type_cell_data);
     Some(is_visible)
 }
 

@@ -1,8 +1,7 @@
 #![allow(clippy::needless_collect)]
 
 use crate::entities::{FieldType, SelectOptionConditionPB, SelectOptionFilterPB};
-
-use crate::services::field::{SelectTypeOptionSharedAction, SelectedSelectOptions};
+use crate::services::field::SelectedSelectOptions;
 
 impl SelectOptionFilterPB {
     pub fn is_visible(&self, selected_options: &SelectedSelectOptions, field_type: FieldType) -> bool {

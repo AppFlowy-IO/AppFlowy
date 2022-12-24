@@ -175,7 +175,7 @@ impl CellDataChangeset for DateTypeOptionPB {
 }
 
 impl TypeOptionCellDataFilter for DateTypeOptionPB {
-    fn apply_filter2(
+    fn apply_filter(
         &self,
         filter: &<Self as TypeOption>::CellFilter,
         field_type: &FieldType,
