@@ -1,10 +1,10 @@
 use crate::entities::{FieldType, NumberFilterPB};
 use crate::impl_type_option;
-use crate::services::cell::{CellComparable, CellDataChangeset, CellDataDecoder, TypeCellData};
+use crate::services::cell::{CellDataChangeset, CellDataDecoder, TypeCellData};
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{
     BoxTypeOptionBuilder, NumberCellData, StrCellData, TypeOption, TypeOptionBuilder, TypeOptionCellData,
-    TypeOptionCellDataFilter, TypeOptionTransform,
+    TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -179,14 +179,15 @@ impl TypeOptionCellDataFilter for NumberTypeOptionPB {
     }
 }
 
-impl CellComparable for NumberTypeOptionPB {
-    type CellData = NumberCellData;
-
-    fn apply_cmp(&self, _cell_data: &Self::CellData, _other_cell_data: &Self::CellData) -> Ordering {
-        Ordering::Equal
+impl TypeOptionCellDataCompare for NumberTypeOptionPB {
+    fn apply_cmp(
+        &self,
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering {
+        cell_data.0.cmp(&other_cell_data.0)
     }
 }
-
 impl std::default::Default for NumberTypeOptionPB {
     fn default() -> Self {
         let format = NumberFormat::default();

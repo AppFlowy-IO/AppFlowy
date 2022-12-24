@@ -130,7 +130,7 @@ impl TryInto<DeleteSortParams> for DeleteSortPayloadPB {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DeleteSortParams {
     pub view_id: String,
     pub sort_type: SortType,

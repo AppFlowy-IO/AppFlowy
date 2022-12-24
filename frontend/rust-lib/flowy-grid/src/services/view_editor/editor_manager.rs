@@ -15,7 +15,7 @@ use crate::services::view_editor::{GridViewEditorDelegate, GridViewRevisionEdito
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration};
-use grid_rev_model::{FieldRevision, FilterRevision, RowChangeset, RowRevision};
+use grid_rev_model::{FieldRevision, FilterRevision, RowChangeset, RowRevision, SortRevision};
 use lib_infra::future::Fut;
 use lib_infra::ref_map::RefCountHashMap;
 use std::borrow::Cow;
@@ -149,7 +149,7 @@ impl GridViewManager {
         view_editor.delete_view_filter(params).await
     }
 
-    pub async fn create_or_update_sort(&self, params: AlterSortParams) -> FlowyResult<()> {
+    pub async fn create_or_update_sort(&self, params: AlterSortParams) -> FlowyResult<SortRevision> {
         let view_editor = self.get_view_editor(&params.view_id).await?;
         view_editor.insert_view_sort(params).await
     }

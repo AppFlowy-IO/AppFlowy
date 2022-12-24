@@ -32,3 +32,9 @@ impl std::default::Default for SortCondition {
         Self::Ascending
     }
 }
+
+impl std::convert::From<SortCondition> for u8 {
+    fn from(condition: SortCondition) -> Self {
+        condition as u8
+    }
+}

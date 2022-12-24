@@ -3,10 +3,8 @@ use crate::services::cell::{CellDataDecoder, FromCellChangeset, FromCellString};
 
 use crate::services::filter::FromFilterString;
 use bytes::Bytes;
-
 use flowy_error::FlowyResult;
 use grid_rev_model::FieldRevision;
-
 use protobuf::ProtobufError;
 use std::cmp::Ordering;
 use std::fmt::Debug;
@@ -102,6 +100,11 @@ pub trait TypeOptionCellDataFilter: TypeOption + CellDataDecoder {
         field_type: &FieldType,
         cell_data: &<Self as TypeOption>::CellData,
     ) -> bool;
+}
+
+#[inline(always)]
+pub fn default_order() -> Ordering {
+    Ordering::Equal
 }
 
 pub trait TypeOptionCellDataCompare: TypeOption {

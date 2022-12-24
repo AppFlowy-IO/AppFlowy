@@ -1,11 +1,12 @@
 use crate::entities::{FieldType, SelectOptionFilterPB};
 use crate::impl_type_option;
 use crate::services::cell::{CellDataChangeset, FromCellString, TypeCellData};
+use std::cmp::Ordering;
 
 use crate::services::field::{
-    BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds, SelectOptionPB,
-    SelectTypeOptionSharedAction, SelectedSelectOptions, TypeOption, TypeOptionBuilder, TypeOptionCellData,
-    TypeOptionCellDataFilter,
+    default_order, BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds,
+    SelectOptionPB, SelectTypeOptionSharedAction, SelectedSelectOptions, TypeOption, TypeOptionBuilder,
+    TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -103,6 +104,15 @@ impl TypeOptionCellDataFilter for MultiSelectTypeOptionPB {
     }
 }
 
+impl TypeOptionCellDataCompare for MultiSelectTypeOptionPB {
+    fn apply_cmp(
+        &self,
+        _cell_data: &<Self as TypeOption>::CellData,
+        _other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering {
+        default_order()
+    }
+}
 #[derive(Default)]
 pub struct MultiSelectTypeOptionBuilder(MultiSelectTypeOptionPB);
 impl_into_box_type_option_builder!(MultiSelectTypeOptionBuilder);

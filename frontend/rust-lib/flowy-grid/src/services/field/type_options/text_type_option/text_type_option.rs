@@ -1,12 +1,12 @@
 use crate::entities::{FieldType, TextFilterPB};
 use crate::impl_type_option;
 use crate::services::cell::{
-    stringify_cell_data, CellComparable, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser, DecodedCellData,
-    FromCellString, TypeCellData,
+    stringify_cell_data, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellString,
+    TypeCellData,
 };
 use crate::services::field::{
-    BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionCellDataFilter,
-    TypeOptionTransform,
+    BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionCellDataCompare,
+    TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -98,14 +98,6 @@ impl CellDataChangeset for RichTextTypeOptionPB {
     }
 }
 
-impl CellComparable for RichTextTypeOptionPB {
-    type CellData = String;
-
-    fn apply_cmp(&self, cell_data: &Self::CellData, other_cell_data: &Self::CellData) -> Ordering {
-        cell_data.cmp(other_cell_data)
-    }
-}
-
 impl TypeOptionCellDataFilter for RichTextTypeOptionPB {
     fn apply_filter(
         &self,
@@ -120,6 +112,17 @@ impl TypeOptionCellDataFilter for RichTextTypeOptionPB {
         filter.is_visible(cell_data)
     }
 }
+
+impl TypeOptionCellDataCompare for RichTextTypeOptionPB {
+    fn apply_cmp(
+        &self,
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering {
+        cell_data.0.cmp(&other_cell_data.0)
+    }
+}
+
 #[derive(Clone)]
 pub struct TextCellData(pub String);
 impl AsRef<str> for TextCellData {

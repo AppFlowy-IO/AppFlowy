@@ -2,8 +2,8 @@ use crate::entities::{FieldType, TextFilterPB};
 use crate::impl_type_option;
 use crate::services::cell::{CellDataChangeset, CellDataDecoder, FromCellString, TypeCellData};
 use crate::services::field::{
-    BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionCellDataFilter,
-    TypeOptionTransform, URLCellData, URLCellDataPB,
+    BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionCellDataCompare,
+    TypeOptionCellDataFilter, TypeOptionTransform, URLCellData, URLCellDataPB,
 };
 use bytes::Bytes;
 use fancy_regex::Regex;
@@ -12,6 +12,7 @@ use flowy_error::FlowyResult;
 use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 
 #[derive(Default)]
 pub struct URLTypeOptionBuilder(URLTypeOptionPB);
@@ -107,6 +108,15 @@ impl TypeOptionCellDataFilter for URLTypeOptionPB {
     }
 }
 
+impl TypeOptionCellDataCompare for URLTypeOptionPB {
+    fn apply_cmp(
+        &self,
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering {
+        cell_data.content.cmp(&other_cell_data.content)
+    }
+}
 fn auto_append_scheme(s: &str) -> String {
     // Only support https scheme by now
     match url::Url::parse(s) {

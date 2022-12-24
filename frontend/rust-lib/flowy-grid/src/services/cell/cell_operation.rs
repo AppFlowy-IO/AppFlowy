@@ -3,13 +3,7 @@ use crate::services::cell::{AtomicCellDataCache, CellProtobufBlob, TypeCellData}
 use crate::services::field::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision};
-use std::cmp::Ordering;
 use std::fmt::Debug;
-
-pub trait CellComparable {
-    type CellData;
-    fn apply_cmp(&self, cell_data: &Self::CellData, other_cell_data: &Self::CellData) -> Ordering;
-}
 
 /// Decode the opaque cell data into readable format content
 pub trait CellDataDecoder: TypeOption {
@@ -143,7 +137,7 @@ pub fn try_decode_cell_str(
 /// empty string. For example, The string of the Multi-Select cell will be a list of the option's name
 /// separated by a comma.
 pub fn stringify_cell_data(
-    cell_data: String,
+    cell_str: String,
     from_field_type: &FieldType,
     to_field_type: &FieldType,
     field_rev: &FieldRevision,
@@ -151,7 +145,7 @@ pub fn stringify_cell_data(
     match TypeOptionCellExt::new_with_cell_data_cache(field_rev, None).get_type_option_cell_data_handler(to_field_type)
     {
         None => "".to_string(),
-        Some(handler) => handler.stringify_cell_str(cell_data, from_field_type, field_rev),
+        Some(handler) => handler.stringify_cell_str(cell_str, from_field_type, field_rev),
     }
 }
 

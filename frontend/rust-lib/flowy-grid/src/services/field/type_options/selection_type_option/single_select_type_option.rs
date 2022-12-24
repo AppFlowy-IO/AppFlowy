@@ -1,10 +1,11 @@
 use crate::entities::{FieldType, SelectOptionFilterPB};
 use crate::impl_type_option;
 use crate::services::cell::{CellDataChangeset, FromCellString, TypeCellData};
+use std::cmp::Ordering;
 
 use crate::services::field::{
-    BoxTypeOptionBuilder, SelectOptionCellDataPB, SelectedSelectOptions, TypeOption, TypeOptionBuilder,
-    TypeOptionCellData, TypeOptionCellDataFilter,
+    default_order, BoxTypeOptionBuilder, SelectOptionCellDataPB, SelectedSelectOptions, TypeOption, TypeOptionBuilder,
+    TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
 };
 use crate::services::field::{
     SelectOptionCellChangeset, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction,
@@ -94,6 +95,16 @@ impl TypeOptionCellDataFilter for SingleSelectTypeOptionPB {
         }
         let selected_options = SelectedSelectOptions::from(self.get_selected_options(cell_data.clone()));
         filter.is_visible(&selected_options, FieldType::SingleSelect)
+    }
+}
+
+impl TypeOptionCellDataCompare for SingleSelectTypeOptionPB {
+    fn apply_cmp(
+        &self,
+        _cell_data: &<Self as TypeOption>::CellData,
+        _other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering {
+        default_order()
     }
 }
 #[derive(Default)]

@@ -2,8 +2,9 @@ use crate::entities::{DateFilterPB, FieldType};
 use crate::impl_type_option;
 use crate::services::cell::{CellDataChangeset, CellDataDecoder, FromCellString, TypeCellData};
 use crate::services::field::{
-    BoxTypeOptionBuilder, DateCellChangeset, DateCellData, DateCellDataPB, DateFormat, TimeFormat, TypeOption,
-    TypeOptionBuilder, TypeOptionCellData, TypeOptionCellDataFilter, TypeOptionTransform,
+    default_order, BoxTypeOptionBuilder, DateCellChangeset, DateCellData, DateCellDataPB, DateFormat, TimeFormat,
+    TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+    TypeOptionTransform,
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
@@ -12,6 +13,7 @@ use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 
 // Date
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
@@ -186,6 +188,21 @@ impl TypeOptionCellDataFilter for DateTypeOptionPB {
         }
 
         filter.is_visible(cell_data.0)
+    }
+}
+
+impl TypeOptionCellDataCompare for DateTypeOptionPB {
+    fn apply_cmp(
+        &self,
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering {
+        match (cell_data.0, other_cell_data.0) {
+            (Some(left), Some(right)) => left.cmp(&right),
+            (Some(_), None) => Ordering::Greater,
+            (None, Some(_)) => Ordering::Less,
+            (None, None) => default_order(),
+        }
     }
 }
 

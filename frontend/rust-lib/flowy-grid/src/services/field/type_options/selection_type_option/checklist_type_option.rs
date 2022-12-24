@@ -1,11 +1,12 @@
 use crate::entities::{ChecklistFilterPB, FieldType};
 use crate::impl_type_option;
 use crate::services::cell::{CellDataChangeset, FromCellString, TypeCellData};
+use std::cmp::Ordering;
 
 use crate::services::field::{
-    BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds, SelectOptionPB,
-    SelectTypeOptionSharedAction, SelectedSelectOptions, TypeOption, TypeOptionBuilder, TypeOptionCellData,
-    TypeOptionCellDataFilter,
+    default_order, BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds,
+    SelectOptionPB, SelectTypeOptionSharedAction, SelectedSelectOptions, TypeOption, TypeOptionBuilder,
+    TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -98,6 +99,16 @@ impl TypeOptionCellDataFilter for ChecklistTypeOptionPB {
         }
         let selected_options = SelectedSelectOptions::from(self.get_selected_options(cell_data.clone()));
         filter.is_visible(&self.options, &selected_options)
+    }
+}
+
+impl TypeOptionCellDataCompare for ChecklistTypeOptionPB {
+    fn apply_cmp(
+        &self,
+        _cell_data: &<Self as TypeOption>::CellData,
+        _other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering {
+        default_order()
     }
 }
 

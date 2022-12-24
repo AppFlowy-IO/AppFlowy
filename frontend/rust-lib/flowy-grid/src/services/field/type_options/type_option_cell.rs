@@ -4,9 +4,9 @@ use crate::services::cell::{
     FromCellChangeset, FromCellString, TypeCellData,
 };
 use crate::services::field::{
-    CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, MultiSelectTypeOptionPB, NumberTypeOptionPB,
-    RichTextTypeOptionPB, SingleSelectTypeOptionPB, TypeOption, TypeOptionCellData, TypeOptionCellDataFilter,
-    TypeOptionTransform, URLTypeOptionPB,
+    default_order, CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, MultiSelectTypeOptionPB,
+    NumberTypeOptionPB, RichTextTypeOptionPB, SingleSelectTypeOptionPB, TypeOption, TypeOptionCellData,
+    TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform, URLTypeOptionPB,
 };
 use crate::services::filter::FilterType;
 use flowy_error::FlowyResult;
@@ -81,6 +81,7 @@ where
         + TypeOptionCellData
         + TypeOptionTransform
         + TypeOptionCellDataFilter
+        + TypeOptionCellDataCompare
         + 'static,
 {
     pub fn new_with_boxed(
@@ -158,7 +159,8 @@ where
         + CellDataChangeset
         + TypeOptionCellData
         + TypeOptionTransform
-        + TypeOptionCellDataFilter,
+        + TypeOptionCellDataFilter
+        + TypeOptionCellDataCompare,
 {
     fn handle_cell_str(
         &self,
@@ -191,14 +193,15 @@ where
 
     fn handle_cell_compare(&self, left_cell_data: &str, right_cell_data: &str, field_rev: &FieldRevision) -> Ordering {
         let field_type: FieldType = field_rev.ty.into();
-        let _left = self
-            .get_decoded_cell_data(left_cell_data.to_owned(), &field_type, field_rev)
-            .unwrap();
-        let _right = self
-            .get_decoded_cell_data(right_cell_data.to_owned(), &field_type, field_rev)
-            .unwrap();
-        // left.cmp(&right)
-        todo!()
+        let left = self.get_decoded_cell_data(left_cell_data.to_owned(), &field_type, field_rev);
+        let right = self.get_decoded_cell_data(right_cell_data.to_owned(), &field_type, field_rev);
+
+        match (left, right) {
+            (Ok(left), Ok(right)) => self.apply_cmp(&left, &right),
+            (Ok(_), Err(_)) => Ordering::Greater,
+            (Err(_), Ok(_)) => Ordering::Less,
+            (Err(_), Err(_)) => default_order(),
+        }
     }
 
     fn handle_cell_filter(
