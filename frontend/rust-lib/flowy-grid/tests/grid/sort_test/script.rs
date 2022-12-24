@@ -53,7 +53,7 @@ impl GridSortTest {
                         field_id: field_id.clone(),
                         row_id: row.id,
                     };
-                    let cell = self.editor.get_cell_display_str(&params).await.unwrap();
+                    let cell = self.editor.get_cell_display_str(&params).await;
                     cells.push(cell);
                 }
                 assert_eq!(cells, orders)

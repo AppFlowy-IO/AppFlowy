@@ -53,7 +53,7 @@ async fn grid_filter_multi_select_is_test2() {
             condition: SelectOptionConditionPB::OptionIs,
             option_ids: vec![options.remove(1).id],
         },
-        AssertNumberOfVisibleRows { expected: 3 },
+        AssertNumberOfVisibleRows { expected: 2 },
     ];
     test.run_scripts(scripts).await;
 }

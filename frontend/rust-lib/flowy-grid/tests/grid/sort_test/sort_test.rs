@@ -223,3 +223,57 @@ async fn sort_number_by_descending_test() {
     ];
     test.run_scripts(scripts).await;
 }
+
+#[tokio::test]
+async fn sort_single_select_by_descending_test() {
+    let mut test = GridSortTest::new().await;
+    let single_select = test.get_first_field_rev(FieldType::SingleSelect);
+    let view_id = test.grid_id.clone();
+    let scripts = vec![
+        AssertTextOrder {
+            field_id: single_select.id.clone(),
+            orders: vec!["", "", "Completed", "Completed", "Planned"],
+        },
+        InsertSort {
+            params: AlterSortParams {
+                view_id,
+                field_id: single_select.id.clone(),
+                sort_id: None,
+                field_type: FieldType::SingleSelect.into(),
+                condition: SortCondition::Descending.into(),
+            },
+        },
+        AssertTextOrder {
+            field_id: single_select.id.clone(),
+            orders: vec!["Planned", "Completed", "Completed", "", ""],
+        },
+    ];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn sort_multi_select_by_ascending_test() {
+    let mut test = GridSortTest::new().await;
+    let multi_select = test.get_first_field_rev(FieldType::MultiSelect);
+    let view_id = test.grid_id.clone();
+    let scripts = vec![
+        AssertTextOrder {
+            field_id: multi_select.id.clone(),
+            orders: vec!["Google,Facebook", "Google,Twitter", "Facebook", "", ""],
+        },
+        InsertSort {
+            params: AlterSortParams {
+                view_id,
+                field_id: multi_select.id.clone(),
+                sort_id: None,
+                field_type: FieldType::MultiSelect.into(),
+                condition: SortCondition::Ascending.into(),
+            },
+        },
+        AssertTextOrder {
+            field_id: multi_select.id.clone(),
+            orders: vec!["", "", "Facebook", "Google,Facebook", "Google,Twitter"],
+        },
+    ];
+    test.run_scripts(scripts).await;
+}

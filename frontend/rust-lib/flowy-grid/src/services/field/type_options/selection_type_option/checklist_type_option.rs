@@ -1,18 +1,17 @@
 use crate::entities::{ChecklistFilterPB, FieldType};
 use crate::impl_type_option;
 use crate::services::cell::{CellDataChangeset, FromCellString, TypeCellData};
-use std::cmp::Ordering;
-
 use crate::services::field::{
-    default_order, BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds,
-    SelectOptionPB, SelectTypeOptionSharedAction, SelectedSelectOptions, TypeOption, TypeOptionBuilder,
-    TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+    BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds, SelectOptionPB,
+    SelectTypeOptionSharedAction, SelectedSelectOptions, TypeOption, TypeOptionBuilder, TypeOptionCellData,
+    TypeOptionCellDataCompare, TypeOptionCellDataFilter,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyResult;
 use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 
 // Multiple select
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
@@ -105,10 +104,10 @@ impl TypeOptionCellDataFilter for ChecklistTypeOptionPB {
 impl TypeOptionCellDataCompare for ChecklistTypeOptionPB {
     fn apply_cmp(
         &self,
-        _cell_data: &<Self as TypeOption>::CellData,
-        _other_cell_data: &<Self as TypeOption>::CellData,
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
     ) -> Ordering {
-        default_order()
+        cell_data.len().cmp(&other_cell_data.len())
     }
 }
 

@@ -1,7 +1,7 @@
 use crate::entities::{FieldType, SelectOptionFilterPB};
 use crate::impl_type_option;
 use crate::services::cell::{CellDataChangeset, FromCellString, TypeCellData};
-use std::cmp::Ordering;
+use std::cmp::{min, Ordering};
 
 use crate::services::field::{
     default_order, BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds,
@@ -107,9 +107,28 @@ impl TypeOptionCellDataFilter for MultiSelectTypeOptionPB {
 impl TypeOptionCellDataCompare for MultiSelectTypeOptionPB {
     fn apply_cmp(
         &self,
-        _cell_data: &<Self as TypeOption>::CellData,
-        _other_cell_data: &<Self as TypeOption>::CellData,
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
     ) -> Ordering {
+        for i in 0..min(cell_data.len(), other_cell_data.len()) {
+            let order = match (
+                cell_data
+                    .get(i)
+                    .and_then(|id| self.options.iter().find(|option| &option.id == id)),
+                other_cell_data
+                    .get(i)
+                    .and_then(|id| self.options.iter().find(|option| &option.id == id)),
+            ) {
+                (Some(left), Some(right)) => left.name.cmp(&right.name),
+                (Some(_), None) => Ordering::Greater,
+                (None, Some(_)) => Ordering::Less,
+                (None, None) => default_order(),
+            };
+
+            if order.is_ne() {
+                return order;
+            }
+        }
         default_order()
     }
 }

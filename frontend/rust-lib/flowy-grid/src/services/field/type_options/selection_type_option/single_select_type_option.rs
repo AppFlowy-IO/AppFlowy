@@ -101,10 +101,22 @@ impl TypeOptionCellDataFilter for SingleSelectTypeOptionPB {
 impl TypeOptionCellDataCompare for SingleSelectTypeOptionPB {
     fn apply_cmp(
         &self,
-        _cell_data: &<Self as TypeOption>::CellData,
-        _other_cell_data: &<Self as TypeOption>::CellData,
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
     ) -> Ordering {
-        default_order()
+        match (
+            cell_data
+                .first()
+                .and_then(|id| self.options.iter().find(|option| &option.id == id)),
+            other_cell_data
+                .first()
+                .and_then(|id| self.options.iter().find(|option| &option.id == id)),
+        ) {
+            (Some(left), Some(right)) => left.name.cmp(&right.name),
+            (Some(_), None) => Ordering::Greater,
+            (None, Some(_)) => Ordering::Less,
+            (None, None) => default_order(),
+        }
     }
 }
 #[derive(Default)]

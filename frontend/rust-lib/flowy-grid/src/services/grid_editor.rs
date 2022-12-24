@@ -444,17 +444,21 @@ impl GridRevisionEditor {
         Some(CellPB::new(&params.field_id, field_type, cell_bytes.to_vec()))
     }
 
-    pub async fn get_cell_display_str(&self, params: &CellPathParams) -> Option<String> {
-        let field_rev = self.get_field_rev(&params.field_id).await?;
-        let field_type: FieldType = field_rev.ty.into();
-        let cell_rev = self.get_cell_rev(&params.row_id, &params.field_id).await.ok()??;
-        let type_cell_data: TypeCellData = cell_rev.try_into().ok()?;
-        Some(stringify_cell_data(
-            type_cell_data.cell_str,
-            &field_type,
-            &field_type,
-            &field_rev,
-        ))
+    pub async fn get_cell_display_str(&self, params: &CellPathParams) -> String {
+        let display_str = || async {
+            let field_rev = self.get_field_rev(&params.field_id).await?;
+            let field_type: FieldType = field_rev.ty.into();
+            let cell_rev = self.get_cell_rev(&params.row_id, &params.field_id).await.ok()??;
+            let type_cell_data: TypeCellData = cell_rev.try_into().ok()?;
+            Some(stringify_cell_data(
+                type_cell_data.cell_str,
+                &field_type,
+                &field_type,
+                &field_rev,
+            ))
+        };
+
+        display_str().await.unwrap_or("".to_string())
     }
 
     pub async fn get_cell_bytes(&self, params: &CellPathParams) -> Option<CellProtobufBlob> {
