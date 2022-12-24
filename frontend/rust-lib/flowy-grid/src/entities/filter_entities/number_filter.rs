@@ -1,3 +1,4 @@
+use crate::services::filter::FromFilterString;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use grid_rev_model::FilterRevision;
@@ -53,6 +54,18 @@ impl std::convert::TryFrom<u8> for NumberFilterConditionPB {
     }
 }
 
+impl FromFilterString for NumberFilterPB {
+    fn from_filter_rev(filter_rev: &FilterRevision) -> Self
+    where
+        Self: Sized,
+    {
+        NumberFilterPB {
+            condition: NumberFilterConditionPB::try_from(filter_rev.condition)
+                .unwrap_or(NumberFilterConditionPB::Equal),
+            content: filter_rev.content.clone(),
+        }
+    }
+}
 impl std::convert::From<&FilterRevision> for NumberFilterPB {
     fn from(rev: &FilterRevision) -> Self {
         NumberFilterPB {

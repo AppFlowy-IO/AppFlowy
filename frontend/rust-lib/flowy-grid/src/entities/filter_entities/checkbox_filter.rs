@@ -1,3 +1,4 @@
+use crate::services::filter::FromFilterString;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use grid_rev_model::FilterRevision;
@@ -35,6 +36,18 @@ impl std::convert::TryFrom<u8> for CheckboxFilterConditionPB {
             0 => Ok(CheckboxFilterConditionPB::IsChecked),
             1 => Ok(CheckboxFilterConditionPB::IsUnChecked),
             _ => Err(ErrorCode::InvalidData),
+        }
+    }
+}
+
+impl FromFilterString for CheckboxFilterPB {
+    fn from_filter_rev(filter_rev: &FilterRevision) -> Self
+    where
+        Self: Sized,
+    {
+        CheckboxFilterPB {
+            condition: CheckboxFilterConditionPB::try_from(filter_rev.condition)
+                .unwrap_or(CheckboxFilterConditionPB::IsChecked),
         }
     }
 }

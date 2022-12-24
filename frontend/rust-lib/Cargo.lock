@@ -1021,6 +1021,7 @@ dependencies = [
  "lib-infra",
  "lib-ot",
  "nanoid",
+ "parking_lot 0.12.1",
  "protobuf",
  "rayon",
  "regex",

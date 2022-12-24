@@ -68,7 +68,7 @@ impl ToString for DateCellChangeset {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct DateCellData(pub Option<i64>);
 
 impl std::convert::From<DateCellData> for i64 {
@@ -90,6 +90,15 @@ impl FromCellString for DateCellData {
     {
         let num = s.parse::<i64>().ok();
         Ok(DateCellData(num))
+    }
+}
+
+impl ToString for DateCellData {
+    fn to_string(&self) -> String {
+        match self.0 {
+            None => "".to_string(),
+            Some(val) => val.to_string(),
+        }
     }
 }
 

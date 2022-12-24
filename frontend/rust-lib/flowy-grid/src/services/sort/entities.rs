@@ -1,4 +1,4 @@
-use crate::entities::{AlterSortParams, FieldType};
+use crate::entities::{AlterSortParams, DeleteSortParams, FieldType};
 use grid_rev_model::{FieldRevision, FieldTypeRevision};
 use std::sync::Arc;
 
@@ -37,7 +37,7 @@ impl std::convert::From<&Arc<FieldRevision>> for SortType {
 pub struct SortChangeset {
     pub(crate) insert_sort: Option<SortType>,
     pub(crate) update_sort: Option<SortType>,
-    pub(crate) delete_sort: Option<SortType>,
+    pub(crate) delete_sort: Option<DeletedSortType>,
 }
 
 impl SortChangeset {
@@ -57,11 +57,26 @@ impl SortChangeset {
         }
     }
 
-    pub fn from_delete(sort: SortType) -> Self {
+    pub fn from_delete(deleted_sort: DeletedSortType) -> Self {
         Self {
             insert_sort: None,
             update_sort: None,
-            delete_sort: Some(sort),
+            delete_sort: Some(deleted_sort),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct DeletedSortType {
+    pub sort_type: SortType,
+    pub sort_id: String,
+}
+
+impl std::convert::From<DeleteSortParams> for DeletedSortType {
+    fn from(params: DeleteSortParams) -> Self {
+        Self {
+            sort_type: params.sort_type,
+            sort_id: params.sort_id,
         }
     }
 }

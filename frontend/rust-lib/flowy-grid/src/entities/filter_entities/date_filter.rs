@@ -1,3 +1,4 @@
+use crate::services::filter::FromFilterString;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use grid_rev_model::FilterRevision;
@@ -78,6 +79,26 @@ impl std::convert::TryFrom<u8> for DateFilterConditionPB {
             6 => Ok(DateFilterConditionPB::DateIsEmpty),
             _ => Err(ErrorCode::InvalidData),
         }
+    }
+}
+impl FromFilterString for DateFilterPB {
+    fn from_filter_rev(filter_rev: &FilterRevision) -> Self
+    where
+        Self: Sized,
+    {
+        let condition = DateFilterConditionPB::try_from(filter_rev.condition).unwrap_or(DateFilterConditionPB::DateIs);
+        let mut filter = DateFilterPB {
+            condition,
+            ..Default::default()
+        };
+
+        if let Ok(content) = DateFilterContentPB::from_str(&filter_rev.content) {
+            filter.start = content.start;
+            filter.end = content.end;
+            filter.timestamp = content.timestamp;
+        };
+
+        filter
     }
 }
 impl std::convert::From<&FilterRevision> for DateFilterPB {

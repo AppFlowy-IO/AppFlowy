@@ -1,25 +1,9 @@
 use crate::entities::FieldType;
-use crate::services::cell::{CellProtobufBlob, TypeCellData};
+use crate::services::cell::{AtomicCellDataCache, CellProtobufBlob, TypeCellData};
 use crate::services::field::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision};
-use std::cmp::Ordering;
 use std::fmt::Debug;
-
-/// This trait is used when doing filter/search on the grid.
-pub trait CellFilterable: TypeOptionConfiguration {
-    /// Return true if type_cell_data match the filter condition.
-    fn apply_filter(
-        &self,
-        type_cell_data: TypeCellData,
-        filter: &<Self as TypeOptionConfiguration>::CellFilterConfiguration,
-    ) -> FlowyResult<bool>;
-}
-
-pub trait CellComparable {
-    type CellData;
-    fn apply_cmp(&self, cell_data: &Self::CellData, other_cell_data: &Self::CellData) -> Ordering;
-}
 
 /// Decode the opaque cell data into readable format content
 pub trait CellDataDecoder: TypeOption {
@@ -57,7 +41,7 @@ pub trait CellDataChangeset: TypeOption {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<String>;
+    ) -> FlowyResult<<Self as TypeOption>::CellData>;
 }
 
 /// changeset: It will be deserialized into specific data base on the FieldType.
@@ -70,6 +54,7 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
     changeset: C,
     cell_rev: Option<CellRevision>,
     field_rev: T,
+    cell_data_cache: Option<AtomicCellDataCache>,
 ) -> Result<String, FlowyError> {
     let field_rev = field_rev.as_ref();
     let changeset = changeset.to_string();
@@ -80,9 +65,11 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
         Err(_) => None,
     });
 
-    let cell_data = match FieldRevisionExt::new(field_rev).get_type_option_cell_data_handler(&field_type) {
+    let cell_data = match TypeOptionCellExt::new_with_cell_data_cache(field_rev, cell_data_cache)
+        .get_type_option_cell_data_handler(&field_type)
+    {
         None => "".to_string(),
-        Some(handler) => handler.handle_cell_changeset(changeset, type_cell_data)?,
+        Some(handler) => handler.handle_cell_changeset(changeset, type_cell_data, field_rev)?,
     };
     Ok(TypeCellData::new(cell_data, field_type).to_json())
 }
@@ -90,12 +77,13 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
 pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debug>(
     data: T,
     field_rev: &FieldRevision,
+    cell_data_cache: Option<AtomicCellDataCache>,
 ) -> (FieldType, CellProtobufBlob) {
     let to_field_type = field_rev.ty.into();
     match data.try_into() {
         Ok(type_cell_data) => {
             let TypeCellData { cell_str, field_type } = type_cell_data;
-            match try_decode_cell_str(cell_str, &field_type, &to_field_type, field_rev) {
+            match try_decode_cell_str(cell_str, &field_type, &to_field_type, field_rev, cell_data_cache) {
                 Ok(cell_bytes) => (field_type, cell_bytes),
                 Err(e) => {
                     tracing::error!("Decode cell data failed, {:?}", e);
@@ -134,8 +122,11 @@ pub fn try_decode_cell_str(
     from_field_type: &FieldType,
     to_field_type: &FieldType,
     field_rev: &FieldRevision,
+    cell_data_cache: Option<AtomicCellDataCache>,
 ) -> FlowyResult<CellProtobufBlob> {
-    match FieldRevisionExt::new(field_rev).get_type_option_cell_data_handler(to_field_type) {
+    match TypeOptionCellExt::new_with_cell_data_cache(field_rev, cell_data_cache)
+        .get_type_option_cell_data_handler(to_field_type)
+    {
         None => Ok(CellProtobufBlob::default()),
         Some(handler) => handler.handle_cell_str(cell_str, from_field_type, field_rev),
     }
@@ -146,29 +137,30 @@ pub fn try_decode_cell_str(
 /// empty string. For example, The string of the Multi-Select cell will be a list of the option's name
 /// separated by a comma.
 pub fn stringify_cell_data(
-    cell_data: String,
+    cell_str: String,
     from_field_type: &FieldType,
     to_field_type: &FieldType,
     field_rev: &FieldRevision,
 ) -> String {
-    match FieldRevisionExt::new(field_rev).get_type_option_cell_data_handler(to_field_type) {
+    match TypeOptionCellExt::new_with_cell_data_cache(field_rev, None).get_type_option_cell_data_handler(to_field_type)
+    {
         None => "".to_string(),
-        Some(handler) => handler.stringify_cell_str(cell_data, from_field_type, field_rev),
+        Some(handler) => handler.stringify_cell_str(cell_str, from_field_type, field_rev),
     }
 }
 
 pub fn insert_text_cell(s: String, field_rev: &FieldRevision) -> CellRevision {
-    let data = apply_cell_data_changeset(s, None, field_rev).unwrap();
+    let data = apply_cell_data_changeset(s, None, field_rev, None).unwrap();
     CellRevision::new(data)
 }
 
 pub fn insert_number_cell(num: i64, field_rev: &FieldRevision) -> CellRevision {
-    let data = apply_cell_data_changeset(num, None, field_rev).unwrap();
+    let data = apply_cell_data_changeset(num, None, field_rev, None).unwrap();
     CellRevision::new(data)
 }
 
 pub fn insert_url_cell(url: String, field_rev: &FieldRevision) -> CellRevision {
-    let data = apply_cell_data_changeset(url, None, field_rev).unwrap();
+    let data = apply_cell_data_changeset(url, None, field_rev, None).unwrap();
     CellRevision::new(data)
 }
 
@@ -178,7 +170,7 @@ pub fn insert_checkbox_cell(is_check: bool, field_rev: &FieldRevision) -> CellRe
     } else {
         UNCHECK.to_string()
     };
-    let data = apply_cell_data_changeset(s, None, field_rev).unwrap();
+    let data = apply_cell_data_changeset(s, None, field_rev, None).unwrap();
     CellRevision::new(data)
 }
 
@@ -189,19 +181,19 @@ pub fn insert_date_cell(timestamp: i64, field_rev: &FieldRevision) -> CellRevisi
         is_utc: true,
     })
     .unwrap();
-    let data = apply_cell_data_changeset(cell_data, None, field_rev).unwrap();
+    let data = apply_cell_data_changeset(cell_data, None, field_rev, None).unwrap();
     CellRevision::new(data)
 }
 
 pub fn insert_select_option_cell(option_ids: Vec<String>, field_rev: &FieldRevision) -> CellRevision {
     let cell_data = SelectOptionCellChangeset::from_insert_options(option_ids).to_str();
-    let data = apply_cell_data_changeset(cell_data, None, field_rev).unwrap();
+    let data = apply_cell_data_changeset(cell_data, None, field_rev, None).unwrap();
     CellRevision::new(data)
 }
 
 pub fn delete_select_option_cell(option_ids: Vec<String>, field_rev: &FieldRevision) -> CellRevision {
     let cell_data = SelectOptionCellChangeset::from_delete_options(option_ids).to_str();
-    let data = apply_cell_data_changeset(cell_data, None, field_rev).unwrap();
+    let data = apply_cell_data_changeset(cell_data, None, field_rev, None).unwrap();
     CellRevision::new(data)
 }
 

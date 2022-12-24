@@ -4,6 +4,7 @@ use crate::entities::{
 };
 use crate::manager::GridUser;
 use crate::services::block_manager::GridBlockEvent;
+use crate::services::cell::AtomicCellDataCache;
 use crate::services::filter::FilterType;
 use crate::services::persistence::rev_sqlite::{
     SQLiteGridRevisionSnapshotPersistence, SQLiteGridViewRevisionPersistence,
@@ -14,7 +15,7 @@ use crate::services::view_editor::{GridViewEditorDelegate, GridViewRevisionEdito
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration};
-use grid_rev_model::{FieldRevision, FilterRevision, RowChangeset, RowRevision};
+use grid_rev_model::{FieldRevision, FilterRevision, RowChangeset, RowRevision, SortRevision};
 use lib_infra::future::Fut;
 use lib_infra::ref_map::RefCountHashMap;
 use std::borrow::Cow;
@@ -26,6 +27,7 @@ pub struct GridViewManager {
     user: Arc<dyn GridUser>,
     delegate: Arc<dyn GridViewEditorDelegate>,
     view_editors: Arc<RwLock<RefCountHashMap<Arc<GridViewRevisionEditor>>>>,
+    cell_data_cache: AtomicCellDataCache,
 }
 
 impl GridViewManager {
@@ -33,6 +35,7 @@ impl GridViewManager {
         grid_id: String,
         user: Arc<dyn GridUser>,
         delegate: Arc<dyn GridViewEditorDelegate>,
+        cell_data_cache: AtomicCellDataCache,
         block_event_rx: broadcast::Receiver<GridBlockEvent>,
     ) -> FlowyResult<Self> {
         let view_editors = Arc::new(RwLock::new(RefCountHashMap::default()));
@@ -41,6 +44,7 @@ impl GridViewManager {
             grid_id,
             user,
             delegate,
+            cell_data_cache,
             view_editors,
         })
     }
@@ -145,7 +149,7 @@ impl GridViewManager {
         view_editor.delete_view_filter(params).await
     }
 
-    pub async fn create_or_update_sort(&self, params: AlterSortParams) -> FlowyResult<()> {
+    pub async fn create_or_update_sort(&self, params: AlterSortParams) -> FlowyResult<SortRevision> {
         let view_editor = self.get_view_editor(&params.view_id).await?;
         view_editor.insert_view_sort(params).await
     }
@@ -250,7 +254,15 @@ impl GridViewManager {
         let token = self.user.token()?;
         let view_id = view_id.to_owned();
 
-        GridViewRevisionEditor::new(&user_id, &token, view_id, self.delegate.clone(), rev_manager).await
+        GridViewRevisionEditor::new(
+            &user_id,
+            &token,
+            view_id,
+            self.delegate.clone(),
+            self.cell_data_cache.clone(),
+            rev_manager,
+        )
+        .await
     }
 }
 

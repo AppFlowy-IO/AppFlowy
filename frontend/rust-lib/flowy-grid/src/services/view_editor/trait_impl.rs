@@ -172,11 +172,18 @@ pub(crate) struct GridViewSortDelegateImpl {
 }
 
 impl SortDelegate for GridViewSortDelegateImpl {
-    fn get_sort_rev(&self, sort_type: SortType) -> Fut<Vec<Arc<SortRevision>>> {
+    fn get_sort_rev(&self, sort_type: SortType) -> Fut<Option<Arc<SortRevision>>> {
         let pad = self.view_revision_pad.clone();
         to_fut(async move {
             let field_type_rev: FieldTypeRevision = sort_type.field_type.into();
-            pad.read().await.get_sorts(&sort_type.field_id, &field_type_rev)
+            let mut sorts = pad.read().await.get_sorts(&sort_type.field_id, &field_type_rev);
+            if sorts.is_empty() {
+                None
+            } else {
+                // Currently, one sort_type should have one sort.
+                debug_assert_eq!(sorts.len(), 1);
+                sorts.pop()
+            }
         })
     }
 

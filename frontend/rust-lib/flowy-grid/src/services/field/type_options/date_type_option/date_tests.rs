@@ -155,7 +155,7 @@ mod tests {
         let encoded_data = type_option.apply_changeset(changeset, None).unwrap();
 
         assert_eq!(
-            decode_cell_data(encoded_data, type_option, field_rev),
+            decode_cell_data(encoded_data.to_string(), type_option, field_rev),
             expected_str.to_owned(),
         );
     }

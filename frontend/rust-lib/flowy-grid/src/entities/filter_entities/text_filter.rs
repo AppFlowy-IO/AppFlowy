@@ -1,3 +1,4 @@
+use crate::services::filter::FromFilterString;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use grid_rev_model::FilterRevision;
@@ -50,6 +51,18 @@ impl std::convert::TryFrom<u8> for TextFilterConditionPB {
             6 => Ok(TextFilterConditionPB::TextIsEmpty),
             7 => Ok(TextFilterConditionPB::TextIsNotEmpty),
             _ => Err(ErrorCode::InvalidData),
+        }
+    }
+}
+
+impl FromFilterString for TextFilterPB {
+    fn from_filter_rev(filter_rev: &FilterRevision) -> Self
+    where
+        Self: Sized,
+    {
+        TextFilterPB {
+            condition: TextFilterConditionPB::try_from(filter_rev.condition).unwrap_or(TextFilterConditionPB::Is),
+            content: filter_rev.content.clone(),
         }
     }
 }
