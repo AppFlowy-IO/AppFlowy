@@ -113,8 +113,7 @@ class NumberFormatList extends StatelessWidget {
       create: (context) => NumberFormatBloc(),
       child: SizedBox(
         width: 180,
-        child: Flex(
-          direction: Axis.vertical,
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const _FilterTextField(),
@@ -142,7 +141,7 @@ class NumberFormatList extends StatelessWidget {
                   },
                   padding: const EdgeInsets.all(6.0),
                 );
-                return Expanded(child: list);
+                return Flexible(child: list);
               },
             ),
           ],
