@@ -228,7 +228,10 @@ class _DeleteFieldButton extends StatelessWidget {
           onTap: () => onDeleted?.call(),
           onHover: (_) => popoverMutex.close(),
         );
-        return SizedBox(height: GridSize.typeOptionItemHeight, child: button);
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 4.0),
+          child: SizedBox(height: GridSize.typeOptionItemHeight, child: button),
+        );
       },
     );
   }
