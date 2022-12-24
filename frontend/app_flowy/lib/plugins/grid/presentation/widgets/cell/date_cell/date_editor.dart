@@ -350,7 +350,7 @@ class _DateTypeOptionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title =
-        "${LocaleKeys.grid_field_dateFormat.tr()} &${LocaleKeys.grid_field_timeFormat.tr()}";
+        "${LocaleKeys.grid_field_dateFormat.tr()} & ${LocaleKeys.grid_field_timeFormat.tr()}";
     return BlocSelector<DateCalBloc, DateCalState, DateTypeOptionPB>(
       selector: (state) => state.dateTypeOptionPB,
       builder: (context, dateTypeOptionPB) {
@@ -363,6 +363,7 @@ class _DateTypeOptionButton extends StatelessWidget {
             height: GridSize.typeOptionItemHeight,
             child: FlowyButton(
               text: FlowyText.medium(title),
+              margin: GridSize.typeOptionContentInsets,
               rightIcon: svgWidget(
                 "grid/more",
                 color: Theme.of(context).colorScheme.onSurface,
