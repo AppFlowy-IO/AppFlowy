@@ -10,7 +10,7 @@ async fn grid_filter_multi_select_is_empty_test() {
             condition: SelectOptionConditionPB::OptionIsEmpty,
             option_ids: vec![],
         },
-        AssertNumberOfVisibleRows { expected: 2 },
+        AssertNumberOfVisibleRows { expected: 3 },
     ];
     test.run_scripts(scripts).await;
 }

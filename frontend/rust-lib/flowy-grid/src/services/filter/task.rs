@@ -33,7 +33,7 @@ impl TaskHandler for FilterTaskHandler {
                     .await
                     .process(&predicate)
                     .await
-                    .map_err(anyhow::Error::from);
+                    .map_err(anyhow::Error::from)?;
             }
             Ok(())
         })

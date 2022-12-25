@@ -1,15 +1,18 @@
 use crate::grid::grid_editor::GridEditorTest;
 use flowy_grid::entities::{AlterSortParams, CellPathParams, DeleteSortParams};
-use grid_rev_model::SortRevision;
+use grid_rev_model::{FieldRevision, SortCondition, SortRevision};
+use std::cmp::min;
+use std::sync::Arc;
 
 pub enum SortScript {
     InsertSort {
-        params: AlterSortParams,
+        field_rev: Arc<FieldRevision>,
+        condition: SortCondition,
     },
     DeleteSort {
         params: DeleteSortParams,
     },
-    AssertTextOrder {
+    AssertCellContentOrder {
         field_id: String,
         orders: Vec<&'static str>,
     },
@@ -36,7 +39,14 @@ impl GridSortTest {
 
     pub async fn run_script(&mut self, script: SortScript) {
         match script {
-            SortScript::InsertSort { params } => {
+            SortScript::InsertSort { condition, field_rev } => {
+                let params = AlterSortParams {
+                    view_id: self.grid_id.clone(),
+                    field_id: field_rev.id.clone(),
+                    sort_id: None,
+                    field_type: field_rev.ty,
+                    condition: condition.into(),
+                };
                 let sort_rev = self.editor.create_or_update_sort(params).await.unwrap();
                 self.current_sort_rev = Some(sort_rev);
             }
@@ -44,7 +54,7 @@ impl GridSortTest {
                 //
                 self.editor.delete_sort(params).await.unwrap();
             }
-            SortScript::AssertTextOrder { field_id, orders } => {
+            SortScript::AssertCellContentOrder { field_id, orders } => {
                 let mut cells = vec![];
                 let rows = self.editor.get_grid(&self.grid_id).await.unwrap().rows;
                 for row in rows {
@@ -56,7 +66,12 @@ impl GridSortTest {
                     let cell = self.editor.get_cell_display_str(&params).await;
                     cells.push(cell);
                 }
-                assert_eq!(cells, orders)
+                if orders.is_empty() {
+                    assert_eq!(cells, orders);
+                } else {
+                    let len = min(cells.len(), orders.len());
+                    assert_eq!(cells.split_at(len).0, orders);
+                }
             }
         }
     }

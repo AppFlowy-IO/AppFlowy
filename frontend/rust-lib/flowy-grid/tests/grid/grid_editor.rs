@@ -243,7 +243,7 @@ fn make_test_grid() -> BuildGridContext {
         }
     }
 
-    for i in 0..5 {
+    for i in 0..6 {
         let block_id = grid_builder.block_id().to_owned();
         let field_revs = grid_builder.field_revs();
         let mut row_builder = GridRowTestBuilder::new(&block_id, field_revs);
@@ -317,6 +317,20 @@ fn make_test_grid() -> BuildGridContext {
                         }
 
                         FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
+                        _ => "".to_owned(),
+                    };
+                }
+            }
+            5 => {
+                for field_type in FieldType::iter() {
+                    match field_type {
+                        FieldType::RichText => row_builder.insert_text_cell("AE"),
+                        FieldType::Number => row_builder.insert_number_cell("5"),
+                        FieldType::DateTime => row_builder.insert_date_cell("1671938394"),
+                        FieldType::SingleSelect => {
+                            row_builder.insert_single_select_cell(|mut options| options.remove(1))
+                        }
+                        FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
                         _ => "".to_owned(),
                     };
                 }

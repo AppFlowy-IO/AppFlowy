@@ -260,9 +260,11 @@ impl GridViewRevisionEditor {
         }
 
         let filter_controller = self.filter_controller.clone();
+        let sort_controller = self.sort_controller.clone();
         let row_id = row_rev.id.clone();
         tokio::spawn(async move {
             filter_controller.write().await.did_receive_row_changed(&row_id).await;
+            sort_controller.write().await.did_receive_row_changed(&row_id).await;
         });
     }
 
@@ -424,9 +426,7 @@ impl GridViewRevisionEditor {
                 .await
         };
 
-        if let Some(changeset) = changeset {
-            self.notify_did_update_sort(changeset).await;
-        }
+        self.notify_did_update_sort(changeset).await;
         Ok(sort_rev)
     }
 
@@ -446,9 +446,7 @@ impl GridViewRevisionEditor {
             })
             .await?;
 
-        if changeset.is_some() {
-            self.notify_did_update_sort(changeset.unwrap()).await;
-        }
+        self.notify_did_update_sort(changeset).await;
         Ok(())
     }
 
@@ -612,9 +610,11 @@ impl GridViewRevisionEditor {
     }
 
     pub async fn notify_did_update_sort(&self, changeset: SortChangesetNotificationPB) {
-        send_dart_notification(&changeset.view_id, GridDartNotification::DidUpdateSort)
-            .payload(changeset)
-            .send();
+        if !changeset.is_empty() {
+            send_dart_notification(&changeset.view_id, GridDartNotification::DidUpdateSort)
+                .payload(changeset)
+                .send();
+        }
     }
 
     async fn notify_did_update_view(&self, changeset: GroupViewChangesetPB) {
