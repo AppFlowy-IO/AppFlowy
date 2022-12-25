@@ -76,14 +76,17 @@ class _FieldEditorState extends State<FieldEditor> {
   Widget _addDeleteFieldButton() {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       builder: (context, state) {
-        return _DeleteFieldButton(
-          popoverMutex: popoverMutex,
-          onDeleted: () {
-            state.field.fold(
-              () => Log.error('Can not delete the field'),
-              (field) => widget.onDeleted?.call(field.id),
-            );
-          },
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: _DeleteFieldButton(
+            popoverMutex: popoverMutex,
+            onDeleted: () {
+              state.field.fold(
+                () => Log.error('Can not delete the field'),
+                (field) => widget.onDeleted?.call(field.id),
+              );
+            },
+          ),
         );
       },
     );
