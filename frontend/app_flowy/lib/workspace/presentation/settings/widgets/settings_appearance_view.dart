@@ -3,7 +3,6 @@ import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +20,7 @@ class SettingsAppearanceView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ThemeModeSetting(currentThemeMode: state.themeMode),
-              ThemeTypeSetting(currentThemeType: state.themeType),
+              ThemeTypeSetting(currentThemeType: state.appTheme.themeName),
             ],
           );
         },
@@ -31,7 +30,7 @@ class SettingsAppearanceView extends StatelessWidget {
 }
 
 class ThemeTypeSetting extends StatelessWidget {
-  final ThemeType currentThemeType;
+  final String currentThemeType;
   const ThemeTypeSetting({required this.currentThemeType, super.key});
 
   @override
@@ -57,8 +56,8 @@ class ThemeTypeSetting extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _themeTypeItemButton(context, ThemeType.official),
-                  _themeTypeItemButton(context, ThemeType.dandelion),
+                  _themeTypeItemButton(context, 'light'),
+                  _themeTypeItemButton(context, 'dandelion'),
                 ],
               ),
             );
@@ -68,7 +67,7 @@ class ThemeTypeSetting extends StatelessWidget {
     );
   }
 
-  Widget _themeTypeItemButton(BuildContext context, ThemeType themeType) {
+  Widget _themeTypeItemButton(BuildContext context, String themeType) {
     return SizedBox(
       height: 32,
       child: FlowyButton(
@@ -77,20 +76,19 @@ class ThemeTypeSetting extends StatelessWidget {
             ? svgWidget("grid/checkmark")
             : const SizedBox(),
         onTap: () {
-          context.read<AppearanceSettingsCubit>().setTheme(themeType.name);
           if (currentThemeType != themeType) {
-            context.read<AppearanceSettingsCubit>().setThemeType(themeType);
+            context.read<AppearanceSettingsCubit>().setTheme(themeType);
           }
         },
       ),
     );
   }
 
-  String _getThemeNameForDisplaying(ThemeType themeType) {
-    switch (themeType) {
-      case ThemeType.official:
+  String _getThemeNameForDisplaying(String themeName) {
+    switch (themeName) {
+      case 'light':
         return LocaleKeys.settings_appearance_themeType_defaultTheme.tr();
-      case ThemeType.dandelion:
+      case 'dandelion':
         return LocaleKeys.settings_appearance_themeType_dandelionCommunity.tr();
       default:
         throw Exception("Unknown ThemeType");
