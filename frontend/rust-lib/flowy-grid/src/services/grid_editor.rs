@@ -405,13 +405,7 @@ impl GridRevisionEditor {
     /// Returns all the rows in this block.
     pub async fn get_row_pbs(&self, view_id: &str, block_id: &str) -> FlowyResult<Vec<RowPB>> {
         let rows = self.view_manager.get_row_revs(view_id, block_id).await?;
-        let rows = self
-            .view_manager
-            .filter_rows(view_id, block_id, rows)
-            .await?
-            .into_iter()
-            .map(|row_rev| RowPB::from(&row_rev))
-            .collect();
+        let rows = rows.into_iter().map(|row_rev| RowPB::from(&row_rev)).collect();
         Ok(rows)
     }
 
@@ -458,7 +452,7 @@ impl GridRevisionEditor {
             ))
         };
 
-        display_str().await.unwrap_or("".to_string())
+        display_str().await.unwrap_or_else(|| "".to_string())
     }
 
     pub async fn get_cell_bytes(&self, params: &CellPathParams) -> Option<CellProtobufBlob> {

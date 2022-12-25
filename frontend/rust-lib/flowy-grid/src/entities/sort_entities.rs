@@ -184,3 +184,18 @@ impl SortChangesetNotificationPB {
         self.insert_sorts.is_empty() && self.delete_sorts.is_empty() && self.update_sorts.is_empty()
     }
 }
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct ReorderAllRowsPB {
+    #[pb(index = 1)]
+    pub row_orders: Vec<String>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct ReorderSingleRowPB {
+    #[pb(index = 1)]
+    pub old_index: i32,
+
+    #[pb(index = 2)]
+    pub new_index: i32,
+}

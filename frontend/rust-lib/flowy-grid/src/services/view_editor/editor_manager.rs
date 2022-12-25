@@ -60,22 +60,11 @@ impl GridViewManager {
     pub async fn get_row_revs(&self, view_id: &str, block_id: &str) -> FlowyResult<Vec<Arc<RowRevision>>> {
         let mut row_revs = self.delegate.get_row_revs(Some(vec![block_id.to_owned()])).await;
         if let Ok(view_editor) = self.get_view_editor(view_id).await {
+            view_editor.filter_rows(block_id, &mut row_revs).await;
             view_editor.sort_rows(&mut row_revs).await;
         }
-        Ok(row_revs)
-    }
 
-    pub async fn filter_rows(
-        &self,
-        view_id: &str,
-        block_id: &str,
-        rows: Vec<Arc<RowRevision>>,
-    ) -> FlowyResult<Vec<Arc<RowRevision>>> {
-        let rows = match self.get_view_editor(view_id).await {
-            Ok(view_editor) => view_editor.filter_rows(block_id, rows).await,
-            Err(_) => rows,
-        };
-        Ok(rows)
+        Ok(row_revs)
     }
 
     pub async fn duplicate_grid_view(&self) -> FlowyResult<String> {
