@@ -1,37 +1,17 @@
 import 'package:flowy_infra/colorscheme/colorscheme.dart';
 import 'package:flutter/material.dart';
 
-enum ThemeType { official, dandelion }
-
-const String _defaultThemeName = "Default Flowy Theme";
-const String _dandelionCommunityThemeName = 'Dandelion Community Theme';
-
-String _getThemeNameForSaving(ThemeType themeType) {
-  switch (themeType) {
-    case ThemeType.official:
-      return _defaultThemeName;
-    case ThemeType.dandelion:
-      return _dandelionCommunityThemeName;
-    default:
-      throw Exception("Unknown ThemeType");
-  }
-}
-
-extension ThemeTypeExtension on ThemeType {
-  String get name => _getThemeNameForSaving(this);
-}
-
-const List<String> builtInThemes = [
-  'light',
-];
+const List<String> builtInThemes = ['light', 'dandelion'];
 
 class AppTheme {
   // metadata member
+  final String themeName;
   final FlowyColorScheme lightTheme;
   final FlowyColorScheme darkTheme;
   // static final Map<String, dynamic> _cachedJsonData = {};
 
   const AppTheme({
+    required this.themeName,
     required this.lightTheme,
     required this.darkTheme,
   });
@@ -50,6 +30,7 @@ class AppTheme {
     //   );
     // }
     return AppTheme(
+      themeName: themeName,
       lightTheme: FlowyColorScheme.builtIn(themeName, Brightness.light),
       darkTheme: FlowyColorScheme.builtIn(themeName, Brightness.dark),
     );
