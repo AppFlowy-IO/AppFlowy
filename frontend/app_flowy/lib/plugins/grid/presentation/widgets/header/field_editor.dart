@@ -67,21 +67,8 @@ class _FieldEditorState extends State<FieldEditor> {
       child: ListView.builder(
         shrinkWrap: true,
         itemCount: children.length,
-        itemBuilder: (context, index) {
-          double horizontalSpacing = 12.0;
-          if (children[index] is _FieldTypeOptionCell) {
-            horizontalSpacing = 0.0;
-          }
-          return Padding(
-            padding: GridSize.optionListItemPadding(
-              length: children.length,
-              index: index,
-              horizontal: horizontalSpacing,
-              vertical: 12.0,
-            ),
-            child: children[index],
-          );
-        },
+        itemBuilder: (context, index) => children[index],
+        padding: const EdgeInsets.symmetric(vertical: 12.0),
       ),
     );
   }
@@ -186,17 +173,20 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
         buildWhen: (previous, current) =>
             previous.errorText != current.errorText,
         builder: (context, state) {
-          return RoundedInputField(
-            height: 36,
-            focusNode: focusNode,
-            style: Theme.of(context).textTheme.bodyMedium,
-            controller: controller,
-            errorText: context.read<FieldEditorBloc>().state.errorText,
-            onChanged: (newName) {
-              context
-                  .read<FieldEditorBloc>()
-                  .add(FieldEditorEvent.updateName(newName));
-            },
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: RoundedInputField(
+              height: 36,
+              focusNode: focusNode,
+              style: Theme.of(context).textTheme.bodyMedium,
+              controller: controller,
+              errorText: context.read<FieldEditorBloc>().state.errorText,
+              onChanged: (newName) {
+                context
+                    .read<FieldEditorBloc>()
+                    .add(FieldEditorEvent.updateName(newName));
+              },
+            ),
           );
         },
       ),

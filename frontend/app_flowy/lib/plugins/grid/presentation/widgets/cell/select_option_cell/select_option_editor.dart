@@ -103,18 +103,8 @@ class _OptionList extends StatelessWidget {
             return VSpace(GridSize.typeOptionSeparatorHeight);
           },
           physics: StyledScrollPhysics(),
-          itemBuilder: (BuildContext context, int index) {
-            return Padding(
-              padding: GridSize.optionListItemPadding(
-                length: cells.length,
-                index: index,
-                horizontal: _padding,
-                top: 6.0,
-                bottom: _padding,
-              ),
-              child: cells[index],
-            );
-          },
+          itemBuilder: (BuildContext context, int index) => cells[index],
+          padding: const EdgeInsets.only(top: 6.0, bottom: 12.0),
         );
 
         return list;
@@ -181,11 +171,14 @@ class _Title extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: GridSize.typeOptionItemHeight,
-      child: FlowyText.medium(
-        LocaleKeys.grid_selectOption_panelTitle.tr(),
-        color: Theme.of(context).hintColor,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: SizedBox(
+        height: GridSize.typeOptionItemHeight,
+        child: FlowyText.medium(
+          LocaleKeys.grid_selectOption_panelTitle.tr(),
+          color: Theme.of(context).hintColor,
+        ),
       ),
     );
   }
@@ -197,28 +190,31 @@ class _CreateOptionCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: GridSize.typeOptionItemHeight,
-      child: Row(
-        children: [
-          FlowyText.medium(
-            LocaleKeys.grid_selectOption_create.tr(),
-            color: Theme.of(context).hintColor,
-          ),
-          const HSpace(10),
-          Expanded(
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: SelectOptionTag(
-                name: name,
-                color: AFThemeExtension.of(context).lightGreyHover,
-                onSelected: () => context
-                    .read<SelectOptionCellEditorBloc>()
-                    .add(SelectOptionEditorEvent.newOption(name)),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: SizedBox(
+        height: GridSize.typeOptionItemHeight,
+        child: Row(
+          children: [
+            FlowyText.medium(
+              LocaleKeys.grid_selectOption_create.tr(),
+              color: Theme.of(context).hintColor,
+            ),
+            const HSpace(10),
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: SelectOptionTag(
+                  name: name,
+                  color: AFThemeExtension.of(context).lightGreyHover,
+                  onSelected: () => context
+                      .read<SelectOptionCellEditorBloc>()
+                      .add(SelectOptionEditorEvent.newOption(name)),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -250,6 +246,39 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
 
   @override
   Widget build(BuildContext context) {
+    final child = SizedBox(
+      height: GridSize.typeOptionItemHeight,
+      child: SelectOptionTagCell(
+        option: widget.option,
+        onSelected: (option) {
+          if (widget.isSelected) {
+            context
+                .read<SelectOptionCellEditorBloc>()
+                .add(SelectOptionEditorEvent.unSelectOption(option.id));
+          } else {
+            context
+                .read<SelectOptionCellEditorBloc>()
+                .add(SelectOptionEditorEvent.selectOption(option.id));
+          }
+        },
+        children: [
+          if (widget.isSelected)
+            Padding(
+              padding: const EdgeInsets.only(left: 6),
+              child: svgWidget("grid/checkmark"),
+            ),
+          FlowyIconButton(
+            onPressed: () => _popoverController.show(),
+            hoverColor: Colors.transparent,
+            iconPadding: const EdgeInsets.symmetric(horizontal: 6.0),
+            icon: svgWidget(
+              "editor/details",
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+        ],
+      ),
+    );
     return AppFlowyPopover(
       controller: _popoverController,
       offset: const Offset(20, 0),
@@ -257,38 +286,9 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
       asBarrier: true,
       constraints: BoxConstraints.loose(const Size(200, 460)),
       mutex: widget.popoverMutex,
-      child: SizedBox(
-        height: GridSize.typeOptionItemHeight,
-        child: SelectOptionTagCell(
-          option: widget.option,
-          onSelected: (option) {
-            if (widget.isSelected) {
-              context
-                  .read<SelectOptionCellEditorBloc>()
-                  .add(SelectOptionEditorEvent.unSelectOption(option.id));
-            } else {
-              context
-                  .read<SelectOptionCellEditorBloc>()
-                  .add(SelectOptionEditorEvent.selectOption(option.id));
-            }
-          },
-          children: [
-            if (widget.isSelected)
-              Padding(
-                padding: const EdgeInsets.only(left: 6),
-                child: svgWidget("grid/checkmark"),
-              ),
-            FlowyIconButton(
-              onPressed: () => _popoverController.show(),
-              hoverColor: Colors.transparent,
-              iconPadding: const EdgeInsets.symmetric(horizontal: 6.0),
-              icon: svgWidget(
-                "editor/details",
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-          ],
-        ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        child: child,
       ),
       popupBuilder: (BuildContext popoverContext) {
         return SelectOptionTypeOptionEditor(

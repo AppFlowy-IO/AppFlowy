@@ -30,11 +30,10 @@ class NumberTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
 
   @override
   Widget? build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0)
-          .copyWith(top: GridSize.typeOptionSeparatorHeight),
-      child: _widget,
-    );
+    return Column(children: [
+      VSpace(GridSize.typeOptionSeparatorHeight),
+      _widget,
+    ]);
   }
 }
 
@@ -58,13 +57,8 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
           listener: (context, state) =>
               typeOptionContext.typeOption = state.typeOption,
           builder: (context, state) {
-            return AppFlowyPopover(
-              mutex: popoverMutex,
-              triggerActions:
-                  PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
-              offset: const Offset(20, 0),
-              constraints: BoxConstraints.loose(const Size(460, 440)),
-              margin: EdgeInsets.zero,
+            final button = SizedBox(
+              height: GridSize.typeOptionItemHeight,
               child: FlowyButton(
                 margin: GridSize.typeOptionContentInsets,
                 rightIcon: svgWidget(
@@ -78,6 +72,19 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
                     FlowyText.regular(state.typeOption.format.title()),
                   ],
                 ),
+              ),
+            );
+
+            return AppFlowyPopover(
+              mutex: popoverMutex,
+              triggerActions:
+                  PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
+              offset: const Offset(20, 0),
+              constraints: BoxConstraints.loose(const Size(460, 440)),
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: button,
               ),
               popupBuilder: (BuildContext popoverContext) {
                 return NumberFormatList(

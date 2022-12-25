@@ -80,16 +80,12 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
                     return cells[index];
                   } else {
                     return Padding(
-                      padding: GridSize.optionListItemPadding(
-                        length: cells.length,
-                        index: index,
-                        vertical: 6.0,
-                        horizontal: 6.0,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 6.0),
                       child: cells[index],
                     );
                   }
                 },
+                padding: const EdgeInsets.symmetric(vertical: 6.0),
               ),
             );
           },

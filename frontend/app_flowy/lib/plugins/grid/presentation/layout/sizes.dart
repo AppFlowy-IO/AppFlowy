@@ -39,44 +39,4 @@ class GridSize {
         GridSize.headerContainerPadding,
         GridSize.headerContainerPadding,
       );
-
-  static EdgeInsets optionListItemPadding({
-    required int length,
-    required int index,
-    double? right,
-    double? left,
-    double? top,
-    double? bottom,
-    double? horizontal,
-    double? vertical,
-  }) {
-    assert(horizontal == null || (left == null && right == null));
-    assert(vertical == null || (top == null && bottom == null));
-
-    EdgeInsets padding = EdgeInsets.zero;
-
-    if (horizontal != null) {
-      padding = padding.copyWith(left: horizontal, right: horizontal);
-    } else {
-      padding = padding.copyWith(left: left, right: right);
-    }
-
-    if (index == 0) {
-      if (vertical != null) {
-        padding = padding.copyWith(top: vertical);
-      } else {
-        padding = padding.copyWith(top: top);
-      }
-    }
-
-    if (index == length - 1) {
-      if (vertical != null) {
-        padding = padding.copyWith(bottom: vertical);
-      } else {
-        padding = padding.copyWith(bottom: bottom);
-      }
-    }
-
-    return padding;
-  }
 }

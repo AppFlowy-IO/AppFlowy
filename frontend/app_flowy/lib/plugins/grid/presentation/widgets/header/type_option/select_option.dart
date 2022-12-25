@@ -55,14 +55,7 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
             shrinkWrap: true,
             itemCount: children.length,
             itemBuilder: (context, index) {
-              if (children[index] is TypeOptionSeparator) {
-                return children[index];
-              } else {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: children[index],
-                );
-              }
+              return children[index];
             },
           );
         },
@@ -89,9 +82,12 @@ class OptionTitle extends StatelessWidget {
           children.add(const _OptionTitleButton());
         }
 
-        return SizedBox(
-          height: GridSize.typeOptionItemHeight,
-          child: Row(children: children),
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: SizedBox(
+            height: GridSize.typeOptionItemHeight,
+            child: Row(children: children),
+          ),
         );
       },
     );
@@ -188,6 +184,24 @@ class _OptionCellState extends State<_OptionCell> {
 
   @override
   Widget build(BuildContext context) {
+    final child = SizedBox(
+      height: GridSize.typeOptionItemHeight,
+      child: SelectOptionTagCell(
+        option: widget.option,
+        onSelected: (SelectOptionPB pb) {
+          _popoverController.show();
+        },
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6.0),
+            child: svgWidget(
+              "grid/details",
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+        ],
+      ),
+    );
     return AppFlowyPopover(
       controller: _popoverController,
       mutex: widget.popoverMutex,
@@ -195,23 +209,9 @@ class _OptionCellState extends State<_OptionCell> {
       margin: EdgeInsets.zero,
       asBarrier: true,
       constraints: BoxConstraints.loose(const Size(460, 460)),
-      child: SizedBox(
-        height: GridSize.typeOptionItemHeight,
-        child: SelectOptionTagCell(
-          option: widget.option,
-          onSelected: (SelectOptionPB pb) {
-            _popoverController.show();
-          },
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6.0),
-              child: svgWidget(
-                "grid/details",
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-          ],
-        ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        child: child,
       ),
       popupBuilder: (BuildContext popoverContext) {
         return SelectOptionTypeOptionEditor(
@@ -240,18 +240,21 @@ class _AddOptionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: GridSize.typeOptionItemHeight,
-      child: FlowyButton(
-        text: FlowyText.medium(LocaleKeys.grid_field_addSelectOption.tr()),
-        onTap: () {
-          context
-              .read<SelectOptionTypeOptionBloc>()
-              .add(const SelectOptionTypeOptionEvent.addingOption());
-        },
-        leftIcon: svgWidget(
-          "home/add",
-          color: Theme.of(context).colorScheme.onSurface,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: SizedBox(
+        height: GridSize.typeOptionItemHeight,
+        child: FlowyButton(
+          text: FlowyText.medium(LocaleKeys.grid_field_addSelectOption.tr()),
+          onTap: () {
+            context
+                .read<SelectOptionTypeOptionBloc>()
+                .add(const SelectOptionTypeOptionEvent.addingOption());
+          },
+          leftIcon: svgWidget(
+            "home/add",
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
       ),
     );
@@ -293,22 +296,25 @@ class _CreateOptionTextFieldState extends State<_CreateOptionTextField> {
     return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
       builder: (context, state) {
         final text = state.newOptionName.foldRight("", (a, previous) => a);
-        return FlowyTextField(
-          autoClearWhenDone: true,
-          maxLength: 30,
-          text: text,
-          focusNode: _focusNode,
-          onCanceled: () {
-            context
-                .read<SelectOptionTypeOptionBloc>()
-                .add(const SelectOptionTypeOptionEvent.endAddingOption());
-          },
-          onEditingComplete: () {},
-          onSubmitted: (optionName) {
-            context
-                .read<SelectOptionTypeOptionBloc>()
-                .add(SelectOptionTypeOptionEvent.createOption(optionName));
-          },
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: FlowyTextField(
+            autoClearWhenDone: true,
+            maxLength: 30,
+            text: text,
+            focusNode: _focusNode,
+            onCanceled: () {
+              context
+                  .read<SelectOptionTypeOptionBloc>()
+                  .add(const SelectOptionTypeOptionEvent.endAddingOption());
+            },
+            onEditingComplete: () {},
+            onSubmitted: (optionName) {
+              context
+                  .read<SelectOptionTypeOptionBloc>()
+                  .add(SelectOptionTypeOptionEvent.createOption(optionName));
+            },
+          ),
         );
       },
     );
