@@ -53,17 +53,12 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
       )..add(const SelectOptionEditorEvent.initial()),
       child: BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
         builder: (context, state) {
-          return Flex(
-            direction: Axis.vertical,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               _TextField(popoverMutex: popoverMutex),
               const TypeOptionSeparator(spacing: 0.0),
-              Flexible(
-                fit: FlexFit.loose,
-                child: _OptionList(popoverMutex: popoverMutex),
-              ),
+              Flexible(child: _OptionList(popoverMutex: popoverMutex)),
             ],
           );
         },
