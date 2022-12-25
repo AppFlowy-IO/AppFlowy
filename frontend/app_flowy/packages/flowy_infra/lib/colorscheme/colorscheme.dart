@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'default_colorscheme.dart';
 import 'dandelion.dart';
 
-const String _themeName = 'Dandelion Community Theme';
+const String _themeName = 'dandelion';
 
 @immutable
 abstract class FlowyColorScheme {
