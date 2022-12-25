@@ -469,7 +469,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
             VSpace(GridSize.typeOptionSeparatorHeight),
         itemCount: children.length,
         itemBuilder: (BuildContext context, int index) => children[index],
-        padding: const EdgeInsets.all(6.0),
+        padding: const EdgeInsets.symmetric(vertical: 6.0),
       ),
     );
   }
