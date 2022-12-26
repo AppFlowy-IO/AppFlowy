@@ -1,4 +1,5 @@
 import 'package:app_flowy/plugins/board/board.dart';
+import 'package:app_flowy/plugins/calendar/calendar.dart';
 import 'package:app_flowy/plugins/document/document.dart';
 import 'package:app_flowy/plugins/grid/grid.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
@@ -37,6 +38,7 @@ void main() {
     assert(bloc.state.views.last.name == "Test grid");
     assert(bloc.state.views.last.layout == ViewLayoutTypePB.Grid);
   });
+
   test('create a kanban', () async {
     final app = await testContext.createTestApp();
     final bloc = AppBloc(app: app)..add(const AppEvent.initial());
@@ -48,5 +50,18 @@ void main() {
     assert(bloc.state.views.length == 1);
     assert(bloc.state.views.last.name == "Test board");
     assert(bloc.state.views.last.layout == ViewLayoutTypePB.Board);
+  });
+
+  test('create a calendar', () async {
+    final app = await testContext.createTestApp();
+    final bloc = AppBloc(app: app)..add(const AppEvent.initial());
+    await blocResponseFuture();
+
+    bloc.add(AppEvent.createView("Test calendar", CalendarPluginBuilder()));
+    await blocResponseFuture();
+
+    assert(bloc.state.views.length == 1);
+    assert(bloc.state.views.last.name == "Test calendar");
+    assert(bloc.state.views.last.layout == ViewLayoutTypePB.Calendar);
   });
 }
