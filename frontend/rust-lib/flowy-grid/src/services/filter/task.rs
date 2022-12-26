@@ -24,6 +24,10 @@ impl TaskHandler for FilterTaskHandler {
         &self.handler_id
     }
 
+    fn handler_name(&self) -> &str {
+        "FilterTaskHandler"
+    }
+
     fn run(&self, content: TaskContent) -> BoxResultFuture<(), anyhow::Error> {
         let filter_controller = self.filter_controller.clone();
         Box::pin(async move {
@@ -33,7 +37,7 @@ impl TaskHandler for FilterTaskHandler {
                     .await
                     .process(&predicate)
                     .await
-                    .map_err(anyhow::Error::from);
+                    .map_err(anyhow::Error::from)?;
             }
             Ok(())
         })

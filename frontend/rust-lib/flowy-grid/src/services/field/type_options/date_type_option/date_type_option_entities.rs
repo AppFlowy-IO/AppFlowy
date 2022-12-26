@@ -1,5 +1,7 @@
 use crate::entities::CellPathPB;
-use crate::services::cell::{CellProtobufBlobParser, DecodedCellData, FromCellChangeset, FromCellString};
+use crate::services::cell::{
+    CellProtobufBlobParser, DecodedCellData, FromCellChangesetString, FromCellString, ToCellChangesetString,
+};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, FlowyResult};
@@ -33,7 +35,7 @@ pub struct DateChangesetPB {
     pub is_utc: bool,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DateCellChangeset {
     pub date: Option<String>,
     pub time: Option<String>,
@@ -53,7 +55,7 @@ impl DateCellChangeset {
     }
 }
 
-impl FromCellChangeset for DateCellChangeset {
+impl FromCellChangesetString for DateCellChangeset {
     fn from_changeset(changeset: String) -> FlowyResult<Self>
     where
         Self: Sized,
@@ -62,9 +64,9 @@ impl FromCellChangeset for DateCellChangeset {
     }
 }
 
-impl ToString for DateCellChangeset {
-    fn to_string(&self) -> String {
-        serde_json::to_string(self).unwrap_or_else(|_| "".to_string())
+impl ToCellChangesetString for DateCellChangeset {
+    fn to_cell_changeset_str(&self) -> String {
+        serde_json::to_string(self).unwrap_or_default()
     }
 }
 

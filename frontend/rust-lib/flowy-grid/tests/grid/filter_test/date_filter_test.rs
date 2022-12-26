@@ -27,7 +27,7 @@ async fn grid_filter_date_after_test() {
             end: None,
             timestamp: Some(1647251762),
         },
-        AssertNumberOfVisibleRows { expected: 2 },
+        AssertNumberOfVisibleRows { expected: 3 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -42,7 +42,7 @@ async fn grid_filter_date_on_or_after_test() {
             end: None,
             timestamp: Some(1668359085),
         },
-        AssertNumberOfVisibleRows { expected: 2 },
+        AssertNumberOfVisibleRows { expected: 3 },
     ];
     test.run_scripts(scripts).await;
 }

@@ -118,8 +118,13 @@ impl GridBlockRevisionEditor {
     }
 
     pub async fn get_row_rev(&self, row_id: &str) -> FlowyResult<Option<(usize, Arc<RowRevision>)>> {
-        let row_rev = self.pad.read().await.get_row_rev(row_id);
-        Ok(row_rev)
+        if self.pad.try_read().is_err() {
+            tracing::error!("Required GridBlockRevisionPad's read lock failed");
+            Ok(None)
+        } else {
+            let row_rev = self.pad.read().await.get_row_rev(row_id);
+            Ok(row_rev)
+        }
     }
 
     pub async fn get_row_revs<T>(&self, row_ids: Option<Vec<Cow<'_, T>>>) -> FlowyResult<Vec<Arc<RowRevision>>>

@@ -1,5 +1,5 @@
 use crate::entities::{GridLayout, GridLayoutPB, GridSettingPB};
-use crate::services::filter::{FilterDelegate, FilterType};
+use crate::services::filter::{FilterController, FilterDelegate, FilterType};
 use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter};
 use crate::services::row::GridBlockRowRevision;
 use crate::services::sort::{SortDelegate, SortType};
@@ -169,6 +169,7 @@ impl FilterDelegate for GridViewFilterDelegateImpl {
 pub(crate) struct GridViewSortDelegateImpl {
     pub(crate) editor_delegate: Arc<dyn GridViewEditorDelegate>,
     pub(crate) view_revision_pad: Arc<RwLock<GridViewRevisionPad>>,
+    pub(crate) filter_controller: Arc<RwLock<FilterController>>,
 }
 
 impl SortDelegate for GridViewSortDelegateImpl {
@@ -184,6 +185,16 @@ impl SortDelegate for GridViewSortDelegateImpl {
                 debug_assert_eq!(sorts.len(), 1);
                 sorts.pop()
             }
+        })
+    }
+
+    fn get_row_revs(&self) -> Fut<Vec<Arc<RowRevision>>> {
+        let filter_controller = self.filter_controller.clone();
+        let editor_delegate = self.editor_delegate.clone();
+        to_fut(async move {
+            let mut row_revs = editor_delegate.get_row_revs(None).await;
+            filter_controller.write().await.filter_row_revs(&mut row_revs).await;
+            row_revs
         })
     }
 

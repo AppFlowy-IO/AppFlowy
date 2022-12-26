@@ -34,7 +34,7 @@ pub trait CellDataDecoder: TypeOption {
 
 pub trait CellDataChangeset: TypeOption {
     /// The changeset is able to parse into the concrete data struct if `TypeOption::CellChangeset`
-    /// implements the `FromCellChangeset` trait.
+    /// implements the `FromCellChangesetString` trait.
     /// For example,the SelectOptionCellChangeset,DateCellChangeset. etc.
     ///  
     fn apply_changeset(
@@ -50,14 +50,14 @@ pub trait CellDataChangeset: TypeOption {
 ///         FieldType::SingleSelect => SelectOptionChangeset
 ///
 /// cell_rev: It will be None if the cell does not contain any data.
-pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
+pub fn apply_cell_data_changeset<C: ToCellChangesetString, T: AsRef<FieldRevision>>(
     changeset: C,
     cell_rev: Option<CellRevision>,
     field_rev: T,
     cell_data_cache: Option<AtomicCellDataCache>,
 ) -> Result<String, FlowyError> {
     let field_rev = field_rev.as_ref();
-    let changeset = changeset.to_string();
+    let changeset = changeset.to_cell_changeset_str();
     let field_type: FieldType = field_rev.ty.into();
 
     let type_cell_data = cell_rev.and_then(|cell_rev| match TypeCellData::try_from(cell_rev) {
@@ -108,7 +108,8 @@ pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debu
 ///
 /// # Arguments
 ///
-/// * `cell_str`: the opaque cell string
+/// * `cell_str`: the opaque cell string that can be decoded by corresponding structs that implement the
+/// `FromCellString` trait.
 /// * `from_field_type`: the original field type of the passed-in cell data. Check the `TypeCellData`
 /// that is used to save the origin field type of the cell data.
 /// * `to_field_type`: decode the passed-in cell data to this field type. It will use the to_field_type's
@@ -155,7 +156,7 @@ pub fn insert_text_cell(s: String, field_rev: &FieldRevision) -> CellRevision {
 }
 
 pub fn insert_number_cell(num: i64, field_rev: &FieldRevision) -> CellRevision {
-    let data = apply_cell_data_changeset(num, None, field_rev, None).unwrap();
+    let data = apply_cell_data_changeset(num.to_string(), None, field_rev, None).unwrap();
     CellRevision::new(data)
 }
 
@@ -186,14 +187,14 @@ pub fn insert_date_cell(timestamp: i64, field_rev: &FieldRevision) -> CellRevisi
 }
 
 pub fn insert_select_option_cell(option_ids: Vec<String>, field_rev: &FieldRevision) -> CellRevision {
-    let cell_data = SelectOptionCellChangeset::from_insert_options(option_ids).to_str();
-    let data = apply_cell_data_changeset(cell_data, None, field_rev, None).unwrap();
+    let changeset = SelectOptionCellChangeset::from_insert_options(option_ids).to_cell_changeset_str();
+    let data = apply_cell_data_changeset(changeset, None, field_rev, None).unwrap();
     CellRevision::new(data)
 }
 
 pub fn delete_select_option_cell(option_ids: Vec<String>, field_rev: &FieldRevision) -> CellRevision {
-    let cell_data = SelectOptionCellChangeset::from_delete_options(option_ids).to_str();
-    let data = apply_cell_data_changeset(cell_data, None, field_rev, None).unwrap();
+    let changeset = SelectOptionCellChangeset::from_delete_options(option_ids).to_cell_changeset_str();
+    let data = apply_cell_data_changeset(changeset, None, field_rev, None).unwrap();
     CellRevision::new(data)
 }
 
@@ -252,18 +253,28 @@ impl std::convert::From<IntoCellData<String>> for String {
 
 /// If the changeset applying to the cell is not String type, it should impl this trait.
 /// Deserialize the string into cell specific changeset.
-pub trait FromCellChangeset {
+pub trait FromCellChangesetString {
     fn from_changeset(changeset: String) -> FlowyResult<Self>
     where
         Self: Sized;
 }
 
-impl FromCellChangeset for String {
+impl FromCellChangesetString for String {
     fn from_changeset(changeset: String) -> FlowyResult<Self>
     where
         Self: Sized,
     {
         Ok(changeset)
+    }
+}
+
+pub trait ToCellChangesetString: Debug {
+    fn to_cell_changeset_str(&self) -> String;
+}
+
+impl ToCellChangesetString for String {
+    fn to_cell_changeset_str(&self) -> String {
+        self.clone()
     }
 }
 
@@ -280,7 +291,7 @@ impl<T> AnyCellChangeset<T> {
 
 impl<T, C: ToString> std::convert::From<C> for AnyCellChangeset<T>
 where
-    T: FromCellChangeset,
+    T: FromCellChangesetString,
 {
     fn from(changeset: C) -> Self {
         match T::from_changeset(changeset.to_string()) {

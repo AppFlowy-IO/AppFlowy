@@ -24,17 +24,19 @@ impl GridCellTest {
     pub async fn run_script(&mut self, script: CellScript) {
         // let grid_manager = self.sdk.grid_manager.clone();
         // let pool = self.sdk.user_session.db_pool().unwrap();
-        let rev_manager = self.editor.rev_manager();
-        let _cache = rev_manager.revision_cache().await;
+        // let rev_manager = self.editor.rev_manager();
+        // let _cache = rev_manager.revision_cache().await;
 
         match script {
             CellScript::UpdateCell { changeset, is_err } => {
-                let result = self.editor.update_cell_with_changeset(changeset).await;
+                let result = self
+                    .editor
+                    .update_cell_with_changeset(&changeset.row_id, &changeset.field_id, changeset.type_cell_data)
+                    .await;
                 if is_err {
                     assert!(result.is_err())
                 } else {
                     let _ = result.unwrap();
-                    self.row_revs = self.get_row_revs().await;
                 }
             } // CellScript::AssertGridRevisionPad => {
               //     sleep(Duration::from_millis(2 * REVISION_WRITE_INTERVAL_IN_MILLIS)).await;

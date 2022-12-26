@@ -32,7 +32,25 @@ impl std::convert::From<&Arc<FieldRevision>> for SortType {
     }
 }
 
-#[allow(dead_code)]
+#[derive(Clone)]
+pub struct ReorderAllRowsResult {
+    pub view_id: String,
+    pub row_orders: Vec<String>,
+}
+
+impl ReorderAllRowsResult {
+    pub fn new(view_id: String, row_orders: Vec<String>) -> Self {
+        Self { view_id, row_orders }
+    }
+}
+
+#[derive(Clone)]
+pub struct ReorderSingleRowResult {
+    pub view_id: String,
+    pub old_index: usize,
+    pub new_index: usize,
+}
+
 #[derive(Debug)]
 pub struct SortChangeset {
     pub(crate) insert_sort: Option<SortType>,

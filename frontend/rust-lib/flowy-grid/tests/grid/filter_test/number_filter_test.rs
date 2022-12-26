@@ -76,7 +76,7 @@ async fn grid_filter_number_is_not_empty_test() {
             condition: NumberFilterConditionPB::NumberIsNotEmpty,
             content: "".to_string(),
         },
-        AssertNumberOfVisibleRows { expected: 4 },
+        AssertNumberOfVisibleRows { expected: 5 },
     ];
     test.run_scripts(scripts).await;
 }

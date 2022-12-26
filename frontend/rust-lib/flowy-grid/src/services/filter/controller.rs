@@ -77,7 +77,7 @@ impl FilterController {
     }
 
     #[tracing::instrument(name = "schedule_filter_task", level = "trace", skip(self))]
-    async fn gen_task(&mut self, task_type: FilterEvent, qos: QualityOfService) {
+    async fn gen_task(&self, task_type: FilterEvent, qos: QualityOfService) {
         let task_id = self.task_scheduler.read().await.next_task_id();
         let task = Task::new(&self.handler_id, task_id, TaskContent::Text(task_type.to_string()), qos);
         self.task_scheduler.write().await.add_task(task);
@@ -148,9 +148,7 @@ impl FilterController {
                 }
             }
 
-            let _ = self
-                .notifier
-                .send(GridViewChanged::DidReceiveFilterResult(notification));
+            let _ = self.notifier.send(GridViewChanged::FilterNotification(notification));
         }
         Ok(())
     }
@@ -186,14 +184,12 @@ impl FilterController {
                 visible_rows,
             };
             tracing::Span::current().record("filter_result", &format!("{:?}", &notification).as_str());
-            let _ = self
-                .notifier
-                .send(GridViewChanged::DidReceiveFilterResult(notification));
+            let _ = self.notifier.send(GridViewChanged::FilterNotification(notification));
         }
         Ok(())
     }
 
-    pub async fn did_receive_row_changed(&mut self, row_id: &str) {
+    pub async fn did_receive_row_changed(&self, row_id: &str) {
         self.gen_task(
             FilterEvent::RowDidChanged(row_id.to_string()),
             QualityOfService::UserInteractive,

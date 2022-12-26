@@ -9,7 +9,7 @@ async fn grid_filter_checklist_is_incomplete_test() {
         CreateChecklistFilter {
             condition: ChecklistFilterConditionPB::IsIncomplete,
         },
-        AssertNumberOfVisibleRows { expected: 4 },
+        AssertNumberOfVisibleRows { expected: 5 },
     ];
     test.run_scripts(scripts).await;
 }

@@ -92,7 +92,7 @@ impl RevisionSnapshotDiskCache for SQLiteGridRevisionSnapshotPersistence {
         Ok(Some(latest_record.into()))
     }
 }
-//noinspection ALL
+
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[table_name = "grid_rev_snapshot"]
 #[primary_key("snapshot_id")]

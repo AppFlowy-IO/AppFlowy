@@ -1,5 +1,5 @@
 use crate::entities::FieldType;
-use crate::services::cell::{CellDataDecoder, FromCellChangeset, FromCellString};
+use crate::services::cell::{CellDataDecoder, FromCellChangesetString, FromCellString, ToCellChangesetString};
 
 use crate::services::filter::FromFilterString;
 use bytes::Bytes;
@@ -23,10 +23,10 @@ pub trait TypeOption {
     type CellData: FromCellString + ToString + Default + Send + Sync + Clone + 'static;
 
     /// Represents as the corresponding field type cell changeset.
-    /// The changeset must implements the `FromCellChangeset` trait. The `CellChangeset` is implemented
-    /// for `String`.
+    /// The changeset must implements the `FromCellChangesetString` and the `ToCellChangesetString` trait.
+    /// These two traits are auto implemented for `String`.
     ///  
-    type CellChangeset: FromCellChangeset;
+    type CellChangeset: FromCellChangesetString + ToCellChangesetString;
 
     ///  For the moment, the protobuf type only be used in the FFI of `Dart`. If the decoded cell
     /// struct is just a `String`, then use the `StrCellData` as its `CellProtobufType`.
