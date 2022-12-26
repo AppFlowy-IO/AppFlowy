@@ -1,9 +1,9 @@
-use crate::dart_notification::{send_dart_notification, GridDartNotification};
-use crate::entities::{FieldType, ReorderAllRowsPB};
-use crate::entities::{ReorderSingleRowPB, SortChangesetNotificationPB};
+use crate::entities::FieldType;
+use crate::entities::SortChangesetNotificationPB;
 use crate::services::cell::{AtomicCellDataCache, TypeCellData};
 use crate::services::field::{default_order, TypeOptionCellExt};
-use crate::services::sort::{SortChangeset, SortType};
+use crate::services::sort::{ReorderAllRowsResult, ReorderSingleRowResult, SortChangeset, SortType};
+use crate::services::view_editor::{GridViewChanged, GridViewChangedNotifier};
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use grid_rev_model::{CellRevision, FieldRevision, RowRevision, SortCondition, SortRevision};
@@ -32,6 +32,7 @@ pub struct SortController {
     sorts: Vec<Arc<SortRevision>>,
     cell_data_cache: AtomicCellDataCache,
     row_index_cache: HashMap<String, usize>,
+    notifier: GridViewChangedNotifier,
 }
 
 impl SortController {
@@ -41,6 +42,7 @@ impl SortController {
         delegate: T,
         task_scheduler: Arc<RwLock<TaskDispatcher>>,
         cell_data_cache: AtomicCellDataCache,
+        notifier: GridViewChangedNotifier,
     ) -> Self
     where
         T: SortDelegate + 'static,
@@ -53,6 +55,7 @@ impl SortController {
             sorts: vec![],
             cell_data_cache,
             row_index_cache: Default::default(),
+            notifier,
         }
     }
 
@@ -64,7 +67,7 @@ impl SortController {
             .await;
     }
 
-    pub async fn did_receive_row_changed(&mut self, row_id: &str) {
+    pub async fn did_receive_row_changed(&self, row_id: &str) {
         let task_type = SortEvent::RowDidChanged(row_id.to_string());
         self.gen_task(task_type, QualityOfService::Background).await;
     }
@@ -80,7 +83,15 @@ impl SortController {
                     .iter()
                     .map(|row_rev| row_rev.id.clone())
                     .collect::<Vec<String>>();
-                self.notify_did_reorder_all_rows(row_orders);
+
+                let notification = ReorderAllRowsResult {
+                    view_id: self.view_id.clone(),
+                    row_orders,
+                };
+
+                let _ = self
+                    .notifier
+                    .send(GridViewChanged::ReorderAllRowsNotification(notification));
             }
             SortEvent::RowDidChanged(row_id) => {
                 let old_row_index = self.row_index_cache.get(&row_id).cloned();
@@ -88,7 +99,17 @@ impl SortController {
                 let new_row_index = self.row_index_cache.get(&row_id).cloned();
                 match (old_row_index, new_row_index) {
                     (Some(old_row_index), Some(new_row_index)) => {
-                        self.notify_did_reorder_row(old_row_index, new_row_index);
+                        if old_row_index == new_row_index {
+                            return Ok(());
+                        }
+                        let notification = ReorderSingleRowResult {
+                            view_id: self.view_id.clone(),
+                            old_index: old_row_index,
+                            new_index: new_row_index,
+                        };
+                        let _ = self
+                            .notifier
+                            .send(GridViewChanged::ReorderSingleRowNotification(notification));
                     }
                     _ => tracing::trace!("The row index cache is outdated"),
                 }
@@ -98,18 +119,24 @@ impl SortController {
     }
 
     #[tracing::instrument(name = "schedule_sort_task", level = "trace", skip(self))]
-    async fn gen_task(&mut self, task_type: SortEvent, qos: QualityOfService) {
+    async fn gen_task(&self, task_type: SortEvent, qos: QualityOfService) {
+        if self.sorts.is_empty() {
+            return;
+        }
         let task_id = self.task_scheduler.read().await.next_task_id();
         let task = Task::new(&self.handler_id, task_id, TaskContent::Text(task_type.to_string()), qos);
         self.task_scheduler.write().await.add_task(task);
     }
 
     pub async fn sort_rows(&mut self, rows: &mut Vec<Arc<RowRevision>>) {
+        if self.sorts.is_empty() {
+            return;
+        }
+
         let field_revs = self.delegate.get_field_revs(None).await;
         for sort in self.sorts.iter() {
             rows.par_sort_by(|left, right| cmp_row(left, right, sort, &field_revs, &self.cell_data_cache));
         }
-
         rows.iter().enumerate().for_each(|(index, row)| {
             self.row_index_cache.insert(row.id.to_string(), index);
         });
@@ -140,24 +167,12 @@ impl SortController {
                 }
             }
         }
+
+        if !notification.insert_sorts.is_empty() || !notification.delete_sorts.is_empty() {
+            self.gen_task(SortEvent::SortDidChanged, QualityOfService::Background)
+                .await;
+        }
         notification
-    }
-
-    fn notify_did_reorder_all_rows(&self, row_orders: Vec<String>) {
-        let row_orders = ReorderAllRowsPB { row_orders };
-        send_dart_notification(&self.view_id, GridDartNotification::DidReorderSingleRow)
-            .payload(row_orders)
-            .send()
-    }
-
-    fn notify_did_reorder_row(&self, old_index: usize, new_index: usize) {
-        let reorder_row = ReorderSingleRowPB {
-            old_index: old_index as i32,
-            new_index: new_index as i32,
-        };
-        send_dart_notification(&self.view_id, GridDartNotification::DidReorderRows)
-            .payload(reorder_row)
-            .send()
     }
 }
 

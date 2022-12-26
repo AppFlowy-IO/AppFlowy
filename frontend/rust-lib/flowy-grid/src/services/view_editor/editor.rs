@@ -126,6 +126,7 @@ impl GridViewRevisionEditor {
         let sort_controller = make_sort_controller(
             &view_id,
             delegate.clone(),
+            notifier.clone(),
             filter_controller.clone(),
             view_rev_pad.clone(),
             cell_data_cache,
@@ -263,8 +264,8 @@ impl GridViewRevisionEditor {
         let sort_controller = self.sort_controller.clone();
         let row_id = row_rev.id.clone();
         tokio::spawn(async move {
-            filter_controller.write().await.did_receive_row_changed(&row_id).await;
-            sort_controller.write().await.did_receive_row_changed(&row_id).await;
+            filter_controller.read().await.did_receive_row_changed(&row_id).await;
+            sort_controller.read().await.did_receive_row_changed(&row_id).await;
         });
     }
 
@@ -425,6 +426,7 @@ impl GridViewRevisionEditor {
                 .did_receive_changes(SortChangeset::from_insert(sort_type))
                 .await
         };
+        drop(sort_controller);
 
         self.notify_did_update_sort(changeset).await;
         Ok(sort_rev)
@@ -493,6 +495,7 @@ impl GridViewRevisionEditor {
                 .did_receive_changes(FilterChangeset::from_insert(filter_type))
                 .await
         };
+        drop(filter_controller);
 
         if let Some(changeset) = changeset {
             self.notify_did_update_filter(changeset).await;
@@ -756,6 +759,7 @@ async fn make_filter_controller(
 async fn make_sort_controller(
     view_id: &str,
     delegate: Arc<dyn GridViewEditorDelegate>,
+    notifier: GridViewChangedNotifier,
     filter_controller: Arc<RwLock<FilterController>>,
     pad: Arc<RwLock<GridViewRevisionPad>>,
     cell_data_cache: AtomicCellDataCache,
@@ -773,6 +777,7 @@ async fn make_sort_controller(
         sort_delegate,
         task_scheduler.clone(),
         cell_data_cache,
+        notifier,
     )));
     task_scheduler
         .write()

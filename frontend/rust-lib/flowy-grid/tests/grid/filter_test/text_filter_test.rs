@@ -90,6 +90,8 @@ async fn grid_filter_contain_text_test() {
 #[tokio::test]
 async fn grid_filter_contain_text_test2() {
     let mut test = GridFilterTest::new().await;
+    let row_revs = test.row_revs.clone();
+
     let scripts = vec![
         CreateTextFilter {
             condition: TextFilterConditionPB::Contains,
@@ -100,7 +102,7 @@ async fn grid_filter_contain_text_test2() {
             hide_row_len: 2,
         },
         UpdateTextCell {
-            row_index: 1,
+            row_id: row_revs[1].id.clone(),
             text: "ABC".to_string(),
         },
         AssertFilterChanged {
@@ -214,6 +216,7 @@ async fn grid_filter_delete_test() {
 #[tokio::test]
 async fn grid_filter_update_empty_text_cell_test() {
     let mut test = GridFilterTest::new().await;
+    let row_revs = test.row_revs.clone();
     let scripts = vec![
         CreateTextFilter {
             condition: TextFilterConditionPB::TextIsEmpty,
@@ -225,7 +228,7 @@ async fn grid_filter_update_empty_text_cell_test() {
             hide_row_len: 5,
         },
         UpdateTextCell {
-            row_index: 0,
+            row_id: row_revs[0].id.clone(),
             text: "".to_string(),
         },
         AssertFilterChanged {

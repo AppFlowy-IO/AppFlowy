@@ -24,6 +24,10 @@ impl TaskHandler for SortTaskHandler {
         &self.handler_id
     }
 
+    fn handler_name(&self) -> &str {
+        "SortTaskHandler"
+    }
+
     fn run(&self, content: TaskContent) -> BoxResultFuture<(), anyhow::Error> {
         let sort_controller = self.sort_controller.clone();
         Box::pin(async move {

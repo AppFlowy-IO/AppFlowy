@@ -1,6 +1,5 @@
 use crate::grid::sort_test::script::{GridSortTest, SortScript::*};
-use flowy_grid::entities::{DeleteSortParams, FieldType};
-use flowy_grid::services::sort::SortType;
+use flowy_grid::entities::FieldType;
 use grid_rev_model::SortCondition;
 
 #[tokio::test]
@@ -25,10 +24,41 @@ async fn sort_text_by_ascending_test() {
 }
 
 #[tokio::test]
+async fn sort_change_notification_by_update_text_test() {
+    let mut test = GridSortTest::new().await;
+    let text_field = test.get_first_field_rev(FieldType::RichText).clone();
+    let scripts = vec![
+        InsertSort {
+            field_rev: text_field.clone(),
+            condition: SortCondition::Ascending,
+        },
+        AssertCellContentOrder {
+            field_id: text_field.id.clone(),
+            orders: vec!["", "A", "AE", "AE", "C", "DA"],
+        },
+        // Wait the insert task to finish. The cost of time should be less than 200 milliseconds.
+        Wait { millis: 200 },
+    ];
+    test.run_scripts(scripts).await;
+
+    let row_revs = test.get_row_revs().await;
+    let scripts = vec![
+        UpdateTextCell {
+            row_id: row_revs[2].id.clone(),
+            text: "E".to_string(),
+        },
+        AssertSortChanged {
+            old_row_orders: vec!["", "A", "E", "AE", "C", "DA"],
+            new_row_orders: vec!["", "A", "AE", "C", "DA", "E"],
+        },
+    ];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
 async fn sort_text_by_ascending_and_delete_sort_test() {
     let mut test = GridSortTest::new().await;
     let text_field = test.get_first_field_rev(FieldType::RichText).clone();
-    let view_id = test.grid_id.clone();
     let scripts = vec![InsertSort {
         field_rev: text_field.clone(),
         condition: SortCondition::Ascending,
@@ -37,11 +67,8 @@ async fn sort_text_by_ascending_and_delete_sort_test() {
     let sort_rev = test.current_sort_rev.as_ref().unwrap();
     let scripts = vec![
         DeleteSort {
-            params: DeleteSortParams {
-                view_id,
-                sort_type: SortType::from(&text_field),
-                sort_id: sort_rev.id.clone(),
-            },
+            field_rev: text_field.clone(),
+            sort_id: sort_rev.id.clone(),
         },
         AssertCellContentOrder {
             field_id: text_field.id.clone(),

@@ -49,7 +49,7 @@ impl GridFieldTest {
     }
 
     pub fn view_id(&self) -> String {
-        self.grid_id.clone()
+        self.view_id.clone()
     }
 
     pub fn field_count(&self) -> usize {
@@ -100,7 +100,7 @@ impl GridFieldTest {
             FieldScript::UpdateTypeOption { field_id, type_option } => {
                 //
                 self.editor
-                    .update_field_type_option(&self.grid_id, &field_id, type_option, None)
+                    .update_field_type_option(&self.view_id, &field_id, type_option, None)
                     .await
                     .unwrap();
                 self.field_revs = self.editor.get_field_revs(None).await.unwrap();
