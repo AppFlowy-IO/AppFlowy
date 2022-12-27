@@ -62,12 +62,15 @@ class DateTypeOptionWidget extends TypeOptionWidget {
           return ListView.separated(
             shrinkWrap: true,
             controller: ScrollController(),
-            separatorBuilder: (context, index) =>
-                VSpace(GridSize.typeOptionSeparatorHeight),
-            itemCount: children.length,
-            itemBuilder: (BuildContext context, int index) {
-              return children[index];
+            separatorBuilder: (context, index) {
+              if (index == 0) {
+                return const SizedBox();
+              } else {
+                return VSpace(GridSize.typeOptionSeparatorHeight);
+              }
             },
+            itemCount: children.length,
+            itemBuilder: (BuildContext context, int index) => children[index],
           );
         },
       ),
@@ -92,7 +95,12 @@ class DateTypeOptionWidget extends TypeOptionWidget {
           },
         );
       },
-      child: DateFormatButton(buttonMargins: GridSize.typeOptionContentInsets),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        child: DateFormatButton(
+          buttonMargins: GridSize.typeOptionContentInsets,
+        ),
+      ),
     );
   }
 
@@ -114,9 +122,12 @@ class DateTypeOptionWidget extends TypeOptionWidget {
           },
         );
       },
-      child: TimeFormatButton(
-        timeFormat: timeFormat,
-        buttonMargins: GridSize.typeOptionContentInsets,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        child: TimeFormatButton(
+          timeFormat: timeFormat,
+          buttonMargins: GridSize.typeOptionContentInsets,
+        ),
       ),
     );
   }
@@ -190,25 +201,28 @@ class _IncludeTimeButton extends StatelessWidget {
     return BlocSelector<DateTypeOptionBloc, DateTypeOptionState, bool>(
       selector: (state) => state.typeOption.includeTime,
       builder: (context, includeTime) {
-        return SizedBox(
-          height: GridSize.typeOptionItemHeight,
-          child: Padding(
-            padding: GridSize.typeOptionContentInsets,
-            child: Row(
-              children: [
-                FlowyText.medium(LocaleKeys.grid_field_includeTime.tr()),
-                const Spacer(),
-                Toggle(
-                  value: includeTime,
-                  onChanged: (value) {
-                    context
-                        .read<DateTypeOptionBloc>()
-                        .add(DateTypeOptionEvent.includeTime(!value));
-                  },
-                  style: ToggleStyle.big,
-                  padding: EdgeInsets.zero,
-                ),
-              ],
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: SizedBox(
+            height: GridSize.typeOptionItemHeight,
+            child: Padding(
+              padding: GridSize.typeOptionContentInsets,
+              child: Row(
+                children: [
+                  FlowyText.medium(LocaleKeys.grid_field_includeTime.tr()),
+                  const Spacer(),
+                  Toggle(
+                    value: includeTime,
+                    onChanged: (value) {
+                      context
+                          .read<DateTypeOptionBloc>()
+                          .add(DateTypeOptionEvent.includeTime(!value));
+                    },
+                    style: ToggleStyle.big,
+                    padding: EdgeInsets.zero,
+                  ),
+                ],
+              ),
             ),
           ),
         );

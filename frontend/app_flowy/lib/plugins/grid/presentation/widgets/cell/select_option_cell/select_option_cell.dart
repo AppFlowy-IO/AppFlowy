@@ -182,6 +182,7 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
     return AppFlowyPopover(
       controller: _popover,
       constraints: constraints,
+      margin: EdgeInsets.zero,
       direction: PopoverDirection.bottomWithLeftAligned,
       popupBuilder: (BuildContext context) {
         WidgetsBinding.instance.addPostFrameCallback((_) {

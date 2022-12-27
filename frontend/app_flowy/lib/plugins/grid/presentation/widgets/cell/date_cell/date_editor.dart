@@ -1,6 +1,7 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/cell/date_cal_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -62,12 +63,9 @@ class _DateCellEditor extends State<DateCellEditor> {
   Widget _buildWidget(AsyncSnapshot<Either<dynamic, FlowyError>> snapshot) {
     return snapshot.data!.fold(
       (dateTypeOptionPB) {
-        return Padding(
-          padding: const EdgeInsets.all(12),
-          child: _CellCalendarWidget(
-            cellContext: widget.cellController,
-            dateTypeOptionPB: dateTypeOptionPB,
-          ),
+        return _CellCalendarWidget(
+          cellContext: widget.cellController,
+          dateTypeOptionPB: dateTypeOptionPB,
         );
       },
       (err) {
@@ -116,26 +114,29 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
         buildWhen: (p, c) => p != c,
         builder: (context, state) {
           List<Widget> children = [
-            _buildCalendar(context),
-            if (state.dateTypeOptionPB.includeTime)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: _buildCalendar(context),
+            ),
+            if (state.dateTypeOptionPB.includeTime) ...[
+              const VSpace(12.0),
               _TimeTextField(
                 bloc: context.read<DateCalBloc>(),
                 popoverMutex: popoverMutex,
               ),
-            Divider(height: 1.0, color: Theme.of(context).dividerColor),
+            ],
+            const TypeOptionSeparator(spacing: 12.0),
             const _IncludeTimeButton(),
-            Divider(height: 1.0, color: Theme.of(context).dividerColor),
+            const TypeOptionSeparator(spacing: 12.0),
             _DateTypeOptionButton(popoverMutex: popoverMutex)
           ];
 
-          return ListView.separated(
+          return ListView.builder(
             shrinkWrap: true,
             controller: ScrollController(),
-            separatorBuilder: (context, index) => VSpace(GridSize.cellVPadding),
             itemCount: children.length,
-            itemBuilder: (BuildContext context, int index) {
-              return children[index];
-            },
+            itemBuilder: (BuildContext context, int index) => children[index],
+            padding: const EdgeInsets.symmetric(vertical: 12.0),
           );
         },
       ),
@@ -171,10 +172,16 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             titleTextStyle: textStyle,
             leftChevronMargin: EdgeInsets.zero,
             leftChevronPadding: EdgeInsets.zero,
-            leftChevronIcon: svgWidget("home/arrow_left"),
+            leftChevronIcon: svgWidget(
+              "home/arrow_left",
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
             rightChevronPadding: EdgeInsets.zero,
             rightChevronMargin: EdgeInsets.zero,
-            rightChevronIcon: svgWidget("home/arrow_right"),
+            rightChevronIcon: svgWidget(
+              "home/arrow_right",
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
             headerMargin: const EdgeInsets.only(bottom: 8.0),
           ),
           daysOfWeekStyle: DaysOfWeekStyle(
@@ -233,28 +240,31 @@ class _IncludeTimeButton extends StatelessWidget {
     return BlocSelector<DateCalBloc, DateCalState, bool>(
       selector: (state) => state.dateTypeOptionPB.includeTime,
       builder: (context, includeTime) {
-        return SizedBox(
-          height: GridSize.typeOptionItemHeight,
-          child: Padding(
-            padding: GridSize.typeOptionContentInsets,
-            child: Row(
-              children: [
-                svgWidget(
-                  "grid/clock",
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                const HSpace(4),
-                FlowyText.medium(LocaleKeys.grid_field_includeTime.tr()),
-                const Spacer(),
-                Toggle(
-                  value: includeTime,
-                  onChanged: (value) => context
-                      .read<DateCalBloc>()
-                      .add(DateCalEvent.setIncludeTime(!value)),
-                  style: ToggleStyle.big,
-                  padding: EdgeInsets.zero,
-                ),
-              ],
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: SizedBox(
+            height: GridSize.typeOptionItemHeight,
+            child: Padding(
+              padding: GridSize.typeOptionContentInsets,
+              child: Row(
+                children: [
+                  svgWidget(
+                    "grid/clock",
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                  const HSpace(4),
+                  FlowyText.medium(LocaleKeys.grid_field_includeTime.tr()),
+                  const Spacer(),
+                  Toggle(
+                    value: includeTime,
+                    onChanged: (value) => context
+                        .read<DateCalBloc>()
+                        .add(DateCalEvent.setIncludeTime(!value)),
+                    style: ToggleStyle.big,
+                    padding: EdgeInsets.zero,
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -313,22 +323,25 @@ class _TimeTextFieldState extends State<_TimeTextField> {
     _controller.selection =
         TextSelection.collapsed(offset: _controller.text.length);
     return Padding(
-      padding: GridSize.typeOptionContentInsets,
-      child: RoundedInputField(
-        height: GridSize.typeOptionItemHeight,
-        focusNode: _focusNode,
-        autoFocus: true,
-        hintText: widget.bloc.state.timeHintText,
-        controller: _controller,
-        style: Theme.of(context).textTheme.bodyMedium!,
-        normalBorderColor: Theme.of(context).colorScheme.outline,
-        errorBorderColor: Theme.of(context).colorScheme.error,
-        focusBorderColor: Theme.of(context).colorScheme.primary,
-        cursorColor: Theme.of(context).colorScheme.primary,
-        errorText:
-            widget.bloc.state.timeFormatError.fold(() => "", (error) => error),
-        onEditingComplete: (value) =>
-            widget.bloc.add(DateCalEvent.setTime(value)),
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: Padding(
+        padding: GridSize.typeOptionContentInsets,
+        child: RoundedInputField(
+          height: GridSize.typeOptionItemHeight,
+          focusNode: _focusNode,
+          autoFocus: true,
+          hintText: widget.bloc.state.timeHintText,
+          controller: _controller,
+          style: Theme.of(context).textTheme.bodyMedium!,
+          normalBorderColor: Theme.of(context).colorScheme.outline,
+          errorBorderColor: Theme.of(context).colorScheme.error,
+          focusBorderColor: Theme.of(context).colorScheme.primary,
+          cursorColor: Theme.of(context).colorScheme.primary,
+          errorText: widget.bloc.state.timeFormatError
+              .fold(() => "", (error) => error),
+          onEditingComplete: (value) =>
+              widget.bloc.add(DateCalEvent.setTime(value)),
+        ),
       ),
     );
   }
@@ -358,15 +371,19 @@ class _DateTypeOptionButton extends StatelessWidget {
           mutex: popoverMutex,
           triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
           offset: const Offset(20, 0),
+          margin: EdgeInsets.zero,
           constraints: BoxConstraints.loose(const Size(140, 100)),
-          child: SizedBox(
-            height: GridSize.typeOptionItemHeight,
-            child: FlowyButton(
-              text: FlowyText.medium(title),
-              margin: GridSize.typeOptionContentInsets,
-              rightIcon: svgWidget(
-                "grid/more",
-                color: Theme.of(context).colorScheme.onSurface,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: SizedBox(
+              height: GridSize.typeOptionItemHeight,
+              child: FlowyButton(
+                text: FlowyText.medium(title),
+                margin: GridSize.typeOptionContentInsets,
+                rightIcon: svgWidget(
+                  "grid/more",
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
             ),
           ),
@@ -418,7 +435,10 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
             },
           );
         },
-        child: const DateFormatButton(),
+        child: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 6.0),
+          child: DateFormatButton(),
+        ),
       ),
       AppFlowyPopover(
         mutex: timeSettingPopoverMutex,
@@ -432,7 +452,11 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
                 timeSettingPopoverMutex.close();
               });
         },
-        child: TimeFormatButton(timeFormat: widget.dateTypeOptionPB.timeFormat),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6.0),
+          child:
+              TimeFormatButton(timeFormat: widget.dateTypeOptionPB.timeFormat),
+        ),
       ),
     ];
 
@@ -444,9 +468,8 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
         separatorBuilder: (context, index) =>
             VSpace(GridSize.typeOptionSeparatorHeight),
         itemCount: children.length,
-        itemBuilder: (BuildContext context, int index) {
-          return children[index];
-        },
+        itemBuilder: (BuildContext context, int index) => children[index],
+        padding: const EdgeInsets.symmetric(vertical: 6.0),
       ),
     );
   }
