@@ -234,7 +234,30 @@ async fn grid_switch_from_multi_select_to_text_test() {
 //      check -> "Yes"
 //      unchecked -> ""
 #[tokio::test]
-async fn grid_switch_from_checkbox_to_text_test() {}
+async fn grid_switch_from_checkbox_to_text_test() {
+    let mut test = GridFieldTest::new().await;
+    let field_rev = test.get_first_field_rev(FieldType::Checkbox);
+
+    let scripts = vec![
+        SwitchToField {
+            field_id: field_rev.id.clone(),
+            new_field_type: FieldType::RichText,
+        },
+        AssertCellContent {
+            field_id: field_rev.id.clone(),
+            row_index: 1,
+            from_field_type: FieldType::Checkbox,
+            expected_content: "Yes".to_string(),
+        },
+        AssertCellContent {
+            field_id: field_rev.id.clone(),
+            row_index: 2,
+            from_field_type: FieldType::Checkbox,
+            expected_content: "No".to_string(),
+        },
+    ];
+    test.run_scripts(scripts).await;
+}
 
 // Test when switching the current field from Checkbox to Text test
 // input:
