@@ -46,7 +46,7 @@ class ThemeTypeSetting extends StatelessWidget {
         AppFlowyPopover(
           direction: PopoverDirection.bottomWithRightAligned,
           child: FlowyTextButton(
-            _getThemeNameForDisplaying(currentThemeType),
+            getThemeNameForDisplaying(currentThemeType),
             fillColor: Colors.transparent,
             hoverColor: Theme.of(context).colorScheme.secondary,
             onPressed: () {},
@@ -71,7 +71,7 @@ class ThemeTypeSetting extends StatelessWidget {
     return SizedBox(
       height: 32,
       child: FlowyButton(
-        text: FlowyText.medium(_getThemeNameForDisplaying(themeType)),
+        text: FlowyText.medium(getThemeNameForDisplaying(themeType)),
         rightIcon: currentThemeType == themeType
             ? svgWidget("grid/checkmark")
             : const SizedBox(),
@@ -84,7 +84,7 @@ class ThemeTypeSetting extends StatelessWidget {
     );
   }
 
-  String _getThemeNameForDisplaying(String themeName) {
+  String getThemeNameForDisplaying(String themeName) {
     switch (themeName) {
       case 'light':
         return LocaleKeys.settings_appearance_themeType_defaultTheme.tr();
