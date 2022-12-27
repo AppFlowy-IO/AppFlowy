@@ -19,11 +19,11 @@ use crate::grid::grid_editor::GridEditorTest;
 
 pub enum FilterScript {
     UpdateTextCell {
-        row_index: usize,
+        row_id: String,
         text: String,
     },
     UpdateSingleSelectCell {
-        row_index: usize,
+        row_id: String,
         option_id: String,
     },
     InsertFilter {
@@ -103,7 +103,7 @@ impl GridFilterTest {
     }
 
      pub fn view_id(&self) -> String {
-        self.grid_id.clone()
+        self.view_id.clone()
     }
 
     pub async fn get_all_filters(&self) -> Vec<FilterPB> {
@@ -118,13 +118,13 @@ impl GridFilterTest {
 
     pub async fn run_script(&mut self, script: FilterScript) {
         match script {
-            FilterScript::UpdateTextCell { row_index, text} => {
+            FilterScript::UpdateTextCell { row_id, text} => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
-                self.update_text_cell(row_index, &text).await;
+                self.update_text_cell(row_id, &text).await;
             }
-            FilterScript::UpdateSingleSelectCell { row_index, option_id} => {
+            FilterScript::UpdateSingleSelectCell { row_id, option_id} => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
-                self.update_single_select_cell(row_index, &option_id).await;
+                self.update_single_select_cell(row_id, &option_id).await;
             }
             FilterScript::InsertFilter { payload } => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
@@ -241,13 +241,15 @@ impl GridFilterTest {
                     match tokio::time::timeout(Duration::from_secs(2), receiver.recv()).await {
                         Ok(changed) =>  {
                             //
-                            match changed.unwrap() { GridViewChanged::DidReceiveFilterResult(changed) => {
+                            match changed.unwrap() { GridViewChanged::FilterNotification(changed) => {
                                 assert_eq!(changed.visible_rows.len(), visible_row_len, "visible rows not match");
                                 assert_eq!(changed.invisible_rows.len(), hide_row_len, "invisible rows not match");
-                            } }
+                            }
+                                _ => {}
+                            }
                         },
                         Err(e) => {
-                            panic!("Process task timeout: {:?}", e);
+                            panic!("Process filter task timeout: {:?}", e);
                         }
                     }
                 }
@@ -268,38 +270,6 @@ impl GridFilterTest {
         let _ = self.editor.create_or_update_filter(params).await.unwrap();
     }
 
-    async fn update_text_cell(&self, row_index: usize, content: &str) {
-        let row_rev = &self.inner.row_revs[row_index];
-        let field_rev = self.inner.field_revs.iter().find(|field_rev| {
-            let field_type: FieldType = field_rev.ty.into();
-            field_type == FieldType::RichText
-        }).unwrap();
-        let changeset =CellChangesetPB {
-            grid_id: self.grid_id.clone(),
-            row_id: row_rev.id.clone(),
-            field_id: field_rev.id.clone(),
-            type_cell_data: content.to_string(),
-        };
-        self.editor.update_cell_with_changeset(changeset).await.unwrap();
-
-    }
-    async fn update_single_select_cell(&self, row_index: usize, option_id: &str) {
-        let row_rev = &self.inner.row_revs[row_index];
-        let field_rev = self.inner.field_revs.iter().find(|field_rev| {
-            let field_type: FieldType = field_rev.ty.into();
-            field_type == FieldType::SingleSelect
-        }).unwrap();
-
-        let content = SelectOptionCellChangeset::from_insert_option_id(&option_id).to_str();
-        let changeset =CellChangesetPB {
-            grid_id: self.grid_id.clone(),
-            row_id: row_rev.id.clone(),
-            field_id: field_rev.id.clone(),
-            type_cell_data: content,
-        };
-        self.editor.update_cell_with_changeset(changeset).await.unwrap();
-
-    }
 }
 
 

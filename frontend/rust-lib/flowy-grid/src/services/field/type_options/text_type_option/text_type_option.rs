@@ -1,12 +1,12 @@
 use crate::entities::{FieldType, TextFilterPB};
 use crate::impl_type_option;
 use crate::services::cell::{
-    stringify_cell_data, CellComparable, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser, DecodedCellData,
-    FromCellString, TypeCellData,
+    stringify_cell_data, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellString,
+    TypeCellData,
 };
 use crate::services::field::{
-    BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
-    TypeOptionTransform,
+    BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionCellDataCompare,
+    TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -45,13 +45,10 @@ impl TypeOption for RichTextTypeOptionPB {
     type CellData = StrCellData;
     type CellChangeset = String;
     type CellProtobufType = StrCellData;
+    type CellFilter = TextFilterPB;
 }
 
 impl TypeOptionTransform for RichTextTypeOptionPB {}
-
-impl TypeOptionConfiguration for RichTextTypeOptionPB {
-    type CellFilterConfiguration = TextFilterPB;
-}
 
 impl TypeOptionCellData for RichTextTypeOptionPB {
     fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {
@@ -92,23 +89,41 @@ impl CellDataChangeset for RichTextTypeOptionPB {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         _type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<String> {
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
         if changeset.len() > 10000 {
             Err(FlowyError::text_too_long().context("The len of the text should not be more than 10000"))
         } else {
-            Ok(changeset)
+            Ok(StrCellData(changeset))
         }
     }
 }
 
-impl CellComparable for RichTextTypeOptionPB {
-    type CellData = String;
+impl TypeOptionCellDataFilter for RichTextTypeOptionPB {
+    fn apply_filter(
+        &self,
+        filter: &<Self as TypeOption>::CellFilter,
+        field_type: &FieldType,
+        cell_data: &<Self as TypeOption>::CellData,
+    ) -> bool {
+        if !field_type.is_text() {
+            return false;
+        }
 
-    fn apply_cmp(&self, cell_data: &Self::CellData, other_cell_data: &Self::CellData) -> Ordering {
-        cell_data.cmp(other_cell_data)
+        filter.is_visible(cell_data)
     }
 }
 
+impl TypeOptionCellDataCompare for RichTextTypeOptionPB {
+    fn apply_cmp(
+        &self,
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering {
+        cell_data.0.cmp(&other_cell_data.0)
+    }
+}
+
+#[derive(Clone)]
 pub struct TextCellData(pub String);
 impl AsRef<str> for TextCellData {
     fn as_ref(&self) -> &str {
@@ -158,7 +173,7 @@ impl CellProtobufBlobParser for TextCellDataParser {
     }
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct StrCellData(pub String);
 impl std::ops::Deref for StrCellData {
     type Target = String;

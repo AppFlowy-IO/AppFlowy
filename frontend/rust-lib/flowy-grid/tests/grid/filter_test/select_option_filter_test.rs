@@ -10,7 +10,7 @@ async fn grid_filter_multi_select_is_empty_test() {
             condition: SelectOptionConditionPB::OptionIsEmpty,
             option_ids: vec![],
         },
-        AssertNumberOfVisibleRows { expected: 2 },
+        AssertNumberOfVisibleRows { expected: 3 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -53,7 +53,7 @@ async fn grid_filter_multi_select_is_test2() {
             condition: SelectOptionConditionPB::OptionIs,
             option_ids: vec![options.remove(1).id],
         },
-        AssertNumberOfVisibleRows { expected: 3 },
+        AssertNumberOfVisibleRows { expected: 2 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -90,6 +90,7 @@ async fn grid_filter_single_select_is_test() {
 async fn grid_filter_single_select_is_test2() {
     let mut test = GridFilterTest::new().await;
     let field_rev = test.get_first_field_rev(FieldType::SingleSelect);
+    let row_revs = test.get_row_revs().await;
     let mut options = test.get_single_select_type_option(&field_rev.id).options;
     let option = options.remove(0);
     let scripts = vec![
@@ -99,12 +100,12 @@ async fn grid_filter_single_select_is_test2() {
         },
         AssertNumberOfVisibleRows { expected: 2 },
         UpdateSingleSelectCell {
-            row_index: 1,
+            row_id: row_revs[1].id.clone(),
             option_id: option.id.clone(),
         },
         AssertNumberOfVisibleRows { expected: 3 },
         UpdateSingleSelectCell {
-            row_index: 1,
+            row_id: row_revs[1].id.clone(),
             option_id: "".to_string(),
         },
         AssertFilterChanged {

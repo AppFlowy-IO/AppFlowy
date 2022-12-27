@@ -7,7 +7,7 @@ use std::str::FromStr;
 pub const CHECK: &str = "Yes";
 pub const UNCHECK: &str = "No";
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct CheckboxCellData(String);
 
 impl CheckboxCellData {

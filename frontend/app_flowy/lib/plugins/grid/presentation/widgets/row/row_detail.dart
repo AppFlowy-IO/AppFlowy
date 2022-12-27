@@ -274,6 +274,7 @@ class _RowDetailCellState extends State<_RowDetailCell> {
             AppFlowyPopover(
               controller: popover,
               constraints: BoxConstraints.loose(const Size(240, 600)),
+              margin: EdgeInsets.zero,
               triggerActions: PopoverTriggerFlags.none,
               popupBuilder: (popoverContext) => buildFieldEditor(),
               child: SizedBox(

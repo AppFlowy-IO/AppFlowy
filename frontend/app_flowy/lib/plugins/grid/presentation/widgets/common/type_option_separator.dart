@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 class TypeOptionSeparator extends StatelessWidget {
-  const TypeOptionSeparator({Key? key}) : super(key: key);
+  final double spacing;
+  const TypeOptionSeparator({this.spacing = 6.0, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: EdgeInsets.symmetric(vertical: spacing),
       child: Container(
         color: Theme.of(context).dividerColor,
         height: 1.0,

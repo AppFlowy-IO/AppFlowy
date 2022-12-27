@@ -31,7 +31,7 @@ class NumberTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
   @override
   Widget? build(BuildContext context) {
     return Column(children: [
-      const TypeOptionSeparator(),
+      VSpace(GridSize.typeOptionSeparatorHeight),
       _widget,
     ]);
   }
@@ -57,12 +57,8 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
           listener: (context, state) =>
               typeOptionContext.typeOption = state.typeOption,
           builder: (context, state) {
-            return AppFlowyPopover(
-              mutex: popoverMutex,
-              triggerActions:
-                  PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
-              offset: const Offset(20, 0),
-              constraints: BoxConstraints.loose(const Size(460, 440)),
+            final button = SizedBox(
+              height: GridSize.typeOptionItemHeight,
               child: FlowyButton(
                 margin: GridSize.typeOptionContentInsets,
                 rightIcon: svgWidget(
@@ -72,11 +68,23 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
                 text: Row(
                   children: [
                     FlowyText.medium(LocaleKeys.grid_field_numberFormat.tr()),
-                    // const HSpace(6),
                     const Spacer(),
                     FlowyText.regular(state.typeOption.format.title()),
                   ],
                 ),
+              ),
+            );
+
+            return AppFlowyPopover(
+              mutex: popoverMutex,
+              triggerActions:
+                  PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
+              offset: const Offset(20, 0),
+              constraints: BoxConstraints.loose(const Size(460, 440)),
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: button,
               ),
               popupBuilder: (BuildContext popoverContext) {
                 return NumberFormatList(
@@ -113,10 +121,10 @@ class NumberFormatList extends StatelessWidget {
       child: SizedBox(
         width: 180,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             const _FilterTextField(),
-            const VSpace(10),
+            const TypeOptionSeparator(spacing: 0.0),
             BlocBuilder<NumberFormatBloc, NumberFormatState>(
               builder: (context, state) {
                 final cells = state.formats.map((format) {
@@ -138,8 +146,9 @@ class NumberFormatList extends StatelessWidget {
                   itemBuilder: (BuildContext context, int index) {
                     return cells[index];
                   },
+                  padding: const EdgeInsets.all(6.0),
                 );
-                return Expanded(child: list);
+                return Flexible(child: list);
               },
             ),
           ],
@@ -182,10 +191,13 @@ class _FilterTextField extends StatelessWidget {
   const _FilterTextField({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return FlowyTextField(
-      onChanged: (text) => context
-          .read<NumberFormatBloc>()
-          .add(NumberFormatEvent.setFilter(text)),
+    return Padding(
+      padding: const EdgeInsets.all(6.0),
+      child: FlowyTextField(
+        onChanged: (text) => context
+            .read<NumberFormatBloc>()
+            .add(NumberFormatEvent.setFilter(text)),
+      ),
     );
   }
 }

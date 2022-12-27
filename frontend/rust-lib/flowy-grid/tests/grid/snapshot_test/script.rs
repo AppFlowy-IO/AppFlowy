@@ -43,7 +43,7 @@ impl GridSnapshotTest {
     }
 
     pub fn grid_id(&self) -> String {
-        self.grid_id.clone()
+        self.view_id.clone()
     }
 
     pub async fn grid_pad(&self) -> GridRevisionPad {

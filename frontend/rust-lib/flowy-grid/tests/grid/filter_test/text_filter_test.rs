@@ -14,7 +14,7 @@ async fn grid_filter_text_is_empty_test() {
         AssertFilterCount { count: 1 },
         AssertFilterChanged {
             visible_row_len: 0,
-            hide_row_len: 4,
+            hide_row_len: 5,
         },
     ];
     test.run_scripts(scripts).await;
@@ -65,7 +65,7 @@ async fn grid_filter_is_text_test() {
         },
         AssertFilterChanged {
             visible_row_len: 0,
-            hide_row_len: 4,
+            hide_row_len: 5,
         },
     ];
     test.run_scripts(scripts).await;
@@ -90,6 +90,8 @@ async fn grid_filter_contain_text_test() {
 #[tokio::test]
 async fn grid_filter_contain_text_test2() {
     let mut test = GridFilterTest::new().await;
+    let row_revs = test.row_revs.clone();
+
     let scripts = vec![
         CreateTextFilter {
             condition: TextFilterConditionPB::Contains,
@@ -100,7 +102,7 @@ async fn grid_filter_contain_text_test2() {
             hide_row_len: 2,
         },
         UpdateTextCell {
-            row_index: 1,
+            row_id: row_revs[1].id.clone(),
             text: "ABC".to_string(),
         },
         AssertFilterChanged {
@@ -206,7 +208,7 @@ async fn grid_filter_delete_test() {
             filter_type: FilterType::from(&field_rev),
         },
         AssertFilterCount { count: 0 },
-        AssertNumberOfVisibleRows { expected: 5 },
+        AssertNumberOfVisibleRows { expected: 6 },
     ])
     .await;
 }
@@ -214,6 +216,7 @@ async fn grid_filter_delete_test() {
 #[tokio::test]
 async fn grid_filter_update_empty_text_cell_test() {
     let mut test = GridFilterTest::new().await;
+    let row_revs = test.row_revs.clone();
     let scripts = vec![
         CreateTextFilter {
             condition: TextFilterConditionPB::TextIsEmpty,
@@ -222,10 +225,10 @@ async fn grid_filter_update_empty_text_cell_test() {
         AssertFilterCount { count: 1 },
         AssertFilterChanged {
             visible_row_len: 0,
-            hide_row_len: 4,
+            hide_row_len: 5,
         },
         UpdateTextCell {
-            row_index: 0,
+            row_id: row_revs[0].id.clone(),
             text: "".to_string(),
         },
         AssertFilterChanged {

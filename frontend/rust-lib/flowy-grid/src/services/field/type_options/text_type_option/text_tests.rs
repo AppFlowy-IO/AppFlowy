@@ -52,28 +52,28 @@ mod tests {
         let text_type_option = RichTextTypeOptionPB::default();
         let field_type = FieldType::MultiSelect;
 
-        let France = SelectOptionPB::new("France");
-        let france_optionId = France.id.clone();
+        let france = SelectOptionPB::new("france");
+        let france_option_id = france.id.clone();
 
-        let Argentina = SelectOptionPB::new("Argentina");
-        let argentina_optionId = Argentina.id.clone();
+        let argentina = SelectOptionPB::new("argentina");
+        let argentina_option_id = argentina.id.clone();
 
         let multi_select = MultiSelectTypeOptionBuilder::default()
-            .add_option(France.clone())
-            .add_option(Argentina.clone());
+            .add_option(france.clone())
+            .add_option(argentina.clone());
 
         let field_rev = FieldBuilder::new(multi_select).build();
 
         assert_eq!(
             text_type_option
                 .decode_cell_str(
-                    format!("{},{}", france_optionId, argentina_optionId),
+                    format!("{},{}", france_option_id, argentina_option_id),
                     &field_type,
                     &field_rev
                 )
                 .unwrap()
                 .to_string(),
-            format!("{},{}", France.name, Argentina.name)
+            format!("{},{}", france.name, argentina.name)
         );
     }
 }
