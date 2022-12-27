@@ -1,11 +1,10 @@
+use anyhow::Result;
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error_code::ErrorCode;
 use lib_dispatch::prelude::{AFPluginEventResponse, ResponseBuilder};
 use std::{convert::TryInto, fmt::Debug};
-use anyhow::Result;
 use thiserror::Error;
-
 
 pub type FlowyResult<T> = anyhow::Result<T, FlowyError>;
 

@@ -1,8 +1,8 @@
 use crate::protobuf::ErrorCode as ProtoBufErrorCode;
 use flowy_derive::ProtoBuf_Enum;
 use protobuf::ProtobufEnum;
-use thiserror::Error;
 use std::convert::{TryFrom, TryInto};
+use thiserror::Error;
 
 #[derive(Debug, Clone, ProtoBuf_Enum, PartialEq, Eq, Error)]
 pub enum ErrorCode {
