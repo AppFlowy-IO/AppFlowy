@@ -44,7 +44,7 @@ impl URLCellData {
         }
     }
 
-    pub(crate) fn to_json(&self) -> FlowyResult<String> {
+    pub fn to_json(&self) -> FlowyResult<String> {
         serde_json::to_string(self).map_err(internal_error)
     }
 }
@@ -75,5 +75,11 @@ impl CellProtobufBlobParser for URLCellDataParser {
 impl FromCellString for URLCellData {
     fn from_cell_str(s: &str) -> FlowyResult<Self> {
         serde_json::from_str::<URLCellData>(s).map_err(internal_error)
+    }
+}
+
+impl ToString for URLCellData {
+    fn to_string(&self) -> String {
+        self.content.clone()
     }
 }

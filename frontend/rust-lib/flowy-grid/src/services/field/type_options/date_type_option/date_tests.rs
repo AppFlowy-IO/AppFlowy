@@ -147,23 +147,22 @@ mod tests {
         expected_str: &str,
         field_rev: &FieldRevision,
     ) {
-        let s = serde_json::to_string(&DateCellChangeset {
+        let changeset = DateCellChangeset {
             date: Some(timestamp.to_string()),
             time: include_time_str,
             is_utc: false,
-        })
-        .unwrap();
-        let encoded_data = type_option.apply_changeset(s.into(), None).unwrap();
+        };
+        let encoded_data = type_option.apply_changeset(changeset, None).unwrap();
 
         assert_eq!(
-            decode_cell_data(encoded_data, type_option, field_rev),
+            decode_cell_data(encoded_data.to_string(), type_option, field_rev),
             expected_str.to_owned(),
         );
     }
 
     fn decode_cell_data(encoded_data: String, type_option: &DateTypeOptionPB, field_rev: &FieldRevision) -> String {
         let decoded_data = type_option
-            .try_decode_cell_data(encoded_data, &FieldType::DateTime, field_rev)
+            .decode_cell_str(encoded_data, &FieldType::DateTime, field_rev)
             .unwrap();
         let decoded_data = type_option.convert_to_protobuf(decoded_data);
         if type_option.include_time {

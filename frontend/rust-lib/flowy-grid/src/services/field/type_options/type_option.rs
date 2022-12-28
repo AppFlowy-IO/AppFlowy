@@ -1,13 +1,12 @@
 use crate::entities::FieldType;
-use crate::services::cell::{CellDataChangeset, CellDataDecoder, CellProtobufBlob, FromCellString};
-use crate::services::field::{
-    CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, MultiSelectTypeOptionPB, NumberTypeOptionPB,
-    RichTextTypeOptionPB, SingleSelectTypeOptionPB, URLTypeOptionPB,
-};
+use crate::services::cell::{CellDataDecoder, FromCellChangesetString, FromCellString, ToCellChangesetString};
+
+use crate::services::filter::FromFilterString;
 use bytes::Bytes;
 use flowy_error::FlowyResult;
-use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use grid_rev_model::FieldRevision;
 use protobuf::ProtobufError;
+use std::cmp::Ordering;
 use std::fmt::Debug;
 
 pub trait TypeOption {
@@ -21,10 +20,13 @@ pub trait TypeOption {
     ///
     /// Uses `StrCellData` for any `TypeOption` if their cell data is pure `String`.
     ///
-    type CellData: FromCellString + Default;
+    type CellData: FromCellString + ToString + Default + Send + Sync + Clone + 'static;
 
-    ///
-    type CellChangeset;
+    /// Represents as the corresponding field type cell changeset.
+    /// The changeset must implements the `FromCellChangesetString` and the `ToCellChangesetString` trait.
+    /// These two traits are auto implemented for `String`.
+    ///  
+    type CellChangeset: FromCellChangesetString + ToCellChangesetString;
 
     ///  For the moment, the protobuf type only be used in the FFI of `Dart`. If the decoded cell
     /// struct is just a `String`, then use the `StrCellData` as its `CellProtobufType`.
@@ -34,6 +36,9 @@ pub trait TypeOption {
     ///     FieldType::URL => URLCellDataPB
     ///
     type CellProtobufType: TryInto<Bytes, Error = ProtobufError> + Debug;
+
+    /// Represents as the filter configuration for this type option.
+    type CellFilter: FromFilterString + Send + Sync + 'static;
 }
 
 pub trait TypeOptionCellData: TypeOption {
@@ -43,15 +48,11 @@ pub trait TypeOptionCellData: TypeOption {
     ///    FieldType::Date=> DateCellDataPB
     fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType;
 
-    /// Decodes the opaque cell data to corresponding data struct.
+    /// Decodes the opaque cell string to corresponding data struct.
     // For example, the cell data is timestamp if its field type is `FieldType::Date`. This cell
     // data can not directly show to user. So it needs to be encode as the date string with custom
     // format setting. Encode `1647251762` to `"Mar 14,2022`
-    fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData>;
-}
-
-pub trait TypeOptionConfiguration {
-    type CellFilterConfiguration;
+    fn decode_type_option_cell_str(&self, cell_str: String) -> FlowyResult<<Self as TypeOption>::CellData>;
 }
 
 pub trait TypeOptionTransform: TypeOption {
@@ -78,167 +79,38 @@ pub trait TypeOptionTransform: TypeOption {
     ///
     /// # Arguments
     ///
-    /// * `cell_data`: the cell data of the current field type
-    /// * `decoded_field_type`: the field type of the cell data that's going to be transformed into.
+    /// * `cell_str`: the cell string of the current field type
+    /// * `decoded_field_type`: the field type of the cell data that's going to be transformed into
+    /// current `TypeOption` field type.
     ///
-    fn transform_type_option_cell_data(
+    fn transform_type_option_cell_str(
         &self,
-        cell_data: <Self as TypeOption>::CellData,
+        _cell_str: &str,
         _decoded_field_type: &FieldType,
-    ) -> <Self as TypeOption>::CellData {
-        // Do nothing, just return the passed-in cell data
-        cell_data
+        _field_rev: &FieldRevision,
+    ) -> Option<<Self as TypeOption>::CellData> {
+        None
     }
 }
 
-pub trait TypeOptionTransformHandler {
-    fn transform(&mut self, old_type_option_field_type: FieldType, old_type_option_data: String);
-
-    fn json_str(&self) -> String;
-}
-
-impl<T> TypeOptionTransformHandler for T
-where
-    T: TypeOptionTransform + TypeOptionDataSerializer,
-{
-    fn transform(&mut self, old_type_option_field_type: FieldType, old_type_option_data: String) {
-        if self.transformable() {
-            self.transform_type_option(old_type_option_field_type, old_type_option_data)
-        }
-    }
-
-    fn json_str(&self) -> String {
-        self.json_str()
-    }
-}
-
-pub trait TypeOptionCellDataHandler {
-    fn handle_cell_data(
+pub trait TypeOptionCellDataFilter: TypeOption + CellDataDecoder {
+    fn apply_filter(
         &self,
-        cell_data: String,
-        decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellProtobufBlob>;
-
-    fn stringify_cell_data(&self, cell_data: String, field_type: &FieldType, field_rev: &FieldRevision) -> String;
-}
-
-impl<T> TypeOptionCellDataHandler for T
-where
-    T: TypeOption + CellDataDecoder + CellDataChangeset + TypeOptionCellData + TypeOptionTransform,
-{
-    fn handle_cell_data(
-        &self,
-        cell_data: String,
+        filter: &<Self as TypeOption>::CellFilter,
         field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellProtobufBlob> {
-        let mut cell_data = self.try_decode_cell_data(cell_data, field_type, field_rev)?;
-        if self.transformable() {
-            cell_data = self.transform_type_option_cell_data(cell_data, field_type);
-        }
-        CellProtobufBlob::from(self.convert_to_protobuf(cell_data))
-    }
+        cell_data: &<Self as TypeOption>::CellData,
+    ) -> bool;
+}
 
-    fn stringify_cell_data(
+#[inline(always)]
+pub fn default_order() -> Ordering {
+    Ordering::Equal
+}
+
+pub trait TypeOptionCellDataCompare: TypeOption {
+    fn apply_cmp(
         &self,
-        cell_data: String,
-        decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> String {
-        self.decode_cell_data_to_str(cell_data, decoded_field_type, field_rev)
-            .unwrap_or_default()
-    }
-}
-
-pub struct FieldRevisionExt<'a> {
-    field_rev: &'a FieldRevision,
-}
-
-impl<'a> FieldRevisionExt<'a> {
-    pub fn new(field_rev: &'a FieldRevision) -> Self {
-        Self { field_rev }
-    }
-
-    pub fn get_type_option_handler(&self, field_type: &FieldType) -> Option<Box<dyn TypeOptionCellDataHandler>> {
-        match field_type {
-            FieldType::RichText => self
-                .field_rev
-                .get_type_option::<RichTextTypeOptionPB>(field_type.into())
-                .map(|type_option| Box::new(type_option) as Box<dyn TypeOptionCellDataHandler>),
-            FieldType::Number => self
-                .field_rev
-                .get_type_option::<NumberTypeOptionPB>(field_type.into())
-                .map(|type_option| Box::new(type_option) as Box<dyn TypeOptionCellDataHandler>),
-            FieldType::DateTime => self
-                .field_rev
-                .get_type_option::<DateTypeOptionPB>(field_type.into())
-                .map(|type_option| Box::new(type_option) as Box<dyn TypeOptionCellDataHandler>),
-            FieldType::SingleSelect => self
-                .field_rev
-                .get_type_option::<SingleSelectTypeOptionPB>(field_type.into())
-                .map(|type_option| Box::new(type_option) as Box<dyn TypeOptionCellDataHandler>),
-            FieldType::MultiSelect => self
-                .field_rev
-                .get_type_option::<MultiSelectTypeOptionPB>(field_type.into())
-                .map(|type_option| Box::new(type_option) as Box<dyn TypeOptionCellDataHandler>),
-            FieldType::Checkbox => self
-                .field_rev
-                .get_type_option::<CheckboxTypeOptionPB>(field_type.into())
-                .map(|type_option| Box::new(type_option) as Box<dyn TypeOptionCellDataHandler>),
-            FieldType::URL => self
-                .field_rev
-                .get_type_option::<URLTypeOptionPB>(field_type.into())
-                .map(|type_option| Box::new(type_option) as Box<dyn TypeOptionCellDataHandler>),
-            FieldType::Checklist => self
-                .field_rev
-                .get_type_option::<ChecklistTypeOptionPB>(field_type.into())
-                .map(|type_option| Box::new(type_option) as Box<dyn TypeOptionCellDataHandler>),
-        }
-    }
-}
-
-pub fn transform_type_option(
-    type_option_data: &str,
-    new_field_type: &FieldType,
-    old_type_option_data: Option<String>,
-    old_field_type: FieldType,
-) -> String {
-    let mut transform_handler = get_type_option_transform_handler(type_option_data, new_field_type);
-    if let Some(old_type_option_data) = old_type_option_data {
-        transform_handler.transform(old_field_type, old_type_option_data);
-    }
-    transform_handler.json_str()
-}
-
-pub fn get_type_option_transform_handler(
-    type_option_data: &str,
-    field_type: &FieldType,
-) -> Box<dyn TypeOptionTransformHandler> {
-    match field_type {
-        FieldType::RichText => {
-            Box::new(RichTextTypeOptionPB::from_json_str(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-        }
-        FieldType::Number => {
-            Box::new(NumberTypeOptionPB::from_json_str(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-        }
-        FieldType::DateTime => {
-            Box::new(DateTypeOptionPB::from_json_str(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-        }
-        FieldType::SingleSelect => {
-            Box::new(SingleSelectTypeOptionPB::from_json_str(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-        }
-        FieldType::MultiSelect => {
-            Box::new(MultiSelectTypeOptionPB::from_json_str(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-        }
-        FieldType::Checkbox => {
-            Box::new(CheckboxTypeOptionPB::from_json_str(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-        }
-        FieldType::URL => {
-            Box::new(URLTypeOptionPB::from_json_str(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-        }
-        FieldType::Checklist => {
-            Box::new(ChecklistTypeOptionPB::from_json_str(type_option_data)) as Box<dyn TypeOptionTransformHandler>
-        }
-    }
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering;
 }

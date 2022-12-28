@@ -201,7 +201,21 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       primaryIconTheme: IconThemeData(color: theme.hover),
       iconTheme: IconThemeData(color: theme.shader1),
       scrollbarTheme: ScrollbarThemeData(
-        thumbColor: MaterialStateProperty.all(Colors.transparent),
+        thumbColor: MaterialStateProperty.all(theme.shader3),
+        thickness: MaterialStateProperty.resolveWith((states) {
+          const Set<MaterialState> interactiveStates = <MaterialState>{
+            MaterialState.pressed,
+            MaterialState.hovered,
+            MaterialState.dragged,
+          };
+          if (states.any(interactiveStates.contains)) {
+            return 5.0;
+          }
+          return 3.0;
+        }),
+        crossAxisMargin: 0.0,
+        mainAxisMargin: 0.0,
+        radius: Corners.s10Radius,
       ),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       canvasColor: theme.shader6,

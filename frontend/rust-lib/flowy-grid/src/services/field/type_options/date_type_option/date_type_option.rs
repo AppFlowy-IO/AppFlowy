@@ -1,17 +1,19 @@
 use crate::entities::{DateFilterPB, FieldType};
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellDataChangeset, CellDataDecoder, FromCellString};
+use crate::services::cell::{CellDataChangeset, CellDataDecoder, FromCellString, TypeCellData};
 use crate::services::field::{
-    BoxTypeOptionBuilder, DateCellChangeset, DateCellData, DateCellDataPB, DateFormat, TimeFormat, TypeOption,
-    TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration, TypeOptionTransform,
+    default_order, BoxTypeOptionBuilder, DateCellChangeset, DateCellData, DateCellDataPB, DateFormat, TimeFormat,
+    TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+    TypeOptionTransform,
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
 use chrono::{NaiveDateTime, Timelike};
 use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 
 // Date
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
@@ -31,10 +33,7 @@ impl TypeOption for DateTypeOptionPB {
     type CellData = DateCellData;
     type CellChangeset = DateCellChangeset;
     type CellProtobufType = DateCellDataPB;
-}
-
-impl TypeOptionConfiguration for DateTypeOptionPB {
-    type CellFilterConfiguration = DateFilterPB;
+    type CellFilter = DateFilterPB;
 }
 
 impl TypeOptionCellData for DateTypeOptionPB {
@@ -42,8 +41,8 @@ impl TypeOptionCellData for DateTypeOptionPB {
         self.today_desc_from_timestamp(cell_data)
     }
 
-    fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
-        DateCellData::from_cell_str(&cell_data)
+    fn decode_type_option_cell_str(&self, cell_str: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        DateCellData::from_cell_str(&cell_str)
     }
 }
 
@@ -131,9 +130,9 @@ impl DateTypeOptionPB {
 impl TypeOptionTransform for DateTypeOptionPB {}
 
 impl CellDataDecoder for DateTypeOptionPB {
-    fn try_decode_cell_data(
+    fn decode_cell_str(
         &self,
-        cell_data: String,
+        cell_str: String,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<<Self as TypeOption>::CellData> {
@@ -145,28 +144,20 @@ impl CellDataDecoder for DateTypeOptionPB {
             return Ok(Default::default());
         }
 
-        self.decode_type_option_cell_data(cell_data)
+        self.decode_type_option_cell_str(cell_str)
     }
 
-    fn decode_cell_data_to_str(
-        &self,
-        cell_data: String,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<String> {
-        let cell_data = self.decode_type_option_cell_data(cell_data)?;
-        let cell_data_pb = self.today_desc_from_timestamp(cell_data);
-        Ok(cell_data_pb.date)
+    fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+        self.today_desc_from_timestamp(cell_data).date
     }
 }
 
 impl CellDataChangeset for DateTypeOptionPB {
     fn apply_changeset(
         &self,
-        changeset: AnyCellChangeset<DateCellChangeset>,
-        _cell_rev: Option<CellRevision>,
-    ) -> Result<String, FlowyError> {
-        let changeset = changeset.try_into_inner()?;
+        changeset: <Self as TypeOption>::CellChangeset,
+        _type_cell_data: Option<TypeCellData>,
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
         let cell_data = match changeset.date_timestamp() {
             None => 0,
             Some(date_timestamp) => match (self.include_time, changeset.time) {
@@ -181,7 +172,37 @@ impl CellDataChangeset for DateTypeOptionPB {
             },
         };
 
-        Ok(cell_data.to_string())
+        Ok(DateCellData(Some(cell_data)))
+    }
+}
+
+impl TypeOptionCellDataFilter for DateTypeOptionPB {
+    fn apply_filter(
+        &self,
+        filter: &<Self as TypeOption>::CellFilter,
+        field_type: &FieldType,
+        cell_data: &<Self as TypeOption>::CellData,
+    ) -> bool {
+        if !field_type.is_date() {
+            return true;
+        }
+
+        filter.is_visible(cell_data.0)
+    }
+}
+
+impl TypeOptionCellDataCompare for DateTypeOptionPB {
+    fn apply_cmp(
+        &self,
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering {
+        match (cell_data.0, other_cell_data.0) {
+            (Some(left), Some(right)) => left.cmp(&right),
+            (Some(_), None) => Ordering::Greater,
+            (None, Some(_)) => Ordering::Less,
+            (None, None) => default_order(),
+        }
     }
 }
 

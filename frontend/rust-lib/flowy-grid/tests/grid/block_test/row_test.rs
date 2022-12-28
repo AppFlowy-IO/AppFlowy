@@ -9,13 +9,13 @@ use grid_rev_model::RowChangeset;
 async fn grid_create_row_count_test() {
     let mut test = GridRowTest::new().await;
     let scripts = vec![
-        AssertRowCount(5),
+        AssertRowCount(6),
         CreateEmptyRow,
         CreateEmptyRow,
         CreateRow {
             row_rev: test.row_builder().build(),
         },
-        AssertRowCount(8),
+        AssertRowCount(9),
     ];
     test.run_scripts(scripts).await;
 }
@@ -30,12 +30,12 @@ async fn grid_update_row() {
         visibility: None,
         cell_by_field_id: Default::default(),
     };
-
-    let scripts = vec![AssertRowCount(5), CreateRow { row_rev }, UpdateRow { changeset }];
+    let row_count = test.row_revs.len();
+    let scripts = vec![CreateRow { row_rev }, UpdateRow { changeset }];
     test.run_scripts(scripts).await;
 
     let expected_row = test.last_row().unwrap();
-    let scripts = vec![AssertRow { expected_row }, AssertRowCount(6)];
+    let scripts = vec![AssertRow { expected_row }, AssertRowCount(row_count + 1)];
     test.run_scripts(scripts).await;
 }
 
@@ -45,20 +45,20 @@ async fn grid_delete_row() {
     let row_1 = test.row_builder().build();
     let row_2 = test.row_builder().build();
     let row_ids = vec![row_1.id.clone(), row_2.id.clone()];
+    let row_count = test.row_revs.len() as i32;
     let scripts = vec![
-        AssertRowCount(5),
         CreateRow { row_rev: row_1 },
         CreateRow { row_rev: row_2 },
         AssertBlockCount(1),
         AssertBlock {
             block_index: 0,
-            row_count: 7,
+            row_count: row_count + 2,
             start_row_index: 0,
         },
         DeleteRows { row_ids },
         AssertBlock {
             block_index: 0,
-            row_count: 5,
+            row_count,
             start_row_index: 0,
         },
     ];

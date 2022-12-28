@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use flowy_grid::services::field::{
     ChecklistTypeOptionPB, DateCellChangeset, MultiSelectTypeOptionPB, SelectOptionPB, SingleSelectTypeOptionPB,
+    URLCellData,
 };
 use flowy_grid::services::row::RowRevisionBuilder;
 use grid_rev_model::{FieldRevision, RowRevision};
@@ -59,7 +60,8 @@ impl<'a> GridRowTestBuilder<'a> {
 
     pub fn insert_url_cell(&mut self, data: &str) -> String {
         let url_field = self.field_rev_with_type(&FieldType::URL);
-        self.inner_builder.insert_text_cell(&url_field.id, data.to_string());
+        let url_data = URLCellData::new(data).to_json().unwrap();
+        self.inner_builder.insert_text_cell(&url_field.id, url_data);
         url_field.id.clone()
     }
 

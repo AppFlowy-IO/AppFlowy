@@ -9,9 +9,11 @@ pub enum UserStatus {
     },
     Logout {
         token: String,
+        user_id: String,
     },
     Expired {
         token: String,
+        user_id: String,
     },
     SignUp {
         profile: UserProfilePB,
@@ -49,9 +51,10 @@ impl UserNotifier {
         });
     }
 
-    pub(crate) fn notify_logout(&self, token: &str) {
+    pub(crate) fn notify_logout(&self, token: &str, user_id: &str) {
         let _ = self.user_status_notifier.send(UserStatus::Logout {
             token: token.to_owned(),
+            user_id: user_id.to_owned(),
         });
     }
 

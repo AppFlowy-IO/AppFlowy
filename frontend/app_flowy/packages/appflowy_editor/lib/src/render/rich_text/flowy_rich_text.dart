@@ -255,6 +255,11 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
             TextStyle(backgroundColor: attributes.backgroundColor),
           );
         }
+        if (attributes.color != null) {
+          textStyle = textStyle.combine(
+            TextStyle(color: attributes.color),
+          );
+        }
       }
       offset += textInsert.length;
       textSpans.add(

@@ -22,6 +22,7 @@ use folder_rev_model::user_default;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 
+use crate::services::clear_current_workspace;
 use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
 use flowy_http_model::ws_data::ServerRevisionWSData;
 use flowy_sync::client_folder::FolderPad;
@@ -206,7 +207,11 @@ impl FolderManager {
         self.initialize(user_id, token).await
     }
 
-    pub async fn clear(&self) {
+    /// Called when the current user logout
+    ///
+    pub async fn clear(&self, user_id: &str) {
+        self.view_controller.clear_latest_view();
+        clear_current_workspace(user_id);
         *self.folder_editor.write().await = None;
     }
 }
@@ -220,9 +225,9 @@ impl DefaultFolderBuilder {
         view_controller: Arc<ViewController>,
         create_view_fn: F,
     ) -> FlowyResult<()> {
-        log::debug!("Create user default workspace");
         let workspace_rev = user_default::create_default_workspace();
-        set_current_workspace(&workspace_rev.id);
+        tracing::debug!("Create user:{} default workspace:{}", user_id, workspace_rev.id);
+        set_current_workspace(user_id, &workspace_rev.id);
         for app in workspace_rev.apps.iter() {
             for (index, view) in app.belongings.iter().enumerate() {
                 let (view_data_type, view_data) = create_view_fn();

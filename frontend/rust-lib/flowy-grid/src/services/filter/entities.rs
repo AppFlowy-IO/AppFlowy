@@ -105,7 +105,11 @@ impl std::convert::From<&DeleteFilterParams> for FilterType {
 pub struct FilterResultNotification {
     pub view_id: String,
     pub block_id: String,
+
+    // Indicates there will be some new rows being visible from invisible state.
     pub visible_rows: Vec<InsertedRowPB>,
+
+    // Indicates there will be some new rows being invisible from visible state.
     pub invisible_rows: Vec<String>,
 }
 

@@ -113,7 +113,7 @@ impl GridRowTest {
                 expected,
             } => {
                 let id = CellPathParams {
-                    grid_id: self.grid_id.clone(),
+                    view_id: self.view_id.clone(),
                     field_id,
                     row_id,
                 };

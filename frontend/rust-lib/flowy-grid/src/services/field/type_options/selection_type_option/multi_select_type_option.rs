@@ -1,15 +1,17 @@
 use crate::entities::{FieldType, SelectOptionFilterPB};
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellDataChangeset, FromCellString, TypeCellData};
+use crate::services::cell::{CellDataChangeset, FromCellString, TypeCellData};
+use std::cmp::{min, Ordering};
 
 use crate::services::field::{
-    BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds, SelectOptionPB,
-    SelectTypeOptionSharedAction, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
+    default_order, BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds,
+    SelectOptionPB, SelectTypeOptionSharedAction, SelectedSelectOptions, TypeOption, TypeOptionBuilder,
+    TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
-use flowy_error::{FlowyError, FlowyResult};
-use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use flowy_error::FlowyResult;
+use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
 
 // Multiple select
@@ -27,10 +29,7 @@ impl TypeOption for MultiSelectTypeOptionPB {
     type CellData = SelectOptionIds;
     type CellChangeset = SelectOptionCellChangeset;
     type CellProtobufType = SelectOptionCellDataPB;
-}
-
-impl TypeOptionConfiguration for MultiSelectTypeOptionPB {
-    type CellFilterConfiguration = SelectOptionFilterPB;
+    type CellFilter = SelectOptionFilterPB;
 }
 
 impl TypeOptionCellData for MultiSelectTypeOptionPB {
@@ -38,8 +37,8 @@ impl TypeOptionCellData for MultiSelectTypeOptionPB {
         self.get_selected_options(cell_data)
     }
 
-    fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
-        SelectOptionIds::from_cell_str(&cell_data)
+    fn decode_type_option_cell_str(&self, cell_str: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        SelectOptionIds::from_cell_str(&cell_str)
     }
 }
 
@@ -60,46 +59,79 @@ impl SelectTypeOptionSharedAction for MultiSelectTypeOptionPB {
 impl CellDataChangeset for MultiSelectTypeOptionPB {
     fn apply_changeset(
         &self,
-        changeset: AnyCellChangeset<SelectOptionCellChangeset>,
-        cell_rev: Option<CellRevision>,
-    ) -> Result<String, FlowyError> {
-        let content_changeset = changeset.try_into_inner()?;
-
-        let insert_option_ids = content_changeset
+        changeset: <Self as TypeOption>::CellChangeset,
+        type_cell_data: Option<TypeCellData>,
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
+        let insert_option_ids = changeset
             .insert_option_ids
             .into_iter()
             .filter(|insert_option_id| self.options.iter().any(|option| &option.id == insert_option_id))
             .collect::<Vec<String>>();
 
-        let new_cell_data: String;
-        match cell_rev {
-            None => {
-                new_cell_data = SelectOptionIds::from(insert_option_ids).to_string();
-            }
-            Some(cell_rev) => {
-                let cell_data = TypeCellData::try_from(cell_rev)
-                    .map(|data| data.into_inner())
-                    .unwrap_or_default();
-                let mut select_ids: SelectOptionIds = cell_data.into();
+        match type_cell_data {
+            None => Ok(SelectOptionIds::from(insert_option_ids)),
+            Some(type_cell_data) => {
+                let mut select_ids: SelectOptionIds = type_cell_data.cell_str.into();
                 for insert_option_id in insert_option_ids {
                     if !select_ids.contains(&insert_option_id) {
                         select_ids.push(insert_option_id);
                     }
                 }
 
-                for delete_option_id in content_changeset.delete_option_ids {
+                for delete_option_id in changeset.delete_option_ids {
                     select_ids.retain(|id| id != &delete_option_id);
                 }
 
-                new_cell_data = select_ids.to_string();
-                tracing::trace!("Multi-select cell data: {}", &new_cell_data);
+                tracing::trace!("Multi-select cell data: {}", select_ids.to_string());
+                Ok(select_ids)
             }
         }
-
-        Ok(new_cell_data)
     }
 }
 
+impl TypeOptionCellDataFilter for MultiSelectTypeOptionPB {
+    fn apply_filter(
+        &self,
+        filter: &<Self as TypeOption>::CellFilter,
+        field_type: &FieldType,
+        cell_data: &<Self as TypeOption>::CellData,
+    ) -> bool {
+        if !field_type.is_multi_select() {
+            return true;
+        }
+        let selected_options = SelectedSelectOptions::from(self.get_selected_options(cell_data.clone()));
+        filter.is_visible(&selected_options, FieldType::MultiSelect)
+    }
+}
+
+impl TypeOptionCellDataCompare for MultiSelectTypeOptionPB {
+    fn apply_cmp(
+        &self,
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering {
+        for i in 0..min(cell_data.len(), other_cell_data.len()) {
+            let order = match (
+                cell_data
+                    .get(i)
+                    .and_then(|id| self.options.iter().find(|option| &option.id == id)),
+                other_cell_data
+                    .get(i)
+                    .and_then(|id| self.options.iter().find(|option| &option.id == id)),
+            ) {
+                (Some(left), Some(right)) => left.name.cmp(&right.name),
+                (Some(_), None) => Ordering::Greater,
+                (None, Some(_)) => Ordering::Less,
+                (None, None) => default_order(),
+            };
+
+            if order.is_ne() {
+                return order;
+            }
+        }
+        default_order()
+    }
+}
 #[derive(Default)]
 pub struct MultiSelectTypeOptionBuilder(MultiSelectTypeOptionPB);
 impl_into_box_type_option_builder!(MultiSelectTypeOptionBuilder);
@@ -177,8 +209,8 @@ mod tests {
         let field_rev = FieldBuilder::new(multi_select).name("Platform").build();
         let type_option = MultiSelectTypeOptionPB::from(&field_rev);
         let option_ids = vec![google.id, facebook.id];
-        let data = SelectOptionCellChangeset::from_insert_options(option_ids.clone()).to_str();
-        let select_option_ids: SelectOptionIds = type_option.apply_changeset(data.into(), None).unwrap().into();
+        let changeset = SelectOptionCellChangeset::from_insert_options(option_ids.clone());
+        let select_option_ids: SelectOptionIds = type_option.apply_changeset(changeset, None).unwrap();
 
         assert_eq!(&*select_option_ids, &option_ids);
     }
@@ -196,13 +228,13 @@ mod tests {
         let option_ids = vec![google.id, facebook.id];
 
         // insert
-        let data = SelectOptionCellChangeset::from_insert_options(option_ids.clone()).to_str();
-        let select_option_ids: SelectOptionIds = type_option.apply_changeset(data.into(), None).unwrap().into();
+        let changeset = SelectOptionCellChangeset::from_insert_options(option_ids.clone());
+        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap();
         assert_eq!(&*select_option_ids, &option_ids);
 
         // delete
-        let data = SelectOptionCellChangeset::from_delete_options(option_ids).to_str();
-        let select_option_ids: SelectOptionIds = type_option.apply_changeset(data.into(), None).unwrap().into();
+        let changeset = SelectOptionCellChangeset::from_delete_options(option_ids);
+        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap();
         assert!(select_option_ids.is_empty());
     }
 
@@ -217,9 +249,9 @@ mod tests {
             .build();
 
         let type_option = MultiSelectTypeOptionPB::from(&field_rev);
-        let data = SelectOptionCellChangeset::from_insert_option_id(&google.id).to_str();
-        let cell_option_ids = type_option.apply_changeset(data.into(), None).unwrap();
-        assert_eq!(cell_option_ids, google.id);
+        let changeset = SelectOptionCellChangeset::from_insert_option_id(&google.id);
+        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap();
+        assert_eq!(select_option_ids.to_string(), google.id);
     }
 
     #[test]
@@ -232,9 +264,9 @@ mod tests {
             .build();
 
         let type_option = MultiSelectTypeOptionPB::from(&field_rev);
-        let data = SelectOptionCellChangeset::from_insert_option_id(&google.id).to_str();
-        let cell_option_ids = type_option.apply_changeset(data.into(), None).unwrap();
-        assert!(cell_option_ids.is_empty());
+        let changeset = SelectOptionCellChangeset::from_insert_option_id(&google.id);
+        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap();
+        assert!(select_option_ids.is_empty());
     }
 
     #[test]
@@ -250,22 +282,12 @@ mod tests {
         let type_option = MultiSelectTypeOptionPB::from(&field_rev);
 
         // empty option id string
-        let data = SelectOptionCellChangeset::from_insert_option_id("").to_str();
-        let cell_option_ids = type_option.apply_changeset(data.into(), None).unwrap();
-        assert_eq!(cell_option_ids, "");
+        let changeset = SelectOptionCellChangeset::from_insert_option_id("");
+        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap();
+        assert_eq!(select_option_ids.to_string(), "");
 
-        let data = SelectOptionCellChangeset::from_insert_option_id("123,456").to_str();
-        let cell_option_ids = type_option.apply_changeset(data.into(), None).unwrap();
-        assert_eq!(cell_option_ids, "");
-    }
-
-    #[test]
-    fn multi_select_invalid_changeset_data_test() {
-        let multi_select = MultiSelectTypeOptionBuilder::default();
-        let field_rev = FieldBuilder::new(multi_select).name("Platform").build();
-        let type_option = MultiSelectTypeOptionPB::from(&field_rev);
-
-        // The type of the changeset should be SelectOptionCellChangeset
-        assert!(type_option.apply_changeset("123".to_owned().into(), None).is_err());
+        let changeset = SelectOptionCellChangeset::from_insert_option_id("123,456");
+        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap();
+        assert!(select_option_ids.is_empty());
     }
 }

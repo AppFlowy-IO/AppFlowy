@@ -91,7 +91,7 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget>
 
   @override
   Position end() {
-    return Position(path: widget.node.path, offset: 1);
+    return start();
   }
 
   @override

@@ -117,6 +117,7 @@ class _GridPropertyCell extends StatelessWidget {
       offset: const Offset(20, 0),
       direction: PopoverDirection.leftWithTopAligned,
       constraints: BoxConstraints.loose(const Size(240, 400)),
+      margin: EdgeInsets.zero,
       child: FlowyButton(
         text: FlowyText.medium(fieldInfo.name),
         leftIcon: svgWidget(
