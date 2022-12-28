@@ -138,6 +138,11 @@ impl GridViewManager {
         view_editor.delete_view_filter(params).await
     }
 
+    pub async fn get_all_sorts(&self, view_id: &str) -> FlowyResult<Vec<Arc<SortRevision>>> {
+        let view_editor = self.get_view_editor(view_id).await?;
+        Ok(view_editor.get_all_view_sorts().await)
+    }
+
     pub async fn create_or_update_sort(&self, params: AlterSortParams) -> FlowyResult<SortRevision> {
         let view_editor = self.get_view_editor(&params.view_id).await?;
         view_editor.insert_view_sort(params).await

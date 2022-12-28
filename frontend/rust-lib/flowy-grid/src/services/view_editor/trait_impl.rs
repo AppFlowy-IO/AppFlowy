@@ -119,12 +119,14 @@ pub(crate) async fn apply_change(
 
 pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<FieldRevision>]) -> GridSettingPB {
     let layout_type: GridLayout = view_pad.layout.clone().into();
-    let filter_configurations = view_pad.get_all_filters(field_revs);
+    let filters = view_pad.get_all_filters(field_revs);
     let group_configurations = view_pad.get_groups_by_field_revs(field_revs);
+    let sorts = view_pad.get_all_sorts(field_revs);
     GridSettingPB {
         layouts: GridLayoutPB::all(),
         layout_type,
-        filters: filter_configurations.into(),
+        filters: filters.into(),
+        sorts: sorts.into(),
         group_configurations: group_configurations.into(),
     }
 }

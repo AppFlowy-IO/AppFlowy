@@ -192,6 +192,7 @@
   "grid": {
     "settings": {
       "filter": "Filter",
+      "sort": "Sort",
       "sortBy": "Sort by",
       "Properties": "Properties",
       "group": "Group",

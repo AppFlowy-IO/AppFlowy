@@ -5,13 +5,16 @@ import 'package:app_flowy/plugins/grid/application/filter/filter_service.dart';
 import 'package:app_flowy/plugins/grid/application/grid_service.dart';
 import 'package:app_flowy/plugins/grid/application/setting/setting_listener.dart';
 import 'package:app_flowy/plugins/grid/application/setting/setting_service.dart';
+import 'package:app_flowy/plugins/grid/application/sort/sort_service.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/filter/filter_info.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/sort/sort_info.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/group.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/setting_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/sort_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/util.pb.dart';
 import 'package:flutter/foundation.dart';
 import '../row/row_cache.dart';
@@ -46,9 +49,25 @@ class _GridFilterNotifier extends ChangeNotifier {
   List<FilterInfo> get filters => _filters;
 }
 
+class _GridSortNotifier extends ChangeNotifier {
+  List<SortInfo> _sorts = [];
+
+  set sorts(List<SortInfo> sorts) {
+    _sorts = sorts;
+    notifyListeners();
+  }
+
+  void notify() {
+    notifyListeners();
+  }
+
+  List<SortInfo> get sorts => _sorts;
+}
+
 typedef OnReceiveUpdateFields = void Function(List<FieldInfo>);
 typedef OnReceiveFields = void Function(List<FieldInfo>);
 typedef OnReceiveFilters = void Function(List<FilterInfo>);
+typedef OnReceiveSorts = void Function(List<SortInfo>);
 
 class GridFieldController {
   final String gridId;
@@ -61,6 +80,7 @@ class GridFieldController {
   final GridFFIService _gridFFIService;
   final SettingFFIService _settingFFIService;
   final FilterFFIService _filterFFIService;
+  final SortFFIService _sortFFIService;
 
   // Field callbacks
   final Map<OnReceiveFields, VoidCallback> _fieldCallbacks = {};
@@ -78,9 +98,16 @@ class GridFieldController {
   _GridFilterNotifier? _filterNotifier = _GridFilterNotifier();
   final Map<String, FilterPB> _filterPBByFieldId = {};
 
+  // Sort callbacks
+  final Map<OnReceiveSorts, VoidCallback> _sortCallbacks = {};
+  _GridSortNotifier? _sortNotifier = _GridSortNotifier();
+  final Map<String, SortPB> _sortPBByFieldId = {};
+
   // Getters
   List<FieldInfo> get fieldInfos => [..._fieldNotifier?.fieldInfos ?? []];
   List<FilterInfo> get filterInfos => [..._filterNotifier?.filters ?? []];
+  List<SortInfo> get sortInfos => [..._sortNotifier?.sorts ?? []];
+
   FieldInfo? getField(String fieldId) {
     final fields = _fieldNotifier?.fieldInfos
             .where((element) => element.id == fieldId)
@@ -105,12 +132,25 @@ class GridFieldController {
     return filters.first;
   }
 
+  SortInfo? getSort(String sortId) {
+    final sorts = _sortNotifier?.sorts
+            .where((element) => element.sortId == sortId)
+            .toList() ??
+        [];
+    if (sorts.isEmpty) {
+      return null;
+    }
+    assert(sorts.length == 1);
+    return sorts.first;
+  }
+
   GridFieldController({required this.gridId})
       : _fieldListener = GridFieldsListener(gridId: gridId),
         _settingListener = SettingListener(gridId: gridId),
         _filterListener = FiltersListener(viewId: gridId),
         _gridFFIService = GridFFIService(gridId: gridId),
         _filterFFIService = FilterFFIService(viewId: gridId),
+        _sortFFIService = SortFFIService(viewId: gridId),
         _settingFFIService = SettingFFIService(viewId: gridId) {
     //Listen on field's changes
     _listenOnFieldChanges();
@@ -123,7 +163,7 @@ class GridFieldController {
 
     _settingFFIService.getSetting().then((result) {
       result.fold(
-        (setting) => _updateSettingConfiguration(setting),
+        (setting) => _updateSetting(setting),
         (err) => Log.error(err),
       );
     });
@@ -205,7 +245,7 @@ class GridFieldController {
     //Listen on setting changes
     _settingListener.start(onSettingUpdated: (result) {
       result.fold(
-        (setting) => _updateSettingConfiguration(setting),
+        (setting) => _updateSetting(setting),
         (r) => Log.error(r),
       );
     });
@@ -229,14 +269,18 @@ class GridFieldController {
     });
   }
 
-  void _updateSettingConfiguration(GridSettingPB setting) {
+  void _updateSetting(GridSettingPB setting) {
     _groupConfigurationByFieldId.clear();
     for (final configuration in setting.groupConfigurations.items) {
       _groupConfigurationByFieldId[configuration.fieldId] = configuration;
     }
 
-    for (final configuration in setting.filters.items) {
-      _filterPBByFieldId[configuration.fieldId] = configuration;
+    for (final filter in setting.filters.items) {
+      _filterPBByFieldId[filter.fieldId] = filter;
+    }
+
+    for (final sort in setting.sorts.items) {
+      _sortPBByFieldId[sort.fieldId] = sort;
     }
 
     _updateFieldInfos();
@@ -247,6 +291,7 @@ class GridFieldController {
       for (var field in _fieldNotifier!.fieldInfos) {
         field._isGroupField = _groupConfigurationByFieldId[field.id] != null;
         field._hasFilter = _filterPBByFieldId[field.id] != null;
+        field._hasSort = _sortPBByFieldId[field.id] != null;
       }
       _fieldNotifier?.notify();
     }
@@ -266,8 +311,15 @@ class GridFieldController {
     for (final callback in _filterCallbacks.values) {
       _filterNotifier?.removeListener(callback);
     }
+    for (final callback in _sortCallbacks.values) {
+      _sortNotifier?.removeListener(callback);
+    }
+
     _filterNotifier?.dispose();
     _filterNotifier = null;
+
+    _sortNotifier?.dispose();
+    _sortNotifier = null;
   }
 
   Future<Either<Unit, FlowyError>> loadFields({
@@ -280,6 +332,7 @@ class GridFieldController {
           _fieldNotifier?.fieldInfos =
               newFields.map((field) => FieldInfo(field: field)).toList();
           _loadFilters();
+          _loadSorts();
           _updateFieldInfos();
           return left(unit);
         },
@@ -310,10 +363,30 @@ class GridFieldController {
     });
   }
 
+  Future<Either<Unit, FlowyError>> _loadSorts() async {
+    return _sortFFIService.getAllSorts().then((result) {
+      return result.fold(
+        (sortPBs) {
+          final List<SortInfo> sortInfos = [];
+          for (final sortPB in sortPBs) {
+            final sortInfo = SortInfo(sortPB: sortPB);
+            sortInfos.add(sortInfo);
+          }
+
+          _updateFieldInfos();
+          _sortNotifier?.sorts = sortInfos;
+          return left(unit);
+        },
+        (err) => right(err),
+      );
+    });
+  }
+
   void addListener({
     OnReceiveFields? onFields,
     OnReceiveUpdateFields? onFieldsUpdated,
     OnReceiveFilters? onFilters,
+    OnReceiveSorts? onSorts,
     bool Function()? listenWhen,
   }) {
     if (onFieldsUpdated != null) {
@@ -349,6 +422,18 @@ class GridFieldController {
 
       _filterCallbacks[onFilters] = callback;
       _filterNotifier?.addListener(callback);
+    }
+
+    if (onSorts != null) {
+      callback() {
+        if (listenWhen != null && listenWhen() == false) {
+          return;
+        }
+        onSorts(sortInfos);
+      }
+
+      _sortCallbacks[onSorts] = callback;
+      _sortNotifier?.addListener(callback);
     }
   }
 
@@ -485,6 +570,8 @@ class FieldInfo {
 
   bool _hasFilter = false;
 
+  bool _hasSort = false;
+
   String get id => _field.id;
 
   FieldType get fieldType => _field.fieldType;
@@ -523,6 +610,17 @@ class FieldInfo {
       case FieldType.RichText:
       case FieldType.SingleSelect:
       case FieldType.Checklist:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  bool get canCreateSort {
+    if (_hasSort) return false;
+
+    switch (_field.fieldType) {
+      case FieldType.RichText:
         return true;
       default:
         return false;

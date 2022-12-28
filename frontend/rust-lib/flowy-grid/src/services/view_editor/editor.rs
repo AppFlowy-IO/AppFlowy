@@ -360,6 +360,11 @@ impl GridViewRevisionEditor {
             .get_filters(&filter_type.field_id, &field_type_rev)
     }
 
+    pub async fn get_all_view_sorts(&self) -> Vec<Arc<SortRevision>> {
+        let field_revs = self.delegate.get_field_revs(None).await;
+        self.pad.read().await.get_all_sorts(&field_revs)
+    }
+
     /// Initialize new group when grouping by a new field
     ///
     pub async fn initialize_new_group(&self, params: InsertGroupParams) -> FlowyResult<()> {

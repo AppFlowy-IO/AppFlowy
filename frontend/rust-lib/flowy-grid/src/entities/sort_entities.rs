@@ -1,13 +1,14 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::FieldType;
 use crate::services::sort::SortType;
+use std::sync::Arc;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use grid_rev_model::{FieldTypeRevision, SortCondition, SortRevision};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct GridSortPB {
+pub struct SortPB {
     #[pb(index = 1)]
     pub id: String,
 
@@ -21,7 +22,7 @@ pub struct GridSortPB {
     pub condition: GridSortConditionPB,
 }
 
-impl std::convert::From<&SortRevision> for GridSortPB {
+impl std::convert::From<&SortRevision> for SortPB {
     fn from(sort_rev: &SortRevision) -> Self {
         Self {
             id: sort_rev.id.clone(),
@@ -29,6 +30,26 @@ impl std::convert::From<&SortRevision> for GridSortPB {
             field_type: sort_rev.field_type.into(),
             condition: sort_rev.condition.clone().into(),
         }
+    }
+}
+
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct RepeatedSortPB {
+    #[pb(index = 1)]
+    pub items: Vec<SortPB>,
+}
+
+impl std::convert::From<Vec<Arc<SortRevision>>> for RepeatedSortPB {
+    fn from(revs: Vec<Arc<SortRevision>>) -> Self {
+        RepeatedSortPB {
+            items: revs.into_iter().map(|rev| rev.as_ref().into()).collect(),
+        }
+    }
+}
+
+impl std::convert::From<Vec<SortPB>> for RepeatedSortPB {
+    fn from(items: Vec<SortPB>) -> Self {
+        Self { items }
     }
 }
 
@@ -164,13 +185,13 @@ pub struct SortChangesetNotificationPB {
     pub view_id: String,
 
     #[pb(index = 2)]
-    pub insert_sorts: Vec<GridSortPB>,
+    pub insert_sorts: Vec<SortPB>,
 
     #[pb(index = 3)]
-    pub delete_sorts: Vec<GridSortPB>,
+    pub delete_sorts: Vec<SortPB>,
 
     #[pb(index = 4)]
-    pub update_sorts: Vec<GridSortPB>,
+    pub update_sorts: Vec<SortPB>,
 }
 
 impl SortChangesetNotificationPB {

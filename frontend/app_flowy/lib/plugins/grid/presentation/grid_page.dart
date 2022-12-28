@@ -4,6 +4,7 @@ import 'package:app_flowy/plugins/grid/application/filter/filter_menu_bloc.dart'
 import 'package:app_flowy/plugins/grid/application/grid_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/grid_bloc.dart';
+import 'package:app_flowy/plugins/grid/application/sort/sort_menu_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
@@ -61,6 +62,12 @@ class _GridPageState extends State<GridPage> {
             viewId: widget.view.id,
             fieldController: widget.gridController.fieldController,
           )..add(const GridFilterMenuEvent.initial()),
+        ),
+        BlocProvider<SortMenuBloc>(
+          create: (context) => SortMenuBloc(
+            viewId: widget.view.id,
+            fieldController: widget.gridController.fieldController,
+          )..add(const SortMenuEvent.initial()),
         ),
         BlocProvider<GridSettingBloc>(
           create: (context) => GridSettingBloc(gridId: widget.view.id),
