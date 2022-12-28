@@ -7,8 +7,8 @@ use crate::services::cell::{
 
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
-    CheckboxCellData, ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB, TypeOption,
-    TypeOptionCellData, TypeOptionTransform,
+    CheckboxCellData, ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB, StrCellData,
+    TypeOption, TypeOptionCellData, TypeOptionTransform,
 };
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
@@ -152,10 +152,10 @@ where
     fn transform_type_option_cell_str(
         &self,
         cell_str: &str,
-        _decoded_field_type: &FieldType,
+        decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> Option<<Self as TypeOption>::CellData> {
-        match _decoded_field_type {
+        match decoded_field_type {
             FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => None,
             FieldType::Checkbox => match CheckboxCellData::from_cell_str(cell_str) {
                 Ok(checkbox_cell_data) => {
@@ -169,6 +169,7 @@ where
                 }
                 Err(_) => None,
             },
+            FieldType::RichText => SelectOptionIds::from_cell_str(cell_str).ok(),
             _ => Some(SelectOptionIds::from(vec![])),
         }
     }

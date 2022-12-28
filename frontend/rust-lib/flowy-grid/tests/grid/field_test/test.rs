@@ -208,25 +208,25 @@ async fn grid_switch_from_multi_select_to_text_test() {
 
     let mut multi_select_type_option = test.get_multi_select_type_option(&field_rev.id);
 
-    let script_switchfield = vec![SwitchToField {
+    let script_switch_field = vec![SwitchToField {
         field_id: field_rev.id.clone(),
         new_field_type: FieldType::RichText,
     }];
 
-    test.run_scripts(script_switchfield).await;
+    test.run_scripts(script_switch_field).await;
 
-    let script_assertfield = vec![AssertCellContent {
+    let script_assert_field = vec![AssertCellContent {
         field_id: field_rev.id.clone(),
         row_index: 0,
         from_field_type: FieldType::MultiSelect,
         expected_content: format!(
             "{},{}",
-            multi_select_type_option.get_mut(0).unwrap().id.to_string(),
-            multi_select_type_option.get_mut(1).unwrap().id.to_string()
+            multi_select_type_option.get_mut(0).unwrap().name.to_string(),
+            multi_select_type_option.get_mut(1).unwrap().name.to_string()
         ),
     }];
 
-    test.run_scripts(script_assertfield).await;
+    test.run_scripts(script_assert_field).await;
 }
 
 // Test when switching the current field from Checkbox to Text test
@@ -276,4 +276,28 @@ async fn grid_switch_from_date_to_text_test() {}
 // input:
 //      $1 -> "$1"(This string will be different base on current data setting)
 #[tokio::test]
-async fn grid_switch_from_number_to_text_test() {}
+async fn grid_switch_from_number_to_text_test() {
+    let mut test = GridFieldTest::new().await;
+    let field_rev = test.get_first_field_rev(FieldType::Number).clone();
+
+    let scripts = vec![
+        SwitchToField {
+            field_id: field_rev.id.clone(),
+            new_field_type: FieldType::RichText,
+        },
+        AssertCellContent {
+            field_id: field_rev.id.clone(),
+            row_index: 0,
+            from_field_type: FieldType::Number,
+            expected_content: "$1".to_string(),
+        },
+        AssertCellContent {
+            field_id: field_rev.id.clone(),
+            row_index: 4,
+            from_field_type: FieldType::Number,
+            expected_content: "".to_string(),
+        },
+    ];
+
+    test.run_scripts(scripts).await;
+}
