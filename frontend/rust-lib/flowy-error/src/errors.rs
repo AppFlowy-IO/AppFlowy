@@ -30,7 +30,7 @@ macro_rules! static_flowy_error {
 impl FlowyError {
     pub fn new(code: ErrorCode, msg: &str) -> Self {
         Self {
-            code: code.value(),
+            code: code.value() as i32,
             msg: msg.to_owned(),
         }
     }
@@ -77,7 +77,7 @@ impl FlowyError {
 impl std::convert::From<ErrorCode> for FlowyError {
     fn from(code: ErrorCode) -> Self {
         FlowyError {
-            code: code.value(),
+            code: code.value() as i32,
             msg: format!("{}", code),
         }
     }

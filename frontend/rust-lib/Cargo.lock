@@ -952,6 +952,8 @@ dependencies = [
  "flowy-codegen",
  "flowy-derive",
  "protobuf",
+ "serde",
+ "serde_repr",
  "thiserror",
 ]
 

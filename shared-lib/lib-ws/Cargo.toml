@@ -28,7 +28,7 @@ parking_lot = "0.12.1"
 dashmap = "5"
 
 [build-dependencies]
-flowy-codegen= { path = "../flowy-codegen"}
+flowy-codegen = { path = "../flowy-codegen"}
 
 [dev-dependencies]
 tokio = {version = "1", features = ["full"]}

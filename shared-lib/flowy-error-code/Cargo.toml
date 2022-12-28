@@ -10,9 +10,11 @@ flowy-derive = { path = "../flowy-derive" }
 protobuf = {version = "2.18.0"}
 derive_more = {version = "0.99", features = ["display"]}
 thiserror = "1.0"
+serde_repr = "0.1"
+serde = "1.0"
 
 [build-dependencies]
-flowy-codegen= { path = "../flowy-codegen", features = ["proto_gen"]}
+flowy-codegen = { path = "../flowy-codegen", features = ["proto_gen"]}
 
 
 [features]
