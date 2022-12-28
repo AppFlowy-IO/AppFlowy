@@ -35,7 +35,7 @@ abstract class AppFlowyKeyboardService {
   ///   you can disable the keyboard service of flowy_editor.
   /// But you need to call the `enable` function to restore after exiting
   ///   your custom component, otherwise the keyboard service will fails.
-  void disable();
+  void disable({bool showCursor = false});
 }
 
 /// Process keyboard events
@@ -62,6 +62,7 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
   final FocusNode _focusNode = FocusNode(debugLabel: 'flowy_keyboard_service');
 
   bool isFocus = true;
+  bool showCursor = false;
 
   @override
   List<ShortcutEvent> get shortcutEvents => widget.shortcutEvents;
@@ -101,8 +102,9 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
   }
 
   @override
-  void disable() {
+  void disable({bool showCursor = false}) {
     isFocus = false;
+    this.showCursor = showCursor;
     _focusNode.unfocus();
   }
 
@@ -137,8 +139,10 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
   void _onFocusChange(bool value) {
     Log.keyboard.debug('on keyboard event focus change $value');
     isFocus = value;
-    if (!value) {
+    if (!value && !showCursor) {
       widget.editorState.service.selectionService.clearCursor();
+    } else {
+      showCursor = false;
     }
   }
 
