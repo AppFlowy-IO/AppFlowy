@@ -166,7 +166,7 @@
       },
       "themeType": {
         "label": "Theme Type",
-        "defaultTheme": "Default Flowy Theme",
+        "defaultTheme": "Default Theme",
         "dandelionCommunity": "Dandelion Community Theme"
       }
     }

@@ -3,6 +3,7 @@ import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,10 @@ class SettingsAppearanceView extends StatelessWidget {
 
 class ThemeTypeSetting extends StatelessWidget {
   final String currentThemeType;
-  const ThemeTypeSetting({required this.currentThemeType, super.key});
+  const ThemeTypeSetting({
+    super.key,
+    required this.currentThemeType,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -56,8 +60,8 @@ class ThemeTypeSetting extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _themeTypeItemButton(context, 'light'),
-                  _themeTypeItemButton(context, 'dandelion'),
+                  _themeTypeItemButton(context, BuiltInTheme.light),
+                  _themeTypeItemButton(context, BuiltInTheme.dandelion),
                 ],
               ),
             );
@@ -86,9 +90,9 @@ class ThemeTypeSetting extends StatelessWidget {
 
   String getThemeNameForDisplaying(String themeName) {
     switch (themeName) {
-      case 'light':
+      case BuiltInTheme.light:
         return LocaleKeys.settings_appearance_themeType_defaultTheme.tr();
-      case 'dandelion':
+      case BuiltInTheme.dandelion:
         return LocaleKeys.settings_appearance_themeType_dandelionCommunity.tr();
       default:
         throw Exception("Unknown ThemeType");

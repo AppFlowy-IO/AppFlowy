@@ -1,7 +1,10 @@
 import 'package:flowy_infra/colorscheme/colorscheme.dart';
 import 'package:flutter/material.dart';
 
-const List<String> builtInThemes = ['light', 'dandelion'];
+class BuiltInTheme {
+  static const String light = 'light';
+  static const String dandelion = 'dandelion';
+}
 
 class AppTheme {
   // metadata member
@@ -16,19 +19,7 @@ class AppTheme {
     required this.darkTheme,
   });
 
-  factory AppTheme.fromName({required String themeName}) {
-    // if (builtInThemes.contains(themeName)) {
-    //   return AppTheme(
-    //     lightTheme: FlowyColorScheme.builtIn(themeName, Brightness.light),
-    //     darkTheme: FlowyColorScheme.builtIn(themeName, Brightness.dark),
-    //   );
-    // } else {
-    //   // load from Json
-    //   return AppTheme(
-    //     lightTheme: FlowyColorScheme.fromJson(_jsonData, Brightness.light),
-    //     darkTheme: FlowyColorScheme.fromJson(_jsonData, Brightness.dark),
-    //   );
-    // }
+  factory AppTheme.fromName(String themeName) {
     return AppTheme(
       themeName: themeName,
       lightTheme: FlowyColorScheme.builtIn(themeName, Brightness.light),

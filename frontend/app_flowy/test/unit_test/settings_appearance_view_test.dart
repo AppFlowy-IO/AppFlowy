@@ -1,11 +1,12 @@
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_appearance_view.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   late ThemeTypeSetting themeTypeSetting;
   setUpAll(() {
     themeTypeSetting = const ThemeTypeSetting(
-      currentThemeType: 'light',
+      currentThemeType: BuiltInTheme.light,
     );
   });
 
@@ -13,11 +14,11 @@ void main() {
     "check theme labels",
     () {
       String defaultThemeDisplayName =
-          themeTypeSetting.getThemeNameForDisplaying('light');
+          themeTypeSetting.getThemeNameForDisplaying(BuiltInTheme.light);
       expect(defaultThemeDisplayName,
           'settings.appearance.themeType.defaultTheme');
       defaultThemeDisplayName =
-          themeTypeSetting.getThemeNameForDisplaying('dandelion');
+          themeTypeSetting.getThemeNameForDisplaying(BuiltInTheme.dandelion);
       expect(defaultThemeDisplayName,
           'settings.appearance.themeType.dandelionCommunity');
     },
