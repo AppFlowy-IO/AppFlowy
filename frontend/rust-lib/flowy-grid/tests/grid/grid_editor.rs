@@ -237,7 +237,7 @@ fn make_test_grid() -> BuildGridContext {
             FieldType::DateTime => {
                 // Date
                 let date = DateTypeOptionBuilder::default()
-                    .date_format(DateFormat::Friendly)
+                    .date_format(DateFormat::US)
                     .time_format(TimeFormat::TwentyFourHour);
                 let date_field = FieldBuilder::new(date).name("Time").visibility(true).build();
                 grid_builder.add_field(date_field);

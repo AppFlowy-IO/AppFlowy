@@ -282,13 +282,13 @@ async fn grid_switch_from_date_to_text_test() {
             field_id: field_rev.id.clone(),
             row_index: 2,
             from_field_type: FieldType::DateTime,
-            expected_content: "Mar 14,2022".to_string(),
+            expected_content: "2022/03/14".to_string(),
         },
         AssertCellContent {
             field_id: field_rev.id.clone(),
             row_index: 3,
             from_field_type: FieldType::DateTime,
-            expected_content: "Nov 17,2022".to_string(),
+            expected_content: "2022/11/17".to_string(),
         },
     ];
     test.run_scripts(scripts).await;
