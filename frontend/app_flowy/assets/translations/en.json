@@ -163,14 +163,8 @@
         "light": "Light Mode",
         "dark": "Dark Mode",
         "system": "Adapt to System"
-      },
-      "themeType": {
-        "label": "Theme Type",
-        "defaultTheme": "Default Theme",
-        "dandelionCommunity": "Dandelion Community Theme"
-      }
+      } 
     }
-
   },
   "grid": {
     "settings": {

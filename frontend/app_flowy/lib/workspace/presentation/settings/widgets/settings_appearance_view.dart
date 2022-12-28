@@ -21,7 +21,7 @@ class SettingsAppearanceView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ThemeModeSetting(currentThemeMode: state.themeMode),
-              ThemeTypeSetting(currentThemeType: state.appTheme.themeName),
+              ThemeSetting(currentTheme: state.appTheme.themeName),
             ],
           );
         },
@@ -30,11 +30,11 @@ class SettingsAppearanceView extends StatelessWidget {
   }
 }
 
-class ThemeTypeSetting extends StatelessWidget {
-  final String currentThemeType;
-  const ThemeTypeSetting({
+class ThemeSetting extends StatelessWidget {
+  final String currentTheme;
+  const ThemeSetting({
     super.key,
-    required this.currentThemeType,
+    required this.currentTheme,
   });
 
   @override
@@ -43,14 +43,14 @@ class ThemeTypeSetting extends StatelessWidget {
       children: [
         Expanded(
           child: FlowyText.medium(
-            LocaleKeys.settings_appearance_themeType_label.tr(),
+            LocaleKeys.settings_appearance_theme_label.tr(),
             overflow: TextOverflow.ellipsis,
           ),
         ),
         AppFlowyPopover(
           direction: PopoverDirection.bottomWithRightAligned,
           child: FlowyTextButton(
-            getThemeNameForDisplaying(currentThemeType),
+            currentTheme,
             fillColor: Colors.transparent,
             hoverColor: Theme.of(context).colorScheme.secondary,
             onPressed: () {},
@@ -60,8 +60,8 @@ class ThemeTypeSetting extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _themeTypeItemButton(context, BuiltInTheme.light),
-                  _themeTypeItemButton(context, BuiltInTheme.dandelion),
+                  _themeItemButton(context, BuiltInTheme.light),
+                  _themeItemButton(context, BuiltInTheme.dandelion),
                 ],
               ),
             );
@@ -71,32 +71,21 @@ class ThemeTypeSetting extends StatelessWidget {
     );
   }
 
-  Widget _themeTypeItemButton(BuildContext context, String themeType) {
+  Widget _themeItemButton(BuildContext context, String theme) {
     return SizedBox(
       height: 32,
       child: FlowyButton(
-        text: FlowyText.medium(getThemeNameForDisplaying(themeType)),
-        rightIcon: currentThemeType == themeType
+        text: FlowyText.medium(currentTheme),
+        rightIcon: currentTheme == theme
             ? svgWidget("grid/checkmark")
             : const SizedBox(),
         onTap: () {
-          if (currentThemeType != themeType) {
-            context.read<AppearanceSettingsCubit>().setTheme(themeType);
+          if (currentTheme != theme) {
+            context.read<AppearanceSettingsCubit>().setTheme(theme);
           }
         },
       ),
     );
-  }
-
-  String getThemeNameForDisplaying(String themeName) {
-    switch (themeName) {
-      case BuiltInTheme.light:
-        return LocaleKeys.settings_appearance_themeType_defaultTheme.tr();
-      case BuiltInTheme.dandelion:
-        return LocaleKeys.settings_appearance_themeType_dandelionCommunity.tr();
-      default:
-        throw Exception("Unknown ThemeType");
-    }
   }
 }
 
