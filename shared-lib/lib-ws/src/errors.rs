@@ -1,17 +1,15 @@
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use futures_channel::mpsc::TrySendError;
 use std::fmt::Debug;
 use strum_macros::Display;
 use tokio::sync::oneshot::error::RecvError;
 use tokio_tungstenite::tungstenite::{http::StatusCode, Message};
 use url::ParseError;
+use serde::{Serialize, Deserialize};
+use serde_repr::*;
 
-#[derive(Debug, Default, Clone, ProtoBuf)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct WSError {
-    #[pb(index = 1)]
     pub code: ErrorCode,
-
-    #[pb(index = 2)]
     pub msg: String,
 }
 
@@ -53,7 +51,8 @@ where
     WSError::internal().context(e)
 }
 
-#[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr, Display, PartialEq, Eq)]
+#[repr(u8)]
 pub enum ErrorCode {
     InternalError = 0,
     UnsupportedMessage = 1,

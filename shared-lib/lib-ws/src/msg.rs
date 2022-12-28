@@ -1,19 +1,26 @@
-use bytes::Bytes;
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use std::convert::TryInto;
 use tokio_tungstenite::tungstenite::Message as TokioMessage;
+use serde::{Serialize, Deserialize};
+use serde_repr::*;
 
-#[derive(ProtoBuf, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct WebSocketRawMessage {
-    #[pb(index = 1)]
     pub channel: WSChannel,
-
-    #[pb(index = 2)]
     pub data: Vec<u8>,
 }
 
+impl WebSocketRawMessage {
+    pub fn to_bytes(&self) -> Vec<u8> {
+        serde_json::to_vec(&self).unwrap_or_default()
+    }
+
+    pub fn from_bytes<T: AsRef<[u8]>>(bytes: T) -> Self {
+        serde_json::from_slice(bytes.as_ref()).unwrap_or_default()
+    }
+}
+
 // The lib-ws crate should not contain business logic.So WSChannel should be removed into another place.
-#[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Serialize_repr, Deserialize_repr, Debug, Clone, Eq, PartialEq, Hash)]
+#[repr(u8)]
 pub enum WSChannel {
     Document = 0,
     Folder = 1,
@@ -38,13 +45,6 @@ impl ToString for WSChannel {
 
 impl std::convert::From<WebSocketRawMessage> for TokioMessage {
     fn from(msg: WebSocketRawMessage) -> Self {
-        let result: Result<Bytes, ::protobuf::ProtobufError> = msg.try_into();
-        match result {
-            Ok(bytes) => TokioMessage::Binary(bytes.to_vec()),
-            Err(e) => {
-                log::error!("WsMessage serialize error: {:?}", e);
-                TokioMessage::Binary(vec![])
-            }
-        }
+        TokioMessage::Binary(msg.to_bytes())
     }
 }
