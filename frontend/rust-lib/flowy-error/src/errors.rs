@@ -53,7 +53,7 @@ impl FlowyError {
     static_flowy_error!(view_desc, ErrorCode::ViewDescTooLong);
     static_flowy_error!(view_data, ErrorCode::ViewDataInvalid);
     static_flowy_error!(unauthorized, ErrorCode::UserUnauthorized);
-    static_flowy_error!(connection, ErrorCode::ConnectError);
+    static_flowy_error!(connection, ErrorCode::HttpServerConnectError);
     static_flowy_error!(email_empty, ErrorCode::EmailIsEmpty);
     static_flowy_error!(email_format, ErrorCode::EmailFormatInvalid);
     static_flowy_error!(email_exist, ErrorCode::EmailAlreadyExists);

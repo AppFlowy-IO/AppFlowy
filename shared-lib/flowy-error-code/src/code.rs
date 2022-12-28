@@ -9,10 +9,10 @@ pub enum ErrorCode {
     #[error("Internal error")]
     Internal = 0,
 
-    #[error("UserUnauthorized")]
+    #[error("Unauthorized user")]
     UserUnauthorized = 2,
 
-    #[error("RecordNotFound")]
+    #[error("Record not found")]
     RecordNotFound = 3,
 
     #[error("User id is empty")]
@@ -57,61 +57,83 @@ pub enum ErrorCode {
     #[error("View name too long")]
     ViewNameTooLong = 125,
 
-    #[error("Connection error")]
-    ConnectError = 200,
+    #[error("Http server connection error")]
+    HttpServerConnectError = 200,
 
     #[error("Email can not be empty or whitespace")]
     EmailIsEmpty = 300,
+
     #[error("Email format is not valid")]
     EmailFormatInvalid = 301,
+
     #[error("Email already exists")]
     EmailAlreadyExists = 302,
+
     #[error("Password can not be empty or whitespace")]
     PasswordIsEmpty = 303,
+
     #[error("Password format too long")]
     PasswordTooLong = 304,
+
     #[error("Password contains forbidden characters.")]
     PasswordContainsForbidCharacters = 305,
+
     #[error("Password should contain a minimum of 6 characters with 1 special 1 letter and 1 numeric")]
     PasswordFormatInvalid = 306,
+
     #[error("Password not match")]
     PasswordNotMatch = 307,
+
     #[error("User name is too long")]
     UserNameTooLong = 308,
+
     #[error("User name contain forbidden characters")]
     UserNameContainForbiddenCharacters = 309,
+
     #[error("User name can not be empty or whitespace")]
     UserNameIsEmpty = 310,
+
     #[error("user id is empty or whitespace")]
     UserIdInvalid = 311,
     #[error("User not exist")]
     UserNotExist = 312,
+
     #[error("Text is too long")]
     TextTooLong = 400,
 
     #[error("Grid id is empty")]
     GridIdIsEmpty = 410,
+
     #[error("Grid view id is empty")]
     GridViewIdIsEmpty = 411,
 
     #[error("Grid block id is empty")]
     BlockIdIsEmpty = 420,
+
     #[error("Row id is empty")]
     RowIdIsEmpty = 430,
+
     #[error("Select option id is empty")]
     OptionIdIsEmpty = 431,
+
     #[error("Field id is empty")]
     FieldIdIsEmpty = 440,
+
     #[error("Field doesn't exist")]
     FieldDoesNotExist = 441,
+
     #[error("The name of the option should not be empty")]
     SelectOptionNameIsEmpty = 442,
+
     #[error("Field not exists")]
     FieldNotExists = 443,
+
     #[error("The operation in this field is invalid")]
     FieldInvalidOperation = 444,
+
     #[error("Filter id is empty")]
     FilterIdIsEmpty = 445,
+
     #[error("Field is not exist")]
     FieldRecordNotFound = 446,
 

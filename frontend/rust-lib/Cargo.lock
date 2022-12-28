@@ -927,6 +927,7 @@ dependencies = [
 name = "flowy-error"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bytes",
  "flowy-codegen",
  "flowy-database",
@@ -940,6 +941,7 @@ dependencies = [
  "protobuf",
  "r2d2",
  "serde_json",
+ "thiserror",
 ]
 
 [[package]]
@@ -950,6 +952,7 @@ dependencies = [
  "flowy-codegen",
  "flowy-derive",
  "protobuf",
+ "thiserror",
 ]
 
 [[package]]
