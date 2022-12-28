@@ -133,20 +133,31 @@ pub fn try_decode_cell_str(
     }
 }
 
+
 /// Returns a string that represents the current field_type's cell data.
 /// If the cell data of the `FieldType` doesn't support displaying in String then will return an
 /// empty string. For example, The string of the Multi-Select cell will be a list of the option's name
 /// separated by a comma.
+///
+/// # Arguments
+///
+/// * `cell_str`: the opaque cell string that can be decoded by corresponding structs that implement the
+/// `FromCellString` trait.
+/// * `decoded_field_type`: the field_type of the cell_str
+/// * `field_type`: use this field type's `TypeOption` to stringify this cell_str
+/// * `field_rev`: used to get the corresponding TypeOption for the specified field type.
+///
+/// returns: String
 pub fn stringify_cell_data(
     cell_str: String,
-    from_field_type: &FieldType,
-    to_field_type: &FieldType,
+    decoded_field_type: &FieldType,
+    field_type: &FieldType,
     field_rev: &FieldRevision,
 ) -> String {
-    match TypeOptionCellExt::new_with_cell_data_cache(field_rev, None).get_type_option_cell_data_handler(to_field_type)
+    match TypeOptionCellExt::new_with_cell_data_cache(field_rev, None).get_type_option_cell_data_handler(field_type)
     {
         None => "".to_string(),
-        Some(handler) => handler.stringify_cell_str(cell_str, from_field_type, field_rev),
+        Some(handler) => handler.stringify_cell_str(cell_str, decoded_field_type, field_rev),
     }
 }
 

@@ -3,22 +3,18 @@ mod tests {
     use crate::entities::FieldType;
     use crate::services::cell::CellDataDecoder;
     use crate::services::field::FieldBuilder;
-
+    use crate::services::cell::stringify_cell_data;
     use crate::services::field::*;
 
     // Test parser the cell data which field's type is FieldType::Date to cell data
     // which field's type is FieldType::Text
     #[test]
     fn date_type_to_text_type() {
-        let type_option = RichTextTypeOptionPB::default();
         let field_type = FieldType::DateTime;
         let field_rev = FieldBuilder::from_field_type(&field_type).build();
 
         assert_eq!(
-            type_option
-                .decode_cell_str(1647251762.to_string(), &field_type, &field_rev)
-                .unwrap()
-                .as_str(),
+            stringify_cell_data(1647251762.to_string(), &FieldType::RichText, &field_type, &field_rev),
             "Mar 14,2022"
         );
     }
@@ -27,8 +23,6 @@ mod tests {
     // which field's type is FieldType::Text
     #[test]
     fn single_select_to_text_type() {
-        let type_option = RichTextTypeOptionPB::default();
-
         let field_type = FieldType::SingleSelect;
         let done_option = SelectOptionPB::new("Done");
         let option_id = done_option.id.clone();
@@ -36,10 +30,7 @@ mod tests {
         let field_rev = FieldBuilder::new(single_select).build();
 
         assert_eq!(
-            type_option
-                .decode_cell_str(option_id, &field_type, &field_rev)
-                .unwrap()
-                .to_string(),
+            stringify_cell_data(option_id, &FieldType::RichText, &field_type, &field_rev),
             done_option.name,
         );
     }
@@ -49,7 +40,6 @@ mod tests {
      */
     #[test]
     fn multiselect_to_text_type() {
-        let text_type_option = RichTextTypeOptionPB::default();
         let field_type = FieldType::MultiSelect;
 
         let france = SelectOptionPB::new("france");
@@ -65,14 +55,7 @@ mod tests {
         let field_rev = FieldBuilder::new(multi_select).build();
 
         assert_eq!(
-            text_type_option
-                .decode_cell_str(
-                    format!("{},{}", france_option_id, argentina_option_id),
-                    &field_type,
-                    &field_rev
-                )
-                .unwrap()
-                .to_string(),
+            stringify_cell_data(format!("{},{}", france_option_id, argentina_option_id), &FieldType::RichText, &field_type, &field_rev),
             format!("{},{}", france.name, argentina.name)
         );
     }

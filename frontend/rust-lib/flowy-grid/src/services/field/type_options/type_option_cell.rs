@@ -47,7 +47,7 @@ pub trait TypeOptionCellDataHandler {
 
     /// Decode the cell_str to corresponding cell data, and then return the display string of the
     /// cell data.
-    fn stringify_cell_str(&self, cell_str: String, field_type: &FieldType, field_rev: &FieldRevision) -> String;
+    fn stringify_cell_str(&self, cell_str: String, decoded_field_type: &FieldType, field_rev: &FieldRevision) -> String;
 }
 
 struct CellDataCacheKey(u64);
@@ -222,9 +222,9 @@ where
         perform_filter().unwrap_or(true)
     }
 
-    fn stringify_cell_str(&self, cell_str: String, field_type: &FieldType, field_rev: &FieldRevision) -> String {
+    fn stringify_cell_str(&self, cell_str: String, decoded_field_type: &FieldType, field_rev: &FieldRevision) -> String {
         if self.transformable() {
-            let cell_data = self.transform_type_option_cell_str(&cell_str, field_type, field_rev);
+            let cell_data = self.transform_type_option_cell_str(&cell_str, decoded_field_type, field_rev);
             if let Some(cell_data) = cell_data {
                 return self.decode_cell_data_to_str(cell_data);
             }
