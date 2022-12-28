@@ -10,12 +10,12 @@ async fn grid_filter_text_is_empty_test() {
         CreateTextFilter {
             condition: TextFilterConditionPB::TextIsEmpty,
             content: "".to_string(),
+            changed: Some(FilterRowChanged {
+                showing_num_of_rows: 0,
+                hiding_num_of_rows: 5,
+            }),
         },
         AssertFilterCount { count: 1 },
-        AssertFilterChanged {
-            visible_row_len: 0,
-            hide_row_len: 5,
-        },
     ];
     test.run_scripts(scripts).await;
 }
@@ -28,13 +28,12 @@ async fn grid_filter_text_is_not_empty_test() {
         CreateTextFilter {
             condition: TextFilterConditionPB::TextIsNotEmpty,
             content: "".to_string(),
+            changed: Some(FilterRowChanged {
+                showing_num_of_rows: 0,
+                hiding_num_of_rows: 1,
+            }),
         },
         AssertFilterCount { count: 1 },
-        // There is only one row in the test data that its text is empty
-        AssertFilterChanged {
-            visible_row_len: 0,
-            hide_row_len: 1,
-        },
     ];
     test.run_scripts(scripts).await;
 
@@ -44,12 +43,12 @@ async fn grid_filter_text_is_not_empty_test() {
         DeleteFilter {
             filter_id: filter.id,
             filter_type: FilterType::from(&field_rev),
+            changed: Some(FilterRowChanged {
+                showing_num_of_rows: 1,
+                hiding_num_of_rows: 0,
+            }),
         },
         AssertFilterCount { count: 0 },
-        AssertFilterChanged {
-            visible_row_len: 1,
-            hide_row_len: 0,
-        },
     ])
     .await;
 }
@@ -58,32 +57,28 @@ async fn grid_filter_text_is_not_empty_test() {
 async fn grid_filter_is_text_test() {
     let mut test = GridFilterTest::new().await;
     // Only one row's text of the initial rows is "A"
-    let scripts = vec![
-        CreateTextFilter {
-            condition: TextFilterConditionPB::Is,
-            content: "A".to_string(),
-        },
-        AssertFilterChanged {
-            visible_row_len: 0,
-            hide_row_len: 5,
-        },
-    ];
+    let scripts = vec![CreateTextFilter {
+        condition: TextFilterConditionPB::Is,
+        content: "A".to_string(),
+        changed: Some(FilterRowChanged {
+            showing_num_of_rows: 0,
+            hiding_num_of_rows: 5,
+        }),
+    }];
     test.run_scripts(scripts).await;
 }
 
 #[tokio::test]
 async fn grid_filter_contain_text_test() {
     let mut test = GridFilterTest::new().await;
-    let scripts = vec![
-        CreateTextFilter {
-            condition: TextFilterConditionPB::Contains,
-            content: "A".to_string(),
-        },
-        AssertFilterChanged {
-            visible_row_len: 0,
-            hide_row_len: 2,
-        },
-    ];
+    let scripts = vec![CreateTextFilter {
+        condition: TextFilterConditionPB::Contains,
+        content: "A".to_string(),
+        changed: Some(FilterRowChanged {
+            showing_num_of_rows: 0,
+            hiding_num_of_rows: 2,
+        }),
+    }];
     test.run_scripts(scripts).await;
 }
 
@@ -96,18 +91,18 @@ async fn grid_filter_contain_text_test2() {
         CreateTextFilter {
             condition: TextFilterConditionPB::Contains,
             content: "A".to_string(),
-        },
-        AssertFilterChanged {
-            visible_row_len: 0,
-            hide_row_len: 2,
+            changed: Some(FilterRowChanged {
+                showing_num_of_rows: 0,
+                hiding_num_of_rows: 2,
+            }),
         },
         UpdateTextCell {
             row_id: row_revs[1].id.clone(),
             text: "ABC".to_string(),
-        },
-        AssertFilterChanged {
-            visible_row_len: 1,
-            hide_row_len: 0,
+            changed: Some(FilterRowChanged {
+                showing_num_of_rows: 1,
+                hiding_num_of_rows: 0,
+            }),
         },
     ];
     test.run_scripts(scripts).await;
@@ -117,32 +112,28 @@ async fn grid_filter_contain_text_test2() {
 async fn grid_filter_does_not_contain_text_test() {
     let mut test = GridFilterTest::new().await;
     // None of the initial rows contains the text "AB"
-    let scripts = vec![
-        CreateTextFilter {
-            condition: TextFilterConditionPB::DoesNotContain,
-            content: "AB".to_string(),
-        },
-        AssertFilterChanged {
-            visible_row_len: 0,
-            hide_row_len: 0,
-        },
-    ];
+    let scripts = vec![CreateTextFilter {
+        condition: TextFilterConditionPB::DoesNotContain,
+        content: "AB".to_string(),
+        changed: Some(FilterRowChanged {
+            showing_num_of_rows: 0,
+            hiding_num_of_rows: 0,
+        }),
+    }];
     test.run_scripts(scripts).await;
 }
 
 #[tokio::test]
 async fn grid_filter_start_with_text_test() {
     let mut test = GridFilterTest::new().await;
-    let scripts = vec![
-        CreateTextFilter {
-            condition: TextFilterConditionPB::StartsWith,
-            content: "A".to_string(),
-        },
-        AssertFilterChanged {
-            visible_row_len: 0,
-            hide_row_len: 3,
-        },
-    ];
+    let scripts = vec![CreateTextFilter {
+        condition: TextFilterConditionPB::StartsWith,
+        content: "A".to_string(),
+        changed: Some(FilterRowChanged {
+            showing_num_of_rows: 0,
+            hiding_num_of_rows: 3,
+        }),
+    }];
     test.run_scripts(scripts).await;
 }
 
@@ -153,6 +144,7 @@ async fn grid_filter_ends_with_text_test() {
         CreateTextFilter {
             condition: TextFilterConditionPB::EndsWith,
             content: "A".to_string(),
+            changed: None,
         },
         AssertNumberOfVisibleRows { expected: 2 },
     ];
@@ -166,8 +158,13 @@ async fn grid_update_text_filter_test() {
         CreateTextFilter {
             condition: TextFilterConditionPB::EndsWith,
             content: "A".to_string(),
+            changed: Some(FilterRowChanged {
+                showing_num_of_rows: 0,
+                hiding_num_of_rows: 4,
+            }),
         },
         AssertNumberOfVisibleRows { expected: 2 },
+        AssertFilterCount { count: 1 },
     ];
     test.run_scripts(scripts).await;
 
@@ -178,9 +175,12 @@ async fn grid_update_text_filter_test() {
             filter,
             condition: TextFilterConditionPB::Is,
             content: "A".to_string(),
+            changed: Some(FilterRowChanged {
+                showing_num_of_rows: 0,
+                hiding_num_of_rows: 1,
+            }),
         },
         AssertNumberOfVisibleRows { expected: 1 },
-        AssertFilterCount { count: 1 },
     ];
     test.run_scripts(scripts).await;
 }
@@ -206,6 +206,7 @@ async fn grid_filter_delete_test() {
         DeleteFilter {
             filter_id: filter.id,
             filter_type: FilterType::from(&field_rev),
+            changed: None,
         },
         AssertFilterCount { count: 0 },
         AssertNumberOfVisibleRows { expected: 6 },
@@ -221,19 +222,19 @@ async fn grid_filter_update_empty_text_cell_test() {
         CreateTextFilter {
             condition: TextFilterConditionPB::TextIsEmpty,
             content: "".to_string(),
+            changed: Some(FilterRowChanged {
+                showing_num_of_rows: 0,
+                hiding_num_of_rows: 5,
+            }),
         },
         AssertFilterCount { count: 1 },
-        AssertFilterChanged {
-            visible_row_len: 0,
-            hide_row_len: 5,
-        },
         UpdateTextCell {
             row_id: row_revs[0].id.clone(),
             text: "".to_string(),
-        },
-        AssertFilterChanged {
-            visible_row_len: 1,
-            hide_row_len: 0,
+            changed: Some(FilterRowChanged {
+                showing_num_of_rows: 1,
+                hiding_num_of_rows: 0,
+            }),
         },
     ];
     test.run_scripts(scripts).await;
