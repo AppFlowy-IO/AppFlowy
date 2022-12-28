@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
+    use crate::services::cell::stringify_cell_data;
     use crate::services::cell::CellDataDecoder;
     use crate::services::field::FieldBuilder;
-    use crate::services::cell::stringify_cell_data;
     use crate::services::field::*;
 
     // Test parser the cell data which field's type is FieldType::Date to cell data
@@ -55,7 +55,12 @@ mod tests {
         let field_rev = FieldBuilder::new(multi_select).build();
 
         assert_eq!(
-            stringify_cell_data(format!("{},{}", france_option_id, argentina_option_id), &FieldType::RichText, &field_type, &field_rev),
+            stringify_cell_data(
+                format!("{},{}", france_option_id, argentina_option_id),
+                &FieldType::RichText,
+                &field_type,
+                &field_rev
+            ),
             format!("{},{}", france.name, argentina.name)
         );
     }
