@@ -276,4 +276,28 @@ async fn grid_switch_from_date_to_text_test() {}
 // input:
 //      $1 -> "$1"(This string will be different base on current data setting)
 #[tokio::test]
-async fn grid_switch_from_number_to_text_test() {}
+async fn grid_switch_from_number_to_text_test() {
+    let mut test = GridFieldTest::new().await;
+    let field_rev = test.get_first_field_rev(FieldType::Number).clone();
+
+    let scripts = vec![
+        SwitchToField {
+            field_id: field_rev.id.clone(),
+            new_field_type: FieldType::RichText,
+        },
+        AssertCellContent {
+            field_id: field_rev.id.clone(),
+            row_index: 0,
+            from_field_type: FieldType::Number,
+            expected_content: "1".to_string(),
+        },
+        AssertCellContent {
+            field_id: field_rev.id.clone(),
+            row_index: 4,
+            from_field_type: FieldType::Number,
+            expected_content: "".to_string(),
+        },
+    ];
+
+    test.run_scripts(scripts).await;
+}
