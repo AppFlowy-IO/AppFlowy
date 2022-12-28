@@ -48,7 +48,31 @@ impl TypeOption for RichTextTypeOptionPB {
     type CellFilter = TextFilterPB;
 }
 
-impl TypeOptionTransform for RichTextTypeOptionPB {}
+impl TypeOptionTransform for RichTextTypeOptionPB {
+    fn transformable(&self) -> bool {
+        true
+    }
+
+    fn transform_type_option(&mut self, _old_type_option_field_type: FieldType, _old_type_option_data: String) {}
+
+    fn transform_type_option_cell_str(
+        &self,
+        cell_str: &str,
+        decoded_field_type: &FieldType,
+        field_rev: &FieldRevision,
+    ) -> Option<<Self as TypeOption>::CellData> {
+        if decoded_field_type.is_date()
+            || decoded_field_type.is_single_select()
+            || decoded_field_type.is_multi_select()
+            || decoded_field_type.is_number()
+            || decoded_field_type.is_url()
+        {
+            Some(stringify_cell_data(cell_str.to_owned(), decoded_field_type, decoded_field_type, field_rev).into())
+        } else {
+            StrCellData::from_cell_str(&cell_str).ok()
+        }
+    }
+}
 
 impl TypeOptionCellData for RichTextTypeOptionPB {
     fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {
@@ -64,19 +88,10 @@ impl CellDataDecoder for RichTextTypeOptionPB {
     fn decode_cell_str(
         &self,
         cell_str: String,
-        decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
     ) -> FlowyResult<<Self as TypeOption>::CellData> {
-        if decoded_field_type.is_date()
-            || decoded_field_type.is_single_select()
-            || decoded_field_type.is_multi_select()
-            || decoded_field_type.is_number()
-            || decoded_field_type.is_url()
-        {
-            Ok(stringify_cell_data(cell_str, decoded_field_type, decoded_field_type, field_rev).into())
-        } else {
-            StrCellData::from_cell_str(&cell_str)
-        }
+        StrCellData::from_cell_str(&cell_str)
     }
 
     fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {

@@ -152,10 +152,10 @@ where
     fn transform_type_option_cell_str(
         &self,
         cell_str: &str,
-        _decoded_field_type: &FieldType,
+        decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> Option<<Self as TypeOption>::CellData> {
-        match _decoded_field_type {
+        match decoded_field_type {
             FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => None,
             FieldType::Checkbox => match CheckboxCellData::from_cell_str(cell_str) {
                 Ok(checkbox_cell_data) => {

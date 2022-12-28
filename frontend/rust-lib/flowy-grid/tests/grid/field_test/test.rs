@@ -289,7 +289,7 @@ async fn grid_switch_from_number_to_text_test() {
             field_id: field_rev.id.clone(),
             row_index: 0,
             from_field_type: FieldType::Number,
-            expected_content: "1".to_string(),
+            expected_content: "$1".to_string(),
         },
         AssertCellContent {
             field_id: field_rev.id.clone(),
