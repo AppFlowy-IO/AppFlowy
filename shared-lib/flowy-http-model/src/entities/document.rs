@@ -1,13 +1,13 @@
-use crate::entities::revision::{RepeatedRevision, Revision};
 use flowy_derive::ProtoBuf;
+use crate::revision::Revision;
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct CreateDocumentParams {
     #[pb(index = 1)]
     pub doc_id: String,
 
-    #[pb(index = 2)]
-    pub revisions: RepeatedRevision,
+    // #[pb(index = 2)]
+    // pub revisions: RepeatedRevision,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone, Eq, PartialEq)]
@@ -47,8 +47,8 @@ pub struct ResetDocumentParams {
     #[pb(index = 1)]
     pub doc_id: String,
 
-    #[pb(index = 2)]
-    pub revisions: RepeatedRevision,
+    // #[pb(index = 2)]
+    // pub revisions: RepeatedRevision,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]

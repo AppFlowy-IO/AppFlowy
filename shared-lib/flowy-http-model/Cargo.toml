@@ -11,6 +11,9 @@ lib-infra = { path = "../lib-infra" }
 flowy-derive = { path = "../flowy-derive" }
 protobuf = {version = "2.18.0"}
 md5 = "0.7.0"
+serde = {versino = "1.0"}
+serde_json = { version = "1.0" }
+serde_repr = "0.1"
 
 [build-dependencies]
 flowy-codegen = { path = "../flowy-codegen", features = ["proto_gen"]}

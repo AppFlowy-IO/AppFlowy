@@ -1,12 +1,12 @@
-use crate::{RevisionMD5, RevisionManager};
+use crate::{RevisionManager, RevisionMD5};
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_http_model::{
-    revision::{RepeatedRevision, Revision, RevisionRange},
-    ws_data::ServerRevisionWSDataType,
+    revision::{Revision, RevisionRange},
 };
 use lib_infra::future::BoxResultFuture;
-use std::{convert::TryFrom, sync::Arc};
+use std::{sync::Arc};
+
 
 pub struct TransformOperations<Operations> {
     pub client_operations: Operations,
@@ -36,7 +36,7 @@ where
 
 pub trait ConflictRevisionSink: Send + Sync + 'static {
     fn send(&self, revisions: Vec<Revision>) -> BoxResultFuture<(), FlowyError>;
-    fn ack(&self, rev_id: String, ty: ServerRevisionWSDataType) -> BoxResultFuture<(), FlowyError>;
+    fn ack(&self, rev_id: i64) -> BoxResultFuture<(), FlowyError>;
 }
 
 pub struct ConflictController<Operations, Connection>
@@ -75,13 +75,12 @@ where
     Operations: OperationsSerializer + OperationsDeserializer<Operations> + Clone + Send + Sync,
     Connection: Send + Sync + 'static,
 {
-    pub async fn receive_bytes(&self, bytes: Bytes) -> FlowyResult<()> {
-        let repeated_revision = RepeatedRevision::try_from(bytes)?;
-        if repeated_revision.is_empty() {
+    pub async fn receive_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<()> {
+        if revisions.is_empty() {
             return Ok(());
         }
 
-        match self.handle_revision(repeated_revision).await? {
+        match self.handle_revision(revisions).await? {
             None => {}
             Some(server_revision) => {
                 self.rev_sink.send(vec![server_revision]).await?;
@@ -90,8 +89,8 @@ where
         Ok(())
     }
 
-    pub async fn ack_revision(&self, rev_id: String, ty: ServerRevisionWSDataType) -> FlowyResult<()> {
-        let _ = self.rev_sink.ack(rev_id, ty).await?;
+    pub async fn ack_revision(&self, rev_id: i64) -> FlowyResult<()> {
+        let _ = self.rev_sink.ack(rev_id).await?;
         Ok(())
     }
 
@@ -101,8 +100,7 @@ where
         Ok(())
     }
 
-    async fn handle_revision(&self, repeated_revision: RepeatedRevision) -> FlowyResult<Option<Revision>> {
-        let mut revisions = repeated_revision.into_inner();
+    async fn handle_revision(&self, mut revisions: Vec<Revision>) -> FlowyResult<Option<Revision>> {
         let first_revision = revisions.first().unwrap();
         if let Some(local_revision) = self.rev_manager.get_revision(first_revision.rev_id).await {
             if local_revision.md5 == first_revision.md5 {

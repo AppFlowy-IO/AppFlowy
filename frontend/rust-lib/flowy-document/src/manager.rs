@@ -1,14 +1,14 @@
-use crate::editor::{initial_document_content, AppFlowyDocumentEditor, DocumentRevisionMergeable};
+use crate::editor::{AppFlowyDocumentEditor, DocumentRevisionMergeable, initial_document_content};
 use crate::entities::{DocumentVersionPB, EditParams};
 use crate::old_editor::editor::{DeltaDocumentEditor, DeltaDocumentRevisionMergeable};
 use crate::services::rev_sqlite::{SQLiteDeltaDocumentRevisionPersistence, SQLiteDocumentRevisionPersistence};
 use crate::services::DocumentPersistence;
-use crate::{errors::FlowyError, DocumentCloudService};
+use crate::{DocumentCloudService, errors::FlowyError};
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_http_model::util::md5;
-use flowy_http_model::{document::DocumentIdPB, revision::Revision, ws_data::ServerRevisionWSData};
+use flowy_http_model::{document::DocumentIdPB, revision::Revision};
 use flowy_revision::{
     PhantomSnapshotPersistence, RevisionCloudService, RevisionManager, RevisionPersistence,
     RevisionPersistenceConfiguration, RevisionWebSocket,
@@ -19,8 +19,10 @@ use lib_infra::future::FutureResult;
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
 use lib_ws::WSConnectState;
 use std::any::Any;
-use std::{convert::TryInto, sync::Arc};
+use std::{sync::Arc};
+use std::convert::TryFrom;
 use tokio::sync::RwLock;
+use flowy_http_model::ws_data::ServerRevisionWSData;
 
 pub trait DocumentUser: Send + Sync {
     fn user_dir(&self) -> Result<String, FlowyError>;
@@ -150,10 +152,10 @@ impl DocumentManager {
     }
 
     pub async fn receive_ws_data(&self, data: Bytes) {
-        let result: Result<ServerRevisionWSData, protobuf::ProtobufError> = data.try_into();
+        let result: Result<ServerRevisionWSData, serde_json::Error> = ServerRevisionWSData::try_from(data);
         match result {
             Ok(data) => match self.editor_map.read().await.get(&data.object_id) {
-                None => tracing::error!("Can't find any source handler for {:?}-{:?}", data.object_id, data.ty),
+                None => tracing::error!("Can't find any source handler for {:?}-{:?}", data.object_id, data.payload),
                 Some(handler) => match handler.0.receive_ws_data(data).await {
                     Ok(_) => {}
                     Err(e) => tracing::error!("{}", e),

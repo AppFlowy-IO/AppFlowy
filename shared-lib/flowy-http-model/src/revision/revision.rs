@@ -1,23 +1,15 @@
 use crate::util::md5;
 use bytes::Bytes;
-use flowy_derive::ProtoBuf;
 use std::{convert::TryFrom, fmt::Formatter, ops::RangeInclusive};
+use serde::{Serialize, Deserialize};
+use crate::revision::serde_protobuf::RevisionPB;
 
-#[derive(PartialEq, Eq, Clone, Default, ProtoBuf)]
+#[derive(PartialEq, Eq, Clone, Default, Serialize, Deserialize)]
 pub struct Revision {
-    #[pb(index = 1)]
     pub base_rev_id: i64,
-
-    #[pb(index = 2)]
     pub rev_id: i64,
-
-    #[pb(index = 3)]
     pub bytes: Vec<u8>,
-
-    #[pb(index = 4)]
     pub md5: String,
-
-    #[pb(index = 5)]
     pub object_id: String,
 }
 
@@ -27,6 +19,29 @@ impl std::convert::From<Vec<u8>> for Revision {
         Revision::try_from(bytes).unwrap()
     }
 }
+
+impl std::convert::TryFrom<Bytes> for Revision {
+    type Error = serde_json::Error;
+
+    fn try_from(bytes: Bytes) -> Result<Self, Self::Error> {
+        serde_json::from_slice(&bytes)
+    }
+}
+
+// impl std::convert::TryFrom<Bytes> for Revision {
+//     type Error = ::protobuf::ProtobufError;
+//
+//     fn try_from(bytes: Bytes) -> Result<Self, Self::Error> {
+//         let pb: RevisionPB = ::protobuf::Message::parse_from_bytes(&bytes)?;
+//         Ok(Self {
+//             base_rev_id: pb.base_rev_id,
+//             rev_id: pb.rev_id,
+//             bytes: pb.bytes,
+//             md5: pb.md5,
+//             object_id: pb.object_id,
+//         })
+//     }
+// }
 
 impl Revision {
     pub fn new<T: Into<String>>(object_id: &str, base_rev_id: i64, rev_id: i64, bytes: Bytes, md5: T) -> Revision {
@@ -75,89 +90,9 @@ impl std::fmt::Debug for Revision {
     }
 }
 
-#[derive(PartialEq, Debug, Default, ProtoBuf, Clone)]
-pub struct RepeatedRevision {
-    #[pb(index = 1)]
-    items: Vec<Revision>,
-}
-
-impl std::ops::Deref for RepeatedRevision {
-    type Target = Vec<Revision>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.items
-    }
-}
-
-impl std::ops::DerefMut for RepeatedRevision {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.items
-    }
-}
-
-impl std::convert::From<Revision> for RepeatedRevision {
-    fn from(revision: Revision) -> Self {
-        Self { items: vec![revision] }
-    }
-}
-
-impl std::convert::From<Vec<Revision>> for RepeatedRevision {
-    fn from(revisions: Vec<Revision>) -> Self {
-        Self { items: revisions }
-    }
-}
-
-impl RepeatedRevision {
-    pub fn new(mut items: Vec<Revision>) -> Self {
-        items.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
-        Self { items }
-    }
-
-    pub fn empty() -> Self {
-        RepeatedRevision { items: vec![] }
-    }
-
-    pub fn into_inner(self) -> Vec<Revision> {
-        self.items
-    }
-}
-
-#[derive(Clone, Debug, ProtoBuf, Default)]
-pub struct RevId {
-    #[pb(index = 1)]
-    pub value: i64,
-}
-
-impl AsRef<i64> for RevId {
-    fn as_ref(&self) -> &i64 {
-        &self.value
-    }
-}
-
-impl std::convert::From<RevId> for i64 {
-    fn from(rev_id: RevId) -> Self {
-        rev_id.value
-    }
-}
-
-impl std::convert::From<i64> for RevId {
-    fn from(value: i64) -> Self {
-        RevId { value }
-    }
-}
-
-impl std::fmt::Display for RevId {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_fmt(format_args!("{}", self.value))
-    }
-}
-
-#[derive(Debug, Clone, Default, ProtoBuf)]
+#[derive(Debug, Clone, Default,  Serialize, Deserialize)]
 pub struct RevisionRange {
-    #[pb(index = 1)]
     pub start: i64,
-
-    #[pb(index = 2)]
     pub end: i64,
 }
 

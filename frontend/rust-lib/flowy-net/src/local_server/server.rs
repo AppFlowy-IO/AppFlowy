@@ -131,7 +131,7 @@ impl LocalWebSocketRunner {
         tracing::trace!(
             "[LocalFolderServer] receive: {}:{}-{:?} ",
             client_data.object_id,
-            client_data.id(),
+            client_data.rev_id,
             client_data.ty,
         );
         let client_ws_sender = self.client_ws_sender.clone();
@@ -141,18 +141,17 @@ impl LocalWebSocketRunner {
             channel: WSChannel::Folder,
         });
         let ty = client_data.ty.clone();
-        let document_client_data: ClientRevisionWSDataPB = client_data.try_into().unwrap();
         match ty {
             ClientRevisionWSDataType::ClientPushRev => {
                 let _ = self
                     .folder_manager
-                    .handle_client_revisions(user, document_client_data)
+                    .handle_client_revisions(user, client_data)
                     .await?;
             }
             ClientRevisionWSDataType::ClientPing => {
                 let _ = self
                     .folder_manager
-                    .handle_client_ping(user, document_client_data)
+                    .handle_client_ping(user, client_data)
                     .await?;
             }
         }
@@ -167,7 +166,7 @@ impl LocalWebSocketRunner {
         tracing::trace!(
             "[LocalDocumentServer] receive: {}:{}-{:?} ",
             client_data.object_id,
-            client_data.id(),
+            client_data.rev_id,
             client_data.ty,
         );
         let client_ws_sender = self.client_ws_sender.clone();
@@ -177,16 +176,15 @@ impl LocalWebSocketRunner {
             channel: WSChannel::Document,
         });
         let ty = client_data.ty.clone();
-        let document_client_data: ClientRevisionWSDataPB = client_data.try_into().unwrap();
         match ty {
             ClientRevisionWSDataType::ClientPushRev => {
                 let _ = self
                     .doc_manager
-                    .handle_client_revisions(user, document_client_data)
+                    .handle_client_revisions(user, client_data)
                     .await?;
             }
             ClientRevisionWSDataType::ClientPing => {
-                let _ = self.doc_manager.handle_client_ping(user, document_client_data).await?;
+                let _ = self.doc_manager.handle_client_ping(user, client_data).await?;
             }
         }
         Ok(())
@@ -254,7 +252,6 @@ use flowy_folder::entities::{
     workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdPB},
 };
 use flowy_http_model::document::{CreateDocumentParams, DocumentIdPB, DocumentPayloadPB, ResetDocumentParams};
-use flowy_http_model::protobuf::ClientRevisionWSData as ClientRevisionWSDataPB;
 use flowy_http_model::ws_data::{ClientRevisionWSData, ClientRevisionWSDataType};
 use flowy_user::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB,

@@ -2,10 +2,9 @@ use crate::old_editor::queue::{EditorCommand, EditorCommandSender, TextTransform
 use crate::TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS;
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
-use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_error::{FlowyError, FlowyResult, internal_error};
 use flowy_http_model::{
     revision::{Revision, RevisionRange},
-    ws_data::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSDataType},
 };
 use flowy_revision::*;
 use flowy_sync::errors::CollaborateResult;
@@ -15,6 +14,7 @@ use lib_ot::text_delta::DeltaTextOperations;
 use lib_ws::WSConnectState;
 use std::{sync::Arc, time::Duration};
 use tokio::sync::{broadcast, oneshot};
+use flowy_http_model::ws_data::{ClientRevisionWSData, NewDocumentUser};
 
 #[derive(Clone)]
 pub struct DeltaDocumentResolveOperations(pub DeltaTextOperations);
@@ -96,14 +96,14 @@ impl DocumentRevisionWSDataStream {
 }
 
 impl RevisionWSDataStream for DocumentRevisionWSDataStream {
-    fn receive_push_revision(&self, bytes: Bytes) -> BoxResultFuture<(), FlowyError> {
+    fn receive_push_revision(&self, revisions: Vec<Revision>) -> BoxResultFuture<(), FlowyError> {
         let resolver = self.conflict_controller.clone();
-        Box::pin(async move { resolver.receive_bytes(bytes).await })
+        Box::pin(async move { resolver.receive_revisions(revisions).await })
     }
 
-    fn receive_ack(&self, id: String, ty: ServerRevisionWSDataType) -> BoxResultFuture<(), FlowyError> {
+    fn receive_ack(&self, rev_id: i64) -> BoxResultFuture<(), FlowyError> {
         let resolver = self.conflict_controller.clone();
-        Box::pin(async move { resolver.ack_revision(id, ty).await })
+        Box::pin(async move { resolver.ack_revision(rev_id).await })
     }
 
     fn receive_new_user_connect(&self, _new_user: NewDocumentUser) -> BoxResultFuture<(), FlowyError> {

@@ -3,12 +3,11 @@ use crate::{
     errors::{internal_error, CollaborateError, CollaborateResult},
     server_folder::folder_pad::ServerFolder,
     synchronizer::{RevisionSyncPersistence, RevisionSyncResponse, RevisionUser},
-    util::rev_id_from_str,
 };
 use async_stream::stream;
 use flowy_http_model::folder::FolderInfo;
-use flowy_http_model::protobuf::ClientRevisionWSData;
-use flowy_http_model::revision::{RepeatedRevision, Revision};
+use flowy_http_model::entities::ClientRevisionWSData;
+use flowy_http_model::revision::Revision;
 use flowy_http_model::ws_data::ServerRevisionWSDataBuilder;
 use futures::stream::StreamExt;
 use lib_infra::future::BoxResultFuture;
@@ -25,10 +24,10 @@ pub trait FolderCloudPersistence: Send + Sync + Debug {
         &self,
         user_id: &str,
         folder_id: &str,
-        repeated_revision: RepeatedRevision,
+        revisions: Vec<Revision>,
     ) -> BoxResultFuture<Option<FolderInfo>, CollaborateError>;
 
-    fn save_folder_revisions(&self, repeated_revision: RepeatedRevision) -> BoxResultFuture<(), CollaborateError>;
+    fn save_folder_revisions(&self, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError>;
 
     fn read_folder_revisions(
         &self,
@@ -39,7 +38,7 @@ pub trait FolderCloudPersistence: Send + Sync + Debug {
     fn reset_folder(
         &self,
         folder_id: &str,
-        repeated_revision: RepeatedRevision,
+        revisions: Vec<Revision>,
     ) -> BoxResultFuture<(), CollaborateError>;
 }
 
@@ -52,16 +51,16 @@ impl RevisionSyncPersistence for Arc<dyn FolderCloudPersistence> {
         (**self).read_folder_revisions(object_id, rev_ids)
     }
 
-    fn save_revisions(&self, repeated_revision: RepeatedRevision) -> BoxResultFuture<(), CollaborateError> {
-        (**self).save_folder_revisions(repeated_revision)
+    fn save_revisions(&self, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError> {
+        (**self).save_folder_revisions(revisions)
     }
 
     fn reset_object(
         &self,
         object_id: &str,
-        repeated_revision: RepeatedRevision,
+        revisions: Vec<Revision>,
     ) -> BoxResultFuture<(), CollaborateError> {
-        (**self).reset_folder(object_id, repeated_revision)
+        (**self).reset_folder(object_id, revisions)
     }
 }
 
@@ -81,24 +80,23 @@ impl ServerFolderManager {
     pub async fn handle_client_revisions(
         &self,
         user: Arc<dyn RevisionUser>,
-        mut client_data: ClientRevisionWSData,
+        client_data: ClientRevisionWSData,
     ) -> Result<(), CollaborateError> {
-        let repeated_revision: RepeatedRevision = client_data.take_revisions().into();
         let cloned_user = user.clone();
-        let ack_id = rev_id_from_str(&client_data.data_id)?;
+        let ack_id = client_data.rev_id;
         let folder_id = client_data.object_id;
         let user_id = user.user_id();
 
         let result = match self.get_folder_handler(&user_id, &folder_id).await {
             None => {
                 let _ = self
-                    .create_folder(&user_id, &folder_id, repeated_revision)
+                    .create_folder(&user_id, &folder_id, client_data.revisions)
                     .await
                     .map_err(|e| CollaborateError::internal().context(format!("Server create folder failed: {}", e)))?;
                 Ok(())
             }
             Some(handler) => {
-                let _ = handler.apply_revisions(user, repeated_revision).await?;
+                let _ = handler.apply_revisions(user, client_data.revisions).await?;
                 Ok(())
             }
         };
@@ -117,7 +115,7 @@ impl ServerFolderManager {
         client_data: ClientRevisionWSData,
     ) -> Result<(), CollaborateError> {
         let user_id = user.user_id();
-        let rev_id = rev_id_from_str(&client_data.data_id)?;
+        let rev_id = client_data.rev_id;
         let folder_id = client_data.object_id.clone();
         match self.get_folder_handler(&user_id, &folder_id).await {
             None => {
@@ -161,16 +159,16 @@ impl ServerFolderManager {
         Ok(Arc::new(handle?))
     }
 
-    #[tracing::instrument(level = "debug", skip(self, repeated_revision), err)]
+    #[tracing::instrument(level = "debug", skip(self, revisions), err)]
     async fn create_folder(
         &self,
         user_id: &str,
         folder_id: &str,
-        repeated_revision: RepeatedRevision,
+        revisions: Vec<Revision>,
     ) -> Result<Arc<OpenFolderHandler>, CollaborateError> {
         match self
             .persistence
-            .create_folder(user_id, folder_id, repeated_revision)
+            .create_folder(user_id, folder_id, revisions)
             .await?
         {
             Some(folder_info) => {
@@ -212,18 +210,18 @@ impl OpenFolderHandler {
     #[tracing::instrument(
         name = "server_folder_apply_revision",
         level = "trace",
-        skip(self, user, repeated_revision),
+        skip(self, user, revisions),
         err
     )]
     async fn apply_revisions(
         &self,
         user: Arc<dyn RevisionUser>,
-        repeated_revision: RepeatedRevision,
+        revisions: Vec<Revision>,
     ) -> CollaborateResult<()> {
         let (ret, rx) = oneshot::channel();
         let msg = FolderCommand::ApplyRevisions {
             user,
-            repeated_revision,
+            revisions,
             ret,
         };
 
@@ -255,7 +253,7 @@ impl std::ops::Drop for OpenFolderHandler {
 enum FolderCommand {
     ApplyRevisions {
         user: Arc<dyn RevisionUser>,
-        repeated_revision: RepeatedRevision,
+        revisions: Vec<Revision>,
         ret: oneshot::Sender<CollaborateResult<()>>,
     },
     Ping {
@@ -304,12 +302,12 @@ impl FolderCommandRunner {
         match msg {
             FolderCommand::ApplyRevisions {
                 user,
-                repeated_revision,
+                revisions,
                 ret,
             } => {
                 let result = self
                     .synchronizer
-                    .sync_revisions(user, repeated_revision)
+                    .sync_revisions(user, revisions)
                     .await
                     .map_err(internal_error);
                 let _ = ret.send(result);

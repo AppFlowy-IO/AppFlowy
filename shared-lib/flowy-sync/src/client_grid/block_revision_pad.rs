@@ -1,6 +1,6 @@
 use crate::errors::{CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_operations_from_revisions};
-use flowy_http_model::revision::{RepeatedRevision, Revision};
+use flowy_http_model::revision::Revision;
 use flowy_http_model::util::md5;
 use grid_rev_model::{gen_block_id, gen_row_id, CellRevision, GridBlockRevision, RowChangeset, RowRevision};
 use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
@@ -264,11 +264,11 @@ pub fn make_grid_block_operations(block_rev: &GridBlockRevision) -> GridBlockOpe
     GridBlockOperationsBuilder::new().insert(&json).build()
 }
 
-pub fn make_grid_block_revisions(_user_id: &str, grid_block_meta_data: &GridBlockRevision) -> RepeatedRevision {
+pub fn make_grid_block_revisions(_user_id: &str, grid_block_meta_data: &GridBlockRevision) -> Vec<Revision> {
     let operations = make_grid_block_operations(grid_block_meta_data);
     let bytes = operations.json_bytes();
     let revision = Revision::initial_revision(&grid_block_meta_data.block_id, bytes);
-    revision.into()
+    vec![revision]
 }
 
 impl std::default::Default for GridBlockRevisionPad {

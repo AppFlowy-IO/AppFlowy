@@ -1052,6 +1052,9 @@ dependencies = [
  "lib-infra",
  "md5",
  "protobuf",
+ "serde",
+ "serde_json",
+ "serde_repr",
 ]
 
 [[package]]

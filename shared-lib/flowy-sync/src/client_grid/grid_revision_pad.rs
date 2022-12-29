@@ -1,6 +1,6 @@
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_operations_from_revisions};
-use flowy_http_model::revision::{RepeatedRevision, Revision};
+use flowy_http_model::revision::Revision;
 use flowy_http_model::util::md5;
 use grid_rev_model::{
     gen_block_id, gen_grid_id, FieldRevision, FieldTypeRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset,
@@ -410,11 +410,11 @@ pub fn make_grid_operations(grid_rev: &GridRevision) -> GridOperations {
     GridOperationsBuilder::new().insert(&json).build()
 }
 
-pub fn make_grid_revisions(_user_id: &str, grid_rev: &GridRevision) -> RepeatedRevision {
+pub fn make_grid_revisions(_user_id: &str, grid_rev: &GridRevision) -> Vec<Revision> {
     let operations = make_grid_operations(grid_rev);
     let bytes = operations.json_bytes();
     let revision = Revision::initial_revision(&grid_rev.grid_id, bytes);
-    revision.into()
+    vec![revision]
 }
 
 impl std::default::Default for GridRevisionPad {

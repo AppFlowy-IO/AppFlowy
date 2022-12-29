@@ -26,7 +26,8 @@ use crate::services::clear_current_workspace;
 use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
 use flowy_http_model::ws_data::ServerRevisionWSData;
 use flowy_sync::client_folder::FolderPad;
-use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};
+use std::{collections::HashMap, fmt::Formatter, sync::Arc};
+use std::convert::TryFrom;
 use tokio::sync::RwLock as TokioRwLock;
 lazy_static! {
     static ref INIT_FOLDER_FLAG: TokioRwLock<HashMap<String, bool>> = TokioRwLock::new(HashMap::new());
@@ -139,7 +140,7 @@ impl FolderManager {
     // }
 
     pub async fn did_receive_ws_data(&self, data: Bytes) {
-        let result: Result<ServerRevisionWSData, protobuf::ProtobufError> = data.try_into();
+        let result = ServerRevisionWSData::try_from(data);
         match result {
             Ok(data) => match self.folder_editor.read().await.clone() {
                 None => {}
