@@ -1,31 +1,21 @@
-use flowy_derive::ProtoBuf;
 use crate::revision::Revision;
+use serde::{Deserialize, Serialize};
 
-#[derive(ProtoBuf, Default, Debug, Clone)]
+#[derive(Serialize, Deserialize, Default, Debug, Clone)]
 pub struct CreateDocumentParams {
-    #[pb(index = 1)]
     pub doc_id: String,
-
-    // #[pb(index = 2)]
-    // pub revisions: RepeatedRevision,
+    pub revisions: Vec<Revision>,
 }
 
-#[derive(ProtoBuf, Default, Debug, Clone, Eq, PartialEq)]
-pub struct DocumentPayloadPB {
-    #[pb(index = 1)]
+#[derive(Serialize, Deserialize, Default, Debug, Clone, Eq, PartialEq)]
+pub struct DocumentPayload {
     pub doc_id: String,
-
-    #[pb(index = 2)]
     pub data: Vec<u8>,
-
-    #[pb(index = 3)]
     pub rev_id: i64,
-
-    #[pb(index = 4)]
     pub base_rev_id: i64,
 }
 
-impl std::convert::TryFrom<Revision> for DocumentPayloadPB {
+impl std::convert::TryFrom<Revision> for DocumentPayload {
     type Error = String;
 
     fn try_from(revision: Revision) -> Result<Self, Self::Error> {
@@ -33,7 +23,7 @@ impl std::convert::TryFrom<Revision> for DocumentPayloadPB {
             return Err("Revision's rev_id should be 0 when creating the document".to_string());
         }
 
-        Ok(DocumentPayloadPB {
+        Ok(DocumentPayload {
             doc_id: revision.object_id,
             data: revision.bytes,
             rev_id: revision.rev_id,
@@ -42,40 +32,36 @@ impl std::convert::TryFrom<Revision> for DocumentPayloadPB {
     }
 }
 
-#[derive(ProtoBuf, Default, Debug, Clone)]
+#[derive(Serialize, Deserialize, Default, Debug, Clone)]
 pub struct ResetDocumentParams {
-    #[pb(index = 1)]
     pub doc_id: String,
-
-    // #[pb(index = 2)]
-    // pub revisions: RepeatedRevision,
+    pub revisions: Vec<Revision>,
 }
 
-#[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct DocumentIdPB {
-    #[pb(index = 1)]
+#[derive(Serialize, Deserialize, Default, Debug, Clone)]
+pub struct DocumentId {
     pub value: String,
 }
-impl AsRef<str> for DocumentIdPB {
+impl AsRef<str> for DocumentId {
     fn as_ref(&self) -> &str {
         &self.value
     }
 }
 
-impl std::convert::From<String> for DocumentIdPB {
+impl std::convert::From<String> for DocumentId {
     fn from(value: String) -> Self {
-        DocumentIdPB { value }
+        DocumentId { value }
     }
 }
 
-impl std::convert::From<DocumentIdPB> for String {
-    fn from(block_id: DocumentIdPB) -> Self {
+impl std::convert::From<DocumentId> for String {
+    fn from(block_id: DocumentId) -> Self {
         block_id.value
     }
 }
 
-impl std::convert::From<&String> for DocumentIdPB {
+impl std::convert::From<&String> for DocumentId {
     fn from(s: &String) -> Self {
-        DocumentIdPB { value: s.to_owned() }
+        DocumentId { value: s.to_owned() }
     }
 }

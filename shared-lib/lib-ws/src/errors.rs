@@ -1,11 +1,11 @@
 use futures_channel::mpsc::TrySendError;
+use serde::{Deserialize, Serialize};
+use serde_repr::*;
 use std::fmt::Debug;
 use strum_macros::Display;
 use tokio::sync::oneshot::error::RecvError;
 use tokio_tungstenite::tungstenite::{http::StatusCode, Message};
 use url::ParseError;
-use serde::{Serialize, Deserialize};
-use serde_repr::*;
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct WSError {

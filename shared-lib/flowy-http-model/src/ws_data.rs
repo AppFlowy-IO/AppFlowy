@@ -1,7 +1,7 @@
-use serde::{Serialize, Deserialize};
-use serde_repr::*;
-use bytes::Bytes;
 use crate::revision::{Revision, RevisionRange};
+use bytes::Bytes;
+use serde::{Deserialize, Serialize};
+use serde_repr::*;
 
 #[derive(Debug, Clone, Serialize_repr, Deserialize_repr, Eq, PartialEq, Hash)]
 #[repr(u8)]
@@ -47,7 +47,6 @@ impl ClientRevisionWSData {
             rev_id: rev_id,
         }
     }
-
 }
 
 impl std::convert::TryFrom<bytes::Bytes> for ClientRevisionWSData {
@@ -68,14 +67,13 @@ impl std::convert::TryFrom<ClientRevisionWSData> for Bytes {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum WSRevisionPayload {
-    ServerAck{ rev_id: i64 },
-    ServerPushRev { revisions : Vec<Revision>},
-    ServerPullRev { range : RevisionRange },
+    ServerAck { rev_id: i64 },
+    ServerPushRev { revisions: Vec<Revision> },
+    ServerPullRev { range: RevisionRange },
     UserConnect { user: NewDocumentUser },
 }
 
-
-#[derive(Serialize, Deserialize,  Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ServerRevisionWSData {
     pub object_id: String,
     pub payload: WSRevisionPayload,
@@ -97,28 +95,26 @@ impl std::convert::TryFrom<ServerRevisionWSData> for Bytes {
     }
 }
 
-
-
 pub struct ServerRevisionWSDataBuilder();
 impl ServerRevisionWSDataBuilder {
     pub fn build_push_message(object_id: &str, revisions: Vec<Revision>) -> ServerRevisionWSData {
         ServerRevisionWSData {
             object_id: object_id.to_string(),
-            payload: WSRevisionPayload::ServerPushRev{ revisions },
+            payload: WSRevisionPayload::ServerPushRev { revisions },
         }
     }
 
     pub fn build_pull_message(object_id: &str, range: RevisionRange) -> ServerRevisionWSData {
         ServerRevisionWSData {
             object_id: object_id.to_string(),
-            payload: WSRevisionPayload::ServerPullRev{ range },
+            payload: WSRevisionPayload::ServerPullRev { range },
         }
     }
 
     pub fn build_ack_message(object_id: &str, rev_id: i64) -> ServerRevisionWSData {
         ServerRevisionWSData {
             object_id: object_id.to_string(),
-            payload: WSRevisionPayload::ServerAck { rev_id},
+            payload: WSRevisionPayload::ServerAck { rev_id },
         }
     }
 }

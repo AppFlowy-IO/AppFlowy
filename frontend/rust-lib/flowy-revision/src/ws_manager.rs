@@ -2,9 +2,8 @@ use crate::ConflictRevisionSink;
 use async_stream::stream;
 
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_http_model::{
-    revision::{Revision, RevisionRange},
-};
+use flowy_http_model::revision::{Revision, RevisionRange};
+use flowy_http_model::ws_data::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSData, WSRevisionPayload};
 use futures_util::{future::BoxFuture, stream::StreamExt};
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ws::WSConnectState;
@@ -15,9 +14,8 @@ use tokio::{
         mpsc::{Receiver, Sender},
         RwLock,
     },
-    time::{Duration, interval},
+    time::{interval, Duration},
 };
-use flowy_http_model::ws_data::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSData, WSRevisionPayload};
 
 // The consumer consumes the messages pushed by the web socket.
 pub trait RevisionWSDataStream: Send + Sync {
@@ -214,7 +212,7 @@ impl RevisionWSStream {
     }
 
     async fn handle_message(&self, msg: ServerRevisionWSData) -> FlowyResult<()> {
-        let ServerRevisionWSData { object_id, payload} = msg;
+        let ServerRevisionWSData { object_id, payload } = msg;
         match payload {
             WSRevisionPayload::ServerPushRev { revisions } => {
                 tracing::trace!("[{}]: new push revision: {}", self, object_id);
@@ -224,8 +222,8 @@ impl RevisionWSStream {
                 tracing::trace!("[{}]: new pull: {}:{:?}", self, object_id, range);
                 let _ = self.consumer.pull_revisions_in_range(range).await?;
             }
-            WSRevisionPayload::ServerAck { rev_id} => {
-                tracing::trace!("[{}]: new ack: {}:{}", self, object_id, rev_id );
+            WSRevisionPayload::ServerAck { rev_id } => {
+                tracing::trace!("[{}]: new ack: {}:{}", self, object_id, rev_id);
                 let _ = self.consumer.receive_ack(rev_id).await;
             }
             WSRevisionPayload::UserConnect { user } => {

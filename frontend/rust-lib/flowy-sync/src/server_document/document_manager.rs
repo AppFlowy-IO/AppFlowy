@@ -5,9 +5,9 @@ use crate::{
 };
 use async_stream::stream;
 use dashmap::DashMap;
-use flowy_http_model::document::DocumentPayloadPB;
+use flowy_http_model::document::DocumentPayload;
 use flowy_http_model::entities::ClientRevisionWSData;
-use flowy_http_model::revision::{Revision};
+use flowy_http_model::revision::Revision;
 use flowy_http_model::ws_data::ServerRevisionWSDataBuilder;
 use futures::stream::StreamExt;
 use lib_infra::future::BoxResultFuture;
@@ -20,13 +20,13 @@ use tokio::{
 };
 
 pub trait DocumentCloudPersistence: Send + Sync + Debug {
-    fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentPayloadPB, CollaborateError>;
+    fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentPayload, CollaborateError>;
 
     fn create_document(
         &self,
         doc_id: &str,
         revisions: Vec<Revision>,
-    ) -> BoxResultFuture<Option<DocumentPayloadPB>, CollaborateError>;
+    ) -> BoxResultFuture<Option<DocumentPayload>, CollaborateError>;
 
     fn read_document_revisions(
         &self,
@@ -36,11 +36,7 @@ pub trait DocumentCloudPersistence: Send + Sync + Debug {
 
     fn save_document_revisions(&self, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError>;
 
-    fn reset_document(
-        &self,
-        doc_id: &str,
-        revisions: Vec<Revision>,
-    ) -> BoxResultFuture<(), CollaborateError>;
+    fn reset_document(&self, doc_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError>;
 }
 
 impl RevisionSyncPersistence for Arc<dyn DocumentCloudPersistence> {
@@ -56,11 +52,7 @@ impl RevisionSyncPersistence for Arc<dyn DocumentCloudPersistence> {
         (**self).save_document_revisions(revisions)
     }
 
-    fn reset_object(
-        &self,
-        object_id: &str,
-        revisions: Vec<Revision>,
-    ) -> BoxResultFuture<(), CollaborateError> {
+    fn reset_object(&self, object_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError> {
         (**self).reset_document(object_id, revisions)
     }
 }
@@ -90,9 +82,12 @@ impl ServerDocumentManager {
         let result = match self.get_document_handler(&object_id).await {
             None => {
                 tracing::trace!("Can't find the document. Creating the document {}", object_id);
-                let _ = self.create_document(&object_id, client_data.revisions).await.map_err(|e| {
-                    CollaborateError::internal().context(format!("Server create document failed: {}", e))
-                })?;
+                let _ = self
+                    .create_document(&object_id, client_data.revisions)
+                    .await
+                    .map_err(|e| {
+                        CollaborateError::internal().context(format!("Server create document failed: {}", e))
+                    })?;
                 Ok(())
             }
             Some(handler) => {
@@ -114,7 +109,7 @@ impl ServerDocumentManager {
         user: Arc<dyn RevisionUser>,
         client_data: ClientRevisionWSData,
     ) -> Result<(), CollaborateError> {
-        let rev_id =client_data.rev_id;
+        let rev_id = client_data.rev_id;
         let doc_id = client_data.object_id.clone();
         match self.get_document_handler(&doc_id).await {
             None => {
@@ -185,7 +180,7 @@ impl ServerDocumentManager {
     #[tracing::instrument(level = "debug", skip(self, doc), err)]
     async fn create_document_handler(
         &self,
-        doc: DocumentPayloadPB,
+        doc: DocumentPayload,
     ) -> Result<Arc<OpenDocumentHandler>, CollaborateError> {
         let persistence = self.persistence.clone();
         let handle = spawn_blocking(|| OpenDocumentHandler::new(doc, persistence))
@@ -210,7 +205,7 @@ struct OpenDocumentHandler {
 }
 
 impl OpenDocumentHandler {
-    fn new(doc: DocumentPayloadPB, persistence: Arc<dyn DocumentCloudPersistence>) -> Result<Self, CollaborateError> {
+    fn new(doc: DocumentPayload, persistence: Arc<dyn DocumentCloudPersistence>) -> Result<Self, CollaborateError> {
         let doc_id = doc.doc_id.clone();
         let (sender, receiver) = mpsc::channel(1000);
         let users = DashMap::new();
@@ -237,11 +232,7 @@ impl OpenDocumentHandler {
     ) -> Result<(), CollaborateError> {
         let (ret, rx) = oneshot::channel();
         self.users.insert(user.user_id(), user.clone());
-        let msg = DocumentCommand::ApplyRevisions {
-            user,
-            revisions,
-            ret,
-        };
+        let msg = DocumentCommand::ApplyRevisions { user, revisions, ret };
 
         let result = self.send(msg, rx).await?;
         result
@@ -335,11 +326,7 @@ impl DocumentCommandRunner {
 
     async fn handle_message(&self, msg: DocumentCommand) {
         match msg {
-            DocumentCommand::ApplyRevisions {
-                user,
-                revisions,
-                ret,
-            } => {
+            DocumentCommand::ApplyRevisions { user, revisions, ret } => {
                 let result = self
                     .synchronizer
                     .sync_revisions(user, revisions)

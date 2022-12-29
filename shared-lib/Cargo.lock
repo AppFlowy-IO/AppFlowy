@@ -429,19 +429,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-error-code"
-version = "0.1.0"
-dependencies = [
- "derive_more",
- "flowy-codegen",
- "flowy-derive",
- "protobuf",
- "serde",
- "serde_repr",
- "thiserror",
-]
-
-[[package]]
 name = "flowy-http-model"
 version = "0.1.0"
 dependencies = [
@@ -684,7 +671,6 @@ name = "grid-rev-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "flowy-error-code",
  "indexmap",
  "nanoid",
  "serde",

@@ -1,8 +1,7 @@
 use crate::util::md5;
 use bytes::Bytes;
+use serde::{Deserialize, Serialize};
 use std::{convert::TryFrom, fmt::Formatter, ops::RangeInclusive};
-use serde::{Serialize, Deserialize};
-use crate::revision::serde_protobuf::RevisionPB;
 
 #[derive(PartialEq, Eq, Clone, Default, Serialize, Deserialize)]
 pub struct Revision {
@@ -27,21 +26,6 @@ impl std::convert::TryFrom<Bytes> for Revision {
         serde_json::from_slice(&bytes)
     }
 }
-
-// impl std::convert::TryFrom<Bytes> for Revision {
-//     type Error = ::protobuf::ProtobufError;
-//
-//     fn try_from(bytes: Bytes) -> Result<Self, Self::Error> {
-//         let pb: RevisionPB = ::protobuf::Message::parse_from_bytes(&bytes)?;
-//         Ok(Self {
-//             base_rev_id: pb.base_rev_id,
-//             rev_id: pb.rev_id,
-//             bytes: pb.bytes,
-//             md5: pb.md5,
-//             object_id: pb.object_id,
-//         })
-//     }
-// }
 
 impl Revision {
     pub fn new<T: Into<String>>(object_id: &str, base_rev_id: i64, rev_id: i64, bytes: Bytes, md5: T) -> Revision {
@@ -90,7 +74,7 @@ impl std::fmt::Debug for Revision {
     }
 }
 
-#[derive(Debug, Clone, Default,  Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct RevisionRange {
     pub start: i64,
     pub end: i64,

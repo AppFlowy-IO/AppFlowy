@@ -2,10 +2,9 @@ use crate::old_editor::queue::{EditorCommand, EditorCommandSender, TextTransform
 use crate::TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS;
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
-use flowy_error::{FlowyError, FlowyResult, internal_error};
-use flowy_http_model::{
-    revision::{Revision, RevisionRange},
-};
+use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_http_model::revision::{Revision, RevisionRange};
+use flowy_http_model::ws_data::{ClientRevisionWSData, NewDocumentUser};
 use flowy_revision::*;
 use flowy_sync::errors::CollaborateResult;
 use flowy_sync::util::make_operations_from_revisions;
@@ -14,7 +13,6 @@ use lib_ot::text_delta::DeltaTextOperations;
 use lib_ws::WSConnectState;
 use std::{sync::Arc, time::Duration};
 use tokio::sync::{broadcast, oneshot};
-use flowy_http_model::ws_data::{ClientRevisionWSData, NewDocumentUser};
 
 #[derive(Clone)]
 pub struct DeltaDocumentResolveOperations(pub DeltaTextOperations);

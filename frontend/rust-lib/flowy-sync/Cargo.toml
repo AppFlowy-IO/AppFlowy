@@ -6,12 +6,12 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-lib-ot = { path = "../lib-ot" }
-lib-infra = { path = "../lib-infra" }
+lib-ot = { path = "../../../shared-lib/lib-ot" }
+lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-derive = { path = "../flowy-derive" }
-folder-rev-model = { path = "../folder-rev-model" }
-grid-rev-model = { path = "../grid-rev-model" }
-flowy-http-model= { path = "../flowy-http-model" }
+folder-rev-model = { path = "../../../shared-lib/folder-rev-model" }
+grid-rev-model = { path = "../../../shared-lib/grid-rev-model" }
+flowy-http-model = { path = "../../../shared-lib/flowy-http-model" }
 protobuf = {version = "2.18.0"}
 bytes = "1.0"
 log = "0.4.14"

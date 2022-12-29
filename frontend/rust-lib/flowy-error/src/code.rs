@@ -1,8 +1,7 @@
-use serde_repr::*;
+use flowy_derive::ProtoBuf_Enum;
 use thiserror::Error;
 
-#[derive(Debug, Clone, PartialEq, Eq, Error, Serialize_repr, Deserialize_repr)]
-#[repr(u8)]
+#[derive(Debug, Clone, PartialEq, Eq, Error, ProtoBuf_Enum)]
 pub enum ErrorCode {
     #[error("Internal error")]
     Internal = 0,

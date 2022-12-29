@@ -37,11 +37,7 @@ pub trait RevisionSyncPersistence: Send + Sync + 'static {
 
     fn save_revisions(&self, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError>;
 
-    fn reset_object(
-        &self,
-        object_id: &str,
-        revisions: Vec<Revision>,
-    ) -> BoxResultFuture<(), CollaborateError>;
+    fn reset_object(&self, object_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError>;
 }
 
 pub trait RevisionSyncObject<Attribute: OperationAttributes>: Send + Sync + 'static {

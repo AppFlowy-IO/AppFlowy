@@ -1,6 +1,5 @@
 use crate::client_folder::util::*;
 use crate::client_folder::AtomicNodeTree;
-
 use flowy_derive::Node;
 use lib_ot::core::*;
 use std::sync::Arc;

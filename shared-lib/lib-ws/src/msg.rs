@@ -1,6 +1,6 @@
-use tokio_tungstenite::tungstenite::Message as TokioMessage;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use serde_repr::*;
+use tokio_tungstenite::tungstenite::Message as TokioMessage;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct WebSocketRawMessage {

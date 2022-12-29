@@ -1,12 +1,9 @@
-use crate::{RevisionManager, RevisionMD5};
+use crate::{RevisionMD5, RevisionManager};
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_http_model::{
-    revision::{Revision, RevisionRange},
-};
+use flowy_http_model::revision::{Revision, RevisionRange};
 use lib_infra::future::BoxResultFuture;
-use std::{sync::Arc};
-
+use std::sync::Arc;
 
 pub struct TransformOperations<Operations> {
     pub client_operations: Operations,

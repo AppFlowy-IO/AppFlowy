@@ -5,8 +5,8 @@ use crate::{
     synchronizer::{RevisionSyncPersistence, RevisionSyncResponse, RevisionUser},
 };
 use async_stream::stream;
-use flowy_http_model::folder::FolderInfo;
 use flowy_http_model::entities::ClientRevisionWSData;
+use flowy_http_model::folder::FolderInfo;
 use flowy_http_model::revision::Revision;
 use flowy_http_model::ws_data::ServerRevisionWSDataBuilder;
 use futures::stream::StreamExt;
@@ -35,11 +35,7 @@ pub trait FolderCloudPersistence: Send + Sync + Debug {
         rev_ids: Option<Vec<i64>>,
     ) -> BoxResultFuture<Vec<Revision>, CollaborateError>;
 
-    fn reset_folder(
-        &self,
-        folder_id: &str,
-        revisions: Vec<Revision>,
-    ) -> BoxResultFuture<(), CollaborateError>;
+    fn reset_folder(&self, folder_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError>;
 }
 
 impl RevisionSyncPersistence for Arc<dyn FolderCloudPersistence> {
@@ -55,11 +51,7 @@ impl RevisionSyncPersistence for Arc<dyn FolderCloudPersistence> {
         (**self).save_folder_revisions(revisions)
     }
 
-    fn reset_object(
-        &self,
-        object_id: &str,
-        revisions: Vec<Revision>,
-    ) -> BoxResultFuture<(), CollaborateError> {
+    fn reset_object(&self, object_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError> {
         (**self).reset_folder(object_id, revisions)
     }
 }
@@ -166,11 +158,7 @@ impl ServerFolderManager {
         folder_id: &str,
         revisions: Vec<Revision>,
     ) -> Result<Arc<OpenFolderHandler>, CollaborateError> {
-        match self
-            .persistence
-            .create_folder(user_id, folder_id, revisions)
-            .await?
-        {
+        match self.persistence.create_folder(user_id, folder_id, revisions).await? {
             Some(folder_info) => {
                 let handler = self.create_folder_handler(folder_info).await?;
                 self.folder_handlers
@@ -213,17 +201,9 @@ impl OpenFolderHandler {
         skip(self, user, revisions),
         err
     )]
-    async fn apply_revisions(
-        &self,
-        user: Arc<dyn RevisionUser>,
-        revisions: Vec<Revision>,
-    ) -> CollaborateResult<()> {
+    async fn apply_revisions(&self, user: Arc<dyn RevisionUser>, revisions: Vec<Revision>) -> CollaborateResult<()> {
         let (ret, rx) = oneshot::channel();
-        let msg = FolderCommand::ApplyRevisions {
-            user,
-            revisions,
-            ret,
-        };
+        let msg = FolderCommand::ApplyRevisions { user, revisions, ret };
 
         self.send(msg, rx).await?
     }
@@ -300,11 +280,7 @@ impl FolderCommandRunner {
 
     async fn handle_message(&self, msg: FolderCommand) {
         match msg {
-            FolderCommand::ApplyRevisions {
-                user,
-                revisions,
-                ret,
-            } => {
+            FolderCommand::ApplyRevisions { user, revisions, ret } => {
                 let result = self
                     .synchronizer
                     .sync_revisions(user, revisions)
