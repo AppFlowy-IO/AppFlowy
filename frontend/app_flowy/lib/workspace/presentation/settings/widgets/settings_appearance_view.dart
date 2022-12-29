@@ -43,7 +43,7 @@ class ThemeSetting extends StatelessWidget {
       children: [
         Expanded(
           child: FlowyText.medium(
-            LocaleKeys.settings_appearance_theme_label.tr(),
+            LocaleKeys.settings_appearance_theme.tr(),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -75,7 +75,7 @@ class ThemeSetting extends StatelessWidget {
     return SizedBox(
       height: 32,
       child: FlowyButton(
-        text: FlowyText.medium(currentTheme),
+        text: FlowyText.medium(theme),
         rightIcon: currentTheme == theme
             ? svgWidget("grid/checkmark")
             : const SizedBox(),

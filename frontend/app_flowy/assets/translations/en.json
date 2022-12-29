@@ -165,7 +165,8 @@
         "light": "Light Mode",
         "dark": "Dark Mode",
         "system": "Adapt to System"
-      }
+      },
+      "theme":"Theme"
     },
     "files": {
       "defaultLocation": "Where your data is stored now",
