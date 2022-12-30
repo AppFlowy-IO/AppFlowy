@@ -10,3 +10,6 @@ export 'src/divider/divider_shortcut_event.dart';
 export 'src/emoji_picker/emoji_menu_item.dart';
 // Math Equation
 export 'src/math_ equation/math_equation_node_widget.dart';
+// Board
+export 'src/board/board_node_widget.dart';
+export 'src/board/board_menu_item.dart';
