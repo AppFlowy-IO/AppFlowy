@@ -5,6 +5,7 @@ import 'package:app_flowy/plugins/grid/application/filter/filter_service.dart';
 import 'package:app_flowy/plugins/grid/application/grid_service.dart';
 import 'package:app_flowy/plugins/grid/application/setting/setting_listener.dart';
 import 'package:app_flowy/plugins/grid/application/setting/setting_service.dart';
+import 'package:app_flowy/plugins/grid/application/sort/sort_listener.dart';
 import 'package:app_flowy/plugins/grid/application/sort/sort_service.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/sort/sort_info.dart';
@@ -12,6 +13,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/filter_changeset.pbserver.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/group.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/setting_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/sort_entities.pb.dart';
@@ -74,7 +76,8 @@ class GridFieldController {
   // Listeners
   final GridFieldsListener _fieldListener;
   final SettingListener _settingListener;
-  final FiltersListener _filterListener;
+  final FiltersListener _filtersListener;
+  final SortsListener _sortsListener;
 
   // FFI services
   final GridFFIService _gridFFIService;
@@ -147,10 +150,11 @@ class GridFieldController {
   GridFieldController({required this.gridId})
       : _fieldListener = GridFieldsListener(gridId: gridId),
         _settingListener = SettingListener(gridId: gridId),
-        _filterListener = FiltersListener(viewId: gridId),
-        _gridFFIService = GridFFIService(gridId: gridId),
         _filterFFIService = FilterFFIService(viewId: gridId),
+        _filtersListener = FiltersListener(viewId: gridId),
+        _gridFFIService = GridFFIService(gridId: gridId),
         _sortFFIService = SortFFIService(viewId: gridId),
+        _sortsListener = SortsListener(viewId: gridId),
         _settingFFIService = SettingFFIService(viewId: gridId) {
     //Listen on field's changes
     _listenOnFieldChanges();
@@ -160,6 +164,9 @@ class GridFieldController {
 
     //Listen on the fitler changes
     _listenOnFilterChanges();
+
+    //Listen on the sort changes
+    _listenOnSortChanged();
 
     _settingFFIService.getSetting().then((result) {
       result.fold(
@@ -171,70 +178,158 @@ class GridFieldController {
 
   void _listenOnFilterChanges() {
     //Listen on the fitler changes
-    _filterListener.start(onFilterChanged: (result) {
+
+    deleteFilterFromChangeset(
+      List<FilterInfo> filters,
+      FilterChangesetNotificationPB changeset,
+    ) {
+      final deleteFilterIds = changeset.deleteFilters.map((e) => e.id).toList();
+      if (deleteFilterIds.isNotEmpty) {
+        filters.retainWhere(
+          (element) => !deleteFilterIds.contains(element.filter.id),
+        );
+
+        _filterPBByFieldId
+            .removeWhere((key, value) => deleteFilterIds.contains(value.id));
+      }
+    }
+
+    insertFilterFromChangeset(
+      List<FilterInfo> filters,
+      FilterChangesetNotificationPB changeset,
+    ) {
+      for (final newFilter in changeset.insertFilters) {
+        final filterIndex =
+            filters.indexWhere((element) => element.filter.id == newFilter.id);
+        if (filterIndex == -1) {
+          final fieldInfo = _findFieldInfoForFilter(fieldInfos, newFilter);
+          if (fieldInfo != null) {
+            _filterPBByFieldId[fieldInfo.id] = newFilter;
+            filters.add(FilterInfo(gridId, newFilter, fieldInfo));
+          }
+        }
+      }
+    }
+
+    updateFilterFromChangeset(
+      List<FilterInfo> filters,
+      FilterChangesetNotificationPB changeset,
+    ) {
+      for (final updatedFilter in changeset.updateFilters) {
+        final filterIndex = filters.indexWhere(
+          (element) => element.filter.id == updatedFilter.filterId,
+        );
+        // Remove the old filter
+        if (filterIndex != -1) {
+          filters.removeAt(filterIndex);
+          _filterPBByFieldId
+              .removeWhere((key, value) => value.id == updatedFilter.filterId);
+        }
+
+        // Insert the filter if there is a fitler and its field info is
+        // not null
+        if (updatedFilter.hasFilter()) {
+          final fieldInfo = _findFieldInfoForFilter(
+            fieldInfos,
+            updatedFilter.filter,
+          );
+
+          if (fieldInfo != null) {
+            // Insert the filter with the position: filterIndex, otherwise,
+            // append it to the end of the list.
+            final filterInfo =
+                FilterInfo(gridId, updatedFilter.filter, fieldInfo);
+            if (filterIndex != -1) {
+              filters.insert(filterIndex, filterInfo);
+            } else {
+              filters.add(filterInfo);
+            }
+            _filterPBByFieldId[fieldInfo.id] = updatedFilter.filter;
+          }
+        }
+      }
+    }
+
+    _filtersListener.start(onFilterChanged: (result) {
       result.fold(
-        (changeset) {
+        (FilterChangesetNotificationPB changeset) {
           final List<FilterInfo> filters = filterInfos;
           // Deletes the filters
-          final deleteFilterIds =
-              changeset.deleteFilters.map((e) => e.id).toList();
-          if (deleteFilterIds.isNotEmpty) {
-            filters.retainWhere(
-              (element) => !deleteFilterIds.contains(element.filter.id),
-            );
-
-            _filterPBByFieldId.removeWhere(
-                (key, value) => deleteFilterIds.contains(value.id));
-          }
+          deleteFilterFromChangeset(filters, changeset);
 
           // Inserts the new filter if it's not exist
-          for (final newFilter in changeset.insertFilters) {
-            final filterIndex = filters
-                .indexWhere((element) => element.filter.id == newFilter.id);
-            if (filterIndex == -1) {
-              final fieldInfo = _findFieldInfoForFilter(fieldInfos, newFilter);
-              if (fieldInfo != null) {
-                _filterPBByFieldId[fieldInfo.id] = newFilter;
-                filters.add(FilterInfo(gridId, newFilter, fieldInfo));
-              }
-            }
-          }
+          insertFilterFromChangeset(filters, changeset);
 
-          for (final updatedFilter in changeset.updateFilters) {
-            final filterIndex = filters.indexWhere(
-              (element) => element.filter.id == updatedFilter.filterId,
-            );
-            // Remove the old filter
-            if (filterIndex != -1) {
-              filters.removeAt(filterIndex);
-              _filterPBByFieldId.removeWhere(
-                  (key, value) => value.id == updatedFilter.filterId);
-            }
+          updateFilterFromChangeset(filters, changeset);
 
-            // Insert the filter if there is a fitler and its field info is
-            // not null
-            if (updatedFilter.hasFilter()) {
-              final fieldInfo = _findFieldInfoForFilter(
-                fieldInfos,
-                updatedFilter.filter,
-              );
-
-              if (fieldInfo != null) {
-                // Insert the filter with the position: filterIndex, otherwise,
-                // append it to the end of the list.
-                final filterInfo =
-                    FilterInfo(gridId, updatedFilter.filter, fieldInfo);
-                if (filterIndex != -1) {
-                  filters.insert(filterIndex, filterInfo);
-                } else {
-                  filters.add(filterInfo);
-                }
-                _filterPBByFieldId[fieldInfo.id] = updatedFilter.filter;
-              }
-            }
-          }
           _updateFieldInfos();
           _filterNotifier?.filters = filters;
+        },
+        (err) => Log.error(err),
+      );
+    });
+  }
+
+  void _listenOnSortChanged() {
+    deleteSortFromChangeset(
+      List<SortInfo> newSortInfos,
+      SortChangesetNotificationPB changeset,
+    ) {
+      final deleteSortIds = changeset.deleteSorts.map((e) => e.id).toList();
+      if (deleteSortIds.isNotEmpty) {
+        newSortInfos.retainWhere(
+          (element) => !deleteSortIds.contains(element.sortId),
+        );
+
+        _sortPBByFieldId
+            .removeWhere((key, value) => deleteSortIds.contains(value.id));
+      }
+    }
+
+    insertSortFromChangeset(
+      List<SortInfo> newSortInfos,
+      SortChangesetNotificationPB changeset,
+    ) {
+      for (final newSortPB in changeset.insertSorts) {
+        final sortIndex = newSortInfos
+            .indexWhere((element) => element.sortId == newSortPB.id);
+        if (sortIndex == -1) {
+          _sortPBByFieldId[newSortPB.fieldId] = newSortPB;
+          newSortInfos.add(SortInfo(sortPB: newSortPB));
+        }
+      }
+    }
+
+    updateSortFromChangeset(
+      List<SortInfo> newSortInfos,
+      SortChangesetNotificationPB changeset,
+    ) {
+      for (final updatedSort in changeset.updateSorts) {
+        final sortIndex = newSortInfos.indexWhere(
+          (element) => element.sortId == updatedSort.id,
+        );
+        // Remove the old filter
+        if (sortIndex != -1) {
+          newSortInfos.removeAt(sortIndex);
+        }
+
+        final newSortInfo = SortInfo(sortPB: updatedSort);
+        if (sortIndex != -1) {
+          newSortInfos.insert(sortIndex, newSortInfo);
+        } else {
+          newSortInfos.add(newSortInfo);
+        }
+        _sortPBByFieldId[updatedSort.fieldId] = updatedSort;
+      }
+    }
+
+    _sortsListener.start(onSortChanged: (result) {
+      result.fold(
+        (SortChangesetNotificationPB changeset) {
+          final List<SortInfo> newSortInfos = sortInfos;
+          deleteSortFromChangeset(newSortInfos, changeset);
+          insertSortFromChangeset(newSortInfos, changeset);
+          updateSortFromChangeset(newSortInfos, changeset);
         },
         (err) => Log.error(err),
       );
@@ -299,8 +394,9 @@ class GridFieldController {
 
   Future<void> dispose() async {
     await _fieldListener.stop();
-    await _filterListener.stop();
+    await _filtersListener.stop();
     await _settingListener.stop();
+    await _sortsListener.stop();
 
     for (final callback in _fieldCallbacks.values) {
       _fieldNotifier?.removeListener(callback);
