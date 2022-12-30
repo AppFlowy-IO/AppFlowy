@@ -1,7 +1,7 @@
+use crate::ErrorCode;
 use anyhow::Result;
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
-use flowy_error_code::ErrorCode;
 use lib_dispatch::prelude::{AFPluginEventResponse, ResponseBuilder};
 use std::{convert::TryInto, fmt::Debug};
 use thiserror::Error;
@@ -30,7 +30,7 @@ macro_rules! static_flowy_error {
 impl FlowyError {
     pub fn new(code: ErrorCode, msg: &str) -> Self {
         Self {
-            code: code.value(),
+            code: code.value() as i32,
             msg: msg.to_owned(),
         }
     }
@@ -53,7 +53,7 @@ impl FlowyError {
     static_flowy_error!(view_desc, ErrorCode::ViewDescTooLong);
     static_flowy_error!(view_data, ErrorCode::ViewDataInvalid);
     static_flowy_error!(unauthorized, ErrorCode::UserUnauthorized);
-    static_flowy_error!(connection, ErrorCode::ConnectError);
+    static_flowy_error!(connection, ErrorCode::HttpServerConnectError);
     static_flowy_error!(email_empty, ErrorCode::EmailIsEmpty);
     static_flowy_error!(email_format, ErrorCode::EmailFormatInvalid);
     static_flowy_error!(email_exist, ErrorCode::EmailAlreadyExists);
@@ -77,7 +77,7 @@ impl FlowyError {
 impl std::convert::From<ErrorCode> for FlowyError {
     fn from(code: ErrorCode) -> Self {
         FlowyError {
-            code: code.value(),
+            code: code.value() as i32,
             msg: format!("{}", code),
         }
     }

@@ -1,155 +1,166 @@
-use crate::protobuf::ErrorCode as ProtoBufErrorCode;
 use flowy_derive::ProtoBuf_Enum;
-use protobuf::ProtobufEnum;
-use std::convert::{TryFrom, TryInto};
 use thiserror::Error;
 
-#[derive(Debug, Clone, ProtoBuf_Enum, PartialEq, Eq, Error)]
+#[derive(Debug, Clone, PartialEq, Eq, Error, ProtoBuf_Enum)]
 pub enum ErrorCode {
     #[error("Internal error")]
     Internal = 0,
 
-    #[error("UserUnauthorized")]
+    #[error("Unauthorized user")]
     UserUnauthorized = 2,
 
-    #[error("RecordNotFound")]
+    #[error("Record not found")]
     RecordNotFound = 3,
 
     #[error("User id is empty")]
     UserIdIsEmpty = 4,
 
     #[error("Workspace name can not be empty or whitespace")]
-    WorkspaceNameInvalid = 100,
+    WorkspaceNameInvalid = 5,
 
     #[error("Workspace id can not be empty or whitespace")]
-    WorkspaceIdInvalid = 101,
+    WorkspaceIdInvalid = 6,
 
     #[error("Color style of the App is invalid")]
-    AppColorStyleInvalid = 102,
+    AppColorStyleInvalid = 7,
 
     #[error("Workspace desc is invalid")]
-    WorkspaceDescTooLong = 103,
+    WorkspaceDescTooLong = 8,
 
     #[error("Workspace description too long")]
-    WorkspaceNameTooLong = 104,
+    WorkspaceNameTooLong = 9,
 
     #[error("App id can not be empty or whitespace")]
-    AppIdInvalid = 110,
+    AppIdInvalid = 10,
 
     #[error("App name can not be empty or whitespace")]
-    AppNameInvalid = 111,
+    AppNameInvalid = 11,
 
     #[error("View name can not be empty or whitespace")]
-    ViewNameInvalid = 120,
+    ViewNameInvalid = 12,
 
     #[error("Thumbnail of the view is invalid")]
-    ViewThumbnailInvalid = 121,
+    ViewThumbnailInvalid = 13,
 
     #[error("View id can not be empty or whitespace")]
-    ViewIdInvalid = 122,
+    ViewIdInvalid = 14,
 
     #[error("View desc too long")]
-    ViewDescTooLong = 123,
+    ViewDescTooLong = 15,
 
     #[error("View data is invalid")]
-    ViewDataInvalid = 124,
+    ViewDataInvalid = 16,
 
     #[error("View name too long")]
-    ViewNameTooLong = 125,
+    ViewNameTooLong = 17,
 
-    #[error("Connection error")]
-    ConnectError = 200,
+    #[error("Http server connection error")]
+    HttpServerConnectError = 18,
 
     #[error("Email can not be empty or whitespace")]
-    EmailIsEmpty = 300,
+    EmailIsEmpty = 19,
+
     #[error("Email format is not valid")]
-    EmailFormatInvalid = 301,
+    EmailFormatInvalid = 20,
+
     #[error("Email already exists")]
-    EmailAlreadyExists = 302,
+    EmailAlreadyExists = 21,
+
     #[error("Password can not be empty or whitespace")]
-    PasswordIsEmpty = 303,
+    PasswordIsEmpty = 22,
+
     #[error("Password format too long")]
-    PasswordTooLong = 304,
+    PasswordTooLong = 23,
+
     #[error("Password contains forbidden characters.")]
-    PasswordContainsForbidCharacters = 305,
+    PasswordContainsForbidCharacters = 24,
+
     #[error("Password should contain a minimum of 6 characters with 1 special 1 letter and 1 numeric")]
-    PasswordFormatInvalid = 306,
+    PasswordFormatInvalid = 25,
+
     #[error("Password not match")]
-    PasswordNotMatch = 307,
+    PasswordNotMatch = 26,
+
     #[error("User name is too long")]
-    UserNameTooLong = 308,
+    UserNameTooLong = 27,
+
     #[error("User name contain forbidden characters")]
-    UserNameContainForbiddenCharacters = 309,
+    UserNameContainForbiddenCharacters = 28,
+
     #[error("User name can not be empty or whitespace")]
-    UserNameIsEmpty = 310,
+    UserNameIsEmpty = 29,
+
     #[error("user id is empty or whitespace")]
-    UserIdInvalid = 311,
+    UserIdInvalid = 30,
     #[error("User not exist")]
-    UserNotExist = 312,
+    UserNotExist = 31,
+
     #[error("Text is too long")]
-    TextTooLong = 400,
+    TextTooLong = 32,
 
     #[error("Grid id is empty")]
-    GridIdIsEmpty = 410,
+    GridIdIsEmpty = 33,
+
     #[error("Grid view id is empty")]
-    GridViewIdIsEmpty = 411,
+    GridViewIdIsEmpty = 34,
 
     #[error("Grid block id is empty")]
-    BlockIdIsEmpty = 420,
+    BlockIdIsEmpty = 35,
+
     #[error("Row id is empty")]
-    RowIdIsEmpty = 430,
+    RowIdIsEmpty = 36,
+
     #[error("Select option id is empty")]
-    OptionIdIsEmpty = 431,
+    OptionIdIsEmpty = 37,
+
     #[error("Field id is empty")]
-    FieldIdIsEmpty = 440,
+    FieldIdIsEmpty = 38,
+
     #[error("Field doesn't exist")]
-    FieldDoesNotExist = 441,
+    FieldDoesNotExist = 39,
+
     #[error("The name of the option should not be empty")]
-    SelectOptionNameIsEmpty = 442,
+    SelectOptionNameIsEmpty = 40,
+
     #[error("Field not exists")]
-    FieldNotExists = 443,
+    FieldNotExists = 41,
+
     #[error("The operation in this field is invalid")]
-    FieldInvalidOperation = 444,
+    FieldInvalidOperation = 42,
+
     #[error("Filter id is empty")]
-    FilterIdIsEmpty = 445,
+    FilterIdIsEmpty = 43,
+
     #[error("Field is not exist")]
-    FieldRecordNotFound = 446,
+    FieldRecordNotFound = 44,
 
     #[error("Field's type-option data should not be empty")]
-    TypeOptionDataIsEmpty = 450,
+    TypeOptionDataIsEmpty = 45,
 
     #[error("Group id is empty")]
-    GroupIdIsEmpty = 460,
+    GroupIdIsEmpty = 46,
 
     #[error("Invalid date time format")]
-    InvalidDateTimeFormat = 500,
+    InvalidDateTimeFormat = 47,
 
     #[error("The input string is empty or contains invalid characters")]
-    UnexpectedEmptyString = 999,
+    UnexpectedEmptyString = 48,
 
     #[error("Invalid data")]
-    InvalidData = 1000,
+    InvalidData = 49,
 
     #[error("Serde")]
-    Serde = 1001,
+    Serde = 50,
 
     #[error("Protobuf serde")]
-    ProtobufSerde = 1002,
+    ProtobufSerde = 51,
 
     #[error("Out of bounds")]
-    OutOfBounds = 10001,
+    OutOfBounds = 52,
 }
 
 impl ErrorCode {
     pub fn value(&self) -> i32 {
-        let code: ProtoBufErrorCode = self.clone().try_into().unwrap();
-        code.value()
-    }
-
-    pub fn from_i32(value: i32) -> Self {
-        match ProtoBufErrorCode::from_i32(value) {
-            None => ErrorCode::Internal,
-            Some(code) => ErrorCode::try_from(&code).unwrap(),
-        }
+        self.clone() as i32
     }
 }

@@ -1,6 +1,6 @@
 import 'package:app_flowy/user/application/auth_service.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/code.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfilePB;
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -20,24 +20,34 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           );
         },
         emailChanged: (EmailChanged value) async {
-          emit(state.copyWith(email: value.email, emailError: none(), successOrFail: none()));
+          emit(state.copyWith(
+              email: value.email, emailError: none(), successOrFail: none()));
         },
         passwordChanged: (PasswordChanged value) async {
-          emit(state.copyWith(password: value.password, passwordError: none(), successOrFail: none()));
+          emit(state.copyWith(
+              password: value.password,
+              passwordError: none(),
+              successOrFail: none()));
         },
       );
     });
   }
 
-  Future<void> _performActionOnSignIn(SignInState state, Emitter<SignInState> emit) async {
-    emit(state.copyWith(isSubmitting: true, emailError: none(), passwordError: none(), successOrFail: none()));
+  Future<void> _performActionOnSignIn(
+      SignInState state, Emitter<SignInState> emit) async {
+    emit(state.copyWith(
+        isSubmitting: true,
+        emailError: none(),
+        passwordError: none(),
+        successOrFail: none()));
 
     final result = await authService.signIn(
       email: state.email,
       password: state.password,
     );
     emit(result.fold(
-      (userProfile) => state.copyWith(isSubmitting: false, successOrFail: some(left(userProfile))),
+      (userProfile) => state.copyWith(
+          isSubmitting: false, successOrFail: some(left(userProfile))),
       (error) => stateFromCode(error),
     ));
   }
@@ -45,18 +55,26 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   SignInState stateFromCode(FlowyError error) {
     switch (ErrorCode.valueOf(error.code)!) {
       case ErrorCode.EmailFormatInvalid:
-        return state.copyWith(isSubmitting: false, emailError: some(error.msg), passwordError: none());
+        return state.copyWith(
+            isSubmitting: false,
+            emailError: some(error.msg),
+            passwordError: none());
       case ErrorCode.PasswordFormatInvalid:
-        return state.copyWith(isSubmitting: false, passwordError: some(error.msg), emailError: none());
+        return state.copyWith(
+            isSubmitting: false,
+            passwordError: some(error.msg),
+            emailError: none());
       default:
-        return state.copyWith(isSubmitting: false, successOrFail: some(right(error)));
+        return state.copyWith(
+            isSubmitting: false, successOrFail: some(right(error)));
     }
   }
 }
 
 @freezed
 class SignInEvent with _$SignInEvent {
-  const factory SignInEvent.signedInWithUserEmailAndPassword() = SignedInWithUserEmailAndPassword;
+  const factory SignInEvent.signedInWithUserEmailAndPassword() =
+      SignedInWithUserEmailAndPassword;
   const factory SignInEvent.emailChanged(String email) = EmailChanged;
   const factory SignInEvent.passwordChanged(String password) = PasswordChanged;
 }

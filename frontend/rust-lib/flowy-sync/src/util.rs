@@ -1,9 +1,8 @@
 use crate::errors::{CollaborateError, CollaborateResult};
 use crate::server_folder::FolderOperations;
 use dissimilar::Chunk;
-use flowy_http_model::document::DocumentPayloadPB;
+use flowy_http_model::document::DocumentPayload;
 use flowy_http_model::folder::FolderInfo;
-use flowy_http_model::revision::RepeatedRevision;
 use flowy_http_model::revision::Revision;
 use lib_ot::core::{DeltaOperationBuilder, OTString, OperationAttributes};
 use lib_ot::{
@@ -91,9 +90,8 @@ pub fn pair_rev_id_from_revision_pbs(revisions: &[Revision]) -> (i64, i64) {
 #[inline]
 pub fn make_folder_from_revisions_pb(
     folder_id: &str,
-    revisions: RepeatedRevision,
+    revisions: Vec<Revision>,
 ) -> Result<Option<FolderInfo>, CollaborateError> {
-    let revisions = revisions.into_inner();
     if revisions.is_empty() {
         return Ok(None);
     }
@@ -123,9 +121,8 @@ pub fn make_folder_from_revisions_pb(
 #[inline]
 pub fn make_document_from_revision_pbs(
     doc_id: &str,
-    revisions: RepeatedRevision,
-) -> Result<Option<DocumentPayloadPB>, CollaborateError> {
-    let revisions = revisions.into_inner();
+    revisions: Vec<Revision>,
+) -> Result<Option<DocumentPayload>, CollaborateError> {
     if revisions.is_empty() {
         return Ok(None);
     }
@@ -145,7 +142,7 @@ pub fn make_document_from_revision_pbs(
         delta = delta.compose(&new_delta)?;
     }
 
-    Ok(Some(DocumentPayloadPB {
+    Ok(Some(DocumentPayload {
         doc_id: doc_id.to_owned(),
         data: delta.json_bytes().to_vec(),
         rev_id,

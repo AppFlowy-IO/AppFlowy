@@ -2,13 +2,12 @@ use crate::{
     errors::{internal_error, CollaborateError, CollaborateResult},
     server_document::document_pad::ServerDocument,
     synchronizer::{RevisionSyncPersistence, RevisionSyncResponse, RevisionSynchronizer, RevisionUser},
-    util::rev_id_from_str,
 };
 use async_stream::stream;
 use dashmap::DashMap;
-use flowy_http_model::document::DocumentPayloadPB;
-use flowy_http_model::protobuf::ClientRevisionWSData;
-use flowy_http_model::revision::{RepeatedRevision, Revision};
+use flowy_http_model::document::DocumentPayload;
+use flowy_http_model::entities::ClientRevisionWSData;
+use flowy_http_model::revision::Revision;
 use flowy_http_model::ws_data::ServerRevisionWSDataBuilder;
 use futures::stream::StreamExt;
 use lib_infra::future::BoxResultFuture;
@@ -21,13 +20,13 @@ use tokio::{
 };
 
 pub trait DocumentCloudPersistence: Send + Sync + Debug {
-    fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentPayloadPB, CollaborateError>;
+    fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentPayload, CollaborateError>;
 
     fn create_document(
         &self,
         doc_id: &str,
-        repeated_revision: RepeatedRevision,
-    ) -> BoxResultFuture<Option<DocumentPayloadPB>, CollaborateError>;
+        revisions: Vec<Revision>,
+    ) -> BoxResultFuture<Option<DocumentPayload>, CollaborateError>;
 
     fn read_document_revisions(
         &self,
@@ -35,13 +34,9 @@ pub trait DocumentCloudPersistence: Send + Sync + Debug {
         rev_ids: Option<Vec<i64>>,
     ) -> BoxResultFuture<Vec<Revision>, CollaborateError>;
 
-    fn save_document_revisions(&self, repeated_revision: RepeatedRevision) -> BoxResultFuture<(), CollaborateError>;
+    fn save_document_revisions(&self, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError>;
 
-    fn reset_document(
-        &self,
-        doc_id: &str,
-        repeated_revision: RepeatedRevision,
-    ) -> BoxResultFuture<(), CollaborateError>;
+    fn reset_document(&self, doc_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError>;
 }
 
 impl RevisionSyncPersistence for Arc<dyn DocumentCloudPersistence> {
@@ -53,16 +48,12 @@ impl RevisionSyncPersistence for Arc<dyn DocumentCloudPersistence> {
         (**self).read_document_revisions(object_id, rev_ids)
     }
 
-    fn save_revisions(&self, repeated_revision: RepeatedRevision) -> BoxResultFuture<(), CollaborateError> {
-        (**self).save_document_revisions(repeated_revision)
+    fn save_revisions(&self, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError> {
+        (**self).save_document_revisions(revisions)
     }
 
-    fn reset_object(
-        &self,
-        object_id: &str,
-        repeated_revision: RepeatedRevision,
-    ) -> BoxResultFuture<(), CollaborateError> {
-        (**self).reset_document(object_id, repeated_revision)
+    fn reset_object(&self, object_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError> {
+        (**self).reset_document(object_id, revisions)
     }
 }
 
@@ -82,23 +73,25 @@ impl ServerDocumentManager {
     pub async fn handle_client_revisions(
         &self,
         user: Arc<dyn RevisionUser>,
-        mut client_data: ClientRevisionWSData,
+        client_data: ClientRevisionWSData,
     ) -> Result<(), CollaborateError> {
-        let repeated_revision: RepeatedRevision = client_data.take_revisions().into();
         let cloned_user = user.clone();
-        let ack_id = rev_id_from_str(&client_data.data_id)?;
+        let ack_id = client_data.rev_id;
         let object_id = client_data.object_id;
 
         let result = match self.get_document_handler(&object_id).await {
             None => {
                 tracing::trace!("Can't find the document. Creating the document {}", object_id);
-                let _ = self.create_document(&object_id, repeated_revision).await.map_err(|e| {
-                    CollaborateError::internal().context(format!("Server create document failed: {}", e))
-                })?;
+                let _ = self
+                    .create_document(&object_id, client_data.revisions)
+                    .await
+                    .map_err(|e| {
+                        CollaborateError::internal().context(format!("Server create document failed: {}", e))
+                    })?;
                 Ok(())
             }
             Some(handler) => {
-                let _ = handler.apply_revisions(user, repeated_revision).await?;
+                let _ = handler.apply_revisions(user, client_data.revisions).await?;
                 Ok(())
             }
         };
@@ -116,7 +109,7 @@ impl ServerDocumentManager {
         user: Arc<dyn RevisionUser>,
         client_data: ClientRevisionWSData,
     ) -> Result<(), CollaborateError> {
-        let rev_id = rev_id_from_str(&client_data.data_id)?;
+        let rev_id = client_data.rev_id;
         let doc_id = client_data.object_id.clone();
         match self.get_document_handler(&doc_id).await {
             None => {
@@ -133,9 +126,9 @@ impl ServerDocumentManager {
     pub async fn handle_document_reset(
         &self,
         doc_id: &str,
-        mut repeated_revision: RepeatedRevision,
+        mut revisions: Vec<Revision>,
     ) -> Result<(), CollaborateError> {
-        repeated_revision.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
+        revisions.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
 
         match self.get_document_handler(doc_id).await {
             None => {
@@ -143,7 +136,7 @@ impl ServerDocumentManager {
                 Ok(())
             }
             Some(handler) => {
-                let _ = handler.apply_document_reset(repeated_revision).await?;
+                let _ = handler.apply_document_reset(revisions).await?;
                 Ok(())
             }
         }
@@ -169,9 +162,9 @@ impl ServerDocumentManager {
     async fn create_document(
         &self,
         doc_id: &str,
-        repeated_revision: RepeatedRevision,
+        revisions: Vec<Revision>,
     ) -> Result<Arc<OpenDocumentHandler>, CollaborateError> {
-        match self.persistence.create_document(doc_id, repeated_revision).await? {
+        match self.persistence.create_document(doc_id, revisions).await? {
             None => Err(CollaborateError::internal().context("Create document info from revisions failed")),
             Some(doc) => {
                 let handler = self.create_document_handler(doc).await?;
@@ -187,7 +180,7 @@ impl ServerDocumentManager {
     #[tracing::instrument(level = "debug", skip(self, doc), err)]
     async fn create_document_handler(
         &self,
-        doc: DocumentPayloadPB,
+        doc: DocumentPayload,
     ) -> Result<Arc<OpenDocumentHandler>, CollaborateError> {
         let persistence = self.persistence.clone();
         let handle = spawn_blocking(|| OpenDocumentHandler::new(doc, persistence))
@@ -212,7 +205,7 @@ struct OpenDocumentHandler {
 }
 
 impl OpenDocumentHandler {
-    fn new(doc: DocumentPayloadPB, persistence: Arc<dyn DocumentCloudPersistence>) -> Result<Self, CollaborateError> {
+    fn new(doc: DocumentPayload, persistence: Arc<dyn DocumentCloudPersistence>) -> Result<Self, CollaborateError> {
         let doc_id = doc.doc_id.clone();
         let (sender, receiver) = mpsc::channel(1000);
         let users = DashMap::new();
@@ -229,21 +222,17 @@ impl OpenDocumentHandler {
     #[tracing::instrument(
         name = "server_document_apply_revision",
         level = "trace",
-        skip(self, user, repeated_revision),
+        skip(self, user, revisions),
         err
     )]
     async fn apply_revisions(
         &self,
         user: Arc<dyn RevisionUser>,
-        repeated_revision: RepeatedRevision,
+        revisions: Vec<Revision>,
     ) -> Result<(), CollaborateError> {
         let (ret, rx) = oneshot::channel();
         self.users.insert(user.user_id(), user.clone());
-        let msg = DocumentCommand::ApplyRevisions {
-            user,
-            repeated_revision,
-            ret,
-        };
+        let msg = DocumentCommand::ApplyRevisions { user, revisions, ret };
 
         let result = self.send(msg, rx).await?;
         result
@@ -257,10 +246,10 @@ impl OpenDocumentHandler {
         result
     }
 
-    #[tracing::instrument(level = "debug", skip(self, repeated_revision), err)]
-    async fn apply_document_reset(&self, repeated_revision: RepeatedRevision) -> Result<(), CollaborateError> {
+    #[tracing::instrument(level = "debug", skip(self, revisions), err)]
+    async fn apply_document_reset(&self, revisions: Vec<Revision>) -> Result<(), CollaborateError> {
         let (ret, rx) = oneshot::channel();
-        let msg = DocumentCommand::Reset { repeated_revision, ret };
+        let msg = DocumentCommand::Reset { revisions, ret };
         let result = self.send(msg, rx).await?;
         result
     }
@@ -285,7 +274,7 @@ impl std::ops::Drop for OpenDocumentHandler {
 enum DocumentCommand {
     ApplyRevisions {
         user: Arc<dyn RevisionUser>,
-        repeated_revision: RepeatedRevision,
+        revisions: Vec<Revision>,
         ret: oneshot::Sender<CollaborateResult<()>>,
     },
     Ping {
@@ -294,7 +283,7 @@ enum DocumentCommand {
         ret: oneshot::Sender<CollaborateResult<()>>,
     },
     Reset {
-        repeated_revision: RepeatedRevision,
+        revisions: Vec<Revision>,
         ret: oneshot::Sender<CollaborateResult<()>>,
     },
 }
@@ -337,14 +326,10 @@ impl DocumentCommandRunner {
 
     async fn handle_message(&self, msg: DocumentCommand) {
         match msg {
-            DocumentCommand::ApplyRevisions {
-                user,
-                repeated_revision,
-                ret,
-            } => {
+            DocumentCommand::ApplyRevisions { user, revisions, ret } => {
                 let result = self
                     .synchronizer
-                    .sync_revisions(user, repeated_revision)
+                    .sync_revisions(user, revisions)
                     .await
                     .map_err(internal_error);
                 let _ = ret.send(result);
@@ -353,8 +338,8 @@ impl DocumentCommandRunner {
                 let result = self.synchronizer.pong(user, rev_id).await.map_err(internal_error);
                 let _ = ret.send(result);
             }
-            DocumentCommand::Reset { repeated_revision, ret } => {
-                let result = self.synchronizer.reset(repeated_revision).await.map_err(internal_error);
+            DocumentCommand::Reset { revisions, ret } => {
+                let result = self.synchronizer.reset(revisions).await.map_err(internal_error);
                 let _ = ret.send(result);
             }
         }

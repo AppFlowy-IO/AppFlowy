@@ -7,8 +7,8 @@ use crate::services::cell::{
 
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
-    CheckboxCellData, ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB, StrCellData,
-    TypeOption, TypeOptionCellData, TypeOptionTransform,
+    CheckboxCellData, ChecklistTypeOptionPB, MultiSelectTypeOptionPB, SingleSelectTypeOptionPB, TypeOption,
+    TypeOptionCellData, TypeOptionTransform,
 };
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};

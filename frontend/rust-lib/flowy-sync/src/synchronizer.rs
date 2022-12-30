@@ -1,5 +1,5 @@
 use crate::{errors::CollaborateError, util::*};
-use flowy_http_model::revision::{RepeatedRevision, Revision, RevisionRange};
+use flowy_http_model::revision::{Revision, RevisionRange};
 use flowy_http_model::ws_data::{ServerRevisionWSData, ServerRevisionWSDataBuilder};
 use lib_infra::future::BoxResultFuture;
 use lib_ot::core::{DeltaOperations, OperationAttributes};
@@ -35,13 +35,9 @@ pub trait RevisionSyncPersistence: Send + Sync + 'static {
         rev_ids: Option<Vec<i64>>,
     ) -> BoxResultFuture<Vec<Revision>, CollaborateError>;
 
-    fn save_revisions(&self, repeated_revision: RepeatedRevision) -> BoxResultFuture<(), CollaborateError>;
+    fn save_revisions(&self, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError>;
 
-    fn reset_object(
-        &self,
-        object_id: &str,
-        repeated_revision: RepeatedRevision,
-    ) -> BoxResultFuture<(), CollaborateError>;
+    fn reset_object(&self, object_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError>;
 }
 
 pub trait RevisionSyncObject<Attribute: OperationAttributes>: Send + Sync + 'static {
@@ -92,24 +88,23 @@ where
         }
     }
 
-    #[tracing::instrument(level = "trace", skip(self, user, repeated_revision), err)]
+    #[tracing::instrument(level = "trace", skip(self, user, revisions), err)]
     pub async fn sync_revisions(
         &self,
         user: Arc<dyn RevisionUser>,
-        repeated_revision: RepeatedRevision,
+        revisions: Vec<Revision>,
     ) -> Result<(), CollaborateError> {
         let object_id = self.object_id.clone();
-        if repeated_revision.is_empty() {
+        if revisions.is_empty() {
             // Return all the revisions to client
             let revisions = self.persistence.read_revisions(&object_id, None).await?;
-            let repeated_revision = RepeatedRevision::from(revisions);
-            let data = ServerRevisionWSDataBuilder::build_push_message(&object_id, repeated_revision);
+            let data = ServerRevisionWSDataBuilder::build_push_message(&object_id, revisions);
             user.receive(RevisionSyncResponse::Push(data));
             return Ok(());
         }
 
         let server_base_rev_id = self.rev_id.load(SeqCst);
-        let first_revision = repeated_revision.first().unwrap().clone();
+        let first_revision = revisions.first().unwrap().clone();
         if self.is_applied_before(&first_revision, &self.persistence).await {
             // Server has received this revision before, so ignore the following revisions
             return Ok(());
@@ -120,10 +115,10 @@ where
                 let server_rev_id = next(server_base_rev_id);
                 if server_base_rev_id == first_revision.base_rev_id || server_rev_id == first_revision.rev_id {
                     // The rev is in the right order, just compose it.
-                    for revision in repeated_revision.iter() {
+                    for revision in revisions.iter() {
                         let _ = self.compose_revision(revision)?;
                     }
-                    let _ = self.persistence.save_revisions(repeated_revision).await?;
+                    let _ = self.persistence.save_revisions(revisions).await?;
                 } else {
                     // The server ops is outdated, pull the missing revision from the client.
                     let range = RevisionRange {
@@ -173,14 +168,13 @@ where
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, repeated_revision), fields(object_id), err)]
-    pub async fn reset(&self, repeated_revision: RepeatedRevision) -> Result<(), CollaborateError> {
+    #[tracing::instrument(level = "debug", skip(self, revisions), fields(object_id), err)]
+    pub async fn reset(&self, revisions: Vec<Revision>) -> Result<(), CollaborateError> {
         let object_id = self.object_id.clone();
         tracing::Span::current().record("object_id", &object_id.as_str());
-        let revisions: Vec<Revision> = repeated_revision.clone().into_inner();
         let (_, rev_id) = pair_rev_id_from_revision_pbs(&revisions);
-        let operations = make_operations_from_revisions(revisions)?;
-        let _ = self.persistence.reset_object(&object_id, repeated_revision).await?;
+        let operations = make_operations_from_revisions(revisions.clone())?;
+        let _ = self.persistence.reset_object(&object_id, revisions).await?;
         self.object.write().set_operations(operations);
         let _ = self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(rev_id));
         Ok(())
@@ -200,7 +194,7 @@ where
     #[tracing::instrument(level = "debug", skip(self, revision))]
     fn transform_revision(
         &self,
-        revision: &flowy_http_model::protobuf::Revision,
+        revision: &Revision,
     ) -> Result<(RevisionOperations<Attribute>, RevisionOperations<Attribute>), CollaborateError> {
         let client_operations = RevisionOperations::<Attribute>::from_bytes(&revision.bytes)?;
         let result = self.object.read().transform(&client_operations)?;
@@ -252,8 +246,7 @@ where
                     // assert_eq!(revisions.is_empty(), rev_ids.is_empty(),);
                 }
 
-                let repeated_revision = RepeatedRevision::from(revisions);
-                let data = ServerRevisionWSDataBuilder::build_push_message(&self.object_id, repeated_revision);
+                let data = ServerRevisionWSDataBuilder::build_push_message(&self.object_id, revisions);
                 user.receive(RevisionSyncResponse::Push(data));
             }
             Err(e) => {

@@ -2,7 +2,7 @@
 mod tests {
     use crate::entities::FieldType;
     use crate::services::cell::stringify_cell_data;
-    use crate::services::cell::CellDataDecoder;
+
     use crate::services::field::FieldBuilder;
     use crate::services::field::*;
 

@@ -1,15 +1,13 @@
 use crate::ConflictRevisionSink;
 use async_stream::stream;
-use bytes::Bytes;
+
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_http_model::{
-    revision::{RevId, Revision, RevisionRange},
-    ws_data::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSData, ServerRevisionWSDataType},
-};
+use flowy_http_model::revision::{Revision, RevisionRange};
+use flowy_http_model::ws_data::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSData, WSRevisionPayload};
 use futures_util::{future::BoxFuture, stream::StreamExt};
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ws::WSConnectState;
-use std::{collections::VecDeque, convert::TryFrom, fmt::Formatter, sync::Arc};
+use std::{collections::VecDeque, fmt::Formatter, sync::Arc};
 use tokio::{
     sync::{
         broadcast, mpsc,
@@ -21,8 +19,8 @@ use tokio::{
 
 // The consumer consumes the messages pushed by the web socket.
 pub trait RevisionWSDataStream: Send + Sync {
-    fn receive_push_revision(&self, bytes: Bytes) -> BoxResultFuture<(), FlowyError>;
-    fn receive_ack(&self, id: String, ty: ServerRevisionWSDataType) -> BoxResultFuture<(), FlowyError>;
+    fn receive_push_revision(&self, revisions: Vec<Revision>) -> BoxResultFuture<(), FlowyError>;
+    fn receive_ack(&self, rev_id: i64) -> BoxResultFuture<(), FlowyError>;
     fn receive_new_user_connect(&self, new_user: NewDocumentUser) -> BoxResultFuture<(), FlowyError>;
     fn pull_revisions_in_range(&self, range: RevisionRange) -> BoxResultFuture<(), FlowyError>;
 }
@@ -214,26 +212,22 @@ impl RevisionWSStream {
     }
 
     async fn handle_message(&self, msg: ServerRevisionWSData) -> FlowyResult<()> {
-        let ServerRevisionWSData { object_id, ty, data } = msg;
-        let bytes = Bytes::from(data);
-        match ty {
-            ServerRevisionWSDataType::ServerPushRev => {
-                tracing::trace!("[{}]: new push revision: {}:{:?}", self, object_id, ty);
-                let _ = self.consumer.receive_push_revision(bytes).await?;
+        let ServerRevisionWSData { object_id, payload } = msg;
+        match payload {
+            WSRevisionPayload::ServerPushRev { revisions } => {
+                tracing::trace!("[{}]: new push revision: {}", self, object_id);
+                let _ = self.consumer.receive_push_revision(revisions).await?;
             }
-            ServerRevisionWSDataType::ServerPullRev => {
-                let range = RevisionRange::try_from(bytes)?;
-                tracing::trace!("[{}]: new pull: {}:{}-{:?}", self, object_id, range, ty);
+            WSRevisionPayload::ServerPullRev { range } => {
+                tracing::trace!("[{}]: new pull: {}:{:?}", self, object_id, range);
                 let _ = self.consumer.pull_revisions_in_range(range).await?;
             }
-            ServerRevisionWSDataType::ServerAck => {
-                let rev_id = RevId::try_from(bytes).unwrap().value;
-                tracing::trace!("[{}]: new ack: {}:{}-{:?}", self, object_id, rev_id, ty);
-                let _ = self.consumer.receive_ack(rev_id.to_string(), ty).await;
+            WSRevisionPayload::ServerAck { rev_id } => {
+                tracing::trace!("[{}]: new ack: {}:{}", self, object_id, rev_id);
+                let _ = self.consumer.receive_ack(rev_id).await;
             }
-            ServerRevisionWSDataType::UserConnect => {
-                let new_user = NewDocumentUser::try_from(bytes)?;
-                let _ = self.consumer.receive_new_user_connect(new_user).await;
+            WSRevisionPayload::UserConnect { user } => {
+                let _ = self.consumer.receive_new_user_connect(user).await;
             }
         }
         Ok(())
@@ -309,7 +303,7 @@ impl RevisionWSSink {
                 Ok(())
             }
             Some(data) => {
-                tracing::trace!("[{}]: send {}:{}-{:?}", self, data.object_id, data.id(), data.ty);
+                tracing::trace!("[{}]: send {}:{}-{:?}", self, data.object_id, data.rev_id, data.ty);
                 self.rev_web_socket.send(data).await
             }
         }
@@ -397,18 +391,17 @@ impl WSDataProvider {
         data
     }
 
-    pub async fn ack_data(&self, id: String, _ty: ServerRevisionWSDataType) -> FlowyResult<()> {
+    pub async fn ack_data(&self, rev_id: i64) -> FlowyResult<()> {
         let source = self.current_source.read().await.clone();
         match source {
             Source::Custom => {
                 let should_pop = match self.rev_ws_data_list.read().await.front() {
                     None => false,
                     Some(val) => {
-                        let expected_id = val.id();
-                        if expected_id == id {
+                        if val.rev_id == rev_id {
                             true
                         } else {
-                            tracing::error!("The front element's {} is not equal to the {}", expected_id, id);
+                            tracing::error!("The front element's {} is not equal to the {}", val.rev_id, rev_id);
                             false
                         }
                     }
@@ -419,9 +412,6 @@ impl WSDataProvider {
                 Ok(())
             }
             Source::Revision => {
-                let rev_id = id.parse::<i64>().map_err(|e| {
-                    FlowyError::internal().context(format!("Parse {} rev_id from {} failed. {}", self.object_id, id, e))
-                })?;
                 let _ = self.data_source.ack_revision(rev_id).await?;
                 Ok::<(), FlowyError>(())
             }
@@ -439,8 +429,8 @@ impl ConflictRevisionSink for Arc<WSDataProvider> {
         })
     }
 
-    fn ack(&self, rev_id: String, ty: ServerRevisionWSDataType) -> BoxResultFuture<(), FlowyError> {
+    fn ack(&self, rev_id: i64) -> BoxResultFuture<(), FlowyError> {
         let sink = self.clone();
-        Box::pin(async move { sink.ack_data(rev_id, ty).await })
+        Box::pin(async move { sink.ack_data(rev_id).await })
     }
 }

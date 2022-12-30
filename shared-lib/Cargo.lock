@@ -429,16 +429,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-error-code"
-version = "0.1.0"
-dependencies = [
- "derive_more",
- "flowy-codegen",
- "flowy-derive",
- "protobuf",
-]
-
-[[package]]
 name = "flowy-http-model"
 version = "0.1.0"
 dependencies = [
@@ -448,6 +438,9 @@ dependencies = [
  "lib-infra",
  "md5",
  "protobuf",
+ "serde",
+ "serde_json",
+ "serde_repr",
 ]
 
 [[package]]
@@ -678,7 +671,6 @@ name = "grid-rev-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "flowy-error-code",
  "indexmap",
  "nanoid",
  "serde",
@@ -860,7 +852,6 @@ dependencies = [
  "dashmap",
  "env_logger",
  "flowy-codegen",
- "flowy-derive",
  "futures",
  "futures-channel",
  "futures-core",
@@ -871,6 +862,9 @@ dependencies = [
  "paste",
  "pin-project",
  "protobuf",
+ "serde",
+ "serde_json",
+ "serde_repr",
  "strum",
  "strum_macros",
  "tokio",
