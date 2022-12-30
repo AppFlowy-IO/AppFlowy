@@ -111,7 +111,7 @@ class SelectionMenu implements SelectionMenuService {
 
     Overlay.of(context)?.insert(_selectionMenuEntry!);
 
-    editorState.service.keyboardService?.disable(showCursor: true,);
+    editorState.service.keyboardService?.disable(showCursor: true);
     editorState.service.scrollService?.disable();
     selectionService.currentSelection.addListener(_onSelectionChange);
   }
