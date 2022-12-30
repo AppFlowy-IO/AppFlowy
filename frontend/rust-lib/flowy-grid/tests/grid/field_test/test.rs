@@ -270,7 +270,29 @@ async fn grid_switch_from_text_to_checkbox_test() {}
 // input:
 //      1647251762 -> Mar 14,2022 (This string will be different base on current data setting)
 #[tokio::test]
-async fn grid_switch_from_date_to_text_test() {}
+async fn grid_switch_from_date_to_text_test() {
+    let mut test = GridFieldTest::new().await;
+    let field_rev = test.get_first_field_rev(FieldType::DateTime).clone();
+    let scripts = vec![
+        SwitchToField {
+            field_id: field_rev.id.clone(),
+            new_field_type: FieldType::RichText,
+        },
+        AssertCellContent {
+            field_id: field_rev.id.clone(),
+            row_index: 2,
+            from_field_type: FieldType::DateTime,
+            expected_content: "2022/03/14".to_string(),
+        },
+        AssertCellContent {
+            field_id: field_rev.id.clone(),
+            row_index: 3,
+            from_field_type: FieldType::DateTime,
+            expected_content: "2022/11/17".to_string(),
+        },
+    ];
+    test.run_scripts(scripts).await;
+}
 
 // Test when switching the current field from Number to Text test
 // input:
