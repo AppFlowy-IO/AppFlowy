@@ -70,7 +70,7 @@ impl ToCellChangesetString for DateCellChangeset {
     }
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Debug)]
 pub struct DateCellData(pub Option<i64>);
 
 impl std::convert::From<DateCellData> for i64 {

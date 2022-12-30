@@ -61,15 +61,15 @@ impl CellDataChangeset for MultiSelectTypeOptionPB {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<<Self as TypeOption>::CellData> {
+    ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
         let insert_option_ids = changeset
             .insert_option_ids
             .into_iter()
             .filter(|insert_option_id| self.options.iter().any(|option| &option.id == insert_option_id))
             .collect::<Vec<String>>();
 
-        match type_cell_data {
-            None => Ok(SelectOptionIds::from(insert_option_ids)),
+        let select_option_ids = match type_cell_data {
+            None => SelectOptionIds::from(insert_option_ids),
             Some(type_cell_data) => {
                 let mut select_ids: SelectOptionIds = type_cell_data.cell_str.into();
                 for insert_option_id in insert_option_ids {
@@ -83,9 +83,10 @@ impl CellDataChangeset for MultiSelectTypeOptionPB {
                 }
 
                 tracing::trace!("Multi-select cell data: {}", select_ids.to_string());
-                Ok(select_ids)
+                select_ids
             }
-        }
+        };
+        Ok((select_option_ids.to_string(), select_option_ids))
     }
 }
 
@@ -210,7 +211,7 @@ mod tests {
         let type_option = MultiSelectTypeOptionPB::from(&field_rev);
         let option_ids = vec![google.id, facebook.id];
         let changeset = SelectOptionCellChangeset::from_insert_options(option_ids.clone());
-        let select_option_ids: SelectOptionIds = type_option.apply_changeset(changeset, None).unwrap();
+        let select_option_ids: SelectOptionIds = type_option.apply_changeset(changeset, None).unwrap().1;
 
         assert_eq!(&*select_option_ids, &option_ids);
     }
@@ -229,12 +230,12 @@ mod tests {
 
         // insert
         let changeset = SelectOptionCellChangeset::from_insert_options(option_ids.clone());
-        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap();
+        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap().1;
         assert_eq!(&*select_option_ids, &option_ids);
 
         // delete
         let changeset = SelectOptionCellChangeset::from_delete_options(option_ids);
-        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap();
+        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap().1;
         assert!(select_option_ids.is_empty());
     }
 
@@ -250,7 +251,7 @@ mod tests {
 
         let type_option = MultiSelectTypeOptionPB::from(&field_rev);
         let changeset = SelectOptionCellChangeset::from_insert_option_id(&google.id);
-        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap();
+        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap().1;
         assert_eq!(select_option_ids.to_string(), google.id);
     }
 
@@ -265,7 +266,7 @@ mod tests {
 
         let type_option = MultiSelectTypeOptionPB::from(&field_rev);
         let changeset = SelectOptionCellChangeset::from_insert_option_id(&google.id);
-        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap();
+        let (_, select_option_ids) = type_option.apply_changeset(changeset, None).unwrap();
         assert!(select_option_ids.is_empty());
     }
 
@@ -283,11 +284,11 @@ mod tests {
 
         // empty option id string
         let changeset = SelectOptionCellChangeset::from_insert_option_id("");
-        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap();
-        assert_eq!(select_option_ids.to_string(), "");
+        let (cell_str, _) = type_option.apply_changeset(changeset, None).unwrap();
+        assert_eq!(cell_str, "");
 
         let changeset = SelectOptionCellChangeset::from_insert_option_id("123,456");
-        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap();
+        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap().1;
         assert!(select_option_ids.is_empty());
     }
 }

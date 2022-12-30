@@ -157,7 +157,7 @@ impl CellDataChangeset for DateTypeOptionPB {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         _type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<<Self as TypeOption>::CellData> {
+    ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
         let cell_data = match changeset.date_timestamp() {
             None => 0,
             Some(date_timestamp) => match (self.include_time, changeset.time) {
@@ -171,8 +171,8 @@ impl CellDataChangeset for DateTypeOptionPB {
                 _ => date_timestamp,
             },
         };
-
-        Ok(DateCellData(Some(cell_data)))
+        let date_cell_data = DateCellData(Some(cell_data));
+        Ok((date_cell_data.to_string(), date_cell_data))
     }
 }
 

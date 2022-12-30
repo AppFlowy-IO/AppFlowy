@@ -157,7 +157,7 @@ mod tests {
         expected_url: &str,
         _field_rev: &FieldRevision,
     ) {
-        let decode_cell_data = type_option.apply_changeset(input_str.to_owned(), None).unwrap();
+        let decode_cell_data = type_option.apply_changeset(input_str.to_owned(), None).unwrap().1;
         assert_eq!(expected_str.to_owned(), decode_cell_data.content);
         assert_eq!(expected_url.to_owned(), decode_cell_data.url);
     }
