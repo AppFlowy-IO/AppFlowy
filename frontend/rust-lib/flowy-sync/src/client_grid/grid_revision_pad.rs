@@ -166,11 +166,16 @@ impl GridRevisionPad {
                 Some(field_rev) => {
                     let mut_field_rev = Arc::make_mut(field_rev);
                     let old_field_type_rev = mut_field_rev.ty;
-                    let old_field_type_option = mut_field_rev.get_type_option_str(mut_field_rev.ty);
+                    let old_field_type_option = mut_field_rev
+                        .get_type_option_str(mut_field_rev.ty)
+                        .map(|value| value.to_owned());
                     match mut_field_rev.get_type_option_str(new_field_type) {
                         Some(new_field_type_option) => {
-                            let transformed_type_option =
-                                type_option_transform(old_field_type_rev, old_field_type_option, new_field_type_option);
+                            let transformed_type_option = type_option_transform(
+                                old_field_type_rev,
+                                old_field_type_option,
+                                new_field_type_option.to_owned(),
+                            );
                             mut_field_rev.insert_type_option_str(&new_field_type, transformed_type_option);
                         }
                         None => {

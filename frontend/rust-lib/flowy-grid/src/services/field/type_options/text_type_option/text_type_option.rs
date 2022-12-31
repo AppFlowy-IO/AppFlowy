@@ -104,11 +104,12 @@ impl CellDataChangeset for RichTextTypeOptionPB {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         _type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<<Self as TypeOption>::CellData> {
+    ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
         if changeset.len() > 10000 {
             Err(FlowyError::text_too_long().context("The len of the text should not be more than 10000"))
         } else {
-            Ok(StrCellData(changeset))
+            let text_cell_data = StrCellData(changeset);
+            Ok((text_cell_data.to_string(), text_cell_data))
         }
     }
 }

@@ -15,7 +15,7 @@ async fn grid_create_field() {
         CreateField { params },
         AssertFieldTypeOptionEqual {
             field_index: test.field_count(),
-            expected_type_option_data: field_rev.get_type_option_str(field_rev.ty).unwrap(),
+            expected_type_option_data: field_rev.get_type_option_str(field_rev.ty).unwrap().to_owned(),
         },
     ];
     test.run_scripts(scripts).await;
@@ -25,7 +25,7 @@ async fn grid_create_field() {
         CreateField { params },
         AssertFieldTypeOptionEqual {
             field_index: test.field_count(),
-            expected_type_option_data: field_rev.get_type_option_str(field_rev.ty).unwrap(),
+            expected_type_option_data: field_rev.get_type_option_str(field_rev.ty).unwrap().to_owned(),
         },
     ];
     test.run_scripts(scripts).await;
@@ -63,7 +63,7 @@ async fn grid_update_field_with_empty_change() {
         UpdateField { changeset },
         AssertFieldTypeOptionEqual {
             field_index: create_field_index,
-            expected_type_option_data: field_rev.get_type_option_str(field_rev.ty).unwrap(),
+            expected_type_option_data: field_rev.get_type_option_str(field_rev.ty).unwrap().to_owned(),
         },
     ];
     test.run_scripts(scripts).await;

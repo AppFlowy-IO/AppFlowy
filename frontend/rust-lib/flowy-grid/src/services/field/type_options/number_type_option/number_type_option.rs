@@ -155,10 +155,10 @@ impl CellDataChangeset for NumberTypeOptionPB {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         _type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<<Self as TypeOption>::CellData> {
+    ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
         let data = changeset.trim().to_string();
-        let _ = self.format_cell_data(&data)?;
-        Ok(StrCellData(data))
+        let number_cell_data = self.format_cell_data(&data)?;
+        Ok((data, number_cell_data.to_string().into()))
     }
 }
 
