@@ -96,7 +96,8 @@
     "inlineCode": "Inline Code",
     "quote": "Quote Block",
     "header": "Header",
-    "highlight": "Highlight"
+    "highlight": "Highlight",
+    "color": "Color"
   },
   "tooltip": {
     "lightMode": "Switch to Light mode",
@@ -164,7 +165,8 @@
         "light": "Light Mode",
         "dark": "Dark Mode",
         "system": "Adapt to System"
-      }
+      },
+      "theme":"Theme"
     },
     "files": {
       "defaultLocation": "Where your data is stored now",
@@ -172,7 +174,7 @@
       "restoreLocation": "Restore to AppFlowy default path",
       "customizeLocation": "Open another folder",
       "restartApp": "Please restart app for the changes to take effect.",
-      "exportDatabase": "Export databae",
+      "exportDatabase": "Export database",
       "selectFiles": "Select the files that need to be export",
       "createNewFolder": "Create a new folder",
       "createNewFolderDesc": "Tell us where you want to store your data ...",
@@ -253,14 +255,14 @@
       "multiSelectFieldName": "Multiselect",
       "urlFieldName": "URL",
       "checklistFieldName": "Checklist",
-      "numberFormat": " Number format",
-      "dateFormat": " Date format",
-      "includeTime": " Include time",
+      "numberFormat": "Number format",
+      "dateFormat": "Date format",
+      "includeTime": "Include time",
       "dateFormatFriendly": "Month Day,Year",
       "dateFormatISO": "Year-Month-Day",
       "dateFormatLocal": "Month/Day/Year",
       "dateFormatUS": "Year/Month/Day",
-      "timeFormat": " Time format",
+      "timeFormat": "Time format",
       "invalidTimeFormat": "Invalid format",
       "timeFormatTwelveHour": "12 hour",
       "timeFormatTwentyFourHour": "24 hour",

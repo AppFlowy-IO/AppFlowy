@@ -1,25 +1,9 @@
 use crate::entities::FieldType;
-use crate::services::cell::{CellProtobufBlob, TypeCellData};
+use crate::services::cell::{AtomicCellDataCache, CellProtobufBlob, TypeCellData};
 use crate::services::field::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision};
-use std::cmp::Ordering;
 use std::fmt::Debug;
-
-/// This trait is used when doing filter/search on the grid.
-pub trait CellFilterable: TypeOptionConfiguration {
-    /// Return true if type_cell_data match the filter condition.
-    fn apply_filter(
-        &self,
-        type_cell_data: TypeCellData,
-        filter: &<Self as TypeOptionConfiguration>::CellFilterConfiguration,
-    ) -> FlowyResult<bool>;
-}
-
-pub trait CellComparable {
-    type CellData;
-    fn apply_cmp(&self, cell_data: &Self::CellData, other_cell_data: &Self::CellData) -> Ordering;
-}
 
 /// Decode the opaque cell data into readable format content
 pub trait CellDataDecoder: TypeOption {
@@ -50,14 +34,14 @@ pub trait CellDataDecoder: TypeOption {
 
 pub trait CellDataChangeset: TypeOption {
     /// The changeset is able to parse into the concrete data struct if `TypeOption::CellChangeset`
-    /// implements the `FromCellChangeset` trait.
+    /// implements the `FromCellChangesetString` trait.
     /// For example,the SelectOptionCellChangeset,DateCellChangeset. etc.
     ///  
     fn apply_changeset(
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<String>;
+    ) -> FlowyResult<(String, <Self as TypeOption>::CellData)>;
 }
 
 /// changeset: It will be deserialized into specific data base on the FieldType.
@@ -66,13 +50,14 @@ pub trait CellDataChangeset: TypeOption {
 ///         FieldType::SingleSelect => SelectOptionChangeset
 ///
 /// cell_rev: It will be None if the cell does not contain any data.
-pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
+pub fn apply_cell_data_changeset<C: ToCellChangesetString, T: AsRef<FieldRevision>>(
     changeset: C,
     cell_rev: Option<CellRevision>,
     field_rev: T,
+    cell_data_cache: Option<AtomicCellDataCache>,
 ) -> Result<String, FlowyError> {
     let field_rev = field_rev.as_ref();
-    let changeset = changeset.to_string();
+    let changeset = changeset.to_cell_changeset_str();
     let field_type: FieldType = field_rev.ty.into();
 
     let type_cell_data = cell_rev.and_then(|cell_rev| match TypeCellData::try_from(cell_rev) {
@@ -80,22 +65,25 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
         Err(_) => None,
     });
 
-    let cell_data = match FieldRevisionExt::new(field_rev).get_type_option_cell_data_handler(&field_type) {
+    let cell_str = match TypeOptionCellExt::new_with_cell_data_cache(field_rev, cell_data_cache)
+        .get_type_option_cell_data_handler(&field_type)
+    {
         None => "".to_string(),
-        Some(handler) => handler.handle_cell_changeset(changeset, type_cell_data)?,
+        Some(handler) => handler.handle_cell_changeset(changeset, type_cell_data, field_rev)?,
     };
-    Ok(TypeCellData::new(cell_data, field_type).to_json())
+    Ok(TypeCellData::new(cell_str, field_type).to_json())
 }
 
 pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debug>(
     data: T,
     field_rev: &FieldRevision,
+    cell_data_cache: Option<AtomicCellDataCache>,
 ) -> (FieldType, CellProtobufBlob) {
     let to_field_type = field_rev.ty.into();
     match data.try_into() {
         Ok(type_cell_data) => {
             let TypeCellData { cell_str, field_type } = type_cell_data;
-            match try_decode_cell_str(cell_str, &field_type, &to_field_type, field_rev) {
+            match try_decode_cell_str(cell_str, &field_type, &to_field_type, field_rev, cell_data_cache) {
                 Ok(cell_bytes) => (field_type, cell_bytes),
                 Err(e) => {
                     tracing::error!("Decode cell data failed, {:?}", e);
@@ -120,7 +108,8 @@ pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debu
 ///
 /// # Arguments
 ///
-/// * `cell_str`: the opaque cell string
+/// * `cell_str`: the opaque cell string that can be decoded by corresponding structs that implement the
+/// `FromCellString` trait.
 /// * `from_field_type`: the original field type of the passed-in cell data. Check the `TypeCellData`
 /// that is used to save the origin field type of the cell data.
 /// * `to_field_type`: decode the passed-in cell data to this field type. It will use the to_field_type's
@@ -134,8 +123,11 @@ pub fn try_decode_cell_str(
     from_field_type: &FieldType,
     to_field_type: &FieldType,
     field_rev: &FieldRevision,
+    cell_data_cache: Option<AtomicCellDataCache>,
 ) -> FlowyResult<CellProtobufBlob> {
-    match FieldRevisionExt::new(field_rev).get_type_option_cell_data_handler(to_field_type) {
+    match TypeOptionCellExt::new_with_cell_data_cache(field_rev, cell_data_cache)
+        .get_type_option_cell_data_handler(to_field_type)
+    {
         None => Ok(CellProtobufBlob::default()),
         Some(handler) => handler.handle_cell_str(cell_str, from_field_type, field_rev),
     }
@@ -145,30 +137,40 @@ pub fn try_decode_cell_str(
 /// If the cell data of the `FieldType` doesn't support displaying in String then will return an
 /// empty string. For example, The string of the Multi-Select cell will be a list of the option's name
 /// separated by a comma.
+///
+/// # Arguments
+///
+/// * `cell_str`: the opaque cell string that can be decoded by corresponding structs that implement the
+/// `FromCellString` trait.
+/// * `decoded_field_type`: the field_type of the cell_str
+/// * `field_type`: use this field type's `TypeOption` to stringify this cell_str
+/// * `field_rev`: used to get the corresponding TypeOption for the specified field type.
+///
+/// returns: String
 pub fn stringify_cell_data(
-    cell_data: String,
-    from_field_type: &FieldType,
-    to_field_type: &FieldType,
+    cell_str: String,
+    decoded_field_type: &FieldType,
+    field_type: &FieldType,
     field_rev: &FieldRevision,
 ) -> String {
-    match FieldRevisionExt::new(field_rev).get_type_option_cell_data_handler(to_field_type) {
+    match TypeOptionCellExt::new_with_cell_data_cache(field_rev, None).get_type_option_cell_data_handler(field_type) {
         None => "".to_string(),
-        Some(handler) => handler.stringify_cell_str(cell_data, from_field_type, field_rev),
+        Some(handler) => handler.stringify_cell_str(cell_str, decoded_field_type, field_rev),
     }
 }
 
 pub fn insert_text_cell(s: String, field_rev: &FieldRevision) -> CellRevision {
-    let data = apply_cell_data_changeset(s, None, field_rev).unwrap();
+    let data = apply_cell_data_changeset(s, None, field_rev, None).unwrap();
     CellRevision::new(data)
 }
 
 pub fn insert_number_cell(num: i64, field_rev: &FieldRevision) -> CellRevision {
-    let data = apply_cell_data_changeset(num, None, field_rev).unwrap();
+    let data = apply_cell_data_changeset(num.to_string(), None, field_rev, None).unwrap();
     CellRevision::new(data)
 }
 
 pub fn insert_url_cell(url: String, field_rev: &FieldRevision) -> CellRevision {
-    let data = apply_cell_data_changeset(url, None, field_rev).unwrap();
+    let data = apply_cell_data_changeset(url, None, field_rev, None).unwrap();
     CellRevision::new(data)
 }
 
@@ -178,7 +180,7 @@ pub fn insert_checkbox_cell(is_check: bool, field_rev: &FieldRevision) -> CellRe
     } else {
         UNCHECK.to_string()
     };
-    let data = apply_cell_data_changeset(s, None, field_rev).unwrap();
+    let data = apply_cell_data_changeset(s, None, field_rev, None).unwrap();
     CellRevision::new(data)
 }
 
@@ -189,19 +191,19 @@ pub fn insert_date_cell(timestamp: i64, field_rev: &FieldRevision) -> CellRevisi
         is_utc: true,
     })
     .unwrap();
-    let data = apply_cell_data_changeset(cell_data, None, field_rev).unwrap();
+    let data = apply_cell_data_changeset(cell_data, None, field_rev, None).unwrap();
     CellRevision::new(data)
 }
 
 pub fn insert_select_option_cell(option_ids: Vec<String>, field_rev: &FieldRevision) -> CellRevision {
-    let cell_data = SelectOptionCellChangeset::from_insert_options(option_ids).to_str();
-    let data = apply_cell_data_changeset(cell_data, None, field_rev).unwrap();
+    let changeset = SelectOptionCellChangeset::from_insert_options(option_ids).to_cell_changeset_str();
+    let data = apply_cell_data_changeset(changeset, None, field_rev, None).unwrap();
     CellRevision::new(data)
 }
 
 pub fn delete_select_option_cell(option_ids: Vec<String>, field_rev: &FieldRevision) -> CellRevision {
-    let cell_data = SelectOptionCellChangeset::from_delete_options(option_ids).to_str();
-    let data = apply_cell_data_changeset(cell_data, None, field_rev).unwrap();
+    let changeset = SelectOptionCellChangeset::from_delete_options(option_ids).to_cell_changeset_str();
+    let data = apply_cell_data_changeset(changeset, None, field_rev, None).unwrap();
     CellRevision::new(data)
 }
 
@@ -260,18 +262,28 @@ impl std::convert::From<IntoCellData<String>> for String {
 
 /// If the changeset applying to the cell is not String type, it should impl this trait.
 /// Deserialize the string into cell specific changeset.
-pub trait FromCellChangeset {
+pub trait FromCellChangesetString {
     fn from_changeset(changeset: String) -> FlowyResult<Self>
     where
         Self: Sized;
 }
 
-impl FromCellChangeset for String {
+impl FromCellChangesetString for String {
     fn from_changeset(changeset: String) -> FlowyResult<Self>
     where
         Self: Sized,
     {
         Ok(changeset)
+    }
+}
+
+pub trait ToCellChangesetString: Debug {
+    fn to_cell_changeset_str(&self) -> String;
+}
+
+impl ToCellChangesetString for String {
+    fn to_cell_changeset_str(&self) -> String {
+        self.clone()
     }
 }
 
@@ -288,7 +300,7 @@ impl<T> AnyCellChangeset<T> {
 
 impl<T, C: ToString> std::convert::From<C> for AnyCellChangeset<T>
 where
-    T: FromCellChangeset,
+    T: FromCellChangesetString,
 {
     fn from(changeset: C) -> Self {
         match T::from_changeset(changeset.to_string()) {

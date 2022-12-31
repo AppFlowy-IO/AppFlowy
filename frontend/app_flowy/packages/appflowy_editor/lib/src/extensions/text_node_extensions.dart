@@ -34,6 +34,17 @@ extension TextNodeExtension on TextNode {
         return value != null;
       });
 
+  bool allSatisfyFontColorInSelection(Selection selection) =>
+      allSatisfyInSelection(selection, BuiltInAttributeKey.color, (value) {
+        return value != null;
+      });
+
+  bool allSatisfyBackgroundColorInSelection(Selection selection) =>
+      allSatisfyInSelection(selection, BuiltInAttributeKey.backgroundColor,
+          (value) {
+        return value != null;
+      });
+
   bool allSatisfyBoldInSelection(Selection selection) =>
       allSatisfyInSelection(selection, BuiltInAttributeKey.bold, (value) {
         return value == true;

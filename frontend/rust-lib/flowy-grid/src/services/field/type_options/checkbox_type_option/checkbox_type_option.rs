@@ -2,14 +2,15 @@ use crate::entities::{CheckboxFilterPB, FieldType};
 use crate::impl_type_option;
 use crate::services::cell::{CellDataChangeset, CellDataDecoder, FromCellString, TypeCellData};
 use crate::services::field::{
-    BoxTypeOptionBuilder, CheckboxCellData, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionConfiguration,
-    TypeOptionTransform,
+    default_order, BoxTypeOptionBuilder, CheckboxCellData, TypeOption, TypeOptionBuilder, TypeOptionCellData,
+    TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyResult;
 use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 use std::str::FromStr;
 
 #[derive(Default)]
@@ -45,13 +46,10 @@ impl TypeOption for CheckboxTypeOptionPB {
     type CellData = CheckboxCellData;
     type CellChangeset = CheckboxCellChangeset;
     type CellProtobufType = CheckboxCellData;
+    type CellFilter = CheckboxFilterPB;
 }
 
 impl TypeOptionTransform for CheckboxTypeOptionPB {}
-
-impl TypeOptionConfiguration for CheckboxTypeOptionPB {
-    type CellFilterConfiguration = CheckboxFilterPB;
-}
 
 impl TypeOptionCellData for CheckboxTypeOptionPB {
     fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {
@@ -89,8 +87,37 @@ impl CellDataChangeset for CheckboxTypeOptionPB {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         _type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<String> {
-        let cell_data = CheckboxCellData::from_str(&changeset)?;
-        Ok(cell_data.to_string())
+    ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
+        let checkbox_cell_data = CheckboxCellData::from_str(&changeset)?;
+        Ok((checkbox_cell_data.to_string(), checkbox_cell_data))
+    }
+}
+
+impl TypeOptionCellDataFilter for CheckboxTypeOptionPB {
+    fn apply_filter(
+        &self,
+        filter: &<Self as TypeOption>::CellFilter,
+        field_type: &FieldType,
+        cell_data: &<Self as TypeOption>::CellData,
+    ) -> bool {
+        if !field_type.is_checkbox() {
+            return true;
+        }
+        filter.is_visible(cell_data)
+    }
+}
+
+impl TypeOptionCellDataCompare for CheckboxTypeOptionPB {
+    fn apply_cmp(
+        &self,
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering {
+        match (cell_data.is_check(), other_cell_data.is_check()) {
+            (true, true) => Ordering::Equal,
+            (true, false) => Ordering::Greater,
+            (false, true) => Ordering::Less,
+            (false, false) => default_order(),
+        }
     }
 }

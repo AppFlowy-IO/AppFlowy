@@ -1,13 +1,14 @@
 use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::*;
 use crate::services::block_manager::GridBlockEvent;
+use crate::services::cell::AtomicCellDataCache;
 use crate::services::filter::{FilterChangeset, FilterController, FilterTaskHandler, FilterType, UpdatedFilterType};
 use crate::services::group::{
     default_group_configuration, find_group_field, make_group_controller, Group, GroupConfigurationReader,
     GroupController, MoveGroupRowContext,
 };
 use crate::services::row::GridBlockRowRevision;
-use crate::services::sort::{SortChangeset, SortController, SortTaskHandler, SortType};
+use crate::services::sort::{DeletedSortType, SortChangeset, SortController, SortTaskHandler, SortType};
 use crate::services::view_editor::changed_notifier::GridViewChangedNotifier;
 use crate::services::view_editor::trait_impl::*;
 use crate::services::view_editor::GridViewChangedReceiverRunner;
@@ -78,6 +79,7 @@ impl GridViewRevisionEditor {
         token: &str,
         view_id: String,
         delegate: Arc<dyn GridViewEditorDelegate>,
+        cell_data_cache: AtomicCellDataCache,
         mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
     ) -> FlowyResult<Self> {
         let (notifier, _) = broadcast::channel(100);
@@ -110,12 +112,26 @@ impl GridViewRevisionEditor {
         )
         .await?;
 
-        let sort_controller = make_sort_controller(&view_id, delegate.clone(), view_rev_pad.clone()).await;
-
         let user_id = user_id.to_owned();
         let group_controller = Arc::new(RwLock::new(group_controller));
-        let filter_controller =
-            make_filter_controller(&view_id, delegate.clone(), notifier.clone(), view_rev_pad.clone()).await;
+        let filter_controller = make_filter_controller(
+            &view_id,
+            delegate.clone(),
+            notifier.clone(),
+            cell_data_cache.clone(),
+            view_rev_pad.clone(),
+        )
+        .await;
+
+        let sort_controller = make_sort_controller(
+            &view_id,
+            delegate.clone(),
+            notifier.clone(),
+            filter_controller.clone(),
+            view_rev_pad.clone(),
+            cell_data_cache,
+        )
+        .await;
         Ok(Self {
             pad: view_rev_pad,
             user_id,
@@ -167,12 +183,11 @@ impl GridViewRevisionEditor {
     }
 
     pub async fn sort_rows(&self, rows: &mut Vec<Arc<RowRevision>>) {
-        self.sort_controller.read().await.sort_rows(rows)
+        self.sort_controller.write().await.sort_rows(rows).await
     }
 
-    pub async fn filter_rows(&self, _block_id: &str, mut rows: Vec<Arc<RowRevision>>) -> Vec<Arc<RowRevision>> {
-        self.filter_controller.write().await.filter_row_revs(&mut rows).await;
-        rows
+    pub async fn filter_rows(&self, _block_id: &str, rows: &mut Vec<Arc<RowRevision>>) {
+        self.filter_controller.write().await.filter_row_revs(rows).await;
     }
 
     pub async fn duplicate_view_data(&self) -> FlowyResult<String> {
@@ -246,9 +261,11 @@ impl GridViewRevisionEditor {
         }
 
         let filter_controller = self.filter_controller.clone();
+        let sort_controller = self.sort_controller.clone();
         let row_id = row_rev.id.clone();
         tokio::spawn(async move {
-            filter_controller.write().await.did_receive_row_changed(&row_id).await;
+            filter_controller.read().await.did_receive_row_changed(&row_id).await;
+            sort_controller.read().await.did_receive_row_changed(&row_id).await;
         });
     }
 
@@ -374,7 +391,7 @@ impl GridViewRevisionEditor {
         .await
     }
 
-    pub async fn insert_view_sort(&self, params: AlterSortParams) -> FlowyResult<()> {
+    pub async fn insert_view_sort(&self, params: AlterSortParams) -> FlowyResult<SortRevision> {
         let sort_type = SortType::from(&params);
         let is_exist = params.sort_id.is_some();
         let sort_id = match params.sort_id {
@@ -392,7 +409,7 @@ impl GridViewRevisionEditor {
         let mut sort_controller = self.sort_controller.write().await;
         let changeset = if is_exist {
             self.modify(|pad| {
-                let changeset = pad.update_sort(&params.field_id, sort_rev)?;
+                let changeset = pad.update_sort(&params.field_id, sort_rev.clone())?;
                 Ok(changeset)
             })
             .await?;
@@ -401,7 +418,7 @@ impl GridViewRevisionEditor {
                 .await
         } else {
             self.modify(|pad| {
-                let changeset = pad.insert_sort(&params.field_id, sort_rev)?;
+                let changeset = pad.insert_sort(&params.field_id, sort_rev.clone())?;
                 Ok(changeset)
             })
             .await?;
@@ -409,22 +426,21 @@ impl GridViewRevisionEditor {
                 .did_receive_changes(SortChangeset::from_insert(sort_type))
                 .await
         };
+        drop(sort_controller);
 
-        if let Some(changeset) = changeset {
-            self.notify_did_update_sort(changeset).await;
-        }
-        Ok(())
+        self.notify_did_update_sort(changeset).await;
+        Ok(sort_rev)
     }
 
     pub async fn delete_view_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
-        let sort_type = params.sort_type;
         let changeset = self
             .sort_controller
             .write()
             .await
-            .did_receive_changes(SortChangeset::from_delete(sort_type.clone()))
+            .did_receive_changes(SortChangeset::from_delete(DeletedSortType::from(params.clone())))
             .await;
 
+        let sort_type = params.sort_type;
         let _ = self
             .modify(|pad| {
                 let changeset = pad.delete_sort(&params.sort_id, &sort_type.field_id, sort_type.field_type)?;
@@ -432,9 +448,7 @@ impl GridViewRevisionEditor {
             })
             .await?;
 
-        if changeset.is_some() {
-            self.notify_did_update_sort(changeset.unwrap()).await;
-        }
+        self.notify_did_update_sort(changeset).await;
         Ok(())
     }
 
@@ -481,6 +495,7 @@ impl GridViewRevisionEditor {
                 .did_receive_changes(FilterChangeset::from_insert(filter_type))
                 .await
         };
+        drop(filter_controller);
 
         if let Some(changeset) = changeset {
             self.notify_did_update_filter(changeset).await;
@@ -522,6 +537,13 @@ impl GridViewRevisionEditor {
             let new = FilterType::from(&field_rev);
             let filter_type = UpdatedFilterType::new(old, new);
             let filter_changeset = FilterChangeset::from_update(filter_type);
+
+            self.sort_controller
+                .read()
+                .await
+                .did_update_view_field_type_option(&field_rev)
+                .await;
+
             if let Some(changeset) = self
                 .filter_controller
                 .write()
@@ -598,9 +620,11 @@ impl GridViewRevisionEditor {
     }
 
     pub async fn notify_did_update_sort(&self, changeset: SortChangesetNotificationPB) {
-        send_dart_notification(&changeset.view_id, GridDartNotification::DidUpdateSort)
-            .payload(changeset)
-            .send();
+        if !changeset.is_empty() {
+            send_dart_notification(&changeset.view_id, GridDartNotification::DidUpdateSort)
+                .payload(changeset)
+                .send();
+        }
     }
 
     async fn notify_did_update_view(&self, changeset: GroupViewChangesetPB) {
@@ -710,6 +734,7 @@ async fn make_filter_controller(
     view_id: &str,
     delegate: Arc<dyn GridViewEditorDelegate>,
     notifier: GridViewChangedNotifier,
+    cell_data_cache: AtomicCellDataCache,
     pad: Arc<RwLock<GridViewRevisionPad>>,
 ) -> Arc<RwLock<FilterController>> {
     let field_revs = delegate.get_field_revs(None).await;
@@ -726,6 +751,7 @@ async fn make_filter_controller(
         filter_delegate,
         task_scheduler.clone(),
         filter_revs,
+        cell_data_cache,
         notifier,
     )
     .await;
@@ -740,12 +766,16 @@ async fn make_filter_controller(
 async fn make_sort_controller(
     view_id: &str,
     delegate: Arc<dyn GridViewEditorDelegate>,
+    notifier: GridViewChangedNotifier,
+    filter_controller: Arc<RwLock<FilterController>>,
     pad: Arc<RwLock<GridViewRevisionPad>>,
+    cell_data_cache: AtomicCellDataCache,
 ) -> Arc<RwLock<SortController>> {
     let handler_id = gen_handler_id();
     let sort_delegate = GridViewSortDelegateImpl {
         editor_delegate: delegate.clone(),
         view_revision_pad: pad,
+        filter_controller,
     };
     let task_scheduler = delegate.get_task_scheduler();
     let sort_controller = Arc::new(RwLock::new(SortController::new(
@@ -753,6 +783,8 @@ async fn make_sort_controller(
         &handler_id,
         sort_delegate,
         task_scheduler.clone(),
+        cell_data_cache,
+        notifier,
     )));
     task_scheduler
         .write()

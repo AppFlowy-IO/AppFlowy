@@ -3,7 +3,6 @@ use crate::DocumentUser;
 use async_stream::stream;
 use bytes::Bytes;
 use flowy_error::FlowyError;
-use flowy_http_model::revision::RevId;
 use flowy_revision::RevisionManager;
 use futures::stream::StreamExt;
 use lib_ot::core::Transaction;
@@ -76,10 +75,10 @@ impl DocumentQueue {
     }
 
     #[tracing::instrument(level = "trace", skip(self, transaction, md5), err)]
-    async fn save_local_operations(&self, transaction: Transaction, md5: String) -> Result<RevId, FlowyError> {
+    async fn save_local_operations(&self, transaction: Transaction, md5: String) -> Result<i64, FlowyError> {
         let bytes = Bytes::from(transaction.to_bytes()?);
         let rev_id = self.rev_manager.add_local_revision(bytes, md5).await?;
-        Ok(rev_id.into())
+        Ok(rev_id)
     }
 }
 

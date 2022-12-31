@@ -5,7 +5,7 @@ use crate::{errors::FlowyError, DocumentEditor, DocumentUser};
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyResult};
-use flowy_http_model::document::DocumentPayloadPB;
+use flowy_http_model::document::DocumentPayload;
 use flowy_http_model::revision::Revision;
 use flowy_http_model::ws_data::ServerRevisionWSData;
 use flowy_revision::{
@@ -246,14 +246,14 @@ impl DeltaDocumentEditor {
 
 pub struct DeltaDocumentRevisionSerde();
 impl RevisionObjectDeserializer for DeltaDocumentRevisionSerde {
-    type Output = DocumentPayloadPB;
+    type Output = DocumentPayload;
 
     fn deserialize_revisions(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let (base_rev_id, rev_id) = revisions.last().unwrap().pair_rev_id();
         let mut delta = make_operations_from_revisions(revisions)?;
         correct_delta(&mut delta);
 
-        Result::<DocumentPayloadPB, FlowyError>::Ok(DocumentPayloadPB {
+        Result::<DocumentPayload, FlowyError>::Ok(DocumentPayload {
             doc_id: object_id.to_owned(),
             data: delta.json_bytes().to_vec(),
             rev_id,

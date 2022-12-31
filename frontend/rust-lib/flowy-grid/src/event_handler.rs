@@ -1,6 +1,6 @@
 use crate::entities::*;
 use crate::manager::GridManager;
-use crate::services::cell::{FromCellString, TypeCellData};
+use crate::services::cell::{FromCellString, ToCellChangesetString, TypeCellData};
 use crate::services::field::{
     default_type_option_builder_from_type, select_type_option_from_field_rev, type_option_builder_from_json_str,
     DateCellChangeset, DateChangesetPB, SelectOptionCellChangeset, SelectOptionCellChangesetPB,
@@ -229,11 +229,14 @@ pub(crate) async fn move_field_handler(
 
 /// The [FieldRevision] contains multiple data, each of them belongs to a specific FieldType.
 async fn get_type_option_data(field_rev: &FieldRevision, field_type: &FieldType) -> FlowyResult<Vec<u8>> {
-    let s = field_rev.get_type_option_str(field_type).unwrap_or_else(|| {
-        default_type_option_builder_from_type(field_type)
-            .serializer()
-            .json_str()
-    });
+    let s = field_rev
+        .get_type_option_str(field_type)
+        .map(|value| value.to_owned())
+        .unwrap_or_else(|| {
+            default_type_option_builder_from_type(field_type)
+                .serializer()
+                .json_str()
+        });
     let field_type: FieldType = field_rev.ty.into();
     let builder = type_option_builder_from_json_str(&s, &field_type);
     let type_option_data = builder.serializer().protobuf_bytes().to_vec();
@@ -317,7 +320,9 @@ pub(crate) async fn update_cell_handler(
 ) -> Result<(), FlowyError> {
     let changeset: CellChangesetPB = data.into_inner();
     let editor = manager.get_grid_editor(&changeset.grid_id).await?;
-    let _ = editor.update_cell_with_changeset(changeset).await?;
+    let _ = editor
+        .update_cell_with_changeset(&changeset.row_id, &changeset.field_id, changeset.type_cell_data)
+        .await?;
     Ok(())
 }
 
@@ -344,16 +349,17 @@ pub(crate) async fn update_select_option_handler(
     manager: AFPluginState<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let changeset: SelectOptionChangeset = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&changeset.cell_identifier.view_id).await?;
-
+    let editor = manager.get_grid_editor(&changeset.cell_path.view_id).await?;
+    let field_id = changeset.cell_path.field_id.clone();
     let _ = editor
-        .modify_field_rev(&changeset.cell_identifier.field_id, |field_rev| {
+        .modify_field_rev(&field_id, |field_rev| {
             let mut type_option = select_type_option_from_field_rev(field_rev)?;
-            let mut cell_content_changeset = None;
+            let mut cell_changeset_str = None;
             let mut is_changed = None;
 
             for option in changeset.insert_options {
-                cell_content_changeset = Some(SelectOptionCellChangeset::from_insert_option_id(&option.id).to_str());
+                cell_changeset_str =
+                    Some(SelectOptionCellChangeset::from_insert_option_id(&option.id).to_cell_changeset_str());
                 type_option.insert_option(option);
                 is_changed = Some(());
             }
@@ -364,7 +370,8 @@ pub(crate) async fn update_select_option_handler(
             }
 
             for option in changeset.delete_options {
-                cell_content_changeset = Some(SelectOptionCellChangeset::from_delete_option_id(&option.id).to_str());
+                cell_changeset_str =
+                    Some(SelectOptionCellChangeset::from_delete_option_id(&option.id).to_cell_changeset_str());
                 type_option.delete_option(option);
                 is_changed = Some(());
             }
@@ -373,16 +380,17 @@ pub(crate) async fn update_select_option_handler(
                 field_rev.insert_type_option(&*type_option);
             }
 
-            if let Some(cell_content_changeset) = cell_content_changeset {
-                let changeset = CellChangesetPB {
-                    grid_id: changeset.cell_identifier.view_id,
-                    row_id: changeset.cell_identifier.row_id,
-                    field_id: changeset.cell_identifier.field_id.clone(),
-                    type_cell_data: cell_content_changeset,
-                };
+            if let Some(cell_changeset_str) = cell_changeset_str {
                 let cloned_editor = editor.clone();
                 tokio::spawn(async move {
-                    match cloned_editor.update_cell_with_changeset(changeset).await {
+                    match cloned_editor
+                        .update_cell_with_changeset(
+                            &changeset.cell_path.row_id,
+                            &changeset.cell_path.field_id,
+                            cell_changeset_str,
+                        )
+                        .await
+                    {
                         Ok(_) => {}
                         Err(e) => tracing::error!("{}", e),
                     }
@@ -432,7 +440,18 @@ pub(crate) async fn update_select_option_cell_handler(
 ) -> Result<(), FlowyError> {
     let params: SelectOptionCellChangesetParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.cell_identifier.view_id).await?;
-    let _ = editor.update_cell_with_changeset(params.into()).await?;
+    let changeset = SelectOptionCellChangeset {
+        insert_option_ids: params.insert_option_ids,
+        delete_option_ids: params.delete_option_ids,
+    };
+
+    let _ = editor
+        .update_cell_with_changeset(
+            &params.cell_identifier.row_id,
+            &params.cell_identifier.field_id,
+            changeset,
+        )
+        .await?;
     Ok(())
 }
 
@@ -443,7 +462,7 @@ pub(crate) async fn update_date_cell_handler(
 ) -> Result<(), FlowyError> {
     let data = data.into_inner();
     let cell_path: CellPathParams = data.cell_path.try_into()?;
-    let content = DateCellChangeset {
+    let cell_changeset = DateCellChangeset {
         date: data.date,
         time: data.time,
         is_utc: data.is_utc,
@@ -451,7 +470,7 @@ pub(crate) async fn update_date_cell_handler(
 
     let editor = manager.get_grid_editor(&cell_path.view_id).await?;
     let _ = editor
-        .update_cell(cell_path.view_id, cell_path.row_id, cell_path.field_id, content)
+        .update_cell(cell_path.row_id, cell_path.field_id, cell_changeset)
         .await?;
     Ok(())
 }

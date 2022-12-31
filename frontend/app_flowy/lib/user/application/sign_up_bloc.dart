@@ -1,7 +1,7 @@
 import 'package:app_flowy/user/application/auth_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/code.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfilePB;
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -17,11 +17,18 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       await event.map(signUpWithUserEmailAndPassword: (e) async {
         await _performActionOnSignUp(emit);
       }, emailChanged: (_EmailChanged value) async {
-        emit(state.copyWith(email: value.email, emailError: none(), successOrFail: none()));
+        emit(state.copyWith(
+            email: value.email, emailError: none(), successOrFail: none()));
       }, passwordChanged: (_PasswordChanged value) async {
-        emit(state.copyWith(password: value.password, passwordError: none(), successOrFail: none()));
+        emit(state.copyWith(
+            password: value.password,
+            passwordError: none(),
+            successOrFail: none()));
       }, repeatPasswordChanged: (_RepeatPasswordChanged value) async {
-        emit(state.copyWith(repeatedPassword: value.password, repeatPasswordError: none(), successOrFail: none()));
+        emit(state.copyWith(
+            repeatedPassword: value.password,
+            repeatPasswordError: none(),
+            successOrFail: none()));
       });
     });
   }
@@ -45,7 +52,8 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     if (repeatedPassword == null) {
       emit(state.copyWith(
         isSubmitting: false,
-        repeatPasswordError: some(LocaleKeys.signUp_repeatPasswordEmptyError.tr()),
+        repeatPasswordError:
+            some(LocaleKeys.signUp_repeatPasswordEmptyError.tr()),
       ));
       return;
     }
@@ -53,7 +61,8 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     if (password != repeatedPassword) {
       emit(state.copyWith(
         isSubmitting: false,
-        repeatPasswordError: some(LocaleKeys.signUp_unmatchedPasswordError.tr()),
+        repeatPasswordError:
+            some(LocaleKeys.signUp_unmatchedPasswordError.tr()),
       ));
       return;
     }
@@ -97,17 +106,20 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
           successOrFail: none(),
         );
       default:
-        return state.copyWith(isSubmitting: false, successOrFail: some(right(error)));
+        return state.copyWith(
+            isSubmitting: false, successOrFail: some(right(error)));
     }
   }
 }
 
 @freezed
 class SignUpEvent with _$SignUpEvent {
-  const factory SignUpEvent.signUpWithUserEmailAndPassword() = SignUpWithUserEmailAndPassword;
+  const factory SignUpEvent.signUpWithUserEmailAndPassword() =
+      SignUpWithUserEmailAndPassword;
   const factory SignUpEvent.emailChanged(String email) = _EmailChanged;
   const factory SignUpEvent.passwordChanged(String password) = _PasswordChanged;
-  const factory SignUpEvent.repeatPasswordChanged(String password) = _RepeatPasswordChanged;
+  const factory SignUpEvent.repeatPasswordChanged(String password) =
+      _RepeatPasswordChanged;
 }
 
 @freezed

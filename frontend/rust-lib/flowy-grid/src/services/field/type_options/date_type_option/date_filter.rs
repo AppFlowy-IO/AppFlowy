@@ -1,9 +1,5 @@
 use crate::entities::{DateFilterConditionPB, DateFilterPB};
-use crate::services::cell::{CellFilterable, TypeCellData};
-use crate::services::field::{DateTypeOptionPB, TypeOptionCellData, TypeOptionConfiguration};
 use chrono::NaiveDateTime;
-
-use flowy_error::FlowyResult;
 
 impl DateFilterPB {
     pub fn is_visible<T: Into<Option<i64>>>(&self, cell_timestamp: T) -> bool {
@@ -57,21 +53,6 @@ impl DateFilterPB {
                 }
             }
         }
-    }
-}
-
-impl CellFilterable for DateTypeOptionPB {
-    fn apply_filter(
-        &self,
-        type_cell_data: TypeCellData,
-        filter: &<Self as TypeOptionConfiguration>::CellFilterConfiguration,
-    ) -> FlowyResult<bool> {
-        if !type_cell_data.is_date() {
-            return Ok(true);
-        }
-
-        let date_cell_data = self.decode_type_option_cell_str(type_cell_data.cell_str)?;
-        Ok(filter.is_visible(date_cell_data))
     }
 }
 

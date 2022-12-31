@@ -30,7 +30,7 @@ impl DecodedCellData for URLCellDataPB {
     }
 }
 
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct URLCellData {
     pub url: String,
     pub content: String,
@@ -44,7 +44,7 @@ impl URLCellData {
         }
     }
 
-    pub(crate) fn to_json(&self) -> FlowyResult<String> {
+    pub fn to_json(&self) -> FlowyResult<String> {
         serde_json::to_string(self).map_err(internal_error)
     }
 }

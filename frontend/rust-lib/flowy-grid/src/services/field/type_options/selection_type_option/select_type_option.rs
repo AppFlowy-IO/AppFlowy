@@ -1,7 +1,8 @@
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::{CellChangesetPB, CellPathPB, CellPathParams, FieldType};
+use crate::entities::{CellPathPB, CellPathParams, FieldType};
 use crate::services::cell::{
-    CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangeset, FromCellString,
+    CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangesetString, FromCellString,
+    ToCellChangesetString,
 };
 
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
@@ -151,10 +152,10 @@ where
     fn transform_type_option_cell_str(
         &self,
         cell_str: &str,
-        _decoded_field_type: &FieldType,
+        decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> Option<<Self as TypeOption>::CellData> {
-        match _decoded_field_type {
+        match decoded_field_type {
             FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => None,
             FieldType::Checkbox => match CheckboxCellData::from_cell_str(cell_str) {
                 Ok(checkbox_cell_data) => {
@@ -168,6 +169,7 @@ where
                 }
                 Err(_) => None,
             },
+            FieldType::RichText => SelectOptionIds::from_cell_str(cell_str).ok(),
             _ => Some(SelectOptionIds::from(vec![])),
         }
     }
@@ -252,7 +254,7 @@ pub fn new_select_option_color(options: &Vec<SelectOptionPB>) -> SelectOptionCol
 /// Calls [to_string] will return a string consists list of ids,
 /// placing a commas separator between each
 ///
-#[derive(Default)]
+#[derive(Default, Clone, Debug)]
 pub struct SelectOptionIds(Vec<String>);
 
 impl SelectOptionIds {
@@ -379,22 +381,6 @@ pub struct SelectOptionCellChangesetParams {
     pub delete_option_ids: Vec<String>,
 }
 
-impl std::convert::From<SelectOptionCellChangesetParams> for CellChangesetPB {
-    fn from(params: SelectOptionCellChangesetParams) -> Self {
-        let changeset = SelectOptionCellChangeset {
-            insert_option_ids: params.insert_option_ids,
-            delete_option_ids: params.delete_option_ids,
-        };
-        let content = serde_json::to_string(&changeset).unwrap();
-        CellChangesetPB {
-            grid_id: params.cell_identifier.view_id,
-            row_id: params.cell_identifier.row_id,
-            field_id: params.cell_identifier.field_id,
-            type_cell_data: content,
-        }
-    }
-}
-
 impl TryInto<SelectOptionCellChangesetParams> for SelectOptionCellChangesetPB {
     type Error = ErrorCode;
 
@@ -432,18 +418,24 @@ impl TryInto<SelectOptionCellChangesetParams> for SelectOptionCellChangesetPB {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct SelectOptionCellChangeset {
     pub insert_option_ids: Vec<String>,
     pub delete_option_ids: Vec<String>,
 }
 
-impl FromCellChangeset for SelectOptionCellChangeset {
+impl FromCellChangesetString for SelectOptionCellChangeset {
     fn from_changeset(changeset: String) -> FlowyResult<Self>
     where
         Self: Sized,
     {
         serde_json::from_str::<SelectOptionCellChangeset>(&changeset).map_err(internal_error)
+    }
+}
+
+impl ToCellChangesetString for SelectOptionCellChangeset {
+    fn to_cell_changeset_str(&self) -> String {
+        serde_json::to_string(self).unwrap_or_default()
     }
 }
 
@@ -474,10 +466,6 @@ impl SelectOptionCellChangeset {
             insert_option_ids: vec![],
             delete_option_ids: option_ids,
         }
-    }
-
-    pub fn to_str(&self) -> String {
-        serde_json::to_string(self).unwrap()
     }
 }
 
@@ -512,7 +500,7 @@ pub struct SelectOptionChangesetPB {
 }
 
 pub struct SelectOptionChangeset {
-    pub cell_identifier: CellPathParams,
+    pub cell_path: CellPathParams,
     pub insert_options: Vec<SelectOptionPB>,
     pub update_options: Vec<SelectOptionPB>,
     pub delete_options: Vec<SelectOptionPB>,
@@ -524,7 +512,7 @@ impl TryInto<SelectOptionChangeset> for SelectOptionChangesetPB {
     fn try_into(self) -> Result<SelectOptionChangeset, Self::Error> {
         let cell_identifier = self.cell_identifier.try_into()?;
         Ok(SelectOptionChangeset {
-            cell_identifier,
+            cell_path: cell_identifier,
             insert_options: self.insert_options,
             update_options: self.update_options,
             delete_options: self.delete_options,

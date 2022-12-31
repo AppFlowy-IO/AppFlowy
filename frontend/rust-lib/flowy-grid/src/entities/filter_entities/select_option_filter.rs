@@ -1,4 +1,5 @@
 use crate::services::field::SelectOptionIds;
+use crate::services::filter::FromFilterString;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use grid_rev_model::FilterRevision;
@@ -43,6 +44,19 @@ impl std::convert::TryFrom<u8> for SelectOptionConditionPB {
             2 => Ok(SelectOptionConditionPB::OptionIsEmpty),
             3 => Ok(SelectOptionConditionPB::OptionIsNotEmpty),
             _ => Err(ErrorCode::InvalidData),
+        }
+    }
+}
+impl FromFilterString for SelectOptionFilterPB {
+    fn from_filter_rev(filter_rev: &FilterRevision) -> Self
+    where
+        Self: Sized,
+    {
+        let ids = SelectOptionIds::from(filter_rev.content.clone());
+        SelectOptionFilterPB {
+            condition: SelectOptionConditionPB::try_from(filter_rev.condition)
+                .unwrap_or(SelectOptionConditionPB::OptionIs),
+            option_ids: ids.into_inner(),
         }
     }
 }

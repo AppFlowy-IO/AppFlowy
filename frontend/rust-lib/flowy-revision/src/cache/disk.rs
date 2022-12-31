@@ -1,5 +1,5 @@
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_http_model::revision::{RevId, Revision, RevisionRange};
+use flowy_http_model::revision::{Revision, RevisionRange};
 use std::fmt::Debug;
 use std::sync::Arc;
 
@@ -106,7 +106,7 @@ impl SyncRecord {
 
 pub struct RevisionChangeset {
     pub object_id: String,
-    pub rev_id: RevId,
+    pub rev_id: i64,
     pub state: RevisionState,
 }
 

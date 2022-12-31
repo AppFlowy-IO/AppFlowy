@@ -23,7 +23,7 @@ class SelectOptionFFIService {
         return result.fold(
           (option) {
             final cellIdentifier = CellPathPB.create()
-              ..gridId = gridId
+              ..viewId = gridId
               ..fieldId = fieldId
               ..rowId = rowId;
             final payload = SelectOptionChangesetPB.create()
@@ -62,7 +62,7 @@ class SelectOptionFFIService {
 
   Future<Either<SelectOptionCellDataPB, FlowyError>> getOptionContext() {
     final payload = CellPathPB.create()
-      ..gridId = gridId
+      ..viewId = gridId
       ..fieldId = fieldId
       ..rowId = rowId;
 
@@ -87,7 +87,7 @@ class SelectOptionFFIService {
 
   CellPathPB _cellIdentifier() {
     return CellPathPB.create()
-      ..gridId = gridId
+      ..viewId = gridId
       ..fieldId = fieldId
       ..rowId = rowId;
   }
