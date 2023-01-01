@@ -537,6 +537,13 @@ impl GridViewRevisionEditor {
             let new = FilterType::from(&field_rev);
             let filter_type = UpdatedFilterType::new(old, new);
             let filter_changeset = FilterChangeset::from_update(filter_type);
+
+            self.sort_controller
+                .read()
+                .await
+                .did_update_view_field_type_option(&field_rev)
+                .await;
+
             if let Some(changeset) = self
                 .filter_controller
                 .write()

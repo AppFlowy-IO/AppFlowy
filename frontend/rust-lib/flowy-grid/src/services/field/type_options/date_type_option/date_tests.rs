@@ -152,17 +152,17 @@ mod tests {
             time: include_time_str,
             is_utc: false,
         };
-        let encoded_data = type_option.apply_changeset(changeset, None).unwrap();
+        let (cell_str, _) = type_option.apply_changeset(changeset, None).unwrap();
 
         assert_eq!(
-            decode_cell_data(encoded_data.to_string(), type_option, field_rev),
+            decode_cell_data(cell_str, type_option, field_rev),
             expected_str.to_owned(),
         );
     }
 
-    fn decode_cell_data(encoded_data: String, type_option: &DateTypeOptionPB, field_rev: &FieldRevision) -> String {
+    fn decode_cell_data(cell_str: String, type_option: &DateTypeOptionPB, field_rev: &FieldRevision) -> String {
         let decoded_data = type_option
-            .decode_cell_str(encoded_data, &FieldType::DateTime, field_rev)
+            .decode_cell_str(cell_str, &FieldType::DateTime, field_rev)
             .unwrap();
         let decoded_data = type_option.convert_to_protobuf(decoded_data);
         if type_option.include_time {

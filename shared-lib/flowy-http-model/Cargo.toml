@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 bytes = "1.0"
 md5 = "0.7.0"
-serde = {versino = "1.0"}
+serde = { version = "1.0" }
 serde_json = { version = "1.0" }
 serde_repr = "0.1"
 

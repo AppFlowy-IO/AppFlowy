@@ -82,11 +82,8 @@ impl std::convert::TryFrom<CellRevision> for TypeCellData {
 }
 
 impl TypeCellData {
-    pub fn new(content: String, field_type: FieldType) -> Self {
-        TypeCellData {
-            cell_str: content,
-            field_type,
-        }
+    pub fn new(cell_str: String, field_type: FieldType) -> Self {
+        TypeCellData { cell_str, field_type }
     }
 
     pub fn to_json(&self) -> String {

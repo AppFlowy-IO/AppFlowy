@@ -165,10 +165,10 @@ impl FieldRevision {
         self.type_options.insert(id, json_str);
     }
 
-    pub fn get_type_option_str<T: Into<FieldTypeRevision>>(&self, field_type: T) -> Option<String> {
+    pub fn get_type_option_str<T: Into<FieldTypeRevision>>(&self, field_type: T) -> Option<&str> {
         let field_type_rev = field_type.into();
         let id = field_type_rev.to_string();
-        self.type_options.get(&id).map(|s| s.to_owned())
+        self.type_options.get(&id).map(|s| s.as_str())
     }
 }
 

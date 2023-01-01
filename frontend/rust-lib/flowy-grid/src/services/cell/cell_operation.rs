@@ -41,7 +41,7 @@ pub trait CellDataChangeset: TypeOption {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<<Self as TypeOption>::CellData>;
+    ) -> FlowyResult<(String, <Self as TypeOption>::CellData)>;
 }
 
 /// changeset: It will be deserialized into specific data base on the FieldType.
@@ -65,13 +65,13 @@ pub fn apply_cell_data_changeset<C: ToCellChangesetString, T: AsRef<FieldRevisio
         Err(_) => None,
     });
 
-    let cell_data = match TypeOptionCellExt::new_with_cell_data_cache(field_rev, cell_data_cache)
+    let cell_str = match TypeOptionCellExt::new_with_cell_data_cache(field_rev, cell_data_cache)
         .get_type_option_cell_data_handler(&field_type)
     {
         None => "".to_string(),
         Some(handler) => handler.handle_cell_changeset(changeset, type_cell_data, field_rev)?,
     };
-    Ok(TypeCellData::new(cell_data, field_type).to_json())
+    Ok(TypeCellData::new(cell_str, field_type).to_json())
 }
 
 pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debug>(
