@@ -1,6 +1,6 @@
 use crate::entities::view::ViewDataFormatPB;
 use crate::entities::{ViewLayoutTypePB, ViewPB};
-use crate::services::folder_editor::FolderRevisionCompress;
+use crate::services::folder_editor::FolderRevisionMergeable;
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
     entities::workspace::RepeatedWorkspacePB,
@@ -15,17 +15,19 @@ use bytes::Bytes;
 use flowy_document::editor::initial_read_me;
 use flowy_error::FlowyError;
 use flowy_revision::{
-    RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket,
-    SQLiteRevisionSnapshotPersistence,
+    PhantomSnapshotPersistence, RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration,
+    RevisionWebSocket,
 };
 use folder_rev_model::user_default;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 
+use crate::services::clear_current_workspace;
 use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
 use flowy_http_model::ws_data::ServerRevisionWSData;
 use flowy_sync::client_folder::FolderPad;
-use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};
+use std::convert::TryFrom;
+use std::{collections::HashMap, fmt::Formatter, sync::Arc};
 use tokio::sync::RwLock as TokioRwLock;
 lazy_static! {
     static ref INIT_FOLDER_FLAG: TokioRwLock<HashMap<String, bool>> = TokioRwLock::new(HashMap::new());
@@ -138,7 +140,7 @@ impl FolderManager {
     // }
 
     pub async fn did_receive_ws_data(&self, data: Bytes) {
-        let result: Result<ServerRevisionWSData, protobuf::ProtobufError> = data.try_into();
+        let result = ServerRevisionWSData::try_from(data);
         match result {
             Ok(data) => match self.folder_editor.read().await.clone() {
                 None => {}
@@ -171,16 +173,13 @@ impl FolderManager {
         let disk_cache = SQLiteFolderRevisionPersistence::new(user_id, pool.clone());
         let configuration = RevisionPersistenceConfiguration::new(100, false);
         let rev_persistence = RevisionPersistence::new(user_id, object_id, disk_cache, configuration);
-        let rev_compactor = FolderRevisionCompress();
-        // let history_persistence = SQLiteRevisionHistoryPersistence::new(object_id, pool.clone());
-        let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(object_id, pool);
+        let rev_compactor = FolderRevisionMergeable();
         let rev_manager = RevisionManager::new(
             user_id,
             folder_id.as_ref(),
             rev_persistence,
             rev_compactor,
-            // history_persistence,
-            snapshot_persistence,
+            PhantomSnapshotPersistence(),
         );
 
         let folder_editor = FolderEditor::new(user_id, &folder_id, token, rev_manager, self.web_socket.clone()).await?;
@@ -209,7 +208,11 @@ impl FolderManager {
         self.initialize(user_id, token).await
     }
 
-    pub async fn clear(&self) {
+    /// Called when the current user logout
+    ///
+    pub async fn clear(&self, user_id: &str) {
+        self.view_controller.clear_latest_view();
+        clear_current_workspace(user_id);
         *self.folder_editor.write().await = None;
     }
 }
@@ -223,9 +226,9 @@ impl DefaultFolderBuilder {
         view_controller: Arc<ViewController>,
         create_view_fn: F,
     ) -> FlowyResult<()> {
-        log::debug!("Create user default workspace");
         let workspace_rev = user_default::create_default_workspace();
-        set_current_workspace(&workspace_rev.id);
+        tracing::debug!("Create user:{} default workspace:{}", user_id, workspace_rev.id);
+        set_current_workspace(user_id, &workspace_rev.id);
         for app in workspace_rev.apps.iter() {
             for (index, view) in app.belongings.iter().enumerate() {
                 let (view_data_type, view_data) = create_view_fn();

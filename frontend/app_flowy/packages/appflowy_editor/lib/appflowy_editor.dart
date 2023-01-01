@@ -15,6 +15,7 @@ export 'src/editor_state.dart';
 export 'src/core/transform/operation.dart';
 export 'src/core/transform/transaction.dart';
 export 'src/render/selection/selectable.dart';
+export 'src/render/selection_menu/selection_menu_service.dart';
 export 'src/service/editor_service.dart';
 export 'src/service/render_plugin_service.dart';
 export 'src/service/service.dart';

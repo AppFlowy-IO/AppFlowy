@@ -71,12 +71,11 @@ pub struct FilterType {
     pub field_type: FieldType,
 }
 
-impl FilterType {
-    pub fn field_type_rev(&self) -> FieldTypeRevision {
-        self.field_type.clone().into()
+impl From<FilterType> for FieldTypeRevision {
+    fn from(filter_type: FilterType) -> Self {
+        filter_type.field_type.into()
     }
 }
-
 impl std::convert::From<&Arc<FieldRevision>> for FilterType {
     fn from(rev: &Arc<FieldRevision>) -> Self {
         Self {
@@ -106,7 +105,11 @@ impl std::convert::From<&DeleteFilterParams> for FilterType {
 pub struct FilterResultNotification {
     pub view_id: String,
     pub block_id: String,
+
+    // Indicates there will be some new rows being visible from invisible state.
     pub visible_rows: Vec<InsertedRowPB>,
+
+    // Indicates there will be some new rows being invisible from visible state.
     pub invisible_rows: Vec<String>,
 }
 

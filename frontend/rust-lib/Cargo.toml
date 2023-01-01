@@ -16,6 +16,10 @@ members = [
   "flowy-revision",
   "flowy-grid",
   "flowy-task",
+  "flowy-sync",
+  "flowy-derive",
+  "flowy-ast",
+  "flowy-codegen",
 ]
 
 [profile.dev]

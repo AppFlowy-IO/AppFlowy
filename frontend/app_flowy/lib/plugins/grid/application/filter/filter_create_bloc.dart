@@ -62,7 +62,7 @@ class GridCreateFilterBloc
     final List<FieldInfo> allFields = List.from(fields);
     final keyword = filterText.toLowerCase();
     allFields.retainWhere((field) {
-      if (field.canCreateFilter) {
+      if (!field.canCreateFilter) {
         return false;
       }
 
@@ -90,48 +90,48 @@ class GridCreateFilterBloc
       case FieldType.Checkbox:
         return _ffiService.insertCheckboxFilter(
           fieldId: fieldId,
-          condition: CheckboxFilterCondition.IsChecked,
+          condition: CheckboxFilterConditionPB.IsChecked,
         );
       case FieldType.DateTime:
         final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
         return _ffiService.insertDateFilter(
           fieldId: fieldId,
-          condition: DateFilterCondition.DateIs,
+          condition: DateFilterConditionPB.DateIs,
           timestamp: timestamp,
         );
       case FieldType.MultiSelect:
         return _ffiService.insertSelectOptionFilter(
           fieldId: fieldId,
-          condition: SelectOptionCondition.OptionIs,
+          condition: SelectOptionConditionPB.OptionIs,
           fieldType: FieldType.MultiSelect,
         );
       case FieldType.Checklist:
         return _ffiService.insertChecklistFilter(
           fieldId: fieldId,
-          condition: ChecklistFilterCondition.IsIncomplete,
+          condition: ChecklistFilterConditionPB.IsIncomplete,
         );
       case FieldType.Number:
         return _ffiService.insertNumberFilter(
           fieldId: fieldId,
-          condition: NumberFilterCondition.Equal,
+          condition: NumberFilterConditionPB.Equal,
           content: "",
         );
       case FieldType.RichText:
         return _ffiService.insertTextFilter(
           fieldId: fieldId,
-          condition: TextFilterCondition.Contains,
+          condition: TextFilterConditionPB.Contains,
           content: '',
         );
       case FieldType.SingleSelect:
         return _ffiService.insertSelectOptionFilter(
           fieldId: fieldId,
-          condition: SelectOptionCondition.OptionIs,
+          condition: SelectOptionConditionPB.OptionIs,
           fieldType: FieldType.SingleSelect,
         );
       case FieldType.URL:
         return _ffiService.insertURLFilter(
           fieldId: fieldId,
-          condition: TextFilterCondition.Contains,
+          condition: TextFilterConditionPB.Contains,
         );
     }
 

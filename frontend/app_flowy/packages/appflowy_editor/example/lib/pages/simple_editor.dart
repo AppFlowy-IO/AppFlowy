@@ -30,6 +30,9 @@ class SimpleEditor extends StatelessWidget {
               ),
             ),
           );
+          editorState.logConfiguration
+            ..handler = debugPrint
+            ..level = LogLevel.all;
           onEditorStateChange(editorState);
 
           return AppFlowyEditor(
@@ -59,6 +62,8 @@ class SimpleEditor extends StatelessWidget {
               mathEquationMenuItem,
               // Code Block
               codeBlockMenuItem,
+              // Emoji
+              emojiMenuItem,
             ],
           );
         } else {

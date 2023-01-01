@@ -23,7 +23,7 @@ void main() {
     final checkboxField = context.checkboxFieldContext();
     await service.insertCheckboxFilter(
       fieldId: checkboxField.id,
-      condition: CheckboxFilterCondition.IsChecked,
+      condition: CheckboxFilterConditionPB.IsChecked,
     );
     await gridResponseFuture();
     assert(context.rowInfos.length == 1,
@@ -42,7 +42,7 @@ void main() {
     final checkboxField = context.checkboxFieldContext();
     await service.insertCheckboxFilter(
       fieldId: checkboxField.id,
-      condition: CheckboxFilterCondition.IsUnChecked,
+      condition: CheckboxFilterConditionPB.IsUnChecked,
     );
     await gridResponseFuture();
     assert(context.rowInfos.length == 2,

@@ -10,12 +10,15 @@ use crate::{
 };
 use flowy_sdk::get_client_server_configuration;
 use flowy_sdk::*;
+use lazy_static::lazy_static;
 use lib_dispatch::prelude::ToBytes;
 use lib_dispatch::prelude::*;
-use once_cell::sync::OnceCell;
+use parking_lot::RwLock;
 use std::{ffi::CStr, os::raw::c_char};
 
-static FLOWY_SDK: OnceCell<FlowySDK> = OnceCell::new();
+lazy_static! {
+    static ref FLOWY_SDK: RwLock<Option<FlowySDK>> = RwLock::new(None);
+}
 
 #[no_mangle]
 pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
@@ -23,8 +26,8 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
     let path: &str = c_str.to_str().unwrap();
 
     let server_config = get_client_server_configuration().unwrap();
-    let config = FlowySDKConfig::new(path, "appflowy", server_config).log_filter("info");
-    FLOWY_SDK.get_or_init(|| FlowySDK::new(config));
+    let config = FlowySDKConfig::new(path, "appflowy".to_string(), server_config).log_filter("info");
+    *FLOWY_SDK.write() = Some(FlowySDK::new(config));
 
     0
 }
@@ -39,7 +42,7 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
         port
     );
 
-    let dispatcher = match FLOWY_SDK.get() {
+    let dispatcher = match FLOWY_SDK.read().as_ref() {
         None => {
             log::error!("sdk not init yet.");
             return;
@@ -57,7 +60,7 @@ pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
     let request: AFPluginRequest = FFIRequest::from_u8_pointer(input, len).into();
     log::trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
 
-    let dispatcher = match FLOWY_SDK.get() {
+    let dispatcher = match FLOWY_SDK.read().as_ref() {
         None => {
             log::error!("sdk not init yet.");
             return forget_rust(Vec::default());

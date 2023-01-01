@@ -45,6 +45,7 @@ class BuiltInAttributeKey {
     BuiltInAttributeKey.underline,
     BuiltInAttributeKey.strikethrough,
     BuiltInAttributeKey.backgroundColor,
+    BuiltInAttributeKey.color,
     BuiltInAttributeKey.href,
     BuiltInAttributeKey.code,
   ];

@@ -126,7 +126,7 @@ impl DocumentRevisionSql {
     fn update(changeset: RevisionChangeset, conn: &SqliteConnection) -> Result<(), FlowyError> {
         let state: DocumentRevisionState = changeset.state.clone().into();
         let filter = dsl::document_rev_table
-            .filter(dsl::rev_id.eq(changeset.rev_id.as_ref()))
+            .filter(dsl::rev_id.eq(changeset.rev_id))
             .filter(dsl::document_id.eq(changeset.object_id));
         let _ = update(filter).set(dsl::state.eq(state)).execute(conn)?;
         tracing::debug!(

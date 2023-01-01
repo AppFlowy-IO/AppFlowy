@@ -92,7 +92,7 @@ class ChecklistState extends State<ChecklistFilterEditor> {
               children: [
                 FlowyText(state.filterInfo.fieldInfo.name),
                 const HSpace(4),
-                ChecklistFilterConditionList(
+                ChecklistFilterConditionPBList(
                   filterInfo: state.filterInfo,
                 ),
                 const Spacer(),
@@ -117,9 +117,9 @@ class ChecklistState extends State<ChecklistFilterEditor> {
   }
 }
 
-class ChecklistFilterConditionList extends StatelessWidget {
+class ChecklistFilterConditionPBList extends StatelessWidget {
   final FilterInfo filterInfo;
-  const ChecklistFilterConditionList({
+  const ChecklistFilterConditionPBList({
     required this.filterInfo,
     Key? key,
   }) : super(key: key);
@@ -130,7 +130,7 @@ class ChecklistFilterConditionList extends StatelessWidget {
     return PopoverActionList<ConditionWrapper>(
       asBarrier: true,
       direction: PopoverDirection.bottomWithCenterAligned,
-      actions: ChecklistFilterCondition.values
+      actions: ChecklistFilterConditionPB.values
           .map((action) => ConditionWrapper(action))
           .toList(),
       buildChild: (controller) {
@@ -150,7 +150,7 @@ class ChecklistFilterConditionList extends StatelessWidget {
 }
 
 class ConditionWrapper extends ActionCell {
-  final ChecklistFilterCondition inner;
+  final ChecklistFilterConditionPB inner;
 
   ConditionWrapper(this.inner);
 
@@ -158,12 +158,12 @@ class ConditionWrapper extends ActionCell {
   String get name => inner.filterName;
 }
 
-extension ChecklistFilterConditionExtension on ChecklistFilterCondition {
+extension ChecklistFilterConditionPBExtension on ChecklistFilterConditionPB {
   String get filterName {
     switch (this) {
-      case ChecklistFilterCondition.IsComplete:
+      case ChecklistFilterConditionPB.IsComplete:
         return LocaleKeys.grid_checklistFilter_isComplete.tr();
-      case ChecklistFilterCondition.IsIncomplete:
+      case ChecklistFilterConditionPB.IsIncomplete:
         return LocaleKeys.grid_checklistFilter_isIncomplted.tr();
       default:
         return "";

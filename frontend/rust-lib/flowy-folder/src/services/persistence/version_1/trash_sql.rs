@@ -13,7 +13,7 @@ impl TrashTableSql {
         for trash_rev in trashes {
             let trash_table: TrashTable = trash_rev.into();
             match diesel_record_count!(trash_table, &trash_table.id, conn) {
-                0 => diesel_insert_table!(trash_table, &trash_table, conn),
+                0 => diesel_insert_table!(trash_table, trash_table.clone(), conn),
                 _ => {
                     let changeset = TrashChangeset::from(trash_table);
                     diesel_update_table!(trash_table, changeset, conn)

@@ -6,7 +6,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-pin-project = "1.0.0"
+pin-project = "1.0"
 futures-core = { version = "0.3", default-features = false }
 paste = "1"
 futures-channel = "0.3.15"

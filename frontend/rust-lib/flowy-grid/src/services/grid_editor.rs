@@ -3,16 +3,18 @@ use crate::entities::CellPathParams;
 use crate::entities::*;
 use crate::manager::GridUser;
 use crate::services::block_manager::GridBlockManager;
-use crate::services::cell::{apply_cell_data_changeset, decode_any_cell_data, CellBytes};
+use crate::services::cell::{
+    apply_cell_data_changeset, decode_type_cell_data, stringify_cell_data, AnyTypeCache, AtomicCellDataCache,
+    CellProtobufBlob, ToCellChangesetString, TypeCellData,
+};
 use crate::services::field::{
-    default_type_option_builder_from_type, type_option_builder_from_bytes, type_option_builder_from_json_str,
-    FieldBuilder,
+    default_type_option_builder_from_type, transform_type_option, type_option_builder_from_bytes, FieldBuilder,
 };
 
 use crate::services::filter::FilterType;
 use crate::services::grid_editor_trait_impl::GridViewEditorDelegateImpl;
 use crate::services::persistence::block_index::BlockIndexCache;
-use crate::services::row::{GridBlock, RowRevisionBuilder};
+use crate::services::row::{GridBlockRow, GridBlockRowRevision, RowRevisionBuilder};
 use crate::services::view_editor::{GridViewChanged, GridViewManager};
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
@@ -26,9 +28,10 @@ use flowy_sync::errors::{CollaborateError, CollaborateResult};
 use flowy_sync::util::make_operations_from_revisions;
 use flowy_task::TaskDispatcher;
 use grid_rev_model::*;
-use lib_infra::future::{to_future, FutureResult};
+use lib_infra::future::{to_fut, FutureResult};
 use lib_ot::core::EmptyAttributes;
 use std::collections::HashMap;
+
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
@@ -40,6 +43,7 @@ pub struct GridRevisionEditor {
     view_manager: Arc<GridViewManager>,
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     block_manager: Arc<GridBlockManager>,
+    cell_data_cache: AtomicCellDataCache,
 }
 
 impl Drop for GridRevisionEditor {
@@ -61,10 +65,12 @@ impl GridRevisionEditor {
         let grid_pad = rev_manager.initialize::<GridRevisionSerde>(Some(cloud)).await?;
         let rev_manager = Arc::new(rev_manager);
         let grid_pad = Arc::new(RwLock::new(grid_pad));
+        let cell_data_cache = AnyTypeCache::<u64>::new();
 
         // Block manager
+        let (block_event_tx, block_event_rx) = broadcast::channel(100);
         let block_meta_revs = grid_pad.read().await.get_block_meta_revs();
-        let block_manager = Arc::new(GridBlockManager::new(&user, block_meta_revs, persistence).await?);
+        let block_manager = Arc::new(GridBlockManager::new(&user, block_meta_revs, persistence, block_event_tx).await?);
         let delegate = Arc::new(GridViewEditorDelegateImpl {
             pad: grid_pad.clone(),
             block_manager: block_manager.clone(),
@@ -72,7 +78,16 @@ impl GridRevisionEditor {
         });
 
         // View manager
-        let view_manager = Arc::new(GridViewManager::new(grid_id.to_owned(), user.clone(), delegate).await?);
+        let view_manager = Arc::new(
+            GridViewManager::new(
+                grid_id.to_owned(),
+                user.clone(),
+                delegate,
+                cell_data_cache.clone(),
+                block_event_rx,
+            )
+            .await?,
+        );
 
         let editor = Arc::new(Self {
             grid_id: grid_id.to_owned(),
@@ -81,20 +96,18 @@ impl GridRevisionEditor {
             rev_manager,
             block_manager,
             view_manager,
+            cell_data_cache,
         });
 
         Ok(editor)
     }
 
     #[tracing::instrument(name = "close grid editor", level = "trace", skip_all)]
-    pub fn close(&self) {
-        let rev_manager = self.rev_manager.clone();
-        let view_manager = self.view_manager.clone();
-        let view_id = self.grid_id.clone();
-        tokio::spawn(async move {
-            rev_manager.close().await;
-            view_manager.close(&view_id).await;
-        });
+    pub async fn close(&self) {
+        self.block_manager.close().await;
+        self.rev_manager.generate_snapshot().await;
+        self.rev_manager.close().await;
+        self.view_manager.close(&self.grid_id).await;
     }
 
     /// Save the type-option data to disk and send a `GridDartNotification::DidUpdateField` notification
@@ -154,7 +167,15 @@ impl GridRevisionEditor {
         Ok(field_rev)
     }
 
-    pub async fn create_new_field_rev(
+    pub async fn create_new_field_rev(&self, field_rev: FieldRevision) -> FlowyResult<()> {
+        let field_id = field_rev.id.clone();
+        let _ = self.modify(|grid| Ok(grid.create_field_rev(field_rev, None)?)).await?;
+        let _ = self.notify_did_insert_grid_field(&field_id).await?;
+
+        Ok(())
+    }
+
+    pub async fn create_new_field_rev_with_type_option(
         &self,
         field_type: &FieldType,
         type_option_data: Option<Vec<u8>>,
@@ -273,11 +294,7 @@ impl GridRevisionEditor {
         let type_option_transform =
             |old_field_type: FieldTypeRevision, old_type_option: Option<String>, new_type_option: String| {
                 let old_field_type: FieldType = old_field_type.into();
-                let mut type_option_builder = type_option_builder_from_json_str(&new_type_option, new_field_type);
-                if let Some(old_type_option) = old_type_option {
-                    type_option_builder.transform(&old_field_type, old_type_option)
-                }
-                type_option_builder.serializer().json_str()
+                transform_type_option(&new_type_option, new_field_type, old_type_option, old_field_type)
             };
 
         let _ = self
@@ -386,16 +403,21 @@ impl GridRevisionEditor {
         Ok(())
     }
 
-    pub async fn get_row_pbs(&self, block_id: &str) -> FlowyResult<Vec<RowPB>> {
-        let rows = self.block_manager.get_row_revs(block_id).await?;
-        let rows = self
-            .view_manager
-            .filter_rows(block_id, rows)
-            .await?
-            .into_iter()
-            .map(|row_rev| RowPB::from(&row_rev))
-            .collect();
+    /// Returns all the rows in this block.
+    pub async fn get_row_pbs(&self, view_id: &str, block_id: &str) -> FlowyResult<Vec<RowPB>> {
+        let rows = self.view_manager.get_row_revs(view_id, block_id).await?;
+        let rows = rows.into_iter().map(|row_rev| RowPB::from(&row_rev)).collect();
         Ok(rows)
+    }
+
+    pub async fn get_all_row_revs(&self, view_id: &str) -> FlowyResult<Vec<Arc<RowRevision>>> {
+        let mut all_rows = vec![];
+        let blocks = self.block_manager.get_blocks(None).await?;
+        for block in blocks {
+            let rows = self.view_manager.get_row_revs(view_id, &block.block_id).await?;
+            all_rows.extend(rows);
+        }
+        Ok(all_rows)
     }
 
     pub async fn get_row_rev(&self, row_id: &str) -> FlowyResult<Option<Arc<RowRevision>>> {
@@ -423,20 +445,41 @@ impl GridRevisionEditor {
     }
 
     pub async fn get_cell(&self, params: &CellPathParams) -> Option<CellPB> {
-        let (field_type, cell_bytes) = self.decode_any_cell_data(params).await?;
+        let (field_type, cell_bytes) = self.decode_cell_data_from(params).await?;
         Some(CellPB::new(&params.field_id, field_type, cell_bytes.to_vec()))
     }
 
-    pub async fn get_cell_bytes(&self, params: &CellPathParams) -> Option<CellBytes> {
-        let (_, cell_data) = self.decode_any_cell_data(params).await?;
+    pub async fn get_cell_display_str(&self, params: &CellPathParams) -> String {
+        let display_str = || async {
+            let field_rev = self.get_field_rev(&params.field_id).await?;
+            let field_type: FieldType = field_rev.ty.into();
+            let cell_rev = self.get_cell_rev(&params.row_id, &params.field_id).await.ok()??;
+            let type_cell_data: TypeCellData = cell_rev.try_into().ok()?;
+            Some(stringify_cell_data(
+                type_cell_data.cell_str,
+                &field_type,
+                &field_type,
+                &field_rev,
+            ))
+        };
+
+        display_str().await.unwrap_or_else(|| "".to_string())
+    }
+
+    pub async fn get_cell_bytes(&self, params: &CellPathParams) -> Option<CellProtobufBlob> {
+        let (_, cell_data) = self.decode_cell_data_from(params).await?;
         Some(cell_data)
     }
 
-    async fn decode_any_cell_data(&self, params: &CellPathParams) -> Option<(FieldType, CellBytes)> {
+    async fn decode_cell_data_from(&self, params: &CellPathParams) -> Option<(FieldType, CellProtobufBlob)> {
         let field_rev = self.get_field_rev(&params.field_id).await?;
         let (_, row_rev) = self.block_manager.get_row_rev(&params.row_id).await.ok()??;
         let cell_rev = row_rev.cells.get(&params.field_id)?.clone();
-        Some(decode_any_cell_data(cell_rev.data, &field_rev))
+        Some(decode_type_cell_data(
+            cell_rev.type_cell_data,
+            &field_rev,
+            Some(self.cell_data_cache.clone()),
+        ))
     }
 
     pub async fn get_cell_rev(&self, row_id: &str, field_id: &str) -> FlowyResult<Option<CellRevision>> {
@@ -450,52 +493,45 @@ impl GridRevisionEditor {
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
-    pub async fn update_cell_with_changeset(&self, cell_changeset: CellChangesetPB) -> FlowyResult<()> {
-        let CellChangesetPB {
-            grid_id,
-            row_id,
-            field_id,
-            mut content,
-        } = cell_changeset;
-
-        match self.grid_pad.read().await.get_field_rev(&field_id) {
+    pub async fn update_cell_with_changeset<T: ToCellChangesetString>(
+        &self,
+        row_id: &str,
+        field_id: &str,
+        cell_changeset: T,
+    ) -> FlowyResult<()> {
+        match self.grid_pad.read().await.get_field_rev(field_id) {
             None => {
                 let msg = format!("Field:{} not found", &field_id);
                 Err(FlowyError::internal().context(msg))
             }
             Some((_, field_rev)) => {
-                tracing::trace!("field changeset: id:{} / value:{:?}", &field_id, content);
-                let cell_rev = self.get_cell_rev(&row_id, &field_id).await?;
+                tracing::trace!("Cell changeset: id:{} / value:{:?}", &field_id, cell_changeset);
+                let cell_rev = self.get_cell_rev(row_id, field_id).await?;
                 // Update the changeset.data property with the return value.
-                content = apply_cell_data_changeset(content, cell_rev, field_rev)?;
+                let type_cell_data =
+                    apply_cell_data_changeset(cell_changeset, cell_rev, field_rev, Some(self.cell_data_cache.clone()))?;
                 let cell_changeset = CellChangesetPB {
-                    grid_id,
-                    row_id: row_id.clone(),
-                    field_id: field_id.clone(),
-                    content,
+                    grid_id: self.grid_id.clone(),
+                    row_id: row_id.to_owned(),
+                    field_id: field_id.to_owned(),
+                    type_cell_data,
                 };
                 let _ = self.block_manager.update_cell(cell_changeset).await?;
-                self.view_manager.did_update_cell(&row_id).await;
+                self.view_manager.did_update_cell(row_id).await;
                 Ok(())
             }
         }
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
-    pub async fn update_cell<T: ToString>(
+    pub async fn update_cell<T: ToCellChangesetString>(
         &self,
-        grid_id: String,
         row_id: String,
         field_id: String,
-        content: T,
+        cell_changeset: T,
     ) -> FlowyResult<()> {
-        self.update_cell_with_changeset(CellChangesetPB {
-            grid_id,
-            row_id,
-            field_id,
-            content: content.to_string(),
-        })
-        .await
+        self.update_cell_with_changeset(&row_id, &field_id, cell_changeset)
+            .await
     }
 
     pub async fn get_block_meta_revs(&self) -> FlowyResult<Vec<Arc<GridBlockMetaRevision>>> {
@@ -503,7 +539,7 @@ impl GridRevisionEditor {
         Ok(block_meta_revs)
     }
 
-    pub async fn get_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlock>> {
+    pub async fn get_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlockRowRevision>> {
         let block_ids = match block_ids {
             None => self
                 .grid_pad
@@ -519,32 +555,28 @@ impl GridRevisionEditor {
         Ok(blocks)
     }
 
-    pub async fn delete_rows(&self, row_orders: Vec<RowPB>) -> FlowyResult<()> {
-        let changesets = self.block_manager.delete_rows(row_orders).await?;
+    pub async fn delete_rows(&self, block_rows: Vec<GridBlockRow>) -> FlowyResult<()> {
+        let changesets = self.block_manager.delete_rows(block_rows).await?;
         for changeset in changesets {
             let _ = self.update_block(changeset).await?;
         }
         Ok(())
     }
 
-    pub async fn get_grid(&self) -> FlowyResult<GridPB> {
+    pub async fn get_grid(&self, view_id: &str) -> FlowyResult<GridPB> {
         let pad = self.grid_pad.read().await;
         let fields = pad.get_field_revs(None)?.iter().map(FieldIdPB::from).collect();
-
-        let mut blocks = vec![];
+        let mut all_rows = vec![];
         for block_rev in pad.get_block_meta_revs() {
-            let rows = self.get_row_pbs(&block_rev.block_id).await?;
-            let block = BlockPB {
-                id: block_rev.block_id.clone(),
-                rows,
-            };
-            blocks.push(block);
+            if let Ok(rows) = self.get_row_pbs(view_id, &block_rev.block_id).await {
+                all_rows.extend(rows);
+            }
         }
 
         Ok(GridPB {
             id: self.grid_id.clone(),
             fields,
-            blocks,
+            rows: all_rows,
         })
     }
 
@@ -582,6 +614,16 @@ impl GridRevisionEditor {
     pub async fn delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
         let _ = self.view_manager.delete_filter(params).await?;
         Ok(())
+    }
+
+    pub async fn delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
+        let _ = self.view_manager.delete_sort(params).await?;
+        Ok(())
+    }
+
+    pub async fn create_or_update_sort(&self, params: AlterSortParams) -> FlowyResult<SortRevision> {
+        let sort_rev = self.view_manager.create_or_update_sort(params).await?;
+        Ok(sort_rev)
     }
 
     pub async fn move_row(&self, params: MoveRowParams) -> FlowyResult<()> {
@@ -627,7 +669,7 @@ impl GridRevisionEditor {
                 let block_manager = self.block_manager.clone();
                 self.view_manager
                     .move_group_row(row_rev, to_group_id, to_row_id.clone(), |row_changeset| {
-                        to_future(async move {
+                        to_fut(async move {
                             tracing::trace!("Row data changed: {:?}", row_changeset);
                             let cell_changesets = row_changeset
                                 .cell_by_field_id
@@ -636,7 +678,7 @@ impl GridRevisionEditor {
                                     grid_id: view_id.clone(),
                                     row_id: row_changeset.row_id.clone(),
                                     field_id,
-                                    content: cell_rev.data,
+                                    type_cell_data: cell_rev.type_cell_data,
                                 })
                                 .collect::<Vec<CellChangesetPB>>();
 
@@ -752,10 +794,8 @@ impl GridRevisionEditor {
 
     async fn apply_change(&self, change: GridRevisionChangeset) -> FlowyResult<()> {
         let GridRevisionChangeset { operations: delta, md5 } = change;
-        let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
-        let delta_data = delta.json_bytes();
-        let revision = Revision::new(&self.rev_manager.object_id, base_rev_id, rev_id, delta_data, md5);
-        let _ = self.rev_manager.add_local_revision(&revision).await?;
+        let data = delta.json_bytes();
+        let _ = self.rev_manager.add_local_revision(data, md5).await?;
         Ok(())
     }
 
@@ -798,7 +838,7 @@ impl GridRevisionEditor {
     }
 
     async fn notify_did_update_grid(&self, changeset: GridFieldChangesetPB) -> FlowyResult<()> {
-        send_dart_notification(&self.grid_id, GridDartNotification::DidUpdateGridField)
+        send_dart_notification(&self.grid_id, GridDartNotification::DidUpdateGridFields)
             .payload(changeset)
             .send();
         Ok(())
@@ -809,6 +849,10 @@ impl GridRevisionEditor {
 impl GridRevisionEditor {
     pub fn rev_manager(&self) -> Arc<RevisionManager<Arc<ConnectionPool>>> {
         self.rev_manager.clone()
+    }
+
+    pub fn grid_pad(&self) -> Arc<RwLock<GridRevisionPad>> {
+        self.grid_pad.clone()
     }
 }
 
@@ -839,9 +883,9 @@ impl RevisionCloudService for GridRevisionCloudService {
     }
 }
 
-pub struct GridRevisionCompress();
+pub struct GridRevisionMergeable();
 
-impl RevisionMergeable for GridRevisionCompress {
+impl RevisionMergeable for GridRevisionMergeable {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         GridRevisionSerde::combine_revisions(revisions)
     }

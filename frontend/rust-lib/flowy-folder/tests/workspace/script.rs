@@ -15,8 +15,6 @@ use flowy_folder::entities::{
 };
 use flowy_folder::event_map::FolderEvent::*;
 use flowy_folder::{errors::ErrorCode, services::folder_editor::FolderEditor};
-
-use flowy_http_model::document::DocumentPayloadPB;
 use flowy_revision::disk::RevisionState;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_test::{event_builder::*, FlowySDKTest};
@@ -411,17 +409,6 @@ pub async fn delete_view(sdk: &FlowySDKTest, view_ids: Vec<String>) {
         .payload(request)
         .async_send()
         .await;
-}
-
-#[allow(dead_code)]
-pub async fn set_latest_view(sdk: &FlowySDKTest, view_id: &str) -> DocumentPayloadPB {
-    let view_id: ViewIdPB = view_id.into();
-    FolderEventBuilder::new(sdk.clone())
-        .event(SetLatestView)
-        .payload(view_id)
-        .async_send()
-        .await
-        .parse::<DocumentPayloadPB>()
 }
 
 pub async fn read_trash(sdk: &FlowySDKTest) -> RepeatedTrashPB {

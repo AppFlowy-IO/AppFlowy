@@ -56,7 +56,7 @@ impl WorkspaceController {
         send_dart_notification(&token, FolderNotification::UserCreateWorkspace)
             .payload(repeated_workspace)
             .send();
-        set_current_workspace(&workspace.id);
+        set_current_workspace(&user_id, &workspace.id);
         Ok(workspace)
     }
 
@@ -106,7 +106,7 @@ impl WorkspaceController {
                 .persistence
                 .begin_transaction(|transaction| self.read_local_workspace(workspace_id, &user_id, &transaction))
                 .await?;
-            set_current_workspace(&workspace.id);
+            set_current_workspace(&user_id, &workspace.id);
             Ok(workspace)
         } else {
             Err(FlowyError::workspace_id().context("Opened workspace id should not be empty"))
@@ -114,7 +114,8 @@ impl WorkspaceController {
     }
 
     pub(crate) async fn read_current_workspace_apps(&self) -> Result<Vec<AppRevision>, FlowyError> {
-        let workspace_id = get_current_workspace()?;
+        let user_id = self.user.user_id()?;
+        let workspace_id = get_current_workspace(&user_id)?;
         let app_revs = self
             .persistence
             .begin_transaction(|transaction| {
@@ -209,7 +210,7 @@ pub async fn notify_workspace_setting_did_change(
 ) -> FlowyResult<()> {
     let user_id = folder_manager.user.user_id()?;
     let token = folder_manager.user.token()?;
-    let workspace_id = get_current_workspace()?;
+    let workspace_id = get_current_workspace(&user_id)?;
 
     let workspace_setting = folder_manager
         .persistence
@@ -243,11 +244,15 @@ pub async fn notify_workspace_setting_did_change(
 
 const CURRENT_WORKSPACE_ID: &str = "current_workspace_id";
 
-pub fn set_current_workspace(workspace_id: &str) {
+pub fn set_current_workspace(_user_id: &str, workspace_id: &str) {
     KV::set_str(CURRENT_WORKSPACE_ID, workspace_id.to_owned());
 }
 
-pub fn get_current_workspace() -> Result<String, FlowyError> {
+pub fn clear_current_workspace(_user_id: &str) {
+    let _ = KV::remove(CURRENT_WORKSPACE_ID);
+}
+
+pub fn get_current_workspace(_user_id: &str) -> Result<String, FlowyError> {
     match KV::get_str(CURRENT_WORKSPACE_ID) {
         None => {
             Err(FlowyError::record_not_found()

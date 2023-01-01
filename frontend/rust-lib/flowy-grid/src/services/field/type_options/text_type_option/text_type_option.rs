@@ -1,15 +1,20 @@
-use crate::entities::FieldType;
+use crate::entities::{FieldType, TextFilterPB};
 use crate::impl_type_option;
 use crate::services::cell::{
-    decode_cell_data_to_string, AnyCellChangeset, CellBytes, CellBytesParser, CellData, CellDataIsEmpty,
-    CellDataOperation, CellDisplayable, FromCellString,
+    stringify_cell_data, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellString,
+    TypeCellData,
 };
-use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
+use crate::services::field::{
+    BoxTypeOptionBuilder, TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionCellDataCompare,
+    TypeOptionCellDataFilter, TypeOptionTransform,
+};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use protobuf::ProtobufError;
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 
 #[derive(Default)]
 pub struct RichTextTypeOptionBuilder(RichTextTypeOptionPB);
@@ -24,9 +29,6 @@ impl TypeOptionBuilder for RichTextTypeOptionBuilder {
     fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
     }
-    fn transform(&mut self, _field_type: &FieldType, _type_option_data: String) {
-        // Do nothing
-    }
 }
 
 /// For the moment, the `RichTextTypeOptionPB` is empty. The `data` property is not
@@ -39,62 +41,105 @@ pub struct RichTextTypeOptionPB {
 }
 impl_type_option!(RichTextTypeOptionPB, FieldType::RichText);
 
-impl CellDisplayable<String> for RichTextTypeOptionPB {
-    fn displayed_cell_bytes(
-        &self,
-        cell_data: CellData<String>,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        let cell_str: String = cell_data.try_into_inner()?;
-        Ok(CellBytes::new(cell_str))
-    }
-
-    fn displayed_cell_string(
-        &self,
-        cell_data: CellData<String>,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<String> {
-        let cell_str: String = cell_data.try_into_inner()?;
-        Ok(cell_str)
-    }
+impl TypeOption for RichTextTypeOptionPB {
+    type CellData = StrCellData;
+    type CellChangeset = String;
+    type CellProtobufType = StrCellData;
+    type CellFilter = TextFilterPB;
 }
 
-impl CellDataOperation<String, String> for RichTextTypeOptionPB {
-    fn decode_cell_data(
+impl TypeOptionTransform for RichTextTypeOptionPB {
+    fn transformable(&self) -> bool {
+        true
+    }
+
+    fn transform_type_option(&mut self, _old_type_option_field_type: FieldType, _old_type_option_data: String) {}
+
+    fn transform_type_option_cell_str(
         &self,
-        cell_data: CellData<String>,
+        cell_str: &str,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
+    ) -> Option<<Self as TypeOption>::CellData> {
         if decoded_field_type.is_date()
             || decoded_field_type.is_single_select()
             || decoded_field_type.is_multi_select()
             || decoded_field_type.is_number()
             || decoded_field_type.is_url()
         {
-            let s = decode_cell_data_to_string(cell_data, decoded_field_type, decoded_field_type, field_rev);
-            Ok(CellBytes::new(s.unwrap_or_else(|_| "".to_owned())))
+            Some(stringify_cell_data(cell_str.to_owned(), decoded_field_type, decoded_field_type, field_rev).into())
         } else {
-            self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
-        }
-    }
-
-    fn apply_changeset(
-        &self,
-        changeset: AnyCellChangeset<String>,
-        _cell_rev: Option<CellRevision>,
-    ) -> Result<String, FlowyError> {
-        let data = changeset.try_into_inner()?;
-        if data.len() > 10000 {
-            Err(FlowyError::text_too_long().context("The len of the text should not be more than 10000"))
-        } else {
-            Ok(data)
+            StrCellData::from_cell_str(&cell_str).ok()
         }
     }
 }
 
+impl TypeOptionCellData for RichTextTypeOptionPB {
+    fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {
+        cell_data
+    }
+
+    fn decode_type_option_cell_str(&self, cell_str: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        StrCellData::from_cell_str(&cell_str)
+    }
+}
+
+impl CellDataDecoder for RichTextTypeOptionPB {
+    fn decode_cell_str(
+        &self,
+        cell_str: String,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
+        StrCellData::from_cell_str(&cell_str)
+    }
+
+    fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+        cell_data.to_string()
+    }
+}
+
+impl CellDataChangeset for RichTextTypeOptionPB {
+    fn apply_changeset(
+        &self,
+        changeset: <Self as TypeOption>::CellChangeset,
+        _type_cell_data: Option<TypeCellData>,
+    ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
+        if changeset.len() > 10000 {
+            Err(FlowyError::text_too_long().context("The len of the text should not be more than 10000"))
+        } else {
+            let text_cell_data = StrCellData(changeset);
+            Ok((text_cell_data.to_string(), text_cell_data))
+        }
+    }
+}
+
+impl TypeOptionCellDataFilter for RichTextTypeOptionPB {
+    fn apply_filter(
+        &self,
+        filter: &<Self as TypeOption>::CellFilter,
+        field_type: &FieldType,
+        cell_data: &<Self as TypeOption>::CellData,
+    ) -> bool {
+        if !field_type.is_text() {
+            return false;
+        }
+
+        filter.is_visible(cell_data)
+    }
+}
+
+impl TypeOptionCellDataCompare for RichTextTypeOptionPB {
+    fn apply_cmp(
+        &self,
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering {
+        cell_data.0.cmp(&other_cell_data.0)
+    }
+}
+
+#[derive(Clone)]
 pub struct TextCellData(pub String);
 impl AsRef<str> for TextCellData {
     fn as_ref(&self) -> &str {
@@ -125,19 +170,86 @@ impl ToString for TextCellData {
     }
 }
 
-impl CellDataIsEmpty for TextCellData {
+impl DecodedCellData for TextCellData {
+    type Object = TextCellData;
+
     fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 }
 
 pub struct TextCellDataParser();
-impl CellBytesParser for TextCellDataParser {
+impl CellProtobufBlobParser for TextCellDataParser {
     type Object = TextCellData;
     fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
         match String::from_utf8(bytes.to_vec()) {
             Ok(s) => Ok(TextCellData(s)),
             Err(_) => Ok(TextCellData("".to_owned())),
         }
+    }
+}
+
+#[derive(Default, Debug, Clone)]
+pub struct StrCellData(pub String);
+impl std::ops::Deref for StrCellData {
+    type Target = String;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl std::ops::DerefMut for StrCellData {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl FromCellString for StrCellData {
+    fn from_cell_str(s: &str) -> FlowyResult<Self> {
+        Ok(Self(s.to_owned()))
+    }
+}
+
+impl std::convert::From<String> for StrCellData {
+    fn from(s: String) -> Self {
+        Self(s)
+    }
+}
+
+impl ToString for StrCellData {
+    fn to_string(&self) -> String {
+        self.0.clone()
+    }
+}
+
+impl std::convert::From<StrCellData> for String {
+    fn from(value: StrCellData) -> Self {
+        value.0
+    }
+}
+
+impl std::convert::From<&str> for StrCellData {
+    fn from(s: &str) -> Self {
+        Self(s.to_owned())
+    }
+}
+
+impl std::convert::TryFrom<StrCellData> for Bytes {
+    type Error = ProtobufError;
+
+    fn try_from(value: StrCellData) -> Result<Self, Self::Error> {
+        Ok(Bytes::from(value.0))
+    }
+}
+
+impl AsRef<[u8]> for StrCellData {
+    fn as_ref(&self) -> &[u8] {
+        self.0.as_ref()
+    }
+}
+impl AsRef<str> for StrCellData {
+    fn as_ref(&self) -> &str {
+        self.0.as_str()
     }
 }

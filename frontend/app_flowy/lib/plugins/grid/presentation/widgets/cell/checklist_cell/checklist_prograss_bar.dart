@@ -2,7 +2,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/cell/checklist_cell_editor_bloc.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/color_extension.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,7 +42,7 @@ class _SliverChecklistPrograssBarDelegate
     extends SliverPersistentHeaderDelegate {
   _SliverChecklistPrograssBarDelegate();
 
-  double fixHeight = 54;
+  double fixHeight = 60;
 
   @override
   Widget build(
@@ -56,6 +56,7 @@ class _SliverChecklistPrograssBarDelegate
             children: [
               FlowyTextField(
                 autoClearWhenDone: true,
+                submitOnLeave: true,
                 hintText: LocaleKeys.grid_checklist_panelTitle.tr(),
                 onChanged: (text) {
                   context
@@ -69,7 +70,7 @@ class _SliverChecklistPrograssBarDelegate
                 },
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 10.0),
+                padding: const EdgeInsets.only(top: 6.0),
                 child: ChecklistPrograssBar(percent: state.percent),
               ),
             ],

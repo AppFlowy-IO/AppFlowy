@@ -30,7 +30,12 @@ class AuthRouter {
       WorkspaceSettingPB workspaceSetting) {
     Navigator.push(
       context,
-      PageRoutes.fade(() => HomeScreen(profile, workspaceSetting),
+      PageRoutes.fade(
+          () => HomeScreen(
+                profile,
+                workspaceSetting,
+                key: ValueKey(profile.id),
+              ),
           RouteDurations.slow.inMilliseconds * .001),
     );
   }
@@ -55,7 +60,12 @@ class SplashRoute {
       WorkspaceSettingPB workspaceSetting) {
     Navigator.push(
       context,
-      PageRoutes.fade(() => HomeScreen(userProfile, workspaceSetting),
+      PageRoutes.fade(
+          () => HomeScreen(
+                userProfile,
+                workspaceSetting,
+                key: ValueKey(userProfile.id),
+              ),
           RouteDurations.slow.inMilliseconds * .001),
     );
   }

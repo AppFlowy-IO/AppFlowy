@@ -85,6 +85,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-trait"
+version = "0.1.59"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "31e6e93155431f3931513b243d371981bb2770112b370c82745a1d19d2f99364"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "atomic"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -573,9 +584,10 @@ dependencies = [
  "flowy-codegen",
  "flowy-derive",
  "flowy-sdk",
+ "lazy_static",
  "lib-dispatch",
  "log",
- "once_cell",
+ "parking_lot 0.12.1",
  "protobuf",
  "serde",
  "serde_json",
@@ -849,7 +861,7 @@ dependencies = [
  "diesel_migrations",
  "lazy_static",
  "lib-sqlite",
- "log",
+ "tracing",
 ]
 
 [[package]]
@@ -860,10 +872,13 @@ dependencies = [
  "flowy-ast",
  "flowy-codegen",
  "lazy_static",
+ "log",
  "proc-macro2",
  "quote",
  "serde_json",
  "syn",
+ "tokio",
+ "trybuild",
  "walkdir",
 ]
 
@@ -915,11 +930,11 @@ dependencies = [
 name = "flowy-error"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bytes",
  "flowy-codegen",
  "flowy-database",
  "flowy-derive",
- "flowy-error-code",
  "flowy-sync",
  "http-flowy",
  "lib-dispatch",
@@ -928,16 +943,7 @@ dependencies = [
  "protobuf",
  "r2d2",
  "serde_json",
-]
-
-[[package]]
-name = "flowy-error-code"
-version = "0.1.0"
-dependencies = [
- "derive_more",
- "flowy-codegen",
- "flowy-derive",
- "protobuf",
+ "thiserror",
 ]
 
 [[package]]
@@ -1009,6 +1015,7 @@ dependencies = [
  "lib-infra",
  "lib-ot",
  "nanoid",
+ "parking_lot 0.12.1",
  "protobuf",
  "rayon",
  "regex",
@@ -1029,11 +1036,10 @@ name = "flowy-http-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "flowy-codegen",
- "flowy-derive",
- "lib-infra",
  "md5",
- "protobuf",
+ "serde",
+ "serde_json",
+ "serde_repr",
 ]
 
 [[package]]
@@ -1085,6 +1091,7 @@ dependencies = [
  "flowy-error",
  "flowy-http-model",
  "flowy-revision",
+ "futures",
  "futures-util",
  "lib-infra",
  "lib-ws",
@@ -1428,6 +1435,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "78cc372d058dcf6d5ecd98510e7fbc9e5aec4d21de70f65fea8fecebcd881bd4"
 
 [[package]]
+name = "glob"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
+
+[[package]]
 name = "globset"
 version = "0.4.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1456,7 +1469,6 @@ name = "grid-rev-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "flowy-error-code",
  "indexmap",
  "nanoid",
  "serde",
@@ -1768,6 +1780,7 @@ dependencies = [
 name = "lib-infra"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "bytes",
  "chrono",
  "futures-core",
@@ -1840,8 +1853,6 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "dashmap",
- "flowy-codegen",
- "flowy-derive",
  "futures",
  "futures-channel",
  "futures-core",
@@ -1852,6 +1863,9 @@ dependencies = [
  "paste",
  "pin-project",
  "protobuf",
+ "serde",
+ "serde_json",
+ "serde_repr",
  "strum",
  "strum_macros",
  "tokio",
@@ -2367,18 +2381,18 @@ dependencies = [
 
 [[package]]
 name = "pin-project"
-version = "1.0.10"
+version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "58ad3879ad3baf4e44784bc6a718a8698867bb991f8ce24d1bcbe2cfb4c3a75e"
+checksum = "ad29a609b6bcd67fee905812e544992d216af9d755757c05ed2d0e15a74c6ecc"
 dependencies = [
  "pin-project-internal",
 ]
 
 [[package]]
 name = "pin-project-internal"
-version = "1.0.10"
+version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "744b6f092ba29c3650faf274db506afd39944f48420f6c86b17cfe0ee1cb36bb"
+checksum = "069bdb1e05adc7a8990dce9cc75370895fbe4e3d58b9b73bf1aee56359344a55"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2469,11 +2483,11 @@ checksum = "dbf0c48bc1d91375ae5c3cd81e3722dff1abcf81a30960240640d223f59fe0e5"
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.36"
+version = "1.0.47"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7342d5883fbccae1cc37a2353b09c87c9b0f3afd73f5fb9bba687a1f733b029"
+checksum = "5ea3d908b0e36316caf9e9e2c4625cdde190a7e6f440d794667ed17a1855e725"
 dependencies = [
- "unicode-xid",
+ "unicode-ident",
 ]
 
 [[package]]
@@ -3155,13 +3169,13 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.85"
+version = "1.0.105"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a684ac3dcd8913827e18cd09a68384ee66c1de24157e3c556c9ab16d85695fb7"
+checksum = "60b9b43d45702de4c839cb9b51d9f529c5dd26a4aff255b42b1ebc03e88ee908"
 dependencies = [
  "proc-macro2",
  "quote",
- "unicode-xid",
+ "unicode-ident",
 ]
 
 [[package]]
@@ -3507,6 +3521,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "59547bce71d9c38b83d9c0e92b6066c4253371f15005def0c30d9657f50c7642"
 
 [[package]]
+name = "trybuild"
+version = "1.0.64"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e7f408301c7480f9e6294eb779cfc907f54bd901a9660ef24d7f233ed5376485"
+dependencies = [
+ "glob",
+ "once_cell",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "termcolor",
+ "toml",
+]
+
+[[package]]
 name = "tungstenite"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3603,6 +3632,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1a01404663e3db436ed2746d9fefef640d868edae3cceb81c3b8d5732fda678f"
 
 [[package]]
+name = "unicode-ident"
+version = "1.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ceab39d59e4c9499d4e5a8ee0e2735b891bb7308ac83dfb4e80cad195c9f6f3"
+
+[[package]]
 name = "unicode-normalization"
 version = "0.1.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3622,12 +3657,6 @@ name = "unicode-width"
 version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3ed742d4ea2bd1176e236172c8429aaf54486e7ac098db29ffe6529e0ce50973"
-
-[[package]]
-name = "unicode-xid"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ccb82d61f80a663efe1f787a51b16b5a51e3314d6ac365b08639f52387b33f3"
 
 [[package]]
 name = "url"

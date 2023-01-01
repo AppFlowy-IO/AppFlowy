@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:app_flowy/plugins/grid/application/block/block_cache.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_service.dart';
@@ -229,8 +228,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   GridRowCache? getRowCache(String blockId) {
-    final GridBlockCache? blockCache = _gridDataController.blocks[blockId];
-    return blockCache?.rowCache;
+    return _gridDataController.rowCache;
   }
 
   void _startListening() {

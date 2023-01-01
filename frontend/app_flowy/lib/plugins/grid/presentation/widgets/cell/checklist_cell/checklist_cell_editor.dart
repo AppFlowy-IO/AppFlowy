@@ -166,7 +166,7 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
           },
           onUpdated: (updatedOption) {
             context.read<ChecklistCellEditorBloc>().add(
-                  ChecklistCellEditorEvent.updateOption(widget.option.data),
+                  ChecklistCellEditorEvent.updateOption(updatedOption),
                 );
           },
           showOptions: false,

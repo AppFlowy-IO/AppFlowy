@@ -22,10 +22,41 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "backgroundColorBlue":
+            MessageLookupByLibrary.simpleMessage("Blue background"),
+        "backgroundColorBrown":
+            MessageLookupByLibrary.simpleMessage("Brown background"),
+        "backgroundColorDefault":
+            MessageLookupByLibrary.simpleMessage("Default background"),
+        "backgroundColorGray":
+            MessageLookupByLibrary.simpleMessage("Gray background"),
+        "backgroundColorGreen":
+            MessageLookupByLibrary.simpleMessage("Green background"),
+        "backgroundColorOrange":
+            MessageLookupByLibrary.simpleMessage("Orange background"),
+        "backgroundColorPink":
+            MessageLookupByLibrary.simpleMessage("Pink background"),
+        "backgroundColorPurple":
+            MessageLookupByLibrary.simpleMessage("Purple background"),
+        "backgroundColorRed":
+            MessageLookupByLibrary.simpleMessage("Red background"),
+        "backgroundColorYellow":
+            MessageLookupByLibrary.simpleMessage("Yellow background"),
         "bold": MessageLookupByLibrary.simpleMessage("Bold"),
         "bulletedList": MessageLookupByLibrary.simpleMessage("Bulleted List"),
         "checkbox": MessageLookupByLibrary.simpleMessage("Checkbox"),
+        "color": MessageLookupByLibrary.simpleMessage("Color"),
         "embedCode": MessageLookupByLibrary.simpleMessage("Embed Code"),
+        "fontColorBlue": MessageLookupByLibrary.simpleMessage("Blue"),
+        "fontColorBrown": MessageLookupByLibrary.simpleMessage("Brown"),
+        "fontColorDefault": MessageLookupByLibrary.simpleMessage("Default"),
+        "fontColorGray": MessageLookupByLibrary.simpleMessage("Gray"),
+        "fontColorGreen": MessageLookupByLibrary.simpleMessage("Green"),
+        "fontColorOrange": MessageLookupByLibrary.simpleMessage("Orange"),
+        "fontColorPink": MessageLookupByLibrary.simpleMessage("Pink"),
+        "fontColorPurple": MessageLookupByLibrary.simpleMessage("Purple"),
+        "fontColorRed": MessageLookupByLibrary.simpleMessage("Red"),
+        "fontColorYellow": MessageLookupByLibrary.simpleMessage("Yellow"),
         "heading1": MessageLookupByLibrary.simpleMessage("H1"),
         "heading2": MessageLookupByLibrary.simpleMessage("H2"),
         "heading3": MessageLookupByLibrary.simpleMessage("H3"),

@@ -33,7 +33,7 @@ class SelectOptionFilterEditorBloc
             _startListening();
             _loadOptions();
           },
-          updateCondition: (SelectOptionCondition condition) {
+          updateCondition: (SelectOptionConditionPB condition) {
             _ffiService.insertSelectOptionFilter(
               filterId: filterInfo.filter.id,
               fieldId: filterInfo.fieldInfo.id,
@@ -114,7 +114,7 @@ class SelectOptionFilterEditorEvent with _$SelectOptionFilterEditorEvent {
   const factory SelectOptionFilterEditorEvent.didReceiveFilter(
       FilterPB filter) = _DidReceiveFilter;
   const factory SelectOptionFilterEditorEvent.updateCondition(
-      SelectOptionCondition condition) = _UpdateCondition;
+      SelectOptionConditionPB condition) = _UpdateCondition;
   const factory SelectOptionFilterEditorEvent.updateContent(
       List<String> optionIds) = _UpdateContent;
   const factory SelectOptionFilterEditorEvent.updateFilterDescription(

@@ -13,7 +13,7 @@ flowy-folder = { path = "../flowy-folder", default-features = false}
 flowy-document= { path = "../flowy-document", default-features = false}
 lib-dispatch = { path = "../lib-dispatch" }
 
-flowy-sync = { path = "../../../shared-lib/flowy-sync" }
+flowy-sync = { path = "../flowy-sync"}
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 

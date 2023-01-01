@@ -50,14 +50,15 @@ void main() async {
           null,
           delta: Delta()
             ..insert(
-              'appflowy.io',
+              link,
               attributes: {
                 BuiltInAttributeKey.href: link,
               },
             ),
         );
       await editor.startTesting();
-      final finder = find.byType(RichText);
+      await tester.pumpAndSettle();
+      final finder = find.text(link, findRichText: true);
       expect(finder, findsOneWidget);
 
       // tap the link

@@ -65,10 +65,6 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
           child: TextField(
             controller: _controller,
             focusNode: focusNode,
-            onSubmitted: (text) => _cellBloc.add(
-              TextCellEvent.updateText(text),
-            ),
-            onEditingComplete: () => focusNode.unfocus(),
             maxLines: null,
             style: Theme.of(context).textTheme.bodyMedium,
             decoration: InputDecoration(
@@ -98,5 +94,13 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
   @override
   void onInsert(String value) {
     _cellBloc.add(TextCellEvent.updateText(value));
+  }
+
+  @override
+  Future<void> focusChanged() {
+    _cellBloc.add(
+      TextCellEvent.updateText(_controller.text),
+    );
+    return super.focusChanged();
   }
 }

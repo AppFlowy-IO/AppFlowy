@@ -1,8 +1,7 @@
-use crate::{FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision};
+use crate::{FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, SortRevision};
 use indexmap::IndexMap;
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::fmt::Debug;
 use std::sync::Arc;
 
@@ -20,10 +19,10 @@ pub fn gen_grid_sort_id() -> String {
 }
 
 pub type FilterConfiguration = Configuration<FilterRevision>;
-pub type FilterConfigurationsByFieldId = HashMap<String, Vec<Arc<FilterRevision>>>;
-//
+
 pub type GroupConfiguration = Configuration<GroupConfigurationRevision>;
-pub type GroupConfigurationsByFieldId = HashMap<String, Vec<Arc<GroupConfigurationRevision>>>;
+
+pub type SortConfiguration = Configuration<SortRevision>;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(transparent)]

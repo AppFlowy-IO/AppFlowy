@@ -1,16 +1,19 @@
-use crate::entities::FieldType;
+use crate::entities::{DateFilterPB, FieldType};
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellData, CellDataOperation, CellDisplayable};
+use crate::services::cell::{CellDataChangeset, CellDataDecoder, FromCellString, TypeCellData};
 use crate::services::field::{
-    BoxTypeOptionBuilder, DateCellChangeset, DateCellDataPB, DateFormat, DateTimestamp, TimeFormat, TypeOptionBuilder,
+    default_order, BoxTypeOptionBuilder, DateCellChangeset, DateCellData, DateCellDataPB, DateFormat, TimeFormat,
+    TypeOption, TypeOptionBuilder, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+    TypeOptionTransform,
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
 use chrono::{NaiveDateTime, Timelike};
 use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 
 // Date
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
@@ -25,6 +28,23 @@ pub struct DateTypeOptionPB {
     pub include_time: bool,
 }
 impl_type_option!(DateTypeOptionPB, FieldType::DateTime);
+
+impl TypeOption for DateTypeOptionPB {
+    type CellData = DateCellData;
+    type CellChangeset = DateCellChangeset;
+    type CellProtobufType = DateCellDataPB;
+    type CellFilter = DateFilterPB;
+}
+
+impl TypeOptionCellData for DateTypeOptionPB {
+    fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {
+        self.today_desc_from_timestamp(cell_data)
+    }
+
+    fn decode_type_option_cell_str(&self, cell_str: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        DateCellData::from_cell_str(&cell_str)
+    }
+}
 
 impl DateTypeOptionPB {
     #[allow(dead_code)]
@@ -107,53 +127,37 @@ impl DateTypeOptionPB {
     }
 }
 
-impl CellDisplayable<DateTimestamp> for DateTypeOptionPB {
-    fn displayed_cell_bytes(
-        &self,
-        cell_data: CellData<DateTimestamp>,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        let timestamp = cell_data.try_into_inner()?;
-        let date_cell_data = self.today_desc_from_timestamp(timestamp);
-        CellBytes::from(date_cell_data)
-    }
+impl TypeOptionTransform for DateTypeOptionPB {}
 
-    fn displayed_cell_string(
+impl CellDataDecoder for DateTypeOptionPB {
+    fn decode_cell_str(
         &self,
-        cell_data: CellData<DateTimestamp>,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<String> {
-        let timestamp = cell_data.try_into_inner()?;
-        let date_cell_data = self.today_desc_from_timestamp(timestamp);
-        Ok(date_cell_data.date)
-    }
-}
-
-impl CellDataOperation<DateTimestamp, DateCellChangeset> for DateTypeOptionPB {
-    fn decode_cell_data(
-        &self,
-        cell_data: CellData<DateTimestamp>,
+        cell_str: String,
         decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
         // Return default data if the type_option_cell_data is not FieldType::DateTime.
         // It happens when switching from one field to another.
         // For example:
         // FieldType::RichText -> FieldType::DateTime, it will display empty content on the screen.
         if !decoded_field_type.is_date() {
-            return Ok(CellBytes::default());
+            return Ok(Default::default());
         }
-        self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
+
+        self.decode_type_option_cell_str(cell_str)
     }
 
+    fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+        self.today_desc_from_timestamp(cell_data).date
+    }
+}
+
+impl CellDataChangeset for DateTypeOptionPB {
     fn apply_changeset(
         &self,
-        changeset: AnyCellChangeset<DateCellChangeset>,
-        _cell_rev: Option<CellRevision>,
-    ) -> Result<String, FlowyError> {
-        let changeset = changeset.try_into_inner()?;
+        changeset: <Self as TypeOption>::CellChangeset,
+        _type_cell_data: Option<TypeCellData>,
+    ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
         let cell_data = match changeset.date_timestamp() {
             None => 0,
             Some(date_timestamp) => match (self.include_time, changeset.time) {
@@ -167,8 +171,38 @@ impl CellDataOperation<DateTimestamp, DateCellChangeset> for DateTypeOptionPB {
                 _ => date_timestamp,
             },
         };
+        let date_cell_data = DateCellData(Some(cell_data));
+        Ok((date_cell_data.to_string(), date_cell_data))
+    }
+}
 
-        Ok(cell_data.to_string())
+impl TypeOptionCellDataFilter for DateTypeOptionPB {
+    fn apply_filter(
+        &self,
+        filter: &<Self as TypeOption>::CellFilter,
+        field_type: &FieldType,
+        cell_data: &<Self as TypeOption>::CellData,
+    ) -> bool {
+        if !field_type.is_date() {
+            return true;
+        }
+
+        filter.is_visible(cell_data.0)
+    }
+}
+
+impl TypeOptionCellDataCompare for DateTypeOptionPB {
+    fn apply_cmp(
+        &self,
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering {
+        match (cell_data.0, other_cell_data.0) {
+            (Some(left), Some(right)) => left.cmp(&right),
+            (Some(_), None) => Ordering::Greater,
+            (None, Some(_)) => Ordering::Less,
+            (None, None) => default_order(),
+        }
     }
 }
 
@@ -195,8 +229,5 @@ impl TypeOptionBuilder for DateTypeOptionBuilder {
 
     fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
-    }
-    fn transform(&mut self, _field_type: &FieldType, _type_option_data: String) {
-        // Do nothing
     }
 }

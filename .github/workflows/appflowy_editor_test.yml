@@ -44,6 +44,7 @@ jobs:
       - uses: codecov/codecov-action@v3
         with: 
           name: appflowy_editor
+          flags: appflowy_editor
           env_vars: ${{ matrix.os }}
           fail_ci_if_error: true
           verbose: true

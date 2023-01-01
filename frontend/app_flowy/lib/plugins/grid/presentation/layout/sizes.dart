@@ -14,7 +14,6 @@ class GridSize {
   static double get typeOptionItemHeight => 32 * scale;
   static double get typeOptionSeparatorHeight => 4 * scale;
 
-  //
   static EdgeInsets get headerContentInsets => EdgeInsets.symmetric(
         horizontal: GridSize.headerContainerPadding,
         vertical: GridSize.headerContainerPadding,

@@ -38,7 +38,7 @@ class SettingsUserView extends StatelessWidget {
 
   Widget _renderUserNameInput(BuildContext context) {
     String name = context.read<SettingsUserViewBloc>().state.userProfile.name;
-    return _UserNameInput(name);
+    return UserNameInput(name);
   }
 
   Widget _renderCurrentIcon(BuildContext context) {
@@ -51,9 +51,10 @@ class SettingsUserView extends StatelessWidget {
   }
 }
 
-class _UserNameInput extends StatelessWidget {
+@visibleForTesting
+class UserNameInput extends StatelessWidget {
   final String name;
-  const _UserNameInput(
+  const UserNameInput(
     this.name, {
     Key? key,
   }) : super(key: key);

@@ -3,7 +3,7 @@ import 'package:app_flowy/plugins/grid/application/filter/filter_menu_bloc.dart'
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/color_extension.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -54,21 +54,26 @@ class GridFilterMenu extends StatelessWidget {
   }
 
   Widget buildFilterItems(String viewId, GridFilterMenuState state) {
-    final List<Widget> children = state.filters
-        .map((filterInfo) => FilterMenuItem(filterInfo: filterInfo))
-        .toList();
+    final List<Widget> children = [];
+    children.addAll(
+      state.filters
+          .map((filterInfo) => FilterMenuItem(filterInfo: filterInfo))
+          .toList(),
+    );
+
+    if (state.creatableFields.isNotEmpty) {
+      children.add(AddFilterButton(viewId: viewId));
+    }
+
     return Row(
       children: [
-        SingleChildScrollView(
-          controller: ScrollController(),
-          scrollDirection: Axis.horizontal,
+        Expanded(
           child: Wrap(
-            spacing: 4,
+            spacing: 6,
+            runSpacing: 4,
             children: children,
           ),
         ),
-        const HSpace(4),
-        if (state.creatableFields.isNotEmpty) AddFilterButton(viewId: viewId),
       ],
     );
   }

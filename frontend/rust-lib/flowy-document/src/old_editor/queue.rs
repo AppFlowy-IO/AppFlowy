@@ -3,7 +3,6 @@ use crate::DocumentUser;
 use async_stream::stream;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyError;
-use flowy_http_model::revision::{RevId, Revision};
 use flowy_revision::{RevisionMD5, RevisionManager, TransformOperations};
 use flowy_sync::{
     client_document::{history::UndoResult, ClientDocument},
@@ -176,12 +175,10 @@ impl EditDocumentQueue {
         Ok(())
     }
 
-    async fn save_local_operations(&self, operations: DeltaTextOperations, md5: String) -> Result<RevId, FlowyError> {
+    async fn save_local_operations(&self, operations: DeltaTextOperations, md5: String) -> Result<i64, FlowyError> {
         let bytes = operations.json_bytes();
-        let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
-        let revision = Revision::new(&self.rev_manager.object_id, base_rev_id, rev_id, bytes, md5);
-        let _ = self.rev_manager.add_local_revision(&revision).await?;
-        Ok(rev_id.into())
+        let rev_id = self.rev_manager.add_local_revision(bytes, md5).await?;
+        Ok(rev_id)
     }
 }
 

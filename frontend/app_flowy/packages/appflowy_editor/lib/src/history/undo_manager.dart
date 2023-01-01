@@ -123,7 +123,7 @@ class UndoManager {
     final transaction = historyItem.toTransaction(s);
     s.apply(
       transaction,
-      const ApplyOptions(
+      options: const ApplyOptions(
         recordUndo: false,
         recordRedo: true,
       ),
@@ -143,7 +143,7 @@ class UndoManager {
     final transaction = historyItem.toTransaction(s);
     s.apply(
       transaction,
-      const ApplyOptions(
+      options: const ApplyOptions(
         recordUndo: true,
         recordRedo: false,
       ),

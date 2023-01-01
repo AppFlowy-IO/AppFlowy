@@ -11,4 +11,5 @@ pub mod group;
 pub mod persistence;
 pub mod row;
 pub mod setting;
+pub mod sort;
 pub mod view_editor;

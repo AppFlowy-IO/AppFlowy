@@ -9,7 +9,7 @@ pub fn init(grid_manager: Arc<GridManager>) -> AFPlugin {
     let mut plugin = AFPlugin::new().name(env!("CARGO_PKG_NAME")).state(grid_manager);
     plugin = plugin
         .event(GridEvent::GetGrid, get_grid_handler)
-        .event(GridEvent::GetGridBlocks, get_grid_blocks_handler)
+        // .event(GridEvent::GetGridBlocks, get_grid_blocks_handler)
         .event(GridEvent::GetGridSetting, get_grid_setting_handler)
         .event(GridEvent::UpdateGridSetting, update_grid_setting_handler)
         .event(GridEvent::GetAllFilters, get_all_filters_handler)
@@ -58,13 +58,6 @@ pub enum GridEvent {
     /// The event handler accepts a [GridIdPB] and returns a [GridPB] if there are no errors.
     #[event(input = "GridIdPB", output = "GridPB")]
     GetGrid = 0,
-
-    /// [GetGridBlocks] event is used to get the grid's block.
-    ///
-    /// The event handler accepts a [QueryBlocksPayloadPB] and returns a [RepeatedBlockPB]
-    /// if there are no errors.
-    #[event(input = "QueryBlocksPayloadPB", output = "RepeatedBlockPB")]
-    GetGridBlocks = 1,
 
     /// [GetGridSetting] event is used to get the grid's settings.
     ///

@@ -157,7 +157,9 @@ class EditorWidgetTester {
       document: Document(
         root: _createEmptyEditorRoot(),
       ),
-    )..disableSealTimer = true;
+    )
+      ..disableSealTimer = true
+      ..disbaleRules = true;
   }
 }
 

@@ -23,7 +23,7 @@ class FlowySDK {
     return version;
   }
 
-  const FlowySDK();
+  FlowySDK();
 
   void dispose() {}
 

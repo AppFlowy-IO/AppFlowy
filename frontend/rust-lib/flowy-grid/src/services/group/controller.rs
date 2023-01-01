@@ -1,5 +1,5 @@
 use crate::entities::{GroupRowsNotificationPB, GroupViewChangesetPB, InsertedRowPB, RowPB};
-use crate::services::cell::{decode_any_cell_data, CellBytesParser, CellDataIsEmpty};
+use crate::services::cell::{decode_type_cell_data, CellProtobufBlobParser, DecodedCellData};
 use crate::services::group::action::{GroupControllerCustomActions, GroupControllerSharedActions};
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::entities::Group;
@@ -55,7 +55,7 @@ pub struct MoveGroupRowContext<'a> {
 /// C: represents the group configuration that impl [GroupConfigurationSerde]
 /// T: the type-option data deserializer that impl [TypeOptionDataDeserializer]
 /// G: the group generator, [GroupGenerator]
-/// P: the parser that impl [CellBytesParser] for the CellBytes
+/// P: the parser that impl [CellProtobufBlobParser] for the CellBytes
 pub struct GenericGroupController<C, T, G, P> {
     pub field_id: String,
     pub type_option: Option<T>,
@@ -154,7 +154,7 @@ where
 
 impl<C, T, G, P> GroupControllerSharedActions for GenericGroupController<C, T, G, P>
 where
-    P: CellBytesParser,
+    P: CellProtobufBlobParser,
     C: GroupConfigurationContentSerde,
     T: TypeOptionDataDeserializer,
     G: GroupGenerator<Context = GroupContext<C>, TypeOptionType = T>,
@@ -184,7 +184,7 @@ where
 
             if let Some(cell_rev) = cell_rev {
                 let mut grouped_rows: Vec<GroupedRow> = vec![];
-                let cell_bytes = decode_any_cell_data(cell_rev.data, field_rev).1;
+                let cell_bytes = decode_type_cell_data(cell_rev.type_cell_data, field_rev, None).1;
                 let cell_data = cell_bytes.parser::<P>()?;
                 for group in self.group_ctx.groups() {
                     if self.can_group(&group.filter_content, &cell_data) {
@@ -224,7 +224,7 @@ where
         field_rev: &FieldRevision,
     ) -> FlowyResult<Vec<GroupRowsNotificationPB>> {
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
-            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev).1;
+            let cell_bytes = decode_type_cell_data(cell_rev.type_cell_data.clone(), field_rev, None).1;
             let cell_data = cell_bytes.parser::<P>()?;
             let mut changesets = self.add_or_remove_row_in_groups_if_match(row_rev, &cell_data);
 
@@ -247,10 +247,10 @@ where
     ) -> FlowyResult<Vec<GroupRowsNotificationPB>> {
         // if the cell_rev is none, then the row must in the default group.
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
-            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev).1;
+            let cell_bytes = decode_type_cell_data(cell_rev.type_cell_data.clone(), field_rev, None).1;
             let cell_data = cell_bytes.parser::<P>()?;
             if !cell_data.is_empty() {
-                tracing::error!("did_delete_delete_row {:?}", cell_rev.data);
+                tracing::error!("did_delete_delete_row {:?}", cell_rev.type_cell_data);
                 return Ok(self.delete_row(row_rev, &cell_data));
             }
         }
@@ -280,7 +280,7 @@ where
         };
 
         if let Some(cell_rev) = cell_rev {
-            let cell_bytes = decode_any_cell_data(cell_rev.data, context.field_rev).1;
+            let cell_bytes = decode_type_cell_data(cell_rev.type_cell_data, context.field_rev, None).1;
             let cell_data = cell_bytes.parser::<P>()?;
             Ok(self.move_row(&cell_data, context))
         } else {

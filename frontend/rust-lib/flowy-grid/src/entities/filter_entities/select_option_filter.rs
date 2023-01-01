@@ -1,4 +1,5 @@
 use crate::services::field::SelectOptionIds;
+use crate::services::filter::FromFilterString;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use grid_rev_model::FilterRevision;
@@ -6,7 +7,7 @@ use grid_rev_model::FilterRevision;
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct SelectOptionFilterPB {
     #[pb(index = 1)]
-    pub condition: SelectOptionCondition,
+    pub condition: SelectOptionConditionPB,
 
     #[pb(index = 2)]
     pub option_ids: Vec<String>,
@@ -14,35 +15,48 @@ pub struct SelectOptionFilterPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
-pub enum SelectOptionCondition {
+pub enum SelectOptionConditionPB {
     OptionIs = 0,
     OptionIsNot = 1,
     OptionIsEmpty = 2,
     OptionIsNotEmpty = 3,
 }
 
-impl std::convert::From<SelectOptionCondition> for u32 {
-    fn from(value: SelectOptionCondition) -> Self {
+impl std::convert::From<SelectOptionConditionPB> for u32 {
+    fn from(value: SelectOptionConditionPB) -> Self {
         value as u32
     }
 }
 
-impl std::default::Default for SelectOptionCondition {
+impl std::default::Default for SelectOptionConditionPB {
     fn default() -> Self {
-        SelectOptionCondition::OptionIs
+        SelectOptionConditionPB::OptionIs
     }
 }
 
-impl std::convert::TryFrom<u8> for SelectOptionCondition {
+impl std::convert::TryFrom<u8> for SelectOptionConditionPB {
     type Error = ErrorCode;
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value {
-            0 => Ok(SelectOptionCondition::OptionIs),
-            1 => Ok(SelectOptionCondition::OptionIsNot),
-            2 => Ok(SelectOptionCondition::OptionIsEmpty),
-            3 => Ok(SelectOptionCondition::OptionIsNotEmpty),
+            0 => Ok(SelectOptionConditionPB::OptionIs),
+            1 => Ok(SelectOptionConditionPB::OptionIsNot),
+            2 => Ok(SelectOptionConditionPB::OptionIsEmpty),
+            3 => Ok(SelectOptionConditionPB::OptionIsNotEmpty),
             _ => Err(ErrorCode::InvalidData),
+        }
+    }
+}
+impl FromFilterString for SelectOptionFilterPB {
+    fn from_filter_rev(filter_rev: &FilterRevision) -> Self
+    where
+        Self: Sized,
+    {
+        let ids = SelectOptionIds::from(filter_rev.content.clone());
+        SelectOptionFilterPB {
+            condition: SelectOptionConditionPB::try_from(filter_rev.condition)
+                .unwrap_or(SelectOptionConditionPB::OptionIs),
+            option_ids: ids.into_inner(),
         }
     }
 }
@@ -51,7 +65,7 @@ impl std::convert::From<&FilterRevision> for SelectOptionFilterPB {
     fn from(rev: &FilterRevision) -> Self {
         let ids = SelectOptionIds::from(rev.content.clone());
         SelectOptionFilterPB {
-            condition: SelectOptionCondition::try_from(rev.condition).unwrap_or(SelectOptionCondition::OptionIs),
+            condition: SelectOptionConditionPB::try_from(rev.condition).unwrap_or(SelectOptionConditionPB::OptionIs),
             option_ids: ids.into_inner(),
         }
     }

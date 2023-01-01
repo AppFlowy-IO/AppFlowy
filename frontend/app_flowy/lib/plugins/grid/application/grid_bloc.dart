@@ -6,7 +6,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'block/block_cache.dart';
 import 'field/field_controller.dart';
 import 'grid_data_controller.dart';
 import 'row/row_cache.dart';
@@ -38,7 +37,6 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           },
           deleteRow: (rowInfo) async {
             final rowService = RowFFIService(
-              blockId: rowInfo.rowPB.blockId,
               gridId: rowInfo.gridId,
             );
             await rowService.deleteRow(rowInfo.rowPB.id);
@@ -70,8 +68,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   }
 
   GridRowCache? getRowCache(String blockId, String rowId) {
-    final GridBlockCache? blockCache = gridController.blocks[blockId];
-    return blockCache?.rowCache;
+    return gridController.rowCache;
   }
 
   void _startListening() {

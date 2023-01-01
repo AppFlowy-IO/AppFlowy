@@ -1,25 +1,27 @@
-use crate::editor::{initial_document_content, AppFlowyDocumentEditor, DocumentRevisionCompress};
+use crate::editor::{initial_document_content, AppFlowyDocumentEditor, DocumentRevisionMergeable};
 use crate::entities::{DocumentVersionPB, EditParams};
-use crate::old_editor::editor::{DeltaDocumentEditor, DeltaDocumentRevisionCompress};
+use crate::old_editor::editor::{DeltaDocumentEditor, DeltaDocumentRevisionMergeable};
 use crate::services::rev_sqlite::{SQLiteDeltaDocumentRevisionPersistence, SQLiteDocumentRevisionPersistence};
 use crate::services::DocumentPersistence;
 use crate::{errors::FlowyError, DocumentCloudService};
 use bytes::Bytes;
-
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_http_model::util::md5;
-use flowy_http_model::{document::DocumentIdPB, revision::Revision, ws_data::ServerRevisionWSData};
+use flowy_http_model::ws_data::ServerRevisionWSData;
+use flowy_http_model::{document::DocumentId, revision::Revision};
 use flowy_revision::{
-    RevisionCloudService, RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket,
-    SQLiteRevisionSnapshotPersistence,
+    PhantomSnapshotPersistence, RevisionCloudService, RevisionManager, RevisionPersistence,
+    RevisionPersistenceConfiguration, RevisionWebSocket,
 };
 use flowy_sync::client_document::initial_delta_document_content;
+use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
 use lib_ws::WSConnectState;
 use std::any::Any;
-use std::{convert::TryInto, sync::Arc};
+use std::convert::TryFrom;
+use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub trait DocumentUser: Send + Sync {
@@ -32,9 +34,10 @@ pub trait DocumentDatabase: Send + Sync {
     fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError>;
 }
 
+#[async_trait]
 pub trait DocumentEditor: Send + Sync {
     /// Called when the document get closed
-    fn close(&self);
+    async fn close(&self);
 
     /// Exports the document content. The content is encoded in the corresponding
     /// editor data format.
@@ -129,7 +132,7 @@ impl DocumentManager {
     pub async fn close_document_editor<T: AsRef<str>>(&self, editor_id: T) -> Result<(), FlowyError> {
         let editor_id = editor_id.as_ref();
         tracing::Span::current().record("editor_id", &editor_id);
-        self.editor_map.write().await.remove(editor_id);
+        self.editor_map.write().await.remove(editor_id).await;
         Ok(())
     }
 
@@ -149,10 +152,14 @@ impl DocumentManager {
     }
 
     pub async fn receive_ws_data(&self, data: Bytes) {
-        let result: Result<ServerRevisionWSData, protobuf::ProtobufError> = data.try_into();
+        let result: Result<ServerRevisionWSData, serde_json::Error> = ServerRevisionWSData::try_from(data);
         match result {
             Ok(data) => match self.editor_map.read().await.get(&data.object_id) {
-                None => tracing::error!("Can't find any source handler for {:?}-{:?}", data.object_id, data.ty),
+                None => tracing::error!(
+                    "Can't find any source handler for {:?}-{:?}",
+                    data.object_id,
+                    data.payload
+                ),
                 Some(handler) => match handler.0.receive_ws_data(data).await {
                     Ok(_) => {}
                     Err(e) => tracing::error!("{}", e),
@@ -254,18 +261,15 @@ impl DocumentManager {
         pool: Arc<ConnectionPool>,
     ) -> Result<RevisionManager<Arc<ConnectionPool>>, FlowyError> {
         let user_id = self.user.user_id()?;
-        let disk_cache = SQLiteDocumentRevisionPersistence::new(&user_id, pool.clone());
+        let disk_cache = SQLiteDocumentRevisionPersistence::new(&user_id, pool);
         let configuration = RevisionPersistenceConfiguration::new(100, true);
         let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache, configuration);
-        // let history_persistence = SQLiteRevisionHistoryPersistence::new(doc_id, pool.clone());
-        let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(doc_id, pool);
         Ok(RevisionManager::new(
             &user_id,
             doc_id,
             rev_persistence,
-            DocumentRevisionCompress(),
-            // history_persistence,
-            snapshot_persistence,
+            DocumentRevisionMergeable(),
+            PhantomSnapshotPersistence(),
         ))
     }
 
@@ -275,18 +279,15 @@ impl DocumentManager {
         pool: Arc<ConnectionPool>,
     ) -> Result<RevisionManager<Arc<ConnectionPool>>, FlowyError> {
         let user_id = self.user.user_id()?;
-        let disk_cache = SQLiteDeltaDocumentRevisionPersistence::new(&user_id, pool.clone());
+        let disk_cache = SQLiteDeltaDocumentRevisionPersistence::new(&user_id, pool);
         let configuration = RevisionPersistenceConfiguration::new(100, true);
         let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache, configuration);
-        // let history_persistence = SQLiteRevisionHistoryPersistence::new(doc_id, pool.clone());
-        let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(doc_id, pool);
         Ok(RevisionManager::new(
             &user_id,
             doc_id,
             rev_persistence,
-            DeltaDocumentRevisionCompress(),
-            // history_persistence,
-            snapshot_persistence,
+            DeltaDocumentRevisionMergeable(),
+            PhantomSnapshotPersistence(),
         ))
     }
 }
@@ -299,7 +300,7 @@ struct DocumentRevisionCloudService {
 impl RevisionCloudService for DocumentRevisionCloudService {
     #[tracing::instrument(level = "trace", skip(self))]
     fn fetch_object(&self, user_id: &str, object_id: &str) -> FutureResult<Vec<Revision>, FlowyError> {
-        let params: DocumentIdPB = object_id.to_string().into();
+        let params: DocumentId = object_id.to_string().into();
         let server = self.server.clone();
         let token = self.token.clone();
 
@@ -320,9 +321,10 @@ impl RevisionCloudService for DocumentRevisionCloudService {
 #[derive(Clone)]
 struct RefCountDocumentHandler(Arc<dyn DocumentEditor>);
 
+#[async_trait]
 impl RefCountValue for RefCountDocumentHandler {
-    fn did_remove(&self) {
-        self.0.close();
+    async fn did_remove(&self) {
+        self.0.close().await;
     }
 }
 

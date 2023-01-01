@@ -8,8 +8,8 @@ edition = "2018"
 [dependencies]
 chrono = "0.4.19"
 bytes = { version = "1.0" }
-pin-project = "1.0"
+pin-project = "1.0.12"
 futures-core = { version = "0.3" }
 tokio = { version = "1.0", features = ["time", "rt"] }
 rand = "0.8.5"
-
+async-trait = "0.1.59"

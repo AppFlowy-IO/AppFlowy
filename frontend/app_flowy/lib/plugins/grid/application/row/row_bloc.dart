@@ -18,10 +18,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   RowBloc({
     required RowInfo rowInfo,
     required GridRowDataController dataController,
-  })  : _rowService = RowFFIService(
-          gridId: rowInfo.gridId,
-          blockId: rowInfo.rowPB.blockId,
-        ),
+  })  : _rowService = RowFFIService(gridId: rowInfo.gridId),
         _dataController = dataController,
         super(RowState.initial(rowInfo, dataController.loadData())) {
     on<RowEvent>(

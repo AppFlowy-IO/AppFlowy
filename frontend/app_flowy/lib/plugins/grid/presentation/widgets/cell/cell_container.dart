@@ -30,7 +30,7 @@ class CellContainer extends StatelessWidget {
           cellStateNotifier!..onEnter = rowStateNotifier.onEnter,
       child: Selector<_CellContainerNotifier, bool>(
         selector: (context, notifier) => notifier.isFocus,
-        builder: (context, isFocus, _) {
+        builder: (privderContext, isFocus, _) {
           Widget container = Center(child: GridCellShortcuts(child: child));
 
           if (accessoryBuilder != null) {
