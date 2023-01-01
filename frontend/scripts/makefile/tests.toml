@@ -1,5 +1,23 @@
 
-[tasks.dart_unit_test]
+[tasks.dart_unit_test.macos]
+description = "Run flutter unit tests"
+script = '''
+cargo make --profile test-macos dart_unit_test_inner
+'''
+
+[tasks.dart_unit_test.linux]
+description = "Run flutter unit tests"
+script = '''
+cargo make --profile test-linux dart_unit_test_inner
+'''
+
+[tasks.dart_unit_test.windows]
+description = "Run flutter unit tests"
+script = '''
+cargo make --profile test-windows dart_unit_test_inner
+'''
+
+[tasks.dart_unit_test_inner]
 dependencies = ["build-test-lib"]
 description = "Run flutter unit tests"
 script = '''

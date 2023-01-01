@@ -6,7 +6,14 @@
 
 [tasks.env_check]
 dependencies = ["echo_env", "install_protobuf"]
-condition = { env_set = [ "BUILD_FLAG", "RUST_COMPILE_TARGET", "CRATE_TYPE", "TARGET_OS"],  channels = ["stable"] }
+condition = { env_set = [
+  "BUILD_FLAG",
+  "RUST_COMPILE_TARGET",
+  "CRATE_TYPE",
+  "TARGET_OS",
+], channels = [
+  "stable",
+] }
 
 [tasks.appflowy-sdk-dev]
 mac_alias = "appflowy-sdk-dev-macos"
@@ -16,22 +23,41 @@ linux_alias = "appflowy-sdk-dev-linux"
 [tasks.appflowy-sdk-dev-android]
 category = "Build"
 dependencies = ["env_check"]
-run_task = { name = ["setup-crate-type","sdk-build-android", "restore-crate-type"] }
+run_task = { name = [
+  "setup-crate-type",
+  "sdk-build-android",
+  "restore-crate-type",
+] }
 
 [tasks.appflowy-sdk-dev-macos]
 category = "Build"
 dependencies = ["env_check"]
-run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type"] }
+run_task = { name = [
+  "setup-crate-type",
+  "sdk-build",
+  "post-desktop",
+  "restore-crate-type",
+] }
 
 [tasks.appflowy-sdk-dev-windows]
 category = "Build"
 dependencies = ["env_check"]
-run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type"] }
+run_task = { name = [
+  "setup-crate-type",
+  "sdk-build",
+  "post-desktop",
+  "restore-crate-type",
+] }
 
 [tasks.appflowy-sdk-dev-linux]
 category = "Build"
 dependencies = ["env_check"]
-run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type"] }
+run_task = { name = [
+  "setup-crate-type",
+  "sdk-build",
+  "post-desktop",
+  "restore-crate-type",
+] }
 
 
 #
@@ -90,7 +116,12 @@ script_runner = "@duckscript"
 description = "Build flowy sdk in release mode"
 category = "Build"
 dependencies = ["env_check"]
-run_task = { name = ["setup-crate-type","sdk-release-build", "post-desktop", "restore-crate-type"] }
+run_task = { name = [
+  "setup-crate-type",
+  "sdk-release-build",
+  "post-desktop",
+  "restore-crate-type",
+] }
 
 #
 [tasks.sdk-release-build]
@@ -167,9 +198,19 @@ script_runner = "@duckscript"
 [tasks.build-test-lib]
 category = "Build"
 dependencies = ["env_check"]
-run_task = { name = ["setup-test-crate-type","build-test-backend", "copy-to-sandbox-folder", "restore-test-crate-type"] }
+run_task = { name = [
+  "setup-test-crate-type",
+  "build-test-backend",
+  "copy-to-sandbox-folder",
+  "restore-test-crate-type",
+] }
 
 [tasks.build-test-backend]
+mac_alias = "build-test-backend-default"
+windows_alias = "build-test-backend-widnows"
+linux_alias = "build-test-backend-default"
+
+[tasks.build-test-backend-default]
 private = true
 script = [
   """
@@ -182,14 +223,30 @@ script = [
 ]
 script_runner = "@shell"
 
+[tasks.build-test-backend-widnows]
+private = true
+script = [
+  """
+    cd rust-lib/
+    rustup show
+    echo cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FEATURES}"
+    cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FEATURES}"
+    cd ../
+  """,
+]
+script_runner = "@shell"
+
 [tasks.copy-to-sandbox-folder]
 private = true
 script = [
   """
     # Copy the flowy_sdk lib to system temp directory for flutter unit test.
-    lib = set lib${LIB_NAME}.${TEST_LIB_EXT}
+    lib = set ${LIB_NAME}.${TEST_LIB_EXT}
     dest = set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/.sandbox/${lib}
     rm ${dest}
+    echo ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${TEST_COMPILE_TARGET}/${TEST_BUILD_FLAG}/${lib} \
+    ${dest}
+ 
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${TEST_COMPILE_TARGET}/${TEST_BUILD_FLAG}/${lib} \
     ${dest}
   """,
