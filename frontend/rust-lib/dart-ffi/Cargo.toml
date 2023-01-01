@@ -31,7 +31,7 @@ dart-notify = { path = "../dart-notify" }
 flowy-derive = { path = "../flowy-derive" }
 
 [features]
-default = ["flowy-sdk/dart", "dart-notify/dart", "flutter"]
+default = ["flowy-sdk/dart", "flutter"]
 flutter = []
 http_sync = ["flowy-sdk/http_sync", "flowy-sdk/use_bunyan"]
 openssl_vendored = ["flowy-sdk/openssl_vendored"]
