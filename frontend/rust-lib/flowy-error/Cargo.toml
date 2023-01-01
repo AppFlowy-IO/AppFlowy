@@ -31,4 +31,4 @@ db = ["flowy-database", "lib-sqlite", "r2d2"]
 dart = ["flowy-codegen/dart"]
 
 [build-dependencies]
-flowy-codegen = { path = "../flowy-codegen"}
+flowy-codegen = { path = "../flowy-codegen", features = ["proto_gen"]}
