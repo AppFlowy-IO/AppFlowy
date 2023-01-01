@@ -38,7 +38,7 @@ jobs:
         with:
           channel: "stable"
           cache: true
-          flutter-version: "3.0.5"
+          flutter-version: "3.3.9"
 
       - name: Cache Cargo
         id: cache-cargo
