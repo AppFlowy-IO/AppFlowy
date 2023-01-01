@@ -18,7 +18,7 @@ lib-dispatch = { path = "../lib-dispatch" }
 flowy-database = { path = "../flowy-database" }
 flowy-revision = { path = "../flowy-revision" }
 flowy-error = { path = "../flowy-error", features = ["collaboration", "ot", "http_server", "serde", "db"] }
-dart-notify = { path = "../dart-notify" }
+dart-notify = { path = "../dart-notify", features = ["dart"] }
 
 diesel = {version = "1.4.8", features = ["sqlite"]}
 diesel_derives = {version = "1.4.1", features = ["sqlite"]}

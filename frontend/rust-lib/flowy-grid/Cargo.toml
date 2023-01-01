@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 lib-dispatch = { path = "../lib-dispatch" }
-dart-notify = { path = "../dart-notify" }
+dart-notify = { path = "../dart-notify", features = ["dart"] }
 flowy-revision = { path = "../flowy-revision" }
 flowy-task= { path = "../flowy-task" }
 flowy-error = { path = "../flowy-error", features = ["db"]}
