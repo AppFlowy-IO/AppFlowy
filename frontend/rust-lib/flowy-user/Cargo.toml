@@ -11,7 +11,7 @@ flowy-database = { path = "../flowy-database" }
 flowy-error = { path = "../flowy-error", features = ["db", "http_server"] }
 
 lib-infra = { path = "../../../shared-lib/lib-infra" }
-dart-notify = { path = "../dart-notify" }
+dart-notify = { path = "../dart-notify", features = ["dart"] }
 lib-dispatch = { path = "../lib-dispatch" }
 
 tracing = { version = "0.1", features = ["log"] }
