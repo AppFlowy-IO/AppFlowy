@@ -27,7 +27,7 @@ parking_lot = "0.12.1"
 
 lib-dispatch = { path = "../lib-dispatch" }
 flowy-sdk = { path = "../flowy-sdk" }
-dart-notify = { path = "../dart-notify", feature = ["dart"] }
+dart-notify = { path = "../dart-notify" }
 flowy-derive = { path = "../flowy-derive" }
 
 [features]

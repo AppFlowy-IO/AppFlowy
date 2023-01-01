@@ -32,7 +32,7 @@ jobs:
           override: true
       - uses: subosito/flutter-action@v1
         with:
-          flutter-version: '3.0.5'
+          flutter-version: '3.3.9'
           channel: "stable"
 
       - name: Rust Deps
