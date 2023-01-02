@@ -16,7 +16,7 @@ lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-document = { path = "../flowy-document" }
 flowy-database = { path = "../flowy-database" }
 flowy-error = { path = "../flowy-error", features = ["db", "http_server"]}
-dart-notify = { path = "../dart-notify", features = ["dart"] }
+dart-notify = { path = "../dart-notify" }
 lib-dispatch = { path = "../lib-dispatch" }
 flowy-revision = { path = "../flowy-revision" }
 
@@ -50,4 +50,4 @@ default = []
 sync = []
 cloud_sync = ["sync"]
 flowy_unit_test = ["lib-ot/flowy_unit_test", "flowy-revision/flowy_unit_test"]
-dart = ["flowy-codegen/dart"]
+dart = ["flowy-codegen/dart", "dart-notify/dart"]

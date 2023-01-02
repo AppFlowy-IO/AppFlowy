@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 lib-dispatch = { path = "../lib-dispatch" }
-dart-notify = { path = "../dart-notify", features = ["dart"] }
+dart-notify = { path = "../dart-notify" }
 flowy-revision = { path = "../flowy-revision" }
 flowy-task= { path = "../flowy-task" }
 flowy-error = { path = "../flowy-error", features = ["db"]}
@@ -56,5 +56,5 @@ flowy-codegen = { path = "../flowy-codegen"}
 
 [features]
 default = []
-dart = ["flowy-codegen/dart"]
+dart = ["flowy-codegen/dart", "dart-notify/dart"]
 flowy_unit_test = ["flowy-revision/flowy_unit_test"]
