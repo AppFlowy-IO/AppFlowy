@@ -65,7 +65,7 @@ impl TypeOptionTransform for CheckboxTypeOptionPB {
         if decoded_field_type.is_text() {
             match CheckboxCellData::from_str(&cell_str) {
                 Ok(cell_data) => Some(cell_data),
-                _flowy_error => None,
+                Err(_) => None,
             }
         } else {
             None
