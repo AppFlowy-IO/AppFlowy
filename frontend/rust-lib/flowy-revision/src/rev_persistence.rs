@@ -364,7 +364,7 @@ impl<C> RevisionMemoryCacheDelegate for Arc<dyn RevisionDiskCache<C, Error = Flo
     fn receive_ack(&self, object_id: &str, rev_id: i64) {
         let changeset = RevisionChangeset {
             object_id: object_id.to_string(),
-            rev_id: rev_id.into(),
+            rev_id,
             state: RevisionState::Ack,
         };
         match self.update_revision_record(vec![changeset]) {

@@ -69,7 +69,7 @@ impl TypeOptionTransform for RichTextTypeOptionPB {
         {
             Some(stringify_cell_data(cell_str.to_owned(), decoded_field_type, decoded_field_type, field_rev).into())
         } else {
-            StrCellData::from_cell_str(&cell_str).ok()
+            StrCellData::from_cell_str(cell_str).ok()
         }
     }
 }

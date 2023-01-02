@@ -206,7 +206,7 @@ async fn grid_switch_from_multi_select_to_text_test() {
     let mut test = GridFieldTest::new().await;
     let field_rev = test.get_first_field_rev(FieldType::MultiSelect).clone();
 
-    let mut multi_select_type_option = test.get_multi_select_type_option(&field_rev.id);
+    let multi_select_type_option = test.get_multi_select_type_option(&field_rev.id);
 
     let script_switch_field = vec![SwitchToField {
         field_id: field_rev.id.clone(),
@@ -221,8 +221,8 @@ async fn grid_switch_from_multi_select_to_text_test() {
         from_field_type: FieldType::MultiSelect,
         expected_content: format!(
             "{},{}",
-            multi_select_type_option.get_mut(0).unwrap().name.to_string(),
-            multi_select_type_option.get_mut(1).unwrap().name.to_string()
+            multi_select_type_option.get(0).unwrap().name,
+            multi_select_type_option.get(1).unwrap().name
         ),
     }];
 

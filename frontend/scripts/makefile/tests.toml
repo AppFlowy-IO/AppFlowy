@@ -1,21 +1,15 @@
 
-[tasks.dart_unit_test.macos]
-description = "Run flutter unit tests"
+[tasks.dart_unit_test]
 script = '''
-cargo make --profile test-macos dart_unit_test_inner
+cargo make dart_unit_test_inner
 '''
-
-[tasks.dart_unit_test.linux]
-description = "Run flutter unit tests"
-script = '''
-cargo make --profile test-linux dart_unit_test_inner
-'''
+script_runner = "@shell"
 
 [tasks.dart_unit_test.windows]
-description = "Run flutter unit tests"
 script = '''
 cargo make --profile test-windows dart_unit_test_inner
 '''
+script_runner = "@shell"
 
 [tasks.dart_unit_test_inner]
 dependencies = ["build-test-lib"]
@@ -32,14 +26,14 @@ run_task = { name = ["rust_lib_unit_test", "shared_lib_unit_test"] }
 description = "Run rust-lib unit tests"
 script = '''
 cd rust-lib
-RUST_LOG=info cargo test --no-default-features --features="sync"
+cargo test --no-default-features --features="sync"
 '''
 
 [tasks.shared_lib_unit_test]
 description = "Run shared-lib unit test"
 script = '''
 cd ../shared-lib
-RUST_LOG=info cargo test --no-default-features
+cargo test --no-default-features
 '''
 
 [tasks.check_grcov]

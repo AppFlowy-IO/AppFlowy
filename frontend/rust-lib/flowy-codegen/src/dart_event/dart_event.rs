@@ -22,7 +22,7 @@ pub fn gen(crate_name: &str) {
 
     let crate_path = std::fs::canonicalize(".").unwrap().as_path().display().to_string();
     let event_crates = parse_dart_event_files(vec![crate_path]);
-    let event_ast = event_crates.iter().map(parse_event_crate).flatten().collect::<Vec<_>>();
+    let event_ast = event_crates.iter().flat_map(parse_event_crate).collect::<Vec<_>>();
 
     let event_render_ctx = ast_to_event_render_ctx(event_ast.as_ref());
     let mut render_result = DART_IMPORTED.to_owned();
@@ -109,14 +109,14 @@ pub fn parse_event_crate(event_crate: &DartEventCrate) -> Vec<EventASTContext> {
     event_crate
         .event_files
         .iter()
-        .map(|event_file| {
+        .flat_map(|event_file| {
             let file_path = path_string_with_component(&event_crate.crate_path, vec![event_file.as_str()]);
 
             let file_content = read_file(file_path.as_ref()).unwrap();
             let ast = syn::parse_file(file_content.as_ref()).expect("Unable to parse file");
             ast.items
                 .iter()
-                .map(|item| match item {
+                .flat_map(|item| match item {
                     Item::Enum(item_enum) => {
                         let ast_result = ASTResult::new();
                         let attrs = flowy_ast::enum_from_ast(
@@ -135,10 +135,8 @@ pub fn parse_event_crate(event_crate: &DartEventCrate) -> Vec<EventASTContext> {
                     }
                     _ => vec![],
                 })
-                .flatten()
                 .collect::<Vec<_>>()
         })
-        .flatten()
         .collect::<Vec<EventASTContext>>()
 }
 
