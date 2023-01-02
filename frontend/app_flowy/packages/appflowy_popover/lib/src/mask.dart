@@ -107,10 +107,11 @@ class _PopoverMaskState extends State<PopoverMask> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: Container(
-        decoration: widget.decoration,
+    return MouseRegion(
+      opaque: false,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: Container(decoration: widget.decoration),
       ),
     );
   }
