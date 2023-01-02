@@ -4,6 +4,7 @@ use flowy_database::{schema::user_table, DBConnection, Database};
 use flowy_error::{ErrorCode, FlowyError};
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
+use std::path::PathBuf;
 use std::{collections::HashMap, sync::Arc, time::Duration};
 
 pub struct UserDB {
@@ -34,7 +35,11 @@ impl UserDB {
             Some(database) => return Ok(database.get_pool()),
         }
 
-        let dir = format!("{}/{}", self.db_dir, user_id);
+        let mut dir = PathBuf::new();
+        dir.push(&self.db_dir);
+        dir.push(user_id);
+        let dir = dir.to_str().unwrap().to_owned();
+
         tracing::trace!("open user db {} at path: {}", user_id, dir);
         let db = flowy_database::init(&dir).map_err(|e| {
             log::error!("open user: {} db failed, {:?}", user_id, e);
