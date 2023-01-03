@@ -20,6 +20,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
   RUST_TOOLCHAIN: "1.65"
+  FLUTTER_VERSION: "3.3.9"
 
 jobs:
   test-on-ubuntu:
@@ -36,6 +37,14 @@ jobs:
           override: true
           components: rustfmt, clippy
           profile: minimal
+
+      - name: Install flutter
+        id: flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
 
       - name: Install prerequisites
         working-directory: frontend
