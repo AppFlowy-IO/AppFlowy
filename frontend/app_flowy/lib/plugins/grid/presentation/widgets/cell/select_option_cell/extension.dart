@@ -62,13 +62,11 @@ extension SelectOptionColorExtension on SelectOptionColorPB {
 class SelectOptionTag extends StatelessWidget {
   final String name;
   final Color color;
-  final bool isSelected;
   final VoidCallback? onSelected;
   const SelectOptionTag({
     required this.name,
     required this.color,
     this.onSelected,
-    this.isSelected = false,
     Key? key,
   }) : super(key: key);
 
@@ -76,12 +74,10 @@ class SelectOptionTag extends StatelessWidget {
     required BuildContext context,
     required SelectOptionPB option,
     VoidCallback? onSelected,
-    bool isSelected = false,
   }) {
     return SelectOptionTag(
       name: option.name,
       color: option.color.make(context),
-      isSelected: isSelected,
       onSelected: onSelected,
     );
   }
