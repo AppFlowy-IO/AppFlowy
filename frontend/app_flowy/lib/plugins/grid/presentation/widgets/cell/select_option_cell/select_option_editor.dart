@@ -159,6 +159,13 @@ class _TextField extends StatelessWidget {
                     remainder,
                   ));
             },
+            onRemove: (optionName) {
+              context
+                  .read<SelectOptionCellEditorBloc>()
+                  .add(SelectOptionEditorEvent.unSelectOption(
+                    optionMap[optionName]!.id,
+                  ));
+            },
           ),
         );
       },
