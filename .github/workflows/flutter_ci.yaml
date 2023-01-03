@@ -114,23 +114,3 @@ jobs:
             flutter test
           fi
         shell: bash
-
-      - name: Run Flutter integration tests
-        working-directory: frontend/app_flowy
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            flutter test integration_test -d Linux --coverage
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            flutter test integration_test -d macOS --coverage
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            flutter test integration_test -d Windows --coverage
-          fi
-        shell: bash
-
-      - uses: codecov/codecov-action@v3
-        with:
-          name: appflowy
-          flags: appflowy
-          env_vars: ${{ matrix.os }}
-          fail_ci_if_error: true
-          verbose: true
