@@ -142,9 +142,15 @@ impl SortController {
         });
     }
 
+    pub async fn delete_all_sorts(&mut self) {
+        self.sorts.clear();
+        self.gen_task(SortEvent::SortDidChanged, QualityOfService::Background)
+            .await;
+    }
+
     #[tracing::instrument(level = "trace", skip(self))]
     pub async fn did_receive_changes(&mut self, changeset: SortChangeset) -> SortChangesetNotificationPB {
-        let mut notification = SortChangesetNotificationPB::default();
+        let mut notification = SortChangesetNotificationPB::new(self.view_id.clone());
         if let Some(insert_sort) = changeset.insert_sort {
             if let Some(sort) = self.delegate.get_sort_rev(insert_sort).await {
                 notification.insert_sorts.push(sort.as_ref().into());

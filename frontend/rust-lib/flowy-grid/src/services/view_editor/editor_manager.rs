@@ -148,6 +148,11 @@ impl GridViewManager {
         view_editor.insert_view_sort(params).await
     }
 
+    pub async fn delete_all_sorts(&self, view_id: &str) -> FlowyResult<()> {
+        let view_editor = self.get_view_editor(view_id).await?;
+        view_editor.delete_all_view_sorts().await
+    }
+
     pub async fn delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
         let view_editor = self.get_view_editor(&params.view_id).await?;
         view_editor.delete_view_sort(params).await

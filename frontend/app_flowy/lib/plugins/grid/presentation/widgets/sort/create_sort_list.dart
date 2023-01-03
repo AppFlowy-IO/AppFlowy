@@ -49,7 +49,7 @@ class _GridCreateSortListState extends State<GridCreateSortList> {
       value: editBloc,
       child: BlocListener<CreateSortBloc, CreateSortState>(
         listener: (context, state) {
-          if (state.didCreateFilter) {
+          if (state.didCreateSort) {
             widget.onClosed();
           }
         },
@@ -58,9 +58,9 @@ class _GridCreateSortListState extends State<GridCreateSortList> {
             final cells = state.creatableFields.map((fieldInfo) {
               return SizedBox(
                 height: GridSize.typeOptionItemHeight,
-                child: _FilterPropertyCell(
+                child: _SortPropertyCell(
                   fieldInfo: fieldInfo,
-                  onTap: (fieldInfo) => createFilter(fieldInfo),
+                  onTap: (fieldInfo) => createSort(fieldInfo),
                 ),
               );
             }).toList();
@@ -102,8 +102,8 @@ class _GridCreateSortListState extends State<GridCreateSortList> {
     super.dispose();
   }
 
-  void createFilter(FieldInfo field) {
-    editBloc.add(CreateSortEvent.createDefaultFilter(field));
+  void createSort(FieldInfo field) {
+    editBloc.add(CreateSortEvent.createDefaultSort(field));
     widget.onCreateSort?.call();
   }
 }
@@ -145,10 +145,10 @@ class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
-class _FilterPropertyCell extends StatelessWidget {
+class _SortPropertyCell extends StatelessWidget {
   final FieldInfo fieldInfo;
   final Function(FieldInfo) onTap;
-  const _FilterPropertyCell({
+  const _SortPropertyCell({
     required this.fieldInfo,
     required this.onTap,
     Key? key,

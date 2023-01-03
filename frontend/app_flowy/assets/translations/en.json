@@ -273,6 +273,12 @@
       "newColumn": "New column",
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted"
     },
+    "sort": {
+      "ascending": "Ascending",
+      "descending": "Descending",
+      "deleteSort": "Delete sort",
+      "addSort": "Add sort"
+    },
     "row": {
       "duplicate": "Duplicate",
       "delete": "Delete",

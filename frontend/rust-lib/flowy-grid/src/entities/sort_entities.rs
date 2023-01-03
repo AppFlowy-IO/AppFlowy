@@ -195,6 +195,15 @@ pub struct SortChangesetNotificationPB {
 }
 
 impl SortChangesetNotificationPB {
+    pub fn new(view_id: String) -> Self {
+        Self {
+            view_id,
+            insert_sorts: vec![],
+            delete_sorts: vec![],
+            update_sorts: vec![],
+        }
+    }
+
     pub fn extend(&mut self, other: SortChangesetNotificationPB) {
         self.insert_sorts.extend(other.insert_sorts);
         self.delete_sorts.extend(other.delete_sorts);

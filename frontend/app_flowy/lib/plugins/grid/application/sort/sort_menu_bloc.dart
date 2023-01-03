@@ -1,21 +1,22 @@
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
-import 'package:app_flowy/plugins/grid/presentation/widgets/filter/filter_info.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/sort/sort_info.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
+import 'util.dart';
 
 part 'sort_menu_bloc.freezed.dart';
 
 class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
   final String viewId;
   final GridFieldController fieldController;
-  void Function(List<FilterInfo>)? _onFilterFn;
+  void Function(List<SortInfo>)? _onSortChangeFn;
   void Function(List<FieldInfo>)? _onFieldFn;
 
   SortMenuBloc({required this.viewId, required this.fieldController})
       : super(SortMenuState.initial(
           viewId,
-          fieldController.filterInfos,
+          fieldController.sortInfos,
           fieldController.fieldInfos,
         )) {
     on<SortMenuEvent>(
@@ -24,8 +25,8 @@ class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
           initial: () {
             _startListening();
           },
-          didReceiveFilters: (filters) {
-            emit(state.copyWith(filters: filters));
+          didReceiveSortInfos: (sortInfos) {
+            emit(state.copyWith(sortInfos: sortInfos));
           },
           toggleMenu: () {
             final isVisible = !state.isVisible;
@@ -35,7 +36,7 @@ class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
             emit(
               state.copyWith(
                 fields: fields,
-                creatableFields: getCreatableSort(fields),
+                creatableFields: getCreatableSorts(fields),
               ),
             );
           },
@@ -45,8 +46,8 @@ class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
   }
 
   void _startListening() {
-    _onFilterFn = (filters) {
-      add(SortMenuEvent.didReceiveFilters(filters));
+    _onSortChangeFn = (sortInfos) {
+      add(SortMenuEvent.didReceiveSortInfos(sortInfos));
     };
 
     _onFieldFn = (fields) {
@@ -54,8 +55,8 @@ class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
     };
 
     fieldController.addListener(
-      onFilters: (filters) {
-        _onFilterFn?.call(filters);
+      onSorts: (sortInfos) {
+        _onSortChangeFn?.call(sortInfos);
       },
       onFields: (fields) {
         _onFieldFn?.call(fields);
@@ -65,9 +66,9 @@ class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
 
   @override
   Future<void> close() {
-    if (_onFilterFn != null) {
-      fieldController.removeListener(onFiltersListener: _onFilterFn!);
-      _onFilterFn = null;
+    if (_onSortChangeFn != null) {
+      fieldController.removeListener(onSortsListener: _onSortChangeFn!);
+      _onSortChangeFn = null;
     }
     if (_onFieldFn != null) {
       fieldController.removeListener(onFieldsListener: _onFieldFn!);
@@ -80,8 +81,8 @@ class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
 @freezed
 class SortMenuEvent with _$SortMenuEvent {
   const factory SortMenuEvent.initial() = _Initial;
-  const factory SortMenuEvent.didReceiveFilters(List<FilterInfo> filters) =
-      _DidReceiveFilters;
+  const factory SortMenuEvent.didReceiveSortInfos(List<SortInfo> sortInfos) =
+      _DidReceiveSortInfos;
   const factory SortMenuEvent.didReceiveFields(List<FieldInfo> fields) =
       _DidReceiveFields;
   const factory SortMenuEvent.toggleMenu() = _SetMenuVisibility;
@@ -91,7 +92,7 @@ class SortMenuEvent with _$SortMenuEvent {
 class SortMenuState with _$SortMenuState {
   const factory SortMenuState({
     required String viewId,
-    required List<FilterInfo> filters,
+    required List<SortInfo> sortInfos,
     required List<FieldInfo> fields,
     required List<FieldInfo> creatableFields,
     required bool isVisible,
@@ -99,20 +100,14 @@ class SortMenuState with _$SortMenuState {
 
   factory SortMenuState.initial(
     String viewId,
-    List<FilterInfo> filterInfos,
+    List<SortInfo> sortInfos,
     List<FieldInfo> fields,
   ) =>
       SortMenuState(
         viewId: viewId,
-        filters: filterInfos,
+        sortInfos: sortInfos,
         fields: fields,
-        creatableFields: getCreatableSort(fields),
+        creatableFields: getCreatableSorts(fields),
         isVisible: false,
       );
-}
-
-List<FieldInfo> getCreatableSort(List<FieldInfo> fieldInfos) {
-  final List<FieldInfo> creatableFields = List.from(fieldInfos);
-  creatableFields.retainWhere((element) => element.canCreateSort);
-  return creatableFields;
 }

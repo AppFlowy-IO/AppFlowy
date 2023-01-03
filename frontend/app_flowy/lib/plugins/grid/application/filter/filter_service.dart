@@ -197,8 +197,6 @@ class FilterFFIService {
     required String filterId,
     required FieldType fieldType,
   }) {
-    TextFilterConditionPB.DoesNotContain.value;
-
     final deleteFilterPayload = DeleteFilterPayloadPB.create()
       ..fieldId = fieldId
       ..filterId = filterId

@@ -21,13 +21,13 @@ import '../application/setting/setting_bloc.dart';
 import 'controller/grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
+import 'widgets/accessory_menu.dart';
 import 'widgets/cell/cell_builder.dart';
 import 'widgets/row/grid_row.dart';
 import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
 import 'widgets/row/row_detail.dart';
 import 'widgets/shortcuts.dart';
-import 'widgets/filter/menu.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
 
 class GridPage extends StatefulWidget {
@@ -146,7 +146,7 @@ class _FlowyGridState extends State<FlowyGrid> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const GridToolbar(),
-            const GridFilterMenu(),
+            GridAccessoryMenu(viewId: state.gridId),
             _gridHeader(context, state.gridId),
             Flexible(child: child),
             const RowCountBadge(),

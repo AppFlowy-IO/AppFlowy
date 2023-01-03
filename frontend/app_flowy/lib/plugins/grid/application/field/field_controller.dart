@@ -202,7 +202,11 @@ class GridFieldController {
         final filterIndex =
             filters.indexWhere((element) => element.filter.id == newFilter.id);
         if (filterIndex == -1) {
-          final fieldInfo = _findFieldInfoForFilter(fieldInfos, newFilter);
+          final fieldInfo = _findFieldInfo(
+            fieldInfos: fieldInfos,
+            fieldId: newFilter.fieldId,
+            fieldType: newFilter.fieldType,
+          );
           if (fieldInfo != null) {
             _filterPBByFieldId[fieldInfo.id] = newFilter;
             filters.add(FilterInfo(gridId, newFilter, fieldInfo));
@@ -229,9 +233,10 @@ class GridFieldController {
         // Insert the filter if there is a fitler and its field info is
         // not null
         if (updatedFilter.hasFilter()) {
-          final fieldInfo = _findFieldInfoForFilter(
-            fieldInfos,
-            updatedFilter.filter,
+          final fieldInfo = _findFieldInfo(
+            fieldInfos: fieldInfos,
+            fieldId: updatedFilter.filter.fieldId,
+            fieldType: updatedFilter.filter.fieldType,
           );
 
           if (fieldInfo != null) {
@@ -294,8 +299,16 @@ class GridFieldController {
         final sortIndex = newSortInfos
             .indexWhere((element) => element.sortId == newSortPB.id);
         if (sortIndex == -1) {
-          _sortPBByFieldId[newSortPB.fieldId] = newSortPB;
-          newSortInfos.add(SortInfo(sortPB: newSortPB));
+          final fieldInfo = _findFieldInfo(
+            fieldInfos: fieldInfos,
+            fieldId: newSortPB.fieldId,
+            fieldType: newSortPB.fieldType,
+          );
+
+          if (fieldInfo != null) {
+            _sortPBByFieldId[newSortPB.fieldId] = newSortPB;
+            newSortInfos.add(SortInfo(sortPB: newSortPB, fieldInfo: fieldInfo));
+          }
         }
       }
     }
@@ -313,13 +326,24 @@ class GridFieldController {
           newSortInfos.removeAt(sortIndex);
         }
 
-        final newSortInfo = SortInfo(sortPB: updatedSort);
-        if (sortIndex != -1) {
-          newSortInfos.insert(sortIndex, newSortInfo);
-        } else {
-          newSortInfos.add(newSortInfo);
+        final fieldInfo = _findFieldInfo(
+          fieldInfos: fieldInfos,
+          fieldId: updatedSort.fieldId,
+          fieldType: updatedSort.fieldType,
+        );
+
+        if (fieldInfo != null) {
+          final newSortInfo = SortInfo(
+            sortPB: updatedSort,
+            fieldInfo: fieldInfo,
+          );
+          if (sortIndex != -1) {
+            newSortInfos.insert(sortIndex, newSortInfo);
+          } else {
+            newSortInfos.add(newSortInfo);
+          }
+          _sortPBByFieldId[updatedSort.fieldId] = updatedSort;
         }
-        _sortPBByFieldId[updatedSort.fieldId] = updatedSort;
       }
     }
 
@@ -330,6 +354,7 @@ class GridFieldController {
           deleteSortFromChangeset(newSortInfos, changeset);
           insertSortFromChangeset(newSortInfos, changeset);
           updateSortFromChangeset(newSortInfos, changeset);
+          _sortNotifier?.sorts = newSortInfos;
         },
         (err) => Log.error(err),
       );
@@ -443,7 +468,11 @@ class GridFieldController {
         (filterPBs) {
           final List<FilterInfo> filters = [];
           for (final filterPB in filterPBs) {
-            final fieldInfo = _findFieldInfoForFilter(fieldInfos, filterPB);
+            final fieldInfo = _findFieldInfo(
+              fieldInfos: fieldInfos,
+              fieldId: filterPB.fieldId,
+              fieldType: filterPB.fieldType,
+            );
             if (fieldInfo != null) {
               final filterInfo = FilterInfo(gridId, filterPB, fieldInfo);
               filters.add(filterInfo);
@@ -465,8 +494,16 @@ class GridFieldController {
         (sortPBs) {
           final List<SortInfo> sortInfos = [];
           for (final sortPB in sortPBs) {
-            final sortInfo = SortInfo(sortPB: sortPB);
-            sortInfos.add(sortInfo);
+            final fieldInfo = _findFieldInfo(
+              fieldInfos: fieldInfos,
+              fieldId: sortPB.fieldId,
+              fieldType: sortPB.fieldType,
+            );
+
+            if (fieldInfo != null) {
+              final sortInfo = SortInfo(sortPB: sortPB, fieldInfo: fieldInfo);
+              sortInfos.add(sortInfo);
+            }
           }
 
           _updateFieldInfos();
@@ -535,6 +572,7 @@ class GridFieldController {
 
   void removeListener({
     OnReceiveFields? onFieldsListener,
+    OnReceiveSorts? onSortsListener,
     OnReceiveFilters? onFiltersListener,
     OnReceiveUpdateFields? onChangesetListener,
   }) {
@@ -548,6 +586,13 @@ class GridFieldController {
       final callback = _filterCallbacks.remove(onFiltersListener);
       if (callback != null) {
         _filterNotifier?.removeListener(callback);
+      }
+    }
+
+    if (onSortsListener != null) {
+      final callback = _sortCallbacks.remove(onSortsListener);
+      if (callback != null) {
+        _sortNotifier?.removeListener(callback);
       }
     }
   }
@@ -647,11 +692,13 @@ class GridRowFieldNotifierImpl extends IGridRowFieldNotifier {
   }
 }
 
-FieldInfo? _findFieldInfoForFilter(
-    List<FieldInfo> fieldInfos, FilterPB filter) {
+FieldInfo? _findFieldInfo({
+  required List<FieldInfo> fieldInfos,
+  required String fieldId,
+  required FieldType fieldType,
+}) {
   final fieldIndex = fieldInfos.indexWhere((element) {
-    return element.id == filter.fieldId &&
-        element.fieldType == filter.fieldType;
+    return element.id == fieldId && element.fieldType == fieldType;
   });
   if (fieldIndex != -1) {
     return fieldInfos[fieldIndex];

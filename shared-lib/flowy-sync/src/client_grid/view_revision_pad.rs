@@ -194,6 +194,13 @@ impl GridViewRevisionPad {
         })
     }
 
+    pub fn delete_all_sorts(&mut self) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
+        self.modify(|view| {
+            view.sorts.clear();
+            Ok(Some(()))
+        })
+    }
+
     pub fn get_all_filters(&self, field_revs: &[Arc<FieldRevision>]) -> Vec<Arc<FilterRevision>> {
         self.filters.get_objects_by_field_revs(field_revs)
     }

@@ -618,6 +618,10 @@ impl GridRevisionEditor {
             .collect())
     }
 
+    pub async fn delete_all_sorts(&self, view_id: &str) -> FlowyResult<()> {
+        self.view_manager.delete_all_sorts(view_id).await
+    }
+
     pub async fn delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
         let _ = self.view_manager.delete_sort(params).await?;
         Ok(())

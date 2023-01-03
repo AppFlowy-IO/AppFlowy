@@ -23,7 +23,7 @@ class _SortButtonState extends State<SortButton> {
   Widget build(BuildContext context) {
     return BlocBuilder<SortMenuBloc, SortMenuState>(
       builder: (context, state) {
-        final textColor = state.filters.isEmpty
+        final textColor = state.sortInfos.isEmpty
             ? null
             : Theme.of(context).colorScheme.primary;
 
@@ -40,7 +40,7 @@ class _SortButtonState extends State<SortButton> {
               padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
               onPressed: () {
                 final bloc = context.read<SortMenuBloc>();
-                if (bloc.state.filters.isEmpty) {
+                if (bloc.state.sortInfos.isEmpty) {
                   _popoverController.show();
                 } else {
                   bloc.add(const SortMenuEvent.toggleMenu());

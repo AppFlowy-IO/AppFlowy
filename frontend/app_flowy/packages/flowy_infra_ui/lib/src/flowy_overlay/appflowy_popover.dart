@@ -42,6 +42,7 @@ class AppFlowyPopover extends StatelessWidget {
       triggerActions: triggerActions,
       popupBuilder: (context) {
         final child = popupBuilder(context);
+        debugPrint("Show popover: $child");
         return _PopoverContainer(
           constraints: constraints,
           margin: margin,
