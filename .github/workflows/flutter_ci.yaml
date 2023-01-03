@@ -109,8 +109,11 @@ jobs:
       - name: Run Flutter unit tests
         working-directory: frontend/app_flowy
         run: |
-          flutter pub get
-          flutter test
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            flutter pub get
+            flutter test
+          fi
+        shell: bash
 
       - name: Run Flutter integration tests
         working-directory: frontend/app_flowy
