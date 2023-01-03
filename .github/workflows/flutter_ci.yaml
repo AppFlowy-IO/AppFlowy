@@ -101,14 +101,17 @@ jobs:
         working-directory: frontend/app_flowy
         run: flutter analyze
 
+<<<<<<< Updated upstream
       - if: "$RUNNER_OS" == "Linux"
         name: Build Flutter unit test lib
+=======
+      - name: Build Flutter unit test lib
+>>>>>>> Stashed changes
         working-directory: frontend
         run: |
           cargo make build-test-lib
 
-      - if: "$RUNNER_OS" == "Linux"
-        name: Run Flutter unit tests
+      - name: Run Flutter unit tests
         working-directory: frontend/app_flowy
         run: |
           flutter pub get
