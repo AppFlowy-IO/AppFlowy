@@ -1,13 +1,14 @@
 name: Rust code coverage
 
-on:
-  push:
-    branches:
-      - "main"
-      - "release/*"
-    paths:
-      - "frontend/rust-lib/**"
-      - "shared-lib/**"
+on: [pull_request, push]
+#on:
+#  push:
+#    branches:
+#      - "main"
+#      - "release/*"
+#    paths:
+#      - "frontend/rust-lib/**"
+#      - "shared-lib/**"
 
 env:
   CARGO_TERM_COLOR: always
@@ -49,7 +50,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.3.9'
+          flutter-version: '3.0.5'
 
       - name: Install code-coverage tools
         working-directory: frontend
