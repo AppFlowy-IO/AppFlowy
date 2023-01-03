@@ -1,0 +1,74 @@
+name: Rust-CI
+
+on:
+  push:
+    branches:
+      - "main"
+      - "release/*"
+    paths:
+      - "frontend/rust-lib/**"
+      - "shared-lib/**"
+
+  pull_request:
+    branches:
+      - "main"
+      - "release/*"
+    paths:
+      - "frontend/rust-lib/**"
+      - "shared-lib/**"
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_TOOLCHAIN: "1.65"
+
+jobs:
+  test-on-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Rust toolchain
+        id: rust_toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          override: true
+          components: rustfmt, clippy
+          profile: minimal
+
+      - name: Install prerequisites
+        working-directory: frontend
+        run: |
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: ${{ matrix.job.os }}
+
+      - name: Build FlowySDK
+        working-directory: frontend
+        run: |
+          cargo make --profile development-linux-x86_64 appflowy-sdk-dev
+
+      - name: rustfmt rust-lib
+        run: cargo fmt --all -- --check
+        working-directory: frontend/rust-lib/
+
+      - name: clippy rust-lib
+        run: cargo clippy --no-default-features
+        working-directory: frontend/rust-lib
+
+      - name: Run rust-lib tests
+        working-directory: frontend/rust-lib
+        run: RUST_LOG=info cargo test --no-default-features --features="sync"
+
+      - name: rustfmt shared-lib
+        run: cargo fmt --all -- --check
+        working-directory: shared-lib
+
+      - name: clippy shared-lib
+        run: cargo clippy --no-default-features
+        working-directory: shared-lib
+
+      - name: Run shared-lib tests
+        working-directory: shared-lib
+        run: RUST_LOG=info cargo test --no-default-features

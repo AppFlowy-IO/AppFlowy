@@ -1,4 +1,4 @@
-name: integration test
+name: Flutter-CI
 
 on:
   push:
@@ -6,56 +6,68 @@ on:
       - "main"
       - "release/*"
     paths:
-      - "frontend/app_flowy/**"
+      - "frontend/**"
 
   pull_request:
     branches:
       - "main"
       - "release/*"
     paths:
-      - "frontend/app_flowy/**"
+      - "frontend/**"
 
 env:
-  CARGO_TERM_COLOR: always
+  FLUTTER_VERSION: "3.3.9"
+  RUST_TOOLCHAIN: "1.65"
 
 jobs:
-  tests:
+  build:
     strategy:
+      fail-fast: false
       matrix:
-        os: [macos-latest]
-
+        job:
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-latest,}
+          - { target: x86_64-apple-darwin, os: macos-latest, }
+          - { target: x86_64-pc-windows-msvc, os: windows-latest, }
+        include:
+          - os: ubuntu-latest
+            flutter_profile: development-linux-x86_64
+          - os: macos-latest
+            flutter_profile: development-mac-x86_64
+          - os: windows-latest
+            flutter_profile: development-windows-x86
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: "stable-2022-04-07"
+      - name: Checkout source code
+        uses: actions/checkout@v2
 
-      - uses: subosito/flutter-action@v2
+      - name: Install Rust toolchain
+        id: rust_toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          target: ${{ matrix.job.target }}
+          override: true
+          components: rustfmt
+          profile: minimal
+
+      - name: Install flutter
+        id: flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: "stable"
-          flutter-version: "3.3.9"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 
-      - name: Cache Cargo
-        uses: actions/cache@v2
+      - uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo
-          key: ${{ runner.os }}-cargo-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
+          prefix-key: ${{ matrix.job.os }}
 
-      - name: Cache Rust
-        id: cache-rust-target
-        uses: actions/cache@v2
-        with:
-          path: |
-            frontend/rust-lib/target
-            shared-lib/target
-          key: ${{ runner.os }}-rust-rust-lib-share-lib-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
-
-      - name: Setup Environment
+      - name: Install prerequisites
+        working-directory: frontend
         run: |
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
             sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
@@ -64,31 +76,12 @@ jobs:
             sudo apt-get install keybinder-3.0
           elif [ "$RUNNER_OS" == "Windows" ]; then
             vcpkg integrate install
-            cargo install --force duckscript_cli
           elif [ "$RUNNER_OS" == "macOS" ]; then
             echo 'do nothing'
           fi
         shell: bash
 
-      - if: steps.cache-cargo.outputs.cache-hit != 'true'
-        name: Rust Deps
-        working-directory: frontend
-        run: |
-          cargo install cargo-make
-          cargo make appflowy-deps-tools
-
-      - name: Build Test lib
-        working-directory: frontend
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            cargo make --profile production-linux-x86_64 appflowy
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            cargo make --profile production-mac-x86_64 appflowy
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            cargo make --profile production-windows-x86 appflowy
-          fi
-
-      - name: Config Flutter
+      - name: Enable Flutter Desktop
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
             flutter config --enable-linux-desktop
@@ -99,14 +92,30 @@ jobs:
           fi
         shell: bash
 
-      - name: Flutter Code Generation
+      - name: Build AppFlowy
+        working-directory: frontend
+        run: |
+          cargo make --profile ${{ matrix.flutter_profile }} appflowy-dev
+
+      - name: Flutter Analyzer
+        working-directory: frontend/app_flowy
+        run: flutter analyze
+
+      #Just run one platform
+      - if: $RUNNER_OS" == "Linux"
+        name: Build Flutter unit test lib
+        working-directory: frontend
+        run: |
+          cargo make build-test-lib
+
+      - if: $RUNNER_OS" == "Linux"
+        name: Run Flutter unit tests
         working-directory: frontend/app_flowy
         run: |
-          flutter packages pub get
-          flutter packages pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations -s en.json
-          flutter packages pub run build_runner build --delete-conflicting-outputs
+          flutter pub get
+          flutter test
 
-      - name: Run AppFlowy tests
+      - name: Run Flutter integration tests
         working-directory: frontend/app_flowy
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
@@ -119,10 +128,9 @@ jobs:
         shell: bash
 
       - uses: codecov/codecov-action@v3
-        with: 
+        with:
           name: appflowy
           flags: appflowy
           env_vars: ${{ matrix.os }}
           fail_ci_if_error: true
           verbose: true
-

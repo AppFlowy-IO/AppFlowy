@@ -5,6 +5,10 @@ on:
     tags:
       - '*'
 
+env:
+  FLUTTER_VERSION: "3.3.9"
+  RUST_TOOLCHAIN: "1.65"
+
 jobs:
   create-release:
     runs-on: ubuntu-latest
@@ -31,268 +35,48 @@ jobs:
           release_name: v${{ github.ref }}
           body_path: ${{ env.RELEASE_NOTES_PATH }}
 
-  build-linux-x86:
-    runs-on: ubuntu-latest
-    needs: create-release
-    env:
-      LINUX_APP_RELEASE_PATH: frontend/app_flowy/product/${{ github.ref_name }}/linux/Release
-      LINUX_ZIP_NAME: AppFlowy-linux-x86.tar.gz
-      LINUX_PACKAGE_NAME: AppFlowy_${{ github.ref_name }}_linux-amd64.deb
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Setup environment - Rust and Cargo
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: 'stable-2022-04-07'
-
-      - name: Setup environment - Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          flutter-version: '3.3.9'
-
-      - name: Pre build
-        working-directory: frontend
-        run: |
-          sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
-          sudo apt-get update
-          sudo apt-get install -y build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
-          sudo apt-get install keybinder-3.0
-          source $HOME/.cargo/env
-          cargo install --force cargo-make
-          cargo install --force duckscript_cli
-          cargo make appflowy-deps-tools
-
-      - name: Build Linux app
-        working-directory: frontend
-        run: |
-          flutter config --enable-linux-desktop
-          cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-linux-x86_64 appflowy
-
-      - name: Configuring Linux Package
-        working-directory: frontend
-        run: |
-          mkdir -p ../${{ env.LINUX_APP_RELEASE_PATH }}/package/opt
-          mkdir -p ../${{ env.LINUX_APP_RELEASE_PATH }}/package/usr/share/applications
-          cp -r ./scripts/linux_installer ../${{ env.LINUX_APP_RELEASE_PATH }}/package/DEBIAN
-          cd ../${{ env.LINUX_APP_RELEASE_PATH }}/package/DEBIAN
-          grep -rl "\[CHANGE_THIS\]" ./control | xargs sed -i "s/\[CHANGE_THIS\]/${{ github.ref_name }}/"
-          chmod 0755 {postinst,postrm}
-
-      - name: Build Linux package
-        working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
-        run: |
-          mv AppFlowy package/opt/
-          cd package
-
-          # Update Exec & icon path in desktop entry
-          grep -rl "\[CHANGE_THIS\]" ./opt/AppFlowy/appflowy.desktop.temp | xargs sed -i "s/\[CHANGE_THIS\]/\/opt/"
-          # Add desktop entry in package
-          mv ./opt/AppFlowy/appflowy.desktop.temp ./usr/share/applications/appflowy.desktop
-
-          # Build
-          cd ../ && dpkg-deb --build --root-owner-group -Z xz package ${{ env.LINUX_PACKAGE_NAME }}
-
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_ZIP_NAME }}
-          asset_name: ${{ env.LINUX_ZIP_NAME }}
-          asset_content_type: application/octet-stream
-
-      - name: Upload Release Asset Install Package
-        id: upload-release-asset-install-package
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_NAME }}
-          asset_name: ${{ env.LINUX_PACKAGE_NAME }}
-          asset_content_type: application/octet-stream
-
-  build-linux-x86-alt:
-    runs-on: ubuntu-18.04
-    needs: create-release
-    env:
-      LINUX_APP_RELEASE_PATH: frontend/app_flowy/product/${{ github.ref_name }}/linux/Release
-      LINUX_PACKAGE_NAME: AppFlowy_${{ github.ref_name }}_linux-amd64-alt.deb
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Setup environment - Rust and Cargo
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: 'stable-2022-04-07'
-
-      - name: Setup environment - Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          flutter-version: '3.3.9'
-
-      - name: Pre build
-        working-directory: frontend
-        run: |
-          sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
-          sudo apt-get update
-          sudo apt-get install -y build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
-          sudo apt-get install keybinder-3.0
-          source $HOME/.cargo/env
-          cargo install --force cargo-make
-          cargo install --force duckscript_cli
-          cargo make appflowy-deps-tools
-
-      - name: Build Linux app
-        working-directory: frontend
-        run: |
-          flutter config --enable-linux-desktop
-          cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-linux-x86_64 appflowy
-
-      - name: Configuring Linux Package
-        working-directory: frontend
-        run: |
-          mkdir -p ../${{ env.LINUX_APP_RELEASE_PATH }}/package/opt
-          mkdir -p ../${{ env.LINUX_APP_RELEASE_PATH }}/package/usr/share/applications
-          cp -r ./scripts/linux_installer ../${{ env.LINUX_APP_RELEASE_PATH }}/package/DEBIAN
-          cd ../${{ env.LINUX_APP_RELEASE_PATH }}/package/DEBIAN
-          grep -rl "\[CHANGE_THIS\]" ./control | xargs sed -i "s/\[CHANGE_THIS\]/${{ github.ref_name }}/"
-          chmod 0755 {postinst,postrm}
-
-      - name: Build Linux package
-        working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
-        run: |
-          mv AppFlowy package/opt/
-          cd package
-
-          # Update Exec & icon path in desktop entry
-          grep -rl "\[CHANGE_THIS\]" ./opt/AppFlowy/appflowy.desktop.temp | xargs sed -i "s/\[CHANGE_THIS\]/\/opt/"
-          # Add desktop entry in package
-          mv ./opt/AppFlowy/appflowy.desktop.temp ./usr/share/applications/appflowy.desktop
-
-          # Build
-          cd ../ && dpkg-deb --build --root-owner-group -Z xz package ${{ env.LINUX_PACKAGE_NAME }}
-
-      - name: Upload Alternative Release Asset Install Package
-        id: upload-release-asset-install-package
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_NAME }}
-          asset_name: ${{ env.LINUX_PACKAGE_NAME }}
-          asset_content_type: application/octet-stream
-
-  build-macos-x86_64:
-    runs-on: macos-latest
-    needs: create-release
-    env:
-      MACOS_APP_RELEASE_PATH: frontend/app_flowy/product/${{ github.ref_name }}/macos/Release
-      MACOS_X86_ZIP_NAME: Appflowy-macos-x86_64.zip
-      MACOS_DMG_NAME: Appflowy-macos-x86_64-installer
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Setup environment - Rust and Cargo
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: 'stable-2022-04-07'
-
-      - name: Setup environment - Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          flutter-version: '3.3.9'
-
-      - name: Pre build
-        working-directory: frontend
-        run: |
-          source $HOME/.cargo/env
-          cargo install --force cargo-make
-          cargo install --force duckscript_cli
-          cargo make appflowy-deps-tools
-
-      - name: Build macOS app for x86_64
-        working-directory: frontend
-        run: |
-          flutter config --enable-macos-desktop
-          cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-mac-x86_64 appflowy
-
-      - name: Create MacOS dmg
-        run: |
-            brew install create-dmg
-            create-dmg \
-            --volname ${{ env.MACOS_DMG_NAME }} \
-            --hide-extension "AppFlowy.app" \
-            --background frontend/scripts/dmg_assets/AppFlowyInstallerBackground.jpg \
-            --window-size 600 450 \
-            --icon-size 94 \
-            --icon "AppFlowy.app" 141 249 \
-            --app-drop-link 458 249 \
-            "${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg" \
-            "${{ env.MACOS_APP_RELEASE_PATH }}/AppFlowy.app"
-
-      - name: Archive macOS app
-        working-directory: ${{ env.MACOS_APP_RELEASE_PATH }}
-        run: zip --symlinks -qr ${{ env.MACOS_X86_ZIP_NAME }} AppFlowy.app
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_X86_ZIP_NAME }}
-          asset_name: ${{ env.MACOS_X86_ZIP_NAME }}
-          asset_content_type: application/octet-stream
-      - name: Upload DMG Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-              upload_url: ${{ needs.create-release.outputs.upload_url }}
-              asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg
-              asset_name: ${{ env.MACOS_DMG_NAME }}.dmg
-              asset_content_type: application/octet-stream
-
-  build-windows-x86_64:
-    runs-on: windows-latest
+  build-for-windows:
+    name: ${{ matrix.job.target }} (${{ matrix.job.os }})
     needs: create-release
     env:
       WINDOWS_APP_RELEASE_PATH: frontend\app_flowy\product\${{ github.ref_name }}\windows
-      WINDOWS_ZIP_NAME: AppFlowy-windows-x86_64.zip
-      WINDOWS_INSTALLER_NAME: AppFlowy-${{ github.ref_name }}-windows-x86_64
+      WINDOWS_ZIP_NAME: AppFlowy_${{ github.ref_name }}_windows-x86_64.zip
+      WINDOWS_INSTALLER_NAME: AppFlowy_${{ github.ref_name }}_windows-x86_64
+    runs-on: ${{ matrix.job.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        job:
+          - { target: x86_64-pc-windows-msvc, os: windows-2019 }
     steps:
-      - name: Checkout
+      - name: Checkout source code
         uses: actions/checkout@v3
 
-      - name: Setup environment - Rust and Cargo
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: 'stable-2022-04-07'
-
-      - name: Setup environment - Flutter
+      - name: Install flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
-          flutter-version: '3.3.9'
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
 
-      - name: Pre build
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          target: ${{ matrix.job.target }}
+          override: true
+          components: rustfmt
+          profile: minimal
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: ${{ matrix.job.os }}
+
+      - name: Install prerequisites
         working-directory: frontend
         run: |
-          vcpkg integrate install
           cargo install --force cargo-make
           cargo install --force duckscript_cli
-          cargo make appflowy-deps-tools
 
       - name: Build Windows app
         working-directory: frontend
@@ -300,11 +84,12 @@ jobs:
           flutter config --enable-windows-desktop
           cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-windows-x86 appflowy
 
-      - uses: vimtor/action-zip@v1
+      - name: Archive Asset
+        uses: vimtor/action-zip@v1
         with:
           files: ${{ env.WINDOWS_APP_RELEASE_PATH }}\
           dest: ${{ env.WINDOWS_APP_RELEASE_PATH }}\${{ env.WINDOWS_ZIP_NAME }}
-      
+
       - name: Copy installer config & icon file
         working-directory: frontend
         run: |
@@ -315,7 +100,7 @@ jobs:
         run: |
           iscc /F${{ env.WINDOWS_INSTALLER_NAME }} inno_setup_config.iss /DAppVersion=${{ github.ref_name }}
 
-      - name: Upload Release Asset
+      - name: Upload Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
@@ -336,3 +121,221 @@ jobs:
           asset_path: ${{ env.WINDOWS_APP_RELEASE_PATH }}\Output\${{ env.WINDOWS_INSTALLER_NAME }}.exe
           asset_name: ${{ env.WINDOWS_INSTALLER_NAME }}.exe
           asset_content_type: application/octet-stream
+
+  build-for-macOS:
+    name: ${{ matrix.job.target }} (${{ matrix.job.os }}) [${{ matrix.job.extra-build-args }}]
+    runs-on: ${{ matrix.job.os }}
+    needs: create-release
+    env:
+      MACOS_APP_RELEASE_PATH: frontend/app_flowy/product/${{ github.ref_name }}/macos/Release
+      MACOS_X86_ZIP_NAME: AppFlowy_${{ github.ref_name }}_macos-x86_64.zip
+      MACOS_DMG_NAME: AppFlowy_${{ github.ref_name }}_macos-x86_64
+    strategy:
+      fail-fast: false
+      matrix:
+        job:
+          - { target: x86_64-apple-darwin, os: macos-10.15, extra-build-args: "" }
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Install flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          target: ${{ matrix.job.target }}
+          override: true
+          components: rustfmt
+          profile: minimal
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: ${{ matrix.job.os }}
+
+      - name: Install prerequisites
+        working-directory: frontend
+        run: |
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
+
+      - name: Build AppFlowy
+        working-directory: frontend
+        run: |
+          flutter config --enable-macos-desktop
+          cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-mac-x86_64 appflowy
+
+      - name: Create macOS dmg
+        run: |
+          brew install create-dmg
+          create-dmg \
+          --volname ${{ env.MACOS_DMG_NAME }} \
+          --hide-extension "AppFlowy.app" \
+          --background frontend/scripts/dmg_assets/AppFlowyInstallerBackground.jpg \
+          --window-size 600 450 \
+          --icon-size 94 \
+          --icon "AppFlowy.app" 141 249 \
+          --app-drop-link 458 249 \
+          "${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg" \
+          "${{ env.MACOS_APP_RELEASE_PATH }}/AppFlowy.app"
+
+      - name: Archive Asset
+        working-directory: ${{ env.MACOS_APP_RELEASE_PATH }}
+        run: zip --symlinks -qr ${{ env.MACOS_X86_ZIP_NAME }} AppFlowy.app
+
+      - name: Upload Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_X86_ZIP_NAME }}
+          asset_name: ${{ env.MACOS_X86_ZIP_NAME }}
+          asset_content_type: application/octet-stream
+
+      - name: Upload DMG Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg
+          asset_name: ${{ env.MACOS_DMG_NAME }}.dmg
+          asset_content_type: application/octet-stream
+
+  build-for-linux:
+    name: ${{ matrix.job.target }} (${{ matrix.job.os }}) [${{ matrix.job.extra-build-args }}]
+    runs-on: ${{ matrix.job.os }}
+    needs: create-release
+    env:
+      LINUX_APP_RELEASE_PATH: frontend/app_flowy/product/${{ github.ref_name }}/linux/Release
+      LINUX_ZIP_NAME: AppFlowy_${{ matrix.job.target }}_${{ matrix.job.os }}.tar.gz
+      LINUX_PACKAGE_NAME: AppFlowy_${{ github.ref_name }}_${{ matrix.job.os }}.deb
+    strategy:
+      fail-fast: false
+      matrix:
+        job:
+          - { arch: x86_64, target: x86_64-unknown-linux-gnu, os: ubuntu-20.04, extra-build-args: "", }
+          - { arch: x86_64, target: x86_64-unknown-linux-gnu, os: ubuntu-18.04, extra-build-args: "", }
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Install flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          target: ${{ matrix.job.target }}
+          override: true
+          components: rustfmt
+          profile: minimal
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: ${{ matrix.job.os }}
+
+      - name: Install prerequisites
+        working-directory: frontend
+        run: |
+          sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+          sudo apt-get update
+          sudo apt-get install -y build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
+          sudo apt-get install keybinder-3.0
+          source $HOME/.cargo/env
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
+
+      - name: Build AppFlowy
+        working-directory: frontend
+        run: |
+          flutter config --enable-linux-desktop
+          cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-linux-x86_64 appflowy
+
+      - name: Archive Assert
+        working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
+        run: tar -czf ${{ env.LINUX_ZIP_NAME }} *
+
+      - name: Configuring Linux Package
+        working-directory: frontend
+        run: |
+          mkdir -p ../${{ env.LINUX_APP_RELEASE_PATH }}/package/opt
+          mkdir -p ../${{ env.LINUX_APP_RELEASE_PATH }}/package/usr/share/applications
+          cp -r ./scripts/linux_installer ../${{ env.LINUX_APP_RELEASE_PATH }}/package/DEBIAN
+          cd ../${{ env.LINUX_APP_RELEASE_PATH }}/package/DEBIAN
+          grep -rl "\[CHANGE_THIS\]" ./control | xargs sed -i "s/\[CHANGE_THIS\]/${{ github.ref_name }}/"
+          chmod 0755 {postinst,postrm}
+
+      - name: Build Linux package
+        working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
+        run: |
+          mv AppFlowy package/opt/
+          cd package
+
+          # Update Exec & icon path in desktop entry
+          grep -rl "\[CHANGE_THIS\]" ./opt/AppFlowy/appflowy.desktop.temp | xargs sed -i "s/\[CHANGE_THIS\]/\/opt/"
+          # Add desktop entry in package
+          mv ./opt/AppFlowy/appflowy.desktop.temp ./usr/share/applications/appflowy.desktop
+
+          # Build
+          cd ../ && dpkg-deb --build --root-owner-group -Z xz package ${{ env.LINUX_PACKAGE_NAME }}
+
+      - name: Upload Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_ZIP_NAME }}
+          asset_name: ${{ env.LINUX_ZIP_NAME }}
+          asset_content_type: application/octet-stream
+
+      - name: Upload Asset Install Package
+        id: upload-release-asset-install-package
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_NAME }}
+          asset_name: ${{ env.LINUX_PACKAGE_NAME }}
+          asset_content_type: application/octet-stream
+
+#  build-for-docker:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v2
+#
+#      - name: Login to Docker Hub
+#        uses: docker/login-action@v1
+#        with:
+#          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+#          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+#
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v1
+#
+#      - name: Build and push
+#        uses: docker/build-push-action@v2
+#        with:
+#          context: .
+#          file: ./frontend/scripts/docker-buildfiles/Dockerfile
+#          builder: ${{ steps.buildx.outputs.name }}
+#          push: true
+#          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/appflowy_client:${{ github.ref_name }}
+#          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/af_build_cache:buildcache
+#          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/af_build_cache:buildcache,mode=max
