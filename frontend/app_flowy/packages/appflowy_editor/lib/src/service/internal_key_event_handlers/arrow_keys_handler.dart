@@ -392,18 +392,15 @@ extension on Position {
       case _SelectionRange.character:
         if (node is TextNode) {
           return Position(
-              path: path, offset: node.delta.nextRunePosition(offset));
+            path: path,
+            offset: node.delta.nextRunePosition(offset),
+          );
         } else {
           return Position(path: path, offset: offset);
         }
       case _SelectionRange.word:
         if (node is TextNode) {
-          final result = node.selectable?.getWordBoundaryInPosition(
-            Position(
-              path: path,
-              offset: node.delta.nextRunePosition(offset),
-            ),
-          );
+          final result = node.selectable?.getWordBoundaryInPosition(this);
           if (result != null) {
             return result.end;
           }
