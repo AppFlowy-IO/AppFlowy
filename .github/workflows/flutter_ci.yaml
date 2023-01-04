@@ -68,7 +68,6 @@ jobs:
         run: |
           cargo install --force cargo-make
           cargo install --force duckscript_cli
-          cargo make appflowy-deps-tools
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
             sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
@@ -76,6 +75,7 @@ jobs:
             sudo apt-get install -y dart curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
             sudo apt-get install keybinder-3.0
           elif [ "$RUNNER_OS" == "Windows" ]; then
+            cargo make appflowy-deps-tools
             vcpkg integrate install
           elif [ "$RUNNER_OS" == "macOS" ]; then
             echo 'do nothing'
