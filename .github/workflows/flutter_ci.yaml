@@ -24,17 +24,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job:
-          - { target: x86_64-unknown-linux-gnu, os: ubuntu-latest,}
-          - { target: x86_64-apple-darwin, os: macos-latest, }
-          - { target: x86_64-pc-windows-msvc, os: windows-latest, }
+        os: [ubuntu-latest, macos-latest, windows-latest]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
+            target: x86_64-unknown-linux-gnu
           - os: macos-latest
             flutter_profile: development-mac-x86_64
+            target: x86_64-apple-darwin
           - os: windows-latest
             flutter_profile: development-windows-x86
+            target: x86_64-pc-windows-msvc
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -46,9 +46,8 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
-          target: ${{ matrix.job.target }}
+          target: ${{ matrix.target }}
           override: true
-          components: rustfmt
           profile: minimal
 
       - name: Install flutter
@@ -73,13 +72,14 @@ jobs:
             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
             sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
             sudo apt-get update
-            sudo apt-get install -y dart curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
+            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
             sudo apt-get install keybinder-3.0
           elif [ "$RUNNER_OS" == "Windows" ]; then
             vcpkg integrate install
           elif [ "$RUNNER_OS" == "macOS" ]; then
             echo 'do nothing'
           fi
+          cargo make appflowy-deps-tools
         shell: bash
 
       - name: Enable Flutter Desktop
@@ -102,16 +102,12 @@ jobs:
         working-directory: frontend/app_flowy
         run: flutter analyze
 
-      - name: Build Flutter unit test lib
+      - name: Run Flutter unit tests
         working-directory: frontend
         run: |
-          cargo make build-test-lib
-
-      - name: Run Flutter unit tests
-        working-directory: frontend/app_flowy
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            flutter pub get
-            flutter test
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            cargo make dart_unit_test
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            cargo make dart_unit_test
           fi
         shell: bash
