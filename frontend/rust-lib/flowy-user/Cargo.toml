@@ -6,7 +6,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+flowy-derive = { path = "../flowy-derive" }
 flowy-database = { path = "../flowy-database" }
 flowy-error = { path = "../flowy-error", features = ["db", "http_server"] }
 
@@ -45,7 +45,7 @@ rand_core = "0.6.3"
 rand = "0.8.5"
 
 [features]
-dart = ["flowy-codegen/dart"]
+dart = ["flowy-codegen/dart", "dart-notify/dart"]
 
 [build-dependencies]
-flowy-codegen= { path = "../../../shared-lib/flowy-codegen"}
+flowy-codegen = { path = "../flowy-codegen"}

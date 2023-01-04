@@ -22,7 +22,7 @@ class DocumentMoreButton extends StatelessWidget {
               value: context.read<DocumentAppearanceCubit>(),
               child: const FontSizeSwitcher(),
             ),
-          )
+          ),
         ];
       },
       child: svgWidget(

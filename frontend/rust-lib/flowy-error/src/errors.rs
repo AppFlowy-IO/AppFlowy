@@ -1,12 +1,15 @@
+use crate::ErrorCode;
+use anyhow::Result;
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
-use flowy_error_code::ErrorCode;
 use lib_dispatch::prelude::{AFPluginEventResponse, ResponseBuilder};
-use std::{convert::TryInto, fmt, fmt::Debug};
+use std::{convert::TryInto, fmt::Debug};
+use thiserror::Error;
 
-pub type FlowyResult<T> = std::result::Result<T, FlowyError>;
+pub type FlowyResult<T> = anyhow::Result<T, FlowyError>;
 
-#[derive(Debug, Default, Clone, ProtoBuf)]
+#[derive(Debug, Default, Clone, ProtoBuf, Error)]
+#[error("{code:?}: {msg}")]
 pub struct FlowyError {
     #[pb(index = 1)]
     pub code: i32,
@@ -27,7 +30,7 @@ macro_rules! static_flowy_error {
 impl FlowyError {
     pub fn new(code: ErrorCode, msg: &str) -> Self {
         Self {
-            code: code.value(),
+            code: code.value() as i32,
             msg: msg.to_owned(),
         }
     }
@@ -50,7 +53,7 @@ impl FlowyError {
     static_flowy_error!(view_desc, ErrorCode::ViewDescTooLong);
     static_flowy_error!(view_data, ErrorCode::ViewDataInvalid);
     static_flowy_error!(unauthorized, ErrorCode::UserUnauthorized);
-    static_flowy_error!(connection, ErrorCode::ConnectError);
+    static_flowy_error!(connection, ErrorCode::HttpServerConnectError);
     static_flowy_error!(email_empty, ErrorCode::EmailIsEmpty);
     static_flowy_error!(email_format, ErrorCode::EmailFormatInvalid);
     static_flowy_error!(email_exist, ErrorCode::EmailAlreadyExists);
@@ -68,12 +71,13 @@ impl FlowyError {
     static_flowy_error!(invalid_data, ErrorCode::InvalidData);
     static_flowy_error!(out_of_bounds, ErrorCode::OutOfBounds);
     static_flowy_error!(serde, ErrorCode::Serde);
+    static_flowy_error!(field_record_not_found, ErrorCode::FieldRecordNotFound);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {
     fn from(code: ErrorCode) -> Self {
         FlowyError {
-            code: code.value(),
+            code: code.value() as i32,
             msg: format!("{}", code),
         }
     }
@@ -86,12 +90,13 @@ where
     FlowyError::internal().context(e)
 }
 
-impl fmt::Display for FlowyError {
+// Not needed because of thiserror derive macro
+/* impl fmt::Display for FlowyError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}: {}", &self.code, &self.msg)
     }
 }
-
+ */
 impl lib_dispatch::Error for FlowyError {
     fn as_response(&self) -> AFPluginEventResponse {
         let bytes: Bytes = self.clone().try_into().unwrap();
@@ -113,4 +118,4 @@ impl std::convert::From<protobuf::ProtobufError> for FlowyError {
     }
 }
 
-impl std::error::Error for FlowyError {}
+//impl std::error::Error for FlowyError {}

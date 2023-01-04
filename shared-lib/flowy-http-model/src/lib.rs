@@ -1,6 +1,5 @@
+pub mod entities;
+pub mod revision;
 pub mod util;
-
-pub mod protobuf;
-
-mod entities;
+pub mod ws_data;
 pub use entities::*;

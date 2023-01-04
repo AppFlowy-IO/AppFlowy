@@ -51,6 +51,12 @@ class _FieldEditorState extends State<FieldEditor> {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> children = [
+      _FieldNameTextField(popoverMutex: popoverMutex),
+      const VSpace(10),
+      if (widget.onDeleted != null) _addDeleteFieldButton(),
+      _FieldTypeOptionCell(popoverMutex: popoverMutex),
+    ];
     return BlocProvider(
       create: (context) => FieldEditorBloc(
         gridId: widget.gridId,
@@ -58,33 +64,21 @@ class _FieldEditorState extends State<FieldEditor> {
         isGroupField: widget.isGroupField,
         loader: widget.typeOptionLoader,
       )..add(const FieldEditorEvent.initial()),
-      child: Padding(
-        padding: GridSize.typeOptionContentInsets,
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            FlowyText.medium(
-              LocaleKeys.grid_field_editProperty.tr(),
-            ),
-            const VSpace(10),
-            _FieldNameTextField(popoverMutex: popoverMutex),
-            const VSpace(10),
-            ..._addDeleteFieldButton(),
-            _FieldTypeOptionCell(popoverMutex: popoverMutex),
-          ],
-        ),
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: children.length,
+        itemBuilder: (context, index) => children[index],
+        padding: const EdgeInsets.symmetric(vertical: 12.0),
       ),
     );
   }
 
-  List<Widget> _addDeleteFieldButton() {
-    if (widget.onDeleted == null) {
-      return [];
-    }
-    return [
-      BlocBuilder<FieldEditorBloc, FieldEditorState>(
-        builder: (context, state) {
-          return _DeleteFieldButton(
+  Widget _addDeleteFieldButton() {
+    return BlocBuilder<FieldEditorBloc, FieldEditorState>(
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: _DeleteFieldButton(
             popoverMutex: popoverMutex,
             onDeleted: () {
               state.field.fold(
@@ -92,10 +86,10 @@ class _FieldEditorState extends State<FieldEditor> {
                 (field) => widget.onDeleted?.call(field.id),
               );
             },
-          );
-        },
-      ),
-    ];
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -182,17 +176,20 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
         buildWhen: (previous, current) =>
             previous.errorText != current.errorText,
         builder: (context, state) {
-          return RoundedInputField(
-            height: 36,
-            focusNode: focusNode,
-            style: Theme.of(context).textTheme.bodyMedium,
-            controller: controller,
-            errorText: context.read<FieldEditorBloc>().state.errorText,
-            onChanged: (newName) {
-              context
-                  .read<FieldEditorBloc>()
-                  .add(FieldEditorEvent.updateName(newName));
-            },
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: RoundedInputField(
+              height: 36,
+              focusNode: focusNode,
+              style: Theme.of(context).textTheme.bodyMedium,
+              controller: controller,
+              errorText: context.read<FieldEditorBloc>().state.errorText,
+              onChanged: (newName) {
+                context
+                    .read<FieldEditorBloc>()
+                    .add(FieldEditorEvent.updateName(newName));
+              },
+            ),
           );
         },
       ),
@@ -221,10 +218,15 @@ class _DeleteFieldButton extends StatelessWidget {
             LocaleKeys.grid_field_delete.tr(),
             color: enable ? null : Theme.of(context).disabledColor,
           ),
-          onTap: () => onDeleted?.call(),
+          onTap: () {
+            if (enable) onDeleted?.call();
+          },
           onHover: (_) => popoverMutex.close(),
         );
-        return SizedBox(height: 36, child: button);
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 4.0),
+          child: SizedBox(height: GridSize.typeOptionItemHeight, child: button),
+        );
       },
     );
   }

@@ -25,7 +25,10 @@ void main() {
       'default theme',
       build: () => AppearanceSettingsCubit(appearanceSetting),
       verify: (bloc) {
-        expect(bloc.state.theme.brightness, Brightness.light);
+        // expect(bloc.state.appTheme.info.name, "light");
+        expect(bloc.state.font, 'Poppins');
+        expect(bloc.state.monospaceFont, 'SF Mono');
+        expect(bloc.state.themeMode, ThemeMode.system);
       },
     );
 

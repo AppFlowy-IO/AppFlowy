@@ -1,5 +1,7 @@
 use crate::entities::CellPathPB;
-use crate::services::cell::{CellBytesParser, CellDataIsEmpty, FromCellChangeset, FromCellString};
+use crate::services::cell::{
+    CellProtobufBlobParser, DecodedCellData, FromCellChangesetString, FromCellString, ToCellChangesetString,
+};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, FlowyResult};
@@ -33,7 +35,7 @@ pub struct DateChangesetPB {
     pub is_utc: bool,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DateCellChangeset {
     pub date: Option<String>,
     pub time: Option<String>,
@@ -53,7 +55,7 @@ impl DateCellChangeset {
     }
 }
 
-impl FromCellChangeset for DateCellChangeset {
+impl FromCellChangesetString for DateCellChangeset {
     fn from_changeset(changeset: String) -> FlowyResult<Self>
     where
         Self: Sized,
@@ -62,33 +64,43 @@ impl FromCellChangeset for DateCellChangeset {
     }
 }
 
-impl ToString for DateCellChangeset {
-    fn to_string(&self) -> String {
-        serde_json::to_string(self).unwrap_or_else(|_| "".to_string())
+impl ToCellChangesetString for DateCellChangeset {
+    fn to_cell_changeset_str(&self) -> String {
+        serde_json::to_string(self).unwrap_or_default()
     }
 }
 
-pub struct DateTimestamp(Option<i64>);
+#[derive(Default, Clone, Debug)]
+pub struct DateCellData(pub Option<i64>);
 
-impl std::convert::From<DateTimestamp> for i64 {
-    fn from(timestamp: DateTimestamp) -> Self {
+impl std::convert::From<DateCellData> for i64 {
+    fn from(timestamp: DateCellData) -> Self {
         timestamp.0.unwrap_or(0)
     }
 }
 
-impl std::convert::From<DateTimestamp> for Option<i64> {
-    fn from(timestamp: DateTimestamp) -> Self {
+impl std::convert::From<DateCellData> for Option<i64> {
+    fn from(timestamp: DateCellData) -> Self {
         timestamp.0
     }
 }
 
-impl FromCellString for DateTimestamp {
+impl FromCellString for DateCellData {
     fn from_cell_str(s: &str) -> FlowyResult<Self>
     where
         Self: Sized,
     {
         let num = s.parse::<i64>().ok();
-        Ok(DateTimestamp(num))
+        Ok(DateCellData(num))
+    }
+}
+
+impl ToString for DateCellData {
+    fn to_string(&self) -> String {
+        match self.0 {
+            None => "".to_string(),
+            Some(val) => val.to_string(),
+        }
     }
 }
 
@@ -174,14 +186,16 @@ impl std::default::Default for TimeFormat {
     }
 }
 
-impl CellDataIsEmpty for DateCellDataPB {
+impl DecodedCellData for DateCellDataPB {
+    type Object = DateCellDataPB;
+
     fn is_empty(&self) -> bool {
         self.date.is_empty()
     }
 }
 
 pub struct DateCellDataParser();
-impl CellBytesParser for DateCellDataParser {
+impl CellProtobufBlobParser for DateCellDataParser {
     type Object = DateCellDataPB;
 
     fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {

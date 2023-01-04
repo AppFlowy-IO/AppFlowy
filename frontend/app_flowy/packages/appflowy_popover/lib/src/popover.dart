@@ -49,13 +49,19 @@ enum PopoverDirection {
 class Popover extends StatefulWidget {
   final PopoverController? controller;
 
+  /// The offset from the [child] where the popover will be drawn
   final Offset? offset;
+
+  /// Amount of padding between the edges of the window and the popover
+  final EdgeInsets? windowPadding;
 
   final Decoration? maskDecoration;
 
   /// The function used to build the popover.
   final Widget? Function(BuildContext context) popupBuilder;
 
+  /// Specify how the popover can be triggered when interacting with the child
+  /// by supplying a bitwise-OR combination of one or more [PopoverTriggerFlags]
   final int triggerActions;
 
   /// If multiple popovers are exclusive,
@@ -84,6 +90,7 @@ class Popover extends StatefulWidget {
     this.triggerActions = 0,
     this.direction = PopoverDirection.rightWithTopAligned,
     this.mutex,
+    this.windowPadding,
     this.onClose,
     this.asBarrier = false,
   }) : super(key: key);
@@ -126,6 +133,7 @@ class PopoverState extends State<Popover> {
           direction: widget.direction,
           popoverLink: popoverLink,
           offset: widget.offset ?? Offset.zero,
+          windowPadding: widget.windowPadding ?? EdgeInsets.zero,
           popupBuilder: widget.popupBuilder,
           onClose: () => close(),
           onCloseAll: () => _removeRootOverlay(),
@@ -194,6 +202,7 @@ class PopoverContainer extends StatefulWidget {
   final PopoverDirection direction;
   final PopoverLink popoverLink;
   final Offset offset;
+  final EdgeInsets windowPadding;
   final void Function() onClose;
   final void Function() onCloseAll;
 
@@ -203,6 +212,7 @@ class PopoverContainer extends StatefulWidget {
     required this.direction,
     required this.popoverLink,
     required this.offset,
+    required this.windowPadding,
     required this.onClose,
     required this.onCloseAll,
   }) : super(key: key);
@@ -228,6 +238,7 @@ class PopoverContainerState extends State<PopoverContainer> {
         direction: widget.direction,
         link: widget.popoverLink,
         offset: widget.offset,
+        windowPadding: widget.windowPadding,
       ),
       child: widget.popupBuilder(context),
     );

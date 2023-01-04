@@ -49,7 +49,14 @@ class SelectionGestureDetectorState extends State<SelectionGestureDetector> {
       gestures: {
         PanGestureRecognizer:
             GestureRecognizerFactoryWithHandlers<PanGestureRecognizer>(
-          () => PanGestureRecognizer(),
+          () => PanGestureRecognizer(supportedDevices: {
+            // https://docs.flutter.dev/release/breaking-changes/trackpad-gestures#for-gesture-interactions-not-suitable-for-trackpad-usage
+            // Exclude PointerDeviceKind.trackpad.
+            PointerDeviceKind.touch,
+            PointerDeviceKind.mouse,
+            PointerDeviceKind.stylus,
+            PointerDeviceKind.invertedStylus,
+          }),
           (recognizer) {
             recognizer
               ..onStart = widget.onPanStart

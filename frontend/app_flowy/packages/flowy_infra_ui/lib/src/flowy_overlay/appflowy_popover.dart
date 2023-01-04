@@ -15,6 +15,7 @@ class AppFlowyPopover extends StatelessWidget {
   final Offset? offset;
   final bool asBarrier;
   final EdgeInsets margin;
+  final EdgeInsets windowPadding;
 
   const AppFlowyPopover({
     Key? key,
@@ -29,6 +30,7 @@ class AppFlowyPopover extends StatelessWidget {
     this.controller,
     this.asBarrier = false,
     this.margin = const EdgeInsets.all(6),
+    this.windowPadding = const EdgeInsets.all(8.0),
   }) : super(key: key);
 
   @override
@@ -40,9 +42,9 @@ class AppFlowyPopover extends StatelessWidget {
       mutex: mutex,
       asBarrier: asBarrier,
       triggerActions: triggerActions,
+      windowPadding: windowPadding,
       popupBuilder: (context) {
         final child = popupBuilder(context);
-        debugPrint('Show $child popover');
         return _PopoverContainer(
           constraints: constraints,
           margin: margin,

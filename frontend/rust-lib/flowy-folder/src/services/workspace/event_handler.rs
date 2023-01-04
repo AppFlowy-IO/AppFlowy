@@ -80,8 +80,8 @@ pub(crate) async fn read_workspaces_handler(
 pub async fn read_cur_workspace_handler(
     folder: AFPluginState<Arc<FolderManager>>,
 ) -> DataResult<WorkspaceSettingPB, FlowyError> {
-    let workspace_id = get_current_workspace()?;
     let user_id = folder.user.user_id()?;
+    let workspace_id = get_current_workspace(&user_id)?;
     let params = WorkspaceIdPB {
         value: Some(workspace_id.clone()),
     };

@@ -173,6 +173,22 @@ bool formatHighlight(EditorState editorState, String colorHex) {
   );
 }
 
+bool formatHighlightColor(EditorState editorState, String colorHex) {
+  return formatRichTextPartialStyle(
+    editorState,
+    BuiltInAttributeKey.backgroundColor,
+    customValue: colorHex,
+  );
+}
+
+bool formatFontColor(EditorState editorState, String colorHex) {
+  return formatRichTextPartialStyle(
+    editorState,
+    BuiltInAttributeKey.color,
+    customValue: colorHex,
+  );
+}
+
 bool formatRichTextPartialStyle(EditorState editorState, String styleKey,
     {Object? customValue}) {
   Attributes attributes = {

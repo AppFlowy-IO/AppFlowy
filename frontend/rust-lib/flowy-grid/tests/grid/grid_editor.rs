@@ -5,6 +5,7 @@ use crate::grid::block_test::util::GridRowTestBuilder;
 use bytes::Bytes;
 use flowy_error::FlowyResult;
 use flowy_grid::entities::*;
+use flowy_grid::services::cell::ToCellChangesetString;
 use flowy_grid::services::field::SelectOptionPB;
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{GridRevisionEditor, GridRevisionSerde};
@@ -24,7 +25,7 @@ use tokio::time::sleep;
 
 pub struct GridEditorTest {
     pub sdk: FlowySDKTest,
-    pub grid_id: String,
+    pub view_id: String,
     pub editor: Arc<GridRevisionEditor>,
     pub field_revs: Vec<Arc<FieldRevision>>,
     pub block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
@@ -61,7 +62,7 @@ impl GridEditorTest {
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
         let field_revs = editor.get_field_revs(None).await.unwrap();
         let block_meta_revs = editor.get_block_meta_revs().await.unwrap();
-        let row_revs = editor.get_blocks(None).await.unwrap().pop().unwrap().row_revs;
+        let row_pbs = editor.get_all_row_revs(&test.view.id).await.unwrap();
         assert_eq!(block_meta_revs.len(), 1);
 
         // It seems like you should add the field in the make_test_grid() function.
@@ -71,18 +72,18 @@ impl GridEditorTest {
         let grid_id = test.view.id;
         Self {
             sdk,
-            grid_id,
+            view_id: grid_id,
             editor,
             field_revs,
             block_meta_revs,
-            row_revs,
+            row_revs: row_pbs,
             field_count: FieldType::COUNT,
             row_by_row_id: HashMap::default(),
         }
     }
 
     pub async fn get_row_revs(&self) -> Vec<Arc<RowRevision>> {
-        self.editor.get_blocks(None).await.unwrap().pop().unwrap().row_revs
+        self.editor.get_all_row_revs(&self.view_id).await.unwrap()
     }
 
     pub async fn grid_filters(&self) -> Vec<FilterPB> {
@@ -101,6 +102,8 @@ impl GridEditorTest {
             .unwrap()
     }
 
+    /// returns the first `FieldRevision` in the build-in test grid.
+    /// Not support duplicate `FieldType` in test grid yet.  
     pub fn get_first_field_rev(&self, field_type: FieldType) -> &Arc<FieldRevision> {
         self.field_revs
             .iter()
@@ -151,6 +154,48 @@ impl GridEditorTest {
     pub fn block_id(&self) -> &str {
         &self.block_meta_revs.last().unwrap().block_id
     }
+
+    pub async fn update_cell<T: ToCellChangesetString>(&mut self, field_id: &str, row_id: String, cell_changeset: T) {
+        let field_rev = self
+            .field_revs
+            .iter()
+            .find(|field_rev| field_rev.id == field_id)
+            .unwrap();
+
+        self.editor
+            .update_cell_with_changeset(&row_id, &field_rev.id, cell_changeset)
+            .await
+            .unwrap();
+    }
+
+    pub(crate) async fn update_text_cell(&mut self, row_id: String, content: &str) {
+        let field_rev = self
+            .field_revs
+            .iter()
+            .find(|field_rev| {
+                let field_type: FieldType = field_rev.ty.into();
+                field_type == FieldType::RichText
+            })
+            .unwrap()
+            .clone();
+
+        self.update_cell(&field_rev.id, row_id, content.to_string()).await;
+    }
+
+    pub(crate) async fn update_single_select_cell(&mut self, row_id: String, option_id: &str) {
+        let field_rev = self
+            .field_revs
+            .iter()
+            .find(|field_rev| {
+                let field_type: FieldType = field_rev.ty.into();
+                field_type == FieldType::SingleSelect
+            })
+            .unwrap()
+            .clone();
+
+        let cell_changeset = SelectOptionCellChangeset::from_insert_option_id(&option_id);
+        self.update_cell(&field_rev.id, row_id, cell_changeset).await;
+    }
 }
 
 pub const GOOGLE: &str = "Google";
@@ -164,7 +209,9 @@ pub const PAUSED: &str = "Paused";
 pub const FIRST_THING: &str = "Wake up at 6:00 am";
 pub const SECOND_THING: &str = "Get some coffee";
 pub const THIRD_THING: &str = "Start working";
-// This grid is assumed to contain all the Fields.
+
+/// The build-in test data for grid. Currently, there are five rows in this grid, if you want to add
+/// more rows or alter the data in this grid. Some tests may fail. So you need to fix the failed tests.
 fn make_test_grid() -> BuildGridContext {
     let mut grid_builder = GridBuilder::new();
     // Iterate through the FieldType to create the corresponding Field.
@@ -239,8 +286,7 @@ fn make_test_grid() -> BuildGridContext {
         }
     }
 
-    // We have many assumptions base on the number of the rows, so do not change the number of the loop.
-    for i in 0..5 {
+    for i in 0..6 {
         let block_id = grid_builder.block_id().to_owned();
         let field_revs = grid_builder.field_revs();
         let mut row_builder = GridRowTestBuilder::new(&block_id, field_revs);
@@ -266,7 +312,7 @@ fn make_test_grid() -> BuildGridContext {
                         FieldType::Number => row_builder.insert_number_cell("2"),
                         FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
                         FieldType::MultiSelect => row_builder
-                            .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(0)]),
+                            .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(1)]),
                         FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
                         _ => "".to_owned(),
                     };
@@ -314,6 +360,20 @@ fn make_test_grid() -> BuildGridContext {
                         }
 
                         FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
+                        _ => "".to_owned(),
+                    };
+                }
+            }
+            5 => {
+                for field_type in FieldType::iter() {
+                    match field_type {
+                        FieldType::RichText => row_builder.insert_text_cell("AE"),
+                        FieldType::Number => row_builder.insert_number_cell("5"),
+                        FieldType::DateTime => row_builder.insert_date_cell("1671938394"),
+                        FieldType::SingleSelect => {
+                            row_builder.insert_single_select_cell(|mut options| options.remove(1))
+                        }
+                        FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
                         _ => "".to_owned(),
                     };
                 }
@@ -412,6 +472,7 @@ fn make_test_board() -> BuildGridContext {
                     match field_type {
                         FieldType::RichText => row_builder.insert_text_cell("A"),
                         FieldType::Number => row_builder.insert_number_cell("1"),
+                        // 1647251762 => Mar 14,2022
                         FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
                         FieldType::SingleSelect => {
                             row_builder.insert_single_select_cell(|mut options| options.remove(0))
@@ -428,6 +489,7 @@ fn make_test_board() -> BuildGridContext {
                     match field_type {
                         FieldType::RichText => row_builder.insert_text_cell("B"),
                         FieldType::Number => row_builder.insert_number_cell("2"),
+                        // 1647251762 => Mar 14,2022
                         FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
                         FieldType::SingleSelect => {
                             row_builder.insert_single_select_cell(|mut options| options.remove(0))
@@ -444,6 +506,7 @@ fn make_test_board() -> BuildGridContext {
                     match field_type {
                         FieldType::RichText => row_builder.insert_text_cell("C"),
                         FieldType::Number => row_builder.insert_number_cell("3"),
+                        // 1647251762 => Mar 14,2022
                         FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
                         FieldType::SingleSelect => {
                             row_builder.insert_single_select_cell(|mut options| options.remove(1))

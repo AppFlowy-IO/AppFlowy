@@ -1,4 +1,20 @@
 # Release Notes
+
+## Version 0.0.9.1 - 01/03/2023
+### New features
+- New theme
+- Support changing text color of editor
+- Optimize user interface
+### Bug Fixes
+- Fix some grid bugs 
+
+## Version 0.0.9 - 12/21/2022
+### New features
+- Enable the user to define where to store their data
+- Support inserting Emojis through the slash command
+### Bug Fixes
+- Fix some bugs 
+
 ## Version 0.0.8.1 - 12/09/2022
 ### New features
 - Support following your default system theme

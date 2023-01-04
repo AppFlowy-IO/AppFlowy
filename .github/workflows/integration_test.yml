@@ -1,0 +1,128 @@
+name: integration test
+
+on:
+  push:
+    branches:
+      - "main"
+      - "release/*"
+    paths:
+      - "frontend/app_flowy/**"
+
+  pull_request:
+    branches:
+      - "main"
+      - "release/*"
+    paths:
+      - "frontend/app_flowy/**"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  tests:
+    strategy:
+      matrix:
+        os: [macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: "stable-2022-04-07"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: "3.3.9"
+          cache: true
+
+      - name: Cache Cargo
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo
+          key: ${{ runner.os }}-cargo-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
+
+      - name: Cache Rust
+        id: cache-rust-target
+        uses: actions/cache@v2
+        with:
+          path: |
+            frontend/rust-lib/target
+            shared-lib/target
+          key: ${{ runner.os }}-rust-rust-lib-share-lib-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
+
+      - name: Setup Environment
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+            sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
+            sudo apt-get update
+            sudo apt-get install -y dart curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
+            sudo apt-get install keybinder-3.0
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            vcpkg integrate install
+            cargo install --force duckscript_cli
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            echo 'do nothing'
+          fi
+        shell: bash
+
+      - if: steps.cache-cargo.outputs.cache-hit != 'true'
+        name: Rust Deps
+        working-directory: frontend
+        run: |
+          cargo install cargo-make
+          cargo make appflowy-deps-tools
+
+      - name: Build Test lib
+        working-directory: frontend
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            cargo make --profile production-linux-x86_64 appflowy
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            cargo make --profile production-mac-x86_64 appflowy
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            cargo make --profile production-windows-x86 appflowy
+          fi
+
+      - name: Config Flutter
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            flutter config --enable-linux-desktop
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            flutter config --enable-macos-desktop
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            flutter config --enable-windows-desktop
+          fi
+        shell: bash
+
+      - name: Flutter Code Generation
+        working-directory: frontend/app_flowy
+        run: |
+          flutter packages pub get
+          flutter packages pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations -s en.json
+          flutter packages pub run build_runner build --delete-conflicting-outputs
+
+      - name: Run AppFlowy tests
+        working-directory: frontend/app_flowy
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            flutter test integration_test -d Linux --coverage
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            flutter test integration_test -d macOS --coverage
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            flutter test integration_test -d Windows --coverage
+          fi
+        shell: bash
+
+      - uses: codecov/codecov-action@v3
+        with: 
+          name: appflowy
+          flags: appflowy
+          env_vars: ${{ matrix.os }}
+          fail_ci_if_error: true
+          verbose: true
+

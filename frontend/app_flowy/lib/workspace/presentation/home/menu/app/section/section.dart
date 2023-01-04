@@ -40,7 +40,8 @@ class ViewSection extends StatelessWidget {
     );
   }
 
-  ReorderableColumn _reorderableColum(BuildContext context, ViewSectionState state) {
+  ReorderableColumn _reorderableColum(
+      BuildContext context, ViewSectionState state) {
     final children = state.views.map((view) {
       return ViewSectionItem(
         key: ValueKey(view.id),
@@ -53,8 +54,11 @@ class ViewSection extends StatelessWidget {
     return ReorderableColumn(
       needsLongPressDraggable: false,
       onReorder: (oldIndex, index) {
-        context.read<ViewSectionBloc>().add(ViewSectionEvent.moveView(oldIndex, index));
+        context
+            .read<ViewSectionBloc>()
+            .add(ViewSectionEvent.moveView(oldIndex, index));
       },
+      ignorePrimaryScrollController: true,
       children: children,
     );
   }

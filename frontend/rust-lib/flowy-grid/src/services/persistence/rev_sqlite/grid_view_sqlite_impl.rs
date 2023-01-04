@@ -123,7 +123,7 @@ impl GridViewRevisionSql {
     fn update(changeset: RevisionChangeset, conn: &SqliteConnection) -> Result<(), FlowyError> {
         let state: GridViewRevisionState = changeset.state.clone().into();
         let filter = dsl::grid_view_rev_table
-            .filter(dsl::rev_id.eq(changeset.rev_id.as_ref()))
+            .filter(dsl::rev_id.eq(changeset.rev_id))
             .filter(dsl::object_id.eq(changeset.object_id));
         let _ = update(filter).set(dsl::state.eq(state)).execute(conn)?;
         tracing::debug!(

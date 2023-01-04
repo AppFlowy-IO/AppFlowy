@@ -10,12 +10,12 @@ class FlowyButton extends StatelessWidget {
   final Widget text;
   final VoidCallback? onTap;
   final void Function(bool)? onHover;
-  final EdgeInsets margin;
+  final EdgeInsets? margin;
   final Widget? leftIcon;
   final Widget? rightIcon;
   final Color? hoverColor;
   final bool isSelected;
-  final BorderRadius radius;
+  final BorderRadius? radius;
   final BoxDecoration? decoration;
   final bool useIntrinsicWidth;
 
@@ -24,12 +24,12 @@ class FlowyButton extends StatelessWidget {
     required this.text,
     this.onTap,
     this.onHover,
-    this.margin = const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+    this.margin,
     this.leftIcon,
     this.rightIcon,
     this.hoverColor,
     this.isSelected = false,
-    this.radius = const BorderRadius.all(Radius.circular(6)),
+    this.radius,
     this.decoration,
     this.useIntrinsicWidth = false,
   }) : super(key: key);
@@ -41,7 +41,7 @@ class FlowyButton extends StatelessWidget {
       onTap: onTap,
       child: FlowyHover(
         style: HoverStyle(
-          borderRadius: radius,
+          borderRadius: radius ?? Corners.s6Border,
           hoverColor: hoverColor ?? Theme.of(context).colorScheme.secondary,
         ),
         onHover: onHover,
@@ -81,7 +81,8 @@ class FlowyButton extends StatelessWidget {
     return Container(
       decoration: decoration,
       child: Padding(
-        padding: margin,
+        padding:
+            margin ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
         child: child,
       ),
     );
@@ -105,6 +106,8 @@ class FlowyTextButton extends StatelessWidget {
   final String? tooltip;
   final BoxConstraints constraints;
 
+  final TextDecoration? decoration;
+
   // final HoverDisplayConfig? hoverDisplay;
   const FlowyTextButton(
     this.text, {
@@ -122,6 +125,7 @@ class FlowyTextButton extends StatelessWidget {
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.tooltip,
     this.constraints = const BoxConstraints(minWidth: 58.0, minHeight: 30.0),
+    this.decoration,
   }) : super(key: key);
 
   @override
@@ -139,6 +143,7 @@ class FlowyTextButton extends StatelessWidget {
         fontSize: fontSize,
         color: fontColor ?? Theme.of(context).colorScheme.onSecondary,
         textAlign: TextAlign.center,
+        decoration: decoration,
       ),
     );
 

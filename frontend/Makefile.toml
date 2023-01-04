@@ -22,7 +22,7 @@ CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
 LIB_NAME = "dart_ffi"
-CURRENT_APP_VERSION = "0.0.8.1"
+CURRENT_APP_VERSION = "0.0.9.1"
 FEATURES = "flutter"
 PRODUCT_NAME = "AppFlowy"
 # CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
@@ -43,7 +43,6 @@ CRATE_TYPE = "staticlib"
 LIB_EXT = "a"
 APP_ENVIRONMENT = "local"
 FLUTTER_FLOWY_SDK_PATH = "app_flowy/packages/flowy_sdk"
-PROTOBUF_DERIVE_CACHE = "../shared-lib/flowy-derive/src/derive_cache/derive_cache.rs"
 # Test default config
 TEST_CRATE_TYPE = "cdylib"
 TEST_LIB_EXT = "dylib"

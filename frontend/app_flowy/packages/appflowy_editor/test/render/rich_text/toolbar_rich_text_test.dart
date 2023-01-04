@@ -2,6 +2,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_item_widget.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_widget.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../infra/test_editor.dart';
 
@@ -327,4 +328,51 @@ void main() async {
       );
     });
   }));
+
+  group('toolbar, color picker', (() {
+    testWidgets(
+        'Select Text, Click Toolbar and set color for the selected text',
+        (tester) async {
+      final editor = tester.editor..insertTextNode(singleLineText);
+      await editor.startTesting();
+
+      final node = editor.nodeAtPath([0]) as TextNode;
+      final selection = Selection(
+        start: Position(path: [0], offset: 0),
+        end: Position(path: [0], offset: singleLineText.length),
+      );
+
+      await editor.updateSelection(selection);
+      expect(find.byType(ToolbarWidget), findsOneWidget);
+      final colorButton = find.byWidgetPredicate((widget) {
+        if (widget is ToolbarItemWidget) {
+          return widget.item.id == 'appflowy.toolbar.color';
+        }
+        return false;
+      });
+      expect(colorButton, findsOneWidget);
+      await tester.tap(colorButton);
+      await tester.pumpAndSettle();
+      // select a yellow color
+      final yellowButton = find.text('Yellow');
+      await tester.tap(yellowButton);
+      await tester.pumpAndSettle();
+      expect(
+        node.allSatisfyInSelection(
+          selection,
+          BuiltInAttributeKey.color,
+          (value) {
+            return value == Colors.yellow.toHex();
+          },
+        ),
+        true,
+      );
+    });
+  }));
+}
+
+extension on Color {
+  String toHex() {
+    return '0x${value.toRadixString(16)}';
+  }
 }

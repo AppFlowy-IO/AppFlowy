@@ -1,14 +1,19 @@
-use crate::entities::FieldType;
+use crate::entities::{FieldType, NumberFilterPB};
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataOperation, CellDataSerialize, IntoCellData};
+use crate::services::cell::{CellDataChangeset, CellDataDecoder, TypeCellData};
 use crate::services::field::type_options::number_type_option::format::*;
-use crate::services::field::{BoxTypeOptionBuilder, NumberCellData, TypeOptionBuilder};
+use crate::services::field::{
+    BoxTypeOptionBuilder, NumberCellData, StrCellData, TypeOption, TypeOptionBuilder, TypeOptionCellData,
+    TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform,
+};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
-use flowy_error::{FlowyError, FlowyResult};
-use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use flowy_error::FlowyResult;
+use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
+use std::default::Default;
 use std::str::FromStr;
 
 #[derive(Default)]
@@ -46,9 +51,6 @@ impl TypeOptionBuilder for NumberTypeOptionBuilder {
     fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
     }
-    fn transform(&mut self, _field_type: &FieldType, _type_option_data: String) {
-        // Do nothing
-    }
 }
 
 // Number
@@ -70,6 +72,23 @@ pub struct NumberTypeOptionPB {
     pub name: String,
 }
 impl_type_option!(NumberTypeOptionPB, FieldType::Number);
+
+impl TypeOption for NumberTypeOptionPB {
+    type CellData = StrCellData;
+    type CellChangeset = NumberCellChangeset;
+    type CellProtobufType = StrCellData;
+    type CellFilter = NumberFilterPB;
+}
+
+impl TypeOptionCellData for NumberTypeOptionPB {
+    fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {
+        cell_data
+    }
+
+    fn decode_type_option_cell_str(&self, cell_str: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        Ok(cell_str.into())
+    }
+}
 
 impl NumberTypeOptionPB {
     pub fn new() -> Self {
@@ -103,59 +122,72 @@ pub(crate) fn strip_currency_symbol<T: ToString>(s: T) -> String {
     s
 }
 
-impl CellDataSerialize<String> for NumberTypeOptionPB {
-    fn serialize_cell_data_to_bytes(
+impl TypeOptionTransform for NumberTypeOptionPB {}
+
+impl CellDataDecoder for NumberTypeOptionPB {
+    fn decode_cell_str(
         &self,
-        cell_data: IntoCellData<String>,
-        _decoded_field_type: &FieldType,
+        cell_str: String,
+        decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        let cell_data: String = cell_data.try_into_inner()?;
-        match self.format_cell_data(&cell_data) {
-            Ok(num) => Ok(CellBytes::new(num.to_string())),
-            Err(_) => Ok(CellBytes::default()),
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
+        if decoded_field_type.is_date() {
+            return Ok(Default::default());
         }
+
+        let str_cell_data = self.decode_type_option_cell_str(cell_str)?;
+        let s = self.format_cell_data(&str_cell_data)?.to_string();
+        Ok(s.into())
     }
 
-    fn serialize_cell_data_to_str(
-        &self,
-        cell_data: IntoCellData<String>,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<String> {
-        let cell_data: String = cell_data.try_into_inner()?;
-        Ok(cell_data)
+    fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+        match self.format_cell_data(&cell_data) {
+            Ok(cell_data) => cell_data.to_string(),
+            Err(_) => "".to_string(),
+        }
     }
 }
 
 pub type NumberCellChangeset = String;
 
-impl CellDataOperation<String, NumberCellChangeset> for NumberTypeOptionPB {
-    fn decode_cell_data(
-        &self,
-        cell_data: IntoCellData<String>,
-        decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        if decoded_field_type.is_date() {
-            return Ok(CellBytes::default());
-        }
-
-        self.serialize_cell_data_to_bytes(cell_data, decoded_field_type, field_rev)
-    }
-
+impl CellDataChangeset for NumberTypeOptionPB {
     fn apply_changeset(
         &self,
-        changeset: AnyCellChangeset<String>,
-        _cell_rev: Option<CellRevision>,
-    ) -> Result<String, FlowyError> {
-        let changeset = changeset.try_into_inner()?;
+        changeset: <Self as TypeOption>::CellChangeset,
+        _type_cell_data: Option<TypeCellData>,
+    ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
         let data = changeset.trim().to_string();
-        let _ = self.format_cell_data(&data)?;
-        Ok(data)
+        let number_cell_data = self.format_cell_data(&data)?;
+        Ok((data, number_cell_data.to_string().into()))
     }
 }
 
+impl TypeOptionCellDataFilter for NumberTypeOptionPB {
+    fn apply_filter(
+        &self,
+        filter: &<Self as TypeOption>::CellFilter,
+        field_type: &FieldType,
+        cell_data: &<Self as TypeOption>::CellData,
+    ) -> bool {
+        if !field_type.is_number() {
+            return true;
+        }
+        match self.format_cell_data(cell_data) {
+            Ok(cell_data) => filter.is_visible(&cell_data),
+            Err(_) => true,
+        }
+    }
+}
+
+impl TypeOptionCellDataCompare for NumberTypeOptionPB {
+    fn apply_cmp(
+        &self,
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering {
+        cell_data.0.cmp(&other_cell_data.0)
+    }
+}
 impl std::default::Default for NumberTypeOptionPB {
     fn default() -> Self {
         let format = NumberFormat::default();

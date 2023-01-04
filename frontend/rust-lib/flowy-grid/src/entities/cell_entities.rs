@@ -41,7 +41,7 @@ impl TryInto<CreateSelectOptionParams> for CreateSelectOptionPayloadPB {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct CellPathPB {
     #[pb(index = 1)]
-    pub grid_id: String,
+    pub view_id: String,
 
     #[pb(index = 2)]
     pub field_id: String,
@@ -50,8 +50,10 @@ pub struct CellPathPB {
     pub row_id: String,
 }
 
+/// Represents as the cell identifier. It's used to locate the cell in corresponding
+/// view's row with the field id.
 pub struct CellPathParams {
-    pub grid_id: String,
+    pub view_id: String,
     pub field_id: String,
     pub row_id: String,
 }
@@ -60,25 +62,29 @@ impl TryInto<CellPathParams> for CellPathPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CellPathParams, Self::Error> {
-        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let grid_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
         Ok(CellPathParams {
-            grid_id: grid_id.0,
+            view_id: grid_id.0,
             field_id: field_id.0,
             row_id: row_id.0,
         })
     }
 }
+
+/// Represents as the data of the cell.
 #[derive(Debug, Default, ProtoBuf)]
 pub struct CellPB {
     #[pb(index = 1)]
     pub field_id: String,
 
-    // The data was encoded in field_type's data type
+    /// Encoded the data using the helper struct `CellProtobufBlob`.
+    /// Check out the `CellProtobufBlob` for more information.
     #[pb(index = 2)]
     pub data: Vec<u8>,
 
+    /// the field_type will be None if the field with field_id is not found
     #[pb(index = 3, one_of)]
     pub field_type: Option<FieldType>,
 }
@@ -139,7 +145,7 @@ pub struct CellChangesetPB {
     pub field_id: String,
 
     #[pb(index = 4)]
-    pub content: String,
+    pub type_cell_data: String,
 }
 
 impl std::convert::From<CellChangesetPB> for RowChangeset {
@@ -147,7 +153,7 @@ impl std::convert::From<CellChangesetPB> for RowChangeset {
         let mut cell_by_field_id = HashMap::with_capacity(1);
         let field_id = changeset.field_id;
         let cell_rev = CellRevision {
-            data: changeset.content,
+            type_cell_data: changeset.type_cell_data,
         };
         cell_by_field_id.insert(field_id, cell_rev);
 

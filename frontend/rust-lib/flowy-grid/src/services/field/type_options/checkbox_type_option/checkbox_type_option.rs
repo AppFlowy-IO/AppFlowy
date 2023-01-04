@@ -1,12 +1,16 @@
-use crate::entities::FieldType;
+use crate::entities::{CheckboxFilterPB, FieldType};
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellChangeset, CellBytes, CellDataOperation, CellDataSerialize, IntoCellData};
-use crate::services::field::{BoxTypeOptionBuilder, CheckboxCellData, TypeOptionBuilder};
+use crate::services::cell::{CellDataChangeset, CellDataDecoder, FromCellString, TypeCellData};
+use crate::services::field::{
+    default_order, BoxTypeOptionBuilder, CheckboxCellData, TypeOption, TypeOptionBuilder, TypeOptionCellData,
+    TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform,
+};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
-use flowy_error::{FlowyError, FlowyResult};
-use grid_rev_model::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use flowy_error::FlowyResult;
+use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 use std::str::FromStr;
 
 #[derive(Default)]
@@ -29,10 +33,6 @@ impl TypeOptionBuilder for CheckboxTypeOptionBuilder {
     fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
     }
-
-    fn transform(&mut self, _field_type: &FieldType, _type_option_data: String) {
-        // Do nothing
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, ProtoBuf)]
@@ -42,51 +42,104 @@ pub struct CheckboxTypeOptionPB {
 }
 impl_type_option!(CheckboxTypeOptionPB, FieldType::Checkbox);
 
-impl CellDataSerialize<CheckboxCellData> for CheckboxTypeOptionPB {
-    fn serialize_cell_data_to_bytes(
-        &self,
-        cell_data: IntoCellData<CheckboxCellData>,
-        _decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        let cell_data = cell_data.try_into_inner()?;
-        Ok(CellBytes::new(cell_data))
+impl TypeOption for CheckboxTypeOptionPB {
+    type CellData = CheckboxCellData;
+    type CellChangeset = CheckboxCellChangeset;
+    type CellProtobufType = CheckboxCellData;
+    type CellFilter = CheckboxFilterPB;
+}
+
+impl TypeOptionTransform for CheckboxTypeOptionPB {
+    fn transformable(&self) -> bool {
+        true
     }
 
-    fn serialize_cell_data_to_str(
+    fn transform_type_option(&mut self, _old_type_option_field_type: FieldType, _old_type_option_data: String) {}
+
+    fn transform_type_option_cell_str(
         &self,
-        cell_data: IntoCellData<CheckboxCellData>,
-        _decoded_field_type: &FieldType,
+        cell_str: &str,
+        decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<String> {
-        let cell_data = cell_data.try_into_inner()?;
-        Ok(cell_data.to_string())
+    ) -> Option<<Self as TypeOption>::CellData> {
+        if decoded_field_type.is_text() {
+            match CheckboxCellData::from_str(&cell_str) {
+                Ok(cell_data) => Some(cell_data),
+                Err(_) => None,
+            }
+        } else {
+            None
+        }
+    }
+}
+
+impl TypeOptionCellData for CheckboxTypeOptionPB {
+    fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {
+        cell_data
+    }
+
+    fn decode_type_option_cell_str(&self, cell_str: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        CheckboxCellData::from_cell_str(&cell_str)
+    }
+}
+
+impl CellDataDecoder for CheckboxTypeOptionPB {
+    fn decode_cell_str(
+        &self,
+        cell_str: String,
+        decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<<Self as TypeOption>::CellData> {
+        if !decoded_field_type.is_checkbox() {
+            return Ok(Default::default());
+        }
+
+        self.decode_type_option_cell_str(cell_str)
+    }
+
+    fn decode_cell_data_to_str(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+        cell_data.to_string()
     }
 }
 
 pub type CheckboxCellChangeset = String;
 
-impl CellDataOperation<CheckboxCellData, CheckboxCellChangeset> for CheckboxTypeOptionPB {
-    fn decode_cell_data(
-        &self,
-        cell_data: IntoCellData<CheckboxCellData>,
-        decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) -> FlowyResult<CellBytes> {
-        if !decoded_field_type.is_checkbox() {
-            return Ok(CellBytes::default());
-        }
-
-        self.serialize_cell_data_to_bytes(cell_data, decoded_field_type, field_rev)
-    }
-
+impl CellDataChangeset for CheckboxTypeOptionPB {
     fn apply_changeset(
         &self,
-        changeset: AnyCellChangeset<String>,
-        _cell_rev: Option<CellRevision>,
-    ) -> Result<String, FlowyError> {
-        let changeset = changeset.try_into_inner()?;
-        let cell_data = CheckboxCellData::from_str(&changeset)?;
-        Ok(cell_data.to_string())
+        changeset: <Self as TypeOption>::CellChangeset,
+        _type_cell_data: Option<TypeCellData>,
+    ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
+        let checkbox_cell_data = CheckboxCellData::from_str(&changeset)?;
+        Ok((checkbox_cell_data.to_string(), checkbox_cell_data))
+    }
+}
+
+impl TypeOptionCellDataFilter for CheckboxTypeOptionPB {
+    fn apply_filter(
+        &self,
+        filter: &<Self as TypeOption>::CellFilter,
+        field_type: &FieldType,
+        cell_data: &<Self as TypeOption>::CellData,
+    ) -> bool {
+        if !field_type.is_checkbox() {
+            return true;
+        }
+        filter.is_visible(cell_data)
+    }
+}
+
+impl TypeOptionCellDataCompare for CheckboxTypeOptionPB {
+    fn apply_cmp(
+        &self,
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering {
+        match (cell_data.is_check(), other_cell_data.is_check()) {
+            (true, true) => Ordering::Equal,
+            (true, false) => Ordering::Greater,
+            (false, true) => Ordering::Less,
+            (false, false) => default_order(),
+        }
     }
 }
