@@ -159,6 +159,13 @@ class _TextField extends StatelessWidget {
                     remainder,
                   ));
             },
+            onRemove: (optionName) {
+              context
+                  .read<SelectOptionCellEditorBloc>()
+                  .add(SelectOptionEditorEvent.unSelectOption(
+                    optionMap[optionName]!.id,
+                  ));
+            },
           ),
         );
       },
@@ -297,6 +304,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
             context
                 .read<SelectOptionCellEditorBloc>()
                 .add(SelectOptionEditorEvent.deleteOption(widget.option));
+            PopoverContainer.of(popoverContext).close();
           },
           onUpdated: (updatedOption) {
             context
