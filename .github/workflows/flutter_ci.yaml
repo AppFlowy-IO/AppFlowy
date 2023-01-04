@@ -22,12 +22,12 @@ env:
 jobs:
   build:
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         job:
-          - { target: x86_64-unknown-linux-gnu, os: ubuntu-latest, flutter_profile: development-linux-x86_64, }
-          - { target: x86_64-apple-darwin, os: macos-latest, flutter_profile: development-mac-x86_64, }
-          - { target: x86_64-pc-windows-msvc, os: windows-latest, flutter_profile: development-windows-x86, }
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-latest, flutter_profile: "development-linux-x86_64", }
+          - { target: x86_64-apple-darwin, os: macos-latest, flutter_profile: "development-mac-x86_64", }
+          - { target: x86_64-pc-windows-msvc, os: windows-latest, flutter_profile: "development-windows-x86", }
     runs-on: ${{ matrix.os }}
 
     steps:
