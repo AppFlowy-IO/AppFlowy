@@ -22,12 +22,22 @@ env:
 jobs:
   build:
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         job:
-          - { target: x86_64-unknown-linux-gnu, os: ubuntu-latest, flutter_profile: "development-linux-x86_64", }
-          - { target: x86_64-apple-darwin, os: macos-latest, flutter_profile: "development-mac-x86_64", }
-          - { target: x86_64-pc-windows-msvc, os: windows-latest, flutter_profile: "development-windows-x86", }
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-latest,}
+          - { target: x86_64-apple-darwin, os: macos-latest, }
+          - { target: x86_64-pc-windows-msvc, os: windows-latest, }
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            flutter_profile: development-linux-x86_64
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            flutter_profile: development-mac-x86_64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            flutter_profile: development-windows-x86
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -89,7 +99,7 @@ jobs:
       - name: Build AppFlowy
         working-directory: frontend
         run: |
-          cargo make --profile ${{ matrix.job.flutter_profile }} appflowy-dev
+          cargo make --profile ${{ matrix.flutter_profile }} appflowy-dev
 
       - name: Flutter Analyzer
         working-directory: frontend/app_flowy
