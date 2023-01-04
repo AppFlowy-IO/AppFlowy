@@ -46,12 +46,10 @@ class GridGroupList extends StatelessWidget {
           return ListView.separated(
             shrinkWrap: true,
             itemCount: cells.length,
-            itemBuilder: (BuildContext context, int index) {
-              return cells[index];
-            },
-            separatorBuilder: (BuildContext context, int index) {
-              return VSpace(GridSize.typeOptionSeparatorHeight);
-            },
+            itemBuilder: (BuildContext context, int index) => cells[index],
+            separatorBuilder: (BuildContext context, int index) =>
+                VSpace(GridSize.typeOptionSeparatorHeight),
+            padding: const EdgeInsets.all(6.0),
           );
         },
       ),

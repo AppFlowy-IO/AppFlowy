@@ -41,8 +41,8 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
           },
           didReceiveCellUpdate: (DateCellDataPB? cellData) {
             final calData = calDataFromCellData(cellData);
-            final time =
-                calData.foldRight("", (dateData, previous) => dateData.time);
+            final time = calData.foldRight(
+                "", (dateData, previous) => dateData.time ?? '');
             emit(state.copyWith(calData: calData, time: time));
           },
           setIncludeTime: (includeTime) async {
@@ -224,7 +224,8 @@ class DateCalState with _$DateCalState {
     DateCellDataPB? cellData,
   ) {
     Option<CalendarData> calData = calDataFromCellData(cellData);
-    final time = calData.foldRight("", (dateData, previous) => dateData.time);
+    final time =
+        calData.foldRight("", (dateData, previous) => dateData.time ?? '');
     return DateCalState(
       dateTypeOptionPB: dateTypeOptionPB,
       format: CalendarFormat.month,

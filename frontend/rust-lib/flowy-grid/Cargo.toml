@@ -56,5 +56,5 @@ flowy-codegen = { path = "../flowy-codegen"}
 
 [features]
 default = []
-dart = ["flowy-codegen/dart"]
+dart = ["flowy-codegen/dart", "dart-notify/dart"]
 flowy_unit_test = ["flowy-revision/flowy_unit_test"]

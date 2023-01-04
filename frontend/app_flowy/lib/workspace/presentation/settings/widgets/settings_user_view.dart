@@ -80,7 +80,7 @@ class _CurrentIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _setIcon(String iconUrl) {
+    void setIcon(String iconUrl) {
       context
           .read<SettingsUserViewBloc>()
           .add(SettingsUserEvent.updateUserIcon(iconUrl));
@@ -90,23 +90,28 @@ class _CurrentIcon extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: GestureDetector(
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return SimpleDialog(
-                    title: FlowyText.medium(
-                      'Select an Icon',
-                      fontSize: FontSizes.s16,
-                    ),
-                    children: <Widget>[
-                      SizedBox(
-                          height: 300, width: 300, child: IconGallery(_setIcon))
-                    ]);
-              },
-            );
-          },
-          child: Column(children: <Widget>[
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return SimpleDialog(
+                title: FlowyText.medium(
+                  'Select an Icon',
+                  fontSize: FontSizes.s16,
+                ),
+                children: <Widget>[
+                  SizedBox(
+                    height: 300,
+                    width: 300,
+                    child: IconGallery(setIcon),
+                  )
+                ],
+              );
+            },
+          );
+        },
+        child: Column(
+          children: <Widget>[
             const Align(
                 alignment: Alignment.topLeft,
                 child: Text(
@@ -114,14 +119,17 @@ class _CurrentIcon extends StatelessWidget {
                   style: TextStyle(color: Colors.grey),
                 )),
             Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  margin: const EdgeInsets.all(5.0),
-                  decoration:
-                      BoxDecoration(border: Border.all(color: Colors.grey)),
-                  child: svgWidget('emoji/$iconUrl', size: const Size(60, 60)),
-                )),
-          ])),
+              alignment: Alignment.centerLeft,
+              child: Container(
+                margin: const EdgeInsets.all(5.0),
+                decoration:
+                    BoxDecoration(border: Border.all(color: Colors.grey)),
+                child: svgWidget('emoji/$iconUrl', size: const Size(60, 60)),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

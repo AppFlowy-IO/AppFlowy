@@ -45,7 +45,7 @@ rand_core = "0.6.3"
 rand = "0.8.5"
 
 [features]
-dart = ["flowy-codegen/dart"]
+dart = ["flowy-codegen/dart", "dart-notify/dart"]
 
 [build-dependencies]
 flowy-codegen = { path = "../flowy-codegen"}
