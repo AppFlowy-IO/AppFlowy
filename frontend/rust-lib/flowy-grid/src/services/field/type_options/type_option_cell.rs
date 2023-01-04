@@ -13,7 +13,7 @@ use flowy_error::FlowyResult;
 use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;
-use std::hash::Hasher;
+use std::hash::{Hash, Hasher};
 
 /// A helper trait that used to erase the `Self` of `TypeOption` trait to make it become a Object-safe trait
 /// Only object-safe traits can be made into trait objects.
@@ -47,13 +47,17 @@ pub trait TypeOptionCellDataHandler {
 
     /// Decode the cell_str to corresponding cell data, and then return the display string of the
     /// cell data.
-    fn stringify_cell_str(&self, cell_str: String, field_type: &FieldType, field_rev: &FieldRevision) -> String;
+    fn stringify_cell_str(&self, cell_str: String, decoded_field_type: &FieldType, field_rev: &FieldRevision)
+        -> String;
 }
 
 struct CellDataCacheKey(u64);
 impl CellDataCacheKey {
     pub fn new(field_rev: &FieldRevision, decoded_field_type: FieldType, cell_str: &str) -> Self {
         let mut hasher = DefaultHasher::new();
+        if let Some(type_option_str) = field_rev.get_type_option_str(&decoded_field_type) {
+            type_option_str.hash(&mut hasher);
+        }
         hasher.write(field_rev.id.as_bytes());
         hasher.write_u8(decoded_field_type as u8);
         hasher.write(cell_str.as_bytes());
@@ -111,7 +115,12 @@ where
         if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
             let read_guard = cell_data_cache.read();
             if let Some(cell_data) = read_guard.get(key.as_ref()).cloned() {
-                tracing::trace!("Cell cache hit: {}:{}", decoded_field_type, cell_str);
+                tracing::trace!(
+                    "Cell cache hit: field_type:{}, cell_str: {}, cell_data: {:?}",
+                    decoded_field_type,
+                    cell_str,
+                    cell_data
+                );
                 return Ok(cell_data);
             }
         }
@@ -123,12 +132,20 @@ where
         Ok(cell_data)
     }
 
-    fn set_decoded_cell_data(&self, cell_data: <Self as TypeOption>::CellData, field_rev: &FieldRevision) {
+    fn set_decoded_cell_data(
+        &self,
+        cell_str: &str,
+        cell_data: <Self as TypeOption>::CellData,
+        field_rev: &FieldRevision,
+    ) {
         if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
             let field_type: FieldType = field_rev.ty.into();
-            let cell_str = cell_data.to_string();
-            tracing::trace!("Update cell cache {}:{}", field_type, cell_str);
-            let key = CellDataCacheKey::new(field_rev, field_type, &cell_str);
+            tracing::trace!(
+                "Update cell cache field_type: {}, cell_data: {:?}",
+                field_type,
+                cell_data
+            );
+            let key = CellDataCacheKey::new(field_rev, field_type, cell_str);
             cell_data_cache.write().insert(key.as_ref(), cell_data);
         }
     }
@@ -186,9 +203,9 @@ where
         field_rev: &FieldRevision,
     ) -> FlowyResult<String> {
         let changeset = <Self as TypeOption>::CellChangeset::from_changeset(cell_changeset)?;
-        let cell_data = self.apply_changeset(changeset, old_type_cell_data)?;
-        self.set_decoded_cell_data(cell_data.clone(), field_rev);
-        Ok(cell_data.to_string())
+        let (cell_str, cell_data) = self.apply_changeset(changeset, old_type_cell_data)?;
+        self.set_decoded_cell_data(&cell_str, cell_data, field_rev);
+        Ok(cell_str)
     }
 
     fn handle_cell_compare(&self, left_cell_data: &str, right_cell_data: &str, field_rev: &FieldRevision) -> Ordering {
@@ -222,9 +239,14 @@ where
         perform_filter().unwrap_or(true)
     }
 
-    fn stringify_cell_str(&self, cell_str: String, field_type: &FieldType, field_rev: &FieldRevision) -> String {
+    fn stringify_cell_str(
+        &self,
+        cell_str: String,
+        decoded_field_type: &FieldType,
+        field_rev: &FieldRevision,
+    ) -> String {
         if self.transformable() {
-            let cell_data = self.transform_type_option_cell_str(&cell_str, field_type, field_rev);
+            let cell_data = self.transform_type_option_cell_str(&cell_str, decoded_field_type, field_rev);
             if let Some(cell_data) = cell_data {
                 return self.decode_cell_data_to_str(cell_data);
             }

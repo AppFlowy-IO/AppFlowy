@@ -63,7 +63,7 @@ impl CellDataChangeset for SingleSelectTypeOptionPB {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         _type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<<Self as TypeOption>::CellData> {
+    ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
         let mut insert_option_ids = changeset
             .insert_option_ids
             .into_iter()
@@ -73,13 +73,14 @@ impl CellDataChangeset for SingleSelectTypeOptionPB {
         // In single select, the insert_option_ids should only contain one select option id.
         // Sometimes, the insert_option_ids may contain list of option ids. For example,
         // copy/paste a ids string.
-        if insert_option_ids.is_empty() {
-            Ok(SelectOptionIds::from(insert_option_ids))
+        let select_option_ids = if insert_option_ids.is_empty() {
+            SelectOptionIds::from(insert_option_ids)
         } else {
             // Just take the first select option
             let _ = insert_option_ids.drain(1..);
-            Ok(SelectOptionIds::from(insert_option_ids))
-        }
+            SelectOptionIds::from(insert_option_ids)
+        };
+        Ok((select_option_ids.to_string(), select_option_ids))
     }
 }
 
@@ -195,7 +196,7 @@ mod tests {
         let type_option = SingleSelectTypeOptionPB::from(&field_rev);
         let option_ids = vec![google.id.clone(), facebook.id];
         let changeset = SelectOptionCellChangeset::from_insert_options(option_ids);
-        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap();
+        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap().1;
         assert_eq!(&*select_option_ids, &vec![google.id]);
     }
 
@@ -213,12 +214,12 @@ mod tests {
 
         // insert
         let changeset = SelectOptionCellChangeset::from_insert_options(option_ids.clone());
-        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap();
+        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap().1;
         assert_eq!(&*select_option_ids, &vec![google.id]);
 
         // delete
         let changeset = SelectOptionCellChangeset::from_delete_options(option_ids);
-        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap();
+        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap().1;
         assert!(select_option_ids.is_empty());
     }
 
@@ -231,7 +232,7 @@ mod tests {
 
         let option_ids = vec![google.id];
         let changeset = SelectOptionCellChangeset::from_insert_options(option_ids);
-        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap();
+        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap().1;
 
         assert!(select_option_ids.is_empty());
     }
@@ -243,7 +244,7 @@ mod tests {
         let type_option = SingleSelectTypeOptionPB::from(&field_rev);
 
         let changeset = SelectOptionCellChangeset::from_insert_option_id("");
-        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap();
+        let select_option_ids = type_option.apply_changeset(changeset, None).unwrap().1;
         assert!(select_option_ids.is_empty());
     }
 }

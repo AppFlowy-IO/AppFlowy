@@ -148,6 +148,10 @@ impl SortController {
             .await;
     }
 
+    pub async fn did_update_view_field_type_option(&self, _field_rev: &FieldRevision) {
+        //
+    }
+
     #[tracing::instrument(level = "trace", skip(self))]
     pub async fn did_receive_changes(&mut self, changeset: SortChangeset) -> SortChangesetNotificationPB {
         let mut notification = SortChangesetNotificationPB::new(self.view_id.clone());

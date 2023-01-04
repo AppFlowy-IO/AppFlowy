@@ -20,7 +20,7 @@ pub trait TypeOption {
     ///
     /// Uses `StrCellData` for any `TypeOption` if their cell data is pure `String`.
     ///
-    type CellData: FromCellString + ToString + Default + Send + Sync + Clone + 'static;
+    type CellData: FromCellString + ToString + Default + Send + Sync + Clone + Debug + 'static;
 
     /// Represents as the corresponding field type cell changeset.
     /// The changeset must implements the `FromCellChangesetString` and the `ToCellChangesetString` trait.

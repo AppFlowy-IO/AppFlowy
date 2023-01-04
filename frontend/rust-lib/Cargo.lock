@@ -872,10 +872,13 @@ dependencies = [
  "flowy-ast",
  "flowy-codegen",
  "lazy_static",
+ "log",
  "proc-macro2",
  "quote",
  "serde_json",
  "syn",
+ "tokio",
+ "trybuild",
  "walkdir",
 ]
 
@@ -927,11 +930,11 @@ dependencies = [
 name = "flowy-error"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bytes",
  "flowy-codegen",
  "flowy-database",
  "flowy-derive",
- "flowy-error-code",
  "flowy-sync",
  "http-flowy",
  "lib-dispatch",
@@ -940,16 +943,7 @@ dependencies = [
  "protobuf",
  "r2d2",
  "serde_json",
-]
-
-[[package]]
-name = "flowy-error-code"
-version = "0.1.0"
-dependencies = [
- "derive_more",
- "flowy-codegen",
- "flowy-derive",
- "protobuf",
+ "thiserror",
 ]
 
 [[package]]
@@ -1042,11 +1036,10 @@ name = "flowy-http-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "flowy-codegen",
- "flowy-derive",
- "lib-infra",
  "md5",
- "protobuf",
+ "serde",
+ "serde_json",
+ "serde_repr",
 ]
 
 [[package]]
@@ -1442,6 +1435,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "78cc372d058dcf6d5ecd98510e7fbc9e5aec4d21de70f65fea8fecebcd881bd4"
 
 [[package]]
+name = "glob"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
+
+[[package]]
 name = "globset"
 version = "0.4.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1470,7 +1469,6 @@ name = "grid-rev-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "flowy-error-code",
  "indexmap",
  "nanoid",
  "serde",
@@ -1855,8 +1853,6 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "dashmap",
- "flowy-codegen",
- "flowy-derive",
  "futures",
  "futures-channel",
  "futures-core",
@@ -1867,6 +1863,9 @@ dependencies = [
  "paste",
  "pin-project",
  "protobuf",
+ "serde",
+ "serde_json",
+ "serde_repr",
  "strum",
  "strum_macros",
  "tokio",
@@ -3520,6 +3519,21 @@ name = "try-lock"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "59547bce71d9c38b83d9c0e92b6066c4253371f15005def0c30d9657f50c7642"
+
+[[package]]
+name = "trybuild"
+version = "1.0.64"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e7f408301c7480f9e6294eb779cfc907f54bd901a9660ef24d7f233ed5376485"
+dependencies = [
+ "glob",
+ "once_cell",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "termcolor",
+ "toml",
+]
 
 [[package]]
 name = "tungstenite"

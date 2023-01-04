@@ -30,7 +30,7 @@ impl DecodedCellData for URLCellDataPB {
     }
 }
 
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct URLCellData {
     pub url: String,
     pub content: String,

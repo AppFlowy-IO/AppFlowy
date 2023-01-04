@@ -81,15 +81,16 @@ impl CellDataChangeset for URLTypeOptionPB {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         _type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<<Self as TypeOption>::CellData> {
+    ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
         let mut url = "".to_string();
         if let Ok(Some(m)) = URL_REGEX.find(&changeset) {
             url = auto_append_scheme(m.as_str());
         }
-        Ok(URLCellData {
+        let url_cell_data = URLCellData {
             url,
             content: changeset,
-        })
+        };
+        Ok((url_cell_data.to_string(), url_cell_data))
     }
 }
 

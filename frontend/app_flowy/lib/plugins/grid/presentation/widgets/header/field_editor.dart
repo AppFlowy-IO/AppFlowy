@@ -218,7 +218,9 @@ class _DeleteFieldButton extends StatelessWidget {
             LocaleKeys.grid_field_delete.tr(),
             color: enable ? null : Theme.of(context).disabledColor,
           ),
-          onTap: () => onDeleted?.call(),
+          onTap: () {
+            if (enable) onDeleted?.call();
+          },
           onHover: (_) => popoverMutex.close(),
         );
         return Padding(

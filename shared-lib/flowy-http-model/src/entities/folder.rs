@@ -1,16 +1,9 @@
-use flowy_derive::ProtoBuf;
+use serde::{Deserialize, Serialize};
 
-#[derive(ProtoBuf, Default, Debug, Clone, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Default, Debug, Clone, Eq, PartialEq)]
 pub struct FolderInfo {
-    #[pb(index = 1)]
     pub folder_id: String,
-
-    #[pb(index = 2)]
     pub text: String,
-
-    #[pb(index = 3)]
     pub rev_id: i64,
-
-    #[pb(index = 4)]
     pub base_rev_id: i64,
 }

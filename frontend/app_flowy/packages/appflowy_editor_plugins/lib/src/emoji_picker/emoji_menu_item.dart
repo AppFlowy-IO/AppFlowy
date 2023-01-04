@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'emoji_picker.dart';
 
 SelectionMenuItem emojiMenuItem = SelectionMenuItem(
-  name: () => 'emoji',
+  name: () => 'Emoji',
   icon: (editorState, onSelected) => Icon(
     Icons.emoji_emotions_outlined,
     color: onSelected

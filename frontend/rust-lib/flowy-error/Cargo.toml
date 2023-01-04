@@ -6,14 +6,15 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-derive = { path = "../../../shared-lib/flowy-derive" }
-flowy-error-code = { path = "../../../shared-lib/flowy-error-code"}
+flowy-derive = { path = "../flowy-derive" }
 lib-dispatch = { path = "../lib-dispatch" }
 protobuf = {version = "2.20.0"}
 bytes = "1.0"
+anyhow = "1.0"
+thiserror = "1.0"
 
 
-flowy-sync = { path = "../../../shared-lib/flowy-sync", optional = true}
+flowy-sync = { path = "../flowy-sync", optional = true}
 lib-ot = { path = "../../../shared-lib/lib-ot", optional = true}
 serde_json = {version = "1.0", optional = true}
 http-flowy = { git = "https://github.com/AppFlowy-IO/AppFlowy-Server", optional = true}
@@ -27,7 +28,7 @@ ot = ["lib-ot"]
 serde = ["serde_json"]
 http_server = ["http-flowy"]
 db = ["flowy-database", "lib-sqlite", "r2d2"]
-dart = ["flowy-error-code/dart", "flowy-codegen/dart"]
+dart = ["flowy-codegen/dart"]
 
 [build-dependencies]
-flowy-codegen= { path = "../../../shared-lib/flowy-codegen"}
+flowy-codegen = { path = "../flowy-codegen", features = ["proto_gen"]}
