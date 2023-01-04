@@ -510,6 +510,7 @@ impl GridRevisionEditor {
                 // Update the changeset.data property with the return value.
                 let type_cell_data =
                     apply_cell_data_changeset(cell_changeset, cell_rev, field_rev, Some(self.cell_data_cache.clone()))?;
+                tracing::trace!("xxxxxxxxxxxx:: {}", type_cell_data);
                 let cell_changeset = CellChangesetPB {
                     grid_id: self.grid_id.clone(),
                     row_id: row_id.to_owned(),
