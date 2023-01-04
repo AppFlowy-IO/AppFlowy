@@ -289,8 +289,50 @@ ShortcutEventHandler cursorRight = (editorState, event) {
   return KeyEventResult.handled;
 };
 
+ShortcutEventHandler cursorLeftWordSelect = (editorState, event) {
+  final nodes = editorState.service.selectionService.currentSelectedNodes;
+  final selection = editorState.service.selectionService.currentSelection.value;
+  if (nodes.isEmpty || selection == null) {
+    return KeyEventResult.ignored;
+  }
+  final end =
+      selection.end.goLeft(editorState, selectionRange: _SelectionRange.word);
+  if (end == null) {
+    return KeyEventResult.ignored;
+  }
+  editorState.service.selectionService.updateSelection(
+    selection.copyWith(end: end),
+  );
+  return KeyEventResult.handled;
+};
+
+ShortcutEventHandler cursorRightWordSelect = (editorState, event) {
+  final nodes = editorState.service.selectionService.currentSelectedNodes;
+  final selection = editorState.service.selectionService.currentSelection.value;
+  if (nodes.isEmpty || selection == null) {
+    return KeyEventResult.ignored;
+  }
+  final end =
+      selection.end.goRight(editorState, selectionRange: _SelectionRange.word);
+  if (end == null) {
+    return KeyEventResult.ignored;
+  }
+  editorState.service.selectionService.updateSelection(
+    selection.copyWith(end: end),
+  );
+  return KeyEventResult.handled;
+};
+
+enum _SelectionRange {
+  character,
+  word,
+}
+
 extension on Position {
-  Position? goLeft(EditorState editorState) {
+  Position? goLeft(
+    EditorState editorState, {
+    _SelectionRange selectionRange = _SelectionRange.character,
+  }) {
     final node = editorState.document.nodeAtPath(path);
     if (node == null) {
       return null;
@@ -302,14 +344,38 @@ extension on Position {
       }
       return null;
     }
-    if (node is TextNode) {
-      return Position(path: path, offset: node.delta.prevRunePosition(offset));
-    } else {
-      return Position(path: path, offset: offset);
+    switch (selectionRange) {
+      case _SelectionRange.character:
+        if (node is TextNode) {
+          return Position(
+            path: path,
+            offset: node.delta.prevRunePosition(offset),
+          );
+        } else {
+          return Position(path: path, offset: offset);
+        }
+      case _SelectionRange.word:
+        if (node is TextNode) {
+          final result = node.selectable?.getWordBoundaryInPosition(
+            Position(
+              path: path,
+              offset: node.delta.prevRunePosition(offset),
+            ),
+          );
+          if (result != null) {
+            return result.start;
+          }
+        } else {
+          return Position(path: path, offset: offset);
+        }
     }
+    return null;
   }
 
-  Position? goRight(EditorState editorState) {
+  Position? goRight(
+    EditorState editorState, {
+    _SelectionRange selectionRange = _SelectionRange.character,
+  }) {
     final node = editorState.document.nodeAtPath(path);
     if (node == null) {
       return null;
@@ -322,11 +388,30 @@ extension on Position {
       }
       return null;
     }
-    if (node is TextNode) {
-      return Position(path: path, offset: node.delta.nextRunePosition(offset));
-    } else {
-      return Position(path: path, offset: offset);
+    switch (selectionRange) {
+      case _SelectionRange.character:
+        if (node is TextNode) {
+          return Position(
+              path: path, offset: node.delta.nextRunePosition(offset));
+        } else {
+          return Position(path: path, offset: offset);
+        }
+      case _SelectionRange.word:
+        if (node is TextNode) {
+          final result = node.selectable?.getWordBoundaryInPosition(
+            Position(
+              path: path,
+              offset: node.delta.nextRunePosition(offset),
+            ),
+          );
+          if (result != null) {
+            return result.end;
+          }
+        } else {
+          return Position(path: path, offset: offset);
+        }
     }
+    return null;
   }
 }
 
