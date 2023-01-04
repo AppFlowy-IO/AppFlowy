@@ -15,7 +15,7 @@ lazy_static = "1.4.0"
 scheduled-thread-pool = "0.2.5"
 error-chain = "=0.12.0"
 log = "0.4.11"
-openssl = { version = "0.10.38", optional = true }
+openssl = { version = "0.10.38", features = ["vendored"]}
 
 [features]
 openssl_vendored = ["openssl/vendored"]
