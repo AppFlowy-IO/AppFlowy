@@ -119,7 +119,7 @@ impl GridBlockRevisionEditor {
 
     pub async fn get_row_rev(&self, row_id: &str) -> FlowyResult<Option<(usize, Arc<RowRevision>)>> {
         if self.pad.try_read().is_err() {
-            tracing::error!("Required GridBlockRevisionPad's read lock failed");
+            tracing::error!("Required grid block read lock failed");
             Ok(None)
         } else {
             let row_rev = self.pad.read().await.get_row_rev(row_id);
