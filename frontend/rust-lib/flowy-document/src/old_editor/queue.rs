@@ -69,7 +69,7 @@ impl EditDocumentQueue {
         match command {
             EditorCommand::ComposeLocalOperations { operations, ret } => {
                 let mut document = self.document.write().await;
-                let _ = document.compose_operations(operations.clone())?;
+                document.compose_operations(operations.clone())?;
                 let md5 = document.document_md5();
                 drop(document);
                 let _ = self.save_local_operations(operations, md5).await?;
@@ -77,14 +77,14 @@ impl EditDocumentQueue {
             }
             EditorCommand::ComposeRemoteOperation { client_operations, ret } => {
                 let mut document = self.document.write().await;
-                let _ = document.compose_operations(client_operations.clone())?;
+                document.compose_operations(client_operations.clone())?;
                 let md5 = document.document_md5();
                 drop(document);
                 let _ = ret.send(Ok(md5.into()));
             }
             EditorCommand::ResetOperations { operations, ret } => {
                 let mut document = self.document.write().await;
-                let _ = document.set_operations(operations);
+                document.set_operations(operations);
                 let md5 = document.document_md5();
                 drop(document);
                 let _ = ret.send(Ok(md5.into()));

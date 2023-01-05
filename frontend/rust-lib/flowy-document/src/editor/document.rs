@@ -82,7 +82,7 @@ impl RevisionObjectDeserializer for DocumentRevisionSerde {
     fn deserialize_revisions(_object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let mut tree = NodeTree::new(make_tree_context());
         let transaction = make_transaction_from_revisions(&revisions)?;
-        let _ = tree.apply_transaction(transaction)?;
+        tree.apply_transaction(transaction)?;
         let document = Document::new(tree);
         Result::<Document, FlowyError>::Ok(document)
     }
@@ -106,7 +106,7 @@ impl RevisionMergeable for DocumentRevisionMergeable {
 pub fn make_transaction_from_revisions(revisions: &[Revision]) -> FlowyResult<Transaction> {
     let mut transaction = Transaction::new();
     for revision in revisions {
-        let _ = transaction.compose(Transaction::from_bytes(&revision.bytes)?)?;
+        transaction.compose(Transaction::from_bytes(&revision.bytes)?)?;
     }
     Ok(transaction)
 }

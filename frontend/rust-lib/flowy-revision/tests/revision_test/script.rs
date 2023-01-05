@@ -265,7 +265,7 @@ impl RevisionMergeable for RevisionMergeableMock {
         let mut object = RevisionObjectMock::new("");
         for revision in revisions {
             if let Ok(other) = RevisionObjectMock::from_bytes(&revision.bytes) {
-                let _ = object.compose(other)?;
+                object.compose(other)?;
             }
         }
         Ok(Bytes::from(object.to_bytes()))
@@ -326,7 +326,7 @@ impl RevisionObjectDeserializer for RevisionObjectMockSerde {
 
         for revision in revisions {
             if let Ok(revision_object) = RevisionObjectMock::from_bytes(&revision.bytes) {
-                let _ = object.compose(revision_object)?;
+                object.compose(revision_object)?;
             }
         }
 

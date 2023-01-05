@@ -25,7 +25,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDeltaDocumentRevisionPersi
 
     fn create_revision_records(&self, revision_records: Vec<SyncRecord>) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        let _ = DeltaRevisionSql::create(revision_records, &*conn)?;
+        DeltaRevisionSql::create(revision_records, &*conn)?;
         Ok(())
     }
 
@@ -39,7 +39,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDeltaDocumentRevisionPersi
         rev_ids: Option<Vec<i64>>,
     ) -> Result<Vec<SyncRecord>, Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        let records = DeltaRevisionSql::read(&self.user_id, object_id, rev_ids, &*conn)?;
+        let records = DeltaRevisionSql::read(&self.user_id, object_id, rev_ids, &conn)?;
         Ok(records)
     }
 
@@ -55,7 +55,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDeltaDocumentRevisionPersi
 
     fn update_revision_record(&self, changesets: Vec<RevisionChangeset>) -> FlowyResult<()> {
         let conn = &*self.pool.get().map_err(internal_error)?;
-        let _ = conn.immediate_transaction::<_, FlowyError, _>(|| {
+        conn.immediate_transaction::<_, FlowyError, _>(|| {
             for changeset in changesets {
                 let _ = DeltaRevisionSql::update(changeset, conn)?;
             }
@@ -66,7 +66,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDeltaDocumentRevisionPersi
 
     fn delete_revision_records(&self, object_id: &str, rev_ids: Option<Vec<i64>>) -> Result<(), Self::Error> {
         let conn = &*self.pool.get().map_err(internal_error)?;
-        let _ = DeltaRevisionSql::delete(object_id, rev_ids, conn)?;
+        DeltaRevisionSql::delete(object_id, rev_ids, conn)?;
         Ok(())
     }
 
@@ -78,8 +78,8 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDeltaDocumentRevisionPersi
     ) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
-            let _ = DeltaRevisionSql::delete(object_id, deleted_rev_ids, &*conn)?;
-            let _ = DeltaRevisionSql::create(inserted_records, &*conn)?;
+            DeltaRevisionSql::delete(object_id, deleted_rev_ids, &*conn)?;
+            DeltaRevisionSql::create(inserted_records, &*conn)?;
             Ok(())
         })
     }

@@ -32,7 +32,7 @@ impl TaskHandler for SortTaskHandler {
         let sort_controller = self.sort_controller.clone();
         Box::pin(async move {
             if let TaskContent::Text(predicate) = content {
-                let _ = sort_controller
+                sort_controller
                     .write()
                     .await
                     .process(&predicate)

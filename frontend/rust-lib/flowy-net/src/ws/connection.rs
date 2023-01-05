@@ -63,7 +63,7 @@ impl FlowyWebSocketConnect {
     pub async fn start(&self, token: String, user_id: String) -> Result<(), FlowyError> {
         let addr = format!("{}/{}", self.addr, &token);
         self.inner.stop_connect().await?;
-        let _ = self.inner.start_connect(addr, user_id).await?;
+        self.inner.start_connect(addr, user_id).await?;
         Ok(())
     }
 
@@ -102,7 +102,7 @@ impl FlowyWebSocketConnect {
     }
 
     pub fn add_ws_message_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError> {
-        let _ = self.inner.add_msg_receiver(receiver)?;
+        self.inner.add_msg_receiver(receiver)?;
         Ok(())
     }
 

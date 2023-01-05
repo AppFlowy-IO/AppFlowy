@@ -41,7 +41,7 @@ impl DocumentCloudService for DocumentCloudServiceImpl {
 }
 
 pub async fn create_document_request(token: &str, params: CreateDocumentParams, url: &str) -> Result<(), FlowyError> {
-    let _ = request_builder()
+    request_builder()
         .post(url)
         .header(HEADER_TOKEN, token)
         .json(params)?
@@ -66,7 +66,7 @@ pub async fn read_document_request(
 }
 
 pub async fn reset_doc_request(token: &str, params: ResetDocumentParams, url: &str) -> Result<(), FlowyError> {
-    let _ = request_builder()
+    request_builder()
         .patch(url)
         .header(HEADER_TOKEN, token)
         .json(params)?

@@ -63,48 +63,45 @@ impl GridBlockRevisionEditor {
     ) -> FlowyResult<(i32, Option<i32>)> {
         let mut row_count = 0;
         let mut row_index = None;
-        let _ = self
-            .modify(|block_pad| {
-                if let Some(start_row_id) = prev_row_id.as_ref() {
-                    match block_pad.index_of_row(start_row_id) {
-                        None => {}
-                        Some(index) => row_index = Some(index as i32 + 1),
-                    }
+        self.modify(|block_pad| {
+            if let Some(start_row_id) = prev_row_id.as_ref() {
+                match block_pad.index_of_row(start_row_id) {
+                    None => {}
+                    Some(index) => row_index = Some(index as i32 + 1),
                 }
+            }
 
-                let change = block_pad.add_row_rev(row, prev_row_id)?;
-                row_count = block_pad.number_of_rows();
+            let change = block_pad.add_row_rev(row, prev_row_id)?;
+            row_count = block_pad.number_of_rows();
 
-                if row_index.is_none() {
-                    row_index = Some(row_count - 1);
-                }
-                Ok(change)
-            })
-            .await?;
+            if row_index.is_none() {
+                row_index = Some(row_count - 1);
+            }
+            Ok(change)
+        })
+        .await?;
 
         Ok((row_count, row_index))
     }
 
     pub async fn delete_rows(&self, ids: Vec<Cow<'_, String>>) -> FlowyResult<i32> {
         let mut row_count = 0;
-        let _ = self
-            .modify(|block_pad| {
-                let changeset = block_pad.delete_rows(ids)?;
-                row_count = block_pad.number_of_rows();
-                Ok(changeset)
-            })
-            .await?;
+        self.modify(|block_pad| {
+            let changeset = block_pad.delete_rows(ids)?;
+            row_count = block_pad.number_of_rows();
+            Ok(changeset)
+        })
+        .await?;
         Ok(row_count)
     }
 
     pub async fn update_row(&self, changeset: RowChangeset) -> FlowyResult<()> {
-        let _ = self.modify(|block_pad| Ok(block_pad.update_row(changeset)?)).await?;
+        self.modify(|block_pad| Ok(block_pad.update_row(changeset)?)).await?;
         Ok(())
     }
 
     pub async fn move_row(&self, row_id: &str, from: usize, to: usize) -> FlowyResult<()> {
-        let _ = self
-            .modify(|block_pad| Ok(block_pad.move_row(row_id, from, to)?))
+        self.modify(|block_pad| Ok(block_pad.move_row(row_id, from, to)?))
             .await?;
         Ok(())
     }
@@ -149,10 +146,10 @@ impl GridBlockRevisionEditor {
         F: for<'a> FnOnce(&'a mut GridBlockRevisionPad) -> FlowyResult<Option<GridBlockRevisionChangeset>>,
     {
         let mut write_guard = self.pad.write().await;
-        match f(&mut *write_guard)? {
+        match f(&mut write_guard)? {
             None => {}
             Some(change) => {
-                let _ = self.apply_change(change).await?;
+                self.apply_change(change).await?;
             }
         }
         Ok(())

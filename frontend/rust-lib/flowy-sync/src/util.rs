@@ -171,7 +171,7 @@ pub fn cal_diff<T: OperationAttributes>(old: String, new: String) -> Option<Delt
                 delta_builder = delta_builder.delete(OTString::from(*s).utf16_len());
             }
             Chunk::Insert(s) => {
-                delta_builder = delta_builder.insert(*s);
+                delta_builder = delta_builder.insert(s);
             }
         }
     }

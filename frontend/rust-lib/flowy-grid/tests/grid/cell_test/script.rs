@@ -36,7 +36,7 @@ impl GridCellTest {
                 if is_err {
                     assert!(result.is_err())
                 } else {
-                    let _ = result.unwrap();
+                    result.unwrap();
                 }
             } // CellScript::AssertGridRevisionPad => {
               //     sleep(Duration::from_millis(2 * REVISION_WRITE_INTERVAL_IN_MILLIS)).await;

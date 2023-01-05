@@ -265,20 +265,20 @@ async fn _listen_user_status(
             match status {
                 UserStatus::Login { token, user_id } => {
                     tracing::trace!("User did login");
-                    let _ = folder_manager.initialize(&user_id, &token).await?;
-                    let _ = document_manager.initialize(&user_id).await?;
-                    let _ = grid_manager.initialize(&user_id, &token).await?;
-                    let _ = ws_conn.start(token, user_id).await?;
+                    folder_manager.initialize(&user_id, &token).await?;
+                    document_manager.initialize(&user_id).await?;
+                    grid_manager.initialize(&user_id, &token).await?;
+                    ws_conn.start(token, user_id).await?;
                 }
                 UserStatus::Logout { token: _, user_id } => {
                     tracing::trace!("User did logout");
                     folder_manager.clear(&user_id).await;
-                    let _ = ws_conn.stop().await;
+                    ws_conn.stop().await;
                 }
                 UserStatus::Expired { token: _, user_id } => {
                     tracing::trace!("User session has been expired");
                     folder_manager.clear(&user_id).await;
-                    let _ = ws_conn.stop().await;
+                    ws_conn.stop().await;
                 }
                 UserStatus::SignUp { profile, ret } => {
                     tracing::trace!("User did sign up");
@@ -287,18 +287,18 @@ async fn _listen_user_status(
                         DocumentVersionPB::V0 => ViewDataFormatPB::DeltaFormat,
                         DocumentVersionPB::V1 => ViewDataFormatPB::TreeFormat,
                     };
-                    let _ = folder_manager
+                    folder_manager
                         .initialize_with_new_user(&profile.id, &profile.token, view_data_type)
                         .await?;
-                    let _ = document_manager
+                    document_manager
                         .initialize_with_new_user(&profile.id, &profile.token)
                         .await?;
 
-                    let _ = grid_manager
+                    grid_manager
                         .initialize_with_new_user(&profile.id, &profile.token)
                         .await?;
 
-                    let _ = ws_conn.start(profile.token.clone(), profile.id.clone()).await?;
+                    ws_conn.start(profile.token.clone(), profile.id.clone()).await?;
                     let _ = ret.send(());
                 }
             }

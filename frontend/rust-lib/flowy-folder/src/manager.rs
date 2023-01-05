@@ -166,7 +166,7 @@ impl FolderManager {
         }
         tracing::debug!("Initialize folder editor");
         let folder_id = FolderId::new(user_id);
-        let _ = self.persistence.initialize(user_id, &folder_id).await?;
+        self.persistence.initialize(user_id, &folder_id).await?;
 
         let pool = self.persistence.db_pool()?;
         let object_id = folder_id.as_ref();
@@ -185,8 +185,8 @@ impl FolderManager {
         let folder_editor = FolderEditor::new(user_id, &folder_id, token, rev_manager, self.web_socket.clone()).await?;
         *self.folder_editor.write().await = Some(Arc::new(folder_editor));
 
-        let _ = self.app_controller.initialize()?;
-        let _ = self.view_controller.initialize()?;
+        self.app_controller.initialize()?;
+        self.view_controller.initialize()?;
         write_guard.insert(user_id.to_owned(), true);
         Ok(())
     }
@@ -235,7 +235,7 @@ impl DefaultFolderBuilder {
                 if index == 0 {
                     let _ = view_controller.set_latest_view(&view.id);
                     let layout_type = ViewLayoutTypePB::from(view.layout.clone());
-                    let _ = view_controller
+                    view_controller
                         .create_view(&view.id, view_data_type, layout_type, view_data)
                         .await?;
                 }
@@ -243,7 +243,7 @@ impl DefaultFolderBuilder {
         }
         let folder = FolderPad::new(vec![workspace_rev.clone()], vec![])?;
         let folder_id = FolderId::new(user_id);
-        let _ = persistence.save_folder(user_id, &folder_id, folder).await?;
+        persistence.save_folder(user_id, &folder_id, folder).await?;
         let repeated_workspace = RepeatedWorkspacePB {
             items: vec![workspace_rev.into()],
         };
