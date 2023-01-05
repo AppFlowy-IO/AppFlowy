@@ -91,7 +91,7 @@ impl ServerDocumentManager {
                 Ok(())
             }
             Some(handler) => {
-                let _ = handler.apply_revisions(user, client_data.revisions).await?;
+                handler.apply_revisions(user, client_data.revisions).await?;
                 Ok(())
             }
         };
@@ -117,7 +117,7 @@ impl ServerDocumentManager {
                 Ok(())
             }
             Some(handler) => {
-                let _ = handler.apply_ping(rev_id, user).await?;
+                handler.apply_ping(rev_id, user).await?;
                 Ok(())
             }
         }
@@ -136,7 +136,7 @@ impl ServerDocumentManager {
                 Ok(())
             }
             Some(handler) => {
-                let _ = handler.apply_document_reset(revisions).await?;
+                handler.apply_document_reset(revisions).await?;
                 Ok(())
             }
         }
@@ -234,29 +234,25 @@ impl OpenDocumentHandler {
         self.users.insert(user.user_id(), user.clone());
         let msg = DocumentCommand::ApplyRevisions { user, revisions, ret };
 
-        let result = self.send(msg, rx).await?;
-        result
+        self.send(msg, rx).await?
     }
 
     async fn apply_ping(&self, rev_id: i64, user: Arc<dyn RevisionUser>) -> Result<(), CollaborateError> {
         let (ret, rx) = oneshot::channel();
         self.users.insert(user.user_id(), user.clone());
         let msg = DocumentCommand::Ping { user, rev_id, ret };
-        let result = self.send(msg, rx).await?;
-        result
+        self.send(msg, rx).await?
     }
 
     #[tracing::instrument(level = "debug", skip(self, revisions), err)]
     async fn apply_document_reset(&self, revisions: Vec<Revision>) -> Result<(), CollaborateError> {
         let (ret, rx) = oneshot::channel();
         let msg = DocumentCommand::Reset { revisions, ret };
-        let result = self.send(msg, rx).await?;
-        result
+        self.send(msg, rx).await?
     }
 
     async fn send<T>(&self, msg: DocumentCommand, rx: oneshot::Receiver<T>) -> CollaborateResult<T> {
-        let _ = self
-            .sender
+        self.sender
             .send(msg)
             .await
             .map_err(|e| CollaborateError::internal().context(format!("Send document command failed: {}", e)))?;

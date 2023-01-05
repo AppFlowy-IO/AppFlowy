@@ -70,7 +70,7 @@ where
     }
 
     // Separates the rows into different groups
-    let _ = group_controller.fill_groups(&row_revs, &field_rev)?;
+    group_controller.fill_groups(&row_revs, &field_rev)?;
     Ok(group_controller)
 }
 

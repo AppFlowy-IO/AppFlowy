@@ -310,8 +310,7 @@ impl GridViewRevisionEditor {
 
     #[tracing::instrument(level = "trace", skip(self), err)]
     pub async fn move_view_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
-        let _ = self
-            .group_controller
+        self.group_controller
             .write()
             .await
             .move_group(&params.from_group_id, &params.to_group_id)?;
@@ -343,8 +342,7 @@ impl GridViewRevisionEditor {
 
     pub async fn get_view_setting(&self) -> GridSettingPB {
         let field_revs = self.delegate.get_field_revs(None).await;
-        let grid_setting = make_grid_setting(&*self.pad.read().await, &field_revs);
-        grid_setting
+        make_grid_setting(&*self.pad.read().await, &field_revs)
     }
 
     pub async fn get_all_view_filters(&self) -> Vec<Arc<FilterRevision>> {
@@ -364,20 +362,16 @@ impl GridViewRevisionEditor {
     ///
     pub async fn initialize_new_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
         if let Some(field_rev) = self.delegate.get_field_rev(&params.field_id).await {
-            let _ = self
-                .modify(|pad| {
-                    let configuration = default_group_configuration(&field_rev);
-                    let changeset = pad.insert_or_update_group_configuration(
-                        &params.field_id,
-                        &params.field_type_rev,
-                        configuration,
-                    )?;
-                    Ok(changeset)
-                })
-                .await?;
+            self.modify(|pad| {
+                let configuration = default_group_configuration(&field_rev);
+                let changeset =
+                    pad.insert_or_update_group_configuration(&params.field_id, &params.field_type_rev, configuration)?;
+                Ok(changeset)
+            })
+            .await?;
         }
         if self.group_controller.read().await.field_id() != params.field_id {
-            let _ = self.group_by_view_field(&params.field_id).await?;
+            self.group_by_view_field(&params.field_id).await?;
             self.notify_did_update_setting().await;
         }
         Ok(())
@@ -441,12 +435,11 @@ impl GridViewRevisionEditor {
             .await;
 
         let sort_type = params.sort_type;
-        let _ = self
-            .modify(|pad| {
-                let changeset = pad.delete_sort(&params.sort_id, &sort_type.field_id, sort_type.field_type)?;
-                Ok(changeset)
-            })
-            .await?;
+        self.modify(|pad| {
+            let changeset = pad.delete_sort(&params.sort_id, &sort_type.field_id, sort_type.field_type)?;
+            Ok(changeset)
+        })
+        .await?;
 
         self.notify_did_update_sort(changeset).await;
         Ok(())
@@ -513,12 +506,11 @@ impl GridViewRevisionEditor {
             .did_receive_changes(FilterChangeset::from_delete(filter_type.clone()))
             .await;
 
-        let _ = self
-            .modify(|pad| {
-                let changeset = pad.delete_filter(&params.filter_id, &filter_type.field_id, filter_type.field_type)?;
-                Ok(changeset)
-            })
-            .await?;
+        self.modify(|pad| {
+            let changeset = pad.delete_filter(&params.filter_id, &filter_type.field_id, filter_type.field_type)?;
+            Ok(changeset)
+        })
+        .await?;
 
         if changeset.is_some() {
             self.notify_did_update_filter(changeset.unwrap()).await;
@@ -638,10 +630,10 @@ impl GridViewRevisionEditor {
         F: for<'a> FnOnce(&'a mut GridViewRevisionPad) -> FlowyResult<Option<GridViewRevisionChangeset>>,
     {
         let mut write_guard = self.pad.write().await;
-        match f(&mut *write_guard)? {
+        match f(&mut write_guard)? {
             None => {}
             Some(change) => {
-                let _ = apply_change(&self.user_id, self.rev_manager.clone(), change).await?;
+                apply_change(&self.user_id, self.rev_manager.clone(), change).await?;
             }
         }
         Ok(())

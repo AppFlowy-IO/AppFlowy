@@ -103,8 +103,8 @@ impl FolderPersistence {
             self.save_folder(user_id, folder_id, migrated_folder).await?;
         }
 
-        let _ = migrations.run_v2_migration(folder_id).await?;
-        let _ = migrations.run_v3_migration(folder_id).await?;
+        migrations.run_v2_migration(folder_id).await?;
+        migrations.run_v3_migration(folder_id).await?;
         Ok(())
     }
 

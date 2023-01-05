@@ -54,7 +54,7 @@ impl DocumentUser for BlockUserImpl {
 
         let doc_dir = format!("{}/document", dir);
         if !Path::new(&doc_dir).exists() {
-            let _ = std::fs::create_dir_all(&doc_dir)?;
+            std::fs::create_dir_all(&doc_dir)?;
         }
         Ok(doc_dir)
     }

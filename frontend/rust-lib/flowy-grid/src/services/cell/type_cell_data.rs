@@ -1,5 +1,5 @@
 use crate::entities::FieldType;
-use crate::services::cell::FromCellString;
+
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use grid_rev_model::CellRevision;

@@ -9,13 +9,12 @@ use crate::services::field::{
     TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform, URLTypeOptionPB,
 };
 use crate::services::filter::FilterType;
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::FlowyResult;
 use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use std::any::Any;
 use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
-use tracing::field::Field;
 
 /// A helper trait that used to erase the `Self` of `TypeOption` trait to make it become a Object-safe trait
 /// Only object-safe traits can be made into trait objects.
@@ -312,7 +311,7 @@ impl<'a> TypeOptionCellExt<'a> {
         let field_type: FieldType = self.field_rev.ty.into();
         match self.get_type_option_cell_data_handler(&field_type) {
             None => vec![],
-            Some(handler) => {
+            Some(_handler) => {
                 todo!()
             }
         }
@@ -500,3 +499,4 @@ pub struct RowSingleCellData {
     pub field_type: FieldType,
     pub cell_data: BoxCellData,
 }
+l

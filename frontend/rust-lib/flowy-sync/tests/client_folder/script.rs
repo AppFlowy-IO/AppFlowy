@@ -23,7 +23,7 @@ impl FolderNodePadTest {
     pub fn new() -> FolderNodePadTest {
         let mut folder_pad = FolderNodePad::default();
         let workspace = WorkspaceNode::new(folder_pad.tree.clone(), "1".to_string(), "workspace name".to_string());
-        let _ = folder_pad.workspaces.add_workspace(workspace).unwrap();
+        folder_pad.workspaces.add_workspace(workspace).unwrap();
         Self { folder_pad }
     }
 
@@ -54,7 +54,7 @@ impl FolderNodePadTest {
             FolderNodePadScript::CreateApp { id, name } => {
                 let app_node = AppNode::new(self.folder_pad.tree.clone(), id, name);
                 let workspace_node = self.folder_pad.get_mut_workspace("1").unwrap();
-                let _ = workspace_node.add_app(app_node).unwrap();
+                workspace_node.add_app(app_node).unwrap();
             }
             FolderNodePadScript::DeleteApp { id } => {
                 let workspace_node = self.folder_pad.get_mut_workspace("1").unwrap();

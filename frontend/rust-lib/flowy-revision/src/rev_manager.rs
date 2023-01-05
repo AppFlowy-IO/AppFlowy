@@ -137,7 +137,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
         let current_rev_id = revisions.last().as_ref().map(|revision| revision.rev_id).unwrap_or(0);
         match B::deserialize_revisions(&self.object_id, revisions) {
             Ok(object) => {
-                let _ = self.rev_persistence.sync_revision_records(&revision_records).await?;
+                self.rev_persistence.sync_revision_records(&revision_records).await?;
                 self.rev_id_counter.set(current_rev_id);
                 Ok(object)
             }
@@ -185,7 +185,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
     #[tracing::instrument(level = "debug", skip(self, revisions), err)]
     pub async fn reset_object(&self, revisions: Vec<Revision>) -> FlowyResult<()> {
         let rev_id = pair_rev_id_from_revisions(&revisions).1;
-        let _ = self.rev_persistence.reset(revisions).await?;
+        self.rev_persistence.reset(revisions).await?;
         self.rev_id_counter.set(rev_id);
         Ok(())
     }
@@ -196,7 +196,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
             return Err(FlowyError::internal().context("Remote revisions is empty"));
         }
 
-        let _ = self.rev_persistence.add_ack_revision(revision).await?;
+        self.rev_persistence.add_ack_revision(revision).await?;
         self.rev_id_counter.set(revision.rev_id);
         Ok(())
     }

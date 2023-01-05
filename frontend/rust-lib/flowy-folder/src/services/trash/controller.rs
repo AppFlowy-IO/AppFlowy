@@ -39,7 +39,7 @@ impl TrashController {
             .persistence
             .begin_transaction(|transaction| {
                 let mut repeated_trash = transaction.read_trash(Some(trash_id.to_owned()))?;
-                let _ = transaction.delete_trash(Some(vec![trash_id.to_owned()]))?;
+                transaction.delete_trash(Some(vec![trash_id.to_owned()]))?;
                 notify_trash_changed(transaction.read_trash(None)?);
 
                 if repeated_trash.is_empty() {
@@ -54,14 +54,14 @@ impl TrashController {
             ty: trash.ty.into(),
         };
 
-        let _ = self.delete_trash_on_server(RepeatedTrashIdPB {
+        self.delete_trash_on_server(RepeatedTrashIdPB {
             items: vec![identifier.clone()],
             delete_all: false,
         })?;
 
         tracing::Span::current().record("putback", &format!("{:?}", &identifier).as_str());
         let _ = self.notify.send(TrashEvent::Putback(vec![identifier].into(), tx));
-        let _ = rx.recv().await.unwrap()?;
+        rx.recv().await.unwrap()?;
         Ok(())
     }
 
@@ -82,7 +82,7 @@ impl TrashController {
         let _ = rx.recv().await;
 
         notify_trash_changed(RepeatedTrashPB { items: vec![] });
-        let _ = self.delete_all_trash_on_server().await?;
+        self.delete_all_trash_on_server().await?;
         Ok(())
     }
 
@@ -94,23 +94,23 @@ impl TrashController {
             .await?
             .into();
 
-        let _ = self.delete_with_identifiers(all_trash_identifiers).await?;
+        self.delete_with_identifiers(all_trash_identifiers).await?;
 
         notify_trash_changed(RepeatedTrashPB { items: vec![] });
-        let _ = self.delete_all_trash_on_server().await?;
+        self.delete_all_trash_on_server().await?;
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub async fn delete(&self, trash_identifiers: RepeatedTrashIdPB) -> FlowyResult<()> {
-        let _ = self.delete_with_identifiers(trash_identifiers.clone()).await?;
+        self.delete_with_identifiers(trash_identifiers.clone()).await?;
         let trash_revs = self
             .persistence
             .begin_transaction(|transaction| transaction.read_trash(None))
             .await?;
 
         notify_trash_changed(trash_revs);
-        let _ = self.delete_trash_on_server(trash_identifiers)?;
+        self.delete_trash_on_server(trash_identifiers)?;
 
         Ok(())
     }
@@ -128,8 +128,7 @@ impl TrashController {
                 Err(e) => log::error!("{}", e),
             },
         }
-        let _ = self
-            .persistence
+        self.persistence
             .begin_transaction(|transaction| {
                 let ids = trash_identifiers
                     .items
@@ -167,8 +166,7 @@ impl TrashController {
             .as_str(),
         );
 
-        let _ = self
-            .persistence
+        self.persistence
             .begin_transaction(|transaction| {
                 let _ = transaction.create_trash(trash_revs.clone())?;
                 let _ = self.create_trash_on_server(trash_revs);
@@ -178,7 +176,7 @@ impl TrashController {
             })
             .await?;
         let _ = self.notify.send(TrashEvent::NewTrash(identifiers.into(), tx));
-        let _ = rx.recv().await.unwrap()?;
+        rx.recv().await.unwrap()?;
 
         Ok(())
     }
@@ -196,7 +194,7 @@ impl TrashController {
             .map(|trash_rev| trash_rev.into())
             .collect();
 
-        let _ = self.read_trash_on_server()?;
+        self.read_trash_on_server()?;
         Ok(RepeatedTrashPB { items })
     }
 
@@ -255,7 +253,7 @@ impl TrashController {
                     tracing::debug!("Remote trash count: {}", trash_rev.len());
                     let result = persistence
                         .begin_transaction(|transaction| {
-                            let _ = transaction.create_trash(trash_rev.clone())?;
+                            transaction.create_trash(trash_rev.clone())?;
                             transaction.read_trash(None)
                         })
                         .await;

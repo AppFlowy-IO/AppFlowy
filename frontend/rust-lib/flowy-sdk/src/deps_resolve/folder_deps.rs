@@ -156,7 +156,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         let manager = self.0.clone();
 
         FutureResult::new(async move {
-            let _ = manager.create_document(view_id, vec![revision]).await?;
+            manager.create_document(view_id, vec![revision]).await?;
             Ok(())
         })
     }
@@ -165,7 +165,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         let manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {
-            let _ = manager.close_document_editor(view_id).await?;
+            manager.close_document_editor(view_id).await?;
             Ok(())
         })
     }
@@ -195,7 +195,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         FutureResult::new(async move {
             let delta_data = Bytes::from(document_content);
             let revision = Revision::initial_revision(&view_id, delta_data.clone());
-            let _ = manager.create_document(view_id, vec![revision]).await?;
+            manager.create_document(view_id, vec![revision]).await?;
             Ok(delta_data)
         })
     }
@@ -229,7 +229,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         let view_id = view_id.to_string();
         let grid_manager = self.0.clone();
         FutureResult::new(async move {
-            let _ = grid_manager.create_grid(view_id, vec![revision]).await?;
+            grid_manager.create_grid(view_id, vec![revision]).await?;
             Ok(())
         })
     }
@@ -238,7 +238,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         let grid_manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {
-            let _ = grid_manager.close_grid(view_id).await?;
+            grid_manager.close_grid(view_id).await?;
             Ok(())
         })
     }

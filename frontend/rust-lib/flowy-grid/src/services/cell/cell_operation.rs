@@ -1,10 +1,10 @@
 use crate::entities::FieldType;
 use crate::services::cell::{AtomicCellDataCache, CellProtobufBlob, TypeCellData};
 use crate::services::field::*;
-use bytes::Bytes;
+
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision};
-use protobuf::ProtobufError;
+
 use std::fmt::Debug;
 
 /// Decode the opaque cell data into readable format content

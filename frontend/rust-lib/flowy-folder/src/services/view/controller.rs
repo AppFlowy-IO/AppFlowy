@@ -81,18 +81,17 @@ impl ViewController {
                     params.layout.clone(),
                 )
                 .await?;
-            let _ = self
-                .create_view(
-                    &params.view_id,
-                    params.data_format.clone(),
-                    params.layout.clone(),
-                    delta_data,
-                )
-                .await?;
+            self.create_view(
+                &params.view_id,
+                params.data_format.clone(),
+                params.layout.clone(),
+                delta_data,
+            )
+            .await?;
         };
 
         let view_rev = self.create_view_on_server(params).await?;
-        let _ = self.create_view_on_local(view_rev.clone()).await?;
+        self.create_view_on_local(view_rev.clone()).await?;
         Ok(view_rev)
     }
 
@@ -109,7 +108,7 @@ impl ViewController {
         }
         let user_id = self.user.user_id()?;
         let processor = self.get_data_processor(data_type)?;
-        let _ = processor.create_view(&user_id, view_id, layout_type, view_data).await?;
+        processor.create_view(&user_id, view_id, layout_type, view_data).await?;
         Ok(())
     }
 
@@ -118,8 +117,8 @@ impl ViewController {
         self.persistence
             .begin_transaction(|transaction| {
                 let belong_to_id = view_rev.app_id.clone();
-                let _ = transaction.create_view(view_rev)?;
-                let _ = notify_views_changed(&belong_to_id, trash_controller, &transaction)?;
+                transaction.create_view(view_rev)?;
+                notify_views_changed(&belong_to_id, trash_controller, &transaction)?;
                 Ok(())
             })
             .await
@@ -196,7 +195,7 @@ impl ViewController {
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn close_view(&self, view_id: &str) -> Result<(), FlowyError> {
         let processor = self.get_data_processor_from_view_id(view_id).await?;
-        let _ = processor.close_view(view_id).await?;
+        processor.close_view(view_id).await?;
         Ok(())
     }
 
@@ -231,14 +230,13 @@ impl ViewController {
             .send();
 
         let processor = self.get_data_processor_from_view_id(&view_id).await?;
-        let _ = processor.close_view(&view_id).await?;
+        processor.close_view(&view_id).await?;
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn move_view(&self, view_id: &str, from: usize, to: usize) -> Result<(), FlowyError> {
-        let _ = self
-            .persistence
+        self.persistence
             .begin_transaction(|transaction| {
                 let _ = transaction.move_view(view_id, from, to)?;
                 let view = transaction.read_view(view_id)?;
@@ -290,13 +288,13 @@ impl ViewController {
         let view_rev = self
             .persistence
             .begin_transaction(|transaction| {
-                let _ = transaction.update_view(changeset)?;
+                transaction.update_view(changeset)?;
                 let view_rev = transaction.read_view(&view_id)?;
                 let view: ViewPB = view_rev.clone().into();
                 send_dart_notification(&view_id, FolderNotification::ViewUpdated)
                     .payload(view)
                     .send();
-                let _ = notify_views_changed(&view_rev.app_id, self.trash_controller.clone(), &transaction)?;
+                notify_views_changed(&view_rev.app_id, self.trash_controller.clone(), &transaction)?;
                 Ok(view_rev)
             })
             .await?;
@@ -439,7 +437,7 @@ async fn handle_trash_event(
                 .begin_transaction(|transaction| {
                     let view_revs = read_local_views_with_transaction(identifiers, &transaction)?;
                     for view_rev in view_revs {
-                        let _ = notify_views_changed(&view_rev.app_id, trash_can.clone(), &transaction)?;
+                        notify_views_changed(&view_rev.app_id, trash_can.clone(), &transaction)?;
                         notify_dart(view_rev.into(), FolderNotification::ViewDeleted);
                     }
                     Ok(())
@@ -452,7 +450,7 @@ async fn handle_trash_event(
                 .begin_transaction(|transaction| {
                     let view_revs = read_local_views_with_transaction(identifiers, &transaction)?;
                     for view_rev in view_revs {
-                        let _ = notify_views_changed(&view_rev.app_id, trash_can.clone(), &transaction)?;
+                        notify_views_changed(&view_rev.app_id, trash_can.clone(), &transaction)?;
                         notify_dart(view_rev.into(), FolderNotification::ViewRestored);
                     }
                     Ok(())
@@ -473,7 +471,7 @@ async fn handle_trash_event(
                             }
                         }
                         for notify_id in notify_ids {
-                            let _ = notify_views_changed(&notify_id, trash_can.clone(), &transaction)?;
+                            notify_views_changed(&notify_id, trash_can.clone(), &transaction)?;
                         }
                         Ok(views)
                     })
@@ -483,7 +481,7 @@ async fn handle_trash_event(
                     let data_type = view.data_format.clone().into();
                     match get_data_processor(data_processors.clone(), &data_type) {
                         Ok(processor) => {
-                            let _ = processor.close_view(&view.id).await?;
+                            processor.close_view(&view.id).await?;
                         }
                         Err(e) => tracing::error!("{}", e),
                     }

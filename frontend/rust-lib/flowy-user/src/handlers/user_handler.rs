@@ -9,7 +9,7 @@ use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(level = "debug", skip(session))]
 pub async fn init_user_handler(session: AFPluginState<Arc<UserSession>>) -> Result<(), FlowyError> {
-    let _ = session.init_user().await?;
+    session.init_user().await?;
     Ok(())
 }
 
@@ -29,7 +29,7 @@ pub async fn get_user_profile_handler(
 
 #[tracing::instrument(level = "debug", name = "sign_out", skip(session))]
 pub async fn sign_out(session: AFPluginState<Arc<UserSession>>) -> Result<(), FlowyError> {
-    let _ = session.sign_out().await?;
+    session.sign_out().await?;
     Ok(())
 }
 

@@ -63,7 +63,7 @@ impl TypeOptionTransform for CheckboxTypeOptionPB {
         _field_rev: &FieldRevision,
     ) -> Option<<Self as TypeOption>::CellData> {
         if decoded_field_type.is_text() {
-            match CheckboxCellData::from_str(&cell_str) {
+            match CheckboxCellData::from_str(cell_str) {
                 Ok(cell_data) => Some(cell_data),
                 Err(_) => None,
             }

@@ -46,7 +46,7 @@ impl UserCloudService for UserHttpCloudService {
         let token = token.to_owned();
         let url = self.config.user_profile_url();
         FutureResult::new(async move {
-            let _ = update_user_profile_request(&token, params, &url).await?;
+            update_user_profile_request(&token, params, &url).await?;
             Ok(())
         })
     }
@@ -76,7 +76,7 @@ pub async fn user_sign_in_request(params: SignInParams, url: &str) -> Result<Sig
 }
 
 pub async fn user_sign_out_request(token: &str, url: &str) -> Result<(), ServerError> {
-    let _ = request_builder().delete(url).header(HEADER_TOKEN, token).send().await?;
+    request_builder().delete(url).header(HEADER_TOKEN, token).send().await?;
     Ok(())
 }
 
@@ -94,7 +94,7 @@ pub async fn update_user_profile_request(
     params: UpdateUserProfileParams,
     url: &str,
 ) -> Result<(), ServerError> {
-    let _ = request_builder()
+    request_builder()
         .patch(url)
         .header(HEADER_TOKEN, token)
         .protobuf(params)?

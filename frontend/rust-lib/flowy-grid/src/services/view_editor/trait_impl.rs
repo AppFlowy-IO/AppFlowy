@@ -99,7 +99,7 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
             )?;
 
             if let Some(changeset) = changeset {
-                let _ = apply_change(&user_id, rev_manager, changeset).await?;
+                apply_change(&user_id, rev_manager, changeset).await?;
             }
             Ok(())
         })

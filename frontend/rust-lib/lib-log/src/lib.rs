@@ -67,8 +67,8 @@ impl Builder {
         //     let _ = set_global_default(subscriber).map_err(|e| format!("{:?}", e))?;
         // }
 
-        let _ = set_global_default(subscriber).map_err(|e| format!("{:?}", e))?;
-        let _ = LogTracer::builder()
+        set_global_default(subscriber).map_err(|e| format!("{:?}", e))?;
+        LogTracer::builder()
             .with_max_level(LevelFilter::Trace)
             .init()
             .map_err(|e| format!("{:?}", e))?;
@@ -84,7 +84,7 @@ mod tests {
     // run  cargo test --features="use_bunyan" or  cargo test
     #[test]
     fn test_log() {
-        let _ = Builder::new("flowy", ".").env_filter("debug").build().unwrap();
+        Builder::new("flowy", ".").env_filter("debug").build().unwrap();
         tracing::info!("😁  tracing::info call");
         log::debug!("😁 log::debug call");
 
