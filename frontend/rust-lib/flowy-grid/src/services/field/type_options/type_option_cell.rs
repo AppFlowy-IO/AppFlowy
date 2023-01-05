@@ -60,7 +60,7 @@ impl CellDataCacheKey {
         }
         hasher.write(field_rev.id.as_bytes());
         hasher.write_u8(decoded_field_type as u8);
-        hasher.write(cell_str.as_bytes());
+        cell_str.hash(&mut hasher);
         Self(hasher.finish())
     }
 }
@@ -125,8 +125,14 @@ where
             }
         }
 
-        let cell_data = self.decode_cell_str(cell_str, decoded_field_type, field_rev)?;
+        let cell_data = self.decode_cell_str(cell_str.clone(), decoded_field_type, field_rev)?;
         if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
+            tracing::trace!(
+                "Cell cache update: field_type:{}, cell_str: {}, cell_data: {:?}",
+                decoded_field_type,
+                cell_str,
+                cell_data
+            );
             cell_data_cache.write().insert(key.as_ref(), cell_data.clone());
         }
         Ok(cell_data)
@@ -140,12 +146,13 @@ where
     ) {
         if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
             let field_type: FieldType = field_rev.ty.into();
+            let key = CellDataCacheKey::new(field_rev, field_type.clone(), cell_str);
             tracing::trace!(
-                "Update cell cache field_type: {}, cell_data: {:?}",
+                "Cell cache update: field_type:{}, cell_str: {}, cell_data: {:?}",
                 field_type,
+                cell_str,
                 cell_data
             );
-            let key = CellDataCacheKey::new(field_rev, field_type, cell_str);
             cell_data_cache.write().insert(key.as_ref(), cell_data);
         }
     }

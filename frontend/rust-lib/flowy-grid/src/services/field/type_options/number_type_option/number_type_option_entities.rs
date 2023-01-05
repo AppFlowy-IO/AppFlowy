@@ -2,7 +2,7 @@ use crate::services::cell::{CellBytesCustomParser, CellProtobufBlobParser, Decod
 use crate::services::field::number_currency::Currency;
 use crate::services::field::{strip_currency_symbol, NumberFormat, STRIP_SYMBOL};
 use bytes::Bytes;
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::FlowyResult;
 use rust_decimal::Decimal;
 use rusty_money::Money;
 use std::str::FromStr;
@@ -40,7 +40,8 @@ impl NumberCellData {
                     if num_str.chars().all(char::is_numeric) {
                         Self::from_format_str(&num_str, sign_positive, format)
                     } else {
-                        Err(FlowyError::invalid_data().context("Should only contain numbers"))
+                        // returns empty string if it can be formatted
+                        Ok(Self::default())
                     }
                 }
             },

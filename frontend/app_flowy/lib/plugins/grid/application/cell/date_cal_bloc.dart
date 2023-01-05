@@ -102,7 +102,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
       }
     }
 
-    cellController.saveCellData(newCalData, resultCallback: (result) {
+    cellController.saveCellData(newCalData, onFinish: (result) {
       result.fold(
         () => updateCalData(Some(newCalData), none()),
         (err) {
