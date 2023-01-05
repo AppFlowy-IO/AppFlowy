@@ -301,6 +301,7 @@ fn make_test_grid() -> BuildGridContext {
                             .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(0)]),
                         FieldType::Checklist => row_builder.insert_checklist_cell(|options| options),
                         FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
+                        FieldType::URL => row_builder.insert_url_cell("AppFlowy website - https://www.appflowy.io"),
                         _ => "".to_owned(),
                     };
                 }

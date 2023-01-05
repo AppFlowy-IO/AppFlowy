@@ -491,6 +491,10 @@ impl BoxCellData {
             Err(_) => T::default(),
         }
     }
+
+    fn downcast_ref<T: 'static>(&self) -> Option<&T> {
+        self.0.downcast_ref()
+    }
 }
 
 pub struct RowSingleCellData {
@@ -499,4 +503,17 @@ pub struct RowSingleCellData {
     pub field_type: FieldType,
     pub cell_data: BoxCellData,
 }
-l
+
+impl RowSingleCellData {
+    pub fn get_text_field_cell_data(&self) -> Option<&<RichTextTypeOptionPB as TypeOption>::CellData> {
+        self.cell_data.downcast_ref()
+    }
+
+    pub fn get_number_field_cell_data(&self) -> Option<&<NumberTypeOptionPB as TypeOption>::CellData> {
+        self.cell_data.downcast_ref()
+    }
+
+    pub fn get_url_field_cell_data(&self) -> Option<&<URLTypeOptionPB as TypeOption>::CellData> {
+        self.cell_data.downcast_ref()
+    }
+}
