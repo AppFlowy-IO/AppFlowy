@@ -402,7 +402,7 @@ void main() async {
     );
   });
 
-  testWidgets('Presses shift + alt + arrow left to select a word',
+  testWidgets('Presses shift + alt + arrow right to select a word',
       (tester) async {
     const text = 'Welcome to Appflowy 😁';
     final editor = tester.editor
@@ -416,12 +416,29 @@ void main() async {
       isShiftPressed: true,
       isAltPressed: true,
     );
+    // < >
+    expect(
+      editor.documentSelection,
+      selection.copyWith(
+        end: Position(path: [0], offset: 11),
+      ),
+    );
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.arrowRight,
+      isShiftPressed: true,
+      isAltPressed: true,
+    );
     // < Appflowy>
     expect(
       editor.documentSelection,
       selection.copyWith(
         end: Position(path: [0], offset: 19),
       ),
+    );
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.arrowRight,
+      isShiftPressed: true,
+      isAltPressed: true,
     );
     await editor.pressLogicKey(
       LogicalKeyboardKey.arrowRight,
