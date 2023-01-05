@@ -1,8 +1,10 @@
 use crate::entities::FieldType;
 use crate::services::cell::{AtomicCellDataCache, CellProtobufBlob, TypeCellData};
 use crate::services::field::*;
+use bytes::Bytes;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision};
+use protobuf::ProtobufError;
 use std::fmt::Debug;
 
 /// Decode the opaque cell data into readable format content
@@ -134,8 +136,7 @@ pub fn try_decode_cell_str(
 }
 
 /// Returns a string that represents the current field_type's cell data.
-/// If the cell data of the `FieldType` doesn't support displaying in String then will return an
-/// empty string. For example, The string of the Multi-Select cell will be a list of the option's name
+/// For example, The string of the Multi-Select cell will be a list of the option's name
 /// separated by a comma.
 ///
 /// # Arguments
@@ -212,52 +213,6 @@ pub trait FromCellString {
     fn from_cell_str(s: &str) -> FlowyResult<Self>
     where
         Self: Sized;
-}
-
-/// IntoCellData is a helper struct used to deserialize string into a specific data type that implements
-/// the `FromCellString` trait.
-///
-pub struct IntoCellData<T>(pub Option<T>);
-impl<T> IntoCellData<T> {
-    pub fn try_into_inner(self) -> FlowyResult<T> {
-        match self.0 {
-            None => Err(ErrorCode::InvalidData.into()),
-            Some(data) => Ok(data),
-        }
-    }
-}
-
-impl<T> std::convert::From<String> for IntoCellData<T>
-where
-    T: FromCellString,
-{
-    fn from(s: String) -> Self {
-        match T::from_cell_str(&s) {
-            Ok(inner) => IntoCellData(Some(inner)),
-            Err(e) => {
-                tracing::error!("Deserialize Cell Data failed: {}", e);
-                IntoCellData(None)
-            }
-        }
-    }
-}
-
-impl<T> std::convert::From<T> for IntoCellData<T> {
-    fn from(val: T) -> Self {
-        IntoCellData(Some(val))
-    }
-}
-
-impl std::convert::From<usize> for IntoCellData<String> {
-    fn from(n: usize) -> Self {
-        IntoCellData(Some(n.to_string()))
-    }
-}
-
-impl std::convert::From<IntoCellData<String>> for String {
-    fn from(p: IntoCellData<String>) -> Self {
-        p.try_into_inner().unwrap_or_else(|_| String::new())
-    }
 }
 
 /// If the changeset applying to the cell is not String type, it should impl this trait.

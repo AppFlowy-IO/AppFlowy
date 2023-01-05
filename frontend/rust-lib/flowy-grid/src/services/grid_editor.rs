@@ -9,6 +9,7 @@ use crate::services::cell::{
 };
 use crate::services::field::{
     default_type_option_builder_from_type, transform_type_option, type_option_builder_from_bytes, FieldBuilder,
+    RowSingleCellData, TypeOptionCellExt,
 };
 
 use crate::services::filter::FilterType;
@@ -444,11 +445,23 @@ impl GridRevisionEditor {
         Ok(())
     }
 
+    /// Returns the cell data that encoded in protobuf.
     pub async fn get_cell(&self, params: &CellPathParams) -> Option<CellPB> {
         let (field_type, cell_bytes) = self.decode_cell_data_from(params).await?;
-        Some(CellPB::new(&params.field_id, field_type, cell_bytes.to_vec()))
+        Some(CellPB::new(
+            &params.field_id,
+            &params.row_id,
+            field_type,
+            cell_bytes.to_vec(),
+        ))
     }
 
+    /// Returns a string that represents the current field_type's cell data.
+    /// For example:
+    /// Multi-Select: list of the option's name separated by a comma.
+    /// Number: 123 => $123 if the currency set.
+    /// Date: 1653609600 => May 27,2022
+    ///
     pub async fn get_cell_display_str(&self, params: &CellPathParams) -> String {
         let display_str = || async {
             let field_rev = self.get_field_rev(&params.field_id).await?;
@@ -466,7 +479,7 @@ impl GridRevisionEditor {
         display_str().await.unwrap_or_else(|| "".to_string())
     }
 
-    pub async fn get_cell_bytes(&self, params: &CellPathParams) -> Option<CellProtobufBlob> {
+    pub async fn get_cell_protobuf(&self, params: &CellPathParams) -> Option<CellProtobufBlob> {
         let (_, cell_data) = self.decode_cell_data_from(params).await?;
         Some(cell_data)
     }
@@ -490,6 +503,33 @@ impl GridRevisionEditor {
                 Ok(cell_rev)
             }
         }
+    }
+
+    pub async fn get_cell_data_for_field(&self, field_id: &str) -> FlowyResult<Vec<RowSingleCellData>> {
+        let row_revs = self.block_manager.get_row_revs().await?;
+        let field_rev = self.get_field_rev(field_id).await.unwrap();
+        let field_type: FieldType = field_rev.ty.into();
+        let mut cells = vec![];
+        if let Some(handler) =
+            TypeOptionCellExt::new_with_cell_data_cache(&field_rev, Some(self.cell_data_cache.clone()))
+                .get_type_option_cell_data_handler(&field_type)
+        {
+            for row_rev in row_revs {
+                if let Some(cell_rev) = row_rev.cells.get(field_id) {
+                    if let Ok(type_cell_data) = TypeCellData::try_from(cell_rev) {
+                        if let Ok(cell_data) = handler.get_cell_data(type_cell_data.cell_str, &field_type, &field_rev) {
+                            cells.push(RowSingleCellData {
+                                row_id: row_rev.id.clone(),
+                                field_id: field_rev.id.clone(),
+                                field_type: field_type.clone(),
+                                cell_data,
+                            })
+                        }
+                    }
+                }
+            }
+        }
+        Ok(cells)
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]

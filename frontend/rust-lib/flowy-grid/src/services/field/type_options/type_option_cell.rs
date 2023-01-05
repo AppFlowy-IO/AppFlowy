@@ -9,11 +9,13 @@ use crate::services::field::{
     TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform, URLTypeOptionPB,
 };
 use crate::services::filter::FilterType;
-use flowy_error::FlowyResult;
+use flowy_error::{FlowyError, FlowyResult};
 use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use std::any::Any;
 use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
+use tracing::field::Field;
 
 /// A helper trait that used to erase the `Self` of `TypeOption` trait to make it become a Object-safe trait
 /// Only object-safe traits can be made into trait objects.
@@ -49,6 +51,13 @@ pub trait TypeOptionCellDataHandler {
     /// cell data.
     fn stringify_cell_str(&self, cell_str: String, decoded_field_type: &FieldType, field_rev: &FieldRevision)
         -> String;
+
+    fn get_cell_data(
+        &self,
+        cell_str: String,
+        decoded_field_type: &FieldType,
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<BoxCellData>;
 }
 
 struct CellDataCacheKey(u64);
@@ -185,14 +194,10 @@ where
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellProtobufBlob> {
-        let cell_data = if self.transformable() {
-            match self.transform_type_option_cell_str(&cell_str, decoded_field_type, field_rev) {
-                None => self.get_decoded_cell_data(cell_str, decoded_field_type, field_rev)?,
-                Some(cell_data) => cell_data,
-            }
-        } else {
-            self.get_decoded_cell_data(cell_str, decoded_field_type, field_rev)?
-        };
+        let cell_data = self
+            .get_cell_data(cell_str, decoded_field_type, field_rev)?
+            .unbox_or_default::<<Self as TypeOption>::CellData>();
+
         CellProtobufBlob::from(self.convert_to_protobuf(cell_data))
     }
 
@@ -256,6 +261,23 @@ where
             Err(_) => "".to_string(),
         }
     }
+
+    fn get_cell_data(
+        &self,
+        cell_str: String,
+        decoded_field_type: &FieldType,
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<BoxCellData> {
+        let cell_data = if self.transformable() {
+            match self.transform_type_option_cell_str(&cell_str, decoded_field_type, field_rev) {
+                None => self.get_decoded_cell_data(cell_str, decoded_field_type, field_rev)?,
+                Some(cell_data) => cell_data,
+            }
+        } else {
+            self.get_decoded_cell_data(cell_str, decoded_field_type, field_rev)?
+        };
+        Ok(BoxCellData::new(cell_data))
+    }
 }
 
 pub struct TypeOptionCellExt<'a> {
@@ -284,6 +306,16 @@ impl<'a> TypeOptionCellExt<'a> {
         let mut this = Self::new_with_cell_data_cache(field_rev, cell_data_cache);
         this.cell_filter_cache = cell_filter_cache;
         this
+    }
+
+    pub fn get_cells<T>(&self) -> Vec<T> {
+        let field_type: FieldType = self.field_rev.ty.into();
+        match self.get_type_option_cell_data_handler(&field_type) {
+            None => vec![],
+            Some(handler) => {
+                todo!()
+            }
+        }
     }
 
     pub fn get_type_option_cell_data_handler(
@@ -439,4 +471,32 @@ fn get_type_option_transform_handler(
             Box::new(ChecklistTypeOptionPB::from_json_str(type_option_data)) as Box<dyn TypeOptionTransformHandler>
         }
     }
+}
+
+pub struct BoxCellData(Box<dyn Any + Send + Sync + 'static>);
+
+impl BoxCellData {
+    fn new<T>(value: T) -> Self
+    where
+        T: Send + Sync + 'static,
+    {
+        Self(Box::new(value))
+    }
+
+    fn unbox_or_default<T>(self) -> T
+    where
+        T: Default + 'static,
+    {
+        match self.0.downcast::<T>() {
+            Ok(value) => *value,
+            Err(_) => T::default(),
+        }
+    }
+}
+
+pub struct RowSingleCellData {
+    pub row_id: String,
+    pub field_id: String,
+    pub field_type: FieldType,
+    pub cell_data: BoxCellData,
 }

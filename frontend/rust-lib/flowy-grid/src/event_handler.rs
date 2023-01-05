@@ -308,7 +308,7 @@ pub(crate) async fn get_cell_handler(
     let params: CellPathParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.view_id).await?;
     match editor.get_cell(&params).await {
-        None => data_result(CellPB::empty(&params.field_id)),
+        None => data_result(CellPB::empty(&params.field_id, &params.row_id)),
         Some(cell) => data_result(cell),
     }
 }

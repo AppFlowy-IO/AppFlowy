@@ -228,10 +228,13 @@ impl GridBlockManager {
         editor.get_row_rev(row_id).await
     }
 
-    #[allow(dead_code)]
-    pub async fn get_row_revs(&self, block_id: &str) -> FlowyResult<Vec<Arc<RowRevision>>> {
-        let editor = self.get_block_editor(block_id).await?;
-        editor.get_row_revs::<&str>(None).await
+    pub async fn get_row_revs(&self) -> FlowyResult<Vec<Arc<RowRevision>>> {
+        let mut row_revs = vec![];
+        for iter in self.block_editors.iter() {
+            let editor = iter.value();
+            row_revs.extend(editor.get_row_revs::<&str>(None).await?);
+        }
+        Ok(row_revs)
     }
 
     pub(crate) async fn get_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlockRowRevision>> {
