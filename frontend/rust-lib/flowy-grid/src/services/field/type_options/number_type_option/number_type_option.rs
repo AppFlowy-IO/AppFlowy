@@ -11,6 +11,7 @@ use fancy_regex::Regex;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyResult;
 use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use lazy_static::lazy_static;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -99,8 +100,7 @@ impl NumberTypeOptionPB {
     pub(crate) fn format_cell_data(&self, s: &str) -> FlowyResult<NumberCellData> {
         match self.format {
             NumberFormat::Num => {
-                let re = Regex::new(r"[^\d\.]").unwrap();
-                let strnum = re.replace_all(s, "");
+                let strnum = NUM_REGEX.replace_all(s, "");
                 match Decimal::from_str(&strnum) {
                     Ok(value, ..) => Ok(NumberCellData::from_decimal(value)),
                     Err(_) => Ok(NumberCellData::new()),
@@ -209,4 +209,8 @@ impl std::default::Default for NumberTypeOptionPB {
             name: "Number".to_string(),
         }
     }
+}
+
+lazy_static! {
+    static ref NUM_REGEX: Regex = Regex::new(r"[^\d\.]").unwrap();
 }
