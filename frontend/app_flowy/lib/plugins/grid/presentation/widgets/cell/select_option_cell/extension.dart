@@ -1,6 +1,8 @@
+import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter/material.dart';
@@ -62,13 +64,13 @@ extension SelectOptionColorExtension on SelectOptionColorPB {
 class SelectOptionTag extends StatelessWidget {
   final String name;
   final Color color;
-  final bool isSelected;
   final VoidCallback? onSelected;
+  final void Function(String)? onRemove;
   const SelectOptionTag({
     required this.name,
     required this.color,
     this.onSelected,
-    this.isSelected = false,
+    this.onRemove,
     Key? key,
   }) : super(key: key);
 
@@ -76,25 +78,49 @@ class SelectOptionTag extends StatelessWidget {
     required BuildContext context,
     required SelectOptionPB option,
     VoidCallback? onSelected,
-    bool isSelected = false,
+    Function(String)? onRemove,
   }) {
     return SelectOptionTag(
       name: option.name,
       color: option.color.make(context),
-      isSelected: isSelected,
       onSelected: onSelected,
+      onRemove: onRemove,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    EdgeInsets padding =
+        const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0);
+    if (onRemove != null) {
+      padding = padding.copyWith(right: 2.0);
+    }
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
+      padding: padding,
       decoration: BoxDecoration(
         color: color,
         borderRadius: Corners.s6Border,
       ),
-      child: FlowyText.medium(name, overflow: TextOverflow.ellipsis),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: FlowyText.medium(name, overflow: TextOverflow.ellipsis),
+          ),
+          if (onRemove != null)
+            FlowyIconButton(
+              width: 18.0,
+              onPressed: () => onRemove?.call(name),
+              fillColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              icon: svgWidget(
+                'home/close',
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

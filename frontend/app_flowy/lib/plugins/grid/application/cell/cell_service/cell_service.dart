@@ -38,7 +38,7 @@ class CellService {
       ..gridId = cellId.gridId
       ..fieldId = cellId.fieldId
       ..rowId = cellId.rowId
-      ..content = data;
+      ..typeCellData = data;
     return GridEventUpdateCell(payload).send();
   }
 
@@ -46,7 +46,7 @@ class CellService {
     required GridCellIdentifier cellId,
   }) {
     final payload = CellPathPB.create()
-      ..gridId = cellId.gridId
+      ..viewId = cellId.gridId
       ..fieldId = cellId.fieldId
       ..rowId = cellId.rowId;
     return GridEventGetCell(payload).send();

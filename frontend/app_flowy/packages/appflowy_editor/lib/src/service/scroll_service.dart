@@ -92,6 +92,7 @@ class _AppFlowyScrollState extends State<AppFlowyScroll>
   Widget build(BuildContext context) {
     return Listener(
       onPointerSignal: _onPointerSignal,
+      onPointerPanZoomUpdate: _onPointerPanZoomUpdate,
       child: CustomScrollView(
         key: _scrollViewKey,
         physics: const NeverScrollableScrollPhysics(),
@@ -131,6 +132,13 @@ class _AppFlowyScrollState extends State<AppFlowyScroll>
   void _onPointerSignal(PointerSignalEvent event) {
     if (event is PointerScrollEvent && _scrollEnabled) {
       final dy = (_scrollController.position.pixels + event.scrollDelta.dy);
+      scrollTo(dy);
+    }
+  }
+
+  void _onPointerPanZoomUpdate(PointerPanZoomUpdateEvent event) {
+    if (_scrollEnabled) {
+      final dy = (_scrollController.position.pixels - event.panDelta.dy);
       scrollTo(dy);
     }
   }

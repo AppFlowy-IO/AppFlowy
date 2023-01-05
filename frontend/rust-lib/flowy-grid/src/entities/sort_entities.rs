@@ -4,7 +4,7 @@ use crate::services::sort::SortType;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use grid_rev_model::FieldTypeRevision;
+use grid_rev_model::{FieldTypeRevision, SortCondition, SortRevision};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct GridSortPB {
@@ -21,6 +21,17 @@ pub struct GridSortPB {
     pub condition: GridSortConditionPB,
 }
 
+impl std::convert::From<&SortRevision> for GridSortPB {
+    fn from(sort_rev: &SortRevision) -> Self {
+        Self {
+            id: sort_rev.id.clone(),
+            field_id: sort_rev.field_id.clone(),
+            field_type: sort_rev.field_type.into(),
+            condition: sort_rev.condition.clone().into(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
 pub enum GridSortConditionPB {
@@ -32,6 +43,16 @@ impl std::default::Default for GridSortConditionPB {
         Self::Ascending
     }
 }
+
+impl std::convert::From<SortCondition> for GridSortConditionPB {
+    fn from(condition: SortCondition) -> Self {
+        match condition {
+            SortCondition::Ascending => GridSortConditionPB::Ascending,
+            SortCondition::Descending => GridSortConditionPB::Descending,
+        }
+    }
+}
+
 #[derive(ProtoBuf, Debug, Default, Clone)]
 pub struct AlterSortPayloadPB {
     #[pb(index = 1)]
@@ -130,7 +151,7 @@ impl TryInto<DeleteSortParams> for DeleteSortPayloadPB {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DeleteSortParams {
     pub view_id: String,
     pub sort_type: SortType,
@@ -150,4 +171,31 @@ pub struct SortChangesetNotificationPB {
 
     #[pb(index = 4)]
     pub update_sorts: Vec<GridSortPB>,
+}
+
+impl SortChangesetNotificationPB {
+    pub fn extend(&mut self, other: SortChangesetNotificationPB) {
+        self.insert_sorts.extend(other.insert_sorts);
+        self.delete_sorts.extend(other.delete_sorts);
+        self.update_sorts.extend(other.update_sorts);
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.insert_sorts.is_empty() && self.delete_sorts.is_empty() && self.update_sorts.is_empty()
+    }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct ReorderAllRowsPB {
+    #[pb(index = 1)]
+    pub row_orders: Vec<String>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct ReorderSingleRowPB {
+    #[pb(index = 1)]
+    pub old_index: i32,
+
+    #[pb(index = 2)]
+    pub new_index: i32,
 }

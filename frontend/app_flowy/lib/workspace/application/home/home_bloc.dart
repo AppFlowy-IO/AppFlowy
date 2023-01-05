@@ -1,7 +1,7 @@
 import 'package:app_flowy/user/application/user_listener.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/code.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart'

@@ -56,6 +56,7 @@ class _SliverChecklistPrograssBarDelegate
             children: [
               FlowyTextField(
                 autoClearWhenDone: true,
+                submitOnLeave: true,
                 hintText: LocaleKeys.grid_checklist_panelTitle.tr(),
                 onChanged: (text) {
                   context

@@ -1,4 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
+import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -67,12 +68,12 @@ class _SettingButtonState extends State<_SettingButton> {
       direction: PopoverDirection.leftWithTopAligned,
       triggerActions: PopoverTriggerFlags.none,
       constraints: BoxConstraints.loose(const Size(260, 400)),
+      margin: EdgeInsets.zero,
       child: FlowyTextButton(
         LocaleKeys.settings_title.tr(),
-        fontSize: 14,
         fillColor: Colors.transparent,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+        padding: GridSize.typeOptionContentInsets,
         onPressed: () {
           popoverController.show();
         },

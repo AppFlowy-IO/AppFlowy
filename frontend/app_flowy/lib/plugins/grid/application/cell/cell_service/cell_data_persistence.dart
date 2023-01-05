@@ -63,7 +63,7 @@ class DateCellDataPersistence
 
 CellPathPB _makeCellPath(GridCellIdentifier cellId) {
   return CellPathPB.create()
-    ..gridId = cellId.gridId
+    ..viewId = cellId.gridId
     ..fieldId = cellId.fieldId
     ..rowId = cellId.rowId;
 }

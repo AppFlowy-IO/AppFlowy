@@ -17,6 +17,8 @@ pub enum GridDartNotification {
     DidGroupByNewField = 62,
     DidUpdateFilter = 63,
     DidUpdateSort = 64,
+    DidReorderRows = 65,
+    DidReorderSingleRow = 66,
     DidUpdateGridSetting = 70,
 }
 

@@ -96,7 +96,10 @@ class _SwitchFieldButton extends StatelessWidget {
               .add(FieldTypeOptionEditEvent.switchToField(newFieldType));
         });
       },
-      child: _buildMoreButton(context),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        child: _buildMoreButton(context),
+      ),
     );
 
     return SizedBox(
@@ -111,7 +114,7 @@ class _SwitchFieldButton extends StatelessWidget {
       text: FlowyText.medium(
         bloc.state.field.fieldType.title(),
       ),
-      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      margin: GridSize.typeOptionContentInsets,
       leftIcon: svgWidget(
         bloc.state.field.fieldType.iconName(),
         color: Theme.of(context).colorScheme.onSurface,

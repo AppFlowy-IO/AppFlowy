@@ -1,10 +1,10 @@
 use crate::entities::{FieldType, NumberFilterPB};
 use crate::impl_type_option;
-use crate::services::cell::{CellComparable, CellDataChangeset, CellDataDecoder, TypeCellData};
+use crate::services::cell::{CellDataChangeset, CellDataDecoder, TypeCellData};
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{
     BoxTypeOptionBuilder, NumberCellData, StrCellData, TypeOption, TypeOptionBuilder, TypeOptionCellData,
-    TypeOptionConfiguration, TypeOptionTransform,
+    TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -77,10 +77,7 @@ impl TypeOption for NumberTypeOptionPB {
     type CellData = StrCellData;
     type CellChangeset = NumberCellChangeset;
     type CellProtobufType = StrCellData;
-}
-
-impl TypeOptionConfiguration for NumberTypeOptionPB {
-    type CellFilterConfiguration = NumberFilterPB;
+    type CellFilter = NumberFilterPB;
 }
 
 impl TypeOptionCellData for NumberTypeOptionPB {
@@ -88,8 +85,8 @@ impl TypeOptionCellData for NumberTypeOptionPB {
         cell_data
     }
 
-    fn decode_type_option_cell_data(&self, cell_data: String) -> FlowyResult<<Self as TypeOption>::CellData> {
-        Ok(cell_data.into())
+    fn decode_type_option_cell_str(&self, cell_str: String) -> FlowyResult<<Self as TypeOption>::CellData> {
+        Ok(cell_str.into())
     }
 }
 
@@ -128,9 +125,9 @@ pub(crate) fn strip_currency_symbol<T: ToString>(s: T) -> String {
 impl TypeOptionTransform for NumberTypeOptionPB {}
 
 impl CellDataDecoder for NumberTypeOptionPB {
-    fn decode_cell_data(
+    fn decode_cell_str(
         &self,
-        cell_data: String,
+        cell_str: String,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<<Self as TypeOption>::CellData> {
@@ -138,7 +135,7 @@ impl CellDataDecoder for NumberTypeOptionPB {
             return Ok(Default::default());
         }
 
-        let str_cell_data = self.decode_type_option_cell_data(cell_data)?;
+        let str_cell_data = self.decode_type_option_cell_str(cell_str)?;
         let s = self.format_cell_data(&str_cell_data)?.to_string();
         Ok(s.into())
     }
@@ -158,20 +155,39 @@ impl CellDataChangeset for NumberTypeOptionPB {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         _type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<String> {
+    ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
         let data = changeset.trim().to_string();
-        let _ = self.format_cell_data(&data)?;
-        Ok(data)
-    }
-}
-impl CellComparable for NumberTypeOptionPB {
-    type CellData = NumberCellData;
-
-    fn apply_cmp(&self, _cell_data: &Self::CellData, _other_cell_data: &Self::CellData) -> Ordering {
-        Ordering::Equal
+        let number_cell_data = self.format_cell_data(&data)?;
+        Ok((data, number_cell_data.to_string().into()))
     }
 }
 
+impl TypeOptionCellDataFilter for NumberTypeOptionPB {
+    fn apply_filter(
+        &self,
+        filter: &<Self as TypeOption>::CellFilter,
+        field_type: &FieldType,
+        cell_data: &<Self as TypeOption>::CellData,
+    ) -> bool {
+        if !field_type.is_number() {
+            return true;
+        }
+        match self.format_cell_data(cell_data) {
+            Ok(cell_data) => filter.is_visible(&cell_data),
+            Err(_) => true,
+        }
+    }
+}
+
+impl TypeOptionCellDataCompare for NumberTypeOptionPB {
+    fn apply_cmp(
+        &self,
+        cell_data: &<Self as TypeOption>::CellData,
+        other_cell_data: &<Self as TypeOption>::CellData,
+    ) -> Ordering {
+        cell_data.0.cmp(&other_cell_data.0)
+    }
+}
 impl std::default::Default for NumberTypeOptionPB {
     fn default() -> Self {
         let format = NumberFormat::default();

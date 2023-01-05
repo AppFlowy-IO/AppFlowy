@@ -17,7 +17,7 @@ script_runner = "@shell"
 [tasks.rm_macro_build_cache]
 script = [
   """
-    path = canonicalize ../shared-lib/flowy-codegen/.cache
+    path = canonicalize ../frontend/rust-lib/flowy-codegen/.cache
     if is_path_exists ${path}
       rm -rf ${path}
     end

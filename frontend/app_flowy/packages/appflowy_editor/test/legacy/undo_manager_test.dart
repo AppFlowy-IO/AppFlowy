@@ -8,7 +8,7 @@ void main() async {
     TestWidgetsFlutterBinding.ensureInitialized();
   });
 
-  Node _createEmptyEditorRoot() {
+  Node createEmptyEditorRoot() {
     return Node(
       type: 'editor',
       children: LinkedList(),
@@ -17,7 +17,7 @@ void main() async {
   }
 
   test("HistoryItem #1", () {
-    final document = Document(root: _createEmptyEditorRoot());
+    final document = Document(root: createEmptyEditorRoot());
     final editorState = EditorState(document: document);
 
     final historyItem = HistoryItem();
@@ -35,7 +35,7 @@ void main() async {
   });
 
   test("HistoryItem #2", () {
-    final document = Document(root: _createEmptyEditorRoot());
+    final document = Document(root: createEmptyEditorRoot());
     final editorState = EditorState(document: document);
 
     final historyItem = HistoryItem();

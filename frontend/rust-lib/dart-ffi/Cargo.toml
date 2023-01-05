@@ -28,16 +28,16 @@ parking_lot = "0.12.1"
 lib-dispatch = { path = "../lib-dispatch" }
 flowy-sdk = { path = "../flowy-sdk" }
 dart-notify = { path = "../dart-notify" }
-flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+flowy-derive = { path = "../flowy-derive" }
 
 [features]
-default = ["flowy-sdk/dart", "dart-notify/dart", "flutter"]
+default = ["flowy-sdk/dart", "flutter"]
 flutter = []
 http_sync = ["flowy-sdk/http_sync", "flowy-sdk/use_bunyan"]
 openssl_vendored = ["flowy-sdk/openssl_vendored"]
 
 [build-dependencies]
-flowy-codegen= { path = "../../../shared-lib/flowy-codegen", features = [
+flowy-codegen = { path = "../flowy-codegen", features = [
     "dart",
 ]}
 

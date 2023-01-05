@@ -672,7 +672,6 @@ class ReorderFlexState extends State<ReorderFlex>
             .ensureVisible(
           dragTargetRenderObject,
           alignment: 0.5,
-          alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtStart,
           duration: const Duration(milliseconds: 120),
         )
             .then((value) {

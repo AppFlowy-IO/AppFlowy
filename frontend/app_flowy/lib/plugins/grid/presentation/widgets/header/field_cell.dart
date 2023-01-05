@@ -45,6 +45,7 @@ class _GridFieldCellState extends State<GridFieldCell> {
           final button = AppFlowyPopover(
             triggerActions: PopoverTriggerFlags.none,
             constraints: BoxConstraints.loose(const Size(240, 440)),
+            margin: EdgeInsets.zero,
             direction: PopoverDirection.bottomWithLeftAligned,
             controller: popoverController,
             popupBuilder: (BuildContext context) {

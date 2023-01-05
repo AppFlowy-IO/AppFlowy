@@ -71,12 +71,12 @@ impl TaskDispatcher {
                 Ok(result) => match result {
                     Ok(_) => task.set_state(TaskState::Done),
                     Err(e) => {
-                        tracing::error!("Process {} task failed: {:?}", handler.handler_id(), e);
+                        tracing::error!("Process {} task failed: {:?}", handler.handler_name(), e);
                         task.set_state(TaskState::Failure);
                     }
                 },
                 Err(e) => {
-                    tracing::error!("Process {} task timeout: {:?}", handler.handler_id(), e);
+                    tracing::error!("Process {} task timeout: {:?}", handler.handler_name(), e);
                     task.set_state(TaskState::Timeout);
                 }
             }
@@ -144,6 +144,10 @@ impl TaskRunner {
 pub trait TaskHandler: Send + Sync + 'static {
     fn handler_id(&self) -> &str;
 
+    fn handler_name(&self) -> &str {
+        ""
+    }
+
     fn run(&self, content: TaskContent) -> BoxResultFuture<(), Error>;
 }
 
@@ -153,6 +157,10 @@ where
 {
     fn handler_id(&self) -> &str {
         (**self).handler_id()
+    }
+
+    fn handler_name(&self) -> &str {
+        (**self).handler_name()
     }
 
     fn run(&self, content: TaskContent) -> BoxResultFuture<(), Error> {
@@ -166,6 +174,10 @@ where
 {
     fn handler_id(&self) -> &str {
         (**self).handler_id()
+    }
+
+    fn handler_name(&self) -> &str {
+        (**self).handler_name()
     }
 
     fn run(&self, content: TaskContent) -> BoxResultFuture<(), Error> {

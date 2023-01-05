@@ -15,6 +15,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  FLUTTER_VERSION: "3.3.9"
 
 jobs:
   tests:
@@ -30,7 +31,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: "stable"
-          flutter-version: "3.0.5"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 
       - name: Run FlowyEditor tests
@@ -44,7 +45,7 @@ jobs:
       - uses: codecov/codecov-action@v3
         with: 
           name: appflowy_editor
-          flags: appflowy editor
+          flags: appflowy_editor
           env_vars: ${{ matrix.os }}
           fail_ci_if_error: true
           verbose: true

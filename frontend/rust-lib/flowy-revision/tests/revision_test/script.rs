@@ -205,7 +205,7 @@ impl RevisionDiskCache<RevisionConnectionMock> for RevisionDiskCacheMock {
                 .records
                 .write()
                 .iter_mut()
-                .find(|record| record.revision.rev_id == *changeset.rev_id.as_ref())
+                .find(|record| record.revision.rev_id == changeset.rev_id)
             {
                 record.state = changeset.state;
             }

@@ -90,7 +90,7 @@ impl GridGroupTest {
                 let to_group = groups.get(to_group_index).unwrap();
                 let to_row = to_group.rows.get(to_row_index).unwrap();
                 let params = MoveGroupRowParams {
-                    view_id: self.inner.grid_id.clone(),
+                    view_id: self.inner.view_id.clone(),
                     from_row_id: from_row.id.clone(),
                     to_group_id: to_group.group_id.clone(),
                     to_row_id: Some(to_row.id.clone()),

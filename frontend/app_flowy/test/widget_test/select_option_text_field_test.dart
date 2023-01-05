@@ -28,6 +28,7 @@ void main() {
         remainder = remaining;
         select = options;
       },
+      onRemove: (_) {},
       newText: (text) => remainder = text,
       textSeparators: const [','],
       textController: TextEditingController(),

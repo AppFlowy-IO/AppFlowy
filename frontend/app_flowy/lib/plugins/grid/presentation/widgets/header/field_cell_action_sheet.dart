@@ -44,6 +44,7 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
       create: (context) =>
           getIt<FieldActionSheetBloc>(param1: widget.cellContext),
       child: SingleChildScrollView(
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
             _EditFieldButton(
@@ -54,7 +55,7 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
                 });
               },
             ),
-            const VSpace(6),
+            VSpace(GridSize.typeOptionSeparatorHeight),
             _FieldOperationList(widget.cellContext, () {}),
           ],
         ),
@@ -98,10 +99,11 @@ class _FieldOperationList extends StatelessWidget {
     return GridView(
       // https://api.flutter.dev/flutter/widgets/AnimatedList/shrinkWrap.html
       shrinkWrap: true,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 4.0,
-        mainAxisSpacing: 8,
+        mainAxisSpacing: GridSize.typeOptionSeparatorHeight,
+        crossAxisSpacing: GridSize.typeOptionSeparatorHeight,
       ),
       children: buildCells(),
     );

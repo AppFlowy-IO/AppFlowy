@@ -35,7 +35,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   void setTheme(String themeName) {
     _setting.theme = themeName;
     _saveAppearanceSettings();
-    emit(state.copyWith(appTheme: AppTheme.fromName(themeName: themeName)));
+    emit(state.copyWith(appTheme: AppTheme.fromName(themeName)));
   }
 
   /// Update the theme mode in the user's settings and emit an updated state.
@@ -161,7 +161,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     LocaleSettingsPB localePB,
   ) {
     return AppearanceSettingsState(
-      appTheme: AppTheme.fromName(themeName: themeName),
+      appTheme: AppTheme.fromName(themeName),
       font: font,
       monospaceFont: monospaceFont,
       themeMode: _themeModeFromPB(themeModePB),
@@ -201,7 +201,21 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       primaryIconTheme: IconThemeData(color: theme.hover),
       iconTheme: IconThemeData(color: theme.shader1),
       scrollbarTheme: ScrollbarThemeData(
-        thumbColor: MaterialStateProperty.all(Colors.transparent),
+        thumbColor: MaterialStateProperty.all(theme.shader3),
+        thickness: MaterialStateProperty.resolveWith((states) {
+          const Set<MaterialState> interactiveStates = <MaterialState>{
+            MaterialState.pressed,
+            MaterialState.hovered,
+            MaterialState.dragged,
+          };
+          if (states.any(interactiveStates.contains)) {
+            return 5.0;
+          }
+          return 3.0;
+        }),
+        crossAxisMargin: 0.0,
+        mainAxisMargin: 0.0,
+        radius: Corners.s10Radius,
       ),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       canvasColor: theme.shader6,

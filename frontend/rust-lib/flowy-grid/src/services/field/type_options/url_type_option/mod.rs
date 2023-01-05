@@ -1,5 +1,4 @@
 #![allow(clippy::module_inception)]
-mod url_filter;
 mod url_tests;
 mod url_type_option;
 mod url_type_option_entities;
