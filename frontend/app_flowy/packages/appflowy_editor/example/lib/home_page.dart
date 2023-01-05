@@ -14,12 +14,14 @@ enum ExportFileType {
   json,
   markdown,
   html,
+  delta,
 }
 
 extension on ExportFileType {
   String get extension {
     switch (this) {
       case ExportFileType.json:
+      case ExportFileType.delta:
         return 'json';
       case ExportFileType.markdown:
         return 'md';
@@ -116,6 +118,9 @@ class _HomePageState extends State<HomePage> {
           }),
           _buildListTile(context, 'Import From Markdown', () {
             _importFile(ExportFileType.markdown);
+          }),
+          _buildListTile(context, 'Import From Quill Delta', () {
+            _importFile(ExportFileType.delta);
           }),
 
           // Theme Demo
@@ -224,6 +229,7 @@ class _HomePageState extends State<HomePage> {
         result = documentToMarkdown(editorState.document);
         break;
       case ExportFileType.html:
+      case ExportFileType.delta:
         throw UnimplementedError();
     }
 
@@ -279,6 +285,17 @@ class _HomePageState extends State<HomePage> {
         break;
       case ExportFileType.markdown:
         jsonString = jsonEncode(markdownToDocument(plainText).toJson());
+        break;
+      case ExportFileType.delta:
+        jsonString = jsonEncode(
+          DeltaDocumentConvert()
+              .convertFromJSON(
+                jsonDecode(
+                  plainText.replaceAll('\\\\\n', '\\n'),
+                ),
+              )
+              .toJson(),
+        );
         break;
       case ExportFileType.html:
         throw UnimplementedError();
