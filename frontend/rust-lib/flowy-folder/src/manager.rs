@@ -23,7 +23,9 @@ use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 
 use crate::services::clear_current_workspace;
-use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
+use crate::services::persistence::rev_sqlite::{
+    SQLiteFolderRevisionPersistence, SQLiteFolderRevisionSnapshotPersistence,
+};
 use flowy_http_model::ws_data::ServerRevisionWSData;
 use flowy_sync::client_folder::FolderPad;
 use std::convert::TryFrom;
@@ -174,12 +176,15 @@ impl FolderManager {
         let configuration = RevisionPersistenceConfiguration::new(100, false);
         let rev_persistence = RevisionPersistence::new(user_id, object_id, disk_cache, configuration);
         let rev_compactor = FolderRevisionMergeable();
+
+        let snapshot_object_id = format!("folder:{}", object_id);
+        let snapshot_persistence = SQLiteFolderRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
         let rev_manager = RevisionManager::new(
             user_id,
             folder_id.as_ref(),
             rev_persistence,
             rev_compactor,
-            PhantomSnapshotPersistence(),
+            snapshot_persistence,
         );
 
         let folder_editor = FolderEditor::new(user_id, &folder_id, token, rev_manager, self.web_socket.clone()).await?;

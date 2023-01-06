@@ -1,6 +1,4 @@
-// @generated automatically by Diesel CLI.
-
-diesel::table! {
+table! {
     app_table (id) {
         id -> Text,
         workspace_id -> Text,
@@ -15,7 +13,7 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
     document_rev_table (id) {
         id -> Integer,
         document_id -> Text,
@@ -26,14 +24,25 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
+    folder_rev_snapshot (snapshot_id) {
+        snapshot_id -> Text,
+        object_id -> Text,
+        rev_id -> BigInt,
+        base_rev_id -> BigInt,
+        timestamp -> BigInt,
+        data -> Binary,
+    }
+}
+
+table! {
     grid_block_index_table (row_id) {
         row_id -> Text,
         block_id -> Text,
     }
 }
 
-diesel::table! {
+table! {
     grid_meta_rev_table (id) {
         id -> Integer,
         object_id -> Text,
@@ -44,7 +53,7 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
     grid_rev_snapshot (snapshot_id) {
         snapshot_id -> Text,
         object_id -> Text,
@@ -55,7 +64,7 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
     grid_rev_table (id) {
         id -> Integer,
         object_id -> Text,
@@ -66,7 +75,7 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
     grid_view_rev_table (id) {
         id -> Integer,
         object_id -> Text,
@@ -77,14 +86,14 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
     kv_table (key) {
         key -> Text,
         value -> Binary,
     }
 }
 
-diesel::table! {
+table! {
     rev_snapshot (id) {
         id -> Integer,
         object_id -> Text,
@@ -93,7 +102,7 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
     rev_table (id) {
         id -> Integer,
         doc_id -> Text,
@@ -105,7 +114,7 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
     trash_table (id) {
         id -> Text,
         name -> Text,
@@ -116,7 +125,7 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
     user_table (id) {
         id -> Text,
         name -> Text,
@@ -127,7 +136,7 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
     view_table (id) {
         id -> Text,
         belong_to_id -> Text,
@@ -143,7 +152,7 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
     workspace_table (id) {
         id -> Text,
         name -> Text,
@@ -155,9 +164,10 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(
+allow_tables_to_appear_in_same_query!(
     app_table,
     document_rev_table,
+    folder_rev_snapshot,
     grid_block_index_table,
     grid_meta_rev_table,
     grid_rev_snapshot,
