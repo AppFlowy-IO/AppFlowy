@@ -1,3 +1,5 @@
+import 'package:app_flowy/plugins/document/presentation/plugins/board/board_menu_item.dart';
+import 'package:app_flowy/plugins/document/presentation/plugins/board/board_node_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -108,6 +110,8 @@ class _DocumentPageState extends State<DocumentPage> {
         kMathEquationType: MathEquationNodeWidgetBuidler(),
         // Code Block
         kCodeBlockType: CodeBlockNodeWidgetBuilder(),
+        // Board
+        kBoardType: BoardNodeWidgetBuilder(),
       },
       shortcutEvents: [
         // Divider
@@ -126,6 +130,8 @@ class _DocumentPageState extends State<DocumentPage> {
         codeBlockMenuItem,
         // Emoji
         emojiMenuItem,
+        // Board
+        boardMenuItem,
       ],
       themeData: theme.copyWith(extensions: [
         ...theme.extensions.values,
