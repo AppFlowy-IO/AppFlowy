@@ -10,14 +10,21 @@ use std::sync::atomic::Ordering::SeqCst;
 use std::sync::Arc;
 
 pub trait RevisionSnapshotDiskCache: Send + Sync {
+    fn should_generate_snapshot_from_range(&self, start_rev_id: i64, current_rev_id: i64) -> bool {
+        (current_rev_id - start_rev_id) >= AUTO_GEN_SNAPSHOT_PER_10_REVISION
+    }
+
     fn write_snapshot(&self, rev_id: i64, data: Vec<u8>) -> FlowyResult<()>;
+
     fn read_snapshot(&self, rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>>;
+
     fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>>;
 }
 
 /// Do nothing but just used to clam the rust compiler about the generic parameter `SP` of `RevisionManager`
 ///  
 pub struct PhantomSnapshotPersistence();
+
 impl RevisionSnapshotDiskCache for PhantomSnapshotPersistence {
     fn write_snapshot(&self, rev_id: i64, data: Vec<u8>) -> FlowyResult<()> {
         Ok(())
@@ -37,7 +44,7 @@ const AUTO_GEN_SNAPSHOT_PER_10_REVISION: i64 = 10;
 pub struct RevisionSnapshotController<Connection> {
     user_id: String,
     object_id: String,
-    disk_cache: Arc<dyn RevisionSnapshotDiskCache>,
+    rev_snapshot_persistence: Arc<dyn RevisionSnapshotDiskCache>,
     rev_id_counter: Arc<RevIdCounter>,
     rev_persistence: Arc<RevisionPersistence<Connection>>,
     rev_compress: Arc<dyn RevisionMergeable>,
@@ -63,7 +70,7 @@ where
         Self {
             user_id: user_id.to_string(),
             object_id: object_id.to_string(),
-            disk_cache,
+            rev_snapshot_persistence: disk_cache,
             rev_id_counter,
             start_rev_id: AtomicI64::new(0),
             rev_persistence: revision_persistence,
@@ -73,7 +80,7 @@ where
 
     pub async fn generate_snapshot(&self) {
         if let Some((rev_id, bytes)) = self.generate_snapshot_data() {
-            if let Err(e) = self.disk_cache.write_snapshot(rev_id, bytes.to_vec()) {
+            if let Err(e) = self.rev_snapshot_persistence.write_snapshot(rev_id, bytes.to_vec()) {
                 tracing::error!("Save snapshot failed: {}", e);
             }
         }
@@ -85,7 +92,7 @@ where
         B: RevisionObjectDeserializer,
     {
         tracing::trace!("Try to find if {} has snapshot", self.object_id);
-        let snapshot = self.disk_cache.read_last_snapshot().ok()??;
+        let snapshot = self.rev_snapshot_persistence.read_last_snapshot().ok()??;
         let snapshot_rev_id = snapshot.rev_id;
         let revision = Revision::new(
             &self.object_id,
@@ -115,10 +122,12 @@ where
         if current_rev_id <= start_rev_id {
             return;
         }
-
-        if (current_rev_id - start_rev_id) >= AUTO_GEN_SNAPSHOT_PER_10_REVISION {
+        if self
+            .rev_snapshot_persistence
+            .should_generate_snapshot_from_range(start_rev_id, current_rev_id)
+        {
             if let Some((rev_id, bytes)) = self.generate_snapshot_data() {
-                let disk_cache = self.disk_cache.clone();
+                let disk_cache = self.rev_snapshot_persistence.clone();
                 tokio::spawn(async move {
                     let _ = disk_cache.write_snapshot(rev_id, bytes.to_vec());
                 });
@@ -161,7 +170,7 @@ impl<Connection> std::ops::Deref for RevisionSnapshotController<Connection> {
     type Target = Arc<dyn RevisionSnapshotDiskCache>;
 
     fn deref(&self) -> &Self::Target {
-        &self.disk_cache
+        &self.rev_snapshot_persistence
     }
 }
 
