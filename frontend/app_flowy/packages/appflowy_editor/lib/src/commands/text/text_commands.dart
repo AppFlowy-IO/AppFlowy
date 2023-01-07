@@ -110,14 +110,15 @@ extension TextCommands on EditorState {
   }
 
   Future<void> insertNewLine(
-    EditorState editorState,
-    Path path,
-  ) async {
+    EditorState editorState, {
+    Path? path,
+  }) async {
     return futureCommand(() async {
+      final p = path ?? getSelection(null).start.path.next;
       final transaction = editorState.transaction;
-      transaction.insertNode(path, TextNode.empty());
+      transaction.insertNode(p, TextNode.empty());
       transaction.afterSelection = Selection.single(
-        path: path,
+        path: p,
         startOffset: 0,
       );
       apply(transaction);

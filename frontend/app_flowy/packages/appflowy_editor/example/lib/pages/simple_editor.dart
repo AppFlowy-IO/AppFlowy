@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
+import 'package:example/plugin/text_robot.dart';
 import 'package:flutter/material.dart';
 
 class SimpleEditor extends StatelessWidget {
@@ -64,6 +65,8 @@ class SimpleEditor extends StatelessWidget {
               codeBlockMenuItem,
               // Emoji
               emojiMenuItem,
+              // Text Robot
+              textRobotMenuItem,
             ],
           );
         } else {
