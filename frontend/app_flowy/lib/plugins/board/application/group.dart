@@ -1,4 +1,4 @@
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
 
 class BoardGroupService {
   final String gridId;

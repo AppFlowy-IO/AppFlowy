@@ -3,10 +3,10 @@ import 'package:app_flowy/plugins/document/document.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';
-import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../util.dart';

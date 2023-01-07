@@ -2,8 +2,8 @@ import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_servic
 import 'package:app_flowy/plugins/grid/application/cell/select_option_editor_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
 import '../util.dart';
