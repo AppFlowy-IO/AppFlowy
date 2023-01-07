@@ -17,32 +17,14 @@ class FlowyApp implements EntryPoint {
 }
 
 Future<void> main() async {
-  if(Platform.isAndroid || Platform.isIOS){
-    startMobile();
-  }
-
-  else {
-    startDesktop();
-  }
-}
-
-void startDesktop() async{
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
 
-  WidgetsFlutterBinding.ensureInitialized();
-  await hotKeyManager.unregisterAll();
-
+  if (Platform.isAndroid || Platform.isIOS) {
+    //HotKeyManager does not support Mobile Platform
+  } else {
+    WidgetsFlutterBinding.ensureInitialized();
+    await hotKeyManager.unregisterAll();
+  }
   await FlowyRunner.run(FlowyApp());
-
-}
-
-void startMobile() async{
-  WidgetsFlutterBinding.ensureInitialized();
-  await EasyLocalization.ensureInitialized();
-
-  WidgetsFlutterBinding.ensureInitialized();
-
-  await FlowyRunner.run(FlowyApp());
-
 }
