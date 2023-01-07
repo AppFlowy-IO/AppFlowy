@@ -582,8 +582,8 @@ dependencies = [
  "dart-notify",
  "ffi-support",
  "flowy-codegen",
+ "flowy-core",
  "flowy-derive",
- "flowy-sdk",
  "lazy_static",
  "lib-dispatch",
  "log",
@@ -853,6 +853,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-core"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "flowy-database",
+ "flowy-document",
+ "flowy-folder",
+ "flowy-grid",
+ "flowy-http-model",
+ "flowy-net",
+ "flowy-revision",
+ "flowy-task",
+ "flowy-user",
+ "futures-core",
+ "grid-rev-model",
+ "lib-dispatch",
+ "lib-infra",
+ "lib-log",
+ "lib-ws",
+ "parking_lot 0.12.1",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "flowy-database"
 version = "0.1.0"
 dependencies = [
@@ -1106,31 +1131,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-sdk"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "flowy-database",
- "flowy-document",
- "flowy-folder",
- "flowy-grid",
- "flowy-http-model",
- "flowy-net",
- "flowy-revision",
- "flowy-task",
- "flowy-user",
- "futures-core",
- "grid-rev-model",
- "lib-dispatch",
- "lib-infra",
- "lib-log",
- "lib-ws",
- "parking_lot 0.12.1",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "flowy-sync"
 version = "0.1.0"
 dependencies = [
@@ -1180,10 +1180,10 @@ dependencies = [
  "claim 0.4.0",
  "claim 0.5.0",
  "fake",
+ "flowy-core",
  "flowy-document",
  "flowy-folder",
  "flowy-net",
- "flowy-sdk",
  "flowy-sync",
  "flowy-user",
  "futures",
