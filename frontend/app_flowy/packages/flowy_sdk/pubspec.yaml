@@ -17,6 +17,7 @@ dependencies:
   dartz: ^0.10.1
   freezed_annotation:
   logger: ^1.0.0
+  plugin_platform_interface: ^2.1.3
 
 dev_dependencies:
   flutter_test:
