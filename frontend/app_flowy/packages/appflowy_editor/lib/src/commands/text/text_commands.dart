@@ -20,6 +20,19 @@ extension TextCommands on EditorState {
     });
   }
 
+  Future<void> insertTextAtCurrentSelection(String text) async {
+    return futureCommand(() async {
+      final selection = getSelection(null);
+      assert(selection.isCollapsed);
+      final textNode = getTextNode(path: selection.start.path);
+      await insertText(
+        textNode.toPlainText().length,
+        text,
+        textNode: textNode,
+      );
+    });
+  }
+
   Future<void> formatText(
     EditorState editorState,
     Selection? selection,
@@ -94,5 +107,20 @@ extension TextCommands on EditorState {
       path: path,
       textNode: textNode,
     );
+  }
+
+  Future<void> insertNewLine(
+    EditorState editorState,
+    Path path,
+  ) async {
+    return futureCommand(() async {
+      final transaction = editorState.transaction;
+      transaction.insertNode(path, TextNode.empty());
+      transaction.afterSelection = Selection.single(
+        path: path,
+        startOffset: 0,
+      );
+      apply(transaction);
+    });
   }
 }
