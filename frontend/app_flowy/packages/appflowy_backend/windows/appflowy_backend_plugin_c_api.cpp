@@ -2,7 +2,7 @@
 
 #include <flutter/plugin_registrar_windows.h>
 
-#include "appflowy_backend_plugin.h"
+#include "app_flowy_backend_plugin.h"
 
 void AppFlowyBackendPluginCApiRegisterWithRegistrar(
     FlutterDesktopPluginRegistrarRef registrar) {

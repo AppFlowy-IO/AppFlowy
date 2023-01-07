@@ -4,7 +4,7 @@ project(${PROJECT_NAME} LANGUAGES CXX)
 
 # This value is used when generating builds using this plugin, so it must
 # not be changed
-set(PLUGIN_NAME "flowy_sdk_plugin")
+set(PLUGIN_NAME "appflowy_backend_plugin")
 
 add_library(${PLUGIN_NAME} SHARED
   "appflowy_backend_plugin.cpp"
@@ -18,7 +18,7 @@ target_include_directories(${PLUGIN_NAME} INTERFACE
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter flutter_wrapper_plugin)
 
 # List of absolute paths to libraries that should be bundled with the plugin
-set(flowy_sdk_bundled_libraries
+set(appflowy_backend_bundled_libraries
  ""
  PARENT_SCOPE
 )
