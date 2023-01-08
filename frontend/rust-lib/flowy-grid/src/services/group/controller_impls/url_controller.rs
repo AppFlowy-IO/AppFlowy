@@ -32,7 +32,6 @@ impl GroupControllerCustomActions for URLGroupController {
             let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
             let is_not_contained = !group.contains_row(&row_rev.id);
             if group.id == cell_data.content {
-                // Add the row to the group if the group didn't contain the row
                 if is_not_contained {
                     let row_pb = RowPB::from(row_rev);
                     changeset.inserted_rows.push(InsertedRowPB::new(row_pb.clone()));
@@ -40,7 +39,6 @@ impl GroupControllerCustomActions for URLGroupController {
                 }
             }
 
-            // Remove the row if the group.id is CHECK but the cell_data is UNCHECK
             changeset.deleted_rows.push(row_rev.id.clone());
             group.remove_row(&row_rev.id);
 
@@ -113,7 +111,7 @@ impl GroupGenerator for URLGroupGenerator {
         let group_configs = match type_option {
             None => vec![],
             Some(type_option) => {
-                tracing::info!("Logging {}, {}", type_option.data, type_option.url);
+                tracing::info!("Logging {}, {}", type_option.content, type_option.url);
                 vec![]
             }
         };
