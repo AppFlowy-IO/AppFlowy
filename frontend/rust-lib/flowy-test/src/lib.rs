@@ -3,9 +3,9 @@ pub mod helper;
 
 use crate::helper::*;
 
+use flowy_core::{FlowySDK, FlowySDKConfig};
 use flowy_document::entities::DocumentVersionPB;
 use flowy_net::get_client_server_configuration;
-use flowy_sdk::{FlowySDK, FlowySDKConfig};
 use flowy_user::entities::UserProfilePB;
 use nanoid::nanoid;
 

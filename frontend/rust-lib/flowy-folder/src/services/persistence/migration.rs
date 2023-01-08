@@ -90,7 +90,7 @@ impl FolderMigration {
         if KV::get_bool(&key) {
             return Ok(());
         }
-        let _ = self.migration_folder_rev_struct(folder_id).await?;
+        self.migration_folder_rev_struct(folder_id).await?;
         KV::set_bool(&key, true);
         // tracing::info!("Run folder v2 migration");
         Ok(())
@@ -101,7 +101,7 @@ impl FolderMigration {
         if KV::get_bool(&key) {
             return Ok(());
         }
-        let _ = self.migration_folder_rev_struct(folder_id).await?;
+        self.migration_folder_rev_struct(folder_id).await?;
         KV::set_bool(&key, true);
         tracing::trace!("Run folder v3 migration");
         Ok(())

@@ -1,13 +1,19 @@
 
 [tasks.dart_unit_test]
 script = '''
-cargo make dart_unit_test_inner
+cargo make --profile test-macos dart_unit_test_inner
 '''
 script_runner = "@shell"
 
 [tasks.dart_unit_test.windows]
 script = '''
 cargo make --profile test-windows dart_unit_test_inner
+'''
+script_runner = "@shell"
+
+[tasks.dart_unit_test.linux]
+script = '''
+cargo make --profile test-linux dart_unit_test_inner
 '''
 script_runner = "@shell"
 

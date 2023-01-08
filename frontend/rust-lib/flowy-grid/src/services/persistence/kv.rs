@@ -9,7 +9,7 @@ use flowy_database::{
 use flowy_error::{FlowyError, FlowyResult};
 use std::sync::Arc;
 
-#[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
+#[derive(PartialEq, Eq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[table_name = "kv_table"]
 #[primary_key(key)]
 pub struct KeyValue {

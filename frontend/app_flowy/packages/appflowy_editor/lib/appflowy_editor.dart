@@ -41,3 +41,4 @@ export 'src/plugins/markdown/encoder/parser/text_node_parser.dart';
 export 'src/plugins/markdown/encoder/parser/image_node_parser.dart';
 export 'src/plugins/markdown/decoder/delta_markdown_decoder.dart';
 export 'src/plugins/markdown/document_markdown.dart';
+export 'src/plugins/quill_delta/delta_document_encoder.dart';

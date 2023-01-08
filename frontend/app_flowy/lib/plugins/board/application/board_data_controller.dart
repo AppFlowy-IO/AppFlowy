@@ -4,11 +4,11 @@ import 'package:app_flowy/plugins/grid/application/view/grid_view_cache.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/grid_service.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
-import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/protobuf.dart';
 
 import 'board_listener.dart';
 

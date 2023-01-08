@@ -9,10 +9,11 @@ import 'package:app_flowy/workspace/application/view/view_ext.dart';
 import 'package:app_flowy/workspace/presentation/widgets/edit_panel/panel_animation.dart';
 import 'package:app_flowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:flowy_sdk/log.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:flowy_infra_ui/style_widget/container.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfilePB;
-import 'package:flowy_sdk/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
+    show UserProfilePB;
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

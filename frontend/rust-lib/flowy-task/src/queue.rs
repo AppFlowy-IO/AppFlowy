@@ -56,7 +56,7 @@ impl TaskQueue {
         let head = self.queue.pop()?;
         let result = {
             let mut ref_head = head.borrow_mut();
-            f(&mut *ref_head)
+            f(&mut ref_head)
         };
         if !head.borrow().tasks.is_empty() {
             self.queue.push(head);

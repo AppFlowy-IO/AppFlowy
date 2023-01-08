@@ -1,33 +1,37 @@
 [tasks.flowy_clean]
-run_task = { name = ["cargo_clean","rm_macro_build_cache", "rm_rust_generated_files", "rm_dart_generated_files"] }
+run_task = { name = [
+  "cargo_clean",
+  "rm_macro_build_cache",
+  "rm_rust_generated_files",
+  "rm_dart_generated_files",
+] }
 
 [tasks.cargo_clean]
-script = [
-  """
+script = ["""
     cd rust-lib
     cargo clean -q
 
     cd ../../shared-lib
     cargo clean -q
-  """,
-]
+  """]
 script_runner = "@shell"
 
 
 [tasks.rm_macro_build_cache]
-script = [
-  """
+script = ["""
     path = canonicalize ../frontend/rust-lib/flowy-codegen/.cache
     if is_path_exists ${path}
       rm -rf ${path}
     end
-  """,
-]
+  """]
 script_runner = "@duckscript"
 
 #Rust Clean
 [tasks.rm_rust_generated_files]
-run_task = { name = ["rm_rust_lib_generated_protobuf_files", "rm_shared_lib_generated_protobuf_files"] }
+run_task = { name = [
+  "rm_rust_lib_generated_protobuf_files",
+  "rm_shared_lib_generated_protobuf_files",
+] }
 
 [tasks.rm_rust_lib_generated_protobuf_files]
 private = true
@@ -42,13 +46,15 @@ run_task = { name = "remove_files_with_pattern" }
 
 #Dart Clean
 [tasks.rm_dart_generated_files]
-env = { "dart_flowy_sdk_path" = "./app_flowy/packages/flowy_sdk/" }
-run_task = { name = ["rm_dart_generated_protobuf_files", "rm_dart_generated_event_files"] }
+env = { "dart_flowy_sdk_path" = "./app_flowy/packages/appflowy_backend/" }
+run_task = { name = [
+  "rm_dart_generated_protobuf_files",
+  "rm_dart_generated_event_files",
+] }
 
 [tasks.rm_dart_generated_protobuf_files]
 private = true
-script = [
-  """
+script = ["""
   protobuf_file_paths = glob_array ${dart_flowy_sdk_path}/lib/protobuf
 
   if not array_is_empty ${protobuf_file_paths}
@@ -58,15 +64,13 @@ script = [
         rm -rf ${path}
     end
   end
-  """,
-]
+  """]
 script_runner = "@duckscript"
 
 
 [tasks.rm_dart_generated_event_files]
 private = true
-script = [
-  """
+script = ["""
   dart_event_folder = glob_array ${dart_flowy_sdk_path}/lib/dispatch/dart_event
 
   if not array_is_empty ${dart_event_folder}
@@ -76,15 +80,13 @@ script = [
         rm -rf ${path}
     end
   end
-  """,
-]
+  """]
 script_runner = "@duckscript"
 
 
 [tasks.remove_files_with_pattern]
 private = true
-script = [
-  """
+script = ["""
   proto_file_paths = glob_array ${rm_proto_path}
   is_proto_file_paths_empty = array_is_empty ${proto_file_paths}
   if not ${is_proto_file_paths_empty}
@@ -105,6 +107,5 @@ script = [
     end
   end
 
-  """,
-]
+  """]
 script_runner = "@duckscript"

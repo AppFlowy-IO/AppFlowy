@@ -87,13 +87,13 @@ where
     }
 
     pub async fn ack_revision(&self, rev_id: i64) -> FlowyResult<()> {
-        let _ = self.rev_sink.ack(rev_id).await?;
+        self.rev_sink.ack(rev_id).await?;
         Ok(())
     }
 
     pub async fn send_revisions(&self, range: RevisionRange) -> FlowyResult<()> {
         let revisions = self.rev_manager.get_revisions_in_range(range).await?;
-        let _ = self.rev_sink.send(revisions).await?;
+        self.rev_sink.send(revisions).await?;
         Ok(())
     }
 
@@ -123,13 +123,13 @@ where
                 // // server, and it needs to override the client delta.
                 let md5 = self.resolver.reset_operations(client_operations).await?;
                 debug_assert!(md5.is_equal(&revisions.last().unwrap().md5));
-                let _ = self.rev_manager.reset_object(revisions).await?;
+                self.rev_manager.reset_object(revisions).await?;
                 Ok(None)
             }
             Some(server_operations) => {
                 let md5 = self.resolver.compose_operations(client_operations.clone()).await?;
                 for revision in &revisions {
-                    let _ = self.rev_manager.add_remote_revision(revision).await?;
+                    self.rev_manager.add_remote_revision(revision).await?;
                 }
                 let (client_revision, server_revision) = make_client_and_server_revision(
                     &self.user_id,
@@ -138,7 +138,7 @@ where
                     Some(server_operations),
                     md5,
                 );
-                let _ = self.rev_manager.add_remote_revision(&client_revision).await?;
+                self.rev_manager.add_remote_revision(&client_revision).await?;
                 Ok(server_revision)
             }
         }

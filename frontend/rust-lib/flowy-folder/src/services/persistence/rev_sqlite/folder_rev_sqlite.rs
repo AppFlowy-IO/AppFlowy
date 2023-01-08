@@ -22,7 +22,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteFolderRevisionPersistence 
 
     fn create_revision_records(&self, revision_records: Vec<SyncRecord>) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        let _ = FolderRevisionSql::create(revision_records, &*conn)?;
+        FolderRevisionSql::create(revision_records, &*conn)?;
         Ok(())
     }
 
@@ -36,7 +36,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteFolderRevisionPersistence 
         rev_ids: Option<Vec<i64>>,
     ) -> Result<Vec<SyncRecord>, Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        let records = FolderRevisionSql::read(&self.user_id, object_id, rev_ids, &*conn)?;
+        let records = FolderRevisionSql::read(&self.user_id, object_id, rev_ids, &conn)?;
         Ok(records)
     }
 
@@ -52,7 +52,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteFolderRevisionPersistence 
 
     fn update_revision_record(&self, changesets: Vec<RevisionChangeset>) -> FlowyResult<()> {
         let conn = &*self.pool.get().map_err(internal_error)?;
-        let _ = conn.immediate_transaction::<_, FlowyError, _>(|| {
+        conn.immediate_transaction::<_, FlowyError, _>(|| {
             for changeset in changesets {
                 let _ = FolderRevisionSql::update(changeset, conn)?;
             }
@@ -63,7 +63,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteFolderRevisionPersistence 
 
     fn delete_revision_records(&self, object_id: &str, rev_ids: Option<Vec<i64>>) -> Result<(), Self::Error> {
         let conn = &*self.pool.get().map_err(internal_error)?;
-        let _ = FolderRevisionSql::delete(object_id, rev_ids, conn)?;
+        FolderRevisionSql::delete(object_id, rev_ids, conn)?;
         Ok(())
     }
 
@@ -75,8 +75,8 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteFolderRevisionPersistence 
     ) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
-            let _ = FolderRevisionSql::delete(object_id, deleted_rev_ids, &*conn)?;
-            let _ = FolderRevisionSql::create(inserted_records, &*conn)?;
+            FolderRevisionSql::delete(object_id, deleted_rev_ids, &*conn)?;
+            FolderRevisionSql::create(inserted_records, &*conn)?;
             Ok(())
         })
     }

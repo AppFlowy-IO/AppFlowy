@@ -320,7 +320,7 @@ where
         let configuration = Arc::make_mut(&mut self.configuration);
         let is_changed = mut_configuration_fn(configuration);
         if is_changed {
-            let configuration = (&*self.configuration).clone();
+            let configuration = (*self.configuration).clone();
             let writer = self.writer.clone();
             let field_id = self.field_rev.id.clone();
             let field_type = self.field_rev.ty;

@@ -109,7 +109,7 @@ impl DocumentManager {
     /// Called immediately after the application launched with the user sign in/sign up.
     #[tracing::instrument(level = "trace", skip_all, err)]
     pub async fn initialize(&self, user_id: &str) -> FlowyResult<()> {
-        let _ = self.persistence.initialize(user_id)?;
+        self.persistence.initialize(user_id)?;
         listen_ws_state_changed(self.rev_web_socket.clone(), self.editor_map.clone());
         Ok(())
     }
@@ -138,7 +138,7 @@ impl DocumentManager {
 
     pub async fn apply_edit(&self, params: EditParams) -> FlowyResult<()> {
         let editor = self.get_document_editor(&params.doc_id).await?;
-        let _ = editor.compose_local_operations(Bytes::from(params.operations)).await?;
+        editor.compose_local_operations(Bytes::from(params.operations)).await?;
         Ok(())
     }
 
@@ -147,7 +147,7 @@ impl DocumentManager {
         let db_pool = self.persistence.database.db_pool()?;
         // Maybe we could save the document to disk without creating the RevisionManager
         let rev_manager = self.make_rev_manager(&doc_id, db_pool)?;
-        let _ = rev_manager.reset_object(revisions).await?;
+        rev_manager.reset_object(revisions).await?;
         Ok(())
     }
 

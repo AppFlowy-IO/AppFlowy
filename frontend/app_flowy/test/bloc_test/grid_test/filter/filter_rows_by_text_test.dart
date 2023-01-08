@@ -1,5 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/filter/filter_service.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/text_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/text_filter.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../util.dart';

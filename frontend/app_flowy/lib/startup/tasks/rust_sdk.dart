@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flowy_sdk/flowy_sdk.dart';
+import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../startup.dart';

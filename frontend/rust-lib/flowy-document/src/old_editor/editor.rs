@@ -79,7 +79,7 @@ impl DeltaDocumentEditor {
             ret,
         };
         let _ = self.edit_cmd_tx.send(msg).await;
-        let _ = rx.await.map_err(internal_error)??;
+        rx.await.map_err(internal_error)??;
         Ok(())
     }
 
@@ -87,7 +87,7 @@ impl DeltaDocumentEditor {
         let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
         let msg = EditorCommand::Delete { interval, ret };
         let _ = self.edit_cmd_tx.send(msg).await;
-        let _ = rx.await.map_err(internal_error)??;
+        rx.await.map_err(internal_error)??;
         Ok(())
     }
 
@@ -99,7 +99,7 @@ impl DeltaDocumentEditor {
             ret,
         };
         let _ = self.edit_cmd_tx.send(msg).await;
-        let _ = rx.await.map_err(internal_error)??;
+        rx.await.map_err(internal_error)??;
         Ok(())
     }
 
@@ -111,7 +111,7 @@ impl DeltaDocumentEditor {
             ret,
         };
         let _ = self.edit_cmd_tx.send(msg).await;
-        let _ = rx.await.map_err(internal_error)??;
+        rx.await.map_err(internal_error)??;
         Ok(())
     }
 
@@ -133,7 +133,7 @@ impl DeltaDocumentEditor {
         let (ret, rx) = oneshot::channel();
         let msg = EditorCommand::Undo { ret };
         let _ = self.edit_cmd_tx.send(msg).await;
-        let _ = rx.await.map_err(internal_error)??;
+        rx.await.map_err(internal_error)??;
         Ok(())
     }
 
@@ -141,7 +141,7 @@ impl DeltaDocumentEditor {
         let (ret, rx) = oneshot::channel();
         let msg = EditorCommand::Redo { ret };
         let _ = self.edit_cmd_tx.send(msg).await;
-        let _ = rx.await.map_err(internal_error)??;
+        rx.await.map_err(internal_error)??;
         Ok(())
     }
 }
@@ -193,7 +193,7 @@ impl DocumentEditor for Arc<DeltaDocumentEditor> {
             let msg = EditorCommand::ComposeLocalOperations { operations, ret };
 
             let _ = edit_cmd_tx.send(msg).await;
-            let _ = rx.await.map_err(internal_error)??;
+            rx.await.map_err(internal_error)??;
             Ok(())
         })
     }

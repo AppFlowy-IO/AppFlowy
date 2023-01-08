@@ -110,11 +110,11 @@ impl LocalWebSocketRunner {
         let client_data = ClientRevisionWSData::try_from(bytes).map_err(internal_error)?;
         match message.channel {
             WSChannel::Document => {
-                let _ = self.handle_document_client_data(client_data, "".to_owned()).await?;
+                self.handle_document_client_data(client_data, "".to_owned()).await?;
                 Ok(())
             }
             WSChannel::Folder => {
-                let _ = self.handle_folder_client_data(client_data, "".to_owned()).await?;
+                self.handle_folder_client_data(client_data, "".to_owned()).await?;
                 Ok(())
             }
             WSChannel::Grid => {
@@ -143,10 +143,10 @@ impl LocalWebSocketRunner {
         let ty = client_data.ty.clone();
         match ty {
             ClientRevisionWSDataType::ClientPushRev => {
-                let _ = self.folder_manager.handle_client_revisions(user, client_data).await?;
+                self.folder_manager.handle_client_revisions(user, client_data).await?;
             }
             ClientRevisionWSDataType::ClientPing => {
-                let _ = self.folder_manager.handle_client_ping(user, client_data).await?;
+                self.folder_manager.handle_client_ping(user, client_data).await?;
             }
         }
         Ok(())
@@ -172,10 +172,10 @@ impl LocalWebSocketRunner {
         let ty = client_data.ty.clone();
         match ty {
             ClientRevisionWSDataType::ClientPushRev => {
-                let _ = self.doc_manager.handle_client_revisions(user, client_data).await?;
+                self.doc_manager.handle_client_revisions(user, client_data).await?;
             }
             ClientRevisionWSDataType::ClientPing => {
-                let _ = self.doc_manager.handle_client_ping(user, client_data).await?;
+                self.doc_manager.handle_client_ping(user, client_data).await?;
             }
         }
         Ok(())
