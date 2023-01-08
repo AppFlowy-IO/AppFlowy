@@ -63,11 +63,11 @@ impl GroupConfigurationContentSerde for NumberGroupConfigurationRevision {
 }
 
 #[derive(Default, Serialize, Deserialize)]
-pub struct UrlGroupConfigurationRevision {
+pub struct URLGroupConfigurationRevision {
     pub hide_empty: bool,
 }
 
-impl GroupConfigurationContentSerde for UrlGroupConfigurationRevision {
+impl GroupConfigurationContentSerde for URLGroupConfigurationRevision {
     fn from_json(s: &str) -> Result<Self, Error> {
         serde_json::from_str(s)
     }
