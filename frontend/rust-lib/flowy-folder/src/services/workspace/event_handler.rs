@@ -122,7 +122,7 @@ fn read_workspaces_on_server(
                 for workspace_rev in &workspace_revs {
                     let m_workspace = workspace_rev.clone();
                     let app_revs = m_workspace.apps.clone();
-                    let _ = transaction.create_workspace(&user_id, m_workspace)?;
+                    transaction.create_workspace(&user_id, m_workspace)?;
                     tracing::trace!("Save {} apps", app_revs.len());
                     for app_rev in app_revs {
                         let view_revs = app_rev.belongings.clone();

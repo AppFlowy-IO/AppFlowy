@@ -31,7 +31,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridViewRevisionPersistenc
 
     fn create_revision_records(&self, revision_records: Vec<SyncRecord>) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        GridViewRevisionSql::create(revision_records, &*conn)?;
+        GridViewRevisionSql::create(revision_records, &conn)?;
         Ok(())
     }
 
@@ -63,7 +63,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridViewRevisionPersistenc
         let conn = &*self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
             for changeset in changesets {
-                let _ = GridViewRevisionSql::update(changeset, conn)?;
+                GridViewRevisionSql::update(changeset, conn)?;
             }
             Ok(())
         })?;
@@ -84,8 +84,8 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridViewRevisionPersistenc
     ) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
-            GridViewRevisionSql::delete(object_id, deleted_rev_ids, &*conn)?;
-            GridViewRevisionSql::create(inserted_records, &*conn)?;
+            GridViewRevisionSql::delete(object_id, deleted_rev_ids, &conn)?;
+            GridViewRevisionSql::create(inserted_records, &conn)?;
             Ok(())
         })
     }

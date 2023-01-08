@@ -165,7 +165,7 @@ impl CellDataChangeset for NumberTypeOptionPB {
         let number_cell_data = self.format_cell_data(&data)?;
 
         match self.format {
-            NumberFormat::Num => Ok((number_cell_data.to_string().into(), number_cell_data.to_string().into())),
+            NumberFormat::Num => Ok((number_cell_data.to_string(), number_cell_data.to_string().into())),
             _ => Ok((data, number_cell_data.to_string().into())),
         }
     }

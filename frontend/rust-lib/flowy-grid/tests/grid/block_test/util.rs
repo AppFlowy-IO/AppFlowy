@@ -3,7 +3,6 @@ use std::sync::Arc;
 
 use flowy_grid::services::field::{
     ChecklistTypeOptionPB, DateCellChangeset, MultiSelectTypeOptionPB, SelectOptionPB, SingleSelectTypeOptionPB,
-    URLCellChangeset, URLCellData,
 };
 use flowy_grid::services::row::RowRevisionBuilder;
 use grid_rev_model::{FieldRevision, RowRevision};

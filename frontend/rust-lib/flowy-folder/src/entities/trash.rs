@@ -105,7 +105,7 @@ impl std::default::Default for TrashType {
     }
 }
 
-#[derive(PartialEq, ProtoBuf, Default, Debug, Clone)]
+#[derive(PartialEq, Eq, ProtoBuf, Default, Debug, Clone)]
 pub struct RepeatedTrashIdPB {
     #[pb(index = 1)]
     pub items: Vec<TrashIdPB>,

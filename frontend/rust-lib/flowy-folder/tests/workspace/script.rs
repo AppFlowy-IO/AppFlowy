@@ -259,13 +259,12 @@ pub async fn create_workspace(sdk: &FlowySDKTest, name: &str, desc: &str) -> Wor
         desc: desc.to_owned(),
     };
 
-    let workspace = FolderEventBuilder::new(sdk.clone())
+    FolderEventBuilder::new(sdk.clone())
         .event(CreateWorkspace)
         .payload(request)
         .async_send()
         .await
-        .parse::<WorkspacePB>();
-    workspace
+        .parse::<WorkspacePB>()
 }
 
 pub async fn read_workspace(sdk: &FlowySDKTest, workspace_id: Option<String>) -> Vec<WorkspacePB> {
@@ -300,13 +299,12 @@ pub async fn create_app(sdk: &FlowySDKTest, workspace_id: &str, name: &str, desc
         color_style: Default::default(),
     };
 
-    let app = FolderEventBuilder::new(sdk.clone())
+    FolderEventBuilder::new(sdk.clone())
         .event(CreateApp)
         .payload(create_app_request)
         .async_send()
         .await
-        .parse::<AppPB>();
-    app
+        .parse::<AppPB>()
 }
 
 pub async fn read_app(sdk: &FlowySDKTest, app_id: &str) -> AppPB {
@@ -314,14 +312,12 @@ pub async fn read_app(sdk: &FlowySDKTest, app_id: &str) -> AppPB {
         value: app_id.to_owned(),
     };
 
-    let app = FolderEventBuilder::new(sdk.clone())
+    FolderEventBuilder::new(sdk.clone())
         .event(ReadApp)
         .payload(request)
         .async_send()
         .await
-        .parse::<AppPB>();
-
-    app
+        .parse::<AppPB>()
 }
 
 pub async fn update_app(sdk: &FlowySDKTest, app_id: &str, name: Option<String>, desc: Option<String>) {
@@ -369,13 +365,12 @@ pub async fn create_view(
         layout,
         view_content_data: vec![],
     };
-    let view = FolderEventBuilder::new(sdk.clone())
+    FolderEventBuilder::new(sdk.clone())
         .event(CreateView)
         .payload(request)
         .async_send()
         .await
-        .parse::<ViewPB>();
-    view
+        .parse::<ViewPB>()
 }
 
 pub async fn read_view(sdk: &FlowySDKTest, view_id: &str) -> ViewPB {

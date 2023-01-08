@@ -15,7 +15,7 @@ pub struct V1Transaction<'a>(pub &'a DBConnection);
 
 impl<'a> FolderPersistenceTransaction for V1Transaction<'a> {
     fn create_workspace(&self, user_id: &str, workspace_rev: WorkspaceRevision) -> FlowyResult<()> {
-        WorkspaceTableSql::create_workspace(user_id, workspace_rev, &*self.0)?;
+        WorkspaceTableSql::create_workspace(user_id, workspace_rev, self.0)?;
         Ok(())
     }
 
@@ -34,12 +34,12 @@ impl<'a> FolderPersistenceTransaction for V1Transaction<'a> {
     }
 
     fn create_app(&self, app_rev: AppRevision) -> FlowyResult<()> {
-        AppTableSql::create_app(app_rev, &*self.0)?;
+        AppTableSql::create_app(app_rev, self.0)?;
         Ok(())
     }
 
     fn update_app(&self, changeset: AppChangeset) -> FlowyResult<()> {
-        AppTableSql::update_app(changeset, &*self.0)?;
+        AppTableSql::update_app(changeset, self.0)?;
         Ok(())
     }
 
@@ -64,7 +64,7 @@ impl<'a> FolderPersistenceTransaction for V1Transaction<'a> {
     }
 
     fn create_view(&self, view_rev: ViewRevision) -> FlowyResult<()> {
-        ViewTableSql::create_view(view_rev, &*self.0)?;
+        ViewTableSql::create_view(view_rev, self.0)?;
         Ok(())
     }
 
@@ -80,13 +80,13 @@ impl<'a> FolderPersistenceTransaction for V1Transaction<'a> {
     }
 
     fn update_view(&self, changeset: ViewChangeset) -> FlowyResult<()> {
-        ViewTableSql::update_view(changeset, &*self.0)?;
+        ViewTableSql::update_view(changeset, self.0)?;
         Ok(())
     }
 
     fn delete_view(&self, view_id: &str) -> FlowyResult<ViewRevision> {
         let view_revision: ViewRevision = ViewTableSql::read_view(view_id, self.0)?.into();
-        ViewTableSql::delete_view(view_id, &*self.0)?;
+        ViewTableSql::delete_view(view_id, self.0)?;
         Ok(view_revision)
     }
 
@@ -95,7 +95,7 @@ impl<'a> FolderPersistenceTransaction for V1Transaction<'a> {
     }
 
     fn create_trash(&self, trashes: Vec<TrashRevision>) -> FlowyResult<()> {
-        TrashTableSql::create_trash(trashes, &*self.0)?;
+        TrashTableSql::create_trash(trashes, self.0)?;
         Ok(())
     }
 
@@ -114,7 +114,7 @@ impl<'a> FolderPersistenceTransaction for V1Transaction<'a> {
             None => TrashTableSql::delete_all(self.0),
             Some(trash_ids) => {
                 for trash_id in &trash_ids {
-                    TrashTableSql::delete_trash(trash_id, &*self.0)?;
+                    TrashTableSql::delete_trash(trash_id, self.0)?;
                 }
                 Ok(())
             }

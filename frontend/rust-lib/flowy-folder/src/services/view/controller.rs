@@ -238,9 +238,9 @@ impl ViewController {
     pub(crate) async fn move_view(&self, view_id: &str, from: usize, to: usize) -> Result<(), FlowyError> {
         self.persistence
             .begin_transaction(|transaction| {
-                let _ = transaction.move_view(view_id, from, to)?;
+                transaction.move_view(view_id, from, to)?;
                 let view = transaction.read_view(view_id)?;
-                let _ = notify_views_changed(&view.app_id, self.trash_controller.clone(), &transaction)?;
+                notify_views_changed(&view.app_id, self.trash_controller.clone(), &transaction)?;
                 Ok(())
             })
             .await?;

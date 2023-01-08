@@ -24,7 +24,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDocumentRevisionPersistenc
 
     fn create_revision_records(&self, revision_records: Vec<SyncRecord>) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        DocumentRevisionSql::create(revision_records, &*conn)?;
+        DocumentRevisionSql::create(revision_records, &conn)?;
         Ok(())
     }
 
@@ -56,7 +56,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDocumentRevisionPersistenc
         let conn = &*self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
             for changeset in changesets {
-                let _ = DocumentRevisionSql::update(changeset, conn)?;
+                DocumentRevisionSql::update(changeset, conn)?;
             }
             Ok(())
         })?;
@@ -77,8 +77,8 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDocumentRevisionPersistenc
     ) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
-            DocumentRevisionSql::delete(object_id, deleted_rev_ids, &*conn)?;
-            DocumentRevisionSql::create(inserted_records, &*conn)?;
+            DocumentRevisionSql::delete(object_id, deleted_rev_ids, &conn)?;
+            DocumentRevisionSql::create(inserted_records, &conn)?;
             Ok(())
         })
     }

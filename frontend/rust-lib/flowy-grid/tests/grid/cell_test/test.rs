@@ -86,9 +86,8 @@ async fn url_cell_date_test() {
 
     for (i, cell) in cells.iter().enumerate() {
         let url_cell_data = cell.get_url_field_cell_data().unwrap();
-        match i {
-            0 => assert_eq!(url_cell_data.url.as_str(), "https://www.appflowy.io/"),
-            _ => {}
+        if i == 0 {
+            assert_eq!(url_cell_data.url.as_str(), "https://www.appflowy.io/")
         }
     }
 }
