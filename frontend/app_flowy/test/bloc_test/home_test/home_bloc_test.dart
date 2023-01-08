@@ -2,73 +2,53 @@ import 'package:app_flowy/plugins/document/application/doc_bloc.dart';
 import 'package:app_flowy/plugins/document/document.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
-import 'package:bloc_test/bloc_test.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../util.dart';
 
 void main() {
   late AppFlowyUnitTest testContext;
-  late WorkspaceSettingPB workspaceSetting;
   setUpAll(() async {
     testContext = await AppFlowyUnitTest.ensureInitialized();
   });
 
-  setUp(() async {
-    workspaceSetting = await FolderEventReadCurrentWorkspace()
+  test('initi home screen', () async {
+    final workspaceSetting = await FolderEventReadCurrentWorkspace()
         .send()
         .then((result) => result.fold((l) => l, (r) => throw Exception()));
     await blocResponseFuture();
+
+    final homeBloc = HomeBloc(testContext.userProfile, workspaceSetting)
+      ..add(const HomeEvent.initial());
+    await blocResponseFuture();
+
+    assert(homeBloc.state.workspaceSetting.hasLatestView());
   });
 
-  group('$HomeBloc', () {
-    blocTest<HomeBloc, HomeState>(
-      "initial",
-      build: () => HomeBloc(testContext.userProfile, workspaceSetting)
-        ..add(const HomeEvent.initial()),
-      wait: blocResponseDuration(),
-      verify: (bloc) {
-        assert(bloc.state.workspaceSetting.hasLatestView());
-      },
-    );
-  });
+  test('open the document', () async {
+    final workspaceSetting = await FolderEventReadCurrentWorkspace()
+        .send()
+        .then((result) => result.fold((l) => l, (r) => throw Exception()));
+    await blocResponseFuture();
 
-  group('$HomeBloc', () {
-    late AppPB app;
-    late ViewPB latestCreatedView;
-    late HomeBloc homeBloc;
-    setUpAll(() async {
-      app = await testContext.createTestApp();
-      homeBloc = HomeBloc(testContext.userProfile, workspaceSetting)
-        ..add(const HomeEvent.initial());
-    });
+    final homeBloc = HomeBloc(testContext.userProfile, workspaceSetting)
+      ..add(const HomeEvent.initial());
+    await blocResponseFuture();
 
-    blocTest<AppBloc, AppState>(
-      "create a document view",
-      build: () => AppBloc(app: app)..add(const AppEvent.initial()),
-      act: (bloc) async {
-        bloc.add(AppEvent.createView("New document", DocumentPluginBuilder()));
-      },
-      wait: blocResponseDuration(),
-      verify: (bloc) {
-        latestCreatedView = bloc.state.views.last;
-      },
-    );
+    final app = await testContext.createTestApp();
+    final appBloc = AppBloc(app: app)..add(const AppEvent.initial());
+    assert(appBloc.state.latestCreatedView == null);
 
-    blocTest<DocumentBloc, DocumentState>(
-      "open the document",
-      build: () => DocumentBloc(view: latestCreatedView)
-        ..add(const DocumentEvent.initial()),
-      wait: blocResponseDuration(),
-    );
+    appBloc.add(AppEvent.createView("New document", DocumentPluginBuilder()));
+    await blocResponseFuture();
 
-    test('check the latest view is the document', () async {
-      assert(homeBloc.state.workspaceSetting.latestView.id ==
-          latestCreatedView.id);
-    });
+    assert(appBloc.state.latestCreatedView != null);
+    final latestView = appBloc.state.latestCreatedView!;
+    final _ = DocumentBloc(view: latestView)
+      ..add(const DocumentEvent.initial());
+    await blocResponseFuture();
+
+    assert(homeBloc.state.workspaceSetting.latestView.id == latestView.id);
   });
 }
