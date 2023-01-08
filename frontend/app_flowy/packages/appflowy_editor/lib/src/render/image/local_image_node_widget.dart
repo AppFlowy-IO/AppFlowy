@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy_editor/src/extensions/object_extensions.dart';
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/core/location/position.dart';
@@ -6,11 +8,12 @@ import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
 import 'package:flutter/material.dart';
 
-class ImageNodeWidget extends StatefulWidget {
-  const ImageNodeWidget({
+class LocalImageNode extends StatefulWidget {
+  const LocalImageNode({
     Key? key,
     required this.node,
     required this.src,
+    required this.type,
     this.width,
     required this.alignment,
     required this.onCopy,
@@ -21,6 +24,7 @@ class ImageNodeWidget extends StatefulWidget {
 
   final Node node;
   final String src;
+  final String type;
   final double? width;
   final Alignment alignment;
   final VoidCallback onCopy;
@@ -29,13 +33,10 @@ class ImageNodeWidget extends StatefulWidget {
   final void Function(double width) onResize;
 
   @override
-  State<ImageNodeWidget> createState() => _ImageNodeWidgetState();
+  State<LocalImageNode> createState() => _LocalImageNodeState();
 }
 
-class _ImageNodeWidgetState extends State<ImageNodeWidget>
-    with SelectableMixin {
-  RenderBox get _renderBox => context.findRenderObject() as RenderBox;
-
+class _LocalImageNodeState extends State<LocalImageNode> with SelectableMixin {
   final _imageKey = GlobalKey();
 
   double? _imageWidth;
@@ -70,19 +71,12 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget>
 
   @override
   Widget build(BuildContext context) {
-    // only support network image.
     return Container(
       key: _imageKey,
       padding: const EdgeInsets.only(top: 8, bottom: 8),
-      child: _buildNetworkImage(context),
+      child: _buildFileImage(context),
     );
   }
-
-  @override
-  bool get shouldCursorBlink => false;
-
-  @override
-  CursorStyle get cursorStyle => CursorStyle.borderLine;
 
   @override
   Position start() {
@@ -91,7 +85,7 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget>
 
   @override
   Position end() {
-    return start();
+    return Position(path: widget.node.path, offset: 1);
   }
 
   @override
@@ -101,8 +95,7 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget>
 
   @override
   Rect? getCursorRectInPosition(Position position) {
-    final size = _renderBox.size;
-    return Rect.fromLTWH(-size.width / 2.0, 0, size.width, size.height);
+    return null;
   }
 
   @override
@@ -126,7 +119,7 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget>
     return renderBox.localToGlobal(offset);
   }
 
-  Widget _buildNetworkImage(BuildContext context) {
+  Widget _buildFileImage(BuildContext context) {
     return Align(
       alignment: widget.alignment,
       child: MouseRegion(
@@ -142,24 +135,23 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget>
   }
 
   Widget _buildResizableImage(BuildContext context) {
-    final networkImage = Image.network(
-      widget.src,
+    final fileImage = Image.file(
+      File(widget.src),
       width: _imageWidth == null ? null : _imageWidth! - _distance,
       gaplessPlayback: true,
-      loadingBuilder: (context, child, loadingProgress) =>
-          loadingProgress == null ? child : _buildLoading(context),
       errorBuilder: (context, error, stackTrace) {
         // _imageWidth ??= defaultMaxTextNodeWidth;
         return _buildError(context);
       },
     );
+
     if (_imageWidth == null) {
-      _imageStream = networkImage.image.resolve(const ImageConfiguration())
+      _imageStream = fileImage.image.resolve(const ImageConfiguration())
         ..addListener(_imageStreamListener);
     }
     return Stack(
       children: [
-        networkImage,
+        fileImage,
         _buildEdgeGesture(
           context,
           top: 0,
