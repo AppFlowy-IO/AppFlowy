@@ -13,6 +13,7 @@ pub fn gen_grid_view_id() -> String {
 pub enum LayoutRevision {
     Table = 0,
     Board = 1,
+    Calendar = 2,
 }
 
 impl ToString for LayoutRevision {
