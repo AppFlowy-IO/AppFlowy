@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:example/pages/simple_editor.dart';
-import 'package:example/plugin/text_robot.dart';
+import 'package:example/plugin/AI/text_robot.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

@@ -12,25 +12,21 @@ extension TextCommands on EditorState {
     Path? path,
     TextNode? textNode,
   }) async {
-    return futureCommand(() {
-      final n = getTextNode(path: path, textNode: textNode);
-      apply(
-        transaction..insertText(n, index, text),
-      );
-    });
+    final n = getTextNode(path: path, textNode: textNode);
+    return apply(
+      transaction..insertText(n, index, text),
+    );
   }
 
   Future<void> insertTextAtCurrentSelection(String text) async {
-    return futureCommand(() async {
-      final selection = getSelection(null);
-      assert(selection.isCollapsed);
-      final textNode = getTextNode(path: selection.start.path);
-      await insertText(
-        textNode.toPlainText().length,
-        text,
-        textNode: textNode,
-      );
-    });
+    final selection = getSelection(null);
+    assert(selection.isCollapsed);
+    final textNode = getTextNode(path: selection.start.path);
+    return insertText(
+      selection.startIndex,
+      text,
+      textNode: textNode,
+    );
   }
 
   Future<void> formatText(
@@ -40,13 +36,11 @@ extension TextCommands on EditorState {
     Path? path,
     TextNode? textNode,
   }) async {
-    return futureCommand(() {
-      final n = getTextNode(path: path, textNode: textNode);
-      final s = getSelection(selection);
-      apply(
-        transaction..formatText(n, s.startIndex, s.length, attributes),
-      );
-    });
+    final n = getTextNode(path: path, textNode: textNode);
+    final s = getSelection(selection);
+    return apply(
+      transaction..formatText(n, s.startIndex, s.length, attributes),
+    );
   }
 
   Future<void> formatTextWithBuiltInAttribute(
@@ -57,26 +51,24 @@ extension TextCommands on EditorState {
     Path? path,
     TextNode? textNode,
   }) async {
-    return futureCommand(() {
-      final n = getTextNode(path: path, textNode: textNode);
-      if (BuiltInAttributeKey.globalStyleKeys.contains(key)) {
-        final attr = n.attributes
-          ..removeWhere(
-              (key, _) => BuiltInAttributeKey.globalStyleKeys.contains(key))
-          ..addAll(attributes)
-          ..addAll({
-            BuiltInAttributeKey.subtype: key,
-          });
-        apply(
-          transaction..updateNode(n, attr),
-        );
-      } else if (BuiltInAttributeKey.partialStyleKeys.contains(key)) {
-        final s = getSelection(selection);
-        apply(
-          transaction..formatText(n, s.startIndex, s.length, attributes),
-        );
-      }
-    });
+    final n = getTextNode(path: path, textNode: textNode);
+    if (BuiltInAttributeKey.globalStyleKeys.contains(key)) {
+      final attr = n.attributes
+        ..removeWhere(
+            (key, _) => BuiltInAttributeKey.globalStyleKeys.contains(key))
+        ..addAll(attributes)
+        ..addAll({
+          BuiltInAttributeKey.subtype: key,
+        });
+      return apply(
+        transaction..updateNode(n, attr),
+      );
+    } else if (BuiltInAttributeKey.partialStyleKeys.contains(key)) {
+      final s = getSelection(selection);
+      return apply(
+        transaction..formatText(n, s.startIndex, s.length, attributes),
+      );
+    }
   }
 
   Future<void> formatTextToCheckbox(
@@ -109,19 +101,28 @@ extension TextCommands on EditorState {
     );
   }
 
-  Future<void> insertNewLine(
-    EditorState editorState, {
+  Future<void> insertNewLine({
     Path? path,
   }) async {
-    return futureCommand(() async {
-      final p = path ?? getSelection(null).start.path.next;
-      final transaction = editorState.transaction;
-      transaction.insertNode(p, TextNode.empty());
-      transaction.afterSelection = Selection.single(
-        path: p,
-        startOffset: 0,
-      );
-      apply(transaction);
-    });
+    final p = path ?? getSelection(null).start.path.next;
+    final transaction = this.transaction;
+    transaction.insertNode(p, TextNode.empty());
+    transaction.afterSelection = Selection.single(
+      path: p,
+      startOffset: 0,
+    );
+    return apply(transaction);
+  }
+
+  Future<void> insertNewLineAtCurrentSelection() async {
+    final selection = getSelection(null);
+    assert(selection.isCollapsed);
+    final textNode = getTextNode(path: selection.start.path);
+    final transaction = this.transaction;
+    transaction.splitText(
+      textNode,
+      selection.startIndex,
+    );
+    return apply(transaction);
   }
 }

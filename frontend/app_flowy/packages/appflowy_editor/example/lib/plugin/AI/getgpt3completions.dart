@@ -2,14 +2,19 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 
+// Please fill in your own API key
+const apiKey = '';
+
 Future<void> getGPT3Completion(
   String apiKey,
   String prompt,
   String suffix,
-  int maxTokens,
-  double temperature,
-  Function(String) onData, // callback function to handle streaming data
-) async {
+  Future<void> Function(String)
+      onData, // callback function to handle streaming data
+  {
+  int maxTokens = 200,
+  double temperature = .3,
+}) async {
   final data = {
     'prompt': prompt,
     'suffix': suffix,
@@ -43,7 +48,6 @@ Future<void> getGPT3Completion(
       }
 
       final processedText = text
-          .replaceAll('\\n', '\n')
           .replaceAll('\\r', '\r')
           .replaceAll('\\t', '\t')
           .replaceAll('\\b', '\b')
@@ -62,7 +66,7 @@ Future<void> getGPT3Completion(
           .replaceAll('\\8', '8')
           .replaceAll('\\9', '9');
 
-      onData(processedText);
+      await onData(processedText);
     }
   }
 }

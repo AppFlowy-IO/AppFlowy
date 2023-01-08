@@ -1,10 +1,11 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:example/plugin/AI/getgpt3completions.dart';
+import 'package:example/plugin/AI/text_robot.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-SelectionMenuItem textRobotMenuItem = SelectionMenuItem(
-  name: () => 'Open AI',
+SelectionMenuItem autoCompletionMenuItem = SelectionMenuItem(
+  name: () => 'Auto generate content',
   icon: (editorState, onSelected) => Icon(
     Icons.rocket,
     size: 18.0,
@@ -12,7 +13,7 @@ SelectionMenuItem textRobotMenuItem = SelectionMenuItem(
         ? editorState.editorStyle.selectionMenuItemSelectedIconColor
         : editorState.editorStyle.selectionMenuItemIconColor,
   ),
-  keywords: ['open ai', 'gpt3', 'ai'],
+  keywords: ['auto generate content', 'open ai', 'gpt3', 'ai'],
   handler: ((editorState, menuService, context) async {
     showDialog(
       context: context,
@@ -35,11 +36,11 @@ SelectionMenuItem textRobotMenuItem = SelectionMenuItem(
               if (key.logicalKey == LogicalKeyboardKey.enter) {
                 Navigator.of(context).pop();
                 // fetch the result and insert it
-                // Please fill in your own API key
-                getGPT3Completion('', controller.text, '', 200, .3,
-                    (result) async {
-                  await editorState.insertTextAtCurrentSelection(
+                final textRobot = TextRobot(editorState: editorState);
+                getGPT3Completion(apiKey, controller.text, '', (result) async {
+                  await textRobot.insertText(
                     result,
+                    inputType: TextRobotInputType.character,
                   );
                 });
               } else if (key.logicalKey == LogicalKeyboardKey.escape) {
@@ -52,44 +53,3 @@ SelectionMenuItem textRobotMenuItem = SelectionMenuItem(
     );
   }),
 );
-
-enum TextRobotInputType {
-  character,
-  word,
-}
-
-class TextRobot {
-  const TextRobot({
-    required this.editorState,
-    this.delay = const Duration(milliseconds: 30),
-  });
-
-  final EditorState editorState;
-  final Duration delay;
-
-  Future<void> insertText(
-    String text, {
-    TextRobotInputType inputType = TextRobotInputType.character,
-  }) async {
-    final lines = text.split('\n');
-    for (final line in lines) {
-      switch (inputType) {
-        case TextRobotInputType.character:
-          final iterator = line.runes.iterator;
-          while (iterator.moveNext()) {
-            await editorState.insertTextAtCurrentSelection(
-              iterator.currentAsString,
-            );
-            await Future.delayed(delay);
-          }
-          break;
-        default:
-      }
-
-      // insert new line
-      if (lines.length > 1) {
-        await editorState.insertNewLine(editorState);
-      }
-    }
-  }
-}
