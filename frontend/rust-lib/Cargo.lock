@@ -884,8 +884,12 @@ dependencies = [
  "diesel",
  "diesel_derives",
  "diesel_migrations",
+ "error-chain",
  "lazy_static",
- "lib-sqlite",
+ "libsqlite3-sys",
+ "openssl",
+ "r2d2",
+ "scheduled-thread-pool",
  "tracing",
 ]
 
@@ -964,7 +968,6 @@ dependencies = [
  "http-flowy",
  "lib-dispatch",
  "lib-ot",
- "lib-sqlite",
  "protobuf",
  "r2d2",
  "serde_json",
@@ -1829,22 +1832,6 @@ dependencies = [
  "thiserror",
  "tokio",
  "tracing",
-]
-
-[[package]]
-name = "lib-sqlite"
-version = "0.1.0"
-dependencies = [
- "diesel",
- "diesel_derives",
- "diesel_migrations",
- "error-chain",
- "lazy_static",
- "libsqlite3-sys",
- "log",
- "openssl",
- "r2d2",
- "scheduled-thread-pool",
 ]
 
 [[package]]

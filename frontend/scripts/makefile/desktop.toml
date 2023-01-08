@@ -67,8 +67,8 @@ script = [
   """
     cd rust-lib/
     rustup show
-    echo cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FEATURES}"
-    cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FEATURES}"
+    echo cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
 ]
@@ -105,7 +105,7 @@ private = true
 script = [
   """
     cd rust-lib
-    exec cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FEATURES}"
+    exec cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ..
   """,
 ]
@@ -128,7 +128,7 @@ run_task = { name = [
 script = [
   """
     cd rust-lib/
-    cargo build --${BUILD_FLAG} --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FEATURES}"
+    cargo build --${BUILD_FLAG} --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
 ]
@@ -216,8 +216,8 @@ script = [
   """
     cd rust-lib/
     rustup show
-    echo cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FEATURES}"
-    RUST_LOG=${RUST_LOG} cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FEATURES}"
+    echo cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    RUST_LOG=${RUST_LOG} cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
 ]
@@ -229,8 +229,8 @@ script = [
   """
     cd rust-lib/
     rustup show
-    echo cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FEATURES}"
-    cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FEATURES}"
+    echo cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
 ]

@@ -1,4 +1,4 @@
-use crate::{errors::*, pragma::*};
+use crate::sqlite::{errors::*, pragma::*};
 use diesel::{connection::Connection, SqliteConnection};
 use r2d2::{CustomizeConnection, ManageConnection, Pool};
 use scheduled_thread_pool::ScheduledThreadPool;
@@ -45,6 +45,7 @@ impl ConnectionPool {
     }
 }
 
+#[allow(dead_code)]
 pub type OnExecFunc = Box<dyn Fn() -> Box<dyn Fn(&SqliteConnection, &str)> + Send + Sync>;
 
 pub struct PoolConfig {
@@ -85,7 +86,7 @@ pub struct ConnectionManager {
 
 impl ManageConnection for ConnectionManager {
     type Connection = SqliteConnection;
-    type Error = crate::Error;
+    type Error = crate::sqlite::Error;
 
     fn connect(&self) -> Result<Self::Connection> {
         Ok(SqliteConnection::establish(&self.db_uri)?)
@@ -140,7 +141,7 @@ impl DatabaseCustomizer {
     }
 }
 
-impl CustomizeConnection<SqliteConnection, crate::Error> for DatabaseCustomizer {
+impl CustomizeConnection<SqliteConnection, crate::sqlite::Error> for DatabaseCustomizer {
     fn on_acquire(&self, conn: &mut SqliteConnection) -> Result<()> {
         conn.pragma_set_busy_timeout(self.config.busy_timeout)?;
         if self.config.journal_mode != SQLiteJournalMode::WAL {

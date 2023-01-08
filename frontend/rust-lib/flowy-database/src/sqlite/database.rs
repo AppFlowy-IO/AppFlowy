@@ -1,4 +1,4 @@
-use crate::{
+use crate::sqlite::{
     errors::*,
     pool::{ConnectionManager, ConnectionPool, PoolConfig},
 };
@@ -17,7 +17,7 @@ impl Database {
         let uri = db_file_uri(dir, name);
 
         if !std::path::PathBuf::from(dir).exists() {
-            log::error!("Create database failed. {} not exists", &dir);
+            tracing::error!("Create database failed. {} not exists", &dir);
         }
 
         let pool = ConnectionPool::new(pool_config, &uri)?;

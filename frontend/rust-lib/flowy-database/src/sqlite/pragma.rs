@@ -1,5 +1,5 @@
 #![allow(clippy::upper_case_acronyms)]
-use crate::errors::{Error, Result};
+use crate::sqlite::errors::{Error, Result};
 use diesel::{
     expression::SqlLiteral,
     query_dsl::load_dsl::LoadQuery,
@@ -7,7 +7,7 @@ use diesel::{
     SqliteConnection,
 };
 
-use crate::conn_ext::ConnectionExtension;
+use crate::sqlite::conn_ext::ConnectionExtension;
 use std::{
     convert::{TryFrom, TryInto},
     fmt,
@@ -20,7 +20,7 @@ pub trait PragmaExtension: ConnectionExtension {
             Some(schema) => format!("PRAGMA {}.{} = '{}'", schema, key, val),
             None => format!("PRAGMA {} = '{}'", key, val),
         };
-        log::trace!("SQLITE {}", query);
+        tracing::trace!("SQLITE {}", query);
         self.exec(&query)?;
         Ok(())
     }
@@ -33,7 +33,7 @@ pub trait PragmaExtension: ConnectionExtension {
             Some(schema) => format!("PRAGMA {}.{} = '{}'", schema, key, val),
             None => format!("PRAGMA {} = '{}'", key, val),
         };
-        log::trace!("SQLITE {}", query);
+        tracing::trace!("SQLITE {}", query);
         self.query::<ST, T>(&query)
     }
 
@@ -45,7 +45,7 @@ pub trait PragmaExtension: ConnectionExtension {
             Some(schema) => format!("PRAGMA {}.{}", schema, key),
             None => format!("PRAGMA {}", key),
         };
-        log::trace!("SQLITE {}", query);
+        tracing::trace!("SQLITE {}", query);
         self.query::<ST, T>(&query)
     }
 

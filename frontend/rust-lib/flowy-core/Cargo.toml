@@ -13,7 +13,7 @@ flowy-net = { path = "../flowy-net" }
 flowy-folder = { path = "../flowy-folder", default-features = false }
 flowy-grid = { path = "../flowy-grid", default-features = false }
 grid-rev-model = { path = "../../../shared-lib/grid-rev-model" }
-flowy-database = { path = "../flowy-database" }
+flowy-database = { path = "../flowy-database", optional = true }
 flowy-document = { path = "../flowy-document", default-features = false }
 flowy-revision = { path = "../flowy-revision" }
 flowy-task = { path = "../flowy-task" }
@@ -38,5 +38,12 @@ dart = [
     "flowy-folder/dart",
     "flowy-grid/dart",
     "flowy-document/dart",
+]
+sqlite = [
+    "flowy-database",
+    "flowy-user/sqlite",
+    "flowy-folder/sqlite",
+    "flowy-grid/sqlite",
+    "flowy-document/sqlite",
 ]
 openssl_vendored = ["flowy-database/openssl_vendored"]

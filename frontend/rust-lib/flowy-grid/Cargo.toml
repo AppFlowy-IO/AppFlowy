@@ -17,7 +17,7 @@ lib-infra = { path = "../../../shared-lib/lib-infra" }
 grid-rev-model = { path = "../../../shared-lib/grid-rev-model" }
 flowy-sync = { path = "../flowy-sync"}
 flowy-http-model = { path = "../../../shared-lib/flowy-http-model" }
-flowy-database = { path = "../flowy-database" }
+flowy-database = { path = "../flowy-database", optional = true }
 anyhow = "1.0"
 
 strum = "0.21"
@@ -56,5 +56,6 @@ flowy-codegen = { path = "../flowy-codegen"}
 
 [features]
 default = []
+sqlite = ["flowy-database"]
 dart = ["flowy-codegen/dart", "dart-notify/dart"]
 flowy_unit_test = ["flowy-revision/flowy_unit_test"]
