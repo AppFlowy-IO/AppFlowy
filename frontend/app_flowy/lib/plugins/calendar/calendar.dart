@@ -7,6 +7,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 
 import '../util.dart';
+import 'presentation/calendar_page.dart';
 
 class CalendarPluginBuilder extends PluginBuilder {
   @override
@@ -79,33 +80,10 @@ class CalendarPluginDisplay extends PluginDisplay {
       });
     });
 
-    return BlankPage(key: ValueKey(view.id));
-    // return BoardPage(key: ValueKey(view.id), view: view);
+    return CalendarPage(key: ValueKey(view.id));
+    // return CalendarPage(key: ValueKey(view.id), view: view);
   }
 
   @override
   List<NavigationItem> get navigationItems => [this];
-}
-
-// mark for removal
-class BlankPage extends StatefulWidget {
-  const BlankPage({Key? key}) : super(key: key);
-
-  @override
-  State<BlankPage> createState() => _BlankPageState();
-}
-
-class _BlankPageState extends State<BlankPage> {
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox.expand(
-      child: Container(
-        color: Theme.of(context).colorScheme.surface,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Container(),
-        ),
-      ),
-    );
-  }
 }
