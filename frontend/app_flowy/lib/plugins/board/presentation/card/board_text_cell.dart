@@ -35,7 +35,7 @@ class _BoardTextCellState extends State<BoardTextCell> {
   @override
   void initState() {
     final cellController =
-        widget.cellControllerBuilder.build() as GridCellController;
+        widget.cellControllerBuilder.build() as GridTextCellController;
     _cellBloc = BoardTextCellBloc(cellController: cellController)
       ..add(const BoardTextCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);

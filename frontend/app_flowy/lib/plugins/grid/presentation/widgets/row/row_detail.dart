@@ -24,7 +24,7 @@ import '../header/field_cell.dart';
 import '../header/field_editor.dart';
 
 class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
-  final GridRowDataController dataController;
+  final RowDataController dataController;
   final GridCellBuilder cellBuilder;
 
   const RowDetailPage({

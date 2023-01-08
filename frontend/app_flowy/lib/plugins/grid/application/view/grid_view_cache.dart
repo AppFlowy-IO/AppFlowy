@@ -18,10 +18,12 @@ class GridViewCache {
     required this.gridId,
     required GridFieldController fieldController,
   }) : _gridViewListener = GridViewListener(viewId: gridId) {
+    final delegate = GridRowFieldNotifierImpl(fieldController);
     _rowCache = GridRowCache(
       gridId: gridId,
       rows: [],
-      notifier: GridRowFieldNotifierImpl(fieldController),
+      notifier: delegate,
+      delegate: delegate,
     );
 
     _gridViewListener.start(

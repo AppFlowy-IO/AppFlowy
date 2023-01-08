@@ -5,14 +5,14 @@ abstract class IGridCellDataConfig {
   bool get reloadOnFieldChanged;
 }
 
-abstract class IGridCellDataParser<T> {
+abstract class GridCellDataParser<T> {
   T? parserData(List<int> data);
 }
 
 class GridCellDataLoader<T> {
   final CellService service = CellService();
   final GridCellIdentifier cellId;
-  final IGridCellDataParser<T> parser;
+  final GridCellDataParser<T> parser;
   final bool reloadOnFieldChanged;
 
   GridCellDataLoader({
@@ -43,7 +43,7 @@ class GridCellDataLoader<T> {
   }
 }
 
-class StringCellDataParser implements IGridCellDataParser<String> {
+class StringCellDataParser implements GridCellDataParser<String> {
   @override
   String? parserData(List<int> data) {
     final s = utf8.decode(data);
@@ -51,7 +51,7 @@ class StringCellDataParser implements IGridCellDataParser<String> {
   }
 }
 
-class DateCellDataParser implements IGridCellDataParser<DateCellDataPB> {
+class DateCellDataParser implements GridCellDataParser<DateCellDataPB> {
   @override
   DateCellDataPB? parserData(List<int> data) {
     if (data.isEmpty) {
@@ -62,7 +62,7 @@ class DateCellDataParser implements IGridCellDataParser<DateCellDataPB> {
 }
 
 class SelectOptionCellDataParser
-    implements IGridCellDataParser<SelectOptionCellDataPB> {
+    implements GridCellDataParser<SelectOptionCellDataPB> {
   @override
   SelectOptionCellDataPB? parserData(List<int> data) {
     if (data.isEmpty) {
@@ -72,7 +72,7 @@ class SelectOptionCellDataParser
   }
 }
 
-class URLCellDataParser implements IGridCellDataParser<URLCellDataPB> {
+class URLCellDataParser implements GridCellDataParser<URLCellDataPB> {
   @override
   URLCellDataPB? parserData(List<int> data) {
     if (data.isEmpty) {

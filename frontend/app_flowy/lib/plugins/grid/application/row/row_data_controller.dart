@@ -7,13 +7,13 @@ import 'row_cache.dart';
 
 typedef OnRowChanged = void Function(GridCellMap, RowsChangedReason);
 
-class GridRowDataController extends GridCellBuilderDelegate {
+class RowDataController extends GridCellBuilderDelegate {
   final RowInfo rowInfo;
   final List<VoidCallback> _onRowChangedListeners = [];
   final GridFieldController _fieldController;
   final GridRowCache _rowCache;
 
-  GridRowDataController({
+  RowDataController({
     required this.rowInfo,
     required GridFieldController fieldController,
     required GridRowCache rowCache,
