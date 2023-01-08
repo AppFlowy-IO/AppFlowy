@@ -35,11 +35,20 @@ class _FlowyToolbarState extends State<FlowyToolbar>
     implements AppFlowyToolbarService {
   OverlayEntry? _toolbarOverlay;
   final _toolbarWidgetKey = GlobalKey(debugLabel: '_toolbar_widget');
+  late final List<ToolbarItem> toolbarItems;
+
+  @override
+  void initState() {
+    super.initState();
+
+    toolbarItems = [...defaultToolbarItems, ...widget.editorState.toolbarItems]
+      ..sort((a, b) => a.type.compareTo(b.type));
+  }
 
   @override
   void showInOffset(Offset offset, Alignment alignment, LayerLink layerLink) {
     hide();
-    final items = _filterItems(defaultToolbarItems);
+    final items = _filterItems(toolbarItems);
     if (items.isEmpty) {
       return;
     }
@@ -65,7 +74,7 @@ class _FlowyToolbarState extends State<FlowyToolbar>
 
   @override
   bool triggerHandler(String id) {
-    final items = defaultToolbarItems.where((item) => item.id == id);
+    final items = toolbarItems.where((item) => item.id == id);
     if (items.length != 1) {
       assert(items.length == 1, 'The toolbar item\'s id must be unique');
       return false;

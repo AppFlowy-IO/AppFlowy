@@ -14,13 +14,14 @@ Future<void> getGPT3Completion(
   {
   int maxTokens = 200,
   double temperature = .3,
+  bool stream = true,
 }) async {
   final data = {
     'prompt': prompt,
     'suffix': suffix,
     'max_tokens': maxTokens,
     'temperature': temperature,
-    'stream': true, // set stream parameter to true
+    'stream': stream, // set stream parameter to true
   };
 
   final headers = {
@@ -68,5 +69,43 @@ Future<void> getGPT3Completion(
 
       await onData(processedText);
     }
+  }
+}
+
+Future<void> getGPT3Edit(
+  String apiKey,
+  String input,
+  String instruction, {
+  required Future<void> Function(List<String> result) onResult,
+  required Future<void> Function() onError,
+  int n = 1,
+  double temperature = .3,
+}) async {
+  final data = {
+    'model': 'text-davinci-edit-001',
+    'input': input,
+    'instruction': instruction,
+    'temperature': temperature,
+    'n': n,
+  };
+
+  final headers = {
+    'Authorization': apiKey,
+    'Content-Type': 'application/json',
+  };
+
+  var response = await http.post(
+    Uri.parse('https://api.openai.com/v1/edits'),
+    headers: headers,
+    body: json.encode(data),
+  );
+  if (response.statusCode == 200) {
+    final result = json.decode(response.body);
+    final choices = result['choices'];
+    if (choices != null && choices is List) {
+      onResult(choices.map((e) => e['text'] as String).toList());
+    }
+  } else {
+    onError();
   }
 }

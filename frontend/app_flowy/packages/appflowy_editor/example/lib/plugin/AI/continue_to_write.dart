@@ -29,7 +29,6 @@ SelectionMenuItem continueToWriteMenuItem = SelectionMenuItem(
           textNode.toPlainText().length,
         )
         .toPlainText();
-    debugPrint('AI: prompt = $prompt, suffix = $suffix');
     final textRobot = TextRobot(editorState: editorState);
     getGPT3Completion(
       apiKey,

@@ -1,6 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/flutter/overlay.dart';
 import 'package:appflowy_editor/src/render/image/image_node_builder.dart';
+import 'package:appflowy_editor/src/render/toolbar/toolbar_item.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/built_in_shortcut_events.dart';
 import 'package:flutter/material.dart' hide Overlay, OverlayEntry;
 
@@ -30,6 +31,7 @@ class AppFlowyEditor extends StatefulWidget {
     this.customBuilders = const {},
     this.shortcutEvents = const [],
     this.selectionMenuItems = const [],
+    this.toolbarItems = const [],
     this.editable = true,
     this.autoFocus = false,
     ThemeData? themeData,
@@ -50,6 +52,8 @@ class AppFlowyEditor extends StatefulWidget {
   final List<ShortcutEvent> shortcutEvents;
 
   final List<SelectionMenuItem> selectionMenuItems;
+
+  final List<ToolbarItem> toolbarItems;
 
   late final ThemeData themeData;
 
@@ -74,6 +78,7 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
     super.initState();
 
     editorState.selectionMenuItems = widget.selectionMenuItems;
+    editorState.toolbarItems = widget.toolbarItems;
     editorState.themeData = widget.themeData;
     editorState.service.renderPluginService = _createRenderPlugin();
     editorState.editable = widget.editable;
@@ -94,6 +99,7 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
 
     if (editorState.service != oldWidget.editorState.service) {
       editorState.selectionMenuItems = widget.selectionMenuItems;
+      editorState.toolbarItems = widget.toolbarItems;
       editorState.service.renderPluginService = _createRenderPlugin();
     }
 
