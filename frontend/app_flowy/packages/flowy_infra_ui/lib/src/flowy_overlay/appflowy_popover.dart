@@ -45,6 +45,7 @@ class AppFlowyPopover extends StatelessWidget {
       windowPadding: windowPadding,
       popupBuilder: (context) {
         final child = popupBuilder(context);
+        debugPrint("show popover: $child");
         return _PopoverContainer(
           constraints: constraints,
           margin: margin,
@@ -81,14 +82,6 @@ class _PopoverContainer extends StatelessWidget {
         decoration: decoration,
         constraints: constraints,
         child: child,
-
-        // SingleChildScrollView(
-        //   scrollDirection: Axis.horizontal,
-        //   child: ConstrainedBox(
-        //     constraints: constraints,
-        //     child: child,
-        //   ),
-        // ),
       ),
     );
   }
