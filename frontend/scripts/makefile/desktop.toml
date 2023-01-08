@@ -145,7 +145,7 @@ private = true
 script = [
   """
     echo "🚀 🚀 🚀  Flowy-SDK(macOS) build success"
-    dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/${TARGET_OS}
+    dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/appflowy_backend/${TARGET_OS}
     lib = set lib${LIB_NAME}.${LIB_EXT}
 
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} \
@@ -245,7 +245,7 @@ linux_alias = "copy-to-sandbox-folder-default"
 private = true
 script = [
   """
-    # Copy the flowy_sdk lib to system temp directory for flutter unit test.
+    # Copy the appflowy_backend lib to system temp directory for flutter unit test.
     lib = set ${LIB_NAME}.${TEST_LIB_EXT}
     dest = set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/.sandbox/${lib}
     rm ${dest}
@@ -259,7 +259,7 @@ script_runner = "@duckscript"
 private = true
 script = [
   """
-    # Copy the flowy_sdk lib to system temp directory for flutter unit test.
+    # Copy the appflowy_backend lib to system temp directory for flutter unit test.
     lib = set lib${LIB_NAME}.${TEST_LIB_EXT}
     dest = set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/.sandbox/${lib}
     rm ${dest}

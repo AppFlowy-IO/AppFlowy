@@ -1,9 +1,10 @@
 import 'package:app_flowy/user/application/auth_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_sdk/protobuf/flowy-error/code.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfilePB;
-import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
+    show UserProfilePB;
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';

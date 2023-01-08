@@ -8,8 +8,8 @@ use crate::{
     c::{extend_front_four_bytes_into_bytes, forget_rust},
     model::{FFIRequest, FFIResponse},
 };
-use flowy_sdk::get_client_server_configuration;
-use flowy_sdk::*;
+use flowy_core::get_client_server_configuration;
+use flowy_core::*;
 use lazy_static::lazy_static;
 use lib_dispatch::prelude::ToBytes;
 use lib_dispatch::prelude::*;

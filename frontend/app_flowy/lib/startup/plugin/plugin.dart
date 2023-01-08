@@ -3,7 +3,7 @@ library flowy_plugin;
 import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/widgets.dart';
 
 export "./src/sandbox.dart";

@@ -1,6 +1,6 @@
 import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 
 enum FlowyPlugin {
