@@ -1,12 +1,9 @@
-use crate::cache::{
-    disk::{RevisionChangeset, RevisionDiskCache},
-    memory::RevisionMemoryCacheDelegate,
-};
-use crate::disk::{RevisionState, SyncRecord};
+use crate::cache::memory::RevisionMemoryCacheDelegate;
 use crate::memory::RevisionMemoryCache;
 use crate::RevisionMergeable;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_http_model::revision::{Revision, RevisionRange};
+use flowy_revision_persistence::{RevisionChangeset, RevisionDiskCache, RevisionState, SyncRecord};
 use std::collections::{HashMap, VecDeque};
 
 use std::{borrow::Cow, sync::Arc};

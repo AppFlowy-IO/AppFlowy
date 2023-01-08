@@ -9,6 +9,7 @@ edition = "2021"
 lib-dispatch = { path = "../lib-dispatch" }
 dart-notify = { path = "../dart-notify" }
 flowy-revision = { path = "../flowy-revision" }
+flowy-revision-persistence = { path = "../flowy-revision-persistence" }
 flowy-task= { path = "../flowy-task" }
 flowy-error = { path = "../flowy-error", features = ["db"]}
 flowy-derive = { path = "../flowy-derive" }
@@ -56,6 +57,6 @@ flowy-codegen = { path = "../flowy-codegen"}
 
 [features]
 default = []
-sqlite = ["flowy-database"]
+rev-sqlite = ["flowy-database"]
 dart = ["flowy-codegen/dart", "dart-notify/dart"]
 flowy_unit_test = ["flowy-revision/flowy_unit_test"]

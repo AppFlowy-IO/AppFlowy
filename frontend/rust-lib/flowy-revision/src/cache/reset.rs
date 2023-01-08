@@ -1,8 +1,8 @@
-use crate::disk::{RevisionDiskCache, SyncRecord};
 use crate::{RevisionLoader, RevisionPersistence, RevisionPersistenceConfiguration};
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_http_model::revision::Revision;
+use flowy_revision_persistence::{RevisionDiskCache, SyncRecord};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use std::sync::Arc;

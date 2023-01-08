@@ -39,11 +39,11 @@ dart = [
     "flowy-grid/dart",
     "flowy-document/dart",
 ]
-sqlite = [
+rev-sqlite = [
     "flowy-database",
-    "flowy-user/sqlite",
-    "flowy-folder/sqlite",
-    "flowy-grid/sqlite",
-    "flowy-document/sqlite",
+    "flowy-user/rev-sqlite",
+    "flowy-folder/rev-sqlite",
+    "flowy-grid/rev-sqlite",
+    "flowy-document/rev-sqlite",
 ]
 openssl_vendored = ["flowy-database/openssl_vendored"]

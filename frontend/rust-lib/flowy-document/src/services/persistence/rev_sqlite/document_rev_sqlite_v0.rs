@@ -11,7 +11,7 @@ use flowy_http_model::{
     revision::{Revision, RevisionRange},
     util::md5,
 };
-use flowy_revision::disk::{RevisionChangeset, RevisionDiskCache, RevisionState, SyncRecord};
+use flowy_revision_persistence::{RevisionChangeset, RevisionDiskCache, RevisionState, SyncRecord};
 use std::collections::HashMap;
 use std::sync::Arc;
 

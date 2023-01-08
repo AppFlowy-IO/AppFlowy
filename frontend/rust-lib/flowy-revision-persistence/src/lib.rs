@@ -1,3 +1,5 @@
+mod disk_cache_impl;
+
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_http_model::revision::{Revision, RevisionRange};
 use std::fmt::Debug;

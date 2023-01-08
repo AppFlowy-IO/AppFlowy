@@ -31,9 +31,9 @@ dart-notify = { path = "../dart-notify" }
 flowy-derive = { path = "../flowy-derive" }
 
 [features]
-default = ["flowy-core/dart", "flutter", "sqlite"]
+default = ["flowy-core/dart", "flutter", "rev-sqlite"]
 flutter = []
-sqlite = ["flowy-core/sqlite"]
+rev-sqlite = ["flowy-core/rev-sqlite"]
 http_sync = ["flowy-core/http_sync", "flowy-core/use_bunyan"]
 openssl_vendored = ["flowy-core/openssl_vendored"]
 

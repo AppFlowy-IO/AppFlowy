@@ -13,6 +13,7 @@ members = [
   "flowy-document",
   "flowy-error",
   "flowy-revision",
+  "flowy-revision-persistence",
   "flowy-grid",
   "flowy-task",
   "flowy-sync",

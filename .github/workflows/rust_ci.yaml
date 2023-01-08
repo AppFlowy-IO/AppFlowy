@@ -71,7 +71,7 @@ jobs:
 
       - name: Run rust-lib tests
         working-directory: frontend/rust-lib
-        run: RUST_LOG=info cargo test --no-default-features --features="sync,sqlite"
+        run: RUST_LOG=info cargo test --no-default-features --features="sync,rev-sqlite"
 
       - name: rustfmt shared-lib
         run: cargo fmt --all -- --check
