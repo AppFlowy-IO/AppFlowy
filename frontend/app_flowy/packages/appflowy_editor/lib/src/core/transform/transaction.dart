@@ -171,10 +171,9 @@ extension TextTransaction on Transaction {
 
   void splitText(TextNode textNode, int offset) {
     final delta = textNode.delta;
-    final first = delta.slice(0, offset);
     final second = delta.slice(offset, delta.length);
     final path = textNode.path.next;
-    updateText(textNode, first);
+    deleteText(textNode, offset, delta.length);
     insertNode(
       path,
       TextNode(

@@ -1,5 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:example/plugin/AI/getgpt3completions.dart';
+import 'package:example/plugin/AI/gpt3.dart';
 import 'package:example/plugin/AI/text_robot.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -37,12 +37,18 @@ SelectionMenuItem autoCompletionMenuItem = SelectionMenuItem(
                 Navigator.of(context).pop();
                 // fetch the result and insert it
                 final textRobot = TextRobot(editorState: editorState);
-                getGPT3Completion(apiKey, controller.text, '', (result) async {
-                  await textRobot.insertText(
-                    result,
-                    inputType: TextRobotInputType.character,
-                  );
-                });
+                const gpt3 = GPT3APIClient(apiKey: apiKey);
+                gpt3.getGPT3Completion(
+                  controller.text,
+                  '',
+                  onResult: (result) async {
+                    await textRobot.insertText(
+                      result,
+                      inputType: TextRobotInputType.character,
+                    );
+                  },
+                  onError: () async {},
+                );
               } else if (key.logicalKey == LogicalKeyboardKey.escape) {
                 Navigator.of(context).pop();
               }

@@ -1,5 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:example/plugin/AI/getgpt3completions.dart';
+import 'package:example/plugin/AI/gpt3.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -51,6 +51,8 @@ class _SmartEditWidgetState extends State<SmartEditWidget> {
   final resultController = TextEditingController(text: '');
 
   var result = '';
+
+  final gpt3 = const GPT3APIClient(apiKey: apiKey);
 
   Iterable<TextNode> get currentSelectedTextNodes =>
       widget.editorState.service.selectionService.currentSelectedNodes
@@ -180,7 +182,7 @@ class _SmartEditWidgetState extends State<SmartEditWidget> {
       },
     );
 
-    getGPT3Edit(
+    gpt3.getGPT3Edit(
       apiKey,
       text,
       inputEventController.text,

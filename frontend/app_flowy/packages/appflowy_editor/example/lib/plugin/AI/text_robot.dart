@@ -18,7 +18,7 @@ class TextRobot {
     String text, {
     TextRobotInputType inputType = TextRobotInputType.character,
   }) async {
-    final lines = text.split('\\n');
+    final lines = text.split('\n');
     for (final line in lines) {
       if (line.isEmpty) continue;
       switch (inputType) {
@@ -32,10 +32,13 @@ class TextRobot {
           }
           break;
         case TextRobotInputType.word:
-          await editorState.insertTextAtCurrentSelection(
-            line,
-          );
-          await Future.delayed(delay, () {});
+          final words = line.split(' ').map((e) => '$e ');
+          for (final word in words) {
+            await editorState.insertTextAtCurrentSelection(
+              word,
+            );
+            await Future.delayed(delay, () {});
+          }
           break;
       }
 
