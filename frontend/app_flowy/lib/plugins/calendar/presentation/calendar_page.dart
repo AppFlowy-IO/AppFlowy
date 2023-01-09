@@ -29,22 +29,27 @@ class CalendarContent extends StatefulWidget {
 
 class _CalendarContentState extends State<CalendarContent> {
   late EventController _eventController;
+  GlobalKey<MonthViewState>? _calendarState;
 
   @override
   void initState() {
     _eventController = EventController();
+    _calendarState = GlobalKey<MonthViewState>();
     // todo add events to the controller
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // const _ToolbarBlocAdaptor(),
-        _toolbar(),
-        _buildCalendar(_eventController),
-      ],
+    return CalendarControllerProvider(
+      controller: _eventController,
+      child: Column(
+        children: [
+          // const _ToolbarBlocAdaptor(),
+          _toolbar(),
+          _buildCalendar(_eventController),
+        ],
+      ),
     );
   }
 
@@ -55,6 +60,7 @@ class _CalendarContentState extends State<CalendarContent> {
   Widget _buildCalendar(EventController eventController) {
     return Expanded(
       child: MonthView(
+        key: _calendarState,
         controller: _eventController,
         cellAspectRatio: 1.75,
         borderColor: Theme.of(context).dividerColor,
@@ -68,29 +74,33 @@ class _CalendarContentState extends State<CalendarContent> {
   Widget _headerNavigatorBuilder(DateTime currentMonth) {
     return Row(
       children: [
-        FlowyText(
+        FlowyText.medium(
           DateFormat('MMMM y', context.locale.toLanguageTag())
               .format(currentMonth),
         ),
         const Spacer(),
         FlowyIconButton(
           width: 25,
-          iconPadding: const EdgeInsets.all(2.0),
+          iconPadding: const EdgeInsets.symmetric(vertical: 2.0),
           icon: svgWidget('home/arrow_left'),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
-          onPressed: () => print("hello there left icon"),
+          onPressed: () => _calendarState?.currentState?.previousPage(),
         ),
         FlowyTextButton(
           "Today",
           fillColor: Colors.transparent,
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          fontWeight: FontWeight.w500,
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          hoverColor: AFThemeExtension.of(context).lightGreyHover,
+          onPressed: () =>
+              _calendarState?.currentState?.animateToMonth(DateTime.now()),
         ),
         FlowyIconButton(
           width: 25,
-          iconPadding: const EdgeInsets.all(2.0),
+          iconPadding: const EdgeInsets.symmetric(vertical: 2.0),
           icon: svgWidget('home/arrow_right'),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
-          onPressed: () => print("hello there right icon"),
+          onPressed: () => _calendarState?.currentState?.nextPage(),
         ),
       ],
     );
@@ -125,7 +135,10 @@ class _CalendarContentState extends State<CalendarContent> {
           ),
           padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 6.0),
           child: FlowyText(
-            date.day.toString(),
+            date.day == 1
+                ? DateFormat('MMM d', context.locale.toLanguageTag())
+                    .format(date)
+                : date.day.toString(),
             color: isToday ? Theme.of(context).colorScheme.onPrimary : null,
           ),
         ),
