@@ -108,19 +108,19 @@ class BoardDataController {
 
   Future<Either<Unit, FlowyError>> openGrid() async {
     final result = await _gridFFIService.openGrid();
-
     return result.fold(
       (grid) async {
         _onGridChanged?.call(grid);
-        final result = await fieldController.loadFields(fieldIds: grid.fields);
-        return result.fold(
-          (l) {
-            _loadGroups();
-            _viewCache.rowCache.initializeRows(grid.rows);
-            return left(l);
-          },
-          (err) => right(err),
-        );
+        return fieldController.loadFields(fieldIds: grid.fields).then((result) {
+          return result.fold(
+            (l) => Future(() async {
+              await _loadGroups();
+              _viewCache.rowCache.initializeRows(grid.rows);
+              return left(l);
+            }),
+            (err) => right(err),
+          );
+        });
       },
       (err) => right(err),
     );
