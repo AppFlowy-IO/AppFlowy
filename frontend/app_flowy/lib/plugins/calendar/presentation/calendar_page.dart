@@ -80,8 +80,8 @@ class _CalendarContentState extends State<CalendarContent> {
         ),
         const Spacer(),
         FlowyIconButton(
-          width: 25,
-          iconPadding: const EdgeInsets.symmetric(vertical: 2.0),
+          width: 20,
+          height: 25,
           icon: svgWidget('home/arrow_left'),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onPressed: () => _calendarState?.currentState?.previousPage(),
@@ -96,8 +96,8 @@ class _CalendarContentState extends State<CalendarContent> {
               _calendarState?.currentState?.animateToMonth(DateTime.now()),
         ),
         FlowyIconButton(
-          width: 25,
-          iconPadding: const EdgeInsets.symmetric(vertical: 2.0),
+          width: 20,
+          height: 25,
           icon: svgWidget('home/arrow_right'),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onPressed: () => _calendarState?.currentState?.nextPage(),
@@ -110,7 +110,7 @@ class _CalendarContentState extends State<CalendarContent> {
     final symbols = DateFormat.EEEE(context.locale.toLanguageTag()).dateSymbols;
     final weekDayString = symbols.WEEKDAYS[day];
     return Center(
-      child: FlowyText(
+      child: FlowyText.medium(
         weekDayString,
         color: Theme.of(context).hintColor,
       ),
@@ -121,27 +121,36 @@ class _CalendarContentState extends State<CalendarContent> {
     // todo get events for day and create cards for them.
     // todo
 
+    Color textColor = Theme.of(context).colorScheme.onSurface;
+    Color cellBackgroundColor = Theme.of(context).colorScheme.surface;
+    String dayString = date.day == 1
+        ? DateFormat('MMM d', context.locale.toLanguageTag()).format(date)
+        : date.day.toString();
+
+    if (isToday) {
+      textColor = Theme.of(context).colorScheme.onPrimary;
+    }
+    if (!isInMonth) {
+      textColor = Theme.of(context).disabledColor;
+      cellBackgroundColor = AFThemeExtension.of(context).lightGreyHover;
+    }
+    Widget day = Container(
+      decoration: BoxDecoration(
+        color: isToday ? Theme.of(context).colorScheme.primary : null,
+        borderRadius: Corners.s6Border,
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 6.0),
+      child: FlowyText.medium(
+        dayString,
+        color: textColor,
+      ),
+    );
+
     return Container(
-      color: isInMonth
-          ? Theme.of(context).colorScheme.surface
-          : AFThemeExtension.of(context).lightGreyHover,
+      color: cellBackgroundColor,
       child: Align(
         alignment: Alignment.topRight,
-        child: Container(
-          margin: const EdgeInsets.all(6.0),
-          decoration: BoxDecoration(
-            color: isToday ? Theme.of(context).colorScheme.primary : null,
-            borderRadius: Corners.s6Border,
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 6.0),
-          child: FlowyText(
-            date.day == 1
-                ? DateFormat('MMM d', context.locale.toLanguageTag())
-                    .format(date)
-                : date.day.toString(),
-            color: isToday ? Theme.of(context).colorScheme.onPrimary : null,
-          ),
-        ),
+        child: day.padding(all: 6.0),
       ),
     );
   }
