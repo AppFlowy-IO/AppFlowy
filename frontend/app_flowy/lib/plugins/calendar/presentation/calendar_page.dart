@@ -1,3 +1,5 @@
+import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -9,6 +11,7 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
 
+import 'layout/sizes.dart';
 import 'toolbar/calendar_toolbar.dart';
 
 class CalendarPage extends StatelessWidget {
@@ -35,7 +38,6 @@ class _CalendarContentState extends State<CalendarContent> {
   void initState() {
     _eventController = EventController();
     _calendarState = GlobalKey<MonthViewState>();
-    // todo add events to the controller
     super.initState();
   }
 
@@ -80,25 +82,28 @@ class _CalendarContentState extends State<CalendarContent> {
         ),
         const Spacer(),
         FlowyIconButton(
-          width: 20,
-          height: 25,
+          width: CalendarSize.navigatorButtonWidth,
+          height: CalendarSize.navigatorButtonHeight,
           icon: svgWidget('home/arrow_left'),
+          tooltipText: LocaleKeys.calendar_navigation_previousMonth.tr(),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onPressed: () => _calendarState?.currentState?.previousPage(),
         ),
         FlowyTextButton(
-          "Today",
+          LocaleKeys.calendar_navigation_today.tr(),
           fillColor: Colors.transparent,
           fontWeight: FontWeight.w500,
+          tooltip: LocaleKeys.calendar_navigation_jumpToday.tr(),
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onPressed: () =>
               _calendarState?.currentState?.animateToMonth(DateTime.now()),
         ),
         FlowyIconButton(
-          width: 20,
-          height: 25,
+          width: CalendarSize.navigatorButtonWidth,
+          height: CalendarSize.navigatorButtonHeight,
           icon: svgWidget('home/arrow_right'),
+          tooltipText: LocaleKeys.calendar_navigation_nextMonth.tr(),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onPressed: () => _calendarState?.currentState?.nextPage(),
         ),
@@ -110,28 +115,28 @@ class _CalendarContentState extends State<CalendarContent> {
     final symbols = DateFormat.EEEE(context.locale.toLanguageTag()).dateSymbols;
     final weekDayString = symbols.WEEKDAYS[day];
     return Center(
-      child: FlowyText.medium(
-        weekDayString,
-        color: Theme.of(context).hintColor,
+      child: Padding(
+        padding: CalendarSize.daysOfWeekInsets,
+        child: FlowyText.medium(
+          weekDayString,
+          color: Theme.of(context).hintColor,
+        ),
       ),
-    ).padding(vertical: 10.0);
+    );
   }
 
   Widget _calendarDayBuilder(date, event, isToday, isInMonth) {
-    // todo get events for day and create cards for them.
-    // todo
-
-    Color textColor = Theme.of(context).colorScheme.onSurface;
+    Color dayTextColor = Theme.of(context).colorScheme.onSurface;
     Color cellBackgroundColor = Theme.of(context).colorScheme.surface;
     String dayString = date.day == 1
         ? DateFormat('MMM d', context.locale.toLanguageTag()).format(date)
         : date.day.toString();
 
     if (isToday) {
-      textColor = Theme.of(context).colorScheme.onPrimary;
+      dayTextColor = Theme.of(context).colorScheme.onPrimary;
     }
     if (!isInMonth) {
-      textColor = Theme.of(context).disabledColor;
+      dayTextColor = Theme.of(context).disabledColor;
       cellBackgroundColor = AFThemeExtension.of(context).lightGreyHover;
     }
     Widget day = Container(
@@ -139,10 +144,10 @@ class _CalendarContentState extends State<CalendarContent> {
         color: isToday ? Theme.of(context).colorScheme.primary : null,
         borderRadius: Corners.s6Border,
       ),
-      padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 6.0),
+      padding: GridSize.typeOptionContentInsets,
       child: FlowyText.medium(
         dayString,
-        color: textColor,
+        color: dayTextColor,
       ),
     );
 

@@ -166,7 +166,7 @@
         "dark": "Dark Mode",
         "system": "Adapt to System"
       },
-      "theme":"Theme"
+      "theme": "Theme"
     },
     "files": {
       "defaultLocation": "Where your data is stored now",
@@ -315,6 +315,12 @@
     }
   },
   "calendar": {
-    "menuName": "Calendar"
+    "menuName": "Calendar",
+    "navigation": {
+      "today": "Today",
+      "jumpToday": "Jump to Today",
+      "previousMonth": "Previous Month",
+      "nextMonth": "Next Month"
+    }
   }
 }
