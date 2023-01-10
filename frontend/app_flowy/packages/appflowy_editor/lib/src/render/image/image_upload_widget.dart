@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 OverlayEntry? _imageUploadMenu;
 EditorState? _editorState;
 String? localFile;
+String? imageName;
 void showImageUploadMenu(
   EditorState editorState,
   SelectionMenuService menuService,
@@ -55,12 +56,12 @@ void _dismissImageUploadMenu() {
 }
 
 class ImageUploadMenu extends StatefulWidget {
-  const ImageUploadMenu({
-    Key? key,
-    required this.onSubmitted,
-    required this.onUpload,
-    this.editorState
-  }) : super(key: key);
+  const ImageUploadMenu(
+      {Key? key,
+      required this.onSubmitted,
+      required this.onUpload,
+      this.editorState})
+      : super(key: key);
 
   final void Function(String text) onSubmitted;
   final void Function(String text) onUpload;
@@ -126,16 +127,9 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
       _userAborted = _paths == null;
 
       File srcImg = File('$src');
-      copyFile(srcImg, _fileName!);
+      imageName = _fileName!;
+      widget.onSubmitted(src!);
     });
-  }
-
-  Future<void> copyFile(File path, String name) async {
-    Directory appDir = await getApplicationDocumentsDirectory();
-    //TODO: Select the release type and copy image to folder
-    path.copy('${appDir.path}/flowy_dev/image/$name');
-    localFile = '${appDir.path}/flowy_dev/image/$name';
-    widget.onSubmitted(localFile!);
   }
 
   void _resetState() {
@@ -159,7 +153,6 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
   @override
   Widget build(BuildContext context) {
     TabController _tabController =
-        //BUG: Tab Controller still goes back to default tab
         TabController(initialIndex: 1, length: 2, vsync: this);
     return Container(
       width: 300,
@@ -321,6 +314,7 @@ extension on EditorState {
         'image_src': src,
         'align': 'center',
         'type': type,
+        'name': imageName
       },
     );
     final transaction = this.transaction;

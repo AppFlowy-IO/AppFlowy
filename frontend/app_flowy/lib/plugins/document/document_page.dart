@@ -1,3 +1,4 @@
+import 'package:app_flowy/plugins/document/presentation/plugins/local_image_node_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -10,6 +11,13 @@ import '../../startup/startup.dart';
 import 'application/doc_bloc.dart';
 import 'editor_styles.dart';
 import 'presentation/banner.dart';
+import 'package:get_it/get_it.dart';
+import '../../workspace/application/settings/settings_location_cubit.dart';
+import 'dart:io';
+
+final directory = getIt<SettingsLocationCubit>()
+    .fetchLocation()
+    .then((value) => Directory(value));
 
 class DocumentPage extends StatefulWidget {
   final VoidCallback onDeleted;
@@ -108,6 +116,7 @@ class _DocumentPageState extends State<DocumentPage> {
         kMathEquationType: MathEquationNodeWidgetBuidler(),
         // Code Block
         kCodeBlockType: CodeBlockNodeWidgetBuilder(),
+        kLocalImage: LocalImageNodeWidgetBuilder(directory)
       },
       shortcutEvents: [
         // Divider
