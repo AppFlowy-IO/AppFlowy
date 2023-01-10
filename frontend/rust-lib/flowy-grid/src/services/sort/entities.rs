@@ -47,6 +47,7 @@ impl ReorderAllRowsResult {
 #[derive(Clone)]
 pub struct ReorderSingleRowResult {
     pub view_id: String,
+    pub row_id: String,
     pub old_index: usize,
     pub new_index: usize,
 }

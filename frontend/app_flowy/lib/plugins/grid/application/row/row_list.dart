@@ -160,6 +160,16 @@ class RowList {
     }
   }
 
+  void moveRow(String rowId, int oldIndex, int newIndex) {
+    final index = _rowInfos.indexWhere(
+      (rowInfo) => rowInfo.rowPB.id == rowId,
+    );
+    if (index == oldIndex) {
+      final rowInfo = _rowInfos.removeAt(index);
+      insert(newIndex, rowInfo);
+    }
+  }
+
   bool contains(String rowId) {
     return _rowInfoByRowId[rowId] != null;
   }

@@ -104,6 +104,7 @@ impl SortController {
                             return Ok(());
                         }
                         let notification = ReorderSingleRowResult {
+                            row_id,
                             view_id: self.view_id.clone(),
                             old_index: old_row_index,
                             new_index: new_row_index,

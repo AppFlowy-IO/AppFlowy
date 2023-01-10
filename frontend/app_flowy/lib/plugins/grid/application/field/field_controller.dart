@@ -765,6 +765,8 @@ class FieldInfo {
 
     switch (_field.fieldType) {
       case FieldType.RichText:
+      case FieldType.Checkbox:
+      case FieldType.Number:
         return true;
       default:
         return false;

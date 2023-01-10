@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:app_flowy/plugins/grid/application/view/grid_view_listener.dart';
-import 'package:flowy_sdk/flowy_sdk.dart';
 import 'package:flowy_sdk/log.dart';
 
 import '../field/field_controller.dart';
@@ -25,22 +24,32 @@ class GridViewCache {
       notifier: GridRowFieldNotifierImpl(fieldController),
     );
 
-    _gridViewListener.start(onRowsChanged: (result) {
-      result.fold(
-        (changeset) => _rowCache.applyRowsChanged(changeset),
-        (err) => Log.error(err),
-      );
-    }, onRowsVisibilityChanged: (result) {
-      result.fold(
-        (changeset) => _rowCache.applyRowsVisibility(changeset),
-        (err) => Log.error(err),
-      );
-    }, onReorderRows: (result) {
-      result.fold(
-        (rowIds) => _rowCache.applayReorderRows(rowIds),
-        (err) => Log.error(err),
-      );
-    });
+    _gridViewListener.start(
+      onRowsChanged: (result) {
+        result.fold(
+          (changeset) => _rowCache.applyRowsChanged(changeset),
+          (err) => Log.error(err),
+        );
+      },
+      onRowsVisibilityChanged: (result) {
+        result.fold(
+          (changeset) => _rowCache.applyRowsVisibility(changeset),
+          (err) => Log.error(err),
+        );
+      },
+      onReorderAllRows: (result) {
+        result.fold(
+          (rowIds) => _rowCache.reorderAllRows(rowIds),
+          (err) => Log.error(err),
+        );
+      },
+      onReorderSingleRow: (result) {
+        result.fold(
+          (reorderRow) => _rowCache.reorderSingleRow(reorderRow),
+          (err) => Log.error(err),
+        );
+      },
+    );
   }
 
   Future<void> dispose() async {

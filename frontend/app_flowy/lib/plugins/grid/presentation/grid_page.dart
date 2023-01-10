@@ -225,10 +225,21 @@ class _GridRowsState extends State<_GridRows> {
                   _renderRow(context, item.rowInfo, animation),
             );
           },
+          reorderSingleRow: (reorderRow, rowInfo) {
+            _key.currentState?.removeItem(
+              reorderRow.oldIndex,
+              (context, animation) => _renderRow(context, rowInfo, animation),
+            );
+            _key.currentState?.insertItem(reorderRow.newIndex);
+          },
         );
       },
       buildWhen: (previous, current) {
-        return current.reason.whenOrNull(reorderRows: () => true) ?? false;
+        return current.reason.whenOrNull(
+              reorderRows: () => true,
+              // reorderSingleRow: (reorderRow, rowInfo) => true,
+            ) ??
+            false;
       },
       builder: (context, state) {
         return SliverAnimatedList(

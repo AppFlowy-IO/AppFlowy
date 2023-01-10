@@ -127,8 +127,8 @@ impl GridViewRevisionPad {
         })
     }
 
-    pub fn get_all_sorts(&self, field_revs: &[Arc<FieldRevision>]) -> Vec<Arc<SortRevision>> {
-        self.sorts.get_objects_by_field_revs(field_revs)
+    pub fn get_all_sorts(&self, _field_revs: &[Arc<FieldRevision>]) -> Vec<Arc<SortRevision>> {
+        self.sorts.get_all_objects()
     }
 
     /// For the moment, a field type only have one filter.
@@ -148,12 +148,12 @@ impl GridViewRevisionPad {
 
     pub fn insert_sort(
         &mut self,
-        sort_id: &str,
+        field_id: &str,
         sort_rev: SortRevision,
     ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
         self.modify(|view| {
             let field_type = sort_rev.field_type;
-            view.sorts.add_object(sort_id, &field_type, sort_rev);
+            view.sorts.add_object(field_id, &field_type, sort_rev);
             Ok(Some(()))
         })
     }

@@ -81,9 +81,21 @@ class GridRowCache {
     _showRows(changeset.visibleRows);
   }
 
-  void applayReorderRows(List<String> rowIds) {
+  void reorderAllRows(List<String> rowIds) {
     _rowList.reorderWithRowIds(rowIds);
     _rowChangeReasonNotifier.receive(const RowsChangedReason.reorderRows());
+  }
+
+  void reorderSingleRow(ReorderSingleRowPB reorderRow) {
+    final rowInfo = _rowList.get(reorderRow.rowId);
+    if (rowInfo != null) {
+      _rowList.moveRow(
+          reorderRow.rowId, reorderRow.oldIndex, reorderRow.newIndex);
+      _rowChangeReasonNotifier.receive(RowsChangedReason.reorderSingleRow(
+        reorderRow,
+        rowInfo,
+      ));
+    }
   }
 
   void _deleteRows(List<String> deletedRowIds) {
@@ -272,6 +284,7 @@ class _RowChangesetNotifier extends ChangeNotifier {
       fieldDidChange: (_) => notifyListeners(),
       initial: (_) {},
       reorderRows: (_) => notifyListeners(),
+      reorderSingleRow: (_) => notifyListeners(),
     );
   }
 }
@@ -299,6 +312,8 @@ class RowsChangedReason with _$RowsChangedReason {
   const factory RowsChangedReason.fieldDidChange() = _FieldDidChange;
   const factory RowsChangedReason.initial() = InitialListState;
   const factory RowsChangedReason.reorderRows() = _ReorderRows;
+  const factory RowsChangedReason.reorderSingleRow(
+      ReorderSingleRowPB reorderRow, RowInfo rowInfo) = _ReorderSingleRow;
 }
 
 class InsertedIndex {
