@@ -148,6 +148,9 @@ extension on LogicalKeyboardKey {
     if (this == LogicalKeyboardKey.tilde) {
       return PhysicalKeyboardKey.backquote;
     }
+    if (this == LogicalKeyboardKey.greater) {
+      return PhysicalKeyboardKey.intlBackslash;
+    }
     throw UnimplementedError();
   }
 }
