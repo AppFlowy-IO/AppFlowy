@@ -282,7 +282,7 @@ List<ShortcutEvent> builtInShortcutEvents = [
   ),
   ShortcutEvent(
     key: 'Double tilde to strikethrough',
-    command: 'shift+tilde',
+    command: 'tilde,shift+tilde',
     handler: doubleTildeToStrikethrough,
   ),
   ShortcutEvent(
