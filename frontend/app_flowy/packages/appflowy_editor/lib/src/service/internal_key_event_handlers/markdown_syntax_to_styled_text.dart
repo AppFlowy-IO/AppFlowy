@@ -188,6 +188,26 @@ ShortcutEventHandler doubleTildeToStrikethrough = (editorState, event) {
   return KeyEventResult.handled;
 };
 
+ShortcutEventHandler greaterToBlockquote = (editorState, event) {
+  final selectionService = editorState.service.selectionService;
+  final selection = selectionService.currentSelection.value;
+  final textNodes = selectionService.currentSelectedNodes.whereType<TextNode>();
+  if (selection == null || !selection.isSingle || textNodes.length != 1) {
+    return KeyEventResult.ignored;
+  }
+
+  final textNode = textNodes.first;
+  final text = textNode.toPlainText();
+
+  //only convert > at the start of a paragraph
+  if (selection.startIndex != 0) {
+    return KeyEventResult.ignored;
+  }
+  formatQuote(editorState);
+
+  return KeyEventResult.handled;
+};
+
 ShortcutEventHandler markdownLinkOrImageHandler = (editorState, event) {
   final selectionService = editorState.service.selectionService;
   final selection = selectionService.currentSelection.value;
