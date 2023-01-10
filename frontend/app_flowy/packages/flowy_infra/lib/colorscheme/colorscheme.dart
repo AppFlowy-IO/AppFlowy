@@ -1,3 +1,4 @@
+import 'package:flowy_infra/colorscheme/lavender.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flowy_infra/theme.dart';
@@ -8,6 +9,7 @@ import 'dandelion.dart';
 ///
 /// The key is the theme name, and the value is a list of two color schemes:
 /// the first is for light mode, and the second is for dark mode.
+
 const Map<String, List<FlowyColorScheme>> themeMap = {
   BuiltInTheme.light: [
     DefaultColorScheme.light(),
@@ -16,6 +18,10 @@ const Map<String, List<FlowyColorScheme>> themeMap = {
   BuiltInTheme.dandelion: [
     DandelionColorScheme.light(),
     DandelionColorScheme.dark(),
+  ],
+  BuiltInTheme.lavender: [
+    LavenderColorScheme.light(),
+    LavenderColorScheme.dark(),
   ],
 };
 

@@ -62,6 +62,7 @@ class ThemeSetting extends StatelessWidget {
                 children: [
                   _themeItemButton(context, BuiltInTheme.light),
                   _themeItemButton(context, BuiltInTheme.dandelion),
+                  _themeItemButton(context, BuiltInTheme.lavender),
                 ],
               ),
             );
