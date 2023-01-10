@@ -114,7 +114,7 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
         : svgWidget('editor/editor_uncheck');
     return _wrapPopover(
       SizedBox(
-        height: GridSize.typeOptionItemHeight,
+        height: GridSize.popoverItemHeight,
         child: Row(
           children: [
             Expanded(

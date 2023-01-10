@@ -23,9 +23,35 @@ class SortFFIService {
     });
   }
 
+  Future<Either<Unit, FlowyError>> updateSort({
+    required String fieldId,
+    required String sortId,
+    required FieldType fieldType,
+    required GridSortConditionPB condition,
+  }) {
+    var insertSortPayload = AlterSortPayloadPB.create()
+      ..fieldId = fieldId
+      ..fieldType = fieldType
+      ..viewId = viewId
+      ..condition = condition
+      ..sortId = sortId;
+
+    final payload = GridSettingChangesetPB.create()
+      ..gridId = viewId
+      ..alterSort = insertSortPayload;
+    return GridEventUpdateGridSetting(payload).send().then((result) {
+      return result.fold(
+        (l) => left(l),
+        (err) {
+          Log.error(err);
+          return right(err);
+        },
+      );
+    });
+  }
+
   Future<Either<Unit, FlowyError>> insertSort({
     required String fieldId,
-    String? sortId,
     required FieldType fieldType,
     required GridSortConditionPB condition,
   }) {
@@ -34,10 +60,6 @@ class SortFFIService {
       ..fieldType = fieldType
       ..viewId = viewId
       ..condition = condition;
-
-    if (sortId != null) {
-      insertSortPayload.sortId = sortId;
-    }
 
     final payload = GridSettingChangesetPB.create()
       ..gridId = viewId

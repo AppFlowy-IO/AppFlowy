@@ -75,7 +75,7 @@ class _EditFieldButton extends StatelessWidget {
     return BlocBuilder<FieldActionSheetBloc, FieldActionSheetState>(
       builder: (context, state) {
         return SizedBox(
-          height: GridSize.typeOptionItemHeight,
+          height: GridSize.popoverItemHeight,
           child: FlowyButton(
             text: FlowyText.medium(
               LocaleKeys.grid_field_editProperty.tr(),

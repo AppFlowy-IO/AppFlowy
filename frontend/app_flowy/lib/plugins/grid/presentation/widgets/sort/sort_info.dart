@@ -7,5 +7,5 @@ class SortInfo {
 
   SortInfo({required this.sortPB, required this.fieldInfo});
 
-  String get sortId => "";
+  String get sortId => sortPB.id;
 }

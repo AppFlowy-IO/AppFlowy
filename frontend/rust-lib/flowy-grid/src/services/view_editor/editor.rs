@@ -425,7 +425,7 @@ impl GridViewRevisionEditor {
     }
 
     pub async fn delete_view_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
-        let changeset = self
+        let notification = self
             .sort_controller
             .write()
             .await
@@ -440,7 +440,7 @@ impl GridViewRevisionEditor {
             })
             .await?;
 
-        self.notify_did_update_sort(changeset).await;
+        self.notify_did_update_sort(notification).await;
         Ok(())
     }
 
@@ -634,16 +634,16 @@ impl GridViewRevisionEditor {
             .send();
     }
 
-    pub async fn notify_did_update_filter(&self, changeset: FilterChangesetNotificationPB) {
-        send_dart_notification(&changeset.view_id, GridDartNotification::DidUpdateFilter)
-            .payload(changeset)
+    pub async fn notify_did_update_filter(&self, notification: FilterChangesetNotificationPB) {
+        send_dart_notification(&notification.view_id, GridDartNotification::DidUpdateFilter)
+            .payload(notification)
             .send();
     }
 
-    pub async fn notify_did_update_sort(&self, changeset: SortChangesetNotificationPB) {
-        if !changeset.is_empty() {
-            send_dart_notification(&changeset.view_id, GridDartNotification::DidUpdateSort)
-                .payload(changeset)
+    pub async fn notify_did_update_sort(&self, notification: SortChangesetNotificationPB) {
+        if !notification.is_empty() {
+            send_dart_notification(&notification.view_id, GridDartNotification::DidUpdateSort)
+                .payload(notification)
                 .send();
         }
     }
@@ -793,6 +793,8 @@ async fn make_sort_controller(
     cell_data_cache: AtomicCellDataCache,
 ) -> Arc<RwLock<SortController>> {
     let handler_id = gen_handler_id();
+    let field_revs = delegate.get_field_revs(None).await;
+    let sorts = pad.read().await.get_all_sorts(&field_revs);
     let sort_delegate = GridViewSortDelegateImpl {
         editor_delegate: delegate.clone(),
         view_revision_pad: pad,
@@ -802,6 +804,7 @@ async fn make_sort_controller(
     let sort_controller = Arc::new(RwLock::new(SortController::new(
         view_id,
         &handler_id,
+        sorts,
         sort_delegate,
         task_scheduler.clone(),
         cell_data_cache,

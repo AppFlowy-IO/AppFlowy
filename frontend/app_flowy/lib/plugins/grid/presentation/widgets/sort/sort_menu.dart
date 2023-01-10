@@ -22,8 +22,8 @@ class SortMenu extends StatelessWidget {
         if (state.sortInfos.isNotEmpty) {
           return AppFlowyPopover(
             controller: PopoverController(),
-            constraints: BoxConstraints.loose(const Size(240, 200)),
-            direction: PopoverDirection.bottomWithCenterAligned,
+            constraints: BoxConstraints.loose(const Size(340, 200)),
+            direction: PopoverDirection.bottomWithLeftAligned,
             popupBuilder: (BuildContext popoverContext) {
               return SortEditor(
                 viewId: state.viewId,

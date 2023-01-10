@@ -50,6 +50,7 @@ impl Ord for PendingTask {
     }
 }
 
+#[derive(Debug, Clone)]
 pub enum TaskContent {
     Text(String),
     Blob(Vec<u8>),

@@ -56,7 +56,7 @@ class _SortButtonState extends State<SortButton> {
   Widget wrapPopover(BuildContext buildContext, Widget child) {
     return AppFlowyPopover(
       controller: _popoverController,
-      direction: PopoverDirection.leftWithTopAligned,
+      direction: PopoverDirection.bottomWithLeftAligned,
       constraints: BoxConstraints.loose(const Size(200, 300)),
       offset: const Offset(0, 10),
       margin: const EdgeInsets.all(6),

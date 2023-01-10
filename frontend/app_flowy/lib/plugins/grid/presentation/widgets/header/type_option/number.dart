@@ -52,13 +52,13 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
       create: (context) =>
           NumberTypeOptionBloc(typeOptionContext: typeOptionContext),
       child: SizedBox(
-        height: GridSize.typeOptionItemHeight,
+        height: GridSize.popoverItemHeight,
         child: BlocConsumer<NumberTypeOptionBloc, NumberTypeOptionState>(
           listener: (context, state) =>
               typeOptionContext.typeOption = state.typeOption,
           builder: (context, state) {
             final button = SizedBox(
-              height: GridSize.typeOptionItemHeight,
+              height: GridSize.popoverItemHeight,
               child: FlowyButton(
                 margin: GridSize.typeOptionContentInsets,
                 rightIcon: svgWidget(
@@ -177,7 +177,7 @@ class NumberFormatCell extends StatelessWidget {
     }
 
     return SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(format.title()),
         onTap: () => onSelected(format),

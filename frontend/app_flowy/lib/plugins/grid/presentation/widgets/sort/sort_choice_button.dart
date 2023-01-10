@@ -9,6 +9,7 @@ class SortChoiceButton extends StatelessWidget {
   final Widget? leftIcon;
   final Widget? rightIcon;
   final Radius radius;
+  final bool editable;
 
   const SortChoiceButton({
     required this.text,
@@ -16,6 +17,7 @@ class SortChoiceButton extends StatelessWidget {
     this.radius = const Radius.circular(14),
     this.leftIcon,
     this.rightIcon,
+    this.editable = true,
     Key? key,
   }) : super(key: key);
 
@@ -42,6 +44,8 @@ class SortChoiceButton extends StatelessWidget {
       rightIcon: rightIcon,
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       onTap: onTap,
+      disable: !editable,
+      disableOpacity: 1.0,
     );
   }
 }

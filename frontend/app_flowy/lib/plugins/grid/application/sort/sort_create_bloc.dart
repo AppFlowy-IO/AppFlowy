@@ -8,6 +8,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 
 import 'sort_service.dart';
+import 'util.dart';
 
 part 'sort_create_bloc.freezed.dart';
 
@@ -83,7 +84,7 @@ class CreateSortBloc extends Bloc<CreateSortEvent, CreateSortState> {
     final result = await _ffiService.insertSort(
         fieldId: field.id,
         fieldType: field.fieldType,
-        condition: GridSortConditionPB.Descending);
+        condition: GridSortConditionPB.Ascending);
 
     return result;
   }
@@ -128,10 +129,4 @@ class CreateSortState with _$CreateSortState {
       didCreateSort: false,
     );
   }
-}
-
-List<FieldInfo> getCreatableSorts(List<FieldInfo> fieldInfos) {
-  final List<FieldInfo> creatableFields = List.from(fieldInfos);
-  creatableFields.retainWhere((element) => element.canCreateSort);
-  return creatableFields;
 }

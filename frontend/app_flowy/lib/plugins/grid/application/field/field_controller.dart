@@ -354,6 +354,8 @@ class GridFieldController {
           deleteSortFromChangeset(newSortInfos, changeset);
           insertSortFromChangeset(newSortInfos, changeset);
           updateSortFromChangeset(newSortInfos, changeset);
+
+          _updateFieldInfos();
           _sortNotifier?.sorts = newSortInfos;
         },
         (err) => Log.error(err),
@@ -479,7 +481,6 @@ class GridFieldController {
             }
           }
 
-          _updateFieldInfos();
           _filterNotifier?.filters = filters;
           return left(unit);
         },

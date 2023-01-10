@@ -5,16 +5,20 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/dart_notification.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/sort_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/view_entities.pb.dart';
 
 typedef GridRowsVisibilityNotifierValue
     = Either<GridRowsVisibilityChangesetPB, FlowyError>;
 
 typedef GridViewRowsNotifierValue = Either<GridViewRowsChangesetPB, FlowyError>;
+typedef GridViewReorderRowsNotifierValue = Either<List<String>, FlowyError>;
 
 class GridViewListener {
   final String viewId;
   PublishNotifier<GridViewRowsNotifierValue>? _rowsNotifier = PublishNotifier();
+  PublishNotifier<GridViewReorderRowsNotifierValue>? _reorderRowsNotifier =
+      PublishNotifier();
   PublishNotifier<GridRowsVisibilityNotifierValue>? _rowsVisibilityNotifier =
       PublishNotifier();
 
@@ -23,6 +27,7 @@ class GridViewListener {
 
   void start({
     required void Function(GridViewRowsNotifierValue) onRowsChanged,
+    required void Function(GridViewReorderRowsNotifierValue) onReorderRows,
     required void Function(GridRowsVisibilityNotifierValue)
         onRowsVisibilityChanged,
   }) {
@@ -37,6 +42,7 @@ class GridViewListener {
 
     _rowsNotifier?.addPublishListener(onRowsChanged);
     _rowsVisibilityNotifier?.addPublishListener(onRowsVisibilityChanged);
+    _reorderRowsNotifier?.addPublishListener(onReorderRows);
   }
 
   void _handler(GridDartNotification ty, Either<Uint8List, FlowyError> result) {
@@ -55,7 +61,13 @@ class GridViewListener {
           (error) => _rowsNotifier?.value = right(error),
         );
         break;
-
+      case GridDartNotification.DidReorderRows:
+        result.fold(
+          (payload) => _reorderRowsNotifier?.value =
+              left(ReorderAllRowsPB.fromBuffer(payload).rowOrders),
+          (error) => _reorderRowsNotifier?.value = right(error),
+        );
+        break;
       default:
         break;
     }
@@ -68,5 +80,8 @@ class GridViewListener {
 
     _rowsNotifier?.dispose();
     _rowsNotifier = null;
+
+    _reorderRowsNotifier?.dispose();
+    _reorderRowsNotifier = null;
   }
 }

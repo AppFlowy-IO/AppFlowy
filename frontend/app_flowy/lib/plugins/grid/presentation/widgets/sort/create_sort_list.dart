@@ -57,7 +57,7 @@ class _GridCreateSortListState extends State<GridCreateSortList> {
           builder: (context, state) {
             final cells = state.creatableFields.map((fieldInfo) {
               return SizedBox(
-                height: GridSize.typeOptionItemHeight,
+                height: GridSize.popoverItemHeight,
                 child: _SortPropertyCell(
                   fieldInfo: fieldInfo,
                   onTap: (fieldInfo) => createSort(fieldInfo),

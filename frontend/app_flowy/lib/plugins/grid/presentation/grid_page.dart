@@ -227,7 +227,9 @@ class _GridRowsState extends State<_GridRows> {
           },
         );
       },
-      buildWhen: (previous, current) => false,
+      buildWhen: (previous, current) {
+        return current.reason.whenOrNull(reorderRows: () => true) ?? false;
+      },
       builder: (context, state) {
         return SliverAnimatedList(
           key: _key,

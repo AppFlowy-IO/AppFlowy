@@ -31,18 +31,39 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
           },
           didReceiveFields: (List<FieldInfo> fields) {
             final List<FieldInfo> allFields = List.from(fields);
-            fields.retainWhere((field) => field.canCreateSort);
+            final List<FieldInfo> creatableFields = List.from(fields);
+            creatableFields.retainWhere((field) => field.canCreateSort);
             emit(
               state.copyWith(
                 allFields: allFields,
-                creatableFields: fields,
+                creatableFields: creatableFields,
               ),
             );
           },
-          setCondition: (String sordId, GridSortConditionPB condition) {},
+          setCondition:
+              (SortInfo sortInfo, GridSortConditionPB condition) async {
+            final result = await _ffiService.updateSort(
+              fieldId: sortInfo.fieldInfo.id,
+              sortId: sortInfo.sortId,
+              fieldType: sortInfo.fieldInfo.fieldType,
+              condition: condition,
+            );
+            result.fold((l) => {}, (err) => Log.error(err));
+          },
           deleteAllSorts: () async {
             final result = await _ffiService.deleteAllSorts();
             result.fold((l) => {}, (err) => Log.error(err));
+          },
+          didReceiveSorts: (List<SortInfo> sortInfos) {
+            emit(state.copyWith(sortInfos: sortInfos));
+          },
+          deleteSort: (SortInfo sortInfo) async {
+            final result = await _ffiService.deleteSort(
+              fieldId: sortInfo.fieldInfo.id,
+              sortId: sortInfo.sortId,
+              fieldType: sortInfo.fieldInfo.fieldType,
+            );
+            result.fold((l) => null, (err) => Log.error(err));
           },
         );
       },
@@ -51,9 +72,16 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
 
   void _startListening() {
     _onFieldFn = (fields) {
-      add(SortEditorEvent.didReceiveFields(fields));
+      add(SortEditorEvent.didReceiveFields(List.from(fields)));
     };
-    fieldController.addListener(onFields: _onFieldFn);
+
+    fieldController.addListener(
+      listenWhen: () => !isClosed,
+      onFields: _onFieldFn,
+      onSorts: (sorts) {
+        add(SortEditorEvent.didReceiveSorts(sorts));
+      },
+    );
   }
 
   @override
@@ -71,8 +99,11 @@ class SortEditorEvent with _$SortEditorEvent {
   const factory SortEditorEvent.initial() = _Initial;
   const factory SortEditorEvent.didReceiveFields(List<FieldInfo> fieldInfos) =
       _DidReceiveFields;
+  const factory SortEditorEvent.didReceiveSorts(List<SortInfo> sortInfos) =
+      _DidReceiveSorts;
   const factory SortEditorEvent.setCondition(
-      String sordId, GridSortConditionPB condition) = _SetCondition;
+      SortInfo sortInfo, GridSortConditionPB condition) = _SetCondition;
+  const factory SortEditorEvent.deleteSort(SortInfo sortInfo) = _DeleteSort;
   const factory SortEditorEvent.deleteAllSorts() = _DeleteAllSorts;
 }
 

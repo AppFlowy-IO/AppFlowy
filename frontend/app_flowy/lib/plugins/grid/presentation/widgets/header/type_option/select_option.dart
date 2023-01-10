@@ -85,7 +85,7 @@ class OptionTitle extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: SizedBox(
-            height: GridSize.typeOptionItemHeight,
+            height: GridSize.popoverItemHeight,
             child: Row(children: children),
           ),
         );
@@ -185,7 +185,7 @@ class _OptionCellState extends State<_OptionCell> {
   @override
   Widget build(BuildContext context) {
     final child = SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: SelectOptionTagCell(
         option: widget.option,
         onSelected: (SelectOptionPB pb) {
@@ -243,7 +243,7 @@ class _AddOptionButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: SizedBox(
-        height: GridSize.typeOptionItemHeight,
+        height: GridSize.popoverItemHeight,
         child: FlowyButton(
           text: FlowyText.medium(LocaleKeys.grid_field_addSelectOption.tr()),
           onTap: () {

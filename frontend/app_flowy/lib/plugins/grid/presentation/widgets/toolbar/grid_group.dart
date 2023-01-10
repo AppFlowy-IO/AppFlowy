@@ -77,7 +77,7 @@ class _GridGroupCell extends StatelessWidget {
     }
 
     return SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(fieldInfo.name),
         leftIcon: svgWidget(

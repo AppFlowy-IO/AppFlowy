@@ -98,7 +98,7 @@ class _SelectOptionFilterCellState extends State<_SelectOptionFilterCell> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: SelectOptionTagCell(
         option: widget.option,
         onSelected: (option) {

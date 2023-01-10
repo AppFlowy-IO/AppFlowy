@@ -39,6 +39,7 @@ impl SortController {
     pub fn new<T>(
         view_id: &str,
         handler_id: &str,
+        sorts: Vec<Arc<SortRevision>>,
         delegate: T,
         task_scheduler: Arc<RwLock<TaskDispatcher>>,
         cell_data_cache: AtomicCellDataCache,
@@ -52,7 +53,7 @@ impl SortController {
             handler_id: handler_id.to_string(),
             delegate: Box::new(delegate),
             task_scheduler,
-            sorts: vec![],
+            sorts,
             cell_data_cache,
             row_index_cache: Default::default(),
             notifier,
@@ -72,7 +73,7 @@ impl SortController {
         self.gen_task(task_type, QualityOfService::Background).await;
     }
 
-    #[tracing::instrument(name = "receive_sort_task_result", level = "trace", skip_all, err)]
+    #[tracing::instrument(name = "process_sort_task", level = "trace", skip_all, err)]
     pub async fn process(&mut self, predicate: &str) -> FlowyResult<()> {
         let event_type = SortEvent::from_str(predicate).unwrap();
         let mut row_revs = self.delegate.get_row_revs().await;
@@ -120,9 +121,6 @@ impl SortController {
 
     #[tracing::instrument(name = "schedule_sort_task", level = "trace", skip(self))]
     async fn gen_task(&self, task_type: SortEvent, qos: QualityOfService) {
-        if self.sorts.is_empty() {
-            return;
-        }
         let task_id = self.task_scheduler.read().await.next_task_id();
         let task = Task::new(&self.handler_id, task_id, TaskContent::Text(task_type.to_string()), qos);
         self.task_scheduler.write().await.add_task(task);
@@ -178,10 +176,11 @@ impl SortController {
             }
         }
 
-        if !notification.insert_sorts.is_empty() || !notification.delete_sorts.is_empty() {
-            self.gen_task(SortEvent::SortDidChanged, QualityOfService::Background)
+        if !notification.is_empty() {
+            self.gen_task(SortEvent::SortDidChanged, QualityOfService::UserInteractive)
                 .await;
         }
+        tracing::trace!("sort notification: {:?}", notification);
         notification
     }
 }

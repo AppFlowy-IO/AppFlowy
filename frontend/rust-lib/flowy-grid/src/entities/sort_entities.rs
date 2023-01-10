@@ -85,7 +85,7 @@ pub struct AlterSortPayloadPB {
     #[pb(index = 3)]
     pub field_type: FieldType,
 
-    /// Create a new filter if the filter_id is None
+    /// Create a new sort if the sort_id is None
     #[pb(index = 4, one_of)]
     pub sort_id: Option<String>,
 
@@ -104,9 +104,10 @@ impl TryInto<AlterSortParams> for AlterSortPayloadPB {
         let field_id = NotEmptyStr::parse(self.field_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
             .0;
+
         let sort_id = match self.sort_id {
             None => None,
-            Some(filter_id) => Some(NotEmptyStr::parse(filter_id).map_err(|_| ErrorCode::FilterIdIsEmpty)?.0),
+            Some(sort_id) => Some(NotEmptyStr::parse(sort_id).map_err(|_| ErrorCode::SortIdIsEmpty)?.0),
         };
 
         Ok(AlterSortParams {
