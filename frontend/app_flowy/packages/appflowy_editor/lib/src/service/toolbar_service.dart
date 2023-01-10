@@ -1,5 +1,4 @@
 import 'package:appflowy_editor/src/flutter/overlay.dart';
-import 'package:appflowy_editor/src/render/toolbar/toolbar_item.dart';
 import 'package:flutter/material.dart' hide Overlay, OverlayEntry;
 
 import 'package:appflowy_editor/appflowy_editor.dart';
