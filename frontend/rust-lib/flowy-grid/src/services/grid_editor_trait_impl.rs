@@ -1,6 +1,10 @@
+use crate::entities::FieldType;
 use crate::services::block_manager::GridBlockManager;
+use crate::services::cell::AtomicCellDataCache;
+use crate::services::field::{TypeOptionCellDataHandler, TypeOptionCellExt};
 use crate::services::row::GridBlockRowRevision;
 use crate::services::view_editor::GridViewEditorDelegate;
+
 use flowy_sync::client_grid::GridRevisionPad;
 use flowy_task::TaskDispatcher;
 use grid_rev_model::{FieldRevision, RowRevision};
@@ -12,6 +16,7 @@ pub(crate) struct GridViewEditorDelegateImpl {
     pub(crate) pad: Arc<RwLock<GridRevisionPad>>,
     pub(crate) block_manager: Arc<GridBlockManager>,
     pub(crate) task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    pub(crate) cell_data_cache: AtomicCellDataCache,
 }
 
 impl GridViewEditorDelegate for GridViewEditorDelegateImpl {
@@ -27,7 +32,6 @@ impl GridViewEditorDelegate for GridViewEditorDelegateImpl {
             }
         })
     }
-
     fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>> {
         let pad = self.pad.clone();
         let field_id = field_id.to_owned();
@@ -63,6 +67,10 @@ impl GridViewEditorDelegate for GridViewEditorDelegateImpl {
         })
     }
 
+    // /// Returns the list of cells corresponding to the given field.
+    // pub async fn get_cells_for_field(&self, field_id: &str) -> FlowyResult<Vec<RowSingleCellData>> {
+    // }
+
     fn get_blocks(&self) -> Fut<Vec<GridBlockRowRevision>> {
         let block_manager = self.block_manager.clone();
         to_fut(async move { block_manager.get_blocks(None).await.unwrap_or_default() })
@@ -70,5 +78,14 @@ impl GridViewEditorDelegate for GridViewEditorDelegateImpl {
 
     fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>> {
         self.task_scheduler.clone()
+    }
+
+    fn get_type_option_cell_handler(
+        &self,
+        field_rev: &FieldRevision,
+        field_type: &FieldType,
+    ) -> Option<Box<dyn TypeOptionCellDataHandler>> {
+        TypeOptionCellExt::new_with_cell_data_cache(field_rev, Some(self.cell_data_cache.clone()))
+            .get_type_option_cell_data_handler(field_type)
     }
 }

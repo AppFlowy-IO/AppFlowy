@@ -42,7 +42,7 @@ packages:
       path: "packages/appflowy_editor"
       relative: true
     source: path
-    version: "0.0.7"
+    version: "0.0.9"
   appflowy_editor_plugins:
     dependency: "direct main"
     description:

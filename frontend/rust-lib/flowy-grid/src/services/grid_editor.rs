@@ -9,7 +9,7 @@ use crate::services::cell::{
 };
 use crate::services::field::{
     default_type_option_builder_from_type, transform_type_option, type_option_builder_from_bytes, FieldBuilder,
-    RowSingleCellData, TypeOptionCellExt,
+    RowSingleCellData,
 };
 
 use crate::services::filter::FilterType;
@@ -76,6 +76,7 @@ impl GridRevisionEditor {
             pad: grid_pad.clone(),
             block_manager: block_manager.clone(),
             task_scheduler,
+            cell_data_cache: cell_data_cache.clone(),
         });
 
         // View manager
@@ -496,31 +497,10 @@ impl GridRevisionEditor {
         }
     }
 
-    pub async fn get_cell_data_for_field(&self, field_id: &str) -> FlowyResult<Vec<RowSingleCellData>> {
-        let row_revs = self.block_manager.get_row_revs().await?;
-        let field_rev = self.get_field_rev(field_id).await.unwrap();
-        let field_type: FieldType = field_rev.ty.into();
-        let mut cells = vec![];
-        if let Some(handler) =
-            TypeOptionCellExt::new_with_cell_data_cache(&field_rev, Some(self.cell_data_cache.clone()))
-                .get_type_option_cell_data_handler(&field_type)
-        {
-            for row_rev in row_revs {
-                if let Some(cell_rev) = row_rev.cells.get(field_id) {
-                    if let Ok(type_cell_data) = TypeCellData::try_from(cell_rev) {
-                        if let Ok(cell_data) = handler.get_cell_data(type_cell_data.cell_str, &field_type, &field_rev) {
-                            cells.push(RowSingleCellData {
-                                row_id: row_rev.id.clone(),
-                                field_id: field_rev.id.clone(),
-                                field_type: field_type.clone(),
-                                cell_data,
-                            })
-                        }
-                    }
-                }
-            }
-        }
-        Ok(cells)
+    /// Returns the list of cells corresponding to the given field.
+    pub async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> FlowyResult<Vec<RowSingleCellData>> {
+        let view_editor = self.view_manager.get_view_editor(view_id).await?;
+        view_editor.get_cells_for_field(field_id).await
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
