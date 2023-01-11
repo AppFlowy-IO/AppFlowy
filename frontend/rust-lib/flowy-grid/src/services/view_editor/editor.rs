@@ -340,24 +340,6 @@ impl GridViewRevisionEditor {
         self.group_controller.read().await.field_id().to_string()
     }
 
-    pub async fn get_view_setting(&self) -> GridSettingPB {
-        let field_revs = self.delegate.get_field_revs(None).await;
-        make_grid_setting(&*self.pad.read().await, &field_revs)
-    }
-
-    pub async fn get_all_view_filters(&self) -> Vec<Arc<FilterRevision>> {
-        let field_revs = self.delegate.get_field_revs(None).await;
-        self.pad.read().await.get_all_filters(&field_revs)
-    }
-
-    pub async fn get_view_filters(&self, filter_type: &FilterType) -> Vec<Arc<FilterRevision>> {
-        let field_type_rev: FieldTypeRevision = filter_type.field_type.clone().into();
-        self.pad
-            .read()
-            .await
-            .get_filters(&filter_type.field_id, &field_type_rev)
-    }
-
     /// Initialize new group when grouping by a new field
     ///
     pub async fn initialize_new_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
@@ -385,6 +367,18 @@ impl GridViewRevisionEditor {
         .await
     }
 
+    pub async fn get_view_setting(&self) -> GridSettingPB {
+        let field_revs = self.delegate.get_field_revs(None).await;
+        let grid_setting = make_grid_setting(&*self.pad.read().await, &field_revs);
+        grid_setting
+    }
+
+    pub async fn get_all_view_sorts(&self) -> Vec<Arc<SortRevision>> {
+        let field_revs = self.delegate.get_field_revs(None).await;
+        self.pad.read().await.get_all_sorts(&field_revs)
+    }
+
+    #[tracing::instrument(level = "trace", skip(self), err)]
     pub async fn insert_view_sort(&self, params: AlterSortParams) -> FlowyResult<SortRevision> {
         let sort_type = SortType::from(&params);
         let is_exist = params.sort_id.is_some();
@@ -420,14 +414,13 @@ impl GridViewRevisionEditor {
                 .did_receive_changes(SortChangeset::from_insert(sort_type))
                 .await
         };
-        drop(sort_controller);
-
         self.notify_did_update_sort(changeset).await;
+        drop(sort_controller);
         Ok(sort_rev)
     }
 
     pub async fn delete_view_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
-        let changeset = self
+        let notification = self
             .sort_controller
             .write()
             .await
@@ -441,8 +434,37 @@ impl GridViewRevisionEditor {
         })
         .await?;
 
-        self.notify_did_update_sort(changeset).await;
+        self.notify_did_update_sort(notification).await;
         Ok(())
+    }
+
+    pub async fn delete_all_view_sorts(&self) -> FlowyResult<()> {
+        let all_sorts = self.get_all_view_sorts().await;
+        self.sort_controller.write().await.delete_all_sorts().await;
+        let _ = self
+            .modify(|pad| {
+                let changeset = pad.delete_all_sorts()?;
+                Ok(changeset)
+            })
+            .await?;
+
+        let mut notification = SortChangesetNotificationPB::new(self.view_id.clone());
+        notification.delete_sorts = all_sorts.into_iter().map(|sort| SortPB::from(sort.as_ref())).collect();
+        self.notify_did_update_sort(notification).await;
+        Ok(())
+    }
+
+    pub async fn get_all_view_filters(&self) -> Vec<Arc<FilterRevision>> {
+        let field_revs = self.delegate.get_field_revs(None).await;
+        self.pad.read().await.get_all_filters(&field_revs)
+    }
+
+    pub async fn get_view_filters(&self, filter_type: &FilterType) -> Vec<Arc<FilterRevision>> {
+        let field_type_rev: FieldTypeRevision = filter_type.field_type.clone().into();
+        self.pad
+            .read()
+            .await
+            .get_filters(&filter_type.field_id, &field_type_rev)
     }
 
     #[tracing::instrument(level = "trace", skip(self), err)]
@@ -605,16 +627,16 @@ impl GridViewRevisionEditor {
             .send();
     }
 
-    pub async fn notify_did_update_filter(&self, changeset: FilterChangesetNotificationPB) {
-        send_dart_notification(&changeset.view_id, GridDartNotification::DidUpdateFilter)
-            .payload(changeset)
+    pub async fn notify_did_update_filter(&self, notification: FilterChangesetNotificationPB) {
+        send_dart_notification(&notification.view_id, GridDartNotification::DidUpdateFilter)
+            .payload(notification)
             .send();
     }
 
-    pub async fn notify_did_update_sort(&self, changeset: SortChangesetNotificationPB) {
-        if !changeset.is_empty() {
-            send_dart_notification(&changeset.view_id, GridDartNotification::DidUpdateSort)
-                .payload(changeset)
+    pub async fn notify_did_update_sort(&self, notification: SortChangesetNotificationPB) {
+        if !notification.is_empty() {
+            send_dart_notification(&notification.view_id, GridDartNotification::DidUpdateSort)
+                .payload(notification)
                 .send();
         }
     }
@@ -764,6 +786,8 @@ async fn make_sort_controller(
     cell_data_cache: AtomicCellDataCache,
 ) -> Arc<RwLock<SortController>> {
     let handler_id = gen_handler_id();
+    let field_revs = delegate.get_field_revs(None).await;
+    let sorts = pad.read().await.get_all_sorts(&field_revs);
     let sort_delegate = GridViewSortDelegateImpl {
         editor_delegate: delegate.clone(),
         view_revision_pad: pad,
@@ -773,6 +797,7 @@ async fn make_sort_controller(
     let sort_controller = Arc::new(RwLock::new(SortController::new(
         view_id,
         &handler_id,
+        sorts,
         sort_delegate,
         task_scheduler.clone(),
         cell_data_cache,

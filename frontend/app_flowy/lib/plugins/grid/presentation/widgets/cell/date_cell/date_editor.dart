@@ -163,9 +163,9 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
           firstDay: kFirstDay,
           lastDay: kLastDay,
           focusedDay: state.focusedDay,
-          rowHeight: GridSize.typeOptionItemHeight,
+          rowHeight: GridSize.popoverItemHeight,
           calendarFormat: state.format,
-          daysOfWeekHeight: GridSize.typeOptionItemHeight,
+          daysOfWeekHeight: GridSize.popoverItemHeight,
           headerStyle: HeaderStyle(
             formatButtonVisible: false,
             titleCentered: true,
@@ -243,7 +243,7 @@ class _IncludeTimeButton extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: SizedBox(
-            height: GridSize.typeOptionItemHeight,
+            height: GridSize.popoverItemHeight,
             child: Padding(
               padding: GridSize.typeOptionContentInsets,
               child: Row(
@@ -327,7 +327,7 @@ class _TimeTextFieldState extends State<_TimeTextField> {
       child: Padding(
         padding: GridSize.typeOptionContentInsets,
         child: RoundedInputField(
-          height: GridSize.typeOptionItemHeight,
+          height: GridSize.popoverItemHeight,
           focusNode: _focusNode,
           autoFocus: true,
           hintText: widget.bloc.state.timeHintText,
@@ -376,7 +376,7 @@ class _DateTypeOptionButton extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: SizedBox(
-              height: GridSize.typeOptionItemHeight,
+              height: GridSize.popoverItemHeight,
               child: FlowyButton(
                 text: FlowyText.medium(title),
                 margin: GridSize.typeOptionContentInsets,

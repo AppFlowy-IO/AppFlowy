@@ -39,6 +39,7 @@ impl SortController {
     pub fn new<T>(
         view_id: &str,
         handler_id: &str,
+        sorts: Vec<Arc<SortRevision>>,
         delegate: T,
         task_scheduler: Arc<RwLock<TaskDispatcher>>,
         cell_data_cache: AtomicCellDataCache,
@@ -52,7 +53,7 @@ impl SortController {
             handler_id: handler_id.to_string(),
             delegate: Box::new(delegate),
             task_scheduler,
-            sorts: vec![],
+            sorts,
             cell_data_cache,
             row_index_cache: Default::default(),
             notifier,
@@ -72,7 +73,7 @@ impl SortController {
         self.gen_task(task_type, QualityOfService::Background).await;
     }
 
-    #[tracing::instrument(name = "receive_sort_task_result", level = "trace", skip_all, err)]
+    #[tracing::instrument(name = "process_sort_task", level = "trace", skip_all, err)]
     pub async fn process(&mut self, predicate: &str) -> FlowyResult<()> {
         let event_type = SortEvent::from_str(predicate).unwrap();
         let mut row_revs = self.delegate.get_row_revs().await;
@@ -103,6 +104,7 @@ impl SortController {
                             return Ok(());
                         }
                         let notification = ReorderSingleRowResult {
+                            row_id,
                             view_id: self.view_id.clone(),
                             old_index: old_row_index,
                             new_index: new_row_index,
@@ -120,9 +122,6 @@ impl SortController {
 
     #[tracing::instrument(name = "schedule_sort_task", level = "trace", skip(self))]
     async fn gen_task(&self, task_type: SortEvent, qos: QualityOfService) {
-        if self.sorts.is_empty() {
-            return;
-        }
         let task_id = self.task_scheduler.read().await.next_task_id();
         let task = Task::new(&self.handler_id, task_id, TaskContent::Text(task_type.to_string()), qos);
         self.task_scheduler.write().await.add_task(task);
@@ -142,13 +141,19 @@ impl SortController {
         });
     }
 
+    pub async fn delete_all_sorts(&mut self) {
+        self.sorts.clear();
+        self.gen_task(SortEvent::SortDidChanged, QualityOfService::Background)
+            .await;
+    }
+
     pub async fn did_update_view_field_type_option(&self, _field_rev: &FieldRevision) {
         //
     }
 
     #[tracing::instrument(level = "trace", skip(self))]
     pub async fn did_receive_changes(&mut self, changeset: SortChangeset) -> SortChangesetNotificationPB {
-        let mut notification = SortChangesetNotificationPB::default();
+        let mut notification = SortChangesetNotificationPB::new(self.view_id.clone());
         if let Some(insert_sort) = changeset.insert_sort {
             if let Some(sort) = self.delegate.get_sort_rev(insert_sort).await {
                 notification.insert_sorts.push(sort.as_ref().into());
@@ -172,10 +177,11 @@ impl SortController {
             }
         }
 
-        if !notification.insert_sorts.is_empty() || !notification.delete_sorts.is_empty() {
-            self.gen_task(SortEvent::SortDidChanged, QualityOfService::Background)
+        if !notification.is_empty() {
+            self.gen_task(SortEvent::SortDidChanged, QualityOfService::UserInteractive)
                 .await;
         }
+        tracing::trace!("sort notification: {:?}", notification);
         notification
     }
 }
@@ -200,6 +206,7 @@ fn cmp_row(
         _ => default_order(),
     };
 
+    // The order is calculated by Ascending. So reverse the order if the SortCondition is descending.
     match sort.condition {
         SortCondition::Ascending => order,
         SortCondition::Descending => order.reverse(),
@@ -216,7 +223,7 @@ fn cmp_cell(
     match TypeOptionCellExt::new_with_cell_data_cache(field_rev.as_ref(), Some(cell_data_cache.clone()))
         .get_type_option_cell_data_handler(&field_type)
     {
-        None => Ordering::Less,
+        None => default_order(),
         Some(handler) => {
             let cal_order = || {
                 let left_cell_str = TypeCellData::try_from(left_cell).ok()?.into_inner();

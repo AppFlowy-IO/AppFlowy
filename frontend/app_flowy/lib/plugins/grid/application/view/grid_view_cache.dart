@@ -37,6 +37,18 @@ class GridViewCache {
           (err) => Log.error(err),
         );
       },
+      onReorderAllRows: (result) {
+        result.fold(
+          (rowIds) => _rowCache.reorderAllRows(rowIds),
+          (err) => Log.error(err),
+        );
+      },
+      onReorderSingleRow: (result) {
+        result.fold(
+          (reorderRow) => _rowCache.reorderSingleRow(reorderRow),
+          (err) => Log.error(err),
+        );
+      },
     );
   }
 

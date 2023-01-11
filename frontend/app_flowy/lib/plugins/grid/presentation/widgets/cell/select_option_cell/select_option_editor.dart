@@ -181,7 +181,7 @@ class _Title extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: SizedBox(
-        height: GridSize.typeOptionItemHeight,
+        height: GridSize.popoverItemHeight,
         child: FlowyText.medium(
           LocaleKeys.grid_selectOption_panelTitle.tr(),
           color: Theme.of(context).hintColor,
@@ -200,7 +200,7 @@ class _CreateOptionCell extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: SizedBox(
-        height: GridSize.typeOptionItemHeight,
+        height: GridSize.popoverItemHeight,
         child: Row(
           children: [
             FlowyText.medium(
@@ -254,7 +254,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
   @override
   Widget build(BuildContext context) {
     final child = SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: SelectOptionTagCell(
         option: widget.option,
         onSelected: (option) {

@@ -125,7 +125,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
         }
     }
 
-    #[tracing::instrument(level = "debug", skip_all, fields(deserializer, object) err)]
+    #[tracing::instrument(level = "trace", skip_all, fields(deserializer, object) err)]
     pub async fn initialize<B>(&mut self, _cloud: Option<Arc<dyn RevisionCloudService>>) -> FlowyResult<B::Output>
     where
         B: RevisionObjectDeserializer,

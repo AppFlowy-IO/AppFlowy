@@ -92,7 +92,6 @@ impl GridManager {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip_all, err)]
     pub async fn open_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<Arc<GridRevisionEditor>> {
         let grid_id = grid_id.as_ref();
         let _ = self.migration.run_v1_migration(grid_id).await;
@@ -103,16 +102,20 @@ impl GridManager {
     pub async fn close_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<()> {
         let grid_id = grid_id.as_ref();
         tracing::Span::current().record("grid_id", &grid_id);
-
         self.grid_editors.write().await.remove(grid_id).await;
-        // self.task_scheduler.write().await.unregister_handler(grid_id);
         Ok(())
     }
 
     // #[tracing::instrument(level = "debug", skip(self), err)]
     pub async fn get_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridRevisionEditor>> {
-        match self.grid_editors.read().await.get(grid_id) {
-            None => Err(FlowyError::internal().context("Should call open_grid function first")),
+        let read_guard = self.grid_editors.read().await;
+        let editor = read_guard.get(grid_id);
+        match editor {
+            None => {
+                // Drop the read_guard ASAP in case of the following read/write lock
+                drop(read_guard);
+                self.open_grid(grid_id).await
+            }
             Some(editor) => Ok(editor),
         }
     }
@@ -125,6 +128,7 @@ impl GridManager {
         let mut grid_editors = self.grid_editors.write().await;
         let db_pool = self.grid_user.db_pool()?;
         let editor = self.make_grid_rev_editor(grid_id, db_pool).await?;
+        tracing::trace!("Open grid: {}", grid_id);
         grid_editors.insert(grid_id.to_string(), editor.clone());
         Ok(editor)
     }

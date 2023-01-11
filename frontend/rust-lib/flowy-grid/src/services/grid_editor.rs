@@ -629,14 +629,6 @@ impl GridRevisionEditor {
         self.view_manager.get_filters(&filter_id).await
     }
 
-    pub async fn insert_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
-        self.view_manager.insert_or_update_group(params).await
-    }
-
-    pub async fn delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
-        self.view_manager.delete_group(params).await
-    }
-
     pub async fn create_or_update_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
         self.view_manager.create_or_update_filter(params).await?;
         Ok(())
@@ -647,6 +639,20 @@ impl GridRevisionEditor {
         Ok(())
     }
 
+    pub async fn get_all_sorts(&self, view_id: &str) -> FlowyResult<Vec<SortPB>> {
+        Ok(self
+            .view_manager
+            .get_all_sorts(view_id)
+            .await?
+            .into_iter()
+            .map(|sort| SortPB::from(sort.as_ref()))
+            .collect())
+    }
+
+    pub async fn delete_all_sorts(&self, view_id: &str) -> FlowyResult<()> {
+        self.view_manager.delete_all_sorts(view_id).await
+    }
+
     pub async fn delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
         self.view_manager.delete_sort(params).await?;
         Ok(())
@@ -655,6 +661,14 @@ impl GridRevisionEditor {
     pub async fn create_or_update_sort(&self, params: AlterSortParams) -> FlowyResult<SortRevision> {
         let sort_rev = self.view_manager.create_or_update_sort(params).await?;
         Ok(sort_rev)
+    }
+
+    pub async fn insert_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
+        self.view_manager.insert_or_update_group(params).await
+    }
+
+    pub async fn delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
+        self.view_manager.delete_group(params).await
     }
 
     pub async fn move_row(&self, params: MoveRowParams) -> FlowyResult<()> {

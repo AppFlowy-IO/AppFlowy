@@ -13,6 +13,8 @@ pub fn init(grid_manager: Arc<GridManager>) -> AFPlugin {
         .event(GridEvent::GetGridSetting, get_grid_setting_handler)
         .event(GridEvent::UpdateGridSetting, update_grid_setting_handler)
         .event(GridEvent::GetAllFilters, get_all_filters_handler)
+        .event(GridEvent::GetAllSorts, get_all_sorts_handler)
+        .event(GridEvent::DeleteAllSorts, delete_all_sorts_handler)
         // Field
         .event(GridEvent::GetFields, get_fields_handler)
         .event(GridEvent::UpdateField, update_field_handler)
@@ -74,6 +76,12 @@ pub enum GridEvent {
 
     #[event(input = "GridIdPB", output = "RepeatedFilterPB")]
     GetAllFilters = 4,
+
+    #[event(input = "GridIdPB", output = "RepeatedSortPB")]
+    GetAllSorts = 5,
+
+    #[event(input = "GridIdPB")]
+    DeleteAllSorts = 6,
 
     /// [GetFields] event is used to get the grid's settings.
     ///

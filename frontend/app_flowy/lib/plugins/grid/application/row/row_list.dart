@@ -5,8 +5,7 @@ import 'package:appflowy_backend/protobuf/flowy-grid/row_entities.pb.dart';
 import 'row_cache.dart';
 
 class RowList {
-  /// _rows containers the current block's rows
-  /// Use List to reverse the order of the GridRow.
+  /// Use List to reverse the order of the row.
   List<RowInfo> _rowInfos = [];
 
   List<RowInfo> get rows => List.from(_rowInfos);
@@ -148,6 +147,28 @@ class RowList {
       }
     }
     return deletedRows;
+  }
+
+  void reorderWithRowIds(List<String> rowIds) {
+    _rowInfos.clear();
+
+    for (final rowId in rowIds) {
+      final rowInfo = _rowInfoByRowId[rowId];
+      if (rowInfo != null) {
+        _rowInfos.add(rowInfo);
+      }
+    }
+  }
+
+  void moveRow(String rowId, int oldIndex, int newIndex) {
+    final index = _rowInfos.indexWhere(
+      (rowInfo) => rowInfo.rowPB.id == rowId,
+    );
+    if (index != -1) {
+      assert(index == oldIndex);
+      final rowInfo = remove(rowId)!.rowInfo;
+      insert(newIndex, rowInfo);
+    }
   }
 
   bool contains(String rowId) {

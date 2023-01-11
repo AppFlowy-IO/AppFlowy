@@ -103,7 +103,7 @@ class _SwitchFieldButton extends StatelessWidget {
     );
 
     return SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: widget,
     );
   }

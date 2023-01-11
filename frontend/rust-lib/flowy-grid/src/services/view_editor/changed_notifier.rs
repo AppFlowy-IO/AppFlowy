@@ -54,6 +54,7 @@ impl GridViewChangedReceiverRunner {
                     }
                     GridViewChanged::ReorderSingleRowNotification(notification) => {
                         let reorder_row = ReorderSingleRowPB {
+                            row_id: notification.row_id,
                             old_index: notification.old_index as i32,
                             new_index: notification.new_index as i32,
                         };

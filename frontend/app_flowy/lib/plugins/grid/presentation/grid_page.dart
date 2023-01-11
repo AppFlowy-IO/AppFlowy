@@ -4,6 +4,7 @@ import 'package:app_flowy/plugins/grid/application/filter/filter_menu_bloc.dart'
 import 'package:app_flowy/plugins/grid/application/grid_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/grid_bloc.dart';
+import 'package:app_flowy/plugins/grid/application/sort/sort_menu_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
@@ -20,13 +21,13 @@ import '../application/setting/setting_bloc.dart';
 import 'controller/grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
+import 'widgets/accessory_menu.dart';
 import 'widgets/cell/cell_builder.dart';
 import 'widgets/row/grid_row.dart';
 import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
 import 'widgets/row/row_detail.dart';
 import 'widgets/shortcuts.dart';
-import 'widgets/filter/menu.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
 
 class GridPage extends StatefulWidget {
@@ -61,6 +62,12 @@ class _GridPageState extends State<GridPage> {
             viewId: widget.view.id,
             fieldController: widget.gridController.fieldController,
           )..add(const GridFilterMenuEvent.initial()),
+        ),
+        BlocProvider<SortMenuBloc>(
+          create: (context) => SortMenuBloc(
+            viewId: widget.view.id,
+            fieldController: widget.gridController.fieldController,
+          )..add(const SortMenuEvent.initial()),
         ),
         BlocProvider<GridSettingBloc>(
           create: (context) => GridSettingBloc(gridId: widget.view.id),
@@ -139,7 +146,7 @@ class _FlowyGridState extends State<FlowyGrid> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const GridToolbar(),
-            const GridFilterMenu(),
+            GridAccessoryMenu(viewId: state.gridId),
             _gridHeader(context, state.gridId),
             Flexible(child: child),
             const RowCountBadge(),
@@ -218,9 +225,22 @@ class _GridRowsState extends State<_GridRows> {
                   _renderRow(context, item.rowInfo, animation),
             );
           },
+          reorderSingleRow: (reorderRow, rowInfo) {
+            // _key.currentState?.removeItem(
+            //   reorderRow.oldIndex,
+            //   (context, animation) => _renderRow(context, rowInfo, animation),
+            // );
+            // _key.currentState?.insertItem(reorderRow.newIndex);
+          },
         );
       },
-      buildWhen: (previous, current) => false,
+      buildWhen: (previous, current) {
+        return current.reason.whenOrNull(
+              reorderRows: () => true,
+              reorderSingleRow: (reorderRow, rowInfo) => true,
+            ) ??
+            false;
+      },
       builder: (context, state) {
         return SliverAnimatedList(
           key: _key,

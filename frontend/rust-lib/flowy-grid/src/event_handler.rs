@@ -82,6 +82,30 @@ pub(crate) async fn get_all_filters_handler(
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
+pub(crate) async fn get_all_sorts_handler(
+    data: AFPluginData<GridIdPB>,
+    manager: AFPluginState<Arc<GridManager>>,
+) -> DataResult<RepeatedSortPB, FlowyError> {
+    let grid_id: GridIdPB = data.into_inner();
+    let editor = manager.open_grid(grid_id.as_ref()).await?;
+    let sorts = RepeatedSortPB {
+        items: editor.get_all_sorts(grid_id.as_ref()).await?,
+    };
+    data_result(sorts)
+}
+
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
+pub(crate) async fn delete_all_sorts_handler(
+    data: AFPluginData<GridIdPB>,
+    manager: AFPluginState<Arc<GridManager>>,
+) -> Result<(), FlowyError> {
+    let grid_id: GridIdPB = data.into_inner();
+    let editor = manager.open_grid(grid_id.as_ref()).await?;
+    let _ = editor.delete_all_sorts(grid_id.as_ref()).await?;
+    Ok(())
+}
+
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_fields_handler(
     data: AFPluginData<GetFieldPayloadPB>,
     manager: AFPluginState<Arc<GridManager>>,

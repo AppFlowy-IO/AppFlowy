@@ -225,7 +225,7 @@ class _DeleteFieldButton extends StatelessWidget {
         );
         return Padding(
           padding: const EdgeInsets.only(bottom: 4.0),
-          child: SizedBox(height: GridSize.typeOptionItemHeight, child: button),
+          child: SizedBox(height: GridSize.popoverItemHeight, child: button),
         );
       },
     );

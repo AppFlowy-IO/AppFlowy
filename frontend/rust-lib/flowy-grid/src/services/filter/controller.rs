@@ -115,7 +115,7 @@ impl FilterController {
             .collect::<HashMap<String, Arc<FieldRevision>>>()
     }
 
-    #[tracing::instrument(name = "receive_task_result", level = "trace", skip_all, fields(filter_result), err)]
+    #[tracing::instrument(name = "process_filter_task", level = "trace", skip_all, fields(filter_result), err)]
     pub async fn process(&mut self, predicate: &str) -> FlowyResult<()> {
         let event_type = FilterEvent::from_str(predicate).unwrap();
         match event_type {

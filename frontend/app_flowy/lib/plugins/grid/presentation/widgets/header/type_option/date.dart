@@ -147,7 +147,7 @@ class DateFormatButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_field_dateFormat.tr()),
         margin: buttonMargins,
@@ -178,7 +178,7 @@ class TimeFormatButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_field_timeFormat.tr()),
         margin: buttonMargins,
@@ -204,7 +204,7 @@ class _IncludeTimeButton extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: SizedBox(
-            height: GridSize.typeOptionItemHeight,
+            height: GridSize.popoverItemHeight,
             child: Padding(
               padding: GridSize.typeOptionContentInsets,
               child: Row(
@@ -286,7 +286,7 @@ class DateFormatCell extends StatelessWidget {
     }
 
     return SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(dateFormat.title()),
         rightIcon: checkmark,
@@ -368,7 +368,7 @@ class TimeFormatCell extends StatelessWidget {
     }
 
     return SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(timeFormat.title()),
         rightIcon: checkmark,

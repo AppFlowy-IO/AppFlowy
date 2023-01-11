@@ -101,7 +101,7 @@ class _DeleteTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_selectOption_deleteTag.tr()),
         leftIcon: svgWidget(
@@ -162,7 +162,7 @@ class SelectOptionColorList extends StatelessWidget {
         Padding(
           padding: GridSize.typeOptionContentInsets,
           child: SizedBox(
-            height: GridSize.typeOptionItemHeight,
+            height: GridSize.popoverItemHeight,
             child: FlowyText.medium(
               LocaleKeys.grid_selectOption_colorPanelTitle.tr(),
               textAlign: TextAlign.left,
@@ -212,7 +212,7 @@ class _SelectOptionColorCell extends StatelessWidget {
     );
 
     return SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(color.optionName()),
         leftIcon: colorIcon,
