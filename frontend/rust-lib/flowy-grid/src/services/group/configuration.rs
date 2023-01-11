@@ -1,4 +1,5 @@
 use crate::entities::{GroupPB, GroupViewChangesetPB};
+use crate::services::field::RowSingleCellData;
 use crate::services::group::{default_group_configuration, GeneratedGroupContext, Group};
 use flowy_error::{FlowyError, FlowyResult};
 use grid_rev_model::{
@@ -10,7 +11,6 @@ use std::collections::HashMap;
 use std::fmt::Formatter;
 use std::marker::PhantomData;
 use std::sync::Arc;
-use crate::services::field::RowSingleCellData;
 
 pub trait GroupConfigurationReader: Send + Sync + 'static {
     fn get_configuration(&self) -> Fut<Option<Arc<GroupConfigurationRevision>>>;
@@ -55,6 +55,11 @@ pub struct GroupContext<C> {
     /// Cache all the groups
     groups_map: IndexMap<String, Group>,
 
+    /// A reader that implement the [GroupConfigurationReader] trait
+    ///
+    #[allow(dead_code)]
+    reader: Arc<dyn GroupConfigurationReader>,
+
     /// A writer that implement the [GroupConfigurationWriter] trait is used to save the
     /// configuration to disk  
     ///
@@ -87,6 +92,7 @@ where
             view_id,
             field_rev,
             groups_map: IndexMap::new(),
+            reader,
             writer,
             configuration,
             configuration_phantom: PhantomData,

@@ -228,6 +228,7 @@ impl GridBlockManager {
         editor.get_row_rev(row_id).await
     }
 
+    #[allow(dead_code)]
     pub async fn get_row_revs(&self) -> FlowyResult<Vec<Arc<RowRevision>>> {
         let mut row_revs = vec![];
         for iter in self.block_editors.iter() {

@@ -1,9 +1,10 @@
 use crate::entities::{GridLayout, GridLayoutPB, GridSettingPB};
+use crate::services::field::RowSingleCellData;
 use crate::services::filter::{FilterController, FilterDelegate, FilterType};
 use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter};
 use crate::services::row::GridBlockRowRevision;
 use crate::services::sort::{SortDelegate, SortType};
-use crate::services::view_editor::GridViewEditorDelegate;
+use crate::services::view_editor::{get_cells_for_field, GridViewEditorDelegate};
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
@@ -20,7 +21,6 @@ use lib_infra::future::{to_fut, Fut, FutureResult};
 use lib_ot::core::EmptyAttributes;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use crate::services::field::RowSingleCellData;
 
 pub(crate) struct GridViewRevisionCloudService {
     #[allow(dead_code)]
@@ -57,11 +57,14 @@ impl RevisionMergeable for GridViewRevisionMergeable {
     }
 }
 
-pub(crate) struct GroupConfigurationReaderImpl(pub(crate) Arc<RwLock<GridViewRevisionPad>>);
+pub(crate) struct GroupConfigurationReaderImpl {
+    pub(crate) pad: Arc<RwLock<GridViewRevisionPad>>,
+    pub(crate) view_editor_delegate: Arc<dyn GridViewEditorDelegate>,
+}
 
 impl GroupConfigurationReader for GroupConfigurationReaderImpl {
     fn get_configuration(&self) -> Fut<Option<Arc<GroupConfigurationRevision>>> {
-        let view_pad = self.0.clone();
+        let view_pad = self.pad.clone();
         to_fut(async move {
             let mut groups = view_pad.read().await.get_all_groups();
             if groups.is_empty() {
@@ -74,7 +77,9 @@ impl GroupConfigurationReader for GroupConfigurationReaderImpl {
     }
 
     fn get_configuration_cells(&self, field_id: &str) -> Fut<FlowyResult<Vec<RowSingleCellData>>> {
-        todo!()
+        let field_id = field_id.to_owned();
+        let view_editor_delegate = self.view_editor_delegate.clone();
+        to_fut(async move { get_cells_for_field(view_editor_delegate, &field_id).await })
     }
 }
 

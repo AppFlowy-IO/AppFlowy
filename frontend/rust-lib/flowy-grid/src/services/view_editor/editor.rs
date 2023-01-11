@@ -1,7 +1,8 @@
 use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::*;
 use crate::services::block_manager::GridBlockEvent;
-use crate::services::cell::AtomicCellDataCache;
+use crate::services::cell::{AtomicCellDataCache, TypeCellData};
+use crate::services::field::{RowSingleCellData, TypeOptionCellDataHandler};
 use crate::services::filter::{FilterChangeset, FilterController, FilterTaskHandler, FilterType, UpdatedFilterType};
 use crate::services::group::{
     default_group_configuration, find_group_field, make_group_controller, Group, GroupConfigurationReader,
@@ -30,7 +31,6 @@ use std::borrow::Cow;
 use std::future::Future;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
-use crate::services::field::RowSingleCellData;
 
 pub trait GridViewEditorDelegate: Send + Sync + 'static {
     /// If the field_ids is None, then it will return all the field revisions
@@ -53,14 +53,18 @@ pub trait GridViewEditorDelegate: Send + Sync + 'static {
     ///
     fn get_row_revs(&self, block_ids: Option<Vec<String>>) -> Fut<Vec<Arc<RowRevision>>>;
 
-    fn get_cells_for_field(&self, field_id: &str) -> Fut<FlowyResult<Vec<RowSingleCellData>>>;
-
     /// Get all the blocks that the current Grid has.
     /// One grid has a list of blocks
     fn get_blocks(&self) -> Fut<Vec<GridBlockRowRevision>>;
 
     /// Returns a `TaskDispatcher` used to poll a `Task`
     fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>>;
+
+    fn get_type_option_cell_handler(
+        &self,
+        field_rev: &FieldRevision,
+        field_type: &FieldType,
+    ) -> Option<Box<dyn TypeOptionCellDataHandler>>;
 }
 
 pub struct GridViewRevisionEditor {
@@ -584,6 +588,10 @@ impl GridViewRevisionEditor {
     pub async fn group_by_view_field(&self, field_id: &str) -> FlowyResult<()> {
         if let Some(field_rev) = self.delegate.get_field_rev(field_id).await {
             let row_revs = self.delegate.get_row_revs(None).await;
+            let configuration_reader = GroupConfigurationReaderImpl {
+                pad: self.pad.clone(),
+                view_editor_delegate: self.delegate.clone(),
+            };
             let new_group_controller = new_group_controller_with_field_rev(
                 self.user_id.clone(),
                 self.view_id.clone(),
@@ -591,6 +599,7 @@ impl GridViewRevisionEditor {
                 self.rev_manager.clone(),
                 field_rev,
                 row_revs,
+                configuration_reader,
             )
             .await?;
 
@@ -615,6 +624,10 @@ impl GridViewRevisionEditor {
             }
         }
         Ok(())
+    }
+
+    pub(crate) async fn get_cells_for_field(&self, field_id: &str) -> FlowyResult<Vec<RowSingleCellData>> {
+        get_cells_for_field(self.delegate.clone(), field_id).await
     }
 
     async fn notify_did_update_setting(&self) {
@@ -694,6 +707,33 @@ impl GridViewRevisionEditor {
         }
     }
 }
+/// Returns the list of cells corresponding to the given field.
+pub(crate) async fn get_cells_for_field(
+    delegate: Arc<dyn GridViewEditorDelegate>,
+    field_id: &str,
+) -> FlowyResult<Vec<RowSingleCellData>> {
+    let row_revs = delegate.get_row_revs(None).await;
+    let field_rev = delegate.get_field_rev(field_id).await.unwrap();
+    let field_type: FieldType = field_rev.ty.into();
+    let mut cells = vec![];
+    if let Some(handler) = delegate.get_type_option_cell_handler(&field_rev, &field_type) {
+        for row_rev in row_revs {
+            if let Some(cell_rev) = row_rev.cells.get(field_id) {
+                if let Ok(type_cell_data) = TypeCellData::try_from(cell_rev) {
+                    if let Ok(cell_data) = handler.get_cell_data(type_cell_data.cell_str, &field_type, &field_rev) {
+                        cells.push(RowSingleCellData {
+                            row_id: row_rev.id.clone(),
+                            field_id: field_rev.id.clone(),
+                            field_type: field_type.clone(),
+                            cell_data,
+                        })
+                    }
+                }
+            }
+        }
+    }
+    Ok(cells)
+}
 
 #[async_trait]
 impl RefCountValue for GridViewRevisionEditor {
@@ -709,7 +749,10 @@ async fn new_group_controller(
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     delegate: Arc<dyn GridViewEditorDelegate>,
 ) -> FlowyResult<Box<dyn GroupController>> {
-    let configuration_reader = GroupConfigurationReaderImpl(view_rev_pad.clone());
+    let configuration_reader = GroupConfigurationReaderImpl {
+        pad: view_rev_pad.clone(),
+        view_editor_delegate: delegate.clone(),
+    };
     let field_revs = delegate.get_field_revs(None).await;
     let row_revs = delegate.get_row_revs(None).await;
     let layout = view_rev_pad.read().await.layout();
@@ -725,7 +768,16 @@ async fn new_group_controller(
         })
         .unwrap_or_else(|| find_group_field(&field_revs, &layout).unwrap());
 
-    new_group_controller_with_field_rev(user_id, view_id, view_rev_pad, rev_manager, field_rev, row_revs).await
+    new_group_controller_with_field_rev(
+        user_id,
+        view_id,
+        view_rev_pad,
+        rev_manager,
+        field_rev,
+        row_revs,
+        configuration_reader,
+    )
+    .await
 }
 
 /// Returns a [GroupController]  
@@ -737,8 +789,8 @@ async fn new_group_controller_with_field_rev(
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     field_rev: Arc<FieldRevision>,
     row_revs: Vec<Arc<RowRevision>>,
+    configuration_reader: GroupConfigurationReaderImpl,
 ) -> FlowyResult<Box<dyn GroupController>> {
-    let configuration_reader = GroupConfigurationReaderImpl(view_rev_pad.clone());
     let configuration_writer = GroupConfigurationWriterImpl {
         user_id,
         rev_manager,

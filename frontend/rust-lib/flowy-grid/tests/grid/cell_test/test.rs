@@ -62,7 +62,11 @@ async fn grid_cell_update() {
 async fn text_cell_date_test() {
     let test = GridCellTest::new().await;
     let text_field = test.get_first_field_rev(FieldType::RichText);
-    let cells = test.editor.get_cell_data_for_field(&text_field.id).await.unwrap();
+    let cells = test
+        .editor
+        .get_cells_for_field(&test.view_id, &text_field.id)
+        .await
+        .unwrap();
 
     for (i, cell) in cells.iter().enumerate() {
         let text = cell.get_text_field_cell_data().unwrap();
@@ -82,7 +86,11 @@ async fn text_cell_date_test() {
 async fn url_cell_date_test() {
     let test = GridCellTest::new().await;
     let url_field = test.get_first_field_rev(FieldType::URL);
-    let cells = test.editor.get_cell_data_for_field(&url_field.id).await.unwrap();
+    let cells = test
+        .editor
+        .get_cells_for_field(&test.view_id, &url_field.id)
+        .await
+        .unwrap();
 
     for (i, cell) in cells.iter().enumerate() {
         let url_cell_data = cell.get_url_field_cell_data().unwrap();
