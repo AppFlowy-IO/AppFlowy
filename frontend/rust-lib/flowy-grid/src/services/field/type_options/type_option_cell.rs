@@ -4,9 +4,9 @@ use crate::services::cell::{
     FromCellChangesetString, FromCellString, TypeCellData,
 };
 use crate::services::field::{
-    default_order, CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, MultiSelectTypeOptionPB,
-    NumberTypeOptionPB, RichTextTypeOptionPB, SingleSelectTypeOptionPB, TypeOption, TypeOptionCellData,
-    TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform, URLTypeOptionPB,
+    CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, MultiSelectTypeOptionPB, NumberTypeOptionPB,
+    RichTextTypeOptionPB, SingleSelectTypeOptionPB, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+    TypeOptionCellDataFilter, TypeOptionTransform, URLTypeOptionPB,
 };
 use crate::services::filter::FilterType;
 use flowy_error::FlowyResult;
@@ -221,15 +221,13 @@ where
 
     fn handle_cell_compare(&self, left_cell_data: &str, right_cell_data: &str, field_rev: &FieldRevision) -> Ordering {
         let field_type: FieldType = field_rev.ty.into();
-        let left = self.get_decoded_cell_data(left_cell_data.to_owned(), &field_type, field_rev);
-        let right = self.get_decoded_cell_data(right_cell_data.to_owned(), &field_type, field_rev);
-
-        match (left, right) {
-            (Ok(left), Ok(right)) => self.apply_cmp(&left, &right),
-            (Ok(_), Err(_)) => Ordering::Greater,
-            (Err(_), Ok(_)) => Ordering::Less,
-            (Err(_), Err(_)) => default_order(),
-        }
+        let left = self
+            .get_decoded_cell_data(left_cell_data.to_owned(), &field_type, field_rev)
+            .unwrap_or_default();
+        let right = self
+            .get_decoded_cell_data(right_cell_data.to_owned(), &field_type, field_rev)
+            .unwrap_or_default();
+        self.apply_cmp(&left, &right)
     }
 
     fn handle_cell_filter(

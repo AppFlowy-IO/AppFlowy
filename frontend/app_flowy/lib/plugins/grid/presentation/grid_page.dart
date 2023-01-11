@@ -226,18 +226,18 @@ class _GridRowsState extends State<_GridRows> {
             );
           },
           reorderSingleRow: (reorderRow, rowInfo) {
-            _key.currentState?.removeItem(
-              reorderRow.oldIndex,
-              (context, animation) => _renderRow(context, rowInfo, animation),
-            );
-            _key.currentState?.insertItem(reorderRow.newIndex);
+            // _key.currentState?.removeItem(
+            //   reorderRow.oldIndex,
+            //   (context, animation) => _renderRow(context, rowInfo, animation),
+            // );
+            // _key.currentState?.insertItem(reorderRow.newIndex);
           },
         );
       },
       buildWhen: (previous, current) {
         return current.reason.whenOrNull(
               reorderRows: () => true,
-              // reorderSingleRow: (reorderRow, rowInfo) => true,
+              reorderSingleRow: (reorderRow, rowInfo) => true,
             ) ??
             false;
       },

@@ -164,8 +164,9 @@ class RowList {
     final index = _rowInfos.indexWhere(
       (rowInfo) => rowInfo.rowPB.id == rowId,
     );
-    if (index == oldIndex) {
-      final rowInfo = _rowInfos.removeAt(index);
+    if (index != -1) {
+      assert(index == oldIndex);
+      final rowInfo = remove(rowId)!.rowInfo;
       insert(newIndex, rowInfo);
     }
   }

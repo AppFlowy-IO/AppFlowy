@@ -206,6 +206,7 @@ fn cmp_row(
         _ => default_order(),
     };
 
+    // The order is calculated by Ascending. So reverse the order if the SortCondition is descending.
     match sort.condition {
         SortCondition::Ascending => order,
         SortCondition::Descending => order.reverse(),
@@ -222,7 +223,7 @@ fn cmp_cell(
     match TypeOptionCellExt::new_with_cell_data_cache(field_rev.as_ref(), Some(cell_data_cache.clone()))
         .get_type_option_cell_data_handler(&field_type)
     {
-        None => Ordering::Less,
+        None => default_order(),
         Some(handler) => {
             let cal_order = || {
                 let left_cell_str = TypeCellData::try_from(left_cell).ok()?.into_inner();
