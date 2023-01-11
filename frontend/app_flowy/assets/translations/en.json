@@ -320,5 +320,8 @@
     "column": {
       "create_new_card": "New"
     }
+  },
+  "calendar": {
+    "menuName": "Calendar"
   }
 }

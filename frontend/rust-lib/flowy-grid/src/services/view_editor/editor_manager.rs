@@ -103,7 +103,7 @@ impl GridViewManager {
 
     pub async fn group_by_field(&self, field_id: &str) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
-        let _ = view_editor.group_by_view_field(field_id).await?;
+        view_editor.group_by_view_field(field_id).await?;
         Ok(())
     }
 
@@ -176,7 +176,7 @@ impl GridViewManager {
 
     pub async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
-        let _ = view_editor.move_view_group(params).await?;
+        view_editor.move_view_group(params).await?;
         Ok(())
     }
 
@@ -222,10 +222,10 @@ impl GridViewManager {
     ) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
         if view_editor.group_id().await == field_id {
-            let _ = view_editor.group_by_view_field(field_id).await?;
+            view_editor.group_by_view_field(field_id).await?;
         }
 
-        let _ = view_editor
+        view_editor
             .did_update_view_field_type_option(field_id, old_field_rev)
             .await?;
         Ok(())

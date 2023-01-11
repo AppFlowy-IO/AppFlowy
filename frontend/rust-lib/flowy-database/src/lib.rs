@@ -35,7 +35,7 @@ pub fn init(storage_path: &str) -> Result<Database, io::Error> {
     let pool_config = PoolConfig::default();
     let database = Database::new(storage_path, DB_NAME, pool_config).map_err(as_io_error)?;
     let conn = database.get_connection().map_err(as_io_error)?;
-    let _ = embedded_migrations::run(&*conn).map_err(as_io_error)?;
+    embedded_migrations::run(&*conn).map_err(as_io_error)?;
     Ok(database)
 }
 

@@ -4,11 +4,11 @@ import 'package:app_flowy/plugins/grid/application/view/grid_view_cache.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/grid_service.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
-import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/protobuf.dart';
 
 import 'board_listener.dart';
 
@@ -108,19 +108,19 @@ class BoardDataController {
 
   Future<Either<Unit, FlowyError>> openGrid() async {
     final result = await _gridFFIService.openGrid();
-
     return result.fold(
       (grid) async {
         _onGridChanged?.call(grid);
-        final result = await fieldController.loadFields(fieldIds: grid.fields);
-        return result.fold(
-          (l) {
-            _loadGroups();
-            _viewCache.rowCache.initializeRows(grid.rows);
-            return left(l);
-          },
-          (err) => right(err),
-        );
+        return fieldController.loadFields(fieldIds: grid.fields).then((result) {
+          return result.fold(
+            (l) => Future(() async {
+              await _loadGroups();
+              _viewCache.rowCache.initializeRows(grid.rows);
+              return left(l);
+            }),
+            (err) => right(err),
+          );
+        });
       },
       (err) => right(err),
     );

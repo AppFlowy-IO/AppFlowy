@@ -2,17 +2,17 @@ import 'dart:async';
 import 'package:app_flowy/core/folder_notification.dart';
 import 'package:app_flowy/core/user_notification.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-error/code.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'dart:typed_data';
 import 'package:flowy_infra/notifier.dart';
-import 'package:flowy_sdk/protobuf/dart-notify/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/dart_notification.pb.dart'
+import 'package:appflowy_backend/protobuf/dart-notify/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/dart_notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/dart_notification.pb.dart'
     as user;
-import 'package:flowy_sdk/rust_stream.dart';
+import 'package:appflowy_backend/rust_stream.dart';
 
 typedef UserProfileNotifyValue = Either<UserProfilePB, FlowyError>;
 typedef AuthNotifyValue = Either<Unit, FlowyError>;

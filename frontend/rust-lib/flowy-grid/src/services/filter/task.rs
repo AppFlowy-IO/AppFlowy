@@ -32,7 +32,7 @@ impl TaskHandler for FilterTaskHandler {
         let filter_controller = self.filter_controller.clone();
         Box::pin(async move {
             if let TaskContent::Text(predicate) = content {
-                let _ = filter_controller
+                filter_controller
                     .write()
                     .await
                     .process(&predicate)

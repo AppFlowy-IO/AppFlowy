@@ -1,5 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/sort_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/sort_entities.pb.dart';
 
 class SortInfo {
   final SortPB sortPB;

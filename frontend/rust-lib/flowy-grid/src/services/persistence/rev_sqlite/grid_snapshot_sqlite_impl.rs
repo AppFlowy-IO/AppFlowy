@@ -115,35 +115,3 @@ impl std::convert::From<GridSnapshotRecord> for RevisionSnapshot {
         }
     }
 }
-
-// pub(crate) fn get_latest_rev_id_from(rev_ids: Vec<i64>, anchor: i64) -> Option<i64> {
-//     let mut target_rev_id = None;
-//     let mut old_step: Option<i64> = None;
-//     for rev_id in rev_ids {
-//         let step = (rev_id - anchor).abs();
-//         if let Some(old_step) = &mut old_step {
-//             if *old_step > step {
-//                 *old_step = step;
-//                 target_rev_id = Some(rev_id);
-//             }
-//         } else {
-//             old_step = Some(step);
-//             target_rev_id = Some(rev_id);
-//         }
-//     }
-//     target_rev_id
-// }
-
-// #[cfg(test)]
-// mod tests {
-//     use crate::services::persistence::rev_sqlite::get_latest_rev_id_from;
-//
-//     #[test]
-//     fn test_latest_rev_id() {
-//         let ids = vec![1, 2, 3, 4, 5, 6];
-//         for (anchor, expected_value) in vec![(3, 3), (7, 6), (1, 1)] {
-//             let value = get_latest_rev_id_from(ids.clone(), anchor).unwrap();
-//             assert_eq!(value, expected_value);
-//         }
-//     }
-// }

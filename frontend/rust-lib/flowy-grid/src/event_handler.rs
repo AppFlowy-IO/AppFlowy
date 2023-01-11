@@ -44,26 +44,26 @@ pub(crate) async fn update_grid_setting_handler(
 
     let editor = manager.get_grid_editor(&params.grid_id).await?;
     if let Some(insert_params) = params.insert_group {
-        let _ = editor.insert_group(insert_params).await?;
+        editor.insert_group(insert_params).await?;
     }
 
     if let Some(delete_params) = params.delete_group {
-        let _ = editor.delete_group(delete_params).await?;
+        editor.delete_group(delete_params).await?;
     }
 
     if let Some(alter_filter) = params.insert_filter {
-        let _ = editor.create_or_update_filter(alter_filter).await?;
+        editor.create_or_update_filter(alter_filter).await?;
     }
 
     if let Some(delete_filter) = params.delete_filter {
-        let _ = editor.delete_filter(delete_filter).await?;
+        editor.delete_filter(delete_filter).await?;
     }
 
     if let Some(alter_sort) = params.alert_sort {
         let _ = editor.create_or_update_sort(alter_sort).await?;
     }
     if let Some(delete_sort) = params.delete_sort {
-        let _ = editor.delete_sort(delete_sort).await?;
+        editor.delete_sort(delete_sort).await?;
     }
     Ok(())
 }
@@ -124,7 +124,7 @@ pub(crate) async fn update_field_handler(
 ) -> Result<(), FlowyError> {
     let changeset: FieldChangesetParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&changeset.grid_id).await?;
-    let _ = editor.update_field(changeset).await?;
+    editor.update_field(changeset).await?;
     Ok(())
 }
 
@@ -136,7 +136,7 @@ pub(crate) async fn update_field_type_option_handler(
     let params: TypeOptionChangesetParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
     let old_field_rev = editor.get_field_rev(&params.field_id).await;
-    let _ = editor
+    editor
         .update_field_type_option(
             &params.grid_id,
             &params.field_id,
@@ -154,7 +154,7 @@ pub(crate) async fn delete_field_handler(
 ) -> Result<(), FlowyError> {
     let params: FieldIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
-    let _ = editor.delete_field(&params.field_id).await?;
+    editor.delete_field(&params.field_id).await?;
     Ok(())
 }
 
@@ -178,7 +178,7 @@ pub(crate) async fn switch_to_field_handler(
 
     // Update the type-option data after the field type has been changed
     let type_option_data = get_type_option_data(&new_field_rev, &params.field_type).await?;
-    let _ = editor
+    editor
         .update_field_type_option(&params.grid_id, &new_field_rev.id, type_option_data, old_field_rev)
         .await?;
 
@@ -192,7 +192,7 @@ pub(crate) async fn duplicate_field_handler(
 ) -> Result<(), FlowyError> {
     let params: FieldIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
-    let _ = editor.duplicate_field(&params.field_id).await?;
+    editor.duplicate_field(&params.field_id).await?;
     Ok(())
 }
 
@@ -247,7 +247,7 @@ pub(crate) async fn move_field_handler(
 ) -> Result<(), FlowyError> {
     let params: MoveFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
-    let _ = editor.move_field(params).await?;
+    editor.move_field(params).await?;
     Ok(())
 }
 
@@ -287,7 +287,7 @@ pub(crate) async fn delete_row_handler(
 ) -> Result<(), FlowyError> {
     let params: RowIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
-    let _ = editor.delete_row(&params.row_id).await?;
+    editor.delete_row(&params.row_id).await?;
     Ok(())
 }
 
@@ -298,7 +298,7 @@ pub(crate) async fn duplicate_row_handler(
 ) -> Result<(), FlowyError> {
     let params: RowIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id).await?;
-    let _ = editor.duplicate_row(&params.row_id).await?;
+    editor.duplicate_row(&params.row_id).await?;
     Ok(())
 }
 
@@ -309,7 +309,7 @@ pub(crate) async fn move_row_handler(
 ) -> Result<(), FlowyError> {
     let params: MoveRowParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.view_id).await?;
-    let _ = editor.move_row(params).await?;
+    editor.move_row(params).await?;
     Ok(())
 }
 
@@ -332,7 +332,7 @@ pub(crate) async fn get_cell_handler(
     let params: CellPathParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.view_id).await?;
     match editor.get_cell(&params).await {
-        None => data_result(CellPB::empty(&params.field_id)),
+        None => data_result(CellPB::empty(&params.field_id, &params.row_id)),
         Some(cell) => data_result(cell),
     }
 }
@@ -344,7 +344,7 @@ pub(crate) async fn update_cell_handler(
 ) -> Result<(), FlowyError> {
     let changeset: CellChangesetPB = data.into_inner();
     let editor = manager.get_grid_editor(&changeset.grid_id).await?;
-    let _ = editor
+    editor
         .update_cell_with_changeset(&changeset.row_id, &changeset.field_id, changeset.type_cell_data)
         .await?;
     Ok(())
@@ -375,7 +375,7 @@ pub(crate) async fn update_select_option_handler(
     let changeset: SelectOptionChangeset = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&changeset.cell_path.view_id).await?;
     let field_id = changeset.cell_path.field_id.clone();
-    let _ = editor
+    editor
         .modify_field_rev(&field_id, |field_rev| {
             let mut type_option = select_type_option_from_field_rev(field_rev)?;
             let mut cell_changeset_str = None;
@@ -469,7 +469,7 @@ pub(crate) async fn update_select_option_cell_handler(
         delete_option_ids: params.delete_option_ids,
     };
 
-    let _ = editor
+    editor
         .update_cell_with_changeset(
             &params.cell_identifier.row_id,
             &params.cell_identifier.field_id,
@@ -493,7 +493,7 @@ pub(crate) async fn update_date_cell_handler(
     };
 
     let editor = manager.get_grid_editor(&cell_path.view_id).await?;
-    let _ = editor
+    editor
         .update_cell(cell_path.row_id, cell_path.field_id, cell_changeset)
         .await?;
     Ok(())
@@ -528,7 +528,7 @@ pub(crate) async fn move_group_handler(
 ) -> FlowyResult<()> {
     let params: MoveGroupParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(params.view_id.as_ref()).await?;
-    let _ = editor.move_group(params).await?;
+    editor.move_group(params).await?;
     Ok(())
 }
 
@@ -539,6 +539,6 @@ pub(crate) async fn move_group_row_handler(
 ) -> FlowyResult<()> {
     let params: MoveGroupRowParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(params.view_id.as_ref()).await?;
-    let _ = editor.move_group_row(params).await?;
+    editor.move_group_row(params).await?;
     Ok(())
 }

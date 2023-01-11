@@ -3,6 +3,7 @@ import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.dart';
 import 'package:appflowy_editor/src/render/style/editor_style.dart';
+import 'package:appflowy_editor/src/render/toolbar/toolbar_item.dart';
 import 'package:appflowy_editor/src/service/service.dart';
 import 'package:flutter/material.dart';
 
@@ -60,6 +61,9 @@ class EditorState {
   /// Stores the selection menu items.
   List<SelectionMenuItem> selectionMenuItems = [];
 
+  /// Stores the toolbar items.
+  List<ToolbarItem> toolbarItems = [];
+
   /// Operation stream.
   Stream<Transaction> get transactionStream => _observer.stream;
   final StreamController<Transaction> _observer = StreamController.broadcast();
@@ -96,13 +100,21 @@ class EditorState {
     return null;
   }
 
-  updateCursorSelection(Selection? cursorSelection,
-      [CursorUpdateReason reason = CursorUpdateReason.others]) {
+  Future<void> updateCursorSelection(
+    Selection? cursorSelection, [
+    CursorUpdateReason reason = CursorUpdateReason.others,
+  ]) {
+    final completer = Completer<void>();
+
     // broadcast to other users here
     if (reason != CursorUpdateReason.uiEvent) {
       service.selectionService.updateSelection(cursorSelection);
     }
     _cursorSelection = cursorSelection;
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      completer.complete();
+    });
+    return completer.future;
   }
 
   Timer? _debouncedSealHistoryItemTimer;
@@ -121,14 +133,17 @@ class EditorState {
   ///
   /// The options can be used to determine whether the editor
   /// should record the transaction in undo/redo stack.
-  void apply(
+  Future<void> apply(
     Transaction transaction, {
     ApplyOptions options = const ApplyOptions(recordUndo: true),
     ruleCount = 0,
     withUpdateCursor = true,
-  }) {
+  }) async {
+    final completer = Completer<void>();
+
     if (!editable) {
-      return;
+      completer.complete();
+      return completer.future;
     }
     // TODO: validate the transation.
     for (final op in transaction.operations) {
@@ -137,10 +152,11 @@ class EditorState {
 
     _observer.add(transaction);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       _applyRules(ruleCount);
       if (withUpdateCursor) {
-        updateCursorSelection(transaction.afterSelection);
+        await updateCursorSelection(transaction.afterSelection);
+        completer.complete();
       }
     });
 
@@ -160,6 +176,8 @@ class EditorState {
       redoItem.afterSelection = transaction.afterSelection;
       undoManager.redoStack.push(redoItem);
     }
+
+    return completer.future;
   }
 
   void _debouncedSealHistoryItem() {

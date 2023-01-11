@@ -12,7 +12,7 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';

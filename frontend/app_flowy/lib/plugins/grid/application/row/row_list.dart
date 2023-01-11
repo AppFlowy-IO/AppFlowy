@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:flowy_sdk/protobuf/flowy-grid/row_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/row_entities.pb.dart';
 
 import 'row_cache.dart';
 

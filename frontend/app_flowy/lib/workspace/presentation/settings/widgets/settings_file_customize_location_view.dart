@@ -40,6 +40,7 @@ class SettingsFileLocationCustomzierState
           title: FlowyText.regular(
             LocaleKeys.settings_files_defaultLocation.tr(),
             fontSize: 15.0,
+            overflow: TextOverflow.ellipsis,
           ),
           subtitle: Tooltip(
             message: LocaleKeys.settings_files_doubleTapToCopy.tr(),
@@ -52,6 +53,7 @@ class SettingsFileLocationCustomzierState
               child: FlowyText.regular(
                 state.path ?? '',
                 fontSize: 10.0,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ),

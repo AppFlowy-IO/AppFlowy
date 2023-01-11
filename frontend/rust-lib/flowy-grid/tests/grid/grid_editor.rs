@@ -57,6 +57,11 @@ impl GridEditorTest {
                 let view_data: Bytes = build_context.into();
                 ViewTest::new_board_view(&sdk, view_data.to_vec()).await
             }
+            GridLayout::Calendar => {
+                let build_context = make_test_calendar();
+                let view_data: Bytes = build_context.into();
+                ViewTest::new_calendar_view(&sdk, view_data.to_vec()).await
+            }
         };
 
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
@@ -103,7 +108,7 @@ impl GridEditorTest {
     }
 
     /// returns the first `FieldRevision` in the build-in test grid.
-    /// Not support duplicate `FieldType` in test grid yet.  
+    /// Not support duplicate `FieldType` in test grid yet.
     pub fn get_first_field_rev(&self, field_type: FieldType) -> &Arc<FieldRevision> {
         self.field_revs
             .iter()
@@ -301,6 +306,7 @@ fn make_test_grid() -> BuildGridContext {
                             .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(0)]),
                         FieldType::Checklist => row_builder.insert_checklist_cell(|options| options),
                         FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
+                        FieldType::URL => row_builder.insert_url_cell("AppFlowy website - https://www.appflowy.io"),
                         _ => "".to_owned(),
                     };
                 }
@@ -387,6 +393,7 @@ fn make_test_grid() -> BuildGridContext {
     grid_builder.build()
 }
 
+// Kanban board unit test mock data
 fn make_test_board() -> BuildGridContext {
     let mut grid_builder = GridBuilder::new();
     // Iterate through the FieldType to create the corresponding Field.
@@ -555,4 +562,9 @@ fn make_test_board() -> BuildGridContext {
         grid_builder.add_row(row_rev);
     }
     grid_builder.build()
+}
+
+// Calendar unit test mock data
+fn make_test_calendar() -> BuildGridContext {
+    todo!()
 }

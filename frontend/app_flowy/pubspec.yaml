@@ -31,8 +31,8 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  flowy_sdk:
-    path: packages/flowy_sdk
+  appflowy_backend:
+    path: packages/appflowy_backend
   flowy_infra_ui:
     path: packages/flowy_infra_ui
   flowy_infra:

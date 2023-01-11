@@ -56,7 +56,7 @@ impl WorkspaceTableSql {
     }
 }
 
-#[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable)]
+#[derive(PartialEq, Eq, Clone, Debug, Queryable, Identifiable, Insertable)]
 #[table_name = "workspace_table"]
 pub struct WorkspaceTable {
     pub id: String,

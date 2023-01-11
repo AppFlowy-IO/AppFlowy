@@ -1,7 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/blank/blank.dart';
 import 'package:app_flowy/workspace/presentation/home/toast.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time/time.dart';

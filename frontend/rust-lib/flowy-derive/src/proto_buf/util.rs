@@ -63,12 +63,9 @@ pub fn category_from_str(type_str: String) -> TypeCategory {
                     let cache: ProtoCache = serde_json::from_str(&s).unwrap();
                     CACHE_INFO
                         .entry(TypeCategory::Protobuf)
-                        .or_insert(vec![])
+                        .or_default()
                         .extend(cache.structs);
-                    CACHE_INFO
-                        .entry(TypeCategory::Enum)
-                        .or_insert(vec![])
-                        .extend(cache.enums);
+                    CACHE_INFO.entry(TypeCategory::Enum).or_default().extend(cache.enums);
                 }
             }
         }

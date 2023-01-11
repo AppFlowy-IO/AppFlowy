@@ -1,7 +1,7 @@
 import 'dart:collection';
 
 import 'package:app_flowy/plugins/grid/presentation/widgets/cell/select_option_cell/text_field.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:textfield_tags/textfield_tags.dart';
@@ -28,6 +28,7 @@ void main() {
         remainder = remaining;
         select = options;
       },
+      onRemove: (_) {},
       newText: (text) => remainder = text,
       textSeparators: const [','],
       textController: TextEditingController(),

@@ -21,13 +21,13 @@ pub struct SubscribeObject {
 
 impl std::fmt::Display for SubscribeObject {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let _ = f.write_str(&format!("{} changed: ", &self.source))?;
+        f.write_str(&format!("{} changed: ", &self.source))?;
         if let Some(payload) = &self.payload {
-            let _ = f.write_str(&format!("send {} payload", payload.len()))?;
+            f.write_str(&format!("send {} payload", payload.len()))?;
         }
 
         if let Some(payload) = &self.error {
-            let _ = f.write_str(&format!("receive {} error", payload.len()))?;
+            f.write_str(&format!("receive {} error", payload.len()))?;
         }
 
         Ok(())

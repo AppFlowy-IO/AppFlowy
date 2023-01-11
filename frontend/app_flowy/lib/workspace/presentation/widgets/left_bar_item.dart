@@ -1,7 +1,7 @@
 import 'package:app_flowy/workspace/application/view/view_listener.dart';
 import 'package:app_flowy/workspace/application/view/view_service.dart';
-import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 
 class ViewLeftBarItem extends StatefulWidget {

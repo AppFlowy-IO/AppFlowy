@@ -47,7 +47,7 @@ impl FolderPad {
 
         let folder_rev = FolderRevision::deserialize(&mut deserializer).map_err(|e| {
             tracing::error!("Deserialize folder from {} failed", content);
-            return CollaborateError::internal().context(format!("Deserialize operations to folder failed: {}", e));
+            CollaborateError::internal().context(format!("Deserialize operations to folder failed: {}", e))
         })?;
 
         Ok(Self { folder_rev, operations })

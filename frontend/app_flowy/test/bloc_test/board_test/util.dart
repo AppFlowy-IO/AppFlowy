@@ -9,8 +9,8 @@ import 'package:app_flowy/plugins/grid/application/row/row_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/workspace/application/app/app_service.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
 
 import '../../util.dart';
 import '../grid_test/util.dart';

@@ -1,8 +1,7 @@
-import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import 'package:dartz/dartz.dart';
 import 'cell_service/cell_service.dart';
 
 part 'number_cell_bloc.freezed.dart';
@@ -20,20 +19,19 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
           initial: () {
             _startListening();
           },
-          didReceiveCellUpdate: (content) {
-            emit(state.copyWith(content: content));
+          didReceiveCellUpdate: (cellContent) {
+            emit(state.copyWith(cellContent: cellContent ?? ""));
           },
           updateCell: (text) {
-            cellController.saveCellData(text, resultCallback: (result) {
-              result.fold(
-                () => null,
-                (err) {
-                  if (!isClosed) {
-                    add(NumberCellEvent.didReceiveCellUpdate(right(err)));
-                  }
-                },
-              );
-            });
+            if (state.cellContent != text) {
+              emit(state.copyWith(cellContent: text));
+              cellController.saveCellData(text, onFinish: (result) {
+                result.fold(
+                  () {},
+                  (err) => Log.error(err),
+                );
+              });
+            }
           },
         );
       },
@@ -51,13 +49,22 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
   }
 
   void _startListening() {
-    _onCellChangedFn = cellController.startListening(
-      onCellChanged: ((cellContent) {
-        if (!isClosed) {
-          add(NumberCellEvent.didReceiveCellUpdate(left(cellContent ?? "")));
-        }
-      }),
-    );
+    _onCellChangedFn =
+        cellController.startListening(onCellChanged: ((cellContent) {
+      if (!isClosed) {
+        add(NumberCellEvent.didReceiveCellUpdate(cellContent));
+      }
+    }), listenWhenOnCellChanged: (oldValue, newValue) {
+      // If the new value is not the same as the content, which means the
+      // backend formatted the content that user enter. For example:
+      //
+      // state.cellContent: "abc"
+      // oldValue: ""
+      // newValue: ""
+      // The oldValue is the same as newValue. So the [onCellChanged] won't
+      // get called. So just return true to refresh the cell content
+      return true;
+    });
   }
 }
 
@@ -65,20 +72,19 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
 class NumberCellEvent with _$NumberCellEvent {
   const factory NumberCellEvent.initial() = _Initial;
   const factory NumberCellEvent.updateCell(String text) = _UpdateCell;
-  const factory NumberCellEvent.didReceiveCellUpdate(
-      Either<String, FlowyError> cellContent) = _DidReceiveCellUpdate;
+  const factory NumberCellEvent.didReceiveCellUpdate(String? cellContent) =
+      _DidReceiveCellUpdate;
 }
 
 @freezed
 class NumberCellState with _$NumberCellState {
   const factory NumberCellState({
-    required Either<String, FlowyError> content,
+    required String cellContent,
   }) = _NumberCellState;
 
   factory NumberCellState.initial(GridCellController context) {
-    final cellContent = context.getCellData() ?? "";
     return NumberCellState(
-      content: left(cellContent),
+      cellContent: context.getCellData() ?? "",
     );
   }
 }

@@ -7,7 +7,8 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfilePB;
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
+    show UserProfilePB;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';

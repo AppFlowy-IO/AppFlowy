@@ -205,7 +205,7 @@ impl FilterController {
                 notification = Some(FilterChangesetNotificationPB::from_insert(&self.view_id, vec![filter]));
             }
             if let Some(filter_rev) = self.delegate.get_filter_rev(filter_type.clone()).await {
-                let _ = self.refresh_filters(vec![filter_rev]).await;
+                self.refresh_filters(vec![filter_rev]).await;
             }
         }
 
@@ -222,7 +222,7 @@ impl FilterController {
 
                 // Update the corresponding filter in the cache
                 if let Some(filter_rev) = self.delegate.get_filter_rev(updated_filter_type.new.clone()).await {
-                    let _ = self.refresh_filters(vec![filter_rev]).await;
+                    self.refresh_filters(vec![filter_rev]).await;
                 }
 
                 if let Some(filter_id) = filter_id {
@@ -244,8 +244,7 @@ impl FilterController {
             self.cell_filter_cache.write().remove(filter_type);
         }
 
-        let _ = self
-            .gen_task(FilterEvent::FilterDidChanged, QualityOfService::Background)
+        self.gen_task(FilterEvent::FilterDidChanged, QualityOfService::Background)
             .await;
         tracing::trace!("{:?}", notification);
         notification

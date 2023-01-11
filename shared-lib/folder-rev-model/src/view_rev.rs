@@ -75,6 +75,7 @@ pub enum ViewLayoutTypeRevision {
     // The for historical reasons, the value of Grid is not 1.
     Grid = 3,
     Board = 4,
+    Calendar = 5,
 }
 
 impl std::default::Default for ViewLayoutTypeRevision {

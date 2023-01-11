@@ -3,8 +3,8 @@ import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/sort/sort_editor_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/sort/util.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
-import 'package:app_flowy/plugins/grid/presentation/widgets/filter/create_filter_list.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/sort/create_sort_list.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/sort_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -13,7 +13,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/sort_entities.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:math' as math;
@@ -280,7 +279,6 @@ class _OrderButtonState extends State<_OrderButton> {
         onTap: () => popoverController.show(),
       ),
     );
-    ;
   }
 
   String textFromCondition(GridSortConditionPB condition) {
