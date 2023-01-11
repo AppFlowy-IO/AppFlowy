@@ -1,6 +1,10 @@
+use crate::entities::FieldType;
 use crate::services::block_manager::GridBlockManager;
+use crate::services::cell::{AtomicCellDataCache, TypeCellData};
+use crate::services::field::{RowSingleCellData, TypeOptionCellExt};
 use crate::services::row::GridBlockRowRevision;
 use crate::services::view_editor::GridViewEditorDelegate;
+use flowy_error::FlowyResult;
 use flowy_sync::client_grid::GridRevisionPad;
 use flowy_task::TaskDispatcher;
 use grid_rev_model::{FieldRevision, RowRevision};
@@ -12,6 +16,7 @@ pub(crate) struct GridViewEditorDelegateImpl {
     pub(crate) pad: Arc<RwLock<GridRevisionPad>>,
     pub(crate) block_manager: Arc<GridBlockManager>,
     pub(crate) task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    pub(crate) cell_data_cache: AtomicCellDataCache,
 }
 
 impl GridViewEditorDelegate for GridViewEditorDelegateImpl {
@@ -27,7 +32,6 @@ impl GridViewEditorDelegate for GridViewEditorDelegateImpl {
             }
         })
     }
-
     fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>> {
         let pad = self.pad.clone();
         let field_id = field_id.to_owned();
@@ -62,6 +66,46 @@ impl GridViewEditorDelegate for GridViewEditorDelegateImpl {
                 .collect::<Vec<Arc<RowRevision>>>()
         })
     }
+
+    fn get_cells_for_field(&self, field_id: &str) -> Fut<FlowyResult<Vec<RowSingleCellData>>> {
+        let block_manager = self.block_manager.clone();
+        let pad = self.pad.clone();
+        let field_id = field_id.to_owned();
+
+        to_fut(async move {
+            let row_revs = block_manager.get_row_revs().await?;
+            let field_rev = pad.read().await.get_field_rev(&field_id).unwrap().1.clone();
+            let field_type: FieldType = field_rev.ty.into();
+            let mut cells = vec![];
+
+            if let Some(handler) =
+                TypeOptionCellExt::new_with_cell_data_cache(&field_rev, Some(self.cell_data_cache.clone()))
+                    .get_type_option_cell_data_handler(&field_type)
+            {
+                for row_rev in row_revs {
+                    if let Some(cell_rev) = row_rev.cells.get(&field_id) {
+                        if let Ok(type_cell_data) = TypeCellData::try_from(cell_rev) {
+                            if let Ok(cell_data) =
+                                handler.get_cell_data(type_cell_data.cell_str, &field_type, &field_rev)
+                            {
+                                cells.push(RowSingleCellData {
+                                    row_id: row_rev.id.clone(),
+                                    field_id: field_rev.id.clone(),
+                                    field_type: field_type.clone(),
+                                    cell_data,
+                                })
+                            }
+                        }
+                    }
+                }
+            }
+            Ok(cells)
+        })
+    }
+
+    // /// Returns the list of cells corresponding to the given field.
+    // pub async fn get_cells_for_field(&self, field_id: &str) -> FlowyResult<Vec<RowSingleCellData>> {
+    // }
 
     fn get_blocks(&self) -> Fut<Vec<GridBlockRowRevision>> {
         let block_manager = self.block_manager.clone();

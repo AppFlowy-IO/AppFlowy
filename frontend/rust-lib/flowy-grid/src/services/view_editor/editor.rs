@@ -30,6 +30,7 @@ use std::borrow::Cow;
 use std::future::Future;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
+use crate::services::field::RowSingleCellData;
 
 pub trait GridViewEditorDelegate: Send + Sync + 'static {
     /// If the field_ids is None, then it will return all the field revisions
@@ -51,6 +52,8 @@ pub trait GridViewEditorDelegate: Send + Sync + 'static {
     ///     A row has a list of cells
     ///
     fn get_row_revs(&self, block_ids: Option<Vec<String>>) -> Fut<Vec<Arc<RowRevision>>>;
+
+    fn get_cells_for_field(&self, field_id: &str) -> Fut<FlowyResult<Vec<RowSingleCellData>>>;
 
     /// Get all the blocks that the current Grid has.
     /// One grid has a list of blocks

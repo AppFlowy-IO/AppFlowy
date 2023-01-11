@@ -10,9 +10,11 @@ use std::collections::HashMap;
 use std::fmt::Formatter;
 use std::marker::PhantomData;
 use std::sync::Arc;
+use crate::services::field::RowSingleCellData;
 
 pub trait GroupConfigurationReader: Send + Sync + 'static {
     fn get_configuration(&self) -> Fut<Option<Arc<GroupConfigurationRevision>>>;
+    fn get_configuration_cells(&self, field_id: &str) -> Fut<FlowyResult<Vec<RowSingleCellData>>>;
 }
 
 pub trait GroupConfigurationWriter: Send + Sync + 'static {

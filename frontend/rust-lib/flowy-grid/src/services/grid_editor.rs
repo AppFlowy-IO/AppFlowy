@@ -76,6 +76,7 @@ impl GridRevisionEditor {
             pad: grid_pad.clone(),
             block_manager: block_manager.clone(),
             task_scheduler,
+            cell_data_cache: cell_data_cache.clone(),
         });
 
         // View manager
@@ -496,7 +497,8 @@ impl GridRevisionEditor {
         }
     }
 
-    pub async fn get_cell_data_for_field(&self, field_id: &str) -> FlowyResult<Vec<RowSingleCellData>> {
+    /// Returns the list of cells corresponding to the given field.
+    pub async fn get_cells_for_field(&self, field_id: &str) -> FlowyResult<Vec<RowSingleCellData>> {
         let row_revs = self.block_manager.get_row_revs().await?;
         let field_rev = self.get_field_rev(field_id).await.unwrap();
         let field_type: FieldType = field_rev.ty.into();

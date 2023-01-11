@@ -20,6 +20,7 @@ use lib_infra::future::{to_fut, Fut, FutureResult};
 use lib_ot::core::EmptyAttributes;
 use std::sync::Arc;
 use tokio::sync::RwLock;
+use crate::services::field::RowSingleCellData;
 
 pub(crate) struct GridViewRevisionCloudService {
     #[allow(dead_code)]
@@ -70,6 +71,10 @@ impl GroupConfigurationReader for GroupConfigurationReaderImpl {
                 Some(groups.pop().unwrap())
             }
         })
+    }
+
+    fn get_configuration_cells(&self, field_id: &str) -> Fut<FlowyResult<Vec<RowSingleCellData>>> {
+        todo!()
     }
 }
 
