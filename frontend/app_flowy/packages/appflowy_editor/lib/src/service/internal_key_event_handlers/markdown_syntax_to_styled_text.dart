@@ -196,9 +196,6 @@ ShortcutEventHandler greaterToBlockquote = (editorState, event) {
     return KeyEventResult.ignored;
   }
 
-  final textNode = textNodes.first;
-  final text = textNode.toPlainText();
-
   //only convert > at the start of a paragraph
   if (selection.startIndex != 0) {
     return KeyEventResult.ignored;
