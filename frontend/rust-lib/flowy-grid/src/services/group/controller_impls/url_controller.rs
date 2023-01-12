@@ -6,9 +6,8 @@ use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::{
     GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
 };
-
-use crate::services::group::{make_no_status_group, move_group_row, GeneratedGroupContext};
-use grid_rev_model::{FieldRevision, RowRevision, URLGroupConfigurationRevision};
+use crate::services::group::{make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroupContext};
+use grid_rev_model::{FieldRevision, GroupRevision, RowRevision, URLGroupConfigurationRevision};
 
 pub type URLGroupController =
     GenericGroupController<URLGroupConfigurationRevision, URLTypeOptionPB, URLGroupGenerator, URLCellDataParser>;
@@ -106,18 +105,28 @@ impl GroupGenerator for URLGroupGenerator {
     fn generate_groups(
         field_rev: &FieldRevision,
         group_ctx: &Self::Context,
-        type_option: &Option<Self::TypeOptionType>,
+        _type_option: &Option<Self::TypeOptionType>,
     ) -> GeneratedGroupContext {
-        let group_configs = match type_option {
-            None => vec![],
-            Some(type_option) => {
-                tracing::info!("Logging {}, {}", type_option.content, type_option.url);
-                vec![]
-            }
-        };
+        // Read all the cells for the grouping field
+        let cells = futures::executor::block_on(group_ctx.get_all_cells());
 
+        // Generate the groups
+        let group_configs = cells
+            .into_iter()
+            .flat_map(|value| value.into_url_field_cell_data())
+            .map(|cell| {
+                let group_id = cell.content.clone();
+                let group_name = cell.content.clone();
+                GeneratedGroupConfig {
+                    group_rev: GroupRevision::new(group_id, group_name),
+                    filter_content: cell.content.clone(),
+                }
+            })
+            .collect();
+
+        let no_status_group = Some(make_no_status_group(field_rev));
         GeneratedGroupContext {
-            no_status_group: Some(make_no_status_group(field_rev)),
+            no_status_group,
             group_configs,
         }
     }
