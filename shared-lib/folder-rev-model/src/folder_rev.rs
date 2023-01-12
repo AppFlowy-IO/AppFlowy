@@ -37,9 +37,9 @@ impl<'de> Deserialize<'de> for FolderRevision {
                     }
                 }
 
-                if workspaces.is_some() {
+                if let Some(workspaces) = workspaces {
                     *self.0 = Some(FolderRevision {
-                        workspaces: workspaces.unwrap().into_iter().map(Arc::new).collect(),
+                        workspaces: workspaces.into_iter().map(Arc::new).collect(),
                         trash: trash.unwrap_or_default().into_iter().map(Arc::new).collect(),
                     });
                     Ok(())
