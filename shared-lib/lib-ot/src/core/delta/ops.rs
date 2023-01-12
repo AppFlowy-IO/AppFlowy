@@ -293,6 +293,11 @@ where
     pub fn extend(&mut self, other: Self) {
         other.ops.into_iter().for_each(|op| self.add(op));
     }
+
+    /// Get the content that the [Delta] represents.
+    pub fn content(&self) -> Result<String, OTError> {
+        self.apply("")
+    }
 }
 
 impl<T> OperationTransform for DeltaOperations<T>
@@ -605,11 +610,6 @@ where
     /// Serialize the [Delta] into a String in JSON format
     pub fn json_str(&self) -> String {
         serde_json::to_string(self).unwrap_or_else(|_| "".to_owned())
-    }
-
-    /// Get the content that the [Delta] represents.
-    pub fn content(&self) -> Result<String, OTError> {
-        self.apply("")
     }
 
     /// Serial the [Delta] into a String in Bytes format

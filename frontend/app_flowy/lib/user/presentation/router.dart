@@ -5,6 +5,7 @@ import 'package:app_flowy/user/presentation/sign_up_screen.dart';
 import 'package:app_flowy/user/presentation/skip_log_in_screen.dart';
 import 'package:app_flowy/user/presentation/welcome_screen.dart';
 import 'package:app_flowy/workspace/presentation/home/home_screen.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/widget/route/animation.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
@@ -44,21 +45,31 @@ class AuthRouter {
 
 class SplashRoute {
   Future<void> pushWelcomeScreen(
-      BuildContext context, UserProfilePB userProfile) async {
+    BuildContext context,
+    UserProfilePB userProfile,
+  ) async {
     final screen = WelcomeScreen(userProfile: userProfile);
-    final workspaceId = await Navigator.of(context).push(
+    await Navigator.of(context).push(
       PageRoutes.fade(
         () => screen,
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
 
-    // ignore: use_build_context_synchronously
-    pushHomeScreen(context, userProfile, workspaceId);
+    FolderEventReadCurrentWorkspace().send().then((result) {
+      result.fold(
+        (workspaceSettingPB) =>
+            pushHomeScreen(context, userProfile, workspaceSettingPB),
+        (r) => null,
+      );
+    });
   }
 
-  void pushHomeScreen(BuildContext context, UserProfilePB userProfile,
-      WorkspaceSettingPB workspaceSetting) {
+  void pushHomeScreen(
+    BuildContext context,
+    UserProfilePB userProfile,
+    WorkspaceSettingPB workspaceSetting,
+  ) {
     Navigator.push(
       context,
       PageRoutes.fade(

@@ -1,7 +1,10 @@
 use crate::editor::{initial_document_content, AppFlowyDocumentEditor, DocumentRevisionMergeable};
 use crate::entities::{DocumentVersionPB, EditParams};
 use crate::old_editor::editor::{DeltaDocumentEditor, DeltaDocumentRevisionMergeable};
-use crate::services::rev_sqlite::{SQLiteDeltaDocumentRevisionPersistence, SQLiteDocumentRevisionPersistence};
+use crate::services::rev_sqlite::{
+    SQLiteDeltaDocumentRevisionPersistence, SQLiteDocumentRevisionPersistence,
+    SQLiteDocumentRevisionSnapshotPersistence,
+};
 use crate::services::DocumentPersistence;
 use crate::{errors::FlowyError, DocumentCloudService};
 use bytes::Bytes;
@@ -261,15 +264,16 @@ impl DocumentManager {
         pool: Arc<ConnectionPool>,
     ) -> Result<RevisionManager<Arc<ConnectionPool>>, FlowyError> {
         let user_id = self.user.user_id()?;
-        let disk_cache = SQLiteDocumentRevisionPersistence::new(&user_id, pool);
-        let configuration = RevisionPersistenceConfiguration::new(100, true);
+        let disk_cache = SQLiteDocumentRevisionPersistence::new(&user_id, pool.clone());
+        let configuration = RevisionPersistenceConfiguration::new(200, true);
         let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache, configuration);
+        let snapshot_persistence = SQLiteDocumentRevisionSnapshotPersistence::new(doc_id, pool);
         Ok(RevisionManager::new(
             &user_id,
             doc_id,
             rev_persistence,
             DocumentRevisionMergeable(),
-            PhantomSnapshotPersistence(),
+            snapshot_persistence,
         ))
     }
 

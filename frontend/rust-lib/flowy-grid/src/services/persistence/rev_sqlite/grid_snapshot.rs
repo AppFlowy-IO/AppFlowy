@@ -86,7 +86,7 @@ impl RevisionSnapshotDiskCache for SQLiteGridRevisionSnapshotPersistence {
         let conn = self.pool.get().map_err(internal_error)?;
         let latest_record = dsl::grid_rev_snapshot
             .filter(dsl::object_id.eq(&self.object_id))
-            .order(dsl::rev_id.desc())
+            .order(dsl::timestamp.desc())
             // .select(max(dsl::rev_id))
             // .select((dsl::id, dsl::object_id, dsl::rev_id, dsl::data))
             .first::<GridSnapshotRecord>(&*conn)?;

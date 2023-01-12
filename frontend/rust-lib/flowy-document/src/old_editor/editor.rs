@@ -1,5 +1,6 @@
 #![allow(unused_attributes)]
 #![allow(unused_attributes)]
+
 use crate::old_editor::queue::{EditDocumentQueue, EditorCommand, EditorCommandSender};
 use crate::{errors::FlowyError, DocumentEditor, DocumentUser};
 use bytes::Bytes;
@@ -259,6 +260,10 @@ impl RevisionObjectDeserializer for DeltaDocumentRevisionSerde {
             rev_id,
             base_rev_id,
         })
+    }
+
+    fn recover_operations_from_revisions(_revisions: Vec<Revision>) -> Option<Self::Output> {
+        None
     }
 }
 

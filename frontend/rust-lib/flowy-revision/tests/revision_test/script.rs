@@ -332,4 +332,8 @@ impl RevisionObjectDeserializer for RevisionObjectMockSerde {
 
         Ok(object)
     }
+
+    fn recover_operations_from_revisions(_revisions: Vec<Revision>) -> Option<Self::Output> {
+        None
+    }
 }

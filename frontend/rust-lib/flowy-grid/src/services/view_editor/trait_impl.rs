@@ -41,6 +41,10 @@ impl RevisionObjectDeserializer for GridViewRevisionSerde {
         let pad = GridViewRevisionPad::from_revisions(object_id, revisions)?;
         Ok(pad)
     }
+
+    fn recover_operations_from_revisions(_revisions: Vec<Revision>) -> Option<Self::Output> {
+        None
+    }
 }
 
 impl RevisionObjectSerializer for GridViewRevisionSerde {

@@ -178,9 +178,14 @@ impl RevisionCloudService for GridBlockRevisionCloudService {
 struct GridBlockRevisionSerde();
 impl RevisionObjectDeserializer for GridBlockRevisionSerde {
     type Output = GridBlockRevisionPad;
+
     fn deserialize_revisions(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let pad = GridBlockRevisionPad::from_revisions(object_id, revisions)?;
         Ok(pad)
+    }
+
+    fn recover_operations_from_revisions(_revisions: Vec<Revision>) -> Option<Self::Output> {
+        None
     }
 }
 
