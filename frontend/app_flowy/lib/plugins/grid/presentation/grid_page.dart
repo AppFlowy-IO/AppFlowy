@@ -275,7 +275,7 @@ class _GridRowsState extends State<_GridRows> {
 
     final fieldController =
         context.read<GridBloc>().gridController.fieldController;
-    final dataController = GridRowDataController(
+    final dataController = RowDataController(
       rowInfo: rowInfo,
       fieldController: fieldController,
       rowCache: rowCache,
@@ -308,7 +308,7 @@ class _GridRowsState extends State<_GridRows> {
     GridRowCache rowCache,
     GridCellBuilder cellBuilder,
   ) {
-    final dataController = GridRowDataController(
+    final dataController = RowDataController(
       rowInfo: rowInfo,
       fieldController: fieldController,
       rowCache: rowCache,

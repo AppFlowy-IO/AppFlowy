@@ -64,7 +64,7 @@ class BoardCheckboxCellState with _$BoardCheckboxCellState {
     required bool isSelected,
   }) = _CheckboxCellState;
 
-  factory BoardCheckboxCellState.initial(GridCellController context) {
+  factory BoardCheckboxCellState.initial(GridTextCellController context) {
     return BoardCheckboxCellState(
         isSelected: _isSelected(context.getCellData()));
   }

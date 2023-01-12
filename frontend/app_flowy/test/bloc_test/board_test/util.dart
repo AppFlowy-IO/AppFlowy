@@ -97,7 +97,7 @@ class BoardTestContext {
     return editorBloc;
   }
 
-  Future<IGridCellController> makeCellController(String fieldId) async {
+  Future<GridCellController> makeCellController(String fieldId) async {
     final builder = await makeCellControllerBuilder(fieldId);
     return builder.build();
   }
@@ -109,7 +109,7 @@ class BoardTestContext {
     final rowCache = _boardDataController.rowCache;
     final fieldController = _boardDataController.fieldController;
 
-    final rowDataController = GridRowDataController(
+    final rowDataController = RowDataController(
       rowInfo: rowInfo,
       fieldController: fieldController,
       rowCache: rowCache,

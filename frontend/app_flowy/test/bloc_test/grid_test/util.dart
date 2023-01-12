@@ -54,7 +54,7 @@ class GridTestContext {
     return editorBloc;
   }
 
-  Future<IGridCellController> makeCellController(
+  Future<GridCellController> makeCellController(
       String fieldId, int rowIndex) async {
     final builder = await makeCellControllerBuilder(fieldId, rowIndex);
     return builder.build();
@@ -68,7 +68,7 @@ class GridTestContext {
     final rowCache = gridController.rowCache;
     final fieldController = gridController.fieldController;
 
-    final rowDataController = GridRowDataController(
+    final rowDataController = RowDataController(
       rowInfo: rowInfo,
       fieldController: fieldController,
       rowCache: rowCache,
@@ -131,19 +131,20 @@ class GridTestContext {
     return cellController;
   }
 
-  Future<GridCellController> makeTextCellController(int rowIndex) async {
+  Future<GridTextCellController> makeTextCellController(int rowIndex) async {
     final field = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.RichText);
     final cellController =
-        await makeCellController(field.id, rowIndex) as GridCellController;
+        await makeCellController(field.id, rowIndex) as GridTextCellController;
     return cellController;
   }
 
-  Future<GridCellController> makeCheckboxCellController(int rowIndex) async {
+  Future<GridTextCellController> makeCheckboxCellController(
+      int rowIndex) async {
     final field = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.Checkbox);
     final cellController =
-        await makeCellController(field.id, rowIndex) as GridCellController;
+        await makeCellController(field.id, rowIndex) as GridTextCellController;
     return cellController;
   }
 }

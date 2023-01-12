@@ -288,7 +288,7 @@ class _BoardContentState extends State<BoardContent> {
       rowPB: rowPB,
     );
 
-    final dataController = GridRowDataController(
+    final dataController = RowDataController(
       rowInfo: rowInfo,
       fieldController: fieldController,
       rowCache: rowCache,

@@ -152,7 +152,7 @@ void _resolveGridDeps(GetIt getIt) {
     (data, _) => FieldActionSheetBloc(fieldCellContext: data),
   );
 
-  getIt.registerFactoryParam<TextCellBloc, GridCellController, void>(
+  getIt.registerFactoryParam<TextCellBloc, GridTextCellController, void>(
     (context, _) => TextCellBloc(
       cellController: context,
     ),
@@ -165,7 +165,7 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<NumberCellBloc, GridCellController, void>(
+  getIt.registerFactoryParam<NumberCellBloc, GridTextCellController, void>(
     (context, _) => NumberCellBloc(
       cellController: context,
     ),
@@ -177,7 +177,7 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<CheckboxCellBloc, GridCellController, void>(
+  getIt.registerFactoryParam<CheckboxCellBloc, GridTextCellController, void>(
     (cellData, _) => CheckboxCellBloc(
       service: CellService(),
       cellController: cellData,

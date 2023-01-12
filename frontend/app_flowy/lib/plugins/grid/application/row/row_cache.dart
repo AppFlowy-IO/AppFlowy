@@ -12,10 +12,13 @@ part 'row_cache.freezed.dart';
 
 typedef RowUpdateCallback = void Function();
 
-abstract class IGridRowFieldNotifier {
-  UnmodifiableListView<FieldInfo> get fields;
+abstract class RowChangesetNotifierForward {
   void onRowFieldsChanged(VoidCallback callback);
   void onRowFieldChanged(void Function(FieldInfo) callback);
+}
+
+abstract class RowCacheDelegate {
+  UnmodifiableListView<FieldInfo> get fields;
   void onRowDispose();
 }
 
@@ -33,8 +36,8 @@ class GridRowCache {
   final RowList _rowList = RowList();
 
   final GridCellCache _cellCache;
-  final IGridRowFieldNotifier _fieldNotifier;
-  final _RowChangesetNotifier _rowChangeReasonNotifier;
+  final RowCacheDelegate _delegate;
+  final RowChangesetNotifier _rowChangeReasonNotifier;
 
   UnmodifiableListView<RowInfo> get visibleRows {
     var visibleRows = [..._rowList.rows];
@@ -46,10 +49,11 @@ class GridRowCache {
   GridRowCache({
     required this.gridId,
     required this.rows,
-    required IGridRowFieldNotifier notifier,
+    required RowChangesetNotifierForward notifier,
+    required RowCacheDelegate delegate,
   })  : _cellCache = GridCellCache(gridId: gridId),
-        _rowChangeReasonNotifier = _RowChangesetNotifier(),
-        _fieldNotifier = notifier {
+        _rowChangeReasonNotifier = RowChangesetNotifier(),
+        _delegate = delegate {
     //
     notifier.onRowFieldsChanged(() => _rowChangeReasonNotifier
         .receive(const RowsChangedReason.fieldDidChange()));
@@ -65,7 +69,7 @@ class GridRowCache {
   }
 
   Future<void> dispose() async {
-    _fieldNotifier.onRowDispose();
+    _delegate.onRowDispose();
     _rowChangeReasonNotifier.dispose();
     await _cellCache.dispose();
   }
@@ -225,7 +229,7 @@ class GridRowCache {
   GridCellMap _makeGridCells(String rowId, RowPB? row) {
     // ignore: prefer_collection_literals
     var cellDataMap = GridCellMap();
-    for (final field in _fieldNotifier.fields) {
+    for (final field in _delegate.fields) {
       if (field.visibility) {
         cellDataMap[field.id] = GridCellIdentifier(
           rowId: rowId,
@@ -264,16 +268,16 @@ class GridRowCache {
   RowInfo buildGridRow(RowPB rowPB) {
     return RowInfo(
       gridId: gridId,
-      fields: _fieldNotifier.fields,
+      fields: _delegate.fields,
       rowPB: rowPB,
     );
   }
 }
 
-class _RowChangesetNotifier extends ChangeNotifier {
+class RowChangesetNotifier extends ChangeNotifier {
   RowsChangedReason reason = const InitialListState();
 
-  _RowChangesetNotifier();
+  RowChangesetNotifier();
 
   void receive(RowsChangedReason newReason) {
     reason = newReason;

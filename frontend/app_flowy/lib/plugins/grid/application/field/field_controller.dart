@@ -652,7 +652,8 @@ class GridFieldController {
   }
 }
 
-class GridRowFieldNotifierImpl extends IGridRowFieldNotifier {
+class GridRowFieldNotifierImpl extends RowChangesetNotifierForward
+    with RowCacheDelegate {
   final GridFieldController _cache;
   OnReceiveUpdateFields? _onChangesetFn;
   OnReceiveFields? _onFieldFn;

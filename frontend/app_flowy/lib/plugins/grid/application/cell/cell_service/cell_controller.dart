@@ -1,15 +1,15 @@
 part of 'cell_service.dart';
 
-typedef GridCellController = IGridCellController<String, String>;
-typedef GridCheckboxCellController = IGridCellController<String, String>;
-typedef GridNumberCellController = IGridCellController<String, String>;
+typedef GridTextCellController = GridCellController<String, String>;
+typedef GridCheckboxCellController = GridCellController<String, String>;
+typedef GridNumberCellController = GridCellController<String, String>;
 typedef GridSelectOptionCellController
-    = IGridCellController<SelectOptionCellDataPB, String>;
+    = GridCellController<SelectOptionCellDataPB, String>;
 typedef GridChecklistCellController
-    = IGridCellController<SelectOptionCellDataPB, String>;
+    = GridCellController<SelectOptionCellDataPB, String>;
 typedef GridDateCellController
-    = IGridCellController<DateCellDataPB, CalendarData>;
-typedef GridURLCellController = IGridCellController<URLCellDataPB, String>;
+    = GridCellController<DateCellDataPB, CalendarData>;
+typedef GridURLCellController = GridCellController<URLCellDataPB, String>;
 
 abstract class GridCellControllerBuilderDelegate {
   GridCellFieldNotifier buildFieldNotifier();
@@ -27,7 +27,7 @@ class GridCellControllerBuilder {
   })  : _cellCache = cellCache,
         _cellId = cellId;
 
-  IGridCellController build() {
+  GridCellController build() {
     final cellFieldNotifier = delegate.buildFieldNotifier();
     switch (_cellId.fieldType) {
       case FieldType.Checkbox:
@@ -35,12 +35,12 @@ class GridCellControllerBuilder {
           cellId: _cellId,
           parser: StringCellDataParser(),
         );
-        return GridCellController(
+        return GridTextCellController(
           cellId: _cellId,
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
           fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: CellDataPersistence(cellId: _cellId),
+          cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
         );
       case FieldType.DateTime:
         final cellDataLoader = GridCellDataLoader(
@@ -67,19 +67,19 @@ class GridCellControllerBuilder {
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
           fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: CellDataPersistence(cellId: _cellId),
+          cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
         );
       case FieldType.RichText:
         final cellDataLoader = GridCellDataLoader(
           cellId: _cellId,
           parser: StringCellDataParser(),
         );
-        return GridCellController(
+        return GridTextCellController(
           cellId: _cellId,
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
           fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: CellDataPersistence(cellId: _cellId),
+          cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
         );
       case FieldType.MultiSelect:
       case FieldType.SingleSelect:
@@ -95,7 +95,7 @@ class GridCellControllerBuilder {
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
           fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: CellDataPersistence(cellId: _cellId),
+          cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
         );
 
       case FieldType.URL:
@@ -108,7 +108,7 @@ class GridCellControllerBuilder {
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
           fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: CellDataPersistence(cellId: _cellId),
+          cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
         );
     }
     throw UnimplementedError;
@@ -123,14 +123,14 @@ class GridCellControllerBuilder {
 /// Generic D represents the type of data that will be saved to the disk
 ///
 // ignore: must_be_immutable
-class IGridCellController<T, D> extends Equatable {
+class GridCellController<T, D> extends Equatable {
   final GridCellIdentifier cellId;
   final GridCellCache _cellsCache;
   final GridCellCacheKey _cacheKey;
   final FieldService _fieldService;
   final GridCellFieldNotifier _fieldNotifier;
   final GridCellDataLoader<T> _cellDataLoader;
-  final IGridCellDataPersistence<D> _cellDataPersistence;
+  final GridCellDataPersistence<D> _cellDataPersistence;
 
   CellListener? _cellListener;
   CellDataNotifier<T?>? _cellDataNotifier;
@@ -141,12 +141,12 @@ class IGridCellController<T, D> extends Equatable {
   Timer? _saveDataOperation;
   bool _isDispose = false;
 
-  IGridCellController({
+  GridCellController({
     required this.cellId,
     required GridCellCache cellCache,
     required GridCellFieldNotifier fieldNotifier,
     required GridCellDataLoader<T> cellDataLoader,
-    required IGridCellDataPersistence<D> cellDataPersistence,
+    required GridCellDataPersistence<D> cellDataPersistence,
   })  : _cellsCache = cellCache,
         _cellDataLoader = cellDataLoader,
         _cellDataPersistence = cellDataPersistence,
