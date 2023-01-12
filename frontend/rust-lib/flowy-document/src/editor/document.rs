@@ -86,6 +86,10 @@ impl RevisionObjectDeserializer for DocumentRevisionSerde {
         let document = Document::new(tree);
         Result::<Document, FlowyError>::Ok(document)
     }
+
+    fn recover_operations_from_revisions(_revisions: Vec<Revision>) -> Option<Self::Output> {
+        None
+    }
 }
 
 impl RevisionObjectSerializer for DocumentRevisionSerde {

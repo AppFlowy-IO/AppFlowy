@@ -118,12 +118,12 @@ impl FolderPersistence {
             write_to_disk: true,
         };
 
-        let disk_cache = mk_text_block_revision_disk_cache(user_id, pool);
+        let disk_cache = make_folder_revision_disk_cache(user_id, pool);
         disk_cache.delete_and_insert_records(folder_id.as_ref(), None, vec![record])
     }
 }
 
-pub fn mk_text_block_revision_disk_cache(
+pub fn make_folder_revision_disk_cache(
     user_id: &str,
     pool: Arc<ConnectionPool>,
 ) -> Arc<dyn RevisionDiskCache<Arc<ConnectionPool>, Error = FlowyError>> {

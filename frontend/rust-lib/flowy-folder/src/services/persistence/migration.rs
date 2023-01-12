@@ -123,7 +123,7 @@ fn migration_flag_key(user_id: &str, version: &str) -> String {
     md5(format!("{}{}", user_id, version,))
 }
 
-pub struct FolderRevisionResettable {
+struct FolderRevisionResettable {
     folder_id: String,
 }
 

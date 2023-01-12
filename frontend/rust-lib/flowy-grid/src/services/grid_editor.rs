@@ -887,6 +887,10 @@ impl RevisionObjectDeserializer for GridRevisionSerde {
         let pad = GridRevisionPad::from_revisions(revisions)?;
         Ok(pad)
     }
+
+    fn recover_operations_from_revisions(_revisions: Vec<Revision>) -> Option<Self::Output> {
+        None
+    }
 }
 impl RevisionObjectSerializer for GridRevisionSerde {
     fn combine_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {

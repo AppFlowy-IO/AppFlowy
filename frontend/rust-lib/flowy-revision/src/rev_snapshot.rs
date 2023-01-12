@@ -87,11 +87,12 @@ where
     }
 
     /// Find the nearest revision base on the passed-in rev_id
+    #[tracing::instrument(level = "trace", skip_all)]
     pub fn restore_from_snapshot<B>(&self, rev_id: i64) -> Option<(B::Output, Revision)>
     where
         B: RevisionObjectDeserializer,
     {
-        tracing::trace!("Try to find if {} has snapshot", self.object_id);
+        tracing::info!("Try to find if {} has snapshot", self.object_id);
         let snapshot = self.rev_snapshot_persistence.read_last_snapshot().ok()??;
         let snapshot_rev_id = snapshot.rev_id;
         let revision = Revision::new(
@@ -101,13 +102,13 @@ where
             snapshot.data,
             "".to_owned(),
         );
-        tracing::trace!(
+        tracing::info!(
             "Try to restore from snapshot: {}, {}",
             snapshot.base_rev_id,
             snapshot.rev_id
         );
         let object = B::deserialize_revisions(&self.object_id, vec![revision.clone()]).ok()?;
-        tracing::trace!(
+        tracing::info!(
             "Restore {} from snapshot with rev_id: {}",
             self.object_id,
             snapshot_rev_id

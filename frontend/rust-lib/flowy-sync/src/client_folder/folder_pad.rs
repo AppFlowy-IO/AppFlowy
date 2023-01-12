@@ -41,7 +41,6 @@ impl FolderPad {
     }
 
     pub fn from_operations(operations: FolderOperations) -> CollaborateResult<Self> {
-        // TODO: Reconvert from history if delta.to_str() failed.
         let content = operations.content()?;
         let mut deserializer = serde_json::Deserializer::from_reader(content.as_bytes());
 
@@ -441,15 +440,6 @@ pub fn initial_folder_operations(folder_pad: &FolderPad) -> CollaborateResult<Fo
     let json = folder_pad.to_json()?;
     let operations = FolderOperationsBuilder::new().insert(&json).build();
     Ok(operations)
-}
-
-impl std::default::Default for FolderPad {
-    fn default() -> Self {
-        FolderPad {
-            folder_rev: FolderRevision::default(),
-            operations: default_folder_operations(),
-        }
-    }
 }
 
 pub struct FolderChangeset {

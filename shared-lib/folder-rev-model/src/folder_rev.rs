@@ -26,36 +26,26 @@ impl<'de> Deserialize<'de> for FolderRevision {
             where
                 A: MapAccess<'de>,
             {
-                let f = |map: &mut A,
-                         workspaces: &mut Option<Vec<WorkspaceRevision>>,
-                         trash: &mut Option<Vec<TrashRevision>>| match map.next_key::<String>()
-                {
-                    Ok(Some(key)) => {
-                        if key == "workspaces" && workspaces.is_none() {
-                            *workspaces = Some(map.next_value::<Vec<WorkspaceRevision>>().ok()?);
-                        }
-                        if key == "trash" && trash.is_none() {
-                            *trash = Some(map.next_value::<Vec<TrashRevision>>().ok()?);
-                        }
-                        Some(())
-                    }
-                    Ok(None) => None,
-                    Err(_e) => None,
-                };
-
                 let mut workspaces: Option<Vec<WorkspaceRevision>> = None;
                 let mut trash: Option<Vec<TrashRevision>> = None;
-                while f(&mut map, &mut workspaces, &mut trash).is_some() {
-                    if workspaces.is_some() && trash.is_some() {
-                        break;
+                while let Some(key) = map.next_key::<String>()? {
+                    if key == "workspaces" && workspaces.is_none() {
+                        workspaces = Some(map.next_value::<Vec<WorkspaceRevision>>()?);
+                    }
+                    if key == "trash" && trash.is_none() {
+                        trash = Some(map.next_value::<Vec<TrashRevision>>()?);
                     }
                 }
 
-                *self.0 = Some(FolderRevision {
-                    workspaces: workspaces.unwrap_or_default().into_iter().map(Arc::new).collect(),
-                    trash: trash.unwrap_or_default().into_iter().map(Arc::new).collect(),
-                });
-                Ok(())
+                if workspaces.is_some() {
+                    *self.0 = Some(FolderRevision {
+                        workspaces: workspaces.unwrap().into_iter().map(Arc::new).collect(),
+                        trash: trash.unwrap_or_default().into_iter().map(Arc::new).collect(),
+                    });
+                    Ok(())
+                } else {
+                    Err(de::Error::missing_field("workspaces"))
+                }
             }
         }
 

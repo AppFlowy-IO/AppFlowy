@@ -162,7 +162,7 @@ impl GridManager {
 
         // Create revision persistence
         let disk_cache = SQLiteGridRevisionPersistence::new(&user_id, pool.clone());
-        let configuration = RevisionPersistenceConfiguration::new(4, false);
+        let configuration = RevisionPersistenceConfiguration::new(6, false);
         let rev_persistence = RevisionPersistence::new(&user_id, grid_id, disk_cache, configuration);
 
         // Create snapshot persistence
