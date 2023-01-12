@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:styled_widget/styled_widget.dart';
 
 import '../../layout/sizes.dart';
 
@@ -31,12 +32,15 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
   Widget build(BuildContext context) {
     if (_showFieldEditor) {
       final field = widget.cellContext.field;
-      return FieldEditor(
-        gridId: widget.cellContext.gridId,
-        fieldName: field.name,
-        typeOptionLoader: FieldTypeOptionLoader(
+      return SizedBox(
+        width: 400,
+        child: FieldEditor(
           gridId: widget.cellContext.gridId,
-          field: field,
+          fieldName: field.name,
+          typeOptionLoader: FieldTypeOptionLoader(
+            gridId: widget.cellContext.gridId,
+            field: field,
+          ),
         ),
       );
     }
@@ -44,25 +48,22 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
       create: (context) =>
           getIt<FieldActionSheetBloc>(param1: widget.cellContext),
       child: IntrinsicWidth(
-        child: IntrinsicHeight(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _EditFieldButton(
-                cellContext: widget.cellContext,
-                onTap: () {
-                  setState(() {
-                    _showFieldEditor = true;
-                  });
-                },
-              ),
-              VSpace(GridSize.typeOptionSeparatorHeight),
-              _FieldOperationList(widget.cellContext),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _EditFieldButton(
+              cellContext: widget.cellContext,
+              onTap: () {
+                setState(() => _showFieldEditor = true);
+              },
+            ),
+            VSpace(GridSize.typeOptionSeparatorHeight),
+            _FieldOperationList(widget.cellContext),
+          ],
         ),
       ),
-    );
+    ).padding(all: 6.0);
   }
 }
 
@@ -92,18 +93,30 @@ class _EditFieldButton extends StatelessWidget {
 
 class _FieldOperationList extends StatelessWidget {
   final GridFieldCellContext fieldInfo;
-  final double cellWidth = 100;
-
   const _FieldOperationList(this.fieldInfo, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: cellWidth * 2,
-      child: Wrap(
-        children: buildCells(),
+    final cells = buildCells();
+    return Column(children: [
+      Flex(
+        direction: Axis.horizontal,
+        children: [
+          cells[0],
+          HSpace(GridSize.typeOptionSeparatorHeight),
+          cells[1],
+        ],
       ),
-    );
+      VSpace(GridSize.typeOptionSeparatorHeight),
+      Flex(
+        direction: Axis.horizontal,
+        children: [
+          cells[2],
+          HSpace(GridSize.typeOptionSeparatorHeight),
+          const Spacer(),
+        ],
+      ),
+    ]);
   }
 
   List<Widget> buildCells() {
@@ -118,13 +131,14 @@ class _FieldOperationList extends StatelessWidget {
             break;
         }
 
-        return SizedBox(
-          height: GridSize.popoverItemHeight,
-          width: cellWidth,
-          child: FieldActionCell(
-            fieldInfo: fieldInfo,
-            action: action,
-            enable: enable,
+        return Flexible(
+          child: SizedBox(
+            height: GridSize.popoverItemHeight,
+            child: FieldActionCell(
+              fieldInfo: fieldInfo,
+              action: action,
+              enable: enable,
+            ),
           ),
         );
       },
