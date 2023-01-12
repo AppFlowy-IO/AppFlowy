@@ -3,13 +3,16 @@ pub use diesel_derives::*;
 use diesel_migrations::*;
 use std::{fmt::Debug, io, path::Path};
 pub mod kv;
+mod sqlite;
 
-use lib_sqlite::PoolConfig;
-pub use lib_sqlite::{ConnectionPool, DBConnection, Database};
+use crate::sqlite::PoolConfig;
+pub use crate::sqlite::{ConnectionPool, DBConnection, Database};
+
 pub mod schema;
 
 #[macro_use]
 pub mod macros;
+
 #[macro_use]
 extern crate diesel;
 #[macro_use]
@@ -41,7 +44,7 @@ pub fn init(storage_path: &str) -> Result<Database, io::Error> {
 
 fn as_io_error<E>(e: E) -> io::Error
 where
-    E: Into<lib_sqlite::Error> + Debug,
+    E: Into<crate::sqlite::Error> + Debug,
 {
     let msg = format!("{:?}", e);
     io::Error::new(io::ErrorKind::NotConnected, msg)

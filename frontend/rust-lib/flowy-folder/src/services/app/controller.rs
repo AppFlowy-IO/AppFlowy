@@ -52,8 +52,8 @@ impl AppController {
     pub(crate) async fn create_app_on_local(&self, app: AppRevision) -> Result<AppPB, FlowyError> {
         self.persistence
             .begin_transaction(|transaction| {
-                let _ = transaction.create_app(app.clone())?;
-                let _ = notify_apps_changed(&app.workspace_id, self.trash_controller.clone(), &transaction)?;
+                transaction.create_app(app.clone())?;
+                notify_apps_changed(&app.workspace_id, self.trash_controller.clone(), &transaction)?;
                 Ok(())
             })
             .await?;
@@ -101,9 +101,9 @@ impl AppController {
     pub(crate) async fn move_app(&self, app_id: &str, from: usize, to: usize) -> FlowyResult<()> {
         self.persistence
             .begin_transaction(|transaction| {
-                let _ = transaction.move_app(app_id, from, to)?;
+                transaction.move_app(app_id, from, to)?;
                 let app = transaction.read_app(app_id)?;
-                let _ = notify_apps_changed(&app.workspace_id, self.trash_controller.clone(), &transaction)?;
+                notify_apps_changed(&app.workspace_id, self.trash_controller.clone(), &transaction)?;
                 Ok(())
             })
             .await?;

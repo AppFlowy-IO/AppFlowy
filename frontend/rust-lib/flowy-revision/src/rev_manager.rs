@@ -286,7 +286,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
     pub fn ack_notify(&self) -> tokio::sync::broadcast::Receiver<i64> {
         self.rev_ack_notifier.subscribe()
     }
-    pub fn get_all_revision_records(&self) -> FlowyResult<Vec<crate::disk::SyncRecord>> {
+    pub fn get_all_revision_records(&self) -> FlowyResult<Vec<flowy_revision_persistence::SyncRecord>> {
         self.rev_persistence.load_all_records(&self.object_id)
     }
 }

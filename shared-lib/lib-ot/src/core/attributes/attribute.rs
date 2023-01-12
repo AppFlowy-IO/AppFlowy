@@ -124,7 +124,7 @@ impl AttributeHashMap {
 impl Display for AttributeHashMap {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for (key, value) in self.0.iter() {
-            let _ = f.write_str(&format!("{:?}:{:?}", key, value))?;
+            f.write_str(&format!("{:?}:{:?}", key, value))?;
         }
         Ok(())
     }

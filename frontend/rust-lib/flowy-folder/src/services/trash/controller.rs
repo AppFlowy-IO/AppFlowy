@@ -168,7 +168,7 @@ impl TrashController {
 
         self.persistence
             .begin_transaction(|transaction| {
-                let _ = transaction.create_trash(trash_revs.clone())?;
+                transaction.create_trash(trash_revs.clone())?;
                 let _ = self.create_trash_on_server(trash_revs);
 
                 notify_trash_changed(transaction.read_trash(None)?);

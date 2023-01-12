@@ -66,19 +66,19 @@ jobs:
         working-directory: frontend/rust-lib/
 
       - name: clippy rust-lib
-        run: cargo clippy --no-default-features
+        run: cargo clippy --features="rev-sqlite"
         working-directory: frontend/rust-lib
 
       - name: Run rust-lib tests
         working-directory: frontend/rust-lib
-        run: RUST_LOG=info cargo test --no-default-features --features="sync"
+        run: RUST_LOG=info cargo test --no-default-features --features="sync,rev-sqlite"
 
       - name: rustfmt shared-lib
         run: cargo fmt --all -- --check
         working-directory: shared-lib
 
       - name: clippy shared-lib
-        run: cargo clippy --no-default-features
+        run:  cargo clippy -- -D warnings
         working-directory: shared-lib
 
       - name: Run shared-lib tests

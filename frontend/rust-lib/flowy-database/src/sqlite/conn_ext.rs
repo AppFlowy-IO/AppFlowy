@@ -1,4 +1,4 @@
-use crate::errors::*;
+use crate::sqlite::errors::*;
 use diesel::{dsl::sql, expression::SqlLiteral, query_dsl::LoadQuery, Connection, RunQueryDsl, SqliteConnection};
 
 pub trait ConnectionExtension: Connection {

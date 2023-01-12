@@ -3,6 +3,7 @@ pub mod rev_sqlite;
 pub mod version_1;
 mod version_2;
 
+use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
 use crate::{
     event_map::WorkspaceDatabase,
     manager::FolderId,
@@ -11,12 +12,10 @@ use crate::{
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_http_model::revision::Revision;
-use flowy_revision::disk::{RevisionDiskCache, RevisionState, SyncRecord};
+use flowy_revision_persistence::{RevisionDiskCache, RevisionState, SyncRecord};
 use flowy_sync::client_folder::FolderPad;
-use folder_rev_model::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
-
-use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
 use flowy_sync::server_folder::FolderOperationsBuilder;
+use folder_rev_model::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 pub use version_1::{app_sql::*, trash_sql::*, v1_impl::V1Transaction, view_sql::*, workspace_sql::*};

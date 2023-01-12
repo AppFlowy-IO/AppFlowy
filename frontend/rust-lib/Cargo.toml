@@ -2,7 +2,6 @@
 members = [
   "lib-dispatch",
   "lib-log",
-  "lib-sqlite",
   "flowy-net",
   "flowy-core",
   "dart-ffi",
@@ -14,6 +13,7 @@ members = [
   "flowy-document",
   "flowy-error",
   "flowy-revision",
+  "flowy-revision-persistence",
   "flowy-grid",
   "flowy-task",
   "flowy-sync",

@@ -48,7 +48,8 @@ impl LocalServer {
     }
 
     pub async fn stop(&self) {
-        if let Some(stop_tx) = self.stop_tx.read().clone() {
+        let sender = self.stop_tx.read().clone();
+        if let Some(stop_tx) = sender {
             let _ = stop_tx.send(()).await;
         }
     }

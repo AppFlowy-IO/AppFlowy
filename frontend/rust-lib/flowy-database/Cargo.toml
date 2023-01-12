@@ -9,9 +9,14 @@ edition = "2018"
 diesel = { version = "1.4.8", features = ["sqlite"] }
 diesel_derives = { version = "1.4.1", features = ["sqlite"] }
 diesel_migrations = { version = "1.4.0", features = ["sqlite"] }
-lib-sqlite = { path = "../lib-sqlite" }
 tracing = { version = "0.1", features = ["log"] }
 lazy_static = "1.4.0"
 
+r2d2 = "0.8.9"
+libsqlite3-sys = { version = ">=0.8.0, <0.24.0", features = ["bundled"] }
+scheduled-thread-pool = "0.2.5"
+error-chain = "=0.12.0"
+openssl = { version = "0.10.38", optional = true }
+
 [features]
-openssl_vendored = ["lib-sqlite/openssl_vendored"]
+openssl_vendored = ["openssl/vendored"]

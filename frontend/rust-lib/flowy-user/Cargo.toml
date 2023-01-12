@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 flowy-derive = { path = "../flowy-derive" }
-flowy-database = { path = "../flowy-database" }
+flowy-database = { path = "../flowy-database", optional = true }
 flowy-error = { path = "../flowy-error", features = ["db", "http_server"] }
 
 lib-infra = { path = "../../../shared-lib/lib-infra" }
@@ -45,6 +45,7 @@ rand_core = "0.6.3"
 rand = "0.8.5"
 
 [features]
+rev-sqlite = ["flowy-database"]
 dart = ["flowy-codegen/dart", "dart-notify/dart"]
 
 [build-dependencies]
