@@ -10,7 +10,7 @@ fn transaction_compose_update_after_insert_test() {
     // Modify the same path, the operations will be merged after composing if possible.
     let mut transaction_a = TransactionBuilder::new().insert_node_at_path(0, node_data).build();
     let transaction_b = TransactionBuilder::new().update_node_at_path(0, changeset).build();
-    let _ = transaction_a.compose(transaction_b).unwrap();
+    transaction_a.compose(transaction_b).unwrap();
 
     // The operations are merged into one operation
     assert_eq!(transaction_a.operations.len(), 1);
@@ -46,14 +46,14 @@ fn transaction_compose_multiple_update_test() {
     let inverted = Transaction::from_operations(other_transaction.operations.inverted());
 
     // the update operation will be merged into insert operation
-    let _ = transaction.compose(other_transaction).unwrap();
+    transaction.compose(other_transaction).unwrap();
     assert_eq!(transaction.operations.len(), 1);
     assert_eq!(
         transaction.to_json().unwrap(),
         r#"{"operations":[{"op":"insert","path":[0],"nodes":[{"type":"text","body":{"delta":[{"insert":"Hello world😁"}]}}]}]}"#
     );
 
-    let _ = transaction.compose(inverted).unwrap();
+    transaction.compose(inverted).unwrap();
     assert_eq!(
         transaction.to_json().unwrap(),
         r#"{"operations":[{"op":"insert","path":[0],"nodes":[{"type":"text","body":{"delta":[{"insert":"Hello"}]}}]}]}"#

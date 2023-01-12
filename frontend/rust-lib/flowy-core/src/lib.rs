@@ -79,7 +79,7 @@ impl FlowySDKConfig {
 fn crate_log_filter(level: String) -> String {
     let level = std::env::var("RUST_LOG").unwrap_or(level);
     let mut filters = vec![];
-    filters.push(format!("flowy_sdk={}", level));
+    filters.push(format!("flowy_core={}", level));
     filters.push(format!("flowy_folder={}", level));
     filters.push(format!("flowy_user={}", level));
     filters.push(format!("flowy_document={}", level));
@@ -95,7 +95,7 @@ fn crate_log_filter(level: String) -> String {
     // filters.push(format!("lib_dispatch={}", level));
 
     filters.push(format!("dart_ffi={}", "info"));
-    filters.push(format!("flowy_database={}", level));
+    filters.push(format!("flowy_database={}", "info"));
     filters.push(format!("flowy_net={}", "info"));
     filters.join(",")
 }

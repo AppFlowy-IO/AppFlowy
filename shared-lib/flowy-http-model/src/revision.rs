@@ -67,9 +67,9 @@ impl Revision {
 
 impl std::fmt::Debug for Revision {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        let _ = f.write_fmt(format_args!("object_id {}, ", self.object_id))?;
-        let _ = f.write_fmt(format_args!("base_rev_id {}, ", self.base_rev_id))?;
-        let _ = f.write_fmt(format_args!("rev_id {}, ", self.rev_id))?;
+        f.write_fmt(format_args!("object_id {}, ", self.object_id))?;
+        f.write_fmt(format_args!("base_rev_id {}, ", self.base_rev_id))?;
+        f.write_fmt(format_args!("rev_id {}, ", self.rev_id))?;
         Ok(())
     }
 }
