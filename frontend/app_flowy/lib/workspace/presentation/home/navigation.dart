@@ -3,16 +3,17 @@ import 'dart:io';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
-import 'package:flowy_infra/theme_extension.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 typedef NaviAction = void Function();
@@ -52,10 +53,7 @@ class FlowyNavigation extends StatelessWidget {
       update: (_, notifier, controller) => controller!..update(notifier),
       child: Expanded(
         child: Row(children: [
-          Selector<NavigationNotifier, PublishNotifier<bool>>(
-              selector: (context, notifier) => notifier.collapasedNotifier,
-              builder: (ctx, collapsedNotifier, child) =>
-                  _renderCollapse(ctx, collapsedNotifier)),
+          _renderCollapse(context),
           Selector<NavigationNotifier, List<NavigationItem>>(
             selector: (context, notifier) => notifier.navigationItems,
             builder: (ctx, items, child) => Expanded(
@@ -70,41 +68,40 @@ class FlowyNavigation extends StatelessWidget {
     );
   }
 
-  Widget _renderCollapse(
-      BuildContext context, PublishNotifier<bool> collapsedNotifier) {
-    return ChangeNotifierProvider.value(
-      value: collapsedNotifier,
-      child: Consumer(
-        builder: (ctx, PublishNotifier<bool> notifier, child) {
-          if (notifier.currentValue ?? false) {
-            return RotationTransition(
-              turns: const AlwaysStoppedAnimation(180 / 360),
-              child: Tooltip(
-                  richMessage: sidebarTooltipTextSpan(
-                    context,
-                    LocaleKeys.sideBar_openSidebar.tr(),
+  Widget _renderCollapse(BuildContext context) {
+    return BlocBuilder<HomeSettingBloc, HomeSettingState>(
+      buildWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed,
+      builder: (context, state) {
+        if (state.isMenuCollapsed) {
+          return RotationTransition(
+            turns: const AlwaysStoppedAnimation(180 / 360),
+            child: Tooltip(
+                richMessage: sidebarTooltipTextSpan(
+                  context,
+                  LocaleKeys.sideBar_openSidebar.tr(),
+                ),
+                child: FlowyIconButton(
+                  width: 24,
+                  hoverColor: Colors.transparent,
+                  onPressed: () {
+                    final notifier =
+                        Provider.of<HomeStackNotifier>(context, listen: false);
+                    notifier.collapsedNotifier.value = false;
+                    context
+                        .read<HomeSettingBloc>()
+                        .add(const HomeSettingEvent.collapseMenu());
+                  },
+                  iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
+                  icon: svgWidget(
+                    "home/hide_menu",
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
-                  child: FlowyIconButton(
-                    width: 24,
-                    hoverColor: Colors.transparent,
-                    onPressed: () {
-                      notifier.value = false;
-                      ctx
-                          .read<HomeSettingBloc>()
-                          .add(const HomeSettingEvent.collapseMenu());
-                    },
-                    iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
-                    icon: svgWidget(
-                      "home/hide_menu",
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  )),
-            );
-          } else {
-            return Container();
-          }
-        },
-      ),
+                )),
+          );
+        } else {
+          return Container();
+        }
+      },
     );
   }
 

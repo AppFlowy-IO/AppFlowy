@@ -1,26 +1,25 @@
 import 'package:app_flowy/plugins/blank/blank.dart';
 import 'package:app_flowy/startup/plugin/plugin.dart';
+import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:app_flowy/workspace/application/home/home_service.dart';
 import 'package:app_flowy/workspace/application/home/home_setting_bloc.dart';
-
-import 'package:app_flowy/workspace/presentation/home/hotkeys.dart';
 import 'package:app_flowy/workspace/application/view/view_ext.dart';
+import 'package:app_flowy/workspace/presentation/home/hotkeys.dart';
 import 'package:app_flowy/workspace/presentation/widgets/edit_panel/panel_animation.dart';
 import 'package:app_flowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
-import 'package:app_flowy/startup/startup.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:flowy_infra_ui/style_widget/container.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
-import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:flowy_infra_ui/style_widget/container.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 import '../widgets/edit_panel/edit_panel.dart';
-
 import 'home_layout.dart';
 import 'home_stack.dart';
 import 'menu/menu.dart';
@@ -48,8 +47,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         BlocProvider<HomeSettingBloc>(
           create: (context) {
-            return HomeSettingBloc(widget.user, widget.workspaceSetting)
-              ..add(const HomeSettingEvent.initial());
+            return HomeSettingBloc(
+              widget.user,
+              widget.workspaceSetting,
+              context.read<AppearanceSettingsCubit>(),
+            )..add(const HomeSettingEvent.initial());
           },
         ),
       ],

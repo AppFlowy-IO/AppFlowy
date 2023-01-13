@@ -37,6 +37,14 @@ pub struct AppearanceSettingsPB {
     #[pb(index = 7)]
     #[serde(default)]
     pub setting_key_value: HashMap<String, String>,
+
+    #[pb(index = 8)]
+    #[serde(default)]
+    pub is_menu_collapsed: bool,
+
+    #[pb(index = 9)]
+    #[serde(default)]
+    pub menu_offset: f64,
 }
 
 const DEFAULT_RESET_VALUE: fn() -> bool = || APPEARANCE_RESET_AS_DEFAULT;
@@ -76,6 +84,8 @@ pub const APPEARANCE_DEFAULT_THEME: &str = "light";
 pub const APPEARANCE_DEFAULT_FONT: &str = "Poppins";
 pub const APPEARANCE_DEFAULT_MONOSPACE_FONT: &str = "SF Mono";
 const APPEARANCE_RESET_AS_DEFAULT: bool = true;
+const APPEARANCE_DEFAULT_IS_MENU_COLLAPSED: bool = false;
+const APPEARANCE_DEFAULT_MENU_OFFSET: f64 = 0.0;
 
 impl std::default::Default for AppearanceSettingsPB {
     fn default() -> Self {
@@ -87,6 +97,8 @@ impl std::default::Default for AppearanceSettingsPB {
             locale: LocaleSettingsPB::default(),
             reset_to_default: APPEARANCE_RESET_AS_DEFAULT,
             setting_key_value: HashMap::default(),
+            is_menu_collapsed: APPEARANCE_DEFAULT_IS_MENU_COLLAPSED,
+            menu_offset: APPEARANCE_DEFAULT_MENU_OFFSET,
         }
     }
 }
