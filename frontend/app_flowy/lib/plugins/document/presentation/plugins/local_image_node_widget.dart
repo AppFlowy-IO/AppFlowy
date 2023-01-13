@@ -21,6 +21,10 @@ class LocalImageNodeWidgetBuilder extends NodeWidgetBuilder {
   Widget build(NodeWidgetContext<Node> context) {
     var storageLocation = directory?.then((location) async {
       String value = location.path.toString();
+      if ('$location/images' != true) {
+        Directory('$location/images').create(recursive: true);
+      }
+
       folderPath = value;
       return folderPath;
     });
