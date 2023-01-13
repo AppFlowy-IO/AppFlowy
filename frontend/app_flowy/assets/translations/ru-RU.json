@@ -40,6 +40,12 @@
     "markdown": "Markdown",
     "copyLink": "Скопировать ссылку"
   },
+  "moreAction": {
+    "small": "маленький",
+    "medium": "средний",
+    "large": "большой",
+    "fontSize": "Размер шрифта"
+  },
   "disclosureAction": {
     "rename": "Переименовать",
     "delete": "Удалить",
@@ -62,7 +68,7 @@
     "restore": "Восстановить страницу",
     "deletePermanent": "Удалить навсегда"
   },
-  "dialogCreatePageNameHint": "Имя",
+  "dialogCreatePageNameHint": "Имя страницы",
   "questionBubble": {
     "whatsNew": "Что нового?",
     "help": "Помощь",
@@ -90,10 +96,12 @@
     "inlineCode": "Код",
     "quote": "Цитата",
     "header": "Заголовок",
-    "highlight": "Выделение"
+    "highlight": "Выделение",
+    "color": "Цвет"
   },
   "tooltip": {
-    "darkMode": "Переключиться в тёмную тему",
+    "lightMode": "Переключить на светлую тему",
+    "darkMode": "Переключить на тёмную тему",
     "openAsPage": "Открыть как страницу",
     "addNewRow": "Добавить новую строку",
     "openMenu": "Открыть меню"
@@ -148,23 +156,91 @@
       "appearance": "Внешний вид",
       "language": "Язык",
       "user": "Пользователь",
+      "files": "Файлы",
       "open": "Открыть настройки"
     },
     "appearance": {
       "themeMode": {
-        "label": "Theme Mode",
+        "label": "Режим темы",
         "light": "Светлая",
         "dark": "Тёмная",
-        "system": "Adapt to System"
-      }
+        "system": "Системная"
+      },
+      "theme":"Тема"
+    },
+    "files": {
+      "defaultLocation": "Где хранить ваши данные",
+      "doubleTapToCopy": "Нажмите дважды, чтобы скопировать путь",
+      "restoreLocation": "Восстановить путь AppFlowy по умолчанию",
+      "customizeLocation": "Открыть другую папку",
+      "restartApp": "Пожалуйста, перезапустите приложение, чтобы изменения вступили в силу.",
+      "exportDatabase": "Экспорт базы данных",
+      "selectFiles": "Выбрать файлы, которые необходимо экспортировать",
+      "createNewFolder": "Создать новую папку",
+      "createNewFolderDesc": "Указать, где хранить свои данные ...",
+      "open": "Открыть",
+      "openFolder": "Открыть существующую папку",
+      "openFolderDesc": "Чтение и запись в существующую папку AppFlowy ...",
+      "folderHintText": "имя папки",
+      "location": "Создание новой папки",
+      "locationDesc": "Выбрать имя папки данных AppFlowy",
+      "browser": "Обзор",
+      "create": "Создать",
+      "folderPath": "Путь к вашей папке",
+      "locationCannotBeEmpty": "Путь не может быть пустым"
     }
   },
   "grid": {
     "settings": {
       "filter": "Фильтр",
-      "sortBy": "Сортировать",
+      "sort": "Сортировать",
+      "sortBy": "Сортировать по",
       "Properties": "Свойства",
-      "group": "Группировать"
+      "group": "Группировать",
+      "addFilter": "Добавить фильтр",
+      "deleteFilter": "Удалить фильтр",
+      "filterBy": "Фильтровать по...",
+      "typeAValue": "Введите значение..."
+    },
+    "textFilter": {
+      "contains": "Содержит",
+      "doesNotContain": "Не содержит",
+      "endsWith": "Заканчивается на",
+      "startWith": "Начинается с",
+      "is": "Является",
+      "isNot": "Не является",
+      "isEmpty": "Пусто",
+      "isNotEmpty": "Не пусто",
+      "choicechipPrefix": {
+        "isNot": "Не является",
+        "startWith": "Начинается с",
+        "endWith": "Заканчивается на",
+        "isEmpty": "пусто",
+        "isNotEmpty": "не пусто"
+      }
+    },
+    "checkboxFilter": {
+      "isChecked": "Отмечено",
+      "isUnchecked": "Не отмечено",
+      "choicechipPrefix": {
+        "is": "является"
+      }
+    },
+    "checklistFilter": {
+      "isComplete": "завершено",
+      "isIncomplted": "не завершено"
+    },
+    "singleSelectOptionFilter": {
+      "is": "Является",
+      "isNot": "Не является",
+      "isEmpty": "Пусто",
+      "isNotEmpty": "Не пусто"
+    },
+    "multiSelectOptionFilter": {
+      "contains": "Содержит",
+      "doesNotContain": "Не содержит",
+      "isEmpty": "Пусто",
+      "isNotEmpty": "Не пусто"
     },
     "field": {
       "hide": "Скрыть",
@@ -179,6 +255,7 @@
       "singleSelectFieldName": "Выбор",
       "multiSelectFieldName": "Выбор нескольких",
       "urlFieldName": "URL",
+      "checklistFieldName": "Контрольный список",
       "numberFormat": "Формат числа",
       "dateFormat": "Формат даты",
       "includeTime": "Время",
@@ -197,12 +274,19 @@
       "newColumn": "Добавить колонку",
       "deleteFieldPromptMessage": "Вы уверены? Свойство будет удалено"
     },
+    "sort": {
+      "ascending": "По возрастанию",
+      "descending": "По убыванию",
+      "deleteSort": "Удалить сортировку",
+      "addSort": "Добавить сортировку"
+    },
     "row": {
       "duplicate": "Дублировать",
       "delete": "Удалить",
       "textPlaceholder": "Пусто",
       "copyProperty": "Свойство скопировано",
-      "count": "Количество"
+      "count": "Количество",
+      "newRow": "Новая строка"
     },
     "selectOption": {
       "create": "Создать",
@@ -220,6 +304,9 @@
       "panelTitle": "Выберите или создайте вариант",
       "searchOption": "Поиск"
     },
+    "checklist": {
+      "panelTitle": "Добавить элемент"
+    },
     "menuName": "Сетка"
   },
   "document": {
@@ -233,5 +320,8 @@
     "column": {
       "create_new_card": "Создать"
     }
+  },
+  "calendar": {
+    "menuName": "Календарь"
   }
 }
