@@ -1,12 +1,14 @@
 # Release Notes
 
-## Version 0.0.9.1 - 01/03/2023
+## Version 0.0.9.1 - 01/13/2023
 ### New features
 - New theme
 - Support changing text color of editor
 - Optimize user interface
+- Support adding sorts by the text/checkbox/number property in Grid
+- Restore corrupt data from snapshots
 ### Bug Fixes
-- Fix some grid bugs 
+- Fix some grid bugs
 
 ## Version 0.0.9 - 12/21/2022
 ### New features
