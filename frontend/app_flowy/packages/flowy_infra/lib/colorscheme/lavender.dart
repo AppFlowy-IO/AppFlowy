@@ -21,7 +21,7 @@ class LavenderColorScheme extends FlowyColorScheme {
           shader5: const Color(0xffe0e0e0),
           shader6: const Color(0xfff2f2f2),
           shader7: const Color(0xffffffff),
-          bg1: const Color(0xffd720d7),
+          bg1: const Color(0xffA74EFF),
           bg2: const Color(0xffedeef2),
           bg3: const Color(0xffe2e4eb),
           bg4: const Color(0xff2c144b),
@@ -41,7 +41,7 @@ class LavenderColorScheme extends FlowyColorScheme {
 
   const LavenderColorScheme.dark()
       : super(
-          surface: const Color(0xff292929),
+          surface: const Color(0xFF1B1A1D),
           hover: const Color(0xff1f1f1f),
           selector: const Color(0xff333333),
           red: const Color(0xfffb006d),
@@ -54,7 +54,7 @@ class LavenderColorScheme extends FlowyColorScheme {
           shader5: _white,
           shader6: _black,
           shader7: _black,
-          bg1: const Color(0xffd720d7),
+          bg1: const Color(0xff9327ff),
           bg2: _black,
           bg3: const Color(0xff4f4f4f),
           bg4: const Color(0xff2c144b),
