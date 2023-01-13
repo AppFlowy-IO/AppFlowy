@@ -5,7 +5,6 @@ import 'package:app_flowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
@@ -20,9 +19,7 @@ typedef NaviAction = void Function();
 
 class NavigationNotifier with ChangeNotifier {
   List<NavigationItem> navigationItems;
-  PublishNotifier<bool> collapasedNotifier;
-  NavigationNotifier(
-      {required this.navigationItems, required this.collapasedNotifier});
+  NavigationNotifier({required this.navigationItems});
 
   void update(HomeStackNotifier notifier) {
     bool shouldNotify = false;
@@ -47,7 +44,6 @@ class FlowyNavigation extends StatelessWidget {
         final notifier = Provider.of<HomeStackNotifier>(context, listen: false);
         return NavigationNotifier(
           navigationItems: notifier.plugin.display.navigationItems,
-          collapasedNotifier: notifier.collapsedNotifier,
         );
       },
       update: (_, notifier, controller) => controller!..update(notifier),
@@ -84,9 +80,6 @@ class FlowyNavigation extends StatelessWidget {
                   width: 24,
                   hoverColor: Colors.transparent,
                   onPressed: () {
-                    final notifier =
-                        Provider.of<HomeStackNotifier>(context, listen: false);
-                    notifier.collapsedNotifier.value = false;
                     context
                         .read<HomeSettingBloc>()
                         .add(const HomeSettingEvent.collapseMenu());

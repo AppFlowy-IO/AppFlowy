@@ -35,9 +35,6 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
           dismissEditPanel: (value) async {
             emit(state.copyWith(panelContext: none()));
           },
-          forceCollapse: (e) async {
-            emit(state.copyWith(forceCollapse: e.forceCollapse));
-          },
           didReceiveWorkspaceSetting: (_DidReceiveWorkspaceSetting value) {
             emit(state.copyWith(workspaceSetting: value.setting));
           },
@@ -94,8 +91,6 @@ extension MenuResizeTypeExtension on MenuResizeType {
 @freezed
 class HomeSettingEvent with _$HomeSettingEvent {
   const factory HomeSettingEvent.initial() = _Initial;
-  const factory HomeSettingEvent.forceCollapse(bool forceCollapse) =
-      _ForceCollapse;
   const factory HomeSettingEvent.setEditPanel(EditPanelContext editContext) =
       _ShowEditPanel;
   const factory HomeSettingEvent.dismissEditPanel() = _DismissEditPanel;
@@ -111,7 +106,6 @@ class HomeSettingEvent with _$HomeSettingEvent {
 @freezed
 class HomeSettingState with _$HomeSettingState {
   const factory HomeSettingState({
-    required bool forceCollapse,
     required Option<EditPanelContext> panelContext,
     required WorkspaceSettingPB workspaceSetting,
     required bool unauthorized,
@@ -126,7 +120,6 @@ class HomeSettingState with _$HomeSettingState {
     AppearanceSettingsState appearanceSettingsState,
   ) =>
       HomeSettingState(
-        forceCollapse: appearanceSettingsState.isMenuCollapsed,
         panelContext: none(),
         workspaceSetting: workspaceSetting,
         unauthorized: false,

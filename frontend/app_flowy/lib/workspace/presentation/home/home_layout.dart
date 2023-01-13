@@ -3,9 +3,9 @@ import 'dart:io' show Platform;
 import 'package:app_flowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:sized_context/sized_context.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'home_sizes.dart';
 
@@ -32,7 +32,7 @@ class HomeLayout {
 
     menuWidth += homeSetting.resizeOffset;
 
-    if (homeSetting.forceCollapse) {
+    if (homeSetting.isMenuCollapsed) {
       showMenu = false;
     } else {
       showMenu = true;

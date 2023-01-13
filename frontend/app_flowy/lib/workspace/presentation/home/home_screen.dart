@@ -89,16 +89,8 @@ class _HomeScreenState extends State<HomeScreen> {
           child: BlocBuilder<HomeSettingBloc, HomeSettingState>(
             buildWhen: (previous, current) => previous != current,
             builder: (context, state) {
-              final collapsedNotifier =
-                  getIt<HomeStackManager>().collapsedNotifier;
-              collapsedNotifier.addPublishListener((isCollapsed) {
-                context
-                    .read<HomeSettingBloc>()
-                    .add(HomeSettingEvent.forceCollapse(isCollapsed));
-              });
               return FlowyContainer(
                 Theme.of(context).colorScheme.surface,
-                // Colors.white,
                 child: _buildBody(context),
               );
             },
@@ -148,7 +140,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final homeMenu = HomeMenu(
       user: widget.user,
       workspaceSetting: workspaceSetting,
-      collapsedNotifier: getIt<HomeStackManager>().collapsedNotifier,
     );
 
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
