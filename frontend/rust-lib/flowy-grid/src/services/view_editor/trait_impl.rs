@@ -1,9 +1,10 @@
 use crate::entities::{GridLayout, GridLayoutPB, GridSettingPB};
+use crate::services::field::RowSingleCellData;
 use crate::services::filter::{FilterController, FilterDelegate, FilterType};
 use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter};
 use crate::services::row::GridBlockRowRevision;
 use crate::services::sort::{SortDelegate, SortType};
-use crate::services::view_editor::GridViewEditorDelegate;
+use crate::services::view_editor::{get_cells_for_field, GridViewEditorDelegate};
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
@@ -40,6 +41,10 @@ impl RevisionObjectDeserializer for GridViewRevisionSerde {
         let pad = GridViewRevisionPad::from_revisions(object_id, revisions)?;
         Ok(pad)
     }
+
+    fn recover_operations_from_revisions(_revisions: Vec<Revision>) -> Option<Self::Output> {
+        None
+    }
 }
 
 impl RevisionObjectSerializer for GridViewRevisionSerde {
@@ -56,11 +61,14 @@ impl RevisionMergeable for GridViewRevisionMergeable {
     }
 }
 
-pub(crate) struct GroupConfigurationReaderImpl(pub(crate) Arc<RwLock<GridViewRevisionPad>>);
+pub(crate) struct GroupConfigurationReaderImpl {
+    pub(crate) pad: Arc<RwLock<GridViewRevisionPad>>,
+    pub(crate) view_editor_delegate: Arc<dyn GridViewEditorDelegate>,
+}
 
 impl GroupConfigurationReader for GroupConfigurationReaderImpl {
     fn get_configuration(&self) -> Fut<Option<Arc<GroupConfigurationRevision>>> {
-        let view_pad = self.0.clone();
+        let view_pad = self.pad.clone();
         to_fut(async move {
             let mut groups = view_pad.read().await.get_all_groups();
             if groups.is_empty() {
@@ -70,6 +78,12 @@ impl GroupConfigurationReader for GroupConfigurationReaderImpl {
                 Some(groups.pop().unwrap())
             }
         })
+    }
+
+    fn get_configuration_cells(&self, field_id: &str) -> Fut<FlowyResult<Vec<RowSingleCellData>>> {
+        let field_id = field_id.to_owned();
+        let view_editor_delegate = self.view_editor_delegate.clone();
+        to_fut(async move { get_cells_for_field(view_editor_delegate, &field_id).await })
     }
 }
 
@@ -99,7 +113,7 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
             )?;
 
             if let Some(changeset) = changeset {
-                let _ = apply_change(&user_id, rev_manager, changeset).await?;
+                apply_change(&user_id, rev_manager, changeset).await?;
             }
             Ok(())
         })
@@ -119,12 +133,14 @@ pub(crate) async fn apply_change(
 
 pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<FieldRevision>]) -> GridSettingPB {
     let layout_type: GridLayout = view_pad.layout.clone().into();
-    let filter_configurations = view_pad.get_all_filters(field_revs);
+    let filters = view_pad.get_all_filters(field_revs);
     let group_configurations = view_pad.get_groups_by_field_revs(field_revs);
+    let sorts = view_pad.get_all_sorts(field_revs);
     GridSettingPB {
         layouts: GridLayoutPB::all(),
         layout_type,
-        filters: filter_configurations.into(),
+        filters: filters.into(),
+        sorts: sorts.into(),
         group_configurations: group_configurations.into(),
     }
 }

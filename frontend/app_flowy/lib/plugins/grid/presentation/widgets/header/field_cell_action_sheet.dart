@@ -43,21 +43,23 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
     return BlocProvider(
       create: (context) =>
           getIt<FieldActionSheetBloc>(param1: widget.cellContext),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          children: [
-            _EditFieldButton(
-              cellContext: widget.cellContext,
-              onTap: () {
-                setState(() {
-                  _showFieldEditor = true;
-                });
-              },
-            ),
-            VSpace(GridSize.typeOptionSeparatorHeight),
-            _FieldOperationList(widget.cellContext, () {}),
-          ],
+      child: IntrinsicWidth(
+        child: IntrinsicHeight(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _EditFieldButton(
+                cellContext: widget.cellContext,
+                onTap: () {
+                  setState(() {
+                    _showFieldEditor = true;
+                  });
+                },
+              ),
+              VSpace(GridSize.typeOptionSeparatorHeight),
+              _FieldOperationList(widget.cellContext),
+            ],
+          ),
         ),
       ),
     );
@@ -75,7 +77,7 @@ class _EditFieldButton extends StatelessWidget {
     return BlocBuilder<FieldActionSheetBloc, FieldActionSheetState>(
       builder: (context, state) {
         return SizedBox(
-          height: GridSize.typeOptionItemHeight,
+          height: GridSize.popoverItemHeight,
           child: FlowyButton(
             text: FlowyText.medium(
               LocaleKeys.grid_field_editProperty.tr(),
@@ -90,22 +92,17 @@ class _EditFieldButton extends StatelessWidget {
 
 class _FieldOperationList extends StatelessWidget {
   final GridFieldCellContext fieldInfo;
-  final VoidCallback onDismissed;
-  const _FieldOperationList(this.fieldInfo, this.onDismissed, {Key? key})
-      : super(key: key);
+  final double cellWidth = 100;
+
+  const _FieldOperationList(this.fieldInfo, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GridView(
-      // https://api.flutter.dev/flutter/widgets/AnimatedList/shrinkWrap.html
-      shrinkWrap: true,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 4.0,
-        mainAxisSpacing: GridSize.typeOptionSeparatorHeight,
-        crossAxisSpacing: GridSize.typeOptionSeparatorHeight,
+    return SizedBox(
+      width: cellWidth * 2,
+      child: Wrap(
+        children: buildCells(),
       ),
-      children: buildCells(),
     );
   }
 
@@ -121,11 +118,14 @@ class _FieldOperationList extends StatelessWidget {
             break;
         }
 
-        return FieldActionCell(
-          fieldInfo: fieldInfo,
-          action: action,
-          onTap: onDismissed,
-          enable: enable,
+        return SizedBox(
+          height: GridSize.popoverItemHeight,
+          width: cellWidth,
+          child: FieldActionCell(
+            fieldInfo: fieldInfo,
+            action: action,
+            enable: enable,
+          ),
         );
       },
     ).toList();
@@ -134,14 +134,12 @@ class _FieldOperationList extends StatelessWidget {
 
 class FieldActionCell extends StatelessWidget {
   final GridFieldCellContext fieldInfo;
-  final VoidCallback onTap;
   final FieldAction action;
   final bool enable;
 
   const FieldActionCell({
     required this.fieldInfo,
     required this.action,
-    required this.onTap,
     required this.enable,
     Key? key,
   }) : super(key: key);
@@ -156,7 +154,6 @@ class FieldActionCell extends StatelessWidget {
       onTap: () {
         if (enable) {
           action.run(context, fieldInfo);
-          onTap();
         }
       },
       leftIcon: svgWidget(

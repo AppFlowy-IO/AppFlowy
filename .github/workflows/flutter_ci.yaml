@@ -1,0 +1,107 @@
+name: Flutter-CI
+
+on:
+  push:
+    branches:
+      - "main"
+      - "release/*"
+    paths:
+      - "frontend/**"
+
+  pull_request:
+    branches:
+      - "main"
+      - "release/*"
+    paths:
+      - "frontend/**"
+
+env:
+  FLUTTER_VERSION: "3.3.9"
+  RUST_TOOLCHAIN: "1.65"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            flutter_profile: development-linux-x86_64
+            target: x86_64-unknown-linux-gnu
+          - os: macos-latest
+            flutter_profile: development-mac-x86_64
+            target: x86_64-apple-darwin
+          - os: windows-latest
+            flutter_profile: development-windows-x86
+            target: x86_64-pc-windows-msvc
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Install Rust toolchain
+        id: rust_toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          target: ${{ matrix.target }}
+          override: true
+          profile: minimal
+
+      - name: Install flutter
+        id: flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: ${{ matrix.job.os }}
+
+      - name: Install prerequisites
+        working-directory: frontend
+        run: |
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+            sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
+            sudo apt-get update
+            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
+            sudo apt-get install keybinder-3.0
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            vcpkg integrate install
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            echo 'do nothing'
+          fi
+          cargo make appflowy-deps-tools
+        shell: bash
+
+      - name: Enable Flutter Desktop
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            flutter config --enable-linux-desktop
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            flutter config --enable-macos-desktop
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            flutter config --enable-windows-desktop
+          fi
+        shell: bash
+
+      - name: Build AppFlowy
+        working-directory: frontend
+        run: |
+          cargo make --profile ${{ matrix.flutter_profile }} appflowy-dev
+
+      - name: Flutter Analyzer
+        working-directory: frontend/app_flowy
+        run: flutter analyze
+
+      - name: Run Flutter unit tests
+        working-directory: frontend
+        run: |
+          cargo make dart_unit_test

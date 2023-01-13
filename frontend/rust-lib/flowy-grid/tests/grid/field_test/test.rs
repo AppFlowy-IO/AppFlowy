@@ -52,7 +52,7 @@ async fn grid_update_field_with_empty_change() {
     let scripts = vec![CreateField { params }];
     test.run_scripts(scripts).await;
 
-    let field_rev = (&*test.field_revs.clone().pop().unwrap()).clone();
+    let field_rev = (*test.field_revs.clone().pop().unwrap()).clone();
     let changeset = FieldChangesetParams {
         field_id: field_rev.id.clone(),
         grid_id: test.view_id(),
@@ -77,7 +77,7 @@ async fn grid_update_field() {
     let create_field_index = test.field_count();
     test.run_scripts(scripts).await;
     //
-    let single_select_field = (&*test.field_revs.clone().pop().unwrap()).clone();
+    let single_select_field = (*test.field_revs.clone().pop().unwrap()).clone();
     let mut single_select_type_option = SingleSelectTypeOptionPB::from(&single_select_field);
     single_select_type_option.options.push(SelectOptionPB::new("Unknown"));
 
@@ -113,7 +113,7 @@ async fn grid_delete_field() {
     let scripts = vec![CreateField { params }];
     test.run_scripts(scripts).await;
 
-    let text_field_rev = (&*test.field_revs.clone().pop().unwrap()).clone();
+    let text_field_rev = (*test.field_revs.clone().pop().unwrap()).clone();
     let scripts = vec![
         DeleteField {
             field_rev: text_field_rev,
@@ -206,7 +206,7 @@ async fn grid_switch_from_multi_select_to_text_test() {
     let mut test = GridFieldTest::new().await;
     let field_rev = test.get_first_field_rev(FieldType::MultiSelect).clone();
 
-    let mut multi_select_type_option = test.get_multi_select_type_option(&field_rev.id);
+    let multi_select_type_option = test.get_multi_select_type_option(&field_rev.id);
 
     let script_switch_field = vec![SwitchToField {
         field_id: field_rev.id.clone(),
@@ -221,8 +221,8 @@ async fn grid_switch_from_multi_select_to_text_test() {
         from_field_type: FieldType::MultiSelect,
         expected_content: format!(
             "{},{}",
-            multi_select_type_option.get_mut(0).unwrap().name.to_string(),
-            multi_select_type_option.get_mut(1).unwrap().name.to_string()
+            multi_select_type_option.get(0).unwrap().name,
+            multi_select_type_option.get(1).unwrap().name
         ),
     }];
 
@@ -264,7 +264,24 @@ async fn grid_switch_from_checkbox_to_text_test() {
 //      "Yes" -> check
 //      "" -> unchecked
 #[tokio::test]
-async fn grid_switch_from_text_to_checkbox_test() {}
+async fn grid_switch_from_text_to_checkbox_test() {
+    let mut test = GridFieldTest::new().await;
+    let field_rev = test.get_first_field_rev(FieldType::RichText).clone();
+
+    let scripts = vec![
+        SwitchToField {
+            field_id: field_rev.id.clone(),
+            new_field_type: FieldType::Checkbox,
+        },
+        AssertCellContent {
+            field_id: field_rev.id.clone(),
+            row_index: 0,
+            from_field_type: FieldType::RichText,
+            expected_content: "".to_string(),
+        },
+    ];
+    test.run_scripts(scripts).await;
+}
 
 // Test when switching the current field from Date to Text test
 // input:

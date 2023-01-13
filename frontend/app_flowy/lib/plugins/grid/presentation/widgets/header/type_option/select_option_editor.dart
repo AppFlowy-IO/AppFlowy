@@ -6,7 +6,7 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -101,7 +101,7 @@ class _DeleteTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_selectOption_deleteTag.tr()),
         leftIcon: svgWidget(
@@ -162,7 +162,7 @@ class SelectOptionColorList extends StatelessWidget {
         Padding(
           padding: GridSize.typeOptionContentInsets,
           child: SizedBox(
-            height: GridSize.typeOptionItemHeight,
+            height: GridSize.popoverItemHeight,
             child: FlowyText.medium(
               LocaleKeys.grid_selectOption_colorPanelTitle.tr(),
               textAlign: TextAlign.left,
@@ -212,7 +212,7 @@ class _SelectOptionColorCell extends StatelessWidget {
     );
 
     return SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(color.optionName()),
         leftIcon: colorIcon,

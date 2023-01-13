@@ -29,7 +29,7 @@ impl GridMigration {
         if KV::get_bool(&key) {
             return Ok(());
         }
-        let _ = self.migration_grid_rev_struct(grid_id).await?;
+        self.migration_grid_rev_struct(grid_id).await?;
         tracing::trace!("Run grid:{} v1 migration", grid_id);
         KV::set_bool(&key, true);
         Ok(())

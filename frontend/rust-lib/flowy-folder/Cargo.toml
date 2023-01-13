@@ -14,11 +14,12 @@ lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 flowy-document = { path = "../flowy-document" }
-flowy-database = { path = "../flowy-database" }
+flowy-database = { path = "../flowy-database", optional = true }
 flowy-error = { path = "../flowy-error", features = ["db", "http_server"]}
-dart-notify = { path = "../dart-notify", features = ["dart"] }
+dart-notify = { path = "../dart-notify" }
 lib-dispatch = { path = "../lib-dispatch" }
 flowy-revision = { path = "../flowy-revision" }
+flowy-revision-persistence = { path = "../flowy-revision-persistence" }
 
 parking_lot = "0.12.1"
 protobuf = {version = "2.18.0"}
@@ -49,5 +50,6 @@ flowy-codegen = { path = "../flowy-codegen"}
 default = []
 sync = []
 cloud_sync = ["sync"]
+rev-sqlite = ["flowy-database", "flowy-folder/rev-sqlite"]
 flowy_unit_test = ["lib-ot/flowy_unit_test", "flowy-revision/flowy_unit_test"]
-dart = ["flowy-codegen/dart"]
+dart = ["flowy-codegen/dart", "dart-notify/dart"]

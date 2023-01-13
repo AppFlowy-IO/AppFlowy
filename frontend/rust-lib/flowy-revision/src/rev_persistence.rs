@@ -1,12 +1,9 @@
-use crate::cache::{
-    disk::{RevisionChangeset, RevisionDiskCache},
-    memory::RevisionMemoryCacheDelegate,
-};
-use crate::disk::{RevisionState, SyncRecord};
+use crate::cache::memory::RevisionMemoryCacheDelegate;
 use crate::memory::RevisionMemoryCache;
 use crate::RevisionMergeable;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_http_model::revision::{Revision, RevisionRange};
+use flowy_revision_persistence::{RevisionChangeset, RevisionDiskCache, RevisionState, SyncRecord};
 use std::collections::{HashMap, VecDeque};
 
 use std::{borrow::Cow, sync::Arc};
@@ -137,8 +134,7 @@ where
                 state: RevisionState::Sync,
                 write_to_disk: true,
             };
-            let _ = self
-                .disk_cache
+            self.disk_cache
                 .delete_and_insert_records(&self.object_id, Some(rev_ids), vec![record])?;
         }
         Ok(())
@@ -192,7 +188,7 @@ where
             let merged_revision = rev_compress.merge_revisions(&self.user_id, &self.object_id, revisions)?;
             let rev_id = merged_revision.rev_id;
             tracing::Span::current().record("rev_id", &merged_revision.rev_id);
-            let _ = sync_seq.recv(merged_revision.rev_id)?;
+            sync_seq.recv(merged_revision.rev_id)?;
 
             // replace the revisions in range with compact revision
             self.compact(&range, merged_revision).await?;
@@ -251,10 +247,9 @@ where
             })
             .collect::<Vec<_>>();
 
-        let _ = self
-            .disk_cache
+        self.disk_cache
             .delete_and_insert_records(&self.object_id, None, records.clone())?;
-        let _ = self.memory_cache.reset_with_revisions(records).await;
+        self.memory_cache.reset_with_revisions(records).await;
         self.sync_seq.write().await.clear();
         Ok(())
     }
@@ -277,8 +272,7 @@ where
     async fn compact(&self, range: &RevisionRange, new_revision: Revision) -> FlowyResult<()> {
         self.memory_cache.remove_with_range(range);
         let rev_ids = range.to_rev_ids();
-        let _ = self
-            .disk_cache
+        self.disk_cache
             .delete_revision_records(&self.object_id, Some(rev_ids))?;
         self.add(new_revision, RevisionState::Sync, true).await?;
         Ok(())
@@ -341,8 +335,7 @@ where
 
     #[allow(dead_code)]
     pub fn delete_revisions_from_range(&self, range: RevisionRange) -> FlowyResult<()> {
-        let _ = self
-            .disk_cache
+        self.disk_cache
             .delete_revision_records(&self.object_id, Some(range.to_rev_ids()))?;
         Ok(())
     }
@@ -356,7 +349,7 @@ impl<C> RevisionMemoryCacheDelegate for Arc<dyn RevisionDiskCache<C, Error = Flo
                 "checkpoint_result",
                 &format!("{} records were saved", records.len()).as_str(),
             );
-            let _ = self.create_revision_records(records)?;
+            self.create_revision_records(records)?;
         }
         Ok(())
     }
@@ -364,7 +357,7 @@ impl<C> RevisionMemoryCacheDelegate for Arc<dyn RevisionDiskCache<C, Error = Flo
     fn receive_ack(&self, object_id: &str, rev_id: i64) {
         let changeset = RevisionChangeset {
             object_id: object_id.to_string(),
-            rev_id: rev_id.into(),
+            rev_id,
             state: RevisionState::Ack,
         };
         match self.update_revision_record(vec![changeset]) {
@@ -391,7 +384,7 @@ impl DeferSyncSequence {
     /// When calling `compact` method, it will return a list of revision ids started from
     /// the `compact_start_pos`, and ends with the `compact_length`.
     fn merge_recv(&mut self, new_rev_id: i64) -> FlowyResult<()> {
-        let _ = self.recv(new_rev_id)?;
+        self.recv(new_rev_id)?;
 
         self.compact_length += 1;
         if self.compact_index.is_none() && !self.rev_ids.is_empty() {

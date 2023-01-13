@@ -49,7 +49,29 @@ impl TypeOption for CheckboxTypeOptionPB {
     type CellFilter = CheckboxFilterPB;
 }
 
-impl TypeOptionTransform for CheckboxTypeOptionPB {}
+impl TypeOptionTransform for CheckboxTypeOptionPB {
+    fn transformable(&self) -> bool {
+        true
+    }
+
+    fn transform_type_option(&mut self, _old_type_option_field_type: FieldType, _old_type_option_data: String) {}
+
+    fn transform_type_option_cell_str(
+        &self,
+        cell_str: &str,
+        decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> Option<<Self as TypeOption>::CellData> {
+        if decoded_field_type.is_text() {
+            match CheckboxCellData::from_str(cell_str) {
+                Ok(cell_data) => Some(cell_data),
+                Err(_) => None,
+            }
+        } else {
+            None
+        }
+    }
+}
 
 impl TypeOptionCellData for CheckboxTypeOptionPB {
     fn convert_to_protobuf(&self, cell_data: <Self as TypeOption>::CellData) -> <Self as TypeOption>::CellProtobufType {

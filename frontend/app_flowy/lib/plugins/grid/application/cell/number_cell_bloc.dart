@@ -1,4 +1,4 @@
-import 'package:flowy_sdk/log.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -82,7 +82,7 @@ class NumberCellState with _$NumberCellState {
     required String cellContent,
   }) = _NumberCellState;
 
-  factory NumberCellState.initial(GridCellController context) {
+  factory NumberCellState.initial(GridTextCellController context) {
     return NumberCellState(
       cellContent: context.getCellData() ?? "",
     );

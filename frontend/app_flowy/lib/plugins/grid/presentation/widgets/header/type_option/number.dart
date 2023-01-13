@@ -6,7 +6,7 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/format.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/format.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart' hide NumberFormat;
@@ -52,13 +52,13 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
       create: (context) =>
           NumberTypeOptionBloc(typeOptionContext: typeOptionContext),
       child: SizedBox(
-        height: GridSize.typeOptionItemHeight,
+        height: GridSize.popoverItemHeight,
         child: BlocConsumer<NumberTypeOptionBloc, NumberTypeOptionState>(
           listener: (context, state) =>
               typeOptionContext.typeOption = state.typeOption,
           builder: (context, state) {
             final button = SizedBox(
-              height: GridSize.typeOptionItemHeight,
+              height: GridSize.popoverItemHeight,
               child: FlowyButton(
                 margin: GridSize.typeOptionContentInsets,
                 rightIcon: svgWidget(
@@ -177,7 +177,7 @@ class NumberFormatCell extends StatelessWidget {
     }
 
     return SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(format.title()),
         onTap: () => onSelected(format),

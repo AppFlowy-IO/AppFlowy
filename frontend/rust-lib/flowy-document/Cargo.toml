@@ -15,10 +15,11 @@ lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 lib-dispatch = { path = "../lib-dispatch" }
-flowy-database = { path = "../flowy-database" }
+flowy-database = { path = "../flowy-database", optional = true }
 flowy-revision = { path = "../flowy-revision" }
+flowy-revision-persistence = { path = "../flowy-revision-persistence" }
 flowy-error = { path = "../flowy-error", features = ["collaboration", "ot", "http_server", "serde", "db"] }
-dart-notify = { path = "../dart-notify", features = ["dart"] }
+dart-notify = { path = "../dart-notify" }
 
 diesel = {version = "1.4.8", features = ["sqlite"]}
 diesel_derives = {version = "1.4.1", features = ["sqlite"]}
@@ -58,5 +59,6 @@ flowy-codegen = { path = "../flowy-codegen"}
 [features]
 sync = []
 cloud_sync = ["sync"]
+rev-sqlite = ["flowy-database"]
 flowy_unit_test = ["lib-ot/flowy_unit_test", "flowy-revision/flowy_unit_test"]
-dart = ["flowy-codegen/dart"]
+dart = ["flowy-codegen/dart", "dart-notify/dart"]

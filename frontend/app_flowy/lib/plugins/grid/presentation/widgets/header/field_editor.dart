@@ -8,7 +8,7 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/log.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
@@ -218,12 +218,14 @@ class _DeleteFieldButton extends StatelessWidget {
             LocaleKeys.grid_field_delete.tr(),
             color: enable ? null : Theme.of(context).disabledColor,
           ),
-          onTap: () => onDeleted?.call(),
+          onTap: () {
+            if (enable) onDeleted?.call();
+          },
           onHover: (_) => popoverMutex.close(),
         );
         return Padding(
           padding: const EdgeInsets.only(bottom: 4.0),
-          child: SizedBox(height: GridSize.typeOptionItemHeight, child: button),
+          child: SizedBox(height: GridSize.popoverItemHeight, child: button),
         );
       },
     );

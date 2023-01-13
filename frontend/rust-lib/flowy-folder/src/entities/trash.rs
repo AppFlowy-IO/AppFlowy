@@ -45,7 +45,7 @@ impl std::convert::From<TrashPB> for TrashRevision {
         }
     }
 }
-#[derive(PartialEq, Debug, Default, ProtoBuf, Clone)]
+#[derive(PartialEq, Eq, Debug, Default, ProtoBuf, Clone)]
 pub struct RepeatedTrashPB {
     #[pb(index = 1)]
     pub items: Vec<TrashPB>,
@@ -105,7 +105,7 @@ impl std::default::Default for TrashType {
     }
 }
 
-#[derive(PartialEq, ProtoBuf, Default, Debug, Clone)]
+#[derive(PartialEq, Eq, ProtoBuf, Default, Debug, Clone)]
 pub struct RepeatedTrashIdPB {
     #[pb(index = 1)]
     pub items: Vec<TrashIdPB>,
@@ -158,7 +158,7 @@ impl std::convert::From<Vec<TrashRevision>> for RepeatedTrashIdPB {
     }
 }
 
-#[derive(PartialEq, ProtoBuf, Default, Debug, Clone)]
+#[derive(PartialEq, Eq, ProtoBuf, Default, Debug, Clone)]
 pub struct TrashIdPB {
     #[pb(index = 1)]
     pub id: String,

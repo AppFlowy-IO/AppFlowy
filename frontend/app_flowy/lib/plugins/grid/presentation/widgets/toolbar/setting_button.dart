@@ -8,7 +8,9 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:styled_widget/styled_widget.dart';
 
+import '../../layout/sizes.dart';
 import 'grid_property.dart';
 import 'grid_setting.dart';
 
@@ -20,11 +22,11 @@ class SettingButton extends StatefulWidget {
 }
 
 class _SettingButtonState extends State<SettingButton> {
-  late PopoverController popoverController;
+  late PopoverController _popoverController;
 
   @override
   void initState() {
-    popoverController = PopoverController();
+    _popoverController = PopoverController();
     super.initState();
   }
 
@@ -41,21 +43,18 @@ class _SettingButtonState extends State<SettingButton> {
       },
       builder: (context, settingContext) {
         return AppFlowyPopover(
-          controller: popoverController,
+          controller: _popoverController,
           constraints: BoxConstraints.loose(const Size(260, 400)),
-          direction: PopoverDirection.leftWithTopAligned,
+          direction: PopoverDirection.bottomWithLeftAligned,
           offset: const Offset(0, 10),
-          margin: const EdgeInsets.all(6),
+          margin: EdgeInsets.zero,
           triggerActions: PopoverTriggerFlags.none,
           child: FlowyTextButton(
             LocaleKeys.settings_title.tr(),
-            fontSize: 13,
             fillColor: Colors.transparent,
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
-            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
-            onPressed: () {
-              popoverController.show();
-            },
+            padding: GridSize.typeOptionContentInsets,
+            onPressed: () => _popoverController.show(),
           ),
           popupBuilder: (BuildContext context) {
             return _GridSettingListPopover(settingContext: settingContext);
@@ -95,6 +94,6 @@ class _GridSettingListPopoverState extends State<_GridSettingListPopover> {
           _action = action;
         });
       },
-    );
+    ).padding(all: 6.0);
   }
 }

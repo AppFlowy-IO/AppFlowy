@@ -1,7 +1,7 @@
 import 'dart:collection';
 
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -22,6 +22,7 @@ class SelectOptionTextField extends StatefulWidget {
   final Function(String) onSubmitted;
   final Function(String) newText;
   final Function(List<String>, String) onPaste;
+  final Function(String) onRemove;
   final VoidCallback? onClick;
   final int? maxLength;
 
@@ -32,6 +33,7 @@ class SelectOptionTextField extends StatefulWidget {
     required this.tagController,
     required this.onSubmitted,
     required this.onPaste,
+    required this.onRemove,
     required this.newText,
     required this.textSeparators,
     this.onClick,
@@ -163,25 +165,31 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
     }
 
     final children = widget.selectedOptionMap.values
-        .map((option) =>
-            SelectOptionTag.fromOption(context: context, option: option))
+        .map((option) => SelectOptionTag.fromOption(
+              context: context,
+              option: option,
+              onRemove: (option) => widget.onRemove(option),
+            ))
         .toList();
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(
-          dragDevices: {
-            PointerDeviceKind.mouse,
-            PointerDeviceKind.touch,
-            PointerDeviceKind.trackpad,
-            PointerDeviceKind.stylus,
-            PointerDeviceKind.invertedStylus,
-          },
-        ),
-        child: SingleChildScrollView(
-          controller: sc,
-          scrollDirection: Axis.horizontal,
-          child: Wrap(spacing: 4, children: children),
+    return MouseRegion(
+      cursor: SystemMouseCursors.basic,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(
+            dragDevices: {
+              PointerDeviceKind.mouse,
+              PointerDeviceKind.touch,
+              PointerDeviceKind.trackpad,
+              PointerDeviceKind.stylus,
+              PointerDeviceKind.invertedStylus,
+            },
+          ),
+          child: SingleChildScrollView(
+            controller: sc,
+            scrollDirection: Axis.horizontal,
+            child: Wrap(spacing: 4, children: children),
+          ),
         ),
       ),
     );

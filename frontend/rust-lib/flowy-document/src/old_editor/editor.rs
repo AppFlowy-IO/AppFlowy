@@ -1,5 +1,6 @@
 #![allow(unused_attributes)]
 #![allow(unused_attributes)]
+
 use crate::old_editor::queue::{EditDocumentQueue, EditorCommand, EditorCommandSender};
 use crate::{errors::FlowyError, DocumentEditor, DocumentUser};
 use bytes::Bytes;
@@ -79,7 +80,7 @@ impl DeltaDocumentEditor {
             ret,
         };
         let _ = self.edit_cmd_tx.send(msg).await;
-        let _ = rx.await.map_err(internal_error)??;
+        rx.await.map_err(internal_error)??;
         Ok(())
     }
 
@@ -87,7 +88,7 @@ impl DeltaDocumentEditor {
         let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
         let msg = EditorCommand::Delete { interval, ret };
         let _ = self.edit_cmd_tx.send(msg).await;
-        let _ = rx.await.map_err(internal_error)??;
+        rx.await.map_err(internal_error)??;
         Ok(())
     }
 
@@ -99,7 +100,7 @@ impl DeltaDocumentEditor {
             ret,
         };
         let _ = self.edit_cmd_tx.send(msg).await;
-        let _ = rx.await.map_err(internal_error)??;
+        rx.await.map_err(internal_error)??;
         Ok(())
     }
 
@@ -111,7 +112,7 @@ impl DeltaDocumentEditor {
             ret,
         };
         let _ = self.edit_cmd_tx.send(msg).await;
-        let _ = rx.await.map_err(internal_error)??;
+        rx.await.map_err(internal_error)??;
         Ok(())
     }
 
@@ -133,7 +134,7 @@ impl DeltaDocumentEditor {
         let (ret, rx) = oneshot::channel();
         let msg = EditorCommand::Undo { ret };
         let _ = self.edit_cmd_tx.send(msg).await;
-        let _ = rx.await.map_err(internal_error)??;
+        rx.await.map_err(internal_error)??;
         Ok(())
     }
 
@@ -141,7 +142,7 @@ impl DeltaDocumentEditor {
         let (ret, rx) = oneshot::channel();
         let msg = EditorCommand::Redo { ret };
         let _ = self.edit_cmd_tx.send(msg).await;
-        let _ = rx.await.map_err(internal_error)??;
+        rx.await.map_err(internal_error)??;
         Ok(())
     }
 }
@@ -193,7 +194,7 @@ impl DocumentEditor for Arc<DeltaDocumentEditor> {
             let msg = EditorCommand::ComposeLocalOperations { operations, ret };
 
             let _ = edit_cmd_tx.send(msg).await;
-            let _ = rx.await.map_err(internal_error)??;
+            rx.await.map_err(internal_error)??;
             Ok(())
         })
     }
@@ -259,6 +260,10 @@ impl RevisionObjectDeserializer for DeltaDocumentRevisionSerde {
             rev_id,
             base_rev_id,
         })
+    }
+
+    fn recover_operations_from_revisions(_revisions: Vec<Revision>) -> Option<Self::Output> {
+        None
     }
 }
 

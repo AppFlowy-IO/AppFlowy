@@ -6,7 +6,7 @@ use flowy_database::kv::KV;
 use flowy_error::FlowyResult;
 use flowy_http_model::revision::Revision;
 use flowy_http_model::util::md5;
-use flowy_revision::disk::{RevisionDiskCache, SyncRecord};
+use flowy_revision_persistence::{RevisionDiskCache, SyncRecord};
 use flowy_sync::util::make_operations_from_revisions;
 use std::sync::Arc;
 

@@ -7,11 +7,11 @@ edition = "2018"
 
 [dependencies]
 flowy-derive = { path = "../flowy-derive" }
-flowy-database = { path = "../flowy-database" }
+flowy-database = { path = "../flowy-database", optional = true }
 flowy-error = { path = "../flowy-error", features = ["db", "http_server"] }
 
 lib-infra = { path = "../../../shared-lib/lib-infra" }
-dart-notify = { path = "../dart-notify", features = ["dart"] }
+dart-notify = { path = "../dart-notify" }
 lib-dispatch = { path = "../lib-dispatch" }
 
 tracing = { version = "0.1", features = ["log"] }
@@ -45,7 +45,8 @@ rand_core = "0.6.3"
 rand = "0.8.5"
 
 [features]
-dart = ["flowy-codegen/dart"]
+rev-sqlite = ["flowy-database"]
+dart = ["flowy-codegen/dart", "dart-notify/dart"]
 
 [build-dependencies]
 flowy-codegen = { path = "../flowy-codegen"}

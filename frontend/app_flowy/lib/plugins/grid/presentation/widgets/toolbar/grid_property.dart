@@ -59,12 +59,10 @@ class _GridPropertyListState extends State<GridPropertyList> {
             controller: ScrollController(),
             shrinkWrap: true,
             itemCount: cells.length,
-            itemBuilder: (BuildContext context, int index) {
-              return cells[index];
-            },
-            separatorBuilder: (BuildContext context, int index) {
-              return VSpace(GridSize.typeOptionSeparatorHeight);
-            },
+            itemBuilder: (BuildContext context, int index) => cells[index],
+            separatorBuilder: (BuildContext context, int index) =>
+                VSpace(GridSize.typeOptionSeparatorHeight),
+            padding: const EdgeInsets.symmetric(vertical: 6.0),
           );
         },
       ),
@@ -72,10 +70,11 @@ class _GridPropertyListState extends State<GridPropertyList> {
   }
 }
 
-class _GridPropertyCell extends StatelessWidget {
+class _GridPropertyCell extends StatefulWidget {
   final FieldInfo fieldInfo;
   final String gridId;
   final PopoverMutex popoverMutex;
+
   const _GridPropertyCell({
     required this.gridId,
     required this.fieldInfo,
@@ -84,54 +83,64 @@ class _GridPropertyCell extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<_GridPropertyCell> createState() => _GridPropertyCellState();
+}
+
+class _GridPropertyCellState extends State<_GridPropertyCell> {
+  late PopoverController _popoverController;
+
+  @override
+  void initState() {
+    _popoverController = PopoverController();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final checkmark = svgWidget(
-      fieldInfo.visibility ? 'home/show' : 'home/hide',
+      widget.fieldInfo.visibility ? 'home/show' : 'home/hide',
       color: Theme.of(context).colorScheme.onSurface,
     );
 
-    return Row(
-      children: [
-        Expanded(
-          child: SizedBox(
-            height: GridSize.typeOptionItemHeight,
-            child: _editFieldButton(context),
-          ),
-        ),
-        FlowyIconButton(
-          width: GridSize.typeOptionItemHeight,
-          onPressed: () {
-            context.read<GridPropertyBloc>().add(
-                GridPropertyEvent.setFieldVisibility(
-                    fieldInfo.id, !fieldInfo.visibility));
-          },
-          icon: checkmark.padding(all: 6),
-        )
-      ],
+    return SizedBox(
+      height: GridSize.popoverItemHeight,
+      child: _editFieldButton(context, checkmark),
     );
   }
 
-  Widget _editFieldButton(BuildContext context) {
+  Widget _editFieldButton(BuildContext context, Widget checkmark) {
     return AppFlowyPopover(
-      mutex: popoverMutex,
+      mutex: widget.popoverMutex,
+      controller: _popoverController,
       offset: const Offset(20, 0),
       direction: PopoverDirection.leftWithTopAligned,
       constraints: BoxConstraints.loose(const Size(240, 400)),
+      triggerActions: PopoverTriggerFlags.none,
       margin: EdgeInsets.zero,
       child: FlowyButton(
-        text: FlowyText.medium(fieldInfo.name),
+        text: FlowyText.medium(widget.fieldInfo.name),
         leftIcon: svgWidget(
-          fieldInfo.fieldType.iconName(),
+          widget.fieldInfo.fieldType.iconName(),
           color: Theme.of(context).colorScheme.onSurface,
         ),
-      ),
+        rightIcon: FlowyIconButton(
+          hoverColor: Colors.transparent,
+          onPressed: () {
+            context.read<GridPropertyBloc>().add(
+                GridPropertyEvent.setFieldVisibility(
+                    widget.fieldInfo.id, !widget.fieldInfo.visibility));
+          },
+          icon: checkmark.padding(all: 6.0),
+        ),
+        onTap: () => _popoverController.show(),
+      ).padding(horizontal: 6.0),
       popupBuilder: (BuildContext context) {
         return FieldEditor(
-          gridId: gridId,
-          fieldName: fieldInfo.name,
+          gridId: widget.gridId,
+          fieldName: widget.fieldInfo.name,
           typeOptionLoader: FieldTypeOptionLoader(
-            gridId: gridId,
-            field: fieldInfo.field,
+            gridId: widget.gridId,
+            field: widget.fieldInfo.field,
           ),
         );
       },

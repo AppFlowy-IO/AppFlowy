@@ -87,9 +87,9 @@ fn generate_rust_protobuf_files(
 fn generate_dart_protobuf_files(
     name: &str,
     proto_file_output_path: &str,
-    paths: &Vec<String>,
+    paths: &[String],
     file_names: &Vec<String>,
-    protoc_bin_path: &PathBuf,
+    protoc_bin_path: &Path,
 ) {
     if std::env::var("CARGO_MAKE_WORKING_DIRECTORY").is_err() {
         log::warn!("CARGO_MAKE_WORKING_DIRECTORY was not set, skip generate dart pb");

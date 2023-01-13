@@ -4,7 +4,7 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -85,7 +85,7 @@ class OptionTitle extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: SizedBox(
-            height: GridSize.typeOptionItemHeight,
+            height: GridSize.popoverItemHeight,
             child: Row(children: children),
           ),
         );
@@ -185,7 +185,7 @@ class _OptionCellState extends State<_OptionCell> {
   @override
   Widget build(BuildContext context) {
     final child = SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: SelectOptionTagCell(
         option: widget.option,
         onSelected: (SelectOptionPB pb) {
@@ -243,7 +243,7 @@ class _AddOptionButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: SizedBox(
-        height: GridSize.typeOptionItemHeight,
+        height: GridSize.popoverItemHeight,
         child: FlowyButton(
           text: FlowyText.medium(LocaleKeys.grid_field_addSelectOption.tr()),
           onTap: () {

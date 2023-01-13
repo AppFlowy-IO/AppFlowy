@@ -4,7 +4,7 @@ macro_rules! inline_attribute_entry {
         $key: ident,
         $value: ty
     ) => {
-        pub fn $key(value: $value) -> crate::core::AttributeEntry {
+        pub fn $key(value: $value) -> $crate::core::AttributeEntry {
             AttributeEntry {
                 key: BuildInTextAttributeKey::$key.as_ref().to_string(),
                 value: value.into(),
@@ -19,7 +19,7 @@ macro_rules! inline_list_attribute_entry {
         $key: ident,
         $value: expr
     ) => {
-        pub fn $key(b: bool) -> crate::core::AttributeEntry {
+        pub fn $key(b: bool) -> $crate::core::AttributeEntry {
             let value = match b {
                 true => $value,
                 false => "",

@@ -1,13 +1,14 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::FieldType;
 use crate::services::sort::SortType;
+use std::sync::Arc;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use grid_rev_model::{FieldTypeRevision, SortCondition, SortRevision};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct GridSortPB {
+pub struct SortPB {
     #[pb(index = 1)]
     pub id: String,
 
@@ -21,7 +22,7 @@ pub struct GridSortPB {
     pub condition: GridSortConditionPB,
 }
 
-impl std::convert::From<&SortRevision> for GridSortPB {
+impl std::convert::From<&SortRevision> for SortPB {
     fn from(sort_rev: &SortRevision) -> Self {
         Self {
             id: sort_rev.id.clone(),
@@ -29,6 +30,26 @@ impl std::convert::From<&SortRevision> for GridSortPB {
             field_type: sort_rev.field_type.into(),
             condition: sort_rev.condition.clone().into(),
         }
+    }
+}
+
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct RepeatedSortPB {
+    #[pb(index = 1)]
+    pub items: Vec<SortPB>,
+}
+
+impl std::convert::From<Vec<Arc<SortRevision>>> for RepeatedSortPB {
+    fn from(revs: Vec<Arc<SortRevision>>) -> Self {
+        RepeatedSortPB {
+            items: revs.into_iter().map(|rev| rev.as_ref().into()).collect(),
+        }
+    }
+}
+
+impl std::convert::From<Vec<SortPB>> for RepeatedSortPB {
+    fn from(items: Vec<SortPB>) -> Self {
+        Self { items }
     }
 }
 
@@ -64,7 +85,7 @@ pub struct AlterSortPayloadPB {
     #[pb(index = 3)]
     pub field_type: FieldType,
 
-    /// Create a new filter if the filter_id is None
+    /// Create a new sort if the sort_id is None
     #[pb(index = 4, one_of)]
     pub sort_id: Option<String>,
 
@@ -83,9 +104,10 @@ impl TryInto<AlterSortParams> for AlterSortPayloadPB {
         let field_id = NotEmptyStr::parse(self.field_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
             .0;
+
         let sort_id = match self.sort_id {
             None => None,
-            Some(filter_id) => Some(NotEmptyStr::parse(filter_id).map_err(|_| ErrorCode::FilterIdIsEmpty)?.0),
+            Some(sort_id) => Some(NotEmptyStr::parse(sort_id).map_err(|_| ErrorCode::SortIdIsEmpty)?.0),
         };
 
         Ok(AlterSortParams {
@@ -164,16 +186,25 @@ pub struct SortChangesetNotificationPB {
     pub view_id: String,
 
     #[pb(index = 2)]
-    pub insert_sorts: Vec<GridSortPB>,
+    pub insert_sorts: Vec<SortPB>,
 
     #[pb(index = 3)]
-    pub delete_sorts: Vec<GridSortPB>,
+    pub delete_sorts: Vec<SortPB>,
 
     #[pb(index = 4)]
-    pub update_sorts: Vec<GridSortPB>,
+    pub update_sorts: Vec<SortPB>,
 }
 
 impl SortChangesetNotificationPB {
+    pub fn new(view_id: String) -> Self {
+        Self {
+            view_id,
+            insert_sorts: vec![],
+            delete_sorts: vec![],
+            update_sorts: vec![],
+        }
+    }
+
     pub fn extend(&mut self, other: SortChangesetNotificationPB) {
         self.insert_sorts.extend(other.insert_sorts);
         self.delete_sorts.extend(other.delete_sorts);
@@ -194,8 +225,11 @@ pub struct ReorderAllRowsPB {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct ReorderSingleRowPB {
     #[pb(index = 1)]
-    pub old_index: i32,
+    pub row_id: String,
 
     #[pb(index = 2)]
+    pub old_index: i32,
+
+    #[pb(index = 3)]
     pub new_index: i32,
 }

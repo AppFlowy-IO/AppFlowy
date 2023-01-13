@@ -157,6 +157,9 @@ pub enum ErrorCode {
 
     #[error("Out of bounds")]
     OutOfBounds = 52,
+
+    #[error("Sort id is empty")]
+    SortIdIsEmpty = 53,
 }
 
 impl ErrorCode {

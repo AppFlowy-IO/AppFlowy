@@ -2,7 +2,7 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/trash.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fixnum/fixnum.dart' as $fixnum;

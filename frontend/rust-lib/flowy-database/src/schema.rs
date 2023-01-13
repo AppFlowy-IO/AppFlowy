@@ -16,6 +16,17 @@ diesel::table! {
 }
 
 diesel::table! {
+    document_rev_snapshot (snapshot_id) {
+        snapshot_id -> Text,
+        object_id -> Text,
+        rev_id -> BigInt,
+        base_rev_id -> BigInt,
+        timestamp -> BigInt,
+        data -> Binary,
+    }
+}
+
+diesel::table! {
     document_rev_table (id) {
         id -> Integer,
         document_id -> Text,
@@ -23,6 +34,17 @@ diesel::table! {
         rev_id -> BigInt,
         data -> Binary,
         state -> Integer,
+    }
+}
+
+diesel::table! {
+    folder_rev_snapshot (snapshot_id) {
+        snapshot_id -> Text,
+        object_id -> Text,
+        rev_id -> BigInt,
+        base_rev_id -> BigInt,
+        timestamp -> BigInt,
+        data -> Binary,
     }
 }
 
@@ -157,7 +179,9 @@ diesel::table! {
 
 diesel::allow_tables_to_appear_in_same_query!(
     app_table,
+    document_rev_snapshot,
     document_rev_table,
+    folder_rev_snapshot,
     grid_block_index_table,
     grid_meta_rev_table,
     grid_rev_snapshot,

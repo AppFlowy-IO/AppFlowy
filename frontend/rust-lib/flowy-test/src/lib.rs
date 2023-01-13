@@ -3,9 +3,9 @@ pub mod helper;
 
 use crate::helper::*;
 
+use flowy_core::{FlowySDK, FlowySDKConfig};
 use flowy_document::entities::DocumentVersionPB;
 use flowy_net::get_client_server_configuration;
-use flowy_sdk::{FlowySDK, FlowySDKConfig};
 use flowy_user::entities::UserProfilePB;
 use nanoid::nanoid;
 
@@ -45,8 +45,7 @@ impl FlowySDKTest {
     }
 
     pub async fn sign_up(&self) -> SignUpContext {
-        let context = async_sign_up(self.inner.dispatcher()).await;
-        context
+        async_sign_up(self.inner.dispatcher()).await
     }
 
     pub async fn init_user(&self) -> UserProfilePB {

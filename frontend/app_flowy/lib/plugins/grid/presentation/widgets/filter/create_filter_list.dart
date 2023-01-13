@@ -57,7 +57,7 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
           builder: (context, state) {
             final cells = state.creatableFields.map((fieldInfo) {
               return SizedBox(
-                height: GridSize.typeOptionItemHeight,
+                height: GridSize.popoverItemHeight,
                 child: _FilterPropertyCell(
                   fieldInfo: fieldInfo,
                   onTap: (fieldInfo) => createFilter(fieldInfo),

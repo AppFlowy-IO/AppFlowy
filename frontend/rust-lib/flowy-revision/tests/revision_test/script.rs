@@ -1,10 +1,10 @@
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_revision::disk::{RevisionChangeset, RevisionDiskCache, SyncRecord};
 use flowy_revision::{
     RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionPersistence,
     RevisionPersistenceConfiguration, RevisionSnapshot, RevisionSnapshotDiskCache, REVISION_WRITE_INTERVAL_IN_MILLIS,
 };
+use flowy_revision_persistence::{RevisionChangeset, RevisionDiskCache, SyncRecord};
 
 use flowy_http_model::revision::{Revision, RevisionRange};
 use flowy_http_model::util::md5;
@@ -265,7 +265,7 @@ impl RevisionMergeable for RevisionMergeableMock {
         let mut object = RevisionObjectMock::new("");
         for revision in revisions {
             if let Ok(other) = RevisionObjectMock::from_bytes(&revision.bytes) {
-                let _ = object.compose(other)?;
+                object.compose(other)?;
             }
         }
         Ok(Bytes::from(object.to_bytes()))
@@ -326,10 +326,14 @@ impl RevisionObjectDeserializer for RevisionObjectMockSerde {
 
         for revision in revisions {
             if let Ok(revision_object) = RevisionObjectMock::from_bytes(&revision.bytes) {
-                let _ = object.compose(revision_object)?;
+                object.compose(revision_object)?;
             }
         }
 
         Ok(object)
+    }
+
+    fn recover_operations_from_revisions(_revisions: Vec<Revision>) -> Option<Self::Output> {
+        None
     }
 }

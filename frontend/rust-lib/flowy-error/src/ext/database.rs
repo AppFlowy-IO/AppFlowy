@@ -11,11 +11,3 @@ impl std::convert::From<::r2d2::Error> for FlowyError {
         FlowyError::internal().context(error)
     }
 }
-
-// use diesel::result::{Error, DatabaseErrorKind};
-// use lib_sqlite::ErrorKind;
-impl std::convert::From<lib_sqlite::Error> for FlowyError {
-    fn from(error: lib_sqlite::Error) -> Self {
-        FlowyError::internal().context(error)
-    }
-}

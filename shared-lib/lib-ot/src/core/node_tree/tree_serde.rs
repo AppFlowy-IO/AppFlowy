@@ -26,7 +26,7 @@ impl Serialize for NodeTree {
             let mut seq = serializer.serialize_seq(Some(children.len()))?;
             for child in children {
                 if let Some(child_node_data) = self.get_node_data(child) {
-                    let _ = seq.serialize_element(&child_node_data)?;
+                    seq.serialize_element(&child_node_data)?;
                 }
             }
             seq.end()

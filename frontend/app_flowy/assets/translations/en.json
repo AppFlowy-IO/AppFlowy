@@ -193,6 +193,7 @@
   "grid": {
     "settings": {
       "filter": "Filter",
+      "sort": "Sort",
       "sortBy": "Sort by",
       "Properties": "Properties",
       "group": "Group",
@@ -273,6 +274,12 @@
       "newColumn": "New column",
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted"
     },
+    "sort": {
+      "ascending": "Ascending",
+      "descending": "Descending",
+      "deleteSort": "Delete sort",
+      "addSort": "Add sort"
+    },
     "row": {
       "duplicate": "Duplicate",
       "delete": "Delete",
@@ -313,5 +320,8 @@
     "column": {
       "create_new_card": "New"
     }
+  },
+  "calendar": {
+    "menuName": "Calendar"
   }
 }
