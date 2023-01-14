@@ -29,10 +29,6 @@ jobs:
       - name: Checkout source code
         uses: 
           actions/checkout@v2
-          nttld/setup-ndk@v1
-        with:
-          use-cross: true
-          ndk-version: r24
 
       - name: Install Rust toolchain
         id: rust_toolchain
@@ -67,8 +63,15 @@ jobs:
         run: |
           cargo make --profile development-linux-x86_64 appflowy-sdk-dev
 
+      - name: Setup NDK
+        uses: nttld/setup-ndk@v1
+        with: 
+          ndk-version: r24
+          local-cache: true
+
       - name: Android SDK
         id: mobile_build
+        working-directory: frontend
         run: cargo make appflowy-sdk-dev-android
 
       - name: rustfmt rust-lib
