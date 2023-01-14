@@ -75,7 +75,7 @@ pub(crate) async fn delete_view_handler(
         })
         .collect::<Vec<TrashPB>>();
 
-    let _ = trash_controller.add(trash).await?;
+    trash_controller.add(trash).await?;
     Ok(())
 }
 
@@ -85,8 +85,8 @@ pub(crate) async fn set_latest_view_handler(
     controller: AFPluginState<Arc<ViewController>>,
 ) -> Result<(), FlowyError> {
     let view_id: ViewIdPB = data.into_inner();
-    let _ = controller.set_latest_view(&view_id.value)?;
-    let _ = notify_workspace_setting_did_change(&folder, &view_id).await?;
+    controller.set_latest_view(&view_id.value)?;
+    notify_workspace_setting_did_change(&folder, &view_id).await?;
     Ok(())
 }
 
@@ -95,7 +95,7 @@ pub(crate) async fn close_view_handler(
     controller: AFPluginState<Arc<ViewController>>,
 ) -> Result<(), FlowyError> {
     let view_id: ViewIdPB = data.into_inner();
-    let _ = controller.close_view(&view_id.value).await?;
+    controller.close_view(&view_id.value).await?;
     Ok(())
 }
 
@@ -108,10 +108,10 @@ pub(crate) async fn move_item_handler(
     let params: MoveFolderItemParams = data.into_inner().try_into()?;
     match params.ty {
         MoveFolderItemType::MoveApp => {
-            let _ = app_controller.move_app(&params.item_id, params.from, params.to).await?;
+            app_controller.move_app(&params.item_id, params.from, params.to).await?;
         }
         MoveFolderItemType::MoveView => {
-            let _ = view_controller
+            view_controller
                 .move_view(&params.item_id, params.from, params.to)
                 .await?;
         }
@@ -125,6 +125,6 @@ pub(crate) async fn duplicate_view_handler(
     controller: AFPluginState<Arc<ViewController>>,
 ) -> Result<(), FlowyError> {
     let view: ViewPB = data.into_inner();
-    let _ = controller.duplicate_view(view).await?;
+    controller.duplicate_view(view).await?;
     Ok(())
 }

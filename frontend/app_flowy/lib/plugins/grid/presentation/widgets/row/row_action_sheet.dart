@@ -56,7 +56,7 @@ class _RowActionCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(
           action.title(),

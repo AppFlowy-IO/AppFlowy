@@ -1,6 +1,6 @@
 import 'package:app_flowy/plugins/grid/presentation/widgets/filter/filter_info.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_filter.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/util.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/checkbox_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/util.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';

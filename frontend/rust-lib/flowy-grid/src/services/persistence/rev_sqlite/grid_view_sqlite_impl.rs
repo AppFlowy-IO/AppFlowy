@@ -9,7 +9,7 @@ use flowy_database::{
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_http_model::revision::{Revision, RevisionRange};
 use flowy_http_model::util::md5;
-use flowy_revision::disk::{RevisionChangeset, RevisionDiskCache, RevisionState, SyncRecord};
+use flowy_revision_persistence::{RevisionChangeset, RevisionDiskCache, RevisionState, SyncRecord};
 use std::sync::Arc;
 
 pub struct SQLiteGridViewRevisionPersistence {
@@ -31,7 +31,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridViewRevisionPersistenc
 
     fn create_revision_records(&self, revision_records: Vec<SyncRecord>) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        let _ = GridViewRevisionSql::create(revision_records, &*conn)?;
+        GridViewRevisionSql::create(revision_records, &conn)?;
         Ok(())
     }
 
@@ -45,7 +45,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridViewRevisionPersistenc
         rev_ids: Option<Vec<i64>>,
     ) -> Result<Vec<SyncRecord>, Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        let records = GridViewRevisionSql::read(&self.user_id, object_id, rev_ids, &*conn)?;
+        let records = GridViewRevisionSql::read(&self.user_id, object_id, rev_ids, &conn)?;
         Ok(records)
     }
 
@@ -61,9 +61,9 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridViewRevisionPersistenc
 
     fn update_revision_record(&self, changesets: Vec<RevisionChangeset>) -> FlowyResult<()> {
         let conn = &*self.pool.get().map_err(internal_error)?;
-        let _ = conn.immediate_transaction::<_, FlowyError, _>(|| {
+        conn.immediate_transaction::<_, FlowyError, _>(|| {
             for changeset in changesets {
-                let _ = GridViewRevisionSql::update(changeset, conn)?;
+                GridViewRevisionSql::update(changeset, conn)?;
             }
             Ok(())
         })?;
@@ -72,7 +72,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridViewRevisionPersistenc
 
     fn delete_revision_records(&self, object_id: &str, rev_ids: Option<Vec<i64>>) -> Result<(), Self::Error> {
         let conn = &*self.pool.get().map_err(internal_error)?;
-        let _ = GridViewRevisionSql::delete(object_id, rev_ids, conn)?;
+        GridViewRevisionSql::delete(object_id, rev_ids, conn)?;
         Ok(())
     }
 
@@ -84,8 +84,8 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridViewRevisionPersistenc
     ) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
-            let _ = GridViewRevisionSql::delete(object_id, deleted_rev_ids, &*conn)?;
-            let _ = GridViewRevisionSql::create(inserted_records, &*conn)?;
+            GridViewRevisionSql::delete(object_id, deleted_rev_ids, &conn)?;
+            GridViewRevisionSql::create(inserted_records, &conn)?;
             Ok(())
         })
     }

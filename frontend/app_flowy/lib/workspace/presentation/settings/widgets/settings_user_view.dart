@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:app_flowy/workspace/application/user/settings_user_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_infra/image.dart';
 
 import 'dart:convert';

@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:flowy_sdk/protobuf/dart-notify/protobuf.dart';
+import 'package:appflowy_backend/protobuf/dart-notify/protobuf.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/dart_notification.pb.dart';
-import 'package:flowy_sdk/rust_stream.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/dart_notification.pb.dart';
+import 'package:appflowy_backend/rust_stream.dart';
 
 import 'notification_helper.dart';
 

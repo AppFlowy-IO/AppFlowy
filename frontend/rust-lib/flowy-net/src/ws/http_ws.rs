@@ -17,7 +17,7 @@ impl FlowyRawWebSocket for Arc<WSController> {
     fn start_connect(&self, addr: String, _user_id: String) -> FutureResult<(), FlowyError> {
         let cloned_ws = self.clone();
         FutureResult::new(async move {
-            let _ = cloned_ws.start(addr).await.map_err(internal_error)?;
+            cloned_ws.start(addr).await.map_err(internal_error)?;
             Ok(())
         })
     }
@@ -38,13 +38,13 @@ impl FlowyRawWebSocket for Arc<WSController> {
     fn reconnect(&self, count: usize) -> FutureResult<(), FlowyError> {
         let cloned_ws = self.clone();
         FutureResult::new(async move {
-            let _ = cloned_ws.retry(count).await.map_err(internal_error)?;
+            cloned_ws.retry(count).await.map_err(internal_error)?;
             Ok(())
         })
     }
 
     fn add_msg_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError> {
-        let _ = self.add_ws_message_receiver(receiver).map_err(internal_error)?;
+        self.add_ws_message_receiver(receiver).map_err(internal_error)?;
         Ok(())
     }
 
@@ -64,7 +64,7 @@ impl FlowyRawWebSocket for Arc<WSController> {
 
 impl FlowyWebSocket for WSSender {
     fn send(&self, msg: WebSocketRawMessage) -> Result<(), FlowyError> {
-        let _ = self.send_msg(msg).map_err(internal_error)?;
+        self.send_msg(msg).map_err(internal_error)?;
         Ok(())
     }
 }

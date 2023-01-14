@@ -39,37 +39,47 @@ where
     let mut new_operations = DeltaOperations::<T>::new();
     for revision in revisions {
         if revision.bytes.is_empty() {
-            tracing::warn!("revision delta_data is empty");
-            continue;
+            return Err(CollaborateError::unexpected_empty_revision().context("Unexpected Empty revision"));
         }
-
         let operations = DeltaOperations::<T>::from_bytes(revision.bytes).map_err(|e| {
             let err_msg = format!("Deserialize revision failed: {:?}", e);
             CollaborateError::internal().context(err_msg)
         })?;
 
-        match new_operations.compose(&operations) {
-            Ok(composed_operations) => {
-                new_operations = composed_operations;
-                // if composed_operations.content().is_ok() {
-                //     new_operations = composed_operations;
-                // } else {
-                //     tracing::error!(
-                //         "Compose operation failed: rev_id: {}, object_id: {} {:?}",
-                //         revision.rev_id,
-                //         revision.object_id,
-                //         operations
-                //     );
-                //     return Ok(new_operations);
-                // }
-            }
-            Err(e) => {
-                tracing::error!("Compose operation failed: {},  {:?}", e, operations);
-                return Ok(new_operations);
-            }
-        }
+        new_operations = new_operations.compose(&operations)?;
     }
     Ok(new_operations)
+}
+
+pub fn recover_operation_from_revisions<T>(
+    revisions: Vec<Revision>,
+    validator: impl Fn(&DeltaOperations<T>) -> bool,
+) -> Option<DeltaOperations<T>>
+where
+    T: OperationAttributes + DeserializeOwned + OperationAttributes,
+{
+    let mut new_operations = DeltaOperations::<T>::new();
+    for revision in revisions {
+        if let Ok(operations) = DeltaOperations::<T>::from_bytes(revision.bytes) {
+            match new_operations.compose(&operations) {
+                Ok(composed_operations) => {
+                    if validator(&composed_operations) {
+                        new_operations = composed_operations;
+                    } else {
+                        break;
+                    }
+                }
+                Err(_) => break,
+            }
+        } else {
+            break;
+        }
+    }
+    return if new_operations.is_empty() {
+        None
+    } else {
+        Some(new_operations)
+    };
 }
 
 pub fn pair_rev_id_from_revision_pbs(revisions: &[Revision]) -> (i64, i64) {
@@ -171,7 +181,7 @@ pub fn cal_diff<T: OperationAttributes>(old: String, new: String) -> Option<Delt
                 delta_builder = delta_builder.delete(OTString::from(*s).utf16_len());
             }
             Chunk::Insert(s) => {
-                delta_builder = delta_builder.insert(*s);
+                delta_builder = delta_builder.insert(s);
             }
         }
     }

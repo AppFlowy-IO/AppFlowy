@@ -1,0 +1,39 @@
+PODS:
+  - flowy_sqlite (0.0.1):
+    - FlutterMacOS
+  - appflowy_backend (0.0.1):
+    - FlutterMacOS
+  - FlutterMacOS (1.0.0)
+  - path_provider (0.0.1)
+  - path_provider_macos (0.0.1):
+    - FlutterMacOS
+
+DEPENDENCIES:
+  - flowy_sqlite (from `Flutter/ephemeral/.symlinks/plugins/flowy_sqlite/macos`)
+  - appflowy_backend (from `Flutter/ephemeral/.symlinks/plugins/appflowy_backend/macos`)
+  - FlutterMacOS (from `Flutter/ephemeral/.symlinks/flutter/darwin-x64`)
+  - path_provider (from `Flutter/ephemeral/.symlinks/plugins/path_provider/macos`)
+  - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
+
+EXTERNAL SOURCES:
+  flowy_sqlite:
+    :path: Flutter/ephemeral/.symlinks/plugins/flowy_sqlite/macos
+  appflowy_backend:
+    :path: Flutter/ephemeral/.symlinks/plugins/appflowy_backend/macos
+  FlutterMacOS:
+    :path: Flutter/ephemeral/.symlinks/flutter/darwin-x64
+  path_provider:
+    :path: Flutter/ephemeral/.symlinks/plugins/path_provider/macos
+  path_provider_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos
+
+SPEC CHECKSUMS:
+  flowy_sqlite: 6638deea1ca0baeef75156d16236123d4703161d
+  appflowy_backend: 12d2c047ed260a0aa8788a0b9616da46e2312025
+  FlutterMacOS: 15bea8a44d2fa024068daa0140371c020b4b6ff9
+  path_provider: e0848572d1d38b9a7dd099e79cf83f5b7e2cde9f
+  path_provider_macos: a0a3fd666cb7cd0448e936fb4abad4052961002b
+
+PODFILE CHECKSUM: d8ba9b3e9e93c62c74a660b46c6fcb09f03991a7
+
+COCOAPODS: 1.10.1

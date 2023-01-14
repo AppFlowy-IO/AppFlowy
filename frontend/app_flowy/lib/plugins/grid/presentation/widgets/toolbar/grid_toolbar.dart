@@ -1,3 +1,4 @@
+import 'package:app_flowy/plugins/grid/presentation/widgets/toolbar/sort_button.dart';
 import 'package:flutter/material.dart';
 
 import '../../../application/field/field_controller.dart';
@@ -27,6 +28,7 @@ class GridToolbar extends StatelessWidget {
           SizedBox(width: GridSize.leadingHeaderPadding),
           const Spacer(),
           const FilterButton(),
+          const SortButton(),
           const SettingButton(),
         ],
       ),

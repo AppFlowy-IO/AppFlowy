@@ -3,7 +3,7 @@ import 'package:app_flowy/plugins/document/document.dart';
 import 'package:app_flowy/plugins/grid/grid.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_view_section_bloc.dart';
-import 'package:flowy_sdk/dispatch/dispatch.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../util.dart';
 

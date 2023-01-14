@@ -5,8 +5,8 @@ import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/select_option_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/select_option_filter.pb.dart';
 import 'package:flutter/material.dart';
 
 class SelectOptionFilterConditionList extends StatelessWidget {

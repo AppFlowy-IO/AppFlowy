@@ -55,9 +55,13 @@ mixin SelectableMixin<T extends StatefulWidget> on State<T> {
   ///
   /// Only the widget rendered by [TextNode] need to implement the detail,
   ///   and the rest can return null.
-  Selection? getWorldBoundaryInOffset(Offset start) {
-    return null;
-  }
+  Selection? getWordBoundaryInOffset(Offset start) => null;
+
+  /// For [TextNode] only.
+  ///
+  /// Only the widget rendered by [TextNode] need to implement the detail,
+  ///   and the rest can return null.
+  Selection? getWordBoundaryInPosition(Position position) => null;
 
   bool get shouldCursorBlink => true;
 

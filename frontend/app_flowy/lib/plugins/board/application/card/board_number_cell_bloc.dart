@@ -60,7 +60,7 @@ class BoardNumberCellState with _$BoardNumberCellState {
     required String content,
   }) = _BoardNumberCellState;
 
-  factory BoardNumberCellState.initial(GridCellController context) =>
+  factory BoardNumberCellState.initial(GridTextCellController context) =>
       BoardNumberCellState(
         content: context.getCellData() ?? "",
       );

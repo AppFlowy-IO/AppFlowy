@@ -14,9 +14,9 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-error/errors.pbserver.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -163,9 +163,9 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
           firstDay: kFirstDay,
           lastDay: kLastDay,
           focusedDay: state.focusedDay,
-          rowHeight: GridSize.typeOptionItemHeight,
+          rowHeight: GridSize.popoverItemHeight,
           calendarFormat: state.format,
-          daysOfWeekHeight: GridSize.typeOptionItemHeight,
+          daysOfWeekHeight: GridSize.popoverItemHeight,
           headerStyle: HeaderStyle(
             formatButtonVisible: false,
             titleCentered: true,
@@ -243,7 +243,7 @@ class _IncludeTimeButton extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: SizedBox(
-            height: GridSize.typeOptionItemHeight,
+            height: GridSize.popoverItemHeight,
             child: Padding(
               padding: GridSize.typeOptionContentInsets,
               child: Row(
@@ -327,7 +327,7 @@ class _TimeTextFieldState extends State<_TimeTextField> {
       child: Padding(
         padding: GridSize.typeOptionContentInsets,
         child: RoundedInputField(
-          height: GridSize.typeOptionItemHeight,
+          height: GridSize.popoverItemHeight,
           focusNode: _focusNode,
           autoFocus: true,
           hintText: widget.bloc.state.timeHintText,
@@ -376,7 +376,7 @@ class _DateTypeOptionButton extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: SizedBox(
-              height: GridSize.typeOptionItemHeight,
+              height: GridSize.popoverItemHeight,
               child: FlowyButton(
                 text: FlowyText.medium(title),
                 margin: GridSize.typeOptionContentInsets,

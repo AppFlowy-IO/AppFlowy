@@ -1,5 +1,4 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/commands/text/text_commands.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 

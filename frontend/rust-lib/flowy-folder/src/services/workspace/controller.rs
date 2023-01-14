@@ -45,7 +45,7 @@ impl WorkspaceController {
         let workspaces = self
             .persistence
             .begin_transaction(|transaction| {
-                let _ = transaction.create_workspace(&user_id, workspace.clone())?;
+                transaction.create_workspace(&user_id, workspace.clone())?;
                 transaction.read_workspaces(&user_id, None)
             })
             .await?
@@ -67,7 +67,7 @@ impl WorkspaceController {
         let workspace = self
             .persistence
             .begin_transaction(|transaction| {
-                let _ = transaction.update_workspace(changeset)?;
+                transaction.update_workspace(changeset)?;
                 let user_id = self.user.user_id()?;
                 self.read_local_workspace(workspace_id.clone(), &user_id, &transaction)
             })
@@ -76,7 +76,7 @@ impl WorkspaceController {
         send_dart_notification(&workspace_id, FolderNotification::WorkspaceUpdated)
             .payload(workspace)
             .send();
-        let _ = self.update_workspace_on_server(params)?;
+        self.update_workspace_on_server(params)?;
 
         Ok(())
     }
@@ -88,14 +88,14 @@ impl WorkspaceController {
         let repeated_workspace = self
             .persistence
             .begin_transaction(|transaction| {
-                let _ = transaction.delete_workspace(workspace_id)?;
+                transaction.delete_workspace(workspace_id)?;
                 self.read_local_workspaces(None, &user_id, &transaction)
             })
             .await?;
         send_dart_notification(&token, FolderNotification::UserDeleteWorkspace)
             .payload(repeated_workspace)
             .send();
-        let _ = self.delete_workspace_on_server(workspace_id)?;
+        self.delete_workspace_on_server(workspace_id)?;
         Ok(())
     }
 

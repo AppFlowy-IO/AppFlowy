@@ -12,7 +12,7 @@ impl Serialize for NodeOperations {
         let operations = self.values();
         let mut seq = serializer.serialize_seq(Some(operations.len()))?;
         for operation in operations {
-            let _ = seq.serialize_element(&operation)?;
+            seq.serialize_element(&operation)?;
         }
         seq.end()
     }

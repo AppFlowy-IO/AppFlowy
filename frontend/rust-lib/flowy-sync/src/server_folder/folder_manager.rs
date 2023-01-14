@@ -88,7 +88,7 @@ impl ServerFolderManager {
                 Ok(())
             }
             Some(handler) => {
-                let _ = handler.apply_revisions(user, client_data.revisions).await?;
+                handler.apply_revisions(user, client_data.revisions).await?;
                 Ok(())
             }
         };
@@ -115,7 +115,7 @@ impl ServerFolderManager {
                 Ok(())
             }
             Some(handler) => {
-                let _ = handler.apply_ping(rev_id, user).await?;
+                handler.apply_ping(rev_id, user).await?;
                 Ok(())
             }
         }
@@ -215,8 +215,7 @@ impl OpenFolderHandler {
     }
 
     async fn send<T>(&self, msg: FolderCommand, rx: oneshot::Receiver<T>) -> CollaborateResult<T> {
-        let _ = self
-            .sender
+        self.sender
             .send(msg)
             .await
             .map_err(|e| CollaborateError::internal().context(format!("Send folder command failed: {}", e)))?;

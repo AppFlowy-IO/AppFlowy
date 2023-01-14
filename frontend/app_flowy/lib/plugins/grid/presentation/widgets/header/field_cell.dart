@@ -4,7 +4,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -44,8 +44,7 @@ class _GridFieldCellState extends State<GridFieldCell> {
         builder: (context, state) {
           final button = AppFlowyPopover(
             triggerActions: PopoverTriggerFlags.none,
-            constraints: BoxConstraints.loose(const Size(240, 440)),
-            margin: EdgeInsets.zero,
+            constraints: BoxConstraints.loose(const Size(400, 240)),
             direction: PopoverDirection.bottomWithLeftAligned,
             controller: popoverController,
             popupBuilder: (BuildContext context) {

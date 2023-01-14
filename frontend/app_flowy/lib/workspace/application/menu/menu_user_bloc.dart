@@ -1,9 +1,9 @@
 import 'package:app_flowy/user/application/user_listener.dart';
 import 'package:app_flowy/user/application/user_service.dart';
-import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:dartz/dartz.dart';
@@ -18,14 +18,16 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
 
   MenuUserBloc(this.userProfile)
       : _userListener = UserListener(userProfile: userProfile),
-        _userWorkspaceListener = UserWorkspaceListener(userProfile: userProfile),
+        _userWorkspaceListener =
+            UserWorkspaceListener(userProfile: userProfile),
         _userService = UserService(userId: userProfile.id),
         super(MenuUserState.initial(userProfile)) {
     on<MenuUserEvent>((event, emit) async {
       await event.when(
         initial: () async {
           _userListener.start(onProfileUpdated: _profileUpdated);
-          _userWorkspaceListener.start(onWorkspacesUpdated: _workspaceListUpdated);
+          _userWorkspaceListener.start(
+              onWorkspacesUpdated: _workspaceListUpdated);
           await _initUser();
         },
         fetchWorkspaces: () async {
@@ -60,12 +62,14 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
 
   void _profileUpdated(Either<UserProfilePB, FlowyError> userProfileOrFailed) {
     userProfileOrFailed.fold(
-      (newUserProfile) => add(MenuUserEvent.didReceiveUserProfile(newUserProfile)),
+      (newUserProfile) =>
+          add(MenuUserEvent.didReceiveUserProfile(newUserProfile)),
       (err) => Log.error(err),
     );
   }
 
-  void _workspaceListUpdated(Either<List<WorkspacePB>, FlowyError> workspacesOrFailed) {
+  void _workspaceListUpdated(
+      Either<List<WorkspacePB>, FlowyError> workspacesOrFailed) {
     // Do nothing by now
   }
 }
@@ -75,7 +79,8 @@ class MenuUserEvent with _$MenuUserEvent {
   const factory MenuUserEvent.initial() = _Initial;
   const factory MenuUserEvent.fetchWorkspaces() = _FetchWorkspaces;
   const factory MenuUserEvent.updateUserName(String name) = _UpdateUserName;
-  const factory MenuUserEvent.didReceiveUserProfile(UserProfilePB newUserProfile) = _DidReceiveUserProfile;
+  const factory MenuUserEvent.didReceiveUserProfile(
+      UserProfilePB newUserProfile) = _DidReceiveUserProfile;
 }
 
 @freezed

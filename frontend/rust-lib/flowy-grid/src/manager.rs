@@ -71,7 +71,7 @@ impl GridManager {
         let grid_id = grid_id.as_ref();
         let db_pool = self.grid_user.db_pool()?;
         let rev_manager = self.make_grid_rev_manager(grid_id, db_pool)?;
-        let _ = rev_manager.reset_object(revisions).await?;
+        rev_manager.reset_object(revisions).await?;
 
         Ok(())
     }
@@ -80,7 +80,7 @@ impl GridManager {
     async fn create_grid_view<T: AsRef<str>>(&self, view_id: T, revisions: Vec<Revision>) -> FlowyResult<()> {
         let view_id = view_id.as_ref();
         let rev_manager = make_grid_view_rev_manager(&self.grid_user, view_id).await?;
-        let _ = rev_manager.reset_object(revisions).await?;
+        rev_manager.reset_object(revisions).await?;
         Ok(())
     }
 
@@ -88,11 +88,10 @@ impl GridManager {
     pub async fn create_grid_block<T: AsRef<str>>(&self, block_id: T, revisions: Vec<Revision>) -> FlowyResult<()> {
         let block_id = block_id.as_ref();
         let rev_manager = make_grid_block_rev_manager(&self.grid_user, block_id)?;
-        let _ = rev_manager.reset_object(revisions).await?;
+        rev_manager.reset_object(revisions).await?;
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip_all, err)]
     pub async fn open_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<Arc<GridRevisionEditor>> {
         let grid_id = grid_id.as_ref();
         let _ = self.migration.run_v1_migration(grid_id).await;
@@ -103,16 +102,20 @@ impl GridManager {
     pub async fn close_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<()> {
         let grid_id = grid_id.as_ref();
         tracing::Span::current().record("grid_id", &grid_id);
-
         self.grid_editors.write().await.remove(grid_id).await;
-        // self.task_scheduler.write().await.unregister_handler(grid_id);
         Ok(())
     }
 
     // #[tracing::instrument(level = "debug", skip(self), err)]
     pub async fn get_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridRevisionEditor>> {
-        match self.grid_editors.read().await.get(grid_id) {
-            None => Err(FlowyError::internal().context("Should call open_grid function first")),
+        let read_guard = self.grid_editors.read().await;
+        let editor = read_guard.get(grid_id);
+        match editor {
+            None => {
+                // Drop the read_guard ASAP in case of the following read/write lock
+                drop(read_guard);
+                self.open_grid(grid_id).await
+            }
             Some(editor) => Ok(editor),
         }
     }
@@ -125,6 +128,7 @@ impl GridManager {
         let mut grid_editors = self.grid_editors.write().await;
         let db_pool = self.grid_user.db_pool()?;
         let editor = self.make_grid_rev_editor(grid_id, db_pool).await?;
+        tracing::trace!("Open grid: {}", grid_id);
         grid_editors.insert(grid_id.to_string(), editor.clone());
         Ok(editor)
     }
@@ -158,7 +162,7 @@ impl GridManager {
 
         // Create revision persistence
         let disk_cache = SQLiteGridRevisionPersistence::new(&user_id, pool.clone());
-        let configuration = RevisionPersistenceConfiguration::new(4, false);
+        let configuration = RevisionPersistenceConfiguration::new(6, false);
         let rev_persistence = RevisionPersistence::new(&user_id, grid_id, disk_cache, configuration);
 
         // Create snapshot persistence
@@ -196,7 +200,7 @@ pub async fn make_grid_view_data(
         let grid_block_delta = make_grid_block_operations(block_meta_data);
         let block_delta_data = grid_block_delta.json_bytes();
         let revision = Revision::initial_revision(block_id, block_delta_data);
-        let _ = grid_manager.create_grid_block(&block_id, vec![revision]).await?;
+        grid_manager.create_grid_block(&block_id, vec![revision]).await?;
     }
 
     // Will replace the grid_id with the value returned by the gen_grid_id()
@@ -207,7 +211,7 @@ pub async fn make_grid_view_data(
     let grid_rev_delta = make_grid_operations(&grid_rev);
     let grid_rev_delta_bytes = grid_rev_delta.json_bytes();
     let revision = Revision::initial_revision(&grid_id, grid_rev_delta_bytes.clone());
-    let _ = grid_manager.create_grid(&grid_id, vec![revision]).await?;
+    grid_manager.create_grid(&grid_id, vec![revision]).await?;
 
     // Create grid view
     let grid_view = if grid_view_revision_data.is_empty() {
@@ -218,7 +222,7 @@ pub async fn make_grid_view_data(
     let grid_view_delta = make_grid_view_operations(&grid_view);
     let grid_view_delta_bytes = grid_view_delta.json_bytes();
     let revision = Revision::initial_revision(view_id, grid_view_delta_bytes);
-    let _ = grid_manager.create_grid_view(view_id, vec![revision]).await?;
+    grid_manager.create_grid_view(view_id, vec![revision]).await?;
 
     Ok(grid_rev_delta_bytes)
 }

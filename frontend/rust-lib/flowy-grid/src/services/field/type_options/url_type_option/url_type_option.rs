@@ -105,7 +105,7 @@ impl TypeOptionCellDataFilter for URLTypeOptionPB {
             return true;
         }
 
-        filter.is_visible(&cell_data)
+        filter.is_visible(cell_data)
     }
 }
 

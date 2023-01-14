@@ -52,7 +52,7 @@ async fn grid_update_field_with_empty_change() {
     let scripts = vec![CreateField { params }];
     test.run_scripts(scripts).await;
 
-    let field_rev = (&*test.field_revs.clone().pop().unwrap()).clone();
+    let field_rev = (*test.field_revs.clone().pop().unwrap()).clone();
     let changeset = FieldChangesetParams {
         field_id: field_rev.id.clone(),
         grid_id: test.view_id(),
@@ -77,7 +77,7 @@ async fn grid_update_field() {
     let create_field_index = test.field_count();
     test.run_scripts(scripts).await;
     //
-    let single_select_field = (&*test.field_revs.clone().pop().unwrap()).clone();
+    let single_select_field = (*test.field_revs.clone().pop().unwrap()).clone();
     let mut single_select_type_option = SingleSelectTypeOptionPB::from(&single_select_field);
     single_select_type_option.options.push(SelectOptionPB::new("Unknown"));
 
@@ -113,7 +113,7 @@ async fn grid_delete_field() {
     let scripts = vec![CreateField { params }];
     test.run_scripts(scripts).await;
 
-    let text_field_rev = (&*test.field_revs.clone().pop().unwrap()).clone();
+    let text_field_rev = (*test.field_revs.clone().pop().unwrap()).clone();
     let scripts = vec![
         DeleteField {
             field_rev: text_field_rev,

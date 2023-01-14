@@ -50,7 +50,7 @@ impl AppFlowyDocumentEditor {
             .command_sender
             .send(Command::ComposeTransaction { transaction, ret })
             .await;
-        let _ = rx.await.map_err(internal_error)??;
+        rx.await.map_err(internal_error)??;
         Ok(())
     }
 
@@ -115,7 +115,7 @@ impl DocumentEditor for Arc<AppFlowyDocumentEditor> {
         let this = self.clone();
         FutureResult::new(async move {
             let transaction = DocumentTransaction::from_bytes(data)?;
-            let _ = this.apply_transaction(transaction.into()).await?;
+            this.apply_transaction(transaction.into()).await?;
             Ok(())
         })
     }

@@ -104,9 +104,4 @@ jobs:
       - name: Run Flutter unit tests
         working-directory: frontend
         run: |
-          if [ "$RUNNER_OS" == "macOS" ]; then
-            cargo make dart_unit_test
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            cargo make dart_unit_test
-          fi
-        shell: bash
+          cargo make dart_unit_test

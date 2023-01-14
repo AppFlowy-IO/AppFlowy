@@ -1,15 +1,15 @@
 part of 'cell_service.dart';
 
-typedef GridCellController = IGridCellController<String, String>;
-typedef GridCheckboxCellController = IGridCellController<String, String>;
-typedef GridNumberCellController = IGridCellController<String, String>;
+typedef GridTextCellController = GridCellController<String, String>;
+typedef GridCheckboxCellController = GridCellController<String, String>;
+typedef GridNumberCellController = GridCellController<String, String>;
 typedef GridSelectOptionCellController
-    = IGridCellController<SelectOptionCellDataPB, String>;
+    = GridCellController<SelectOptionCellDataPB, String>;
 typedef GridChecklistCellController
-    = IGridCellController<SelectOptionCellDataPB, String>;
+    = GridCellController<SelectOptionCellDataPB, String>;
 typedef GridDateCellController
-    = IGridCellController<DateCellDataPB, CalendarData>;
-typedef GridURLCellController = IGridCellController<URLCellDataPB, String>;
+    = GridCellController<DateCellDataPB, CalendarData>;
+typedef GridURLCellController = GridCellController<URLCellDataPB, String>;
 
 abstract class GridCellControllerBuilderDelegate {
   GridCellFieldNotifier buildFieldNotifier();
@@ -27,7 +27,7 @@ class GridCellControllerBuilder {
   })  : _cellCache = cellCache,
         _cellId = cellId;
 
-  IGridCellController build() {
+  GridCellController build() {
     final cellFieldNotifier = delegate.buildFieldNotifier();
     switch (_cellId.fieldType) {
       case FieldType.Checkbox:
@@ -35,12 +35,12 @@ class GridCellControllerBuilder {
           cellId: _cellId,
           parser: StringCellDataParser(),
         );
-        return GridCellController(
+        return GridTextCellController(
           cellId: _cellId,
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
           fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: CellDataPersistence(cellId: _cellId),
+          cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
         );
       case FieldType.DateTime:
         final cellDataLoader = GridCellDataLoader(
@@ -67,19 +67,19 @@ class GridCellControllerBuilder {
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
           fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: CellDataPersistence(cellId: _cellId),
+          cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
         );
       case FieldType.RichText:
         final cellDataLoader = GridCellDataLoader(
           cellId: _cellId,
           parser: StringCellDataParser(),
         );
-        return GridCellController(
+        return GridTextCellController(
           cellId: _cellId,
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
           fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: CellDataPersistence(cellId: _cellId),
+          cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
         );
       case FieldType.MultiSelect:
       case FieldType.SingleSelect:
@@ -95,7 +95,7 @@ class GridCellControllerBuilder {
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
           fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: CellDataPersistence(cellId: _cellId),
+          cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
         );
 
       case FieldType.URL:
@@ -108,7 +108,7 @@ class GridCellControllerBuilder {
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
           fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: CellDataPersistence(cellId: _cellId),
+          cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
         );
     }
     throw UnimplementedError;
@@ -123,17 +123,17 @@ class GridCellControllerBuilder {
 /// Generic D represents the type of data that will be saved to the disk
 ///
 // ignore: must_be_immutable
-class IGridCellController<T, D> extends Equatable {
+class GridCellController<T, D> extends Equatable {
   final GridCellIdentifier cellId;
   final GridCellCache _cellsCache;
   final GridCellCacheKey _cacheKey;
   final FieldService _fieldService;
   final GridCellFieldNotifier _fieldNotifier;
   final GridCellDataLoader<T> _cellDataLoader;
-  final IGridCellDataPersistence<D> _cellDataPersistence;
+  final GridCellDataPersistence<D> _cellDataPersistence;
 
   CellListener? _cellListener;
-  ValueNotifier<T?>? _cellDataNotifier;
+  CellDataNotifier<T?>? _cellDataNotifier;
 
   bool isListening = false;
   VoidCallback? _onFieldChangedFn;
@@ -141,12 +141,12 @@ class IGridCellController<T, D> extends Equatable {
   Timer? _saveDataOperation;
   bool _isDispose = false;
 
-  IGridCellController({
+  GridCellController({
     required this.cellId,
     required GridCellCache cellCache,
     required GridCellFieldNotifier fieldNotifier,
     required GridCellDataLoader<T> cellDataLoader,
-    required IGridCellDataPersistence<D> cellDataPersistence,
+    required GridCellDataPersistence<D> cellDataPersistence,
   })  : _cellsCache = cellCache,
         _cellDataLoader = cellDataLoader,
         _cellDataPersistence = cellDataPersistence,
@@ -170,8 +170,20 @@ class IGridCellController<T, D> extends Equatable {
 
   FieldType get fieldType => cellId.fieldInfo.fieldType;
 
+  /// Listen on the cell content or field changes
+  ///
+  /// An optional [listenWhenOnCellChanged] can be implemented for more
+  ///  granular control over when [listener] is called.
+  /// [listenWhenOnCellChanged] will be invoked on each [onCellChanged]
+  /// get called.
+  /// [listenWhenOnCellChanged] takes the previous `value` and current
+  /// `value` and must return a [bool] which determines whether or not
+  ///  the [onCellChanged] function will be invoked.
+  /// [onCellChanged] is optional and if omitted, it will default to `true`.
+  ///
   VoidCallback? startListening({
     required void Function(T?) onCellChanged,
+    bool Function(T? oldValue, T? newValue)? listenWhenOnCellChanged,
     VoidCallback? onCellFieldChanged,
   }) {
     if (isListening) {
@@ -180,7 +192,10 @@ class IGridCellController<T, D> extends Equatable {
     }
     isListening = true;
 
-    _cellDataNotifier = ValueNotifier(_cellsCache.get(_cacheKey));
+    _cellDataNotifier = CellDataNotifier(
+      value: _cellsCache.get(_cacheKey),
+      listenWhen: listenWhenOnCellChanged,
+    );
     _cellListener =
         CellListener(rowId: cellId.rowId, fieldId: cellId.fieldInfo.id);
 
@@ -255,24 +270,21 @@ class IGridCellController<T, D> extends Equatable {
   /// You can set [deduplicate] to true (default is false) to reduce the save operation.
   /// It's useful when you call this method when user editing the [TextField].
   /// The default debounce interval is 300 milliseconds.
-  void saveCellData(D data,
-      {bool deduplicate = false,
-      void Function(Option<FlowyError>)? resultCallback}) async {
+  void saveCellData(
+    D data, {
+    bool deduplicate = false,
+    void Function(Option<FlowyError>)? onFinish,
+  }) async {
+    _loadDataOperation?.cancel();
     if (deduplicate) {
-      _loadDataOperation?.cancel();
-
       _saveDataOperation?.cancel();
       _saveDataOperation = Timer(const Duration(milliseconds: 300), () async {
         final result = await _cellDataPersistence.save(data);
-        if (resultCallback != null) {
-          resultCallback(result);
-        }
+        onFinish?.call(result);
       });
     } else {
       final result = await _cellDataPersistence.save(data);
-      if (resultCallback != null) {
-        resultCallback(result);
-      }
+      onFinish?.call(result);
     }
   }
 
@@ -302,6 +314,7 @@ class IGridCellController<T, D> extends Equatable {
     await _cellListener?.stop();
     _loadDataOperation?.cancel();
     _saveDataOperation?.cancel();
+    _cellDataNotifier?.dispose();
     _cellDataNotifier = null;
 
     if (_onFieldChangedFn != null) {
@@ -342,4 +355,24 @@ class GridCellFieldNotifierImpl extends IGridCellFieldNotifier {
       onFieldsUpdated: _onChangesetFn,
     );
   }
+}
+
+class CellDataNotifier<T> extends ChangeNotifier {
+  T _value;
+  bool Function(T? oldValue, T? newValue)? listenWhen;
+  CellDataNotifier({required T value, this.listenWhen}) : _value = value;
+
+  set value(T newValue) {
+    if (listenWhen?.call(_value, newValue) ?? false) {
+      _value = newValue;
+      notifyListeners();
+    } else {
+      if (_value != newValue) {
+        _value = newValue;
+        notifyListeners();
+      }
+    }
+  }
+
+  T get value => _value;
 }

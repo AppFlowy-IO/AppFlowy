@@ -206,7 +206,7 @@ pub struct OpMetric();
 
 impl Metric for OpMetric {
     fn seek<T: OperationAttributes>(cursor: &mut OperationsCursor<T>, op_offset: usize) -> SeekResult {
-        let _ = check_bound(cursor.op_offset, op_offset)?;
+        check_bound(cursor.op_offset, op_offset)?;
         let mut seek_cursor = OperationsCursor::new(cursor.delta, cursor.origin_iv);
 
         while let Some((_, op)) = seek_cursor.iter.next() {
@@ -226,7 +226,7 @@ pub struct Utf16CodeUnitMetric();
 impl Metric for Utf16CodeUnitMetric {
     fn seek<T: OperationAttributes>(cursor: &mut OperationsCursor<T>, offset: usize) -> SeekResult {
         if offset > 0 {
-            let _ = check_bound(cursor.consume_count, offset)?;
+            check_bound(cursor.consume_count, offset)?;
             let _ = cursor.next_with_len(Some(offset));
         }
 

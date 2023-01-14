@@ -1,9 +1,9 @@
 import 'package:app_flowy/user/application/user_listener.dart';
 import 'package:app_flowy/workspace/application/edit_panel/edit_context.dart';
 import 'package:flowy_infra/time/duration.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart'
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart'
     show WorkspaceSettingPB;
-import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:dartz/dartz.dart';

@@ -80,6 +80,6 @@ impl FromCellString for URLCellData {
 
 impl ToString for URLCellData {
     fn to_string(&self) -> String {
-        self.content.clone()
+        self.to_json().unwrap()
     }
 }

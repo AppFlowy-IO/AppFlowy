@@ -29,8 +29,7 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
     final cellController = widget.cellControllerBuilder.build();
     _cellBloc = getIt<NumberCellBloc>(param1: cellController)
       ..add(const NumberCellEvent.initial());
-    _controller =
-        TextEditingController(text: contentFromState(_cellBloc.state));
+    _controller = TextEditingController(text: _cellBloc.state.cellContent);
     super.initState();
   }
 
@@ -41,9 +40,8 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
       child: MultiBlocListener(
         listeners: [
           BlocListener<NumberCellBloc, NumberCellState>(
-            listenWhen: (p, c) => p.content != c.content,
-            listener: (context, state) =>
-                _controller.text = contentFromState(state),
+            listenWhen: (p, c) => p.cellContent != c.cellContent,
+            listener: (context, state) => _controller.text = state.cellContent,
           ),
         ],
         child: Padding(
@@ -80,20 +78,16 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
       _delayOperation?.cancel();
       _delayOperation = Timer(const Duration(milliseconds: 30), () {
         if (_cellBloc.isClosed == false &&
-            _controller.text != contentFromState(_cellBloc.state)) {
+            _controller.text != _cellBloc.state.cellContent) {
           _cellBloc.add(NumberCellEvent.updateCell(_controller.text));
         }
       });
     }
   }
 
-  String contentFromState(NumberCellState state) {
-    return state.content.fold((l) => l, (r) => "");
-  }
-
   @override
   String? onCopy() {
-    return _cellBloc.state.content.fold((content) => content, (r) => null);
+    return _cellBloc.state.cellContent;
   }
 
   @override

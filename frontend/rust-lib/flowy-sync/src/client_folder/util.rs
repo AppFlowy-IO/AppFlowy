@@ -30,7 +30,7 @@ pub fn set_attributes_str_value(
             old: old_attributes,
         },
     };
-    let _ = tree.write().apply_op(update_operation)?;
+    tree.write().apply_op(update_operation)?;
     Ok(())
 }
 

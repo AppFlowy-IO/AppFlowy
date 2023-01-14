@@ -1,4 +1,5 @@
 use crate::entities::{GroupPB, GroupViewChangesetPB};
+use crate::services::field::RowSingleCellData;
 use crate::services::group::{default_group_configuration, GeneratedGroupContext, Group};
 use flowy_error::{FlowyError, FlowyResult};
 use grid_rev_model::{
@@ -13,6 +14,7 @@ use std::sync::Arc;
 
 pub trait GroupConfigurationReader: Send + Sync + 'static {
     fn get_configuration(&self) -> Fut<Option<Arc<GroupConfigurationRevision>>>;
+    fn get_configuration_cells(&self, field_id: &str) -> Fut<FlowyResult<Vec<RowSingleCellData>>>;
 }
 
 pub trait GroupConfigurationWriter: Send + Sync + 'static {
@@ -53,6 +55,11 @@ pub struct GroupContext<C> {
     /// Cache all the groups
     groups_map: IndexMap<String, Group>,
 
+    /// A reader that implement the [GroupConfigurationReader] trait
+    ///
+    #[allow(dead_code)]
+    reader: Arc<dyn GroupConfigurationReader>,
+
     /// A writer that implement the [GroupConfigurationWriter] trait is used to save the
     /// configuration to disk  
     ///
@@ -85,6 +92,7 @@ where
             view_id,
             field_rev,
             groups_map: IndexMap::new(),
+            reader,
             writer,
             configuration,
             configuration_phantom: PhantomData,
@@ -320,7 +328,7 @@ where
         let configuration = Arc::make_mut(&mut self.configuration);
         let is_changed = mut_configuration_fn(configuration);
         if is_changed {
-            let configuration = (&*self.configuration).clone();
+            let configuration = (*self.configuration).clone();
             let writer = self.writer.clone();
             let field_id = self.field_rev.id.clone();
             let field_type = self.field_rev.ty;
