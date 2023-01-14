@@ -57,9 +57,19 @@ jobs:
           prefix-key: ${{ matrix.job.os }}
 
       - name: Build FlowySDK
+        id: desktop_build
         working-directory: frontend
         run: |
           cargo make --profile development-linux-x86_64 appflowy-sdk-dev
+
+      - name: Android SDK
+        working-directory: frontend
+        uses: 
+          nttld/setup-ndk@v1
+        with:
+          use-cross: true
+          ndk-version: r24
+        run: cargo make appflowy-sdk-dev-android
 
       - name: rustfmt rust-lib
         run: cargo fmt --all -- --check
