@@ -27,7 +27,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: 
+          actions/checkout@v2
+          nttld/setup-ndk@v1
+        with:
+          use-cross: true
+          ndk-version: r24
 
       - name: Install Rust toolchain
         id: rust_toolchain
@@ -63,12 +68,7 @@ jobs:
           cargo make --profile development-linux-x86_64 appflowy-sdk-dev
 
       - name: Android SDK
-        working-directory: frontend
-        uses: 
-          nttld/setup-ndk@v1
-        with:
-          use-cross: true
-          ndk-version: r24
+        id: mobile_build
         run: cargo make appflowy-sdk-dev-android
 
       - name: rustfmt rust-lib
