@@ -57,3 +57,45 @@ async fn grid_cell_update() {
 
     test.run_scripts(scripts).await;
 }
+
+#[tokio::test]
+async fn text_cell_date_test() {
+    let test = GridCellTest::new().await;
+    let text_field = test.get_first_field_rev(FieldType::RichText);
+    let cells = test
+        .editor
+        .get_cells_for_field(&test.view_id, &text_field.id)
+        .await
+        .unwrap();
+
+    for (i, cell) in cells.iter().enumerate() {
+        let text = cell.get_text_field_cell_data().unwrap();
+        match i {
+            0 => assert_eq!(text.as_str(), "A"),
+            1 => assert_eq!(text.as_str(), ""),
+            2 => assert_eq!(text.as_str(), "C"),
+            3 => assert_eq!(text.as_str(), "DA"),
+            4 => assert_eq!(text.as_str(), "AE"),
+            5 => assert_eq!(text.as_str(), "AE"),
+            _ => {}
+        }
+    }
+}
+
+#[tokio::test]
+async fn url_cell_date_test() {
+    let test = GridCellTest::new().await;
+    let url_field = test.get_first_field_rev(FieldType::URL);
+    let cells = test
+        .editor
+        .get_cells_for_field(&test.view_id, &url_field.id)
+        .await
+        .unwrap();
+
+    for (i, cell) in cells.iter().enumerate() {
+        let url_cell_data = cell.get_url_field_cell_data().unwrap();
+        if i == 0 {
+            assert_eq!(url_cell_data.url.as_str(), "https://www.appflowy.io/")
+        }
+    }
+}

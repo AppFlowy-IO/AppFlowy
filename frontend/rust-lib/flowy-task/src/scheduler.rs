@@ -67,6 +67,7 @@ impl TaskDispatcher {
         let content = task.content.take()?;
         if let Some(handler) = self.handlers.get(&task.handler_id) {
             task.set_state(TaskState::Processing);
+            tracing::trace!("Run {} task with content: {:?}", handler.handler_name(), content);
             match tokio::time::timeout(self.timeout, handler.run(content)).await {
                 Ok(result) => match result {
                     Ok(_) => task.set_state(TaskState::Done),
@@ -91,6 +92,7 @@ impl TaskDispatcher {
     pub fn add_task(&mut self, task: Task) {
         debug_assert!(!task.state().is_done());
         if task.state().is_done() {
+            tracing::warn!("Should not add a task which state is done");
             return;
         }
 

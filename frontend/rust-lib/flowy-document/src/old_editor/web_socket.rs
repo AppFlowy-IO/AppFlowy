@@ -172,8 +172,7 @@ impl ConflictResolver<DeltaDocumentResolveOperations> for DocumentConflictResolv
         let operations = operations.into_inner();
         Box::pin(async move {
             let (ret, rx) = oneshot::channel();
-            let _ = tx
-                .send(EditorCommand::ResetOperations { operations, ret })
+            tx.send(EditorCommand::ResetOperations { operations, ret })
                 .await
                 .map_err(internal_error)?;
             let md5 = rx

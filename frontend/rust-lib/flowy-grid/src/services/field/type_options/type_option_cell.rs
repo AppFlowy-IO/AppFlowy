@@ -4,13 +4,14 @@ use crate::services::cell::{
     FromCellChangesetString, FromCellString, TypeCellData,
 };
 use crate::services::field::{
-    default_order, CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, MultiSelectTypeOptionPB,
-    NumberTypeOptionPB, RichTextTypeOptionPB, SingleSelectTypeOptionPB, TypeOption, TypeOptionCellData,
-    TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform, URLTypeOptionPB,
+    CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, MultiSelectTypeOptionPB, NumberTypeOptionPB,
+    RichTextTypeOptionPB, SingleSelectTypeOptionPB, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+    TypeOptionCellDataFilter, TypeOptionTransform, URLTypeOptionPB,
 };
 use crate::services::filter::FilterType;
 use flowy_error::FlowyResult;
 use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use std::any::Any;
 use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
@@ -49,6 +50,13 @@ pub trait TypeOptionCellDataHandler {
     /// cell data.
     fn stringify_cell_str(&self, cell_str: String, decoded_field_type: &FieldType, field_rev: &FieldRevision)
         -> String;
+
+    fn get_cell_data(
+        &self,
+        cell_str: String,
+        decoded_field_type: &FieldType,
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<BoxCellData>;
 }
 
 struct CellDataCacheKey(u64);
@@ -60,7 +68,7 @@ impl CellDataCacheKey {
         }
         hasher.write(field_rev.id.as_bytes());
         hasher.write_u8(decoded_field_type as u8);
-        hasher.write(cell_str.as_bytes());
+        cell_str.hash(&mut hasher);
         Self(hasher.finish())
     }
 }
@@ -125,8 +133,14 @@ where
             }
         }
 
-        let cell_data = self.decode_cell_str(cell_str, decoded_field_type, field_rev)?;
+        let cell_data = self.decode_cell_str(cell_str.clone(), decoded_field_type, field_rev)?;
         if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
+            tracing::trace!(
+                "Cell cache update: field_type:{}, cell_str: {}, cell_data: {:?}",
+                decoded_field_type,
+                cell_str,
+                cell_data
+            );
             cell_data_cache.write().insert(key.as_ref(), cell_data.clone());
         }
         Ok(cell_data)
@@ -140,12 +154,13 @@ where
     ) {
         if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
             let field_type: FieldType = field_rev.ty.into();
+            let key = CellDataCacheKey::new(field_rev, field_type.clone(), cell_str);
             tracing::trace!(
-                "Update cell cache field_type: {}, cell_data: {:?}",
+                "Cell cache update: field_type:{}, cell_str: {}, cell_data: {:?}",
                 field_type,
+                cell_str,
                 cell_data
             );
-            let key = CellDataCacheKey::new(field_rev, field_type, cell_str);
             cell_data_cache.write().insert(key.as_ref(), cell_data);
         }
     }
@@ -185,14 +200,10 @@ where
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellProtobufBlob> {
-        let cell_data = if self.transformable() {
-            match self.transform_type_option_cell_str(&cell_str, decoded_field_type, field_rev) {
-                None => self.get_decoded_cell_data(cell_str, decoded_field_type, field_rev)?,
-                Some(cell_data) => cell_data,
-            }
-        } else {
-            self.get_decoded_cell_data(cell_str, decoded_field_type, field_rev)?
-        };
+        let cell_data = self
+            .get_cell_data(cell_str, decoded_field_type, field_rev)?
+            .unbox_or_default::<<Self as TypeOption>::CellData>();
+
         CellProtobufBlob::from(self.convert_to_protobuf(cell_data))
     }
 
@@ -210,15 +221,13 @@ where
 
     fn handle_cell_compare(&self, left_cell_data: &str, right_cell_data: &str, field_rev: &FieldRevision) -> Ordering {
         let field_type: FieldType = field_rev.ty.into();
-        let left = self.get_decoded_cell_data(left_cell_data.to_owned(), &field_type, field_rev);
-        let right = self.get_decoded_cell_data(right_cell_data.to_owned(), &field_type, field_rev);
-
-        match (left, right) {
-            (Ok(left), Ok(right)) => self.apply_cmp(&left, &right),
-            (Ok(_), Err(_)) => Ordering::Greater,
-            (Err(_), Ok(_)) => Ordering::Less,
-            (Err(_), Err(_)) => default_order(),
-        }
+        let left = self
+            .get_decoded_cell_data(left_cell_data.to_owned(), &field_type, field_rev)
+            .unwrap_or_default();
+        let right = self
+            .get_decoded_cell_data(right_cell_data.to_owned(), &field_type, field_rev)
+            .unwrap_or_default();
+        self.apply_cmp(&left, &right)
     }
 
     fn handle_cell_filter(
@@ -256,6 +265,23 @@ where
             Err(_) => "".to_string(),
         }
     }
+
+    fn get_cell_data(
+        &self,
+        cell_str: String,
+        decoded_field_type: &FieldType,
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<BoxCellData> {
+        let cell_data = if self.transformable() {
+            match self.transform_type_option_cell_str(&cell_str, decoded_field_type, field_rev) {
+                None => self.get_decoded_cell_data(cell_str, decoded_field_type, field_rev)?,
+                Some(cell_data) => cell_data,
+            }
+        } else {
+            self.get_decoded_cell_data(cell_str, decoded_field_type, field_rev)?
+        };
+        Ok(BoxCellData::new(cell_data))
+    }
 }
 
 pub struct TypeOptionCellExt<'a> {
@@ -284,6 +310,16 @@ impl<'a> TypeOptionCellExt<'a> {
         let mut this = Self::new_with_cell_data_cache(field_rev, cell_data_cache);
         this.cell_filter_cache = cell_filter_cache;
         this
+    }
+
+    pub fn get_cells<T>(&self) -> Vec<T> {
+        let field_type: FieldType = self.field_rev.ty.into();
+        match self.get_type_option_cell_data_handler(&field_type) {
+            None => vec![],
+            Some(_handler) => {
+                todo!()
+            }
+        }
     }
 
     pub fn get_type_option_cell_data_handler(
@@ -438,5 +474,51 @@ fn get_type_option_transform_handler(
         FieldType::Checklist => {
             Box::new(ChecklistTypeOptionPB::from_json_str(type_option_data)) as Box<dyn TypeOptionTransformHandler>
         }
+    }
+}
+
+pub struct BoxCellData(Box<dyn Any + Send + Sync + 'static>);
+
+impl BoxCellData {
+    fn new<T>(value: T) -> Self
+    where
+        T: Send + Sync + 'static,
+    {
+        Self(Box::new(value))
+    }
+
+    fn unbox_or_default<T>(self) -> T
+    where
+        T: Default + 'static,
+    {
+        match self.0.downcast::<T>() {
+            Ok(value) => *value,
+            Err(_) => T::default(),
+        }
+    }
+
+    fn downcast_ref<T: 'static>(&self) -> Option<&T> {
+        self.0.downcast_ref()
+    }
+}
+
+pub struct RowSingleCellData {
+    pub row_id: String,
+    pub field_id: String,
+    pub field_type: FieldType,
+    pub cell_data: BoxCellData,
+}
+
+impl RowSingleCellData {
+    pub fn get_text_field_cell_data(&self) -> Option<&<RichTextTypeOptionPB as TypeOption>::CellData> {
+        self.cell_data.downcast_ref()
+    }
+
+    pub fn get_number_field_cell_data(&self) -> Option<&<NumberTypeOptionPB as TypeOption>::CellData> {
+        self.cell_data.downcast_ref()
+    }
+
+    pub fn get_url_field_cell_data(&self) -> Option<&<URLTypeOptionPB as TypeOption>::CellData> {
+        self.cell_data.downcast_ref()
     }
 }

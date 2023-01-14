@@ -96,7 +96,7 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
     final items = widget.items
         .where(
           (item) => item.keywords.any((keyword) {
-            final value = keyword.contains(newKeyword);
+            final value = keyword.contains(newKeyword.toLowerCase());
             if (value) {
               maxKeywordLength = max(maxKeywordLength, keyword.length);
             }

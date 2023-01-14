@@ -38,5 +38,6 @@ Future<void> editCells(GridTestContext context) async {
   final controller1 = await context.makeTextCellController(1);
 
   controller0.saveCellData('A');
+  await gridResponseFuture();
   controller1.saveCellData('B');
 }

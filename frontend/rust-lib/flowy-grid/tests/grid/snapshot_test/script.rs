@@ -47,9 +47,7 @@ impl GridSnapshotTest {
     }
 
     pub async fn grid_pad(&self) -> GridRevisionPad {
-        let pad = self.editor.grid_pad();
-        let pad = (*pad.read().await).clone();
-        pad
+        self.editor.grid_pad().read().await.clone()
     }
 
     pub async fn run_scripts(&mut self, scripts: Vec<SnapshotScript>) {

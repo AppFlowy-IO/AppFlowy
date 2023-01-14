@@ -113,9 +113,9 @@ where
     {
         let len = false as usize + 1 + if self.attributes.is_empty() { 0 } else { 1 };
         let mut serde_state = serializer.serialize_struct("Retain", len)?;
-        let _ = serde::ser::SerializeStruct::serialize_field(&mut serde_state, "retain", &self.n)?;
+        serde::ser::SerializeStruct::serialize_field(&mut serde_state, "retain", &self.n)?;
         if !self.attributes.is_empty() {
-            let _ = serde::ser::SerializeStruct::serialize_field(&mut serde_state, "attributes", &self.attributes)?;
+            serde::ser::SerializeStruct::serialize_field(&mut serde_state, "attributes", &self.attributes)?;
         }
         serde::ser::SerializeStruct::end(serde_state)
     }
@@ -216,9 +216,9 @@ where
     {
         let len = false as usize + 1 + if self.attributes.is_empty() { 0 } else { 1 };
         let mut serde_state = serializer.serialize_struct("Insert", len)?;
-        let _ = serde::ser::SerializeStruct::serialize_field(&mut serde_state, "insert", &self.s)?;
+        serde::ser::SerializeStruct::serialize_field(&mut serde_state, "insert", &self.s)?;
         if !self.attributes.is_empty() {
-            let _ = serde::ser::SerializeStruct::serialize_field(&mut serde_state, "attributes", &self.attributes)?;
+            serde::ser::SerializeStruct::serialize_field(&mut serde_state, "attributes", &self.attributes)?;
         }
         serde::ser::SerializeStruct::end(serde_state)
     }

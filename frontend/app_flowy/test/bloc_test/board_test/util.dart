@@ -9,8 +9,8 @@ import 'package:app_flowy/plugins/grid/application/row/row_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/workspace/application/app/app_service.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
 
 import '../../util.dart';
 import '../grid_test/util.dart';
@@ -97,7 +97,7 @@ class BoardTestContext {
     return editorBloc;
   }
 
-  Future<IGridCellController> makeCellController(String fieldId) async {
+  Future<GridCellController> makeCellController(String fieldId) async {
     final builder = await makeCellControllerBuilder(fieldId);
     return builder.build();
   }
@@ -109,7 +109,7 @@ class BoardTestContext {
     final rowCache = _boardDataController.rowCache;
     final fieldController = _boardDataController.fieldController;
 
-    final rowDataController = GridRowDataController(
+    final rowDataController = RowDataController(
       rowInfo: rowInfo,
       fieldController: fieldController,
       rowCache: rowCache,

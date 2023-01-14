@@ -103,7 +103,7 @@ impl GridViewManager {
 
     pub async fn group_by_field(&self, field_id: &str) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
-        let _ = view_editor.group_by_view_field(field_id).await?;
+        view_editor.group_by_view_field(field_id).await?;
         Ok(())
     }
 
@@ -138,9 +138,19 @@ impl GridViewManager {
         view_editor.delete_view_filter(params).await
     }
 
+    pub async fn get_all_sorts(&self, view_id: &str) -> FlowyResult<Vec<Arc<SortRevision>>> {
+        let view_editor = self.get_view_editor(view_id).await?;
+        Ok(view_editor.get_all_view_sorts().await)
+    }
+
     pub async fn create_or_update_sort(&self, params: AlterSortParams) -> FlowyResult<SortRevision> {
         let view_editor = self.get_view_editor(&params.view_id).await?;
         view_editor.insert_view_sort(params).await
+    }
+
+    pub async fn delete_all_sorts(&self, view_id: &str) -> FlowyResult<()> {
+        let view_editor = self.get_view_editor(view_id).await?;
+        view_editor.delete_all_view_sorts().await
     }
 
     pub async fn delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
@@ -166,7 +176,7 @@ impl GridViewManager {
 
     pub async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
-        let _ = view_editor.move_view_group(params).await?;
+        view_editor.move_view_group(params).await?;
         Ok(())
     }
 
@@ -212,10 +222,10 @@ impl GridViewManager {
     ) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
         if view_editor.group_id().await == field_id {
-            let _ = view_editor.group_by_view_field(field_id).await?;
+            view_editor.group_by_view_field(field_id).await?;
         }
 
-        let _ = view_editor
+        view_editor
             .did_update_view_field_type_option(field_id, old_field_rev)
             .await?;
         Ok(())

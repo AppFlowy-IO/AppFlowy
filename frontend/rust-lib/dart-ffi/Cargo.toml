@@ -26,15 +26,16 @@ lazy_static = "1.4.0"
 parking_lot = "0.12.1"
 
 lib-dispatch = { path = "../lib-dispatch" }
-flowy-sdk = { path = "../flowy-sdk" }
+flowy-core = { path = "../flowy-core" }
 dart-notify = { path = "../dart-notify" }
 flowy-derive = { path = "../flowy-derive" }
 
 [features]
-default = ["flowy-sdk/dart", "flutter"]
+default = ["flowy-core/dart", "flutter", "rev-sqlite"]
 flutter = []
-http_sync = ["flowy-sdk/http_sync", "flowy-sdk/use_bunyan"]
-openssl_vendored = ["flowy-sdk/openssl_vendored"]
+rev-sqlite = ["flowy-core/rev-sqlite"]
+http_sync = ["flowy-core/http_sync", "flowy-core/use_bunyan"]
+openssl_vendored = ["flowy-core/openssl_vendored"]
 
 [build-dependencies]
 flowy-codegen = { path = "../flowy-codegen", features = [

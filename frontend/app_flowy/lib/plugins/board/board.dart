@@ -1,7 +1,7 @@
 import 'package:app_flowy/plugins/util.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/left_bar_item.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:flutter/material.dart';
 

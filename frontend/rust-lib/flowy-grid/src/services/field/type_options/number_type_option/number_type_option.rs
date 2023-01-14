@@ -7,9 +7,11 @@ use crate::services::field::{
     TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use bytes::Bytes;
+use fancy_regex::Regex;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyResult;
 use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use lazy_static::lazy_static;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -97,10 +99,30 @@ impl NumberTypeOptionPB {
 
     pub(crate) fn format_cell_data(&self, s: &str) -> FlowyResult<NumberCellData> {
         match self.format {
-            NumberFormat::Num => match Decimal::from_str(s) {
-                Ok(value, ..) => Ok(NumberCellData::from_decimal(value)),
-                Err(_) => Ok(NumberCellData::new()),
-            },
+            NumberFormat::Num => {
+                if SCIENTIFIC_NOTATION_REGEX.is_match(s).unwrap() {
+                    match Decimal::from_scientific(&s.to_lowercase()) {
+                        Ok(value, ..) => Ok(NumberCellData::from_decimal(value)),
+                        Err(_) => Ok(NumberCellData::new()),
+                    }
+                } else {
+                    let draw_numer_string = NUM_REGEX.replace_all(s, "");
+                    let strnum = match draw_numer_string.matches(".").count() {
+                        0 | 1 => draw_numer_string.to_string(),
+                        _ => match EXTRACT_NUM_REGEX.captures(&draw_numer_string) {
+                            Ok(captures) => match captures {
+                                Some(capture) => capture[1].to_string(),
+                                None => "".to_string(),
+                            },
+                            Err(_) => "".to_string(),
+                        },
+                    };
+                    match Decimal::from_str(&strnum) {
+                        Ok(value, ..) => Ok(NumberCellData::from_decimal(value)),
+                        Err(_) => Ok(NumberCellData::new()),
+                    }
+                }
+            }
             _ => NumberCellData::from_format_str(s, self.sign_positive, &self.format),
         }
     }
@@ -158,7 +180,11 @@ impl CellDataChangeset for NumberTypeOptionPB {
     ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
         let data = changeset.trim().to_string();
         let number_cell_data = self.format_cell_data(&data)?;
-        Ok((data, number_cell_data.to_string().into()))
+
+        match self.format {
+            NumberFormat::Num => Ok((number_cell_data.to_string(), number_cell_data.to_string().into())),
+            _ => Ok((data, number_cell_data.to_string().into())),
+        }
     }
 }
 
@@ -200,4 +226,16 @@ impl std::default::Default for NumberTypeOptionPB {
             name: "Number".to_string(),
         }
     }
+}
+
+lazy_static! {
+    static ref NUM_REGEX: Regex = Regex::new(r"[^\d\.]").unwrap();
+}
+
+lazy_static! {
+    static ref SCIENTIFIC_NOTATION_REGEX: Regex = Regex::new(r"([+-]?\d*\.?\d+)e([+-]?\d+)").unwrap();
+}
+
+lazy_static! {
+    static ref EXTRACT_NUM_REGEX: Regex = Regex::new(r"^(\d+\.\d+)(?:\.\d+)*$").unwrap();
 }

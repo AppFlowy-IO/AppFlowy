@@ -9,7 +9,7 @@ use std::sync::Arc;
 impl FolderPersistenceTransaction for FolderEditor {
     fn create_workspace(&self, _user_id: &str, workspace_rev: WorkspaceRevision) -> FlowyResult<()> {
         if let Some(change) = self.folder.write().create_workspace(workspace_rev)? {
-            let _ = self.apply_change(change)?;
+            self.apply_change(change)?;
         }
         Ok(())
     }
@@ -25,21 +25,21 @@ impl FolderPersistenceTransaction for FolderEditor {
             .write()
             .update_workspace(&changeset.id, changeset.name, changeset.desc)?
         {
-            let _ = self.apply_change(change)?;
+            self.apply_change(change)?;
         }
         Ok(())
     }
 
     fn delete_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
         if let Some(change) = self.folder.write().delete_workspace(workspace_id)? {
-            let _ = self.apply_change(change)?;
+            self.apply_change(change)?;
         }
         Ok(())
     }
 
     fn create_app(&self, app_rev: AppRevision) -> FlowyResult<()> {
         if let Some(change) = self.folder.write().create_app(app_rev)? {
-            let _ = self.apply_change(change)?;
+            self.apply_change(change)?;
         }
         Ok(())
     }
@@ -50,7 +50,7 @@ impl FolderPersistenceTransaction for FolderEditor {
             .write()
             .update_app(&changeset.id, changeset.name, changeset.desc)?
         {
-            let _ = self.apply_change(change)?;
+            self.apply_change(change)?;
         }
         Ok(())
     }
@@ -73,21 +73,21 @@ impl FolderPersistenceTransaction for FolderEditor {
     fn delete_app(&self, app_id: &str) -> FlowyResult<AppRevision> {
         let app = self.folder.read().read_app(app_id)?;
         if let Some(change) = self.folder.write().delete_app(app_id)? {
-            let _ = self.apply_change(change)?;
+            self.apply_change(change)?;
         }
         Ok(app)
     }
 
     fn move_app(&self, app_id: &str, from: usize, to: usize) -> FlowyResult<()> {
         if let Some(change) = self.folder.write().move_app(app_id, from, to)? {
-            let _ = self.apply_change(change)?;
+            self.apply_change(change)?;
         }
         Ok(())
     }
 
     fn create_view(&self, view_rev: ViewRevision) -> FlowyResult<()> {
         if let Some(change) = self.folder.write().create_view(view_rev)? {
-            let _ = self.apply_change(change)?;
+            self.apply_change(change)?;
         }
         Ok(())
     }
@@ -108,7 +108,7 @@ impl FolderPersistenceTransaction for FolderEditor {
                 .write()
                 .update_view(&changeset.id, changeset.name, changeset.desc, changeset.modified_time)?
         {
-            let _ = self.apply_change(change)?;
+            self.apply_change(change)?;
         }
         Ok(())
     }
@@ -116,21 +116,21 @@ impl FolderPersistenceTransaction for FolderEditor {
     fn delete_view(&self, view_id: &str) -> FlowyResult<ViewRevision> {
         let view = self.folder.read().read_view(view_id)?;
         if let Some(change) = self.folder.write().delete_view(&view.app_id, view_id)? {
-            let _ = self.apply_change(change)?;
+            self.apply_change(change)?;
         }
         Ok(view)
     }
 
     fn move_view(&self, view_id: &str, from: usize, to: usize) -> FlowyResult<()> {
         if let Some(change) = self.folder.write().move_view(view_id, from, to)? {
-            let _ = self.apply_change(change)?;
+            self.apply_change(change)?;
         }
         Ok(())
     }
 
     fn create_trash(&self, trashes: Vec<TrashRevision>) -> FlowyResult<()> {
         if let Some(change) = self.folder.write().create_trash(trashes)? {
-            let _ = self.apply_change(change)?;
+            self.apply_change(change)?;
         }
         Ok(())
     }
@@ -142,7 +142,7 @@ impl FolderPersistenceTransaction for FolderEditor {
 
     fn delete_trash(&self, trash_ids: Option<Vec<String>>) -> FlowyResult<()> {
         if let Some(change) = self.folder.write().delete_trash(trash_ids)? {
-            let _ = self.apply_change(change)?;
+            self.apply_change(change)?;
         }
         Ok(())
     }

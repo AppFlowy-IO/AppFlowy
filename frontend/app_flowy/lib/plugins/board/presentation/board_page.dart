@@ -15,9 +15,9 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/row_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/row_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../application/board_bloc.dart';
@@ -288,7 +288,7 @@ class _BoardContentState extends State<BoardContent> {
       rowPB: rowPB,
     );
 
-    final dataController = GridRowDataController(
+    final dataController = RowDataController(
       rowInfo: rowInfo,
       fieldController: fieldController,
       rowCache: rowCache,

@@ -116,9 +116,9 @@ where
                 if server_base_rev_id == first_revision.base_rev_id || server_rev_id == first_revision.rev_id {
                     // The rev is in the right order, just compose it.
                     for revision in revisions.iter() {
-                        let _ = self.compose_revision(revision)?;
+                        self.compose_revision(revision)?;
                     }
-                    let _ = self.persistence.save_revisions(revisions).await?;
+                    self.persistence.save_revisions(revisions).await?;
                 } else {
                     // The server ops is outdated, pull the missing revision from the client.
                     let range = RevisionRange {
@@ -139,7 +139,7 @@ where
                 // ops.
                 let from_rev_id = first_revision.rev_id;
                 let to_rev_id = server_base_rev_id;
-                let _ = self.push_revisions_to_user(user, from_rev_id, to_rev_id).await;
+                self.push_revisions_to_user(user, from_rev_id, to_rev_id).await;
             }
         }
         Ok(())
@@ -162,7 +162,7 @@ where
                 let from_rev_id = client_rev_id;
                 let to_rev_id = server_rev_id;
                 tracing::trace!("Push revisions to user");
-                let _ = self.push_revisions_to_user(user, from_rev_id, to_rev_id).await;
+                self.push_revisions_to_user(user, from_rev_id, to_rev_id).await;
             }
         }
         Ok(())
@@ -174,7 +174,7 @@ where
         tracing::Span::current().record("object_id", &object_id.as_str());
         let (_, rev_id) = pair_rev_id_from_revision_pbs(&revisions);
         let operations = make_operations_from_revisions(revisions.clone())?;
-        let _ = self.persistence.reset_object(&object_id, revisions).await?;
+        self.persistence.reset_object(&object_id, revisions).await?;
         self.object.write().set_operations(operations);
         let _ = self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(rev_id));
         Ok(())
@@ -186,7 +186,7 @@ where
 
     fn compose_revision(&self, revision: &Revision) -> Result<(), CollaborateError> {
         let operations = RevisionOperations::<Attribute>::from_bytes(&revision.bytes)?;
-        let _ = self.compose_operations(operations)?;
+        self.compose_operations(operations)?;
         let _ = self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(revision.rev_id));
         Ok(())
     }
@@ -209,7 +209,7 @@ where
         match self.object.try_write_for(Duration::from_millis(300)) {
             None => log::error!("Failed to acquire write lock of object"),
             Some(mut write_guard) => {
-                let _ = write_guard.compose(&operations)?;
+                write_guard.compose(&operations)?;
             }
         }
         Ok(())

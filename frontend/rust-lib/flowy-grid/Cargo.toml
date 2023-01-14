@@ -9,6 +9,7 @@ edition = "2021"
 lib-dispatch = { path = "../lib-dispatch" }
 dart-notify = { path = "../dart-notify" }
 flowy-revision = { path = "../flowy-revision" }
+flowy-revision-persistence = { path = "../flowy-revision-persistence" }
 flowy-task= { path = "../flowy-task" }
 flowy-error = { path = "../flowy-error", features = ["db"]}
 flowy-derive = { path = "../flowy-derive" }
@@ -17,7 +18,7 @@ lib-infra = { path = "../../../shared-lib/lib-infra" }
 grid-rev-model = { path = "../../../shared-lib/grid-rev-model" }
 flowy-sync = { path = "../flowy-sync"}
 flowy-http-model = { path = "../../../shared-lib/flowy-http-model" }
-flowy-database = { path = "../flowy-database" }
+flowy-database = { path = "../flowy-database", optional = true }
 anyhow = "1.0"
 
 strum = "0.21"
@@ -56,5 +57,6 @@ flowy-codegen = { path = "../flowy-codegen"}
 
 [features]
 default = []
+rev-sqlite = ["flowy-database"]
 dart = ["flowy-codegen/dart", "dart-notify/dart"]
 flowy_unit_test = ["flowy-revision/flowy_unit_test"]

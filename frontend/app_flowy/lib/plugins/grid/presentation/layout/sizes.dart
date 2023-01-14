@@ -11,7 +11,7 @@ class GridSize {
   static double get headerContainerPadding => 0 * scale;
   static double get cellHPadding => 10 * scale;
   static double get cellVPadding => 10 * scale;
-  static double get typeOptionItemHeight => 32 * scale;
+  static double get popoverItemHeight => 32 * scale;
   static double get typeOptionSeparatorHeight => 4 * scale;
 
   static EdgeInsets get headerContentInsets => EdgeInsets.symmetric(

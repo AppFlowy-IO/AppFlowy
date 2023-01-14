@@ -41,7 +41,7 @@ impl std::convert::From<WorkspaceRevision> for WorkspacePB {
         }
     }
 }
-#[derive(PartialEq, Debug, Default, ProtoBuf)]
+#[derive(PartialEq, Eq, Debug, Default, ProtoBuf)]
 pub struct RepeatedWorkspacePB {
     #[pb(index = 1)]
     pub items: Vec<WorkspacePB>,

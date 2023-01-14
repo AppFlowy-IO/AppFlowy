@@ -1,12 +1,10 @@
 use flowy_grid::entities::FieldType;
-use std::sync::Arc;
-
 use flowy_grid::services::field::{
     ChecklistTypeOptionPB, DateCellChangeset, MultiSelectTypeOptionPB, SelectOptionPB, SingleSelectTypeOptionPB,
-    URLCellData,
 };
 use flowy_grid::services::row::RowRevisionBuilder;
 use grid_rev_model::{FieldRevision, RowRevision};
+use std::sync::Arc;
 
 use strum::EnumCount;
 
@@ -58,10 +56,9 @@ impl<'a> GridRowTestBuilder<'a> {
         checkbox_field.id.clone()
     }
 
-    pub fn insert_url_cell(&mut self, data: &str) -> String {
+    pub fn insert_url_cell(&mut self, content: &str) -> String {
         let url_field = self.field_rev_with_type(&FieldType::URL);
-        let url_data = URLCellData::new(data).to_json().unwrap();
-        self.inner_builder.insert_text_cell(&url_field.id, url_data);
+        self.inner_builder.insert_url_cell(&url_field.id, content.to_string());
         url_field.id.clone()
     }
 
