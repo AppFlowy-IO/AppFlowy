@@ -1,5 +1,6 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/tauri"
+  import {UserEvent} from "../protobuf/flowy-user/event_map";
 
   let name = "";
   let greetMsg = ""
@@ -9,7 +10,7 @@
 
     let args = {
       request: {
-        ty: "InitUser",
+        ty: UserEvent.InitUser.toString(),
         payload: 'hello'
       }
     };

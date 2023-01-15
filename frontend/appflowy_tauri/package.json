@@ -11,18 +11,19 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@tauri-apps/api": "^1.2.0"
+    "@tauri-apps/api": "^1.2.0",
+    "google-protobuf": "^3.21.2"
   },
   "devDependencies": {
-    "@types/node": "^18.7.10",
     "@sveltejs/vite-plugin-svelte": "^2.0.0",
+    "@tauri-apps/cli": "^1.2.2",
     "@tsconfig/svelte": "^3.0.0",
+    "@types/node": "^18.7.10",
     "svelte": "^3.54.0",
     "svelte-check": "^3.0.0",
     "svelte-preprocess": "^5.0.0",
     "tslib": "^2.4.1",
     "typescript": "^4.6.4",
-    "vite": "^4.0.0",
-    "@tauri-apps/cli": "^1.2.2"
+    "vite": "^4.0.0"
   }
 }

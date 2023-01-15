@@ -7,11 +7,43 @@ script = [
 ]
 script_runner = "@shell"
 
-[tasks.tauri_run]
+[tasks.tauri_pb]
 script = [
     """
     cd appflowy_tauri/src-tauri
+    cargo build
+    """,
+]
+script_runner = "@shell"
+
+[tasks.tauri_dev]
+script = [
+    """
+    cd appflowy_tauri
     npm run tauri dev
     """,
 ]
 script_runner = "@shell"
+
+[tasks.af_tauri_clean]
+run_task = { name = [
+    "rust_lib_clean",
+    "rm_macro_build_cache",
+    "rm_rust_generated_files",
+    "rm_tauri_generated_protobuf_files",
+] }
+
+[tasks.rm_tauri_generated_protobuf_files]
+private = true
+script = ["""
+  protobuf_file_paths = glob_array ${TAURI_FLOWY_SDK_PATH}/lib/protobuf
+
+  if not array_is_empty ${protobuf_file_paths}
+    echo Remove generated protobuf files:
+    for path in ${protobuf_file_paths}
+        echo remove ${path}
+        rm -rf ${path}
+    end
+  end
+  """]
+script_runner = "@duckscript"
