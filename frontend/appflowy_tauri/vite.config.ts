@@ -1,9 +1,18 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
+import sveltePreprocess from "svelte-preprocess";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    svelte({
+      preprocess: [
+        sveltePreprocess({
+          typescript: true,
+        }),
+      ],
+    }),
+  ],
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   // prevent vite from obscuring rust errors
