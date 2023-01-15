@@ -39,6 +39,13 @@ dart = [
     "flowy-grid/dart",
     "flowy-document/dart",
 ]
+ts = [
+    "flowy-user/ts",
+    "flowy-net/ts",
+    "flowy-folder/ts",
+    "flowy-grid/ts",
+    "flowy-document/ts",
+]
 rev-sqlite = [
     "flowy-database",
     "flowy-user/rev-sqlite",

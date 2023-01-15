@@ -58,6 +58,15 @@ pub fn gen(crate_name: &str) {
             &protoc_bin_path,
         );
 
+        #[cfg(feature = "ts")]
+        generate_ts_protobuf_files(
+            crate_name,
+            &proto_file_output_path,
+            &proto_file_paths,
+            &file_names,
+            &protoc_bin_path,
+        );
+
         // 3. generate the protobuf files(Rust)
         generate_rust_protobuf_files(
             &protoc_bin_path,
@@ -81,6 +90,46 @@ fn generate_rust_protobuf_files(
         .include(proto_file_output_path)
         .run()
         .expect("Running rust protoc failed.");
+}
+
+#[cfg(feature = "ts")]
+fn generate_ts_protobuf_files(
+    name: &str,
+    proto_file_output_path: &str,
+    paths: &[String],
+    file_names: &Vec<String>,
+    protoc_bin_path: &Path,
+) {
+    if std::env::var("CARGO_MAKE_WORKING_DIRECTORY").is_err() {
+        log::warn!("CARGO_MAKE_WORKING_DIRECTORY was not set, skip generate dart pb");
+        return;
+    }
+
+    if std::env::var("FLUTTER_FLOWY_SDK_PATH").is_err() {
+        log::warn!("FLUTTER_FLOWY_SDK_PATH was not set, skip generate dart pb");
+        return;
+    }
+
+    let mut output = PathBuf::new();
+    output.push(std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap());
+    output.push(std::env::var("FLUTTER_FLOWY_SDK_PATH").unwrap());
+    output.push("lib");
+    output.push("protobuf");
+    output.push(name);
+
+    if !output.as_path().exists() {
+        std::fs::create_dir_all(&output).unwrap();
+    }
+    let protoc_bin_path = protoc_bin_path.to_str().unwrap().to_owned();
+    paths.iter().for_each(|path| {
+        let result = cmd_lib::run_cmd! {
+            ${protoc_bin_path} --ts_out=${output} --proto_path=${proto_file_output_path} ${path}
+        };
+
+        if result.is_err() {
+            panic!("Generate dart pb file failed with: {}, {:?}", path, result)
+        };
+    });
 }
 
 #[cfg(feature = "dart")]

@@ -5,7 +5,7 @@
 # cargo make --profile production-windows-x86 appflowy-sdk-dev
 
 [tasks.env_check]
-dependencies = ["echo_env", "install_protobuf"]
+dependencies = ["echo_env", "install_protobuf_dart"]
 condition = { env_set = [
   "BUILD_FLAG",
   "RUST_COMPILE_TARGET",
