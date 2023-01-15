@@ -75,6 +75,7 @@ jobs:
       - name: Install prerequisites
         working-directory: frontend
         run: |
+          vcpkg integrate install
           cargo install --force cargo-make
           cargo install --force duckscript_cli
 
@@ -221,8 +222,9 @@ jobs:
       fail-fast: false
       matrix:
         job:
-          - { arch: x86_64, target: x86_64-unknown-linux-gnu, os: ubuntu-20.04, extra-build-args: "", }
-          - { arch: x86_64, target: x86_64-unknown-linux-gnu, os: ubuntu-18.04, extra-build-args: "", }
+          - { arch: x86_64, target: x86_64-unknown-linux-gnu, os: ubuntu-20.04, extra-build-args: "", flutter_profile: production-linux-x86_64 }
+          - { arch: aarch64, target: aarch64-unknown-linux-gnu, os: ubuntu-20.04, extra-build-args: "", flutter_profile: production-linux-aarch64 }
+          - { arch: x86_64, target: x86_64-unknown-linux-gnu, os: ubuntu-18.04, extra-build-args: "", flutter_profile: production-linux-x86_64}
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
@@ -257,12 +259,13 @@ jobs:
           source $HOME/.cargo/env
           cargo install --force cargo-make
           cargo install --force duckscript_cli
+          rustup target add ${{ matrix.job.target }} 
 
       - name: Build AppFlowy
         working-directory: frontend
         run: |
           flutter config --enable-linux-desktop
-          cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-linux-x86_64 appflowy
+          cargo make --env APP_VERSION=${{ github.ref_name }} --profile ${{ matrix.job.flutter_profile}} appflowy
 
       - name: Archive Assert
         working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
