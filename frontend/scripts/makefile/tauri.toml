@@ -1,0 +1,17 @@
+[tasks.tauri_build]
+script = [
+    """
+    cd appflowy_tauri/src-tauri
+    npm run tauri build
+    """,
+]
+script_runner = "@shell"
+
+[tasks.tauri_run]
+script = [
+    """
+    cd appflowy_tauri/src-tauri
+    npm run tauri dev
+    """,
+]
+script_runner = "@shell"
