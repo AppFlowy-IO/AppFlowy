@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "main"
+      - "mobile_ci_task"
       - "release/*"
     paths:
       - "frontend/rust-lib/**"
