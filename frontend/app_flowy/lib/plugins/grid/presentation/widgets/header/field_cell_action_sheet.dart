@@ -97,21 +97,20 @@ class _FieldOperationList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cells = buildCells();
     return Column(children: [
       Flex(
         direction: Axis.horizontal,
         children: [
-          cells[0],
+          _actionCell(FieldAction.hide),
           HSpace(GridSize.typeOptionSeparatorHeight),
-          cells[1],
+          _actionCell(FieldAction.duplicate),
         ],
       ),
       VSpace(GridSize.typeOptionSeparatorHeight),
       Flex(
         direction: Axis.horizontal,
         children: [
-          cells[2],
+          _actionCell(FieldAction.delete),
           HSpace(GridSize.typeOptionSeparatorHeight),
           const Spacer(),
         ],
@@ -119,30 +118,17 @@ class _FieldOperationList extends StatelessWidget {
     ]);
   }
 
-  List<Widget> buildCells() {
-    return FieldAction.values.map(
-      (action) {
-        bool enable = true;
-        switch (action) {
-          case FieldAction.delete:
-            enable = !fieldInfo.field.isPrimary;
-            break;
-          default:
-            break;
-        }
-
-        return Flexible(
-          child: SizedBox(
-            height: GridSize.popoverItemHeight,
-            child: FieldActionCell(
-              fieldInfo: fieldInfo,
-              action: action,
-              enable: enable,
-            ),
-          ),
-        );
-      },
-    ).toList();
+  Widget _actionCell(FieldAction action) {
+    return Flexible(
+      child: SizedBox(
+        height: GridSize.popoverItemHeight,
+        child: FieldActionCell(
+          fieldInfo: fieldInfo,
+          action: action,
+          enable: action != FieldAction.delete || !fieldInfo.field.isPrimary,
+        ),
+      ),
+    );
   }
 }
 
