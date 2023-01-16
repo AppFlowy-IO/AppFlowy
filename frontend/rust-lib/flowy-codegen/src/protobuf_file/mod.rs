@@ -97,23 +97,18 @@ fn generate_ts_protobuf_files(
     name: &str,
     proto_file_output_path: &str,
     paths: &[String],
-    _file_names: &Vec<String>,
+    file_names: &Vec<String>,
     protoc_bin_path: &Path,
 ) {
-    // if std::env::var("CARGO_MAKE_WORKING_DIRECTORY").is_err() {
-    //     eprintln!("CARGO_MAKE_WORKING_DIRECTORY was not set, skip generate dart pb");
-    //     return;
-    // }
-    //
-    // if std::env::var("TAURI_FLOWY_SDK_PATH").is_err() {
-    //     eprintln!("TAURI_FLOWY_SDK_PATH was not set, skip generate dart pb");
-    //     return;
-    // }
+    if std::env::var("TAURI_FLOWY_SDK_PATH").is_err() {
+        eprintln!("TAURI_FLOWY_SDK_PATH was not set, skip generate ts pb");
+        return;
+    }
 
     let mut output = PathBuf::new();
     output.push(std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap());
     output.push(std::env::var("TAURI_FLOWY_SDK_PATH").unwrap());
-    output.push("protobuf");
+    output.push("crates");
     output.push(name);
 
     if !output.as_path().exists() {
@@ -129,6 +124,30 @@ fn generate_ts_protobuf_files(
             panic!("Generate dart pb file failed with: {}, {:?}", path, result)
         };
     });
+
+    let ts_index = path_string_with_component(&output, vec!["index.ts"]);
+    match std::fs::OpenOptions::new()
+        .create(true)
+        .write(true)
+        .append(false)
+        .truncate(true)
+        .open(&ts_index)
+    {
+        Ok(ref mut file) => {
+            let mut export = String::new();
+            export.push_str("// Auto-generated, do not edit \n");
+            for file_name in file_names {
+                let c = format!("export * from \"./{}\";\n", file_name);
+                export.push_str(c.as_ref());
+            }
+
+            file.write_all(export.as_bytes()).unwrap();
+            File::flush(file).unwrap();
+        }
+        Err(err) => {
+            panic!("Failed to open file: {}", err);
+        }
+    }
 }
 
 #[cfg(feature = "dart")]

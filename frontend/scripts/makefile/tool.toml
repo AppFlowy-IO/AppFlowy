@@ -1,4 +1,4 @@
-[tasks.af_dart_clean]
+[tasks.dart_clean]
 run_task = { name = [
   "rust_lib_clean",
   "rm_macro_build_cache",

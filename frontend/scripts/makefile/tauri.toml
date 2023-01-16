@@ -25,7 +25,7 @@ script = [
 ]
 script_runner = "@shell"
 
-[tasks.af_tauri_clean]
+[tasks.tauri_clean]
 run_task = { name = [
     "rust_lib_clean",
     "rm_macro_build_cache",
@@ -36,7 +36,7 @@ run_task = { name = [
 [tasks.rm_tauri_generated_protobuf_files]
 private = true
 script = ["""
-  protobuf_file_paths = glob_array ${TAURI_FLOWY_SDK_PATH}/lib/protobuf
+  protobuf_file_paths = glob_array ${TAURI_FLOWY_SDK_PATH}/crates
 
   if not array_is_empty ${protobuf_file_paths}
     echo Remove generated protobuf files:

@@ -1,5 +1,5 @@
 <script>
-  import { SignInPayloadPB } from "../protobuf/flowy-user/auth";
+  import { SignInPayloadPB } from "../protobuf";
   import Event from "./Event.svelte";
   import {nanoid} from "nanoid";
   let userEvent;

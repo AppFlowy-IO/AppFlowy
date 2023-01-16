@@ -1,10 +1,7 @@
 <script lang="ts">
     import { Ok, Err, Result } from "ts-results";
-    import type { SignInPayloadPB } from "../protobuf/flowy-user/auth";
-    import { UserProfilePB } from "../protobuf/flowy-user/user_profile";
-    import { FlowyError } from "../protobuf/flowy-error/errors";
     import { invoke } from "@tauri-apps/api/tauri";
-    import { UserEvent } from "../protobuf/flowy-user/event_map";
+    import {SignInPayloadPB, UserEvent, UserProfilePB, FlowyError} from "../protobuf";
 
     export async function signIn(
         payload: SignInPayloadPB

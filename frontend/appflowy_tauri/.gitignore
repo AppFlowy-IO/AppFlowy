@@ -23,4 +23,4 @@ dist-ssr
 *.sln
 *.sw?
 
-**/src/protobuf
+**/src/protobuf/crates/
