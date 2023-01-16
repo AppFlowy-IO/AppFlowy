@@ -29,17 +29,16 @@ impl GroupControllerCustomActions for URLGroupController {
         let mut changesets = vec![];
         self.group_ctx.iter_mut_status_groups(|group| {
             let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
-            let is_not_contained = !group.contains_row(&row_rev.id);
             if group.id == cell_data.content {
-                if is_not_contained {
+                if !group.contains_row(&row_rev.id) {
                     let row_pb = RowPB::from(row_rev);
                     changeset.inserted_rows.push(InsertedRowPB::new(row_pb.clone()));
                     group.add_row(row_pb);
                 }
+            } else if group.contains_row(&row_rev.id) {
+                changeset.deleted_rows.push(row_rev.id.clone());
+                group.remove_row(&row_rev.id);
             }
-
-            changeset.deleted_rows.push(row_rev.id.clone());
-            group.remove_row(&row_rev.id);
 
             if !changeset.is_empty() {
                 changesets.push(changeset);
