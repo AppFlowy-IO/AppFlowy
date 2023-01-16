@@ -78,7 +78,7 @@ jobs:
           elif [ "$RUNNER_OS" == "macOS" ]; then
             echo 'do nothing'
           fi
-          cargo make appflowy-deps-tools
+          cargo make appflowy-flutter-deps-tools
         shell: bash
 
       - name: Enable Flutter Desktop

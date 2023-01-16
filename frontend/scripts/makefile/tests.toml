@@ -214,7 +214,7 @@ run_task = { name = [
 description = "Run rust unit test with code coverage"
 run_task = { name = [
     "check_grcov",
-    'appflowy-deps-tools',
+    'appflowy-flutter-deps-tools',
     "run_rustlib_coverage_tests",
     "run_sharedlib_coverage_tests",
     "get_lcov_report",
