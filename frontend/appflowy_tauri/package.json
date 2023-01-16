@@ -12,7 +12,9 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^1.2.0",
-    "google-protobuf": "^3.21.2"
+    "google-protobuf": "^3.21.2",
+    "nanoid": "^4.0.0",
+    "ts-results": "^3.3.0"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.0.0",

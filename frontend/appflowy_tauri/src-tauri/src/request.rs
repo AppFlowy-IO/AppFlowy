@@ -6,10 +6,10 @@ use lib_dispatch::prelude::{
 };
 use tauri::{AppHandle, Event, Manager, State, Wry};
 
-#[derive(Clone, serde::Deserialize)]
+#[derive(Clone, Debug, serde::Deserialize)]
 pub struct AFTauriRequest {
     ty: String,
-    payload: Bytes,
+    payload: Vec<u8>,
 }
 
 impl std::convert::From<AFTauriRequest> for AFPluginRequest {
@@ -21,20 +21,20 @@ impl std::convert::From<AFTauriRequest> for AFPluginRequest {
 #[derive(Clone, serde::Serialize)]
 pub struct AFTauriResponse {
     code: StatusCode,
-    payload: Payload,
+    payload: Vec<u8>,
 }
 
 impl std::convert::From<AFPluginEventResponse> for AFTauriResponse {
     fn from(response: AFPluginEventResponse) -> Self {
         Self {
             code: response.status_code,
-            payload: response.payload,
+            payload: response.payload.to_vec(),
         }
     }
 }
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-// #[tracing::instrument(level = "trace", skip_all)]
+#[tracing::instrument(level = "trace", skip(app_handler))]
 #[tauri::command]
 pub async fn invoke_request(
     request: AFTauriRequest,

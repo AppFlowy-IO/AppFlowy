@@ -39,5 +39,4 @@ impl ResponseBuilder {
 
     static_response!(Ok, StatusCode::Ok);
     static_response!(Err, StatusCode::Err);
-    static_response!(Internal, StatusCode::Internal);
 }
