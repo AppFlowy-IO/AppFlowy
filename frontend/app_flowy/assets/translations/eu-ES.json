@@ -253,7 +253,7 @@
       "dateFieldName": "Data",
       "numberFieldName": "Zenbakiak",
       "singleSelectFieldName": "Hautatu",
-      "multiSelectFieldName": "Hautatu asko",
+      "multiSelectFieldName": "Multi-hautaketa",
       "urlFieldName": "URL",
       "checklistFieldName": "Kontrol zerrenda",
       "numberFormat": "Zenbaki formatua",
@@ -295,7 +295,7 @@
       "lightPinkColor": "Arrosa argia",
       "orangeColor": "Laranja",
       "yellowColor": "Horia",
-      "limeColor": "Karea",
+      "limeColor": "Lima",
       "greenColor": "Berdea",
       "aquaColor": "Aqua",
       "blueColor": "Urdina",
@@ -325,7 +325,7 @@
     "menuName": "Egutegia",
     "navigation": {
       "today": "Gaur",
-      "jumpToday": "Gaurko salto egin",
+      "jumpToday": "Gaurko egunera salto egin",
       "previousMonth": "Aurreko hilabetea",
       "nextMonth": "Hurrengo hilabetea"
     }
