@@ -1,10 +1,8 @@
-use bytes::Bytes;
 use flowy_core::FlowySDK;
 use lib_dispatch::prelude::{
-    AFPlugin, AFPluginDispatcher, AFPluginEvent, AFPluginEventResponse, AFPluginRequest, Payload,
-    StatusCode,
+    AFPluginDispatcher, AFPluginEventResponse, AFPluginRequest, StatusCode,
 };
-use tauri::{AppHandle, Event, Manager, State, Wry};
+use tauri::{AppHandle, Manager, State, Wry};
 
 #[derive(Clone, Debug, serde::Deserialize)]
 pub struct AFTauriRequest {
