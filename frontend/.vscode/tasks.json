@@ -168,7 +168,7 @@
 		{
 			"label": "AF: Rust Clean",
 			"type": "shell",
-			"command": "cargo make af_dart_clean",
+			"command": "cargo make dart_clean",
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}"
@@ -185,6 +185,16 @@
 			"group": "build",
 			"problemMatcher": [],
 			"detail": "app_flowy"
-		}
+		},
+		{
+			"label": "tauri:dev",
+			"type": "shell",
+			"isBackground": true,
+			"command": "npm run dev",
+			"problemMatcher": [],
+			"options": {
+				"cwd": "${workspaceFolder}/appflowy_tauri"
+			}
+		},
 	]
 }

@@ -230,7 +230,7 @@ script = [
     cd rust-lib/
     rustup show
     echo cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
-    cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    RUST_LOG=${TEST_RUST_LOG} cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
 ]
