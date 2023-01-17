@@ -486,3 +486,52 @@ async fn group_group_by_other_field() {
     ];
     test.run_scripts(scripts).await;
 }
+
+#[tokio::test]
+async fn group_by_url() {
+    let mut test = GridGroupTest::new().await;
+    let url_field = test.get_url_field().await;
+    let scripts = vec![
+        GroupByField {
+            field_id: url_field.id.clone(),
+        },
+        AssertGroupRowCount {
+            group_index: 0,
+            row_count: 2,
+        },
+        AssertGroupRowCount {
+            group_index: 1,
+            row_count: 2,
+        },
+        AssertGroupRowCount {
+            group_index: 2,
+            row_count: 1,
+        },
+        AssertGroupCount(3),
+        MoveRow {
+            from_group_index: 0,
+            from_row_index: 0,
+            to_group_index: 1,
+            to_row_index: 0,
+        },
+        MoveRow {
+            from_group_index: 1,
+            from_row_index: 0,
+            to_group_index: 2,
+            to_row_index: 0,
+        },
+        AssertGroupRowCount {
+            group_index: 0,
+            row_count: 1,
+        },
+        AssertGroupRowCount {
+            group_index: 1,
+            row_count: 2,
+        },
+        AssertGroupRowCount {
+            group_index: 2,
+            row_count: 2,
+        },
+    ];
+    test.run_scripts(scripts).await;
+}

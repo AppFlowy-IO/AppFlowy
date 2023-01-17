@@ -7,7 +7,7 @@ use crate::services::group::controller::{
     GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
 };
 use crate::services::group::{make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroupContext};
-use grid_rev_model::{FieldRevision, GroupRevision, RowRevision, URLGroupConfigurationRevision};
+use grid_rev_model::{CellRevision, FieldRevision, GroupRevision, RowRevision, URLGroupConfigurationRevision};
 
 pub type URLGroupController =
     GenericGroupController<URLGroupConfigurationRevision, URLTypeOptionPB, URLGroupGenerator, URLCellDataParser>;
@@ -16,6 +16,10 @@ pub type URLGroupContext = GroupContext<URLGroupConfigurationRevision>;
 
 impl GroupControllerCustomActions for URLGroupController {
     type CellDataType = URLCellDataPB;
+
+    fn default_cell_rev(&self) -> Option<CellRevision> {
+        Some(CellRevision::new("".to_string()))
+    }
 
     fn can_group(&self, content: &str, cell_data: &Self::CellDataType) -> bool {
         cell_data.content == content
