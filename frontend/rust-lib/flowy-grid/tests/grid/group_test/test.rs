@@ -488,7 +488,7 @@ async fn group_group_by_other_field() {
 }
 
 #[tokio::test]
-async fn group_by_url() {
+async fn group_group_by_url() {
     let mut test = GridGroupTest::new().await;
     let url_field = test.get_url_field().await;
     let scripts = vec![
