@@ -120,7 +120,7 @@ mod tests {
     #[test]
     fn utc_to_native_test() {
         let native_timestamp = 1647251762;
-        let native = NaiveDateTime::from_timestamp(native_timestamp, 0);
+        let native = NaiveDateTime::from_timestamp_opt(native_timestamp, 0).unwrap();
 
         let utc = chrono::DateTime::<chrono::Utc>::from_utc(native, chrono::Utc);
         // utc_timestamp doesn't  carry timezone

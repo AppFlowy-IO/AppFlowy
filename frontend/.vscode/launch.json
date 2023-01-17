@@ -5,8 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            //  This task only builds the Dart code of AppFlowy.
+            "name": "AF-desktop: Build Dart Only",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "env": {
+                "RUST_LOG": "debug"
+            },
+            "cwd": "${workspaceRoot}/app_flowy"
+        },
+        {
             // This task builds the Rust and Dart code of AppFlowy.
-            "name": "AF: Build All",
+            "name": "AF-desktop: Build All",
             "request": "launch",
             "program": "./lib/main.dart",
             "type": "dart",
@@ -17,31 +28,13 @@
             "cwd": "${workspaceRoot}/app_flowy"
         },
         {
-            // This task builds the Rust and Dart code of AppFlowy for android.
-            "name": "AF: Run Android",
+            "name": "AF-desktop: Build All (rustlog: trace)",
             "request": "launch",
             "program": "./lib/main.dart",
             "type": "dart",
-            "preLaunchTask": "AF: build_mobile_sdk",
+            "preLaunchTask": "AF: build_flowy_sdk",
             "env": {
-                "RUST_LOG": "info"
-            },
-            "cwd": "${workspaceRoot}/app_flowy"
-        },
-        {
-            "name": "AF: Debug Rust",
-            "request": "attach",
-            "type": "lldb",
-            "pid": "${command:pickMyProcess}"
-        },
-        {
-            //  This task only builds the Dart code of AppFlowy.
-            "name": "AF: Build Dart Only",
-            "request": "launch",
-            "program": "./lib/main.dart",
-            "type": "dart",
-            "env": {
-                "RUST_LOG": "debug"
+                "RUST_LOG": "trace"
             },
             "cwd": "${workspaceRoot}/app_flowy"
         },
@@ -50,7 +43,7 @@
             // - call the clean task,
             // - rebuild all the generated Files (including freeze and language files)
             // - rebuild the the Rust and Dart code of AppFlowy.
-            "name": "AF: Clean + Rebuild All",
+            "name": "AF-desktop: Clean + Rebuild All",
             "request": "launch",
             "program": "./lib/main.dart",
             "type": "dart",
@@ -61,11 +54,34 @@
             "cwd": "${workspaceRoot}/app_flowy"
         },
         {
+            // This task builds the Rust and Dart code of AppFlowy for android.
+            "name": "AF-android: Build All",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "AF: build_mobile_sdk",
+            "env": {
+                "RUST_LOG": "info"
+            },
+            "cwd": "${workspaceRoot}/app_flowy"
+        },
+        {
+            "name": "AF-android: Build All (rustlog: trace)",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "AF: build_mobile_sdk",
+            "env": {
+                "RUST_LOG": "trace"
+            },
+            "cwd": "${workspaceRoot}/app_flowy"
+        },
+        {
             // This task builds will:
             // - call the clean task,
             // - rebuild all the generated Files (including freeze and language files)
             // - rebuild the the Rust and Dart code of AppFlowy.
-            "name": "AF: Clean + Rebuild All (Android)",
+            "name": "AF-android: Clean + Rebuild All",
             "request": "launch",
             "program": "./lib/main.dart",
             "type": "dart",
@@ -76,26 +92,24 @@
             "cwd": "${workspaceRoot}/app_flowy"
         },
         {
-            "name": "AF: Build All (rustlog: trace)",
+            "type": "lldb",
             "request": "launch",
-            "program": "./lib/main.dart",
-            "type": "dart",
-            "preLaunchTask": "AF: build_flowy_sdk",
-            "env": {
-                "RUST_LOG": "trace"
+            "name": "AF: Tauri dev",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--manifest-path=./appflowy_tauri/src-tauri/Cargo.toml",
+                    "--no-default-features"
+                ]
             },
-            "cwd": "${workspaceRoot}/app_flowy"
+            "preLaunchTask": "tauri:dev",
+            "cwd": "${workspaceRoot}/appflowy_tauri/"
         },
         {
-            "name": "AF: Build All Android (rustlog: trace)",
-            "request": "launch",
-            "program": "./lib/main.dart",
-            "type": "dart",
-            "preLaunchTask": "AF: build_mobile_sdk",
-            "env": {
-                "RUST_LOG": "trace"
-            },
-            "cwd": "${workspaceRoot}/app_flowy"
+            "name": "AF: Debug Rust",
+            "request": "attach",
+            "type": "lldb",
+            "pid": "${command:pickMyProcess}"
         },
         {
             "name": "AF: app_flowy (profile mode)",

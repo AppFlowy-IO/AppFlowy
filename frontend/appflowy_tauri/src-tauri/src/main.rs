@@ -8,10 +8,9 @@ mod init;
 mod request;
 
 use event::*;
-use flowy_core::FlowySDK;
 use init::*;
 use request::*;
-use tauri::{Manager, State};
+use tauri::Manager;
 
 fn main() {
     let sdk = init_flowy_core();
