@@ -101,7 +101,7 @@ pub(crate) async fn delete_all_sorts_handler(
 ) -> Result<(), FlowyError> {
     let grid_id: GridIdPB = data.into_inner();
     let editor = manager.open_grid(grid_id.as_ref()).await?;
-    let _ = editor.delete_all_sorts(grid_id.as_ref()).await?;
+    editor.delete_all_sorts(grid_id.as_ref()).await?;
     Ok(())
 }
 

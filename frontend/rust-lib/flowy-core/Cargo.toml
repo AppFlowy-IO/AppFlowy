@@ -18,7 +18,7 @@ flowy-document = { path = "../flowy-document", default-features = false }
 flowy-revision = { path = "../flowy-revision" }
 flowy-task = { path = "../flowy-task" }
 
-tracing = { version = "0.1" }
+tracing = { version = "0.1", features = ["log"] }
 futures-core = { version = "0.3", default-features = false }
 bytes = "1.0"
 tokio = { version = "1", features = ["rt"] }
@@ -38,6 +38,13 @@ dart = [
     "flowy-folder/dart",
     "flowy-grid/dart",
     "flowy-document/dart",
+]
+ts = [
+    "flowy-user/ts",
+    "flowy-net/ts",
+    "flowy-folder/ts",
+    "flowy-grid/ts",
+    "flowy-document/ts",
 ]
 rev-sqlite = [
     "flowy-database",

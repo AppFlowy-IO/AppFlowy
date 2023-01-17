@@ -1,12 +1,12 @@
-[tasks.flowy_clean]
+[tasks.dart_clean]
 run_task = { name = [
-  "cargo_clean",
+  "rust_lib_clean",
   "rm_macro_build_cache",
   "rm_rust_generated_files",
   "rm_dart_generated_files",
 ] }
 
-[tasks.cargo_clean]
+[tasks.rust_lib_clean]
 script = ["""
     cd rust-lib
     cargo clean -q

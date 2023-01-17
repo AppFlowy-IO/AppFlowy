@@ -168,7 +168,7 @@
 		{
 			"label": "AF: Rust Clean",
 			"type": "shell",
-			"command": "cargo make flowy_clean",
+			"command": "cargo make af_dart_clean",
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}"

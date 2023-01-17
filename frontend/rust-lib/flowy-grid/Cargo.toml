@@ -59,4 +59,5 @@ flowy-codegen = { path = "../flowy-codegen"}
 default = []
 rev-sqlite = ["flowy-database"]
 dart = ["flowy-codegen/dart", "dart-notify/dart"]
+ts = ["flowy-codegen/ts"]
 flowy_unit_test = ["flowy-revision/flowy_unit_test"]

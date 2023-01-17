@@ -1,5 +1,11 @@
 
-[tasks.install_protobuf]
+[tasks.install_tauri_protobuf]
+script = """
+npm install -g protoc-gen-ts
+"""
+script_runner = "@duckscript"
+
+[tasks.install_flutter_protobuf]
 mac_alias = "install-protobuf"
 windows_alias = "install-protobuf-windows"
 linux_alias = "install-protobuf"
@@ -16,8 +22,7 @@ condition_script = [
     exit 1
     """,
 ]
-run_task = { name = ["install_protobuf_compiler"] }
-
+run_task = { name = ["install_flutter_protobuf_compiler"] }
 
 [tasks.install-protobuf-windows]
 script = """
@@ -40,14 +45,14 @@ end
 script_runner = "@duckscript"
 
 
-[tasks.install_protobuf_compiler]
+[tasks.install_flutter_protobuf_compiler]
 script = """
 echo "Install protoc_plugin (Dart)"
 dart pub global activate protoc_plugin
 """
 script_runner = "@shell"
 
-[tasks.install_protobuf_compiler.linux]
+[tasks.install_flutter_protobuf_compiler.linux]
 script = """
 echo "Install protoc_plugin (Dart)"
 dart pub global activate protoc_plugin

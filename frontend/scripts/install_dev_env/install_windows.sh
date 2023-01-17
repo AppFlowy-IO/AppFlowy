@@ -92,4 +92,4 @@ vcpkg integrate install
 
 # Check prerequisites
 printMessage "Checking prerequisites."
-PATH="$PATH;$LOCALAPPDATA\Pub\Cache\bin" bash -c '$USERPROFILE/.cargo/bin/cargo make appflowy-deps-tools'
+PATH="$PATH;$LOCALAPPDATA\Pub\Cache\bin" bash -c '$USERPROFILE/.cargo/bin/cargo make appflowy-flutter-deps-tools'

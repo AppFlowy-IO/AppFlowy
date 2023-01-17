@@ -376,8 +376,7 @@ impl GridViewRevisionEditor {
 
     pub async fn get_view_setting(&self) -> GridSettingPB {
         let field_revs = self.delegate.get_field_revs(None).await;
-        let grid_setting = make_grid_setting(&*self.pad.read().await, &field_revs);
-        grid_setting
+        make_grid_setting(&*self.pad.read().await, &field_revs)
     }
 
     pub async fn get_all_view_sorts(&self) -> Vec<Arc<SortRevision>> {
@@ -448,12 +447,11 @@ impl GridViewRevisionEditor {
     pub async fn delete_all_view_sorts(&self) -> FlowyResult<()> {
         let all_sorts = self.get_all_view_sorts().await;
         self.sort_controller.write().await.delete_all_sorts().await;
-        let _ = self
-            .modify(|pad| {
-                let changeset = pad.delete_all_sorts()?;
-                Ok(changeset)
-            })
-            .await?;
+        self.modify(|pad| {
+            let changeset = pad.delete_all_sorts()?;
+            Ok(changeset)
+        })
+        .await?;
 
         let mut notification = SortChangesetNotificationPB::new(self.view_id.clone());
         notification.delete_sorts = all_sorts.into_iter().map(|sort| SortPB::from(sort.as_ref())).collect();

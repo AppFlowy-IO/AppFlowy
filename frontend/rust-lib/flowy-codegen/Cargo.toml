@@ -47,3 +47,5 @@ proto_gen = [
 ]
 dart_event = ["walkdir", "tera", "syn"]
 dart = ["proto_gen", "dart_event"]
+ts_event = ["walkdir", "tera", "syn"]
+ts = ["proto_gen", "ts_event"]
