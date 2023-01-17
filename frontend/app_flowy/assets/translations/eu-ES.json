@@ -1,333 +1,333 @@
 {
-    "appName": "AppFlowy",
-    "defaultUsername": "Me",
-    "welcomeText": "Welcome to @:appName",
-    "githubStarText": "Star on GitHub",
-    "subscribeNewsletterText": "Subscribe to Newsletter",
-    "letsGoButtonText": "Quick Start",
-    "title": "Title",
-    "signUp": {
-      "buttonText": "Sign Up",
-      "title": "Sign Up to @:appName",
-      "getStartedText": "Get Started",
-      "emptyPasswordError": "Password can't be empty",
-      "repeatPasswordEmptyError": "Repeat password can't be empty",
-      "unmatchedPasswordError": "Repeat password is not the same as password",
-      "alreadyHaveAnAccount": "Already have an account?",
-      "emailHint": "Email",
-      "passwordHint": "Password",
-      "repeatPasswordHint": "Repeat password"
+  "appName": "AppFlowy",
+  "defaultUsername": "Ni",
+  "welcomeText": "Ongietorri @:appName -ra",
+  "githubStarText": "Izarra GitHub-en",
+  "subscribeNewsletterText": "Harpidetu buletinera",
+  "letsGoButtonText": "Hasi",
+  "title": "Izenburua",
+  "signUp": {
+    "buttonText": "Izena eman",
+    "title": "Izena eman @:appName -ra",
+    "getStartedText": "Hasi",
+    "emptyPasswordError": "Pasahitzak ezin du hutsik egon",
+    "repeatPasswordEmptyError": "Pasahitz errepikapenak ezin du hutsik egon",
+    "unmatchedPasswordError": "Pasahitz errepikapena ez da berdina",
+    "alreadyHaveAnAccount": "Kontu bat duzu jada?",
+    "emailHint": "Emaila",
+    "passwordHint": "Pasahitza",
+    "repeatPasswordHint": "Pasahitza errepikatu"
+  },
+  "signIn": {
+    "loginTitle": "Hasi saioa @:appName -n",
+    "loginButtonText": "Hasi saioa",
+    "buttonText": "Sartu",
+    "forgotPassword": "Pasahitza ahaztu duzu?",
+    "emailHint": "Emaila",
+    "passwordHint": "Pasahitza",
+    "dontHaveAnAccount": "Ez daukazu konturik?",
+    "repeatPasswordEmptyError": "Pasahitz errepikapenak ezin du hutsik egon",
+    "unmatchedPasswordError": "Pasahitz errepikapena ez da berdina"
+  },
+  "workspace": {
+    "create": "Lan-eremua",
+    "hint": "lan-eremua",
+    "notFoundError": "Lan-eremurik ez da aurkitu"
+  },
+  "shareAction": {
+    "buttonText": "Konpartitu",
+    "workInProgress": "Laister",
+    "markdown": "Markdown",
+    "copyLink": "Esteka kopiatu"
+  },
+  "moreAction": {
+    "small": "txikia",
+    "medium": "ertaina",
+    "large": "handia",
+    "fontSize": "Letra tamaina"
+  },
+  "disclosureAction": {
+    "rename": "Izena aldatu",
+    "delete": "Ezabatu",
+    "duplicate": "Duplikatu"
+  },
+  "blankPageTitle": "Orri zuria",
+  "newPageText": "Orri berria",
+  "trash": {
+    "text": "Zaborrontzia",
+    "restoreAll": "Guztia berreskuratu",
+    "deleteAll": "Guztia ezabatu",
+    "pageHeader": {
+      "fileName": "Fitxategi izena",
+      "lastModified": "Azken aldaketa",
+      "created": "Sortua"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "Orri hau zaborrontzian dago",
+    "restore": "Orria berreskuratu",
+    "deletePermanent": "Betirako ezabatu"
+  },
+  "dialogCreatePageNameHint": "Orriaren izena",
+  "questionBubble": {
+    "whatsNew": "Ze berri?",
+    "help": "Laguntza",
+    "debug": {
+      "name": "Debug informazioa",
+      "success": "Debug informazioa kopiatu da!",
+      "fail": "Ezin izan da debug informazioa kopiatu"
+    }
+  },
+  "menuAppHeader": {
+    "addPageTooltip": "Gehitu orri bat",
+    "defaultNewPageName": "Izenbururik ez",
+    "renameDialog": "Izena aldatu"
+  },
+  "toolbar": {
+    "undo": "Desegin",
+    "redo": "Berregin",
+    "bold": "Lodia",
+    "italic": "Etzana",
+    "underline": "Azpimarratua",
+    "strike": "Markatua",
+    "numList": "Zembakidun zerrenda",
+    "bulletList": "Buletetako zerrenda",
+    "checkList": "Egiaztapen zerrenda",
+    "inlineCode": "Lerroko kodea",
+    "quote": "Aipamena",
+    "header": "Goiburua",
+    "highlight": "Nabarmendu",
+    "color": "Kolorea"
+  },
+  "tooltip": {
+    "lightMode": "Modu argira aldatu",
+    "darkMode": "Modu ilunera aldatu",
+    "openAsPage": "Orri gisa ireki",
+    "addNewRow": "Ilara berri bat gehitu",
+    "openMenu": "Egin klik menua irekitzeko"
+  },
+  "sideBar": {
+    "closeSidebar": "Alboko barra itxi",
+    "openSidebar": "Alboko barra ireki"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Oharra markdownera esportatuta",
+      "path": "Documents/flowy"
+    }
+  },
+  "contactsPage": {
+    "title": "Kontaktuak",
+    "whatsHappening": "Ze berri aste honetan?",
+    "addContact": "Kontaktua gehitu",
+    "editContact": "Kontaktua editatu"
+  },
+  "button": {
+    "OK": "OK",
+    "Cancel": "Ezteztatu",
+    "signIn": "Saioa hasi",
+    "signOut": "Saioa itxi",
+    "complete": "Burututa",
+    "save": "Gorde"
+  },
+  "label": {
+    "welcome": "Ongi etorri!",
+    "firstName": "Izena",
+    "middleName": "Bigarren izena",
+    "lastName": "Abizena",
+    "stepX": "{X}. pausoa"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "Ezin izan da kontura sartu.",
+      "failedMsg": "Mesedez, ziurtatu zure arakatzailean saioa hasteko prozesua amaitu duzula."
     },
-    "signIn": {
-      "loginTitle": "Login to @:appName",
-      "loginButtonText": "Login",
-      "buttonText": "Sign In",
-      "forgotPassword": "Forgot Password?",
-      "emailHint": "Email",
-      "passwordHint": "Password",
-      "dontHaveAnAccount": "Don't have an account?",
-      "repeatPasswordEmptyError": "Repeat password can't be empty",
-      "unmatchedPasswordError": "Repeat password is not the same as password"
+    "google": {
+      "title": "GOOGLE SAIOA HASI",
+      "instruction1": "Zure Google Kontaktuak inportatzeko, zure web arakatzailea erabiliz aplikazio hau baimendu beharko duzu.",
+      "instruction2": "Kopiatu kode hau ikonoan klik eginez edo testua hautatuz:",
+      "instruction3": "Nabigatu zure web arakatzailean esteka honetara eta idatzi goiko kodea:",
+      "instruction4": "Sakatu beheko botoia erregistroa amaitzean:"
+    }
+  },
+  "settings": {
+    "title": "Ezarpenak",
+    "menu": {
+      "appearance": "Itxura",
+      "language": "Hizkuntza",
+      "user": "Erabiltzailea",
+      "files": "Futxategiak",
+      "open": "Ezarpenak ireki"
     },
-    "workspace": {
-      "create": "Create workspace",
-      "hint": "workspace",
-      "notFoundError": "Workspace not found"
-    },
-    "shareAction": {
-      "buttonText": "Share",
-      "workInProgress": "Coming soon",
-      "markdown": "Markdown",
-      "copyLink": "Copy Link"
-    },
-    "moreAction": {
-      "small": "small",
-      "medium": "medium",
-      "large": "large",
-      "fontSize": "Font Size"
-    },
-    "disclosureAction": {
-      "rename": "Rename",
-      "delete": "Delete",
-      "duplicate": "Duplicate"
-    },
-    "blankPageTitle": "Blank page",
-    "newPageText": "New page",
-    "trash": {
-      "text": "Trash",
-      "restoreAll": "Restore All",
-      "deleteAll": "Delete All",
-      "pageHeader": {
-        "fileName": "File name",
-        "lastModified": "Last Modified",
-        "created": "Created"
-      }
-    },
-    "deletePagePrompt": {
-      "text": "This page is in Trash",
-      "restore": "Restore page",
-      "deletePermanent": "Delete permanently"
-    },
-    "dialogCreatePageNameHint": "Page name",
-    "questionBubble": {
-      "whatsNew": "What's new?",
-      "help": "Help & Support",
-      "debug": {
-        "name": "Debug Info",
-        "success": "Copied debug info to clipboard!",
-        "fail": "Unable to copy debug info to clipboard"
-      }
-    },
-    "menuAppHeader": {
-      "addPageTooltip": "Quickly add a page inside",
-      "defaultNewPageName": "Untitled",
-      "renameDialog": "Rename"
-    },
-    "toolbar": {
-      "undo": "Undo",
-      "redo": "Redo",
-      "bold": "Bold",
-      "italic": "Italic",
-      "underline": "Underline",
-      "strike": "Strikethrough",
-      "numList": "Numbered List",
-      "bulletList": "Bulleted List",
-      "checkList": "Check List",
-      "inlineCode": "Inline Code",
-      "quote": "Quote Block",
-      "header": "Header",
-      "highlight": "Highlight",
-      "color": "Color"
-    },
-    "tooltip": {
-      "lightMode": "Switch to Light mode",
-      "darkMode": "Switch to Dark mode",
-      "openAsPage": "Open as a Page",
-      "addNewRow": "Add a new row",
-      "openMenu": "Click to open menu"
-    },
-    "sideBar": {
-      "closeSidebar": "Close side bar",
-      "openSidebar": "Open side bar"
-    },
-    "notifications": {
-      "export": {
-        "markdown": "Exported Note To Markdown",
-        "path": "Documents/flowy"
-      }
-    },
-    "contactsPage": {
-      "title": "Contacts",
-      "whatsHappening": "What's happening this week?",
-      "addContact": "Add Contact",
-      "editContact": "Edit Contact"
-    },
-    "button": {
-      "OK": "OK",
-      "Cancel": "Cancel",
-      "signIn": "Sign In",
-      "signOut": "Sign Out",
-      "complete": "Complete",
-      "save": "Save"
-    },
-    "label": {
-      "welcome": "Welcome!",
-      "firstName": "First Name",
-      "middleName": "Middle Name",
-      "lastName": "Last Name",
-      "stepX": "Step {X}"
-    },
-    "oAuth": {
-      "err": {
-        "failedTitle": "Unable to connect to your account.",
-        "failedMsg": "Please make sure you've completed the sign-in process in your browser."
+    "appearance": {
+      "themeMode": {
+        "label": "Itxura modua",
+        "light": "Modu argia",
+        "dark": "Modu iluna",
+        "system": "Zure sistemara moldatu"
       },
-      "google": {
-        "title": "GOOGLE SIGN-IN",
-        "instruction1": "In order to import your Google Contacts, you'll need to authorize this application using your web browser.",
-        "instruction2": "Copy this code to your clipboard by clicking the icon or selecting the text:",
-        "instruction3": "Navigate to the following link in your web browser, and enter the above code:",
-        "instruction4": "Press the button below when you've completed signup:"
-      }
+      "theme": "Itxura"
     },
+    "files": {
+      "defaultLocation": "Non gordetzen diren zure datuak",
+      "doubleTapToCopy": "Sakatu birritan bidea kopiatzeko",
+      "restoreLocation": "Berrezarri AppFlowy-ren biden lehenetsira",
+      "customizeLocation": "Beste karpeta bat ireki",
+      "restartApp": "Mesedez, berrabiarazi aplikazioa aldaketak indarrean egon daitezen.",
+      "exportDatabase": "Datubasea exportatu",
+      "selectFiles": "Aukeratu exportatu nahi dituzun fitxategiak",
+      "createNewFolder": "Karpeta berri bat sortu",
+      "createNewFolderDesc": "Non nahi dituzu datuak gorde ...",
+      "open": "Oreki",
+      "openFolder": "Ireki karpeta bat",
+      "openFolderDesc": "Irakurri eta idatzi zure AppFlowy karpetan...",
+      "folderHintText": "karpetaren izena",
+      "location": "Karpeta berria sortzen",
+      "locationDesc": "Aukeratu izen bat AppFlowy datuen karpetarako",
+      "browser": "Bilatu",
+      "create": "Sortu",
+      "folderPath": "Zure karpeta gordetzeko bidea",
+      "locationCannotBeEmpty": "Bideak ezin du hutsa egon"
+    }
+  },
+  "grid": {
     "settings": {
-      "title": "Settings",
-      "menu": {
-        "appearance": "Appearance",
-        "language": "Language",
-        "user": "User",
-        "files": "Files",
-        "open": "Open Settings"
-      },
-      "appearance": {
-        "themeMode": {
-          "label": "Theme Mode",
-          "light": "Light Mode",
-          "dark": "Dark Mode",
-          "system": "Adapt to System"
-        },
-        "theme": "Theme"
-      },
-      "files": {
-        "defaultLocation": "Where your data is stored now",
-        "doubleTapToCopy": "Double tap to copy the path",
-        "restoreLocation": "Restore to AppFlowy default path",
-        "customizeLocation": "Open another folder",
-        "restartApp": "Please restart app for the changes to take effect.",
-        "exportDatabase": "Export database",
-        "selectFiles": "Select the files that need to be export",
-        "createNewFolder": "Create a new folder",
-        "createNewFolderDesc": "Tell us where you want to store your data ...",
-        "open": "Open",
-        "openFolder": "Open an existing folder",
-        "openFolderDesc": "Read and write it to your existing AppFlowy folder ...",
-        "folderHintText": "folder name",
-        "location": "Creating a new folder",
-        "locationDesc": "Pick a name for your AppFlowy data folder",
-        "browser": "Browse",
-        "create": "Create",
-        "folderPath": "Path to store your folder",
-        "locationCannotBeEmpty": "Path cannot be empty"
+      "filter": "Filtroa",
+      "sort": "Ordenatu",
+      "sortBy": "Ordenatu honekiko",
+      "Properties": "Propietateak",
+      "group": "Taldea",
+      "addFilter": "Gehitu iragazkia",
+      "deleteFilter": "Ezabatu iragazkia",
+      "filterBy": "Iragazi arabera...",
+      "typeAValue": "Idatzi balio bat..."
+    },
+    "textFilter": {
+      "contains": "Dauka",
+      "doesNotContain": "Ez dauka",
+      "endsWith": "Honez amaitzen da",
+      "startWith": "Honez hasten da",
+      "is": "da",
+      "isNot": "Ez da",
+      "isEmpty": "Hutsa dago",
+      "isNotEmpty": "Ez dago hutsik",
+      "choicechipPrefix": {
+        "isNot": "Ez da",
+        "startWith": "Honez hasten da",
+        "endWith": "Honez amaitzen da",
+        "isEmpty": "hutsik dago",
+        "isNotEmpty": "ez dago hutsik"
       }
     },
-    "grid": {
-      "settings": {
-        "filter": "Filter",
-        "sort": "Sort",
-        "sortBy": "Sort by",
-        "Properties": "Properties",
-        "group": "Group",
-        "addFilter": "Add Filter",
-        "deleteFilter": "Delete filter",
-        "filterBy": "Filter by...",
-        "typeAValue": "Type a value..."
-      },
-      "textFilter": {
-        "contains": "Contains",
-        "doesNotContain": "Does not contain",
-        "endsWith": "Ends with",
-        "startWith": "Starts with",
-        "is": "Is",
-        "isNot": "Is not",
-        "isEmpty": "Is empty",
-        "isNotEmpty": "Is not empty",
-        "choicechipPrefix": {
-          "isNot": "Not",
-          "startWith": "Starts with",
-          "endWith": "Ends with",
-          "isEmpty": "is empty",
-          "isNotEmpty": "is not empty"
-        }
-      },
-      "checkboxFilter": {
-        "isChecked": "Checked",
-        "isUnchecked": "Unchecked",
-        "choicechipPrefix": {
-          "is": "is"
-        }
-      },
-      "checklistFilter": {
-        "isComplete": "is complete",
-        "isIncomplted": "is incomplete"
-      },
-      "singleSelectOptionFilter": {
-        "is": "Is",
-        "isNot": "Is not",
-        "isEmpty": "Is empty",
-        "isNotEmpty": "Is not empty"
-      },
-      "multiSelectOptionFilter": {
-        "contains": "Contains",
-        "doesNotContain": "Does not contain",
-        "isEmpty": "Is empty",
-        "isNotEmpty": "Is not empty"
-      },
-      "field": {
-        "hide": "Hide",
-        "insertLeft": "Insert Left",
-        "insertRight": "Insert Right",
-        "duplicate": "Duplicate",
-        "delete": "Delete",
-        "textFieldName": "Text",
-        "checkboxFieldName": "Checkbox",
-        "dateFieldName": "Date",
-        "numberFieldName": "Numbers",
-        "singleSelectFieldName": "Select",
-        "multiSelectFieldName": "Multiselect",
-        "urlFieldName": "URL",
-        "checklistFieldName": "Checklist",
-        "numberFormat": "Number format",
-        "dateFormat": "Date format",
-        "includeTime": "Include time",
-        "dateFormatFriendly": "Month Day,Year",
-        "dateFormatISO": "Year-Month-Day",
-        "dateFormatLocal": "Month/Day/Year",
-        "dateFormatUS": "Year/Month/Day",
-        "timeFormat": "Time format",
-        "invalidTimeFormat": "Invalid format",
-        "timeFormatTwelveHour": "12 hour",
-        "timeFormatTwentyFourHour": "24 hour",
-        "addSelectOption": "Add an option",
-        "optionTitle": "Options",
-        "addOption": "Add option",
-        "editProperty": "Edit property",
-        "newColumn": "New column",
-        "deleteFieldPromptMessage": "Are you sure? This property will be deleted"
-      },
-      "sort": {
-        "ascending": "Ascending",
-        "descending": "Descending",
-        "deleteSort": "Delete sort",
-        "addSort": "Add sort"
-      },
-      "row": {
-        "duplicate": "Duplicate",
-        "delete": "Delete",
-        "textPlaceholder": "Empty",
-        "copyProperty": "Copied property to clipboard",
-        "count": "Count",
-        "newRow": "New row"
-      },
-      "selectOption": {
-        "create": "Create",
-        "purpleColor": "Purple",
-        "pinkColor": "Pink",
-        "lightPinkColor": "Light Pink",
-        "orangeColor": "Orange",
-        "yellowColor": "Yellow",
-        "limeColor": "Lime",
-        "greenColor": "Green",
-        "aquaColor": "Aqua",
-        "blueColor": "Blue",
-        "deleteTag": "Delete tag",
-        "colorPanelTitle": "Colors",
-        "panelTitle": "Select an option or create one",
-        "searchOption": "Search for an option"
-      },
-      "checklist": {
-        "panelTitle": "Add an item"
-      },
-      "menuName": "Grid"
-    },
-    "document": {
-      "menuName": "Document",
-      "date": {
-        "timeHintTextInTwelveHour": "01:00 PM",
-        "timeHintTextInTwentyFourHour": "13:00"
+    "checkboxFilter": {
+      "isChecked": "Egiaztatuta",
+      "isUnchecked": "Desmarkatua",
+      "choicechipPrefix": {
+        "da": "da"
       }
     },
-    "board": {
-      "column": {
-        "create_new_card": "New"
-      }
+    "checklistFilter": {
+      "isComplete": "osatu da",
+      "isIncomplted": "osatu gabe dago"
     },
-    "calendar": {
-      "menuName": "Calendar",
-      "navigation": {
-        "today": "Today",
-        "jumpToday": "Jump to Today",
-        "previousMonth": "Previous Month",
-        "nextMonth": "Next Month"
-      }
+    "singleSelectOptionFilter": {
+      "is": "da",
+      "isNot": "Ez da",
+      "isEmpty": "Hutsa dago",
+      "isNotEmpty": "Ez dago hutsik"
+    },
+    "multiSelectOptionFilter": {
+      "contains": "Duen",
+      "doesNotContain": "Ez dauka",
+      "isEmpty": "Hutsa dago",
+      "isNotEmpty": "Ez dago hutsik"
+    },
+    "field": {
+      "hide": "Ezkutatu",
+      "insertLeft": "Txertatu ezkerrera",
+      "insertRight": "Txertatu eskuinera",
+      "duplicate": "Bikoiztu",
+      "delete": "Ezabatu",
+      "textFieldName": "Testua",
+      "checkboxFieldName": "Markatu laukia",
+      "dateFieldName": "Data",
+      "numberFieldName": "Zenbakiak",
+      "singleSelectFieldName": "Hautatu",
+      "multiSelectFieldName": "Hautatu asko",
+      "urlFieldName": "URL",
+      "checklistFieldName": "Kontrol zerrenda",
+      "numberFormat": "Zenbaki formatua",
+      "dateFormat": "Data formatua",
+      "includeTime": "Sartu ordua",
+      "dateFormatFriendly": "Hilabete Eguna, Urtea",
+      "dateFormatISO": "Urtea-Hilabetea-Eguna",
+      "dateFormatLocal": "Hilabetea/Eguna/Urtea",
+      "dateFormatUS": "Urtea/Hilabetea/Eguna",
+      "timeFormat": "Denboraren formatua",
+      "invalidTimeFormat": "Formatu baliogabea",
+      "timeFormatTwelveHour": "12 ordu",
+      "timeFormatTwentyFourHour": "24 ordu",
+      "addSelectOption": "Gehitu aukera bat",
+      "optionTitle": "Aukerak",
+      "addOption": "Gehitu aukera",
+      "editProperty": "Editatu propietatea",
+      "newColumn": "Zutabe berria",
+      "deleteFieldPromptMessage": "Ziur al zaude? Propietate hau ezabatu egingo da"
+    },
+    "sort": {
+      "ascending": "Gorarantz",
+      "descending": "Jaisten",
+      "deleteSort": "Ezabatu ordena",
+      "addSort": "Gehitu ordenatu"
+    },
+    "row": {
+      "duplicate": "Bikoiztu",
+      "delete": "Ezabatu",
+      "textPlaceholder": "Hutsik",
+      "copyProperty": "Propietatea arbelean kopiatu da",
+      "count": "Kontatu",
+      "newRow": "Errenkada berria"
+    },
+    "selectOption": {
+      "create": "Sortu",
+      "purpleColor": "Purple",
+      "pinkColor": "Rosa",
+      "lightPinkColor": "Arrosa argia",
+      "orangeColor": "Laranja",
+      "yellowColor": "Horia",
+      "limeColor": "Karea",
+      "greenColor": "Berdea",
+      "aquaColor": "Aqua",
+      "blueColor": "Urdina",
+      "deleteTag": "Ezabatu etiketa",
+      "colorPanelTitle": "Koloreak",
+      "panelTitle": "Hautatu aukera bat edo sortu bat",
+      "searchOption": "Aukera bat bilatu"
+    },
+    "checklist": {
+      "panelTitle": "Gehitu elementu bat"
+    },
+    "menuName": "Sareta"
+  },
+  "document": {
+    "menuName": "Dokumentua",
+    "data": {
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
+    }
+  },
+  "board": {
+    "column": {
+      "create_new_card": "Berria"
+    }
+  },
+  "calendar": {
+    "menuName": "Egutegia",
+    "navigation": {
+      "today": "Gaur",
+      "jumpToday": "Gaurko salto egin",
+      "previousMonth": "Aurreko hilabetea",
+      "nextMonth": "Hurrengo hilabetea"
     }
   }
+}
