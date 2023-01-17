@@ -31,13 +31,27 @@ run_task = { name = [
     "rm_macro_build_cache",
     "rm_rust_generated_files",
     "rm_tauri_generated_protobuf_files",
+    "rm_tauri_generated_event_files",
 ] }
 
 [tasks.rm_tauri_generated_protobuf_files]
 private = true
 script = ["""
-  protobuf_file_paths = glob_array ${TAURI_FLOWY_SDK_PATH}/crates
+  protobuf_file_paths = glob_array ${TAURI_PROTOBUF_PATH}/classes
+  if not array_is_empty ${protobuf_file_paths}
+    echo Remove generated protobuf files:
+    for path in ${protobuf_file_paths}
+        echo remove ${path}
+        rm -rf ${path}
+    end
+  end
+  """]
+script_runner = "@duckscript"
 
+[tasks.rm_tauri_generated_event_files]
+private = true
+script = ["""
+  protobuf_file_paths = glob_array ${TAURI_PROTOBUF_PATH}/events
   if not array_is_empty ${protobuf_file_paths}
     echo Remove generated protobuf files:
     for path in ${protobuf_file_paths}

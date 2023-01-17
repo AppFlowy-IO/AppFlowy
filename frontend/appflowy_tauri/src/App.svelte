@@ -3,7 +3,7 @@
 </script>
 
 <main class="container">
-  <h1>Welcome to Tauri!</h1>
+  <h1>Welcome to AppFlowy Tauri!</h1>
 
   <div class="row">
     <Greet />

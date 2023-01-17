@@ -100,15 +100,15 @@ fn generate_ts_protobuf_files(
     file_names: &Vec<String>,
     protoc_bin_path: &Path,
 ) {
-    if std::env::var("TAURI_FLOWY_SDK_PATH").is_err() {
-        eprintln!("TAURI_FLOWY_SDK_PATH was not set, skip generate ts pb");
+    if std::env::var("TAURI_PROTOBUF_PATH").is_err() {
+        eprintln!("TAURI_PROTOBUF_PATH was not set, skip generate ts pb");
         return;
     }
 
     let mut output = PathBuf::new();
     output.push(std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap());
-    output.push(std::env::var("TAURI_FLOWY_SDK_PATH").unwrap());
-    output.push("crates");
+    output.push(std::env::var("TAURI_PROTOBUF_PATH").unwrap());
+    output.push("classes");
     output.push(name);
 
     if !output.as_path().exists() {

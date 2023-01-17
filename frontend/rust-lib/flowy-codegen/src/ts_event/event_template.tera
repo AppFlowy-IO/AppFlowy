@@ -1,0 +1,36 @@
+export async function {{ event_func_name }}(
+    {%- if has_input  %}
+         payload: {{ input_deserializer }}
+    {%- endif %}
+): Promise<Result<{{ output_deserializer }}, {{ error_deserializer }}>> {
+    {%- if has_input  %}
+        let args = {
+            request: {
+                ty: {{ event_name }}[{{ event_name }}.{{ event }}],
+                payload: Array.from(payload.serializeBinary()),
+            },
+        };
+    {%- else %}
+        let args = {
+            request: {
+                ty: {{ event_name }}[{{ event_name }}.{{ event }}],
+                payload: Array.from([]),
+            },
+        };
+    {%- endif %}
+
+    let result: { code; payload } = await invoke("invoke_request", args);
+    if (result.code == 0) {
+    {%- if has_output  %}
+        let object = {{ output_deserializer }}.deserializeBinary(result.payload);
+        console.log("Success:" + JSON.stringify(object.toObject()))
+        return Ok(object);
+    {%- else %}
+        return Ok.EMPTY;
+    {%- endif %}
+    } else {
+        let error = {{ error_deserializer }}.deserializeBinary(result.payload);
+        console.log("Error:" + JSON.stringify(error.toObject()))
+        return Err(error);
+    }
+}
