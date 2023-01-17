@@ -7,7 +7,7 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "appflowy_tauri",
+    "productName": "AppFlowy",
     "version": "0.0.0"
   },
   "tauri": {
@@ -62,7 +62,7 @@
         "fullscreen": false,
         "height": 600,
         "resizable": true,
-        "title": "appflowy_tauri",
+        "title": "AppFlowy",
         "width": 800
       }
     ]

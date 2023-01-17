@@ -1,25 +1,26 @@
-export async function {{ event_func_name }}(
+
+{%- if has_input  %}
+export async function {{ event_func_name }}(payload: {{ input_deserializer }}): Promise<Result<{{ output_deserializer }}, {{ error_deserializer }}>> {
+{%- else %}
+export async function {{ event_func_name }}(): Promise<Result<{{ output_deserializer }}, {{ error_deserializer }}>> {
+{%- endif %}
     {%- if has_input  %}
-         payload: {{ input_deserializer }}
-    {%- endif %}
-): Promise<Result<{{ output_deserializer }}, {{ error_deserializer }}>> {
-    {%- if has_input  %}
-        let args = {
-            request: {
-                ty: {{ event_name }}[{{ event_name }}.{{ event }}],
-                payload: Array.from(payload.serializeBinary()),
-            },
-        };
+    let args = {
+        request: {
+            ty: {{ event_name }}[{{ event_name }}.{{ event }}],
+            payload: Array.from(payload.serializeBinary()),
+        },
+    };
     {%- else %}
-        let args = {
-            request: {
-                ty: {{ event_name }}[{{ event_name }}.{{ event }}],
-                payload: Array.from([]),
-            },
-        };
+    let args = {
+        request: {
+            ty: {{ event_name }}[{{ event_name }}.{{ event }}],
+            payload: Array.from([]),
+        },
+    };
     {%- endif %}
 
-    let result: { code; payload } = await invoke("invoke_request", args);
+    let result: { code: number; payload: Uint8Array } = await invoke("invoke_request", args);
     if (result.code == 0) {
     {%- if has_output  %}
         let object = {{ output_deserializer }}.deserializeBinary(result.payload);

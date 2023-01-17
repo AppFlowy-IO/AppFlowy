@@ -46,8 +46,10 @@ pub fn gen(crate_name: &str) {
         std::fs::create_dir_all(ts_event_folder.as_path()).unwrap();
     }
 
-    let event_file_name = "event.ts";
-    let ts_event_file_path = path_string_with_component(&ts_event_folder, vec![event_file_name]);
+    let event_file = "event";
+    let event_file_ext = "ts";
+    let ts_event_file_path =
+        path_string_with_component(&ts_event_folder, vec![&format!("{}.{}", event_file, event_file_ext)]);
     println!("cargo:rerun-if-changed={}", ts_event_file_path);
 
     match std::fs::OpenOptions::new()
@@ -78,7 +80,7 @@ pub fn gen(crate_name: &str) {
             let mut export = String::new();
             export.push_str("// Auto-generated, do not edit \n");
             export.push_str(&format!("export * from '../../classes/{}';\n", crate_name));
-            export.push_str(&format!("export * from './{}';\n", event_file_name));
+            export.push_str(&format!("export * from './{}';\n", event_file));
             file.write_all(export.as_bytes()).unwrap();
             File::flush(file).unwrap();
         }

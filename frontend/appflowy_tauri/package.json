@@ -5,26 +5,24 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json",
     "tauri": "tauri"
   },
   "dependencies": {
     "@tauri-apps/api": "^1.2.0",
     "google-protobuf": "^3.21.2",
+    "ts-results": "^3.3.0",
     "nanoid": "^4.0.0",
-    "ts-results": "^3.3.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^2.0.0",
     "@tauri-apps/cli": "^1.2.2",
-    "@tsconfig/svelte": "^3.0.0",
     "@types/node": "^18.7.10",
-    "svelte": "^3.54.0",
-    "svelte-check": "^3.0.0",
-    "svelte-preprocess": "^5.0.0",
-    "tslib": "^2.4.1",
+    "@types/react": "^18.0.15",
+    "@types/react-dom": "^18.0.6",
+    "@vitejs/plugin-react": "^3.0.0",
     "typescript": "^4.6.4",
     "vite": "^4.0.0"
   }
