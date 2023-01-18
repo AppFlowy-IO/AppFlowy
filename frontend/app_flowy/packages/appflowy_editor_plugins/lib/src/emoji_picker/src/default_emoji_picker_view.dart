@@ -1,13 +1,12 @@
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'models/category_models.dart';
 import 'config.dart';
-import 'models/emoji_model.dart';
 import 'emoji_picker.dart';
 import 'emoji_picker_builder.dart';
 import 'emoji_view_state.dart';
+import 'models/category_models.dart';
+import 'models/emoji_model.dart';
 
 class DefaultEmojiPickerView extends EmojiPickerBuilder {
   const DefaultEmojiPickerView(Config config, EmojiViewState state, {Key? key})
@@ -23,8 +22,6 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
   TabController? _tabController;
   final TextEditingController _emojiController = TextEditingController();
   final FocusNode _emojiFocusNode = FocusNode();
-  final CategoryEmoji _categoryEmoji =
-      CategoryEmoji(Category.SEARCH, List.empty(growable: true));
   CategoryEmoji searchEmojiList = CategoryEmoji(Category.SEARCH, <Emoji>[]);
 
   @override
@@ -212,14 +209,15 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
   Widget _buildButtonWidget(
       {required VoidCallback onPressed, required Widget child}) {
     if (widget.config.buttonMode == ButtonMode.MATERIAL) {
-      return TextButton(
-        onPressed: onPressed,
-        style: ButtonStyle(padding: MaterialStateProperty.all(EdgeInsets.zero)),
+      return InkWell(
+        onTap: onPressed,
         child: child,
       );
     }
-    return CupertinoButton(
-        padding: EdgeInsets.zero, onPressed: onPressed, child: child);
+    return GestureDetector(
+      onTap: onPressed,
+      child: child,
+    );
   }
 
   Widget _buildPage(double emojiSize, CategoryEmoji categoryEmoji) {
@@ -243,24 +241,20 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
       trackColor: const Color(0xffDFE0E0),
       child: ScrollConfiguration(
         behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-        child: GridView.count(
-          scrollDirection: Axis.vertical,
-          physics: const ScrollPhysics(),
+        child: GridView.builder(
           controller: scrollController,
-          shrinkWrap: true,
-          // primary: true,
           padding: const EdgeInsets.all(0),
-          crossAxisCount: widget.config.columns,
-          mainAxisSpacing: widget.config.verticalSpacing,
-          crossAxisSpacing: widget.config.horizontalSpacing,
-          children: _categoryEmoji.emoji.isNotEmpty
-              ? _categoryEmoji.emoji
-                  .map<Widget>((e) => _buildEmoji(emojiSize, categoryEmoji, e))
-                  .toList()
-              : categoryEmoji.emoji
-                  .map<Widget>(
-                      (item) => _buildEmoji(emojiSize, categoryEmoji, item))
-                  .toList(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: widget.config.columns,
+            mainAxisSpacing: widget.config.verticalSpacing,
+            crossAxisSpacing: widget.config.horizontalSpacing,
+          ),
+          itemCount: categoryEmoji.emoji.length,
+          itemBuilder: (context, index) {
+            final item = categoryEmoji.emoji[index];
+            return _buildEmoji(emojiSize, categoryEmoji, item);
+          },
+          cacheExtent: 10,
         ),
       ),
     );
