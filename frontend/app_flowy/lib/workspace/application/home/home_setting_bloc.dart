@@ -1,22 +1,30 @@
 import 'package:app_flowy/user/application/user_listener.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/application/edit_panel/edit_context.dart';
-import 'package:flowy_infra/time/duration.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart'
     show WorkspaceSettingPB;
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:dartz/dartz.dart';
+import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:dartz/dartz.dart';
+
 part 'home_setting_bloc.freezed.dart';
 
 class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
   final UserWorkspaceListener _listener;
+  final AppearanceSettingsCubit _appearanceSettingsCubit;
 
   HomeSettingBloc(
     UserProfilePB user,
     WorkspaceSettingPB workspaceSetting,
+    AppearanceSettingsCubit appearanceSettingsCubit,
   )   : _listener = UserWorkspaceListener(userProfile: user),
-        super(HomeSettingState.initial(workspaceSetting)) {
+        _appearanceSettingsCubit = appearanceSettingsCubit,
+        super(HomeSettingState.initial(
+          workspaceSetting,
+          appearanceSettingsCubit.state,
+        )) {
     on<HomeSettingEvent>(
       (event, emit) async {
         await event.map(
@@ -27,14 +35,13 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
           dismissEditPanel: (value) async {
             emit(state.copyWith(panelContext: none()));
           },
-          forceCollapse: (e) async {
-            emit(state.copyWith(forceCollapse: e.forceCollapse));
-          },
           didReceiveWorkspaceSetting: (_DidReceiveWorkspaceSetting value) {
             emit(state.copyWith(workspaceSetting: value.setting));
           },
           collapseMenu: (_CollapseMenu e) {
-            emit(state.copyWith(isMenuCollapsed: !state.isMenuCollapsed));
+            var isMenuCollapsed = !state.isMenuCollapsed;
+            _appearanceSettingsCubit.saveIsMenuCollapsed(isMenuCollapsed);
+            emit(state.copyWith(isMenuCollapsed: isMenuCollapsed));
           },
           editPanelResizeStart: (_EditPanelResizeStart e) {
             emit(state.copyWith(
@@ -50,6 +57,7 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
             }
           },
           editPanelResizeEnd: (_EditPanelResizeEnd e) {
+            _appearanceSettingsCubit.saveMenuOffset(state.resizeOffset);
             emit(state.copyWith(resizeType: MenuResizeType.slide));
           },
         );
@@ -83,8 +91,6 @@ extension MenuResizeTypeExtension on MenuResizeType {
 @freezed
 class HomeSettingEvent with _$HomeSettingEvent {
   const factory HomeSettingEvent.initial() = _Initial;
-  const factory HomeSettingEvent.forceCollapse(bool forceCollapse) =
-      _ForceCollapse;
   const factory HomeSettingEvent.setEditPanel(EditPanelContext editContext) =
       _ShowEditPanel;
   const factory HomeSettingEvent.dismissEditPanel() = _DismissEditPanel;
@@ -100,7 +106,6 @@ class HomeSettingEvent with _$HomeSettingEvent {
 @freezed
 class HomeSettingState with _$HomeSettingState {
   const factory HomeSettingState({
-    required bool forceCollapse,
     required Option<EditPanelContext> panelContext,
     required WorkspaceSettingPB workspaceSetting,
     required bool unauthorized,
@@ -110,14 +115,16 @@ class HomeSettingState with _$HomeSettingState {
     required MenuResizeType resizeType,
   }) = _HomeSettingState;
 
-  factory HomeSettingState.initial(WorkspaceSettingPB workspaceSetting) =>
+  factory HomeSettingState.initial(
+    WorkspaceSettingPB workspaceSetting,
+    AppearanceSettingsState appearanceSettingsState,
+  ) =>
       HomeSettingState(
-        forceCollapse: false,
         panelContext: none(),
         workspaceSetting: workspaceSetting,
         unauthorized: false,
-        isMenuCollapsed: false,
-        resizeOffset: 0,
+        isMenuCollapsed: appearanceSettingsState.isMenuCollapsed,
+        resizeOffset: appearanceSettingsState.menuOffset,
         resizeStart: 0,
         resizeType: MenuResizeType.slide,
       );

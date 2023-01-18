@@ -1,17 +1,17 @@
-import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/core/frameless_window.dart';
 import 'package:app_flowy/plugins/blank/blank.dart';
+import 'package:app_flowy/startup/plugin/plugin.dart';
+import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
+import 'package:app_flowy/workspace/presentation/home/navigation.dart';
 import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:flowy_infra_ui/style_widget/extension.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time/time.dart';
-import 'package:app_flowy/startup/plugin/plugin.dart';
-import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
-import 'package:app_flowy/workspace/presentation/home/navigation.dart';
-import 'package:app_flowy/core/frameless_window.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_infra_ui/style_widget/extension.dart';
-import 'package:flowy_infra/notifier.dart';
+
 import 'home_layout.dart';
 
 typedef NavigationCallback = void Function(String id);
@@ -111,7 +111,6 @@ abstract class NavigationItem {
 
 class HomeStackNotifier extends ChangeNotifier {
   Plugin _plugin;
-  PublishNotifier<bool> collapsedNotifier = PublishNotifier();
 
   Widget get titleWidget => _plugin.display.leftBarItem;
 
@@ -143,7 +142,6 @@ class HomeStackManager {
     return _notifier.plugin.display.leftBarItem;
   }
 
-  PublishNotifier<bool> get collapsedNotifier => _notifier.collapsedNotifier;
   Plugin get plugin => _notifier.plugin;
 
   void setPlugin(Plugin newPlugin) {
