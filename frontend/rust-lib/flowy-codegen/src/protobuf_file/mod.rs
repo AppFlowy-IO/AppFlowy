@@ -158,11 +158,13 @@ fn generate_dart_protobuf_files(
     protoc_bin_path: &Path,
 ) {
     if std::env::var("CARGO_MAKE_WORKING_DIRECTORY").is_err() {
-        panic!("CARGO_MAKE_WORKING_DIRECTORY was not set, skip generate dart pb");
+        log::error!("CARGO_MAKE_WORKING_DIRECTORY was not set, skip generate dart pb");
+        return;
     }
 
     if std::env::var("FLUTTER_FLOWY_SDK_PATH").is_err() {
-        panic!("FLUTTER_FLOWY_SDK_PATH was not set, skip generate dart pb");
+        log::error!("FLUTTER_FLOWY_SDK_PATH was not set, skip generate dart pb");
+        return;
     }
 
     let mut output = PathBuf::new();

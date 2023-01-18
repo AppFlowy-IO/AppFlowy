@@ -11,11 +11,13 @@ use walkdir::WalkDir;
 
 pub fn gen(crate_name: &str) {
     if std::env::var("CARGO_MAKE_WORKING_DIRECTORY").is_err() {
-        panic!("CARGO_MAKE_WORKING_DIRECTORY was not set, skip generate dart pb");
+        log::warn!("CARGO_MAKE_WORKING_DIRECTORY was not set, skip generate dart pb");
+        return;
     }
 
     if std::env::var("FLUTTER_FLOWY_SDK_PATH").is_err() {
-        panic!("FLUTTER_FLOWY_SDK_PATH was not set, skip generate dart pb");
+        log::warn!("FLUTTER_FLOWY_SDK_PATH was not set, skip generate dart pb");
+        return;
     }
 
     let crate_path = std::fs::canonicalize(".").unwrap().as_path().display().to_string();
