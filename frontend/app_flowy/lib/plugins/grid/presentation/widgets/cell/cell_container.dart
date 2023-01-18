@@ -23,11 +23,8 @@ class CellContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProxyProvider<RegionStateNotifier,
-        _CellContainerNotifier>(
+    return ChangeNotifierProvider<_CellContainerNotifier>(
       create: (_) => _CellContainerNotifier(child),
-      update: (_, rowStateNotifier, cellStateNotifier) =>
-          cellStateNotifier!..onEnter = rowStateNotifier.onEnter,
       child: Selector<_CellContainerNotifier, bool>(
         selector: (context, notifier) => notifier.isFocus,
         builder: (privderContext, isFocus, _) {
@@ -90,8 +87,8 @@ class _GridCellEnterRegion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<_CellContainerNotifier, bool>(
-      selector: (context, notifier) => notifier.onEnter,
+    return Selector2<RegionStateNotifier, _CellContainerNotifier, bool>(
+  selector: (context, regionNotifier, cellNotifier) => !cellNotifier.isFocus && (cellNotifier.onEnter),
       builder: (context, onEnter, _) {
         List<Widget> children = [child];
         if (onEnter) {

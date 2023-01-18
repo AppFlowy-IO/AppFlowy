@@ -11,6 +11,15 @@ pub enum Payload {
     Bytes(Bytes),
 }
 
+impl Payload {
+    pub fn to_vec(self) -> Vec<u8> {
+        match self {
+            Payload::None => vec![],
+            Payload::Bytes(bytes) => bytes.to_vec(),
+        }
+    }
+}
+
 impl std::fmt::Debug for Payload {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         format_payload_print(self, f)

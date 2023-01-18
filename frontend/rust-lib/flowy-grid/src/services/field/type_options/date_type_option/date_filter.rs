@@ -16,8 +16,8 @@ impl DateFilterPB {
                     _ => {}
                 }
 
-                let cell_time = NaiveDateTime::from_timestamp(timestamp, 0);
-                let cell_date = cell_time.date();
+                let cell_time = NaiveDateTime::from_timestamp_opt(timestamp, 0);
+                let cell_date = cell_time.map(|time| time.date());
                 match self.timestamp {
                     None => {
                         if self.start.is_none() {
@@ -28,17 +28,17 @@ impl DateFilterPB {
                             return true;
                         }
 
-                        let start_time = NaiveDateTime::from_timestamp(*self.start.as_ref().unwrap(), 0);
-                        let start_date = start_time.date();
+                        let start_time = NaiveDateTime::from_timestamp_opt(*self.start.as_ref().unwrap(), 0);
+                        let start_date = start_time.map(|time| time.date());
 
-                        let end_time = NaiveDateTime::from_timestamp(*self.end.as_ref().unwrap(), 0);
-                        let end_date = end_time.date();
+                        let end_time = NaiveDateTime::from_timestamp_opt(*self.end.as_ref().unwrap(), 0);
+                        let end_date = end_time.map(|time| time.date());
 
                         cell_date >= start_date && cell_date <= end_date
                     }
                     Some(timestamp) => {
-                        let expected_timestamp = NaiveDateTime::from_timestamp(timestamp, 0);
-                        let expected_date = expected_timestamp.date();
+                        let expected_timestamp = NaiveDateTime::from_timestamp_opt(timestamp, 0);
+                        let expected_date = expected_timestamp.map(|time| time.date());
 
                         // We assume that the cell_timestamp doesn't contain hours, just day.
                         match self.condition {

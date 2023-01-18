@@ -47,6 +47,7 @@ rand = "0.8.5"
 [features]
 rev-sqlite = ["flowy-database"]
 dart = ["flowy-codegen/dart", "dart-notify/dart"]
+ts = ["flowy-codegen/ts"]
 
 [build-dependencies]
 flowy-codegen = { path = "../flowy-codegen"}

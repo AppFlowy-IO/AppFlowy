@@ -75,11 +75,11 @@ where
             break;
         }
     }
-    return if new_operations.is_empty() {
+    if new_operations.is_empty() {
         None
     } else {
         Some(new_operations)
-    };
+    }
 }
 
 pub fn pair_rev_id_from_revision_pbs(revisions: &[Revision]) -> (i64, i64) {

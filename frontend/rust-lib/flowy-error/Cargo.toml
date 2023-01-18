@@ -28,6 +28,7 @@ serde = ["serde_json"]
 http_server = ["http-flowy"]
 db = ["flowy-database", "r2d2"]
 dart = ["flowy-codegen/dart"]
+ts = ["flowy-codegen/ts"]
 
 [build-dependencies]
 flowy-codegen = { path = "../flowy-codegen", features = ["proto_gen"]}

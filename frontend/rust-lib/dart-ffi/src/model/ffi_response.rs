@@ -33,7 +33,6 @@ impl std::convert::From<AFPluginEventResponse> for FFIResponse {
         let code = match resp.status_code {
             StatusCode::Ok => FFIStatusCode::Ok,
             StatusCode::Err => FFIStatusCode::Err,
-            StatusCode::Internal => FFIStatusCode::Internal,
         };
 
         // let msg = match resp.error {

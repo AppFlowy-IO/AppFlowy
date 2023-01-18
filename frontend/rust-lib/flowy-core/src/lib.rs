@@ -59,7 +59,7 @@ impl FlowySDKConfig {
         FlowySDKConfig {
             name,
             root: root.to_owned(),
-            log_filter: crate_log_filter("info".to_owned()),
+            log_filter: create_log_filter("info".to_owned(), vec![]),
             server_config,
             document: DocumentConfig::default(),
         }
@@ -70,15 +70,18 @@ impl FlowySDKConfig {
         self
     }
 
-    pub fn log_filter(mut self, level: &str) -> Self {
-        self.log_filter = crate_log_filter(level.to_owned());
+    pub fn log_filter(mut self, level: &str, with_crates: Vec<String>) -> Self {
+        self.log_filter = create_log_filter(level.to_owned(), with_crates);
         self
     }
 }
 
-fn crate_log_filter(level: String) -> String {
+fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
     let level = std::env::var("RUST_LOG").unwrap_or(level);
-    let mut filters = vec![];
+    let mut filters = with_crates
+        .into_iter()
+        .map(|crate_name| format!("{}={}", crate_name, level))
+        .collect::<Vec<String>>();
     filters.push(format!("flowy_core={}", level));
     filters.push(format!("flowy_folder={}", level));
     filters.push(format!("flowy_user={}", level));
@@ -330,7 +333,7 @@ fn init_log(config: &FlowySDKConfig) {
     if !INIT_LOG.load(Ordering::SeqCst) {
         INIT_LOG.store(true, Ordering::SeqCst);
 
-        let _ = lib_log::Builder::new("flowy-client", &config.root)
+        let _ = lib_log::Builder::new("AppFlowy-Client", &config.root)
             .env_filter(&config.log_filter)
             .build();
     }

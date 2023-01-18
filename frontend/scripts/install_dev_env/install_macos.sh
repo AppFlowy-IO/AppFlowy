@@ -72,4 +72,4 @@ cargo install --force duckscript_cli
 
 # Check prerequisites
 printMessage "Checking prerequisites."
-cargo make appflowy-deps-tools
+cargo make appflowy-flutter-deps-tools

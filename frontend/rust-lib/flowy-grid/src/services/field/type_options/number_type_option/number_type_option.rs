@@ -107,7 +107,7 @@ impl NumberTypeOptionPB {
                     }
                 } else {
                     let draw_numer_string = NUM_REGEX.replace_all(s, "");
-                    let strnum = match draw_numer_string.matches(".").count() {
+                    let strnum = match draw_numer_string.matches('.').count() {
                         0 | 1 => draw_numer_string.to_string(),
                         _ => match EXTRACT_NUM_REGEX.captures(&draw_numer_string) {
                             Ok(captures) => match captures {
