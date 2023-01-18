@@ -16,7 +16,7 @@ cmd_lib = { version = "1", optional = true }
 protoc-rust = { version = "2", optional = true }
 walkdir = { version = "2", optional = true }
 similar = { version = "1.2.2", optional = true }
-syn = { version = "1.0.60", features = ["extra-traits", "parsing", "derive", "full"], optional = true }
+syn = { version = "1.0.60", features = ["extra-traits", "parsing", "derive", "full"] }
 fancy-regex = { version = "0.10.0", optional = true }
 lazy_static = { version = "1.4.0", optional = true }
 tera = { version = "1.5.0", optional = true}
@@ -31,7 +31,6 @@ toml = {version = "0.5.8", optional = true}
 [features]
 proto_gen = [
     "similar",
-    "syn",
     "fancy-regex",
     "lazy_static",
     "tera",
@@ -45,7 +44,7 @@ proto_gen = [
     "walkdir",
     "protoc-bin-vendored",
 ]
-dart_event = ["walkdir", "tera", "syn"]
+dart_event = ["walkdir", "tera", ]
 dart = ["proto_gen", "dart_event"]
-ts_event = ["walkdir", "tera", "syn"]
+ts_event = ["walkdir", "tera", ]
 ts = ["proto_gen", "ts_event"]

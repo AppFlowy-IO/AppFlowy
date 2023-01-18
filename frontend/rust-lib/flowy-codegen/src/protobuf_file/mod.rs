@@ -100,14 +100,13 @@ fn generate_ts_protobuf_files(
     file_names: &Vec<String>,
     protoc_bin_path: &Path,
 ) {
-    if std::env::var("TAURI_PROTOBUF_PATH").is_err() {
-        eprintln!("TAURI_PROTOBUF_PATH was not set, skip generate ts pb");
-        return;
-    }
+    let root = std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap_or("../../".to_string());
+    let tauri_protobuf_path =
+        std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap_or("appflowy_tauri/src/protobuf".to_string());
 
     let mut output = PathBuf::new();
-    output.push(std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap());
-    output.push(std::env::var("TAURI_PROTOBUF_PATH").unwrap());
+    output.push(root);
+    output.push(tauri_protobuf_path);
     output.push("classes");
     output.push(name);
 
@@ -159,12 +158,12 @@ fn generate_dart_protobuf_files(
     protoc_bin_path: &Path,
 ) {
     if std::env::var("CARGO_MAKE_WORKING_DIRECTORY").is_err() {
-        log::warn!("CARGO_MAKE_WORKING_DIRECTORY was not set, skip generate dart pb");
+        log::error!("CARGO_MAKE_WORKING_DIRECTORY was not set, skip generate dart pb");
         return;
     }
 
     if std::env::var("FLUTTER_FLOWY_SDK_PATH").is_err() {
-        log::warn!("FLUTTER_FLOWY_SDK_PATH was not set, skip generate dart pb");
+        log::error!("FLUTTER_FLOWY_SDK_PATH was not set, skip generate dart pb");
         return;
     }
 
