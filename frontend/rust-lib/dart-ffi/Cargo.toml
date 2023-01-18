@@ -38,7 +38,4 @@ http_sync = ["flowy-core/http_sync", "flowy-core/use_bunyan"]
 openssl_vendored = ["flowy-core/openssl_vendored"]
 
 [build-dependencies]
-flowy-codegen = { path = "../flowy-codegen", features = [
-    "dart",
-]}
-
+flowy-codegen = { path = "../flowy-codegen", features = ["dart"] }

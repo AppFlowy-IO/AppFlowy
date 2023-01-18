@@ -1,5 +1,5 @@
 use super::event_template::*;
-use crate::dart_event::ast::EventASTContext;
+use crate::ast::EventASTContext;
 use crate::flowy_toml::{parse_crate_config_from, CrateConfig};
 use crate::util::{is_crate_dir, is_hidden, path_string_with_component, read_file};
 use flowy_ast::ASTResult;
@@ -11,13 +11,11 @@ use walkdir::WalkDir;
 
 pub fn gen(crate_name: &str) {
     if std::env::var("CARGO_MAKE_WORKING_DIRECTORY").is_err() {
-        log::warn!("CARGO_MAKE_WORKING_DIRECTORY was not set, skip generate dart pb");
-        return;
+        panic!("CARGO_MAKE_WORKING_DIRECTORY was not set, skip generate dart pb");
     }
 
     if std::env::var("FLUTTER_FLOWY_SDK_PATH").is_err() {
-        log::warn!("FLUTTER_FLOWY_SDK_PATH was not set, skip generate dart pb");
-        return;
+        panic!("FLUTTER_FLOWY_SDK_PATH was not set, skip generate dart pb");
     }
 
     let crate_path = std::fs::canonicalize(".").unwrap().as_path().display().to_string();

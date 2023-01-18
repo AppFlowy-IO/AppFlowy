@@ -94,7 +94,7 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "AF: Tauri dev",
+            "name": "AF-tauri: Dev",
             "cargo": {
                 "args": [
                     "build",
@@ -102,7 +102,7 @@
                     "--no-default-features"
                 ]
             },
-            "preLaunchTask": "tauri:dev",
+            "preLaunchTask": "AF: Tauri Dev",
             "cwd": "${workspaceRoot}/appflowy_tauri/"
         },
         {
