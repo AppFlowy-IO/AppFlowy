@@ -133,3 +133,15 @@ typedef _store_dart_post_cobject_C = Void Function(
 typedef _store_dart_post_cobject_Dart = void Function(
   Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>> ptr,
 );
+
+void send_log_to_backend(
+  Pointer<ffi.Utf8> log,
+) {
+  _get_logtrace_from_frontend(log);
+}
+
+final Pointer<ffi.Utf8> Function(Pointer<ffi.Utf8>)
+    _get_logtrace_from_frontend = _dart_ffi_lib
+        .lookup<NativeFunction<Pointer<ffi.Utf8> Function(Pointer<ffi.Utf8>)>>(
+            'get_logtrace_from_frontend')
+        .asFunction();
