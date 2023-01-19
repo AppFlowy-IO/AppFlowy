@@ -2,6 +2,7 @@ name: flowy_infra
 description: A new Flutter package project.
 version: 0.0.1
 homepage:
+publish_to: "none"
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -10,6 +11,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl_utils: ^2.7.0
+  intl: ^0.17.0
   time: '>=2.0.0'
   uuid: ">=2.2.2"
   textstyle_extensions: '2.0.0-nullsafety'
@@ -56,3 +61,11 @@ flutter:
   #
   # For details regarding fonts in packages, see
   # https://flutter.dev/custom-fonts/#from-packages
+
+flutter_intl:
+  enabled: true
+  class_name: FlowyInfraLocalizations
+  main_locale: en
+  arb_dir: lib/l10n
+  output_dir: lib/src/l10n
+  use_deferred_loading: false

@@ -1,8 +1,9 @@
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/l10n.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:window_size/window_size.dart';
@@ -88,7 +89,10 @@ class ApplicationWidget extends StatelessWidget {
           darkTheme: state.darkTheme,
           themeMode: state.themeMode,
           localizationsDelegates: context.localizationDelegates +
-              [AppFlowyEditorLocalizations.delegate],
+              [
+                AppFlowyEditorLocalizations.delegate,
+                FlowyInfraLocalizations.delegate,
+              ],
           supportedLocales: context.supportedLocales,
           locale: state.locale,
           navigatorKey: AppGlobals.rootNavKey,

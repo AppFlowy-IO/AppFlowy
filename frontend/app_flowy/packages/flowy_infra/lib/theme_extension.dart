@@ -1,3 +1,4 @@
+import 'package:flowy_infra/l10n.dart';
 import 'package:flutter/material.dart';
 
 @immutable
@@ -118,5 +119,65 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       callout: other.callout,
       caption: other.caption,
     );
+  }
+}
+
+enum FlowyTint {
+  purple,
+  pink,
+  lightPink,
+  orange,
+  yellow,
+  lime,
+  green,
+  aqua,
+  blue,
+}
+
+extension SelectOptionColorExtension on FlowyTint {
+  Color color(BuildContext context) {
+    switch (this) {
+      case FlowyTint.purple:
+        return AFThemeExtension.of(context).tint1;
+      case FlowyTint.pink:
+        return AFThemeExtension.of(context).tint2;
+      case FlowyTint.lightPink:
+        return AFThemeExtension.of(context).tint3;
+      case FlowyTint.orange:
+        return AFThemeExtension.of(context).tint4;
+      case FlowyTint.yellow:
+        return AFThemeExtension.of(context).tint5;
+      case FlowyTint.lime:
+        return AFThemeExtension.of(context).tint6;
+      case FlowyTint.green:
+        return AFThemeExtension.of(context).tint7;
+      case FlowyTint.aqua:
+        return AFThemeExtension.of(context).tint8;
+      case FlowyTint.blue:
+        return AFThemeExtension.of(context).tint9;
+    }
+  }
+
+  String tintName(FlowyInfraLocalizations l10n) {
+    switch (this) {
+      case FlowyTint.purple:
+        return l10n.purpleTint;
+      case FlowyTint.pink:
+        return l10n.pinkTint;
+      case FlowyTint.lightPink:
+        return l10n.lightPinkTint;
+      case FlowyTint.orange:
+        return l10n.orangeTint;
+      case FlowyTint.yellow:
+        return l10n.yellowTint;
+      case FlowyTint.lime:
+        return l10n.limeTint;
+      case FlowyTint.green:
+        return l10n.greenTint;
+      case FlowyTint.aqua:
+        return l10n.aquaTint;
+      case FlowyTint.blue:
+        return l10n.blueTint;
+    }
   }
 }
