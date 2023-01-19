@@ -1,7 +1,7 @@
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -108,6 +108,8 @@ class _DocumentPageState extends State<DocumentPage> {
         kMathEquationType: MathEquationNodeWidgetBuidler(),
         // Code Block
         kCodeBlockType: CodeBlockNodeWidgetBuilder(),
+        // Card
+        kCalloutType: CalloutNodeWidgetBuilder(),
       },
       shortcutEvents: [
         // Divider
@@ -126,6 +128,8 @@ class _DocumentPageState extends State<DocumentPage> {
         codeBlockMenuItem,
         // Emoji
         emojiMenuItem,
+        //Card
+        calloutMenuItem,
       ],
       themeData: theme.copyWith(extensions: [
         ...theme.extensions.values,
