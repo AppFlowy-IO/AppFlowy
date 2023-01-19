@@ -1,5 +1,10 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flowy_infra/l10n.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/color_picker.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 
 const String kCalloutType = 'callout';
@@ -50,6 +55,8 @@ class _CalloutWidget extends StatefulWidget {
 }
 
 class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
+  bool isHover = false;
+  final PopoverController popoverController = PopoverController();
   RenderBox get _renderBox => context.findRenderObject() as RenderBox;
 
   @override
@@ -77,7 +84,27 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
 
   @override
   Widget build(BuildContext context) {
-    final color = widget.node.attributes[kCalloutAttrColor] as Color?;
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() {
+          isHover = true;
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          isHover = false;
+        });
+      },
+      child: Stack(
+        children: [
+          _buildCallout(),
+          _buildPopover(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCallout() {
     final themeExtension = Theme.of(context).extension<AFThemeExtension>();
 
     return Container(
@@ -92,6 +119,79 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
         editorState: widget.editorState,
       ),
     );
+  }
+
+  Widget _buildPopover() {
+    return Positioned(
+      top: 5,
+      right: 5,
+      child: AppFlowyPopover(
+        controller: popoverController,
+        constraints: BoxConstraints.loose(const Size(200, 460)),
+        triggerActions: 0,
+        popupBuilder: (context) {
+          return _buildColorPicker();
+        },
+        child: isHover
+            ? _buildMenu()
+            : const SizedBox(
+                width: 0,
+              ),
+      ),
+    );
+  }
+
+  Widget _buildMenu() {
+    return Wrap(
+      children: [
+        FlowyIconButton(
+          icon: const Icon(Icons.color_lens_outlined),
+          onPressed: () {
+            popoverController.show();
+          },
+        ),
+        FlowyIconButton(
+          icon: const Icon(Icons.delete_forever_outlined),
+          onPressed: () {
+            deleteNode();
+          },
+        )
+      ],
+    );
+  }
+
+  Widget _buildColorPicker() {
+    return FlowyColorPicker(
+      colors: FlowyTint.values
+          .map((t) => ColorOption(
+                color: t.color(context),
+                name: t.tintName(FlowyInfraLocalizations.current),
+              ))
+          .toList(),
+      selected: color,
+      onTap: (color, index) {
+        setColor(color);
+        popoverController.close();
+      },
+    );
+  }
+
+  void setColor(Color color) {
+    final transaction = widget.editorState.transaction
+      ..updateNode(widget.node, {
+        kCalloutAttrColor: color.value,
+      });
+    widget.editorState.apply(transaction);
+  }
+
+  void deleteNode() {
+    final transaction = widget.editorState.transaction..deleteNode(widget.node);
+    widget.editorState.apply(transaction);
+  }
+
+  Color? get color {
+    final int? colorValue = widget.node.attributes[kCalloutAttrColor];
+    return colorValue != null ? Color(colorValue) : null;
   }
 
   @override
