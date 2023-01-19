@@ -53,6 +53,70 @@ class SelectionMenuItem {
       editorState.apply(transaction);
     }
   }
+
+  factory SelectionMenuItem.node({
+    required String name,
+    required IconData iconData,
+    required List<String> keywords,
+    required Node Function(EditorState editorState) nodeBuilder,
+    bool Function(EditorState editorState, TextNode textNode)? insertBefore,
+    bool Function(EditorState editorState, TextNode textNode)? replace,
+    Selection? Function(
+      EditorState editorState,
+      Path insertPath,
+      bool replaced,
+      bool insertedBefore,
+    )?
+        updateSelection,
+  }) {
+    return SelectionMenuItem(
+      name: () => name,
+      icon: (editorState, onSelected) => Icon(
+        iconData,
+        color: onSelected
+            ? editorState.editorStyle.selectionMenuItemSelectedIconColor
+            : editorState.editorStyle.selectionMenuItemIconColor,
+        size: 18.0,
+      ),
+      keywords: keywords,
+      handler: (editorState, _, __) {
+        final selection =
+            editorState.service.selectionService.currentSelection.value;
+        final textNodes = editorState
+            .service.selectionService.currentSelectedNodes
+            .whereType<TextNode>();
+        if (textNodes.length != 1 || selection == null) {
+          return;
+        }
+        final textNode = textNodes.first;
+        final node = nodeBuilder(editorState);
+        final transaction = editorState.transaction;
+        final _replace = replace?.call(editorState, textNode) ?? false;
+        final _insertBefore =
+            insertBefore?.call(editorState, textNode) ?? false;
+
+        //default insert after
+        var path = textNode.path.next;
+        if (_replace) {
+          path = textNode.path;
+        } else if (_insertBefore) {
+          path = textNode.path;
+        }
+
+        transaction
+          ..insertNode(path, node)
+          ..afterSelection = updateSelection?.call(
+                  editorState, path, _replace, _insertBefore) ??
+              selection;
+
+        if (_replace) {
+          transaction.deleteNode(textNode);
+        }
+
+        editorState.apply(transaction);
+      },
+    );
+  }
 }
 
 class SelectionMenuWidget extends StatefulWidget {

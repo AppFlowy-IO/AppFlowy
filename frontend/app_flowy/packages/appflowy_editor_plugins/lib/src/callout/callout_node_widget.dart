@@ -6,40 +6,18 @@ const String kCalloutType = 'callout';
 const String kCalloutAttrColor = 'color';
 const String kCalloutAttrEmoji = 'emoji';
 
-SelectionMenuItem calloutMenuItem = SelectionMenuItem(
-  name: () => 'Callout',
-  icon: (editorState, onSelected) => Icon(
-    Icons.note,
-    color: onSelected
-        ? editorState.editorStyle.selectionMenuItemSelectedIconColor
-        : editorState.editorStyle.selectionMenuItemIconColor,
-    size: 18.0,
-  ),
+SelectionMenuItem calloutMenuItem = SelectionMenuItem.node(
+  name: 'Callout',
+  iconData: Icons.note,
   keywords: ['callout'],
-  handler: (editorState, _, __) {
-    final selection =
-        editorState.service.selectionService.currentSelection.value;
-    final textNodes = editorState.service.selectionService.currentSelectedNodes
-        .whereType<TextNode>();
-    if (textNodes.length != 1 || selection == null) {
-      return;
-    }
-    final textNode = textNodes.first;
+  nodeBuilder: (editorState) {
     final node = Node(type: kCalloutType);
     node.insert(TextNode.empty());
-    // insert the callout at current path if the text node is empty.
-    if (textNode.toPlainText().isEmpty) {
-      final transaction = editorState.transaction
-        ..insertNode(textNode.path, node)
-        ..deleteNode(textNode);
-      transaction.afterSelection = selection;
-      editorState.apply(transaction);
-    } else {
-      // insert the callout at the path next to current path if the text node is not empty.
-      final transaction = editorState.transaction
-        ..insertNode(selection.end.path.next, node);
-      editorState.apply(transaction);
-    }
+    return node;
+  },
+  replace: (_, textNode) => textNode.toPlainText().isEmpty,
+  updateSelection: (_, path, __, ___) {
+    return Selection.single(path: [...path, 0], startOffset: 0);
   },
 );
 
