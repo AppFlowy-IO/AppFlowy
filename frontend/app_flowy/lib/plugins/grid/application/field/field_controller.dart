@@ -737,6 +737,7 @@ class FieldInfo {
 
   bool get canBeGroup {
     switch (_field.fieldType) {
+      case FieldType.URL:
       case FieldType.Checkbox:
       case FieldType.MultiSelect:
       case FieldType.SingleSelect:

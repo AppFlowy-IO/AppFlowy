@@ -487,6 +487,7 @@ fn make_test_board() -> BuildGridContext {
                         FieldType::MultiSelect => row_builder
                             .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(0)]),
                         FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
+                        FieldType::URL => row_builder.insert_url_cell("https://appflowy.io"),
                         _ => "".to_owned(),
                     };
                 }
@@ -522,6 +523,7 @@ fn make_test_board() -> BuildGridContext {
                             row_builder.insert_multi_select_cell(|mut options| vec![options.remove(0)])
                         }
                         FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
+                        FieldType::URL => row_builder.insert_url_cell("https://github.com/AppFlowy-IO/AppFlowy"),
                         _ => "".to_owned(),
                     };
                 }
@@ -536,6 +538,7 @@ fn make_test_board() -> BuildGridContext {
                             row_builder.insert_single_select_cell(|mut options| options.remove(1))
                         }
                         FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
+                        FieldType::URL => row_builder.insert_url_cell("https://appflowy.io"),
                         _ => "".to_owned(),
                     };
                 }

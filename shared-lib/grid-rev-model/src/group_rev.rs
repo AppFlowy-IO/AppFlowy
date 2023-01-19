@@ -63,11 +63,11 @@ impl GroupConfigurationContentSerde for NumberGroupConfigurationRevision {
 }
 
 #[derive(Default, Serialize, Deserialize)]
-pub struct UrlGroupConfigurationRevision {
+pub struct URLGroupConfigurationRevision {
     pub hide_empty: bool,
 }
 
-impl GroupConfigurationContentSerde for UrlGroupConfigurationRevision {
+impl GroupConfigurationContentSerde for URLGroupConfigurationRevision {
     fn from_json(s: &str) -> Result<Self, Error> {
         serde_json::from_str(s)
     }
@@ -120,6 +120,14 @@ pub struct GroupRevision {
 const GROUP_REV_VISIBILITY: fn() -> bool = || true;
 
 impl GroupRevision {
+    /// Create a new GroupRevision
+    ///
+    /// # Arguments
+    ///
+    /// * `id`: identifier for this group revision. This id must be unique.
+    /// * `group_name`: the name of this group
+    ///
+    /// returns: GroupRevision
     pub fn new(id: String, group_name: String) -> Self {
         Self {
             id,
