@@ -22,7 +22,6 @@ class GridNumberCell extends GridCellWidget {
 class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
   late NumberCellBloc _cellBloc;
   late TextEditingController _controller;
-  Timer? _delayOperation;
 
   @override
   void initState() {
@@ -67,7 +66,6 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
 
   @override
   Future<void> dispose() async {
-    _delayOperation = null;
     _cellBloc.close();
     super.dispose();
   }
@@ -75,13 +73,10 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
   @override
   Future<void> focusChanged() async {
     if (mounted) {
-      _delayOperation?.cancel();
-      _delayOperation = Timer(const Duration(milliseconds: 30), () {
-        if (_cellBloc.isClosed == false &&
-            _controller.text != _cellBloc.state.cellContent) {
-          _cellBloc.add(NumberCellEvent.updateCell(_controller.text));
-        }
-      });
+      if (_cellBloc.isClosed == false &&
+          _controller.text != _cellBloc.state.cellContent) {
+        _cellBloc.add(NumberCellEvent.updateCell(_controller.text));
+      }
     }
   }
 
