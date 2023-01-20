@@ -131,7 +131,16 @@ enum FlowyTint {
   lime,
   green,
   aqua,
-  blue,
+  blue;
+
+  String toJson() => name;
+  static FlowyTint fromJson(String json) {
+    try {
+      return FlowyTint.values.byName(json);
+    } catch (_) {
+      return FlowyTint.purple;
+    }
+  }
 }
 
 extension SelectOptionColorExtension on FlowyTint {

@@ -108,12 +108,10 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
   }
 
   Widget _buildCallout() {
-    final themeExtension = Theme.of(context).extension<AFThemeExtension>();
-
     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-        color: color ?? themeExtension?.tint1,
+        color: tint.color(context),
       ),
       padding: const EdgeInsets.only(top: 8, bottom: 8, left: 0, right: 15),
       width: double.infinity,
@@ -179,9 +177,9 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
                 name: t.tintName(FlowyInfraLocalizations.current),
               ))
           .toList(),
-      selected: color,
+      selected: tint.color(context),
       onTap: (color, index) {
-        setColor(color);
+        setColor(FlowyTint.values[index]);
         colorPopoverController.close();
       },
     );
@@ -214,10 +212,10 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
     );
   }
 
-  void setColor(Color color) {
+  void setColor(FlowyTint tint) {
     final transaction = widget.editorState.transaction
       ..updateNode(widget.node, {
-        kCalloutAttrColor: color.value,
+        kCalloutAttrColor: tint.name,
       });
     widget.editorState.apply(transaction);
   }
@@ -235,9 +233,9 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
     widget.editorState.apply(transaction);
   }
 
-  Color? get color {
-    final int? colorValue = widget.node.attributes[kCalloutAttrColor];
-    return colorValue != null ? Color(colorValue) : null;
+  FlowyTint get tint {
+    final name = widget.node.attributes[kCalloutAttrColor];
+    return (name is String) ? FlowyTint.fromJson(name) : FlowyTint.purple;
   }
 
   String get emoji {
