@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flowy_sdk/flowy_sdk.dart';
+import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

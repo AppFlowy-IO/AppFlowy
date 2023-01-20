@@ -50,11 +50,10 @@ impl AppController {
     }
 
     pub(crate) async fn create_app_on_local(&self, app: AppRevision) -> Result<AppPB, FlowyError> {
-        let _ = self
-            .persistence
+        self.persistence
             .begin_transaction(|transaction| {
-                let _ = transaction.create_app(app.clone())?;
-                let _ = notify_apps_changed(&app.workspace_id, self.trash_controller.clone(), &transaction)?;
+                transaction.create_app(app.clone())?;
+                notify_apps_changed(&app.workspace_id, self.trash_controller.clone(), &transaction)?;
                 Ok(())
             })
             .await?;
@@ -75,7 +74,7 @@ impl AppController {
                 Ok(app)
             })
             .await?;
-        let _ = self.read_app_on_server(params)?;
+        self.read_app_on_server(params)?;
         Ok(app)
     }
 
@@ -86,7 +85,7 @@ impl AppController {
         let app: AppPB = self
             .persistence
             .begin_transaction(|transaction| {
-                let _ = transaction.update_app(changeset)?;
+                transaction.update_app(changeset)?;
                 let app = transaction.read_app(&app_id)?;
                 Ok(app)
             })
@@ -95,17 +94,16 @@ impl AppController {
         send_dart_notification(&app_id, FolderNotification::AppUpdated)
             .payload(app)
             .send();
-        let _ = self.update_app_on_server(params)?;
+        self.update_app_on_server(params)?;
         Ok(())
     }
 
     pub(crate) async fn move_app(&self, app_id: &str, from: usize, to: usize) -> FlowyResult<()> {
-        let _ = self
-            .persistence
+        self.persistence
             .begin_transaction(|transaction| {
-                let _ = transaction.move_app(app_id, from, to)?;
+                transaction.move_app(app_id, from, to)?;
                 let app = transaction.read_app(app_id)?;
-                let _ = notify_apps_changed(&app.workspace_id, self.trash_controller.clone(), &transaction)?;
+                notify_apps_changed(&app.workspace_id, self.trash_controller.clone(), &transaction)?;
                 Ok(())
             })
             .await?;
@@ -211,7 +209,7 @@ async fn handle_trash_event(
                 .begin_transaction(|transaction| {
                     for identifier in identifiers.items {
                         let app = transaction.read_app(&identifier.id)?;
-                        let _ = notify_apps_changed(&app.workspace_id, trash_controller.clone(), &transaction)?;
+                        notify_apps_changed(&app.workspace_id, trash_controller.clone(), &transaction)?;
                     }
                     Ok(())
                 })
@@ -229,7 +227,7 @@ async fn handle_trash_event(
                     }
 
                     for notify_id in notify_ids {
-                        let _ = notify_apps_changed(&notify_id, trash_controller.clone(), &transaction)?;
+                        notify_apps_changed(&notify_id, trash_controller.clone(), &transaction)?;
                     }
                     Ok(())
                 })

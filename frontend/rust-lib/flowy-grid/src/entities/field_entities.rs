@@ -570,7 +570,7 @@ impl FieldType {
     }
 
     pub fn can_be_group(&self) -> bool {
-        self.is_select_option()
+        self.is_select_option() || self.is_checkbox()
     }
 }
 

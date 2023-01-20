@@ -169,6 +169,24 @@ extension TextTransaction on Transaction {
     ));
   }
 
+  void splitText(TextNode textNode, int offset) {
+    final delta = textNode.delta;
+    final second = delta.slice(offset, delta.length);
+    final path = textNode.path.next;
+    deleteText(textNode, offset, delta.length);
+    insertNode(
+      path,
+      TextNode(
+        attributes: textNode.attributes,
+        delta: second,
+      ),
+    );
+    afterSelection = Selection.collapsed(Position(
+      path: path,
+      offset: 0,
+    ));
+  }
+
   /// Inserts the text content at a specified index.
   ///
   /// Optionally, you may specify formatting attributes that are applied to the inserted string.

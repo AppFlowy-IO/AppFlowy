@@ -78,7 +78,7 @@ jobs:
           elif [ "$RUNNER_OS" == "macOS" ]; then
             echo 'do nothing'
           fi
-          cargo make appflowy-deps-tools
+          cargo make appflowy-flutter-deps-tools
         shell: bash
 
       - name: Enable Flutter Desktop
@@ -104,9 +104,4 @@ jobs:
       - name: Run Flutter unit tests
         working-directory: frontend
         run: |
-          if [ "$RUNNER_OS" == "macOS" ]; then
-            cargo make dart_unit_test
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            cargo make dart_unit_test
-          fi
-        shell: bash
+          cargo make dart_unit_test

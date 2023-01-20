@@ -117,12 +117,12 @@ fn read_workspaces_on_server(
 
     tokio::spawn(async move {
         let workspace_revs = server.read_workspace(&token, params).await?;
-        let _ = persistence
+        persistence
             .begin_transaction(|transaction| {
                 for workspace_rev in &workspace_revs {
                     let m_workspace = workspace_rev.clone();
                     let app_revs = m_workspace.apps.clone();
-                    let _ = transaction.create_workspace(&user_id, m_workspace)?;
+                    transaction.create_workspace(&user_id, m_workspace)?;
                     tracing::trace!("Save {} apps", app_revs.len());
                     for app_rev in app_revs {
                         let view_revs = app_rev.belongings.clone();

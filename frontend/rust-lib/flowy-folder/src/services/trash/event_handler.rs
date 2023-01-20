@@ -19,7 +19,7 @@ pub(crate) async fn putback_trash_handler(
     identifier: AFPluginData<TrashIdPB>,
     controller: AFPluginState<Arc<TrashController>>,
 ) -> Result<(), FlowyError> {
-    let _ = controller.putback(&identifier.id).await?;
+    controller.putback(&identifier.id).await?;
     Ok(())
 }
 
@@ -28,7 +28,7 @@ pub(crate) async fn delete_trash_handler(
     identifiers: AFPluginData<RepeatedTrashIdPB>,
     controller: AFPluginState<Arc<TrashController>>,
 ) -> Result<(), FlowyError> {
-    let _ = controller.delete(identifiers.into_inner()).await?;
+    controller.delete(identifiers.into_inner()).await?;
     Ok(())
 }
 
@@ -36,7 +36,7 @@ pub(crate) async fn delete_trash_handler(
 pub(crate) async fn restore_all_trash_handler(
     controller: AFPluginState<Arc<TrashController>>,
 ) -> Result<(), FlowyError> {
-    let _ = controller.restore_all_trash().await?;
+    controller.restore_all_trash().await?;
     Ok(())
 }
 
@@ -44,6 +44,6 @@ pub(crate) async fn restore_all_trash_handler(
 pub(crate) async fn delete_all_trash_handler(
     controller: AFPluginState<Arc<TrashController>>,
 ) -> Result<(), FlowyError> {
-    let _ = controller.delete_all_trash().await?;
+    controller.delete_all_trash().await?;
     Ok(())
 }

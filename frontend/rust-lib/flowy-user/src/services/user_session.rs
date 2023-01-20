@@ -88,7 +88,7 @@ impl UserSession {
         } else {
             let resp = self.cloud_service.sign_in(params).await?;
             let session: Session = resp.clone().into();
-            let _ = self.set_session(Some(session))?;
+            self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
             let user_profile: UserProfilePB = user_table.into();
             self.notifier.notify_login(&user_profile.token, &user_profile.id);
@@ -103,7 +103,7 @@ impl UserSession {
         } else {
             let resp = self.cloud_service.sign_up(params).await?;
             let session: Session = resp.clone().into();
-            let _ = self.set_session(Some(session))?;
+            self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
             let user_profile: UserProfilePB = user_table.into();
             let (ret, mut tx) = mpsc::channel(1);
@@ -119,10 +119,10 @@ impl UserSession {
         let session = self.get_session()?;
         let _ =
             diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*(self.db_connection()?))?;
-        let _ = self.database.close_user_db(&session.user_id)?;
-        let _ = self.set_session(None)?;
+        self.database.close_user_db(&session.user_id)?;
+        self.set_session(None)?;
         self.notifier.notify_logout(&session.token, &session.user_id);
-        let _ = self.sign_out_on_server(&session.token).await?;
+        self.sign_out_on_server(&session.token).await?;
 
         Ok(())
     }
@@ -137,7 +137,7 @@ impl UserSession {
         dart_notify(&session.token, UserNotification::UserProfileUpdated)
             .payload(user_profile)
             .send();
-        let _ = self.update_user_on_server(&session.token, params).await?;
+        self.update_user_on_server(&session.token, params).await?;
         Ok(())
     }
 
@@ -152,7 +152,7 @@ impl UserSession {
             .filter(user_table::id.eq(&user_id))
             .first::<UserTable>(&*(self.db_connection()?))?;
 
-        let _ = self.read_user_profile_on_server(&token)?;
+        self.read_user_profile_on_server(&token)?;
         Ok(user.into())
     }
 
@@ -162,7 +162,7 @@ impl UserSession {
             .filter(user_table::id.eq(&user_id))
             .first::<UserTable>(&*(self.db_connection()?))?;
 
-        let _ = self.read_user_profile_on_server(&token)?;
+        self.read_user_profile_on_server(&token)?;
         Ok(user.into())
     }
 

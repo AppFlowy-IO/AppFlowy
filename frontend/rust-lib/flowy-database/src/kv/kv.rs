@@ -1,8 +1,8 @@
 use crate::kv::schema::{kv_table, kv_table::dsl, KV_SQL};
+use crate::sqlite::{DBConnection, Database, PoolConfig};
 use ::diesel::{query_dsl::*, ExpressionMethods};
 use diesel::{Connection, SqliteConnection};
 use lazy_static::lazy_static;
-use lib_sqlite::{DBConnection, Database, PoolConfig};
 use std::{path::Path, sync::RwLock};
 
 macro_rules! impl_get_func {

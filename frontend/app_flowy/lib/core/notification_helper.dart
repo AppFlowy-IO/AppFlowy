@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:flowy_sdk/protobuf/dart-notify/protobuf.dart';
+import 'package:appflowy_backend/protobuf/dart-notify/protobuf.dart';
 import 'package:dartz/dartz.dart';
 
 class NotificationParser<T, E> {
@@ -9,7 +9,11 @@ class NotificationParser<T, E> {
   T? Function(int) tyParser;
   E Function(Uint8List) errorParser;
 
-  NotificationParser({this.id, required this.callback, required this.errorParser, required this.tyParser});
+  NotificationParser(
+      {this.id,
+      required this.callback,
+      required this.errorParser,
+      required this.tyParser});
   void parse(SubscribeObject subject) {
     if (id != null) {
       if (subject.id != id) {

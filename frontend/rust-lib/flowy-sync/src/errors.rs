@@ -42,6 +42,7 @@ impl CollaborateError {
     static_error!(record_not_found, ErrorCode::RecordNotFound);
     static_error!(revision_conflict, ErrorCode::RevisionConflict);
     static_error!(can_not_delete_primary_field, ErrorCode::CannotDeleteThePrimaryField);
+    static_error!(unexpected_empty_revision, ErrorCode::UnexpectedEmptyRevision);
 }
 
 impl fmt::Display for CollaborateError {
@@ -60,6 +61,7 @@ pub enum ErrorCode {
     RevisionConflict = 203,
     RecordNotFound = 300,
     CannotDeleteThePrimaryField = 301,
+    UnexpectedEmptyRevision = 302,
     SerdeError = 999,
     InternalError = 1000,
 }

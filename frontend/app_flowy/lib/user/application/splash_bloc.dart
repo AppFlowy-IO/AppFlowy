@@ -1,5 +1,5 @@
 import 'package:app_flowy/user/domain/auth_state.dart';
-import 'package:flowy_sdk/dispatch/dispatch.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 

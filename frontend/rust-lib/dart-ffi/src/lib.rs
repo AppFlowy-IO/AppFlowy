@@ -8,8 +8,8 @@ use crate::{
     c::{extend_front_four_bytes_into_bytes, forget_rust},
     model::{FFIRequest, FFIResponse},
 };
-use flowy_sdk::get_client_server_configuration;
-use flowy_sdk::*;
+use flowy_core::get_client_server_configuration;
+use flowy_core::*;
 use lazy_static::lazy_static;
 use lib_dispatch::prelude::ToBytes;
 use lib_dispatch::prelude::*;
@@ -26,7 +26,8 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
     let path: &str = c_str.to_str().unwrap();
 
     let server_config = get_client_server_configuration().unwrap();
-    let config = FlowySDKConfig::new(path, "appflowy".to_string(), server_config).log_filter("info");
+    let log_crates = vec!["flowy-ffi".to_string()];
+    let config = FlowySDKConfig::new(path, "appflowy".to_string(), server_config).log_filter("info", log_crates);
     *FLOWY_SDK.write() = Some(FlowySDK::new(config));
 
     0

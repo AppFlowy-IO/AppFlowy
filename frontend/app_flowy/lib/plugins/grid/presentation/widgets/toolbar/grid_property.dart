@@ -103,7 +103,7 @@ class _GridPropertyCellState extends State<_GridPropertyCell> {
     );
 
     return SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: _editFieldButton(context, checkmark),
     );
   }

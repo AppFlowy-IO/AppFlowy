@@ -23,8 +23,8 @@ class SettingsLocation {
 
   String? get path {
     if (Platform.isMacOS) {
-      // remove the prefix `/Volumes/Macintosh HD/Users/`
-      return _path?.replaceFirst('/Volumes/Macintosh HD/Users', '');
+      // remove the prefix `/Volumes/*`
+      return _path?.replaceFirst(RegExp(r'^/Volumes/[^/]+'), '');
     }
     return _path;
   }

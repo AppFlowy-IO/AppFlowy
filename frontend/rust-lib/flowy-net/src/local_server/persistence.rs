@@ -66,7 +66,7 @@ impl FolderCloudPersistence for LocalDocumentCloudPersistence {
         let folder_id = folder_id.to_owned();
         let storage = self.storage.clone();
         Box::pin(async move {
-            let _ = storage.set_revisions(revisions.clone()).await?;
+            storage.set_revisions(revisions.clone()).await?;
             make_folder_from_revisions_pb(&folder_id, revisions)
         })
     }
@@ -74,7 +74,7 @@ impl FolderCloudPersistence for LocalDocumentCloudPersistence {
     fn save_folder_revisions(&self, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError> {
         let storage = self.storage.clone();
         Box::pin(async move {
-            let _ = storage.set_revisions(revisions).await?;
+            storage.set_revisions(revisions).await?;
             Ok(())
         })
     }
@@ -93,7 +93,7 @@ impl FolderCloudPersistence for LocalDocumentCloudPersistence {
         let storage = self.storage.clone();
         let folder_id = folder_id.to_owned();
         Box::pin(async move {
-            let _ = storage.reset_object(&folder_id, revisions).await?;
+            storage.reset_object(&folder_id, revisions).await?;
             Ok(())
         })
     }
@@ -120,7 +120,7 @@ impl DocumentCloudPersistence for LocalDocumentCloudPersistence {
         let doc_id = doc_id.to_owned();
         let storage = self.storage.clone();
         Box::pin(async move {
-            let _ = storage.set_revisions(revisions.clone()).await?;
+            storage.set_revisions(revisions.clone()).await?;
             make_document_from_revision_pbs(&doc_id, revisions)
         })
     }
@@ -138,7 +138,7 @@ impl DocumentCloudPersistence for LocalDocumentCloudPersistence {
     fn save_document_revisions(&self, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError> {
         let storage = self.storage.clone();
         Box::pin(async move {
-            let _ = storage.set_revisions(revisions).await?;
+            storage.set_revisions(revisions).await?;
             Ok(())
         })
     }
@@ -147,7 +147,7 @@ impl DocumentCloudPersistence for LocalDocumentCloudPersistence {
         let storage = self.storage.clone();
         let doc_id = doc_id.to_owned();
         Box::pin(async move {
-            let _ = storage.reset_object(&doc_id, revisions).await?;
+            storage.reset_object(&doc_id, revisions).await?;
             Ok(())
         })
     }

@@ -128,18 +128,18 @@ impl ClientDocument {
     pub fn insert<T: ToString>(&mut self, index: usize, data: T) -> Result<DeltaTextOperations, CollaborateError> {
         let text = data.to_string();
         let interval = Interval::new(index, index);
-        let _ = validate_interval(&self.operations, &interval)?;
+        validate_interval(&self.operations, &interval)?;
         let operations = self.view.insert(&self.operations, &text, interval)?;
         self.compose_operations(operations.clone())?;
         Ok(operations)
     }
 
     pub fn delete(&mut self, interval: Interval) -> Result<DeltaTextOperations, CollaborateError> {
-        let _ = validate_interval(&self.operations, &interval)?;
+        validate_interval(&self.operations, &interval)?;
         debug_assert!(!interval.is_empty());
         let operations = self.view.delete(&self.operations, interval)?;
         if !operations.is_empty() {
-            let _ = self.compose_operations(operations.clone())?;
+            self.compose_operations(operations.clone())?;
         }
         Ok(operations)
     }
@@ -149,7 +149,7 @@ impl ClientDocument {
         interval: Interval,
         attribute: AttributeEntry,
     ) -> Result<DeltaTextOperations, CollaborateError> {
-        let _ = validate_interval(&self.operations, &interval)?;
+        validate_interval(&self.operations, &interval)?;
         tracing::trace!("format {} with {:?}", interval, attribute);
         let operations = self.view.format(&self.operations, attribute, interval).unwrap();
         self.compose_operations(operations.clone())?;
@@ -161,7 +161,7 @@ impl ClientDocument {
         interval: Interval,
         data: T,
     ) -> Result<DeltaTextOperations, CollaborateError> {
-        let _ = validate_interval(&self.operations, &interval)?;
+        validate_interval(&self.operations, &interval)?;
         let mut operations = DeltaTextOperations::default();
         let text = data.to_string();
         if !text.is_empty() {

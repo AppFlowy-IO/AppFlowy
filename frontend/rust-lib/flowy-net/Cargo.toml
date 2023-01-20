@@ -47,5 +47,11 @@ dart = [
     "flowy-error/dart",
 ]
 
+ts = [
+    "flowy-codegen/ts",
+    "flowy-user/ts",
+    "flowy-error/ts",
+]
+
 [build-dependencies]
 flowy-codegen = { path = "../flowy-codegen"}

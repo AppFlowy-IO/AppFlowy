@@ -1,0 +1,71 @@
+
+
+
+[tasks.tauri_env]
+script_runner = "@rust"
+script = '''
+//! ```cargo
+use std::env;
+fn main() {
+    env.set_var("TAURI_PROTOBUF_PATH", "appflowy_tauri/src/protobuf");
+}
+'''
+
+
+[tasks.tauri_build]
+script = ["""
+    cd appflowy_tauri/src-tauri
+    npm run tauri build
+    """]
+script_runner = "@shell"
+
+[tasks.tauri_pb]
+script = ["""
+    cd appflowy_tauri/src-tauri
+    cargo build
+    """]
+script_runner = "@shell"
+
+[tasks.tauri_dev]
+script = ["""
+    cd appflowy_tauri
+    npm run tauri dev
+    """]
+script_runner = "@shell"
+
+[tasks.tauri_clean]
+run_task = { name = [
+  "rust_lib_clean",
+  "rm_macro_build_cache",
+  "rm_rust_generated_files",
+  "rm_tauri_generated_protobuf_files",
+  "rm_tauri_generated_event_files",
+] }
+
+[tasks.rm_tauri_generated_protobuf_files]
+private = true
+script = ["""
+  protobuf_file_paths = glob_array ${TAURI_PROTOBUF_PATH}/classes
+  if not array_is_empty ${protobuf_file_paths}
+    echo Remove generated protobuf files:
+    for path in ${protobuf_file_paths}
+        echo remove ${path}
+        rm -rf ${path}
+    end
+  end
+  """]
+script_runner = "@duckscript"
+
+[tasks.rm_tauri_generated_event_files]
+private = true
+script = ["""
+  protobuf_file_paths = glob_array ${TAURI_PROTOBUF_PATH}/events
+  if not array_is_empty ${protobuf_file_paths}
+    echo Remove generated protobuf files:
+    for path in ${protobuf_file_paths}
+        echo remove ${path}
+        rm -rf ${path}
+    end
+  end
+  """]
+script_runner = "@duckscript"

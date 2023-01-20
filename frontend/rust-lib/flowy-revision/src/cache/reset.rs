@@ -1,8 +1,8 @@
-use crate::disk::{RevisionDiskCache, SyncRecord};
 use crate::{RevisionLoader, RevisionPersistence, RevisionPersistenceConfiguration};
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_http_model::revision::Revision;
+use flowy_revision_persistence::{RevisionDiskCache, SyncRecord};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use std::sync::Arc;
@@ -43,14 +43,14 @@ where
     pub async fn run(&self) -> FlowyResult<()> {
         match self.target.read_record() {
             None => {
-                let _ = self.reset_object().await?;
-                let _ = self.save_migrate_record()?;
+                self.reset_object().await?;
+                self.save_migrate_record()?;
             }
             Some(s) => {
                 let mut record = MigrationObjectRecord::from_str(&s).map_err(|e| FlowyError::serde().context(e))?;
                 let rev_str = self.target.default_target_rev_str()?;
                 if record.len < rev_str.len() {
-                    let _ = self.reset_object().await?;
+                    self.reset_object().await?;
                     record.len = rev_str.len();
                     self.target.set_record(record.to_string());
                 }

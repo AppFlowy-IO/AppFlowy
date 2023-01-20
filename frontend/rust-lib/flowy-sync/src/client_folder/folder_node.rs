@@ -115,7 +115,7 @@ impl std::default::Default for FolderNodePad {
             path: folder_path(),
             nodes: vec![folder_node],
         };
-        let _ = tree.write().apply_op(operation).unwrap();
+        tree.write().apply_op(operation).unwrap();
         let node_id = tree.read().node_id_at_path(folder_path()).unwrap();
         workspaces.node_id = Some(tree.read().node_id_at_path(workspaces_path()).unwrap());
         trash.node_id = Some(tree.read().node_id_at_path(trash_path()).unwrap());

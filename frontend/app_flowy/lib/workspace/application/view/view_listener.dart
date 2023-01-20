@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:app_flowy/core/folder_notification.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
-import 'package:flowy_sdk/rust_stream.dart';
+import 'package:appflowy_backend/protobuf/dart-notify/subject.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/dart_notification.pb.dart';
+import 'package:appflowy_backend/rust_stream.dart';
 import 'package:flowy_infra/notifier.dart';
 
 // Delete the view from trash, which means the view was deleted permanently

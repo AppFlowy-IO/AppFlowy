@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:styled_widget/styled_widget.dart';
 
 import '../../layout/sizes.dart';
 
@@ -31,36 +32,38 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
   Widget build(BuildContext context) {
     if (_showFieldEditor) {
       final field = widget.cellContext.field;
-      return FieldEditor(
-        gridId: widget.cellContext.gridId,
-        fieldName: field.name,
-        typeOptionLoader: FieldTypeOptionLoader(
+      return SizedBox(
+        width: 400,
+        child: FieldEditor(
           gridId: widget.cellContext.gridId,
-          field: field,
+          fieldName: field.name,
+          typeOptionLoader: FieldTypeOptionLoader(
+            gridId: widget.cellContext.gridId,
+            field: field,
+          ),
         ),
       );
     }
     return BlocProvider(
       create: (context) =>
           getIt<FieldActionSheetBloc>(param1: widget.cellContext),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(12.0),
+      child: IntrinsicWidth(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             _EditFieldButton(
               cellContext: widget.cellContext,
               onTap: () {
-                setState(() {
-                  _showFieldEditor = true;
-                });
+                setState(() => _showFieldEditor = true);
               },
             ),
             VSpace(GridSize.typeOptionSeparatorHeight),
-            _FieldOperationList(widget.cellContext, () {}),
+            _FieldOperationList(widget.cellContext),
           ],
         ),
       ),
-    );
+    ).padding(all: 6.0);
   }
 }
 
@@ -75,7 +78,7 @@ class _EditFieldButton extends StatelessWidget {
     return BlocBuilder<FieldActionSheetBloc, FieldActionSheetState>(
       builder: (context, state) {
         return SizedBox(
-          height: GridSize.typeOptionItemHeight,
+          height: GridSize.popoverItemHeight,
           child: FlowyButton(
             text: FlowyText.medium(
               LocaleKeys.grid_field_editProperty.tr(),
@@ -90,58 +93,53 @@ class _EditFieldButton extends StatelessWidget {
 
 class _FieldOperationList extends StatelessWidget {
   final GridFieldCellContext fieldInfo;
-  final VoidCallback onDismissed;
-  const _FieldOperationList(this.fieldInfo, this.onDismissed, {Key? key})
-      : super(key: key);
+  const _FieldOperationList(this.fieldInfo, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GridView(
-      // https://api.flutter.dev/flutter/widgets/AnimatedList/shrinkWrap.html
-      shrinkWrap: true,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 4.0,
-        mainAxisSpacing: GridSize.typeOptionSeparatorHeight,
-        crossAxisSpacing: GridSize.typeOptionSeparatorHeight,
+    return Column(children: [
+      Flex(
+        direction: Axis.horizontal,
+        children: [
+          _actionCell(FieldAction.hide),
+          HSpace(GridSize.typeOptionSeparatorHeight),
+          _actionCell(FieldAction.duplicate),
+        ],
       ),
-      children: buildCells(),
-    );
+      VSpace(GridSize.typeOptionSeparatorHeight),
+      Flex(
+        direction: Axis.horizontal,
+        children: [
+          _actionCell(FieldAction.delete),
+          HSpace(GridSize.typeOptionSeparatorHeight),
+          const Spacer(),
+        ],
+      ),
+    ]);
   }
 
-  List<Widget> buildCells() {
-    return FieldAction.values.map(
-      (action) {
-        bool enable = true;
-        switch (action) {
-          case FieldAction.delete:
-            enable = !fieldInfo.field.isPrimary;
-            break;
-          default:
-            break;
-        }
-
-        return FieldActionCell(
+  Widget _actionCell(FieldAction action) {
+    return Flexible(
+      child: SizedBox(
+        height: GridSize.popoverItemHeight,
+        child: FieldActionCell(
           fieldInfo: fieldInfo,
           action: action,
-          onTap: onDismissed,
-          enable: enable,
-        );
-      },
-    ).toList();
+          enable: action != FieldAction.delete || !fieldInfo.field.isPrimary,
+        ),
+      ),
+    );
   }
 }
 
 class FieldActionCell extends StatelessWidget {
   final GridFieldCellContext fieldInfo;
-  final VoidCallback onTap;
   final FieldAction action;
   final bool enable;
 
   const FieldActionCell({
     required this.fieldInfo,
     required this.action,
-    required this.onTap,
     required this.enable,
     Key? key,
   }) : super(key: key);
@@ -156,7 +154,6 @@ class FieldActionCell extends StatelessWidget {
       onTap: () {
         if (enable) {
           action.run(context, fieldInfo);
-          onTap();
         }
       },
       leftIcon: svgWidget(

@@ -1,6 +1,6 @@
 import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 
 enum FlowyPlugin {
@@ -44,6 +44,8 @@ extension ViewExtension on ViewPB {
     switch (layout) {
       case ViewLayoutTypePB.Board:
         return PluginType.board;
+      case ViewLayoutTypePB.Calendar:
+        return PluginType.calendar;
       case ViewLayoutTypePB.Document:
         return PluginType.editor;
       case ViewLayoutTypePB.Grid:

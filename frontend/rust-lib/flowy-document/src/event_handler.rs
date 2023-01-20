@@ -26,7 +26,7 @@ pub(crate) async fn apply_edit_handler(
     manager: AFPluginState<Arc<DocumentManager>>,
 ) -> Result<(), FlowyError> {
     let params: EditParams = data.into_inner().try_into()?;
-    let _ = manager.apply_edit(params).await?;
+    manager.apply_edit(params).await?;
     Ok(())
 }
 

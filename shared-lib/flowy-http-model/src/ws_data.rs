@@ -44,7 +44,7 @@ impl ClientRevisionWSData {
             object_id: object_id.to_owned(),
             ty: ClientRevisionWSDataType::ClientPing,
             revisions: vec![],
-            rev_id: rev_id,
+            rev_id,
         }
     }
 }
@@ -61,7 +61,7 @@ impl std::convert::TryFrom<ClientRevisionWSData> for Bytes {
     type Error = serde_json::Error;
 
     fn try_from(bytes: ClientRevisionWSData) -> Result<Self, Self::Error> {
-        serde_json::to_vec(&bytes).map(|bytes| Bytes::from(bytes))
+        serde_json::to_vec(&bytes).map(Bytes::from)
     }
 }
 
@@ -91,7 +91,7 @@ impl std::convert::TryFrom<ServerRevisionWSData> for Bytes {
     type Error = serde_json::Error;
 
     fn try_from(bytes: ServerRevisionWSData) -> Result<Self, Self::Error> {
-        serde_json::to_vec(&bytes).map(|bytes| Bytes::from(bytes))
+        serde_json::to_vec(&bytes).map(Bytes::from)
     }
 }
 

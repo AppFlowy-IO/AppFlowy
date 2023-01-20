@@ -116,7 +116,7 @@ impl RevisionWebSocketManager {
 
     #[tracing::instrument(level = "debug", skip(self, data), err)]
     pub async fn receive_ws_data(&self, data: ServerRevisionWSData) -> Result<(), FlowyError> {
-        let _ = self.ws_passthrough_tx.send(data).await.map_err(|e| {
+        self.ws_passthrough_tx.send(data).await.map_err(|e| {
             let err_msg = format!("{} passthrough error: {}", self.object_id, e);
             FlowyError::internal().context(err_msg)
         })?;
@@ -216,11 +216,11 @@ impl RevisionWSStream {
         match payload {
             WSRevisionPayload::ServerPushRev { revisions } => {
                 tracing::trace!("[{}]: new push revision: {}", self, object_id);
-                let _ = self.consumer.receive_push_revision(revisions).await?;
+                self.consumer.receive_push_revision(revisions).await?;
             }
             WSRevisionPayload::ServerPullRev { range } => {
                 tracing::trace!("[{}]: new pull: {}:{:?}", self, object_id, range);
-                let _ = self.consumer.pull_revisions_in_range(range).await?;
+                self.consumer.pull_revisions_in_range(range).await?;
             }
             WSRevisionPayload::ServerAck { rev_id } => {
                 tracing::trace!("[{}]: new ack: {}:{}", self, object_id, rev_id);
@@ -412,7 +412,7 @@ impl WSDataProvider {
                 Ok(())
             }
             Source::Revision => {
-                let _ = self.data_source.ack_revision(rev_id).await?;
+                self.data_source.ack_revision(rev_id).await?;
                 Ok::<(), FlowyError>(())
             }
         }

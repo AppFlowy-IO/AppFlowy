@@ -20,7 +20,7 @@ import 'package:easy_localization/easy_localization.dart';
 
 class GridRowWidget extends StatefulWidget {
   final RowInfo rowInfo;
-  final GridRowDataController dataController;
+  final RowDataController dataController;
   final GridCellBuilder cellBuilder;
   final void Function(BuildContext, GridCellBuilder) openDetailPage;
 

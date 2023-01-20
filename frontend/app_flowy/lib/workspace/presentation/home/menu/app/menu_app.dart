@@ -1,6 +1,6 @@
 import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
 import 'package:expandable/expandable.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';

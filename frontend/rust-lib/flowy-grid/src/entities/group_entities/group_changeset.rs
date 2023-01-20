@@ -25,14 +25,14 @@ pub struct GroupRowsNotificationPB {
 impl std::fmt::Display for GroupRowsNotificationPB {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         for inserted_row in &self.inserted_rows {
-            let _ = f.write_fmt(format_args!(
+            f.write_fmt(format_args!(
                 "Insert: {} row at {:?}",
                 inserted_row.row.id, inserted_row.index
             ))?;
         }
 
         for deleted_row in &self.deleted_rows {
-            let _ = f.write_fmt(format_args!("Delete: {} row", deleted_row))?;
+            f.write_fmt(format_args!("Delete: {} row", deleted_row))?;
         }
 
         Ok(())

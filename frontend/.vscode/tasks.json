@@ -14,7 +14,7 @@
 			"type": "shell",
 			"dependsOrder": "sequence",
 			"dependsOn": [
-				"AF: Rust Clean",
+				"AF: Dart Clean",
 				"AF: Flutter Clean",
 				"AF: build_flowy_sdk",
 				"AF: Flutter Pub Get",
@@ -32,7 +32,7 @@
 			"type": "shell",
 			"dependsOrder": "sequence",
 			"dependsOn": [
-				"AF: Rust Clean",
+				"AF: Dart Clean",
 				"AF: Flutter Clean",
 				"AF: build_flowy_sdk_for_android",
 				"AF: Flutter Pub Get",
@@ -166,9 +166,9 @@
 			}
 		},
 		{
-			"label": "AF: Rust Clean",
+			"label": "AF: Dart Clean",
 			"type": "shell",
-			"command": "cargo make flowy_clean",
+			"command": "cargo make dart_clean",
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}"
@@ -185,6 +185,24 @@
 			"group": "build",
 			"problemMatcher": [],
 			"detail": "app_flowy"
-		}
+		},
+		{
+			"label": "AF: Tauri Dev",
+			"type": "shell",
+			"isBackground": true,
+			"command": "npm run dev",
+			"problemMatcher": [],
+			"options": {
+				"cwd": "${workspaceFolder}/appflowy_tauri"
+			}
+		},
+		{
+			"label": "AF: Tauri Clean",
+			"type": "shell",
+			"command": "cargo make tauri_clean",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			}
+		},
 	]
 }

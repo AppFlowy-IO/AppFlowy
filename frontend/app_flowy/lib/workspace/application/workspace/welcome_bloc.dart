@@ -1,8 +1,8 @@
 import 'package:app_flowy/user/application/user_listener.dart';
 import 'package:app_flowy/user/application/user_service.dart';
-import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
@@ -12,12 +12,14 @@ part 'welcome_bloc.freezed.dart';
 class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
   final UserService userService;
   final UserWorkspaceListener userWorkspaceListener;
-  WelcomeBloc({required this.userService, required this.userWorkspaceListener}) : super(WelcomeState.initial()) {
+  WelcomeBloc({required this.userService, required this.userWorkspaceListener})
+      : super(WelcomeState.initial()) {
     on<WelcomeEvent>(
       (event, emit) async {
         await event.map(initial: (e) async {
           userWorkspaceListener.start(
-            onWorkspacesUpdated: (result) => add(WelcomeEvent.workspacesReveived(result)),
+            onWorkspacesUpdated: (result) =>
+                add(WelcomeEvent.workspacesReveived(result)),
           );
           //
           await _fetchWorkspaces(emit);
@@ -27,7 +29,8 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
           await _createWorkspace(e.name, e.desc, emit);
         }, workspacesReveived: (e) async {
           emit(e.workspacesOrFail.fold(
-            (workspaces) => state.copyWith(workspaces: workspaces, successOrFailure: left(unit)),
+            (workspaces) => state.copyWith(
+                workspaces: workspaces, successOrFailure: left(unit)),
             (error) => state.copyWith(successOrFailure: right(error)),
           ));
         });
@@ -44,7 +47,8 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
   Future<void> _fetchWorkspaces(Emitter<WelcomeState> emit) async {
     final workspacesOrFailed = await userService.getWorkspaces();
     emit(workspacesOrFailed.fold(
-      (workspaces) => state.copyWith(workspaces: workspaces, successOrFailure: left(unit)),
+      (workspaces) =>
+          state.copyWith(workspaces: workspaces, successOrFailure: left(unit)),
       (error) {
         Log.error(error);
         return state.copyWith(successOrFailure: right(error));
@@ -52,7 +56,8 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
     ));
   }
 
-  Future<void> _openWorkspace(WorkspacePB workspace, Emitter<WelcomeState> emit) async {
+  Future<void> _openWorkspace(
+      WorkspacePB workspace, Emitter<WelcomeState> emit) async {
     final result = await userService.openWorkspace(workspace.id);
     emit(result.fold(
       (workspaces) => state.copyWith(successOrFailure: left(unit)),
@@ -63,7 +68,8 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
     ));
   }
 
-  Future<void> _createWorkspace(String name, String desc, Emitter<WelcomeState> emit) async {
+  Future<void> _createWorkspace(
+      String name, String desc, Emitter<WelcomeState> emit) async {
     final result = await userService.createWorkspace(name, desc);
     emit(result.fold(
       (workspace) {
@@ -81,9 +87,12 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
 class WelcomeEvent with _$WelcomeEvent {
   const factory WelcomeEvent.initial() = Initial;
   // const factory WelcomeEvent.fetchWorkspaces() = FetchWorkspace;
-  const factory WelcomeEvent.createWorkspace(String name, String desc) = CreateWorkspace;
-  const factory WelcomeEvent.openWorkspace(WorkspacePB workspace) = OpenWorkspace;
-  const factory WelcomeEvent.workspacesReveived(Either<List<WorkspacePB>, FlowyError> workspacesOrFail) =
+  const factory WelcomeEvent.createWorkspace(String name, String desc) =
+      CreateWorkspace;
+  const factory WelcomeEvent.openWorkspace(WorkspacePB workspace) =
+      OpenWorkspace;
+  const factory WelcomeEvent.workspacesReveived(
+          Either<List<WorkspacePB>, FlowyError> workspacesOrFail) =
       WorkspacesReceived;
 }
 

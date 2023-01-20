@@ -9,6 +9,7 @@ use crate::services::cell::{
 };
 use crate::services::field::{
     default_type_option_builder_from_type, transform_type_option, type_option_builder_from_bytes, FieldBuilder,
+    RowSingleCellData,
 };
 
 use crate::services::filter::FilterType;
@@ -75,6 +76,7 @@ impl GridRevisionEditor {
             pad: grid_pad.clone(),
             block_manager: block_manager.clone(),
             task_scheduler,
+            cell_data_cache: cell_data_cache.clone(),
         });
 
         // View manager
@@ -134,30 +136,28 @@ impl GridRevisionEditor {
             return Ok(());
         }
         let field_rev = result.unwrap();
-        let _ = self
-            .modify(|grid| {
-                let changeset = grid.modify_field(field_id, |field| {
-                    let deserializer = TypeOptionJsonDeserializer(field_rev.ty.into());
-                    match deserializer.deserialize(type_option_data) {
-                        Ok(json_str) => {
-                            let field_type = field.ty;
-                            field.insert_type_option_str(&field_type, json_str);
-                        }
-                        Err(err) => {
-                            tracing::error!("Deserialize data to type option json failed: {}", err);
-                        }
+        self.modify(|grid| {
+            let changeset = grid.modify_field(field_id, |field| {
+                let deserializer = TypeOptionJsonDeserializer(field_rev.ty.into());
+                match deserializer.deserialize(type_option_data) {
+                    Ok(json_str) => {
+                        let field_type = field.ty;
+                        field.insert_type_option_str(&field_type, json_str);
                     }
-                    Ok(Some(()))
-                })?;
-                Ok(changeset)
-            })
-            .await?;
+                    Err(err) => {
+                        tracing::error!("Deserialize data to type option json failed: {}", err);
+                    }
+                }
+                Ok(Some(()))
+            })?;
+            Ok(changeset)
+        })
+        .await?;
 
-        let _ = self
-            .view_manager
+        self.view_manager
             .did_update_view_field_type_option(field_id, old_field_rev)
             .await?;
-        let _ = self.notify_did_update_grid_field(field_id).await?;
+        self.notify_did_update_grid_field(field_id).await?;
         Ok(())
     }
 
@@ -169,8 +169,8 @@ impl GridRevisionEditor {
 
     pub async fn create_new_field_rev(&self, field_rev: FieldRevision) -> FlowyResult<()> {
         let field_id = field_rev.id.clone();
-        let _ = self.modify(|grid| Ok(grid.create_field_rev(field_rev, None)?)).await?;
-        let _ = self.notify_did_insert_grid_field(&field_id).await?;
+        self.modify(|grid| Ok(grid.create_field_rev(field_rev, None)?)).await?;
+        self.notify_did_insert_grid_field(&field_id).await?;
 
         Ok(())
     }
@@ -185,10 +185,9 @@ impl GridRevisionEditor {
             let type_option_builder = type_option_builder_from_bytes(type_option_data, field_type);
             field_rev.insert_type_option(type_option_builder.serializer());
         }
-        let _ = self
-            .modify(|grid| Ok(grid.create_field_rev(field_rev.clone(), None)?))
+        self.modify(|grid| Ok(grid.create_field_rev(field_rev.clone(), None)?))
             .await?;
-        let _ = self.notify_did_insert_grid_field(&field_rev.id).await?;
+        self.notify_did_insert_grid_field(&field_rev.id).await?;
 
         Ok(field_rev)
     }
@@ -199,33 +198,32 @@ impl GridRevisionEditor {
 
     pub async fn update_field(&self, params: FieldChangesetParams) -> FlowyResult<()> {
         let field_id = params.field_id.clone();
-        let _ = self
-            .modify(|grid| {
-                let changeset = grid.modify_field(&params.field_id, |field| {
-                    if let Some(name) = params.name {
-                        field.name = name;
-                    }
-                    if let Some(desc) = params.desc {
-                        field.desc = desc;
-                    }
-                    if let Some(field_type) = params.field_type {
-                        field.ty = field_type;
-                    }
-                    if let Some(frozen) = params.frozen {
-                        field.frozen = frozen;
-                    }
-                    if let Some(visibility) = params.visibility {
-                        field.visibility = visibility;
-                    }
-                    if let Some(width) = params.width {
-                        field.width = width;
-                    }
-                    Ok(Some(()))
-                })?;
-                Ok(changeset)
-            })
-            .await?;
-        let _ = self.notify_did_update_grid_field(&field_id).await?;
+        self.modify(|grid| {
+            let changeset = grid.modify_field(&params.field_id, |field| {
+                if let Some(name) = params.name {
+                    field.name = name;
+                }
+                if let Some(desc) = params.desc {
+                    field.desc = desc;
+                }
+                if let Some(field_type) = params.field_type {
+                    field.ty = field_type;
+                }
+                if let Some(frozen) = params.frozen {
+                    field.frozen = frozen;
+                }
+                if let Some(visibility) = params.visibility {
+                    field.visibility = visibility;
+                }
+                if let Some(width) = params.width {
+                    field.width = width;
+                }
+                Ok(Some(()))
+            })?;
+            Ok(changeset)
+        })
+        .await?;
+        self.notify_did_update_grid_field(&field_id).await?;
         Ok(())
     }
 
@@ -235,15 +233,14 @@ impl GridRevisionEditor {
     {
         let mut is_changed = false;
         let old_field_rev = self.get_field_rev(field_id).await;
-        let _ = self
-            .modify(|grid| {
-                let changeset = grid.modify_field(field_id, |field_rev| {
-                    f(field_rev).map_err(|e| CollaborateError::internal().context(e))
-                })?;
-                is_changed = changeset.is_some();
-                Ok(changeset)
-            })
-            .await?;
+        self.modify(|grid| {
+            let changeset = grid.modify_field(field_id, |field_rev| {
+                f(field_rev).map_err(|e| CollaborateError::internal().context(e))
+            })?;
+            is_changed = changeset.is_some();
+            Ok(changeset)
+        })
+        .await?;
 
         if is_changed {
             match self
@@ -254,21 +251,21 @@ impl GridRevisionEditor {
                 Ok(_) => {}
                 Err(e) => tracing::error!("View manager update field failed: {:?}", e),
             }
-            let _ = self.notify_did_update_grid_field(field_id).await?;
+            self.notify_did_update_grid_field(field_id).await?;
         }
         Ok(())
     }
 
     pub async fn delete_field(&self, field_id: &str) -> FlowyResult<()> {
-        let _ = self.modify(|grid_pad| Ok(grid_pad.delete_field_rev(field_id)?)).await?;
+        self.modify(|grid_pad| Ok(grid_pad.delete_field_rev(field_id)?)).await?;
         let field_order = FieldIdPB::from(field_id);
         let notified_changeset = GridFieldChangesetPB::delete(&self.grid_id, vec![field_order]);
-        let _ = self.notify_did_update_grid(notified_changeset).await?;
+        self.notify_did_update_grid(notified_changeset).await?;
         Ok(())
     }
 
     pub async fn group_by_field(&self, field_id: &str) -> FlowyResult<()> {
-        let _ = self.view_manager.group_by_field(field_id).await?;
+        self.view_manager.group_by_field(field_id).await?;
         Ok(())
     }
 
@@ -297,29 +294,27 @@ impl GridRevisionEditor {
                 transform_type_option(&new_type_option, new_field_type, old_type_option, old_field_type)
             };
 
-        let _ = self
-            .modify(|grid| {
-                Ok(grid.switch_to_field(
-                    field_id,
-                    new_field_type.clone(),
-                    make_default_type_option,
-                    type_option_transform,
-                )?)
-            })
-            .await?;
+        self.modify(|grid| {
+            Ok(grid.switch_to_field(
+                field_id,
+                new_field_type.clone(),
+                make_default_type_option,
+                type_option_transform,
+            )?)
+        })
+        .await?;
 
-        let _ = self.notify_did_update_grid_field(field_id).await?;
+        self.notify_did_update_grid_field(field_id).await?;
 
         Ok(())
     }
 
     pub async fn duplicate_field(&self, field_id: &str) -> FlowyResult<()> {
         let duplicated_field_id = gen_field_id();
-        let _ = self
-            .modify(|grid| Ok(grid.duplicate_field_rev(field_id, &duplicated_field_id)?))
+        self.modify(|grid| Ok(grid.duplicate_field_rev(field_id, &duplicated_field_id)?))
             .await?;
 
-        let _ = self.notify_did_insert_grid_field(&duplicated_field_id).await?;
+        self.notify_did_insert_grid_field(&duplicated_field_id).await?;
         Ok(())
     }
 
@@ -348,15 +343,13 @@ impl GridRevisionEditor {
     }
 
     pub async fn create_block(&self, block_meta_rev: GridBlockMetaRevision) -> FlowyResult<()> {
-        let _ = self
-            .modify(|grid_pad| Ok(grid_pad.create_block_meta_rev(block_meta_rev)?))
+        self.modify(|grid_pad| Ok(grid_pad.create_block_meta_rev(block_meta_rev)?))
             .await?;
         Ok(())
     }
 
     pub async fn update_block(&self, changeset: GridBlockMetaRevisionChangeset) -> FlowyResult<()> {
-        let _ = self
-            .modify(|grid_pad| Ok(grid_pad.update_block_rev(changeset)?))
+        self.modify(|grid_pad| Ok(grid_pad.update_block_rev(changeset)?))
             .await?;
         Ok(())
     }
@@ -374,7 +367,7 @@ impl GridRevisionEditor {
 
     #[tracing::instrument(level = "trace", skip_all, err)]
     pub async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
-        let _ = self.view_manager.move_group(params).await?;
+        self.view_manager.move_group(params).await?;
         Ok(())
     }
 
@@ -391,14 +384,14 @@ impl GridRevisionEditor {
         }
         let changesets = self.block_manager.insert_row(rows_by_block_id).await?;
         for changeset in changesets {
-            let _ = self.update_block(changeset).await?;
+            self.update_block(changeset).await?;
         }
         Ok(row_orders)
     }
 
     pub async fn update_row(&self, changeset: RowChangeset) -> FlowyResult<()> {
         let row_id = changeset.row_id.clone();
-        let _ = self.block_manager.update_row(changeset).await?;
+        self.block_manager.update_row(changeset).await?;
         self.view_manager.did_update_cell(&row_id).await;
         Ok(())
     }
@@ -444,11 +437,23 @@ impl GridRevisionEditor {
         Ok(())
     }
 
+    /// Returns the cell data that encoded in protobuf.
     pub async fn get_cell(&self, params: &CellPathParams) -> Option<CellPB> {
         let (field_type, cell_bytes) = self.decode_cell_data_from(params).await?;
-        Some(CellPB::new(&params.field_id, field_type, cell_bytes.to_vec()))
+        Some(CellPB::new(
+            &params.field_id,
+            &params.row_id,
+            field_type,
+            cell_bytes.to_vec(),
+        ))
     }
 
+    /// Returns a string that represents the current field_type's cell data.
+    /// For example:
+    /// Multi-Select: list of the option's name separated by a comma.
+    /// Number: 123 => $123 if the currency set.
+    /// Date: 1653609600 => May 27,2022
+    ///
     pub async fn get_cell_display_str(&self, params: &CellPathParams) -> String {
         let display_str = || async {
             let field_rev = self.get_field_rev(&params.field_id).await?;
@@ -463,10 +468,10 @@ impl GridRevisionEditor {
             ))
         };
 
-        display_str().await.unwrap_or_else(|| "".to_string())
+        display_str().await.unwrap_or_default()
     }
 
-    pub async fn get_cell_bytes(&self, params: &CellPathParams) -> Option<CellProtobufBlob> {
+    pub async fn get_cell_protobuf(&self, params: &CellPathParams) -> Option<CellProtobufBlob> {
         let (_, cell_data) = self.decode_cell_data_from(params).await?;
         Some(cell_data)
     }
@@ -490,6 +495,12 @@ impl GridRevisionEditor {
                 Ok(cell_rev)
             }
         }
+    }
+
+    /// Returns the list of cells corresponding to the given field.
+    pub async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> FlowyResult<Vec<RowSingleCellData>> {
+        let view_editor = self.view_manager.get_view_editor(view_id).await?;
+        view_editor.get_cells_for_field(field_id).await
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
@@ -516,7 +527,7 @@ impl GridRevisionEditor {
                     field_id: field_id.to_owned(),
                     type_cell_data,
                 };
-                let _ = self.block_manager.update_cell(cell_changeset).await?;
+                self.block_manager.update_cell(cell_changeset).await?;
                 self.view_manager.did_update_cell(row_id).await;
                 Ok(())
             }
@@ -558,7 +569,7 @@ impl GridRevisionEditor {
     pub async fn delete_rows(&self, block_rows: Vec<GridBlockRow>) -> FlowyResult<()> {
         let changesets = self.block_manager.delete_rows(block_rows).await?;
         for changeset in changesets {
-            let _ = self.update_block(changeset).await?;
+            self.update_block(changeset).await?;
         }
         Ok(())
     }
@@ -598,32 +609,46 @@ impl GridRevisionEditor {
         self.view_manager.get_filters(&filter_id).await
     }
 
-    pub async fn insert_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
-        self.view_manager.insert_or_update_group(params).await
-    }
-
-    pub async fn delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
-        self.view_manager.delete_group(params).await
-    }
-
     pub async fn create_or_update_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
-        let _ = self.view_manager.create_or_update_filter(params).await?;
+        self.view_manager.create_or_update_filter(params).await?;
         Ok(())
     }
 
     pub async fn delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
-        let _ = self.view_manager.delete_filter(params).await?;
+        self.view_manager.delete_filter(params).await?;
         Ok(())
     }
 
+    pub async fn get_all_sorts(&self, view_id: &str) -> FlowyResult<Vec<SortPB>> {
+        Ok(self
+            .view_manager
+            .get_all_sorts(view_id)
+            .await?
+            .into_iter()
+            .map(|sort| SortPB::from(sort.as_ref()))
+            .collect())
+    }
+
+    pub async fn delete_all_sorts(&self, view_id: &str) -> FlowyResult<()> {
+        self.view_manager.delete_all_sorts(view_id).await
+    }
+
     pub async fn delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
-        let _ = self.view_manager.delete_sort(params).await?;
+        self.view_manager.delete_sort(params).await?;
         Ok(())
     }
 
     pub async fn create_or_update_sort(&self, params: AlterSortParams) -> FlowyResult<SortRevision> {
         let sort_rev = self.view_manager.create_or_update_sort(params).await?;
         Ok(sort_rev)
+    }
+
+    pub async fn insert_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
+        self.view_manager.insert_or_update_group(params).await
+    }
+
+    pub async fn delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
+        self.view_manager.delete_group(params).await
     }
 
     pub async fn move_row(&self, params: MoveRowParams) -> FlowyResult<()> {
@@ -642,8 +667,7 @@ impl GridRevisionEditor {
                 ) {
                     (Some(from_index), Some(to_index)) => {
                         tracing::trace!("Move row from {} to {}", from_index, to_index);
-                        let _ = self
-                            .block_manager
+                        self.block_manager
                             .move_row(row_rev.clone(), from_index, to_index)
                             .await?;
                     }
@@ -704,8 +728,7 @@ impl GridRevisionEditor {
             to_index,
         } = params;
 
-        let _ = self
-            .modify(|grid_pad| Ok(grid_pad.move_field(&field_id, from_index as usize, to_index as usize)?))
+        self.modify(|grid_pad| Ok(grid_pad.move_field(&field_id, from_index as usize, to_index as usize)?))
             .await?;
         if let Some((index, field_rev)) = self.grid_pad.read().await.get_field_rev(&field_id) {
             let delete_field_order = FieldIdPB::from(field_id);
@@ -717,7 +740,7 @@ impl GridRevisionEditor {
                 updated_fields: vec![],
             };
 
-            let _ = self.notify_did_update_grid(notified_changeset).await?;
+            self.notify_did_update_grid(notified_changeset).await?;
         }
         Ok(())
     }
@@ -777,7 +800,7 @@ impl GridRevisionEditor {
 
         // update block row count
         let changeset = GridBlockMetaRevisionChangeset::from_row_count(block_id, row_count);
-        let _ = self.update_block(changeset).await?;
+        self.update_block(changeset).await?;
         Ok(row_pb)
     }
 
@@ -786,8 +809,8 @@ impl GridRevisionEditor {
         F: for<'a> FnOnce(&'a mut GridRevisionPad) -> FlowyResult<Option<GridRevisionChangeset>>,
     {
         let mut write_guard = self.grid_pad.write().await;
-        if let Some(changeset) = f(&mut *write_guard)? {
-            let _ = self.apply_change(changeset).await?;
+        if let Some(changeset) = f(&mut write_guard)? {
+            self.apply_change(changeset).await?;
         }
         Ok(())
     }
@@ -811,7 +834,7 @@ impl GridRevisionEditor {
         if let Some((index, field_rev)) = self.grid_pad.read().await.get_field_rev(field_id) {
             let index_field = IndexFieldPB::from_field_rev(field_rev, index);
             let notified_changeset = GridFieldChangesetPB::insert(&self.grid_id, vec![index_field]);
-            let _ = self.notify_did_update_grid(notified_changeset).await?;
+            self.notify_did_update_grid(notified_changeset).await?;
         }
         Ok(())
     }
@@ -827,7 +850,7 @@ impl GridRevisionEditor {
         {
             let updated_field = FieldPB::from(field_rev);
             let notified_changeset = GridFieldChangesetPB::update(&self.grid_id, vec![updated_field.clone()]);
-            let _ = self.notify_did_update_grid(notified_changeset).await?;
+            self.notify_did_update_grid(notified_changeset).await?;
 
             send_dart_notification(field_id, GridDartNotification::DidUpdateField)
                 .payload(updated_field)
@@ -863,6 +886,10 @@ impl RevisionObjectDeserializer for GridRevisionSerde {
     fn deserialize_revisions(_object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let pad = GridRevisionPad::from_revisions(revisions)?;
         Ok(pad)
+    }
+
+    fn recover_operations_from_revisions(_revisions: Vec<Revision>) -> Option<Self::Output> {
+        None
     }
 }
 impl RevisionObjectSerializer for GridRevisionSerde {

@@ -19,7 +19,6 @@ node_modules
 **/.cache
 **/.DS_Store
 
-**/src/protobuf
 **/resources/proto
 
 frontend/.vscode/*

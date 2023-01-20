@@ -9,7 +9,8 @@ use flowy_revision::{
     RevisionWebSocket,
 };
 use flowy_sync::client_folder::{FolderChangeset, FolderPad};
-use flowy_sync::util::make_operations_from_revisions;
+use flowy_sync::server_folder::FolderOperations;
+use flowy_sync::util::{make_operations_from_revisions, recover_operation_from_revisions};
 use lib_infra::future::FutureResult;
 use lib_ot::core::EmptyAttributes;
 use parking_lot::RwLock;
@@ -102,8 +103,19 @@ impl RevisionObjectDeserializer for FolderRevisionSerde {
     type Output = FolderPad;
 
     fn deserialize_revisions(_object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
-        let pad = FolderPad::from_revisions(revisions)?;
-        Ok(pad)
+        let operations: FolderOperations = make_operations_from_revisions(revisions)?;
+        Ok(FolderPad::from_operations(operations)?)
+    }
+
+    fn recover_operations_from_revisions(revisions: Vec<Revision>) -> Option<Self::Output> {
+        if let Some(operations) = recover_operation_from_revisions(revisions, |operations| {
+            FolderPad::from_operations(operations.clone()).is_ok()
+        }) {
+            if let Ok(pad) = FolderPad::from_operations(operations) {
+                return Some(pad);
+            }
+        }
+        None
     }
 }
 
