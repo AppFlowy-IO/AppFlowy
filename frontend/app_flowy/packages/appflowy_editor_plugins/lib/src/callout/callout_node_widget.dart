@@ -1,8 +1,10 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/src/emoji_picker/emoji_menu_item.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/l10n.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/color_picker.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +58,8 @@ class _CalloutWidget extends StatefulWidget {
 
 class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
   bool isHover = false;
-  final PopoverController popoverController = PopoverController();
+  final PopoverController colorPopoverController = PopoverController();
+  final PopoverController emojiPopoverController = PopoverController();
   RenderBox get _renderBox => context.findRenderObject() as RenderBox;
 
   @override
@@ -98,7 +101,7 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
       child: Stack(
         children: [
           _buildCallout(),
-          _buildPopover(),
+          Positioned(top: 5, right: 5, child: _buildMenu()),
         ],
       ),
     );
@@ -112,51 +115,59 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
         color: color ?? themeExtension?.tint1,
       ),
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.only(top: 8, bottom: 8, left: 0, right: 15),
       width: double.infinity,
-      child: EditorNodeWidget(
-        node: widget.node,
-        editorState: widget.editorState,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildEmoji(),
+          Expanded(
+            child: EditorNodeWidget(
+              node: widget.node,
+              editorState: widget.editorState,
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildPopover() {
-    return Positioned(
-      top: 5,
-      right: 5,
-      child: AppFlowyPopover(
-        controller: popoverController,
-        constraints: BoxConstraints.loose(const Size(200, 460)),
+  Widget _popover({
+    required PopoverController controller,
+    required Widget Function(BuildContext context) popupBuilder,
+    required Widget child,
+    Size size = const Size(200, 460),
+  }) {
+    return AppFlowyPopover(
+        controller: controller,
+        constraints: BoxConstraints.loose(size),
         triggerActions: 0,
-        popupBuilder: (context) {
-          return _buildColorPicker();
-        },
-        child: isHover
-            ? _buildMenu()
-            : const SizedBox(
-                width: 0,
-              ),
-      ),
-    );
+        popupBuilder: popupBuilder,
+        child: child);
   }
 
   Widget _buildMenu() {
-    return Wrap(
-      children: [
-        FlowyIconButton(
-          icon: const Icon(Icons.color_lens_outlined),
-          onPressed: () {
-            popoverController.show();
-          },
-        ),
-        FlowyIconButton(
-          icon: const Icon(Icons.delete_forever_outlined),
-          onPressed: () {
-            deleteNode();
-          },
-        )
-      ],
+    return _popover(
+      controller: colorPopoverController,
+      popupBuilder: (context) => _buildColorPicker(),
+      child: isHover
+          ? Wrap(
+              children: [
+                FlowyIconButton(
+                  icon: const Icon(Icons.color_lens_outlined),
+                  onPressed: () {
+                    colorPopoverController.show();
+                  },
+                ),
+                FlowyIconButton(
+                  icon: const Icon(Icons.delete_forever_outlined),
+                  onPressed: () {
+                    deleteNode();
+                  },
+                )
+              ],
+            )
+          : const SizedBox(width: 0),
     );
   }
 
@@ -171,8 +182,35 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
       selected: color,
       onTap: (color, index) {
         setColor(color);
-        popoverController.close();
+        colorPopoverController.close();
       },
+    );
+  }
+
+  Widget _buildEmoji() {
+    return _popover(
+      controller: emojiPopoverController,
+      popupBuilder: (context) => _buildEmojiPicker(),
+      size: const Size(300, 200),
+      child: FlowyTextButton(
+        emoji,
+        fontSize: 18,
+        fillColor: Colors.transparent,
+        onPressed: () {
+          emojiPopoverController.show();
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmojiPicker() {
+    return EmojiSelectionMenu(
+      editorState: widget.editorState,
+      onSubmitted: (emoji) {
+        setEmoji(emoji.emoji);
+        emojiPopoverController.close();
+      },
+      onExit: () {},
     );
   }
 
@@ -180,6 +218,14 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
     final transaction = widget.editorState.transaction
       ..updateNode(widget.node, {
         kCalloutAttrColor: color.value,
+      });
+    widget.editorState.apply(transaction);
+  }
+
+  void setEmoji(String emoji) {
+    final transaction = widget.editorState.transaction
+      ..updateNode(widget.node, {
+        kCalloutAttrEmoji: emoji,
       });
     widget.editorState.apply(transaction);
   }
@@ -192,6 +238,10 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
   Color? get color {
     final int? colorValue = widget.node.attributes[kCalloutAttrColor];
     return colorValue != null ? Color(colorValue) : null;
+  }
+
+  String get emoji {
+    return widget.node.attributes[kCalloutAttrEmoji] ?? "💡";
   }
 
   @override
