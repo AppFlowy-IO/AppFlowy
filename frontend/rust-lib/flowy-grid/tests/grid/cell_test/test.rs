@@ -68,8 +68,8 @@ async fn text_cell_date_test() {
         .await
         .unwrap();
 
-    for (i, cell) in cells.iter().enumerate() {
-        let text = cell.get_text_field_cell_data().unwrap();
+    for (i, cell) in cells.into_iter().enumerate() {
+        let text = cell.into_text_field_cell_data().unwrap();
         match i {
             0 => assert_eq!(text.as_str(), "A"),
             1 => assert_eq!(text.as_str(), ""),
@@ -92,10 +92,11 @@ async fn url_cell_date_test() {
         .await
         .unwrap();
 
-    for (i, cell) in cells.iter().enumerate() {
-        let url_cell_data = cell.get_url_field_cell_data().unwrap();
-        if i == 0 {
-            assert_eq!(url_cell_data.url.as_str(), "https://www.appflowy.io/")
+    for (i, cell) in cells.into_iter().enumerate() {
+        let url_cell_data = cell.into_url_field_cell_data().unwrap();
+        match i {
+            0 => assert_eq!(url_cell_data.url.as_str(), "https://www.appflowy.io/"),
+            _ => {}
         }
     }
 }

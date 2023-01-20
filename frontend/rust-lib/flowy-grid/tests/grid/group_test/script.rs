@@ -244,6 +244,18 @@ impl GridGroupTest {
             .await
             .unwrap();
     }
+
+    pub async fn get_url_field(&self) -> Arc<FieldRevision> {
+        self.inner
+            .field_revs
+            .iter()
+            .find(|field_rev| {
+                let field_type: FieldType = field_rev.ty.into();
+                field_type.is_url()
+            })
+            .unwrap()
+            .clone()
+    }
 }
 
 impl std::ops::Deref for GridGroupTest {

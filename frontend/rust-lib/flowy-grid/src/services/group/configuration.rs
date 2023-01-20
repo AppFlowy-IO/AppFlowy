@@ -321,6 +321,13 @@ where
         Ok(())
     }
 
+    pub(crate) async fn get_all_cells(&self) -> Vec<RowSingleCellData> {
+        self.reader
+            .get_configuration_cells(&self.field_rev.id)
+            .await
+            .unwrap_or_default()
+    }
+
     fn mut_configuration(
         &mut self,
         mut_configuration_fn: impl FnOnce(&mut GroupConfigurationRevision) -> bool,

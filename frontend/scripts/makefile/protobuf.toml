@@ -1,9 +1,21 @@
 
-[tasks.install_tauri_protobuf]
+[tasks.install_tauri_protobuf.windows]
 script = """
 npm install -g protoc-gen-ts
 """
 script_runner = "@duckscript"
+
+[tasks.install_tauri_protobuf.mac]
+script = """
+npm install -g protoc-gen-ts
+"""
+script_runner = "@shell"
+
+[tasks.install_tauri_protobuf.linux]
+script = """
+npm install -g protoc-gen-ts
+"""
+script_runner = "@shell"
 
 [tasks.install_flutter_protobuf]
 mac_alias = "install-protobuf"

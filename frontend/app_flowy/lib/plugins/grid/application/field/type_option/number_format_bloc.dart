@@ -82,7 +82,7 @@ extension NumberFormatExtension on NumberFormat {
       case NumberFormat.Lira:
         return "Lira";
       case NumberFormat.MexicanPeso:
-        return "Mexican Peso";
+        return "Mexican peso";
       case NumberFormat.NewTaiwanDollar:
         return "New Taiwan dollar";
       case NumberFormat.NewZealandDollar:
@@ -94,7 +94,7 @@ extension NumberFormatExtension on NumberFormat {
       case NumberFormat.Percent:
         return "Percent";
       case NumberFormat.PhilippinePeso:
-        return "PhilippinePeso";
+        return "Philippine peso";
       case NumberFormat.Pound:
         return "Pound";
       case NumberFormat.Rand:
@@ -114,11 +114,11 @@ extension NumberFormatExtension on NumberFormat {
       case NumberFormat.Shekel:
         return "Skekel";
       case NumberFormat.USD:
-        return "US Dollar";
+        return "US dollar";
       case NumberFormat.UruguayanPeso:
         return "Uruguayan peso";
       case NumberFormat.Won:
-        return "Uruguayan peso";
+        return "Won";
       case NumberFormat.Yen:
         return "Yen";
       case NumberFormat.Yuan:

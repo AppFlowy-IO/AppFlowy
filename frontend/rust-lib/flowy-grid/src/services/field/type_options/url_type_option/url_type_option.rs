@@ -32,7 +32,10 @@ impl TypeOptionBuilder for URLTypeOptionBuilder {
 #[derive(Debug, Clone, Serialize, Deserialize, Default, ProtoBuf)]
 pub struct URLTypeOptionPB {
     #[pb(index = 1)]
-    data: String, //It's not used yet.
+    pub url: String,
+
+    #[pb(index = 2)]
+    pub content: String,
 }
 impl_type_option!(URLTypeOptionPB, FieldType::URL);
 

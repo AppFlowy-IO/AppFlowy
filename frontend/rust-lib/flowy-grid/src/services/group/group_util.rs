@@ -3,13 +3,14 @@ use crate::services::group::configuration::GroupConfigurationReader;
 use crate::services::group::controller::GroupController;
 use crate::services::group::{
     CheckboxGroupContext, CheckboxGroupController, DefaultGroupController, GroupConfigurationWriter,
-    MultiSelectGroupController, SelectOptionGroupContext, SingleSelectGroupController,
+    MultiSelectGroupController, SelectOptionGroupContext, SingleSelectGroupController, URLGroupContext,
+    URLGroupController,
 };
 use flowy_error::FlowyResult;
 use grid_rev_model::{
     CheckboxGroupConfigurationRevision, DateGroupConfigurationRevision, FieldRevision, GroupConfigurationRevision,
     GroupRevision, LayoutRevision, NumberGroupConfigurationRevision, RowRevision,
-    SelectOptionGroupConfigurationRevision, TextGroupConfigurationRevision, UrlGroupConfigurationRevision,
+    SelectOptionGroupConfigurationRevision, TextGroupConfigurationRevision, URLGroupConfigurationRevision,
 };
 use std::sync::Arc;
 
@@ -62,6 +63,12 @@ where
                 CheckboxGroupContext::new(view_id, field_rev.clone(), configuration_reader, configuration_writer)
                     .await?;
             let controller = CheckboxGroupController::new(&field_rev, configuration).await?;
+            group_controller = Box::new(controller);
+        }
+        FieldType::URL => {
+            let configuration =
+                URLGroupContext::new(view_id, field_rev.clone(), configuration_reader, configuration_writer).await?;
+            let controller = URLGroupController::new(&field_rev, configuration).await?;
             group_controller = Box::new(controller);
         }
         _ => {
@@ -131,7 +138,7 @@ pub fn default_group_configuration(field_rev: &FieldRevision) -> GroupConfigurat
                 .unwrap()
         }
         FieldType::URL => {
-            GroupConfigurationRevision::new(field_id, field_type_rev, UrlGroupConfigurationRevision::default()).unwrap()
+            GroupConfigurationRevision::new(field_id, field_type_rev, URLGroupConfigurationRevision::default()).unwrap()
         }
     }
 }

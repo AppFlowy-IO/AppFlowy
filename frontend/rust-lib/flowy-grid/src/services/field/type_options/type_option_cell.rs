@@ -497,6 +497,17 @@ impl BoxCellData {
         }
     }
 
+    fn unbox_or_none<T>(self) -> Option<T>
+    where
+        T: Default + 'static,
+    {
+        match self.0.downcast::<T>() {
+            Ok(value) => Some(*value),
+            Err(_) => None,
+        }
+    }
+
+    #[allow(dead_code)]
     fn downcast_ref<T: 'static>(&self) -> Option<&T> {
         self.0.downcast_ref()
     }
@@ -509,16 +520,36 @@ pub struct RowSingleCellData {
     pub cell_data: BoxCellData,
 }
 
+macro_rules! into_cell_data {
+    ($func_name:ident,$return_ty:ty) => {
+        #[allow(dead_code)]
+        pub fn $func_name(self) -> Option<$return_ty> {
+            self.cell_data.unbox_or_none()
+        }
+    };
+}
+
 impl RowSingleCellData {
-    pub fn get_text_field_cell_data(&self) -> Option<&<RichTextTypeOptionPB as TypeOption>::CellData> {
-        self.cell_data.downcast_ref()
-    }
-
-    pub fn get_number_field_cell_data(&self) -> Option<&<NumberTypeOptionPB as TypeOption>::CellData> {
-        self.cell_data.downcast_ref()
-    }
-
-    pub fn get_url_field_cell_data(&self) -> Option<&<URLTypeOptionPB as TypeOption>::CellData> {
-        self.cell_data.downcast_ref()
-    }
+    into_cell_data!(
+        into_text_field_cell_data,
+        <RichTextTypeOptionPB as TypeOption>::CellData
+    );
+    into_cell_data!(
+        into_number_field_cell_data,
+        <NumberTypeOptionPB as TypeOption>::CellData
+    );
+    into_cell_data!(into_url_field_cell_data, <URLTypeOptionPB as TypeOption>::CellData);
+    into_cell_data!(
+        into_single_select_field_cell_data,
+        <SingleSelectTypeOptionPB as TypeOption>::CellData
+    );
+    into_cell_data!(
+        into_multi_select_field_cell_data,
+        <MultiSelectTypeOptionPB as TypeOption>::CellData
+    );
+    into_cell_data!(into_date_field_cell_data, <DateTypeOptionPB as TypeOption>::CellData);
+    into_cell_data!(
+        into_check_list_field_cell_data,
+        <CheckboxTypeOptionPB as TypeOption>::CellData
+    );
 }
