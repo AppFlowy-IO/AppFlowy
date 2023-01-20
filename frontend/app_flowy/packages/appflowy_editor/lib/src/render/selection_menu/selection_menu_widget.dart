@@ -91,25 +91,25 @@ class SelectionMenuItem {
         final textNode = textNodes.first;
         final node = nodeBuilder(editorState);
         final transaction = editorState.transaction;
-        final _replace = replace?.call(editorState, textNode) ?? false;
-        final _insertBefore =
+        final bReplace = replace?.call(editorState, textNode) ?? false;
+        final bInsertBefore =
             insertBefore?.call(editorState, textNode) ?? false;
 
         //default insert after
         var path = textNode.path.next;
-        if (_replace) {
+        if (bReplace) {
           path = textNode.path;
-        } else if (_insertBefore) {
+        } else if (bInsertBefore) {
           path = textNode.path;
         }
 
         transaction
           ..insertNode(path, node)
           ..afterSelection = updateSelection?.call(
-                  editorState, path, _replace, _insertBefore) ??
+                  editorState, path, bReplace, bInsertBefore) ??
               selection;
 
-        if (_replace) {
+        if (bReplace) {
           transaction.deleteNode(textNode);
         }
 
