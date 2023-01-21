@@ -204,5 +204,17 @@
 				"cwd": "${workspaceFolder}"
 			}
 		},
+		{
+			"label": "AF: Tauri Clean + Dev",
+			"type": "shell",
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"AF: Tauri Clean",
+				"AF: Tauri Dev"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			}
+		},
 	]
 }

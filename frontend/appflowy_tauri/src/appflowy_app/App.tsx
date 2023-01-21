@@ -2,7 +2,7 @@ import "./App.css";
 import {
   UserEventSignIn,
   SignInPayloadPB,
-} from "./protobuf/events/flowy-user";
+} from "../services/protobuf/events/flowy-user";
 import { nanoid } from "nanoid";
 
 

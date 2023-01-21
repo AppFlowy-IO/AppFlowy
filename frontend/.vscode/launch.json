@@ -94,7 +94,7 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "AF-tauri: Dev",
+            "name": "AF-tauri: Build",
             "cargo": {
                 "args": [
                     "build",
@@ -105,6 +105,20 @@
             "preLaunchTask": "AF: Tauri Dev",
             "cwd": "${workspaceRoot}/appflowy_tauri/"
         },
+        // {
+        //     "type": "lldb",
+        //     "request": "launch",
+        //     "name": "AF-tauri: Clean + Rebuild",
+        //     "cargo": {
+        //         "args": [
+        //             "build",
+        //             "--manifest-path=./appflowy_tauri/src-tauri/Cargo.toml",
+        //             "--no-default-features"
+        //         ]
+        //     },
+        //     "preLaunchTask": "AF: Tauri Clean + Dev",
+        //     "cwd": "${workspaceRoot}/appflowy_tauri/"
+        // },
         {
             "name": "AF: Debug Rust",
             "request": "attach",
