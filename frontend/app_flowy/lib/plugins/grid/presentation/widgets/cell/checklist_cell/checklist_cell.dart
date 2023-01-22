@@ -15,10 +15,10 @@ class GridChecklistCell extends GridCellWidget {
       : super(key: key);
 
   @override
-  GridChecklistCellState createState() => GridChecklistCellState();
+  GridCellState<GridChecklistCell> createState() => GridChecklistCellState();
 }
 
-class GridChecklistCellState extends State<GridChecklistCell> {
+class GridChecklistCellState extends GridCellState<GridChecklistCell> {
   late PopoverController _popover;
   late ChecklistCellBloc _cellBloc;
 
@@ -36,39 +36,31 @@ class GridChecklistCellState extends State<GridChecklistCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: Stack(
-        alignment: AlignmentDirectional.center,
-        fit: StackFit.expand,
-        children: [
-          _wrapPopover(const ChecklistProgressBar()),
-          InkWell(onTap: () => _popover.show()),
-        ],
+      child: AppFlowyPopover(
+        controller: _popover,
+        constraints: BoxConstraints.loose(const Size(260, 400)),
+        direction: PopoverDirection.bottomWithLeftAligned,
+        triggerActions: PopoverTriggerFlags.none,
+        popupBuilder: (BuildContext context) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            widget.onCellEditing.value = true;
+          });
+          return GridChecklistCellEditor(
+            cellController: widget.cellControllerBuilder.build()
+                as GridChecklistCellController,
+          );
+        },
+        onClose: () => widget.onCellEditing.value = false,
+        child: Padding(
+          padding: GridSize.cellContentInsets,
+          child: const ChecklistProgressBar(),
+        ),
       ),
     );
   }
 
-  Widget _wrapPopover(Widget child) {
-    return AppFlowyPopover(
-      controller: _popover,
-      constraints: BoxConstraints.loose(const Size(260, 400)),
-      direction: PopoverDirection.bottomWithLeftAligned,
-      triggerActions: PopoverTriggerFlags.none,
-      popupBuilder: (BuildContext context) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          widget.onCellEditing.value = true;
-        });
-        return GridChecklistCellEditor(
-          cellController: widget.cellControllerBuilder.build()
-              as GridChecklistCellController,
-        );
-      },
-      onClose: () => widget.onCellEditing.value = false,
-      child: Padding(
-        padding: GridSize.cellContentInsets,
-        child: child,
-      ),
-    );
-  }
+  @override
+  void requestBeginFocus() => _popover.show();
 }
 
 class ChecklistProgressBar extends StatelessWidget {
