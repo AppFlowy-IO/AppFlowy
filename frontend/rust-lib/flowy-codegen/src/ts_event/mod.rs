@@ -14,8 +14,7 @@ use walkdir::WalkDir;
 
 pub fn gen(crate_name: &str) {
     let root = std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap_or("../../".to_string());
-    let tauri_protobuf_path =
-        std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap_or("appflowy_tauri/src/protobuf".to_string());
+    let tauri_protobuf_path = std::env::var("TAURI_PROTOBUF_PATH").unwrap_or("appflowy_tauri/src/protobuf".to_string());
 
     let crate_path = std::fs::canonicalize(".").unwrap().as_path().display().to_string();
     let event_crates = parse_ts_event_files(vec![crate_path]);
