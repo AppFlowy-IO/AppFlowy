@@ -44,7 +44,7 @@ class GridSingleSelectCell extends GridCellWidget {
 
 class _SingleSelectCellState extends GridCellState<GridSingleSelectCell> {
   late SelectOptionCellBloc _cellBloc;
-  late final PopoverController _popover;
+  late PopoverController _popover;
 
   @override
   void initState() {
@@ -66,6 +66,7 @@ class _SingleSelectCellState extends GridCellState<GridSingleSelectCell> {
             selectOptions: state.selectedOptions,
             cellStyle: widget.cellStyle,
             onCellEditing: widget.onCellEditing,
+            popoverController: _popover,
             cellControllerBuilder: widget.cellControllerBuilder,
           );
         },
@@ -128,6 +129,7 @@ class _MultiSelectCellState extends GridCellState<GridMultiSelectCell> {
             selectOptions: state.selectedOptions,
             cellStyle: widget.cellStyle,
             onCellEditing: widget.onCellEditing,
+            popoverController: _popover,
             cellControllerBuilder: widget.cellControllerBuilder,
           );
         },
@@ -149,12 +151,14 @@ class SelectOptionWrap extends StatefulWidget {
   final List<SelectOptionPB> selectOptions;
   final SelectOptionCellStyle? cellStyle;
   final GridCellControllerBuilder cellControllerBuilder;
+  final PopoverController popoverController;
   final ValueNotifier onCellEditing;
 
   const SelectOptionWrap({
     required this.selectOptions,
     required this.cellControllerBuilder,
     required this.onCellEditing,
+    required this.popoverController,
     this.cellStyle,
     Key? key,
   }) : super(key: key);
@@ -173,6 +177,7 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
       300,
     ));
     return AppFlowyPopover(
+      controller: widget.popoverController,
       constraints: constraints,
       margin: EdgeInsets.zero,
       direction: PopoverDirection.bottomWithLeftAligned,
