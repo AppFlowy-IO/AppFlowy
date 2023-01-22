@@ -12,12 +12,12 @@ class CellContainer extends StatelessWidget {
   final GridCellWidget child;
   final AccessoryBuilder? accessoryBuilder;
   final double width;
-  final RegionStateNotifier rowStateNotifier;
+  final bool isPrimary;
   const CellContainer({
     Key? key,
     required this.child,
     required this.width,
-    required this.rowStateNotifier,
+    required this.isPrimary,
     this.accessoryBuilder,
   }) : super(key: key);
 
@@ -41,6 +41,7 @@ class CellContainer extends StatelessWidget {
             if (accessories.isNotEmpty) {
               container = _GridCellEnterRegion(
                 accessories: accessories,
+                isPrimary: isPrimary,
                 child: container,
               );
             }
@@ -81,17 +82,23 @@ class CellContainer extends StatelessWidget {
 class _GridCellEnterRegion extends StatelessWidget {
   final Widget child;
   final List<GridCellAccessoryBuilder> accessories;
-  const _GridCellEnterRegion(
-      {required this.child, required this.accessories, Key? key})
-      : super(key: key);
+  final bool isPrimary;
+  const _GridCellEnterRegion({
+    required this.child,
+    required this.accessories,
+    required this.isPrimary,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Selector2<RegionStateNotifier, _CellContainerNotifier, bool>(
-  selector: (context, regionNotifier, cellNotifier) => !cellNotifier.isFocus && (cellNotifier.onEnter),
-      builder: (context, onEnter, _) {
+      selector: (context, regionNotifier, cellNotifier) =>
+          !cellNotifier.isFocus &&
+          (cellNotifier.onEnter || regionNotifier.onEnter && isPrimary),
+      builder: (context, showAccessory, _) {
         List<Widget> children = [child];
-        if (onEnter) {
+        if (showAccessory) {
           children.add(
             CellAccessoryContainer(accessories: accessories).positioned(
               right: GridSize.cellContentInsets.right,
