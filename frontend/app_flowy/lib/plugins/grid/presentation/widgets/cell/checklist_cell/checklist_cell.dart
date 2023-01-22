@@ -5,9 +5,10 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../cell_builder.dart';
 import 'checklist_cell_editor.dart';
-import 'checklist_prograss_bar.dart';
+import 'checklist_progress_bar.dart';
 
 class GridChecklistCell extends GridCellWidget {
   final GridCellControllerBuilder cellControllerBuilder;
@@ -53,7 +54,10 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
         onClose: () => widget.onCellEditing.value = false,
         child: Padding(
           padding: GridSize.cellContentInsets,
-          child: const ChecklistProgressBar(),
+          child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
+            builder: (context, state) =>
+                ChecklistProgressBar(percent: state.percent),
+          ),
         ),
       ),
     );
@@ -61,19 +65,4 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
 
   @override
   void requestBeginFocus() => _popover.show();
-}
-
-class ChecklistProgressBar extends StatelessWidget {
-  const ChecklistProgressBar({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
-      builder: (context, state) {
-        return ChecklistPrograssBar(
-          percent: state.percent,
-        );
-      },
-    );
-  }
 }

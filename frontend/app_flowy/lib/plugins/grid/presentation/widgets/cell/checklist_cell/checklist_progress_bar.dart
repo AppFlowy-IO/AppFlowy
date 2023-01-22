@@ -8,9 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
-class ChecklistPrograssBar extends StatelessWidget {
+class ChecklistProgressBar extends StatelessWidget {
   final double percent;
-  const ChecklistPrograssBar({required this.percent, Key? key})
+  const ChecklistProgressBar({required this.percent, Key? key})
       : super(key: key);
 
   @override
@@ -26,21 +26,21 @@ class ChecklistPrograssBar extends StatelessWidget {
   }
 }
 
-class SliverChecklistPrograssBar extends StatelessWidget {
-  const SliverChecklistPrograssBar({Key? key}) : super(key: key);
+class SliverChecklistProgressBar extends StatelessWidget {
+  const SliverChecklistProgressBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SliverPersistentHeader(
       pinned: true,
-      delegate: _SliverChecklistPrograssBarDelegate(),
+      delegate: _SliverChecklistProgressBarDelegate(),
     );
   }
 }
 
-class _SliverChecklistPrograssBarDelegate
+class _SliverChecklistProgressBarDelegate
     extends SliverPersistentHeaderDelegate {
-  _SliverChecklistPrograssBarDelegate();
+  _SliverChecklistProgressBarDelegate();
 
   double fixHeight = 60;
 
@@ -71,7 +71,7 @@ class _SliverChecklistPrograssBarDelegate
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 6.0),
-                child: ChecklistPrograssBar(percent: state.percent),
+                child: ChecklistProgressBar(percent: state.percent),
               ),
             ],
           ),
