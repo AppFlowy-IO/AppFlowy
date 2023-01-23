@@ -20,8 +20,8 @@ class GridChecklistCell extends GridCellWidget {
 }
 
 class GridChecklistCellState extends GridCellState<GridChecklistCell> {
-  late PopoverController _popover;
   late ChecklistCellBloc _cellBloc;
+  late final PopoverController _popover;
 
   @override
   void initState() {

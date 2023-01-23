@@ -44,7 +44,7 @@ class GridSingleSelectCell extends GridCellWidget {
 
 class _SingleSelectCellState extends GridCellState<GridSingleSelectCell> {
   late SelectOptionCellBloc _cellBloc;
-  late PopoverController _popover;
+  late final PopoverController _popover;
 
   @override
   void initState() {
