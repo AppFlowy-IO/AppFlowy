@@ -92,9 +92,10 @@
             "cwd": "${workspaceRoot}/app_flowy"
         },
         {
+            // https://tauri.app/v1/guides/debugging/vs-code
             "type": "lldb",
             "request": "launch",
-            "name": "AF-tauri: Dev",
+            "name": "AF-tauri: Debug backend",
             "cargo": {
                 "args": [
                     "build",
@@ -102,7 +103,7 @@
                     "--no-default-features"
                 ]
             },
-            "preLaunchTask": "AF: Tauri Dev",
+            "preLaunchTask": "AF: Tauri UI Dev",
             "cwd": "${workspaceRoot}/appflowy_tauri/"
         },
         {

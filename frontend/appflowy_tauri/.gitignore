@@ -23,5 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 
-**/src/protobuf/classes/
-**/src/protobuf/events/
+**/src/services/backend/classes/
+**/src/services/backend/events/

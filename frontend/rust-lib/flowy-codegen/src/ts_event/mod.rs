@@ -14,7 +14,8 @@ use walkdir::WalkDir;
 
 pub fn gen(crate_name: &str) {
     let root = std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap_or("../../".to_string());
-    let tauri_protobuf_path = std::env::var("TAURI_PROTOBUF_PATH").unwrap_or("appflowy_tauri/src/protobuf".to_string());
+    let tauri_backend_service_path =
+        std::env::var("TAURI_BACKEND_SERVICE_PATH").unwrap_or("appflowy_tauri/src/services/backend".to_string());
 
     let crate_path = std::fs::canonicalize(".").unwrap().as_path().display().to_string();
     let event_crates = parse_ts_event_files(vec![crate_path]);
@@ -31,7 +32,9 @@ pub fn gen(crate_name: &str) {
     }
     render_result.push_str(TS_FOOTER);
 
-    let ts_event_folder: PathBuf = [&root, &tauri_protobuf_path, "events", crate_name].iter().collect();
+    let ts_event_folder: PathBuf = [&root, &tauri_backend_service_path, "events", crate_name]
+        .iter()
+        .collect();
     if !ts_event_folder.as_path().exists() {
         std::fs::create_dir_all(ts_event_folder.as_path()).unwrap();
     }
@@ -185,7 +188,7 @@ const TS_HEADER: &str = r#"
 /// Auto generate. Do not edit
 import { Ok, Err, Result } from "ts-results";
 import { invoke } from "@tauri-apps/api/tauri";
-import * as pb from "../../classes";
+import * as pb from "../..";
 "#;
 
 const TS_FOOTER: &str = r#"
