@@ -20,7 +20,7 @@
 				"AF: Flutter Pub Get",
 				"AF: Flutter Package Get",
 				"AF: Generate Language Files",
-				"AF: Generate Freezed Files",
+				"AF: Generate Freezed Files"
 			],
 			"presentation": {
 				"reveal": "always",
@@ -38,12 +38,12 @@
 				"AF: Flutter Pub Get",
 				"AF: Flutter Package Get",
 				"AF: Generate Language Files",
-				"AF: Generate Freezed Files",
+				"AF: Generate Freezed Files"
 			],
 			"presentation": {
 				"reveal": "always",
-				"panel": "new",
-			},
+				"panel": "new"
+			}
 		},
 		{
 			"label": "AF: build_flowy_sdk_for_android",
@@ -187,11 +187,20 @@
 			"detail": "app_flowy"
 		},
 		{
-			"label": "AF: Tauri Dev",
+			"label": "AF: Tauri UI Dev",
 			"type": "shell",
 			"isBackground": true,
-			"command": "npm run dev",
-			"problemMatcher": [],
+			"command": "yarn dev",
+			"problemMatcher": ["$tsc"],
+			"options": {
+				"cwd": "${workspaceFolder}/appflowy_tauri"
+			}
+		},
+		{
+			"label": "AF: Tauri Dev",
+			"type": "shell",
+			"command": "npm run tauri dev",
+			"problemMatcher": ["$tsc"],
 			"options": {
 				"cwd": "${workspaceFolder}/appflowy_tauri"
 			}
@@ -202,7 +211,20 @@
 			"command": "cargo make tauri_clean",
 			"options": {
 				"cwd": "${workspaceFolder}"
-			}
+			},
+			"problemMatcher": ["$tsc"],
 		},
+		{
+			"label": "AF: Tauri Clean + Dev",
+			"type": "shell",
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"AF: Tauri Clean",
+				"AF: Tauri UI Dev"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			}
+		}
 	]
 }

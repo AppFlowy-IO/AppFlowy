@@ -101,11 +101,12 @@ fn generate_ts_protobuf_files(
     protoc_bin_path: &Path,
 ) {
     let root = std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap_or("../../".to_string());
-    let tauri_protobuf_path = std::env::var("TAURI_PROTOBUF_PATH").unwrap_or("appflowy_tauri/src/protobuf".to_string());
+    let tauri_backend_service_path =
+        std::env::var("TAURI_BACKEND_SERVICE_PATH").unwrap_or("appflowy_tauri/src/services/backend".to_string());
 
     let mut output = PathBuf::new();
     output.push(root);
-    output.push(tauri_protobuf_path);
+    output.push(tauri_backend_service_path);
     output.push("classes");
     output.push(name);
 
