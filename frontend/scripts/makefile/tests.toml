@@ -18,7 +18,7 @@ cargo make --profile test-linux dart_unit_test_inner
 script_runner = "@shell"
 
 [tasks.dart_unit_test_inner]
-dependencies = ["build-test-lib", "dry_code_generation"]
+dependencies = ["build-test-lib"]
 description = "Run flutter unit tests"
 script = '''
 cd app_flowy
@@ -90,7 +90,7 @@ script = [
   CARGO_INCREMENTAL=0 \
   RUSTFLAGS='-C instrument-coverage' \
   LLVM_PROFILE_FILE='prof-%p-%m.profraw' \
-  cargo test --no-default-features --features="sync"
+  cargo test --no-default-features --features="sync,rev-sqlite"
   """
 ]
 
