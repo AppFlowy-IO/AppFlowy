@@ -1,5 +1,5 @@
-use dart_notify::DartNotifyBuilder;
 use flowy_derive::ProtoBuf_Enum;
+use flowy_notification::NotificationBuilder;
 const OBSERVABLE_CATEGORY: &str = "Grid";
 
 #[derive(ProtoBuf_Enum, Debug)]
@@ -35,6 +35,6 @@ impl std::convert::From<GridDartNotification> for i32 {
 }
 
 #[tracing::instrument(level = "trace")]
-pub fn send_dart_notification(id: &str, ty: GridDartNotification) -> DartNotifyBuilder {
-    DartNotifyBuilder::new(id, ty, OBSERVABLE_CATEGORY)
+pub fn send_dart_notification(id: &str, ty: GridDartNotification) -> NotificationBuilder {
+    NotificationBuilder::new(id, ty, OBSERVABLE_CATEGORY)
 }

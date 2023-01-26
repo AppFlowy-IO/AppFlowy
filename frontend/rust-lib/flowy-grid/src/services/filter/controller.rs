@@ -183,7 +183,7 @@ impl FilterController {
                 invisible_rows,
                 visible_rows,
             };
-            tracing::Span::current().record("filter_result", &format!("{:?}", &notification).as_str());
+            tracing::Span::current().record("filter_result", format!("{:?}", &notification).as_str());
             let _ = self.notifier.send(GridViewChanged::FilterNotification(notification));
         }
         Ok(())

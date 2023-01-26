@@ -101,7 +101,7 @@ where
     /// Save the revision that comes from remote to disk.
     #[tracing::instrument(level = "trace", skip(self, revision), fields(rev_id, object_id=%self.object_id), err)]
     pub(crate) async fn add_ack_revision(&self, revision: &Revision) -> FlowyResult<()> {
-        tracing::Span::current().record("rev_id", &revision.rev_id);
+        tracing::Span::current().record("rev_id", revision.rev_id);
         self.add(revision.clone(), RevisionState::Ack, true).await
     }
 
@@ -127,7 +127,7 @@ where
             debug_assert_eq!(range.len() as usize, revisions.len());
             // compact multiple revisions into one
             let merged_revision = rev_compress.merge_revisions(&self.user_id, &self.object_id, revisions)?;
-            tracing::Span::current().record("rev_id", &merged_revision.rev_id);
+            tracing::Span::current().record("rev_id", merged_revision.rev_id);
 
             let record = SyncRecord {
                 revision: merged_revision,
@@ -178,7 +178,7 @@ where
                 end: *compact_seq.back().unwrap(),
             };
 
-            tracing::Span::current().record("compact_range", &format!("{}", range).as_str());
+            tracing::Span::current().record("compact_range", format!("{}", range).as_str());
             let mut revisions = self.revisions_in_range(&range).await?;
             debug_assert_eq!(range.len() as usize, revisions.len());
             // append the new revision
@@ -187,7 +187,7 @@ where
             // compact multiple revisions into one
             let merged_revision = rev_compress.merge_revisions(&self.user_id, &self.object_id, revisions)?;
             let rev_id = merged_revision.rev_id;
-            tracing::Span::current().record("rev_id", &merged_revision.rev_id);
+            tracing::Span::current().record("rev_id", merged_revision.rev_id);
             sync_seq.recv(merged_revision.rev_id)?;
 
             // replace the revisions in range with compact revision
@@ -195,7 +195,7 @@ where
             Ok(rev_id)
         } else {
             let rev_id = new_revision.rev_id;
-            tracing::Span::current().record("rev_id", &rev_id);
+            tracing::Span::current().record("rev_id", rev_id);
             self.add(new_revision, RevisionState::Sync, true).await?;
             sync_seq.merge_recv(rev_id)?;
             Ok(rev_id)
@@ -347,7 +347,7 @@ impl<C> RevisionMemoryCacheDelegate for Arc<dyn RevisionDiskCache<C, Error = Flo
         if !records.is_empty() {
             tracing::Span::current().record(
                 "checkpoint_result",
-                &format!("{} records were saved", records.len()).as_str(),
+                format!("{} records were saved", records.len()).as_str(),
             );
             self.create_revision_records(records)?;
         }

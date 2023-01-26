@@ -2,9 +2,9 @@ use crate::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB, UserSettingPB,
 };
 use crate::{
-    dart_notification::*,
     errors::{ErrorCode, FlowyError},
     event_map::UserCloudService,
+    notification::*,
     services::{
         database::{UserDB, UserTable, UserTableChangeset},
         notifier::UserNotifier,

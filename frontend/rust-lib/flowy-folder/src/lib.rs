@@ -8,8 +8,8 @@ mod macros;
 #[macro_use]
 extern crate flowy_database;
 
-mod dart_notification;
 pub mod manager;
+mod notification;
 pub mod protobuf;
 mod util;
 

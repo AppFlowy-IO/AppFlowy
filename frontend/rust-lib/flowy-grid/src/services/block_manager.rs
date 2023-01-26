@@ -1,6 +1,6 @@
-use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::{CellChangesetPB, InsertedRowPB, UpdatedRowPB};
 use crate::manager::GridUser;
+use crate::notification::{send_dart_notification, GridDartNotification};
 use crate::services::block_editor::{GridBlockRevisionEditor, GridBlockRevisionMergeable};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::rev_sqlite::{

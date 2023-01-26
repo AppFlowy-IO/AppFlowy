@@ -133,10 +133,10 @@ impl<Connection: 'static> RevisionManager<Connection> {
         B: RevisionObjectDeserializer,
     {
         let revision_records = self.rev_persistence.load_all_records(&self.object_id)?;
-        tracing::Span::current().record("object_id", &self.object_id.as_str());
-        tracing::Span::current().record("deserializer", &std::any::type_name::<B>());
+        tracing::Span::current().record("object_id", self.object_id.as_str());
+        tracing::Span::current().record("deserializer", std::any::type_name::<B>());
         let revisions: Vec<Revision> = revision_records.iter().map(|record| record.revision.clone()).collect();
-        tracing::Span::current().record("deserialize_revisions", &revisions.len());
+        tracing::Span::current().record("deserialize_revisions", revisions.len());
         let current_rev_id = revisions.last().as_ref().map(|revision| revision.rev_id).unwrap_or(0);
         match B::deserialize_revisions(&self.object_id, revisions.clone()) {
             Ok(object) => {

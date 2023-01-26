@@ -5,7 +5,7 @@ import 'package:appflowy_backend/protobuf/flowy-grid/sort_entities.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/dart_notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-grid/view_entities.pb.dart';
 
 typedef GridRowsVisibilityNotifierValue
