@@ -122,7 +122,7 @@ impl GroupGenerator for URLGroupGenerator {
                 let group_name = cell.content.clone();
                 GeneratedGroupConfig {
                     group_rev: GroupRevision::new(group_id, group_name),
-                    filter_content: cell.content.clone(),
+                    filter_content: cell.content,
                 }
             })
             .collect();

@@ -59,7 +59,7 @@ impl TrashController {
             delete_all: false,
         })?;
 
-        tracing::Span::current().record("putback", &format!("{:?}", &identifier).as_str());
+        tracing::Span::current().record("putback", format!("{:?}", &identifier).as_str());
         let _ = self.notify.send(TrashEvent::Putback(vec![identifier].into(), tx));
         rx.recv().await.unwrap()?;
         Ok(())
@@ -118,7 +118,7 @@ impl TrashController {
     #[tracing::instrument(level = "debug", skip(self), fields(delete_trash_ids), err)]
     pub async fn delete_with_identifiers(&self, trash_identifiers: RepeatedTrashIdPB) -> FlowyResult<()> {
         let (tx, mut rx) = mpsc::channel::<FlowyResult<()>>(1);
-        tracing::Span::current().record("delete_trash_ids", &format!("{}", trash_identifiers).as_str());
+        tracing::Span::current().record("delete_trash_ids", format!("{}", trash_identifiers).as_str());
         let _ = self.notify.send(TrashEvent::Delete(trash_identifiers.clone(), tx));
 
         match rx.recv().await {
@@ -156,7 +156,7 @@ impl TrashController {
 
         tracing::Span::current().record(
             "trash_ids",
-            &format!(
+            format!(
                 "{:?}",
                 identifiers
                     .iter()
@@ -282,7 +282,7 @@ impl TrashController {
 #[tracing::instrument(level = "debug", skip(repeated_trash), fields(n_trash))]
 fn notify_trash_changed<T: Into<RepeatedTrashPB>>(repeated_trash: T) {
     let repeated_trash = repeated_trash.into();
-    tracing::Span::current().record("n_trash", &repeated_trash.len());
+    tracing::Span::current().record("n_trash", repeated_trash.len());
     send_anonymous_dart_notification(FolderNotification::TrashUpdated)
         .payload(repeated_trash)
         .send();
