@@ -1,5 +1,5 @@
-use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::{GridRowsVisibilityChangesetPB, ReorderAllRowsPB, ReorderSingleRowPB};
+use crate::notification::{send_dart_notification, GridDartNotification};
 use crate::services::filter::FilterResultNotification;
 use crate::services::sort::{ReorderAllRowsResult, ReorderSingleRowResult};
 use async_stream::stream;

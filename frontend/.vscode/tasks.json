@@ -166,9 +166,9 @@
 			}
 		},
 		{
-			"label": "AF: Dart Clean",
+			"label": "AF: Flutter Clean",
 			"type": "shell",
-			"command": "cargo make dart_clean",
+			"command": "cargo make flutter_clean",
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}"

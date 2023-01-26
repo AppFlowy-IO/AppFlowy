@@ -2,10 +2,10 @@ use crate::entities::view::ViewDataFormatPB;
 use crate::entities::{ViewLayoutTypePB, ViewPB};
 use crate::services::folder_editor::FolderRevisionMergeable;
 use crate::{
-    dart_notification::{send_dart_notification, FolderNotification},
     entities::workspace::RepeatedWorkspacePB,
     errors::FlowyResult,
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
+    notification::{send_dart_notification, FolderNotification},
     services::{
         folder_editor::FolderEditor, persistence::FolderPersistence, set_current_workspace, AppController,
         TrashController, ViewController, WorkspaceController,

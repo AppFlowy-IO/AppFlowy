@@ -2,13 +2,13 @@ pub use crate::entities::view::ViewDataFormatPB;
 use crate::entities::{AppPB, DeletedViewPB, ViewInfoPB, ViewLayoutTypePB};
 use crate::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use crate::{
-    dart_notification::{send_dart_notification, FolderNotification},
     entities::{
         trash::{RepeatedTrashIdPB, TrashType},
         view::{CreateViewParams, RepeatedViewPB, UpdateViewParams, ViewIdPB, ViewPB},
     },
     errors::{FlowyError, FlowyResult},
     event_map::{FolderCouldServiceV1, WorkspaceUser},
+    notification::{send_dart_notification, FolderNotification},
     services::{
         persistence::{FolderPersistence, FolderPersistenceTransaction, ViewChangeset},
         TrashController, TrashEvent,

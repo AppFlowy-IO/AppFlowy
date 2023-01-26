@@ -133,7 +133,7 @@ mod tests {
         assert_eq!(native_time_str, utc_time_str);
 
         // Mon Mar 14 2022 17:56:02 GMT+0800 (China Standard Time)
-        let gmt_8_offset = FixedOffset::east(8 * 3600);
+        let gmt_8_offset = FixedOffset::east_opt(8 * 3600).unwrap();
         let china_local = chrono::DateTime::<chrono::Local>::from_utc(native, gmt_8_offset);
         let china_local_time = format!("{}", china_local.format_with_items(StrftimeItems::new(&format)));
 

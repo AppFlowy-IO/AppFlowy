@@ -1,4 +1,4 @@
-[tasks.dart_clean]
+[tasks.flutter_clean]
 run_task = { name = [
   "rust_lib_clean",
   "rm_macro_build_cache",

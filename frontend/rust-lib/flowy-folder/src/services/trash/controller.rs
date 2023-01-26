@@ -1,8 +1,8 @@
 use crate::{
-    dart_notification::{send_anonymous_dart_notification, FolderNotification},
     entities::trash::{RepeatedTrashIdPB, RepeatedTrashPB, TrashIdPB, TrashPB, TrashType},
     errors::{FlowyError, FlowyResult},
     event_map::{FolderCouldServiceV1, WorkspaceUser},
+    notification::{send_anonymous_dart_notification, FolderNotification},
     services::persistence::{FolderPersistence, FolderPersistenceTransaction},
 };
 

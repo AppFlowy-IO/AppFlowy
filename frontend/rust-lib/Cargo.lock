@@ -744,8 +744,9 @@ dependencies = [
  "flowy-derive",
  "lazy_static",
  "lib-dispatch",
- "log",
  "protobuf",
+ "serde",
+ "tracing",
 ]
 
 [[package]]

@@ -7,7 +7,7 @@ import 'package:appflowy_backend/protobuf/dart-notify/subject.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/dart_notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 
 typedef AppDidUpdateCallback = void Function(AppPB app);

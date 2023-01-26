@@ -91,6 +91,7 @@ name = "appflowy_tauri"
 version = "0.0.0"
 dependencies = [
  "bytes",
+ "dart-notify",
  "flowy-core",
  "lib-dispatch",
  "serde",
@@ -881,8 +882,9 @@ dependencies = [
  "flowy-derive",
  "lazy_static",
  "lib-dispatch",
- "log",
  "protobuf",
+ "serde",
+ "tracing",
 ]
 
 [[package]]

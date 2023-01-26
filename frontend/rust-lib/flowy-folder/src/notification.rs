@@ -1,4 +1,4 @@
-use dart_notify::DartNotifyBuilder;
+use dart_notify::NotificationBuilder;
 use flowy_derive::ProtoBuf_Enum;
 const OBSERVABLE_CATEGORY: &str = "Workspace";
 
@@ -33,11 +33,11 @@ impl std::convert::From<FolderNotification> for i32 {
 }
 
 #[tracing::instrument(level = "trace")]
-pub(crate) fn send_dart_notification(id: &str, ty: FolderNotification) -> DartNotifyBuilder {
-    DartNotifyBuilder::new(id, ty, OBSERVABLE_CATEGORY)
+pub(crate) fn send_dart_notification(id: &str, ty: FolderNotification) -> NotificationBuilder {
+    NotificationBuilder::new(id, ty, OBSERVABLE_CATEGORY)
 }
 
 #[tracing::instrument(level = "trace")]
-pub(crate) fn send_anonymous_dart_notification(ty: FolderNotification) -> DartNotifyBuilder {
-    DartNotifyBuilder::new("", ty, OBSERVABLE_CATEGORY)
+pub(crate) fn send_anonymous_dart_notification(ty: FolderNotification) -> NotificationBuilder {
+    NotificationBuilder::new("", ty, OBSERVABLE_CATEGORY)
 }
