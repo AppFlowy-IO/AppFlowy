@@ -1,5 +1,5 @@
-use dart_notify::entities::SubscribeObject;
-use dart_notify::NotificationSender;
+use flowy_notification::entities::SubscribeObject;
+use flowy_notification::NotificationSender;
 use serde::Serialize;
 use tauri::{AppHandle, Event, Manager, Wry};
 

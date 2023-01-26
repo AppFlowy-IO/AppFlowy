@@ -1,5 +1,5 @@
-use dart_notify::NotificationBuilder;
 use flowy_derive::ProtoBuf_Enum;
+use flowy_notification::NotificationBuilder;
 const OBSERVABLE_CATEGORY: &str = "User";
 
 #[derive(ProtoBuf_Enum, Debug)]

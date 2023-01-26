@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:app_flowy/core/folder_notification.dart';
 import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/dart-notify/subject.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';

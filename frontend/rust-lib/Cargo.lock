@@ -719,11 +719,11 @@ dependencies = [
  "byteorder",
  "bytes",
  "crossbeam-utils",
- "dart-notify",
  "ffi-support",
  "flowy-codegen",
  "flowy-core",
  "flowy-derive",
+ "flowy-notification",
  "lazy_static",
  "lib-dispatch",
  "log",
@@ -732,21 +732,6 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
-]
-
-[[package]]
-name = "dart-notify"
-version = "0.1.0"
-dependencies = [
- "allo-isolate",
- "bytes",
- "flowy-codegen",
- "flowy-derive",
- "lazy_static",
- "lib-dispatch",
- "protobuf",
- "serde",
- "tracing",
 ]
 
 [[package]]
@@ -1057,7 +1042,6 @@ dependencies = [
  "chrono",
  "color-eyre",
  "criterion",
- "dart-notify",
  "dashmap",
  "derive_more",
  "diesel",
@@ -1068,6 +1052,7 @@ dependencies = [
  "flowy-document",
  "flowy-error",
  "flowy-http-model",
+ "flowy-notification",
  "flowy-revision",
  "flowy-revision-persistence",
  "flowy-sync",
@@ -1117,7 +1102,6 @@ name = "flowy-folder"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "dart-notify",
  "diesel",
  "diesel_derives",
  "flowy-codegen",
@@ -1127,6 +1111,7 @@ dependencies = [
  "flowy-error",
  "flowy-folder",
  "flowy-http-model",
+ "flowy-notification",
  "flowy-revision",
  "flowy-revision-persistence",
  "flowy-sync",
@@ -1160,7 +1145,6 @@ dependencies = [
  "bytes",
  "chrono",
  "crossbeam-utils",
- "dart-notify",
  "dashmap",
  "diesel",
  "fancy-regex",
@@ -1170,6 +1154,7 @@ dependencies = [
  "flowy-error",
  "flowy-grid",
  "flowy-http-model",
+ "flowy-notification",
  "flowy-revision",
  "flowy-revision-persistence",
  "flowy-sync",
@@ -1246,6 +1231,21 @@ dependencies = [
  "strum",
  "strum_macros",
  "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "flowy-notification"
+version = "0.1.0"
+dependencies = [
+ "allo-isolate",
+ "bytes",
+ "flowy-codegen",
+ "flowy-derive",
+ "lazy_static",
+ "lib-dispatch",
+ "protobuf",
+ "serde",
  "tracing",
 ]
 
@@ -1361,7 +1361,6 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "claim 0.4.0",
- "dart-notify",
  "diesel",
  "diesel_derives",
  "fake",
@@ -1370,6 +1369,7 @@ dependencies = [
  "flowy-database",
  "flowy-derive",
  "flowy-error",
+ "flowy-notification",
  "flowy-test",
  "futures",
  "lazy_static",

@@ -7,7 +7,7 @@ mod init;
 mod notification;
 mod request;
 
-use dart_notify::register_notification_sender;
+use flowy_notification::register_notification_sender;
 use init::*;
 use notification::*;
 use request::*;

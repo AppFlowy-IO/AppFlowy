@@ -91,8 +91,8 @@ name = "appflowy_tauri"
 version = "0.0.0"
 dependencies = [
  "bytes",
- "dart-notify",
  "flowy-core",
+ "flowy-notification",
  "lib-dispatch",
  "serde",
  "serde_json",
@@ -873,21 +873,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dart-notify"
-version = "0.1.0"
-dependencies = [
- "allo-isolate",
- "bytes",
- "flowy-codegen",
- "flowy-derive",
- "lazy_static",
- "lib-dispatch",
- "protobuf",
- "serde",
- "tracing",
-]
-
-[[package]]
 name = "dashmap"
 version = "5.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1247,7 +1232,6 @@ dependencies = [
  "async-stream",
  "bytes",
  "chrono",
- "dart-notify",
  "dashmap",
  "diesel",
  "diesel_derives",
@@ -1256,6 +1240,7 @@ dependencies = [
  "flowy-derive",
  "flowy-error",
  "flowy-http-model",
+ "flowy-notification",
  "flowy-revision",
  "flowy-revision-persistence",
  "flowy-sync",
@@ -1302,7 +1287,6 @@ name = "flowy-folder"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "dart-notify",
  "diesel",
  "diesel_derives",
  "flowy-codegen",
@@ -1311,6 +1295,7 @@ dependencies = [
  "flowy-document",
  "flowy-error",
  "flowy-http-model",
+ "flowy-notification",
  "flowy-revision",
  "flowy-revision-persistence",
  "flowy-sync",
@@ -1343,7 +1328,6 @@ dependencies = [
  "bytes",
  "chrono",
  "crossbeam-utils",
- "dart-notify",
  "dashmap",
  "diesel",
  "fancy-regex",
@@ -1352,6 +1336,7 @@ dependencies = [
  "flowy-derive",
  "flowy-error",
  "flowy-http-model",
+ "flowy-notification",
  "flowy-revision",
  "flowy-revision-persistence",
  "flowy-sync",
@@ -1431,6 +1416,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-notification"
+version = "0.1.0"
+dependencies = [
+ "allo-isolate",
+ "bytes",
+ "flowy-codegen",
+ "flowy-derive",
+ "lazy_static",
+ "lib-dispatch",
+ "protobuf",
+ "serde",
+ "tracing",
+]
+
+[[package]]
 name = "flowy-revision"
 version = "0.1.0"
 dependencies = [
@@ -1504,7 +1504,6 @@ name = "flowy-user"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "dart-notify",
  "diesel",
  "diesel_derives",
  "fancy-regex",
@@ -1512,6 +1511,7 @@ dependencies = [
  "flowy-database",
  "flowy-derive",
  "flowy-error",
+ "flowy-notification",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
