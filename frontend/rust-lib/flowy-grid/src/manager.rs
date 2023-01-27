@@ -101,7 +101,7 @@ impl GridManager {
     #[tracing::instrument(level = "debug", skip_all, fields(grid_id), err)]
     pub async fn close_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<()> {
         let grid_id = grid_id.as_ref();
-        tracing::Span::current().record("grid_id", &grid_id);
+        tracing::Span::current().record("grid_id", grid_id);
         self.grid_editors.write().await.remove(grid_id).await;
         Ok(())
     }

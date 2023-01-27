@@ -2,7 +2,7 @@ import "./App.css";
 import {
   UserEventSignIn,
   SignInPayloadPB,
-} from "../services/backend/events/flowy-user";
+} from "../services/backend/events/flowy-user/index";
 import { nanoid } from "nanoid";
 
 

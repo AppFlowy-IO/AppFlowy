@@ -1,5 +1,5 @@
-use dart_notify::DartNotifyBuilder;
 use flowy_derive::ProtoBuf_Enum;
+use flowy_notification::NotificationBuilder;
 const OBSERVABLE_CATEGORY: &str = "User";
 
 #[derive(ProtoBuf_Enum, Debug)]
@@ -23,6 +23,6 @@ impl std::convert::From<UserNotification> for i32 {
     }
 }
 
-pub(crate) fn dart_notify(id: &str, ty: UserNotification) -> DartNotifyBuilder {
-    DartNotifyBuilder::new(id, ty, OBSERVABLE_CATEGORY)
+pub(crate) fn dart_notify(id: &str, ty: UserNotification) -> NotificationBuilder {
+    NotificationBuilder::new(id, ty, OBSERVABLE_CATEGORY)
 }

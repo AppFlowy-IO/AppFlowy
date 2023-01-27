@@ -1,11 +1,11 @@
 use crate::{
-    dart_notification::*,
     entities::{
         app::{AppPB, CreateAppParams, *},
         trash::TrashType,
     },
     errors::*,
     event_map::{FolderCouldServiceV1, WorkspaceUser},
+    notification::*,
     services::{
         persistence::{AppChangeset, FolderPersistence, FolderPersistenceTransaction},
         TrashController, TrashEvent,

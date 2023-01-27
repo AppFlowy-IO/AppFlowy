@@ -1,9 +1,9 @@
 use crate::entities::workspace::*;
 use crate::manager::FolderManager;
 use crate::{
-    dart_notification::*,
     errors::*,
     event_map::{FolderCouldServiceV1, WorkspaceUser},
+    notification::*,
     services::{
         persistence::{FolderPersistence, FolderPersistenceTransaction, WorkspaceChangeset},
         read_local_workspace_apps, TrashController,

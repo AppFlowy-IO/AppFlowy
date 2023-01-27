@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:appflowy_backend/protobuf/dart-notify/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
 import 'package:dartz/dartz.dart';
 
 class NotificationParser<T, E> {

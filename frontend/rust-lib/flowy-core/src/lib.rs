@@ -88,7 +88,7 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
     filters.push(format!("flowy_document={}", level));
     filters.push(format!("flowy_grid={}", level));
     filters.push(format!("flowy_collaboration={}", "info"));
-    filters.push(format!("dart_notify={}", level));
+    filters.push(format!("flowy_notification={}", level));
     filters.push(format!("lib_ot={}", level));
     filters.push(format!("lib_ws={}", level));
     filters.push(format!("lib_infra={}", level));
