@@ -30,11 +30,11 @@ class FiltersListener {
   }
 
   void _handler(
-    GridDartNotification ty,
+    GridNotification ty,
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case GridDartNotification.DidUpdateFilter:
+      case GridNotification.DidUpdateFilter:
         result.fold(
           (payload) => _filterNotifier?.value =
               left(FilterChangesetNotificationPB.fromBuffer(payload)),
@@ -100,11 +100,11 @@ class FilterListener {
   }
 
   void _handler(
-    GridDartNotification ty,
+    GridNotification ty,
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case GridDartNotification.DidUpdateFilter:
+      case GridNotification.DidUpdateFilter:
         result.fold(
           (payload) => handleChangeset(
               FilterChangesetNotificationPB.fromBuffer(payload)),
