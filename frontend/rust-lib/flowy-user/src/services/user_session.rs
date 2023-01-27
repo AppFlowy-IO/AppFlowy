@@ -84,7 +84,13 @@ impl UserSession {
     #[tracing::instrument(level = "debug", skip(self))]
     pub async fn sign_in(&self, params: SignInParams) -> Result<UserProfilePB, FlowyError> {
         if self.is_user_login(&params.email) {
-            self.get_user_profile().await
+            match self.get_user_profile().await {
+                Ok(profile) => {
+                    send_sign_in_notification().payload(profile.clone()).send();
+                    Ok(profile)
+                }
+                Err(err) => Err(err),
+            }
         } else {
             let resp = self.cloud_service.sign_in(params).await?;
             let session: Session = resp.clone().into();
@@ -92,6 +98,7 @@ impl UserSession {
             let user_table = self.save_user(resp.into()).await?;
             let user_profile: UserProfilePB = user_table.into();
             self.notifier.notify_login(&user_profile.token, &user_profile.id);
+            send_sign_in_notification().payload(user_profile.clone()).send();
             Ok(user_profile)
         }
     }
@@ -134,7 +141,7 @@ impl UserSession {
         diesel_update_table!(user_table, changeset, &*self.db_connection()?);
 
         let user_profile = self.get_user_profile().await?;
-        dart_notify(&session.token, UserNotification::UserProfileUpdated)
+        send_notification(&session.token, UserNotification::UserProfileUpdated)
             .payload(user_profile)
             .send();
         self.update_user_on_server(&session.token, params).await?;

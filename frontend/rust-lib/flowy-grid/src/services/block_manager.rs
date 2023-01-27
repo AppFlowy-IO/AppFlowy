@@ -1,6 +1,6 @@
 use crate::entities::{CellChangesetPB, InsertedRowPB, UpdatedRowPB};
 use crate::manager::GridUser;
-use crate::notification::{send_dart_notification, GridDartNotification};
+use crate::notification::{send_notification, GridDartNotification};
 use crate::services::block_editor::{GridBlockRevisionEditor, GridBlockRevisionMergeable};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::rev_sqlite::{
@@ -262,7 +262,7 @@ impl GridBlockManager {
 
     async fn notify_did_update_cell(&self, changeset: CellChangesetPB) -> FlowyResult<()> {
         let id = format!("{}:{}", changeset.row_id, changeset.field_id);
-        send_dart_notification(&id, GridDartNotification::DidUpdateCell).send();
+        send_notification(&id, GridDartNotification::DidUpdateCell).send();
         Ok(())
     }
 }

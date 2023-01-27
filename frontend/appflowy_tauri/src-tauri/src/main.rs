@@ -29,9 +29,10 @@ fn main() {
             });
         })
         .setup(|app| {
-            let window = app.get_window("main").unwrap();
-            #[cfg(debug_assertions)]
-            window.open_devtools();
+            if cfg!(debug_assertions) {
+                let window = app.get_window("main").unwrap();
+                window.open_devtools();
+            }
             Ok(())
         })
         .run(tauri::generate_context!())

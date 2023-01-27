@@ -2,7 +2,7 @@ use crate::{
     entities::trash::{RepeatedTrashIdPB, RepeatedTrashPB, TrashIdPB, TrashPB, TrashType},
     errors::{FlowyError, FlowyResult},
     event_map::{FolderCouldServiceV1, WorkspaceUser},
-    notification::{send_anonymous_dart_notification, FolderNotification},
+    notification::{send_anonymous_notification, FolderNotification},
     services::persistence::{FolderPersistence, FolderPersistenceTransaction},
 };
 
@@ -283,7 +283,7 @@ impl TrashController {
 fn notify_trash_changed<T: Into<RepeatedTrashPB>>(repeated_trash: T) {
     let repeated_trash = repeated_trash.into();
     tracing::Span::current().record("n_trash", repeated_trash.len());
-    send_anonymous_dart_notification(FolderNotification::TrashUpdated)
+    send_anonymous_notification(FolderNotification::TrashUpdated)
         .payload(repeated_trash)
         .send();
 }

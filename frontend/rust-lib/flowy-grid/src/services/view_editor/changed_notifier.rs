@@ -1,5 +1,5 @@
 use crate::entities::{GridRowsVisibilityChangesetPB, ReorderAllRowsPB, ReorderSingleRowPB};
-use crate::notification::{send_dart_notification, GridDartNotification};
+use crate::notification::{send_notification, GridDartNotification};
 use crate::services::filter::FilterResultNotification;
 use crate::services::sort::{ReorderAllRowsResult, ReorderSingleRowResult};
 use async_stream::stream;
@@ -37,7 +37,7 @@ impl GridViewChangedReceiverRunner {
                             invisible_rows: notification.invisible_rows,
                         };
 
-                        send_dart_notification(
+                        send_notification(
                             &changeset.view_id,
                             GridDartNotification::DidUpdateGridViewRowsVisibility,
                         )
@@ -48,7 +48,7 @@ impl GridViewChangedReceiverRunner {
                         let row_orders = ReorderAllRowsPB {
                             row_orders: notification.row_orders,
                         };
-                        send_dart_notification(&notification.view_id, GridDartNotification::DidReorderRows)
+                        send_notification(&notification.view_id, GridDartNotification::DidReorderRows)
                             .payload(row_orders)
                             .send()
                     }
@@ -58,7 +58,7 @@ impl GridViewChangedReceiverRunner {
                             old_index: notification.old_index as i32,
                             new_index: notification.new_index as i32,
                         };
-                        send_dart_notification(&notification.view_id, GridDartNotification::DidReorderSingleRow)
+                        send_notification(&notification.view_id, GridDartNotification::DidReorderSingleRow)
                             .payload(reorder_row)
                             .send()
                     }
