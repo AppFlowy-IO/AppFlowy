@@ -27,11 +27,11 @@ class SortsListener {
   }
 
   void _handler(
-    GridDartNotification ty,
+    GridNotification ty,
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case GridDartNotification.DidUpdateSort:
+      case GridNotification.DidUpdateSort:
         result.fold(
           (payload) => _notifier?.value =
               left(SortChangesetNotificationPB.fromBuffer(payload)),
