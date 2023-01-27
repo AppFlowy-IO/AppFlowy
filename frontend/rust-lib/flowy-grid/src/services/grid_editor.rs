@@ -1,7 +1,7 @@
 use crate::entities::CellPathParams;
 use crate::entities::*;
 use crate::manager::GridUser;
-use crate::notification::{send_notification, GridDartNotification};
+use crate::notification::{send_notification, GridNotification};
 use crate::services::block_manager::GridBlockManager;
 use crate::services::cell::{
     apply_cell_data_changeset, decode_type_cell_data, stringify_cell_data, AnyTypeCache, AtomicCellDataCache,
@@ -112,7 +112,7 @@ impl GridRevisionEditor {
         self.view_manager.close(&self.grid_id).await;
     }
 
-    /// Save the type-option data to disk and send a `GridDartNotification::DidUpdateField` notification
+    /// Save the type-option data to disk and send a `GridNotification::DidUpdateField` notification
     /// to dart side.
     ///
     /// It will do nothing if the passed-in type_option_data is empty
@@ -852,7 +852,7 @@ impl GridRevisionEditor {
             let notified_changeset = GridFieldChangesetPB::update(&self.grid_id, vec![updated_field.clone()]);
             self.notify_did_update_grid(notified_changeset).await?;
 
-            send_notification(field_id, GridDartNotification::DidUpdateField)
+            send_notification(field_id, GridNotification::DidUpdateField)
                 .payload(updated_field)
                 .send();
         }
@@ -861,7 +861,7 @@ impl GridRevisionEditor {
     }
 
     async fn notify_did_update_grid(&self, changeset: GridFieldChangesetPB) -> FlowyResult<()> {
-        send_notification(&self.grid_id, GridDartNotification::DidUpdateGridFields)
+        send_notification(&self.grid_id, GridNotification::DidUpdateGridFields)
             .payload(changeset)
             .send();
         Ok(())

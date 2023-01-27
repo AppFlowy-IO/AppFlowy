@@ -25,9 +25,9 @@ class GridFieldsListener {
     );
   }
 
-  void _handler(GridDartNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handler(GridNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridDartNotification.DidUpdateGridFields:
+      case GridNotification.DidUpdateGridFields:
         result.fold(
           (payload) => updateFieldsNotifier?.value =
               left(GridFieldChangesetPB.fromBuffer(payload)),

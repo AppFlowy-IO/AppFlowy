@@ -22,9 +22,9 @@ class CellListener {
         objectId: "$rowId:$fieldId", handler: _handler);
   }
 
-  void _handler(GridDartNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handler(GridNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridDartNotification.DidUpdateCell:
+      case GridNotification.DidUpdateCell:
         result.fold(
           (payload) => _updateCellNotifier?.value = left(unit),
           (error) => _updateCellNotifier?.value = right(error),

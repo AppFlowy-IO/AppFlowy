@@ -16,10 +16,14 @@ function App() {
         name: "abc",
       });
 
-      let listener = await new UserNotificationListener("", (userProfile) => {
+      let listener = await new UserNotificationListener({
+        onUserSignIn: (userProfile) => {
         console.log(userProfile);
+      }, onProfileUpdate(userProfile) {
+        console.log(userProfile);
+        // stop listening the changes
         listener.stop();
-      });
+      }});
 
       listener.start();
 
