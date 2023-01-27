@@ -181,6 +181,7 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
             child: RoundedInputField(
               height: 36,
               focusNode: focusNode,
+              onFieldSubmitted: (String _) => PopoverContainer.of(context).close(),
               style: Theme.of(context).textTheme.bodyMedium,
               controller: controller,
               errorText: context.read<FieldEditorBloc>().state.errorText,
