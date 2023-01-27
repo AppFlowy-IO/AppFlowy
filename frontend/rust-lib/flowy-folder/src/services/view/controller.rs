@@ -8,7 +8,7 @@ use crate::{
     },
     errors::{FlowyError, FlowyResult},
     event_map::{FolderCouldServiceV1, WorkspaceUser},
-    notification::{send_dart_notification, FolderNotification},
+    notification::{send_notification, FolderNotification},
     services::{
         persistence::{FolderPersistence, FolderPersistenceTransaction, ViewChangeset},
         TrashController, TrashEvent,
@@ -225,7 +225,7 @@ impl ViewController {
             })
             .await?;
 
-        send_dart_notification(&view_id, FolderNotification::ViewMoveToTrash)
+        send_notification(&view_id, FolderNotification::ViewMoveToTrash)
             .payload(deleted_view)
             .send();
 
@@ -291,7 +291,7 @@ impl ViewController {
                 transaction.update_view(changeset)?;
                 let view_rev = transaction.read_view(&view_id)?;
                 let view: ViewPB = view_rev.clone().into();
-                send_dart_notification(&view_id, FolderNotification::ViewUpdated)
+                send_notification(&view_id, FolderNotification::ViewUpdated)
                     .payload(view)
                     .send();
                 notify_views_changed(&view_rev.app_id, self.trash_controller.clone(), &transaction)?;
@@ -356,7 +356,7 @@ impl ViewController {
                     {
                         Ok(_) => {
                             let view: ViewPB = view_rev.into();
-                            send_dart_notification(&view.id, FolderNotification::ViewUpdated)
+                            send_notification(&view.id, FolderNotification::ViewUpdated)
                                 .payload(view)
                                 .send();
                         }
@@ -518,7 +518,7 @@ fn read_local_views_with_transaction<'a>(
 }
 
 fn notify_dart(view: ViewPB, notification: FolderNotification) {
-    send_dart_notification(&view.id, notification).payload(view).send();
+    send_notification(&view.id, notification).payload(view).send();
 }
 
 #[tracing::instrument(
@@ -537,7 +537,7 @@ fn notify_views_changed<'a>(
     app_rev.belongings.retain(|view| !trash_ids.contains(&view.id));
     let app: AppPB = app_rev.into();
 
-    send_dart_notification(belong_to_id, FolderNotification::AppUpdated)
+    send_notification(belong_to_id, FolderNotification::AppUpdated)
         .payload(app)
         .send();
 

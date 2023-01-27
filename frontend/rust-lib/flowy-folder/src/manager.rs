@@ -5,7 +5,7 @@ use crate::{
     entities::workspace::RepeatedWorkspacePB,
     errors::FlowyResult,
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
-    notification::{send_dart_notification, FolderNotification},
+    notification::{send_notification, FolderNotification},
     services::{
         folder_editor::FolderEditor, persistence::FolderPersistence, set_current_workspace, AppController,
         TrashController, ViewController, WorkspaceController,
@@ -249,7 +249,7 @@ impl DefaultFolderBuilder {
         let repeated_workspace = RepeatedWorkspacePB {
             items: vec![workspace_rev.into()],
         };
-        send_dart_notification(token, FolderNotification::UserCreateWorkspace)
+        send_notification(token, FolderNotification::UserCreateWorkspace)
             .payload(repeated_workspace)
             .send();
         Ok(())

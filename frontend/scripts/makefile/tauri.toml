@@ -1,11 +1,5 @@
 [tasks.tauri_build]
-script = ["""
-    cd appflowy_tauri/src-tauri
-    npm run tauri build
-    """]
-script_runner = "@shell"
-
-[tasks.tauri_pb]
+description = "Build the Tauri backend & Run Code Generation"
 script = ["""
     cd appflowy_tauri/src-tauri
     cargo build
@@ -20,6 +14,7 @@ script = ["""
 script_runner = "@shell"
 
 [tasks.tauri_clean]
+description = "Remove all the building artifacts"
 run_task = { name = [
   "rust_lib_clean",
   "rm_macro_build_cache",

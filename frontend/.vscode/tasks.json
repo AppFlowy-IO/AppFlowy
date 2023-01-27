@@ -190,7 +190,16 @@
 			"label": "AF: Tauri UI Dev",
 			"type": "shell",
 			"isBackground": true,
-			"command": "yarn dev",
+			"command": "npm run dev",
+			"problemMatcher": ["$tsc"],
+			"options": {
+				"cwd": "${workspaceFolder}/appflowy_tauri"
+			}
+		},
+		{
+			"label": "AF: Tauri UI Build",
+			"type": "shell",
+			"command": "npm run build",
 			"problemMatcher": ["$tsc"],
 			"options": {
 				"cwd": "${workspaceFolder}/appflowy_tauri"

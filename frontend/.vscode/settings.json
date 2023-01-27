@@ -9,6 +9,16 @@
         "editor.tabCompletion": "onlySnippets",
         "editor.wordBasedSuggestions": false,
     },
+    "[javascript]": {
+        "editor.formatOnSave": true,
+        "editor.rulers": [80],
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.formatOnSave": true,
+        "editor.rulers": [80],
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
     "svgviewer.enableautopreview": true,
     "svgviewer.previewcolumn": "Active",
     "svgviewer.showzoominout": true,
