@@ -67,18 +67,14 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
     with GridCellAccessoryState {
   @override
   Widget build(BuildContext context) {
-    if (widget.isCellEditing) {
-      return const SizedBox();
-    } else {
-      return Tooltip(
-        message: LocaleKeys.tooltip_openAsPage.tr(),
-        textStyle: AFThemeExtension.of(context).caption.textColor(Colors.white),
-        child: svgWidget(
-          "grid/expander",
-          color: Theme.of(context).colorScheme.primary,
-        ),
-      );
-    }
+    return Tooltip(
+      message: LocaleKeys.tooltip_openAsPage.tr(),
+      textStyle: AFThemeExtension.of(context).caption.textColor(Colors.white),
+      child: svgWidget(
+        "grid/expander",
+        color: Theme.of(context).colorScheme.primary,
+      ),
+    );
   }
 
   @override

@@ -39,11 +39,12 @@ class GridSingleSelectCell extends GridCellWidget {
   }
 
   @override
-  State<GridSingleSelectCell> createState() => _SingleSelectCellState();
+  GridCellState<GridSingleSelectCell> createState() => _SingleSelectCellState();
 }
 
-class _SingleSelectCellState extends State<GridSingleSelectCell> {
+class _SingleSelectCellState extends GridCellState<GridSingleSelectCell> {
   late SelectOptionCellBloc _cellBloc;
+  late final PopoverController _popover;
 
   @override
   void initState() {
@@ -51,6 +52,7 @@ class _SingleSelectCellState extends State<GridSingleSelectCell> {
         widget.cellControllerBuilder.build() as GridSelectOptionCellController;
     _cellBloc = getIt<SelectOptionCellBloc>(param1: cellController)
       ..add(const SelectOptionCellEvent.initial());
+    _popover = PopoverController();
     super.initState();
   }
 
@@ -61,10 +63,12 @@ class _SingleSelectCellState extends State<GridSingleSelectCell> {
       child: BlocBuilder<SelectOptionCellBloc, SelectOptionCellState>(
         builder: (context, state) {
           return SelectOptionWrap(
-              selectOptions: state.selectedOptions,
-              cellStyle: widget.cellStyle,
-              onFocus: (value) => widget.onCellEditing.value = value,
-              cellControllerBuilder: widget.cellControllerBuilder);
+            selectOptions: state.selectedOptions,
+            cellStyle: widget.cellStyle,
+            onCellEditing: widget.onCellEditing,
+            popoverController: _popover,
+            cellControllerBuilder: widget.cellControllerBuilder,
+          );
         },
       ),
     );
@@ -75,6 +79,9 @@ class _SingleSelectCellState extends State<GridSingleSelectCell> {
     _cellBloc.close();
     super.dispose();
   }
+
+  @override
+  void requestBeginFocus() => _popover.show();
 }
 
 //----------------------------------------------------------------
@@ -95,11 +102,12 @@ class GridMultiSelectCell extends GridCellWidget {
   }
 
   @override
-  State<GridMultiSelectCell> createState() => _MultiSelectCellState();
+  GridCellState<GridMultiSelectCell> createState() => _MultiSelectCellState();
 }
 
-class _MultiSelectCellState extends State<GridMultiSelectCell> {
+class _MultiSelectCellState extends GridCellState<GridMultiSelectCell> {
   late SelectOptionCellBloc _cellBloc;
+  late final PopoverController _popover;
 
   @override
   void initState() {
@@ -107,6 +115,7 @@ class _MultiSelectCellState extends State<GridMultiSelectCell> {
         widget.cellControllerBuilder.build() as GridSelectOptionCellController;
     _cellBloc = getIt<SelectOptionCellBloc>(param1: cellController)
       ..add(const SelectOptionCellEvent.initial());
+    _popover = PopoverController();
     super.initState();
   }
 
@@ -119,7 +128,8 @@ class _MultiSelectCellState extends State<GridMultiSelectCell> {
           return SelectOptionWrap(
             selectOptions: state.selectedOptions,
             cellStyle: widget.cellStyle,
-            onFocus: (value) => widget.onCellEditing.value = value,
+            onCellEditing: widget.onCellEditing,
+            popoverController: _popover,
             cellControllerBuilder: widget.cellControllerBuilder,
           );
         },
@@ -132,17 +142,23 @@ class _MultiSelectCellState extends State<GridMultiSelectCell> {
     _cellBloc.close();
     super.dispose();
   }
+
+  @override
+  void requestBeginFocus() => _popover.show();
 }
 
 class SelectOptionWrap extends StatefulWidget {
   final List<SelectOptionPB> selectOptions;
-  final void Function(bool)? onFocus;
   final SelectOptionCellStyle? cellStyle;
   final GridCellControllerBuilder cellControllerBuilder;
+  final PopoverController popoverController;
+  final ValueNotifier onCellEditing;
+
   const SelectOptionWrap({
     required this.selectOptions,
     required this.cellControllerBuilder,
-    this.onFocus,
+    required this.onCellEditing,
+    required this.popoverController,
     this.cellStyle,
     Key? key,
   }) : super(key: key);
@@ -152,48 +168,29 @@ class SelectOptionWrap extends StatefulWidget {
 }
 
 class _SelectOptionWrapState extends State<SelectOptionWrap> {
-  late PopoverController _popover;
-
-  @override
-  void initState() {
-    _popover = PopoverController();
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     Widget child = _buildOptions(context);
 
-    return Stack(
-      alignment: AlignmentDirectional.center,
-      fit: StackFit.expand,
-      children: [
-        _wrapPopover(child),
-        InkWell(onTap: () => _popover.show()),
-      ],
-    );
-  }
-
-  Widget _wrapPopover(Widget child) {
     final constraints = BoxConstraints.loose(Size(
       SelectOptionCellEditor.editorPanelWidth,
       300,
     ));
     return AppFlowyPopover(
-      controller: _popover,
+      controller: widget.popoverController,
       constraints: constraints,
       margin: EdgeInsets.zero,
       direction: PopoverDirection.bottomWithLeftAligned,
       popupBuilder: (BuildContext context) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          widget.onFocus?.call(true);
+          widget.onCellEditing.value = true;
         });
         return SelectOptionCellEditor(
           cellController: widget.cellControllerBuilder.build()
               as GridSelectOptionCellController,
         );
       },
-      onClose: () => widget.onFocus?.call(false),
+      onClose: () => widget.onCellEditing.value = false,
       child: Padding(
         padding: GridSize.cellContentInsets,
         child: child,

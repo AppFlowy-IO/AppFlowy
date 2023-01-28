@@ -90,7 +90,7 @@ script = [
   CARGO_INCREMENTAL=0 \
   RUSTFLAGS='-C instrument-coverage' \
   LLVM_PROFILE_FILE='prof-%p-%m.profraw' \
-  cargo test --no-default-features --features="sync"
+  cargo test --no-default-features --features="sync,rev-sqlite"
   """
 ]
 

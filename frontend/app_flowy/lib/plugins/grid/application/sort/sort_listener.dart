@@ -4,7 +4,7 @@ import 'package:app_flowy/core/grid_notification.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/dart_notification.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-grid/sort_entities.pb.dart';
 
 typedef SortNotifiedValue = Either<SortChangesetNotificationPB, FlowyError>;
@@ -27,11 +27,11 @@ class SortsListener {
   }
 
   void _handler(
-    GridDartNotification ty,
+    GridNotification ty,
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case GridDartNotification.DidUpdateSort:
+      case GridNotification.DidUpdateSort:
         result.fold(
           (payload) => _notifier?.value =
               left(SortChangesetNotificationPB.fromBuffer(payload)),

@@ -1,5 +1,5 @@
 [package]
-name = "dart-notify"
+name = "flowy-notification"
 version = "0.1.0"
 edition = "2018"
 
@@ -9,8 +9,9 @@ edition = "2018"
 lazy_static = { version = "1.4.0" }
 protobuf = { version = "2.20.0" }
 allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
-log = "0.4.14"
+tracing = { version = "0.1", features = ["log"] }
 bytes = { version = "1.0" }
+serde = "1.0"
 
 flowy-derive = { path = "../flowy-derive" }
 lib-dispatch = { path = "../lib-dispatch" }
@@ -20,3 +21,4 @@ flowy-codegen = { path = "../flowy-codegen" }
 
 [features]
 dart = ["flowy-codegen/dart"]
+ts = ["flowy-codegen/ts"]

@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:app_flowy/core/grid_notification.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/dart_notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-grid/filter_changeset.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-grid/util.pb.dart';
@@ -30,11 +30,11 @@ class FiltersListener {
   }
 
   void _handler(
-    GridDartNotification ty,
+    GridNotification ty,
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case GridDartNotification.DidUpdateFilter:
+      case GridNotification.DidUpdateFilter:
         result.fold(
           (payload) => _filterNotifier?.value =
               left(FilterChangesetNotificationPB.fromBuffer(payload)),
@@ -100,11 +100,11 @@ class FilterListener {
   }
 
   void _handler(
-    GridDartNotification ty,
+    GridNotification ty,
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case GridDartNotification.DidUpdateFilter:
+      case GridNotification.DidUpdateFilter:
         result.fold(
           (payload) => handleChangeset(
               FilterChangesetNotificationPB.fromBuffer(payload)),

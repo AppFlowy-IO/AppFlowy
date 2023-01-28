@@ -106,6 +106,16 @@
             "preLaunchTask": "AF: Tauri UI Dev",
             "cwd": "${workspaceRoot}/appflowy_tauri/"
         },
+        // {
+        //     "type": "lldb",
+        //     "request": "launch",
+        //     "name": "AF-tauri: Production Debug",
+        //     "cargo": {
+        //         "args": ["build", "--release", "--manifest-path=./appflowy_tauri/src-tauri/Cargo.toml"]
+        //     },
+        //     "preLaunchTask": "AF: Tauri UI Build",
+        //     "cwd": "${workspaceRoot}/appflowy_tauri/"
+        // },
         {
             "name": "AF: Debug Rust",
             "request": "attach",

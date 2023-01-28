@@ -127,14 +127,14 @@ impl DocumentManager {
         document_id: T,
     ) -> Result<Arc<dyn DocumentEditor>, FlowyError> {
         let document_id = document_id.as_ref();
-        tracing::Span::current().record("document_id", &document_id);
+        tracing::Span::current().record("document_id", document_id);
         self.init_document_editor(document_id).await
     }
 
     #[tracing::instrument(level = "trace", skip(self, editor_id), fields(editor_id), err)]
     pub async fn close_document_editor<T: AsRef<str>>(&self, editor_id: T) -> Result<(), FlowyError> {
         let editor_id = editor_id.as_ref();
-        tracing::Span::current().record("editor_id", &editor_id);
+        tracing::Span::current().record("editor_id", editor_id);
         self.editor_map.write().await.remove(editor_id).await;
         Ok(())
     }

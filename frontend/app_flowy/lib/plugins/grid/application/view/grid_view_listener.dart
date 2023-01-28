@@ -5,7 +5,7 @@ import 'package:appflowy_backend/protobuf/flowy-grid/sort_entities.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/dart_notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-grid/view_entities.pb.dart';
 
 typedef GridRowsVisibilityNotifierValue
@@ -51,30 +51,30 @@ class GridViewListener {
     _reorderSingleRow?.addPublishListener(onReorderSingleRow);
   }
 
-  void _handler(GridDartNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handler(GridNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridDartNotification.DidUpdateGridViewRowsVisibility:
+      case GridNotification.DidUpdateGridViewRowsVisibility:
         result.fold(
           (payload) => _rowsVisibility?.value =
               left(GridRowsVisibilityChangesetPB.fromBuffer(payload)),
           (error) => _rowsVisibility?.value = right(error),
         );
         break;
-      case GridDartNotification.DidUpdateGridViewRows:
+      case GridNotification.DidUpdateGridViewRows:
         result.fold(
           (payload) => _rowsNotifier?.value =
               left(GridViewRowsChangesetPB.fromBuffer(payload)),
           (error) => _rowsNotifier?.value = right(error),
         );
         break;
-      case GridDartNotification.DidReorderRows:
+      case GridNotification.DidReorderRows:
         result.fold(
           (payload) => _reorderAllRows?.value =
               left(ReorderAllRowsPB.fromBuffer(payload).rowOrders),
           (error) => _reorderAllRows?.value = right(error),
         );
         break;
-      case GridDartNotification.DidReorderSingleRow:
+      case GridNotification.DidReorderSingleRow:
         result.fold(
           (payload) => _reorderSingleRow?.value =
               left(ReorderSingleRowPB.fromBuffer(payload)),

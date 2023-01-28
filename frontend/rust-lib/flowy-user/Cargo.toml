@@ -11,7 +11,7 @@ flowy-database = { path = "../flowy-database", optional = true }
 flowy-error = { path = "../flowy-error", features = ["db", "http_server"] }
 
 lib-infra = { path = "../../../shared-lib/lib-infra" }
-dart-notify = { path = "../dart-notify" }
+flowy-notification = { path = "../flowy-notification" }
 lib-dispatch = { path = "../lib-dispatch" }
 
 tracing = { version = "0.1", features = ["log"] }
@@ -46,8 +46,8 @@ rand = "0.8.5"
 
 [features]
 rev-sqlite = ["flowy-database"]
-dart = ["flowy-codegen/dart", "dart-notify/dart"]
-ts = ["flowy-codegen/ts"]
+dart = ["flowy-codegen/dart", "flowy-notification/dart"]
+ts = ["flowy-codegen/ts", "flowy-notification/ts"]
 
 [build-dependencies]
 flowy-codegen = { path = "../flowy-codegen"}
