@@ -286,11 +286,6 @@ List<ShortcutEvent> builtInShortcutEvents = [
     handler: doubleTildeToStrikethrough,
   ),
   ShortcutEvent(
-    key: 'Greater to blockquote',
-    command: 'shift+greater',
-    handler: greaterToBlockquote,
-  ),
-  ShortcutEvent(
     key: 'Markdown link or image',
     command: 'shift+parenthesis right',
     handler: markdownLinkOrImageHandler,
