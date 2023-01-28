@@ -120,9 +120,26 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
         children: [
           _buildEmoji(),
           Expanded(
-            child: EditorNodeWidget(
-              node: widget.node,
-              editorState: widget.editorState,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: widget.node.children
+                  .map(
+                    (child) => widget.editorState.service.renderPluginService
+                        .buildPluginWidget(
+                      child is TextNode
+                          ? NodeWidgetContext<TextNode>(
+                              context: context,
+                              node: child,
+                              editorState: widget.editorState,
+                            )
+                          : NodeWidgetContext<Node>(
+                              context: context,
+                              node: child,
+                              editorState: widget.editorState,
+                            ),
+                    ),
+                  )
+                  .toList(),
             ),
           ),
         ],
