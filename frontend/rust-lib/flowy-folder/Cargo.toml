@@ -15,7 +15,7 @@ lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 flowy-document = { path = "../flowy-document" }
 flowy-database = { path = "../flowy-database", optional = true }
-flowy-error = { path = "../flowy-error", features = ["db", "http_server"]}
+flowy-error = { path = "../flowy-error", features = ["db", "http_server", "dispatch"]}
 flowy-notification = { path = "../flowy-notification" }
 lib-dispatch = { path = "../lib-dispatch" }
 flowy-revision = { path = "../flowy-revision" }

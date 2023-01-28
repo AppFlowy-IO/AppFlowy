@@ -5,10 +5,9 @@ use crate::{
     synchronizer::{RevisionSyncPersistence, RevisionSyncResponse, RevisionUser},
 };
 use async_stream::stream;
-use flowy_http_model::entities::ClientRevisionWSData;
 use flowy_http_model::folder::FolderInfo;
 use flowy_http_model::revision::Revision;
-use flowy_http_model::ws_data::ServerRevisionWSDataBuilder;
+use flowy_http_model::ws_data::{ClientRevisionWSData, ServerRevisionWSDataBuilder};
 use futures::stream::StreamExt;
 use lib_infra::future::BoxResultFuture;
 use std::{collections::HashMap, fmt::Debug, sync::Arc};

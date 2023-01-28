@@ -882,6 +882,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "error-code"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_repr",
+ "thiserror",
+]
+
+[[package]]
 name = "eyre"
 version = "0.6.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -922,6 +931,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "fancy-regex"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b95f7c0680e4142284cf8b22c14a476e87d61b004a3a0861872b32ef7ead40a2"
+dependencies = [
+ "bit-set",
+ "regex",
+]
+
+[[package]]
 name = "fastrand"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -955,7 +974,7 @@ version = "0.1.0"
 dependencies = [
  "cmd_lib",
  "console",
- "fancy-regex",
+ "fancy-regex 0.10.0",
  "flowy-ast",
  "itertools",
  "lazy_static",
@@ -1084,6 +1103,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bytes",
+ "error-code",
  "flowy-codegen",
  "flowy-database",
  "flowy-derive",
@@ -1147,7 +1167,7 @@ dependencies = [
  "crossbeam-utils",
  "dashmap",
  "diesel",
- "fancy-regex",
+ "fancy-regex 0.10.0",
  "flowy-codegen",
  "flowy-database",
  "flowy-derive",
@@ -1188,11 +1208,13 @@ dependencies = [
 name = "flowy-http-model"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bytes",
  "md5",
  "serde",
  "serde_json",
  "serde_repr",
+ "thiserror",
 ]
 
 [[package]]
@@ -1220,7 +1242,6 @@ dependencies = [
  "lib-dispatch",
  "lib-infra",
  "lib-ws",
- "log",
  "nanoid",
  "parking_lot 0.12.1",
  "protobuf",
@@ -1232,6 +1253,7 @@ dependencies = [
  "strum_macros",
  "tokio",
  "tracing",
+ "user-model",
 ]
 
 [[package]]
@@ -1360,39 +1382,28 @@ name = "flowy-user"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "claim 0.4.0",
  "diesel",
  "diesel_derives",
- "fake",
- "fancy-regex",
  "flowy-codegen",
  "flowy-database",
  "flowy-derive",
  "flowy-error",
  "flowy-notification",
  "flowy-test",
- "futures",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
  "log",
- "nanoid",
  "once_cell",
  "parking_lot 0.12.1",
  "protobuf",
- "quickcheck",
- "quickcheck_macros",
- "rand 0.8.5",
- "rand_core 0.6.4",
  "serde",
  "serde_json",
- "serial_test",
  "strum",
  "strum_macros",
  "tokio",
  "tracing",
- "unicode-segmentation",
- "validator",
+ "user-model",
 ]
 
 [[package]]
@@ -3918,6 +3929,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "user-model"
+version = "0.1.0"
+dependencies = [
+ "error-code",
+ "fancy-regex 0.11.0",
+ "lazy_static",
+ "serde",
+ "tracing",
+ "unicode-segmentation",
+ "validator",
+]
+
+[[package]]
 name = "utf-8"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3934,9 +3958,9 @@ dependencies = [
 
 [[package]]
 name = "validator"
-version = "0.15.0"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f07b0a1390e01c0fc35ebb26b28ced33c9a3808f7f9fbe94d3cc01e233bfeed5"
+checksum = "32ad5bf234c7d3ad1042e5252b7eddb2c4669ee23f32c7dd0e9b7705f07ef591"
 dependencies = [
  "idna 0.2.3",
  "lazy_static",

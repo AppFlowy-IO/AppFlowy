@@ -8,8 +8,8 @@ edition = "2018"
 [dependencies]
 flowy-derive = { path = "../flowy-derive" }
 flowy-database = { path = "../flowy-database", optional = true }
-flowy-error = { path = "../flowy-error", features = ["db", "http_server"] }
-
+flowy-error = { path = "../flowy-error", features = ["db", "http_server", "dispatch"] }
+user-model = { path = "../../../shared-lib/user-model" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-notification = { path = "../flowy-notification" }
 lib-dispatch = { path = "../lib-dispatch" }
@@ -28,21 +28,9 @@ parking_lot = "0.12.1"
 strum = "0.21"
 strum_macros = "0.21"
 tokio = { version = "1", features = ["rt"] }
-unicode-segmentation = "1.8"
-validator = "0.15"
-fancy-regex = "0.10.0"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }
-nanoid = "0.4.0"
-quickcheck = "1.0.3"
-quickcheck_macros = "0.9.1"
-fake = "2.4.3"
-claim = "0.4.0"
-futures = "0.3.15"
-serial_test = "0.5.1"
-rand_core = "0.6.3"
-rand = "0.8.5"
 
 [features]
 rev-sqlite = ["flowy-database"]

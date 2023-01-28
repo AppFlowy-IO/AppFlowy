@@ -12,6 +12,7 @@ flowy-derive = { path = "../flowy-derive" }
 flowy-sync = { path = "../flowy-sync"}
 flowy-http-model = { path = "../../../shared-lib/flowy-http-model"}
 folder-rev-model = { path = "../../../shared-lib/folder-rev-model"}
+user-model = { path = "../../../shared-lib/user-model"}
 flowy-folder = { path = "../flowy-folder" }
 flowy-user = { path = "../flowy-user" }
 flowy-document = { path = "../flowy-document" }
@@ -30,13 +31,12 @@ dashmap = "5"
 async-stream = "0.3.2"
 futures-util = "0.3.15"
 http-flowy = { git = "https://github.com/AppFlowy-IO/AppFlowy-Server", features = ["with_reqwest"] }
-serde-aux = "1.0.1"
 reqwest = "0.11"
 hyper = "0.14"
 config = { version = "0.10.1", default-features = false, features = ["yaml"] }
-log = "0.4.14"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+serde-aux = "1.0.1"
 nanoid = "0.4.0"
 
 [features]

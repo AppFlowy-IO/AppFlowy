@@ -23,5 +23,9 @@ pub use http_server::*;
 
 #[cfg(feature = "db")]
 mod database;
+
+#[cfg(feature = "dispatch")]
+mod dispatch;
+
 #[cfg(feature = "db")]
 pub use database::*;

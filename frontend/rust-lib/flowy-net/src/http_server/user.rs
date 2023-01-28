@@ -1,11 +1,10 @@
 use crate::{configuration::*, request::HttpRequestBuilder};
 use flowy_error::FlowyError;
-use flowy_user::entities::{
-    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB,
-};
+use flowy_user::entities::UserProfilePB;
 use flowy_user::event_map::UserCloudService;
 use http_flowy::errors::ServerError;
 use lib_infra::future::FutureResult;
+use user_model::*;
 
 pub struct UserHttpCloudService {
     config: ClientServerConfiguration,
@@ -66,12 +65,12 @@ impl UserCloudService for UserHttpCloudService {
 }
 
 pub async fn user_sign_up_request(params: SignUpParams, url: &str) -> Result<SignUpResponse, ServerError> {
-    let response = request_builder().post(url).protobuf(params)?.response().await?;
+    let response = request_builder().post(url).json(params)?.json_response().await?;
     Ok(response)
 }
 
 pub async fn user_sign_in_request(params: SignInParams, url: &str) -> Result<SignInResponse, ServerError> {
-    let response = request_builder().post(url).protobuf(params)?.response().await?;
+    let response = request_builder().post(url).json(params)?.json_response().await?;
     Ok(response)
 }
 
@@ -97,7 +96,7 @@ pub async fn update_user_profile_request(
     request_builder()
         .patch(url)
         .header(HEADER_TOKEN, token)
-        .protobuf(params)?
+        .json(params)?
         .send()
         .await?;
     Ok(())

@@ -1,7 +1,7 @@
-use crate::entities::parser::{UserEmail, UserName, UserPassword};
 use crate::errors::ErrorCode;
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
+use user_model::{SignInParams, SignUpParams, UserEmail, UserName, UserPassword};
 
 #[derive(ProtoBuf, Default)]
 pub struct SignInPayloadPB {
@@ -13,33 +13,6 @@ pub struct SignInPayloadPB {
 
     #[pb(index = 3)]
     pub name: String,
-}
-
-#[derive(Default, ProtoBuf, Debug)]
-pub struct SignInParams {
-    #[pb(index = 1)]
-    pub email: String,
-
-    #[pb(index = 2)]
-    pub password: String,
-
-    #[pb(index = 3)]
-    pub name: String,
-}
-
-#[derive(Debug, Default, ProtoBuf, Clone)]
-pub struct SignInResponse {
-    #[pb(index = 1)]
-    pub user_id: String,
-
-    #[pb(index = 2)]
-    pub name: String,
-
-    #[pb(index = 3)]
-    pub email: String,
-
-    #[pb(index = 4)]
-    pub token: String,
 }
 
 impl TryInto<SignInParams> for SignInPayloadPB {
@@ -82,31 +55,4 @@ impl TryInto<SignUpParams> for SignUpPayloadPB {
             password: password.0,
         })
     }
-}
-
-#[derive(ProtoBuf, Default, Debug)]
-pub struct SignUpParams {
-    #[pb(index = 1)]
-    pub email: String,
-
-    #[pb(index = 2)]
-    pub name: String,
-
-    #[pb(index = 3)]
-    pub password: String,
-}
-
-#[derive(ProtoBuf, Debug, Default, Clone)]
-pub struct SignUpResponse {
-    #[pb(index = 1)]
-    pub user_id: String,
-
-    #[pb(index = 2)]
-    pub name: String,
-
-    #[pb(index = 3)]
-    pub email: String,
-
-    #[pb(index = 4)]
-    pub token: String,
 }

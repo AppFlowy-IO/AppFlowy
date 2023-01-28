@@ -1,4 +1,4 @@
-use crate::errors::ErrorCode;
+use error_code::ErrorCode;
 use unicode_segmentation::UnicodeSegmentation;
 
 #[derive(Debug)]

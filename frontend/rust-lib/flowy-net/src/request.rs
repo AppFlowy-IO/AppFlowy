@@ -80,6 +80,7 @@ impl HttpRequestBuilder {
         self
     }
 
+    #[allow(dead_code)]
     pub fn protobuf<T>(self, body: T) -> Result<Self, ServerError>
     where
         T: TryInto<Bytes, Error = ProtobufError>,
@@ -114,6 +115,17 @@ impl HttpRequestBuilder {
         match builder.response {
             None => Err(unexpected_empty_payload(&builder.url)),
             Some(data) => Ok(T::try_from(data)?),
+        }
+    }
+
+    pub async fn json_response<T>(self) -> Result<T, ServerError>
+    where
+        T: serde::de::DeserializeOwned,
+    {
+        let builder = self.inner_send().await?;
+        match builder.response {
+            None => Err(unexpected_empty_payload(&builder.url)),
+            Some(data) => Ok(serde_json::from_slice(&data)?),
         }
     }
 
@@ -235,7 +247,7 @@ fn default_client() -> Client {
     match result {
         Ok(client) => client,
         Err(e) => {
-            log::error!("Create reqwest client failed: {}", e);
+            tracing::error!("Create reqwest client failed: {}", e);
             reqwest::Client::new()
         }
     }

@@ -6,6 +6,8 @@ members = [
   "grid-rev-model",
   "folder-rev-model",
   "flowy-http-model",
+  "user-model",
+  "error-code",
 ]
 
 [profile.dev]

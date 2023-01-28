@@ -1,15 +1,28 @@
 use crate::local_server::persistence::LocalDocumentCloudPersistence;
 use async_stream::stream;
 use bytes::Bytes;
+use flowy_document::DocumentCloudService;
 use flowy_error::{internal_error, FlowyError};
+use flowy_folder::entities::{
+    app::{AppIdPB, CreateAppParams, UpdateAppParams},
+    trash::RepeatedTrashIdPB,
+    view::{CreateViewParams, RepeatedViewIdPB, UpdateViewParams, ViewIdPB},
+    workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdPB},
+};
 use flowy_folder::event_map::FolderCouldServiceV1;
+use flowy_http_model::document::{CreateDocumentParams, DocumentId, DocumentPayload, ResetDocumentParams};
+use flowy_http_model::ws_data::{ClientRevisionWSData, ClientRevisionWSDataType};
 use flowy_sync::{
     errors::CollaborateError,
     server_document::ServerDocumentManager,
     server_folder::ServerFolderManager,
     synchronizer::{RevisionSyncResponse, RevisionUser},
 };
+use flowy_user::entities::UserProfilePB;
+use flowy_user::event_map::UserCloudService;
+use folder_rev_model::{gen_app_id, gen_workspace_id, AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use futures_util::stream::StreamExt;
+use lib_infra::{future::FutureResult, util::timestamp};
 use lib_ws::{WSChannel, WebSocketRawMessage};
 use nanoid::nanoid;
 use parking_lot::RwLock;
@@ -19,6 +32,7 @@ use std::{
     sync::Arc,
 };
 use tokio::sync::{broadcast, mpsc, mpsc::UnboundedSender};
+use user_model::*;
 
 pub struct LocalServer {
     doc_manager: Arc<ServerDocumentManager>,
@@ -235,22 +249,6 @@ impl RevisionUser for LocalRevisionUser {
         });
     }
 }
-
-use flowy_document::DocumentCloudService;
-use flowy_folder::entities::{
-    app::{AppIdPB, CreateAppParams, UpdateAppParams},
-    trash::RepeatedTrashIdPB,
-    view::{CreateViewParams, RepeatedViewIdPB, UpdateViewParams, ViewIdPB},
-    workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdPB},
-};
-use flowy_http_model::document::{CreateDocumentParams, DocumentId, DocumentPayload, ResetDocumentParams};
-use flowy_http_model::ws_data::{ClientRevisionWSData, ClientRevisionWSDataType};
-use flowy_user::entities::{
-    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB,
-};
-use flowy_user::event_map::UserCloudService;
-use folder_rev_model::{gen_app_id, gen_workspace_id, AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
-use lib_infra::{future::FutureResult, util::timestamp};
 
 impl FolderCouldServiceV1 for LocalServer {
     fn init(&self) {}

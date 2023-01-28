@@ -1,6 +1,4 @@
-use crate::entities::{
-    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB, UserSettingPB,
-};
+use crate::entities::{UserProfilePB, UserSettingPB};
 use crate::{
     errors::{ErrorCode, FlowyError},
     event_map::UserCloudService,
@@ -20,6 +18,7 @@ use flowy_database::{
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::mpsc;
+use user_model::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams};
 
 pub struct UserSessionConfig {
     root_dir: String,
@@ -227,7 +226,7 @@ impl UserSession {
                 Ok(_) => {}
                 Err(e) => {
                     // TODO: retry?
-                    log::error!("update user profile failed: {:?}", e);
+                    tracing::error!("update user profile failed: {:?}", e);
                 }
             }
         })
@@ -241,7 +240,7 @@ impl UserSession {
         let _ = tokio::spawn(async move {
             match server.sign_out(&token).await {
                 Ok(_) => {}
-                Err(e) => log::error!("Sign out failed: {:?}", e),
+                Err(e) => tracing::error!("Sign out failed: {:?}", e),
             }
         })
         .await;
@@ -339,7 +338,7 @@ impl std::convert::From<String> for Session {
         match serde_json::from_str(&s) {
             Ok(s) => s,
             Err(e) => {
-                log::error!("Deserialize string to Session failed: {:?}", e);
+                tracing::error!("Deserialize string to Session failed: {:?}", e);
                 Session::default()
             }
         }
@@ -350,7 +349,7 @@ impl std::convert::From<Session> for String {
         match serde_json::to_string(&session) {
             Ok(s) => s,
             Err(e) => {
-                log::error!("Serialize session to string failed: {:?}", e);
+                tracing::error!("Serialize session to string failed: {:?}", e);
                 "".to_string()
             }
         }

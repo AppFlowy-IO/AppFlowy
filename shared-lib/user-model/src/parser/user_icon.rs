@@ -1,4 +1,4 @@
-use crate::errors::ErrorCode;
+use error_code::ErrorCode;
 
 #[derive(Debug)]
 pub struct UserIcon(pub String);

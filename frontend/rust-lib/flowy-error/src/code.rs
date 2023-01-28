@@ -1,3 +1,4 @@
+use error_code::ErrorCode as HttpErrorCode;
 use flowy_derive::ProtoBuf_Enum;
 use thiserror::Error;
 
@@ -165,5 +166,65 @@ pub enum ErrorCode {
 impl ErrorCode {
     pub fn value(&self) -> i32 {
         self.clone() as i32
+    }
+}
+
+impl std::convert::From<HttpErrorCode> for ErrorCode {
+    fn from(code: HttpErrorCode) -> Self {
+        match code {
+            HttpErrorCode::Internal => ErrorCode::Internal,
+            HttpErrorCode::UserUnauthorized => ErrorCode::UserUnauthorized,
+            HttpErrorCode::RecordNotFound => ErrorCode::RecordNotFound,
+            HttpErrorCode::UserIdIsEmpty => ErrorCode::UserIdIsEmpty,
+            HttpErrorCode::WorkspaceNameInvalid => ErrorCode::WorkspaceNameInvalid,
+            HttpErrorCode::WorkspaceIdInvalid => ErrorCode::WorkspaceIdInvalid,
+            HttpErrorCode::AppColorStyleInvalid => ErrorCode::AppColorStyleInvalid,
+            HttpErrorCode::WorkspaceDescTooLong => ErrorCode::WorkspaceDescTooLong,
+            HttpErrorCode::WorkspaceNameTooLong => ErrorCode::WorkspaceNameTooLong,
+            HttpErrorCode::AppIdInvalid => ErrorCode::AppIdInvalid,
+            HttpErrorCode::AppNameInvalid => ErrorCode::AppNameInvalid,
+            HttpErrorCode::ViewNameInvalid => ErrorCode::ViewNameInvalid,
+            HttpErrorCode::ViewThumbnailInvalid => ErrorCode::ViewThumbnailInvalid,
+            HttpErrorCode::ViewIdInvalid => ErrorCode::ViewIdInvalid,
+            HttpErrorCode::ViewDescTooLong => ErrorCode::ViewDescTooLong,
+            HttpErrorCode::ViewDataInvalid => ErrorCode::ViewDataInvalid,
+            HttpErrorCode::ViewNameTooLong => ErrorCode::ViewNameTooLong,
+            HttpErrorCode::HttpServerConnectError => ErrorCode::HttpServerConnectError,
+            HttpErrorCode::EmailIsEmpty => ErrorCode::EmailIsEmpty,
+            HttpErrorCode::EmailFormatInvalid => ErrorCode::EmailFormatInvalid,
+            HttpErrorCode::EmailAlreadyExists => ErrorCode::EmailAlreadyExists,
+            HttpErrorCode::PasswordIsEmpty => ErrorCode::PasswordIsEmpty,
+            HttpErrorCode::PasswordTooLong => ErrorCode::PasswordTooLong,
+            HttpErrorCode::PasswordContainsForbidCharacters => ErrorCode::PasswordContainsForbidCharacters,
+            HttpErrorCode::PasswordFormatInvalid => ErrorCode::PasswordFormatInvalid,
+            HttpErrorCode::PasswordNotMatch => ErrorCode::PasswordNotMatch,
+            HttpErrorCode::UserNameTooLong => ErrorCode::UserNameTooLong,
+            HttpErrorCode::UserNameContainForbiddenCharacters => ErrorCode::UserNameContainForbiddenCharacters,
+            HttpErrorCode::UserNameIsEmpty => ErrorCode::UserNameIsEmpty,
+            HttpErrorCode::UserIdInvalid => ErrorCode::UserIdInvalid,
+            HttpErrorCode::UserNotExist => ErrorCode::UserNotExist,
+            HttpErrorCode::TextTooLong => ErrorCode::TextTooLong,
+            HttpErrorCode::GridIdIsEmpty => ErrorCode::GridIdIsEmpty,
+            HttpErrorCode::GridViewIdIsEmpty => ErrorCode::GridViewIdIsEmpty,
+            HttpErrorCode::BlockIdIsEmpty => ErrorCode::BlockIdIsEmpty,
+            HttpErrorCode::RowIdIsEmpty => ErrorCode::RowIdIsEmpty,
+            HttpErrorCode::OptionIdIsEmpty => ErrorCode::OptionIdIsEmpty,
+            HttpErrorCode::FieldIdIsEmpty => ErrorCode::FieldIdIsEmpty,
+            HttpErrorCode::FieldDoesNotExist => ErrorCode::FieldDoesNotExist,
+            HttpErrorCode::SelectOptionNameIsEmpty => ErrorCode::SelectOptionNameIsEmpty,
+            HttpErrorCode::FieldNotExists => ErrorCode::FieldNotExists,
+            HttpErrorCode::FieldInvalidOperation => ErrorCode::FieldInvalidOperation,
+            HttpErrorCode::FilterIdIsEmpty => ErrorCode::FilterIdIsEmpty,
+            HttpErrorCode::FieldRecordNotFound => ErrorCode::FieldRecordNotFound,
+            HttpErrorCode::TypeOptionDataIsEmpty => ErrorCode::TypeOptionDataIsEmpty,
+            HttpErrorCode::GroupIdIsEmpty => ErrorCode::GroupIdIsEmpty,
+            HttpErrorCode::InvalidDateTimeFormat => ErrorCode::InvalidDateTimeFormat,
+            HttpErrorCode::UnexpectedEmptyString => ErrorCode::UnexpectedEmptyString,
+            HttpErrorCode::InvalidData => ErrorCode::InvalidData,
+            HttpErrorCode::Serde => ErrorCode::Serde,
+            HttpErrorCode::ProtobufSerde => ErrorCode::ProtobufSerde,
+            HttpErrorCode::OutOfBounds => ErrorCode::OutOfBounds,
+            HttpErrorCode::SortIdIsEmpty => ErrorCode::SortIdIsEmpty,
+        }
     }
 }

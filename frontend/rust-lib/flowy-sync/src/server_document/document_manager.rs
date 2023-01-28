@@ -6,9 +6,8 @@ use crate::{
 use async_stream::stream;
 use dashmap::DashMap;
 use flowy_http_model::document::DocumentPayload;
-use flowy_http_model::entities::ClientRevisionWSData;
 use flowy_http_model::revision::Revision;
-use flowy_http_model::ws_data::ServerRevisionWSDataBuilder;
+use flowy_http_model::ws_data::{ClientRevisionWSData, ServerRevisionWSDataBuilder};
 use futures::stream::StreamExt;
 use lib_infra::future::BoxResultFuture;
 use lib_ot::core::AttributeHashMap;

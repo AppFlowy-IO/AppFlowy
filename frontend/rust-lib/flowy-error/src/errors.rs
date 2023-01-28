@@ -1,9 +1,8 @@
 use crate::ErrorCode;
 use anyhow::Result;
-use bytes::Bytes;
+
 use flowy_derive::ProtoBuf;
-use lib_dispatch::prelude::{AFPluginEventResponse, ResponseBuilder};
-use std::{convert::TryInto, fmt::Debug};
+use std::fmt::Debug;
 use thiserror::Error;
 
 pub type FlowyResult<T> = anyhow::Result<T, FlowyError>;
@@ -97,14 +96,6 @@ where
     }
 }
  */
-impl lib_dispatch::Error for FlowyError {
-    fn as_response(&self) -> AFPluginEventResponse {
-        let bytes: Bytes = self.clone().try_into().unwrap();
-
-        println!("Serialize FlowyError: {:?} to event response", self);
-        ResponseBuilder::Err().data(bytes).build()
-    }
-}
 
 impl std::convert::From<std::io::Error> for FlowyError {
     fn from(error: std::io::Error) -> Self {

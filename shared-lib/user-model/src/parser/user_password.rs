@@ -1,4 +1,4 @@
-use crate::errors::ErrorCode;
+use error_code::ErrorCode;
 use fancy_regex::Regex;
 use lazy_static::lazy_static;
 use unicode_segmentation::UnicodeSegmentation;
@@ -57,7 +57,7 @@ pub fn validate_password(password: &str) -> bool {
     match PASSWORD.is_match(password) {
         Ok(is_match) => is_match,
         Err(e) => {
-            log::error!("validate_password fail: {:?}", e);
+            tracing::error!("validate_password fail: {:?}", e);
             false
         }
     }

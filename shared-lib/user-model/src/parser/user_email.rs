@@ -1,4 +1,4 @@
-use crate::errors::ErrorCode;
+use error_code::ErrorCode;
 use validator::validate_email;
 
 #[derive(Debug)]
