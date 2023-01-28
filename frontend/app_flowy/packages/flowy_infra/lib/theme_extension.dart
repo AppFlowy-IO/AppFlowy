@@ -1,4 +1,3 @@
-import 'package:flowy_infra/l10n.dart';
 import 'package:flutter/material.dart';
 
 @immutable
@@ -123,70 +122,45 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
 }
 
 enum FlowyTint {
-  purple,
-  pink,
-  lightPink,
-  orange,
-  yellow,
-  lime,
-  green,
-  aqua,
-  blue;
+  tint1,
+  tint2,
+  tint3,
+  tint4,
+  tint5,
+  tint6,
+  tint7,
+  tint8,
+  tint9;
 
   String toJson() => name;
   static FlowyTint fromJson(String json) {
     try {
       return FlowyTint.values.byName(json);
     } catch (_) {
-      return FlowyTint.purple;
+      return FlowyTint.tint1;
     }
   }
-}
 
-extension SelectOptionColorExtension on FlowyTint {
   Color color(BuildContext context) {
     switch (this) {
-      case FlowyTint.purple:
+      case FlowyTint.tint1:
         return AFThemeExtension.of(context).tint1;
-      case FlowyTint.pink:
+      case FlowyTint.tint2:
         return AFThemeExtension.of(context).tint2;
-      case FlowyTint.lightPink:
+      case FlowyTint.tint3:
         return AFThemeExtension.of(context).tint3;
-      case FlowyTint.orange:
+      case FlowyTint.tint4:
         return AFThemeExtension.of(context).tint4;
-      case FlowyTint.yellow:
+      case FlowyTint.tint5:
         return AFThemeExtension.of(context).tint5;
-      case FlowyTint.lime:
+      case FlowyTint.tint6:
         return AFThemeExtension.of(context).tint6;
-      case FlowyTint.green:
+      case FlowyTint.tint7:
         return AFThemeExtension.of(context).tint7;
-      case FlowyTint.aqua:
+      case FlowyTint.tint8:
         return AFThemeExtension.of(context).tint8;
-      case FlowyTint.blue:
+      case FlowyTint.tint9:
         return AFThemeExtension.of(context).tint9;
-    }
-  }
-
-  String tintName(FlowyInfraLocalizations l10n) {
-    switch (this) {
-      case FlowyTint.purple:
-        return l10n.purpleTint;
-      case FlowyTint.pink:
-        return l10n.pinkTint;
-      case FlowyTint.lightPink:
-        return l10n.lightPinkTint;
-      case FlowyTint.orange:
-        return l10n.orangeTint;
-      case FlowyTint.yellow:
-        return l10n.yellowTint;
-      case FlowyTint.lime:
-        return l10n.limeTint;
-      case FlowyTint.green:
-        return l10n.greenTint;
-      case FlowyTint.aqua:
-        return l10n.aquaTint;
-      case FlowyTint.blue:
-        return l10n.blueTint;
     }
   }
 }
