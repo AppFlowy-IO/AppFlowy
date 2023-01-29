@@ -6,7 +6,7 @@ import 'package:dartz/dartz.dart' show none;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
+import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
@@ -178,11 +178,9 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
         builder: (context, state) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: RoundedInputField(
-              height: 36,
+            child: FlowyTextField(
               focusNode: focusNode,
-              onFieldSubmitted: (String _) => PopoverContainer.of(context).close(),
-              style: Theme.of(context).textTheme.bodyMedium,
+              onSubmitted: (String _) => PopoverContainer.of(context).close(),
               controller: controller,
               errorText: context.read<FieldEditorBloc>().state.errorText,
               onChanged: (newName) {

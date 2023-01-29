@@ -19,6 +19,7 @@ class FlowyTextField extends StatefulWidget {
   final bool autoClearWhenDone;
   final bool submitOnLeave;
   final Duration? debounceDuration;
+  final String errorText;
 
   const FlowyTextField({
     this.hintText = "",
@@ -34,6 +35,7 @@ class FlowyTextField extends StatefulWidget {
     this.autoClearWhenDone = false,
     this.submitOnLeave = false,
     this.debounceDuration,
+    this.errorText = "",
     Key? key,
   }) : super(key: key);
 
@@ -117,6 +119,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
         ),
         isDense: true,
         hintText: widget.hintText,
+        errorText: widget.errorText.isNotEmpty ? widget.errorText : null,
         hintStyle: Theme.of(context)
             .textTheme
             .bodySmall!
@@ -126,6 +129,13 @@ class FlowyTextFieldState extends State<FlowyTextField> {
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.primary,
+            width: 1.0,
+          ),
+          borderRadius: Corners.s8Border,
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.error,
             width: 1.0,
           ),
           borderRadius: Corners.s8Border,
