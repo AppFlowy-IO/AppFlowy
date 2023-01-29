@@ -1,7 +1,7 @@
 use crate::grid::block_test::script::GridRowTest;
 use crate::grid::block_test::script::RowScript::*;
 
-use grid_rev_model::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset};
+use grid_model::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset};
 
 #[tokio::test]
 async fn grid_create_block() {

@@ -13,7 +13,7 @@ use crate::services::field::{
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
-use grid_rev_model::{FieldRevision, TypeOptionDataSerializer};
+use grid_model::{FieldRevision, TypeOptionDataSerializer};
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 

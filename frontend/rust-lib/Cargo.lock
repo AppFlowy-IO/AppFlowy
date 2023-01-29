@@ -971,9 +971,9 @@ dependencies = [
  "flowy-derive",
  "flowy-http-model",
  "flowy-sync",
- "folder-rev-model",
+ "folder-model",
  "futures",
- "grid-rev-model",
+ "grid-model",
  "lib-infra",
  "lib-ot",
  "parking_lot 0.12.1",
@@ -1026,7 +1026,7 @@ dependencies = [
  "flowy-task",
  "flowy-user",
  "futures-core",
- "grid-rev-model",
+ "grid-model",
  "lib-dispatch",
  "lib-infra",
  "lib-log",
@@ -1164,7 +1164,7 @@ dependencies = [
  "flowy-revision",
  "flowy-revision-persistence",
  "flowy-test",
- "folder-rev-model",
+ "folder-model",
  "futures",
  "lazy_static",
  "lib-dispatch",
@@ -1209,7 +1209,7 @@ dependencies = [
  "flowy-task",
  "flowy-test",
  "futures",
- "grid-rev-model",
+ "grid-model",
  "indexmap",
  "lazy_static",
  "lib-dispatch",
@@ -1264,7 +1264,7 @@ dependencies = [
  "flowy-server-sync",
  "flowy-sync",
  "flowy-user",
- "folder-rev-model",
+ "folder-model",
  "futures-util",
  "http-flowy",
  "hyper",
@@ -1343,9 +1343,9 @@ dependencies = [
  "dashmap",
  "flowy-http-model",
  "flowy-sync",
- "folder-rev-model",
+ "folder-model",
  "futures",
- "grid-rev-model",
+ "grid-model",
  "lib-infra",
  "lib-ot",
  "log",
@@ -1451,7 +1451,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
-name = "folder-rev-model"
+name = "folder-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
@@ -1656,7 +1656,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "grid-rev-model"
+name = "grid-model"
 version = "0.1.0"
 dependencies = [
  "bytes",

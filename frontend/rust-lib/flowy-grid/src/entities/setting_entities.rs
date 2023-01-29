@@ -6,7 +6,7 @@ use crate::entities::{
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use grid_rev_model::LayoutRevision;
+use grid_model::LayoutRevision;
 use std::convert::TryInto;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;

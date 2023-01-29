@@ -1076,15 +1076,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "error-code"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_repr",
- "thiserror",
-]
-
-[[package]]
 name = "faccess"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1177,9 +1168,9 @@ dependencies = [
  "flowy-derive",
  "flowy-http-model",
  "flowy-sync",
- "folder-rev-model",
+ "folder-model",
  "futures",
- "grid-rev-model",
+ "grid-model",
  "lib-infra",
  "lib-ot",
  "parking_lot",
@@ -1232,7 +1223,7 @@ dependencies = [
  "flowy-task",
  "flowy-user",
  "futures-core",
- "grid-rev-model",
+ "grid-model",
  "lib-dispatch",
  "lib-infra",
  "lib-log",
@@ -1316,17 +1307,26 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bytes",
- "error-code",
  "flowy-client-sync",
  "flowy-codegen",
  "flowy-database",
  "flowy-derive",
+ "flowy-error-code",
  "http-flowy",
  "lib-dispatch",
  "lib-ot",
  "protobuf",
  "r2d2",
  "serde_json",
+ "thiserror",
+]
+
+[[package]]
+name = "flowy-error-code"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_repr",
  "thiserror",
 ]
 
@@ -1347,7 +1347,7 @@ dependencies = [
  "flowy-notification",
  "flowy-revision",
  "flowy-revision-persistence",
- "folder-rev-model",
+ "folder-model",
  "futures",
  "lazy_static",
  "lib-dispatch",
@@ -1390,7 +1390,7 @@ dependencies = [
  "flowy-revision-persistence",
  "flowy-task",
  "futures",
- "grid-rev-model",
+ "grid-model",
  "indexmap",
  "lazy_static",
  "lib-dispatch",
@@ -1445,7 +1445,7 @@ dependencies = [
  "flowy-server-sync",
  "flowy-sync",
  "flowy-user",
- "folder-rev-model",
+ "folder-model",
  "futures-util",
  "http-flowy",
  "hyper",
@@ -1521,9 +1521,9 @@ dependencies = [
  "dashmap",
  "flowy-http-model",
  "flowy-sync",
- "folder-rev-model",
+ "folder-model",
  "futures",
- "grid-rev-model",
+ "grid-model",
  "lib-infra",
  "lib-ot",
  "log",
@@ -1594,7 +1594,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
-name = "folder-rev-model"
+name = "folder-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
@@ -1989,7 +1989,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "grid-rev-model"
+name = "grid-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
@@ -5148,8 +5148,8 @@ dependencies = [
 name = "user-model"
 version = "0.1.0"
 dependencies = [
- "error-code",
  "fancy-regex 0.11.0",
+ "flowy-error-code",
  "lazy_static",
  "serde",
  "tracing",

@@ -6,7 +6,7 @@ use flowy_http_model::revision::Revision;
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
-use grid_rev_model::{CellRevision, GridBlockRevision, RowChangeset, RowRevision};
+use grid_model::{CellRevision, GridBlockRevision, RowChangeset, RowRevision};
 use lib_infra::future::FutureResult;
 
 use flowy_database::ConnectionPool;

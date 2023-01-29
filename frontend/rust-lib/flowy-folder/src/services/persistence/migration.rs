@@ -10,7 +10,7 @@ use flowy_database::kv::KV;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_http_model::revision::Revision;
 use flowy_revision::reset::{RevisionResettable, RevisionStructReset};
-use folder_rev_model::{AppRevision, FolderRevision, ViewRevision, WorkspaceRevision};
+use folder_model::{AppRevision, FolderRevision, ViewRevision, WorkspaceRevision};
 
 use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
 use flowy_http_model::util::md5;

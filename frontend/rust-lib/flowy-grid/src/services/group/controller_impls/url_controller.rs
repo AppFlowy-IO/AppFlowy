@@ -7,7 +7,7 @@ use crate::services::group::controller::{
     GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
 };
 use crate::services::group::{make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroupContext};
-use grid_rev_model::{CellRevision, FieldRevision, GroupRevision, RowRevision, URLGroupConfigurationRevision};
+use grid_model::{CellRevision, FieldRevision, GroupRevision, RowRevision, URLGroupConfigurationRevision};
 
 pub type URLGroupController =
     GenericGroupController<URLGroupConfigurationRevision, URLTypeOptionPB, URLGroupGenerator, URLCellDataParser>;

@@ -6,8 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-folder-rev-model = { path = "../folder-rev-model" }
-grid-rev-model = { path = "../grid-rev-model" }
+folder-model = { path = "../folder-model" }
+grid-model = { path = "../grid-model" }
 flowy-http-model = { path = "../flowy-http-model" }
 flowy-sync = { path = "../flowy-sync" }
 protobuf = {version = "2.18.0"}

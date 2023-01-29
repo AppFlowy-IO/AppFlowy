@@ -12,7 +12,7 @@ use crate::{
     },
 };
 
-use folder_rev_model::AppRevision;
+use folder_model::AppRevision;
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 

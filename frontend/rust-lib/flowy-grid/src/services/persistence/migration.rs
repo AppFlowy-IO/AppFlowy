@@ -8,7 +8,7 @@ use flowy_error::FlowyResult;
 use flowy_http_model::revision::Revision;
 use flowy_http_model::util::md5;
 use flowy_revision::reset::{RevisionResettable, RevisionStructReset};
-use grid_rev_model::GridRevision;
+use grid_model::GridRevision;
 use std::sync::Arc;
 
 const V1_MIGRATION: &str = "GRID_V1_MIGRATION";

@@ -2,7 +2,7 @@ use crate::entities::FieldType;
 use crate::services::field::*;
 use crate::services::row::RowRevisionBuilder;
 use flowy_client_sync::client_grid::GridBuilder;
-use grid_rev_model::BuildGridContext;
+use grid_model::BuildGridContext;
 
 pub fn make_default_grid() -> BuildGridContext {
     let mut grid_builder = GridBuilder::new();

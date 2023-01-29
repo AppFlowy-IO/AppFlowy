@@ -1,5 +1,5 @@
 use crate::entities::{AlterFilterParams, DeleteFilterParams, FieldType, GridSettingChangesetParams, InsertedRowPB};
-use grid_rev_model::{FieldRevision, FieldTypeRevision};
+use grid_model::{FieldRevision, FieldTypeRevision};
 use std::sync::Arc;
 
 #[derive(Debug)]

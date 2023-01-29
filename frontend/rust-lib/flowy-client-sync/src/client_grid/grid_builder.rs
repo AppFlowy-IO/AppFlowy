@@ -1,5 +1,5 @@
 use crate::errors::{SyncError, SyncResult};
-use grid_rev_model::{BuildGridContext, FieldRevision, GridBlockMetaRevision, GridBlockRevision, RowRevision};
+use grid_model::{BuildGridContext, FieldRevision, GridBlockMetaRevision, GridBlockRevision, RowRevision};
 use std::sync::Arc;
 
 pub struct GridBuilder {

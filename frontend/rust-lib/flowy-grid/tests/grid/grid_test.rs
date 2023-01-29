@@ -6,7 +6,7 @@ use flowy_grid::services::field::{
     SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
 };
 use flowy_grid::services::row::{decode_cell_data_from_type_option_cell_data, CreateRowMetaBuilder};
-use grid_rev_model::entities::{
+use grid_model::entities::{
     CellChangeset, FieldChangesetParams, FieldType, GridBlockInfoChangeset, GridBlockMetaSnapshot, RowMetaChangeset,
     TypeOptionDataFormat,
 };

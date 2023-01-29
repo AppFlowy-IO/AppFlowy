@@ -10,7 +10,7 @@ use crate::services::field::{
 };
 use crate::services::filter::FilterType;
 use flowy_error::FlowyResult;
-use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use grid_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use std::any::Any;
 use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;

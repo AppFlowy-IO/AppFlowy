@@ -3,7 +3,7 @@ use crate::util::cal_diff;
 use flowy_http_model::revision::Revision;
 use flowy_http_model::util::md5;
 use flowy_sync::util::make_operations_from_revisions;
-use grid_rev_model::{
+use grid_model::{
     gen_block_id, gen_grid_id, FieldRevision, FieldTypeRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset,
     GridRevision,
 };

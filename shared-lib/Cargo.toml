@@ -3,13 +3,15 @@ members = [
   "lib-ot",
   "lib-ws",
   "lib-infra",
-  "grid-rev-model",
-  "folder-rev-model",
+  "grid-model",
+  "folder-model",
   "flowy-http-model",
   "flowy-sync",
   "flowy-server-sync",
   "user-model",
   "flowy-error-code",
+  "flowy-client-network-config",
+  "flowy-client-ws",
 ]
 
 [profile.dev]

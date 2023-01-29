@@ -14,7 +14,7 @@ use flowy_http_model::revision::Revision;
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
-use grid_rev_model::{
+use grid_model::{
     FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, RowRevision, SortRevision,
 };
 use lib_infra::future::{to_fut, Fut, FutureResult};

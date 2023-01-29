@@ -3,7 +3,7 @@ use crate::grid::grid_editor::GridEditorTest;
 use flowy_client_sync::client_grid::{GridOperations, GridRevisionPad};
 use flowy_http_model::revision::Revision;
 use flowy_revision::{RevisionSnapshot, REVISION_WRITE_INTERVAL_IN_MILLIS};
-use grid_rev_model::FieldRevision;
+use grid_model::FieldRevision;
 use std::time::Duration;
 use tokio::time::sleep;
 

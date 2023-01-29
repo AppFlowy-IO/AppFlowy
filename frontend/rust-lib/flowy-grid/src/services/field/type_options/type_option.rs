@@ -4,7 +4,7 @@ use crate::services::cell::{CellDataDecoder, FromCellChangesetString, FromCellSt
 use crate::services::filter::FromFilterString;
 use bytes::Bytes;
 use flowy_error::FlowyResult;
-use grid_rev_model::FieldRevision;
+use grid_model::FieldRevision;
 use protobuf::ProtobufError;
 use std::cmp::Ordering;
 use std::fmt::Debug;

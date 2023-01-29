@@ -27,7 +27,7 @@ use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
 use flowy_task::TaskDispatcher;
-use grid_rev_model::*;
+use grid_model::*;
 use lib_infra::future::{to_fut, FutureResult};
 use lib_ot::core::EmptyAttributes;
 use std::collections::HashMap;

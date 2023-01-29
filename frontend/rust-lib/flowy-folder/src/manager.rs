@@ -15,7 +15,7 @@ use bytes::Bytes;
 use flowy_document::editor::initial_read_me;
 use flowy_error::FlowyError;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket};
-use folder_rev_model::user_default;
+use folder_model::user_default;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 

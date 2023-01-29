@@ -18,7 +18,7 @@ use flowy_server_sync::server_folder::ServerFolderManager;
 use flowy_sync::{RevisionSyncResponse, RevisionUser};
 use flowy_user::entities::UserProfilePB;
 use flowy_user::event_map::UserCloudService;
-use folder_rev_model::{gen_app_id, gen_workspace_id, AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
+use folder_model::{gen_app_id, gen_workspace_id, AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use futures_util::stream::StreamExt;
 use lib_infra::{future::FutureResult, util::timestamp};
 use lib_ws::{WSChannel, WebSocketRawMessage};

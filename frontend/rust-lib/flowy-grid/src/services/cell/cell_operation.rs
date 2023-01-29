@@ -3,7 +3,7 @@ use crate::services::cell::{AtomicCellDataCache, CellProtobufBlob, TypeCellData}
 use crate::services::field::*;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use grid_rev_model::{CellRevision, FieldRevision};
+use grid_model::{CellRevision, FieldRevision};
 
 use std::fmt::Debug;
 

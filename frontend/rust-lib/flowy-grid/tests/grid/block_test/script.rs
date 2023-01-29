@@ -4,7 +4,7 @@ use crate::grid::grid_editor::GridEditorTest;
 use flowy_grid::entities::{CellPathParams, CreateRowParams, FieldType, GridLayout, RowPB};
 use flowy_grid::services::field::*;
 use flowy_grid::services::row::GridBlockRow;
-use grid_rev_model::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision};
+use grid_model::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision};
 use std::collections::HashMap;
 use std::sync::Arc;
 use strum::IntoEnumIterator;

@@ -11,7 +11,7 @@ use crate::services::field::{
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyResult;
-use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use grid_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
 
 // Multiple select

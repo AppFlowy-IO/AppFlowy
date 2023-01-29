@@ -3,7 +3,7 @@ use crate::entities::{CreateRowParams, FieldType, GridLayout, RowPB};
 use crate::services::group::Group;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use grid_rev_model::{FieldTypeRevision, GroupConfigurationRevision};
+use grid_model::{FieldTypeRevision, GroupConfigurationRevision};
 use std::convert::TryInto;
 use std::sync::Arc;
 

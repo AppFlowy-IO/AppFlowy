@@ -1,5 +1,5 @@
 use flowy_client_sync::client_folder::{AppNode, FolderNodePad, WorkspaceNode};
-use folder_rev_model::AppRevision;
+use folder_model::AppRevision;
 use lib_ot::core::Path;
 
 pub enum FolderNodePadScript {

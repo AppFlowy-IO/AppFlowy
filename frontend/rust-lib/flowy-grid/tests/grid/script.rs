@@ -6,7 +6,7 @@ use flowy_grid::services::row::CreateRowMetaPayload;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
-use grid_rev_model::entities::{
+use grid_model::entities::{
     BuildGridContext, CellChangeset, Field, FieldChangesetParams, FieldMeta, FieldOrder, FieldType,
     GridBlockInfoChangeset, GridBlockMetaSnapshot, InsertFieldParams, RowMeta, RowMetaChangeset, RowOrder,
     TypeOptionDataFormat,

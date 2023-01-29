@@ -5,7 +5,7 @@ mod tests {
 
     use crate::services::field::FieldBuilder;
     use crate::services::field::URLTypeOptionPB;
-    use grid_rev_model::FieldRevision;
+    use grid_model::FieldRevision;
 
     /// The expected_str will equal to the input string, but the expected_url will be empty if there's no
     /// http url in the input string.

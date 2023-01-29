@@ -19,7 +19,7 @@ use flowy_error::FlowyResult;
 use flowy_http_model::revision::Revision;
 use flowy_revision::RevisionManager;
 use flowy_task::TaskDispatcher;
-use grid_rev_model::{
+use grid_model::{
     gen_grid_filter_id, gen_grid_sort_id, FieldRevision, FieldTypeRevision, FilterRevision, LayoutRevision,
     RowChangeset, RowRevision, SortRevision,
 };

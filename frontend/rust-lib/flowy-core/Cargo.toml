@@ -12,7 +12,7 @@ flowy-user = { path = "../flowy-user" }
 flowy-net = { path = "../flowy-net" }
 flowy-folder = { path = "../flowy-folder", default-features = false }
 flowy-grid = { path = "../flowy-grid", default-features = false }
-grid-rev-model = { path = "../../../shared-lib/grid-rev-model" }
+grid-model = { path = "../../../shared-lib/grid-model" }
 flowy-database = { path = "../flowy-database", optional = true }
 flowy-document = { path = "../flowy-document", default-features = false }
 flowy-revision = { path = "../flowy-revision" }

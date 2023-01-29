@@ -15,7 +15,7 @@ use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
-use grid_rev_model::*;
+use grid_model::*;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;

@@ -12,7 +12,7 @@ use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_http_model::revision::Revision;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket};
-use grid_rev_model::{BuildGridContext, GridRevision, GridViewRevision};
+use grid_model::{BuildGridContext, GridRevision, GridViewRevision};
 use lib_infra::async_trait::async_trait;
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
 

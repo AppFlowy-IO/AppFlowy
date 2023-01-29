@@ -15,7 +15,7 @@ flowy-error = { path = "../flowy-error", features = ["db", "dispatch"]}
 flowy-derive = { path = "../flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
-grid-rev-model = { path = "../../../shared-lib/grid-rev-model" }
+grid-model = { path = "../../../shared-lib/grid-model" }
 flowy-client-sync = { path = "../flowy-client-sync"}
 flowy-http-model = { path = "../../../shared-lib/flowy-http-model" }
 flowy-database = { path = "../flowy-database", optional = true }

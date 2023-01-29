@@ -11,7 +11,7 @@ flowy-error = { path = "../flowy-error", features = ["collaboration", "http_serv
 flowy-derive = { path = "../flowy-derive" }
 flowy-client-sync = { path = "../flowy-client-sync"}
 flowy-http-model = { path = "../../../shared-lib/flowy-http-model"}
-folder-rev-model = { path = "../../../shared-lib/folder-rev-model"}
+folder-model = { path = "../../../shared-lib/folder-model" }
 flowy-server-sync = { path = "../../../shared-lib/flowy-server-sync"}
 flowy-sync = { path = "../../../shared-lib/flowy-sync"}
 user-model = { path = "../../../shared-lib/user-model"}
