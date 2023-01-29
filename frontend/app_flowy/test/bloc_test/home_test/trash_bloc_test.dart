@@ -1,8 +1,8 @@
 import 'package:app_flowy/plugins/document/document.dart';
 import 'package:app_flowy/plugins/trash/application/trash_bloc.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../util.dart';
@@ -18,6 +18,7 @@ class TrashTestContext {
   Future<void> initialize() async {
     app = await unitTest.createTestApp();
     appBloc = AppBloc(app: app)..add(const AppEvent.initial());
+    await blocResponseFuture();
 
     appBloc.add(AppEvent.createView(
       "Document 1",
@@ -40,7 +41,7 @@ class TrashTestContext {
     await blocResponseFuture();
 
     allViews = [...appBloc.state.app.belongings.items];
-    assert(allViews.length == 3);
+    assert(allViews.length == 3, 'but receive ${allViews.length}');
   }
 }
 
@@ -89,12 +90,14 @@ void main() {
       // delete a view permanently
       trashBloc.add(TrashEvent.delete(trashBloc.state.objects[0]));
       await blocResponseFuture();
-      assert(trashBloc.state.objects.length == 2);
+      assert(trashBloc.state.objects.length == 2,
+          "but receive ${trashBloc.state.objects.length}");
 
       // delete all view permanently
       trashBloc.add(const TrashEvent.deleteAll());
       await blocResponseFuture();
-      assert(trashBloc.state.objects.isEmpty);
+      assert(trashBloc.state.objects.isEmpty,
+          "but receive ${trashBloc.state.objects.length}");
     });
   });
 }

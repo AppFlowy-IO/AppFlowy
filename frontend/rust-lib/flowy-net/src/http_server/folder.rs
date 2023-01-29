@@ -57,7 +57,7 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
         let token = token.to_owned();
         let url = self.config.workspace_url();
         FutureResult::new(async move {
-            let _ = update_workspace_request(&token, params, &url).await?;
+            update_workspace_request(&token, params, &url).await?;
             Ok(())
         })
     }
@@ -66,7 +66,7 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
         let token = token.to_owned();
         let url = self.config.workspace_url();
         FutureResult::new(async move {
-            let _ = delete_workspace_request(&token, params, &url).await?;
+            delete_workspace_request(&token, params, &url).await?;
             Ok(())
         })
     }
@@ -93,7 +93,7 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
         let token = token.to_owned();
         let url = self.config.view_url();
         FutureResult::new(async move {
-            let _ = delete_view_request(&token, params, &url).await?;
+            delete_view_request(&token, params, &url).await?;
             Ok(())
         })
     }
@@ -102,7 +102,7 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
         let token = token.to_owned();
         let url = self.config.view_url();
         FutureResult::new(async move {
-            let _ = update_view_request(&token, params, &url).await?;
+            update_view_request(&token, params, &url).await?;
             Ok(())
         })
     }
@@ -129,7 +129,7 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
         let token = token.to_owned();
         let url = self.config.app_url();
         FutureResult::new(async move {
-            let _ = update_app_request(&token, params, &url).await?;
+            update_app_request(&token, params, &url).await?;
             Ok(())
         })
     }
@@ -138,7 +138,7 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
         let token = token.to_owned();
         let url = self.config.app_url();
         FutureResult::new(async move {
-            let _ = delete_app_request(&token, params, &url).await?;
+            delete_app_request(&token, params, &url).await?;
             Ok(())
         })
     }
@@ -147,7 +147,7 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
         let token = token.to_owned();
         let url = self.config.trash_url();
         FutureResult::new(async move {
-            let _ = create_trash_request(&token, params, &url).await?;
+            create_trash_request(&token, params, &url).await?;
             Ok(())
         })
     }
@@ -156,7 +156,7 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
         let token = token.to_owned();
         let url = self.config.trash_url();
         FutureResult::new(async move {
-            let _ = delete_trash_request(&token, params, &url).await?;
+            delete_trash_request(&token, params, &url).await?;
             Ok(())
         })
     }

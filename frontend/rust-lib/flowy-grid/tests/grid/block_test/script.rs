@@ -162,7 +162,7 @@ impl GridRowTest {
             FieldType::RichText => {
                 let cell_data = self
                     .editor
-                    .get_cell_bytes(&cell_id)
+                    .get_cell_protobuf(&cell_id)
                     .await
                     .unwrap()
                     .parser::<TextCellDataParser>()
@@ -177,7 +177,7 @@ impl GridRowTest {
                     .unwrap();
                 let cell_data = self
                     .editor
-                    .get_cell_bytes(&cell_id)
+                    .get_cell_protobuf(&cell_id)
                     .await
                     .unwrap()
                     .custom_parser(NumberCellCustomDataParser(number_type_option.format))
@@ -187,7 +187,7 @@ impl GridRowTest {
             FieldType::DateTime => {
                 let cell_data = self
                     .editor
-                    .get_cell_bytes(&cell_id)
+                    .get_cell_protobuf(&cell_id)
                     .await
                     .unwrap()
                     .parser::<DateCellDataParser>()
@@ -198,7 +198,7 @@ impl GridRowTest {
             FieldType::SingleSelect => {
                 let cell_data = self
                     .editor
-                    .get_cell_bytes(&cell_id)
+                    .get_cell_protobuf(&cell_id)
                     .await
                     .unwrap()
                     .parser::<SelectOptionCellDataParser>()
@@ -209,7 +209,7 @@ impl GridRowTest {
             FieldType::MultiSelect => {
                 let cell_data = self
                     .editor
-                    .get_cell_bytes(&cell_id)
+                    .get_cell_protobuf(&cell_id)
                     .await
                     .unwrap()
                     .parser::<SelectOptionCellDataParser>()
@@ -228,7 +228,7 @@ impl GridRowTest {
             FieldType::Checklist => {
                 let cell_data = self
                     .editor
-                    .get_cell_bytes(&cell_id)
+                    .get_cell_protobuf(&cell_id)
                     .await
                     .unwrap()
                     .parser::<SelectOptionCellDataParser>()
@@ -246,7 +246,7 @@ impl GridRowTest {
             FieldType::Checkbox => {
                 let cell_data = self
                     .editor
-                    .get_cell_bytes(&cell_id)
+                    .get_cell_protobuf(&cell_id)
                     .await
                     .unwrap()
                     .parser::<CheckboxCellDataParser>()
@@ -256,7 +256,7 @@ impl GridRowTest {
             FieldType::URL => {
                 let cell_data = self
                     .editor
-                    .get_cell_bytes(&cell_id)
+                    .get_cell_protobuf(&cell_id)
                     .await
                     .unwrap()
                     .parser::<URLCellDataParser>()

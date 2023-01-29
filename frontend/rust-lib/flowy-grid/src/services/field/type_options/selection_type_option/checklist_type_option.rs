@@ -60,15 +60,15 @@ impl CellDataChangeset for ChecklistTypeOptionPB {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<<Self as TypeOption>::CellData> {
+    ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
         let insert_option_ids = changeset
             .insert_option_ids
             .into_iter()
             .filter(|insert_option_id| self.options.iter().any(|option| &option.id == insert_option_id))
             .collect::<Vec<String>>();
 
-        match type_cell_data {
-            None => Ok(SelectOptionIds::from(insert_option_ids)),
+        let select_option_ids = match type_cell_data {
+            None => SelectOptionIds::from(insert_option_ids),
             Some(type_cell_data) => {
                 let mut select_ids: SelectOptionIds = type_cell_data.cell_str.into();
                 for insert_option_id in insert_option_ids {
@@ -81,9 +81,10 @@ impl CellDataChangeset for ChecklistTypeOptionPB {
                     select_ids.retain(|id| id != &delete_option_id);
                 }
 
-                Ok(select_ids)
+                select_ids
             }
-        }
+        };
+        Ok((select_option_ids.to_string(), select_option_ids))
     }
 }
 impl TypeOptionCellDataFilter for ChecklistTypeOptionPB {

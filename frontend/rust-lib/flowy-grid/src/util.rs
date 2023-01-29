@@ -70,6 +70,34 @@ pub fn make_default_board() -> BuildGridContext {
     grid_builder.build()
 }
 
+pub fn make_default_calendar() -> BuildGridContext {
+    let mut grid_builder = GridBuilder::new();
+    // text
+    let text_field = FieldBuilder::new(RichTextTypeOptionBuilder::default())
+        .name("Description")
+        .visibility(true)
+        .primary(true)
+        .build();
+    grid_builder.add_field(text_field);
+
+    // date
+    let date_type_option = DateTypeOptionBuilder::default();
+    let date_field = FieldBuilder::new(date_type_option)
+        .name("Date")
+        .visibility(true)
+        .build();
+    grid_builder.add_field(date_field);
+
+    // single select
+    let multi_select_type_option = MultiSelectTypeOptionBuilder::default();
+    let multi_select_field = FieldBuilder::new(multi_select_type_option)
+        .name("Tags")
+        .visibility(true)
+        .build();
+    grid_builder.add_field(multi_select_field);
+    grid_builder.build()
+}
+
 #[allow(dead_code)]
 pub fn make_default_board_2() -> BuildGridContext {
     let mut grid_builder = GridBuilder::new();

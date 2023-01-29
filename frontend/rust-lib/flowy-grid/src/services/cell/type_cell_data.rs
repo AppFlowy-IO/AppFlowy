@@ -1,5 +1,5 @@
 use crate::entities::FieldType;
-use crate::services::cell::{FromCellString, IntoCellData};
+
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use grid_rev_model::CellRevision;
@@ -50,15 +50,6 @@ impl std::convert::TryFrom<String> for TypeCellData {
     }
 }
 
-impl<T> std::convert::From<TypeCellData> for IntoCellData<T>
-where
-    T: FromCellString,
-{
-    fn from(any_call_data: TypeCellData) -> Self {
-        IntoCellData::from(any_call_data.cell_str)
-    }
-}
-
 impl ToString for TypeCellData {
     fn to_string(&self) -> String {
         self.cell_str.clone()
@@ -82,11 +73,8 @@ impl std::convert::TryFrom<CellRevision> for TypeCellData {
 }
 
 impl TypeCellData {
-    pub fn new(content: String, field_type: FieldType) -> Self {
-        TypeCellData {
-            cell_str: content,
-            field_type,
-        }
+    pub fn new(cell_str: String, field_type: FieldType) -> Self {
+        TypeCellData { cell_str, field_type }
     }
 
     pub fn to_json(&self) -> String {

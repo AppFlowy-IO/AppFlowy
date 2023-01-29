@@ -1,13 +1,14 @@
 #https://github.com/sagiegurari/cargo-make
 
 extend = [
-    { path = "scripts/makefile/desktop.toml" },
-    { path = "scripts/makefile/protobuf.toml" },
-    { path = "scripts/makefile/tests.toml" },
-    { path = "scripts/makefile/docker.toml" },
-    { path = "scripts/makefile/env.toml" },
-    { path = "scripts/makefile/flutter.toml" },
-    { path = "scripts/makefile/tool.toml" },
+  { path = "scripts/makefile/desktop.toml" },
+  { path = "scripts/makefile/protobuf.toml" },
+  { path = "scripts/makefile/tests.toml" },
+  { path = "scripts/makefile/docker.toml" },
+  { path = "scripts/makefile/env.toml" },
+  { path = "scripts/makefile/flutter.toml" },
+  { path = "scripts/makefile/tool.toml" },
+  { path = "scripts/makefile/tauri.toml" },
 ]
 
 [config]
@@ -22,12 +23,12 @@ CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
 LIB_NAME = "dart_ffi"
-CURRENT_APP_VERSION = "0.0.9"
-FEATURES = "flutter"
+CURRENT_APP_VERSION = "0.0.9.1"
+FLUTTER_DESKTOP_FEATURES = "flutter,rev-sqlite"
 PRODUCT_NAME = "AppFlowy"
 # CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
 # If you update the macOS's CRATE_TYPE, don't forget to update the
-# flowy_sdk.podspec
+# appflowy_backend.podspec
 #   for staticlib:
 #        s.static_framework = true
 #        s.vendored_libraries = "libdart_ffi.a"
@@ -42,8 +43,8 @@ PRODUCT_NAME = "AppFlowy"
 CRATE_TYPE = "staticlib"
 LIB_EXT = "a"
 APP_ENVIRONMENT = "local"
-FLUTTER_FLOWY_SDK_PATH = "app_flowy/packages/flowy_sdk"
-PROTOBUF_DERIVE_CACHE = "../shared-lib/flowy-derive/src/derive_cache/derive_cache.rs"
+FLUTTER_FLOWY_SDK_PATH = "app_flowy/packages/appflowy_backend"
+TAURI_BACKEND_SERVICE_PATH = "appflowy_tauri/src/services/backend"
 # Test default config
 TEST_CRATE_TYPE = "cdylib"
 TEST_LIB_EXT = "dylib"
@@ -133,6 +134,7 @@ CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Debug"
 LIB_EXT = "so"
 LINUX_ARCH = "arm64"
+FLUTTER_DESKTOP_FEATURES = "flutter,rev-sqlite,openssl_vendored"
 
 [env.production-linux-aarch64]
 BUILD_FLAG = "release"
@@ -143,6 +145,7 @@ FLUTTER_OUTPUT_DIR = "Release"
 LIB_EXT = "so"
 LINUX_ARCH = "arm64"
 APP_ENVIRONMENT = "production"
+FLUTTER_DESKTOP_FEATURES = "flutter,rev-sqlite,openssl_vendored"
 
 [tasks.echo_env]
 script = ['''
@@ -151,7 +154,7 @@ script = ['''
     echo BUILD_FLAG: ${BUILD_FLAG}
     echo TARGET_OS: ${TARGET_OS}
     echo RUST_COMPILE_TARGET: ${RUST_COMPILE_TARGET}
-    echo FEATURES: ${FEATURES}
+    echo FEATURES: ${FLUTTER_DESKTOP_FEATURES}
     echo PRODUCT_EXT: ${PRODUCT_EXT}
     echo APP_ENVIRONMENT: ${APP_ENVIRONMENT}
     echo ${platforms}
@@ -170,19 +173,19 @@ BUILD_FLAG = "debug"
 TARGET_OS = "android"
 CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Debug"
-FEATURES = "flutter,openssl_vendored"
+FLUTTER_DESKTOP_FEATURES = "flutter,rev-sqlite,openssl_vendored"
 
 [env.production-android]
 BUILD_FLAG = "release"
 TARGET_OS = "android"
 CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Release"
-FEATURES = "flutter,openssl_vendored"
+FLUTTER_DESKTOP_FEATURES = "flutter,rev-sqlite,openssl_vendored"
 
 [tasks.setup-crate-type]
 private = true
 script = [
-    """
+  """
       toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
       val = replace ${toml} "staticlib" ${CRATE_TYPE}
       result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
@@ -194,7 +197,7 @@ script_runner = "@duckscript"
 [tasks.restore-crate-type]
 private = true
 script = [
-    """
+  """
       toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
       val = replace ${toml} ${CRATE_TYPE} "staticlib"
       result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
@@ -222,7 +225,7 @@ TEST_COMPILE_TARGET = "x86_64-pc-windows-msvc"
 [tasks.setup-test-crate-type]
 private = true
 script = [
-    """
+  """
       toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
       val = replace ${toml} "staticlib" ${TEST_CRATE_TYPE}
       result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
@@ -234,7 +237,7 @@ script_runner = "@duckscript"
 [tasks.restore-test-crate-type]
 private = true
 script = [
-    """
+  """
       toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
       val = replace ${toml} ${TEST_CRATE_TYPE} "staticlib"
       result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
@@ -250,5 +253,3 @@ script = ["""
       cargo build -vv --features=dart
       """]
 script_runner = "@shell"
-
-

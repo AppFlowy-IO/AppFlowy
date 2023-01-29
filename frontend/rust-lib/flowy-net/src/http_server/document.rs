@@ -4,7 +4,7 @@ use crate::{
 };
 use flowy_document::DocumentCloudService;
 use flowy_error::FlowyError;
-use flowy_http_model::document::{CreateDocumentParams, DocumentIdPB, DocumentPayloadPB, ResetDocumentParams};
+use flowy_http_model::document::{CreateDocumentParams, DocumentId, DocumentPayload, ResetDocumentParams};
 use http_flowy::response::FlowyResponse;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
@@ -27,7 +27,7 @@ impl DocumentCloudService for DocumentCloudServiceImpl {
         FutureResult::new(async move { create_document_request(&token, params, &url).await })
     }
 
-    fn fetch_document(&self, token: &str, params: DocumentIdPB) -> FutureResult<Option<DocumentPayloadPB>, FlowyError> {
+    fn fetch_document(&self, token: &str, params: DocumentId) -> FutureResult<Option<DocumentPayload>, FlowyError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
         FutureResult::new(async move { read_document_request(&token, params, &url).await })
@@ -41,10 +41,10 @@ impl DocumentCloudService for DocumentCloudServiceImpl {
 }
 
 pub async fn create_document_request(token: &str, params: CreateDocumentParams, url: &str) -> Result<(), FlowyError> {
-    let _ = request_builder()
+    request_builder()
         .post(url)
         .header(HEADER_TOKEN, token)
-        .protobuf(params)?
+        .json(params)?
         .send()
         .await?;
     Ok(())
@@ -52,24 +52,24 @@ pub async fn create_document_request(token: &str, params: CreateDocumentParams, 
 
 pub async fn read_document_request(
     token: &str,
-    params: DocumentIdPB,
+    params: DocumentId,
     url: &str,
-) -> Result<Option<DocumentPayloadPB>, FlowyError> {
+) -> Result<Option<DocumentPayload>, FlowyError> {
     let doc = request_builder()
         .get(url)
         .header(HEADER_TOKEN, token)
-        .protobuf(params)?
-        .option_response()
+        .json(params)?
+        .option_json_response()
         .await?;
 
     Ok(doc)
 }
 
 pub async fn reset_doc_request(token: &str, params: ResetDocumentParams, url: &str) -> Result<(), FlowyError> {
-    let _ = request_builder()
+    request_builder()
         .patch(url)
         .header(HEADER_TOKEN, token)
-        .protobuf(params)?
+        .json(params)?
         .send()
         .await?;
     Ok(())

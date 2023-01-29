@@ -13,7 +13,6 @@ import '../../../../main.dart';
 import '../../../../startup/launch_configuration.dart';
 import '../../../../startup/startup.dart';
 import '../../../../startup/tasks/prelude.dart';
-import '../../../application/settings/settings_location_cubit.dart';
 
 class SettingsFileLocationCustomzier extends StatefulWidget {
   const SettingsFileLocationCustomzier({
@@ -41,6 +40,7 @@ class SettingsFileLocationCustomzierState
           title: FlowyText.regular(
             LocaleKeys.settings_files_defaultLocation.tr(),
             fontSize: 15.0,
+            overflow: TextOverflow.ellipsis,
           ),
           subtitle: Tooltip(
             message: LocaleKeys.settings_files_doubleTapToCopy.tr(),
@@ -53,6 +53,7 @@ class SettingsFileLocationCustomzierState
               child: FlowyText.regular(
                 state.path ?? '',
                 fontSize: 10.0,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ),

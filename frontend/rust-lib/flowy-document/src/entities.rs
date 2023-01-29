@@ -2,7 +2,7 @@ use crate::errors::ErrorCode;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use std::convert::TryInto;
 
-#[derive(PartialEq, Debug, ProtoBuf_Enum, Clone)]
+#[derive(PartialEq, Eq, Debug, ProtoBuf_Enum, Clone)]
 pub enum ExportType {
     Text = 0,
     Markdown = 1,
@@ -79,7 +79,7 @@ pub struct ExportPayloadPB {
     pub document_version: DocumentVersionPB,
 }
 
-#[derive(PartialEq, Debug, ProtoBuf_Enum, Clone)]
+#[derive(PartialEq, Eq, Debug, ProtoBuf_Enum, Clone)]
 pub enum DocumentVersionPB {
     /// this version's content of the document is build from `Delta`. It uses
     /// `DeltaDocumentEditor`.

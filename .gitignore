@@ -19,7 +19,6 @@ node_modules
 **/.cache
 **/.DS_Store
 
-**/src/protobuf
 **/resources/proto
 
 frontend/.vscode/*
@@ -36,3 +35,4 @@ pubspec.lock
 # ignore tool used for commit linting
 .githooks/gitlint
 .githooks/gitlint.exe
+.fvm/

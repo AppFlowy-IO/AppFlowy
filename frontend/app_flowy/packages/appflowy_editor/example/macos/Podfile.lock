@@ -35,7 +35,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   flowy_infra_ui: c34d49d615ed9fe552cd47f90d7850815a74e9e9
-  FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
+  FlutterMacOS: ae6af50a8ea7d6103d888583d46bd8328a7e9811
   path_provider_macos: 3c0c3b4b0d4a76d2bf989a913c2de869c5641a19
   rich_clipboard_macos: 43364b66b9dc69d203eb8dd6d758e2d12e02723c
   shared_preferences_macos: a64dc611287ed6cbe28fd1297898db1336975727

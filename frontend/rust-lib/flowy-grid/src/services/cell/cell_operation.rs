@@ -1,8 +1,10 @@
 use crate::entities::FieldType;
 use crate::services::cell::{AtomicCellDataCache, CellProtobufBlob, TypeCellData};
 use crate::services::field::*;
+
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use grid_rev_model::{CellRevision, FieldRevision};
+
 use std::fmt::Debug;
 
 /// Decode the opaque cell data into readable format content
@@ -41,7 +43,7 @@ pub trait CellDataChangeset: TypeOption {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<<Self as TypeOption>::CellData>;
+    ) -> FlowyResult<(String, <Self as TypeOption>::CellData)>;
 }
 
 /// changeset: It will be deserialized into specific data base on the FieldType.
@@ -65,13 +67,13 @@ pub fn apply_cell_data_changeset<C: ToCellChangesetString, T: AsRef<FieldRevisio
         Err(_) => None,
     });
 
-    let cell_data = match TypeOptionCellExt::new_with_cell_data_cache(field_rev, cell_data_cache)
+    let cell_str = match TypeOptionCellExt::new_with_cell_data_cache(field_rev, cell_data_cache)
         .get_type_option_cell_data_handler(&field_type)
     {
         None => "".to_string(),
         Some(handler) => handler.handle_cell_changeset(changeset, type_cell_data, field_rev)?,
     };
-    Ok(TypeCellData::new(cell_data, field_type).to_json())
+    Ok(TypeCellData::new(cell_str, field_type).to_json())
 }
 
 pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debug>(
@@ -134,19 +136,27 @@ pub fn try_decode_cell_str(
 }
 
 /// Returns a string that represents the current field_type's cell data.
-/// If the cell data of the `FieldType` doesn't support displaying in String then will return an
-/// empty string. For example, The string of the Multi-Select cell will be a list of the option's name
+/// For example, The string of the Multi-Select cell will be a list of the option's name
 /// separated by a comma.
+///
+/// # Arguments
+///
+/// * `cell_str`: the opaque cell string that can be decoded by corresponding structs that implement the
+/// `FromCellString` trait.
+/// * `decoded_field_type`: the field_type of the cell_str
+/// * `field_type`: use this field type's `TypeOption` to stringify this cell_str
+/// * `field_rev`: used to get the corresponding TypeOption for the specified field type.
+///
+/// returns: String
 pub fn stringify_cell_data(
     cell_str: String,
-    from_field_type: &FieldType,
-    to_field_type: &FieldType,
+    decoded_field_type: &FieldType,
+    field_type: &FieldType,
     field_rev: &FieldRevision,
 ) -> String {
-    match TypeOptionCellExt::new_with_cell_data_cache(field_rev, None).get_type_option_cell_data_handler(to_field_type)
-    {
+    match TypeOptionCellExt::new_with_cell_data_cache(field_rev, None).get_type_option_cell_data_handler(field_type) {
         None => "".to_string(),
-        Some(handler) => handler.stringify_cell_str(cell_str, from_field_type, field_rev),
+        Some(handler) => handler.stringify_cell_str(cell_str, decoded_field_type, field_rev),
     }
 }
 
@@ -203,52 +213,6 @@ pub trait FromCellString {
     fn from_cell_str(s: &str) -> FlowyResult<Self>
     where
         Self: Sized;
-}
-
-/// IntoCellData is a helper struct used to deserialize string into a specific data type that implements
-/// the `FromCellString` trait.
-///
-pub struct IntoCellData<T>(pub Option<T>);
-impl<T> IntoCellData<T> {
-    pub fn try_into_inner(self) -> FlowyResult<T> {
-        match self.0 {
-            None => Err(ErrorCode::InvalidData.into()),
-            Some(data) => Ok(data),
-        }
-    }
-}
-
-impl<T> std::convert::From<String> for IntoCellData<T>
-where
-    T: FromCellString,
-{
-    fn from(s: String) -> Self {
-        match T::from_cell_str(&s) {
-            Ok(inner) => IntoCellData(Some(inner)),
-            Err(e) => {
-                tracing::error!("Deserialize Cell Data failed: {}", e);
-                IntoCellData(None)
-            }
-        }
-    }
-}
-
-impl<T> std::convert::From<T> for IntoCellData<T> {
-    fn from(val: T) -> Self {
-        IntoCellData(Some(val))
-    }
-}
-
-impl std::convert::From<usize> for IntoCellData<String> {
-    fn from(n: usize) -> Self {
-        IntoCellData(Some(n.to_string()))
-    }
-}
-
-impl std::convert::From<IntoCellData<String>> for String {
-    fn from(p: IntoCellData<String>) -> Self {
-        p.try_into_inner().unwrap_or_else(|_| String::new())
-    }
 }
 
 /// If the changeset applying to the cell is not String type, it should impl this trait.

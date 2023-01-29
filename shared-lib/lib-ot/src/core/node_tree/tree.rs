@@ -31,7 +31,7 @@ impl NodeTree {
 
     pub fn from_node_data(node_data: NodeData, context: NodeTreeContext) -> Result<Self, OTError> {
         let mut tree = Self::new(context);
-        let _ = tree.insert_nodes(&0_usize.into(), vec![node_data])?;
+        tree.insert_nodes(&0_usize.into(), vec![node_data])?;
         Ok(tree)
     }
 
@@ -68,7 +68,7 @@ impl NodeTree {
         let operations = operations.into();
         let mut node_tree = NodeTree::new(context);
         for (_, operation) in operations.into_inner().into_iter().enumerate() {
-            let _ = node_tree.apply_op(operation)?;
+            node_tree.apply_op(operation)?;
         }
         Ok(node_tree)
     }
@@ -76,7 +76,7 @@ impl NodeTree {
     pub fn from_transaction<T: Into<Transaction>>(transaction: T, context: NodeTreeContext) -> Result<Self, OTError> {
         let transaction = transaction.into();
         let mut tree = Self::new(context);
-        let _ = tree.apply_transaction(transaction)?;
+        tree.apply_transaction(transaction)?;
         Ok(tree)
     }
 
@@ -473,7 +473,7 @@ impl NodeTree {
             None => tracing::warn!("The path: {:?} does not contain any nodes", path),
             Some(node) => {
                 let node = node.get_mut();
-                let _ = f(node)?;
+                f(node)?;
             }
         }
         Ok(())

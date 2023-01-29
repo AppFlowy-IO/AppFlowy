@@ -17,8 +17,8 @@ impl Serialize for Document {
         S: Serializer,
     {
         let mut map = serializer.serialize_map(Some(1))?;
-        let _ = map.serialize_key("document")?;
-        let _ = map.serialize_value(&DocumentContentSerializer(self))?;
+        map.serialize_key("document")?;
+        map.serialize_value(&DocumentContentSerializer(self))?;
         map.end()
     }
 }
@@ -312,7 +312,7 @@ impl<'a> Serialize for DocumentContentSerializer<'a> {
             let mut seq = serializer.serialize_seq(Some(children.len()))?;
             for child in children {
                 if let Some(node_data) = get_document_node_data(child) {
-                    let _ = seq.serialize_element(&node_data)?;
+                    seq.serialize_element(&node_data)?;
                 }
             }
             seq.end()

@@ -1,6 +1,6 @@
 use flowy_document::old_editor::editor::DeltaDocumentEditor;
 use flowy_document::TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS;
-use flowy_revision::disk::RevisionState;
+use flowy_revision_persistence::RevisionState;
 use flowy_test::{helper::ViewTest, FlowySDKTest};
 use lib_ot::{core::Interval, text_delta::DeltaTextOperations};
 use std::sync::Arc;

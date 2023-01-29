@@ -210,7 +210,7 @@ where
             }
         }
 
-        tracing::Span::current().record("group_result", &format!("{},", self.group_ctx,).as_str());
+        tracing::Span::current().record("group_result", format!("{},", self.group_ctx,).as_str());
         Ok(())
     }
 

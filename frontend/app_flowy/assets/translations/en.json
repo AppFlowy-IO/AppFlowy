@@ -165,7 +165,8 @@
         "light": "Light Mode",
         "dark": "Dark Mode",
         "system": "Adapt to System"
-      }
+      },
+      "theme": "Theme"
     },
     "files": {
       "defaultLocation": "Where your data is stored now",
@@ -173,7 +174,7 @@
       "restoreLocation": "Restore to AppFlowy default path",
       "customizeLocation": "Open another folder",
       "restartApp": "Please restart app for the changes to take effect.",
-      "exportDatabase": "Export databae",
+      "exportDatabase": "Export database",
       "selectFiles": "Select the files that need to be export",
       "createNewFolder": "Create a new folder",
       "createNewFolderDesc": "Tell us where you want to store your data ...",
@@ -192,6 +193,7 @@
   "grid": {
     "settings": {
       "filter": "Filter",
+      "sort": "Sort",
       "sortBy": "Sort by",
       "Properties": "Properties",
       "group": "Group",
@@ -272,6 +274,12 @@
       "newColumn": "New column",
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted"
     },
+    "sort": {
+      "ascending": "Ascending",
+      "descending": "Descending",
+      "deleteSort": "Delete sort",
+      "addSort": "Add sort"
+    },
     "row": {
       "duplicate": "Duplicate",
       "delete": "Delete",
@@ -311,6 +319,15 @@
   "board": {
     "column": {
       "create_new_card": "New"
+    }
+  },
+  "calendar": {
+    "menuName": "Calendar",
+    "navigation": {
+      "today": "Today",
+      "jumpToday": "Jump to Today",
+      "previousMonth": "Previous Month",
+      "nextMonth": "Next Month"
     }
   }
 }

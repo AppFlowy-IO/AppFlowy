@@ -1,7 +1,7 @@
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/application/cell/checklist_cell_editor_bloc.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
-import 'package:app_flowy/plugins/grid/presentation/widgets/cell/checklist_cell/checklist_prograss_bar.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/cell/checklist_cell/checklist_progress_bar.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/header/type_option/select_option_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
@@ -48,7 +48,7 @@ class _GridChecklistCellEditorState extends State<GridChecklistCellEditor> {
       child: BlocBuilder<ChecklistCellEditorBloc, ChecklistCellEditorState>(
         builder: (context, state) {
           final List<Widget> slivers = [
-            const SliverChecklistPrograssBar(),
+            const SliverChecklistProgressBar(),
             SliverToBoxAdapter(
               child: Padding(
                 padding: GridSize.typeOptionContentInsets,
@@ -114,7 +114,7 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
         : svgWidget('editor/editor_uncheck');
     return _wrapPopover(
       SizedBox(
-        height: GridSize.typeOptionItemHeight,
+        height: GridSize.popoverItemHeight,
         child: Row(
           children: [
             Expanded(

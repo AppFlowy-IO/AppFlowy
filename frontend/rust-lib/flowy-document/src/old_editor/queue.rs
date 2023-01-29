@@ -3,7 +3,6 @@ use crate::DocumentUser;
 use async_stream::stream;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyError;
-use flowy_http_model::revision::RevId;
 use flowy_revision::{RevisionMD5, RevisionManager, TransformOperations};
 use flowy_sync::{
     client_document::{history::UndoResult, ClientDocument},
@@ -70,7 +69,7 @@ impl EditDocumentQueue {
         match command {
             EditorCommand::ComposeLocalOperations { operations, ret } => {
                 let mut document = self.document.write().await;
-                let _ = document.compose_operations(operations.clone())?;
+                document.compose_operations(operations.clone())?;
                 let md5 = document.document_md5();
                 drop(document);
                 let _ = self.save_local_operations(operations, md5).await?;
@@ -78,14 +77,14 @@ impl EditDocumentQueue {
             }
             EditorCommand::ComposeRemoteOperation { client_operations, ret } => {
                 let mut document = self.document.write().await;
-                let _ = document.compose_operations(client_operations.clone())?;
+                document.compose_operations(client_operations.clone())?;
                 let md5 = document.document_md5();
                 drop(document);
                 let _ = ret.send(Ok(md5.into()));
             }
             EditorCommand::ResetOperations { operations, ret } => {
                 let mut document = self.document.write().await;
-                let _ = document.set_operations(operations);
+                document.set_operations(operations);
                 let md5 = document.document_md5();
                 drop(document);
                 let _ = ret.send(Ok(md5.into()));
@@ -176,10 +175,10 @@ impl EditDocumentQueue {
         Ok(())
     }
 
-    async fn save_local_operations(&self, operations: DeltaTextOperations, md5: String) -> Result<RevId, FlowyError> {
+    async fn save_local_operations(&self, operations: DeltaTextOperations, md5: String) -> Result<i64, FlowyError> {
         let bytes = operations.json_bytes();
         let rev_id = self.rev_manager.add_local_revision(bytes, md5).await?;
-        Ok(rev_id.into())
+        Ok(rev_id)
     }
 }
 

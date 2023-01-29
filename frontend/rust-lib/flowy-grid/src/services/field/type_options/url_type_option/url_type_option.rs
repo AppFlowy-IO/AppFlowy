@@ -32,7 +32,10 @@ impl TypeOptionBuilder for URLTypeOptionBuilder {
 #[derive(Debug, Clone, Serialize, Deserialize, Default, ProtoBuf)]
 pub struct URLTypeOptionPB {
     #[pb(index = 1)]
-    data: String, //It's not used yet.
+    pub url: String,
+
+    #[pb(index = 2)]
+    pub content: String,
 }
 impl_type_option!(URLTypeOptionPB, FieldType::URL);
 
@@ -81,15 +84,16 @@ impl CellDataChangeset for URLTypeOptionPB {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         _type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<<Self as TypeOption>::CellData> {
+    ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
         let mut url = "".to_string();
         if let Ok(Some(m)) = URL_REGEX.find(&changeset) {
             url = auto_append_scheme(m.as_str());
         }
-        Ok(URLCellData {
+        let url_cell_data = URLCellData {
             url,
             content: changeset,
-        })
+        };
+        Ok((url_cell_data.to_string(), url_cell_data))
     }
 }
 
@@ -104,7 +108,7 @@ impl TypeOptionCellDataFilter for URLTypeOptionPB {
             return true;
         }
 
-        filter.is_visible(&cell_data)
+        filter.is_visible(cell_data)
     }
 }
 

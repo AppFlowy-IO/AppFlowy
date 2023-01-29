@@ -1,67 +1,73 @@
 import 'package:app_flowy/plugins/document/document.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/view/view_bloc.dart';
-import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../util.dart';
 
 void main() {
-  late AppFlowyUnitTest test;
+  late AppFlowyUnitTest testContext;
   setUpAll(() async {
-    test = await AppFlowyUnitTest.ensureInitialized();
+    testContext = await AppFlowyUnitTest.ensureInitialized();
   });
 
-  group('$ViewBloc', () {
-    late AppBloc appBloc;
+  test('rename view test', () async {
+    final app = await testContext.createTestApp();
+    final appBloc = AppBloc(app: app)..add(const AppEvent.initial());
+    appBloc.add(AppEvent.createView(
+      "Test document",
+      DocumentPluginBuilder(),
+    ));
+    await blocResponseFuture();
 
-    setUpAll(() async {
-      final app = await test.createTestApp();
-      appBloc = AppBloc(app: app)..add(const AppEvent.initial());
-      appBloc.add(AppEvent.createView(
-        "Test document",
-        DocumentPluginBuilder(),
-      ));
-      await blocResponseFuture();
-    });
+    final viewBloc = ViewBloc(view: appBloc.state.views.first)
+      ..add(const ViewEvent.initial());
+    viewBloc.add(const ViewEvent.rename('Hello world'));
+    await blocResponseFuture();
 
-    blocTest<ViewBloc, ViewState>(
-      "rename view",
-      build: () => ViewBloc(view: appBloc.state.views.first)
-        ..add(const ViewEvent.initial()),
-      act: (bloc) {
-        bloc.add(const ViewEvent.rename('Hello world'));
-      },
-      wait: blocResponseDuration(),
-      verify: (bloc) {
-        assert(bloc.state.view.name == "Hello world");
-      },
-    );
+    assert(viewBloc.state.view.name == "Hello world");
+  });
 
-    blocTest<ViewBloc, ViewState>(
-      "duplicate view",
-      build: () => ViewBloc(view: appBloc.state.views.first)
-        ..add(const ViewEvent.initial()),
-      act: (bloc) {
-        bloc.add(const ViewEvent.duplicate());
-      },
-      wait: blocResponseDuration(),
-      verify: (bloc) {
-        assert(appBloc.state.views.length == 2);
-      },
-    );
+  test('duplicate view test', () async {
+    final app = await testContext.createTestApp();
+    final appBloc = AppBloc(app: app)..add(const AppEvent.initial());
+    await blocResponseFuture();
 
-    blocTest<ViewBloc, ViewState>(
-      "delete view",
-      build: () => ViewBloc(view: appBloc.state.views.first)
-        ..add(const ViewEvent.initial()),
-      act: (bloc) {
-        bloc.add(const ViewEvent.delete());
-      },
-      wait: blocResponseDuration(),
-      verify: (bloc) {
-        assert(appBloc.state.views.length == 1);
-      },
-    );
+    appBloc.add(AppEvent.createView(
+      "Test document",
+      DocumentPluginBuilder(),
+    ));
+    await blocResponseFuture();
+
+    final viewBloc = ViewBloc(view: appBloc.state.views.first)
+      ..add(const ViewEvent.initial());
+    await blocResponseFuture();
+
+    viewBloc.add(const ViewEvent.duplicate());
+    await blocResponseFuture();
+
+    assert(appBloc.state.views.length == 2);
+  });
+
+  test('delete view test', () async {
+    final app = await testContext.createTestApp();
+    final appBloc = AppBloc(app: app)..add(const AppEvent.initial());
+    await blocResponseFuture();
+
+    appBloc.add(AppEvent.createView(
+      "Test document",
+      DocumentPluginBuilder(),
+    ));
+    await blocResponseFuture();
+    assert(appBloc.state.views.length == 1);
+
+    final viewBloc = ViewBloc(view: appBloc.state.views.first)
+      ..add(const ViewEvent.initial());
+    await blocResponseFuture();
+
+    viewBloc.add(const ViewEvent.delete());
+    await blocResponseFuture();
+
+    assert(appBloc.state.views.isEmpty);
   });
 }

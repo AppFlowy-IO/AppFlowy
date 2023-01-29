@@ -2,10 +2,10 @@ use crate::entities::view::ViewDataFormatPB;
 use crate::entities::{ViewLayoutTypePB, ViewPB};
 use crate::services::folder_editor::FolderRevisionMergeable;
 use crate::{
-    dart_notification::{send_dart_notification, FolderNotification},
     entities::workspace::RepeatedWorkspacePB,
     errors::FlowyResult,
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
+    notification::{send_dart_notification, FolderNotification},
     services::{
         folder_editor::FolderEditor, persistence::FolderPersistence, set_current_workspace, AppController,
         TrashController, ViewController, WorkspaceController,
@@ -14,19 +14,19 @@ use crate::{
 use bytes::Bytes;
 use flowy_document::editor::initial_read_me;
 use flowy_error::FlowyError;
-use flowy_revision::{
-    PhantomSnapshotPersistence, RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration,
-    RevisionWebSocket,
-};
+use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket};
 use folder_rev_model::user_default;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 
 use crate::services::clear_current_workspace;
-use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
+use crate::services::persistence::rev_sqlite::{
+    SQLiteFolderRevisionPersistence, SQLiteFolderRevisionSnapshotPersistence,
+};
 use flowy_http_model::ws_data::ServerRevisionWSData;
 use flowy_sync::client_folder::FolderPad;
-use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};
+use std::convert::TryFrom;
+use std::{collections::HashMap, fmt::Formatter, sync::Arc};
 use tokio::sync::RwLock as TokioRwLock;
 lazy_static! {
     static ref INIT_FOLDER_FLAG: TokioRwLock<HashMap<String, bool>> = TokioRwLock::new(HashMap::new());
@@ -139,7 +139,7 @@ impl FolderManager {
     // }
 
     pub async fn did_receive_ws_data(&self, data: Bytes) {
-        let result: Result<ServerRevisionWSData, protobuf::ProtobufError> = data.try_into();
+        let result = ServerRevisionWSData::try_from(data);
         match result {
             Ok(data) => match self.folder_editor.read().await.clone() {
                 None => {}
@@ -165,27 +165,30 @@ impl FolderManager {
         }
         tracing::debug!("Initialize folder editor");
         let folder_id = FolderId::new(user_id);
-        let _ = self.persistence.initialize(user_id, &folder_id).await?;
+        self.persistence.initialize(user_id, &folder_id).await?;
 
         let pool = self.persistence.db_pool()?;
         let object_id = folder_id.as_ref();
         let disk_cache = SQLiteFolderRevisionPersistence::new(user_id, pool.clone());
-        let configuration = RevisionPersistenceConfiguration::new(100, false);
+        let configuration = RevisionPersistenceConfiguration::new(200, false);
         let rev_persistence = RevisionPersistence::new(user_id, object_id, disk_cache, configuration);
         let rev_compactor = FolderRevisionMergeable();
+
+        let snapshot_object_id = format!("folder:{}", object_id);
+        let snapshot_persistence = SQLiteFolderRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
         let rev_manager = RevisionManager::new(
             user_id,
             folder_id.as_ref(),
             rev_persistence,
             rev_compactor,
-            PhantomSnapshotPersistence(),
+            snapshot_persistence,
         );
 
         let folder_editor = FolderEditor::new(user_id, &folder_id, token, rev_manager, self.web_socket.clone()).await?;
         *self.folder_editor.write().await = Some(Arc::new(folder_editor));
 
-        let _ = self.app_controller.initialize()?;
-        let _ = self.view_controller.initialize()?;
+        self.app_controller.initialize()?;
+        self.view_controller.initialize()?;
         write_guard.insert(user_id.to_owned(), true);
         Ok(())
     }
@@ -234,7 +237,7 @@ impl DefaultFolderBuilder {
                 if index == 0 {
                     let _ = view_controller.set_latest_view(&view.id);
                     let layout_type = ViewLayoutTypePB::from(view.layout.clone());
-                    let _ = view_controller
+                    view_controller
                         .create_view(&view.id, view_data_type, layout_type, view_data)
                         .await?;
                 }
@@ -242,7 +245,7 @@ impl DefaultFolderBuilder {
         }
         let folder = FolderPad::new(vec![workspace_rev.clone()], vec![])?;
         let folder_id = FolderId::new(user_id);
-        let _ = persistence.save_folder(user_id, &folder_id, folder).await?;
+        persistence.save_folder(user_id, &folder_id, folder).await?;
         let repeated_workspace = RepeatedWorkspacePB {
             items: vec![workspace_rev.into()],
         };

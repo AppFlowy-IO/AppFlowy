@@ -48,7 +48,8 @@ impl LocalServer {
     }
 
     pub async fn stop(&self) {
-        if let Some(stop_tx) = self.stop_tx.read().clone() {
+        let sender = self.stop_tx.read().clone();
+        if let Some(stop_tx) = sender {
             let _ = stop_tx.send(()).await;
         }
     }
@@ -110,11 +111,11 @@ impl LocalWebSocketRunner {
         let client_data = ClientRevisionWSData::try_from(bytes).map_err(internal_error)?;
         match message.channel {
             WSChannel::Document => {
-                let _ = self.handle_document_client_data(client_data, "".to_owned()).await?;
+                self.handle_document_client_data(client_data, "".to_owned()).await?;
                 Ok(())
             }
             WSChannel::Folder => {
-                let _ = self.handle_folder_client_data(client_data, "".to_owned()).await?;
+                self.handle_folder_client_data(client_data, "".to_owned()).await?;
                 Ok(())
             }
             WSChannel::Grid => {
@@ -131,7 +132,7 @@ impl LocalWebSocketRunner {
         tracing::trace!(
             "[LocalFolderServer] receive: {}:{}-{:?} ",
             client_data.object_id,
-            client_data.id(),
+            client_data.rev_id,
             client_data.ty,
         );
         let client_ws_sender = self.client_ws_sender.clone();
@@ -141,19 +142,12 @@ impl LocalWebSocketRunner {
             channel: WSChannel::Folder,
         });
         let ty = client_data.ty.clone();
-        let document_client_data: ClientRevisionWSDataPB = client_data.try_into().unwrap();
         match ty {
             ClientRevisionWSDataType::ClientPushRev => {
-                let _ = self
-                    .folder_manager
-                    .handle_client_revisions(user, document_client_data)
-                    .await?;
+                self.folder_manager.handle_client_revisions(user, client_data).await?;
             }
             ClientRevisionWSDataType::ClientPing => {
-                let _ = self
-                    .folder_manager
-                    .handle_client_ping(user, document_client_data)
-                    .await?;
+                self.folder_manager.handle_client_ping(user, client_data).await?;
             }
         }
         Ok(())
@@ -167,7 +161,7 @@ impl LocalWebSocketRunner {
         tracing::trace!(
             "[LocalDocumentServer] receive: {}:{}-{:?} ",
             client_data.object_id,
-            client_data.id(),
+            client_data.rev_id,
             client_data.ty,
         );
         let client_ws_sender = self.client_ws_sender.clone();
@@ -177,16 +171,12 @@ impl LocalWebSocketRunner {
             channel: WSChannel::Document,
         });
         let ty = client_data.ty.clone();
-        let document_client_data: ClientRevisionWSDataPB = client_data.try_into().unwrap();
         match ty {
             ClientRevisionWSDataType::ClientPushRev => {
-                let _ = self
-                    .doc_manager
-                    .handle_client_revisions(user, document_client_data)
-                    .await?;
+                self.doc_manager.handle_client_revisions(user, client_data).await?;
             }
             ClientRevisionWSDataType::ClientPing => {
-                let _ = self.doc_manager.handle_client_ping(user, document_client_data).await?;
+                self.doc_manager.handle_client_ping(user, client_data).await?;
             }
         }
         Ok(())
@@ -253,8 +243,7 @@ use flowy_folder::entities::{
     view::{CreateViewParams, RepeatedViewIdPB, UpdateViewParams, ViewIdPB},
     workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdPB},
 };
-use flowy_http_model::document::{CreateDocumentParams, DocumentIdPB, DocumentPayloadPB, ResetDocumentParams};
-use flowy_http_model::protobuf::ClientRevisionWSData as ClientRevisionWSDataPB;
+use flowy_http_model::document::{CreateDocumentParams, DocumentId, DocumentPayload, ResetDocumentParams};
 use flowy_http_model::ws_data::{ClientRevisionWSData, ClientRevisionWSDataType};
 use flowy_user::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB,
@@ -414,11 +403,7 @@ impl DocumentCloudService for LocalServer {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn fetch_document(
-        &self,
-        _token: &str,
-        _params: DocumentIdPB,
-    ) -> FutureResult<Option<DocumentPayloadPB>, FlowyError> {
+    fn fetch_document(&self, _token: &str, _params: DocumentId) -> FutureResult<Option<DocumentPayload>, FlowyError> {
         FutureResult::new(async { Ok(None) })
     }
 

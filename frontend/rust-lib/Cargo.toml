@@ -2,20 +2,24 @@
 members = [
   "lib-dispatch",
   "lib-log",
-  "lib-sqlite",
   "flowy-net",
-  "flowy-sdk",
+  "flowy-core",
   "dart-ffi",
   "flowy-user",
   "flowy-test",
   "flowy-database",
   "flowy-folder",
-  "dart-notify",
+  "flowy-notification",
   "flowy-document",
   "flowy-error",
   "flowy-revision",
+  "flowy-revision-persistence",
   "flowy-grid",
   "flowy-task",
+  "flowy-sync",
+  "flowy-derive",
+  "flowy-ast",
+  "flowy-codegen",
 ]
 
 [profile.dev]

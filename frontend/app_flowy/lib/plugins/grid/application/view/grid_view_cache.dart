@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:app_flowy/plugins/grid/application/view/grid_view_listener.dart';
-import 'package:flowy_sdk/log.dart';
+import 'package:appflowy_backend/log.dart';
 
 import '../field/field_controller.dart';
 import '../row/row_cache.dart';
@@ -18,10 +18,12 @@ class GridViewCache {
     required this.gridId,
     required GridFieldController fieldController,
   }) : _gridViewListener = GridViewListener(viewId: gridId) {
+    final delegate = GridRowFieldNotifierImpl(fieldController);
     _rowCache = GridRowCache(
       gridId: gridId,
       rows: [],
-      notifier: GridRowFieldNotifierImpl(fieldController),
+      notifier: delegate,
+      delegate: delegate,
     );
 
     _gridViewListener.start(
@@ -34,6 +36,18 @@ class GridViewCache {
       onRowsVisibilityChanged: (result) {
         result.fold(
           (changeset) => _rowCache.applyRowsVisibility(changeset),
+          (err) => Log.error(err),
+        );
+      },
+      onReorderAllRows: (result) {
+        result.fold(
+          (rowIds) => _rowCache.reorderAllRows(rowIds),
+          (err) => Log.error(err),
+        );
+      },
+      onReorderSingleRow: (result) {
+        result.fold(
+          (reorderRow) => _rowCache.reorderSingleRow(reorderRow),
           (err) => Log.error(err),
         );
       },

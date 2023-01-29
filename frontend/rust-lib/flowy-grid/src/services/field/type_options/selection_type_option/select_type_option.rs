@@ -152,10 +152,10 @@ where
     fn transform_type_option_cell_str(
         &self,
         cell_str: &str,
-        _decoded_field_type: &FieldType,
+        decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> Option<<Self as TypeOption>::CellData> {
-        match _decoded_field_type {
+        match decoded_field_type {
             FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => None,
             FieldType::Checkbox => match CheckboxCellData::from_cell_str(cell_str) {
                 Ok(checkbox_cell_data) => {
@@ -169,6 +169,7 @@ where
                 }
                 Err(_) => None,
             },
+            FieldType::RichText => SelectOptionIds::from_cell_str(cell_str).ok(),
             _ => Some(SelectOptionIds::from(vec![])),
         }
     }
@@ -253,7 +254,7 @@ pub fn new_select_option_color(options: &Vec<SelectOptionPB>) -> SelectOptionCol
 /// Calls [to_string] will return a string consists list of ids,
 /// placing a commas separator between each
 ///
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Debug)]
 pub struct SelectOptionIds(Vec<String>);
 
 impl SelectOptionIds {

@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'select_option_service.dart';
@@ -13,7 +13,6 @@ class SelectOptionCellEditorBloc
     extends Bloc<SelectOptionEditorEvent, SelectOptionEditorState> {
   final SelectOptionFFIService _selectOptionService;
   final GridSelectOptionCellController cellController;
-  Timer? _delayOperation;
 
   SelectOptionCellEditorBloc({
     required this.cellController,
@@ -25,7 +24,7 @@ class SelectOptionCellEditorBloc
         await event.map(
           initial: (_Initial value) async {
             _startListening();
-            _loadOptions();
+            await _loadOptions();
           },
           didReceiveOptions: (_DidReceiveOptions value) {
             final result = _makeOptions(state.filter, value.options);
@@ -36,28 +35,28 @@ class SelectOptionCellEditorBloc
               selectedOptions: value.selectedOptions,
             ));
           },
-          newOption: (_NewOption value) {
-            _createOption(value.optionName);
+          newOption: (_NewOption value) async {
+            await _createOption(value.optionName);
             emit(state.copyWith(
               filter: none(),
             ));
           },
-          deleteOption: (_DeleteOption value) {
-            _deleteOption([value.option]);
+          deleteOption: (_DeleteOption value) async {
+            await _deleteOption([value.option]);
           },
-          deleteAllOptions: (_DeleteAllOptions value) {
+          deleteAllOptions: (_DeleteAllOptions value) async {
             if (state.allOptions.isNotEmpty) {
-              _deleteOption(state.allOptions);
+              await _deleteOption(state.allOptions);
             }
           },
-          updateOption: (_UpdateOption value) {
-            _updateOption(value.option);
+          updateOption: (_UpdateOption value) async {
+            await _updateOption(value.option);
           },
-          selectOption: (_SelectOption value) {
-            _selectOptionService.select(optionIds: [value.optionId]);
+          selectOption: (_SelectOption value) async {
+            await _selectOptionService.select(optionIds: [value.optionId]);
           },
-          unSelectOption: (_UnSelectOption value) {
-            _selectOptionService.unSelect(optionIds: [value.optionId]);
+          unSelectOption: (_UnSelectOption value) async {
+            await _selectOptionService.unSelect(optionIds: [value.optionId]);
           },
           trySelectOption: (_TrySelectOption value) {
             _trySelectOption(value.optionName, emit);
@@ -78,22 +77,21 @@ class SelectOptionCellEditorBloc
 
   @override
   Future<void> close() async {
-    _delayOperation?.cancel();
     await cellController.dispose();
     return super.close();
   }
 
-  void _createOption(String name) async {
+  Future<void> _createOption(String name) async {
     final result = await _selectOptionService.create(name: name);
     result.fold((l) => {}, (err) => Log.error(err));
   }
 
-  void _deleteOption(List<SelectOptionPB> options) async {
+  Future<void> _deleteOption(List<SelectOptionPB> options) async {
     final result = await _selectOptionService.delete(options: options);
     result.fold((l) => null, (err) => Log.error(err));
   }
 
-  void _updateOption(SelectOptionPB option) async {
+  Future<void> _updateOption(SelectOptionPB option) async {
     final result = await _selectOptionService.update(
       option: option,
     );
@@ -158,25 +156,24 @@ class SelectOptionCellEditorBloc
     ));
   }
 
-  void _loadOptions() {
-    _delayOperation?.cancel();
-    _delayOperation = Timer(const Duration(milliseconds: 10), () {
-      _selectOptionService.getOptionContext().then((result) {
-        if (isClosed) {
-          return;
-        }
-        return result.fold(
-          (data) => add(
-            SelectOptionEditorEvent.didReceiveOptions(
-                data.options, data.selectOptions),
-          ),
-          (err) {
-            Log.error(err);
-            return null;
-          },
-        );
-      });
-    });
+  Future<void> _loadOptions() async {
+    final result = await _selectOptionService.getOptionContext();
+    if (isClosed) {
+      return;
+    }
+
+    return result.fold(
+      (data) => add(
+        SelectOptionEditorEvent.didReceiveOptions(
+          data.options,
+          data.selectOptions,
+        ),
+      ),
+      (err) {
+        Log.error(err);
+        return null;
+      },
+    );
   }
 
   _MakeOptionResult _makeOptions(
@@ -210,9 +207,7 @@ class SelectOptionCellEditorBloc
   void _startListening() {
     cellController.startListening(
       onCellChanged: ((selectOptionContext) {
-        if (!isClosed) {
-          _loadOptions();
-        }
+        _loadOptions();
       }),
       onCellFieldChanged: () {
         _loadOptions();

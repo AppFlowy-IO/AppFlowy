@@ -4,14 +4,12 @@ use crate::{
     errors::WSError,
     WSChannel, WebSocketRawMessage,
 };
-use bytes::Bytes;
 use dashmap::DashMap;
 use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
 use futures_core::{ready, Stream};
 use lib_infra::retry::{Action, FixedInterval, Retry};
 use pin_project::pin_project;
 use std::{
-    convert::TryFrom,
     fmt::Formatter,
     future::Future,
     pin::Pin,
@@ -206,15 +204,10 @@ impl WSHandlerFuture {
     }
 
     fn handle_binary_message(&self, bytes: Vec<u8>) {
-        let bytes = Bytes::from(bytes);
-        match WebSocketRawMessage::try_from(bytes) {
-            Ok(message) => match self.handlers.get(&message.channel) {
-                None => log::error!("Can't find any handler for message: {:?}", message),
-                Some(handler) => handler.receive_message(message.clone()),
-            },
-            Err(e) => {
-                log::error!("Deserialize binary ws message failed: {:?}", e);
-            }
+        let msg = WebSocketRawMessage::from_bytes(bytes);
+        match self.handlers.get(&msg.channel) {
+            None => log::error!("Can't find any handler for message: {:?}", msg),
+            Some(handler) => handler.receive_message(msg),
         }
     }
 }
@@ -239,8 +232,7 @@ pub struct WSSender(MsgSender);
 impl WSSender {
     pub fn send_msg<T: Into<WebSocketRawMessage>>(&self, msg: T) -> Result<(), WSError> {
         let msg = msg.into();
-        let _ = self
-            .0
+        self.0
             .unbounded_send(msg.into())
             .map_err(|e| WSError::internal().context(e))?;
         Ok(())
@@ -268,7 +260,7 @@ impl WSSender {
             reason: reason.to_owned().into(),
         };
         let msg = Message::Close(Some(frame));
-        let _ = self.0.unbounded_send(msg).map_err(|e| WSError::internal().context(e))?;
+        self.0.unbounded_send(msg).map_err(|e| WSError::internal().context(e))?;
         Ok(())
     }
 }

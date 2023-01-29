@@ -122,8 +122,7 @@ impl fmt::Display for InternalError {
 
 impl Error for InternalError {
     fn as_response(&self) -> AFPluginEventResponse {
-        let error = format!("{}", self).into_bytes();
-        ResponseBuilder::Internal().data(error).build()
+        ResponseBuilder::Err().data(self.to_string()).build()
     }
 }
 

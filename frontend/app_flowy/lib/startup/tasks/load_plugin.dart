@@ -1,3 +1,4 @@
+import 'package:app_flowy/plugins/calendar/calendar.dart';
 import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/blank/blank.dart';
@@ -17,5 +18,7 @@ class PluginLoadTask extends LaunchTask {
     registerPlugin(builder: DocumentPluginBuilder());
     registerPlugin(builder: GridPluginBuilder(), config: GridPluginConfig());
     registerPlugin(builder: BoardPluginBuilder(), config: BoardPluginConfig());
+    registerPlugin(
+        builder: CalendarPluginBuilder(), config: CalendarPluginConfig());
   }
 }

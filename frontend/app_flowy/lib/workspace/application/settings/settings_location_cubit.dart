@@ -12,10 +12,22 @@ const String kSettingsLocationDefaultLocation =
 
 class SettingsLocation {
   SettingsLocation({
-    this.path,
-  });
+    String? path,
+  }) : _path = path;
 
-  String? path;
+  String? _path;
+
+  set path(String? path) {
+    _path = path;
+  }
+
+  String? get path {
+    if (Platform.isMacOS) {
+      // remove the prefix `/Volumes/*`
+      return _path?.replaceFirst(RegExp(r'^/Volumes/[^/]+'), '');
+    }
+    return _path;
+  }
 
   SettingsLocation copyWith({String? path}) {
     return SettingsLocation(

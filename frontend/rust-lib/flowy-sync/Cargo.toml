@@ -1,0 +1,30 @@
+[package]
+name = "flowy-sync"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lib-ot = { path = "../../../shared-lib/lib-ot" }
+lib-infra = { path = "../../../shared-lib/lib-infra" }
+flowy-derive = { path = "../flowy-derive" }
+folder-rev-model = { path = "../../../shared-lib/folder-rev-model" }
+grid-rev-model = { path = "../../../shared-lib/grid-rev-model" }
+flowy-http-model = { path = "../../../shared-lib/flowy-http-model" }
+protobuf = {version = "2.18.0"}
+bytes = "1.0"
+log = "0.4.14"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1.0", features = ["derive", "rc"] }
+serde_json = {version = "1.0"}
+dissimilar = "1.0"
+tracing = { version = "0.1", features = ["log"] }
+url = "2.2"
+strum = "0.21"
+strum_macros = "0.21"
+chrono = "0.4.19"
+parking_lot = "0.12.1"
+dashmap = "5"
+futures = "0.3.15"
+async-stream = "0.3.2"

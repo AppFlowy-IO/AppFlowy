@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:app_flowy/user/application/user_settings_service.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -28,6 +28,8 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
           setting.font,
           setting.monospaceFont,
           setting.locale,
+          setting.isMenuCollapsed,
+          setting.menuOffset,
         ));
 
   /// Update selected theme in the user's settings and emit an updated state
@@ -35,7 +37,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   void setTheme(String themeName) {
     _setting.theme = themeName;
     _saveAppearanceSettings();
-    emit(state.copyWith(appTheme: AppTheme.fromName(themeName: themeName)));
+    emit(state.copyWith(appTheme: AppTheme.fromName(themeName)));
   }
 
   /// Update the theme mode in the user's settings and emit an updated state.
@@ -62,6 +64,18 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
 
       emit(state.copyWith(locale: newLocale));
     }
+  }
+
+  // Saves the menus current visibility
+  void saveIsMenuCollapsed(bool collapsed) {
+    _setting.isMenuCollapsed = collapsed;
+    _saveAppearanceSettings();
+  }
+
+  // Saves the current resize offset of the menu
+  void saveMenuOffset(double offset) {
+    _setting.menuOffset = offset;
+    _saveAppearanceSettings();
   }
 
   /// Saves key/value setting to disk.
@@ -151,6 +165,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     required String font,
     required String monospaceFont,
     required Locale locale,
+    required bool isMenuCollapsed,
+    required double menuOffset,
   }) = _AppearanceSettingsState;
 
   factory AppearanceSettingsState.initial(
@@ -159,13 +175,17 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     String font,
     String monospaceFont,
     LocaleSettingsPB localePB,
+    bool isMenuCollapsed,
+    double menuOffset,
   ) {
     return AppearanceSettingsState(
-      appTheme: AppTheme.fromName(themeName: themeName),
+      appTheme: AppTheme.fromName(themeName),
       font: font,
       monospaceFont: monospaceFont,
       themeMode: _themeModeFromPB(themeModePB),
       locale: Locale(localePB.languageCode, localePB.countryCode),
+      isMenuCollapsed: isMenuCollapsed,
+      menuOffset: menuOffset,
     );
   }
 

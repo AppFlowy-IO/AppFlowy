@@ -7,11 +7,13 @@ class PopoverLayoutDelegate extends SingleChildLayoutDelegate {
   PopoverLink link;
   PopoverDirection direction;
   final Offset offset;
+  final EdgeInsets windowPadding;
 
   PopoverLayoutDelegate({
     required this.link,
     required this.direction,
     required this.offset,
+    required this.windowPadding,
   });
 
   @override
@@ -36,8 +38,20 @@ class PopoverLayoutDelegate extends SingleChildLayoutDelegate {
   }
 
   @override
+  Size getSize(BoxConstraints constraints) {
+    return Size(
+      constraints.maxWidth - windowPadding.left - windowPadding.right,
+      constraints.maxHeight - windowPadding.top - windowPadding.bottom,
+    );
+  }
+
+  @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-    return constraints.loosen();
+    return BoxConstraints(
+      maxWidth: constraints.maxWidth - windowPadding.left - windowPadding.right,
+      maxHeight:
+          constraints.maxHeight - windowPadding.top - windowPadding.bottom,
+    );
     // assert(link.leaderSize != null);
     // // if (link.leaderSize == null) {
     // //   return constraints.loosen();
@@ -274,8 +288,14 @@ class PopoverLayoutDelegate extends SingleChildLayoutDelegate {
         throw UnimplementedError();
     }
     return Offset(
-      math.max(0.0, math.min(size.width - childSize.width, position.dx)),
-      math.max(0.0, math.min(size.height - childSize.height, position.dy)),
+      math.max(
+          windowPadding.left,
+          math.min(
+              windowPadding.left + size.width - childSize.width, position.dx)),
+      math.max(
+          windowPadding.top,
+          math.min(
+              windowPadding.top + size.height - childSize.height, position.dy)),
     );
   }
 }

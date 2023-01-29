@@ -54,7 +54,11 @@ impl DateTypeOptionPB {
 
     fn today_desc_from_timestamp<T: Into<i64>>(&self, timestamp: T) -> DateCellDataPB {
         let timestamp = timestamp.into();
-        let native = chrono::NaiveDateTime::from_timestamp(timestamp, 0);
+        let native = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0);
+        if native.is_none() {
+            return DateCellDataPB::default();
+        }
+        let native = native.unwrap();
         if native.timestamp() == 0 {
             return DateCellDataPB::default();
         }
@@ -157,22 +161,25 @@ impl CellDataChangeset for DateTypeOptionPB {
         &self,
         changeset: <Self as TypeOption>::CellChangeset,
         _type_cell_data: Option<TypeCellData>,
-    ) -> FlowyResult<<Self as TypeOption>::CellData> {
+    ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
         let cell_data = match changeset.date_timestamp() {
             None => 0,
             Some(date_timestamp) => match (self.include_time, changeset.time) {
                 (true, Some(time)) => {
                     let time = Some(time.trim().to_uppercase());
-                    let native = NaiveDateTime::from_timestamp(date_timestamp, 0);
-
-                    let utc = self.utc_date_time_from_native(native);
-                    self.timestamp_from_utc_with_time(&utc, &time)?
+                    let native = NaiveDateTime::from_timestamp_opt(date_timestamp, 0);
+                    if let Some(native) = native {
+                        let utc = self.utc_date_time_from_native(native);
+                        self.timestamp_from_utc_with_time(&utc, &time)?
+                    } else {
+                        date_timestamp
+                    }
                 }
                 _ => date_timestamp,
             },
         };
-
-        Ok(DateCellData(Some(cell_data)))
+        let date_cell_data = DateCellData(Some(cell_data));
+        Ok((date_cell_data.to_string(), date_cell_data))
     }
 }
 

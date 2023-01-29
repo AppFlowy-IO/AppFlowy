@@ -1,5 +1,5 @@
 use crate::entities::{FieldType, GroupRowsNotificationPB, InsertedRowPB, RowPB};
-use crate::services::cell::{insert_checkbox_cell, insert_select_option_cell};
+use crate::services::cell::{insert_checkbox_cell, insert_select_option_cell, insert_url_cell};
 use crate::services::field::{SelectOptionCellDataPB, SelectOptionPB, CHECK};
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::MoveGroupRowContext;
@@ -141,6 +141,10 @@ pub fn make_inserted_cell_rev(group_id: &str, field_rev: &FieldRevision) -> Opti
         }
         FieldType::Checkbox => {
             let cell_rev = insert_checkbox_cell(group_id == CHECK, field_rev);
+            Some(cell_rev)
+        }
+        FieldType::URL => {
+            let cell_rev = insert_url_cell(group_id.to_owned(), field_rev);
             Some(cell_rev)
         }
         _ => {

@@ -298,7 +298,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
   void _onDoubleTapDown(TapDownDetails details) {
     final offset = details.globalPosition;
     final node = getNodeInOffset(offset);
-    final selection = node?.selectable?.getWorldBoundaryInOffset(offset);
+    final selection = node?.selectable?.getWordBoundaryInOffset(offset);
     if (selection == null) {
       clearSelection();
       return;

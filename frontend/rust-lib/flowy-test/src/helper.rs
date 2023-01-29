@@ -51,6 +51,10 @@ impl ViewTest {
         Self::new(sdk, ViewDataFormatPB::DatabaseFormat, ViewLayoutTypePB::Board, data).await
     }
 
+    pub async fn new_calendar_view(sdk: &FlowySDKTest, data: Vec<u8>) -> Self {
+        Self::new(sdk, ViewDataFormatPB::DatabaseFormat, ViewLayoutTypePB::Calendar, data).await
+    }
+
     pub async fn new_document_view(sdk: &FlowySDKTest) -> Self {
         let view_data_format = match sdk.document_version() {
             DocumentVersionPB::V0 => ViewDataFormatPB::DeltaFormat,
@@ -66,13 +70,12 @@ async fn create_workspace(sdk: &FlowySDKTest, name: &str, desc: &str) -> Workspa
         desc: desc.to_owned(),
     };
 
-    let workspace = FolderEventBuilder::new(sdk.clone())
+    FolderEventBuilder::new(sdk.clone())
         .event(CreateWorkspace)
         .payload(request)
         .async_send()
         .await
-        .parse::<WorkspacePB>();
-    workspace
+        .parse::<WorkspacePB>()
 }
 
 async fn open_workspace(sdk: &FlowySDKTest, workspace_id: &str) {
@@ -94,13 +97,12 @@ async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &s
         color_style: Default::default(),
     };
 
-    let app = FolderEventBuilder::new(sdk.clone())
+    FolderEventBuilder::new(sdk.clone())
         .event(CreateApp)
         .payload(create_app_request)
         .async_send()
         .await
-        .parse::<AppPB>();
-    app
+        .parse::<AppPB>()
 }
 
 async fn create_view(
@@ -120,13 +122,12 @@ async fn create_view(
         view_content_data: data,
     };
 
-    let view = FolderEventBuilder::new(sdk.clone())
+    FolderEventBuilder::new(sdk.clone())
         .event(CreateView)
         .payload(request)
         .async_send()
         .await
-        .parse::<ViewPB>();
-    view
+        .parse::<ViewPB>()
 }
 
 pub fn root_dir() -> String {

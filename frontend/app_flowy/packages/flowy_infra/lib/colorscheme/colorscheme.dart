@@ -1,6 +1,23 @@
 import 'package:flutter/material.dart';
 
+import 'package:flowy_infra/theme.dart';
 import 'default_colorscheme.dart';
+import 'dandelion.dart';
+
+/// A map of all the built-in themes.
+///
+/// The key is the theme name, and the value is a list of two color schemes:
+/// the first is for light mode, and the second is for dark mode.
+const Map<String, List<FlowyColorScheme>> themeMap = {
+  BuiltInTheme.light: [
+    DefaultColorScheme.light(),
+    DefaultColorScheme.dark(),
+  ],
+  BuiltInTheme.dandelion: [
+    DandelionColorScheme.light(),
+    DandelionColorScheme.dark(),
+  ],
+};
 
 @immutable
 abstract class FlowyColorScheme {
@@ -69,15 +86,9 @@ abstract class FlowyColorScheme {
   factory FlowyColorScheme.builtIn(String themeName, Brightness brightness) {
     switch (brightness) {
       case Brightness.light:
-        return const DefaultColorScheme.light();
+        return themeMap[themeName]?[0] ?? const DefaultColorScheme.light();
       case Brightness.dark:
-        return const DefaultColorScheme.dark();
+        return themeMap[themeName]?[1] ?? const DefaultColorScheme.dark();
     }
   }
-
-  // factory FlowyColorScheme.fromJson(Map<String, dynamic> json, Brightness brightness) {
-  //   // load Json
-
-  //   return FlowyColorScheme(brightness...);
-  // }
 }

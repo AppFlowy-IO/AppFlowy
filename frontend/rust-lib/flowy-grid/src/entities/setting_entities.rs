@@ -2,7 +2,7 @@ use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
     AlterFilterParams, AlterFilterPayloadPB, AlterSortParams, AlterSortPayloadPB, DeleteFilterParams,
     DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB, DeleteSortParams, DeleteSortPayloadPB,
-    InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterPB, RepeatedGroupConfigurationPB,
+    InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterPB, RepeatedGroupConfigurationPB, RepeatedSortPB,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -25,6 +25,9 @@ pub struct GridSettingPB {
 
     #[pb(index = 4)]
     pub group_configurations: RepeatedGroupConfigurationPB,
+
+    #[pb(index = 5)]
+    pub sorts: RepeatedSortPB,
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -49,6 +52,7 @@ impl GridLayoutPB {
 pub enum GridLayout {
     Table = 0,
     Board = 1,
+    Calendar = 2,
 }
 
 impl std::default::Default for GridLayout {
@@ -62,6 +66,7 @@ impl std::convert::From<LayoutRevision> for GridLayout {
         match rev {
             LayoutRevision::Table => GridLayout::Table,
             LayoutRevision::Board => GridLayout::Board,
+            LayoutRevision::Calendar => GridLayout::Calendar,
         }
     }
 }
@@ -71,6 +76,7 @@ impl std::convert::From<GridLayout> for LayoutRevision {
         match layout {
             GridLayout::Table => LayoutRevision::Table,
             GridLayout::Board => LayoutRevision::Board,
+            GridLayout::Calendar => LayoutRevision::Calendar,
         }
     }
 }

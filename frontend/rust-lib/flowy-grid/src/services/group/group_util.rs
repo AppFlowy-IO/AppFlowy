@@ -3,13 +3,14 @@ use crate::services::group::configuration::GroupConfigurationReader;
 use crate::services::group::controller::GroupController;
 use crate::services::group::{
     CheckboxGroupContext, CheckboxGroupController, DefaultGroupController, GroupConfigurationWriter,
-    MultiSelectGroupController, SelectOptionGroupContext, SingleSelectGroupController,
+    MultiSelectGroupController, SelectOptionGroupContext, SingleSelectGroupController, URLGroupContext,
+    URLGroupController,
 };
 use flowy_error::FlowyResult;
 use grid_rev_model::{
     CheckboxGroupConfigurationRevision, DateGroupConfigurationRevision, FieldRevision, GroupConfigurationRevision,
     GroupRevision, LayoutRevision, NumberGroupConfigurationRevision, RowRevision,
-    SelectOptionGroupConfigurationRevision, TextGroupConfigurationRevision, UrlGroupConfigurationRevision,
+    SelectOptionGroupConfigurationRevision, TextGroupConfigurationRevision, URLGroupConfigurationRevision,
 };
 use std::sync::Arc;
 
@@ -64,27 +65,30 @@ where
             let controller = CheckboxGroupController::new(&field_rev, configuration).await?;
             group_controller = Box::new(controller);
         }
+        FieldType::URL => {
+            let configuration =
+                URLGroupContext::new(view_id, field_rev.clone(), configuration_reader, configuration_writer).await?;
+            let controller = URLGroupController::new(&field_rev, configuration).await?;
+            group_controller = Box::new(controller);
+        }
         _ => {
             group_controller = Box::new(DefaultGroupController::new(&field_rev));
         }
     }
 
     // Separates the rows into different groups
-    let _ = group_controller.fill_groups(&row_revs, &field_rev)?;
+    group_controller.fill_groups(&row_revs, &field_rev)?;
     Ok(group_controller)
 }
 
-pub fn find_group_field(field_revs: &[Arc<FieldRevision>], layout: &LayoutRevision) -> Option<Arc<FieldRevision>> {
-    match layout {
-        LayoutRevision::Table => field_revs.iter().find(|field_rev| field_rev.is_primary).cloned(),
-        LayoutRevision::Board => field_revs
-            .iter()
-            .find(|field_rev| {
-                let field_type: FieldType = field_rev.ty.into();
-                field_type.can_be_group()
-            })
-            .cloned(),
-    }
+pub fn find_group_field(field_revs: &[Arc<FieldRevision>], _layout: &LayoutRevision) -> Option<Arc<FieldRevision>> {
+    field_revs
+        .iter()
+        .find(|field_rev| {
+            let field_type: FieldType = field_rev.ty.into();
+            field_type.can_be_group()
+        })
+        .cloned()
 }
 
 /// Returns a `default` group configuration for the [FieldRevision]
@@ -134,7 +138,7 @@ pub fn default_group_configuration(field_rev: &FieldRevision) -> GroupConfigurat
                 .unwrap()
         }
         FieldType::URL => {
-            GroupConfigurationRevision::new(field_id, field_type_rev, UrlGroupConfigurationRevision::default()).unwrap()
+            GroupConfigurationRevision::new(field_id, field_type_rev, URLGroupConfigurationRevision::default()).unwrap()
         }
     }
 }

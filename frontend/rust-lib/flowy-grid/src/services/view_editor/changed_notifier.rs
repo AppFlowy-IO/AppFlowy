@@ -1,5 +1,5 @@
-use crate::dart_notification::{send_dart_notification, GridDartNotification};
 use crate::entities::{GridRowsVisibilityChangesetPB, ReorderAllRowsPB, ReorderSingleRowPB};
+use crate::notification::{send_dart_notification, GridDartNotification};
 use crate::services::filter::FilterResultNotification;
 use crate::services::sort::{ReorderAllRowsResult, ReorderSingleRowResult};
 use async_stream::stream;
@@ -54,6 +54,7 @@ impl GridViewChangedReceiverRunner {
                     }
                     GridViewChanged::ReorderSingleRowNotification(notification) => {
                         let reorder_row = ReorderSingleRowPB {
+                            row_id: notification.row_id,
                             old_index: notification.old_index as i32,
                             new_index: notification.new_index as i32,
                         };

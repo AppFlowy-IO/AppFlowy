@@ -88,6 +88,14 @@ impl HttpRequestBuilder {
         self.bytes(body)
     }
 
+    pub fn json<T>(self, body: T) -> Result<Self, ServerError>
+    where
+        T: serde::Serialize,
+    {
+        let bytes = Bytes::from(serde_json::to_vec(&body)?);
+        self.bytes(bytes)
+    }
+
     pub fn bytes(mut self, body: Bytes) -> Result<Self, ServerError> {
         self.body = Some(body);
         Ok(self)
@@ -109,7 +117,8 @@ impl HttpRequestBuilder {
         }
     }
 
-    pub async fn option_response<T>(self) -> Result<Option<T>, ServerError>
+    #[allow(dead_code)]
+    pub async fn option_protobuf_response<T>(self) -> Result<Option<T>, ServerError>
     where
         T: TryFrom<Bytes, Error = ProtobufError>,
     {
@@ -118,6 +127,23 @@ impl HttpRequestBuilder {
             Ok(builder) => match builder.response {
                 None => Err(unexpected_empty_payload(&builder.url)),
                 Some(data) => Ok(Some(T::try_from(data)?)),
+            },
+            Err(error) => match error.is_record_not_found() {
+                true => Ok(None),
+                false => Err(error),
+            },
+        }
+    }
+
+    pub async fn option_json_response<T>(self) -> Result<Option<T>, ServerError>
+    where
+        T: serde::de::DeserializeOwned + 'static,
+    {
+        let result = self.inner_send().await;
+        match result {
+            Ok(builder) => match builder.response {
+                None => Err(unexpected_empty_payload(&builder.url)),
+                Some(data) => Ok(Some(serde_json::from_slice(&data)?)),
             },
             Err(error) => match error.is_record_not_found() {
                 true => Ok(None),

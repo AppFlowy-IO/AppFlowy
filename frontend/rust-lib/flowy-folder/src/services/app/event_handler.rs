@@ -30,7 +30,7 @@ pub(crate) async fn delete_app_handler(
         .map(|app_rev| app_rev.into())
         .collect::<Vec<TrashRevision>>();
 
-    let _ = trash_controller.add(trash).await?;
+    trash_controller.add(trash).await?;
     Ok(())
 }
 
@@ -40,7 +40,7 @@ pub(crate) async fn update_app_handler(
     controller: AFPluginState<Arc<AppController>>,
 ) -> Result<(), FlowyError> {
     let params: UpdateAppParams = data.into_inner().try_into()?;
-    let _ = controller.update_app(params).await?;
+    controller.update_app(params).await?;
     Ok(())
 }
 

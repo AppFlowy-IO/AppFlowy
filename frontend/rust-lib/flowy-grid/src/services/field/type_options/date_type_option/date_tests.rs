@@ -120,7 +120,7 @@ mod tests {
     #[test]
     fn utc_to_native_test() {
         let native_timestamp = 1647251762;
-        let native = NaiveDateTime::from_timestamp(native_timestamp, 0);
+        let native = NaiveDateTime::from_timestamp_opt(native_timestamp, 0).unwrap();
 
         let utc = chrono::DateTime::<chrono::Utc>::from_utc(native, chrono::Utc);
         // utc_timestamp doesn't  carry timezone
@@ -133,7 +133,7 @@ mod tests {
         assert_eq!(native_time_str, utc_time_str);
 
         // Mon Mar 14 2022 17:56:02 GMT+0800 (China Standard Time)
-        let gmt_8_offset = FixedOffset::east(8 * 3600);
+        let gmt_8_offset = FixedOffset::east_opt(8 * 3600).unwrap();
         let china_local = chrono::DateTime::<chrono::Local>::from_utc(native, gmt_8_offset);
         let china_local_time = format!("{}", china_local.format_with_items(StrftimeItems::new(&format)));
 
@@ -152,17 +152,17 @@ mod tests {
             time: include_time_str,
             is_utc: false,
         };
-        let encoded_data = type_option.apply_changeset(changeset, None).unwrap();
+        let (cell_str, _) = type_option.apply_changeset(changeset, None).unwrap();
 
         assert_eq!(
-            decode_cell_data(encoded_data.to_string(), type_option, field_rev),
+            decode_cell_data(cell_str, type_option, field_rev),
             expected_str.to_owned(),
         );
     }
 
-    fn decode_cell_data(encoded_data: String, type_option: &DateTypeOptionPB, field_rev: &FieldRevision) -> String {
+    fn decode_cell_data(cell_str: String, type_option: &DateTypeOptionPB, field_rev: &FieldRevision) -> String {
         let decoded_data = type_option
-            .decode_cell_str(encoded_data, &FieldType::DateTime, field_rev)
+            .decode_cell_str(cell_str, &FieldType::DateTime, field_rev)
             .unwrap();
         let decoded_data = type_option.convert_to_protobuf(decoded_data);
         if type_option.include_time {

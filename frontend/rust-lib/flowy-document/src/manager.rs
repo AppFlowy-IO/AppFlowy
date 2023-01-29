@@ -1,14 +1,18 @@
 use crate::editor::{initial_document_content, AppFlowyDocumentEditor, DocumentRevisionMergeable};
 use crate::entities::{DocumentVersionPB, EditParams};
 use crate::old_editor::editor::{DeltaDocumentEditor, DeltaDocumentRevisionMergeable};
-use crate::services::rev_sqlite::{SQLiteDeltaDocumentRevisionPersistence, SQLiteDocumentRevisionPersistence};
+use crate::services::rev_sqlite::{
+    SQLiteDeltaDocumentRevisionPersistence, SQLiteDocumentRevisionPersistence,
+    SQLiteDocumentRevisionSnapshotPersistence,
+};
 use crate::services::DocumentPersistence;
 use crate::{errors::FlowyError, DocumentCloudService};
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_http_model::util::md5;
-use flowy_http_model::{document::DocumentIdPB, revision::Revision, ws_data::ServerRevisionWSData};
+use flowy_http_model::ws_data::ServerRevisionWSData;
+use flowy_http_model::{document::DocumentId, revision::Revision};
 use flowy_revision::{
     PhantomSnapshotPersistence, RevisionCloudService, RevisionManager, RevisionPersistence,
     RevisionPersistenceConfiguration, RevisionWebSocket,
@@ -19,7 +23,8 @@ use lib_infra::future::FutureResult;
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
 use lib_ws::WSConnectState;
 use std::any::Any;
-use std::{convert::TryInto, sync::Arc};
+use std::convert::TryFrom;
+use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub trait DocumentUser: Send + Sync {
@@ -107,7 +112,7 @@ impl DocumentManager {
     /// Called immediately after the application launched with the user sign in/sign up.
     #[tracing::instrument(level = "trace", skip_all, err)]
     pub async fn initialize(&self, user_id: &str) -> FlowyResult<()> {
-        let _ = self.persistence.initialize(user_id)?;
+        self.persistence.initialize(user_id)?;
         listen_ws_state_changed(self.rev_web_socket.clone(), self.editor_map.clone());
         Ok(())
     }
@@ -122,21 +127,21 @@ impl DocumentManager {
         document_id: T,
     ) -> Result<Arc<dyn DocumentEditor>, FlowyError> {
         let document_id = document_id.as_ref();
-        tracing::Span::current().record("document_id", &document_id);
+        tracing::Span::current().record("document_id", document_id);
         self.init_document_editor(document_id).await
     }
 
     #[tracing::instrument(level = "trace", skip(self, editor_id), fields(editor_id), err)]
     pub async fn close_document_editor<T: AsRef<str>>(&self, editor_id: T) -> Result<(), FlowyError> {
         let editor_id = editor_id.as_ref();
-        tracing::Span::current().record("editor_id", &editor_id);
+        tracing::Span::current().record("editor_id", editor_id);
         self.editor_map.write().await.remove(editor_id).await;
         Ok(())
     }
 
     pub async fn apply_edit(&self, params: EditParams) -> FlowyResult<()> {
         let editor = self.get_document_editor(&params.doc_id).await?;
-        let _ = editor.compose_local_operations(Bytes::from(params.operations)).await?;
+        editor.compose_local_operations(Bytes::from(params.operations)).await?;
         Ok(())
     }
 
@@ -145,15 +150,19 @@ impl DocumentManager {
         let db_pool = self.persistence.database.db_pool()?;
         // Maybe we could save the document to disk without creating the RevisionManager
         let rev_manager = self.make_rev_manager(&doc_id, db_pool)?;
-        let _ = rev_manager.reset_object(revisions).await?;
+        rev_manager.reset_object(revisions).await?;
         Ok(())
     }
 
     pub async fn receive_ws_data(&self, data: Bytes) {
-        let result: Result<ServerRevisionWSData, protobuf::ProtobufError> = data.try_into();
+        let result: Result<ServerRevisionWSData, serde_json::Error> = ServerRevisionWSData::try_from(data);
         match result {
             Ok(data) => match self.editor_map.read().await.get(&data.object_id) {
-                None => tracing::error!("Can't find any source handler for {:?}-{:?}", data.object_id, data.ty),
+                None => tracing::error!(
+                    "Can't find any source handler for {:?}-{:?}",
+                    data.object_id,
+                    data.payload
+                ),
                 Some(handler) => match handler.0.receive_ws_data(data).await {
                     Ok(_) => {}
                     Err(e) => tracing::error!("{}", e),
@@ -255,15 +264,16 @@ impl DocumentManager {
         pool: Arc<ConnectionPool>,
     ) -> Result<RevisionManager<Arc<ConnectionPool>>, FlowyError> {
         let user_id = self.user.user_id()?;
-        let disk_cache = SQLiteDocumentRevisionPersistence::new(&user_id, pool);
-        let configuration = RevisionPersistenceConfiguration::new(100, true);
+        let disk_cache = SQLiteDocumentRevisionPersistence::new(&user_id, pool.clone());
+        let configuration = RevisionPersistenceConfiguration::new(200, true);
         let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache, configuration);
+        let snapshot_persistence = SQLiteDocumentRevisionSnapshotPersistence::new(doc_id, pool);
         Ok(RevisionManager::new(
             &user_id,
             doc_id,
             rev_persistence,
             DocumentRevisionMergeable(),
-            PhantomSnapshotPersistence(),
+            snapshot_persistence,
         ))
     }
 
@@ -294,7 +304,7 @@ struct DocumentRevisionCloudService {
 impl RevisionCloudService for DocumentRevisionCloudService {
     #[tracing::instrument(level = "trace", skip(self))]
     fn fetch_object(&self, user_id: &str, object_id: &str) -> FutureResult<Vec<Revision>, FlowyError> {
-        let params: DocumentIdPB = object_id.to_string().into();
+        let params: DocumentId = object_id.to_string().into();
         let server = self.server.clone();
         let token = self.token.clone();
 

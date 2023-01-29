@@ -14,13 +14,13 @@
 			"type": "shell",
 			"dependsOrder": "sequence",
 			"dependsOn": [
-				"AF: Rust Clean",
+				"AF: Dart Clean",
 				"AF: Flutter Clean",
 				"AF: build_flowy_sdk",
 				"AF: Flutter Pub Get",
 				"AF: Flutter Package Get",
 				"AF: Generate Language Files",
-				"AF: Generate Freezed Files",
+				"AF: Generate Freezed Files"
 			],
 			"presentation": {
 				"reveal": "always",
@@ -32,18 +32,18 @@
 			"type": "shell",
 			"dependsOrder": "sequence",
 			"dependsOn": [
-				"AF: Rust Clean",
+				"AF: Dart Clean",
 				"AF: Flutter Clean",
 				"AF: build_flowy_sdk_for_android",
 				"AF: Flutter Pub Get",
 				"AF: Flutter Package Get",
 				"AF: Generate Language Files",
-				"AF: Generate Freezed Files",
+				"AF: Generate Freezed Files"
 			],
 			"presentation": {
 				"reveal": "always",
-				"panel": "new",
-			},
+				"panel": "new"
+			}
 		},
 		{
 			"label": "AF: build_flowy_sdk_for_android",
@@ -166,9 +166,9 @@
 			}
 		},
 		{
-			"label": "AF: Rust Clean",
+			"label": "AF: Flutter Clean",
 			"type": "shell",
-			"command": "cargo make flowy_clean",
+			"command": "cargo make flutter_clean",
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}"
@@ -185,6 +185,46 @@
 			"group": "build",
 			"problemMatcher": [],
 			"detail": "app_flowy"
+		},
+		{
+			"label": "AF: Tauri UI Dev",
+			"type": "shell",
+			"isBackground": true,
+			"command": "yarn dev",
+			"problemMatcher": ["$tsc"],
+			"options": {
+				"cwd": "${workspaceFolder}/appflowy_tauri"
+			}
+		},
+		{
+			"label": "AF: Tauri Dev",
+			"type": "shell",
+			"command": "npm run tauri dev",
+			"problemMatcher": ["$tsc"],
+			"options": {
+				"cwd": "${workspaceFolder}/appflowy_tauri"
+			}
+		},
+		{
+			"label": "AF: Tauri Clean",
+			"type": "shell",
+			"command": "cargo make tauri_clean",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": ["$tsc"],
+		},
+		{
+			"label": "AF: Tauri Clean + Dev",
+			"type": "shell",
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"AF: Tauri Clean",
+				"AF: Tauri UI Dev"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			}
 		}
 	]
 }

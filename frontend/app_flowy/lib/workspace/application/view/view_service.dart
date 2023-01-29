@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 
 class ViewService {
   Future<Either<ViewPB, FlowyError>> readView({required String viewId}) {

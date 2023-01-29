@@ -112,9 +112,18 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
   }
 
   @override
-  Selection? getWorldBoundaryInOffset(Offset offset) {
+  Selection? getWordBoundaryInOffset(Offset offset) {
     final localOffset = _renderParagraph.globalToLocal(offset);
     final textPosition = _renderParagraph.getPositionForOffset(localOffset);
+    final textRange = _renderParagraph.getWordBoundary(textPosition);
+    final start = Position(path: widget.textNode.path, offset: textRange.start);
+    final end = Position(path: widget.textNode.path, offset: textRange.end);
+    return Selection(start: start, end: end);
+  }
+
+  @override
+  Selection? getWordBoundaryInPosition(Position position) {
+    final textPosition = TextPosition(offset: position.offset);
     final textRange = _renderParagraph.getWordBoundary(textPosition);
     final start = Position(path: widget.textNode.path, offset: textRange.start);
     final end = Position(path: widget.textNode.path, offset: textRange.end);

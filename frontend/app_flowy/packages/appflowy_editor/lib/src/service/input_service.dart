@@ -68,7 +68,7 @@ class _AppFlowyInputState extends State<AppFlowyInput>
   final Map<ShortcutActivator, Intent> _shortcuts = kIsWeb
       ? {
           LogicalKeySet(LogicalKeyboardKey.space):
-              DoNothingAndStopPropagationIntent(),
+              const DoNothingAndStopPropagationIntent(),
         }
       : {};
 

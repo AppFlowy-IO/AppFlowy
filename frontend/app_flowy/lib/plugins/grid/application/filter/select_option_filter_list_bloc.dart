@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:app_flowy/plugins/grid/presentation/widgets/filter/choicechip/select_option/select_option_loader.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 

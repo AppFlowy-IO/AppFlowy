@@ -79,28 +79,33 @@ pub struct CellPB {
     #[pb(index = 1)]
     pub field_id: String,
 
+    #[pb(index = 2)]
+    pub row_id: String,
+
     /// Encoded the data using the helper struct `CellProtobufBlob`.
     /// Check out the `CellProtobufBlob` for more information.
-    #[pb(index = 2)]
+    #[pb(index = 3)]
     pub data: Vec<u8>,
 
     /// the field_type will be None if the field with field_id is not found
-    #[pb(index = 3, one_of)]
+    #[pb(index = 4, one_of)]
     pub field_type: Option<FieldType>,
 }
 
 impl CellPB {
-    pub fn new(field_id: &str, field_type: FieldType, data: Vec<u8>) -> Self {
+    pub fn new(field_id: &str, row_id: &str, field_type: FieldType, data: Vec<u8>) -> Self {
         Self {
             field_id: field_id.to_owned(),
+            row_id: row_id.to_string(),
             data,
             field_type: Some(field_type),
         }
     }
 
-    pub fn empty(field_id: &str) -> Self {
+    pub fn empty(field_id: &str, row_id: &str) -> Self {
         Self {
             field_id: field_id.to_owned(),
+            row_id: row_id.to_owned(),
             data: vec![],
             field_type: None,
         }
