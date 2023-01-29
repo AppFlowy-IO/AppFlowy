@@ -1,9 +1,9 @@
 import 'package:app_flowy/plugins/board/presentation/board_page.dart';
 import 'package:app_flowy/workspace/application/app/app_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:dartz/dartz.dart' as dartz;
-import 'package:flowy_sdk/protobuf/flowy-error/errors.pbserver.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 
 const String kBoardType = 'board';
@@ -93,7 +93,14 @@ class _BoardWidgetState extends State<_BoardWidget> with SelectableMixin {
       },
       child: SizedBox(
         height: 400,
-        child: BoardPage(key: ValueKey(viewPB.id), view: viewPB),
+        child: BoardPage(
+          key: ValueKey(viewPB.id),
+          view: viewPB,
+          onEditStateChanged: () {
+            /// Clear selection when the edit state changes, otherwise the editor will prevent the keyboard event when the board is in edit mode.
+            widget.editorState.service.selectionService.clearSelection();
+          },
+        ),
       ),
     );
   }
@@ -111,7 +118,7 @@ class _BoardWidgetState extends State<_BoardWidget> with SelectableMixin {
 
   @override
   Position end() {
-    return Position(path: widget.node.path, offset: 1);
+    return Position(path: widget.node.path, offset: 0);
   }
 
   @override
@@ -135,7 +142,7 @@ class _BoardWidgetState extends State<_BoardWidget> with SelectableMixin {
     return Selection.single(
       path: widget.node.path,
       startOffset: 0,
-      endOffset: 1,
+      endOffset: 0,
     );
   }
 

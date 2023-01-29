@@ -1,29 +1,42 @@
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/document/presentation/plugins/board/board_node_widget.dart';
 import 'package:app_flowy/workspace/application/app/app_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:dartz/dartz.dart' as dartz;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 
 SelectionMenuItem boardMenuItem = SelectionMenuItem(
-  name: () => 'Board',
-  icon: (editorState, onSelected) => Icon(
-    Icons.emoji_emotions_outlined,
-    color: onSelected
-        ? editorState.editorStyle.selectionMenuItemSelectedIconColor
-        : editorState.editorStyle.selectionMenuItemIconColor,
-    size: 18.0,
-  ),
+  name: () => LocaleKeys.board_menuName.tr(),
+  icon: (editorState, onSelected) {
+    return svgWidget(
+      'editor/board',
+      size: const Size.square(18.0),
+      color: onSelected
+          ? editorState.editorStyle.selectionMenuItemSelectedIconColor
+          : editorState.editorStyle.selectionMenuItemIconColor,
+    );
+  },
   keywords: ['board'],
   handler: _showLinkToPageMenu,
 );
 
 EditorState? _editorState;
 OverlayEntry? _linkToPageMenu;
+void _dismissLinkToPageMenu() {
+  _linkToPageMenu?.remove();
+  _linkToPageMenu = null;
+
+  _editorState?.service.selectionService.currentSelection
+      .removeListener(_dismissLinkToPageMenu);
+  _editorState = null;
+}
+
 void _showLinkToPageMenu(
   EditorState editorState,
   SelectionMenuService menuService,
@@ -56,22 +69,13 @@ void _showLinkToPageMenu(
       .addListener(_dismissLinkToPageMenu);
 }
 
-void _dismissLinkToPageMenu() {
-  _linkToPageMenu?.remove();
-  _linkToPageMenu = null;
-
-  _editorState?.service.selectionService.currentSelection
-      .removeListener(_dismissLinkToPageMenu);
-  _editorState = null;
-}
-
 class LinkToPageMenu extends StatefulWidget {
+  final EditorState editorState;
+
   const LinkToPageMenu({
     super.key,
     required this.editorState,
   });
-
-  final EditorState editorState;
 
   @override
   State<LinkToPageMenu> createState() => _LinkToPageMenuState();
@@ -101,6 +105,10 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
         child: _buildBoardListWidget(context),
       ),
     );
+  }
+
+  Future<List<dartz.Tuple2<AppPB, List<ViewPB>>>> fetchBoards() async {
+    return AppService().fetchViews(ViewLayoutTypePB.Board);
   }
 
   Widget _buildBoardListWidget(BuildContext context) {
@@ -134,7 +142,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
                   children.add(
                     FlowyButton(
                       leftIcon: svgWidget(
-                        'file_icon',
+                        'editor/board',
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                       text: FlowyText.regular(board.name),
@@ -161,10 +169,6 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
       future: fetchBoards(),
     );
   }
-
-  Future<List<dartz.Tuple2<AppPB, List<ViewPB>>>> fetchBoards() async {
-    return AppService().fetchViews(ViewLayoutTypePB.Board);
-  }
 }
 
 extension on EditorState {
@@ -186,7 +190,6 @@ extension on EditorState {
         },
       ),
     );
-    transaction.afterSelection = selection;
     apply(transaction);
   }
 }

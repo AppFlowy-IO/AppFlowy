@@ -319,7 +319,8 @@
   "board": {
     "column": {
       "create_new_card": "New"
-    }
+    },
+    "menuName": "Board"
   },
   "calendar": {
     "menuName": "Calendar",

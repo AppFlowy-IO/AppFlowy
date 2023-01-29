@@ -50,8 +50,6 @@ class SimpleEditor extends StatelessWidget {
               kMathEquationType: MathEquationNodeWidgetBuidler(),
               // Code Block
               kCodeBlockType: CodeBlockNodeWidgetBuilder(),
-              // Board
-              kBoardType: BoardWidgetBuilder(),
             },
             shortcutEvents: [
               // Divider
@@ -70,8 +68,6 @@ class SimpleEditor extends StatelessWidget {
               codeBlockMenuItem,
               // Emoji
               emojiMenuItem,
-              // Board
-              boardMenuItem,
               // Open AI
               if (apiKey.isNotEmpty) ...[
                 autoCompletionMenuItem,

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -7,7 +8,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 
 import 'package:app_flowy/startup/plugin/plugin.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart';
 
 class AppService {
   Future<Either<AppPB, FlowyError>> readApp({required String appId}) {
