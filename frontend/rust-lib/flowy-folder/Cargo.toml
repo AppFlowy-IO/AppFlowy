@@ -8,7 +8,8 @@ edition = "2018"
 [dependencies]
 folder-model = { path = "../../../shared-lib/folder-model" }
 flowy-client-sync = { path = "../flowy-client-sync"}
-flowy-http-model = { path = "../../../shared-lib/flowy-http-model" }
+revision-model = { path = "../../../shared-lib/revision-model" }
+ws-model = { path = "../../../shared-lib/ws-model" }
 flowy-derive = { path = "../flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }

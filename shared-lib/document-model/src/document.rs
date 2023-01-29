@@ -1,4 +1,4 @@
-use crate::revision::Revision;
+use revision_model::Revision;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone)]
@@ -8,14 +8,14 @@ pub struct CreateDocumentParams {
 }
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone, Eq, PartialEq)]
-pub struct DocumentPayload {
+pub struct DocumentInfo {
     pub doc_id: String,
     pub data: Vec<u8>,
     pub rev_id: i64,
     pub base_rev_id: i64,
 }
 
-impl std::convert::TryFrom<Revision> for DocumentPayload {
+impl std::convert::TryFrom<Revision> for DocumentInfo {
     type Error = String;
 
     fn try_from(revision: Revision) -> Result<Self, Self::Error> {
@@ -23,7 +23,7 @@ impl std::convert::TryFrom<Revision> for DocumentPayload {
             return Err("Revision's rev_id should be 0 when creating the document".to_string());
         }
 
-        Ok(DocumentPayload {
+        Ok(DocumentInfo {
             doc_id: revision.object_id,
             data: revision.bytes,
             rev_id: revision.rev_id,

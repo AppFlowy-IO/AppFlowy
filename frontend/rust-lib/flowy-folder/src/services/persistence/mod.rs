@@ -12,9 +12,9 @@ use crate::{
 use flowy_client_sync::client_folder::{FolderOperationsBuilder, FolderPad};
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_http_model::revision::Revision;
 use flowy_revision_persistence::{RevisionDiskCache, RevisionState, SyncRecord};
 use folder_model::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
+use revision_model::Revision;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 pub use version_1::{app_sql::*, trash_sql::*, v1_impl::V1Transaction, view_sql::*, workspace_sql::*};

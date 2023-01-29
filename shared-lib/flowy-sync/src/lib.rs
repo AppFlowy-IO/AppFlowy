@@ -4,11 +4,10 @@ pub mod util;
 
 use crate::errors::SyncError;
 use crate::util::{make_operations_from_revisions, next, pair_rev_id_from_revision_pbs};
-use flowy_http_model::revision::{Revision, RevisionRange};
-use flowy_http_model::ws_data::{ServerRevisionWSData, ServerRevisionWSDataBuilder};
 use lib_infra::future::BoxResultFuture;
 use lib_ot::core::{DeltaOperations, OperationAttributes};
 use parking_lot::RwLock;
+use revision_model::{Revision, RevisionRange};
 use serde::de::DeserializeOwned;
 use std::cmp::Ordering;
 use std::fmt::Debug;
@@ -16,6 +15,7 @@ use std::sync::atomic::AtomicI64;
 use std::sync::atomic::Ordering::SeqCst;
 use std::sync::Arc;
 use std::time::Duration;
+use ws_model::ws_revision::{ServerRevisionWSData, ServerRevisionWSDataBuilder};
 
 pub type RevisionOperations<Attribute> = DeltaOperations<Attribute>;
 

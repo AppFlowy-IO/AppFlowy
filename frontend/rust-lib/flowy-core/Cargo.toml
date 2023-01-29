@@ -25,7 +25,8 @@ bytes = "1.0"
 tokio = { version = "1", features = ["rt"] }
 parking_lot = "0.12.1"
 
-flowy-http-model = { path = "../../../shared-lib/flowy-http-model" }
+revision-model = { path = "../../../shared-lib/revision-model" }
+ws-model = { path = "../../../shared-lib/ws-model" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 

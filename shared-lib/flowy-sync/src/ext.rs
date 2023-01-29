@@ -1,9 +1,9 @@
 use crate::errors::SyncError;
 use crate::RevisionSyncPersistence;
-use flowy_http_model::document::DocumentPayload;
-use flowy_http_model::folder::FolderInfo;
-use flowy_http_model::revision::Revision;
+use document_model::document::DocumentInfo;
+use folder_model::FolderInfo;
 use lib_infra::future::BoxResultFuture;
+use revision_model::Revision;
 use std::fmt::Debug;
 use std::sync::Arc;
 
@@ -43,13 +43,13 @@ impl RevisionSyncPersistence for Arc<dyn FolderCloudPersistence> {
 }
 
 pub trait DocumentCloudPersistence: Send + Sync + Debug {
-    fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentPayload, SyncError>;
+    fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, SyncError>;
 
     fn create_document(
         &self,
         doc_id: &str,
         revisions: Vec<Revision>,
-    ) -> BoxResultFuture<Option<DocumentPayload>, SyncError>;
+    ) -> BoxResultFuture<Option<DocumentInfo>, SyncError>;
 
     fn read_document_revisions(
         &self,

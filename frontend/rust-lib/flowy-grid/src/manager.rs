@@ -10,11 +10,11 @@ use bytes::Bytes;
 use flowy_client_sync::client_grid::{make_grid_block_operations, make_grid_operations, make_grid_view_operations};
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_http_model::revision::Revision;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket};
 use grid_model::{BuildGridContext, GridRevision, GridViewRevision};
 use lib_infra::async_trait::async_trait;
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
+use revision_model::Revision;
 
 use crate::services::block_manager::make_grid_block_rev_manager;
 use flowy_task::TaskDispatcher;

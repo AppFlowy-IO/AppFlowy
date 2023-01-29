@@ -1000,6 +1000,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bd5f0c7e4bd266b8ab2550e6238d2e74977c23c15536ac7be45e9c95e2e3fbbb"
 
 [[package]]
+name = "document-model"
+version = "0.1.0"
+dependencies = [
+ "revision-model",
+ "serde",
+ "serde_json",
+ "serde_repr",
+]
+
+[[package]]
 name = "dtoa"
 version = "0.4.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1175,8 +1185,8 @@ dependencies = [
  "chrono",
  "dashmap",
  "dissimilar",
+ "document-model",
  "flowy-derive",
- "flowy-http-model",
  "flowy-sync",
  "folder-model",
  "futures",
@@ -1185,6 +1195,7 @@ dependencies = [
  "lib-ot",
  "parking_lot",
  "protobuf",
+ "revision-model",
  "serde",
  "serde_json",
  "strum",
@@ -1241,7 +1252,6 @@ dependencies = [
  "flowy-document",
  "flowy-folder",
  "flowy-grid",
- "flowy-http-model",
  "flowy-net",
  "flowy-revision",
  "flowy-task",
@@ -1253,8 +1263,10 @@ dependencies = [
  "lib-log",
  "lib-ws",
  "parking_lot",
+ "revision-model",
  "tokio",
  "tracing",
+ "ws-model",
 ]
 
 [[package]]
@@ -1297,12 +1309,12 @@ dependencies = [
  "dashmap",
  "diesel",
  "diesel_derives",
+ "document-model",
  "flowy-client-sync",
  "flowy-codegen",
  "flowy-database",
  "flowy-derive",
  "flowy-error",
- "flowy-http-model",
  "flowy-notification",
  "flowy-revision",
  "flowy-revision-persistence",
@@ -1315,6 +1327,7 @@ dependencies = [
  "log",
  "md5",
  "protobuf",
+ "revision-model",
  "serde",
  "serde_json",
  "strum",
@@ -1323,6 +1336,7 @@ dependencies = [
  "tracing",
  "unicode-segmentation",
  "url",
+ "ws-model",
 ]
 
 [[package]]
@@ -1368,7 +1382,6 @@ dependencies = [
  "flowy-derive",
  "flowy-document",
  "flowy-error",
- "flowy-http-model",
  "flowy-notification",
  "flowy-revision",
  "flowy-revision-persistence",
@@ -1382,6 +1395,7 @@ dependencies = [
  "parking_lot",
  "pin-project",
  "protobuf",
+ "revision-model",
  "serde",
  "serde_json",
  "strum",
@@ -1389,6 +1403,7 @@ dependencies = [
  "tokio",
  "tracing",
  "unicode-segmentation",
+ "ws-model",
 ]
 
 [[package]]
@@ -1409,7 +1424,6 @@ dependencies = [
  "flowy-database",
  "flowy-derive",
  "flowy-error",
- "flowy-http-model",
  "flowy-notification",
  "flowy-revision",
  "flowy-revision-persistence",
@@ -1426,6 +1440,7 @@ dependencies = [
  "protobuf",
  "rayon",
  "regex",
+ "revision-model",
  "rust_decimal",
  "rusty-money",
  "serde",
@@ -1439,19 +1454,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-http-model"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bytes",
- "md5",
- "serde",
- "serde_json",
- "serde_repr",
- "thiserror",
-]
-
-[[package]]
 name = "flowy-net"
 version = "0.1.0"
 dependencies = [
@@ -1460,6 +1462,7 @@ dependencies = [
  "bytes",
  "config",
  "dashmap",
+ "document-model",
  "flowy-client-network-config",
  "flowy-client-sync",
  "flowy-client-ws",
@@ -1469,7 +1472,6 @@ dependencies = [
  "flowy-error",
  "flowy-error-code",
  "flowy-folder",
- "flowy-http-model",
  "flowy-server-sync",
  "flowy-sync",
  "flowy-user",
@@ -1484,6 +1486,7 @@ dependencies = [
  "parking_lot",
  "protobuf",
  "reqwest",
+ "revision-model",
  "serde",
  "serde-aux",
  "serde_json",
@@ -1493,6 +1496,7 @@ dependencies = [
  "tokio",
  "tracing",
  "user-model",
+ "ws-model",
 ]
 
 [[package]]
@@ -1518,18 +1522,19 @@ dependencies = [
  "bytes",
  "dashmap",
  "flowy-error",
- "flowy-http-model",
  "flowy-revision-persistence",
  "futures",
  "futures-util",
  "lib-infra",
  "lib-ws",
+ "revision-model",
  "serde",
  "serde_json",
  "strum",
  "strum_macros",
  "tokio",
  "tracing",
+ "ws-model",
 ]
 
 [[package]]
@@ -1537,7 +1542,7 @@ name = "flowy-revision-persistence"
 version = "0.1.0"
 dependencies = [
  "flowy-error",
- "flowy-http-model",
+ "revision-model",
 ]
 
 [[package]]
@@ -1547,7 +1552,7 @@ dependencies = [
  "async-stream",
  "bytes",
  "dashmap",
- "flowy-http-model",
+ "document-model",
  "flowy-sync",
  "folder-model",
  "futures",
@@ -1556,24 +1561,29 @@ dependencies = [
  "lib-ot",
  "log",
  "protobuf",
+ "revision-model",
  "serde",
  "tokio",
  "tracing",
+ "ws-model",
 ]
 
 [[package]]
 name = "flowy-sync"
 version = "0.1.0"
 dependencies = [
- "flowy-http-model",
+ "document-model",
+ "folder-model",
  "lib-infra",
  "lib-ot",
  "parking_lot",
+ "revision-model",
  "serde",
  "strum",
  "strum_macros",
  "tokio",
  "tracing",
+ "ws-model",
 ]
 
 [[package]]
@@ -2550,6 +2560,7 @@ dependencies = [
  "bytes",
  "chrono",
  "futures-core",
+ "md5",
  "pin-project",
  "rand 0.8.5",
  "tokio",
@@ -3834,6 +3845,17 @@ dependencies = [
  "wasm-bindgen-futures",
  "web-sys",
  "winreg",
+]
+
+[[package]]
+name = "revision-model"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "md5",
+ "serde",
+ "serde_json",
+ "serde_repr",
 ]
 
 [[package]]
@@ -5672,6 +5694,17 @@ dependencies = [
  "webview2-com",
  "windows",
  "windows-implement",
+]
+
+[[package]]
+name = "ws-model"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "revision-model",
+ "serde",
+ "serde_json",
+ "serde_repr",
 ]
 
 [[package]]

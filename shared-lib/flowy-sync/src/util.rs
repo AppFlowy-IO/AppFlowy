@@ -1,7 +1,7 @@
 use crate::errors::{SyncError, SyncResult};
 
-use flowy_http_model::revision::Revision;
 use lib_ot::core::{DeltaOperations, OperationAttributes, OperationTransform};
+use revision_model::Revision;
 use serde::de::DeserializeOwned;
 
 pub fn pair_rev_id_from_revision_pbs(revisions: &[Revision]) -> (i64, i64) {

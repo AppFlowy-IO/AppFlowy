@@ -1,10 +1,10 @@
-use flowy_client_sync::{errors::SyncError, util::make_document_from_revision_pbs};
-use flowy_http_model::document::DocumentPayload;
-use flowy_http_model::folder::FolderInfo;
-use flowy_http_model::revision::Revision;
+use document_model::document::DocumentInfo;
+use flowy_client_sync::{errors::SyncError, util::make_document_info_from_revisions};
 use flowy_server_sync::server_folder::make_folder_from_revisions;
 use flowy_sync::ext::{DocumentCloudPersistence, FolderCloudPersistence};
+use folder_model::folder::FolderInfo;
 use lib_infra::future::BoxResultFuture;
+use revision_model::Revision;
 use std::{
     fmt::{Debug, Formatter},
     sync::Arc,
@@ -92,12 +92,12 @@ impl FolderCloudPersistence for LocalDocumentCloudPersistence {
 }
 
 impl DocumentCloudPersistence for LocalDocumentCloudPersistence {
-    fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentPayload, SyncError> {
+    fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, SyncError> {
         let storage = self.storage.clone();
         let doc_id = doc_id.to_owned();
         Box::pin(async move {
             let repeated_revision = storage.get_revisions(&doc_id, None).await?;
-            match make_document_from_revision_pbs(&doc_id, repeated_revision)? {
+            match make_document_info_from_revisions(&doc_id, repeated_revision)? {
                 Some(document_info) => Ok(document_info),
                 None => Err(SyncError::record_not_found()),
             }
@@ -108,12 +108,12 @@ impl DocumentCloudPersistence for LocalDocumentCloudPersistence {
         &self,
         doc_id: &str,
         revisions: Vec<Revision>,
-    ) -> BoxResultFuture<Option<DocumentPayload>, SyncError> {
+    ) -> BoxResultFuture<Option<DocumentInfo>, SyncError> {
         let doc_id = doc_id.to_owned();
         let storage = self.storage.clone();
         Box::pin(async move {
             storage.set_revisions(revisions.clone()).await?;
-            make_document_from_revision_pbs(&doc_id, revisions)
+            make_document_info_from_revisions(&doc_id, revisions)
         })
     }
 

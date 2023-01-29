@@ -4,11 +4,11 @@ use crate::{
     client_folder::builder::FolderPadBuilder,
     errors::{SyncError, SyncResult},
 };
-use flowy_http_model::revision::Revision;
-use flowy_http_model::util::md5;
 use folder_model::{AppRevision, FolderRevision, TrashRevision, ViewRevision, WorkspaceRevision};
+use lib_infra::util::md5;
 use lib_infra::util::move_vec_element;
 use lib_ot::core::*;
+use revision_model::Revision;
 use serde::Deserialize;
 use std::sync::Arc;
 

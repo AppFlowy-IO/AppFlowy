@@ -1,5 +1,5 @@
-use crate::revision::{Revision, RevisionRange};
 use bytes::Bytes;
+use revision_model::{Revision, RevisionRange};
 use serde::{Deserialize, Serialize};
 use serde_repr::*;
 
@@ -92,6 +92,12 @@ impl std::convert::TryFrom<ServerRevisionWSData> for Bytes {
 
     fn try_from(bytes: ServerRevisionWSData) -> Result<Self, Self::Error> {
         serde_json::to_vec(&bytes).map(Bytes::from)
+    }
+}
+
+impl ServerRevisionWSData {
+    pub fn to_bytes(&self) -> Vec<u8> {
+        serde_json::to_vec(&self).unwrap_or_default()
     }
 }
 

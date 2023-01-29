@@ -1,20 +1,20 @@
 use crate::server_document::document_pad::ServerDocument;
 use async_stream::stream;
 use dashmap::DashMap;
-use flowy_http_model::document::DocumentPayload;
-use flowy_http_model::revision::Revision;
-use flowy_http_model::ws_data::{ClientRevisionWSData, ServerRevisionWSDataBuilder};
+use document_model::document::DocumentInfo;
 use flowy_sync::errors::{internal_sync_error, SyncError, SyncResult};
 use flowy_sync::ext::DocumentCloudPersistence;
 use flowy_sync::{RevisionSyncResponse, RevisionSynchronizer, RevisionUser};
 use futures::stream::StreamExt;
 use lib_ot::core::AttributeHashMap;
 use lib_ot::text_delta::DeltaTextOperations;
+use revision_model::Revision;
 use std::{collections::HashMap, sync::Arc};
 use tokio::{
     sync::{mpsc, oneshot, RwLock},
     task::spawn_blocking,
 };
+use ws_model::ws_revision::{ClientRevisionWSData, ServerRevisionWSDataBuilder};
 
 pub struct ServerDocumentManager {
     document_handlers: Arc<RwLock<HashMap<String, Arc<OpenDocumentHandler>>>>,
@@ -131,7 +131,7 @@ impl ServerDocumentManager {
     }
 
     #[tracing::instrument(level = "debug", skip(self, doc), err)]
-    async fn create_document_handler(&self, doc: DocumentPayload) -> Result<Arc<OpenDocumentHandler>, SyncError> {
+    async fn create_document_handler(&self, doc: DocumentInfo) -> Result<Arc<OpenDocumentHandler>, SyncError> {
         let persistence = self.persistence.clone();
         let handle = spawn_blocking(|| OpenDocumentHandler::new(doc, persistence))
             .await
@@ -155,7 +155,7 @@ struct OpenDocumentHandler {
 }
 
 impl OpenDocumentHandler {
-    fn new(doc: DocumentPayload, persistence: Arc<dyn DocumentCloudPersistence>) -> Result<Self, SyncError> {
+    fn new(doc: DocumentInfo, persistence: Arc<dyn DocumentCloudPersistence>) -> Result<Self, SyncError> {
         let doc_id = doc.doc_id.clone();
         let (sender, receiver) = mpsc::channel(1000);
         let users = DashMap::new();

@@ -22,7 +22,6 @@ use flowy_client_sync::client_grid::{GridRevisionChangeset, GridRevisionPad, Jso
 use flowy_client_sync::errors::{SyncError, SyncResult};
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_http_model::revision::Revision;
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
@@ -30,6 +29,7 @@ use flowy_task::TaskDispatcher;
 use grid_model::*;
 use lib_infra::future::{to_fut, FutureResult};
 use lib_ot::core::EmptyAttributes;
+use revision_model::Revision;
 use std::collections::HashMap;
 
 use flowy_client_sync::make_operations_from_revisions;

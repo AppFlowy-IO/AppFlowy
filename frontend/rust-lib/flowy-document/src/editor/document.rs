@@ -1,9 +1,9 @@
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_http_model::revision::Revision;
 use flowy_revision::{RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer};
 use lib_ot::core::{Extension, NodeDataBuilder, NodeOperation, NodeTree, NodeTreeContext, Selection, Transaction};
 use lib_ot::text_delta::DeltaTextOperationBuilder;
+use revision_model::Revision;
 
 #[derive(Debug)]
 pub struct Document {

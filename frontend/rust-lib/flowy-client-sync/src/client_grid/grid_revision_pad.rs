@@ -1,14 +1,14 @@
 use crate::errors::{internal_sync_error, SyncError, SyncResult};
 use crate::util::cal_diff;
-use flowy_http_model::revision::Revision;
-use flowy_http_model::util::md5;
 use flowy_sync::util::make_operations_from_revisions;
 use grid_model::{
     gen_block_id, gen_grid_id, FieldRevision, FieldTypeRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset,
     GridRevision,
 };
+use lib_infra::util::md5;
 use lib_infra::util::move_vec_element;
 use lib_ot::core::{DeltaOperationBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
+use revision_model::Revision;
 use std::collections::HashMap;
 use std::sync::Arc;
 

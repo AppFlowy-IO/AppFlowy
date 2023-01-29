@@ -16,7 +16,6 @@ use crate::{
 };
 use bytes::Bytes;
 use flowy_database::kv::KV;
-use flowy_http_model::document::DocumentId;
 use folder_model::{gen_view_id, ViewRevision};
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
@@ -199,9 +198,8 @@ impl ViewController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.value), err)]
-    pub(crate) async fn move_view_to_trash(&self, params: DocumentId) -> Result<(), FlowyError> {
-        let view_id = params.value;
+    #[tracing::instrument(level = "debug", skip(self), err)]
+    pub(crate) async fn move_view_to_trash(&self, view_id: &str) -> Result<(), FlowyError> {
         if let Some(latest_view_id) = KV::get_str(LATEST_VIEW_ID) {
             if latest_view_id == view_id {
                 let _ = KV::remove(LATEST_VIEW_ID);
@@ -219,7 +217,7 @@ impl ViewController {
                     .position(|view| view.id == view_id)
                     .map(|index| index as i32);
                 Ok(DeletedViewPB {
-                    view_id: view_id.clone(),
+                    view_id: view_id.to_owned(),
                     index,
                 })
             })

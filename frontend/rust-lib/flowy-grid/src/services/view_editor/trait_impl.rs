@@ -10,7 +10,6 @@ use flowy_client_sync::client_grid::{GridViewRevisionChangeset, GridViewRevision
 use flowy_client_sync::make_operations_from_revisions;
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_http_model::revision::Revision;
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
@@ -19,6 +18,7 @@ use grid_model::{
 };
 use lib_infra::future::{to_fut, Fut, FutureResult};
 use lib_ot::core::EmptyAttributes;
+use revision_model::Revision;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 

@@ -1,18 +1,18 @@
 use crate::server_folder::folder_pad::{FolderOperations, FolderRevisionSynchronizer};
 use crate::server_folder::ServerFolder;
 use async_stream::stream;
-use flowy_http_model::folder::FolderInfo;
-use flowy_http_model::revision::Revision;
-use flowy_http_model::ws_data::{ClientRevisionWSData, ServerRevisionWSDataBuilder};
 use flowy_sync::errors::{internal_sync_error, SyncError, SyncResult};
 use flowy_sync::ext::FolderCloudPersistence;
 use flowy_sync::{RevisionSyncResponse, RevisionUser};
+use folder_model::FolderInfo;
 use futures::stream::StreamExt;
+use revision_model::Revision;
 use std::{collections::HashMap, sync::Arc};
 use tokio::{
     sync::{mpsc, oneshot, RwLock},
     task::spawn_blocking,
 };
+use ws_model::ws_revision::{ClientRevisionWSData, ServerRevisionWSDataBuilder};
 
 pub struct ServerFolderManager {
     folder_handlers: Arc<RwLock<HashMap<String, Arc<OpenFolderHandler>>>>,

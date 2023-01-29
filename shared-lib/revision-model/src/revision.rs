@@ -1,4 +1,3 @@
-use crate::util::md5;
 use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 use std::{convert::TryFrom, fmt::Formatter, ops::RangeInclusive};
@@ -60,8 +59,13 @@ impl Revision {
     }
 
     pub fn initial_revision(object_id: &str, bytes: Bytes) -> Self {
-        let md5 = md5(&bytes);
+        let md5 = format!("{:x}", md5::compute(&bytes));
         Self::new(object_id, 0, 0, bytes, md5)
+    }
+
+    pub fn to_bytes(&self) -> Bytes {
+        let bytes = serde_json::to_vec(self).unwrap();
+        Bytes::from(bytes)
     }
 }
 

@@ -3,9 +3,9 @@ use crate::{
     client_folder::{default_folder_operations, FolderPad},
     errors::SyncResult,
 };
-use flowy_http_model::revision::Revision;
 use flowy_sync::util::make_operations_from_revisions;
 use folder_model::{TrashRevision, WorkspaceRevision};
+use revision_model::Revision;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]

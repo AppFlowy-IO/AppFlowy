@@ -1,13 +1,12 @@
 use crate::errors::SyncError;
 use dissimilar::Chunk;
-use flowy_http_model::document::DocumentPayload;
-
-use flowy_http_model::revision::Revision;
+use document_model::document::DocumentInfo;
 use lib_ot::core::{DeltaOperationBuilder, OTString, OperationAttributes};
 use lib_ot::{
     core::{DeltaOperations, OperationTransform, NEW_LINE, WHITESPACE},
     text_delta::DeltaTextOperations,
 };
+use revision_model::Revision;
 use serde::de::DeserializeOwned;
 
 #[inline]
@@ -62,10 +61,10 @@ where
 }
 
 #[inline]
-pub fn make_document_from_revision_pbs(
+pub fn make_document_info_from_revisions(
     doc_id: &str,
     revisions: Vec<Revision>,
-) -> Result<Option<DocumentPayload>, SyncError> {
+) -> Result<Option<DocumentInfo>, SyncError> {
     if revisions.is_empty() {
         return Ok(None);
     }
@@ -85,7 +84,7 @@ pub fn make_document_from_revision_pbs(
         delta = delta.compose(&new_delta)?;
     }
 
-    Ok(Some(DocumentPayload {
+    Ok(Some(DocumentInfo {
         doc_id: doc_id.to_owned(),
         data: delta.json_bytes().to_vec(),
         rev_id,

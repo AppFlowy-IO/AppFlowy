@@ -8,7 +8,10 @@ edition = "2021"
 [dependencies]
 lib-ot = { path = "../lib-ot" }
 lib-infra = { path = "../lib-infra" }
-flowy-http-model = { path = "../flowy-http-model" }
+revision-model = { path = "../revision-model" }
+folder-model = { path = "../folder-model" }
+ws-model = { path = "../ws-model" }
+document-model = { path = "../document-model" }
 strum = "0.21"
 strum_macros = "0.21"
 parking_lot = "0.12.1"

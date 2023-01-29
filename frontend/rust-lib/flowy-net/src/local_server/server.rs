@@ -1,6 +1,7 @@
 use crate::local_server::persistence::LocalDocumentCloudPersistence;
 use async_stream::stream;
 use bytes::Bytes;
+use document_model::document::{CreateDocumentParams, DocumentId, DocumentInfo, ResetDocumentParams};
 use flowy_client_sync::errors::SyncError;
 use flowy_document::DocumentCloudService;
 use flowy_error::{internal_error, FlowyError};
@@ -11,8 +12,6 @@ use flowy_folder::entities::{
     workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdPB},
 };
 use flowy_folder::event_map::FolderCouldServiceV1;
-use flowy_http_model::document::{CreateDocumentParams, DocumentId, DocumentPayload, ResetDocumentParams};
-use flowy_http_model::ws_data::{ClientRevisionWSData, ClientRevisionWSDataType};
 use flowy_server_sync::server_document::ServerDocumentManager;
 use flowy_server_sync::server_folder::ServerFolderManager;
 use flowy_sync::{RevisionSyncResponse, RevisionUser};
@@ -31,6 +30,7 @@ use std::{
 };
 use tokio::sync::{broadcast, mpsc, mpsc::UnboundedSender};
 use user_model::*;
+use ws_model::ws_revision::{ClientRevisionWSData, ClientRevisionWSDataType};
 
 pub struct LocalServer {
     doc_manager: Arc<ServerDocumentManager>,
@@ -399,7 +399,7 @@ impl DocumentCloudService for LocalServer {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn fetch_document(&self, _token: &str, _params: DocumentId) -> FutureResult<Option<DocumentPayload>, FlowyError> {
+    fn fetch_document(&self, _token: &str, _params: DocumentId) -> FutureResult<Option<DocumentInfo>, FlowyError> {
         FutureResult::new(async { Ok(None) })
     }
 

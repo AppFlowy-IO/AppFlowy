@@ -17,7 +17,7 @@ lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 grid-model = { path = "../../../shared-lib/grid-model" }
 flowy-client-sync = { path = "../flowy-client-sync"}
-flowy-http-model = { path = "../../../shared-lib/flowy-http-model" }
+revision-model = { path = "../../../shared-lib/revision-model" }
 flowy-database = { path = "../flowy-database", optional = true }
 anyhow = "1.0"
 

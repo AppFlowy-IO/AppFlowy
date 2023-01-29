@@ -5,8 +5,6 @@ use flowy_client_sync::make_operations_from_revisions;
 use flowy_client_sync::util::recover_operation_from_revisions;
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_http_model::revision::Revision;
-use flowy_http_model::ws_data::ServerRevisionWSData;
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
     RevisionWebSocket,
@@ -14,7 +12,9 @@ use flowy_revision::{
 use lib_infra::future::FutureResult;
 use lib_ot::core::EmptyAttributes;
 use parking_lot::RwLock;
+use revision_model::Revision;
 use std::sync::Arc;
+use ws_model::ws_revision::ServerRevisionWSData;
 
 pub struct FolderEditor {
     #[allow(dead_code)]

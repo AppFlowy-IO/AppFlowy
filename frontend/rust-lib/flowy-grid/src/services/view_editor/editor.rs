@@ -16,7 +16,6 @@ use crate::services::view_editor::GridViewChangedReceiverRunner;
 use flowy_client_sync::client_grid::{make_grid_view_operations, GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
-use flowy_http_model::revision::Revision;
 use flowy_revision::RevisionManager;
 use flowy_task::TaskDispatcher;
 use grid_model::{
@@ -27,6 +26,7 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::future::Fut;
 use lib_infra::ref_map::RefCountValue;
 use nanoid::nanoid;
+use revision_model::Revision;
 use std::borrow::Cow;
 use std::future::Future;
 use std::sync::Arc;

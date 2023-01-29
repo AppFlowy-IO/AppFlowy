@@ -6,7 +6,7 @@ use crate::{
     errors::SyncError,
 };
 use bytes::Bytes;
-use flowy_http_model::util::md5;
+use lib_infra::util::md5;
 use lib_ot::text_delta::DeltaTextOperationBuilder;
 use lib_ot::{core::*, text_delta::DeltaTextOperations};
 use tokio::sync::mpsc;

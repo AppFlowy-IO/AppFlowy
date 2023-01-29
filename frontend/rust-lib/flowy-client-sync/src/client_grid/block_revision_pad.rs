@@ -1,10 +1,10 @@
 use crate::errors::{SyncError, SyncResult};
 use crate::util::cal_diff;
-use flowy_http_model::revision::Revision;
-use flowy_http_model::util::md5;
 use flowy_sync::util::make_operations_from_revisions;
 use grid_model::{gen_block_id, gen_row_id, CellRevision, GridBlockRevision, RowChangeset, RowRevision};
+use lib_infra::util::md5;
 use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
+use revision_model::Revision;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;

@@ -5,10 +5,10 @@ use bytes::Bytes;
 use flowy_client_sync::client_grid::{make_grid_rev_json_str, GridOperationsBuilder, GridRevisionPad};
 use flowy_database::kv::KV;
 use flowy_error::FlowyResult;
-use flowy_http_model::revision::Revision;
-use flowy_http_model::util::md5;
 use flowy_revision::reset::{RevisionResettable, RevisionStructReset};
 use grid_model::GridRevision;
+use lib_infra::util::md5;
+use revision_model::Revision;
 use std::sync::Arc;
 
 const V1_MIGRATION: &str = "GRID_V1_MIGRATION";

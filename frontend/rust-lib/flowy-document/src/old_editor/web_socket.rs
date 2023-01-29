@@ -5,14 +5,14 @@ use flowy_client_sync::errors::SyncResult;
 use flowy_client_sync::make_operations_from_revisions;
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_http_model::revision::{Revision, RevisionRange};
-use flowy_http_model::ws_data::{ClientRevisionWSData, NewDocumentUser};
 use flowy_revision::*;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ot::text_delta::DeltaTextOperations;
 use lib_ws::WSConnectState;
+use revision_model::{Revision, RevisionRange};
 use std::{sync::Arc, time::Duration};
 use tokio::sync::{broadcast, oneshot};
+use ws_model::ws_revision::{ClientRevisionWSData, NewDocumentUser};
 
 #[derive(Clone)]
 pub struct DeltaDocumentResolveOperations(pub DeltaTextOperations);

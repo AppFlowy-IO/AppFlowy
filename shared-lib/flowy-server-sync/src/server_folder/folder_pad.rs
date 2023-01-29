@@ -1,8 +1,8 @@
-use flowy_http_model::folder::FolderInfo;
-use flowy_http_model::revision::Revision;
 use flowy_sync::errors::SyncError;
 use flowy_sync::{RevisionOperations, RevisionSyncObject, RevisionSynchronizer};
+use folder_model::FolderInfo;
 use lib_ot::core::{DeltaOperationBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
+use revision_model::Revision;
 
 pub type FolderRevisionSynchronizer = RevisionSynchronizer<EmptyAttributes>;
 pub type FolderOperations = DeltaOperations<EmptyAttributes>;

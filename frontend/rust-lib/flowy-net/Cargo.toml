@@ -10,8 +10,10 @@ lib-dispatch = { path = "../lib-dispatch" }
 flowy-error = { path = "../flowy-error", features = ["adaptor_sync", "adaptor_reqwest"] }
 flowy-derive = { path = "../flowy-derive" }
 flowy-client-sync = { path = "../flowy-client-sync"}
-flowy-http-model = { path = "../../../shared-lib/flowy-http-model"}
 folder-model = { path = "../../../shared-lib/folder-model" }
+revision-model = { path = "../../../shared-lib/revision-model"}
+document-model = { path = "../../../shared-lib/document-model"}
+ws-model = { path = "../../../shared-lib/ws-model"}
 flowy-server-sync = { path = "../../../shared-lib/flowy-server-sync"}
 flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws"}
 flowy-client-network-config= { path = "../../../shared-lib/flowy-client-network-config"}

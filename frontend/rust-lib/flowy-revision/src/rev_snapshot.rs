@@ -4,7 +4,7 @@
 use crate::{RevIdCounter, RevisionMergeable, RevisionObjectDeserializer, RevisionPersistence};
 use bytes::Bytes;
 use flowy_error::FlowyResult;
-use flowy_http_model::revision::Revision;
+use revision_model::Revision;
 use std::sync::atomic::AtomicI64;
 use std::sync::atomic::Ordering::SeqCst;
 use std::sync::Arc;
