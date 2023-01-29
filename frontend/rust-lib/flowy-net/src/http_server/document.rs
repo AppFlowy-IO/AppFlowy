@@ -1,9 +1,9 @@
 use crate::request::{HttpRequestBuilder, ResponseMiddleware};
+use crate::response::HttpResponse;
 use flowy_client_network_config::{ClientServerConfiguration, HEADER_TOKEN};
 use flowy_document::DocumentCloudService;
 use flowy_error::FlowyError;
 use flowy_http_model::document::{CreateDocumentParams, DocumentId, DocumentPayload, ResetDocumentParams};
-use http_flowy::response::FlowyResponse;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
@@ -83,7 +83,7 @@ lazy_static! {
 
 pub(crate) struct DocumentResponseMiddleware {}
 impl ResponseMiddleware for DocumentResponseMiddleware {
-    fn receive_response(&self, token: &Option<String>, response: &FlowyResponse) {
+    fn receive_response(&self, token: &Option<String>, response: &HttpResponse) {
         if let Some(error) = &response.error {
             if error.is_unauthorized() {
                 tracing::error!("document user is unauthorized");

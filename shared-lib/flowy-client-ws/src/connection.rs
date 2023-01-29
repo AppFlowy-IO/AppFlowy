@@ -1,4 +1,4 @@
-use flowy_error_code::ErrorCode;
+use flowy_error_code::client::ErrorCode;
 use futures_util::future::BoxFuture;
 use lib_infra::future::FutureResult;
 use lib_ws::WSController;

@@ -1151,11 +1151,11 @@ dependencies = [
  "flowy-database",
  "flowy-derive",
  "flowy-error-code",
- "http-flowy",
  "lib-dispatch",
  "lib-ot",
  "protobuf",
  "r2d2",
+ "reqwest",
  "serde_json",
  "thiserror",
 ]
@@ -1164,6 +1164,7 @@ dependencies = [
 name = "flowy-error-code"
 version = "0.1.0"
 dependencies = [
+ "http-error-code",
  "serde",
  "serde_repr",
  "thiserror",
@@ -1285,6 +1286,7 @@ dependencies = [
  "flowy-derive",
  "flowy-document",
  "flowy-error",
+ "flowy-error-code",
  "flowy-folder",
  "flowy-http-model",
  "flowy-server-sync",
@@ -1292,7 +1294,6 @@ dependencies = [
  "flowy-user",
  "folder-model",
  "futures-util",
- "http-flowy",
  "hyper",
  "lazy_static",
  "lib-dispatch",
@@ -1307,6 +1308,7 @@ dependencies = [
  "serde_json",
  "strum",
  "strum_macros",
+ "thiserror",
  "tokio",
  "tracing",
  "user-model",
@@ -1787,21 +1789,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "http-flowy"
+name = "http-error-code"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Server#3012acce300024dda8819d8507c9105af84cd909"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Server?branch=refactor/appflowy_server#5e74d35e93efd6b92f501ee8f3081a23b9839108"
 dependencies = [
- "anyhow",
- "bytes",
- "derive_more",
- "hyper",
- "protobuf",
- "reqwest",
  "serde",
- "serde_json",
  "serde_repr",
  "thiserror",
- "uuid",
 ]
 
 [[package]]
@@ -4011,15 +4005,6 @@ name = "utf-8"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "09cc8ee72d2a9becf2f2febe0205bbed8fc6615b7cb429ad062dc7b7ddd036a9"
-
-[[package]]
-name = "uuid"
-version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
-dependencies = [
- "getrandom 0.2.8",
-]
 
 [[package]]
 name = "validator"

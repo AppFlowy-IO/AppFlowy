@@ -9,3 +9,7 @@ edition = "2021"
 thiserror = "1.0"
 serde = "1.0"
 serde_repr = "0.1"
+http-error-code = { git = "https://github.com/AppFlowy-IO/AppFlowy-Server", branch = "refactor/appflowy_server", optional = true }
+
+[features]
+adaptor_server_error = ["http-error-code"]

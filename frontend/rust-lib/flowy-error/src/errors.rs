@@ -1,6 +1,6 @@
 use anyhow::Result;
 use flowy_derive::ProtoBuf;
-use flowy_error_code::ErrorCode;
+use flowy_error_code::client::ErrorCode;
 use std::fmt::Debug;
 use thiserror::Error;
 
@@ -37,6 +37,10 @@ impl FlowyError {
         self
     }
 
+    pub fn is_record_not_found(&self) -> bool {
+        self.code == ErrorCode::RecordNotFound.value()
+    }
+
     static_flowy_error!(internal, ErrorCode::Internal);
     static_flowy_error!(record_not_found, ErrorCode::RecordNotFound);
     static_flowy_error!(workspace_name, ErrorCode::WorkspaceNameInvalid);
@@ -70,6 +74,8 @@ impl FlowyError {
     static_flowy_error!(out_of_bounds, ErrorCode::OutOfBounds);
     static_flowy_error!(serde, ErrorCode::Serde);
     static_flowy_error!(field_record_not_found, ErrorCode::FieldRecordNotFound);
+    static_flowy_error!(payload_none, ErrorCode::UnexpectedEmptyPayload);
+    static_flowy_error!(http, ErrorCode::HttpError);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {

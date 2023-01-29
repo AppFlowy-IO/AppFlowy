@@ -18,7 +18,7 @@ lib-dispatch = { path = "../lib-dispatch" }
 flowy-database = { path = "../flowy-database", optional = true }
 flowy-revision = { path = "../flowy-revision" }
 flowy-revision-persistence = { path = "../flowy-revision-persistence" }
-flowy-error = { path = "../flowy-error", features = ["collaboration", "ot", "http_server", "serde", "db", "dispatch"] }
+flowy-error = { path = "../flowy-error", features = ["adaptor_sync", "adaptor_ot", "adaptor_serde", "adaptor_database", "adaptor_dispatch"] }
 flowy-notification = { path = "../flowy-notification" }
 
 diesel = {version = "1.4.8", features = ["sqlite"]}

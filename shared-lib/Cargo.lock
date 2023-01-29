@@ -273,6 +273,7 @@ dependencies = [
 name = "flowy-error-code"
 version = "0.1.0"
 dependencies = [
+ "http-error-code",
  "serde",
  "serde_repr",
  "thiserror",
@@ -517,6 +518,16 @@ dependencies = [
  "bytes",
  "fnv",
  "itoa",
+]
+
+[[package]]
+name = "http-error-code"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Server?branch=refactor/appflowy_server#5e74d35e93efd6b92f501ee8f3081a23b9839108"
+dependencies = [
+ "serde",
+ "serde_repr",
+ "thiserror",
 ]
 
 [[package]]

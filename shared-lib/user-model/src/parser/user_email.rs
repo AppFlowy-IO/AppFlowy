@@ -1,4 +1,4 @@
-use flowy_error_code::ErrorCode;
+use flowy_error_code::client::ErrorCode;
 use validator::validate_email;
 
 #[derive(Debug)]

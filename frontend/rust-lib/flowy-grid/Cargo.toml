@@ -11,7 +11,7 @@ flowy-notification = { path = "../flowy-notification" }
 flowy-revision = { path = "../flowy-revision" }
 flowy-revision-persistence = { path = "../flowy-revision-persistence" }
 flowy-task= { path = "../flowy-task" }
-flowy-error = { path = "../flowy-error", features = ["db", "dispatch"]}
+flowy-error = { path = "../flowy-error", features = ["adaptor_database", "adaptor_dispatch"]}
 flowy-derive = { path = "../flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }

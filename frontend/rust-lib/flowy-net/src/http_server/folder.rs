@@ -1,4 +1,5 @@
 use crate::request::{HttpRequestBuilder, ResponseMiddleware};
+use crate::response::HttpResponse;
 use flowy_client_network_config::ClientServerConfiguration;
 use flowy_error::FlowyError;
 use flowy_folder::entities::{
@@ -9,8 +10,6 @@ use flowy_folder::entities::{
 };
 use flowy_folder::event_map::FolderCouldServiceV1;
 use folder_model::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
-use http_flowy::errors::ServerError;
-use http_flowy::response::FlowyResponse;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
@@ -178,7 +177,7 @@ pub async fn create_workspace_request(
     _token: &str,
     _params: CreateWorkspaceParams,
     _url: &str,
-) -> Result<WorkspaceRevision, ServerError> {
+) -> Result<WorkspaceRevision, FlowyError> {
     // let workspace = request_builder()
     //     .post(&url.to_owned())
     //     .header(HEADER_TOKEN, token)
@@ -193,7 +192,7 @@ pub async fn read_workspaces_request(
     _token: &str,
     _params: WorkspaceIdPB,
     _url: &str,
-) -> Result<Vec<WorkspaceRevision>, ServerError> {
+) -> Result<Vec<WorkspaceRevision>, FlowyError> {
     // let repeated_workspace = request_builder()
     //     .get(&url.to_owned())
     //     .header(HEADER_TOKEN, token)
@@ -209,7 +208,7 @@ pub async fn update_workspace_request(
     _token: &str,
     _params: UpdateWorkspaceParams,
     _url: &str,
-) -> Result<(), ServerError> {
+) -> Result<(), FlowyError> {
     // let _ = request_builder()
     //     .patch(&url.to_owned())
     //     .header(HEADER_TOKEN, token)
@@ -219,7 +218,7 @@ pub async fn update_workspace_request(
     Ok(())
 }
 
-pub async fn delete_workspace_request(_token: &str, _params: WorkspaceIdPB, _url: &str) -> Result<(), ServerError> {
+pub async fn delete_workspace_request(_token: &str, _params: WorkspaceIdPB, _url: &str) -> Result<(), FlowyError> {
     // let _ = request_builder()
     //     .delete(url)
     //     .header(HEADER_TOKEN, token)
@@ -230,11 +229,7 @@ pub async fn delete_workspace_request(_token: &str, _params: WorkspaceIdPB, _url
 }
 
 // App
-pub async fn create_app_request(
-    _token: &str,
-    _params: CreateAppParams,
-    _url: &str,
-) -> Result<AppRevision, ServerError> {
+pub async fn create_app_request(_token: &str, _params: CreateAppParams, _url: &str) -> Result<AppRevision, FlowyError> {
     // let app = request_builder()
     //     .post(&url.to_owned())
     //     .header(HEADER_TOKEN, token)
@@ -245,7 +240,7 @@ pub async fn create_app_request(
     unimplemented!()
 }
 
-pub async fn read_app_request(_token: &str, _params: AppIdPB, _url: &str) -> Result<Option<AppRevision>, ServerError> {
+pub async fn read_app_request(_token: &str, _params: AppIdPB, _url: &str) -> Result<Option<AppRevision>, FlowyError> {
     // let app = request_builder()
     //     .get(&url.to_owned())
     //     .header(HEADER_TOKEN, token)
@@ -257,7 +252,7 @@ pub async fn read_app_request(_token: &str, _params: AppIdPB, _url: &str) -> Res
     unimplemented!()
 }
 
-pub async fn update_app_request(_token: &str, _params: UpdateAppParams, _url: &str) -> Result<(), ServerError> {
+pub async fn update_app_request(_token: &str, _params: UpdateAppParams, _url: &str) -> Result<(), FlowyError> {
     // let _ = request_builder()
     //     .patch(&url.to_owned())
     //     .header(HEADER_TOKEN, token)
@@ -267,7 +262,7 @@ pub async fn update_app_request(_token: &str, _params: UpdateAppParams, _url: &s
     Ok(())
 }
 
-pub async fn delete_app_request(_token: &str, _params: AppIdPB, _url: &str) -> Result<(), ServerError> {
+pub async fn delete_app_request(_token: &str, _params: AppIdPB, _url: &str) -> Result<(), FlowyError> {
     // let _ = request_builder()
     //     .delete(&url.to_owned())
     //     .header(HEADER_TOKEN, token)
@@ -282,7 +277,7 @@ pub async fn create_view_request(
     _token: &str,
     _params: CreateViewParams,
     _url: &str,
-) -> Result<ViewRevision, ServerError> {
+) -> Result<ViewRevision, FlowyError> {
     // let view = request_builder()
     //     .post(&url.to_owned())
     //     .header(HEADER_TOKEN, token)
@@ -297,7 +292,7 @@ pub async fn read_view_request(
     _token: &str,
     _params: ViewIdPB,
     _url: &str,
-) -> Result<Option<ViewRevision>, ServerError> {
+) -> Result<Option<ViewRevision>, FlowyError> {
     // let view = request_builder()
     //     .get(&url.to_owned())
     //     .header(HEADER_TOKEN, token)
@@ -309,7 +304,7 @@ pub async fn read_view_request(
     unimplemented!()
 }
 
-pub async fn update_view_request(_token: &str, _params: UpdateViewParams, _url: &str) -> Result<(), ServerError> {
+pub async fn update_view_request(_token: &str, _params: UpdateViewParams, _url: &str) -> Result<(), FlowyError> {
     // let _ = request_builder()
     //     .patch(&url.to_owned())
     //     .header(HEADER_TOKEN, token)
@@ -319,7 +314,7 @@ pub async fn update_view_request(_token: &str, _params: UpdateViewParams, _url: 
     Ok(())
 }
 
-pub async fn delete_view_request(_token: &str, _params: RepeatedViewIdPB, _url: &str) -> Result<(), ServerError> {
+pub async fn delete_view_request(_token: &str, _params: RepeatedViewIdPB, _url: &str) -> Result<(), FlowyError> {
     // let _ = request_builder()
     //     .delete(&url.to_owned())
     //     .header(HEADER_TOKEN, token)
@@ -329,7 +324,7 @@ pub async fn delete_view_request(_token: &str, _params: RepeatedViewIdPB, _url: 
     Ok(())
 }
 
-pub async fn create_trash_request(_token: &str, _params: RepeatedTrashIdPB, _url: &str) -> Result<(), ServerError> {
+pub async fn create_trash_request(_token: &str, _params: RepeatedTrashIdPB, _url: &str) -> Result<(), FlowyError> {
     // let _ = request_builder()
     //     .post(&url.to_owned())
     //     .header(HEADER_TOKEN, token)
@@ -339,7 +334,7 @@ pub async fn create_trash_request(_token: &str, _params: RepeatedTrashIdPB, _url
     Ok(())
 }
 
-pub async fn delete_trash_request(_token: &str, _params: RepeatedTrashIdPB, _url: &str) -> Result<(), ServerError> {
+pub async fn delete_trash_request(_token: &str, _params: RepeatedTrashIdPB, _url: &str) -> Result<(), FlowyError> {
     // let _ = request_builder()
     //     .delete(&url.to_owned())
     //     .header(HEADER_TOKEN, token)
@@ -349,7 +344,7 @@ pub async fn delete_trash_request(_token: &str, _params: RepeatedTrashIdPB, _url
     Ok(())
 }
 
-pub async fn read_trash_request(_token: &str, _url: &str) -> Result<Vec<TrashRevision>, ServerError> {
+pub async fn read_trash_request(_token: &str, _url: &str) -> Result<Vec<TrashRevision>, FlowyError> {
     // let repeated_trash = request_builder()
     //     .get(&url.to_owned())
     //     .header(HEADER_TOKEN, token)
@@ -382,7 +377,7 @@ impl FolderResponseMiddleware {
 }
 
 impl ResponseMiddleware for FolderResponseMiddleware {
-    fn receive_response(&self, token: &Option<String>, response: &FlowyResponse) {
+    fn receive_response(&self, token: &Option<String>, response: &HttpResponse) {
         if let Some(error) = &response.error {
             if error.is_unauthorized() {
                 tracing::error!("user is unauthorized");

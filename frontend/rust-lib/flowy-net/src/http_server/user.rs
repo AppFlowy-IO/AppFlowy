@@ -3,7 +3,6 @@ use flowy_client_network_config::{ClientServerConfiguration, HEADER_TOKEN};
 use flowy_error::FlowyError;
 use flowy_user::entities::UserProfilePB;
 use flowy_user::event_map::UserCloudService;
-use http_flowy::errors::ServerError;
 use lib_infra::future::FutureResult;
 use user_model::*;
 
@@ -65,22 +64,22 @@ impl UserCloudService for UserHttpCloudService {
     }
 }
 
-pub async fn user_sign_up_request(params: SignUpParams, url: &str) -> Result<SignUpResponse, ServerError> {
+pub async fn user_sign_up_request(params: SignUpParams, url: &str) -> Result<SignUpResponse, FlowyError> {
     let response = request_builder().post(url).json(params)?.json_response().await?;
     Ok(response)
 }
 
-pub async fn user_sign_in_request(params: SignInParams, url: &str) -> Result<SignInResponse, ServerError> {
+pub async fn user_sign_in_request(params: SignInParams, url: &str) -> Result<SignInResponse, FlowyError> {
     let response = request_builder().post(url).json(params)?.json_response().await?;
     Ok(response)
 }
 
-pub async fn user_sign_out_request(token: &str, url: &str) -> Result<(), ServerError> {
+pub async fn user_sign_out_request(token: &str, url: &str) -> Result<(), FlowyError> {
     request_builder().delete(url).header(HEADER_TOKEN, token).send().await?;
     Ok(())
 }
 
-pub async fn get_user_profile_request(token: &str, url: &str) -> Result<UserProfilePB, ServerError> {
+pub async fn get_user_profile_request(token: &str, url: &str) -> Result<UserProfilePB, FlowyError> {
     let user_profile = request_builder()
         .get(url)
         .header(HEADER_TOKEN, token)
@@ -93,7 +92,7 @@ pub async fn update_user_profile_request(
     token: &str,
     params: UpdateUserProfileParams,
     url: &str,
-) -> Result<(), ServerError> {
+) -> Result<(), FlowyError> {
     request_builder()
         .patch(url)
         .header(HEADER_TOKEN, token)
