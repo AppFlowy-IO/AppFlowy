@@ -118,10 +118,10 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
             snapshot.connectionState == ConnectionState.done) {
           final apps = snapshot.data;
           final children = <Widget>[
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 4),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
               child: FlowyText.regular(
-                'Select a board to link to',
+                LocaleKeys.document_slashMenu_board_selectABoardToLinkTo.tr(),
                 fontSize: 10,
                 color: Colors.grey,
               ),

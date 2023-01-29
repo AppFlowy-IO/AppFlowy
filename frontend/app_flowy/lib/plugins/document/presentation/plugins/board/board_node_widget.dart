@@ -1,9 +1,13 @@
 import 'package:app_flowy/plugins/board/presentation/board_page.dart';
+import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/app/app_service.dart';
+import 'package:app_flowy/workspace/application/view/view_ext.dart';
+import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:dartz/dartz.dart' as dartz;
+import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
 
 const String kBoardType = 'board';
@@ -93,13 +97,27 @@ class _BoardWidgetState extends State<_BoardWidget> with SelectableMixin {
       },
       child: SizedBox(
         height: 400,
-        child: BoardPage(
-          key: ValueKey(viewPB.id),
-          view: viewPB,
-          onEditStateChanged: () {
-            /// Clear selection when the edit state changes, otherwise the editor will prevent the keyboard event when the board is in edit mode.
-            widget.editorState.service.selectionService.clearSelection();
-          },
+        child: Stack(
+          children: [
+            Positioned(
+              top: 0,
+              left: 20,
+              child: FlowyTextButton(
+                viewPB.name,
+                onPressed: () {
+                  getIt<HomeStackManager>().setPlugin(viewPB.plugin());
+                },
+              ),
+            ),
+            BoardPage(
+              key: ValueKey(viewPB.id),
+              view: viewPB,
+              onEditStateChanged: () {
+                /// Clear selection when the edit state changes, otherwise the editor will prevent the keyboard event when the board is in edit mode.
+                widget.editorState.service.selectionService.clearSelection();
+              },
+            ),
+          ],
         ),
       ),
     );
