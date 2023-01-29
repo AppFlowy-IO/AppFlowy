@@ -128,8 +128,6 @@ class _DocumentPageState extends State<DocumentPage> {
         codeBlockMenuItem,
         // Emoji
         emojiMenuItem,
-        //Card
-        calloutMenuItem,
       ],
       themeData: theme.copyWith(extensions: [
         ...theme.extensions.values,
