@@ -242,8 +242,8 @@ impl TestBuilder {
                 let target_prime: DeltaTextOperations = serde_json::from_str(&prime_json).unwrap();
 
                 if expected_prime != target_prime {
-                    log::error!("✅ expect prime: {}", expected,);
-                    log::error!("❌ receive prime: {}", prime_json);
+                    tracing::error!("✅ expect prime: {}", expected,);
+                    tracing::error!("❌ receive prime: {}", prime_json);
                 }
                 assert_eq!(target_prime, expected_prime);
             }

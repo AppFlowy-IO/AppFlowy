@@ -14,7 +14,6 @@ grid-model = { path = "../../../shared-lib/grid-model" }
 revision-model = { path = "../../../shared-lib/revision-model" }
 document-model = { path = "../../../shared-lib/document-model" }
 flowy-sync = { path = "../../../shared-lib/flowy-sync" }
-protobuf = {version = "2.18.0"}
 bytes = "1.0"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive", "rc"] }
@@ -26,6 +25,3 @@ strum = "0.21"
 strum_macros = "0.21"
 chrono = "0.4.19"
 parking_lot = "0.12.1"
-dashmap = "5"
-futures = "0.3.15"
-async-stream = "0.3.2"

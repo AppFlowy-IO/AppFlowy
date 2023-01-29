@@ -311,12 +311,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bytecount"
-version = "0.6.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c676a478f63e9fa2dd5368a42f28bba0d6c560b775f38583c8bbaa7fcd67c9c"
-
-[[package]]
 name = "byteorder"
 version = "1.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -384,15 +378,6 @@ dependencies = [
  "parse-zoneinfo",
  "phf 0.11.1",
  "phf_codegen",
-]
-
-[[package]]
-name = "claim"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "68ad37958d55b29a7088909368968d2fe876a24c203f8441195130f3b15194b9"
-dependencies = [
- "autocfg",
 ]
 
 [[package]]
@@ -677,41 +662,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "darling"
-version = "0.13.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a01d95850c592940db9b8194bc39f4bc0e89dee5c4265e4b1807c34a9aba453c"
-dependencies = [
- "darling_core",
- "darling_macro",
-]
-
-[[package]]
-name = "darling_core"
-version = "0.13.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "859d65a907b6852c9361e3185c862aae7fafd2887876799fa55f5f99dc40d610"
-dependencies = [
- "fnv",
- "ident_case",
- "proc-macro2",
- "quote",
- "strsim",
- "syn",
-]
-
-[[package]]
-name = "darling_macro"
-version = "0.13.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c972679f83bdf9c42bd905396b6c3588a843a17f0f16dfcfa3e2c5d57441835"
-dependencies = [
- "darling_core",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "dart-ffi"
 version = "0.1.0"
 dependencies = [
@@ -719,7 +669,6 @@ dependencies = [
  "byteorder",
  "bytes",
  "crossbeam-utils",
- "ffi-support",
  "flowy-codegen",
  "flowy-core",
  "flowy-derive",
@@ -839,7 +788,6 @@ dependencies = [
  "revision-model",
  "serde",
  "serde_json",
- "serde_repr",
 ]
 
 [[package]]
@@ -875,11 +823,8 @@ version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a19187fea3ac7e84da7dacf48de0c45d63c6a76f9490dae389aead16c243fce3"
 dependencies = [
- "atty",
- "humantime",
  "log",
  "regex",
- "termcolor",
 ]
 
 [[package]]
@@ -951,16 +896,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ffi-support"
-version = "0.4.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "27838c6815cfe9de2d3aeb145ffd19e565f577414b33f3bdbf42fe040e9e0ff6"
-dependencies = [
- "lazy_static",
- "log",
-]
-
-[[package]]
 name = "flowy-ast"
 version = "0.1.0"
 dependencies = [
@@ -983,21 +918,17 @@ dependencies = [
 name = "flowy-client-sync"
 version = "0.1.0"
 dependencies = [
- "async-stream",
  "bytes",
  "chrono",
- "dashmap",
  "dissimilar",
  "document-model",
  "flowy-derive",
  "flowy-sync",
  "folder-model",
- "futures",
  "grid-model",
  "lib-infra",
  "lib-ot",
  "parking_lot 0.12.1",
- "protobuf",
  "revision-model",
  "serde",
  "serde_json",
@@ -1137,7 +1068,6 @@ dependencies = [
  "lib-infra",
  "lib-ot",
  "lib-ws",
- "log",
  "md5",
  "protobuf",
  "rand 0.8.5",
@@ -1322,7 +1252,6 @@ dependencies = [
 name = "flowy-notification"
 version = "0.1.0"
 dependencies = [
- "allo-isolate",
  "bytes",
  "flowy-codegen",
  "flowy-derive",
@@ -1378,11 +1307,9 @@ dependencies = [
  "flowy-sync",
  "folder-model",
  "futures",
- "grid-model",
  "lib-infra",
  "lib-ot",
  "log",
- "protobuf",
  "revision-model",
  "serde",
  "tokio",
@@ -1425,10 +1352,8 @@ dependencies = [
 name = "flowy-test"
 version = "0.1.0"
 dependencies = [
- "bincode",
  "bytes",
- "claim 0.4.0",
- "claim 0.5.0",
+ "claim",
  "fake",
  "flowy-client-sync",
  "flowy-core",
@@ -1493,14 +1418,10 @@ checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 name = "folder-model"
 version = "0.1.0"
 dependencies = [
- "bytes",
  "chrono",
  "nanoid",
  "serde",
- "serde_json",
  "serde_repr",
- "strum",
- "strum_macros",
 ]
 
 [[package]]
@@ -1827,12 +1748,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "02296996cb8796d7c6e3bc2d9211b7802812d36999a51bb754123ead7d37d026"
 
 [[package]]
-name = "humantime"
-version = "2.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
-
-[[package]]
 name = "hyper"
 version = "0.14.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1892,12 +1807,6 @@ dependencies = [
  "cxx",
  "cxx-build",
 ]
-
-[[package]]
-name = "ident_case"
-version = "1.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
 
 [[package]]
 name = "idna"
@@ -2030,24 +1939,19 @@ version = "0.1.0"
 dependencies = [
  "bincode",
  "bytes",
- "dashmap",
  "derivative",
  "dyn-clone",
- "env_logger",
  "futures",
  "futures-channel",
  "futures-core",
  "futures-util",
- "lazy_static",
  "log",
  "nanoid",
- "paste",
  "pin-project",
  "protobuf",
  "serde",
  "serde_json",
  "serde_repr",
- "serde_with",
  "thread-id",
  "tokio",
  "tracing",
@@ -2080,7 +1984,6 @@ dependencies = [
  "tracing-appender",
  "tracing-bunyan-formatter",
  "tracing-core",
- "tracing-futures",
  "tracing-log",
  "tracing-subscriber",
 ]
@@ -2089,23 +1992,16 @@ dependencies = [
 name = "lib-ot"
 version = "0.1.0"
 dependencies = [
- "anyhow",
- "bytecount",
  "bytes",
- "dashmap",
- "derive_more",
  "indexmap",
  "indextree",
  "lazy_static",
  "log",
- "md5",
  "serde",
  "serde_json",
- "serde_repr",
  "strum",
  "strum_macros",
  "thiserror",
- "tokio",
  "tracing",
 ]
 
@@ -2122,13 +2018,11 @@ dependencies = [
  "lib-infra",
  "log",
  "parking_lot 0.12.1",
- "paste",
  "pin-project",
  "protobuf",
  "serde",
  "serde_json",
  "serde_repr",
- "strum",
  "strum_macros",
  "tokio",
  "tokio-tungstenite",
@@ -2491,12 +2385,6 @@ checksum = "c705f256449c60da65e11ff6626e0c16a0a0b96aaa348de61376b249bc340f41"
 dependencies = [
  "regex",
 ]
-
-[[package]]
-name = "paste"
-version = "1.0.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d01a5bd0424d00070b0098dd17ebca6f961a959dead1dbcbbbc1d1cd8d3deeba"
 
 [[package]]
 name = "percent-encoding"
@@ -3107,7 +2995,6 @@ dependencies = [
  "md5",
  "serde",
  "serde_json",
- "serde_repr",
 ]
 
 [[package]]
@@ -3344,28 +3231,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "serde_with"
-version = "1.14.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "678b5a069e50bf00ecd22d0cd8ddf7c236f68581b03db652061ed5eb13a312ff"
-dependencies = [
- "serde",
- "serde_with_macros",
-]
-
-[[package]]
-name = "serde_with_macros"
-version = "1.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e182d6ec6f05393cc0e5ed1bf81ad6db3a8feedf8ee515ecdd369809bcce8082"
-dependencies = [
- "darling",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "serial_test"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3480,12 +3345,6 @@ name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
-
-[[package]]
-name = "strsim"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
 name = "strum"
@@ -3799,16 +3658,6 @@ checksum = "24eb03ba0eab1fd845050058ce5e616558e8f8d8fca633e6b163fe25c797213a"
 dependencies = [
  "once_cell",
  "valuable",
-]
-
-[[package]]
-name = "tracing-futures"
-version = "0.2.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97d095ae15e245a057c8e8451bab9b3ee1e1f68e9ba2b4fbc18d0ac5237835f2"
-dependencies = [
- "pin-project",
- "tracing",
 ]
 
 [[package]]

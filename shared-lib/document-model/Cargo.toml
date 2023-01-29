@@ -8,5 +8,4 @@ edition = "2021"
 [dependencies]
 serde = { version = "1.0" }
 serde_json = { version = "1.0" }
-serde_repr = "0.1"
 revision-model = { path = "../revision-model"}

@@ -8,6 +8,5 @@ edition = "2021"
 [dependencies]
 serde = { version = "1.0" }
 serde_json = { version = "1.0" }
-serde_repr = "0.1"
 md5 = "0.7.0"
 bytes = "1.0"

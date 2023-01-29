@@ -6,13 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-grid-model = { path = "../grid-model" }
 revision-model = { path = "../revision-model" }
 ws-model = { path = "../ws-model" }
 document-model = { path = "../document-model" }
 folder-model = { path = "../folder-model" }
 flowy-sync = { path = "../flowy-sync" }
-protobuf = {version = "2.18.0"}
 bytes = "1.0"
 log = "0.4.14"
 tokio = { version = "1", features = ["full"] }
