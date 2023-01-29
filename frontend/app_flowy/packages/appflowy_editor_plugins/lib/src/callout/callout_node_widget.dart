@@ -76,13 +76,8 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
 
   void nodeChanged() {
     if (widget.node.children.isEmpty) {
-      unlink();
+      deleteNode();
     }
-  }
-
-  void unlink() {
-    final transaction = widget.editorState.transaction..deleteNode(widget.node);
-    widget.editorState.apply(transaction);
   }
 
   @override

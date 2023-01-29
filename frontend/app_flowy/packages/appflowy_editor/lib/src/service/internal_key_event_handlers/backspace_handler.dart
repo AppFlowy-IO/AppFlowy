@@ -120,7 +120,8 @@ KeyEventResult _backDeleteToPreviousTextNode(
 ) {
   if (textNode.next == null &&
       textNode.children.isEmpty &&
-      textNode.parent?.parent != null) {
+      textNode.parent?.parent != null &&
+      textNode.parent is TextNode) {
     transaction
       ..deleteNode(textNode)
       ..insertNode(textNode.parent!.path.next, textNode)
