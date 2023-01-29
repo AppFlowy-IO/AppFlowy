@@ -1,7 +1,6 @@
-use crate::ErrorCode;
 use anyhow::Result;
-
 use flowy_derive::ProtoBuf;
+use flowy_error_code::ErrorCode;
 use std::fmt::Debug;
 use thiserror::Error;
 

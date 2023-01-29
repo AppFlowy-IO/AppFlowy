@@ -9,7 +9,7 @@ members = [
   "flowy-sync",
   "flowy-server-sync",
   "user-model",
-  "error-code",
+  "flowy-error-code",
 ]
 
 [profile.dev]

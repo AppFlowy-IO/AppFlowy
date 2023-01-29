@@ -1,7 +1,5 @@
-mod code;
 mod errors;
 mod ext;
 pub mod protobuf;
-
-pub use code::*;
 pub use errors::*;
+pub use flowy_error_code::ErrorCode;

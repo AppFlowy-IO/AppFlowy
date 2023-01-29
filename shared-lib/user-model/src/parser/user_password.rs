@@ -1,5 +1,5 @@
-use error_code::ErrorCode;
 use fancy_regex::Regex;
+use flowy_error_code::ErrorCode;
 use lazy_static::lazy_static;
 use unicode_segmentation::UnicodeSegmentation;
 

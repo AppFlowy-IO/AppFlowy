@@ -1,4 +1,4 @@
-use error_code::ErrorCode;
+use flowy_error_code::ErrorCode;
 use unicode_segmentation::UnicodeSegmentation;
 
 #[derive(Debug)]

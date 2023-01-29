@@ -1,4 +1,5 @@
-use crate::{ErrorCode, FlowyError};
+use crate::FlowyError;
+use flowy_error_code::ErrorCode;
 use http_flowy::errors::{ErrorCode as ServerErrorCode, ServerError};
 
 impl std::convert::From<ServerError> for FlowyError {

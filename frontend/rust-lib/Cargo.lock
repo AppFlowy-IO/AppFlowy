@@ -882,15 +882,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "error-code"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_repr",
- "thiserror",
-]
-
-[[package]]
 name = "eyre"
 version = "0.6.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1131,17 +1122,26 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bytes",
- "error-code",
  "flowy-client-sync",
  "flowy-codegen",
  "flowy-database",
  "flowy-derive",
+ "flowy-error-code",
  "http-flowy",
  "lib-dispatch",
  "lib-ot",
  "protobuf",
  "r2d2",
  "serde_json",
+ "thiserror",
+]
+
+[[package]]
+name = "flowy-error-code"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_repr",
  "thiserror",
 ]
 
@@ -3970,8 +3970,8 @@ dependencies = [
 name = "user-model"
 version = "0.1.0"
 dependencies = [
- "error-code",
  "fancy-regex 0.11.0",
+ "flowy-error-code",
  "lazy_static",
  "serde",
  "tracing",

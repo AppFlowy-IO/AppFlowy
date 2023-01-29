@@ -15,7 +15,7 @@ thiserror = "1.0"
 flowy-client-sync = { path = "../flowy-client-sync", optional = true}
 lib-dispatch = { path = "../lib-dispatch", optional = true }
 lib-ot = { path = "../../../shared-lib/lib-ot", optional = true}
-error-code = { path = "../../../shared-lib/error-code"}
+flowy-error-code = { path = "../../../shared-lib/flowy-error-code" }
 serde_json = {version = "1.0", optional = true}
 http-flowy = { git = "https://github.com/AppFlowy-IO/AppFlowy-Server", optional = true}
 
