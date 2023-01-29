@@ -1,17 +1,18 @@
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/core/document/path.dart';
 import 'package:appflowy_editor/src/core/location/selection.dart';
+import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/extensions/object_extensions.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
 import 'package:flutter/material.dart';
 
 extension NodeExtensions on Node {
   RenderBox? get renderBox =>
-      key?.currentContext?.findRenderObject()?.unwrapOrNull<RenderBox>();
+      key.currentContext?.findRenderObject()?.unwrapOrNull<RenderBox>();
 
-  BuildContext? get context => key?.currentContext;
+  BuildContext? get context => key.currentContext;
   SelectableMixin? get selectable =>
-      key?.currentState?.unwrapOrNull<SelectableMixin>();
+      key.currentState?.unwrapOrNull<SelectableMixin>();
 
   bool inSelection(Selection selection) {
     if (selection.start.path <= selection.end.path) {
@@ -27,5 +28,12 @@ extension NodeExtensions on Node {
       return boxOffset & renderBox!.size;
     }
     return Rect.zero;
+  }
+
+  bool isSelected(EditorState editorState) {
+    final currentSelectedNodes =
+        editorState.service.selectionService.currentSelectedNodes;
+    return currentSelectedNodes.length == 1 &&
+        currentSelectedNodes.first == this;
   }
 }

@@ -3,6 +3,7 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/app/app_service.dart';
 import 'package:app_flowy/workspace/application/view/view_ext.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
+import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -62,7 +63,7 @@ class _BoardWidgetState extends State<_BoardWidget> with SelectableMixin {
   void initState() {
     super.initState();
 
-    board = fetchBoard();
+    board = _fetchBoard();
   }
 
   @override
@@ -83,14 +84,16 @@ class _BoardWidgetState extends State<_BoardWidget> with SelectableMixin {
     );
   }
 
-  Future<dartz.Either<ViewPB, FlowyError>> fetchBoard() async {
+  Future<dartz.Either<ViewPB, FlowyError>> _fetchBoard() async {
     return AppService().getView(appID, boardID);
   }
 
   Widget _buildBoard(BuildContext context, ViewPB viewPB) {
     return MouseRegion(
-      onEnter: (event) {
-        widget.editorState.service.scrollService?.disable();
+      onHover: (event) {
+        if (widget.node.isSelected(widget.editorState)) {
+          widget.editorState.service.scrollService?.disable();
+        }
       },
       onExit: (event) {
         widget.editorState.service.scrollService?.enable();
@@ -105,6 +108,7 @@ class _BoardWidgetState extends State<_BoardWidget> with SelectableMixin {
               child: FlowyTextButton(
                 viewPB.name,
                 onPressed: () {
+                  getIt<MenuSharedState>().latestOpenView = viewPB;
                   getIt<HomeStackManager>().setPlugin(viewPB.plugin());
                 },
               ),
