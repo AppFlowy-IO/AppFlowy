@@ -1,13 +1,13 @@
-use flowy_error_code::client::ErrorCode;
+use crate::errors::UserErrorCode;
 
 #[derive(Debug)]
 pub struct UserId(pub String);
 
 impl UserId {
-    pub fn parse(s: String) -> Result<UserId, ErrorCode> {
+    pub fn parse(s: String) -> Result<UserId, UserErrorCode> {
         let is_empty_or_whitespace = s.trim().is_empty();
         if is_empty_or_whitespace {
-            return Err(ErrorCode::UserIdInvalid);
+            return Err(UserErrorCode::UserIdInvalid);
         }
         Ok(Self(s))
     }

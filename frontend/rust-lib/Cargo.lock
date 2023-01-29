@@ -943,11 +943,13 @@ dependencies = [
 name = "flowy-client-ws"
 version = "0.1.0"
 dependencies = [
- "flowy-error-code",
  "futures-util",
  "lib-infra",
  "lib-ws",
  "parking_lot 0.12.1",
+ "serde",
+ "serde_repr",
+ "thiserror",
  "tokio",
  "tracing",
 ]
@@ -984,6 +986,7 @@ dependencies = [
  "flowy-client-ws",
  "flowy-database",
  "flowy-document",
+ "flowy-error",
  "flowy-folder",
  "flowy-grid",
  "flowy-net",
@@ -1091,27 +1094,21 @@ dependencies = [
  "anyhow",
  "bytes",
  "flowy-client-sync",
+ "flowy-client-ws",
  "flowy-codegen",
  "flowy-database",
  "flowy-derive",
- "flowy-error-code",
+ "http-error-code",
  "lib-dispatch",
  "lib-ot",
  "protobuf",
  "r2d2",
  "reqwest",
- "serde_json",
- "thiserror",
-]
-
-[[package]]
-name = "flowy-error-code"
-version = "0.1.0"
-dependencies = [
- "http-error-code",
  "serde",
+ "serde_json",
  "serde_repr",
  "thiserror",
+ "user-model",
 ]
 
 [[package]]
@@ -1219,7 +1216,6 @@ dependencies = [
  "flowy-derive",
  "flowy-document",
  "flowy-error",
- "flowy-error-code",
  "flowy-folder",
  "flowy-server-sync",
  "flowy-sync",
@@ -1722,7 +1718,7 @@ dependencies = [
 [[package]]
 name = "http-error-code"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Server?branch=refactor/appflowy_server#5e74d35e93efd6b92f501ee8f3081a23b9839108"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Server?branch=refactor/appflowy_server#1ccd296de8530760d92652dbd9f38f27178059b6"
 dependencies = [
  "serde",
  "serde_repr",
@@ -3863,9 +3859,10 @@ name = "user-model"
 version = "0.1.0"
 dependencies = [
  "fancy-regex 0.11.0",
- "flowy-error-code",
  "lazy_static",
  "serde",
+ "serde_repr",
+ "thiserror",
  "tracing",
  "unicode-segmentation",
  "validator",

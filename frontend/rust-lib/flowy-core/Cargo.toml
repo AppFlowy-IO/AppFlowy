@@ -17,6 +17,7 @@ flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws" }
 flowy-database = { path = "../flowy-database", optional = true }
 flowy-document = { path = "../flowy-document", default-features = false }
 flowy-revision = { path = "../flowy-revision" }
+flowy-error = { path = "../flowy-error", features = ["adaptor_ws"] }
 flowy-task = { path = "../flowy-task" }
 
 tracing = { version = "0.1", features = ["log"] }

@@ -11,7 +11,6 @@ members = [
   "flowy-sync",
   "flowy-server-sync",
   "user-model",
-  "flowy-error-code",
   "flowy-client-network-config",
   "flowy-client-ws",
 ]

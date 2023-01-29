@@ -1,14 +1,14 @@
-use flowy_error_code::client::ErrorCode;
+use crate::errors::UserErrorCode;
 use unicode_segmentation::UnicodeSegmentation;
 
 #[derive(Debug)]
 pub struct UserName(pub String);
 
 impl UserName {
-    pub fn parse(s: String) -> Result<UserName, ErrorCode> {
+    pub fn parse(s: String) -> Result<UserName, UserErrorCode> {
         let is_empty_or_whitespace = s.trim().is_empty();
         if is_empty_or_whitespace {
-            return Err(ErrorCode::UserNameIsEmpty);
+            return Err(UserErrorCode::UserNameIsEmpty);
         }
         // A grapheme is defined by the Unicode standard as a "user-perceived"
         // character: `å` is a single grapheme, but it is composed of two characters
@@ -19,14 +19,14 @@ impl UserName {
         // the recommended one.
         let is_too_long = s.graphemes(true).count() > 256;
         if is_too_long {
-            return Err(ErrorCode::UserNameTooLong);
+            return Err(UserErrorCode::UserNameTooLong);
         }
 
         let forbidden_characters = ['/', '(', ')', '"', '<', '>', '\\', '{', '}'];
         let contains_forbidden_characters = s.chars().any(|g| forbidden_characters.contains(&g));
 
         if contains_forbidden_characters {
-            return Err(ErrorCode::UserNameContainForbiddenCharacters);
+            return Err(UserErrorCode::UserNameContainForbiddenCharacters);
         }
 
         Ok(Self(s))

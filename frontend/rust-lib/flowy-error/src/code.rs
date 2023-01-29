@@ -1,7 +1,8 @@
+use flowy_derive::ProtoBuf_Enum;
 use serde_repr::*;
 use thiserror::Error;
 
-#[derive(Debug, Clone, PartialEq, Eq, Error, Serialize_repr, Deserialize_repr)]
+#[derive(Debug, Clone, PartialEq, Eq, Error, Serialize_repr, Deserialize_repr, ProtoBuf_Enum)]
 #[repr(u8)]
 pub enum ErrorCode {
     #[error("Internal error")]
@@ -93,6 +94,7 @@ pub enum ErrorCode {
 
     #[error("user id is empty or whitespace")]
     UserIdInvalid = 30,
+
     #[error("User not exist")]
     UserNotExist = 31,
 

@@ -1,10 +1,10 @@
-use flowy_error_code::client::ErrorCode;
+use crate::errors::UserErrorCode;
 
 #[derive(Debug)]
 pub struct UserIcon(pub String);
 
 impl UserIcon {
-    pub fn parse(s: String) -> Result<UserIcon, ErrorCode> {
+    pub fn parse(s: String) -> Result<UserIcon, UserErrorCode> {
         Ok(Self(s))
     }
 }

@@ -1,24 +1,32 @@
-use flowy_error_code::client::ErrorCode;
 use futures_util::future::BoxFuture;
 use lib_infra::future::FutureResult;
 use lib_ws::WSController;
 pub use lib_ws::{WSConnectState, WSMessageReceiver, WebSocketRawMessage};
 use parking_lot::RwLock;
+use serde_repr::*;
 use std::sync::Arc;
+use thiserror::Error;
 use tokio::sync::broadcast;
 
+#[derive(Debug, Clone, PartialEq, Eq, Error, Serialize_repr, Deserialize_repr)]
+#[repr(u8)]
+pub enum WSErrorCode {
+    #[error("Internal error")]
+    Internal = 0,
+}
+
 pub trait FlowyRawWebSocket: Send + Sync {
-    fn initialize(&self) -> FutureResult<(), ErrorCode>;
-    fn start_connect(&self, addr: String, user_id: String) -> FutureResult<(), ErrorCode>;
-    fn stop_connect(&self) -> FutureResult<(), ErrorCode>;
+    fn initialize(&self) -> FutureResult<(), WSErrorCode>;
+    fn start_connect(&self, addr: String, user_id: String) -> FutureResult<(), WSErrorCode>;
+    fn stop_connect(&self) -> FutureResult<(), WSErrorCode>;
     fn subscribe_connect_state(&self) -> BoxFuture<broadcast::Receiver<WSConnectState>>;
-    fn reconnect(&self, count: usize) -> FutureResult<(), ErrorCode>;
-    fn add_msg_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), ErrorCode>;
-    fn ws_msg_sender(&self) -> FutureResult<Option<Arc<dyn FlowyWebSocket>>, ErrorCode>;
+    fn reconnect(&self, count: usize) -> FutureResult<(), WSErrorCode>;
+    fn add_msg_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), WSErrorCode>;
+    fn ws_msg_sender(&self) -> FutureResult<Option<Arc<dyn FlowyWebSocket>>, WSErrorCode>;
 }
 
 pub trait FlowyWebSocket: Send + Sync {
-    fn send(&self, msg: WebSocketRawMessage) -> Result<(), ErrorCode>;
+    fn send(&self, msg: WebSocketRawMessage) -> Result<(), WSErrorCode>;
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -79,7 +87,7 @@ impl FlowyWebSocketConnect {
         }
     }
 
-    pub async fn start(&self, token: String, user_id: String) -> Result<(), ErrorCode> {
+    pub async fn start(&self, token: String, user_id: String) -> Result<(), WSErrorCode> {
         let addr = format!("{}/{}", self.addr, &token);
         self.inner.stop_connect().await?;
         self.inner.start_connect(addr, user_id).await?;
@@ -120,12 +128,12 @@ impl FlowyWebSocketConnect {
         self.status_notifier.subscribe()
     }
 
-    pub fn add_ws_message_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), ErrorCode> {
+    pub fn add_ws_message_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), WSErrorCode> {
         self.inner.add_msg_receiver(receiver)?;
         Ok(())
     }
 
-    pub async fn web_socket(&self) -> Result<Option<Arc<dyn FlowyWebSocket>>, ErrorCode> {
+    pub async fn web_socket(&self) -> Result<Option<Arc<dyn FlowyWebSocket>>, WSErrorCode> {
         self.inner.ws_msg_sender().await
     }
 }

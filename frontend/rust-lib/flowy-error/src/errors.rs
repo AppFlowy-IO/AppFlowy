@@ -1,6 +1,6 @@
+use crate::code::ErrorCode;
 use anyhow::Result;
 use flowy_derive::ProtoBuf;
-use flowy_error_code::client::ErrorCode;
 use std::fmt::Debug;
 use thiserror::Error;
 
@@ -94,14 +94,6 @@ where
     FlowyError::internal().context(e)
 }
 
-// Not needed because of thiserror derive macro
-/* impl fmt::Display for FlowyError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}: {}", &self.code, &self.msg)
-    }
-}
- */
-
 impl std::convert::From<std::io::Error> for FlowyError {
     fn from(error: std::io::Error) -> Self {
         FlowyError::internal().context(error)
@@ -113,5 +105,3 @@ impl std::convert::From<protobuf::ProtobufError> for FlowyError {
         FlowyError::internal().context(e)
     }
 }
-
-//impl std::error::Error for FlowyError {}

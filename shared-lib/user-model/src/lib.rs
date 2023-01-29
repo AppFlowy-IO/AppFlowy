@@ -1,4 +1,6 @@
+pub mod errors;
 pub mod parser;
+
 pub use parser::*;
 
 use serde::{Deserialize, Serialize};

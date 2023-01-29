@@ -1,5 +1,5 @@
 use bytes::Bytes;
-use flowy_error_code::server::ErrorCode;
+use flowy_error::ErrorCode;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 

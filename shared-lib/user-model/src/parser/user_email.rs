@@ -1,19 +1,19 @@
-use flowy_error_code::client::ErrorCode;
+use crate::errors::UserErrorCode;
 use validator::validate_email;
 
 #[derive(Debug)]
 pub struct UserEmail(pub String);
 
 impl UserEmail {
-    pub fn parse(s: String) -> Result<UserEmail, ErrorCode> {
+    pub fn parse(s: String) -> Result<UserEmail, UserErrorCode> {
         if s.trim().is_empty() {
-            return Err(ErrorCode::EmailIsEmpty);
+            return Err(UserErrorCode::EmailIsEmpty);
         }
 
         if validate_email(&s) {
             Ok(Self(s))
         } else {
-            Err(ErrorCode::EmailFormatInvalid)
+            Err(UserErrorCode::EmailFormatInvalid)
         }
     }
 }

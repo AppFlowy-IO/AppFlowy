@@ -238,11 +238,13 @@ dependencies = [
 name = "flowy-client-ws"
 version = "0.1.0"
 dependencies = [
- "flowy-error-code",
  "futures-util",
  "lib-infra",
  "lib-ws",
  "parking_lot 0.12.1",
+ "serde",
+ "serde_repr",
+ "thiserror",
  "tokio",
  "tracing",
 ]
@@ -1340,7 +1342,6 @@ dependencies = [
  "claim",
  "fake",
  "fancy-regex",
- "flowy-error-code",
  "futures",
  "lazy_static",
  "nanoid",
@@ -1349,7 +1350,9 @@ dependencies = [
  "rand",
  "rand_core",
  "serde",
+ "serde_repr",
  "serial_test",
+ "thiserror",
  "tracing",
  "unicode-segmentation",
  "validator",

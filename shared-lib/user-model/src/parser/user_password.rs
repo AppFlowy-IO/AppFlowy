@@ -1,5 +1,5 @@
+use crate::errors::UserErrorCode;
 use fancy_regex::Regex;
-use flowy_error_code::client::ErrorCode;
 use lazy_static::lazy_static;
 use unicode_segmentation::UnicodeSegmentation;
 
@@ -7,23 +7,23 @@ use unicode_segmentation::UnicodeSegmentation;
 pub struct UserPassword(pub String);
 
 impl UserPassword {
-    pub fn parse(s: String) -> Result<UserPassword, ErrorCode> {
+    pub fn parse(s: String) -> Result<UserPassword, UserErrorCode> {
         if s.trim().is_empty() {
-            return Err(ErrorCode::PasswordIsEmpty);
+            return Err(UserErrorCode::PasswordIsEmpty);
         }
 
         if s.graphemes(true).count() > 100 {
-            return Err(ErrorCode::PasswordTooLong);
+            return Err(UserErrorCode::PasswordTooLong);
         }
 
         let forbidden_characters = ['/', '(', ')', '"', '<', '>', '\\', '{', '}'];
         let contains_forbidden_characters = s.chars().any(|g| forbidden_characters.contains(&g));
         if contains_forbidden_characters {
-            return Err(ErrorCode::PasswordContainsForbidCharacters);
+            return Err(UserErrorCode::PasswordContainsForbidCharacters);
         }
 
         if !validate_password(&s) {
-            return Err(ErrorCode::PasswordFormatInvalid);
+            return Err(UserErrorCode::PasswordFormatInvalid);
         }
 
         Ok(Self(s))
