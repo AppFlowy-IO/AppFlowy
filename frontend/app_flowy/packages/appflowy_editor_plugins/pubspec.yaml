@@ -12,13 +12,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  appflowy_editor: 
+  appflowy_editor:
     path: ../appflowy_editor
-  flowy_infra_ui: 
+  flowy_infra_ui:
     path: ../flowy_infra_ui
   flutter_math_fork: ^0.6.3+1
   highlight: ^0.7.0
   shared_preferences: ^2.0.15
+  flutter_svg: ^1.1.1+1
 
 dev_dependencies:
   flutter_test:
@@ -32,8 +33,8 @@ dev_dependencies:
 flutter:
 
   # To add assets to your package, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - assets/images/
   #   - images/a_dot_ham.jpeg
   #
   # For details regarding assets in packages, see

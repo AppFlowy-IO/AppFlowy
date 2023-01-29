@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/src/infra/svg.dart';
 import 'package:flutter/material.dart';
 import 'package:highlight/highlight.dart' as highlight;
 import 'package:highlight/languages/all.dart';
@@ -141,10 +142,11 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
       top: -5,
       right: -5,
       child: IconButton(
-        icon: Icon(
-          Icons.delete_forever_outlined,
+        icon: Svg(
+          name: 'delete',
           color: widget.editorState.editorStyle.selectionMenuItemIconColor,
-          size: 16,
+          width: 16,
+          height: 16,
         ),
         onPressed: () {
           final transaction = widget.editorState.transaction
