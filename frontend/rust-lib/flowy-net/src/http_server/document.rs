@@ -1,7 +1,5 @@
-use crate::{
-    configuration::*,
-    request::{HttpRequestBuilder, ResponseMiddleware},
-};
+use crate::request::{HttpRequestBuilder, ResponseMiddleware};
+use flowy_client_network_config::{ClientServerConfiguration, HEADER_TOKEN};
 use flowy_document::DocumentCloudService;
 use flowy_error::FlowyError;
 use flowy_http_model::document::{CreateDocumentParams, DocumentId, DocumentPayload, ResetDocumentParams};

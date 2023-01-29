@@ -1,6 +1,7 @@
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 
+use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_document::DocumentManager;
 use flowy_folder::entities::{ViewDataFormatPB, ViewLayoutTypePB, ViewPB};
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
@@ -15,9 +16,7 @@ use flowy_grid::util::{make_default_board, make_default_calendar, make_default_g
 use flowy_http_model::revision::Revision;
 use flowy_http_model::ws_data::ClientRevisionWSData;
 use flowy_net::ClientServerConfiguration;
-use flowy_net::{
-    http_server::folder::FolderHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
-};
+use flowy_net::{http_server::folder::FolderHttpCloudService, local_server::LocalServer};
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;

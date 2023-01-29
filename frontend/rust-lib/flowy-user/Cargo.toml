@@ -31,6 +31,7 @@ tokio = { version = "1", features = ["rt"] }
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }
+nanoid = "0.4.0"
 
 [features]
 rev-sqlite = ["flowy-database"]

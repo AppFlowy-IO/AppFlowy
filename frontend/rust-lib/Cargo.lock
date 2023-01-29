@@ -960,6 +960,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-client-network-config"
+version = "0.1.0"
+dependencies = [
+ "config",
+ "serde",
+ "serde-aux",
+ "serde_json",
+]
+
+[[package]]
 name = "flowy-client-sync"
 version = "0.1.0"
 dependencies = [
@@ -985,6 +995,19 @@ dependencies = [
  "tokio",
  "tracing",
  "url",
+]
+
+[[package]]
+name = "flowy-client-ws"
+version = "0.1.0"
+dependencies = [
+ "flowy-error-code",
+ "futures-util",
+ "lib-infra",
+ "lib-ws",
+ "parking_lot 0.12.1",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -1016,6 +1039,7 @@ name = "flowy-core"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "flowy-client-ws",
  "flowy-database",
  "flowy-document",
  "flowy-folder",
@@ -1254,7 +1278,9 @@ dependencies = [
  "bytes",
  "config",
  "dashmap",
+ "flowy-client-network-config",
  "flowy-client-sync",
+ "flowy-client-ws",
  "flowy-codegen",
  "flowy-derive",
  "flowy-document",
@@ -1432,6 +1458,7 @@ dependencies = [
  "lib-dispatch",
  "lib-infra",
  "log",
+ "nanoid",
  "once_cell",
  "parking_lot 0.12.1",
  "protobuf",

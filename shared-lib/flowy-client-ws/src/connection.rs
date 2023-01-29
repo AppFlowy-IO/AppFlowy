@@ -39,10 +39,7 @@ impl std::default::Default for NetworkType {
 
 impl NetworkType {
     pub fn is_connect(&self) -> bool {
-        match self {
-            NetworkType::Unknown | NetworkType::Bluetooth => false,
-            _ => true,
-        }
+        !matches!(self, NetworkType::Unknown | NetworkType::Bluetooth)
     }
 }
 
@@ -82,7 +79,7 @@ impl FlowyWebSocketConnect {
         }
     }
 
-    pub async fn start(&self, token: String, user_id: String) -> Result<(), FlowyError> {
+    pub async fn start(&self, token: String, user_id: String) -> Result<(), ErrorCode> {
         let addr = format!("{}/{}", self.addr, &token);
         self.inner.stop_connect().await?;
         self.inner.start_connect(addr, user_id).await?;
@@ -93,12 +90,12 @@ impl FlowyWebSocketConnect {
         let _ = self.inner.stop_connect().await;
     }
 
-    pub fn update_network_type(&self, new_type: &NetworkType) {
+    pub fn update_network_type(&self, new_type: NetworkType) {
         tracing::debug!("Network new state: {:?}", new_type);
         let old_type = self.connect_type.read().clone();
         let _ = self.status_notifier.send(new_type.clone());
 
-        if &old_type != new_type {
+        if old_type != new_type {
             tracing::debug!("Connect type switch from {:?} to {:?}", old_type, new_type);
             match (old_type.is_connect(), new_type.is_connect()) {
                 (false, true) => {
@@ -111,7 +108,7 @@ impl FlowyWebSocketConnect {
                 _ => {}
             }
 
-            *self.connect_type.write() = new_type.clone();
+            *self.connect_type.write() = new_type;
         }
     }
 
@@ -123,12 +120,12 @@ impl FlowyWebSocketConnect {
         self.status_notifier.subscribe()
     }
 
-    pub fn add_ws_message_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError> {
+    pub fn add_ws_message_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), ErrorCode> {
         self.inner.add_msg_receiver(receiver)?;
         Ok(())
     }
 
-    pub async fn web_socket(&self) -> Result<Option<Arc<dyn FlowyWebSocket>>, FlowyError> {
+    pub async fn web_socket(&self) -> Result<Option<Arc<dyn FlowyWebSocket>>, ErrorCode> {
         self.inner.ws_msg_sender().await
     }
 }

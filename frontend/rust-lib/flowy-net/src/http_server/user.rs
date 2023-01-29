@@ -1,4 +1,5 @@
-use crate::{configuration::*, request::HttpRequestBuilder};
+use crate::request::HttpRequestBuilder;
+use flowy_client_network_config::{ClientServerConfiguration, HEADER_TOKEN};
 use flowy_error::FlowyError;
 use flowy_user::entities::UserProfilePB;
 use flowy_user::event_map::UserCloudService;

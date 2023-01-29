@@ -1,6 +1,6 @@
-use crate::ws::connection::{FlowyRawWebSocket, FlowyWebSocket};
 use dashmap::DashMap;
-use flowy_error::FlowyError;
+use flowy_client_ws::{FlowyRawWebSocket, FlowyWebSocket};
+use flowy_error::ErrorCode;
 use futures_util::future::BoxFuture;
 use lib_infra::future::FutureResult;
 use lib_ws::{WSChannel, WSConnectState, WSMessageReceiver, WebSocketRawMessage};
@@ -36,7 +36,7 @@ impl LocalWebSocket {
 }
 
 impl FlowyRawWebSocket for LocalWebSocket {
-    fn initialize(&self) -> FutureResult<(), FlowyError> {
+    fn initialize(&self) -> FutureResult<(), ErrorCode> {
         let mut server_ws_receiver = self.server_ws_receiver.write().take().expect("Only take once");
         let receivers = self.receivers.clone();
         tokio::spawn(async move {
@@ -50,12 +50,12 @@ impl FlowyRawWebSocket for LocalWebSocket {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn start_connect(&self, _addr: String, user_id: String) -> FutureResult<(), FlowyError> {
+    fn start_connect(&self, _addr: String, user_id: String) -> FutureResult<(), ErrorCode> {
         *self.user_id.write() = Some(user_id);
         FutureResult::new(async { Ok(()) })
     }
 
-    fn stop_connect(&self) -> FutureResult<(), FlowyError> {
+    fn stop_connect(&self) -> FutureResult<(), ErrorCode> {
         FutureResult::new(async { Ok(()) })
     }
 
@@ -64,17 +64,17 @@ impl FlowyRawWebSocket for LocalWebSocket {
         Box::pin(async move { subscribe })
     }
 
-    fn reconnect(&self, _count: usize) -> FutureResult<(), FlowyError> {
+    fn reconnect(&self, _count: usize) -> FutureResult<(), ErrorCode> {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn add_msg_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError> {
+    fn add_msg_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), ErrorCode> {
         tracing::trace!("Local web socket add ws receiver: {:?}", receiver.source());
         self.receivers.insert(receiver.source(), receiver);
         Ok(())
     }
 
-    fn ws_msg_sender(&self) -> FutureResult<Option<Arc<dyn FlowyWebSocket>>, FlowyError> {
+    fn ws_msg_sender(&self) -> FutureResult<Option<Arc<dyn FlowyWebSocket>>, ErrorCode> {
         let ws: Arc<dyn FlowyWebSocket> = Arc::new(LocalWebSocketAdaptor(self.server_ws_sender.clone()));
         FutureResult::new(async move { Ok(Some(ws)) })
     }
@@ -84,7 +84,7 @@ impl FlowyRawWebSocket for LocalWebSocket {
 struct LocalWebSocketAdaptor(broadcast::Sender<WebSocketRawMessage>);
 
 impl FlowyWebSocket for LocalWebSocketAdaptor {
-    fn send(&self, msg: WebSocketRawMessage) -> Result<(), FlowyError> {
+    fn send(&self, msg: WebSocketRawMessage) -> Result<(), ErrorCode> {
         let _ = self.0.send(msg);
         Ok(())
     }

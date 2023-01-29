@@ -1,5 +1,5 @@
-use crate::configuration::HEADER_TOKEN;
 use bytes::Bytes;
+use flowy_client_network_config::HEADER_TOKEN;
 use http_flowy::errors::ServerError;
 use http_flowy::response::FlowyResponse;
 use hyper::http;

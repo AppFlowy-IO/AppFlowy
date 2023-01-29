@@ -1,10 +1,10 @@
 use crate::FlowyError;
 use bytes::Bytes;
+use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_database::ConnectionPool;
 use flowy_grid::manager::{GridManager, GridUser};
 use flowy_grid::services::persistence::GridDatabase;
 use flowy_http_model::ws_data::ClientRevisionWSData;
-use flowy_net::ws::connection::FlowyWebSocketConnect;
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
 use flowy_task::TaskDispatcher;
 use flowy_user::services::UserSession;

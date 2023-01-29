@@ -1,4 +1,5 @@
 use bytes::Bytes;
+use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_database::ConnectionPool;
 use flowy_document::{
     errors::{internal_error, FlowyError},
@@ -6,9 +7,7 @@ use flowy_document::{
 };
 use flowy_http_model::ws_data::ClientRevisionWSData;
 use flowy_net::ClientServerConfiguration;
-use flowy_net::{
-    http_server::document::DocumentCloudServiceImpl, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
-};
+use flowy_net::{http_server::document::DocumentCloudServiceImpl, local_server::LocalServer};
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;

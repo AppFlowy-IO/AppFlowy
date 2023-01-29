@@ -12,3 +12,4 @@ flowy-error-code = { path = "../flowy-error-code" }
 futures-util = "0.3.15"
 tokio = {version = "1", features = ["sync"]}
 parking_lot = "0.12.1"
+tracing = { version = "0.1", features = ["log"] }

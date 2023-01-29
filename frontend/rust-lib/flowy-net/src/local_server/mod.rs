@@ -1,4 +1,4 @@
-use crate::configuration::ClientServerConfiguration;
+use flowy_client_network_config::ClientServerConfiguration;
 use tokio::sync::{broadcast, mpsc};
 
 mod persistence;

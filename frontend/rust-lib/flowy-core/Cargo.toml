@@ -13,6 +13,7 @@ flowy-net = { path = "../flowy-net" }
 flowy-folder = { path = "../flowy-folder", default-features = false }
 flowy-grid = { path = "../flowy-grid", default-features = false }
 grid-model = { path = "../../../shared-lib/grid-model" }
+flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws" }
 flowy-database = { path = "../flowy-database", optional = true }
 flowy-document = { path = "../flowy-document", default-features = false }
 flowy-revision = { path = "../flowy-revision" }

@@ -67,7 +67,7 @@ impl FlowyWebSocket for WSSender {
     }
 }
 
-fn internal_error<T>(e: T) -> ErrorCode
+fn internal_error<T>(_e: T) -> ErrorCode
 where
     T: std::fmt::Debug,
 {

@@ -1,7 +1,5 @@
-use crate::{
-    configuration::ClientServerConfiguration,
-    request::{HttpRequestBuilder, ResponseMiddleware},
-};
+use crate::request::{HttpRequestBuilder, ResponseMiddleware};
+use flowy_client_network_config::ClientServerConfiguration;
 use flowy_error::FlowyError;
 use flowy_folder::entities::{
     trash::RepeatedTrashIdPB,
