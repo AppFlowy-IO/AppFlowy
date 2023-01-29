@@ -3,6 +3,7 @@
 #![allow(unused_imports)]
 use crate::grid::block_test::util::GridRowTestBuilder;
 use bytes::Bytes;
+use flowy_client_sync::client_grid::GridBuilder;
 use flowy_error::FlowyResult;
 use flowy_grid::entities::*;
 use flowy_grid::services::cell::ToCellChangesetString;
@@ -12,7 +13,6 @@ use flowy_grid::services::grid_editor::{GridRevisionEditor, GridRevisionSerde};
 use flowy_grid::services::row::{CreateRowRevisionPayload, RowRevisionBuilder};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
-use flowy_sync::client_grid::GridBuilder;
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
 use grid_rev_model::*;

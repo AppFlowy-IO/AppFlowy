@@ -4,13 +4,12 @@ use crate::{
     services::persistence::{AppTableSql, TrashTableSql, ViewTableSql, WorkspaceTableSql},
 };
 use bytes::Bytes;
+use flowy_client_sync::client_folder::FolderPad;
+use flowy_client_sync::client_folder::{make_folder_rev_json_str, FolderOperationsBuilder};
 use flowy_database::kv::KV;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_http_model::revision::Revision;
 use flowy_revision::reset::{RevisionResettable, RevisionStructReset};
-use flowy_sync::client_folder::make_folder_rev_json_str;
-use flowy_sync::client_folder::FolderPad;
-use flowy_sync::server_folder::FolderOperationsBuilder;
 use folder_rev_model::{AppRevision, FolderRevision, ViewRevision, WorkspaceRevision};
 
 use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;

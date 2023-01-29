@@ -1,13 +1,13 @@
 use crate::old_editor::queue::{EditorCommand, EditorCommandSender, TextTransformOperations};
 use crate::TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS;
 use bytes::Bytes;
+use flowy_client_sync::errors::SyncResult;
+use flowy_client_sync::make_operations_from_revisions;
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_http_model::revision::{Revision, RevisionRange};
 use flowy_http_model::ws_data::{ClientRevisionWSData, NewDocumentUser};
 use flowy_revision::*;
-use flowy_sync::errors::CollaborateResult;
-use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ot::text_delta::DeltaTextOperations;
 use lib_ws::WSConnectState;
@@ -156,7 +156,7 @@ impl ConflictResolver<DeltaDocumentResolveOperations> for DocumentConflictResolv
         let tx = self.edit_cmd_tx.clone();
         let operations = operations.into_inner();
         Box::pin(async move {
-            let (ret, rx) = oneshot::channel::<CollaborateResult<TextTransformOperations>>();
+            let (ret, rx) = oneshot::channel::<SyncResult<TextTransformOperations>>();
             tx.send(EditorCommand::TransformOperations { operations, ret })
                 .await
                 .map_err(internal_error)?;

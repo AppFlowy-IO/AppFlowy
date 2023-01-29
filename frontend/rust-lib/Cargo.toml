@@ -16,7 +16,7 @@ members = [
   "flowy-revision-persistence",
   "flowy-grid",
   "flowy-task",
-  "flowy-sync",
+  "flowy-client-sync",
   "flowy-derive",
   "flowy-ast",
   "flowy-codegen",

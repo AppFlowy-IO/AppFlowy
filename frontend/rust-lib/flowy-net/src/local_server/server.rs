@@ -1,6 +1,7 @@
 use crate::local_server::persistence::LocalDocumentCloudPersistence;
 use async_stream::stream;
 use bytes::Bytes;
+use flowy_client_sync::errors::SyncError;
 use flowy_document::DocumentCloudService;
 use flowy_error::{internal_error, FlowyError};
 use flowy_folder::entities::{
@@ -12,12 +13,9 @@ use flowy_folder::entities::{
 use flowy_folder::event_map::FolderCouldServiceV1;
 use flowy_http_model::document::{CreateDocumentParams, DocumentId, DocumentPayload, ResetDocumentParams};
 use flowy_http_model::ws_data::{ClientRevisionWSData, ClientRevisionWSDataType};
-use flowy_sync::{
-    errors::CollaborateError,
-    server_document::ServerDocumentManager,
-    server_folder::ServerFolderManager,
-    synchronizer::{RevisionSyncResponse, RevisionUser},
-};
+use flowy_server_sync::server_document::ServerDocumentManager;
+use flowy_server_sync::server_folder::ServerFolderManager;
+use flowy_sync::{RevisionSyncResponse, RevisionUser};
 use flowy_user::entities::UserProfilePB;
 use flowy_user::event_map::UserCloudService;
 use folder_rev_model::{gen_app_id, gen_workspace_id, AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
@@ -142,7 +140,7 @@ impl LocalWebSocketRunner {
         &self,
         client_data: ClientRevisionWSData,
         user_id: String,
-    ) -> Result<(), CollaborateError> {
+    ) -> Result<(), SyncError> {
         tracing::trace!(
             "[LocalFolderServer] receive: {}:{}-{:?} ",
             client_data.object_id,
@@ -171,7 +169,7 @@ impl LocalWebSocketRunner {
         &self,
         client_data: ClientRevisionWSData,
         user_id: String,
-    ) -> Result<(), CollaborateError> {
+    ) -> Result<(), SyncError> {
         tracing::trace!(
             "[LocalDocumentServer] receive: {}:{}-{:?} ",
             client_data.object_id,

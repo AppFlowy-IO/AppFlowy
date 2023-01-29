@@ -1,4 +1,4 @@
-mod parser;
+pub mod parser;
 pub use parser::*;
 
 use serde::{Deserialize, Serialize};

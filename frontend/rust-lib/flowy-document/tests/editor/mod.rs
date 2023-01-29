@@ -5,7 +5,7 @@ mod serde_test;
 mod undo_redo_test;
 
 use derive_more::Display;
-use flowy_sync::client_document::{ClientDocument, InitialDocument};
+use flowy_client_sync::client_document::{ClientDocument, InitialDocument};
 use lib_ot::{
     core::*,
     text_delta::{BuildInTextAttribute, DeltaTextOperations},

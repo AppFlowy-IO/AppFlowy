@@ -12,7 +12,7 @@ bytes = "1.0"
 anyhow = "1.0"
 thiserror = "1.0"
 
-flowy-sync = { path = "../flowy-sync", optional = true}
+flowy-client-sync = { path = "../flowy-client-sync", optional = true}
 lib-dispatch = { path = "../lib-dispatch", optional = true }
 lib-ot = { path = "../../../shared-lib/lib-ot", optional = true}
 error-code = { path = "../../../shared-lib/error-code"}
@@ -23,7 +23,7 @@ flowy-database = { path = "../flowy-database", optional = true}
 r2d2 = { version = "0.8", optional = true}
 
 [features]
-collaboration = ["flowy-sync"]
+collaboration = ["flowy-client-sync"]
 ot = ["lib-ot"]
 dispatch = ["lib-dispatch"]
 serde = ["serde_json"]

@@ -9,12 +9,11 @@ use crate::{
     manager::FolderId,
     services::{folder_editor::FolderEditor, persistence::migration::FolderMigration},
 };
+use flowy_client_sync::client_folder::{FolderOperationsBuilder, FolderPad};
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_http_model::revision::Revision;
 use flowy_revision_persistence::{RevisionDiskCache, RevisionState, SyncRecord};
-use flowy_sync::client_folder::FolderPad;
-use flowy_sync::server_folder::FolderOperationsBuilder;
 use folder_rev_model::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use std::sync::Arc;
 use tokio::sync::RwLock;

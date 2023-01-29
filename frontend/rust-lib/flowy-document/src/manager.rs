@@ -8,6 +8,7 @@ use crate::services::rev_sqlite::{
 use crate::services::DocumentPersistence;
 use crate::{errors::FlowyError, DocumentCloudService};
 use bytes::Bytes;
+use flowy_client_sync::client_document::initial_delta_document_content;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_http_model::util::md5;
@@ -17,7 +18,6 @@ use flowy_revision::{
     PhantomSnapshotPersistence, RevisionCloudService, RevisionManager, RevisionPersistence,
     RevisionPersistenceConfiguration, RevisionWebSocket,
 };
-use flowy_sync::client_document::initial_delta_document_content;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};

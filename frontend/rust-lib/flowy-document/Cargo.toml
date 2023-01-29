@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-sync = { path = "../flowy-sync"}
+flowy-client-sync = { path = "../flowy-client-sync"}
 flowy-http-model = { path = "../../../shared-lib/flowy-http-model"}
 flowy-derive = { path = "../flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }

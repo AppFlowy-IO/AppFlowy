@@ -6,6 +6,8 @@ members = [
   "grid-rev-model",
   "folder-rev-model",
   "flowy-http-model",
+  "flowy-sync",
+  "flowy-server-sync",
   "user-model",
   "error-code",
 ]

@@ -1,0 +1,23 @@
+[package]
+name = "flowy-server-sync"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+folder-rev-model = { path = "../folder-rev-model" }
+grid-rev-model = { path = "../grid-rev-model" }
+flowy-http-model = { path = "../flowy-http-model" }
+flowy-sync = { path = "../flowy-sync" }
+protobuf = {version = "2.18.0"}
+bytes = "1.0"
+log = "0.4.14"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1.0", features = ["derive", "rc"] }
+lib-ot = { path = "../lib-ot" }
+lib-infra = { path = "../lib-infra" }
+dashmap = "5"
+futures = "0.3.15"
+async-stream = "0.3.2"
+tracing = { version = "0.1", features = ["log"] }

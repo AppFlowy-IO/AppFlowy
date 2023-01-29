@@ -969,6 +969,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-client-sync"
+version = "0.1.0"
+dependencies = [
+ "async-stream",
+ "bytes",
+ "chrono",
+ "dashmap",
+ "dissimilar",
+ "flowy-derive",
+ "flowy-http-model",
+ "flowy-sync",
+ "folder-rev-model",
+ "futures",
+ "grid-rev-model",
+ "lib-infra",
+ "lib-ot",
+ "parking_lot 0.12.1",
+ "protobuf",
+ "serde",
+ "serde_json",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
 name = "flowy-codegen"
 version = "0.1.0"
 dependencies = [
@@ -1065,6 +1093,7 @@ dependencies = [
  "derive_more",
  "diesel",
  "diesel_derives",
+ "flowy-client-sync",
  "flowy-codegen",
  "flowy-database",
  "flowy-derive",
@@ -1074,7 +1103,6 @@ dependencies = [
  "flowy-notification",
  "flowy-revision",
  "flowy-revision-persistence",
- "flowy-sync",
  "flowy-test",
  "futures",
  "futures-util",
@@ -1104,10 +1132,10 @@ dependencies = [
  "anyhow",
  "bytes",
  "error-code",
+ "flowy-client-sync",
  "flowy-codegen",
  "flowy-database",
  "flowy-derive",
- "flowy-sync",
  "http-flowy",
  "lib-dispatch",
  "lib-ot",
@@ -1124,6 +1152,7 @@ dependencies = [
  "bytes",
  "diesel",
  "diesel_derives",
+ "flowy-client-sync",
  "flowy-codegen",
  "flowy-database",
  "flowy-derive",
@@ -1134,7 +1163,6 @@ dependencies = [
  "flowy-notification",
  "flowy-revision",
  "flowy-revision-persistence",
- "flowy-sync",
  "flowy-test",
  "folder-rev-model",
  "futures",
@@ -1168,6 +1196,7 @@ dependencies = [
  "dashmap",
  "diesel",
  "fancy-regex 0.10.0",
+ "flowy-client-sync",
  "flowy-codegen",
  "flowy-database",
  "flowy-derive",
@@ -1177,7 +1206,6 @@ dependencies = [
  "flowy-notification",
  "flowy-revision",
  "flowy-revision-persistence",
- "flowy-sync",
  "flowy-task",
  "flowy-test",
  "futures",
@@ -1226,12 +1254,14 @@ dependencies = [
  "bytes",
  "config",
  "dashmap",
+ "flowy-client-sync",
  "flowy-codegen",
  "flowy-derive",
  "flowy-document",
  "flowy-error",
  "flowy-folder",
  "flowy-http-model",
+ "flowy-server-sync",
  "flowy-sync",
  "flowy-user",
  "folder-rev-model",
@@ -1305,31 +1335,39 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-sync"
+name = "flowy-server-sync"
 version = "0.1.0"
 dependencies = [
  "async-stream",
  "bytes",
- "chrono",
  "dashmap",
- "dissimilar",
- "flowy-derive",
  "flowy-http-model",
+ "flowy-sync",
  "folder-rev-model",
  "futures",
  "grid-rev-model",
  "lib-infra",
  "lib-ot",
  "log",
- "parking_lot 0.12.1",
  "protobuf",
  "serde",
- "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "flowy-sync"
+version = "0.1.0"
+dependencies = [
+ "flowy-http-model",
+ "lib-infra",
+ "lib-ot",
+ "parking_lot 0.12.1",
+ "serde",
  "strum",
  "strum_macros",
  "tokio",
  "tracing",
- "url",
 ]
 
 [[package]]
@@ -1354,11 +1392,11 @@ dependencies = [
  "claim 0.4.0",
  "claim 0.5.0",
  "fake",
+ "flowy-client-sync",
  "flowy-core",
  "flowy-document",
  "flowy-folder",
  "flowy-net",
- "flowy-sync",
  "flowy-user",
  "futures",
  "futures-util",

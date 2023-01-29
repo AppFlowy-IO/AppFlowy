@@ -23,8 +23,8 @@ use crate::services::clear_current_workspace;
 use crate::services::persistence::rev_sqlite::{
     SQLiteFolderRevisionPersistence, SQLiteFolderRevisionSnapshotPersistence,
 };
+use flowy_client_sync::client_folder::FolderPad;
 use flowy_http_model::ws_data::ServerRevisionWSData;
-use flowy_sync::client_folder::FolderPad;
 use std::convert::TryFrom;
 use std::{collections::HashMap, fmt::Formatter, sync::Arc};
 use tokio::sync::RwLock as TokioRwLock;
