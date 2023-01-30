@@ -2,7 +2,7 @@ use crate::entities::{InsertedRowPB, UpdatedRowPB};
 use flowy_derive::ProtoBuf;
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
-pub struct GridRowsVisibilityChangesetPB {
+pub struct ViewRowsVisibilityChangesetPB {
     #[pb(index = 1)]
     pub view_id: String,
 
@@ -14,7 +14,7 @@ pub struct GridRowsVisibilityChangesetPB {
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
-pub struct GridViewRowsChangesetPB {
+pub struct ViewRowsChangesetPB {
     #[pb(index = 1)]
     pub view_id: String,
 
@@ -28,7 +28,7 @@ pub struct GridViewRowsChangesetPB {
     pub updated_rows: Vec<UpdatedRowPB>,
 }
 
-impl GridViewRowsChangesetPB {
+impl ViewRowsChangesetPB {
     pub fn from_insert(view_id: String, inserted_rows: Vec<InsertedRowPB>) -> Self {
         Self {
             view_id,

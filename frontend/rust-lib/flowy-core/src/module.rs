@@ -1,5 +1,5 @@
 use flowy_client_ws::FlowyWebSocketConnect;
-use flowy_database::manager::GridManager;
+use flowy_database::manager::DatabaseManager;
 use flowy_document::DocumentManager;
 use flowy_folder::manager::FolderManager;
 use flowy_user::services::UserSession;
@@ -9,7 +9,7 @@ use std::sync::Arc;
 pub fn make_plugins(
     ws_conn: &Arc<FlowyWebSocketConnect>,
     folder_manager: &Arc<FolderManager>,
-    grid_manager: &Arc<GridManager>,
+    grid_manager: &Arc<DatabaseManager>,
     user_session: &Arc<UserSession>,
     document_manager: &Arc<DocumentManager>,
 ) -> Vec<AFPlugin> {

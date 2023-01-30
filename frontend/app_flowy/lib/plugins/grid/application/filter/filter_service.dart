@@ -19,7 +19,7 @@ class FilterFFIService {
   const FilterFFIService({required this.viewId});
 
   Future<Either<List<FilterPB>, FlowyError>> getAllFilters() {
-    final payload = GridIdPB()..value = viewId;
+    final payload = DatabaseIdPB()..value = viewId;
 
     return GridEventGetAllFilters(payload).send().then((result) {
       return result.fold(
@@ -178,10 +178,10 @@ class FilterFFIService {
       insertFilterPayload.filterId = filterId;
     }
 
-    final payload = GridSettingChangesetPB.create()
+    final payload = DatabaseSettingChangesetPB.create()
       ..gridId = viewId
       ..alterFilter = insertFilterPayload;
-    return GridEventUpdateGridSetting(payload).send().then((result) {
+    return GridEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
         (err) {
@@ -203,11 +203,11 @@ class FilterFFIService {
       ..viewId = viewId
       ..fieldType = fieldType;
 
-    final payload = GridSettingChangesetPB.create()
+    final payload = DatabaseSettingChangesetPB.create()
       ..gridId = viewId
       ..deleteFilter = deleteFilterPayload;
 
-    return GridEventUpdateGridSetting(payload).send().then((result) {
+    return GridEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
         (err) {

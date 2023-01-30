@@ -1,9 +1,9 @@
 use crate::entities::{
-    AlterFilterParams, AlterSortParams, CreateRowParams, DeleteFilterParams, DeleteGroupParams, DeleteSortParams,
-    GridSettingPB, InsertGroupParams, MoveGroupParams, RepeatedGroupPB, RowPB,
+    AlterFilterParams, AlterSortParams, CreateRowParams, DatabaseViewSettingPB, DeleteFilterParams, DeleteGroupParams,
+    DeleteSortParams, InsertGroupParams, MoveGroupParams, RepeatedGroupPB, RowPB,
 };
-use crate::manager::GridUser;
-use crate::services::block_manager::GridBlockEvent;
+use crate::manager::DatabaseUser;
+use crate::services::block_manager::DatabaseBlockEvent;
 use crate::services::cell::AtomicCellDataCache;
 use crate::services::filter::FilterType;
 use crate::services::persistence::rev_sqlite::{
@@ -11,7 +11,7 @@ use crate::services::persistence::rev_sqlite::{
 };
 use crate::services::view_editor::changed_notifier::*;
 use crate::services::view_editor::trait_impl::GridViewRevisionMergeable;
-use crate::services::view_editor::{GridViewEditorDelegate, GridViewRevisionEditor};
+use crate::services::view_editor::{DatabaseViewEditorDelegate, DatabaseViewRevisionEditor};
 use flowy_error::FlowyResult;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration};
 use flowy_sqlite::ConnectionPool;
@@ -22,21 +22,21 @@ use std::borrow::Cow;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
-pub struct GridViewManager {
+pub struct DatabaseViewManager {
     grid_id: String,
-    user: Arc<dyn GridUser>,
-    delegate: Arc<dyn GridViewEditorDelegate>,
-    view_editors: Arc<RwLock<RefCountHashMap<Arc<GridViewRevisionEditor>>>>,
+    user: Arc<dyn DatabaseUser>,
+    delegate: Arc<dyn DatabaseViewEditorDelegate>,
+    view_editors: Arc<RwLock<RefCountHashMap<Arc<DatabaseViewRevisionEditor>>>>,
     cell_data_cache: AtomicCellDataCache,
 }
 
-impl GridViewManager {
+impl DatabaseViewManager {
     pub async fn new(
         grid_id: String,
-        user: Arc<dyn GridUser>,
-        delegate: Arc<dyn GridViewEditorDelegate>,
+        user: Arc<dyn DatabaseUser>,
+        delegate: Arc<dyn DatabaseViewEditorDelegate>,
         cell_data_cache: AtomicCellDataCache,
-        block_event_rx: broadcast::Receiver<GridBlockEvent>,
+        block_event_rx: broadcast::Receiver<DatabaseBlockEvent>,
     ) -> FlowyResult<Self> {
         let view_editors = Arc::new(RwLock::new(RefCountHashMap::default()));
         listen_on_grid_block_event(block_event_rx, view_editors.clone());
@@ -113,7 +113,7 @@ impl GridViewManager {
         }
     }
 
-    pub async fn get_setting(&self) -> FlowyResult<GridSettingPB> {
+    pub async fn get_setting(&self) -> FlowyResult<DatabaseViewSettingPB> {
         let view_editor = self.get_default_view_editor().await?;
         Ok(view_editor.get_view_setting().await)
     }
@@ -231,7 +231,7 @@ impl GridViewManager {
         Ok(())
     }
 
-    pub async fn get_view_editor(&self, view_id: &str) -> FlowyResult<Arc<GridViewRevisionEditor>> {
+    pub async fn get_view_editor(&self, view_id: &str) -> FlowyResult<Arc<DatabaseViewRevisionEditor>> {
         debug_assert!(!view_id.is_empty());
         if let Some(editor) = self.view_editors.read().await.get(view_id) {
             return Ok(editor);
@@ -243,17 +243,17 @@ impl GridViewManager {
         Ok(editor)
     }
 
-    async fn get_default_view_editor(&self) -> FlowyResult<Arc<GridViewRevisionEditor>> {
+    async fn get_default_view_editor(&self) -> FlowyResult<Arc<DatabaseViewRevisionEditor>> {
         self.get_view_editor(&self.grid_id).await
     }
 
-    async fn make_view_editor(&self, view_id: &str) -> FlowyResult<GridViewRevisionEditor> {
+    async fn make_view_editor(&self, view_id: &str) -> FlowyResult<DatabaseViewRevisionEditor> {
         let rev_manager = make_grid_view_rev_manager(&self.user, view_id).await?;
         let user_id = self.user.user_id()?;
         let token = self.user.token()?;
         let view_id = view_id.to_owned();
 
-        GridViewRevisionEditor::new(
+        DatabaseViewRevisionEditor::new(
             &user_id,
             &token,
             view_id,
@@ -266,8 +266,8 @@ impl GridViewManager {
 }
 
 fn listen_on_grid_block_event(
-    mut block_event_rx: broadcast::Receiver<GridBlockEvent>,
-    view_editors: Arc<RwLock<RefCountHashMap<Arc<GridViewRevisionEditor>>>>,
+    mut block_event_rx: broadcast::Receiver<DatabaseBlockEvent>,
+    view_editors: Arc<RwLock<RefCountHashMap<Arc<DatabaseViewRevisionEditor>>>>,
 ) {
     tokio::spawn(async move {
         loop {
@@ -287,7 +287,7 @@ fn listen_on_grid_block_event(
     });
 }
 pub async fn make_grid_view_rev_manager(
-    user: &Arc<dyn GridUser>,
+    user: &Arc<dyn DatabaseUser>,
     view_id: &str,
 ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
     let user_id = user.user_id()?;

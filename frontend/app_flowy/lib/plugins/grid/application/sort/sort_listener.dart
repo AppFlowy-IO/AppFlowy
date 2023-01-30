@@ -12,7 +12,7 @@ typedef SortNotifiedValue = Either<SortChangesetNotificationPB, FlowyError>;
 class SortsListener {
   final String viewId;
   PublishNotifier<SortNotifiedValue>? _notifier = PublishNotifier();
-  GridNotificationListener? _listener;
+  DatabaseNotificationListener? _listener;
 
   SortsListener({required this.viewId});
 
@@ -20,18 +20,18 @@ class SortsListener {
     required void Function(SortNotifiedValue) onSortChanged,
   }) {
     _notifier?.addPublishListener(onSortChanged);
-    _listener = GridNotificationListener(
+    _listener = DatabaseNotificationListener(
       objectId: viewId,
       handler: _handler,
     );
   }
 
   void _handler(
-    GridNotification ty,
+    DatabaseNotification ty,
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case GridNotification.DidUpdateSort:
+      case DatabaseNotification.DidUpdateSort:
         result.fold(
           (payload) => _notifier?.value =
               left(SortChangesetNotificationPB.fromBuffer(payload)),

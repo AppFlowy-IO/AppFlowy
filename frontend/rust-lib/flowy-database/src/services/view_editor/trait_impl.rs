@@ -1,10 +1,10 @@
-use crate::entities::{GridLayout, GridLayoutPB, GridSettingPB};
+use crate::entities::{DatabaseViewLayout, DatabaseViewSettingPB, ViewLayoutConfigPB};
 use crate::services::field::RowSingleCellData;
 use crate::services::filter::{FilterController, FilterDelegate, FilterType};
 use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter};
 use crate::services::row::GridBlockRowRevision;
 use crate::services::sort::{SortDelegate, SortType};
-use crate::services::view_editor::{get_cells_for_field, GridViewEditorDelegate};
+use crate::services::view_editor::{get_cells_for_field, DatabaseViewEditorDelegate};
 use bytes::Bytes;
 use flowy_client_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_client_sync::make_operations_from_revisions;
@@ -63,7 +63,7 @@ impl RevisionMergeable for GridViewRevisionMergeable {
 
 pub(crate) struct GroupConfigurationReaderImpl {
     pub(crate) pad: Arc<RwLock<GridViewRevisionPad>>,
-    pub(crate) view_editor_delegate: Arc<dyn GridViewEditorDelegate>,
+    pub(crate) view_editor_delegate: Arc<dyn DatabaseViewEditorDelegate>,
 }
 
 impl GroupConfigurationReader for GroupConfigurationReaderImpl {
@@ -131,13 +131,13 @@ pub(crate) async fn apply_change(
     Ok(())
 }
 
-pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<FieldRevision>]) -> GridSettingPB {
-    let layout_type: GridLayout = view_pad.layout.clone().into();
+pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<FieldRevision>]) -> DatabaseViewSettingPB {
+    let layout_type: DatabaseViewLayout = view_pad.layout.clone().into();
     let filters = view_pad.get_all_filters(field_revs);
     let group_configurations = view_pad.get_groups_by_field_revs(field_revs);
     let sorts = view_pad.get_all_sorts(field_revs);
-    GridSettingPB {
-        layouts: GridLayoutPB::all(),
+    DatabaseViewSettingPB {
+        layouts: ViewLayoutConfigPB::all(),
         layout_type,
         filters: filters.into(),
         sorts: sorts.into(),
@@ -146,7 +146,7 @@ pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<Field
 }
 
 pub(crate) struct GridViewFilterDelegateImpl {
-    pub(crate) editor_delegate: Arc<dyn GridViewEditorDelegate>,
+    pub(crate) editor_delegate: Arc<dyn DatabaseViewEditorDelegate>,
     pub(crate) view_revision_pad: Arc<RwLock<GridViewRevisionPad>>,
 }
 
@@ -183,7 +183,7 @@ impl FilterDelegate for GridViewFilterDelegateImpl {
 }
 
 pub(crate) struct GridViewSortDelegateImpl {
-    pub(crate) editor_delegate: Arc<dyn GridViewEditorDelegate>,
+    pub(crate) editor_delegate: Arc<dyn DatabaseViewEditorDelegate>,
     pub(crate) view_revision_pad: Arc<RwLock<GridViewRevisionPad>>,
     pub(crate) filter_controller: Arc<RwLock<FilterController>>,
 }

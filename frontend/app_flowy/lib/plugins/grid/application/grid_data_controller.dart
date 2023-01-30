@@ -11,7 +11,7 @@ import 'row/row_cache.dart';
 
 typedef OnFieldsChanged = void Function(List<FieldInfo>);
 typedef OnFiltersChanged = void Function(List<FilterInfo>);
-typedef OnGridChanged = void Function(GridPB);
+typedef OnGridChanged = void Function(DatabasePB);
 
 typedef OnRowsChanged = void Function(
   List<RowInfo> rowInfos,
@@ -21,7 +21,7 @@ typedef ListenOnRowChangedCondition = bool Function();
 
 class GridController {
   final String gridId;
-  final GridFFIService _gridFFIService;
+  final DatabaseFFIService _gridFFIService;
   final GridFieldController fieldController;
   late GridViewCache _viewCache;
 
@@ -32,7 +32,7 @@ class GridController {
 
   GridController({required ViewPB view})
       : gridId = view.id,
-        _gridFFIService = GridFFIService(gridId: view.id),
+        _gridFFIService = DatabaseFFIService(databaseId: view.id),
         fieldController = GridFieldController(gridId: view.id) {
     _viewCache = GridViewCache(
       gridId: gridId,

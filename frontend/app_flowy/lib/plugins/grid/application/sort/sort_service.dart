@@ -13,7 +13,7 @@ class SortFFIService {
   SortFFIService({required this.viewId});
 
   Future<Either<List<SortPB>, FlowyError>> getAllSorts() {
-    final payload = GridIdPB()..value = viewId;
+    final payload = DatabaseIdPB()..value = viewId;
 
     return GridEventGetAllSorts(payload).send().then((result) {
       return result.fold(
@@ -27,7 +27,7 @@ class SortFFIService {
     required String fieldId,
     required String sortId,
     required FieldType fieldType,
-    required GridSortConditionPB condition,
+    required SortConditionPB condition,
   }) {
     var insertSortPayload = AlterSortPayloadPB.create()
       ..fieldId = fieldId
@@ -36,10 +36,10 @@ class SortFFIService {
       ..condition = condition
       ..sortId = sortId;
 
-    final payload = GridSettingChangesetPB.create()
+    final payload = DatabaseSettingChangesetPB.create()
       ..gridId = viewId
       ..alterSort = insertSortPayload;
-    return GridEventUpdateGridSetting(payload).send().then((result) {
+    return GridEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
         (err) {
@@ -53,7 +53,7 @@ class SortFFIService {
   Future<Either<Unit, FlowyError>> insertSort({
     required String fieldId,
     required FieldType fieldType,
-    required GridSortConditionPB condition,
+    required SortConditionPB condition,
   }) {
     var insertSortPayload = AlterSortPayloadPB.create()
       ..fieldId = fieldId
@@ -61,10 +61,10 @@ class SortFFIService {
       ..viewId = viewId
       ..condition = condition;
 
-    final payload = GridSettingChangesetPB.create()
+    final payload = DatabaseSettingChangesetPB.create()
       ..gridId = viewId
       ..alterSort = insertSortPayload;
-    return GridEventUpdateGridSetting(payload).send().then((result) {
+    return GridEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
         (err) {
@@ -86,11 +86,11 @@ class SortFFIService {
       ..viewId = viewId
       ..fieldType = fieldType;
 
-    final payload = GridSettingChangesetPB.create()
+    final payload = DatabaseSettingChangesetPB.create()
       ..gridId = viewId
       ..deleteSort = deleteFilterPayload;
 
-    return GridEventUpdateGridSetting(payload).send().then((result) {
+    return GridEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
         (err) {
@@ -102,7 +102,7 @@ class SortFFIService {
   }
 
   Future<Either<Unit, FlowyError>> deleteAllSorts() {
-    final payload = GridIdPB(value: viewId);
+    final payload = DatabaseIdPB(value: viewId);
     return GridEventDeleteAllSorts(payload).send().then((result) {
       return result.fold(
         (l) => left(l),

@@ -15,17 +15,18 @@ class RowListener {
   final String rowId;
   PublishNotifier<UpdateRowNotifiedValue>? updateRowNotifier =
       PublishNotifier();
-  GridNotificationListener? _listener;
+  DatabaseNotificationListener? _listener;
 
   RowListener({required this.rowId});
 
   void start() {
-    _listener = GridNotificationListener(objectId: rowId, handler: _handler);
+    _listener =
+        DatabaseNotificationListener(objectId: rowId, handler: _handler);
   }
 
-  void _handler(GridNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handler(DatabaseNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridNotification.DidUpdateRow:
+      case DatabaseNotification.DidUpdateRow:
         result.fold(
           (payload) =>
               updateRowNotifier?.value = left(RowPB.fromBuffer(payload)),

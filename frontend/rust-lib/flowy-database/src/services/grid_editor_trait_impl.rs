@@ -1,11 +1,11 @@
 use crate::entities::FieldType;
-use crate::services::block_manager::GridBlockManager;
+use crate::services::block_manager::DatabaseBlockManager;
 use crate::services::cell::AtomicCellDataCache;
 use crate::services::field::{TypeOptionCellDataHandler, TypeOptionCellExt};
 use crate::services::row::GridBlockRowRevision;
-use crate::services::view_editor::GridViewEditorDelegate;
+use crate::services::view_editor::DatabaseViewEditorDelegate;
 
-use flowy_client_sync::client_grid::GridRevisionPad;
+use flowy_client_sync::client_grid::DatabaseRevisionPad;
 use flowy_task::TaskDispatcher;
 use grid_model::{FieldRevision, RowRevision};
 use lib_infra::future::{to_fut, Fut};
@@ -13,13 +13,13 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub(crate) struct GridViewEditorDelegateImpl {
-    pub(crate) pad: Arc<RwLock<GridRevisionPad>>,
-    pub(crate) block_manager: Arc<GridBlockManager>,
+    pub(crate) pad: Arc<RwLock<DatabaseRevisionPad>>,
+    pub(crate) block_manager: Arc<DatabaseBlockManager>,
     pub(crate) task_scheduler: Arc<RwLock<TaskDispatcher>>,
     pub(crate) cell_data_cache: AtomicCellDataCache,
 }
 
-impl GridViewEditorDelegate for GridViewEditorDelegateImpl {
+impl DatabaseViewEditorDelegate for GridViewEditorDelegateImpl {
     fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>> {
         let pad = self.pad.clone();
         to_fut(async move {

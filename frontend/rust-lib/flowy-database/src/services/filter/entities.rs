@@ -1,4 +1,6 @@
-use crate::entities::{AlterFilterParams, DeleteFilterParams, FieldType, GridSettingChangesetParams, InsertedRowPB};
+use crate::entities::{
+    AlterFilterParams, DatabaseSettingChangesetParams, DeleteFilterParams, FieldType, InsertedRowPB,
+};
 use grid_model::{FieldRevision, FieldTypeRevision};
 use std::sync::Arc;
 
@@ -46,8 +48,8 @@ impl FilterChangeset {
     }
 }
 
-impl std::convert::From<&GridSettingChangesetParams> for FilterChangeset {
-    fn from(params: &GridSettingChangesetParams) -> Self {
+impl std::convert::From<&DatabaseSettingChangesetParams> for FilterChangeset {
+    fn from(params: &DatabaseSettingChangesetParams) -> Self {
         let insert_filter = params.insert_filter.as_ref().map(|insert_filter_params| FilterType {
             field_id: insert_filter_params.field_id.clone(),
             field_type: insert_filter_params.field_type.into(),

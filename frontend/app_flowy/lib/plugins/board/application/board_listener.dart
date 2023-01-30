@@ -16,7 +16,7 @@ class BoardListener {
   PublishNotifier<GroupUpdateValue>? _groupUpdateNotifier = PublishNotifier();
   PublishNotifier<GroupByNewFieldValue>? _groupByNewFieldNotifier =
       PublishNotifier();
-  GridNotificationListener? _listener;
+  DatabaseNotificationListener? _listener;
   BoardListener(this.viewId);
 
   void start({
@@ -25,25 +25,25 @@ class BoardListener {
   }) {
     _groupUpdateNotifier?.addPublishListener(onBoardChanged);
     _groupByNewFieldNotifier?.addPublishListener(onGroupByNewField);
-    _listener = GridNotificationListener(
+    _listener = DatabaseNotificationListener(
       objectId: viewId,
       handler: _handler,
     );
   }
 
   void _handler(
-    GridNotification ty,
+    DatabaseNotification ty,
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case GridNotification.DidUpdateGroupView:
+      case DatabaseNotification.DidUpdateGroupView:
         result.fold(
           (payload) => _groupUpdateNotifier?.value =
               left(GroupViewChangesetPB.fromBuffer(payload)),
           (error) => _groupUpdateNotifier?.value = right(error),
         );
         break;
-      case GridNotification.DidGroupByNewField:
+      case DatabaseNotification.DidGroupByNewField:
         result.fold(
           (payload) => _groupByNewFieldNotifier?.value =
               left(GroupViewChangesetPB.fromBuffer(payload).newGroups),

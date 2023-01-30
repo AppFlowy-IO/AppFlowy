@@ -13,21 +13,21 @@ class GridFieldsListener {
   final String gridId;
   PublishNotifier<UpdateFieldNotifiedValue>? updateFieldsNotifier =
       PublishNotifier();
-  GridNotificationListener? _listener;
+  DatabaseNotificationListener? _listener;
   GridFieldsListener({required this.gridId});
 
   void start(
       {required void Function(UpdateFieldNotifiedValue) onFieldsChanged}) {
     updateFieldsNotifier?.addPublishListener(onFieldsChanged);
-    _listener = GridNotificationListener(
+    _listener = DatabaseNotificationListener(
       objectId: gridId,
       handler: _handler,
     );
   }
 
-  void _handler(GridNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handler(DatabaseNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridNotification.DidUpdateGridFields:
+      case DatabaseNotification.DidUpdateGridFields:
         result.fold(
           (payload) => updateFieldsNotifier?.value =
               left(GridFieldChangesetPB.fromBuffer(payload)),

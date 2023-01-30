@@ -80,7 +80,7 @@ class GridFieldController {
   final SortsListener _sortsListener;
 
   // FFI services
-  final GridFFIService _gridFFIService;
+  final DatabaseFFIService _gridFFIService;
   final SettingFFIService _settingFFIService;
   final FilterFFIService _filterFFIService;
   final SortFFIService _sortFFIService;
@@ -152,7 +152,7 @@ class GridFieldController {
         _settingListener = SettingListener(gridId: gridId),
         _filterFFIService = FilterFFIService(viewId: gridId),
         _filtersListener = FiltersListener(viewId: gridId),
-        _gridFFIService = GridFFIService(gridId: gridId),
+        _gridFFIService = DatabaseFFIService(databaseId: gridId),
         _sortFFIService = SortFFIService(viewId: gridId),
         _sortsListener = SortsListener(viewId: gridId),
         _settingFFIService = SettingFFIService(viewId: gridId) {
@@ -391,7 +391,7 @@ class GridFieldController {
     });
   }
 
-  void _updateSetting(GridSettingPB setting) {
+  void _updateSetting(DatabaseViewSettingPB setting) {
     _groupConfigurationByFieldId.clear();
     for (final configuration in setting.groupConfigurations.items) {
       _groupConfigurationByFieldId[configuration.fieldId] = configuration;

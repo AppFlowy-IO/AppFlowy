@@ -4,7 +4,7 @@ import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pb.dar
 import 'setting_listener.dart';
 
 typedef OnError = void Function(FlowyError);
-typedef OnSettingUpdated = void Function(GridSettingPB);
+typedef OnSettingUpdated = void Function(DatabaseViewSettingPB);
 
 class SettingController {
   final String viewId;
@@ -12,8 +12,8 @@ class SettingController {
   final SettingListener _listener;
   OnSettingUpdated? _onSettingUpdated;
   OnError? _onError;
-  GridSettingPB? _setting;
-  GridSettingPB? get setting => _setting;
+  DatabaseViewSettingPB? _setting;
+  DatabaseViewSettingPB? get setting => _setting;
 
   SettingController({
     required this.viewId,
@@ -46,7 +46,7 @@ class SettingController {
     _onError = onError;
   }
 
-  void updateSetting(GridSettingPB newSetting) {
+  void updateSetting(DatabaseViewSettingPB newSetting) {
     _setting = newSetting;
     _onSettingUpdated?.call(newSetting);
   }

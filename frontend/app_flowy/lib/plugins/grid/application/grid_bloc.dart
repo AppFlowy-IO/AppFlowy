@@ -124,7 +124,7 @@ class GridEvent with _$GridEvent {
   ) = _DidReceiveFieldUpdate;
 
   const factory GridEvent.didReceiveGridUpdate(
-    GridPB grid,
+    DatabasePB grid,
   ) = _DidReceiveGridUpdate;
 }
 
@@ -132,7 +132,7 @@ class GridEvent with _$GridEvent {
 class GridState with _$GridState {
   const factory GridState({
     required String gridId,
-    required Option<GridPB> grid,
+    required Option<DatabasePB> grid,
     required GridFieldEquatable fields,
     required List<RowInfo> rowInfos,
     required int rowCount,

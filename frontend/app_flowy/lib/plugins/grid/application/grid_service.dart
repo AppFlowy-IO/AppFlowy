@@ -7,21 +7,21 @@ import 'package:appflowy_backend/protobuf/flowy-database/grid_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/group.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
 
-class GridFFIService {
-  final String gridId;
-  GridFFIService({
-    required this.gridId,
+class DatabaseFFIService {
+  final String databaseId;
+  DatabaseFFIService({
+    required this.databaseId,
   });
 
-  Future<Either<GridPB, FlowyError>> openGrid() async {
-    await FolderEventSetLatestView(ViewIdPB(value: gridId)).send();
+  Future<Either<DatabasePB, FlowyError>> openGrid() async {
+    await FolderEventSetLatestView(ViewIdPB(value: databaseId)).send();
 
-    final payload = GridIdPB(value: gridId);
-    return GridEventGetGrid(payload).send();
+    final payload = DatabaseIdPB(value: databaseId);
+    return GridEventGetDatabase(payload).send();
   }
 
   Future<Either<RowPB, FlowyError>> createRow({Option<String>? startRowId}) {
-    var payload = CreateTableRowPayloadPB.create()..gridId = gridId;
+    var payload = CreateTableRowPayloadPB.create()..gridId = databaseId;
     startRowId?.fold(() => null, (id) => payload.startRowId = id);
     return GridEventCreateTableRow(payload).send();
   }
@@ -31,7 +31,7 @@ class GridFFIService {
     String? startRowId,
   ) {
     CreateBoardCardPayloadPB payload = CreateBoardCardPayloadPB.create()
-      ..gridId = gridId
+      ..gridId = databaseId
       ..groupId = groupId;
 
     if (startRowId != null) {
@@ -43,7 +43,7 @@ class GridFFIService {
 
   Future<Either<List<FieldPB>, FlowyError>> getFields(
       {List<FieldIdPB>? fieldIds}) {
-    var payload = GetFieldPayloadPB.create()..gridId = gridId;
+    var payload = GetFieldPayloadPB.create()..gridId = databaseId;
 
     if (fieldIds != null) {
       payload.fieldIds = RepeatedFieldIdPB(items: fieldIds);
@@ -54,12 +54,12 @@ class GridFFIService {
   }
 
   Future<Either<Unit, FlowyError>> closeGrid() {
-    final request = ViewIdPB(value: gridId);
+    final request = ViewIdPB(value: databaseId);
     return FolderEventCloseView(request).send();
   }
 
   Future<Either<RepeatedGroupPB, FlowyError>> loadGroups() {
-    final payload = GridIdPB(value: gridId);
+    final payload = DatabaseIdPB(value: databaseId);
     return GridEventGetGroup(payload).send();
   }
 }

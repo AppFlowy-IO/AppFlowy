@@ -7,11 +7,11 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pb.dart';
 
-typedef UpdateSettingNotifiedValue = Either<GridSettingPB, FlowyError>;
+typedef UpdateSettingNotifiedValue = Either<DatabaseViewSettingPB, FlowyError>;
 
 class SettingListener {
   final String gridId;
-  GridNotificationListener? _listener;
+  DatabaseNotificationListener? _listener;
   PublishNotifier<UpdateSettingNotifiedValue>? _updateSettingNotifier =
       PublishNotifier();
 
@@ -21,15 +21,16 @@ class SettingListener {
     required void Function(UpdateSettingNotifiedValue) onSettingUpdated,
   }) {
     _updateSettingNotifier?.addPublishListener(onSettingUpdated);
-    _listener = GridNotificationListener(objectId: gridId, handler: _handler);
+    _listener =
+        DatabaseNotificationListener(objectId: gridId, handler: _handler);
   }
 
-  void _handler(GridNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handler(DatabaseNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridNotification.DidUpdateGridSetting:
+      case DatabaseNotification.DidUpdateGridSetting:
         result.fold(
           (payload) => _updateSettingNotifier?.value = left(
-            GridSettingPB.fromBuffer(payload),
+            DatabaseViewSettingPB.fromBuffer(payload),
           ),
           (error) => _updateSettingNotifier?.value = right(error),
         );

@@ -14,7 +14,7 @@ use std::borrow::Cow;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-pub struct GridBlockRevisionEditor {
+pub struct DatabaseBlockRevisionEditor {
     #[allow(dead_code)]
     user_id: String,
     pub block_id: String,
@@ -22,7 +22,7 @@ pub struct GridBlockRevisionEditor {
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
 }
 
-impl GridBlockRevisionEditor {
+impl DatabaseBlockRevisionEditor {
     pub async fn new(
         user_id: &str,
         token: &str,

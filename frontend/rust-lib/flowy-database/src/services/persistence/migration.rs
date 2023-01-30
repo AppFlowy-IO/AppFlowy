@@ -1,12 +1,12 @@
-use crate::manager::GridUser;
+use crate::manager::DatabaseUser;
 use crate::services::persistence::rev_sqlite::SQLiteGridRevisionPersistence;
 use crate::services::persistence::GridDatabase;
 use bytes::Bytes;
-use flowy_client_sync::client_grid::{make_grid_rev_json_str, GridOperationsBuilder, GridRevisionPad};
+use flowy_client_sync::client_grid::{make_database_rev_json_str, DatabaseOperationsBuilder, DatabaseRevisionPad};
 use flowy_error::FlowyResult;
 use flowy_revision::reset::{RevisionResettable, RevisionStructReset};
 use flowy_sqlite::kv::KV;
-use grid_model::GridRevision;
+use grid_model::DatabaseRevision;
 use lib_infra::util::md5;
 use revision_model::Revision;
 use std::sync::Arc;
@@ -14,12 +14,12 @@ use std::sync::Arc;
 const V1_MIGRATION: &str = "GRID_V1_MIGRATION";
 
 pub(crate) struct GridMigration {
-    user: Arc<dyn GridUser>,
+    user: Arc<dyn DatabaseUser>,
     database: Arc<dyn GridDatabase>,
 }
 
 impl GridMigration {
-    pub fn new(user: Arc<dyn GridUser>, database: Arc<dyn GridDatabase>) -> Self {
+    pub fn new(user: Arc<dyn DatabaseUser>, database: Arc<dyn GridDatabase>) -> Self {
         Self { user, database }
     }
 
@@ -61,15 +61,15 @@ impl RevisionResettable for GridRevisionResettable {
     }
 
     fn reset_data(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let pad = GridRevisionPad::from_revisions(revisions)?;
+        let pad = DatabaseRevisionPad::from_revisions(revisions)?;
         let json = pad.json_str()?;
-        let bytes = GridOperationsBuilder::new().insert(&json).build().json_bytes();
+        let bytes = DatabaseOperationsBuilder::new().insert(&json).build().json_bytes();
         Ok(bytes)
     }
 
     fn default_target_rev_str(&self) -> FlowyResult<String> {
-        let grid_rev = GridRevision::default();
-        let json = make_grid_rev_json_str(&grid_rev)?;
+        let grid_rev = DatabaseRevision::default();
+        let json = make_database_rev_json_str(&grid_rev)?;
         Ok(json)
     }
 

@@ -19,7 +19,7 @@ pub struct SortPB {
     pub field_type: FieldType,
 
     #[pb(index = 4)]
-    pub condition: GridSortConditionPB,
+    pub condition: SortConditionPB,
 }
 
 impl std::convert::From<&SortRevision> for SortPB {
@@ -55,21 +55,21 @@ impl std::convert::From<Vec<SortPB>> for RepeatedSortPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
-pub enum GridSortConditionPB {
+pub enum SortConditionPB {
     Ascending = 0,
     Descending = 1,
 }
-impl std::default::Default for GridSortConditionPB {
+impl std::default::Default for SortConditionPB {
     fn default() -> Self {
         Self::Ascending
     }
 }
 
-impl std::convert::From<SortCondition> for GridSortConditionPB {
+impl std::convert::From<SortCondition> for SortConditionPB {
     fn from(condition: SortCondition) -> Self {
         match condition {
-            SortCondition::Ascending => GridSortConditionPB::Ascending,
-            SortCondition::Descending => GridSortConditionPB::Descending,
+            SortCondition::Ascending => SortConditionPB::Ascending,
+            SortCondition::Descending => SortConditionPB::Descending,
         }
     }
 }
@@ -90,7 +90,7 @@ pub struct AlterSortPayloadPB {
     pub sort_id: Option<String>,
 
     #[pb(index = 5)]
-    pub condition: GridSortConditionPB,
+    pub condition: SortConditionPB,
 }
 
 impl TryInto<AlterSortParams> for AlterSortPayloadPB {

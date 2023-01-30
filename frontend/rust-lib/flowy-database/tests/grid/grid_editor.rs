@@ -8,7 +8,7 @@ use flowy_database::entities::*;
 use flowy_database::services::cell::ToCellChangesetString;
 use flowy_database::services::field::SelectOptionPB;
 use flowy_database::services::field::*;
-use flowy_database::services::grid_editor::{GridRevisionEditor, GridRevisionSerde};
+use flowy_database::services::grid_editor::{DatabaseRevisionEditor, GridRevisionSerde};
 use flowy_database::services::row::{CreateRowRevisionPayload, RowRevisionBuilder};
 use flowy_database::services::setting::GridSettingChangesetBuilder;
 use flowy_error::FlowyResult;
@@ -26,7 +26,7 @@ use tokio::time::sleep;
 pub struct GridEditorTest {
     pub sdk: FlowySDKTest,
     pub view_id: String,
-    pub editor: Arc<GridRevisionEditor>,
+    pub editor: Arc<DatabaseRevisionEditor>,
     pub field_revs: Vec<Arc<FieldRevision>>,
     pub block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
     pub row_revs: Vec<Arc<RowRevision>>,
@@ -36,35 +36,35 @@ pub struct GridEditorTest {
 
 impl GridEditorTest {
     pub async fn new_table() -> Self {
-        Self::new(GridLayout::Table).await
+        Self::new(DatabaseViewLayout::Grid).await
     }
 
     pub async fn new_board() -> Self {
-        Self::new(GridLayout::Board).await
+        Self::new(DatabaseViewLayout::Board).await
     }
 
-    pub async fn new(layout: GridLayout) -> Self {
+    pub async fn new(layout: DatabaseViewLayout) -> Self {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
         let test = match layout {
-            GridLayout::Table => {
+            DatabaseViewLayout::Grid => {
                 let build_context = make_test_grid();
                 let view_data: Bytes = build_context.into();
                 ViewTest::new_grid_view(&sdk, view_data.to_vec()).await
             }
-            GridLayout::Board => {
+            DatabaseViewLayout::Board => {
                 let build_context = make_test_board();
                 let view_data: Bytes = build_context.into();
                 ViewTest::new_board_view(&sdk, view_data.to_vec()).await
             }
-            GridLayout::Calendar => {
+            DatabaseViewLayout::Calendar => {
                 let build_context = make_test_calendar();
                 let view_data: Bytes = build_context.into();
                 ViewTest::new_calendar_view(&sdk, view_data.to_vec()).await
             }
         };
 
-        let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
+        let editor = sdk.grid_manager.open_database(&test.view.id).await.unwrap();
         let field_revs = editor.get_field_revs(None).await.unwrap();
         let block_meta_revs = editor.get_block_meta_revs().await.unwrap();
         let row_pbs = editor.get_all_row_revs(&test.view.id).await.unwrap();

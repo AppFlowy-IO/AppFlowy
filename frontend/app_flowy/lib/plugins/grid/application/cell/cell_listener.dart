@@ -13,18 +13,18 @@ class CellListener {
   final String fieldId;
   PublishNotifier<UpdateFieldNotifiedValue>? _updateCellNotifier =
       PublishNotifier();
-  GridNotificationListener? _listener;
+  DatabaseNotificationListener? _listener;
   CellListener({required this.rowId, required this.fieldId});
 
   void start({required void Function(UpdateFieldNotifiedValue) onCellChanged}) {
     _updateCellNotifier?.addPublishListener(onCellChanged);
-    _listener = GridNotificationListener(
+    _listener = DatabaseNotificationListener(
         objectId: "$rowId:$fieldId", handler: _handler);
   }
 
-  void _handler(GridNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handler(DatabaseNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridNotification.DidUpdateCell:
+      case DatabaseNotification.DidUpdateCell:
         result.fold(
           (payload) => _updateCellNotifier?.value = left(unit),
           (error) => _updateCellNotifier?.value = right(error),

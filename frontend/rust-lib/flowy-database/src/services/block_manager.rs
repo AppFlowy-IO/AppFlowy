@@ -1,7 +1,7 @@
 use crate::entities::{CellChangesetPB, InsertedRowPB, UpdatedRowPB};
-use crate::manager::GridUser;
-use crate::notification::{send_notification, GridNotification};
-use crate::services::block_editor::{GridBlockRevisionEditor, GridBlockRevisionMergeable};
+use crate::manager::DatabaseUser;
+use crate::notification::{send_notification, DatabaseNotification};
+use crate::services::block_editor::{DatabaseBlockRevisionEditor, GridBlockRevisionMergeable};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::rev_sqlite::{
     SQLiteGridBlockRevisionPersistence, SQLiteGridRevisionSnapshotPersistence,
@@ -18,7 +18,7 @@ use std::sync::Arc;
 use tokio::sync::broadcast;
 
 #[derive(Debug, Clone)]
-pub enum GridBlockEvent {
+pub enum DatabaseBlockEvent {
     InsertRow {
         block_id: String,
         row: InsertedRowPB,
@@ -39,19 +39,19 @@ pub enum GridBlockEvent {
 }
 
 type BlockId = String;
-pub(crate) struct GridBlockManager {
-    user: Arc<dyn GridUser>,
+pub(crate) struct DatabaseBlockManager {
+    user: Arc<dyn DatabaseUser>,
     persistence: Arc<BlockIndexCache>,
-    block_editors: DashMap<BlockId, Arc<GridBlockRevisionEditor>>,
-    event_notifier: broadcast::Sender<GridBlockEvent>,
+    block_editors: DashMap<BlockId, Arc<DatabaseBlockRevisionEditor>>,
+    event_notifier: broadcast::Sender<DatabaseBlockEvent>,
 }
 
-impl GridBlockManager {
+impl DatabaseBlockManager {
     pub(crate) async fn new(
-        user: &Arc<dyn GridUser>,
+        user: &Arc<dyn DatabaseUser>,
         block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
         persistence: Arc<BlockIndexCache>,
-        event_notifier: broadcast::Sender<GridBlockEvent>,
+        event_notifier: broadcast::Sender<DatabaseBlockEvent>,
     ) -> FlowyResult<Self> {
         let block_editors = make_block_editors(user, block_meta_revs).await?;
         let user = user.clone();
@@ -71,7 +71,7 @@ impl GridBlockManager {
     }
 
     // #[tracing::instrument(level = "trace", skip(self))]
-    pub(crate) async fn get_block_editor(&self, block_id: &str) -> FlowyResult<Arc<GridBlockRevisionEditor>> {
+    pub(crate) async fn get_block_editor(&self, block_id: &str) -> FlowyResult<Arc<DatabaseBlockRevisionEditor>> {
         debug_assert!(!block_id.is_empty());
         match self.block_editors.get(block_id) {
             None => {
@@ -84,7 +84,7 @@ impl GridBlockManager {
         }
     }
 
-    pub(crate) async fn get_editor_from_row_id(&self, row_id: &str) -> FlowyResult<Arc<GridBlockRevisionEditor>> {
+    pub(crate) async fn get_editor_from_row_id(&self, row_id: &str) -> FlowyResult<Arc<DatabaseBlockRevisionEditor>> {
         let block_id = self.persistence.get_block_id(row_id)?;
         self.get_block_editor(&block_id).await
     }
@@ -99,7 +99,9 @@ impl GridBlockManager {
         let (number_of_rows, index) = editor.create_row(row_rev, start_row_id).await?;
         row.index = index;
 
-        let _ = self.event_notifier.send(GridBlockEvent::InsertRow { block_id, row });
+        let _ = self
+            .event_notifier
+            .send(DatabaseBlockEvent::InsertRow { block_id, row });
         Ok(number_of_rows)
     }
 
@@ -114,7 +116,7 @@ impl GridBlockManager {
                 self.persistence.insert(&row_rev.block_id, &row_rev.id)?;
                 let mut row = InsertedRowPB::from(&row_rev);
                 row.index = editor.create_row(row_rev, None).await?.1;
-                let _ = self.event_notifier.send(GridBlockEvent::InsertRow {
+                let _ = self.event_notifier.send(DatabaseBlockEvent::InsertRow {
                     block_id: block_id.clone(),
                     row,
                 });
@@ -140,7 +142,7 @@ impl GridBlockManager {
                     field_ids: changed_field_ids,
                 };
 
-                let _ = self.event_notifier.send(GridBlockEvent::UpdateRow {
+                let _ = self.event_notifier.send(DatabaseBlockEvent::UpdateRow {
                     block_id: editor.block_id.clone(),
                     row,
                 });
@@ -158,7 +160,7 @@ impl GridBlockManager {
             None => Ok(None),
             Some((_, row_rev)) => {
                 let _ = editor.delete_rows(vec![Cow::Borrowed(&row_id)]).await?;
-                let _ = self.event_notifier.send(GridBlockEvent::DeleteRow {
+                let _ = self.event_notifier.send(DatabaseBlockEvent::DeleteRow {
                     block_id: editor.block_id.clone(),
                     row_id: row_rev.id.clone(),
                 });
@@ -199,7 +201,7 @@ impl GridBlockManager {
             is_new: false,
         };
 
-        let _ = self.event_notifier.send(GridBlockEvent::Move {
+        let _ = self.event_notifier.send(DatabaseBlockEvent::Move {
             block_id: editor.block_id.clone(),
             deleted_row_id: delete_row_id,
             inserted_row: insert_row,
@@ -262,16 +264,16 @@ impl GridBlockManager {
 
     async fn notify_did_update_cell(&self, changeset: CellChangesetPB) -> FlowyResult<()> {
         let id = format!("{}:{}", changeset.row_id, changeset.field_id);
-        send_notification(&id, GridNotification::DidUpdateCell).send();
+        send_notification(&id, DatabaseNotification::DidUpdateCell).send();
         Ok(())
     }
 }
 
 /// Initialize each block editor
 async fn make_block_editors(
-    user: &Arc<dyn GridUser>,
+    user: &Arc<dyn DatabaseUser>,
     block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
-) -> FlowyResult<DashMap<String, Arc<GridBlockRevisionEditor>>> {
+) -> FlowyResult<DashMap<String, Arc<DatabaseBlockRevisionEditor>>> {
     let editor_map = DashMap::new();
     for block_meta_rev in block_meta_revs {
         let editor = make_grid_block_editor(user, &block_meta_rev.block_id).await?;
@@ -281,16 +283,19 @@ async fn make_block_editors(
     Ok(editor_map)
 }
 
-async fn make_grid_block_editor(user: &Arc<dyn GridUser>, block_id: &str) -> FlowyResult<GridBlockRevisionEditor> {
+async fn make_grid_block_editor(
+    user: &Arc<dyn DatabaseUser>,
+    block_id: &str,
+) -> FlowyResult<DatabaseBlockRevisionEditor> {
     tracing::trace!("Open block:{} editor", block_id);
     let token = user.token()?;
     let user_id = user.user_id()?;
     let rev_manager = make_grid_block_rev_manager(user, block_id)?;
-    GridBlockRevisionEditor::new(&user_id, &token, block_id, rev_manager).await
+    DatabaseBlockRevisionEditor::new(&user_id, &token, block_id, rev_manager).await
 }
 
 pub fn make_grid_block_rev_manager(
-    user: &Arc<dyn GridUser>,
+    user: &Arc<dyn DatabaseUser>,
     block_id: &str,
 ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
     let user_id = user.user_id()?;

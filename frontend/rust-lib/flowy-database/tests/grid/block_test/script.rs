@@ -1,7 +1,7 @@
 use crate::grid::block_test::script::RowScript::{AssertCell, CreateRow};
 use crate::grid::block_test::util::GridRowTestBuilder;
 use crate::grid::grid_editor::GridEditorTest;
-use flowy_database::entities::{CellPathParams, CreateRowParams, FieldType, GridLayout, RowPB};
+use flowy_database::entities::{CellPathParams, CreateRowParams, DatabaseViewLayout, FieldType, RowPB};
 use flowy_database::services::field::*;
 use flowy_database::services::row::GridBlockRow;
 use grid_model::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision};
@@ -76,10 +76,10 @@ impl GridRowTest {
         match script {
             RowScript::CreateEmptyRow => {
                 let params = CreateRowParams {
-                    grid_id: self.editor.grid_id.clone(),
+                    grid_id: self.editor.database_id.clone(),
                     start_row_id: None,
                     group_id: None,
-                    layout: GridLayout::Table,
+                    layout: DatabaseViewLayout::Grid,
                 };
                 let row_order = self.editor.create_row(params).await.unwrap();
                 self.row_by_row_id.insert(row_order.row_id().to_owned(), row_order);

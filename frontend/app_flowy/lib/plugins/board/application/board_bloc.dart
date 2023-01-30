@@ -116,7 +116,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               emit(state.copyWith(editingRow: none()));
             });
           },
-          didReceiveGridUpdate: (GridPB grid) {
+          didReceiveGridUpdate: (DatabasePB grid) {
             emit(state.copyWith(grid: Some(grid)));
           },
           didReceiveError: (FlowyError error) {
@@ -313,7 +313,7 @@ class BoardEvent with _$BoardEvent {
   const factory BoardEvent.endEditingRow(String rowId) = _EndEditRow;
   const factory BoardEvent.didReceiveError(FlowyError error) = _DidReceiveError;
   const factory BoardEvent.didReceiveGridUpdate(
-    GridPB grid,
+    DatabasePB grid,
   ) = _DidReceiveGridUpdate;
   const factory BoardEvent.didReceiveGroups(List<GroupPB> groups) =
       _DidReceiveGroups;
@@ -323,7 +323,7 @@ class BoardEvent with _$BoardEvent {
 class BoardState with _$BoardState {
   const factory BoardState({
     required String gridId,
-    required Option<GridPB> grid,
+    required Option<DatabasePB> grid,
     required List<String> groupIds,
     required Option<BoardEditingRow> editingRow,
     required GridLoadingState loadingState,

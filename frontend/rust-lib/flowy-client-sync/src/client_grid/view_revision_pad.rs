@@ -2,7 +2,7 @@ use crate::errors::{internal_sync_error, SyncError, SyncResult};
 use crate::util::cal_diff;
 use flowy_sync::util::make_operations_from_revisions;
 use grid_model::{
-    FieldRevision, FieldTypeRevision, FilterRevision, GridViewRevision, GroupConfigurationRevision, LayoutRevision,
+    DatabaseViewRevision, FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, LayoutRevision,
     SortRevision,
 };
 use lib_infra::util::md5;
@@ -15,12 +15,12 @@ pub type GridViewOperationsBuilder = DeltaBuilder;
 
 #[derive(Debug, Clone)]
 pub struct GridViewRevisionPad {
-    view: Arc<GridViewRevision>,
+    view: Arc<DatabaseViewRevision>,
     operations: GridViewOperations,
 }
 
 impl std::ops::Deref for GridViewRevisionPad {
-    type Target = GridViewRevision;
+    type Target = DatabaseViewRevision;
 
     fn deref(&self) -> &Self::Target {
         &self.view
@@ -31,7 +31,7 @@ impl GridViewRevisionPad {
     // For the moment, the view_id is equal to grid_id. The grid_id represents the database id.
     // A database can be referenced by multiple views.
     pub fn new(grid_id: String, view_id: String, layout: LayoutRevision) -> Self {
-        let view = Arc::new(GridViewRevision::new(grid_id, view_id, layout));
+        let view = Arc::new(DatabaseViewRevision::new(grid_id, view_id, layout));
         let json = serde_json::to_string(&view).unwrap();
         let operations = GridViewOperationsBuilder::new().insert(&json).build();
         Self { view, operations }
@@ -42,11 +42,11 @@ impl GridViewRevisionPad {
             return Ok(GridViewRevisionPad::new(
                 view_id.to_owned(),
                 view_id.to_owned(),
-                LayoutRevision::Table,
+                LayoutRevision::Grid,
             ));
         }
         let s = operations.content()?;
-        let view: GridViewRevision = serde_json::from_str(&s).map_err(|e| {
+        let view: DatabaseViewRevision = serde_json::from_str(&s).map_err(|e| {
             let msg = format!("Deserialize operations to GridViewRevision failed: {}", e);
             tracing::error!("parsing json: {}", s);
             SyncError::internal().context(msg)
@@ -280,7 +280,7 @@ impl GridViewRevisionPad {
 
     fn modify<F>(&mut self, f: F) -> SyncResult<Option<GridViewRevisionChangeset>>
     where
-        F: FnOnce(&mut GridViewRevision) -> SyncResult<Option<()>>,
+        F: FnOnce(&mut DatabaseViewRevision) -> SyncResult<Option<()>>,
     {
         let cloned_view = self.view.clone();
         match f(Arc::make_mut(&mut self.view))? {
@@ -307,13 +307,13 @@ pub struct GridViewRevisionChangeset {
     pub md5: String,
 }
 
-pub fn make_grid_view_rev_json_str(grid_revision: &GridViewRevision) -> SyncResult<String> {
+pub fn make_grid_view_rev_json_str(grid_revision: &DatabaseViewRevision) -> SyncResult<String> {
     let json = serde_json::to_string(grid_revision)
         .map_err(|err| internal_sync_error(format!("Serialize grid view to json str failed. {:?}", err)))?;
     Ok(json)
 }
 
-pub fn make_grid_view_operations(grid_view: &GridViewRevision) -> GridViewOperations {
+pub fn make_grid_view_operations(grid_view: &DatabaseViewRevision) -> GridViewOperations {
     let json = serde_json::to_string(grid_view).unwrap();
     GridViewOperationsBuilder::new().insert(&json).build()
 }

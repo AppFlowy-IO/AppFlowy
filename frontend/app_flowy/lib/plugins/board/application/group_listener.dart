@@ -13,25 +13,25 @@ typedef UpdateGroupNotifiedValue = Either<GroupRowsNotificationPB, FlowyError>;
 class GroupListener {
   final GroupPB group;
   PublishNotifier<UpdateGroupNotifiedValue>? _groupNotifier = PublishNotifier();
-  GridNotificationListener? _listener;
+  DatabaseNotificationListener? _listener;
   GroupListener(this.group);
 
   void start({
     required void Function(UpdateGroupNotifiedValue) onGroupChanged,
   }) {
     _groupNotifier?.addPublishListener(onGroupChanged);
-    _listener = GridNotificationListener(
+    _listener = DatabaseNotificationListener(
       objectId: group.groupId,
       handler: _handler,
     );
   }
 
   void _handler(
-    GridNotification ty,
+    DatabaseNotification ty,
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case GridNotification.DidUpdateGroup:
+      case DatabaseNotification.DidUpdateGroup:
         result.fold(
           (payload) => _groupNotifier?.value =
               left(GroupRowsNotificationPB.fromBuffer(payload)),

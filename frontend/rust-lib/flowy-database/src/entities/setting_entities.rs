@@ -11,14 +11,14 @@ use std::convert::TryInto;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
-/// [GridSettingPB] defines the setting options for the grid. Such as the filter, group, and sort.
+/// [DatabaseViewSettingPB] defines the setting options for the grid. Such as the filter, group, and sort.
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct GridSettingPB {
+pub struct DatabaseViewSettingPB {
     #[pb(index = 1)]
-    pub layouts: Vec<GridLayoutPB>,
+    pub layouts: Vec<ViewLayoutConfigPB>,
 
     #[pb(index = 2)]
-    pub layout_type: GridLayout,
+    pub layout_type: DatabaseViewLayout,
 
     #[pb(index = 3)]
     pub filters: RepeatedFilterPB,
@@ -31,16 +31,16 @@ pub struct GridSettingPB {
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct GridLayoutPB {
+pub struct ViewLayoutConfigPB {
     #[pb(index = 1)]
-    ty: GridLayout,
+    ty: DatabaseViewLayout,
 }
 
-impl GridLayoutPB {
-    pub fn all() -> Vec<GridLayoutPB> {
+impl ViewLayoutConfigPB {
+    pub fn all() -> Vec<ViewLayoutConfigPB> {
         let mut layouts = vec![];
-        for layout_ty in GridLayout::iter() {
-            layouts.push(GridLayoutPB { ty: layout_ty })
+        for layout_ty in DatabaseViewLayout::iter() {
+            layouts.push(ViewLayoutConfigPB { ty: layout_ty })
         }
 
         layouts
@@ -49,45 +49,45 @@ impl GridLayoutPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumIter)]
 #[repr(u8)]
-pub enum GridLayout {
-    Table = 0,
+pub enum DatabaseViewLayout {
+    Grid = 0,
     Board = 1,
     Calendar = 2,
 }
 
-impl std::default::Default for GridLayout {
+impl std::default::Default for DatabaseViewLayout {
     fn default() -> Self {
-        GridLayout::Table
+        DatabaseViewLayout::Grid
     }
 }
 
-impl std::convert::From<LayoutRevision> for GridLayout {
+impl std::convert::From<LayoutRevision> for DatabaseViewLayout {
     fn from(rev: LayoutRevision) -> Self {
         match rev {
-            LayoutRevision::Table => GridLayout::Table,
-            LayoutRevision::Board => GridLayout::Board,
-            LayoutRevision::Calendar => GridLayout::Calendar,
+            LayoutRevision::Grid => DatabaseViewLayout::Grid,
+            LayoutRevision::Board => DatabaseViewLayout::Board,
+            LayoutRevision::Calendar => DatabaseViewLayout::Calendar,
         }
     }
 }
 
-impl std::convert::From<GridLayout> for LayoutRevision {
-    fn from(layout: GridLayout) -> Self {
+impl std::convert::From<DatabaseViewLayout> for LayoutRevision {
+    fn from(layout: DatabaseViewLayout) -> Self {
         match layout {
-            GridLayout::Table => LayoutRevision::Table,
-            GridLayout::Board => LayoutRevision::Board,
-            GridLayout::Calendar => LayoutRevision::Calendar,
+            DatabaseViewLayout::Grid => LayoutRevision::Grid,
+            DatabaseViewLayout::Board => LayoutRevision::Board,
+            DatabaseViewLayout::Calendar => LayoutRevision::Calendar,
         }
     }
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct GridSettingChangesetPB {
+pub struct DatabaseSettingChangesetPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub layout_type: GridLayout,
+    pub layout_type: DatabaseViewLayout,
 
     #[pb(index = 3, one_of)]
     pub alter_filter: Option<AlterFilterPayloadPB>,
@@ -108,10 +108,10 @@ pub struct GridSettingChangesetPB {
     pub delete_sort: Option<DeleteSortPayloadPB>,
 }
 
-impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPB {
+impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<GridSettingChangesetParams, Self::Error> {
+    fn try_into(self) -> Result<DatabaseSettingChangesetParams, Self::Error> {
         let view_id = NotEmptyStr::parse(self.grid_id)
             .map_err(|_| ErrorCode::ViewIdInvalid)?
             .0;
@@ -146,7 +146,7 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPB {
             Some(payload) => Some(payload.try_into()?),
         };
 
-        Ok(GridSettingChangesetParams {
+        Ok(DatabaseSettingChangesetParams {
             grid_id: view_id,
             layout_type: self.layout_type.into(),
             insert_filter,
@@ -159,7 +159,7 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPB {
     }
 }
 
-pub struct GridSettingChangesetParams {
+pub struct DatabaseSettingChangesetParams {
     pub grid_id: String,
     pub layout_type: LayoutRevision,
     pub insert_filter: Option<AlterFilterParams>,
@@ -170,7 +170,7 @@ pub struct GridSettingChangesetParams {
     pub delete_sort: Option<DeleteSortParams>,
 }
 
-impl GridSettingChangesetParams {
+impl DatabaseSettingChangesetParams {
     pub fn is_filter_changed(&self) -> bool {
         self.insert_filter.is_some() || self.delete_filter.is_some()
     }

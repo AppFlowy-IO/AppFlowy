@@ -13,25 +13,25 @@ class SingleFieldListener {
   final String fieldId;
   PublishNotifier<UpdateFieldNotifiedValue>? _updateFieldNotifier =
       PublishNotifier();
-  GridNotificationListener? _listener;
+  DatabaseNotificationListener? _listener;
 
   SingleFieldListener({required this.fieldId});
 
   void start(
       {required void Function(UpdateFieldNotifiedValue) onFieldChanged}) {
     _updateFieldNotifier?.addPublishListener(onFieldChanged);
-    _listener = GridNotificationListener(
+    _listener = DatabaseNotificationListener(
       objectId: fieldId,
       handler: _handler,
     );
   }
 
   void _handler(
-    GridNotification ty,
+    DatabaseNotification ty,
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case GridNotification.DidUpdateField:
+      case DatabaseNotification.DidUpdateField:
         result.fold(
           (payload) =>
               _updateFieldNotifier?.value = left(FieldPB.fromBuffer(payload)),

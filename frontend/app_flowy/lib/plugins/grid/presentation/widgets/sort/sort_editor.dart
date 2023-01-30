@@ -143,11 +143,11 @@ class _SortItem extends StatelessWidget {
     );
   }
 
-  String textFromCondition(GridSortConditionPB condition) {
+  String textFromCondition(SortConditionPB condition) {
     switch (condition) {
-      case GridSortConditionPB.Ascending:
+      case SortConditionPB.Ascending:
         return LocaleKeys.grid_sort_ascending.tr();
-      case GridSortConditionPB.Descending:
+      case SortConditionPB.Descending:
         return LocaleKeys.grid_sort_descending.tr();
     }
     return "";
@@ -281,11 +281,11 @@ class _OrderButtonState extends State<_OrderButton> {
     );
   }
 
-  String textFromCondition(GridSortConditionPB condition) {
+  String textFromCondition(SortConditionPB condition) {
     switch (condition) {
-      case GridSortConditionPB.Ascending:
+      case SortConditionPB.Ascending:
         return LocaleKeys.grid_sort_ascending.tr();
-      case GridSortConditionPB.Descending:
+      case SortConditionPB.Descending:
         return LocaleKeys.grid_sort_descending.tr();
     }
     return "";

@@ -1,5 +1,5 @@
 use crate::entities::*;
-use crate::manager::GridManager;
+use crate::manager::DatabaseManager;
 use crate::services::cell::{FromCellString, ToCellChangesetString, TypeCellData};
 use crate::services::field::{
     default_type_option_builder_from_type, select_type_option_from_field_rev, type_option_builder_from_json_str,
@@ -15,34 +15,34 @@ use std::sync::Arc;
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_grid_handler(
-    data: AFPluginData<GridIdPB>,
-    manager: AFPluginState<Arc<GridManager>>,
-) -> DataResult<GridPB, FlowyError> {
-    let grid_id: GridIdPB = data.into_inner();
-    let editor = manager.open_grid(grid_id.as_ref()).await?;
-    let grid = editor.get_grid(grid_id.as_ref()).await?;
-    data_result(grid)
+    data: AFPluginData<DatabaseIdPB>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
+) -> DataResult<DatabasePB, FlowyError> {
+    let database_id: DatabaseIdPB = data.into_inner();
+    let editor = manager.open_database(database_id.as_ref()).await?;
+    let database = editor.get_database(database_id.as_ref()).await?;
+    data_result(database)
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn get_grid_setting_handler(
-    data: AFPluginData<GridIdPB>,
-    manager: AFPluginState<Arc<GridManager>>,
-) -> DataResult<GridSettingPB, FlowyError> {
-    let grid_id: GridIdPB = data.into_inner();
-    let editor = manager.open_grid(grid_id).await?;
-    let grid_setting = editor.get_setting().await?;
-    data_result(grid_setting)
+pub(crate) async fn get_database_setting_handler(
+    data: AFPluginData<DatabaseIdPB>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
+) -> DataResult<DatabaseViewSettingPB, FlowyError> {
+    let database_id: DatabaseIdPB = data.into_inner();
+    let editor = manager.open_database(database_id).await?;
+    let database_setting = editor.get_setting().await?;
+    data_result(database_setting)
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn update_grid_setting_handler(
-    data: AFPluginData<GridSettingChangesetPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+pub(crate) async fn update_database_setting_handler(
+    data: AFPluginData<DatabaseSettingChangesetPB>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
-    let params: GridSettingChangesetParams = data.into_inner().try_into()?;
+    let params: DatabaseSettingChangesetParams = data.into_inner().try_into()?;
 
-    let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.grid_id).await?;
     if let Some(insert_params) = params.insert_group {
         editor.insert_group(insert_params).await?;
     }
@@ -70,11 +70,11 @@ pub(crate) async fn update_grid_setting_handler(
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_all_filters_handler(
-    data: AFPluginData<GridIdPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    data: AFPluginData<DatabaseIdPB>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RepeatedFilterPB, FlowyError> {
-    let grid_id: GridIdPB = data.into_inner();
-    let editor = manager.open_grid(grid_id).await?;
+    let database_id: DatabaseIdPB = data.into_inner();
+    let editor = manager.open_database(database_id).await?;
     let filters = RepeatedFilterPB {
         items: editor.get_all_filters().await?,
     };
@@ -83,35 +83,35 @@ pub(crate) async fn get_all_filters_handler(
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_all_sorts_handler(
-    data: AFPluginData<GridIdPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    data: AFPluginData<DatabaseIdPB>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RepeatedSortPB, FlowyError> {
-    let grid_id: GridIdPB = data.into_inner();
-    let editor = manager.open_grid(grid_id.as_ref()).await?;
+    let database_id: DatabaseIdPB = data.into_inner();
+    let editor = manager.open_database(database_id.as_ref()).await?;
     let sorts = RepeatedSortPB {
-        items: editor.get_all_sorts(grid_id.as_ref()).await?,
+        items: editor.get_all_sorts(database_id.as_ref()).await?,
     };
     data_result(sorts)
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn delete_all_sorts_handler(
-    data: AFPluginData<GridIdPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    data: AFPluginData<DatabaseIdPB>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
-    let grid_id: GridIdPB = data.into_inner();
-    let editor = manager.open_grid(grid_id.as_ref()).await?;
-    editor.delete_all_sorts(grid_id.as_ref()).await?;
+    let database_id: DatabaseIdPB = data.into_inner();
+    let editor = manager.open_database(database_id.as_ref()).await?;
+    editor.delete_all_sorts(database_id.as_ref()).await?;
     Ok(())
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_fields_handler(
     data: AFPluginData<GetFieldPayloadPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RepeatedFieldPB, FlowyError> {
     let params: GetFieldParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.grid_id).await?;
     let field_revs = editor.get_field_revs(params.field_ids).await?;
     let repeated_field: RepeatedFieldPB = field_revs.into_iter().map(FieldPB::from).collect::<Vec<_>>().into();
     data_result(repeated_field)
@@ -120,10 +120,10 @@ pub(crate) async fn get_fields_handler(
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn update_field_handler(
     data: AFPluginData<FieldChangesetPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let changeset: FieldChangesetParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&changeset.grid_id).await?;
+    let editor = manager.get_database_editor(&changeset.grid_id).await?;
     editor.update_field(changeset).await?;
     Ok(())
 }
@@ -131,10 +131,10 @@ pub(crate) async fn update_field_handler(
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn update_field_type_option_handler(
     data: AFPluginData<TypeOptionChangesetPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let params: TypeOptionChangesetParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.grid_id).await?;
     let old_field_rev = editor.get_field_rev(&params.field_id).await;
     editor
         .update_field_type_option(
@@ -150,10 +150,10 @@ pub(crate) async fn update_field_type_option_handler(
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn delete_field_handler(
     data: AFPluginData<DeleteFieldPayloadPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let params: FieldIdParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.grid_id).await?;
     editor.delete_field(&params.field_id).await?;
     Ok(())
 }
@@ -161,10 +161,10 @@ pub(crate) async fn delete_field_handler(
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn switch_to_field_handler(
     data: AFPluginData<EditFieldChangesetPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let params: EditFieldParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.grid_id).await?;
     let old_field_rev = editor.get_field_rev(&params.field_id).await;
     editor
         .switch_to_field_type(&params.field_id, &params.field_type)
@@ -188,10 +188,10 @@ pub(crate) async fn switch_to_field_handler(
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn duplicate_field_handler(
     data: AFPluginData<DuplicateFieldPayloadPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let params: FieldIdParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.grid_id).await?;
     editor.duplicate_field(&params.field_id).await?;
     Ok(())
 }
@@ -200,10 +200,10 @@ pub(crate) async fn duplicate_field_handler(
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_field_type_option_data_handler(
     data: AFPluginData<TypeOptionPathPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<TypeOptionPB, FlowyError> {
     let params: TypeOptionPathParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.grid_id).await?;
     match editor.get_field_rev(&params.field_id).await {
         None => Err(FlowyError::record_not_found()),
         Some(field_rev) => {
@@ -223,10 +223,10 @@ pub(crate) async fn get_field_type_option_data_handler(
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn create_field_type_option_data_handler(
     data: AFPluginData<CreateFieldPayloadPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<TypeOptionPB, FlowyError> {
     let params: CreateFieldParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.grid_id).await?;
     let field_rev = editor
         .create_new_field_rev_with_type_option(&params.field_type, params.type_option_data)
         .await?;
@@ -243,10 +243,10 @@ pub(crate) async fn create_field_type_option_data_handler(
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn move_field_handler(
     data: AFPluginData<MoveFieldPayloadPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let params: MoveFieldParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.grid_id).await?;
     editor.move_field(params).await?;
     Ok(())
 }
@@ -271,10 +271,10 @@ async fn get_type_option_data(field_rev: &FieldRevision, field_type: &FieldType)
 // #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_row_handler(
     data: AFPluginData<RowIdPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<OptionalRowPB, FlowyError> {
     let params: RowIdParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.grid_id).await?;
     let row = editor.get_row_rev(&params.row_id).await?.map(make_row_from_row_rev);
 
     data_result(OptionalRowPB { row })
@@ -283,10 +283,10 @@ pub(crate) async fn get_row_handler(
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn delete_row_handler(
     data: AFPluginData<RowIdPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let params: RowIdParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.grid_id).await?;
     editor.delete_row(&params.row_id).await?;
     Ok(())
 }
@@ -294,10 +294,10 @@ pub(crate) async fn delete_row_handler(
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn duplicate_row_handler(
     data: AFPluginData<RowIdPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let params: RowIdParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.grid_id).await?;
     editor.duplicate_row(&params.row_id).await?;
     Ok(())
 }
@@ -305,10 +305,10 @@ pub(crate) async fn duplicate_row_handler(
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn move_row_handler(
     data: AFPluginData<MoveRowPayloadPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let params: MoveRowParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.view_id).await?;
+    let editor = manager.get_database_editor(&params.view_id).await?;
     editor.move_row(params).await?;
     Ok(())
 }
@@ -316,10 +316,10 @@ pub(crate) async fn move_row_handler(
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn create_table_row_handler(
     data: AFPluginData<CreateTableRowPayloadPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RowPB, FlowyError> {
     let params: CreateRowParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(params.grid_id.as_ref()).await?;
+    let editor = manager.get_database_editor(params.grid_id.as_ref()).await?;
     let row = editor.create_row(params).await?;
     data_result(row)
 }
@@ -327,10 +327,10 @@ pub(crate) async fn create_table_row_handler(
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn get_cell_handler(
     data: AFPluginData<CellPathPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<CellPB, FlowyError> {
     let params: CellPathParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.view_id).await?;
+    let editor = manager.get_database_editor(&params.view_id).await?;
     match editor.get_cell(&params).await {
         None => data_result(CellPB::empty(&params.field_id, &params.row_id)),
         Some(cell) => data_result(cell),
@@ -340,10 +340,10 @@ pub(crate) async fn get_cell_handler(
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_cell_handler(
     data: AFPluginData<CellChangesetPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let changeset: CellChangesetPB = data.into_inner();
-    let editor = manager.get_grid_editor(&changeset.grid_id).await?;
+    let editor = manager.get_database_editor(&changeset.grid_id).await?;
     editor
         .update_cell_with_changeset(&changeset.row_id, &changeset.field_id, changeset.type_cell_data)
         .await?;
@@ -353,10 +353,10 @@ pub(crate) async fn update_cell_handler(
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn new_select_option_handler(
     data: AFPluginData<CreateSelectOptionPayloadPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<SelectOptionPB, FlowyError> {
     let params: CreateSelectOptionParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.grid_id).await?;
     match editor.get_field_rev(&params.field_id).await {
         None => Err(ErrorCode::InvalidData.into()),
         Some(field_rev) => {
@@ -370,10 +370,10 @@ pub(crate) async fn new_select_option_handler(
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_select_option_handler(
     data: AFPluginData<SelectOptionChangesetPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let changeset: SelectOptionChangeset = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&changeset.cell_path.view_id).await?;
+    let editor = manager.get_database_editor(&changeset.cell_path.view_id).await?;
     let field_id = changeset.cell_path.field_id.clone();
     editor
         .modify_field_rev(&field_id, |field_rev| {
@@ -430,10 +430,10 @@ pub(crate) async fn update_select_option_handler(
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_select_option_handler(
     data: AFPluginData<CellPathPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<SelectOptionCellDataPB, FlowyError> {
     let params: CellPathParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.view_id).await?;
+    let editor = manager.get_database_editor(&params.view_id).await?;
     match editor.get_field_rev(&params.field_id).await {
         None => {
             tracing::error!("Can't find the select option field with id: {}", params.field_id);
@@ -460,10 +460,10 @@ pub(crate) async fn get_select_option_handler(
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_select_option_cell_handler(
     data: AFPluginData<SelectOptionCellChangesetPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let params: SelectOptionCellChangesetParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.cell_identifier.view_id).await?;
+    let editor = manager.get_database_editor(&params.cell_identifier.view_id).await?;
     let changeset = SelectOptionCellChangeset {
         insert_option_ids: params.insert_option_ids,
         delete_option_ids: params.delete_option_ids,
@@ -482,7 +482,7 @@ pub(crate) async fn update_select_option_cell_handler(
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_date_cell_handler(
     data: AFPluginData<DateChangesetPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let data = data.into_inner();
     let cell_path: CellPathParams = data.cell_path.try_into()?;
@@ -492,7 +492,7 @@ pub(crate) async fn update_date_cell_handler(
         is_utc: data.is_utc,
     };
 
-    let editor = manager.get_grid_editor(&cell_path.view_id).await?;
+    let editor = manager.get_database_editor(&cell_path.view_id).await?;
     editor
         .update_cell(cell_path.row_id, cell_path.field_id, cell_changeset)
         .await?;
@@ -501,11 +501,11 @@ pub(crate) async fn update_date_cell_handler(
 
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn get_groups_handler(
-    data: AFPluginData<GridIdPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    data: AFPluginData<DatabaseIdPB>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RepeatedGroupPB, FlowyError> {
-    let params: GridIdPB = data.into_inner();
-    let editor = manager.get_grid_editor(&params.value).await?;
+    let params: DatabaseIdPB = data.into_inner();
+    let editor = manager.get_database_editor(&params.value).await?;
     let group = editor.load_groups().await?;
     data_result(group)
 }
@@ -513,10 +513,10 @@ pub(crate) async fn get_groups_handler(
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn create_board_card_handler(
     data: AFPluginData<CreateBoardCardPayloadPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RowPB, FlowyError> {
     let params: CreateRowParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(params.grid_id.as_ref()).await?;
+    let editor = manager.get_database_editor(params.grid_id.as_ref()).await?;
     let row = editor.create_row(params).await?;
     data_result(row)
 }
@@ -524,10 +524,10 @@ pub(crate) async fn create_board_card_handler(
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn move_group_handler(
     data: AFPluginData<MoveGroupPayloadPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> FlowyResult<()> {
     let params: MoveGroupParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(params.view_id.as_ref()).await?;
+    let editor = manager.get_database_editor(params.view_id.as_ref()).await?;
     editor.move_group(params).await?;
     Ok(())
 }
@@ -535,10 +535,10 @@ pub(crate) async fn move_group_handler(
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn move_group_row_handler(
     data: AFPluginData<MoveGroupRowPayloadPB>,
-    manager: AFPluginState<Arc<GridManager>>,
+    manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> FlowyResult<()> {
     let params: MoveGroupRowParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(params.view_id.as_ref()).await?;
+    let editor = manager.get_database_editor(params.view_id.as_ref()).await?;
     editor.move_group_row(params).await?;
     Ok(())
 }

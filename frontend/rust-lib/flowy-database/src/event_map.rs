@@ -1,17 +1,17 @@
 use crate::event_handler::*;
-use crate::manager::GridManager;
+use crate::manager::DatabaseManager;
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::*;
 use std::sync::Arc;
 use strum_macros::Display;
 
-pub fn init(grid_manager: Arc<GridManager>) -> AFPlugin {
-    let mut plugin = AFPlugin::new().name(env!("CARGO_PKG_NAME")).state(grid_manager);
+pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
+    let mut plugin = AFPlugin::new().name(env!("CARGO_PKG_NAME")).state(database_manager);
     plugin = plugin
-        .event(GridEvent::GetGrid, get_grid_handler)
+        .event(GridEvent::GetDatabase, get_grid_handler)
         // .event(GridEvent::GetGridBlocks, get_grid_blocks_handler)
-        .event(GridEvent::GetGridSetting, get_grid_setting_handler)
-        .event(GridEvent::UpdateGridSetting, update_grid_setting_handler)
+        .event(GridEvent::GetDatabaseSetting, get_database_setting_handler)
+        .event(GridEvent::UpdateDatabaseSetting, update_database_setting_handler)
         .event(GridEvent::GetAllFilters, get_all_filters_handler)
         .event(GridEvent::GetAllSorts, get_all_sorts_handler)
         .event(GridEvent::DeleteAllSorts, delete_all_sorts_handler)
@@ -55,32 +55,32 @@ pub fn init(grid_manager: Arc<GridManager>) -> AFPlugin {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum GridEvent {
-    /// [GetGrid] event is used to get the [GridPB]
+    /// [GetGrid] event is used to get the [DatabasePB]
     ///
-    /// The event handler accepts a [GridIdPB] and returns a [GridPB] if there are no errors.
-    #[event(input = "GridIdPB", output = "GridPB")]
-    GetGrid = 0,
+    /// The event handler accepts a [DatabaseIdPB] and returns a [DatabasePB] if there are no errors.
+    #[event(input = "DatabaseIdPB", output = "DatabasePB")]
+    GetDatabase = 0,
 
     /// [GetGridSetting] event is used to get the grid's settings.
     ///
-    /// The event handler accepts [GridIdPB] and return [GridSettingPB]
+    /// The event handler accepts [DatabaseIdPB] and return [DatabaseViewSettingPB]
     /// if there is no errors.
-    #[event(input = "GridIdPB", output = "GridSettingPB")]
-    GetGridSetting = 2,
+    #[event(input = "DatabaseIdPB", output = "DatabaseViewSettingPB")]
+    GetDatabaseSetting = 2,
 
     /// [UpdateGridSetting] event is used to update the grid's settings.
     ///
-    /// The event handler accepts [GridSettingChangesetPB] and return errors if failed to modify the grid's settings.
-    #[event(input = "GridSettingChangesetPB")]
-    UpdateGridSetting = 3,
+    /// The event handler accepts [DatabaseSettingChangesetPB] and return errors if failed to modify the grid's settings.
+    #[event(input = "DatabaseSettingChangesetPB")]
+    UpdateDatabaseSetting = 3,
 
-    #[event(input = "GridIdPB", output = "RepeatedFilterPB")]
+    #[event(input = "DatabaseIdPB", output = "RepeatedFilterPB")]
     GetAllFilters = 4,
 
-    #[event(input = "GridIdPB", output = "RepeatedSortPB")]
+    #[event(input = "DatabaseIdPB", output = "RepeatedSortPB")]
     GetAllSorts = 5,
 
-    #[event(input = "GridIdPB")]
+    #[event(input = "DatabaseIdPB")]
     DeleteAllSorts = 6,
 
     /// [GetFields] event is used to get the grid's settings.
@@ -162,8 +162,8 @@ pub enum GridEvent {
     /// [UpdateSelectOption] event is used to update a FieldTypeOptionData whose field_type is
     /// FieldType::SingleSelect or FieldType::MultiSelect.
     ///
-    /// This event may trigger the GridNotification::DidUpdateCell event.
-    /// For example, GridNotification::DidUpdateCell will be triggered if the [SelectOptionChangesetPB]
+    /// This event may trigger the DatabaseNotification::DidUpdateCell event.
+    /// For example, DatabaseNotification::DidUpdateCell will be triggered if the [SelectOptionChangesetPB]
     /// carries a change that updates the name of the option.
     #[event(input = "SelectOptionChangesetPB")]
     UpdateSelectOption = 32,
@@ -213,7 +213,7 @@ pub enum GridEvent {
     #[event(input = "DateChangesetPB")]
     UpdateDateCell = 80,
 
-    #[event(input = "GridIdPB", output = "RepeatedGroupPB")]
+    #[event(input = "DatabaseIdPB", output = "RepeatedGroupPB")]
     GetGroup = 100,
 
     #[event(input = "CreateBoardCardPayloadPB", output = "RowPB")]

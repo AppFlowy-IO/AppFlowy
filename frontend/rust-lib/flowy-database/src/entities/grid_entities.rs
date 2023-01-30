@@ -3,9 +3,9 @@ use crate::entities::{FieldIdPB, RowPB};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 
-/// [GridPB] describes how many fields and blocks the grid has
+/// [DatabasePB] describes how many fields and blocks the grid has
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct GridPB {
+pub struct DatabasePB {
     #[pb(index = 1)]
     pub id: String,
 
@@ -23,32 +23,14 @@ pub struct CreateGridPayloadPB {
 }
 
 #[derive(Clone, ProtoBuf, Default, Debug)]
-pub struct GridIdPB {
+pub struct DatabaseIdPB {
     #[pb(index = 1)]
     pub value: String,
 }
 
-impl AsRef<str> for GridIdPB {
+impl AsRef<str> for DatabaseIdPB {
     fn as_ref(&self) -> &str {
         &self.value
-    }
-}
-
-#[derive(Clone, ProtoBuf, Default, Debug)]
-pub struct GridBlockIdPB {
-    #[pb(index = 1)]
-    pub value: String,
-}
-
-impl AsRef<str> for GridBlockIdPB {
-    fn as_ref(&self) -> &str {
-        &self.value
-    }
-}
-
-impl std::convert::From<&str> for GridBlockIdPB {
-    fn from(s: &str) -> Self {
-        GridBlockIdPB { value: s.to_owned() }
     }
 }
 

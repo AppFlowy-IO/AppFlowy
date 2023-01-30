@@ -74,13 +74,13 @@ class GridRowCache {
     await _cellCache.dispose();
   }
 
-  void applyRowsChanged(GridViewRowsChangesetPB changeset) {
+  void applyRowsChanged(ViewRowsChangesetPB changeset) {
     _deleteRows(changeset.deletedRows);
     _insertRows(changeset.insertedRows);
     _updateRows(changeset.updatedRows);
   }
 
-  void applyRowsVisibility(GridRowsVisibilityChangesetPB changeset) {
+  void applyRowsVisibility(ViewRowsVisibilityChangesetPB changeset) {
     _hideRows(changeset.invisibleRows);
     _showRows(changeset.visibleRows);
   }

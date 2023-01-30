@@ -9,9 +9,9 @@ import 'package:appflowy_backend/protobuf/flowy-database/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/view_entities.pb.dart';
 
 typedef GridRowsVisibilityNotifierValue
-    = Either<GridRowsVisibilityChangesetPB, FlowyError>;
+    = Either<ViewRowsVisibilityChangesetPB, FlowyError>;
 
-typedef GridViewRowsNotifierValue = Either<GridViewRowsChangesetPB, FlowyError>;
+typedef GridViewRowsNotifierValue = Either<ViewRowsChangesetPB, FlowyError>;
 typedef GridViewReorderAllRowsNotifierValue = Either<List<String>, FlowyError>;
 typedef GridViewSingleRowNotifierValue = Either<ReorderSingleRowPB, FlowyError>;
 
@@ -25,7 +25,7 @@ class GridViewListener {
   PublishNotifier<GridRowsVisibilityNotifierValue>? _rowsVisibility =
       PublishNotifier();
 
-  GridNotificationListener? _listener;
+  DatabaseNotificationListener? _listener;
   GridViewListener({required this.viewId});
 
   void start({
@@ -40,7 +40,7 @@ class GridViewListener {
       _listener?.stop();
     }
 
-    _listener = GridNotificationListener(
+    _listener = DatabaseNotificationListener(
       objectId: viewId,
       handler: _handler,
     );
@@ -51,30 +51,30 @@ class GridViewListener {
     _reorderSingleRow?.addPublishListener(onReorderSingleRow);
   }
 
-  void _handler(GridNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handler(DatabaseNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridNotification.DidUpdateGridViewRowsVisibility:
+      case DatabaseNotification.DidUpdateGridViewRowsVisibility:
         result.fold(
           (payload) => _rowsVisibility?.value =
-              left(GridRowsVisibilityChangesetPB.fromBuffer(payload)),
+              left(ViewRowsVisibilityChangesetPB.fromBuffer(payload)),
           (error) => _rowsVisibility?.value = right(error),
         );
         break;
-      case GridNotification.DidUpdateGridViewRows:
+      case DatabaseNotification.DidUpdateGridViewRows:
         result.fold(
           (payload) => _rowsNotifier?.value =
-              left(GridViewRowsChangesetPB.fromBuffer(payload)),
+              left(ViewRowsChangesetPB.fromBuffer(payload)),
           (error) => _rowsNotifier?.value = right(error),
         );
         break;
-      case GridNotification.DidReorderRows:
+      case DatabaseNotification.DidReorderRows:
         result.fold(
           (payload) => _reorderAllRows?.value =
               left(ReorderAllRowsPB.fromBuffer(payload).rowOrders),
           (error) => _reorderAllRows?.value = right(error),
         );
         break;
-      case GridNotification.DidReorderSingleRow:
+      case DatabaseNotification.DidReorderSingleRow:
         result.fold(
           (payload) => _reorderSingleRow?.value =
               left(ReorderSingleRowPB.fromBuffer(payload)),

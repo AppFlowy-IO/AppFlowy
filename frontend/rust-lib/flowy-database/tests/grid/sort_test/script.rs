@@ -83,7 +83,7 @@ impl GridSortTest {
             }
             SortScript::AssertCellContentOrder { field_id, orders } => {
                 let mut cells = vec![];
-                let rows = self.editor.get_grid(&self.view_id).await.unwrap().rows;
+                let rows = self.editor.get_database(&self.view_id).await.unwrap().rows;
                 for row in rows {
                     let params = CellPathParams {
                         view_id: self.view_id.clone(),

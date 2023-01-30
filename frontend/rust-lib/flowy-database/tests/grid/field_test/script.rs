@@ -131,7 +131,7 @@ impl GridFieldTest {
                 let field_rev = self.editor.get_field_rev(&field_id).await.unwrap();
                 let field_type: FieldType = field_rev.ty.into();
 
-                let rows = self.editor.get_grid(&self.view_id()).await.unwrap().rows;
+                let rows = self.editor.get_database(&self.view_id()).await.unwrap().rows;
                 let row = rows.get(row_index).unwrap();
                 let row_rev = self.editor.get_row_rev(&row.id).await.unwrap().unwrap();
 

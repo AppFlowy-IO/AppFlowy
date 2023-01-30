@@ -1,12 +1,12 @@
-use crate::entities::{AlterFilterParams, DeleteFilterParams, GridLayout, GridSettingChangesetParams};
+use crate::entities::{AlterFilterParams, DatabaseSettingChangesetParams, DatabaseViewLayout, DeleteFilterParams};
 
 pub struct GridSettingChangesetBuilder {
-    params: GridSettingChangesetParams,
+    params: DatabaseSettingChangesetParams,
 }
 
 impl GridSettingChangesetBuilder {
-    pub fn new(grid_id: &str, layout_type: &GridLayout) -> Self {
-        let params = GridSettingChangesetParams {
+    pub fn new(grid_id: &str, layout_type: &DatabaseViewLayout) -> Self {
+        let params = DatabaseSettingChangesetParams {
             grid_id: grid_id.to_string(),
             layout_type: layout_type.clone().into(),
             insert_filter: None,
@@ -29,7 +29,7 @@ impl GridSettingChangesetBuilder {
         self
     }
 
-    pub fn build(self) -> GridSettingChangesetParams {
+    pub fn build(self) -> DatabaseSettingChangesetParams {
         self.params
     }
 }

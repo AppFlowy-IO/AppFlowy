@@ -29,7 +29,7 @@ pub mod prelude {
 }
 
 embed_migrations!("../flowy-sqlite/migrations/");
-pub const DB_NAME: &str = "flowy-sqlite.db";
+pub const DB_NAME: &str = "flowy-database.db";
 
 pub fn init(storage_path: &str) -> Result<Database, io::Error> {
     if !Path::new(storage_path).exists() {

@@ -1,6 +1,6 @@
 use crate::grid::grid_editor::GridEditorTest;
 
-use flowy_client_sync::client_grid::{GridOperations, GridRevisionPad};
+use flowy_client_sync::client_grid::{DatabaseOperations, DatabaseRevisionPad};
 use flowy_revision::{RevisionSnapshot, REVISION_WRITE_INTERVAL_IN_MILLIS};
 use grid_model::FieldRevision;
 use revision_model::Revision;
@@ -46,7 +46,7 @@ impl GridSnapshotTest {
         self.view_id.clone()
     }
 
-    pub async fn grid_pad(&self) -> GridRevisionPad {
+    pub async fn grid_pad(&self) -> DatabaseRevisionPad {
         self.editor.grid_pad().read().await.clone()
     }
 
@@ -73,8 +73,8 @@ impl GridSnapshotTest {
                 assert_eq!(snapshot, expected);
             }
             SnapshotScript::AssertSnapshotContent { snapshot, expected } => {
-                let operations = GridOperations::from_bytes(snapshot.data).unwrap();
-                let pad = GridRevisionPad::from_operations(operations).unwrap();
+                let operations = DatabaseOperations::from_bytes(snapshot.data).unwrap();
+                let pad = DatabaseRevisionPad::from_operations(operations).unwrap();
                 assert_eq!(pad.json_str().unwrap(), expected);
             }
             SnapshotScript::CreateField { field_rev } => {

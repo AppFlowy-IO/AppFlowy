@@ -1,5 +1,5 @@
-use crate::entities::{GridRowsVisibilityChangesetPB, ReorderAllRowsPB, ReorderSingleRowPB};
-use crate::notification::{send_notification, GridNotification};
+use crate::entities::{ReorderAllRowsPB, ReorderSingleRowPB, ViewRowsVisibilityChangesetPB};
+use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::filter::FilterResultNotification;
 use crate::services::sort::{ReorderAllRowsResult, ReorderSingleRowResult};
 use async_stream::stream;
@@ -31,21 +31,24 @@ impl GridViewChangedReceiverRunner {
             .for_each(|changed| async {
                 match changed {
                     GridViewChanged::FilterNotification(notification) => {
-                        let changeset = GridRowsVisibilityChangesetPB {
+                        let changeset = ViewRowsVisibilityChangesetPB {
                             view_id: notification.view_id,
                             visible_rows: notification.visible_rows,
                             invisible_rows: notification.invisible_rows,
                         };
 
-                        send_notification(&changeset.view_id, GridNotification::DidUpdateGridViewRowsVisibility)
-                            .payload(changeset)
-                            .send()
+                        send_notification(
+                            &changeset.view_id,
+                            DatabaseNotification::DidUpdateGridViewRowsVisibility,
+                        )
+                        .payload(changeset)
+                        .send()
                     }
                     GridViewChanged::ReorderAllRowsNotification(notification) => {
                         let row_orders = ReorderAllRowsPB {
                             row_orders: notification.row_orders,
                         };
-                        send_notification(&notification.view_id, GridNotification::DidReorderRows)
+                        send_notification(&notification.view_id, DatabaseNotification::DidReorderRows)
                             .payload(row_orders)
                             .send()
                     }
@@ -55,7 +58,7 @@ impl GridViewChangedReceiverRunner {
                             old_index: notification.old_index as i32,
                             new_index: notification.new_index as i32,
                         };
-                        send_notification(&notification.view_id, GridNotification::DidReorderSingleRow)
+                        send_notification(&notification.view_id, DatabaseNotification::DidReorderSingleRow)
                             .payload(reorder_row)
                             .send()
                     }

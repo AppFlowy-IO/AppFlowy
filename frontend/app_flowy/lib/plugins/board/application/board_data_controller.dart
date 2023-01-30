@@ -13,7 +13,7 @@ import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart';
 import 'board_listener.dart';
 
 typedef OnFieldsChanged = void Function(UnmodifiableListView<FieldInfo>);
-typedef OnGridChanged = void Function(GridPB);
+typedef OnGridChanged = void Function(DatabasePB);
 typedef DidLoadGroups = void Function(List<GroupPB>);
 typedef OnUpdatedGroup = void Function(List<GroupPB>);
 typedef OnDeletedGroup = void Function(List<String>);
@@ -28,7 +28,7 @@ typedef OnError = void Function(FlowyError);
 
 class BoardDataController {
   final String gridId;
-  final GridFFIService _gridFFIService;
+  final DatabaseFFIService _databaseFFIService;
   final GridFieldController fieldController;
   final BoardListener _listener;
   late GridViewCache _viewCache;
@@ -45,7 +45,7 @@ class BoardDataController {
   BoardDataController({required ViewPB view})
       : gridId = view.id,
         _listener = BoardListener(view.id),
-        _gridFFIService = GridFFIService(gridId: view.id),
+        _databaseFFIService = DatabaseFFIService(databaseId: view.id),
         fieldController = GridFieldController(gridId: view.id) {
     //
     _viewCache = GridViewCache(
@@ -107,7 +107,7 @@ class BoardDataController {
   }
 
   Future<Either<Unit, FlowyError>> openGrid() async {
-    final result = await _gridFFIService.openGrid();
+    final result = await _databaseFFIService.openGrid();
     return result.fold(
       (grid) async {
         _onGridChanged?.call(grid);
@@ -128,17 +128,17 @@ class BoardDataController {
 
   Future<Either<RowPB, FlowyError>> createBoardCard(String groupId,
       {String? startRowId}) {
-    return _gridFFIService.createBoardCard(groupId, startRowId);
+    return _databaseFFIService.createBoardCard(groupId, startRowId);
   }
 
   Future<void> dispose() async {
     await _viewCache.dispose();
-    await _gridFFIService.closeGrid();
+    await _databaseFFIService.closeGrid();
     await fieldController.dispose();
   }
 
   Future<void> _loadGroups() async {
-    final result = await _gridFFIService.loadGroups();
+    final result = await _databaseFFIService.loadGroups();
     return Future(
       () => result.fold(
         (groups) {

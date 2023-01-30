@@ -84,7 +84,7 @@ class CreateSortBloc extends Bloc<CreateSortEvent, CreateSortState> {
     final result = await _ffiService.insertSort(
         fieldId: field.id,
         fieldType: field.fieldType,
-        condition: GridSortConditionPB.Ascending);
+        condition: SortConditionPB.Ascending);
 
     return result;
   }

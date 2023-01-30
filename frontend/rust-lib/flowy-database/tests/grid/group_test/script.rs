@@ -1,6 +1,6 @@
 use crate::grid::grid_editor::GridEditorTest;
 use flowy_database::entities::{
-    CreateRowParams, FieldType, GridLayout, GroupPB, MoveGroupParams, MoveGroupRowParams, RowPB,
+    CreateRowParams, DatabaseViewLayout, FieldType, GroupPB, MoveGroupParams, MoveGroupRowParams, RowPB,
 };
 use flowy_database::services::cell::{delete_select_option_cell, insert_select_option_cell};
 use flowy_database::services::field::{
@@ -112,10 +112,10 @@ impl GridGroupTest {
                 //
                 let group = self.group_at_index(group_index).await;
                 let params = CreateRowParams {
-                    grid_id: self.editor.grid_id.clone(),
+                    grid_id: self.editor.database_id.clone(),
                     start_row_id: None,
                     group_id: Some(group.group_id.clone()),
-                    layout: GridLayout::Board,
+                    layout: DatabaseViewLayout::Board,
                 };
                 let _ = self.editor.create_row(params).await.unwrap();
             }
@@ -172,7 +172,7 @@ impl GridGroupTest {
                 let from_group = self.group_at_index(from_group_index).await;
                 let to_group = self.group_at_index(to_group_index).await;
                 let params = MoveGroupParams {
-                    view_id: self.editor.grid_id.clone(),
+                    view_id: self.editor.database_id.clone(),
                     from_group_id: from_group.group_id,
                     to_group_id: to_group.group_id,
                 };

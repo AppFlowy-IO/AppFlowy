@@ -1,6 +1,6 @@
 use crate::entities::*;
-use crate::notification::{send_notification, GridNotification};
-use crate::services::block_manager::GridBlockEvent;
+use crate::notification::{send_notification, DatabaseNotification};
+use crate::services::block_manager::DatabaseBlockEvent;
 use crate::services::cell::{AtomicCellDataCache, TypeCellData};
 use crate::services::field::{RowSingleCellData, TypeOptionCellDataHandler};
 use crate::services::filter::{FilterChangeset, FilterController, FilterTaskHandler, FilterType, UpdatedFilterType};
@@ -32,7 +32,7 @@ use std::future::Future;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
-pub trait GridViewEditorDelegate: Send + Sync + 'static {
+pub trait DatabaseViewEditorDelegate: Send + Sync + 'static {
     /// If the field_ids is None, then it will return all the field revisions
     fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>>;
 
@@ -67,25 +67,25 @@ pub trait GridViewEditorDelegate: Send + Sync + 'static {
     ) -> Option<Box<dyn TypeOptionCellDataHandler>>;
 }
 
-pub struct GridViewRevisionEditor {
+pub struct DatabaseViewRevisionEditor {
     user_id: String,
     view_id: String,
     pad: Arc<RwLock<GridViewRevisionPad>>,
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
-    delegate: Arc<dyn GridViewEditorDelegate>,
+    delegate: Arc<dyn DatabaseViewEditorDelegate>,
     group_controller: Arc<RwLock<Box<dyn GroupController>>>,
     filter_controller: Arc<RwLock<FilterController>>,
     sort_controller: Arc<RwLock<SortController>>,
     pub notifier: GridViewChangedNotifier,
 }
 
-impl GridViewRevisionEditor {
+impl DatabaseViewRevisionEditor {
     #[tracing::instrument(level = "trace", skip_all, err)]
     pub async fn new(
         user_id: &str,
         token: &str,
         view_id: String,
-        delegate: Arc<dyn GridViewEditorDelegate>,
+        delegate: Arc<dyn DatabaseViewEditorDelegate>,
         cell_data_cache: AtomicCellDataCache,
         mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
     ) -> FlowyResult<Self> {
@@ -100,7 +100,7 @@ impl GridViewRevisionEditor {
             Err(err) => {
                 // It shouldn't be here, because the snapshot should come to recue.
                 tracing::error!("Deserialize grid view revisions failed: {}", err);
-                let view = GridViewRevisionPad::new(view_id.to_owned(), view_id.to_owned(), LayoutRevision::Table);
+                let view = GridViewRevisionPad::new(view_id.to_owned(), view_id.to_owned(), LayoutRevision::Grid);
                 let bytes = make_grid_view_operations(&view).json_bytes();
                 let reset_revision = Revision::initial_revision(&view_id, bytes);
                 let _ = rev_manager.reset_object(vec![reset_revision]).await;
@@ -160,31 +160,31 @@ impl GridViewRevisionEditor {
         self.sort_controller.read().await.close().await;
     }
 
-    pub async fn handle_block_event(&self, event: Cow<'_, GridBlockEvent>) {
+    pub async fn handle_block_event(&self, event: Cow<'_, DatabaseBlockEvent>) {
         let changeset = match event.into_owned() {
-            GridBlockEvent::InsertRow { block_id: _, row } => {
+            DatabaseBlockEvent::InsertRow { block_id: _, row } => {
                 //
-                GridViewRowsChangesetPB::from_insert(self.view_id.clone(), vec![row])
+                ViewRowsChangesetPB::from_insert(self.view_id.clone(), vec![row])
             }
-            GridBlockEvent::UpdateRow { block_id: _, row } => {
+            DatabaseBlockEvent::UpdateRow { block_id: _, row } => {
                 //
-                GridViewRowsChangesetPB::from_update(self.view_id.clone(), vec![row])
+                ViewRowsChangesetPB::from_update(self.view_id.clone(), vec![row])
             }
-            GridBlockEvent::DeleteRow { block_id: _, row_id } => {
+            DatabaseBlockEvent::DeleteRow { block_id: _, row_id } => {
                 //
-                GridViewRowsChangesetPB::from_delete(self.view_id.clone(), vec![row_id])
+                ViewRowsChangesetPB::from_delete(self.view_id.clone(), vec![row_id])
             }
-            GridBlockEvent::Move {
+            DatabaseBlockEvent::Move {
                 block_id: _,
                 deleted_row_id,
                 inserted_row,
             } => {
                 //
-                GridViewRowsChangesetPB::from_move(self.view_id.clone(), vec![deleted_row_id], vec![inserted_row])
+                ViewRowsChangesetPB::from_move(self.view_id.clone(), vec![deleted_row_id], vec![inserted_row])
             }
         };
 
-        send_notification(&self.view_id, GridNotification::DidUpdateGridViewRows)
+        send_notification(&self.view_id, DatabaseNotification::DidUpdateGridViewRows)
             .payload(changeset)
             .send();
     }
@@ -374,7 +374,7 @@ impl GridViewRevisionEditor {
         .await
     }
 
-    pub async fn get_view_setting(&self) -> GridSettingPB {
+    pub async fn get_view_setting(&self) -> DatabaseViewSettingPB {
         let field_revs = self.delegate.get_field_revs(None).await;
         make_grid_setting(&*self.pad.read().await, &field_revs)
     }
@@ -616,7 +616,7 @@ impl GridViewRevisionEditor {
 
             debug_assert!(!changeset.is_empty());
             if !changeset.is_empty() {
-                send_notification(&changeset.view_id, GridNotification::DidGroupByNewField)
+                send_notification(&changeset.view_id, DatabaseNotification::DidGroupByNewField)
                     .payload(changeset)
                     .send();
             }
@@ -630,33 +630,33 @@ impl GridViewRevisionEditor {
 
     async fn notify_did_update_setting(&self) {
         let setting = self.get_view_setting().await;
-        send_notification(&self.view_id, GridNotification::DidUpdateGridSetting)
+        send_notification(&self.view_id, DatabaseNotification::DidUpdateGridSetting)
             .payload(setting)
             .send();
     }
 
     pub async fn notify_did_update_group_rows(&self, payload: GroupRowsNotificationPB) {
-        send_notification(&payload.group_id, GridNotification::DidUpdateGroup)
+        send_notification(&payload.group_id, DatabaseNotification::DidUpdateGroup)
             .payload(payload)
             .send();
     }
 
     pub async fn notify_did_update_filter(&self, notification: FilterChangesetNotificationPB) {
-        send_notification(&notification.view_id, GridNotification::DidUpdateFilter)
+        send_notification(&notification.view_id, DatabaseNotification::DidUpdateFilter)
             .payload(notification)
             .send();
     }
 
     pub async fn notify_did_update_sort(&self, notification: SortChangesetNotificationPB) {
         if !notification.is_empty() {
-            send_notification(&notification.view_id, GridNotification::DidUpdateSort)
+            send_notification(&notification.view_id, DatabaseNotification::DidUpdateSort)
                 .payload(notification)
                 .send();
         }
     }
 
     async fn notify_did_update_view(&self, changeset: GroupViewChangesetPB) {
-        send_notification(&self.view_id, GridNotification::DidUpdateGroupView)
+        send_notification(&self.view_id, DatabaseNotification::DidUpdateGroupView)
             .payload(changeset)
             .send();
     }
@@ -707,7 +707,7 @@ impl GridViewRevisionEditor {
 }
 /// Returns the list of cells corresponding to the given field.
 pub(crate) async fn get_cells_for_field(
-    delegate: Arc<dyn GridViewEditorDelegate>,
+    delegate: Arc<dyn DatabaseViewEditorDelegate>,
     field_id: &str,
 ) -> FlowyResult<Vec<RowSingleCellData>> {
     let row_revs = delegate.get_row_revs(None).await;
@@ -734,7 +734,7 @@ pub(crate) async fn get_cells_for_field(
 }
 
 #[async_trait]
-impl RefCountValue for GridViewRevisionEditor {
+impl RefCountValue for DatabaseViewRevisionEditor {
     async fn did_remove(&self) {
         self.close().await;
     }
@@ -745,7 +745,7 @@ async fn new_group_controller(
     view_id: String,
     view_rev_pad: Arc<RwLock<GridViewRevisionPad>>,
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
-    delegate: Arc<dyn GridViewEditorDelegate>,
+    delegate: Arc<dyn DatabaseViewEditorDelegate>,
 ) -> FlowyResult<Box<dyn GroupController>> {
     let configuration_reader = GroupConfigurationReaderImpl {
         pad: view_rev_pad.clone(),
@@ -799,7 +799,7 @@ async fn new_group_controller_with_field_rev(
 
 async fn make_filter_controller(
     view_id: &str,
-    delegate: Arc<dyn GridViewEditorDelegate>,
+    delegate: Arc<dyn DatabaseViewEditorDelegate>,
     notifier: GridViewChangedNotifier,
     cell_data_cache: AtomicCellDataCache,
     pad: Arc<RwLock<GridViewRevisionPad>>,
@@ -832,7 +832,7 @@ async fn make_filter_controller(
 
 async fn make_sort_controller(
     view_id: &str,
-    delegate: Arc<dyn GridViewEditorDelegate>,
+    delegate: Arc<dyn DatabaseViewEditorDelegate>,
     notifier: GridViewChangedNotifier,
     filter_controller: Arc<RwLock<FilterController>>,
     pad: Arc<RwLock<GridViewRevisionPad>>,
@@ -870,14 +870,14 @@ fn gen_handler_id() -> String {
 
 #[cfg(test)]
 mod tests {
-    use flowy_client_sync::client_grid::GridOperations;
+    use flowy_client_sync::client_grid::DatabaseOperations;
 
     #[test]
     fn test() {
         let s1 = r#"[{"insert":"{\"view_id\":\"fTURELffPr\",\"grid_id\":\"fTURELffPr\",\"layout\":0,\"filters\":[],\"groups\":[]}"}]"#;
-        let _delta_1 = GridOperations::from_json(s1).unwrap();
+        let _delta_1 = DatabaseOperations::from_json(s1).unwrap();
 
         let s2 = r#"[{"retain":195},{"insert":"{\\\"group_id\\\":\\\"wD9i\\\",\\\"visible\\\":true},{\\\"group_id\\\":\\\"xZtv\\\",\\\"visible\\\":true},{\\\"group_id\\\":\\\"tFV2\\\",\\\"visible\\\":true}"},{"retain":10}]"#;
-        let _delta_2 = GridOperations::from_json(s2).unwrap();
+        let _delta_2 = DatabaseOperations::from_json(s2).unwrap();
     }
 }
