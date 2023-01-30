@@ -110,8 +110,14 @@ async fn post_to_flutter(response: AFPluginEventResponse, port: i64) {
 }
 
 #[no_mangle]
-pub extern "C" fn get_logtrace_from_frontend(logtrace: *const c_char) {
+pub extern "C" fn log(level: i64, logtrace: *const c_char) {
     let c_str = unsafe { CStr::from_ptr(logtrace) };
     let str_slice = c_str.to_str().unwrap();
+    match level {
+        0 => tracing::trace!("{}", logtrace),
+        1 => tracing::info!("{}", logtrace),
+        _ => (),
+    }
+
     println!("Received from Dart: {}", str_slice);
 }
