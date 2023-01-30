@@ -8,8 +8,6 @@ pub async fn hello() -> String {
 
 #[tokio::test]
 async fn test() {
-    env_logger::init();
-
     let event = "1";
     let runtime = tokio_default_runtime().unwrap();
     let dispatch = Arc::new(AFPluginDispatcher::construct(runtime, || {

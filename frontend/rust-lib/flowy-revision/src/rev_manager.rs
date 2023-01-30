@@ -5,9 +5,9 @@ use crate::{
 };
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_http_model::revision::{Revision, RevisionRange};
-use flowy_http_model::util::md5;
 use lib_infra::future::FutureResult;
+use lib_infra::util::md5;
+use revision_model::{Revision, RevisionRange};
 use std::sync::atomic::AtomicI64;
 use std::sync::atomic::Ordering::SeqCst;
 use std::sync::Arc;

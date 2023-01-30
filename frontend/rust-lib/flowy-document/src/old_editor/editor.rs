@@ -4,16 +4,15 @@
 use crate::old_editor::queue::{EditDocumentQueue, EditorCommand, EditorCommandSender};
 use crate::{errors::FlowyError, DocumentEditor, DocumentUser};
 use bytes::Bytes;
+use document_model::document::DocumentInfo;
+use flowy_client_sync::errors::SyncResult;
+use flowy_client_sync::make_operations_from_revisions;
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyResult};
-use flowy_http_model::document::DocumentPayload;
-use flowy_http_model::revision::Revision;
-use flowy_http_model::ws_data::ServerRevisionWSData;
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
     RevisionWebSocket,
 };
-use flowy_sync::{errors::CollaborateResult, util::make_operations_from_revisions};
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use lib_ot::core::{AttributeEntry, AttributeHashMap};
@@ -22,9 +21,11 @@ use lib_ot::{
     text_delta::DeltaTextOperations,
 };
 use lib_ws::WSConnectState;
+use revision_model::Revision;
 use std::any::Any;
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
+use ws_model::ws_revision::ServerRevisionWSData;
 
 pub struct DeltaDocumentEditor {
     pub doc_id: String,
@@ -73,7 +74,7 @@ impl DeltaDocumentEditor {
     }
 
     pub async fn insert<T: ToString>(&self, index: usize, data: T) -> Result<(), FlowyError> {
-        let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
+        let (ret, rx) = oneshot::channel::<SyncResult<()>>();
         let msg = EditorCommand::Insert {
             index,
             data: data.to_string(),
@@ -85,7 +86,7 @@ impl DeltaDocumentEditor {
     }
 
     pub async fn delete(&self, interval: Interval) -> Result<(), FlowyError> {
-        let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
+        let (ret, rx) = oneshot::channel::<SyncResult<()>>();
         let msg = EditorCommand::Delete { interval, ret };
         let _ = self.edit_cmd_tx.send(msg).await;
         rx.await.map_err(internal_error)??;
@@ -93,7 +94,7 @@ impl DeltaDocumentEditor {
     }
 
     pub async fn format(&self, interval: Interval, attribute: AttributeEntry) -> Result<(), FlowyError> {
-        let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
+        let (ret, rx) = oneshot::channel::<SyncResult<()>>();
         let msg = EditorCommand::Format {
             interval,
             attribute,
@@ -105,7 +106,7 @@ impl DeltaDocumentEditor {
     }
 
     pub async fn replace<T: ToString>(&self, interval: Interval, data: T) -> Result<(), FlowyError> {
-        let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
+        let (ret, rx) = oneshot::channel::<SyncResult<()>>();
         let msg = EditorCommand::Replace {
             interval,
             data: data.to_string(),
@@ -155,7 +156,7 @@ impl DocumentEditor for Arc<DeltaDocumentEditor> {
     }
 
     fn export(&self) -> FutureResult<String, FlowyError> {
-        let (ret, rx) = oneshot::channel::<CollaborateResult<String>>();
+        let (ret, rx) = oneshot::channel::<SyncResult<String>>();
         let msg = EditorCommand::GetOperationsString { ret };
         let edit_cmd_tx = self.edit_cmd_tx.clone();
         FutureResult::new(async move {
@@ -190,7 +191,7 @@ impl DocumentEditor for Arc<DeltaDocumentEditor> {
         let edit_cmd_tx = self.edit_cmd_tx.clone();
         FutureResult::new(async move {
             let operations = DeltaTextOperations::from_bytes(&data)?;
-            let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
+            let (ret, rx) = oneshot::channel::<SyncResult<()>>();
             let msg = EditorCommand::ComposeLocalOperations { operations, ret };
 
             let _ = edit_cmd_tx.send(msg).await;
@@ -233,7 +234,7 @@ fn spawn_edit_queue(
 #[cfg(feature = "flowy_unit_test")]
 impl DeltaDocumentEditor {
     pub async fn document_operations(&self) -> FlowyResult<DeltaTextOperations> {
-        let (ret, rx) = oneshot::channel::<CollaborateResult<DeltaTextOperations>>();
+        let (ret, rx) = oneshot::channel::<SyncResult<DeltaTextOperations>>();
         let msg = EditorCommand::GetOperations { ret };
         let _ = self.edit_cmd_tx.send(msg).await;
         let delta = rx.await.map_err(internal_error)??;
@@ -247,14 +248,14 @@ impl DeltaDocumentEditor {
 
 pub struct DeltaDocumentRevisionSerde();
 impl RevisionObjectDeserializer for DeltaDocumentRevisionSerde {
-    type Output = DocumentPayload;
+    type Output = DocumentInfo;
 
     fn deserialize_revisions(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let (base_rev_id, rev_id) = revisions.last().unwrap().pair_rev_id();
         let mut delta = make_operations_from_revisions(revisions)?;
         correct_delta(&mut delta);
 
-        Result::<DocumentPayload, FlowyError>::Ok(DocumentPayload {
+        Result::<DocumentInfo, FlowyError>::Ok(DocumentInfo {
             doc_id: object_id.to_owned(),
             data: delta.json_bytes().to_vec(),
             rev_id,

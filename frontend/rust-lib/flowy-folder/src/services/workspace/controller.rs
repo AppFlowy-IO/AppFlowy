@@ -10,7 +10,7 @@ use crate::{
     },
 };
 use flowy_database::kv::KV;
-use folder_rev_model::{AppRevision, WorkspaceRevision};
+use folder_model::{AppRevision, WorkspaceRevision};
 use std::sync::Arc;
 
 pub struct WorkspaceController {

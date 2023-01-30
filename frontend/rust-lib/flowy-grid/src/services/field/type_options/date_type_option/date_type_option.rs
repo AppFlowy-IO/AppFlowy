@@ -11,7 +11,7 @@ use chrono::format::strftime::StrftimeItems;
 use chrono::{NaiveDateTime, Timelike};
 use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use grid_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 

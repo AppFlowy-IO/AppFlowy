@@ -1,16 +1,15 @@
 use bytes::Bytes;
+use flowy_client_sync::client_grid::{GridBlockRevisionChangeset, GridBlockRevisionPad};
+use flowy_client_sync::make_operations_from_revisions;
+use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_http_model::revision::Revision;
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
-use flowy_sync::client_grid::{GridBlockRevisionChangeset, GridBlockRevisionPad};
-use flowy_sync::util::make_operations_from_revisions;
-use grid_rev_model::{CellRevision, GridBlockRevision, RowChangeset, RowRevision};
+use grid_model::{CellRevision, GridBlockRevision, RowChangeset, RowRevision};
 use lib_infra::future::FutureResult;
-
-use flowy_database::ConnectionPool;
 use lib_ot::core::EmptyAttributes;
+use revision_model::Revision;
 use std::borrow::Cow;
 use std::sync::Arc;
 use tokio::sync::RwLock;

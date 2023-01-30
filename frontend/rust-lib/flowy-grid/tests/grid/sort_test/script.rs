@@ -4,7 +4,7 @@ use flowy_grid::entities::{AlterSortParams, CellPathParams, DeleteSortParams};
 use flowy_grid::services::sort::SortType;
 use flowy_grid::services::view_editor::GridViewChanged;
 use futures::stream::StreamExt;
-use grid_rev_model::{FieldRevision, SortCondition, SortRevision};
+use grid_model::{FieldRevision, SortCondition, SortRevision};
 use std::cmp::min;
 use std::sync::Arc;
 use std::time::Duration;

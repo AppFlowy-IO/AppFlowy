@@ -1,6 +1,6 @@
 use crate::grid::sort_test::script::{GridSortTest, SortScript::*};
 use flowy_grid::entities::FieldType;
-use grid_rev_model::SortCondition;
+use grid_model::SortCondition;
 
 #[tokio::test]
 async fn sort_text_by_ascending_test() {

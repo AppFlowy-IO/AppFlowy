@@ -3,7 +3,7 @@ use flowy_grid::services::field::{
     ChecklistTypeOptionPB, DateCellChangeset, MultiSelectTypeOptionPB, SelectOptionPB, SingleSelectTypeOptionPB,
 };
 use flowy_grid::services::row::RowRevisionBuilder;
-use grid_rev_model::{FieldRevision, RowRevision};
+use grid_model::{FieldRevision, RowRevision};
 use std::sync::Arc;
 
 use strum::EnumCount;

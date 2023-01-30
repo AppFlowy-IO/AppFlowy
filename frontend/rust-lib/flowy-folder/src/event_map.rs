@@ -11,7 +11,7 @@ use crate::{
 };
 use flowy_database::{ConnectionPool, DBConnection};
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
-use folder_rev_model::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
+use folder_model::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use lib_dispatch::prelude::*;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;

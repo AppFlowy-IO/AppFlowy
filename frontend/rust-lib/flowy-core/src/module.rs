@@ -1,7 +1,7 @@
+use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_document::DocumentManager;
 use flowy_folder::manager::FolderManager;
 use flowy_grid::manager::GridManager;
-use flowy_net::ws::connection::FlowyWebSocketConnect;
 use flowy_user::services::UserSession;
 use lib_dispatch::prelude::AFPlugin;
 use std::sync::Arc;

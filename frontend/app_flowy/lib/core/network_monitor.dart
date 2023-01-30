@@ -35,21 +35,21 @@ class NetworkListener {
     final networkType = () {
       switch (result) {
         case ConnectivityResult.wifi:
-          return NetworkType.Wifi;
+          return NetworkTypePB.Wifi;
         case ConnectivityResult.ethernet:
-          return NetworkType.Ethernet;
+          return NetworkTypePB.Ethernet;
         case ConnectivityResult.mobile:
-          return NetworkType.Cell;
+          return NetworkTypePB.Cell;
         case ConnectivityResult.bluetooth:
-          return NetworkType.Bluetooth;
+          return NetworkTypePB.Bluetooth;
         case ConnectivityResult.vpn:
-          return NetworkType.VPN;
+          return NetworkTypePB.VPN;
         case ConnectivityResult.none:
-          return NetworkType.UnknownNetworkType;
+          return NetworkTypePB.Unknown;
       }
     }();
     Log.info("Network type: $networkType");
-    final state = NetworkState.create()..ty = networkType;
+    final state = NetworkStatePB.create()..ty = networkType;
     NetworkEventUpdateNetworkType(state).send().then((result) {
       result.fold(
         (l) {},

@@ -1,6 +1,7 @@
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 
+use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_document::DocumentManager;
 use flowy_folder::entities::{ViewDataFormatPB, ViewLayoutTypePB, ViewPB};
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
@@ -12,21 +13,19 @@ use flowy_folder::{
 use flowy_grid::entities::GridLayout;
 use flowy_grid::manager::{make_grid_view_data, GridManager};
 use flowy_grid::util::{make_default_board, make_default_calendar, make_default_grid};
-use flowy_http_model::revision::Revision;
-use flowy_http_model::ws_data::ClientRevisionWSData;
 use flowy_net::ClientServerConfiguration;
-use flowy_net::{
-    http_server::folder::FolderHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
-};
+use flowy_net::{http_server::folder::FolderHttpCloudService, local_server::LocalServer};
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
-use grid_rev_model::BuildGridContext;
+use grid_model::BuildGridContext;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
+use revision_model::Revision;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::{convert::TryInto, sync::Arc};
+use ws_model::ws_revision::ClientRevisionWSData;
 
 pub struct FolderDepsResolver();
 impl FolderDepsResolver {

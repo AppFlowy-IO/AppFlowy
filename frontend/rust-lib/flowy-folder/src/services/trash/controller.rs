@@ -6,7 +6,7 @@ use crate::{
     services::persistence::{FolderPersistence, FolderPersistenceTransaction},
 };
 
-use folder_rev_model::TrashRevision;
+use folder_model::TrashRevision;
 use std::{fmt::Formatter, sync::Arc};
 use tokio::sync::{broadcast, mpsc};
 

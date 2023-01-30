@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use grid_rev_model::{FieldTypeRevision, SortCondition, SortRevision};
+use grid_model::{FieldTypeRevision, SortCondition, SortRevision};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct SortPB {
