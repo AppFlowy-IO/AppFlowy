@@ -27,7 +27,7 @@ const TestApiButton = () => {
 
   useEffect(() => {
     if (!workspaceId?.length) return;
-    (async () => {
+    void (async () => {
       const openWorkspaceResult = await FolderEventOpenWorkspace(
         WorkspaceIdPB.fromObject({
           value: workspaceId,
@@ -67,14 +67,14 @@ const TestApiButton = () => {
         name: 'abc',
       });
 
-    let listener = await new UserNotificationListener({
+    let listener = new UserNotificationListener({
       onUserSignIn: (userProfile) => {
         console.log(userProfile);
       },
-      onProfileUpdate(userProfile) {
+      onProfileUpdate: (userProfile) => {
         console.log(userProfile);
         // stop listening the changes
-        listener.stop();
+        void listener.stop();
       },
     });
 

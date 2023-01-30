@@ -4,7 +4,7 @@ import { NotificationParser, OnNotificationError } from '../../../../../services
 declare type UserNotificationCallback = (ty: UserNotification, payload: Uint8Array) => void;
 
 export class UserNotificationParser extends NotificationParser<UserNotification> {
-  constructor(params: { id?: String; callback: UserNotificationCallback; onError?: OnNotificationError }) {
+  constructor(params: { id?: string; callback: UserNotificationCallback; onError?: OnNotificationError }) {
     super(
       params.callback,
       (ty) => {

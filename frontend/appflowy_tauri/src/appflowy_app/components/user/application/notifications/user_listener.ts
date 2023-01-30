@@ -10,7 +10,7 @@ export class UserNotificationListener extends AFNotificationListener<UserNotific
   onUserSignIn?: OnUserSignIn;
 
   constructor(params: {
-    userId?: String;
+    userId?: string;
     onUserSignIn?: OnUserSignIn;
     onProfileUpdate?: OnUserProfileUpdate;
     onError?: OnNotificationError;

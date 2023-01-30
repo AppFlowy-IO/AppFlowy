@@ -4,7 +4,7 @@ import { NotificationParser, OnNotificationError } from '../../../../../services
 declare type GridNotificationCallback = (ty: GridNotification, payload: Uint8Array) => void;
 
 export class GridNotificationParser extends NotificationParser<GridNotification> {
-  constructor(params: { id?: String; callback: GridNotificationCallback; onError?: OnNotificationError }) {
+  constructor(params: { id?: string; callback: GridNotificationCallback; onError?: OnNotificationError }) {
     super(
       params.callback,
       (ty) => {

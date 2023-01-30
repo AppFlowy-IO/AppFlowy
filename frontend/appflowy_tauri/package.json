@@ -10,11 +10,14 @@
     "tauri:dev": "tauri dev"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^1.9.2",
     "@tauri-apps/api": "^1.2.0",
     "google-protobuf": "^3.21.2",
     "nanoid": "^4.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-redux": "^8.0.5",
+    "redux": "^4.2.1",
     "ts-results": "^3.3.0"
   },
   "devDependencies": {
@@ -23,8 +26,11 @@
     "@types/node": "^18.7.10",
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
+    "@typescript-eslint/eslint-plugin": "^5.49.0",
+    "@typescript-eslint/parser": "^5.49.0",
     "@vitejs/plugin-react": "^3.0.0",
     "autoprefixer": "^10.4.13",
+    "eslint": "^8.33.0",
     "postcss": "^8.4.21",
     "prettier": "^2.8.3",
     "tailwindcss": "^3.2.4",
