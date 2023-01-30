@@ -10,22 +10,22 @@ import 'notification_helper.dart';
 
 // GridPB
 typedef GridNotificationCallback = void Function(
-    GridDartNotification, Either<Uint8List, FlowyError>);
+    GridNotification, Either<Uint8List, FlowyError>);
 
 class GridNotificationParser
-    extends NotificationParser<GridDartNotification, FlowyError> {
+    extends NotificationParser<GridNotification, FlowyError> {
   GridNotificationParser(
       {String? id, required GridNotificationCallback callback})
       : super(
           id: id,
           callback: callback,
-          tyParser: (ty) => GridDartNotification.valueOf(ty),
+          tyParser: (ty) => GridNotification.valueOf(ty),
           errorParser: (bytes) => FlowyError.fromBuffer(bytes),
         );
 }
 
 typedef GridNotificationHandler = Function(
-    GridDartNotification ty, Either<Uint8List, FlowyError> result);
+    GridNotification ty, Either<Uint8List, FlowyError> result);
 
 class GridNotificationListener {
   StreamSubscription<SubscribeObject>? _subscription;

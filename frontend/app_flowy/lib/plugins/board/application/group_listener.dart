@@ -27,11 +27,11 @@ class GroupListener {
   }
 
   void _handler(
-    GridDartNotification ty,
+    GridNotification ty,
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case GridDartNotification.DidUpdateGroup:
+      case GridNotification.DidUpdateGroup:
         result.fold(
           (payload) => _groupNotifier?.value =
               left(GroupRowsNotificationPB.fromBuffer(payload)),

@@ -1,5 +1,5 @@
 use crate::entities::{GridRowsVisibilityChangesetPB, ReorderAllRowsPB, ReorderSingleRowPB};
-use crate::notification::{send_dart_notification, GridDartNotification};
+use crate::notification::{send_notification, GridNotification};
 use crate::services::filter::FilterResultNotification;
 use crate::services::sort::{ReorderAllRowsResult, ReorderSingleRowResult};
 use async_stream::stream;
@@ -37,18 +37,15 @@ impl GridViewChangedReceiverRunner {
                             invisible_rows: notification.invisible_rows,
                         };
 
-                        send_dart_notification(
-                            &changeset.view_id,
-                            GridDartNotification::DidUpdateGridViewRowsVisibility,
-                        )
-                        .payload(changeset)
-                        .send()
+                        send_notification(&changeset.view_id, GridNotification::DidUpdateGridViewRowsVisibility)
+                            .payload(changeset)
+                            .send()
                     }
                     GridViewChanged::ReorderAllRowsNotification(notification) => {
                         let row_orders = ReorderAllRowsPB {
                             row_orders: notification.row_orders,
                         };
-                        send_dart_notification(&notification.view_id, GridDartNotification::DidReorderRows)
+                        send_notification(&notification.view_id, GridNotification::DidReorderRows)
                             .payload(row_orders)
                             .send()
                     }
@@ -58,7 +55,7 @@ impl GridViewChangedReceiverRunner {
                             old_index: notification.old_index as i32,
                             new_index: notification.new_index as i32,
                         };
-                        send_dart_notification(&notification.view_id, GridDartNotification::DidReorderSingleRow)
+                        send_notification(&notification.view_id, GridNotification::DidReorderSingleRow)
                             .payload(reorder_row)
                             .send()
                     }

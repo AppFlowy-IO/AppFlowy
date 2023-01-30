@@ -3,7 +3,7 @@ use flowy_notification::NotificationBuilder;
 const OBSERVABLE_CATEGORY: &str = "Grid";
 
 #[derive(ProtoBuf_Enum, Debug)]
-pub enum GridDartNotification {
+pub enum GridNotification {
     Unknown = 0,
     DidCreateBlock = 11,
     DidUpdateGridViewRows = 20,
@@ -22,19 +22,19 @@ pub enum GridDartNotification {
     DidUpdateGridSetting = 70,
 }
 
-impl std::default::Default for GridDartNotification {
+impl std::default::Default for GridNotification {
     fn default() -> Self {
-        GridDartNotification::Unknown
+        GridNotification::Unknown
     }
 }
 
-impl std::convert::From<GridDartNotification> for i32 {
-    fn from(notification: GridDartNotification) -> Self {
+impl std::convert::From<GridNotification> for i32 {
+    fn from(notification: GridNotification) -> Self {
         notification as i32
     }
 }
 
 #[tracing::instrument(level = "trace")]
-pub fn send_dart_notification(id: &str, ty: GridDartNotification) -> NotificationBuilder {
+pub fn send_notification(id: &str, ty: GridNotification) -> NotificationBuilder {
     NotificationBuilder::new(id, ty, OBSERVABLE_CATEGORY)
 }

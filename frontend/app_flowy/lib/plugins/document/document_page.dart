@@ -111,6 +111,8 @@ class _DocumentPageState extends State<DocumentPage> {
         kCodeBlockType: CodeBlockNodeWidgetBuilder(),
         // Board
         kBoardType: BoardNodeWidgetBuilder(),
+        // Card
+        kCalloutType: CalloutNodeWidgetBuilder(),
       },
       shortcutEvents: [
         // Divider

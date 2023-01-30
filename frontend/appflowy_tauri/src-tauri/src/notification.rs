@@ -5,7 +5,6 @@ use tauri::{AppHandle, Event, Manager, Wry};
 
 #[allow(dead_code)]
 pub const AF_EVENT: &str = "af-event";
-#[allow(dead_code)]
 pub const AF_NOTIFICATION: &str = "af-notification";
 
 #[tracing::instrument(level = "trace")]

@@ -1,5 +1,5 @@
 use crate::entities::*;
-use crate::notification::{send_dart_notification, GridDartNotification};
+use crate::notification::{send_notification, GridNotification};
 use crate::services::block_manager::GridBlockEvent;
 use crate::services::cell::{AtomicCellDataCache, TypeCellData};
 use crate::services::field::{RowSingleCellData, TypeOptionCellDataHandler};
@@ -184,7 +184,7 @@ impl GridViewRevisionEditor {
             }
         };
 
-        send_dart_notification(&self.view_id, GridDartNotification::DidUpdateGridViewRows)
+        send_notification(&self.view_id, GridNotification::DidUpdateGridViewRows)
             .payload(changeset)
             .send();
     }
@@ -616,7 +616,7 @@ impl GridViewRevisionEditor {
 
             debug_assert!(!changeset.is_empty());
             if !changeset.is_empty() {
-                send_dart_notification(&changeset.view_id, GridDartNotification::DidGroupByNewField)
+                send_notification(&changeset.view_id, GridNotification::DidGroupByNewField)
                     .payload(changeset)
                     .send();
             }
@@ -630,33 +630,33 @@ impl GridViewRevisionEditor {
 
     async fn notify_did_update_setting(&self) {
         let setting = self.get_view_setting().await;
-        send_dart_notification(&self.view_id, GridDartNotification::DidUpdateGridSetting)
+        send_notification(&self.view_id, GridNotification::DidUpdateGridSetting)
             .payload(setting)
             .send();
     }
 
     pub async fn notify_did_update_group_rows(&self, payload: GroupRowsNotificationPB) {
-        send_dart_notification(&payload.group_id, GridDartNotification::DidUpdateGroup)
+        send_notification(&payload.group_id, GridNotification::DidUpdateGroup)
             .payload(payload)
             .send();
     }
 
     pub async fn notify_did_update_filter(&self, notification: FilterChangesetNotificationPB) {
-        send_dart_notification(&notification.view_id, GridDartNotification::DidUpdateFilter)
+        send_notification(&notification.view_id, GridNotification::DidUpdateFilter)
             .payload(notification)
             .send();
     }
 
     pub async fn notify_did_update_sort(&self, notification: SortChangesetNotificationPB) {
         if !notification.is_empty() {
-            send_dart_notification(&notification.view_id, GridDartNotification::DidUpdateSort)
+            send_notification(&notification.view_id, GridNotification::DidUpdateSort)
                 .payload(notification)
                 .send();
         }
     }
 
     async fn notify_did_update_view(&self, changeset: GroupViewChangesetPB) {
-        send_dart_notification(&self.view_id, GridDartNotification::DidUpdateGroupView)
+        send_notification(&self.view_id, GridNotification::DidUpdateGroupView)
             .payload(changeset)
             .send();
     }

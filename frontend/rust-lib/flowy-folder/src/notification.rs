@@ -33,11 +33,11 @@ impl std::convert::From<FolderNotification> for i32 {
 }
 
 #[tracing::instrument(level = "trace")]
-pub(crate) fn send_dart_notification(id: &str, ty: FolderNotification) -> NotificationBuilder {
+pub(crate) fn send_notification(id: &str, ty: FolderNotification) -> NotificationBuilder {
     NotificationBuilder::new(id, ty, OBSERVABLE_CATEGORY)
 }
 
 #[tracing::instrument(level = "trace")]
-pub(crate) fn send_anonymous_dart_notification(ty: FolderNotification) -> NotificationBuilder {
+pub(crate) fn send_anonymous_notification(ty: FolderNotification) -> NotificationBuilder {
     NotificationBuilder::new("", ty, OBSERVABLE_CATEGORY)
 }
