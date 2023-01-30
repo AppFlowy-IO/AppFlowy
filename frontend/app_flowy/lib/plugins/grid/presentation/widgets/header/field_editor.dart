@@ -135,11 +135,9 @@ class _FieldNameTextField extends StatefulWidget {
 
 class _FieldNameTextFieldState extends State<_FieldNameTextField> {
   FocusNode focusNode = FocusNode();
-  late TextEditingController controller;
 
   @override
   void initState() {
-    controller = TextEditingController();
     focusNode.addListener(() {
       if (focusNode.hasFocus) {
         widget.popoverMutex.close();
@@ -157,21 +155,11 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<FieldEditorBloc, FieldEditorState>(
-          listenWhen: (p, c) => p.field == none(),
-          listener: (context, state) {
-            focusNode.requestFocus();
-          },
-        ),
-        BlocListener<FieldEditorBloc, FieldEditorState>(
-          listenWhen: (p, c) => controller.text != c.name,
-          listener: (context, state) {
-            controller.text = state.name;
-          },
-        ),
-      ],
+    return BlocListener<FieldEditorBloc, FieldEditorState>(
+      listenWhen: (p, c) => p.field == none(),
+      listener: (context, state) {
+        focusNode.requestFocus();
+      },
       child: BlocBuilder<FieldEditorBloc, FieldEditorState>(
         buildWhen: (previous, current) =>
             previous.errorText != current.errorText,
@@ -181,7 +169,7 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
             child: FlowyTextField(
               focusNode: focusNode,
               onSubmitted: (String _) => PopoverContainer.of(context).close(),
-              controller: controller,
+              text: context.read<FieldEditorBloc>().state.name,
               errorText: context.read<FieldEditorBloc>().state.errorText,
               onChanged: (newName) {
                 context
