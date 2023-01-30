@@ -53,6 +53,81 @@ class SelectionMenuItem {
       editorState.apply(transaction);
     }
   }
+
+  /// Creates a selection menu entry for inserting a [Node].
+  /// [name] and [iconData] define the appearance within the selection menu.
+  ///
+  /// The insert position is determined by the result of [replace] and
+  /// [insertBefore]
+  /// If no values are provided for [replace] and [insertBefore] the node is
+  /// inserted after the current selection.
+  /// [replace] takes precedence over [insertBefore]
+  ///
+  /// [updateSelection] can be used to update the selection after the node
+  /// has been inserted.
+  factory SelectionMenuItem.node({
+    required String name,
+    required IconData iconData,
+    required List<String> keywords,
+    required Node Function(EditorState editorState) nodeBuilder,
+    bool Function(EditorState editorState, TextNode textNode)? insertBefore,
+    bool Function(EditorState editorState, TextNode textNode)? replace,
+    Selection? Function(
+      EditorState editorState,
+      Path insertPath,
+      bool replaced,
+      bool insertedBefore,
+    )?
+        updateSelection,
+  }) {
+    return SelectionMenuItem(
+      name: () => name,
+      icon: (editorState, onSelected) => Icon(
+        iconData,
+        color: onSelected
+            ? editorState.editorStyle.selectionMenuItemSelectedIconColor
+            : editorState.editorStyle.selectionMenuItemIconColor,
+        size: 18.0,
+      ),
+      keywords: keywords,
+      handler: (editorState, _, __) {
+        final selection =
+            editorState.service.selectionService.currentSelection.value;
+        final textNodes = editorState
+            .service.selectionService.currentSelectedNodes
+            .whereType<TextNode>();
+        if (textNodes.length != 1 || selection == null) {
+          return;
+        }
+        final textNode = textNodes.first;
+        final node = nodeBuilder(editorState);
+        final transaction = editorState.transaction;
+        final bReplace = replace?.call(editorState, textNode) ?? false;
+        final bInsertBefore =
+            insertBefore?.call(editorState, textNode) ?? false;
+
+        //default insert after
+        var path = textNode.path.next;
+        if (bReplace) {
+          path = textNode.path;
+        } else if (bInsertBefore) {
+          path = textNode.path;
+        }
+
+        transaction
+          ..insertNode(path, node)
+          ..afterSelection = updateSelection?.call(
+                  editorState, path, bReplace, bInsertBefore) ??
+              selection;
+
+        if (bReplace) {
+          transaction.deleteNode(textNode);
+        }
+
+        editorState.apply(transaction);
+      },
+    );
+  }
 }
 
 class SelectionMenuWidget extends StatefulWidget {
