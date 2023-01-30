@@ -54,8 +54,8 @@ class SelectionMenuItem {
     }
   }
 
-  /// Creates an selection menu entry for inserting a [Node].
-  /// [name] and [iconData] define the appeance within the selection menu.
+  /// Creates a selection menu entry for inserting a [Node].
+  /// [name] and [iconData] define the appearance within the selection menu.
   ///
   /// The insert position is determined by the result of [replace] and
   /// [insertBefore]
@@ -63,7 +63,7 @@ class SelectionMenuItem {
   /// inserted after the current selection.
   /// [replace] takes precedence over [insertBefore]
   ///
-  /// [updateSelection] can be used to update the selection after node
+  /// [updateSelection] can be used to update the selection after the node
   /// has been inserted.
   factory SelectionMenuItem.node({
     required String name,
