@@ -21,7 +21,7 @@ void main() async {
       await editor.startTesting();
 
       final secondTextNode = editor.nodeAtPath([1]);
-      final finder = find.byKey(secondTextNode!.key!);
+      final finder = find.byKey(secondTextNode!.key);
 
       final rect = tester.getRect(finder);
       // tap at the beginning
@@ -48,7 +48,7 @@ void main() async {
       await editor.startTesting();
 
       final secondTextNode = editor.nodeAtPath([1]);
-      final finder = find.byKey(secondTextNode!.key!);
+      final finder = find.byKey(secondTextNode!.key);
 
       final rect = tester.getRect(finder);
       // double tap
@@ -70,7 +70,7 @@ void main() async {
       await editor.startTesting();
 
       final secondTextNode = editor.nodeAtPath([1]);
-      final finder = find.byKey(secondTextNode!.key!);
+      final finder = find.byKey(secondTextNode!.key);
 
       final rect = tester.getRect(finder);
       // triple tap
@@ -93,7 +93,7 @@ void main() async {
       await editor.startTesting();
 
       final secondTextNode = editor.nodeAtPath([1]) as TextNode;
-      final finder = find.byKey(secondTextNode.key!);
+      final finder = find.byKey(secondTextNode.key);
 
       final rect = tester.getRect(finder);
       // secondary tap

@@ -47,7 +47,7 @@ SelectionMenuItem mathEquationMenuItem = SelectionMenuItem(
       final mathEquationState = editorState.document
           .nodeAtPath(mathEquationNodePath)
           ?.key
-          ?.currentState;
+          .currentState;
       if (mathEquationState != null &&
           mathEquationState is _MathEquationNodeWidgetState) {
         mathEquationState.showEditingDialog();

@@ -43,7 +43,7 @@ void main() async {
       final selection =
           Selection.single(path: [0], startOffset: 0, endOffset: text.length);
       var node = editor.nodeAtPath([0]) as TextNode;
-      var state = node.key?.currentState as DefaultSelectable;
+      var state = node.key.currentState as DefaultSelectable;
       var checkboxWidget = find.byKey(state.iconKey!);
       await tester.tap(checkboxWidget);
       await tester.pumpAndSettle();
@@ -56,7 +56,7 @@ void main() async {
       expect(node.allSatisfyStrikethroughInSelection(selection), true);
 
       node = editor.nodeAtPath([0]) as TextNode;
-      state = node.key?.currentState as DefaultSelectable;
+      state = node.key.currentState as DefaultSelectable;
       await tester.ensureVisible(find.byKey(state.iconKey!));
       await tester.tap(find.byKey(state.iconKey!));
       await tester.pump();

@@ -71,7 +71,7 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
   Attributes _attributes;
 
   // Renderable
-  GlobalKey? key;
+  final key = GlobalKey();
   final layerLink = LayerLink();
 
   Attributes get attributes => {..._attributes};
