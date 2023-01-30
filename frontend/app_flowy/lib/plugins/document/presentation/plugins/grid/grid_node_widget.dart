@@ -1,5 +1,5 @@
-import 'package:app_flowy/plugins/board/presentation/board_page.dart';
 import 'package:app_flowy/plugins/document/presentation/plugins/base/insert_page_command.dart';
+import 'package:app_flowy/plugins/grid/presentation/grid_page.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/app/app_service.dart';
 import 'package:app_flowy/workspace/application/view/view_ext.dart';
@@ -12,12 +12,12 @@ import 'package:dartz/dartz.dart' as dartz;
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
 
-const String kBoardType = 'board';
+const String kGridType = 'grid';
 
-class BoardNodeWidgetBuilder extends NodeWidgetBuilder<Node> {
+class GridNodeWidgetBuilder extends NodeWidgetBuilder<Node> {
   @override
   Widget build(NodeWidgetContext<Node> context) {
-    return _BoardWidget(
+    return _GridWidget(
       key: context.node.key,
       node: context.node,
       editorState: context.editorState,
@@ -26,13 +26,13 @@ class BoardNodeWidgetBuilder extends NodeWidgetBuilder<Node> {
 
   @override
   NodeValidator<Node> get nodeValidator => (node) {
-        return node.attributes[kViewID] is String &&
-            node.attributes[kAppID] is String;
+        return node.attributes[kAppID] is String &&
+            node.attributes[kViewID] is String;
       };
 }
 
-class _BoardWidget extends StatefulWidget {
-  const _BoardWidget({
+class _GridWidget extends StatefulWidget {
+  const _GridWidget({
     Key? key,
     required this.node,
     required this.editorState,
@@ -42,27 +42,18 @@ class _BoardWidget extends StatefulWidget {
   final EditorState editorState;
 
   @override
-  State<_BoardWidget> createState() => _BoardWidgetState();
+  State<_GridWidget> createState() => _GridWidgetState();
 }
 
-class _BoardWidgetState extends State<_BoardWidget> with SelectableMixin {
+class _GridWidgetState extends State<_GridWidget> with SelectableMixin {
   RenderBox get _renderBox => context.findRenderObject() as RenderBox;
 
-  String get boardID {
+  String get gridID {
     return widget.node.attributes[kViewID];
   }
 
   String get appID {
     return widget.node.attributes[kAppID];
-  }
-
-  late Future<dartz.Either<ViewPB, FlowyError>> board;
-
-  @override
-  void initState() {
-    super.initState();
-
-    board = _fetchBoard();
   }
 
   @override
@@ -72,22 +63,18 @@ class _BoardWidgetState extends State<_BoardWidget> with SelectableMixin {
         if (snapshot.hasData) {
           final board = snapshot.data?.getLeftOrNull<ViewPB>();
           if (board != null) {
-            return _buildBoard(context, board);
+            return _buildGrid(context, board);
           }
         }
         return const Center(
           child: CircularProgressIndicator(),
         );
       },
-      future: board,
+      future: AppService().getView(appID, gridID),
     );
   }
 
-  Future<dartz.Either<ViewPB, FlowyError>> _fetchBoard() async {
-    return AppService().getView(appID, boardID);
-  }
-
-  Widget _buildBoard(BuildContext context, ViewPB viewPB) {
+  Widget _buildGrid(BuildContext context, ViewPB viewPB) {
     return MouseRegion(
       onHover: (event) {
         if (widget.node.isSelected(widget.editorState)) {
@@ -112,7 +99,7 @@ class _BoardWidgetState extends State<_BoardWidget> with SelectableMixin {
                 },
               ),
             ),
-            BoardPage(
+            GridPage(
               key: ValueKey(viewPB.id),
               view: viewPB,
               onEditStateChanged: () {
