@@ -10,7 +10,7 @@ use bytes::Bytes;
 use fancy_regex::Regex;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyResult;
-use grid_rev_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use grid_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use lazy_static::lazy_static;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};

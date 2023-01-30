@@ -8,7 +8,6 @@ edition = "2018"
 [dependencies]
 lazy_static = { version = "1.4.0" }
 protobuf = { version = "2.20.0" }
-allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
 tracing = { version = "0.1", features = ["log"] }
 bytes = { version = "1.0" }
 serde = "1.0"

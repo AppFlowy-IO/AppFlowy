@@ -12,10 +12,12 @@ flowy-user = { path = "../flowy-user" }
 flowy-net = { path = "../flowy-net" }
 flowy-folder = { path = "../flowy-folder", default-features = false }
 flowy-grid = { path = "../flowy-grid", default-features = false }
-grid-rev-model = { path = "../../../shared-lib/grid-rev-model" }
+grid-model = { path = "../../../shared-lib/grid-model" }
+flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws" }
 flowy-database = { path = "../flowy-database", optional = true }
 flowy-document = { path = "../flowy-document", default-features = false }
 flowy-revision = { path = "../flowy-revision" }
+flowy-error = { path = "../flowy-error", features = ["adaptor_ws"] }
 flowy-task = { path = "../flowy-task" }
 
 tracing = { version = "0.1", features = ["log"] }
@@ -24,7 +26,8 @@ bytes = "1.0"
 tokio = { version = "1", features = ["rt"] }
 parking_lot = "0.12.1"
 
-flowy-http-model = { path = "../../../shared-lib/flowy-http-model" }
+revision-model = { path = "../../../shared-lib/revision-model" }
+ws-model = { path = "../../../shared-lib/ws-model" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 

@@ -1,7 +1,7 @@
 use crate::grid::sort_test::script::GridSortTest;
 use crate::grid::sort_test::script::SortScript::*;
 use flowy_grid::entities::FieldType;
-use grid_rev_model::SortCondition;
+use grid_model::SortCondition;
 
 #[tokio::test]
 async fn sort_text_with_checkbox_by_ascending_test() {

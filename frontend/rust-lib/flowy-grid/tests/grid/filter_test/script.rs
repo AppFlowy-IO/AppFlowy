@@ -10,7 +10,7 @@ use tokio::sync::broadcast::Receiver;
 use flowy_grid::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB, RowPB, TextFilterConditionPB, FieldType, NumberFilterConditionPB, CheckboxFilterConditionPB, DateFilterConditionPB, DateFilterContentPB, SelectOptionConditionPB, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB, FilterPB, ChecklistFilterConditionPB, ChecklistFilterPB};
 use flowy_grid::services::field::{SelectOptionCellChangeset, SelectOptionIds};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
-use grid_rev_model::{FieldRevision, FieldTypeRevision};
+use grid_model::{FieldRevision, FieldTypeRevision};
 use flowy_database::schema::view_table::dsl::view_table;
 use flowy_grid::services::cell::insert_select_option_cell;
 use flowy_grid::services::filter::FilterType;

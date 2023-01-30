@@ -8,7 +8,7 @@ use crate::services::filter::FilterType;
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use grid_rev_model::{FieldRevision, FieldTypeRevision, FilterRevision};
+use grid_model::{FieldRevision, FieldTypeRevision, FilterRevision};
 use std::convert::TryInto;
 use std::sync::Arc;
 

@@ -2,7 +2,7 @@ use crate::entities::parser::NotEmptyStr;
 use crate::entities::GridLayout;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use grid_rev_model::RowRevision;
+use grid_model::RowRevision;
 use std::sync::Arc;
 
 /// [RowPB] Describes a row. Has the id of the parent Block. Has the metadata of the row.

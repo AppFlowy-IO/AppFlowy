@@ -6,19 +6,19 @@ use crate::services::row::GridBlockRowRevision;
 use crate::services::sort::{SortDelegate, SortType};
 use crate::services::view_editor::{get_cells_for_field, GridViewEditorDelegate};
 use bytes::Bytes;
+use flowy_client_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
+use flowy_client_sync::make_operations_from_revisions;
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_http_model::revision::Revision;
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
-use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
-use flowy_sync::util::make_operations_from_revisions;
-use grid_rev_model::{
+use grid_model::{
     FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, RowRevision, SortRevision,
 };
 use lib_infra::future::{to_fut, Fut, FutureResult};
 use lib_ot::core::EmptyAttributes;
+use revision_model::Revision;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 

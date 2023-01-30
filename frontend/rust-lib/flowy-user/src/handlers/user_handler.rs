@@ -1,11 +1,11 @@
 use crate::entities::{
-    AppearanceSettingsPB, UpdateUserProfileParams, UpdateUserProfilePayloadPB, UserProfilePB, UserSettingPB,
-    APPEARANCE_DEFAULT_THEME,
+    AppearanceSettingsPB, UpdateUserProfilePayloadPB, UserProfilePB, UserSettingPB, APPEARANCE_DEFAULT_THEME,
 };
 use crate::{errors::FlowyError, services::UserSession};
 use flowy_database::kv::KV;
 use lib_dispatch::prelude::*;
 use std::{convert::TryInto, sync::Arc};
+use user_model::UpdateUserProfileParams;
 
 #[tracing::instrument(level = "debug", skip(session))]
 pub async fn init_user_handler(session: AFPluginState<Arc<UserSession>>) -> Result<(), FlowyError> {

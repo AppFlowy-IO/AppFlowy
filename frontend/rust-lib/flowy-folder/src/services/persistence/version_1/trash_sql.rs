@@ -5,7 +5,7 @@ use flowy_database::{
     schema::{trash_table, trash_table::dsl},
     SqliteConnection,
 };
-use folder_rev_model::{TrashRevision, TrashTypeRevision};
+use folder_model::{TrashRevision, TrashTypeRevision};
 
 pub struct TrashTableSql();
 impl TrashTableSql {

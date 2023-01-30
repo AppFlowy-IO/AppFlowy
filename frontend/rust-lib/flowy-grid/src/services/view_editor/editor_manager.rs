@@ -15,7 +15,7 @@ use crate::services::view_editor::{GridViewEditorDelegate, GridViewRevisionEdito
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration};
-use grid_rev_model::{FieldRevision, FilterRevision, RowChangeset, RowRevision, SortRevision};
+use grid_model::{FieldRevision, FilterRevision, RowChangeset, RowRevision, SortRevision};
 use lib_infra::future::Fut;
 use lib_infra::ref_map::RefCountHashMap;
 use std::borrow::Cow;

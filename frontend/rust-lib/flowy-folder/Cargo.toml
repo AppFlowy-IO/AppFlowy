@@ -6,16 +6,17 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-folder-rev-model = { path = "../../../shared-lib/folder-rev-model" }
-flowy-sync = { path = "../flowy-sync"}
-flowy-http-model = { path = "../../../shared-lib/flowy-http-model" }
+folder-model = { path = "../../../shared-lib/folder-model" }
+flowy-client-sync = { path = "../flowy-client-sync"}
+revision-model = { path = "../../../shared-lib/revision-model" }
+ws-model = { path = "../../../shared-lib/ws-model" }
 flowy-derive = { path = "../flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 flowy-document = { path = "../flowy-document" }
 flowy-database = { path = "../flowy-database", optional = true }
-flowy-error = { path = "../flowy-error", features = ["db", "http_server"]}
+flowy-error = { path = "../flowy-error", features = ["adaptor_database", "adaptor_dispatch"]}
 flowy-notification = { path = "../flowy-notification" }
 lib-dispatch = { path = "../lib-dispatch" }
 flowy-revision = { path = "../flowy-revision" }

@@ -5,9 +5,9 @@ use crate::services::field::{TypeOptionCellDataHandler, TypeOptionCellExt};
 use crate::services::row::GridBlockRowRevision;
 use crate::services::view_editor::GridViewEditorDelegate;
 
-use flowy_sync::client_grid::GridRevisionPad;
+use flowy_client_sync::client_grid::GridRevisionPad;
 use flowy_task::TaskDispatcher;
-use grid_rev_model::{FieldRevision, RowRevision};
+use grid_model::{FieldRevision, RowRevision};
 use lib_infra::future::{to_fut, Fut};
 use std::sync::Arc;
 use tokio::sync::RwLock;

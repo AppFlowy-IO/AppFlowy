@@ -7,7 +7,7 @@ use crate::services::row::GridBlockRowRevision;
 use crate::services::view_editor::{GridViewChanged, GridViewChangedNotifier};
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
-use grid_rev_model::{CellRevision, FieldId, FieldRevision, FilterRevision, RowRevision};
+use grid_model::{CellRevision, FieldId, FieldRevision, FilterRevision, RowRevision};
 use lib_infra::future::Fut;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

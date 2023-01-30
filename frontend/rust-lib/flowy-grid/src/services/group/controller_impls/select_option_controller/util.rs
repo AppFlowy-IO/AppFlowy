@@ -4,7 +4,7 @@ use crate::services::field::{SelectOptionCellDataPB, SelectOptionPB, CHECK};
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::MoveGroupRowContext;
 use crate::services::group::{GeneratedGroupConfig, Group};
-use grid_rev_model::{CellRevision, FieldRevision, GroupRevision, RowRevision, SelectOptionGroupConfigurationRevision};
+use grid_model::{CellRevision, FieldRevision, GroupRevision, RowRevision, SelectOptionGroupConfigurationRevision};
 
 pub type SelectOptionGroupContext = GroupContext<SelectOptionGroupConfigurationRevision>;
 

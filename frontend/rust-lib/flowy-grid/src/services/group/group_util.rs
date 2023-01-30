@@ -7,7 +7,7 @@ use crate::services::group::{
     URLGroupController,
 };
 use flowy_error::FlowyResult;
-use grid_rev_model::{
+use grid_model::{
     CheckboxGroupConfigurationRevision, DateGroupConfigurationRevision, FieldRevision, GroupConfigurationRevision,
     GroupRevision, LayoutRevision, NumberGroupConfigurationRevision, RowRevision,
     SelectOptionGroupConfigurationRevision, TextGroupConfigurationRevision, URLGroupConfigurationRevision,

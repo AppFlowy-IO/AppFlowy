@@ -1,10 +1,9 @@
-use crate::entities::{
-    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB,
-};
+use crate::entities::UserProfilePB;
 use crate::{errors::FlowyError, handlers::*, services::UserSession};
 use lib_dispatch::prelude::*;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
+use user_model::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams};
 
 pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
     AFPlugin::new()
