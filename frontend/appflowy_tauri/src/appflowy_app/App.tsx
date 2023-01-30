@@ -1,5 +1,14 @@
+import TestFonts from './components/TestFonts/TestFonts';
+
 const App = () => {
-  return <div className='text-white bg-gray-500 h-screen flex flex-col justify-center items-center gap-4'>Body</div>;
+  return (
+    <div className='bg-white text-black h-screen w-screen flex'>
+      <div className={'w-[200px]'}>Navigation</div>
+      <div className={'flex-1'}>
+        <TestFonts />
+      </div>
+    </div>
+  );
 };
 
 export default App;
