@@ -1,27 +1,26 @@
-#[cfg(feature = "collaboration")]
-mod collaborate;
-#[cfg(feature = "collaboration")]
-pub use collaborate::*;
+#[cfg(feature = "adaptor_sync")]
+pub mod sync;
 
-//
-#[cfg(feature = "ot")]
-mod ot;
-#[cfg(feature = "ot")]
-pub use ot::*;
+#[cfg(feature = "adaptor_ot")]
+pub mod ot;
 
-//
-#[cfg(feature = "serde")]
-mod serde;
-#[cfg(feature = "serde")]
-pub use serde::*;
+#[cfg(feature = "adaptor_serde")]
+pub mod serde;
 
-//
-#[cfg(feature = "http_server")]
-mod http_server;
-#[cfg(feature = "http_server")]
-pub use http_server::*;
+#[cfg(feature = "adaptor_dispatch")]
+pub mod dispatch;
 
-#[cfg(feature = "db")]
-mod database;
-#[cfg(feature = "db")]
-pub use database::*;
+#[cfg(feature = "adaptor_reqwest")]
+pub mod reqwest;
+
+#[cfg(feature = "adaptor_database")]
+pub mod database;
+
+#[cfg(feature = "adaptor_ws")]
+pub mod ws;
+
+#[cfg(feature = "adaptor_user")]
+pub mod user;
+
+#[cfg(feature = "adaptor_server_error")]
+pub mod http_server;

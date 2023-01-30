@@ -18,21 +18,21 @@ use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{GridBlockRow, GridBlockRowRevision, RowRevisionBuilder};
 use crate::services::view_editor::{GridViewChanged, GridViewManager};
 use bytes::Bytes;
+use flowy_client_sync::client_grid::{GridRevisionChangeset, GridRevisionPad, JsonDeserializer};
+use flowy_client_sync::errors::{SyncError, SyncResult};
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_http_model::revision::Revision;
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
-use flowy_sync::client_grid::{GridRevisionChangeset, GridRevisionPad, JsonDeserializer};
-use flowy_sync::errors::{CollaborateError, CollaborateResult};
-use flowy_sync::util::make_operations_from_revisions;
 use flowy_task::TaskDispatcher;
-use grid_rev_model::*;
+use grid_model::*;
 use lib_infra::future::{to_fut, FutureResult};
 use lib_ot::core::EmptyAttributes;
+use revision_model::Revision;
 use std::collections::HashMap;
 
+use flowy_client_sync::make_operations_from_revisions;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
@@ -235,7 +235,7 @@ impl GridRevisionEditor {
         let old_field_rev = self.get_field_rev(field_id).await;
         self.modify(|grid| {
             let changeset = grid.modify_field(field_id, |field_rev| {
-                f(field_rev).map_err(|e| CollaborateError::internal().context(e))
+                f(field_rev).map_err(|e| SyncError::internal().context(e))
             })?;
             is_changed = changeset.is_some();
             Ok(changeset)
@@ -920,7 +920,7 @@ impl RevisionMergeable for GridRevisionMergeable {
 
 struct TypeOptionJsonDeserializer(FieldType);
 impl JsonDeserializer for TypeOptionJsonDeserializer {
-    fn deserialize(&self, type_option_data: Vec<u8>) -> CollaborateResult<String> {
+    fn deserialize(&self, type_option_data: Vec<u8>) -> SyncResult<String> {
         // The type_option_data sent from Dart is serialized by protobuf.
         let builder = type_option_builder_from_bytes(type_option_data, &self.0);
         let json = builder.serializer().json_str();

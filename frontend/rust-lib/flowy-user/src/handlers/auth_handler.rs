@@ -3,6 +3,7 @@ use crate::services::UserSession;
 use flowy_error::FlowyError;
 use lib_dispatch::prelude::*;
 use std::{convert::TryInto, sync::Arc};
+use user_model::{SignInParams, SignUpParams};
 
 // tracing instrument 👉🏻 https://docs.rs/tracing/0.1.26/tracing/attr.instrument.html
 #[tracing::instrument(level = "debug", name = "sign_in", skip(data, session), fields(email = %data.email), err)]

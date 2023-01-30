@@ -19,12 +19,10 @@ futures = "0.3.17"
 bytes = "1.0"
 pin-project = "1.0"
 futures-core = { version = "0.3", default-features = false }
-paste = "1"
 url = "2.2.2"
 log = "0.4"
 tracing = { version = "0.1", features = ["log"] }
 protobuf = {version = "2.18.0"}
-strum = "0.21"
 strum_macros = "0.21"
 parking_lot = "0.12.1"
 dashmap = "5"

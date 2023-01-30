@@ -6,7 +6,7 @@ use crate::services::sort::{ReorderAllRowsResult, ReorderSingleRowResult, SortCh
 use crate::services::view_editor::{GridViewChanged, GridViewChangedNotifier};
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
-use grid_rev_model::{CellRevision, FieldRevision, RowRevision, SortCondition, SortRevision};
+use grid_model::{CellRevision, FieldRevision, RowRevision, SortCondition, SortRevision};
 use lib_infra::future::Fut;
 use rayon::prelude::ParallelSliceMut;
 use serde::{Deserialize, Serialize};

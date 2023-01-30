@@ -15,7 +15,7 @@ use bytes::Bytes;
 use flowy_document::editor::initial_read_me;
 use flowy_error::FlowyError;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket};
-use folder_rev_model::user_default;
+use folder_model::user_default;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 
@@ -23,11 +23,11 @@ use crate::services::clear_current_workspace;
 use crate::services::persistence::rev_sqlite::{
     SQLiteFolderRevisionPersistence, SQLiteFolderRevisionSnapshotPersistence,
 };
-use flowy_http_model::ws_data::ServerRevisionWSData;
-use flowy_sync::client_folder::FolderPad;
+use flowy_client_sync::client_folder::FolderPad;
 use std::convert::TryFrom;
 use std::{collections::HashMap, fmt::Formatter, sync::Arc};
 use tokio::sync::RwLock as TokioRwLock;
+use ws_model::ws_revision::ServerRevisionWSData;
 lazy_static! {
     static ref INIT_FOLDER_FLAG: TokioRwLock<HashMap<String, bool>> = TokioRwLock::new(HashMap::new());
 }

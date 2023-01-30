@@ -11,13 +11,13 @@ flowy-notification = { path = "../flowy-notification" }
 flowy-revision = { path = "../flowy-revision" }
 flowy-revision-persistence = { path = "../flowy-revision-persistence" }
 flowy-task= { path = "../flowy-task" }
-flowy-error = { path = "../flowy-error", features = ["db"]}
+flowy-error = { path = "../flowy-error", features = ["adaptor_database", "adaptor_dispatch"]}
 flowy-derive = { path = "../flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
-grid-rev-model = { path = "../../../shared-lib/grid-rev-model" }
-flowy-sync = { path = "../flowy-sync"}
-flowy-http-model = { path = "../../../shared-lib/flowy-http-model" }
+grid-model = { path = "../../../shared-lib/grid-model" }
+flowy-client-sync = { path = "../flowy-client-sync"}
+revision-model = { path = "../../../shared-lib/revision-model" }
 flowy-database = { path = "../flowy-database", optional = true }
 anyhow = "1.0"
 

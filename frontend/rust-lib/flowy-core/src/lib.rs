@@ -4,17 +4,14 @@ pub use flowy_net::get_client_server_configuration;
 
 use crate::deps_resolve::*;
 
+use flowy_client_ws::{listen_on_websocket, FlowyWebSocketConnect, NetworkType};
 use flowy_document::entities::DocumentVersionPB;
 use flowy_document::{DocumentConfig, DocumentManager};
 use flowy_folder::entities::ViewDataFormatPB;
 use flowy_folder::{errors::FlowyError, manager::FolderManager};
 use flowy_grid::manager::GridManager;
+use flowy_net::local_server::LocalServer;
 use flowy_net::ClientServerConfiguration;
-use flowy_net::{
-    entities::NetworkType,
-    local_server::LocalServer,
-    ws::connection::{listen_on_websocket, FlowyWebSocketConnect},
-};
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::services::{notifier::UserStatus, UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;

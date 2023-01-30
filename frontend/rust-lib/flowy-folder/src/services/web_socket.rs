@@ -1,17 +1,16 @@
 use crate::services::FOLDER_SYNC_INTERVAL_IN_MILLIS;
 use bytes::Bytes;
+use flowy_client_sync::client_folder::{FolderOperations, FolderPad};
+use flowy_client_sync::make_operations_from_revisions;
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_http_model::revision::{Revision, RevisionRange};
-use flowy_http_model::ws_data::{ClientRevisionWSData, NewDocumentUser};
 use flowy_revision::*;
-use flowy_sync::client_folder::FolderPad;
-use flowy_sync::server_folder::FolderOperations;
-use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ot::core::OperationTransform;
 use parking_lot::RwLock;
+use revision_model::{Revision, RevisionRange};
 use std::{sync::Arc, time::Duration};
+use ws_model::ws_revision::{ClientRevisionWSData, NewDocumentUser};
 
 #[derive(Clone)]
 pub struct FolderResolveOperations(pub FolderOperations);

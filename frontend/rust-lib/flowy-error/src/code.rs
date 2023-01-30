@@ -1,7 +1,9 @@
 use flowy_derive::ProtoBuf_Enum;
+use serde_repr::*;
 use thiserror::Error;
 
-#[derive(Debug, Clone, PartialEq, Eq, Error, ProtoBuf_Enum)]
+#[derive(Debug, Clone, PartialEq, Eq, Error, Serialize_repr, Deserialize_repr, ProtoBuf_Enum)]
+#[repr(u8)]
 pub enum ErrorCode {
     #[error("Internal error")]
     Internal = 0,
@@ -92,6 +94,7 @@ pub enum ErrorCode {
 
     #[error("user id is empty or whitespace")]
     UserIdInvalid = 30,
+
     #[error("User not exist")]
     UserNotExist = 31,
 
@@ -160,6 +163,27 @@ pub enum ErrorCode {
 
     #[error("Sort id is empty")]
     SortIdIsEmpty = 53,
+
+    #[error("Connect refused")]
+    ConnectRefused = 54,
+
+    #[error("Connection timeout")]
+    ConnectTimeout = 55,
+
+    #[error("Connection closed")]
+    ConnectClose = 56,
+
+    #[error("Connection canceled")]
+    ConnectCancel = 57,
+
+    #[error("Sql error")]
+    SqlError = 58,
+
+    #[error("Http request error")]
+    HttpError = 59,
+
+    #[error("Payload should not be empty")]
+    UnexpectedEmptyPayload = 60,
 }
 
 impl ErrorCode {

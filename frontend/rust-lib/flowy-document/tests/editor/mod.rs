@@ -5,7 +5,7 @@ mod serde_test;
 mod undo_redo_test;
 
 use derive_more::Display;
-use flowy_sync::client_document::{ClientDocument, InitialDocument};
+use flowy_client_sync::client_document::{ClientDocument, InitialDocument};
 use lib_ot::{
     core::*,
     text_delta::{BuildInTextAttribute, DeltaTextOperations},
@@ -242,8 +242,8 @@ impl TestBuilder {
                 let target_prime: DeltaTextOperations = serde_json::from_str(&prime_json).unwrap();
 
                 if expected_prime != target_prime {
-                    log::error!("✅ expect prime: {}", expected,);
-                    log::error!("❌ receive prime: {}", prime_json);
+                    tracing::error!("✅ expect prime: {}", expected,);
+                    tracing::error!("❌ receive prime: {}", prime_json);
                 }
                 assert_eq!(target_prime, expected_prime);
             }

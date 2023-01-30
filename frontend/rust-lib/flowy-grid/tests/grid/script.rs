@@ -1,12 +1,12 @@
 use bytes::Bytes;
+use flowy_client_sync::client_grid::GridBuilder;
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_meta_editor::{GridMetaEditor, GridPadBuilder};
 use flowy_grid::services::row::CreateRowMetaPayload;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
-use flowy_sync::client_grid::GridBuilder;
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
-use grid_rev_model::entities::{
+use grid_model::entities::{
     BuildGridContext, CellChangeset, Field, FieldChangesetParams, FieldMeta, FieldOrder, FieldType,
     GridBlockInfoChangeset, GridBlockMetaSnapshot, InsertFieldParams, RowMeta, RowMetaChangeset, RowOrder,
     TypeOptionDataFormat,

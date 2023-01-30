@@ -6,7 +6,6 @@ use crate::{DocumentEditor, DocumentUser};
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_http_model::ws_data::ServerRevisionWSData;
 use flowy_revision::{RevisionCloudService, RevisionManager};
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
@@ -15,6 +14,7 @@ use lib_ws::WSConnectState;
 use std::any::Any;
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
+use ws_model::ws_revision::ServerRevisionWSData;
 
 pub struct AppFlowyDocumentEditor {
     #[allow(dead_code)]

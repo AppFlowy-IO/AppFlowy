@@ -5,7 +5,7 @@ use crate::{
     impl_def_and_def_mut,
 };
 use flowy_derive::ProtoBuf;
-use folder_rev_model::WorkspaceRevision;
+use folder_model::WorkspaceRevision;
 use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]

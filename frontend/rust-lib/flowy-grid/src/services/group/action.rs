@@ -3,7 +3,7 @@ use crate::services::cell::DecodedCellData;
 use crate::services::group::controller::MoveGroupRowContext;
 use crate::services::group::Group;
 use flowy_error::FlowyResult;
-use grid_rev_model::{CellRevision, FieldRevision, RowRevision};
+use grid_model::{CellRevision, FieldRevision, RowRevision};
 use std::sync::Arc;
 
 /// Using polymorphism to provides the customs action for different group controller.
