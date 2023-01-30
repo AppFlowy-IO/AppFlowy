@@ -170,7 +170,8 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
               focusNode: focusNode,
               onSubmitted: (String _) => PopoverContainer.of(context).close(),
               text: context.read<FieldEditorBloc>().state.name,
-              errorText: context.read<FieldEditorBloc>().state.errorText,
+              errorText: context.read<FieldEditorBloc>().state.errorText.isEmpty ?
+                null : context.read<FieldEditorBloc>().state.errorText,
               onChanged: (newName) {
                 context
                     .read<FieldEditorBloc>()
