@@ -6,7 +6,6 @@ import {
 import { nanoid } from "nanoid";
 import { UserNotificationListener } from "./components/user/application/notifications";
 
-
 function App() {
   async function sendSignInEvent() {
     let make_payload = () =>
@@ -31,11 +30,18 @@ function App() {
   }
 
   return (
-    <div className="container">
-      <h1>Welcome to AppFlowy!</h1>
-      <button type="button" onClick={() => sendSignInEvent()}>
-       Test Sign In Event 
-      </button>
+    <div className="text-white bg-gray-500 h-screen flex flex-col justify-center items-center gap-4">
+      <h1 className="text-3xl">Welcome to AppFlowy!</h1>
+
+      <div>
+        <button
+          className="bg-gray-700 p-4 rounded-md"
+          type="button"
+          onClick={() => sendSignInEvent()}
+        >
+          Test Sign In Event 
+        </button>
+      </div>
     </div>
   );
 }
