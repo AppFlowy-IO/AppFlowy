@@ -10,12 +10,12 @@ use crate::{errors::FlowyError, DocumentCloudService};
 use bytes::Bytes;
 use document_model::document::DocumentId;
 use flowy_client_sync::client_document::initial_delta_document_content;
-use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_revision::{
     PhantomSnapshotPersistence, RevisionCloudService, RevisionManager, RevisionPersistence,
     RevisionPersistenceConfiguration, RevisionWebSocket,
 };
+use flowy_sqlite::ConnectionPool;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};

@@ -984,13 +984,13 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "flowy-client-ws",
- "flowy-database",
  "flowy-document",
  "flowy-error",
  "flowy-folder",
  "flowy-grid",
  "flowy-net",
  "flowy-revision",
+ "flowy-sqlite",
  "flowy-task",
  "flowy-user",
  "futures-core",
@@ -1004,23 +1004,6 @@ dependencies = [
  "tokio",
  "tracing",
  "ws-model",
-]
-
-[[package]]
-name = "flowy-database"
-version = "0.1.0"
-dependencies = [
- "diesel",
- "diesel_derives",
- "diesel_migrations",
- "error-chain",
- "lazy_static",
- "libsqlite3-sys",
- "openssl",
- "openssl-sys",
- "r2d2",
- "scheduled-thread-pool",
- "tracing",
 ]
 
 [[package]]
@@ -1057,13 +1040,13 @@ dependencies = [
  "document-model",
  "flowy-client-sync",
  "flowy-codegen",
- "flowy-database",
  "flowy-derive",
  "flowy-document",
  "flowy-error",
  "flowy-notification",
  "flowy-revision",
  "flowy-revision-persistence",
+ "flowy-sqlite",
  "flowy-test",
  "futures",
  "futures-util",
@@ -1096,8 +1079,8 @@ dependencies = [
  "flowy-client-sync",
  "flowy-client-ws",
  "flowy-codegen",
- "flowy-database",
  "flowy-derive",
+ "flowy-sqlite",
  "http-error-code",
  "lib-dispatch",
  "lib-ot",
@@ -1120,7 +1103,6 @@ dependencies = [
  "diesel_derives",
  "flowy-client-sync",
  "flowy-codegen",
- "flowy-database",
  "flowy-derive",
  "flowy-document",
  "flowy-error",
@@ -1128,6 +1110,7 @@ dependencies = [
  "flowy-notification",
  "flowy-revision",
  "flowy-revision-persistence",
+ "flowy-sqlite",
  "flowy-test",
  "folder-model",
  "futures",
@@ -1165,13 +1148,13 @@ dependencies = [
  "fancy-regex 0.10.0",
  "flowy-client-sync",
  "flowy-codegen",
- "flowy-database",
  "flowy-derive",
  "flowy-error",
  "flowy-grid",
  "flowy-notification",
  "flowy-revision",
  "flowy-revision-persistence",
+ "flowy-sqlite",
  "flowy-task",
  "flowy-test",
  "futures",
@@ -1314,6 +1297,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-sqlite"
+version = "0.1.0"
+dependencies = [
+ "diesel",
+ "diesel_derives",
+ "diesel_migrations",
+ "error-chain",
+ "lazy_static",
+ "libsqlite3-sys",
+ "openssl",
+ "openssl-sys",
+ "r2d2",
+ "scheduled-thread-pool",
+ "tracing",
+]
+
+[[package]]
 name = "flowy-sync"
 version = "0.1.0"
 dependencies = [
@@ -1382,10 +1382,10 @@ dependencies = [
  "diesel",
  "diesel_derives",
  "flowy-codegen",
- "flowy-database",
  "flowy-derive",
  "flowy-error",
  "flowy-notification",
+ "flowy-sqlite",
  "flowy-test",
  "lazy_static",
  "lib-dispatch",

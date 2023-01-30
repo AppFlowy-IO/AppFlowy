@@ -1,7 +1,7 @@
 use crate::entities::UserProfilePB;
-use flowy_database::ConnectionPool;
-use flowy_database::{schema::user_table, DBConnection, Database};
 use flowy_error::{ErrorCode, FlowyError};
+use flowy_sqlite::ConnectionPool;
+use flowy_sqlite::{schema::user_table, DBConnection, Database};
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
 use std::path::PathBuf;
@@ -41,7 +41,7 @@ impl UserDB {
         let dir = dir.to_str().unwrap().to_owned();
 
         tracing::trace!("open user db {} at path: {}", user_id, dir);
-        let db = flowy_database::init(&dir).map_err(|e| {
+        let db = flowy_sqlite::init(&dir).map_err(|e| {
             tracing::error!("open user: {} db failed, {:?}", user_id, e);
             FlowyError::internal().context(e)
         })?;

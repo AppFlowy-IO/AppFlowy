@@ -1,5 +1,5 @@
 use bytes::Bytes;
-use flowy_database::ConnectionPool;
+use flowy_sqlite::ConnectionPool;
 
 use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_document::DocumentManager;

@@ -7,12 +7,12 @@ use bytes::Bytes;
 use document_model::document::DocumentInfo;
 use flowy_client_sync::errors::SyncResult;
 use flowy_client_sync::make_operations_from_revisions;
-use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyResult};
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
     RevisionWebSocket,
 };
+use flowy_sqlite::ConnectionPool;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use lib_ot::core::{AttributeEntry, AttributeHashMap};

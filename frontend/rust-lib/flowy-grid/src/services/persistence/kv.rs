@@ -2,11 +2,11 @@ use crate::services::persistence::GridDatabase;
 use ::diesel::{query_dsl::*, ExpressionMethods};
 use bytes::Bytes;
 use diesel::SqliteConnection;
-use flowy_database::{
+use flowy_error::{FlowyError, FlowyResult};
+use flowy_sqlite::{
     prelude::*,
     schema::{kv_table, kv_table::dsl},
 };
-use flowy_error::{FlowyError, FlowyResult};
 use std::sync::Arc;
 
 #[derive(PartialEq, Eq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]

@@ -28,8 +28,8 @@ pub mod prelude {
     pub use diesel::{query_dsl::*, BelongingToDsl, ExpressionMethods, RunQueryDsl};
 }
 
-embed_migrations!("../flowy-database/migrations/");
-pub const DB_NAME: &str = "flowy-database.db";
+embed_migrations!("../flowy-sqlite/migrations/");
+pub const DB_NAME: &str = "flowy-sqlite.db";
 
 pub fn init(storage_path: &str) -> Result<Database, io::Error> {
     if !Path::new(storage_path).exists() {

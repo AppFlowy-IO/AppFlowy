@@ -7,7 +7,7 @@ members = [
   "dart-ffi",
   "flowy-user",
   "flowy-test",
-  "flowy-database",
+  "flowy-sqlite",
   "flowy-folder",
   "flowy-notification",
   "flowy-document",

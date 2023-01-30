@@ -11,7 +11,7 @@ use flowy_grid::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilter
 use flowy_grid::services::field::{SelectOptionCellChangeset, SelectOptionIds};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use grid_model::{FieldRevision, FieldTypeRevision};
-use flowy_database::schema::view_table::dsl::view_table;
+use flowy_sqlite::schema::view_table::dsl::view_table;
 use flowy_grid::services::cell::insert_select_option_cell;
 use flowy_grid::services::filter::FilterType;
 use flowy_grid::services::view_editor::GridViewChanged;

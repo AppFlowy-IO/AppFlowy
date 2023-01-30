@@ -8,9 +8,9 @@ use crate::services::persistence::rev_sqlite::{
 };
 use crate::services::row::{make_row_from_row_rev, GridBlockRow, GridBlockRowRevision};
 use dashmap::DashMap;
-use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration};
+use flowy_sqlite::ConnectionPool;
 use grid_model::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision};
 use std::borrow::Cow;
 use std::collections::HashMap;

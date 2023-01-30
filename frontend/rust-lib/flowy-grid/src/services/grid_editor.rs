@@ -20,11 +20,11 @@ use crate::services::view_editor::{GridViewChanged, GridViewManager};
 use bytes::Bytes;
 use flowy_client_sync::client_grid::{GridRevisionChangeset, GridRevisionPad, JsonDeserializer};
 use flowy_client_sync::errors::{SyncError, SyncResult};
-use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
+use flowy_sqlite::ConnectionPool;
 use flowy_task::TaskDispatcher;
 use grid_model::*;
 use lib_infra::future::{to_fut, FutureResult};

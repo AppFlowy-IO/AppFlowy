@@ -1,5 +1,5 @@
-use flowy_database::{ConnectionPool, DBConnection};
 use flowy_error::FlowyError;
+use flowy_sqlite::{ConnectionPool, DBConnection};
 use std::sync::Arc;
 
 pub mod block_index;

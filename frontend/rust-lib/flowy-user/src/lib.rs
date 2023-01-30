@@ -7,7 +7,7 @@ pub mod services;
 // mod sql_tables;
 
 #[macro_use]
-extern crate flowy_database;
+extern crate flowy_sqlite;
 
 pub mod errors {
     pub use flowy_error::*;

@@ -8,11 +8,11 @@ use crate::services::view_editor::{get_cells_for_field, GridViewEditorDelegate};
 use bytes::Bytes;
 use flowy_client_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_client_sync::make_operations_from_revisions;
-use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
+use flowy_sqlite::ConnectionPool;
 use grid_model::{
     FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, RowRevision, SortRevision,
 };

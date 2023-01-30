@@ -96,7 +96,7 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
     // filters.push(format!("lib_dispatch={}", level));
 
     filters.push(format!("dart_ffi={}", "info"));
-    filters.push(format!("flowy_database={}", "info"));
+    filters.push(format!("flowy_sqlite={}", "info"));
     filters.push(format!("flowy_net={}", "info"));
     filters.join(",")
 }
@@ -320,7 +320,7 @@ async fn _listen_network_status(mut subscribe: broadcast::Receiver<NetworkType>,
 }
 
 fn init_kv(root: &str) {
-    match flowy_database::kv::KV::init(root) {
+    match flowy_sqlite::kv::KV::init(root) {
         Ok(_) => {}
         Err(e) => tracing::error!("Init kv store failed: {}", e),
     }

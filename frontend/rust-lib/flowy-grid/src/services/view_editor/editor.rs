@@ -14,9 +14,9 @@ use crate::services::view_editor::changed_notifier::GridViewChangedNotifier;
 use crate::services::view_editor::trait_impl::*;
 use crate::services::view_editor::GridViewChangedReceiverRunner;
 use flowy_client_sync::client_grid::{make_grid_view_operations, GridViewRevisionChangeset, GridViewRevisionPad};
-use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_revision::RevisionManager;
+use flowy_sqlite::ConnectionPool;
 use flowy_task::TaskDispatcher;
 use grid_model::{
     gen_grid_filter_id, gen_grid_sort_id, FieldRevision, FieldTypeRevision, FilterRevision, LayoutRevision,

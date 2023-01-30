@@ -1,10 +1,10 @@
 use crate::services::persistence::GridDatabase;
 use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
-use flowy_database::{
+use flowy_error::FlowyResult;
+use flowy_sqlite::{
     prelude::*,
     schema::{grid_block_index_table, grid_block_index_table::dsl},
 };
-use flowy_error::FlowyResult;
 use std::sync::Arc;
 
 /// Allow getting the block id from row id.
