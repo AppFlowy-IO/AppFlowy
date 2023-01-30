@@ -4,6 +4,7 @@ use crate::services::field::*;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use grid_model::{CellRevision, FieldRevision};
+use crate::services::group::{make_no_status_group};
 
 use std::fmt::Debug;
 
@@ -209,6 +210,16 @@ pub fn insert_number_cell(num: i64, field_rev: &FieldRevision) -> CellRevision {
 }
 
 pub fn insert_url_cell(url: String, field_rev: &FieldRevision) -> CellRevision {
+    // chacking if url is equal to group id of no status group because evereywhere
+    // except group of rows with empty url the group id is equal to the url
+    // so then on the case that url is equal to empty url group id we should change
+    // the url to empty string
+    let _no_status_group_id = make_no_status_group(field_rev).id;
+    let url = match url {
+        a if a == _no_status_group_id => "".to_owned(),
+        _ => url,
+    };
+
     let data = apply_cell_data_changeset(url, None, field_rev, None).unwrap();
     CellRevision::new(data)
 }

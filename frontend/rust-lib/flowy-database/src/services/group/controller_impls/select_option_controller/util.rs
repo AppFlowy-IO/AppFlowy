@@ -3,7 +3,7 @@ use crate::services::cell::{insert_checkbox_cell, insert_select_option_cell, ins
 use crate::services::field::{SelectOptionCellDataPB, SelectOptionPB, CHECK};
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::MoveGroupRowContext;
-use crate::services::group::{GeneratedGroupConfig, Group, make_no_status_group};
+use crate::services::group::{GeneratedGroupConfig, Group};
 use grid_model::{CellRevision, FieldRevision, GroupRevision, RowRevision, SelectOptionGroupConfigurationRevision};
 
 pub type SelectOptionGroupContext = GroupContext<SelectOptionGroupConfigurationRevision>;
@@ -144,13 +144,7 @@ pub fn make_inserted_cell_rev(group_id: &str, field_rev: &FieldRevision) -> Opti
             Some(cell_rev)
         }
         FieldType::URL => {
-            let _no_status_id = make_no_status_group(field_rev).id;
-            let url = match group_id {
-                a if a == _no_status_id => "".to_owned(),
-                _ => group_id.to_owned()
-            };
-
-            let cell_rev = insert_url_cell(url, field_rev);
+            let cell_rev = insert_url_cell(group_id.to_owned(), field_rev);
             Some(cell_rev)
         }
         _ => {
