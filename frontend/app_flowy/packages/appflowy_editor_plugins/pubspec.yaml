@@ -16,7 +16,7 @@ dependencies:
     path: ../appflowy_editor
   flowy_infra: 
     path: ../flowy_infra
-  flowy_infra_ui: 
+  flowy_infra_ui:
     path: ../flowy_infra_ui
   appflowy_popover: 
     path: ../appflowy_popover
