@@ -8,53 +8,56 @@ use strum_macros::Display;
 pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
     let mut plugin = AFPlugin::new().name(env!("CARGO_PKG_NAME")).state(database_manager);
     plugin = plugin
-        .event(GridEvent::GetDatabase, get_grid_handler)
+        .event(DatabaseEvent::GetDatabase, get_grid_handler)
         // .event(GridEvent::GetGridBlocks, get_grid_blocks_handler)
-        .event(GridEvent::GetDatabaseSetting, get_database_setting_handler)
-        .event(GridEvent::UpdateDatabaseSetting, update_database_setting_handler)
-        .event(GridEvent::GetAllFilters, get_all_filters_handler)
-        .event(GridEvent::GetAllSorts, get_all_sorts_handler)
-        .event(GridEvent::DeleteAllSorts, delete_all_sorts_handler)
+        .event(DatabaseEvent::GetDatabaseSetting, get_database_setting_handler)
+        .event(DatabaseEvent::UpdateDatabaseSetting, update_database_setting_handler)
+        .event(DatabaseEvent::GetAllFilters, get_all_filters_handler)
+        .event(DatabaseEvent::GetAllSorts, get_all_sorts_handler)
+        .event(DatabaseEvent::DeleteAllSorts, delete_all_sorts_handler)
         // Field
-        .event(GridEvent::GetFields, get_fields_handler)
-        .event(GridEvent::UpdateField, update_field_handler)
-        .event(GridEvent::UpdateFieldTypeOption, update_field_type_option_handler)
-        .event(GridEvent::DeleteField, delete_field_handler)
-        .event(GridEvent::SwitchToField, switch_to_field_handler)
-        .event(GridEvent::DuplicateField, duplicate_field_handler)
-        .event(GridEvent::MoveField, move_field_handler)
-        .event(GridEvent::GetFieldTypeOption, get_field_type_option_data_handler)
-        .event(GridEvent::CreateFieldTypeOption, create_field_type_option_data_handler)
+        .event(DatabaseEvent::GetFields, get_fields_handler)
+        .event(DatabaseEvent::UpdateField, update_field_handler)
+        .event(DatabaseEvent::UpdateFieldTypeOption, update_field_type_option_handler)
+        .event(DatabaseEvent::DeleteField, delete_field_handler)
+        .event(DatabaseEvent::SwitchToField, switch_to_field_handler)
+        .event(DatabaseEvent::DuplicateField, duplicate_field_handler)
+        .event(DatabaseEvent::MoveField, move_field_handler)
+        .event(DatabaseEvent::GetFieldTypeOption, get_field_type_option_data_handler)
+        .event(
+            DatabaseEvent::CreateFieldTypeOption,
+            create_field_type_option_data_handler,
+        )
         // Row
-        .event(GridEvent::CreateTableRow, create_table_row_handler)
-        .event(GridEvent::GetRow, get_row_handler)
-        .event(GridEvent::DeleteRow, delete_row_handler)
-        .event(GridEvent::DuplicateRow, duplicate_row_handler)
-        .event(GridEvent::MoveRow, move_row_handler)
+        .event(DatabaseEvent::CreateTableRow, create_table_row_handler)
+        .event(DatabaseEvent::GetRow, get_row_handler)
+        .event(DatabaseEvent::DeleteRow, delete_row_handler)
+        .event(DatabaseEvent::DuplicateRow, duplicate_row_handler)
+        .event(DatabaseEvent::MoveRow, move_row_handler)
         // Cell
-        .event(GridEvent::GetCell, get_cell_handler)
-        .event(GridEvent::UpdateCell, update_cell_handler)
+        .event(DatabaseEvent::GetCell, get_cell_handler)
+        .event(DatabaseEvent::UpdateCell, update_cell_handler)
         // SelectOption
-        .event(GridEvent::NewSelectOption, new_select_option_handler)
-        .event(GridEvent::UpdateSelectOption, update_select_option_handler)
-        .event(GridEvent::GetSelectOptionCellData, get_select_option_handler)
-        .event(GridEvent::UpdateSelectOptionCell, update_select_option_cell_handler)
+        .event(DatabaseEvent::NewSelectOption, new_select_option_handler)
+        .event(DatabaseEvent::UpdateSelectOption, update_select_option_handler)
+        .event(DatabaseEvent::GetSelectOptionCellData, get_select_option_handler)
+        .event(DatabaseEvent::UpdateSelectOptionCell, update_select_option_cell_handler)
         // Date
-        .event(GridEvent::UpdateDateCell, update_date_cell_handler)
+        .event(DatabaseEvent::UpdateDateCell, update_date_cell_handler)
         // Group
-        .event(GridEvent::CreateBoardCard, create_board_card_handler)
-        .event(GridEvent::MoveGroup, move_group_handler)
-        .event(GridEvent::MoveGroupRow, move_group_row_handler)
-        .event(GridEvent::GetGroup, get_groups_handler);
+        .event(DatabaseEvent::CreateBoardCard, create_board_card_handler)
+        .event(DatabaseEvent::MoveGroup, move_group_handler)
+        .event(DatabaseEvent::MoveGroupRow, move_group_row_handler)
+        .event(DatabaseEvent::GetGroup, get_groups_handler);
 
     plugin
 }
 
-/// [GridEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
+/// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
 /// out, it includes how to use these annotations: input, output, etc.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
-pub enum GridEvent {
+pub enum DatabaseEvent {
     /// [GetGrid] event is used to get the [DatabasePB]
     ///
     /// The event handler accepts a [DatabaseIdPB] and returns a [DatabasePB] if there are no errors.

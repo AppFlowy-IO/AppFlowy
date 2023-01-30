@@ -21,6 +21,6 @@ class TypeOptionFFIService {
       ..gridId = gridId
       ..fieldId = fieldId;
 
-    return GridEventNewSelectOption(payload).send();
+    return DatabaseEventNewSelectOption(payload).send();
   }
 }

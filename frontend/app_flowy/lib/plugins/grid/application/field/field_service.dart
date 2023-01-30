@@ -24,7 +24,7 @@ class FieldService {
       ..fromIndex = fromIndex
       ..toIndex = toIndex;
 
-    return GridEventMoveField(payload).send();
+    return DatabaseEventMoveField(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> updateField({
@@ -58,7 +58,7 @@ class FieldService {
       payload.width = width.toInt();
     }
 
-    return GridEventUpdateField(payload).send();
+    return DatabaseEventUpdateField(payload).send();
   }
 
   static Future<Either<Unit, FlowyError>> updateFieldTypeOption({
@@ -71,7 +71,7 @@ class FieldService {
       ..fieldId = fieldId
       ..typeOptionData = typeOptionData;
 
-    return GridEventUpdateFieldTypeOption(payload).send();
+    return DatabaseEventUpdateFieldTypeOption(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> deleteField() {
@@ -79,7 +79,7 @@ class FieldService {
       ..gridId = gridId
       ..fieldId = fieldId;
 
-    return GridEventDeleteField(payload).send();
+    return DatabaseEventDeleteField(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> duplicateField() {
@@ -87,7 +87,7 @@ class FieldService {
       ..gridId = gridId
       ..fieldId = fieldId;
 
-    return GridEventDuplicateField(payload).send();
+    return DatabaseEventDuplicateField(payload).send();
   }
 
   Future<Either<TypeOptionPB, FlowyError>> getFieldTypeOptionData({
@@ -97,7 +97,7 @@ class FieldService {
       ..gridId = gridId
       ..fieldId = fieldId
       ..fieldType = fieldType;
-    return GridEventGetFieldTypeOption(payload).send().then((result) {
+    return DatabaseEventGetFieldTypeOption(payload).send().then((result) {
       return result.fold(
         (data) => left(data),
         (err) => right(err),

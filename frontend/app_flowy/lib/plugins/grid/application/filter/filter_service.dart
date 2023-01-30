@@ -21,7 +21,7 @@ class FilterFFIService {
   Future<Either<List<FilterPB>, FlowyError>> getAllFilters() {
     final payload = DatabaseIdPB()..value = viewId;
 
-    return GridEventGetAllFilters(payload).send().then((result) {
+    return DatabaseEventGetAllFilters(payload).send().then((result) {
       return result.fold(
         (repeated) => left(repeated.items),
         (r) => right(r),
@@ -181,7 +181,7 @@ class FilterFFIService {
     final payload = DatabaseSettingChangesetPB.create()
       ..gridId = viewId
       ..alterFilter = insertFilterPayload;
-    return GridEventUpdateDatabaseSetting(payload).send().then((result) {
+    return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
         (err) {
@@ -207,7 +207,7 @@ class FilterFFIService {
       ..gridId = viewId
       ..deleteFilter = deleteFilterPayload;
 
-    return GridEventUpdateDatabaseSetting(payload).send().then((result) {
+    return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
         (err) {

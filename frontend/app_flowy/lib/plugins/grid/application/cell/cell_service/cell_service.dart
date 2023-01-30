@@ -39,7 +39,7 @@ class CellService {
       ..fieldId = cellId.fieldId
       ..rowId = cellId.rowId
       ..typeCellData = data;
-    return GridEventUpdateCell(payload).send();
+    return DatabaseEventUpdateCell(payload).send();
   }
 
   Future<Either<CellPB, FlowyError>> getCell({
@@ -49,7 +49,7 @@ class CellService {
       ..viewId = cellId.gridId
       ..fieldId = cellId.fieldId
       ..rowId = cellId.rowId;
-    return GridEventGetCell(payload).send();
+    return DatabaseEventGetCell(payload).send();
   }
 }
 

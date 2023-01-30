@@ -51,7 +51,7 @@ class DateCellDataPersistence implements GridCellDataPersistence<CalendarData> {
       payload.time = data.time!;
     }
 
-    return GridEventUpdateDateCell(payload).send().then((result) {
+    return DatabaseEventUpdateDateCell(payload).send().then((result) {
       return result.fold(
         (l) => none(),
         (err) => Some(err),

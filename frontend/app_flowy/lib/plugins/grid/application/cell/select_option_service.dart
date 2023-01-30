@@ -34,7 +34,7 @@ class SelectOptionFFIService {
             } else {
               payload.updateOptions.add(option);
             }
-            return GridEventUpdateSelectOption(payload).send();
+            return DatabaseEventUpdateSelectOption(payload).send();
           },
           (r) => right(r),
         );
@@ -48,7 +48,7 @@ class SelectOptionFFIService {
     final payload = SelectOptionChangesetPB.create()
       ..updateOptions.add(option)
       ..cellIdentifier = _cellIdentifier();
-    return GridEventUpdateSelectOption(payload).send();
+    return DatabaseEventUpdateSelectOption(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> delete(
@@ -57,7 +57,7 @@ class SelectOptionFFIService {
       ..deleteOptions.addAll(options)
       ..cellIdentifier = _cellIdentifier();
 
-    return GridEventUpdateSelectOption(payload).send();
+    return DatabaseEventUpdateSelectOption(payload).send();
   }
 
   Future<Either<SelectOptionCellDataPB, FlowyError>> getOptionContext() {
@@ -66,7 +66,7 @@ class SelectOptionFFIService {
       ..fieldId = fieldId
       ..rowId = rowId;
 
-    return GridEventGetSelectOptionCellData(payload).send();
+    return DatabaseEventGetSelectOptionCellData(payload).send();
   }
 
   Future<Either<void, FlowyError>> select(
@@ -74,7 +74,7 @@ class SelectOptionFFIService {
     final payload = SelectOptionCellChangesetPB.create()
       ..cellIdentifier = _cellIdentifier()
       ..insertOptionIds.addAll(optionIds);
-    return GridEventUpdateSelectOptionCell(payload).send();
+    return DatabaseEventUpdateSelectOptionCell(payload).send();
   }
 
   Future<Either<void, FlowyError>> unSelect(
@@ -82,7 +82,7 @@ class SelectOptionFFIService {
     final payload = SelectOptionCellChangesetPB.create()
       ..cellIdentifier = _cellIdentifier()
       ..deleteOptionIds.addAll(optionIds);
-    return GridEventUpdateSelectOptionCell(payload).send();
+    return DatabaseEventUpdateSelectOptionCell(payload).send();
   }
 
   CellPathPB _cellIdentifier() {

@@ -17,7 +17,7 @@ class RowFFIService {
       ..gridId = gridId
       ..startRowId = rowId;
 
-    return GridEventCreateTableRow(payload).send();
+    return DatabaseEventCreateTableRow(payload).send();
   }
 
   Future<Either<OptionalRowPB, FlowyError>> getRow(String rowId) {
@@ -25,7 +25,7 @@ class RowFFIService {
       ..gridId = gridId
       ..rowId = rowId;
 
-    return GridEventGetRow(payload).send();
+    return DatabaseEventGetRow(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> deleteRow(String rowId) {
@@ -33,7 +33,7 @@ class RowFFIService {
       ..gridId = gridId
       ..rowId = rowId;
 
-    return GridEventDeleteRow(payload).send();
+    return DatabaseEventDeleteRow(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> duplicateRow(String rowId) {
@@ -41,7 +41,7 @@ class RowFFIService {
       ..gridId = gridId
       ..rowId = rowId;
 
-    return GridEventDuplicateRow(payload).send();
+    return DatabaseEventDuplicateRow(payload).send();
   }
 }
 
@@ -61,7 +61,7 @@ class MoveRowFFIService {
       ..fromRowId = fromRowId
       ..toRowId = toRowId;
 
-    return GridEventMoveRow(payload).send();
+    return DatabaseEventMoveRow(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> moveGroupRow({
@@ -78,7 +78,7 @@ class MoveRowFFIService {
       payload.toRowId = toRowId;
     }
 
-    return GridEventMoveGroupRow(payload).send();
+    return DatabaseEventMoveGroupRow(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> moveGroup({
@@ -90,6 +90,6 @@ class MoveRowFFIService {
       ..fromGroupId = fromGroupId
       ..toGroupId = toGroupId;
 
-    return GridEventMoveGroup(payload).send();
+    return DatabaseEventMoveGroup(payload).send();
   }
 }

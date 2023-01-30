@@ -13,7 +13,7 @@ class SettingFFIService {
 
   Future<Either<DatabaseViewSettingPB, FlowyError>> getSetting() {
     final payload = DatabaseIdPB.create()..value = viewId;
-    return GridEventGetDatabaseSetting(payload).send();
+    return DatabaseEventGetDatabaseSetting(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> groupByField({
@@ -27,6 +27,6 @@ class SettingFFIService {
       ..gridId = viewId
       ..insertGroup = insertGroupPayload;
 
-    return GridEventUpdateDatabaseSetting(payload).send();
+    return DatabaseEventUpdateDatabaseSetting(payload).send();
   }
 }

@@ -15,7 +15,7 @@ class SortFFIService {
   Future<Either<List<SortPB>, FlowyError>> getAllSorts() {
     final payload = DatabaseIdPB()..value = viewId;
 
-    return GridEventGetAllSorts(payload).send().then((result) {
+    return DatabaseEventGetAllSorts(payload).send().then((result) {
       return result.fold(
         (repeated) => left(repeated.items),
         (r) => right(r),
@@ -39,7 +39,7 @@ class SortFFIService {
     final payload = DatabaseSettingChangesetPB.create()
       ..gridId = viewId
       ..alterSort = insertSortPayload;
-    return GridEventUpdateDatabaseSetting(payload).send().then((result) {
+    return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
         (err) {
@@ -64,7 +64,7 @@ class SortFFIService {
     final payload = DatabaseSettingChangesetPB.create()
       ..gridId = viewId
       ..alterSort = insertSortPayload;
-    return GridEventUpdateDatabaseSetting(payload).send().then((result) {
+    return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
         (err) {
@@ -90,7 +90,7 @@ class SortFFIService {
       ..gridId = viewId
       ..deleteSort = deleteFilterPayload;
 
-    return GridEventUpdateDatabaseSetting(payload).send().then((result) {
+    return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
         (err) {
@@ -103,7 +103,7 @@ class SortFFIService {
 
   Future<Either<Unit, FlowyError>> deleteAllSorts() {
     final payload = DatabaseIdPB(value: viewId);
-    return GridEventDeleteAllSorts(payload).send().then((result) {
+    return DatabaseEventDeleteAllSorts(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
         (err) {

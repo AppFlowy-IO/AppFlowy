@@ -17,13 +17,13 @@ class DatabaseFFIService {
     await FolderEventSetLatestView(ViewIdPB(value: databaseId)).send();
 
     final payload = DatabaseIdPB(value: databaseId);
-    return GridEventGetDatabase(payload).send();
+    return DatabaseEventGetDatabase(payload).send();
   }
 
   Future<Either<RowPB, FlowyError>> createRow({Option<String>? startRowId}) {
     var payload = CreateTableRowPayloadPB.create()..gridId = databaseId;
     startRowId?.fold(() => null, (id) => payload.startRowId = id);
-    return GridEventCreateTableRow(payload).send();
+    return DatabaseEventCreateTableRow(payload).send();
   }
 
   Future<Either<RowPB, FlowyError>> createBoardCard(
@@ -38,7 +38,7 @@ class DatabaseFFIService {
       payload.startRowId = startRowId;
     }
 
-    return GridEventCreateBoardCard(payload).send();
+    return DatabaseEventCreateBoardCard(payload).send();
   }
 
   Future<Either<List<FieldPB>, FlowyError>> getFields(
@@ -48,7 +48,7 @@ class DatabaseFFIService {
     if (fieldIds != null) {
       payload.fieldIds = RepeatedFieldIdPB(items: fieldIds);
     }
-    return GridEventGetFields(payload).send().then((result) {
+    return DatabaseEventGetFields(payload).send().then((result) {
       return result.fold((l) => left(l.items), (r) => right(r));
     });
   }
@@ -60,6 +60,6 @@ class DatabaseFFIService {
 
   Future<Either<RepeatedGroupPB, FlowyError>> loadGroups() {
     final payload = DatabaseIdPB(value: databaseId);
-    return GridEventGetGroup(payload).send();
+    return DatabaseEventGetGroup(payload).send();
   }
 }

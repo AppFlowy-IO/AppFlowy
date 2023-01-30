@@ -219,7 +219,7 @@ class GridRowCache {
       ..gridId = gridId
       ..rowId = rowId;
 
-    final result = await GridEventGetRow(payload).send();
+    final result = await DatabaseEventGetRow(payload).send();
     result.fold(
       (optionRow) => _refreshRow(optionRow),
       (err) => Log.error(err),

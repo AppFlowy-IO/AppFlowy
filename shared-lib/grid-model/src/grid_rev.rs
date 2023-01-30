@@ -19,13 +19,13 @@ pub fn gen_field_id() -> String {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct GridRevision {
+pub struct DatabaseRevision {
     pub grid_id: String,
     pub fields: Vec<Arc<FieldRevision>>,
     pub blocks: Vec<Arc<GridBlockMetaRevision>>,
 }
 
-impl GridRevision {
+impl DatabaseRevision {
     pub fn new(grid_id: &str) -> Self {
         Self {
             grid_id: grid_id.to_owned(),
