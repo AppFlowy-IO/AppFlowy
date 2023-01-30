@@ -1,6 +1,7 @@
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/infra/log.dart';
+import 'package:appflowy_editor/src/render/action_menu/action_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -134,8 +135,23 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
     }
     return CompositedTransformTarget(
       link: context.node.layerLink,
-      child: notifier,
+      child: _buildWithActions(builder, context, notifier),
     );
+  }
+
+  Widget _buildWithActions(
+      NodeWidgetBuilder builder, NodeWidgetContext context, Widget child) {
+    if (builder is ActionProvider) {
+      return ChangeNotifierProvider(
+        create: (_) => ActionMenuState(context.node.path),
+        child: ActionMenuOverlay(
+          items: builder.actions(context),
+          child: child,
+        ),
+      );
+    } else {
+      return child;
+    }
   }
 
   void _validatePlugin(String name) {
