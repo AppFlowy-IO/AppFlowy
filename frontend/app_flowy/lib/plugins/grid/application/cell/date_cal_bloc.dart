@@ -5,8 +5,8 @@ import 'package:easy_localization/easy_localization.dart'
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/date_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/date_type_option_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/date_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/date_type_option_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:table_calendar/table_calendar.dart';

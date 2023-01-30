@@ -2,6 +2,9 @@ use bytes::Bytes;
 use flowy_sqlite::ConnectionPool;
 
 use flowy_client_ws::FlowyWebSocketConnect;
+use flowy_database::entities::GridLayout;
+use flowy_database::manager::{make_grid_view_data, GridManager};
+use flowy_database::util::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_document::DocumentManager;
 use flowy_folder::entities::{ViewDataFormatPB, ViewLayoutTypePB, ViewPB};
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
@@ -10,9 +13,6 @@ use flowy_folder::{
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
     manager::FolderManager,
 };
-use flowy_grid::entities::GridLayout;
-use flowy_grid::manager::{make_grid_view_data, GridManager};
-use flowy_grid::util::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{http_server::folder::FolderHttpCloudService, local_server::LocalServer};
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};

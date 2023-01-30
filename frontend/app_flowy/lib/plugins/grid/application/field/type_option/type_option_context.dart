@@ -1,15 +1,15 @@
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/checkbox_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/checklist_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/date_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/checkbox_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/checklist_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/date_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/multi_select_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/number_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/single_select_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/text_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/url_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/multi_select_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/number_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/single_select_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/text_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/url_type_option.pb.dart';
 import 'package:protobuf/protobuf.dart';
 
 import 'type_option_data_controller.dart';

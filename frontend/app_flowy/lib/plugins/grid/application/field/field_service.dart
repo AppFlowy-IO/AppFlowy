@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/grid_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/grid_entities.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'field_service.freezed.dart';
@@ -10,7 +10,7 @@ part 'field_service.freezed.dart';
 /// FieldService consists of lots of event functions. We define the events in the backend(Rust),
 /// you can find the corresponding event implementation in event_map.rs of the corresponding crate.
 ///
-/// You could check out the rust-lib/flowy-grid/event_map.rs for more information.
+/// You could check out the rust-lib/flowy-database/event_map.rs for more information.
 class FieldService {
   final String gridId;
   final String fieldId;

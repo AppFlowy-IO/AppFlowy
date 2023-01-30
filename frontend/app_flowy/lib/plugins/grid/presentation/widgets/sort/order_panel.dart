@@ -1,6 +1,6 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/sort_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/sort_entities.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';

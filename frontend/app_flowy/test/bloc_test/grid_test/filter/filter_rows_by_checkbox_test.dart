@@ -1,5 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/filter/filter_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/checkbox_filter.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/checkbox_filter.pbenum.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../util.dart';

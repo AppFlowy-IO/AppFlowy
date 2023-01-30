@@ -1,7 +1,7 @@
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:protobuf/protobuf.dart' hide FieldInfo;

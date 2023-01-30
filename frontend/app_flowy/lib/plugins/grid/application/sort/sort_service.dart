@@ -2,10 +2,10 @@ import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/grid_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/setting_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/sort_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/grid_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/sort_entities.pb.dart';
 
 class SortFFIService {
   final String viewId;

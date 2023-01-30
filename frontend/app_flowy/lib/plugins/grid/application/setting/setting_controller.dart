@@ -1,6 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/setting/setting_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/setting_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pb.dart';
 import 'setting_listener.dart';
 
 typedef OnError = void Function(FlowyError);

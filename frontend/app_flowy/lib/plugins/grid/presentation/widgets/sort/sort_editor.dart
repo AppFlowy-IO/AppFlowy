@@ -4,7 +4,7 @@ import 'package:app_flowy/plugins/grid/application/sort/sort_editor_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/sort/util.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/sort/create_sort_list.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/sort_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/sort_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';

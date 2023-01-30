@@ -1,0 +1,63 @@
+[package]
+name = "flowy-database"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lib-dispatch = { path = "../lib-dispatch" }
+flowy-notification = { path = "../flowy-notification" }
+flowy-revision = { path = "../flowy-revision" }
+flowy-revision-persistence = { path = "../flowy-revision-persistence" }
+flowy-task= { path = "../flowy-task" }
+flowy-error = { path = "../flowy-error", features = ["adaptor_database", "adaptor_dispatch"]}
+flowy-derive = { path = "../flowy-derive" }
+lib-ot = { path = "../../../shared-lib/lib-ot" }
+lib-infra = { path = "../../../shared-lib/lib-infra" }
+grid-model = { path = "../../../shared-lib/grid-model" }
+flowy-client-sync = { path = "../flowy-client-sync"}
+revision-model = { path = "../../../shared-lib/revision-model" }
+flowy-sqlite = { path = "../flowy-sqlite", optional = true }
+anyhow = "1.0"
+
+strum = "0.21"
+strum_macros = "0.21"
+tracing = { version = "0.1", features = ["log"] }
+protobuf = {version = "2.18.0"}
+rust_decimal = "1.8.1"
+rusty-money = {version = "0.4.0", features = ["iso"]}
+lazy_static = "1.4.0"
+chrono = "0.4.19"
+nanoid = "0.4.0"
+bytes = { version = "1.0" }
+diesel = {version = "1.4.8", features = ["sqlite"]}
+dashmap = "5"
+tokio = {version = "1", features = ["sync"]}
+rayon = "1.5.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = {version = "1.0"}
+serde_repr = "0.1"
+indexmap = {version = "1.9.1", features = ["serde"]}
+fancy-regex = "0.10.0"
+regex = "1.5.6"
+url = { version = "2"}
+futures = "0.3.15"
+atomic_refcell = "0.1.8"
+crossbeam-utils = "0.8.7"
+async-stream = "0.3.2"
+parking_lot = "0.12.1"
+
+[dev-dependencies]
+flowy-test = { path = "../flowy-test" }
+flowy-database = { path = "", features = ["flowy_unit_test"]}
+
+[build-dependencies]
+flowy-codegen = { path = "../flowy-codegen"}
+
+[features]
+default = []
+rev-sqlite = ["flowy-sqlite"]
+dart = ["flowy-codegen/dart", "flowy-notification/dart"]
+ts = ["flowy-codegen/ts", "flowy-notification/ts"]
+flowy_unit_test = ["flowy-revision/flowy_unit_test"]
