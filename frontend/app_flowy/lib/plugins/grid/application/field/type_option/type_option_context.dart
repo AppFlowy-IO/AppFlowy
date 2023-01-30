@@ -117,7 +117,7 @@ class TypeOptionContext<T extends GeneratedMessage> {
     required TypeOptionDataController dataController,
   }) : _dataController = dataController;
 
-  String get gridId => _dataController.gridId;
+  String get databaseId => _dataController.databaseId;
 
   String get fieldId => _dataController.field.id;
 
@@ -155,13 +155,13 @@ abstract class TypeOptionFieldDelegate {
 }
 
 abstract class IFieldTypeOptionLoader {
-  String get gridId;
+  String get databaseId;
   Future<Either<TypeOptionPB, FlowyError>> load();
 
   Future<Either<Unit, FlowyError>> switchToField(
       String fieldId, FieldType fieldType) {
     final payload = EditFieldChangesetPB.create()
-      ..gridId = gridId
+      ..databaseId = databaseId
       ..fieldId = fieldId
       ..fieldType = fieldType;
 
@@ -174,9 +174,9 @@ class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
   TypeOptionPB? fieldTypeOption;
 
   @override
-  final String gridId;
+  final String databaseId;
   NewFieldTypeOptionLoader({
-    required this.gridId,
+    required this.databaseId,
   });
 
   /// Creates the field type option if the fieldTypeOption is null.
@@ -185,14 +185,14 @@ class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
   Future<Either<TypeOptionPB, FlowyError>> load() {
     if (fieldTypeOption != null) {
       final payload = TypeOptionPathPB.create()
-        ..gridId = gridId
+        ..databaseId = databaseId
         ..fieldId = fieldTypeOption!.field_2.id
         ..fieldType = fieldTypeOption!.field_2.fieldType;
 
       return DatabaseEventGetFieldTypeOption(payload).send();
     } else {
       final payload = CreateFieldPayloadPB.create()
-        ..gridId = gridId
+        ..databaseId = databaseId
         ..fieldType = FieldType.RichText;
 
       return DatabaseEventCreateFieldTypeOption(payload).send().then((result) {
@@ -211,18 +211,18 @@ class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
 /// Uses when editing a existing field
 class FieldTypeOptionLoader extends IFieldTypeOptionLoader {
   @override
-  final String gridId;
+  final String databaseId;
   final FieldPB field;
 
   FieldTypeOptionLoader({
-    required this.gridId,
+    required this.databaseId,
     required this.field,
   });
 
   @override
   Future<Either<TypeOptionPB, FlowyError>> load() {
     final payload = TypeOptionPathPB.create()
-      ..gridId = gridId
+      ..databaseId = databaseId
       ..fieldId = field.id
       ..fieldType = field.fieldType;
 

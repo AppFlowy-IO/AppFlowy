@@ -18,7 +18,7 @@ class ChecklistFilterEditorBloc
 
   ChecklistFilterEditorBloc({
     required this.filterInfo,
-  })  : _ffiService = FilterFFIService(viewId: filterInfo.viewId),
+  })  : _ffiService = FilterFFIService(databaseId: filterInfo.viewId),
         // _selectOptionService =
         //           SelectOptionFFIService(cellId: cellController.cellId)
         _listener = FilterListener(

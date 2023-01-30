@@ -18,7 +18,7 @@ class GroupController {
   final GroupControllerDelegate delegate;
 
   GroupController({
-    required String gridId,
+    required String databaseId,
     required this.group,
     required this.delegate,
   }) : _listener = GroupListener(group);

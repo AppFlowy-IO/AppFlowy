@@ -10,13 +10,13 @@ class SelectOptionFFIService {
   final GridCellIdentifier cellId;
   SelectOptionFFIService({required this.cellId});
 
-  String get databaseId => cellId.gridId;
+  String get databaseId => cellId.databaseId;
   String get fieldId => cellId.fieldInfo.id;
   String get rowId => cellId.rowId;
 
   Future<Either<Unit, FlowyError>> create(
       {required String name, bool isSelected = true}) {
-    return TypeOptionFFIService(gridId: databaseId, fieldId: fieldId)
+    return TypeOptionFFIService(databaseId: databaseId, fieldId: fieldId)
         .newOption(name: name)
         .then(
       (result) {

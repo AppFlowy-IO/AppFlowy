@@ -37,7 +37,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           },
           deleteRow: (rowInfo) async {
             final rowService = RowFFIService(
-              gridId: rowInfo.gridId,
+              databaseId: rowInfo.databaseId,
             );
             await rowService.deleteRow(rowInfo.rowPB.id);
           },
@@ -131,7 +131,7 @@ class GridEvent with _$GridEvent {
 @freezed
 class GridState with _$GridState {
   const factory GridState({
-    required String gridId,
+    required String databaseId,
     required Option<DatabasePB> grid,
     required GridFieldEquatable fields,
     required List<RowInfo> rowInfos,
@@ -140,12 +140,12 @@ class GridState with _$GridState {
     required RowsChangedReason reason,
   }) = _GridState;
 
-  factory GridState.initial(String gridId) => GridState(
+  factory GridState.initial(String databaseId) => GridState(
         fields: GridFieldEquatable(UnmodifiableListView([])),
         rowInfos: [],
         rowCount: 0,
         grid: none(),
-        gridId: gridId,
+        databaseId: databaseId,
         loadingState: const _Loading(),
         reason: const InitialListState(),
       );

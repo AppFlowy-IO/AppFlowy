@@ -28,10 +28,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   GridFieldController get fieldController =>
       _gridDataController.fieldController;
-  String get gridId => _gridDataController.gridId;
+  String get databaseId => _gridDataController.viewId;
 
   BoardBloc({required ViewPB view})
-      : _rowService = MoveRowFFIService(gridId: view.id),
+      : _rowService = MoveRowFFIService(viewId: view.id),
         _gridDataController = BoardDataController(view: view),
         super(BoardState.initial(view.id)) {
     boardController = AppFlowyBoardController(
@@ -218,7 +218,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         },
       );
       final controller = GroupController(
-        gridId: state.gridId,
+        databaseId: state.databaseId,
         group: group,
         delegate: delegate,
       );
@@ -322,7 +322,7 @@ class BoardEvent with _$BoardEvent {
 @freezed
 class BoardState with _$BoardState {
   const factory BoardState({
-    required String gridId,
+    required String databaseId,
     required Option<DatabasePB> grid,
     required List<String> groupIds,
     required Option<BoardEditingRow> editingRow,
@@ -330,9 +330,9 @@ class BoardState with _$BoardState {
     required Option<FlowyError> noneOrError,
   }) = _BoardState;
 
-  factory BoardState.initial(String gridId) => BoardState(
+  factory BoardState.initial(String databaseId) => BoardState(
         grid: none(),
-        gridId: gridId,
+        databaseId: databaseId,
         groupIds: [],
         editingRow: none(),
         noneOrError: none(),

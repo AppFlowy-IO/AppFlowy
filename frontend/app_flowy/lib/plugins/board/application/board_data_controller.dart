@@ -27,11 +27,11 @@ typedef OnRowsChanged = void Function(
 typedef OnError = void Function(FlowyError);
 
 class BoardDataController {
-  final String gridId;
+  final String viewId;
   final DatabaseFFIService _databaseFFIService;
   final GridFieldController fieldController;
   final BoardListener _listener;
-  late GridViewCache _viewCache;
+  late DatabaseViewCache _viewCache;
 
   OnFieldsChanged? _onFieldsChanged;
   OnGridChanged? _onGridChanged;
@@ -43,13 +43,13 @@ class BoardDataController {
   GridRowCache get rowCache => _viewCache.rowCache;
 
   BoardDataController({required ViewPB view})
-      : gridId = view.id,
+      : viewId = view.id,
         _listener = BoardListener(view.id),
         _databaseFFIService = DatabaseFFIService(databaseId: view.id),
-        fieldController = GridFieldController(gridId: view.id) {
+        fieldController = GridFieldController(databaseId: view.id) {
     //
-    _viewCache = GridViewCache(
-      gridId: view.id,
+    _viewCache = DatabaseViewCache(
+      databaseId: view.id,
       fieldController: fieldController,
     );
     _viewCache.addListener(onRowsChanged: (reason) {

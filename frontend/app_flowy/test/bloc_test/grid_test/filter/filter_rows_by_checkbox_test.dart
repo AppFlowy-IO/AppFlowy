@@ -13,7 +13,7 @@ void main() {
 
   test('filter rows by checkbox is check condition)', () async {
     final context = await createTestFilterGrid(gridTest);
-    final service = FilterFFIService(viewId: context.gridView.id);
+    final service = FilterFFIService(databaseId: context.gridView.id);
 
     final controller = await context.makeCheckboxCellController(0);
     controller.saveCellData("Yes");
@@ -32,7 +32,7 @@ void main() {
 
   test('filter rows by checkbox is uncheck condition)', () async {
     final context = await createTestFilterGrid(gridTest);
-    final service = FilterFFIService(viewId: context.gridView.id);
+    final service = FilterFFIService(databaseId: context.gridView.id);
 
     final controller = await context.makeCheckboxCellController(0);
     controller.saveCellData("Yes");

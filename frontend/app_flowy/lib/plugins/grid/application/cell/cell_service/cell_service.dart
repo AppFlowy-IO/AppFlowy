@@ -35,7 +35,7 @@ class CellService {
     required String data,
   }) {
     final payload = CellChangesetPB.create()
-      ..gridId = cellId.gridId
+      ..databaseId = cellId.databaseId
       ..fieldId = cellId.fieldId
       ..rowId = cellId.rowId
       ..typeCellData = data;
@@ -46,7 +46,7 @@ class CellService {
     required GridCellIdentifier cellId,
   }) {
     final payload = CellPathPB.create()
-      ..viewId = cellId.gridId
+      ..databaseId = cellId.databaseId
       ..fieldId = cellId.fieldId
       ..rowId = cellId.rowId;
     return DatabaseEventGetCell(payload).send();
@@ -54,11 +54,11 @@ class CellService {
 }
 
 /// Id of the cell
-/// We can locate the cell by using gridId + rowId + field.id.
+/// We can locate the cell by using database + rowId + field.id.
 @freezed
 class GridCellIdentifier with _$GridCellIdentifier {
   const factory GridCellIdentifier({
-    required String gridId,
+    required String databaseId,
     required String rowId,
     required FieldInfo fieldInfo,
   }) = _GridCellIdentifier;

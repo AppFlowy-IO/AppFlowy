@@ -9,12 +9,12 @@ Future<FieldEditorBloc> createEditorBloc(AppFlowyGridTest gridTest) async {
   final context = await gridTest.createTestGrid();
   final fieldInfo = context.singleSelectFieldContext();
   final loader = FieldTypeOptionLoader(
-    gridId: context.gridView.id,
+    databaseId: context.gridView.id,
     field: fieldInfo.field,
   );
 
   return FieldEditorBloc(
-    gridId: context.gridView.id,
+    databaseId: context.gridView.id,
     fieldName: fieldInfo.name,
     isGroupField: fieldInfo.isGroupField,
     loader: loader,
@@ -35,12 +35,12 @@ void main() {
       final context = await gridTest.createTestGrid();
       final fieldInfo = context.singleSelectFieldContext();
       final loader = FieldTypeOptionLoader(
-        gridId: context.gridView.id,
+        databaseId: context.gridView.id,
         field: fieldInfo.field,
       );
 
       editorBloc = FieldEditorBloc(
-        gridId: context.gridView.id,
+        databaseId: context.gridView.id,
         fieldName: fieldInfo.name,
         isGroupField: fieldInfo.isGroupField,
         loader: loader,

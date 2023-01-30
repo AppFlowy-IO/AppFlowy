@@ -141,7 +141,7 @@ impl std::convert::From<Vec<CellPB>> for RepeatedCellPB {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct CellChangesetPB {
     #[pb(index = 1)]
-    pub grid_id: String,
+    pub database_id: String,
 
     #[pb(index = 2)]
     pub row_id: String,

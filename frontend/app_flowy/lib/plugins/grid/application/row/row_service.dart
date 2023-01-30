@@ -6,15 +6,15 @@ import 'package:appflowy_backend/protobuf/flowy-database/group_changeset.pb.dart
 import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
 
 class RowFFIService {
-  final String gridId;
+  final String databaseId;
 
   RowFFIService({
-    required this.gridId,
+    required this.databaseId,
   });
 
   Future<Either<RowPB, FlowyError>> createRow(String rowId) {
     final payload = CreateTableRowPayloadPB.create()
-      ..databaseId = gridId
+      ..databaseId = databaseId
       ..startRowId = rowId;
 
     return DatabaseEventCreateTableRow(payload).send();
@@ -22,7 +22,7 @@ class RowFFIService {
 
   Future<Either<OptionalRowPB, FlowyError>> getRow(String rowId) {
     final payload = RowIdPB.create()
-      ..databaseId = gridId
+      ..databaseId = databaseId
       ..rowId = rowId;
 
     return DatabaseEventGetRow(payload).send();
@@ -30,7 +30,7 @@ class RowFFIService {
 
   Future<Either<Unit, FlowyError>> deleteRow(String rowId) {
     final payload = RowIdPB.create()
-      ..databaseId = gridId
+      ..databaseId = databaseId
       ..rowId = rowId;
 
     return DatabaseEventDeleteRow(payload).send();
@@ -38,7 +38,7 @@ class RowFFIService {
 
   Future<Either<Unit, FlowyError>> duplicateRow(String rowId) {
     final payload = RowIdPB.create()
-      ..databaseId = gridId
+      ..databaseId = databaseId
       ..rowId = rowId;
 
     return DatabaseEventDuplicateRow(payload).send();
@@ -46,10 +46,10 @@ class RowFFIService {
 }
 
 class MoveRowFFIService {
-  final String gridId;
+  final String viewId;
 
   MoveRowFFIService({
-    required this.gridId,
+    required this.viewId,
   });
 
   Future<Either<Unit, FlowyError>> moveRow({
@@ -57,7 +57,7 @@ class MoveRowFFIService {
     required String toRowId,
   }) {
     var payload = MoveRowPayloadPB.create()
-      ..viewId = gridId
+      ..viewId = viewId
       ..fromRowId = fromRowId
       ..toRowId = toRowId;
 
@@ -70,7 +70,7 @@ class MoveRowFFIService {
     required String? toRowId,
   }) {
     var payload = MoveGroupRowPayloadPB.create()
-      ..viewId = gridId
+      ..viewId = viewId
       ..fromRowId = fromRowId
       ..toGroupId = toGroupId;
 
@@ -86,7 +86,7 @@ class MoveRowFFIService {
     required String toGroupId,
   }) {
     final payload = MoveGroupPayloadPB.create()
-      ..viewId = gridId
+      ..viewId = viewId
       ..fromGroupId = fromGroupId
       ..toGroupId = toGroupId;
 

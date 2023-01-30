@@ -62,7 +62,7 @@ class DateCellDataPersistence implements GridCellDataPersistence<CalendarData> {
 
 CellPathPB _makeCellPath(GridCellIdentifier cellId) {
   return CellPathPB.create()
-    ..viewId = cellId.gridId
+    ..databaseId = cellId.databaseId
     ..fieldId = cellId.fieldId
     ..rowId = cellId.rowId;
 }

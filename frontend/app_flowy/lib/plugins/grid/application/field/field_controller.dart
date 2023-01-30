@@ -72,10 +72,10 @@ typedef OnReceiveFilters = void Function(List<FilterInfo>);
 typedef OnReceiveSorts = void Function(List<SortInfo>);
 
 class GridFieldController {
-  final String gridId;
+  final String databaseId;
   // Listeners
-  final GridFieldsListener _fieldListener;
-  final SettingListener _settingListener;
+  final DatabaseFieldsListener _fieldListener;
+  final DatabaseSettingListener _settingListener;
   final FiltersListener _filtersListener;
   final SortsListener _sortsListener;
 
@@ -147,15 +147,15 @@ class GridFieldController {
     return sorts.first;
   }
 
-  GridFieldController({required this.gridId})
-      : _fieldListener = GridFieldsListener(gridId: gridId),
-        _settingListener = SettingListener(gridId: gridId),
-        _filterFFIService = FilterFFIService(viewId: gridId),
-        _filtersListener = FiltersListener(viewId: gridId),
-        _gridFFIService = DatabaseFFIService(databaseId: gridId),
-        _sortFFIService = SortFFIService(viewId: gridId),
-        _sortsListener = SortsListener(viewId: gridId),
-        _settingFFIService = SettingFFIService(viewId: gridId) {
+  GridFieldController({required this.databaseId})
+      : _fieldListener = DatabaseFieldsListener(databaseId: databaseId),
+        _settingListener = DatabaseSettingListener(databaseId: databaseId),
+        _filterFFIService = FilterFFIService(databaseId: databaseId),
+        _filtersListener = FiltersListener(viewId: databaseId),
+        _gridFFIService = DatabaseFFIService(databaseId: databaseId),
+        _sortFFIService = SortFFIService(viewId: databaseId),
+        _sortsListener = SortsListener(viewId: databaseId),
+        _settingFFIService = SettingFFIService(viewId: databaseId) {
     //Listen on field's changes
     _listenOnFieldChanges();
 
@@ -209,7 +209,7 @@ class GridFieldController {
           );
           if (fieldInfo != null) {
             _filterPBByFieldId[fieldInfo.id] = newFilter;
-            filters.add(FilterInfo(gridId, newFilter, fieldInfo));
+            filters.add(FilterInfo(databaseId, newFilter, fieldInfo));
           }
         }
       }
@@ -243,7 +243,7 @@ class GridFieldController {
             // Insert the filter with the position: filterIndex, otherwise,
             // append it to the end of the list.
             final filterInfo =
-                FilterInfo(gridId, updatedFilter.filter, fieldInfo);
+                FilterInfo(databaseId, updatedFilter.filter, fieldInfo);
             if (filterIndex != -1) {
               filters.insert(filterIndex, filterInfo);
             } else {
@@ -476,7 +476,7 @@ class GridFieldController {
               fieldType: filterPB.fieldType,
             );
             if (fieldInfo != null) {
-              final filterInfo = FilterInfo(gridId, filterPB, fieldInfo);
+              final filterInfo = FilterInfo(databaseId, filterPB, fieldInfo);
               filters.add(filterInfo);
             }
           }

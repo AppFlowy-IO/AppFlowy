@@ -20,7 +20,7 @@ class SelectOptionFilterEditorBloc
   SelectOptionFilterEditorBloc({
     required this.filterInfo,
     required this.delegate,
-  })  : _ffiService = FilterFFIService(viewId: filterInfo.viewId),
+  })  : _ffiService = FilterFFIService(databaseId: filterInfo.viewId),
         _listener = FilterListener(
           viewId: filterInfo.viewId,
           filterId: filterInfo.filter.id,

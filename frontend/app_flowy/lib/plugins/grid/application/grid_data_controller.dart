@@ -20,10 +20,10 @@ typedef OnRowsChanged = void Function(
 typedef ListenOnRowChangedCondition = bool Function();
 
 class GridController {
-  final String gridId;
+  final String databaseId;
   final DatabaseFFIService _gridFFIService;
   final GridFieldController fieldController;
-  late GridViewCache _viewCache;
+  late DatabaseViewCache _viewCache;
 
   OnRowsChanged? _onRowChanged;
   OnGridChanged? _onGridChanged;
@@ -31,11 +31,11 @@ class GridController {
   GridRowCache get rowCache => _viewCache.rowCache;
 
   GridController({required ViewPB view})
-      : gridId = view.id,
+      : databaseId = view.id,
         _gridFFIService = DatabaseFFIService(databaseId: view.id),
-        fieldController = GridFieldController(gridId: view.id) {
-    _viewCache = GridViewCache(
-      gridId: gridId,
+        fieldController = GridFieldController(databaseId: view.id) {
+    _viewCache = DatabaseViewCache(
+      databaseId: databaseId,
       fieldController: fieldController,
     );
     _viewCache.addListener(onRowsChanged: (reason) {

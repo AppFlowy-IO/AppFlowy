@@ -8,17 +8,17 @@ import 'type_option_service.dart';
 import 'package:protobuf/protobuf.dart';
 
 class MultiSelectAction with ISelectOptionAction {
-  final String gridId;
+  final String databaseId;
   final String fieldId;
   final TypeOptionFFIService service;
   final MultiSelectTypeOptionContext typeOptionContext;
 
   MultiSelectAction({
-    required this.gridId,
+    required this.databaseId,
     required this.fieldId,
     required this.typeOptionContext,
   }) : service = TypeOptionFFIService(
-          gridId: gridId,
+          databaseId: databaseId,
           fieldId: fieldId,
         );
 

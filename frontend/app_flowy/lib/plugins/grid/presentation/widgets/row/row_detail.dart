@@ -66,7 +66,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
               Expanded(
                 child: _PropertyList(
                   cellBuilder: widget.cellBuilder,
-                  viewId: widget.dataController.rowInfo.gridId,
+                  viewId: widget.dataController.rowInfo.databaseId,
                 ),
               ),
             ],
@@ -205,8 +205,8 @@ class _CreateFieldButtonState extends State<_CreateFieldButton> {
       ),
       popupBuilder: (BuildContext popOverContext) {
         return FieldEditor(
-          gridId: widget.viewId,
-          typeOptionLoader: NewFieldTypeOptionLoader(gridId: widget.viewId),
+          databaseId: widget.viewId,
+          typeOptionLoader: NewFieldTypeOptionLoader(databaseId: widget.viewId),
           onDeleted: (fieldId) {
             popoverController.close();
 
@@ -296,11 +296,11 @@ class _RowDetailCellState extends State<_RowDetailCell> {
 
   Widget buildFieldEditor() {
     return FieldEditor(
-      gridId: widget.cellId.gridId,
+      databaseId: widget.cellId.databaseId,
       fieldName: widget.cellId.fieldInfo.field.name,
       isGroupField: widget.cellId.fieldInfo.isGroupField,
       typeOptionLoader: FieldTypeOptionLoader(
-        gridId: widget.cellId.gridId,
+        databaseId: widget.cellId.databaseId,
         field: widget.cellId.fieldInfo.field,
       ),
       onDeleted: (fieldId) {

@@ -336,7 +336,7 @@ async fn grid_cell_update() {
 
                 scripts.push(UpdateCell {
                     changeset: CellChangeset {
-                        grid_id: block_id.to_string(),
+                        database_id: block_id.to_string(),
                         row_id: row_meta.id.clone(),
                         field_id: field_meta.id.clone(),
                         cell_content_changeset: Some(data),
@@ -358,7 +358,7 @@ async fn grid_cell_update() {
 
                 scripts.push(UpdateCell {
                     changeset: CellChangeset {
-                        grid_id: block_id.to_string(),
+                        database_id: block_id.to_string(),
                         row_id: row_meta.id.clone(),
                         field_id: field_meta.id.clone(),
                         cell_content_changeset: Some(data),

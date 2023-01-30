@@ -15,7 +15,7 @@ void main() {
 
   test('create a text filter)', () async {
     final context = await gridTest.createTestGrid();
-    final service = FilterFFIService(viewId: context.gridView.id);
+    final service = FilterFFIService(databaseId: context.gridView.id);
     final textField = context.textFieldContext();
     await service.insertTextFilter(
         fieldId: textField.id,
@@ -28,7 +28,7 @@ void main() {
 
   test('delete a text filter)', () async {
     final context = await gridTest.createTestGrid();
-    final service = FilterFFIService(viewId: context.gridView.id);
+    final service = FilterFFIService(databaseId: context.gridView.id);
     final textField = context.textFieldContext();
     await service.insertTextFilter(
         fieldId: textField.id,
@@ -49,7 +49,7 @@ void main() {
 
   test('filter rows with condition: text is empty', () async {
     final context = await gridTest.createTestGrid();
-    final service = FilterFFIService(viewId: context.gridView.id);
+    final service = FilterFFIService(databaseId: context.gridView.id);
     final gridController = GridController(view: context.gridView);
     final gridBloc = GridBloc(
       view: context.gridView,
@@ -70,7 +70,7 @@ void main() {
   test('filter rows with condition: text is empty(After edit the row)',
       () async {
     final context = await gridTest.createTestGrid();
-    final service = FilterFFIService(viewId: context.gridView.id);
+    final service = FilterFFIService(databaseId: context.gridView.id);
     final gridController = GridController(view: context.gridView);
     final gridBloc = GridBloc(
       view: context.gridView,
@@ -97,7 +97,7 @@ void main() {
 
   test('filter rows with condition: text is not empty', () async {
     final context = await gridTest.createTestGrid();
-    final service = FilterFFIService(viewId: context.gridView.id);
+    final service = FilterFFIService(databaseId: context.gridView.id);
     final textField = context.textFieldContext();
     await gridResponseFuture();
     await service.insertTextFilter(
@@ -111,7 +111,7 @@ void main() {
   test('filter rows with condition: checkbox uncheck', () async {
     final context = await gridTest.createTestGrid();
     final checkboxField = context.checkboxFieldContext();
-    final service = FilterFFIService(viewId: context.gridView.id);
+    final service = FilterFFIService(databaseId: context.gridView.id);
     final gridController = GridController(view: context.gridView);
     final gridBloc = GridBloc(
       view: context.gridView,
@@ -130,7 +130,7 @@ void main() {
   test('filter rows with condition: checkbox check', () async {
     final context = await gridTest.createTestGrid();
     final checkboxField = context.checkboxFieldContext();
-    final service = FilterFFIService(viewId: context.gridView.id);
+    final service = FilterFFIService(databaseId: context.gridView.id);
     final gridController = GridController(view: context.gridView);
     final gridBloc = GridBloc(
       view: context.gridView,

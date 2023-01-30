@@ -9,7 +9,7 @@ typedef OnSettingUpdated = void Function(DatabaseViewSettingPB);
 class SettingController {
   final String viewId;
   final SettingFFIService _ffiService;
-  final SettingListener _listener;
+  final DatabaseSettingListener _listener;
   OnSettingUpdated? _onSettingUpdated;
   OnError? _onError;
   DatabaseViewSettingPB? _setting;
@@ -18,7 +18,7 @@ class SettingController {
   SettingController({
     required this.viewId,
   })  : _ffiService = SettingFFIService(viewId: viewId),
-        _listener = SettingListener(gridId: viewId) {
+        _listener = DatabaseSettingListener(databaseId: viewId) {
     // Load setting
     _ffiService.getSetting().then((result) {
       result.fold(

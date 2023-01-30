@@ -7,10 +7,10 @@ import 'filter_button.dart';
 import 'setting_button.dart';
 
 class GridToolbarContext {
-  final String gridId;
+  final String viewId;
   final GridFieldController fieldController;
   GridToolbarContext({
-    required this.gridId,
+    required this.viewId,
     required this.fieldController,
   });
 }

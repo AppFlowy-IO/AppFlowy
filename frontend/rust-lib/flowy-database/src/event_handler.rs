@@ -343,7 +343,7 @@ pub(crate) async fn update_cell_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let changeset: CellChangesetPB = data.into_inner();
-    let editor = manager.get_database_editor(&changeset.grid_id).await?;
+    let editor = manager.get_database_editor(&changeset.database_id).await?;
     editor
         .update_cell_with_changeset(&changeset.row_id, &changeset.field_id, changeset.type_cell_data)
         .await?;

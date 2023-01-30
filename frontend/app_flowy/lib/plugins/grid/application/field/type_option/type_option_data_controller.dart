@@ -10,7 +10,7 @@ import 'package:appflowy_backend/log.dart';
 import 'type_option_context.dart';
 
 class TypeOptionDataController {
-  final String gridId;
+  final String databaseId;
   final IFieldTypeOptionLoader loader;
   late TypeOptionPB _data;
   final PublishNotifier<FieldPB> _fieldNotifier = PublishNotifier();
@@ -22,13 +22,13 @@ class TypeOptionDataController {
   /// is null
   ///
   TypeOptionDataController({
-    required this.gridId,
+    required this.databaseId,
     required this.loader,
     FieldInfo? fieldInfo,
   }) {
     if (fieldInfo != null) {
       _data = TypeOptionPB.create()
-        ..databaseId = gridId
+        ..databaseId = databaseId
         ..field_2 = fieldInfo.field;
     }
   }
@@ -66,7 +66,8 @@ class TypeOptionDataController {
 
     _fieldNotifier.value = _data.field_2;
 
-    FieldService(gridId: gridId, fieldId: field.id).updateField(name: name);
+    FieldService(databaseId: databaseId, fieldId: field.id)
+        .updateField(name: name);
   }
 
   set typeOptionData(List<int> typeOptionData) {
@@ -77,7 +78,7 @@ class TypeOptionDataController {
     });
 
     FieldService.updateFieldTypeOption(
-      gridId: gridId,
+      databaseId: databaseId,
       fieldId: field.id,
       typeOptionData: typeOptionData,
     );

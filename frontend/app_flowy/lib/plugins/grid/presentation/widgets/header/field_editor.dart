@@ -15,14 +15,14 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'field_type_option_editor.dart';
 
 class FieldEditor extends StatefulWidget {
-  final String gridId;
+  final String databaseId;
   final String fieldName;
   final bool isGroupField;
   final Function(String)? onDeleted;
   final IFieldTypeOptionLoader typeOptionLoader;
 
   const FieldEditor({
-    required this.gridId,
+    required this.databaseId,
     this.fieldName = "",
     required this.typeOptionLoader,
     this.isGroupField = false,
@@ -59,7 +59,7 @@ class _FieldEditorState extends State<FieldEditor> {
     ];
     return BlocProvider(
       create: (context) => FieldEditorBloc(
-        gridId: widget.gridId,
+        databaseId: widget.databaseId,
         fieldName: widget.fieldName,
         isGroupField: widget.isGroupField,
         loader: widget.typeOptionLoader,

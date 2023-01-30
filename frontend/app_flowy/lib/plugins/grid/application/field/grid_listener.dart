@@ -9,18 +9,18 @@ import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart'
 
 typedef UpdateFieldNotifiedValue = Either<DatabaseFieldChangesetPB, FlowyError>;
 
-class GridFieldsListener {
-  final String gridId;
+class DatabaseFieldsListener {
+  final String databaseId;
   PublishNotifier<UpdateFieldNotifiedValue>? updateFieldsNotifier =
       PublishNotifier();
   DatabaseNotificationListener? _listener;
-  GridFieldsListener({required this.gridId});
+  DatabaseFieldsListener({required this.databaseId});
 
   void start(
       {required void Function(UpdateFieldNotifiedValue) onFieldsChanged}) {
     updateFieldsNotifier?.addPublishListener(onFieldsChanged);
     _listener = DatabaseNotificationListener(
-      objectId: gridId,
+      objectId: databaseId,
       handler: _handler,
     );
   }

@@ -16,7 +16,7 @@ class CheckboxFilterEditorBloc
   final FilterListener _listener;
 
   CheckboxFilterEditorBloc({required this.filterInfo})
-      : _ffiService = FilterFFIService(viewId: filterInfo.viewId),
+      : _ffiService = FilterFFIService(databaseId: filterInfo.viewId),
         _listener = FilterListener(
           viewId: filterInfo.viewId,
           filterId: filterInfo.filter.id,

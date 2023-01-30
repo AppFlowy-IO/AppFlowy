@@ -18,11 +18,11 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
 
   BoardCardBloc({
     required this.groupFieldId,
-    required String gridId,
+    required String viewId,
     required CardDataController dataController,
     required bool isEditing,
   })  : _rowService = RowFFIService(
-          gridId: gridId,
+          databaseId: viewId,
         ),
         _dataController = dataController,
         super(
@@ -60,7 +60,7 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
 
   RowInfo rowInfo() {
     return RowInfo(
-      gridId: _rowService.gridId,
+      databaseId: _rowService.databaseId,
       fields: UnmodifiableListView(
         state.cells.map((cell) => cell.identifier.fieldInfo).toList(),
       ),

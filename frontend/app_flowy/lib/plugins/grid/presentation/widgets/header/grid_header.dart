@@ -18,11 +18,11 @@ import 'field_editor.dart';
 import 'field_cell.dart';
 
 class GridHeaderSliverAdaptor extends StatefulWidget {
-  final String gridId;
+  final String viewId;
   final GridFieldController fieldController;
   final ScrollController anchorScrollController;
   const GridHeaderSliverAdaptor({
-    required this.gridId,
+    required this.viewId,
     required this.fieldController,
     required this.anchorScrollController,
     Key? key,
@@ -39,7 +39,7 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
     return BlocProvider(
       create: (context) {
         final bloc = getIt<GridHeaderBloc>(
-            param1: widget.gridId, param2: widget.fieldController);
+            param1: widget.viewId, param2: widget.fieldController);
         bloc.add(const GridHeaderEvent.initial());
         return bloc;
       },
@@ -52,7 +52,7 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
             controller: widget.anchorScrollController,
             child: SizedBox(
               height: GridSize.headerHeight,
-              child: _GridHeader(gridId: widget.gridId),
+              child: _GridHeader(viewId: widget.viewId),
             ),
           );
 
@@ -68,8 +68,8 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
 }
 
 class _GridHeader extends StatefulWidget {
-  final String gridId;
-  const _GridHeader({Key? key, required this.gridId}) : super(key: key);
+  final String viewId;
+  const _GridHeader({Key? key, required this.viewId}) : super(key: key);
 
   @override
   State<_GridHeader> createState() => _GridHeaderState();
@@ -98,8 +98,8 @@ class _GridHeaderState extends State<_GridHeader> {
       builder: (context, state) {
         final cells = state.fields
             .where((field) => field.visibility)
-            .map((field) =>
-                GridFieldCellContext(gridId: widget.gridId, field: field.field))
+            .map((field) => GridFieldCellContext(
+                databaseId: widget.viewId, field: field.field))
             .map((ctx) =>
                 GridFieldCell(key: _getKeyById(ctx.field.id), cellContext: ctx))
             .toList();
@@ -112,7 +112,7 @@ class _GridHeaderState extends State<_GridHeader> {
               scrollController: ScrollController(),
               header: const _CellLeading(),
               needsLongPressDraggable: false,
-              footer: _CellTrailing(gridId: widget.gridId),
+              footer: _CellTrailing(databaseId: widget.viewId),
               onReorder: (int oldIndex, int newIndex) {
                 _onReorder(cells, oldIndex, context, newIndex);
               },
@@ -147,8 +147,8 @@ class _CellLeading extends StatelessWidget {
 }
 
 class _CellTrailing extends StatelessWidget {
-  final String gridId;
-  const _CellTrailing({required this.gridId, Key? key}) : super(key: key);
+  final String databaseId;
+  const _CellTrailing({required this.databaseId, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -160,14 +160,15 @@ class _CellTrailing extends StatelessWidget {
         border: Border(top: borderSide, bottom: borderSide),
       ),
       padding: GridSize.headerContentInsets,
-      child: CreateFieldButton(gridId: gridId),
+      child: CreateFieldButton(databaseId: databaseId),
     );
   }
 }
 
 class CreateFieldButton extends StatelessWidget {
-  final String gridId;
-  const CreateFieldButton({required this.gridId, Key? key}) : super(key: key);
+  final String databaseId;
+  const CreateFieldButton({required this.databaseId, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -187,8 +188,8 @@ class CreateFieldButton extends StatelessWidget {
       ),
       popupBuilder: (BuildContext popover) {
         return FieldEditor(
-          gridId: gridId,
-          typeOptionLoader: NewFieldTypeOptionLoader(gridId: gridId),
+          databaseId: databaseId,
+          typeOptionLoader: NewFieldTypeOptionLoader(databaseId: databaseId),
         );
       },
     );
@@ -206,7 +207,7 @@ class SliverHeaderDelegateImplementation
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return _GridHeader(gridId: gridId);
+    return _GridHeader(viewId: gridId);
   }
 
   @override

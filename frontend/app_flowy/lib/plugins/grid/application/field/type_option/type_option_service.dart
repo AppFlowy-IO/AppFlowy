@@ -5,11 +5,11 @@ import 'package:appflowy_backend/protobuf/flowy-database/cell_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
 
 class TypeOptionFFIService {
-  final String gridId;
+  final String databaseId;
   final String fieldId;
 
   TypeOptionFFIService({
-    required this.gridId,
+    required this.databaseId,
     required this.fieldId,
   });
 
@@ -18,7 +18,7 @@ class TypeOptionFFIService {
   }) {
     final payload = CreateSelectOptionPayloadPB.create()
       ..optionName = name
-      ..databaseId = gridId
+      ..databaseId = databaseId
       ..fieldId = fieldId;
 
     return DatabaseEventNewSelectOption(payload).send();

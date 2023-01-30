@@ -30,12 +30,12 @@ void main() {
 
     final fieldInfo = context.singleSelectFieldContext();
     final loader = FieldTypeOptionLoader(
-      gridId: context.gridView.id,
+      databaseId: context.gridView.id,
       field: fieldInfo.field,
     );
 
     final editorBloc = FieldEditorBloc(
-      gridId: context.gridView.id,
+      databaseId: context.gridView.id,
       fieldName: fieldInfo.name,
       isGroupField: fieldInfo.isGroupField,
       loader: loader,

@@ -28,7 +28,7 @@ abstract class RowCacheDelegate {
 /// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid for more information.
 
 class GridRowCache {
-  final String gridId;
+  final String databaseId;
   final List<RowPB> rows;
 
   /// _rows containers the current block's rows
@@ -47,11 +47,11 @@ class GridRowCache {
   GridCellCache get cellCache => _cellCache;
 
   GridRowCache({
-    required this.gridId,
+    required this.databaseId,
     required this.rows,
     required RowChangesetNotifierForward notifier,
     required RowCacheDelegate delegate,
-  })  : _cellCache = GridCellCache(gridId: gridId),
+  })  : _cellCache = GridCellCache(databaseId: databaseId),
         _rowChangeReasonNotifier = RowChangesetNotifier(),
         _delegate = delegate {
     //
@@ -216,7 +216,7 @@ class GridRowCache {
 
   Future<void> _loadRow(String rowId) async {
     final payload = RowIdPB.create()
-      ..databaseId = gridId
+      ..databaseId = databaseId
       ..rowId = rowId;
 
     final result = await DatabaseEventGetRow(payload).send();
@@ -233,7 +233,7 @@ class GridRowCache {
       if (field.visibility) {
         cellDataMap[field.id] = GridCellIdentifier(
           rowId: rowId,
-          gridId: gridId,
+          databaseId: databaseId,
           fieldInfo: field,
         );
       }
@@ -267,7 +267,7 @@ class GridRowCache {
 
   RowInfo buildGridRow(RowPB rowPB) {
     return RowInfo(
-      gridId: gridId,
+      databaseId: databaseId,
       fields: _delegate.fields,
       rowPB: rowPB,
     );
@@ -296,7 +296,7 @@ class RowChangesetNotifier extends ChangeNotifier {
 @unfreezed
 class RowInfo with _$RowInfo {
   factory RowInfo({
-    required String gridId,
+    required String databaseId,
     required UnmodifiableListView<FieldInfo> fields,
     required RowPB rowPB,
   }) = _RowInfo;
