@@ -131,14 +131,21 @@ class FlowyTextFieldState extends State<FlowyTextField> {
             color: Theme.of(context).colorScheme.primary,
             width: 1.0,
           ),
-          borderRadius: Corners.s8Border,
+          borderRadius: Corners.s10Border,
+        ),
+        errorBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.error,
+            width: 1.0,
+          ),
+          borderRadius: Corners.s10Border,
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.error,
             width: 1.0,
           ),
-          borderRadius: Corners.s8Border,
+          borderRadius: Corners.s10Border,
         ),
       ),
     );
