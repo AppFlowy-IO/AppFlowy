@@ -1,5 +1,5 @@
-import { UserNotification } from "../../../../../services/backend";
-import { NotificationParser, OnNotificationError } from "../../../../../services/backend/notifications/parser";
+import { UserNotification } from '../../../../../services/backend';
+import { NotificationParser, OnNotificationError } from '../../../../../services/backend/notifications/parser';
 
 declare type UserNotificationCallback = (ty: UserNotification, payload: Uint8Array) => void;
 
