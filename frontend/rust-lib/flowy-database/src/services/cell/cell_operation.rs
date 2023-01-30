@@ -2,9 +2,9 @@ use crate::entities::FieldType;
 use crate::services::cell::{AtomicCellDataCache, CellProtobufBlob, TypeCellData};
 use crate::services::field::*;
 
+use crate::services::group::make_no_status_group;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use grid_model::{CellRevision, FieldRevision};
-use crate::services::group::{make_no_status_group};
 
 use std::fmt::Debug;
 
