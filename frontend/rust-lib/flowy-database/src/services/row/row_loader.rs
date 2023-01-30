@@ -3,17 +3,17 @@ use grid_model::RowRevision;
 
 use std::sync::Arc;
 
-pub struct GridBlockRowRevision {
+pub struct DatabaseBlockRowRevision {
     pub(crate) block_id: String,
     pub row_revs: Vec<Arc<RowRevision>>,
 }
 
-pub struct GridBlockRow {
+pub struct DatabaseBlockRow {
     pub block_id: String,
     pub row_ids: Vec<String>,
 }
 
-impl GridBlockRow {
+impl DatabaseBlockRow {
     pub fn new(block_id: String, row_ids: Vec<String>) -> Self {
         Self { block_id, row_ids }
     }

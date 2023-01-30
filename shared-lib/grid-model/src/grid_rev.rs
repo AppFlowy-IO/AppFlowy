@@ -1,4 +1,4 @@
-use crate::GridBlockRevision;
+use crate::DatabaseBlockRevision;
 use bytes::Bytes;
 use indexmap::IndexMap;
 use nanoid::nanoid;
@@ -187,33 +187,33 @@ pub trait TypeOptionDataDeserializer {
 }
 
 #[derive(Clone, Default, Deserialize, Serialize)]
-pub struct BuildGridContext {
+pub struct BuildDatabaseContext {
     pub field_revs: Vec<Arc<FieldRevision>>,
     pub block_metas: Vec<GridBlockMetaRevision>,
-    pub blocks: Vec<GridBlockRevision>,
+    pub blocks: Vec<DatabaseBlockRevision>,
 
     // String in JSON format. It can be deserialized into [GridViewRevision]
     pub grid_view_revision_data: String,
 }
 
-impl BuildGridContext {
+impl BuildDatabaseContext {
     pub fn new() -> Self {
         Self::default()
     }
 }
 
-impl std::convert::From<BuildGridContext> for Bytes {
-    fn from(ctx: BuildGridContext) -> Self {
+impl std::convert::From<BuildDatabaseContext> for Bytes {
+    fn from(ctx: BuildDatabaseContext) -> Self {
         let bytes = serde_json::to_vec(&ctx).unwrap_or_else(|_| vec![]);
         Bytes::from(bytes)
     }
 }
 
-impl std::convert::TryFrom<Bytes> for BuildGridContext {
+impl std::convert::TryFrom<Bytes> for BuildDatabaseContext {
     type Error = serde_json::Error;
 
     fn try_from(bytes: Bytes) -> Result<Self, Self::Error> {
-        let ctx: BuildGridContext = serde_json::from_slice(&bytes)?;
+        let ctx: BuildDatabaseContext = serde_json::from_slice(&bytes)?;
         Ok(ctx)
     }
 }

@@ -12,12 +12,12 @@ use lib_infra::util::md5;
 use revision_model::{Revision, RevisionRange};
 use std::sync::Arc;
 
-pub struct SQLiteGridBlockRevisionPersistence {
+pub struct SQLiteDatabaseBlockRevisionPersistence {
     user_id: String,
     pub(crate) pool: Arc<ConnectionPool>,
 }
 
-impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridBlockRevisionPersistence {
+impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseBlockRevisionPersistence {
     type Error = FlowyError;
 
     fn create_revision_records(&self, revision_records: Vec<SyncRecord>) -> Result<(), Self::Error> {
@@ -82,7 +82,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridBlockRevisionPersisten
     }
 }
 
-impl SQLiteGridBlockRevisionPersistence {
+impl SQLiteDatabaseBlockRevisionPersistence {
     pub fn new(user_id: &str, pool: Arc<ConnectionPool>) -> Self {
         Self {
             user_id: user_id.to_owned(),

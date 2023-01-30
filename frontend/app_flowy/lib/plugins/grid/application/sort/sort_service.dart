@@ -37,7 +37,7 @@ class SortFFIService {
       ..sortId = sortId;
 
     final payload = DatabaseSettingChangesetPB.create()
-      ..gridId = viewId
+      ..databaseId = viewId
       ..alterSort = insertSortPayload;
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
@@ -62,7 +62,7 @@ class SortFFIService {
       ..condition = condition;
 
     final payload = DatabaseSettingChangesetPB.create()
-      ..gridId = viewId
+      ..databaseId = viewId
       ..alterSort = insertSortPayload;
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
@@ -87,7 +87,7 @@ class SortFFIService {
       ..fieldType = fieldType;
 
     final payload = DatabaseSettingChangesetPB.create()
-      ..gridId = viewId
+      ..databaseId = viewId
       ..deleteSort = deleteFilterPayload;
 
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {

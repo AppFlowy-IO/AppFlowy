@@ -18,7 +18,7 @@ use flowy_net::{http_server::folder::FolderHttpCloudService, local_server::Local
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
-use grid_model::BuildGridContext;
+use grid_model::BuildDatabaseContext;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
 use revision_model::Revision;
@@ -228,7 +228,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         let view_id = view_id.to_string();
         let grid_manager = self.0.clone();
         FutureResult::new(async move {
-            grid_manager.create_grid(view_id, vec![revision]).await?;
+            grid_manager.create_database(view_id, vec![revision]).await?;
             Ok(())
         })
     }
@@ -303,7 +303,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
 
         FutureResult::new(async move {
             let bytes = Bytes::from(data);
-            let build_context = BuildGridContext::try_from(bytes)?;
+            let build_context = BuildDatabaseContext::try_from(bytes)?;
             make_database_view_data(&user_id, &view_id, layout, grid_manager, build_context).await
         })
     }

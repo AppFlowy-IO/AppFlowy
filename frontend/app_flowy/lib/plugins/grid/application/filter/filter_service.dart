@@ -179,7 +179,7 @@ class FilterFFIService {
     }
 
     final payload = DatabaseSettingChangesetPB.create()
-      ..gridId = viewId
+      ..databaseId = viewId
       ..alterFilter = insertFilterPayload;
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
@@ -204,7 +204,7 @@ class FilterFFIService {
       ..fieldType = fieldType;
 
     final payload = DatabaseSettingChangesetPB.create()
-      ..gridId = viewId
+      ..databaseId = viewId
       ..deleteFilter = deleteFilterPayload;
 
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {

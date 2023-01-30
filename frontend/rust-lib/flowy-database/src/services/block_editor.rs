@@ -1,12 +1,12 @@
 use bytes::Bytes;
-use flowy_client_sync::client_grid::{GridBlockRevisionChangeset, GridBlockRevisionPad};
+use flowy_client_sync::client_database::{GridBlockRevisionChangeset, GridBlockRevisionPad};
 use flowy_client_sync::make_operations_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
 use flowy_sqlite::ConnectionPool;
-use grid_model::{CellRevision, GridBlockRevision, RowChangeset, RowRevision};
+use grid_model::{CellRevision, DatabaseBlockRevision, RowChangeset, RowRevision};
 use lib_infra::future::FutureResult;
 use lib_ot::core::EmptyAttributes;
 use revision_model::Revision;
@@ -32,7 +32,9 @@ impl DatabaseBlockRevisionEditor {
         let cloud = Arc::new(GridBlockRevisionCloudService {
             token: token.to_owned(),
         });
-        let block_revision_pad = rev_manager.initialize::<GridBlockRevisionSerde>(Some(cloud)).await?;
+        let block_revision_pad = rev_manager
+            .initialize::<DatabaseBlockRevisionSerde>(Some(cloud))
+            .await?;
         let pad = Arc::new(RwLock::new(block_revision_pad));
         let rev_manager = Arc::new(rev_manager);
         let user_id = user_id.to_owned();
@@ -50,7 +52,7 @@ impl DatabaseBlockRevisionEditor {
         self.rev_manager.close().await;
     }
 
-    pub async fn duplicate_block(&self, duplicated_block_id: &str) -> GridBlockRevision {
+    pub async fn duplicate_block(&self, duplicated_block_id: &str) -> DatabaseBlockRevision {
         self.pad.read().await.duplicate_data(duplicated_block_id).await
     }
 
@@ -174,8 +176,8 @@ impl RevisionCloudService for GridBlockRevisionCloudService {
     }
 }
 
-struct GridBlockRevisionSerde();
-impl RevisionObjectDeserializer for GridBlockRevisionSerde {
+struct DatabaseBlockRevisionSerde();
+impl RevisionObjectDeserializer for DatabaseBlockRevisionSerde {
     type Output = GridBlockRevisionPad;
 
     fn deserialize_revisions(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
@@ -188,7 +190,7 @@ impl RevisionObjectDeserializer for GridBlockRevisionSerde {
     }
 }
 
-impl RevisionObjectSerializer for GridBlockRevisionSerde {
+impl RevisionObjectSerializer for DatabaseBlockRevisionSerde {
     fn combine_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
         Ok(operations.json_bytes())
@@ -198,6 +200,6 @@ impl RevisionObjectSerializer for GridBlockRevisionSerde {
 pub struct GridBlockRevisionMergeable();
 impl RevisionMergeable for GridBlockRevisionMergeable {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        GridBlockRevisionSerde::combine_revisions(revisions)
+        DatabaseBlockRevisionSerde::combine_revisions(revisions)
     }
 }

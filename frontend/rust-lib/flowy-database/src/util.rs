@@ -1,39 +1,39 @@
 use crate::entities::FieldType;
 use crate::services::field::*;
 use crate::services::row::RowRevisionBuilder;
-use flowy_client_sync::client_grid::GridBuilder;
-use grid_model::BuildGridContext;
+use flowy_client_sync::client_database::DatabaseBuilder;
+use grid_model::BuildDatabaseContext;
 
-pub fn make_default_grid() -> BuildGridContext {
-    let mut grid_builder = GridBuilder::new();
+pub fn make_default_grid() -> BuildDatabaseContext {
+    let mut database_builder = DatabaseBuilder::new();
     // text
     let text_field = FieldBuilder::new(RichTextTypeOptionBuilder::default())
         .name("Name")
         .visibility(true)
         .primary(true)
         .build();
-    grid_builder.add_field(text_field);
+    database_builder.add_field(text_field);
 
     // single select
     let single_select = SingleSelectTypeOptionBuilder::default();
     let single_select_field = FieldBuilder::new(single_select).name("Type").visibility(true).build();
-    grid_builder.add_field(single_select_field);
+    database_builder.add_field(single_select_field);
 
     // checkbox
     let checkbox_field = FieldBuilder::from_field_type(&FieldType::Checkbox)
         .name("Done")
         .visibility(true)
         .build();
-    grid_builder.add_field(checkbox_field);
+    database_builder.add_field(checkbox_field);
 
-    grid_builder.add_empty_row();
-    grid_builder.add_empty_row();
-    grid_builder.add_empty_row();
-    grid_builder.build()
+    database_builder.add_empty_row();
+    database_builder.add_empty_row();
+    database_builder.add_empty_row();
+    database_builder.build()
 }
 
-pub fn make_default_board() -> BuildGridContext {
-    let mut grid_builder = GridBuilder::new();
+pub fn make_default_board() -> BuildDatabaseContext {
+    let mut database_builder = DatabaseBuilder::new();
     // text
     let text_field = FieldBuilder::new(RichTextTypeOptionBuilder::default())
         .name("Description")
@@ -41,7 +41,7 @@ pub fn make_default_board() -> BuildGridContext {
         .primary(true)
         .build();
     let text_field_id = text_field.id.clone();
-    grid_builder.add_field(text_field);
+    database_builder.add_field(text_field);
 
     // single select
     let to_do_option = SelectOptionPB::with_color("To Do", SelectOptionColorPB::Purple);
@@ -56,29 +56,29 @@ pub fn make_default_board() -> BuildGridContext {
         .visibility(true)
         .build();
     let single_select_field_id = single_select_field.id.clone();
-    grid_builder.add_field(single_select_field);
+    database_builder.add_field(single_select_field);
 
     for i in 0..3 {
-        let mut row_builder = RowRevisionBuilder::new(grid_builder.block_id(), grid_builder.field_revs());
+        let mut row_builder = RowRevisionBuilder::new(database_builder.block_id(), database_builder.field_revs());
         row_builder.insert_select_option_cell(&single_select_field_id, vec![to_do_option.id.clone()]);
         let data = format!("Card {}", i + 1);
         row_builder.insert_text_cell(&text_field_id, data);
         let row = row_builder.build();
-        grid_builder.add_row(row);
+        database_builder.add_row(row);
     }
 
-    grid_builder.build()
+    database_builder.build()
 }
 
-pub fn make_default_calendar() -> BuildGridContext {
-    let mut grid_builder = GridBuilder::new();
+pub fn make_default_calendar() -> BuildDatabaseContext {
+    let mut database_builder = DatabaseBuilder::new();
     // text
     let text_field = FieldBuilder::new(RichTextTypeOptionBuilder::default())
         .name("Description")
         .visibility(true)
         .primary(true)
         .build();
-    grid_builder.add_field(text_field);
+    database_builder.add_field(text_field);
 
     // date
     let date_type_option = DateTypeOptionBuilder::default();
@@ -86,7 +86,7 @@ pub fn make_default_calendar() -> BuildGridContext {
         .name("Date")
         .visibility(true)
         .build();
-    grid_builder.add_field(date_field);
+    database_builder.add_field(date_field);
 
     // single select
     let multi_select_type_option = MultiSelectTypeOptionBuilder::default();
@@ -94,13 +94,13 @@ pub fn make_default_calendar() -> BuildGridContext {
         .name("Tags")
         .visibility(true)
         .build();
-    grid_builder.add_field(multi_select_field);
-    grid_builder.build()
+    database_builder.add_field(multi_select_field);
+    database_builder.build()
 }
 
 #[allow(dead_code)]
-pub fn make_default_board_2() -> BuildGridContext {
-    let mut grid_builder = GridBuilder::new();
+pub fn make_default_board_2() -> BuildDatabaseContext {
+    let mut database_builder = DatabaseBuilder::new();
     // text
     let text_field = FieldBuilder::new(RichTextTypeOptionBuilder::default())
         .name("Description")
@@ -108,7 +108,7 @@ pub fn make_default_board_2() -> BuildGridContext {
         .primary(true)
         .build();
     let text_field_id = text_field.id.clone();
-    grid_builder.add_field(text_field);
+    database_builder.add_field(text_field);
 
     // single select
     let to_do_option = SelectOptionPB::with_color("To Do", SelectOptionColorPB::Purple);
@@ -123,7 +123,7 @@ pub fn make_default_board_2() -> BuildGridContext {
         .visibility(true)
         .build();
     let single_select_field_id = single_select_field.id.clone();
-    grid_builder.add_field(single_select_field);
+    database_builder.add_field(single_select_field);
 
     // MultiSelect
     let work_option = SelectOptionPB::with_color("Work", SelectOptionColorPB::Aqua);
@@ -140,10 +140,10 @@ pub fn make_default_board_2() -> BuildGridContext {
         .visibility(true)
         .build();
     let multi_select_field_id = multi_select_field.id.clone();
-    grid_builder.add_field(multi_select_field);
+    database_builder.add_field(multi_select_field);
 
     for i in 0..3 {
-        let mut row_builder = RowRevisionBuilder::new(grid_builder.block_id(), grid_builder.field_revs());
+        let mut row_builder = RowRevisionBuilder::new(database_builder.block_id(), database_builder.field_revs());
         row_builder.insert_select_option_cell(&single_select_field_id, vec![to_do_option.id.clone()]);
         match i {
             0 => {
@@ -165,11 +165,11 @@ pub fn make_default_board_2() -> BuildGridContext {
             _ => {}
         }
         let row = row_builder.build();
-        grid_builder.add_row(row);
+        database_builder.add_row(row);
     }
 
     for i in 0..3 {
-        let mut row_builder = RowRevisionBuilder::new(grid_builder.block_id(), grid_builder.field_revs());
+        let mut row_builder = RowRevisionBuilder::new(database_builder.block_id(), database_builder.field_revs());
         row_builder.insert_select_option_cell(&single_select_field_id, vec![doing_option.id.clone()]);
         match i {
             0 => {
@@ -191,11 +191,11 @@ pub fn make_default_board_2() -> BuildGridContext {
             _ => {}
         }
         let row = row_builder.build();
-        grid_builder.add_row(row);
+        database_builder.add_row(row);
     }
 
     for i in 0..2 {
-        let mut row_builder = RowRevisionBuilder::new(grid_builder.block_id(), grid_builder.field_revs());
+        let mut row_builder = RowRevisionBuilder::new(database_builder.block_id(), database_builder.field_revs());
         row_builder.insert_select_option_cell(&single_select_field_id, vec![done_option.id.clone()]);
         match i {
             0 => {
@@ -213,8 +213,8 @@ pub fn make_default_board_2() -> BuildGridContext {
             _ => {}
         }
         let row = row_builder.build();
-        grid_builder.add_row(row);
+        database_builder.add_row(row);
     }
 
-    grid_builder.build()
+    database_builder.build()
 }

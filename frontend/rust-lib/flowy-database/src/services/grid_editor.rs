@@ -15,10 +15,10 @@ use crate::services::field::{
 use crate::services::filter::FilterType;
 use crate::services::grid_editor_trait_impl::GridViewEditorDelegateImpl;
 use crate::services::persistence::block_index::BlockIndexCache;
-use crate::services::row::{GridBlockRow, GridBlockRowRevision, RowRevisionBuilder};
+use crate::services::row::{DatabaseBlockRow, DatabaseBlockRowRevision, RowRevisionBuilder};
 use crate::services::view_editor::{DatabaseViewManager, GridViewChanged};
 use bytes::Bytes;
-use flowy_client_sync::client_grid::{DatabaseRevisionChangeset, DatabaseRevisionPad, JsonDeserializer};
+use flowy_client_sync::client_database::{DatabaseRevisionChangeset, DatabaseRevisionPad, JsonDeserializer};
 use flowy_client_sync::errors::{SyncError, SyncResult};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{
@@ -260,7 +260,7 @@ impl DatabaseRevisionEditor {
     pub async fn delete_field(&self, field_id: &str) -> FlowyResult<()> {
         self.modify(|grid_pad| Ok(grid_pad.delete_field_rev(field_id)?)).await?;
         let field_order = FieldIdPB::from(field_id);
-        let notified_changeset = GridFieldChangesetPB::delete(&self.database_id, vec![field_order]);
+        let notified_changeset = DatabaseFieldChangesetPB::delete(&self.database_id, vec![field_order]);
         self.notify_did_update_grid(notified_changeset).await?;
         Ok(())
     }
@@ -551,7 +551,7 @@ impl DatabaseRevisionEditor {
         Ok(block_meta_revs)
     }
 
-    pub async fn get_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlockRowRevision>> {
+    pub async fn get_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<DatabaseBlockRowRevision>> {
         let block_ids = match block_ids {
             None => self
                 .database_pad
@@ -567,7 +567,7 @@ impl DatabaseRevisionEditor {
         Ok(blocks)
     }
 
-    pub async fn delete_rows(&self, block_rows: Vec<GridBlockRow>) -> FlowyResult<()> {
+    pub async fn delete_rows(&self, block_rows: Vec<DatabaseBlockRow>) -> FlowyResult<()> {
         let changesets = self.block_manager.delete_rows(block_rows).await?;
         for changeset in changesets {
             self.update_block(changeset).await?;
@@ -723,7 +723,7 @@ impl DatabaseRevisionEditor {
 
     pub async fn move_field(&self, params: MoveFieldParams) -> FlowyResult<()> {
         let MoveFieldParams {
-            grid_id: _,
+            view_id: _,
             field_id,
             from_index,
             to_index,
@@ -734,8 +734,8 @@ impl DatabaseRevisionEditor {
         if let Some((index, field_rev)) = self.database_pad.read().await.get_field_rev(&field_id) {
             let delete_field_order = FieldIdPB::from(field_id);
             let insert_field = IndexFieldPB::from_field_rev(field_rev, index);
-            let notified_changeset = GridFieldChangesetPB {
-                grid_id: self.database_id.clone(),
+            let notified_changeset = DatabaseFieldChangesetPB {
+                database_id: self.database_id.clone(),
                 inserted_fields: vec![insert_field],
                 deleted_fields: vec![delete_field_order],
                 updated_fields: vec![],
@@ -746,9 +746,9 @@ impl DatabaseRevisionEditor {
         Ok(())
     }
 
-    pub async fn duplicate_grid(&self) -> FlowyResult<BuildGridContext> {
+    pub async fn duplicate_grid(&self) -> FlowyResult<BuildDatabaseContext> {
         let grid_pad = self.database_pad.read().await;
-        let grid_view_revision_data = self.view_manager.duplicate_grid_view().await?;
+        let grid_view_revision_data = self.view_manager.duplicate_database_view().await?;
         let original_blocks = grid_pad.get_block_meta_revs();
         let (duplicated_fields, duplicated_blocks) = grid_pad.duplicate_grid_block_meta().await;
 
@@ -770,7 +770,7 @@ impl DatabaseRevisionEditor {
         }
         drop(grid_pad);
 
-        Ok(BuildGridContext {
+        Ok(BuildDatabaseContext {
             field_revs: duplicated_fields.into_iter().map(Arc::new).collect(),
             block_metas: duplicated_blocks,
             blocks: blocks_meta_data,
@@ -834,7 +834,7 @@ impl DatabaseRevisionEditor {
     async fn notify_did_insert_grid_field(&self, field_id: &str) -> FlowyResult<()> {
         if let Some((index, field_rev)) = self.database_pad.read().await.get_field_rev(field_id) {
             let index_field = IndexFieldPB::from_field_rev(field_rev, index);
-            let notified_changeset = GridFieldChangesetPB::insert(&self.database_id, vec![index_field]);
+            let notified_changeset = DatabaseFieldChangesetPB::insert(&self.database_id, vec![index_field]);
             self.notify_did_update_grid(notified_changeset).await?;
         }
         Ok(())
@@ -850,7 +850,7 @@ impl DatabaseRevisionEditor {
             .map(|(index, field)| (index, field.clone()))
         {
             let updated_field = FieldPB::from(field_rev);
-            let notified_changeset = GridFieldChangesetPB::update(&self.database_id, vec![updated_field.clone()]);
+            let notified_changeset = DatabaseFieldChangesetPB::update(&self.database_id, vec![updated_field.clone()]);
             self.notify_did_update_grid(notified_changeset).await?;
 
             send_notification(field_id, DatabaseNotification::DidUpdateField)
@@ -861,8 +861,8 @@ impl DatabaseRevisionEditor {
         Ok(())
     }
 
-    async fn notify_did_update_grid(&self, changeset: GridFieldChangesetPB) -> FlowyResult<()> {
-        send_notification(&self.database_id, DatabaseNotification::DidUpdateGridFields)
+    async fn notify_did_update_grid(&self, changeset: DatabaseFieldChangesetPB) -> FlowyResult<()> {
+        send_notification(&self.database_id, DatabaseNotification::DidUpdateDatabaseFields)
             .payload(changeset)
             .send();
         Ok(())

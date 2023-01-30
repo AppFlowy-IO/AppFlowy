@@ -14,7 +14,7 @@ use lib_dispatch::prelude::{data_result, AFPluginData, AFPluginState, DataResult
 use std::sync::Arc;
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn get_grid_handler(
+pub(crate) async fn get_database_data_handler(
     data: AFPluginData<DatabaseIdPB>,
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<DatabasePB, FlowyError> {
@@ -42,7 +42,7 @@ pub(crate) async fn update_database_setting_handler(
 ) -> Result<(), FlowyError> {
     let params: DatabaseSettingChangesetParams = data.into_inner().try_into()?;
 
-    let editor = manager.get_database_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.database_id).await?;
     if let Some(insert_params) = params.insert_group {
         editor.insert_group(insert_params).await?;
     }
@@ -111,7 +111,7 @@ pub(crate) async fn get_fields_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RepeatedFieldPB, FlowyError> {
     let params: GetFieldParams = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.database_id).await?;
     let field_revs = editor.get_field_revs(params.field_ids).await?;
     let repeated_field: RepeatedFieldPB = field_revs.into_iter().map(FieldPB::from).collect::<Vec<_>>().into();
     data_result(repeated_field)
@@ -123,7 +123,7 @@ pub(crate) async fn update_field_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let changeset: FieldChangesetParams = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(&changeset.grid_id).await?;
+    let editor = manager.get_database_editor(&changeset.database_id).await?;
     editor.update_field(changeset).await?;
     Ok(())
 }
@@ -134,11 +134,11 @@ pub(crate) async fn update_field_type_option_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let params: TypeOptionChangesetParams = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.database_id).await?;
     let old_field_rev = editor.get_field_rev(&params.field_id).await;
     editor
         .update_field_type_option(
-            &params.grid_id,
+            &params.database_id,
             &params.field_id,
             params.type_option_data,
             old_field_rev,
@@ -153,7 +153,7 @@ pub(crate) async fn delete_field_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let params: FieldIdParams = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.database_id).await?;
     editor.delete_field(&params.field_id).await?;
     Ok(())
 }
@@ -164,7 +164,7 @@ pub(crate) async fn switch_to_field_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let params: EditFieldParams = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.database_id).await?;
     let old_field_rev = editor.get_field_rev(&params.field_id).await;
     editor
         .switch_to_field_type(&params.field_id, &params.field_type)
@@ -179,7 +179,7 @@ pub(crate) async fn switch_to_field_handler(
     // Update the type-option data after the field type has been changed
     let type_option_data = get_type_option_data(&new_field_rev, &params.field_type).await?;
     editor
-        .update_field_type_option(&params.grid_id, &new_field_rev.id, type_option_data, old_field_rev)
+        .update_field_type_option(&params.database_id, &new_field_rev.id, type_option_data, old_field_rev)
         .await?;
 
     Ok(())
@@ -191,7 +191,7 @@ pub(crate) async fn duplicate_field_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let params: FieldIdParams = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.database_id).await?;
     editor.duplicate_field(&params.field_id).await?;
     Ok(())
 }
@@ -203,14 +203,14 @@ pub(crate) async fn get_field_type_option_data_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<TypeOptionPB, FlowyError> {
     let params: TypeOptionPathParams = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.database_id).await?;
     match editor.get_field_rev(&params.field_id).await {
         None => Err(FlowyError::record_not_found()),
         Some(field_rev) => {
             let field_type = field_rev.ty.into();
             let type_option_data = get_type_option_data(&field_rev, &field_type).await?;
             let data = TypeOptionPB {
-                grid_id: params.grid_id,
+                database_id: params.database_id,
                 field: field_rev.into(),
                 type_option_data,
             };
@@ -226,7 +226,7 @@ pub(crate) async fn create_field_type_option_data_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<TypeOptionPB, FlowyError> {
     let params: CreateFieldParams = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.database_id).await?;
     let field_rev = editor
         .create_new_field_rev_with_type_option(&params.field_type, params.type_option_data)
         .await?;
@@ -234,7 +234,7 @@ pub(crate) async fn create_field_type_option_data_handler(
     let type_option_data = get_type_option_data(&field_rev, &field_type).await?;
 
     data_result(TypeOptionPB {
-        grid_id: params.grid_id,
+        database_id: params.database_id,
         field: field_rev.into(),
         type_option_data,
     })
@@ -246,7 +246,7 @@ pub(crate) async fn move_field_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let params: MoveFieldParams = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.view_id).await?;
     editor.move_field(params).await?;
     Ok(())
 }
@@ -274,7 +274,7 @@ pub(crate) async fn get_row_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<OptionalRowPB, FlowyError> {
     let params: RowIdParams = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.database_id).await?;
     let row = editor.get_row_rev(&params.row_id).await?.map(make_row_from_row_rev);
 
     data_result(OptionalRowPB { row })
@@ -286,7 +286,7 @@ pub(crate) async fn delete_row_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let params: RowIdParams = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.database_id).await?;
     editor.delete_row(&params.row_id).await?;
     Ok(())
 }
@@ -297,7 +297,7 @@ pub(crate) async fn duplicate_row_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let params: RowIdParams = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.database_id).await?;
     editor.duplicate_row(&params.row_id).await?;
     Ok(())
 }
@@ -319,7 +319,7 @@ pub(crate) async fn create_table_row_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RowPB, FlowyError> {
     let params: CreateRowParams = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(params.grid_id.as_ref()).await?;
+    let editor = manager.get_database_editor(params.database_id.as_ref()).await?;
     let row = editor.create_row(params).await?;
     data_result(row)
 }
@@ -330,7 +330,7 @@ pub(crate) async fn get_cell_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<CellPB, FlowyError> {
     let params: CellPathParams = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(&params.view_id).await?;
+    let editor = manager.get_database_editor(&params.database_id).await?;
     match editor.get_cell(&params).await {
         None => data_result(CellPB::empty(&params.field_id, &params.row_id)),
         Some(cell) => data_result(cell),
@@ -356,7 +356,7 @@ pub(crate) async fn new_select_option_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<SelectOptionPB, FlowyError> {
     let params: CreateSelectOptionParams = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(&params.grid_id).await?;
+    let editor = manager.get_database_editor(&params.database_id).await?;
     match editor.get_field_rev(&params.field_id).await {
         None => Err(ErrorCode::InvalidData.into()),
         Some(field_rev) => {
@@ -373,7 +373,7 @@ pub(crate) async fn update_select_option_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let changeset: SelectOptionChangeset = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(&changeset.cell_path.view_id).await?;
+    let editor = manager.get_database_editor(&changeset.cell_path.database_id).await?;
     let field_id = changeset.cell_path.field_id.clone();
     editor
         .modify_field_rev(&field_id, |field_rev| {
@@ -433,7 +433,7 @@ pub(crate) async fn get_select_option_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<SelectOptionCellDataPB, FlowyError> {
     let params: CellPathParams = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(&params.view_id).await?;
+    let editor = manager.get_database_editor(&params.database_id).await?;
     match editor.get_field_rev(&params.field_id).await {
         None => {
             tracing::error!("Can't find the select option field with id: {}", params.field_id);
@@ -463,7 +463,7 @@ pub(crate) async fn update_select_option_cell_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let params: SelectOptionCellChangesetParams = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(&params.cell_identifier.view_id).await?;
+    let editor = manager.get_database_editor(&params.cell_identifier.database_id).await?;
     let changeset = SelectOptionCellChangeset {
         insert_option_ids: params.insert_option_ids,
         delete_option_ids: params.delete_option_ids,
@@ -492,7 +492,7 @@ pub(crate) async fn update_date_cell_handler(
         is_utc: data.is_utc,
     };
 
-    let editor = manager.get_database_editor(&cell_path.view_id).await?;
+    let editor = manager.get_database_editor(&cell_path.database_id).await?;
     editor
         .update_cell(cell_path.row_id, cell_path.field_id, cell_changeset)
         .await?;
@@ -516,7 +516,7 @@ pub(crate) async fn create_board_card_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RowPB, FlowyError> {
     let params: CreateRowParams = data.into_inner().try_into()?;
-    let editor = manager.get_database_editor(params.grid_id.as_ref()).await?;
+    let editor = manager.get_database_editor(params.database_id.as_ref()).await?;
     let row = editor.create_row(params).await?;
     data_result(row)
 }

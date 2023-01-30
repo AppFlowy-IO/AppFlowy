@@ -39,7 +39,7 @@ impl GridViewChangedReceiverRunner {
 
                         send_notification(
                             &changeset.view_id,
-                            DatabaseNotification::DidUpdateGridViewRowsVisibility,
+                            DatabaseNotification::DidUpdateDatabaseViewRowsVisibility,
                         )
                         .payload(changeset)
                         .send()

@@ -1,7 +1,7 @@
 use crate::errors::{SyncError, SyncResult};
 use crate::util::cal_diff;
 use flowy_sync::util::make_operations_from_revisions;
-use grid_model::{gen_block_id, gen_row_id, CellRevision, GridBlockRevision, RowChangeset, RowRevision};
+use grid_model::{gen_block_id, gen_row_id, CellRevision, DatabaseBlockRevision, RowChangeset, RowRevision};
 use lib_infra::util::md5;
 use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
 use revision_model::Revision;
@@ -14,12 +14,12 @@ pub type GridBlockOperationsBuilder = DeltaBuilder;
 
 #[derive(Debug, Clone)]
 pub struct GridBlockRevisionPad {
-    block: GridBlockRevision,
+    block: DatabaseBlockRevision,
     operations: GridBlockOperations,
 }
 
 impl std::ops::Deref for GridBlockRevisionPad {
-    type Target = GridBlockRevision;
+    type Target = DatabaseBlockRevision;
 
     fn deref(&self) -> &Self::Target {
         &self.block
@@ -27,7 +27,7 @@ impl std::ops::Deref for GridBlockRevisionPad {
 }
 
 impl GridBlockRevisionPad {
-    pub async fn duplicate_data(&self, duplicated_block_id: &str) -> GridBlockRevision {
+    pub async fn duplicate_data(&self, duplicated_block_id: &str) -> DatabaseBlockRevision {
         let duplicated_rows = self
             .block
             .rows
@@ -39,7 +39,7 @@ impl GridBlockRevisionPad {
                 Arc::new(duplicated_row)
             })
             .collect::<Vec<Arc<RowRevision>>>();
-        GridBlockRevision {
+        DatabaseBlockRevision {
             block_id: duplicated_block_id.to_string(),
             rows: duplicated_rows,
         }
@@ -47,7 +47,7 @@ impl GridBlockRevisionPad {
 
     pub fn from_operations(operations: GridBlockOperations) -> SyncResult<Self> {
         let s = operations.content()?;
-        let revision: GridBlockRevision = serde_json::from_str(&s).map_err(|e| {
+        let revision: DatabaseBlockRevision = serde_json::from_str(&s).map_err(|e| {
             let msg = format!("Deserialize operations to GridBlockRevision failed: {}", e);
             tracing::error!("{}", s);
             SyncError::internal().context(msg)
@@ -252,13 +252,13 @@ pub struct GridBlockRevisionChangeset {
     pub md5: String,
 }
 
-pub fn make_grid_block_operations(block_rev: &GridBlockRevision) -> GridBlockOperations {
+pub fn make_database_block_operations(block_rev: &DatabaseBlockRevision) -> GridBlockOperations {
     let json = serde_json::to_string(&block_rev).unwrap();
     GridBlockOperationsBuilder::new().insert(&json).build()
 }
 
-pub fn make_grid_block_revisions(_user_id: &str, grid_block_meta_data: &GridBlockRevision) -> Vec<Revision> {
-    let operations = make_grid_block_operations(grid_block_meta_data);
+pub fn make_grid_block_revisions(_user_id: &str, grid_block_meta_data: &DatabaseBlockRevision) -> Vec<Revision> {
+    let operations = make_database_block_operations(grid_block_meta_data);
     let bytes = operations.json_bytes();
     let revision = Revision::initial_revision(&grid_block_meta_data.block_id, bytes);
     vec![revision]
@@ -266,12 +266,12 @@ pub fn make_grid_block_revisions(_user_id: &str, grid_block_meta_data: &GridBloc
 
 impl std::default::Default for GridBlockRevisionPad {
     fn default() -> Self {
-        let block_revision = GridBlockRevision {
+        let block_revision = DatabaseBlockRevision {
             block_id: gen_block_id(),
             rows: vec![],
         };
 
-        let operations = make_grid_block_operations(&block_revision);
+        let operations = make_database_block_operations(&block_revision);
         GridBlockRevisionPad {
             block: block_revision,
             operations,
@@ -281,7 +281,7 @@ impl std::default::Default for GridBlockRevisionPad {
 
 #[cfg(test)]
 mod tests {
-    use crate::client_grid::{GridBlockOperations, GridBlockRevisionPad};
+    use crate::client_database::{GridBlockOperations, GridBlockRevisionPad};
     use grid_model::{RowChangeset, RowRevision};
 
     use std::borrow::Cow;

@@ -3,7 +3,7 @@
 #![allow(unused_imports)]
 use crate::grid::block_test::util::GridRowTestBuilder;
 use bytes::Bytes;
-use flowy_client_sync::client_grid::GridBuilder;
+use flowy_client_sync::client_database::DatabaseBuilder;
 use flowy_database::entities::*;
 use flowy_database::services::cell::ToCellChangesetString;
 use flowy_database::services::field::SelectOptionPB;
@@ -217,8 +217,8 @@ pub const THIRD_THING: &str = "Start working";
 
 /// The build-in test data for grid. Currently, there are five rows in this grid, if you want to add
 /// more rows or alter the data in this grid. Some tests may fail. So you need to fix the failed tests.
-fn make_test_grid() -> BuildGridContext {
-    let mut grid_builder = GridBuilder::new();
+fn make_test_grid() -> BuildDatabaseContext {
+    let mut grid_builder = DatabaseBuilder::new();
     // Iterate through the FieldType to create the corresponding Field.
     for field_type in FieldType::iter() {
         let field_type: FieldType = field_type;
@@ -394,8 +394,8 @@ fn make_test_grid() -> BuildGridContext {
 }
 
 // Kanban board unit test mock data
-fn make_test_board() -> BuildGridContext {
-    let mut grid_builder = GridBuilder::new();
+fn make_test_board() -> BuildDatabaseContext {
+    let mut grid_builder = DatabaseBuilder::new();
     // Iterate through the FieldType to create the corresponding Field.
     for field_type in FieldType::iter() {
         let field_type: FieldType = field_type;
@@ -568,6 +568,6 @@ fn make_test_board() -> BuildGridContext {
 }
 
 // Calendar unit test mock data
-fn make_test_calendar() -> BuildGridContext {
+fn make_test_calendar() -> BuildDatabaseContext {
     todo!()
 }

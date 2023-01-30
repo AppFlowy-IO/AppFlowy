@@ -1,17 +1,17 @@
 use crate::errors::{SyncError, SyncResult};
-use grid_model::{BuildGridContext, FieldRevision, GridBlockMetaRevision, GridBlockRevision, RowRevision};
+use grid_model::{BuildDatabaseContext, DatabaseBlockRevision, FieldRevision, GridBlockMetaRevision, RowRevision};
 use std::sync::Arc;
 
-pub struct GridBuilder {
-    build_context: BuildGridContext,
+pub struct DatabaseBuilder {
+    build_context: BuildDatabaseContext,
 }
 
-impl std::default::Default for GridBuilder {
+impl std::default::Default for DatabaseBuilder {
     fn default() -> Self {
-        let mut build_context = BuildGridContext::new();
+        let mut build_context = BuildDatabaseContext::new();
 
         let block_meta = GridBlockMetaRevision::new();
-        let block_meta_data = GridBlockRevision {
+        let block_meta_data = DatabaseBlockRevision {
             block_id: block_meta.block_id.clone(),
             rows: vec![],
         };
@@ -19,11 +19,11 @@ impl std::default::Default for GridBuilder {
         build_context.block_metas.push(block_meta);
         build_context.blocks.push(block_meta_data);
 
-        GridBuilder { build_context }
+        DatabaseBuilder { build_context }
     }
 }
 
-impl GridBuilder {
+impl DatabaseBuilder {
     pub fn new() -> Self {
         Self::default()
     }
@@ -51,7 +51,7 @@ impl GridBuilder {
         &self.build_context.block_metas.first().unwrap().block_id
     }
 
-    pub fn build(self) -> BuildGridContext {
+    pub fn build(self) -> BuildDatabaseContext {
         self.build_context
     }
 }

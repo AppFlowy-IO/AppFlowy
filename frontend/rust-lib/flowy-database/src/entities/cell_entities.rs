@@ -11,7 +11,7 @@ pub struct CreateSelectOptionPayloadPB {
     pub field_id: String,
 
     #[pb(index = 2)]
-    pub grid_id: String,
+    pub database_id: String,
 
     #[pb(index = 3)]
     pub option_name: String,
@@ -19,7 +19,7 @@ pub struct CreateSelectOptionPayloadPB {
 
 pub struct CreateSelectOptionParams {
     pub field_id: String,
-    pub grid_id: String,
+    pub database_id: String,
     pub option_name: String,
 }
 
@@ -28,12 +28,12 @@ impl TryInto<CreateSelectOptionParams> for CreateSelectOptionPayloadPB {
 
     fn try_into(self) -> Result<CreateSelectOptionParams, Self::Error> {
         let option_name = NotEmptyStr::parse(self.option_name).map_err(|_| ErrorCode::SelectOptionNameIsEmpty)?;
-        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let database_id = NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         Ok(CreateSelectOptionParams {
             field_id: field_id.0,
             option_name: option_name.0,
-            grid_id: grid_id.0,
+            database_id: database_id.0,
         })
     }
 }
@@ -41,7 +41,7 @@ impl TryInto<CreateSelectOptionParams> for CreateSelectOptionPayloadPB {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct CellPathPB {
     #[pb(index = 1)]
-    pub view_id: String,
+    pub database_id: String,
 
     #[pb(index = 2)]
     pub field_id: String,
@@ -53,7 +53,7 @@ pub struct CellPathPB {
 /// Represents as the cell identifier. It's used to locate the cell in corresponding
 /// view's row with the field id.
 pub struct CellPathParams {
-    pub view_id: String,
+    pub database_id: String,
     pub field_id: String,
     pub row_id: String,
 }
@@ -62,11 +62,11 @@ impl TryInto<CellPathParams> for CellPathPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CellPathParams, Self::Error> {
-        let grid_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let database_id = NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
         Ok(CellPathParams {
-            view_id: grid_id.0,
+            database_id: database_id.0,
             field_id: field_id.0,
             row_id: row_id.0,
         })

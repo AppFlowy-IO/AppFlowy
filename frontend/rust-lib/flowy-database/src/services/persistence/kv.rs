@@ -28,11 +28,11 @@ pub trait KVTransaction {
     fn batch_remove(&self, keys: Vec<String>) -> FlowyResult<()>;
 }
 
-pub struct GridKVPersistence {
+pub struct DatabaseKVPersistence {
     database: Arc<dyn GridDatabase>,
 }
 
-impl GridKVPersistence {
+impl DatabaseKVPersistence {
     pub fn new(database: Arc<dyn GridDatabase>) -> Self {
         Self { database }
     }
@@ -49,7 +49,7 @@ impl GridKVPersistence {
     }
 }
 
-impl KVTransaction for GridKVPersistence {
+impl KVTransaction for DatabaseKVPersistence {
     fn get<T: TryFrom<Bytes, Error = ::protobuf::ProtobufError>>(&self, key: &str) -> FlowyResult<Option<T>> {
         self.begin_transaction(|transaction| transaction.get(key))
     }

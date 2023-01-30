@@ -21,7 +21,7 @@ pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, FieldRevision) {
     field_rev.insert_type_option(type_option_builder.serializer());
 
     let params = CreateFieldParams {
-        grid_id: grid_id.to_owned(),
+        database_id: grid_id.to_owned(),
         field_type: field_rev.ty.into(),
         type_option_data: Some(type_option_data),
     };
@@ -45,7 +45,7 @@ pub fn create_single_select_field(grid_id: &str) -> (CreateFieldParams, FieldRev
     field_rev.insert_type_option(type_option_builder.serializer());
 
     let params = CreateFieldParams {
-        grid_id: grid_id.to_owned(),
+        database_id: grid_id.to_owned(),
         field_type: field_rev.ty.into(),
         type_option_data: Some(type_option_data),
     };

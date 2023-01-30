@@ -1,8 +1,8 @@
 use crate::manager::DatabaseUser;
-use crate::services::persistence::rev_sqlite::SQLiteGridRevisionPersistence;
+use crate::services::persistence::rev_sqlite::SQLiteDatabaseRevisionPersistence;
 use crate::services::persistence::GridDatabase;
 use bytes::Bytes;
-use flowy_client_sync::client_grid::{make_database_rev_json_str, DatabaseOperationsBuilder, DatabaseRevisionPad};
+use flowy_client_sync::client_database::{make_database_rev_json_str, DatabaseOperationsBuilder, DatabaseRevisionPad};
 use flowy_error::FlowyResult;
 use flowy_revision::reset::{RevisionResettable, RevisionStructReset};
 use flowy_sqlite::kv::KV;
@@ -13,12 +13,12 @@ use std::sync::Arc;
 
 const V1_MIGRATION: &str = "GRID_V1_MIGRATION";
 
-pub(crate) struct GridMigration {
+pub(crate) struct DatabaseMigration {
     user: Arc<dyn DatabaseUser>,
     database: Arc<dyn GridDatabase>,
 }
 
-impl GridMigration {
+impl DatabaseMigration {
     pub fn new(user: Arc<dyn DatabaseUser>, database: Arc<dyn GridDatabase>) -> Self {
         Self { user, database }
     }
@@ -41,7 +41,7 @@ impl GridMigration {
         };
         let user_id = self.user.user_id()?;
         let pool = self.database.db_pool()?;
-        let disk_cache = SQLiteGridRevisionPersistence::new(&user_id, pool);
+        let disk_cache = SQLiteDatabaseRevisionPersistence::new(&user_id, pool);
         let reset = RevisionStructReset::new(&user_id, object, Arc::new(disk_cache));
         reset.run().await
     }

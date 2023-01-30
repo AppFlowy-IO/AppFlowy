@@ -28,7 +28,7 @@ class TypeOptionDataController {
   }) {
     if (fieldInfo != null) {
       _data = TypeOptionPB.create()
-        ..gridId = gridId
+        ..databaseId = gridId
         ..field_2 = fieldInfo.field;
     }
   }

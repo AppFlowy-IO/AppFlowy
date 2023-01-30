@@ -10,12 +10,12 @@ use flowy_sqlite::{
 use lib_infra::util::timestamp;
 use std::sync::Arc;
 
-pub struct SQLiteGridRevisionSnapshotPersistence {
+pub struct SQLiteDatabaseRevisionSnapshotPersistence {
     object_id: String,
     pool: Arc<ConnectionPool>,
 }
 
-impl SQLiteGridRevisionSnapshotPersistence {
+impl SQLiteDatabaseRevisionSnapshotPersistence {
     pub fn new(object_id: &str, pool: Arc<ConnectionPool>) -> Self {
         Self {
             object_id: object_id.to_string(),
@@ -28,7 +28,7 @@ impl SQLiteGridRevisionSnapshotPersistence {
     }
 }
 
-impl RevisionSnapshotDiskCache for SQLiteGridRevisionSnapshotPersistence {
+impl RevisionSnapshotDiskCache for SQLiteDatabaseRevisionSnapshotPersistence {
     fn write_snapshot(&self, rev_id: i64, data: Vec<u8>) -> FlowyResult<()> {
         let conn = self.pool.get().map_err(internal_error)?;
         let snapshot_id = self.gen_snapshot_id(rev_id);

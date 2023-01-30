@@ -18,7 +18,7 @@ class TypeOptionFFIService {
   }) {
     final payload = CreateSelectOptionPayloadPB.create()
       ..optionName = name
-      ..gridId = gridId
+      ..databaseId = gridId
       ..fieldId = fieldId;
 
     return DatabaseEventNewSelectOption(payload).send();

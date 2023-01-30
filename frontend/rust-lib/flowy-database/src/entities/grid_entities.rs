@@ -17,7 +17,7 @@ pub struct DatabasePB {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct CreateGridPayloadPB {
+pub struct CreateDatabasePayloadPB {
     #[pb(index = 1)]
     pub name: String,
 }
@@ -37,7 +37,7 @@ impl AsRef<str> for DatabaseIdPB {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct MoveFieldPayloadPB {
     #[pb(index = 1)]
-    pub grid_id: String,
+    pub view_id: String,
 
     #[pb(index = 2)]
     pub field_id: String,
@@ -51,7 +51,7 @@ pub struct MoveFieldPayloadPB {
 
 #[derive(Clone)]
 pub struct MoveFieldParams {
-    pub grid_id: String,
+    pub view_id: String,
     pub field_id: String,
     pub from_index: i32,
     pub to_index: i32,
@@ -61,10 +61,10 @@ impl TryInto<MoveFieldParams> for MoveFieldPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<MoveFieldParams, Self::Error> {
-        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
         let item_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::InvalidData)?;
         Ok(MoveFieldParams {
-            grid_id: grid_id.0,
+            view_id: view_id.0,
             field_id: item_id.0,
             from_index: self.from_index,
             to_index: self.to_index,
@@ -94,7 +94,7 @@ impl TryInto<MoveRowParams> for MoveRowPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<MoveRowParams, Self::Error> {
-        let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::GridViewIdIsEmpty)?;
+        let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
         let from_row_id = NotEmptyStr::parse(self.from_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
         let to_row_id = NotEmptyStr::parse(self.to_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
 
@@ -131,7 +131,7 @@ impl TryInto<MoveGroupRowParams> for MoveGroupRowPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<MoveGroupRowParams, Self::Error> {
-        let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::GridViewIdIsEmpty)?;
+        let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
         let from_row_id = NotEmptyStr::parse(self.from_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
         let to_group_id = NotEmptyStr::parse(self.to_group_id).map_err(|_| ErrorCode::GroupIdIsEmpty)?;
 

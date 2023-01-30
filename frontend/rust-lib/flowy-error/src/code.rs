@@ -101,11 +101,11 @@ pub enum ErrorCode {
     #[error("Text is too long")]
     TextTooLong = 32,
 
-    #[error("Grid id is empty")]
-    GridIdIsEmpty = 33,
+    #[error("Database id is empty")]
+    DatabaseIdIsEmpty = 33,
 
     #[error("Grid view id is empty")]
-    GridViewIdIsEmpty = 34,
+    DatabaseViewIdIsEmpty = 34,
 
     #[error("Grid block id is empty")]
     BlockIdIsEmpty = 35,

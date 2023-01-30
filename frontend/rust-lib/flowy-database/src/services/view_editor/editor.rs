@@ -8,12 +8,12 @@ use crate::services::group::{
     default_group_configuration, find_group_field, make_group_controller, Group, GroupConfigurationReader,
     GroupController, MoveGroupRowContext,
 };
-use crate::services::row::GridBlockRowRevision;
+use crate::services::row::DatabaseBlockRowRevision;
 use crate::services::sort::{DeletedSortType, SortChangeset, SortController, SortTaskHandler, SortType};
 use crate::services::view_editor::changed_notifier::GridViewChangedNotifier;
 use crate::services::view_editor::trait_impl::*;
 use crate::services::view_editor::GridViewChangedReceiverRunner;
-use flowy_client_sync::client_grid::{make_grid_view_operations, GridViewRevisionChangeset, GridViewRevisionPad};
+use flowy_client_sync::client_database::{make_grid_view_operations, GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_error::FlowyResult;
 use flowy_revision::RevisionManager;
 use flowy_sqlite::ConnectionPool;
@@ -55,7 +55,7 @@ pub trait DatabaseViewEditorDelegate: Send + Sync + 'static {
 
     /// Get all the blocks that the current Grid has.
     /// One grid has a list of blocks
-    fn get_blocks(&self) -> Fut<Vec<GridBlockRowRevision>>;
+    fn get_blocks(&self) -> Fut<Vec<DatabaseBlockRowRevision>>;
 
     /// Returns a `TaskDispatcher` used to poll a `Task`
     fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>>;
@@ -184,7 +184,7 @@ impl DatabaseViewRevisionEditor {
             }
         };
 
-        send_notification(&self.view_id, DatabaseNotification::DidUpdateGridViewRows)
+        send_notification(&self.view_id, DatabaseNotification::DidUpdateDatabaseViewRows)
             .payload(changeset)
             .send();
     }
@@ -630,7 +630,7 @@ impl DatabaseViewRevisionEditor {
 
     async fn notify_did_update_setting(&self) {
         let setting = self.get_view_setting().await;
-        send_notification(&self.view_id, DatabaseNotification::DidUpdateGridSetting)
+        send_notification(&self.view_id, DatabaseNotification::DidUpdateDatabaseSetting)
             .payload(setting)
             .send();
     }
@@ -870,7 +870,7 @@ fn gen_handler_id() -> String {
 
 #[cfg(test)]
 mod tests {
-    use flowy_client_sync::client_grid::DatabaseOperations;
+    use flowy_client_sync::client_database::DatabaseOperations;
 
     #[test]
     fn test() {

@@ -89,7 +89,7 @@ impl TryInto<DeleteFilterParams> for DeleteFilterPayloadPB {
 
     fn try_into(self) -> Result<DeleteFilterParams, Self::Error> {
         let view_id = NotEmptyStr::parse(self.view_id)
-            .map_err(|_| ErrorCode::GridViewIdIsEmpty)?
+            .map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?
             .0;
         let field_id = NotEmptyStr::parse(self.field_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
@@ -161,7 +161,7 @@ impl TryInto<AlterFilterParams> for AlterFilterPayloadPB {
 
     fn try_into(self) -> Result<AlterFilterParams, Self::Error> {
         let view_id = NotEmptyStr::parse(self.view_id)
-            .map_err(|_| ErrorCode::GridViewIdIsEmpty)?
+            .map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?
             .0;
 
         let field_id = NotEmptyStr::parse(self.field_id)

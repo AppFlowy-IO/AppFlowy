@@ -110,7 +110,7 @@ impl TryInto<MoveGroupParams> for MoveGroupPayloadPB {
 
     fn try_into(self) -> Result<MoveGroupParams, Self::Error> {
         let view_id = NotEmptyStr::parse(self.view_id)
-            .map_err(|_| ErrorCode::GridViewIdIsEmpty)?
+            .map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?
             .0;
         let from_group_id = NotEmptyStr::parse(self.from_group_id)
             .map_err(|_| ErrorCode::GroupIdIsEmpty)?

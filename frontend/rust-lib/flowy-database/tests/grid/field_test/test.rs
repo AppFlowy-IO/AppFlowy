@@ -55,7 +55,7 @@ async fn grid_update_field_with_empty_change() {
     let field_rev = (*test.field_revs.clone().pop().unwrap()).clone();
     let changeset = FieldChangesetParams {
         field_id: field_rev.id.clone(),
-        grid_id: test.view_id(),
+        database_id: test.view_id(),
         ..Default::default()
     };
 
@@ -83,7 +83,7 @@ async fn grid_update_field() {
 
     let changeset = FieldChangesetParams {
         field_id: single_select_field.id.clone(),
-        grid_id: test.view_id(),
+        database_id: test.view_id(),
         frozen: Some(true),
         width: Some(1000),
         ..Default::default()

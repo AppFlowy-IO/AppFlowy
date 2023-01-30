@@ -21,7 +21,7 @@ class DatabaseFFIService {
   }
 
   Future<Either<RowPB, FlowyError>> createRow({Option<String>? startRowId}) {
-    var payload = CreateTableRowPayloadPB.create()..gridId = databaseId;
+    var payload = CreateTableRowPayloadPB.create()..databaseId = databaseId;
     startRowId?.fold(() => null, (id) => payload.startRowId = id);
     return DatabaseEventCreateTableRow(payload).send();
   }
@@ -31,7 +31,7 @@ class DatabaseFFIService {
     String? startRowId,
   ) {
     CreateBoardCardPayloadPB payload = CreateBoardCardPayloadPB.create()
-      ..gridId = databaseId
+      ..databaseId = databaseId
       ..groupId = groupId;
 
     if (startRowId != null) {
@@ -43,7 +43,7 @@ class DatabaseFFIService {
 
   Future<Either<List<FieldPB>, FlowyError>> getFields(
       {List<FieldIdPB>? fieldIds}) {
-    var payload = GetFieldPayloadPB.create()..gridId = databaseId;
+    var payload = GetFieldPayloadPB.create()..databaseId = databaseId;
 
     if (fieldIds != null) {
       payload.fieldIds = RepeatedFieldIdPB(items: fieldIds);

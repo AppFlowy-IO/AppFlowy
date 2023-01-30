@@ -4,9 +4,9 @@ use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::block_editor::{DatabaseBlockRevisionEditor, GridBlockRevisionMergeable};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::rev_sqlite::{
-    SQLiteGridBlockRevisionPersistence, SQLiteGridRevisionSnapshotPersistence,
+    SQLiteDatabaseBlockRevisionPersistence, SQLiteDatabaseRevisionSnapshotPersistence,
 };
-use crate::services::row::{make_row_from_row_rev, GridBlockRow, GridBlockRowRevision};
+use crate::services::row::{make_row_from_row_rev, DatabaseBlockRow, DatabaseBlockRowRevision};
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration};
@@ -76,7 +76,7 @@ impl DatabaseBlockManager {
         match self.block_editors.get(block_id) {
             None => {
                 tracing::error!("This is a fatal error, block with id:{} is not exist", block_id);
-                let editor = Arc::new(make_grid_block_editor(&self.user, block_id).await?);
+                let editor = Arc::new(make_database_block_editor(&self.user, block_id).await?);
                 self.block_editors.insert(block_id.to_owned(), editor.clone());
                 Ok(editor)
             }
@@ -172,7 +172,7 @@ impl DatabaseBlockManager {
 
     pub(crate) async fn delete_rows(
         &self,
-        block_rows: Vec<GridBlockRow>,
+        block_rows: Vec<DatabaseBlockRow>,
     ) -> FlowyResult<Vec<GridBlockMetaRevisionChangeset>> {
         let mut changesets = vec![];
         for block_row in block_rows {
@@ -240,7 +240,10 @@ impl DatabaseBlockManager {
         Ok(row_revs)
     }
 
-    pub(crate) async fn get_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlockRowRevision>> {
+    pub(crate) async fn get_blocks(
+        &self,
+        block_ids: Option<Vec<String>>,
+    ) -> FlowyResult<Vec<DatabaseBlockRowRevision>> {
         let mut blocks = vec![];
         match block_ids {
             None => {
@@ -248,14 +251,14 @@ impl DatabaseBlockManager {
                     let editor = iter.value();
                     let block_id = editor.block_id.clone();
                     let row_revs = editor.get_row_revs::<&str>(None).await?;
-                    blocks.push(GridBlockRowRevision { block_id, row_revs });
+                    blocks.push(DatabaseBlockRowRevision { block_id, row_revs });
                 }
             }
             Some(block_ids) => {
                 for block_id in block_ids {
                     let editor = self.get_block_editor(&block_id).await?;
                     let row_revs = editor.get_row_revs::<&str>(None).await?;
-                    blocks.push(GridBlockRowRevision { block_id, row_revs });
+                    blocks.push(DatabaseBlockRowRevision { block_id, row_revs });
                 }
             }
         }
@@ -276,25 +279,25 @@ async fn make_block_editors(
 ) -> FlowyResult<DashMap<String, Arc<DatabaseBlockRevisionEditor>>> {
     let editor_map = DashMap::new();
     for block_meta_rev in block_meta_revs {
-        let editor = make_grid_block_editor(user, &block_meta_rev.block_id).await?;
+        let editor = make_database_block_editor(user, &block_meta_rev.block_id).await?;
         editor_map.insert(block_meta_rev.block_id.clone(), Arc::new(editor));
     }
 
     Ok(editor_map)
 }
 
-async fn make_grid_block_editor(
+async fn make_database_block_editor(
     user: &Arc<dyn DatabaseUser>,
     block_id: &str,
 ) -> FlowyResult<DatabaseBlockRevisionEditor> {
     tracing::trace!("Open block:{} editor", block_id);
     let token = user.token()?;
     let user_id = user.user_id()?;
-    let rev_manager = make_grid_block_rev_manager(user, block_id)?;
+    let rev_manager = make_database_block_rev_manager(user, block_id)?;
     DatabaseBlockRevisionEditor::new(&user_id, &token, block_id, rev_manager).await
 }
 
-pub fn make_grid_block_rev_manager(
+pub fn make_database_block_rev_manager(
     user: &Arc<dyn DatabaseUser>,
     block_id: &str,
 ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
@@ -302,13 +305,13 @@ pub fn make_grid_block_rev_manager(
 
     // Create revision persistence
     let pool = user.db_pool()?;
-    let disk_cache = SQLiteGridBlockRevisionPersistence::new(&user_id, pool.clone());
+    let disk_cache = SQLiteDatabaseBlockRevisionPersistence::new(&user_id, pool.clone());
     let configuration = RevisionPersistenceConfiguration::new(4, false);
     let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache, configuration);
 
     // Create snapshot persistence
     let snapshot_object_id = format!("grid_block:{}", block_id);
-    let snapshot_persistence = SQLiteGridRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
+    let snapshot_persistence = SQLiteDatabaseRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
 
     let rev_compress = GridBlockRevisionMergeable();
     let rev_manager = RevisionManager::new(&user_id, block_id, rev_persistence, rev_compress, snapshot_persistence);

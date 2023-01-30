@@ -3,7 +3,7 @@ use crate::grid::block_test::util::GridRowTestBuilder;
 use crate::grid::grid_editor::GridEditorTest;
 use flowy_database::entities::{CellPathParams, CreateRowParams, DatabaseViewLayout, FieldType, RowPB};
 use flowy_database::services::field::*;
-use flowy_database::services::row::GridBlockRow;
+use flowy_database::services::row::DatabaseBlockRow;
 use grid_model::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -76,7 +76,7 @@ impl GridRowTest {
         match script {
             RowScript::CreateEmptyRow => {
                 let params = CreateRowParams {
-                    grid_id: self.editor.database_id.clone(),
+                    database_id: self.editor.database_id.clone(),
                     start_row_id: None,
                     group_id: None,
                     layout: DatabaseViewLayout::Grid,
@@ -113,7 +113,7 @@ impl GridRowTest {
                 expected,
             } => {
                 let id = CellPathParams {
-                    view_id: self.view_id.clone(),
+                    database_id: self.view_id.clone(),
                     field_id,
                     row_id,
                 };
@@ -269,13 +269,13 @@ impl GridRowTest {
     }
 }
 
-fn block_from_row_pbs(row_orders: Vec<RowPB>) -> Vec<GridBlockRow> {
-    let mut map: HashMap<String, GridBlockRow> = HashMap::new();
+fn block_from_row_pbs(row_orders: Vec<RowPB>) -> Vec<DatabaseBlockRow> {
+    let mut map: HashMap<String, DatabaseBlockRow> = HashMap::new();
     row_orders.into_iter().for_each(|row_pb| {
         let block_id = row_pb.block_id().to_owned();
         let cloned_block_id = block_id.clone();
         map.entry(block_id)
-            .or_insert_with(|| GridBlockRow::new(cloned_block_id, vec![]))
+            .or_insert_with(|| DatabaseBlockRow::new(cloned_block_id, vec![]))
             .row_ids
             .push(row_pb.id);
     });

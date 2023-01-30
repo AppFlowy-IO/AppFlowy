@@ -86,7 +86,7 @@ impl GridSortTest {
                 let rows = self.editor.get_database(&self.view_id).await.unwrap().rows;
                 for row in rows {
                     let params = CellPathParams {
-                        view_id: self.view_id.clone(),
+                        database_id: self.view_id.clone(),
                         field_id: field_id.clone(),
                         row_id: row.id,
                     };

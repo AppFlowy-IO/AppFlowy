@@ -98,7 +98,7 @@ impl TryInto<AlterSortParams> for AlterSortPayloadPB {
 
     fn try_into(self) -> Result<AlterSortParams, Self::Error> {
         let view_id = NotEmptyStr::parse(self.view_id)
-            .map_err(|_| ErrorCode::GridViewIdIsEmpty)?
+            .map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?
             .0;
 
         let field_id = NotEmptyStr::parse(self.field_id)
@@ -150,7 +150,7 @@ impl TryInto<DeleteSortParams> for DeleteSortPayloadPB {
 
     fn try_into(self) -> Result<DeleteSortParams, Self::Error> {
         let view_id = NotEmptyStr::parse(self.view_id)
-            .map_err(|_| ErrorCode::GridViewIdIsEmpty)?
+            .map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?
             .0;
         let field_id = NotEmptyStr::parse(self.field_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?

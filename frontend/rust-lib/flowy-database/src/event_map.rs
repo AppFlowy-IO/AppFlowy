@@ -8,7 +8,7 @@ use strum_macros::Display;
 pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
     let mut plugin = AFPlugin::new().name(env!("CARGO_PKG_NAME")).state(database_manager);
     plugin = plugin
-        .event(DatabaseEvent::GetDatabase, get_grid_handler)
+        .event(DatabaseEvent::GetDatabase, get_database_data_handler)
         // .event(GridEvent::GetGridBlocks, get_grid_blocks_handler)
         .event(DatabaseEvent::GetDatabaseSetting, get_database_setting_handler)
         .event(DatabaseEvent::UpdateDatabaseSetting, update_database_setting_handler)
@@ -58,20 +58,20 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum DatabaseEvent {
-    /// [GetGrid] event is used to get the [DatabasePB]
+    /// [GetDatabase] event is used to get the [DatabasePB]
     ///
     /// The event handler accepts a [DatabaseIdPB] and returns a [DatabasePB] if there are no errors.
     #[event(input = "DatabaseIdPB", output = "DatabasePB")]
     GetDatabase = 0,
 
-    /// [GetGridSetting] event is used to get the grid's settings.
+    /// [GetDatabaseSetting] event is used to get the database's settings.
     ///
     /// The event handler accepts [DatabaseIdPB] and return [DatabaseViewSettingPB]
     /// if there is no errors.
     #[event(input = "DatabaseIdPB", output = "DatabaseViewSettingPB")]
     GetDatabaseSetting = 2,
 
-    /// [UpdateGridSetting] event is used to update the grid's settings.
+    /// [UpdateDatabaseSetting] event is used to update the database's settings.
     ///
     /// The event handler accepts [DatabaseSettingChangesetPB] and return errors if failed to modify the grid's settings.
     #[event(input = "DatabaseSettingChangesetPB")]
@@ -86,7 +86,7 @@ pub enum DatabaseEvent {
     #[event(input = "DatabaseIdPB")]
     DeleteAllSorts = 6,
 
-    /// [GetFields] event is used to get the grid's settings.
+    /// [GetFields] event is used to get the database's settings.
     ///
     /// The event handler accepts a [GetFieldPayloadPB] and returns a [RepeatedFieldPB]
     /// if there are no errors.
@@ -114,13 +114,13 @@ pub enum DatabaseEvent {
     UpdateFieldTypeOption = 12,
 
     /// [DeleteField] event is used to delete a Field. [DeleteFieldPayloadPB] is the context that
-    /// is used to delete the field from the Grid.
+    /// is used to delete the field from the Database.
     #[event(input = "DeleteFieldPayloadPB")]
     DeleteField = 14,
 
     /// [SwitchToField] event is used to update the current Field's type.
     /// It will insert a new FieldTypeOptionData if the new FieldType doesn't exist before, otherwise
-    /// reuse the existing FieldTypeOptionData. You could check the [GridRevisionPad] for more details.
+    /// reuse the existing FieldTypeOptionData. You could check the [DatabaseRevisionPad] for more details.
     #[event(input = "EditFieldChangesetPB")]
     SwitchToField = 20,
 

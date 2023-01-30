@@ -10,20 +10,20 @@ class SelectOptionFFIService {
   final GridCellIdentifier cellId;
   SelectOptionFFIService({required this.cellId});
 
-  String get gridId => cellId.gridId;
+  String get databaseId => cellId.gridId;
   String get fieldId => cellId.fieldInfo.id;
   String get rowId => cellId.rowId;
 
   Future<Either<Unit, FlowyError>> create(
       {required String name, bool isSelected = true}) {
-    return TypeOptionFFIService(gridId: gridId, fieldId: fieldId)
+    return TypeOptionFFIService(gridId: databaseId, fieldId: fieldId)
         .newOption(name: name)
         .then(
       (result) {
         return result.fold(
           (option) {
             final cellIdentifier = CellPathPB.create()
-              ..viewId = gridId
+              ..databaseId = databaseId
               ..fieldId = fieldId
               ..rowId = rowId;
             final payload = SelectOptionChangesetPB.create()
@@ -62,7 +62,7 @@ class SelectOptionFFIService {
 
   Future<Either<SelectOptionCellDataPB, FlowyError>> getOptionContext() {
     final payload = CellPathPB.create()
-      ..viewId = gridId
+      ..databaseId = databaseId
       ..fieldId = fieldId
       ..rowId = rowId;
 
@@ -87,7 +87,7 @@ class SelectOptionFFIService {
 
   CellPathPB _cellIdentifier() {
     return CellPathPB.create()
-      ..viewId = gridId
+      ..databaseId = databaseId
       ..fieldId = fieldId
       ..rowId = rowId;
   }

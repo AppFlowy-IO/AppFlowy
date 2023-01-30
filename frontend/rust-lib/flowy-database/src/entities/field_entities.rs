@@ -84,9 +84,9 @@ impl std::convert::From<&Arc<FieldRevision>> for FieldIdPB {
     }
 }
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct GridFieldChangesetPB {
+pub struct DatabaseFieldChangesetPB {
     #[pb(index = 1)]
-    pub grid_id: String,
+    pub database_id: String,
 
     #[pb(index = 2)]
     pub inserted_fields: Vec<IndexFieldPB>,
@@ -98,28 +98,28 @@ pub struct GridFieldChangesetPB {
     pub updated_fields: Vec<FieldPB>,
 }
 
-impl GridFieldChangesetPB {
-    pub fn insert(grid_id: &str, inserted_fields: Vec<IndexFieldPB>) -> Self {
+impl DatabaseFieldChangesetPB {
+    pub fn insert(database_id: &str, inserted_fields: Vec<IndexFieldPB>) -> Self {
         Self {
-            grid_id: grid_id.to_owned(),
+            database_id: database_id.to_owned(),
             inserted_fields,
             deleted_fields: vec![],
             updated_fields: vec![],
         }
     }
 
-    pub fn delete(grid_id: &str, deleted_fields: Vec<FieldIdPB>) -> Self {
+    pub fn delete(database_id: &str, deleted_fields: Vec<FieldIdPB>) -> Self {
         Self {
-            grid_id: grid_id.to_string(),
+            database_id: database_id.to_string(),
             inserted_fields: vec![],
             deleted_fields,
             updated_fields: vec![],
         }
     }
 
-    pub fn update(grid_id: &str, updated_fields: Vec<FieldPB>) -> Self {
+    pub fn update(database_id: &str, updated_fields: Vec<FieldPB>) -> Self {
         Self {
-            grid_id: grid_id.to_string(),
+            database_id: database_id.to_string(),
             inserted_fields: vec![],
             deleted_fields: vec![],
             updated_fields,
@@ -148,7 +148,7 @@ impl IndexFieldPB {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct CreateFieldPayloadPB {
     #[pb(index = 1)]
-    pub grid_id: String,
+    pub database_id: String,
 
     #[pb(index = 2)]
     pub field_type: FieldType,
@@ -159,7 +159,7 @@ pub struct CreateFieldPayloadPB {
 
 #[derive(Clone)]
 pub struct CreateFieldParams {
-    pub grid_id: String,
+    pub database_id: String,
     pub field_type: FieldType,
     pub type_option_data: Option<Vec<u8>>,
 }
@@ -168,9 +168,9 @@ impl TryInto<CreateFieldParams> for CreateFieldPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CreateFieldParams, Self::Error> {
-        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let database_id = NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
         Ok(CreateFieldParams {
-            grid_id: grid_id.0,
+            database_id: database_id.0,
             field_type: self.field_type,
             type_option_data: self.type_option_data,
         })
@@ -180,7 +180,7 @@ impl TryInto<CreateFieldParams> for CreateFieldPayloadPB {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct EditFieldChangesetPB {
     #[pb(index = 1)]
-    pub grid_id: String,
+    pub database_id: String,
 
     #[pb(index = 2)]
     pub field_id: String,
@@ -193,7 +193,7 @@ pub struct EditFieldChangesetPB {
 }
 
 pub struct EditFieldParams {
-    pub grid_id: String,
+    pub database_id: String,
     pub field_id: String,
     pub field_type: FieldType,
 }
@@ -202,10 +202,10 @@ impl TryInto<EditFieldParams> for EditFieldChangesetPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<EditFieldParams, Self::Error> {
-        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let database_id = NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         Ok(EditFieldParams {
-            grid_id: grid_id.0,
+            database_id: database_id.0,
             field_id: field_id.0,
             field_type: self.field_type,
         })
@@ -215,7 +215,7 @@ impl TryInto<EditFieldParams> for EditFieldChangesetPB {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct TypeOptionPathPB {
     #[pb(index = 1)]
-    pub grid_id: String,
+    pub database_id: String,
 
     #[pb(index = 2)]
     pub field_id: String,
@@ -225,7 +225,7 @@ pub struct TypeOptionPathPB {
 }
 
 pub struct TypeOptionPathParams {
-    pub grid_id: String,
+    pub database_id: String,
     pub field_id: String,
     pub field_type: FieldType,
 }
@@ -234,10 +234,10 @@ impl TryInto<TypeOptionPathParams> for TypeOptionPathPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<TypeOptionPathParams, Self::Error> {
-        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let database_id = NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         Ok(TypeOptionPathParams {
-            grid_id: grid_id.0,
+            database_id: database_id.0,
             field_id: field_id.0,
             field_type: self.field_type,
         })
@@ -247,7 +247,7 @@ impl TryInto<TypeOptionPathParams> for TypeOptionPathPB {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct TypeOptionPB {
     #[pb(index = 1)]
-    pub grid_id: String,
+    pub database_id: String,
 
     #[pb(index = 2)]
     pub field: FieldPB,
@@ -312,7 +312,7 @@ impl std::convert::From<String> for RepeatedFieldIdPB {
 #[derive(ProtoBuf, Default)]
 pub struct TypeOptionChangesetPB {
     #[pb(index = 1)]
-    pub grid_id: String,
+    pub database_id: String,
 
     #[pb(index = 2)]
     pub field_id: String,
@@ -324,7 +324,7 @@ pub struct TypeOptionChangesetPB {
 
 #[derive(Clone)]
 pub struct TypeOptionChangesetParams {
-    pub grid_id: String,
+    pub database_id: String,
     pub field_id: String,
     pub type_option_data: Vec<u8>,
 }
@@ -333,11 +333,11 @@ impl TryInto<TypeOptionChangesetParams> for TypeOptionChangesetPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<TypeOptionChangesetParams, Self::Error> {
-        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let database_id = NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
         let _ = NotEmptyStr::parse(self.field_id.clone()).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
 
         Ok(TypeOptionChangesetParams {
-            grid_id: grid_id.0,
+            database_id: database_id.0,
             field_id: self.field_id,
             type_option_data: self.type_option_data,
         })
@@ -347,14 +347,14 @@ impl TryInto<TypeOptionChangesetParams> for TypeOptionChangesetPB {
 #[derive(ProtoBuf, Default)]
 pub struct GetFieldPayloadPB {
     #[pb(index = 1)]
-    pub grid_id: String,
+    pub database_id: String,
 
     #[pb(index = 2, one_of)]
     pub field_ids: Option<RepeatedFieldIdPB>,
 }
 
 pub struct GetFieldParams {
-    pub grid_id: String,
+    pub database_id: String,
     pub field_ids: Option<Vec<String>>,
 }
 
@@ -362,7 +362,7 @@ impl TryInto<GetFieldParams> for GetFieldPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<GetFieldParams, Self::Error> {
-        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let database_id = NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
         let field_ids = self.field_ids.map(|repeated| {
             repeated
                 .items
@@ -372,7 +372,7 @@ impl TryInto<GetFieldParams> for GetFieldPayloadPB {
         });
 
         Ok(GetFieldParams {
-            grid_id: grid_id.0,
+            database_id: database_id.0,
             field_ids,
         })
     }
@@ -390,7 +390,7 @@ pub struct FieldChangesetPB {
     pub field_id: String,
 
     #[pb(index = 2)]
-    pub grid_id: String,
+    pub database_id: String,
 
     #[pb(index = 3, one_of)]
     pub name: Option<String>,
@@ -417,7 +417,7 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<FieldChangesetParams, Self::Error> {
-        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let database_id = NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         let field_type = self.field_type.map(FieldTypeRevision::from);
         // if let Some(type_option_data) = self.type_option_data.as_ref() {
@@ -428,7 +428,7 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
 
         Ok(FieldChangesetParams {
             field_id: field_id.0,
-            grid_id: grid_id.0,
+            database_id: database_id.0,
             name: self.name,
             desc: self.desc,
             field_type,
@@ -444,7 +444,7 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
 pub struct FieldChangesetParams {
     pub field_id: String,
 
-    pub grid_id: String,
+    pub database_id: String,
 
     pub name: Option<String>,
 
@@ -616,7 +616,7 @@ pub struct DuplicateFieldPayloadPB {
     pub field_id: String,
 
     #[pb(index = 2)]
-    pub grid_id: String,
+    pub database_id: String,
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -625,17 +625,17 @@ pub struct GridFieldIdentifierPayloadPB {
     pub field_id: String,
 
     #[pb(index = 2)]
-    pub grid_id: String,
+    pub database_id: String,
 }
 
 impl TryInto<FieldIdParams> for DuplicateFieldPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<FieldIdParams, Self::Error> {
-        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let database_id = NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         Ok(FieldIdParams {
-            grid_id: grid_id.0,
+            database_id: database_id.0,
             field_id: field_id.0,
         })
     }
@@ -647,17 +647,17 @@ pub struct DeleteFieldPayloadPB {
     pub field_id: String,
 
     #[pb(index = 2)]
-    pub grid_id: String,
+    pub database_id: String,
 }
 
 impl TryInto<FieldIdParams> for DeleteFieldPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<FieldIdParams, Self::Error> {
-        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let database_id = NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         Ok(FieldIdParams {
-            grid_id: grid_id.0,
+            database_id: database_id.0,
             field_id: field_id.0,
         })
     }
@@ -665,5 +665,5 @@ impl TryInto<FieldIdParams> for DeleteFieldPayloadPB {
 
 pub struct FieldIdParams {
     pub field_id: String,
-    pub grid_id: String,
+    pub database_id: String,
 }

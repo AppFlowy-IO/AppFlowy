@@ -6,9 +6,9 @@ const OBSERVABLE_CATEGORY: &str = "Grid";
 pub enum DatabaseNotification {
     Unknown = 0,
     DidCreateBlock = 11,
-    DidUpdateGridViewRows = 20,
-    DidUpdateGridViewRowsVisibility = 21,
-    DidUpdateGridFields = 22,
+    DidUpdateDatabaseViewRows = 20,
+    DidUpdateDatabaseViewRowsVisibility = 21,
+    DidUpdateDatabaseFields = 22,
     DidUpdateRow = 30,
     DidUpdateCell = 40,
     DidUpdateField = 50,
@@ -19,7 +19,7 @@ pub enum DatabaseNotification {
     DidUpdateSort = 64,
     DidReorderRows = 65,
     DidReorderSingleRow = 66,
-    DidUpdateGridSetting = 70,
+    DidUpdateDatabaseSetting = 70,
 }
 
 impl std::default::Default for DatabaseNotification {

@@ -1,6 +1,6 @@
 use crate::grid::grid_editor::GridEditorTest;
 
-use flowy_client_sync::client_grid::{DatabaseOperations, DatabaseRevisionPad};
+use flowy_client_sync::client_database::{DatabaseOperations, DatabaseRevisionPad};
 use flowy_revision::{RevisionSnapshot, REVISION_WRITE_INTERVAL_IN_MILLIS};
 use grid_model::FieldRevision;
 use revision_model::Revision;

@@ -27,7 +27,7 @@ class SettingListener {
 
   void _handler(DatabaseNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case DatabaseNotification.DidUpdateGridSetting:
+      case DatabaseNotification.DidUpdateDatabaseSetting:
         result.fold(
           (payload) => _updateSettingNotifier?.value = left(
             DatabaseViewSettingPB.fromBuffer(payload),

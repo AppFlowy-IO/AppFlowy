@@ -2,11 +2,11 @@ use crate::entities::{DatabaseViewLayout, DatabaseViewSettingPB, ViewLayoutConfi
 use crate::services::field::RowSingleCellData;
 use crate::services::filter::{FilterController, FilterDelegate, FilterType};
 use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter};
-use crate::services::row::GridBlockRowRevision;
+use crate::services::row::DatabaseBlockRowRevision;
 use crate::services::sort::{SortDelegate, SortType};
 use crate::services::view_editor::{get_cells_for_field, DatabaseViewEditorDelegate};
 use bytes::Bytes;
-use flowy_client_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
+use flowy_client_sync::client_database::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_client_sync::make_operations_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{
@@ -173,7 +173,7 @@ impl FilterDelegate for GridViewFilterDelegateImpl {
         self.editor_delegate.get_field_revs(field_ids)
     }
 
-    fn get_blocks(&self) -> Fut<Vec<GridBlockRowRevision>> {
+    fn get_blocks(&self) -> Fut<Vec<DatabaseBlockRowRevision>> {
         self.editor_delegate.get_blocks()
     }
 

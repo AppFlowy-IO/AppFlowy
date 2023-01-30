@@ -216,7 +216,7 @@ class GridRowCache {
 
   Future<void> _loadRow(String rowId) async {
     final payload = RowIdPB.create()
-      ..gridId = gridId
+      ..databaseId = gridId
       ..rowId = rowId;
 
     final result = await DatabaseEventGetRow(payload).send();

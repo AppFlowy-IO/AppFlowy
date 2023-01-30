@@ -7,7 +7,7 @@ pub struct GridSettingChangesetBuilder {
 impl GridSettingChangesetBuilder {
     pub fn new(grid_id: &str, layout_type: &DatabaseViewLayout) -> Self {
         let params = DatabaseSettingChangesetParams {
-            grid_id: grid_id.to_string(),
+            database_id: grid_id.to_string(),
             layout_type: layout_type.clone().into(),
             insert_filter: None,
             delete_filter: None,

@@ -2,10 +2,10 @@ use crate::entities::FieldType;
 use crate::services::block_manager::DatabaseBlockManager;
 use crate::services::cell::AtomicCellDataCache;
 use crate::services::field::{TypeOptionCellDataHandler, TypeOptionCellExt};
-use crate::services::row::GridBlockRowRevision;
+use crate::services::row::DatabaseBlockRowRevision;
 use crate::services::view_editor::DatabaseViewEditorDelegate;
 
-use flowy_client_sync::client_grid::DatabaseRevisionPad;
+use flowy_client_sync::client_database::DatabaseRevisionPad;
 use flowy_task::TaskDispatcher;
 use grid_model::{FieldRevision, RowRevision};
 use lib_infra::future::{to_fut, Fut};
@@ -71,7 +71,7 @@ impl DatabaseViewEditorDelegate for GridViewEditorDelegateImpl {
     // pub async fn get_cells_for_field(&self, field_id: &str) -> FlowyResult<Vec<RowSingleCellData>> {
     // }
 
-    fn get_blocks(&self) -> Fut<Vec<GridBlockRowRevision>> {
+    fn get_blocks(&self) -> Fut<Vec<DatabaseBlockRowRevision>> {
         let block_manager = self.block_manager.clone();
         to_fut(async move { block_manager.get_blocks(None).await.unwrap_or_default() })
     }

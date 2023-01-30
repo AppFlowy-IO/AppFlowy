@@ -19,7 +19,7 @@ class FieldService {
 
   Future<Either<Unit, FlowyError>> moveField(int fromIndex, int toIndex) {
     final payload = MoveFieldPayloadPB.create()
-      ..gridId = gridId
+      ..viewId = gridId
       ..fieldId = fieldId
       ..fromIndex = fromIndex
       ..toIndex = toIndex;
@@ -35,7 +35,7 @@ class FieldService {
     double? width,
   }) {
     var payload = FieldChangesetPB.create()
-      ..gridId = gridId
+      ..databaseId = gridId
       ..fieldId = fieldId;
 
     if (name != null) {
@@ -67,7 +67,7 @@ class FieldService {
     required List<int> typeOptionData,
   }) {
     var payload = TypeOptionChangesetPB.create()
-      ..gridId = gridId
+      ..databaseId = gridId
       ..fieldId = fieldId
       ..typeOptionData = typeOptionData;
 
@@ -76,7 +76,7 @@ class FieldService {
 
   Future<Either<Unit, FlowyError>> deleteField() {
     final payload = DeleteFieldPayloadPB.create()
-      ..gridId = gridId
+      ..databaseId = gridId
       ..fieldId = fieldId;
 
     return DatabaseEventDeleteField(payload).send();
@@ -84,7 +84,7 @@ class FieldService {
 
   Future<Either<Unit, FlowyError>> duplicateField() {
     final payload = DuplicateFieldPayloadPB.create()
-      ..gridId = gridId
+      ..databaseId = gridId
       ..fieldId = fieldId;
 
     return DatabaseEventDuplicateField(payload).send();
@@ -94,7 +94,7 @@ class FieldService {
     required FieldType fieldType,
   }) {
     final payload = TypeOptionPathPB.create()
-      ..gridId = gridId
+      ..databaseId = gridId
       ..fieldId = fieldId
       ..fieldType = fieldType;
     return DatabaseEventGetFieldTypeOption(payload).send().then((result) {

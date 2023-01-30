@@ -24,7 +24,7 @@ class SettingFFIService {
       ..fieldId = fieldId
       ..fieldType = fieldType;
     final payload = DatabaseSettingChangesetPB.create()
-      ..gridId = viewId
+      ..databaseId = viewId
       ..insertGroup = insertGroupPayload;
 
     return DatabaseEventUpdateDatabaseSetting(payload).send();
