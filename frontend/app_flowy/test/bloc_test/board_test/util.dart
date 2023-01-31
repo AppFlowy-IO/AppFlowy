@@ -10,7 +10,7 @@ import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/workspace/application/app/app_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 
 import '../../util.dart';
 import '../grid_test/util.dart';
@@ -82,17 +82,17 @@ class BoardTestContext {
   }) {
     IFieldTypeOptionLoader loader;
     if (fieldInfo == null) {
-      loader = NewFieldTypeOptionLoader(gridId: gridView.id);
+      loader = NewFieldTypeOptionLoader(databaseId: gridView.id);
     } else {
-      loader =
-          FieldTypeOptionLoader(gridId: gridView.id, field: fieldInfo.field);
+      loader = FieldTypeOptionLoader(
+          databaseId: gridView.id, field: fieldInfo.field);
     }
 
     final editorBloc = FieldEditorBloc(
       fieldName: fieldInfo?.name ?? '',
       isGroupField: fieldInfo?.isGroupField ?? false,
       loader: loader,
-      gridId: gridView.id,
+      databaseId: gridView.id,
     );
     return editorBloc;
   }
@@ -145,7 +145,7 @@ class BoardTestContext {
 
   GridFieldCellContext singleSelectFieldCellContext() {
     final field = singleSelectFieldContext().field;
-    return GridFieldCellContext(gridId: gridView.id, field: field);
+    return GridFieldCellContext(databaseId: gridView.id, field: field);
   }
 
   FieldInfo textFieldContext() {

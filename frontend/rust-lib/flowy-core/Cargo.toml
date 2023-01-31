@@ -11,10 +11,10 @@ lib-log = { path = "../lib-log" }
 flowy-user = { path = "../flowy-user" }
 flowy-net = { path = "../flowy-net" }
 flowy-folder = { path = "../flowy-folder", default-features = false }
-flowy-grid = { path = "../flowy-grid", default-features = false }
+flowy-database = { path = "../flowy-database", default-features = false }
 grid-model = { path = "../../../shared-lib/grid-model" }
 flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws" }
-flowy-database = { path = "../flowy-database", optional = true }
+flowy-sqlite = { path = "../flowy-sqlite", optional = true }
 flowy-document = { path = "../flowy-document", default-features = false }
 flowy-revision = { path = "../flowy-revision" }
 flowy-error = { path = "../flowy-error", features = ["adaptor_ws"] }
@@ -39,21 +39,21 @@ dart = [
     "flowy-user/dart",
     "flowy-net/dart",
     "flowy-folder/dart",
-    "flowy-grid/dart",
+    "flowy-database/dart",
     "flowy-document/dart",
 ]
 ts = [
     "flowy-user/ts",
     "flowy-net/ts",
     "flowy-folder/ts",
-    "flowy-grid/ts",
+    "flowy-database/ts",
     "flowy-document/ts",
 ]
 rev-sqlite = [
-    "flowy-database",
+    "flowy-sqlite",
     "flowy-user/rev-sqlite",
     "flowy-folder/rev-sqlite",
-    "flowy-grid/rev-sqlite",
+    "flowy-database/rev-sqlite",
     "flowy-document/rev-sqlite",
 ]
-openssl_vendored = ["flowy-database/openssl_vendored"]
+openssl_vendored = ["flowy-sqlite/openssl_vendored"]

@@ -1,7 +1,10 @@
 use bytes::Bytes;
-use flowy_database::ConnectionPool;
+use flowy_sqlite::ConnectionPool;
 
 use flowy_client_ws::FlowyWebSocketConnect;
+use flowy_database::entities::DatabaseViewLayout;
+use flowy_database::manager::{make_database_view_data, DatabaseManager};
+use flowy_database::util::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_document::DocumentManager;
 use flowy_folder::entities::{ViewDataFormatPB, ViewLayoutTypePB, ViewPB};
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
@@ -10,15 +13,12 @@ use flowy_folder::{
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
     manager::FolderManager,
 };
-use flowy_grid::entities::GridLayout;
-use flowy_grid::manager::{make_grid_view_data, GridManager};
-use flowy_grid::util::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{http_server::folder::FolderHttpCloudService, local_server::LocalServer};
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
-use grid_model::BuildGridContext;
+use grid_model::BuildDatabaseContext;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
 use revision_model::Revision;
@@ -35,7 +35,7 @@ impl FolderDepsResolver {
         server_config: &ClientServerConfiguration,
         ws_conn: &Arc<FlowyWebSocketConnect>,
         text_block_manager: &Arc<DocumentManager>,
-        grid_manager: &Arc<GridManager>,
+        grid_manager: &Arc<DatabaseManager>,
     ) -> Arc<FolderManager> {
         let user: Arc<dyn WorkspaceUser> = Arc::new(WorkspaceUserImpl(user_session.clone()));
         let database: Arc<dyn WorkspaceDatabase> = Arc::new(WorkspaceDatabaseImpl(user_session));
@@ -64,7 +64,7 @@ impl FolderDepsResolver {
 
 fn make_view_data_processor(
     document_manager: Arc<DocumentManager>,
-    grid_manager: Arc<GridManager>,
+    grid_manager: Arc<DatabaseManager>,
 ) -> ViewDataProcessorMap {
     let mut map: HashMap<ViewDataFormatPB, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
 
@@ -215,7 +215,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     }
 }
 
-struct GridViewDataProcessor(Arc<GridManager>);
+struct GridViewDataProcessor(Arc<DatabaseManager>);
 impl ViewDataProcessor for GridViewDataProcessor {
     fn create_view(
         &self,
@@ -228,7 +228,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         let view_id = view_id.to_string();
         let grid_manager = self.0.clone();
         FutureResult::new(async move {
-            grid_manager.create_grid(view_id, vec![revision]).await?;
+            grid_manager.create_database(view_id, vec![revision]).await?;
             Ok(())
         })
     }
@@ -237,7 +237,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         let grid_manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {
-            grid_manager.close_grid(view_id).await?;
+            grid_manager.close_database(view_id).await?;
             Ok(())
         })
     }
@@ -246,7 +246,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         let grid_manager = self.0.clone();
         let view_id = view.id.clone();
         FutureResult::new(async move {
-            let editor = grid_manager.open_grid(view_id).await?;
+            let editor = grid_manager.open_database(view_id).await?;
             let delta_bytes = editor.duplicate_grid().await?;
             Ok(delta_bytes.into())
         })
@@ -261,9 +261,9 @@ impl ViewDataProcessor for GridViewDataProcessor {
     ) -> FutureResult<Bytes, FlowyError> {
         debug_assert_eq!(data_format, ViewDataFormatPB::DatabaseFormat);
         let (build_context, layout) = match layout {
-            ViewLayoutTypePB::Grid => (make_default_grid(), GridLayout::Table),
-            ViewLayoutTypePB::Board => (make_default_board(), GridLayout::Board),
-            ViewLayoutTypePB::Calendar => (make_default_calendar(), GridLayout::Calendar),
+            ViewLayoutTypePB::Grid => (make_default_grid(), DatabaseViewLayout::Grid),
+            ViewLayoutTypePB::Board => (make_default_board(), DatabaseViewLayout::Board),
+            ViewLayoutTypePB::Calendar => (make_default_calendar(), DatabaseViewLayout::Calendar),
             ViewLayoutTypePB::Document => {
                 return FutureResult::new(async move {
                     Err(FlowyError::internal().context(format!("Can't handle {:?} layout type", layout)))
@@ -274,9 +274,9 @@ impl ViewDataProcessor for GridViewDataProcessor {
         let user_id = user_id.to_string();
         let view_id = view_id.to_string();
         let grid_manager = self.0.clone();
-        FutureResult::new(
-            async move { make_grid_view_data(&user_id, &view_id, layout, grid_manager, build_context).await },
-        )
+        FutureResult::new(async move {
+            make_database_view_data(&user_id, &view_id, layout, grid_manager, build_context).await
+        })
     }
 
     fn create_view_from_delta_data(
@@ -291,9 +291,9 @@ impl ViewDataProcessor for GridViewDataProcessor {
         let grid_manager = self.0.clone();
 
         let layout = match layout {
-            ViewLayoutTypePB::Grid => GridLayout::Table,
-            ViewLayoutTypePB::Board => GridLayout::Board,
-            ViewLayoutTypePB::Calendar => GridLayout::Calendar,
+            ViewLayoutTypePB::Grid => DatabaseViewLayout::Grid,
+            ViewLayoutTypePB::Board => DatabaseViewLayout::Board,
+            ViewLayoutTypePB::Calendar => DatabaseViewLayout::Calendar,
             ViewLayoutTypePB::Document => {
                 return FutureResult::new(async move {
                     Err(FlowyError::internal().context(format!("Can't handle {:?} layout type", layout)))
@@ -303,8 +303,8 @@ impl ViewDataProcessor for GridViewDataProcessor {
 
         FutureResult::new(async move {
             let bytes = Bytes::from(data);
-            let build_context = BuildGridContext::try_from(bytes)?;
-            make_grid_view_data(&user_id, &view_id, layout, grid_manager, build_context).await
+            let build_context = BuildDatabaseContext::try_from(bytes)?;
+            make_database_view_data(&user_id, &view_id, layout, grid_manager, build_context).await
         })
     }
 

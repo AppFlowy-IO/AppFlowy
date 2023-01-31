@@ -1,6 +1,6 @@
 use crate::{entities::workspace::UpdateWorkspaceParams, errors::FlowyError};
 use diesel::SqliteConnection;
-use flowy_database::{
+use flowy_sqlite::{
     prelude::*,
     schema::{workspace_table, workspace_table::dsl},
 };

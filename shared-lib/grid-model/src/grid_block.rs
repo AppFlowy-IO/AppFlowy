@@ -11,7 +11,7 @@ pub fn gen_row_id() -> String {
 pub const DEFAULT_ROW_HEIGHT: i32 = 42;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct GridBlockRevision {
+pub struct DatabaseBlockRevision {
     pub block_id: String,
     pub rows: Vec<Arc<RowRevision>>,
 }

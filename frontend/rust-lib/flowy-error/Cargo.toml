@@ -22,7 +22,7 @@ serde_repr = { version = "0.1" }
 serde = "1.0"
 reqwest = { version = "0.11", optional = true }
 http-error-code = { git = "https://github.com/AppFlowy-IO/AppFlowy-Server", branch = "refactor/appflowy_server", optional = true }
-flowy-database = { path = "../flowy-database", optional = true}
+flowy-sqlite = { path = "../flowy-sqlite", optional = true}
 r2d2 = { version = "0.8", optional = true}
 
 [features]
@@ -31,7 +31,7 @@ adaptor_ot = ["lib-ot"]
 adaptor_dispatch = ["lib-dispatch"]
 adaptor_serde = ["serde_json"]
 adaptor_reqwest = ["reqwest"]
-adaptor_database = ["flowy-database", "r2d2"]
+adaptor_database = ["flowy-sqlite", "r2d2"]
 adaptor_ws= ["flowy-client-ws"]
 adaptor_user= ["user-model"]
 adaptor_server_error = ["http-error-code"]

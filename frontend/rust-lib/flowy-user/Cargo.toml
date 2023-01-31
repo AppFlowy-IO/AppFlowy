@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 flowy-derive = { path = "../flowy-derive" }
-flowy-database = { path = "../flowy-database", optional = true }
+flowy-sqlite = { path = "../flowy-sqlite", optional = true }
 flowy-error = { path = "../flowy-error", features = ["adaptor_database", "adaptor_dispatch", "adaptor_user"] }
 user-model = { path = "../../../shared-lib/user-model" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
@@ -34,7 +34,7 @@ flowy-test = { path = "../flowy-test" }
 nanoid = "0.4.0"
 
 [features]
-rev-sqlite = ["flowy-database"]
+rev-sqlite = ["flowy-sqlite"]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 ts = ["flowy-codegen/ts", "flowy-notification/ts"]
 

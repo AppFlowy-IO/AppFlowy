@@ -5,11 +5,11 @@ pub use flowy_net::get_client_server_configuration;
 use crate::deps_resolve::*;
 
 use flowy_client_ws::{listen_on_websocket, FlowyWebSocketConnect, NetworkType};
+use flowy_database::manager::DatabaseManager;
 use flowy_document::entities::DocumentVersionPB;
 use flowy_document::{DocumentConfig, DocumentManager};
 use flowy_folder::entities::ViewDataFormatPB;
 use flowy_folder::{errors::FlowyError, manager::FolderManager};
-use flowy_grid::manager::GridManager;
 use flowy_net::local_server::LocalServer;
 use flowy_net::ClientServerConfiguration;
 use flowy_task::{TaskDispatcher, TaskRunner};
@@ -96,7 +96,7 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
     // filters.push(format!("lib_dispatch={}", level));
 
     filters.push(format!("dart_ffi={}", "info"));
-    filters.push(format!("flowy_database={}", "info"));
+    filters.push(format!("flowy_sqlite={}", "info"));
     filters.push(format!("flowy_net={}", "info"));
     filters.join(",")
 }
@@ -108,7 +108,7 @@ pub struct FlowySDK {
     pub user_session: Arc<UserSession>,
     pub document_manager: Arc<DocumentManager>,
     pub folder_manager: Arc<FolderManager>,
-    pub grid_manager: Arc<GridManager>,
+    pub grid_manager: Arc<DatabaseManager>,
     pub event_dispatcher: Arc<AFPluginDispatcher>,
     pub ws_conn: Arc<FlowyWebSocketConnect>,
     pub local_server: Option<Arc<LocalServer>>,
@@ -207,7 +207,7 @@ fn _start_listening(
     user_session: &Arc<UserSession>,
     document_manager: &Arc<DocumentManager>,
     folder_manager: &Arc<FolderManager>,
-    grid_manager: &Arc<GridManager>,
+    grid_manager: &Arc<DatabaseManager>,
 ) {
     let subscribe_user_status = user_session.notifier.subscribe_user_status();
     let subscribe_network_type = ws_conn.subscribe_network_ty();
@@ -259,7 +259,7 @@ async fn _listen_user_status(
     mut subscribe: broadcast::Receiver<UserStatus>,
     document_manager: Arc<DocumentManager>,
     folder_manager: Arc<FolderManager>,
-    grid_manager: Arc<GridManager>,
+    grid_manager: Arc<DatabaseManager>,
 ) {
     while let Ok(status) = subscribe.recv().await {
         let result = || async {
@@ -320,7 +320,7 @@ async fn _listen_network_status(mut subscribe: broadcast::Receiver<NetworkType>,
 }
 
 fn init_kv(root: &str) {
-    match flowy_database::kv::KV::init(root) {
+    match flowy_sqlite::kv::KV::init(root) {
         Ok(_) => {}
         Err(e) => tracing::error!("Init kv store failed: {}", e),
     }

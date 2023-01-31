@@ -8,8 +8,8 @@ use crate::{
         notifier::UserNotifier,
     },
 };
-use flowy_database::ConnectionPool;
-use flowy_database::{
+use flowy_sqlite::ConnectionPool;
+use flowy_sqlite::{
     kv::KV,
     query_dsl::*,
     schema::{user_table, user_table::dsl},

@@ -6,9 +6,9 @@ use crate::{
 use bytes::Bytes;
 use flowy_client_sync::client_folder::FolderPad;
 use flowy_client_sync::client_folder::{make_folder_rev_json_str, FolderOperationsBuilder};
-use flowy_database::kv::KV;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::reset::{RevisionResettable, RevisionStructReset};
+use flowy_sqlite::kv::KV;
 use folder_model::{AppRevision, FolderRevision, ViewRevision, WorkspaceRevision};
 use revision_model::Revision;
 

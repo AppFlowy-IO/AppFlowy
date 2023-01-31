@@ -35,10 +35,10 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
       return SizedBox(
         width: 400,
         child: FieldEditor(
-          gridId: widget.cellContext.gridId,
+          databaseId: widget.cellContext.databaseId,
           fieldName: field.name,
           typeOptionLoader: FieldTypeOptionLoader(
-            gridId: widget.cellContext.gridId,
+            databaseId: widget.cellContext.databaseId,
             field: field,
           ),
         ),
@@ -206,7 +206,7 @@ extension _FieldActionExtension on FieldAction {
         PopoverContainer.of(context).close();
 
         FieldService(
-          gridId: fieldInfo.gridId,
+          databaseId: fieldInfo.databaseId,
           fieldId: fieldInfo.field.id,
         ).duplicateField();
 
@@ -218,7 +218,7 @@ extension _FieldActionExtension on FieldAction {
           title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
           confirm: () {
             FieldService(
-              gridId: fieldInfo.gridId,
+              databaseId: fieldInfo.databaseId,
               fieldId: fieldInfo.field.id,
             ).deleteField();
           },

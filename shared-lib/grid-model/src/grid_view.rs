@@ -11,7 +11,7 @@ pub fn gen_grid_view_id() -> String {
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum LayoutRevision {
-    Table = 0,
+    Grid = 0,
     Board = 1,
     Calendar = 2,
 }
@@ -25,12 +25,12 @@ impl ToString for LayoutRevision {
 
 impl std::default::Default for LayoutRevision {
     fn default() -> Self {
-        LayoutRevision::Table
+        LayoutRevision::Grid
     }
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct GridViewRevision {
+pub struct DatabaseViewRevision {
     pub view_id: String,
 
     pub grid_id: String,
@@ -47,9 +47,9 @@ pub struct GridViewRevision {
     pub sorts: SortConfiguration,
 }
 
-impl GridViewRevision {
+impl DatabaseViewRevision {
     pub fn new(grid_id: String, view_id: String, layout: LayoutRevision) -> Self {
-        GridViewRevision {
+        DatabaseViewRevision {
             view_id,
             grid_id,
             layout,
@@ -71,11 +71,11 @@ pub struct RowOrderRevision {
 
 #[cfg(test)]
 mod tests {
-    use crate::GridViewRevision;
+    use crate::DatabaseViewRevision;
 
     #[test]
     fn grid_view_revision_serde_test() {
-        let grid_view_revision = GridViewRevision {
+        let grid_view_revision = DatabaseViewRevision {
             view_id: "1".to_string(),
             grid_id: "1".to_string(),
             layout: Default::default(),

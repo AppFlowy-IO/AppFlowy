@@ -5,9 +5,9 @@ use flowy_client_sync::{
     client_document::{history::UndoResult, ClientDocument},
     errors::SyncError,
 };
-use flowy_database::ConnectionPool;
 use flowy_error::FlowyError;
 use flowy_revision::{RevisionMD5, RevisionManager, TransformOperations};
+use flowy_sqlite::ConnectionPool;
 use futures::stream::StreamExt;
 use lib_ot::core::AttributeEntry;
 use lib_ot::{

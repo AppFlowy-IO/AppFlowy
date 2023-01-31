@@ -1,11 +1,11 @@
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/checkbox_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/checklist_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/date_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/select_option_filter.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/text_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/util.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/checkbox_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/checklist_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/date_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/select_option_filter.pbserver.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/text_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/util.pb.dart';
 
 class FilterInfo {
   final String viewId;

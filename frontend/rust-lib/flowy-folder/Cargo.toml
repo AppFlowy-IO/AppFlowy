@@ -15,7 +15,7 @@ lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 flowy-document = { path = "../flowy-document" }
-flowy-database = { path = "../flowy-database", optional = true }
+flowy-sqlite = { path = "../flowy-sqlite", optional = true }
 flowy-error = { path = "../flowy-error", features = ["adaptor_database", "adaptor_dispatch"]}
 flowy-notification = { path = "../flowy-notification" }
 lib-dispatch = { path = "../lib-dispatch" }
@@ -51,7 +51,7 @@ flowy-codegen = { path = "../flowy-codegen"}
 default = []
 sync = []
 cloud_sync = ["sync"]
-rev-sqlite = ["flowy-database", "flowy-folder/rev-sqlite"]
+rev-sqlite = ["flowy-sqlite", "flowy-folder/rev-sqlite"]
 flowy_unit_test = ["lib-ot/flowy_unit_test", "flowy-revision/flowy_unit_test"]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 ts = ["flowy-codegen/ts", "flowy-notification/ts"]

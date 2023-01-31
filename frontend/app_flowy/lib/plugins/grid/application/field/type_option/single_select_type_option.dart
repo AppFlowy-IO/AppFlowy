@@ -1,6 +1,6 @@
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/select_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/single_select_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/single_select_type_option.pb.dart';
 import 'dart:async';
 import 'package:protobuf/protobuf.dart';
 import 'select_option_type_option_bloc.dart';
@@ -8,16 +8,16 @@ import 'type_option_context.dart';
 import 'type_option_service.dart';
 
 class SingleSelectAction with ISelectOptionAction {
-  final String gridId;
+  final String databaseId;
   final String fieldId;
   final SingleSelectTypeOptionContext typeOptionContext;
   final TypeOptionFFIService service;
 
   SingleSelectAction({
-    required this.gridId,
+    required this.databaseId,
     required this.fieldId,
     required this.typeOptionContext,
-  }) : service = TypeOptionFFIService(gridId: gridId, fieldId: fieldId);
+  }) : service = TypeOptionFFIService(databaseId: databaseId, fieldId: fieldId);
 
   SingleSelectTypeOptionPB get typeOption => typeOptionContext.typeOption;
 

@@ -15,7 +15,7 @@ use crate::{
     },
 };
 use bytes::Bytes;
-use flowy_database::kv::KV;
+use flowy_sqlite::kv::KV;
 use folder_model::{gen_view_id, ViewRevision};
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};

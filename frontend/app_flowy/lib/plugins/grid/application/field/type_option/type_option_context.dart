@@ -1,15 +1,15 @@
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/checkbox_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/checklist_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/date_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/checkbox_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/checklist_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/date_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/multi_select_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/number_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/single_select_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/text_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/url_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/multi_select_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/number_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/single_select_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/text_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/url_type_option.pb.dart';
 import 'package:protobuf/protobuf.dart';
 
 import 'type_option_data_controller.dart';
@@ -117,7 +117,7 @@ class TypeOptionContext<T extends GeneratedMessage> {
     required TypeOptionDataController dataController,
   }) : _dataController = dataController;
 
-  String get gridId => _dataController.gridId;
+  String get databaseId => _dataController.databaseId;
 
   String get fieldId => _dataController.field.id;
 
@@ -155,17 +155,17 @@ abstract class TypeOptionFieldDelegate {
 }
 
 abstract class IFieldTypeOptionLoader {
-  String get gridId;
+  String get databaseId;
   Future<Either<TypeOptionPB, FlowyError>> load();
 
   Future<Either<Unit, FlowyError>> switchToField(
       String fieldId, FieldType fieldType) {
     final payload = EditFieldChangesetPB.create()
-      ..gridId = gridId
+      ..databaseId = databaseId
       ..fieldId = fieldId
       ..fieldType = fieldType;
 
-    return GridEventSwitchToField(payload).send();
+    return DatabaseEventSwitchToField(payload).send();
   }
 }
 
@@ -174,9 +174,9 @@ class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
   TypeOptionPB? fieldTypeOption;
 
   @override
-  final String gridId;
+  final String databaseId;
   NewFieldTypeOptionLoader({
-    required this.gridId,
+    required this.databaseId,
   });
 
   /// Creates the field type option if the fieldTypeOption is null.
@@ -185,17 +185,17 @@ class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
   Future<Either<TypeOptionPB, FlowyError>> load() {
     if (fieldTypeOption != null) {
       final payload = TypeOptionPathPB.create()
-        ..gridId = gridId
+        ..databaseId = databaseId
         ..fieldId = fieldTypeOption!.field_2.id
         ..fieldType = fieldTypeOption!.field_2.fieldType;
 
-      return GridEventGetFieldTypeOption(payload).send();
+      return DatabaseEventGetFieldTypeOption(payload).send();
     } else {
       final payload = CreateFieldPayloadPB.create()
-        ..gridId = gridId
+        ..databaseId = databaseId
         ..fieldType = FieldType.RichText;
 
-      return GridEventCreateFieldTypeOption(payload).send().then((result) {
+      return DatabaseEventCreateFieldTypeOption(payload).send().then((result) {
         return result.fold(
           (newFieldTypeOption) {
             fieldTypeOption = newFieldTypeOption;
@@ -211,21 +211,21 @@ class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
 /// Uses when editing a existing field
 class FieldTypeOptionLoader extends IFieldTypeOptionLoader {
   @override
-  final String gridId;
+  final String databaseId;
   final FieldPB field;
 
   FieldTypeOptionLoader({
-    required this.gridId,
+    required this.databaseId,
     required this.field,
   });
 
   @override
   Future<Either<TypeOptionPB, FlowyError>> load() {
     final payload = TypeOptionPathPB.create()
-      ..gridId = gridId
+      ..databaseId = databaseId
       ..fieldId = field.id
       ..fieldType = field.fieldType;
 
-    return GridEventGetFieldTypeOption(payload).send();
+    return DatabaseEventGetFieldTypeOption(payload).send();
   }
 }

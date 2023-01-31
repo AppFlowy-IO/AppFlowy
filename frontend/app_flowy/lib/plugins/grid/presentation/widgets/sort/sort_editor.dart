@@ -4,7 +4,7 @@ import 'package:app_flowy/plugins/grid/application/sort/sort_editor_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/sort/util.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/sort/create_sort_list.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/sort_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/sort_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -143,11 +143,11 @@ class _SortItem extends StatelessWidget {
     );
   }
 
-  String textFromCondition(GridSortConditionPB condition) {
+  String textFromCondition(SortConditionPB condition) {
     switch (condition) {
-      case GridSortConditionPB.Ascending:
+      case SortConditionPB.Ascending:
         return LocaleKeys.grid_sort_ascending.tr();
-      case GridSortConditionPB.Descending:
+      case SortConditionPB.Descending:
         return LocaleKeys.grid_sort_descending.tr();
     }
     return "";
@@ -281,11 +281,11 @@ class _OrderButtonState extends State<_OrderButton> {
     );
   }
 
-  String textFromCondition(GridSortConditionPB condition) {
+  String textFromCondition(SortConditionPB condition) {
     switch (condition) {
-      case GridSortConditionPB.Ascending:
+      case SortConditionPB.Ascending:
         return LocaleKeys.grid_sort_ascending.tr();
-      case GridSortConditionPB.Descending:
+      case SortConditionPB.Descending:
         return LocaleKeys.grid_sort_descending.tr();
     }
     return "";

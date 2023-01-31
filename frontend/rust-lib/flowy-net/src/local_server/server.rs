@@ -130,8 +130,8 @@ impl LocalWebSocketRunner {
                 self.handle_folder_client_data(client_data, "".to_owned()).await?;
                 Ok(())
             }
-            WSChannel::Grid => {
-                todo!("Implement grid web socket channel")
+            WSChannel::Database => {
+                todo!("Implement database web socket channel")
             }
         }
     }

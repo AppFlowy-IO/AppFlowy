@@ -10,9 +10,9 @@ use crate::{
     services::{folder_editor::FolderEditor, persistence::migration::FolderMigration},
 };
 use flowy_client_sync::client_folder::{FolderOperationsBuilder, FolderPad};
-use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision_persistence::{RevisionDiskCache, RevisionState, SyncRecord};
+use flowy_sqlite::ConnectionPool;
 use folder_model::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use revision_model::Revision;
 use std::sync::Arc;

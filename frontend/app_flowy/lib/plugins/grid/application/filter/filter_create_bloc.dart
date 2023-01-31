@@ -1,13 +1,13 @@
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/checkbox_filter.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/checklist_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/date_filter.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/number_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/select_option_filter.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/text_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/checkbox_filter.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/checklist_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/date_filter.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/number_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/select_option_filter.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/text_filter.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -22,7 +22,7 @@ class GridCreateFilterBloc
   final GridFieldController fieldController;
   void Function(List<FieldInfo>)? _onFieldFn;
   GridCreateFilterBloc({required this.viewId, required this.fieldController})
-      : _ffiService = FilterFFIService(viewId: viewId),
+      : _ffiService = FilterFFIService(databaseId: viewId),
         super(GridCreateFilterState.initial(fieldController.fieldInfos)) {
     on<GridCreateFilterEvent>(
       (event, emit) async {

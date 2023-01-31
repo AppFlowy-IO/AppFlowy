@@ -44,7 +44,7 @@ class BoardSettingList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => BoardSettingBloc(gridId: settingContext.viewId),
+      create: (context) => BoardSettingBloc(databaseId: settingContext.viewId),
       child: BlocListener<BoardSettingBloc, BoardSettingState>(
         listenWhen: (previous, current) =>
             previous.selectedAction != current.selectedAction,
@@ -171,7 +171,7 @@ class _BoardSettingListPopoverState extends State<BoardSettingListPopover> {
           );
         case BoardSettingAction.properties:
           return GridPropertyList(
-            gridId: widget.settingContext.viewId,
+            databaseId: widget.settingContext.viewId,
             fieldController: widget.settingContext.fieldController,
           );
       }

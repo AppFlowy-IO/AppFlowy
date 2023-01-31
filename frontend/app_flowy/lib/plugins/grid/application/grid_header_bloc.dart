@@ -1,6 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -10,10 +10,10 @@ part 'grid_header_bloc.freezed.dart';
 
 class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   final GridFieldController fieldController;
-  final String gridId;
+  final String databaseId;
 
   GridHeaderBloc({
-    required this.gridId,
+    required this.databaseId,
     required this.fieldController,
   }) : super(GridHeaderState.initial(fieldController.fieldInfos)) {
     on<GridHeaderEvent>(
@@ -45,7 +45,8 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
     fields.insert(value.toIndex, fields.removeAt(value.fromIndex));
     emit(state.copyWith(fields: fields));
 
-    final fieldService = FieldService(gridId: gridId, fieldId: value.field.id);
+    final fieldService =
+        FieldService(databaseId: databaseId, fieldId: value.field.id);
     final result = await fieldService.moveField(
       value.fromIndex,
       value.toIndex,

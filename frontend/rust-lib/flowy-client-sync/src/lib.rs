@@ -1,6 +1,6 @@
+pub mod client_database;
 pub mod client_document;
 pub mod client_folder;
-pub mod client_grid;
 pub mod errors {
     pub use flowy_sync::errors::*;
 }
