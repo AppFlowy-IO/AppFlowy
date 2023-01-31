@@ -15,7 +15,7 @@ pub async fn init_user_handler(session: AFPluginState<Arc<UserSession>>) -> Resu
 
 #[tracing::instrument(level = "debug", skip(session))]
 pub async fn check_user_handler(session: AFPluginState<Arc<UserSession>>) -> DataResult<UserProfilePB, FlowyError> {
-    let user_profile = session.check_user().await?;
+    let user_profile: UserProfilePB = session.check_user().await?.into();
     data_result(user_profile)
 }
 
@@ -23,7 +23,7 @@ pub async fn check_user_handler(session: AFPluginState<Arc<UserSession>>) -> Dat
 pub async fn get_user_profile_handler(
     session: AFPluginState<Arc<UserSession>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
-    let user_profile = session.get_user_profile().await?;
+    let user_profile: UserProfilePB = session.get_user_profile().await?.into();
     data_result(user_profile)
 }
 

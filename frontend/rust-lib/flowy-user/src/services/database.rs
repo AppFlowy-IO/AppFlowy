@@ -1,4 +1,3 @@
-use crate::entities::UserProfilePB;
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{schema::user_table, DBConnection, Database};
@@ -6,7 +5,7 @@ use lazy_static::lazy_static;
 use parking_lot::RwLock;
 use std::path::PathBuf;
 use std::{collections::HashMap, sync::Arc, time::Duration};
-use user_model::{SignInResponse, SignUpResponse, UpdateUserProfileParams};
+use user_model::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 
 pub struct UserDB {
     db_dir: String,
@@ -117,9 +116,9 @@ impl std::convert::From<SignInResponse> for UserTable {
     }
 }
 
-impl std::convert::From<UserTable> for UserProfilePB {
+impl std::convert::From<UserTable> for UserProfile {
     fn from(table: UserTable) -> Self {
-        UserProfilePB {
+        UserProfile {
             id: table.id,
             email: table.email,
             name: table.name,

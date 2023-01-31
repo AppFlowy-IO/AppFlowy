@@ -65,7 +65,6 @@ impl DocumentMigration {
         //
 
         KV::set_bool(&key, true);
-        tracing::debug!("Run document v1 migration");
         Ok(())
     }
 }

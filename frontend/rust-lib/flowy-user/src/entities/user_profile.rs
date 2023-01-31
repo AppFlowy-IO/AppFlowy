@@ -1,7 +1,7 @@
 use crate::errors::ErrorCode;
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
-use user_model::{UpdateUserProfileParams, UserEmail, UserIcon, UserId, UserName, UserPassword};
+use user_model::{UpdateUserProfileParams, UserEmail, UserIcon, UserId, UserName, UserPassword, UserProfile};
 
 #[derive(Default, ProtoBuf)]
 pub struct UserTokenPB {
@@ -31,6 +31,18 @@ pub struct UserProfilePB {
 
     #[pb(index = 5)]
     pub icon_url: String,
+}
+
+impl std::convert::From<UserProfile> for UserProfilePB {
+    fn from(user_profile: UserProfile) -> Self {
+        Self {
+            id: user_profile.id,
+            email: user_profile.email,
+            name: user_profile.name,
+            token: user_profile.token,
+            icon_url: user_profile.icon_url,
+        }
+    }
 }
 
 #[derive(ProtoBuf, Default)]
