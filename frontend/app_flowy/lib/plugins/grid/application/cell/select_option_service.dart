@@ -1,29 +1,29 @@
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/cell_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/cell_entities.pb.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/select_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
 import 'cell_service/cell_service.dart';
 
 class SelectOptionFFIService {
   final GridCellIdentifier cellId;
   SelectOptionFFIService({required this.cellId});
 
-  String get gridId => cellId.gridId;
+  String get databaseId => cellId.databaseId;
   String get fieldId => cellId.fieldInfo.id;
   String get rowId => cellId.rowId;
 
   Future<Either<Unit, FlowyError>> create(
       {required String name, bool isSelected = true}) {
-    return TypeOptionFFIService(gridId: gridId, fieldId: fieldId)
+    return TypeOptionFFIService(databaseId: databaseId, fieldId: fieldId)
         .newOption(name: name)
         .then(
       (result) {
         return result.fold(
           (option) {
             final cellIdentifier = CellPathPB.create()
-              ..viewId = gridId
+              ..databaseId = databaseId
               ..fieldId = fieldId
               ..rowId = rowId;
             final payload = SelectOptionChangesetPB.create()
@@ -34,7 +34,7 @@ class SelectOptionFFIService {
             } else {
               payload.updateOptions.add(option);
             }
-            return GridEventUpdateSelectOption(payload).send();
+            return DatabaseEventUpdateSelectOption(payload).send();
           },
           (r) => right(r),
         );
@@ -48,7 +48,7 @@ class SelectOptionFFIService {
     final payload = SelectOptionChangesetPB.create()
       ..updateOptions.add(option)
       ..cellIdentifier = _cellIdentifier();
-    return GridEventUpdateSelectOption(payload).send();
+    return DatabaseEventUpdateSelectOption(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> delete(
@@ -57,16 +57,16 @@ class SelectOptionFFIService {
       ..deleteOptions.addAll(options)
       ..cellIdentifier = _cellIdentifier();
 
-    return GridEventUpdateSelectOption(payload).send();
+    return DatabaseEventUpdateSelectOption(payload).send();
   }
 
   Future<Either<SelectOptionCellDataPB, FlowyError>> getOptionContext() {
     final payload = CellPathPB.create()
-      ..viewId = gridId
+      ..databaseId = databaseId
       ..fieldId = fieldId
       ..rowId = rowId;
 
-    return GridEventGetSelectOptionCellData(payload).send();
+    return DatabaseEventGetSelectOptionCellData(payload).send();
   }
 
   Future<Either<void, FlowyError>> select(
@@ -74,7 +74,7 @@ class SelectOptionFFIService {
     final payload = SelectOptionCellChangesetPB.create()
       ..cellIdentifier = _cellIdentifier()
       ..insertOptionIds.addAll(optionIds);
-    return GridEventUpdateSelectOptionCell(payload).send();
+    return DatabaseEventUpdateSelectOptionCell(payload).send();
   }
 
   Future<Either<void, FlowyError>> unSelect(
@@ -82,12 +82,12 @@ class SelectOptionFFIService {
     final payload = SelectOptionCellChangesetPB.create()
       ..cellIdentifier = _cellIdentifier()
       ..deleteOptionIds.addAll(optionIds);
-    return GridEventUpdateSelectOptionCell(payload).send();
+    return DatabaseEventUpdateSelectOptionCell(payload).send();
   }
 
   CellPathPB _cellIdentifier() {
     return CellPathPB.create()
-      ..viewId = gridId
+      ..databaseId = databaseId
       ..fieldId = fieldId
       ..rowId = rowId;
   }

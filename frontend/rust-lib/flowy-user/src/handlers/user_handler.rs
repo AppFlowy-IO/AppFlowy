@@ -2,7 +2,7 @@ use crate::entities::{
     AppearanceSettingsPB, UpdateUserProfilePayloadPB, UserProfilePB, UserSettingPB, APPEARANCE_DEFAULT_THEME,
 };
 use crate::{errors::FlowyError, services::UserSession};
-use flowy_database::kv::KV;
+use flowy_sqlite::kv::KV;
 use lib_dispatch::prelude::*;
 use std::{convert::TryInto, sync::Arc};
 use user_model::UpdateUserProfileParams;

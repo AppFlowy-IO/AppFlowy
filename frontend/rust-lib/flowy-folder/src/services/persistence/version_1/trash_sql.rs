@@ -1,6 +1,6 @@
 use crate::errors::FlowyError;
 use diesel::sql_types::Integer;
-use flowy_database::{
+use flowy_sqlite::{
     prelude::*,
     schema::{trash_table, trash_table::dsl},
     SqliteConnection,

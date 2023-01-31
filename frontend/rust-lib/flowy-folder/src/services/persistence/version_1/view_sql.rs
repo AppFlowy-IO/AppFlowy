@@ -7,7 +7,7 @@ use crate::{
     services::persistence::version_1::app_sql::AppTable,
 };
 use diesel::sql_types::Integer;
-use flowy_database::{
+use flowy_sqlite::{
     prelude::*,
     schema::{view_table, view_table::dsl},
     SqliteConnection,

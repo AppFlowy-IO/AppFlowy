@@ -1,6 +1,6 @@
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/multi_select_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/select_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/multi_select_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
 import 'dart:async';
 import 'select_option_type_option_bloc.dart';
 import 'type_option_context.dart';
@@ -8,17 +8,17 @@ import 'type_option_service.dart';
 import 'package:protobuf/protobuf.dart';
 
 class MultiSelectAction with ISelectOptionAction {
-  final String gridId;
+  final String databaseId;
   final String fieldId;
   final TypeOptionFFIService service;
   final MultiSelectTypeOptionContext typeOptionContext;
 
   MultiSelectAction({
-    required this.gridId,
+    required this.databaseId,
     required this.fieldId,
     required this.typeOptionContext,
   }) : service = TypeOptionFFIService(
-          gridId: gridId,
+          databaseId: databaseId,
           fieldId: fieldId,
         );
 

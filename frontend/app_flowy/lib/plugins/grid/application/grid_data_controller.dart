@@ -1,7 +1,7 @@
 import 'package:app_flowy/plugins/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/grid_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/grid_entities.pb.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'view/grid_view_cache.dart';
@@ -11,7 +11,7 @@ import 'row/row_cache.dart';
 
 typedef OnFieldsChanged = void Function(List<FieldInfo>);
 typedef OnFiltersChanged = void Function(List<FilterInfo>);
-typedef OnGridChanged = void Function(GridPB);
+typedef OnGridChanged = void Function(DatabasePB);
 
 typedef OnRowsChanged = void Function(
   List<RowInfo> rowInfos,
@@ -20,10 +20,10 @@ typedef OnRowsChanged = void Function(
 typedef ListenOnRowChangedCondition = bool Function();
 
 class GridController {
-  final String gridId;
-  final GridFFIService _gridFFIService;
+  final String databaseId;
+  final DatabaseFFIService _gridFFIService;
   final GridFieldController fieldController;
-  late GridViewCache _viewCache;
+  late DatabaseViewCache _viewCache;
 
   OnRowsChanged? _onRowChanged;
   OnGridChanged? _onGridChanged;
@@ -31,11 +31,11 @@ class GridController {
   GridRowCache get rowCache => _viewCache.rowCache;
 
   GridController({required ViewPB view})
-      : gridId = view.id,
-        _gridFFIService = GridFFIService(gridId: view.id),
-        fieldController = GridFieldController(gridId: view.id) {
-    _viewCache = GridViewCache(
-      gridId: gridId,
+      : databaseId = view.id,
+        _gridFFIService = DatabaseFFIService(databaseId: view.id),
+        fieldController = GridFieldController(databaseId: view.id) {
+    _viewCache = DatabaseViewCache(
+      databaseId: databaseId,
       fieldController: fieldController,
     );
     _viewCache.addListener(onRowsChanged: (reason) {

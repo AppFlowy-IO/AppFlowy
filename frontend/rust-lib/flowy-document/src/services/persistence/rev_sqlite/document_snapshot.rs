@@ -1,11 +1,11 @@
 use bytes::Bytes;
-use flowy_database::{
+use flowy_error::{internal_error, FlowyResult};
+use flowy_revision::{RevisionSnapshot, RevisionSnapshotDiskCache};
+use flowy_sqlite::{
     prelude::*,
     schema::{document_rev_snapshot, document_rev_snapshot::dsl},
     ConnectionPool,
 };
-use flowy_error::{internal_error, FlowyResult};
-use flowy_revision::{RevisionSnapshot, RevisionSnapshotDiskCache};
 use lib_infra::util::timestamp;
 use std::sync::Arc;
 

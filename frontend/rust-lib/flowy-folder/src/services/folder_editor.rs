@@ -3,12 +3,12 @@ use bytes::Bytes;
 use flowy_client_sync::client_folder::{FolderChangeset, FolderOperations, FolderPad};
 use flowy_client_sync::make_operations_from_revisions;
 use flowy_client_sync::util::recover_operation_from_revisions;
-use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
     RevisionWebSocket,
 };
+use flowy_sqlite::ConnectionPool;
 use lib_infra::future::FutureResult;
 use lib_ot::core::EmptyAttributes;
 use parking_lot::RwLock;

@@ -1,4 +1,4 @@
-import 'package:appflowy_backend/protobuf/flowy-grid/format.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/format.pbenum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';

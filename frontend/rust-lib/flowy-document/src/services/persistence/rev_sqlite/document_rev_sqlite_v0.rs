@@ -1,13 +1,13 @@
 use bytes::Bytes;
 use diesel::{sql_types::Integer, update, SqliteConnection};
-use flowy_database::{
+use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_revision_persistence::{RevisionChangeset, RevisionDiskCache, RevisionState, SyncRecord};
+use flowy_sqlite::{
     impl_sql_integer_expression, insert_or_ignore_into,
     prelude::*,
     schema::{rev_table, rev_table::dsl},
     ConnectionPool,
 };
-use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_revision_persistence::{RevisionChangeset, RevisionDiskCache, RevisionState, SyncRecord};
 use lib_infra::util::md5;
 use revision_model::{Revision, RevisionRange};
 use std::collections::HashMap;

@@ -3,9 +3,9 @@ use crate::services::rev_sqlite::{DeltaRevisionSql, SQLiteDocumentRevisionPersis
 use crate::DocumentDatabase;
 use bytes::Bytes;
 use flowy_client_sync::make_operations_from_revisions;
-use flowy_database::kv::KV;
 use flowy_error::FlowyResult;
 use flowy_revision_persistence::{RevisionDiskCache, SyncRecord};
+use flowy_sqlite::kv::KV;
 use lib_infra::util::md5;
 use revision_model::Revision;
 use std::sync::Arc;

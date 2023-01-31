@@ -1,8 +1,8 @@
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/sort/sort_info.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/sort_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/sort_entities.pbenum.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/sort_entities.pbserver.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/sort_entities.pbserver.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -40,8 +40,7 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
               ),
             );
           },
-          setCondition:
-              (SortInfo sortInfo, GridSortConditionPB condition) async {
+          setCondition: (SortInfo sortInfo, SortConditionPB condition) async {
             final result = await _ffiService.updateSort(
               fieldId: sortInfo.fieldInfo.id,
               sortId: sortInfo.sortId,
@@ -102,7 +101,7 @@ class SortEditorEvent with _$SortEditorEvent {
   const factory SortEditorEvent.didReceiveSorts(List<SortInfo> sortInfos) =
       _DidReceiveSorts;
   const factory SortEditorEvent.setCondition(
-      SortInfo sortInfo, GridSortConditionPB condition) = _SetCondition;
+      SortInfo sortInfo, SortConditionPB condition) = _SetCondition;
   const factory SortEditorEvent.deleteSort(SortInfo sortInfo) = _DeleteSort;
   const factory SortEditorEvent.deleteAllSorts() = _DeleteAllSorts;
 }
