@@ -209,7 +209,7 @@ impl ViewController {
         let deleted_view = self
             .persistence
             .begin_transaction(|transaction| {
-                let view = transaction.read_view(&view_id)?;
+                let view = transaction.read_view(view_id)?;
                 let views = read_belonging_views_on_local(&view.app_id, self.trash_controller.clone(), &transaction)?;
 
                 let index = views
@@ -223,12 +223,12 @@ impl ViewController {
             })
             .await?;
 
-        send_notification(&view_id, FolderNotification::ViewMoveToTrash)
+        send_notification(view_id, FolderNotification::ViewMoveToTrash)
             .payload(deleted_view)
             .send();
 
-        let processor = self.get_data_processor_from_view_id(&view_id).await?;
-        processor.close_view(&view_id).await?;
+        let processor = self.get_data_processor_from_view_id(view_id).await?;
+        processor.close_view(view_id).await?;
         Ok(())
     }
 

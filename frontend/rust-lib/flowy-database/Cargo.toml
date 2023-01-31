@@ -56,7 +56,7 @@ flowy-database = { path = "", features = ["flowy_unit_test"]}
 flowy-codegen = { path = "../flowy-codegen"}
 
 [features]
-default = []
+default = ["rev-sqlite"]
 rev-sqlite = ["flowy-sqlite"]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 ts = ["flowy-codegen/ts", "flowy-notification/ts"]

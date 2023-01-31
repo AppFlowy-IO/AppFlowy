@@ -1,12 +1,10 @@
 use crate::entities::{UserProfilePB, UserSettingPB};
+use crate::event_map::UserStatusCallback;
 use crate::{
     errors::{ErrorCode, FlowyError},
     event_map::UserCloudService,
     notification::*,
-    services::{
-        database::{UserDB, UserTable, UserTableChangeset},
-        notifier::UserNotifier,
-    },
+    services::database::{UserDB, UserTable, UserTableChangeset},
 };
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{
@@ -17,8 +15,8 @@ use flowy_sqlite::{
 };
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use tokio::sync::mpsc;
-use user_model::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams};
+use tokio::sync::RwLock;
+use user_model::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile};
 
 pub struct UserSessionConfig {
     root_dir: String,
@@ -43,25 +41,26 @@ pub struct UserSession {
     database: UserDB,
     config: UserSessionConfig,
     cloud_service: Arc<dyn UserCloudService>,
-    pub notifier: UserNotifier,
+    user_status_callback: RwLock<Option<Arc<dyn UserStatusCallback>>>,
 }
 
 impl UserSession {
     pub fn new(config: UserSessionConfig, cloud_service: Arc<dyn UserCloudService>) -> Self {
         let db = UserDB::new(&config.root_dir);
-        let notifier = UserNotifier::new();
+        let user_status_callback = RwLock::new(None);
         Self {
             database: db,
             config,
             cloud_service,
-            notifier,
+            user_status_callback,
         }
     }
 
-    pub fn init(&self) {
+    pub async fn init<C: UserStatusCallback + 'static>(&self, user_status_callback: C) {
         if let Ok(session) = self.get_session() {
-            self.notifier.notify_login(&session.token, &session.user_id);
+            let _ = user_status_callback.did_sign_in(&session.token, &session.user_id).await;
         }
+        *self.user_status_callback.write().await = Some(Arc::new(user_status_callback));
     }
 
     pub fn db_connection(&self) -> Result<DBConnection, FlowyError> {
@@ -81,11 +80,13 @@ impl UserSession {
     }
 
     #[tracing::instrument(level = "debug", skip(self))]
-    pub async fn sign_in(&self, params: SignInParams) -> Result<UserProfilePB, FlowyError> {
+    pub async fn sign_in(&self, params: SignInParams) -> Result<UserProfile, FlowyError> {
         if self.is_user_login(&params.email) {
             match self.get_user_profile().await {
                 Ok(profile) => {
-                    send_sign_in_notification().payload(profile.clone()).send();
+                    send_sign_in_notification()
+                        .payload::<UserProfilePB>(profile.clone().into())
+                        .send();
                     Ok(profile)
                 }
                 Err(err) => Err(err),
@@ -94,16 +95,24 @@ impl UserSession {
             let resp = self.cloud_service.sign_in(params).await?;
             let session: Session = resp.clone().into();
             self.set_session(Some(session))?;
-            let user_table = self.save_user(resp.into()).await?;
-            let user_profile: UserProfilePB = user_table.into();
-            self.notifier.notify_login(&user_profile.token, &user_profile.id);
-            send_sign_in_notification().payload(user_profile.clone()).send();
+            let user_profile: UserProfile = self.save_user(resp.into()).await?.into();
+            let _ = self
+                .user_status_callback
+                .read()
+                .await
+                .as_ref()
+                .unwrap()
+                .did_sign_in(&user_profile.token, &user_profile.id)
+                .await;
+            send_sign_in_notification()
+                .payload::<UserProfilePB>(user_profile.clone().into())
+                .send();
             Ok(user_profile)
         }
     }
 
     #[tracing::instrument(level = "debug", skip(self))]
-    pub async fn sign_up(&self, params: SignUpParams) -> Result<UserProfilePB, FlowyError> {
+    pub async fn sign_up(&self, params: SignUpParams) -> Result<UserProfile, FlowyError> {
         if self.is_user_login(&params.email) {
             self.get_user_profile().await
         } else {
@@ -111,11 +120,15 @@ impl UserSession {
             let session: Session = resp.clone().into();
             self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
-            let user_profile: UserProfilePB = user_table.into();
-            let (ret, mut tx) = mpsc::channel(1);
-            self.notifier.notify_sign_up(ret, &user_profile);
-
-            let _ = tx.recv().await;
+            let user_profile: UserProfile = user_table.into();
+            let _ = self
+                .user_status_callback
+                .read()
+                .await
+                .as_ref()
+                .unwrap()
+                .did_sign_up(&user_profile)
+                .await;
             Ok(user_profile)
         }
     }
@@ -127,7 +140,14 @@ impl UserSession {
             diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*(self.db_connection()?))?;
         self.database.close_user_db(&session.user_id)?;
         self.set_session(None)?;
-        self.notifier.notify_logout(&session.token, &session.user_id);
+        let _ = self
+            .user_status_callback
+            .read()
+            .await
+            .as_ref()
+            .unwrap()
+            .did_expired(&session.token, &session.user_id)
+            .await;
         self.sign_out_on_server(&session.token).await?;
 
         Ok(())
@@ -140,8 +160,9 @@ impl UserSession {
         diesel_update_table!(user_table, changeset, &*self.db_connection()?);
 
         let user_profile = self.get_user_profile().await?;
+        let profile_pb: UserProfilePB = user_profile.into();
         send_notification(&session.token, UserNotification::UserProfileUpdated)
-            .payload(user_profile)
+            .payload(profile_pb)
             .send();
         self.update_user_on_server(&session.token, params).await?;
         Ok(())
@@ -151,7 +172,7 @@ impl UserSession {
         Ok(())
     }
 
-    pub async fn check_user(&self) -> Result<UserProfilePB, FlowyError> {
+    pub async fn check_user(&self) -> Result<UserProfile, FlowyError> {
         let (user_id, token) = self.get_session()?.into_part();
 
         let user = dsl::user_table
@@ -162,7 +183,7 @@ impl UserSession {
         Ok(user.into())
     }
 
-    pub async fn get_user_profile(&self) -> Result<UserProfilePB, FlowyError> {
+    pub async fn get_user_profile(&self) -> Result<UserProfile, FlowyError> {
         let (user_id, token) = self.get_session()?.into_part();
         let user = dsl::user_table
             .filter(user_table::id.eq(&user_id))

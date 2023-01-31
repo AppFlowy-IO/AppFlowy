@@ -1215,6 +1215,7 @@ dependencies = [
  "revision-model",
  "tokio",
  "tracing",
+ "user-model",
  "ws-model",
 ]
 

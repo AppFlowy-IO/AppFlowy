@@ -58,6 +58,7 @@ flowy-codegen = { path = "../flowy-codegen"}
 
 
 [features]
+default = ["rev-sqlite"]
 sync = []
 cloud_sync = ["sync"]
 rev-sqlite = ["flowy-sqlite"]

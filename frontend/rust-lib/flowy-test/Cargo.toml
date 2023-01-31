@@ -6,11 +6,11 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-core = { path = "../flowy-core", default-features = false }
+flowy-core = { path = "../flowy-core" }
 flowy-user = { path = "../flowy-user"}
 flowy-net = { path = "../flowy-net"}
-flowy-folder = { path = "../flowy-folder", default-features = false}
-flowy-document= { path = "../flowy-document", default-features = false}
+flowy-folder = { path = "../flowy-folder" }
+flowy-document= { path = "../flowy-document" }
 lib-dispatch = { path = "../lib-dispatch" }
 
 flowy-client-sync = { path = "../flowy-client-sync"}
