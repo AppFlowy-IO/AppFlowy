@@ -34,8 +34,8 @@ class LavenderColorScheme extends FlowyColorScheme {
           tint7: const Color(0xffddffd6),
           tint8: const Color(0xffdefff1),
           tint9: const Color(0xffe1fbff),
-          main1: const Color(0xff00bcf0),
-          main2: const Color(0xff00b7ea),
+          main1: const Color(0xffA652FB),
+          main2: const Color(0xff9327FF),
           shadow: _black,
         );
 
@@ -67,8 +67,8 @@ class LavenderColorScheme extends FlowyColorScheme {
           tint7: const Color(0xffbcffad),
           tint8: const Color(0xffadffe2),
           tint9: const Color(0xffade4ff),
-          main1: const Color(0xff00bcf0),
-          main2: const Color(0xff009cc7),
+          main1: const Color(0xffA652FB),
+          main2: const Color(0xff9327FF),
           shadow: _black,
         );
 }
