@@ -5,6 +5,7 @@ import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+/// [ActionProvider] is an optional mixin to define the actions of a node widget.
 mixin ActionProvider<T extends Node> on NodeWidgetBuilder<T> {
   List<ActionMenuItem> actions(NodeWidgetContext<T> context);
 }
@@ -16,9 +17,11 @@ class ActionMenuArenaMember {
   const ActionMenuArenaMember(this.state, this.listener);
 }
 
+/// Decides which action menu is visible.
+/// The menu with the greatest [Node.path] wins.
 class ActionMenuArena {
-  Map<Path, ActionMenuArenaMember> _members = {};
-  Set<Path> _visible = {};
+  final Map<Path, ActionMenuArenaMember> _members = {};
+  final Set<Path> _visible = {};
 
   ActionMenuArena._singleton();
   static final instance = ActionMenuArena._singleton();
@@ -52,6 +55,7 @@ class ActionMenuArena {
   }
 }
 
+/// Used to manage the state of each [ActionMenuOverlay].
 class ActionMenuState extends ChangeNotifier {
   final Path path;
 
@@ -83,6 +87,7 @@ class ActionMenuState extends ChangeNotifier {
   }
 }
 
+/// The default widget to render an action menu
 class ActionMenuWidget extends StatelessWidget {
   final List<ActionMenuItem> items;
 

@@ -2,6 +2,10 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:flutter/material.dart';
 
+/// Represents a single action inside an action menu.
+///
+/// [itemWrapper] can be used to wrap the [ActionMenuItemWidget] with another
+/// widget (e.g. a popover).
 class ActionMenuItem {
   final Widget Function({double? size, Color? color}) iconBuilder;
   final Function()? onPressed;
