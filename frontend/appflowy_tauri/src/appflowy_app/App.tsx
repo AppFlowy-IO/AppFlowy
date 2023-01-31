@@ -1,13 +1,16 @@
-import TestFonts from './components/TestFonts/TestFonts';
+import { Routes, Route, Link, useParams, BrowserRouter } from 'react-router-dom';
+import { Screen } from './components/Screen/application/Screen';
 
 const App = () => {
   return (
-    <div className='bg-white text-black h-screen w-screen flex'>
-      <div className={'w-[200px]'}>Navigation</div>
-      <div className={'flex-1'}>
-        <TestFonts />
-      </div>
-    </div>
+    <BrowserRouter>
+      <Screen>
+        <Routes>
+          <Route path={'/'} element={<div>Home Page</div>}></Route>
+          <Route path={'*'}>Not Found</Route>
+        </Routes>
+      </Screen>
+    </BrowserRouter>
   );
 };
 
