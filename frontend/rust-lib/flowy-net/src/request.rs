@@ -208,7 +208,7 @@ impl HttpRequestBuilder {
                 self.response = Some(flowy_response.data);
                 Ok(self)
             }
-            Some(error) => Err(FlowyError::new(error.code.into(), &error.msg)),
+            Some(error) => Err(FlowyError::new(error.code, &error.msg)),
         }
     }
 }
@@ -231,7 +231,7 @@ async fn get_response_data(original: Response) -> Result<Bytes, FlowyError> {
         let response: HttpResponse = serde_json::from_slice(&bytes)?;
         match response.error {
             None => Ok(response.data),
-            Some(error) => Err(FlowyError::new(error.code.into(), &error.msg)),
+            Some(error) => Err(FlowyError::new(error.code, &error.msg)),
         }
     } else {
         Err(FlowyError::http().context(original))

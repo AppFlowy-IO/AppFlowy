@@ -34,6 +34,7 @@ flowy-test = { path = "../flowy-test" }
 nanoid = "0.4.0"
 
 [features]
+default = ["rev-sqlite"]
 rev-sqlite = ["flowy-sqlite"]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 ts = ["flowy-codegen/ts", "flowy-notification/ts"]
