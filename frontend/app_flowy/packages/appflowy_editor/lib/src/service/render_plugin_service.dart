@@ -77,7 +77,12 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
       return _autoUpdateNodeWidget(builder, context);
     } else {
       // Returns a SizeBox with 0 height if no builder found.
-      return const SizedBox(
+      assert(
+        false,
+        'No builder found for node(${node.id}, attributes(${node.attributes})})',
+      );
+      return SizedBox(
+        key: node.key,
         height: 0,
       );
     }
