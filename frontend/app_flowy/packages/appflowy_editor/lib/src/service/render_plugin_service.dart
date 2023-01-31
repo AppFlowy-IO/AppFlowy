@@ -2,6 +2,7 @@ import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:appflowy_editor/src/render/action_menu/action_menu.dart';
+import 'package:appflowy_editor/src/render/action_menu/action_menu_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -58,9 +59,13 @@ class NodeWidgetContext<T extends Node> {
 }
 
 class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
+  final Positioned Function(BuildContext context, List<ActionMenuItem> items)?
+      customActionMenuBuilder;
+
   AppFlowyRenderPlugin({
     required this.editorState,
     required NodeWidgetBuilders builders,
+    this.customActionMenuBuilder,
   }) {
     registerAll(builders);
   }
@@ -146,6 +151,7 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
         create: (_) => ActionMenuState(context.node.path),
         child: ActionMenuOverlay(
           items: builder.actions(context),
+          customActionMenuBuilder: customActionMenuBuilder,
           child: child,
         ),
       );

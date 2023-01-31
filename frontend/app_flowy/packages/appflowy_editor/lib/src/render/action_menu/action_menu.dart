@@ -113,11 +113,14 @@ class ActionMenuWidget extends StatelessWidget {
 class ActionMenuOverlay extends StatelessWidget {
   final Widget child;
   final List<ActionMenuItem> items;
+  final Positioned Function(BuildContext context, List<ActionMenuItem> items)?
+      customActionMenuBuilder;
 
   const ActionMenuOverlay({
     super.key,
     required this.items,
     required this.child,
+    this.customActionMenuBuilder,
   });
 
   @override
@@ -137,10 +140,15 @@ class ActionMenuOverlay extends StatelessWidget {
       child: Stack(
         children: [
           child,
-          if (menuState.isVisible)
-            Positioned(top: 5, right: 5, child: ActionMenuWidget(items: items)),
+          if (menuState.isVisible) _buildMenu(context),
         ],
       ),
     );
+  }
+
+  Positioned _buildMenu(BuildContext context) {
+    return customActionMenuBuilder != null
+        ? customActionMenuBuilder!(context, items)
+        : Positioned(top: 5, right: 5, child: ActionMenuWidget(items: items));
   }
 }
