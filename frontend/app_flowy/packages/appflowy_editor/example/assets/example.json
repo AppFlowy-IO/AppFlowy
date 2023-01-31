@@ -23,7 +23,6 @@
         ]
       },
       { "type": "text", "delta": [] },
-      { "type": "board" },
       {
         "type": "text",
         "delta": [
