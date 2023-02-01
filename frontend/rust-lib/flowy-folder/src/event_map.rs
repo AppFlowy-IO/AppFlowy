@@ -9,9 +9,9 @@ use crate::{
     manager::FolderManager,
     services::{app::event_handler::*, trash::event_handler::*, view::event_handler::*, workspace::event_handler::*},
 };
-use flowy_database::{ConnectionPool, DBConnection};
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
-use folder_rev_model::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
+use flowy_sqlite::{ConnectionPool, DBConnection};
+use folder_model::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use lib_dispatch::prelude::*;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;

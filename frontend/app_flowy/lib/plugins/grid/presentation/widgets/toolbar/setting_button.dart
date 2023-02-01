@@ -37,7 +37,7 @@ class _SettingButtonState extends State<SettingButton> {
         final fieldController =
             context.read<GridBloc>().gridController.fieldController;
         return GridSettingContext(
-          gridId: state.gridId,
+          viewId: state.databaseId,
           fieldController: fieldController,
         );
       },
@@ -82,7 +82,7 @@ class _GridSettingListPopoverState extends State<_GridSettingListPopover> {
   Widget build(BuildContext context) {
     if (_action == GridSettingAction.showProperties) {
       return GridPropertyList(
-        gridId: widget.settingContext.gridId,
+        databaseId: widget.settingContext.viewId,
         fieldController: widget.settingContext.fieldController,
       );
     }

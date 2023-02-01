@@ -420,6 +420,186 @@ class AppFlowyEditorLocalizations {
       args: [],
     );
   }
+
+  /// `Tint 1`
+  String get tint1 {
+    return Intl.message(
+      'Tint 1',
+      name: 'tint1',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tint 2`
+  String get tint2 {
+    return Intl.message(
+      'Tint 2',
+      name: 'tint2',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tint 3`
+  String get tint3 {
+    return Intl.message(
+      'Tint 3',
+      name: 'tint3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tint 4`
+  String get tint4 {
+    return Intl.message(
+      'Tint 4',
+      name: 'tint4',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tint 5`
+  String get tint5 {
+    return Intl.message(
+      'Tint 5',
+      name: 'tint5',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tint 6`
+  String get tint6 {
+    return Intl.message(
+      'Tint 6',
+      name: 'tint6',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tint 7`
+  String get tint7 {
+    return Intl.message(
+      'Tint 7',
+      name: 'tint7',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tint 8`
+  String get tint8 {
+    return Intl.message(
+      'Tint 8',
+      name: 'tint8',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tint 9`
+  String get tint9 {
+    return Intl.message(
+      'Tint 9',
+      name: 'tint9',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Purple`
+  String get lightLightTint1 {
+    return Intl.message(
+      'Purple',
+      name: 'lightLightTint1',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pink`
+  String get lightLightTint2 {
+    return Intl.message(
+      'Pink',
+      name: 'lightLightTint2',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Light Pink`
+  String get lightLightTint3 {
+    return Intl.message(
+      'Light Pink',
+      name: 'lightLightTint3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Orange`
+  String get lightLightTint4 {
+    return Intl.message(
+      'Orange',
+      name: 'lightLightTint4',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Yellow`
+  String get lightLightTint5 {
+    return Intl.message(
+      'Yellow',
+      name: 'lightLightTint5',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Lime`
+  String get lightLightTint6 {
+    return Intl.message(
+      'Lime',
+      name: 'lightLightTint6',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Green`
+  String get lightLightTint7 {
+    return Intl.message(
+      'Green',
+      name: 'lightLightTint7',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Aqua`
+  String get lightLightTint8 {
+    return Intl.message(
+      'Aqua',
+      name: 'lightLightTint8',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Blue`
+  String get lightLightTint9 {
+    return Intl.message(
+      'Blue',
+      name: 'lightLightTint9',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate

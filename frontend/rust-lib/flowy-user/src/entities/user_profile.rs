@@ -1,10 +1,7 @@
+use crate::errors::ErrorCode;
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
-
-use crate::{
-    entities::parser::{UserEmail, UserIcon, UserId, UserName, UserPassword},
-    errors::ErrorCode,
-};
+use user_model::{UpdateUserProfileParams, UserEmail, UserIcon, UserId, UserName, UserPassword, UserProfile};
 
 #[derive(Default, ProtoBuf)]
 pub struct UserTokenPB {
@@ -36,6 +33,18 @@ pub struct UserProfilePB {
     pub icon_url: String,
 }
 
+impl std::convert::From<UserProfile> for UserProfilePB {
+    fn from(user_profile: UserProfile) -> Self {
+        Self {
+            id: user_profile.id,
+            email: user_profile.email,
+            name: user_profile.name,
+            token: user_profile.token,
+            icon_url: user_profile.icon_url,
+        }
+    }
+}
+
 #[derive(ProtoBuf, Default)]
 pub struct UpdateUserProfilePayloadPB {
     #[pb(index = 1)]
@@ -59,56 +68,6 @@ impl UpdateUserProfilePayloadPB {
         Self {
             id: id.to_owned(),
             ..Default::default()
-        }
-    }
-
-    pub fn name(mut self, name: &str) -> Self {
-        self.name = Some(name.to_owned());
-        self
-    }
-
-    pub fn email(mut self, email: &str) -> Self {
-        self.email = Some(email.to_owned());
-        self
-    }
-
-    pub fn password(mut self, password: &str) -> Self {
-        self.password = Some(password.to_owned());
-        self
-    }
-
-    pub fn icon_url(mut self, icon_url: &str) -> Self {
-        self.icon_url = Some(icon_url.to_owned());
-        self
-    }
-}
-
-#[derive(ProtoBuf, Default, Clone, Debug)]
-pub struct UpdateUserProfileParams {
-    #[pb(index = 1)]
-    pub id: String,
-
-    #[pb(index = 2, one_of)]
-    pub name: Option<String>,
-
-    #[pb(index = 3, one_of)]
-    pub email: Option<String>,
-
-    #[pb(index = 4, one_of)]
-    pub password: Option<String>,
-
-    #[pb(index = 5, one_of)]
-    pub icon_url: Option<String>,
-}
-
-impl UpdateUserProfileParams {
-    pub fn new(user_id: &str) -> Self {
-        Self {
-            id: user_id.to_owned(),
-            name: None,
-            email: None,
-            password: None,
-            icon_url: None,
         }
     }
 

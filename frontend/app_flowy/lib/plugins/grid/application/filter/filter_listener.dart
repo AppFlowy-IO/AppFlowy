@@ -3,10 +3,10 @@ import 'dart:typed_data';
 import 'package:app_flowy/core/grid_notification.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/notification.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/filter_changeset.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/filter_changeset.pb.dart';
 import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/util.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/util.pb.dart';
 
 typedef UpdateFilterNotifiedValue
     = Either<FilterChangesetNotificationPB, FlowyError>;
@@ -16,25 +16,25 @@ class FiltersListener {
 
   PublishNotifier<UpdateFilterNotifiedValue>? _filterNotifier =
       PublishNotifier();
-  GridNotificationListener? _listener;
+  DatabaseNotificationListener? _listener;
   FiltersListener({required this.viewId});
 
   void start({
     required void Function(UpdateFilterNotifiedValue) onFilterChanged,
   }) {
     _filterNotifier?.addPublishListener(onFilterChanged);
-    _listener = GridNotificationListener(
+    _listener = DatabaseNotificationListener(
       objectId: viewId,
       handler: _handler,
     );
   }
 
   void _handler(
-    GridNotification ty,
+    DatabaseNotification ty,
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case GridNotification.DidUpdateFilter:
+      case DatabaseNotification.DidUpdateFilter:
         result.fold(
           (payload) => _filterNotifier?.value =
               left(FilterChangesetNotificationPB.fromBuffer(payload)),
@@ -60,7 +60,7 @@ class FilterListener {
   PublishNotifier<FilterPB>? _onDeleteNotifier = PublishNotifier();
   PublishNotifier<FilterPB>? _onUpdateNotifier = PublishNotifier();
 
-  GridNotificationListener? _listener;
+  DatabaseNotificationListener? _listener;
   FilterListener({required this.viewId, required this.filterId});
 
   void start({
@@ -75,7 +75,7 @@ class FilterListener {
       onUpdated?.call(filter);
     });
 
-    _listener = GridNotificationListener(
+    _listener = DatabaseNotificationListener(
       objectId: viewId,
       handler: _handler,
     );
@@ -100,11 +100,11 @@ class FilterListener {
   }
 
   void _handler(
-    GridNotification ty,
+    DatabaseNotification ty,
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case GridNotification.DidUpdateFilter:
+      case DatabaseNotification.DidUpdateFilter:
         result.fold(
           (payload) => handleChangeset(
               FilterChangesetNotificationPB.fromBuffer(payload)),

@@ -15,9 +15,8 @@ use crate::{
     },
 };
 use bytes::Bytes;
-use flowy_database::kv::KV;
-use flowy_http_model::document::DocumentId;
-use folder_rev_model::{gen_view_id, ViewRevision};
+use flowy_sqlite::kv::KV;
+use folder_model::{gen_view_id, ViewRevision};
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 
@@ -199,9 +198,8 @@ impl ViewController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.value), err)]
-    pub(crate) async fn move_view_to_trash(&self, params: DocumentId) -> Result<(), FlowyError> {
-        let view_id = params.value;
+    #[tracing::instrument(level = "debug", skip(self), err)]
+    pub(crate) async fn move_view_to_trash(&self, view_id: &str) -> Result<(), FlowyError> {
         if let Some(latest_view_id) = KV::get_str(LATEST_VIEW_ID) {
             if latest_view_id == view_id {
                 let _ = KV::remove(LATEST_VIEW_ID);
@@ -211,7 +209,7 @@ impl ViewController {
         let deleted_view = self
             .persistence
             .begin_transaction(|transaction| {
-                let view = transaction.read_view(&view_id)?;
+                let view = transaction.read_view(view_id)?;
                 let views = read_belonging_views_on_local(&view.app_id, self.trash_controller.clone(), &transaction)?;
 
                 let index = views
@@ -219,18 +217,18 @@ impl ViewController {
                     .position(|view| view.id == view_id)
                     .map(|index| index as i32);
                 Ok(DeletedViewPB {
-                    view_id: view_id.clone(),
+                    view_id: view_id.to_owned(),
                     index,
                 })
             })
             .await?;
 
-        send_notification(&view_id, FolderNotification::ViewMoveToTrash)
+        send_notification(view_id, FolderNotification::ViewMoveToTrash)
             .payload(deleted_view)
             .send();
 
-        let processor = self.get_data_processor_from_view_id(&view_id).await?;
-        processor.close_view(&view_id).await?;
+        let processor = self.get_data_processor_from_view_id(view_id).await?;
+        processor.close_view(view_id).await?;
         Ok(())
     }
 

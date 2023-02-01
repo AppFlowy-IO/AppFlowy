@@ -1,20 +1,19 @@
 use bytes::Bytes;
-use flowy_database::ConnectionPool;
+use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_document::{
     errors::{internal_error, FlowyError},
     DocumentCloudService, DocumentConfig, DocumentDatabase, DocumentManager, DocumentUser,
 };
-use flowy_http_model::ws_data::ClientRevisionWSData;
 use flowy_net::ClientServerConfiguration;
-use flowy_net::{
-    http_server::document::DocumentCloudServiceImpl, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
-};
+use flowy_net::{http_server::document::DocumentCloudServiceImpl, local_server::LocalServer};
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
+use flowy_sqlite::ConnectionPool;
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
 use lib_infra::future::BoxResultFuture;
 use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
 use std::{convert::TryInto, path::Path, sync::Arc};
+use ws_model::ws_revision::ClientRevisionWSData;
 
 pub struct DocumentDepsResolver();
 impl DocumentDepsResolver {

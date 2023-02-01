@@ -1,9 +1,7 @@
-use crate::ErrorCode;
+use crate::code::ErrorCode;
 use anyhow::Result;
-use bytes::Bytes;
 use flowy_derive::ProtoBuf;
-use lib_dispatch::prelude::{AFPluginEventResponse, ResponseBuilder};
-use std::{convert::TryInto, fmt::Debug};
+use std::fmt::Debug;
 use thiserror::Error;
 
 pub type FlowyResult<T> = anyhow::Result<T, FlowyError>;
@@ -39,6 +37,10 @@ impl FlowyError {
         self
     }
 
+    pub fn is_record_not_found(&self) -> bool {
+        self.code == ErrorCode::RecordNotFound.value()
+    }
+
     static_flowy_error!(internal, ErrorCode::Internal);
     static_flowy_error!(record_not_found, ErrorCode::RecordNotFound);
     static_flowy_error!(workspace_name, ErrorCode::WorkspaceNameInvalid);
@@ -72,6 +74,8 @@ impl FlowyError {
     static_flowy_error!(out_of_bounds, ErrorCode::OutOfBounds);
     static_flowy_error!(serde, ErrorCode::Serde);
     static_flowy_error!(field_record_not_found, ErrorCode::FieldRecordNotFound);
+    static_flowy_error!(payload_none, ErrorCode::UnexpectedEmptyPayload);
+    static_flowy_error!(http, ErrorCode::HttpError);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {
@@ -90,22 +94,6 @@ where
     FlowyError::internal().context(e)
 }
 
-// Not needed because of thiserror derive macro
-/* impl fmt::Display for FlowyError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}: {}", &self.code, &self.msg)
-    }
-}
- */
-impl lib_dispatch::Error for FlowyError {
-    fn as_response(&self) -> AFPluginEventResponse {
-        let bytes: Bytes = self.clone().try_into().unwrap();
-
-        println!("Serialize FlowyError: {:?} to event response", self);
-        ResponseBuilder::Err().data(bytes).build()
-    }
-}
-
 impl std::convert::From<std::io::Error> for FlowyError {
     fn from(error: std::io::Error) -> Self {
         FlowyError::internal().context(error)
@@ -117,5 +105,3 @@ impl std::convert::From<protobuf::ProtobufError> for FlowyError {
         FlowyError::internal().context(e)
     }
 }
-
-//impl std::error::Error for FlowyError {}

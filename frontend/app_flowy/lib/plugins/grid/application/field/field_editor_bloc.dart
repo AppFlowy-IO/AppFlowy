@@ -1,11 +1,10 @@
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'field_service.dart';
 import 'type_option/type_option_context.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
 import 'type_option/type_option_data_controller.dart';
 
 part 'field_editor_bloc.freezed.dart';
@@ -14,13 +13,13 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   final TypeOptionDataController dataController;
 
   FieldEditorBloc({
-    required String gridId,
+    required String databaseId,
     required String fieldName,
     required bool isGroupField,
     required IFieldTypeOptionLoader loader,
   })  : dataController =
-            TypeOptionDataController(gridId: gridId, loader: loader),
-        super(FieldEditorState.initial(gridId, fieldName, isGroupField)) {
+            TypeOptionDataController(databaseId: databaseId, loader: loader),
+        super(FieldEditorState.initial(databaseId, fieldName, isGroupField)) {
     on<FieldEditorEvent>(
       (event, emit) async {
         await event.when(
@@ -50,7 +49,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
               () => null,
               (field) {
                 final fieldService = FieldService(
-                  gridId: gridId,
+                  databaseId: databaseId,
                   fieldId: field.id,
                 );
                 fieldService.deleteField();
@@ -85,7 +84,7 @@ class FieldEditorEvent with _$FieldEditorEvent {
 @freezed
 class FieldEditorState with _$FieldEditorState {
   const factory FieldEditorState({
-    required String gridId,
+    required String databaseId,
     required String errorText,
     required String name,
     required Option<FieldPB> field,
@@ -94,12 +93,12 @@ class FieldEditorState with _$FieldEditorState {
   }) = _FieldEditorState;
 
   factory FieldEditorState.initial(
-    String gridId,
+    String databaseId,
     String fieldName,
     bool isGroupField,
   ) =>
       FieldEditorState(
-        gridId: gridId,
+        databaseId: databaseId,
         errorText: '',
         field: none(),
         canDelete: false,

@@ -13,7 +13,7 @@ use crate::{
     errors::FlowyError,
     services::{TrashController, ViewController},
 };
-use folder_rev_model::TrashRevision;
+use folder_model::TrashRevision;
 use lib_dispatch::prelude::{data_result, AFPluginData, AFPluginState, DataResult};
 use std::{convert::TryInto, sync::Arc};
 
@@ -62,7 +62,7 @@ pub(crate) async fn delete_view_handler(
 ) -> Result<(), FlowyError> {
     let params: RepeatedViewIdPB = data.into_inner();
     for view_id in &params.items {
-        let _ = view_controller.move_view_to_trash(view_id.into()).await;
+        let _ = view_controller.move_view_to_trash(view_id).await;
     }
 
     let trash = view_controller

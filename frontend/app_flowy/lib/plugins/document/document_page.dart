@@ -1,7 +1,9 @@
+import 'package:app_flowy/plugins/document/presentation/plugins/board/board_menu_item.dart';
+import 'package:app_flowy/plugins/document/presentation/plugins/board/board_node_widget.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -97,7 +99,6 @@ class _DocumentPageState extends State<DocumentPage> {
 
   Widget _renderAppFlowyEditor(EditorState editorState) {
     final theme = Theme.of(context);
-    final editorMaxWidth = MediaQuery.of(context).size.width * 0.6;
     final editor = AppFlowyEditor(
       editorState: editorState,
       autoFocus: editorState.document.isEmpty,
@@ -108,6 +109,10 @@ class _DocumentPageState extends State<DocumentPage> {
         kMathEquationType: MathEquationNodeWidgetBuidler(),
         // Code Block
         kCodeBlockType: CodeBlockNodeWidgetBuilder(),
+        // Board
+        kBoardType: BoardNodeWidgetBuilder(),
+        // Card
+        kCalloutType: CalloutNodeWidgetBuilder(),
       },
       shortcutEvents: [
         // Divider
@@ -126,6 +131,8 @@ class _DocumentPageState extends State<DocumentPage> {
         codeBlockMenuItem,
         // Emoji
         emojiMenuItem,
+        // Board
+        boardMenuItem,
       ],
       themeData: theme.copyWith(extensions: [
         ...theme.extensions.values,
@@ -136,8 +143,8 @@ class _DocumentPageState extends State<DocumentPage> {
     return Expanded(
       child: Center(
         child: Container(
-          constraints: BoxConstraints(
-            maxWidth: editorMaxWidth,
+          constraints: const BoxConstraints(
+            maxWidth: double.infinity,
           ),
           child: editor,
         ),

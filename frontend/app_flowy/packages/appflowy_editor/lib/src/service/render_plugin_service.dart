@@ -74,12 +74,15 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
         node.subtype == null ? node.type : '${node.type}/${node.subtype!}';
     final builder = _builders[name];
     if (builder != null && builder.nodeValidator(node)) {
-      final key = GlobalKey(debugLabel: name);
-      node.key = key;
       return _autoUpdateNodeWidget(builder, context);
     } else {
       // Returns a SizeBox with 0 height if no builder found.
-      return const SizedBox(
+      assert(
+        false,
+        'No builder found for node(${node.id}, attributes(${node.attributes})})',
+      );
+      return SizedBox(
+        key: node.key,
         height: 0,
       );
     }

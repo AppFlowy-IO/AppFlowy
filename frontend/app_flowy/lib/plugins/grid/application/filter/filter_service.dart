@@ -2,26 +2,26 @@ import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/checkbox_filter.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/checklist_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/date_filter.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/grid_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/number_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/select_option_filter.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/setting_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/text_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/util.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/checkbox_filter.pbserver.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/checklist_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/date_filter.pbserver.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/grid_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/number_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/select_option_filter.pbserver.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/text_filter.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/util.pb.dart';
 import 'package:fixnum/fixnum.dart' as $fixnum;
 
 class FilterFFIService {
-  final String viewId;
-  const FilterFFIService({required this.viewId});
+  final String databaseId;
+  const FilterFFIService({required this.databaseId});
 
   Future<Either<List<FilterPB>, FlowyError>> getAllFilters() {
-    final payload = GridIdPB()..value = viewId;
+    final payload = DatabaseIdPB()..value = databaseId;
 
-    return GridEventGetAllFilters(payload).send().then((result) {
+    return DatabaseEventGetAllFilters(payload).send().then((result) {
       return result.fold(
         (repeated) => left(repeated.items),
         (r) => right(r),
@@ -171,17 +171,17 @@ class FilterFFIService {
     var insertFilterPayload = AlterFilterPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType
-      ..viewId = viewId
+      ..viewId = databaseId
       ..data = data;
 
     if (filterId != null) {
       insertFilterPayload.filterId = filterId;
     }
 
-    final payload = GridSettingChangesetPB.create()
-      ..gridId = viewId
+    final payload = DatabaseSettingChangesetPB.create()
+      ..databaseId = databaseId
       ..alterFilter = insertFilterPayload;
-    return GridEventUpdateGridSetting(payload).send().then((result) {
+    return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
         (err) {
@@ -200,14 +200,14 @@ class FilterFFIService {
     final deleteFilterPayload = DeleteFilterPayloadPB.create()
       ..fieldId = fieldId
       ..filterId = filterId
-      ..viewId = viewId
+      ..viewId = databaseId
       ..fieldType = fieldType;
 
-    final payload = GridSettingChangesetPB.create()
-      ..gridId = viewId
+    final payload = DatabaseSettingChangesetPB.create()
+      ..databaseId = databaseId
       ..deleteFilter = deleteFilterPayload;
 
-    return GridEventUpdateGridSetting(payload).send().then((result) {
+    return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
         (err) {

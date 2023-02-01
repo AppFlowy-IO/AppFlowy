@@ -6,7 +6,7 @@ pub mod services;
 mod macros;
 
 #[macro_use]
-extern crate flowy_database;
+extern crate flowy_sqlite;
 
 pub mod manager;
 mod notification;

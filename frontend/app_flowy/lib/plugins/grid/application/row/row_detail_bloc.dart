@@ -27,7 +27,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
           },
           deleteField: (_DeleteField value) {
             final fieldService = FieldService(
-              gridId: dataController.rowInfo.gridId,
+              databaseId: dataController.rowInfo.databaseId,
               fieldId: value.fieldId,
             );
             fieldService.deleteField();

@@ -1,7 +1,7 @@
 import 'package:app_flowy/plugins/board/application/board_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_editor_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'util.dart';
 
@@ -30,12 +30,12 @@ void main() {
 
     final fieldInfo = context.singleSelectFieldContext();
     final loader = FieldTypeOptionLoader(
-      gridId: context.gridView.id,
+      databaseId: context.gridView.id,
       field: fieldInfo.field,
     );
 
     final editorBloc = FieldEditorBloc(
-      gridId: context.gridView.id,
+      databaseId: context.gridView.id,
       fieldName: fieldInfo.name,
       isGroupField: fieldInfo.isGroupField,
       loader: loader,

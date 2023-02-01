@@ -2,10 +2,10 @@ import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/grid_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/setting_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/sort_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/grid_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/sort_entities.pb.dart';
 
 class SortFFIService {
   final String viewId;
@@ -13,9 +13,9 @@ class SortFFIService {
   SortFFIService({required this.viewId});
 
   Future<Either<List<SortPB>, FlowyError>> getAllSorts() {
-    final payload = GridIdPB()..value = viewId;
+    final payload = DatabaseIdPB()..value = viewId;
 
-    return GridEventGetAllSorts(payload).send().then((result) {
+    return DatabaseEventGetAllSorts(payload).send().then((result) {
       return result.fold(
         (repeated) => left(repeated.items),
         (r) => right(r),
@@ -27,7 +27,7 @@ class SortFFIService {
     required String fieldId,
     required String sortId,
     required FieldType fieldType,
-    required GridSortConditionPB condition,
+    required SortConditionPB condition,
   }) {
     var insertSortPayload = AlterSortPayloadPB.create()
       ..fieldId = fieldId
@@ -36,10 +36,10 @@ class SortFFIService {
       ..condition = condition
       ..sortId = sortId;
 
-    final payload = GridSettingChangesetPB.create()
-      ..gridId = viewId
+    final payload = DatabaseSettingChangesetPB.create()
+      ..databaseId = viewId
       ..alterSort = insertSortPayload;
-    return GridEventUpdateGridSetting(payload).send().then((result) {
+    return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
         (err) {
@@ -53,7 +53,7 @@ class SortFFIService {
   Future<Either<Unit, FlowyError>> insertSort({
     required String fieldId,
     required FieldType fieldType,
-    required GridSortConditionPB condition,
+    required SortConditionPB condition,
   }) {
     var insertSortPayload = AlterSortPayloadPB.create()
       ..fieldId = fieldId
@@ -61,10 +61,10 @@ class SortFFIService {
       ..viewId = viewId
       ..condition = condition;
 
-    final payload = GridSettingChangesetPB.create()
-      ..gridId = viewId
+    final payload = DatabaseSettingChangesetPB.create()
+      ..databaseId = viewId
       ..alterSort = insertSortPayload;
-    return GridEventUpdateGridSetting(payload).send().then((result) {
+    return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
         (err) {
@@ -86,11 +86,11 @@ class SortFFIService {
       ..viewId = viewId
       ..fieldType = fieldType;
 
-    final payload = GridSettingChangesetPB.create()
-      ..gridId = viewId
+    final payload = DatabaseSettingChangesetPB.create()
+      ..databaseId = viewId
       ..deleteSort = deleteFilterPayload;
 
-    return GridEventUpdateGridSetting(payload).send().then((result) {
+    return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
         (err) {
@@ -102,8 +102,8 @@ class SortFFIService {
   }
 
   Future<Either<Unit, FlowyError>> deleteAllSorts() {
-    final payload = GridIdPB(value: viewId);
-    return GridEventDeleteAllSorts(payload).send().then((result) {
+    final payload = DatabaseIdPB(value: viewId);
+    return DatabaseEventDeleteAllSorts(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
         (err) {

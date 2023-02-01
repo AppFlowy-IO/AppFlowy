@@ -10,7 +10,7 @@ import 'package:equatable/equatable.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -28,10 +28,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   GridFieldController get fieldController =>
       _gridDataController.fieldController;
-  String get gridId => _gridDataController.gridId;
+  String get databaseId => _gridDataController.viewId;
 
   BoardBloc({required ViewPB view})
-      : _rowService = MoveRowFFIService(gridId: view.id),
+      : _rowService = MoveRowFFIService(viewId: view.id),
         _gridDataController = BoardDataController(view: view),
         super(BoardState.initial(view.id)) {
     boardController = AppFlowyBoardController(
@@ -116,7 +116,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               emit(state.copyWith(editingRow: none()));
             });
           },
-          didReceiveGridUpdate: (GridPB grid) {
+          didReceiveGridUpdate: (DatabasePB grid) {
             emit(state.copyWith(grid: Some(grid)));
           },
           didReceiveError: (FlowyError error) {
@@ -218,7 +218,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         },
       );
       final controller = GroupController(
-        gridId: state.gridId,
+        databaseId: state.databaseId,
         group: group,
         delegate: delegate,
       );
@@ -313,7 +313,7 @@ class BoardEvent with _$BoardEvent {
   const factory BoardEvent.endEditingRow(String rowId) = _EndEditRow;
   const factory BoardEvent.didReceiveError(FlowyError error) = _DidReceiveError;
   const factory BoardEvent.didReceiveGridUpdate(
-    GridPB grid,
+    DatabasePB grid,
   ) = _DidReceiveGridUpdate;
   const factory BoardEvent.didReceiveGroups(List<GroupPB> groups) =
       _DidReceiveGroups;
@@ -322,17 +322,17 @@ class BoardEvent with _$BoardEvent {
 @freezed
 class BoardState with _$BoardState {
   const factory BoardState({
-    required String gridId,
-    required Option<GridPB> grid,
+    required String databaseId,
+    required Option<DatabasePB> grid,
     required List<String> groupIds,
     required Option<BoardEditingRow> editingRow,
     required GridLoadingState loadingState,
     required Option<FlowyError> noneOrError,
   }) = _BoardState;
 
-  factory BoardState.initial(String gridId) => BoardState(
+  factory BoardState.initial(String databaseId) => BoardState(
         grid: none(),
-        gridId: gridId,
+        databaseId: databaseId,
         groupIds: [],
         editingRow: none(),
         noneOrError: none(),

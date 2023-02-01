@@ -2,10 +2,10 @@ use crate::{RevisionCompactor, RevisionHistory};
 use async_stream::stream;
 
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_http_model::revision::Revision;
 use futures_util::future::BoxFuture;
 use futures_util::stream::StreamExt;
 use futures_util::FutureExt;
+use revision_model::Revision;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::{mpsc, RwLock};

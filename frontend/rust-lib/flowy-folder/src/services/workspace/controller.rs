@@ -9,8 +9,8 @@ use crate::{
         read_local_workspace_apps, TrashController,
     },
 };
-use flowy_database::kv::KV;
-use folder_rev_model::{AppRevision, WorkspaceRevision};
+use flowy_sqlite::kv::KV;
+use folder_model::{AppRevision, WorkspaceRevision};
 use std::sync::Arc;
 
 pub struct WorkspaceController {

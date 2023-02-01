@@ -1,8 +1,10 @@
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/util.dart';
+import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/left_bar_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:app_flowy/startup/plugin/plugin.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import 'presentation/board_page.dart';
@@ -18,7 +20,7 @@ class BoardPluginBuilder implements PluginBuilder {
   }
 
   @override
-  String get menuName => "Board";
+  String get menuName => LocaleKeys.board_menuName.tr();
 
   @override
   String get menuIcon => "editor/board";

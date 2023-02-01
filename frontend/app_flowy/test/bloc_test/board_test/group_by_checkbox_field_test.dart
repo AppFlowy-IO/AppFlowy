@@ -1,6 +1,6 @@
 import 'package:app_flowy/plugins/board/application/board_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/setting/group_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'util.dart';

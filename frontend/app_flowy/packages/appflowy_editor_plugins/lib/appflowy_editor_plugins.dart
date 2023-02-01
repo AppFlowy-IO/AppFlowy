@@ -1,5 +1,7 @@
 library appflowy_editor_plugins;
 
+// Callout
+export 'src/callout/callout_node_widget.dart';
 // Code Block
 export 'src/code_block/code_block_node_widget.dart';
 export 'src/code_block/code_block_shortcut_event.dart';

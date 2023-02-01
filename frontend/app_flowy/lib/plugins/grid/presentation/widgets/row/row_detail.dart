@@ -12,7 +12,7 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -66,7 +66,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
               Expanded(
                 child: _PropertyList(
                   cellBuilder: widget.cellBuilder,
-                  viewId: widget.dataController.rowInfo.gridId,
+                  viewId: widget.dataController.rowInfo.databaseId,
                 ),
               ),
             ],
@@ -205,8 +205,8 @@ class _CreateFieldButtonState extends State<_CreateFieldButton> {
       ),
       popupBuilder: (BuildContext popOverContext) {
         return FieldEditor(
-          gridId: widget.viewId,
-          typeOptionLoader: NewFieldTypeOptionLoader(gridId: widget.viewId),
+          databaseId: widget.viewId,
+          typeOptionLoader: NewFieldTypeOptionLoader(databaseId: widget.viewId),
           onDeleted: (fieldId) {
             popoverController.close();
 
@@ -296,11 +296,11 @@ class _RowDetailCellState extends State<_RowDetailCell> {
 
   Widget buildFieldEditor() {
     return FieldEditor(
-      gridId: widget.cellId.gridId,
+      databaseId: widget.cellId.databaseId,
       fieldName: widget.cellId.fieldInfo.field.name,
       isGroupField: widget.cellId.fieldInfo.isGroupField,
       typeOptionLoader: FieldTypeOptionLoader(
-        gridId: widget.cellId.gridId,
+        databaseId: widget.cellId.databaseId,
         field: widget.cellId.fieldInfo.field,
       ),
       onDeleted: (fieldId) {
