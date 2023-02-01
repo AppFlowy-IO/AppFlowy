@@ -9,7 +9,7 @@ EditorStyle customEditorTheme(BuildContext context) {
       ? EditorStyle.dark
       : EditorStyle.light;
   editorStyle = editorStyle.copyWith(
-    padding: const EdgeInsets.symmetric(horizontal: 40),
+    padding: const EdgeInsets.symmetric(horizontal: 100),
     textStyle: editorStyle.textStyle?.copyWith(
       fontFamily: 'poppins',
       fontSize: documentStyle.fontSize,

@@ -6,24 +6,24 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
 
-SelectionMenuItem boardMenuItem = SelectionMenuItem(
-  name: () => LocaleKeys.board_menuName.tr(),
+SelectionMenuItem gridMenuItem = SelectionMenuItem(
+  name: () => LocaleKeys.grid_menuName.tr(),
   icon: (editorState, onSelected) {
     return svgWidget(
-      'editor/board',
+      'editor/grid',
       size: const Size.square(18.0),
       color: onSelected
           ? editorState.editorStyle.selectionMenuItemSelectedIconColor
           : editorState.editorStyle.selectionMenuItemIconColor,
     );
   },
-  keywords: ['board', 'kanban'],
+  keywords: ['grid'],
   handler: (editorState, menuService, context) {
     showLinkToPageMenu(
       editorState,
       menuService,
       context,
-      ViewLayoutTypePB.Board,
+      ViewLayoutTypePB.Grid,
     );
   },
 );
