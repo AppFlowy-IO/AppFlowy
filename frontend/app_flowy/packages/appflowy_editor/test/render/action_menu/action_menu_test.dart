@@ -1,4 +1,5 @@
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/render/action_menu/action_menu.dart';
+import 'package:appflowy_editor/src/render/action_menu/action_menu_item.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
