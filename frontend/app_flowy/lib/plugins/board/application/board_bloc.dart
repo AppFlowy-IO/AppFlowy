@@ -245,11 +245,21 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       },
       onDeletedGroup: (groupIds) {
         if (isClosed) return;
-        //
+        boardController.removeGroups(groupIds);
       },
-      onInsertedGroup: (insertedGroups) {
+      onInsertedGroup: (insertedGroup) {
         if (isClosed) return;
-        //
+        final group = insertedGroup.group;
+        final newGroup = AppFlowyGroupData(
+          id: group.groupId,
+          name: group.desc,
+          items: _buildGroupItems(group),
+          customData: GroupData(
+            group: group,
+            fieldInfo: fieldController.getField(group.fieldId)!,
+          ),
+        );
+        boardController.addGroup(newGroup);
       },
       onUpdatedGroup: (updatedGroups) {
         if (isClosed) return;

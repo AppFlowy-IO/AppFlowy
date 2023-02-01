@@ -142,6 +142,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
               return URLEditorPopover(
                 cellController: widget.cellControllerBuilder.build()
                     as GridURLCellController,
+                onExit: () => _popoverController.close(),
               );
             },
             onClose: () {
@@ -219,6 +220,7 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
         return URLEditorPopover(
           cellController:
               widget.cellControllerBuilder.build() as GridURLCellController,
+          onExit: () => _popoverController.close(),
         );
       },
     );

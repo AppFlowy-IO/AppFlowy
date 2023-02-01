@@ -46,7 +46,7 @@ class BoardListener {
       case DatabaseNotification.DidGroupByNewField:
         result.fold(
           (payload) => _groupByNewFieldNotifier?.value =
-              left(GroupViewChangesetPB.fromBuffer(payload).newGroups),
+              left(GroupViewChangesetPB.fromBuffer(payload).initialGroups),
           (error) => _groupByNewFieldNotifier?.value = right(error),
         );
         break;

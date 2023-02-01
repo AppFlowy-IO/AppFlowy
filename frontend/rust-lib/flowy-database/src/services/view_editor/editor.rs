@@ -254,15 +254,30 @@ impl DatabaseViewRevisionEditor {
         }
     }
 
-    pub async fn did_update_view_cell(&self, row_rev: &RowRevision) {
-        let changesets = self
+    pub async fn did_update_view_row(&self, old_row_rev: Option<Arc<RowRevision>>, row_rev: &RowRevision) {
+        let result = self
             .mut_group_controller(|group_controller, field_rev| {
-                group_controller.did_update_group_row(row_rev, &field_rev)
+                group_controller.did_update_group_row(&old_row_rev, row_rev, &field_rev)
             })
             .await;
 
-        if let Some(changesets) = changesets {
-            for changeset in changesets {
+        if let Some(result) = result {
+            let mut changeset = GroupViewChangesetPB {
+                view_id: self.view_id.clone(),
+                ..Default::default()
+            };
+            if let Some(inserted_group) = result.inserted_group {
+                tracing::info!("Create group after editing the row: {:?}", inserted_group);
+                changeset.inserted_groups.push(inserted_group);
+            }
+            if let Some(delete_group) = result.deleted_group {
+                tracing::info!("Delete group after editing the row: {:?}", delete_group);
+                changeset.deleted_groups.push(delete_group.group_id);
+            }
+            self.notify_did_update_view(changeset).await;
+
+            tracing::info!("Group changesets after editing the row: {:?}", result.changesets);
+            for changeset in result.changesets {
                 self.notify_did_update_group_rows(changeset).await;
             }
         }
@@ -334,7 +349,7 @@ impl DatabaseViewRevisionEditor {
                     inserted_groups: vec![inserted_group],
                     deleted_groups: vec![params.from_group_id.clone()],
                     update_groups: vec![],
-                    new_groups: vec![],
+                    initial_groups: vec![],
                 };
 
                 self.notify_did_update_view(changeset).await;
@@ -610,7 +625,7 @@ impl DatabaseViewRevisionEditor {
             *self.group_controller.write().await = new_group_controller;
             let changeset = GroupViewChangesetPB {
                 view_id: self.view_id.clone(),
-                new_groups,
+                initial_groups: new_groups,
                 ..Default::default()
             };
 

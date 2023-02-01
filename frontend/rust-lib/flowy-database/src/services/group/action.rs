@@ -1,4 +1,4 @@
-use crate::entities::{GroupRowsNotificationPB, GroupViewChangesetPB};
+use crate::entities::{GroupPB, GroupRowsNotificationPB, GroupViewChangesetPB, InsertedGroupPB};
 use crate::services::cell::DecodedCellData;
 use crate::services::group::controller::MoveGroupRowContext;
 use crate::services::group::Group;
@@ -10,42 +10,52 @@ use std::sync::Arc;
 ///
 /// For example, the `CheckboxGroupController` implements this trait to provide custom behavior.
 ///
-pub trait GroupControllerCustomActions: Send + Sync {
-    type CellDataType: DecodedCellData;
-    /// Returns the a value of the cell, default value is None
+pub trait GroupCustomize: Send + Sync {
+    type CellData: DecodedCellData;
+    /// Returns the a value of the cell if the cell data is not exist.
+    /// The default value is `None`
     ///
     /// Determine which group the row is placed in based on the data of the cell. If the cell data
     /// is None. The row will be put in to the `No status` group  
     ///
-    fn default_cell_rev(&self) -> Option<CellRevision> {
+    fn placeholder_cell(&self) -> Option<CellRevision> {
         None
     }
 
     /// Returns a bool value to determine whether the group should contain this cell or not.
-    fn can_group(&self, content: &str, cell_data: &Self::CellDataType) -> bool;
+    fn can_group(&self, content: &str, cell_data: &Self::CellData) -> bool;
+
+    fn create_or_delete_group_when_cell_changed(
+        &mut self,
+        _row_rev: &RowRevision,
+        _old_cell_data: Option<&Self::CellData>,
+        _cell_data: &Self::CellData,
+    ) -> FlowyResult<(Option<InsertedGroupPB>, Option<GroupPB>)> {
+        Ok((None, None))
+    }
 
     /// Adds or removes a row if the cell data match the group filter.
     /// It gets called after editing the cell or row
     ///
-    fn add_or_remove_row_in_groups_if_match(
+    fn add_or_remove_row_when_cell_changed(
         &mut self,
         row_rev: &RowRevision,
-        cell_data: &Self::CellDataType,
+        cell_data: &Self::CellData,
     ) -> Vec<GroupRowsNotificationPB>;
 
     /// Deletes the row from the group
-    fn delete_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupRowsNotificationPB>;
+    fn remove_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB>;
 
     /// Move row from one group to another
-    fn move_row(
-        &mut self,
-        cell_data: &Self::CellDataType,
-        context: MoveGroupRowContext,
-    ) -> Vec<GroupRowsNotificationPB>;
+    fn move_row(&mut self, cell_data: &Self::CellData, context: MoveGroupRowContext) -> Vec<GroupRowsNotificationPB>;
+
+    fn delete_group_after_move_row(&mut self, _row_rev: &RowRevision, _cell_data: &Self::CellData) -> Option<GroupPB> {
+        None
+    }
 }
 
 /// Defines the shared actions any group controller can perform.
-pub trait GroupControllerSharedActions: Send + Sync {
+pub trait GroupControllerActions: Send + Sync {
     /// The field that is used for grouping the rows
     fn field_id(&self) -> &str;
 
@@ -64,9 +74,10 @@ pub trait GroupControllerSharedActions: Send + Sync {
     /// Insert/Remove the row to the group if the corresponding cell data is changed
     fn did_update_group_row(
         &mut self,
+        old_row_rev: &Option<Arc<RowRevision>>,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupRowsNotificationPB>>;
+    ) -> FlowyResult<GroupChangesetByRowChanged>;
 
     /// Remove the row from the group if the row gets deleted
     fn did_delete_delete_row(
@@ -80,4 +91,11 @@ pub trait GroupControllerSharedActions: Send + Sync {
 
     /// Update the group if the corresponding field is changed
     fn did_update_group_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>>;
+}
+
+#[derive(Debug)]
+pub struct GroupChangesetByRowChanged {
+    pub(crate) inserted_group: Option<InsertedGroupPB>,
+    pub(crate) deleted_group: Option<GroupPB>,
+    pub(crate) changesets: Vec<GroupRowsNotificationPB>,
 }

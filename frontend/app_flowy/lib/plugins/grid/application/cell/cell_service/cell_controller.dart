@@ -270,7 +270,7 @@ class GridCellController<T, D> extends Equatable {
   /// You can set [deduplicate] to true (default is false) to reduce the save operation.
   /// It's useful when you call this method when user editing the [TextField].
   /// The default debounce interval is 300 milliseconds.
-  void saveCellData(
+  Future<void> saveCellData(
     D data, {
     bool deduplicate = false,
     void Function(Option<FlowyError>)? onFinish,

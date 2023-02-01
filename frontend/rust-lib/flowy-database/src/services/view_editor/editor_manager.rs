@@ -88,14 +88,14 @@ impl DatabaseViewManager {
     }
 
     /// Insert/Delete the group's row if the corresponding cell data was changed.  
-    pub async fn did_update_cell(&self, row_id: &str) {
+    pub async fn did_update_row(&self, old_row_rev: Option<Arc<RowRevision>>, row_id: &str) {
         match self.delegate.get_row_rev(row_id).await {
             None => {
                 tracing::warn!("Can not find the row in grid view");
             }
             Some((_, row_rev)) => {
                 for view_editor in self.view_editors.read().await.values() {
-                    view_editor.did_update_view_cell(&row_rev).await;
+                    view_editor.did_update_view_row(old_row_rev.clone(), &row_rev).await;
                 }
             }
         }
