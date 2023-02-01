@@ -112,14 +112,7 @@ class _BoardWidgetState extends State<_BoardWidget> with SelectableMixin {
                 },
               ),
             ),
-            BoardPage(
-              key: ValueKey(viewPB.id),
-              view: viewPB,
-              onEditStateChanged: () {
-                /// Clear selection when the edit state changes, otherwise the editor will prevent the keyboard event when the board is in edit mode.
-                widget.editorState.service.selectionService.clearSelection();
-              },
-            ),
+            BoardPage(key: ValueKey(viewPB.id), view: viewPB),
           ],
         ),
       ),

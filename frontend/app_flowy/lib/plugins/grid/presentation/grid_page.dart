@@ -35,16 +35,12 @@ class GridPage extends StatefulWidget {
     required this.view,
     this.onDeleted,
     Key? key,
-    this.onEditStateChanged,
   })  : gridController = GridController(view: view),
         super(key: key);
 
   final ViewPB view;
   final GridController gridController;
   final VoidCallback? onDeleted;
-
-  /// Called when edit state changed
-  final VoidCallback? onEditStateChanged;
 
   @override
   State<GridPage> createState() => _GridPageState();

@@ -5,12 +5,17 @@ import 'package:app_flowy/workspace/application/app/app_service.dart';
 import 'package:app_flowy/workspace/application/view/view_ext.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
+import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' as dartz;
-import 'package:flowy_infra_ui/style_widget/button.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/image.dart';
 
 const String kGridType = 'grid';
 
@@ -45,8 +50,8 @@ class _GridWidget extends StatefulWidget {
   State<_GridWidget> createState() => _GridWidgetState();
 }
 
-class _GridWidgetState extends State<_GridWidget> with SelectableMixin {
-  RenderBox get _renderBox => context.findRenderObject() as RenderBox;
+class _GridWidgetState extends State<_GridWidget> {
+  final focusNode = FocusNode();
 
   String get gridID {
     return widget.node.attributes[kViewID];
@@ -63,7 +68,7 @@ class _GridWidgetState extends State<_GridWidget> with SelectableMixin {
         if (snapshot.hasData) {
           final board = snapshot.data?.getLeftOrNull<ViewPB>();
           if (board != null) {
-            return _buildGrid(context, board);
+            return _build(context, board);
           }
         }
         return const Center(
@@ -74,12 +79,16 @@ class _GridWidgetState extends State<_GridWidget> with SelectableMixin {
     );
   }
 
-  Widget _buildGrid(BuildContext context, ViewPB viewPB) {
+  @override
+  void dispose() {
+    focusNode.dispose();
+    super.dispose();
+  }
+
+  Widget _build(BuildContext context, ViewPB viewPB) {
     return MouseRegion(
-      onHover: (event) {
-        if (widget.node.isSelected(widget.editorState)) {
-          widget.editorState.service.scrollService?.disable();
-        }
+      onEnter: (event) {
+        widget.editorState.service.scrollService?.disable();
       },
       onExit: (event) {
         widget.editorState.service.scrollService?.enable();
@@ -88,74 +97,86 @@ class _GridWidgetState extends State<_GridWidget> with SelectableMixin {
         height: 400,
         child: Stack(
           children: [
-            Positioned(
-              top: 0,
-              left: 20,
-              child: FlowyTextButton(
-                viewPB.name,
-                onPressed: () {
-                  getIt<MenuSharedState>().latestOpenView = viewPB;
-                  getIt<HomeStackManager>().setPlugin(viewPB.plugin());
-                },
-              ),
-            ),
-            GridPage(
-              key: ValueKey(viewPB.id),
-              view: viewPB,
-              onEditStateChanged: () {
-                /// Clear selection when the edit state changes, otherwise the editor will prevent the keyboard event when the board is in edit mode.
-                widget.editorState.service.selectionService.clearSelection();
-              },
-            ),
+            _buildMenu(context, viewPB),
+            _buildGrid(context, viewPB),
           ],
         ),
       ),
     );
   }
 
-  @override
-  bool get shouldCursorBlink => false;
-
-  @override
-  CursorStyle get cursorStyle => CursorStyle.borderLine;
-
-  @override
-  Position start() {
-    return Position(path: widget.node.path, offset: 0);
-  }
-
-  @override
-  Position end() {
-    return Position(path: widget.node.path, offset: 0);
-  }
-
-  @override
-  Position getPositionInOffset(Offset start) {
-    return end();
-  }
-
-  @override
-  List<Rect> getRectsInSelection(Selection selection) {
-    return [Offset.zero & _renderBox.size];
-  }
-
-  @override
-  Rect? getCursorRectInPosition(Position position) {
-    final size = _renderBox.size;
-    return Rect.fromLTWH(-size.width / 2.0, 0, size.width, size.height);
-  }
-
-  @override
-  Selection getSelectionInRange(Offset start, Offset end) {
-    return Selection.single(
-      path: widget.node.path,
-      startOffset: 0,
-      endOffset: 0,
+  Widget _buildGrid(BuildContext context, ViewPB viewPB) {
+    return Focus(
+      focusNode: focusNode,
+      onFocusChange: (value) {
+        if (value) {
+          widget.editorState.service.selectionService.clearSelection();
+        }
+      },
+      child: GridPage(
+        key: ValueKey(viewPB.id),
+        view: viewPB,
+      ),
     );
   }
 
+  Widget _buildMenu(BuildContext context, ViewPB viewPB) {
+    return Positioned(
+      top: 5,
+      left: 5,
+      child: PopoverActionList<_ActionWrapper>(
+        direction: PopoverDirection.bottomWithCenterAligned,
+        actions:
+            _ActionType.values.map((action) => _ActionWrapper(action)).toList(),
+        buildChild: (controller) {
+          return FlowyIconButton(
+            tooltipText: LocaleKeys.tooltip_openMenu.tr(),
+            width: 20,
+            height: 30,
+            iconPadding: const EdgeInsets.all(3),
+            icon: svgWidget('editor/details'),
+            onPressed: () => controller.show(),
+          );
+        },
+        onSelected: (action, controller) async {
+          switch (action.inner) {
+            case _ActionType.openAsPage:
+              getIt<MenuSharedState>().latestOpenView = viewPB;
+              getIt<HomeStackManager>().setPlugin(viewPB.plugin());
+
+              break;
+            case _ActionType.delete:
+              final transaction = widget.editorState.transaction;
+              transaction.deleteNode(widget.node);
+              widget.editorState.apply(transaction);
+              break;
+          }
+          controller.close();
+        },
+      ),
+    );
+  }
+}
+
+enum _ActionType {
+  openAsPage,
+  delete,
+}
+
+class _ActionWrapper extends ActionCell {
+  final _ActionType inner;
+
+  _ActionWrapper(this.inner);
+
+  Widget? icon(Color iconColor) => null;
+
   @override
-  Offset localToGlobal(Offset offset) {
-    return _renderBox.localToGlobal(offset);
+  String get name {
+    switch (inner) {
+      case _ActionType.openAsPage:
+        return LocaleKeys.tooltip_openAsPage.tr();
+      case _ActionType.delete:
+        return LocaleKeys.disclosureAction_delete.tr();
+    }
   }
 }
