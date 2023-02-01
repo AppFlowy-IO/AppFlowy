@@ -139,8 +139,12 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget>
       widget.src,
       width: _imageWidth == null ? null : _imageWidth! - _distance,
       gaplessPlayback: true,
-      loadingBuilder: (context, child, loadingProgress) =>
-          loadingProgress == null ? child : _buildLoading(context),
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null ||
+            loadingProgress.cumulativeBytesLoaded ==
+                loadingProgress.expectedTotalBytes) return child;
+        return _buildLoading(context);
+      },
       errorBuilder: (context, error, stackTrace) {
         // _imageWidth ??= defaultMaxTextNodeWidth;
         return _buildError(context);

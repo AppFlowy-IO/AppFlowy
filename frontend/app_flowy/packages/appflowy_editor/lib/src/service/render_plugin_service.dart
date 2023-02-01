@@ -31,6 +31,9 @@ abstract class AppFlowyRenderPluginService {
   /// UnRegister plugin with specified [name].
   void unRegister(String name);
 
+  /// Returns a [NodeWidgetBuilder], if one has been registered for [name]
+  NodeWidgetBuilder? getBuilder(String name);
+
   Widget buildPluginWidget(NodeWidgetContext context);
 }
 
@@ -110,6 +113,11 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
   void unRegister(String name) {
     _validatePlugin(name);
     _builders.remove(name);
+  }
+
+  @override
+  NodeWidgetBuilder? getBuilder(String name) {
+    return _builders[name];
   }
 
   Widget _autoUpdateNodeWidget(

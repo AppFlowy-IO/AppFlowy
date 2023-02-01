@@ -1,4 +1,3 @@
-import 'package:appflowy_editor/src/render/image/image_node_widget.dart';
 import 'package:appflowy_editor/src/service/editor_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,6 +21,7 @@ void main() async {
           ..insertImageNode(src)
           ..insertTextNode(text);
         await editor.startTesting();
+        await tester.pumpAndSettle();
 
         expect(editor.documentLength, 3);
         expect(find.byType(Image), findsOneWidget);
@@ -35,11 +35,12 @@ void main() async {
             'https://images.unsplash.com/photo-1471897488648-5eae4ac6686b?ixlib=rb-1.2.1&dl=sarah-dorweiler-QeVmJxZOv3k-unsplash.jpg&w=640&q=80&fm=jpg&crop=entropy&cs=tinysrgb';
         final editor = tester.editor
           ..insertTextNode(text)
-          ..insertImageNode(src, align: 'left')
-          ..insertImageNode(src, align: 'center')
-          ..insertImageNode(src, align: 'right')
+          ..insertImageNode(src, align: 'left', width: 100)
+          ..insertImageNode(src, align: 'center', width: 100)
+          ..insertImageNode(src, align: 'right', width: 100)
           ..insertTextNode(text);
         await editor.startTesting();
+        await tester.pumpAndSettle();
 
         expect(editor.documentLength, 5);
         final imageFinder = find.byType(Image);
@@ -60,20 +61,17 @@ void main() async {
         expect(leftImageRect.size, centerImageRect.size);
         expect(rightImageRect.size, centerImageRect.size);
 
-        final imageNodeWidgetFinder = find.byType(ImageNodeWidget);
+        final leftImageNode = editor.document.nodeAtPath([1]);
 
-        final leftImage =
-            tester.firstWidget(imageNodeWidgetFinder) as ImageNodeWidget;
-
-        leftImage.onAlign(Alignment.center);
-        await tester.pump(const Duration(milliseconds: 100));
+        expect(editor.runAction(1, leftImageNode!), true); // align center
+        await tester.pump();
         expect(
           tester.getRect(imageFinder.at(0)).left,
           centerImageRect.left,
         );
 
-        leftImage.onAlign(Alignment.centerRight);
-        await tester.pump(const Duration(milliseconds: 100));
+        expect(editor.runAction(2, leftImageNode), true); // align right
+        await tester.pump();
         expect(
           tester.getRect(imageFinder.at(0)).right,
           rightImageRect.right,
@@ -96,10 +94,10 @@ void main() async {
         final imageFinder = find.byType(Image);
         expect(imageFinder, findsOneWidget);
 
-        final imageNodeWidgetFinder = find.byType(ImageNodeWidget);
-        final image =
-            tester.firstWidget(imageNodeWidgetFinder) as ImageNodeWidget;
-        image.onCopy();
+        final imageNode = editor.document.nodeAtPath([1]);
+
+        expect(editor.runAction(3, imageNode!), true); // copy
+        await tester.pump();
       });
     });
 
@@ -119,10 +117,8 @@ void main() async {
         final imageFinder = find.byType(Image);
         expect(imageFinder, findsNWidgets(2));
 
-        final imageNodeWidgetFinder = find.byType(ImageNodeWidget);
-        final image =
-            tester.firstWidget(imageNodeWidgetFinder) as ImageNodeWidget;
-        image.onDelete();
+        final imageNode = editor.document.nodeAtPath([1]);
+        expect(editor.runAction(4, imageNode!), true); // delete
 
         await tester.pump(const Duration(milliseconds: 100));
         expect(editor.documentLength, 3);
