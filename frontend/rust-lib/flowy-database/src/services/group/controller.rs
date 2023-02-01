@@ -300,8 +300,8 @@ where
         if let Some(cell_rev) = cell_rev {
             let cell_bytes = get_type_cell_protobuf(cell_rev.type_cell_data, context.field_rev, None).1;
             let cell_data = cell_bytes.parser::<P>()?;
-            let notification = self.move_row(&cell_data, context);
             self.delete_group_after_move_row(&context.row_rev, &cell_data);
+            let notification = self.move_row(&cell_data, context);
             Ok(notification)
         } else {
             tracing::warn!("Unexpected moving group row, changes should not be empty");

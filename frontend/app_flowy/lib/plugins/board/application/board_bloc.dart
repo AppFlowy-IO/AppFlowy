@@ -186,43 +186,20 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     return super.close();
   }
 
-  void initializeGroups(List<GroupPB> groupsData) {
+  void initializeGroups(List<GroupPB> groups) {
     for (var controller in groupControllers.values) {
       controller.dispose();
     }
     groupControllers.clear();
     boardController.clear();
 
-    //
-    List<AppFlowyGroupData> groups = groupsData
+    boardController.addGroups(groups
         .where((group) => fieldController.getField(group.fieldId) != null)
-        .map((group) {
-      return AppFlowyGroupData(
-        id: group.groupId,
-        name: group.desc,
-        items: _buildGroupItems(group),
-        customData: GroupData(
-          group: group,
-          fieldInfo: fieldController.getField(group.fieldId)!,
-        ),
-      );
-    }).toList();
-    boardController.addGroups(groups);
+        .map((group) => initializeGroupData(group))
+        .toList());
 
-    for (final group in groupsData) {
-      final delegate = GroupControllerDelegateImpl(
-        controller: boardController,
-        fieldController: fieldController,
-        onNewColumnItem: (groupId, row, index) {
-          add(BoardEvent.didCreateRow(group, row, index));
-        },
-      );
-      final controller = GroupController(
-        databaseId: state.databaseId,
-        group: group,
-        delegate: delegate,
-      );
-      controller.startListening();
+    for (final group in groups) {
+      final controller = initializeGroupController(group);
       groupControllers[controller.group.groupId] = (controller);
     }
   }
@@ -250,15 +227,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       onInsertedGroup: (insertedGroup) {
         if (isClosed) return;
         final group = insertedGroup.group;
-        final newGroup = AppFlowyGroupData(
-          id: group.groupId,
-          name: group.desc,
-          items: _buildGroupItems(group),
-          customData: GroupData(
-            group: group,
-            fieldInfo: fieldController.getField(group.fieldId)!,
-          ),
-        );
+        final newGroup = initializeGroupData(group);
+        final controller = initializeGroupController(group);
+        groupControllers[controller.group.groupId] = (controller);
         boardController.addGroup(newGroup);
       },
       onUpdatedGroup: (updatedGroups) {
@@ -301,6 +272,35 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       ),
       (err) => emit(
         state.copyWith(loadingState: GridLoadingState.finish(right(err))),
+      ),
+    );
+  }
+
+  GroupController initializeGroupController(GroupPB group) {
+    final delegate = GroupControllerDelegateImpl(
+      controller: boardController,
+      fieldController: fieldController,
+      onNewColumnItem: (groupId, row, index) {
+        add(BoardEvent.didCreateRow(group, row, index));
+      },
+    );
+    final controller = GroupController(
+      databaseId: state.databaseId,
+      group: group,
+      delegate: delegate,
+    );
+    controller.startListening();
+    return controller;
+  }
+
+  AppFlowyGroupData initializeGroupData(GroupPB group) {
+    return AppFlowyGroupData(
+      id: group.groupId,
+      name: group.desc,
+      items: _buildGroupItems(group),
+      customData: GroupData(
+        group: group,
+        fieldInfo: fieldController.getField(group.fieldId)!,
       ),
     );
   }

@@ -162,6 +162,16 @@ where
         Ok(insert_group)
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
+    pub(crate) fn delete_group(&mut self, deleted_group_id: &str) -> FlowyResult<()> {
+        self.groups_map.remove(deleted_group_id);
+        self.mut_configuration(|configuration| {
+            configuration.groups.retain(|group| group.id != deleted_group_id);
+            true
+        })?;
+        Ok(())
+    }
+
     pub(crate) fn move_group(&mut self, from_id: &str, to_id: &str) -> FlowyResult<()> {
         let from_index = self.groups_map.get_index_of(from_id);
         let to_index = self.groups_map.get_index_of(to_id);

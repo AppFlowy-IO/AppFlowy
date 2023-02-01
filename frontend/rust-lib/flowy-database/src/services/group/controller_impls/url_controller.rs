@@ -36,27 +36,37 @@ impl GroupCustomize for URLGroupController {
         cell_data: &Self::CellData,
     ) -> FlowyResult<(Option<InsertedGroupPB>, Option<GroupPB>)> {
         // Just return if the group with this url already exists
-        if self.group_ctx.get_group(&cell_data.url).is_some() {
-            return Ok((None, None));
+        let mut inserted_group = None;
+        if self.group_ctx.get_group(&cell_data.url).is_none() {
+            let cell_data: URLCellData = cell_data.clone().into();
+            let group_revision = make_group_from_url_cell(&cell_data);
+            let mut new_group = self.group_ctx.add_new_group(group_revision)?;
+            new_group.group.rows.push(RowPB::from(row_rev));
+            inserted_group = Some(new_group);
         }
-
-        let cell_data: URLCellData = cell_data.clone().into();
-        let group_revision = make_group_from_url_cell(&cell_data);
-        let mut inserted_group = self.group_ctx.add_new_group(group_revision)?;
-        inserted_group.group.rows.push(RowPB::from(row_rev));
 
         // Delete the old url group if there are no rows in that group
-        match old_cell_data.and_then(|old_cell_data| self.group_ctx.get_group(&old_cell_data.content)) {
-            None => Ok((Some(inserted_group), None)),
-            Some((_, group)) => {
-                if group.rows.len() == 1 {
-                    let old_group = GroupPB::from(group.clone());
-                    Ok((Some(inserted_group), Some(old_group)))
-                } else {
-                    Ok((Some(inserted_group), None))
+        let deleted_group =
+            match old_cell_data.and_then(|old_cell_data| self.group_ctx.get_group(&old_cell_data.content)) {
+                None => None,
+                Some((_, group)) => {
+                    if group.rows.len() == 1 {
+                        Some(group.clone())
+                    } else {
+                        None
+                    }
                 }
+            };
+
+        let deleted_group = match deleted_group {
+            None => None,
+            Some(group) => {
+                self.group_ctx.delete_group(&group.id)?;
+                Some(GroupPB::from(group.clone()))
             }
-        }
+        };
+
+        Ok((inserted_group, deleted_group))
     }
 
     fn add_or_remove_row_when_cell_changed(
