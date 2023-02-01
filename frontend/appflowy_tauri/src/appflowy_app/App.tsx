@@ -1,49 +1,26 @@
-import "./App.css";
-import {
-  UserEventSignIn,
-  SignInPayloadPB,
-} from "../services/backend/events/flowy-user/index";
-import { nanoid } from "nanoid";
-import { UserNotificationListener } from "./components/user/application/notifications";
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import { Screen } from './components/layout/Screen';
+import { TestColors } from './components/TestColors/TestColors';
+import TestApiButton from './components/TestApiButton/TestApiButton';
+import { Welcome } from './pages/Welcome';
+import { Provider } from 'react-redux';
+import { store } from './store';
 
-function App() {
-  async function sendSignInEvent() {
-    let make_payload = () =>
-      SignInPayloadPB.fromObject({
-        email: nanoid(4) + "@gmail.com",
-        password: "A!@123abc",
-        name: "abc",
-      });
-
-      let listener = await new UserNotificationListener({
-        onUserSignIn: (userProfile) => {
-        console.log(userProfile);
-      }, onProfileUpdate(userProfile) {
-        console.log(userProfile);
-        // stop listening the changes
-        listener.stop();
-      }});
-
-      listener.start();
-
-    await UserEventSignIn(make_payload());
-  }
-
+const App = () => {
   return (
-    <div className="text-white bg-gray-500 h-screen flex flex-col justify-center items-center gap-4">
-      <h1 className="text-3xl">Welcome to AppFlowy!</h1>
-
-      <div>
-        <button
-          className="bg-gray-700 p-4 rounded-md"
-          type="button"
-          onClick={() => sendSignInEvent()}
-        >
-          Test Sign In Event 
-        </button>
-      </div>
-    </div>
+    <BrowserRouter>
+      <Provider store={store}>
+        <Screen>
+          <Routes>
+            <Route path={'/page/colors'} element={<TestColors></TestColors>}></Route>
+            <Route path={'/page/api-test'} element={<TestApiButton></TestApiButton>}></Route>
+            <Route path={'/'} element={<Welcome></Welcome>}></Route>
+            <Route path={'*'}>Not Found</Route>
+          </Routes>
+        </Screen>
+      </Provider>
+    </BrowserRouter>
   );
-}
+};
 
 export default App;

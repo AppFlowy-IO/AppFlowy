@@ -9,7 +9,7 @@ script_runner = "@shell"
 [tasks.tauri_dev]
 script = ["""
     cd appflowy_tauri
-    npm run tauri dev
+    npm run tauri:dev
     """]
 script_runner = "@shell"
 
