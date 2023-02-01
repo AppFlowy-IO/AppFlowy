@@ -1,18 +1,18 @@
-import { GridNotification } from '../../../../../services/backend';
+import { DatabaseNotification } from '../../../../../services/backend';
 import { NotificationParser, OnNotificationError } from '../../../../../services/backend/notifications/parser';
 
-declare type GridNotificationCallback = (ty: GridNotification, payload: Uint8Array) => void;
+declare type DatabaseNotificationCallback = (ty: DatabaseNotification, payload: Uint8Array) => void;
 
-export class GridNotificationParser extends NotificationParser<GridNotification> {
-  constructor(params: { id?: string; callback: GridNotificationCallback; onError?: OnNotificationError }) {
+export class DatabaseNotificationParser extends NotificationParser<DatabaseNotification> {
+  constructor(params: { id?: string; callback: DatabaseNotificationCallback; onError?: OnNotificationError }) {
     super(
       params.callback,
       (ty) => {
-        let notification = GridNotification[ty];
-        if (isGridNotification(notification)) {
-          return GridNotification[notification];
+        let notification = DatabaseNotification[ty];
+        if (isDatabaseNotification(notification)) {
+          return DatabaseNotification[notification];
         } else {
-          return GridNotification.Unknown;
+          return DatabaseNotification.Unknown;
         }
       },
       params.id,
@@ -21,6 +21,6 @@ export class GridNotificationParser extends NotificationParser<GridNotification>
   }
 }
 
-const isGridNotification = (notification: string): notification is keyof typeof GridNotification => {
-  return Object.values(GridNotification).indexOf(notification) !== -1;
+const isDatabaseNotification = (notification: string): notification is keyof typeof DatabaseNotification => {
+  return Object.values(DatabaseNotification).indexOf(notification) !== -1;
 };
