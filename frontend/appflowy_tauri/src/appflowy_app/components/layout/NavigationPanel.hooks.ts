@@ -14,7 +14,7 @@ export const useNavigationPanelHooks = function () {
   const [isFolderOpen, setIsFolderOpen] = useState<{ [keys: string]: boolean }>({});
 
   useEffect(() => {
-    let newObj: { [keys: string]: boolean } = {};
+    let newObj: { [keys: string]: boolean } = { ...isFolderOpen };
 
     folders.forEach((folder) => {
       if (isFolderOpen[folder.id] !== true) {
