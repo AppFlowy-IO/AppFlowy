@@ -3,7 +3,7 @@ pub mod helper;
 
 use crate::helper::*;
 
-use flowy_core::{FlowySDK, FlowySDKConfig};
+use flowy_core::{AppFlowyCore, AppFlowyCoreConfig};
 use flowy_document::entities::DocumentVersionPB;
 use flowy_net::get_client_server_configuration;
 use flowy_user::entities::UserProfilePB;
@@ -16,11 +16,11 @@ pub mod prelude {
 
 #[derive(Clone)]
 pub struct FlowySDKTest {
-    pub inner: FlowySDK,
+    pub inner: AppFlowyCore,
 }
 
 impl std::ops::Deref for FlowySDKTest {
-    type Target = FlowySDK;
+    type Target = AppFlowyCore;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
@@ -36,10 +36,10 @@ impl std::default::Default for FlowySDKTest {
 impl FlowySDKTest {
     pub fn new(document_version: DocumentVersionPB) -> Self {
         let server_config = get_client_server_configuration().unwrap();
-        let config = FlowySDKConfig::new(&root_dir(), nanoid!(6), server_config)
+        let config = AppFlowyCoreConfig::new(&root_dir(), nanoid!(6), server_config)
             .with_document_version(document_version)
             .log_filter("info", vec![]);
-        let sdk = std::thread::spawn(|| FlowySDK::new(config)).join().unwrap();
+        let sdk = std::thread::spawn(|| AppFlowyCore::new(config)).join().unwrap();
         std::mem::forget(sdk.dispatcher());
         Self { inner: sdk }
     }
