@@ -27,6 +27,7 @@ class AppFlowyBoardConfig {
   final EdgeInsets headerPadding;
   final EdgeInsets cardPadding;
   final Color groupBackgroundColor;
+  final bool stretchGroupHeight;
 
   const AppFlowyBoardConfig({
     this.cornerRadius = 6.0,
@@ -36,6 +37,7 @@ class AppFlowyBoardConfig {
     this.headerPadding = const EdgeInsets.symmetric(horizontal: 16),
     this.cardPadding = const EdgeInsets.symmetric(horizontal: 3, vertical: 4),
     this.groupBackgroundColor = Colors.transparent,
+    this.stretchGroupHeight = true,
   });
 }
 
@@ -274,6 +276,7 @@ class _AppFlowyBoardContentState extends State<_AppFlowyBoardContent> {
                 dragStateStorage: widget.boardState,
                 dragTargetKeys: widget.boardState,
                 reorderFlexAction: reorderFlexAction,
+                stretchGroupHeight: widget.config.stretchGroupHeight,
               );
 
               return ConstrainedBox(
