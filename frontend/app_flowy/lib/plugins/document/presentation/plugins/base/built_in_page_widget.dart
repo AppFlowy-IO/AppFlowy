@@ -110,7 +110,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
         buildChild: (controller) {
           return FlowyIconButton(
             tooltipText: LocaleKeys.tooltip_openMenu.tr(),
-            width: 20,
+            width: 25,
             height: 30,
             iconPadding: const EdgeInsets.all(3),
             icon: svgWidget('editor/details'),
@@ -122,7 +122,6 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
             case _ActionType.openAsPage:
               getIt<MenuSharedState>().latestOpenView = viewPB;
               getIt<HomeStackManager>().setPlugin(viewPB.plugin());
-
               break;
             case _ActionType.delete:
               final transaction = widget.editorState.transaction;

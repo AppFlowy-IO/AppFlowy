@@ -174,9 +174,13 @@ class HomeStackManager {
           index: getIt<PluginSandbox>().indexOf(notifier.plugin.ty),
           children: getIt<PluginSandbox>().supportPluginTypes.map((pluginType) {
             if (pluginType == notifier.plugin.ty) {
-              return notifier.plugin.display
-                  .buildWidget(PluginContext(onDeleted: onDeleted))
-                  .padding(horizontal: 40, vertical: 28);
+              final pluginWidget = notifier.plugin.display
+                  .buildWidget(PluginContext(onDeleted: onDeleted));
+              if (pluginType == PluginType.editor) {
+                return pluginWidget;
+              } else {
+                return pluginWidget.padding(horizontal: 40, vertical: 28);
+              }
             } else {
               return const BlankPage();
             }
