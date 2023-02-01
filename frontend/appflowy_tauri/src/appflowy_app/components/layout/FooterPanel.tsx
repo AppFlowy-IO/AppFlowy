@@ -1,7 +1,7 @@
-export const FooterPanelUI = () => {
+export const FooterPanel = () => {
   return (
     <div className={'flex items-center justify-between px-2 py-2'}>
-      <div className={'text-shade-3'}>
+      <div className={'text-shade-4 text-xs'}>
         &copy; 2023 AppFlowy. <a href={'https://github.com/AppFlowy-IO/AppFlowy'}>GitHub</a>
       </div>
       <div>

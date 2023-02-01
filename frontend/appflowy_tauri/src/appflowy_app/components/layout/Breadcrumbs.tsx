@@ -1,10 +1,8 @@
-import { ReactNode } from 'react';
-
-export const BreadcrumbsUI = ({ children }: { children?: ReactNode }) => {
+export const Breadcrumbs = () => {
   return (
     <div className={'flex items-center'}>
       <div className={'ml-4 flex items-center mr-4'}>
-        <button className={'px-1 py-1'}>
+        <button className={'px-1 py-1'} onClick={() => history.back()}>
           <img src={'/images/home/arrow_left.svg'} />
         </button>
         <button className={'px-1 py-1'}>

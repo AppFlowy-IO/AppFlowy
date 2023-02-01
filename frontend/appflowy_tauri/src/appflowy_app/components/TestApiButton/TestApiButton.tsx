@@ -122,7 +122,7 @@ const TestApiButton = () => {
   }
 
   return (
-    <div className='text-white bg-gray-500 h-screen flex flex-col justify-center items-center gap-4'>
+    <>
       <h1 className='text-3xl'>Welcome to AppFlowy!</h1>
 
       <div>
@@ -130,7 +130,7 @@ const TestApiButton = () => {
           Sign in and create sample data
         </button>
       </div>
-    </div>
+    </>
   );
 };
 

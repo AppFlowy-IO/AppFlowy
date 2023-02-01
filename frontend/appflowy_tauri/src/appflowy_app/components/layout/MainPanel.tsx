@@ -1,8 +1,8 @@
 import { ReactNode } from 'react';
-import { HeaderPanel } from '../../HeaderPanel/application/HeaderPanel';
-import { FooterPanel } from '../../FooterPanel/application/FooterPanel';
+import { HeaderPanel } from './HeaderPanel';
+import { FooterPanel } from './FooterPanel';
 
-export const MainPanelUI = ({ children }: { children: ReactNode }) => {
+export const MainPanel = ({ children }: { children: ReactNode }) => {
   return (
     <div className={'flex-1 h-full flex flex-col'}>
       <HeaderPanel></HeaderPanel>
