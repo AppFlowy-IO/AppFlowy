@@ -1,8 +1,9 @@
 import { useAppDispatch, useAppSelector } from '../../store';
-import { foldersActions } from '../../redux/folders/slice';
+import { foldersActions, IFolder } from '../../redux/folders/slice';
 import { nanoid } from 'nanoid';
-import { pagesActions } from '../../redux/pages/slice';
+import { IPage, pagesActions } from '../../redux/pages/slice';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const useNavigationPanelHooks = function () {
   const appDispatch = useAppDispatch();
@@ -12,6 +13,9 @@ export const useNavigationPanelHooks = function () {
   const currentUser = useAppSelector((state) => state.currentUser);
   const width = useAppSelector((state) => state.navigationWidth);
   const [isFolderOpen, setIsFolderOpen] = useState<{ [keys: string]: boolean }>({});
+  const [popupOpenId, setPopupOpenId] = useState<string>('');
+  const [renamingFolderId, setRenamingFolderId] = useState<string>('');
+  const [renamingPageId, setRenamingPageId] = useState<string>('');
 
   useEffect(() => {
     let newObj: { [keys: string]: boolean } = { ...isFolderOpen };
@@ -24,6 +28,8 @@ export const useNavigationPanelHooks = function () {
 
     setIsFolderOpen(newObj);
   }, [folders]);
+
+  const navigate = useNavigate();
 
   const setFolderOpen = (id: string, value: boolean) => {
     setIsFolderOpen({ ...isFolderOpen, [id]: value });
@@ -44,7 +50,7 @@ export const useNavigationPanelHooks = function () {
   };
 
   const onAddFolder = () => {
-    appDispatch(foldersActions.addFolder({ id: nanoid(6), title: 'New Folder 1' }));
+    appDispatch(foldersActions.addFolder({ id: nanoid(8), title: 'New Folder 1' }));
   };
 
   const onFolderChange = (id: string, newTitle: string) => {
@@ -52,23 +58,94 @@ export const useNavigationPanelHooks = function () {
   };
 
   const onAddNewPage = (folderId: string) => {
-    appDispatch(pagesActions.addPage({ folderId, title: 'New Page 1', id: nanoid(6) }));
+    appDispatch(pagesActions.addPage({ folderId, pageType: 'document', title: 'New Page 1', id: nanoid(6) }));
   };
 
   const onPageChange = (id: string, newTitle: string) => {
     appDispatch(pagesActions.renamePage({ id, newTitle }));
   };
 
+  const onFolderDetailsClick = (folder: IFolder) => {
+    setPopupOpenId(folder.id);
+  };
+
+  const onPageDetailsClick = (page: IPage) => {
+    setPopupOpenId(page.id);
+  };
+
+  const startFolderRename = (folder: IFolder) => {
+    setPopupOpenId('');
+    setRenamingFolderId(folder.id);
+  };
+
+  const completeFolderRename = () => {
+    setRenamingFolderId('');
+  };
+
+  const deleteFolder = (folder: IFolder) => {
+    setPopupOpenId('');
+    appDispatch(foldersActions.deleteFolder({ id: folder.id }));
+  };
+
+  const duplicateFolder = (folder: IFolder) => {
+    setPopupOpenId('');
+    appDispatch(foldersActions.addFolder({ id: nanoid(8), title: folder.title }));
+  };
+
+  const startPageRename = (page: IPage) => {
+    setPopupOpenId('');
+    setRenamingPageId(page.id);
+  };
+
+  const completePageRename = () => {
+    setRenamingPageId('');
+  };
+
+  const deletePage = (page: IPage) => {
+    setPopupOpenId('');
+    appDispatch(pagesActions.deletePage({ id: page.id }));
+  };
+
+  const duplicatePage = (page: IPage) => {
+    setPopupOpenId('');
+    appDispatch(
+      pagesActions.addPage({ id: nanoid(8), pageType: page.pageType, title: page.title, folderId: page.folderId })
+    );
+  };
+
+  const closePopup = () => {
+    setPopupOpenId('');
+  };
+
   return {
     currentUser,
     width,
+
     folders,
     isFolderOpen,
     setFolderOpen,
+    onFolderDetailsClick,
     onAddFolder,
+    startFolderRename,
+    renamingFolderId,
     onFolderChange,
-    onAddNewPage,
+    completeFolderRename,
+    deleteFolder,
+    duplicateFolder,
+
     pages,
+    onPageDetailsClick,
+    onAddNewPage,
+    startPageRename,
+    renamingPageId,
     onPageChange,
+    completePageRename,
+    deletePage,
+    duplicatePage,
+
+    popupOpenId,
+    closePopup,
+
+    navigate,
   };
 };

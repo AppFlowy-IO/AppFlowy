@@ -5,6 +5,7 @@ import TestApiButton from './components/TestApiButton/TestApiButton';
 import { Welcome } from './pages/Welcome';
 import { Provider } from 'react-redux';
 import { store } from './store';
+import { DocumentPage } from './pages/DocumentPage';
 
 const App = () => {
   return (
@@ -14,6 +15,7 @@ const App = () => {
           <Routes>
             <Route path={'/page/colors'} element={<TestColors></TestColors>}></Route>
             <Route path={'/page/api-test'} element={<TestApiButton></TestApiButton>}></Route>
+            <Route path={'/page/:id'} element={<DocumentPage></DocumentPage>} />
             <Route path={'/'} element={<Welcome></Welcome>}></Route>
             <Route path={'*'}>Not Found</Route>
           </Routes>

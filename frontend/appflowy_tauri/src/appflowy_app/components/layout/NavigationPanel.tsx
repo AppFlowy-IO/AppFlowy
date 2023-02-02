@@ -1,18 +1,39 @@
 import { useNavigationPanelHooks } from './NavigationPanel.hooks';
 import AddSvg from '../_shared/AddSvg';
+import { Details2Svg } from '../_shared/Details2Svg';
+import { FolderPopup } from './FolderPopup';
 
 export const NavigationPanel = () => {
   const {
     currentUser,
     width,
+
     folders,
-    onAddFolder,
-    onFolderChange,
     isFolderOpen,
     setFolderOpen,
+    onFolderDetailsClick,
+    onAddFolder,
+    startFolderRename,
+    renamingFolderId,
+    onFolderChange,
+    completeFolderRename,
+    deleteFolder,
+    duplicateFolder,
+
     pages,
+    onPageDetailsClick,
     onAddNewPage,
+    startPageRename,
+    renamingPageId,
     onPageChange,
+    completePageRename,
+    deletePage,
+    duplicatePage,
+
+    popupOpenId,
+    closePopup,
+
+    navigate,
   } = useNavigationPanelHooks();
 
   return (
@@ -41,7 +62,7 @@ export const NavigationPanel = () => {
             <div key={index}>
               <div className={'px-4 py-2 my-2 flex items-center justify-between rounded-lg hover:bg-surface-2'}>
                 <div
-                  onClick={() => setFolderOpen(folder.id, !isFolderOpen[folder.id])}
+                  onClick={() => renamingFolderId !== folder.id && setFolderOpen(folder.id, !isFolderOpen[folder.id])}
                   className={'flex items-center flex-1 min-w-0 cursor-pointer '}
                 >
                   <div
@@ -49,16 +70,41 @@ export const NavigationPanel = () => {
                   >
                     <img className={''} src={'/images/home/drop_down_show.svg'} alt={''} />
                   </div>
-                  <span className={'whitespace-normal min-w-0 flex-1'}>{folder.title}</span>
-                  {/* <input
-                    className={'whitespace-normal min-w-0 flex-1'}
-                    value={folder.title}
-                    onChange={(e) => onFolderChange(folder.id, e.target.value)}
-                  />*/}
+                  {renamingFolderId === folder.id ? (
+                    <input
+                      className={'whitespace-normal min-w-0 flex-1 bg-main-warning text-white'}
+                      value={folder.title}
+                      onKeyPress={(e) => e.code === 'Enter' && completeFolderRename()}
+                      onChange={(e) => onFolderChange(folder.id, e.target.value)}
+                    />
+                  ) : (
+                    <span className={'whitespace-nowrap overflow-ellipsis overflow-hidden min-w-0 flex-1'}>
+                      {folder.title}
+                    </span>
+                  )}
                 </div>
-                <button onClick={() => onAddNewPage(folder.id)} className={'text-black hover:text-main-accent'}>
-                  <AddSvg></AddSvg>
-                </button>
+                <div className={'flex items-center relative'}>
+                  <button
+                    onClick={() => onFolderDetailsClick(folder)}
+                    className={'text-black hover:text-main-accent w-[24px] h-[24px]'}
+                  >
+                    <Details2Svg></Details2Svg>
+                  </button>
+                  <button
+                    onClick={() => onAddNewPage(folder.id)}
+                    className={'text-black hover:text-main-accent w-[24px] h-[24px]'}
+                  >
+                    <AddSvg></AddSvg>
+                  </button>
+                  {popupOpenId === folder.id && (
+                    <FolderPopup
+                      onRenameClick={() => startFolderRename(folder)}
+                      onDeleteClick={() => deleteFolder(folder)}
+                      onDuplicateClick={() => duplicateFolder(folder)}
+                      onClose={() => closePopup()}
+                    ></FolderPopup>
+                  )}
+                </div>
               </div>
               {isFolderOpen[folder.id] &&
                 pages
@@ -71,15 +117,37 @@ export const NavigationPanel = () => {
                       }
                     >
                       <div
-                        onClick={() => console.log('open page: ', page.id)}
+                        onClick={() => renamingPageId !== page.id && navigate(`/page/${page.id}`)}
                         className={'flex items-center flex-1 min-w-0 pl-[24px]'}
                       >
-                        <span className={'whitespace-normal min-w-0 flex-1 ml-2'}>{page.title}</span>
-                        {/*<input
-                      className={'whitespace-normal min-w-0 flex-1 ml-2'}
-                      value={page.title}
-                      onChange={(e) => onPageChange(page.id, e.target.value)}
-                    />*/}
+                        {renamingPageId === page.id ? (
+                          <input
+                            className={'whitespace-normal min-w-0 flex-1 bg-main-warning text-white'}
+                            value={page.title}
+                            onKeyPress={(e) => e.code === 'Enter' && completePageRename()}
+                            onChange={(e) => onPageChange(page.id, e.target.value)}
+                          />
+                        ) : (
+                          <span className={'whitespace-nowrap overflow-ellipsis overflow-hidden min-w-0 flex-1 ml-2'}>
+                            {page.title}
+                          </span>
+                        )}
+                      </div>
+                      <div className={'flex items-center relative'}>
+                        <button
+                          onClick={() => onPageDetailsClick(page)}
+                          className={'text-black hover:text-main-accent w-[24px] h-[24px]'}
+                        >
+                          <Details2Svg></Details2Svg>
+                        </button>
+                        {popupOpenId === page.id && (
+                          <FolderPopup
+                            onRenameClick={() => startPageRename(page)}
+                            onDeleteClick={() => deletePage(page)}
+                            onDuplicateClick={() => duplicatePage(page)}
+                            onClose={() => closePopup()}
+                          ></FolderPopup>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -102,9 +170,9 @@ export const NavigationPanel = () => {
 
         <button onClick={onAddFolder} className={'flex items-center w-full hover:bg-surface-2 px-6 h-[50px]'}>
           <div className={'bg-main-accent rounded-full text-white mr-2'}>
-            <span className={'text-white'}>
+            <div className={'text-white w-[24px] h-[24px]'}>
               <AddSvg></AddSvg>
-            </span>
+            </div>
           </div>
           <span>New Folder</span>
         </button>
