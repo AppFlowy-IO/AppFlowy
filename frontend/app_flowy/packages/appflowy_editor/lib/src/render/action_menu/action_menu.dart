@@ -1,6 +1,7 @@
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/core/document/path.dart';
 import 'package:appflowy_editor/src/render/action_menu/action_menu_item.dart';
+import 'package:appflowy_editor/src/render/style/editor_style.dart';
 import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +15,7 @@ class ActionMenuArenaMember {
   final ActionMenuState state;
   final VoidCallback listener;
 
-  const ActionMenuArenaMember(this.state, this.listener);
+  const ActionMenuArenaMember({required this.state, required this.listener});
 }
 
 /// Decides which action menu is visible.
@@ -27,15 +28,28 @@ class ActionMenuArena {
   static final instance = ActionMenuArena._singleton();
 
   void add(ActionMenuState menuState) {
-    final member = ActionMenuArenaMember(menuState, () {
-      if (menuState.isHover || menuState.isPinned) {
-        _visible.add(menuState.path);
-      } else {
-        _visible.remove(menuState.path);
-      }
-    });
+    final member = ActionMenuArenaMember(
+      state: menuState,
+      listener: () {
+        final len = _visible.length;
+        if (menuState.isHover || menuState.isPinned) {
+          _visible.add(menuState.path);
+        } else {
+          _visible.remove(menuState.path);
+        }
+        if (len != _visible.length) {
+          _notifyAllVisible();
+        }
+      },
+    );
     menuState.addListener(member.listener);
     _members[menuState.path] = member;
+  }
+
+  void _notifyAllVisible() {
+    for (var path in _visible) {
+      _members[path]?.state.notify();
+    }
   }
 
   void remove(ActionMenuState menuState) {
@@ -77,12 +91,22 @@ class ActionMenuState extends ChangeNotifier {
   bool get isVisible => ActionMenuArena.instance.isVisible(path);
 
   set isPinned(bool value) {
+    if (_isPinned == value) {
+      return;
+    }
     _isPinned = value;
     notifyListeners();
   }
 
   set isHover(bool value) {
+    if (_isHover == value) {
+      return;
+    }
     _isHover = value;
+    notifyListeners();
+  }
+
+  void notify() {
     notifyListeners();
   }
 }
@@ -95,21 +119,18 @@ class ActionMenuWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final editorStyle = Theme.of(context).extension<EditorStyle>();
 
     return Card(
-      color: theme.colorScheme.surface,
+      color: editorStyle?.selectionMenuBackgroundColor,
       elevation: 3.0,
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: List.generate(
-          items.length,
-          (index) {
-            return ActionMenuItemWidget(
-              item: items[index],
-            );
-          },
-        ),
+        children: items.map((item) {
+          return ActionMenuItemWidget(
+            item: item,
+          );
+        }).toList(),
       ),
     );
   }

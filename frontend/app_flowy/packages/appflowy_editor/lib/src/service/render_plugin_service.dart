@@ -130,7 +130,7 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
             return Consumer<TextNode>(
               builder: ((_, value, child) {
                 Log.ui.debug('TextNode is rebuilding...');
-                return builder.build(context);
+                return _buildWithActions(builder, context);
               }),
             );
           });
@@ -141,30 +141,30 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
             return Consumer<Node>(
               builder: ((_, value, child) {
                 Log.ui.debug('Node is rebuilding...');
-                return builder.build(context);
+                return _buildWithActions(builder, context);
               }),
             );
           });
     }
     return CompositedTransformTarget(
       link: context.node.layerLink,
-      child: _buildWithActions(builder, context, notifier),
+      child: notifier,
     );
   }
 
   Widget _buildWithActions(
-      NodeWidgetBuilder builder, NodeWidgetContext context, Widget child) {
+      NodeWidgetBuilder builder, NodeWidgetContext context) {
     if (builder is ActionProvider) {
       return ChangeNotifierProvider(
         create: (_) => ActionMenuState(context.node.path),
         child: ActionMenuOverlay(
           items: builder.actions(context),
           customActionMenuBuilder: customActionMenuBuilder,
-          child: child,
+          child: builder.build(context),
         ),
       );
     } else {
-      return child;
+      return builder.build(context);
     }
   }
 
