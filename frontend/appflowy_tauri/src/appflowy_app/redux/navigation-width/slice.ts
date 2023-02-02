@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-const initialState = 225;
+const initialState = 250;
 
 export const navigationWidthSlice = createSlice({
   name: 'navigationWidth',
