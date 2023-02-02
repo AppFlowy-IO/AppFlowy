@@ -13,7 +13,8 @@ export const useNavigationPanelHooks = function () {
   const currentUser = useAppSelector((state) => state.currentUser);
   const width = useAppSelector((state) => state.navigationWidth);
   const [isFolderOpen, setIsFolderOpen] = useState<{ [keys: string]: boolean }>({});
-  const [popupOpenId, setPopupOpenId] = useState<string>('');
+  const [detailsPopupOpenId, setDetailsPopupOpenId] = useState<string>('');
+  const [addPagePopupOpenId, setAddPagePopupOpenId] = useState<string>('');
   const [renamingFolderId, setRenamingFolderId] = useState<string>('');
   const [renamingPageId, setRenamingPageId] = useState<string>('');
 
@@ -57,8 +58,19 @@ export const useNavigationPanelHooks = function () {
     appDispatch(foldersActions.renameFolder({ id, newTitle }));
   };
 
-  const onAddNewPage = (folderId: string) => {
+  const onAddNewDocumentPage = (folderId: string) => {
+    setAddPagePopupOpenId('');
     appDispatch(pagesActions.addPage({ folderId, pageType: 'document', title: 'New Page 1', id: nanoid(6) }));
+  };
+
+  const onAddNewBoardPage = (folderId: string) => {
+    setAddPagePopupOpenId('');
+    appDispatch(pagesActions.addPage({ folderId, pageType: 'board', title: 'New Board 1', id: nanoid(6) }));
+  };
+
+  const onAddNewGridPage = (folderId: string) => {
+    setAddPagePopupOpenId('');
+    appDispatch(pagesActions.addPage({ folderId, pageType: 'grid', title: 'New Grid 1', id: nanoid(6) }));
   };
 
   const onPageChange = (id: string, newTitle: string) => {
@@ -66,15 +78,15 @@ export const useNavigationPanelHooks = function () {
   };
 
   const onFolderDetailsClick = (folder: IFolder) => {
-    setPopupOpenId(folder.id);
+    setDetailsPopupOpenId(folder.id);
   };
 
   const onPageDetailsClick = (page: IPage) => {
-    setPopupOpenId(page.id);
+    setDetailsPopupOpenId(page.id);
   };
 
   const startFolderRename = (folder: IFolder) => {
-    setPopupOpenId('');
+    setDetailsPopupOpenId('');
     setRenamingFolderId(folder.id);
   };
 
@@ -83,17 +95,17 @@ export const useNavigationPanelHooks = function () {
   };
 
   const deleteFolder = (folder: IFolder) => {
-    setPopupOpenId('');
+    setDetailsPopupOpenId('');
     appDispatch(foldersActions.deleteFolder({ id: folder.id }));
   };
 
   const duplicateFolder = (folder: IFolder) => {
-    setPopupOpenId('');
+    setDetailsPopupOpenId('');
     appDispatch(foldersActions.addFolder({ id: nanoid(8), title: folder.title }));
   };
 
   const startPageRename = (page: IPage) => {
-    setPopupOpenId('');
+    setDetailsPopupOpenId('');
     setRenamingPageId(page.id);
   };
 
@@ -102,19 +114,24 @@ export const useNavigationPanelHooks = function () {
   };
 
   const deletePage = (page: IPage) => {
-    setPopupOpenId('');
+    setDetailsPopupOpenId('');
     appDispatch(pagesActions.deletePage({ id: page.id }));
   };
 
   const duplicatePage = (page: IPage) => {
-    setPopupOpenId('');
+    setDetailsPopupOpenId('');
     appDispatch(
       pagesActions.addPage({ id: nanoid(8), pageType: page.pageType, title: page.title, folderId: page.folderId })
     );
   };
 
   const closePopup = () => {
-    setPopupOpenId('');
+    setAddPagePopupOpenId('');
+    setDetailsPopupOpenId('');
+  };
+
+  const onAddNewPageClick = (id: string) => {
+    setAddPagePopupOpenId(id);
   };
 
   return {
@@ -133,9 +150,13 @@ export const useNavigationPanelHooks = function () {
     deleteFolder,
     duplicateFolder,
 
+    onAddNewPageClick,
+
     pages,
     onPageDetailsClick,
-    onAddNewPage,
+    onAddNewDocumentPage,
+    onAddNewBoardPage,
+    onAddNewGridPage,
     startPageRename,
     renamingPageId,
     onPageChange,
@@ -143,7 +164,8 @@ export const useNavigationPanelHooks = function () {
     deletePage,
     duplicatePage,
 
-    popupOpenId,
+    detailsPopupOpenId,
+    addPagePopupOpenId,
     closePopup,
 
     navigate,

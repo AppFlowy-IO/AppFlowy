@@ -1,7 +1,11 @@
 import { useNavigationPanelHooks } from './NavigationPanel.hooks';
 import AddSvg from '../_shared/AddSvg';
 import { Details2Svg } from '../_shared/Details2Svg';
-import { FolderPopup } from './FolderPopup';
+import { NavItemOptionsPopup } from './NavItemOptionsPopup';
+import { NewPagePopup } from './NewPagePopup';
+import { DocumentSvg } from '../_shared/DocumentSvg';
+import { BoardSvg } from '../_shared/BoardSvg';
+import { GridSvg } from '../_shared/GridSvg';
 
 export const NavigationPanel = () => {
   const {
@@ -20,9 +24,13 @@ export const NavigationPanel = () => {
     deleteFolder,
     duplicateFolder,
 
+    onAddNewPageClick,
+
     pages,
     onPageDetailsClick,
-    onAddNewPage,
+    onAddNewDocumentPage,
+    onAddNewBoardPage,
+    onAddNewGridPage,
     startPageRename,
     renamingPageId,
     onPageChange,
@@ -30,7 +38,8 @@ export const NavigationPanel = () => {
     deletePage,
     duplicatePage,
 
-    popupOpenId,
+    detailsPopupOpenId,
+    addPagePopupOpenId,
     closePopup,
 
     navigate,
@@ -91,18 +100,26 @@ export const NavigationPanel = () => {
                     <Details2Svg></Details2Svg>
                   </button>
                   <button
-                    onClick={() => onAddNewPage(folder.id)}
+                    onClick={() => onAddNewPageClick(folder.id)}
                     className={'text-black hover:text-main-accent w-[24px] h-[24px]'}
                   >
                     <AddSvg></AddSvg>
                   </button>
-                  {popupOpenId === folder.id && (
-                    <FolderPopup
+                  {detailsPopupOpenId === folder.id && (
+                    <NavItemOptionsPopup
                       onRenameClick={() => startFolderRename(folder)}
                       onDeleteClick={() => deleteFolder(folder)}
                       onDuplicateClick={() => duplicateFolder(folder)}
                       onClose={() => closePopup()}
-                    ></FolderPopup>
+                    ></NavItemOptionsPopup>
+                  )}
+                  {addPagePopupOpenId === folder.id && (
+                    <NewPagePopup
+                      onDocumentClick={() => onAddNewDocumentPage(folder.id)}
+                      onBoardClick={() => onAddNewBoardPage(folder.id)}
+                      onGridClick={() => onAddNewGridPage(folder.id)}
+                      onClose={() => closePopup()}
+                    ></NewPagePopup>
                   )}
                 </div>
               </div>
@@ -118,8 +135,13 @@ export const NavigationPanel = () => {
                     >
                       <div
                         onClick={() => renamingPageId !== page.id && navigate(`/page/${page.id}`)}
-                        className={'flex items-center flex-1 min-w-0 pl-[24px]'}
+                        className={'flex items-center flex-1 min-w-0'}
                       >
+                        <div className={'ml-1 w-[16px] h-[16px] mr-1'}>
+                          {page.pageType === 'document' && <DocumentSvg></DocumentSvg>}
+                          {page.pageType === 'board' && <BoardSvg></BoardSvg>}
+                          {page.pageType === 'grid' && <GridSvg></GridSvg>}
+                        </div>
                         {renamingPageId === page.id ? (
                           <input
                             className={'whitespace-normal min-w-0 flex-1 bg-main-warning text-white'}
@@ -140,13 +162,13 @@ export const NavigationPanel = () => {
                         >
                           <Details2Svg></Details2Svg>
                         </button>
-                        {popupOpenId === page.id && (
-                          <FolderPopup
+                        {detailsPopupOpenId === page.id && (
+                          <NavItemOptionsPopup
                             onRenameClick={() => startPageRename(page)}
                             onDeleteClick={() => deletePage(page)}
                             onDuplicateClick={() => duplicatePage(page)}
                             onClose={() => closePopup()}
-                          ></FolderPopup>
+                          ></NavItemOptionsPopup>
                         )}
                       </div>
                     </div>

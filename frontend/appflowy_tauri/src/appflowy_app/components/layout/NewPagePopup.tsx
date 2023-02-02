@@ -1,47 +1,47 @@
 import { MouseEventHandler, useEffect } from 'react';
 import { IPopupItem, Popup } from '../_shared/Popup';
-import { EditSvg } from '../_shared/EditSvg';
-import { TrashSvg } from '../_shared/TrashSvg';
-import { CopySvg } from '../_shared/CopySvg';
+import { DocumentSvg } from '../_shared/DocumentSvg';
+import { BoardSvg } from '../_shared/BoardSvg';
+import { GridSvg } from '../_shared/GridSvg';
 
-export const FolderPopup = ({
-  onRenameClick,
-  onDeleteClick,
-  onDuplicateClick,
+export const NewPagePopup = ({
+  onDocumentClick,
+  onGridClick,
+  onBoardClick,
   onClose,
 }: {
-  onRenameClick: MouseEventHandler<HTMLButtonElement>;
-  onDeleteClick: MouseEventHandler<HTMLButtonElement>;
-  onDuplicateClick: MouseEventHandler<HTMLButtonElement>;
+  onDocumentClick: MouseEventHandler<HTMLButtonElement>;
+  onGridClick: MouseEventHandler<HTMLButtonElement>;
+  onBoardClick: MouseEventHandler<HTMLButtonElement>;
   onClose?: () => void;
 }) => {
   const items: IPopupItem[] = [
     {
       icon: (
         <i className={'w-[16px] h-[16px] text-black'}>
-          <EditSvg></EditSvg>
+          <DocumentSvg></DocumentSvg>
         </i>
       ),
-      onClick: onRenameClick,
-      title: 'Rename',
+      onClick: onDocumentClick,
+      title: 'Document',
     },
     {
       icon: (
         <i className={'w-[16px] h-[16px] text-black'}>
-          <TrashSvg></TrashSvg>
+          <BoardSvg></BoardSvg>
         </i>
       ),
-      onClick: onDeleteClick,
-      title: 'Delete',
+      onClick: onBoardClick,
+      title: 'Board',
     },
     {
       icon: (
         <i className={'w-[16px] h-[16px] text-black'}>
-          <CopySvg></CopySvg>
+          <GridSvg></GridSvg>
         </i>
       ),
-      onClick: onDuplicateClick,
-      title: 'Duplicate',
+      onClick: onGridClick,
+      title: 'Grid',
     },
   ];
 
