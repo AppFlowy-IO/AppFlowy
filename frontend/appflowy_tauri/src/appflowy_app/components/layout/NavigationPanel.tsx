@@ -69,11 +69,11 @@ export const NavigationPanel = () => {
         <div className={'px-2 flex flex-col'}>
           {folders.map((folder, index) => (
             <div key={index} className={'my-2'}>
-              <div className={'px-4 py-2 flex items-center justify-between rounded-lg hover:bg-surface-2'}>
-                <div
-                  onClick={() => renamingFolderId !== folder.id && setFolderOpen(folder.id, !isFolderOpen[folder.id])}
-                  className={'flex items-center flex-1 min-w-0 cursor-pointer '}
-                >
+              <div
+                onClick={() => renamingFolderId !== folder.id && setFolderOpen(folder.id, !isFolderOpen[folder.id])}
+                className={'px-4 py-2 cursor-pointer flex items-center justify-between rounded-lg hover:bg-surface-2'}
+              >
+                <div className={'flex items-center flex-1 min-w-0'}>
                   <div
                     className={`mr-2 transition-transform duration-500 ${isFolderOpen[folder.id] ? 'rotate-180' : ''}`}
                   >
