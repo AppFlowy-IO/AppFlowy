@@ -58,7 +58,7 @@ export const NavigationPanel = () => {
 
         <div className={'px-2 py-2 flex items-center justify-between'}>
           <button className={'pl-4 flex items-center'}>
-            <img className={'mr-2'} src={'/images/home/person.svg'} />
+            <img className={'mr-2'} src={'/images/home/person.svg'} alt={'user'} />
             <span>{currentUser.displayName}</span>
           </button>
           <button className={'p-2 mr-2 rounded-lg hover:bg-surface-2'}>
