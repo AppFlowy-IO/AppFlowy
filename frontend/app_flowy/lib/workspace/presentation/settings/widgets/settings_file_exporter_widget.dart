@@ -56,7 +56,6 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
         FlowyTextButton(
           LocaleKeys.button_OK.tr(),
           onPressed: () async {
-            // TODO: Export Data
             await getIt<FilePickerService>()
                 .getDirectoryPath()
                 .then((exportPath) {
