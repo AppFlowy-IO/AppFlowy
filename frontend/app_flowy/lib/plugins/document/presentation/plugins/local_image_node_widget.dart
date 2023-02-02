@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -7,10 +9,18 @@ String? folderPath;
 String? imageFile;
 String? newImage;
 
-Future<void> copyFile(String src, String? dest, String name) async {
+Future<String?> copyFile(String src, String? dest, String name) async {
   var path = File(src);
   path.copy('$dest/images/$name');
   newImage = '$dest/images/$name';
+  return newImage;
+}
+
+Future<Future<Directory>?> checkDir() async {
+  if (await Directory('$folderPath/images').exists() == false) {
+    return Directory('$folderPath/images').create(recursive: true);
+  }
+  return null;
 }
 
 class LocalImageNodeWidgetBuilder extends NodeWidgetBuilder {
@@ -19,26 +29,23 @@ class LocalImageNodeWidgetBuilder extends NodeWidgetBuilder {
 
   @override
   Widget build(NodeWidgetContext<Node> context) {
+    String src = context.node.attributes['image_src'].toString();
+    String imageName = context.node.attributes['name'];
     var storageLocation = directory?.then((location) async {
       String value = location.path.toString();
-      if ('$location/images' != true) {
-        Directory('$location/images').create(recursive: true);
-      }
-
       folderPath = value;
+      checkDir();
       return folderPath;
     });
 
-    String src = context.node.attributes['image_src'].toString();
-    String imageName = context.node.attributes['name'];
     copyFile(src, folderPath, imageName);
-
     return _LocalImageNodeWidget(
         key: context.node.key, node: context.node, image: newImage);
   }
 
   @override
   NodeValidator<Node> get nodeValidator => (node) {
+        checkDir();
         return node.type == 'image' &&
             node.attributes['image_src'] is String &&
             node.attributes['name'] is String;
