@@ -192,16 +192,12 @@ impl DatabaseViewManager {
     ) -> FlowyResult<()> {
         let mut row_changeset = RowChangeset::new(row_rev.id.clone());
         let view_editor = self.get_default_view_editor().await?;
-        let group_changesets = view_editor
+        view_editor
             .move_view_group_row(&row_rev, &mut row_changeset, &to_group_id, to_row_id.clone())
             .await;
 
         if !row_changeset.is_empty() {
             recv_row_changeset(row_changeset).await;
-        }
-
-        for group_changeset in group_changesets {
-            view_editor.notify_did_update_group_rows(group_changeset).await;
         }
 
         Ok(())

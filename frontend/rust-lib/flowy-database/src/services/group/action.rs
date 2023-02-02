@@ -44,12 +44,13 @@ pub trait GroupCustomize: Send + Sync {
     ) -> Vec<GroupRowsNotificationPB>;
 
     /// Deletes the row from the group
-    fn remove_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB>;
+    fn delete_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB>;
 
     /// Move row from one group to another
     fn move_row(&mut self, cell_data: &Self::CellData, context: MoveGroupRowContext) -> Vec<GroupRowsNotificationPB>;
 
-    fn delete_group_after_move_row(&mut self, _row_rev: &RowRevision, _cell_data: &Self::CellData) -> Option<GroupPB> {
+    /// Returns None if there is no need to delete the group when corresponding row get removed
+    fn delete_group_when_move_row(&mut self, _row_rev: &RowRevision, _cell_data: &Self::CellData) -> Option<GroupPB> {
         None
     }
 }
@@ -77,25 +78,31 @@ pub trait GroupControllerActions: Send + Sync {
         old_row_rev: &Option<Arc<RowRevision>>,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<GroupChangesetByRowChanged>;
+    ) -> FlowyResult<DidUpdateGroupRowResult>;
 
     /// Remove the row from the group if the row gets deleted
     fn did_delete_delete_row(
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupRowsNotificationPB>>;
+    ) -> FlowyResult<DidMoveGroupRowResult>;
 
     /// Move the row from one group to another group
-    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupRowsNotificationPB>>;
+    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<DidMoveGroupRowResult>;
 
     /// Update the group if the corresponding field is changed
     fn did_update_group_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>>;
 }
 
 #[derive(Debug)]
-pub struct GroupChangesetByRowChanged {
+pub struct DidUpdateGroupRowResult {
     pub(crate) inserted_group: Option<InsertedGroupPB>,
     pub(crate) deleted_group: Option<GroupPB>,
-    pub(crate) changesets: Vec<GroupRowsNotificationPB>,
+    pub(crate) row_changesets: Vec<GroupRowsNotificationPB>,
+}
+
+#[derive(Debug)]
+pub struct DidMoveGroupRowResult {
+    pub(crate) deleted_group: Option<GroupPB>,
+    pub(crate) row_changesets: Vec<GroupRowsNotificationPB>,
 }

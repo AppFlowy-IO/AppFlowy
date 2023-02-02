@@ -6,11 +6,8 @@ use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::{
     GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
 };
-use crate::services::group::{
-    make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroupContext, Group,
-};
+use crate::services::group::{make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroupContext};
 use flowy_error::FlowyResult;
-
 use grid_model::{CellRevision, FieldRevision, GroupRevision, RowRevision, URLGroupConfigurationRevision};
 
 pub type URLGroupController =
@@ -95,7 +92,7 @@ impl GroupCustomize for URLGroupController {
         changesets
     }
 
-    fn remove_row(&mut self, row_rev: &RowRevision, _cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB> {
+    fn delete_row(&mut self, row_rev: &RowRevision, _cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB> {
         let mut changesets = vec![];
         self.group_ctx.iter_mut_groups(|group| {
             let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
@@ -123,6 +120,19 @@ impl GroupCustomize for URLGroupController {
             }
         });
         group_changeset
+    }
+
+    fn delete_group_when_move_row(&mut self, _row_rev: &RowRevision, cell_data: &Self::CellData) -> Option<GroupPB> {
+        let mut deleted_group = None;
+        if let Some((_, group)) = self.group_ctx.get_group(&cell_data.content) {
+            if group.rows.len() == 1 {
+                deleted_group = Some(GroupPB::from(group.clone()));
+            }
+        }
+        if deleted_group.is_some() {
+            let _ = self.group_ctx.delete_group(&deleted_group.as_ref().unwrap().group_id);
+        }
+        deleted_group
     }
 }
 

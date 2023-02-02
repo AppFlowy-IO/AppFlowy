@@ -240,15 +240,15 @@ impl DatabaseViewRevisionEditor {
     #[tracing::instrument(level = "trace", skip_all)]
     pub async fn did_delete_view_row(&self, row_rev: &RowRevision) {
         // Send the group notification if the current view has groups;
-        let changesets = self
+        let result = self
             .mut_group_controller(|group_controller, field_rev| {
                 group_controller.did_delete_delete_row(row_rev, &field_rev)
             })
             .await;
 
-        tracing::trace!("Delete row in view changeset: {:?}", changesets);
-        if let Some(changesets) = changesets {
-            for changeset in changesets {
+        if let Some(result) = result {
+            tracing::trace!("Delete row in view changeset: {:?}", result.row_changesets);
+            for changeset in result.row_changesets {
                 self.notify_did_update_group_rows(changeset).await;
             }
         }
@@ -257,11 +257,11 @@ impl DatabaseViewRevisionEditor {
     pub async fn did_update_view_row(&self, old_row_rev: Option<Arc<RowRevision>>, row_rev: &RowRevision) {
         let result = self
             .mut_group_controller(|group_controller, field_rev| {
-                group_controller.did_update_group_row(&old_row_rev, row_rev, &field_rev)
+                Ok(group_controller.did_update_group_row(&old_row_rev, row_rev, &field_rev))
             })
             .await;
 
-        if let Some(result) = result {
+        if let Some(Ok(result)) = result {
             let mut changeset = GroupViewChangesetPB {
                 view_id: self.view_id.clone(),
                 ..Default::default()
@@ -276,8 +276,8 @@ impl DatabaseViewRevisionEditor {
             }
             self.notify_did_update_view(changeset).await;
 
-            tracing::info!("Group changesets after editing the row: {:?}", result.changesets);
-            for changeset in result.changesets {
+            tracing::info!("Group changesets after editing the row: {:?}", result.row_changesets);
+            for changeset in result.row_changesets {
                 self.notify_did_update_group_rows(changeset).await;
             }
         }
@@ -297,8 +297,8 @@ impl DatabaseViewRevisionEditor {
         row_changeset: &mut RowChangeset,
         to_group_id: &str,
         to_row_id: Option<String>,
-    ) -> Vec<GroupRowsNotificationPB> {
-        let changesets = self
+    ) {
+        let result = self
             .mut_group_controller(|group_controller, field_rev| {
                 let move_row_context = MoveGroupRowContext {
                     row_rev,
@@ -307,13 +307,25 @@ impl DatabaseViewRevisionEditor {
                     to_group_id,
                     to_row_id,
                 };
-
-                let changesets = group_controller.move_group_row(move_row_context)?;
-                Ok(changesets)
+                group_controller.move_group_row(move_row_context)
             })
             .await;
 
-        changesets.unwrap_or_default()
+        if let Some(result) = result {
+            let mut changeset = GroupViewChangesetPB {
+                view_id: self.view_id.clone(),
+                ..Default::default()
+            };
+            if let Some(delete_group) = result.deleted_group {
+                tracing::info!("Delete group after moving the row: {:?}", delete_group);
+                changeset.deleted_groups.push(delete_group.group_id);
+            }
+            self.notify_did_update_view(changeset).await;
+
+            for changeset in result.row_changesets {
+                self.notify_did_update_group_rows(changeset).await;
+            }
+        }
     }
     /// Only call once after grid view editor initialized
     #[tracing::instrument(level = "trace", skip(self))]

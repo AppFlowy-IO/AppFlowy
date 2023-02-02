@@ -79,7 +79,7 @@ impl GroupCustomize for CheckboxGroupController {
         changesets
     }
 
-    fn remove_row(&mut self, row_rev: &RowRevision, _cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB> {
+    fn delete_row(&mut self, row_rev: &RowRevision, _cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB> {
         let mut changesets = vec![];
         self.group_ctx.iter_mut_groups(|group| {
             let mut changeset = GroupRowsNotificationPB::new(group.id.clone());

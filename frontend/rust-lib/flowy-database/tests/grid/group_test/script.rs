@@ -2,7 +2,7 @@ use crate::grid::grid_editor::GridEditorTest;
 use flowy_database::entities::{
     CreateRowParams, DatabaseViewLayout, FieldType, GroupPB, MoveGroupParams, MoveGroupRowParams, RowPB,
 };
-use flowy_database::services::cell::{delete_select_option_cell, insert_select_option_cell};
+use flowy_database::services::cell::{delete_select_option_cell, insert_select_option_cell, insert_url_cell};
 use flowy_database::services::field::{
     edit_single_select_type_option, SelectOptionPB, SelectTypeOptionSharedAction, SingleSelectTypeOptionPB,
 };
@@ -37,10 +37,15 @@ pub enum GroupScript {
         group_index: usize,
         row_index: usize,
     },
-    UpdateRow {
+    UpdateGroupedCell {
         from_group_index: usize,
         row_index: usize,
         to_group_index: usize,
+    },
+    UpdateGroupedCellWithData {
+        from_group_index: usize,
+        row_index: usize,
+        cell_data: String,
     },
     MoveGroup {
         from_group_index: usize,
@@ -109,7 +114,6 @@ impl GridGroupTest {
                 assert_eq!(row.id, compare_row.id);
             }
             GroupScript::CreateRow { group_index } => {
-                //
                 let group = self.group_at_index(group_index).await;
                 let params = CreateRowParams {
                     database_id: self.editor.database_id.clone(),
@@ -123,7 +127,7 @@ impl GridGroupTest {
                 let row = self.row_at_index(group_index, row_index).await;
                 self.editor.delete_row(&row.id).await.unwrap();
             }
-            GroupScript::UpdateRow {
+            GroupScript::UpdateGroupedCell {
                 from_group_index,
                 row_index,
                 to_group_index,
@@ -154,9 +158,31 @@ impl GridGroupTest {
                         FieldType::MultiSelect => {
                             insert_select_option_cell(vec![to_group.group_id.clone()], &field_rev)
                         }
+                        FieldType::URL => insert_url_cell(to_group.group_id.clone(), &field_rev),
                         _ => {
                             panic!("Unsupported group field type");
                         }
+                    }
+                };
+
+                let row_id = self.row_at_index(from_group_index, row_index).await.id;
+                let mut row_changeset = RowChangeset::new(row_id);
+                row_changeset.cell_by_field_id.insert(field_id, cell_rev);
+                self.editor.update_row(row_changeset).await.unwrap();
+            }
+            GroupScript::UpdateGroupedCellWithData {
+                from_group_index,
+                row_index,
+                cell_data,
+            } => {
+                let from_group = self.group_at_index(from_group_index).await;
+                let field_id = from_group.field_id;
+                let field_rev = self.editor.get_field_rev(&field_id).await.unwrap();
+                let field_type: FieldType = field_rev.ty.into();
+                let cell_rev = match field_type {
+                    FieldType::URL => insert_url_cell(cell_data, &field_rev),
+                    _ => {
+                        panic!("Unsupported group field type");
                     }
                 };
 

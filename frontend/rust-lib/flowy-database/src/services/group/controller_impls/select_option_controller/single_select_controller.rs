@@ -40,7 +40,7 @@ impl GroupCustomize for SingleSelectGroupController {
         changesets
     }
 
-    fn remove_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB> {
+    fn delete_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB> {
         let mut changesets = vec![];
         self.group_ctx.iter_mut_status_groups(|group| {
             if let Some(changeset) = remove_select_option_row(group, cell_data, row_rev) {

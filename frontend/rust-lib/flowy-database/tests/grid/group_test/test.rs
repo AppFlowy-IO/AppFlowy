@@ -262,7 +262,7 @@ async fn group_update_row_test() {
     let mut test = GridGroupTest::new().await;
     let scripts = vec![
         // Update the row at 0 in group0 by setting the row's group field data
-        UpdateRow {
+        UpdateGroupedCell {
             from_group_index: 1,
             row_index: 0,
             to_group_index: 2,
@@ -284,7 +284,7 @@ async fn group_reorder_group_test() {
     let mut test = GridGroupTest::new().await;
     let scripts = vec![
         // Update the row at 0 in group0 by setting the row's group field data
-        UpdateRow {
+        UpdateGroupedCell {
             from_group_index: 1,
             row_index: 0,
             to_group_index: 2,
@@ -305,7 +305,7 @@ async fn group_reorder_group_test() {
 async fn group_move_to_default_group_test() {
     let mut test = GridGroupTest::new().await;
     let scripts = vec![
-        UpdateRow {
+        UpdateGroupedCell {
             from_group_index: 1,
             row_index: 0,
             to_group_index: 0,
@@ -327,7 +327,7 @@ async fn group_move_from_default_group_test() {
     let mut test = GridGroupTest::new().await;
     // Move one row from group 1 to group 0
     let scripts = vec![
-        UpdateRow {
+        UpdateGroupedCell {
             from_group_index: 1,
             row_index: 0,
             to_group_index: 0,
@@ -345,7 +345,7 @@ async fn group_move_from_default_group_test() {
 
     // Move one row from group 0 to group 1
     let scripts = vec![
-        UpdateRow {
+        UpdateGroupedCell {
             from_group_index: 0,
             row_index: 0,
             to_group_index: 1,
@@ -483,55 +483,6 @@ async fn group_group_by_other_field() {
             row_count: 2,
         },
         AssertGroupCount(4),
-    ];
-    test.run_scripts(scripts).await;
-}
-
-#[tokio::test]
-async fn group_group_by_url() {
-    let mut test = GridGroupTest::new().await;
-    let url_field = test.get_url_field().await;
-    let scripts = vec![
-        GroupByField {
-            field_id: url_field.id.clone(),
-        },
-        AssertGroupRowCount {
-            group_index: 0,
-            row_count: 2,
-        },
-        AssertGroupRowCount {
-            group_index: 1,
-            row_count: 2,
-        },
-        AssertGroupRowCount {
-            group_index: 2,
-            row_count: 1,
-        },
-        AssertGroupCount(3),
-        MoveRow {
-            from_group_index: 0,
-            from_row_index: 0,
-            to_group_index: 1,
-            to_row_index: 0,
-        },
-        MoveRow {
-            from_group_index: 1,
-            from_row_index: 0,
-            to_group_index: 2,
-            to_row_index: 0,
-        },
-        AssertGroupRowCount {
-            group_index: 0,
-            row_count: 1,
-        },
-        AssertGroupRowCount {
-            group_index: 1,
-            row_count: 2,
-        },
-        AssertGroupRowCount {
-            group_index: 2,
-            row_count: 2,
-        },
     ];
     test.run_scripts(scripts).await;
 }

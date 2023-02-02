@@ -1,5 +1,5 @@
-use crate::entities::{GroupRowsNotificationPB, GroupViewChangesetPB, RowPB};
-use crate::services::group::action::{GroupChangesetByRowChanged, GroupControllerActions};
+use crate::entities::{GroupViewChangesetPB, RowPB};
+use crate::services::group::action::{DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerActions};
 use crate::services::group::{Group, GroupController, MoveGroupRowContext};
 use flowy_error::FlowyResult;
 use grid_model::{FieldRevision, RowRevision};
@@ -60,11 +60,11 @@ impl GroupControllerActions for DefaultGroupController {
         _old_row_rev: &Option<Arc<RowRevision>>,
         _row_rev: &RowRevision,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<GroupChangesetByRowChanged> {
-        Ok(GroupChangesetByRowChanged {
+    ) -> FlowyResult<DidUpdateGroupRowResult> {
+        Ok(DidUpdateGroupRowResult {
             inserted_group: None,
             deleted_group: None,
-            changesets: vec![],
+            row_changesets: vec![],
         })
     }
 
@@ -72,12 +72,18 @@ impl GroupControllerActions for DefaultGroupController {
         &mut self,
         _row_rev: &RowRevision,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupRowsNotificationPB>> {
-        Ok(vec![])
+    ) -> FlowyResult<DidMoveGroupRowResult> {
+        Ok(DidMoveGroupRowResult {
+            deleted_group: None,
+            row_changesets: vec![],
+        })
     }
 
-    fn move_group_row(&mut self, _context: MoveGroupRowContext) -> FlowyResult<Vec<GroupRowsNotificationPB>> {
-        todo!()
+    fn move_group_row(&mut self, _context: MoveGroupRowContext) -> FlowyResult<DidMoveGroupRowResult> {
+        Ok(DidMoveGroupRowResult {
+            deleted_group: None,
+            row_changesets: vec![],
+        })
     }
 
     fn did_update_group_field(&mut self, _field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>> {
