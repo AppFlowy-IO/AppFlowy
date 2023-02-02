@@ -2,19 +2,56 @@
 mac_alias = "appflowy-macos"
 windows_alias = "appflowy-windows"
 linux_alias = "appflowy-linux"
+android_alias = "appflowy-android"
 
 [tasks.appflowy-macos]
 dependencies = ["appflowy-sdk-release"]
-run_task = { name = ["code_generation", "set-app-version", "flutter-build", "copy-to-product"] }
+run_task = { name = [
+  "code_generation",
+  "set-app-version",
+  "flutter-build",
+  "copy-to-product",
+] }
 script_runner = "@shell"
 
 [tasks.appflowy-windows]
 dependencies = ["appflowy-sdk-release"]
-run_task = { name = ["code_generation", "set-app-version", "flutter-build", "copy-to-product"] }
+run_task = { name = [
+  "code_generation",
+  "set-app-version",
+  "flutter-build",
+  "copy-to-product",
+] }
 
 [tasks.appflowy-linux]
 dependencies = ["appflowy-sdk-release"]
-run_task = { name = ["code_generation", "set-app-version", "flutter-build", "copy-to-product", "create-release-archive"] }
+run_task = { name = [
+  "code_generation",
+  "set-app-version",
+  "flutter-build",
+  "copy-to-product",
+  "create-release-archive",
+] }
+script_runner = "@shell"
+
+[tasks.appflowy-android]
+dependencies = ["appflowy-sdk-dev-android"]
+run_task = { name = [
+  "code_generation",
+  "set-app-version",
+  "flutter-build-android",
+  "copy-to-product-android",
+] }
+script_runner = "@shell"
+
+[tasks.appflowy-android-ci]
+dependencies = ["appflowy-sdk-dev-ci-android"]
+run_task = { name = [
+  "code_generation",
+  "set-app-version",
+  "flutter-build-android",
+  "copy-to-product-android",
+] }
 script_runner = "@shell"
 
 [tasks.appflowy-dev]
@@ -24,16 +61,31 @@ linux_alias = "appflowy-linux-dev"
 
 [tasks.appflowy-macos-dev]
 dependencies = ["appflowy-sdk-dev"]
-run_task = { name = ["code_generation", "set-app-version", "flutter-build", "copy-to-product"] }
+run_task = { name = [
+  "code_generation",
+  "set-app-version",
+  "flutter-build",
+  "copy-to-product",
+] }
 script_runner = "@shell"
 
 [tasks.appflowy-windows-dev]
 dependencies = ["appflowy-sdk-dev"]
-run_task = { name = ["code_generation", "set-app-version", "flutter-build", "copy-to-product"] }
+run_task = { name = [
+  "code_generation",
+  "set-app-version",
+  "flutter-build",
+  "copy-to-product",
+] }
 
 [tasks.appflowy-linux-dev]
 dependencies = ["appflowy-sdk-dev"]
-run_task = { name = ["code_generation", "set-app-version", "flutter-build", "copy-to-product"] }
+run_task = { name = [
+  "code_generation",
+  "set-app-version",
+  "flutter-build",
+  "copy-to-product",
+] }
 script_runner = "@shell"
 
 [tasks.copy-to-product]
@@ -78,6 +130,26 @@ script = [
 ]
 script_runner = "@shell"
 
+[tasks.copy-to-product-android]
+script = [
+  """
+  product_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${APP_VERSION}
+  output_path=${product_path}/${TARGET_OS}/${FLUTTER_OUTPUT_DIR}
+  if [ -d "${output_path}" ]; then
+    rm -rf ${output_path}/
+  fi
+  mkdir -p ${output_path}
+
+  product=${PRODUCT_NAME}
+  cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/build/app/outputs/apk/release \
+  ${output_path}/${product}
+
+  cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/linux/appflowy.desktop.temp ${output_path}/${product}
+  cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/assets/images/flowy_logo.svg ${output_path}/${product}
+  """,
+]
+script_runner = "@shell"
+
 [tasks.copy-to-product-windows]
 script = [
   """
@@ -96,15 +168,13 @@ script = [
 script_runner = "@duckscript"
 
 [tasks.set-app-version]
-script = [
-  """
+script = ["""
   if is_empty ${APP_VERSION}
     APP_VERSION = set ${CURRENT_APP_VERSION}
     set_env APP_VERSION ${CURRENT_APP_VERSION}
   end
   echo APP_VERSION: ${APP_VERSION}
-  """,
-]
+  """]
 script_runner = "@duckscript"
 
 # The following tasks will create an archive that will be used on the GitHub Releases section
@@ -118,7 +188,7 @@ linux_alias = "create-release-archive-linux"
 [tasks.create-release-archive-linux]
 script = [
   "cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${APP_VERSION}/${TARGET_OS}/Release",
-  "tar -czf ${PRODUCT_NAME}-${TARGET_OS}-x86.tar.gz *"
+  "tar -czf ${PRODUCT_NAME}-${TARGET_OS}-x86.tar.gz *",
 ]
 
 [tasks.create-release-archive-windows]
@@ -130,43 +200,46 @@ script = [
 
 [tasks.create-release-archive-macos]
 script = [
-  # TODO 
+  # TODO
   # "cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${VERSION}/${TARGET_OS}/Release/${PRODUCT_NAME}",
   # "tar -czf ${PRODUCT_NAME}-${TARGET_OS}-x86.tar.gz *"
 ]
 
 [tasks.flutter-build]
-script = [
-  """
+script = ["""
   cd app_flowy/
   flutter clean
   flutter pub get
   flutter build ${TARGET_OS} --${BUILD_FLAG} --build-name=${APP_VERSION}
-  """,
-]
+  """]
 script_runner = "@shell"
 
 [tasks.flutter-build.linux]
-script = [
-  """
+script = ["""
   cd app_flowy/
   flutter clean
   flutter pub get
   flutter build ${TARGET_OS} --${BUILD_FLAG}
-  """,
-]
+  """]
 script_runner = "@shell"
 
 [tasks.flutter-build.windows]
-script = [
-  """
+script = ["""
   cd app_flowy
   exec cmd.exe /c flutter clean
   exec cmd.exe /c flutter pub get
   exec cmd.exe /c flutter build ${TARGET_OS} --${BUILD_FLAG}
-  """,
-]
+  """]
 script_runner = "@duckscript"
+
+[tasks.flutter-build-android.linux]
+script_runner = "@shell"
+script = ["""
+  cd app_flowy/
+  flutter clean
+  flutter pub get
+  flutter build apk --release
+  """]
 
 [tasks.code_generation]
 script_runner = "@shell"
@@ -177,7 +250,7 @@ script = [
   flutter packages pub get
   flutter packages pub run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
   flutter packages pub run build_runner build --delete-conflicting-outputs
-  """
+  """,
 ]
 
 [tasks.code_generation.windows]
@@ -189,5 +262,5 @@ script = [
   exec cmd.exe /c flutter packages pub get
   exec cmd.exe /c flutter packages pub run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
   exec cmd.exe /c flutter packages pub run build_runner build --delete-conflicting-outputs
-  """
+  """,
 ]
