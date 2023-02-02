@@ -1,11 +1,11 @@
-use crate::grid::group_test::script::GridGroupTest;
+use crate::grid::group_test::script::DatabaseGroupTest;
 use crate::grid::group_test::script::GroupScript::*;
 
 use flowy_database::services::field::SelectOptionPB;
 
 #[tokio::test]
 async fn group_init_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let scripts = vec![
         AssertGroupCount(4),
         AssertGroupRowCount {
@@ -30,7 +30,7 @@ async fn group_init_test() {
 
 #[tokio::test]
 async fn group_move_row_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let group = test.group_at_index(1).await;
     let scripts = vec![
         // Move the row at 0 in group0 to group1 at 1
@@ -55,7 +55,7 @@ async fn group_move_row_test() {
 
 #[tokio::test]
 async fn group_move_row_to_other_group_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let group = test.group_at_index(1).await;
     let scripts = vec![
         MoveRow {
@@ -83,7 +83,7 @@ async fn group_move_row_to_other_group_test() {
 
 #[tokio::test]
 async fn group_move_two_row_to_other_group_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let group_1 = test.group_at_index(1).await;
     let scripts = vec![
         // Move row at index 0 from group 1 to group 2 at index 1
@@ -137,7 +137,7 @@ async fn group_move_two_row_to_other_group_test() {
 
 #[tokio::test]
 async fn group_move_row_to_other_group_and_reorder_from_up_to_down_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let group_1 = test.group_at_index(1).await;
     let group_2 = test.group_at_index(2).await;
     let scripts = vec![
@@ -173,7 +173,7 @@ async fn group_move_row_to_other_group_and_reorder_from_up_to_down_test() {
 
 #[tokio::test]
 async fn group_move_row_to_other_group_and_reorder_from_bottom_to_up_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let scripts = vec![MoveRow {
         from_group_index: 1,
         from_row_index: 0,
@@ -204,7 +204,7 @@ async fn group_move_row_to_other_group_and_reorder_from_bottom_to_up_test() {
 }
 #[tokio::test]
 async fn group_create_row_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let scripts = vec![
         CreateRow { group_index: 1 },
         AssertGroupRowCount {
@@ -223,7 +223,7 @@ async fn group_create_row_test() {
 
 #[tokio::test]
 async fn group_delete_row_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let scripts = vec![
         DeleteRow {
             group_index: 1,
@@ -239,7 +239,7 @@ async fn group_delete_row_test() {
 
 #[tokio::test]
 async fn group_delete_all_row_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let scripts = vec![
         DeleteRow {
             group_index: 1,
@@ -259,7 +259,7 @@ async fn group_delete_all_row_test() {
 
 #[tokio::test]
 async fn group_update_row_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let scripts = vec![
         // Update the row at 0 in group0 by setting the row's group field data
         UpdateGroupedCell {
@@ -281,7 +281,7 @@ async fn group_update_row_test() {
 
 #[tokio::test]
 async fn group_reorder_group_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let scripts = vec![
         // Update the row at 0 in group0 by setting the row's group field data
         UpdateGroupedCell {
@@ -303,7 +303,7 @@ async fn group_reorder_group_test() {
 
 #[tokio::test]
 async fn group_move_to_default_group_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let scripts = vec![
         UpdateGroupedCell {
             from_group_index: 1,
@@ -324,7 +324,7 @@ async fn group_move_to_default_group_test() {
 
 #[tokio::test]
 async fn group_move_from_default_group_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     // Move one row from group 1 to group 0
     let scripts = vec![
         UpdateGroupedCell {
@@ -364,7 +364,7 @@ async fn group_move_from_default_group_test() {
 
 #[tokio::test]
 async fn group_move_group_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let group_0 = test.group_at_index(0).await;
     let group_1 = test.group_at_index(1).await;
     let scripts = vec![
@@ -394,7 +394,7 @@ async fn group_move_group_test() {
 
 #[tokio::test]
 async fn group_move_group_row_after_move_group_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let group_1 = test.group_at_index(1).await;
     let group_2 = test.group_at_index(2).await;
     let scripts = vec![
@@ -430,7 +430,7 @@ async fn group_move_group_row_after_move_group_test() {
 
 #[tokio::test]
 async fn group_move_group_to_default_group_pos_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let group_0 = test.group_at_index(0).await;
     let group_3 = test.group_at_index(3).await;
     let scripts = vec![
@@ -452,7 +452,7 @@ async fn group_move_group_to_default_group_pos_test() {
 
 #[tokio::test]
 async fn group_insert_single_select_option_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let new_option_name = "New option";
     let scripts = vec![
         AssertGroupCount(4),
@@ -468,7 +468,7 @@ async fn group_insert_single_select_option_test() {
 
 #[tokio::test]
 async fn group_group_by_other_field() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let multi_select_field = test.get_multi_select_field().await;
     let scripts = vec![
         GroupByField {

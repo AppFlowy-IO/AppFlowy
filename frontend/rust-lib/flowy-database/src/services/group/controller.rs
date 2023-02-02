@@ -311,7 +311,7 @@ where
         if let Some(cell_rev) = cell_rev {
             let cell_bytes = get_type_cell_protobuf(cell_rev.type_cell_data, context.field_rev, None).1;
             let cell_data = cell_bytes.parser::<P>()?;
-            result.deleted_group = self.delete_group_when_move_row(&context.row_rev, &cell_data);
+            result.deleted_group = self.delete_group_when_move_row(context.row_rev, &cell_data);
             result.row_changesets = self.move_row(&cell_data, context);
         } else {
             tracing::warn!("Unexpected moving group row, changes should not be empty");

@@ -1,10 +1,10 @@
 use crate::grid::filter_test::script::FilterScript::*;
-use crate::grid::filter_test::script::{FilterRowChanged, GridFilterTest};
+use crate::grid::filter_test::script::{DatabaseFilterTest, FilterRowChanged};
 use flowy_database::entities::ChecklistFilterConditionPB;
 
 #[tokio::test]
 async fn grid_filter_checklist_is_incomplete_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let expected = 5;
     let row_count = test.row_revs.len();
     let scripts = vec![
@@ -22,7 +22,7 @@ async fn grid_filter_checklist_is_incomplete_test() {
 
 #[tokio::test]
 async fn grid_filter_checklist_is_complete_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let expected = 1;
     let row_count = test.row_revs.len();
     let scripts = vec![

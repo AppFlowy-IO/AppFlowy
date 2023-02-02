@@ -1,4 +1,4 @@
-use crate::grid::block_test::script::GridRowTest;
+use crate::grid::block_test::script::DatabaseRowTest;
 use crate::grid::block_test::script::RowScript::*;
 
 use grid_model::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset};
@@ -11,7 +11,7 @@ async fn grid_create_block() {
         CreateBlock { block: block_meta_rev },
         AssertBlockCount(2),
     ];
-    GridRowTest::new().await.run_scripts(scripts).await;
+    DatabaseRowTest::new().await.run_scripts(scripts).await;
 }
 
 #[tokio::test]
@@ -37,5 +37,5 @@ async fn grid_update_block() {
             block: cloned_grid_block,
         },
     ];
-    GridRowTest::new().await.run_scripts(scripts).await;
+    DatabaseRowTest::new().await.run_scripts(scripts).await;
 }

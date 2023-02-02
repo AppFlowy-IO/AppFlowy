@@ -1,5 +1,5 @@
+use crate::grid::field_test::script::DatabaseFieldTest;
 use crate::grid::field_test::script::FieldScript::*;
-use crate::grid::field_test::script::GridFieldTest;
 use crate::grid::field_test::util::*;
 use bytes::Bytes;
 use flowy_database::entities::{FieldChangesetParams, FieldType};
@@ -8,7 +8,7 @@ use flowy_database::services::field::{gen_option_id, SingleSelectTypeOptionPB, C
 
 #[tokio::test]
 async fn grid_create_field() {
-    let mut test = GridFieldTest::new().await;
+    let mut test = DatabaseFieldTest::new().await;
     let (params, field_rev) = create_text_field(&test.view_id());
 
     let scripts = vec![
@@ -33,7 +33,7 @@ async fn grid_create_field() {
 
 #[tokio::test]
 async fn grid_create_duplicate_field() {
-    let mut test = GridFieldTest::new().await;
+    let mut test = DatabaseFieldTest::new().await;
     let (params, _) = create_text_field(&test.view_id());
     let field_count = test.field_count();
     let expected_field_count = field_count + 1;
@@ -46,7 +46,7 @@ async fn grid_create_duplicate_field() {
 
 #[tokio::test]
 async fn grid_update_field_with_empty_change() {
-    let mut test = GridFieldTest::new().await;
+    let mut test = DatabaseFieldTest::new().await;
     let (params, _) = create_single_select_field(&test.view_id());
     let create_field_index = test.field_count();
     let scripts = vec![CreateField { params }];
@@ -71,7 +71,7 @@ async fn grid_update_field_with_empty_change() {
 
 #[tokio::test]
 async fn grid_update_field() {
-    let mut test = GridFieldTest::new().await;
+    let mut test = DatabaseFieldTest::new().await;
     let (params, _) = create_single_select_field(&test.view_id());
     let scripts = vec![CreateField { params }];
     let create_field_index = test.field_count();
@@ -107,7 +107,7 @@ async fn grid_update_field() {
 
 #[tokio::test]
 async fn grid_delete_field() {
-    let mut test = GridFieldTest::new().await;
+    let mut test = DatabaseFieldTest::new().await;
     let original_field_count = test.field_count();
     let (params, _) = create_text_field(&test.view_id());
     let scripts = vec![CreateField { params }];
@@ -125,7 +125,7 @@ async fn grid_delete_field() {
 
 #[tokio::test]
 async fn grid_switch_from_select_option_to_checkbox_test() {
-    let mut test = GridFieldTest::new().await;
+    let mut test = DatabaseFieldTest::new().await;
     let field_rev = test.get_first_field_rev(FieldType::SingleSelect);
 
     // Update the type option data of single select option
@@ -160,7 +160,7 @@ async fn grid_switch_from_select_option_to_checkbox_test() {
 
 #[tokio::test]
 async fn grid_switch_from_checkbox_to_select_option_test() {
-    let mut test = GridFieldTest::new().await;
+    let mut test = DatabaseFieldTest::new().await;
     let field_rev = test.get_first_field_rev(FieldType::Checkbox).clone();
     let scripts = vec![
         // switch to single-select field type
@@ -203,7 +203,7 @@ async fn grid_switch_from_checkbox_to_select_option_test() {
 //      option1, option2 -> "option1.name, option2.name"
 #[tokio::test]
 async fn grid_switch_from_multi_select_to_text_test() {
-    let mut test = GridFieldTest::new().await;
+    let mut test = DatabaseFieldTest::new().await;
     let field_rev = test.get_first_field_rev(FieldType::MultiSelect).clone();
 
     let multi_select_type_option = test.get_multi_select_type_option(&field_rev.id);
@@ -235,7 +235,7 @@ async fn grid_switch_from_multi_select_to_text_test() {
 //      unchecked -> ""
 #[tokio::test]
 async fn grid_switch_from_checkbox_to_text_test() {
-    let mut test = GridFieldTest::new().await;
+    let mut test = DatabaseFieldTest::new().await;
     let field_rev = test.get_first_field_rev(FieldType::Checkbox);
 
     let scripts = vec![
@@ -265,7 +265,7 @@ async fn grid_switch_from_checkbox_to_text_test() {
 //      "" -> unchecked
 #[tokio::test]
 async fn grid_switch_from_text_to_checkbox_test() {
-    let mut test = GridFieldTest::new().await;
+    let mut test = DatabaseFieldTest::new().await;
     let field_rev = test.get_first_field_rev(FieldType::RichText).clone();
 
     let scripts = vec![
@@ -288,7 +288,7 @@ async fn grid_switch_from_text_to_checkbox_test() {
 //      1647251762 -> Mar 14,2022 (This string will be different base on current data setting)
 #[tokio::test]
 async fn grid_switch_from_date_to_text_test() {
-    let mut test = GridFieldTest::new().await;
+    let mut test = DatabaseFieldTest::new().await;
     let field_rev = test.get_first_field_rev(FieldType::DateTime).clone();
     let scripts = vec![
         SwitchToField {
@@ -316,7 +316,7 @@ async fn grid_switch_from_date_to_text_test() {
 //      $1 -> "$1"(This string will be different base on current data setting)
 #[tokio::test]
 async fn grid_switch_from_number_to_text_test() {
-    let mut test = GridFieldTest::new().await;
+    let mut test = DatabaseFieldTest::new().await;
     let field_rev = test.get_first_field_rev(FieldType::Number).clone();
 
     let scripts = vec![

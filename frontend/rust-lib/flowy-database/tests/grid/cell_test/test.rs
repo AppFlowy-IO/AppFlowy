@@ -1,5 +1,5 @@
 use crate::grid::cell_test::script::CellScript::*;
-use crate::grid::cell_test::script::GridCellTest;
+use crate::grid::cell_test::script::DatabaseCellTest;
 use crate::grid::field_test::util::make_date_cell_string;
 use flowy_database::entities::{CellChangesetPB, FieldType};
 use flowy_database::services::cell::ToCellChangesetString;
@@ -8,7 +8,7 @@ use flowy_database::services::field::{ChecklistTypeOptionPB, MultiSelectTypeOpti
 
 #[tokio::test]
 async fn grid_cell_update() {
-    let mut test = GridCellTest::new().await;
+    let mut test = DatabaseCellTest::new().await;
     let field_revs = &test.field_revs;
     let row_revs = &test.row_revs;
     let grid_blocks = &test.block_meta_revs;
@@ -60,7 +60,7 @@ async fn grid_cell_update() {
 
 #[tokio::test]
 async fn text_cell_date_test() {
-    let test = GridCellTest::new().await;
+    let test = DatabaseCellTest::new().await;
     let text_field = test.get_first_field_rev(FieldType::RichText);
     let cells = test
         .editor
@@ -84,7 +84,7 @@ async fn text_cell_date_test() {
 
 #[tokio::test]
 async fn url_cell_date_test() {
-    let test = GridCellTest::new().await;
+    let test = DatabaseCellTest::new().await;
     let url_field = test.get_first_field_rev(FieldType::URL);
     let cells = test
         .editor

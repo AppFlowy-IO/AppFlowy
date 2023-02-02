@@ -1,4 +1,4 @@
-use crate::grid::grid_editor::GridEditorTest;
+use crate::grid::database_editor::DatabaseEditorTest;
 use flowy_database::entities::{
     CreateRowParams, DatabaseViewLayout, FieldType, GroupPB, MoveGroupParams, MoveGroupRowParams, RowPB,
 };
@@ -59,13 +59,13 @@ pub enum GroupScript {
     },
 }
 
-pub struct GridGroupTest {
-    inner: GridEditorTest,
+pub struct DatabaseGroupTest {
+    inner: DatabaseEditorTest,
 }
 
-impl GridGroupTest {
+impl DatabaseGroupTest {
     pub async fn new() -> Self {
-        let editor_test = GridEditorTest::new_board().await;
+        let editor_test = DatabaseEditorTest::new_board().await;
         Self { inner: editor_test }
     }
 
@@ -284,15 +284,15 @@ impl GridGroupTest {
     }
 }
 
-impl std::ops::Deref for GridGroupTest {
-    type Target = GridEditorTest;
+impl std::ops::Deref for DatabaseGroupTest {
+    type Target = DatabaseEditorTest;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl std::ops::DerefMut for GridGroupTest {
+impl std::ops::DerefMut for DatabaseGroupTest {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }

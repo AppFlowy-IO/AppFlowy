@@ -1,10 +1,9 @@
-use crate::grid::group_test::script::GridGroupTest;
+use crate::grid::group_test::script::DatabaseGroupTest;
 use crate::grid::group_test::script::GroupScript::*;
-use flowy_database::services::field::SelectOptionPB;
 
 #[tokio::test]
 async fn group_group_by_url() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let url_field = test.get_url_field().await;
     let scripts = vec![
         GroupByField {
@@ -32,7 +31,7 @@ async fn group_group_by_url() {
 
 #[tokio::test]
 async fn group_alter_url_to_another_group_url_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let url_field = test.get_url_field().await;
     let scripts = vec![
         GroupByField {
@@ -66,7 +65,7 @@ async fn group_alter_url_to_another_group_url_test() {
 
 #[tokio::test]
 async fn group_alter_url_to_new_url_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let url_field = test.get_url_field().await;
     let scripts = vec![
         GroupByField {
@@ -104,7 +103,7 @@ async fn group_alter_url_to_new_url_test() {
 
 #[tokio::test]
 async fn group_move_url_group_row_test() {
-    let mut test = GridGroupTest::new().await;
+    let mut test = DatabaseGroupTest::new().await;
     let url_field = test.get_url_field().await;
     let scripts = vec![
         GroupByField {

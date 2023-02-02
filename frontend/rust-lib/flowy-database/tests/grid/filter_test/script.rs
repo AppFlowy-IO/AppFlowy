@@ -15,7 +15,7 @@ use flowy_sqlite::schema::view_table::dsl::view_table;
 use flowy_database::services::cell::insert_select_option_cell;
 use flowy_database::services::filter::FilterType;
 use flowy_database::services::view_editor::GridViewChanged;
-use crate::grid::grid_editor::GridEditorTest;
+use crate::grid::database_editor::DatabaseEditorTest;
 
 pub struct FilterRowChanged {
     pub(crate) showing_num_of_rows: usize,
@@ -99,14 +99,14 @@ pub enum FilterScript {
     Wait { millisecond: u64 }
 }
 
-pub struct GridFilterTest {
-    inner: GridEditorTest,
+pub struct DatabaseFilterTest {
+    inner: DatabaseEditorTest,
     recv: Option<Receiver<GridViewChanged>>,
 }
 
-impl GridFilterTest {
+impl DatabaseFilterTest {
     pub async fn new() -> Self {
-        let editor_test =  GridEditorTest::new_table().await;
+        let editor_test =  DatabaseEditorTest::new_table().await;
         Self {
             inner: editor_test,
             recv: None,
@@ -298,15 +298,15 @@ impl GridFilterTest {
 }
 
 
-impl std::ops::Deref for GridFilterTest {
-    type Target = GridEditorTest;
+impl std::ops::Deref for DatabaseFilterTest {
+    type Target = DatabaseEditorTest;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl std::ops::DerefMut for GridFilterTest {
+impl std::ops::DerefMut for DatabaseFilterTest {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }
