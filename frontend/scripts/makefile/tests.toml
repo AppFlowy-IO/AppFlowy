@@ -18,6 +18,7 @@ cargo make --profile test-linux dart_unit_test_inner
 script_runner = "@shell"
 
 [tasks.dart_unit_test_inner]
+env = { RUST_LOG = "info" }
 dependencies = ["build-test-lib"]
 description = "Run flutter unit tests"
 script = '''

@@ -267,16 +267,16 @@ impl DatabaseViewRevisionEditor {
                 ..Default::default()
             };
             if let Some(inserted_group) = result.inserted_group {
-                tracing::info!("Create group after editing the row: {:?}", inserted_group);
+                tracing::trace!("Create group after editing the row: {:?}", inserted_group);
                 changeset.inserted_groups.push(inserted_group);
             }
             if let Some(delete_group) = result.deleted_group {
-                tracing::info!("Delete group after editing the row: {:?}", delete_group);
+                tracing::trace!("Delete group after editing the row: {:?}", delete_group);
                 changeset.deleted_groups.push(delete_group.group_id);
             }
             self.notify_did_update_view(changeset).await;
 
-            tracing::info!("Group changesets after editing the row: {:?}", result.row_changesets);
+            tracing::trace!("Group changesets after editing the row: {:?}", result.row_changesets);
             for changeset in result.row_changesets {
                 self.notify_did_update_group_rows(changeset).await;
             }
