@@ -129,7 +129,7 @@ export const NavigationPanel = () => {
                   .map((page, index2) => (
                     <div
                       key={index2}
-                      onClick={() => renamingPageId !== page.id && navigate(`/page/${page.id}`)}
+                      onClick={() => renamingPageId !== page.id && navigate(`/page/${page.pageType}/${page.id}`)}
                       className={
                         'pl-8 pr-4 py-2 cursor-pointer flex items-center justify-between rounded-lg hover:bg-surface-2'
                       }
