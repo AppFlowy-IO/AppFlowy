@@ -59,7 +59,7 @@ jobs:
       - name: Build FlowySDK
         working-directory: frontend
         run: |
-          cargo make --profile development-linux-x86_64 appflowy-sdk-dev
+          cargo make --profile development-linux-x86_64 appflowy-core-dev
 
       - name: rustfmt rust-lib
         run: cargo fmt --all -- --check

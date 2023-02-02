@@ -1,4 +1,4 @@
-use crate::grid::grid_editor::GridEditorTest;
+use crate::grid::database_editor::DatabaseEditorTest;
 use async_stream::stream;
 use flowy_database::entities::{AlterSortParams, CellPathParams, DeleteSortParams};
 use flowy_database::services::sort::SortType;
@@ -36,15 +36,15 @@ pub enum SortScript {
     },
 }
 
-pub struct GridSortTest {
-    inner: GridEditorTest,
+pub struct DatabaseSortTest {
+    inner: DatabaseEditorTest,
     pub current_sort_rev: Option<SortRevision>,
     recv: Option<Receiver<GridViewChanged>>,
 }
 
-impl GridSortTest {
+impl DatabaseSortTest {
     pub async fn new() -> Self {
-        let editor_test = GridEditorTest::new_table().await;
+        let editor_test = DatabaseEditorTest::new_table().await;
         Self {
             inner: editor_test,
             current_sort_rev: None,
@@ -154,15 +154,15 @@ async fn assert_sort_changed(
         .await;
 }
 
-impl std::ops::Deref for GridSortTest {
-    type Target = GridEditorTest;
+impl std::ops::Deref for DatabaseSortTest {
+    type Target = DatabaseEditorTest;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl std::ops::DerefMut for GridSortTest {
+impl std::ops::DerefMut for DatabaseSortTest {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }

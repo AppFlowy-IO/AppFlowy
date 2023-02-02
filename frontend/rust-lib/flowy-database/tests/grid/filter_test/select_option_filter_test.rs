@@ -1,10 +1,10 @@
 use crate::grid::filter_test::script::FilterScript::*;
-use crate::grid::filter_test::script::{FilterRowChanged, GridFilterTest};
+use crate::grid::filter_test::script::{DatabaseFilterTest, FilterRowChanged};
 use flowy_database::entities::{FieldType, SelectOptionConditionPB};
 
 #[tokio::test]
 async fn grid_filter_multi_select_is_empty_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let scripts = vec![
         CreateMultiSelectFilter {
             condition: SelectOptionConditionPB::OptionIsEmpty,
@@ -17,7 +17,7 @@ async fn grid_filter_multi_select_is_empty_test() {
 
 #[tokio::test]
 async fn grid_filter_multi_select_is_not_empty_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let scripts = vec![
         CreateMultiSelectFilter {
             condition: SelectOptionConditionPB::OptionIsNotEmpty,
@@ -30,7 +30,7 @@ async fn grid_filter_multi_select_is_not_empty_test() {
 
 #[tokio::test]
 async fn grid_filter_multi_select_is_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let field_rev = test.get_first_field_rev(FieldType::MultiSelect);
     let mut options = test.get_multi_select_type_option(&field_rev.id);
     let scripts = vec![
@@ -45,7 +45,7 @@ async fn grid_filter_multi_select_is_test() {
 
 #[tokio::test]
 async fn grid_filter_multi_select_is_test2() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let field_rev = test.get_first_field_rev(FieldType::MultiSelect);
     let mut options = test.get_multi_select_type_option(&field_rev.id);
     let scripts = vec![
@@ -60,7 +60,7 @@ async fn grid_filter_multi_select_is_test2() {
 
 #[tokio::test]
 async fn grid_filter_single_select_is_empty_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let expected = 2;
     let row_count = test.row_revs.len();
     let scripts = vec![
@@ -79,7 +79,7 @@ async fn grid_filter_single_select_is_empty_test() {
 
 #[tokio::test]
 async fn grid_filter_single_select_is_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let field_rev = test.get_first_field_rev(FieldType::SingleSelect);
     let mut options = test.get_single_select_type_option(&field_rev.id).options;
     let expected = 2;
@@ -100,7 +100,7 @@ async fn grid_filter_single_select_is_test() {
 
 #[tokio::test]
 async fn grid_filter_single_select_is_test2() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let field_rev = test.get_first_field_rev(FieldType::SingleSelect);
     let row_revs = test.get_row_revs().await;
     let mut options = test.get_single_select_type_option(&field_rev.id).options;

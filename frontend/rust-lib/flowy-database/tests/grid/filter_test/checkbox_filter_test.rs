@@ -1,10 +1,10 @@
 use crate::grid::filter_test::script::FilterScript::*;
-use crate::grid::filter_test::script::{FilterRowChanged, GridFilterTest};
+use crate::grid::filter_test::script::{DatabaseFilterTest, FilterRowChanged};
 use flowy_database::entities::CheckboxFilterConditionPB;
 
 #[tokio::test]
 async fn grid_filter_checkbox_is_check_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let row_count = test.row_revs.len();
     // The initial number of unchecked is 3
     // The initial number of checked is 2
@@ -20,7 +20,7 @@ async fn grid_filter_checkbox_is_check_test() {
 
 #[tokio::test]
 async fn grid_filter_checkbox_is_uncheck_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let expected = 3;
     let row_count = test.row_revs.len();
     let scripts = vec![

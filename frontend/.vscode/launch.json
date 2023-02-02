@@ -23,7 +23,7 @@
             "type": "dart",
             "preLaunchTask": "AF: build_flowy_sdk",
             "env": {
-                "RUST_LOG": "info"
+                "RUST_LOG": "debug"
             },
             "cwd": "${workspaceRoot}/app_flowy"
         },

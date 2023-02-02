@@ -6,9 +6,13 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class URLCellEditor extends StatefulWidget {
+  final VoidCallback onExit;
   final GridURLCellController cellController;
-  const URLCellEditor({required this.cellController, Key? key})
-      : super(key: key);
+  const URLCellEditor({
+    required this.cellController,
+    required this.onExit,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<URLCellEditor> createState() => _URLCellEditorState();
@@ -36,12 +40,17 @@ class _URLCellEditorState extends State<URLCellEditor> {
           if (_controller.text != state.content) {
             _controller.text = state.content;
           }
+
+          if (state.isFinishEditing) {
+            widget.onExit();
+          }
         },
         child: TextField(
           autofocus: true,
           controller: _controller,
-          onChanged: (value) => focusChanged(),
-          maxLines: null,
+          onSubmitted: (value) => focusChanged(),
+          onEditingComplete: () => focusChanged(),
+          maxLines: 1,
           style: Theme.of(context).textTheme.bodyMedium,
           decoration: const InputDecoration(
             contentPadding: EdgeInsets.zero,
@@ -57,11 +66,10 @@ class _URLCellEditorState extends State<URLCellEditor> {
   @override
   Future<void> dispose() async {
     _cellBloc.close();
-
     super.dispose();
   }
 
-  Future<void> focusChanged() async {
+  void focusChanged() {
     if (mounted) {
       if (_cellBloc.isClosed == false &&
           _controller.text != _cellBloc.state.content) {
@@ -72,9 +80,13 @@ class _URLCellEditorState extends State<URLCellEditor> {
 }
 
 class URLEditorPopover extends StatelessWidget {
+  final VoidCallback onExit;
   final GridURLCellController cellController;
-  const URLEditorPopover({required this.cellController, Key? key})
-      : super(key: key);
+  const URLEditorPopover({
+    required this.cellController,
+    required this.onExit,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +96,7 @@ class URLEditorPopover extends StatelessWidget {
         padding: const EdgeInsets.all(6),
         child: URLCellEditor(
           cellController: cellController,
+          onExit: onExit,
         ),
       ),
     );

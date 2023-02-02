@@ -49,6 +49,15 @@ impl URLCellData {
     }
 }
 
+impl From<URLCellDataPB> for URLCellData {
+    fn from(data: URLCellDataPB) -> Self {
+        Self {
+            url: data.url,
+            content: data.content,
+        }
+    }
+}
+
 impl AsRef<str> for URLCellData {
     fn as_ref(&self) -> &str {
         &self.url

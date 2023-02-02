@@ -1,7 +1,7 @@
 use crate::entities::{GroupRowsNotificationPB, RowPB};
 use crate::services::cell::insert_select_option_cell;
 use crate::services::field::{SelectOptionCellDataPB, SelectOptionCellDataParser, SingleSelectTypeOptionPB};
-use crate::services::group::action::GroupControllerCustomActions;
+use crate::services::group::action::GroupCustomize;
 
 use crate::services::group::controller::{
     GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
@@ -20,16 +20,16 @@ pub type SingleSelectGroupController = GenericGroupController<
     SelectOptionCellDataParser,
 >;
 
-impl GroupControllerCustomActions for SingleSelectGroupController {
-    type CellDataType = SelectOptionCellDataPB;
+impl GroupCustomize for SingleSelectGroupController {
+    type CellData = SelectOptionCellDataPB;
     fn can_group(&self, content: &str, cell_data: &SelectOptionCellDataPB) -> bool {
         cell_data.select_options.iter().any(|option| option.id == content)
     }
 
-    fn add_or_remove_row_in_groups_if_match(
+    fn add_or_remove_row_when_cell_changed(
         &mut self,
         row_rev: &RowRevision,
-        cell_data: &Self::CellDataType,
+        cell_data: &Self::CellData,
     ) -> Vec<GroupRowsNotificationPB> {
         let mut changesets = vec![];
         self.group_ctx.iter_mut_status_groups(|group| {
@@ -40,7 +40,7 @@ impl GroupControllerCustomActions for SingleSelectGroupController {
         changesets
     }
 
-    fn delete_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupRowsNotificationPB> {
+    fn delete_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB> {
         let mut changesets = vec![];
         self.group_ctx.iter_mut_status_groups(|group| {
             if let Some(changeset) = remove_select_option_row(group, cell_data, row_rev) {
@@ -52,7 +52,7 @@ impl GroupControllerCustomActions for SingleSelectGroupController {
 
     fn move_row(
         &mut self,
-        _cell_data: &Self::CellDataType,
+        _cell_data: &Self::CellData,
         mut context: MoveGroupRowContext,
     ) -> Vec<GroupRowsNotificationPB> {
         let mut group_changeset = vec![];

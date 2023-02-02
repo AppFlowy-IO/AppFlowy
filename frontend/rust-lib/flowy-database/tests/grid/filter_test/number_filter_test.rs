@@ -1,10 +1,10 @@
 use crate::grid::filter_test::script::FilterScript::*;
-use crate::grid::filter_test::script::{FilterRowChanged, GridFilterTest};
+use crate::grid::filter_test::script::{DatabaseFilterTest, FilterRowChanged};
 use flowy_database::entities::NumberFilterConditionPB;
 
 #[tokio::test]
 async fn grid_filter_number_is_equal_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let row_count = test.row_revs.len();
     let expected = 1;
     let scripts = vec![
@@ -23,7 +23,7 @@ async fn grid_filter_number_is_equal_test() {
 
 #[tokio::test]
 async fn grid_filter_number_is_less_than_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let row_count = test.row_revs.len();
     let expected = 2;
     let scripts = vec![
@@ -43,7 +43,7 @@ async fn grid_filter_number_is_less_than_test() {
 #[tokio::test]
 #[should_panic]
 async fn grid_filter_number_is_less_than_test2() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let row_count = test.row_revs.len();
     let expected = 2;
     let scripts = vec![
@@ -62,7 +62,7 @@ async fn grid_filter_number_is_less_than_test2() {
 
 #[tokio::test]
 async fn grid_filter_number_is_less_than_or_equal_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let row_count = test.row_revs.len();
     let expected = 3;
     let scripts = vec![
@@ -81,7 +81,7 @@ async fn grid_filter_number_is_less_than_or_equal_test() {
 
 #[tokio::test]
 async fn grid_filter_number_is_empty_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let row_count = test.row_revs.len();
     let expected = 1;
     let scripts = vec![
@@ -100,7 +100,7 @@ async fn grid_filter_number_is_empty_test() {
 
 #[tokio::test]
 async fn grid_filter_number_is_not_empty_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let row_count = test.row_revs.len();
     let expected = 5;
     let scripts = vec![

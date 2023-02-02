@@ -1,4 +1,4 @@
-use crate::grid::grid_editor::GridEditorTest;
+use crate::grid::database_editor::DatabaseEditorTest;
 use flowy_database::entities::{CreateFieldParams, FieldChangesetParams, FieldType};
 use flowy_database::services::cell::{stringify_cell_data, TypeCellData};
 use grid_model::FieldRevision;
@@ -38,13 +38,13 @@ pub enum FieldScript {
     },
 }
 
-pub struct GridFieldTest {
-    inner: GridEditorTest,
+pub struct DatabaseFieldTest {
+    inner: DatabaseEditorTest,
 }
 
-impl GridFieldTest {
+impl DatabaseFieldTest {
     pub async fn new() -> Self {
-        let editor_test = GridEditorTest::new_table().await;
+        let editor_test = DatabaseEditorTest::new_table().await;
         Self { inner: editor_test }
     }
 
@@ -144,15 +144,15 @@ impl GridFieldTest {
     }
 }
 
-impl std::ops::Deref for GridFieldTest {
-    type Target = GridEditorTest;
+impl std::ops::Deref for DatabaseFieldTest {
+    type Target = DatabaseEditorTest;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl std::ops::DerefMut for GridFieldTest {
+impl std::ops::DerefMut for DatabaseFieldTest {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }

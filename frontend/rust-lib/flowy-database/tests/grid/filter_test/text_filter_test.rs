@@ -5,7 +5,7 @@ use flowy_database::services::filter::FilterType;
 
 #[tokio::test]
 async fn grid_filter_text_is_empty_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let scripts = vec![
         CreateTextFilter {
             condition: TextFilterConditionPB::TextIsEmpty,
@@ -22,7 +22,7 @@ async fn grid_filter_text_is_empty_test() {
 
 #[tokio::test]
 async fn grid_filter_text_is_not_empty_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     // Only one row's text of the initial rows is ""
     let scripts = vec![
         CreateTextFilter {
@@ -55,7 +55,7 @@ async fn grid_filter_text_is_not_empty_test() {
 
 #[tokio::test]
 async fn grid_filter_is_text_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     // Only one row's text of the initial rows is "A"
     let scripts = vec![CreateTextFilter {
         condition: TextFilterConditionPB::Is,
@@ -70,7 +70,7 @@ async fn grid_filter_is_text_test() {
 
 #[tokio::test]
 async fn grid_filter_contain_text_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let scripts = vec![CreateTextFilter {
         condition: TextFilterConditionPB::Contains,
         content: "A".to_string(),
@@ -84,7 +84,7 @@ async fn grid_filter_contain_text_test() {
 
 #[tokio::test]
 async fn grid_filter_contain_text_test2() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let row_revs = test.row_revs.clone();
 
     let scripts = vec![
@@ -110,7 +110,7 @@ async fn grid_filter_contain_text_test2() {
 
 #[tokio::test]
 async fn grid_filter_does_not_contain_text_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     // None of the initial rows contains the text "AB"
     let scripts = vec![CreateTextFilter {
         condition: TextFilterConditionPB::DoesNotContain,
@@ -125,7 +125,7 @@ async fn grid_filter_does_not_contain_text_test() {
 
 #[tokio::test]
 async fn grid_filter_start_with_text_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let scripts = vec![CreateTextFilter {
         condition: TextFilterConditionPB::StartsWith,
         content: "A".to_string(),
@@ -139,7 +139,7 @@ async fn grid_filter_start_with_text_test() {
 
 #[tokio::test]
 async fn grid_filter_ends_with_text_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let scripts = vec![
         CreateTextFilter {
             condition: TextFilterConditionPB::EndsWith,
@@ -153,7 +153,7 @@ async fn grid_filter_ends_with_text_test() {
 
 #[tokio::test]
 async fn grid_update_text_filter_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let scripts = vec![
         CreateTextFilter {
             condition: TextFilterConditionPB::EndsWith,
@@ -187,7 +187,7 @@ async fn grid_update_text_filter_test() {
 
 #[tokio::test]
 async fn grid_filter_delete_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let field_rev = test.get_first_field_rev(FieldType::RichText).clone();
     let text_filter = TextFilterPB {
         condition: TextFilterConditionPB::TextIsEmpty,
@@ -216,7 +216,7 @@ async fn grid_filter_delete_test() {
 
 #[tokio::test]
 async fn grid_filter_update_empty_text_cell_test() {
-    let mut test = GridFilterTest::new().await;
+    let mut test = DatabaseFilterTest::new().await;
     let row_revs = test.row_revs.clone();
     let scripts = vec![
         CreateTextFilter {
