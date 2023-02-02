@@ -249,18 +249,7 @@ impl TransactionBuilder {
     }
 
     fn get_deleted_node_data(&self, node_tree: &NodeTree, node_id: NodeId) -> NodeData {
-        let node_data = node_tree.get_node(node_id).unwrap();
-        let mut children = vec![];
-        node_tree.get_children_ids(node_id).into_iter().for_each(|child_id| {
-            children.push(self.get_deleted_node_data(node_tree, child_id));
-        });
-
-        NodeData {
-            node_type: node_data.node_type.clone(),
-            attributes: node_data.attributes.clone(),
-            body: node_data.body.clone(),
-            children,
-        }
+        recursive_get_deleted_node_data(node_tree, node_id)
     }
 
     pub fn push(mut self, op: NodeOperation) -> Self {
@@ -270,5 +259,21 @@ impl TransactionBuilder {
 
     pub fn build(self) -> Transaction {
         Transaction::from_operations(self.operations)
+    }
+}
+
+fn recursive_get_deleted_node_data(node_tree: &NodeTree, node_id: NodeId) -> NodeData {
+    let node_data = node_tree.get_node(node_id).unwrap();
+    let mut children = vec![];
+    node_tree.get_children_ids(node_id).into_iter().for_each(|child_id| {
+        let child = recursive_get_deleted_node_data(node_tree, child_id);
+        children.push(child);
+    });
+
+    NodeData {
+        node_type: node_data.node_type.clone(),
+        attributes: node_data.attributes.clone(),
+        body: node_data.body.clone(),
+        children,
     }
 }

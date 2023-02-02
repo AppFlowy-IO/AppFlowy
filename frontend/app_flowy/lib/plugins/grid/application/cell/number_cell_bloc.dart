@@ -82,7 +82,7 @@ class NumberCellState with _$NumberCellState {
     required String cellContent,
   }) = _NumberCellState;
 
-  factory NumberCellState.initial(GridCellController context) {
+  factory NumberCellState.initial(GridTextCellController context) {
     return NumberCellState(
       cellContent: context.getCellData() ?? "",
     );

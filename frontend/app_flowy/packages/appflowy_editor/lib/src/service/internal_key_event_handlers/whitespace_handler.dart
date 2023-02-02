@@ -20,6 +20,8 @@ const _bulletedListSymbols = ['*', '-'];
 const _checkboxListSymbols = ['[x]', '-[x]'];
 const _unCheckboxListSymbols = ['[]', '-[]'];
 
+const _quoteSymbols = ['>'];
+
 final _numberRegex = RegExp(r'^(\d+)\.');
 
 ShortcutEventHandler whiteSpaceHandler = (editorState, event) {
@@ -49,6 +51,8 @@ ShortcutEventHandler whiteSpaceHandler = (editorState, event) {
     return _toBulletedList(editorState, textNode);
   } else if (_countOfSign(text, selection) != 0) {
     return _toHeadingStyle(editorState, textNode, selection);
+  } else if (_quoteSymbols.contains(text)) {
+    return _toQuoteStyle(editorState, textNode);
   } else if (numberMatch != null) {
     final matchText = numberMatch.group(0);
     final numText = numberMatch.group(1);
@@ -195,4 +199,23 @@ int _countOfSign(String text, Selection selection) {
     }
   }
   return 0;
+}
+
+KeyEventResult _toQuoteStyle(EditorState editorState, TextNode textNode) {
+  if (textNode.subtype == BuiltInAttributeKey.quote) {
+    return KeyEventResult.ignored;
+  }
+  final transaction = editorState.transaction
+    ..deleteText(textNode, 0, 1)
+    ..updateNode(textNode, {
+      BuiltInAttributeKey.subtype: BuiltInAttributeKey.quote,
+    })
+    ..afterSelection = Selection.collapsed(
+      Position(
+        path: textNode.path,
+        offset: 0,
+      ),
+    );
+  editorState.apply(transaction);
+  return KeyEventResult.handled;
 }

@@ -1,6 +1,6 @@
 use crate::impl_def_and_def_mut;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use folder_rev_model::{TrashRevision, TrashTypeRevision};
+use folder_model::{TrashRevision, TrashTypeRevision};
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 
@@ -105,7 +105,7 @@ impl std::default::Default for TrashType {
     }
 }
 
-#[derive(PartialEq, ProtoBuf, Default, Debug, Clone)]
+#[derive(PartialEq, Eq, ProtoBuf, Default, Debug, Clone)]
 pub struct RepeatedTrashIdPB {
     #[pb(index = 1)]
     pub items: Vec<TrashIdPB>,

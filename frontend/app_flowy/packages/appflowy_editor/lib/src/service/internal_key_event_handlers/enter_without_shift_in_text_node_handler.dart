@@ -80,6 +80,7 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
       final transaction = editorState.transaction
         ..updateNode(textNode, {
           BuiltInAttributeKey.subtype: null,
+          textNode.subtype!: null,
         })
         ..afterSelection = afterSelection;
       editorState.apply(transaction);

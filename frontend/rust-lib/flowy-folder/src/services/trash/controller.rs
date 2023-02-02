@@ -1,12 +1,12 @@
 use crate::{
-    dart_notification::{send_anonymous_dart_notification, FolderNotification},
     entities::trash::{RepeatedTrashIdPB, RepeatedTrashPB, TrashIdPB, TrashPB, TrashType},
     errors::{FlowyError, FlowyResult},
     event_map::{FolderCouldServiceV1, WorkspaceUser},
+    notification::{send_anonymous_notification, FolderNotification},
     services::persistence::{FolderPersistence, FolderPersistenceTransaction},
 };
 
-use folder_rev_model::TrashRevision;
+use folder_model::TrashRevision;
 use std::{fmt::Formatter, sync::Arc};
 use tokio::sync::{broadcast, mpsc};
 
@@ -59,7 +59,7 @@ impl TrashController {
             delete_all: false,
         })?;
 
-        tracing::Span::current().record("putback", &format!("{:?}", &identifier).as_str());
+        tracing::Span::current().record("putback", format!("{:?}", &identifier).as_str());
         let _ = self.notify.send(TrashEvent::Putback(vec![identifier].into(), tx));
         rx.recv().await.unwrap()?;
         Ok(())
@@ -118,7 +118,7 @@ impl TrashController {
     #[tracing::instrument(level = "debug", skip(self), fields(delete_trash_ids), err)]
     pub async fn delete_with_identifiers(&self, trash_identifiers: RepeatedTrashIdPB) -> FlowyResult<()> {
         let (tx, mut rx) = mpsc::channel::<FlowyResult<()>>(1);
-        tracing::Span::current().record("delete_trash_ids", &format!("{}", trash_identifiers).as_str());
+        tracing::Span::current().record("delete_trash_ids", format!("{}", trash_identifiers).as_str());
         let _ = self.notify.send(TrashEvent::Delete(trash_identifiers.clone(), tx));
 
         match rx.recv().await {
@@ -156,7 +156,7 @@ impl TrashController {
 
         tracing::Span::current().record(
             "trash_ids",
-            &format!(
+            format!(
                 "{:?}",
                 identifiers
                     .iter()
@@ -168,7 +168,7 @@ impl TrashController {
 
         self.persistence
             .begin_transaction(|transaction| {
-                let _ = transaction.create_trash(trash_revs.clone())?;
+                transaction.create_trash(trash_revs.clone())?;
                 let _ = self.create_trash_on_server(trash_revs);
 
                 notify_trash_changed(transaction.read_trash(None)?);
@@ -282,8 +282,8 @@ impl TrashController {
 #[tracing::instrument(level = "debug", skip(repeated_trash), fields(n_trash))]
 fn notify_trash_changed<T: Into<RepeatedTrashPB>>(repeated_trash: T) {
     let repeated_trash = repeated_trash.into();
-    tracing::Span::current().record("n_trash", &repeated_trash.len());
-    send_anonymous_dart_notification(FolderNotification::TrashUpdated)
+    tracing::Span::current().record("n_trash", repeated_trash.len());
+    send_anonymous_notification(FolderNotification::TrashUpdated)
         .payload(repeated_trash)
         .send();
 }

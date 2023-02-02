@@ -7,7 +7,7 @@ import 'row_data_controller.dart';
 part 'row_detail_bloc.freezed.dart';
 
 class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
-  final GridRowDataController dataController;
+  final RowDataController dataController;
 
   RowDetailBloc({
     required this.dataController,
@@ -27,7 +27,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
           },
           deleteField: (_DeleteField value) {
             final fieldService = FieldService(
-              gridId: dataController.rowInfo.gridId,
+              databaseId: dataController.rowInfo.databaseId,
               fieldId: value.fieldId,
             );
             fieldService.deleteField();

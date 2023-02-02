@@ -7,11 +7,18 @@ edition = "2018"
 
 [dependencies]
 lib-dispatch = { path = "../lib-dispatch" }
-flowy-error = { path = "../flowy-error", features = ["collaboration", "http_server"] }
+flowy-error = { path = "../flowy-error", features = ["adaptor_sync", "adaptor_reqwest", "adaptor_server_error"] }
 flowy-derive = { path = "../flowy-derive" }
-flowy-sync = { path = "../flowy-sync"}
-flowy-http-model = { path = "../../../shared-lib/flowy-http-model"}
-folder-rev-model = { path = "../../../shared-lib/folder-rev-model"}
+flowy-client-sync = { path = "../flowy-client-sync"}
+folder-model = { path = "../../../shared-lib/folder-model" }
+revision-model = { path = "../../../shared-lib/revision-model"}
+document-model = { path = "../../../shared-lib/document-model"}
+ws-model = { path = "../../../shared-lib/ws-model"}
+flowy-server-sync = { path = "../../../shared-lib/flowy-server-sync"}
+flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws"}
+flowy-client-network-config= { path = "../../../shared-lib/flowy-client-network-config"}
+flowy-sync = { path = "../../../shared-lib/flowy-sync"}
+user-model = { path = "../../../shared-lib/user-model"}
 flowy-folder = { path = "../flowy-folder" }
 flowy-user = { path = "../flowy-user" }
 flowy-document = { path = "../flowy-document" }
@@ -29,15 +36,14 @@ tracing = { version = "0.1", features = ["log"] }
 dashmap = "5"
 async-stream = "0.3.2"
 futures-util = "0.3.15"
-http-flowy = { git = "https://github.com/AppFlowy-IO/AppFlowy-Server", features = ["with_reqwest"] }
-serde-aux = "1.0.1"
 reqwest = "0.11"
 hyper = "0.14"
 config = { version = "0.10.1", default-features = false, features = ["yaml"] }
-log = "0.4.14"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+serde-aux = "1.0.1"
 nanoid = "0.4.0"
+thiserror = "1.0"
 
 [features]
 http_server = []
@@ -45,6 +51,12 @@ dart = [
     "flowy-codegen/dart",
     "flowy-user/dart",
     "flowy-error/dart",
+]
+
+ts = [
+    "flowy-codegen/ts",
+    "flowy-user/ts",
+    "flowy-error/ts",
 ]
 
 [build-dependencies]

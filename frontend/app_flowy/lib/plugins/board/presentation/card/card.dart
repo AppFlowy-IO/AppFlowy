@@ -13,7 +13,7 @@ import 'container/accessory.dart';
 import 'container/card_container.dart';
 
 class BoardCard extends StatefulWidget {
-  final String gridId;
+  final String viewId;
   final String groupId;
   final String fieldId;
   final bool isEditing;
@@ -24,7 +24,7 @@ class BoardCard extends StatefulWidget {
   final VoidCallback onEndEditing;
 
   const BoardCard({
-    required this.gridId,
+    required this.viewId,
     required this.groupId,
     required this.fieldId,
     required this.isEditing,
@@ -50,7 +50,7 @@ class _BoardCardState extends State<BoardCard> {
   void initState() {
     rowNotifier = EditableRowNotifier(isEditing: widget.isEditing);
     _cardBloc = BoardCardBloc(
-      gridId: widget.gridId,
+      viewId: widget.viewId,
       groupFieldId: widget.fieldId,
       dataController: widget.dataController,
       isEditing: widget.isEditing,

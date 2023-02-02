@@ -14,6 +14,7 @@ enum PluginType {
   trash,
   grid,
   board,
+  calendar,
 }
 
 typedef PluginId = String;

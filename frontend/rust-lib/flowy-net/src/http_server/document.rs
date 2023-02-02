@@ -1,11 +1,9 @@
-use crate::{
-    configuration::*,
-    request::{HttpRequestBuilder, ResponseMiddleware},
-};
+use crate::request::{HttpRequestBuilder, ResponseMiddleware};
+use crate::response::HttpResponse;
+use document_model::document::{CreateDocumentParams, DocumentId, DocumentInfo, ResetDocumentParams};
+use flowy_client_network_config::{ClientServerConfiguration, HEADER_TOKEN};
 use flowy_document::DocumentCloudService;
 use flowy_error::FlowyError;
-use flowy_http_model::document::{CreateDocumentParams, DocumentId, DocumentPayload, ResetDocumentParams};
-use http_flowy::response::FlowyResponse;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
@@ -27,7 +25,7 @@ impl DocumentCloudService for DocumentCloudServiceImpl {
         FutureResult::new(async move { create_document_request(&token, params, &url).await })
     }
 
-    fn fetch_document(&self, token: &str, params: DocumentId) -> FutureResult<Option<DocumentPayload>, FlowyError> {
+    fn fetch_document(&self, token: &str, params: DocumentId) -> FutureResult<Option<DocumentInfo>, FlowyError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
         FutureResult::new(async move { read_document_request(&token, params, &url).await })
@@ -54,7 +52,7 @@ pub async fn read_document_request(
     token: &str,
     params: DocumentId,
     url: &str,
-) -> Result<Option<DocumentPayload>, FlowyError> {
+) -> Result<Option<DocumentInfo>, FlowyError> {
     let doc = request_builder()
         .get(url)
         .header(HEADER_TOKEN, token)
@@ -85,7 +83,7 @@ lazy_static! {
 
 pub(crate) struct DocumentResponseMiddleware {}
 impl ResponseMiddleware for DocumentResponseMiddleware {
-    fn receive_response(&self, token: &Option<String>, response: &FlowyResponse) {
+    fn receive_response(&self, token: &Option<String>, response: &HttpResponse) {
         if let Some(error) = &response.error {
             if error.is_unauthorized() {
                 tracing::error!("document user is unauthorized");

@@ -1,0 +1,23 @@
+[package]
+name = "flowy-notification"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lazy_static = { version = "1.4.0" }
+protobuf = { version = "2.20.0" }
+tracing = { version = "0.1", features = ["log"] }
+bytes = { version = "1.0" }
+serde = "1.0"
+
+flowy-derive = { path = "../flowy-derive" }
+lib-dispatch = { path = "../lib-dispatch" }
+
+[build-dependencies]
+flowy-codegen = { path = "../flowy-codegen" }
+
+[features]
+dart = ["flowy-codegen/dart"]
+ts = ["flowy-codegen/ts"]

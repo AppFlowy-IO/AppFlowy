@@ -1,13 +1,13 @@
 use crate::old_editor::web_socket::DeltaDocumentResolveOperations;
 use crate::DocumentUser;
 use async_stream::stream;
-use flowy_database::ConnectionPool;
+use flowy_client_sync::{
+    client_document::{history::UndoResult, ClientDocument},
+    errors::SyncError,
+};
 use flowy_error::FlowyError;
 use flowy_revision::{RevisionMD5, RevisionManager, TransformOperations};
-use flowy_sync::{
-    client_document::{history::UndoResult, ClientDocument},
-    errors::CollaborateError,
-};
+use flowy_sqlite::ConnectionPool;
 use futures::stream::StreamExt;
 use lib_ot::core::AttributeEntry;
 use lib_ot::{
@@ -104,7 +104,7 @@ impl EditDocumentQueue {
                         server_operations = Some(DeltaDocumentResolveOperations(s_prime));
                     }
                     drop(read_guard);
-                    Ok::<TextTransformOperations, CollaborateError>(TransformOperations {
+                    Ok::<TextTransformOperations, SyncError>(TransformOperations {
                         client_operations: DeltaDocumentResolveOperations(client_operations),
                         server_operations,
                     })
@@ -185,7 +185,7 @@ impl EditDocumentQueue {
 pub type TextTransformOperations = TransformOperations<DeltaDocumentResolveOperations>;
 pub(crate) type EditorCommandSender = Sender<EditorCommand>;
 pub(crate) type EditorCommandReceiver = Receiver<EditorCommand>;
-pub(crate) type Ret<T> = oneshot::Sender<Result<T, CollaborateError>>;
+pub(crate) type Ret<T> = oneshot::Sender<Result<T, SyncError>>;
 
 pub(crate) enum EditorCommand {
     ComposeLocalOperations {

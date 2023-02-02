@@ -44,6 +44,8 @@ extension ViewExtension on ViewPB {
     switch (layout) {
       case ViewLayoutTypePB.Board:
         return PluginType.board;
+      case ViewLayoutTypePB.Calendar:
+        return PluginType.calendar;
       case ViewLayoutTypePB.Document:
         return PluginType.editor;
       case ViewLayoutTypePB.Grid:

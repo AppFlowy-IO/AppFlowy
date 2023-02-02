@@ -24,7 +24,7 @@ impl WebSocketRawMessage {
 pub enum WSChannel {
     Document = 0,
     Folder = 1,
-    Grid = 2,
+    Database = 2,
 }
 
 impl std::default::Default for WSChannel {
@@ -38,7 +38,7 @@ impl ToString for WSChannel {
         match self {
             WSChannel::Document => "0".to_string(),
             WSChannel::Folder => "1".to_string(),
-            WSChannel::Grid => "2".to_string(),
+            WSChannel::Database => "2".to_string(),
         }
     }
 }

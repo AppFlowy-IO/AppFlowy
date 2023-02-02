@@ -1,17 +1,15 @@
 use bytes::Bytes;
 use diesel::{sql_types::Integer, update, SqliteConnection};
-use flowy_database::{
+use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_revision_persistence::{RevisionChangeset, RevisionDiskCache, RevisionState, SyncRecord};
+use flowy_sqlite::{
     impl_sql_integer_expression, insert_or_ignore_into,
     prelude::*,
     schema::{document_rev_table, document_rev_table::dsl},
     ConnectionPool,
 };
-use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_http_model::{
-    revision::{Revision, RevisionRange},
-    util::md5,
-};
-use flowy_revision::disk::{RevisionChangeset, RevisionDiskCache, RevisionState, SyncRecord};
+use lib_infra::util::md5;
+use revision_model::{Revision, RevisionRange};
 use std::sync::Arc;
 
 pub struct SQLiteDocumentRevisionPersistence {
@@ -24,7 +22,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDocumentRevisionPersistenc
 
     fn create_revision_records(&self, revision_records: Vec<SyncRecord>) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        DocumentRevisionSql::create(revision_records, &*conn)?;
+        DocumentRevisionSql::create(revision_records, &conn)?;
         Ok(())
     }
 
@@ -56,7 +54,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDocumentRevisionPersistenc
         let conn = &*self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
             for changeset in changesets {
-                let _ = DocumentRevisionSql::update(changeset, conn)?;
+                DocumentRevisionSql::update(changeset, conn)?;
             }
             Ok(())
         })?;
@@ -77,8 +75,8 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDocumentRevisionPersistenc
     ) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
-            DocumentRevisionSql::delete(object_id, deleted_rev_ids, &*conn)?;
-            DocumentRevisionSql::create(inserted_records, &*conn)?;
+            DocumentRevisionSql::delete(object_id, deleted_rev_ids, &conn)?;
+            DocumentRevisionSql::create(inserted_records, &conn)?;
             Ok(())
         })
     }

@@ -6,22 +6,24 @@ import '../field/field_controller.dart';
 import '../row/row_cache.dart';
 
 /// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid for more information
-class GridViewCache {
-  final String gridId;
+class DatabaseViewCache {
+  final String databaseId;
   late GridRowCache _rowCache;
   final GridViewListener _gridViewListener;
 
   List<RowInfo> get rowInfos => _rowCache.visibleRows;
   GridRowCache get rowCache => _rowCache;
 
-  GridViewCache({
-    required this.gridId,
+  DatabaseViewCache({
+    required this.databaseId,
     required GridFieldController fieldController,
-  }) : _gridViewListener = GridViewListener(viewId: gridId) {
+  }) : _gridViewListener = GridViewListener(viewId: databaseId) {
+    final delegate = GridRowFieldNotifierImpl(fieldController);
     _rowCache = GridRowCache(
-      gridId: gridId,
+      databaseId: databaseId,
       rows: [],
-      notifier: GridRowFieldNotifierImpl(fieldController),
+      notifier: delegate,
+      delegate: delegate,
     );
 
     _gridViewListener.start(
@@ -34,6 +36,18 @@ class GridViewCache {
       onRowsVisibilityChanged: (result) {
         result.fold(
           (changeset) => _rowCache.applyRowsVisibility(changeset),
+          (err) => Log.error(err),
+        );
+      },
+      onReorderAllRows: (result) {
+        result.fold(
+          (rowIds) => _rowCache.reorderAllRows(rowIds),
+          (err) => Log.error(err),
+        );
+      },
+      onReorderSingleRow: (result) {
+        result.fold(
+          (reorderRow) => _rowCache.reorderSingleRow(reorderRow),
           (err) => Log.error(err),
         );
       },

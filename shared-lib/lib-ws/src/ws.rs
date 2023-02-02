@@ -232,8 +232,7 @@ pub struct WSSender(MsgSender);
 impl WSSender {
     pub fn send_msg<T: Into<WebSocketRawMessage>>(&self, msg: T) -> Result<(), WSError> {
         let msg = msg.into();
-        let _ = self
-            .0
+        self.0
             .unbounded_send(msg.into())
             .map_err(|e| WSError::internal().context(e))?;
         Ok(())
@@ -261,7 +260,7 @@ impl WSSender {
             reason: reason.to_owned().into(),
         };
         let msg = Message::Close(Some(frame));
-        let _ = self.0.unbounded_send(msg).map_err(|e| WSError::internal().context(e))?;
+        self.0.unbounded_send(msg).map_err(|e| WSError::internal().context(e))?;
         Ok(())
     }
 }

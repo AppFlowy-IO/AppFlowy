@@ -7,7 +7,7 @@ use flowy_revision::RevisionManager;
 use futures::stream::StreamExt;
 use lib_ot::core::Transaction;
 
-use flowy_database::ConnectionPool;
+use flowy_sqlite::ConnectionPool;
 use std::sync::Arc;
 use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::sync::{oneshot, RwLock};

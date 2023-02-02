@@ -1,11 +1,11 @@
 use crate::history::RevisionHistoryDiskCache;
-use flowy_database::{
+use flowy_error::{internal_error, FlowyResult};
+use flowy_sqlite::{
     prelude::*,
     schema::{rev_history, rev_history::dsl},
     ConnectionPool,
 };
-use flowy_error::{internal_error, FlowyResult};
-use flowy_http_model::revision::Revision;
+use revision_model::Revision;
 use std::sync::Arc;
 
 pub struct SQLiteRevisionHistoryPersistence {

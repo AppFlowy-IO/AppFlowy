@@ -7,7 +7,7 @@ use crate::{
     impl_def_and_def_mut,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use folder_rev_model::{gen_view_id, ViewDataFormatRevision, ViewLayoutTypeRevision, ViewRevision};
+use folder_model::{gen_view_id, ViewDataFormatRevision, ViewLayoutTypeRevision, ViewRevision};
 use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -86,6 +86,7 @@ pub enum ViewLayoutTypePB {
     Document = 0,
     Grid = 3,
     Board = 4,
+    Calendar = 5,
 }
 
 impl std::default::Default for ViewLayoutTypePB {
@@ -100,6 +101,7 @@ impl std::convert::From<ViewLayoutTypeRevision> for ViewLayoutTypePB {
             ViewLayoutTypeRevision::Grid => ViewLayoutTypePB::Grid,
             ViewLayoutTypeRevision::Board => ViewLayoutTypePB::Board,
             ViewLayoutTypeRevision::Document => ViewLayoutTypePB::Document,
+            ViewLayoutTypeRevision::Calendar => ViewLayoutTypePB::Calendar,
         }
     }
 }
@@ -110,6 +112,7 @@ impl std::convert::From<ViewLayoutTypePB> for ViewLayoutTypeRevision {
             ViewLayoutTypePB::Grid => ViewLayoutTypeRevision::Grid,
             ViewLayoutTypePB::Board => ViewLayoutTypeRevision::Board,
             ViewLayoutTypePB::Document => ViewLayoutTypeRevision::Document,
+            ViewLayoutTypePB::Calendar => ViewLayoutTypeRevision::Calendar,
         }
     }
 }

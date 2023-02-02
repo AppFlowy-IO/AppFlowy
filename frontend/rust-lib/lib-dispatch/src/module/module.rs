@@ -37,7 +37,7 @@ pub(crate) fn as_plugin_map(plugins: Vec<AFPlugin>) -> AFPluginMap {
 }
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]
-pub struct AFPluginEvent(String);
+pub struct AFPluginEvent(pub String);
 
 impl<T: Display + Eq + Hash + Debug + Clone> std::convert::From<T> for AFPluginEvent {
     fn from(t: T) -> Self {

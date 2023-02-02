@@ -1,40 +1,39 @@
-export './app/header/header.dart';
-export './app/menu_app.dart';
-
 import 'dart:io' show Platform;
+
+import 'package:app_flowy/core/frameless_window.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/trash/menu.dart';
+import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/home/home_setting_bloc.dart';
+import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/notifier.dart';
-import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
-    show UserProfilePB;
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
+    show UserProfilePB;
+import 'package:easy_localization/easy_localization.dart';
+import 'package:expandable/expandable.dart';
+// import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
+import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/time/duration.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
-import 'package:expandable/expandable.dart';
-import 'package:flowy_infra/time/duration.dart';
-import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
-import 'package:app_flowy/core/frameless_window.dart';
-// import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
-import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 
 import '../navigation.dart';
-import 'app/menu_app.dart';
 import 'app/create_button.dart';
+import 'app/menu_app.dart';
 import 'menu_user.dart';
 
+export './app/header/header.dart';
+export './app/menu_app.dart';
+
 class HomeMenu extends StatelessWidget {
-  final PublishNotifier<bool> _collapsedNotifier;
   final UserProfilePB user;
   final WorkspaceSettingPB workspaceSetting;
 
@@ -42,9 +41,7 @@ class HomeMenu extends StatelessWidget {
     Key? key,
     required this.user,
     required this.workspaceSetting,
-    required PublishNotifier<bool> collapsedNotifier,
-  })  : _collapsedNotifier = collapsedNotifier,
-        super(key: key);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -69,12 +66,6 @@ class HomeMenu extends StatelessWidget {
               getIt<HomeStackManager>().setPlugin(state.plugin);
             },
           ),
-          BlocListener<HomeSettingBloc, HomeSettingState>(
-            listenWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed,
-            listener: (context, state) {
-              _collapsedNotifier.value = state.isMenuCollapsed;
-            },
-          )
         ],
         child: BlocBuilder<MenuBloc, MenuState>(
           builder: (context, state) => _renderBody(context),

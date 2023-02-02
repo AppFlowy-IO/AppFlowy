@@ -1,5 +1,5 @@
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -74,14 +74,14 @@ class GridGroupEvent with _$GridGroupEvent {
 @freezed
 class GridGroupState with _$GridGroupState {
   const factory GridGroupState({
-    required String gridId,
+    required String databaseId,
     required List<FieldInfo> fieldContexts,
   }) = _GridGroupState;
 
   factory GridGroupState.initial(
-          String gridId, List<FieldInfo> fieldContexts) =>
+          String databaseId, List<FieldInfo> fieldContexts) =>
       GridGroupState(
-        gridId: gridId,
+        databaseId: databaseId,
         fieldContexts: fieldContexts,
       );
 }

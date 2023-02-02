@@ -1,19 +1,20 @@
 use crate::manager::FolderId;
 use bytes::Bytes;
-use flowy_database::ConnectionPool;
+use flowy_client_sync::client_folder::{FolderChangeset, FolderOperations, FolderPad};
+use flowy_client_sync::make_operations_from_revisions;
+use flowy_client_sync::util::recover_operation_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_http_model::revision::Revision;
-use flowy_http_model::ws_data::ServerRevisionWSData;
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
     RevisionWebSocket,
 };
-use flowy_sync::client_folder::{FolderChangeset, FolderPad};
-use flowy_sync::util::make_operations_from_revisions;
+use flowy_sqlite::ConnectionPool;
 use lib_infra::future::FutureResult;
 use lib_ot::core::EmptyAttributes;
 use parking_lot::RwLock;
+use revision_model::Revision;
 use std::sync::Arc;
+use ws_model::ws_revision::ServerRevisionWSData;
 
 pub struct FolderEditor {
     #[allow(dead_code)]
@@ -102,8 +103,19 @@ impl RevisionObjectDeserializer for FolderRevisionSerde {
     type Output = FolderPad;
 
     fn deserialize_revisions(_object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
-        let pad = FolderPad::from_revisions(revisions)?;
-        Ok(pad)
+        let operations: FolderOperations = make_operations_from_revisions(revisions)?;
+        Ok(FolderPad::from_operations(operations)?)
+    }
+
+    fn recover_operations_from_revisions(revisions: Vec<Revision>) -> Option<Self::Output> {
+        if let Some(operations) = recover_operation_from_revisions(revisions, |operations| {
+            FolderPad::from_operations(operations.clone()).is_ok()
+        }) {
+            if let Ok(pad) = FolderPad::from_operations(operations) {
+                return Some(pad);
+            }
+        }
+        None
     }
 }
 

@@ -3,20 +3,18 @@ pub mod rev_sqlite;
 pub mod version_1;
 mod version_2;
 
+use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
 use crate::{
     event_map::WorkspaceDatabase,
     manager::FolderId,
     services::{folder_editor::FolderEditor, persistence::migration::FolderMigration},
 };
-use flowy_database::ConnectionPool;
+use flowy_client_sync::client_folder::{FolderOperationsBuilder, FolderPad};
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_http_model::revision::Revision;
-use flowy_revision::disk::{RevisionDiskCache, RevisionState, SyncRecord};
-use flowy_sync::client_folder::FolderPad;
-use folder_rev_model::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
-
-use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
-use flowy_sync::server_folder::FolderOperationsBuilder;
+use flowy_revision_persistence::{RevisionDiskCache, RevisionState, SyncRecord};
+use flowy_sqlite::ConnectionPool;
+use folder_model::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
+use revision_model::Revision;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 pub use version_1::{app_sql::*, trash_sql::*, v1_impl::V1Transaction, view_sql::*, workspace_sql::*};
@@ -119,12 +117,12 @@ impl FolderPersistence {
             write_to_disk: true,
         };
 
-        let disk_cache = mk_text_block_revision_disk_cache(user_id, pool);
+        let disk_cache = make_folder_revision_disk_cache(user_id, pool);
         disk_cache.delete_and_insert_records(folder_id.as_ref(), None, vec![record])
     }
 }
 
-pub fn mk_text_block_revision_disk_cache(
+pub fn make_folder_revision_disk_cache(
     user_id: &str,
     pool: Arc<ConnectionPool>,
 ) -> Arc<dyn RevisionDiskCache<Arc<ConnectionPool>, Error = FlowyError>> {

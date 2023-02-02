@@ -9,11 +9,11 @@ use derivative::*;
 use std::{convert::TryFrom, fmt, fmt::Formatter};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-#[cfg_attr(feature = "use_serde", derive(serde::Serialize))]
+#[cfg_attr(feature = "use_serde", derive(serde_repr::Serialize_repr))]
+#[repr(u8)]
 pub enum StatusCode {
     Ok = 0,
     Err = 1,
-    Internal = 2,
 }
 
 // serde user guide: https://serde.rs/field-attrs.html
@@ -43,7 +43,7 @@ impl AFPluginEventResponse {
                 let data = <AFPluginData<T>>::try_from(self.payload)?;
                 Ok(Ok(data.into_inner()))
             }
-            StatusCode::Err | StatusCode::Internal => {
+            StatusCode::Err => {
                 let err = <AFPluginData<E>>::try_from(self.payload)?;
                 Ok(Err(err.into_inner()))
             }

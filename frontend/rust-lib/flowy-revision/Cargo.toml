@@ -6,10 +6,12 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-http-model = { path = "../../../shared-lib/flowy-http-model" }
+revision-model = { path = "../../../shared-lib/revision-model" }
+ws-model = { path = "../../../shared-lib/ws-model" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-error = { path = "../flowy-error" }
+flowy-revision-persistence= { path = "../flowy-revision-persistence" }
 tracing = { version = "0.1", features = ["log"] }
 tokio = {version = "1", features = ["sync"]}
 bytes = { version = "1.1" }

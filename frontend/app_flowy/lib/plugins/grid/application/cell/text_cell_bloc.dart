@@ -6,7 +6,7 @@ import 'cell_service/cell_service.dart';
 part 'text_cell_bloc.freezed.dart';
 
 class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
-  final GridCellController cellController;
+  final GridTextCellController cellController;
   void Function()? _onCellChangedFn;
   TextCellBloc({
     required this.cellController,
@@ -66,7 +66,8 @@ class TextCellState with _$TextCellState {
     required String content,
   }) = _TextCellState;
 
-  factory TextCellState.initial(GridCellController context) => TextCellState(
+  factory TextCellState.initial(GridTextCellController context) =>
+      TextCellState(
         content: context.getCellData() ?? "",
       );
 }

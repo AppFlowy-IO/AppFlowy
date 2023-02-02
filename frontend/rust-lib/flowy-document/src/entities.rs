@@ -22,7 +22,7 @@ impl From<i32> for ExportType {
             1 => ExportType::Markdown,
             2 => ExportType::Link,
             _ => {
-                log::error!("Invalid export type: {}", val);
+                tracing::error!("Invalid export type: {}", val);
                 ExportType::Text
             }
         }

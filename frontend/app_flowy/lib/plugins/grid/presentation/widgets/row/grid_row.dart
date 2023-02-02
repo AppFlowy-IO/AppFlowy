@@ -20,7 +20,7 @@ import 'package:easy_localization/easy_localization.dart';
 
 class GridRowWidget extends StatefulWidget {
   final RowInfo rowInfo;
-  final GridRowDataController dataController;
+  final RowDataController dataController;
   final GridCellBuilder cellBuilder;
   final void Function(BuildContext, GridCellBuilder) openDetailPage;
 
@@ -225,8 +225,8 @@ class RowContent extends StatelessWidget {
 
         return CellContainer(
           width: cellId.fieldInfo.width.toDouble(),
-          rowStateNotifier:
-              Provider.of<RegionStateNotifier>(context, listen: false),
+          isPrimary: cellId.fieldInfo.isPrimary,
+          cellContainerNotifier: CellContainerNotifier(child),
           accessoryBuilder: (buildContext) {
             final builder = child.accessoryBuilder;
             List<GridCellAccessoryBuilder> accessories = [];

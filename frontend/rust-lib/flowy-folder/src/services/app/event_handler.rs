@@ -3,7 +3,7 @@ use crate::{
     errors::FlowyError,
     services::{AppController, TrashController, ViewController},
 };
-use folder_rev_model::TrashRevision;
+use folder_model::TrashRevision;
 use lib_dispatch::prelude::{data_result, AFPluginData, AFPluginState, DataResult};
 use std::{convert::TryInto, sync::Arc};
 

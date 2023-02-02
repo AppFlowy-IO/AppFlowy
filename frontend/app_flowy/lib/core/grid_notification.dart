@@ -1,39 +1,39 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:appflowy_backend/protobuf/dart-notify/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/dart_notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/notification.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 
 import 'notification_helper.dart';
 
-// GridPB
-typedef GridNotificationCallback = void Function(
-    GridDartNotification, Either<Uint8List, FlowyError>);
+// DatabasePB
+typedef DatabaseNotificationCallback = void Function(
+    DatabaseNotification, Either<Uint8List, FlowyError>);
 
-class GridNotificationParser
-    extends NotificationParser<GridDartNotification, FlowyError> {
-  GridNotificationParser(
-      {String? id, required GridNotificationCallback callback})
+class DatabaseNotificationParser
+    extends NotificationParser<DatabaseNotification, FlowyError> {
+  DatabaseNotificationParser(
+      {String? id, required DatabaseNotificationCallback callback})
       : super(
           id: id,
           callback: callback,
-          tyParser: (ty) => GridDartNotification.valueOf(ty),
+          tyParser: (ty) => DatabaseNotification.valueOf(ty),
           errorParser: (bytes) => FlowyError.fromBuffer(bytes),
         );
 }
 
-typedef GridNotificationHandler = Function(
-    GridDartNotification ty, Either<Uint8List, FlowyError> result);
+typedef DatabaseNotificationHandler = Function(
+    DatabaseNotification ty, Either<Uint8List, FlowyError> result);
 
-class GridNotificationListener {
+class DatabaseNotificationListener {
   StreamSubscription<SubscribeObject>? _subscription;
-  GridNotificationParser? _parser;
+  DatabaseNotificationParser? _parser;
 
-  GridNotificationListener(
-      {required String objectId, required GridNotificationHandler handler})
-      : _parser = GridNotificationParser(id: objectId, callback: handler) {
+  DatabaseNotificationListener(
+      {required String objectId, required DatabaseNotificationHandler handler})
+      : _parser = DatabaseNotificationParser(id: objectId, callback: handler) {
     _subscription =
         RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }

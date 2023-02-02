@@ -24,18 +24,18 @@ where
     }
 }
 
-#[cfg(feature = "use_serde")]
-impl<T> ToBytes for T
-where
-    T: serde::Serialize,
-{
-    fn into_bytes(self) -> Result<Bytes, DispatchError> {
-        match serde_json::to_string(&self.0) {
-            Ok(s) => Ok(Bytes::from(s)),
-            Err(e) => Err(InternalError::SerializeToBytes(format!("{:?}", e)).into()),
-        }
-    }
-}
+// #[cfg(feature = "use_serde")]
+// impl<T> ToBytes for T
+// where
+//     T: serde::Serialize,
+// {
+//     fn into_bytes(self) -> Result<Bytes, DispatchError> {
+//         match serde_json::to_string(&self.0) {
+//             Ok(s) => Ok(Bytes::from(s)),
+//             Err(e) => Err(InternalError::SerializeToBytes(format!("{:?}", e)).into()),
+//         }
+//     }
+// }
 
 // From bytes
 
@@ -65,18 +65,18 @@ where
         }
     }
 }
-
-#[cfg(feature = "use_serde")]
-impl<T> AFPluginFromBytes for T
-where
-    T: serde::de::DeserializeOwned + 'static,
-{
-    fn parse_from_bytes(bytes: Bytes) -> Result<Self, String> {
-        let s = String::from_utf8_lossy(&bytes);
-
-        match serde_json::from_str::<T>(s.as_ref()) {
-            Ok(data) => Ok(data),
-            Err(e) => Err(format!("{:?}", e)),
-        }
-    }
-}
+//
+// #[cfg(feature = "use_serde")]
+// impl<T> AFPluginFromBytes for T
+// where
+//     T: serde::de::DeserializeOwned + 'static,
+// {
+//     fn parse_from_bytes(bytes: Bytes) -> Result<Self, String> {
+//         let s = String::from_utf8_lossy(&bytes);
+//
+//         match serde_json::from_str::<T>(s.as_ref()) {
+//             Ok(data) => Ok(data),
+//             Err(e) => Err(format!("{:?}", e)),
+//         }
+//     }
+// }

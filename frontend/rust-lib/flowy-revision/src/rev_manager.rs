@@ -5,9 +5,9 @@ use crate::{
 };
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_http_model::revision::{Revision, RevisionRange};
-use flowy_http_model::util::md5;
 use lib_infra::future::FutureResult;
+use lib_infra::util::md5;
+use revision_model::{Revision, RevisionRange};
 use std::sync::atomic::AtomicI64;
 use std::sync::atomic::Ordering::SeqCst;
 use std::sync::Arc;
@@ -34,6 +34,8 @@ pub trait RevisionObjectDeserializer: Send + Sync {
     /// * `revisions`: a list of revisions that represent the object
     ///
     fn deserialize_revisions(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output>;
+
+    fn recover_operations_from_revisions(revisions: Vec<Revision>) -> Option<Self::Output>;
 }
 
 pub trait RevisionObjectSerializer: Send + Sync {
@@ -125,24 +127,28 @@ impl<Connection: 'static> RevisionManager<Connection> {
         }
     }
 
-    #[tracing::instrument(level = "debug", skip_all, fields(deserializer, object) err)]
+    #[tracing::instrument(name = "revision_manager_initialize", level = "trace", skip_all, fields(deserializer, object_id, deserialize_revisions) err)]
     pub async fn initialize<B>(&mut self, _cloud: Option<Arc<dyn RevisionCloudService>>) -> FlowyResult<B::Output>
     where
         B: RevisionObjectDeserializer,
     {
         let revision_records = self.rev_persistence.load_all_records(&self.object_id)?;
-        tracing::Span::current().record("object", &self.object_id.as_str());
-        tracing::Span::current().record("deserializer", &std::any::type_name::<B>());
+        tracing::Span::current().record("object_id", self.object_id.as_str());
+        tracing::Span::current().record("deserializer", std::any::type_name::<B>());
         let revisions: Vec<Revision> = revision_records.iter().map(|record| record.revision.clone()).collect();
+        tracing::Span::current().record("deserialize_revisions", revisions.len());
         let current_rev_id = revisions.last().as_ref().map(|revision| revision.rev_id).unwrap_or(0);
-        match B::deserialize_revisions(&self.object_id, revisions) {
+        match B::deserialize_revisions(&self.object_id, revisions.clone()) {
             Ok(object) => {
                 self.rev_persistence.sync_revision_records(&revision_records).await?;
                 self.rev_id_counter.set(current_rev_id);
                 Ok(object)
             }
-            Err(err) => match self.rev_snapshot.restore_from_snapshot::<B>(current_rev_id) {
-                None => Err(err),
+            Err(e) => match self.rev_snapshot.restore_from_snapshot::<B>(current_rev_id) {
+                None => {
+                    tracing::info!("Restore object from validation revisions");
+                    B::recover_operations_from_revisions(revisions).ok_or(e)
+                }
                 Some((object, snapshot_rev)) => {
                     let snapshot_rev_id = snapshot_rev.rev_id;
                     let _ = self.rev_persistence.reset(vec![snapshot_rev]).await;
@@ -286,7 +292,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
     pub fn ack_notify(&self) -> tokio::sync::broadcast::Receiver<i64> {
         self.rev_ack_notifier.subscribe()
     }
-    pub fn get_all_revision_records(&self) -> FlowyResult<Vec<crate::disk::SyncRecord>> {
+    pub fn get_all_revision_records(&self) -> FlowyResult<Vec<flowy_revision_persistence::SyncRecord>> {
         self.rev_persistence.load_all_records(&self.object_id)
     }
 }

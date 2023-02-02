@@ -2,12 +2,12 @@ use crate::services::delta_migration::DeltaRevisionMigration;
 use crate::services::rev_sqlite::{DeltaRevisionSql, SQLiteDocumentRevisionPersistence};
 use crate::DocumentDatabase;
 use bytes::Bytes;
-use flowy_database::kv::KV;
+use flowy_client_sync::make_operations_from_revisions;
 use flowy_error::FlowyResult;
-use flowy_http_model::revision::Revision;
-use flowy_http_model::util::md5;
-use flowy_revision::disk::{RevisionDiskCache, SyncRecord};
-use flowy_sync::util::make_operations_from_revisions;
+use flowy_revision_persistence::{RevisionDiskCache, SyncRecord};
+use flowy_sqlite::kv::KV;
+use lib_infra::util::md5;
+use revision_model::Revision;
 use std::sync::Arc;
 
 const V1_MIGRATION: &str = "DOCUMENT_V1_MIGRATION";
@@ -65,7 +65,6 @@ impl DocumentMigration {
         //
 
         KV::set_bool(&key, true);
-        tracing::debug!("Run document v1 migration");
         Ok(())
     }
 }

@@ -3,12 +3,12 @@ use crate::entities::{
     trash::{TrashPB, TrashType},
 };
 use crate::{errors::FlowyError, services::persistence::version_1::workspace_sql::WorkspaceTable};
-use flowy_database::{
+use flowy_sqlite::{
     prelude::*,
     schema::{app_table, app_table::dsl},
     SqliteConnection,
 };
-use folder_rev_model::AppRevision;
+use folder_model::AppRevision;
 
 pub struct AppTableSql();
 impl AppTableSql {

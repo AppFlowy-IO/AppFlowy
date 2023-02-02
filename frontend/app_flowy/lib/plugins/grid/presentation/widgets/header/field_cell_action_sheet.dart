@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:styled_widget/styled_widget.dart';
 
 import '../../layout/sizes.dart';
 
@@ -31,12 +32,15 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
   Widget build(BuildContext context) {
     if (_showFieldEditor) {
       final field = widget.cellContext.field;
-      return FieldEditor(
-        gridId: widget.cellContext.gridId,
-        fieldName: field.name,
-        typeOptionLoader: FieldTypeOptionLoader(
-          gridId: widget.cellContext.gridId,
-          field: field,
+      return SizedBox(
+        width: 400,
+        child: FieldEditor(
+          databaseId: widget.cellContext.databaseId,
+          fieldName: field.name,
+          typeOptionLoader: FieldTypeOptionLoader(
+            databaseId: widget.cellContext.databaseId,
+            field: field,
+          ),
         ),
       );
     }
@@ -44,25 +48,22 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
       create: (context) =>
           getIt<FieldActionSheetBloc>(param1: widget.cellContext),
       child: IntrinsicWidth(
-        child: IntrinsicHeight(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _EditFieldButton(
-                cellContext: widget.cellContext,
-                onTap: () {
-                  setState(() {
-                    _showFieldEditor = true;
-                  });
-                },
-              ),
-              VSpace(GridSize.typeOptionSeparatorHeight),
-              _FieldOperationList(widget.cellContext),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _EditFieldButton(
+              cellContext: widget.cellContext,
+              onTap: () {
+                setState(() => _showFieldEditor = true);
+              },
+            ),
+            VSpace(GridSize.typeOptionSeparatorHeight),
+            _FieldOperationList(widget.cellContext),
+          ],
         ),
       ),
-    );
+    ).padding(all: 6.0);
   }
 }
 
@@ -77,7 +78,7 @@ class _EditFieldButton extends StatelessWidget {
     return BlocBuilder<FieldActionSheetBloc, FieldActionSheetState>(
       builder: (context, state) {
         return SizedBox(
-          height: GridSize.typeOptionItemHeight,
+          height: GridSize.popoverItemHeight,
           child: FlowyButton(
             text: FlowyText.medium(
               LocaleKeys.grid_field_editProperty.tr(),
@@ -92,43 +93,42 @@ class _EditFieldButton extends StatelessWidget {
 
 class _FieldOperationList extends StatelessWidget {
   final GridFieldCellContext fieldInfo;
-  final double cellWidth = 100;
-
   const _FieldOperationList(this.fieldInfo, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: cellWidth * 2,
-      child: Wrap(
-        children: buildCells(),
+    return Column(children: [
+      Flex(
+        direction: Axis.horizontal,
+        children: [
+          _actionCell(FieldAction.hide),
+          HSpace(GridSize.typeOptionSeparatorHeight),
+          _actionCell(FieldAction.duplicate),
+        ],
       ),
-    );
+      VSpace(GridSize.typeOptionSeparatorHeight),
+      Flex(
+        direction: Axis.horizontal,
+        children: [
+          _actionCell(FieldAction.delete),
+          HSpace(GridSize.typeOptionSeparatorHeight),
+          const Spacer(),
+        ],
+      ),
+    ]);
   }
 
-  List<Widget> buildCells() {
-    return FieldAction.values.map(
-      (action) {
-        bool enable = true;
-        switch (action) {
-          case FieldAction.delete:
-            enable = !fieldInfo.field.isPrimary;
-            break;
-          default:
-            break;
-        }
-
-        return SizedBox(
-          height: GridSize.typeOptionItemHeight,
-          width: cellWidth,
-          child: FieldActionCell(
-            fieldInfo: fieldInfo,
-            action: action,
-            enable: enable,
-          ),
-        );
-      },
-    ).toList();
+  Widget _actionCell(FieldAction action) {
+    return Flexible(
+      child: SizedBox(
+        height: GridSize.popoverItemHeight,
+        child: FieldActionCell(
+          fieldInfo: fieldInfo,
+          action: action,
+          enable: action != FieldAction.delete || !fieldInfo.field.isPrimary,
+        ),
+      ),
+    );
   }
 }
 
@@ -206,7 +206,7 @@ extension _FieldActionExtension on FieldAction {
         PopoverContainer.of(context).close();
 
         FieldService(
-          gridId: fieldInfo.gridId,
+          databaseId: fieldInfo.databaseId,
           fieldId: fieldInfo.field.id,
         ).duplicateField();
 
@@ -218,7 +218,7 @@ extension _FieldActionExtension on FieldAction {
           title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
           confirm: () {
             FieldService(
-              gridId: fieldInfo.gridId,
+              databaseId: fieldInfo.databaseId,
               fieldId: fieldInfo.field.id,
             ).deleteField();
           },

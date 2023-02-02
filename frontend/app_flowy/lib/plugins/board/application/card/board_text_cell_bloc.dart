@@ -6,7 +6,7 @@ import 'dart:async';
 part 'board_text_cell_bloc.freezed.dart';
 
 class BoardTextCellBloc extends Bloc<BoardTextCellEvent, BoardTextCellState> {
-  final GridCellController cellController;
+  final GridTextCellController cellController;
   void Function()? _onCellChangedFn;
   BoardTextCellBloc({
     required this.cellController,
@@ -71,7 +71,7 @@ class BoardTextCellState with _$BoardTextCellState {
     required bool enableEdit,
   }) = _BoardTextCellState;
 
-  factory BoardTextCellState.initial(GridCellController context) =>
+  factory BoardTextCellState.initial(GridTextCellController context) =>
       BoardTextCellState(
         content: context.getCellData() ?? "",
         enableEdit: false,

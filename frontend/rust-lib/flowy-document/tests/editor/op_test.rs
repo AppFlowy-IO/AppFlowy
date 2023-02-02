@@ -1,6 +1,6 @@
 #![allow(clippy::all)]
 use crate::editor::{Rng, TestBuilder, TestOp::*};
-use flowy_sync::client_document::{EmptyDocument, NewlineDocument};
+use flowy_client_sync::client_document::{EmptyDocument, NewlineDocument};
 use lib_ot::text_delta::DeltaTextOperationBuilder;
 use lib_ot::{core::Interval, core::*, text_delta::DeltaTextOperations};
 

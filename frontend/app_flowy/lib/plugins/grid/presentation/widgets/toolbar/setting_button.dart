@@ -37,7 +37,7 @@ class _SettingButtonState extends State<SettingButton> {
         final fieldController =
             context.read<GridBloc>().gridController.fieldController;
         return GridSettingContext(
-          gridId: state.gridId,
+          viewId: state.databaseId,
           fieldController: fieldController,
         );
       },
@@ -45,7 +45,7 @@ class _SettingButtonState extends State<SettingButton> {
         return AppFlowyPopover(
           controller: _popoverController,
           constraints: BoxConstraints.loose(const Size(260, 400)),
-          direction: PopoverDirection.leftWithTopAligned,
+          direction: PopoverDirection.bottomWithLeftAligned,
           offset: const Offset(0, 10),
           margin: EdgeInsets.zero,
           triggerActions: PopoverTriggerFlags.none,
@@ -82,7 +82,7 @@ class _GridSettingListPopoverState extends State<_GridSettingListPopover> {
   Widget build(BuildContext context) {
     if (_action == GridSettingAction.showProperties) {
       return GridPropertyList(
-        gridId: widget.settingContext.gridId,
+        databaseId: widget.settingContext.viewId,
         fieldController: widget.settingContext.fieldController,
       );
     }

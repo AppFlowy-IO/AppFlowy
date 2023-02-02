@@ -17,10 +17,10 @@ import '../../../application/field/field_controller.dart';
 import '../../layout/sizes.dart';
 
 class GridPropertyList extends StatefulWidget {
-  final String gridId;
+  final String databaseId;
   final GridFieldController fieldController;
   const GridPropertyList({
-    required this.gridId,
+    required this.databaseId,
     required this.fieldController,
     Key? key,
   }) : super(key: key);
@@ -42,14 +42,14 @@ class _GridPropertyListState extends State<GridPropertyList> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt<GridPropertyBloc>(
-          param1: widget.gridId, param2: widget.fieldController)
+          param1: widget.databaseId, param2: widget.fieldController)
         ..add(const GridPropertyEvent.initial()),
       child: BlocBuilder<GridPropertyBloc, GridPropertyState>(
         builder: (context, state) {
           final cells = state.fieldContexts.map((field) {
             return _GridPropertyCell(
               popoverMutex: _popoverMutex,
-              gridId: widget.gridId,
+              databaseId: widget.databaseId,
               fieldInfo: field,
               key: ValueKey(field.id),
             );
@@ -72,11 +72,11 @@ class _GridPropertyListState extends State<GridPropertyList> {
 
 class _GridPropertyCell extends StatefulWidget {
   final FieldInfo fieldInfo;
-  final String gridId;
+  final String databaseId;
   final PopoverMutex popoverMutex;
 
   const _GridPropertyCell({
-    required this.gridId,
+    required this.databaseId,
     required this.fieldInfo,
     required this.popoverMutex,
     Key? key,
@@ -103,7 +103,7 @@ class _GridPropertyCellState extends State<_GridPropertyCell> {
     );
 
     return SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: _editFieldButton(context, checkmark),
     );
   }
@@ -136,10 +136,10 @@ class _GridPropertyCellState extends State<_GridPropertyCell> {
       ).padding(horizontal: 6.0),
       popupBuilder: (BuildContext context) {
         return FieldEditor(
-          gridId: widget.gridId,
+          databaseId: widget.databaseId,
           fieldName: widget.fieldInfo.name,
           typeOptionLoader: FieldTypeOptionLoader(
-            gridId: widget.gridId,
+            databaseId: widget.databaseId,
             field: widget.fieldInfo.field,
           ),
         );

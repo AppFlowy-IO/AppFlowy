@@ -3,7 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'field/field_controller.dart';
@@ -37,7 +37,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           },
           deleteRow: (rowInfo) async {
             final rowService = RowFFIService(
-              gridId: rowInfo.gridId,
+              databaseId: rowInfo.databaseId,
             );
             await rowService.deleteRow(rowInfo.rowPB.id);
           },
@@ -124,15 +124,15 @@ class GridEvent with _$GridEvent {
   ) = _DidReceiveFieldUpdate;
 
   const factory GridEvent.didReceiveGridUpdate(
-    GridPB grid,
+    DatabasePB grid,
   ) = _DidReceiveGridUpdate;
 }
 
 @freezed
 class GridState with _$GridState {
   const factory GridState({
-    required String gridId,
-    required Option<GridPB> grid,
+    required String databaseId,
+    required Option<DatabasePB> grid,
     required GridFieldEquatable fields,
     required List<RowInfo> rowInfos,
     required int rowCount,
@@ -140,12 +140,12 @@ class GridState with _$GridState {
     required RowsChangedReason reason,
   }) = _GridState;
 
-  factory GridState.initial(String gridId) => GridState(
+  factory GridState.initial(String databaseId) => GridState(
         fields: GridFieldEquatable(UnmodifiableListView([])),
         rowInfos: [],
         rowCount: 0,
         grid: none(),
-        gridId: gridId,
+        databaseId: databaseId,
         loadingState: const _Loading(),
         reason: const InitialListState(),
       );

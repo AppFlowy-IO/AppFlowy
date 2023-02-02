@@ -8,7 +8,7 @@ abstract class IGridCellFieldNotifier {
   void onCellDispose();
 }
 
-/// GridPB's cell helper wrapper that enables each cell will get notified when the corresponding field was changed.
+/// DatabasePB's cell helper wrapper that enables each cell will get notified when the corresponding field was changed.
 /// You Register an onFieldChanged callback to listen to the cell changes, and unregister if you don't want to listen.
 class GridCellFieldNotifier {
   final IGridCellFieldNotifier notifier;

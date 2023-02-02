@@ -1,5 +1,5 @@
 use super::event_template::*;
-use crate::dart_event::ast::EventASTContext;
+use crate::ast::EventASTContext;
 use crate::flowy_toml::{parse_crate_config_from, CrateConfig};
 use crate::util::{is_crate_dir, is_hidden, path_string_with_component, read_file};
 use flowy_ast::ASTResult;

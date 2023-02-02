@@ -1,15 +1,15 @@
 use bytes::Bytes;
 use diesel::{sql_types::Integer, update, SqliteConnection};
-use flowy_database::{
+use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_revision_persistence::{RevisionChangeset, RevisionDiskCache, RevisionState, SyncRecord};
+use flowy_sqlite::{
     impl_sql_integer_expression, insert_or_ignore_into,
     prelude::*,
     schema::{rev_table, rev_table::dsl},
     ConnectionPool,
 };
-use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_http_model::revision::{Revision, RevisionRange};
-use flowy_http_model::util::md5;
-use flowy_revision::disk::{RevisionChangeset, RevisionDiskCache, RevisionState, SyncRecord};
+use lib_infra::util::md5;
+use revision_model::{Revision, RevisionRange};
 use std::sync::Arc;
 
 pub struct SQLiteFolderRevisionPersistence {
@@ -22,7 +22,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteFolderRevisionPersistence 
 
     fn create_revision_records(&self, revision_records: Vec<SyncRecord>) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        FolderRevisionSql::create(revision_records, &*conn)?;
+        FolderRevisionSql::create(revision_records, &conn)?;
         Ok(())
     }
 
@@ -54,7 +54,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteFolderRevisionPersistence 
         let conn = &*self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
             for changeset in changesets {
-                let _ = FolderRevisionSql::update(changeset, conn)?;
+                FolderRevisionSql::update(changeset, conn)?;
             }
             Ok(())
         })?;
@@ -75,8 +75,8 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteFolderRevisionPersistence 
     ) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
-            FolderRevisionSql::delete(object_id, deleted_rev_ids, &*conn)?;
-            FolderRevisionSql::create(inserted_records, &*conn)?;
+            FolderRevisionSql::delete(object_id, deleted_rev_ids, &conn)?;
+            FolderRevisionSql::create(inserted_records, &conn)?;
             Ok(())
         })
     }

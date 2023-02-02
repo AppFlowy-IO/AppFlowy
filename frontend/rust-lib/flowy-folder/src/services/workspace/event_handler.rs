@@ -4,9 +4,9 @@ use crate::entities::{
     workspace::{RepeatedWorkspacePB, WorkspaceIdPB, WorkspaceSettingPB, *},
 };
 use crate::{
-    dart_notification::{send_dart_notification, FolderNotification},
     errors::FlowyError,
     manager::FolderManager,
+    notification::{send_notification, FolderNotification},
     services::{get_current_workspace, read_local_workspace_apps, WorkspaceController},
 };
 use lib_dispatch::prelude::{data_result, AFPluginData, AFPluginState, DataResult};
@@ -122,7 +122,7 @@ fn read_workspaces_on_server(
                 for workspace_rev in &workspace_revs {
                     let m_workspace = workspace_rev.clone();
                     let app_revs = m_workspace.apps.clone();
-                    let _ = transaction.create_workspace(&user_id, m_workspace)?;
+                    transaction.create_workspace(&user_id, m_workspace)?;
                     tracing::trace!("Save {} apps", app_revs.len());
                     for app_rev in app_revs {
                         let view_revs = app_rev.belongings.clone();
@@ -151,7 +151,7 @@ fn read_workspaces_on_server(
                 .collect(),
         };
 
-        send_dart_notification(&token, FolderNotification::WorkspaceListUpdated)
+        send_notification(&token, FolderNotification::WorkspaceListUpdated)
             .payload(repeated_workspace)
             .send();
         Result::<(), FlowyError>::Ok(())

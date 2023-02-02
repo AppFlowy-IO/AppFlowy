@@ -75,7 +75,7 @@ jobs:
         working-directory: frontend
         run: |
           cargo install cargo-make
-          cargo make appflowy-deps-tools
+          cargo make appflowy-flutter-deps-tools
 
       - name: Build Test lib
         working-directory: frontend

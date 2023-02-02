@@ -142,8 +142,8 @@ void _resolveDocDeps(GetIt getIt) {
 
 void _resolveGridDeps(GetIt getIt) {
   getIt.registerFactoryParam<GridHeaderBloc, String, GridFieldController>(
-    (gridId, fieldController) => GridHeaderBloc(
-      gridId: gridId,
+    (databaseId, fieldController) => GridHeaderBloc(
+      databaseId: databaseId,
       fieldController: fieldController,
     ),
   );
@@ -152,7 +152,7 @@ void _resolveGridDeps(GetIt getIt) {
     (data, _) => FieldActionSheetBloc(fieldCellContext: data),
   );
 
-  getIt.registerFactoryParam<TextCellBloc, GridCellController, void>(
+  getIt.registerFactoryParam<TextCellBloc, GridTextCellController, void>(
     (context, _) => TextCellBloc(
       cellController: context,
     ),
@@ -165,7 +165,7 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<NumberCellBloc, GridCellController, void>(
+  getIt.registerFactoryParam<NumberCellBloc, GridTextCellController, void>(
     (context, _) => NumberCellBloc(
       cellController: context,
     ),
@@ -177,7 +177,7 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<CheckboxCellBloc, GridCellController, void>(
+  getIt.registerFactoryParam<CheckboxCellBloc, GridTextCellController, void>(
     (cellData, _) => CheckboxCellBloc(
       service: CellService(),
       cellController: cellData,
@@ -185,6 +185,7 @@ void _resolveGridDeps(GetIt getIt) {
   );
 
   getIt.registerFactoryParam<GridPropertyBloc, String, GridFieldController>(
-    (gridId, cache) => GridPropertyBloc(gridId: gridId, fieldController: cache),
+    (databaseId, cache) =>
+        GridPropertyBloc(databaseId: databaseId, fieldController: cache),
   );
 }

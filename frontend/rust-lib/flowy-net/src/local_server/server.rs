@@ -1,15 +1,25 @@
 use crate::local_server::persistence::LocalDocumentCloudPersistence;
 use async_stream::stream;
 use bytes::Bytes;
+use document_model::document::{CreateDocumentParams, DocumentId, DocumentInfo, ResetDocumentParams};
+use flowy_client_sync::errors::SyncError;
+use flowy_document::DocumentCloudService;
 use flowy_error::{internal_error, FlowyError};
-use flowy_folder::event_map::FolderCouldServiceV1;
-use flowy_sync::{
-    errors::CollaborateError,
-    server_document::ServerDocumentManager,
-    server_folder::ServerFolderManager,
-    synchronizer::{RevisionSyncResponse, RevisionUser},
+use flowy_folder::entities::{
+    app::{AppIdPB, CreateAppParams, UpdateAppParams},
+    trash::RepeatedTrashIdPB,
+    view::{CreateViewParams, RepeatedViewIdPB, UpdateViewParams, ViewIdPB},
+    workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdPB},
 };
+use flowy_folder::event_map::FolderCouldServiceV1;
+use flowy_server_sync::server_document::ServerDocumentManager;
+use flowy_server_sync::server_folder::ServerFolderManager;
+use flowy_sync::{RevisionSyncResponse, RevisionUser};
+use flowy_user::entities::UserProfilePB;
+use flowy_user::event_map::UserCloudService;
+use folder_model::{gen_app_id, gen_workspace_id, AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use futures_util::stream::StreamExt;
+use lib_infra::{future::FutureResult, util::timestamp};
 use lib_ws::{WSChannel, WebSocketRawMessage};
 use nanoid::nanoid;
 use parking_lot::RwLock;
@@ -19,6 +29,8 @@ use std::{
     sync::Arc,
 };
 use tokio::sync::{broadcast, mpsc, mpsc::UnboundedSender};
+use user_model::*;
+use ws_model::ws_revision::{ClientRevisionWSData, ClientRevisionWSDataType};
 
 pub struct LocalServer {
     doc_manager: Arc<ServerDocumentManager>,
@@ -48,7 +60,8 @@ impl LocalServer {
     }
 
     pub async fn stop(&self) {
-        if let Some(stop_tx) = self.stop_tx.read().clone() {
+        let sender = self.stop_tx.read().clone();
+        if let Some(stop_tx) = sender {
             let _ = stop_tx.send(()).await;
         }
     }
@@ -117,8 +130,8 @@ impl LocalWebSocketRunner {
                 self.handle_folder_client_data(client_data, "".to_owned()).await?;
                 Ok(())
             }
-            WSChannel::Grid => {
-                todo!("Implement grid web socket channel")
+            WSChannel::Database => {
+                todo!("Implement database web socket channel")
             }
         }
     }
@@ -127,7 +140,7 @@ impl LocalWebSocketRunner {
         &self,
         client_data: ClientRevisionWSData,
         user_id: String,
-    ) -> Result<(), CollaborateError> {
+    ) -> Result<(), SyncError> {
         tracing::trace!(
             "[LocalFolderServer] receive: {}:{}-{:?} ",
             client_data.object_id,
@@ -156,7 +169,7 @@ impl LocalWebSocketRunner {
         &self,
         client_data: ClientRevisionWSData,
         user_id: String,
-    ) -> Result<(), CollaborateError> {
+    ) -> Result<(), SyncError> {
         tracing::trace!(
             "[LocalDocumentServer] receive: {}:{}-{:?} ",
             client_data.object_id,
@@ -234,22 +247,6 @@ impl RevisionUser for LocalRevisionUser {
         });
     }
 }
-
-use flowy_document::DocumentCloudService;
-use flowy_folder::entities::{
-    app::{AppIdPB, CreateAppParams, UpdateAppParams},
-    trash::RepeatedTrashIdPB,
-    view::{CreateViewParams, RepeatedViewIdPB, UpdateViewParams, ViewIdPB},
-    workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdPB},
-};
-use flowy_http_model::document::{CreateDocumentParams, DocumentId, DocumentPayload, ResetDocumentParams};
-use flowy_http_model::ws_data::{ClientRevisionWSData, ClientRevisionWSDataType};
-use flowy_user::entities::{
-    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB,
-};
-use flowy_user::event_map::UserCloudService;
-use folder_rev_model::{gen_app_id, gen_workspace_id, AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
-use lib_infra::{future::FutureResult, util::timestamp};
 
 impl FolderCouldServiceV1 for LocalServer {
     fn init(&self) {}
@@ -402,7 +399,7 @@ impl DocumentCloudService for LocalServer {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn fetch_document(&self, _token: &str, _params: DocumentId) -> FutureResult<Option<DocumentPayload>, FlowyError> {
+    fn fetch_document(&self, _token: &str, _params: DocumentId) -> FutureResult<Option<DocumentInfo>, FlowyError> {
         FutureResult::new(async { Ok(None) })
     }
 

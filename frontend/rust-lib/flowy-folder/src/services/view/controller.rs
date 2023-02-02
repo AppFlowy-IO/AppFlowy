@@ -2,22 +2,21 @@ pub use crate::entities::view::ViewDataFormatPB;
 use crate::entities::{AppPB, DeletedViewPB, ViewInfoPB, ViewLayoutTypePB};
 use crate::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use crate::{
-    dart_notification::{send_dart_notification, FolderNotification},
     entities::{
         trash::{RepeatedTrashIdPB, TrashType},
         view::{CreateViewParams, RepeatedViewPB, UpdateViewParams, ViewIdPB, ViewPB},
     },
     errors::{FlowyError, FlowyResult},
     event_map::{FolderCouldServiceV1, WorkspaceUser},
+    notification::{send_notification, FolderNotification},
     services::{
         persistence::{FolderPersistence, FolderPersistenceTransaction, ViewChangeset},
         TrashController, TrashEvent,
     },
 };
 use bytes::Bytes;
-use flowy_database::kv::KV;
-use flowy_http_model::document::DocumentId;
-use folder_rev_model::{gen_view_id, ViewRevision};
+use flowy_sqlite::kv::KV;
+use folder_model::{gen_view_id, ViewRevision};
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 
@@ -199,9 +198,8 @@ impl ViewController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.value), err)]
-    pub(crate) async fn move_view_to_trash(&self, params: DocumentId) -> Result<(), FlowyError> {
-        let view_id = params.value;
+    #[tracing::instrument(level = "debug", skip(self), err)]
+    pub(crate) async fn move_view_to_trash(&self, view_id: &str) -> Result<(), FlowyError> {
         if let Some(latest_view_id) = KV::get_str(LATEST_VIEW_ID) {
             if latest_view_id == view_id {
                 let _ = KV::remove(LATEST_VIEW_ID);
@@ -211,7 +209,7 @@ impl ViewController {
         let deleted_view = self
             .persistence
             .begin_transaction(|transaction| {
-                let view = transaction.read_view(&view_id)?;
+                let view = transaction.read_view(view_id)?;
                 let views = read_belonging_views_on_local(&view.app_id, self.trash_controller.clone(), &transaction)?;
 
                 let index = views
@@ -219,18 +217,18 @@ impl ViewController {
                     .position(|view| view.id == view_id)
                     .map(|index| index as i32);
                 Ok(DeletedViewPB {
-                    view_id: view_id.clone(),
+                    view_id: view_id.to_owned(),
                     index,
                 })
             })
             .await?;
 
-        send_dart_notification(&view_id, FolderNotification::ViewMoveToTrash)
+        send_notification(view_id, FolderNotification::ViewMoveToTrash)
             .payload(deleted_view)
             .send();
 
-        let processor = self.get_data_processor_from_view_id(&view_id).await?;
-        processor.close_view(&view_id).await?;
+        let processor = self.get_data_processor_from_view_id(view_id).await?;
+        processor.close_view(view_id).await?;
         Ok(())
     }
 
@@ -238,9 +236,9 @@ impl ViewController {
     pub(crate) async fn move_view(&self, view_id: &str, from: usize, to: usize) -> Result<(), FlowyError> {
         self.persistence
             .begin_transaction(|transaction| {
-                let _ = transaction.move_view(view_id, from, to)?;
+                transaction.move_view(view_id, from, to)?;
                 let view = transaction.read_view(view_id)?;
-                let _ = notify_views_changed(&view.app_id, self.trash_controller.clone(), &transaction)?;
+                notify_views_changed(&view.app_id, self.trash_controller.clone(), &transaction)?;
                 Ok(())
             })
             .await?;
@@ -291,7 +289,7 @@ impl ViewController {
                 transaction.update_view(changeset)?;
                 let view_rev = transaction.read_view(&view_id)?;
                 let view: ViewPB = view_rev.clone().into();
-                send_dart_notification(&view_id, FolderNotification::ViewUpdated)
+                send_notification(&view_id, FolderNotification::ViewUpdated)
                     .payload(view)
                     .send();
                 notify_views_changed(&view_rev.app_id, self.trash_controller.clone(), &transaction)?;
@@ -356,7 +354,7 @@ impl ViewController {
                     {
                         Ok(_) => {
                             let view: ViewPB = view_rev.into();
-                            send_dart_notification(&view.id, FolderNotification::ViewUpdated)
+                            send_notification(&view.id, FolderNotification::ViewUpdated)
                                 .payload(view)
                                 .send();
                         }
@@ -518,7 +516,7 @@ fn read_local_views_with_transaction<'a>(
 }
 
 fn notify_dart(view: ViewPB, notification: FolderNotification) {
-    send_dart_notification(&view.id, notification).payload(view).send();
+    send_notification(&view.id, notification).payload(view).send();
 }
 
 #[tracing::instrument(
@@ -537,7 +535,7 @@ fn notify_views_changed<'a>(
     app_rev.belongings.retain(|view| !trash_ids.contains(&view.id));
     let app: AppPB = app_rev.into();
 
-    send_dart_notification(belong_to_id, FolderNotification::AppUpdated)
+    send_notification(belong_to_id, FolderNotification::AppUpdated)
         .payload(app)
         .send();
 

@@ -18,6 +18,8 @@ class FlowyButton extends StatelessWidget {
   final BorderRadius? radius;
   final BoxDecoration? decoration;
   final bool useIntrinsicWidth;
+  final bool disable;
+  final double disableOpacity;
 
   const FlowyButton({
     Key? key,
@@ -32,23 +34,29 @@ class FlowyButton extends StatelessWidget {
     this.radius,
     this.decoration,
     this.useIntrinsicWidth = false,
+    this.disable = false,
+    this.disableOpacity = 0.5,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: FlowyHover(
-        style: HoverStyle(
-          borderRadius: radius ?? Corners.s6Border,
-          hoverColor: hoverColor ?? Theme.of(context).colorScheme.secondary,
+    if (!disable) {
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: FlowyHover(
+          style: HoverStyle(
+            borderRadius: radius ?? Corners.s6Border,
+            hoverColor: hoverColor ?? Theme.of(context).colorScheme.secondary,
+          ),
+          onHover: onHover,
+          isSelected: () => isSelected,
+          builder: (context, onHover) => _render(),
         ),
-        onHover: onHover,
-        isSelected: () => isSelected,
-        builder: (context, onHover) => _render(),
-      ),
-    );
+      );
+    } else {
+      return Opacity(opacity: disableOpacity, child: _render());
+    }
   }
 
   Widget _render() {
@@ -63,7 +71,7 @@ class FlowyButton extends StatelessWidget {
     children.add(Expanded(child: text));
 
     if (rightIcon != null) {
-      children.add(const HSpace(10));
+      children.add(const HSpace(6));
       // No need to define the size of rightIcon. Just use its intrinsic width
       children.add(rightIcon!);
     }

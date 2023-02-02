@@ -38,15 +38,14 @@ impl FlowySDKTest {
         let server_config = get_client_server_configuration().unwrap();
         let config = FlowySDKConfig::new(&root_dir(), nanoid!(6), server_config)
             .with_document_version(document_version)
-            .log_filter("info");
+            .log_filter("info", vec![]);
         let sdk = std::thread::spawn(|| FlowySDK::new(config)).join().unwrap();
         std::mem::forget(sdk.dispatcher());
         Self { inner: sdk }
     }
 
     pub async fn sign_up(&self) -> SignUpContext {
-        let context = async_sign_up(self.inner.dispatcher()).await;
-        context
+        async_sign_up(self.inner.dispatcher()).await
     }
 
     pub async fn init_user(&self) -> UserProfilePB {

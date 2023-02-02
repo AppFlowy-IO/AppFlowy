@@ -1,5 +1,4 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/commands/text/text_commands.dart';
 import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
 
 import 'package:appflowy_editor/src/extensions/text_style_extension.dart';

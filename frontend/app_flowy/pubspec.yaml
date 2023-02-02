@@ -93,6 +93,7 @@ dependencies:
   percent_indicator: ^4.0.1
   appflowy_editor_plugins:
     path: packages/appflowy_editor_plugins
+  calendar_view: ^1.0.1
 
 dev_dependencies:
   flutter_lints: ^2.0.1

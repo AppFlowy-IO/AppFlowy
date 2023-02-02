@@ -1,18 +1,18 @@
 use crate::{
-    dart_notification::*,
     entities::{
         app::{AppPB, CreateAppParams, *},
         trash::TrashType,
     },
     errors::*,
     event_map::{FolderCouldServiceV1, WorkspaceUser},
+    notification::*,
     services::{
         persistence::{AppChangeset, FolderPersistence, FolderPersistenceTransaction},
         TrashController, TrashEvent,
     },
 };
 
-use folder_rev_model::AppRevision;
+use folder_model::AppRevision;
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 
@@ -52,8 +52,8 @@ impl AppController {
     pub(crate) async fn create_app_on_local(&self, app: AppRevision) -> Result<AppPB, FlowyError> {
         self.persistence
             .begin_transaction(|transaction| {
-                let _ = transaction.create_app(app.clone())?;
-                let _ = notify_apps_changed(&app.workspace_id, self.trash_controller.clone(), &transaction)?;
+                transaction.create_app(app.clone())?;
+                notify_apps_changed(&app.workspace_id, self.trash_controller.clone(), &transaction)?;
                 Ok(())
             })
             .await?;
@@ -91,7 +91,7 @@ impl AppController {
             })
             .await?
             .into();
-        send_dart_notification(&app_id, FolderNotification::AppUpdated)
+        send_notification(&app_id, FolderNotification::AppUpdated)
             .payload(app)
             .send();
         self.update_app_on_server(params)?;
@@ -101,9 +101,9 @@ impl AppController {
     pub(crate) async fn move_app(&self, app_id: &str, from: usize, to: usize) -> FlowyResult<()> {
         self.persistence
             .begin_transaction(|transaction| {
-                let _ = transaction.move_app(app_id, from, to)?;
+                transaction.move_app(app_id, from, to)?;
                 let app = transaction.read_app(app_id)?;
-                let _ = notify_apps_changed(&app.workspace_id, self.trash_controller.clone(), &transaction)?;
+                notify_apps_changed(&app.workspace_id, self.trash_controller.clone(), &transaction)?;
                 Ok(())
             })
             .await?;
@@ -163,7 +163,7 @@ impl AppController {
                     {
                         Ok(_) => {
                             let app: AppPB = app_rev.into();
-                            send_dart_notification(&app.id, FolderNotification::AppUpdated)
+                            send_notification(&app.id, FolderNotification::AppUpdated)
                                 .payload(app)
                                 .send();
                         }
@@ -248,7 +248,7 @@ fn notify_apps_changed<'a>(
         .map(|app_rev| app_rev.into())
         .collect();
     let repeated_app = RepeatedAppPB { items };
-    send_dart_notification(workspace_id, FolderNotification::WorkspaceAppsChanged)
+    send_notification(workspace_id, FolderNotification::WorkspaceAppsChanged)
         .payload(repeated_app)
         .send();
     Ok(())

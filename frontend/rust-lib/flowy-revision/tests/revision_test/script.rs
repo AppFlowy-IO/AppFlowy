@@ -1,15 +1,15 @@
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_revision::disk::{RevisionChangeset, RevisionDiskCache, SyncRecord};
 use flowy_revision::{
     RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionPersistence,
     RevisionPersistenceConfiguration, RevisionSnapshot, RevisionSnapshotDiskCache, REVISION_WRITE_INTERVAL_IN_MILLIS,
 };
+use flowy_revision_persistence::{RevisionChangeset, RevisionDiskCache, SyncRecord};
 
-use flowy_http_model::revision::{Revision, RevisionRange};
-use flowy_http_model::util::md5;
+use lib_infra::util::md5;
 use nanoid::nanoid;
 use parking_lot::RwLock;
+use revision_model::{Revision, RevisionRange};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::time::Duration;
@@ -331,5 +331,9 @@ impl RevisionObjectDeserializer for RevisionObjectMockSerde {
         }
 
         Ok(object)
+    }
+
+    fn recover_operations_from_revisions(_revisions: Vec<Revision>) -> Option<Self::Output> {
+        None
     }
 }

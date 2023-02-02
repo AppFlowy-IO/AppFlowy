@@ -25,12 +25,12 @@ class GridCellCacheKey {
 /// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid
 /// for more information
 class GridCellCache {
-  final String gridId;
+  final String databaseId;
 
   /// fieldId: {cacheKey: GridCell}
   final Map<String, Map<String, dynamic>> _cellDataByFieldId = {};
   GridCellCache({
-    required this.gridId,
+    required this.databaseId,
   });
 
   void removeCellWithFieldId(String fieldId) {

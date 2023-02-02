@@ -12,11 +12,11 @@ import '../../../application/field/field_controller.dart';
 import '../../layout/sizes.dart';
 
 class GridSettingContext {
-  final String gridId;
+  final String viewId;
   final GridFieldController fieldController;
 
   GridSettingContext({
-    required this.gridId,
+    required this.viewId,
     required this.fieldController,
   });
 }
@@ -68,7 +68,7 @@ class _SettingItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: GridSize.typeOptionItemHeight,
+      height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(
           action.title(),
