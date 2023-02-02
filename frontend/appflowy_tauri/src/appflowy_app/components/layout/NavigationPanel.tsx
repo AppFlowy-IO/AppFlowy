@@ -71,7 +71,10 @@ export const NavigationPanel = () => {
             <div key={index} className={'my-2'}>
               <div
                 onClick={() => renamingFolderId !== folder.id && setFolderOpen(folder.id, !isFolderOpen[folder.id])}
-                className={'px-4 py-2 cursor-pointer flex items-center justify-between rounded-lg hover:bg-surface-2'}
+                className={
+                  'px-4 py-2 cursor-pointer flex items-center justify-between rounded-lg hover:bg-surface-2 ' +
+                  (renamingFolderId === folder.id ? 'bg-main-warning hover:bg-main-warning' : '')
+                }
               >
                 <div className={'flex items-center flex-1 min-w-0'}>
                   <div
@@ -81,7 +84,7 @@ export const NavigationPanel = () => {
                   </div>
                   {renamingFolderId === folder.id ? (
                     <input
-                      className={'whitespace-normal min-w-0 flex-1 bg-main-warning text-white'}
+                      className={'whitespace-normal min-w-0 flex-1 '}
                       value={folder.title}
                       onKeyDown={(e) => e.code === 'Enter' && completeFolderRename()}
                       onChange={(e) => onFolderChange(folder.id, e.target.value)}
@@ -137,7 +140,8 @@ export const NavigationPanel = () => {
                       key={index2}
                       onClick={() => renamingPageId !== page.id && navigate(`/page/${page.pageType}/${page.id}`)}
                       className={
-                        'pl-8 pr-4 py-2 cursor-pointer flex items-center justify-between rounded-lg hover:bg-surface-2'
+                        'pl-8 pr-4 py-2 cursor-pointer flex items-center justify-between rounded-lg hover:bg-surface-2 ' +
+                        (renamingPageId === page.id ? 'bg-main-warning hover:bg-main-warning' : '')
                       }
                     >
                       <div className={'flex items-center flex-1 min-w-0'}>
@@ -148,7 +152,7 @@ export const NavigationPanel = () => {
                         </div>
                         {renamingPageId === page.id ? (
                           <input
-                            className={'whitespace-normal min-w-0 flex-1 bg-main-warning text-white'}
+                            className={'whitespace-normal min-w-0 flex-1 ml-2 rounded'}
                             value={page.title}
                             onKeyDown={(e) => e.code === 'Enter' && completePageRename()}
                             onChange={(e) => onPageChange(page.id, e.target.value)}
