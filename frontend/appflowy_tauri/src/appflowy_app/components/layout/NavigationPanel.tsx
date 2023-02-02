@@ -83,7 +83,7 @@ export const NavigationPanel = () => {
                     <input
                       className={'whitespace-normal min-w-0 flex-1 bg-main-warning text-white'}
                       value={folder.title}
-                      onKeyPress={(e) => e.code === 'Enter' && completeFolderRename()}
+                      onKeyDown={(e) => e.code === 'Enter' && completeFolderRename()}
                       onChange={(e) => onFolderChange(folder.id, e.target.value)}
                     />
                   ) : (
@@ -94,13 +94,19 @@ export const NavigationPanel = () => {
                 </div>
                 <div className={'flex items-center relative'}>
                   <button
-                    onClick={() => onFolderDetailsClick(folder)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onFolderDetailsClick(folder);
+                    }}
                     className={'text-black hover:text-main-accent w-[24px] h-[24px]'}
                   >
                     <Details2Svg></Details2Svg>
                   </button>
                   <button
-                    onClick={() => onAddNewPageClick(folder.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAddNewPageClick(folder.id);
+                    }}
                     className={'text-black hover:text-main-accent w-[24px] h-[24px]'}
                   >
                     <AddSvg></AddSvg>
@@ -144,7 +150,7 @@ export const NavigationPanel = () => {
                           <input
                             className={'whitespace-normal min-w-0 flex-1 bg-main-warning text-white'}
                             value={page.title}
-                            onKeyPress={(e) => e.code === 'Enter' && completePageRename()}
+                            onKeyDown={(e) => e.code === 'Enter' && completePageRename()}
                             onChange={(e) => onPageChange(page.id, e.target.value)}
                           />
                         ) : (
@@ -155,7 +161,10 @@ export const NavigationPanel = () => {
                       </div>
                       <div className={'flex items-center relative'}>
                         <button
-                          onClick={() => onPageDetailsClick(page)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onPageDetailsClick(page);
+                          }}
                           className={'text-black hover:text-main-accent w-[24px] h-[24px]'}
                         >
                           <Details2Svg></Details2Svg>
