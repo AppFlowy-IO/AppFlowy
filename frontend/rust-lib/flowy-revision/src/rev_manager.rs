@@ -5,9 +5,9 @@ use crate::{
 };
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_http_model::revision::{Revision, RevisionRange};
-use flowy_http_model::util::md5;
 use lib_infra::future::FutureResult;
+use lib_infra::util::md5;
+use revision_model::{Revision, RevisionRange};
 use std::sync::atomic::AtomicI64;
 use std::sync::atomic::Ordering::SeqCst;
 use std::sync::Arc;
@@ -127,16 +127,16 @@ impl<Connection: 'static> RevisionManager<Connection> {
         }
     }
 
-    #[tracing::instrument(name = "revision_manager_initialize", level = "debug", skip_all, fields(deserializer, object_id, deserialize_revisions) err)]
+    #[tracing::instrument(name = "revision_manager_initialize", level = "trace", skip_all, fields(deserializer, object_id, deserialize_revisions) err)]
     pub async fn initialize<B>(&mut self, _cloud: Option<Arc<dyn RevisionCloudService>>) -> FlowyResult<B::Output>
     where
         B: RevisionObjectDeserializer,
     {
         let revision_records = self.rev_persistence.load_all_records(&self.object_id)?;
-        tracing::Span::current().record("object_id", &self.object_id.as_str());
-        tracing::Span::current().record("deserializer", &std::any::type_name::<B>());
+        tracing::Span::current().record("object_id", self.object_id.as_str());
+        tracing::Span::current().record("deserializer", std::any::type_name::<B>());
         let revisions: Vec<Revision> = revision_records.iter().map(|record| record.revision.clone()).collect();
-        tracing::Span::current().record("deserialize_revisions", &revisions.len());
+        tracing::Span::current().record("deserialize_revisions", revisions.len());
         let current_rev_id = revisions.last().as_ref().map(|revision| revision.rev_id).unwrap_or(0);
         match B::deserialize_revisions(&self.object_id, revisions.clone()) {
             Ok(object) => {

@@ -1,4 +1,4 @@
-use flowy_sync::client_document::{ClientDocument, EmptyDocument};
+use flowy_client_sync::client_document::{ClientDocument, EmptyDocument};
 use lib_ot::text_delta::DeltaTextOperation;
 use lib_ot::{
     core::*,

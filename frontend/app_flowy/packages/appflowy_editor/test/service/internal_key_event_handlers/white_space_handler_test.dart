@@ -184,6 +184,10 @@ void main() async {
         Selection.single(path: [0], startOffset: 0),
       );
 
+      await editor.insertText(textNode, '>', 0);
+      await editor.pressLogicKey(LogicalKeyboardKey.space);
+      expect(textNode.subtype, BuiltInAttributeKey.quote);
+
       await editor.insertText(textNode, '*', 0);
       await editor.pressLogicKey(LogicalKeyboardKey.space);
       expect(textNode.subtype, BuiltInAttributeKey.bulletedList);
@@ -226,6 +230,66 @@ void main() async {
       await editor.pressLogicKey(LogicalKeyboardKey.space);
       expect(textNode.subtype, null);
       expect(textNode.toPlainText(), text);
+    });
+
+    group('convert geater to blockquote', () {
+      testWidgets('> AppFlowy to blockquote AppFlowy', (tester) async {
+        const text = 'AppFlowy';
+        final editor = tester.editor..insertTextNode('');
+        await editor.startTesting();
+        await editor.updateSelection(
+          Selection.single(path: [0], startOffset: 0),
+        );
+
+        final textNode = editor.nodeAtPath([0]) as TextNode;
+        await editor.insertText(textNode, '>', 0);
+        await editor.pressLogicKey(LogicalKeyboardKey.space);
+        expect(textNode.subtype, BuiltInAttributeKey.quote);
+        for (var i = 0; i < text.length; i++) {
+          await editor.insertText(textNode, text[i], i);
+        }
+        expect(textNode.toPlainText(), 'AppFlowy');
+      });
+
+      testWidgets('AppFlowy > nothing changes', (tester) async {
+        const text = 'AppFlowy >';
+        final editor = tester.editor..insertTextNode('');
+        await editor.startTesting();
+        await editor.updateSelection(
+          Selection.single(path: [0], startOffset: 0),
+        );
+
+        final textNode = editor.nodeAtPath([0]) as TextNode;
+        for (var i = 0; i < text.length; i++) {
+          await editor.insertText(textNode, text[i], i);
+        }
+        await editor.pressLogicKey(LogicalKeyboardKey.space);
+        final isQuote = textNode.subtype == BuiltInAttributeKey.quote;
+        expect(isQuote, false);
+        expect(textNode.toPlainText(), text);
+      });
+
+      testWidgets('> in front of text to blockquote', (tester) async {
+        const text = 'AppFlowy';
+        final editor = tester.editor..insertTextNode('');
+        await editor.startTesting();
+        await editor.updateSelection(
+          Selection.single(path: [0], startOffset: 0),
+        );
+        final textNode = editor.nodeAtPath([0]) as TextNode;
+        for (var i = 0; i < text.length; i++) {
+          await editor.insertText(textNode, text[i], i);
+        }
+        await editor.updateSelection(
+          Selection.single(path: [0], startOffset: 0),
+        );
+        await editor.insertText(textNode, '>', 0);
+        await editor.pressLogicKey(LogicalKeyboardKey.space);
+
+        final isQuote = textNode.subtype == BuiltInAttributeKey.quote;
+        expect(isQuote, true);
+        expect(textNode.toPlainText(), text);
+      });
     });
   });
 }

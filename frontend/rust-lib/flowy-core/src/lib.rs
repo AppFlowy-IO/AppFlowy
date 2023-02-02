@@ -1,24 +1,23 @@
 mod deps_resolve;
 pub mod module;
-pub use flowy_net::get_client_server_configuration;
-
 use crate::deps_resolve::*;
-
+use flowy_client_ws::{listen_on_websocket, FlowyWebSocketConnect, NetworkType};
+use flowy_database::manager::DatabaseManager;
 use flowy_document::entities::DocumentVersionPB;
 use flowy_document::{DocumentConfig, DocumentManager};
+use flowy_error::FlowyResult;
 use flowy_folder::entities::ViewDataFormatPB;
 use flowy_folder::{errors::FlowyError, manager::FolderManager};
-use flowy_grid::manager::GridManager;
+pub use flowy_net::get_client_server_configuration;
+use flowy_net::local_server::LocalServer;
 use flowy_net::ClientServerConfiguration;
-use flowy_net::{
-    entities::NetworkType,
-    local_server::LocalServer,
-    ws::connection::{listen_on_websocket, FlowyWebSocketConnect},
-};
 use flowy_task::{TaskDispatcher, TaskRunner};
-use flowy_user::services::{notifier::UserStatus, UserSession, UserSessionConfig};
+use flowy_user::event_map::UserStatusCallback;
+use flowy_user::services::{UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::tokio_default_runtime;
+
+use lib_infra::future::{to_fut, Fut};
 use module::make_plugins;
 pub use module::*;
 use std::time::Duration;
@@ -30,6 +29,7 @@ use std::{
     },
 };
 use tokio::sync::{broadcast, RwLock};
+use user_model::UserProfile;
 
 static INIT_LOG: AtomicBool = AtomicBool::new(false);
 
@@ -86,9 +86,10 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
     filters.push(format!("flowy_folder={}", level));
     filters.push(format!("flowy_user={}", level));
     filters.push(format!("flowy_document={}", level));
-    filters.push(format!("flowy_grid={}", level));
-    filters.push(format!("flowy_collaboration={}", "info"));
-    filters.push(format!("dart_notify={}", level));
+    filters.push(format!("flowy_database={}", level));
+    filters.push(format!("flowy_sync={}", "info"));
+    filters.push(format!("flowy_client_sync={}", "info"));
+    filters.push(format!("flowy_notification={}", "info"));
     filters.push(format!("lib_ot={}", level));
     filters.push(format!("lib_ws={}", level));
     filters.push(format!("lib_infra={}", level));
@@ -99,7 +100,7 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
     // filters.push(format!("lib_dispatch={}", level));
 
     filters.push(format!("dart_ffi={}", "info"));
-    filters.push(format!("flowy_database={}", "info"));
+    filters.push(format!("flowy_sqlite={}", "info"));
     filters.push(format!("flowy_net={}", "info"));
     filters.join(",")
 }
@@ -111,7 +112,7 @@ pub struct FlowySDK {
     pub user_session: Arc<UserSession>,
     pub document_manager: Arc<DocumentManager>,
     pub folder_manager: Arc<FolderManager>,
-    pub grid_manager: Arc<GridManager>,
+    pub grid_manager: Arc<DatabaseManager>,
     pub event_dispatcher: Arc<AFPluginDispatcher>,
     pub ws_conn: Arc<FlowyWebSocketConnect>,
     pub local_server: Option<Arc<LocalServer>>,
@@ -165,6 +166,21 @@ impl FlowySDK {
             )
         });
 
+        let user_status_listener = UserStatusListener {
+            document_manager: document_manager.clone(),
+            folder_manager: folder_manager.clone(),
+            grid_manager: grid_manager.clone(),
+            ws_conn: ws_conn.clone(),
+            config: config.clone(),
+        };
+        let user_status_callback = UserStatusCallbackImpl {
+            listener: Arc::new(user_status_listener),
+        };
+        let cloned_user_session = user_session.clone();
+        runtime.block_on(async move {
+            cloned_user_session.clone().init(user_status_callback).await;
+        });
+
         let event_dispatcher = Arc::new(AFPluginDispatcher::construct(runtime, || {
             make_plugins(
                 &ws_conn,
@@ -174,16 +190,7 @@ impl FlowySDK {
                 &document_manager,
             )
         }));
-
-        _start_listening(
-            &config,
-            &event_dispatcher,
-            &ws_conn,
-            &user_session,
-            &document_manager,
-            &folder_manager,
-            &grid_manager,
-        );
+        _start_listening(&event_dispatcher, &ws_conn, &folder_manager);
 
         Self {
             config,
@@ -204,36 +211,17 @@ impl FlowySDK {
 }
 
 fn _start_listening(
-    config: &FlowySDKConfig,
     event_dispatcher: &AFPluginDispatcher,
     ws_conn: &Arc<FlowyWebSocketConnect>,
-    user_session: &Arc<UserSession>,
-    document_manager: &Arc<DocumentManager>,
     folder_manager: &Arc<FolderManager>,
-    grid_manager: &Arc<GridManager>,
 ) {
-    let subscribe_user_status = user_session.notifier.subscribe_user_status();
     let subscribe_network_type = ws_conn.subscribe_network_ty();
     let folder_manager = folder_manager.clone();
-    let grid_manager = grid_manager.clone();
-    let cloned_folder_manager = folder_manager.clone();
+    let cloned_folder_manager = folder_manager;
     let ws_conn = ws_conn.clone();
-    let user_session = user_session.clone();
-    let document_manager = document_manager.clone();
-    let config = config.clone();
 
     event_dispatcher.spawn(async move {
-        user_session.init();
         listen_on_websocket(ws_conn.clone());
-        _listen_user_status(
-            config,
-            ws_conn.clone(),
-            subscribe_user_status,
-            document_manager,
-            folder_manager,
-            grid_manager,
-        )
-        .await;
     });
 
     event_dispatcher.spawn(async move {
@@ -256,66 +244,6 @@ fn mk_local_server(
     }
 }
 
-async fn _listen_user_status(
-    config: FlowySDKConfig,
-    ws_conn: Arc<FlowyWebSocketConnect>,
-    mut subscribe: broadcast::Receiver<UserStatus>,
-    document_manager: Arc<DocumentManager>,
-    folder_manager: Arc<FolderManager>,
-    grid_manager: Arc<GridManager>,
-) {
-    while let Ok(status) = subscribe.recv().await {
-        let result = || async {
-            match status {
-                UserStatus::Login { token, user_id } => {
-                    tracing::trace!("User did login");
-                    folder_manager.initialize(&user_id, &token).await?;
-                    document_manager.initialize(&user_id).await?;
-                    grid_manager.initialize(&user_id, &token).await?;
-                    ws_conn.start(token, user_id).await?;
-                }
-                UserStatus::Logout { token: _, user_id } => {
-                    tracing::trace!("User did logout");
-                    folder_manager.clear(&user_id).await;
-                    ws_conn.stop().await;
-                }
-                UserStatus::Expired { token: _, user_id } => {
-                    tracing::trace!("User session has been expired");
-                    folder_manager.clear(&user_id).await;
-                    ws_conn.stop().await;
-                }
-                UserStatus::SignUp { profile, ret } => {
-                    tracing::trace!("User did sign up");
-
-                    let view_data_type = match config.document.version {
-                        DocumentVersionPB::V0 => ViewDataFormatPB::DeltaFormat,
-                        DocumentVersionPB::V1 => ViewDataFormatPB::TreeFormat,
-                    };
-                    folder_manager
-                        .initialize_with_new_user(&profile.id, &profile.token, view_data_type)
-                        .await?;
-                    document_manager
-                        .initialize_with_new_user(&profile.id, &profile.token)
-                        .await?;
-
-                    grid_manager
-                        .initialize_with_new_user(&profile.id, &profile.token)
-                        .await?;
-
-                    ws_conn.start(profile.token.clone(), profile.id.clone()).await?;
-                    let _ = ret.send(());
-                }
-            }
-            Ok::<(), FlowyError>(())
-        };
-
-        match result().await {
-            Ok(_) => {}
-            Err(e) => tracing::error!("{}", e),
-        }
-    }
-}
-
 async fn _listen_network_status(mut subscribe: broadcast::Receiver<NetworkType>, _core: Arc<FolderManager>) {
     while let Ok(_new_type) = subscribe.recv().await {
         // core.network_state_changed(new_type);
@@ -323,7 +251,7 @@ async fn _listen_network_status(mut subscribe: broadcast::Receiver<NetworkType>,
 }
 
 fn init_kv(root: &str) {
-    match flowy_database::kv::KV::init(root) {
+    match flowy_sqlite::kv::KV::init(root) {
         Ok(_) => {}
         Err(e) => tracing::error!("Init kv store failed: {}", e),
     }
@@ -347,4 +275,76 @@ fn mk_user_session(
     let user_config = UserSessionConfig::new(&config.name, &config.root);
     let cloud_service = UserDepsResolver::resolve(local_server, server_config);
     Arc::new(UserSession::new(user_config, cloud_service))
+}
+
+struct UserStatusListener {
+    document_manager: Arc<DocumentManager>,
+    folder_manager: Arc<FolderManager>,
+    grid_manager: Arc<DatabaseManager>,
+    ws_conn: Arc<FlowyWebSocketConnect>,
+    config: FlowySDKConfig,
+}
+
+impl UserStatusListener {
+    async fn did_sign_in(&self, token: &str, user_id: &str) -> FlowyResult<()> {
+        self.folder_manager.initialize(user_id, token).await?;
+        self.document_manager.initialize(user_id).await?;
+        self.grid_manager.initialize(user_id, token).await?;
+        self.ws_conn.start(token.to_owned(), user_id.to_owned()).await?;
+        Ok(())
+    }
+
+    async fn did_sign_up(&self, user_profile: &UserProfile) -> FlowyResult<()> {
+        let view_data_type = match self.config.document.version {
+            DocumentVersionPB::V0 => ViewDataFormatPB::DeltaFormat,
+            DocumentVersionPB::V1 => ViewDataFormatPB::TreeFormat,
+        };
+        self.folder_manager
+            .initialize_with_new_user(&user_profile.id, &user_profile.token, view_data_type)
+            .await?;
+        self.document_manager
+            .initialize_with_new_user(&user_profile.id, &user_profile.token)
+            .await?;
+
+        self.grid_manager
+            .initialize_with_new_user(&user_profile.id, &user_profile.token)
+            .await?;
+
+        self.ws_conn
+            .start(user_profile.token.clone(), user_profile.id.clone())
+            .await?;
+        Ok(())
+    }
+
+    async fn did_expired(&self, _token: &str, user_id: &str) -> FlowyResult<()> {
+        self.folder_manager.clear(user_id).await;
+        self.ws_conn.stop().await;
+        Ok(())
+    }
+}
+
+struct UserStatusCallbackImpl {
+    listener: Arc<UserStatusListener>,
+}
+
+impl UserStatusCallback for UserStatusCallbackImpl {
+    fn did_sign_in(&self, token: &str, user_id: &str) -> Fut<FlowyResult<()>> {
+        let listener = self.listener.clone();
+        let token = token.to_owned();
+        let user_id = user_id.to_owned();
+        to_fut(async move { listener.did_sign_in(&token, &user_id).await })
+    }
+
+    fn did_sign_up(&self, user_profile: &UserProfile) -> Fut<FlowyResult<()>> {
+        let listener = self.listener.clone();
+        let user_profile = user_profile.clone();
+        to_fut(async move { listener.did_sign_up(&user_profile).await })
+    }
+
+    fn did_expired(&self, token: &str, user_id: &str) -> Fut<FlowyResult<()>> {
+        let listener = self.listener.clone();
+        let token = token.to_owned();
+        let user_id = user_id.to_owned();
+        to_fut(async move { listener.did_expired(&token, &user_id).await })
+    }
 }

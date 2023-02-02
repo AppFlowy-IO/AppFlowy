@@ -1,18 +1,18 @@
 use crate::{
-    dart_notification::*,
     entities::{
         app::{AppPB, CreateAppParams, *},
         trash::TrashType,
     },
     errors::*,
     event_map::{FolderCouldServiceV1, WorkspaceUser},
+    notification::*,
     services::{
         persistence::{AppChangeset, FolderPersistence, FolderPersistenceTransaction},
         TrashController, TrashEvent,
     },
 };
 
-use folder_rev_model::AppRevision;
+use folder_model::AppRevision;
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 
@@ -91,7 +91,7 @@ impl AppController {
             })
             .await?
             .into();
-        send_dart_notification(&app_id, FolderNotification::AppUpdated)
+        send_notification(&app_id, FolderNotification::AppUpdated)
             .payload(app)
             .send();
         self.update_app_on_server(params)?;
@@ -163,7 +163,7 @@ impl AppController {
                     {
                         Ok(_) => {
                             let app: AppPB = app_rev.into();
-                            send_dart_notification(&app.id, FolderNotification::AppUpdated)
+                            send_notification(&app.id, FolderNotification::AppUpdated)
                                 .payload(app)
                                 .send();
                         }
@@ -248,7 +248,7 @@ fn notify_apps_changed<'a>(
         .map(|app_rev| app_rev.into())
         .collect();
     let repeated_app = RepeatedAppPB { items };
-    send_dart_notification(workspace_id, FolderNotification::WorkspaceAppsChanged)
+    send_notification(workspace_id, FolderNotification::WorkspaceAppsChanged)
         .payload(repeated_app)
         .send();
     Ok(())

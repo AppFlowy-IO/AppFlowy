@@ -5,11 +5,11 @@ import 'package:equatable/equatable.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/cell_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/date_type_option_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/select_type_option.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/url_type_option_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/cell_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/date_type_option_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/url_type_option_entities.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_listener.dart';
@@ -35,30 +35,30 @@ class CellService {
     required String data,
   }) {
     final payload = CellChangesetPB.create()
-      ..gridId = cellId.gridId
+      ..databaseId = cellId.databaseId
       ..fieldId = cellId.fieldId
       ..rowId = cellId.rowId
       ..typeCellData = data;
-    return GridEventUpdateCell(payload).send();
+    return DatabaseEventUpdateCell(payload).send();
   }
 
   Future<Either<CellPB, FlowyError>> getCell({
     required GridCellIdentifier cellId,
   }) {
     final payload = CellPathPB.create()
-      ..viewId = cellId.gridId
+      ..databaseId = cellId.databaseId
       ..fieldId = cellId.fieldId
       ..rowId = cellId.rowId;
-    return GridEventGetCell(payload).send();
+    return DatabaseEventGetCell(payload).send();
   }
 }
 
 /// Id of the cell
-/// We can locate the cell by using gridId + rowId + field.id.
+/// We can locate the cell by using database + rowId + field.id.
 @freezed
 class GridCellIdentifier with _$GridCellIdentifier {
   const factory GridCellIdentifier({
-    required String gridId,
+    required String databaseId,
     required String rowId,
     required FieldInfo fieldInfo,
   }) = _GridCellIdentifier;

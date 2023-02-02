@@ -61,6 +61,7 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
   Widget build(BuildContext context) {
     final config = AppFlowyBoardConfig(
       groupBackgroundColor: HexColor.fromHex('#F7F8FC'),
+      stretchGroupHeight: false,
     );
     return AppFlowyBoard(
         controller: controller,

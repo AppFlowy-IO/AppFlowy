@@ -1,6 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/application/cell/checklist_cell_bloc.dart';
-import 'package:app_flowy/plugins/grid/presentation/widgets/cell/checklist_cell/checklist_cell.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/cell/checklist_cell/checklist_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -29,7 +29,10 @@ class _BoardChecklistCellState extends State<BoardChecklistCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: const ChecklistProgressBar(),
+      child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
+        builder: (context, state) =>
+            ChecklistProgressBar(percent: state.percent),
+      ),
     );
   }
 }

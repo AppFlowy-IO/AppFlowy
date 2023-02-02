@@ -311,12 +311,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bytecount"
-version = "0.6.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c676a478f63e9fa2dd5368a42f28bba0d6c560b775f38583c8bbaa7fcd67c9c"
-
-[[package]]
 name = "byteorder"
 version = "1.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -384,15 +378,6 @@ dependencies = [
  "parse-zoneinfo",
  "phf 0.11.1",
  "phf_codegen",
-]
-
-[[package]]
-name = "claim"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "68ad37958d55b29a7088909368968d2fe876a24c203f8441195130f3b15194b9"
-dependencies = [
- "autocfg",
 ]
 
 [[package]]
@@ -677,41 +662,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "darling"
-version = "0.13.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a01d95850c592940db9b8194bc39f4bc0e89dee5c4265e4b1807c34a9aba453c"
-dependencies = [
- "darling_core",
- "darling_macro",
-]
-
-[[package]]
-name = "darling_core"
-version = "0.13.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "859d65a907b6852c9361e3185c862aae7fafd2887876799fa55f5f99dc40d610"
-dependencies = [
- "fnv",
- "ident_case",
- "proc-macro2",
- "quote",
- "strsim",
- "syn",
-]
-
-[[package]]
-name = "darling_macro"
-version = "0.13.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c972679f83bdf9c42bd905396b6c3588a843a17f0f16dfcfa3e2c5d57441835"
-dependencies = [
- "darling_core",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "dart-ffi"
 version = "0.1.0"
 dependencies = [
@@ -719,11 +669,10 @@ dependencies = [
  "byteorder",
  "bytes",
  "crossbeam-utils",
- "dart-notify",
- "ffi-support",
  "flowy-codegen",
  "flowy-core",
  "flowy-derive",
+ "flowy-notification",
  "lazy_static",
  "lib-dispatch",
  "log",
@@ -732,20 +681,6 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
-]
-
-[[package]]
-name = "dart-notify"
-version = "0.1.0"
-dependencies = [
- "allo-isolate",
- "bytes",
- "flowy-codegen",
- "flowy-derive",
- "lazy_static",
- "lib-dispatch",
- "log",
- "protobuf",
 ]
 
 [[package]]
@@ -847,6 +782,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bd5f0c7e4bd266b8ab2550e6238d2e74977c23c15536ac7be45e9c95e2e3fbbb"
 
 [[package]]
+name = "document-model"
+version = "0.1.0"
+dependencies = [
+ "revision-model",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "dyn-clone"
 version = "1.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -879,11 +823,8 @@ version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a19187fea3ac7e84da7dacf48de0c45d63c6a76f9490dae389aead16c243fce3"
 dependencies = [
- "atty",
- "humantime",
  "log",
  "regex",
- "termcolor",
 ]
 
 [[package]]
@@ -936,22 +877,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "fancy-regex"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b95f7c0680e4142284cf8b22c14a476e87d61b004a3a0861872b32ef7ead40a2"
+dependencies = [
+ "bit-set",
+ "regex",
+]
+
+[[package]]
 name = "fastrand"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a7a407cfaa3385c4ae6b23e84623d48c2798d06e3e6a1878f7f59f17b3f86499"
 dependencies = [
  "instant",
-]
-
-[[package]]
-name = "ffi-support"
-version = "0.4.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "27838c6815cfe9de2d3aeb145ffd19e565f577414b33f3bdbf42fe040e9e0ff6"
-dependencies = [
- "lazy_static",
- "log",
 ]
 
 [[package]]
@@ -964,12 +905,62 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-client-network-config"
+version = "0.1.0"
+dependencies = [
+ "config",
+ "serde",
+ "serde-aux",
+ "serde_json",
+]
+
+[[package]]
+name = "flowy-client-sync"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "chrono",
+ "dissimilar",
+ "document-model",
+ "flowy-derive",
+ "flowy-sync",
+ "folder-model",
+ "grid-model",
+ "lib-infra",
+ "lib-ot",
+ "parking_lot 0.12.1",
+ "revision-model",
+ "serde",
+ "serde_json",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "flowy-client-ws"
+version = "0.1.0"
+dependencies = [
+ "futures-util",
+ "lib-infra",
+ "lib-ws",
+ "parking_lot 0.12.1",
+ "serde",
+ "serde_repr",
+ "thiserror",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "flowy-codegen"
 version = "0.1.0"
 dependencies = [
  "cmd_lib",
  "console",
- "fancy-regex",
+ "fancy-regex 0.10.0",
  "flowy-ast",
  "itertools",
  "lazy_static",
@@ -992,41 +983,77 @@ name = "flowy-core"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "flowy-client-ws",
  "flowy-database",
  "flowy-document",
+ "flowy-error",
  "flowy-folder",
- "flowy-grid",
- "flowy-http-model",
  "flowy-net",
  "flowy-revision",
+ "flowy-sqlite",
  "flowy-task",
  "flowy-user",
  "futures-core",
- "grid-rev-model",
+ "grid-model",
  "lib-dispatch",
  "lib-infra",
  "lib-log",
  "lib-ws",
  "parking_lot 0.12.1",
+ "revision-model",
  "tokio",
  "tracing",
+ "user-model",
+ "ws-model",
 ]
 
 [[package]]
 name = "flowy-database"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
+ "async-stream",
+ "atomic_refcell",
+ "bytes",
+ "chrono",
+ "crossbeam-utils",
+ "dashmap",
  "diesel",
- "diesel_derives",
- "diesel_migrations",
- "error-chain",
+ "fancy-regex 0.10.0",
+ "flowy-client-sync",
+ "flowy-codegen",
+ "flowy-database",
+ "flowy-derive",
+ "flowy-error",
+ "flowy-notification",
+ "flowy-revision",
+ "flowy-revision-persistence",
+ "flowy-sqlite",
+ "flowy-task",
+ "flowy-test",
+ "futures",
+ "grid-model",
+ "indexmap",
  "lazy_static",
- "libsqlite3-sys",
- "openssl",
- "openssl-sys",
- "r2d2",
- "scheduled-thread-pool",
+ "lib-dispatch",
+ "lib-infra",
+ "lib-ot",
+ "nanoid",
+ "parking_lot 0.12.1",
+ "protobuf",
+ "rayon",
+ "regex",
+ "revision-model",
+ "rust_decimal",
+ "rusty-money",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "strum",
+ "strum_macros",
+ "tokio",
  "tracing",
+ "url",
 ]
 
 [[package]]
@@ -1056,20 +1083,20 @@ dependencies = [
  "chrono",
  "color-eyre",
  "criterion",
- "dart-notify",
  "dashmap",
  "derive_more",
  "diesel",
  "diesel_derives",
+ "document-model",
+ "flowy-client-sync",
  "flowy-codegen",
- "flowy-database",
  "flowy-derive",
  "flowy-document",
  "flowy-error",
- "flowy-http-model",
+ "flowy-notification",
  "flowy-revision",
  "flowy-revision-persistence",
- "flowy-sync",
+ "flowy-sqlite",
  "flowy-test",
  "futures",
  "futures-util",
@@ -1077,10 +1104,10 @@ dependencies = [
  "lib-infra",
  "lib-ot",
  "lib-ws",
- "log",
  "md5",
  "protobuf",
  "rand 0.8.5",
+ "revision-model",
  "serde",
  "serde_json",
  "strum",
@@ -1090,6 +1117,7 @@ dependencies = [
  "tracing-subscriber",
  "unicode-segmentation",
  "url",
+ "ws-model",
 ]
 
 [[package]]
@@ -1098,17 +1126,22 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bytes",
+ "flowy-client-sync",
+ "flowy-client-ws",
  "flowy-codegen",
- "flowy-database",
  "flowy-derive",
- "flowy-sync",
- "http-flowy",
+ "flowy-sqlite",
+ "http-error-code",
  "lib-dispatch",
  "lib-ot",
  "protobuf",
  "r2d2",
+ "reqwest",
+ "serde",
  "serde_json",
+ "serde_repr",
  "thiserror",
+ "user-model",
 ]
 
 [[package]]
@@ -1116,21 +1149,20 @@ name = "flowy-folder"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "dart-notify",
  "diesel",
  "diesel_derives",
+ "flowy-client-sync",
  "flowy-codegen",
- "flowy-database",
  "flowy-derive",
  "flowy-document",
  "flowy-error",
  "flowy-folder",
- "flowy-http-model",
+ "flowy-notification",
  "flowy-revision",
  "flowy-revision-persistence",
- "flowy-sync",
+ "flowy-sqlite",
  "flowy-test",
- "folder-rev-model",
+ "folder-model",
  "futures",
  "lazy_static",
  "lib-dispatch",
@@ -1140,6 +1172,7 @@ dependencies = [
  "parking_lot 0.12.1",
  "pin-project",
  "protobuf",
+ "revision-model",
  "serde",
  "serde_json",
  "strum",
@@ -1147,66 +1180,7 @@ dependencies = [
  "tokio",
  "tracing",
  "unicode-segmentation",
-]
-
-[[package]]
-name = "flowy-grid"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-stream",
- "atomic_refcell",
- "bytes",
- "chrono",
- "crossbeam-utils",
- "dart-notify",
- "dashmap",
- "diesel",
- "fancy-regex",
- "flowy-codegen",
- "flowy-database",
- "flowy-derive",
- "flowy-error",
- "flowy-grid",
- "flowy-http-model",
- "flowy-revision",
- "flowy-revision-persistence",
- "flowy-sync",
- "flowy-task",
- "flowy-test",
- "futures",
- "grid-rev-model",
- "indexmap",
- "lazy_static",
- "lib-dispatch",
- "lib-infra",
- "lib-ot",
- "nanoid",
- "parking_lot 0.12.1",
- "protobuf",
- "rayon",
- "regex",
- "rust_decimal",
- "rusty-money",
- "serde",
- "serde_json",
- "serde_repr",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "url",
-]
-
-[[package]]
-name = "flowy-http-model"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "md5",
- "serde",
- "serde_json",
- "serde_repr",
+ "ws-model",
 ]
 
 [[package]]
@@ -1218,33 +1192,53 @@ dependencies = [
  "bytes",
  "config",
  "dashmap",
+ "document-model",
+ "flowy-client-network-config",
+ "flowy-client-sync",
+ "flowy-client-ws",
  "flowy-codegen",
  "flowy-derive",
  "flowy-document",
  "flowy-error",
  "flowy-folder",
- "flowy-http-model",
+ "flowy-server-sync",
  "flowy-sync",
  "flowy-user",
- "folder-rev-model",
+ "folder-model",
  "futures-util",
- "http-flowy",
  "hyper",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
  "lib-ws",
- "log",
  "nanoid",
  "parking_lot 0.12.1",
  "protobuf",
  "reqwest",
+ "revision-model",
  "serde",
  "serde-aux",
  "serde_json",
  "strum",
  "strum_macros",
+ "thiserror",
  "tokio",
+ "tracing",
+ "user-model",
+ "ws-model",
+]
+
+[[package]]
+name = "flowy-notification"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "flowy-codegen",
+ "flowy-derive",
+ "lazy_static",
+ "lib-dispatch",
+ "protobuf",
+ "serde",
  "tracing",
 ]
 
@@ -1256,7 +1250,6 @@ dependencies = [
  "bytes",
  "dashmap",
  "flowy-error",
- "flowy-http-model",
  "flowy-revision",
  "flowy-revision-persistence",
  "futures",
@@ -1265,12 +1258,14 @@ dependencies = [
  "lib-ws",
  "nanoid",
  "parking_lot 0.12.1",
+ "revision-model",
  "serde",
  "serde_json",
  "strum",
  "strum_macros",
  "tokio",
  "tracing",
+ "ws-model",
 ]
 
 [[package]]
@@ -1278,35 +1273,63 @@ name = "flowy-revision-persistence"
 version = "0.1.0"
 dependencies = [
  "flowy-error",
- "flowy-http-model",
+ "revision-model",
+]
+
+[[package]]
+name = "flowy-server-sync"
+version = "0.1.0"
+dependencies = [
+ "async-stream",
+ "bytes",
+ "dashmap",
+ "document-model",
+ "flowy-sync",
+ "folder-model",
+ "futures",
+ "lib-infra",
+ "lib-ot",
+ "log",
+ "revision-model",
+ "serde",
+ "tokio",
+ "tracing",
+ "ws-model",
+]
+
+[[package]]
+name = "flowy-sqlite"
+version = "0.1.0"
+dependencies = [
+ "diesel",
+ "diesel_derives",
+ "diesel_migrations",
+ "error-chain",
+ "lazy_static",
+ "libsqlite3-sys",
+ "openssl",
+ "openssl-sys",
+ "r2d2",
+ "scheduled-thread-pool",
+ "tracing",
 ]
 
 [[package]]
 name = "flowy-sync"
 version = "0.1.0"
 dependencies = [
- "async-stream",
- "bytes",
- "chrono",
- "dashmap",
- "dissimilar",
- "flowy-derive",
- "flowy-http-model",
- "folder-rev-model",
- "futures",
- "grid-rev-model",
+ "document-model",
+ "folder-model",
  "lib-infra",
  "lib-ot",
- "log",
  "parking_lot 0.12.1",
- "protobuf",
+ "revision-model",
  "serde",
- "serde_json",
  "strum",
  "strum_macros",
  "tokio",
  "tracing",
- "url",
+ "ws-model",
 ]
 
 [[package]]
@@ -1326,16 +1349,14 @@ dependencies = [
 name = "flowy-test"
 version = "0.1.0"
 dependencies = [
- "bincode",
  "bytes",
- "claim 0.4.0",
- "claim 0.5.0",
+ "claim",
  "fake",
+ "flowy-client-sync",
  "flowy-core",
  "flowy-document",
  "flowy-folder",
  "flowy-net",
- "flowy-sync",
  "flowy-user",
  "futures",
  "futures-util",
@@ -1359,18 +1380,14 @@ name = "flowy-user"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "claim 0.4.0",
- "dart-notify",
  "diesel",
  "diesel_derives",
- "fake",
- "fancy-regex",
  "flowy-codegen",
- "flowy-database",
  "flowy-derive",
  "flowy-error",
+ "flowy-notification",
+ "flowy-sqlite",
  "flowy-test",
- "futures",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
@@ -1379,19 +1396,13 @@ dependencies = [
  "once_cell",
  "parking_lot 0.12.1",
  "protobuf",
- "quickcheck",
- "quickcheck_macros",
- "rand 0.8.5",
- "rand_core 0.6.4",
  "serde",
  "serde_json",
- "serial_test",
  "strum",
  "strum_macros",
  "tokio",
  "tracing",
- "unicode-segmentation",
- "validator",
+ "user-model",
 ]
 
 [[package]]
@@ -1401,17 +1412,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
-name = "folder-rev-model"
+name = "folder-model"
 version = "0.1.0"
 dependencies = [
- "bytes",
  "chrono",
  "nanoid",
  "serde",
- "serde_json",
  "serde_repr",
- "strum",
- "strum_macros",
 ]
 
 [[package]]
@@ -1606,7 +1613,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "grid-rev-model"
+name = "grid-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
@@ -1710,21 +1717,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "http-flowy"
+name = "http-error-code"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Server#3012acce300024dda8819d8507c9105af84cd909"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Server?branch=refactor/appflowy_server#1ccd296de8530760d92652dbd9f38f27178059b6"
 dependencies = [
- "anyhow",
- "bytes",
- "derive_more",
- "hyper",
- "protobuf",
- "reqwest",
  "serde",
- "serde_json",
  "serde_repr",
  "thiserror",
- "uuid",
 ]
 
 [[package]]
@@ -1744,12 +1743,6 @@ name = "humansize"
 version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "02296996cb8796d7c6e3bc2d9211b7802812d36999a51bb754123ead7d37d026"
-
-[[package]]
-name = "humantime"
-version = "2.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
 
 [[package]]
 name = "hyper"
@@ -1811,12 +1804,6 @@ dependencies = [
  "cxx",
  "cxx-build",
 ]
-
-[[package]]
-name = "ident_case"
-version = "1.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
 
 [[package]]
 name = "idna"
@@ -1949,24 +1936,19 @@ version = "0.1.0"
 dependencies = [
  "bincode",
  "bytes",
- "dashmap",
  "derivative",
  "dyn-clone",
- "env_logger",
  "futures",
  "futures-channel",
  "futures-core",
  "futures-util",
- "lazy_static",
  "log",
  "nanoid",
- "paste",
  "pin-project",
  "protobuf",
  "serde",
  "serde_json",
  "serde_repr",
- "serde_with",
  "thread-id",
  "tokio",
  "tracing",
@@ -1980,6 +1962,7 @@ dependencies = [
  "bytes",
  "chrono",
  "futures-core",
+ "md5",
  "pin-project",
  "rand 0.8.5",
  "tokio",
@@ -1998,7 +1981,6 @@ dependencies = [
  "tracing-appender",
  "tracing-bunyan-formatter",
  "tracing-core",
- "tracing-futures",
  "tracing-log",
  "tracing-subscriber",
 ]
@@ -2007,23 +1989,16 @@ dependencies = [
 name = "lib-ot"
 version = "0.1.0"
 dependencies = [
- "anyhow",
- "bytecount",
  "bytes",
- "dashmap",
- "derive_more",
  "indexmap",
  "indextree",
  "lazy_static",
  "log",
- "md5",
  "serde",
  "serde_json",
- "serde_repr",
  "strum",
  "strum_macros",
  "thiserror",
- "tokio",
  "tracing",
 ]
 
@@ -2040,13 +2015,11 @@ dependencies = [
  "lib-infra",
  "log",
  "parking_lot 0.12.1",
- "paste",
  "pin-project",
  "protobuf",
  "serde",
  "serde_json",
  "serde_repr",
- "strum",
  "strum_macros",
  "tokio",
  "tokio-tungstenite",
@@ -2409,12 +2382,6 @@ checksum = "c705f256449c60da65e11ff6626e0c16a0a0b96aaa348de61376b249bc340f41"
 dependencies = [
  "regex",
 ]
-
-[[package]]
-name = "paste"
-version = "1.0.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d01a5bd0424d00070b0098dd17ebca6f961a959dead1dbcbbbc1d1cd8d3deeba"
 
 [[package]]
 name = "percent-encoding"
@@ -3018,6 +2985,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "revision-model"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "md5",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "rkyv"
 version = "0.7.39"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3251,28 +3228,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "serde_with"
-version = "1.14.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "678b5a069e50bf00ecd22d0cd8ddf7c236f68581b03db652061ed5eb13a312ff"
-dependencies = [
- "serde",
- "serde_with_macros",
-]
-
-[[package]]
-name = "serde_with_macros"
-version = "1.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e182d6ec6f05393cc0e5ed1bf81ad6db3a8feedf8ee515ecdd369809bcce8082"
-dependencies = [
- "darling",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "serial_test"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3387,12 +3342,6 @@ name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
-
-[[package]]
-name = "strsim"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
 name = "strum"
@@ -3709,16 +3658,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tracing-futures"
-version = "0.2.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97d095ae15e245a057c8e8451bab9b3ee1e1f68e9ba2b4fbc18d0ac5237835f2"
-dependencies = [
- "pin-project",
- "tracing",
-]
-
-[[package]]
 name = "tracing-log"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3917,25 +3856,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "user-model"
+version = "0.1.0"
+dependencies = [
+ "fancy-regex 0.11.0",
+ "lazy_static",
+ "serde",
+ "serde_repr",
+ "thiserror",
+ "tracing",
+ "unicode-segmentation",
+ "validator",
+]
+
+[[package]]
 name = "utf-8"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "09cc8ee72d2a9becf2f2febe0205bbed8fc6615b7cb429ad062dc7b7ddd036a9"
 
 [[package]]
-name = "uuid"
-version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
-dependencies = [
- "getrandom 0.2.8",
-]
-
-[[package]]
 name = "validator"
-version = "0.15.0"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f07b0a1390e01c0fc35ebb26b28ced33c9a3808f7f9fbe94d3cc01e233bfeed5"
+checksum = "32ad5bf234c7d3ad1042e5252b7eddb2c4669ee23f32c7dd0e9b7705f07ef591"
 dependencies = [
  "idna 0.2.3",
  "lazy_static",
@@ -4185,6 +4129,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "80d0f4e272c85def139476380b12f9ac60926689dd2e01d4923222f40580869d"
 dependencies = [
  "winapi",
+]
+
+[[package]]
+name = "ws-model"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "revision-model",
+ "serde",
+ "serde_json",
+ "serde_repr",
 ]
 
 [[package]]

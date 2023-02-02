@@ -1,11 +1,11 @@
 import 'package:app_flowy/core/grid_notification.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/dart_notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/notification.pb.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 
 typedef UpdateFieldNotifiedValue = Either<FieldPB, FlowyError>;
 
@@ -13,25 +13,25 @@ class SingleFieldListener {
   final String fieldId;
   PublishNotifier<UpdateFieldNotifiedValue>? _updateFieldNotifier =
       PublishNotifier();
-  GridNotificationListener? _listener;
+  DatabaseNotificationListener? _listener;
 
   SingleFieldListener({required this.fieldId});
 
   void start(
       {required void Function(UpdateFieldNotifiedValue) onFieldChanged}) {
     _updateFieldNotifier?.addPublishListener(onFieldChanged);
-    _listener = GridNotificationListener(
+    _listener = DatabaseNotificationListener(
       objectId: fieldId,
       handler: _handler,
     );
   }
 
   void _handler(
-    GridDartNotification ty,
+    DatabaseNotification ty,
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case GridDartNotification.DidUpdateField:
+      case DatabaseNotification.DidUpdateField:
         result.fold(
           (payload) =>
               _updateFieldNotifier?.value = left(FieldPB.fromBuffer(payload)),

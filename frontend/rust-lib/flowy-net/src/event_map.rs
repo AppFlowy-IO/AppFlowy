@@ -1,4 +1,5 @@
-use crate::{handlers::*, ws::connection::FlowyWebSocketConnect};
+use crate::handlers::*;
+use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::*;
 use std::sync::Arc;
@@ -14,6 +15,6 @@ pub fn init(ws_conn: Arc<FlowyWebSocketConnect>) -> AFPlugin {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum NetworkEvent {
-    #[event(input = "NetworkState")]
+    #[event(input = "NetworkStatePB")]
     UpdateNetworkType = 0,
 }

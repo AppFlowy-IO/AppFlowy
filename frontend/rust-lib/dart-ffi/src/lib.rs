@@ -1,15 +1,18 @@
 #![allow(clippy::not_unsafe_ptr_arg_deref)]
 mod c;
 mod model;
+mod notification;
 mod protobuf;
 mod util;
 
+use crate::notification::DartNotificationSender;
 use crate::{
     c::{extend_front_four_bytes_into_bytes, forget_rust},
     model::{FFIRequest, FFIResponse},
 };
 use flowy_core::get_client_server_configuration;
 use flowy_core::*;
+use flowy_notification::register_notification_sender;
 use lazy_static::lazy_static;
 use lib_dispatch::prelude::ToBytes;
 use lib_dispatch::prelude::*;
@@ -78,7 +81,7 @@ pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
 
 #[no_mangle]
 pub extern "C" fn set_stream_port(port: i64) -> i32 {
-    dart_notify::dart::DartStreamSender::set_port(port);
+    register_notification_sender(DartNotificationSender::new(port));
     0
 }
 

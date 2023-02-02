@@ -88,6 +88,8 @@ class AppFlowyBoardGroup extends StatefulWidget {
 
   final Color backgroundColor;
 
+  final bool stretchGroupHeight;
+
   final DraggingStateStorage? dragStateStorage;
 
   final ReorderDragTargeKeys? dragTargetKeys;
@@ -112,6 +114,7 @@ class AppFlowyBoardGroup extends StatefulWidget {
     this.itemMargin = EdgeInsets.zero,
     this.cornerRadius = 0.0,
     this.backgroundColor = Colors.transparent,
+    this.stretchGroupHeight = true,
   })  : config = const ReorderFlexConfig(),
         super(key: key);
 
@@ -172,7 +175,8 @@ class _AppFlowyBoardGroupState extends State<AppFlowyBoardGroup> {
           children: children,
         );
 
-        reorderFlex = Expanded(
+        reorderFlex = Flexible(
+          fit: widget.stretchGroupHeight ? FlexFit.tight : FlexFit.loose,
           child: Padding(padding: widget.itemMargin, child: reorderFlex),
         );
 
@@ -183,7 +187,9 @@ class _AppFlowyBoardGroupState extends State<AppFlowyBoardGroup> {
             color: widget.backgroundColor,
             borderRadius: BorderRadius.circular(widget.cornerRadius),
           ),
-          child: Column(
+          child: Flex(
+            direction: Axis.vertical,
+            mainAxisSize: MainAxisSize.min,
             children: [
               if (header != null) header,
               reorderFlex,

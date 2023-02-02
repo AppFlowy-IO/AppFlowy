@@ -1,10 +1,10 @@
 use crate::{entities::workspace::UpdateWorkspaceParams, errors::FlowyError};
 use diesel::SqliteConnection;
-use flowy_database::{
+use flowy_sqlite::{
     prelude::*,
     schema::{workspace_table, workspace_table::dsl},
 };
-use folder_rev_model::WorkspaceRevision;
+use folder_model::WorkspaceRevision;
 
 pub(crate) struct WorkspaceTableSql();
 impl WorkspaceTableSql {

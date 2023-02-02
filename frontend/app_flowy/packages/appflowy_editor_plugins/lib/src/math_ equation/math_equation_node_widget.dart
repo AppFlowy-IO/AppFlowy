@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/src/infra/svg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
@@ -6,7 +7,6 @@ import 'package:flutter_math_fork/flutter_math.dart';
 const String kMathEquationType = 'math_equation';
 const String kMathEquationAttr = 'math_equation';
 
-// TODO: l10n
 SelectionMenuItem mathEquationMenuItem = SelectionMenuItem(
   name: () => 'Math Equation',
   icon: (editorState, onSelected) => Icon(
@@ -46,7 +46,7 @@ SelectionMenuItem mathEquationMenuItem = SelectionMenuItem(
       final mathEquationState = editorState.document
           .nodeAtPath(mathEquationNodePath)
           ?.key
-          ?.currentState;
+          .currentState;
       if (mathEquationState != null &&
           mathEquationState is _MathEquationNodeWidgetState) {
         mathEquationState.showEditingDialog();
@@ -141,10 +141,11 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
       top: -5,
       right: -5,
       child: IconButton(
-        icon: Icon(
-          Icons.delete_forever_outlined,
+        icon: Svg(
+          name: 'delete',
           color: widget.editorState.editorStyle.selectionMenuItemIconColor,
-          size: 16,
+          width: 16,
+          height: 16,
         ),
         onPressed: () {
           final transaction = widget.editorState.transaction

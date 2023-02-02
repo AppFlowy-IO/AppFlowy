@@ -1,10 +1,10 @@
-use crate::entities::{
-    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB,
-};
+use crate::entities::UserProfilePB;
 use crate::{errors::FlowyError, handlers::*, services::UserSession};
 use lib_dispatch::prelude::*;
-use lib_infra::future::FutureResult;
+
+use lib_infra::future::{Fut, FutureResult};
 use std::sync::Arc;
+use user_model::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile};
 
 pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
     AFPlugin::new()
@@ -22,6 +22,12 @@ pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
         .event(UserEvent::GetUserSetting, get_user_setting)
 }
 
+pub trait UserStatusCallback: Send + Sync + 'static {
+    fn did_sign_in(&self, token: &str, user_id: &str) -> Fut<FlowyResult<()>>;
+    fn did_sign_up(&self, user_profile: &UserProfile) -> Fut<FlowyResult<()>>;
+    fn did_expired(&self, token: &str, user_id: &str) -> Fut<FlowyResult<()>>;
+}
+
 pub trait UserCloudService: Send + Sync {
     fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError>;
     fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError>;
@@ -32,6 +38,7 @@ pub trait UserCloudService: Send + Sync {
 }
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
+use flowy_error::FlowyResult;
 use strum_macros::Display;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]

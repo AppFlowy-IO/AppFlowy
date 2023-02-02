@@ -6,10 +6,10 @@ use flowy_revision::{
 };
 use flowy_revision_persistence::{RevisionChangeset, RevisionDiskCache, SyncRecord};
 
-use flowy_http_model::revision::{Revision, RevisionRange};
-use flowy_http_model::util::md5;
+use lib_infra::util::md5;
 use nanoid::nanoid;
 use parking_lot::RwLock;
+use revision_model::{Revision, RevisionRange};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::time::Duration;

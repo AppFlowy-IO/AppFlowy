@@ -1,16 +1,16 @@
 use crate::entities::workspace::*;
 use crate::manager::FolderManager;
 use crate::{
-    dart_notification::*,
     errors::*,
     event_map::{FolderCouldServiceV1, WorkspaceUser},
+    notification::*,
     services::{
         persistence::{FolderPersistence, FolderPersistenceTransaction, WorkspaceChangeset},
         read_local_workspace_apps, TrashController,
     },
 };
-use flowy_database::kv::KV;
-use folder_rev_model::{AppRevision, WorkspaceRevision};
+use flowy_sqlite::kv::KV;
+use folder_model::{AppRevision, WorkspaceRevision};
 use std::sync::Arc;
 
 pub struct WorkspaceController {
@@ -53,7 +53,7 @@ impl WorkspaceController {
             .map(|workspace_rev| workspace_rev.into())
             .collect();
         let repeated_workspace = RepeatedWorkspacePB { items: workspaces };
-        send_dart_notification(&token, FolderNotification::UserCreateWorkspace)
+        send_notification(&token, FolderNotification::UserCreateWorkspace)
             .payload(repeated_workspace)
             .send();
         set_current_workspace(&user_id, &workspace.id);
@@ -73,7 +73,7 @@ impl WorkspaceController {
             })
             .await?;
 
-        send_dart_notification(&workspace_id, FolderNotification::WorkspaceUpdated)
+        send_notification(&workspace_id, FolderNotification::WorkspaceUpdated)
             .payload(workspace)
             .send();
         self.update_workspace_on_server(params)?;
@@ -92,7 +92,7 @@ impl WorkspaceController {
                 self.read_local_workspaces(None, &user_id, &transaction)
             })
             .await?;
-        send_dart_notification(&token, FolderNotification::UserDeleteWorkspace)
+        send_notification(&token, FolderNotification::UserDeleteWorkspace)
             .payload(repeated_workspace)
             .send();
         self.delete_workspace_on_server(workspace_id)?;
@@ -236,7 +236,7 @@ pub async fn notify_workspace_setting_did_change(
         })
         .await?;
 
-    send_dart_notification(&token, FolderNotification::WorkspaceSetting)
+    send_notification(&token, FolderNotification::WorkspaceSetting)
         .payload(workspace_setting)
         .send();
     Ok(())

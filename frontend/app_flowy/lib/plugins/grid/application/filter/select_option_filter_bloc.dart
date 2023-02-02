@@ -1,7 +1,7 @@
 import 'package:app_flowy/plugins/grid/presentation/widgets/filter/choicechip/select_option/select_option_loader.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/filter/filter_info.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/select_option_filter.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/util.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/select_option_filter.pbserver.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/util.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -20,7 +20,7 @@ class SelectOptionFilterEditorBloc
   SelectOptionFilterEditorBloc({
     required this.filterInfo,
     required this.delegate,
-  })  : _ffiService = FilterFFIService(viewId: filterInfo.viewId),
+  })  : _ffiService = FilterFFIService(databaseId: filterInfo.viewId),
         _listener = FilterListener(
           viewId: filterInfo.viewId,
           filterId: filterInfo.filter.id,

@@ -92,9 +92,10 @@
             "cwd": "${workspaceRoot}/app_flowy"
         },
         {
+            // https://tauri.app/v1/guides/debugging/vs-code
             "type": "lldb",
             "request": "launch",
-            "name": "AF-tauri: Dev",
+            "name": "AF-tauri: Debug backend",
             "cargo": {
                 "args": [
                     "build",
@@ -102,9 +103,19 @@
                     "--no-default-features"
                 ]
             },
-            "preLaunchTask": "AF: Tauri Dev",
+            "preLaunchTask": "AF: Tauri UI Dev",
             "cwd": "${workspaceRoot}/appflowy_tauri/"
         },
+        // {
+        //     "type": "lldb",
+        //     "request": "launch",
+        //     "name": "AF-tauri: Production Debug",
+        //     "cargo": {
+        //         "args": ["build", "--release", "--manifest-path=./appflowy_tauri/src-tauri/Cargo.toml"]
+        //     },
+        //     "preLaunchTask": "AF: Tauri UI Build",
+        //     "cwd": "${workspaceRoot}/appflowy_tauri/"
+        // },
         {
             "name": "AF: Debug Rust",
             "request": "attach",

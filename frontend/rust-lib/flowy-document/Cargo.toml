@@ -7,25 +7,25 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-sync = { path = "../flowy-sync"}
-flowy-http-model = { path = "../../../shared-lib/flowy-http-model"}
+flowy-client-sync = { path = "../flowy-client-sync"}
+revision-model = { path = "../../../shared-lib/revision-model"}
+document-model = { path = "../../../shared-lib/document-model"}
+ws-model = { path = "../../../shared-lib/ws-model"}
 flowy-derive = { path = "../flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 lib-dispatch = { path = "../lib-dispatch" }
-flowy-database = { path = "../flowy-database", optional = true }
+flowy-sqlite = { path = "../flowy-sqlite", optional = true }
 flowy-revision = { path = "../flowy-revision" }
 flowy-revision-persistence = { path = "../flowy-revision-persistence" }
-flowy-error = { path = "../flowy-error", features = ["collaboration", "ot", "http_server", "serde", "db"] }
-dart-notify = { path = "../dart-notify" }
+flowy-error = { path = "../flowy-error", features = ["adaptor_sync", "adaptor_ot", "adaptor_serde", "adaptor_database", "adaptor_dispatch"] }
+flowy-notification = { path = "../flowy-notification" }
 
 diesel = {version = "1.4.8", features = ["sqlite"]}
 diesel_derives = {version = "1.4.1", features = ["sqlite"]}
 protobuf = {version = "2.18.0"}
-unicode-segmentation = "1.8"
-log = "0.4.14"
 tokio = {version = "1", features = ["sync"]}
 tracing = { version = "0.1", features = ["log"] }
 
@@ -47,6 +47,7 @@ flowy-test = { path = "../flowy-test" }
 flowy-document = { path = "../flowy-document", features = ["flowy_unit_test"]}
 derive_more = {version = "0.99", features = ["display"]}
 tracing-subscriber = "0.2.0"
+unicode-segmentation = "1.8"
 
 color-eyre = { version = "0.5", default-features = false }
 criterion = "0.3"
@@ -57,9 +58,10 @@ flowy-codegen = { path = "../flowy-codegen"}
 
 
 [features]
+default = ["rev-sqlite"]
 sync = []
 cloud_sync = ["sync"]
-rev-sqlite = ["flowy-database"]
+rev-sqlite = ["flowy-sqlite"]
 flowy_unit_test = ["lib-ot/flowy_unit_test", "flowy-revision/flowy_unit_test"]
-dart = ["flowy-codegen/dart", "dart-notify/dart"]
-ts = ["flowy-codegen/ts"]
+dart = ["flowy-codegen/dart", "flowy-notification/dart"]
+ts = ["flowy-codegen/ts", "flowy-notification/ts"]
