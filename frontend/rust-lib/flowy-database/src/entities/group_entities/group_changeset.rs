@@ -135,7 +135,7 @@ pub struct GroupViewChangesetPB {
     pub inserted_groups: Vec<InsertedGroupPB>,
 
     #[pb(index = 3)]
-    pub new_groups: Vec<GroupPB>,
+    pub initial_groups: Vec<GroupPB>,
 
     #[pb(index = 4)]
     pub deleted_groups: Vec<String>,
@@ -146,7 +146,7 @@ pub struct GroupViewChangesetPB {
 
 impl GroupViewChangesetPB {
     pub fn is_empty(&self) -> bool {
-        self.new_groups.is_empty()
+        self.initial_groups.is_empty()
             && self.inserted_groups.is_empty()
             && self.deleted_groups.is_empty()
             && self.update_groups.is_empty()

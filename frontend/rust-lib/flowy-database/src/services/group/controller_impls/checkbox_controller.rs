@@ -1,6 +1,6 @@
 use crate::entities::{GroupRowsNotificationPB, InsertedRowPB, RowPB};
 use crate::services::field::{CheckboxCellData, CheckboxCellDataParser, CheckboxTypeOptionPB, CHECK, UNCHECK};
-use crate::services::group::action::GroupControllerCustomActions;
+use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::{
     GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
@@ -19,13 +19,13 @@ pub type CheckboxGroupController = GenericGroupController<
 
 pub type CheckboxGroupContext = GroupContext<CheckboxGroupConfigurationRevision>;
 
-impl GroupControllerCustomActions for CheckboxGroupController {
-    type CellDataType = CheckboxCellData;
-    fn default_cell_rev(&self) -> Option<CellRevision> {
+impl GroupCustomize for CheckboxGroupController {
+    type CellData = CheckboxCellData;
+    fn placeholder_cell(&self) -> Option<CellRevision> {
         Some(CellRevision::new(UNCHECK.to_string()))
     }
 
-    fn can_group(&self, content: &str, cell_data: &Self::CellDataType) -> bool {
+    fn can_group(&self, content: &str, cell_data: &Self::CellData) -> bool {
         if cell_data.is_check() {
             content == CHECK
         } else {
@@ -33,10 +33,10 @@ impl GroupControllerCustomActions for CheckboxGroupController {
         }
     }
 
-    fn add_or_remove_row_in_groups_if_match(
+    fn add_or_remove_row_when_cell_changed(
         &mut self,
         row_rev: &RowRevision,
-        cell_data: &Self::CellDataType,
+        cell_data: &Self::CellData,
     ) -> Vec<GroupRowsNotificationPB> {
         let mut changesets = vec![];
         self.group_ctx.iter_mut_status_groups(|group| {
@@ -79,7 +79,7 @@ impl GroupControllerCustomActions for CheckboxGroupController {
         changesets
     }
 
-    fn delete_row(&mut self, row_rev: &RowRevision, _cell_data: &Self::CellDataType) -> Vec<GroupRowsNotificationPB> {
+    fn delete_row(&mut self, row_rev: &RowRevision, _cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB> {
         let mut changesets = vec![];
         self.group_ctx.iter_mut_groups(|group| {
             let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
@@ -97,7 +97,7 @@ impl GroupControllerCustomActions for CheckboxGroupController {
 
     fn move_row(
         &mut self,
-        _cell_data: &Self::CellDataType,
+        _cell_data: &Self::CellData,
         mut context: MoveGroupRowContext,
     ) -> Vec<GroupRowsNotificationPB> {
         let mut group_changeset = vec![];

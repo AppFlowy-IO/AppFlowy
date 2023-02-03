@@ -1,9 +1,9 @@
 use crate::grid::field_test::util::create_text_field;
-use crate::grid::snapshot_test::script::{GridSnapshotTest, SnapshotScript::*};
+use crate::grid::snapshot_test::script::{DatabaseSnapshotTest, SnapshotScript::*};
 
 #[tokio::test]
 async fn snapshot_create_test() {
-    let mut test = GridSnapshotTest::new().await;
+    let mut test = DatabaseSnapshotTest::new().await;
     let (_, field_rev) = create_text_field(&test.grid_id());
     let scripts = vec![CreateField { field_rev }, WriteSnapshot];
     test.run_scripts(scripts).await;
@@ -19,7 +19,7 @@ async fn snapshot_create_test() {
 
 #[tokio::test]
 async fn snapshot_multi_version_test() {
-    let mut test = GridSnapshotTest::new().await;
+    let mut test = DatabaseSnapshotTest::new().await;
     let original_content = test.grid_pad().await.json_str().unwrap();
 
     // Create a field

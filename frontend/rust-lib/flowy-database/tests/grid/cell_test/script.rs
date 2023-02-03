@@ -1,17 +1,17 @@
-use crate::grid::grid_editor::GridEditorTest;
+use crate::grid::database_editor::DatabaseEditorTest;
 use flowy_database::entities::CellChangesetPB;
 
 pub enum CellScript {
     UpdateCell { changeset: CellChangesetPB, is_err: bool },
 }
 
-pub struct GridCellTest {
-    inner: GridEditorTest,
+pub struct DatabaseCellTest {
+    inner: DatabaseEditorTest,
 }
 
-impl GridCellTest {
+impl DatabaseCellTest {
     pub async fn new() -> Self {
-        let inner = GridEditorTest::new_table().await;
+        let inner = DatabaseEditorTest::new_table().await;
         Self { inner }
     }
 
@@ -48,15 +48,15 @@ impl GridCellTest {
     }
 }
 
-impl std::ops::Deref for GridCellTest {
-    type Target = GridEditorTest;
+impl std::ops::Deref for DatabaseCellTest {
+    type Target = DatabaseEditorTest;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl std::ops::DerefMut for GridCellTest {
+impl std::ops::DerefMut for DatabaseCellTest {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }

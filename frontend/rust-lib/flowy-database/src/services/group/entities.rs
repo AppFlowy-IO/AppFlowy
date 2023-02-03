@@ -1,6 +1,6 @@
 use crate::entities::RowPB;
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Debug, Eq)]
 pub struct Group {
     pub id: String,
     pub field_id: String,

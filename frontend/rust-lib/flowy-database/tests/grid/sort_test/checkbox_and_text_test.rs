@@ -1,10 +1,10 @@
-use crate::grid::sort_test::script::{GridSortTest, SortScript::*};
+use crate::grid::sort_test::script::{DatabaseSortTest, SortScript::*};
 use flowy_database::entities::FieldType;
 use grid_model::SortCondition;
 
 #[tokio::test]
 async fn sort_checkbox_and_then_text_by_descending_test() {
-    let mut test = GridSortTest::new().await;
+    let mut test = DatabaseSortTest::new().await;
     let checkbox_field = test.get_first_field_rev(FieldType::Checkbox);
     let text_field = test.get_first_field_rev(FieldType::RichText);
     let scripts = vec![

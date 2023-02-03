@@ -1,4 +1,4 @@
-use crate::grid::grid_editor::GridEditorTest;
+use crate::grid::database_editor::DatabaseEditorTest;
 
 use flowy_client_sync::client_database::{DatabaseOperations, DatabaseRevisionPad};
 use flowy_revision::{RevisionSnapshot, REVISION_WRITE_INTERVAL_IN_MILLIS};
@@ -26,15 +26,15 @@ pub enum SnapshotScript {
     },
 }
 
-pub struct GridSnapshotTest {
-    inner: GridEditorTest,
+pub struct DatabaseSnapshotTest {
+    inner: DatabaseEditorTest,
     pub current_snapshot: Option<RevisionSnapshot>,
     pub current_revision: Option<Revision>,
 }
 
-impl GridSnapshotTest {
+impl DatabaseSnapshotTest {
     pub async fn new() -> Self {
-        let editor_test = GridEditorTest::new_table().await;
+        let editor_test = DatabaseEditorTest::new_table().await;
         Self {
             inner: editor_test,
             current_snapshot: None,
@@ -88,15 +88,15 @@ impl GridSnapshotTest {
         }
     }
 }
-impl std::ops::Deref for GridSnapshotTest {
-    type Target = GridEditorTest;
+impl std::ops::Deref for DatabaseSnapshotTest {
+    type Target = DatabaseEditorTest;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl std::ops::DerefMut for GridSnapshotTest {
+impl std::ops::DerefMut for DatabaseSnapshotTest {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }
