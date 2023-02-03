@@ -5,10 +5,12 @@ export const RenamePopup = ({
   value,
   onChange,
   onClose,
+  className = '',
 }: {
   value: string;
   onChange: (newTitle: string) => void;
   onClose: () => void;
+  className?: string;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -27,7 +29,9 @@ export const RenamePopup = ({
   return (
     <div
       ref={ref}
-      className={'absolute z-10 left-[30px] top-[30px] w-[300px] bg-white shadow-md py-1 px-1.5 flex rounded '}
+      className={
+        'absolute z-10 left-[30px] top-[30px] w-[300px] bg-white shadow-md py-1 px-1.5 flex rounded ' + className
+      }
     >
       <input
         ref={inputRef}
