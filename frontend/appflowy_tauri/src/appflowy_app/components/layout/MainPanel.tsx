@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { HeaderPanel } from './HeaderPanel';
+import { HeaderPanel } from './HeaderPanel/HeaderPanel';
 import { FooterPanel } from './FooterPanel';
 
 export const MainPanel = ({ children }: { children: ReactNode }) => {

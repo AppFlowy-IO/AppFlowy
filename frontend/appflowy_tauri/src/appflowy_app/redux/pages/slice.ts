@@ -1,15 +1,18 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export type PageType = 'document' | 'grid' | 'board'
+
 export interface IPage {
   id: string;
   title: string;
+  pageType: PageType;
   folderId: string;
 }
 
 const initialState: IPage[] = [
-  { id: 'welcome_page', title: 'Welcome', folderId: 'getting_started' },
-  { id: 'first_page', title: 'First Page', folderId: 'my_folder' },
-  { id: 'second_page', title: 'Second Page', folderId: 'my_folder' },
+  { id: 'welcome_page', title: 'Welcome', pageType: 'document', folderId: 'getting_started' },
+  { id: 'first_page', title: 'First Page', pageType: 'document', folderId: 'my_folder' },
+  { id: 'second_page', title: 'Second Page', pageType: 'document', folderId: 'my_folder' },
 ];
 
 export const pagesSlice = createSlice({
