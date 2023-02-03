@@ -119,10 +119,10 @@ class ActionMenuWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final editorStyle = Theme.of(context).extension<EditorStyle>();
+    final editorStyle = EditorStyle.of(context);
 
     return Card(
-      color: editorStyle?.selectionMenuBackgroundColor,
+      color: editorStyle.selectionMenuBackgroundColor,
       elevation: 3.0,
       child: Row(
         mainAxisSize: MainAxisSize.min,

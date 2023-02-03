@@ -86,20 +86,22 @@ class ActionMenuItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final editorStyle = theme.extension<EditorStyle>();
-    final bSelected = item.selected?.call() ?? false;
-    final color = bSelected
-        ? theme.colorScheme.primary
-        : editorStyle?.selectionMenuItemIconColor;
+    final editorStyle = EditorStyle.of(context);
+    final isSelected = item.selected?.call() ?? false;
+    final color = isSelected
+        ? editorStyle.selectionMenuItemSelectedIconColor
+        : editorStyle.selectionMenuItemIconColor;
 
     var icon = item.iconBuilder(size: iconSize, color: color);
     var itemWidget = Padding(
       padding: const EdgeInsets.all(3),
       child: item.onPressed != null
-          ? GestureDetector(
-              onTap: item.onPressed,
-              child: icon,
+          ? MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: item.onPressed,
+                child: icon,
+              ),
             )
           : icon,
     );

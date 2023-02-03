@@ -71,7 +71,6 @@ class CalloutNodeWidgetBuilder extends NodeWidgetBuilder<Node>
           if (state == null || ctx == null) {
             return item;
           }
-
           return AppFlowyPopover(
             controller: state.colorPopoverController,
             popupBuilder: (context) => state._buildColorPicker(),
@@ -184,11 +183,12 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
     Size size = const Size(200, 460),
   }) {
     return AppFlowyPopover(
-        controller: controller,
-        constraints: BoxConstraints.loose(size),
-        triggerActions: 0,
-        popupBuilder: popupBuilder,
-        child: child);
+      controller: controller,
+      constraints: BoxConstraints.loose(size),
+      triggerActions: 0,
+      popupBuilder: popupBuilder,
+      child: child,
+    );
   }
 
   Widget _buildColorPicker() {
