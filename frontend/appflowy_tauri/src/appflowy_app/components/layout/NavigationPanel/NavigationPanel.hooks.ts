@@ -8,20 +8,6 @@ export const useNavigationPanelHooks = function () {
 
   const navigate = useNavigate();
 
-  const onBorderMouseDown = () => {
-    const onMouseMove = (e: MouseEvent) => {
-      console.log(e.movementX, e.movementY);
-    };
-
-    const onMouseUp = () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
-    };
-
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
-  };
-
   return {
     width,
 
