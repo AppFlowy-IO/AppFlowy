@@ -18,9 +18,8 @@ class FlowyApp implements EntryPoint {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await EasyLocalization.ensureInitialized();
 
-  WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
   await hotKeyManager.unregisterAll();
   await windowManager.ensureInitialized();
 
