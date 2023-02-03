@@ -1,8 +1,7 @@
-import { MouseEventHandler, useEffect } from 'react';
-import { IPopupItem, Popup } from '../_shared/Popup';
-import { DocumentSvg } from '../_shared/DocumentSvg';
-import { BoardSvg } from '../_shared/BoardSvg';
-import { GridSvg } from '../_shared/GridSvg';
+import { IPopupItem, Popup } from '../../_shared/Popup';
+import { DocumentSvg } from '../../_shared/DocumentSvg';
+import { BoardSvg } from '../../_shared/BoardSvg';
+import { GridSvg } from '../../_shared/GridSvg';
 
 export const NewPagePopup = ({
   onDocumentClick,
@@ -10,9 +9,9 @@ export const NewPagePopup = ({
   onBoardClick,
   onClose,
 }: {
-  onDocumentClick: MouseEventHandler<HTMLButtonElement>;
-  onGridClick: MouseEventHandler<HTMLButtonElement>;
-  onBoardClick: MouseEventHandler<HTMLButtonElement>;
+  onDocumentClick: () => void;
+  onGridClick: () => void;
+  onBoardClick: () => void;
   onClose?: () => void;
 }) => {
   const items: IPopupItem[] = [

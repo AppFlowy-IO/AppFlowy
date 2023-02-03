@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { NavigationPanel } from './NavigationPanel';
+import { NavigationPanel } from './NavigationPanel/NavigationPanel';
 import { MainPanel } from './MainPanel';
 
 export const Screen = ({ children }: { children: ReactNode }) => {

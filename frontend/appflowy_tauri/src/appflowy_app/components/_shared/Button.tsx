@@ -1,11 +1,11 @@
-import { MouseEventHandler, ReactNode, useEffect, useState } from 'react';
+import { MouseEventHandler, MouseEvent, ReactNode, useEffect, useState } from 'react';
 
 export const Button = ({
   size = 'primary',
   children,
   onClick,
 }: {
-  size?: 'primary' | 'medium' | 'small';
+  size?: 'primary' | 'medium' | 'small' | 'box-small-transparent';
   children: ReactNode;
   onClick?: MouseEventHandler<HTMLButtonElement>;
 }) => {
@@ -21,11 +21,19 @@ export const Button = ({
       case 'small':
         setCls('w-[68px] h-[32px] flex items-center justify-center rounded-lg bg-main-accent text-white text-xs');
         break;
+      case 'box-small-transparent':
+        setCls('text-black hover:text-main-accent w-[24px] h-[24px]');
+        break;
     }
   }, [size]);
 
+  const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    onClick && onClick(e);
+  };
+
   return (
-    <button className={cls} onClick={onClick}>
+    <button className={cls} onClick={(e) => handleClick(e)}>
       {children}
     </button>
   );

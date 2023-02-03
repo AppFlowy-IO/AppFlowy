@@ -1,8 +1,7 @@
-import { MouseEventHandler, useEffect } from 'react';
-import { IPopupItem, Popup } from '../_shared/Popup';
-import { EditSvg } from '../_shared/EditSvg';
-import { TrashSvg } from '../_shared/TrashSvg';
-import { CopySvg } from '../_shared/CopySvg';
+import { IPopupItem, Popup } from '../../_shared/Popup';
+import { EditSvg } from '../../_shared/EditSvg';
+import { TrashSvg } from '../../_shared/TrashSvg';
+import { CopySvg } from '../../_shared/CopySvg';
 
 export const NavItemOptionsPopup = ({
   onRenameClick,
@@ -10,9 +9,9 @@ export const NavItemOptionsPopup = ({
   onDuplicateClick,
   onClose,
 }: {
-  onRenameClick: MouseEventHandler<HTMLButtonElement>;
-  onDeleteClick: MouseEventHandler<HTMLButtonElement>;
-  onDuplicateClick: MouseEventHandler<HTMLButtonElement>;
+  onRenameClick: () => void;
+  onDeleteClick: () => void;
+  onDuplicateClick: () => void;
   onClose?: () => void;
 }) => {
   const items: IPopupItem[] = [
