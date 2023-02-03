@@ -16,11 +16,11 @@ Future<String?> copyFile(String src, String? dest, String name) async {
   return newImage;
 }
 
-Future<Future<Directory>?> checkDir() async {
+Future<Directory> checkDir() async {
   if (await Directory('$folderPath/images').exists() == false) {
     return Directory('$folderPath/images').create(recursive: true);
   }
-  return null;
+  return Directory('$folderPath/images');
 }
 
 class LocalImageNodeWidgetBuilder extends NodeWidgetBuilder {
