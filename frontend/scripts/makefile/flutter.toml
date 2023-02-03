@@ -241,6 +241,15 @@ script = ["""
   flutter build apk --release
   """]
 
+[tasks.flutter-build-android.windows]
+script = ["""
+  cd app_flowy
+  exec cmd.exe /c flutter clean
+  exec cmd.exe /c flutter pub get
+  exec cmd.exe /c flutter build apk --release
+  """]
+script_runner = "@duckscript"
+
 [tasks.code_generation]
 script_runner = "@shell"
 script = [
@@ -272,7 +281,7 @@ script = [
   cd app_flowy
   flutter packages pub run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
   flutter packages pub run build_runner build --delete-conflicting-outputs
-  """
+  """,
 ]
 
 [tasks.dry_code_generation.windows]
@@ -282,5 +291,5 @@ script = [
   cd ./app_flowy/
   exec cmd.exe /c flutter packages pub run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
   exec cmd.exe /c flutter packages pub run build_runner build --delete-conflicting-outputs
-  """
+  """,
 ]

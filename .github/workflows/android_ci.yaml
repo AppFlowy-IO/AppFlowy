@@ -1,4 +1,4 @@
-name: Flutter-CI
+name: Android-CI
 
 on:
   push:
@@ -82,21 +82,16 @@ jobs:
           cargo make appflowy-flutter-deps-tools
         shell: bash
 
-      - name: Enable Flutter Desktop
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            flutter config --enable-linux-desktop
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            flutter config --enable-macos-desktop
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            flutter config --enable-windows-desktop
-          fi
-        shell: bash
+      - name: Setup NDK
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r24
+          local-cache: true
 
-      - name: Build AppFlowy
+      - name: Build AppFlowy Android
         working-directory: frontend
-        run: |
-          cargo make --profile ${{ matrix.flutter_profile }} appflowy-dev
+        run:
+          cargo make --profile production-android appflowy-android-ci
 
       - name: Flutter Analyzer
         working-directory: frontend/app_flowy
