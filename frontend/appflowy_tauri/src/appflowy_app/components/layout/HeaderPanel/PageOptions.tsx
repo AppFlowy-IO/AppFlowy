@@ -1,4 +1,4 @@
-import { Button } from '../_shared/Button';
+import { Button } from '../../_shared/Button';
 
 export const PageOptions = () => {
   return (
