@@ -39,8 +39,17 @@ class LocalImageNodeWidgetBuilder extends NodeWidgetBuilder {
     });
 
     copyFile(src, folderPath, imageName);
-    return _LocalImageNodeWidget(
-        key: context.node.key, node: context.node, image: newImage);
+
+    return FutureBuilder(
+        future: storageLocation,
+        builder: (BuildContext _, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            return _LocalImageNodeWidget(
+                key: context.node.key, node: context.node, image: newImage);
+          } else {
+            return const CircularProgressIndicator();
+          }
+        });
   }
 
   @override
