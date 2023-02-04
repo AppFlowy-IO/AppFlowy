@@ -145,7 +145,7 @@ class EditorState {
       completer.complete();
       return completer.future;
     }
-    // TODO: validate the transation.
+    // TODO: validate the transaction.
     for (final op in transaction.operations) {
       _applyOperation(op);
     }
