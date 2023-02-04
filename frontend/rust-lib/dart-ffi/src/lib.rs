@@ -20,6 +20,14 @@ lazy_static! {
     static ref FLOWY_SDK: RwLock<Option<FlowySDK>> = RwLock::new(None);
 }
 
+enum LOGLEVEL {
+    INFO = 0,
+    DEBUG = 1,
+    TRACE = 2,
+    WARN = 3,
+    ERROR = 4,
+}
+
 #[no_mangle]
 pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
     let c_str: &CStr = unsafe { CStr::from_ptr(path) };
@@ -114,8 +122,13 @@ pub extern "C" fn log(level: i64, logtrace: *const c_char) {
     let c_str = unsafe { CStr::from_ptr(logtrace) };
     let str_slice = c_str.to_str().unwrap();
     match level {
-        0 => tracing::trace!("{}", str_slice),
-        1 => tracing::info!("{}", str_slice),
+        0 => tracing::info!("{}", str_slice),
+        // LOGLEVEL::INFO as i64 => tracing::info!("{}", str_slice),
+        // LOGLEVEL::INFO  => tracing::info!("{}", str_slice),
+        1 => tracing::debug!("{}", str_slice),
+        2 => tracing::trace!("{}", str_slice),
+        3 => tracing::warn!("{}", str_slice),
+        4 => tracing::error!("{}", str_slice),
         _ => (),
     }
 
