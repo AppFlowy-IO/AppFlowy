@@ -375,6 +375,7 @@ pub(crate) async fn update_select_option_handler(
     let changeset: SelectOptionChangeset = data.into_inner().try_into()?;
     let editor = manager.get_database_editor(&changeset.cell_path.database_id).await?;
     let field_id = changeset.cell_path.field_id.clone();
+    let (tx, rx) = tokio::sync::oneshot::channel();
     editor
         .modify_field_rev(&field_id, |field_rev| {
             let mut type_option = select_type_option_from_field_rev(field_rev)?;
@@ -403,27 +404,24 @@ pub(crate) async fn update_select_option_handler(
             if is_changed.is_some() {
                 field_rev.insert_type_option(&*type_option);
             }
-
-            if let Some(cell_changeset_str) = cell_changeset_str {
-                let cloned_editor = editor.clone();
-                tokio::spawn(async move {
-                    match cloned_editor
-                        .update_cell_with_changeset(
-                            &changeset.cell_path.row_id,
-                            &changeset.cell_path.field_id,
-                            cell_changeset_str,
-                        )
-                        .await
-                    {
-                        Ok(_) => {}
-                        Err(e) => tracing::error!("{}", e),
-                    }
-                });
-            }
+            let _ = tx.send(cell_changeset_str);
             Ok(is_changed)
         })
         .await?;
 
+    if let Ok(Some(cell_changeset_str)) = rx.await {
+        match editor
+            .update_cell_with_changeset(
+                &changeset.cell_path.row_id,
+                &changeset.cell_path.field_id,
+                cell_changeset_str,
+            )
+            .await
+        {
+            Ok(_) => {}
+            Err(e) => tracing::error!("{}", e),
+        }
+    }
     Ok(())
 }
 
