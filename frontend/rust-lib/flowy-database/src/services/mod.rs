@@ -9,6 +9,7 @@ pub mod grid_editor;
 mod grid_editor_trait_impl;
 pub mod group;
 pub mod persistence;
+mod retry;
 pub mod row;
 pub mod setting;
 pub mod sort;
