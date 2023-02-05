@@ -25,8 +25,10 @@ category = "Build"
 dependencies = ["env_check"]
 run_task = { name = [
   "setup-crate-type",
+  "setup-sqlite-crate",
   "sdk-build-android",
   "restore-crate-type",
+  "restore-sqlite-crate",
 ] }
 
 [tasks.appflowy-sdk-dev-ci-android]
@@ -34,8 +36,10 @@ category = "Build"
 dependencies = ["env_check"]
 run_task = { name = [
   "setup-crate-type",
+  "setup-sqlite-crate",
   "ci-sdk-build-android",
   "restore-crate-type",
+  "restore-sqlite-crate",
 ] }
 
 [tasks.appflowy-sdk-dev-macos]
@@ -111,8 +115,7 @@ script_runner = "@shell"
 
 [tasks.ci-sdk-build-android]
 private = true
-script = [
-  """
+script = ["""
     cd rust-lib/
     rustup show
     rustup target add aarch64-linux-android \
@@ -126,8 +129,7 @@ script = [
       -t x86_64 \
       build --release
     cd ../
-  """,
-]
+  """]
 script_runner = "@shell"
 
 [tasks.sdk-build.windows]
