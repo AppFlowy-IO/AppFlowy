@@ -236,7 +236,7 @@ impl AttributeValue {
         }
     }
     pub fn from_string(s: &str) -> Self {
-        let value = if s.is_empty() { None } else { Some(s.to_string()) };
+        let value = Some(s.to_string());
         Self {
             ty: Some(ValueType::StrType),
             value,
