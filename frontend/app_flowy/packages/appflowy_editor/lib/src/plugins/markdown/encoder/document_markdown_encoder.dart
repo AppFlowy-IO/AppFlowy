@@ -5,6 +5,7 @@ import 'package:appflowy_editor/src/plugins/markdown/encoder/parser/divider_node
 import 'package:appflowy_editor/src/plugins/markdown/encoder/parser/image_node_parser.dart';
 import 'package:appflowy_editor/src/plugins/markdown/encoder/parser/node_parser.dart';
 import 'package:appflowy_editor/src/plugins/markdown/encoder/parser/text_node_parser.dart';
+import 'package:appflowy_editor/src/plugins/markdown/encoder/parser/math_equation_node_parser.dart';
 
 class DocumentMarkdownEncoder extends Converter<Document, String> {
   DocumentMarkdownEncoder({
@@ -12,6 +13,7 @@ class DocumentMarkdownEncoder extends Converter<Document, String> {
       TextNodeParser(),
       ImageNodeParser(),
       DividerNodeParser(),
+      MathEquationNodeParser(),
     ],
   });
 
