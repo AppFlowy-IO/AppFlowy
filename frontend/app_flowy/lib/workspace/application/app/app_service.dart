@@ -76,7 +76,7 @@ class AppService {
       ..to = toIndex
       ..ty = MoveFolderItemType.MoveView;
 
-    return FolderEventMoveFolderItem(payload).send();
+    return FolderEventMoveItem(payload).send();
   }
 
   Future<List<Tuple2<AppPB, List<ViewPB>>>> fetchViews(

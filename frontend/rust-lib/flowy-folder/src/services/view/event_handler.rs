@@ -1,5 +1,4 @@
 use crate::entities::view::{MoveFolderItemParams, MoveFolderItemPayloadPB, MoveFolderItemType};
-use crate::entities::ViewInfoPB;
 use crate::manager::FolderManager;
 use crate::services::{notify_workspace_setting_did_change, AppController};
 use crate::{
@@ -33,15 +32,6 @@ pub(crate) async fn read_view_handler(
     let view_id: ViewIdPB = data.into_inner();
     let view_rev = controller.read_view(&view_id.value).await?;
     data_result(view_rev.into())
-}
-
-pub(crate) async fn read_view_info_handler(
-    data: AFPluginData<ViewIdPB>,
-    controller: AFPluginState<Arc<ViewController>>,
-) -> DataResult<ViewInfoPB, FlowyError> {
-    let view_id: ViewIdPB = data.into_inner();
-    let view_info = controller.read_view_pb(view_id.clone()).await?;
-    data_result(view_info)
 }
 
 #[tracing::instrument(level = "debug", skip(data, controller), err)]
