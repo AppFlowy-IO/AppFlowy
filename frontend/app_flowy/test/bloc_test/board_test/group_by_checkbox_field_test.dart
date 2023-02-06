@@ -33,7 +33,7 @@ void main() {
     final gridGroupBloc = GridGroupBloc(
       viewId: context.gridView.id,
       fieldController: context.fieldController,
-    );
+    )..add(const GridGroupEvent.initial());
     gridGroupBloc.add(GridGroupEvent.setGroupByField(
       checkboxField.id,
       checkboxField.fieldType,
