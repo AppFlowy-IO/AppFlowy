@@ -60,18 +60,16 @@ impl AppController {
         Ok(app.into())
     }
 
-    pub(crate) async fn read_app(&self, params: AppIdPB) -> Result<AppRevision, FlowyError> {
+    pub(crate) async fn read_app(&self, params: AppIdPB) -> Result<Option<AppRevision>, FlowyError> {
         let app = self
             .persistence
             .begin_transaction(|transaction| {
                 let app = transaction.read_app(&params.value)?;
                 let trash_ids = self.trash_controller.read_trash_ids(&transaction)?;
                 if trash_ids.contains(&app.id) {
-                    return Err(
-                        FlowyError::record_not_found().context(format!("Can not find the app:{}", params.value))
-                    );
+                    return Ok(None);
                 }
-                Ok(app)
+                Ok(Some(app))
             })
             .await?;
         self.read_app_on_server(params)?;
@@ -243,7 +241,7 @@ fn notify_apps_changed<'a>(
     trash_controller: Arc<TrashController>,
     transaction: &'a (dyn FolderPersistenceTransaction + 'a),
 ) -> FlowyResult<()> {
-    let items = read_local_workspace_apps(workspace_id, trash_controller, transaction)?
+    let items = read_workspace_apps(workspace_id, trash_controller, transaction)?
         .into_iter()
         .map(|app_rev| app_rev.into())
         .collect();
@@ -254,7 +252,7 @@ fn notify_apps_changed<'a>(
     Ok(())
 }
 
-pub fn read_local_workspace_apps<'a>(
+pub fn read_workspace_apps<'a>(
     workspace_id: &str,
     trash_controller: Arc<TrashController>,
     transaction: &'a (dyn FolderPersistenceTransaction + 'a),

@@ -9,34 +9,18 @@ use std::sync::atomic::AtomicI64;
 use std::sync::atomic::Ordering::SeqCst;
 use std::sync::Arc;
 
-pub trait RevisionSnapshotDiskCache: Send + Sync {
+pub trait RevisionSnapshotPersistence: Send + Sync {
     fn should_generate_snapshot_from_range(&self, start_rev_id: i64, current_rev_id: i64) -> bool {
         (current_rev_id - start_rev_id) >= AUTO_GEN_SNAPSHOT_PER_10_REVISION
     }
 
     fn write_snapshot(&self, rev_id: i64, data: Vec<u8>) -> FlowyResult<()>;
 
-    fn read_snapshot(&self, rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>>;
+    fn read_snapshot(&self, rev_id: i64) -> FlowyResult<Option<RevisionSnapshotData>>;
 
-    fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>>;
-}
+    fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshotData>>;
 
-/// Do nothing but just used to clam the rust compiler about the generic parameter `SP` of `RevisionManager`
-///  
-pub struct PhantomSnapshotPersistence();
-
-impl RevisionSnapshotDiskCache for PhantomSnapshotPersistence {
-    fn write_snapshot(&self, rev_id: i64, data: Vec<u8>) -> FlowyResult<()> {
-        Ok(())
-    }
-
-    fn read_snapshot(&self, rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>> {
-        Ok(None)
-    }
-
-    fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>> {
-        Ok(None)
-    }
+    // fn generate_snapshot_data(&self) -> Option<RevisionSnapshotData>;
 }
 
 const AUTO_GEN_SNAPSHOT_PER_10_REVISION: i64 = 10;
@@ -44,7 +28,7 @@ const AUTO_GEN_SNAPSHOT_PER_10_REVISION: i64 = 10;
 pub struct RevisionSnapshotController<Connection> {
     user_id: String,
     object_id: String,
-    rev_snapshot_persistence: Arc<dyn RevisionSnapshotDiskCache>,
+    rev_snapshot_persistence: Arc<dyn RevisionSnapshotPersistence>,
     rev_id_counter: Arc<RevIdCounter>,
     rev_persistence: Arc<RevisionPersistence<Connection>>,
     rev_compress: Arc<dyn RevisionMergeable>,
@@ -64,13 +48,13 @@ where
         revision_compress: Arc<dyn RevisionMergeable>,
     ) -> Self
     where
-        D: RevisionSnapshotDiskCache + 'static,
+        D: RevisionSnapshotPersistence + 'static,
     {
-        let disk_cache = Arc::new(disk_cache);
+        let rev_snapshot_persistence = Arc::new(disk_cache);
         Self {
             user_id: user_id.to_string(),
             object_id: object_id.to_string(),
-            rev_snapshot_persistence: disk_cache,
+            rev_snapshot_persistence,
             rev_id_counter,
             start_rev_id: AtomicI64::new(0),
             rev_persistence: revision_persistence,
@@ -168,7 +152,7 @@ where
 }
 
 impl<Connection> std::ops::Deref for RevisionSnapshotController<Connection> {
-    type Target = Arc<dyn RevisionSnapshotDiskCache>;
+    type Target = Arc<dyn RevisionSnapshotPersistence>;
 
     fn deref(&self) -> &Self::Target {
         &self.rev_snapshot_persistence
@@ -176,7 +160,7 @@ impl<Connection> std::ops::Deref for RevisionSnapshotController<Connection> {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub struct RevisionSnapshot {
+pub struct RevisionSnapshotData {
     pub rev_id: i64,
     pub base_rev_id: i64,
     pub timestamp: i64,

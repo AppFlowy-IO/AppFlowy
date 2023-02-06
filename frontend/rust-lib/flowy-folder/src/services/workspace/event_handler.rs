@@ -7,7 +7,7 @@ use crate::{
     errors::FlowyError,
     manager::FolderManager,
     notification::{send_notification, FolderNotification},
-    services::{get_current_workspace, read_local_workspace_apps, WorkspaceController},
+    services::{get_current_workspace, read_workspace_apps, WorkspaceController},
 };
 use lib_dispatch::prelude::{data_result, AFPluginData, AFPluginState, DataResult};
 use std::{convert::TryInto, sync::Arc};
@@ -60,10 +60,9 @@ pub(crate) async fn read_workspaces_handler(
     let workspaces = folder
         .persistence
         .begin_transaction(|transaction| {
-            let mut workspaces =
-                workspace_controller.read_local_workspaces(params.value.clone(), &user_id, &transaction)?;
+            let mut workspaces = workspace_controller.read_workspaces(params.value.clone(), &user_id, &transaction)?;
             for workspace in workspaces.iter_mut() {
-                let apps = read_local_workspace_apps(&workspace.id, trash_controller.clone(), &transaction)?
+                let apps = read_workspace_apps(&workspace.id, trash_controller.clone(), &transaction)?
                     .into_iter()
                     .map(|app_rev| app_rev.into())
                     .collect();
@@ -91,7 +90,7 @@ pub async fn read_cur_workspace_handler(
         .begin_transaction(|transaction| {
             folder
                 .workspace_controller
-                .read_local_workspace(workspace_id, &user_id, &transaction)
+                .read_workspace(workspace_id, &user_id, &transaction)
         })
         .await?;
 
