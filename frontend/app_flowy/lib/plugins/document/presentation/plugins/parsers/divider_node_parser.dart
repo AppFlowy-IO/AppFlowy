@@ -1,5 +1,4 @@
-import 'package:appflowy_editor/src/core/document/node.dart';
-import 'package:appflowy_editor/src/plugins/markdown/encoder/parser/node_parser.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 
 class DividerNodeParser extends NodeParser {
   const DividerNodeParser();

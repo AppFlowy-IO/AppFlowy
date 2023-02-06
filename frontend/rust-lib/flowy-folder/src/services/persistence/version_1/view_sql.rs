@@ -89,7 +89,7 @@ impl ViewTable {
         let data_type = match view_rev.data_format {
             ViewDataFormatRevision::DeltaFormat => SqlViewDataFormat::Delta,
             ViewDataFormatRevision::DatabaseFormat => SqlViewDataFormat::Database,
-            ViewDataFormatRevision::TreeFormat => SqlViewDataFormat::Tree,
+            ViewDataFormatRevision::NodeFormat => SqlViewDataFormat::Tree,
         };
 
         ViewTable {
@@ -113,7 +113,7 @@ impl std::convert::From<ViewTable> for ViewRevision {
         let data_type = match table.view_type {
             SqlViewDataFormat::Delta => ViewDataFormatRevision::DeltaFormat,
             SqlViewDataFormat::Database => ViewDataFormatRevision::DatabaseFormat,
-            SqlViewDataFormat::Tree => ViewDataFormatRevision::TreeFormat,
+            SqlViewDataFormat::Tree => ViewDataFormatRevision::NodeFormat,
         };
 
         ViewRevision {

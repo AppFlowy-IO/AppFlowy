@@ -211,7 +211,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     }
 
     fn data_types(&self) -> Vec<ViewDataFormatPB> {
-        vec![ViewDataFormatPB::DeltaFormat, ViewDataFormatPB::TreeFormat]
+        vec![ViewDataFormatPB::DeltaFormat, ViewDataFormatPB::NodeFormat]
     }
 }
 

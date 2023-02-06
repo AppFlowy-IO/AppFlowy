@@ -21,13 +21,13 @@ macro_rules! inline_list_attribute_entry {
     ) => {
         pub fn $key(b: bool) -> $crate::core::AttributeEntry {
             let value = match b {
-                true => $value,
-                false => "",
+                true => $value.into(),
+                false => AttributeValue::none(),
             };
 
             AttributeEntry {
                 key: BuildInTextAttributeKey::List.as_ref().to_string(),
-                value: value.into(),
+                value,
             }
         }
     };

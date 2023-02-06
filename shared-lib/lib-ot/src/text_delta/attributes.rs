@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::core::{AttributeEntry, AttributeHashMap, AttributeKey};
+use crate::core::{AttributeEntry, AttributeHashMap, AttributeKey, AttributeValue};
 use crate::text_delta::DeltaTextOperation;
 use crate::{inline_attribute_entry, inline_list_attribute_entry};
 use lazy_static::lazy_static;

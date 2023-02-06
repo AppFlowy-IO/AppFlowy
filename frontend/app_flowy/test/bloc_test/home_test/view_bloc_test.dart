@@ -46,7 +46,7 @@ void main() {
     viewBloc.add(const ViewEvent.duplicate());
     await blocResponseFuture();
 
-    assert(appBloc.state.views.length == 2);
+    expect(appBloc.state.views.length, 2);
   });
 
   test('delete view test', () async {
@@ -59,7 +59,7 @@ void main() {
       DocumentPluginBuilder(),
     ));
     await blocResponseFuture();
-    assert(appBloc.state.views.length == 1);
+    expect(appBloc.state.views.length, 1);
 
     final viewBloc = ViewBloc(view: appBloc.state.views.first)
       ..add(const ViewEvent.initial());

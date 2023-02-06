@@ -185,7 +185,7 @@ impl FilterDelegate for GridViewFilterDelegateImpl {
 pub(crate) struct GridViewSortDelegateImpl {
     pub(crate) editor_delegate: Arc<dyn DatabaseViewEditorDelegate>,
     pub(crate) view_revision_pad: Arc<RwLock<GridViewRevisionPad>>,
-    pub(crate) filter_controller: Arc<RwLock<FilterController>>,
+    pub(crate) filter_controller: Arc<FilterController>,
 }
 
 impl SortDelegate for GridViewSortDelegateImpl {
@@ -209,7 +209,7 @@ impl SortDelegate for GridViewSortDelegateImpl {
         let editor_delegate = self.editor_delegate.clone();
         to_fut(async move {
             let mut row_revs = editor_delegate.get_row_revs(None).await;
-            filter_controller.write().await.filter_row_revs(&mut row_revs).await;
+            filter_controller.filter_row_revs(&mut row_revs).await;
             row_revs
         })
     }

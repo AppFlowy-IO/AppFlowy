@@ -1,10 +1,10 @@
 pub use crate::entities::view::ViewDataFormatPB;
-use crate::entities::{AppPB, DeletedViewPB, ViewInfoPB, ViewLayoutTypePB};
+use crate::entities::{AppPB, DeletedViewPB, ViewLayoutTypePB};
 use crate::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use crate::{
     entities::{
         trash::{RepeatedTrashIdPB, TrashType},
-        view::{CreateViewParams, RepeatedViewPB, UpdateViewParams, ViewIdPB, ViewPB},
+        view::{CreateViewParams, UpdateViewParams, ViewIdPB, ViewPB},
     },
     errors::{FlowyError, FlowyResult},
     event_map::{FolderCouldServiceV1, WorkspaceUser},
@@ -137,35 +137,6 @@ impl ViewController {
             })
             .await?;
         Ok(view_rev)
-    }
-
-    #[tracing::instrument(level = "debug", skip(self, view_id), fields(view_id = %view_id.value), err)]
-    pub(crate) async fn read_view_pb(&self, view_id: ViewIdPB) -> Result<ViewInfoPB, FlowyError> {
-        let view_info = self
-            .persistence
-            .begin_transaction(|transaction| {
-                let view_rev = transaction.read_view(&view_id.value)?;
-
-                let items: Vec<ViewPB> = view_rev
-                    .belongings
-                    .into_iter()
-                    .map(|view_rev| view_rev.into())
-                    .collect();
-
-                let view_info = ViewInfoPB {
-                    id: view_rev.id,
-                    belong_to_id: view_rev.app_id,
-                    name: view_rev.name,
-                    desc: view_rev.desc,
-                    data_type: view_rev.data_format.into(),
-                    belongings: RepeatedViewPB { items },
-                    ext_data: view_rev.ext_data,
-                };
-                Ok(view_info)
-            })
-            .await?;
-
-        Ok(view_info)
     }
 
     pub(crate) async fn read_local_views(&self, ids: Vec<String>) -> Result<Vec<ViewRevision>, FlowyError> {

@@ -136,19 +136,19 @@ flutter:
         - asset: assets/google_fonts/Poppins/Poppins-Thin.ttf
           weight: 200
         - asset: assets/google_fonts/Poppins/Poppins-Light.ttf
-          weight: 300          
-        - asset: assets/google_fonts/Poppins/Poppins-Regular.ttf          
+          weight: 300
+        - asset: assets/google_fonts/Poppins/Poppins-Regular.ttf
           weight: 400
-        - asset: assets/google_fonts/Poppins/Poppins-Medium.ttf          
+        - asset: assets/google_fonts/Poppins/Poppins-Medium.ttf
           weight: 500
-        - asset: assets/google_fonts/Poppins/Poppins-SemiBold.ttf          
+        - asset: assets/google_fonts/Poppins/Poppins-SemiBold.ttf
           weight: 600
         - asset: assets/google_fonts/Poppins/Poppins-Bold.ttf
           weight: 700
         - asset: assets/google_fonts/Poppins/Poppins-Black.ttf
           weight: 800
         - asset: assets/google_fonts/Poppins/Poppins-ExtraBold.ttf
-          weight: 900     
+          weight: 900
 
   # To add assets to your application, add an assets section, like this:
   assets:
@@ -158,6 +158,7 @@ flutter:
     - assets/images/grid/
     - assets/images/emoji/
     - assets/images/grid/field/
+    - assets/images/common/
     - assets/images/grid/setting/
     - assets/translations/
   #   - images/a_dot_ham.jpeg
