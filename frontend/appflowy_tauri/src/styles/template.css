@@ -1,3 +1,11 @@
+/* stop body from scrolling */
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
 input,
 textarea {
   outline: 0;
