@@ -55,6 +55,6 @@ pub(crate) async fn read_app_handler(
         app_rev.belongings = view_controller.read_views_belong_to(&params.value).await?;
         data_result(app_rev.into())
     } else {
-        return Err(FlowyError::record_not_found().into());
+        Err(FlowyError::record_not_found())
     }
 }
