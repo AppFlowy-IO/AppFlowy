@@ -64,15 +64,24 @@ void main() {
 
       bloc.add(const SelectOptionEditorEvent.newOption("A"));
       await gridResponseFuture();
+      assert(bloc.state.options.length == 1,
+          "Expect 1 but receive ${bloc.state.options.length}, Options: ${bloc.state.options}");
+
       bloc.add(const SelectOptionEditorEvent.newOption("B"));
       await gridResponseFuture();
+      assert(bloc.state.options.length == 2,
+          "Expect 2 but receive ${bloc.state.options.length}, Options: ${bloc.state.options}");
+
       bloc.add(const SelectOptionEditorEvent.newOption("C"));
       await gridResponseFuture();
+      assert(bloc.state.options.length == 3,
+          "Expect 3 but receive ${bloc.state.options.length}. Options: ${bloc.state.options}");
 
       bloc.add(const SelectOptionEditorEvent.deleteAllOptions());
       await gridResponseFuture();
 
-      assert(bloc.state.options.isEmpty);
+      assert(bloc.state.options.isEmpty,
+          "Expect empty but receive ${bloc.state.options.length}");
     });
 
     test('select/unselect option', () async {
@@ -161,18 +170,41 @@ void main() {
 
       bloc.add(const SelectOptionEditorEvent.newOption("abcd"));
       await gridResponseFuture();
+      expect(
+        bloc.state.options.length,
+        1,
+        reason: "Options: ${bloc.state.options}",
+      );
 
       bloc.add(const SelectOptionEditorEvent.newOption("aaaa"));
       await gridResponseFuture();
+      expect(
+        bloc.state.options.length,
+        2,
+        reason: "Options: ${bloc.state.options}",
+      );
 
       bloc.add(const SelectOptionEditorEvent.newOption("defg"));
       await gridResponseFuture();
+      expect(
+        bloc.state.options.length,
+        3,
+        reason: "Options: ${bloc.state.options}",
+      );
 
       bloc.add(const SelectOptionEditorEvent.filterOption("a"));
       await gridResponseFuture();
 
-      expect(bloc.state.options.length, 2);
-      expect(bloc.state.allOptions.length, 3);
+      expect(
+        bloc.state.options.length,
+        2,
+        reason: "Options: ${bloc.state.options}",
+      );
+      expect(
+        bloc.state.allOptions.length,
+        3,
+        reason: "Options: ${bloc.state.options}",
+      );
       expect(bloc.state.createOption, const Some("a"));
       expect(bloc.state.filter, const Some("a"));
     });
