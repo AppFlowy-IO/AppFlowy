@@ -20,14 +20,6 @@ lazy_static! {
     static ref FLOWY_SDK: RwLock<Option<FlowySDK>> = RwLock::new(None);
 }
 
-enum LOGLEVEL {
-    INFO = 0,
-    DEBUG = 1,
-    TRACE = 2,
-    WARN = 3,
-    ERROR = 4,
-}
-
 #[no_mangle]
 pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
     let c_str: &CStr = unsafe { CStr::from_ptr(path) };
@@ -131,6 +123,4 @@ pub extern "C" fn backend_log(level: i64, data: *const c_char) {
         4 => tracing::error!("{}", log_str),
         _ => (),
     }
-
-    println!("Received from Dart: {}", log_str);
 }

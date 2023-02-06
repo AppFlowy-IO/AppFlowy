@@ -66,7 +66,7 @@ class Log {
 }
 
 bool isReleaseVersion() {
-  return !kReleaseMode;
+  return kReleaseMode;
 }
 
 Pointer<ffi.Utf8> toNativeUtf8(dynamic msg) {
