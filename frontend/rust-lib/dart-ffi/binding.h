@@ -13,4 +13,4 @@ int32_t set_stream_port(int64_t port);
 
 void link_me_please(void);
 
-void log(int64_t level, const char *logtrace);
+void backend_log(int64_t level, const char *data);

@@ -118,19 +118,19 @@ async fn post_to_flutter(response: AFPluginEventResponse, port: i64) {
 }
 
 #[no_mangle]
-pub extern "C" fn log(level: i64, logtrace: *const c_char) {
-    let c_str = unsafe { CStr::from_ptr(logtrace) };
-    let str_slice = c_str.to_str().unwrap();
+pub extern "C" fn backend_log(level: i64, data: *const c_char) {
+    let c_str = unsafe { CStr::from_ptr(data) };
+    let log_str = c_str.to_str().unwrap();
+
+    // Don't change the mapping relation between number and level
     match level {
-        0 => tracing::info!("{}", str_slice),
-        // LOGLEVEL::INFO as i64 => tracing::info!("{}", str_slice),
-        // LOGLEVEL::INFO  => tracing::info!("{}", str_slice),
-        1 => tracing::debug!("{}", str_slice),
-        2 => tracing::trace!("{}", str_slice),
-        3 => tracing::warn!("{}", str_slice),
-        4 => tracing::error!("{}", str_slice),
+        0 => tracing::info!("{}", log_str),
+        1 => tracing::debug!("{}", log_str),
+        2 => tracing::trace!("{}", log_str),
+        3 => tracing::warn!("{}", log_str),
+        4 => tracing::error!("{}", log_str),
         _ => (),
     }
 
-    println!("Received from Dart: {}", str_slice);
+    println!("Received from Dart: {}", log_str);
 }
