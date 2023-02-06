@@ -114,7 +114,10 @@ void main() async {
     test('parser document', () async {
       final data = Map<String, Object>.from(json.decode(example));
       final document = Document.fromJson(data);
-      final result = DocumentMarkdownEncoder().convert(document);
+      final result = DocumentMarkdownEncoder(parsers: [
+        const TextNodeParser(),
+        const ImageNodeParser(),
+      ]).convert(document);
       expect(result, '''
 ## 👋 **Welcome to** ***[AppFlowy Editor](appflowy.io)***
 
