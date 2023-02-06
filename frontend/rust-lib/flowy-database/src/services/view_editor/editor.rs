@@ -74,7 +74,7 @@ pub struct DatabaseViewRevisionEditor {
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     delegate: Arc<dyn DatabaseViewEditorDelegate>,
     group_controller: Arc<RwLock<Box<dyn GroupController>>>,
-    filter_controller: Arc<RwLock<FilterController>>,
+    filter_controller: Arc<FilterController>,
     sort_controller: Arc<RwLock<SortController>>,
     pub notifier: GridViewChangedNotifier,
 }
@@ -156,7 +156,7 @@ impl DatabaseViewRevisionEditor {
     pub async fn close(&self) {
         self.rev_manager.generate_snapshot().await;
         self.rev_manager.close().await;
-        self.filter_controller.read().await.close().await;
+        self.filter_controller.close().await;
         self.sort_controller.read().await.close().await;
     }
 
@@ -194,7 +194,7 @@ impl DatabaseViewRevisionEditor {
     }
 
     pub async fn filter_rows(&self, _block_id: &str, rows: &mut Vec<Arc<RowRevision>>) {
-        self.filter_controller.write().await.filter_row_revs(rows).await;
+        self.filter_controller.filter_row_revs(rows).await;
     }
 
     pub async fn duplicate_view_data(&self) -> FlowyResult<String> {
@@ -286,7 +286,7 @@ impl DatabaseViewRevisionEditor {
         let sort_controller = self.sort_controller.clone();
         let row_id = row_rev.id.clone();
         tokio::spawn(async move {
-            filter_controller.read().await.did_receive_row_changed(&row_id).await;
+            filter_controller.did_receive_row_changed(&row_id).await;
             sort_controller.read().await.did_receive_row_changed(&row_id).await;
         });
     }
@@ -514,7 +514,7 @@ impl DatabaseViewRevisionEditor {
             condition: params.condition,
             content: params.content,
         };
-        let mut filter_controller = self.filter_controller.write().await;
+        let mut filter_controller = self.filter_controller.clone();
         let changeset = if is_exist {
             let old_filter_type = self
                 .delegate
@@ -555,8 +555,6 @@ impl DatabaseViewRevisionEditor {
         let filter_type = params.filter_type;
         let changeset = self
             .filter_controller
-            .write()
-            .await
             .did_receive_changes(FilterChangeset::from_delete(filter_type.clone()))
             .await;
 
@@ -590,13 +588,7 @@ impl DatabaseViewRevisionEditor {
                 .did_update_view_field_type_option(&field_rev)
                 .await;
 
-            if let Some(changeset) = self
-                .filter_controller
-                .write()
-                .await
-                .did_receive_changes(filter_changeset)
-                .await
-            {
+            if let Some(changeset) = self.filter_controller.did_receive_changes(filter_changeset).await {
                 self.notify_did_update_filter(changeset).await;
             }
         }
@@ -830,7 +822,7 @@ async fn make_filter_controller(
     notifier: GridViewChangedNotifier,
     cell_data_cache: AtomicCellDataCache,
     pad: Arc<RwLock<GridViewRevisionPad>>,
-) -> Arc<RwLock<FilterController>> {
+) -> Arc<FilterController> {
     let field_revs = delegate.get_field_revs(None).await;
     let filter_revs = pad.read().await.get_all_filters(&field_revs);
     let task_scheduler = delegate.get_task_scheduler();
@@ -849,7 +841,7 @@ async fn make_filter_controller(
         notifier,
     )
     .await;
-    let filter_controller = Arc::new(RwLock::new(filter_controller));
+    let filter_controller = Arc::new(filter_controller);
     task_scheduler
         .write()
         .await
@@ -861,7 +853,7 @@ async fn make_sort_controller(
     view_id: &str,
     delegate: Arc<dyn DatabaseViewEditorDelegate>,
     notifier: GridViewChangedNotifier,
-    filter_controller: Arc<RwLock<FilterController>>,
+    filter_controller: Arc<FilterController>,
     pad: Arc<RwLock<GridViewRevisionPad>>,
     cell_data_cache: AtomicCellDataCache,
 ) -> Arc<RwLock<SortController>> {
