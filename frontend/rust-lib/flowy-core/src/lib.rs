@@ -297,7 +297,7 @@ impl UserStatusListener {
     async fn did_sign_up(&self, user_profile: &UserProfile) -> FlowyResult<()> {
         let view_data_type = match self.config.document.version {
             DocumentVersionPB::V0 => ViewDataFormatPB::DeltaFormat,
-            DocumentVersionPB::V1 => ViewDataFormatPB::TreeFormat,
+            DocumentVersionPB::V1 => ViewDataFormatPB::NodeFormat,
         };
         self.folder_manager
             .initialize_with_new_user(&user_profile.id, &user_profile.token, view_data_type)

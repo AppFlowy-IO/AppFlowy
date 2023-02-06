@@ -55,7 +55,7 @@ impl FilterController {
     where
         T: FilterDelegate + 'static,
     {
-        let mut this = Self {
+        let this = Self {
             view_id: view_id.to_string(),
             handler_id: handler_id.to_string(),
             delegate: Box::new(delegate),

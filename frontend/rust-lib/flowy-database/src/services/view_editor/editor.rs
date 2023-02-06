@@ -514,7 +514,7 @@ impl DatabaseViewRevisionEditor {
             condition: params.condition,
             content: params.content,
         };
-        let mut filter_controller = self.filter_controller.clone();
+        let filter_controller = self.filter_controller.clone();
         let changeset = if is_exist {
             let old_filter_type = self
                 .delegate
@@ -588,9 +588,14 @@ impl DatabaseViewRevisionEditor {
                 .did_update_view_field_type_option(&field_rev)
                 .await;
 
-            if let Some(changeset) = self.filter_controller.did_receive_changes(filter_changeset).await {
-                self.notify_did_update_filter(changeset).await;
-            }
+            let filter_controller = self.filter_controller.clone();
+            let _ = tokio::spawn(async move {
+                if let Some(notification) = filter_controller.did_receive_changes(filter_changeset).await {
+                    send_notification(&notification.view_id, DatabaseNotification::DidUpdateFilter)
+                        .payload(notification)
+                        .send();
+                }
+            });
         }
         Ok(())
     }

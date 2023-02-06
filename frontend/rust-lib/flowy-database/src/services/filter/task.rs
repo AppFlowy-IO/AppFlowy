@@ -3,7 +3,6 @@ use flowy_task::{TaskContent, TaskHandler};
 use lib_infra::future::BoxResultFuture;
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::RwLock;
 
 pub struct FilterTaskHandler {
     handler_id: String,
