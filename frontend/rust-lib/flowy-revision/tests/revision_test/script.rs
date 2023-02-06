@@ -2,7 +2,8 @@ use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_revision::{
     RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionPersistence,
-    RevisionPersistenceConfiguration, RevisionSnapshot, RevisionSnapshotDiskCache, REVISION_WRITE_INTERVAL_IN_MILLIS,
+    RevisionPersistenceConfiguration, RevisionSnapshotData, RevisionSnapshotPersistence,
+    REVISION_WRITE_INTERVAL_IN_MILLIS,
 };
 use flowy_revision_persistence::{RevisionChangeset, RevisionDiskCache, SyncRecord};
 
@@ -244,16 +245,16 @@ impl RevisionDiskCache<RevisionConnectionMock> for RevisionDiskCacheMock {
 
 pub struct RevisionConnectionMock {}
 pub struct RevisionSnapshotMock {}
-impl RevisionSnapshotDiskCache for RevisionSnapshotMock {
+impl RevisionSnapshotPersistence for RevisionSnapshotMock {
     fn write_snapshot(&self, _rev_id: i64, _data: Vec<u8>) -> FlowyResult<()> {
-        todo!()
+        Ok(())
     }
 
-    fn read_snapshot(&self, _rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>> {
-        todo!()
+    fn read_snapshot(&self, _rev_id: i64) -> FlowyResult<Option<RevisionSnapshotData>> {
+        Ok(None)
     }
 
-    fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>> {
+    fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshotData>> {
         Ok(None)
     }
 }
