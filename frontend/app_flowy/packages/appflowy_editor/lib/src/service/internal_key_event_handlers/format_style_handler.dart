@@ -2,6 +2,8 @@ import 'package:appflowy_editor/src/service/default_text_operations/format_rich_
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
 import 'package:flutter/material.dart';
 
+import 'dart:convert';
+import 'package:appflowy_editor/src/core/document/attributes.dart';
 import 'package:appflowy_editor/src/core/document/node.dart';
 
 ShortcutEventHandler formatBoldEventHandler = (editorState, event) {
@@ -86,4 +88,22 @@ ShortcutEventHandler formatEmbedCodeEventHandler = (editorState, event) {
   }
   formatEmbedCode(editorState);
   return KeyEventResult.ignored;
+};
+
+ShortcutEventHandler toggleCheckbox = (editorState, event) {
+  final selection = editorState.service.selectionService.currentSelection.value;
+  final nodes = editorState.service.selectionService.currentSelectedNodes;
+  final textNodes = nodes.whereType<TextNode>().toList(growable: false);
+  if (selection == null || textNodes.isEmpty) {
+    return KeyEventResult.ignored;
+  }
+  for (Node node in textNodes) {
+    // debugPrint("Nodes attribute : ${node.attributes}");
+    if (node.attributes.containsKey('checkbox')) {
+      bool currentStatus = !(node.attributes['checkbox']);
+      Attributes checkboxAttribute = {'checkbox': currentStatus};
+      node.updateAttributes(checkboxAttribute);
+    }
+  }
+  return KeyEventResult.handled;
 };

@@ -160,6 +160,13 @@ List<ShortcutEvent> builtInShortcutEvents = [
     handler: formatUnderlineEventHandler,
   ),
   ShortcutEvent(
+    key: 'Checkbox Toggle',
+    command: 'meta+q',
+    windowsCommand: 'ctrl+q',
+    linuxCommand: 'ctrl+q',
+    handler: toggleCheckbox,
+  ),
+  ShortcutEvent(
     key: 'Format strikethrough',
     command: 'meta+shift+s',
     windowsCommand: 'ctrl+shift+s',
