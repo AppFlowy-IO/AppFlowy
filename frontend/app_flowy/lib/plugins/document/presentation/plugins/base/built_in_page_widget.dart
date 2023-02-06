@@ -119,7 +119,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
         },
         onSelected: (action, controller) async {
           switch (action.inner) {
-            case _ActionType.openAsPage:
+            case _ActionType.viewDatabase:
               getIt<MenuSharedState>().latestOpenView = viewPB;
               getIt<HomeStackManager>().setPlugin(viewPB.plugin());
               break;
@@ -137,7 +137,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
 }
 
 enum _ActionType {
-  openAsPage,
+  viewDatabase,
   delete,
 }
 
@@ -151,8 +151,8 @@ class _ActionWrapper extends ActionCell {
   @override
   String get name {
     switch (inner) {
-      case _ActionType.openAsPage:
-        return LocaleKeys.tooltip_openAsPage.tr();
+      case _ActionType.viewDatabase:
+        return LocaleKeys.tooltip_viewDataBase.tr();
       case _ActionType.delete:
         return LocaleKeys.disclosureAction_delete.tr();
     }
