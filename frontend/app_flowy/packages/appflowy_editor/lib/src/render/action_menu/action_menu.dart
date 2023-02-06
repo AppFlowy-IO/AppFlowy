@@ -122,7 +122,7 @@ class ActionMenuWidget extends StatelessWidget {
     final editorStyle = EditorStyle.of(context);
 
     return Card(
-      color: editorStyle.selectionMenuBackgroundColor,
+      color: editorStyle?.selectionMenuBackgroundColor,
       elevation: 3.0,
       child: Row(
         mainAxisSize: MainAxisSize.min,

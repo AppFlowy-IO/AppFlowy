@@ -89,8 +89,8 @@ class ActionMenuItemWidget extends StatelessWidget {
     final editorStyle = EditorStyle.of(context);
     final isSelected = item.selected?.call() ?? false;
     final color = isSelected
-        ? editorStyle.selectionMenuItemSelectedIconColor
-        : editorStyle.selectionMenuItemIconColor;
+        ? editorStyle?.selectionMenuItemSelectedIconColor
+        : editorStyle?.selectionMenuItemIconColor;
 
     var icon = item.iconBuilder(size: iconSize, color: color);
     var itemWidget = Padding(

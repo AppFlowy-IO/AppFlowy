@@ -158,8 +158,8 @@ class EditorStyle extends ThemeExtension<EditorStyle> {
     );
   }
 
-  static EditorStyle of(BuildContext context) {
-    return Theme.of(context).extension<EditorStyle>()!;
+  static EditorStyle? of(BuildContext context) {
+    return Theme.of(context).extension<EditorStyle>();
   }
 
   static final light = EditorStyle(
