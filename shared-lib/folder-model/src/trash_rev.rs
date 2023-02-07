@@ -2,7 +2,7 @@ use serde::de::Visitor;
 use serde::{Deserialize, Serialize};
 use serde_repr::*;
 use std::fmt;
-#[derive(Default, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Hash, Eq, PartialEq, Serialize, Deserialize)]
 pub struct TrashRevision {
     pub id: String,
 
@@ -17,7 +17,7 @@ pub struct TrashRevision {
     pub ty: TrashTypeRevision,
 }
 
-#[derive(Eq, PartialEq, Debug, Clone, Serialize_repr)]
+#[derive(Eq, PartialEq, Debug, Clone, Hash, Serialize_repr)]
 #[repr(u8)]
 pub enum TrashTypeRevision {
     Unknown = 0,
