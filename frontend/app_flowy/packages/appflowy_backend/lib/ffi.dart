@@ -133,3 +133,21 @@ typedef _store_dart_post_cobject_C = Void Function(
 typedef _store_dart_post_cobject_Dart = void Function(
   Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>> ptr,
 );
+
+void log(
+  int level,
+  Pointer<ffi.Utf8> data,
+) {
+  _invoke_log(level, data);
+}
+
+final _invoke_log_Dart _invoke_log = _dart_ffi_lib
+    .lookupFunction<_invoke_log_C, _invoke_log_Dart>('backend_log');
+typedef _invoke_log_C = Void Function(
+  Int64 level,
+  Pointer<ffi.Utf8> data,
+);
+typedef _invoke_log_Dart = void Function(
+  int level,
+  Pointer<ffi.Utf8>,
+);
