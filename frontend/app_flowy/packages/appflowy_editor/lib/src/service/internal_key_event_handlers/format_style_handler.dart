@@ -89,21 +89,3 @@ ShortcutEventHandler formatEmbedCodeEventHandler = (editorState, event) {
   formatEmbedCode(editorState);
   return KeyEventResult.ignored;
 };
-
-ShortcutEventHandler toggleCheckbox = (editorState, event) {
-  final selection = editorState.service.selectionService.currentSelection.value;
-  final nodes = editorState.service.selectionService.currentSelectedNodes;
-  final textNodes = nodes.whereType<TextNode>().toList(growable: false);
-  if (selection == null || textNodes.isEmpty) {
-    return KeyEventResult.ignored;
-  }
-  for (Node node in textNodes) {
-    // debugPrint("Nodes attribute : ${node.attributes}");
-    if (node.attributes.containsKey('checkbox')) {
-      bool currentStatus = !(node.attributes['checkbox']);
-      Attributes checkboxAttribute = {'checkbox': currentStatus};
-      node.updateAttributes(checkboxAttribute);
-    }
-  }
-  return KeyEventResult.handled;
-};
