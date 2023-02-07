@@ -1,4 +1,5 @@
 use crate::{FilterConfiguration, GroupConfiguration, SortConfiguration};
+use indexmap::IndexMap;
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 use serde_repr::*;
@@ -38,6 +39,9 @@ pub struct DatabaseViewRevision {
   pub layout: LayoutRevision,
 
   #[serde(default)]
+  pub layout_settings: LayoutSettings,
+
+  #[serde(default)]
   pub filters: FilterConfiguration,
 
   #[serde(default)]
@@ -53,6 +57,7 @@ impl DatabaseViewRevision {
       view_id,
       grid_id,
       layout,
+      layout_settings: Default::default(),
       filters: Default::default(),
       groups: Default::default(),
       sorts: Default::default(),
@@ -61,6 +66,27 @@ impl DatabaseViewRevision {
 
   pub fn from_json(json: String) -> Result<Self, serde_json::Error> {
     serde_json::from_str(&json)
+  }
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct LayoutSettings {
+  #[serde(with = "indexmap::serde_seq")]
+  inner: IndexMap<LayoutRevision, String>,
+}
+
+impl std::ops::Deref for LayoutSettings {
+  type Target = IndexMap<LayoutRevision, String>;
+
+  fn deref(&self) -> &Self::Target {
+    &self.inner
+  }
+}
+
+impl std::ops::DerefMut for LayoutSettings {
+  fn deref_mut(&mut self) -> &mut Self::Target {
+    &mut self.inner
   }
 }
 
@@ -79,6 +105,7 @@ mod tests {
       view_id: "1".to_string(),
       grid_id: "1".to_string(),
       layout: Default::default(),
+      layout_settings: Default::default(),
       filters: Default::default(),
       groups: Default::default(),
       sorts: Default::default(),

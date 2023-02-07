@@ -1,4 +1,5 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -20,6 +21,16 @@ pub struct CalendarSettingsPB {
 //   type Error = ErrorCode;
 
 // }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CalendarSettingsParams {}
+
+impl std::default::Default for CalendarSettings {
+    // The default settings will be used if there is no existing settings
+    fn default() -> Self {
+        todo!()
+    }
+}
 
 #[derive(Debug, Clone, Default, ProtoBuf_Enum)]
 #[repr(u8)]
