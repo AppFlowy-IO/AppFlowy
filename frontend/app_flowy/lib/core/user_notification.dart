@@ -10,7 +10,9 @@ import 'notification_helper.dart';
 
 // User
 typedef UserNotificationCallback = void Function(
-    UserNotification, Either<Uint8List, FlowyError>);
+  UserNotification,
+  Either<Uint8List, FlowyError>,
+);
 
 class UserNotificationParser
     extends NotificationParser<UserNotification, FlowyError> {
@@ -31,9 +33,10 @@ class UserNotificationListener {
   StreamSubscription<SubscribeObject>? _subscription;
   UserNotificationParser? _parser;
 
-  UserNotificationListener(
-      {required String objectId, required UserNotificationHandler handler})
-      : _parser = UserNotificationParser(id: objectId, callback: handler) {
+  UserNotificationListener({
+    required String objectId,
+    required UserNotificationHandler handler,
+  }) : _parser = UserNotificationParser(id: objectId, callback: handler) {
     _subscription =
         RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }
