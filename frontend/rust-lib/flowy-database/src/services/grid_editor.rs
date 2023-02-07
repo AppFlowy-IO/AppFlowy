@@ -57,15 +57,12 @@ impl DatabaseRevisionEditor {
     pub async fn new(
         database_id: &str,
         user: Arc<dyn DatabaseUser>,
-        mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
+        database_pad: Arc<RwLock<DatabaseRevisionPad>>,
+        rev_manager: RevisionManager<Arc<ConnectionPool>>,
         persistence: Arc<BlockIndexCache>,
         task_scheduler: Arc<RwLock<TaskDispatcher>>,
     ) -> FlowyResult<Arc<Self>> {
-        let token = user.token()?;
-        let cloud = Arc::new(GridRevisionCloudService { token });
-        let database_pad = rev_manager.initialize::<GridRevisionSerde>(Some(cloud)).await?;
         let rev_manager = Arc::new(rev_manager);
-        let database_pad = Arc::new(RwLock::new(database_pad));
         let cell_data_cache = AnyTypeCache::<u64>::new();
 
         // Block manager
@@ -891,7 +888,7 @@ impl RevisionObjectDeserializer for GridRevisionSerde {
         Ok(pad)
     }
 
-    fn recover_operations_from_revisions(_revisions: Vec<Revision>) -> Option<Self::Output> {
+    fn recover_from_revisions(_revisions: Vec<Revision>) -> Option<(Self::Output, i64)> {
         None
     }
 }
@@ -901,9 +898,16 @@ impl RevisionObjectSerializer for GridRevisionSerde {
         Ok(operations.json_bytes())
     }
 }
-struct GridRevisionCloudService {
+
+pub struct GridRevisionCloudService {
     #[allow(dead_code)]
     token: String,
+}
+
+impl GridRevisionCloudService {
+    pub fn new(token: String) -> Self {
+        Self { token }
+    }
 }
 
 impl RevisionCloudService for GridRevisionCloudService {

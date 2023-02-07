@@ -19,8 +19,10 @@ pub trait RevisionSnapshotPersistence: Send + Sync {
     fn read_snapshot(&self, rev_id: i64) -> FlowyResult<Option<RevisionSnapshotData>>;
 
     fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshotData>>;
+}
 
-    // fn generate_snapshot_data(&self) -> Option<RevisionSnapshotData>;
+pub trait RevisionSnapshotDataGenerator: Send + Sync {
+    fn generate_snapshot_data(&self) -> Option<RevisionSnapshotData>;
 }
 
 const AUTO_GEN_SNAPSHOT_PER_10_REVISION: i64 = 10;
@@ -29,6 +31,7 @@ pub struct RevisionSnapshotController<Connection> {
     user_id: String,
     object_id: String,
     rev_snapshot_persistence: Arc<dyn RevisionSnapshotPersistence>,
+    rev_snapshot_data: Option<Arc<dyn RevisionSnapshotDataGenerator>>,
     rev_id_counter: Arc<RevIdCounter>,
     rev_persistence: Arc<RevisionPersistence<Connection>>,
     rev_compress: Arc<dyn RevisionMergeable>,
@@ -57,9 +60,14 @@ where
             rev_snapshot_persistence,
             rev_id_counter,
             start_rev_id: AtomicI64::new(0),
+            rev_snapshot_data: None,
             rev_persistence: revision_persistence,
             rev_compress: revision_compress,
         }
+    }
+
+    pub async fn set_snapshot_data_generator(&mut self, generator: Arc<dyn RevisionSnapshotDataGenerator>) {
+        self.rev_snapshot_data = Some(generator);
     }
 
     pub async fn generate_snapshot(&self) {
@@ -76,7 +84,7 @@ where
     where
         B: RevisionObjectDeserializer,
     {
-        tracing::info!("Try to find if {} has snapshot", self.object_id);
+        tracing::info!("[Restore] Try to find if {} has snapshot", self.object_id);
         let snapshot = self.rev_snapshot_persistence.read_last_snapshot().ok()??;
         let snapshot_rev_id = snapshot.rev_id;
         let revision = Revision::new(
@@ -87,13 +95,13 @@ where
             "".to_owned(),
         );
         tracing::info!(
-            "Try to restore from snapshot: {}, {}",
+            "[Restore] Try to restore from snapshot: {}, {}",
             snapshot.base_rev_id,
             snapshot.rev_id
         );
         let object = B::deserialize_revisions(&self.object_id, vec![revision.clone()]).ok()?;
         tracing::info!(
-            "Restore {} from snapshot with rev_id: {}",
+            "[Restore] Restore {} from snapshot with rev_id: {}",
             self.object_id,
             snapshot_rev_id
         );

@@ -28,11 +28,11 @@ async fn revision_compress_2_revisions_with_2_threshold_test() {
     .await;
 
     test.run_scripts(vec![
-        AssertNextSyncRevisionId { rev_id: Some(1) },
+        AssertNextSyncRevisionId { rev_id: Some(2) },
         AssertNextSyncRevisionContent {
             expected: "123456".to_string(),
         },
-        AckRevision { rev_id: 1 },
+        AckRevision { rev_id: 2 },
         AssertNextSyncRevisionId { rev_id: None },
     ])
     .await;
@@ -41,13 +41,11 @@ async fn revision_compress_2_revisions_with_2_threshold_test() {
 #[tokio::test]
 async fn revision_compress_4_revisions_with_threshold_2_test() {
     let test = RevisionTest::new_with_configuration(2).await;
-    let rev_id_1 = 1;
     test.run_script(AddLocalRevision {
         content: "1".to_string(),
     })
     .await;
 
-    let rev_id_2 = 2;
     test.run_script(AddLocalRevision {
         content: "2".to_string(),
     })
@@ -63,15 +61,14 @@ async fn revision_compress_4_revisions_with_threshold_2_test() {
     })
     .await;
 
-    // rev_id_2,rev_id_3,rev_id4 will be merged into rev_id_1
     test.run_scripts(vec![
         AssertNumberOfSyncRevisions { num: 2 },
-        AssertNextSyncRevisionId { rev_id: Some(rev_id_1) },
+        AssertNextSyncRevisionId { rev_id: Some(2) },
         AssertNextSyncRevisionContent {
             expected: "12".to_string(),
         },
-        AckRevision { rev_id: rev_id_1 },
-        AssertNextSyncRevisionId { rev_id: Some(rev_id_2) },
+        AckRevision { rev_id: 2 },
+        AssertNextSyncRevisionId { rev_id: Some(4) },
         AssertNextSyncRevisionContent {
             expected: "34".to_string(),
         },
@@ -81,8 +78,8 @@ async fn revision_compress_4_revisions_with_threshold_2_test() {
 
 #[tokio::test]
 async fn revision_compress_8_revisions_with_threshold_4_test() {
-    let test = RevisionTest::new_with_configuration(4).await;
-    let rev_id_1 = 1;
+    let merge_len = 4;
+    let test = RevisionTest::new_with_configuration(merge_len).await;
     test.run_script(AddLocalRevision {
         content: "1".to_string(),
     })
@@ -103,7 +100,6 @@ async fn revision_compress_8_revisions_with_threshold_4_test() {
     })
     .await;
 
-    let rev_id_a = 2;
     test.run_script(AddLocalRevision {
         content: "a".to_string(),
     })
@@ -126,16 +122,20 @@ async fn revision_compress_8_revisions_with_threshold_4_test() {
 
     test.run_scripts(vec![
         AssertNumberOfSyncRevisions { num: 2 },
-        AssertNextSyncRevisionId { rev_id: Some(rev_id_1) },
+        AssertNextSyncRevisionId {
+            rev_id: Some(merge_len),
+        },
         AssertNextSyncRevisionContent {
             expected: "1234".to_string(),
         },
-        AckRevision { rev_id: rev_id_1 },
-        AssertNextSyncRevisionId { rev_id: Some(rev_id_a) },
+        AckRevision { rev_id: merge_len },
+        AssertNextSyncRevisionId {
+            rev_id: Some(merge_len * 2),
+        },
         AssertNextSyncRevisionContent {
             expected: "abcd".to_string(),
         },
-        AckRevision { rev_id: rev_id_a },
+        AckRevision { rev_id: merge_len * 2 },
         AssertNextSyncRevisionId { rev_id: None },
     ])
     .await;
@@ -143,7 +143,8 @@ async fn revision_compress_8_revisions_with_threshold_4_test() {
 
 #[tokio::test]
 async fn revision_merge_per_5_revision_test() {
-    let test = RevisionTest::new_with_configuration(5).await;
+    let merge_len = 5;
+    let test = RevisionTest::new_with_configuration(merge_len).await;
     for i in 0..20 {
         let content = format!("{}", i);
         test.run_script(AddLocalRevision { content }).await;
@@ -154,19 +155,19 @@ async fn revision_merge_per_5_revision_test() {
         AssertNextSyncRevisionContent {
             expected: "01234".to_string(),
         },
-        AckRevision { rev_id: 1 },
+        AckRevision { rev_id: merge_len },
         AssertNextSyncRevisionContent {
             expected: "56789".to_string(),
         },
-        AckRevision { rev_id: 2 },
+        AckRevision { rev_id: merge_len * 2 },
         AssertNextSyncRevisionContent {
             expected: "1011121314".to_string(),
         },
-        AckRevision { rev_id: 3 },
+        AckRevision { rev_id: merge_len * 3 },
         AssertNextSyncRevisionContent {
             expected: "1516171819".to_string(),
         },
-        AckRevision { rev_id: 4 },
+        AckRevision { rev_id: merge_len * 4 },
         AssertNextSyncRevisionId { rev_id: None },
     ])
     .await;
