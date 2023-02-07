@@ -282,22 +282,38 @@ impl FolderPad {
     }
 
     pub fn create_trash(&mut self, trash: Vec<TrashRevision>) -> SyncResult<Option<FolderChangeset>> {
-        self.with_trash(|t| {
-            let mut new_trash = trash.into_iter().map(Arc::new).collect::<Vec<Arc<TrashRevision>>>();
-            t.append(&mut new_trash);
-
-            Ok(Some(()))
+        self.with_trash(|original_trash| {
+            let mut new_trash = trash
+                .into_iter()
+                .flat_map(|new_trash| {
+                    if original_trash.iter().any(|old_trash| old_trash.id == new_trash.id) {
+                        None
+                    } else {
+                        Some(Arc::new(new_trash))
+                    }
+                })
+                .collect::<Vec<Arc<TrashRevision>>>();
+            if new_trash.is_empty() {
+                Ok(None)
+            } else {
+                original_trash.append(&mut new_trash);
+                Ok(Some(()))
+            }
         })
     }
 
     pub fn read_trash(&self, trash_id: Option<String>) -> SyncResult<Vec<TrashRevision>> {
         match trash_id {
-            None => Ok(self
-                .folder_rev
-                .trash
-                .iter()
-                .map(|t| t.as_ref().clone())
-                .collect::<Vec<TrashRevision>>()),
+            None => {
+                // Removes the duplicate items if exist
+                let mut trash_items = Vec::<TrashRevision>::with_capacity(self.folder_rev.trash.len());
+                for trash_item in self.folder_rev.trash.iter() {
+                    if !trash_items.iter().any(|item| item.id == trash_item.id) {
+                        trash_items.push(trash_item.as_ref().clone());
+                    }
+                }
+                Ok(trash_items)
+            }
             Some(trash_id) => match self.folder_rev.trash.iter().find(|t| t.id == trash_id) {
                 Some(trash) => Ok(vec![trash.as_ref().clone()]),
                 None => Ok(vec![]),
