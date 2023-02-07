@@ -32,9 +32,11 @@ packages:
   appflowy_board:
     dependency: "direct main"
     description:
-      path: "packages/appflowy_board"
-      relative: true
-    source: path
+      path: "."
+      ref: a183c57
+      resolved-ref: a183c57013071cb3192fcf3c9b1eeb89462179b7
+      url: "https://github.com/AppFlowy-IO/appflowy-board.git"
+    source: git
     version: "0.0.9"
   appflowy_editor:
     dependency: "direct main"
