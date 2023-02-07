@@ -2,8 +2,6 @@ import 'package:appflowy_editor/src/service/default_text_operations/format_rich_
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
 import 'package:flutter/material.dart';
 
-import 'dart:convert';
-import 'package:appflowy_editor/src/core/document/attributes.dart';
 import 'package:appflowy_editor/src/core/document/node.dart';
 
 ShortcutEventHandler formatBoldEventHandler = (editorState, event) {
