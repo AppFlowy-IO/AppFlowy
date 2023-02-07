@@ -1,4 +1,4 @@
-use crate::entities::DatabaseViewLayout;
+use crate::entities::LayoutTypePB;
 use crate::services::grid_editor::{
     DatabaseRevisionEditor, GridRevisionCloudService, GridRevisionMergeable, GridRevisionSerde,
 };
@@ -196,7 +196,7 @@ impl DatabaseManager {
 pub async fn make_database_view_data(
     _user_id: &str,
     view_id: &str,
-    layout: DatabaseViewLayout,
+    layout: LayoutTypePB,
     database_manager: Arc<DatabaseManager>,
     build_context: BuildDatabaseContext,
 ) -> FlowyResult<Bytes> {

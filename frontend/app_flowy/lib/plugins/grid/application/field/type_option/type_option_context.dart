@@ -165,7 +165,7 @@ abstract class IFieldTypeOptionLoader {
       ..fieldId = fieldId
       ..fieldType = fieldType;
 
-    return DatabaseEventSwitchToField(payload).send();
+    return DatabaseEventUpdateFieldType(payload).send();
   }
 }
 
@@ -189,13 +189,13 @@ class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
         ..fieldId = fieldTypeOption!.field_2.id
         ..fieldType = fieldTypeOption!.field_2.fieldType;
 
-      return DatabaseEventGetFieldTypeOption(payload).send();
+      return DatabaseEventGetTypeOption(payload).send();
     } else {
       final payload = CreateFieldPayloadPB.create()
         ..databaseId = databaseId
         ..fieldType = FieldType.RichText;
 
-      return DatabaseEventCreateFieldTypeOption(payload).send().then((result) {
+      return DatabaseEventCreateTypeOption(payload).send().then((result) {
         return result.fold(
           (newFieldTypeOption) {
             fieldTypeOption = newFieldTypeOption;
@@ -226,6 +226,6 @@ class FieldTypeOptionLoader extends IFieldTypeOptionLoader {
       ..fieldId = field.id
       ..fieldType = field.fieldType;
 
-    return DatabaseEventGetFieldTypeOption(payload).send();
+    return DatabaseEventGetTypeOption(payload).send();
   }
 }

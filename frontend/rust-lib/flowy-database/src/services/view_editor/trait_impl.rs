@@ -1,4 +1,4 @@
-use crate::entities::{DatabaseViewLayout, DatabaseViewSettingPB, ViewLayoutConfigPB};
+use crate::entities::{DatabaseViewSettingPB, LayoutTypePB, ViewLayoutPB};
 use crate::services::field::RowSingleCellData;
 use crate::services::filter::{FilterController, FilterDelegate, FilterType};
 use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter};
@@ -132,13 +132,13 @@ pub(crate) async fn apply_change(
 }
 
 pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<FieldRevision>]) -> DatabaseViewSettingPB {
-    let layout_type: DatabaseViewLayout = view_pad.layout.clone().into();
+    let layout_type: LayoutTypePB = view_pad.layout.clone().into();
     let filters = view_pad.get_all_filters(field_revs);
     let group_configurations = view_pad.get_groups_by_field_revs(field_revs);
     let sorts = view_pad.get_all_sorts(field_revs);
     DatabaseViewSettingPB {
-        layouts: ViewLayoutConfigPB::all(),
-        layout_type,
+        support_layouts: ViewLayoutPB::all(),
+        current_layout: layout_type,
         filters: filters.into(),
         sorts: sorts.into(),
         group_configurations: group_configurations.into(),

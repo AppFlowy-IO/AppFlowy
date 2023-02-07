@@ -7,7 +7,7 @@ use std::time::Duration;
 use bytes::Bytes;
 use futures::TryFutureExt;
 use tokio::sync::broadcast::Receiver;
-use flowy_database::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, DatabaseViewLayout, DatabaseSettingChangesetParams, DatabaseViewSettingPB, RowPB, TextFilterConditionPB, FieldType, NumberFilterConditionPB, CheckboxFilterConditionPB, DateFilterConditionPB, DateFilterContentPB, SelectOptionConditionPB, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB, FilterPB, ChecklistFilterConditionPB, ChecklistFilterPB};
+use flowy_database::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, LayoutTypePB, DatabaseSettingChangesetParams, DatabaseViewSettingPB, RowPB, TextFilterConditionPB, FieldType, NumberFilterConditionPB, CheckboxFilterConditionPB, DateFilterConditionPB, DateFilterContentPB, SelectOptionConditionPB, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB, FilterPB, ChecklistFilterConditionPB, ChecklistFilterPB};
 use flowy_database::services::field::{SelectOptionCellChangeset, SelectOptionIds};
 use flowy_database::services::setting::GridSettingChangesetBuilder;
 use grid_model::{FieldRevision, FieldTypeRevision};
