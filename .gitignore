@@ -21,7 +21,6 @@ node_modules
 
 **/resources/proto
 
-frontend/.vscode/*
 !frontend/.vscode/settings.json
 !frontend/.vscode/tasks.json
 !frontend/.vscode/launch.json

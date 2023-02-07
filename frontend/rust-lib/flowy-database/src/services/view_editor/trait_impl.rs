@@ -42,7 +42,7 @@ impl RevisionObjectDeserializer for GridViewRevisionSerde {
         Ok(pad)
     }
 
-    fn recover_operations_from_revisions(_revisions: Vec<Revision>) -> Option<Self::Output> {
+    fn recover_from_revisions(_revisions: Vec<Revision>) -> Option<(Self::Output, i64)> {
         None
     }
 }
