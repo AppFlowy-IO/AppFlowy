@@ -16,31 +16,23 @@ ShortcutEventHandler toggleCheckbox = (editorState, event) {
     return KeyEventResult.ignored;
   }
 
-  //If any one of the checkboxes is unchecked then make all checkboxes checked
-
-  bool isAllCheckboxesChecked = true;
+  bool isAllCheckboxesChecked = checkboxTextNodes
+      .every((node) => node.attributes[BuiltInAttributeKey.checkbox] == true);
   final transaction = editorState.transaction;
-  for (final node in checkboxTextNodes) {
-    if (node.attributes[BuiltInAttributeKey.checkbox] == false) {
-      isAllCheckboxesChecked = false;
-      transaction.updateNode(node, {
-        BuiltInAttributeKey.checkbox:
-            !node.attributes[BuiltInAttributeKey.checkbox]
-      });
-    }
-  }
-  editorState.apply(transaction);
+  transaction.afterSelection = selection;
 
-  //if all the checkboxes are checked, then make all of the checkboxes unchecked
-  final transaction2 = editorState.transaction;
   if (isAllCheckboxesChecked) {
+    //if all the checkboxes are checked, then make all of the checkboxes unchecked
     for (final node in checkboxTextNodes) {
-      transaction2.updateNode(node, {
-        BuiltInAttributeKey.checkbox:
-            !node.attributes[BuiltInAttributeKey.checkbox]
-      });
+      transaction.updateNode(node, {BuiltInAttributeKey.checkbox: false});
+    }
+  } else {
+    //If any one of the checkboxes is unchecked then make all checkboxes checked
+    for (final node in checkboxTextNodes) {
+      transaction.updateNode(node, {BuiltInAttributeKey.checkbox: true});
     }
   }
-  editorState.apply(transaction2);
+
+  editorState.apply(transaction);
   return KeyEventResult.handled;
 };
