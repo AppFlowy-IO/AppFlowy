@@ -61,7 +61,6 @@ impl AsRef<str> for FolderId {
 
 pub struct FolderManager {
     pub user: Arc<dyn WorkspaceUser>,
-    pub(crate) cloud_service: Arc<dyn FolderCouldServiceV1>,
     pub(crate) persistence: Arc<FolderPersistence>,
     pub(crate) workspace_controller: Arc<WorkspaceController>,
     pub(crate) app_controller: Arc<AppController>,
@@ -118,7 +117,6 @@ impl FolderManager {
 
         Self {
             user,
-            cloud_service,
             persistence,
             workspace_controller,
             app_controller,
@@ -249,7 +247,7 @@ impl DefaultFolderBuilder {
         let repeated_workspace = RepeatedWorkspacePB {
             items: vec![workspace_rev.into()],
         };
-        send_notification(token, FolderNotification::UserCreateWorkspace)
+        send_notification(token, FolderNotification::DidCreateWorkspace)
             .payload(repeated_workspace)
             .send();
         Ok(())

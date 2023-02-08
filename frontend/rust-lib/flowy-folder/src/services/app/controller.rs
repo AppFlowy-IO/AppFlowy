@@ -72,7 +72,6 @@ impl AppController {
                 Ok(Some(app))
             })
             .await?;
-        self.read_app_on_server(params)?;
         Ok(app)
     }
 
@@ -89,7 +88,7 @@ impl AppController {
             })
             .await?
             .into();
-        send_notification(&app_id, FolderNotification::AppUpdated)
+        send_notification(&app_id, FolderNotification::DidUpdateApp)
             .payload(app)
             .send();
         self.update_app_on_server(params)?;
@@ -142,34 +141,6 @@ impl AppController {
                     // TODO: retry?
                     log::error!("Update app failed: {:?}", e);
                 }
-            }
-        });
-        Ok(())
-    }
-
-    #[tracing::instrument(level = "trace", skip(self), err)]
-    fn read_app_on_server(&self, params: AppIdPB) -> Result<(), FlowyError> {
-        let token = self.user.token()?;
-        let server = self.cloud_service.clone();
-        let persistence = self.persistence.clone();
-        tokio::spawn(async move {
-            match server.read_app(&token, params).await {
-                Ok(Some(app_rev)) => {
-                    match persistence
-                        .begin_transaction(|transaction| transaction.create_app(app_rev.clone()))
-                        .await
-                    {
-                        Ok(_) => {
-                            let app: AppPB = app_rev.into();
-                            send_notification(&app.id, FolderNotification::AppUpdated)
-                                .payload(app)
-                                .send();
-                        }
-                        Err(e) => log::error!("Save app failed: {:?}", e),
-                    }
-                }
-                Ok(None) => {}
-                Err(e) => log::error!("Read app failed: {:?}", e),
             }
         });
         Ok(())
@@ -246,7 +217,7 @@ fn notify_apps_changed<'a>(
         .map(|app_rev| app_rev.into())
         .collect();
     let repeated_app = RepeatedAppPB { items };
-    send_notification(workspace_id, FolderNotification::WorkspaceAppsChanged)
+    send_notification(workspace_id, FolderNotification::DidUpdateWorkspaceApps)
         .payload(repeated_app)
         .send();
     Ok(())

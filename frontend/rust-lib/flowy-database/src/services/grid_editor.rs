@@ -1,4 +1,4 @@
-use crate::entities::CellPathParams;
+use crate::entities::CellIdParams;
 use crate::entities::*;
 use crate::manager::DatabaseUser;
 use crate::notification::{send_notification, DatabaseNotification};
@@ -16,7 +16,7 @@ use crate::services::filter::FilterType;
 use crate::services::grid_editor_trait_impl::GridViewEditorDelegateImpl;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{DatabaseBlockRow, DatabaseBlockRowRevision, RowRevisionBuilder};
-use crate::services::view_editor::{DatabaseViewManager, GridViewChanged};
+use crate::services::view_editor::{DatabaseViewChanged, DatabaseViewManager};
 use bytes::Bytes;
 use flowy_client_sync::client_database::{DatabaseRevisionChangeset, DatabaseRevisionPad, JsonDeserializer};
 use flowy_client_sync::errors::{SyncError, SyncResult};
@@ -428,7 +428,7 @@ impl DatabaseRevisionEditor {
         Ok(())
     }
 
-    pub async fn subscribe_view_changed(&self, view_id: &str) -> FlowyResult<broadcast::Receiver<GridViewChanged>> {
+    pub async fn subscribe_view_changed(&self, view_id: &str) -> FlowyResult<broadcast::Receiver<DatabaseViewChanged>> {
         self.view_manager.subscribe_view_changed(view_id).await
     }
 
@@ -437,7 +437,7 @@ impl DatabaseRevisionEditor {
     }
 
     /// Returns the cell data that encoded in protobuf.
-    pub async fn get_cell(&self, params: &CellPathParams) -> Option<CellPB> {
+    pub async fn get_cell(&self, params: &CellIdParams) -> Option<CellPB> {
         let (field_type, cell_bytes) = self.get_type_cell_protobuf(params).await?;
         Some(CellPB::new(
             &params.field_id,
@@ -453,7 +453,7 @@ impl DatabaseRevisionEditor {
     /// Number: 123 => $123 if the currency set.
     /// Date: 1653609600 => May 27,2022
     ///
-    pub async fn get_cell_display_str(&self, params: &CellPathParams) -> String {
+    pub async fn get_cell_display_str(&self, params: &CellIdParams) -> String {
         let display_str = || async {
             let field_rev = self.get_field_rev(&params.field_id).await?;
             let field_type: FieldType = field_rev.ty.into();
@@ -470,12 +470,12 @@ impl DatabaseRevisionEditor {
         display_str().await.unwrap_or_default()
     }
 
-    pub async fn get_cell_protobuf(&self, params: &CellPathParams) -> Option<CellProtobufBlob> {
+    pub async fn get_cell_protobuf(&self, params: &CellIdParams) -> Option<CellProtobufBlob> {
         let (_, cell_data) = self.get_type_cell_protobuf(params).await?;
         Some(cell_data)
     }
 
-    async fn get_type_cell_protobuf(&self, params: &CellPathParams) -> Option<(FieldType, CellProtobufBlob)> {
+    async fn get_type_cell_protobuf(&self, params: &CellIdParams) -> Option<(FieldType, CellProtobufBlob)> {
         let field_rev = self.get_field_rev(&params.field_id).await?;
         let (_, row_rev) = self.block_manager.get_row_rev(&params.row_id).await.ok()??;
         let cell_rev = row_rev.cells.get(&params.field_id)?.clone();
@@ -861,7 +861,7 @@ impl DatabaseRevisionEditor {
     }
 
     async fn notify_did_update_grid(&self, changeset: DatabaseFieldChangesetPB) -> FlowyResult<()> {
-        send_notification(&self.database_id, DatabaseNotification::DidUpdateDatabaseFields)
+        send_notification(&self.database_id, DatabaseNotification::DidUpdateFields)
             .payload(changeset)
             .send();
         Ok(())

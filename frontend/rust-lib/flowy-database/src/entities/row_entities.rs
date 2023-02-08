@@ -171,7 +171,7 @@ pub struct BlockRowIdPB {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct CreateTableRowPayloadPB {
+pub struct CreateRowPayloadPB {
     #[pb(index = 1)]
     pub database_id: String,
 
@@ -187,7 +187,7 @@ pub struct CreateRowParams {
     pub layout: LayoutTypePB,
 }
 
-impl TryInto<CreateRowParams> for CreateTableRowPayloadPB {
+impl TryInto<CreateRowParams> for CreateRowPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CreateRowParams, Self::Error> {

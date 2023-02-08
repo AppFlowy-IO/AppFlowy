@@ -160,7 +160,7 @@ abstract class IFieldTypeOptionLoader {
 
   Future<Either<Unit, FlowyError>> switchToField(
       String fieldId, FieldType fieldType) {
-    final payload = EditFieldChangesetPB.create()
+    final payload = UpdateFieldTypePayloadPB.create()
       ..databaseId = databaseId
       ..fieldId = fieldId
       ..fieldType = fieldType;

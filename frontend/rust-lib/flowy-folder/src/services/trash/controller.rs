@@ -283,7 +283,7 @@ impl TrashController {
 fn notify_trash_changed<T: Into<RepeatedTrashPB>>(repeated_trash: T) {
     let repeated_trash = repeated_trash.into();
     tracing::Span::current().record("n_trash", repeated_trash.len());
-    send_anonymous_notification(FolderNotification::TrashUpdated)
+    send_anonymous_notification(FolderNotification::DidUpdateTrash)
         .payload(repeated_trash)
         .send();
 }

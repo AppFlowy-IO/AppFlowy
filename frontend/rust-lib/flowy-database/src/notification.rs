@@ -5,21 +5,32 @@ const OBSERVABLE_CATEGORY: &str = "Grid";
 #[derive(ProtoBuf_Enum, Debug)]
 pub enum DatabaseNotification {
     Unknown = 0,
-    DidCreateBlock = 11,
-    DidUpdateDatabaseViewRows = 20,
-    DidUpdateDatabaseViewRowsVisibility = 21,
-    DidUpdateDatabaseFields = 22,
-    DidUpdateRow = 30,
+    /// Trigger after inserting/deleting/updating a row
+    DidUpdateViewRows = 20,
+    /// Trigger when the visibility of the row was changed. For example, updating the filter will trigger the notification
+    DidUpdateViewRowsVisibility = 21,
+    /// Trigger after inserting/deleting/updating a field
+    DidUpdateFields = 22,
+    /// Trigger after editing a cell
     DidUpdateCell = 40,
+    /// Trigger after editing a field properties including rename,update type option, etc
     DidUpdateField = 50,
-    DidUpdateGroupView = 60,
-    DidUpdateGroup = 61,
-    DidGroupByNewField = 62,
+    /// Trigger after the number of groups is changed
+    DidUpdateGroups = 60,
+    /// Trigger after inserting/deleting/updating/moving a row
+    DidUpdateGroupRow = 61,
+    /// Trigger when setting a new grouping field
+    DidGroupByField = 62,
+    /// Trigger after inserting/deleting/updating a filter
     DidUpdateFilter = 63,
+    /// Trigger after inserting/deleting/updating a sort
     DidUpdateSort = 64,
+    /// Trigger after the sort configurations are changed
     DidReorderRows = 65,
+    /// Trigger after editing the row that hit the sort rule
     DidReorderSingleRow = 66,
-    DidUpdateDatabaseSetting = 70,
+    /// Trigger when the settings of the database are changed
+    DidUpdateSettings = 70,
 }
 
 impl std::default::Default for DatabaseNotification {

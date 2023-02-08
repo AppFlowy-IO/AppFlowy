@@ -26,7 +26,7 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetTypeOption, get_field_type_option_data_handler)
         .event(DatabaseEvent::CreateTypeOption, create_field_type_option_data_handler)
         // Row
-        .event(DatabaseEvent::CreateTableRow, create_table_row_handler)
+        .event(DatabaseEvent::CreateRow, create_table_row_handler)
         .event(DatabaseEvent::GetRow, get_row_handler)
         .event(DatabaseEvent::DeleteRow, delete_row_handler)
         .event(DatabaseEvent::DuplicateRow, duplicate_row_handler)
@@ -118,7 +118,7 @@ pub enum DatabaseEvent {
     /// [UpdateFieldType] event is used to update the current Field's type.
     /// It will insert a new FieldTypeOptionData if the new FieldType doesn't exist before, otherwise
     /// reuse the existing FieldTypeOptionData. You could check the [DatabaseRevisionPad] for more details.
-    #[event(input = "EditFieldChangesetPB")]
+    #[event(input = "UpdateFieldTypePayloadPB")]
     UpdateFieldType = 20,
 
     /// [DuplicateField] event is used to duplicate a Field. The duplicated field data is kind of
@@ -154,9 +154,9 @@ pub enum DatabaseEvent {
     CreateSelectOption = 30,
 
     /// [GetSelectOptionCellData] event is used to get the select option data for cell editing.
-    /// [CellPathPB] locate which cell data that will be read from. The return value, [SelectOptionCellDataPB]
+    /// [CellIdPB] locate which cell data that will be read from. The return value, [SelectOptionCellDataPB]
     /// contains the available options and the currently selected options.
-    #[event(input = "CellPathPB", output = "SelectOptionCellDataPB")]
+    #[event(input = "CellIdPB", output = "SelectOptionCellDataPB")]
     GetSelectOptionCellData = 31,
 
     /// [UpdateSelectOption] event is used to update a FieldTypeOptionData whose field_type is
@@ -168,8 +168,8 @@ pub enum DatabaseEvent {
     #[event(input = "SelectOptionChangesetPB")]
     UpdateSelectOption = 32,
 
-    #[event(input = "CreateTableRowPayloadPB", output = "RowPB")]
-    CreateTableRow = 50,
+    #[event(input = "CreateRowPayloadPB", output = "RowPB")]
+    CreateRow = 50,
 
     /// [GetRow] event is used to get the row data,[RowPB]. [OptionalRowPB] is a wrapper that enables
     /// to return a nullable row data.
@@ -185,7 +185,7 @@ pub enum DatabaseEvent {
     #[event(input = "MoveRowPayloadPB")]
     MoveRow = 54,
 
-    #[event(input = "CellPathPB", output = "CellPB")]
+    #[event(input = "CellIdPB", output = "CellPB")]
     GetCell = 70,
 
     /// [UpdateCell] event is used to update the cell content. The passed in data, [CellChangesetPB],
