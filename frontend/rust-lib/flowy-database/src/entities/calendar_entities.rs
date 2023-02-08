@@ -1,11 +1,13 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_error::ErrorCode;
 use serde::{Deserialize, Serialize};
+use serde_repr::{Deserialize_repr, Serialize_repr};
 use std::convert::TryInto;
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct CalendarSettingsPB {
   #[pb(index = 1)]
-  pub current_layout: CalendarViewLayout,
+  pub calendar_layout: CalendarLayout,
 
   #[pb(index = 2)]
   pub first_day_of_week: i32,
@@ -14,27 +16,49 @@ pub struct CalendarSettingsPB {
   pub show_weekends: bool,
 
   #[pb(index = 4)]
-  pub show_week_number: bool,
+  pub show_week_numbers: bool,
 }
-
-// impl TryInto<CalendarSettingsParams> for CalendarSettingsPB {
-//   type Error = ErrorCode;
-
-// }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CalendarSettingsParams {}
-
-impl std::default::Default for CalendarSettings {
-    // The default settings will be used if there is no existing settings
-    fn default() -> Self {
-        todo!()
-    }
+pub struct CalendarSettingsParams {
+  calendar_layout: CalendarLayout,
+  first_day_of_week: i32,
+  show_weekends: bool,
+  show_week_numbers: bool,
 }
 
-#[derive(Debug, Clone, Default, ProtoBuf_Enum)]
+const DEFAULT_FIRST_DAY_OF_WEEK: i32 = 0;
+const DEFAULT_SHOW_WEEKENDS: bool = true;
+const DEFAULT_SHOW_WEEK_NUMBERS: bool = true;
+
+impl std::default::Default for CalendarSettingsParams {
+  // The default settings will be used if there is no existing settings
+  fn default() -> Self {
+    CalendarSettingsParams {
+      calendar_layout: CalendarLayout::default(),
+      first_day_of_week: DEFAULT_FIRST_DAY_OF_WEEK,
+      show_weekends: DEFAULT_SHOW_WEEKENDS,
+      show_week_numbers: DEFAULT_SHOW_WEEK_NUMBERS,
+    }
+  }
+}
+
+impl TryInto<CalendarSettingsParams> for CalendarSettingsPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<CalendarSettingsParams, Self::Error> {
+    Ok(CalendarSettingsParams {
+      calendar_layout: self.calendar_layout,
+      first_day_of_week: self.first_day_of_week,
+      show_weekends: self.show_weekends,
+      show_week_numbers: self.show_week_numbers,
+    })
+  }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf_Enum, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
-pub enum CalendarViewLayout {
+pub enum CalendarLayout {
   #[default]
   MonthLayout = 0,
   WeekLayout = 1,
