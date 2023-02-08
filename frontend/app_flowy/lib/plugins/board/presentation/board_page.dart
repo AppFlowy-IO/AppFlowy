@@ -25,6 +25,7 @@ import '../application/board_bloc.dart';
 import 'card/card.dart';
 import 'card/card_cell_builder.dart';
 import 'toolbar/board_toolbar.dart';
+import 'package:app_flowy/workspace/presentation/widgets/top_header_text.dart';
 
 class BoardPage extends StatelessWidget {
   BoardPage({
@@ -52,8 +53,7 @@ class BoardPage extends StatelessWidget {
             finish: (result) {
               return result.successOrFail.fold(
                 (_) => BoardContent(
-                  onEditStateChanged: onEditStateChanged,
-                ),
+                    onEditStateChanged: onEditStateChanged, view: view),
                 (err) => FlowyErrorPage(err.toString()),
               );
             },
@@ -67,11 +67,12 @@ class BoardPage extends StatelessWidget {
 class BoardContent extends StatefulWidget {
   const BoardContent({
     Key? key,
+    required this.view,
     this.onEditStateChanged,
   }) : super(key: key);
 
   final VoidCallback? onEditStateChanged;
-
+  final ViewPB view;
   @override
   State<BoardContent> createState() => _BoardContentState();
 }
@@ -101,7 +102,11 @@ class _BoardContentState extends State<BoardContent> {
         builder: (context, state) {
           final column = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [const _ToolbarBlocAdaptor(), _buildBoard(context)],
+            children: [
+              ViewHeaderText(view: widget.view),
+              const _ToolbarBlocAdaptor(),
+              _buildBoard(context)
+            ],
           );
 
           return Padding(

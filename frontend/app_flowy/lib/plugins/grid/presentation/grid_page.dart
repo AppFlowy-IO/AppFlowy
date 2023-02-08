@@ -3,6 +3,8 @@ import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/filter/filter_menu_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/grid_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
+import 'package:app_flowy/workspace/application/view/view_listener.dart';
+import 'package:app_flowy/workspace/application/view/view_service.dart';
 import 'package:app_flowy/plugins/grid/application/grid_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/sort/sort_menu_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -29,6 +31,8 @@ import 'widgets/header/grid_header.dart';
 import 'widgets/row/row_detail.dart';
 import 'widgets/shortcuts.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/toolbar/sort_button.dart';
+import 'package:app_flowy/workspace/presentation/widgets/top_header_text.dart';
 
 class GridPage extends StatefulWidget {
   GridPage({
@@ -47,10 +51,20 @@ class GridPage extends StatefulWidget {
 }
 
 class _GridPageState extends State<GridPage> {
+  final FocusNode _focusNode = FocusNode();
+  // @override
+  // void initState() {
+  //   // The appflowy editor use Intl as localization, set the default language as fallback.
+  //   Intl.defaultLocale = 'en_US';
+  //   documentBloc = getIt<DocumentBloc>(param1: super.widget.view)
+  //     ..add(const DocumentEvent.initial());
+  //   super.initState();
+  // }
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        // BlocProvider<DocumentBloc>.value(value: documentBloc),
         BlocProvider<GridBloc>(
           create: (context) => GridBloc(
             view: widget.view,
@@ -79,7 +93,7 @@ class _GridPageState extends State<GridPage> {
             loading: (_) =>
                 const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) => result.successOrFail.fold(
-              (_) => const GridShortcuts(child: FlowyGrid()),
+              (_) => GridShortcuts(child: FlowyGrid(view: widget.view)),
               (err) => FlowyErrorPage(err.toString()),
             ),
           );
@@ -105,10 +119,14 @@ class _GridPageState extends State<GridPage> {
 }
 
 class FlowyGrid extends StatefulWidget {
-  const FlowyGrid({Key? key}) : super(key: key);
+  const FlowyGrid({
+    required this.view,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<FlowyGrid> createState() => _FlowyGridState();
+  final ViewPB view;
 }
 
 class _FlowyGridState extends State<FlowyGrid> {
@@ -145,6 +163,8 @@ class _FlowyGridState extends State<FlowyGrid> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            ViewHeaderText(view: widget.view),
+            //const GridText(),
             const GridToolbar(),
             GridAccessoryMenu(viewId: state.databaseId),
             _gridHeader(context, state.databaseId),
