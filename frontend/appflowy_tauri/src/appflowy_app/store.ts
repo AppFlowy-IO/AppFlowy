@@ -11,6 +11,7 @@ import { foldersSlice } from './redux/folders/slice';
 import { pagesSlice } from './redux/pages/slice';
 import { navigationWidthSlice } from './redux/navigation-width/slice';
 import { currentUserSlice } from './redux/current-user/slice';
+import { gridSlice } from './redux/grid/slice';
 
 const listenerMiddlewareInstance = createListenerMiddleware({
   onError: () => console.error,
@@ -22,6 +23,7 @@ const store = configureStore({
     [pagesSlice.name]: pagesSlice.reducer,
     [navigationWidthSlice.name]: navigationWidthSlice.reducer,
     [currentUserSlice.name]: currentUserSlice.reducer,
+    [gridSlice.name]: gridSlice.reducer,
   },
   middleware: (gDM) => gDM().prepend(listenerMiddlewareInstance.middleware),
 });
