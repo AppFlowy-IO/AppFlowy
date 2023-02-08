@@ -73,7 +73,7 @@ class ApplicationWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     const ratio = 1.73;
     const minWidth = 600.0;
-    windowManager.setSize(const Size(minWidth, minWidth / ratio));
+    windowManager.setMinimumSize(const Size(minWidth, minWidth / ratio));
 
     final cubit = AppearanceSettingsCubit(appearanceSetting)
       ..readLocaleWhenAppLaunch(context);
