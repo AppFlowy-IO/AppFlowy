@@ -178,7 +178,7 @@ impl TryInto<CreateFieldParams> for CreateFieldPayloadPB {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct EditFieldChangesetPB {
+pub struct UpdateFieldTypePayloadPB {
     #[pb(index = 1)]
     pub database_id: String,
 
@@ -198,7 +198,7 @@ pub struct EditFieldParams {
     pub field_type: FieldType,
 }
 
-impl TryInto<EditFieldParams> for EditFieldChangesetPB {
+impl TryInto<EditFieldParams> for UpdateFieldTypePayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<EditFieldParams, Self::Error> {

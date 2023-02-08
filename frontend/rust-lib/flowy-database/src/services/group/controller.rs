@@ -1,4 +1,4 @@
-use crate::entities::{GroupRowsNotificationPB, GroupViewChangesetPB, InsertedRowPB, RowPB};
+use crate::entities::{GroupChangesetPB, GroupRowsNotificationPB, InsertedRowPB, RowPB};
 use crate::services::cell::{get_type_cell_protobuf, CellProtobufBlobParser, DecodedCellData};
 
 use crate::services::group::action::{
@@ -319,7 +319,7 @@ where
         Ok(result)
     }
 
-    fn did_update_group_field(&mut self, _field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>> {
+    fn did_update_group_field(&mut self, _field_rev: &FieldRevision) -> FlowyResult<Option<GroupChangesetPB>> {
         Ok(None)
     }
 }

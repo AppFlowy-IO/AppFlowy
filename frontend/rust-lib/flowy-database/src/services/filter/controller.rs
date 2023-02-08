@@ -4,7 +4,7 @@ use crate::services::cell::{AnyTypeCache, AtomicCellDataCache, AtomicCellFilterC
 use crate::services::field::*;
 use crate::services::filter::{FilterChangeset, FilterResult, FilterResultNotification, FilterType};
 use crate::services::row::DatabaseBlockRowRevision;
-use crate::services::view_editor::{GridViewChanged, GridViewChangedNotifier};
+use crate::services::view_editor::{DatabaseViewChanged, GridViewChangedNotifier};
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
@@ -149,7 +149,9 @@ impl FilterController {
                 }
             }
 
-            let _ = self.notifier.send(GridViewChanged::FilterNotification(notification));
+            let _ = self
+                .notifier
+                .send(DatabaseViewChanged::FilterNotification(notification));
         }
         Ok(())
     }
@@ -185,7 +187,9 @@ impl FilterController {
                 visible_rows,
             };
             tracing::Span::current().record("filter_result", format!("{:?}", &notification).as_str());
-            let _ = self.notifier.send(GridViewChanged::FilterNotification(notification));
+            let _ = self
+                .notifier
+                .send(DatabaseViewChanged::FilterNotification(notification));
         }
         Ok(())
     }

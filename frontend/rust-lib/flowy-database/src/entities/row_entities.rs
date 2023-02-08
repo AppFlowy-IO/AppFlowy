@@ -1,5 +1,5 @@
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::DatabaseViewLayout;
+use crate::entities::LayoutTypePB;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use grid_model::RowRevision;
@@ -171,7 +171,7 @@ pub struct BlockRowIdPB {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct CreateTableRowPayloadPB {
+pub struct CreateRowPayloadPB {
     #[pb(index = 1)]
     pub database_id: String,
 
@@ -184,10 +184,10 @@ pub struct CreateRowParams {
     pub database_id: String,
     pub start_row_id: Option<String>,
     pub group_id: Option<String>,
-    pub layout: DatabaseViewLayout,
+    pub layout: LayoutTypePB,
 }
 
-impl TryInto<CreateRowParams> for CreateTableRowPayloadPB {
+impl TryInto<CreateRowParams> for CreateRowPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CreateRowParams, Self::Error> {
@@ -197,7 +197,7 @@ impl TryInto<CreateRowParams> for CreateTableRowPayloadPB {
             database_id: database_id.0,
             start_row_id: self.start_row_id,
             group_id: None,
-            layout: DatabaseViewLayout::Grid,
+            layout: LayoutTypePB::Grid,
         })
     }
 }

@@ -1,5 +1,5 @@
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::{CreateRowParams, DatabaseViewLayout, FieldType, RowPB};
+use crate::entities::{CreateRowParams, FieldType, LayoutTypePB, RowPB};
 use crate::services::group::Group;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
@@ -33,7 +33,7 @@ impl TryInto<CreateRowParams> for CreateBoardCardPayloadPB {
             database_id: database_id.0,
             start_row_id,
             group_id: Some(group_id.0),
-            layout: DatabaseViewLayout::Board,
+            layout: LayoutTypePB::Board,
         })
     }
 }

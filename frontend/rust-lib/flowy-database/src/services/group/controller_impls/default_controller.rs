@@ -1,4 +1,4 @@
-use crate::entities::{GroupViewChangesetPB, RowPB};
+use crate::entities::{GroupChangesetPB, RowPB};
 use crate::services::group::action::{DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerActions};
 use crate::services::group::{Group, GroupController, MoveGroupRowContext};
 use flowy_error::FlowyResult;
@@ -86,7 +86,7 @@ impl GroupControllerActions for DefaultGroupController {
         })
     }
 
-    fn did_update_group_field(&mut self, _field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>> {
+    fn did_update_group_field(&mut self, _field_rev: &FieldRevision) -> FlowyResult<Option<GroupChangesetPB>> {
         Ok(None)
     }
 }

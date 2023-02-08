@@ -29,7 +29,7 @@ class TrashListener {
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case FolderNotification.TrashUpdated:
+      case FolderNotification.DidUpdateTrash:
         if (_trashUpdated != null) {
           result.fold(
             (payload) {

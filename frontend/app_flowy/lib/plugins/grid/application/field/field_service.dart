@@ -97,7 +97,7 @@ class FieldService {
       ..databaseId = databaseId
       ..fieldId = fieldId
       ..fieldType = fieldType;
-    return DatabaseEventGetFieldTypeOption(payload).send().then((result) {
+    return DatabaseEventGetTypeOption(payload).send().then((result) {
       return result.fold(
         (data) => left(data),
         (err) => right(err),

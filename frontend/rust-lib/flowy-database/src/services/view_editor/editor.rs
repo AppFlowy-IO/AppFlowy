@@ -184,7 +184,7 @@ impl DatabaseViewRevisionEditor {
             }
         };
 
-        send_notification(&self.view_id, DatabaseNotification::DidUpdateDatabaseViewRows)
+        send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
             .payload(changeset)
             .send();
     }
@@ -262,7 +262,7 @@ impl DatabaseViewRevisionEditor {
             .await;
 
         if let Some(Ok(result)) = result {
-            let mut changeset = GroupViewChangesetPB {
+            let mut changeset = GroupChangesetPB {
                 view_id: self.view_id.clone(),
                 ..Default::default()
             };
@@ -274,7 +274,7 @@ impl DatabaseViewRevisionEditor {
                 tracing::trace!("Delete group after editing the row: {:?}", delete_group);
                 changeset.deleted_groups.push(delete_group.group_id);
             }
-            self.notify_did_update_view(changeset).await;
+            self.notify_did_update_groups(changeset).await;
 
             tracing::trace!("Group changesets after editing the row: {:?}", result.row_changesets);
             for changeset in result.row_changesets {
@@ -312,7 +312,7 @@ impl DatabaseViewRevisionEditor {
             .await;
 
         if let Some(result) = result {
-            let mut changeset = GroupViewChangesetPB {
+            let mut changeset = GroupChangesetPB {
                 view_id: self.view_id.clone(),
                 ..Default::default()
             };
@@ -320,7 +320,7 @@ impl DatabaseViewRevisionEditor {
                 tracing::info!("Delete group after moving the row: {:?}", delete_group);
                 changeset.deleted_groups.push(delete_group.group_id);
             }
-            self.notify_did_update_view(changeset).await;
+            self.notify_did_update_groups(changeset).await;
 
             for changeset in result.row_changesets {
                 self.notify_did_update_group_rows(changeset).await;
@@ -356,7 +356,7 @@ impl DatabaseViewRevisionEditor {
                     index: index as i32,
                 };
 
-                let changeset = GroupViewChangesetPB {
+                let changeset = GroupChangesetPB {
                     view_id: self.view_id.clone(),
                     inserted_groups: vec![inserted_group],
                     deleted_groups: vec![params.from_group_id.clone()],
@@ -364,7 +364,7 @@ impl DatabaseViewRevisionEditor {
                     initial_groups: vec![],
                 };
 
-                self.notify_did_update_view(changeset).await;
+                self.notify_did_update_groups(changeset).await;
             }
         }
         Ok(())
@@ -632,7 +632,7 @@ impl DatabaseViewRevisionEditor {
                 .collect();
 
             *self.group_controller.write().await = new_group_controller;
-            let changeset = GroupViewChangesetPB {
+            let changeset = GroupChangesetPB {
                 view_id: self.view_id.clone(),
                 initial_groups: new_groups,
                 ..Default::default()
@@ -640,7 +640,7 @@ impl DatabaseViewRevisionEditor {
 
             debug_assert!(!changeset.is_empty());
             if !changeset.is_empty() {
-                send_notification(&changeset.view_id, DatabaseNotification::DidGroupByNewField)
+                send_notification(&changeset.view_id, DatabaseNotification::DidGroupByField)
                     .payload(changeset)
                     .send();
             }
@@ -654,13 +654,13 @@ impl DatabaseViewRevisionEditor {
 
     async fn notify_did_update_setting(&self) {
         let setting = self.get_view_setting().await;
-        send_notification(&self.view_id, DatabaseNotification::DidUpdateDatabaseSetting)
+        send_notification(&self.view_id, DatabaseNotification::DidUpdateSettings)
             .payload(setting)
             .send();
     }
 
     pub async fn notify_did_update_group_rows(&self, payload: GroupRowsNotificationPB) {
-        send_notification(&payload.group_id, DatabaseNotification::DidUpdateGroup)
+        send_notification(&payload.group_id, DatabaseNotification::DidUpdateGroupRow)
             .payload(payload)
             .send();
     }
@@ -679,8 +679,8 @@ impl DatabaseViewRevisionEditor {
         }
     }
 
-    async fn notify_did_update_view(&self, changeset: GroupViewChangesetPB) {
-        send_notification(&self.view_id, DatabaseNotification::DidUpdateGroupView)
+    async fn notify_did_update_groups(&self, changeset: GroupChangesetPB) {
+        send_notification(&self.view_id, DatabaseNotification::DidUpdateGroups)
             .payload(changeset)
             .send();
     }

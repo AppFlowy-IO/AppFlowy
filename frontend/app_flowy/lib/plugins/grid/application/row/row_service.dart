@@ -13,11 +13,11 @@ class RowFFIService {
   });
 
   Future<Either<RowPB, FlowyError>> createRow(String rowId) {
-    final payload = CreateTableRowPayloadPB.create()
+    final payload = CreateRowPayloadPB.create()
       ..databaseId = databaseId
       ..startRowId = rowId;
 
-    return DatabaseEventCreateTableRow(payload).send();
+    return DatabaseEventCreateRow(payload).send();
   }
 
   Future<Either<OptionalRowPB, FlowyError>> getRow(String rowId) {

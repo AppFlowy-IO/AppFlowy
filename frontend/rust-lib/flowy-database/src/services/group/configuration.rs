@@ -1,4 +1,4 @@
-use crate::entities::{GroupPB, GroupViewChangesetPB, InsertedGroupPB};
+use crate::entities::{GroupChangesetPB, GroupPB, InsertedGroupPB};
 use crate::services::field::RowSingleCellData;
 use crate::services::group::{default_group_configuration, GeneratedGroupContext, Group};
 use flowy_error::{FlowyError, FlowyResult};
@@ -223,7 +223,7 @@ where
     pub(crate) fn init_groups(
         &mut self,
         generated_group_context: GeneratedGroupContext,
-    ) -> FlowyResult<Option<GroupViewChangesetPB>> {
+    ) -> FlowyResult<Option<GroupChangesetPB>> {
         let GeneratedGroupContext {
             no_status_group,
             group_configs,
@@ -312,7 +312,7 @@ where
             })
             .collect();
 
-        let changeset = GroupViewChangesetPB {
+        let changeset = GroupChangesetPB {
             view_id: self.view_id.clone(),
             initial_groups,
             deleted_groups: deleted_group_ids,

@@ -1,4 +1,4 @@
-use crate::entities::{GroupPB, GroupRowsNotificationPB, GroupViewChangesetPB, InsertedGroupPB};
+use crate::entities::{GroupChangesetPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB};
 use crate::services::cell::DecodedCellData;
 use crate::services::group::controller::MoveGroupRowContext;
 use crate::services::group::Group;
@@ -91,7 +91,7 @@ pub trait GroupControllerActions: Send + Sync {
     fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<DidMoveGroupRowResult>;
 
     /// Update the group if the corresponding field is changed
-    fn did_update_group_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>>;
+    fn did_update_group_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<Option<GroupChangesetPB>>;
 }
 
 #[derive(Debug)]

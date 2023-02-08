@@ -160,7 +160,7 @@ pub(crate) async fn delete_field_handler(
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn switch_to_field_handler(
-    data: AFPluginData<EditFieldChangesetPB>,
+    data: AFPluginData<UpdateFieldTypePayloadPB>,
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let params: EditFieldParams = data.into_inner().try_into()?;
@@ -315,7 +315,7 @@ pub(crate) async fn move_row_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn create_table_row_handler(
-    data: AFPluginData<CreateTableRowPayloadPB>,
+    data: AFPluginData<CreateRowPayloadPB>,
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RowPB, FlowyError> {
     let params: CreateRowParams = data.into_inner().try_into()?;
@@ -326,10 +326,10 @@ pub(crate) async fn create_table_row_handler(
 
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn get_cell_handler(
-    data: AFPluginData<CellPathPB>,
+    data: AFPluginData<CellIdPB>,
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<CellPB, FlowyError> {
-    let params: CellPathParams = data.into_inner().try_into()?;
+    let params: CellIdParams = data.into_inner().try_into()?;
     let editor = manager.get_database_editor(&params.database_id).await?;
     match editor.get_cell(&params).await {
         None => data_result(CellPB::empty(&params.field_id, &params.row_id)),
@@ -427,10 +427,10 @@ pub(crate) async fn update_select_option_handler(
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_select_option_handler(
-    data: AFPluginData<CellPathPB>,
+    data: AFPluginData<CellIdPB>,
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<SelectOptionCellDataPB, FlowyError> {
-    let params: CellPathParams = data.into_inner().try_into()?;
+    let params: CellIdParams = data.into_inner().try_into()?;
     let editor = manager.get_database_editor(&params.database_id).await?;
     match editor.get_field_rev(&params.field_id).await {
         None => {
@@ -483,7 +483,7 @@ pub(crate) async fn update_date_cell_handler(
     manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
     let data = data.into_inner();
-    let cell_path: CellPathParams = data.cell_path.try_into()?;
+    let cell_path: CellIdParams = data.cell_path.try_into()?;
     let cell_changeset = DateCellChangeset {
         date: data.date,
         time: data.time,

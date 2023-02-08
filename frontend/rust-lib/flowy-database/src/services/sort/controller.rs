@@ -3,7 +3,7 @@ use crate::entities::SortChangesetNotificationPB;
 use crate::services::cell::{AtomicCellDataCache, TypeCellData};
 use crate::services::field::{default_order, TypeOptionCellExt};
 use crate::services::sort::{ReorderAllRowsResult, ReorderSingleRowResult, SortChangeset, SortType};
-use crate::services::view_editor::{GridViewChanged, GridViewChangedNotifier};
+use crate::services::view_editor::{DatabaseViewChanged, GridViewChangedNotifier};
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use grid_model::{CellRevision, FieldRevision, RowRevision, SortCondition, SortRevision};
@@ -92,7 +92,7 @@ impl SortController {
 
                 let _ = self
                     .notifier
-                    .send(GridViewChanged::ReorderAllRowsNotification(notification));
+                    .send(DatabaseViewChanged::ReorderAllRowsNotification(notification));
             }
             SortEvent::RowDidChanged(row_id) => {
                 let old_row_index = self.row_index_cache.get(&row_id).cloned();
@@ -111,7 +111,7 @@ impl SortController {
                         };
                         let _ = self
                             .notifier
-                            .send(GridViewChanged::ReorderSingleRowNotification(notification));
+                            .send(DatabaseViewChanged::ReorderSingleRowNotification(notification));
                     }
                     _ => tracing::trace!("The row index cache is outdated"),
                 }
