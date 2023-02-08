@@ -162,9 +162,9 @@ List<ShortcutEvent> builtInShortcutEvents = [
   ),
   ShortcutEvent(
     key: 'Toggle Checkbox',
-    command: 'meta+q',
-    windowsCommand: 'ctrl+q',
-    linuxCommand: 'ctrl+q',
+    command: 'meta+enter',
+    windowsCommand: 'ctrl+enter',
+    linuxCommand: 'ctrl+enter',
     handler: toggleCheckbox,
   ),
   ShortcutEvent(
