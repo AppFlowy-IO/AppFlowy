@@ -5,7 +5,6 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:window_size/window_size.dart';
 
 import '../../user/application/user_settings_service.dart';
 import '../../workspace/application/appearance.dart';
@@ -71,10 +70,6 @@ class ApplicationWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const ratio = 1.73;
-    const minWidth = 600.0;
-    setWindowMinSize(const Size(minWidth, minWidth / ratio));
-
     final cubit = AppearanceSettingsCubit(appearanceSetting)
       ..readLocaleWhenAppLaunch(context);
 
