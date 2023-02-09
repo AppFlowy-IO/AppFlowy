@@ -11,11 +11,12 @@ import device_info_plus_macos
 import flowy_infra_ui
 import hotkey_manager
 import package_info_plus_macos
-import path_provider_macos
+import path_provider_foundation
 import rich_clipboard_macos
-import shared_preferences_macos
+import screen_retriever
+import shared_preferences_foundation
 import url_launcher_macos
-import window_size
+import window_manager
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   AppFlowyBackendPlugin.register(with: registry.registrar(forPlugin: "AppFlowyBackendPlugin"))
@@ -26,7 +27,8 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FLTPackageInfoPlusPlugin.register(with: registry.registrar(forPlugin: "FLTPackageInfoPlusPlugin"))
   PathProviderPlugin.register(with: registry.registrar(forPlugin: "PathProviderPlugin"))
   RichClipboardPlugin.register(with: registry.registrar(forPlugin: "RichClipboardPlugin"))
+  ScreenRetrieverPlugin.register(with: registry.registrar(forPlugin: "ScreenRetrieverPlugin"))
   SharedPreferencesPlugin.register(with: registry.registrar(forPlugin: "SharedPreferencesPlugin"))
   UrlLauncherPlugin.register(with: registry.registrar(forPlugin: "UrlLauncherPlugin"))
-  WindowSizePlugin.register(with: registry.registrar(forPlugin: "WindowSizePlugin"))
+  WindowManagerPlugin.register(with: registry.registrar(forPlugin: "WindowManagerPlugin"))
 }

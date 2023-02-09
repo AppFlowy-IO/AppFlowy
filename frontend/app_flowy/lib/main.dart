@@ -23,5 +23,17 @@ Future<void> main() async {
   await hotKeyManager.unregisterAll();
   await windowManager.ensureInitialized();
 
+  await setWindowOptions();
+
   await FlowyRunner.run(FlowyApp());
+}
+
+Future<void> setWindowOptions() async {
+  WindowOptions windowOptions = const WindowOptions(
+    minimumSize: Size(600, 400),
+  );
+  return windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.focus();
+  });
 }
