@@ -301,7 +301,6 @@ impl GridViewRevisionPad {
   /// Returns the settings for the given layout. If it's not exists then will return the
   /// default settings for the given layout.
   /// Each [database view](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/database-view) has its own settings.
-  ///
   pub fn get_layout_setting<T>(&self, layout: &LayoutRevision) -> T
   where
     T: Default + serde::de::DeserializeOwned,

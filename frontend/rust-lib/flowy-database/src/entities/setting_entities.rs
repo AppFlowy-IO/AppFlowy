@@ -1,13 +1,14 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
-  AlterFilterParams, AlterFilterPayloadPB, AlterSortParams, AlterSortPayloadPB, DeleteFilterParams,
-  DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB, DeleteSortParams,
-  DeleteSortPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterPB,
+  AlterFilterParams, AlterFilterPayloadPB, AlterSortParams, AlterSortPayloadPB, CalendarSettingsPB,
+  DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB,
+  DeleteSortParams, DeleteSortPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterPB,
   RepeatedGroupConfigurationPB, RepeatedSortPB,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use grid_model::LayoutRevision;
+use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
@@ -22,12 +23,15 @@ pub struct DatabaseViewSettingPB {
   pub current_layout: LayoutTypePB,
 
   #[pb(index = 3)]
-  pub filters: RepeatedFilterPB,
+  pub current_layout_setting: LayoutSettingPB,
 
   #[pb(index = 4)]
-  pub group_configurations: RepeatedGroupConfigurationPB,
+  pub filters: RepeatedFilterPB,
 
   #[pb(index = 5)]
+  pub group_configurations: RepeatedGroupConfigurationPB,
+
+  #[pb(index = 6)]
   pub sorts: RepeatedSortPB,
 }
 
@@ -90,22 +94,25 @@ pub struct DatabaseSettingChangesetPB {
   #[pb(index = 2)]
   pub layout_type: LayoutTypePB,
 
-  #[pb(index = 3, one_of)]
-  pub alter_filter: Option<AlterFilterPayloadPB>,
+  #[pb(index = 3)]
+  pub layout_setting: LayoutSettingPB,
 
   #[pb(index = 4, one_of)]
-  pub delete_filter: Option<DeleteFilterPayloadPB>,
+  pub alter_filter: Option<AlterFilterPayloadPB>,
 
   #[pb(index = 5, one_of)]
-  pub insert_group: Option<InsertGroupPayloadPB>,
+  pub delete_filter: Option<DeleteFilterPayloadPB>,
 
   #[pb(index = 6, one_of)]
-  pub delete_group: Option<DeleteGroupPayloadPB>,
+  pub insert_group: Option<InsertGroupPayloadPB>,
 
   #[pb(index = 7, one_of)]
-  pub alter_sort: Option<AlterSortPayloadPB>,
+  pub delete_group: Option<DeleteGroupPayloadPB>,
 
   #[pb(index = 8, one_of)]
+  pub alter_sort: Option<AlterSortPayloadPB>,
+
+  #[pb(index = 9, one_of)]
   pub delete_sort: Option<DeleteSortPayloadPB>,
 }
 
@@ -175,4 +182,10 @@ impl DatabaseSettingChangesetParams {
   pub fn is_filter_changed(&self) -> bool {
     self.insert_filter.is_some() || self.delete_filter.is_some()
   }
+}
+
+#[derive(Debug, Eq, PartialEq, Default, Serialize, Deserialize, ProtoBuf, Clone)]
+pub struct LayoutSettingPB {
+  #[pb(index = 1, one_of)]
+  calendar: Option<CalendarSettingsPB>,
 }

@@ -1,4 +1,4 @@
-use crate::entities::{DatabaseViewSettingPB, LayoutTypePB, ViewLayoutPB};
+use crate::entities::{DatabaseViewSettingPB, LayoutSettingPB, ViewLayoutPB};
 use crate::services::field::RowSingleCellData;
 use crate::services::filter::{FilterController, FilterDelegate, FilterType};
 use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter};
@@ -15,8 +15,8 @@ use flowy_revision::{
 };
 use flowy_sqlite::ConnectionPool;
 use grid_model::{
-  FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, RowRevision,
-  SortRevision,
+  FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, LayoutRevision,
+  RowRevision, SortRevision,
 };
 use lib_infra::future::{to_fut, Fut, FutureResult};
 use lib_ot::core::EmptyAttributes;
@@ -143,13 +143,15 @@ pub fn make_grid_setting(
   view_pad: &GridViewRevisionPad,
   field_revs: &[Arc<FieldRevision>],
 ) -> DatabaseViewSettingPB {
-  let layout_type: LayoutTypePB = view_pad.layout.clone().into();
+  let layout_type: LayoutRevision = view_pad.layout.clone();
+  let layout_settings: LayoutSettingPB = view_pad.get_layout_setting(&layout_type);
   let filters = view_pad.get_all_filters(field_revs);
   let group_configurations = view_pad.get_groups_by_field_revs(field_revs);
   let sorts = view_pad.get_all_sorts(field_revs);
   DatabaseViewSettingPB {
     support_layouts: ViewLayoutPB::all(),
-    current_layout: layout_type,
+    current_layout: layout_type.into(),
+    current_layout_setting: layout_settings.into(),
     filters: filters.into(),
     sorts: sorts.into(),
     group_configurations: group_configurations.into(),
