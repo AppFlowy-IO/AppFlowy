@@ -18,6 +18,7 @@
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.8.0",
+    "react18-input-otp": "^1.1.2",
     "redux": "^4.2.1",
     "ts-results": "^3.3.0"
   },

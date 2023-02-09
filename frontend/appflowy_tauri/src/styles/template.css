@@ -17,7 +17,15 @@ body {
 }
 
 .btn {
-  @apply border border-gray-500 px-4 py-2 rounded-lg;
+  @apply border border-gray-500 px-4 py-3 rounded-xl;
+}
+
+.btn-primary {
+  @apply bg-main-accent text-white hover:bg-main-hovered;
+}
+
+.input {
+  @apply border border-gray-300 px-[18px] py-[14px] text-sm rounded-xl;
 }
 
 th {
