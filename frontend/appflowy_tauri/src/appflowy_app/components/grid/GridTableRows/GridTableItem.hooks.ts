@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { gridActions } from '../../../redux/grid/slice';
 import { useAppDispatch, useAppSelector } from '../../../store';
 
-export const useGridTableItemHooks = (rowItem: { value: string; fieldId: string; cellId: string }, rowId: string) => {
+export const useGridTableItemHooks = (
+  rowItem: { value: string | number; fieldId: string; cellId: string },
+  rowId: string
+) => {
   const dispatch = useAppDispatch();
   const [value, setValue] = useState(rowItem.value);
 

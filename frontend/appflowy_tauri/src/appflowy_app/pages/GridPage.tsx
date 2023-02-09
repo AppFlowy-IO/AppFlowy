@@ -5,23 +5,21 @@ import { GridAddRow } from '../components/grid/GridTableRows/GridAddRow';
 import { GridTableRows } from '../components/grid/GridTableRows/GridTableRows';
 import { GridTitle } from '../components/grid/GridTitle/GridTitle';
 import { SearchInput } from '../components/_shared/SearchInput';
+import { GridToolbar } from '../components/grid/GridToolbar/GridToolbar';
 
 export const GridPage = () => {
   return (
-    <div className='flex flex-col gap-8 mt-24 mx-auto  w-[calc(100%-200px)]'>
+    <div className='flex flex-col px-8 gap-8 mt-8 mx-auto'>
       <h1 className='text-4xl font-bold'>Grid</h1>
 
       <div className='flex justify-between  w-full items-center'>
         <GridTitle />
-        <div className='flex items-center gap-4 shrink-0'>
-          <GridAddView />
-          <SearchInput />
-        </div>
+        <GridToolbar />
       </div>
 
       {/* table component view with text area for td */}
       <div className='flex flex-col gap-4'>
-        <table className=' w-full table-fixed'>
+        <table className='w-full table-fixed text-sm'>
           <GridTableHeader />
           <GridTableRows />
         </table>

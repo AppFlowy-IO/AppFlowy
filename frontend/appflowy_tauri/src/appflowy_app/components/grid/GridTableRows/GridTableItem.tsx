@@ -6,7 +6,7 @@ export const GridTableItem = ({
 }: {
   rowItem: {
     fieldId: string;
-    value: string;
+    value: string | number;
     cellId: string;
   };
   rowId: string;
@@ -15,7 +15,7 @@ export const GridTableItem = ({
   return (
     <div>
       <input
-        className='w-full h-full rounded-lg p-3 border-2 border-transparent hover:border-main-accent'
+        className='w-full h-full rounded-lg p-2 border border-transparent hover:border-main-accent'
         type='text'
         value={value}
         onChange={onValueChange}

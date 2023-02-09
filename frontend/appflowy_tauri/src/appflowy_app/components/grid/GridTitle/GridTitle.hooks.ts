@@ -8,6 +8,7 @@ export const useGridTitleHooks = function () {
   const grid = useAppSelector((state) => state.grid);
 
   const [title, setTitle] = useState(grid.title);
+  const [changingTitle, setChangingTitle] = useState(false);
 
   const onTitleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTitle(event.target.value);
@@ -15,11 +16,18 @@ export const useGridTitleHooks = function () {
 
   const onTitleBlur = () => {
     dispatch(gridActions.updateGridTitle({ title }));
+    setChangingTitle(false);
+  };
+
+  const onTitleClick = () => {
+    setChangingTitle(true);
   };
 
   return {
     title,
     onTitleChange,
     onTitleBlur,
+    onTitleClick,
+    changingTitle,
   };
 };

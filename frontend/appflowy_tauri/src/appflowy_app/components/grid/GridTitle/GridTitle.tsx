@@ -1,15 +1,15 @@
 import { useGridTitleHooks } from './GridTitle.hooks';
+import { SettingsSvg } from '../../_shared/SettingsSvg';
 
 export const GridTitle = () => {
-  const { title, onTitleBlur, onTitleChange } = useGridTitleHooks();
+  const { title } = useGridTitleHooks();
 
   return (
-    <textarea
-      className='text-xl font-semibold resize-none w-full h-10 border-0 outline-none'
-      rows={1}
-      onBlur={onTitleBlur}
-      value={title}
-      onChange={onTitleChange}
-    />
+    <div className={'text-xl font-semibold flex items-center'}>
+      <div>{title}</div>
+      <button className={'ml-2 w-5 h-5'}>
+        <SettingsSvg></SettingsSvg>
+      </button>
+    </div>
   );
 };

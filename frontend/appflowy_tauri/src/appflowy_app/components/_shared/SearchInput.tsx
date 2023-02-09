@@ -1,18 +1,21 @@
 import { SearchSvg } from './SearchSvg';
+import { useState } from 'react';
 
 export const SearchInput = () => {
+  const [active, setActive] = useState(false);
+
   return (
-    <div className='relative'>
-      <span className='absolute inset-y-0 left-0 flex items-center pl-3'>
+    <div className={`p-2 rounded-lg flex items-center ${active && 'bg-main-selector'}`}>
+      <i className='w-5 h-5 mr-2'>
         <SearchSvg />
-      </span>
-      <div className='w-52'>
-        <input
-          className='block w-full pl-10 pr-3   border border-none  rounded-md leading-5 bg-white placeholder-gray-400 focus:outline-none focus:placeholder-gray-500 sm:text-sm'
-          placeholder='Search'
-          type='search'
-        />
-      </div>
+      </i>
+      <input
+        onFocus={() => setActive(true)}
+        onBlur={() => setActive(false)}
+        className='w-52 placeholder-gray-400 text-sm focus:placeholder-gray-500'
+        placeholder='Search'
+        type='search'
+      />
     </div>
   );
 };

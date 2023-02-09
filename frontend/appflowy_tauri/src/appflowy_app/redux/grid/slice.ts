@@ -4,13 +4,14 @@ import { nanoid } from 'nanoid';
 // eslint-disable-next-line no-shadow
 export enum FieldType {
   Text = 'text',
-  Numbers = 'numbers',
+  Number = 'number',
   Date = 'date',
   Select = 'select',
   MultiSelect = 'multiselect',
-  Checklist = 'checklist  ',
+  Checklist = 'checklist',
   URL = 'url',
 }
+
 const initialState = {
   title: 'My plans on the week',
   fields: [
@@ -22,15 +23,21 @@ const initialState = {
     },
     {
       fieldId: '2',
-      fieldType: FieldType.Text,
+      fieldType: FieldType.Select,
       fieldOptions: [],
       name: 'Status',
     },
     {
       fieldId: '3',
-      fieldType: FieldType.Text,
+      fieldType: FieldType.Number,
       fieldOptions: [],
-      name: 'Description',
+      name: 'Progress',
+    },
+    {
+      fieldId: '4',
+      fieldType: FieldType.Date,
+      fieldOptions: [],
+      name: 'Due Date',
     },
   ],
   rows: [
@@ -49,8 +56,13 @@ const initialState = {
         },
         {
           fieldId: '3',
-          value: 'Description 1',
+          value: 30,
           cellId: '3',
+        },
+        {
+          fieldId: '4',
+          value: 'tomorrow',
+          cellId: '4',
         },
       ],
     },
@@ -60,17 +72,22 @@ const initialState = {
         {
           fieldId: '1',
           value: 'Name 2',
-          cellId: '4',
+          cellId: '5',
         },
         {
           fieldId: '2',
           value: 'Status 2',
-          cellId: '5',
+          cellId: '6',
         },
         {
           fieldId: '3',
-          value: 'Description 2',
-          cellId: '6',
+          value: 40,
+          cellId: '7',
+        },
+        {
+          fieldId: '4',
+          value: 'tomorrow',
+          cellId: '8',
         },
       ],
     },
@@ -117,7 +134,7 @@ export const gridSlice = createSlice({
       state.rows.push(newRow);
     },
 
-    updateRowValue: (state, action: PayloadAction<{ rowId: string; cellId: string; value: string }>) => {
+    updateRowValue: (state, action: PayloadAction<{ rowId: string; cellId: string; value: string | number }>) => {
       console.log('updateRowValue', action.payload);
       const row = state.rows.find((r) => r.rowId === action.payload.rowId);
 
