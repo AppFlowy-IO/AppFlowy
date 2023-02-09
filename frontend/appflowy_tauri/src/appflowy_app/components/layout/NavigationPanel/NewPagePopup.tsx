@@ -17,7 +17,7 @@ export const NewPagePopup = ({
   const items: IPopupItem[] = [
     {
       icon: (
-        <i className={'w-[16px] h-[16px] text-black'}>
+        <i className={'h-[16px] w-[16px] text-black'}>
           <DocumentSvg></DocumentSvg>
         </i>
       ),
@@ -26,7 +26,7 @@ export const NewPagePopup = ({
     },
     {
       icon: (
-        <i className={'w-[16px] h-[16px] text-black'}>
+        <i className={'h-[16px] w-[16px] text-black'}>
           <BoardSvg></BoardSvg>
         </i>
       ),
@@ -35,7 +35,7 @@ export const NewPagePopup = ({
     },
     {
       icon: (
-        <i className={'w-[16px] h-[16px] text-black'}>
+        <i className={'h-[16px] w-[16px] text-black'}>
           <GridSvg></GridSvg>
         </i>
       ),

@@ -8,7 +8,7 @@ export const PageOptions = () => {
       </Button>
 
       <button className={'ml-8'}>
-        <img className={'w-8 h-8'} src={`/images/editor/details.svg`} />
+        <img className={'h-8 w-8'} src={`/images/editor/details.svg`} />
       </button>
     </div>
   );

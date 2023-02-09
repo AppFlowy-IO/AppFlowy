@@ -6,7 +6,7 @@ import { GridFilterButton } from './GridFilterButton';
 
 export const GridToolbar = () => {
   return (
-    <div className='flex items-center gap-4 shrink-0'>
+    <div className='flex shrink-0 items-center gap-4'>
       <SearchInput />
       <GridAddView />
       <GridFilterButton></GridFilterButton>

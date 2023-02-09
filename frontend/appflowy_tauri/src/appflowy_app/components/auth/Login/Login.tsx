@@ -8,7 +8,7 @@ export const Login = () => {
 
   return (
     <form onSubmit={(e) => e.preventDefault()} method='POST'>
-      <div className='text-center h-screen w-full flex flex-col justify-center items-center gap-12'>
+      <div className='flex h-screen w-full flex-col items-center justify-center gap-12 text-center'>
         <div className='flex justify-center'>
           <AppflowyLogo />
         </div>
@@ -17,15 +17,15 @@ export const Login = () => {
           <span className='text-2xl font-semibold leading-9'>Login to Appflowy</span>
         </div>
 
-        <div className='flex flex-col gap-6  max-w-[340px] w-full '>
+        <div className='flex w-full max-w-[340px]  flex-col gap-6 '>
           <input type='text' className='input w-full' placeholder='Phone / Email' />
-          <div className='w-full relative'>
-            <input type={showPassword ? 'text' : 'password'} className='input !pr-10  w-full' placeholder='Password' />
+          <div className='relative w-full'>
+            <input type={showPassword ? 'text' : 'password'} className='input w-full  !pr-10' placeholder='Password' />
 
             {/* Show password button */}
             <button
               type='button'
-              className='absolute right-0 top-0 h-full w-12 flex justify-center items-center '
+              className='absolute right-0 top-0 flex h-full w-12 items-center justify-center '
               onClick={onTogglePassword}
             >
               {showPassword ? <EyeClosed /> : <EyeOpened />}
@@ -40,14 +40,14 @@ export const Login = () => {
           </div>
         </div>
 
-        <div className='flex flex-col gap-6 max-w-[340px] w-full '>
-          <button type='submit' className='w-full btn !border-0   btn-primary'>
+        <div className='flex w-full max-w-[340px] flex-col gap-6 '>
+          <button type='submit' className='btn btn-primary w-full   !border-0'>
             Login
           </button>
 
           {/* signup link */}
           <div className='flex justify-center'>
-            <span className='text-gray-400 text-xs'>
+            <span className='text-xs text-gray-400'>
               Don't have an account?
               <a href='/auth/signUp' className='text-main-accent hover:text-main-hovered'>
                 <span> Sign up</span>

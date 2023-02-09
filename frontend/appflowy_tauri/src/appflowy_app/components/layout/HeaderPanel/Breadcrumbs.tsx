@@ -1,7 +1,7 @@
 export const Breadcrumbs = () => {
   return (
     <div className={'flex items-center'}>
-      <div className={'flex items-center mr-4'}>
+      <div className={'mr-4 flex items-center'}>
         <button className={'p-1'} onClick={() => history.back()}>
           <img src={'/images/home/arrow_left.svg'} />
         </button>

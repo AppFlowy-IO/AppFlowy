@@ -5,14 +5,14 @@ export const SearchInput = () => {
   const [active, setActive] = useState(false);
 
   return (
-    <div className={`p-2 rounded-lg flex items-center ${active && 'bg-main-selector'}`}>
-      <i className='w-5 h-5 mr-2'>
+    <div className={`flex items-center rounded-lg p-2 ${active && 'bg-main-selector'}`}>
+      <i className='mr-2 h-5 w-5'>
         <SearchSvg />
       </i>
       <input
         onFocus={() => setActive(true)}
         onBlur={() => setActive(false)}
-        className='w-52 placeholder-gray-400 text-sm focus:placeholder-gray-500'
+        className='w-52 text-sm placeholder-gray-400 focus:placeholder-gray-500'
         placeholder='Search'
         type='search'
       />

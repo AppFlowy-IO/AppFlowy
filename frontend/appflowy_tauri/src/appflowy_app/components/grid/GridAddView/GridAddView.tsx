@@ -3,8 +3,8 @@ import AddSvg from '../../_shared/AddSvg';
 
 export const GridAddView = () => {
   return (
-    <button className='flex items-center cursor-pointer text-sm p-2 rounded-lg hover:bg-main-selector'>
-      <i className='w-5 h-5 mr-2'>
+    <button className='flex cursor-pointer items-center rounded-lg p-2 text-sm hover:bg-main-selector'>
+      <i className='mr-2 h-5 w-5'>
         <AddSvg />
       </i>
       <span>Add View</span>

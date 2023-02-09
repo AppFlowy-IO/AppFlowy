@@ -6,7 +6,7 @@ export const ConfirmAccount = () => {
   const { handleChange, otpValues } = useConfirmAccount();
 
   return (
-    <div className=' text-center h-screen w-full flex flex-col justify-center items-center gap-6'>
+    <div className='flex h-screen w-full flex-col items-center justify-center gap-6 text-center'>
       <div className='flex justify-center'>
         <AppflowyLogo />
       </div>
@@ -16,13 +16,13 @@ export const ConfirmAccount = () => {
       </div>
 
       <div>
-        <span className='text-gray-500 block'>Confirm that this phone belongs to you.</span>
-        <span className='text-gray-500 block'>
+        <span className='block text-gray-500'>Confirm that this phone belongs to you.</span>
+        <span className='block text-gray-500'>
           Code sent to <span className='text-black'>+86 10 6764 5489</span>
         </span>
       </div>
 
-      <div className='flex flex-col gap-4 h-24 w-52 '>
+      <div className='flex h-24 w-52 flex-col gap-4 '>
         <OtpInput
           value={otpValues}
           onChange={handleChange}
@@ -39,7 +39,7 @@ export const ConfirmAccount = () => {
       </div>
 
       <div className='w-96'>
-        <button className='w-full btn btn-primary !border-0'>Get Started</button>
+        <button className='btn btn-primary w-full !border-0'>Get Started</button>
       </div>
     </div>
   );

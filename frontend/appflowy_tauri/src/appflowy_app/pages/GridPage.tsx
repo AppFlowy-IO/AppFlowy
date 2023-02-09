@@ -9,10 +9,10 @@ import { GridToolbar } from '../components/grid/GridToolbar/GridToolbar';
 
 export const GridPage = () => {
   return (
-    <div className='flex flex-col px-8 gap-8 mt-8 mx-auto'>
+    <div className='mx-auto mt-8 flex flex-col gap-8 px-8'>
       <h1 className='text-4xl font-bold'>Grid</h1>
 
-      <div className='flex justify-between  w-full items-center'>
+      <div className='flex w-full  items-center justify-between'>
         <GridTitle />
         <GridToolbar />
       </div>

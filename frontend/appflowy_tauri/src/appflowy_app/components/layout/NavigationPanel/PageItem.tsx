@@ -25,17 +25,17 @@ export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () =
     <div className={'relative'}>
       <div
         onClick={() => onPageClick()}
-        className={'pl-8 pr-4 py-2 cursor-pointer flex items-center justify-between rounded-lg hover:bg-surface-2 '}
+        className={'flex cursor-pointer items-center justify-between rounded-lg py-2 pl-8 pr-4 hover:bg-surface-2 '}
       >
-        <div className={'flex items-center flex-1 min-w-0'}>
-          <div className={'ml-1 w-[16px] h-[16px] mr-1'}>
+        <div className={'flex min-w-0 flex-1 items-center'}>
+          <div className={'ml-1 mr-1 h-[16px] w-[16px]'}>
             {page.pageType === 'document' && <DocumentSvg></DocumentSvg>}
             {page.pageType === 'board' && <BoardSvg></BoardSvg>}
             {page.pageType === 'grid' && <GridSvg></GridSvg>}
           </div>
-          <span className={'whitespace-nowrap overflow-ellipsis overflow-hidden min-w-0 flex-1 ml-2'}>{page.title}</span>
+          <span className={'ml-2 min-w-0 flex-1 overflow-hidden overflow-ellipsis whitespace-nowrap'}>{page.title}</span>
         </div>
-        <div className={'flex items-center relative'}>
+        <div className={'relative flex items-center'}>
           <Button size={'box-small-transparent'} onClick={() => onPageOptionsClick()}>
             <Details2Svg></Details2Svg>
           </Button>

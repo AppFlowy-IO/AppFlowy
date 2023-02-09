@@ -25,11 +25,11 @@ export const Popup = ({
   };
 
   return (
-    <div ref={ref} className={`${className} px-2 py-2 shadow-md bg-white rounded-lg`}>
+    <div ref={ref} className={`${className} rounded-lg bg-white px-2 py-2 shadow-md`}>
       {items.map((item, index) => (
         <button
           key={index}
-          className={'flex items-center px-2 py-2 w-full cursor-pointer rounded-lg hover:bg-main-secondary'}
+          className={'flex w-full cursor-pointer items-center rounded-lg px-2 py-2 hover:bg-main-secondary'}
           onClick={(e) => handleClick(e, item)}
         >
           {item.icon}

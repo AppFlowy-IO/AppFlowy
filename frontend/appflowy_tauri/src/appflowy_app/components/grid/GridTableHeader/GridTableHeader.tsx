@@ -17,9 +17,9 @@ export const GridTableHeader = () => {
         <tr>
           {fields.map((field, i) => {
             return (
-              <th key={field.fieldId} className='border-l-0 border border-shade-6 m-0 p-0'>
-                <div className={'flex items-center hover:bg-main-secondary p-2 cursor-pointer'}>
-                  <i className={'w-5 h-5 mr-2 text-shade-3'}>
+              <th key={field.fieldId} className='m-0 border border-l-0 border-shade-6 p-0'>
+                <div className={'flex cursor-pointer items-center p-2 hover:bg-main-secondary'}>
+                  <i className={'mr-2 h-5 w-5 text-shade-3'}>
                     {field.fieldType === 'text' && <TextTypeSvg></TextTypeSvg>}
                     {field.fieldType === 'number' && <NumberTypeSvg></NumberTypeSvg>}
                     {field.fieldType === 'date' && <DateTypeSvg></DateTypeSvg>}
@@ -34,12 +34,12 @@ export const GridTableHeader = () => {
             );
           })}
 
-          <th className='border-r-0 border border-shade-6 m-0 p-0 w-40'>
+          <th className='m-0 w-40 border border-r-0 border-shade-6 p-0'>
             <div
-              className='flex items-center text-shade-3 hover:text-black hover:bg-main-secondary p-2 cursor-pointer'
+              className='flex cursor-pointer items-center p-2 text-shade-3 hover:bg-main-secondary hover:text-black'
               onClick={onAddField}
             >
-              <i className='w-5 h-5 mr-2'>
+              <i className='mr-2 h-5 w-5'>
                 <AddSvg />
               </i>
               <span>New column</span>

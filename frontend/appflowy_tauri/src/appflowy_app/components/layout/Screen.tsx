@@ -4,7 +4,7 @@ import { MainPanel } from './MainPanel';
 
 export const Screen = ({ children }: { children: ReactNode }) => {
   return (
-    <div className='bg-white text-black h-screen w-screen flex'>
+    <div className='flex h-screen w-screen bg-white text-black'>
       <NavigationPanel></NavigationPanel>
       <MainPanel>{children}</MainPanel>
     </div>
