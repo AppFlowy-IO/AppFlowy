@@ -93,6 +93,10 @@ We decided to achieve this mission by upholding the three most fundamental value
 
 To be honest, we do not claim to outperform Notion in terms of functionality and design, at least for now. Besides, our priority doesn't lie in more functionality at the moment. Instead, we would like to cultivate a community to democratize the knowledge and wheels of making complex workplace management tools, while enabling people and businesses to create beautiful things on their own by equipping them with a versatile toolbox of building blocks.
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=AppFlowy-IO/AppFlowy&type=Date)](https://star-history.com/#AppFlowy-IO/AppFlowy)
+
 ## License
 
 Distributed under the AGPLv3 License. See [`LICENSE.md`](https://github.com/AppFlowy-IO/AppFlowy/blob/main/LICENSE) for more information.
