@@ -1,4 +1,4 @@
-import { SortSvg } from '../../_shared/SortSvg';
+import { SortSvg } from '../../_shared/svg/SortSvg';
 
 export const GridSortButton = () => {
   return (

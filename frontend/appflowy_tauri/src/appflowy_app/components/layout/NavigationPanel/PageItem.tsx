@@ -1,7 +1,7 @@
-import { DocumentSvg } from '../../_shared/DocumentSvg';
-import { BoardSvg } from '../../_shared/BoardSvg';
-import { GridSvg } from '../../_shared/GridSvg';
-import { Details2Svg } from '../../_shared/Details2Svg';
+import { DocumentSvg } from '../../_shared/svg/DocumentSvg';
+import { BoardSvg } from '../../_shared/svg/BoardSvg';
+import { GridSvg } from '../../_shared/svg/GridSvg';
+import { Details2Svg } from '../../_shared/svg/Details2Svg';
 import { NavItemOptionsPopup } from './NavItemOptionsPopup';
 import { IPage } from '../../../redux/pages/slice';
 import { Button } from '../../_shared/Button';

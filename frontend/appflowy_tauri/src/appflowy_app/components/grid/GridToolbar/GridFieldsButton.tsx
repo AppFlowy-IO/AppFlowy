@@ -1,4 +1,4 @@
-import { PropertiesSvg } from '../../_shared/PropertiesSvg';
+import { PropertiesSvg } from '../../_shared/svg/PropertiesSvg';
 
 export const GridFieldsButton = () => {
   return (

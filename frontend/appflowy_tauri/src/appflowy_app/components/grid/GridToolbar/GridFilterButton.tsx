@@ -1,4 +1,4 @@
-import { FilterSvg } from '../../_shared/FilterSvg';
+import { FilterSvg } from '../../_shared/svg/FilterSvg';
 
 export const GridFilterButton = () => {
   return (

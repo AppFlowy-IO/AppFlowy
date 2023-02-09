@@ -1,5 +1,5 @@
 import { useGridTitleHooks } from './GridTitle.hooks';
-import { SettingsSvg } from '../../_shared/SettingsSvg';
+import { SettingsSvg } from '../../_shared/svg/SettingsSvg';
 
 export const GridTitle = () => {
   const { title } = useGridTitleHooks();

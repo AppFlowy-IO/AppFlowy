@@ -1,4 +1,4 @@
-import AddSvg from '../../_shared/AddSvg';
+import AddSvg from '../../_shared/svg/AddSvg';
 import { useNewFolder } from './NewFolderButton.hooks';
 
 export const NewFolderButton = () => {

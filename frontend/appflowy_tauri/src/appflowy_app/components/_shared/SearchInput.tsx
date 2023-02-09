@@ -1,4 +1,4 @@
-import { SearchSvg } from './SearchSvg';
+import { SearchSvg } from './svg/SearchSvg';
 import { useState } from 'react';
 
 export const SearchInput = () => {

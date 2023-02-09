@@ -1,12 +1,12 @@
-import AddSvg from '../../_shared/AddSvg';
+import AddSvg from '../../_shared/svg/AddSvg';
 import { useGridTableHeaderHooks } from './GridTableHeader.hooks';
-import { TextTypeSvg } from '../../_shared/TextTypeSvg';
-import { NumberTypeSvg } from '../../_shared/NumberTypeSvg';
-import { DateTypeSvg } from '../../_shared/DateTypeSvg';
-import { SingleSelectTypeSvg } from '../../_shared/SingleSelectTypeSvg';
-import { MultiSelectTypeSvg } from '../../_shared/MultiSelectTypeSvg';
-import { ChecklistTypeSvg } from '../../_shared/ChecklistTypeSvg';
-import { UrlTypeSvg } from '../../_shared/UrlTypeSvg';
+import { TextTypeSvg } from '../../_shared/svg/TextTypeSvg';
+import { NumberTypeSvg } from '../../_shared/svg/NumberTypeSvg';
+import { DateTypeSvg } from '../../_shared/svg/DateTypeSvg';
+import { SingleSelectTypeSvg } from '../../_shared/svg/SingleSelectTypeSvg';
+import { MultiSelectTypeSvg } from '../../_shared/svg/MultiSelectTypeSvg';
+import { ChecklistTypeSvg } from '../../_shared/svg/ChecklistTypeSvg';
+import { UrlTypeSvg } from '../../_shared/svg/UrlTypeSvg';
 
 export const GridTableHeader = () => {
   const { fields, onAddField } = useGridTableHeaderHooks();

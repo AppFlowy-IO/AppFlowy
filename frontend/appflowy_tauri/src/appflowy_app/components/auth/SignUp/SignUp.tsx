@@ -1,6 +1,6 @@
-import { AppflowyLogo } from '../../_shared/AppflowyLogo';
-import { EyeClosed } from '../../_shared/EyeClosedSvg';
-import { EyeOpened } from '../../_shared/EyeOpenSvg';
+import { AppflowyLogo } from '../../_shared/svg/AppflowyLogo';
+import { EyeClosed } from '../../_shared/svg/EyeClosedSvg';
+import { EyeOpened } from '../../_shared/svg/EyeOpenSvg';
 
 import { useSignUp } from './SignUp.hooks';
 
@@ -10,7 +10,7 @@ export const SignUp = () => {
   return (
     <form method='POST' onSubmit={(e) => e.preventDefault()}>
       <div className='flex h-screen w-full flex-col items-center justify-center gap-12 text-center'>
-        <div className='flex justify-center'>
+        <div className='flex h-10 w-10 justify-center'>
           <AppflowyLogo />
         </div>
 
@@ -28,7 +28,7 @@ export const SignUp = () => {
               onClick={onTogglePassword}
               type='button'
             >
-              {showPassword ? <EyeClosed /> : <EyeOpened />}
+              <span className='h-6 w-6'>{showPassword ? <EyeClosed /> : <EyeOpened />}</span>
             </button>
           </div>
 
@@ -44,7 +44,7 @@ export const SignUp = () => {
               onClick={onToggleConfirmPassword}
               type='button'
             >
-              {showConfirmPassword ? <EyeClosed /> : <EyeOpened />}
+              <span className='h-6 w-6'>{showConfirmPassword ? <EyeClosed /> : <EyeOpened />}</span>
             </button>
           </div>
         </div>

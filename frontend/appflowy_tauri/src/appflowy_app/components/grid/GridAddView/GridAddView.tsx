@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import AddSvg from '../../_shared/AddSvg';
+import AddSvg from '../../_shared/svg/AddSvg';
 
 export const GridAddView = () => {
   return (

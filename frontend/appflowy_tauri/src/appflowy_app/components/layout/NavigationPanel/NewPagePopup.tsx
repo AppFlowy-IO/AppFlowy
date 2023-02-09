@@ -1,7 +1,7 @@
 import { IPopupItem, Popup } from '../../_shared/Popup';
-import { DocumentSvg } from '../../_shared/DocumentSvg';
-import { BoardSvg } from '../../_shared/BoardSvg';
-import { GridSvg } from '../../_shared/GridSvg';
+import { DocumentSvg } from '../../_shared/svg/DocumentSvg';
+import { BoardSvg } from '../../_shared/svg/BoardSvg';
+import { GridSvg } from '../../_shared/svg/GridSvg';
 
 export const NewPagePopup = ({
   onDocumentClick,

@@ -1,4 +1,4 @@
-import AddSvg from '../../_shared/AddSvg';
+import AddSvg from '../../_shared/svg/AddSvg';
 import { useGridAddRow } from './GridAddRow.hooks';
 export const GridAddRow = () => {
   const { addRow } = useGridAddRow();

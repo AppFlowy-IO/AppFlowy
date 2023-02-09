@@ -1,6 +1,6 @@
 export const AppflowyLogo = () => {
   return (
-    <svg width='41' height='40' viewBox='0 0 41 40' fill='none' xmlns='http://www.w3.org/2000/svg'>
+    <svg width='100%' height='100%' viewBox='0 0 41 40' fill='none' xmlns='http://www.w3.org/2000/svg'>
       <path
         d='M39.9564 24.0195C38.8098 30.1683 33.7828 35.5321 28.0061 38.5411C27.3005 38.9336 26.4627 39.1516 25.6689 39.1952H37.9279C39.1185 39.1952 39.9564 38.323 39.9564 37.2328V24.0195Z'
         fill='#F7931E'

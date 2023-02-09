@@ -1,6 +1,6 @@
-import { AppflowyLogo } from '../../_shared/AppflowyLogo';
-import { EyeClosed } from '../../_shared/EyeClosedSvg';
-import { EyeOpened } from '../../_shared/EyeOpenSvg';
+import { AppflowyLogo } from '../../_shared/svg/AppflowyLogo';
+import { EyeClosed } from '../../_shared/svg/EyeClosedSvg';
+import { EyeOpened } from '../../_shared/svg/EyeOpenSvg';
 import { useLogin } from './Login.hooks';
 
 export const Login = () => {
@@ -9,7 +9,7 @@ export const Login = () => {
   return (
     <form onSubmit={(e) => e.preventDefault()} method='POST'>
       <div className='flex h-screen w-full flex-col items-center justify-center gap-12 text-center'>
-        <div className='flex justify-center'>
+        <div className='flex h-10 w-10 justify-center'>
           <AppflowyLogo />
         </div>
 

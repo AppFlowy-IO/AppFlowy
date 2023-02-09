@@ -1,5 +1,5 @@
-import { Details2Svg } from '../../_shared/Details2Svg';
-import AddSvg from '../../_shared/AddSvg';
+import { Details2Svg } from '../../_shared/svg/Details2Svg';
+import AddSvg from '../../_shared/svg/AddSvg';
 import { NavItemOptionsPopup } from './NavItemOptionsPopup';
 import { NewPagePopup } from './NewPagePopup';
 import { IFolder } from '../../../redux/folders/slice';
