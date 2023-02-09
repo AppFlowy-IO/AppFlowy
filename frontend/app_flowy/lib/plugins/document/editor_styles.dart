@@ -23,7 +23,10 @@ EditorStyle customEditorTheme(BuildContext context) {
       fontFamily: 'poppins-Bold',
     ),
     backgroundColor: Theme.of(context).colorScheme.surface,
-    selectionMenuItemSelectedIconColor: Theme.of(context).colorScheme.primary,
+    selectionMenuItemSelectedIconColor:
+        Theme.of(context).textTheme.bodyMedium?.color,
+    selectionMenuItemSelectedTextColor:
+        Theme.of(context).textTheme.bodyMedium?.color,
   );
   return editorStyle;
 }
