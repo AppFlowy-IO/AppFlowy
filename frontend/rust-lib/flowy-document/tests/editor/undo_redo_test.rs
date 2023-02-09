@@ -1,5 +1,5 @@
 use crate::editor::{TestBuilder, TestOp::*};
-use flowy_sync::client_document::{EmptyDocument, NewlineDocument, RECORD_THRESHOLD};
+use flowy_client_sync::client_document::{EmptyDocument, NewlineDocument, RECORD_THRESHOLD};
 use lib_ot::core::{Interval, NEW_LINE, WHITESPACE};
 
 #[test]

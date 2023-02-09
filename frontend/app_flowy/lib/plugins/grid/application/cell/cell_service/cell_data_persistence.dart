@@ -51,7 +51,7 @@ class DateCellDataPersistence implements GridCellDataPersistence<CalendarData> {
       payload.time = data.time!;
     }
 
-    return GridEventUpdateDateCell(payload).send().then((result) {
+    return DatabaseEventUpdateDateCell(payload).send().then((result) {
       return result.fold(
         (l) => none(),
         (err) => Some(err),
@@ -60,9 +60,9 @@ class DateCellDataPersistence implements GridCellDataPersistence<CalendarData> {
   }
 }
 
-CellPathPB _makeCellPath(GridCellIdentifier cellId) {
-  return CellPathPB.create()
-    ..viewId = cellId.gridId
+CellIdPB _makeCellPath(GridCellIdentifier cellId) {
+  return CellIdPB.create()
+    ..databaseId = cellId.databaseId
     ..fieldId = cellId.fieldId
     ..rowId = cellId.rowId;
 }

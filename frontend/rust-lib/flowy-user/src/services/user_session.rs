@@ -1,17 +1,13 @@
-use crate::entities::{
-    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB, UserSettingPB,
-};
+use crate::entities::{UserProfilePB, UserSettingPB};
+use crate::event_map::UserStatusCallback;
 use crate::{
     errors::{ErrorCode, FlowyError},
     event_map::UserCloudService,
     notification::*,
-    services::{
-        database::{UserDB, UserTable, UserTableChangeset},
-        notifier::UserNotifier,
-    },
+    services::database::{UserDB, UserTable, UserTableChangeset},
 };
-use flowy_database::ConnectionPool;
-use flowy_database::{
+use flowy_sqlite::ConnectionPool;
+use flowy_sqlite::{
     kv::KV,
     query_dsl::*,
     schema::{user_table, user_table::dsl},
@@ -19,7 +15,8 @@ use flowy_database::{
 };
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use tokio::sync::mpsc;
+use tokio::sync::RwLock;
+use user_model::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile};
 
 pub struct UserSessionConfig {
     root_dir: String,
@@ -44,25 +41,26 @@ pub struct UserSession {
     database: UserDB,
     config: UserSessionConfig,
     cloud_service: Arc<dyn UserCloudService>,
-    pub notifier: UserNotifier,
+    user_status_callback: RwLock<Option<Arc<dyn UserStatusCallback>>>,
 }
 
 impl UserSession {
     pub fn new(config: UserSessionConfig, cloud_service: Arc<dyn UserCloudService>) -> Self {
         let db = UserDB::new(&config.root_dir);
-        let notifier = UserNotifier::new();
+        let user_status_callback = RwLock::new(None);
         Self {
             database: db,
             config,
             cloud_service,
-            notifier,
+            user_status_callback,
         }
     }
 
-    pub fn init(&self) {
+    pub async fn init<C: UserStatusCallback + 'static>(&self, user_status_callback: C) {
         if let Ok(session) = self.get_session() {
-            self.notifier.notify_login(&session.token, &session.user_id);
+            let _ = user_status_callback.did_sign_in(&session.token, &session.user_id).await;
         }
+        *self.user_status_callback.write().await = Some(Arc::new(user_status_callback));
     }
 
     pub fn db_connection(&self) -> Result<DBConnection, FlowyError> {
@@ -82,22 +80,39 @@ impl UserSession {
     }
 
     #[tracing::instrument(level = "debug", skip(self))]
-    pub async fn sign_in(&self, params: SignInParams) -> Result<UserProfilePB, FlowyError> {
+    pub async fn sign_in(&self, params: SignInParams) -> Result<UserProfile, FlowyError> {
         if self.is_user_login(&params.email) {
-            self.get_user_profile().await
+            match self.get_user_profile().await {
+                Ok(profile) => {
+                    send_sign_in_notification()
+                        .payload::<UserProfilePB>(profile.clone().into())
+                        .send();
+                    Ok(profile)
+                }
+                Err(err) => Err(err),
+            }
         } else {
             let resp = self.cloud_service.sign_in(params).await?;
             let session: Session = resp.clone().into();
             self.set_session(Some(session))?;
-            let user_table = self.save_user(resp.into()).await?;
-            let user_profile: UserProfilePB = user_table.into();
-            self.notifier.notify_login(&user_profile.token, &user_profile.id);
+            let user_profile: UserProfile = self.save_user(resp.into()).await?.into();
+            let _ = self
+                .user_status_callback
+                .read()
+                .await
+                .as_ref()
+                .unwrap()
+                .did_sign_in(&user_profile.token, &user_profile.id)
+                .await;
+            send_sign_in_notification()
+                .payload::<UserProfilePB>(user_profile.clone().into())
+                .send();
             Ok(user_profile)
         }
     }
 
     #[tracing::instrument(level = "debug", skip(self))]
-    pub async fn sign_up(&self, params: SignUpParams) -> Result<UserProfilePB, FlowyError> {
+    pub async fn sign_up(&self, params: SignUpParams) -> Result<UserProfile, FlowyError> {
         if self.is_user_login(&params.email) {
             self.get_user_profile().await
         } else {
@@ -105,11 +120,15 @@ impl UserSession {
             let session: Session = resp.clone().into();
             self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
-            let user_profile: UserProfilePB = user_table.into();
-            let (ret, mut tx) = mpsc::channel(1);
-            self.notifier.notify_sign_up(ret, &user_profile);
-
-            let _ = tx.recv().await;
+            let user_profile: UserProfile = user_table.into();
+            let _ = self
+                .user_status_callback
+                .read()
+                .await
+                .as_ref()
+                .unwrap()
+                .did_sign_up(&user_profile)
+                .await;
             Ok(user_profile)
         }
     }
@@ -121,7 +140,14 @@ impl UserSession {
             diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*(self.db_connection()?))?;
         self.database.close_user_db(&session.user_id)?;
         self.set_session(None)?;
-        self.notifier.notify_logout(&session.token, &session.user_id);
+        let _ = self
+            .user_status_callback
+            .read()
+            .await
+            .as_ref()
+            .unwrap()
+            .did_expired(&session.token, &session.user_id)
+            .await;
         self.sign_out_on_server(&session.token).await?;
 
         Ok(())
@@ -134,8 +160,9 @@ impl UserSession {
         diesel_update_table!(user_table, changeset, &*self.db_connection()?);
 
         let user_profile = self.get_user_profile().await?;
-        dart_notify(&session.token, UserNotification::UserProfileUpdated)
-            .payload(user_profile)
+        let profile_pb: UserProfilePB = user_profile.into();
+        send_notification(&session.token, UserNotification::UserProfileUpdated)
+            .payload(profile_pb)
             .send();
         self.update_user_on_server(&session.token, params).await?;
         Ok(())
@@ -145,7 +172,7 @@ impl UserSession {
         Ok(())
     }
 
-    pub async fn check_user(&self) -> Result<UserProfilePB, FlowyError> {
+    pub async fn check_user(&self) -> Result<UserProfile, FlowyError> {
         let (user_id, token) = self.get_session()?.into_part();
 
         let user = dsl::user_table
@@ -156,7 +183,7 @@ impl UserSession {
         Ok(user.into())
     }
 
-    pub async fn get_user_profile(&self) -> Result<UserProfilePB, FlowyError> {
+    pub async fn get_user_profile(&self) -> Result<UserProfile, FlowyError> {
         let (user_id, token) = self.get_session()?.into_part();
         let user = dsl::user_table
             .filter(user_table::id.eq(&user_id))
@@ -220,7 +247,7 @@ impl UserSession {
                 Ok(_) => {}
                 Err(e) => {
                     // TODO: retry?
-                    log::error!("update user profile failed: {:?}", e);
+                    tracing::error!("update user profile failed: {:?}", e);
                 }
             }
         })
@@ -234,7 +261,7 @@ impl UserSession {
         let _ = tokio::spawn(async move {
             match server.sign_out(&token).await {
                 Ok(_) => {}
-                Err(e) => log::error!("Sign out failed: {:?}", e),
+                Err(e) => tracing::error!("Sign out failed: {:?}", e),
             }
         })
         .await;
@@ -332,7 +359,7 @@ impl std::convert::From<String> for Session {
         match serde_json::from_str(&s) {
             Ok(s) => s,
             Err(e) => {
-                log::error!("Deserialize string to Session failed: {:?}", e);
+                tracing::error!("Deserialize string to Session failed: {:?}", e);
                 Session::default()
             }
         }
@@ -343,7 +370,7 @@ impl std::convert::From<Session> for String {
         match serde_json::to_string(&session) {
             Ok(s) => s,
             Err(e) => {
-                log::error!("Serialize session to string failed: {:?}", e);
+                tracing::error!("Serialize session to string failed: {:?}", e);
                 "".to_string()
             }
         }

@@ -12,11 +12,11 @@ import '../../../application/field/field_controller.dart';
 import '../../layout/sizes.dart';
 
 class GridSettingContext {
-  final String gridId;
+  final String viewId;
   final GridFieldController fieldController;
 
   GridSettingContext({
-    required this.gridId,
+    required this.viewId,
     required this.fieldController,
   });
 }

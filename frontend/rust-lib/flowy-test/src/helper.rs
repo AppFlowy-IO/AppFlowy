@@ -58,7 +58,7 @@ impl ViewTest {
     pub async fn new_document_view(sdk: &FlowySDKTest) -> Self {
         let view_data_format = match sdk.document_version() {
             DocumentVersionPB::V0 => ViewDataFormatPB::DeltaFormat,
-            DocumentVersionPB::V1 => ViewDataFormatPB::TreeFormat,
+            DocumentVersionPB::V1 => ViewDataFormatPB::NodeFormat,
         };
         Self::new(sdk, view_data_format, ViewLayoutTypePB::Document, vec![]).await
     }

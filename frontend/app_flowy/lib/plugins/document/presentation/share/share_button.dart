@@ -105,8 +105,8 @@ class ShareActionList extends StatelessWidget {
             break;
           case ShareAction.copyLink:
             NavigatorAlertDialog(
-                    title: LocaleKeys.shareAction_workInProgress.tr())
-                .show(context);
+              title: LocaleKeys.shareAction_workInProgress.tr(),
+            ).show(context);
             break;
         }
         controller.close();
@@ -128,5 +128,12 @@ class ShareActionWrapper extends ActionCell {
   Widget? icon(Color iconColor) => null;
 
   @override
-  String get name => inner.name;
+  String get name {
+    switch (inner) {
+      case ShareAction.markdown:
+        return LocaleKeys.shareAction_markdown.tr();
+      case ShareAction.copyLink:
+        return LocaleKeys.shareAction_copyLink.tr();
+    }
+  }
 }

@@ -31,16 +31,16 @@ import 'widgets/shortcuts.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
 
 class GridPage extends StatefulWidget {
-  final ViewPB view;
-  final GridController gridController;
-  final VoidCallback? onDeleted;
-
   GridPage({
     required this.view,
     this.onDeleted,
     Key? key,
   })  : gridController = GridController(view: view),
         super(key: key);
+
+  final ViewPB view;
+  final GridController gridController;
+  final VoidCallback? onDeleted;
 
   @override
   State<GridPage> createState() => _GridPageState();
@@ -70,7 +70,7 @@ class _GridPageState extends State<GridPage> {
           )..add(const SortMenuEvent.initial()),
         ),
         BlocProvider<GridSettingBloc>(
-          create: (context) => GridSettingBloc(gridId: widget.view.id),
+          create: (context) => GridSettingBloc(databaseId: widget.view.id),
         ),
       ],
       child: BlocBuilder<GridBloc, GridState>(
@@ -146,8 +146,8 @@ class _FlowyGridState extends State<FlowyGrid> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const GridToolbar(),
-            GridAccessoryMenu(viewId: state.gridId),
-            _gridHeader(context, state.gridId),
+            GridAccessoryMenu(viewId: state.databaseId),
+            _gridHeader(context, state.databaseId),
             Flexible(child: child),
             const RowCountBadge(),
           ],
@@ -188,11 +188,11 @@ class _FlowyGridState extends State<FlowyGrid> {
     );
   }
 
-  Widget _gridHeader(BuildContext context, String gridId) {
+  Widget _gridHeader(BuildContext context, String viewId) {
     final fieldController =
         context.read<GridBloc>().gridController.fieldController;
     return GridHeaderSliverAdaptor(
-      gridId: gridId,
+      viewId: viewId,
       fieldController: fieldController,
       anchorScrollController: headerScrollController,
     );

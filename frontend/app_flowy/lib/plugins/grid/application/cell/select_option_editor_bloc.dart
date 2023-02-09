@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/select_type_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'select_option_service.dart';
@@ -147,8 +147,10 @@ class SelectOptionCellEditorBloc
   }
 
   void _filterOption(String optionName, Emitter<SelectOptionEditorState> emit) {
-    final _MakeOptionResult result =
-        _makeOptions(Some(optionName), state.allOptions);
+    final _MakeOptionResult result = _makeOptions(
+      Some(optionName),
+      state.allOptions,
+    );
     emit(state.copyWith(
       filter: Some(optionName),
       options: result.options,
@@ -159,6 +161,7 @@ class SelectOptionCellEditorBloc
   Future<void> _loadOptions() async {
     final result = await _selectOptionService.getOptionContext();
     if (isClosed) {
+      Log.warn("Unexpected closing the bloc");
       return;
     }
 
@@ -177,7 +180,9 @@ class SelectOptionCellEditorBloc
   }
 
   _MakeOptionResult _makeOptions(
-      Option<String> filter, List<SelectOptionPB> allOptions) {
+    Option<String> filter,
+    List<SelectOptionPB> allOptions,
+  ) {
     final List<SelectOptionPB> options = List.from(allOptions);
     Option<String> createOption = filter;
 

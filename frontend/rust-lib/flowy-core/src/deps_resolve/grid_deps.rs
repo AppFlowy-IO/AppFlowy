@@ -1,11 +1,10 @@
 use crate::FlowyError;
 use bytes::Bytes;
-use flowy_database::ConnectionPool;
-use flowy_grid::manager::{GridManager, GridUser};
-use flowy_grid::services::persistence::GridDatabase;
-use flowy_http_model::ws_data::ClientRevisionWSData;
-use flowy_net::ws::connection::FlowyWebSocketConnect;
+use flowy_client_ws::FlowyWebSocketConnect;
+use flowy_database::manager::{DatabaseManager, DatabaseUser};
+use flowy_database::services::persistence::GridDatabase;
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
+use flowy_sqlite::ConnectionPool;
 use flowy_task::TaskDispatcher;
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
@@ -14,6 +13,7 @@ use lib_ws::{WSChannel, WebSocketRawMessage};
 use std::convert::TryInto;
 use std::sync::Arc;
 use tokio::sync::RwLock;
+use ws_model::ws_revision::ClientRevisionWSData;
 
 pub struct GridDepsResolver();
 
@@ -22,10 +22,10 @@ impl GridDepsResolver {
         ws_conn: Arc<FlowyWebSocketConnect>,
         user_session: Arc<UserSession>,
         task_scheduler: Arc<RwLock<TaskDispatcher>>,
-    ) -> Arc<GridManager> {
+    ) -> Arc<DatabaseManager> {
         let user = Arc::new(GridUserImpl(user_session.clone()));
         let rev_web_socket = Arc::new(GridRevisionWebSocket(ws_conn));
-        let grid_manager = Arc::new(GridManager::new(
+        let grid_manager = Arc::new(DatabaseManager::new(
             user.clone(),
             rev_web_socket,
             task_scheduler,
@@ -51,7 +51,7 @@ impl GridDatabase for GridDatabaseImpl {
 }
 
 struct GridUserImpl(Arc<UserSession>);
-impl GridUser for GridUserImpl {
+impl DatabaseUser for GridUserImpl {
     fn user_id(&self) -> Result<String, FlowyError> {
         self.0.user_id()
     }
@@ -70,7 +70,7 @@ impl RevisionWebSocket for GridRevisionWebSocket {
     fn send(&self, data: ClientRevisionWSData) -> BoxResultFuture<(), FlowyError> {
         let bytes: Bytes = data.try_into().unwrap();
         let msg = WebSocketRawMessage {
-            channel: WSChannel::Grid,
+            channel: WSChannel::Database,
             data: bytes.to_vec(),
         };
 

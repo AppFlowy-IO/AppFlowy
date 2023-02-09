@@ -2,8 +2,8 @@ use crate::{RevIdCounter, RevisionMergeable, RevisionPersistence};
 use async_stream::stream;
 use bytes::Bytes;
 use flowy_error::FlowyError;
-use flowy_http_model::revision::Revision;
 use futures::stream::StreamExt;
+use revision_model::Revision;
 use std::sync::Arc;
 use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::sync::oneshot;
@@ -63,7 +63,7 @@ where
             .for_each(|command| async {
                 match self.handle_command(command).await {
                     Ok(_) => {}
-                    Err(e) => tracing::debug!("[RevQueue]: {}", e),
+                    Err(e) => tracing::error!("[RevQueue]: {}", e),
                 }
             })
             .await;

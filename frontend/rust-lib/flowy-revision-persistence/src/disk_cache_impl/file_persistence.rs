@@ -1,6 +1,6 @@
 use crate::{RevisionChangeset, RevisionDiskCache, SyncRecord};
 use flowy_error::FlowyResult;
-use flowy_http_model::revision::RevisionRange;
+use revision_model::RevisionRange;
 
 pub struct FileRevisionDiskCache {
     path: String,

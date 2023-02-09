@@ -1,6 +1,7 @@
 use flowy_ast::EventEnumAttrs;
 use quote::format_ident;
 
+#[allow(dead_code)]
 pub struct EventASTContext {
     pub event: syn::Ident,
     pub event_ty: syn::Ident,
@@ -11,6 +12,7 @@ pub struct EventASTContext {
 }
 
 impl EventASTContext {
+    #[allow(dead_code)]
     pub fn from(enum_attrs: &EventEnumAttrs) -> EventASTContext {
         let command_name = enum_attrs.enum_item_name.clone();
         if command_name.is_empty() {

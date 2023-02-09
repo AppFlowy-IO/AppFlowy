@@ -8,7 +8,8 @@ const String kCodeBlockSubType = 'code_block';
 const String kCodeBlockAttrTheme = 'theme';
 const String kCodeBlockAttrLanguage = 'language';
 
-class CodeBlockNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
+class CodeBlockNodeWidgetBuilder extends NodeWidgetBuilder<TextNode>
+    with ActionProvider<TextNode> {
   @override
   Widget build(NodeWidgetContext<TextNode> context) {
     return _CodeBlockNodeWidge(
@@ -23,6 +24,20 @@ class CodeBlockNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
         return node is TextNode &&
             node.attributes[kCodeBlockAttrTheme] is String;
       };
+
+  @override
+  List<ActionMenuItem> actions(NodeWidgetContext<TextNode> context) {
+    return [
+      ActionMenuItem.svg(
+        name: 'delete',
+        onPressed: () {
+          final transaction = context.editorState.transaction
+            ..deleteNode(context.node);
+          context.editorState.apply(transaction);
+        },
+      ),
+    ];
+  }
 }
 
 class _CodeBlockNodeWidge extends StatefulWidget {
@@ -43,7 +58,6 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
     with SelectableMixin, DefaultSelectable {
   final _richTextKey = GlobalKey(debugLabel: kCodeBlockType);
   final _padding = const EdgeInsets.only(left: 20, top: 30, bottom: 30);
-  bool _isHover = false;
   String? get _language =>
       widget.textNode.attributes[kCodeBlockAttrLanguage] as String?;
   String? _detectLanguage;
@@ -60,20 +74,11 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onHover: (value) {
-        setState(() {
-          _isHover = value;
-        });
-      },
-      onTap: () {},
-      child: Stack(
-        children: [
-          _buildCodeBlock(context),
-          _buildSwitchCodeButton(context),
-          if (_isHover) _buildDeleteButton(context),
-        ],
-      ),
+    return Stack(
+      children: [
+        _buildCodeBlock(context),
+        _buildSwitchCodeButton(context),
+      ],
     );
   }
 
@@ -132,25 +137,6 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
             );
           }).toList(growable: false),
         ),
-      ),
-    );
-  }
-
-  Widget _buildDeleteButton(BuildContext context) {
-    return Positioned(
-      top: -5,
-      right: -5,
-      child: IconButton(
-        icon: Icon(
-          Icons.delete_forever_outlined,
-          color: widget.editorState.editorStyle.selectionMenuItemIconColor,
-          size: 16,
-        ),
-        onPressed: () {
-          final transaction = widget.editorState.transaction
-            ..deleteNode(widget.textNode);
-          widget.editorState.apply(transaction);
-        },
       ),
     );
   }

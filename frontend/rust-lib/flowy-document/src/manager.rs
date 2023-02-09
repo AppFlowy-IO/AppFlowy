@@ -1,6 +1,7 @@
 use crate::editor::{initial_document_content, AppFlowyDocumentEditor, DocumentRevisionMergeable};
 use crate::entities::{DocumentVersionPB, EditParams};
 use crate::old_editor::editor::{DeltaDocumentEditor, DeltaDocumentRevisionMergeable};
+use crate::old_editor::snapshot::DeltaDocumentSnapshotPersistence;
 use crate::services::rev_sqlite::{
     SQLiteDeltaDocumentRevisionPersistence, SQLiteDocumentRevisionPersistence,
     SQLiteDocumentRevisionSnapshotPersistence,
@@ -8,24 +9,24 @@ use crate::services::rev_sqlite::{
 use crate::services::DocumentPersistence;
 use crate::{errors::FlowyError, DocumentCloudService};
 use bytes::Bytes;
-use flowy_database::ConnectionPool;
+use document_model::document::DocumentId;
+use flowy_client_sync::client_document::initial_delta_document_content;
 use flowy_error::FlowyResult;
-use flowy_http_model::util::md5;
-use flowy_http_model::ws_data::ServerRevisionWSData;
-use flowy_http_model::{document::DocumentId, revision::Revision};
 use flowy_revision::{
-    PhantomSnapshotPersistence, RevisionCloudService, RevisionManager, RevisionPersistence,
-    RevisionPersistenceConfiguration, RevisionWebSocket,
+    RevisionCloudService, RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket,
 };
-use flowy_sync::client_document::initial_delta_document_content;
+use flowy_sqlite::ConnectionPool;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
+use lib_infra::util::md5;
 use lib_ws::WSConnectState;
+use revision_model::Revision;
 use std::any::Any;
 use std::convert::TryFrom;
 use std::sync::Arc;
 use tokio::sync::RwLock;
+use ws_model::ws_revision::ServerRevisionWSData;
 
 pub trait DocumentUser: Send + Sync {
     fn user_dir(&self) -> Result<String, FlowyError>;
@@ -291,7 +292,7 @@ impl DocumentManager {
             doc_id,
             rev_persistence,
             DeltaDocumentRevisionMergeable(),
-            PhantomSnapshotPersistence(),
+            DeltaDocumentSnapshotPersistence(),
         ))
     }
 }

@@ -1,5 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 
 import 'board_cell.dart';

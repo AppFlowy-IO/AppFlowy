@@ -20,7 +20,7 @@ use parking_lot::RwLock;
 use std::{ffi::CStr, os::raw::c_char};
 
 lazy_static! {
-    static ref FLOWY_SDK: RwLock<Option<FlowySDK>> = RwLock::new(None);
+    static ref APPFLOWY_CORE: RwLock<Option<AppFlowyCore>> = RwLock::new(None);
 }
 
 #[no_mangle]
@@ -30,8 +30,8 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
 
     let server_config = get_client_server_configuration().unwrap();
     let log_crates = vec!["flowy-ffi".to_string()];
-    let config = FlowySDKConfig::new(path, "appflowy".to_string(), server_config).log_filter("info", log_crates);
-    *FLOWY_SDK.write() = Some(FlowySDK::new(config));
+    let config = AppFlowyCoreConfig::new(path, "appflowy".to_string(), server_config).log_filter("info", log_crates);
+    *APPFLOWY_CORE.write() = Some(AppFlowyCore::new(config));
 
     0
 }
@@ -46,7 +46,7 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
         port
     );
 
-    let dispatcher = match FLOWY_SDK.read().as_ref() {
+    let dispatcher = match APPFLOWY_CORE.read().as_ref() {
         None => {
             log::error!("sdk not init yet.");
             return;
@@ -64,7 +64,7 @@ pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
     let request: AFPluginRequest = FFIRequest::from_u8_pointer(input, len).into();
     log::trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
 
-    let dispatcher = match FLOWY_SDK.read().as_ref() {
+    let dispatcher = match APPFLOWY_CORE.read().as_ref() {
         None => {
             log::error!("sdk not init yet.");
             return forget_rust(Vec::default());
@@ -109,5 +109,21 @@ async fn post_to_flutter(response: AFPluginEventResponse, port: i64) {
                 log::error!("[FFI]: allo_isolate post panic");
             }
         }
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn backend_log(level: i64, data: *const c_char) {
+    let c_str = unsafe { CStr::from_ptr(data) };
+    let log_str = c_str.to_str().unwrap();
+
+    // Don't change the mapping relation between number and level
+    match level {
+        0 => tracing::info!("{}", log_str),
+        1 => tracing::debug!("{}", log_str),
+        2 => tracing::trace!("{}", log_str),
+        3 => tracing::warn!("{}", log_str),
+        4 => tracing::error!("{}", log_str),
+        _ => (),
     }
 }

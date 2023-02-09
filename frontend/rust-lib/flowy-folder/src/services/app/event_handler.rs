@@ -3,7 +3,7 @@ use crate::{
     errors::FlowyError,
     services::{AppController, TrashController, ViewController},
 };
-use folder_rev_model::TrashRevision;
+use folder_model::TrashRevision;
 use lib_dispatch::prelude::{data_result, AFPluginData, AFPluginState, DataResult};
 use std::{convert::TryInto, sync::Arc};
 
@@ -51,8 +51,10 @@ pub(crate) async fn read_app_handler(
     view_controller: AFPluginState<Arc<ViewController>>,
 ) -> DataResult<AppPB, FlowyError> {
     let params: AppIdPB = data.into_inner();
-    let mut app_rev = app_controller.read_app(params.clone()).await?;
-    app_rev.belongings = view_controller.read_views_belong_to(&params.value).await?;
-
-    data_result(app_rev.into())
+    if let Some(mut app_rev) = app_controller.read_app(params.clone()).await? {
+        app_rev.belongings = view_controller.read_views_belong_to(&params.value).await?;
+        data_result(app_rev.into())
+    } else {
+        Err(FlowyError::record_not_found())
+    }
 }

@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 flowy-error = { path = "../flowy-error" }
-flowy-http-model = { path = "../../../shared-lib/flowy-http-model" }
+revision-model = { path = "../../../shared-lib/revision-model" }
 
 [features]
 rev-file = []

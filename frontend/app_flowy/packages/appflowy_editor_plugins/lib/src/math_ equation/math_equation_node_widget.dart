@@ -6,7 +6,6 @@ import 'package:flutter_math_fork/flutter_math.dart';
 const String kMathEquationType = 'math_equation';
 const String kMathEquationAttr = 'math_equation';
 
-// TODO: l10n
 SelectionMenuItem mathEquationMenuItem = SelectionMenuItem(
   name: () => 'Math Equation',
   icon: (editorState, onSelected) => Icon(
@@ -46,7 +45,7 @@ SelectionMenuItem mathEquationMenuItem = SelectionMenuItem(
       final mathEquationState = editorState.document
           .nodeAtPath(mathEquationNodePath)
           ?.key
-          ?.currentState;
+          .currentState;
       if (mathEquationState != null &&
           mathEquationState is _MathEquationNodeWidgetState) {
         mathEquationState.showEditingDialog();
@@ -55,7 +54,8 @@ SelectionMenuItem mathEquationMenuItem = SelectionMenuItem(
   },
 );
 
-class MathEquationNodeWidgetBuidler extends NodeWidgetBuilder<Node> {
+class MathEquationNodeWidgetBuidler extends NodeWidgetBuilder<Node>
+    with ActionProvider<Node> {
   @override
   Widget build(NodeWidgetContext<Node> context) {
     return _MathEquationNodeWidget(
@@ -68,6 +68,20 @@ class MathEquationNodeWidgetBuidler extends NodeWidgetBuilder<Node> {
   @override
   NodeValidator<Node> get nodeValidator =>
       (node) => node.attributes[kMathEquationAttr] is String;
+
+  @override
+  List<ActionMenuItem> actions(NodeWidgetContext<Node> context) {
+    return [
+      ActionMenuItem.svg(
+        name: "delete",
+        onPressed: () {
+          final transaction = context.editorState.transaction
+            ..deleteNode(context.node);
+          context.editorState.apply(transaction);
+        },
+      ),
+    ];
+  }
 }
 
 class _MathEquationNodeWidget extends StatefulWidget {
@@ -104,7 +118,6 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
       child: Stack(
         children: [
           _buildMathEquation(context),
-          if (_isHover) _buildDeleteButton(context),
         ],
       ),
     );
@@ -132,25 +145,6 @@ class _MathEquationNodeWidgetState extends State<_MathEquationNodeWidget> {
                 textStyle: const TextStyle(fontSize: 20),
                 mathStyle: MathStyle.display,
               ),
-      ),
-    );
-  }
-
-  Widget _buildDeleteButton(BuildContext context) {
-    return Positioned(
-      top: -5,
-      right: -5,
-      child: IconButton(
-        icon: Icon(
-          Icons.delete_forever_outlined,
-          color: widget.editorState.editorStyle.selectionMenuItemIconColor,
-          size: 16,
-        ),
-        onPressed: () {
-          final transaction = widget.editorState.transaction
-            ..deleteNode(widget.node);
-          widget.editorState.apply(transaction);
-        },
       ),
     );
   }

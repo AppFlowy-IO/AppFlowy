@@ -4,32 +4,33 @@ import 'package:app_flowy/core/grid_notification.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/notification.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/setting_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pb.dart';
 
-typedef UpdateSettingNotifiedValue = Either<GridSettingPB, FlowyError>;
+typedef UpdateSettingNotifiedValue = Either<DatabaseViewSettingPB, FlowyError>;
 
-class SettingListener {
-  final String gridId;
-  GridNotificationListener? _listener;
+class DatabaseSettingListener {
+  final String databaseId;
+  DatabaseNotificationListener? _listener;
   PublishNotifier<UpdateSettingNotifiedValue>? _updateSettingNotifier =
       PublishNotifier();
 
-  SettingListener({required this.gridId});
+  DatabaseSettingListener({required this.databaseId});
 
   void start({
     required void Function(UpdateSettingNotifiedValue) onSettingUpdated,
   }) {
     _updateSettingNotifier?.addPublishListener(onSettingUpdated);
-    _listener = GridNotificationListener(objectId: gridId, handler: _handler);
+    _listener =
+        DatabaseNotificationListener(objectId: databaseId, handler: _handler);
   }
 
-  void _handler(GridDartNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handler(DatabaseNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridDartNotification.DidUpdateGridSetting:
+      case DatabaseNotification.DidUpdateSettings:
         result.fold(
           (payload) => _updateSettingNotifier?.value = left(
-            GridSettingPB.fromBuffer(payload),
+            DatabaseViewSettingPB.fromBuffer(payload),
           ),
           (error) => _updateSettingNotifier?.value = right(error),
         );

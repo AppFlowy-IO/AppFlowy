@@ -44,3 +44,6 @@ export 'src/plugins/markdown/document_markdown.dart';
 export 'src/plugins/quill_delta/delta_document_encoder.dart';
 export 'src/commands/text/text_commands.dart';
 export 'src/render/toolbar/toolbar_item.dart';
+export 'src/extensions/node_extensions.dart';
+export 'src/render/action_menu/action_menu.dart';
+export 'src/render/action_menu/action_menu_item.dart';

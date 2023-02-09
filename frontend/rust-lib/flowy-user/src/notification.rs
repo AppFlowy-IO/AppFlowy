@@ -9,6 +9,7 @@ pub(crate) enum UserNotification {
     UserProfileUpdated = 2,
     UserUnauthorized = 3,
     UserWsConnectStateChanged = 4,
+    UserSignIn = 5,
 }
 
 impl std::default::Default for UserNotification {
@@ -23,6 +24,10 @@ impl std::convert::From<UserNotification> for i32 {
     }
 }
 
-pub(crate) fn dart_notify(id: &str, ty: UserNotification) -> NotificationBuilder {
+pub(crate) fn send_notification(id: &str, ty: UserNotification) -> NotificationBuilder {
     NotificationBuilder::new(id, ty, OBSERVABLE_CATEGORY)
+}
+
+pub(crate) fn send_sign_in_notification() -> NotificationBuilder {
+    NotificationBuilder::new("", UserNotification::UserSignIn, OBSERVABLE_CATEGORY)
 }

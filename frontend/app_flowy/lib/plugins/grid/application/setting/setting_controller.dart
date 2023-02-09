@@ -1,24 +1,24 @@
 import 'package:app_flowy/plugins/grid/application/setting/setting_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/setting_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pb.dart';
 import 'setting_listener.dart';
 
 typedef OnError = void Function(FlowyError);
-typedef OnSettingUpdated = void Function(GridSettingPB);
+typedef OnSettingUpdated = void Function(DatabaseViewSettingPB);
 
 class SettingController {
   final String viewId;
   final SettingFFIService _ffiService;
-  final SettingListener _listener;
+  final DatabaseSettingListener _listener;
   OnSettingUpdated? _onSettingUpdated;
   OnError? _onError;
-  GridSettingPB? _setting;
-  GridSettingPB? get setting => _setting;
+  DatabaseViewSettingPB? _setting;
+  DatabaseViewSettingPB? get setting => _setting;
 
   SettingController({
     required this.viewId,
   })  : _ffiService = SettingFFIService(viewId: viewId),
-        _listener = SettingListener(gridId: viewId) {
+        _listener = DatabaseSettingListener(databaseId: viewId) {
     // Load setting
     _ffiService.getSetting().then((result) {
       result.fold(
@@ -46,7 +46,7 @@ class SettingController {
     _onError = onError;
   }
 
-  void updateSetting(GridSettingPB newSetting) {
+  void updateSetting(DatabaseViewSettingPB newSetting) {
     _setting = newSetting;
     _onSettingUpdated?.call(newSetting);
   }

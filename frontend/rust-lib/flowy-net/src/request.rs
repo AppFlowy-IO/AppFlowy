@@ -1,7 +1,7 @@
-use crate::configuration::HEADER_TOKEN;
+use crate::response::HttpResponse;
 use bytes::Bytes;
-use http_flowy::errors::ServerError;
-use http_flowy::response::FlowyResponse;
+use flowy_client_network_config::HEADER_TOKEN;
+use flowy_error::FlowyError;
 use hyper::http;
 use protobuf::ProtobufError;
 use reqwest::{header::HeaderMap, Client, Method, Response};
@@ -13,7 +13,7 @@ use std::{
 use tokio::sync::oneshot;
 
 pub trait ResponseMiddleware {
-    fn receive_response(&self, token: &Option<String>, response: &FlowyResponse);
+    fn receive_response(&self, token: &Option<String>, response: &HttpResponse);
 }
 
 pub struct HttpRequestBuilder {
@@ -80,7 +80,8 @@ impl HttpRequestBuilder {
         self
     }
 
-    pub fn protobuf<T>(self, body: T) -> Result<Self, ServerError>
+    #[allow(dead_code)]
+    pub fn protobuf<T>(self, body: T) -> Result<Self, FlowyError>
     where
         T: TryInto<Bytes, Error = ProtobufError>,
     {
@@ -88,7 +89,7 @@ impl HttpRequestBuilder {
         self.bytes(body)
     }
 
-    pub fn json<T>(self, body: T) -> Result<Self, ServerError>
+    pub fn json<T>(self, body: T) -> Result<Self, FlowyError>
     where
         T: serde::Serialize,
     {
@@ -96,17 +97,17 @@ impl HttpRequestBuilder {
         self.bytes(bytes)
     }
 
-    pub fn bytes(mut self, body: Bytes) -> Result<Self, ServerError> {
+    pub fn bytes(mut self, body: Bytes) -> Result<Self, FlowyError> {
         self.body = Some(body);
         Ok(self)
     }
 
-    pub async fn send(self) -> Result<(), ServerError> {
+    pub async fn send(self) -> Result<(), FlowyError> {
         let _ = self.inner_send().await?;
         Ok(())
     }
 
-    pub async fn response<T>(self) -> Result<T, ServerError>
+    pub async fn response<T>(self) -> Result<T, FlowyError>
     where
         T: TryFrom<Bytes, Error = ProtobufError>,
     {
@@ -117,8 +118,19 @@ impl HttpRequestBuilder {
         }
     }
 
+    pub async fn json_response<T>(self) -> Result<T, FlowyError>
+    where
+        T: serde::de::DeserializeOwned,
+    {
+        let builder = self.inner_send().await?;
+        match builder.response {
+            None => Err(unexpected_empty_payload(&builder.url)),
+            Some(data) => Ok(serde_json::from_slice(&data)?),
+        }
+    }
+
     #[allow(dead_code)]
-    pub async fn option_protobuf_response<T>(self) -> Result<Option<T>, ServerError>
+    pub async fn option_protobuf_response<T>(self) -> Result<Option<T>, FlowyError>
     where
         T: TryFrom<Bytes, Error = ProtobufError>,
     {
@@ -135,7 +147,7 @@ impl HttpRequestBuilder {
         }
     }
 
-    pub async fn option_json_response<T>(self) -> Result<Option<T>, ServerError>
+    pub async fn option_json_response<T>(self) -> Result<Option<T>, FlowyError>
     where
         T: serde::de::DeserializeOwned + 'static,
     {
@@ -162,7 +174,7 @@ impl HttpRequestBuilder {
         }
     }
 
-    async fn inner_send(mut self) -> Result<Self, ServerError> {
+    async fn inner_send(mut self) -> Result<Self, FlowyError> {
         let (tx, rx) = oneshot::channel::<Result<Response, _>>();
         let url = self.url.clone();
         let body = self.body.take();
@@ -183,7 +195,7 @@ impl HttpRequestBuilder {
 
         let response = rx.await.map_err(|e| {
             let mag = format!("Receive http response channel error: {}", e);
-            ServerError::internal().context(mag)
+            FlowyError::internal().context(mag)
         })??;
         tracing::trace!("Http Response: {:?}", response);
         let flowy_response = flowy_response_from(response).await?;
@@ -196,33 +208,33 @@ impl HttpRequestBuilder {
                 self.response = Some(flowy_response.data);
                 Ok(self)
             }
-            Some(error) => Err(error),
+            Some(error) => Err(FlowyError::new(error.code, &error.msg)),
         }
     }
 }
 
-fn unexpected_empty_payload(url: &str) -> ServerError {
+fn unexpected_empty_payload(url: &str) -> FlowyError {
     let msg = format!("Request: {} receives unexpected empty payload", url);
-    ServerError::payload_none().context(msg)
+    FlowyError::payload_none().context(msg)
 }
 
-async fn flowy_response_from(original: Response) -> Result<FlowyResponse, ServerError> {
+async fn flowy_response_from(original: Response) -> Result<HttpResponse, FlowyError> {
     let bytes = original.bytes().await?;
-    let response: FlowyResponse = serde_json::from_slice(&bytes)?;
+    let response: HttpResponse = serde_json::from_slice(&bytes)?;
     Ok(response)
 }
 
 #[allow(dead_code)]
-async fn get_response_data(original: Response) -> Result<Bytes, ServerError> {
+async fn get_response_data(original: Response) -> Result<Bytes, FlowyError> {
     if original.status() == http::StatusCode::OK {
         let bytes = original.bytes().await?;
-        let response: FlowyResponse = serde_json::from_slice(&bytes)?;
+        let response: HttpResponse = serde_json::from_slice(&bytes)?;
         match response.error {
             None => Ok(response.data),
-            Some(error) => Err(error),
+            Some(error) => Err(FlowyError::new(error.code, &error.msg)),
         }
     } else {
-        Err(ServerError::http().context(original))
+        Err(FlowyError::http().context(original))
     }
 }
 
@@ -235,7 +247,7 @@ fn default_client() -> Client {
     match result {
         Ok(client) => client,
         Err(e) => {
-            log::error!("Create reqwest client failed: {}", e);
+            tracing::error!("Create reqwest client failed: {}", e);
             reqwest::Client::new()
         }
     }

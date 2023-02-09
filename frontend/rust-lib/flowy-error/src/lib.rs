@@ -1,4 +1,4 @@
-mod code;
+pub mod code;
 mod errors;
 mod ext;
 pub mod protobuf;

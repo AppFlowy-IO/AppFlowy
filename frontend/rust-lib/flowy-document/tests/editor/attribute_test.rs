@@ -1,6 +1,6 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 use crate::editor::{TestBuilder, TestOp::*};
-use flowy_sync::client_document::{NewlineDocument, EmptyDocument};
+use flowy_client_sync::client_document::{NewlineDocument, EmptyDocument};
 use lib_ot::core::{Interval, OperationTransform, NEW_LINE, WHITESPACE, OTString};
 use unicode_segmentation::UnicodeSegmentation;
 use lib_ot::text_delta::DeltaTextOperations;
@@ -775,7 +775,7 @@ fn delta_compose() {
     }
     assert_eq!(
         delta.json_str(),
-        r#"[{"insert":"a"},{"insert":"\n","attributes":{"list":"unchecked"}},{"insert":"\n"}]"#
+        r#"[{"insert":"a"},{"insert":"\n","attributes":{"list":"unchecked"}},{"insert":"\n","attributes":{"list":""}}]"#
     );
 
     let ops = vec![

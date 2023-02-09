@@ -2,7 +2,7 @@ import 'package:app_flowy/plugins/board/application/board_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/application/cell/select_option_editor_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/setting/group_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'util.dart';
@@ -14,7 +14,7 @@ void main() {
     boardTest = await AppFlowyBoardTest.ensureInitialized();
   });
 
-  test('group by multi select with no options test', () async {
+  test('no status group name test', () async {
     final context = await boardTest.createTestBoard();
 
     // create multi-select field
@@ -27,7 +27,9 @@ void main() {
     final gridGroupBloc = GridGroupBloc(
       viewId: context.gridView.id,
       fieldController: context.fieldController,
-    );
+    )..add(const GridGroupEvent.initial());
+    await boardResponseFuture();
+
     gridGroupBloc.add(GridGroupEvent.setGroupByField(
       multiSelectField.id,
       multiSelectField.fieldType,
@@ -72,7 +74,9 @@ void main() {
     final gridGroupBloc = GridGroupBloc(
       viewId: context.gridView.id,
       fieldController: context.fieldController,
-    );
+    )..add(const GridGroupEvent.initial());
+    await boardResponseFuture();
+
     gridGroupBloc.add(GridGroupEvent.setGroupByField(
       multiSelectField.id,
       multiSelectField.fieldType,

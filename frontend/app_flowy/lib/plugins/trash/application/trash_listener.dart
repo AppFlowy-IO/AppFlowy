@@ -9,7 +9,8 @@ import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 
 typedef TrashUpdatedCallback = void Function(
-    Either<List<TrashPB>, FlowyError> trashOrFailed);
+  Either<List<TrashPB>, FlowyError> trashOrFailed,
+);
 
 class TrashListener {
   StreamSubscription<SubscribeObject>? _subscription;
@@ -24,9 +25,11 @@ class TrashListener {
   }
 
   void _observableCallback(
-      FolderNotification ty, Either<Uint8List, FlowyError> result) {
+    FolderNotification ty,
+    Either<Uint8List, FlowyError> result,
+  ) {
     switch (ty) {
-      case FolderNotification.TrashUpdated:
+      case FolderNotification.DidUpdateTrash:
         if (_trashUpdated != null) {
           result.fold(
             (payload) {

@@ -1,7 +1,7 @@
 use crate::FlowyError;
 
-impl std::convert::From<flowy_database::Error> for FlowyError {
-    fn from(error: flowy_database::Error) -> Self {
+impl std::convert::From<flowy_sqlite::Error> for FlowyError {
+    fn from(error: flowy_sqlite::Error) -> Self {
         FlowyError::internal().context(error)
     }
 }

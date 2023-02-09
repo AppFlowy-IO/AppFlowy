@@ -5,7 +5,7 @@ use crate::{
     entities::workspace::RepeatedWorkspacePB,
     errors::FlowyResult,
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
-    notification::{send_dart_notification, FolderNotification},
+    notification::{send_notification, FolderNotification},
     services::{
         folder_editor::FolderEditor, persistence::FolderPersistence, set_current_workspace, AppController,
         TrashController, ViewController, WorkspaceController,
@@ -15,7 +15,7 @@ use bytes::Bytes;
 use flowy_document::editor::initial_read_me;
 use flowy_error::FlowyError;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket};
-use folder_rev_model::user_default;
+use folder_model::user_default;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 
@@ -23,11 +23,11 @@ use crate::services::clear_current_workspace;
 use crate::services::persistence::rev_sqlite::{
     SQLiteFolderRevisionPersistence, SQLiteFolderRevisionSnapshotPersistence,
 };
-use flowy_http_model::ws_data::ServerRevisionWSData;
-use flowy_sync::client_folder::FolderPad;
+use flowy_client_sync::client_folder::FolderPad;
 use std::convert::TryFrom;
 use std::{collections::HashMap, fmt::Formatter, sync::Arc};
 use tokio::sync::RwLock as TokioRwLock;
+use ws_model::ws_revision::ServerRevisionWSData;
 lazy_static! {
     static ref INIT_FOLDER_FLAG: TokioRwLock<HashMap<String, bool>> = TokioRwLock::new(HashMap::new());
 }
@@ -61,7 +61,6 @@ impl AsRef<str> for FolderId {
 
 pub struct FolderManager {
     pub user: Arc<dyn WorkspaceUser>,
-    pub(crate) cloud_service: Arc<dyn FolderCouldServiceV1>,
     pub(crate) persistence: Arc<FolderPersistence>,
     pub(crate) workspace_controller: Arc<WorkspaceController>,
     pub(crate) app_controller: Arc<AppController>,
@@ -118,7 +117,6 @@ impl FolderManager {
 
         Self {
             user,
-            cloud_service,
             persistence,
             workspace_controller,
             app_controller,
@@ -249,7 +247,7 @@ impl DefaultFolderBuilder {
         let repeated_workspace = RepeatedWorkspacePB {
             items: vec![workspace_rev.into()],
         };
-        send_dart_notification(token, FolderNotification::UserCreateWorkspace)
+        send_notification(token, FolderNotification::DidCreateWorkspace)
             .payload(repeated_workspace)
             .send();
         Ok(())

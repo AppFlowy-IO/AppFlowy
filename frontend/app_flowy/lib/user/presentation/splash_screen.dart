@@ -1,6 +1,5 @@
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -76,7 +75,6 @@ class SplashScreen extends StatelessWidget {
           },
           (error) async {
             Log.error(error);
-            assert(error.code == ErrorCode.RecordNotFound.value);
             getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);
           },
         );

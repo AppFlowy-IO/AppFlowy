@@ -1,8 +1,7 @@
-import 'package:appflowy_editor/src/extensions/object_extensions.dart';
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/core/location/position.dart';
 import 'package:appflowy_editor/src/core/location/selection.dart';
-import 'package:appflowy_editor/src/infra/flowy_svg.dart';
+import 'package:appflowy_editor/src/extensions/object_extensions.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
 import 'package:flutter/material.dart';
 
@@ -13,9 +12,6 @@ class ImageNodeWidget extends StatefulWidget {
     required this.src,
     this.width,
     required this.alignment,
-    required this.onCopy,
-    required this.onDelete,
-    required this.onAlign,
     required this.onResize,
   }) : super(key: key);
 
@@ -23,9 +19,6 @@ class ImageNodeWidget extends StatefulWidget {
   final String src;
   final double? width;
   final Alignment alignment;
-  final VoidCallback onCopy;
-  final VoidCallback onDelete;
-  final void Function(Alignment alignment) onAlign;
   final void Function(double width) onResize;
 
   @override
@@ -146,8 +139,12 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget>
       widget.src,
       width: _imageWidth == null ? null : _imageWidth! - _distance,
       gaplessPlayback: true,
-      loadingBuilder: (context, child, loadingProgress) =>
-          loadingProgress == null ? child : _buildLoading(context),
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null ||
+            loadingProgress.cumulativeBytesLoaded ==
+                loadingProgress.expectedTotalBytes) return child;
+        return _buildLoading(context);
+      },
       errorBuilder: (context, error, stackTrace) {
         // _imageWidth ??= defaultMaxTextNodeWidth;
         return _buildError(context);
@@ -184,16 +181,6 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget>
             });
           },
         ),
-        if (_onFocus)
-          ImageToolbar(
-            top: 8,
-            right: 8,
-            height: 30,
-            alignment: widget.alignment,
-            onAlign: widget.onAlign,
-            onCopy: widget.onCopy,
-            onDelete: widget.onDelete,
-          )
       ],
     );
   }
@@ -277,124 +264,6 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget>
                   ),
                 )
               : null,
-        ),
-      ),
-    );
-  }
-}
-
-@visibleForTesting
-class ImageToolbar extends StatelessWidget {
-  const ImageToolbar({
-    Key? key,
-    required this.top,
-    required this.right,
-    required this.height,
-    required this.alignment,
-    required this.onCopy,
-    required this.onDelete,
-    required this.onAlign,
-  }) : super(key: key);
-
-  final double top;
-  final double right;
-  final double height;
-  final Alignment alignment;
-  final VoidCallback onCopy;
-  final VoidCallback onDelete;
-  final void Function(Alignment alignment) onAlign;
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      top: top,
-      right: right,
-      height: height,
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF333333),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 5,
-              spreadRadius: 1,
-              color: Colors.black.withOpacity(0.1),
-            ),
-          ],
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            IconButton(
-              hoverColor: Colors.transparent,
-              constraints: const BoxConstraints(),
-              padding: const EdgeInsets.fromLTRB(6.0, 4.0, 0.0, 4.0),
-              icon: FlowySvg(
-                name: 'image_toolbar/align_left',
-                color: alignment == Alignment.centerLeft
-                    ? const Color(0xFF00BCF0)
-                    : null,
-              ),
-              onPressed: () {
-                onAlign(Alignment.centerLeft);
-              },
-            ),
-            IconButton(
-              hoverColor: Colors.transparent,
-              constraints: const BoxConstraints(),
-              padding: const EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 4.0),
-              icon: FlowySvg(
-                name: 'image_toolbar/align_center',
-                color: alignment == Alignment.center
-                    ? const Color(0xFF00BCF0)
-                    : null,
-              ),
-              onPressed: () {
-                onAlign(Alignment.center);
-              },
-            ),
-            IconButton(
-              hoverColor: Colors.transparent,
-              constraints: const BoxConstraints(),
-              padding: const EdgeInsets.fromLTRB(0.0, 4.0, 4.0, 4.0),
-              icon: FlowySvg(
-                name: 'image_toolbar/align_right',
-                color: alignment == Alignment.centerRight
-                    ? const Color(0xFF00BCF0)
-                    : null,
-              ),
-              onPressed: () {
-                onAlign(Alignment.centerRight);
-              },
-            ),
-            const Center(
-              child: FlowySvg(
-                name: 'image_toolbar/divider',
-              ),
-            ),
-            IconButton(
-              hoverColor: Colors.transparent,
-              constraints: const BoxConstraints(),
-              padding: const EdgeInsets.fromLTRB(4.0, 4.0, 0.0, 4.0),
-              icon: const FlowySvg(
-                name: 'image_toolbar/copy',
-              ),
-              onPressed: () {
-                onCopy();
-              },
-            ),
-            IconButton(
-              hoverColor: Colors.transparent,
-              constraints: const BoxConstraints(),
-              padding: const EdgeInsets.fromLTRB(0.0, 4.0, 6.0, 4.0),
-              icon: const FlowySvg(
-                name: 'image_toolbar/delete',
-              ),
-              onPressed: () {
-                onDelete();
-              },
-            ),
-          ],
         ),
       ),
     );

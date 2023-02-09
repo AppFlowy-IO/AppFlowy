@@ -4,33 +4,39 @@ import 'dart:collection';
 
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/board/application/card/card_data_controller.dart';
-import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
+import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/cell/cell_builder.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/row/row_detail.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/row_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../application/board_bloc.dart';
 import 'card/card.dart';
 import 'card/card_cell_builder.dart';
 import 'toolbar/board_toolbar.dart';
 
 class BoardPage extends StatelessWidget {
-  final ViewPB view;
   BoardPage({
     required this.view,
     Key? key,
+    this.onEditStateChanged,
   }) : super(key: ValueKey(view.id));
+
+  final ViewPB view;
+
+  /// Called when edit state changed
+  final VoidCallback? onEditStateChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +51,9 @@ class BoardPage extends StatelessWidget {
                 const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) {
               return result.successOrFail.fold(
-                (_) => const BoardContent(),
+                (_) => BoardContent(
+                  onEditStateChanged: onEditStateChanged,
+                ),
                 (err) => FlowyErrorPage(err.toString()),
               );
             },
@@ -57,7 +65,12 @@ class BoardPage extends StatelessWidget {
 }
 
 class BoardContent extends StatefulWidget {
-  const BoardContent({Key? key}) : super(key: key);
+  const BoardContent({
+    Key? key,
+    this.onEditStateChanged,
+  }) : super(key: key);
+
+  final VoidCallback? onEditStateChanged;
 
   @override
   State<BoardContent> createState() => _BoardContentState();
@@ -79,7 +92,10 @@ class _BoardContentState extends State<BoardContent> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<BoardBloc, BoardState>(
-      listener: (context, state) => _handleEditStateChanged(state, context),
+      listener: (context, state) {
+        _handleEditStateChanged(state, context);
+        widget.onEditStateChanged?.call();
+      },
       child: BlocBuilder<BoardBloc, BoardState>(
         buildWhen: (previous, current) => previous.groupIds != current.groupIds,
         builder: (context, state) {
@@ -211,7 +227,7 @@ class _BoardContentState extends State<BoardContent> {
     if (rowCache == null) return SizedBox(key: ObjectKey(groupItem));
 
     final fieldController = context.read<BoardBloc>().fieldController;
-    final gridId = context.read<BoardBloc>().gridId;
+    final databaseId = context.read<BoardBloc>().databaseId;
     final cardController = CardDataController(
       fieldController: fieldController,
       rowCache: rowCache,
@@ -233,14 +249,14 @@ class _BoardContentState extends State<BoardContent> {
       margin: config.cardPadding,
       decoration: _makeBoxDecoration(context),
       child: BoardCard(
-        gridId: gridId,
+        viewId: databaseId,
         groupId: groupData.group.groupId,
         fieldId: groupItem.fieldInfo.id,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
         dataController: cardController,
         openCard: (context) => _openCard(
-          gridId,
+          databaseId,
           fieldController,
           rowPB,
           rowCache,
@@ -276,14 +292,14 @@ class _BoardContentState extends State<BoardContent> {
   }
 
   void _openCard(
-    String gridId,
+    String databaseId,
     GridFieldController fieldController,
     RowPB rowPB,
     GridRowCache rowCache,
     BuildContext context,
   ) {
     final rowInfo = RowInfo(
-      gridId: gridId,
+      databaseId: databaseId,
       fields: UnmodifiableListView(fieldController.fieldInfos),
       rowPB: rowPB,
     );
@@ -315,7 +331,7 @@ class _ToolbarBlocAdaptor extends StatelessWidget {
       builder: (context, state) {
         final bloc = context.read<BoardBloc>();
         final toolbarContext = BoardToolbarContext(
-          viewId: bloc.gridId,
+          viewId: bloc.databaseId,
           fieldController: bloc.fieldController,
         );
 

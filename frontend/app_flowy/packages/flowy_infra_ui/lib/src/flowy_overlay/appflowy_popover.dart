@@ -1,7 +1,6 @@
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flutter/material.dart';
-
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
+import 'package:flutter/material.dart';
 
 class AppFlowyPopover extends StatelessWidget {
   final Widget child;
@@ -43,6 +42,7 @@ class AppFlowyPopover extends StatelessWidget {
       asBarrier: asBarrier,
       triggerActions: triggerActions,
       windowPadding: windowPadding,
+      offset: offset,
       popupBuilder: (context) {
         final child = popupBuilder(context);
         debugPrint("Show popover: $child");

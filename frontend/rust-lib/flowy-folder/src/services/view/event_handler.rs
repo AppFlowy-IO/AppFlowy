@@ -1,5 +1,4 @@
 use crate::entities::view::{MoveFolderItemParams, MoveFolderItemPayloadPB, MoveFolderItemType};
-use crate::entities::ViewInfoPB;
 use crate::manager::FolderManager;
 use crate::services::{notify_workspace_setting_did_change, AppController};
 use crate::{
@@ -13,7 +12,7 @@ use crate::{
     errors::FlowyError,
     services::{TrashController, ViewController},
 };
-use folder_rev_model::TrashRevision;
+use folder_model::TrashRevision;
 use lib_dispatch::prelude::{data_result, AFPluginData, AFPluginState, DataResult};
 use std::{convert::TryInto, sync::Arc};
 
@@ -35,15 +34,6 @@ pub(crate) async fn read_view_handler(
     data_result(view_rev.into())
 }
 
-pub(crate) async fn read_view_info_handler(
-    data: AFPluginData<ViewIdPB>,
-    controller: AFPluginState<Arc<ViewController>>,
-) -> DataResult<ViewInfoPB, FlowyError> {
-    let view_id: ViewIdPB = data.into_inner();
-    let view_info = controller.read_view_pb(view_id.clone()).await?;
-    data_result(view_info)
-}
-
 #[tracing::instrument(level = "debug", skip(data, controller), err)]
 pub(crate) async fn update_view_handler(
     data: AFPluginData<UpdateViewPayloadPB>,
@@ -62,7 +52,7 @@ pub(crate) async fn delete_view_handler(
 ) -> Result<(), FlowyError> {
     let params: RepeatedViewIdPB = data.into_inner();
     for view_id in &params.items {
-        let _ = view_controller.move_view_to_trash(view_id.into()).await;
+        let _ = view_controller.move_view_to_trash(view_id).await;
     }
 
     let trash = view_controller

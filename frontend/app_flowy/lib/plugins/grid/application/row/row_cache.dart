@@ -3,7 +3,7 @@ import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_servic
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -28,7 +28,7 @@ abstract class RowCacheDelegate {
 /// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid for more information.
 
 class GridRowCache {
-  final String gridId;
+  final String databaseId;
   final List<RowPB> rows;
 
   /// _rows containers the current block's rows
@@ -47,11 +47,11 @@ class GridRowCache {
   GridCellCache get cellCache => _cellCache;
 
   GridRowCache({
-    required this.gridId,
+    required this.databaseId,
     required this.rows,
     required RowChangesetNotifierForward notifier,
     required RowCacheDelegate delegate,
-  })  : _cellCache = GridCellCache(gridId: gridId),
+  })  : _cellCache = GridCellCache(databaseId: databaseId),
         _rowChangeReasonNotifier = RowChangesetNotifier(),
         _delegate = delegate {
     //
@@ -74,13 +74,13 @@ class GridRowCache {
     await _cellCache.dispose();
   }
 
-  void applyRowsChanged(GridViewRowsChangesetPB changeset) {
+  void applyRowsChanged(ViewRowsChangesetPB changeset) {
     _deleteRows(changeset.deletedRows);
     _insertRows(changeset.insertedRows);
     _updateRows(changeset.updatedRows);
   }
 
-  void applyRowsVisibility(GridRowsVisibilityChangesetPB changeset) {
+  void applyRowsVisibility(ViewRowsVisibilityChangesetPB changeset) {
     _hideRows(changeset.invisibleRows);
     _showRows(changeset.visibleRows);
   }
@@ -216,10 +216,10 @@ class GridRowCache {
 
   Future<void> _loadRow(String rowId) async {
     final payload = RowIdPB.create()
-      ..gridId = gridId
+      ..databaseId = databaseId
       ..rowId = rowId;
 
-    final result = await GridEventGetRow(payload).send();
+    final result = await DatabaseEventGetRow(payload).send();
     result.fold(
       (optionRow) => _refreshRow(optionRow),
       (err) => Log.error(err),
@@ -233,7 +233,7 @@ class GridRowCache {
       if (field.visibility) {
         cellDataMap[field.id] = GridCellIdentifier(
           rowId: rowId,
-          gridId: gridId,
+          databaseId: databaseId,
           fieldInfo: field,
         );
       }
@@ -267,7 +267,7 @@ class GridRowCache {
 
   RowInfo buildGridRow(RowPB rowPB) {
     return RowInfo(
-      gridId: gridId,
+      databaseId: databaseId,
       fields: _delegate.fields,
       rowPB: rowPB,
     );
@@ -296,7 +296,7 @@ class RowChangesetNotifier extends ChangeNotifier {
 @unfreezed
 class RowInfo with _$RowInfo {
   factory RowInfo({
-    required String gridId,
+    required String databaseId,
     required UnmodifiableListView<FieldInfo> fields,
     required RowPB rowPB,
   }) = _RowInfo;

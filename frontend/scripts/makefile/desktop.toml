@@ -1,8 +1,3 @@
-# cargo make --profile production task
-
-# Run the task with profile, e.g.
-# cargo make --profile development-mac appflowy-sdk-dev
-# cargo make --profile production-windows-x86 appflowy-sdk-dev
 
 [tasks.env_check]
 dependencies = ["echo_env", "install_flutter_protobuf"]
@@ -15,12 +10,12 @@ condition = { env_set = [
   "stable",
 ] }
 
-[tasks.appflowy-sdk-dev]
-mac_alias = "appflowy-sdk-dev-macos"
-windows_alias = "appflowy-sdk-dev-windows"
-linux_alias = "appflowy-sdk-dev-linux"
+[tasks.appflowy-core-dev]
+mac_alias = "appflowy-core-dev-macos"
+windows_alias = "appflowy-core-dev-windows"
+linux_alias = "appflowy-core-dev-linux"
 
-[tasks.appflowy-sdk-dev-android]
+[tasks.appflowy-core-dev-android]
 category = "Build"
 dependencies = ["env_check"]
 run_task = { name = [
@@ -29,7 +24,7 @@ run_task = { name = [
   "restore-crate-type",
 ] }
 
-[tasks.appflowy-sdk-dev-macos]
+[tasks.appflowy-core-dev-macos]
 category = "Build"
 dependencies = ["env_check"]
 run_task = { name = [
@@ -39,7 +34,7 @@ run_task = { name = [
   "restore-crate-type",
 ] }
 
-[tasks.appflowy-sdk-dev-windows]
+[tasks.appflowy-core-dev-windows]
 category = "Build"
 dependencies = ["env_check"]
 run_task = { name = [
@@ -49,7 +44,7 @@ run_task = { name = [
   "restore-crate-type",
 ] }
 
-[tasks.appflowy-sdk-dev-linux]
+[tasks.appflowy-core-dev-linux]
 category = "Build"
 dependencies = ["env_check"]
 run_task = { name = [
@@ -58,7 +53,6 @@ run_task = { name = [
   "post-desktop",
   "restore-crate-type",
 ] }
-
 
 #
 [tasks.sdk-build]
@@ -112,7 +106,7 @@ script = [
 script_runner = "@duckscript"
 
 #
-[tasks.appflowy-sdk-release]
+[tasks.appflowy-core-release]
 description = "Build flowy sdk in release mode"
 category = "Build"
 dependencies = ["env_check"]
@@ -144,7 +138,7 @@ linux_alias = "post-desktop-linux"
 private = true
 script = [
   """
-    echo "🚀 🚀 🚀  Flowy-SDK(macOS) build success"
+    echo "🚀 🚀 🚀  AppFlowy-Core build success"
     dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/appflowy_backend/${TARGET_OS}
     lib = set lib${LIB_NAME}.${LIB_EXT}
 
@@ -161,7 +155,7 @@ script_runner = "@duckscript"
 private = true
 script = [
   """
-    echo "🚀 🚀 🚀  Flowy-SDK(windows) build success"
+    echo "🚀 🚀 🚀  AppFlowy-Core build success"
     dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/windows/flutter/dart_ffi
     lib = set ${LIB_NAME}.${LIB_EXT}
 
@@ -180,7 +174,7 @@ script_runner = "@duckscript"
 private = true
 script = [
   """
-    echo "🚀 🚀 🚀  Flowy-SDK(linux) build success"
+    echo "🚀 🚀 🚀  AppFlowy-Core build success"
     dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/linux/flutter/dart_ffi
     lib = set lib${LIB_NAME}.${LIB_EXT}
 

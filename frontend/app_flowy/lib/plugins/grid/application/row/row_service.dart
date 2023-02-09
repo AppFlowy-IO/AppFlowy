@@ -1,55 +1,55 @@
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/grid_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/group_changeset.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/row_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/grid_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/group_changeset.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
 
 class RowFFIService {
-  final String gridId;
+  final String databaseId;
 
   RowFFIService({
-    required this.gridId,
+    required this.databaseId,
   });
 
   Future<Either<RowPB, FlowyError>> createRow(String rowId) {
-    final payload = CreateTableRowPayloadPB.create()
-      ..gridId = gridId
+    final payload = CreateRowPayloadPB.create()
+      ..databaseId = databaseId
       ..startRowId = rowId;
 
-    return GridEventCreateTableRow(payload).send();
+    return DatabaseEventCreateRow(payload).send();
   }
 
   Future<Either<OptionalRowPB, FlowyError>> getRow(String rowId) {
     final payload = RowIdPB.create()
-      ..gridId = gridId
+      ..databaseId = databaseId
       ..rowId = rowId;
 
-    return GridEventGetRow(payload).send();
+    return DatabaseEventGetRow(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> deleteRow(String rowId) {
     final payload = RowIdPB.create()
-      ..gridId = gridId
+      ..databaseId = databaseId
       ..rowId = rowId;
 
-    return GridEventDeleteRow(payload).send();
+    return DatabaseEventDeleteRow(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> duplicateRow(String rowId) {
     final payload = RowIdPB.create()
-      ..gridId = gridId
+      ..databaseId = databaseId
       ..rowId = rowId;
 
-    return GridEventDuplicateRow(payload).send();
+    return DatabaseEventDuplicateRow(payload).send();
   }
 }
 
 class MoveRowFFIService {
-  final String gridId;
+  final String viewId;
 
   MoveRowFFIService({
-    required this.gridId,
+    required this.viewId,
   });
 
   Future<Either<Unit, FlowyError>> moveRow({
@@ -57,11 +57,11 @@ class MoveRowFFIService {
     required String toRowId,
   }) {
     var payload = MoveRowPayloadPB.create()
-      ..viewId = gridId
+      ..viewId = viewId
       ..fromRowId = fromRowId
       ..toRowId = toRowId;
 
-    return GridEventMoveRow(payload).send();
+    return DatabaseEventMoveRow(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> moveGroupRow({
@@ -70,7 +70,7 @@ class MoveRowFFIService {
     required String? toRowId,
   }) {
     var payload = MoveGroupRowPayloadPB.create()
-      ..viewId = gridId
+      ..viewId = viewId
       ..fromRowId = fromRowId
       ..toGroupId = toGroupId;
 
@@ -78,7 +78,7 @@ class MoveRowFFIService {
       payload.toRowId = toRowId;
     }
 
-    return GridEventMoveGroupRow(payload).send();
+    return DatabaseEventMoveGroupRow(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> moveGroup({
@@ -86,10 +86,10 @@ class MoveRowFFIService {
     required String toGroupId,
   }) {
     final payload = MoveGroupPayloadPB.create()
-      ..viewId = gridId
+      ..viewId = viewId
       ..fromGroupId = fromGroupId
       ..toGroupId = toGroupId;
 
-    return GridEventMoveGroup(payload).send();
+    return DatabaseEventMoveGroup(payload).send();
   }
 }

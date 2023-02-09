@@ -3,12 +3,12 @@ import 'dart:typed_data';
 import 'package:app_flowy/core/grid_notification.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/notification.pb.dart';
 import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/group.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-grid/group_changeset.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/group.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/group_changeset.pb.dart';
 
-typedef GroupUpdateValue = Either<GroupViewChangesetPB, FlowyError>;
+typedef GroupUpdateValue = Either<GroupChangesetPB, FlowyError>;
 typedef GroupByNewFieldValue = Either<List<GroupPB>, FlowyError>;
 
 class BoardListener {
@@ -16,7 +16,7 @@ class BoardListener {
   PublishNotifier<GroupUpdateValue>? _groupUpdateNotifier = PublishNotifier();
   PublishNotifier<GroupByNewFieldValue>? _groupByNewFieldNotifier =
       PublishNotifier();
-  GridNotificationListener? _listener;
+  DatabaseNotificationListener? _listener;
   BoardListener(this.viewId);
 
   void start({
@@ -25,28 +25,28 @@ class BoardListener {
   }) {
     _groupUpdateNotifier?.addPublishListener(onBoardChanged);
     _groupByNewFieldNotifier?.addPublishListener(onGroupByNewField);
-    _listener = GridNotificationListener(
+    _listener = DatabaseNotificationListener(
       objectId: viewId,
       handler: _handler,
     );
   }
 
   void _handler(
-    GridDartNotification ty,
+    DatabaseNotification ty,
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case GridDartNotification.DidUpdateGroupView:
+      case DatabaseNotification.DidUpdateGroups:
         result.fold(
           (payload) => _groupUpdateNotifier?.value =
-              left(GroupViewChangesetPB.fromBuffer(payload)),
+              left(GroupChangesetPB.fromBuffer(payload)),
           (error) => _groupUpdateNotifier?.value = right(error),
         );
         break;
-      case GridDartNotification.DidGroupByNewField:
+      case DatabaseNotification.DidGroupByField:
         result.fold(
           (payload) => _groupByNewFieldNotifier?.value =
-              left(GroupViewChangesetPB.fromBuffer(payload).newGroups),
+              left(GroupChangesetPB.fromBuffer(payload).initialGroups),
           (error) => _groupByNewFieldNotifier?.value = right(error),
         );
         break;

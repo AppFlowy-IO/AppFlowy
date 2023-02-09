@@ -152,7 +152,7 @@ class GridCellController<T, D> extends Equatable {
         _cellDataPersistence = cellDataPersistence,
         _fieldNotifier = fieldNotifier,
         _fieldService = FieldService(
-          gridId: cellId.gridId,
+          databaseId: cellId.databaseId,
           fieldId: cellId.fieldInfo.id,
         ),
         _cacheKey = GridCellCacheKey(
@@ -160,7 +160,7 @@ class GridCellController<T, D> extends Equatable {
           fieldId: cellId.fieldInfo.id,
         );
 
-  String get gridId => cellId.gridId;
+  String get databaseId => cellId.databaseId;
 
   String get rowId => cellId.rowId;
 
@@ -270,7 +270,7 @@ class GridCellController<T, D> extends Equatable {
   /// You can set [deduplicate] to true (default is false) to reduce the save operation.
   /// It's useful when you call this method when user editing the [TextField].
   /// The default debounce interval is 300 milliseconds.
-  void saveCellData(
+  Future<void> saveCellData(
     D data, {
     bool deduplicate = false,
     void Function(Option<FlowyError>)? onFinish,
