@@ -6,7 +6,7 @@ use crate::{
     notification::*,
     services::{
         persistence::{FolderPersistence, FolderPersistenceTransaction, WorkspaceChangeset},
-        read_local_workspace_apps, TrashController,
+        read_workspace_apps, TrashController,
     },
 };
 use flowy_sqlite::kv::KV;
@@ -53,7 +53,7 @@ impl WorkspaceController {
             .map(|workspace_rev| workspace_rev.into())
             .collect();
         let repeated_workspace = RepeatedWorkspacePB { items: workspaces };
-        send_notification(&token, FolderNotification::UserCreateWorkspace)
+        send_notification(&token, FolderNotification::DidCreateWorkspace)
             .payload(repeated_workspace)
             .send();
         set_current_workspace(&user_id, &workspace.id);
@@ -69,11 +69,11 @@ impl WorkspaceController {
             .begin_transaction(|transaction| {
                 transaction.update_workspace(changeset)?;
                 let user_id = self.user.user_id()?;
-                self.read_local_workspace(workspace_id.clone(), &user_id, &transaction)
+                self.read_workspace(workspace_id.clone(), &user_id, &transaction)
             })
             .await?;
 
-        send_notification(&workspace_id, FolderNotification::WorkspaceUpdated)
+        send_notification(&workspace_id, FolderNotification::DidUpdateWorkspace)
             .payload(workspace)
             .send();
         self.update_workspace_on_server(params)?;
@@ -89,10 +89,10 @@ impl WorkspaceController {
             .persistence
             .begin_transaction(|transaction| {
                 transaction.delete_workspace(workspace_id)?;
-                self.read_local_workspaces(None, &user_id, &transaction)
+                self.read_workspaces(None, &user_id, &transaction)
             })
             .await?;
-        send_notification(&token, FolderNotification::UserDeleteWorkspace)
+        send_notification(&token, FolderNotification::DidDeleteWorkspace)
             .payload(repeated_workspace)
             .send();
         self.delete_workspace_on_server(workspace_id)?;
@@ -104,7 +104,7 @@ impl WorkspaceController {
         if let Some(workspace_id) = params.value {
             let workspace = self
                 .persistence
-                .begin_transaction(|transaction| self.read_local_workspace(workspace_id, &user_id, &transaction))
+                .begin_transaction(|transaction| self.read_workspace(workspace_id, &user_id, &transaction))
                 .await?;
             set_current_workspace(&user_id, &workspace.id);
             Ok(workspace)
@@ -119,7 +119,7 @@ impl WorkspaceController {
         let app_revs = self
             .persistence
             .begin_transaction(|transaction| {
-                read_local_workspace_apps(&workspace_id, self.trash_controller.clone(), &transaction)
+                read_workspace_apps(&workspace_id, self.trash_controller.clone(), &transaction)
             })
             .await?;
         // TODO: read from server
@@ -127,38 +127,39 @@ impl WorkspaceController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, transaction), err)]
-    pub(crate) fn read_local_workspaces<'a>(
+    pub(crate) fn read_workspaces<'a>(
         &self,
         workspace_id: Option<String>,
         user_id: &str,
         transaction: &'a (dyn FolderPersistenceTransaction + 'a),
     ) -> Result<RepeatedWorkspacePB, FlowyError> {
         let workspace_id = workspace_id.to_owned();
+        let trash_ids = self.trash_controller.read_trash_ids(transaction)?;
         let workspaces = transaction
             .read_workspaces(user_id, workspace_id)?
             .into_iter()
-            .map(|workspace_rev| workspace_rev.into())
+            .map(|mut workspace_rev| {
+                workspace_rev.apps.retain(|app_rev| !trash_ids.contains(&app_rev.id));
+                workspace_rev.into()
+            })
             .collect();
         Ok(RepeatedWorkspacePB { items: workspaces })
     }
 
-    pub(crate) fn read_local_workspace<'a>(
+    pub(crate) fn read_workspace<'a>(
         &self,
         workspace_id: String,
         user_id: &str,
         transaction: &'a (dyn FolderPersistenceTransaction + 'a),
     ) -> Result<WorkspacePB, FlowyError> {
-        let mut workspace_revs = transaction.read_workspaces(user_id, Some(workspace_id.clone()))?;
-        if workspace_revs.is_empty() {
+        let mut workspaces = self
+            .read_workspaces(Some(workspace_id.clone()), user_id, transaction)?
+            .items;
+        if workspaces.is_empty() {
             return Err(FlowyError::record_not_found().context(format!("{} workspace not found", workspace_id)));
         }
-        debug_assert_eq!(workspace_revs.len(), 1);
-        let workspace = workspace_revs
-            .drain(..1)
-            .map(|workspace_rev| workspace_rev.into())
-            .collect::<Vec<WorkspacePB>>()
-            .pop()
-            .unwrap();
+        debug_assert_eq!(workspaces.len(), 1);
+        let workspace = workspaces.drain(..1).collect::<Vec<WorkspacePB>>().pop().unwrap();
         Ok(workspace)
     }
 }
@@ -215,11 +216,10 @@ pub async fn notify_workspace_setting_did_change(
     let workspace_setting = folder_manager
         .persistence
         .begin_transaction(|transaction| {
-            let workspace = folder_manager.workspace_controller.read_local_workspace(
-                workspace_id.clone(),
-                &user_id,
-                &transaction,
-            )?;
+            let workspace =
+                folder_manager
+                    .workspace_controller
+                    .read_workspace(workspace_id.clone(), &user_id, &transaction)?;
 
             let setting = match transaction.read_view(view_id) {
                 Ok(latest_view) => WorkspaceSettingPB {
@@ -236,7 +236,7 @@ pub async fn notify_workspace_setting_did_change(
         })
         .await?;
 
-    send_notification(&token, FolderNotification::WorkspaceSetting)
+    send_notification(&token, FolderNotification::DidUpdateWorkspaceSetting)
         .payload(workspace_setting)
         .send();
     Ok(())

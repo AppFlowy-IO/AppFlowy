@@ -39,7 +39,7 @@ impl TryInto<CreateSelectOptionParams> for CreateSelectOptionPayloadPB {
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct CellPathPB {
+pub struct CellIdPB {
     #[pb(index = 1)]
     pub database_id: String,
 
@@ -52,20 +52,20 @@ pub struct CellPathPB {
 
 /// Represents as the cell identifier. It's used to locate the cell in corresponding
 /// view's row with the field id.
-pub struct CellPathParams {
+pub struct CellIdParams {
     pub database_id: String,
     pub field_id: String,
     pub row_id: String,
 }
 
-impl TryInto<CellPathParams> for CellPathPB {
+impl TryInto<CellIdParams> for CellIdPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<CellPathParams, Self::Error> {
+    fn try_into(self) -> Result<CellIdParams, Self::Error> {
         let database_id = NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
-        Ok(CellPathParams {
+        Ok(CellIdParams {
             database_id: database_id.0,
             field_id: field_id.0,
             row_id: row_id.0,

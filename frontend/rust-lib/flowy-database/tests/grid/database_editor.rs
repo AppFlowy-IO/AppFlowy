@@ -25,28 +25,28 @@ pub struct DatabaseEditorTest {
 
 impl DatabaseEditorTest {
     pub async fn new_table() -> Self {
-        Self::new(DatabaseViewLayout::Grid).await
+        Self::new(LayoutTypePB::Grid).await
     }
 
     pub async fn new_board() -> Self {
-        Self::new(DatabaseViewLayout::Board).await
+        Self::new(LayoutTypePB::Board).await
     }
 
-    pub async fn new(layout: DatabaseViewLayout) -> Self {
+    pub async fn new(layout: LayoutTypePB) -> Self {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
         let test = match layout {
-            DatabaseViewLayout::Grid => {
+            LayoutTypePB::Grid => {
                 let build_context = make_test_grid();
                 let view_data: Bytes = build_context.into();
                 ViewTest::new_grid_view(&sdk, view_data.to_vec()).await
             }
-            DatabaseViewLayout::Board => {
+            LayoutTypePB::Board => {
                 let build_context = make_test_board();
                 let view_data: Bytes = build_context.into();
                 ViewTest::new_board_view(&sdk, view_data.to_vec()).await
             }
-            DatabaseViewLayout::Calendar => {
+            LayoutTypePB::Calendar => {
                 let build_context = make_test_calendar();
                 let view_data: Bytes = build_context.into();
                 ViewTest::new_calendar_view(&sdk, view_data.to_vec()).await

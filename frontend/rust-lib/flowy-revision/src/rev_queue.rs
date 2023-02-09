@@ -63,7 +63,7 @@ where
             .for_each(|command| async {
                 match self.handle_command(command).await {
                     Ok(_) => {}
-                    Err(e) => tracing::debug!("[RevQueue]: {}", e),
+                    Err(e) => tracing::error!("[RevQueue]: {}", e),
                 }
             })
             .await;

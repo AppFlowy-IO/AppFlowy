@@ -7,14 +7,14 @@ use std::time::Duration;
 use bytes::Bytes;
 use futures::TryFutureExt;
 use tokio::sync::broadcast::Receiver;
-use flowy_database::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, DatabaseViewLayout, DatabaseSettingChangesetParams, DatabaseViewSettingPB, RowPB, TextFilterConditionPB, FieldType, NumberFilterConditionPB, CheckboxFilterConditionPB, DateFilterConditionPB, DateFilterContentPB, SelectOptionConditionPB, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB, FilterPB, ChecklistFilterConditionPB, ChecklistFilterPB};
+use flowy_database::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, LayoutTypePB, DatabaseSettingChangesetParams, DatabaseViewSettingPB, RowPB, TextFilterConditionPB, FieldType, NumberFilterConditionPB, CheckboxFilterConditionPB, DateFilterConditionPB, DateFilterContentPB, SelectOptionConditionPB, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB, FilterPB, ChecklistFilterConditionPB, ChecklistFilterPB};
 use flowy_database::services::field::{SelectOptionCellChangeset, SelectOptionIds};
 use flowy_database::services::setting::GridSettingChangesetBuilder;
 use grid_model::{FieldRevision, FieldTypeRevision};
 use flowy_sqlite::schema::view_table::dsl::view_table;
 use flowy_database::services::cell::insert_select_option_cell;
 use flowy_database::services::filter::FilterType;
-use flowy_database::services::view_editor::GridViewChanged;
+use flowy_database::services::view_editor::DatabaseViewChanged;
 use crate::grid::database_editor::DatabaseEditorTest;
 
 pub struct FilterRowChanged {
@@ -101,7 +101,7 @@ pub enum FilterScript {
 
 pub struct DatabaseFilterTest {
     inner: DatabaseEditorTest,
-    recv: Option<Receiver<GridViewChanged>>,
+    recv: Option<Receiver<DatabaseViewChanged>>,
 }
 
 impl DatabaseFilterTest {
@@ -274,7 +274,7 @@ impl DatabaseFilterTest {
         tokio::spawn(async move {
             match tokio::time::timeout(Duration::from_secs(2), receiver.recv()).await {
                 Ok(changed) =>  {
-                    match changed.unwrap() { GridViewChanged::FilterNotification(notification) => {
+                    match changed.unwrap() { DatabaseViewChanged::FilterNotification(notification) => {
                         assert_eq!(notification.visible_rows.len(), change.showing_num_of_rows, "visible rows not match");
                         assert_eq!(notification.invisible_rows.len(), change.hiding_num_of_rows, "invisible rows not match");
                     }

@@ -1,5 +1,5 @@
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::{CellPathPB, CellPathParams, FieldType};
+use crate::entities::{CellIdPB, CellIdParams, FieldType};
 use crate::services::cell::{
     CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangesetString, FromCellString,
     ToCellChangesetString,
@@ -366,7 +366,7 @@ impl CellProtobufBlobParser for SelectOptionCellDataParser {
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct SelectOptionCellChangesetPB {
     #[pb(index = 1)]
-    pub cell_identifier: CellPathPB,
+    pub cell_identifier: CellIdPB,
 
     #[pb(index = 2)]
     pub insert_option_ids: Vec<String>,
@@ -376,7 +376,7 @@ pub struct SelectOptionCellChangesetPB {
 }
 
 pub struct SelectOptionCellChangesetParams {
-    pub cell_identifier: CellPathParams,
+    pub cell_identifier: CellIdParams,
     pub insert_option_ids: Vec<String>,
     pub delete_option_ids: Vec<String>,
 }
@@ -385,7 +385,7 @@ impl TryInto<SelectOptionCellChangesetParams> for SelectOptionCellChangesetPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<SelectOptionCellChangesetParams, Self::Error> {
-        let cell_identifier: CellPathParams = self.cell_identifier.try_into()?;
+        let cell_identifier: CellIdParams = self.cell_identifier.try_into()?;
         let insert_option_ids = self
             .insert_option_ids
             .into_iter()
@@ -487,7 +487,7 @@ pub struct SelectOptionCellDataPB {
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct SelectOptionChangesetPB {
     #[pb(index = 1)]
-    pub cell_identifier: CellPathPB,
+    pub cell_identifier: CellIdPB,
 
     #[pb(index = 2)]
     pub insert_options: Vec<SelectOptionPB>,
@@ -500,7 +500,7 @@ pub struct SelectOptionChangesetPB {
 }
 
 pub struct SelectOptionChangeset {
-    pub cell_path: CellPathParams,
+    pub cell_path: CellIdParams,
     pub insert_options: Vec<SelectOptionPB>,
     pub update_options: Vec<SelectOptionPB>,
     pub delete_options: Vec<SelectOptionPB>,

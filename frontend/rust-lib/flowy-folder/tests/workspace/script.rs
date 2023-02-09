@@ -182,7 +182,7 @@ impl FolderTest {
             FolderScript::CreateView { name, desc, data_type } => {
                 let layout = match data_type {
                     ViewDataFormatPB::DeltaFormat => ViewLayoutTypePB::Document,
-                    ViewDataFormatPB::TreeFormat => ViewLayoutTypePB::Document,
+                    ViewDataFormatPB::NodeFormat => ViewLayoutTypePB::Document,
                     ViewDataFormatPB::DatabaseFormat => ViewLayoutTypePB::Grid,
                 };
                 let view = create_view(sdk, &self.app.id, &name, &desc, data_type, layout).await;

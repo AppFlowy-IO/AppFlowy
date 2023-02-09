@@ -775,7 +775,7 @@ fn delta_compose() {
     }
     assert_eq!(
         delta.json_str(),
-        r#"[{"insert":"a"},{"insert":"\n","attributes":{"list":"unchecked"}},{"insert":"\n"}]"#
+        r#"[{"insert":"a"},{"insert":"\n","attributes":{"list":"unchecked"}},{"insert":"\n","attributes":{"list":""}}]"#
     );
 
     let ops = vec![

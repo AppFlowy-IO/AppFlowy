@@ -4,7 +4,8 @@ use crate::services::cell::{AnyTypeCache, AtomicCellDataCache, AtomicCellFilterC
 use crate::services::field::*;
 use crate::services::filter::{FilterChangeset, FilterResult, FilterResultNotification, FilterType};
 use crate::services::row::DatabaseBlockRowRevision;
-use crate::services::view_editor::{GridViewChanged, GridViewChangedNotifier};
+use crate::services::view_editor::{DatabaseViewChanged, GridViewChangedNotifier};
+use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use grid_model::{CellRevision, FieldId, FieldRevision, FilterRevision, RowRevision};
@@ -34,7 +35,7 @@ pub struct FilterController {
     view_id: String,
     handler_id: String,
     delegate: Box<dyn FilterDelegate>,
-    result_by_row_id: HashMap<RowId, FilterResult>,
+    result_by_row_id: DashMap<RowId, FilterResult>,
     cell_data_cache: AtomicCellDataCache,
     cell_filter_cache: AtomicCellFilterCache,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
@@ -54,11 +55,11 @@ impl FilterController {
     where
         T: FilterDelegate + 'static,
     {
-        let mut this = Self {
+        let this = Self {
             view_id: view_id.to_string(),
             handler_id: handler_id.to_string(),
             delegate: Box::new(delegate),
-            result_by_row_id: HashMap::default(),
+            result_by_row_id: DashMap::default(),
             cell_data_cache,
             cell_filter_cache: AnyTypeCache::<FilterType>::new(),
             task_scheduler,
@@ -83,7 +84,7 @@ impl FilterController {
         self.task_scheduler.write().await.add_task(task);
     }
 
-    pub async fn filter_row_revs(&mut self, row_revs: &mut Vec<Arc<RowRevision>>) {
+    pub async fn filter_row_revs(&self, row_revs: &mut Vec<Arc<RowRevision>>) {
         if self.cell_filter_cache.read().is_empty() {
             return;
         }
@@ -91,7 +92,7 @@ impl FilterController {
         row_revs.iter().for_each(|row_rev| {
             let _ = filter_row(
                 row_rev,
-                &mut self.result_by_row_id,
+                &self.result_by_row_id,
                 &field_rev_by_field_id,
                 &self.cell_data_cache,
                 &self.cell_filter_cache,
@@ -116,7 +117,7 @@ impl FilterController {
     }
 
     #[tracing::instrument(name = "process_filter_task", level = "trace", skip_all, fields(filter_result), err)]
-    pub async fn process(&mut self, predicate: &str) -> FlowyResult<()> {
+    pub async fn process(&self, predicate: &str) -> FlowyResult<()> {
         let event_type = FilterEvent::from_str(predicate).unwrap();
         match event_type {
             FilterEvent::FilterDidChanged => self.filter_all_rows().await?,
@@ -125,13 +126,13 @@ impl FilterController {
         Ok(())
     }
 
-    async fn filter_row(&mut self, row_id: String) -> FlowyResult<()> {
+    async fn filter_row(&self, row_id: String) -> FlowyResult<()> {
         if let Some((_, row_rev)) = self.delegate.get_row_rev(&row_id).await {
             let field_rev_by_field_id = self.get_filter_revs_map().await;
             let mut notification = FilterResultNotification::new(self.view_id.clone(), row_rev.block_id.clone());
             if let Some((row_id, is_visible)) = filter_row(
                 &row_rev,
-                &mut self.result_by_row_id,
+                &self.result_by_row_id,
                 &field_rev_by_field_id,
                 &self.cell_data_cache,
                 &self.cell_filter_cache,
@@ -148,12 +149,14 @@ impl FilterController {
                 }
             }
 
-            let _ = self.notifier.send(GridViewChanged::FilterNotification(notification));
+            let _ = self
+                .notifier
+                .send(DatabaseViewChanged::FilterNotification(notification));
         }
         Ok(())
     }
 
-    async fn filter_all_rows(&mut self) -> FlowyResult<()> {
+    async fn filter_all_rows(&self) -> FlowyResult<()> {
         let field_rev_by_field_id = self.get_filter_revs_map().await;
         for block in self.delegate.get_blocks().await.into_iter() {
             // The row_ids contains the row that its visibility was changed.
@@ -163,7 +166,7 @@ impl FilterController {
             for (index, row_rev) in block.row_revs.iter().enumerate() {
                 if let Some((row_id, is_visible)) = filter_row(
                     row_rev,
-                    &mut self.result_by_row_id,
+                    &self.result_by_row_id,
                     &field_rev_by_field_id,
                     &self.cell_data_cache,
                     &self.cell_filter_cache,
@@ -184,7 +187,9 @@ impl FilterController {
                 visible_rows,
             };
             tracing::Span::current().record("filter_result", format!("{:?}", &notification).as_str());
-            let _ = self.notifier.send(GridViewChanged::FilterNotification(notification));
+            let _ = self
+                .notifier
+                .send(DatabaseViewChanged::FilterNotification(notification));
         }
         Ok(())
     }
@@ -198,7 +203,7 @@ impl FilterController {
     }
 
     #[tracing::instrument(level = "trace", skip(self))]
-    pub async fn did_receive_changes(&mut self, changeset: FilterChangeset) -> Option<FilterChangesetNotificationPB> {
+    pub async fn did_receive_changes(&self, changeset: FilterChangeset) -> Option<FilterChangesetNotificationPB> {
         let mut notification: Option<FilterChangesetNotificationPB> = None;
         if let Some(filter_type) = &changeset.insert_filter {
             if let Some(filter) = self.filter_from_filter_type(filter_type).await {
@@ -258,7 +263,7 @@ impl FilterController {
     }
 
     #[tracing::instrument(level = "trace", skip_all)]
-    async fn refresh_filters(&mut self, filter_revs: Vec<Arc<FilterRevision>>) {
+    async fn refresh_filters(&self, filter_revs: Vec<Arc<FilterRevision>>) {
         for filter_rev in filter_revs {
             if let Some(field_rev) = self.delegate.get_field_rev(&filter_rev.field_id).await {
                 let filter_type = FilterType::from(&field_rev);
@@ -309,13 +314,13 @@ impl FilterController {
 #[tracing::instrument(level = "trace", skip_all)]
 fn filter_row(
     row_rev: &Arc<RowRevision>,
-    result_by_row_id: &mut HashMap<RowId, FilterResult>,
+    result_by_row_id: &DashMap<RowId, FilterResult>,
     field_rev_by_field_id: &HashMap<FieldId, Arc<FieldRevision>>,
     cell_data_cache: &AtomicCellDataCache,
     cell_filter_cache: &AtomicCellFilterCache,
 ) -> Option<(String, bool)> {
     // Create a filter result cache if it's not exist
-    let filter_result = result_by_row_id
+    let mut filter_result = result_by_row_id
         .entry(row_rev.id.clone())
         .or_insert_with(FilterResult::default);
     let old_is_visible = filter_result.is_visible();

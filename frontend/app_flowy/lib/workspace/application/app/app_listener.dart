@@ -34,7 +34,7 @@ class AppListener {
   void _handleCallback(
       FolderNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case FolderNotification.AppUpdated:
+      case FolderNotification.DidUpdateApp:
         if (_updated != null) {
           result.fold(
             (payload) {

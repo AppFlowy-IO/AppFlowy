@@ -1,10 +1,10 @@
 pub use crate::entities::view::ViewDataFormatPB;
-use crate::entities::{AppPB, DeletedViewPB, ViewInfoPB, ViewLayoutTypePB};
+use crate::entities::{AppPB, DeletedViewPB, ViewLayoutTypePB};
 use crate::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use crate::{
     entities::{
         trash::{RepeatedTrashIdPB, TrashType},
-        view::{CreateViewParams, RepeatedViewPB, UpdateViewParams, ViewIdPB, ViewPB},
+        view::{CreateViewParams, UpdateViewParams, ViewPB},
     },
     errors::{FlowyError, FlowyResult},
     event_map::{FolderCouldServiceV1, WorkspaceUser},
@@ -139,35 +139,6 @@ impl ViewController {
         Ok(view_rev)
     }
 
-    #[tracing::instrument(level = "debug", skip(self, view_id), fields(view_id = %view_id.value), err)]
-    pub(crate) async fn read_view_pb(&self, view_id: ViewIdPB) -> Result<ViewInfoPB, FlowyError> {
-        let view_info = self
-            .persistence
-            .begin_transaction(|transaction| {
-                let view_rev = transaction.read_view(&view_id.value)?;
-
-                let items: Vec<ViewPB> = view_rev
-                    .belongings
-                    .into_iter()
-                    .map(|view_rev| view_rev.into())
-                    .collect();
-
-                let view_info = ViewInfoPB {
-                    id: view_rev.id,
-                    belong_to_id: view_rev.app_id,
-                    name: view_rev.name,
-                    desc: view_rev.desc,
-                    data_type: view_rev.data_format.into(),
-                    belongings: RepeatedViewPB { items },
-                    ext_data: view_rev.ext_data,
-                };
-                Ok(view_info)
-            })
-            .await?;
-
-        Ok(view_info)
-    }
-
     pub(crate) async fn read_local_views(&self, ids: Vec<String>) -> Result<Vec<ViewRevision>, FlowyError> {
         self.persistence
             .begin_transaction(|transaction| {
@@ -223,7 +194,7 @@ impl ViewController {
             })
             .await?;
 
-        send_notification(view_id, FolderNotification::ViewMoveToTrash)
+        send_notification(view_id, FolderNotification::DidMoveViewToTrash)
             .payload(deleted_view)
             .send();
 
@@ -289,7 +260,7 @@ impl ViewController {
                 transaction.update_view(changeset)?;
                 let view_rev = transaction.read_view(&view_id)?;
                 let view: ViewPB = view_rev.clone().into();
-                send_notification(&view_id, FolderNotification::ViewUpdated)
+                send_notification(&view_id, FolderNotification::DidUpdateView)
                     .payload(view)
                     .send();
                 notify_views_changed(&view_rev.app_id, self.trash_controller.clone(), &transaction)?;
@@ -334,35 +305,6 @@ impl ViewController {
                     // TODO: retry?
                     log::error!("Update view failed: {:?}", e);
                 }
-            }
-        });
-        Ok(())
-    }
-
-    #[tracing::instrument(level = "debug", skip(self), err)]
-    fn read_view_on_server(&self, params: ViewIdPB) -> Result<(), FlowyError> {
-        let token = self.user.token()?;
-        let server = self.cloud_service.clone();
-        let persistence = self.persistence.clone();
-        // TODO: Retry with RetryAction?
-        tokio::spawn(async move {
-            match server.read_view(&token, params).await {
-                Ok(Some(view_rev)) => {
-                    match persistence
-                        .begin_transaction(|transaction| transaction.create_view(view_rev.clone()))
-                        .await
-                    {
-                        Ok(_) => {
-                            let view: ViewPB = view_rev.into();
-                            send_notification(&view.id, FolderNotification::ViewUpdated)
-                                .payload(view)
-                                .send();
-                        }
-                        Err(e) => log::error!("Save view failed: {:?}", e),
-                    }
-                }
-                Ok(None) => {}
-                Err(e) => log::error!("Read view failed: {:?}", e),
             }
         });
         Ok(())
@@ -436,7 +378,7 @@ async fn handle_trash_event(
                     let view_revs = read_local_views_with_transaction(identifiers, &transaction)?;
                     for view_rev in view_revs {
                         notify_views_changed(&view_rev.app_id, trash_can.clone(), &transaction)?;
-                        notify_dart(view_rev.into(), FolderNotification::ViewDeleted);
+                        notify_dart(view_rev.into(), FolderNotification::DidDeleteView);
                     }
                     Ok(())
                 })
@@ -449,7 +391,7 @@ async fn handle_trash_event(
                     let view_revs = read_local_views_with_transaction(identifiers, &transaction)?;
                     for view_rev in view_revs {
                         notify_views_changed(&view_rev.app_id, trash_can.clone(), &transaction)?;
-                        notify_dart(view_rev.into(), FolderNotification::ViewRestored);
+                        notify_dart(view_rev.into(), FolderNotification::DidRestoreView);
                     }
                     Ok(())
                 })
@@ -535,7 +477,7 @@ fn notify_views_changed<'a>(
     app_rev.belongings.retain(|view| !trash_ids.contains(&view.id));
     let app: AppPB = app_rev.into();
 
-    send_notification(belong_to_id, FolderNotification::AppUpdated)
+    send_notification(belong_to_id, FolderNotification::DidUpdateApp)
         .payload(app)
         .send();
 

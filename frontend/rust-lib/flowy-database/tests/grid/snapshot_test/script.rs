@@ -1,7 +1,7 @@
 use crate::grid::database_editor::DatabaseEditorTest;
 
 use flowy_client_sync::client_database::{DatabaseOperations, DatabaseRevisionPad};
-use flowy_revision::{RevisionSnapshot, REVISION_WRITE_INTERVAL_IN_MILLIS};
+use flowy_revision::{RevisionSnapshotData, REVISION_WRITE_INTERVAL_IN_MILLIS};
 use grid_model::FieldRevision;
 use revision_model::Revision;
 use std::time::Duration;
@@ -12,10 +12,10 @@ pub enum SnapshotScript {
     #[allow(dead_code)]
     AssertSnapshot {
         rev_id: i64,
-        expected: Option<RevisionSnapshot>,
+        expected: Option<RevisionSnapshotData>,
     },
     AssertSnapshotContent {
-        snapshot: RevisionSnapshot,
+        snapshot: RevisionSnapshotData,
         expected: String,
     },
     CreateField {
@@ -28,7 +28,7 @@ pub enum SnapshotScript {
 
 pub struct DatabaseSnapshotTest {
     inner: DatabaseEditorTest,
-    pub current_snapshot: Option<RevisionSnapshot>,
+    pub current_snapshot: Option<RevisionSnapshotData>,
     pub current_revision: Option<Revision>,
 }
 
@@ -56,7 +56,7 @@ impl DatabaseSnapshotTest {
         }
     }
 
-    pub async fn get_latest_snapshot(&self) -> Option<RevisionSnapshot> {
+    pub async fn get_latest_snapshot(&self) -> Option<RevisionSnapshotData> {
         self.editor.rev_manager().read_snapshot(None).await.unwrap()
     }
 

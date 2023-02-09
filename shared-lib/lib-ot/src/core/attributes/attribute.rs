@@ -214,6 +214,7 @@ impl AttributeValue {
     pub fn none() -> Self {
         Self { ty: None, value: None }
     }
+
     pub fn from_int(val: i64) -> Self {
         Self {
             ty: Some(ValueType::IntType),
@@ -235,8 +236,9 @@ impl AttributeValue {
             value: Some(val.to_string()),
         }
     }
-    pub fn from_string(s: &str) -> Self {
-        let value = if s.is_empty() { None } else { Some(s.to_string()) };
+
+    pub fn from_string<T: ToString>(s: T) -> Self {
+        let value = Some(s.to_string());
         Self {
             ty: Some(ValueType::StrType),
             value,
@@ -283,7 +285,7 @@ impl std::convert::From<&str> for AttributeValue {
 
 impl std::convert::From<String> for AttributeValue {
     fn from(value: String) -> Self {
-        AttributeValue::from_string(&value)
+        AttributeValue::from_string(value)
     }
 }
 

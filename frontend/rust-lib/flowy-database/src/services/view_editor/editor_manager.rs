@@ -53,7 +53,7 @@ impl DatabaseViewManager {
         self.view_editors.write().await.remove(view_id).await;
     }
 
-    pub async fn subscribe_view_changed(&self, view_id: &str) -> FlowyResult<broadcast::Receiver<GridViewChanged>> {
+    pub async fn subscribe_view_changed(&self, view_id: &str) -> FlowyResult<broadcast::Receiver<DatabaseViewChanged>> {
         Ok(self.get_view_editor(view_id).await?.notifier.subscribe())
     }
 

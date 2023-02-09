@@ -14,6 +14,7 @@ import 'package:appflowy_editor/src/service/internal_key_event_handlers/format_s
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/space_on_web_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/tab_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/whitespace_handler.dart';
+import 'package:appflowy_editor/src/service/internal_key_event_handlers/checkbox_event_handler.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event.dart';
 import 'package:flutter/foundation.dart';
 
@@ -158,6 +159,13 @@ List<ShortcutEvent> builtInShortcutEvents = [
     windowsCommand: 'ctrl+u',
     linuxCommand: 'ctrl+u',
     handler: formatUnderlineEventHandler,
+  ),
+  ShortcutEvent(
+    key: 'Toggle Checkbox',
+    command: 'meta+enter',
+    windowsCommand: 'ctrl+enter',
+    linuxCommand: 'ctrl+enter',
+    handler: toggleCheckbox,
   ),
   ShortcutEvent(
     key: 'Format strikethrough',

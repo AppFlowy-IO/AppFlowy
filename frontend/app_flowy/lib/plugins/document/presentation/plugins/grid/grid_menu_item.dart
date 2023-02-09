@@ -7,7 +7,7 @@ import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
 
 SelectionMenuItem gridMenuItem = SelectionMenuItem(
-  name: () => LocaleKeys.grid_menuName.tr(),
+  name: () => LocaleKeys.document_plugins_referencedGrid.tr(),
   icon: (editorState, onSelected) {
     return svgWidget(
       'editor/grid',

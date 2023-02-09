@@ -107,12 +107,12 @@ impl RevisionObjectDeserializer for FolderRevisionSerde {
         Ok(FolderPad::from_operations(operations)?)
     }
 
-    fn recover_operations_from_revisions(revisions: Vec<Revision>) -> Option<Self::Output> {
-        if let Some(operations) = recover_operation_from_revisions(revisions, |operations| {
+    fn recover_from_revisions(revisions: Vec<Revision>) -> Option<(Self::Output, i64)> {
+        if let Some((operations, rev_id)) = recover_operation_from_revisions(revisions, |operations| {
             FolderPad::from_operations(operations.clone()).is_ok()
         }) {
             if let Ok(pad) = FolderPad::from_operations(operations) {
-                return Some(pad);
+                return Some((pad, rev_id));
             }
         }
         None

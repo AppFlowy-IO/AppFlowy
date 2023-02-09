@@ -111,3 +111,19 @@ async fn post_to_flutter(response: AFPluginEventResponse, port: i64) {
         }
     }
 }
+
+#[no_mangle]
+pub extern "C" fn backend_log(level: i64, data: *const c_char) {
+    let c_str = unsafe { CStr::from_ptr(data) };
+    let log_str = c_str.to_str().unwrap();
+
+    // Don't change the mapping relation between number and level
+    match level {
+        0 => tracing::info!("{}", log_str),
+        1 => tracing::debug!("{}", log_str),
+        2 => tracing::trace!("{}", log_str),
+        3 => tracing::warn!("{}", log_str),
+        4 => tracing::error!("{}", log_str),
+        _ => (),
+    }
+}

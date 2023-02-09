@@ -50,9 +50,13 @@ impl std::convert::From<ViewRevision> for ViewPB {
 
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone)]
 pub enum ViewDataFormatPB {
+    /// Indicate this view is using `Delta` for the persistence data format, it's deprecated.
     DeltaFormat = 0,
+    /// Indicate this view is using `Database` for the persistence data format. It is used in AppFlowy database
+    /// views including Grid,Board, and Calendar.
     DatabaseFormat = 1,
-    TreeFormat = 2,
+    /// Indicate this view is using `Node` for the persistence data format. It is used in AppFlowy document
+    NodeFormat = 2,
 }
 
 impl std::default::Default for ViewDataFormatPB {
@@ -66,7 +70,7 @@ impl std::convert::From<ViewDataFormatRevision> for ViewDataFormatPB {
         match rev {
             ViewDataFormatRevision::DeltaFormat => ViewDataFormatPB::DeltaFormat,
             ViewDataFormatRevision::DatabaseFormat => ViewDataFormatPB::DatabaseFormat,
-            ViewDataFormatRevision::TreeFormat => ViewDataFormatPB::TreeFormat,
+            ViewDataFormatRevision::NodeFormat => ViewDataFormatPB::NodeFormat,
         }
     }
 }
@@ -76,7 +80,7 @@ impl std::convert::From<ViewDataFormatPB> for ViewDataFormatRevision {
         match ty {
             ViewDataFormatPB::DeltaFormat => ViewDataFormatRevision::DeltaFormat,
             ViewDataFormatPB::DatabaseFormat => ViewDataFormatRevision::DatabaseFormat,
-            ViewDataFormatPB::TreeFormat => ViewDataFormatRevision::TreeFormat,
+            ViewDataFormatPB::NodeFormat => ViewDataFormatRevision::NodeFormat,
         }
     }
 }

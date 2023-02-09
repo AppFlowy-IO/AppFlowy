@@ -8,10 +8,7 @@ use std::{
     pin::Pin,
     task::{Context, Poll},
 };
-use tokio::{
-    task::JoinHandle,
-    time::{sleep_until, Duration, Instant, Sleep},
-};
+use tokio::time::{sleep_until, Duration, Instant, Sleep};
 
 #[pin_project(project = RetryStateProj)]
 enum RetryState<A>
@@ -55,7 +52,7 @@ where
     I: Iterator<Item = Duration>,
     A: Action,
 {
-    pub fn spawn<T: IntoIterator<IntoIter = I, Item = Duration>>(strategy: T, action: A) -> Retry<I, A> {
+    pub fn new<T: IntoIterator<IntoIter = I, Item = Duration>>(strategy: T, action: A) -> Retry<I, A> {
         Retry {
             retry_if: RetryIf::spawn(strategy, action, (|_| true) as fn(&A::Error) -> bool),
         }
@@ -196,16 +193,15 @@ impl<E, F: FnMut(&E) -> bool> Condition<E> for F {
 }
 
 pub fn spawn_retry<A: Action + 'static>(
-    millis: u64,
     retry_count: usize,
+    retry_per_millis: u64,
     action: A,
-) -> JoinHandle<Result<A::Item, A::Error>>
+) -> impl Future<Output = Result<A::Item, A::Error>>
 where
     A::Item: Send + Sync,
     A::Error: Send + Sync,
     <A as Action>::Future: Send + Sync,
 {
-    let strategy = FixedInterval::from_millis(millis).take(retry_count);
-    let retry = Retry::spawn(strategy, action);
-    tokio::spawn(async move { retry.await })
+    let strategy = FixedInterval::from_millis(retry_per_millis).take(retry_count);
+    Retry::new(strategy, action)
 }

@@ -2,7 +2,7 @@ use bytes::Bytes;
 use flowy_sqlite::ConnectionPool;
 
 use flowy_client_ws::FlowyWebSocketConnect;
-use flowy_database::entities::DatabaseViewLayout;
+use flowy_database::entities::LayoutTypePB;
 use flowy_database::manager::{make_database_view_data, DatabaseManager};
 use flowy_database::util::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_document::DocumentManager;
@@ -211,7 +211,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     }
 
     fn data_types(&self) -> Vec<ViewDataFormatPB> {
-        vec![ViewDataFormatPB::DeltaFormat, ViewDataFormatPB::TreeFormat]
+        vec![ViewDataFormatPB::DeltaFormat, ViewDataFormatPB::NodeFormat]
     }
 }
 
@@ -261,9 +261,9 @@ impl ViewDataProcessor for GridViewDataProcessor {
     ) -> FutureResult<Bytes, FlowyError> {
         debug_assert_eq!(data_format, ViewDataFormatPB::DatabaseFormat);
         let (build_context, layout) = match layout {
-            ViewLayoutTypePB::Grid => (make_default_grid(), DatabaseViewLayout::Grid),
-            ViewLayoutTypePB::Board => (make_default_board(), DatabaseViewLayout::Board),
-            ViewLayoutTypePB::Calendar => (make_default_calendar(), DatabaseViewLayout::Calendar),
+            ViewLayoutTypePB::Grid => (make_default_grid(), LayoutTypePB::Grid),
+            ViewLayoutTypePB::Board => (make_default_board(), LayoutTypePB::Board),
+            ViewLayoutTypePB::Calendar => (make_default_calendar(), LayoutTypePB::Calendar),
             ViewLayoutTypePB::Document => {
                 return FutureResult::new(async move {
                     Err(FlowyError::internal().context(format!("Can't handle {:?} layout type", layout)))
@@ -291,9 +291,9 @@ impl ViewDataProcessor for GridViewDataProcessor {
         let grid_manager = self.0.clone();
 
         let layout = match layout {
-            ViewLayoutTypePB::Grid => DatabaseViewLayout::Grid,
-            ViewLayoutTypePB::Board => DatabaseViewLayout::Board,
-            ViewLayoutTypePB::Calendar => DatabaseViewLayout::Calendar,
+            ViewLayoutTypePB::Grid => LayoutTypePB::Grid,
+            ViewLayoutTypePB::Board => LayoutTypePB::Board,
+            ViewLayoutTypePB::Calendar => LayoutTypePB::Calendar,
             ViewLayoutTypePB::Document => {
                 return FutureResult::new(async move {
                     Err(FlowyError::internal().context(format!("Can't handle {:?} layout type", layout)))

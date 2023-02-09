@@ -27,7 +27,7 @@ impl std::ops::Deref for GridBlockRevisionPad {
 }
 
 impl GridBlockRevisionPad {
-    pub async fn duplicate_data(&self, duplicated_block_id: &str) -> DatabaseBlockRevision {
+    pub fn duplicate_data(&self, duplicated_block_id: &str) -> DatabaseBlockRevision {
         let duplicated_rows = self
             .block
             .rows

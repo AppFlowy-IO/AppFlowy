@@ -103,7 +103,7 @@ impl WSController {
             addr,
             handlers: self.handlers.clone(),
         };
-        let retry = Retry::spawn(strategy, action);
+        let retry = Retry::new(strategy, action);
         conn_state_notify.update_state(WSConnectState::Connecting);
         drop(conn_state_notify);
 

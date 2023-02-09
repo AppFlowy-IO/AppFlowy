@@ -53,14 +53,14 @@ class GridViewListener {
 
   void _handler(DatabaseNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case DatabaseNotification.DidUpdateDatabaseViewRowsVisibility:
+      case DatabaseNotification.DidUpdateViewRowsVisibility:
         result.fold(
           (payload) => _rowsVisibility?.value =
               left(ViewRowsVisibilityChangesetPB.fromBuffer(payload)),
           (error) => _rowsVisibility?.value = right(error),
         );
         break;
-      case DatabaseNotification.DidUpdateDatabaseViewRows:
+      case DatabaseNotification.DidUpdateViewRows:
         result.fold(
           (payload) => _rowsNotifier?.value =
               left(ViewRowsChangesetPB.fromBuffer(payload)),

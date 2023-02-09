@@ -1,5 +1,7 @@
-use crate::entities::DatabaseViewLayout;
-use crate::services::grid_editor::{DatabaseRevisionEditor, GridRevisionMergeable};
+use crate::entities::LayoutTypePB;
+use crate::services::grid_editor::{
+    DatabaseRevisionEditor, GridRevisionCloudService, GridRevisionMergeable, GridRevisionSerde,
+};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::kv::DatabaseKVPersistence;
 use crate::services::persistence::migration::DatabaseMigration;
@@ -144,10 +146,16 @@ impl DatabaseManager {
         pool: Arc<ConnectionPool>,
     ) -> Result<Arc<DatabaseRevisionEditor>, FlowyError> {
         let user = self.database_user.clone();
-        let rev_manager = self.make_database_rev_manager(database_id, pool.clone())?;
+        let token = user.token()?;
+        let cloud = Arc::new(GridRevisionCloudService::new(token));
+        let mut rev_manager = self.make_database_rev_manager(database_id, pool.clone())?;
+        let database_pad = Arc::new(RwLock::new(
+            rev_manager.initialize::<GridRevisionSerde>(Some(cloud)).await?,
+        ));
         let database_editor = DatabaseRevisionEditor::new(
             database_id,
             user,
+            database_pad,
             rev_manager,
             self.block_index_cache.clone(),
             self.task_scheduler.clone(),
@@ -188,7 +196,7 @@ impl DatabaseManager {
 pub async fn make_database_view_data(
     _user_id: &str,
     view_id: &str,
-    layout: DatabaseViewLayout,
+    layout: LayoutTypePB,
     database_manager: Arc<DatabaseManager>,
     build_context: BuildDatabaseContext,
 ) -> FlowyResult<Bytes> {
