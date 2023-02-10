@@ -24,6 +24,7 @@ class AppWindow {
 
     WindowOptions windowOptions = const WindowOptions(
       minimumSize: Size(600, 400),
+      title: 'AppFlowy',
     );
 
     await windowManager.waitUntilReadyToShow(windowOptions, () async {
