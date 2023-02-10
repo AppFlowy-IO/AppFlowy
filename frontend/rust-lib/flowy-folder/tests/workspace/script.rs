@@ -363,7 +363,7 @@ pub async fn create_view(
         thumbnail: None,
         data_format: data_type,
         layout,
-        view_content_data: vec![],
+        initial_data: vec![],
     };
     FolderEventBuilder::new(sdk.clone())
         .event(CreateView)

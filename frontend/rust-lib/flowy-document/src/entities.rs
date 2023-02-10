@@ -58,13 +58,13 @@ impl TryInto<EditParams> for EditPayloadPB {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct DocumentSnapshotPB {
+pub struct DocumentDataPB {
     #[pb(index = 1)]
     pub doc_id: String,
 
     /// Encode in JSON format
     #[pb(index = 2)]
-    pub snapshot: String,
+    pub content: String,
 }
 
 #[derive(Default, ProtoBuf)]
@@ -96,12 +96,12 @@ impl std::default::Default for DocumentVersionPB {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct OpenDocumentContextPB {
+pub struct OpenDocumentPayloadPB {
     #[pb(index = 1)]
     pub document_id: String,
 
     #[pb(index = 2)]
-    pub document_version: DocumentVersionPB,
+    pub version: DocumentVersionPB,
 }
 
 #[derive(Default, Debug)]

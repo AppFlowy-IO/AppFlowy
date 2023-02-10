@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:dartz/dartz.dart';
@@ -23,13 +24,18 @@ class AppService {
     required ViewDataFormatPB dataFormatType,
     required PluginType pluginType,
     required ViewLayoutTypePB layoutType,
+
+    /// The initial data should be the JSON of the doucment
+    /// For example: {"document":{"type":"editor","children":[]}}
+    String? initialData,
   }) {
-    var payload = CreateViewPayloadPB.create()
+    final payload = CreateViewPayloadPB.create()
       ..belongToId = appId
       ..name = name
       ..desc = desc ?? ""
       ..dataFormat = dataFormatType
-      ..layout = layoutType;
+      ..layout = layoutType
+      ..initialData = utf8.encode(initialData ?? "");
 
     return FolderEventCreateView(payload).send();
   }
@@ -77,54 +83,6 @@ class AppService {
       ..ty = MoveFolderItemType.MoveView;
 
     return FolderEventMoveItem(payload).send();
-  }
-
-  Future<List<Tuple2<AppPB, List<ViewPB>>>> fetchViews(
-      ViewLayoutTypePB layoutType) async {
-    final result = <Tuple2<AppPB, List<ViewPB>>>[];
-    return FolderEventReadCurrentWorkspace().send().then((value) async {
-      final workspaces = value.getLeftOrNull<WorkspaceSettingPB>();
-      if (workspaces != null) {
-        final apps = workspaces.workspace.apps.items;
-        for (var app in apps) {
-          final views = await getViews(appId: app.id).then(
-            (value) => value
-                .getLeftOrNull<List<ViewPB>>()
-                ?.where((e) => e.layout == layoutType)
-                .toList(),
-          );
-          if (views != null && views.isNotEmpty) {
-            result.add(Tuple2(app, views));
-          }
-        }
-      }
-      return result;
-    });
-  }
-
-  Future<Either<ViewPB, FlowyError>> getView(
-    String appID,
-    String viewID,
-  ) async {
-    final payload = AppIdPB.create()..value = appID;
-    return FolderEventReadApp(payload).send().then((result) {
-      return result.fold(
-        (app) => left(
-          app.belongings.items.firstWhere((e) => e.id == viewID),
-        ),
-        (error) => right(error),
-      );
-    });
-  }
-}
-
-extension AppFlowy on Either {
-  T? getLeftOrNull<T>() {
-    if (isLeft()) {
-      final result = fold<T?>((l) => l, (r) => null);
-      return result;
-    }
-    return null;
   }
 
   Future<List<Tuple2<AppPB, List<ViewPB>>>> fetchViews(

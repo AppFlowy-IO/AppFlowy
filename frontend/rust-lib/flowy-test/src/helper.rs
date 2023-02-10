@@ -119,7 +119,7 @@ async fn create_view(
         thumbnail: Some("http://1.png".to_string()),
         data_format,
         layout,
-        view_content_data: data,
+        initial_data: data,
     };
 
     FolderEventBuilder::new(sdk.clone())
