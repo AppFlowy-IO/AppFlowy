@@ -13,4 +13,18 @@ abstract class FilePickerService {
     String? title,
   }) async =>
       throw UnimplementedError('getDirectoryPath() has not been implemented.');
+
+  Future<FilePickerResult?> pickFiles({
+    String? dialogTitle,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    Function(FilePickerStatus)? onFileLoading,
+    bool allowCompression = true,
+    bool allowMultiple = false,
+    bool withData = false,
+    bool withReadStream = false,
+    bool lockParentWindow = false,
+  }) async =>
+      throw UnimplementedError('pickFiles() has not been implemented.');
 }

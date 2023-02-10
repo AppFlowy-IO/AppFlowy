@@ -104,7 +104,7 @@ class MenuAppHeader extends StatelessWidget {
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       textStyle: AFThemeExtension.of(context).caption.textColor(Colors.white),
       child: AddButton(
-        onSelected: (pluginBuilder) {
+        onSelected: (pluginBuilder, document) {
           context.read<AppBloc>().add(
                 AppEvent.createView(
                   LocaleKeys.menuAppHeader_defaultNewPageName.tr(),

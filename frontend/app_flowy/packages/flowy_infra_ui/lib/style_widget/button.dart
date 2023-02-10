@@ -21,6 +21,7 @@ class FlowyButton extends StatelessWidget {
   final bool useIntrinsicWidth;
   final bool disable;
   final double disableOpacity;
+  final Size? leftIconSize;
 
   const FlowyButton({
     Key? key,
@@ -37,6 +38,7 @@ class FlowyButton extends StatelessWidget {
     this.useIntrinsicWidth = false,
     this.disable = false,
     this.disableOpacity = 0.5,
+    this.leftIconSize = const Size.square(16),
   }) : super(key: key);
 
   @override
@@ -65,7 +67,11 @@ class FlowyButton extends StatelessWidget {
 
     if (leftIcon != null) {
       children.add(
-          SizedBox.fromSize(size: const Size.square(16), child: leftIcon!));
+        SizedBox.fromSize(
+          size: leftIconSize,
+          child: leftIcon!,
+        ),
+      );
       children.add(const HSpace(6));
     }
 
