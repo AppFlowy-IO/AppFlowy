@@ -59,7 +59,7 @@ impl ViewController {
     ) -> Result<ViewRevision, FlowyError> {
         let processor = self.get_data_processor(params.data_format.clone())?;
         let user_id = self.user.user_id()?;
-        if params.view_content_data.is_empty() {
+        if params.initial_data.is_empty() {
             tracing::trace!("Create view with build-in data");
             let view_data = processor
                 .create_default_view(
@@ -69,14 +69,14 @@ impl ViewController {
                     params.data_format.clone(),
                 )
                 .await?;
-            params.view_content_data = view_data.to_vec();
+            params.initial_data = view_data.to_vec();
         } else {
             tracing::trace!("Create view with view data");
-            let delta_data = processor
-                .create_view_from_delta_data(
+            let view_data = processor
+                .create_view_with_data(
                     &user_id,
                     &params.view_id,
-                    params.view_content_data.clone(),
+                    params.initial_data.clone(),
                     params.layout.clone(),
                 )
                 .await?;
@@ -84,7 +84,7 @@ impl ViewController {
                 &params.view_id,
                 params.data_format.clone(),
                 params.layout.clone(),
-                delta_data,
+                view_data,
             )
             .await?;
         };
@@ -232,7 +232,7 @@ impl ViewController {
             thumbnail: view_rev.thumbnail,
             data_format: view_rev.data_format.into(),
             layout: view_rev.layout.into(),
-            view_content_data: view_data.to_vec(),
+            initial_data: view_data.to_vec(),
             view_id: gen_view_id(),
         };
 

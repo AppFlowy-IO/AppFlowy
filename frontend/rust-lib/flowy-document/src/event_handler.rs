@@ -1,5 +1,5 @@
 use crate::entities::{
-    DocumentSnapshotPB, EditParams, EditPayloadPB, ExportDataPB, ExportParams, ExportPayloadPB, OpenDocumentContextPB,
+    DocumentDataPB, EditParams, EditPayloadPB, ExportDataPB, ExportParams, ExportPayloadPB, OpenDocumentPayloadPB,
 };
 use crate::DocumentManager;
 use flowy_error::FlowyError;
@@ -9,15 +9,15 @@ use std::convert::TryInto;
 use std::sync::Arc;
 
 pub(crate) async fn get_document_handler(
-    data: AFPluginData<OpenDocumentContextPB>,
+    data: AFPluginData<OpenDocumentPayloadPB>,
     manager: AFPluginState<Arc<DocumentManager>>,
-) -> DataResult<DocumentSnapshotPB, FlowyError> {
-    let context: OpenDocumentContextPB = data.into_inner();
+) -> DataResult<DocumentDataPB, FlowyError> {
+    let context: OpenDocumentPayloadPB = data.into_inner();
     let editor = manager.open_document_editor(&context.document_id).await?;
     let document_data = editor.export().await?;
-    data_result(DocumentSnapshotPB {
+    data_result(DocumentDataPB {
         doc_id: context.document_id,
-        snapshot: document_data,
+        content: document_data,
     })
 }
 

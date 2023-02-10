@@ -19,7 +19,7 @@ pub fn init(document_manager: Arc<DocumentManager>) -> AFPlugin {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum DocumentEvent {
-    #[event(input = "OpenDocumentContextPB", output = "DocumentSnapshotPB")]
+    #[event(input = "OpenDocumentPayloadPB", output = "DocumentDataPB")]
     GetDocument = 0,
 
     #[event(input = "EditPayloadPB")]

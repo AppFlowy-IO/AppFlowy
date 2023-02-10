@@ -162,7 +162,7 @@ pub struct CreateViewPayloadPB {
     pub layout: ViewLayoutTypePB,
 
     #[pb(index = 7)]
-    pub view_content_data: Vec<u8>,
+    pub initial_data: Vec<u8>,
 }
 
 #[derive(Debug, Clone)]
@@ -174,7 +174,7 @@ pub struct CreateViewParams {
     pub data_format: ViewDataFormatPB,
     pub layout: ViewLayoutTypePB,
     pub view_id: String,
-    pub view_content_data: Vec<u8>,
+    pub initial_data: Vec<u8>,
 }
 
 impl TryInto<CreateViewParams> for CreateViewPayloadPB {
@@ -197,7 +197,7 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
             layout: self.layout,
             thumbnail,
             view_id,
-            view_content_data: self.view_content_data,
+            initial_data: self.initial_data,
         })
     }
 }

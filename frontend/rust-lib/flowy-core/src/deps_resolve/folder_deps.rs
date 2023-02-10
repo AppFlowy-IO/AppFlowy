@@ -5,6 +5,7 @@ use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_database::entities::LayoutTypePB;
 use flowy_database::manager::{make_database_view_data, DatabaseManager};
 use flowy_database::util::{make_default_board, make_default_calendar, make_default_grid};
+use flowy_document::editor::make_transaction_from_document_content;
 use flowy_document::DocumentManager;
 use flowy_folder::entities::{ViewDataFormatPB, ViewLayoutTypePB, ViewPB};
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
@@ -150,7 +151,15 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     ) -> FutureResult<(), FlowyError> {
         // Only accept Document type
         debug_assert_eq!(layout, ViewLayoutTypePB::Document);
-        let revision = Revision::initial_revision(view_id, view_data);
+        let view_data = match String::from_utf8(view_data.to_vec()) {
+            Ok(content) => match make_transaction_from_document_content(&content) {
+                Ok(transaction) => transaction.to_bytes().unwrap_or(vec![]),
+                Err(_) => vec![],
+            },
+            Err(_) => vec![],
+        };
+
+        let revision = Revision::initial_revision(view_id, Bytes::from(view_data));
         let view_id = view_id.to_string();
         let manager = self.0.clone();
 
@@ -199,7 +208,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         })
     }
 
-    fn create_view_from_delta_data(
+    fn create_view_with_data(
         &self,
         _user_id: &str,
         _view_id: &str,
@@ -279,7 +288,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         })
     }
 
-    fn create_view_from_delta_data(
+    fn create_view_with_data(
         &self,
         user_id: &str,
         view_id: &str,
