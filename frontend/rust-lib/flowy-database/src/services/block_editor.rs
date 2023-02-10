@@ -11,12 +11,10 @@ use grid_model::{CellRevision, DatabaseBlockRevision, RowChangeset, RowRevision}
 use lib_infra::future::FutureResult;
 use lib_infra::retry::spawn_retry;
 use lib_ot::core::EmptyAttributes;
-use parking_lot::RwLock;
 use revision_model::Revision;
 use std::borrow::Cow;
 use std::sync::Arc;
-use std::time::Duration;
-// use tokio::sync::RwLock;
+use tokio::sync::RwLock;
 
 pub struct DatabaseBlockRevisionEditor {
     #[allow(dead_code)]
@@ -57,7 +55,7 @@ impl DatabaseBlockRevisionEditor {
     }
 
     pub async fn duplicate_block(&self, duplicated_block_id: &str) -> DatabaseBlockRevision {
-        self.pad.read().duplicate_data(duplicated_block_id)
+        self.pad.read().await.duplicate_data(duplicated_block_id)
     }
 
     /// Create a row after the the with prev_row_id. If prev_row_id is None, the row will be appended to the list
@@ -112,16 +110,15 @@ impl DatabaseBlockRevisionEditor {
     }
 
     pub async fn index_of_row(&self, row_id: &str) -> Option<usize> {
-        self.pad.read().index_of_row(row_id)
+        self.pad.read().await.index_of_row(row_id)
     }
 
     pub async fn number_of_rows(&self) -> i32 {
-        self.pad.read().rows.len() as i32
+        self.pad.read().await.rows.len() as i32
     }
 
     pub async fn get_row_rev(&self, row_id: &str) -> FlowyResult<Option<(usize, Arc<RowRevision>)>> {
-        let duration = Duration::from_millis(300);
-        if let Some(pad) = self.pad.try_read_for(duration) {
+        if let Ok(pad) = self.pad.try_read() {
             Ok(pad.get_row_rev(row_id))
         } else {
             tracing::error!("Required grid block read lock failed, retrying");
@@ -143,7 +140,7 @@ impl DatabaseBlockRevisionEditor {
     where
         T: AsRef<str> + ToOwned + ?Sized,
     {
-        let row_revs = self.pad.read().get_row_revs(row_ids)?;
+        let row_revs = self.pad.read().await.get_row_revs(row_ids)?;
         Ok(row_revs)
     }
 
@@ -152,7 +149,7 @@ impl DatabaseBlockRevisionEditor {
         field_id: &str,
         row_ids: Option<Vec<Cow<'_, String>>>,
     ) -> FlowyResult<Vec<CellRevision>> {
-        let cell_revs = self.pad.read().get_cell_revs(field_id, row_ids)?;
+        let cell_revs = self.pad.read().await.get_cell_revs(field_id, row_ids)?;
         Ok(cell_revs)
     }
 
@@ -160,7 +157,8 @@ impl DatabaseBlockRevisionEditor {
     where
         F: for<'a> FnOnce(&'a mut GridBlockRevisionPad) -> FlowyResult<Option<GridBlockRevisionChangeset>>,
     {
-        let changeset = f(&mut self.pad.write())?;
+        let mut write_guard = self.pad.write().await;
+        let changeset = f(&mut write_guard)?;
         match changeset {
             None => {}
             Some(changeset) => {
