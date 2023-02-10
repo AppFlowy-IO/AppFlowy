@@ -2,9 +2,11 @@ import { AppflowyLogo } from '../../_shared/svg/AppflowyLogo';
 import { EyeClosed } from '../../_shared/svg/EyeClosedSvg';
 import { EyeOpened } from '../../_shared/svg/EyeOpenSvg';
 import { useLogin } from './Login.hooks';
+import { Link } from 'react-router-dom';
+import { Button } from '../../_shared/Button';
 
 export const Login = () => {
-  const { showPassword, onTogglePassword } = useLogin();
+  const { showPassword, onTogglePassword, onSignInClick } = useLogin();
 
   return (
     <form onSubmit={(e) => e.preventDefault()} method='POST'>
@@ -28,30 +30,30 @@ export const Login = () => {
               className='absolute right-0 top-0 flex h-full w-12 items-center justify-center '
               onClick={onTogglePassword}
             >
-              {showPassword ? <EyeClosed /> : <EyeOpened />}
+              <span className={'h-6 w-6'}>{showPassword ? <EyeClosed /> : <EyeOpened />}</span>
             </button>
           </div>
 
           <div className='flex justify-center'>
             {/* Forget password link */}
-            <a href='#' className='text-xs text-main-accent hover:text-main-hovered'>
-              Forgot password?
-            </a>
+            <Link to={'/auth/confirm-account'}>
+              <span className='text-xs text-main-accent hover:text-main-hovered'>Forgot password?</span>
+            </Link>
           </div>
         </div>
 
         <div className='flex w-full max-w-[340px] flex-col gap-6 '>
-          <button type='submit' className='btn btn-primary w-full   !border-0'>
+          <Button size={'primary'} onClick={() => onSignInClick()}>
             Login
-          </button>
+          </Button>
 
           {/* signup link */}
           <div className='flex justify-center'>
             <span className='text-xs text-gray-400'>
               Don't have an account?
-              <a href='/auth/signUp' className='text-main-accent hover:text-main-hovered'>
-                <span> Sign up</span>
-              </a>
+              <Link to={'/auth/signUp'}>
+                <span className='text-main-accent hover:text-main-hovered'> Sign up</span>
+              </Link>
             </span>
           </div>
         </div>

@@ -3,9 +3,11 @@ import { EyeClosed } from '../../_shared/svg/EyeClosedSvg';
 import { EyeOpened } from '../../_shared/svg/EyeOpenSvg';
 
 import { useSignUp } from './SignUp.hooks';
+import { Link } from 'react-router-dom';
+import { Button } from '../../_shared/Button';
 
 export const SignUp = () => {
-  const { showPassword, onTogglePassword, showConfirmPassword, onToggleConfirmPassword } = useSignUp();
+  const { showPassword, onTogglePassword, showConfirmPassword, onToggleConfirmPassword, onSignUpClick } = useSignUp();
 
   return (
     <form method='POST' onSubmit={(e) => e.preventDefault()}>
@@ -50,17 +52,17 @@ export const SignUp = () => {
         </div>
 
         <div className='flex w-full max-w-[340px] flex-col gap-6 '>
-          <button className='btn btn-primary w-full !border-0' type='submit'>
+          <Button size={'primary'} onClick={() => onSignUpClick()}>
             Get Started
-          </button>
+          </Button>
 
           {/* signup link */}
           <div className='flex justify-center'>
             <span className='text-xs text-gray-500'>
               Already have an account?
-              <a href='/auth/login' className=' text-main-accent hover:text-main-hovered'>
-                <span> Sign in</span>
-              </a>
+              <Link to={'/auth/login'}>
+                <span className=' text-main-accent hover:text-main-hovered'> Sign in</span>
+              </Link>
             </span>
           </div>
         </div>
