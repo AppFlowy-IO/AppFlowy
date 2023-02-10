@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type PageType = 'document' | 'grid' | 'board'
+export type PageType = 'document' | 'grid' | 'board';
 
 export interface IPage {
   id: string;

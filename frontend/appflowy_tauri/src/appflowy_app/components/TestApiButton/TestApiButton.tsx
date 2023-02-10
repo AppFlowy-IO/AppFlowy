@@ -126,7 +126,7 @@ const TestApiButton = () => {
       <h1 className='text-3xl'>Welcome to AppFlowy!</h1>
 
       <div>
-        <button className='bg-gray-700 p-4 rounded-md' type='button' onClick={() => sendSignInEvent()}>
+        <button className='rounded-md bg-gray-700 p-4' type='button' onClick={() => sendSignInEvent()}>
           Sign in and create sample data
         </button>
       </div>

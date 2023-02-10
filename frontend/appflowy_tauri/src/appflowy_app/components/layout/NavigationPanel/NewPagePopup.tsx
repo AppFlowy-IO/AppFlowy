@@ -1,7 +1,7 @@
 import { IPopupItem, Popup } from '../../_shared/Popup';
-import { DocumentSvg } from '../../_shared/DocumentSvg';
-import { BoardSvg } from '../../_shared/BoardSvg';
-import { GridSvg } from '../../_shared/GridSvg';
+import { DocumentSvg } from '../../_shared/svg/DocumentSvg';
+import { BoardSvg } from '../../_shared/svg/BoardSvg';
+import { GridSvg } from '../../_shared/svg/GridSvg';
 
 export const NewPagePopup = ({
   onDocumentClick,
@@ -17,7 +17,7 @@ export const NewPagePopup = ({
   const items: IPopupItem[] = [
     {
       icon: (
-        <i className={'w-[16px] h-[16px] text-black'}>
+        <i className={'h-[16px] w-[16px] text-black'}>
           <DocumentSvg></DocumentSvg>
         </i>
       ),
@@ -26,7 +26,7 @@ export const NewPagePopup = ({
     },
     {
       icon: (
-        <i className={'w-[16px] h-[16px] text-black'}>
+        <i className={'h-[16px] w-[16px] text-black'}>
           <BoardSvg></BoardSvg>
         </i>
       ),
@@ -35,7 +35,7 @@ export const NewPagePopup = ({
     },
     {
       icon: (
-        <i className={'w-[16px] h-[16px] text-black'}>
+        <i className={'h-[16px] w-[16px] text-black'}>
           <GridSvg></GridSvg>
         </i>
       ),

@@ -1,13 +1,13 @@
-import AddSvg from '../../_shared/AddSvg';
+import AddSvg from '../../_shared/svg/AddSvg';
 import { useNewFolder } from './NewFolderButton.hooks';
 
 export const NewFolderButton = () => {
   const { onNewFolder } = useNewFolder();
 
   return (
-    <button onClick={() => onNewFolder()} className={'flex items-center w-full hover:bg-surface-2 px-6 h-[50px]'}>
-      <div className={'bg-main-accent rounded-full text-white mr-2'}>
-        <div className={'text-white w-[24px] h-[24px]'}>
+    <button onClick={() => onNewFolder()} className={'flex h-[50px] w-full items-center px-6 hover:bg-surface-2'}>
+      <div className={'mr-2 rounded-full bg-main-accent text-white'}>
+        <div className={'h-[24px] w-[24px] text-white'}>
           <AddSvg></AddSvg>
         </div>
       </div>

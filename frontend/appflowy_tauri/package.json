@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "format": "prettier --write .",
     "tauri:dev": "tauri dev"
   },
   "dependencies": {
@@ -18,6 +19,7 @@
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.8.0",
+    "react18-input-otp": "^1.1.2",
     "redux": "^4.2.1",
     "ts-results": "^3.3.0"
   },
@@ -34,6 +36,7 @@
     "eslint": "^8.33.0",
     "postcss": "^8.4.21",
     "prettier": "^2.8.3",
+    "prettier-plugin-tailwindcss": "^0.2.2",
     "tailwindcss": "^3.2.4",
     "typescript": "^4.6.4",
     "vite": "^4.0.0"

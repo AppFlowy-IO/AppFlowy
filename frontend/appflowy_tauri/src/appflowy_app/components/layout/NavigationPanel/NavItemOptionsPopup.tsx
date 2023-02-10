@@ -1,7 +1,7 @@
 import { IPopupItem, Popup } from '../../_shared/Popup';
-import { EditSvg } from '../../_shared/EditSvg';
-import { TrashSvg } from '../../_shared/TrashSvg';
-import { CopySvg } from '../../_shared/CopySvg';
+import { EditSvg } from '../../_shared/svg/EditSvg';
+import { TrashSvg } from '../../_shared/svg/TrashSvg';
+import { CopySvg } from '../../_shared/svg/CopySvg';
 
 export const NavItemOptionsPopup = ({
   onRenameClick,
@@ -17,7 +17,7 @@ export const NavItemOptionsPopup = ({
   const items: IPopupItem[] = [
     {
       icon: (
-        <i className={'w-[16px] h-[16px] text-black'}>
+        <i className={'h-[16px] w-[16px] text-black'}>
           <EditSvg></EditSvg>
         </i>
       ),
@@ -26,7 +26,7 @@ export const NavItemOptionsPopup = ({
     },
     {
       icon: (
-        <i className={'w-[16px] h-[16px] text-black'}>
+        <i className={'h-[16px] w-[16px] text-black'}>
           <TrashSvg></TrashSvg>
         </i>
       ),
@@ -35,7 +35,7 @@ export const NavItemOptionsPopup = ({
     },
     {
       icon: (
-        <i className={'w-[16px] h-[16px] text-black'}>
+        <i className={'h-[16px] w-[16px] text-black'}>
           <CopySvg></CopySvg>
         </i>
       ),

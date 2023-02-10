@@ -1,3 +1,11 @@
+/* stop body from scrolling */
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
 input,
 textarea {
   outline: 0;
@@ -9,5 +17,17 @@ body {
 }
 
 .btn {
-  @apply border border-gray-500 px-4 py-2 rounded-lg;
+  @apply rounded-xl border border-gray-500 px-4 py-3;
+}
+
+.btn-primary {
+  @apply bg-main-accent text-white hover:bg-main-hovered;
+}
+
+.input {
+  @apply rounded-xl border border-gray-300 px-[18px] py-[14px] text-sm;
+}
+
+th {
+  @apply text-left font-normal;
 }

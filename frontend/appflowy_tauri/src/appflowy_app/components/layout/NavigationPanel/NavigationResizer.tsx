@@ -14,7 +14,7 @@ export const NavigationResizer = () => {
 
   return (
     <button
-      className={'cursor-ew-resize fixed h-full w-[15px] z-10'}
+      className={'fixed z-10 h-full w-[15px] cursor-ew-resize'}
       style={{ left: `${width - 8}px`, userSelect: 'none' }}
       onMouseDown={onMouseDown}
     ></button>

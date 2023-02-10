@@ -19,13 +19,13 @@ export const NavigationPanel = () => {
 
   return (
     <>
-      <div className={'bg-surface-1 flex flex-col justify-between text-sm'} style={{ width: `${width}px` }}>
+      <div className={'flex flex-col justify-between bg-surface-1 text-sm'} style={{ width: `${width}px` }}>
         <div className={'flex flex-col'}>
           <AppLogo></AppLogo>
 
           <Workspace></Workspace>
 
-          <div className={'px-2 flex flex-col'}>
+          <div className={'flex flex-col px-2'}>
             {folders.map((folder, index) => (
               <FolderItem
                 key={index}
@@ -38,7 +38,7 @@ export const NavigationPanel = () => {
         </div>
 
         <div className={'flex flex-col'}>
-          <div className={'border-b border-shade-6 pb-4 px-2'}>
+          <div className={'border-b border-shade-6 px-2 pb-4'}>
             <PluginsButton></PluginsButton>
             <TrashButton></TrashButton>
           </div>
