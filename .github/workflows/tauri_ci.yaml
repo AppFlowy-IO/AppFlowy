@@ -75,7 +75,7 @@ jobs:
           cargo make build_tauri_backend
 
       - name: build tauri frontend
-        working-directory: frontend
+        working-directory: frontend/appflowy_tauri
         run: yarn && yarn build
       - uses: tauri-apps/tauri-action@v0
         env:
