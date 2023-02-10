@@ -28,7 +28,7 @@ export const Login = () => {
               className='absolute right-0 top-0 flex h-full w-12 items-center justify-center '
               onClick={onTogglePassword}
             >
-              {showPassword ? <EyeClosed /> : <EyeOpened />}
+              <span className='h-6 w-6'>{showPassword ? <EyeClosed /> : <EyeOpened />}</span>
             </button>
           </div>
 
