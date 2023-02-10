@@ -1,11 +1,7 @@
 name: Tauri-CI
 on:
   pull_request:
-    branches:
-      - "main"
-      - "release/*"
     paths:
-      - "shared-lib/**"
       - "frontend/rust-lib/**"
       - "frontend/appflowy_tauri/**"
 
@@ -65,18 +61,14 @@ jobs:
           cargo install --force cargo-make
           cargo make appflowy-tauri-deps-tools
 
-      - name: build tauri backend
-        working-directory: frontend
+      - name: build
+        working-directory: frontend/appflowy_tauri
         run: |
-          cd appflowy_tauri
           mkdir dist
           npm install
-          cd ..
-          cargo make build_tauri_backend
+          cargo make --cwd .. build_tauri_backend
+          yarn && yarn build
 
-      - name: build tauri frontend
-        working-directory: frontend/appflowy_tauri
-        run: yarn && yarn build
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
