@@ -14,7 +14,7 @@ const initialState: ICurrentUser | null = {
   displayName: 'Me 😃',
   email: `${nanoid(4)}@gmail.com`,
   token: nanoid(8),
-  isAuthenticated: false,
+  isAuthenticated: true,
 };
 
 export const currentUserSlice = createSlice({
