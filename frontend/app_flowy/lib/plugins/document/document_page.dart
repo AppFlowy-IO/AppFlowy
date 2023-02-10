@@ -19,10 +19,6 @@ import 'package:get_it/get_it.dart';
 import '../../workspace/application/settings/settings_location_cubit.dart';
 import 'dart:io';
 
-final directory = getIt<SettingsLocationCubit>()
-    .fetchLocation()
-    .then((value) => Directory(value));
-
 class DocumentPage extends StatefulWidget {
   final VoidCallback onDeleted;
   final ViewPB view;
@@ -40,6 +36,10 @@ class DocumentPage extends StatefulWidget {
 class _DocumentPageState extends State<DocumentPage> {
   late DocumentBloc documentBloc;
   final FocusNode _focusNode = FocusNode();
+
+  final directory = getIt<SettingsLocationCubit>()
+      .fetchLocation()
+      .then((value) => Directory(value));
 
   @override
   void initState() {
@@ -125,7 +125,7 @@ class _DocumentPageState extends State<DocumentPage> {
         kGridType: GridNodeWidgetBuilder(),
         // Card
         kCalloutType: CalloutNodeWidgetBuilder(),
-        kLocalImage: LocalImageNodeWidgetBuilder(directory)
+        kLocalImage: LocalImageNodeWidgetBuilder(imageFolder: directory)
       },
       shortcutEvents: [
         // Divider

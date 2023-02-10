@@ -9,43 +9,56 @@ String? folderPath;
 String? imageFile;
 String? newImage;
 
-Future<String?> copyFile(String src, String? dest, String name) async {
+String? copyFile(String src, String? dest, String name) {
   var path = File(src);
   path.copy('$dest/images/$name');
   newImage = '$dest/images/$name';
   return newImage;
 }
 
-Future<Directory> checkDir() async {
-  if (await Directory('$folderPath/images').exists() == false) {
-    return Directory('$folderPath/images').create(recursive: true);
+Future<Directory?> checkDir(String? path) async {
+  if (!await Directory('$path/images').exists()) {
+    return Directory('$path/images').create(recursive: true);
   }
-  return Directory('$folderPath/images');
+
+  return Directory('$path/images');
 }
 
 class LocalImageNodeWidgetBuilder extends NodeWidgetBuilder {
-  LocalImageNodeWidgetBuilder(this.directory);
-  final Future<Directory>? directory;
+  LocalImageNodeWidgetBuilder({this.imageFolder});
+  final Future<Directory>? imageFolder;
 
   @override
   Widget build(NodeWidgetContext<Node> context) {
     String src = context.node.attributes['image_src'].toString();
     String imageName = context.node.attributes['name'];
-    var storageLocation = directory?.then((location) async {
+
+    imageFolder?.then((location) {
       String value = location.path.toString();
       folderPath = value;
-      checkDir();
-      return folderPath;
+      checkDir(value);
+      return value;
     });
 
-    copyFile(src, folderPath, imageName);
+    Future<String?> checkImg() async {
+      File existingFile = File('$folderPath/images/$imageName');
+      if (await existingFile.exists()) {
+        return newImage = existingFile.path.toString();
+      } else {
+        return copyFile(src, folderPath, imageName);
+      }
+    }
 
     return FutureBuilder(
-        future: storageLocation,
+        future: checkImg(),
         builder: (BuildContext _, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             return _LocalImageNodeWidget(
-                key: context.node.key, node: context.node, image: newImage);
+                key: context.node.key,
+                node: context.node,
+                image: snapshot.data);
+          } else if (snapshot.hasError) {
+            return Text('Can not load image ${snapshot.error}');
           } else {
             return const CircularProgressIndicator();
           }
@@ -54,7 +67,6 @@ class LocalImageNodeWidgetBuilder extends NodeWidgetBuilder {
 
   @override
   NodeValidator<Node> get nodeValidator => (node) {
-        checkDir();
         return node.type == 'image' &&
             node.attributes['image_src'] is String &&
             node.attributes['name'] is String;
