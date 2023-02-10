@@ -1,5 +1,6 @@
 import { nanoid } from 'nanoid';
-import { FieldType, gridActions } from '../../../redux/grid/slice';
+import { FieldType } from '../../../../services/backend/classes/flowy-database/field_entities';
+import { gridActions } from '../../../redux/grid/slice';
 import { useAppDispatch, useAppSelector } from '../../../store';
 
 export const useGridTableHeaderHooks = function () {
@@ -13,7 +14,7 @@ export const useGridTableHeaderHooks = function () {
           fieldId: nanoid(8),
           name: 'Name',
           fieldOptions: {},
-          fieldType: FieldType.Text,
+          fieldType: FieldType.RichText,
         },
       })
     );
