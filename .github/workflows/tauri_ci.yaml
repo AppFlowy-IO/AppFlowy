@@ -1,9 +1,5 @@
 name: Tauri-CI
-on:
-  pull_request:
-    paths:
-      - "frontend/rust-lib/**"
-      - "frontend/appflowy_tauri/**"
+on: [pull_request]
 
 env:
   NODE_VERSION: "16"
