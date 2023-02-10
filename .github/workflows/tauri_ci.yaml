@@ -58,6 +58,12 @@ jobs:
           cargo install --force cargo-make
           cargo make appflowy-tauri-deps-tools
 
+      - name: build
+        working-directory: frontend/appflowy_tauri
+        run: |
+          mkdir dist
+          npm install
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
