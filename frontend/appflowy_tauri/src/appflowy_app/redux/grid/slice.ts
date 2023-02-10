@@ -1,29 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { nanoid } from 'nanoid';
-
-// eslint-disable-next-line no-shadow
-export enum FieldType {
-  Text = 'text',
-  Number = 'number',
-  Date = 'date',
-  Select = 'select',
-  MultiSelect = 'multiselect',
-  Checklist = 'checklist',
-  URL = 'url',
-}
+import { FieldType } from '../../../services/backend/classes/flowy-database/field_entities';
 
 const initialState = {
   title: 'My plans on the week',
   fields: [
     {
       fieldId: '1',
-      fieldType: FieldType.Text,
+      fieldType: FieldType.RichText,
       fieldOptions: {},
       name: 'Todo',
     },
     {
       fieldId: '2',
-      fieldType: FieldType.Select,
+      fieldType: FieldType.SingleSelect,
       fieldOptions: [],
       name: 'Status',
     },
@@ -35,7 +25,7 @@ const initialState = {
     },
     {
       fieldId: '4',
-      fieldType: FieldType.Date,
+      fieldType: FieldType.DateTime,
       fieldOptions: [],
       name: 'Due Date',
     },
