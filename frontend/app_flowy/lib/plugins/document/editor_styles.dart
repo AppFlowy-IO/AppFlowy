@@ -9,7 +9,7 @@ EditorStyle customEditorTheme(BuildContext context) {
       ? EditorStyle.dark
       : EditorStyle.light;
   editorStyle = editorStyle.copyWith(
-    padding: const EdgeInsets.symmetric(horizontal: 40),
+    padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 28),
     textStyle: editorStyle.textStyle?.copyWith(
       fontFamily: 'poppins',
       fontSize: documentStyle.fontSize,
@@ -23,6 +23,10 @@ EditorStyle customEditorTheme(BuildContext context) {
       fontFamily: 'poppins-Bold',
     ),
     backgroundColor: Theme.of(context).colorScheme.surface,
+    selectionMenuItemSelectedIconColor:
+        Theme.of(context).textTheme.bodyMedium?.color,
+    selectionMenuItemSelectedTextColor:
+        Theme.of(context).textTheme.bodyMedium?.color,
   );
   return editorStyle;
 }

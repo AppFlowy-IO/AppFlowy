@@ -27,7 +27,7 @@ class DatabaseFieldsListener {
 
   void _handler(DatabaseNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case DatabaseNotification.DidUpdateDatabaseFields:
+      case DatabaseNotification.DidUpdateFields:
         result.fold(
           (payload) => updateFieldsNotifier?.value =
               left(DatabaseFieldChangesetPB.fromBuffer(payload)),

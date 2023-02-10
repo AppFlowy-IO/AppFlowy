@@ -6,7 +6,7 @@ import 'package:dartz/dartz.dart' show none;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
+import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
@@ -135,11 +135,9 @@ class _FieldNameTextField extends StatefulWidget {
 
 class _FieldNameTextFieldState extends State<_FieldNameTextField> {
   FocusNode focusNode = FocusNode();
-  late TextEditingController controller;
 
   @override
   void initState() {
-    controller = TextEditingController();
     focusNode.addListener(() {
       if (focusNode.hasFocus) {
         widget.popoverMutex.close();
@@ -157,33 +155,23 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<FieldEditorBloc, FieldEditorState>(
-          listenWhen: (p, c) => p.field == none(),
-          listener: (context, state) {
-            focusNode.requestFocus();
-          },
-        ),
-        BlocListener<FieldEditorBloc, FieldEditorState>(
-          listenWhen: (p, c) => controller.text != c.name,
-          listener: (context, state) {
-            controller.text = state.name;
-          },
-        ),
-      ],
+    return BlocListener<FieldEditorBloc, FieldEditorState>(
+      listenWhen: (p, c) => p.field == none(),
+      listener: (context, state) {
+        focusNode.requestFocus();
+      },
       child: BlocBuilder<FieldEditorBloc, FieldEditorState>(
         buildWhen: (previous, current) =>
             previous.errorText != current.errorText,
         builder: (context, state) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: RoundedInputField(
-              height: 36,
+            child: FlowyTextField(
               focusNode: focusNode,
-              style: Theme.of(context).textTheme.bodyMedium,
-              controller: controller,
-              errorText: context.read<FieldEditorBloc>().state.errorText,
+              onSubmitted: (String _) => PopoverContainer.of(context).close(),
+              text: context.read<FieldEditorBloc>().state.name,
+              errorText: context.read<FieldEditorBloc>().state.errorText.isEmpty ?
+                null : context.read<FieldEditorBloc>().state.errorText,
               onChanged: (newName) {
                 context
                     .read<FieldEditorBloc>()

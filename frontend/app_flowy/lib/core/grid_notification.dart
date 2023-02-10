@@ -10,7 +10,9 @@ import 'notification_helper.dart';
 
 // DatabasePB
 typedef DatabaseNotificationCallback = void Function(
-    DatabaseNotification, Either<Uint8List, FlowyError>);
+  DatabaseNotification,
+  Either<Uint8List, FlowyError>,
+);
 
 class DatabaseNotificationParser
     extends NotificationParser<DatabaseNotification, FlowyError> {
@@ -31,9 +33,10 @@ class DatabaseNotificationListener {
   StreamSubscription<SubscribeObject>? _subscription;
   DatabaseNotificationParser? _parser;
 
-  DatabaseNotificationListener(
-      {required String objectId, required DatabaseNotificationHandler handler})
-      : _parser = DatabaseNotificationParser(id: objectId, callback: handler) {
+  DatabaseNotificationListener({
+    required String objectId,
+    required DatabaseNotificationHandler handler,
+  }) : _parser = DatabaseNotificationParser(id: objectId, callback: handler) {
     _subscription =
         RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }

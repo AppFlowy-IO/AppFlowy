@@ -38,7 +38,10 @@ dependencies:
   flowy_infra:
     path: packages/flowy_infra
   appflowy_board:
-    path: packages/appflowy_board
+    # path: packages/appflowy_board
+    git:
+      url: https://github.com/AppFlowy-IO/appflowy-board.git
+      ref: a183c57
   appflowy_editor:
     path: packages/appflowy_editor
   appflowy_popover:
@@ -54,11 +57,6 @@ dependencies:
   dartz: ^0.10.1
   provider: ^6.0.1
   path_provider: ^2.0.1
-  window_size:
-    git:
-      url: https://github.com/google/flutter-desktop-embedding.git
-      path: plugins/window_size
-      ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
   sized_context: ^1.0.0+1
   styled_widget: "^0.3.1"
   expandable: ^5.0.1
@@ -94,6 +92,7 @@ dependencies:
   appflowy_editor_plugins:
     path: packages/appflowy_editor_plugins
   calendar_view: ^1.0.1
+  window_manager: ^0.3.0
 
 dev_dependencies:
   flutter_lints: ^2.0.1
@@ -136,19 +135,19 @@ flutter:
         - asset: assets/google_fonts/Poppins/Poppins-Thin.ttf
           weight: 200
         - asset: assets/google_fonts/Poppins/Poppins-Light.ttf
-          weight: 300          
-        - asset: assets/google_fonts/Poppins/Poppins-Regular.ttf          
+          weight: 300
+        - asset: assets/google_fonts/Poppins/Poppins-Regular.ttf
           weight: 400
-        - asset: assets/google_fonts/Poppins/Poppins-Medium.ttf          
+        - asset: assets/google_fonts/Poppins/Poppins-Medium.ttf
           weight: 500
-        - asset: assets/google_fonts/Poppins/Poppins-SemiBold.ttf          
+        - asset: assets/google_fonts/Poppins/Poppins-SemiBold.ttf
           weight: 600
         - asset: assets/google_fonts/Poppins/Poppins-Bold.ttf
           weight: 700
         - asset: assets/google_fonts/Poppins/Poppins-Black.ttf
           weight: 800
         - asset: assets/google_fonts/Poppins/Poppins-ExtraBold.ttf
-          weight: 900     
+          weight: 900
 
   # To add assets to your application, add an assets section, like this:
   assets:
@@ -158,6 +157,7 @@ flutter:
     - assets/images/grid/
     - assets/images/emoji/
     - assets/images/grid/field/
+    - assets/images/common/
     - assets/images/grid/setting/
     - assets/translations/
   #   - images/a_dot_ham.jpeg

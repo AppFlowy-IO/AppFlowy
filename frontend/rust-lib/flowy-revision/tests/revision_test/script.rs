@@ -2,7 +2,8 @@ use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_revision::{
     RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionPersistence,
-    RevisionPersistenceConfiguration, RevisionSnapshot, RevisionSnapshotDiskCache, REVISION_WRITE_INTERVAL_IN_MILLIS,
+    RevisionPersistenceConfiguration, RevisionSnapshotData, RevisionSnapshotPersistence,
+    REVISION_WRITE_INTERVAL_IN_MILLIS,
 };
 use flowy_revision_persistence::{RevisionChangeset, RevisionDiskCache, SyncRecord};
 
@@ -38,10 +39,10 @@ impl RevisionTest {
         Self::new_with_configuration(2).await
     }
 
-    pub async fn new_with_configuration(merge_threshold: i64) -> Self {
+    pub async fn new_with_configuration(max_merge_len: i64) -> Self {
         let user_id = nanoid!(10);
         let object_id = nanoid!(6);
-        let configuration = RevisionPersistenceConfiguration::new(merge_threshold as usize, false);
+        let configuration = RevisionPersistenceConfiguration::new(max_merge_len as usize, false);
         let disk_cache = RevisionDiskCacheMock::new(vec![]);
         let persistence = RevisionPersistence::new(&user_id, &object_id, disk_cache, configuration.clone());
         let compress = RevisionMergeableMock {};
@@ -244,16 +245,16 @@ impl RevisionDiskCache<RevisionConnectionMock> for RevisionDiskCacheMock {
 
 pub struct RevisionConnectionMock {}
 pub struct RevisionSnapshotMock {}
-impl RevisionSnapshotDiskCache for RevisionSnapshotMock {
+impl RevisionSnapshotPersistence for RevisionSnapshotMock {
     fn write_snapshot(&self, _rev_id: i64, _data: Vec<u8>) -> FlowyResult<()> {
-        todo!()
+        Ok(())
     }
 
-    fn read_snapshot(&self, _rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>> {
-        todo!()
+    fn read_snapshot(&self, _rev_id: i64) -> FlowyResult<Option<RevisionSnapshotData>> {
+        Ok(None)
     }
 
-    fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>> {
+    fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshotData>> {
         Ok(None)
     }
 }
@@ -333,7 +334,7 @@ impl RevisionObjectDeserializer for RevisionObjectMockSerde {
         Ok(object)
     }
 
-    fn recover_operations_from_revisions(_revisions: Vec<Revision>) -> Option<Self::Output> {
+    fn recover_from_revisions(_revisions: Vec<Revision>) -> Option<(Self::Output, i64)> {
         None
     }
 }

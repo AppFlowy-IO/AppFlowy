@@ -14,6 +14,7 @@ import 'package:appflowy_editor/src/service/internal_key_event_handlers/format_s
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/space_on_web_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/tab_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/whitespace_handler.dart';
+import 'package:appflowy_editor/src/service/internal_key_event_handlers/checkbox_event_handler.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event.dart';
 import 'package:flutter/foundation.dart';
 
@@ -112,23 +113,23 @@ List<ShortcutEvent> builtInShortcutEvents = [
   ),
   ShortcutEvent(
     key: 'Cursor begin select',
-    command: 'meta+shift+arrow left',
-    windowsCommand: 'ctrl+shift+arrow left',
-    linuxCommand: 'ctrl+shift+arrow left',
+    command: 'meta+shift+arrow left,shift+home',
+    windowsCommand: 'ctrl+shift+arrow left,shift+home',
+    linuxCommand: 'ctrl+shift+arrow left,shift+home',
     handler: cursorBeginSelect,
   ),
   ShortcutEvent(
     key: 'Cursor end select',
-    command: 'meta+shift+arrow right',
-    windowsCommand: 'ctrl+shift+arrow right',
-    linuxCommand: 'ctrl+shift+arrow right',
+    command: 'meta+shift+arrow right,shift+end',
+    windowsCommand: 'ctrl+shift+arrow right,shift+end',
+    linuxCommand: 'ctrl+shift+arrow right,shift+end',
     handler: cursorEndSelect,
   ),
   ShortcutEvent(
     key: 'Redo',
-    command: 'meta+shift+z',
-    windowsCommand: 'ctrl+shift+z',
-    linuxCommand: 'ctrl+shift+z',
+    command: 'meta+shift+z,meta+y',
+    windowsCommand: 'ctrl+shift+z,ctrl+y',
+    linuxCommand: 'ctrl+shift+z,ctrl+y',
     handler: redoEventHandler,
   ),
   ShortcutEvent(
@@ -158,6 +159,13 @@ List<ShortcutEvent> builtInShortcutEvents = [
     windowsCommand: 'ctrl+u',
     linuxCommand: 'ctrl+u',
     handler: formatUnderlineEventHandler,
+  ),
+  ShortcutEvent(
+    key: 'Toggle Checkbox',
+    command: 'meta+enter',
+    windowsCommand: 'ctrl+enter',
+    linuxCommand: 'ctrl+enter',
+    handler: toggleCheckbox,
   ),
   ShortcutEvent(
     key: 'Format strikethrough',

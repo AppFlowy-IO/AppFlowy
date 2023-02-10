@@ -53,7 +53,7 @@ impl DatabaseViewManager {
         self.view_editors.write().await.remove(view_id).await;
     }
 
-    pub async fn subscribe_view_changed(&self, view_id: &str) -> FlowyResult<broadcast::Receiver<GridViewChanged>> {
+    pub async fn subscribe_view_changed(&self, view_id: &str) -> FlowyResult<broadcast::Receiver<DatabaseViewChanged>> {
         Ok(self.get_view_editor(view_id).await?.notifier.subscribe())
     }
 
@@ -88,14 +88,14 @@ impl DatabaseViewManager {
     }
 
     /// Insert/Delete the group's row if the corresponding cell data was changed.  
-    pub async fn did_update_cell(&self, row_id: &str) {
+    pub async fn did_update_row(&self, old_row_rev: Option<Arc<RowRevision>>, row_id: &str) {
         match self.delegate.get_row_rev(row_id).await {
             None => {
                 tracing::warn!("Can not find the row in grid view");
             }
             Some((_, row_rev)) => {
                 for view_editor in self.view_editors.read().await.values() {
-                    view_editor.did_update_view_cell(&row_rev).await;
+                    view_editor.did_update_view_row(old_row_rev.clone(), &row_rev).await;
                 }
             }
         }
@@ -192,16 +192,12 @@ impl DatabaseViewManager {
     ) -> FlowyResult<()> {
         let mut row_changeset = RowChangeset::new(row_rev.id.clone());
         let view_editor = self.get_default_view_editor().await?;
-        let group_changesets = view_editor
+        view_editor
             .move_view_group_row(&row_rev, &mut row_changeset, &to_group_id, to_row_id.clone())
             .await;
 
         if !row_changeset.is_empty() {
             recv_row_changeset(row_changeset).await;
-        }
-
-        for group_changeset in group_changesets {
-            view_editor.notify_did_update_group_rows(group_changeset).await;
         }
 
         Ok(())

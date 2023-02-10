@@ -27,6 +27,7 @@ class RoundedInputField extends StatefulWidget {
   final TextEditingController? controller;
   final bool autoFocus;
   final int? maxLength;
+  final Function(String)? onFieldSubmitted;
 
   const RoundedInputField({
     Key? key,
@@ -51,6 +52,7 @@ class RoundedInputField extends StatefulWidget {
     this.controller,
     this.autoFocus = false,
     this.maxLength,
+    this.onFieldSubmitted,
   }) : super(key: key);
 
   @override
@@ -106,6 +108,7 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
           maxLength: widget.maxLength,
           maxLengthEnforcement:
               MaxLengthEnforcement.truncateAfterCompositionEnds,
+          onFieldSubmitted: widget.onFieldSubmitted,
           onChanged: (value) {
             inputText = value;
             if (widget.onChanged != null) {

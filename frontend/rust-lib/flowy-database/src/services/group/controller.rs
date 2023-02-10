@@ -1,11 +1,15 @@
-use crate::entities::{GroupRowsNotificationPB, GroupViewChangesetPB, InsertedRowPB, RowPB};
-use crate::services::cell::{decode_type_cell_data, CellProtobufBlobParser, DecodedCellData};
-use crate::services::group::action::{GroupControllerCustomActions, GroupControllerSharedActions};
+use crate::entities::{GroupChangesetPB, GroupRowsNotificationPB, InsertedRowPB, RowPB};
+use crate::services::cell::{get_type_cell_protobuf, CellProtobufBlobParser, DecodedCellData};
+
+use crate::services::group::action::{
+    DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerActions, GroupCustomize,
+};
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::entities::Group;
 use flowy_error::FlowyResult;
 use grid_model::{
-    FieldRevision, GroupConfigurationContentSerde, GroupRevision, RowChangeset, RowRevision, TypeOptionDataDeserializer,
+    CellRevision, FieldRevision, GroupConfigurationContentSerde, GroupRevision, RowChangeset, RowRevision,
+    TypeOptionDataDeserializer,
 };
 use std::marker::PhantomData;
 use std::sync::Arc;
@@ -18,7 +22,7 @@ use std::sync::Arc;
 /// If the [FieldType] doesn't implement its group controller, then the [DefaultGroupController] will
 /// be used.
 ///
-pub trait GroupController: GroupControllerSharedActions + Send + Sync {
+pub trait GroupController: GroupControllerActions + Send + Sync {
     fn will_create_row(&mut self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str);
     fn did_create_row(&mut self, row_pb: &RowPB, group_id: &str);
 }
@@ -86,12 +90,12 @@ where
 
     // https://stackoverflow.com/questions/69413164/how-to-fix-this-clippy-warning-needless-collect
     #[allow(clippy::needless_collect)]
-    fn update_default_group(
+    fn update_no_status_group(
         &mut self,
         row_rev: &RowRevision,
         other_group_changesets: &[GroupRowsNotificationPB],
     ) -> Option<GroupRowsNotificationPB> {
-        let default_group = self.group_ctx.get_mut_no_status_group()?;
+        let no_status_group = self.group_ctx.get_mut_no_status_group()?;
 
         // [other_group_inserted_row] contains all the inserted rows except the default group.
         let other_group_inserted_row = other_group_changesets
@@ -100,7 +104,7 @@ where
             .collect::<Vec<&InsertedRowPB>>();
 
         // Calculate the inserted_rows of the default_group
-        let default_group_inserted_row = other_group_changesets
+        let no_status_group_rows = other_group_changesets
             .iter()
             .flat_map(|changeset| &changeset.deleted_rows)
             .cloned()
@@ -113,10 +117,10 @@ where
             })
             .collect::<Vec<String>>();
 
-        let mut changeset = GroupRowsNotificationPB::new(default_group.id.clone());
-        if !default_group_inserted_row.is_empty() {
+        let mut changeset = GroupRowsNotificationPB::new(no_status_group.id.clone());
+        if !no_status_group_rows.is_empty() {
             changeset.inserted_rows.push(InsertedRowPB::new(row_rev.into()));
-            default_group.add_row(row_rev.into());
+            no_status_group.add_row(row_rev.into());
         }
 
         // [other_group_delete_rows] contains all the deleted rows except the default group.
@@ -138,7 +142,7 @@ where
             .collect::<Vec<&InsertedRowPB>>();
 
         let mut deleted_row_ids = vec![];
-        for row in &default_group.rows {
+        for row in &no_status_group.rows {
             if default_group_deleted_rows
                 .iter()
                 .any(|deleted_row| deleted_row.row.id == row.id)
@@ -146,20 +150,20 @@ where
                 deleted_row_ids.push(row.id.clone());
             }
         }
-        default_group.rows.retain(|row| !deleted_row_ids.contains(&row.id));
+        no_status_group.rows.retain(|row| !deleted_row_ids.contains(&row.id));
         changeset.deleted_rows.extend(deleted_row_ids);
         Some(changeset)
     }
 }
 
-impl<C, T, G, P> GroupControllerSharedActions for GenericGroupController<C, T, G, P>
+impl<C, T, G, P> GroupControllerActions for GenericGroupController<C, T, G, P>
 where
     P: CellProtobufBlobParser,
     C: GroupConfigurationContentSerde,
     T: TypeOptionDataDeserializer,
     G: GroupGenerator<Context = GroupContext<C>, TypeOptionType = T>,
 
-    Self: GroupControllerCustomActions<CellDataType = P::Object>,
+    Self: GroupCustomize<CellData = P::Object>,
 {
     fn field_id(&self) -> &str {
         &self.field_id
@@ -178,13 +182,13 @@ where
     fn fill_groups(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<()> {
         for row_rev in row_revs {
             let cell_rev = match row_rev.cells.get(&self.field_id) {
-                None => self.default_cell_rev(),
+                None => self.placeholder_cell(),
                 Some(cell_rev) => Some(cell_rev.clone()),
             };
 
             if let Some(cell_rev) = cell_rev {
                 let mut grouped_rows: Vec<GroupedRow> = vec![];
-                let cell_bytes = decode_type_cell_data(cell_rev.type_cell_data, field_rev, None).1;
+                let cell_bytes = get_type_cell_protobuf(cell_rev.type_cell_data, field_rev, None).1;
                 let cell_data = cell_bytes.parser::<P>()?;
                 for group in self.group_ctx.groups() {
                     if self.can_group(&group.filter_content, &cell_data) {
@@ -206,7 +210,7 @@ where
             }
             match self.group_ctx.get_mut_no_status_group() {
                 None => {}
-                Some(default_group) => default_group.add_row(row_rev.into()),
+                Some(no_status_group) => no_status_group.add_row(row_rev.into()),
             }
         }
 
@@ -220,76 +224,102 @@ where
 
     fn did_update_group_row(
         &mut self,
+        old_row_rev: &Option<Arc<RowRevision>>,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupRowsNotificationPB>> {
-        if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
-            let cell_bytes = decode_type_cell_data(cell_rev.type_cell_data.clone(), field_rev, None).1;
-            let cell_data = cell_bytes.parser::<P>()?;
-            let mut changesets = self.add_or_remove_row_in_groups_if_match(row_rev, &cell_data);
+    ) -> FlowyResult<DidUpdateGroupRowResult> {
+        // let cell_data = row_rev.cells.get(&self.field_id).and_then(|cell_rev| {
+        //     let cell_data: Option<P> = get_type_cell_data(cell_rev, field_rev, None);
+        //     cell_data
+        // });
+        let mut result = DidUpdateGroupRowResult {
+            inserted_group: None,
+            deleted_group: None,
+            row_changesets: vec![],
+        };
 
-            if let Some(default_group_changeset) = self.update_default_group(row_rev, &changesets) {
-                tracing::trace!("default_group_changeset: {}", default_group_changeset);
-                if !default_group_changeset.is_empty() {
-                    changesets.push(default_group_changeset);
+        if let Some(cell_data) = get_cell_data_from_row_rev::<P>(Some(row_rev), field_rev) {
+            let old_row_rev = old_row_rev.as_ref().map(|old| old.as_ref());
+            let old_cell_data = get_cell_data_from_row_rev::<P>(old_row_rev, field_rev);
+            if let Ok((insert, delete)) =
+                self.create_or_delete_group_when_cell_changed(row_rev, old_cell_data.as_ref(), &cell_data)
+            {
+                result.inserted_group = insert;
+                result.deleted_group = delete;
+            }
+
+            let mut changesets = self.add_or_remove_row_when_cell_changed(row_rev, &cell_data);
+            if let Some(changeset) = self.update_no_status_group(row_rev, &changesets) {
+                if !changeset.is_empty() {
+                    changesets.push(changeset);
                 }
             }
-            Ok(changesets)
-        } else {
-            Ok(vec![])
+            result.row_changesets = changesets;
         }
+
+        Ok(result)
     }
 
     fn did_delete_delete_row(
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupRowsNotificationPB>> {
+    ) -> FlowyResult<DidMoveGroupRowResult> {
         // if the cell_rev is none, then the row must in the default group.
+        let mut result = DidMoveGroupRowResult {
+            deleted_group: None,
+            row_changesets: vec![],
+        };
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
-            let cell_bytes = decode_type_cell_data(cell_rev.type_cell_data.clone(), field_rev, None).1;
+            let cell_bytes = get_type_cell_protobuf(cell_rev.type_cell_data.clone(), field_rev, None).1;
             let cell_data = cell_bytes.parser::<P>()?;
             if !cell_data.is_empty() {
                 tracing::error!("did_delete_delete_row {:?}", cell_rev.type_cell_data);
-                return Ok(self.delete_row(row_rev, &cell_data));
+                result.row_changesets = self.delete_row(row_rev, &cell_data);
+                return Ok(result);
             }
         }
 
         match self.group_ctx.get_no_status_group() {
             None => {
                 tracing::error!("Unexpected None value. It should have the no status group");
-                Ok(vec![])
             }
             Some(no_status_group) => {
                 if !no_status_group.contains_row(&row_rev.id) {
                     tracing::error!("The row: {} should be in the no status group", row_rev.id);
                 }
-                Ok(vec![GroupRowsNotificationPB::delete(
+                result.row_changesets = vec![GroupRowsNotificationPB::delete(
                     no_status_group.id.clone(),
                     vec![row_rev.id.clone()],
-                )])
+                )];
             }
         }
+        Ok(result)
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
-    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupRowsNotificationPB>> {
+    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<DidMoveGroupRowResult> {
+        let mut result = DidMoveGroupRowResult {
+            deleted_group: None,
+            row_changesets: vec![],
+        };
         let cell_rev = match context.row_rev.cells.get(&self.field_id) {
             Some(cell_rev) => Some(cell_rev.clone()),
-            None => self.default_cell_rev(),
+            None => self.placeholder_cell(),
         };
 
         if let Some(cell_rev) = cell_rev {
-            let cell_bytes = decode_type_cell_data(cell_rev.type_cell_data, context.field_rev, None).1;
+            let cell_bytes = get_type_cell_protobuf(cell_rev.type_cell_data, context.field_rev, None).1;
             let cell_data = cell_bytes.parser::<P>()?;
-            Ok(self.move_row(&cell_data, context))
+            result.deleted_group = self.delete_group_when_move_row(context.row_rev, &cell_data);
+            result.row_changesets = self.move_row(&cell_data, context);
         } else {
             tracing::warn!("Unexpected moving group row, changes should not be empty");
-            Ok(vec![])
         }
+        Ok(result)
     }
 
-    fn did_update_group_field(&mut self, _field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>> {
+    fn did_update_group_field(&mut self, _field_rev: &FieldRevision) -> FlowyResult<Option<GroupChangesetPB>> {
         Ok(None)
     }
 }
@@ -297,4 +327,13 @@ where
 struct GroupedRow {
     row: RowPB,
     group_id: String,
+}
+
+fn get_cell_data_from_row_rev<P: CellProtobufBlobParser>(
+    row_rev: Option<&RowRevision>,
+    field_rev: &FieldRevision,
+) -> Option<P::Object> {
+    let cell_rev: &CellRevision = row_rev.and_then(|row_rev| row_rev.cells.get(&field_rev.id))?;
+    let cell_bytes = get_type_cell_protobuf(cell_rev.type_cell_data.clone(), field_rev, None).1;
+    cell_bytes.parser::<P>().ok()
 }

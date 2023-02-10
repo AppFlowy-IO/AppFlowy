@@ -1,5 +1,5 @@
-use crate::entities::{GroupRowsNotificationPB, GroupViewChangesetPB, RowPB};
-use crate::services::group::action::GroupControllerSharedActions;
+use crate::entities::{GroupChangesetPB, RowPB};
+use crate::services::group::action::{DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerActions};
 use crate::services::group::{Group, GroupController, MoveGroupRowContext};
 use flowy_error::FlowyResult;
 use grid_model::{FieldRevision, RowRevision};
@@ -31,7 +31,7 @@ impl DefaultGroupController {
     }
 }
 
-impl GroupControllerSharedActions for DefaultGroupController {
+impl GroupControllerActions for DefaultGroupController {
     fn field_id(&self) -> &str {
         &self.field_id
     }
@@ -57,25 +57,36 @@ impl GroupControllerSharedActions for DefaultGroupController {
 
     fn did_update_group_row(
         &mut self,
+        _old_row_rev: &Option<Arc<RowRevision>>,
         _row_rev: &RowRevision,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupRowsNotificationPB>> {
-        Ok(vec![])
+    ) -> FlowyResult<DidUpdateGroupRowResult> {
+        Ok(DidUpdateGroupRowResult {
+            inserted_group: None,
+            deleted_group: None,
+            row_changesets: vec![],
+        })
     }
 
     fn did_delete_delete_row(
         &mut self,
         _row_rev: &RowRevision,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupRowsNotificationPB>> {
-        Ok(vec![])
+    ) -> FlowyResult<DidMoveGroupRowResult> {
+        Ok(DidMoveGroupRowResult {
+            deleted_group: None,
+            row_changesets: vec![],
+        })
     }
 
-    fn move_group_row(&mut self, _context: MoveGroupRowContext) -> FlowyResult<Vec<GroupRowsNotificationPB>> {
-        todo!()
+    fn move_group_row(&mut self, _context: MoveGroupRowContext) -> FlowyResult<DidMoveGroupRowResult> {
+        Ok(DidMoveGroupRowResult {
+            deleted_group: None,
+            row_changesets: vec![],
+        })
     }
 
-    fn did_update_group_field(&mut self, _field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>> {
+    fn did_update_group_field(&mut self, _field_rev: &FieldRevision) -> FlowyResult<Option<GroupChangesetPB>> {
         Ok(None)
     }
 }

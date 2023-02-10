@@ -1,7 +1,7 @@
-use crate::grid::grid_editor::GridEditorTest;
+use crate::grid::database_editor::DatabaseEditorTest;
 
 use flowy_client_sync::client_database::{DatabaseOperations, DatabaseRevisionPad};
-use flowy_revision::{RevisionSnapshot, REVISION_WRITE_INTERVAL_IN_MILLIS};
+use flowy_revision::{RevisionSnapshotData, REVISION_WRITE_INTERVAL_IN_MILLIS};
 use grid_model::FieldRevision;
 use revision_model::Revision;
 use std::time::Duration;
@@ -12,10 +12,10 @@ pub enum SnapshotScript {
     #[allow(dead_code)]
     AssertSnapshot {
         rev_id: i64,
-        expected: Option<RevisionSnapshot>,
+        expected: Option<RevisionSnapshotData>,
     },
     AssertSnapshotContent {
-        snapshot: RevisionSnapshot,
+        snapshot: RevisionSnapshotData,
         expected: String,
     },
     CreateField {
@@ -26,15 +26,15 @@ pub enum SnapshotScript {
     },
 }
 
-pub struct GridSnapshotTest {
-    inner: GridEditorTest,
-    pub current_snapshot: Option<RevisionSnapshot>,
+pub struct DatabaseSnapshotTest {
+    inner: DatabaseEditorTest,
+    pub current_snapshot: Option<RevisionSnapshotData>,
     pub current_revision: Option<Revision>,
 }
 
-impl GridSnapshotTest {
+impl DatabaseSnapshotTest {
     pub async fn new() -> Self {
-        let editor_test = GridEditorTest::new_table().await;
+        let editor_test = DatabaseEditorTest::new_table().await;
         Self {
             inner: editor_test,
             current_snapshot: None,
@@ -56,7 +56,7 @@ impl GridSnapshotTest {
         }
     }
 
-    pub async fn get_latest_snapshot(&self) -> Option<RevisionSnapshot> {
+    pub async fn get_latest_snapshot(&self) -> Option<RevisionSnapshotData> {
         self.editor.rev_manager().read_snapshot(None).await.unwrap()
     }
 
@@ -88,15 +88,15 @@ impl GridSnapshotTest {
         }
     }
 }
-impl std::ops::Deref for GridSnapshotTest {
-    type Target = GridEditorTest;
+impl std::ops::Deref for DatabaseSnapshotTest {
+    type Target = DatabaseEditorTest;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl std::ops::DerefMut for GridSnapshotTest {
+impl std::ops::DerefMut for DatabaseSnapshotTest {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }

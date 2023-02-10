@@ -7,6 +7,7 @@ script = ["""
 script_runner = "@shell"
 
 [tasks.tauri_dev]
+env = { RUST_LOG = "debug" }
 script = ["""
     cd appflowy_tauri
     npm run tauri:dev

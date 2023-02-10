@@ -158,6 +158,10 @@ class EditorStyle extends ThemeExtension<EditorStyle> {
     );
   }
 
+  static EditorStyle? of(BuildContext context) {
+    return Theme.of(context).extension<EditorStyle>();
+  }
+
   static final light = EditorStyle(
     padding: const EdgeInsets.fromLTRB(200.0, 0.0, 200.0, 0.0),
     backgroundColor: Colors.white,
@@ -166,8 +170,8 @@ class EditorStyle extends ThemeExtension<EditorStyle> {
     selectionMenuBackgroundColor: const Color(0xFFFFFFFF),
     selectionMenuItemTextColor: const Color(0xFF333333),
     selectionMenuItemIconColor: const Color(0xFF333333),
-    selectionMenuItemSelectedTextColor: const Color(0xFF333333),
-    selectionMenuItemSelectedIconColor: const Color(0xFF333333),
+    selectionMenuItemSelectedTextColor: const Color.fromARGB(255, 56, 91, 247),
+    selectionMenuItemSelectedIconColor: const Color.fromARGB(255, 56, 91, 247),
     selectionMenuItemSelectedColor: const Color(0xFFE0F8FF),
     textPadding: const EdgeInsets.symmetric(vertical: 8.0),
     textStyle: const TextStyle(fontSize: 16.0, color: Colors.black),

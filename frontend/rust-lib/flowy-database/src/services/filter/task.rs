@@ -3,15 +3,14 @@ use flowy_task::{TaskContent, TaskHandler};
 use lib_infra::future::BoxResultFuture;
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::RwLock;
 
 pub struct FilterTaskHandler {
     handler_id: String,
-    filter_controller: Arc<RwLock<FilterController>>,
+    filter_controller: Arc<FilterController>,
 }
 
 impl FilterTaskHandler {
-    pub fn new(handler_id: String, filter_controller: Arc<RwLock<FilterController>>) -> Self {
+    pub fn new(handler_id: String, filter_controller: Arc<FilterController>) -> Self {
         Self {
             handler_id,
             filter_controller,
@@ -33,8 +32,6 @@ impl TaskHandler for FilterTaskHandler {
         Box::pin(async move {
             if let TaskContent::Text(predicate) = content {
                 filter_controller
-                    .write()
-                    .await
                     .process(&predicate)
                     .await
                     .map_err(anyhow::Error::from)?;

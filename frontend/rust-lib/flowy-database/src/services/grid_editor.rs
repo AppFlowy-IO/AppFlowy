@@ -1,10 +1,10 @@
-use crate::entities::CellPathParams;
+use crate::entities::CellIdParams;
 use crate::entities::*;
 use crate::manager::DatabaseUser;
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::block_manager::DatabaseBlockManager;
 use crate::services::cell::{
-    apply_cell_data_changeset, decode_type_cell_data, stringify_cell_data, AnyTypeCache, AtomicCellDataCache,
+    apply_cell_data_changeset, get_type_cell_protobuf, stringify_cell_data, AnyTypeCache, AtomicCellDataCache,
     CellProtobufBlob, ToCellChangesetString, TypeCellData,
 };
 use crate::services::field::{
@@ -16,7 +16,7 @@ use crate::services::filter::FilterType;
 use crate::services::grid_editor_trait_impl::GridViewEditorDelegateImpl;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{DatabaseBlockRow, DatabaseBlockRowRevision, RowRevisionBuilder};
-use crate::services::view_editor::{DatabaseViewManager, GridViewChanged};
+use crate::services::view_editor::{DatabaseViewChanged, DatabaseViewManager};
 use bytes::Bytes;
 use flowy_client_sync::client_database::{DatabaseRevisionChangeset, DatabaseRevisionPad, JsonDeserializer};
 use flowy_client_sync::errors::{SyncError, SyncResult};
@@ -57,15 +57,12 @@ impl DatabaseRevisionEditor {
     pub async fn new(
         database_id: &str,
         user: Arc<dyn DatabaseUser>,
-        mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
+        database_pad: Arc<RwLock<DatabaseRevisionPad>>,
+        rev_manager: RevisionManager<Arc<ConnectionPool>>,
         persistence: Arc<BlockIndexCache>,
         task_scheduler: Arc<RwLock<TaskDispatcher>>,
     ) -> FlowyResult<Arc<Self>> {
-        let token = user.token()?;
-        let cloud = Arc::new(GridRevisionCloudService { token });
-        let database_pad = rev_manager.initialize::<GridRevisionSerde>(Some(cloud)).await?;
         let rev_manager = Arc::new(rev_manager);
-        let database_pad = Arc::new(RwLock::new(database_pad));
         let cell_data_cache = AnyTypeCache::<u64>::new();
 
         // Block manager
@@ -392,8 +389,9 @@ impl DatabaseRevisionEditor {
 
     pub async fn update_row(&self, changeset: RowChangeset) -> FlowyResult<()> {
         let row_id = changeset.row_id.clone();
+        let old_row = self.get_row_rev(&row_id).await?;
         self.block_manager.update_row(changeset).await?;
-        self.view_manager.did_update_cell(&row_id).await;
+        self.view_manager.did_update_row(old_row, &row_id).await;
         Ok(())
     }
 
@@ -430,7 +428,7 @@ impl DatabaseRevisionEditor {
         Ok(())
     }
 
-    pub async fn subscribe_view_changed(&self, view_id: &str) -> FlowyResult<broadcast::Receiver<GridViewChanged>> {
+    pub async fn subscribe_view_changed(&self, view_id: &str) -> FlowyResult<broadcast::Receiver<DatabaseViewChanged>> {
         self.view_manager.subscribe_view_changed(view_id).await
     }
 
@@ -439,8 +437,8 @@ impl DatabaseRevisionEditor {
     }
 
     /// Returns the cell data that encoded in protobuf.
-    pub async fn get_cell(&self, params: &CellPathParams) -> Option<CellPB> {
-        let (field_type, cell_bytes) = self.decode_cell_data_from(params).await?;
+    pub async fn get_cell(&self, params: &CellIdParams) -> Option<CellPB> {
+        let (field_type, cell_bytes) = self.get_type_cell_protobuf(params).await?;
         Some(CellPB::new(
             &params.field_id,
             &params.row_id,
@@ -455,7 +453,7 @@ impl DatabaseRevisionEditor {
     /// Number: 123 => $123 if the currency set.
     /// Date: 1653609600 => May 27,2022
     ///
-    pub async fn get_cell_display_str(&self, params: &CellPathParams) -> String {
+    pub async fn get_cell_display_str(&self, params: &CellIdParams) -> String {
         let display_str = || async {
             let field_rev = self.get_field_rev(&params.field_id).await?;
             let field_type: FieldType = field_rev.ty.into();
@@ -472,16 +470,16 @@ impl DatabaseRevisionEditor {
         display_str().await.unwrap_or_default()
     }
 
-    pub async fn get_cell_protobuf(&self, params: &CellPathParams) -> Option<CellProtobufBlob> {
-        let (_, cell_data) = self.decode_cell_data_from(params).await?;
+    pub async fn get_cell_protobuf(&self, params: &CellIdParams) -> Option<CellProtobufBlob> {
+        let (_, cell_data) = self.get_type_cell_protobuf(params).await?;
         Some(cell_data)
     }
 
-    async fn decode_cell_data_from(&self, params: &CellPathParams) -> Option<(FieldType, CellProtobufBlob)> {
+    async fn get_type_cell_protobuf(&self, params: &CellIdParams) -> Option<(FieldType, CellProtobufBlob)> {
         let field_rev = self.get_field_rev(&params.field_id).await?;
         let (_, row_rev) = self.block_manager.get_row_rev(&params.row_id).await.ok()??;
         let cell_rev = row_rev.cells.get(&params.field_id)?.clone();
-        Some(decode_type_cell_data(
+        Some(get_type_cell_protobuf(
             cell_rev.type_cell_data,
             &field_rev,
             Some(self.cell_data_cache.clone()),
@@ -513,11 +511,12 @@ impl DatabaseRevisionEditor {
     ) -> FlowyResult<()> {
         match self.database_pad.read().await.get_field_rev(field_id) {
             None => {
-                let msg = format!("Field:{} not found", &field_id);
+                let msg = format!("Field with id:{} not found", &field_id);
                 Err(FlowyError::internal().context(msg))
             }
             Some((_, field_rev)) => {
                 tracing::trace!("Cell changeset: id:{} / value:{:?}", &field_id, cell_changeset);
+                let old_row_rev = self.get_row_rev(row_id).await?.clone();
                 let cell_rev = self.get_cell_rev(row_id, field_id).await?;
                 // Update the changeset.data property with the return value.
                 let type_cell_data =
@@ -529,7 +528,7 @@ impl DatabaseRevisionEditor {
                     type_cell_data,
                 };
                 self.block_manager.update_cell(cell_changeset).await?;
-                self.view_manager.did_update_cell(row_id).await;
+                self.view_manager.did_update_row(old_row_rev, row_id).await;
                 Ok(())
             }
         }
@@ -862,7 +861,7 @@ impl DatabaseRevisionEditor {
     }
 
     async fn notify_did_update_grid(&self, changeset: DatabaseFieldChangesetPB) -> FlowyResult<()> {
-        send_notification(&self.database_id, DatabaseNotification::DidUpdateDatabaseFields)
+        send_notification(&self.database_id, DatabaseNotification::DidUpdateFields)
             .payload(changeset)
             .send();
         Ok(())
@@ -889,7 +888,7 @@ impl RevisionObjectDeserializer for GridRevisionSerde {
         Ok(pad)
     }
 
-    fn recover_operations_from_revisions(_revisions: Vec<Revision>) -> Option<Self::Output> {
+    fn recover_from_revisions(_revisions: Vec<Revision>) -> Option<(Self::Output, i64)> {
         None
     }
 }
@@ -899,9 +898,16 @@ impl RevisionObjectSerializer for GridRevisionSerde {
         Ok(operations.json_bytes())
     }
 }
-struct GridRevisionCloudService {
+
+pub struct GridRevisionCloudService {
     #[allow(dead_code)]
     token: String,
+}
+
+impl GridRevisionCloudService {
+    pub fn new(token: String) -> Self {
+        Self { token }
+    }
 }
 
 impl RevisionCloudService for GridRevisionCloudService {

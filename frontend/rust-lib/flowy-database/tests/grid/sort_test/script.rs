@@ -1,8 +1,8 @@
-use crate::grid::grid_editor::GridEditorTest;
+use crate::grid::database_editor::DatabaseEditorTest;
 use async_stream::stream;
-use flowy_database::entities::{AlterSortParams, CellPathParams, DeleteSortParams};
+use flowy_database::entities::{AlterSortParams, CellIdParams, DeleteSortParams};
 use flowy_database::services::sort::SortType;
-use flowy_database::services::view_editor::GridViewChanged;
+use flowy_database::services::view_editor::DatabaseViewChanged;
 use futures::stream::StreamExt;
 use grid_model::{FieldRevision, SortCondition, SortRevision};
 use std::cmp::min;
@@ -36,15 +36,15 @@ pub enum SortScript {
     },
 }
 
-pub struct GridSortTest {
-    inner: GridEditorTest,
+pub struct DatabaseSortTest {
+    inner: DatabaseEditorTest,
     pub current_sort_rev: Option<SortRevision>,
-    recv: Option<Receiver<GridViewChanged>>,
+    recv: Option<Receiver<DatabaseViewChanged>>,
 }
 
-impl GridSortTest {
+impl DatabaseSortTest {
     pub async fn new() -> Self {
-        let editor_test = GridEditorTest::new_table().await;
+        let editor_test = DatabaseEditorTest::new_table().await;
         Self {
             inner: editor_test,
             current_sort_rev: None,
@@ -85,7 +85,7 @@ impl GridSortTest {
                 let mut cells = vec![];
                 let rows = self.editor.get_database(&self.view_id).await.unwrap().rows;
                 for row in rows {
-                    let params = CellPathParams {
+                    let params = CellIdParams {
                         database_id: self.view_id.clone(),
                         field_id: field_id.clone(),
                         row_id: row.id,
@@ -125,7 +125,7 @@ impl GridSortTest {
 }
 
 async fn assert_sort_changed(
-    mut receiver: Receiver<GridViewChanged>,
+    mut receiver: Receiver<DatabaseViewChanged>,
     new_row_orders: Vec<String>,
     old_row_orders: Vec<String>,
 ) {
@@ -141,8 +141,8 @@ async fn assert_sort_changed(
     stream
         .for_each(|changed| async {
             match changed {
-                GridViewChanged::ReorderAllRowsNotification(_changed) => {}
-                GridViewChanged::ReorderSingleRowNotification(changed) => {
+                DatabaseViewChanged::ReorderAllRowsNotification(_changed) => {}
+                DatabaseViewChanged::ReorderSingleRowNotification(changed) => {
                     let mut old_row_orders = old_row_orders.clone();
                     let old = old_row_orders.remove(changed.old_index);
                     old_row_orders.insert(changed.new_index, old);
@@ -154,15 +154,15 @@ async fn assert_sort_changed(
         .await;
 }
 
-impl std::ops::Deref for GridSortTest {
-    type Target = GridEditorTest;
+impl std::ops::Deref for DatabaseSortTest {
+    type Target = DatabaseEditorTest;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl std::ops::DerefMut for GridSortTest {
+impl std::ops::DerefMut for DatabaseSortTest {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }

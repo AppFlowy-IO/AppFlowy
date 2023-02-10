@@ -497,7 +497,7 @@ impl BoxCellData {
         }
     }
 
-    fn unbox_or_none<T>(self) -> Option<T>
+    pub(crate) fn unbox_or_none<T>(self) -> Option<T>
     where
         T: Default + 'static,
     {

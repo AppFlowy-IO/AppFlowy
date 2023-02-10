@@ -1,5 +1,7 @@
 import 'package:app_flowy/plugins/document/presentation/plugins/board/board_menu_item.dart';
 import 'package:app_flowy/plugins/document/presentation/plugins/board/board_node_widget.dart';
+import 'package:app_flowy/plugins/document/presentation/plugins/grid/grid_menu_item.dart';
+import 'package:app_flowy/plugins/document/presentation/plugins/grid/grid_node_widget.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -111,6 +113,8 @@ class _DocumentPageState extends State<DocumentPage> {
         kCodeBlockType: CodeBlockNodeWidgetBuilder(),
         // Board
         kBoardType: BoardNodeWidgetBuilder(),
+        // Grid
+        kGridType: GridNodeWidgetBuilder(),
         // Card
         kCalloutType: CalloutNodeWidgetBuilder(),
       },
@@ -133,6 +137,10 @@ class _DocumentPageState extends State<DocumentPage> {
         emojiMenuItem,
         // Board
         boardMenuItem,
+        // Grid
+        gridMenuItem,
+        // Callout
+        calloutMenuItem,
       ],
       themeData: theme.copyWith(extensions: [
         ...theme.extensions.values,

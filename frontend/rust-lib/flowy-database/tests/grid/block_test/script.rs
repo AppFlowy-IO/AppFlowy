@@ -1,7 +1,7 @@
 use crate::grid::block_test::script::RowScript::{AssertCell, CreateRow};
 use crate::grid::block_test::util::GridRowTestBuilder;
-use crate::grid::grid_editor::GridEditorTest;
-use flowy_database::entities::{CellPathParams, CreateRowParams, DatabaseViewLayout, FieldType, RowPB};
+use crate::grid::database_editor::DatabaseEditorTest;
+use flowy_database::entities::{CellIdParams, CreateRowParams, FieldType, LayoutTypePB, RowPB};
 use flowy_database::services::field::*;
 use flowy_database::services::row::DatabaseBlockRow;
 use grid_model::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision};
@@ -48,13 +48,13 @@ pub enum RowScript {
     },
 }
 
-pub struct GridRowTest {
-    inner: GridEditorTest,
+pub struct DatabaseRowTest {
+    inner: DatabaseEditorTest,
 }
 
-impl GridRowTest {
+impl DatabaseRowTest {
     pub async fn new() -> Self {
-        let editor_test = GridEditorTest::new_table().await;
+        let editor_test = DatabaseEditorTest::new_table().await;
         Self { inner: editor_test }
     }
 
@@ -79,7 +79,7 @@ impl GridRowTest {
                     database_id: self.editor.database_id.clone(),
                     start_row_id: None,
                     group_id: None,
-                    layout: DatabaseViewLayout::Grid,
+                    layout: LayoutTypePB::Grid,
                 };
                 let row_order = self.editor.create_row(params).await.unwrap();
                 self.row_by_row_id.insert(row_order.row_id().to_owned(), row_order);
@@ -112,7 +112,7 @@ impl GridRowTest {
                 field_type,
                 expected,
             } => {
-                let id = CellPathParams {
+                let id = CellIdParams {
                     database_id: self.view_id.clone(),
                     field_id,
                     row_id,
@@ -157,7 +157,7 @@ impl GridRowTest {
         }
     }
 
-    async fn compare_cell_content(&self, cell_id: CellPathParams, field_type: FieldType, expected: String) {
+    async fn compare_cell_content(&self, cell_id: CellIdParams, field_type: FieldType, expected: String) {
         match field_type {
             FieldType::RichText => {
                 let cell_data = self
@@ -282,15 +282,15 @@ fn block_from_row_pbs(row_orders: Vec<RowPB>) -> Vec<DatabaseBlockRow> {
     map.into_values().collect::<Vec<_>>()
 }
 
-impl std::ops::Deref for GridRowTest {
-    type Target = GridEditorTest;
+impl std::ops::Deref for DatabaseRowTest {
+    type Target = DatabaseEditorTest;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl std::ops::DerefMut for GridRowTest {
+impl std::ops::DerefMut for DatabaseRowTest {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }
@@ -303,7 +303,7 @@ pub struct CreateRowScriptBuilder<'a> {
 }
 
 impl<'a> CreateRowScriptBuilder<'a> {
-    pub fn new(test: &'a GridRowTest) -> Self {
+    pub fn new(test: &'a DatabaseRowTest) -> Self {
         Self {
             builder: test.row_builder(),
             data_by_field_type: HashMap::new(),

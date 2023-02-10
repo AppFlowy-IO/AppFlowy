@@ -15,10 +15,10 @@ use strum_macros::EnumIter;
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct DatabaseViewSettingPB {
     #[pb(index = 1)]
-    pub layouts: Vec<ViewLayoutConfigPB>,
+    pub support_layouts: Vec<ViewLayoutPB>,
 
     #[pb(index = 2)]
-    pub layout_type: DatabaseViewLayout,
+    pub current_layout: LayoutTypePB,
 
     #[pb(index = 3)]
     pub filters: RepeatedFilterPB,
@@ -31,16 +31,16 @@ pub struct DatabaseViewSettingPB {
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct ViewLayoutConfigPB {
+pub struct ViewLayoutPB {
     #[pb(index = 1)]
-    ty: DatabaseViewLayout,
+    ty: LayoutTypePB,
 }
 
-impl ViewLayoutConfigPB {
-    pub fn all() -> Vec<ViewLayoutConfigPB> {
+impl ViewLayoutPB {
+    pub fn all() -> Vec<ViewLayoutPB> {
         let mut layouts = vec![];
-        for layout_ty in DatabaseViewLayout::iter() {
-            layouts.push(ViewLayoutConfigPB { ty: layout_ty })
+        for layout_ty in LayoutTypePB::iter() {
+            layouts.push(ViewLayoutPB { ty: layout_ty })
         }
 
         layouts
@@ -49,34 +49,34 @@ impl ViewLayoutConfigPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumIter)]
 #[repr(u8)]
-pub enum DatabaseViewLayout {
+pub enum LayoutTypePB {
     Grid = 0,
     Board = 1,
     Calendar = 2,
 }
 
-impl std::default::Default for DatabaseViewLayout {
+impl std::default::Default for LayoutTypePB {
     fn default() -> Self {
-        DatabaseViewLayout::Grid
+        LayoutTypePB::Grid
     }
 }
 
-impl std::convert::From<LayoutRevision> for DatabaseViewLayout {
+impl std::convert::From<LayoutRevision> for LayoutTypePB {
     fn from(rev: LayoutRevision) -> Self {
         match rev {
-            LayoutRevision::Grid => DatabaseViewLayout::Grid,
-            LayoutRevision::Board => DatabaseViewLayout::Board,
-            LayoutRevision::Calendar => DatabaseViewLayout::Calendar,
+            LayoutRevision::Grid => LayoutTypePB::Grid,
+            LayoutRevision::Board => LayoutTypePB::Board,
+            LayoutRevision::Calendar => LayoutTypePB::Calendar,
         }
     }
 }
 
-impl std::convert::From<DatabaseViewLayout> for LayoutRevision {
-    fn from(layout: DatabaseViewLayout) -> Self {
+impl std::convert::From<LayoutTypePB> for LayoutRevision {
+    fn from(layout: LayoutTypePB) -> Self {
         match layout {
-            DatabaseViewLayout::Grid => LayoutRevision::Grid,
-            DatabaseViewLayout::Board => LayoutRevision::Board,
-            DatabaseViewLayout::Calendar => LayoutRevision::Calendar,
+            LayoutTypePB::Grid => LayoutRevision::Grid,
+            LayoutTypePB::Board => LayoutRevision::Board,
+            LayoutTypePB::Calendar => LayoutRevision::Calendar,
         }
     }
 }
@@ -87,7 +87,7 @@ pub struct DatabaseSettingChangesetPB {
     pub database_id: String,
 
     #[pb(index = 2)]
-    pub layout_type: DatabaseViewLayout,
+    pub layout_type: LayoutTypePB,
 
     #[pb(index = 3, one_of)]
     pub alter_filter: Option<AlterFilterPayloadPB>,

@@ -45,7 +45,7 @@ class CellService {
   Future<Either<CellPB, FlowyError>> getCell({
     required GridCellIdentifier cellId,
   }) {
-    final payload = CellPathPB.create()
+    final payload = CellIdPB.create()
       ..databaseId = cellId.databaseId
       ..fieldId = cellId.fieldId
       ..rowId = cellId.rowId;

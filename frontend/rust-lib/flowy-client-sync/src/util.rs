@@ -32,16 +32,18 @@ pub fn contain_newline(s: &str) -> bool {
 pub fn recover_operation_from_revisions<T>(
     revisions: Vec<Revision>,
     validator: impl Fn(&DeltaOperations<T>) -> bool,
-) -> Option<DeltaOperations<T>>
+) -> Option<(DeltaOperations<T>, i64)>
 where
     T: OperationAttributes + DeserializeOwned + OperationAttributes,
 {
     let mut new_operations = DeltaOperations::<T>::new();
+    let mut rev_id = 0;
     for revision in revisions {
         if let Ok(operations) = DeltaOperations::<T>::from_bytes(revision.bytes) {
             match new_operations.compose(&operations) {
                 Ok(composed_operations) => {
                     if validator(&composed_operations) {
+                        rev_id = revision.rev_id;
                         new_operations = composed_operations;
                     } else {
                         break;
@@ -56,7 +58,7 @@ where
     if new_operations.is_empty() {
         None
     } else {
-        Some(new_operations)
+        Some((new_operations, rev_id))
     }
 }
 

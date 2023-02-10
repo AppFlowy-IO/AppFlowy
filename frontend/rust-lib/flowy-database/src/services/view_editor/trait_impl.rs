@@ -1,4 +1,4 @@
-use crate::entities::{DatabaseViewLayout, DatabaseViewSettingPB, ViewLayoutConfigPB};
+use crate::entities::{DatabaseViewSettingPB, LayoutTypePB, ViewLayoutPB};
 use crate::services::field::RowSingleCellData;
 use crate::services::filter::{FilterController, FilterDelegate, FilterType};
 use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter};
@@ -42,7 +42,7 @@ impl RevisionObjectDeserializer for GridViewRevisionSerde {
         Ok(pad)
     }
 
-    fn recover_operations_from_revisions(_revisions: Vec<Revision>) -> Option<Self::Output> {
+    fn recover_from_revisions(_revisions: Vec<Revision>) -> Option<(Self::Output, i64)> {
         None
     }
 }
@@ -132,13 +132,13 @@ pub(crate) async fn apply_change(
 }
 
 pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<FieldRevision>]) -> DatabaseViewSettingPB {
-    let layout_type: DatabaseViewLayout = view_pad.layout.clone().into();
+    let layout_type: LayoutTypePB = view_pad.layout.clone().into();
     let filters = view_pad.get_all_filters(field_revs);
     let group_configurations = view_pad.get_groups_by_field_revs(field_revs);
     let sorts = view_pad.get_all_sorts(field_revs);
     DatabaseViewSettingPB {
-        layouts: ViewLayoutConfigPB::all(),
-        layout_type,
+        support_layouts: ViewLayoutPB::all(),
+        current_layout: layout_type,
         filters: filters.into(),
         sorts: sorts.into(),
         group_configurations: group_configurations.into(),
@@ -185,7 +185,7 @@ impl FilterDelegate for GridViewFilterDelegateImpl {
 pub(crate) struct GridViewSortDelegateImpl {
     pub(crate) editor_delegate: Arc<dyn DatabaseViewEditorDelegate>,
     pub(crate) view_revision_pad: Arc<RwLock<GridViewRevisionPad>>,
-    pub(crate) filter_controller: Arc<RwLock<FilterController>>,
+    pub(crate) filter_controller: Arc<FilterController>,
 }
 
 impl SortDelegate for GridViewSortDelegateImpl {
@@ -209,7 +209,7 @@ impl SortDelegate for GridViewSortDelegateImpl {
         let editor_delegate = self.editor_delegate.clone();
         to_fut(async move {
             let mut row_revs = editor_delegate.get_row_revs(None).await;
-            filter_controller.write().await.filter_row_revs(&mut row_revs).await;
+            filter_controller.filter_row_revs(&mut row_revs).await;
             row_revs
         })
     }

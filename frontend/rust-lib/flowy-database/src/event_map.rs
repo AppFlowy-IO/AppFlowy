@@ -20,16 +20,13 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::UpdateField, update_field_handler)
         .event(DatabaseEvent::UpdateFieldTypeOption, update_field_type_option_handler)
         .event(DatabaseEvent::DeleteField, delete_field_handler)
-        .event(DatabaseEvent::SwitchToField, switch_to_field_handler)
+        .event(DatabaseEvent::UpdateFieldType, switch_to_field_handler)
         .event(DatabaseEvent::DuplicateField, duplicate_field_handler)
         .event(DatabaseEvent::MoveField, move_field_handler)
-        .event(DatabaseEvent::GetFieldTypeOption, get_field_type_option_data_handler)
-        .event(
-            DatabaseEvent::CreateFieldTypeOption,
-            create_field_type_option_data_handler,
-        )
+        .event(DatabaseEvent::GetTypeOption, get_field_type_option_data_handler)
+        .event(DatabaseEvent::CreateTypeOption, create_field_type_option_data_handler)
         // Row
-        .event(DatabaseEvent::CreateTableRow, create_table_row_handler)
+        .event(DatabaseEvent::CreateRow, create_table_row_handler)
         .event(DatabaseEvent::GetRow, get_row_handler)
         .event(DatabaseEvent::DeleteRow, delete_row_handler)
         .event(DatabaseEvent::DuplicateRow, duplicate_row_handler)
@@ -38,7 +35,7 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetCell, get_cell_handler)
         .event(DatabaseEvent::UpdateCell, update_cell_handler)
         // SelectOption
-        .event(DatabaseEvent::NewSelectOption, new_select_option_handler)
+        .event(DatabaseEvent::CreateSelectOption, new_select_option_handler)
         .event(DatabaseEvent::UpdateSelectOption, update_select_option_handler)
         .event(DatabaseEvent::GetSelectOptionCellData, get_select_option_handler)
         .event(DatabaseEvent::UpdateSelectOptionCell, update_select_option_cell_handler)
@@ -118,11 +115,11 @@ pub enum DatabaseEvent {
     #[event(input = "DeleteFieldPayloadPB")]
     DeleteField = 14,
 
-    /// [SwitchToField] event is used to update the current Field's type.
+    /// [UpdateFieldType] event is used to update the current Field's type.
     /// It will insert a new FieldTypeOptionData if the new FieldType doesn't exist before, otherwise
     /// reuse the existing FieldTypeOptionData. You could check the [DatabaseRevisionPad] for more details.
-    #[event(input = "EditFieldChangesetPB")]
-    SwitchToField = 20,
+    #[event(input = "UpdateFieldTypePayloadPB")]
+    UpdateFieldType = 20,
 
     /// [DuplicateField] event is used to duplicate a Field. The duplicated field data is kind of
     /// deep copy of the target field. The passed in [DuplicateFieldPayloadPB] is the context that is
@@ -145,21 +142,21 @@ pub enum DatabaseEvent {
     ///
     /// Return the [TypeOptionPB] if there are no errors.
     #[event(input = "TypeOptionPathPB", output = "TypeOptionPB")]
-    GetFieldTypeOption = 23,
+    GetTypeOption = 23,
 
-    /// [CreateFieldTypeOption] event is used to create a new FieldTypeOptionData.
+    /// [CreateTypeOption] event is used to create a new FieldTypeOptionData.
     #[event(input = "CreateFieldPayloadPB", output = "TypeOptionPB")]
-    CreateFieldTypeOption = 24,
+    CreateTypeOption = 24,
 
-    /// [NewSelectOption] event is used to create a new select option. Returns a [SelectOptionPB] if
+    /// [CreateSelectOption] event is used to create a new select option. Returns a [SelectOptionPB] if
     /// there are no errors.
     #[event(input = "CreateSelectOptionPayloadPB", output = "SelectOptionPB")]
-    NewSelectOption = 30,
+    CreateSelectOption = 30,
 
     /// [GetSelectOptionCellData] event is used to get the select option data for cell editing.
-    /// [CellPathPB] locate which cell data that will be read from. The return value, [SelectOptionCellDataPB]
+    /// [CellIdPB] locate which cell data that will be read from. The return value, [SelectOptionCellDataPB]
     /// contains the available options and the currently selected options.
-    #[event(input = "CellPathPB", output = "SelectOptionCellDataPB")]
+    #[event(input = "CellIdPB", output = "SelectOptionCellDataPB")]
     GetSelectOptionCellData = 31,
 
     /// [UpdateSelectOption] event is used to update a FieldTypeOptionData whose field_type is
@@ -171,8 +168,8 @@ pub enum DatabaseEvent {
     #[event(input = "SelectOptionChangesetPB")]
     UpdateSelectOption = 32,
 
-    #[event(input = "CreateTableRowPayloadPB", output = "RowPB")]
-    CreateTableRow = 50,
+    #[event(input = "CreateRowPayloadPB", output = "RowPB")]
+    CreateRow = 50,
 
     /// [GetRow] event is used to get the row data,[RowPB]. [OptionalRowPB] is a wrapper that enables
     /// to return a nullable row data.
@@ -188,7 +185,7 @@ pub enum DatabaseEvent {
     #[event(input = "MoveRowPayloadPB")]
     MoveRow = 54,
 
-    #[event(input = "CellPathPB", output = "CellPB")]
+    #[event(input = "CellIdPB", output = "CellPB")]
     GetCell = 70,
 
     /// [UpdateCell] event is used to update the cell content. The passed in data, [CellChangesetPB],

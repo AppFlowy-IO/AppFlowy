@@ -59,7 +59,7 @@ impl std::convert::From<ViewRevision> for TrashRevision {
 pub enum ViewDataFormatRevision {
     DeltaFormat = 0,
     DatabaseFormat = 1,
-    TreeFormat = 2,
+    NodeFormat = 2,
 }
 
 impl std::default::Default for ViewDataFormatRevision {

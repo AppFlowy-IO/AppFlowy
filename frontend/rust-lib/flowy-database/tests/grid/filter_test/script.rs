@@ -7,15 +7,15 @@ use std::time::Duration;
 use bytes::Bytes;
 use futures::TryFutureExt;
 use tokio::sync::broadcast::Receiver;
-use flowy_database::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, DatabaseViewLayout, DatabaseSettingChangesetParams, DatabaseViewSettingPB, RowPB, TextFilterConditionPB, FieldType, NumberFilterConditionPB, CheckboxFilterConditionPB, DateFilterConditionPB, DateFilterContentPB, SelectOptionConditionPB, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB, FilterPB, ChecklistFilterConditionPB, ChecklistFilterPB};
+use flowy_database::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, LayoutTypePB, DatabaseSettingChangesetParams, DatabaseViewSettingPB, RowPB, TextFilterConditionPB, FieldType, NumberFilterConditionPB, CheckboxFilterConditionPB, DateFilterConditionPB, DateFilterContentPB, SelectOptionConditionPB, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB, FilterPB, ChecklistFilterConditionPB, ChecklistFilterPB};
 use flowy_database::services::field::{SelectOptionCellChangeset, SelectOptionIds};
 use flowy_database::services::setting::GridSettingChangesetBuilder;
 use grid_model::{FieldRevision, FieldTypeRevision};
 use flowy_sqlite::schema::view_table::dsl::view_table;
 use flowy_database::services::cell::insert_select_option_cell;
 use flowy_database::services::filter::FilterType;
-use flowy_database::services::view_editor::GridViewChanged;
-use crate::grid::grid_editor::GridEditorTest;
+use flowy_database::services::view_editor::DatabaseViewChanged;
+use crate::grid::database_editor::DatabaseEditorTest;
 
 pub struct FilterRowChanged {
     pub(crate) showing_num_of_rows: usize,
@@ -99,14 +99,14 @@ pub enum FilterScript {
     Wait { millisecond: u64 }
 }
 
-pub struct GridFilterTest {
-    inner: GridEditorTest,
-    recv: Option<Receiver<GridViewChanged>>,
+pub struct DatabaseFilterTest {
+    inner: DatabaseEditorTest,
+    recv: Option<Receiver<DatabaseViewChanged>>,
 }
 
-impl GridFilterTest {
+impl DatabaseFilterTest {
     pub async fn new() -> Self {
-        let editor_test =  GridEditorTest::new_table().await;
+        let editor_test =  DatabaseEditorTest::new_table().await;
         Self {
             inner: editor_test,
             recv: None,
@@ -274,7 +274,7 @@ impl GridFilterTest {
         tokio::spawn(async move {
             match tokio::time::timeout(Duration::from_secs(2), receiver.recv()).await {
                 Ok(changed) =>  {
-                    match changed.unwrap() { GridViewChanged::FilterNotification(notification) => {
+                    match changed.unwrap() { DatabaseViewChanged::FilterNotification(notification) => {
                         assert_eq!(notification.visible_rows.len(), change.showing_num_of_rows, "visible rows not match");
                         assert_eq!(notification.invisible_rows.len(), change.hiding_num_of_rows, "invisible rows not match");
                     }
@@ -298,15 +298,15 @@ impl GridFilterTest {
 }
 
 
-impl std::ops::Deref for GridFilterTest {
-    type Target = GridEditorTest;
+impl std::ops::Deref for DatabaseFilterTest {
+    type Target = DatabaseEditorTest;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl std::ops::DerefMut for GridFilterTest {
+impl std::ops::DerefMut for DatabaseFilterTest {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }

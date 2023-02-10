@@ -34,31 +34,31 @@ use user_model::UserProfile;
 static INIT_LOG: AtomicBool = AtomicBool::new(false);
 
 #[derive(Clone)]
-pub struct FlowySDKConfig {
-    /// Different `FlowySDK` instance should have different name
+pub struct AppFlowyCoreConfig {
+    /// Different `AppFlowyCoreConfig` instance should have different name
     name: String,
     /// Panics if the `root` path is not existing
-    root: String,
+    storage_path: String,
     log_filter: String,
     server_config: ClientServerConfiguration,
     pub document: DocumentConfig,
 }
 
-impl fmt::Debug for FlowySDKConfig {
+impl fmt::Debug for AppFlowyCoreConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("FlowySDKConfig")
-            .field("root", &self.root)
+        f.debug_struct("AppFlowyCoreConfig")
+            .field("storage_path", &self.storage_path)
             .field("server-config", &self.server_config)
             .field("document-config", &self.document)
             .finish()
     }
 }
 
-impl FlowySDKConfig {
+impl AppFlowyCoreConfig {
     pub fn new(root: &str, name: String, server_config: ClientServerConfiguration) -> Self {
-        FlowySDKConfig {
+        AppFlowyCoreConfig {
             name,
-            root: root.to_owned(),
+            storage_path: root.to_owned(),
             log_filter: create_log_filter("info".to_owned(), vec![]),
             server_config,
             document: DocumentConfig::default(),
@@ -106,9 +106,9 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
 }
 
 #[derive(Clone)]
-pub struct FlowySDK {
+pub struct AppFlowyCore {
     #[allow(dead_code)]
-    pub config: FlowySDKConfig,
+    pub config: AppFlowyCoreConfig,
     pub user_session: Arc<UserSession>,
     pub document_manager: Arc<DocumentManager>,
     pub folder_manager: Arc<FolderManager>,
@@ -119,10 +119,10 @@ pub struct FlowySDK {
     pub task_dispatcher: Arc<RwLock<TaskDispatcher>>,
 }
 
-impl FlowySDK {
-    pub fn new(config: FlowySDKConfig) -> Self {
+impl AppFlowyCore {
+    pub fn new(config: AppFlowyCoreConfig) -> Self {
         init_log(&config);
-        init_kv(&config.root);
+        init_kv(&config.storage_path);
         tracing::debug!("🔥 {:?}", config);
         let runtime = tokio_default_runtime().unwrap();
         let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
@@ -257,22 +257,22 @@ fn init_kv(root: &str) {
     }
 }
 
-fn init_log(config: &FlowySDKConfig) {
+fn init_log(config: &AppFlowyCoreConfig) {
     if !INIT_LOG.load(Ordering::SeqCst) {
         INIT_LOG.store(true, Ordering::SeqCst);
 
-        let _ = lib_log::Builder::new("AppFlowy-Client", &config.root)
+        let _ = lib_log::Builder::new("AppFlowy-Client", &config.storage_path)
             .env_filter(&config.log_filter)
             .build();
     }
 }
 
 fn mk_user_session(
-    config: &FlowySDKConfig,
+    config: &AppFlowyCoreConfig,
     local_server: &Option<Arc<LocalServer>>,
     server_config: &ClientServerConfiguration,
 ) -> Arc<UserSession> {
-    let user_config = UserSessionConfig::new(&config.name, &config.root);
+    let user_config = UserSessionConfig::new(&config.name, &config.storage_path);
     let cloud_service = UserDepsResolver::resolve(local_server, server_config);
     Arc::new(UserSession::new(user_config, cloud_service))
 }
@@ -282,7 +282,7 @@ struct UserStatusListener {
     folder_manager: Arc<FolderManager>,
     grid_manager: Arc<DatabaseManager>,
     ws_conn: Arc<FlowyWebSocketConnect>,
-    config: FlowySDKConfig,
+    config: AppFlowyCoreConfig,
 }
 
 impl UserStatusListener {
@@ -297,7 +297,7 @@ impl UserStatusListener {
     async fn did_sign_up(&self, user_profile: &UserProfile) -> FlowyResult<()> {
         let view_data_type = match self.config.document.version {
             DocumentVersionPB::V0 => ViewDataFormatPB::DeltaFormat,
-            DocumentVersionPB::V1 => ViewDataFormatPB::TreeFormat,
+            DocumentVersionPB::V1 => ViewDataFormatPB::NodeFormat,
         };
         self.folder_manager
             .initialize_with_new_user(&user_profile.id, &user_profile.token, view_data_type)

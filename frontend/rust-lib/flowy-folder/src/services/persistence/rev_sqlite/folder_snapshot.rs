@@ -1,7 +1,7 @@
 #![allow(clippy::unused_unit)]
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyResult};
-use flowy_revision::{RevisionSnapshot, RevisionSnapshotDiskCache};
+use flowy_revision::{RevisionSnapshotData, RevisionSnapshotPersistence};
 use flowy_sqlite::{
     prelude::*,
     schema::{folder_rev_snapshot, folder_rev_snapshot::dsl},
@@ -28,7 +28,7 @@ impl SQLiteFolderRevisionSnapshotPersistence {
     }
 }
 
-impl RevisionSnapshotDiskCache for SQLiteFolderRevisionSnapshotPersistence {
+impl RevisionSnapshotPersistence for SQLiteFolderRevisionSnapshotPersistence {
     fn should_generate_snapshot_from_range(&self, start_rev_id: i64, current_rev_id: i64) -> bool {
         (current_rev_id - start_rev_id) >= 2
     }
@@ -51,7 +51,7 @@ impl RevisionSnapshotDiskCache for SQLiteFolderRevisionSnapshotPersistence {
         Ok(())
     }
 
-    fn read_snapshot(&self, rev_id: i64) -> FlowyResult<Option<RevisionSnapshot>> {
+    fn read_snapshot(&self, rev_id: i64) -> FlowyResult<Option<RevisionSnapshotData>> {
         let conn = self.pool.get().map_err(internal_error)?;
         let snapshot_id = self.gen_snapshot_id(rev_id);
         let record = dsl::folder_rev_snapshot
@@ -61,7 +61,7 @@ impl RevisionSnapshotDiskCache for SQLiteFolderRevisionSnapshotPersistence {
         Ok(Some(record.into()))
     }
 
-    fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshot>> {
+    fn read_last_snapshot(&self) -> FlowyResult<Option<RevisionSnapshotData>> {
         let conn = self.pool.get().map_err(internal_error)?;
         let latest_record = dsl::folder_rev_snapshot
             .filter(dsl::object_id.eq(&self.object_id))
@@ -85,9 +85,9 @@ struct FolderSnapshotRecord {
     data: Vec<u8>,
 }
 
-impl std::convert::From<FolderSnapshotRecord> for RevisionSnapshot {
+impl std::convert::From<FolderSnapshotRecord> for RevisionSnapshotData {
     fn from(record: FolderSnapshotRecord) -> Self {
-        RevisionSnapshot {
+        RevisionSnapshotData {
             rev_id: record.rev_id,
             base_rev_id: record.base_rev_id,
             timestamp: record.timestamp,

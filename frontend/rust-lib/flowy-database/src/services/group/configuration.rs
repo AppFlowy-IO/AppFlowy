@@ -1,4 +1,4 @@
-use crate::entities::{GroupPB, GroupViewChangesetPB};
+use crate::entities::{GroupChangesetPB, GroupPB, InsertedGroupPB};
 use crate::services::field::RowSingleCellData;
 use crate::services::group::{default_group_configuration, GeneratedGroupContext, Group};
 use flowy_error::{FlowyError, FlowyResult};
@@ -101,7 +101,7 @@ where
 
     /// Returns the no `status` group
     ///
-    /// We take the `id` of the `field` as the default group id
+    /// We take the `id` of the `field` as the no status group id
     pub(crate) fn get_no_status_group(&self) -> Option<&Group> {
         self.groups_map.get(&self.field_rev.id)
     }
@@ -139,6 +139,37 @@ where
         self.groups_map.iter_mut().for_each(|(_, group)| {
             each(group);
         });
+    }
+    #[tracing::instrument(level = "trace", skip(self), err)]
+    pub(crate) fn add_new_group(&mut self, group_rev: GroupRevision) -> FlowyResult<InsertedGroupPB> {
+        let group = Group::new(
+            group_rev.id.clone(),
+            self.field_rev.id.clone(),
+            group_rev.name.clone(),
+            group_rev.id.clone(),
+        );
+        self.groups_map.insert(group_rev.id.clone(), group);
+        let (index, group) = self.get_group(&group_rev.id).unwrap();
+        let insert_group = InsertedGroupPB {
+            group: GroupPB::from(group.clone()),
+            index: index as i32,
+        };
+        self.mut_configuration(|configuration| {
+            configuration.groups.push(group_rev);
+            true
+        })?;
+
+        Ok(insert_group)
+    }
+
+    #[tracing::instrument(level = "trace", skip(self))]
+    pub(crate) fn delete_group(&mut self, deleted_group_id: &str) -> FlowyResult<()> {
+        self.groups_map.remove(deleted_group_id);
+        self.mut_configuration(|configuration| {
+            configuration.groups.retain(|group| group.id != deleted_group_id);
+            true
+        })?;
+        Ok(())
     }
 
     pub(crate) fn move_group(&mut self, from_id: &str, to_id: &str) -> FlowyResult<()> {
@@ -192,7 +223,7 @@ where
     pub(crate) fn init_groups(
         &mut self,
         generated_group_context: GeneratedGroupContext,
-    ) -> FlowyResult<Option<GroupViewChangesetPB>> {
+    ) -> FlowyResult<Option<GroupChangesetPB>> {
         let GeneratedGroupContext {
             no_status_group,
             group_configs,
@@ -211,18 +242,12 @@ where
             old_groups.clear();
         }
 
-        // The `No status` group index is initialized to 0
-        if let Some(no_status_group) = no_status_group {
-            old_groups.insert(0, no_status_group);
-        }
-
         // The `all_group_revs` is the combination of the new groups and old groups
         let MergeGroupResult {
             mut all_group_revs,
             new_group_revs,
-            updated_group_revs: _,
             deleted_group_revs,
-        } = merge_groups(old_groups, new_groups);
+        } = merge_groups(no_status_group, old_groups, new_groups);
 
         let deleted_group_ids = deleted_group_revs
             .into_iter()
@@ -231,13 +256,10 @@ where
 
         self.mut_configuration(|configuration| {
             let mut is_changed = !deleted_group_ids.is_empty();
-
             // Remove the groups
-            if !deleted_group_ids.is_empty() {
-                configuration
-                    .groups
-                    .retain(|group| !deleted_group_ids.contains(&group.id));
-            }
+            configuration
+                .groups
+                .retain(|group| !deleted_group_ids.contains(&group.id));
 
             // Update/Insert new groups
             for group_rev in &mut all_group_revs {
@@ -276,7 +298,7 @@ where
             self.groups_map.insert(group.id.clone(), group);
         });
 
-        let new_groups = new_group_revs
+        let initial_groups = new_group_revs
             .into_iter()
             .flat_map(|group_rev| {
                 let filter_content = filter_content_map.get(&group_rev.id)?;
@@ -290,9 +312,9 @@ where
             })
             .collect();
 
-        let changeset = GroupViewChangesetPB {
+        let changeset = GroupChangesetPB {
             view_id: self.view_id.clone(),
-            new_groups,
+            initial_groups,
             deleted_groups: deleted_group_ids,
             update_groups: vec![],
             inserted_groups: vec![],
@@ -366,7 +388,11 @@ where
 
 /// Merge the new groups into old groups while keeping the order in the old groups
 ///
-fn merge_groups(old_groups: Vec<GroupRevision>, new_groups: Vec<GroupRevision>) -> MergeGroupResult {
+fn merge_groups(
+    no_status_group: Option<GroupRevision>,
+    old_groups: Vec<GroupRevision>,
+    new_groups: Vec<GroupRevision>,
+) -> MergeGroupResult {
     let mut merge_result = MergeGroupResult::new();
     // group_map is a helper map is used to filter out the new groups.
     let mut new_group_map: IndexMap<String, GroupRevision> = IndexMap::new();
@@ -378,11 +404,8 @@ fn merge_groups(old_groups: Vec<GroupRevision>, new_groups: Vec<GroupRevision>) 
     for old in old_groups {
         if let Some(new) = new_group_map.remove(&old.id) {
             merge_result.all_group_revs.push(new.clone());
-            if is_group_changed(&new, &old) {
-                merge_result.updated_group_revs.push(new);
-            }
         } else {
-            merge_result.all_group_revs.push(old);
+            merge_result.deleted_group_revs.push(old);
         }
     }
 
@@ -392,6 +415,11 @@ fn merge_groups(old_groups: Vec<GroupRevision>, new_groups: Vec<GroupRevision>) 
         merge_result.all_group_revs.push(group.clone());
         merge_result.new_group_revs.push(group);
     }
+
+    // The `No status` group index is initialized to 0
+    if let Some(no_status_group) = no_status_group {
+        merge_result.all_group_revs.insert(0, no_status_group);
+    }
     merge_result
 }
 
@@ -399,7 +427,6 @@ fn is_group_changed(new: &GroupRevision, old: &GroupRevision) -> bool {
     if new.name != old.name {
         return true;
     }
-
     false
 }
 
@@ -407,7 +434,6 @@ struct MergeGroupResult {
     // Contains the new groups and the updated groups
     all_group_revs: Vec<GroupRevision>,
     new_group_revs: Vec<GroupRevision>,
-    updated_group_revs: Vec<GroupRevision>,
     deleted_group_revs: Vec<GroupRevision>,
 }
 
@@ -416,7 +442,6 @@ impl MergeGroupResult {
         Self {
             all_group_revs: vec![],
             new_group_revs: vec![],
-            updated_group_revs: vec![],
             deleted_group_revs: vec![],
         }
     }

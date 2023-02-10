@@ -74,7 +74,7 @@ pub struct DatabaseViewRevisionEditor {
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     delegate: Arc<dyn DatabaseViewEditorDelegate>,
     group_controller: Arc<RwLock<Box<dyn GroupController>>>,
-    filter_controller: Arc<RwLock<FilterController>>,
+    filter_controller: Arc<FilterController>,
     sort_controller: Arc<RwLock<SortController>>,
     pub notifier: GridViewChangedNotifier,
 }
@@ -156,7 +156,7 @@ impl DatabaseViewRevisionEditor {
     pub async fn close(&self) {
         self.rev_manager.generate_snapshot().await;
         self.rev_manager.close().await;
-        self.filter_controller.read().await.close().await;
+        self.filter_controller.close().await;
         self.sort_controller.read().await.close().await;
     }
 
@@ -184,7 +184,7 @@ impl DatabaseViewRevisionEditor {
             }
         };
 
-        send_notification(&self.view_id, DatabaseNotification::DidUpdateDatabaseViewRows)
+        send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
             .payload(changeset)
             .send();
     }
@@ -194,7 +194,7 @@ impl DatabaseViewRevisionEditor {
     }
 
     pub async fn filter_rows(&self, _block_id: &str, rows: &mut Vec<Arc<RowRevision>>) {
-        self.filter_controller.write().await.filter_row_revs(rows).await;
+        self.filter_controller.filter_row_revs(rows).await;
     }
 
     pub async fn duplicate_view_data(&self) -> FlowyResult<String> {
@@ -240,29 +240,44 @@ impl DatabaseViewRevisionEditor {
     #[tracing::instrument(level = "trace", skip_all)]
     pub async fn did_delete_view_row(&self, row_rev: &RowRevision) {
         // Send the group notification if the current view has groups;
-        let changesets = self
+        let result = self
             .mut_group_controller(|group_controller, field_rev| {
                 group_controller.did_delete_delete_row(row_rev, &field_rev)
             })
             .await;
 
-        tracing::trace!("Delete row in view changeset: {:?}", changesets);
-        if let Some(changesets) = changesets {
-            for changeset in changesets {
+        if let Some(result) = result {
+            tracing::trace!("Delete row in view changeset: {:?}", result.row_changesets);
+            for changeset in result.row_changesets {
                 self.notify_did_update_group_rows(changeset).await;
             }
         }
     }
 
-    pub async fn did_update_view_cell(&self, row_rev: &RowRevision) {
-        let changesets = self
+    pub async fn did_update_view_row(&self, old_row_rev: Option<Arc<RowRevision>>, row_rev: &RowRevision) {
+        let result = self
             .mut_group_controller(|group_controller, field_rev| {
-                group_controller.did_update_group_row(row_rev, &field_rev)
+                Ok(group_controller.did_update_group_row(&old_row_rev, row_rev, &field_rev))
             })
             .await;
 
-        if let Some(changesets) = changesets {
-            for changeset in changesets {
+        if let Some(Ok(result)) = result {
+            let mut changeset = GroupChangesetPB {
+                view_id: self.view_id.clone(),
+                ..Default::default()
+            };
+            if let Some(inserted_group) = result.inserted_group {
+                tracing::trace!("Create group after editing the row: {:?}", inserted_group);
+                changeset.inserted_groups.push(inserted_group);
+            }
+            if let Some(delete_group) = result.deleted_group {
+                tracing::trace!("Delete group after editing the row: {:?}", delete_group);
+                changeset.deleted_groups.push(delete_group.group_id);
+            }
+            self.notify_did_update_groups(changeset).await;
+
+            tracing::trace!("Group changesets after editing the row: {:?}", result.row_changesets);
+            for changeset in result.row_changesets {
                 self.notify_did_update_group_rows(changeset).await;
             }
         }
@@ -271,7 +286,7 @@ impl DatabaseViewRevisionEditor {
         let sort_controller = self.sort_controller.clone();
         let row_id = row_rev.id.clone();
         tokio::spawn(async move {
-            filter_controller.read().await.did_receive_row_changed(&row_id).await;
+            filter_controller.did_receive_row_changed(&row_id).await;
             sort_controller.read().await.did_receive_row_changed(&row_id).await;
         });
     }
@@ -282,8 +297,8 @@ impl DatabaseViewRevisionEditor {
         row_changeset: &mut RowChangeset,
         to_group_id: &str,
         to_row_id: Option<String>,
-    ) -> Vec<GroupRowsNotificationPB> {
-        let changesets = self
+    ) {
+        let result = self
             .mut_group_controller(|group_controller, field_rev| {
                 let move_row_context = MoveGroupRowContext {
                     row_rev,
@@ -292,13 +307,25 @@ impl DatabaseViewRevisionEditor {
                     to_group_id,
                     to_row_id,
                 };
-
-                let changesets = group_controller.move_group_row(move_row_context)?;
-                Ok(changesets)
+                group_controller.move_group_row(move_row_context)
             })
             .await;
 
-        changesets.unwrap_or_default()
+        if let Some(result) = result {
+            let mut changeset = GroupChangesetPB {
+                view_id: self.view_id.clone(),
+                ..Default::default()
+            };
+            if let Some(delete_group) = result.deleted_group {
+                tracing::info!("Delete group after moving the row: {:?}", delete_group);
+                changeset.deleted_groups.push(delete_group.group_id);
+            }
+            self.notify_did_update_groups(changeset).await;
+
+            for changeset in result.row_changesets {
+                self.notify_did_update_group_rows(changeset).await;
+            }
+        }
     }
     /// Only call once after grid view editor initialized
     #[tracing::instrument(level = "trace", skip(self))]
@@ -329,15 +356,15 @@ impl DatabaseViewRevisionEditor {
                     index: index as i32,
                 };
 
-                let changeset = GroupViewChangesetPB {
+                let changeset = GroupChangesetPB {
                     view_id: self.view_id.clone(),
                     inserted_groups: vec![inserted_group],
                     deleted_groups: vec![params.from_group_id.clone()],
                     update_groups: vec![],
-                    new_groups: vec![],
+                    initial_groups: vec![],
                 };
 
-                self.notify_did_update_view(changeset).await;
+                self.notify_did_update_groups(changeset).await;
             }
         }
         Ok(())
@@ -487,7 +514,7 @@ impl DatabaseViewRevisionEditor {
             condition: params.condition,
             content: params.content,
         };
-        let mut filter_controller = self.filter_controller.write().await;
+        let filter_controller = self.filter_controller.clone();
         let changeset = if is_exist {
             let old_filter_type = self
                 .delegate
@@ -528,8 +555,6 @@ impl DatabaseViewRevisionEditor {
         let filter_type = params.filter_type;
         let changeset = self
             .filter_controller
-            .write()
-            .await
             .did_receive_changes(FilterChangeset::from_delete(filter_type.clone()))
             .await;
 
@@ -563,15 +588,14 @@ impl DatabaseViewRevisionEditor {
                 .did_update_view_field_type_option(&field_rev)
                 .await;
 
-            if let Some(changeset) = self
-                .filter_controller
-                .write()
-                .await
-                .did_receive_changes(filter_changeset)
-                .await
-            {
-                self.notify_did_update_filter(changeset).await;
-            }
+            let filter_controller = self.filter_controller.clone();
+            let _ = tokio::spawn(async move {
+                if let Some(notification) = filter_controller.did_receive_changes(filter_changeset).await {
+                    send_notification(&notification.view_id, DatabaseNotification::DidUpdateFilter)
+                        .payload(notification)
+                        .send();
+                }
+            });
         }
         Ok(())
     }
@@ -608,15 +632,15 @@ impl DatabaseViewRevisionEditor {
                 .collect();
 
             *self.group_controller.write().await = new_group_controller;
-            let changeset = GroupViewChangesetPB {
+            let changeset = GroupChangesetPB {
                 view_id: self.view_id.clone(),
-                new_groups,
+                initial_groups: new_groups,
                 ..Default::default()
             };
 
             debug_assert!(!changeset.is_empty());
             if !changeset.is_empty() {
-                send_notification(&changeset.view_id, DatabaseNotification::DidGroupByNewField)
+                send_notification(&changeset.view_id, DatabaseNotification::DidGroupByField)
                     .payload(changeset)
                     .send();
             }
@@ -630,13 +654,13 @@ impl DatabaseViewRevisionEditor {
 
     async fn notify_did_update_setting(&self) {
         let setting = self.get_view_setting().await;
-        send_notification(&self.view_id, DatabaseNotification::DidUpdateDatabaseSetting)
+        send_notification(&self.view_id, DatabaseNotification::DidUpdateSettings)
             .payload(setting)
             .send();
     }
 
     pub async fn notify_did_update_group_rows(&self, payload: GroupRowsNotificationPB) {
-        send_notification(&payload.group_id, DatabaseNotification::DidUpdateGroup)
+        send_notification(&payload.group_id, DatabaseNotification::DidUpdateGroupRow)
             .payload(payload)
             .send();
     }
@@ -655,8 +679,8 @@ impl DatabaseViewRevisionEditor {
         }
     }
 
-    async fn notify_did_update_view(&self, changeset: GroupViewChangesetPB) {
-        send_notification(&self.view_id, DatabaseNotification::DidUpdateGroupView)
+    async fn notify_did_update_groups(&self, changeset: GroupChangesetPB) {
+        send_notification(&self.view_id, DatabaseNotification::DidUpdateGroups)
             .payload(changeset)
             .send();
     }
@@ -803,7 +827,7 @@ async fn make_filter_controller(
     notifier: GridViewChangedNotifier,
     cell_data_cache: AtomicCellDataCache,
     pad: Arc<RwLock<GridViewRevisionPad>>,
-) -> Arc<RwLock<FilterController>> {
+) -> Arc<FilterController> {
     let field_revs = delegate.get_field_revs(None).await;
     let filter_revs = pad.read().await.get_all_filters(&field_revs);
     let task_scheduler = delegate.get_task_scheduler();
@@ -822,7 +846,7 @@ async fn make_filter_controller(
         notifier,
     )
     .await;
-    let filter_controller = Arc::new(RwLock::new(filter_controller));
+    let filter_controller = Arc::new(filter_controller);
     task_scheduler
         .write()
         .await
@@ -834,7 +858,7 @@ async fn make_sort_controller(
     view_id: &str,
     delegate: Arc<dyn DatabaseViewEditorDelegate>,
     notifier: GridViewChangedNotifier,
-    filter_controller: Arc<RwLock<FilterController>>,
+    filter_controller: Arc<FilterController>,
     pad: Arc<RwLock<GridViewRevisionPad>>,
     cell_data_cache: AtomicCellDataCache,
 ) -> Arc<RwLock<SortController>> {

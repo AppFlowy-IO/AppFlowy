@@ -13,7 +13,9 @@ use tokio::sync::{broadcast, mpsc};
 pub struct TrashController {
     persistence: Arc<FolderPersistence>,
     notify: broadcast::Sender<TrashEvent>,
+    #[allow(dead_code)]
     cloud_service: Arc<dyn FolderCouldServiceV1>,
+    #[allow(dead_code)]
     user: Arc<dyn WorkspaceUser>,
 }
 
@@ -54,11 +56,6 @@ impl TrashController {
             ty: trash.ty.into(),
         };
 
-        self.delete_trash_on_server(RepeatedTrashIdPB {
-            items: vec![identifier.clone()],
-            delete_all: false,
-        })?;
-
         tracing::Span::current().record("putback", format!("{:?}", &identifier).as_str());
         let _ = self.notify.send(TrashEvent::Putback(vec![identifier].into(), tx));
         rx.recv().await.unwrap()?;
@@ -82,7 +79,6 @@ impl TrashController {
         let _ = rx.recv().await;
 
         notify_trash_changed(RepeatedTrashPB { items: vec![] });
-        self.delete_all_trash_on_server().await?;
         Ok(())
     }
 
@@ -97,7 +93,6 @@ impl TrashController {
         self.delete_with_identifiers(all_trash_identifiers).await?;
 
         notify_trash_changed(RepeatedTrashPB { items: vec![] });
-        self.delete_all_trash_on_server().await?;
         Ok(())
     }
 
@@ -110,7 +105,6 @@ impl TrashController {
             .await?;
 
         notify_trash_changed(trash_revs);
-        self.delete_trash_on_server(trash_identifiers)?;
 
         Ok(())
     }
@@ -169,8 +163,6 @@ impl TrashController {
         self.persistence
             .begin_transaction(|transaction| {
                 transaction.create_trash(trash_revs.clone())?;
-                let _ = self.create_trash_on_server(trash_revs);
-
                 notify_trash_changed(transaction.read_trash(None)?);
                 Ok(())
             })
@@ -194,7 +186,6 @@ impl TrashController {
             .map(|trash_rev| trash_rev.into())
             .collect();
 
-        self.read_trash_on_server()?;
         Ok(RepeatedTrashPB { items })
     }
 
@@ -211,79 +202,11 @@ impl TrashController {
     }
 }
 
-impl TrashController {
-    #[tracing::instrument(level = "trace", skip(self, trash), err)]
-    fn create_trash_on_server<T: Into<RepeatedTrashIdPB>>(&self, trash: T) -> FlowyResult<()> {
-        let token = self.user.token()?;
-        let trash_identifiers = trash.into();
-        let server = self.cloud_service.clone();
-        // TODO: retry?
-        let _ = tokio::spawn(async move {
-            match server.create_trash(&token, trash_identifiers).await {
-                Ok(_) => {}
-                Err(e) => log::error!("Create trash failed: {:?}", e),
-            }
-        });
-        Ok(())
-    }
-
-    #[tracing::instrument(level = "trace", skip(self, trash), err)]
-    fn delete_trash_on_server<T: Into<RepeatedTrashIdPB>>(&self, trash: T) -> FlowyResult<()> {
-        let token = self.user.token()?;
-        let trash_identifiers = trash.into();
-        let server = self.cloud_service.clone();
-        let _ = tokio::spawn(async move {
-            match server.delete_trash(&token, trash_identifiers).await {
-                Ok(_) => {}
-                Err(e) => log::error!("Delete trash failed: {:?}", e),
-            }
-        });
-        Ok(())
-    }
-
-    #[tracing::instrument(level = "trace", skip(self), err)]
-    fn read_trash_on_server(&self) -> FlowyResult<()> {
-        let token = self.user.token()?;
-        let server = self.cloud_service.clone();
-        let persistence = self.persistence.clone();
-
-        tokio::spawn(async move {
-            match server.read_trash(&token).await {
-                Ok(trash_rev) => {
-                    tracing::debug!("Remote trash count: {}", trash_rev.len());
-                    let result = persistence
-                        .begin_transaction(|transaction| {
-                            transaction.create_trash(trash_rev.clone())?;
-                            transaction.read_trash(None)
-                        })
-                        .await;
-
-                    match result {
-                        Ok(trash_revs) => {
-                            notify_trash_changed(trash_revs);
-                        }
-                        Err(e) => log::error!("Save trash failed: {:?}", e),
-                    }
-                }
-                Err(e) => log::error!("Read trash failed: {:?}", e),
-            }
-        });
-        Ok(())
-    }
-
-    #[tracing::instrument(level = "trace", skip(self), err)]
-    async fn delete_all_trash_on_server(&self) -> FlowyResult<()> {
-        let token = self.user.token()?;
-        let server = self.cloud_service.clone();
-        server.delete_trash(&token, RepeatedTrashIdPB::all()).await
-    }
-}
-
 #[tracing::instrument(level = "debug", skip(repeated_trash), fields(n_trash))]
 fn notify_trash_changed<T: Into<RepeatedTrashPB>>(repeated_trash: T) {
     let repeated_trash = repeated_trash.into();
     tracing::Span::current().record("n_trash", repeated_trash.len());
-    send_anonymous_notification(FolderNotification::TrashUpdated)
+    send_anonymous_notification(FolderNotification::DidUpdateTrash)
         .payload(repeated_trash)
         .send();
 }

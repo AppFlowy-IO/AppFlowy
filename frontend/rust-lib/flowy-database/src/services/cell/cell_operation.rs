@@ -76,7 +76,7 @@ pub fn apply_cell_data_changeset<C: ToCellChangesetString, T: AsRef<FieldRevisio
     Ok(TypeCellData::new(cell_str, field_type).to_json())
 }
 
-pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debug>(
+pub fn get_type_cell_protobuf<T: TryInto<TypeCellData, Error = FlowyError> + Debug>(
     data: T,
     field_rev: &FieldRevision,
     cell_data_cache: Option<AtomicCellDataCache>,
@@ -85,7 +85,13 @@ pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debu
     match data.try_into() {
         Ok(type_cell_data) => {
             let TypeCellData { cell_str, field_type } = type_cell_data;
-            match try_decode_cell_str(cell_str, &field_type, &to_field_type, field_rev, cell_data_cache) {
+            match try_decode_cell_str_to_cell_protobuf(
+                cell_str,
+                &field_type,
+                &to_field_type,
+                field_rev,
+                cell_data_cache,
+            ) {
                 Ok(cell_bytes) => (field_type, cell_bytes),
                 Err(e) => {
                     tracing::error!("Decode cell data failed, {:?}", e);
@@ -97,9 +103,27 @@ pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debu
             // It's okay to ignore this error, because it's okay that the current cell can't
             // display the existing cell data. For example, the UI of the text cell will be blank if
             // the type of the data of cell is Number.
-
             (to_field_type, CellProtobufBlob::default())
         }
+    }
+}
+
+pub fn get_type_cell_data<CellData, Output>(
+    data: CellData,
+    field_rev: &FieldRevision,
+    cell_data_cache: Option<AtomicCellDataCache>,
+) -> Option<Output>
+where
+    CellData: TryInto<TypeCellData, Error = FlowyError> + Debug,
+    Output: Default + 'static,
+{
+    let to_field_type = field_rev.ty.into();
+    match data.try_into() {
+        Ok(type_cell_data) => {
+            let TypeCellData { cell_str, field_type } = type_cell_data;
+            try_decode_cell_str_to_cell_data(cell_str, &field_type, &to_field_type, field_rev, cell_data_cache)
+        }
+        Err(_err) => None,
     }
 }
 
@@ -120,7 +144,7 @@ pub fn decode_type_cell_data<T: TryInto<TypeCellData, Error = FlowyError> + Debu
 ///
 /// returns: CellBytes
 ///
-pub fn try_decode_cell_str(
+pub fn try_decode_cell_str_to_cell_protobuf(
     cell_str: String,
     from_field_type: &FieldType,
     to_field_type: &FieldType,
@@ -135,6 +159,20 @@ pub fn try_decode_cell_str(
     }
 }
 
+pub fn try_decode_cell_str_to_cell_data<T: Default + 'static>(
+    cell_str: String,
+    from_field_type: &FieldType,
+    to_field_type: &FieldType,
+    field_rev: &FieldRevision,
+    cell_data_cache: Option<AtomicCellDataCache>,
+) -> Option<T> {
+    let handler = TypeOptionCellExt::new_with_cell_data_cache(field_rev, cell_data_cache)
+        .get_type_option_cell_data_handler(to_field_type)?;
+    handler
+        .get_cell_data(cell_str, from_field_type, field_rev)
+        .ok()?
+        .unbox_or_none::<T>()
+}
 /// Returns a string that represents the current field_type's cell data.
 /// For example, The string of the Multi-Select cell will be a list of the option's name
 /// separated by a comma.

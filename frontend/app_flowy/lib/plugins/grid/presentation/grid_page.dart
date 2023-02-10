@@ -31,16 +31,16 @@ import 'widgets/shortcuts.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
 
 class GridPage extends StatefulWidget {
-  final ViewPB view;
-  final GridController gridController;
-  final VoidCallback? onDeleted;
-
   GridPage({
     required this.view,
     this.onDeleted,
     Key? key,
   })  : gridController = GridController(view: view),
         super(key: key);
+
+  final ViewPB view;
+  final GridController gridController;
+  final VoidCallback? onDeleted;
 
   @override
   State<GridPage> createState() => _GridPageState();

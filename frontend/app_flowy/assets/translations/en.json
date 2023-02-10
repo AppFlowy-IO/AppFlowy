@@ -104,7 +104,9 @@
     "darkMode": "Switch to Dark mode",
     "openAsPage": "Open as a Page",
     "addNewRow": "Add a new row",
-    "openMenu": "Click to open menu"
+    "openMenu": "Click to open menu",
+    "viewDataBase": "View database",
+    "referencePage": "This {name} is referenced"
   },
   "sideBar": {
     "closeSidebar": "Close side bar",
@@ -317,8 +319,15 @@
     },
     "slashMenu": {
       "board": {
-        "selectABoardToLinkTo": "Select a board to link to"
+        "selectABoardToLinkTo": "Select a Board to link to"
+      },
+      "grid": {
+        "selectAGridToLinkTo": "Select a Grid to link to"
       }
+    },
+    "plugins": {
+      "referencedBoard": "Referenced Board",
+      "referencedGrid": "Referenced Grid"
     }
   },
   "board": {

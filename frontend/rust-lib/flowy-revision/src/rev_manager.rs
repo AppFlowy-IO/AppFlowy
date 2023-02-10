@@ -1,6 +1,6 @@
 use crate::rev_queue::{RevCommand, RevCommandSender, RevQueue};
 use crate::{
-    RevisionPersistence, RevisionSnapshot, RevisionSnapshotController, RevisionSnapshotDiskCache,
+    RevisionPersistence, RevisionSnapshotController, RevisionSnapshotData, RevisionSnapshotPersistence,
     WSDataProviderDataSource,
 };
 use bytes::Bytes;
@@ -35,7 +35,7 @@ pub trait RevisionObjectDeserializer: Send + Sync {
     ///
     fn deserialize_revisions(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output>;
 
-    fn recover_operations_from_revisions(revisions: Vec<Revision>) -> Option<Self::Output>;
+    fn recover_from_revisions(revisions: Vec<Revision>) -> Option<(Self::Output, i64)>;
 }
 
 pub trait RevisionObjectSerializer: Send + Sync {
@@ -58,10 +58,9 @@ pub trait RevisionMergeable: Send + Sync {
             return Ok(revisions.pop().unwrap());
         }
 
-        let first_revision = revisions.first().unwrap();
+        // Select the last version, making sure version numbers don't overlap
         let last_revision = revisions.last().unwrap();
-
-        let (base_rev_id, rev_id) = first_revision.pair_rev_id();
+        let (base_rev_id, rev_id) = last_revision.pair_rev_id();
         let md5 = last_revision.md5.clone();
         let bytes = self.combine_revisions(revisions)?;
         Ok(Revision::new(object_id, base_rev_id, rev_id, bytes, md5))
@@ -83,16 +82,16 @@ pub struct RevisionManager<Connection> {
 }
 
 impl<Connection: 'static> RevisionManager<Connection> {
-    pub fn new<SP, C>(
+    pub fn new<Snapshot, Compress>(
         user_id: &str,
         object_id: &str,
         rev_persistence: RevisionPersistence<Connection>,
-        rev_compress: C,
-        snapshot_persistence: SP,
+        rev_compress: Compress,
+        snapshot_persistence: Snapshot,
     ) -> Self
     where
-        SP: 'static + RevisionSnapshotDiskCache,
-        C: 'static + RevisionMergeable,
+        Snapshot: 'static + RevisionSnapshotPersistence,
+        Compress: 'static + RevisionMergeable,
     {
         let rev_id_counter = Arc::new(RevIdCounter::new(0));
         let rev_compress = Arc::new(rev_compress);
@@ -128,26 +127,42 @@ impl<Connection: 'static> RevisionManager<Connection> {
     }
 
     #[tracing::instrument(name = "revision_manager_initialize", level = "trace", skip_all, fields(deserializer, object_id, deserialize_revisions) err)]
-    pub async fn initialize<B>(&mut self, _cloud: Option<Arc<dyn RevisionCloudService>>) -> FlowyResult<B::Output>
+    pub async fn initialize<De>(&mut self, _cloud: Option<Arc<dyn RevisionCloudService>>) -> FlowyResult<De::Output>
     where
-        B: RevisionObjectDeserializer,
+        De: RevisionObjectDeserializer,
     {
         let revision_records = self.rev_persistence.load_all_records(&self.object_id)?;
         tracing::Span::current().record("object_id", self.object_id.as_str());
-        tracing::Span::current().record("deserializer", std::any::type_name::<B>());
+        tracing::Span::current().record("deserializer", std::any::type_name::<De>());
         let revisions: Vec<Revision> = revision_records.iter().map(|record| record.revision.clone()).collect();
         tracing::Span::current().record("deserialize_revisions", revisions.len());
-        let current_rev_id = revisions.last().as_ref().map(|revision| revision.rev_id).unwrap_or(0);
-        match B::deserialize_revisions(&self.object_id, revisions.clone()) {
+        let last_rev_id = revisions.last().as_ref().map(|revision| revision.rev_id).unwrap_or(0);
+        match De::deserialize_revisions(&self.object_id, revisions.clone()) {
             Ok(object) => {
                 self.rev_persistence.sync_revision_records(&revision_records).await?;
-                self.rev_id_counter.set(current_rev_id);
+                self.rev_id_counter.set(last_rev_id);
                 Ok(object)
             }
-            Err(e) => match self.rev_snapshot.restore_from_snapshot::<B>(current_rev_id) {
+            Err(e) => match self.rev_snapshot.restore_from_snapshot::<De>(last_rev_id) {
                 None => {
-                    tracing::info!("Restore object from validation revisions");
-                    B::recover_operations_from_revisions(revisions).ok_or(e)
+                    tracing::info!("[Restore] iterate restore from each revision");
+                    let (output, recover_rev_id) = De::recover_from_revisions(revisions).ok_or(e)?;
+                    tracing::info!(
+                        "[Restore] last_rev_id:{}, recover_rev_id: {}",
+                        last_rev_id,
+                        recover_rev_id
+                    );
+                    self.rev_id_counter.set(recover_rev_id);
+                    // delete the revisions whose rev_id is greater than recover_rev_id
+                    if recover_rev_id < last_rev_id {
+                        let range = RevisionRange {
+                            start: recover_rev_id + 1,
+                            end: last_rev_id,
+                        };
+                        tracing::info!("[Restore] delete revisions in range: {}", range);
+                        let _ = self.rev_persistence.delete_revisions_from_range(range);
+                    }
+                    Ok(output)
                 }
                 Some((object, snapshot_rev)) => {
                     let snapshot_rev_id = snapshot_rev.rev_id;
@@ -162,14 +177,14 @@ impl<Connection: 'static> RevisionManager<Connection> {
     }
 
     pub async fn close(&self) {
-        let _ = self.rev_persistence.compact_lagging_revisions(&self.rev_compress).await;
+        let _ = self.rev_persistence.merge_lagging_revisions(&self.rev_compress).await;
     }
 
     pub async fn generate_snapshot(&self) {
         self.rev_snapshot.generate_snapshot().await;
     }
 
-    pub async fn read_snapshot(&self, rev_id: Option<i64>) -> FlowyResult<Option<RevisionSnapshot>> {
+    pub async fn read_snapshot(&self, rev_id: Option<i64>) -> FlowyResult<Option<RevisionSnapshotData>> {
         match rev_id {
             None => self.rev_snapshot.read_last_snapshot(),
             Some(rev_id) => self.rev_snapshot.read_snapshot(rev_id),

@@ -21,9 +21,9 @@ class DatabaseFFIService {
   }
 
   Future<Either<RowPB, FlowyError>> createRow({Option<String>? startRowId}) {
-    var payload = CreateTableRowPayloadPB.create()..databaseId = databaseId;
+    var payload = CreateRowPayloadPB.create()..databaseId = databaseId;
     startRowId?.fold(() => null, (id) => payload.startRowId = id);
-    return DatabaseEventCreateTableRow(payload).send();
+    return DatabaseEventCreateRow(payload).send();
   }
 
   Future<Either<RowPB, FlowyError>> createBoardCard(

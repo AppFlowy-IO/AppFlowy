@@ -1,4 +1,4 @@
-use flowy_core::FlowySDK;
+use flowy_core::AppFlowyCore;
 use lib_dispatch::prelude::{
     AFPluginDispatcher, AFPluginEventResponse, AFPluginRequest, StatusCode,
 };
@@ -39,7 +39,7 @@ pub async fn invoke_request(
     app_handler: AppHandle<Wry>,
 ) -> AFTauriResponse {
     let request: AFPluginRequest = request.into();
-    let state: State<FlowySDK> = app_handler.state();
+    let state: State<AppFlowyCore> = app_handler.state();
     let dispatcher = state.inner().dispatcher();
     let response = AFPluginDispatcher::async_send(dispatcher, request).await;
     response.into()

@@ -1,6 +1,7 @@
 use crate::editor::{initial_document_content, AppFlowyDocumentEditor, DocumentRevisionMergeable};
 use crate::entities::{DocumentVersionPB, EditParams};
 use crate::old_editor::editor::{DeltaDocumentEditor, DeltaDocumentRevisionMergeable};
+use crate::old_editor::snapshot::DeltaDocumentSnapshotPersistence;
 use crate::services::rev_sqlite::{
     SQLiteDeltaDocumentRevisionPersistence, SQLiteDocumentRevisionPersistence,
     SQLiteDocumentRevisionSnapshotPersistence,
@@ -12,8 +13,7 @@ use document_model::document::DocumentId;
 use flowy_client_sync::client_document::initial_delta_document_content;
 use flowy_error::FlowyResult;
 use flowy_revision::{
-    PhantomSnapshotPersistence, RevisionCloudService, RevisionManager, RevisionPersistence,
-    RevisionPersistenceConfiguration, RevisionWebSocket,
+    RevisionCloudService, RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket,
 };
 use flowy_sqlite::ConnectionPool;
 use lib_infra::async_trait::async_trait;
@@ -292,7 +292,7 @@ impl DocumentManager {
             doc_id,
             rev_persistence,
             DeltaDocumentRevisionMergeable(),
-            PhantomSnapshotPersistence(),
+            DeltaDocumentSnapshotPersistence(),
         ))
     }
 }

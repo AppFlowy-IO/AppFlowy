@@ -127,7 +127,7 @@ impl TryInto<MoveGroupParams> for MoveGroupPayloadPB {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct GroupViewChangesetPB {
+pub struct GroupChangesetPB {
     #[pb(index = 1)]
     pub view_id: String,
 
@@ -135,7 +135,7 @@ pub struct GroupViewChangesetPB {
     pub inserted_groups: Vec<InsertedGroupPB>,
 
     #[pb(index = 3)]
-    pub new_groups: Vec<GroupPB>,
+    pub initial_groups: Vec<GroupPB>,
 
     #[pb(index = 4)]
     pub deleted_groups: Vec<String>,
@@ -144,9 +144,9 @@ pub struct GroupViewChangesetPB {
     pub update_groups: Vec<GroupPB>,
 }
 
-impl GroupViewChangesetPB {
+impl GroupChangesetPB {
     pub fn is_empty(&self) -> bool {
-        self.new_groups.is_empty()
+        self.initial_groups.is_empty()
             && self.inserted_groups.is_empty()
             && self.deleted_groups.is_empty()
             && self.update_groups.is_empty()

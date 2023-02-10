@@ -17,7 +17,7 @@ typedef OnGridChanged = void Function(DatabasePB);
 typedef DidLoadGroups = void Function(List<GroupPB>);
 typedef OnUpdatedGroup = void Function(List<GroupPB>);
 typedef OnDeletedGroup = void Function(List<String>);
-typedef OnInsertedGroup = void Function(List<InsertedGroupPB>);
+typedef OnInsertedGroup = void Function(InsertedGroupPB);
 typedef OnResetGroups = void Function(List<GroupPB>);
 
 typedef OnRowsChanged = void Function(
@@ -90,8 +90,8 @@ class BoardDataController {
               onDeletedGroup.call(changeset.deletedGroups);
             }
 
-            if (changeset.insertedGroups.isNotEmpty) {
-              onInsertedGroup.call(changeset.insertedGroups);
+            for (final insertedGroup in changeset.insertedGroups) {
+              onInsertedGroup.call(insertedGroup);
             }
           },
           (e) => _onError?.call(e),

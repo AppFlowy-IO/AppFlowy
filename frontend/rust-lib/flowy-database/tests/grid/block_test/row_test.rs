@@ -1,13 +1,13 @@
 use crate::grid::block_test::script::RowScript::*;
-use crate::grid::block_test::script::{CreateRowScriptBuilder, GridRowTest};
-use crate::grid::grid_editor::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, TWITTER};
+use crate::grid::block_test::script::{CreateRowScriptBuilder, DatabaseRowTest};
+use crate::grid::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, TWITTER};
 use flowy_database::entities::FieldType;
 use flowy_database::services::field::{SELECTION_IDS_SEPARATOR, UNCHECK};
 use grid_model::RowChangeset;
 
 #[tokio::test]
 async fn grid_create_row_count_test() {
-    let mut test = GridRowTest::new().await;
+    let mut test = DatabaseRowTest::new().await;
     let scripts = vec![
         AssertRowCount(6),
         CreateEmptyRow,
@@ -22,7 +22,7 @@ async fn grid_create_row_count_test() {
 
 #[tokio::test]
 async fn grid_update_row() {
-    let mut test = GridRowTest::new().await;
+    let mut test = DatabaseRowTest::new().await;
     let row_rev = test.row_builder().build();
     let changeset = RowChangeset {
         row_id: row_rev.id.clone(),
@@ -41,7 +41,7 @@ async fn grid_update_row() {
 
 #[tokio::test]
 async fn grid_delete_row() {
-    let mut test = GridRowTest::new().await;
+    let mut test = DatabaseRowTest::new().await;
     let row_1 = test.row_builder().build();
     let row_2 = test.row_builder().build();
     let row_ids = vec![row_1.id.clone(), row_2.id.clone()];
@@ -67,7 +67,7 @@ async fn grid_delete_row() {
 
 #[tokio::test]
 async fn grid_row_add_cells_test() {
-    let mut test = GridRowTest::new().await;
+    let mut test = DatabaseRowTest::new().await;
     let mut builder = CreateRowScriptBuilder::new(&test);
     builder.insert(FieldType::RichText, "hello world", "hello world");
     builder.insert(FieldType::DateTime, "1647251762", "2022/03/14");
@@ -85,7 +85,7 @@ async fn grid_row_add_cells_test() {
 
 #[tokio::test]
 async fn grid_row_insert_number_test() {
-    let mut test = GridRowTest::new().await;
+    let mut test = DatabaseRowTest::new().await;
     for (val, expected) in &[("1647251762", "2022/03/14"), ("2022/03/14", ""), ("", "")] {
         let mut builder = CreateRowScriptBuilder::new(&test);
         builder.insert(FieldType::DateTime, val, expected);
@@ -96,7 +96,7 @@ async fn grid_row_insert_number_test() {
 
 #[tokio::test]
 async fn grid_row_insert_date_test() {
-    let mut test = GridRowTest::new().await;
+    let mut test = DatabaseRowTest::new().await;
     for (val, expected) in &[
         ("18,443", "$18,443.00"),
         ("0", "$0.00"),
@@ -112,7 +112,7 @@ async fn grid_row_insert_date_test() {
 }
 #[tokio::test]
 async fn grid_row_insert_single_select_test() {
-    let mut test = GridRowTest::new().await;
+    let mut test = DatabaseRowTest::new().await;
     let mut builder = CreateRowScriptBuilder::new(&test);
     builder.insert_single_select_cell(|mut options| options.pop().unwrap(), PAUSED);
     let scripts = builder.build();
@@ -121,7 +121,7 @@ async fn grid_row_insert_single_select_test() {
 
 #[tokio::test]
 async fn grid_row_insert_multi_select_test() {
-    let mut test = GridRowTest::new().await;
+    let mut test = DatabaseRowTest::new().await;
     let mut builder = CreateRowScriptBuilder::new(&test);
     builder.insert_multi_select_cell(
         |mut options| {

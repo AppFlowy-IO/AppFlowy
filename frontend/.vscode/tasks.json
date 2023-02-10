@@ -16,7 +16,7 @@
 			"dependsOn": [
 				"AF: Dart Clean",
 				"AF: Flutter Clean",
-				"AF: build_flowy_sdk",
+				"AF: Build Appflowy Core",
 				"AF: Flutter Pub Get",
 				"AF: Flutter Package Get",
 				"AF: Generate Language Files",
@@ -34,7 +34,7 @@
 			"dependsOn": [
 				"AF: Dart Clean",
 				"AF: Flutter Clean",
-				"AF: build_flowy_sdk_for_android",
+				"AF: Build Appflowy Core_for_android",
 				"AF: Flutter Pub Get",
 				"AF: Flutter Package Get",
 				"AF: Generate Language Files",
@@ -46,46 +46,25 @@
 			}
 		},
 		{
-			"label": "AF: build_flowy_sdk_for_android",
+			"label": "AF: Build Appflowy Core_for_android",
 			"type": "shell",
-			"command": "cargo make --profile development-android appflowy-sdk-dev-android",
+			"command": "cargo make --profile development-android appflowy-core-dev-android",
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}"
 			}
 		},
 		{
-			"label": "AF: build_flowy_sdk",
+			"label": "AF: Build Appflowy Core",
 			"type": "shell",
-			"command": "sh ./scripts/build_sdk.sh",
 			"windows": {
-				"options": {
-					"env": {
-						"FLOWY_DEV_ENV": "Windows"
-					},
-					"shell": {
-						"executable": "cmd.exe",
-						"args": [
-							"/d",
-							"/c",
-							".\\scripts\\build_sdk.cmd"
-						]
-					}
-				}
+				"command": "cargo make --profile development-windows-x86 appflowy-core-dev"
 			},
 			"linux": {
-				"options": {
-					"env": {
-						"FLOWY_DEV_ENV": "Linux"
-					}
-				}
+				"command": "cargo make --profile \"development-linux-$(uname -m)\" appflowy-core-dev"
 			},
 			"osx": {
-				"options": {
-					"env": {
-						"FLOWY_DEV_ENV": "macOS"
-					}
-				}
+				"command": "cargo make --profile \"development-mac-$(uname -m)\" appflowy-core-dev"
 			},
 			"group": "build",
 			"options": {
@@ -221,7 +200,7 @@
 			"options": {
 				"cwd": "${workspaceFolder}"
 			},
-			"problemMatcher": ["$tsc"],
+			"problemMatcher": ["$tsc"]
 		},
 		{
 			"label": "AF: Tauri Clean + Dev",

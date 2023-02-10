@@ -24,6 +24,7 @@ dependencies:
   highlight: ^0.7.0
   shared_preferences: ^2.0.15
   flutter_svg: ^1.1.1+1
+  provider: ^6.0.3
 
 dev_dependencies:
   flutter_test:

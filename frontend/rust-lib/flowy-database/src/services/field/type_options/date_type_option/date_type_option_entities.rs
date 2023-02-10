@@ -1,4 +1,4 @@
-use crate::entities::CellPathPB;
+use crate::entities::CellIdPB;
 use crate::services::cell::{
     CellProtobufBlobParser, DecodedCellData, FromCellChangesetString, FromCellString, ToCellChangesetString,
 };
@@ -23,7 +23,7 @@ pub struct DateCellDataPB {
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct DateChangesetPB {
     #[pb(index = 1)]
-    pub cell_path: CellPathPB,
+    pub cell_path: CellIdPB,
 
     #[pb(index = 2, one_of)]
     pub date: Option<String>,

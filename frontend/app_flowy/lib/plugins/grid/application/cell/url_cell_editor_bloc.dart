@@ -14,13 +14,16 @@ class URLCellEditorBloc extends Bloc<URLCellEditorEvent, URLCellEditorState> {
   }) : super(URLCellEditorState.initial(cellController)) {
     on<URLCellEditorEvent>(
       (event, emit) async {
-        event.when(
+        await event.when(
           initial: () {
             _startListening();
           },
-          updateText: (text) {
-            cellController.saveCellData(text, deduplicate: true);
-            emit(state.copyWith(content: text));
+          updateText: (text) async {
+            await cellController.saveCellData(text);
+            emit(state.copyWith(
+              content: text,
+              isFinishEditing: true,
+            ));
           },
           didReceiveCellUpdate: (cellData) {
             emit(state.copyWith(content: cellData?.content ?? ""));
@@ -63,12 +66,14 @@ class URLCellEditorEvent with _$URLCellEditorEvent {
 class URLCellEditorState with _$URLCellEditorState {
   const factory URLCellEditorState({
     required String content,
+    required bool isFinishEditing,
   }) = _URLCellEditorState;
 
   factory URLCellEditorState.initial(GridURLCellController context) {
     final cellData = context.getCellData();
     return URLCellEditorState(
       content: cellData?.content ?? "",
+      isFinishEditing: true,
     );
   }
 }

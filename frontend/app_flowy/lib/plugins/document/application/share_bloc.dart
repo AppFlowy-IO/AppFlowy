@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:app_flowy/plugins/document/application/share_service.dart';
+import 'package:app_flowy/plugins/document/presentation/plugins/parsers/divider_node_parser.dart';
+import 'package:app_flowy/plugins/document/presentation/plugins/parsers/math_equation_node_parser.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -48,7 +50,10 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
   String _convertDocumentToMarkdown(ExportDataPB value) {
     final json = jsonDecode(value.data);
     final document = Document.fromJson(json);
-    return documentToMarkdown(document);
+    return documentToMarkdown(document, customParsers: [
+      const DividerNodeParser(),
+      const MathEquationNodeParser(),
+    ]);
   }
 }
 

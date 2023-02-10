@@ -1,10 +1,10 @@
-use crate::grid::sort_test::script::{GridSortTest, SortScript::*};
+use crate::grid::sort_test::script::{DatabaseSortTest, SortScript::*};
 use flowy_database::entities::FieldType;
 use grid_model::SortCondition;
 
 #[tokio::test]
 async fn sort_text_by_ascending_test() {
-    let mut test = GridSortTest::new().await;
+    let mut test = DatabaseSortTest::new().await;
     let text_field = test.get_first_field_rev(FieldType::RichText);
     let scripts = vec![
         AssertCellContentOrder {
@@ -25,7 +25,7 @@ async fn sort_text_by_ascending_test() {
 
 #[tokio::test]
 async fn sort_change_notification_by_update_text_test() {
-    let mut test = GridSortTest::new().await;
+    let mut test = DatabaseSortTest::new().await;
     let text_field = test.get_first_field_rev(FieldType::RichText).clone();
     let scripts = vec![
         InsertSort {
@@ -57,7 +57,7 @@ async fn sort_change_notification_by_update_text_test() {
 
 #[tokio::test]
 async fn sort_text_by_ascending_and_delete_sort_test() {
-    let mut test = GridSortTest::new().await;
+    let mut test = DatabaseSortTest::new().await;
     let text_field = test.get_first_field_rev(FieldType::RichText).clone();
     let scripts = vec![InsertSort {
         field_rev: text_field.clone(),
@@ -80,7 +80,7 @@ async fn sort_text_by_ascending_and_delete_sort_test() {
 
 #[tokio::test]
 async fn sort_text_by_descending_test() {
-    let mut test = GridSortTest::new().await;
+    let mut test = DatabaseSortTest::new().await;
     let text_field = test.get_first_field_rev(FieldType::RichText);
     let scripts = vec![
         AssertCellContentOrder {
@@ -101,7 +101,7 @@ async fn sort_text_by_descending_test() {
 
 #[tokio::test]
 async fn sort_checkbox_by_ascending_test() {
-    let mut test = GridSortTest::new().await;
+    let mut test = DatabaseSortTest::new().await;
     let checkbox_field = test.get_first_field_rev(FieldType::Checkbox);
     let scripts = vec![
         AssertCellContentOrder {
@@ -118,7 +118,7 @@ async fn sort_checkbox_by_ascending_test() {
 
 #[tokio::test]
 async fn sort_checkbox_by_descending_test() {
-    let mut test = GridSortTest::new().await;
+    let mut test = DatabaseSortTest::new().await;
     let checkbox_field = test.get_first_field_rev(FieldType::Checkbox);
     let scripts = vec![
         AssertCellContentOrder {
@@ -139,7 +139,7 @@ async fn sort_checkbox_by_descending_test() {
 
 #[tokio::test]
 async fn sort_date_by_ascending_test() {
-    let mut test = GridSortTest::new().await;
+    let mut test = DatabaseSortTest::new().await;
     let date_field = test.get_first_field_rev(FieldType::DateTime);
     let scripts = vec![
         AssertCellContentOrder {
@@ -160,7 +160,7 @@ async fn sort_date_by_ascending_test() {
 
 #[tokio::test]
 async fn sort_date_by_descending_test() {
-    let mut test = GridSortTest::new().await;
+    let mut test = DatabaseSortTest::new().await;
     let date_field = test.get_first_field_rev(FieldType::DateTime);
     let scripts = vec![
         AssertCellContentOrder {
@@ -195,7 +195,7 @@ async fn sort_date_by_descending_test() {
 
 #[tokio::test]
 async fn sort_number_by_descending_test() {
-    let mut test = GridSortTest::new().await;
+    let mut test = DatabaseSortTest::new().await;
     let number_field = test.get_first_field_rev(FieldType::Number);
     let scripts = vec![
         AssertCellContentOrder {
@@ -216,7 +216,7 @@ async fn sort_number_by_descending_test() {
 
 #[tokio::test]
 async fn sort_single_select_by_descending_test() {
-    let mut test = GridSortTest::new().await;
+    let mut test = DatabaseSortTest::new().await;
     let single_select = test.get_first_field_rev(FieldType::SingleSelect);
     let scripts = vec![
         AssertCellContentOrder {
@@ -237,7 +237,7 @@ async fn sort_single_select_by_descending_test() {
 
 #[tokio::test]
 async fn sort_multi_select_by_ascending_test() {
-    let mut test = GridSortTest::new().await;
+    let mut test = DatabaseSortTest::new().await;
     let multi_select = test.get_first_field_rev(FieldType::MultiSelect);
     let scripts = vec![
         AssertCellContentOrder {
