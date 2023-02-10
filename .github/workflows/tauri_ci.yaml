@@ -43,32 +43,32 @@ jobs:
       - name: install dependencies (windows only)
         if: matrix.platform == 'windows-latest'
         run: |
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
           vcpkg integrate install
+          cargo make appflowy-tauri-deps-tools
 
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-20.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+          cargo install --force cargo-make
+          cargo make appflowy-tauri-deps-tools
 
-      - name: install prerequisites
-        working-directory: frontend
+      - name: install dependencies (macOS only)
+        if: matrix.platform == 'macos-latest'
         run: |
           cargo install --force cargo-make
-          cargo install --force duckscript_cli
           cargo make appflowy-tauri-deps-tools
-        shell: bash
-
-      - name: install tauri dependencies
-        working-directory: frontend/appflowy_tauri
-        run: |
-          mkdir dist
-          npm install
-        shell: bash
 
       - name: build tauri backend
         working-directory: frontend
         run: |
+          cd appflowy_tauri
+          mkdir dist
+          npm install
+          cd ..
           cargo make build_tauri_backend
 
       - name: build tauri frontend
