@@ -14,10 +14,10 @@ use request::*;
 use tauri::Manager;
 
 fn main() {
-    let sdk = init_flowy_core();
+    let flowy_core = init_flowy_core();
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![invoke_request])
-        .manage(sdk)
+        .manage(flowy_core)
         .on_window_event(|_window_event| {})
         .on_menu_event(|_menu| {})
         .on_page_load(|window, _payload| {
@@ -29,7 +29,8 @@ fn main() {
             });
         })
         .setup(|app| {
-            if cfg!(debug_assertions) {
+            #[cfg(debug_assertions)]
+            {
                 let window = app.get_window("main").unwrap();
                 window.open_devtools();
             }
