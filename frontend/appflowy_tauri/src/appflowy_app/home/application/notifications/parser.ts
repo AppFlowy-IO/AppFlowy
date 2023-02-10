@@ -1,10 +1,10 @@
-import { FolderNotification } from "../../../../services/backend";
-import { NotificationParser, OnNotificationError } from "../../../../services/backend/notifications/parser";
+import { FolderNotification } from '../../../../services/backend';
+import { NotificationParser, OnNotificationError } from '../../../../services/backend/notifications/parser';
 
 declare type FolderNotificationCallback = (ty: FolderNotification, payload: Uint8Array) => void;
 
 export class FolderNotificationParser extends NotificationParser<FolderNotification> {
-  constructor(params: { id?: String; callback: FolderNotificationCallback; onError?: OnNotificationError }) {
+  constructor(params: { id?: string; callback: FolderNotificationCallback; onError?: OnNotificationError }) {
     super(
       params.callback,
       (ty) => {

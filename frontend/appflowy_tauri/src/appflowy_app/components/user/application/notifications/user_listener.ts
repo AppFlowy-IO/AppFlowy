@@ -1,6 +1,6 @@
-import { FlowyError, UserNotification, UserProfilePB } from "../../../../../services/backend";
-import { AFNotificationListener, OnNotificationError } from "../../../../../services/backend/notifications";
-import { UserNotificationParser } from "./parser";
+import { FlowyError, UserNotification, UserProfilePB } from '../../../../../services/backend';
+import { AFNotificationListener, OnNotificationError } from '../../../../../services/backend/notifications';
+import { UserNotificationParser } from './parser';
 
 declare type OnUserProfileUpdate = (userProfile: UserProfilePB) => void;
 declare type OnUserSignIn = (userProfile: UserProfilePB) => void;
@@ -10,7 +10,7 @@ export class UserNotificationListener extends AFNotificationListener<UserNotific
   onUserSignIn?: OnUserSignIn;
 
   constructor(params: {
-    userId?: String;
+    userId?: string;
     onUserSignIn?: OnUserSignIn;
     onProfileUpdate?: OnUserProfileUpdate;
     onError?: OnNotificationError;

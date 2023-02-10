@@ -10,7 +10,7 @@ script_runner = "@shell"
 env = { RUST_LOG = "debug" }
 script = ["""
     cd appflowy_tauri
-    npm run tauri dev
+    npm run tauri:dev
     """]
 script_runner = "@shell"
 
