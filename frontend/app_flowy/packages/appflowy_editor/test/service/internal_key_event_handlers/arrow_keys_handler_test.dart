@@ -466,6 +466,59 @@ void main() async {
       ),
     );
   });
+
+  testWidgets('Presses ctrl + backspace to delete a word', (tester) async {
+    List<String> words = ["Welcome", " ", "to", " ", "Appflowy", " ", "😁"];
+    final text = words.join();
+    final editor = tester.editor..insertTextNode(text);
+
+    await editor.startTesting();
+    var selection = Selection.single(path: [0], startOffset: text.length);
+    await editor.updateSelection(selection);
+
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.backspace,
+      isControlPressed: true,
+    );
+
+    //fetching all the text that is still on the editor.
+    var nodes =
+        editor.editorState.service.selectionService.currentSelectedNodes;
+    var textNode = nodes.whereType<TextNode>().toList(growable: false).first;
+    var newText = textNode.toPlainText();
+
+    words.removeLast();
+    expect(newText, words.join());
+
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.backspace,
+      isControlPressed: true,
+    );
+
+    //fetching all the text that is still on the editor.
+    nodes = editor.editorState.service.selectionService.currentSelectedNodes;
+    textNode = nodes.whereType<TextNode>().toList(growable: false).first;
+
+    newText = textNode.toPlainText();
+
+    words.removeLast();
+    expect(newText, words.join());
+
+    for (var i = 0; i < words.length; i++) {
+      await editor.pressLogicKey(
+        LogicalKeyboardKey.backspace,
+        isControlPressed: true,
+      );
+    }
+
+    nodes = editor.editorState.service.selectionService.currentSelectedNodes;
+    textNode = nodes.whereType<TextNode>().toList(growable: false).first;
+
+    newText = textNode.toPlainText();
+
+    print(newText);
+    expect(newText, '');
+  });
 }
 
 Future<void> _testPressArrowKeyInNotCollapsedSelection(
