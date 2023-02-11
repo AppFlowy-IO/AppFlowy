@@ -516,7 +516,6 @@ void main() async {
 
     newText = textNode.toPlainText();
 
-    print(newText);
     expect(newText, '');
   });
 }

@@ -340,7 +340,7 @@ ShortcutEventHandler cursorLeftWordDelete = (editorState, event) {
 
   final transaction = editorState.transaction;
   transaction.deleteText(
-      textNode, startOfWord.offset, selection.end.offset - startOfWord!.offset);
+      textNode, startOfWord.offset, selection.end.offset - startOfWord.offset);
 
   editorState.apply(transaction);
 
