@@ -9,6 +9,7 @@ export const useGridTitleHooks = function () {
 
   const [title, setTitle] = useState(grid.title);
   const [changingTitle, setChangingTitle] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
 
   const onTitleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTitle(event.target.value);
@@ -29,5 +30,7 @@ export const useGridTitleHooks = function () {
     onTitleBlur,
     onTitleClick,
     changingTitle,
+    showOptions,
+    setShowOptions,
   };
 };
