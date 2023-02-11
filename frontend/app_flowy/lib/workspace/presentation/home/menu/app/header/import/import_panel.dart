@@ -85,15 +85,15 @@ class _ImportPanel extends StatefulWidget {
 class _ImportPanelState extends State<_ImportPanel> {
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width * 0.5;
+    final width = MediaQuery.of(context).size.width * 0.7;
     final height = width * 0.5;
     return FlowyContainer(
       Theme.of(context).colorScheme.surface,
       height: height,
       width: width,
       child: GridView.count(
-        childAspectRatio: 1 / .4,
-        crossAxisCount: 3,
+        childAspectRatio: 1 / .2,
+        crossAxisCount: 2,
         children: _ImportType.values.map(
           (e) {
             return Card(
@@ -103,6 +103,7 @@ class _ImportPanelState extends State<_ImportPanel> {
                 text: FlowyText.medium(
                   e.toString(),
                   fontSize: 15,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 onTap: () async {
                   await _importFile(e);

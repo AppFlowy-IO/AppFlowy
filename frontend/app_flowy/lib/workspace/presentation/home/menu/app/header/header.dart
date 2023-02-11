@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -109,6 +111,8 @@ class MenuAppHeader extends StatelessWidget {
                 AppEvent.createView(
                   LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
                   pluginBuilder,
+                  initialData:
+                      document != null ? jsonEncode(document.toJson()) : '',
                 ),
               );
         },
