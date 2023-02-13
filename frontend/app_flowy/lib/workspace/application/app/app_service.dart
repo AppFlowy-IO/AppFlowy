@@ -35,7 +35,9 @@ class AppService {
       ..desc = desc ?? ""
       ..dataFormat = dataFormatType
       ..layout = layoutType
-      ..initialData = utf8.encode(initialData ?? "");
+      ..initialData = utf8.encode(
+        initialData ?? "",
+      );
 
     return FolderEventCreateView(payload).send();
   }
