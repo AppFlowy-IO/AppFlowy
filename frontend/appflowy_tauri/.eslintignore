@@ -1,2 +1,4 @@
 /src/services
 /src/styles
+.eslintrc.cjs
+node_modules

@@ -170,7 +170,7 @@
 			"type": "shell",
 			"isBackground": true,
 			"command": "npm run dev",
-			"problemMatcher": ["$tsc"],
+			"problemMatcher": "$tsc-watch",
 			"options": {
 				"cwd": "${workspaceFolder}/appflowy_tauri"
 			}
@@ -179,7 +179,7 @@
 			"label": "AF: Tauri UI Build",
 			"type": "shell",
 			"command": "npm run build",
-			"problemMatcher": ["$tsc"],
+			"problemMatcher": "$tsc-watch",
 			"options": {
 				"cwd": "${workspaceFolder}/appflowy_tauri"
 			}
@@ -188,7 +188,7 @@
 			"label": "AF: Tauri Dev",
 			"type": "shell",
 			"command": "npm run tauri dev",
-			"problemMatcher": ["$tsc"],
+			"problemMatcher": "$tsc-watch",
 			"options": {
 				"cwd": "${workspaceFolder}/appflowy_tauri"
 			}
@@ -200,7 +200,7 @@
 			"options": {
 				"cwd": "${workspaceFolder}"
 			},
-			"problemMatcher": ["$tsc"]
+			"problemMatcher": "$tsc-watch"
 		},
 		{
 			"label": "AF: Tauri Clean + Dev",
@@ -213,6 +213,14 @@
 			"options": {
 				"cwd": "${workspaceFolder}"
 			}
-		}
+		},
+		{
+			"label": "AF: Tauri ESLint",
+			"type": "shell",
+			"command": "npx eslint --fix src",
+			"options": {
+				"cwd": "${workspaceFolder}/appflowy_tauri"
+			}
+		},	
 	]
 }

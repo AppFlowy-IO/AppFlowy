@@ -1,8 +1,8 @@
-import { foldersActions, IFolder } from '../../../redux/folders/slice';
+import { foldersActions, IFolder } from '../../../stores/reducers/folders/slice';
 import { useState } from 'react';
-import { useAppDispatch } from '../../../store';
+import { useAppDispatch } from '../../../stores/store';
 import { nanoid } from 'nanoid';
-import { pagesActions } from '../../../redux/pages/slice';
+import { pagesActions } from '../../../stores/reducers/pages/slice';
 
 export const useFolderEvents = (folder: IFolder) => {
   const appDispatch = useAppDispatch();

@@ -1,14 +1,14 @@
-import { DatabaseNotification } from "../../../../../services/backend";
-import { NotificationParser, OnNotificationError } from "../../../../../services/backend/notifications/parser";
+import { DatabaseNotification } from '../../../../../services/backend';
+import { NotificationParser, OnNotificationError } from '../../../../../services/backend/notifications';
 
 declare type DatabaseNotificationCallback = (ty: DatabaseNotification, payload: Uint8Array) => void;
 
 export class DatabaseNotificationParser extends NotificationParser<DatabaseNotification> {
-  constructor(params: { id?: String; callback: DatabaseNotificationCallback; onError?: OnNotificationError }) {
+  constructor(params: { id?: string; callback: DatabaseNotificationCallback; onError?: OnNotificationError }) {
     super(
       params.callback,
       (ty) => {
-        let notification = DatabaseNotification[ty];
+        const notification = DatabaseNotification[ty];
         if (isDatabaseNotification(notification)) {
           return DatabaseNotification[notification];
         } else {
