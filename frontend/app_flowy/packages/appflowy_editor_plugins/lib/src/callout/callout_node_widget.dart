@@ -6,8 +6,8 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/color_picker.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 const String kCalloutType = 'callout';
 const String kCalloutAttrColor = 'color';
@@ -28,7 +28,8 @@ SelectionMenuItem calloutMenuItem = SelectionMenuItem.node(
   },
 );
 
-class CalloutNodeWidgetBuilder extends NodeWidgetBuilder<Node> {
+class CalloutNodeWidgetBuilder extends NodeWidgetBuilder<Node>
+    with ActionProvider<Node> {
   @override
   Widget build(NodeWidgetContext<Node> context) {
     return _CalloutWidget(
@@ -40,6 +41,61 @@ class CalloutNodeWidgetBuilder extends NodeWidgetBuilder<Node> {
 
   @override
   NodeValidator<Node> get nodeValidator => (node) => node.type == kCalloutType;
+
+  _CalloutWidgetState? _getState(NodeWidgetContext<Node> context) {
+    return context.node.key.currentState as _CalloutWidgetState?;
+  }
+
+  BuildContext? _getBuildContext(NodeWidgetContext<Node> context) {
+    return context.node.key.currentContext;
+  }
+
+  @override
+  List<ActionMenuItem> actions(NodeWidgetContext<Node> context) {
+    return [
+      ActionMenuItem.icon(
+        iconData: Icons.color_lens_outlined,
+        onPressed: () {
+          final state = _getState(context);
+          final ctx = _getBuildContext(context);
+          if (state == null || ctx == null) {
+            return;
+          }
+          final menuState = Provider.of<ActionMenuState>(ctx, listen: false);
+          menuState.isPinned = true;
+          state.colorPopoverController.show();
+        },
+        itemWrapper: (item) {
+          final state = _getState(context);
+          final ctx = _getBuildContext(context);
+          if (state == null || ctx == null) {
+            return item;
+          }
+          return AppFlowyPopover(
+            controller: state.colorPopoverController,
+            popupBuilder: (context) => state._buildColorPicker(),
+            constraints: BoxConstraints.loose(const Size(200, 460)),
+            triggerActions: 0,
+            offset: const Offset(0, 30),
+            child: item,
+            onClose: () {
+              final menuState =
+                  Provider.of<ActionMenuState>(ctx, listen: false);
+              menuState.isPinned = false;
+            },
+          );
+        },
+      ),
+      ActionMenuItem.svg(
+        name: 'delete',
+        onPressed: () {
+          final transaction = context.editorState.transaction
+            ..deleteNode(context.node);
+          context.editorState.apply(transaction);
+        },
+      ),
+    ];
+  }
 }
 
 class _CalloutWidget extends StatefulWidget {
@@ -57,7 +113,6 @@ class _CalloutWidget extends StatefulWidget {
 }
 
 class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
-  bool isHover = false;
   final PopoverController colorPopoverController = PopoverController();
   final PopoverController emojiPopoverController = PopoverController();
   RenderBox get _renderBox => context.findRenderObject() as RenderBox;
@@ -82,27 +137,6 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) {
-        setState(() {
-          isHover = true;
-        });
-      },
-      onExit: (_) {
-        setState(() {
-          isHover = false;
-        });
-      },
-      child: Stack(
-        children: [
-          _buildCallout(),
-          Positioned(top: 5, right: 5, child: _buildMenu()),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCallout() {
     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
@@ -149,35 +183,11 @@ class _CalloutWidgetState extends State<_CalloutWidget> with SelectableMixin {
     Size size = const Size(200, 460),
   }) {
     return AppFlowyPopover(
-        controller: controller,
-        constraints: BoxConstraints.loose(size),
-        triggerActions: 0,
-        popupBuilder: popupBuilder,
-        child: child);
-  }
-
-  Widget _buildMenu() {
-    return _popover(
-      controller: colorPopoverController,
-      popupBuilder: (context) => _buildColorPicker(),
-      child: isHover
-          ? Wrap(
-              children: [
-                FlowyIconButton(
-                  icon: const Icon(Icons.color_lens_outlined),
-                  onPressed: () {
-                    colorPopoverController.show();
-                  },
-                ),
-                FlowyIconButton(
-                  icon: const Icon(Icons.delete_forever_outlined),
-                  onPressed: () {
-                    deleteNode();
-                  },
-                )
-              ],
-            )
-          : const SizedBox(width: 0),
+      controller: controller,
+      constraints: BoxConstraints.loose(size),
+      triggerActions: 0,
+      popupBuilder: popupBuilder,
+      child: child,
     );
   }
 

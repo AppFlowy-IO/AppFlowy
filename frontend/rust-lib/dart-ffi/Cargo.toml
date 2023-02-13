@@ -23,6 +23,8 @@ bytes = { version = "1.0" }
 crossbeam-utils = "0.8.7"
 lazy_static = "1.4.0"
 parking_lot = "0.12.1"
+tracing = { version = "0.1", features = ["log"] }
+
 
 lib-dispatch = { path = "../lib-dispatch" }
 flowy-core = { path = "../flowy-core" }
@@ -30,8 +32,8 @@ flowy-notification = { path = "../flowy-notification" }
 flowy-derive = { path = "../flowy-derive" }
 
 [features]
-default = ["flowy-core/dart", "flutter", "rev-sqlite"]
-flutter = []
+default = ["dart", "rev-sqlite"]
+dart = ["flowy-core/dart"]
 rev-sqlite = ["flowy-core/rev-sqlite"]
 http_sync = ["flowy-core/http_sync", "flowy-core/use_bunyan"]
 openssl_vendored = ["flowy-core/openssl_vendored"]

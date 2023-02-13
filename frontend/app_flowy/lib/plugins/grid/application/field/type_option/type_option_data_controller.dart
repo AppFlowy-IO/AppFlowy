@@ -12,7 +12,7 @@ import 'type_option_context.dart';
 class TypeOptionDataController {
   final String databaseId;
   final IFieldTypeOptionLoader loader;
-  late TypeOptionPB _data;
+  late TypeOptionPB _typeOptiondata;
   final PublishNotifier<FieldPB> _fieldNotifier = PublishNotifier();
 
   /// Returns a [TypeOptionDataController] used to modify the specified
@@ -27,7 +27,7 @@ class TypeOptionDataController {
     FieldInfo? fieldInfo,
   }) {
     if (fieldInfo != null) {
-      _data = TypeOptionPB.create()
+      _typeOptiondata = TypeOptionPB.create()
         ..databaseId = databaseId
         ..field_2 = fieldInfo.field;
     }
@@ -38,7 +38,7 @@ class TypeOptionDataController {
     return result.fold(
       (data) {
         data.freeze();
-        _data = data;
+        _typeOptiondata = data;
         _fieldNotifier.value = data.field_2;
         return left(data);
       },
@@ -50,28 +50,28 @@ class TypeOptionDataController {
   }
 
   FieldPB get field {
-    return _data.field_2;
+    return _typeOptiondata.field_2;
   }
 
   T getTypeOption<T>(TypeOptionDataParser<T> parser) {
-    return parser.fromBuffer(_data.typeOptionData);
+    return parser.fromBuffer(_typeOptiondata.typeOptionData);
   }
 
   set fieldName(String name) {
-    _data = _data.rebuild((rebuildData) {
+    _typeOptiondata = _typeOptiondata.rebuild((rebuildData) {
       rebuildData.field_2 = rebuildData.field_2.rebuild((rebuildField) {
         rebuildField.name = name;
       });
     });
 
-    _fieldNotifier.value = _data.field_2;
+    _fieldNotifier.value = _typeOptiondata.field_2;
 
     FieldService(databaseId: databaseId, fieldId: field.id)
         .updateField(name: name);
   }
 
   set typeOptionData(List<int> typeOptionData) {
-    _data = _data.rebuild((rebuildData) {
+    _typeOptiondata = _typeOptiondata.rebuild((rebuildData) {
       if (typeOptionData.isNotEmpty) {
         rebuildData.typeOptionData = typeOptionData;
       }

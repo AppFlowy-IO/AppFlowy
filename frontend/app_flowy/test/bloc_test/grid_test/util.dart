@@ -210,7 +210,7 @@ class AppFlowyGridCellTest {
 
   Future<GridSelectOptionCellController> makeSelectOptionCellController(
       FieldType fieldType, int rowIndex) async {
-    return context.makeSelectOptionCellController(fieldType, rowIndex);
+    return await context.makeSelectOptionCellController(fieldType, rowIndex);
   }
 }
 

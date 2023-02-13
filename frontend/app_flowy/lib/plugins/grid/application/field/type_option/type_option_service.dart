@@ -21,6 +21,6 @@ class TypeOptionFFIService {
       ..databaseId = databaseId
       ..fieldId = fieldId;
 
-    return DatabaseEventNewSelectOption(payload).send();
+    return DatabaseEventCreateSelectOption(payload).send();
   }
 }

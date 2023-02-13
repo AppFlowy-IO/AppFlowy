@@ -5,69 +5,69 @@ use validator::validate_email;
 pub struct UserEmail(pub String);
 
 impl UserEmail {
-    pub fn parse(s: String) -> Result<UserEmail, UserErrorCode> {
-        if s.trim().is_empty() {
-            return Err(UserErrorCode::EmailIsEmpty);
-        }
-
-        if validate_email(&s) {
-            Ok(Self(s))
-        } else {
-            Err(UserErrorCode::EmailFormatInvalid)
-        }
+  pub fn parse(s: String) -> Result<UserEmail, UserErrorCode> {
+    if s.trim().is_empty() {
+      return Err(UserErrorCode::EmailIsEmpty);
     }
+
+    if validate_email(&s) {
+      Ok(Self(s))
+    } else {
+      Err(UserErrorCode::EmailFormatInvalid)
+    }
+  }
 }
 
 impl AsRef<str> for UserEmail {
-    fn as_ref(&self) -> &str {
-        &self.0
-    }
+  fn as_ref(&self) -> &str {
+    &self.0
+  }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use claim::assert_err;
-    use fake::{faker::internet::en::SafeEmail, Fake};
-    use rand::prelude::StdRng;
-    use rand_core::SeedableRng;
+  use super::*;
+  use claim::assert_err;
+  use fake::{faker::internet::en::SafeEmail, Fake};
+  use rand::prelude::StdRng;
+  use rand_core::SeedableRng;
 
-    #[test]
-    fn empty_string_is_rejected() {
-        let email = "".to_string();
-        assert_err!(UserEmail::parse(email));
+  #[test]
+  fn empty_string_is_rejected() {
+    let email = "".to_string();
+    assert_err!(UserEmail::parse(email));
+  }
+
+  #[test]
+  fn email_missing_at_symbol_is_rejected() {
+    let email = "helloworld.com".to_string();
+    assert_err!(UserEmail::parse(email));
+  }
+
+  #[test]
+  fn email_missing_subject_is_rejected() {
+    let email = "@domain.com".to_string();
+    assert_err!(UserEmail::parse(email));
+  }
+
+  #[derive(Debug, Clone)]
+  struct ValidEmailFixture(pub String);
+
+  impl quickcheck::Arbitrary for ValidEmailFixture {
+    fn arbitrary(g: &mut quickcheck::Gen) -> Self {
+      let mut rand_slice: [u8; 32] = [0; 32];
+      #[allow(clippy::needless_range_loop)]
+      for i in 0..32 {
+        rand_slice[i] = u8::arbitrary(g);
+      }
+      let mut seed = StdRng::from_seed(rand_slice);
+      let email = SafeEmail().fake_with_rng(&mut seed);
+      Self(email)
     }
+  }
 
-    #[test]
-    fn email_missing_at_symbol_is_rejected() {
-        let email = "helloworld.com".to_string();
-        assert_err!(UserEmail::parse(email));
-    }
-
-    #[test]
-    fn email_missing_subject_is_rejected() {
-        let email = "@domain.com".to_string();
-        assert_err!(UserEmail::parse(email));
-    }
-
-    #[derive(Debug, Clone)]
-    struct ValidEmailFixture(pub String);
-
-    impl quickcheck::Arbitrary for ValidEmailFixture {
-        fn arbitrary(g: &mut quickcheck::Gen) -> Self {
-            let mut rand_slice: [u8; 32] = [0; 32];
-            #[allow(clippy::needless_range_loop)]
-            for i in 0..32 {
-                rand_slice[i] = u8::arbitrary(g);
-            }
-            let mut seed = StdRng::from_seed(rand_slice);
-            let email = SafeEmail().fake_with_rng(&mut seed);
-            Self(email)
-        }
-    }
-
-    #[quickcheck_macros::quickcheck]
-    fn valid_emails_are_parsed_successfully(valid_email: ValidEmailFixture) -> bool {
-        UserEmail::parse(valid_email.0).is_ok()
-    }
+  #[quickcheck_macros::quickcheck]
+  fn valid_emails_are_parsed_successfully(valid_email: ValidEmailFixture) -> bool {
+    UserEmail::parse(valid_email.0).is_ok()
+  }
 }

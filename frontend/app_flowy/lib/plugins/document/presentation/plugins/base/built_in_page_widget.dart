@@ -1,20 +1,22 @@
 import 'package:app_flowy/plugins/document/presentation/plugins/base/insert_page_command.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/app/app_service.dart';
-import 'package:app_flowy/workspace/application/view/view_ext.dart';
-import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
-import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' as dartz;
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:app_flowy/workspace/application/view/view_ext.dart';
+import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
+import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 
 class BuiltInPageWidget extends StatefulWidget {
   const BuiltInPageWidget({
@@ -103,41 +105,66 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
     return Positioned(
       top: 5,
       left: 5,
-      child: PopoverActionList<_ActionWrapper>(
-        direction: PopoverDirection.bottomWithCenterAligned,
-        actions:
-            _ActionType.values.map((action) => _ActionWrapper(action)).toList(),
-        buildChild: (controller) {
-          return FlowyIconButton(
-            tooltipText: LocaleKeys.tooltip_openMenu.tr(),
-            width: 25,
-            height: 30,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // information
+          FlowyIconButton(
+            tooltipText: LocaleKeys.tooltip_referencePage.tr(namedArgs: {
+              'name': viewPB.layout.name,
+            }),
+            width: 24,
+            height: 24,
             iconPadding: const EdgeInsets.all(3),
-            icon: svgWidget('editor/details'),
-            onPressed: () => controller.show(),
-          );
-        },
-        onSelected: (action, controller) async {
-          switch (action.inner) {
-            case _ActionType.openAsPage:
-              getIt<MenuSharedState>().latestOpenView = viewPB;
-              getIt<HomeStackManager>().setPlugin(viewPB.plugin());
-              break;
-            case _ActionType.delete:
-              final transaction = widget.editorState.transaction;
-              transaction.deleteNode(widget.node);
-              widget.editorState.apply(transaction);
-              break;
-          }
-          controller.close();
-        },
+            icon: svgWidget('common/information'),
+          ),
+          // Name
+          const Space(7, 0),
+          FlowyText.medium(
+            viewPB.name,
+            fontSize: 16.0,
+          ),
+          // setting
+          const Space(7, 0),
+          PopoverActionList<_ActionWrapper>(
+            direction: PopoverDirection.bottomWithCenterAligned,
+            actions: _ActionType.values
+                .map((action) => _ActionWrapper(action))
+                .toList(),
+            buildChild: (controller) {
+              return FlowyIconButton(
+                tooltipText: LocaleKeys.tooltip_openMenu.tr(),
+                width: 24,
+                height: 24,
+                iconPadding: const EdgeInsets.all(3),
+                icon: svgWidget('common/settings'),
+                onPressed: () => controller.show(),
+              );
+            },
+            onSelected: (action, controller) async {
+              switch (action.inner) {
+                case _ActionType.viewDatabase:
+                  getIt<MenuSharedState>().latestOpenView = viewPB;
+                  getIt<HomeStackManager>().setPlugin(viewPB.plugin());
+                  break;
+                case _ActionType.delete:
+                  final transaction = widget.editorState.transaction;
+                  transaction.deleteNode(widget.node);
+                  widget.editorState.apply(transaction);
+                  break;
+              }
+              controller.close();
+            },
+          )
+        ],
       ),
     );
   }
 }
 
 enum _ActionType {
-  openAsPage,
+  viewDatabase,
   delete,
 }
 
@@ -151,8 +178,8 @@ class _ActionWrapper extends ActionCell {
   @override
   String get name {
     switch (inner) {
-      case _ActionType.openAsPage:
-        return LocaleKeys.tooltip_openAsPage.tr();
+      case _ActionType.viewDatabase:
+        return LocaleKeys.tooltip_viewDataBase.tr();
       case _ActionType.delete:
         return LocaleKeys.disclosureAction_delete.tr();
     }

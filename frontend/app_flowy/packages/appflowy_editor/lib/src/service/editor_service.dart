@@ -1,16 +1,15 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/flutter/overlay.dart';
-import 'package:appflowy_editor/src/render/image/image_node_builder.dart';
-import 'package:appflowy_editor/src/service/shortcut_event/built_in_shortcut_events.dart';
-import 'package:flutter/material.dart' hide Overlay, OverlayEntry;
-
 import 'package:appflowy_editor/src/render/editor/editor_entry.dart';
+import 'package:appflowy_editor/src/render/image/image_node_builder.dart';
 import 'package:appflowy_editor/src/render/rich_text/bulleted_list_text.dart';
 import 'package:appflowy_editor/src/render/rich_text/checkbox_text.dart';
 import 'package:appflowy_editor/src/render/rich_text/heading_text.dart';
 import 'package:appflowy_editor/src/render/rich_text/number_list_text.dart';
 import 'package:appflowy_editor/src/render/rich_text/quoted_text.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text.dart';
+import 'package:appflowy_editor/src/service/shortcut_event/built_in_shortcut_events.dart';
+import 'package:flutter/material.dart' hide Overlay, OverlayEntry;
 
 NodeWidgetBuilders defaultBuilders = {
   'editor': EditorEntryWidgetBuilder(),
@@ -33,6 +32,7 @@ class AppFlowyEditor extends StatefulWidget {
     this.toolbarItems = const [],
     this.editable = true,
     this.autoFocus = false,
+    this.customActionMenuBuilder,
     ThemeData? themeData,
   }) : super(key: key) {
     this.themeData = themeData ??
@@ -60,6 +60,9 @@ class AppFlowyEditor extends StatefulWidget {
 
   /// Set the value to true to focus the editor on the start of the document.
   final bool autoFocus;
+
+  final Positioned Function(BuildContext context, List<ActionMenuItem> items)?
+      customActionMenuBuilder;
 
   @override
   State<AppFlowyEditor> createState() => _AppFlowyEditorState();
@@ -171,5 +174,6 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
           ...defaultBuilders,
           ...widget.customBuilders,
         },
+        customActionMenuBuilder: widget.customActionMenuBuilder,
       );
 }

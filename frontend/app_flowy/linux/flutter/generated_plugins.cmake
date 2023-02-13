@@ -6,8 +6,9 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flowy_infra_ui
   hotkey_manager
   rich_clipboard_linux
+  screen_retriever
   url_launcher_linux
-  window_size
+  window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

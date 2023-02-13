@@ -14,9 +14,9 @@ pub mod protobuf;
 mod util;
 
 pub mod prelude {
-    pub use crate::{errors::*, event_map::*};
+  pub use crate::{errors::*, event_map::*};
 }
 
 pub mod errors {
-    pub use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+  pub use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 }

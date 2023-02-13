@@ -5,6 +5,7 @@ import 'package:hotkey_manager/hotkey_manager.dart';
 import 'startup/launch_configuration.dart';
 import 'startup/startup.dart';
 import 'user/presentation/splash_screen.dart';
+import 'window/window.dart';
 
 class FlowyApp implements EntryPoint {
   @override
@@ -17,10 +18,11 @@ class FlowyApp implements EntryPoint {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await EasyLocalization.ensureInitialized();
 
-  WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
   await hotKeyManager.unregisterAll();
+
+  await AppWindow.initialize();
 
   await FlowyRunner.run(FlowyApp());
 }
