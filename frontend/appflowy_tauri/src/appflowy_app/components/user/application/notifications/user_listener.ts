@@ -15,7 +15,7 @@ export class UserNotificationListener extends AFNotificationListener<UserNotific
     onProfileUpdate?: OnUserProfileUpdate;
     onError?: OnNotificationError;
   }) {
-    let parser = new UserNotificationParser({
+    const parser = new UserNotificationParser({
       callback: (notification, payload) => {
         switch (notification) {
           case UserNotification.DidUpdateUserProfile:

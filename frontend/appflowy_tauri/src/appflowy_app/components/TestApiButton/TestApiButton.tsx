@@ -55,14 +55,14 @@ const TestApiButton = () => {
   }, [workspaceId]);
 
   async function sendSignInEvent() {
-    let make_payload = () =>
+    const make_payload = () =>
       SignInPayloadPB.fromObject({
         email: nanoid(4) + '@gmail.com',
         password: 'A!@123abc',
         name: 'abc',
       });
 
-    let listener = new UserNotificationListener({
+    const listener = new UserNotificationListener({
       onUserSignIn: (userProfile) => {
         console.log(userProfile);
       },
