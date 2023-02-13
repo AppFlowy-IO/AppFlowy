@@ -6,145 +6,150 @@ use flowy_error::ErrorCode;
 /// [DatabasePB] describes how many fields and blocks the grid has
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct DatabasePB {
-    #[pb(index = 1)]
-    pub id: String,
+  #[pb(index = 1)]
+  pub id: String,
 
-    #[pb(index = 2)]
-    pub fields: Vec<FieldIdPB>,
+  #[pb(index = 2)]
+  pub fields: Vec<FieldIdPB>,
 
-    #[pb(index = 3)]
-    pub rows: Vec<RowPB>,
+  #[pb(index = 3)]
+  pub rows: Vec<RowPB>,
 }
 
 #[derive(ProtoBuf, Default)]
 pub struct CreateDatabasePayloadPB {
-    #[pb(index = 1)]
-    pub name: String,
+  #[pb(index = 1)]
+  pub name: String,
 }
 
 #[derive(Clone, ProtoBuf, Default, Debug)]
 pub struct DatabaseIdPB {
-    #[pb(index = 1)]
-    pub value: String,
+  #[pb(index = 1)]
+  pub value: String,
 }
 
 impl AsRef<str> for DatabaseIdPB {
-    fn as_ref(&self) -> &str {
-        &self.value
-    }
+  fn as_ref(&self) -> &str {
+    &self.value
+  }
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct MoveFieldPayloadPB {
-    #[pb(index = 1)]
-    pub view_id: String,
+  #[pb(index = 1)]
+  pub view_id: String,
 
-    #[pb(index = 2)]
-    pub field_id: String,
+  #[pb(index = 2)]
+  pub field_id: String,
 
-    #[pb(index = 3)]
-    pub from_index: i32,
+  #[pb(index = 3)]
+  pub from_index: i32,
 
-    #[pb(index = 4)]
-    pub to_index: i32,
+  #[pb(index = 4)]
+  pub to_index: i32,
 }
 
 #[derive(Clone)]
 pub struct MoveFieldParams {
-    pub view_id: String,
-    pub field_id: String,
-    pub from_index: i32,
-    pub to_index: i32,
+  pub view_id: String,
+  pub field_id: String,
+  pub from_index: i32,
+  pub to_index: i32,
 }
 
 impl TryInto<MoveFieldParams> for MoveFieldPayloadPB {
-    type Error = ErrorCode;
+  type Error = ErrorCode;
 
-    fn try_into(self) -> Result<MoveFieldParams, Self::Error> {
-        let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
-        let item_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::InvalidData)?;
-        Ok(MoveFieldParams {
-            view_id: view_id.0,
-            field_id: item_id.0,
-            from_index: self.from_index,
-            to_index: self.to_index,
-        })
-    }
+  fn try_into(self) -> Result<MoveFieldParams, Self::Error> {
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
+    let item_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::InvalidData)?;
+    Ok(MoveFieldParams {
+      view_id: view_id.0,
+      field_id: item_id.0,
+      from_index: self.from_index,
+      to_index: self.to_index,
+    })
+  }
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct MoveRowPayloadPB {
-    #[pb(index = 1)]
-    pub view_id: String,
+  #[pb(index = 1)]
+  pub view_id: String,
 
-    #[pb(index = 2)]
-    pub from_row_id: String,
+  #[pb(index = 2)]
+  pub from_row_id: String,
 
-    #[pb(index = 4)]
-    pub to_row_id: String,
+  #[pb(index = 4)]
+  pub to_row_id: String,
 }
 
 pub struct MoveRowParams {
-    pub view_id: String,
-    pub from_row_id: String,
-    pub to_row_id: String,
+  pub view_id: String,
+  pub from_row_id: String,
+  pub to_row_id: String,
 }
 
 impl TryInto<MoveRowParams> for MoveRowPayloadPB {
-    type Error = ErrorCode;
+  type Error = ErrorCode;
 
-    fn try_into(self) -> Result<MoveRowParams, Self::Error> {
-        let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
-        let from_row_id = NotEmptyStr::parse(self.from_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
-        let to_row_id = NotEmptyStr::parse(self.to_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
+  fn try_into(self) -> Result<MoveRowParams, Self::Error> {
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
+    let from_row_id = NotEmptyStr::parse(self.from_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
+    let to_row_id = NotEmptyStr::parse(self.to_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
 
-        Ok(MoveRowParams {
-            view_id: view_id.0,
-            from_row_id: from_row_id.0,
-            to_row_id: to_row_id.0,
-        })
-    }
+    Ok(MoveRowParams {
+      view_id: view_id.0,
+      from_row_id: from_row_id.0,
+      to_row_id: to_row_id.0,
+    })
+  }
 }
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct MoveGroupRowPayloadPB {
-    #[pb(index = 1)]
-    pub view_id: String,
+  #[pb(index = 1)]
+  pub view_id: String,
 
-    #[pb(index = 2)]
-    pub from_row_id: String,
+  #[pb(index = 2)]
+  pub from_row_id: String,
 
-    #[pb(index = 3)]
-    pub to_group_id: String,
+  #[pb(index = 3)]
+  pub to_group_id: String,
 
-    #[pb(index = 4, one_of)]
-    pub to_row_id: Option<String>,
+  #[pb(index = 4, one_of)]
+  pub to_row_id: Option<String>,
 }
 
 pub struct MoveGroupRowParams {
-    pub view_id: String,
-    pub from_row_id: String,
-    pub to_group_id: String,
-    pub to_row_id: Option<String>,
+  pub view_id: String,
+  pub from_row_id: String,
+  pub to_group_id: String,
+  pub to_row_id: Option<String>,
 }
 
 impl TryInto<MoveGroupRowParams> for MoveGroupRowPayloadPB {
-    type Error = ErrorCode;
+  type Error = ErrorCode;
 
-    fn try_into(self) -> Result<MoveGroupRowParams, Self::Error> {
-        let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
-        let from_row_id = NotEmptyStr::parse(self.from_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
-        let to_group_id = NotEmptyStr::parse(self.to_group_id).map_err(|_| ErrorCode::GroupIdIsEmpty)?;
+  fn try_into(self) -> Result<MoveGroupRowParams, Self::Error> {
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
+    let from_row_id = NotEmptyStr::parse(self.from_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
+    let to_group_id =
+      NotEmptyStr::parse(self.to_group_id).map_err(|_| ErrorCode::GroupIdIsEmpty)?;
 
-        let to_row_id = match self.to_row_id {
-            None => None,
-            Some(to_row_id) => Some(NotEmptyStr::parse(to_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?.0),
-        };
+    let to_row_id = match self.to_row_id {
+      None => None,
+      Some(to_row_id) => Some(
+        NotEmptyStr::parse(to_row_id)
+          .map_err(|_| ErrorCode::RowIdIsEmpty)?
+          .0,
+      ),
+    };
 
-        Ok(MoveGroupRowParams {
-            view_id: view_id.0,
-            from_row_id: from_row_id.0,
-            to_group_id: to_group_id.0,
-            to_row_id,
-        })
-    }
+    Ok(MoveGroupRowParams {
+      view_id: view_id.0,
+      from_row_id: from_row_id.0,
+      to_group_id: to_group_id.0,
+      to_row_id,
+    })
+  }
 }

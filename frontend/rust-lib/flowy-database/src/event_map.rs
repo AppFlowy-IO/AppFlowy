@@ -6,8 +6,10 @@ use std::sync::Arc;
 use strum_macros::Display;
 
 pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
-    let mut plugin = AFPlugin::new().name(env!("CARGO_PKG_NAME")).state(database_manager);
-    plugin = plugin
+  let mut plugin = AFPlugin::new()
+    .name(env!("CARGO_PKG_NAME"))
+    .state(database_manager);
+  plugin = plugin
         .event(DatabaseEvent::GetDatabase, get_database_data_handler)
         // .event(GridEvent::GetGridBlocks, get_grid_blocks_handler)
         .event(DatabaseEvent::GetDatabaseSetting, get_database_setting_handler)
@@ -47,7 +49,7 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::MoveGroupRow, move_group_row_handler)
         .event(DatabaseEvent::GetGroup, get_groups_handler);
 
-    plugin
+  plugin
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -55,176 +57,176 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum DatabaseEvent {
-    /// [GetDatabase] event is used to get the [DatabasePB]
-    ///
-    /// The event handler accepts a [DatabaseIdPB] and returns a [DatabasePB] if there are no errors.
-    #[event(input = "DatabaseIdPB", output = "DatabasePB")]
-    GetDatabase = 0,
+  /// [GetDatabase] event is used to get the [DatabasePB]
+  ///
+  /// The event handler accepts a [DatabaseIdPB] and returns a [DatabasePB] if there are no errors.
+  #[event(input = "DatabaseIdPB", output = "DatabasePB")]
+  GetDatabase = 0,
 
-    /// [GetDatabaseSetting] event is used to get the database's settings.
-    ///
-    /// The event handler accepts [DatabaseIdPB] and return [DatabaseViewSettingPB]
-    /// if there is no errors.
-    #[event(input = "DatabaseIdPB", output = "DatabaseViewSettingPB")]
-    GetDatabaseSetting = 2,
+  /// [GetDatabaseSetting] event is used to get the database's settings.
+  ///
+  /// The event handler accepts [DatabaseIdPB] and return [DatabaseViewSettingPB]
+  /// if there is no errors.
+  #[event(input = "DatabaseIdPB", output = "DatabaseViewSettingPB")]
+  GetDatabaseSetting = 2,
 
-    /// [UpdateDatabaseSetting] event is used to update the database's settings.
-    ///
-    /// The event handler accepts [DatabaseSettingChangesetPB] and return errors if failed to modify the grid's settings.
-    #[event(input = "DatabaseSettingChangesetPB")]
-    UpdateDatabaseSetting = 3,
+  /// [UpdateDatabaseSetting] event is used to update the database's settings.
+  ///
+  /// The event handler accepts [DatabaseSettingChangesetPB] and return errors if failed to modify the grid's settings.
+  #[event(input = "DatabaseSettingChangesetPB")]
+  UpdateDatabaseSetting = 3,
 
-    #[event(input = "DatabaseIdPB", output = "RepeatedFilterPB")]
-    GetAllFilters = 4,
+  #[event(input = "DatabaseIdPB", output = "RepeatedFilterPB")]
+  GetAllFilters = 4,
 
-    #[event(input = "DatabaseIdPB", output = "RepeatedSortPB")]
-    GetAllSorts = 5,
+  #[event(input = "DatabaseIdPB", output = "RepeatedSortPB")]
+  GetAllSorts = 5,
 
-    #[event(input = "DatabaseIdPB")]
-    DeleteAllSorts = 6,
+  #[event(input = "DatabaseIdPB")]
+  DeleteAllSorts = 6,
 
-    /// [GetFields] event is used to get the database's settings.
-    ///
-    /// The event handler accepts a [GetFieldPayloadPB] and returns a [RepeatedFieldPB]
-    /// if there are no errors.
-    #[event(input = "GetFieldPayloadPB", output = "RepeatedFieldPB")]
-    GetFields = 10,
+  /// [GetFields] event is used to get the database's settings.
+  ///
+  /// The event handler accepts a [GetFieldPayloadPB] and returns a [RepeatedFieldPB]
+  /// if there are no errors.
+  #[event(input = "GetFieldPayloadPB", output = "RepeatedFieldPB")]
+  GetFields = 10,
 
-    /// [UpdateField] event is used to update a field's attributes.
-    ///
-    /// The event handler accepts a [FieldChangesetPB] and returns errors if failed to modify the
-    /// field.
-    #[event(input = "FieldChangesetPB")]
-    UpdateField = 11,
+  /// [UpdateField] event is used to update a field's attributes.
+  ///
+  /// The event handler accepts a [FieldChangesetPB] and returns errors if failed to modify the
+  /// field.
+  #[event(input = "FieldChangesetPB")]
+  UpdateField = 11,
 
-    /// [UpdateFieldTypeOption] event is used to update the field's type-option data. Certain field
-    /// types have user-defined options such as color, date format, number format, or a list of values
-    /// for a multi-select list. These options are defined within a specialization of the
-    /// FieldTypeOption class.
-    ///
-    /// Check out [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid#fieldtype)
-    /// for more information.
-    ///
-    /// The event handler accepts a [TypeOptionChangesetPB] and returns errors if failed to modify the
-    /// field.
-    #[event(input = "TypeOptionChangesetPB")]
-    UpdateFieldTypeOption = 12,
+  /// [UpdateFieldTypeOption] event is used to update the field's type-option data. Certain field
+  /// types have user-defined options such as color, date format, number format, or a list of values
+  /// for a multi-select list. These options are defined within a specialization of the
+  /// FieldTypeOption class.
+  ///
+  /// Check out [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid#fieldtype)
+  /// for more information.
+  ///
+  /// The event handler accepts a [TypeOptionChangesetPB] and returns errors if failed to modify the
+  /// field.
+  #[event(input = "TypeOptionChangesetPB")]
+  UpdateFieldTypeOption = 12,
 
-    /// [DeleteField] event is used to delete a Field. [DeleteFieldPayloadPB] is the context that
-    /// is used to delete the field from the Database.
-    #[event(input = "DeleteFieldPayloadPB")]
-    DeleteField = 14,
+  /// [DeleteField] event is used to delete a Field. [DeleteFieldPayloadPB] is the context that
+  /// is used to delete the field from the Database.
+  #[event(input = "DeleteFieldPayloadPB")]
+  DeleteField = 14,
 
-    /// [UpdateFieldType] event is used to update the current Field's type.
-    /// It will insert a new FieldTypeOptionData if the new FieldType doesn't exist before, otherwise
-    /// reuse the existing FieldTypeOptionData. You could check the [DatabaseRevisionPad] for more details.
-    #[event(input = "UpdateFieldTypePayloadPB")]
-    UpdateFieldType = 20,
+  /// [UpdateFieldType] event is used to update the current Field's type.
+  /// It will insert a new FieldTypeOptionData if the new FieldType doesn't exist before, otherwise
+  /// reuse the existing FieldTypeOptionData. You could check the [DatabaseRevisionPad] for more details.
+  #[event(input = "UpdateFieldTypePayloadPB")]
+  UpdateFieldType = 20,
 
-    /// [DuplicateField] event is used to duplicate a Field. The duplicated field data is kind of
-    /// deep copy of the target field. The passed in [DuplicateFieldPayloadPB] is the context that is
-    /// used to duplicate the field.
-    ///
-    /// Return errors if failed to duplicate the field.
-    ///
-    #[event(input = "DuplicateFieldPayloadPB")]
-    DuplicateField = 21,
+  /// [DuplicateField] event is used to duplicate a Field. The duplicated field data is kind of
+  /// deep copy of the target field. The passed in [DuplicateFieldPayloadPB] is the context that is
+  /// used to duplicate the field.
+  ///
+  /// Return errors if failed to duplicate the field.
+  ///
+  #[event(input = "DuplicateFieldPayloadPB")]
+  DuplicateField = 21,
 
-    /// [MoveItem] event is used to move an item. For the moment, Item has two types defined in
-    /// [MoveItemTypePB].
-    #[event(input = "MoveFieldPayloadPB")]
-    MoveField = 22,
+  /// [MoveItem] event is used to move an item. For the moment, Item has two types defined in
+  /// [MoveItemTypePB].
+  #[event(input = "MoveFieldPayloadPB")]
+  MoveField = 22,
 
-    /// [TypeOptionPathPB] event is used to get the FieldTypeOption data for a specific field type.
-    ///
-    /// Check out the [TypeOptionPB] for more details. If the [FieldTypeOptionData] does exist
-    /// for the target type, the [TypeOptionBuilder] will create the default data for that type.
-    ///
-    /// Return the [TypeOptionPB] if there are no errors.
-    #[event(input = "TypeOptionPathPB", output = "TypeOptionPB")]
-    GetTypeOption = 23,
+  /// [TypeOptionPathPB] event is used to get the FieldTypeOption data for a specific field type.
+  ///
+  /// Check out the [TypeOptionPB] for more details. If the [FieldTypeOptionData] does exist
+  /// for the target type, the [TypeOptionBuilder] will create the default data for that type.
+  ///
+  /// Return the [TypeOptionPB] if there are no errors.
+  #[event(input = "TypeOptionPathPB", output = "TypeOptionPB")]
+  GetTypeOption = 23,
 
-    /// [CreateTypeOption] event is used to create a new FieldTypeOptionData.
-    #[event(input = "CreateFieldPayloadPB", output = "TypeOptionPB")]
-    CreateTypeOption = 24,
+  /// [CreateTypeOption] event is used to create a new FieldTypeOptionData.
+  #[event(input = "CreateFieldPayloadPB", output = "TypeOptionPB")]
+  CreateTypeOption = 24,
 
-    /// [CreateSelectOption] event is used to create a new select option. Returns a [SelectOptionPB] if
-    /// there are no errors.
-    #[event(input = "CreateSelectOptionPayloadPB", output = "SelectOptionPB")]
-    CreateSelectOption = 30,
+  /// [CreateSelectOption] event is used to create a new select option. Returns a [SelectOptionPB] if
+  /// there are no errors.
+  #[event(input = "CreateSelectOptionPayloadPB", output = "SelectOptionPB")]
+  CreateSelectOption = 30,
 
-    /// [GetSelectOptionCellData] event is used to get the select option data for cell editing.
-    /// [CellIdPB] locate which cell data that will be read from. The return value, [SelectOptionCellDataPB]
-    /// contains the available options and the currently selected options.
-    #[event(input = "CellIdPB", output = "SelectOptionCellDataPB")]
-    GetSelectOptionCellData = 31,
+  /// [GetSelectOptionCellData] event is used to get the select option data for cell editing.
+  /// [CellIdPB] locate which cell data that will be read from. The return value, [SelectOptionCellDataPB]
+  /// contains the available options and the currently selected options.
+  #[event(input = "CellIdPB", output = "SelectOptionCellDataPB")]
+  GetSelectOptionCellData = 31,
 
-    /// [UpdateSelectOption] event is used to update a FieldTypeOptionData whose field_type is
-    /// FieldType::SingleSelect or FieldType::MultiSelect.
-    ///
-    /// This event may trigger the DatabaseNotification::DidUpdateCell event.
-    /// For example, DatabaseNotification::DidUpdateCell will be triggered if the [SelectOptionChangesetPB]
-    /// carries a change that updates the name of the option.
-    #[event(input = "SelectOptionChangesetPB")]
-    UpdateSelectOption = 32,
+  /// [UpdateSelectOption] event is used to update a FieldTypeOptionData whose field_type is
+  /// FieldType::SingleSelect or FieldType::MultiSelect.
+  ///
+  /// This event may trigger the DatabaseNotification::DidUpdateCell event.
+  /// For example, DatabaseNotification::DidUpdateCell will be triggered if the [SelectOptionChangesetPB]
+  /// carries a change that updates the name of the option.
+  #[event(input = "SelectOptionChangesetPB")]
+  UpdateSelectOption = 32,
 
-    #[event(input = "CreateRowPayloadPB", output = "RowPB")]
-    CreateRow = 50,
+  #[event(input = "CreateRowPayloadPB", output = "RowPB")]
+  CreateRow = 50,
 
-    /// [GetRow] event is used to get the row data,[RowPB]. [OptionalRowPB] is a wrapper that enables
-    /// to return a nullable row data.
-    #[event(input = "RowIdPB", output = "OptionalRowPB")]
-    GetRow = 51,
+  /// [GetRow] event is used to get the row data,[RowPB]. [OptionalRowPB] is a wrapper that enables
+  /// to return a nullable row data.
+  #[event(input = "RowIdPB", output = "OptionalRowPB")]
+  GetRow = 51,
 
-    #[event(input = "RowIdPB")]
-    DeleteRow = 52,
+  #[event(input = "RowIdPB")]
+  DeleteRow = 52,
 
-    #[event(input = "RowIdPB")]
-    DuplicateRow = 53,
+  #[event(input = "RowIdPB")]
+  DuplicateRow = 53,
 
-    #[event(input = "MoveRowPayloadPB")]
-    MoveRow = 54,
+  #[event(input = "MoveRowPayloadPB")]
+  MoveRow = 54,
 
-    #[event(input = "CellIdPB", output = "CellPB")]
-    GetCell = 70,
+  #[event(input = "CellIdPB", output = "CellPB")]
+  GetCell = 70,
 
-    /// [UpdateCell] event is used to update the cell content. The passed in data, [CellChangesetPB],
-    /// carries the changes that will be applied to the cell content by calling `update_cell` function.
-    ///
-    /// The 'content' property of the [CellChangesetPB] is a String type. It can be used directly if the
-    /// cell uses string data. For example, the TextCell or NumberCell.
-    ///
-    /// But,it can be treated as a generic type, because we can use [serde] to deserialize the string
-    /// into a specific data type. For the moment, the 'content' will be deserialized to a concrete type
-    /// when the FieldType is SingleSelect, DateTime, and MultiSelect. Please see
-    /// the [UpdateSelectOptionCell] and [UpdateDateCell] events for more details.
-    #[event(input = "CellChangesetPB")]
-    UpdateCell = 71,
+  /// [UpdateCell] event is used to update the cell content. The passed in data, [CellChangesetPB],
+  /// carries the changes that will be applied to the cell content by calling `update_cell` function.
+  ///
+  /// The 'content' property of the [CellChangesetPB] is a String type. It can be used directly if the
+  /// cell uses string data. For example, the TextCell or NumberCell.
+  ///
+  /// But,it can be treated as a generic type, because we can use [serde] to deserialize the string
+  /// into a specific data type. For the moment, the 'content' will be deserialized to a concrete type
+  /// when the FieldType is SingleSelect, DateTime, and MultiSelect. Please see
+  /// the [UpdateSelectOptionCell] and [UpdateDateCell] events for more details.
+  #[event(input = "CellChangesetPB")]
+  UpdateCell = 71,
 
-    /// [UpdateSelectOptionCell] event is used to update a select option cell's data. [SelectOptionCellChangesetPB]
-    /// contains options that will be deleted or inserted. It can be cast to [CellChangesetPB] that
-    /// will be used by the `update_cell` function.
-    #[event(input = "SelectOptionCellChangesetPB")]
-    UpdateSelectOptionCell = 72,
+  /// [UpdateSelectOptionCell] event is used to update a select option cell's data. [SelectOptionCellChangesetPB]
+  /// contains options that will be deleted or inserted. It can be cast to [CellChangesetPB] that
+  /// will be used by the `update_cell` function.
+  #[event(input = "SelectOptionCellChangesetPB")]
+  UpdateSelectOptionCell = 72,
 
-    /// [UpdateDateCell] event is used to update a date cell's data. [DateChangesetPB]
-    /// contains the date and the time string. It can be cast to [CellChangesetPB] that
-    /// will be used by the `update_cell` function.
-    #[event(input = "DateChangesetPB")]
-    UpdateDateCell = 80,
+  /// [UpdateDateCell] event is used to update a date cell's data. [DateChangesetPB]
+  /// contains the date and the time string. It can be cast to [CellChangesetPB] that
+  /// will be used by the `update_cell` function.
+  #[event(input = "DateChangesetPB")]
+  UpdateDateCell = 80,
 
-    #[event(input = "DatabaseIdPB", output = "RepeatedGroupPB")]
-    GetGroup = 100,
+  #[event(input = "DatabaseIdPB", output = "RepeatedGroupPB")]
+  GetGroup = 100,
 
-    #[event(input = "CreateBoardCardPayloadPB", output = "RowPB")]
-    CreateBoardCard = 110,
+  #[event(input = "CreateBoardCardPayloadPB", output = "RowPB")]
+  CreateBoardCard = 110,
 
-    #[event(input = "MoveGroupPayloadPB")]
-    MoveGroup = 111,
+  #[event(input = "MoveGroupPayloadPB")]
+  MoveGroup = 111,
 
-    #[event(input = "MoveGroupRowPayloadPB")]
-    MoveGroupRow = 112,
+  #[event(input = "MoveGroupRowPayloadPB")]
+  MoveGroupRow = 112,
 
-    #[event(input = "MoveGroupRowPayloadPB")]
-    GroupByField = 113,
+  #[event(input = "MoveGroupRowPayloadPB")]
+  GroupByField = 113,
 }

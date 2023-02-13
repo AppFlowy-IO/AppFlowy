@@ -7,8 +7,8 @@ mod util;
 
 use crate::notification::DartNotificationSender;
 use crate::{
-    c::{extend_front_four_bytes_into_bytes, forget_rust},
-    model::{FFIRequest, FFIResponse},
+  c::{extend_front_four_bytes_into_bytes, forget_rust},
+  model::{FFIRequest, FFIResponse},
 };
 use flowy_core::get_client_server_configuration;
 use flowy_core::*;
@@ -20,69 +20,74 @@ use parking_lot::RwLock;
 use std::{ffi::CStr, os::raw::c_char};
 
 lazy_static! {
-    static ref APPFLOWY_CORE: RwLock<Option<AppFlowyCore>> = RwLock::new(None);
+  static ref APPFLOWY_CORE: RwLock<Option<AppFlowyCore>> = RwLock::new(None);
 }
 
 #[no_mangle]
 pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
-    let c_str: &CStr = unsafe { CStr::from_ptr(path) };
-    let path: &str = c_str.to_str().unwrap();
+  let c_str: &CStr = unsafe { CStr::from_ptr(path) };
+  let path: &str = c_str.to_str().unwrap();
 
-    let server_config = get_client_server_configuration().unwrap();
-    let log_crates = vec!["flowy-ffi".to_string()];
-    let config = AppFlowyCoreConfig::new(path, "appflowy".to_string(), server_config).log_filter("info", log_crates);
-    *APPFLOWY_CORE.write() = Some(AppFlowyCore::new(config));
+  let server_config = get_client_server_configuration().unwrap();
+  let log_crates = vec!["flowy-ffi".to_string()];
+  let config = AppFlowyCoreConfig::new(path, "appflowy".to_string(), server_config)
+    .log_filter("info", log_crates);
+  *APPFLOWY_CORE.write() = Some(AppFlowyCore::new(config));
 
-    0
+  0
 }
 
 #[no_mangle]
 pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
-    let request: AFPluginRequest = FFIRequest::from_u8_pointer(input, len).into();
-    log::trace!(
-        "[FFI]: {} Async Event: {:?} with {} port",
-        &request.id,
-        &request.event,
-        port
-    );
+  let request: AFPluginRequest = FFIRequest::from_u8_pointer(input, len).into();
+  log::trace!(
+    "[FFI]: {} Async Event: {:?} with {} port",
+    &request.id,
+    &request.event,
+    port
+  );
 
-    let dispatcher = match APPFLOWY_CORE.read().as_ref() {
-        None => {
-            log::error!("sdk not init yet.");
-            return;
-        }
-        Some(e) => e.event_dispatcher.clone(),
-    };
-    let _ = AFPluginDispatcher::async_send_with_callback(dispatcher, request, move |resp: AFPluginEventResponse| {
-        log::trace!("[FFI]: Post data to dart through {} port", port);
-        Box::pin(post_to_flutter(resp, port))
-    });
+  let dispatcher = match APPFLOWY_CORE.read().as_ref() {
+    None => {
+      log::error!("sdk not init yet.");
+      return;
+    },
+    Some(e) => e.event_dispatcher.clone(),
+  };
+  let _ = AFPluginDispatcher::async_send_with_callback(
+    dispatcher,
+    request,
+    move |resp: AFPluginEventResponse| {
+      log::trace!("[FFI]: Post data to dart through {} port", port);
+      Box::pin(post_to_flutter(resp, port))
+    },
+  );
 }
 
 #[no_mangle]
 pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
-    let request: AFPluginRequest = FFIRequest::from_u8_pointer(input, len).into();
-    log::trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
+  let request: AFPluginRequest = FFIRequest::from_u8_pointer(input, len).into();
+  log::trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
 
-    let dispatcher = match APPFLOWY_CORE.read().as_ref() {
-        None => {
-            log::error!("sdk not init yet.");
-            return forget_rust(Vec::default());
-        }
-        Some(e) => e.event_dispatcher.clone(),
-    };
-    let _response = AFPluginDispatcher::sync_send(dispatcher, request);
+  let dispatcher = match APPFLOWY_CORE.read().as_ref() {
+    None => {
+      log::error!("sdk not init yet.");
+      return forget_rust(Vec::default());
+    },
+    Some(e) => e.event_dispatcher.clone(),
+  };
+  let _response = AFPluginDispatcher::sync_send(dispatcher, request);
 
-    // FFIResponse {  }
-    let response_bytes = vec![];
-    let result = extend_front_four_bytes_into_bytes(&response_bytes);
-    forget_rust(result)
+  // FFIResponse {  }
+  let response_bytes = vec![];
+  let result = extend_front_four_bytes_into_bytes(&response_bytes);
+  forget_rust(result)
 }
 
 #[no_mangle]
 pub extern "C" fn set_stream_port(port: i64) -> i32 {
-    register_notification_sender(DartNotificationSender::new(port));
-    0
+  register_notification_sender(DartNotificationSender::new(port));
+  0
 }
 
 #[inline(never)]
@@ -91,39 +96,39 @@ pub extern "C" fn link_me_please() {}
 
 #[inline(always)]
 async fn post_to_flutter(response: AFPluginEventResponse, port: i64) {
-    let isolate = allo_isolate::Isolate::new(port);
-    match isolate
-        .catch_unwind(async {
-            let ffi_resp = FFIResponse::from(response);
-            ffi_resp.into_bytes().unwrap().to_vec()
-        })
-        .await
-    {
-        Ok(_success) => {
-            log::trace!("[FFI]: Post data to dart success");
-        }
-        Err(e) => {
-            if let Some(msg) = e.downcast_ref::<&str>() {
-                log::error!("[FFI]: {:?}", msg);
-            } else {
-                log::error!("[FFI]: allo_isolate post panic");
-            }
-        }
-    }
+  let isolate = allo_isolate::Isolate::new(port);
+  match isolate
+    .catch_unwind(async {
+      let ffi_resp = FFIResponse::from(response);
+      ffi_resp.into_bytes().unwrap().to_vec()
+    })
+    .await
+  {
+    Ok(_success) => {
+      log::trace!("[FFI]: Post data to dart success");
+    },
+    Err(e) => {
+      if let Some(msg) = e.downcast_ref::<&str>() {
+        log::error!("[FFI]: {:?}", msg);
+      } else {
+        log::error!("[FFI]: allo_isolate post panic");
+      }
+    },
+  }
 }
 
 #[no_mangle]
 pub extern "C" fn backend_log(level: i64, data: *const c_char) {
-    let c_str = unsafe { CStr::from_ptr(data) };
-    let log_str = c_str.to_str().unwrap();
+  let c_str = unsafe { CStr::from_ptr(data) };
+  let log_str = c_str.to_str().unwrap();
 
-    // Don't change the mapping relation between number and level
-    match level {
-        0 => tracing::info!("{}", log_str),
-        1 => tracing::debug!("{}", log_str),
-        2 => tracing::trace!("{}", log_str),
-        3 => tracing::warn!("{}", log_str),
-        4 => tracing::error!("{}", log_str),
-        _ => (),
-    }
+  // Don't change the mapping relation between number and level
+  match level {
+    0 => tracing::info!("{}", log_str),
+    1 => tracing::debug!("{}", log_str),
+    2 => tracing::trace!("{}", log_str),
+    3 => tracing::warn!("{}", log_str),
+    4 => tracing::error!("{}", log_str),
+    _ => (),
+  }
 }

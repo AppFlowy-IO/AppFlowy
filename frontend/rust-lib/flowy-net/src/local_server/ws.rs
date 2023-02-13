@@ -8,83 +8,88 @@ use std::sync::Arc;
 use tokio::sync::{broadcast, broadcast::Receiver, mpsc::UnboundedReceiver};
 
 pub struct LocalWebSocket {
-    user_id: Arc<RwLock<Option<String>>>,
-    receivers: Arc<DashMap<WSChannel, Arc<dyn WSMessageReceiver>>>,
-    state_sender: broadcast::Sender<WSConnectState>,
-    server_ws_receiver: RwLock<Option<UnboundedReceiver<WebSocketRawMessage>>>,
-    server_ws_sender: broadcast::Sender<WebSocketRawMessage>,
+  user_id: Arc<RwLock<Option<String>>>,
+  receivers: Arc<DashMap<WSChannel, Arc<dyn WSMessageReceiver>>>,
+  state_sender: broadcast::Sender<WSConnectState>,
+  server_ws_receiver: RwLock<Option<UnboundedReceiver<WebSocketRawMessage>>>,
+  server_ws_sender: broadcast::Sender<WebSocketRawMessage>,
 }
 
 impl LocalWebSocket {
-    pub fn new(
-        server_ws_receiver: UnboundedReceiver<WebSocketRawMessage>,
-        server_ws_sender: broadcast::Sender<WebSocketRawMessage>,
-    ) -> Self {
-        let user_id = Arc::new(RwLock::new(None));
-        let receivers = Arc::new(DashMap::new());
-        let server_ws_receiver = RwLock::new(Some(server_ws_receiver));
-        let (state_sender, _) = broadcast::channel(16);
-        LocalWebSocket {
-            user_id,
-            receivers,
-            state_sender,
-            server_ws_receiver,
-            server_ws_sender,
-        }
+  pub fn new(
+    server_ws_receiver: UnboundedReceiver<WebSocketRawMessage>,
+    server_ws_sender: broadcast::Sender<WebSocketRawMessage>,
+  ) -> Self {
+    let user_id = Arc::new(RwLock::new(None));
+    let receivers = Arc::new(DashMap::new());
+    let server_ws_receiver = RwLock::new(Some(server_ws_receiver));
+    let (state_sender, _) = broadcast::channel(16);
+    LocalWebSocket {
+      user_id,
+      receivers,
+      state_sender,
+      server_ws_receiver,
+      server_ws_sender,
     }
+  }
 }
 
 impl FlowyRawWebSocket for LocalWebSocket {
-    fn initialize(&self) -> FutureResult<(), WSErrorCode> {
-        let mut server_ws_receiver = self.server_ws_receiver.write().take().expect("Only take once");
-        let receivers = self.receivers.clone();
-        tokio::spawn(async move {
-            while let Some(message) = server_ws_receiver.recv().await {
-                match receivers.get(&message.channel) {
-                    None => tracing::error!("Can't find any handler for message: {:?}", message),
-                    Some(receiver) => receiver.receive_message(message.clone()),
-                }
-            }
-        });
-        FutureResult::new(async { Ok(()) })
-    }
+  fn initialize(&self) -> FutureResult<(), WSErrorCode> {
+    let mut server_ws_receiver = self
+      .server_ws_receiver
+      .write()
+      .take()
+      .expect("Only take once");
+    let receivers = self.receivers.clone();
+    tokio::spawn(async move {
+      while let Some(message) = server_ws_receiver.recv().await {
+        match receivers.get(&message.channel) {
+          None => tracing::error!("Can't find any handler for message: {:?}", message),
+          Some(receiver) => receiver.receive_message(message.clone()),
+        }
+      }
+    });
+    FutureResult::new(async { Ok(()) })
+  }
 
-    fn start_connect(&self, _addr: String, user_id: String) -> FutureResult<(), WSErrorCode> {
-        *self.user_id.write() = Some(user_id);
-        FutureResult::new(async { Ok(()) })
-    }
+  fn start_connect(&self, _addr: String, user_id: String) -> FutureResult<(), WSErrorCode> {
+    *self.user_id.write() = Some(user_id);
+    FutureResult::new(async { Ok(()) })
+  }
 
-    fn stop_connect(&self) -> FutureResult<(), WSErrorCode> {
-        FutureResult::new(async { Ok(()) })
-    }
+  fn stop_connect(&self) -> FutureResult<(), WSErrorCode> {
+    FutureResult::new(async { Ok(()) })
+  }
 
-    fn subscribe_connect_state(&self) -> BoxFuture<Receiver<WSConnectState>> {
-        let subscribe = self.state_sender.subscribe();
-        Box::pin(async move { subscribe })
-    }
+  fn subscribe_connect_state(&self) -> BoxFuture<Receiver<WSConnectState>> {
+    let subscribe = self.state_sender.subscribe();
+    Box::pin(async move { subscribe })
+  }
 
-    fn reconnect(&self, _count: usize) -> FutureResult<(), WSErrorCode> {
-        FutureResult::new(async { Ok(()) })
-    }
+  fn reconnect(&self, _count: usize) -> FutureResult<(), WSErrorCode> {
+    FutureResult::new(async { Ok(()) })
+  }
 
-    fn add_msg_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), WSErrorCode> {
-        tracing::trace!("Local web socket add ws receiver: {:?}", receiver.source());
-        self.receivers.insert(receiver.source(), receiver);
-        Ok(())
-    }
+  fn add_msg_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), WSErrorCode> {
+    tracing::trace!("Local web socket add ws receiver: {:?}", receiver.source());
+    self.receivers.insert(receiver.source(), receiver);
+    Ok(())
+  }
 
-    fn ws_msg_sender(&self) -> FutureResult<Option<Arc<dyn FlowyWebSocket>>, WSErrorCode> {
-        let ws: Arc<dyn FlowyWebSocket> = Arc::new(LocalWebSocketAdaptor(self.server_ws_sender.clone()));
-        FutureResult::new(async move { Ok(Some(ws)) })
-    }
+  fn ws_msg_sender(&self) -> FutureResult<Option<Arc<dyn FlowyWebSocket>>, WSErrorCode> {
+    let ws: Arc<dyn FlowyWebSocket> =
+      Arc::new(LocalWebSocketAdaptor(self.server_ws_sender.clone()));
+    FutureResult::new(async move { Ok(Some(ws)) })
+  }
 }
 
 #[derive(Clone)]
 struct LocalWebSocketAdaptor(broadcast::Sender<WebSocketRawMessage>);
 
 impl FlowyWebSocket for LocalWebSocketAdaptor {
-    fn send(&self, msg: WebSocketRawMessage) -> Result<(), WSErrorCode> {
-        let _ = self.0.send(msg);
-        Ok(())
-    }
+  fn send(&self, msg: WebSocketRawMessage) -> Result<(), WSErrorCode> {
+    let _ = self.0.send(msg);
+    Ok(())
+  }
 }
