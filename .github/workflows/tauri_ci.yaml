@@ -61,6 +61,12 @@ jobs:
           cargo install --force cargo-make
           cargo make appflowy-tauri-deps-tools
 
+      - name: lint
+        working-directory: frontend/appflowy_tauri
+        run: |
+          yarn test:prettier
+          yarn test:code
+
       - name: build
         working-directory: frontend/appflowy_tauri
         run: |

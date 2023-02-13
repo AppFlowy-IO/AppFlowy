@@ -1,4 +1,4 @@
-import { FlowyError, UserNotification, UserProfilePB } from '../../../../../services/backend';
+import { UserNotification, UserProfilePB } from '../../../../../services/backend';
 import { AFNotificationListener, OnNotificationError } from '../../../../../services/backend/notifications';
 import { UserNotificationParser } from './parser';
 
