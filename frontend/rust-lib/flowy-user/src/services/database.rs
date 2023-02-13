@@ -84,6 +84,7 @@ pub struct UserTable {
   pub(crate) email: String,
   pub(crate) workspace: String, // deprecated
   pub(crate) icon_url: String,
+  pub(crate) openai_key: String,
 }
 
 impl UserTable {
@@ -95,6 +96,7 @@ impl UserTable {
       token,
       icon_url: "".to_owned(),
       workspace: "".to_owned(),
+      openai_key: "".to_owned(),
     }
   }
 
@@ -124,6 +126,7 @@ impl std::convert::From<UserTable> for UserProfile {
       name: table.name,
       token: table.token,
       icon_url: table.icon_url,
+      openai_key: table.openai_key,
     }
   }
 }
@@ -136,6 +139,7 @@ pub struct UserTableChangeset {
   pub name: Option<String>,
   pub email: Option<String>,
   pub icon_url: Option<String>,
+  pub openai_key: Option<String>,
 }
 
 impl UserTableChangeset {
@@ -146,6 +150,7 @@ impl UserTableChangeset {
       name: params.name,
       email: params.email,
       icon_url: params.icon_url,
+      openai_key: params.openai_key,
     }
   }
 }

@@ -146,6 +146,7 @@ diesel::table! {
         email -> Text,
         workspace -> Text,
         icon_url -> Text,
+        openai_key -> Text,
     }
 }
 
