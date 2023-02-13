@@ -65,6 +65,7 @@ jobs:
       - name: lint
         working-directory: frontend/appflowy_tauri
         run: |
+          yarn --frozen-lockfile
           yarn test:prettier
           yarn test:code
 
