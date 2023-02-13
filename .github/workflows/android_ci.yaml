@@ -88,6 +88,13 @@ jobs:
           ndk-version: r24
           local-cache: true
 
+      - name: Set JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+          cache: 'gradle'
+
       - name: Build AppFlowy Android
         working-directory: frontend
         run:

@@ -26,15 +26,15 @@ run_task = { name = [
 [tasks.appflowy-linux]
 dependencies = ["appflowy-core-release"]
 run_task = { name = [
-  
+
   "code_generation",
- 
+
   "set-app-version",
- 
+
   "flutter-build",
- 
+
   "copy-to-product",
- 
+
   "create-release-archive",
 ] }
 script_runner = "@shell"
@@ -146,11 +146,9 @@ script = [
   mkdir -p ${output_path}
 
   product=${PRODUCT_NAME}
-  cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/build/app/outputs/apk/release \
+  cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/build/app/outputs/flutter-apk/ \
   ${output_path}/${product}
 
-  cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/linux/appflowy.desktop.temp ${output_path}/${product}
-  cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/assets/images/flowy_logo.svg ${output_path}/${product}
   """,
 ]
 script_runner = "@shell"
@@ -216,19 +214,26 @@ script = ["""
   flutter clean
   flutter pub get
   flutter build ${TARGET_OS} --${BUILD_FLAG} --build-name=${APP_VERSION}
-  """,
-]
+  """]
 script_runner = "@shell"
 
 [tasks.flutter-build.linux]
-script = [
-  """
+script = ["""
   cd app_flowy/
   flutter clean
   flutter pub get
   flutter build ${TARGET_OS} --${BUILD_FLAG}
-  """,
-]
+  """]
+script_runner = "@shell"
+
+[tasks.flutter-build-android]
+script = ["""
+  cd app_flowy
+  flutter clean
+  flutter pub get
+  flutter build apk --release
+
+"""]
 script_runner = "@shell"
 
 [tasks.flutter-build-android.windows]

@@ -70,7 +70,7 @@ jobs:
 
       - name: Build Android SDK
         working-directory: frontend
-        run: cargo make appflowy-sdk-dev-ci-android
+        run: cargo make appflowy-core-dev-ci-android
 
       - name: rustfmt rust-lib
         run: cargo fmt --all -- --check
