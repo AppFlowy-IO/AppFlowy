@@ -1,6 +1,6 @@
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
-import { FlowyError } from "../classes/flowy-error";
-import { SubscribeObject } from "../classes/flowy-notification";
+import { FlowyError } from "../models/flowy-error";
+import { SubscribeObject } from "../models/flowy-notification";
 import { NotificationParser } from "./parser";
 
 declare type OnError = (error: FlowyError) => void;

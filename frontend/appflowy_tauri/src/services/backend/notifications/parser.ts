@@ -1,6 +1,6 @@
 import { Ok, Err, Result } from "ts-results/result";
-import { FlowyError } from "../classes/flowy-error";
-import { SubscribeObject } from "../classes/flowy-notification";
+import { FlowyError } from "../models/flowy-error";
+import { SubscribeObject } from "../models/flowy-notification";
 
 export declare type OnNotificationPayload<T> = (ty: T, payload: Uint8Array) => void;
 export declare type OnNotificationError = (error: FlowyError) => void;

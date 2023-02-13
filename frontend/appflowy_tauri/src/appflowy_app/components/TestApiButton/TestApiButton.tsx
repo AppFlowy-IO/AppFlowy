@@ -18,7 +18,7 @@ import {
   WorkspaceIdPB,
 } from '../../../services/backend/events/flowy-folder';
 import { useEffect, useState } from 'react';
-import * as dependency_1 from '../../../services/backend/classes/flowy-folder/app';
+import * as dependency_1 from '../../../services/backend/models/flowy-folder/app';
 
 const TestApiButton = () => {
   const [workspaceId, setWorkspaceId] = useState('');

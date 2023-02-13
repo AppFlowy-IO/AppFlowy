@@ -81,7 +81,7 @@ pub fn gen(crate_name: &str) {
     Ok(ref mut file) => {
       let mut export = String::new();
       export.push_str("// Auto-generated, do not edit \n");
-      export.push_str(&format!("export * from '../../classes/{}';\n", crate_name));
+      export.push_str(&format!("export * from '../../models/{}';\n", crate_name));
       export.push_str(&format!("export * from './{}';\n", event_file));
       file.write_all(export.as_bytes()).unwrap();
       File::flush(file).unwrap();
