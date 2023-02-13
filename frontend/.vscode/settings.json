@@ -27,6 +27,8 @@
     "prettier.printWidth": 140,
     "editor.wordWrap": "wordWrapColumn",
     "dart.lineLength": 80,
+    "typescript.validate.enable": true,
+    "javascript.validate.enable": true,
     "files.associations": {
         "*.log.*": "log"
     },

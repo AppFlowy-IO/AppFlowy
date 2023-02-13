@@ -7,11 +7,11 @@ import {
   ListenerEffectAPI,
   addListener,
 } from '@reduxjs/toolkit';
-import { foldersSlice } from './redux/folders/slice';
-import { pagesSlice } from './redux/pages/slice';
-import { navigationWidthSlice } from './redux/navigation-width/slice';
-import { currentUserSlice } from './redux/current-user/slice';
-import { gridSlice } from './redux/grid/slice';
+import { foldersSlice } from './reducers/folders/slice';
+import { pagesSlice } from './reducers/pages/slice';
+import { navigationWidthSlice } from './reducers/navigation-width/slice';
+import { currentUserSlice } from './reducers/current-user/slice';
+import { gridSlice } from './reducers/grid/slice';
 
 const listenerMiddlewareInstance = createListenerMiddleware({
   onError: () => console.error,

@@ -3,7 +3,7 @@ import { BoardSvg } from '../../_shared/svg/BoardSvg';
 import { GridSvg } from '../../_shared/svg/GridSvg';
 import { Details2Svg } from '../../_shared/svg/Details2Svg';
 import { NavItemOptionsPopup } from './NavItemOptionsPopup';
-import { IPage } from '../../../redux/pages/slice';
+import { IPage } from '../../../stores/reducers/pages/slice';
 import { Button } from '../../_shared/Button';
 import { usePageEvents } from './PageItem.hooks';
 import { RenamePopup } from './RenamePopup';

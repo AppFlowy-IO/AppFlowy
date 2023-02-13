@@ -1,4 +1,4 @@
-import { useAppSelector } from '../../../store';
+import { useAppSelector } from '../../../stores/store';
 import { useNavigate } from 'react-router-dom';
 
 export const useNavigationPanelHooks = function () {

@@ -1,5 +1,5 @@
-import { IPage, pagesActions } from '../../../redux/pages/slice';
-import { useAppDispatch } from '../../../store';
+import { IPage, pagesActions } from '../../../stores/reducers/pages/slice';
+import { useAppDispatch } from '../../../stores/store';
 import { useState } from 'react';
 import { nanoid } from 'nanoid';
 

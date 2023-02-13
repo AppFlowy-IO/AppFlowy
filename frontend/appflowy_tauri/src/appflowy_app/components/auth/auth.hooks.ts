@@ -1,5 +1,5 @@
-import { currentUserActions } from '../../redux/current-user/slice';
-import { useAppDispatch, useAppSelector } from '../../store';
+import { currentUserActions } from '../../stores/reducers/current-user/slice';
+import { useAppDispatch, useAppSelector } from '../../stores/store';
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();

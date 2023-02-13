@@ -1,5 +1,5 @@
-import { useAppDispatch } from '../../../store';
-import { foldersActions } from '../../../redux/folders/slice';
+import { useAppDispatch } from '../../../stores/store';
+import { foldersActions } from '../../../stores/reducers/folders/slice';
 import { nanoid } from 'nanoid';
 
 export const useNewFolder = () => {
