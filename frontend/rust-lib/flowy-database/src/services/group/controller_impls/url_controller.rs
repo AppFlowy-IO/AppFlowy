@@ -197,6 +197,7 @@ impl GroupGenerator for URLGroupGenerator {
     let group_configs = cells
       .into_iter()
       .flat_map(|value| value.into_url_field_cell_data())
+      .filter(|cell| !cell.content.is_empty())
       .map(|cell| GeneratedGroupConfig {
         group_rev: make_group_from_url_cell(&cell),
         filter_content: cell.content,
