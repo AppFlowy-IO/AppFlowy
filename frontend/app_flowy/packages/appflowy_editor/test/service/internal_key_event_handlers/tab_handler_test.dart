@@ -152,4 +152,121 @@ void main() async {
       );
     });
   });
+
+  testWidgets('press tab in checkbox/todo list', (tester) async {
+    const text = 'Welcome to Appflowy 😁';
+    final editor = tester.editor
+      ..insertTextNode(
+        text,
+        attributes: {
+          BuiltInAttributeKey.subtype: BuiltInAttributeKey.checkbox,
+          BuiltInAttributeKey.checkbox: false,
+        },
+      )
+      ..insertTextNode(
+        text,
+        attributes: {
+          BuiltInAttributeKey.subtype: BuiltInAttributeKey.checkbox,
+          BuiltInAttributeKey.checkbox: false,
+        },
+      )
+      ..insertTextNode(
+        text,
+        attributes: {
+          BuiltInAttributeKey.subtype: BuiltInAttributeKey.checkbox,
+          BuiltInAttributeKey.checkbox: false,
+        },
+      );
+    await editor.startTesting();
+    var document = editor.document;
+
+    var selection = Selection.single(path: [0], startOffset: 0);
+    await editor.updateSelection(selection);
+    await editor.pressLogicKey(LogicalKeyboardKey.tab);
+
+    // nothing happens
+    expect(
+      editor.documentSelection,
+      Selection.single(path: [0], startOffset: 0),
+    );
+    expect(editor.document.toJson(), document.toJson());
+
+    // Before
+    // [] Welcome to Appflowy 😁
+    // [] Welcome to Appflowy 😁
+    // [] Welcome to Appflowy 😁
+    // After
+    // [] Welcome to Appflowy 😁
+    //  [] Welcome to Appflowy 😁
+    //  [] Welcome to Appflowy 😁
+
+    selection = Selection.single(path: [1], startOffset: 0);
+    await editor.updateSelection(selection);
+
+    await editor.pressLogicKey(LogicalKeyboardKey.tab);
+
+    expect(
+      editor.documentSelection,
+      Selection.single(path: [0, 0], startOffset: 0),
+    );
+    expect(editor.nodeAtPath([0])!.subtype, BuiltInAttributeKey.checkbox);
+    expect(editor.nodeAtPath([1])!.subtype, BuiltInAttributeKey.checkbox);
+    expect(editor.nodeAtPath([2]), null);
+    expect(editor.nodeAtPath([0, 0])!.subtype, BuiltInAttributeKey.checkbox);
+
+    selection = Selection.single(path: [1], startOffset: 0);
+    await editor.updateSelection(selection);
+    await editor.pressLogicKey(LogicalKeyboardKey.tab);
+
+    expect(
+      editor.documentSelection,
+      Selection.single(path: [0, 1], startOffset: 0),
+    );
+    expect(editor.nodeAtPath([0])!.subtype, BuiltInAttributeKey.checkbox);
+    expect(editor.nodeAtPath([1]), null);
+    expect(editor.nodeAtPath([2]), null);
+    expect(editor.nodeAtPath([0, 0])!.subtype, BuiltInAttributeKey.checkbox);
+    expect(editor.nodeAtPath([0, 1])!.subtype, BuiltInAttributeKey.checkbox);
+
+    // Before
+    // [] Welcome to Appflowy 😁
+    //  [] Welcome to Appflowy 😁
+    //  [] Welcome to Appflowy 😁
+    // After
+    // [] Welcome to Appflowy 😁
+    //  [] Welcome to Appflowy 😁
+    //   [] Welcome to Appflowy 😁
+    document = editor.document;
+    selection = Selection.single(path: [0, 0], startOffset: 0);
+    await editor.updateSelection(selection);
+    await editor.pressLogicKey(LogicalKeyboardKey.tab);
+
+    expect(
+      editor.documentSelection,
+      Selection.single(path: [0, 0], startOffset: 0),
+    );
+    expect(editor.document.toJson(), document.toJson());
+
+    selection = Selection.single(path: [0, 1], startOffset: 0);
+    await editor.updateSelection(selection);
+    await editor.pressLogicKey(LogicalKeyboardKey.tab);
+
+    expect(
+      editor.documentSelection,
+      Selection.single(path: [0, 0, 0], startOffset: 0),
+    );
+    expect(
+      editor.nodeAtPath([0])!.subtype,
+      BuiltInAttributeKey.checkbox,
+    );
+    expect(
+      editor.nodeAtPath([0, 0])!.subtype,
+      BuiltInAttributeKey.checkbox,
+    );
+    expect(editor.nodeAtPath([0, 1]), null);
+    expect(
+      editor.nodeAtPath([0, 0, 0])!.subtype,
+      BuiltInAttributeKey.checkbox,
+    );
+  });
 }
