@@ -5,58 +5,58 @@ use grid_model::FilterRevision;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct ChecklistFilterPB {
-    #[pb(index = 1)]
-    pub condition: ChecklistFilterConditionPB,
+  #[pb(index = 1)]
+  pub condition: ChecklistFilterConditionPB,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
 pub enum ChecklistFilterConditionPB {
-    IsComplete = 0,
-    IsIncomplete = 1,
+  IsComplete = 0,
+  IsIncomplete = 1,
 }
 
 impl std::convert::From<ChecklistFilterConditionPB> for u32 {
-    fn from(value: ChecklistFilterConditionPB) -> Self {
-        value as u32
-    }
+  fn from(value: ChecklistFilterConditionPB) -> Self {
+    value as u32
+  }
 }
 
 impl std::default::Default for ChecklistFilterConditionPB {
-    fn default() -> Self {
-        ChecklistFilterConditionPB::IsIncomplete
-    }
+  fn default() -> Self {
+    ChecklistFilterConditionPB::IsIncomplete
+  }
 }
 
 impl std::convert::TryFrom<u8> for ChecklistFilterConditionPB {
-    type Error = ErrorCode;
+  type Error = ErrorCode;
 
-    fn try_from(value: u8) -> Result<Self, Self::Error> {
-        match value {
-            0 => Ok(ChecklistFilterConditionPB::IsComplete),
-            1 => Ok(ChecklistFilterConditionPB::IsIncomplete),
-            _ => Err(ErrorCode::InvalidData),
-        }
+  fn try_from(value: u8) -> Result<Self, Self::Error> {
+    match value {
+      0 => Ok(ChecklistFilterConditionPB::IsComplete),
+      1 => Ok(ChecklistFilterConditionPB::IsIncomplete),
+      _ => Err(ErrorCode::InvalidData),
     }
+  }
 }
 
 impl FromFilterString for ChecklistFilterPB {
-    fn from_filter_rev(filter_rev: &FilterRevision) -> Self
-    where
-        Self: Sized,
-    {
-        ChecklistFilterPB {
-            condition: ChecklistFilterConditionPB::try_from(filter_rev.condition)
-                .unwrap_or(ChecklistFilterConditionPB::IsIncomplete),
-        }
+  fn from_filter_rev(filter_rev: &FilterRevision) -> Self
+  where
+    Self: Sized,
+  {
+    ChecklistFilterPB {
+      condition: ChecklistFilterConditionPB::try_from(filter_rev.condition)
+        .unwrap_or(ChecklistFilterConditionPB::IsIncomplete),
     }
+  }
 }
 
 impl std::convert::From<&FilterRevision> for ChecklistFilterPB {
-    fn from(rev: &FilterRevision) -> Self {
-        ChecklistFilterPB {
-            condition: ChecklistFilterConditionPB::try_from(rev.condition)
-                .unwrap_or(ChecklistFilterConditionPB::IsIncomplete),
-        }
+  fn from(rev: &FilterRevision) -> Self {
+    ChecklistFilterPB {
+      condition: ChecklistFilterConditionPB::try_from(rev.condition)
+        .unwrap_or(ChecklistFilterConditionPB::IsIncomplete),
     }
+  }
 }

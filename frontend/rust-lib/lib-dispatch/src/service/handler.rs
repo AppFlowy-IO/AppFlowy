@@ -1,155 +1,155 @@
 use std::{
-    future::Future,
-    marker::PhantomData,
-    pin::Pin,
-    task::{Context, Poll},
+  future::Future,
+  marker::PhantomData,
+  pin::Pin,
+  task::{Context, Poll},
 };
 
 use futures_core::ready;
 use pin_project::pin_project;
 
 use crate::{
-    errors::DispatchError,
-    request::{payload::Payload, AFPluginEventRequest, FromAFPluginRequest},
-    response::{AFPluginEventResponse, AFPluginResponder},
-    service::{AFPluginServiceFactory, Service, ServiceRequest, ServiceResponse},
-    util::ready::*,
+  errors::DispatchError,
+  request::{payload::Payload, AFPluginEventRequest, FromAFPluginRequest},
+  response::{AFPluginEventResponse, AFPluginResponder},
+  service::{AFPluginServiceFactory, Service, ServiceRequest, ServiceResponse},
+  util::ready::*,
 };
 
 /// A closure that is run every time for the specified plugin event
 pub trait AFPluginHandler<T, R>: Clone + 'static + Sync + Send
 where
-    R: Future + Send + Sync,
-    R::Output: AFPluginResponder,
+  R: Future + Send + Sync,
+  R::Output: AFPluginResponder,
 {
-    fn call(&self, param: T) -> R;
+  fn call(&self, param: T) -> R;
 }
 
 pub struct AFPluginHandlerService<H, T, R>
 where
-    H: AFPluginHandler<T, R>,
-    T: FromAFPluginRequest,
-    R: Future + Sync + Send,
-    R::Output: AFPluginResponder,
+  H: AFPluginHandler<T, R>,
+  T: FromAFPluginRequest,
+  R: Future + Sync + Send,
+  R::Output: AFPluginResponder,
 {
-    handler: H,
-    _phantom: PhantomData<(T, R)>,
+  handler: H,
+  _phantom: PhantomData<(T, R)>,
 }
 
 impl<H, T, R> AFPluginHandlerService<H, T, R>
 where
-    H: AFPluginHandler<T, R>,
-    T: FromAFPluginRequest,
-    R: Future + Sync + Send,
-    R::Output: AFPluginResponder,
+  H: AFPluginHandler<T, R>,
+  T: FromAFPluginRequest,
+  R: Future + Sync + Send,
+  R::Output: AFPluginResponder,
 {
-    pub fn new(handler: H) -> Self {
-        Self {
-            handler,
-            _phantom: PhantomData,
-        }
+  pub fn new(handler: H) -> Self {
+    Self {
+      handler,
+      _phantom: PhantomData,
     }
+  }
 }
 
 impl<H, T, R> Clone for AFPluginHandlerService<H, T, R>
 where
-    H: AFPluginHandler<T, R>,
-    T: FromAFPluginRequest,
-    R: Future + Sync + Send,
-    R::Output: AFPluginResponder,
+  H: AFPluginHandler<T, R>,
+  T: FromAFPluginRequest,
+  R: Future + Sync + Send,
+  R::Output: AFPluginResponder,
 {
-    fn clone(&self) -> Self {
-        Self {
-            handler: self.handler.clone(),
-            _phantom: PhantomData,
-        }
+  fn clone(&self) -> Self {
+    Self {
+      handler: self.handler.clone(),
+      _phantom: PhantomData,
     }
+  }
 }
 
 impl<F, T, R> AFPluginServiceFactory<ServiceRequest> for AFPluginHandlerService<F, T, R>
 where
-    F: AFPluginHandler<T, R>,
-    T: FromAFPluginRequest,
-    R: Future + Send + Sync,
-    R::Output: AFPluginResponder,
+  F: AFPluginHandler<T, R>,
+  T: FromAFPluginRequest,
+  R: Future + Send + Sync,
+  R::Output: AFPluginResponder,
 {
-    type Response = ServiceResponse;
-    type Error = DispatchError;
-    type Service = Self;
-    type Context = ();
-    type Future = Ready<Result<Self::Service, Self::Error>>;
+  type Response = ServiceResponse;
+  type Error = DispatchError;
+  type Service = Self;
+  type Context = ();
+  type Future = Ready<Result<Self::Service, Self::Error>>;
 
-    fn new_service(&self, _: ()) -> Self::Future {
-        ready(Ok(self.clone()))
-    }
+  fn new_service(&self, _: ()) -> Self::Future {
+    ready(Ok(self.clone()))
+  }
 }
 
 impl<H, T, R> Service<ServiceRequest> for AFPluginHandlerService<H, T, R>
 where
-    H: AFPluginHandler<T, R>,
-    T: FromAFPluginRequest,
-    R: Future + Sync + Send,
-    R::Output: AFPluginResponder,
+  H: AFPluginHandler<T, R>,
+  T: FromAFPluginRequest,
+  R: Future + Sync + Send,
+  R::Output: AFPluginResponder,
 {
-    type Response = ServiceResponse;
-    type Error = DispatchError;
-    type Future = HandlerServiceFuture<H, T, R>;
+  type Response = ServiceResponse;
+  type Error = DispatchError;
+  type Future = HandlerServiceFuture<H, T, R>;
 
-    fn call(&self, req: ServiceRequest) -> Self::Future {
-        let (req, mut payload) = req.into_parts();
-        let fut = T::from_request(&req, &mut payload);
-        HandlerServiceFuture::Extract(fut, Some(req), self.handler.clone())
-    }
+  fn call(&self, req: ServiceRequest) -> Self::Future {
+    let (req, mut payload) = req.into_parts();
+    let fut = T::from_request(&req, &mut payload);
+    HandlerServiceFuture::Extract(fut, Some(req), self.handler.clone())
+  }
 }
 
 #[pin_project(project = HandlerServiceProj)]
 pub enum HandlerServiceFuture<H, T, R>
 where
-    H: AFPluginHandler<T, R>,
-    T: FromAFPluginRequest,
-    R: Future + Sync + Send,
-    R::Output: AFPluginResponder,
+  H: AFPluginHandler<T, R>,
+  T: FromAFPluginRequest,
+  R: Future + Sync + Send,
+  R::Output: AFPluginResponder,
 {
-    Extract(#[pin] T::Future, Option<AFPluginEventRequest>, H),
-    Handle(#[pin] R, Option<AFPluginEventRequest>),
+  Extract(#[pin] T::Future, Option<AFPluginEventRequest>, H),
+  Handle(#[pin] R, Option<AFPluginEventRequest>),
 }
 
 impl<F, T, R> Future for HandlerServiceFuture<F, T, R>
 where
-    F: AFPluginHandler<T, R>,
-    T: FromAFPluginRequest,
-    R: Future + Sync + Send,
-    R::Output: AFPluginResponder,
+  F: AFPluginHandler<T, R>,
+  T: FromAFPluginRequest,
+  R: Future + Sync + Send,
+  R::Output: AFPluginResponder,
 {
-    type Output = Result<ServiceResponse, DispatchError>;
+  type Output = Result<ServiceResponse, DispatchError>;
 
-    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        loop {
-            match self.as_mut().project() {
-                HandlerServiceProj::Extract(fut, req, handle) => {
-                    match ready!(fut.poll(cx)) {
-                        Ok(params) => {
-                            let fut = handle.call(params);
-                            let state = HandlerServiceFuture::Handle(fut, req.take());
-                            self.as_mut().set(state);
-                        }
-                        Err(err) => {
-                            let req = req.take().unwrap();
-                            let system_err: DispatchError = err.into();
-                            let res: AFPluginEventResponse = system_err.into();
-                            return Poll::Ready(Ok(ServiceResponse::new(req, res)));
-                        }
-                    };
-                }
-                HandlerServiceProj::Handle(fut, req) => {
-                    let result = ready!(fut.poll(cx));
-                    let req = req.take().unwrap();
-                    let resp = result.respond_to(&req);
-                    return Poll::Ready(Ok(ServiceResponse::new(req, resp)));
-                }
-            }
-        }
+  fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+    loop {
+      match self.as_mut().project() {
+        HandlerServiceProj::Extract(fut, req, handle) => {
+          match ready!(fut.poll(cx)) {
+            Ok(params) => {
+              let fut = handle.call(params);
+              let state = HandlerServiceFuture::Handle(fut, req.take());
+              self.as_mut().set(state);
+            },
+            Err(err) => {
+              let req = req.take().unwrap();
+              let system_err: DispatchError = err.into();
+              let res: AFPluginEventResponse = system_err.into();
+              return Poll::Ready(Ok(ServiceResponse::new(req, res)));
+            },
+          };
+        },
+        HandlerServiceProj::Handle(fut, req) => {
+          let result = ready!(fut.poll(cx));
+          let req = req.take().unwrap();
+          let resp = result.respond_to(&req);
+          return Poll::Ready(Ok(ServiceResponse::new(req, resp)));
+        },
+      }
     }
+  }
 }
 
 macro_rules! factory_tuple ({ $($param:ident)* } => {

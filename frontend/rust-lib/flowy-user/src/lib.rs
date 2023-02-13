@@ -10,5 +10,5 @@ pub mod services;
 extern crate flowy_sqlite;
 
 pub mod errors {
-    pub use flowy_error::*;
+  pub use flowy_error::*;
 }

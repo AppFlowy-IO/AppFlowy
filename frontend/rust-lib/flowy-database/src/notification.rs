@@ -4,48 +4,48 @@ const OBSERVABLE_CATEGORY: &str = "Grid";
 
 #[derive(ProtoBuf_Enum, Debug)]
 pub enum DatabaseNotification {
-    Unknown = 0,
-    /// Trigger after inserting/deleting/updating a row
-    DidUpdateViewRows = 20,
-    /// Trigger when the visibility of the row was changed. For example, updating the filter will trigger the notification
-    DidUpdateViewRowsVisibility = 21,
-    /// Trigger after inserting/deleting/updating a field
-    DidUpdateFields = 22,
-    /// Trigger after editing a cell
-    DidUpdateCell = 40,
-    /// Trigger after editing a field properties including rename,update type option, etc
-    DidUpdateField = 50,
-    /// Trigger after the number of groups is changed
-    DidUpdateGroups = 60,
-    /// Trigger after inserting/deleting/updating/moving a row
-    DidUpdateGroupRow = 61,
-    /// Trigger when setting a new grouping field
-    DidGroupByField = 62,
-    /// Trigger after inserting/deleting/updating a filter
-    DidUpdateFilter = 63,
-    /// Trigger after inserting/deleting/updating a sort
-    DidUpdateSort = 64,
-    /// Trigger after the sort configurations are changed
-    DidReorderRows = 65,
-    /// Trigger after editing the row that hit the sort rule
-    DidReorderSingleRow = 66,
-    /// Trigger when the settings of the database are changed
-    DidUpdateSettings = 70,
+  Unknown = 0,
+  /// Trigger after inserting/deleting/updating a row
+  DidUpdateViewRows = 20,
+  /// Trigger when the visibility of the row was changed. For example, updating the filter will trigger the notification
+  DidUpdateViewRowsVisibility = 21,
+  /// Trigger after inserting/deleting/updating a field
+  DidUpdateFields = 22,
+  /// Trigger after editing a cell
+  DidUpdateCell = 40,
+  /// Trigger after editing a field properties including rename,update type option, etc
+  DidUpdateField = 50,
+  /// Trigger after the number of groups is changed
+  DidUpdateGroups = 60,
+  /// Trigger after inserting/deleting/updating/moving a row
+  DidUpdateGroupRow = 61,
+  /// Trigger when setting a new grouping field
+  DidGroupByField = 62,
+  /// Trigger after inserting/deleting/updating a filter
+  DidUpdateFilter = 63,
+  /// Trigger after inserting/deleting/updating a sort
+  DidUpdateSort = 64,
+  /// Trigger after the sort configurations are changed
+  DidReorderRows = 65,
+  /// Trigger after editing the row that hit the sort rule
+  DidReorderSingleRow = 66,
+  /// Trigger when the settings of the database are changed
+  DidUpdateSettings = 70,
 }
 
 impl std::default::Default for DatabaseNotification {
-    fn default() -> Self {
-        DatabaseNotification::Unknown
-    }
+  fn default() -> Self {
+    DatabaseNotification::Unknown
+  }
 }
 
 impl std::convert::From<DatabaseNotification> for i32 {
-    fn from(notification: DatabaseNotification) -> Self {
-        notification as i32
-    }
+  fn from(notification: DatabaseNotification) -> Self {
+    notification as i32
+  }
 }
 
 #[tracing::instrument(level = "trace")]
 pub fn send_notification(id: &str, ty: DatabaseNotification) -> NotificationBuilder {
-    NotificationBuilder::new(id, ty, OBSERVABLE_CATEGORY)
+  NotificationBuilder::new(id, ty, OBSERVABLE_CATEGORY)
 }
