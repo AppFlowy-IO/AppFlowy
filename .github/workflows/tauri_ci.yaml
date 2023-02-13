@@ -1,0 +1,74 @@
+name: Tauri-CI
+on:
+  pull_request:
+    paths:
+      - "frontend/rust-lib/**"
+      - "frontend/appflowy_tauri/**"
+
+env:
+  NODE_VERSION: "16"
+  RUST_TOOLCHAIN: "1.65"
+
+jobs:
+  tauri-build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, ubuntu-20.04, windows-latest]
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Rust toolchain
+        id: rust_toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          override: true
+          profile: minimal
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: ${{ matrix.platform }}
+
+      - name: install dependencies (windows only)
+        if: matrix.platform == 'windows-latest'
+        working-directory: frontend
+        run: |
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
+          vcpkg integrate install
+          cargo make appflowy-tauri-deps-tools
+
+      - name: install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-20.04'
+        working-directory: frontend
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+          cargo install --force cargo-make
+          cargo make appflowy-tauri-deps-tools
+
+      - name: install dependencies (macOS only)
+        if: matrix.platform == 'macos-latest'
+        working-directory: frontend
+        run: |
+          cargo install --force cargo-make
+          cargo make appflowy-tauri-deps-tools
+
+      - name: build
+        working-directory: frontend/appflowy_tauri
+        run: |
+          mkdir dist
+          npm install
+          cargo make --cwd .. build_tauri_backend
+          yarn && yarn build
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

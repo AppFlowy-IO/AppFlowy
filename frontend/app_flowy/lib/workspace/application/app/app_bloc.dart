@@ -102,6 +102,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       dataFormatType: value.pluginBuilder.dataFormatType,
       pluginType: value.pluginBuilder.pluginType,
       layoutType: value.pluginBuilder.layoutType!,
+      initialData: value.initialData,
     );
     result.fold(
       (view) => emit(state.copyWith(
@@ -140,6 +141,10 @@ class AppEvent with _$AppEvent {
     String name,
     PluginBuilder pluginBuilder, {
     String? desc,
+
+    /// The initial data should be the JSON of the doucment
+    /// For example: {"document":{"type":"editor","children":[]}}
+    String? initialData,
   }) = CreateView;
   const factory AppEvent.loadViews() = LoadApp;
   const factory AppEvent.delete() = DeleteApp;

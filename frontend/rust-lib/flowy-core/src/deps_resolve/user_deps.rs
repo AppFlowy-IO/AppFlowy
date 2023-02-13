@@ -6,13 +6,13 @@ use std::sync::Arc;
 
 pub struct UserDepsResolver();
 impl UserDepsResolver {
-    pub fn resolve(
-        local_server: &Option<Arc<LocalServer>>,
-        server_config: &ClientServerConfiguration,
-    ) -> Arc<dyn UserCloudService> {
-        match local_server.clone() {
-            None => Arc::new(UserHttpCloudService::new(server_config)),
-            Some(local_server) => local_server,
-        }
+  pub fn resolve(
+    local_server: &Option<Arc<LocalServer>>,
+    server_config: &ClientServerConfiguration,
+  ) -> Arc<dyn UserCloudService> {
+    match local_server.clone() {
+      None => Arc::new(UserHttpCloudService::new(server_config)),
+      Some(local_server) => local_server,
     }
+  }
 }

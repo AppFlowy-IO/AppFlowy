@@ -1,6 +1,6 @@
-import { FlowyError, UserNotification, UserProfilePB } from "../../../../../services/backend";
-import { AFNotificationListener, OnNotificationError } from "../../../../../services/backend/notifications";
-import { UserNotificationParser } from "./parser";
+import { FlowyError, UserNotification, UserProfilePB } from '../../../../../services/backend';
+import { AFNotificationListener, OnNotificationError } from '../../../../../services/backend/notifications';
+import { UserNotificationParser } from './parser';
 
 declare type OnUserProfileUpdate = (userProfile: UserProfilePB) => void;
 declare type OnUserSignIn = (userProfile: UserProfilePB) => void;
@@ -10,7 +10,7 @@ export class UserNotificationListener extends AFNotificationListener<UserNotific
   onUserSignIn?: OnUserSignIn;
 
   constructor(params: {
-    userId?: String;
+    userId?: string;
     onUserSignIn?: OnUserSignIn;
     onProfileUpdate?: OnUserProfileUpdate;
     onError?: OnNotificationError;
@@ -18,14 +18,10 @@ export class UserNotificationListener extends AFNotificationListener<UserNotific
     let parser = new UserNotificationParser({
       callback: (notification, payload) => {
         switch (notification) {
-          case UserNotification.UserAuthChanged:
-            break;
-          case UserNotification.UserProfileUpdated:
+          case UserNotification.DidUpdateUserProfile:
             this.onProfileUpdate?.(UserProfilePB.deserializeBinary(payload));
             break;
-          case UserNotification.UserUnauthorized:
-            break;
-          case UserNotification.UserSignIn:
+          case UserNotification.DidUserSignIn:
             this.onUserSignIn?.(UserProfilePB.deserializeBinary(payload));
             break;
           default:

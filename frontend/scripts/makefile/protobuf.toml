@@ -3,7 +3,7 @@
 script = """
 npm install -g protoc-gen-ts
 """
-script_runner = "@duckscript"
+script_runner = "@shell"
 
 [tasks.install_tauri_protobuf.mac]
 script = """
