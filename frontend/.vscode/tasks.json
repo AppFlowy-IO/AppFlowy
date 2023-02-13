@@ -213,6 +213,14 @@
 			"options": {
 				"cwd": "${workspaceFolder}"
 			}
-		}
+		},
+		{
+			"label": "AF: Tauri ESLint",
+			"type": "shell",
+			"command": "npx eslint --fix src",
+			"options": {
+				"cwd": "${workspaceFolder}/appflowy_tauri"
+			}
+		},	
 	]
 }
