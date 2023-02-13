@@ -44,33 +44,43 @@ use strum_macros::Display;
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum UserEvent {
-    #[event()]
-    InitUser = 0,
-
+    /// Logging into an account using a register email and password
     #[event(input = "SignInPayloadPB", output = "UserProfilePB")]
-    SignIn = 1,
+    SignIn = 0,
 
+    /// Creating a new account
     #[event(input = "SignUpPayloadPB", output = "UserProfilePB")]
-    SignUp = 2,
+    SignUp = 1,
 
+    /// Logging out fo an account
     #[event(passthrough)]
-    SignOut = 3,
+    SignOut = 2,
 
+    /// Update the user information
     #[event(input = "UpdateUserProfilePayloadPB")]
-    UpdateUserProfile = 4,
+    UpdateUserProfile = 3,
 
+    /// Get the user information
     #[event(output = "UserProfilePB")]
-    GetUserProfile = 5,
+    GetUserProfile = 4,
 
+    /// Check the user current session is valid or not
     #[event(output = "UserProfilePB")]
-    CheckUser = 6,
+    CheckUser = 5,
 
+    /// Initialize resources for the current user after launching the application
+    #[event()]
+    InitUser = 6,
+
+    /// Change the visual elements of the interface, such as theme, font and more
     #[event(input = "AppearanceSettingsPB")]
     SetAppearanceSetting = 7,
 
+    /// Get the appearance setting
     #[event(output = "AppearanceSettingsPB")]
     GetAppearanceSetting = 8,
 
+    /// Get the settings of the user, such as the user storage folder
     #[event(output = "UserSettingPB")]
     GetUserSetting = 9,
 }

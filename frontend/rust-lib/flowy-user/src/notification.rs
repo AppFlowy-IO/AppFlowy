@@ -5,11 +5,8 @@ const OBSERVABLE_CATEGORY: &str = "User";
 #[derive(ProtoBuf_Enum, Debug)]
 pub(crate) enum UserNotification {
     Unknown = 0,
-    UserAuthChanged = 1,
-    UserProfileUpdated = 2,
-    UserUnauthorized = 3,
-    UserWsConnectStateChanged = 4,
-    UserSignIn = 5,
+    DidUserSignIn = 1,
+    DidUpdateUserProfile = 2,
 }
 
 impl std::default::Default for UserNotification {
@@ -29,5 +26,5 @@ pub(crate) fn send_notification(id: &str, ty: UserNotification) -> NotificationB
 }
 
 pub(crate) fn send_sign_in_notification() -> NotificationBuilder {
-    NotificationBuilder::new("", UserNotification::UserSignIn, OBSERVABLE_CATEGORY)
+    NotificationBuilder::new("", UserNotification::DidUserSignIn, OBSERVABLE_CATEGORY)
 }

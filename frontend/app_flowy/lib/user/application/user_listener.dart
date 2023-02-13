@@ -59,13 +59,7 @@ class UserListener {
   void _userNotificationCallback(
       user.UserNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case user.UserNotification.UserUnauthorized:
-        result.fold(
-          (_) {},
-          (error) => _authNotifier?.value = right(error),
-        );
-        break;
-      case user.UserNotification.UserProfileUpdated:
+      case user.UserNotification.DidUpdateUserProfile:
         result.fold(
           (payload) =>
               _profileNotifier?.value = left(UserProfilePB.fromBuffer(payload)),

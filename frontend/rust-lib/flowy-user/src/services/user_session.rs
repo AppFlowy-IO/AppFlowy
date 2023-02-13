@@ -161,7 +161,7 @@ impl UserSession {
 
         let user_profile = self.get_user_profile().await?;
         let profile_pb: UserProfilePB = user_profile.into();
-        send_notification(&session.token, UserNotification::UserProfileUpdated)
+        send_notification(&session.token, UserNotification::DidUpdateUserProfile)
             .payload(profile_pb)
             .send();
         self.update_user_on_server(&session.token, params).await?;
@@ -220,22 +220,6 @@ impl UserSession {
 
 impl UserSession {
     fn read_user_profile_on_server(&self, _token: &str) -> Result<(), FlowyError> {
-        // let server = self.cloud_service.clone();
-        // let token = token.to_owned();
-        // tokio::spawn(async move {
-        //     match server.get_user(&token).await {
-        //         Ok(profile) => {
-        //             dart_notify(&token, UserNotification::UserProfileUpdated)
-        //                 .payload(profile)
-        //                 .send();
-        //         }
-        //         Err(e) => {
-        //             dart_notify(&token, UserNotification::UserProfileUpdated)
-        //                 .error(e)
-        //                 .send();
-        //         }
-        //     }
-        // });
         Ok(())
     }
 
