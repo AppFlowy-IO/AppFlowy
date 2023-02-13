@@ -2,6 +2,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
@@ -20,6 +21,7 @@ class FlowyButton extends StatelessWidget {
   final bool useIntrinsicWidth;
   final bool disable;
   final double disableOpacity;
+  final Size? leftIconSize;
 
   const FlowyButton({
     Key? key,
@@ -36,6 +38,7 @@ class FlowyButton extends StatelessWidget {
     this.useIntrinsicWidth = false,
     this.disable = false,
     this.disableOpacity = 0.5,
+    this.leftIconSize = const Size.square(16),
   }) : super(key: key);
 
   @override
@@ -64,7 +67,11 @@ class FlowyButton extends StatelessWidget {
 
     if (leftIcon != null) {
       children.add(
-          SizedBox.fromSize(size: const Size.square(16), child: leftIcon!));
+        SizedBox.fromSize(
+          size: leftIconSize,
+          child: leftIcon!,
+        ),
+      );
       children.add(const HSpace(6));
     }
 
@@ -176,7 +183,12 @@ class FlowyTextButton extends StatelessWidget {
       highlightColor: Colors.transparent,
       elevation: 0,
       constraints: constraints,
-      onPressed: onPressed,
+      onPressed: () {},
+      child: child,
+    );
+
+    child = IgnoreParentGestureWidget(
+      onPress: onPressed,
       child: child,
     );
 

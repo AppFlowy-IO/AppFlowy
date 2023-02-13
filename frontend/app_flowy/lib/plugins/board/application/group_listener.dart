@@ -31,7 +31,7 @@ class GroupListener {
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case DatabaseNotification.DidUpdateGroup:
+      case DatabaseNotification.DidUpdateGroupRow:
         result.fold(
           (payload) => _groupNotifier?.value =
               left(GroupRowsNotificationPB.fromBuffer(payload)),

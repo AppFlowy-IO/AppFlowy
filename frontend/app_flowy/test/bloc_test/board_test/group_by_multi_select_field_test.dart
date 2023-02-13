@@ -14,7 +14,7 @@ void main() {
     boardTest = await AppFlowyBoardTest.ensureInitialized();
   });
 
-  test('group by multi select with no options test', () async {
+  test('no status group name test', () async {
     final context = await boardTest.createTestBoard();
 
     // create multi-select field
@@ -27,7 +27,9 @@ void main() {
     final gridGroupBloc = GridGroupBloc(
       viewId: context.gridView.id,
       fieldController: context.fieldController,
-    );
+    )..add(const GridGroupEvent.initial());
+    await boardResponseFuture();
+
     gridGroupBloc.add(GridGroupEvent.setGroupByField(
       multiSelectField.id,
       multiSelectField.fieldType,
@@ -72,7 +74,9 @@ void main() {
     final gridGroupBloc = GridGroupBloc(
       viewId: context.gridView.id,
       fieldController: context.fieldController,
-    );
+    )..add(const GridGroupEvent.initial());
+    await boardResponseFuture();
+
     gridGroupBloc.add(GridGroupEvent.setGroupByField(
       multiSelectField.id,
       multiSelectField.fieldType,

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:app_flowy/core/folder_notification.dart';
 import 'package:app_flowy/core/user_notification.dart';
 import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'dart:typed_data';
@@ -60,13 +59,7 @@ class UserListener {
   void _userNotificationCallback(
       user.UserNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case user.UserNotification.UserUnauthorized:
-        result.fold(
-          (_) {},
-          (error) => _authNotifier?.value = right(error),
-        );
-        break;
-      case user.UserNotification.UserProfileUpdated:
+      case user.UserNotification.DidUpdateUserProfile:
         result.fold(
           (payload) =>
               _profileNotifier?.value = left(UserProfilePB.fromBuffer(payload)),
@@ -122,27 +115,19 @@ class UserWorkspaceListener {
   void _handleObservableType(
       FolderNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case FolderNotification.UserCreateWorkspace:
-      case FolderNotification.UserDeleteWorkspace:
-      case FolderNotification.WorkspaceListUpdated:
+      case FolderNotification.DidCreateWorkspace:
+      case FolderNotification.DidDeleteWorkspace:
         result.fold(
           (payload) => _workspacesChangedNotifier?.value =
               left(RepeatedWorkspacePB.fromBuffer(payload).items),
           (error) => _workspacesChangedNotifier?.value = right(error),
         );
         break;
-      case FolderNotification.WorkspaceSetting:
+      case FolderNotification.DidUpdateWorkspaceSetting:
         result.fold(
           (payload) => _settingChangedNotifier?.value =
               left(WorkspaceSettingPB.fromBuffer(payload)),
           (error) => _settingChangedNotifier?.value = right(error),
-        );
-        break;
-      case FolderNotification.UserUnauthorized:
-        result.fold(
-          (_) {},
-          (error) => _authNotifier?.value = right(
-              FlowyError.create()..code = ErrorCode.UserUnauthorized.value),
         );
         break;
       default:

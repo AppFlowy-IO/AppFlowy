@@ -139,6 +139,8 @@ class _DocumentPageState extends State<DocumentPage> {
         boardMenuItem,
         // Grid
         gridMenuItem,
+        // Callout
+        calloutMenuItem,
       ],
       themeData: theme.copyWith(extensions: [
         ...theme.extensions.values,

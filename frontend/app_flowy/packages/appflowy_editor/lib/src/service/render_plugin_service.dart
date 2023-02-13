@@ -1,6 +1,8 @@
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/infra/log.dart';
+import 'package:appflowy_editor/src/render/action_menu/action_menu.dart';
+import 'package:appflowy_editor/src/render/action_menu/action_menu_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -28,6 +30,9 @@ abstract class AppFlowyRenderPluginService {
 
   /// UnRegister plugin with specified [name].
   void unRegister(String name);
+
+  /// Returns a [NodeWidgetBuilder], if one has been registered for [name]
+  NodeWidgetBuilder? getBuilder(String name);
 
   Widget buildPluginWidget(NodeWidgetContext context);
 }
@@ -57,9 +62,13 @@ class NodeWidgetContext<T extends Node> {
 }
 
 class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
+  final Positioned Function(BuildContext context, List<ActionMenuItem> items)?
+      customActionMenuBuilder;
+
   AppFlowyRenderPlugin({
     required this.editorState,
     required NodeWidgetBuilders builders,
+    this.customActionMenuBuilder,
   }) {
     registerAll(builders);
   }
@@ -106,6 +115,11 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
     _builders.remove(name);
   }
 
+  @override
+  NodeWidgetBuilder? getBuilder(String name) {
+    return _builders[name];
+  }
+
   Widget _autoUpdateNodeWidget(
       NodeWidgetBuilder builder, NodeWidgetContext context) {
     Widget notifier;
@@ -116,7 +130,7 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
             return Consumer<TextNode>(
               builder: ((_, value, child) {
                 Log.ui.debug('TextNode is rebuilding...');
-                return builder.build(context);
+                return _buildWithActions(builder, context);
               }),
             );
           });
@@ -127,7 +141,7 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
             return Consumer<Node>(
               builder: ((_, value, child) {
                 Log.ui.debug('Node is rebuilding...');
-                return builder.build(context);
+                return _buildWithActions(builder, context);
               }),
             );
           });
@@ -136,6 +150,22 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
       link: context.node.layerLink,
       child: notifier,
     );
+  }
+
+  Widget _buildWithActions(
+      NodeWidgetBuilder builder, NodeWidgetContext context) {
+    if (builder is ActionProvider) {
+      return ChangeNotifierProvider(
+        create: (_) => ActionMenuState(context.node.path),
+        child: ActionMenuOverlay(
+          items: builder.actions(context),
+          customActionMenuBuilder: customActionMenuBuilder,
+          child: builder.build(context),
+        ),
+      );
+    } else {
+      return builder.build(context);
+    }
   }
 
   void _validatePlugin(String name) {

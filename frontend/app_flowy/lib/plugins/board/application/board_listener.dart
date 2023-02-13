@@ -8,7 +8,7 @@ import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/group.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/group_changeset.pb.dart';
 
-typedef GroupUpdateValue = Either<GroupViewChangesetPB, FlowyError>;
+typedef GroupUpdateValue = Either<GroupChangesetPB, FlowyError>;
 typedef GroupByNewFieldValue = Either<List<GroupPB>, FlowyError>;
 
 class BoardListener {
@@ -36,17 +36,17 @@ class BoardListener {
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case DatabaseNotification.DidUpdateGroupView:
+      case DatabaseNotification.DidUpdateGroups:
         result.fold(
           (payload) => _groupUpdateNotifier?.value =
-              left(GroupViewChangesetPB.fromBuffer(payload)),
+              left(GroupChangesetPB.fromBuffer(payload)),
           (error) => _groupUpdateNotifier?.value = right(error),
         );
         break;
-      case DatabaseNotification.DidGroupByNewField:
+      case DatabaseNotification.DidGroupByField:
         result.fold(
           (payload) => _groupByNewFieldNotifier?.value =
-              left(GroupViewChangesetPB.fromBuffer(payload).newGroups),
+              left(GroupChangesetPB.fromBuffer(payload).initialGroups),
           (error) => _groupByNewFieldNotifier?.value = right(error),
         );
         break;

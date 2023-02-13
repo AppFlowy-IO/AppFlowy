@@ -52,7 +52,7 @@ abstract class PluginBuilder {
 
   PluginType get pluginType;
 
-  ViewDataFormatPB get dataFormatType => ViewDataFormatPB.TreeFormat;
+  ViewDataFormatPB get dataFormatType => ViewDataFormatPB.NodeFormat;
 
   ViewLayoutTypePB? get layoutType => ViewLayoutTypePB.Document;
 }

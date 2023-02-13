@@ -1,5 +1,5 @@
-[tasks.tauri_build]
-description = "Build the Tauri backend & Run Code Generation"
+[tasks.build_tauri_backend]
+description = "Build the Tauri backend"
 script = ["""
     cd appflowy_tauri/src-tauri
     cargo build
@@ -7,9 +7,10 @@ script = ["""
 script_runner = "@shell"
 
 [tasks.tauri_dev]
+env = { RUST_LOG = "debug" }
 script = ["""
     cd appflowy_tauri
-    npm run tauri dev
+    npm run tauri:dev
     """]
 script_runner = "@shell"
 

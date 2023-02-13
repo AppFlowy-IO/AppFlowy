@@ -23,7 +23,7 @@ class RustStreamReceiver {
     _observableController = StreamController.broadcast();
 
     _ffiPort.handler = _streamController.add;
-    _ffiSubscription = _streamController.stream.listen(streamCallback);
+    _ffiSubscription = _streamController.stream.listen(_streamCallback);
   }
 
   factory RustStreamReceiver() {
@@ -35,7 +35,7 @@ class RustStreamReceiver {
     return RustStreamReceiver.shared.observable.stream.listen(callback);
   }
 
-  void streamCallback(Uint8List bytes) {
+  void _streamCallback(Uint8List bytes) {
     try {
       final observable = SubscribeObject.fromBuffer(bytes);
       _observableController.add(observable);

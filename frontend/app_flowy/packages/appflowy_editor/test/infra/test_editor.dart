@@ -68,7 +68,7 @@ class EditorWidgetTester {
     );
   }
 
-  void insertImageNode(String src, {String? align}) {
+  void insertImageNode(String src, {String? align, double? width}) {
     insert(
       Node(
         type: 'image',
@@ -76,6 +76,7 @@ class EditorWidgetTester {
         attributes: {
           'image_src': src,
           'align': align ?? 'center',
+          ...width != null ? {'width': width} : {},
         },
       ),
     );
@@ -160,6 +161,40 @@ class EditorWidgetTester {
     )
       ..disableSealTimer = true
       ..disbaleRules = true;
+  }
+
+  bool runAction(int actionIndex, Node node) {
+    final builder = editorState.service.renderPluginService.getBuilder(node.id);
+    if (builder is! ActionProvider) {
+      return false;
+    }
+
+    final buildContext = node.key.currentContext;
+    if (buildContext == null) {
+      return false;
+    }
+
+    final context = node is TextNode
+        ? NodeWidgetContext<TextNode>(
+            context: buildContext,
+            node: node,
+            editorState: editorState,
+          )
+        : NodeWidgetContext<Node>(
+            context: buildContext,
+            node: node,
+            editorState: editorState,
+          );
+
+    final actions =
+        builder.actions(context).where((a) => a.onPressed != null).toList();
+    if (actionIndex > actions.length) {
+      return false;
+    }
+
+    final action = actions[actionIndex];
+    action.onPressed!();
+    return true;
   }
 }
 

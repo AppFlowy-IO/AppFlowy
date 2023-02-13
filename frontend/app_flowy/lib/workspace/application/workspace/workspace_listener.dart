@@ -48,14 +48,14 @@ class WorkspaceListener {
   void _handleObservableType(
       FolderNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case FolderNotification.WorkspaceUpdated:
+      case FolderNotification.DidUpdateWorkspace:
         result.fold(
           (payload) => _workspaceUpdatedNotifier?.value =
               left(WorkspacePB.fromBuffer(payload)),
           (error) => _workspaceUpdatedNotifier?.value = right(error),
         );
         break;
-      case FolderNotification.WorkspaceAppsChanged:
+      case FolderNotification.DidUpdateWorkspaceApps:
         result.fold(
           (payload) => _appsChangedNotifier?.value =
               left(RepeatedAppPB.fromBuffer(payload).items),

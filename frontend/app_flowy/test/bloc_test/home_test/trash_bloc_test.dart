@@ -83,15 +83,14 @@ void main() {
         context.appBloc.add(AppEvent.deleteView(view.id));
         await blocResponseFuture();
       }
-      assert(trashBloc.state.objects[0].id == context.allViews[0].id);
-      assert(trashBloc.state.objects[1].id == context.allViews[1].id);
-      assert(trashBloc.state.objects[2].id == context.allViews[2].id);
+      expect(trashBloc.state.objects[0].id, context.allViews[0].id);
+      expect(trashBloc.state.objects[1].id, context.allViews[1].id);
+      expect(trashBloc.state.objects[2].id, context.allViews[2].id);
 
       // delete a view permanently
       trashBloc.add(TrashEvent.delete(trashBloc.state.objects[0]));
       await blocResponseFuture();
-      assert(trashBloc.state.objects.length == 2,
-          "but receive ${trashBloc.state.objects.length}");
+      expect(trashBloc.state.objects.length, 2);
 
       // delete all view permanently
       trashBloc.add(const TrashEvent.deleteAll());

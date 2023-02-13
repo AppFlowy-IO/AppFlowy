@@ -75,28 +75,28 @@ class ViewListener {
   void _handleObservableType(
       FolderNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case FolderNotification.ViewUpdated:
+      case FolderNotification.DidUpdateView:
         result.fold(
           (payload) =>
               _updatedViewNotifier.value = left(ViewPB.fromBuffer(payload)),
           (error) => _updatedViewNotifier.value = right(error),
         );
         break;
-      case FolderNotification.ViewDeleted:
+      case FolderNotification.DidDeleteView:
         result.fold(
           (payload) =>
               _deletedNotifier.value = left(ViewPB.fromBuffer(payload)),
           (error) => _deletedNotifier.value = right(error),
         );
         break;
-      case FolderNotification.ViewRestored:
+      case FolderNotification.DidRestoreView:
         result.fold(
           (payload) =>
               _restoredNotifier.value = left(ViewPB.fromBuffer(payload)),
           (error) => _restoredNotifier.value = right(error),
         );
         break;
-      case FolderNotification.ViewMoveToTrash:
+      case FolderNotification.DidMoveViewToTrash:
         result.fold(
           (payload) => _moveToTrashNotifier.value =
               left(DeletedViewPB.fromBuffer(payload)),

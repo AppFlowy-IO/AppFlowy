@@ -5,7 +5,7 @@ linux_alias = "appflowy-linux"
 android_alias = "appflowy-android"
 
 [tasks.appflowy-macos]
-dependencies = ["appflowy-sdk-release"]
+dependencies = ["appflowy-core-release"]
 run_task = { name = [
   "code_generation",
   "set-app-version",
@@ -15,7 +15,7 @@ run_task = { name = [
 script_runner = "@shell"
 
 [tasks.appflowy-windows]
-dependencies = ["appflowy-sdk-release"]
+dependencies = ["appflowy-core-release"]
 run_task = { name = [
   "code_generation",
   "set-app-version",
@@ -24,18 +24,23 @@ run_task = { name = [
 ] }
 
 [tasks.appflowy-linux]
-dependencies = ["appflowy-sdk-release"]
+dependencies = ["appflowy-core-release"]
 run_task = { name = [
+  
   "code_generation",
+ 
   "set-app-version",
+ 
   "flutter-build",
+ 
   "copy-to-product",
+ 
   "create-release-archive",
 ] }
 script_runner = "@shell"
 
 [tasks.appflowy-android]
-dependencies = ["appflowy-sdk-dev-android"]
+dependencies = ["appflowy-core-dev-android"]
 run_task = { name = [
   "code_generation",
   "set-app-version",
@@ -45,7 +50,7 @@ run_task = { name = [
 script_runner = "@shell"
 
 [tasks.appflowy-android-ci]
-dependencies = ["appflowy-sdk-dev-ci-android"]
+dependencies = ["appflowy-core-dev-ci-android"]
 run_task = { name = [
   "code_generation",
   "set-app-version",
@@ -60,7 +65,7 @@ windows_alias = "appflowy-windows-dev"
 linux_alias = "appflowy-linux-dev"
 
 [tasks.appflowy-macos-dev]
-dependencies = ["appflowy-sdk-dev"]
+dependencies = ["appflowy-core-dev"]
 run_task = { name = [
   "code_generation",
   "set-app-version",
@@ -70,7 +75,7 @@ run_task = { name = [
 script_runner = "@shell"
 
 [tasks.appflowy-windows-dev]
-dependencies = ["appflowy-sdk-dev"]
+dependencies = ["appflowy-core-dev"]
 run_task = { name = [
   "code_generation",
   "set-app-version",
@@ -79,7 +84,7 @@ run_task = { name = [
 ] }
 
 [tasks.appflowy-linux-dev]
-dependencies = ["appflowy-sdk-dev"]
+dependencies = ["appflowy-core-dev"]
 run_task = { name = [
   "code_generation",
   "set-app-version",
@@ -214,20 +219,8 @@ script = ["""
   """]
 script_runner = "@shell"
 
-[tasks.flutter-build.linux]
-script = ["""
-  cd app_flowy/
-  flutter clean
-  flutter pub get
-  flutter build ${TARGET_OS} --${BUILD_FLAG}
-  """]
-script_runner = "@shell"
-
 [tasks.flutter-build.windows]
 script = ["""
-  cd app_flowy
-  exec cmd.exe /c flutter clean
-  exec cmd.exe /c flutter pub get
   exec cmd.exe /c flutter build ${TARGET_OS} --${BUILD_FLAG}
   """]
 script_runner = "@duckscript"
