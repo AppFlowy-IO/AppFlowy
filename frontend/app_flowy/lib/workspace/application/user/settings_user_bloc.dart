@@ -43,8 +43,8 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
             );
           });
         },
-        updateUserOpenaiKey: (openaiKey) {
-          _userService.updateUserProfile(openaiKey: openaiKey).then((result) {
+        updateUserOpenaiKey: (openAIKey) {
+          _userService.updateUserProfile(openAIKey: openAIKey).then((result) {
             result.fold(
               (l) => null,
               (err) => Log.error(err),
@@ -81,7 +81,7 @@ class SettingsUserEvent with _$SettingsUserEvent {
   const factory SettingsUserEvent.updateUserName(String name) = _UpdateUserName;
   const factory SettingsUserEvent.updateUserIcon(String iconUrl) =
       _UpdateUserIcon;
-  const factory SettingsUserEvent.updateUserOpenaiKey(String openaiKey) =
+  const factory SettingsUserEvent.updateUserOpenaiKey(String openAIKey) =
       _UpdateUserOpenaiKey;
   const factory SettingsUserEvent.didReceiveUserProfile(
       UserProfilePB newUserProfile) = _DidReceiveUserProfile;

@@ -195,8 +195,8 @@
     "user": {
       "name": "Name",
       "icon": "Icon",
-      "selectAnIcon": "Select an Icon",
-      "pleaseInputYourOpenaiKey": "please input your openai key"
+      "selectAnIcon": "Select an icon",
+      "pleaseInputYourOpenAIKey": "please input your OpenAI key"
     }
   },
   "grid": {

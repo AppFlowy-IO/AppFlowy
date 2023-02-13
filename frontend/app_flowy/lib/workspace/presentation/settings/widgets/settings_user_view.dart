@@ -55,9 +55,9 @@ class SettingsUserView extends StatelessWidget {
   }
 
   Widget _renderCurrentOpenaiKey(BuildContext context) {
-    String openaiKey =
+    String openAIKey =
         context.read<SettingsUserViewBloc>().state.userProfile.openaiKey;
-    return _OpenaiKeyInput(openaiKey);
+    return _OpenaiKeyInput(openAIKey);
   }
 }
 
@@ -86,19 +86,19 @@ class UserNameInput extends StatelessWidget {
 }
 
 class _OpenaiKeyInput extends StatelessWidget {
-  final String openaiKey;
+  final String openAIKey;
   const _OpenaiKeyInput(
-    this.openaiKey, {
+    this.openAIKey, {
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: TextEditingController()..text = openaiKey,
+      controller: TextEditingController()..text = openAIKey,
       decoration: InputDecoration(
         labelText: 'Openai Key',
-        hintText: LocaleKeys.settings_user_pleaseInputYourOpenaiKey.tr(),
+        hintText: LocaleKeys.settings_user_pleaseInputYourOpenAIKey.tr(),
       ),
       onSubmitted: (val) {
         // TODO: validate key
