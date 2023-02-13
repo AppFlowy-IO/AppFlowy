@@ -194,6 +194,17 @@ script = [
 ]
 script_runner = "@duckscript"
 
+[tasks.setup-sqlite-crate]
+script = [
+  """
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-sqlite/Cargo.toml
+      val = replace ${toml} "optional = true" "optional = false"
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-sqlite/Cargo.toml ${val}
+      assert ${result}
+""",
+]
+script_runner = "@duckscript"
+
 [tasks.restore-crate-type]
 private = true
 script = [
@@ -203,6 +214,18 @@ script = [
       result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
       assert ${result}
       """,
+]
+script_runner = "@duckscript"
+
+[tasks.restore-sqlite-crate]
+private = true
+script = [
+  """
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-sqlite/Cargo.toml
+      val = replace ${toml} "optional = false" "optional = true"
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-sqlite/Cargo.toml ${val}
+      assert ${result}
+""",
 ]
 script_runner = "@duckscript"
 

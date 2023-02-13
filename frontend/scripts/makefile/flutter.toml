@@ -2,6 +2,7 @@
 mac_alias = "appflowy-macos"
 windows_alias = "appflowy-windows"
 linux_alias = "appflowy-linux"
+android_alias = "appflowy-android"
 
 [tasks.appflowy-macos]
 dependencies = ["appflowy-core-release"]
@@ -25,11 +26,36 @@ run_task = { name = [
 [tasks.appflowy-linux]
 dependencies = ["appflowy-core-release"]
 run_task = { name = [
+  
+  "code_generation",
+ 
+  "set-app-version",
+ 
+  "flutter-build",
+ 
+  "copy-to-product",
+ 
+  "create-release-archive",
+] }
+script_runner = "@shell"
+
+[tasks.appflowy-android]
+dependencies = ["appflowy-core-dev-android"]
+run_task = { name = [
   "code_generation",
   "set-app-version",
-  "flutter-build",
-  "copy-to-product",
-  "create-release-archive",
+  "flutter-build-android",
+  "copy-to-product-android",
+] }
+script_runner = "@shell"
+
+[tasks.appflowy-android-ci]
+dependencies = ["appflowy-core-dev-ci-android"]
+run_task = { name = [
+  "code_generation",
+  "set-app-version",
+  "flutter-build-android",
+  "copy-to-product-android",
 ] }
 script_runner = "@shell"
 
@@ -109,6 +135,26 @@ script = [
 ]
 script_runner = "@shell"
 
+[tasks.copy-to-product-android]
+script = [
+  """
+  product_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${APP_VERSION}
+  output_path=${product_path}/${TARGET_OS}/${FLUTTER_OUTPUT_DIR}
+  if [ -d "${output_path}" ]; then
+    rm -rf ${output_path}/
+  fi
+  mkdir -p ${output_path}
+
+  product=${PRODUCT_NAME}
+  cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/build/app/outputs/apk/release \
+  ${output_path}/${product}
+
+  cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/linux/appflowy.desktop.temp ${output_path}/${product}
+  cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/assets/images/flowy_logo.svg ${output_path}/${product}
+  """,
+]
+script_runner = "@shell"
+
 [tasks.copy-to-product-windows]
 script = [
   """
@@ -159,7 +205,7 @@ script = [
 
 [tasks.create-release-archive-macos]
 script = [
-  # TODO 
+  # TODO
   # "cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${VERSION}/${TARGET_OS}/Release/${PRODUCT_NAME}",
   # "tar -czf ${PRODUCT_NAME}-${TARGET_OS}-x86.tar.gz *"
 ]
@@ -170,15 +216,27 @@ script = ["""
   flutter clean
   flutter pub get
   flutter build ${TARGET_OS} --${BUILD_FLAG} --build-name=${APP_VERSION}
-  """]
+  """,
+]
 script_runner = "@shell"
 
-[tasks.flutter-build.windows]
+[tasks.flutter-build.linux]
+script = [
+  """
+  cd app_flowy/
+  flutter clean
+  flutter pub get
+  flutter build ${TARGET_OS} --${BUILD_FLAG}
+  """,
+]
+script_runner = "@shell"
+
+[tasks.flutter-build-android.windows]
 script = ["""
   cd app_flowy
   exec cmd.exe /c flutter clean
   exec cmd.exe /c flutter pub get
-  exec cmd.exe /c flutter build ${TARGET_OS} --${BUILD_FLAG} --build-name=${APP_VERSION}
+  exec cmd.exe /c flutter build apk --release
   """]
 script_runner = "@duckscript"
 

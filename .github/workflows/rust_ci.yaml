@@ -51,6 +51,7 @@ jobs:
         run: |
           cargo install --force cargo-make
           cargo install --force duckscript_cli
+          cargo install cargo-ndk
 
       - uses: Swatinem/rust-cache@v2
         with:
@@ -60,6 +61,16 @@ jobs:
         working-directory: frontend
         run: |
           cargo make --profile development-linux-x86_64 appflowy-core-dev
+
+      - name: Setup NDK
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r24
+          local-cache: true
+
+      - name: Build Android SDK
+        working-directory: frontend
+        run: cargo make appflowy-sdk-dev-ci-android
 
       - name: rustfmt rust-lib
         run: cargo fmt --all -- --check
