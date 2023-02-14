@@ -323,13 +323,15 @@ ShortcutEventHandler cursorRightWordSelect = (editorState, event) {
 };
 
 ShortcutEventHandler cursorLeftWordDelete = (editorState, event) {
-  final nodes = editorState.service.selectionService.currentSelectedNodes;
+  final textNodes = editorState.service.selectionService.currentSelectedNodes
+      .whereType<TextNode>();
   final selection = editorState.service.selectionService.currentSelection.value;
-  final textNode = nodes.whereType<TextNode>().toList(growable: false).first;
 
-  if (nodes.isEmpty || selection == null) {
+  if (textNodes.isEmpty || selection == null) {
     return KeyEventResult.ignored;
   }
+
+  final textNode = textNodes.first;
 
   final startOfWord =
       selection.end.goLeft(editorState, selectionRange: _SelectionRange.word);
