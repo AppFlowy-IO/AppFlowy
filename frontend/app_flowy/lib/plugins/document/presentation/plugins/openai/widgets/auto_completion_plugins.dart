@@ -32,16 +32,32 @@ SelectionMenuItem autoCompletionMenuItem = SelectionMenuItem(
   }),
 );
 
-class _AutoCompletionInput extends StatelessWidget {
-  _AutoCompletionInput({
+class _AutoCompletionInput extends StatefulWidget {
+  const _AutoCompletionInput({
     required this.editorState,
   });
 
   final EditorState editorState;
+
+  @override
+  State<_AutoCompletionInput> createState() => _AutoCompletionInputState();
+}
+
+class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   final controller = TextEditingController(text: '');
+
+  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
+    if (loading) {
+      return const SizedBox(
+        height: 50,
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     return RawKeyboardListener(
       focusNode: FocusNode(),
       child: TextField(
@@ -56,24 +72,29 @@ class _AutoCompletionInput extends StatelessWidget {
       onKey: (key) async {
         if (key is! RawKeyDownEvent) return;
         if (key.logicalKey == LogicalKeyboardKey.enter) {
-          Navigator.of(context).pop();
           // fetch the result and insert it
           final result = await UserService.getCurrentUserProfile();
           result.fold((userProfile) {
+            setState(() {
+              loading = true;
+            });
             HttpOpenAIRepository(
               client: http.Client(),
               apiKey: userProfile.openaiKey,
             ).getCompletions(prompt: controller.text).then((result) {
               result.fold((error) {
                 // Error.
+                assert(false, 'Error: $error');
               }, (textCompletion) async {
-                await editorState.autoInsertText(
+                await widget.editorState.autoInsertText(
                   textCompletion.choices.first.text,
                 );
+                Navigator.of(context).pop();
               });
             });
           }, (error) {
             // TODO: show a toast.
+            assert(false, 'User profile not found.');
           });
         } else if (key.logicalKey == LogicalKeyboardKey.escape) {
           Navigator.of(context).pop();

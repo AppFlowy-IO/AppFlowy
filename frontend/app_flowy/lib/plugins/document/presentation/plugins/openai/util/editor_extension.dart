@@ -8,7 +8,7 @@ enum TextRobotInputType {
 extension TextRobot on EditorState {
   Future<void> autoInsertText(
     String text, {
-    TextRobotInputType inputType = TextRobotInputType.character,
+    TextRobotInputType inputType = TextRobotInputType.word,
     Duration delay = const Duration(milliseconds: 10),
   }) async {
     final lines = text.split('\n');
