@@ -85,7 +85,7 @@ class UserNameInput extends StatelessWidget {
   }
 }
 
-class _OpenaiKeyInput extends StatelessWidget {
+class _OpenaiKeyInput extends StatefulWidget {
   final String openAIKey;
   const _OpenaiKeyInput(
     this.openAIKey, {
@@ -93,12 +93,32 @@ class _OpenaiKeyInput extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<_OpenaiKeyInput> createState() => _OpenaiKeyInputState();
+}
+
+class _OpenaiKeyInputState extends State<_OpenaiKeyInput> {
+  bool visible = false;
+
+  @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: TextEditingController()..text = openAIKey,
+      controller: TextEditingController()..text = widget.openAIKey,
+      obscureText: !visible,
       decoration: InputDecoration(
-        labelText: 'Openai Key',
+        labelText: 'OpenAI Key',
         hintText: LocaleKeys.settings_user_pleaseInputYourOpenAIKey.tr(),
+        suffixIcon: IconButton(
+          iconSize: 15.0,
+          icon: Icon(visible ? Icons.visibility : Icons.visibility_off),
+          padding: EdgeInsets.zero,
+          hoverColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          onPressed: () {
+            setState(() {
+              visible = !visible;
+            });
+          },
+        ),
       ),
       onSubmitted: (val) {
         // TODO: validate key
