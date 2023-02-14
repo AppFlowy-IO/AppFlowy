@@ -21,6 +21,7 @@ class UserService {
     String? password,
     String? email,
     String? iconUrl,
+    String? openAIKey,
   }) {
     var payload = UpdateUserProfilePayloadPB.create()..id = userId;
 
@@ -38,6 +39,10 @@ class UserService {
 
     if (iconUrl != null) {
       payload.iconUrl = iconUrl;
+    }
+
+    if (openAIKey != null) {
+      payload.openaiKey = openAIKey;
     }
 
     return UserEventUpdateUserProfile(payload).send();

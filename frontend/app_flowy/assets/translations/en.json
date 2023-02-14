@@ -191,6 +191,12 @@
       "create": "Create",
       "folderPath": "Path to store your folder",
       "locationCannotBeEmpty": "Path cannot be empty"
+    },
+    "user": {
+      "name": "Name",
+      "icon": "Icon",
+      "selectAnIcon": "Select an icon",
+      "pleaseInputYourOpenAIKey": "please input your OpenAI key"
     }
   },
   "grid": {
