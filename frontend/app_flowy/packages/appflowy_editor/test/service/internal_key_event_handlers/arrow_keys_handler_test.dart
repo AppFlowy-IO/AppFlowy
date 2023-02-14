@@ -484,7 +484,7 @@ void main() async {
     //fetching all the text that is still on the editor.
     var nodes =
         editor.editorState.service.selectionService.currentSelectedNodes;
-    var textNode = nodes.whereType<TextNode>().toList(growable: false).first;
+    var textNode = nodes.whereType<TextNode>().first;
     var newText = textNode.toPlainText();
 
     words.removeLast();
@@ -497,7 +497,7 @@ void main() async {
 
     //fetching all the text that is still on the editor.
     nodes = editor.editorState.service.selectionService.currentSelectedNodes;
-    textNode = nodes.whereType<TextNode>().toList(growable: false).first;
+    textNode = nodes.whereType<TextNode>().first;
 
     newText = textNode.toPlainText();
 
@@ -517,6 +517,46 @@ void main() async {
     newText = textNode.toPlainText();
 
     expect(newText, '');
+  });
+
+  testWidgets('Testing ctrl + backspace edge cases', (tester) async {
+    const text = 'Welcome to Appflowy 😁';
+    final editor = tester.editor..insertTextNode(text);
+
+    await editor.startTesting();
+    var selection = Selection.single(path: [0], startOffset: 0);
+    await editor.updateSelection(selection);
+
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.backspace,
+      isControlPressed: true,
+    );
+
+    //fetching all the text that is still on the editor.
+    var nodes =
+        editor.editorState.service.selectionService.currentSelectedNodes;
+    var textNode = nodes.whereType<TextNode>().first;
+    var newText = textNode.toPlainText();
+
+    //nothing happens
+    expect(newText, text);
+
+    selection = Selection.single(path: [0], startOffset: 14);
+    await editor.updateSelection(selection);
+    //Welcome to App|flowy 😁
+
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.backspace,
+      isControlPressed: true,
+    );
+
+    //fetching all the text that is still on the editor.
+    nodes = editor.editorState.service.selectionService.currentSelectedNodes;
+    textNode = nodes.whereType<TextNode>().first;
+    newText = textNode.toPlainText();
+
+    const expectedText = 'Welcome to flowy 😁';
+    expect(newText, expectedText);
   });
 }
 
