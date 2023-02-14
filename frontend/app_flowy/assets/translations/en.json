@@ -334,7 +334,8 @@
     },
     "plugins": {
       "referencedBoard": "Referenced Board",
-      "referencedGrid": "Referenced Grid"
+      "referencedGrid": "Referenced Grid",
+      "autoCompletionMenuItemName": "Auto Completion"
     }
   },
   "board": {

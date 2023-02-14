@@ -104,7 +104,7 @@ class _OpenaiKeyInput extends StatelessWidget {
         // TODO: validate key
         context
             .read<SettingsUserViewBloc>()
-            .add(SettingsUserEvent.updateUserOpenaiKey(val));
+            .add(SettingsUserEvent.updateUserOpenAIKey(val));
       },
     );
   }

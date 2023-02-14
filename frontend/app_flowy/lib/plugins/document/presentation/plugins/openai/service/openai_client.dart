@@ -79,7 +79,7 @@ class HttpOpenAIRepository implements OpenAIRepository {
     if (response.statusCode == 200) {
       return Right(TextCompletionResponse.fromJson(json.decode(response.body)));
     } else {
-      return Left(OpenAIError.fromJson(json.decode(response.body)));
+      return Left(OpenAIError.fromJson(json.decode(response.body)['error']));
     }
   }
 }

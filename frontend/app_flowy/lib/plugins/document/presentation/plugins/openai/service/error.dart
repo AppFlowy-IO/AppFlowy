@@ -5,7 +5,7 @@ part 'error.g.dart';
 @freezed
 class OpenAIError with _$OpenAIError {
   const factory OpenAIError({
-    required int code,
+    required String code,
     required String message,
   }) = _OpenAIError;
 
