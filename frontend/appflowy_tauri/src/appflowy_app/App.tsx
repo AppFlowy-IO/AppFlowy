@@ -14,10 +14,6 @@ import { SignUpPage } from './views/SignUpPage';
 import { ConfirmAccountPage } from './views/ConfirmAccountPage';
 
 const App = () => {
-  // const location = useLocation();
-
-  // console.log(location);
-
   return (
     <BrowserRouter>
       <Provider store={store}>

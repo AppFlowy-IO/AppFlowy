@@ -14,7 +14,7 @@ export const NavigationPanel = () => {
     folders,
     pages,
 
-    navigate,
+    onPageClick,
   } = useNavigationPanelHooks();
 
   return (
@@ -31,7 +31,7 @@ export const NavigationPanel = () => {
                 key={index}
                 folder={folder}
                 pages={pages.filter((page) => page.folderId === folder.id)}
-                onPageClick={(page) => navigate(`/page/${page.pageType}/${page.id}`)}
+                onPageClick={onPageClick}
               ></FolderItem>
             ))}
           </div>

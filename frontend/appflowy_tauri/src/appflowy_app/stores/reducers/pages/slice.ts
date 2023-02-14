@@ -1,19 +1,14 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-export type PageType = 'document' | 'grid' | 'board';
+import { ViewLayoutTypePB } from '../../../../services/backend';
 
 export interface IPage {
   id: string;
   title: string;
-  pageType: PageType;
+  pageType: ViewLayoutTypePB;
   folderId: string;
 }
 
-const initialState: IPage[] = [
-  { id: 'welcome_page', title: 'Welcome', pageType: 'document', folderId: 'getting_started' },
-  { id: 'first_page', title: 'First Page', pageType: 'document', folderId: 'my_folder' },
-  { id: 'second_page', title: 'Second Page', pageType: 'document', folderId: 'my_folder' },
-];
+const initialState: IPage[] = [];
 
 export const pagesSlice = createSlice({
   name: 'pages',
