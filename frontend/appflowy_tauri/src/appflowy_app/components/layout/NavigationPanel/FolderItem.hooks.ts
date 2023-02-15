@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useAppDispatch } from '../../../stores/store';
 import { nanoid } from 'nanoid';
 import { pagesActions } from '../../../stores/reducers/pages/slice';
+import { UpdateAppPayloadPB, ViewLayoutTypePB } from '../../../../services/backend';
+import { FolderEventUpdateApp } from '../../../../services/backend/events/flowy-folder';
 
 export const useFolderEvents = (folder: IFolder) => {
   const appDispatch = useAppDispatch();
@@ -29,7 +31,14 @@ export const useFolderEvents = (folder: IFolder) => {
     setShowRenamePopup(true);
   };
 
-  const changeFolderTitle = (newTitle: string) => {
+  const changeFolderTitle = async (newTitle: string) => {
+    await FolderEventUpdateApp(
+      UpdateAppPayloadPB.fromObject({
+        name: newTitle,
+        desc: '',
+        app_id: folder.id,
+      })
+    );
     appDispatch(foldersActions.renameFolder({ id: folder.id, newTitle }));
   };
 
@@ -54,17 +63,33 @@ export const useFolderEvents = (folder: IFolder) => {
 
   const onAddNewDocumentPage = () => {
     closePopup();
-    appDispatch(pagesActions.addPage({ folderId: folder.id, pageType: 'document', title: 'New Page 1', id: nanoid(6) }));
+    appDispatch(
+      pagesActions.addPage({
+        folderId: folder.id,
+        pageType: ViewLayoutTypePB.Document,
+        title: 'New Page 1',
+        id: nanoid(6),
+      })
+    );
   };
 
   const onAddNewBoardPage = () => {
     closePopup();
-    appDispatch(pagesActions.addPage({ folderId: folder.id, pageType: 'board', title: 'New Board 1', id: nanoid(6) }));
+    appDispatch(
+      pagesActions.addPage({
+        folderId: folder.id,
+        pageType: ViewLayoutTypePB.Board,
+        title: 'New Board 1',
+        id: nanoid(6),
+      })
+    );
   };
 
   const onAddNewGridPage = () => {
     closePopup();
-    appDispatch(pagesActions.addPage({ folderId: folder.id, pageType: 'grid', title: 'New Grid 1', id: nanoid(6) }));
+    appDispatch(
+      pagesActions.addPage({ folderId: folder.id, pageType: ViewLayoutTypePB.Grid, title: 'New Grid 1', id: nanoid(6) })
+    );
   };
 
   return {
