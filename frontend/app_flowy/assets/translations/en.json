@@ -131,7 +131,12 @@
     "signIn": "Sign In",
     "signOut": "Sign Out",
     "complete": "Complete",
-    "save": "Save"
+    "save": "Save",
+    "generate": "Generate",
+    "esc": "ESC",
+    "keep": "Keep",
+    "tryAgain": "Try again",
+    "discard": "Discard"
   },
   "label": {
     "welcome": "Welcome!",
@@ -335,7 +340,12 @@
     "plugins": {
       "referencedBoard": "Referenced Board",
       "referencedGrid": "Referenced Grid",
-      "autoCompletionMenuItemName": "Auto Completion"
+      "autoCompletionMenuItemName": "Auto Completion",
+      "autoGeneratorMenuItemName": "Auto Generator",
+      "autoGeneratorTitleName": "Open AI: Auto Generater",
+      "autoGeneratorLearnMore": "Learn more",
+      "autoGeneratorGenerate": "Generate",
+      "autoGeneratorHintText": "Tell us what you want to generate by OpenAI.."
     }
   },
   "board": {
