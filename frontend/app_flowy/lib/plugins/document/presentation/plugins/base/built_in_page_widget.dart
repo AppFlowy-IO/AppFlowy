@@ -117,7 +117,10 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
             width: 24,
             height: 24,
             iconPadding: const EdgeInsets.all(3),
-            icon: svgWidget('common/information'),
+            icon: svgWidget(
+              'common/information',
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           // Name
           const Space(7, 0),
@@ -138,7 +141,10 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
                 width: 24,
                 height: 24,
                 iconPadding: const EdgeInsets.all(3),
-                icon: svgWidget('common/settings'),
+                icon: svgWidget(
+                  'common/settings',
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 onPressed: () => controller.show(),
               );
             },
