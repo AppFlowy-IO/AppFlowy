@@ -8,6 +8,9 @@ import { IPage } from '../../../stores/reducers/pages/slice';
 import { PageItem } from './PageItem';
 import { Button } from '../../_shared/Button';
 import { RenamePopup } from './RenamePopup';
+import { useEffect, useState } from 'react';
+
+let timeoutHandle: any;
 
 export const FolderItem = ({
   folder,
@@ -38,46 +41,72 @@ export const FolderItem = ({
     onAddNewGridPage,
 
     closePopup,
-  } = useFolderEvents(folder);
+    folderHeight,
+    animationDuration,
+  } = useFolderEvents(folder, pages);
+
+  const [hideOverflow, setHideOverflow] = useState(!showPages);
+
+  useEffect(() => {
+    clearTimeout(timeoutHandle);
+    if (showPages) {
+      timeoutHandle = setTimeout(() => {
+        setHideOverflow(!showPages);
+      }, animationDuration);
+    } else {
+      setHideOverflow(!showPages);
+    }
+  }, [showPages]);
 
   return (
-    <div className={'relative my-2'}>
+    /*transitionTimingFunction:'cubic-bezier(.36,1.55,.65,1.1)'*/
+    <div className={'relative'}>
       <div
-        onClick={() => onFolderNameClick()}
-        className={'flex cursor-pointer items-center justify-between rounded-lg px-4 py-2 hover:bg-surface-2'}
+        className={`relative my-2 ${hideOverflow ? 'overflow-hidden' : ''} transition-all `}
+        style={{ height: folderHeight, transitionDuration: `${animationDuration}ms` }}
       >
-        <div className={'flex min-w-0 flex-1 items-center'}>
-          <div className={`mr-2 transition-transform duration-500 ${showPages && 'rotate-180'}`}>
-            <img className={''} src={'/images/home/drop_down_show.svg'} alt={''} />
+        <div
+          onClick={() => onFolderNameClick()}
+          className={'flex cursor-pointer items-center justify-between rounded-lg px-4 py-2 hover:bg-surface-2'}
+        >
+          <button className={'flex min-w-0 flex-1 items-center'}>
+            <i className={`mr-2 transition-transform duration-500 ${showPages && 'rotate-180'}`}>
+              <img className={''} src={'/images/home/drop_down_show.svg'} alt={''} />
+            </i>
+            <span className={'min-w-0 flex-1 overflow-hidden overflow-ellipsis whitespace-nowrap text-left'}>
+              {folder.title}
+            </span>
+          </button>
+          <div className={'relative flex items-center'}>
+            <Button size={'box-small-transparent'} onClick={() => onFolderOptionsClick()}>
+              <Details2Svg></Details2Svg>
+            </Button>
+            <Button size={'box-small-transparent'} onClick={() => onNewPageClick()}>
+              <AddSvg></AddSvg>
+            </Button>
           </div>
-          <span className={'min-w-0 flex-1 overflow-hidden overflow-ellipsis whitespace-nowrap'}>{folder.title}</span>
         </div>
-        <div className={'relative flex items-center'}>
-          <Button size={'box-small-transparent'} onClick={() => onFolderOptionsClick()}>
-            <Details2Svg></Details2Svg>
-          </Button>
-          <Button size={'box-small-transparent'} onClick={() => onNewPageClick()}>
-            <AddSvg></AddSvg>
-          </Button>
 
-          {showFolderOptions && (
-            <NavItemOptionsPopup
-              onRenameClick={() => startFolderRename()}
-              onDeleteClick={() => deleteFolder()}
-              onDuplicateClick={() => duplicateFolder()}
-              onClose={() => closePopup()}
-            ></NavItemOptionsPopup>
-          )}
-          {showNewPageOptions && (
-            <NewPagePopup
-              onDocumentClick={() => onAddNewDocumentPage()}
-              onBoardClick={() => onAddNewBoardPage()}
-              onGridClick={() => onAddNewGridPage()}
-              onClose={() => closePopup()}
-            ></NewPagePopup>
-          )}
-        </div>
+        {pages.map((page, index) => (
+          <PageItem key={index} page={page} onPageClick={() => onPageClick(page)}></PageItem>
+        ))}
       </div>
+      {showFolderOptions && (
+        <NavItemOptionsPopup
+          onRenameClick={() => startFolderRename()}
+          onDeleteClick={() => deleteFolder()}
+          onDuplicateClick={() => duplicateFolder()}
+          onClose={() => closePopup()}
+        ></NavItemOptionsPopup>
+      )}
+      {showNewPageOptions && (
+        <NewPagePopup
+          onDocumentClick={() => onAddNewDocumentPage()}
+          onBoardClick={() => onAddNewBoardPage()}
+          onGridClick={() => onAddNewGridPage()}
+          onClose={() => closePopup()}
+        ></NewPagePopup>
+      )}
       {showRenamePopup && (
         <RenamePopup
           value={folder.title}
@@ -85,8 +114,6 @@ export const FolderItem = ({
           onClose={closeRenamePopup}
         ></RenamePopup>
       )}
-      {showPages &&
-        pages.map((page, index) => <PageItem key={index} page={page} onPageClick={() => onPageClick(page)}></PageItem>)}
     </div>
   );
 };

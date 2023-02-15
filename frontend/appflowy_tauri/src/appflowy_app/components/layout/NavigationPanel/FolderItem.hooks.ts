@@ -2,11 +2,15 @@ import { foldersActions, IFolder } from '../../../stores/reducers/folders/slice'
 import { useState } from 'react';
 import { useAppDispatch } from '../../../stores/store';
 import { nanoid } from 'nanoid';
-import { pagesActions } from '../../../stores/reducers/pages/slice';
+import { IPage, pagesActions } from '../../../stores/reducers/pages/slice';
 import { UpdateAppPayloadPB, ViewLayoutTypePB } from '../../../../services/backend';
 import { FolderEventUpdateApp } from '../../../../services/backend/events/flowy-folder';
 
-export const useFolderEvents = (folder: IFolder) => {
+const initialFolderHeight = 40;
+const initialPageHeight = 40;
+const animationDuration = 500;
+
+export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
   const appDispatch = useAppDispatch();
 
   const [showPages, setShowPages] = useState(false);
@@ -14,7 +18,14 @@ export const useFolderEvents = (folder: IFolder) => {
   const [showNewPageOptions, setShowNewPageOptions] = useState(false);
   const [showRenamePopup, setShowRenamePopup] = useState(false);
 
+  const [folderHeight, setFolderHeight] = useState(`${initialFolderHeight}px`);
+
   const onFolderNameClick = () => {
+    if (showPages) {
+      setFolderHeight(`${initialFolderHeight}px`);
+    } else {
+      setFolderHeight(`${initialFolderHeight + pages.length * initialPageHeight}px`);
+    }
     setShowPages(!showPages);
   };
 
@@ -112,5 +123,7 @@ export const useFolderEvents = (folder: IFolder) => {
     onAddNewGridPage,
 
     closePopup,
+    folderHeight,
+    animationDuration,
   };
 };
