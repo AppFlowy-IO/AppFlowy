@@ -12,6 +12,7 @@ import { pagesSlice } from './reducers/pages/slice';
 import { navigationWidthSlice } from './reducers/navigation-width/slice';
 import { currentUserSlice } from './reducers/current-user/slice';
 import { gridSlice } from './reducers/grid/slice';
+import { workspaceSlice } from './reducers/workspace/slice';
 
 const listenerMiddlewareInstance = createListenerMiddleware({
   onError: () => console.error,
@@ -24,6 +25,7 @@ const store = configureStore({
     [navigationWidthSlice.name]: navigationWidthSlice.reducer,
     [currentUserSlice.name]: currentUserSlice.reducer,
     [gridSlice.name]: gridSlice.reducer,
+    [workspaceSlice.name]: workspaceSlice.reducer,
   },
   middleware: (gDM) => gDM().prepend(listenerMiddlewareInstance.middleware),
 });

@@ -25,6 +25,9 @@ export const pagesSlice = createSlice({
     deletePage(state, action: PayloadAction<{ id: string }>) {
       return state.filter((page) => page.id !== action.payload.id);
     },
+    clearPages() {
+      return [];
+    },
   },
 });
 

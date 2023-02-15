@@ -6,9 +6,9 @@ export const Workspace = () => {
   const currentUser = useAppSelector((state) => state.currentUser);
   const { loadWorkspaceItems } = useWorkspace();
   useEffect(() => {
-    if (currentUser.isAuthenticated) {
-      void loadWorkspaceItems();
-    }
+    void (async () => {
+      await loadWorkspaceItems();
+    })();
   }, [currentUser.isAuthenticated]);
 
   return (
