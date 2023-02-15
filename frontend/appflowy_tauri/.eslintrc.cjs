@@ -9,6 +9,7 @@ module.exports = {
   parserOptions: {
     project: 'tsconfig.json',
     sourceType: 'module',
+    tsconfigRootDir: __dirname,
   },
   plugins: ['@typescript-eslint'],
   rules: {
@@ -22,6 +23,8 @@ module.exports = {
     '@typescript-eslint/prefer-for-of': 'warn',
     '@typescript-eslint/triple-slash-reference': 'error',
     '@typescript-eslint/unified-signatures': 'warn',
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': 'warn',
     'constructor-super': 'error',
     eqeqeq: ['error', 'always'],
     'no-cond-assign': 'error',

@@ -58,7 +58,6 @@ class GridController {
     );
   }
 
-  // Loads the rows from each block
   Future<Either<Unit, FlowyError>> openGrid() async {
     return _gridFFIService.openGrid().then((result) {
       return result.fold(

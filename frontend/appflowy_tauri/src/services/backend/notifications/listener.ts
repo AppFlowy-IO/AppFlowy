@@ -1,9 +1,6 @@
-import { listen, UnlistenFn } from "@tauri-apps/api/event";
-import { FlowyError } from "../models/flowy-error";
-import { SubscribeObject } from "../models/flowy-notification";
-import { NotificationParser } from "./parser";
-
-declare type OnError = (error: FlowyError) => void;
+import { listen, UnlistenFn } from '@tauri-apps/api/event';
+import { SubscribeObject } from '../models/flowy-notification';
+import { NotificationParser } from './parser';
 
 export abstract class AFNotificationListener<T> {
   parser?: NotificationParser<T> | null;
@@ -14,15 +11,15 @@ export abstract class AFNotificationListener<T> {
   }
 
   async start() {
-    this._listener = await listen("af-notification", (notification) => {
-      let object = SubscribeObject.fromObject(notification.payload as {});
+    this._listener = await listen('af-notification', (notification) => {
+      const object = SubscribeObject.fromObject(notification.payload as {});
       this.parser?.parse(object);
     });
   }
 
   async stop() {
-    if (this._listener != null) {
-      this._listener();
+    if (this._listener !== undefined) {
+      this._listener = undefined;
     }
     this.parser = null;
   }

@@ -1,7 +1,5 @@
 import 'dart:collection';
-
 import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
-
 import 'row_cache.dart';
 
 class RowList {
@@ -132,21 +130,6 @@ class RowList {
       }
     }
     return updatedIndexs;
-  }
-
-  List<DeletedIndex> markRowsAsInvisible(List<String> rowIds) {
-    final List<DeletedIndex> deletedRows = [];
-
-    for (final rowId in rowIds) {
-      final rowInfo = _rowInfoByRowId[rowId];
-      if (rowInfo != null) {
-        final index = _rowInfos.indexOf(rowInfo);
-        if (index != -1) {
-          deletedRows.add(DeletedIndex(index: index, rowInfo: rowInfo));
-        }
-      }
-    }
-    return deletedRows;
   }
 
   void reorderWithRowIds(List<String> rowIds) {
