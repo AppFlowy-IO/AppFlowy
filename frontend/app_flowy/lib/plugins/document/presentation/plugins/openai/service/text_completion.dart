@@ -7,6 +7,7 @@ class TextCompletionChoice with _$TextCompletionChoice {
   factory TextCompletionChoice({
     required String text,
     required int index,
+    // ignore: invalid_annotation_target
     @JsonKey(name: 'finish_reason') required String finishReason,
   }) = _TextCompletionChoice;
 
