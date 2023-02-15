@@ -300,11 +300,12 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   }
 
   Future<void> _makeSurePreviousNodeIsEmptyTextNode() async {
-    // make sure the previous node is a empty text node.
+    // make sure the previous node is a empty text node without any styles.
     final transaction = widget.editorState.transaction;
     final Selection selection;
     if (widget.node.previous is! TextNode ||
-        (widget.node.previous as TextNode).toPlainText().isNotEmpty) {
+        (widget.node.previous as TextNode).toPlainText().isNotEmpty ||
+        (widget.node.previous as TextNode).subtype != null) {
       transaction.insertNode(
         widget.node.path,
         TextNode.empty(),
