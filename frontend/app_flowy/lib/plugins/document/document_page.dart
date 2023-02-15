@@ -2,6 +2,7 @@ import 'package:app_flowy/plugins/document/presentation/plugins/board/board_menu
 import 'package:app_flowy/plugins/document/presentation/plugins/board/board_node_widget.dart';
 import 'package:app_flowy/plugins/document/presentation/plugins/grid/grid_menu_item.dart';
 import 'package:app_flowy/plugins/document/presentation/plugins/grid/grid_node_widget.dart';
+import 'package:app_flowy/plugins/document/presentation/plugins/openai/widgets/auto_completion_node_widget.dart';
 import 'package:app_flowy/plugins/document/presentation/plugins/openai/widgets/auto_completion_plugins.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -118,6 +119,8 @@ class _DocumentPageState extends State<DocumentPage> {
         kGridType: GridNodeWidgetBuilder(),
         // Card
         kCalloutType: CalloutNodeWidgetBuilder(),
+        // Auto Generator,
+        kAutoCompletionInputType: AutoCompletionInputBuilder(),
       },
       shortcutEvents: [
         // Divider
@@ -144,6 +147,7 @@ class _DocumentPageState extends State<DocumentPage> {
         calloutMenuItem,
         // AI
         autoCompletionMenuItem,
+        autoGeneratorMenuItem,
       ],
       themeData: theme.copyWith(extensions: [
         ...theme.extensions.values,
