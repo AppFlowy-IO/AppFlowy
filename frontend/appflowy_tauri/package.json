@@ -10,12 +10,14 @@
     "format": "prettier --write .",
     "test:code": "eslint --max-warnings=0 --ext .js,.ts,.tsx .",
     "test:prettier": "yarn prettier --list-different src",
-    "tauri:dev": "tauri dev"
+    "tauri:dev": "tauri dev",
+    "test": "jest"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.2",
     "@tauri-apps/api": "^1.2.0",
     "google-protobuf": "^3.21.2",
+    "jest": "^29.4.3",
     "nanoid": "^4.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -30,6 +32,7 @@
   "devDependencies": {
     "@tauri-apps/cli": "^1.2.2",
     "@types/google-protobuf": "^3.15.6",
+    "@types/jest": "^29.4.0",
     "@types/node": "^18.7.10",
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",

@@ -47,7 +47,7 @@ class AuthService {
     return UserEventSignOut().send();
   }
 
-  Future<Either<UserProfilePB, FlowyError>> signUpWithRandomUser() {
+  Future<Either<UserProfilePB, FlowyError>> autoSignUp() {
     const password = "AppFlowy123@";
     final uid = uuid();
     final userEmail = "$uid@appflowy.io";
