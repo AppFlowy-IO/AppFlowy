@@ -5,7 +5,6 @@ import 'package:app_flowy/plugins/document/presentation/plugins/openai/widgets/l
 import 'package:app_flowy/user/application/user_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/style_widget/container.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -82,8 +81,9 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: FlowyContainer(
-        Theme.of(context).colorScheme.surface,
+      elevation: 5,
+      color: Theme.of(context).colorScheme.surface,
+      child: Container(
         margin: const EdgeInsets.all(10),
         child: _buildAutoGeneratorPanel(context),
       ),
