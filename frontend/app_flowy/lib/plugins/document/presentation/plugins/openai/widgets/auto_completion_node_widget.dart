@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:app_flowy/plugins/document/presentation/plugins/openai/service/openai_client.dart';
 import 'package:app_flowy/plugins/document/presentation/plugins/openai/widgets/loading.dart';
 import 'package:app_flowy/user/application/user_service.dart';
@@ -56,8 +58,6 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   final focusNode = FocusNode();
   final textFieldFocusNode = FocusNode();
 
-  late BuildContext loadingContext;
-
   @override
   void initState() {
     super.initState();
@@ -84,7 +84,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     return Card(
       child: FlowyContainer(
         Theme.of(context).colorScheme.surface,
-        margin: const EdgeInsets.symmetric(horizontal: 10),
+        margin: const EdgeInsets.all(10),
         child: _buildAutoGeneratorPanel(context),
       ),
     );
@@ -117,8 +117,9 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   Widget _buildHeaderWidget(BuildContext context) {
     return Row(
       children: [
-        FlowyText.regular(
+        FlowyText.medium(
           LocaleKeys.document_plugins_autoGeneratorTitleName.tr(),
+          fontSize: 14,
         ),
         const Spacer(),
         FlowyText.regular(
@@ -135,10 +136,11 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
         if (event is! RawKeyDownEvent) return;
         if (event.logicalKey == LogicalKeyboardKey.enter) {
           if (controller.text.isNotEmpty) {
+            textFieldFocusNode.unfocus();
             await _onGenerate();
           }
         } else if (event.logicalKey == LogicalKeyboardKey.escape) {
-          _onExit();
+          await _onExit();
         }
       },
       child: FlowyTextField(
@@ -154,7 +156,6 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   Widget _buildInputFooterWidget(BuildContext context) {
     return Row(
       children: [
-        // FIXME: l10n
         FlowyRichTextButton(
           TextSpan(
             children: [
@@ -170,7 +171,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
               ),
             ],
           ),
-          onPressed: () => _onGenerate(),
+          onPressed: () async => await _onGenerate(),
         ),
         const Space(10, 0),
         FlowyRichTextButton(
@@ -188,7 +189,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
               ),
             ],
           ),
-          onPressed: () => _onExit(),
+          onPressed: () async => await _onExit(),
         ),
       ],
     );
@@ -225,10 +226,10 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     );
   }
 
-  void _onExit() {
+  Future<void> _onExit() async {
     final transaction = widget.editorState.transaction;
     transaction.deleteNode(widget.node);
-    widget.editorState.apply(
+    await widget.editorState.apply(
       transaction,
       options: const ApplyOptions(
         recordRedo: false,
@@ -238,39 +239,42 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   }
 
   Future<void> _onGenerate() async {
-    // fetch the result and insert it
-    textFieldFocusNode.unfocus();
     final loading = Loading(context);
     loading.start();
     await _updateEditingText();
     final result = await UserService.getCurrentUserProfile();
-    result.fold((userProfile) {
-      HttpOpenAIRepository(
+    result.fold((userProfile) async {
+      final openAIRepository = HttpOpenAIRepository(
         client: http.Client(),
         apiKey: userProfile.openaiKey,
-      ).getCompletions(prompt: controller.text).then((result) {
-        result.fold((error) {
-          // Error.
-          assert(false, 'Error: $error');
-        }, (textCompletion) async {
-          loading.stop();
-          await _makeSurePreviousNodeIsEmptyTextNode();
-          await widget.editorState.autoInsertText(
-            textCompletion.choices.first.text,
-          );
-          focusNode.requestFocus();
-        });
+      );
+      final completions = await openAIRepository.getCompletions(
+        prompt: controller.text,
+      );
+      completions.fold((error) async {
+        loading.stop();
+        await _showError(error.message);
+      }, (textCompletion) async {
+        loading.stop();
+        await _makeSurePreviousNodeIsEmptyTextNode();
+        await widget.editorState.autoInsertText(
+          textCompletion.choices.first.text,
+        );
+        focusNode.requestFocus();
       });
-    }, (error) {
-      // TODO: show a toast.
-      assert(false, 'User profile not found.');
+    }, (error) async {
+      loading.stop();
+      await _showError(
+        LocaleKeys.document_plugins_autoGeneratorCantGetOpenAIKey.tr(),
+      );
     });
   }
 
   Future<void> _onDiscard() async {
-    final json = widget.node.attributes[kAutoCompletionInputStartSelection];
-    if (json != null) {
-      final start = Selection.fromJson(json).start.path;
+    final selection =
+        widget.node.attributes[kAutoCompletionInputStartSelection];
+    if (selection != null) {
+      final start = Selection.fromJson(json.decode(selection)).start.path;
       final end = widget.node.previous?.path;
       if (end != null) {
         final transaction = widget.editorState.transaction;
@@ -318,8 +322,22 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
       transaction.afterSelection = selection;
     }
     transaction.updateNode(widget.node, {
-      kAutoCompletionInputStartSelection: selection.toJson(),
+      kAutoCompletionInputStartSelection: jsonEncode(selection.toJson()),
     });
     await widget.editorState.apply(transaction);
+  }
+
+  Future<void> _showError(String message) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        action: SnackBarAction(
+          label: LocaleKeys.button_Cancel.tr(),
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
+        content: FlowyText(message),
+      ),
+    );
   }
 }

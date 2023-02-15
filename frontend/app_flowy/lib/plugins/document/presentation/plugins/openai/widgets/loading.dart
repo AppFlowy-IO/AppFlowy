@@ -9,7 +9,7 @@ class Loading {
   final BuildContext context;
 
   Future<void> start() async {
-    return await showDialog<void>(
+    return showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
@@ -29,6 +29,6 @@ class Loading {
   }
 
   Future<void> stop() async {
-    Navigator.of(loadingContext).pop();
+    return Navigator.of(loadingContext).pop();
   }
 }
