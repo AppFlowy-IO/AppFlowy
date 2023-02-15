@@ -9,6 +9,7 @@ import { PageItem } from './PageItem';
 import { Button } from '../../_shared/Button';
 import { RenamePopup } from './RenamePopup';
 import { useEffect, useState } from 'react';
+import { DropDownShowSvg } from '../../_shared/svg/DropDownShowSvg';
 
 let timeoutHandle: any;
 
@@ -70,8 +71,8 @@ export const FolderItem = ({
           className={'flex cursor-pointer items-center justify-between rounded-lg px-4 py-2 hover:bg-surface-2'}
         >
           <button className={'flex min-w-0 flex-1 items-center'}>
-            <i className={`mr-2 transition-transform duration-500 ${showPages && 'rotate-180'}`}>
-              <img className={''} src={'/images/home/drop_down_show.svg'} alt={''} />
+            <i className={`mr-2 h-5 w-5 transition-transform duration-500 ${showPages && 'rotate-180'}`}>
+              {pages.length > 0 && <DropDownShowSvg></DropDownShowSvg>}
             </i>
             <span className={'min-w-0 flex-1 overflow-hidden overflow-ellipsis whitespace-nowrap text-left'}>
               {folder.title}
