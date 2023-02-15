@@ -476,10 +476,17 @@ void main() async {
     var selection = Selection.single(path: [0], startOffset: text.length);
     await editor.updateSelection(selection);
 
-    await editor.pressLogicKey(
-      LogicalKeyboardKey.backspace,
-      isControlPressed: true,
-    );
+    if (Platform.isWindows || Platform.isLinux) {
+      await editor.pressLogicKey(
+        LogicalKeyboardKey.backspace,
+        isControlPressed: true,
+      );
+    } else {
+      await editor.pressLogicKey(
+        LogicalKeyboardKey.backspace,
+        isMetaPressed: true,
+      );
+    }
 
     //fetching all the text that is still on the editor.
     var nodes =
@@ -490,10 +497,17 @@ void main() async {
     words.removeLast();
     expect(newText, words.join());
 
-    await editor.pressLogicKey(
-      LogicalKeyboardKey.backspace,
-      isControlPressed: true,
-    );
+    if (Platform.isWindows || Platform.isLinux) {
+      await editor.pressLogicKey(
+        LogicalKeyboardKey.backspace,
+        isControlPressed: true,
+      );
+    } else {
+      await editor.pressLogicKey(
+        LogicalKeyboardKey.backspace,
+        isMetaPressed: true,
+      );
+    }
 
     //fetching all the text that is still on the editor.
     nodes = editor.editorState.service.selectionService.currentSelectedNodes;
@@ -505,10 +519,17 @@ void main() async {
     expect(newText, words.join());
 
     for (var i = 0; i < words.length; i++) {
-      await editor.pressLogicKey(
-        LogicalKeyboardKey.backspace,
-        isControlPressed: true,
-      );
+      if (Platform.isWindows || Platform.isLinux) {
+        await editor.pressLogicKey(
+          LogicalKeyboardKey.backspace,
+          isControlPressed: true,
+        );
+      } else {
+        await editor.pressLogicKey(
+          LogicalKeyboardKey.backspace,
+          isMetaPressed: true,
+        );
+      }
     }
 
     nodes = editor.editorState.service.selectionService.currentSelectedNodes;
@@ -527,10 +548,17 @@ void main() async {
     var selection = Selection.single(path: [0], startOffset: 0);
     await editor.updateSelection(selection);
 
-    await editor.pressLogicKey(
-      LogicalKeyboardKey.backspace,
-      isControlPressed: true,
-    );
+    if (Platform.isWindows || Platform.isLinux) {
+      await editor.pressLogicKey(
+        LogicalKeyboardKey.backspace,
+        isControlPressed: true,
+      );
+    } else {
+      await editor.pressLogicKey(
+        LogicalKeyboardKey.backspace,
+        isMetaPressed: true,
+      );
+    }
 
     //fetching all the text that is still on the editor.
     var nodes =
@@ -545,10 +573,17 @@ void main() async {
     await editor.updateSelection(selection);
     //Welcome to App|flowy 😁
 
-    await editor.pressLogicKey(
-      LogicalKeyboardKey.backspace,
-      isControlPressed: true,
-    );
+    if (Platform.isWindows || Platform.isLinux) {
+      await editor.pressLogicKey(
+        LogicalKeyboardKey.backspace,
+        isControlPressed: true,
+      );
+    } else {
+      await editor.pressLogicKey(
+        LogicalKeyboardKey.backspace,
+        isMetaPressed: true,
+      );
+    }
 
     //fetching all the text that is still on the editor.
     nodes = editor.editorState.service.selectionService.currentSelectedNodes;
