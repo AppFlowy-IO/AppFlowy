@@ -2,6 +2,8 @@ import 'package:app_flowy/plugins/document/presentation/plugins/board/board_menu
 import 'package:app_flowy/plugins/document/presentation/plugins/board/board_node_widget.dart';
 import 'package:app_flowy/plugins/document/presentation/plugins/grid/grid_menu_item.dart';
 import 'package:app_flowy/plugins/document/presentation/plugins/grid/grid_node_widget.dart';
+import 'package:app_flowy/plugins/document/presentation/plugins/openai/widgets/auto_completion_node_widget.dart';
+import 'package:app_flowy/plugins/document/presentation/plugins/openai/widgets/auto_completion_plugins.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -83,6 +85,7 @@ class _DocumentPageState extends State<DocumentPage> {
         if (state.isDeleted) _renderBanner(context),
         // AppFlowy Editor
         _renderAppFlowyEditor(
+          context,
           context.read<DocumentBloc>().editorState,
         ),
       ],
@@ -99,7 +102,11 @@ class _DocumentPageState extends State<DocumentPage> {
     );
   }
 
-  Widget _renderAppFlowyEditor(EditorState editorState) {
+  Widget _renderAppFlowyEditor(BuildContext context, EditorState editorState) {
+    // enable open ai features if needed.
+    final userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
+    final openAIKey = userProfilePB?.openaiKey;
+
     final theme = Theme.of(context);
     final editor = AppFlowyEditor(
       editorState: editorState,
@@ -117,6 +124,8 @@ class _DocumentPageState extends State<DocumentPage> {
         kGridType: GridNodeWidgetBuilder(),
         // Card
         kCalloutType: CalloutNodeWidgetBuilder(),
+        // Auto Generator,
+        kAutoCompletionInputType: AutoCompletionInputBuilder(),
       },
       shortcutEvents: [
         // Divider
@@ -141,6 +150,10 @@ class _DocumentPageState extends State<DocumentPage> {
         gridMenuItem,
         // Callout
         calloutMenuItem,
+        // AI
+        if (openAIKey != null && openAIKey.isNotEmpty) ...[
+          autoGeneratorMenuItem,
+        ]
       ],
       themeData: theme.copyWith(extensions: [
         ...theme.extensions.values,

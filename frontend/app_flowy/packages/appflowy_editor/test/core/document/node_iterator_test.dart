@@ -1,5 +1,4 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/core/document/node_iterator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() async {
