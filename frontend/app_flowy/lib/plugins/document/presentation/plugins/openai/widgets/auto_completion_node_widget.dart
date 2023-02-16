@@ -257,8 +257,11 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
       }, (textCompletion) async {
         loading.stop();
         await _makeSurePreviousNodeIsEmptyTextNode();
+        // Open AI result uses two '\n' as the begin syntax.
+        var texts = textCompletion.choices.first.text.split('\n');
+        texts.removeRange(0, 2);
         await widget.editorState.autoInsertText(
-          textCompletion.choices.first.text,
+          texts.join('\n'),
         );
         focusNode.requestFocus();
       });

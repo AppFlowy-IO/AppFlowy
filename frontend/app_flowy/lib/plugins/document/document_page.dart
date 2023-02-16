@@ -33,7 +33,6 @@ class DocumentPage extends StatefulWidget {
 
 class _DocumentPageState extends State<DocumentPage> {
   late DocumentBloc documentBloc;
-  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
@@ -42,6 +41,13 @@ class _DocumentPageState extends State<DocumentPage> {
     documentBloc = getIt<DocumentBloc>(param1: super.widget.view)
       ..add(const DocumentEvent.initial());
     super.initState();
+  }
+
+  @override
+  Future<void> dispose() async {
+    _clearTemporaryNodes();
+    documentBloc.close();
+    super.dispose();
   }
 
   @override
@@ -70,13 +76,6 @@ class _DocumentPageState extends State<DocumentPage> {
         );
       }),
     );
-  }
-
-  @override
-  Future<void> dispose() async {
-    documentBloc.close();
-    _focusNode.dispose();
-    super.dispose();
   }
 
   Widget _renderDocument(BuildContext context, DocumentState state) {
@@ -171,5 +170,30 @@ class _DocumentPageState extends State<DocumentPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _clearTemporaryNodes() async {
+    final editorState = documentBloc.editorState;
+    final document = editorState.document;
+    if (document.root.children.isEmpty) {
+      return;
+    }
+    final temporaryNodeTypes = [
+      kAutoCompletionInputType,
+    ];
+    final iterator = NodeIterator(
+      document: document,
+      startNode: document.root.children.first,
+    );
+    final transaction = editorState.transaction;
+    while (iterator.moveNext()) {
+      final node = iterator.current;
+      if (temporaryNodeTypes.contains(node.type)) {
+        transaction.deleteNode(node);
+      }
+    }
+    if (transaction.operations.isNotEmpty) {
+      await editorState.apply(transaction, withUpdateCursor: false);
+    }
   }
 }
