@@ -1,4 +1,5 @@
 module.exports = {
+  // https://eslint.org/docs/latest/use/configure/configuration-files
   env: {
     browser: true,
     es6: true,
@@ -54,4 +55,5 @@ module.exports = {
     'no-void': 'off',
     'prefer-const': 'warn',
   },
+  ignorePatterns: ['src/**/*.test.ts'],
 };

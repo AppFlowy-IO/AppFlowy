@@ -1,5 +1,17 @@
 import { AuthBackendService, UserBackendService } from '../appflowy_app/stores/effects/user/backend_service';
+import { randomFillSync } from 'crypto';
 import { nanoid } from '@reduxjs/toolkit';
+
+beforeAll(() => {
+  //@ts-ignore
+  window.crypto = {
+    // @ts-ignore
+    getRandomValues: function (buffer) {
+      // @ts-ignore
+      return randomFillSync(buffer);
+    },
+  };
+});
 
 describe('User backend service', () => {
   it('sign up', async () => {
