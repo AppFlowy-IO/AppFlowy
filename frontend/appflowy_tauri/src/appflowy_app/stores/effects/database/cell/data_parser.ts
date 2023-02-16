@@ -44,7 +44,7 @@ class DateCellDataParser extends CellDataParser<DateCellDataPB> {
 
 class SelectOptionCellDataParser extends CellDataParser<SelectOptionCellDataPB | undefined> {
   parserData(data: Uint8Array): SelectOptionCellDataPB | undefined {
-    if (data.length == 0) {
+    if (data.length === 0) {
       return undefined;
     }
     return SelectOptionCellDataPB.deserializeBinary(data);
@@ -53,7 +53,7 @@ class SelectOptionCellDataParser extends CellDataParser<SelectOptionCellDataPB |
 
 class URLCellDataParser extends CellDataParser<URLCellDataPB | undefined> {
   parserData(data: Uint8Array): URLCellDataPB | undefined {
-    if (data.length == 0) {
+    if (data.length === 0) {
       return undefined;
     }
     return URLCellDataPB.deserializeBinary(data);

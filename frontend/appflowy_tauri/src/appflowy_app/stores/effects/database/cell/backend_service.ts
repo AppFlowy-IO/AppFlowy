@@ -16,7 +16,7 @@ class CellBackendService {
     return DatabaseEventUpdateCell(payload);
   };
 
-  static getCell = async (cellId: CellIdentifier) => {
+  getCell = async (cellId: CellIdentifier) => {
     const payload = CellIdPB.fromObject({
       database_id: cellId.databaseId,
       field_id: cellId.fieldId,
