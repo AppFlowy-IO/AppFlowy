@@ -64,6 +64,10 @@ class BubbleActionList extends StatelessWidget {
             case BubbleAction.debug:
               _DebugToast().show();
               break;
+            case BubbleAction.shortcuts:
+              _launchURL(
+                  "https://github.com/AppFlowy-IO/AppFlowy-Docs/blob/main/essential-documentation/shortcuts.md");
+              break;
           }
         }
 
@@ -160,7 +164,7 @@ class FlowyVersionDescription extends CustomActionCell {
   }
 }
 
-enum BubbleAction { whatsNews, help, debug }
+enum BubbleAction { whatsNews, help, debug, shortcuts }
 
 class BubbleActionWrapper extends ActionCell {
   final BubbleAction inner;
@@ -182,6 +186,11 @@ extension QuestionBubbleExtension on BubbleAction {
         return LocaleKeys.questionBubble_help.tr();
       case BubbleAction.debug:
         return LocaleKeys.questionBubble_debug_name.tr();
+      case BubbleAction.shortcuts:
+        // return LocaleKeys.questionBubble_shortcuts.tr();
+
+      // TODO: Use localized approach
+      return "Shortcuts";
     }
   }
 
@@ -193,6 +202,8 @@ extension QuestionBubbleExtension on BubbleAction {
         return '👥';
       case BubbleAction.debug:
         return '🐛';
+      case BubbleAction.shortcuts:
+        return '⌨️';
     }
   }
 }

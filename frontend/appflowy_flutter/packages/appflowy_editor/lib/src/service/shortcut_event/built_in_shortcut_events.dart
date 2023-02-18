@@ -49,6 +49,7 @@ List<ShortcutEvent> builtInShortcutEvents = [
     command: 'shift+arrow down',
     handler: cursorDownSelect,
   ),
+  // TODO: Use Unique and correct key names here
   ShortcutEvent(
     key: 'Cursor down select',
     command: 'shift+alt+arrow left',

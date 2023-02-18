@@ -71,6 +71,7 @@
   },
   "dialogCreatePageNameHint": "Page name",
   "questionBubble": {
+    "shortcuts": "Shortcuts",
     "whatsNew": "What's new?",
     "help": "Help & Support",
     "debug": {
