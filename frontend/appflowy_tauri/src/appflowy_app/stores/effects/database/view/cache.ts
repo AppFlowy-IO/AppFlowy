@@ -1,14 +1,14 @@
-import { DatabaseViewRowsListener } from './row_listener';
+import { DatabaseViewRowsObserver } from './row_observer';
 import { RowCache, RowChangedReason } from '../row/cache';
 import { FieldController } from '../field/controller';
 import { RowPB } from '../../../../../services/backend/models/flowy-database/row_entities';
 
 export class DatabaseViewCache {
-  _rowsListener: DatabaseViewRowsListener;
+  _rowsObserver: DatabaseViewRowsObserver;
   _rowCache: RowCache;
 
   constructor(public readonly viewId: string, fieldController: FieldController) {
-    this._rowsListener = new DatabaseViewRowsListener(viewId);
+    this._rowsObserver = new DatabaseViewRowsObserver(viewId);
     this._rowCache = new RowCache(viewId, () => fieldController.fieldInfos);
     this._listenOnRowsChanged();
   }
@@ -24,12 +24,12 @@ export class DatabaseViewCache {
   };
 
   dispose = async () => {
-    await this._rowsListener.stop();
+    await this._rowsObserver.unsubscribe();
     await this._rowCache.dispose();
   };
 
   _listenOnRowsChanged = () => {
-    this._rowsListener.start({
+    this._rowsObserver.subscribe({
       onRowsVisibilityChanged: (result) => {
         if (result.ok) {
           this._rowCache.applyRowsVisibility(result.val);

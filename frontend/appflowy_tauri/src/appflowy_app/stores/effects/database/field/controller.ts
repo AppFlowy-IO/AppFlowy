@@ -1,24 +1,24 @@
 import { Log } from '../../../../utils/log';
 import { DatabaseBackendService } from '../backend_service';
-import { DatabaseFieldListener } from './field_listener';
+import { DatabaseFieldObserver } from './field_observer';
 import { FieldIdPB, FieldPB, IndexFieldPB } from '../../../../../services/backend/models/flowy-database/field_entities';
 import { ChangeNotifier } from '../../../../utils/change_notifier';
 
 export class FieldController {
-  _fieldListener: DatabaseFieldListener;
+  _fieldListener: DatabaseFieldObserver;
   _backendService: DatabaseBackendService;
   _fieldNotifier = new FieldNotifier([]);
 
   constructor(public readonly viewId: string) {
     this._backendService = new DatabaseBackendService(viewId);
-    this._fieldListener = new DatabaseFieldListener(viewId);
+    this._fieldListener = new DatabaseFieldObserver(viewId);
 
     this._listenOnFieldChanges();
   }
 
   dispose = async () => {
     this._fieldNotifier.unsubscribe();
-    await this._fieldListener.stop();
+    await this._fieldListener.unsubscribe();
   };
 
   get fieldInfos(): readonly FieldInfo[] {
@@ -43,7 +43,7 @@ export class FieldController {
   };
 
   _listenOnFieldChanges = () => {
-    this._fieldListener.start({
+    this._fieldListener.subscribe({
       onFieldsChanged: (result) => {
         if (result.ok) {
           const changeset = result.val;

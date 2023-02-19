@@ -33,7 +33,6 @@ class AppFlowyBoardTest {
       appId: app.id,
       name: "Test Board",
       dataFormatType: builder.dataFormatType,
-      pluginType: builder.pluginType,
       layoutType: builder.layoutType!,
     )
         .then((result) {

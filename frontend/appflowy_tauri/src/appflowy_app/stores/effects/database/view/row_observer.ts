@@ -10,23 +10,23 @@ import {
 } from '../../../../../services/backend/models/flowy-database/view_entities';
 import { FlowyError } from '../../../../../services/backend/models/flowy-error/errors';
 import { ChangeNotifier } from '../../../../utils/change_notifier';
-import { DatabaseNotificationListener } from '../../notifications/listener';
+import { DatabaseNotificationObserver } from '../notifications/observer';
 
 export type RowsVisibilityNotifyValue = Result<ViewRowsVisibilityChangesetPB, FlowyError>;
 export type RowsNotifyValue = Result<ViewRowsChangesetPB, FlowyError>;
 export type ReorderRowsNotifyValue = Result<string[], FlowyError>;
 export type ReorderSingleRowNotifyValue = Result<ReorderSingleRowPB, FlowyError>;
 
-export class DatabaseViewRowsListener {
+export class DatabaseViewRowsObserver {
   _rowsVisibilityNotifier = new ChangeNotifier<RowsVisibilityNotifyValue>();
   _rowsNotifier = new ChangeNotifier<RowsNotifyValue>();
   _reorderRowsNotifier = new ChangeNotifier<ReorderRowsNotifyValue>();
   _reorderSingleRowNotifier = new ChangeNotifier<ReorderSingleRowNotifyValue>();
 
-  _listener?: DatabaseNotificationListener;
+  _listener?: DatabaseNotificationObserver;
   constructor(public readonly viewId: string) {}
 
-  start = (callbacks: {
+  subscribe = (callbacks: {
     onRowsVisibilityChanged?: (value: RowsVisibilityNotifyValue) => void;
     onNumberOfRowsChanged?: (value: RowsNotifyValue) => void;
     onReorderRows?: (value: ReorderRowsNotifyValue) => void;
@@ -38,7 +38,7 @@ export class DatabaseViewRowsListener {
     this._reorderRowsNotifier.observer.subscribe(callbacks.onReorderRows);
     this._reorderSingleRowNotifier.observer.subscribe(callbacks.onReorderSingleRow);
 
-    this._listener = new DatabaseNotificationListener({
+    this._listener = new DatabaseNotificationObserver({
       viewId: this.viewId,
       parserHandler: (notification, payload) => {
         switch (notification) {
@@ -61,7 +61,7 @@ export class DatabaseViewRowsListener {
     });
   };
 
-  stop = async () => {
+  unsubscribe = async () => {
     this._rowsVisibilityNotifier.unsubscribe();
     this._reorderRowsNotifier.unsubscribe();
     this._rowsNotifier.unsubscribe();

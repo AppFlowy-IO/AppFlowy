@@ -1,5 +1,5 @@
-import { DatabaseNotification } from '../../../../services/backend';
-import { NotificationParser, OnNotificationError } from '../../../../services/backend/notifications';
+import { DatabaseNotification } from '../../../../../services/backend';
+import { NotificationParser, OnNotificationError } from '../../../../../services/backend/notifications';
 
 declare type DatabaseNotificationCallback = (ty: DatabaseNotification, payload: Uint8Array) => void;
 

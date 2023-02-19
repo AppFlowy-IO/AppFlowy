@@ -16,7 +16,7 @@ class CellDataLoader<T> {
   constructor(
     readonly cellId: CellIdentifier,
     readonly parser: CellDataParser<T>,
-    private reloadOnFieldChanged: boolean
+    public readonly reloadOnFieldChanged: boolean = false
   ) {}
 
   loadData = async () => {

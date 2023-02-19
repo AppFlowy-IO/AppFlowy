@@ -144,7 +144,7 @@ export class RowCache {
     const cellIdentifierByFieldId: Map<string, CellIdentifier> = new Map();
 
     fieldInfos.forEach((fieldInfo) => {
-      const identifier = new CellIdentifier(this.viewId, rowId, fieldInfo.field.id);
+      const identifier = new CellIdentifier(this.viewId, rowId, fieldInfo.field.id, fieldInfo.field.field_type);
       cellIdentifierByFieldId.set(fieldInfo.field.id, identifier);
     });
 

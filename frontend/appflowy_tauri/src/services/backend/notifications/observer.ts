@@ -2,7 +2,7 @@ import { listen, UnlistenFn } from '@tauri-apps/api/event';
 import { SubscribeObject } from '../models/flowy-notification';
 import { NotificationParser } from './parser';
 
-export abstract class AFNotificationListener<T> {
+export abstract class AFNotificationObserver<T> {
   parser?: NotificationParser<T> | null;
   private _listener?: UnlistenFn;
 

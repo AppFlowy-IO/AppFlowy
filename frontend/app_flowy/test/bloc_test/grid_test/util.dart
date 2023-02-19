@@ -168,7 +168,6 @@ class AppFlowyGridTest {
       appId: app.id,
       name: "Test Grid",
       dataFormatType: builder.dataFormatType,
-      pluginType: builder.pluginType,
       layoutType: builder.layoutType!,
     )
         .then((result) {

@@ -13,6 +13,11 @@ import {
   DatabaseEventUpdateField,
   DatabaseEventUpdateFieldTypeOption,
 } from '../../../../../services/backend/events/flowy-database';
+
+export abstract class TypeOptionParser<T> {
+  abstract fromBuffer(buffer: Uint8Array): T;
+}
+
 export class FieldBackendService {
   constructor(public readonly databaseId: string, public readonly fieldId: string) {}
 

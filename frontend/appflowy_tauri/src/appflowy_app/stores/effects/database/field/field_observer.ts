@@ -3,22 +3,22 @@ import { DatabaseNotification } from '../../../../../services/backend';
 import { DatabaseFieldChangesetPB } from '../../../../../services/backend/models/flowy-database/field_entities';
 import { FlowyError } from '../../../../../services/backend/models/flowy-error';
 import { ChangeNotifier } from '../../../../utils/change_notifier';
-import { DatabaseNotificationListener } from '../../notifications/listener';
+import { DatabaseNotificationObserver } from '../notifications/observer';
 
 type UpdateFieldNotifiedValue = Result<DatabaseFieldChangesetPB, FlowyError>;
 export type DatabaseNotificationCallback = (value: UpdateFieldNotifiedValue) => void;
 
-export class DatabaseFieldListener {
+export class DatabaseFieldObserver {
   _notifier?: ChangeNotifier<UpdateFieldNotifiedValue>;
-  _listener?: DatabaseNotificationListener;
+  _listener?: DatabaseNotificationObserver;
 
   constructor(public readonly databaseId: string) {}
 
-  start = (callbacks: { onFieldsChanged: DatabaseNotificationCallback }) => {
+  subscribe = (callbacks: { onFieldsChanged: DatabaseNotificationCallback }) => {
     this._notifier = new ChangeNotifier();
     this._notifier?.observer.subscribe(callbacks.onFieldsChanged);
 
-    this._listener = new DatabaseNotificationListener({
+    this._listener = new DatabaseNotificationObserver({
       viewId: this.databaseId,
       parserHandler: (notification, payload) => {
         switch (notification) {
@@ -34,7 +34,7 @@ export class DatabaseFieldListener {
     return undefined;
   };
 
-  stop = async () => {
+  unsubscribe = async () => {
     this._notifier?.unsubscribe();
     await this._listener?.stop();
   };
