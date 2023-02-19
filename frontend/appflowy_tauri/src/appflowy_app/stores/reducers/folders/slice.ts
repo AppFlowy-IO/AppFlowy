@@ -5,10 +5,7 @@ export interface IFolder {
   title: string;
 }
 
-const initialState: IFolder[] = [
-  { id: 'getting_started', title: 'Getting Started' },
-  { id: 'my_folder', title: 'My Folder' },
-];
+const initialState: IFolder[] = [];
 
 export const foldersSlice = createSlice({
   name: 'folders',

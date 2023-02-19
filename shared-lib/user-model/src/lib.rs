@@ -42,6 +42,7 @@ pub struct UserProfile {
   pub name: String,
   pub token: String,
   pub icon_url: String,
+  pub openai_key: String,
 }
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
@@ -51,6 +52,7 @@ pub struct UpdateUserProfileParams {
   pub email: Option<String>,
   pub password: Option<String>,
   pub icon_url: Option<String>,
+  pub openai_key: Option<String>,
 }
 
 impl UpdateUserProfileParams {
@@ -61,6 +63,7 @@ impl UpdateUserProfileParams {
       email: None,
       password: None,
       icon_url: None,
+      openai_key: None,
     }
   }
 
@@ -81,6 +84,11 @@ impl UpdateUserProfileParams {
 
   pub fn icon_url(mut self, icon_url: &str) -> Self {
     self.icon_url = Some(icon_url.to_owned());
+    self
+  }
+
+  pub fn openai_key(mut self, openai_key: &str) -> Self {
+    self.openai_key = Some(openai_key.to_owned());
     self
   }
 }
