@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useAppDispatch } from '../../../stores/store';
 import { nanoid } from 'nanoid';
 import { pagesActions } from '../../../stores/reducers/pages/slice';
+import { ViewLayoutTypePB } from '../../../../services/backend';
 
 export const useFolderEvents = (folder: IFolder) => {
   const appDispatch = useAppDispatch();
@@ -54,17 +55,33 @@ export const useFolderEvents = (folder: IFolder) => {
 
   const onAddNewDocumentPage = () => {
     closePopup();
-    appDispatch(pagesActions.addPage({ folderId: folder.id, pageType: 'document', title: 'New Page 1', id: nanoid(6) }));
+    appDispatch(
+      pagesActions.addPage({
+        folderId: folder.id,
+        pageType: ViewLayoutTypePB.Document,
+        title: 'New Page 1',
+        id: nanoid(6),
+      })
+    );
   };
 
   const onAddNewBoardPage = () => {
     closePopup();
-    appDispatch(pagesActions.addPage({ folderId: folder.id, pageType: 'board', title: 'New Board 1', id: nanoid(6) }));
+    appDispatch(
+      pagesActions.addPage({
+        folderId: folder.id,
+        pageType: ViewLayoutTypePB.Board,
+        title: 'New Board 1',
+        id: nanoid(6),
+      })
+    );
   };
 
   const onAddNewGridPage = () => {
     closePopup();
-    appDispatch(pagesActions.addPage({ folderId: folder.id, pageType: 'grid', title: 'New Grid 1', id: nanoid(6) }));
+    appDispatch(
+      pagesActions.addPage({ folderId: folder.id, pageType: ViewLayoutTypePB.Grid, title: 'New Grid 1', id: nanoid(6) })
+    );
   };
 
   return {

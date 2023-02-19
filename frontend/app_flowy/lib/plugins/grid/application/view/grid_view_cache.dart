@@ -21,7 +21,6 @@ class DatabaseViewCache {
     final delegate = GridRowFieldNotifierImpl(fieldController);
     _rowCache = GridRowCache(
       databaseId: databaseId,
-      rows: [],
       notifier: delegate,
       delegate: delegate,
     );

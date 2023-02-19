@@ -29,7 +29,6 @@ abstract class RowCacheDelegate {
 
 class GridRowCache {
   final String databaseId;
-  final List<RowPB> rows;
 
   /// _rows containers the current block's rows
   /// Use List to reverse the order of the GridRow.
@@ -48,7 +47,6 @@ class GridRowCache {
 
   GridRowCache({
     required this.databaseId,
-    required this.rows,
     required RowChangesetNotifierForward notifier,
     required RowCacheDelegate delegate,
   })  : _cellCache = GridCellCache(databaseId: databaseId),
