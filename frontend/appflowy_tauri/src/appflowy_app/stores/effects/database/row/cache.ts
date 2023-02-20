@@ -268,7 +268,7 @@ class RowList {
 
 export class RowInfo {
   constructor(
-    public readonly databaseId: string,
+    public readonly viewId: string,
     public readonly fieldInfos: readonly FieldInfo[],
     public readonly row: RowPB
   ) {}

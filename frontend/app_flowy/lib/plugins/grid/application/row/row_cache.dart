@@ -13,7 +13,7 @@ part 'row_cache.freezed.dart';
 typedef RowUpdateCallback = void Function();
 
 abstract class RowChangesetNotifierForward {
-  void onRowFieldsChanged(VoidCallback callback);
+  void onRowNumberOfFieldsChanged(VoidCallback callback);
   void onRowFieldChanged(void Function(FieldInfo) callback);
 }
 
@@ -53,7 +53,7 @@ class GridRowCache {
         _rowChangeReasonNotifier = RowChangesetNotifier(),
         _delegate = delegate {
     //
-    notifier.onRowFieldsChanged(() => _rowChangeReasonNotifier
+    notifier.onRowNumberOfFieldsChanged(() => _rowChangeReasonNotifier
         .receive(const RowsChangedReason.fieldDidChange()));
     notifier.onRowFieldChanged(
         (field) => _cellCache.removeCellWithFieldId(field.id));

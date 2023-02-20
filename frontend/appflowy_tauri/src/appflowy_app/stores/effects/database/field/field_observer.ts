@@ -12,14 +12,14 @@ export class DatabaseFieldObserver {
   _notifier?: ChangeNotifier<UpdateFieldNotifiedValue>;
   _listener?: DatabaseNotificationObserver;
 
-  constructor(public readonly databaseId: string) {}
+  constructor(public readonly viewId: string) {}
 
   subscribe = (callbacks: { onFieldsChanged: DatabaseNotificationCallback }) => {
     this._notifier = new ChangeNotifier();
     this._notifier?.observer.subscribe(callbacks.onFieldsChanged);
 
     this._listener = new DatabaseNotificationObserver({
-      viewId: this.databaseId,
+      viewId: this.viewId,
       parserHandler: (notification, payload) => {
         switch (notification) {
           case DatabaseNotification.DidUpdateFields:
