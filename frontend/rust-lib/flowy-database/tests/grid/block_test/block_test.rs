@@ -1,11 +1,11 @@
 use crate::grid::block_test::script::DatabaseRowTest;
 use crate::grid::block_test::script::RowScript::*;
 
-use grid_model::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset};
+use grid_model::{DatabaseBlockMetaRevision, DatabaseBlockMetaRevisionChangeset};
 
 #[tokio::test]
 async fn grid_create_block() {
-  let block_meta_rev = GridBlockMetaRevision::new();
+  let block_meta_rev = DatabaseBlockMetaRevision::new();
   let scripts = vec![
     AssertBlockCount(1),
     CreateBlock {
@@ -18,9 +18,9 @@ async fn grid_create_block() {
 
 #[tokio::test]
 async fn grid_update_block() {
-  let block_meta_rev = GridBlockMetaRevision::new();
+  let block_meta_rev = DatabaseBlockMetaRevision::new();
   let mut cloned_grid_block = block_meta_rev.clone();
-  let changeset = GridBlockMetaRevisionChangeset {
+  let changeset = DatabaseBlockMetaRevisionChangeset {
     block_id: block_meta_rev.block_id.clone(),
     start_row_index: Some(2),
     row_count: Some(10),

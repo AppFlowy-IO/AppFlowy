@@ -5,7 +5,7 @@ use flowy_database::entities::{CellIdParams, CreateRowParams, FieldType, LayoutT
 use flowy_database::services::field::*;
 use flowy_database::services::row::DatabaseBlockRow;
 use grid_model::{
-  GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision,
+  DatabaseBlockMetaRevision, DatabaseBlockMetaRevisionChangeset, RowChangeset, RowRevision,
 };
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -33,10 +33,10 @@ pub enum RowScript {
   },
   AssertRowCount(usize),
   CreateBlock {
-    block: GridBlockMetaRevision,
+    block: DatabaseBlockMetaRevision,
   },
   UpdateBlock {
-    changeset: GridBlockMetaRevisionChangeset,
+    changeset: DatabaseBlockMetaRevisionChangeset,
   },
   AssertBlockCount(usize),
   AssertBlock {
@@ -46,7 +46,7 @@ pub enum RowScript {
   },
   AssertBlockEqual {
     block_index: usize,
-    block: GridBlockMetaRevision,
+    block: DatabaseBlockMetaRevision,
   },
 }
 

@@ -14,12 +14,12 @@ pub type GridViewOperations = DeltaOperations<EmptyAttributes>;
 pub type GridViewOperationsBuilder = DeltaBuilder;
 
 #[derive(Debug, Clone)]
-pub struct GridViewRevisionPad {
+pub struct DatabaseViewRevisionPad {
   view: Arc<DatabaseViewRevision>,
   operations: GridViewOperations,
 }
 
-impl std::ops::Deref for GridViewRevisionPad {
+impl std::ops::Deref for DatabaseViewRevisionPad {
   type Target = DatabaseViewRevision;
 
   fn deref(&self) -> &Self::Target {
@@ -27,23 +27,19 @@ impl std::ops::Deref for GridViewRevisionPad {
   }
 }
 
-impl GridViewRevisionPad {
-  // For the moment, the view_id is equal to grid_id. The grid_id represents the database id.
+impl DatabaseViewRevisionPad {
+  // For the moment, the view_id is equal to grid_id. The database_id represents the database id.
   // A database can be referenced by multiple views.
-  pub fn new(grid_id: String, view_id: String, layout: LayoutRevision) -> Self {
-    let view = Arc::new(DatabaseViewRevision::new(grid_id, view_id, layout));
+  pub fn new(database_id: String, view_id: String, layout: LayoutRevision) -> Self {
+    let view = Arc::new(DatabaseViewRevision::new(database_id, view_id, layout));
     let json = serde_json::to_string(&view).unwrap();
     let operations = GridViewOperationsBuilder::new().insert(&json).build();
     Self { view, operations }
   }
 
-  pub fn from_operations(view_id: &str, operations: GridViewOperations) -> SyncResult<Self> {
+  pub fn from_operations(operations: GridViewOperations) -> SyncResult<Self> {
     if operations.is_empty() {
-      return Ok(GridViewRevisionPad::new(
-        view_id.to_owned(),
-        view_id.to_owned(),
-        LayoutRevision::Grid,
-      ));
+      return Err(SyncError::record_not_found().context("Unexpected empty operations"));
     }
     let s = operations.content()?;
     let view: DatabaseViewRevision = serde_json::from_str(&s).map_err(|e| {
@@ -57,9 +53,9 @@ impl GridViewRevisionPad {
     })
   }
 
-  pub fn from_revisions(view_id: &str, revisions: Vec<Revision>) -> SyncResult<Self> {
+  pub fn from_revisions(revisions: Vec<Revision>) -> SyncResult<Self> {
     let operations: GridViewOperations = make_operations_from_revisions(revisions)?;
-    Self::from_operations(view_id, operations)
+    Self::from_operations(operations)
   }
 
   pub fn get_groups_by_field_revs(

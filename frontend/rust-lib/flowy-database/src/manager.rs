@@ -1,6 +1,7 @@
 use crate::entities::LayoutTypePB;
-use crate::services::grid_editor::{
-  DatabaseRevisionEditor, GridRevisionCloudService, GridRevisionMergeable, GridRevisionSerde,
+use crate::services::database_editor::{
+  DatabaseRevisionCloudService, DatabaseRevisionEditor, DatabaseRevisionMergeable,
+  DatabaseRevisionSerde,
 };
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::kv::DatabaseKVPersistence;
@@ -175,11 +176,11 @@ impl DatabaseManager {
   ) -> Result<Arc<DatabaseRevisionEditor>, FlowyError> {
     let user = self.database_user.clone();
     let token = user.token()?;
-    let cloud = Arc::new(GridRevisionCloudService::new(token));
+    let cloud = Arc::new(DatabaseRevisionCloudService::new(token));
     let mut rev_manager = self.make_database_rev_manager(database_id, pool.clone())?;
     let database_pad = Arc::new(RwLock::new(
       rev_manager
-        .initialize::<GridRevisionSerde>(Some(cloud))
+        .initialize::<DatabaseRevisionSerde>(Some(cloud))
         .await?,
     ));
     let database_editor = DatabaseRevisionEditor::new(
@@ -213,7 +214,7 @@ impl DatabaseManager {
     let snapshot_persistence =
       SQLiteDatabaseRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
 
-    let rev_compress = GridRevisionMergeable();
+    let rev_compress = DatabaseRevisionMergeable();
     let rev_manager = RevisionManager::new(
       &user_id,
       database_id,
@@ -236,7 +237,7 @@ pub async fn make_database_view_data(
     field_revs,
     block_metas,
     blocks,
-    grid_view_revision_data,
+    database_view_data: grid_view_revision_data,
   } = build_context;
 
   for block_meta_data in &blocks {
@@ -249,40 +250,40 @@ pub async fn make_database_view_data(
     });
 
     // Create grid's block
-    let grid_block_delta = make_database_block_operations(block_meta_data);
-    let block_delta_data = grid_block_delta.json_bytes();
-    let revision = Revision::initial_revision(block_id, block_delta_data);
+    let database_block_ops = make_database_block_operations(block_meta_data);
+    let database_block_bytes = database_block_ops.json_bytes();
+    let revision = Revision::initial_revision(block_id, database_block_bytes);
     database_manager
       .create_database_block(&block_id, vec![revision])
       .await?;
   }
 
   // Will replace the grid_id with the value returned by the gen_grid_id()
-  let grid_id = view_id.to_owned();
-  let grid_rev = DatabaseRevision::from_build_context(&grid_id, field_revs, block_metas);
+  let database_id = view_id.to_owned();
+  let database_rev = DatabaseRevision::from_build_context(&database_id, field_revs, block_metas);
 
   // Create grid
-  let grid_rev_delta = make_database_operations(&grid_rev);
-  let grid_rev_delta_bytes = grid_rev_delta.json_bytes();
-  let revision = Revision::initial_revision(&grid_id, grid_rev_delta_bytes.clone());
+  let database_ops = make_database_operations(&database_rev);
+  let database_bytes = database_ops.json_bytes();
+  let revision = Revision::initial_revision(&database_id, database_bytes.clone());
   database_manager
-    .create_database(&grid_id, vec![revision])
+    .create_database(&database_id, vec![revision])
     .await?;
 
   // Create grid view
   let grid_view = if grid_view_revision_data.is_empty() {
-    DatabaseViewRevision::new(grid_id, view_id.to_owned(), layout.into())
+    DatabaseViewRevision::new(database_id, view_id.to_owned(), layout.into())
   } else {
     DatabaseViewRevision::from_json(grid_view_revision_data)?
   };
-  let grid_view_delta = make_grid_view_operations(&grid_view);
-  let grid_view_delta_bytes = grid_view_delta.json_bytes();
-  let revision = Revision::initial_revision(view_id, grid_view_delta_bytes);
+  let database_view_ops = make_grid_view_operations(&grid_view);
+  let database_view_bytes = database_view_ops.json_bytes();
+  let revision = Revision::initial_revision(view_id, database_view_bytes);
   database_manager
     .create_database_view(view_id, vec![revision])
     .await?;
 
-  Ok(grid_rev_delta_bytes)
+  Ok(database_bytes)
 }
 
 #[async_trait]

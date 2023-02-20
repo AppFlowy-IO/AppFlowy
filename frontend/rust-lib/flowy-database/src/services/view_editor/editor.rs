@@ -18,14 +18,14 @@ use crate::services::view_editor::changed_notifier::GridViewChangedNotifier;
 use crate::services::view_editor::trait_impl::*;
 use crate::services::view_editor::GridViewChangedReceiverRunner;
 use flowy_client_sync::client_database::{
-  make_grid_view_operations, GridViewRevisionChangeset, GridViewRevisionPad,
+  make_grid_view_operations, DatabaseViewRevisionPad, GridViewRevisionChangeset,
 };
 use flowy_error::FlowyResult;
 use flowy_revision::RevisionManager;
 use flowy_sqlite::ConnectionPool;
 use flowy_task::TaskDispatcher;
 use grid_model::{
-  gen_grid_filter_id, gen_grid_sort_id, FieldRevision, FieldTypeRevision, FilterRevision,
+  gen_database_filter_id, gen_database_sort_id, FieldRevision, FieldTypeRevision, FilterRevision,
   LayoutRevision, RowChangeset, RowRevision, SortRevision,
 };
 use lib_infra::async_trait::async_trait;
@@ -76,7 +76,7 @@ pub trait DatabaseViewEditorDelegate: Send + Sync + 'static {
 pub struct DatabaseViewRevisionEditor {
   user_id: String,
   view_id: String,
-  pad: Arc<RwLock<GridViewRevisionPad>>,
+  pad: Arc<RwLock<DatabaseViewRevisionPad>>,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
   delegate: Arc<dyn DatabaseViewEditorDelegate>,
   group_controller: Arc<RwLock<Box<dyn GroupController>>>,
@@ -109,8 +109,11 @@ impl DatabaseViewRevisionEditor {
       Err(err) => {
         // It shouldn't be here, because the snapshot should come to recue.
         tracing::error!("Deserialize grid view revisions failed: {}", err);
-        let view =
-          GridViewRevisionPad::new(view_id.to_owned(), view_id.to_owned(), LayoutRevision::Grid);
+        let view = DatabaseViewRevisionPad::new(
+          view_id.to_owned(),
+          view_id.to_owned(),
+          LayoutRevision::Grid,
+        );
         let bytes = make_grid_view_operations(&view).json_bytes();
         let reset_revision = Revision::initial_revision(&view_id, bytes);
         let _ = rev_manager.reset_object(vec![reset_revision]).await;
@@ -460,7 +463,7 @@ impl DatabaseViewRevisionEditor {
     let sort_type = SortType::from(&params);
     let is_exist = params.sort_id.is_some();
     let sort_id = match params.sort_id {
-      None => gen_grid_sort_id(),
+      None => gen_database_sort_id(),
       Some(sort_id) => sort_id,
     };
 
@@ -559,7 +562,7 @@ impl DatabaseViewRevisionEditor {
     let filter_type = FilterType::from(&params);
     let is_exist = params.filter_id.is_some();
     let filter_id = match params.filter_id {
-      None => gen_grid_filter_id(),
+      None => gen_database_filter_id(),
       Some(filter_id) => filter_id,
     };
     let filter_rev = FilterRevision {
@@ -756,8 +759,9 @@ impl DatabaseViewRevisionEditor {
 
   async fn modify<F>(&self, f: F) -> FlowyResult<()>
   where
-    F:
-      for<'a> FnOnce(&'a mut GridViewRevisionPad) -> FlowyResult<Option<GridViewRevisionChangeset>>,
+    F: for<'a> FnOnce(
+      &'a mut DatabaseViewRevisionPad,
+    ) -> FlowyResult<Option<GridViewRevisionChangeset>>,
   {
     let mut write_guard = self.pad.write().await;
     match f(&mut write_guard)? {
@@ -839,7 +843,7 @@ impl RefCountValue for DatabaseViewRevisionEditor {
 async fn new_group_controller(
   user_id: String,
   view_id: String,
-  view_rev_pad: Arc<RwLock<GridViewRevisionPad>>,
+  view_rev_pad: Arc<RwLock<DatabaseViewRevisionPad>>,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
   delegate: Arc<dyn DatabaseViewEditorDelegate>,
 ) -> FlowyResult<Box<dyn GroupController>> {
@@ -879,7 +883,7 @@ async fn new_group_controller(
 async fn new_group_controller_with_field_rev(
   user_id: String,
   view_id: String,
-  view_rev_pad: Arc<RwLock<GridViewRevisionPad>>,
+  view_rev_pad: Arc<RwLock<DatabaseViewRevisionPad>>,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
   field_rev: Arc<FieldRevision>,
   row_revs: Vec<Arc<RowRevision>>,
@@ -905,7 +909,7 @@ async fn make_filter_controller(
   delegate: Arc<dyn DatabaseViewEditorDelegate>,
   notifier: GridViewChangedNotifier,
   cell_data_cache: AtomicCellDataCache,
-  pad: Arc<RwLock<GridViewRevisionPad>>,
+  pad: Arc<RwLock<DatabaseViewRevisionPad>>,
 ) -> Arc<FilterController> {
   let field_revs = delegate.get_field_revs(None).await;
   let filter_revs = pad.read().await.get_all_filters(&field_revs);
@@ -941,7 +945,7 @@ async fn make_sort_controller(
   delegate: Arc<dyn DatabaseViewEditorDelegate>,
   notifier: GridViewChangedNotifier,
   filter_controller: Arc<FilterController>,
-  pad: Arc<RwLock<GridViewRevisionPad>>,
+  pad: Arc<RwLock<DatabaseViewRevisionPad>>,
   cell_data_cache: AtomicCellDataCache,
 ) -> Arc<RwLock<SortController>> {
   let handler_id = gen_handler_id();

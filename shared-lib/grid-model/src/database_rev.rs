@@ -5,7 +5,7 @@ use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
-pub fn gen_grid_id() -> String {
+pub fn gen_database_id() -> String {
   // nanoid calculator https://zelark.github.io/nano-id-cc/
   nanoid!(10)
 }
@@ -20,27 +20,28 @@ pub fn gen_field_id() -> String {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct DatabaseRevision {
-  pub grid_id: String,
+  #[serde(rename = "grid_id")]
+  pub database_id: String,
   pub fields: Vec<Arc<FieldRevision>>,
-  pub blocks: Vec<Arc<GridBlockMetaRevision>>,
+  pub blocks: Vec<Arc<DatabaseBlockMetaRevision>>,
 }
 
 impl DatabaseRevision {
-  pub fn new(grid_id: &str) -> Self {
+  pub fn new(database_id: &str) -> Self {
     Self {
-      grid_id: grid_id.to_owned(),
+      database_id: database_id.to_owned(),
       fields: vec![],
       blocks: vec![],
     }
   }
 
   pub fn from_build_context(
-    grid_id: &str,
+    database_id: &str,
     field_revs: Vec<Arc<FieldRevision>>,
-    block_metas: Vec<GridBlockMetaRevision>,
+    block_metas: Vec<DatabaseBlockMetaRevision>,
   ) -> Self {
     Self {
-      grid_id: grid_id.to_owned(),
+      database_id: database_id.to_owned(),
       fields: field_revs,
       blocks: block_metas.into_iter().map(Arc::new).collect(),
     }
@@ -48,13 +49,13 @@ impl DatabaseRevision {
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
-pub struct GridBlockMetaRevision {
+pub struct DatabaseBlockMetaRevision {
   pub block_id: String,
   pub start_row_index: i32,
   pub row_count: i32,
 }
 
-impl GridBlockMetaRevision {
+impl DatabaseBlockMetaRevision {
   pub fn len(&self) -> i32 {
     self.row_count
   }
@@ -64,22 +65,22 @@ impl GridBlockMetaRevision {
   }
 }
 
-impl GridBlockMetaRevision {
+impl DatabaseBlockMetaRevision {
   pub fn new() -> Self {
-    GridBlockMetaRevision {
+    DatabaseBlockMetaRevision {
       block_id: gen_block_id(),
       ..Default::default()
     }
   }
 }
 
-pub struct GridBlockMetaRevisionChangeset {
+pub struct DatabaseBlockMetaRevisionChangeset {
   pub block_id: String,
   pub start_row_index: Option<i32>,
   pub row_count: Option<i32>,
 }
 
-impl GridBlockMetaRevisionChangeset {
+impl DatabaseBlockMetaRevisionChangeset {
   pub fn from_row_count(block_id: String, row_count: i32) -> Self {
     Self {
       block_id,
@@ -192,11 +193,11 @@ pub trait TypeOptionDataDeserializer {
 #[derive(Clone, Default, Deserialize, Serialize)]
 pub struct BuildDatabaseContext {
   pub field_revs: Vec<Arc<FieldRevision>>,
-  pub block_metas: Vec<GridBlockMetaRevision>,
+  pub block_metas: Vec<DatabaseBlockMetaRevision>,
   pub blocks: Vec<DatabaseBlockRevision>,
 
   // String in JSON format. It can be deserialized into [GridViewRevision]
-  pub grid_view_revision_data: String,
+  pub database_view_data: String,
 }
 
 impl BuildDatabaseContext {

@@ -1,4 +1,4 @@
-use flowy_client_sync::client_database::GridBlockRevisionPad;
+use flowy_client_sync::client_database::DatabaseBlockRevisionPad;
 use flowy_error::FlowyError;
 use grid_model::RowRevision;
 use lib_infra::retry::Action;
@@ -9,7 +9,7 @@ use tokio::sync::RwLock;
 
 pub struct GetRowDataRetryAction {
   pub row_id: String,
-  pub pad: Arc<RwLock<GridBlockRevisionPad>>,
+  pub pad: Arc<RwLock<DatabaseBlockRevisionPad>>,
 }
 
 impl Action for GetRowDataRetryAction {

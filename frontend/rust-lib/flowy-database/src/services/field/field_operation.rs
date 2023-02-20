@@ -1,5 +1,5 @@
+use crate::services::database_editor::DatabaseRevisionEditor;
 use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
-use crate::services::grid_editor::DatabaseRevisionEditor;
 use flowy_error::FlowyResult;
 use grid_model::{TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use std::sync::Arc;

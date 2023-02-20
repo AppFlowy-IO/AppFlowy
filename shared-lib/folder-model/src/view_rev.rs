@@ -20,7 +20,8 @@ pub struct ViewRevision {
   #[serde(rename = "data_type")]
   pub data_format: ViewDataFormatRevision,
 
-  pub version: i64, // Deprecated
+  #[deprecated]
+  pub version: i64,
 
   pub belongings: Vec<ViewRevision>,
 
@@ -40,6 +41,35 @@ pub struct ViewRevision {
   #[serde(rename = "plugin_type")]
   pub layout: ViewLayoutTypeRevision,
 }
+
+impl ViewRevision {
+  pub fn new(
+    id: String,
+    app_id: String,
+    name: String,
+    desc: String,
+    data_format: ViewDataFormatRevision,
+    layout: ViewLayoutTypeRevision,
+    create_time: i64,
+    modified_time: i64,
+  ) -> Self {
+    Self {
+      id,
+      app_id,
+      name,
+      desc,
+      data_format,
+      version: 0,
+      belongings: vec![],
+      modified_time,
+      create_time,
+      ext_data: "".to_string(),
+      thumbnail: "".to_string(),
+      layout,
+    }
+  }
+}
+
 const DEFAULT_PLUGIN_TYPE: fn() -> ViewLayoutTypeRevision = || ViewLayoutTypeRevision::Document;
 
 impl std::convert::From<ViewRevision> for TrashRevision {

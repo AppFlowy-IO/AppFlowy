@@ -13,9 +13,9 @@ use crate::services::field::{
 };
 
 use crate::services::filter::FilterType;
-use crate::services::grid_editor_trait_impl::GridViewEditorDelegateImpl;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{DatabaseBlockRow, DatabaseBlockRowRevision, RowRevisionBuilder};
+use crate::services::trait_impl::DatabaseViewEditorDelegateImpl;
 use crate::services::view_editor::{DatabaseViewChanged, DatabaseViewManager};
 use bytes::Bytes;
 use flowy_client_sync::client_database::{
@@ -41,18 +41,16 @@ use tokio::sync::{broadcast, RwLock};
 
 pub struct DatabaseRevisionEditor {
   pub database_id: String,
-  #[allow(dead_code)]
-  user: Arc<dyn DatabaseUser>,
   database_pad: Arc<RwLock<DatabaseRevisionPad>>,
-  view_manager: Arc<DatabaseViewManager>,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
-  block_manager: Arc<DatabaseBlockManager>,
+  database_view_manager: Arc<DatabaseViewManager>,
+  database_block_manager: Arc<DatabaseBlockManager>,
   cell_data_cache: AtomicCellDataCache,
 }
 
 impl Drop for DatabaseRevisionEditor {
   fn drop(&mut self) {
-    tracing::trace!("Drop GridRevisionEditor");
+    tracing::trace!("Drop DatabaseRevisionEditor");
   }
 }
 
@@ -71,18 +69,18 @@ impl DatabaseRevisionEditor {
     // Block manager
     let (block_event_tx, block_event_rx) = broadcast::channel(100);
     let block_meta_revs = database_pad.read().await.get_block_meta_revs();
-    let block_manager = Arc::new(
+    let database_block_manager = Arc::new(
       DatabaseBlockManager::new(&user, block_meta_revs, persistence, block_event_tx).await?,
     );
-    let delegate = Arc::new(GridViewEditorDelegateImpl {
+    let delegate = Arc::new(DatabaseViewEditorDelegateImpl {
       pad: database_pad.clone(),
-      block_manager: block_manager.clone(),
+      block_manager: database_block_manager.clone(),
       task_scheduler,
       cell_data_cache: cell_data_cache.clone(),
     });
 
     // View manager
-    let view_manager = Arc::new(
+    let database_view_manager = Arc::new(
       DatabaseViewManager::new(
         database_id.to_owned(),
         user.clone(),
@@ -95,23 +93,22 @@ impl DatabaseRevisionEditor {
 
     let editor = Arc::new(Self {
       database_id: database_id.to_owned(),
-      user,
       database_pad,
       rev_manager,
-      block_manager,
-      view_manager,
+      database_block_manager,
+      database_view_manager,
       cell_data_cache,
     });
 
     Ok(editor)
   }
 
-  #[tracing::instrument(name = "close grid editor", level = "trace", skip_all)]
+  #[tracing::instrument(name = "close database editor", level = "trace", skip_all)]
   pub async fn close(&self) {
-    self.block_manager.close().await;
+    self.database_block_manager.close().await;
     self.rev_manager.generate_snapshot().await;
     self.rev_manager.close().await;
-    self.view_manager.close(&self.database_id).await;
+    self.database_view_manager.close(&self.database_id).await;
   }
 
   /// Save the type-option data to disk and send a `DatabaseNotification::DidUpdateField` notification
@@ -120,14 +117,14 @@ impl DatabaseRevisionEditor {
   /// It will do nothing if the passed-in type_option_data is empty
   /// # Arguments
   ///
-  /// * `grid_id`: the id of the grid
+  /// * `database_id`: the id of the database
   /// * `field_id`: the id of the field
   /// * `type_option_data`: the updated type-option data. The `type-option` data might be empty
   /// if there is no type-option config for that field. For example, the `RichTextTypeOptionPB`.
   ///  
   pub async fn update_field_type_option(
     &self,
-    _grid_id: &str,
+    _database_id: &str,
     field_id: &str,
     type_option_data: Vec<u8>,
     old_field_rev: Option<Arc<FieldRevision>>,
@@ -139,8 +136,8 @@ impl DatabaseRevisionEditor {
     }
     let field_rev = result.unwrap();
     self
-      .modify(|grid| {
-        let changeset = grid.modify_field(field_id, |field| {
+      .modify(|pad| {
+        let changeset = pad.modify_field(field_id, |field| {
           let deserializer = TypeOptionJsonDeserializer(field_rev.ty.into());
           match deserializer.deserialize(type_option_data) {
             Ok(json_str) => {
@@ -158,10 +155,10 @@ impl DatabaseRevisionEditor {
       .await?;
 
     self
-      .view_manager
+      .database_view_manager
       .did_update_view_field_type_option(field_id, old_field_rev)
       .await?;
-    self.notify_did_update_grid_field(field_id).await?;
+    self.notify_did_update_database_field(field_id).await?;
     Ok(())
   }
 
@@ -179,9 +176,9 @@ impl DatabaseRevisionEditor {
   pub async fn create_new_field_rev(&self, field_rev: FieldRevision) -> FlowyResult<()> {
     let field_id = field_rev.id.clone();
     self
-      .modify(|grid| Ok(grid.create_field_rev(field_rev, None)?))
+      .modify(|pad| Ok(pad.create_field_rev(field_rev, None)?))
       .await?;
-    self.notify_did_insert_grid_field(&field_id).await?;
+    self.notify_did_insert_database_field(&field_id).await?;
 
     Ok(())
   }
@@ -197,9 +194,9 @@ impl DatabaseRevisionEditor {
       field_rev.insert_type_option(type_option_builder.serializer());
     }
     self
-      .modify(|grid| Ok(grid.create_field_rev(field_rev.clone(), None)?))
+      .modify(|pad| Ok(pad.create_field_rev(field_rev.clone(), None)?))
       .await?;
-    self.notify_did_insert_grid_field(&field_rev.id).await?;
+    self.notify_did_insert_database_field(&field_rev.id).await?;
 
     Ok(field_rev)
   }
@@ -211,8 +208,8 @@ impl DatabaseRevisionEditor {
   pub async fn update_field(&self, params: FieldChangesetParams) -> FlowyResult<()> {
     let field_id = params.field_id.clone();
     self
-      .modify(|grid| {
-        let changeset = grid.modify_field(&params.field_id, |field| {
+      .modify(|pad| {
+        let changeset = pad.modify_field(&params.field_id, |field| {
           if let Some(name) = params.name {
             field.name = name;
           }
@@ -236,7 +233,7 @@ impl DatabaseRevisionEditor {
         Ok(changeset)
       })
       .await?;
-    self.notify_did_update_grid_field(&field_id).await?;
+    self.notify_did_update_database_field(&field_id).await?;
     Ok(())
   }
 
@@ -247,8 +244,8 @@ impl DatabaseRevisionEditor {
     let mut is_changed = false;
     let old_field_rev = self.get_field_rev(field_id).await;
     self
-      .modify(|grid| {
-        let changeset = grid.modify_field(field_id, |field_rev| {
+      .modify(|pad| {
+        let changeset = pad.modify_field(field_id, |field_rev| {
           f(field_rev).map_err(|e| SyncError::internal().context(e))
         })?;
         is_changed = changeset.is_some();
@@ -258,30 +255,30 @@ impl DatabaseRevisionEditor {
 
     if is_changed {
       match self
-        .view_manager
+        .database_view_manager
         .did_update_view_field_type_option(field_id, old_field_rev)
         .await
       {
         Ok(_) => {},
         Err(e) => tracing::error!("View manager update field failed: {:?}", e),
       }
-      self.notify_did_update_grid_field(field_id).await?;
+      self.notify_did_update_database_field(field_id).await?;
     }
     Ok(())
   }
 
   pub async fn delete_field(&self, field_id: &str) -> FlowyResult<()> {
     self
-      .modify(|grid_pad| Ok(grid_pad.delete_field_rev(field_id)?))
+      .modify(|pad| Ok(pad.delete_field_rev(field_id)?))
       .await?;
     let field_order = FieldIdPB::from(field_id);
     let notified_changeset = DatabaseFieldChangesetPB::delete(&self.database_id, vec![field_order]);
-    self.notify_did_update_grid(notified_changeset).await?;
+    self.notify_did_update_database(notified_changeset).await?;
     Ok(())
   }
 
   pub async fn group_by_field(&self, field_id: &str) -> FlowyResult<()> {
-    self.view_manager.group_by_field(field_id).await?;
+    self.database_view_manager.group_by_field(field_id).await?;
     Ok(())
   }
 
@@ -321,8 +318,8 @@ impl DatabaseRevisionEditor {
     };
 
     self
-      .modify(|grid| {
-        Ok(grid.switch_to_field(
+      .modify(|pad| {
+        Ok(pad.switch_to_field(
           field_id,
           new_field_type.clone(),
           make_default_type_option,
@@ -331,7 +328,7 @@ impl DatabaseRevisionEditor {
       })
       .await?;
 
-    self.notify_did_update_grid_field(field_id).await?;
+    self.notify_did_update_database_field(field_id).await?;
 
     Ok(())
   }
@@ -339,11 +336,11 @@ impl DatabaseRevisionEditor {
   pub async fn duplicate_field(&self, field_id: &str) -> FlowyResult<()> {
     let duplicated_field_id = gen_field_id();
     self
-      .modify(|grid| Ok(grid.duplicate_field_rev(field_id, &duplicated_field_id)?))
+      .modify(|pad| Ok(pad.duplicate_field_rev(field_id, &duplicated_field_id)?))
       .await?;
 
     self
-      .notify_did_insert_grid_field(&duplicated_field_id)
+      .notify_did_insert_database_field(&duplicated_field_id)
       .await?;
     Ok(())
   }
@@ -385,16 +382,19 @@ impl DatabaseRevisionEditor {
     Ok(field_revs)
   }
 
-  pub async fn create_block(&self, block_meta_rev: GridBlockMetaRevision) -> FlowyResult<()> {
+  pub async fn create_block(&self, block_meta_rev: DatabaseBlockMetaRevision) -> FlowyResult<()> {
     self
-      .modify(|grid_pad| Ok(grid_pad.create_block_meta_rev(block_meta_rev)?))
+      .modify(|pad| Ok(pad.create_block_meta_rev(block_meta_rev)?))
       .await?;
     Ok(())
   }
 
-  pub async fn update_block(&self, changeset: GridBlockMetaRevisionChangeset) -> FlowyResult<()> {
+  pub async fn update_block(
+    &self,
+    changeset: DatabaseBlockMetaRevisionChangeset,
+  ) -> FlowyResult<()> {
     self
-      .modify(|grid_pad| Ok(grid_pad.update_block_rev(changeset)?))
+      .modify(|pad| Ok(pad.update_block_rev(changeset)?))
       .await?;
     Ok(())
   }
@@ -403,7 +403,7 @@ impl DatabaseRevisionEditor {
     let mut row_rev = self.create_row_rev().await?;
 
     self
-      .view_manager
+      .database_view_manager
       .will_create_row(&mut row_rev, &params)
       .await;
 
@@ -411,13 +411,16 @@ impl DatabaseRevisionEditor {
       .create_row_pb(row_rev, params.start_row_id.clone())
       .await?;
 
-    self.view_manager.did_create_row(&row_pb, &params).await;
+    self
+      .database_view_manager
+      .did_create_row(&row_pb, &params)
+      .await;
     Ok(row_pb)
   }
 
   #[tracing::instrument(level = "trace", skip_all, err)]
   pub async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
-    self.view_manager.move_group(params).await?;
+    self.database_view_manager.move_group(params).await?;
     Ok(())
   }
 
@@ -432,7 +435,10 @@ impl DatabaseRevisionEditor {
         .or_insert_with(Vec::new)
         .push(row_rev);
     }
-    let changesets = self.block_manager.insert_row(rows_by_block_id).await?;
+    let changesets = self
+      .database_block_manager
+      .insert_row(rows_by_block_id)
+      .await?;
     for changeset in changesets {
       self.update_block(changeset).await?;
     }
@@ -442,14 +448,20 @@ impl DatabaseRevisionEditor {
   pub async fn update_row(&self, changeset: RowChangeset) -> FlowyResult<()> {
     let row_id = changeset.row_id.clone();
     let old_row = self.get_row_rev(&row_id).await?;
-    self.block_manager.update_row(changeset).await?;
-    self.view_manager.did_update_row(old_row, &row_id).await;
+    self.database_block_manager.update_row(changeset).await?;
+    self
+      .database_view_manager
+      .did_update_row(old_row, &row_id)
+      .await;
     Ok(())
   }
 
   /// Returns all the rows in this block.
   pub async fn get_row_pbs(&self, view_id: &str, block_id: &str) -> FlowyResult<Vec<RowPB>> {
-    let rows = self.view_manager.get_row_revs(view_id, block_id).await?;
+    let rows = self
+      .database_view_manager
+      .get_row_revs(view_id, block_id)
+      .await?;
     let rows = rows
       .into_iter()
       .map(|row_rev| RowPB::from(&row_rev))
@@ -459,10 +471,10 @@ impl DatabaseRevisionEditor {
 
   pub async fn get_all_row_revs(&self, view_id: &str) -> FlowyResult<Vec<Arc<RowRevision>>> {
     let mut all_rows = vec![];
-    let blocks = self.block_manager.get_blocks(None).await?;
+    let blocks = self.database_block_manager.get_blocks(None).await?;
     for block in blocks {
       let rows = self
-        .view_manager
+        .database_view_manager
         .get_row_revs(view_id, &block.block_id)
         .await?;
       all_rows.extend(rows);
@@ -471,17 +483,17 @@ impl DatabaseRevisionEditor {
   }
 
   pub async fn get_row_rev(&self, row_id: &str) -> FlowyResult<Option<Arc<RowRevision>>> {
-    match self.block_manager.get_row_rev(row_id).await? {
+    match self.database_block_manager.get_row_rev(row_id).await? {
       None => Ok(None),
       Some((_, row_rev)) => Ok(Some(row_rev)),
     }
   }
 
   pub async fn delete_row(&self, row_id: &str) -> FlowyResult<()> {
-    let row_rev = self.block_manager.delete_row(row_id).await?;
+    let row_rev = self.database_block_manager.delete_row(row_id).await?;
     tracing::trace!("Did delete row:{:?}", row_rev);
     if let Some(row_rev) = row_rev {
-      self.view_manager.did_delete_row(row_rev).await;
+      self.database_view_manager.did_delete_row(row_rev).await;
     }
     Ok(())
   }
@@ -490,7 +502,10 @@ impl DatabaseRevisionEditor {
     &self,
     view_id: &str,
   ) -> FlowyResult<broadcast::Receiver<DatabaseViewChanged>> {
-    self.view_manager.subscribe_view_changed(view_id).await
+    self
+      .database_view_manager
+      .subscribe_view_changed(view_id)
+      .await
   }
 
   pub async fn duplicate_row(&self, _row_id: &str) -> FlowyResult<()> {
@@ -545,7 +560,7 @@ impl DatabaseRevisionEditor {
   ) -> Option<(FieldType, CellProtobufBlob)> {
     let field_rev = self.get_field_rev(&params.field_id).await?;
     let (_, row_rev) = self
-      .block_manager
+      .database_block_manager
       .get_row_rev(&params.row_id)
       .await
       .ok()??;
@@ -562,7 +577,7 @@ impl DatabaseRevisionEditor {
     row_id: &str,
     field_id: &str,
   ) -> FlowyResult<Option<CellRevision>> {
-    match self.block_manager.get_row_rev(row_id).await? {
+    match self.database_block_manager.get_row_rev(row_id).await? {
       None => Ok(None),
       Some((_, row_rev)) => {
         let cell_rev = row_rev.cells.get(field_id).cloned();
@@ -577,7 +592,7 @@ impl DatabaseRevisionEditor {
     view_id: &str,
     field_id: &str,
   ) -> FlowyResult<Vec<RowSingleCellData>> {
-    let view_editor = self.view_manager.get_view_editor(view_id).await?;
+    let view_editor = self.database_view_manager.get_view_editor(view_id).await?;
     view_editor.get_cells_for_field(field_id).await
   }
 
@@ -614,8 +629,14 @@ impl DatabaseRevisionEditor {
           field_id: field_id.to_owned(),
           type_cell_data,
         };
-        self.block_manager.update_cell(cell_changeset).await?;
-        self.view_manager.did_update_row(old_row_rev, row_id).await;
+        self
+          .database_block_manager
+          .update_cell(cell_changeset)
+          .await?;
+        self
+          .database_view_manager
+          .did_update_row(old_row_rev, row_id)
+          .await;
         Ok(())
       },
     }
@@ -633,7 +654,7 @@ impl DatabaseRevisionEditor {
       .await
   }
 
-  pub async fn get_block_meta_revs(&self) -> FlowyResult<Vec<Arc<GridBlockMetaRevision>>> {
+  pub async fn get_block_meta_revs(&self) -> FlowyResult<Vec<Arc<DatabaseBlockMetaRevision>>> {
     let block_meta_revs = self.database_pad.read().await.get_block_meta_revs();
     Ok(block_meta_revs)
   }
@@ -653,12 +674,15 @@ impl DatabaseRevisionEditor {
         .collect::<Vec<String>>(),
       Some(block_ids) => block_ids,
     };
-    let blocks = self.block_manager.get_blocks(Some(block_ids)).await?;
+    let blocks = self
+      .database_block_manager
+      .get_blocks(Some(block_ids))
+      .await?;
     Ok(blocks)
   }
 
   pub async fn delete_rows(&self, block_rows: Vec<DatabaseBlockRow>) -> FlowyResult<()> {
-    let changesets = self.block_manager.delete_rows(block_rows).await?;
+    let changesets = self.database_block_manager.delete_rows(block_rows).await?;
     for changeset in changesets {
       self.update_block(changeset).await?;
     }
@@ -687,13 +711,13 @@ impl DatabaseRevisionEditor {
   }
 
   pub async fn get_setting(&self) -> FlowyResult<DatabaseViewSettingPB> {
-    self.view_manager.get_setting().await
+    self.database_view_manager.get_setting().await
   }
 
   pub async fn get_all_filters(&self) -> FlowyResult<Vec<FilterPB>> {
     Ok(
       self
-        .view_manager
+        .database_view_manager
         .get_all_filters()
         .await?
         .into_iter()
@@ -703,23 +727,26 @@ impl DatabaseRevisionEditor {
   }
 
   pub async fn get_filters(&self, filter_id: FilterType) -> FlowyResult<Vec<Arc<FilterRevision>>> {
-    self.view_manager.get_filters(&filter_id).await
+    self.database_view_manager.get_filters(&filter_id).await
   }
 
   pub async fn create_or_update_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
-    self.view_manager.create_or_update_filter(params).await?;
+    self
+      .database_view_manager
+      .create_or_update_filter(params)
+      .await?;
     Ok(())
   }
 
   pub async fn delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
-    self.view_manager.delete_filter(params).await?;
+    self.database_view_manager.delete_filter(params).await?;
     Ok(())
   }
 
   pub async fn get_all_sorts(&self, view_id: &str) -> FlowyResult<Vec<SortPB>> {
     Ok(
       self
-        .view_manager
+        .database_view_manager
         .get_all_sorts(view_id)
         .await?
         .into_iter()
@@ -729,25 +756,31 @@ impl DatabaseRevisionEditor {
   }
 
   pub async fn delete_all_sorts(&self, view_id: &str) -> FlowyResult<()> {
-    self.view_manager.delete_all_sorts(view_id).await
+    self.database_view_manager.delete_all_sorts(view_id).await
   }
 
   pub async fn delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
-    self.view_manager.delete_sort(params).await?;
+    self.database_view_manager.delete_sort(params).await?;
     Ok(())
   }
 
   pub async fn create_or_update_sort(&self, params: AlterSortParams) -> FlowyResult<SortRevision> {
-    let sort_rev = self.view_manager.create_or_update_sort(params).await?;
+    let sort_rev = self
+      .database_view_manager
+      .create_or_update_sort(params)
+      .await?;
     Ok(sort_rev)
   }
 
   pub async fn insert_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
-    self.view_manager.insert_or_update_group(params).await
+    self
+      .database_view_manager
+      .insert_or_update_group(params)
+      .await
   }
 
   pub async fn delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
-    self.view_manager.delete_group(params).await
+    self.database_view_manager.delete_group(params).await
   }
 
   pub async fn move_row(&self, params: MoveRowParams) -> FlowyResult<()> {
@@ -757,17 +790,21 @@ impl DatabaseRevisionEditor {
       to_row_id,
     } = params;
 
-    match self.block_manager.get_row_rev(&from_row_id).await? {
+    match self
+      .database_block_manager
+      .get_row_rev(&from_row_id)
+      .await?
+    {
       None => tracing::warn!("Move row failed, can not find the row:{}", from_row_id),
       Some((_, row_rev)) => {
         match (
-          self.block_manager.index_of_row(&from_row_id).await,
-          self.block_manager.index_of_row(&to_row_id).await,
+          self.database_block_manager.index_of_row(&from_row_id).await,
+          self.database_block_manager.index_of_row(&to_row_id).await,
         ) {
           (Some(from_index), Some(to_index)) => {
             tracing::trace!("Move row from {} to {}", from_index, to_index);
             self
-              .block_manager
+              .database_block_manager
               .move_row(row_rev.clone(), from_index, to_index)
               .await?;
           },
@@ -787,12 +824,16 @@ impl DatabaseRevisionEditor {
       to_row_id,
     } = params;
 
-    match self.block_manager.get_row_rev(&from_row_id).await? {
+    match self
+      .database_block_manager
+      .get_row_rev(&from_row_id)
+      .await?
+    {
       None => tracing::warn!("Move row failed, can not find the row:{}", from_row_id),
       Some((_, row_rev)) => {
-        let block_manager = self.block_manager.clone();
+        let block_manager = self.database_block_manager.clone();
         self
-          .view_manager
+          .database_view_manager
           .move_group_row(row_rev, to_group_id, to_row_id.clone(), |row_changeset| {
             to_fut(async move {
               tracing::trace!("Row data changed: {:?}", row_changeset);
@@ -830,9 +871,7 @@ impl DatabaseRevisionEditor {
     } = params;
 
     self
-      .modify(|grid_pad| {
-        Ok(grid_pad.move_field(&field_id, from_index as usize, to_index as usize)?)
-      })
+      .modify(|pad| Ok(pad.move_field(&field_id, from_index as usize, to_index as usize)?))
       .await?;
     if let Some((index, field_rev)) = self.database_pad.read().await.get_field_rev(&field_id) {
       let delete_field_order = FieldIdPB::from(field_id);
@@ -844,28 +883,28 @@ impl DatabaseRevisionEditor {
         updated_fields: vec![],
       };
 
-      self.notify_did_update_grid(notified_changeset).await?;
+      self.notify_did_update_database(notified_changeset).await?;
     }
     Ok(())
   }
 
-  pub async fn duplicate_grid(&self) -> FlowyResult<BuildDatabaseContext> {
-    let grid_pad = self.database_pad.read().await;
-    let grid_view_revision_data = self.view_manager.duplicate_database_view().await?;
-    let original_blocks = grid_pad.get_block_meta_revs();
-    let (duplicated_fields, duplicated_blocks) = grid_pad.duplicate_grid_block_meta().await;
+  pub async fn duplicate_database(&self) -> FlowyResult<BuildDatabaseContext> {
+    let database_pad = self.database_pad.read().await;
+    let database_view_data = self.database_view_manager.duplicate_database_view().await?;
+    let original_blocks = database_pad.get_block_meta_revs();
+    let (duplicated_fields, duplicated_blocks) = database_pad.duplicate_database_block_meta().await;
 
     let mut blocks_meta_data = vec![];
     if original_blocks.len() == duplicated_blocks.len() {
       for (index, original_block_meta) in original_blocks.iter().enumerate() {
-        let grid_block_meta_editor = self
-          .block_manager
-          .get_block_editor(&original_block_meta.block_id)
+        let database_block_meta_editor = self
+          .database_block_manager
+          .get_or_create_block_editor(&original_block_meta.block_id)
           .await?;
         let duplicated_block_id = &duplicated_blocks[index].block_id;
 
         tracing::trace!("Duplicate block:{} meta data", duplicated_block_id);
-        let duplicated_block_meta_data = grid_block_meta_editor
+        let duplicated_block_meta_data = database_block_meta_editor
           .duplicate_block(duplicated_block_id)
           .await;
         blocks_meta_data.push(duplicated_block_meta_data);
@@ -873,19 +912,19 @@ impl DatabaseRevisionEditor {
     } else {
       debug_assert_eq!(original_blocks.len(), duplicated_blocks.len());
     }
-    drop(grid_pad);
+    drop(database_pad);
 
     Ok(BuildDatabaseContext {
       field_revs: duplicated_fields.into_iter().map(Arc::new).collect(),
       block_metas: duplicated_blocks,
       blocks: blocks_meta_data,
-      grid_view_revision_data,
+      database_view_data,
     })
   }
 
   #[tracing::instrument(level = "trace", skip_all, err)]
   pub async fn load_groups(&self) -> FlowyResult<RepeatedGroupPB> {
-    self.view_manager.load_groups().await
+    self.database_view_manager.load_groups().await
   }
 
   async fn create_row_rev(&self) -> FlowyResult<RowRevision> {
@@ -906,10 +945,13 @@ impl DatabaseRevisionEditor {
     let block_id = row_rev.block_id.clone();
 
     // insert the row
-    let row_count = self.block_manager.create_row(row_rev, start_row_id).await?;
+    let row_count = self
+      .database_block_manager
+      .create_row(row_rev, start_row_id)
+      .await?;
 
     // update block row count
-    let changeset = GridBlockMetaRevisionChangeset::from_row_count(block_id, row_count);
+    let changeset = DatabaseBlockMetaRevisionChangeset::from_row_count(block_id, row_count);
     self.update_block(changeset).await?;
     Ok(row_pb)
   }
@@ -938,24 +980,24 @@ impl DatabaseRevisionEditor {
 
   async fn block_id(&self) -> FlowyResult<String> {
     match self.database_pad.read().await.get_block_meta_revs().last() {
-      None => Err(FlowyError::internal().context("There is no grid block in this grid")),
-      Some(grid_block) => Ok(grid_block.block_id.clone()),
+      None => Err(FlowyError::internal().context("There is no block in this database")),
+      Some(database_block) => Ok(database_block.block_id.clone()),
     }
   }
 
   #[tracing::instrument(level = "trace", skip_all, err)]
-  async fn notify_did_insert_grid_field(&self, field_id: &str) -> FlowyResult<()> {
+  async fn notify_did_insert_database_field(&self, field_id: &str) -> FlowyResult<()> {
     if let Some((index, field_rev)) = self.database_pad.read().await.get_field_rev(field_id) {
       let index_field = IndexFieldPB::from_field_rev(field_rev, index);
       let notified_changeset =
         DatabaseFieldChangesetPB::insert(&self.database_id, vec![index_field]);
-      self.notify_did_update_grid(notified_changeset).await?;
+      self.notify_did_update_database(notified_changeset).await?;
     }
     Ok(())
   }
 
   #[tracing::instrument(level = "trace", skip_all, err)]
-  async fn notify_did_update_grid_field(&self, field_id: &str) -> FlowyResult<()> {
+  async fn notify_did_update_database_field(&self, field_id: &str) -> FlowyResult<()> {
     if let Some((_, field_rev)) = self
       .database_pad
       .read()
@@ -966,7 +1008,7 @@ impl DatabaseRevisionEditor {
       let updated_field = FieldPB::from(field_rev);
       let notified_changeset =
         DatabaseFieldChangesetPB::update(&self.database_id, vec![updated_field.clone()]);
-      self.notify_did_update_grid(notified_changeset).await?;
+      self.notify_did_update_database(notified_changeset).await?;
 
       send_notification(field_id, DatabaseNotification::DidUpdateField)
         .payload(updated_field)
@@ -976,7 +1018,10 @@ impl DatabaseRevisionEditor {
     Ok(())
   }
 
-  async fn notify_did_update_grid(&self, changeset: DatabaseFieldChangesetPB) -> FlowyResult<()> {
+  async fn notify_did_update_database(
+    &self,
+    changeset: DatabaseFieldChangesetPB,
+  ) -> FlowyResult<()> {
     send_notification(&self.database_id, DatabaseNotification::DidUpdateFields)
       .payload(changeset)
       .send();
@@ -990,13 +1035,13 @@ impl DatabaseRevisionEditor {
     self.rev_manager.clone()
   }
 
-  pub fn grid_pad(&self) -> Arc<RwLock<DatabaseRevisionPad>> {
+  pub fn database_pad(&self) -> Arc<RwLock<DatabaseRevisionPad>> {
     self.database_pad.clone()
   }
 }
 
-pub struct GridRevisionSerde();
-impl RevisionObjectDeserializer for GridRevisionSerde {
+pub struct DatabaseRevisionSerde();
+impl RevisionObjectDeserializer for DatabaseRevisionSerde {
   type Output = DatabaseRevisionPad;
 
   fn deserialize_revisions(
@@ -1011,25 +1056,25 @@ impl RevisionObjectDeserializer for GridRevisionSerde {
     None
   }
 }
-impl RevisionObjectSerializer for GridRevisionSerde {
+impl RevisionObjectSerializer for DatabaseRevisionSerde {
   fn combine_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
     let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
     Ok(operations.json_bytes())
   }
 }
 
-pub struct GridRevisionCloudService {
+pub struct DatabaseRevisionCloudService {
   #[allow(dead_code)]
   token: String,
 }
 
-impl GridRevisionCloudService {
+impl DatabaseRevisionCloudService {
   pub fn new(token: String) -> Self {
     Self { token }
   }
 }
 
-impl RevisionCloudService for GridRevisionCloudService {
+impl RevisionCloudService for DatabaseRevisionCloudService {
   #[tracing::instrument(level = "trace", skip(self))]
   fn fetch_object(
     &self,
@@ -1040,11 +1085,11 @@ impl RevisionCloudService for GridRevisionCloudService {
   }
 }
 
-pub struct GridRevisionMergeable();
+pub struct DatabaseRevisionMergeable();
 
-impl RevisionMergeable for GridRevisionMergeable {
+impl RevisionMergeable for DatabaseRevisionMergeable {
   fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-    GridRevisionSerde::combine_revisions(revisions)
+    DatabaseRevisionSerde::combine_revisions(revisions)
   }
 }
 

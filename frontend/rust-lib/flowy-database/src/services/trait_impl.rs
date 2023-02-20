@@ -12,14 +12,14 @@ use lib_infra::future::{to_fut, Fut};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-pub(crate) struct GridViewEditorDelegateImpl {
+pub(crate) struct DatabaseViewEditorDelegateImpl {
   pub(crate) pad: Arc<RwLock<DatabaseRevisionPad>>,
   pub(crate) block_manager: Arc<DatabaseBlockManager>,
   pub(crate) task_scheduler: Arc<RwLock<TaskDispatcher>>,
   pub(crate) cell_data_cache: AtomicCellDataCache,
 }
 
-impl DatabaseViewEditorDelegate for GridViewEditorDelegateImpl {
+impl DatabaseViewEditorDelegate for DatabaseViewEditorDelegateImpl {
   fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>> {
     let pad = self.pad.clone();
     to_fut(async move {
@@ -27,7 +27,7 @@ impl DatabaseViewEditorDelegate for GridViewEditorDelegateImpl {
         Ok(field_revs) => field_revs,
         Err(e) => {
           tracing::error!(
-            "[GridViewRevisionDelegate] get field revisions failed: {}",
+            "[DatabaseViewEditorDelegate] get field revisions failed: {}",
             e
           );
           vec![]

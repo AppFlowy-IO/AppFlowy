@@ -177,7 +177,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     debug_assert_eq!(layout, ViewLayoutTypePB::Document);
     let view_data = match String::from_utf8(view_data.to_vec()) {
       Ok(content) => match make_transaction_from_document_content(&content) {
-        Ok(transaction) => transaction.to_bytes().unwrap_or(vec![]),
+        Ok(transaction) => transaction.to_bytes().unwrap_or_else(|_| vec![]),
         Err(_) => vec![],
       },
       Err(_) => vec![],
@@ -282,7 +282,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
     let view_id = view.id.clone();
     FutureResult::new(async move {
       let editor = grid_manager.open_database(view_id).await?;
-      let delta_bytes = editor.duplicate_grid().await?;
+      let delta_bytes = editor.duplicate_database().await?;
       Ok(delta_bytes.into())
     })
   }

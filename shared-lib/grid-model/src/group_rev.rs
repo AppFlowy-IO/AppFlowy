@@ -1,4 +1,4 @@
-use crate::{gen_grid_group_id, FieldTypeRevision};
+use crate::{gen_database_group_id, FieldTypeRevision};
 use serde::{Deserialize, Serialize};
 use serde_json::Error;
 use serde_repr::*;
@@ -29,7 +29,7 @@ impl GroupConfigurationRevision {
   {
     let content = content.to_json()?;
     Ok(Self {
-      id: gen_grid_group_id(),
+      id: gen_database_group_id(),
       field_id,
       field_type_rev: field_type,
       groups: vec![],

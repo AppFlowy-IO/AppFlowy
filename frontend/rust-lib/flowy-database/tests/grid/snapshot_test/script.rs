@@ -47,7 +47,7 @@ impl DatabaseSnapshotTest {
   }
 
   pub async fn grid_pad(&self) -> DatabaseRevisionPad {
-    self.editor.grid_pad().read().await.clone()
+    self.editor.database_pad().read().await.clone()
   }
 
   pub async fn run_scripts(&mut self, scripts: Vec<SnapshotScript>) {
