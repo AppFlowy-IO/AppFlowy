@@ -26,7 +26,7 @@ class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
           },
           setFieldVisibility: (_SetFieldVisibility value) async {
             final fieldService =
-                FieldService(databaseId: databaseId, fieldId: value.fieldId);
+                FieldService(viewId: databaseId, fieldId: value.fieldId);
             final result =
                 await fieldService.updateField(visibility: value.visibility);
             result.fold(

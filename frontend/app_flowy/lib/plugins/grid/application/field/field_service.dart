@@ -12,14 +12,14 @@ part 'field_service.freezed.dart';
 ///
 /// You could check out the rust-lib/flowy-database/event_map.rs for more information.
 class FieldService {
-  final String databaseId;
+  final String viewId;
   final String fieldId;
 
-  FieldService({required this.databaseId, required this.fieldId});
+  FieldService({required this.viewId, required this.fieldId});
 
   Future<Either<Unit, FlowyError>> moveField(int fromIndex, int toIndex) {
     final payload = MoveFieldPayloadPB.create()
-      ..viewId = databaseId
+      ..viewId = viewId
       ..fieldId = fieldId
       ..fromIndex = fromIndex
       ..toIndex = toIndex;
@@ -35,7 +35,7 @@ class FieldService {
     double? width,
   }) {
     var payload = FieldChangesetPB.create()
-      ..databaseId = databaseId
+      ..databaseId = viewId
       ..fieldId = fieldId;
 
     if (name != null) {
@@ -76,7 +76,7 @@ class FieldService {
 
   Future<Either<Unit, FlowyError>> deleteField() {
     final payload = DeleteFieldPayloadPB.create()
-      ..databaseId = databaseId
+      ..databaseId = viewId
       ..fieldId = fieldId;
 
     return DatabaseEventDeleteField(payload).send();
@@ -84,7 +84,7 @@ class FieldService {
 
   Future<Either<Unit, FlowyError>> duplicateField() {
     final payload = DuplicateFieldPayloadPB.create()
-      ..databaseId = databaseId
+      ..databaseId = viewId
       ..fieldId = fieldId;
 
     return DatabaseEventDuplicateField(payload).send();
@@ -94,7 +94,7 @@ class FieldService {
     required FieldType fieldType,
   }) {
     final payload = TypeOptionPathPB.create()
-      ..databaseId = databaseId
+      ..viewId = viewId
       ..fieldId = fieldId
       ..fieldType = fieldType;
     return DatabaseEventGetTypeOption(payload).send().then((result) {

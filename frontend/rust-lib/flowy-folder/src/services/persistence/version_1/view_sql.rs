@@ -110,8 +110,7 @@ impl ViewTable {
       thumbnail: view_rev.thumbnail,
       view_type: data_type,
       ext_data: view_rev.ext_data,
-      #[allow(deprecated)]
-      version: view_rev.version,
+      version: 0,
       is_trash: false,
     }
   }

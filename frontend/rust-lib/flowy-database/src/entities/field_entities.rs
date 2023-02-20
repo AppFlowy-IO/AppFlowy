@@ -88,7 +88,7 @@ impl std::convert::From<&Arc<FieldRevision>> for FieldIdPB {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct DatabaseFieldChangesetPB {
   #[pb(index = 1)]
-  pub database_id: String,
+  pub view_id: String,
 
   #[pb(index = 2)]
   pub inserted_fields: Vec<IndexFieldPB>,
@@ -103,7 +103,7 @@ pub struct DatabaseFieldChangesetPB {
 impl DatabaseFieldChangesetPB {
   pub fn insert(database_id: &str, inserted_fields: Vec<IndexFieldPB>) -> Self {
     Self {
-      database_id: database_id.to_owned(),
+      view_id: database_id.to_owned(),
       inserted_fields,
       deleted_fields: vec![],
       updated_fields: vec![],
@@ -112,7 +112,7 @@ impl DatabaseFieldChangesetPB {
 
   pub fn delete(database_id: &str, deleted_fields: Vec<FieldIdPB>) -> Self {
     Self {
-      database_id: database_id.to_string(),
+      view_id: database_id.to_string(),
       inserted_fields: vec![],
       deleted_fields,
       updated_fields: vec![],
@@ -121,7 +121,7 @@ impl DatabaseFieldChangesetPB {
 
   pub fn update(database_id: &str, updated_fields: Vec<FieldPB>) -> Self {
     Self {
-      database_id: database_id.to_string(),
+      view_id: database_id.to_string(),
       inserted_fields: vec![],
       deleted_fields: vec![],
       updated_fields,
@@ -150,7 +150,7 @@ impl IndexFieldPB {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct CreateFieldPayloadPB {
   #[pb(index = 1)]
-  pub database_id: String,
+  pub view_id: String,
 
   #[pb(index = 2)]
   pub field_type: FieldType,
@@ -161,7 +161,7 @@ pub struct CreateFieldPayloadPB {
 
 #[derive(Clone)]
 pub struct CreateFieldParams {
-  pub database_id: String,
+  pub view_id: String,
   pub field_type: FieldType,
   pub type_option_data: Option<Vec<u8>>,
 }
@@ -170,10 +170,9 @@ impl TryInto<CreateFieldParams> for CreateFieldPayloadPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<CreateFieldParams, Self::Error> {
-    let database_id =
-      NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     Ok(CreateFieldParams {
-      database_id: database_id.0,
+      view_id: view_id.0,
       field_type: self.field_type,
       type_option_data: self.type_option_data,
     })
@@ -183,7 +182,7 @@ impl TryInto<CreateFieldParams> for CreateFieldPayloadPB {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct UpdateFieldTypePayloadPB {
   #[pb(index = 1)]
-  pub database_id: String,
+  pub view_id: String,
 
   #[pb(index = 2)]
   pub field_id: String,
@@ -196,7 +195,7 @@ pub struct UpdateFieldTypePayloadPB {
 }
 
 pub struct EditFieldParams {
-  pub database_id: String,
+  pub view_id: String,
   pub field_id: String,
   pub field_type: FieldType,
 }
@@ -205,11 +204,10 @@ impl TryInto<EditFieldParams> for UpdateFieldTypePayloadPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<EditFieldParams, Self::Error> {
-    let database_id =
-      NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
     Ok(EditFieldParams {
-      database_id: database_id.0,
+      view_id: view_id.0,
       field_id: field_id.0,
       field_type: self.field_type,
     })
@@ -219,7 +217,7 @@ impl TryInto<EditFieldParams> for UpdateFieldTypePayloadPB {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct TypeOptionPathPB {
   #[pb(index = 1)]
-  pub database_id: String,
+  pub view_id: String,
 
   #[pb(index = 2)]
   pub field_id: String,
@@ -229,7 +227,7 @@ pub struct TypeOptionPathPB {
 }
 
 pub struct TypeOptionPathParams {
-  pub database_id: String,
+  pub view_id: String,
   pub field_id: String,
   pub field_type: FieldType,
 }
@@ -238,11 +236,10 @@ impl TryInto<TypeOptionPathParams> for TypeOptionPathPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<TypeOptionPathParams, Self::Error> {
-    let database_id =
-      NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let database_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
     Ok(TypeOptionPathParams {
-      database_id: database_id.0,
+      view_id: database_id.0,
       field_id: field_id.0,
       field_type: self.field_type,
     })
@@ -252,7 +249,7 @@ impl TryInto<TypeOptionPathParams> for TypeOptionPathPB {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct TypeOptionPB {
   #[pb(index = 1)]
-  pub database_id: String,
+  pub view_id: String,
 
   #[pb(index = 2)]
   pub field: FieldPB,

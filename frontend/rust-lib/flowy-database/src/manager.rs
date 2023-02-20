@@ -136,6 +136,7 @@ impl DatabaseManager {
   }
 
   // #[tracing::instrument(level = "debug", skip(self), err)]
+  //TODO(nathan): map the view_id to database_id
   pub async fn get_database_editor(
     &self,
     database_id: &str,

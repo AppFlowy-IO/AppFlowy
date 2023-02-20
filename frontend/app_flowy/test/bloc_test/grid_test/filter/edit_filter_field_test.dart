@@ -35,7 +35,7 @@ void main() {
 
     // Edit the text field
     final loader = FieldTypeOptionLoader(
-      databaseId: context.gridView.id,
+      viewId: context.gridView.id,
       field: textField.field,
     );
 

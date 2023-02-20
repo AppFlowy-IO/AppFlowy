@@ -23,7 +23,7 @@ use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
 pub struct DatabaseViewManager {
-  view_id: String,
+  database_id: String,
   user: Arc<dyn DatabaseUser>,
   delegate: Arc<dyn DatabaseViewEditorDelegate>,
   view_editors: Arc<RwLock<RefCountHashMap<Arc<DatabaseViewRevisionEditor>>>>,
@@ -32,7 +32,7 @@ pub struct DatabaseViewManager {
 
 impl DatabaseViewManager {
   pub async fn new(
-    view_id: String,
+    database_id: String,
     user: Arc<dyn DatabaseUser>,
     delegate: Arc<dyn DatabaseViewEditorDelegate>,
     cell_data_cache: AtomicCellDataCache,
@@ -41,7 +41,7 @@ impl DatabaseViewManager {
     let view_editors = Arc::new(RwLock::new(RefCountHashMap::default()));
     listen_on_database_block_event(block_event_rx, view_editors.clone());
     Ok(Self {
-      view_id,
+      database_id,
       user,
       delegate,
       cell_data_cache,
@@ -260,7 +260,7 @@ impl DatabaseViewManager {
   }
 
   async fn get_default_view_editor(&self) -> FlowyResult<Arc<DatabaseViewRevisionEditor>> {
-    self.get_view_editor(&self.view_id).await
+    self.get_view_editor(&self.database_id).await
   }
 
   async fn make_view_editor(&self, view_id: &str) -> FlowyResult<DatabaseViewRevisionEditor> {

@@ -8,7 +8,7 @@ Future<FieldEditorBloc> createEditorBloc(AppFlowyGridTest gridTest) async {
   final context = await gridTest.createTestGrid();
   final fieldInfo = context.singleSelectFieldContext();
   final loader = FieldTypeOptionLoader(
-    databaseId: context.gridView.id,
+    viewId: context.gridView.id,
     field: fieldInfo.field,
   );
 
@@ -78,7 +78,7 @@ Future<FieldEditorBloc> makeEditorBloc(AppFlowyGridTest gridTest) async {
   final context = await gridTest.createTestGrid();
   final fieldInfo = context.singleSelectFieldContext();
   final loader = FieldTypeOptionLoader(
-    databaseId: context.gridView.id,
+    viewId: context.gridView.id,
     field: fieldInfo.field,
   );
 

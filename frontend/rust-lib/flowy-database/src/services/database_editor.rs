@@ -877,7 +877,7 @@ impl DatabaseRevisionEditor {
       let delete_field_order = FieldIdPB::from(field_id);
       let insert_field = IndexFieldPB::from_field_rev(field_rev, index);
       let notified_changeset = DatabaseFieldChangesetPB {
-        database_id: self.database_id.clone(),
+        view_id: self.database_id.clone(),
         inserted_fields: vec![insert_field],
         deleted_fields: vec![delete_field_order],
         updated_fields: vec![],
@@ -989,6 +989,7 @@ impl DatabaseRevisionEditor {
   async fn notify_did_insert_database_field(&self, field_id: &str) -> FlowyResult<()> {
     if let Some((index, field_rev)) = self.database_pad.read().await.get_field_rev(field_id) {
       let index_field = IndexFieldPB::from_field_rev(field_rev, index);
+      //TODO(nathan): broadcast the changeset to views that reference to this database
       let notified_changeset =
         DatabaseFieldChangesetPB::insert(&self.database_id, vec![index_field]);
       self.notify_did_update_database(notified_changeset).await?;

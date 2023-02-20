@@ -168,7 +168,7 @@ pub(crate) async fn switch_to_field_handler(
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let params: EditFieldParams = data.into_inner().try_into()?;
-  let editor = manager.get_database_editor(&params.database_id).await?;
+  let editor = manager.get_database_editor(&params.view_id).await?;
   let old_field_rev = editor.get_field_rev(&params.field_id).await;
   editor
     .switch_to_field_type(&params.field_id, &params.field_type)
@@ -184,7 +184,7 @@ pub(crate) async fn switch_to_field_handler(
   let type_option_data = get_type_option_data(&new_field_rev, &params.field_type).await?;
   editor
     .update_field_type_option(
-      &params.database_id,
+      &params.view_id,
       &new_field_rev.id,
       type_option_data,
       old_field_rev,
@@ -212,14 +212,14 @@ pub(crate) async fn get_field_type_option_data_handler(
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<TypeOptionPB, FlowyError> {
   let params: TypeOptionPathParams = data.into_inner().try_into()?;
-  let editor = manager.get_database_editor(&params.database_id).await?;
+  let editor = manager.get_database_editor(&params.view_id).await?;
   match editor.get_field_rev(&params.field_id).await {
     None => Err(FlowyError::record_not_found()),
     Some(field_rev) => {
       let field_type = field_rev.ty.into();
       let type_option_data = get_type_option_data(&field_rev, &field_type).await?;
       let data = TypeOptionPB {
-        database_id: params.database_id,
+        view_id: params.view_id,
         field: field_rev.into(),
         type_option_data,
       };
@@ -235,7 +235,7 @@ pub(crate) async fn create_field_type_option_data_handler(
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<TypeOptionPB, FlowyError> {
   let params: CreateFieldParams = data.into_inner().try_into()?;
-  let editor = manager.get_database_editor(&params.database_id).await?;
+  let editor = manager.get_database_editor(&params.view_id).await?;
   let field_rev = editor
     .create_new_field_rev_with_type_option(&params.field_type, params.type_option_data)
     .await?;
@@ -243,7 +243,7 @@ pub(crate) async fn create_field_type_option_data_handler(
   let type_option_data = get_type_option_data(&field_rev, &field_type).await?;
 
   data_result(TypeOptionPB {
-    database_id: params.database_id,
+    view_id: params.view_id,
     field: field_rev.into(),
     type_option_data,
   })

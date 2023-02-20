@@ -20,8 +20,8 @@ pub struct ViewRevision {
   #[serde(rename = "data_type")]
   pub data_format: ViewDataFormatRevision,
 
-  #[deprecated]
-  pub version: i64,
+  // #[deprecated]
+  version: i64,
 
   pub belongings: Vec<ViewRevision>,
 

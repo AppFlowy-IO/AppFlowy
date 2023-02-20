@@ -81,10 +81,10 @@ class BoardTestContext {
   }) {
     IFieldTypeOptionLoader loader;
     if (fieldInfo == null) {
-      loader = NewFieldTypeOptionLoader(databaseId: gridView.id);
+      loader = NewFieldTypeOptionLoader(viewId: gridView.id);
     } else {
-      loader = FieldTypeOptionLoader(
-          databaseId: gridView.id, field: fieldInfo.field);
+      loader =
+          FieldTypeOptionLoader(viewId: gridView.id, field: fieldInfo.field);
     }
 
     final editorBloc = FieldEditorBloc(
