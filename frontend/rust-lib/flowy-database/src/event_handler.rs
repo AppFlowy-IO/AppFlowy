@@ -560,3 +560,23 @@ pub(crate) async fn move_group_row_handler(
   editor.move_group_row(params).await?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn set_calendar_setting_handler(
+  data: AFPluginData<CalendarSettingsPB>,
+  manager: AFPluginState<Arc<DatabaseManager>>,
+) -> FlowyResult<()> {
+  let params: CalendarSettingsParams = data.into_inner().try_into()?;
+  let _ = manager.get_database_editor(params.view_id.as_ref()).await?;
+  todo!("nathan: depends on the main branch refactoring")
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn get_calendar_setting_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Arc<DatabaseManager>>,
+) -> FlowyResult<()> {
+  let view_id = data.into_inner().value;
+  let _ = manager.get_database_editor(view_id.as_ref()).await?;
+  todo!("nathan: depends on the main branch refactoring")
+}
