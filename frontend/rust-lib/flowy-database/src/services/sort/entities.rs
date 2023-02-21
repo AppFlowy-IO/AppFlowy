@@ -1,5 +1,5 @@
 use crate::entities::{AlterSortParams, DeleteSortParams, FieldType};
-use grid_model::{FieldRevision, FieldTypeRevision};
+use database_model::{FieldRevision, FieldTypeRevision};
 use std::sync::Arc;
 
 #[derive(Hash, Eq, PartialEq, Debug, Clone)]

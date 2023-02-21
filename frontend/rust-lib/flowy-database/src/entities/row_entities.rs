@@ -1,8 +1,8 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::LayoutTypePB;
+use database_model::RowRevision;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use grid_model::RowRevision;
 use std::sync::Arc;
 
 /// [RowPB] Describes a row. Has the id of the parent Block. Has the metadata of the row.

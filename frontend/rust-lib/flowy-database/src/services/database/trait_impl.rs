@@ -5,9 +5,9 @@ use crate::services::database_view::DatabaseViewEditorDelegate;
 use crate::services::field::{TypeOptionCellDataHandler, TypeOptionCellExt};
 use crate::services::row::DatabaseBlockRowRevision;
 
+use database_model::{FieldRevision, RowRevision};
 use flowy_client_sync::client_database::DatabaseRevisionPad;
 use flowy_task::TaskDispatcher;
-use grid_model::{FieldRevision, RowRevision};
 use lib_infra::future::{to_fut, Fut};
 use std::any::type_name;
 use std::sync::Arc;

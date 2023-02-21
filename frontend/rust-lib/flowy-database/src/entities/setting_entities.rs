@@ -5,9 +5,9 @@ use crate::entities::{
   DeleteSortPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterPB,
   RepeatedGroupConfigurationPB, RepeatedSortPB,
 };
+use database_model::LayoutRevision;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use grid_model::LayoutRevision;
 use std::convert::TryInto;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;

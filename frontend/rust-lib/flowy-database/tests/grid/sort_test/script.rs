@@ -1,10 +1,10 @@
 use crate::grid::database_editor::DatabaseEditorTest;
 use async_stream::stream;
+use database_model::{FieldRevision, SortCondition, SortRevision};
 use flowy_database::entities::{AlterSortParams, CellIdParams, DeleteSortParams};
 use flowy_database::services::database_view::DatabaseViewChanged;
 use flowy_database::services::sort::SortType;
 use futures::stream::StreamExt;
-use grid_model::{FieldRevision, SortCondition, SortRevision};
 use std::cmp::min;
 use std::sync::Arc;
 use std::time::Duration;

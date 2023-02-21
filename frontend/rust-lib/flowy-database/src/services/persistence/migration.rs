@@ -2,13 +2,13 @@ use crate::manager::DatabaseUser;
 use crate::services::persistence::rev_sqlite::SQLiteDatabaseRevisionPersistence;
 use crate::services::persistence::GridDatabase;
 use bytes::Bytes;
+use database_model::DatabaseRevision;
 use flowy_client_sync::client_database::{
   make_database_rev_json_str, DatabaseOperationsBuilder, DatabaseRevisionPad,
 };
 use flowy_error::FlowyResult;
 use flowy_revision::reset::{RevisionResettable, RevisionStructReset};
 use flowy_sqlite::kv::KV;
-use grid_model::DatabaseRevision;
 use lib_infra::util::md5;
 use revision_model::Revision;
 use std::sync::Arc;

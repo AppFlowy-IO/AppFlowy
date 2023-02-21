@@ -6,6 +6,10 @@ use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter}
 use crate::services::row::DatabaseBlockRowRevision;
 use crate::services::sort::{SortDelegate, SortType};
 use bytes::Bytes;
+use database_model::{
+  FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, RowRevision,
+  SortRevision,
+};
 use flowy_client_sync::client_database::{DatabaseViewRevisionPad, GridViewRevisionChangeset};
 use flowy_client_sync::make_operations_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
@@ -14,10 +18,6 @@ use flowy_revision::{
   RevisionObjectSerializer,
 };
 use flowy_sqlite::ConnectionPool;
-use grid_model::{
-  FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, RowRevision,
-  SortRevision,
-};
 use lib_infra::future::{to_fut, Fut, FutureResult};
 use lib_ot::core::EmptyAttributes;
 use revision_model::Revision;

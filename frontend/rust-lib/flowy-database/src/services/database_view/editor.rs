@@ -17,6 +17,10 @@ use crate::services::row::DatabaseBlockRowRevision;
 use crate::services::sort::{
   DeletedSortType, SortChangeset, SortController, SortTaskHandler, SortType,
 };
+use database_model::{
+  gen_database_filter_id, gen_database_sort_id, FieldRevision, FieldTypeRevision, FilterRevision,
+  LayoutRevision, RowChangeset, RowRevision, SortRevision,
+};
 use flowy_client_sync::client_database::{
   make_grid_view_operations, DatabaseViewRevisionPad, GridViewRevisionChangeset,
 };
@@ -24,10 +28,6 @@ use flowy_error::FlowyResult;
 use flowy_revision::RevisionManager;
 use flowy_sqlite::ConnectionPool;
 use flowy_task::TaskDispatcher;
-use grid_model::{
-  gen_database_filter_id, gen_database_sort_id, FieldRevision, FieldTypeRevision, FilterRevision,
-  LayoutRevision, RowChangeset, RowRevision, SortRevision,
-};
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::Fut;
 use lib_infra::ref_map::RefCountValue;

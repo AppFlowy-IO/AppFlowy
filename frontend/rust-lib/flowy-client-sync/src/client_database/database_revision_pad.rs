@@ -1,10 +1,10 @@
 use crate::errors::{internal_sync_error, SyncError, SyncResult};
 use crate::util::cal_diff;
-use flowy_sync::util::make_operations_from_revisions;
-use grid_model::{
+use database_model::{
   gen_block_id, gen_database_id, DatabaseBlockMetaRevision, DatabaseBlockMetaRevisionChangeset,
   DatabaseRevision, FieldRevision, FieldTypeRevision,
 };
+use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::util::md5;
 use lib_infra::util::move_vec_element;
 use lib_ot::core::{DeltaOperationBuilder, DeltaOperations, EmptyAttributes, OperationTransform};

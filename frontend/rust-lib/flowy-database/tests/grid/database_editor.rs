@@ -1,5 +1,6 @@
 use crate::grid::mock_data::*;
 use bytes::Bytes;
+use database_model::*;
 use flowy_database::entities::*;
 use flowy_database::services::cell::ToCellChangesetString;
 use flowy_database::services::database::DatabaseRevisionEditor;
@@ -7,7 +8,6 @@ use flowy_database::services::field::SelectOptionPB;
 use flowy_database::services::field::*;
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
-use grid_model::*;
 use std::collections::HashMap;
 use std::sync::Arc;
 use strum::EnumCount;

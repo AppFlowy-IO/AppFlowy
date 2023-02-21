@@ -12,10 +12,10 @@ use crate::services::filter::FilterType;
 use crate::services::persistence::rev_sqlite::{
   SQLiteDatabaseRevisionSnapshotPersistence, SQLiteGridViewRevisionPersistence,
 };
+use database_model::{FieldRevision, FilterRevision, RowChangeset, RowRevision, SortRevision};
 use flowy_error::FlowyResult;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration};
 use flowy_sqlite::ConnectionPool;
-use grid_model::{FieldRevision, FilterRevision, RowChangeset, RowRevision, SortRevision};
 use lib_infra::future::Fut;
 use lib_infra::ref_map::RefCountHashMap;
 use std::borrow::Cow;

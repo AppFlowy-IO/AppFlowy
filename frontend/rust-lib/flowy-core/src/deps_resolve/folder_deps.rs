@@ -1,6 +1,7 @@
 use bytes::Bytes;
 use flowy_sqlite::ConnectionPool;
 
+use database_model::BuildDatabaseContext;
 use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_database::entities::LayoutTypePB;
 use flowy_database::manager::{make_database_view_data, DatabaseManager};
@@ -19,7 +20,6 @@ use flowy_net::{http_server::folder::FolderHttpCloudService, local_server::Local
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
-use grid_model::BuildDatabaseContext;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
 use revision_model::Revision;

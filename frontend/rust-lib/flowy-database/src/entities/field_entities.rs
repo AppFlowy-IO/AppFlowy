@@ -1,6 +1,6 @@
+use database_model::{FieldRevision, FieldTypeRevision};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use grid_model::{FieldRevision, FieldTypeRevision};
 use serde_repr::*;
 use std::sync::Arc;
 

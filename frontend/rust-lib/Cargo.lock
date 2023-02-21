@@ -696,6 +696,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "database-model"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "indexmap",
+ "nanoid",
+ "serde",
+ "serde_json",
+ "serde_repr",
+]
+
+[[package]]
 name = "derivative"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -921,12 +933,12 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "chrono",
+ "database-model",
  "dissimilar",
  "document-model",
  "flowy-derive",
  "flowy-sync",
  "folder-model",
- "grid-model",
  "lib-infra",
  "lib-ot",
  "parking_lot 0.12.1",
@@ -984,6 +996,7 @@ name = "flowy-core"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "database-model",
  "flowy-client-ws",
  "flowy-database",
  "flowy-document",
@@ -995,7 +1008,6 @@ dependencies = [
  "flowy-task",
  "flowy-user",
  "futures-core",
- "grid-model",
  "lib-dispatch",
  "lib-infra",
  "lib-log",
@@ -1019,6 +1031,7 @@ dependencies = [
  "chrono",
  "crossbeam-utils",
  "dashmap",
+ "database-model",
  "diesel",
  "fancy-regex 0.10.0",
  "flowy-client-sync",
@@ -1033,7 +1046,6 @@ dependencies = [
  "flowy-task",
  "flowy-test",
  "futures",
- "grid-model",
  "indexmap",
  "lazy_static",
  "lib-dispatch",
@@ -1611,18 +1623,6 @@ dependencies = [
  "bitflags",
  "ignore",
  "walkdir",
-]
-
-[[package]]
-name = "grid-model"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "indexmap",
- "nanoid",
- "serde",
- "serde_json",
- "serde_repr",
 ]
 
 [[package]]

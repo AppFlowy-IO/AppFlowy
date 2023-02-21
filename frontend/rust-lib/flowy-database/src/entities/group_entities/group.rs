@@ -1,9 +1,9 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{CreateRowParams, FieldType, LayoutTypePB, RowPB};
 use crate::services::group::Group;
+use database_model::{FieldTypeRevision, GroupConfigurationRevision};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use grid_model::{FieldTypeRevision, GroupConfigurationRevision};
 use std::convert::TryInto;
 use std::sync::Arc;
 

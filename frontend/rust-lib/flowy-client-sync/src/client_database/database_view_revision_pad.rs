@@ -1,10 +1,10 @@
 use crate::errors::{internal_sync_error, SyncError, SyncResult};
 use crate::util::cal_diff;
-use flowy_sync::util::make_operations_from_revisions;
-use grid_model::{
+use database_model::{
   DatabaseViewRevision, FieldRevision, FieldTypeRevision, FilterRevision,
   GroupConfigurationRevision, LayoutRevision, SortRevision,
 };
+use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::util::md5;
 use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
 use revision_model::Revision;

@@ -5,7 +5,7 @@ mod tests {
   use crate::services::field::type_options::checkbox_type_option::*;
   use crate::services::field::FieldBuilder;
 
-  use grid_model::FieldRevision;
+  use database_model::FieldRevision;
 
   #[test]
   fn checkout_box_description_test() {

@@ -1,7 +1,7 @@
+use database_model::*;
 use flowy_database::entities::*;
 use flowy_database::services::field::selection_type_option::SelectOptionPB;
 use flowy_database::services::field::*;
-use grid_model::*;
 
 pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, FieldRevision) {
   let mut field_rev = FieldBuilder::new(RichTextTypeOptionBuilder::default())

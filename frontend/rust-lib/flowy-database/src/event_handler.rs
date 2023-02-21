@@ -8,8 +8,8 @@ use crate::services::field::{
   SelectOptionChangeset, SelectOptionChangesetPB, SelectOptionIds, SelectOptionPB,
 };
 use crate::services::row::make_row_from_row_rev;
+use database_model::FieldRevision;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use grid_model::FieldRevision;
 use lib_dispatch::prelude::{data_result, AFPluginData, AFPluginState, DataResult};
 use std::sync::Arc;
 

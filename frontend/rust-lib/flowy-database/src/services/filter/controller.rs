@@ -10,9 +10,9 @@ use crate::services::filter::{
 };
 use crate::services::row::DatabaseBlockRowRevision;
 use dashmap::DashMap;
+use database_model::{CellRevision, FieldId, FieldRevision, FilterRevision, RowRevision};
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
-use grid_model::{CellRevision, FieldId, FieldRevision, FilterRevision, RowRevision};
 use lib_infra::future::Fut;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

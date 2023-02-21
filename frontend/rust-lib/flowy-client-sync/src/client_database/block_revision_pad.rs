@@ -1,9 +1,9 @@
 use crate::errors::{SyncError, SyncResult};
 use crate::util::cal_diff;
-use flowy_sync::util::make_operations_from_revisions;
-use grid_model::{
+use database_model::{
   gen_block_id, gen_row_id, CellRevision, DatabaseBlockRevision, RowChangeset, RowRevision,
 };
+use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::util::md5;
 use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
 use revision_model::Revision;
@@ -321,7 +321,7 @@ impl std::default::Default for DatabaseBlockRevisionPad {
 #[cfg(test)]
 mod tests {
   use crate::client_database::{DatabaseBlockOperations, DatabaseBlockRevisionPad};
-  use grid_model::{RowChangeset, RowRevision};
+  use database_model::{RowChangeset, RowRevision};
 
   use std::borrow::Cow;
 

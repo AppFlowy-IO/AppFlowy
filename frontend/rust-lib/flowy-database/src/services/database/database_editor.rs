@@ -18,6 +18,7 @@ use crate::services::filter::FilterType;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{DatabaseBlockRow, DatabaseBlockRowRevision, RowRevisionBuilder};
 use bytes::Bytes;
+use database_model::*;
 use flowy_client_sync::client_database::{
   DatabaseRevisionChangeset, DatabaseRevisionPad, JsonDeserializer,
 };
@@ -30,7 +31,6 @@ use flowy_revision::{
 };
 use flowy_sqlite::ConnectionPool;
 use flowy_task::TaskDispatcher;
-use grid_model::*;
 use lib_infra::future::{to_fut, FutureResult};
 use lib_ot::core::EmptyAttributes;
 use revision_model::Revision;

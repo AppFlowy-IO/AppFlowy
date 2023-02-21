@@ -1,5 +1,6 @@
 use crate::services::database::retry::GetRowDataRetryAction;
 use bytes::Bytes;
+use database_model::{CellRevision, DatabaseBlockRevision, RowChangeset, RowRevision};
 use flowy_client_sync::client_database::{
   DatabaseBlockRevisionChangeset, DatabaseBlockRevisionPad,
 };
@@ -10,7 +11,6 @@ use flowy_revision::{
   RevisionObjectSerializer,
 };
 use flowy_sqlite::ConnectionPool;
-use grid_model::{CellRevision, DatabaseBlockRevision, RowChangeset, RowRevision};
 use lib_infra::future::FutureResult;
 use lib_infra::retry::spawn_retry;
 use lib_ot::core::EmptyAttributes;
@@ -34,7 +34,7 @@ impl DatabaseBlockRevisionEditor {
     block_id: &str,
     mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
   ) -> FlowyResult<Self> {
-    let cloud = Arc::new(GridBlockRevisionCloudService {
+    let cloud = Arc::new(DatabaseBlockRevisionCloudService {
       token: token.to_owned(),
     });
     let block_revision_pad = rev_manager
@@ -192,12 +192,12 @@ impl DatabaseBlockRevisionEditor {
   }
 }
 
-struct GridBlockRevisionCloudService {
+struct DatabaseBlockRevisionCloudService {
   #[allow(dead_code)]
   token: String,
 }
 
-impl RevisionCloudService for GridBlockRevisionCloudService {
+impl RevisionCloudService for DatabaseBlockRevisionCloudService {
   #[tracing::instrument(level = "trace", skip(self))]
   fn fetch_object(
     &self,

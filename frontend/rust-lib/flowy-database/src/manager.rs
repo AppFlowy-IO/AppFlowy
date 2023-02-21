@@ -12,6 +12,7 @@ use crate::services::persistence::rev_sqlite::{
 };
 use crate::services::persistence::GridDatabase;
 use bytes::Bytes;
+use database_model::{BuildDatabaseContext, DatabaseRevision, DatabaseViewRevision};
 use flowy_client_sync::client_database::{
   make_database_block_operations, make_database_operations, make_grid_view_operations,
 };
@@ -20,7 +21,6 @@ use flowy_revision::{
   RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket,
 };
 use flowy_sqlite::ConnectionPool;
-use grid_model::{BuildDatabaseContext, DatabaseRevision, DatabaseViewRevision};
 use lib_infra::async_trait::async_trait;
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
 use revision_model::Revision;

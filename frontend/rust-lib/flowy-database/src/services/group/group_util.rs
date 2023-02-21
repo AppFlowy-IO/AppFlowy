@@ -6,13 +6,13 @@ use crate::services::group::{
   MultiSelectGroupController, SelectOptionGroupContext, SingleSelectGroupController,
   URLGroupContext, URLGroupController,
 };
-use flowy_error::FlowyResult;
-use grid_model::{
+use database_model::{
   CheckboxGroupConfigurationRevision, DateGroupConfigurationRevision, FieldRevision,
   GroupConfigurationRevision, GroupRevision, LayoutRevision, NumberGroupConfigurationRevision,
   RowRevision, SelectOptionGroupConfigurationRevision, TextGroupConfigurationRevision,
   URLGroupConfigurationRevision,
 };
+use flowy_error::FlowyResult;
 use std::sync::Arc;
 
 /// Returns a group controller.

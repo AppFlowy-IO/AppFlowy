@@ -2,8 +2,8 @@ use crate::entities::{GroupChangesetPB, GroupPB, GroupRowsNotificationPB, Insert
 use crate::services::cell::DecodedCellData;
 use crate::services::group::controller::MoveGroupRowContext;
 use crate::services::group::Group;
+use database_model::{CellRevision, FieldRevision, RowRevision};
 use flowy_error::FlowyResult;
-use grid_model::{CellRevision, FieldRevision, RowRevision};
 use std::sync::Arc;
 
 /// Using polymorphism to provides the customs action for different group controller.

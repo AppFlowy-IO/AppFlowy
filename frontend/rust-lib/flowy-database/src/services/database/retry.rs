@@ -1,6 +1,6 @@
+use database_model::RowRevision;
 use flowy_client_sync::client_database::DatabaseBlockRevisionPad;
 use flowy_error::FlowyError;
-use grid_model::RowRevision;
 use lib_infra::retry::Action;
 use std::future::Future;
 use std::pin::Pin;

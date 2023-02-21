@@ -1,8 +1,8 @@
 use crate::grid::database_editor::DatabaseEditorTest;
 
+use database_model::FieldRevision;
 use flowy_client_sync::client_database::{DatabaseOperations, DatabaseRevisionPad};
 use flowy_revision::{RevisionSnapshotData, REVISION_WRITE_INTERVAL_IN_MILLIS};
-use grid_model::FieldRevision;
 use revision_model::Revision;
 use std::time::Duration;
 use tokio::time::sleep;

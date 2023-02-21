@@ -8,12 +8,12 @@ use crate::services::persistence::rev_sqlite::{
 };
 use crate::services::row::{make_row_from_row_rev, DatabaseBlockRow, DatabaseBlockRowRevision};
 use dashmap::DashMap;
+use database_model::{
+  DatabaseBlockMetaRevision, DatabaseBlockMetaRevisionChangeset, RowChangeset, RowRevision,
+};
 use flowy_error::FlowyResult;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration};
 use flowy_sqlite::ConnectionPool;
-use grid_model::{
-  DatabaseBlockMetaRevision, DatabaseBlockMetaRevisionChangeset, RowChangeset, RowRevision,
-};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;

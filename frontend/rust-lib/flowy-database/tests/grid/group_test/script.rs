@@ -1,4 +1,5 @@
 use crate::grid::database_editor::DatabaseEditorTest;
+use database_model::{FieldRevision, RowChangeset};
 use flowy_database::entities::{
   CreateRowParams, FieldType, GroupPB, LayoutTypePB, MoveGroupParams, MoveGroupRowParams, RowPB,
 };
@@ -9,7 +10,6 @@ use flowy_database::services::field::{
   edit_single_select_type_option, SelectOptionPB, SelectTypeOptionSharedAction,
   SingleSelectTypeOptionPB,
 };
-use grid_model::{FieldRevision, RowChangeset};
 use std::sync::Arc;
 
 pub enum GroupScript {

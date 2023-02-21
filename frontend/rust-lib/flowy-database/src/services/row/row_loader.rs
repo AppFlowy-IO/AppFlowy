@@ -1,5 +1,5 @@
 use crate::entities::RowPB;
-use grid_model::RowRevision;
+use database_model::RowRevision;
 
 use std::sync::Arc;
 

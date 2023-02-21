@@ -1,5 +1,5 @@
 use crate::errors::{SyncError, SyncResult};
-use grid_model::{
+use database_model::{
   BuildDatabaseContext, DatabaseBlockMetaRevision, DatabaseBlockRevision, FieldRevision,
   RowRevision,
 };
