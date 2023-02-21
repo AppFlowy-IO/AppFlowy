@@ -31,6 +31,11 @@ pub enum NodeScript {
     path: Path,
     rev_id: usize,
   },
+  DeleteNodes {
+    path: Path,
+    node_data_list: Vec<NodeData>,
+    rev_id: usize,
+  },
   AssertNumberOfChildrenAtPath {
     path: Option<Path>,
     expected: usize,
@@ -137,7 +142,17 @@ impl NodeTest {
         self.transform_transaction_if_need(&mut transaction, rev_id);
         self.apply_transaction(transaction);
       },
-
+      NodeScript::DeleteNodes {
+        path,
+        node_data_list,
+        rev_id,
+      } => {
+        let mut transaction = TransactionBuilder::new()
+          .delete_nodes_at_path(&self.node_tree, &path, node_data_list.len())
+          .build();
+        self.transform_transaction_if_need(&mut transaction, rev_id);
+        self.apply_transaction(transaction);
+      },
       NodeScript::AssertNode { path, expected } => {
         let node = self.node_tree.get_node_data_at_path(&path);
         assert_eq!(node, expected.map(|e| e.into()));
