@@ -1,10 +1,10 @@
 use crate::entities::{DatabaseViewSettingPB, LayoutTypePB, ViewLayoutPB};
+use crate::services::database_view::{get_cells_for_field, DatabaseViewEditorDelegate};
 use crate::services::field::RowSingleCellData;
 use crate::services::filter::{FilterController, FilterDelegate, FilterType};
 use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter};
 use crate::services::row::DatabaseBlockRowRevision;
 use crate::services::sort::{SortDelegate, SortType};
-use crate::services::view_editor::{get_cells_for_field, DatabaseViewEditorDelegate};
 use bytes::Bytes;
 use flowy_client_sync::client_database::{DatabaseViewRevisionPad, GridViewRevisionChangeset};
 use flowy_client_sync::make_operations_from_revisions;

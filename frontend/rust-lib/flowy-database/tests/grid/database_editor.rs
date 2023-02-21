@@ -2,7 +2,7 @@ use crate::grid::mock_data::*;
 use bytes::Bytes;
 use flowy_database::entities::*;
 use flowy_database::services::cell::ToCellChangesetString;
-use flowy_database::services::database_editor::DatabaseRevisionEditor;
+use flowy_database::services::database::DatabaseRevisionEditor;
 use flowy_database::services::field::SelectOptionPB;
 use flowy_database::services::field::*;
 use flowy_test::helper::ViewTest;

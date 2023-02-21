@@ -1,4 +1,4 @@
-use crate::services::retry::GetRowDataRetryAction;
+use crate::services::database::retry::GetRowDataRetryAction;
 use bytes::Bytes;
 use flowy_client_sync::client_database::{
   DatabaseBlockRevisionChangeset, DatabaseBlockRevisionPad,

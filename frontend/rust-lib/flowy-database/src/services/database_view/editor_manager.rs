@@ -3,15 +3,15 @@ use crate::entities::{
   DeleteGroupParams, DeleteSortParams, InsertGroupParams, MoveGroupParams, RepeatedGroupPB, RowPB,
 };
 use crate::manager::DatabaseUser;
-use crate::services::block_manager::DatabaseBlockEvent;
 use crate::services::cell::AtomicCellDataCache;
+use crate::services::database::DatabaseBlockEvent;
+use crate::services::database_view::notifier::*;
+use crate::services::database_view::trait_impl::GridViewRevisionMergeable;
+use crate::services::database_view::{DatabaseViewEditorDelegate, DatabaseViewRevisionEditor};
 use crate::services::filter::FilterType;
 use crate::services::persistence::rev_sqlite::{
   SQLiteDatabaseRevisionSnapshotPersistence, SQLiteGridViewRevisionPersistence,
 };
-use crate::services::view_editor::changed_notifier::*;
-use crate::services::view_editor::trait_impl::GridViewRevisionMergeable;
-use crate::services::view_editor::{DatabaseViewEditorDelegate, DatabaseViewRevisionEditor};
 use flowy_error::FlowyResult;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration};
 use flowy_sqlite::ConnectionPool;

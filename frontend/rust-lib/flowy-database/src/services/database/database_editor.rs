@@ -2,21 +2,21 @@ use crate::entities::CellIdParams;
 use crate::entities::*;
 use crate::manager::DatabaseUser;
 use crate::notification::{send_notification, DatabaseNotification};
-use crate::services::block_manager::DatabaseBlockManager;
 use crate::services::cell::{
   apply_cell_data_changeset, get_type_cell_protobuf, stringify_cell_data, AnyTypeCache,
   AtomicCellDataCache, CellProtobufBlob, ToCellChangesetString, TypeCellData,
 };
+use crate::services::database::DatabaseBlockManager;
 use crate::services::field::{
   default_type_option_builder_from_type, transform_type_option, type_option_builder_from_bytes,
   FieldBuilder, RowSingleCellData,
 };
 
+use crate::services::database::DatabaseViewEditorDelegateImpl;
+use crate::services::database_view::{DatabaseViewChanged, DatabaseViewManager};
 use crate::services::filter::FilterType;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{DatabaseBlockRow, DatabaseBlockRowRevision, RowRevisionBuilder};
-use crate::services::trait_impl::DatabaseViewEditorDelegateImpl;
-use crate::services::view_editor::{DatabaseViewChanged, DatabaseViewManager};
 use bytes::Bytes;
 use flowy_client_sync::client_database::{
   DatabaseRevisionChangeset, DatabaseRevisionPad, JsonDeserializer,

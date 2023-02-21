@@ -1,4 +1,4 @@
-use crate::services::database_editor::DatabaseRevisionEditor;
+use crate::services::database::DatabaseRevisionEditor;
 use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
 use flowy_error::FlowyResult;
 use grid_model::{TypeOptionDataDeserializer, TypeOptionDataSerializer};

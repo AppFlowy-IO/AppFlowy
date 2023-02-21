@@ -1,7 +1,7 @@
 use crate::entities::{CellChangesetPB, InsertedRowPB, UpdatedRowPB};
 use crate::manager::DatabaseUser;
 use crate::notification::{send_notification, DatabaseNotification};
-use crate::services::block_editor::{DatabaseBlockRevisionEditor, DatabaseBlockRevisionMergeable};
+use crate::services::database::{DatabaseBlockRevisionEditor, DatabaseBlockRevisionMergeable};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::rev_sqlite::{
   SQLiteDatabaseBlockRevisionPersistence, SQLiteDatabaseRevisionSnapshotPersistence,

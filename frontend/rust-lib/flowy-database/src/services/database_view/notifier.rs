@@ -13,12 +13,13 @@ pub enum DatabaseViewChanged {
   ReorderSingleRowNotification(ReorderSingleRowResult),
 }
 
-pub type GridViewChangedNotifier = broadcast::Sender<DatabaseViewChanged>;
+pub type DatabaseViewChangedNotifier = broadcast::Sender<DatabaseViewChanged>;
 
-pub(crate) struct GridViewChangedReceiverRunner(
+pub(crate) struct DatabaseViewChangedReceiverRunner(
   pub(crate) Option<broadcast::Receiver<DatabaseViewChanged>>,
 );
-impl GridViewChangedReceiverRunner {
+
+impl DatabaseViewChangedReceiverRunner {
   pub(crate) async fn run(mut self) {
     let mut receiver = self.0.take().expect("Only take once");
     let stream = stream! {

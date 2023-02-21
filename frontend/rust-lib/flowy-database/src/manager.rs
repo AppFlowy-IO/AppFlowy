@@ -1,8 +1,9 @@
 use crate::entities::LayoutTypePB;
-use crate::services::database_editor::{
-  DatabaseRevisionCloudService, DatabaseRevisionEditor, DatabaseRevisionMergeable,
-  DatabaseRevisionSerde,
+use crate::services::database::{
+  make_database_block_rev_manager, DatabaseRevisionCloudService, DatabaseRevisionEditor,
+  DatabaseRevisionMergeable, DatabaseRevisionSerde,
 };
+use crate::services::database_view::make_database_view_rev_manager;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::kv::DatabaseKVPersistence;
 use crate::services::persistence::migration::DatabaseMigration;
@@ -10,7 +11,6 @@ use crate::services::persistence::rev_sqlite::{
   SQLiteDatabaseRevisionPersistence, SQLiteDatabaseRevisionSnapshotPersistence,
 };
 use crate::services::persistence::GridDatabase;
-use crate::services::view_editor::make_database_view_rev_manager;
 use bytes::Bytes;
 use flowy_client_sync::client_database::{
   make_database_block_operations, make_database_operations, make_grid_view_operations,
@@ -25,7 +25,6 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
 use revision_model::Revision;
 
-use crate::services::block_manager::make_database_block_rev_manager;
 use flowy_task::TaskDispatcher;
 use std::sync::Arc;
 use tokio::sync::RwLock;

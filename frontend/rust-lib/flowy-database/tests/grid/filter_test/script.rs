@@ -14,7 +14,7 @@ use grid_model::{FieldRevision, FieldTypeRevision};
 use flowy_sqlite::schema::view_table::dsl::view_table;
 use flowy_database::services::cell::insert_select_option_cell;
 use flowy_database::services::filter::FilterType;
-use flowy_database::services::view_editor::DatabaseViewChanged;
+use flowy_database::services::database_view::DatabaseViewChanged;
 use crate::grid::database_editor::DatabaseEditorTest;
 
 pub struct FilterRowChanged {

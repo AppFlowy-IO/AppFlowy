@@ -3,12 +3,12 @@ use crate::entities::{FieldType, InsertedRowPB, RowPB};
 use crate::services::cell::{
   AnyTypeCache, AtomicCellDataCache, AtomicCellFilterCache, TypeCellData,
 };
+use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
 use crate::services::field::*;
 use crate::services::filter::{
   FilterChangeset, FilterResult, FilterResultNotification, FilterType,
 };
 use crate::services::row::DatabaseBlockRowRevision;
-use crate::services::view_editor::{DatabaseViewChanged, GridViewChangedNotifier};
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
@@ -43,7 +43,7 @@ pub struct FilterController {
   cell_data_cache: AtomicCellDataCache,
   cell_filter_cache: AtomicCellFilterCache,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
-  notifier: GridViewChangedNotifier,
+  notifier: DatabaseViewChangedNotifier,
 }
 
 impl FilterController {
@@ -54,7 +54,7 @@ impl FilterController {
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     filter_revs: Vec<Arc<FilterRevision>>,
     cell_data_cache: AtomicCellDataCache,
-    notifier: GridViewChangedNotifier,
+    notifier: DatabaseViewChangedNotifier,
   ) -> Self
   where
     T: FilterDelegate + 'static,

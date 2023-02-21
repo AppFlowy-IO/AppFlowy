@@ -1,7 +1,10 @@
 use crate::entities::*;
 use crate::notification::{send_notification, DatabaseNotification};
-use crate::services::block_manager::DatabaseBlockEvent;
 use crate::services::cell::{AtomicCellDataCache, TypeCellData};
+use crate::services::database::DatabaseBlockEvent;
+use crate::services::database_view::notifier::DatabaseViewChangedNotifier;
+use crate::services::database_view::trait_impl::*;
+use crate::services::database_view::DatabaseViewChangedReceiverRunner;
 use crate::services::field::{RowSingleCellData, TypeOptionCellDataHandler};
 use crate::services::filter::{
   FilterChangeset, FilterController, FilterTaskHandler, FilterType, UpdatedFilterType,
@@ -14,9 +17,6 @@ use crate::services::row::DatabaseBlockRowRevision;
 use crate::services::sort::{
   DeletedSortType, SortChangeset, SortController, SortTaskHandler, SortType,
 };
-use crate::services::view_editor::changed_notifier::GridViewChangedNotifier;
-use crate::services::view_editor::trait_impl::*;
-use crate::services::view_editor::GridViewChangedReceiverRunner;
 use flowy_client_sync::client_database::{
   make_grid_view_operations, DatabaseViewRevisionPad, GridViewRevisionChangeset,
 };
@@ -82,7 +82,7 @@ pub struct DatabaseViewRevisionEditor {
   group_controller: Arc<RwLock<Box<dyn GroupController>>>,
   filter_controller: Arc<FilterController>,
   sort_controller: Arc<RwLock<SortController>>,
-  pub notifier: GridViewChangedNotifier,
+  pub notifier: DatabaseViewChangedNotifier,
 }
 
 impl DatabaseViewRevisionEditor {
@@ -96,7 +96,7 @@ impl DatabaseViewRevisionEditor {
     mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
   ) -> FlowyResult<Self> {
     let (notifier, _) = broadcast::channel(100);
-    tokio::spawn(GridViewChangedReceiverRunner(Some(notifier.subscribe())).run());
+    tokio::spawn(DatabaseViewChangedReceiverRunner(Some(notifier.subscribe())).run());
     let cloud = Arc::new(GridViewRevisionCloudService {
       token: token.to_owned(),
     });
@@ -907,7 +907,7 @@ async fn new_group_controller_with_field_rev(
 async fn make_filter_controller(
   view_id: &str,
   delegate: Arc<dyn DatabaseViewEditorDelegate>,
-  notifier: GridViewChangedNotifier,
+  notifier: DatabaseViewChangedNotifier,
   cell_data_cache: AtomicCellDataCache,
   pad: Arc<RwLock<DatabaseViewRevisionPad>>,
 ) -> Arc<FilterController> {
@@ -943,7 +943,7 @@ async fn make_filter_controller(
 async fn make_sort_controller(
   view_id: &str,
   delegate: Arc<dyn DatabaseViewEditorDelegate>,
-  notifier: GridViewChangedNotifier,
+  notifier: DatabaseViewChangedNotifier,
   filter_controller: Arc<FilterController>,
   pad: Arc<RwLock<DatabaseViewRevisionPad>>,
   cell_data_cache: AtomicCellDataCache,
