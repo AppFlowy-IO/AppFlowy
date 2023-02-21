@@ -615,16 +615,16 @@ class GridFieldController {
     if (insertedFields.isEmpty) {
       return;
     }
-    final List<FieldInfo> newFields = fieldInfos;
+    final List<FieldInfo> newFieldInfos = fieldInfos;
     for (final indexField in insertedFields) {
-      final gridField = FieldInfo(field: indexField.field_1);
-      if (newFields.length > indexField.index) {
-        newFields.insert(indexField.index, gridField);
+      final fieldInfo = FieldInfo(field: indexField.field_1);
+      if (newFieldInfos.length > indexField.index) {
+        newFieldInfos.insert(indexField.index, fieldInfo);
       } else {
-        newFields.add(gridField);
+        newFieldInfos.add(fieldInfo);
       }
     }
-    _fieldNotifier?.fieldInfos = newFields;
+    _fieldNotifier?.fieldInfos = newFieldInfos;
   }
 
   List<FieldInfo> _updateFields(List<FieldPB> updatedFieldPBs) {
@@ -654,19 +654,20 @@ class GridFieldController {
 
 class GridRowFieldNotifierImpl extends RowChangesetNotifierForward
     with RowCacheDelegate {
-  final GridFieldController _cache;
+  final GridFieldController _fieldController;
   OnReceiveUpdateFields? _onChangesetFn;
   OnReceiveFields? _onFieldFn;
-  GridRowFieldNotifierImpl(GridFieldController cache) : _cache = cache;
+  GridRowFieldNotifierImpl(GridFieldController cache)
+      : _fieldController = cache;
 
   @override
   UnmodifiableListView<FieldInfo> get fields =>
-      UnmodifiableListView(_cache.fieldInfos);
+      UnmodifiableListView(_fieldController.fieldInfos);
 
   @override
-  void onRowFieldsChanged(VoidCallback callback) {
+  void onRowNumberOfFieldsChanged(VoidCallback callback) {
     _onFieldFn = (_) => callback();
-    _cache.addListener(onFields: _onFieldFn);
+    _fieldController.addListener(onFields: _onFieldFn);
   }
 
   @override
@@ -677,18 +678,18 @@ class GridRowFieldNotifierImpl extends RowChangesetNotifierForward
       }
     };
 
-    _cache.addListener(onFieldsUpdated: _onChangesetFn);
+    _fieldController.addListener(onFieldsUpdated: _onChangesetFn);
   }
 
   @override
   void onRowDispose() {
     if (_onFieldFn != null) {
-      _cache.removeListener(onFieldsListener: _onFieldFn!);
+      _fieldController.removeListener(onFieldsListener: _onFieldFn!);
       _onFieldFn = null;
     }
 
     if (_onChangesetFn != null) {
-      _cache.removeListener(onChangesetListener: _onChangesetFn!);
+      _fieldController.removeListener(onChangesetListener: _onChangesetFn!);
       _onChangesetFn = null;
     }
   }

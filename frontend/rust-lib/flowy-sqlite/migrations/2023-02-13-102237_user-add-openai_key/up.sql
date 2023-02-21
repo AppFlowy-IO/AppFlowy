@@ -1,0 +1,1 @@
+ALTER TABLE user_table ADD COLUMN openai_key TEXT NOT NULL DEFAULT '';

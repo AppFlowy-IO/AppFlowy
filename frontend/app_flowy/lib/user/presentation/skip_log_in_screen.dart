@@ -118,7 +118,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   }
 
   Future<void> _autoRegister(BuildContext context) async {
-    final result = await widget.authService.signUpWithRandomUser();
+    final result = await widget.authService.autoSignUp();
     result.fold(
       (user) {
         FolderEventReadCurrentWorkspace().send().then((result) {

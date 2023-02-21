@@ -13,7 +13,7 @@ part 'row_cache.freezed.dart';
 typedef RowUpdateCallback = void Function();
 
 abstract class RowChangesetNotifierForward {
-  void onRowFieldsChanged(VoidCallback callback);
+  void onRowNumberOfFieldsChanged(VoidCallback callback);
   void onRowFieldChanged(void Function(FieldInfo) callback);
 }
 
@@ -29,7 +29,6 @@ abstract class RowCacheDelegate {
 
 class GridRowCache {
   final String databaseId;
-  final List<RowPB> rows;
 
   /// _rows containers the current block's rows
   /// Use List to reverse the order of the GridRow.
@@ -48,14 +47,13 @@ class GridRowCache {
 
   GridRowCache({
     required this.databaseId,
-    required this.rows,
     required RowChangesetNotifierForward notifier,
     required RowCacheDelegate delegate,
   })  : _cellCache = GridCellCache(databaseId: databaseId),
         _rowChangeReasonNotifier = RowChangesetNotifier(),
         _delegate = delegate {
     //
-    notifier.onRowFieldsChanged(() => _rowChangeReasonNotifier
+    notifier.onRowNumberOfFieldsChanged(() => _rowChangeReasonNotifier
         .receive(const RowsChangedReason.fieldDidChange()));
     notifier.onRowFieldChanged(
         (field) => _cellCache.removeCellWithFieldId(field.id));

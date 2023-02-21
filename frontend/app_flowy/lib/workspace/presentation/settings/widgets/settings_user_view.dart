@@ -7,6 +7,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import 'dart:convert';
 
@@ -28,7 +30,9 @@ class SettingsUserView extends StatelessWidget {
             children: [
               _renderUserNameInput(context),
               const VSpace(20),
-              _renderCurrentIcon(context)
+              _renderCurrentIcon(context),
+              const VSpace(20),
+              _renderCurrentOpenaiKey(context)
             ],
           ),
         ),
@@ -49,6 +53,12 @@ class SettingsUserView extends StatelessWidget {
     }
     return _CurrentIcon(iconUrl);
   }
+
+  Widget _renderCurrentOpenaiKey(BuildContext context) {
+    String openAIKey =
+        context.read<SettingsUserViewBloc>().state.userProfile.openaiKey;
+    return _OpenaiKeyInput(openAIKey);
+  }
 }
 
 @visibleForTesting
@@ -62,15 +72,61 @@ class UserNameInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
-        controller: TextEditingController()..text = name,
-        decoration: const InputDecoration(
-          labelText: 'Name',
+      controller: TextEditingController()..text = name,
+      decoration: InputDecoration(
+        labelText: LocaleKeys.settings_user_name.tr(),
+      ),
+      onSubmitted: (val) {
+        context
+            .read<SettingsUserViewBloc>()
+            .add(SettingsUserEvent.updateUserName(val));
+      },
+    );
+  }
+}
+
+class _OpenaiKeyInput extends StatefulWidget {
+  final String openAIKey;
+  const _OpenaiKeyInput(
+    this.openAIKey, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<_OpenaiKeyInput> createState() => _OpenaiKeyInputState();
+}
+
+class _OpenaiKeyInputState extends State<_OpenaiKeyInput> {
+  bool visible = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: TextEditingController()..text = widget.openAIKey,
+      obscureText: !visible,
+      decoration: InputDecoration(
+        labelText: 'OpenAI Key',
+        hintText: LocaleKeys.settings_user_pleaseInputYourOpenAIKey.tr(),
+        suffixIcon: IconButton(
+          iconSize: 15.0,
+          icon: Icon(visible ? Icons.visibility : Icons.visibility_off),
+          padding: EdgeInsets.zero,
+          hoverColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          onPressed: () {
+            setState(() {
+              visible = !visible;
+            });
+          },
         ),
-        onSubmitted: (val) {
-          context
-              .read<SettingsUserViewBloc>()
-              .add(SettingsUserEvent.updateUserName(val));
-        });
+      ),
+      onSubmitted: (val) {
+        // TODO: validate key
+        context
+            .read<SettingsUserViewBloc>()
+            .add(SettingsUserEvent.updateUserOpenAIKey(val));
+      },
+    );
   }
 }
 
@@ -96,7 +152,7 @@ class _CurrentIcon extends StatelessWidget {
             builder: (BuildContext context) {
               return SimpleDialog(
                 title: FlowyText.medium(
-                  'Select an Icon',
+                  LocaleKeys.settings_user_selectAnIcon.tr(),
                   fontSize: FontSizes.s16,
                 ),
                 children: <Widget>[
@@ -112,11 +168,11 @@ class _CurrentIcon extends StatelessWidget {
         },
         child: Column(
           children: <Widget>[
-            const Align(
+            Align(
                 alignment: Alignment.topLeft,
                 child: Text(
-                  "Icon",
-                  style: TextStyle(color: Colors.grey),
+                  LocaleKeys.settings_user_icon.tr(),
+                  style: const TextStyle(color: Colors.grey),
                 )),
             Align(
               alignment: Alignment.centerLeft,

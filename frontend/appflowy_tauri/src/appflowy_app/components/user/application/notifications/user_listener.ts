@@ -1,11 +1,11 @@
 import { UserNotification, UserProfilePB } from '../../../../../services/backend';
-import { AFNotificationListener, OnNotificationError } from '../../../../../services/backend/notifications';
+import { AFNotificationObserver, OnNotificationError } from '../../../../../services/backend/notifications';
 import { UserNotificationParser } from './parser';
 
 declare type OnUserProfileUpdate = (userProfile: UserProfilePB) => void;
 declare type OnUserSignIn = (userProfile: UserProfilePB) => void;
 
-export class UserNotificationListener extends AFNotificationListener<UserNotification> {
+export class UserNotificationListener extends AFNotificationObserver<UserNotification> {
   onProfileUpdate?: OnUserProfileUpdate;
   onUserSignIn?: OnUserSignIn;
 
