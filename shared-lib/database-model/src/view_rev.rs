@@ -33,7 +33,8 @@ impl std::default::Default for LayoutRevision {
 pub struct DatabaseViewRevision {
   pub view_id: String,
 
-  pub grid_id: String,
+  #[serde(rename = "grid_id")]
+  pub database_id: String,
 
   pub layout: LayoutRevision,
 
@@ -48,10 +49,10 @@ pub struct DatabaseViewRevision {
 }
 
 impl DatabaseViewRevision {
-  pub fn new(grid_id: String, view_id: String, layout: LayoutRevision) -> Self {
+  pub fn new(database_id: String, view_id: String, layout: LayoutRevision) -> Self {
     DatabaseViewRevision {
       view_id,
-      grid_id,
+      database_id,
       layout,
       filters: Default::default(),
       groups: Default::default(),
@@ -77,7 +78,7 @@ mod tests {
   fn grid_view_revision_serde_test() {
     let grid_view_revision = DatabaseViewRevision {
       view_id: "1".to_string(),
-      grid_id: "1".to_string(),
+      database_id: "1".to_string(),
       layout: Default::default(),
       filters: Default::default(),
       groups: Default::default(),

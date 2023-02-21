@@ -14,7 +14,7 @@ void main() {
   test('filter rows by text is empty condition)', () async {
     final context = await createTestFilterGrid(gridTest);
 
-    final service = FilterFFIService(databaseId: context.gridView.id);
+    final service = FilterFFIService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
     // create a new filter
     await service.insertTextFilter(
@@ -41,7 +41,7 @@ void main() {
   test('filter rows by text is not empty condition)', () async {
     final context = await createTestFilterGrid(gridTest);
 
-    final service = FilterFFIService(databaseId: context.gridView.id);
+    final service = FilterFFIService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
     // create a new filter
     await service.insertTextFilter(
@@ -66,7 +66,7 @@ void main() {
   test('filter rows by text is empty or is not empty condition)', () async {
     final context = await createTestFilterGrid(gridTest);
 
-    final service = FilterFFIService(databaseId: context.gridView.id);
+    final service = FilterFFIService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
     // create a new filter
     await service.insertTextFilter(
@@ -102,7 +102,7 @@ void main() {
   test('filter rows by text is condition)', () async {
     final context = await createTestFilterGrid(gridTest);
 
-    final service = FilterFFIService(databaseId: context.gridView.id);
+    final service = FilterFFIService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
     // create a new filter
     await service.insertTextFilter(

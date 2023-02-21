@@ -19,7 +19,7 @@ export abstract class TypeOptionParser<T> {
 }
 
 export class FieldBackendService {
-  constructor(public readonly databaseId: string, public readonly fieldId: string) {}
+  constructor(public readonly viewId: string, public readonly fieldId: string) {}
 
   updateField = (data: {
     name?: string;
@@ -28,7 +28,7 @@ export class FieldBackendService {
     visibility?: boolean;
     width?: number;
   }) => {
-    const payload = FieldChangesetPB.fromObject({ database_id: this.databaseId, field_id: this.fieldId });
+    const payload = FieldChangesetPB.fromObject({ database_id: this.viewId, field_id: this.fieldId });
 
     if (data.name !== undefined) {
       payload.name = data.name;
@@ -55,7 +55,7 @@ export class FieldBackendService {
 
   updateTypeOption = (typeOptionData: Uint8Array) => {
     const payload = TypeOptionChangesetPB.fromObject({
-      database_id: this.databaseId,
+      view_id: this.viewId,
       field_id: this.fieldId,
       type_option_data: typeOptionData,
     });
@@ -64,20 +64,20 @@ export class FieldBackendService {
   };
 
   deleteField = () => {
-    const payload = DeleteFieldPayloadPB.fromObject({ database_id: this.databaseId, field_id: this.fieldId });
+    const payload = DeleteFieldPayloadPB.fromObject({ view_id: this.viewId, field_id: this.fieldId });
 
     return DatabaseEventDeleteField(payload);
   };
 
   duplicateField = () => {
-    const payload = DuplicateFieldPayloadPB.fromObject({ database_id: this.databaseId, field_id: this.fieldId });
+    const payload = DuplicateFieldPayloadPB.fromObject({ view_id: this.viewId, field_id: this.fieldId });
 
     return DatabaseEventDuplicateField(payload);
   };
 
   getTypeOptionData = (fieldType: FieldType) => {
     const payload = TypeOptionPathPB.fromObject({
-      database_id: this.databaseId,
+      view_id: this.viewId,
       field_id: this.fieldId,
       field_type: fieldType,
     });

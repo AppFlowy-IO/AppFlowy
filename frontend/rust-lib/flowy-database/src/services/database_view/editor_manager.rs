@@ -3,19 +3,19 @@ use crate::entities::{
   DeleteGroupParams, DeleteSortParams, InsertGroupParams, MoveGroupParams, RepeatedGroupPB, RowPB,
 };
 use crate::manager::DatabaseUser;
-use crate::services::block_manager::DatabaseBlockEvent;
 use crate::services::cell::AtomicCellDataCache;
+use crate::services::database::DatabaseBlockEvent;
+use crate::services::database_view::notifier::*;
+use crate::services::database_view::trait_impl::GridViewRevisionMergeable;
+use crate::services::database_view::{DatabaseViewEditorDelegate, DatabaseViewRevisionEditor};
 use crate::services::filter::FilterType;
 use crate::services::persistence::rev_sqlite::{
   SQLiteDatabaseRevisionSnapshotPersistence, SQLiteGridViewRevisionPersistence,
 };
-use crate::services::view_editor::changed_notifier::*;
-use crate::services::view_editor::trait_impl::GridViewRevisionMergeable;
-use crate::services::view_editor::{DatabaseViewEditorDelegate, DatabaseViewRevisionEditor};
+use database_model::{FieldRevision, FilterRevision, RowChangeset, RowRevision, SortRevision};
 use flowy_error::FlowyResult;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration};
 use flowy_sqlite::ConnectionPool;
-use grid_model::{FieldRevision, FilterRevision, RowChangeset, RowRevision, SortRevision};
 use lib_infra::future::Fut;
 use lib_infra::ref_map::RefCountHashMap;
 use std::borrow::Cow;
@@ -23,7 +23,7 @@ use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
 pub struct DatabaseViewManager {
-  view_id: String,
+  database_id: String,
   user: Arc<dyn DatabaseUser>,
   delegate: Arc<dyn DatabaseViewEditorDelegate>,
   view_editors: Arc<RwLock<RefCountHashMap<Arc<DatabaseViewRevisionEditor>>>>,
@@ -32,7 +32,7 @@ pub struct DatabaseViewManager {
 
 impl DatabaseViewManager {
   pub async fn new(
-    view_id: String,
+    database_id: String,
     user: Arc<dyn DatabaseUser>,
     delegate: Arc<dyn DatabaseViewEditorDelegate>,
     cell_data_cache: AtomicCellDataCache,
@@ -41,7 +41,7 @@ impl DatabaseViewManager {
     let view_editors = Arc::new(RwLock::new(RefCountHashMap::default()));
     listen_on_database_block_event(block_event_rx, view_editors.clone());
     Ok(Self {
-      view_id,
+      database_id,
       user,
       delegate,
       cell_data_cache,
@@ -260,7 +260,7 @@ impl DatabaseViewManager {
   }
 
   async fn get_default_view_editor(&self) -> FlowyResult<Arc<DatabaseViewRevisionEditor>> {
-    self.get_view_editor(&self.view_id).await
+    self.get_view_editor(&self.database_id).await
   }
 
   async fn make_view_editor(&self, view_id: &str) -> FlowyResult<DatabaseViewRevisionEditor> {

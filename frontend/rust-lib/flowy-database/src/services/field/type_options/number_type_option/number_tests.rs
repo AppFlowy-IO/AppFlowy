@@ -5,7 +5,7 @@ mod tests {
   use crate::services::field::FieldBuilder;
 
   use crate::services::field::{strip_currency_symbol, NumberFormat, NumberTypeOptionPB};
-  use grid_model::FieldRevision;
+  use database_model::FieldRevision;
   use strum::IntoEnumIterator;
 
   /// Testing when the input is not a number.

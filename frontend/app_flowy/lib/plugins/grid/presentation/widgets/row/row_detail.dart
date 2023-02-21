@@ -206,7 +206,7 @@ class _CreateFieldButtonState extends State<_CreateFieldButton> {
       popupBuilder: (BuildContext popOverContext) {
         return FieldEditor(
           databaseId: widget.viewId,
-          typeOptionLoader: NewFieldTypeOptionLoader(databaseId: widget.viewId),
+          typeOptionLoader: NewFieldTypeOptionLoader(viewId: widget.viewId),
           onDeleted: (fieldId) {
             popoverController.close();
 
@@ -300,7 +300,7 @@ class _RowDetailCellState extends State<_RowDetailCell> {
       fieldName: widget.cellId.fieldInfo.field.name,
       isGroupField: widget.cellId.fieldInfo.isGroupField,
       typeOptionLoader: FieldTypeOptionLoader(
-        databaseId: widget.cellId.databaseId,
+        viewId: widget.cellId.databaseId,
         field: widget.cellId.fieldInfo.field,
       ),
       onDeleted: (fieldId) {

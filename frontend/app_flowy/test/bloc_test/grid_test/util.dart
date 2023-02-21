@@ -39,10 +39,10 @@ class GridTestContext {
   }) {
     IFieldTypeOptionLoader loader;
     if (fieldInfo == null) {
-      loader = NewFieldTypeOptionLoader(databaseId: gridView.id);
+      loader = NewFieldTypeOptionLoader(viewId: gridView.id);
     } else {
-      loader = FieldTypeOptionLoader(
-          databaseId: gridView.id, field: fieldInfo.field);
+      loader =
+          FieldTypeOptionLoader(viewId: gridView.id, field: fieldInfo.field);
     }
 
     final editorBloc = FieldEditorBloc(
@@ -104,7 +104,7 @@ class GridTestContext {
 
   GridFieldCellContext singleSelectFieldCellContext() {
     final field = singleSelectFieldContext().field;
-    return GridFieldCellContext(databaseId: gridView.id, field: field);
+    return GridFieldCellContext(viewId: gridView.id, field: field);
   }
 
   FieldInfo textFieldContext() {

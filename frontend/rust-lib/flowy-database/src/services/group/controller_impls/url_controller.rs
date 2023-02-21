@@ -9,10 +9,10 @@ use crate::services::group::controller::{
 use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroupContext,
 };
-use flowy_error::FlowyResult;
-use grid_model::{
+use database_model::{
   CellRevision, FieldRevision, GroupRevision, RowRevision, URLGroupConfigurationRevision,
 };
+use flowy_error::FlowyResult;
 
 pub type URLGroupController = GenericGroupController<
   URLGroupConfigurationRevision,

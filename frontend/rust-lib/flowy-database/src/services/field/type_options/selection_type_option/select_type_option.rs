@@ -11,9 +11,9 @@ use crate::services::field::{
   TypeOption, TypeOptionCellData, TypeOptionTransform,
 };
 use bytes::Bytes;
+use database_model::{FieldRevision, TypeOptionDataSerializer};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
-use grid_model::{FieldRevision, TypeOptionDataSerializer};
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 

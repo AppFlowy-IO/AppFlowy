@@ -1,13 +1,13 @@
 use crate::grid::mock_data::*;
 use bytes::Bytes;
+use database_model::*;
 use flowy_database::entities::*;
 use flowy_database::services::cell::ToCellChangesetString;
+use flowy_database::services::database::DatabaseRevisionEditor;
 use flowy_database::services::field::SelectOptionPB;
 use flowy_database::services::field::*;
-use flowy_database::services::grid_editor::DatabaseRevisionEditor;
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
-use grid_model::*;
 use std::collections::HashMap;
 use std::sync::Arc;
 use strum::EnumCount;
@@ -17,7 +17,7 @@ pub struct DatabaseEditorTest {
   pub view_id: String,
   pub editor: Arc<DatabaseRevisionEditor>,
   pub field_revs: Vec<Arc<FieldRevision>>,
-  pub block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
+  pub block_meta_revs: Vec<Arc<DatabaseBlockMetaRevision>>,
   pub row_revs: Vec<Arc<RowRevision>>,
   pub field_count: usize,
   pub row_by_row_id: HashMap<String, RowPB>,

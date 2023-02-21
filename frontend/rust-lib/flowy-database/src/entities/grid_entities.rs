@@ -23,12 +23,12 @@ pub struct CreateDatabasePayloadPB {
 }
 
 #[derive(Clone, ProtoBuf, Default, Debug)]
-pub struct DatabaseIdPB {
+pub struct DatabaseViewIdPB {
   #[pb(index = 1)]
   pub value: String,
 }
 
-impl AsRef<str> for DatabaseIdPB {
+impl AsRef<str> for DatabaseViewIdPB {
   fn as_ref(&self) -> &str {
     &self.value
   }

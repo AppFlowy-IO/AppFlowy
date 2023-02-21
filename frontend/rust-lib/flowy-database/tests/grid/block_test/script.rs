@@ -1,12 +1,12 @@
 use crate::grid::block_test::script::RowScript::{AssertCell, CreateRow};
 use crate::grid::block_test::util::GridRowTestBuilder;
 use crate::grid::database_editor::DatabaseEditorTest;
+use database_model::{
+  DatabaseBlockMetaRevision, DatabaseBlockMetaRevisionChangeset, RowChangeset, RowRevision,
+};
 use flowy_database::entities::{CellIdParams, CreateRowParams, FieldType, LayoutTypePB, RowPB};
 use flowy_database::services::field::*;
 use flowy_database::services::row::DatabaseBlockRow;
-use grid_model::{
-  GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision,
-};
 use std::collections::HashMap;
 use std::sync::Arc;
 use strum::IntoEnumIterator;
@@ -33,10 +33,10 @@ pub enum RowScript {
   },
   AssertRowCount(usize),
   CreateBlock {
-    block: GridBlockMetaRevision,
+    block: DatabaseBlockMetaRevision,
   },
   UpdateBlock {
-    changeset: GridBlockMetaRevisionChangeset,
+    changeset: DatabaseBlockMetaRevisionChangeset,
   },
   AssertBlockCount(usize),
   AssertBlock {
@@ -46,7 +46,7 @@ pub enum RowScript {
   },
   AssertBlockEqual {
     block_index: usize,
-    block: GridBlockMetaRevision,
+    block: DatabaseBlockMetaRevision,
   },
 }
 
@@ -78,7 +78,7 @@ impl DatabaseRowTest {
     match script {
       RowScript::CreateEmptyRow => {
         let params = CreateRowParams {
-          database_id: self.editor.database_id.clone(),
+          view_id: self.editor.database_id.clone(),
           start_row_id: None,
           group_id: None,
           layout: LayoutTypePB::Grid,

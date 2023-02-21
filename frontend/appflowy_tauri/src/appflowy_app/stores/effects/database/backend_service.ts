@@ -3,7 +3,7 @@ import {
   DatabaseEventGetDatabase,
   DatabaseEventGetFields,
 } from '../../../../services/backend/events/flowy-database/event';
-import { DatabaseIdPB } from '../../../../services/backend/models/flowy-database';
+import { DatabaseViewIdPB } from '../../../../services/backend/models/flowy-database';
 import { CreateRowPayloadPB } from '../../../../services/backend/models/flowy-database/row_entities';
 import {
   GetFieldPayloadPB,
@@ -21,7 +21,7 @@ export class DatabaseBackendService {
   }
 
   openDatabase = async () => {
-    const payload = DatabaseIdPB.fromObject({
+    const payload = DatabaseViewIdPB.fromObject({
       value: this.viewId,
     });
     return DatabaseEventGetDatabase(payload);
@@ -39,7 +39,7 @@ export class DatabaseBackendService {
   };
 
   getFields = async (fieldIds?: FieldIdPB[]) => {
-    const payload = GetFieldPayloadPB.fromObject({ database_id: this.viewId });
+    const payload = GetFieldPayloadPB.fromObject({ view_id: this.viewId });
 
     if (!fieldIds) {
       payload.field_ids = RepeatedFieldIdPB.fromObject({ items: fieldIds });

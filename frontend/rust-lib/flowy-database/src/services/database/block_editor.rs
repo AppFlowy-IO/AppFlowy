@@ -1,6 +1,9 @@
-use crate::services::retry::GetRowDataRetryAction;
+use crate::services::database::retry::GetRowDataRetryAction;
 use bytes::Bytes;
-use flowy_client_sync::client_database::{GridBlockRevisionChangeset, GridBlockRevisionPad};
+use database_model::{CellRevision, DatabaseBlockRevision, RowChangeset, RowRevision};
+use flowy_client_sync::client_database::{
+  DatabaseBlockRevisionChangeset, DatabaseBlockRevisionPad,
+};
 use flowy_client_sync::make_operations_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{
@@ -8,7 +11,6 @@ use flowy_revision::{
   RevisionObjectSerializer,
 };
 use flowy_sqlite::ConnectionPool;
-use grid_model::{CellRevision, DatabaseBlockRevision, RowChangeset, RowRevision};
 use lib_infra::future::FutureResult;
 use lib_infra::retry::spawn_retry;
 use lib_ot::core::EmptyAttributes;
@@ -21,7 +23,7 @@ pub struct DatabaseBlockRevisionEditor {
   #[allow(dead_code)]
   user_id: String,
   pub block_id: String,
-  pad: Arc<RwLock<GridBlockRevisionPad>>,
+  pad: Arc<RwLock<DatabaseBlockRevisionPad>>,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
 }
 
@@ -32,7 +34,7 @@ impl DatabaseBlockRevisionEditor {
     block_id: &str,
     mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
   ) -> FlowyResult<Self> {
-    let cloud = Arc::new(GridBlockRevisionCloudService {
+    let cloud = Arc::new(DatabaseBlockRevisionCloudService {
       token: token.to_owned(),
     });
     let block_revision_pad = rev_manager
@@ -165,8 +167,8 @@ impl DatabaseBlockRevisionEditor {
   async fn modify<F>(&self, f: F) -> FlowyResult<()>
   where
     F: for<'a> FnOnce(
-      &'a mut GridBlockRevisionPad,
-    ) -> FlowyResult<Option<GridBlockRevisionChangeset>>,
+      &'a mut DatabaseBlockRevisionPad,
+    ) -> FlowyResult<Option<DatabaseBlockRevisionChangeset>>,
   {
     let mut write_guard = self.pad.write().await;
     let changeset = f(&mut write_guard)?;
@@ -179,8 +181,8 @@ impl DatabaseBlockRevisionEditor {
     Ok(())
   }
 
-  async fn apply_change(&self, change: GridBlockRevisionChangeset) -> FlowyResult<()> {
-    let GridBlockRevisionChangeset {
+  async fn apply_change(&self, change: DatabaseBlockRevisionChangeset) -> FlowyResult<()> {
+    let DatabaseBlockRevisionChangeset {
       operations: delta,
       md5,
     } = change;
@@ -190,12 +192,12 @@ impl DatabaseBlockRevisionEditor {
   }
 }
 
-struct GridBlockRevisionCloudService {
+struct DatabaseBlockRevisionCloudService {
   #[allow(dead_code)]
   token: String,
 }
 
-impl RevisionCloudService for GridBlockRevisionCloudService {
+impl RevisionCloudService for DatabaseBlockRevisionCloudService {
   #[tracing::instrument(level = "trace", skip(self))]
   fn fetch_object(
     &self,
@@ -208,10 +210,13 @@ impl RevisionCloudService for GridBlockRevisionCloudService {
 
 struct DatabaseBlockRevisionSerde();
 impl RevisionObjectDeserializer for DatabaseBlockRevisionSerde {
-  type Output = GridBlockRevisionPad;
+  type Output = DatabaseBlockRevisionPad;
 
-  fn deserialize_revisions(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
-    let pad = GridBlockRevisionPad::from_revisions(object_id, revisions)?;
+  fn deserialize_revisions(
+    _object_id: &str,
+    revisions: Vec<Revision>,
+  ) -> FlowyResult<Self::Output> {
+    let pad = DatabaseBlockRevisionPad::from_revisions(revisions)?;
     Ok(pad)
   }
 
@@ -227,8 +232,8 @@ impl RevisionObjectSerializer for DatabaseBlockRevisionSerde {
   }
 }
 
-pub struct GridBlockRevisionMergeable();
-impl RevisionMergeable for GridBlockRevisionMergeable {
+pub struct DatabaseBlockRevisionMergeable();
+impl RevisionMergeable for DatabaseBlockRevisionMergeable {
   fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
     DatabaseBlockRevisionSerde::combine_revisions(revisions)
   }

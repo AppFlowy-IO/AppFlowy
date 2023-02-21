@@ -1,6 +1,7 @@
 use crate::errors::{SyncError, SyncResult};
-use grid_model::{
-  BuildDatabaseContext, DatabaseBlockRevision, FieldRevision, GridBlockMetaRevision, RowRevision,
+use database_model::{
+  BuildDatabaseContext, DatabaseBlockMetaRevision, DatabaseBlockRevision, FieldRevision,
+  RowRevision,
 };
 use std::sync::Arc;
 
@@ -12,7 +13,7 @@ impl std::default::Default for DatabaseBuilder {
   fn default() -> Self {
     let mut build_context = BuildDatabaseContext::new();
 
-    let block_meta = GridBlockMetaRevision::new();
+    let block_meta = DatabaseBlockMetaRevision::new();
     let block_meta_data = DatabaseBlockRevision {
       block_id: block_meta.block_id.clone(),
       rows: vec![],

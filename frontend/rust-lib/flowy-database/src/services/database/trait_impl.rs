@@ -1,25 +1,26 @@
 use crate::entities::FieldType;
-use crate::services::block_manager::DatabaseBlockManager;
 use crate::services::cell::AtomicCellDataCache;
+use crate::services::database::DatabaseBlockManager;
+use crate::services::database_view::DatabaseViewEditorDelegate;
 use crate::services::field::{TypeOptionCellDataHandler, TypeOptionCellExt};
 use crate::services::row::DatabaseBlockRowRevision;
-use crate::services::view_editor::DatabaseViewEditorDelegate;
 
+use database_model::{FieldRevision, RowRevision};
 use flowy_client_sync::client_database::DatabaseRevisionPad;
 use flowy_task::TaskDispatcher;
-use grid_model::{FieldRevision, RowRevision};
 use lib_infra::future::{to_fut, Fut};
+use std::any::type_name;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-pub(crate) struct GridViewEditorDelegateImpl {
+pub struct DatabaseViewEditorDelegateImpl {
   pub(crate) pad: Arc<RwLock<DatabaseRevisionPad>>,
   pub(crate) block_manager: Arc<DatabaseBlockManager>,
   pub(crate) task_scheduler: Arc<RwLock<TaskDispatcher>>,
   pub(crate) cell_data_cache: AtomicCellDataCache,
 }
 
-impl DatabaseViewEditorDelegate for GridViewEditorDelegateImpl {
+impl DatabaseViewEditorDelegate for DatabaseViewEditorDelegateImpl {
   fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>> {
     let pad = self.pad.clone();
     to_fut(async move {
@@ -27,7 +28,8 @@ impl DatabaseViewEditorDelegate for GridViewEditorDelegateImpl {
         Ok(field_revs) => field_revs,
         Err(e) => {
           tracing::error!(
-            "[GridViewRevisionDelegate] get field revisions failed: {}",
+            "[{}] get field revisions failed: {}",
+            type_name::<DatabaseViewEditorDelegateImpl>(),
             e
           );
           vec![]

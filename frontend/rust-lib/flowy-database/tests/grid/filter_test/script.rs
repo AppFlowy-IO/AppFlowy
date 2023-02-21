@@ -10,11 +10,11 @@ use tokio::sync::broadcast::Receiver;
 use flowy_database::entities::{AlterFilterParams, AlterFilterPayloadPB, DeleteFilterParams, LayoutTypePB, DatabaseSettingChangesetParams, DatabaseViewSettingPB, RowPB, TextFilterConditionPB, FieldType, NumberFilterConditionPB, CheckboxFilterConditionPB, DateFilterConditionPB, DateFilterContentPB, SelectOptionConditionPB, TextFilterPB, NumberFilterPB, CheckboxFilterPB, DateFilterPB, SelectOptionFilterPB, CellChangesetPB, FilterPB, ChecklistFilterConditionPB, ChecklistFilterPB};
 use flowy_database::services::field::{SelectOptionCellChangeset, SelectOptionIds};
 use flowy_database::services::setting::GridSettingChangesetBuilder;
-use grid_model::{FieldRevision, FieldTypeRevision};
+use database_model::{FieldRevision, FieldTypeRevision};
 use flowy_sqlite::schema::view_table::dsl::view_table;
 use flowy_database::services::cell::insert_select_option_cell;
 use flowy_database::services::filter::FilterType;
-use flowy_database::services::view_editor::DatabaseViewChanged;
+use flowy_database::services::database_view::DatabaseViewChanged;
 use crate::grid::database_editor::DatabaseEditorTest;
 
 pub struct FilterRowChanged {

@@ -1,19 +1,19 @@
 use crate::entities::{CellChangesetPB, InsertedRowPB, UpdatedRowPB};
 use crate::manager::DatabaseUser;
 use crate::notification::{send_notification, DatabaseNotification};
-use crate::services::block_editor::{DatabaseBlockRevisionEditor, GridBlockRevisionMergeable};
+use crate::services::database::{DatabaseBlockRevisionEditor, DatabaseBlockRevisionMergeable};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::rev_sqlite::{
   SQLiteDatabaseBlockRevisionPersistence, SQLiteDatabaseRevisionSnapshotPersistence,
 };
 use crate::services::row::{make_row_from_row_rev, DatabaseBlockRow, DatabaseBlockRowRevision};
 use dashmap::DashMap;
+use database_model::{
+  DatabaseBlockMetaRevision, DatabaseBlockMetaRevisionChangeset, RowChangeset, RowRevision,
+};
 use flowy_error::FlowyResult;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration};
 use flowy_sqlite::ConnectionPool;
-use grid_model::{
-  GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision,
-};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -51,7 +51,7 @@ pub(crate) struct DatabaseBlockManager {
 impl DatabaseBlockManager {
   pub(crate) async fn new(
     user: &Arc<dyn DatabaseUser>,
-    block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
+    block_meta_revs: Vec<Arc<DatabaseBlockMetaRevision>>,
     persistence: Arc<BlockIndexCache>,
     event_notifier: broadcast::Sender<DatabaseBlockEvent>,
   ) -> FlowyResult<Self> {
@@ -73,7 +73,7 @@ impl DatabaseBlockManager {
   }
 
   // #[tracing::instrument(level = "trace", skip(self))]
-  pub(crate) async fn get_block_editor(
+  pub(crate) async fn get_or_create_block_editor(
     &self,
     block_id: &str,
   ) -> FlowyResult<Arc<DatabaseBlockRevisionEditor>> {
@@ -99,7 +99,7 @@ impl DatabaseBlockManager {
     row_id: &str,
   ) -> FlowyResult<Arc<DatabaseBlockRevisionEditor>> {
     let block_id = self.persistence.get_block_id(row_id)?;
-    self.get_block_editor(&block_id).await
+    self.get_or_create_block_editor(&block_id).await
   }
 
   #[tracing::instrument(level = "trace", skip(self, start_row_id), err)]
@@ -110,7 +110,7 @@ impl DatabaseBlockManager {
   ) -> FlowyResult<i32> {
     let block_id = row_rev.block_id.clone();
     self.persistence.insert(&row_rev.block_id, &row_rev.id)?;
-    let editor = self.get_block_editor(&row_rev.block_id).await?;
+    let editor = self.get_or_create_block_editor(&row_rev.block_id).await?;
 
     let mut row = InsertedRowPB::from(&row_rev);
     let (number_of_rows, index) = editor.create_row(row_rev, start_row_id).await?;
@@ -125,10 +125,10 @@ impl DatabaseBlockManager {
   pub(crate) async fn insert_row(
     &self,
     rows_by_block_id: HashMap<String, Vec<RowRevision>>,
-  ) -> FlowyResult<Vec<GridBlockMetaRevisionChangeset>> {
+  ) -> FlowyResult<Vec<DatabaseBlockMetaRevisionChangeset>> {
     let mut changesets = vec![];
     for (block_id, row_revs) in rows_by_block_id {
-      let editor = self.get_block_editor(&block_id).await?;
+      let editor = self.get_or_create_block_editor(&block_id).await?;
       for row_rev in row_revs {
         self.persistence.insert(&row_rev.block_id, &row_rev.id)?;
         let mut row = InsertedRowPB::from(&row_rev);
@@ -138,7 +138,7 @@ impl DatabaseBlockManager {
           row,
         });
       }
-      changesets.push(GridBlockMetaRevisionChangeset::from_row_count(
+      changesets.push(DatabaseBlockMetaRevisionChangeset::from_row_count(
         block_id.clone(),
         editor.number_of_rows().await,
       ));
@@ -179,7 +179,7 @@ impl DatabaseBlockManager {
   pub async fn delete_row(&self, row_id: &str) -> FlowyResult<Option<Arc<RowRevision>>> {
     let row_id = row_id.to_owned();
     let block_id = self.persistence.get_block_id(&row_id)?;
-    let editor = self.get_block_editor(&block_id).await?;
+    let editor = self.get_or_create_block_editor(&block_id).await?;
     match editor.get_row_rev(&row_id).await? {
       None => Ok(None),
       Some((_, row_rev)) => {
@@ -197,17 +197,18 @@ impl DatabaseBlockManager {
   pub(crate) async fn delete_rows(
     &self,
     block_rows: Vec<DatabaseBlockRow>,
-  ) -> FlowyResult<Vec<GridBlockMetaRevisionChangeset>> {
+  ) -> FlowyResult<Vec<DatabaseBlockMetaRevisionChangeset>> {
     let mut changesets = vec![];
     for block_row in block_rows {
-      let editor = self.get_block_editor(&block_row.block_id).await?;
+      let editor = self.get_or_create_block_editor(&block_row.block_id).await?;
       let row_ids = block_row
         .row_ids
         .into_iter()
         .map(Cow::Owned)
         .collect::<Vec<Cow<String>>>();
       let row_count = editor.delete_rows(row_ids).await?;
-      let changeset = GridBlockMetaRevisionChangeset::from_row_count(block_row.block_id, row_count);
+      let changeset =
+        DatabaseBlockMetaRevisionChangeset::from_row_count(block_row.block_id, row_count);
       changesets.push(changeset);
     }
 
@@ -285,7 +286,7 @@ impl DatabaseBlockManager {
       },
       Some(block_ids) => {
         for block_id in block_ids {
-          let editor = self.get_block_editor(&block_id).await?;
+          let editor = self.get_or_create_block_editor(&block_id).await?;
           let row_revs = editor.get_row_revs::<&str>(None).await?;
           blocks.push(DatabaseBlockRowRevision { block_id, row_revs });
         }
@@ -304,7 +305,7 @@ impl DatabaseBlockManager {
 /// Initialize each block editor
 async fn make_block_editors(
   user: &Arc<dyn DatabaseUser>,
-  block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
+  block_meta_revs: Vec<Arc<DatabaseBlockMetaRevision>>,
 ) -> FlowyResult<DashMap<String, Arc<DatabaseBlockRevisionEditor>>> {
   let editor_map = DashMap::new();
   for block_meta_rev in block_meta_revs {
@@ -343,7 +344,7 @@ pub fn make_database_block_rev_manager(
   let snapshot_persistence =
     SQLiteDatabaseRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
 
-  let rev_compress = GridBlockRevisionMergeable();
+  let rev_compress = DatabaseBlockRevisionMergeable();
   let rev_manager = RevisionManager::new(
     &user_id,
     block_id,

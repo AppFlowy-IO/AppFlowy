@@ -7,16 +7,15 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::sync::Arc;
 
-pub fn gen_grid_filter_id() -> String {
+pub fn gen_database_filter_id() -> String {
   nanoid!(6)
 }
 
-pub fn gen_grid_group_id() -> String {
+pub fn gen_database_group_id() -> String {
   nanoid!(6)
 }
 
-#[allow(dead_code)]
-pub fn gen_grid_sort_id() -> String {
+pub fn gen_database_sort_id() -> String {
   nanoid!(6)
 }
 

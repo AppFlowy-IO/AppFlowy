@@ -3,8 +3,8 @@ use crate::services::cell::{AtomicCellDataCache, CellProtobufBlob, TypeCellData}
 use crate::services::field::*;
 
 use crate::services::group::make_no_status_group;
+use database_model::{CellRevision, FieldRevision};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use grid_model::{CellRevision, FieldRevision};
 
 use std::fmt::Debug;
 

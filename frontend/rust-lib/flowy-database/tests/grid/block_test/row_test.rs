@@ -1,9 +1,9 @@
 use crate::grid::block_test::script::RowScript::*;
 use crate::grid::block_test::script::{CreateRowScriptBuilder, DatabaseRowTest};
 use crate::grid::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, TWITTER};
+use database_model::RowChangeset;
 use flowy_database::entities::FieldType;
 use flowy_database::services::field::{SELECTION_IDS_SEPARATOR, UNCHECK};
-use grid_model::RowChangeset;
 
 #[tokio::test]
 async fn grid_create_row_count_test() {

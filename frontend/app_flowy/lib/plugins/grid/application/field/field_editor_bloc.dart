@@ -49,7 +49,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
               () => null,
               (field) {
                 final fieldService = FieldService(
-                  databaseId: databaseId,
+                  viewId: databaseId,
                   fieldId: field.id,
                 );
                 fieldService.deleteField();

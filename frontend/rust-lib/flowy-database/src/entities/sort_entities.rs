@@ -3,9 +3,9 @@ use crate::entities::FieldType;
 use crate::services::sort::SortType;
 use std::sync::Arc;
 
+use database_model::{FieldTypeRevision, SortCondition, SortRevision};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use grid_model::{FieldTypeRevision, SortCondition, SortRevision};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct SortPB {
