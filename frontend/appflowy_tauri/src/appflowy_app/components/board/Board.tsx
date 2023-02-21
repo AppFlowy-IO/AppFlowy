@@ -25,7 +25,7 @@ export const Board = ({ databaseId }: { databaseId: string }) => {
         </div>
       </div>
       <div className={'relative w-full flex-1 overflow-auto'}>
-        <div className={'absolute flex flex-shrink-0 items-start justify-start gap-4'}>
+        <div className={'absolute flex h-full flex-shrink-0 items-start justify-start gap-4'}>
           {database?.fields[groupingFieldId].fieldOptions.selectOptions?.map((groupFieldItem, index) => {
             const rows = database?.rows.filter((row) =>
               row.cells[groupingFieldId].optionIds?.some((so) => so === groupFieldItem.selectOptionId)
@@ -36,6 +36,7 @@ export const Board = ({ databaseId }: { databaseId: string }) => {
                 title={groupFieldItem.title}
                 groupingFieldId={groupingFieldId}
                 count={rows.length}
+                fields={database?.fields}
                 columns={database?.columns}
                 rows={rows}
               />

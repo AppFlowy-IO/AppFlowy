@@ -71,6 +71,16 @@ const initialState: { [keys: string]: IDatabase } = {
         fieldId: 'field2',
         sort: 'none',
       },
+      {
+        visible: true,
+        fieldId: 'field3',
+        sort: 'none',
+      },
+      {
+        visible: true,
+        fieldId: 'field4',
+        sort: 'none',
+      },
     ],
     fields: {
       field1: {
@@ -103,6 +113,38 @@ const initialState: { [keys: string]: IDatabase } = {
         fieldType: FieldType.RichText,
         fieldOptions: {},
       },
+      field3: {
+        title: 'percent',
+        fieldId: 'field3',
+        fieldType: FieldType.Number,
+        fieldOptions: {
+          numberFormat: NumberFormat.Num,
+        },
+      },
+      field4: {
+        title: 'tags',
+        fieldId: 'field4',
+        fieldType: FieldType.MultiSelect,
+        fieldOptions: {
+          selectOptions: [
+            {
+              selectOptionId: 'f4so1',
+              title: 'type1',
+              color: SelectOptionColorPB.Blue,
+            },
+            {
+              selectOptionId: 'f4so2',
+              title: 'type2',
+              color: SelectOptionColorPB.Aqua,
+            },
+            {
+              selectOptionId: 'f4so3',
+              title: 'type3',
+              color: SelectOptionColorPB.Purple,
+            },
+          ],
+        },
+      },
     },
     rows: [
       {
@@ -120,6 +162,50 @@ const initialState: { [keys: string]: IDatabase } = {
             fieldId: 'field2',
             cellId: 'cell12',
             data: 'Card 1',
+          },
+          field3: {
+            rowId: 'row1',
+            fieldId: 'field3',
+            cellId: 'cell13',
+            data: 10,
+          },
+          field4: {
+            rowId: 'row1',
+            fieldId: 'field4',
+            cellId: 'cell14',
+            data: '',
+            optionIds: ['f4so2', 'f4so3'],
+          },
+        },
+      },
+      {
+        rowId: 'row2',
+        cells: {
+          field1: {
+            rowId: 'row2',
+            fieldId: 'field1',
+            cellId: 'cell21',
+            data: '',
+            optionIds: ['so1'],
+          },
+          field2: {
+            rowId: 'row2',
+            fieldId: 'field2',
+            cellId: 'cell22',
+            data: 'Card 2',
+          },
+          field3: {
+            rowId: 'row2',
+            fieldId: 'field3',
+            cellId: 'cell23',
+            data: 20,
+          },
+          field4: {
+            rowId: 'row2',
+            fieldId: 'field4',
+            cellId: 'cell24',
+            data: '',
+            optionIds: ['f4so1'],
           },
         },
       },
