@@ -1,10 +1,22 @@
 import { foldersActions, IFolder } from '../../../stores/reducers/folders/slice';
 import { useState } from 'react';
-import { useAppDispatch } from '../../../stores/store';
+import { useAppDispatch, useAppSelector } from '../../../stores/store';
 import { nanoid } from 'nanoid';
 import { IPage, pagesActions } from '../../../stores/reducers/pages/slice';
-import { UpdateAppPayloadPB, ViewLayoutTypePB } from '../../../../services/backend';
-import { FolderEventUpdateApp } from '../../../../services/backend/events/flowy-folder';
+import {
+  AppIdPB,
+  CreateAppPayloadPB,
+  CreateViewPayloadPB,
+  UpdateAppPayloadPB,
+  ViewDataFormatPB,
+  ViewLayoutTypePB,
+} from '../../../../services/backend';
+import {
+  FolderEventCreateApp,
+  FolderEventCreateView,
+  FolderEventDeleteApp,
+  FolderEventUpdateApp,
+} from '../../../../services/backend/events/flowy-folder';
 
 const initialFolderHeight = 40;
 const initialPageHeight = 40;
@@ -19,6 +31,8 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
   const [showRenamePopup, setShowRenamePopup] = useState(false);
 
   const [folderHeight, setFolderHeight] = useState(`${initialFolderHeight}px`);
+
+  const workspace = useAppSelector((state) => state.workspace);
 
   const onFolderNameClick = () => {
     if (showPages) {
@@ -57,14 +71,31 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
     setShowRenamePopup(false);
   };
 
-  const deleteFolder = () => {
+  const deleteFolder = async () => {
     closePopup();
+    await FolderEventDeleteApp(
+      AppIdPB.fromObject({
+        value: folder.id,
+      })
+    );
     appDispatch(foldersActions.deleteFolder({ id: folder.id }));
   };
 
-  const duplicateFolder = () => {
+  const duplicateFolder = async () => {
     closePopup();
-    appDispatch(foldersActions.addFolder({ id: nanoid(8), title: folder.title }));
+    const createAppResult = await FolderEventCreateApp(
+      CreateAppPayloadPB.fromObject({
+        workspace_id: workspace.id,
+        name: folder.title,
+        desc: '',
+      })
+    );
+    if (createAppResult.ok) {
+      const pb = createAppResult.val;
+      appDispatch(foldersActions.addFolder({ id: pb.id, title: folder.title }));
+    } else {
+      throw new Error('create folder error');
+    }
   };
 
   const closePopup = () => {
@@ -72,36 +103,83 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
     setShowNewPageOptions(false);
   };
 
-  const onAddNewDocumentPage = () => {
+  const onAddNewDocumentPage = async () => {
     closePopup();
-    appDispatch(
-      pagesActions.addPage({
-        folderId: folder.id,
-        pageType: ViewLayoutTypePB.Document,
-        title: 'New Page 1',
-        id: nanoid(6),
+    const createViewResult = await FolderEventCreateView(
+      CreateViewPayloadPB.fromObject({
+        name: 'New Page 1',
+        layout: ViewLayoutTypePB.Document,
+        belong_to_id: folder.id,
+        data_format: ViewDataFormatPB.NodeFormat,
+        desc: '',
+        thumbnail: '',
+        initial_data: new Uint8Array([]),
       })
     );
+    if (createViewResult.ok) {
+      const pb = createViewResult.val;
+      appDispatch(
+        pagesActions.addPage({
+          folderId: folder.id,
+          pageType: ViewLayoutTypePB.Document,
+          title: pb.name,
+          id: pb.id,
+        })
+      );
+    } else {
+      throw new Error('create view error');
+    }
   };
 
-  const onAddNewBoardPage = () => {
+  const onAddNewBoardPage = async () => {
     closePopup();
-
-    appDispatch(
-      pagesActions.addPage({
-        folderId: folder.id,
-        pageType: ViewLayoutTypePB.Board,
-        title: 'New Board 1',
-        id: nanoid(6),
+    const createViewResult = await FolderEventCreateView(
+      CreateViewPayloadPB.fromObject({
+        name: 'New Board 1',
+        layout: ViewLayoutTypePB.Board,
+        belong_to_id: folder.id,
+        data_format: ViewDataFormatPB.DatabaseFormat,
+        desc: '',
+        thumbnail: '',
+        initial_data: new Uint8Array([]),
       })
     );
+    if (createViewResult.ok) {
+      const pb = createViewResult.val;
+      appDispatch(
+        pagesActions.addPage({
+          folderId: folder.id,
+          pageType: ViewLayoutTypePB.Board,
+          title: pb.name,
+          id: pb.id,
+        })
+      );
+    } else {
+      throw new Error('create view error');
+    }
   };
 
-  const onAddNewGridPage = () => {
+  const onAddNewGridPage = async () => {
     closePopup();
-    appDispatch(
-      pagesActions.addPage({ folderId: folder.id, pageType: ViewLayoutTypePB.Grid, title: 'New Grid 1', id: nanoid(6) })
+    const createViewResult = await FolderEventCreateView(
+      CreateViewPayloadPB.fromObject({
+        name: 'New Grid 1',
+        layout: ViewLayoutTypePB.Grid,
+        belong_to_id: folder.id,
+        data_format: ViewDataFormatPB.DatabaseFormat,
+        desc: '',
+        thumbnail: '',
+        initial_data: new Uint8Array([]),
+      })
     );
+    if (createViewResult.ok) {
+      const pb = createViewResult.val;
+      appDispatch(
+        pagesActions.addPage({ folderId: folder.id, pageType: ViewLayoutTypePB.Grid, title: pb.name, id: pb.id })
+      );
+    } else {
+      throw new Error('create view error');
+    }
   };
 
   return {

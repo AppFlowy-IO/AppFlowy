@@ -1,8 +1,14 @@
-import { FolderEventReadCurrentWorkspace } from '../../../services/backend/events/flowy-folder';
+import {
+  CreateWorkspacePayloadPB,
+  FolderEventCreateWorkspace,
+  FolderEventReadCurrentWorkspace,
+} from '../../../services/backend/events/flowy-folder';
 import { foldersActions } from '../../stores/reducers/folders/slice';
 import { useAppDispatch } from '../../stores/store';
 import { pagesActions } from '../../stores/reducers/pages/slice';
 import { workspaceActions } from '../../stores/reducers/workspace/slice';
+import { SignInPayloadPB, UserEventSignIn } from '../../../services/backend/events/flowy-user';
+import { nanoid } from 'nanoid';
 
 export const useWorkspace = () => {
   const appDispatch = useAppDispatch();
@@ -27,7 +33,26 @@ export const useWorkspace = () => {
         }
       }
     } else {
-      throw new Error('read current workspace error');
+      // create workspace for first start
+      await UserEventSignIn(
+        SignInPayloadPB.fromObject({
+          email: nanoid(4) + '@gmail.com',
+          password: 'A!@123abc',
+          name: 'abc',
+        })
+      );
+      const createWorkspaceResult = await FolderEventCreateWorkspace(
+        CreateWorkspacePayloadPB.fromObject({
+          name: 'New Workspace',
+        })
+      );
+      if (createWorkspaceResult.ok) {
+        const workspace = createWorkspaceResult.val;
+        appDispatch(workspaceActions.updateWorkspace({ id: workspace.id, name: workspace.name }));
+
+        appDispatch(foldersActions.clearFolders());
+        appDispatch(pagesActions.clearPages());
+      }
     }
   };
 

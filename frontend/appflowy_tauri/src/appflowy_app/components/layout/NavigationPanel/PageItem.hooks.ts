@@ -2,6 +2,14 @@ import { IPage, pagesActions } from '../../../stores/reducers/pages/slice';
 import { useAppDispatch } from '../../../stores/store';
 import { useState } from 'react';
 import { nanoid } from 'nanoid';
+import {
+  FolderEventCloseView,
+  FolderEventDeleteView,
+  FolderEventUpdateView,
+  RepeatedViewIdPB,
+  UpdateViewPayloadPB,
+  ViewIdPB,
+} from '../../../../services/backend/events/flowy-folder';
 
 export const usePageEvents = (page: IPage) => {
   const appDispatch = useAppDispatch();
@@ -17,12 +25,23 @@ export const usePageEvents = (page: IPage) => {
     closePopup();
   };
 
-  const changePageTitle = (newTitle: string) => {
+  const changePageTitle = async (newTitle: string) => {
+    await FolderEventUpdateView(
+      UpdateViewPayloadPB.fromObject({
+        view_id: page.id,
+        name: newTitle,
+      })
+    );
     appDispatch(pagesActions.renamePage({ id: page.id, newTitle }));
   };
 
-  const deletePage = () => {
+  const deletePage = async () => {
     closePopup();
+    await FolderEventDeleteView(
+      RepeatedViewIdPB.fromObject({
+        items: [page.id],
+      })
+    );
     appDispatch(pagesActions.deletePage({ id: page.id }));
   };
 
