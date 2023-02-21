@@ -139,7 +139,7 @@ class _GridPropertyCellState extends State<_GridPropertyCell> {
           databaseId: widget.databaseId,
           fieldName: widget.fieldInfo.name,
           typeOptionLoader: FieldTypeOptionLoader(
-            databaseId: widget.databaseId,
+            viewId: widget.databaseId,
             field: widget.fieldInfo.field,
           ),
         );

@@ -7,12 +7,13 @@ import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 
 class UserService {
-  final String userId;
   UserService({
     required this.userId,
   });
-  Future<Either<UserProfilePB, FlowyError>> getUserProfile(
-      {required String userId}) {
+
+  final String userId;
+
+  static Future<Either<UserProfilePB, FlowyError>> getCurrentUserProfile() {
     return UserEventGetUserProfile().send();
   }
 

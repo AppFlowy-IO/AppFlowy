@@ -315,7 +315,7 @@ Section 1.10.32 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC
     var jsonString = '';
     switch (fileType) {
       case ExportFileType.json:
-        jsonString = jsonEncode(plainText);
+        jsonString = plainText;
         break;
       case ExportFileType.markdown:
         jsonString = jsonEncode(markdownToDocument(plainText).toJson());

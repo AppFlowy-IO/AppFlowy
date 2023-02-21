@@ -1,7 +1,7 @@
 use crate::services::filter::FromFilterString;
+use database_model::FilterRevision;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use grid_model::FilterRevision;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct ChecklistFilterPB {

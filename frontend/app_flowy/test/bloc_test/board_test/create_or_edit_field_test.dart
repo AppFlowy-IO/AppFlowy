@@ -30,7 +30,7 @@ void main() {
 
     final fieldInfo = context.singleSelectFieldContext();
     final loader = FieldTypeOptionLoader(
-      databaseId: context.gridView.id,
+      viewId: context.gridView.id,
       field: fieldInfo.field,
     );
 

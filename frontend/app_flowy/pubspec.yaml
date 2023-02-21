@@ -93,6 +93,8 @@ dependencies:
     path: packages/appflowy_editor_plugins
   calendar_view: ^1.0.1
   window_manager: ^0.3.0
+  http: ^0.13.5
+  json_annotation: ^4.7.0
 
 dev_dependencies:
   flutter_lints: ^2.0.1
@@ -104,6 +106,7 @@ dev_dependencies:
   build_runner: ^2.2.0
   freezed: ^2.1.0+1
   bloc_test: ^9.0.2
+  json_serializable: ^6.5.4
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

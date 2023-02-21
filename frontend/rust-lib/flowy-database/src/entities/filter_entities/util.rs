@@ -6,9 +6,9 @@ use crate::entities::{
 use crate::services::field::SelectOptionIds;
 use crate::services::filter::FilterType;
 use bytes::Bytes;
+use database_model::{FieldRevision, FieldTypeRevision, FilterRevision};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use grid_model::{FieldRevision, FieldTypeRevision, FilterRevision};
 use std::convert::TryInto;
 use std::sync::Arc;
 

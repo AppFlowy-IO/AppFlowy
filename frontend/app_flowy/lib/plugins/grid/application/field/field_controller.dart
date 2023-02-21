@@ -150,9 +150,9 @@ class GridFieldController {
   GridFieldController({required this.databaseId})
       : _fieldListener = DatabaseFieldsListener(databaseId: databaseId),
         _settingListener = DatabaseSettingListener(databaseId: databaseId),
-        _filterFFIService = FilterFFIService(databaseId: databaseId),
+        _filterFFIService = FilterFFIService(viewId: databaseId),
         _filtersListener = FiltersListener(viewId: databaseId),
-        _gridFFIService = DatabaseFFIService(databaseId: databaseId),
+        _gridFFIService = DatabaseFFIService(viewId: databaseId),
         _sortFFIService = SortFFIService(viewId: databaseId),
         _sortsListener = SortsListener(viewId: databaseId),
         _settingFFIService = SettingFFIService(viewId: databaseId) {
@@ -615,16 +615,16 @@ class GridFieldController {
     if (insertedFields.isEmpty) {
       return;
     }
-    final List<FieldInfo> newFields = fieldInfos;
+    final List<FieldInfo> newFieldInfos = fieldInfos;
     for (final indexField in insertedFields) {
-      final gridField = FieldInfo(field: indexField.field_1);
-      if (newFields.length > indexField.index) {
-        newFields.insert(indexField.index, gridField);
+      final fieldInfo = FieldInfo(field: indexField.field_1);
+      if (newFieldInfos.length > indexField.index) {
+        newFieldInfos.insert(indexField.index, fieldInfo);
       } else {
-        newFields.add(gridField);
+        newFieldInfos.add(fieldInfo);
       }
     }
-    _fieldNotifier?.fieldInfos = newFields;
+    _fieldNotifier?.fieldInfos = newFieldInfos;
   }
 
   List<FieldInfo> _updateFields(List<FieldPB> updatedFieldPBs) {

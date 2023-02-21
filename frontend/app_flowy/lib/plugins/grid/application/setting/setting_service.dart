@@ -12,7 +12,7 @@ class SettingFFIService {
   const SettingFFIService({required this.viewId});
 
   Future<Either<DatabaseViewSettingPB, FlowyError>> getSetting() {
-    final payload = DatabaseIdPB.create()..value = viewId;
+    final payload = DatabaseViewIdPB.create()..value = viewId;
     return DatabaseEventGetDatabaseSetting(payload).send();
   }
 
@@ -24,7 +24,7 @@ class SettingFFIService {
       ..fieldId = fieldId
       ..fieldType = fieldType;
     final payload = DatabaseSettingChangesetPB.create()
-      ..databaseId = viewId
+      ..viewId = viewId
       ..insertGroup = insertGroupPayload;
 
     return DatabaseEventUpdateDatabaseSetting(payload).send();

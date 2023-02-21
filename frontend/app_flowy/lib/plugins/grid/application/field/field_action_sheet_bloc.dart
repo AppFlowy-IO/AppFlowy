@@ -13,7 +13,7 @@ class FieldActionSheetBloc
 
   FieldActionSheetBloc({required GridFieldCellContext fieldCellContext})
       : fieldService = FieldService(
-          databaseId: fieldCellContext.databaseId,
+          viewId: fieldCellContext.viewId,
           fieldId: fieldCellContext.field.id,
         ),
         super(

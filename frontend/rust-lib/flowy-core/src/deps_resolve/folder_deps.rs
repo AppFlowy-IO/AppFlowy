@@ -1,6 +1,7 @@
 use bytes::Bytes;
 use flowy_sqlite::ConnectionPool;
 
+use database_model::BuildDatabaseContext;
 use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_database::entities::LayoutTypePB;
 use flowy_database::manager::{make_database_view_data, DatabaseManager};
@@ -19,7 +20,6 @@ use flowy_net::{http_server::folder::FolderHttpCloudService, local_server::Local
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
-use grid_model::BuildDatabaseContext;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
 use revision_model::Revision;
@@ -36,7 +36,7 @@ impl FolderDepsResolver {
     server_config: &ClientServerConfiguration,
     ws_conn: &Arc<FlowyWebSocketConnect>,
     text_block_manager: &Arc<DocumentManager>,
-    grid_manager: &Arc<DatabaseManager>,
+    database_manager: &Arc<DatabaseManager>,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn WorkspaceUser> = Arc::new(WorkspaceUserImpl(user_session.clone()));
     let database: Arc<dyn WorkspaceDatabase> = Arc::new(WorkspaceDatabaseImpl(user_session));
@@ -47,7 +47,7 @@ impl FolderDepsResolver {
     };
 
     let view_data_processor =
-      make_view_data_processor(text_block_manager.clone(), grid_manager.clone());
+      make_view_data_processor(text_block_manager.clone(), database_manager.clone());
     let folder_manager = Arc::new(
       FolderManager::new(
         user.clone(),
@@ -74,7 +74,7 @@ impl FolderDepsResolver {
 
 fn make_view_data_processor(
   document_manager: Arc<DocumentManager>,
-  grid_manager: Arc<DatabaseManager>,
+  database_manager: Arc<DatabaseManager>,
 ) -> ViewDataProcessorMap {
   let mut map: HashMap<ViewDataFormatPB, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
 
@@ -86,7 +86,7 @@ fn make_view_data_processor(
       map.insert(data_type, document_processor.clone());
     });
 
-  let grid_data_impl = Arc::new(GridViewDataProcessor(grid_manager));
+  let grid_data_impl = Arc::new(GridViewDataProcessor(database_manager));
   grid_data_impl
     .data_types()
     .into_iter()
@@ -177,7 +177,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     debug_assert_eq!(layout, ViewLayoutTypePB::Document);
     let view_data = match String::from_utf8(view_data.to_vec()) {
       Ok(content) => match make_transaction_from_document_content(&content) {
-        Ok(transaction) => transaction.to_bytes().unwrap_or(vec![]),
+        Ok(transaction) => transaction.to_bytes().unwrap_or_else(|_| vec![]),
         Err(_) => vec![],
       },
       Err(_) => vec![],
@@ -259,9 +259,9 @@ impl ViewDataProcessor for GridViewDataProcessor {
   ) -> FutureResult<(), FlowyError> {
     let revision = Revision::initial_revision(view_id, delta_data);
     let view_id = view_id.to_string();
-    let grid_manager = self.0.clone();
+    let database_manager = self.0.clone();
     FutureResult::new(async move {
-      grid_manager
+      database_manager
         .create_database(view_id, vec![revision])
         .await?;
       Ok(())
@@ -269,20 +269,20 @@ impl ViewDataProcessor for GridViewDataProcessor {
   }
 
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
-    let grid_manager = self.0.clone();
+    let database_manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      grid_manager.close_database(view_id).await?;
+      database_manager.close_database(view_id).await?;
       Ok(())
     })
   }
 
   fn get_view_data(&self, view: &ViewPB) -> FutureResult<Bytes, FlowyError> {
-    let grid_manager = self.0.clone();
+    let database_manager = self.0.clone();
     let view_id = view.id.clone();
     FutureResult::new(async move {
-      let editor = grid_manager.open_database(view_id).await?;
-      let delta_bytes = editor.duplicate_grid().await?;
+      let editor = database_manager.open_database(view_id).await?;
+      let delta_bytes = editor.duplicate_database().await?;
       Ok(delta_bytes.into())
     })
   }
@@ -308,9 +308,9 @@ impl ViewDataProcessor for GridViewDataProcessor {
 
     let user_id = user_id.to_string();
     let view_id = view_id.to_string();
-    let grid_manager = self.0.clone();
+    let database_manager = self.0.clone();
     FutureResult::new(async move {
-      make_database_view_data(&user_id, &view_id, layout, grid_manager, build_context).await
+      make_database_view_data(&user_id, &view_id, layout, database_manager, build_context).await
     })
   }
 
@@ -323,7 +323,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
   ) -> FutureResult<Bytes, FlowyError> {
     let user_id = user_id.to_string();
     let view_id = view_id.to_string();
-    let grid_manager = self.0.clone();
+    let database_manager = self.0.clone();
 
     let layout = match layout {
       ViewLayoutTypePB::Grid => LayoutTypePB::Grid,
@@ -339,7 +339,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
     FutureResult::new(async move {
       let bytes = Bytes::from(data);
       let build_context = BuildDatabaseContext::try_from(bytes)?;
-      make_database_view_data(&user_id, &view_id, layout, grid_manager, build_context).await
+      make_database_view_data(&user_id, &view_id, layout, database_manager, build_context).await
     })
   }
 

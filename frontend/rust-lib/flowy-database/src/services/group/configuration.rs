@@ -1,11 +1,11 @@
 use crate::entities::{GroupChangesetPB, GroupPB, InsertedGroupPB};
 use crate::services::field::RowSingleCellData;
 use crate::services::group::{default_group_configuration, GeneratedGroupContext, Group};
-use flowy_error::{FlowyError, FlowyResult};
-use grid_model::{
+use database_model::{
   FieldRevision, FieldTypeRevision, GroupConfigurationContentSerde, GroupConfigurationRevision,
   GroupRevision,
 };
+use flowy_error::{FlowyError, FlowyResult};
 use indexmap::IndexMap;
 use lib_infra::future::Fut;
 use std::collections::HashMap;

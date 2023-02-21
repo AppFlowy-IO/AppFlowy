@@ -12,7 +12,7 @@ use crate::services::group::controller_impls::select_option_controller::util::*;
 use crate::services::group::entities::Group;
 
 use crate::services::group::{make_no_status_group, GeneratedGroupContext};
-use grid_model::{FieldRevision, RowRevision, SelectOptionGroupConfigurationRevision};
+use database_model::{FieldRevision, RowRevision, SelectOptionGroupConfigurationRevision};
 
 // SingleSelect
 pub type SingleSelectGroupController = GenericGroupController<

@@ -15,11 +15,11 @@ import 'package:appflowy_backend/protobuf/flowy-database/util.pb.dart';
 import 'package:fixnum/fixnum.dart' as $fixnum;
 
 class FilterFFIService {
-  final String databaseId;
-  const FilterFFIService({required this.databaseId});
+  final String viewId;
+  const FilterFFIService({required this.viewId});
 
   Future<Either<List<FilterPB>, FlowyError>> getAllFilters() {
-    final payload = DatabaseIdPB()..value = databaseId;
+    final payload = DatabaseViewIdPB()..value = viewId;
 
     return DatabaseEventGetAllFilters(payload).send().then((result) {
       return result.fold(
@@ -171,7 +171,7 @@ class FilterFFIService {
     var insertFilterPayload = AlterFilterPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType
-      ..viewId = databaseId
+      ..viewId = viewId
       ..data = data;
 
     if (filterId != null) {
@@ -179,7 +179,7 @@ class FilterFFIService {
     }
 
     final payload = DatabaseSettingChangesetPB.create()
-      ..databaseId = databaseId
+      ..viewId = viewId
       ..alterFilter = insertFilterPayload;
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
@@ -200,11 +200,11 @@ class FilterFFIService {
     final deleteFilterPayload = DeleteFilterPayloadPB.create()
       ..fieldId = fieldId
       ..filterId = filterId
-      ..viewId = databaseId
+      ..viewId = viewId
       ..fieldType = fieldType;
 
     final payload = DatabaseSettingChangesetPB.create()
-      ..databaseId = databaseId
+      ..viewId = viewId
       ..deleteFilter = deleteFilterPayload;
 
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {

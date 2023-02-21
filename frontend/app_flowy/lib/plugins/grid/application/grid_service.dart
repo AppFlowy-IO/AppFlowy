@@ -8,20 +8,20 @@ import 'package:appflowy_backend/protobuf/flowy-database/group.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
 
 class DatabaseFFIService {
-  final String databaseId;
+  final String viewId;
   DatabaseFFIService({
-    required this.databaseId,
+    required this.viewId,
   });
 
   Future<Either<DatabasePB, FlowyError>> openGrid() async {
-    await FolderEventSetLatestView(ViewIdPB(value: databaseId)).send();
+    await FolderEventSetLatestView(ViewIdPB(value: viewId)).send();
 
-    final payload = DatabaseIdPB(value: databaseId);
+    final payload = DatabaseViewIdPB(value: viewId);
     return DatabaseEventGetDatabase(payload).send();
   }
 
   Future<Either<RowPB, FlowyError>> createRow({Option<String>? startRowId}) {
-    var payload = CreateRowPayloadPB.create()..databaseId = databaseId;
+    var payload = CreateRowPayloadPB.create()..viewId = viewId;
     startRowId?.fold(() => null, (id) => payload.startRowId = id);
     return DatabaseEventCreateRow(payload).send();
   }
@@ -31,7 +31,7 @@ class DatabaseFFIService {
     String? startRowId,
   ) {
     CreateBoardCardPayloadPB payload = CreateBoardCardPayloadPB.create()
-      ..databaseId = databaseId
+      ..viewId = viewId
       ..groupId = groupId;
 
     if (startRowId != null) {
@@ -43,7 +43,7 @@ class DatabaseFFIService {
 
   Future<Either<List<FieldPB>, FlowyError>> getFields(
       {List<FieldIdPB>? fieldIds}) {
-    var payload = GetFieldPayloadPB.create()..databaseId = databaseId;
+    var payload = GetFieldPayloadPB.create()..viewId = viewId;
 
     if (fieldIds != null) {
       payload.fieldIds = RepeatedFieldIdPB(items: fieldIds);
@@ -54,12 +54,12 @@ class DatabaseFFIService {
   }
 
   Future<Either<Unit, FlowyError>> closeGrid() {
-    final request = ViewIdPB(value: databaseId);
+    final request = ViewIdPB(value: viewId);
     return FolderEventCloseView(request).send();
   }
 
   Future<Either<RepeatedGroupPB, FlowyError>> loadGroups() {
-    final payload = DatabaseIdPB(value: databaseId);
+    final payload = DatabaseViewIdPB(value: viewId);
     return DatabaseEventGetGroup(payload).send();
   }
 }

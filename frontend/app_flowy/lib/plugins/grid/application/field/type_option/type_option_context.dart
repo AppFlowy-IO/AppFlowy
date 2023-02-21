@@ -155,13 +155,13 @@ abstract class TypeOptionFieldDelegate {
 }
 
 abstract class IFieldTypeOptionLoader {
-  String get databaseId;
+  String get viewId;
   Future<Either<TypeOptionPB, FlowyError>> load();
 
   Future<Either<Unit, FlowyError>> switchToField(
       String fieldId, FieldType fieldType) {
     final payload = UpdateFieldTypePayloadPB.create()
-      ..databaseId = databaseId
+      ..viewId = viewId
       ..fieldId = fieldId
       ..fieldType = fieldType;
 
@@ -174,9 +174,9 @@ class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
   TypeOptionPB? fieldTypeOption;
 
   @override
-  final String databaseId;
+  final String viewId;
   NewFieldTypeOptionLoader({
-    required this.databaseId,
+    required this.viewId,
   });
 
   /// Creates the field type option if the fieldTypeOption is null.
@@ -185,14 +185,14 @@ class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
   Future<Either<TypeOptionPB, FlowyError>> load() {
     if (fieldTypeOption != null) {
       final payload = TypeOptionPathPB.create()
-        ..databaseId = databaseId
+        ..viewId = viewId
         ..fieldId = fieldTypeOption!.field_2.id
         ..fieldType = fieldTypeOption!.field_2.fieldType;
 
       return DatabaseEventGetTypeOption(payload).send();
     } else {
       final payload = CreateFieldPayloadPB.create()
-        ..databaseId = databaseId
+        ..viewId = viewId
         ..fieldType = FieldType.RichText;
 
       return DatabaseEventCreateTypeOption(payload).send().then((result) {
@@ -211,18 +211,18 @@ class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
 /// Uses when editing a existing field
 class FieldTypeOptionLoader extends IFieldTypeOptionLoader {
   @override
-  final String databaseId;
+  final String viewId;
   final FieldPB field;
 
   FieldTypeOptionLoader({
-    required this.databaseId,
+    required this.viewId,
     required this.field,
   });
 
   @override
   Future<Either<TypeOptionPB, FlowyError>> load() {
     final payload = TypeOptionPathPB.create()
-      ..databaseId = databaseId
+      ..viewId = viewId
       ..fieldId = field.id
       ..fieldType = field.fieldType;
 

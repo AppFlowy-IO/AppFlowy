@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:app_flowy/plugins/trash/application/trash_service.dart';
+import 'package:app_flowy/user/application/user_service.dart';
 import 'package:app_flowy/workspace/application/view/view_listener.dart';
 import 'package:app_flowy/plugins/document/application/doc_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show EditorState, Document, Transaction;
 import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
@@ -12,6 +14,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:dartz/dartz.dart';
 import 'dart:async';
+import 'package:app_flowy/util/either_extension.dart';
 
 part 'doc_bloc.freezed.dart';
 
@@ -73,6 +76,16 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   Future<void> _initial(Initial value, Emitter<DocumentState> emit) async {
+    final userProfile = await UserService.getCurrentUserProfile();
+    if (userProfile.isRight()) {
+      emit(
+        state.copyWith(
+          loadingState:
+              DocumentLoadingState.finish(right(userProfile.asRight())),
+        ),
+      );
+      return;
+    }
     final result = await _documentService.openDocument(view: view);
     result.fold(
       (documentData) {
@@ -82,6 +95,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         emit(
           state.copyWith(
             loadingState: DocumentLoadingState.finish(left(unit)),
+            userProfilePB: userProfile.asLeft(),
           ),
         );
       },
@@ -142,12 +156,14 @@ class DocumentState with _$DocumentState {
     required DocumentLoadingState loadingState,
     required bool isDeleted,
     required bool forceClose,
+    UserProfilePB? userProfilePB,
   }) = _DocumentState;
 
   factory DocumentState.initial() => const DocumentState(
         loadingState: _Loading(),
         isDeleted: false,
         forceClose: false,
+        userProfilePB: null,
       );
 }
 

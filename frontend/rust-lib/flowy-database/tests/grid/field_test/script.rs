@@ -1,7 +1,7 @@
 use crate::grid::database_editor::DatabaseEditorTest;
+use database_model::FieldRevision;
 use flowy_database::entities::{CreateFieldParams, FieldChangesetParams, FieldType};
 use flowy_database::services::cell::{stringify_cell_data, TypeCellData};
-use grid_model::FieldRevision;
 
 pub enum FieldScript {
   CreateField {
@@ -106,7 +106,7 @@ impl DatabaseFieldTest {
         //
         self
           .editor
-          .update_field_type_option(&self.view_id, &field_id, type_option, None)
+          .update_field_type_option(&field_id, type_option, None)
           .await
           .unwrap();
         self.field_revs = self.editor.get_field_revs(None).await.unwrap();

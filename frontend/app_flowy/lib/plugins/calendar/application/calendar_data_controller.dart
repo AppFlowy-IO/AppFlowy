@@ -40,7 +40,7 @@ class CalendarDataController {
   CalendarDataController({required ViewPB view})
       : databaseId = view.id,
         _listener = CalendarListener(view.id),
-        _databaseFFIService = DatabaseFFIService(databaseId: view.id),
+        _databaseFFIService = DatabaseFFIService(viewId: view.id),
         fieldController = GridFieldController(databaseId: view.id) {
     _viewCache = DatabaseViewCache(
       databaseId: view.id,

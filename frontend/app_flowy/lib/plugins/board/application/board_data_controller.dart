@@ -45,7 +45,7 @@ class BoardDataController {
   BoardDataController({required ViewPB view})
       : viewId = view.id,
         _listener = BoardListener(view.id),
-        _databaseFFIService = DatabaseFFIService(databaseId: view.id),
+        _databaseFFIService = DatabaseFFIService(viewId: view.id),
         fieldController = GridFieldController(databaseId: view.id) {
     //
     _viewCache = DatabaseViewCache(

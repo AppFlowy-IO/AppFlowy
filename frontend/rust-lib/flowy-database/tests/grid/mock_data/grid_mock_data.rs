@@ -12,7 +12,7 @@ use flowy_database::entities::*;
 use flowy_database::services::field::SelectOptionPB;
 use flowy_database::services::field::*;
 
-use grid_model::*;
+use database_model::*;
 
 use strum::IntoEnumIterator;
 

@@ -16,7 +16,7 @@ void main() {
 
   test("create a text filter and then alter the filter's field)", () async {
     final context = await gridTest.createTestGrid();
-    final service = FilterFFIService(databaseId: context.gridView.id);
+    final service = FilterFFIService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
 
     // Create the filter menu bloc
@@ -35,7 +35,7 @@ void main() {
 
     // Edit the text field
     final loader = FieldTypeOptionLoader(
-      databaseId: context.gridView.id,
+      viewId: context.gridView.id,
       field: textField.field,
     );
 

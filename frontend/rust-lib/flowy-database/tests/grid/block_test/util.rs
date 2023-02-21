@@ -1,10 +1,10 @@
+use database_model::{FieldRevision, RowRevision};
 use flowy_database::entities::FieldType;
 use flowy_database::services::field::{
   ChecklistTypeOptionPB, DateCellChangeset, MultiSelectTypeOptionPB, SelectOptionPB,
   SingleSelectTypeOptionPB,
 };
 use flowy_database::services::row::RowRevisionBuilder;
-use grid_model::{FieldRevision, RowRevision};
 use std::sync::Arc;
 
 use strum::EnumCount;
