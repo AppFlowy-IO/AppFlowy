@@ -4,7 +4,7 @@ export interface IBoardGroupingFields {
   [keys: string]: string;
 }
 
-const initialState: IBoardGroupingFields = { uXRpVxvxIF: 'field1' };
+const initialState: IBoardGroupingFields = { testDb: 'field1' };
 
 export const boardSlice = createSlice({
   name: 'board',

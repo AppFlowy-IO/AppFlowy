@@ -86,6 +86,7 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
 
   const onAddNewBoardPage = () => {
     closePopup();
+
     appDispatch(
       pagesActions.addPage({
         folderId: folder.id,

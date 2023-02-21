@@ -58,7 +58,7 @@ export interface IDatabase {
 
 // key(databaseId) -> value(IDatabase)
 const initialState: { [keys: string]: IDatabase } = {
-  uXRpVxvxIF: {
+  testDb: {
     title: 'Database One',
     columns: [
       {

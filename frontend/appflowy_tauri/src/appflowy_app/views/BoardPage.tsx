@@ -8,7 +8,8 @@ export const BoardPage = () => {
 
   useEffect(() => {
     if (params?.id?.length) {
-      setDatabaseId(params.id);
+      // setDatabaseId(params.id);
+      setDatabaseId('testDb');
     }
   }, [params]);
 
