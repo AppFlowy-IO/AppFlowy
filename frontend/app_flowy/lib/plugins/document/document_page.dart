@@ -66,6 +66,8 @@ class _DocumentPageState extends State<DocumentPage> {
               if (state.forceClose) {
                 widget.onDeleted();
                 return const SizedBox();
+              } else if (documentBloc.editorState == null) {
+                return const SizedBox();
               } else {
                 return _renderDocument(context, state);
               }
@@ -109,13 +111,18 @@ class _AppFlowyEditorPage extends StatefulWidget {
 
 class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
   late DocumentBloc documentBloc;
-  EditorState get editorState => documentBloc.editorState;
+  late EditorState editorState;
   String? get openAIKey => documentBloc.state.userProfilePB?.openaiKey;
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     documentBloc = context.read<DocumentBloc>();
+    editorState = documentBloc.editorState ?? EditorState.empty();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final editor = AppFlowyEditor(
       editorState: editorState,
