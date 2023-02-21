@@ -13,7 +13,10 @@ extension TextRobot on EditorState {
   }) async {
     final lines = text.split('\n');
     for (final line in lines) {
-      if (line.isEmpty) continue;
+      if (line.isEmpty) {
+        await insertNewLineAtCurrentSelection();
+        continue;
+      }
       switch (inputType) {
         case TextRobotInputType.character:
           final iterator = line.runes.iterator;
@@ -33,11 +36,6 @@ extension TextRobot on EditorState {
             await Future.delayed(delay, () {});
           }
           break;
-      }
-
-      // insert new line
-      if (lines.length > 1) {
-        await insertNewLineAtCurrentSelection();
       }
     }
   }
