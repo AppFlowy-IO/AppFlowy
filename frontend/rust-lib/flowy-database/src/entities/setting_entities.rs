@@ -10,46 +10,25 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
-use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 /// [DatabaseViewSettingPB] defines the setting options for the grid. Such as the filter, group, and sort.
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct DatabaseViewSettingPB {
   #[pb(index = 1)]
-  pub support_layouts: Vec<ViewLayoutPB>,
-
-  #[pb(index = 2)]
   pub current_layout: LayoutTypePB,
 
-  #[pb(index = 3)]
+  #[pb(index = 2)]
   pub current_layout_setting: LayoutSettingPB,
 
-  #[pb(index = 4)]
+  #[pb(index = 3)]
   pub filters: RepeatedFilterPB,
 
-  #[pb(index = 5)]
+  #[pb(index = 4)]
   pub group_configurations: RepeatedGroupConfigurationPB,
 
-  #[pb(index = 6)]
+  #[pb(index = 5)]
   pub sorts: RepeatedSortPB,
-}
-
-#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct ViewLayoutPB {
-  #[pb(index = 1)]
-  ty: LayoutTypePB,
-}
-
-impl ViewLayoutPB {
-  pub fn all() -> Vec<ViewLayoutPB> {
-    let mut layouts = vec![];
-    for layout_ty in LayoutTypePB::iter() {
-      layouts.push(ViewLayoutPB { ty: layout_ty })
-    }
-
-    layouts
-  }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumIter)]
