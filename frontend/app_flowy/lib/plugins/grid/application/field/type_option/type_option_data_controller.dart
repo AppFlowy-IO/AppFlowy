@@ -77,7 +77,7 @@ class TypeOptionDataController {
     });
 
     FieldService.updateFieldTypeOption(
-      databaseId: databaseId,
+      viewId: databaseId,
       fieldId: field.id,
       typeOptionData: typeOptionData,
     );

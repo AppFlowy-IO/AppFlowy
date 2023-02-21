@@ -14,7 +14,7 @@ class RowFFIService {
 
   Future<Either<RowPB, FlowyError>> createRow(String rowId) {
     final payload = CreateRowPayloadPB.create()
-      ..databaseId = databaseId
+      ..viewId = databaseId
       ..startRowId = rowId;
 
     return DatabaseEventCreateRow(payload).send();
@@ -22,7 +22,7 @@ class RowFFIService {
 
   Future<Either<OptionalRowPB, FlowyError>> getRow(String rowId) {
     final payload = RowIdPB.create()
-      ..databaseId = databaseId
+      ..viewId = databaseId
       ..rowId = rowId;
 
     return DatabaseEventGetRow(payload).send();
@@ -30,7 +30,7 @@ class RowFFIService {
 
   Future<Either<Unit, FlowyError>> deleteRow(String rowId) {
     final payload = RowIdPB.create()
-      ..databaseId = databaseId
+      ..viewId = databaseId
       ..rowId = rowId;
 
     return DatabaseEventDeleteRow(payload).send();
@@ -38,7 +38,7 @@ class RowFFIService {
 
   Future<Either<Unit, FlowyError>> duplicateRow(String rowId) {
     final payload = RowIdPB.create()
-      ..databaseId = databaseId
+      ..viewId = databaseId
       ..rowId = rowId;
 
     return DatabaseEventDuplicateRow(payload).send();

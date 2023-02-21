@@ -78,7 +78,7 @@ impl DatabaseRowTest {
     match script {
       RowScript::CreateEmptyRow => {
         let params = CreateRowParams {
-          database_id: self.editor.database_id.clone(),
+          view_id: self.editor.database_id.clone(),
           start_row_id: None,
           group_id: None,
           layout: LayoutTypePB::Grid,

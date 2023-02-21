@@ -59,15 +59,15 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
 pub enum DatabaseEvent {
   /// [GetDatabase] event is used to get the [DatabasePB]
   ///
-  /// The event handler accepts a [DatabaseIdPB] and returns a [DatabasePB] if there are no errors.
-  #[event(input = "DatabaseIdPB", output = "DatabasePB")]
+  /// The event handler accepts a [DatabaseViewIdPB] and returns a [DatabasePB] if there are no errors.
+  #[event(input = "DatabaseViewIdPB", output = "DatabasePB")]
   GetDatabase = 0,
 
   /// [GetDatabaseSetting] event is used to get the database's settings.
   ///
-  /// The event handler accepts [DatabaseIdPB] and return [DatabaseViewSettingPB]
+  /// The event handler accepts [DatabaseViewIdPB] and return [DatabaseViewSettingPB]
   /// if there is no errors.
-  #[event(input = "DatabaseIdPB", output = "DatabaseViewSettingPB")]
+  #[event(input = "DatabaseViewIdPB", output = "DatabaseViewSettingPB")]
   GetDatabaseSetting = 2,
 
   /// [UpdateDatabaseSetting] event is used to update the database's settings.
@@ -76,13 +76,13 @@ pub enum DatabaseEvent {
   #[event(input = "DatabaseSettingChangesetPB")]
   UpdateDatabaseSetting = 3,
 
-  #[event(input = "DatabaseIdPB", output = "RepeatedFilterPB")]
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedFilterPB")]
   GetAllFilters = 4,
 
-  #[event(input = "DatabaseIdPB", output = "RepeatedSortPB")]
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedSortPB")]
   GetAllSorts = 5,
 
-  #[event(input = "DatabaseIdPB")]
+  #[event(input = "DatabaseViewIdPB")]
   DeleteAllSorts = 6,
 
   /// [GetFields] event is used to get the database's settings.
@@ -215,7 +215,7 @@ pub enum DatabaseEvent {
   #[event(input = "DateChangesetPB")]
   UpdateDateCell = 80,
 
-  #[event(input = "DatabaseIdPB", output = "RepeatedGroupPB")]
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedGroupPB")]
   GetGroup = 100,
 
   #[event(input = "CreateBoardCardPayloadPB", output = "RowPB")]

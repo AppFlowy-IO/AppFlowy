@@ -62,12 +62,12 @@ class FieldService {
   }
 
   static Future<Either<Unit, FlowyError>> updateFieldTypeOption({
-    required String databaseId,
+    required String viewId,
     required String fieldId,
     required List<int> typeOptionData,
   }) {
     var payload = TypeOptionChangesetPB.create()
-      ..databaseId = databaseId
+      ..viewId = viewId
       ..fieldId = fieldId
       ..typeOptionData = typeOptionData;
 
@@ -76,7 +76,7 @@ class FieldService {
 
   Future<Either<Unit, FlowyError>> deleteField() {
     final payload = DeleteFieldPayloadPB.create()
-      ..databaseId = viewId
+      ..viewId = viewId
       ..fieldId = fieldId;
 
     return DatabaseEventDeleteField(payload).send();
@@ -84,7 +84,7 @@ class FieldService {
 
   Future<Either<Unit, FlowyError>> duplicateField() {
     final payload = DuplicateFieldPayloadPB.create()
-      ..databaseId = viewId
+      ..viewId = viewId
       ..fieldId = fieldId;
 
     return DatabaseEventDuplicateField(payload).send();
@@ -109,7 +109,7 @@ class FieldService {
 @freezed
 class GridFieldCellContext with _$GridFieldCellContext {
   const factory GridFieldCellContext({
-    required String databaseId,
+    required String viewId,
     required FieldPB field,
   }) = _GridFieldCellContext;
 }

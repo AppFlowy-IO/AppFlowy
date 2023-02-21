@@ -15,10 +15,10 @@ use std::sync::Arc;
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_database_data_handler(
-  data: AFPluginData<DatabaseIdPB>,
+  data: AFPluginData<DatabaseViewIdPB>,
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<DatabasePB, FlowyError> {
-  let database_id: DatabaseIdPB = data.into_inner();
+  let database_id: DatabaseViewIdPB = data.into_inner();
   let editor = manager.open_database(database_id.as_ref()).await?;
   let database = editor.get_database(database_id.as_ref()).await?;
   data_result(database)
@@ -26,10 +26,10 @@ pub(crate) async fn get_database_data_handler(
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_database_setting_handler(
-  data: AFPluginData<DatabaseIdPB>,
+  data: AFPluginData<DatabaseViewIdPB>,
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<DatabaseViewSettingPB, FlowyError> {
-  let database_id: DatabaseIdPB = data.into_inner();
+  let database_id: DatabaseViewIdPB = data.into_inner();
   let editor = manager.open_database(database_id).await?;
   let database_setting = editor.get_setting().await?;
   data_result(database_setting)
@@ -42,7 +42,7 @@ pub(crate) async fn update_database_setting_handler(
 ) -> Result<(), FlowyError> {
   let params: DatabaseSettingChangesetParams = data.into_inner().try_into()?;
 
-  let editor = manager.get_database_editor(&params.database_id).await?;
+  let editor = manager.get_database_editor(&params.view_id).await?;
   if let Some(insert_params) = params.insert_group {
     editor.insert_group(insert_params).await?;
   }
@@ -70,10 +70,10 @@ pub(crate) async fn update_database_setting_handler(
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_all_filters_handler(
-  data: AFPluginData<DatabaseIdPB>,
+  data: AFPluginData<DatabaseViewIdPB>,
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RepeatedFilterPB, FlowyError> {
-  let database_id: DatabaseIdPB = data.into_inner();
+  let database_id: DatabaseViewIdPB = data.into_inner();
   let editor = manager.open_database(database_id).await?;
   let filters = RepeatedFilterPB {
     items: editor.get_all_filters().await?,
@@ -83,10 +83,10 @@ pub(crate) async fn get_all_filters_handler(
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_all_sorts_handler(
-  data: AFPluginData<DatabaseIdPB>,
+  data: AFPluginData<DatabaseViewIdPB>,
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RepeatedSortPB, FlowyError> {
-  let database_id: DatabaseIdPB = data.into_inner();
+  let database_id: DatabaseViewIdPB = data.into_inner();
   let editor = manager.open_database(database_id.as_ref()).await?;
   let sorts = RepeatedSortPB {
     items: editor.get_all_sorts(database_id.as_ref()).await?,
@@ -96,10 +96,10 @@ pub(crate) async fn get_all_sorts_handler(
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn delete_all_sorts_handler(
-  data: AFPluginData<DatabaseIdPB>,
+  data: AFPluginData<DatabaseViewIdPB>,
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
-  let database_id: DatabaseIdPB = data.into_inner();
+  let database_id: DatabaseViewIdPB = data.into_inner();
   let editor = manager.open_database(database_id.as_ref()).await?;
   editor.delete_all_sorts(database_id.as_ref()).await?;
   Ok(())
@@ -111,7 +111,7 @@ pub(crate) async fn get_fields_handler(
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RepeatedFieldPB, FlowyError> {
   let params: GetFieldParams = data.into_inner().try_into()?;
-  let editor = manager.get_database_editor(&params.database_id).await?;
+  let editor = manager.get_database_editor(&params.view_id).await?;
   let field_revs = editor.get_field_revs(params.field_ids).await?;
   let repeated_field: RepeatedFieldPB = field_revs
     .into_iter()
@@ -138,15 +138,10 @@ pub(crate) async fn update_field_type_option_handler(
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let params: TypeOptionChangesetParams = data.into_inner().try_into()?;
-  let editor = manager.get_database_editor(&params.database_id).await?;
+  let editor = manager.get_database_editor(&params.view_id).await?;
   let old_field_rev = editor.get_field_rev(&params.field_id).await;
   editor
-    .update_field_type_option(
-      &params.database_id,
-      &params.field_id,
-      params.type_option_data,
-      old_field_rev,
-    )
+    .update_field_type_option(&params.field_id, params.type_option_data, old_field_rev)
     .await?;
   Ok(())
 }
@@ -157,7 +152,7 @@ pub(crate) async fn delete_field_handler(
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let params: FieldIdParams = data.into_inner().try_into()?;
-  let editor = manager.get_database_editor(&params.database_id).await?;
+  let editor = manager.get_database_editor(&params.view_id).await?;
   editor.delete_field(&params.field_id).await?;
   Ok(())
 }
@@ -183,12 +178,7 @@ pub(crate) async fn switch_to_field_handler(
   // Update the type-option data after the field type has been changed
   let type_option_data = get_type_option_data(&new_field_rev, &params.field_type).await?;
   editor
-    .update_field_type_option(
-      &params.view_id,
-      &new_field_rev.id,
-      type_option_data,
-      old_field_rev,
-    )
+    .update_field_type_option(&new_field_rev.id, type_option_data, old_field_rev)
     .await?;
 
   Ok(())
@@ -200,7 +190,7 @@ pub(crate) async fn duplicate_field_handler(
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let params: FieldIdParams = data.into_inner().try_into()?;
-  let editor = manager.get_database_editor(&params.database_id).await?;
+  let editor = manager.get_database_editor(&params.view_id).await?;
   editor.duplicate_field(&params.field_id).await?;
   Ok(())
 }
@@ -286,7 +276,7 @@ pub(crate) async fn get_row_handler(
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<OptionalRowPB, FlowyError> {
   let params: RowIdParams = data.into_inner().try_into()?;
-  let editor = manager.get_database_editor(&params.database_id).await?;
+  let editor = manager.get_database_editor(&params.view_id).await?;
   let row = editor
     .get_row_rev(&params.row_id)
     .await?
@@ -301,7 +291,7 @@ pub(crate) async fn delete_row_handler(
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let params: RowIdParams = data.into_inner().try_into()?;
-  let editor = manager.get_database_editor(&params.database_id).await?;
+  let editor = manager.get_database_editor(&params.view_id).await?;
   editor.delete_row(&params.row_id).await?;
   Ok(())
 }
@@ -312,7 +302,7 @@ pub(crate) async fn duplicate_row_handler(
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let params: RowIdParams = data.into_inner().try_into()?;
-  let editor = manager.get_database_editor(&params.database_id).await?;
+  let editor = manager.get_database_editor(&params.view_id).await?;
   editor.duplicate_row(&params.row_id).await?;
   Ok(())
 }
@@ -334,9 +324,7 @@ pub(crate) async fn create_table_row_handler(
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RowPB, FlowyError> {
   let params: CreateRowParams = data.into_inner().try_into()?;
-  let editor = manager
-    .get_database_editor(params.database_id.as_ref())
-    .await?;
+  let editor = manager.get_database_editor(params.view_id.as_ref()).await?;
   let row = editor.create_row(params).await?;
   data_result(row)
 }
@@ -531,10 +519,10 @@ pub(crate) async fn update_date_cell_handler(
 
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn get_groups_handler(
-  data: AFPluginData<DatabaseIdPB>,
+  data: AFPluginData<DatabaseViewIdPB>,
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RepeatedGroupPB, FlowyError> {
-  let params: DatabaseIdPB = data.into_inner();
+  let params: DatabaseViewIdPB = data.into_inner();
   let editor = manager.get_database_editor(&params.value).await?;
   let group = editor.load_groups().await?;
   data_result(group)
@@ -546,9 +534,7 @@ pub(crate) async fn create_board_card_handler(
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RowPB, FlowyError> {
   let params: CreateRowParams = data.into_inner().try_into()?;
-  let editor = manager
-    .get_database_editor(params.database_id.as_ref())
-    .await?;
+  let editor = manager.get_database_editor(params.view_id.as_ref()).await?;
   let row = editor.create_row(params).await?;
   data_result(row)
 }

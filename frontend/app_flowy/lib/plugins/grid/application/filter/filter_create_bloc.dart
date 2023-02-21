@@ -22,7 +22,7 @@ class GridCreateFilterBloc
   final GridFieldController fieldController;
   void Function(List<FieldInfo>)? _onFieldFn;
   GridCreateFilterBloc({required this.viewId, required this.fieldController})
-      : _ffiService = FilterFFIService(databaseId: viewId),
+      : _ffiService = FilterFFIService(viewId: viewId),
         super(GridCreateFilterState.initial(fieldController.fieldInfos)) {
     on<GridCreateFilterEvent>(
       (event, emit) async {

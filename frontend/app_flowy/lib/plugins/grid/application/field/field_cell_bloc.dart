@@ -16,7 +16,7 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
     required GridFieldCellContext cellContext,
   })  : _fieldListener = SingleFieldListener(fieldId: cellContext.field.id),
         _fieldService = FieldService(
-            viewId: cellContext.databaseId, fieldId: cellContext.field.id),
+            viewId: cellContext.viewId, fieldId: cellContext.field.id),
         super(FieldCellState.initial(cellContext)) {
     on<FieldCellEvent>(
       (event, emit) async {
@@ -80,7 +80,7 @@ class FieldCellState with _$FieldCellState {
 
   factory FieldCellState.initial(GridFieldCellContext cellContext) =>
       FieldCellState(
-        databaseId: cellContext.databaseId,
+        databaseId: cellContext.viewId,
         field: cellContext.field,
         width: cellContext.field.width.toDouble(),
       );

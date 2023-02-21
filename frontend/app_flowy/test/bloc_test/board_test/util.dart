@@ -144,7 +144,7 @@ class BoardTestContext {
 
   GridFieldCellContext singleSelectFieldCellContext() {
     final field = singleSelectFieldContext().field;
-    return GridFieldCellContext(databaseId: gridView.id, field: field);
+    return GridFieldCellContext(viewId: gridView.id, field: field);
   }
 
   FieldInfo textFieldContext() {

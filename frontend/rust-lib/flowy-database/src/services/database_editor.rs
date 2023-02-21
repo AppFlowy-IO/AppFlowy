@@ -22,6 +22,7 @@ use flowy_client_sync::client_database::{
   DatabaseRevisionChangeset, DatabaseRevisionPad, JsonDeserializer,
 };
 use flowy_client_sync::errors::{SyncError, SyncResult};
+use flowy_client_sync::make_operations_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{
   RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer,
@@ -34,8 +35,6 @@ use lib_infra::future::{to_fut, FutureResult};
 use lib_ot::core::EmptyAttributes;
 use revision_model::Revision;
 use std::collections::HashMap;
-
-use flowy_client_sync::make_operations_from_revisions;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
@@ -117,14 +116,12 @@ impl DatabaseRevisionEditor {
   /// It will do nothing if the passed-in type_option_data is empty
   /// # Arguments
   ///
-  /// * `database_id`: the id of the database
   /// * `field_id`: the id of the field
   /// * `type_option_data`: the updated type-option data. The `type-option` data might be empty
   /// if there is no type-option config for that field. For example, the `RichTextTypeOptionPB`.
   ///  
   pub async fn update_field_type_option(
     &self,
-    _database_id: &str,
     field_id: &str,
     type_option_data: Vec<u8>,
     old_field_rev: Option<Arc<FieldRevision>>,

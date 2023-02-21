@@ -23,7 +23,7 @@ where
     action(&mut type_option);
     let bytes = type_option.protobuf_bytes().to_vec();
     editor
-      .update_field_type_option(&editor.database_id, field_id, bytes, old_field_rev)
+      .update_field_type_option(field_id, bytes, old_field_rev)
       .await?;
   }
 

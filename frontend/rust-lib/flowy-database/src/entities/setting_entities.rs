@@ -85,7 +85,7 @@ impl std::convert::From<LayoutTypePB> for LayoutRevision {
 #[derive(Default, ProtoBuf)]
 pub struct DatabaseSettingChangesetPB {
   #[pb(index = 1)]
-  pub database_id: String,
+  pub view_id: String,
 
   #[pb(index = 2)]
   pub layout_type: LayoutTypePB,
@@ -113,7 +113,7 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<DatabaseSettingChangesetParams, Self::Error> {
-    let database_id = NotEmptyStr::parse(self.database_id)
+    let view_id = NotEmptyStr::parse(self.view_id)
       .map_err(|_| ErrorCode::ViewIdInvalid)?
       .0;
 
@@ -148,7 +148,7 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
     };
 
     Ok(DatabaseSettingChangesetParams {
-      database_id,
+      view_id,
       layout_type: self.layout_type.into(),
       insert_filter,
       delete_filter,
@@ -161,7 +161,7 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
 }
 
 pub struct DatabaseSettingChangesetParams {
-  pub database_id: String,
+  pub view_id: String,
   pub layout_type: LayoutRevision,
   pub insert_filter: Option<AlterFilterParams>,
   pub delete_filter: Option<DeleteFilterParams>,

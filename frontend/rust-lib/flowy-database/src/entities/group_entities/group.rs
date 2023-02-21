@@ -10,7 +10,7 @@ use std::sync::Arc;
 #[derive(ProtoBuf, Debug, Default, Clone)]
 pub struct CreateBoardCardPayloadPB {
   #[pb(index = 1)]
-  pub database_id: String,
+  pub view_id: String,
 
   #[pb(index = 2)]
   pub group_id: String,
@@ -23,8 +23,7 @@ impl TryInto<CreateRowParams> for CreateBoardCardPayloadPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<CreateRowParams, Self::Error> {
-    let database_id =
-      NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     let group_id = NotEmptyStr::parse(self.group_id).map_err(|_| ErrorCode::GroupIdIsEmpty)?;
     let start_row_id = match self.start_row_id {
       None => None,
@@ -35,7 +34,7 @@ impl TryInto<CreateRowParams> for CreateBoardCardPayloadPB {
       ),
     };
     Ok(CreateRowParams {
-      database_id: database_id.0,
+      view_id: view_id.0,
       start_row_id,
       group_id: Some(group_id.0),
       layout: LayoutTypePB::Board,

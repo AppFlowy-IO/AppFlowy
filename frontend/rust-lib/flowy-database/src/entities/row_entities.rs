@@ -136,14 +136,14 @@ pub struct UpdatedRowPB {
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct RowIdPB {
   #[pb(index = 1)]
-  pub database_id: String,
+  pub view_id: String,
 
   #[pb(index = 2)]
   pub row_id: String,
 }
 
 pub struct RowIdParams {
-  pub database_id: String,
+  pub view_id: String,
   pub row_id: String,
 }
 
@@ -151,12 +151,11 @@ impl TryInto<RowIdParams> for RowIdPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<RowIdParams, Self::Error> {
-    let database_id =
-      NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
 
     Ok(RowIdParams {
-      database_id: database_id.0,
+      view_id: view_id.0,
       row_id: row_id.0,
     })
   }
@@ -174,7 +173,7 @@ pub struct BlockRowIdPB {
 #[derive(ProtoBuf, Default)]
 pub struct CreateRowPayloadPB {
   #[pb(index = 1)]
-  pub database_id: String,
+  pub view_id: String,
 
   #[pb(index = 2, one_of)]
   pub start_row_id: Option<String>,
@@ -182,7 +181,7 @@ pub struct CreateRowPayloadPB {
 
 #[derive(Default)]
 pub struct CreateRowParams {
-  pub database_id: String,
+  pub view_id: String,
   pub start_row_id: Option<String>,
   pub group_id: Option<String>,
   pub layout: LayoutTypePB,
@@ -192,11 +191,10 @@ impl TryInto<CreateRowParams> for CreateRowPayloadPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<CreateRowParams, Self::Error> {
-    let database_id =
-      NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
 
     Ok(CreateRowParams {
-      database_id: database_id.0,
+      view_id: view_id.0,
       start_row_id: self.start_row_id,
       group_id: None,
       layout: LayoutTypePB::Grid,

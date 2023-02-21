@@ -314,7 +314,7 @@ impl std::convert::From<String> for RepeatedFieldIdPB {
 #[derive(ProtoBuf, Default)]
 pub struct TypeOptionChangesetPB {
   #[pb(index = 1)]
-  pub database_id: String,
+  pub view_id: String,
 
   #[pb(index = 2)]
   pub field_id: String,
@@ -326,7 +326,7 @@ pub struct TypeOptionChangesetPB {
 
 #[derive(Clone)]
 pub struct TypeOptionChangesetParams {
-  pub database_id: String,
+  pub view_id: String,
   pub field_id: String,
   pub type_option_data: Vec<u8>,
 }
@@ -335,12 +335,11 @@ impl TryInto<TypeOptionChangesetParams> for TypeOptionChangesetPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<TypeOptionChangesetParams, Self::Error> {
-    let database_id =
-      NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     let _ = NotEmptyStr::parse(self.field_id.clone()).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
 
     Ok(TypeOptionChangesetParams {
-      database_id: database_id.0,
+      view_id: view_id.0,
       field_id: self.field_id,
       type_option_data: self.type_option_data,
     })
@@ -350,14 +349,14 @@ impl TryInto<TypeOptionChangesetParams> for TypeOptionChangesetPB {
 #[derive(ProtoBuf, Default)]
 pub struct GetFieldPayloadPB {
   #[pb(index = 1)]
-  pub database_id: String,
+  pub view_id: String,
 
   #[pb(index = 2, one_of)]
   pub field_ids: Option<RepeatedFieldIdPB>,
 }
 
 pub struct GetFieldParams {
-  pub database_id: String,
+  pub view_id: String,
   pub field_ids: Option<Vec<String>>,
 }
 
@@ -365,8 +364,7 @@ impl TryInto<GetFieldParams> for GetFieldPayloadPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<GetFieldParams, Self::Error> {
-    let database_id =
-      NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     let field_ids = self.field_ids.map(|repeated| {
       repeated
         .items
@@ -376,7 +374,7 @@ impl TryInto<GetFieldParams> for GetFieldPayloadPB {
     });
 
     Ok(GetFieldParams {
-      database_id: database_id.0,
+      view_id: view_id.0,
       field_ids,
     })
   }
@@ -621,27 +619,26 @@ pub struct DuplicateFieldPayloadPB {
   pub field_id: String,
 
   #[pb(index = 2)]
-  pub database_id: String,
+  pub view_id: String,
 }
 
-#[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct GridFieldIdentifierPayloadPB {
-  #[pb(index = 1)]
-  pub field_id: String,
-
-  #[pb(index = 2)]
-  pub database_id: String,
-}
+// #[derive(Debug, Clone, Default, ProtoBuf)]
+// pub struct GridFieldIdentifierPayloadPB {
+//   #[pb(index = 1)]
+//   pub field_id: String,
+//
+//   #[pb(index = 2)]
+//   pub view_id: String,
+// }
 
 impl TryInto<FieldIdParams> for DuplicateFieldPayloadPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<FieldIdParams, Self::Error> {
-    let database_id =
-      NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
     Ok(FieldIdParams {
-      database_id: database_id.0,
+      view_id: view_id.0,
       field_id: field_id.0,
     })
   }
@@ -653,18 +650,17 @@ pub struct DeleteFieldPayloadPB {
   pub field_id: String,
 
   #[pb(index = 2)]
-  pub database_id: String,
+  pub view_id: String,
 }
 
 impl TryInto<FieldIdParams> for DeleteFieldPayloadPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<FieldIdParams, Self::Error> {
-    let database_id =
-      NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
     Ok(FieldIdParams {
-      database_id: database_id.0,
+      view_id: view_id.0,
       field_id: field_id.0,
     })
   }
@@ -672,5 +668,5 @@ impl TryInto<FieldIdParams> for DeleteFieldPayloadPB {
 
 pub struct FieldIdParams {
   pub field_id: String,
-  pub database_id: String,
+  pub view_id: String,
 }

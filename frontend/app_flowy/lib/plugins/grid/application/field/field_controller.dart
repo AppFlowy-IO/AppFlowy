@@ -150,9 +150,9 @@ class GridFieldController {
   GridFieldController({required this.databaseId})
       : _fieldListener = DatabaseFieldsListener(databaseId: databaseId),
         _settingListener = DatabaseSettingListener(databaseId: databaseId),
-        _filterFFIService = FilterFFIService(databaseId: databaseId),
+        _filterFFIService = FilterFFIService(viewId: databaseId),
         _filtersListener = FiltersListener(viewId: databaseId),
-        _gridFFIService = DatabaseFFIService(databaseId: databaseId),
+        _gridFFIService = DatabaseFFIService(viewId: databaseId),
         _sortFFIService = SortFFIService(viewId: databaseId),
         _sortsListener = SortsListener(viewId: databaseId),
         _settingFFIService = SettingFFIService(viewId: databaseId) {

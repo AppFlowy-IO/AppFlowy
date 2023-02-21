@@ -98,8 +98,8 @@ class _GridHeaderState extends State<_GridHeader> {
       builder: (context, state) {
         final cells = state.fields
             .where((field) => field.visibility)
-            .map((field) => GridFieldCellContext(
-                databaseId: widget.viewId, field: field.field))
+            .map((field) =>
+                GridFieldCellContext(viewId: widget.viewId, field: field.field))
             .map((ctx) =>
                 GridFieldCell(key: _getKeyById(ctx.field.id), cellContext: ctx))
             .toList();
