@@ -8,7 +8,6 @@ use crate::entities::{
 use database_model::LayoutRevision;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
 use strum_macros::EnumIter;
 
@@ -19,7 +18,7 @@ pub struct DatabaseViewSettingPB {
   pub current_layout: LayoutTypePB,
 
   #[pb(index = 2)]
-  pub current_layout_setting: LayoutSettingPB,
+  pub layout_setting: LayoutSettingPB,
 
   #[pb(index = 3)]
   pub filters: RepeatedFilterPB,
@@ -73,25 +72,22 @@ pub struct DatabaseSettingChangesetPB {
   #[pb(index = 2)]
   pub layout_type: LayoutTypePB,
 
-  #[pb(index = 3)]
-  pub layout_setting: LayoutSettingPB,
-
-  #[pb(index = 4, one_of)]
+  #[pb(index = 3, one_of)]
   pub alter_filter: Option<AlterFilterPayloadPB>,
 
-  #[pb(index = 5, one_of)]
+  #[pb(index = 4, one_of)]
   pub delete_filter: Option<DeleteFilterPayloadPB>,
 
-  #[pb(index = 6, one_of)]
+  #[pb(index = 5, one_of)]
   pub insert_group: Option<InsertGroupPayloadPB>,
 
-  #[pb(index = 7, one_of)]
+  #[pb(index = 6, one_of)]
   pub delete_group: Option<DeleteGroupPayloadPB>,
 
-  #[pb(index = 8, one_of)]
+  #[pb(index = 7, one_of)]
   pub alter_sort: Option<AlterSortPayloadPB>,
 
-  #[pb(index = 9, one_of)]
+  #[pb(index = 8, one_of)]
   pub delete_sort: Option<DeleteSortPayloadPB>,
 }
 
@@ -163,8 +159,14 @@ impl DatabaseSettingChangesetParams {
   }
 }
 
-#[derive(Debug, Eq, PartialEq, Default, Serialize, Deserialize, ProtoBuf, Clone)]
+#[derive(Debug, Eq, PartialEq, Default, ProtoBuf, Clone)]
 pub struct LayoutSettingPB {
   #[pb(index = 1, one_of)]
-  calendar: Option<CalendarSettingsPB>,
+  pub calendar: Option<CalendarSettingsPB>,
+}
+
+impl LayoutSettingPB {
+  pub fn new() -> Self {
+    Self::default()
+  }
 }

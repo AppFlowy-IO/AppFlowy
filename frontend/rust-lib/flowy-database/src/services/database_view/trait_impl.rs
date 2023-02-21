@@ -1,4 +1,4 @@
-use crate::entities::{DatabaseViewSettingPB, LayoutSettingPB};
+use crate::entities::{CalendarSettingsParams, DatabaseViewSettingPB, LayoutSettingPB};
 use crate::services::database_view::{get_cells_for_field, DatabaseViewEditorDelegate};
 use crate::services::field::RowSingleCellData;
 use crate::services::filter::{FilterController, FilterDelegate, FilterType};
@@ -147,13 +147,23 @@ pub fn make_grid_setting(
   field_revs: &[Arc<FieldRevision>],
 ) -> DatabaseViewSettingPB {
   let layout_type: LayoutRevision = view_pad.layout.clone();
-  let layout_settings: LayoutSettingPB = view_pad.get_layout_setting(&layout_type);
+  let mut layout_settings = LayoutSettingPB::new();
+  match layout_type {
+    LayoutRevision::Grid => {},
+    LayoutRevision::Board => {},
+    LayoutRevision::Calendar => {
+      layout_settings.calendar = view_pad
+        .get_layout_setting::<CalendarSettingsParams>(&layout_type)
+        .map(|params| params.into());
+    },
+  }
+
   let filters = view_pad.get_all_filters(field_revs);
   let group_configurations = view_pad.get_groups_by_field_revs(field_revs);
   let sorts = view_pad.get_all_sorts(field_revs);
   DatabaseViewSettingPB {
     current_layout: layout_type.into(),
-    current_layout_setting: layout_settings.into(),
+    layout_setting: layout_settings,
     filters: filters.into(),
     sorts: sorts.into(),
     group_configurations: group_configurations.into(),

@@ -641,7 +641,8 @@ impl DatabaseViewRevisionEditor {
       .pad
       .read()
       .await
-      .get_layout_setting(&LayoutRevision::Calendar);
+      .get_layout_setting(&LayoutRevision::Calendar)
+      .unwrap_or_else(|| CalendarSettingsParams::default_with(self.view_id.to_string()));
     Ok(settings)
   }
 

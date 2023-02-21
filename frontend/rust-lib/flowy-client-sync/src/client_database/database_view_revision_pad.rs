@@ -297,15 +297,12 @@ impl DatabaseViewRevisionPad {
   /// Returns the settings for the given layout. If it's not exists then will return the
   /// default settings for the given layout.
   /// Each [database view](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/database-view) has its own settings.
-  pub fn get_layout_setting<T>(&self, layout: &LayoutRevision) -> T
+  pub fn get_layout_setting<T>(&self, layout: &LayoutRevision) -> Option<T>
   where
-    T: Default + serde::de::DeserializeOwned,
+    T: serde::de::DeserializeOwned,
   {
-    if let Some(settings_str) = self.view.layout_settings.get(layout) {
-      serde_json::from_str::<T>(settings_str).unwrap_or_default()
-    } else {
-      T::default()
-    }
+    let settings_str = self.view.layout_settings.get(layout)?;
+    serde_json::from_str::<T>(settings_str).ok()
   }
 
   /// updates the settings for the given layout type
