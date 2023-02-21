@@ -74,7 +74,7 @@ jobs:
         run: |
           mkdir dist
           npm install
-          cargo make --cwd ..tauri_build 
+          cargo make --cwd .. tauri_build 
           yarn && yarn build
 
       - uses: tauri-apps/tauri-action@v0
