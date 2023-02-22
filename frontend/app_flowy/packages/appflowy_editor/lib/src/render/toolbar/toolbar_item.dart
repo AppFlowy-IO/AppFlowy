@@ -20,20 +20,31 @@ class ToolbarItem {
   ToolbarItem({
     required this.id,
     required this.type,
-    required this.iconBuilder,
     this.tooltipsMessage = '',
+    this.iconBuilder,
     required this.validator,
-    required this.highlightCallback,
-    required this.handler,
-  });
+    this.highlightCallback,
+    this.handler,
+    this.itemBuilder,
+  }) {
+    assert(
+      (iconBuilder != null && itemBuilder == null) ||
+          (iconBuilder == null && itemBuilder != null),
+      'iconBuilder and itemBuilder must be set one of them',
+    );
+  }
 
   final String id;
   final int type;
-  final Widget Function(bool isHighlight) iconBuilder;
   final String tooltipsMessage;
   final ToolbarItemValidator validator;
-  final ToolbarItemEventHandler handler;
-  final ToolbarItemHighlightCallback highlightCallback;
+
+  final Widget Function(bool isHighlight)? iconBuilder;
+  final ToolbarItemEventHandler? handler;
+  final ToolbarItemHighlightCallback? highlightCallback;
+
+  final Widget Function(BuildContext context, EditorState editorState)?
+      itemBuilder;
 
   factory ToolbarItem.divider() {
     return ToolbarItem(
