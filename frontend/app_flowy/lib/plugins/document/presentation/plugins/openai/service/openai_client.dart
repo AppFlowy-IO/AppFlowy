@@ -84,7 +84,7 @@ class HttpOpenAIRepository implements OpenAIRepository {
       'stream': false,
     };
 
-    final response = await http.post(
+    final response = await client.post(
       OpenAIRequestType.textCompletion.uri,
       headers: headers,
       body: json.encode(parameters),
@@ -110,7 +110,7 @@ class HttpOpenAIRepository implements OpenAIRepository {
       'temperature': temperature,
     };
 
-    final response = await http.post(
+    final response = await client.post(
       OpenAIRequestType.textEdit.uri,
       headers: headers,
       body: json.encode(parameters),

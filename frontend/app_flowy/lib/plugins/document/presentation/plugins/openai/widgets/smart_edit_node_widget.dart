@@ -57,8 +57,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
   String get input => widget.node.attributes[kSmartEditInputType];
 
   final focusNode = FocusNode();
-  final textFieldFocusNode = FocusNode();
-  final controller = TextEditingController();
+  final client = http.Client();
   dartz.Either<OpenAIError, TextEditResponse>? result;
   bool loading = true;
 
@@ -83,8 +82,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
 
   @override
   void dispose() {
-    controller.dispose();
-
+    client.close();
     super.dispose();
   }
 
@@ -106,9 +104,8 @@ class _SmartEditInputState extends State<_SmartEditInput> {
       onKey: (RawKeyEvent event) async {
         if (event is! RawKeyDownEvent) return;
         if (event.logicalKey == LogicalKeyboardKey.enter) {
-          if (controller.text.isNotEmpty) {
-            textFieldFocusNode.unfocus();
-          }
+          await _onReplace();
+          await _onExit();
         } else if (event.logicalKey == LogicalKeyboardKey.escape) {
           await _onExit();
         }
@@ -186,7 +183,10 @@ class _SmartEditInputState extends State<_SmartEditInput> {
               ),
             ],
           ),
-          onPressed: () => _onReplace(),
+          onPressed: () {
+            _onReplace();
+            _onExit();
+          },
         ),
         const Space(10, 0),
         FlowyRichTextButton(
@@ -218,20 +218,15 @@ class _SmartEditInputState extends State<_SmartEditInput> {
     if (selection == null || result == null || result!.isLeft()) {
       return;
     }
+    var texts = result!.asRight().choices.first.text.split('\n')
+      ..removeWhere((element) => element.isEmpty);
     final transaction = widget.editorState.transaction;
     transaction.insertNodes(
-        widget.node.path,
-        result!
-            .asRight()
-            .choices
-            .first
-            .text
-            .split('\n')
-            .map((e) => TextNode(delta: Delta()..insert(e.trim()))));
+      widget.node.path,
+      texts.map((e) => TextNode(delta: Delta()..insert(e.trim()))),
+    );
     transaction.deleteNodes(selectedNodes);
-    transaction.deleteNode(widget.node);
-    transaction.afterSelection = null;
-    return widget.editorState.apply(transaction, withUpdateCursor: false);
+    return widget.editorState.apply(transaction);
   }
 
   Future<void> _onExit() async {
@@ -244,7 +239,6 @@ class _SmartEditInputState extends State<_SmartEditInput> {
         recordRedo: false,
         recordUndo: false,
       ),
-      withUpdateCursor: false,
     );
   }
 
@@ -252,7 +246,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
     final result = await UserService.getCurrentUserProfile();
     return result.fold((userProfile) async {
       final openAIRepository = HttpOpenAIRepository(
-        client: http.Client(),
+        client: client,
         apiKey: userProfile.openaiKey,
       );
       final edits = await openAIRepository.getEdits(
