@@ -80,8 +80,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     if (userProfile.isRight()) {
       emit(
         state.copyWith(
-          loadingState:
-              DocumentLoadingState.finish(right(userProfile.asRight())),
+          loadingState: DocumentLoadingState.finish(
+            right(userProfile.asRight()),
+          ),
         ),
       );
       return;
