@@ -1,6 +1,6 @@
 use crate::entities::FieldType;
 use crate::services::cell::AtomicCellDataCache;
-use crate::services::database::DatabaseBlockManager;
+use crate::services::database::DatabaseBlocks;
 use crate::services::database_view::DatabaseViewData;
 use crate::services::field::{TypeOptionCellDataHandler, TypeOptionCellExt};
 use crate::services::row::DatabaseBlockRowRevision;
@@ -15,7 +15,7 @@ use tokio::sync::RwLock;
 
 pub struct DatabaseViewDataImpl {
   pub(crate) pad: Arc<RwLock<DatabaseRevisionPad>>,
-  pub(crate) block_manager: Arc<DatabaseBlockManager>,
+  pub(crate) blocks: Arc<DatabaseBlocks>,
   pub(crate) task_scheduler: Arc<RwLock<TaskDispatcher>>,
   pub(crate) cell_data_cache: AtomicCellDataCache,
 }
@@ -44,13 +44,13 @@ impl DatabaseViewData for DatabaseViewDataImpl {
   }
 
   fn index_of_row(&self, row_id: &str) -> Fut<Option<usize>> {
-    let block_manager = self.block_manager.clone();
+    let block_manager = self.blocks.clone();
     let row_id = row_id.to_owned();
     to_fut(async move { block_manager.index_of_row(&row_id).await })
   }
 
   fn get_row_rev(&self, row_id: &str) -> Fut<Option<(usize, Arc<RowRevision>)>> {
-    let block_manager = self.block_manager.clone();
+    let block_manager = self.blocks.clone();
     let row_id = row_id.to_owned();
     to_fut(async move {
       match block_manager.get_row_rev(&row_id).await {
@@ -61,7 +61,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
   }
 
   fn get_row_revs(&self, block_id: Option<Vec<String>>) -> Fut<Vec<Arc<RowRevision>>> {
-    let block_manager = self.block_manager.clone();
+    let block_manager = self.blocks.clone();
 
     to_fut(async move {
       let blocks = block_manager.get_blocks(block_id).await.unwrap();
@@ -77,7 +77,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
   // }
 
   fn get_blocks(&self) -> Fut<Vec<DatabaseBlockRowRevision>> {
-    let block_manager = self.block_manager.clone();
+    let block_manager = self.blocks.clone();
     to_fut(async move { block_manager.get_blocks(None).await.unwrap_or_default() })
   }
 

@@ -30,8 +30,14 @@ impl std::ops::Deref for DatabaseViewRevisionPad {
 impl DatabaseViewRevisionPad {
   // For the moment, the view_id is equal to grid_id. The database_id represents the database id.
   // A database can be referenced by multiple views.
-  pub fn new(database_id: String, view_id: String, layout: LayoutRevision) -> Self {
-    let view = Arc::new(DatabaseViewRevision::new(database_id, view_id, layout));
+  pub fn new(database_id: String, view_id: String, name: String, layout: LayoutRevision) -> Self {
+    let view = Arc::new(DatabaseViewRevision::new(
+      database_id,
+      view_id,
+      true,
+      name,
+      layout,
+    ));
     let json = serde_json::to_string(&view).unwrap();
     let operations = GridViewOperationsBuilder::new().insert(&json).build();
     Self { view, operations }
@@ -75,7 +81,7 @@ impl DatabaseViewRevisionPad {
     field_id: &str,
     field_type: &FieldTypeRevision,
     group_configuration_rev: GroupConfigurationRevision,
-  ) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     self.modify(|view| {
       // Only save one group
       view.groups.clear();
@@ -98,7 +104,7 @@ impl DatabaseViewRevisionPad {
     field_type: &FieldTypeRevision,
     configuration_id: &str,
     mut_configuration_fn: F,
-  ) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     self.modify(
       |view| match view.groups.get_mut_objects(field_id, field_type) {
         None => Ok(None),
@@ -120,7 +126,7 @@ impl DatabaseViewRevisionPad {
     group_id: &str,
     field_id: &str,
     field_type: &FieldTypeRevision,
-  ) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     self.modify(|view| {
       if let Some(groups) = view.groups.get_mut_objects(field_id, field_type) {
         groups.retain(|group| group.id != group_id);
@@ -162,7 +168,7 @@ impl DatabaseViewRevisionPad {
     &mut self,
     field_id: &str,
     sort_rev: SortRevision,
-  ) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     self.modify(|view| {
       let field_type = sort_rev.field_type;
       view.sorts.add_object(field_id, &field_type, sort_rev);
@@ -174,7 +180,7 @@ impl DatabaseViewRevisionPad {
     &mut self,
     field_id: &str,
     sort_rev: SortRevision,
-  ) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     self.modify(|view| {
       if let Some(sort) = view
         .sorts
@@ -196,7 +202,7 @@ impl DatabaseViewRevisionPad {
     sort_id: &str,
     field_id: &str,
     field_type: T,
-  ) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     let field_type = field_type.into();
     self.modify(|view| {
       if let Some(sorts) = view.sorts.get_mut_objects(field_id, &field_type) {
@@ -208,7 +214,7 @@ impl DatabaseViewRevisionPad {
     })
   }
 
-  pub fn delete_all_sorts(&mut self) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  pub fn delete_all_sorts(&mut self) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     self.modify(|view| {
       view.sorts.clear();
       Ok(Some(()))
@@ -246,7 +252,7 @@ impl DatabaseViewRevisionPad {
     &mut self,
     field_id: &str,
     filter_rev: FilterRevision,
-  ) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     self.modify(|view| {
       let field_type = filter_rev.field_type;
       view.filters.add_object(field_id, &field_type, filter_rev);
@@ -258,7 +264,7 @@ impl DatabaseViewRevisionPad {
     &mut self,
     field_id: &str,
     filter_rev: FilterRevision,
-  ) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     self.modify(|view| {
       if let Some(filter) =
         view
@@ -282,7 +288,7 @@ impl DatabaseViewRevisionPad {
     filter_id: &str,
     field_id: &str,
     field_type: T,
-  ) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     let field_type = field_type.into();
     self.modify(|view| {
       if let Some(filters) = view.filters.get_mut_objects(field_id, &field_type) {
@@ -302,7 +308,7 @@ impl DatabaseViewRevisionPad {
     self.layout.clone()
   }
 
-  fn modify<F>(&mut self, f: F) -> SyncResult<Option<GridViewRevisionChangeset>>
+  fn modify<F>(&mut self, f: F) -> SyncResult<Option<DatabaseViewRevisionChangeset>>
   where
     F: FnOnce(&mut DatabaseViewRevision) -> SyncResult<Option<()>>,
   {
@@ -317,7 +323,7 @@ impl DatabaseViewRevisionPad {
           Some(operations) => {
             self.operations = self.operations.compose(&operations)?;
             let md5 = md5(&self.operations.json_bytes());
-            Ok(Some(GridViewRevisionChangeset { operations, md5 }))
+            Ok(Some(DatabaseViewRevisionChangeset { operations, md5 }))
           },
         }
       },
@@ -326,7 +332,7 @@ impl DatabaseViewRevisionPad {
 }
 
 #[derive(Debug)]
-pub struct GridViewRevisionChangeset {
+pub struct DatabaseViewRevisionChangeset {
   pub operations: GridViewOperations,
   pub md5: String,
 }

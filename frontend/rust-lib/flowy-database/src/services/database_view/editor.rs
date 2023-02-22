@@ -18,11 +18,11 @@ use crate::services::sort::{
   DeletedSortType, SortChangeset, SortController, SortTaskHandler, SortType,
 };
 use database_model::{
-  gen_database_filter_id, gen_database_sort_id, FieldRevision, FieldTypeRevision, FilterRevision,
-  LayoutRevision, RowChangeset, RowRevision, SortRevision,
+  gen_database_filter_id, gen_database_id, gen_database_sort_id, FieldRevision, FieldTypeRevision,
+  FilterRevision, LayoutRevision, RowChangeset, RowRevision, SortRevision,
 };
 use flowy_client_sync::client_database::{
-  make_grid_view_operations, DatabaseViewRevisionPad, GridViewRevisionChangeset,
+  make_grid_view_operations, DatabaseViewRevisionChangeset, DatabaseViewRevisionPad,
 };
 use flowy_error::FlowyResult;
 use flowy_revision::RevisionManager;
@@ -86,41 +86,16 @@ pub struct DatabaseViewEditor {
 }
 
 impl DatabaseViewEditor {
-  #[tracing::instrument(level = "trace", skip_all, err)]
-  pub async fn new(
+  pub async fn from_pad(
     user_id: &str,
-    token: &str,
-    view_id: String,
     delegate: Arc<dyn DatabaseViewData>,
     cell_data_cache: AtomicCellDataCache,
-    mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
+    rev_manager: RevisionManager<Arc<ConnectionPool>>,
+    view_rev_pad: DatabaseViewRevisionPad,
   ) -> FlowyResult<Self> {
+    let view_id = view_rev_pad.view_id.clone();
     let (notifier, _) = broadcast::channel(100);
     tokio::spawn(DatabaseViewChangedReceiverRunner(Some(notifier.subscribe())).run());
-    let cloud = Arc::new(GridViewRevisionCloudService {
-      token: token.to_owned(),
-    });
-
-    let view_rev_pad = match rev_manager
-      .initialize::<GridViewRevisionSerde>(Some(cloud))
-      .await
-    {
-      Ok(pad) => pad,
-      Err(err) => {
-        // It shouldn't be here, because the snapshot should come to recue.
-        tracing::error!("Deserialize grid view revisions failed: {}", err);
-        //TODO(nathan): generate database id
-        let view = DatabaseViewRevisionPad::new(
-          view_id.to_owned(),
-          view_id.to_owned(),
-          LayoutRevision::Grid,
-        );
-        let bytes = make_grid_view_operations(&view).json_bytes();
-        let reset_revision = Revision::initial_revision(&view_id, bytes);
-        let _ = rev_manager.reset_object(vec![reset_revision]).await;
-        view
-      },
-    };
 
     let view_rev_pad = Arc::new(RwLock::new(view_rev_pad));
     let rev_manager = Arc::new(rev_manager);
@@ -164,6 +139,43 @@ impl DatabaseViewEditor {
       sort_controller,
       notifier,
     })
+  }
+
+  #[tracing::instrument(level = "trace", skip_all, err)]
+  pub async fn new(
+    user_id: &str,
+    token: &str,
+    view_id: String,
+    delegate: Arc<dyn DatabaseViewData>,
+    cell_data_cache: AtomicCellDataCache,
+    mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
+  ) -> FlowyResult<Self> {
+    let cloud = Arc::new(DatabaseViewRevisionCloudService {
+      token: token.to_owned(),
+    });
+
+    let view_rev_pad = match rev_manager
+      .initialize::<DatabaseViewRevisionSerde>(Some(cloud))
+      .await
+    {
+      Ok(pad) => pad,
+      Err(err) => {
+        // It shouldn't be here, because the snapshot should come to recue.
+        tracing::error!("Deserialize database view revisions failed: {}", err);
+        let (view, reset_revision) = generate_restore_view(&view_id).await;
+        let _ = rev_manager.reset_object(vec![reset_revision]).await;
+        view
+      },
+    };
+
+    Self::from_pad(
+      user_id,
+      delegate,
+      cell_data_cache,
+      rev_manager,
+      view_rev_pad,
+    )
+    .await
   }
 
   #[tracing::instrument(name = "close grid view editor", level = "trace", skip_all)]
@@ -451,7 +463,7 @@ impl DatabaseViewEditor {
 
   pub async fn get_view_setting(&self) -> DatabaseViewSettingPB {
     let field_revs = self.delegate.get_field_revs(None).await;
-    make_grid_setting(&*self.pad.read().await, &field_revs)
+    make_database_view_setting(&*self.pad.read().await, &field_revs)
   }
 
   pub async fn get_all_view_sorts(&self) -> Vec<Arc<SortRevision>> {
@@ -762,7 +774,7 @@ impl DatabaseViewEditor {
   where
     F: for<'a> FnOnce(
       &'a mut DatabaseViewRevisionPad,
-    ) -> FlowyResult<Option<GridViewRevisionChangeset>>,
+    ) -> FlowyResult<Option<DatabaseViewRevisionChangeset>>,
   {
     let mut write_guard = self.pad.write().await;
     match f(&mut write_guard)? {
@@ -915,7 +927,7 @@ async fn make_filter_controller(
   let field_revs = delegate.get_field_revs(None).await;
   let filter_revs = pad.read().await.get_all_filters(&field_revs);
   let task_scheduler = delegate.get_task_scheduler();
-  let filter_delegate = GridViewFilterDelegateImpl {
+  let filter_delegate = DatabaseViewFilterDelegateImpl {
     editor_delegate: delegate.clone(),
     view_revision_pad: pad,
   };
@@ -952,7 +964,7 @@ async fn make_sort_controller(
   let handler_id = gen_handler_id();
   let field_revs = delegate.get_field_revs(None).await;
   let sorts = pad.read().await.get_all_sorts(&field_revs);
-  let sort_delegate = GridViewSortDelegateImpl {
+  let sort_delegate = DatabaseViewSortDelegateImpl {
     editor_delegate: delegate.clone(),
     view_revision_pad: pad,
     filter_controller,
@@ -977,6 +989,19 @@ async fn make_sort_controller(
 
 fn gen_handler_id() -> String {
   nanoid!(10)
+}
+
+async fn generate_restore_view(view_id: &str) -> (DatabaseViewRevisionPad, Revision) {
+  let database_id = gen_database_id();
+  let view = DatabaseViewRevisionPad::new(
+    database_id,
+    view_id.to_owned(),
+    "".to_string(),
+    LayoutRevision::Grid,
+  );
+  let bytes = make_grid_view_operations(&view).json_bytes();
+  let reset_revision = Revision::initial_revision(view_id, bytes);
+  (view, reset_revision)
 }
 
 #[cfg(test)]

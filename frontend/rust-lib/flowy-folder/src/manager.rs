@@ -299,6 +299,7 @@ pub trait ViewDataProcessor {
     &self,
     user_id: &str,
     view_id: &str,
+    name: &str,
     layout: ViewLayoutTypePB,
     data_format: ViewDataFormatPB,
   ) -> FutureResult<Bytes, FlowyError>;
@@ -307,6 +308,7 @@ pub trait ViewDataProcessor {
     &self,
     user_id: &str,
     view_id: &str,
+    name: &str,
     data: Vec<u8>,
     layout: ViewLayoutTypePB,
   ) -> FutureResult<Bytes, FlowyError>;

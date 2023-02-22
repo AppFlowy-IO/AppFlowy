@@ -3,7 +3,9 @@ use crate::services::database::{
   make_database_block_rev_manager, DatabaseEditor, DatabaseRevisionCloudService,
   DatabaseRevisionMergeable, DatabaseRevisionSerde,
 };
-use crate::services::database_view::make_database_view_rev_manager;
+use crate::services::database_view::{
+  make_database_view_rev_manager, make_database_view_revision_pad,
+};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::kv::DatabaseKVPersistence;
 use crate::services::persistence::migration::DatabaseMigration;
@@ -12,7 +14,9 @@ use crate::services::persistence::rev_sqlite::{
 };
 use crate::services::persistence::DatabaseDB;
 use bytes::Bytes;
-use database_model::{BuildDatabaseContext, DatabaseRevision, DatabaseViewRevision};
+use database_model::{
+  gen_database_id, BuildDatabaseContext, DatabaseRevision, DatabaseViewRevision,
+};
 use flowy_client_sync::client_database::{
   make_database_block_operations, make_database_operations, make_grid_view_operations,
 };
@@ -112,13 +116,11 @@ impl DatabaseManager {
     Ok(())
   }
 
-  pub async fn open_database<T: AsRef<str>>(
-    &self,
-    database_id: T,
-  ) -> FlowyResult<Arc<DatabaseEditor>> {
-    let database_id = database_id.as_ref();
-    let _ = self.migration.run_v1_migration(database_id).await;
-    self.get_or_create_database_editor(database_id).await
+  pub async fn open_database<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<Arc<DatabaseEditor>> {
+    let view_id = view_id.as_ref();
+    //TODO(nathan): handler run_v1_migration
+    // let _ = self.migration.run_v1_migration(database_id).await;
+    self.get_or_create_database_editor(view_id).await
   }
 
   #[tracing::instrument(level = "debug", skip_all, fields(database_id), err)]
@@ -135,58 +137,68 @@ impl DatabaseManager {
   }
 
   // #[tracing::instrument(level = "debug", skip(self), err)]
-  //TODO(nathan): map the view_id to database_id
-  pub async fn get_database_editor(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
+  pub async fn get_database_editor(&self, view_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
     let read_guard = self.database_editors.read().await;
-    let editor = read_guard.get(database_id);
+    let editor = read_guard.get(view_id);
     match editor {
       None => {
         // Drop the read_guard ASAP in case of the following read/write lock
         drop(read_guard);
-        self.open_database(database_id).await
+        self.open_database(view_id).await
       },
       Some(editor) => Ok(editor),
     }
   }
 
-  async fn get_or_create_database_editor(
-    &self,
-    database_id: &str,
-  ) -> FlowyResult<Arc<DatabaseEditor>> {
-    if let Some(editor) = self.database_editors.read().await.get(database_id) {
+  async fn get_or_create_database_editor(&self, view_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
+    //TODO(nathan): map view_id to database_id
+    if let Some(editor) = self.database_editors.read().await.get(view_id) {
       return Ok(editor);
     }
 
     let mut database_editors = self.database_editors.write().await;
     let db_pool = self.database_user.db_pool()?;
-    let editor = self.make_database_rev_editor(database_id, db_pool).await?;
-    tracing::trace!("Open database: {}", database_id);
-    database_editors.insert(database_id.to_string(), editor.clone());
+    let editor = self.make_database_rev_editor(view_id, db_pool).await?;
+    database_editors.insert(view_id.to_string(), editor.clone());
     Ok(editor)
   }
 
   #[tracing::instrument(level = "trace", skip(self, pool), err)]
   async fn make_database_rev_editor(
     &self,
-    database_id: &str,
+    view_id: &str,
     pool: Arc<ConnectionPool>,
   ) -> Result<Arc<DatabaseEditor>, FlowyError> {
     let user = self.database_user.clone();
+    let (database_view_pad, base_view_rev_manager) =
+      make_database_view_revision_pad(view_id, user.clone()).await?;
+    let mut database_id = database_view_pad.database_id.clone();
+
+    tracing::debug!("Open database:{}, with view: {}", database_id, view_id);
+    if database_id.is_empty() {
+      // Before the database_id concept comes up, we used the view_id directly. So if
+      // the database_id is empty, which means we can used the view_id. After the version 0.1.1,
+      // we start to used the database_id that enables binding different views to the same database.
+      database_id = view_id.to_owned();
+    }
+
     let token = user.token()?;
     let cloud = Arc::new(DatabaseRevisionCloudService::new(token));
-    let mut rev_manager = self.make_database_rev_manager(database_id, pool.clone())?;
+    let mut rev_manager = self.make_database_rev_manager(&database_id, pool.clone())?;
     let database_pad = Arc::new(RwLock::new(
       rev_manager
         .initialize::<DatabaseRevisionSerde>(Some(cloud))
         .await?,
     ));
     let database_editor = DatabaseEditor::new(
-      database_id,
+      &database_id,
       user,
       database_pad,
       rev_manager,
       self.block_index_cache.clone(),
       self.task_scheduler.clone(),
+      database_view_pad,
+      base_view_rev_manager,
     )
     .await?;
     Ok(database_editor)
@@ -226,6 +238,7 @@ impl DatabaseManager {
 pub async fn make_database_view_data(
   _user_id: &str,
   view_id: &str,
+  name: String,
   layout: LayoutTypePB,
   database_manager: Arc<DatabaseManager>,
   build_context: BuildDatabaseContext,
@@ -256,7 +269,7 @@ pub async fn make_database_view_data(
   }
 
   // Will replace the grid_id with the value returned by the gen_grid_id()
-  let database_id = view_id.to_owned();
+  let database_id = gen_database_id();
   let database_rev = DatabaseRevision::from_build_context(&database_id, field_revs, block_metas);
 
   // Create grid
@@ -267,9 +280,9 @@ pub async fn make_database_view_data(
     .create_database(&database_id, vec![revision])
     .await?;
 
-  // Create grid view
+  // Create database view
   let grid_view = if grid_view_revision_data.is_empty() {
-    DatabaseViewRevision::new(database_id, view_id.to_owned(), layout.into())
+    DatabaseViewRevision::new(database_id, view_id.to_owned(), true, name, layout.into())
   } else {
     DatabaseViewRevision::from_json(grid_view_revision_data)?
   };

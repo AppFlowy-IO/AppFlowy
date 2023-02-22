@@ -41,14 +41,14 @@ pub enum DatabaseBlockEvent {
 }
 
 type BlockId = String;
-pub(crate) struct DatabaseBlockManager {
+pub(crate) struct DatabaseBlocks {
   user: Arc<dyn DatabaseUser>,
   persistence: Arc<BlockIndexCache>,
   block_editors: DashMap<BlockId, Arc<DatabaseBlockEditor>>,
   event_notifier: broadcast::Sender<DatabaseBlockEvent>,
 }
 
-impl DatabaseBlockManager {
+impl DatabaseBlocks {
   pub(crate) async fn new(
     user: &Arc<dyn DatabaseUser>,
     block_meta_revs: Vec<Arc<DatabaseBlockMetaRevision>>,

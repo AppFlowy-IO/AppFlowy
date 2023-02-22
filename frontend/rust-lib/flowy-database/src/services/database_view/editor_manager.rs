@@ -6,13 +6,16 @@ use crate::manager::DatabaseUser;
 use crate::services::cell::AtomicCellDataCache;
 use crate::services::database::DatabaseBlockEvent;
 use crate::services::database_view::notifier::*;
-use crate::services::database_view::trait_impl::GridViewRevisionMergeable;
+use crate::services::database_view::trait_impl::{
+  DatabaseViewRevisionMergeable, DatabaseViewRevisionSerde,
+};
 use crate::services::database_view::{DatabaseViewData, DatabaseViewEditor};
 use crate::services::filter::FilterType;
 use crate::services::persistence::rev_sqlite::{
   SQLiteDatabaseRevisionSnapshotPersistence, SQLiteGridViewRevisionPersistence,
 };
 use database_model::{FieldRevision, FilterRevision, RowChangeset, RowRevision, SortRevision};
+use flowy_client_sync::client_database::DatabaseViewRevisionPad;
 use flowy_error::FlowyResult;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration};
 use flowy_sqlite::ConnectionPool;
@@ -38,15 +41,30 @@ impl DatabaseViews {
     delegate: Arc<dyn DatabaseViewData>,
     cell_data_cache: AtomicCellDataCache,
     block_event_rx: broadcast::Receiver<DatabaseBlockEvent>,
+    base_view: DatabaseViewRevisionPad,
+    base_view_rev_manager: RevisionManager<Arc<ConnectionPool>>,
   ) -> FlowyResult<Self> {
-    let view_editors = Arc::new(RwLock::new(RefCountHashMap::default()));
+    let mut view_editors = RefCountHashMap::default();
+    let user_id = user.user_id()?;
+    let view_id = base_view.view_id.to_owned();
+
+    let base_view_editor = DatabaseViewEditor::from_pad(
+      &user_id,
+      delegate.clone(),
+      cell_data_cache.clone(),
+      base_view_rev_manager,
+      base_view,
+    )
+    .await?;
+    view_editors.insert(view_id, Arc::new(base_view_editor));
+    let view_editors = Arc::new(RwLock::new(view_editors));
     listen_on_database_block_event(block_event_rx, view_editors.clone());
     Ok(Self {
       database_id,
       user,
       delegate,
-      cell_data_cache,
       view_editors,
+      cell_data_cache,
     })
   }
 
@@ -279,6 +297,20 @@ impl DatabaseViews {
   }
 }
 
+pub async fn make_database_view_revision_pad(
+  view_id: &str,
+  user: Arc<dyn DatabaseUser>,
+) -> FlowyResult<(
+  DatabaseViewRevisionPad,
+  RevisionManager<Arc<ConnectionPool>>,
+)> {
+  let mut rev_manager = make_database_view_rev_manager(&user, view_id).await?;
+  let view_rev_pad = rev_manager
+    .initialize::<DatabaseViewRevisionSerde>(None)
+    .await?;
+  Ok((view_rev_pad, rev_manager))
+}
+
 fn listen_on_database_block_event(
   mut block_event_rx: broadcast::Receiver<DatabaseBlockEvent>,
   view_editors: Arc<RwLock<RefCountHashMap<Arc<DatabaseViewEditor>>>>,
@@ -317,7 +349,7 @@ pub async fn make_database_view_rev_manager(
   let snapshot_persistence =
     SQLiteDatabaseRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
 
-  let rev_compress = GridViewRevisionMergeable();
+  let rev_compress = DatabaseViewRevisionMergeable();
   Ok(RevisionManager::new(
     &user_id,
     view_id,

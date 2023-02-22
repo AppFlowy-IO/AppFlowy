@@ -65,6 +65,7 @@ impl ViewController {
         .create_default_view(
           &user_id,
           &params.view_id,
+          &params.name,
           params.layout.clone(),
           params.data_format.clone(),
         )
@@ -76,6 +77,7 @@ impl ViewController {
         .create_view_with_data(
           &user_id,
           &params.view_id,
+          &params.name,
           params.initial_data.clone(),
           params.layout.clone(),
         )

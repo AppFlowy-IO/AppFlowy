@@ -216,6 +216,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     &self,
     user_id: &str,
     view_id: &str,
+    _name: &str,
     layout: ViewLayoutTypePB,
     _data_format: ViewDataFormatPB,
   ) -> FutureResult<Bytes, FlowyError> {
@@ -236,6 +237,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     &self,
     _user_id: &str,
     _view_id: &str,
+    _name: &str,
     data: Vec<u8>,
     layout: ViewLayoutTypePB,
   ) -> FutureResult<Bytes, FlowyError> {
@@ -291,6 +293,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
     &self,
     user_id: &str,
     view_id: &str,
+    name: &str,
     layout: ViewLayoutTypePB,
     data_format: ViewDataFormatPB,
   ) -> FutureResult<Bytes, FlowyError> {
@@ -308,9 +311,18 @@ impl ViewDataProcessor for GridViewDataProcessor {
 
     let user_id = user_id.to_string();
     let view_id = view_id.to_string();
+    let name = name.to_string();
     let database_manager = self.0.clone();
     FutureResult::new(async move {
-      make_database_view_data(&user_id, &view_id, layout, database_manager, build_context).await
+      make_database_view_data(
+        &user_id,
+        &view_id,
+        name,
+        layout,
+        database_manager,
+        build_context,
+      )
+      .await
     })
   }
 
@@ -318,6 +330,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
     &self,
     user_id: &str,
     view_id: &str,
+    name: &str,
     data: Vec<u8>,
     layout: ViewLayoutTypePB,
   ) -> FutureResult<Bytes, FlowyError> {
@@ -335,11 +348,20 @@ impl ViewDataProcessor for GridViewDataProcessor {
         });
       },
     };
+    let name = name.to_string();
 
     FutureResult::new(async move {
       let bytes = Bytes::from(data);
       let build_context = BuildDatabaseContext::try_from(bytes)?;
-      make_database_view_data(&user_id, &view_id, layout, database_manager, build_context).await
+      make_database_view_data(
+        &user_id,
+        &view_id,
+        name,
+        layout,
+        database_manager,
+        build_context,
+      )
+      .await
     })
   }
 

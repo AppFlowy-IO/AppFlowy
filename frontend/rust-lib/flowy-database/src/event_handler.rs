@@ -18,9 +18,9 @@ pub(crate) async fn get_database_data_handler(
   data: AFPluginData<DatabaseViewIdPB>,
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<DatabasePB, FlowyError> {
-  let database_id: DatabaseViewIdPB = data.into_inner();
-  let editor = manager.open_database(database_id.as_ref()).await?;
-  let database = editor.get_database(database_id.as_ref()).await?;
+  let view_id: DatabaseViewIdPB = data.into_inner();
+  let editor = manager.open_database(view_id.as_ref()).await?;
+  let database = editor.get_database(view_id.as_ref()).await?;
   data_result(database)
 }
 
@@ -29,8 +29,8 @@ pub(crate) async fn get_database_setting_handler(
   data: AFPluginData<DatabaseViewIdPB>,
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<DatabaseViewSettingPB, FlowyError> {
-  let database_id: DatabaseViewIdPB = data.into_inner();
-  let editor = manager.open_database(database_id).await?;
+  let view_id: DatabaseViewIdPB = data.into_inner();
+  let editor = manager.open_database(view_id).await?;
   let database_setting = editor.get_setting().await?;
   data_result(database_setting)
 }
@@ -73,8 +73,8 @@ pub(crate) async fn get_all_filters_handler(
   data: AFPluginData<DatabaseViewIdPB>,
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RepeatedFilterPB, FlowyError> {
-  let database_id: DatabaseViewIdPB = data.into_inner();
-  let editor = manager.open_database(database_id).await?;
+  let view_id: DatabaseViewIdPB = data.into_inner();
+  let editor = manager.open_database(view_id).await?;
   let filters = RepeatedFilterPB {
     items: editor.get_all_filters().await?,
   };
@@ -86,10 +86,10 @@ pub(crate) async fn get_all_sorts_handler(
   data: AFPluginData<DatabaseViewIdPB>,
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RepeatedSortPB, FlowyError> {
-  let database_id: DatabaseViewIdPB = data.into_inner();
-  let editor = manager.open_database(database_id.as_ref()).await?;
+  let view_id: DatabaseViewIdPB = data.into_inner();
+  let editor = manager.open_database(view_id.as_ref()).await?;
   let sorts = RepeatedSortPB {
-    items: editor.get_all_sorts(database_id.as_ref()).await?,
+    items: editor.get_all_sorts(view_id.as_ref()).await?,
   };
   data_result(sorts)
 }
@@ -99,9 +99,9 @@ pub(crate) async fn delete_all_sorts_handler(
   data: AFPluginData<DatabaseViewIdPB>,
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
-  let database_id: DatabaseViewIdPB = data.into_inner();
-  let editor = manager.open_database(database_id.as_ref()).await?;
-  editor.delete_all_sorts(database_id.as_ref()).await?;
+  let view_id: DatabaseViewIdPB = data.into_inner();
+  let editor = manager.open_database(view_id.as_ref()).await?;
+  editor.delete_all_sorts(view_id.as_ref()).await?;
   Ok(())
 }
 
