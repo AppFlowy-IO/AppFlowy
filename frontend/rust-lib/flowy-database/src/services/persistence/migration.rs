@@ -1,6 +1,6 @@
 use crate::manager::DatabaseUser;
 use crate::services::persistence::rev_sqlite::SQLiteDatabaseRevisionPersistence;
-use crate::services::persistence::GridDatabase;
+use crate::services::persistence::DatabaseDB;
 use bytes::Bytes;
 use database_model::DatabaseRevision;
 use flowy_client_sync::client_database::{
@@ -17,11 +17,11 @@ const V1_MIGRATION: &str = "GRID_V1_MIGRATION";
 
 pub(crate) struct DatabaseMigration {
   user: Arc<dyn DatabaseUser>,
-  database: Arc<dyn GridDatabase>,
+  database: Arc<dyn DatabaseDB>,
 }
 
 impl DatabaseMigration {
-  pub fn new(user: Arc<dyn DatabaseUser>, database: Arc<dyn GridDatabase>) -> Self {
+  pub fn new(user: Arc<dyn DatabaseUser>, database: Arc<dyn DatabaseDB>) -> Self {
     Self { user, database }
   }
 

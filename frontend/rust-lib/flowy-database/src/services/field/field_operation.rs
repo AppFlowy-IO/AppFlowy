@@ -1,4 +1,4 @@
-use crate::services::database::DatabaseRevisionEditor;
+use crate::services::database::DatabaseEditor;
 use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
 use database_model::{TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use flowy_error::FlowyResult;
@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 pub async fn edit_field_type_option<T>(
   field_id: &str,
-  editor: Arc<DatabaseRevisionEditor>,
+  editor: Arc<DatabaseEditor>,
   action: impl FnOnce(&mut T),
 ) -> FlowyResult<()>
 where
@@ -32,7 +32,7 @@ where
 
 pub async fn edit_single_select_type_option(
   field_id: &str,
-  editor: Arc<DatabaseRevisionEditor>,
+  editor: Arc<DatabaseEditor>,
   action: impl FnOnce(&mut SingleSelectTypeOptionPB),
 ) -> FlowyResult<()> {
   edit_field_type_option(field_id, editor, action).await
@@ -40,7 +40,7 @@ pub async fn edit_single_select_type_option(
 
 pub async fn edit_multi_select_type_option(
   field_id: &str,
-  editor: Arc<DatabaseRevisionEditor>,
+  editor: Arc<DatabaseEditor>,
   action: impl FnOnce(&mut MultiSelectTypeOptionPB),
 ) -> FlowyResult<()> {
   edit_field_type_option(field_id, editor, action).await

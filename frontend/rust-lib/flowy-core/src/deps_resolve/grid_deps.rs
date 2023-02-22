@@ -2,7 +2,7 @@ use crate::FlowyError;
 use bytes::Bytes;
 use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_database::manager::{DatabaseManager, DatabaseUser};
-use flowy_database::services::persistence::GridDatabase;
+use flowy_database::services::persistence::DatabaseDB;
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
 use flowy_sqlite::ConnectionPool;
 use flowy_task::TaskDispatcher;
@@ -44,7 +44,7 @@ impl GridDepsResolver {
 }
 
 struct GridDatabaseImpl(Arc<UserSession>);
-impl GridDatabase for GridDatabaseImpl {
+impl DatabaseDB for GridDatabaseImpl {
   fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError> {
     self
       .0

@@ -7,7 +7,7 @@ pub mod kv;
 pub mod migration;
 pub mod rev_sqlite;
 
-pub trait GridDatabase: Send + Sync {
+pub trait DatabaseDB: Send + Sync {
   fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError>;
 
   fn db_connection(&self) -> Result<DBConnection, FlowyError> {

@@ -1,5 +1,5 @@
 use crate::entities::{DatabaseViewSettingPB, LayoutTypePB, ViewLayoutPB};
-use crate::services::database_view::{get_cells_for_field, DatabaseViewEditorDelegate};
+use crate::services::database_view::{get_cells_for_field, DatabaseViewData};
 use crate::services::field::RowSingleCellData;
 use crate::services::filter::{FilterController, FilterDelegate, FilterType};
 use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter};
@@ -72,7 +72,7 @@ impl RevisionMergeable for GridViewRevisionMergeable {
 
 pub(crate) struct GroupConfigurationReaderImpl {
   pub(crate) pad: Arc<RwLock<DatabaseViewRevisionPad>>,
-  pub(crate) view_editor_delegate: Arc<dyn DatabaseViewEditorDelegate>,
+  pub(crate) view_editor_delegate: Arc<dyn DatabaseViewData>,
 }
 
 impl GroupConfigurationReader for GroupConfigurationReaderImpl {
@@ -160,7 +160,7 @@ pub fn make_grid_setting(
 }
 
 pub(crate) struct GridViewFilterDelegateImpl {
-  pub(crate) editor_delegate: Arc<dyn DatabaseViewEditorDelegate>,
+  pub(crate) editor_delegate: Arc<dyn DatabaseViewData>,
   pub(crate) view_revision_pad: Arc<RwLock<DatabaseViewRevisionPad>>,
 }
 
@@ -200,7 +200,7 @@ impl FilterDelegate for GridViewFilterDelegateImpl {
 }
 
 pub(crate) struct GridViewSortDelegateImpl {
-  pub(crate) editor_delegate: Arc<dyn DatabaseViewEditorDelegate>,
+  pub(crate) editor_delegate: Arc<dyn DatabaseViewData>,
   pub(crate) view_revision_pad: Arc<RwLock<DatabaseViewRevisionPad>>,
   pub(crate) filter_controller: Arc<FilterController>,
 }

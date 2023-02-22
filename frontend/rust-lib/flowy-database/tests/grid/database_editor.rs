@@ -3,7 +3,7 @@ use bytes::Bytes;
 use database_model::*;
 use flowy_database::entities::*;
 use flowy_database::services::cell::ToCellChangesetString;
-use flowy_database::services::database::DatabaseRevisionEditor;
+use flowy_database::services::database::DatabaseEditor;
 use flowy_database::services::field::SelectOptionPB;
 use flowy_database::services::field::*;
 use flowy_test::helper::ViewTest;
@@ -15,7 +15,7 @@ use strum::EnumCount;
 pub struct DatabaseEditorTest {
   pub sdk: FlowySDKTest,
   pub view_id: String,
-  pub editor: Arc<DatabaseRevisionEditor>,
+  pub editor: Arc<DatabaseEditor>,
   pub field_revs: Vec<Arc<FieldRevision>>,
   pub block_meta_revs: Vec<Arc<DatabaseBlockMetaRevision>>,
   pub row_revs: Vec<Arc<RowRevision>>,

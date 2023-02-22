@@ -1,6 +1,6 @@
 use crate::entities::LayoutTypePB;
 use crate::services::database::{
-  make_database_block_rev_manager, DatabaseRevisionCloudService, DatabaseRevisionEditor,
+  make_database_block_rev_manager, DatabaseEditor, DatabaseRevisionCloudService,
   DatabaseRevisionMergeable, DatabaseRevisionSerde,
 };
 use crate::services::database_view::make_database_view_rev_manager;
@@ -10,7 +10,7 @@ use crate::services::persistence::migration::DatabaseMigration;
 use crate::services::persistence::rev_sqlite::{
   SQLiteDatabaseRevisionPersistence, SQLiteDatabaseRevisionSnapshotPersistence,
 };
-use crate::services::persistence::GridDatabase;
+use crate::services::persistence::DatabaseDB;
 use bytes::Bytes;
 use database_model::{BuildDatabaseContext, DatabaseRevision, DatabaseViewRevision};
 use flowy_client_sync::client_database::{
@@ -36,7 +36,7 @@ pub trait DatabaseUser: Send + Sync {
 }
 
 pub struct DatabaseManager {
-  database_editors: RwLock<RefCountHashMap<Arc<DatabaseRevisionEditor>>>,
+  database_editors: RwLock<RefCountHashMap<Arc<DatabaseEditor>>>,
   database_user: Arc<dyn DatabaseUser>,
   block_index_cache: Arc<BlockIndexCache>,
   #[allow(dead_code)]
@@ -50,7 +50,7 @@ impl DatabaseManager {
     grid_user: Arc<dyn DatabaseUser>,
     _rev_web_socket: Arc<dyn RevisionWebSocket>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
-    database: Arc<dyn GridDatabase>,
+    database: Arc<dyn DatabaseDB>,
   ) -> Self {
     let grid_editors = RwLock::new(RefCountHashMap::new());
     let kv_persistence = Arc::new(DatabaseKVPersistence::new(database.clone()));
@@ -115,7 +115,7 @@ impl DatabaseManager {
   pub async fn open_database<T: AsRef<str>>(
     &self,
     database_id: T,
-  ) -> FlowyResult<Arc<DatabaseRevisionEditor>> {
+  ) -> FlowyResult<Arc<DatabaseEditor>> {
     let database_id = database_id.as_ref();
     let _ = self.migration.run_v1_migration(database_id).await;
     self.get_or_create_database_editor(database_id).await
@@ -136,10 +136,7 @@ impl DatabaseManager {
 
   // #[tracing::instrument(level = "debug", skip(self), err)]
   //TODO(nathan): map the view_id to database_id
-  pub async fn get_database_editor(
-    &self,
-    database_id: &str,
-  ) -> FlowyResult<Arc<DatabaseRevisionEditor>> {
+  pub async fn get_database_editor(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
     let read_guard = self.database_editors.read().await;
     let editor = read_guard.get(database_id);
     match editor {
@@ -155,7 +152,7 @@ impl DatabaseManager {
   async fn get_or_create_database_editor(
     &self,
     database_id: &str,
-  ) -> FlowyResult<Arc<DatabaseRevisionEditor>> {
+  ) -> FlowyResult<Arc<DatabaseEditor>> {
     if let Some(editor) = self.database_editors.read().await.get(database_id) {
       return Ok(editor);
     }
@@ -173,7 +170,7 @@ impl DatabaseManager {
     &self,
     database_id: &str,
     pool: Arc<ConnectionPool>,
-  ) -> Result<Arc<DatabaseRevisionEditor>, FlowyError> {
+  ) -> Result<Arc<DatabaseEditor>, FlowyError> {
     let user = self.database_user.clone();
     let token = user.token()?;
     let cloud = Arc::new(DatabaseRevisionCloudService::new(token));
@@ -183,7 +180,7 @@ impl DatabaseManager {
         .initialize::<DatabaseRevisionSerde>(Some(cloud))
         .await?,
     ));
-    let database_editor = DatabaseRevisionEditor::new(
+    let database_editor = DatabaseEditor::new(
       database_id,
       user,
       database_pad,
@@ -287,7 +284,7 @@ pub async fn make_database_view_data(
 }
 
 #[async_trait]
-impl RefCountValue for DatabaseRevisionEditor {
+impl RefCountValue for DatabaseEditor {
   async fn did_remove(&self) {
     self.close().await;
   }

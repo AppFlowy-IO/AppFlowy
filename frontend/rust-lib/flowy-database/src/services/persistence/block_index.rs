@@ -1,4 +1,4 @@
-use crate::services::persistence::GridDatabase;
+use crate::services::persistence::DatabaseDB;
 use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 use flowy_error::FlowyResult;
 use flowy_sqlite::{
@@ -9,11 +9,11 @@ use std::sync::Arc;
 
 /// Allow getting the block id from row id.
 pub struct BlockIndexCache {
-  database: Arc<dyn GridDatabase>,
+  database: Arc<dyn DatabaseDB>,
 }
 
 impl BlockIndexCache {
-  pub fn new(database: Arc<dyn GridDatabase>) -> Self {
+  pub fn new(database: Arc<dyn DatabaseDB>) -> Self {
     Self { database }
   }
 

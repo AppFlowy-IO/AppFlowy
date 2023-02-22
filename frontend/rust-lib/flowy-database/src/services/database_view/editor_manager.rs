@@ -7,7 +7,7 @@ use crate::services::cell::AtomicCellDataCache;
 use crate::services::database::DatabaseBlockEvent;
 use crate::services::database_view::notifier::*;
 use crate::services::database_view::trait_impl::GridViewRevisionMergeable;
-use crate::services::database_view::{DatabaseViewEditorDelegate, DatabaseViewRevisionEditor};
+use crate::services::database_view::{DatabaseViewData, DatabaseViewEditor};
 use crate::services::filter::FilterType;
 use crate::services::persistence::rev_sqlite::{
   SQLiteDatabaseRevisionSnapshotPersistence, SQLiteGridViewRevisionPersistence,
@@ -22,19 +22,20 @@ use std::borrow::Cow;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
-pub struct DatabaseViewManager {
+/// It's used to manager the list of views that reference to the same database.
+pub struct DatabaseViews {
   database_id: String,
   user: Arc<dyn DatabaseUser>,
-  delegate: Arc<dyn DatabaseViewEditorDelegate>,
-  view_editors: Arc<RwLock<RefCountHashMap<Arc<DatabaseViewRevisionEditor>>>>,
+  delegate: Arc<dyn DatabaseViewData>,
+  view_editors: Arc<RwLock<RefCountHashMap<Arc<DatabaseViewEditor>>>>,
   cell_data_cache: AtomicCellDataCache,
 }
 
-impl DatabaseViewManager {
+impl DatabaseViews {
   pub async fn new(
     database_id: String,
     user: Arc<dyn DatabaseUser>,
-    delegate: Arc<dyn DatabaseViewEditorDelegate>,
+    delegate: Arc<dyn DatabaseViewData>,
     cell_data_cache: AtomicCellDataCache,
     block_event_rx: broadcast::Receiver<DatabaseBlockEvent>,
   ) -> FlowyResult<Self> {
@@ -244,10 +245,7 @@ impl DatabaseViewManager {
     Ok(())
   }
 
-  pub async fn get_view_editor(
-    &self,
-    view_id: &str,
-  ) -> FlowyResult<Arc<DatabaseViewRevisionEditor>> {
+  pub async fn get_view_editor(&self, view_id: &str) -> FlowyResult<Arc<DatabaseViewEditor>> {
     debug_assert!(!view_id.is_empty());
     if let Some(editor) = self.view_editors.read().await.get(view_id) {
       return Ok(editor);
@@ -259,17 +257,17 @@ impl DatabaseViewManager {
     Ok(editor)
   }
 
-  async fn get_default_view_editor(&self) -> FlowyResult<Arc<DatabaseViewRevisionEditor>> {
+  async fn get_default_view_editor(&self) -> FlowyResult<Arc<DatabaseViewEditor>> {
     self.get_view_editor(&self.database_id).await
   }
 
-  async fn make_view_editor(&self, view_id: &str) -> FlowyResult<DatabaseViewRevisionEditor> {
+  async fn make_view_editor(&self, view_id: &str) -> FlowyResult<DatabaseViewEditor> {
     let rev_manager = make_database_view_rev_manager(&self.user, view_id).await?;
     let user_id = self.user.user_id()?;
     let token = self.user.token()?;
     let view_id = view_id.to_owned();
 
-    DatabaseViewRevisionEditor::new(
+    DatabaseViewEditor::new(
       &user_id,
       &token,
       view_id,
@@ -283,7 +281,7 @@ impl DatabaseViewManager {
 
 fn listen_on_database_block_event(
   mut block_event_rx: broadcast::Receiver<DatabaseBlockEvent>,
-  view_editors: Arc<RwLock<RefCountHashMap<Arc<DatabaseViewRevisionEditor>>>>,
+  view_editors: Arc<RwLock<RefCountHashMap<Arc<DatabaseViewEditor>>>>,
 ) {
   tokio::spawn(async move {
     loop {

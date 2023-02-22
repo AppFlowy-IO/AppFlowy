@@ -108,7 +108,7 @@ impl GridRevisionSql {
           record.revision.object_id,
           record.revision.rev_id
         );
-        let rev_state: GridRevisionState = record.state.into();
+        let rev_state: DatabaseRevisionState = record.state.into();
         (
           dsl::object_id.eq(record.revision.object_id),
           dsl::base_rev_id.eq(record.revision.base_rev_id),
@@ -126,7 +126,7 @@ impl GridRevisionSql {
   }
 
   fn update(changeset: RevisionChangeset, conn: &SqliteConnection) -> Result<(), FlowyError> {
-    let state: GridRevisionState = changeset.state.clone().into();
+    let state: DatabaseRevisionState = changeset.state.clone().into();
     let filter = dsl::grid_rev_table
       .filter(dsl::rev_id.eq(changeset.rev_id))
       .filter(dsl::object_id.eq(changeset.object_id));
@@ -153,7 +153,7 @@ impl GridRevisionSql {
     }
     let rows = sql
       .order(dsl::rev_id.asc())
-      .load::<GridRevisionTable>(conn)?;
+      .load::<DatabaseRevisionTable>(conn)?;
     let records = rows
       .into_iter()
       .map(|row| mk_revision_record_from_table(user_id, row))
@@ -173,7 +173,7 @@ impl GridRevisionSql {
       .filter(dsl::rev_id.le(range.end))
       .filter(dsl::object_id.eq(object_id))
       .order(dsl::rev_id.asc())
-      .load::<GridRevisionTable>(conn)?;
+      .load::<DatabaseRevisionTable>(conn)?;
 
     let revisions = rev_tables
       .into_iter()
@@ -207,32 +207,32 @@ impl GridRevisionSql {
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[table_name = "grid_rev_table"]
-struct GridRevisionTable {
+struct DatabaseRevisionTable {
   id: i32,
   object_id: String,
   base_rev_id: i64,
   rev_id: i64,
   data: Vec<u8>,
-  state: GridRevisionState,
+  state: DatabaseRevisionState,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, FromSqlRow, AsExpression)]
 #[repr(i32)]
 #[sql_type = "Integer"]
-pub enum GridRevisionState {
+pub enum DatabaseRevisionState {
   Sync = 0,
   Ack = 1,
 }
-impl_sql_integer_expression!(GridRevisionState);
-impl_rev_state_map!(GridRevisionState);
+impl_sql_integer_expression!(DatabaseRevisionState);
+impl_rev_state_map!(DatabaseRevisionState);
 
-impl std::default::Default for GridRevisionState {
+impl std::default::Default for DatabaseRevisionState {
   fn default() -> Self {
-    GridRevisionState::Sync
+    DatabaseRevisionState::Sync
   }
 }
 
-fn mk_revision_record_from_table(_user_id: &str, table: GridRevisionTable) -> SyncRecord {
+fn mk_revision_record_from_table(_user_id: &str, table: DatabaseRevisionTable) -> SyncRecord {
   let md5 = md5(&table.data);
   let revision = Revision::new(
     &table.object_id,

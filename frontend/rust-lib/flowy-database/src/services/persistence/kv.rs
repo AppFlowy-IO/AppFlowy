@@ -1,4 +1,4 @@
-use crate::services::persistence::GridDatabase;
+use crate::services::persistence::DatabaseDB;
 use ::diesel::{query_dsl::*, ExpressionMethods};
 use bytes::Bytes;
 use diesel::SqliteConnection;
@@ -34,11 +34,11 @@ pub trait KVTransaction {
 }
 
 pub struct DatabaseKVPersistence {
-  database: Arc<dyn GridDatabase>,
+  database: Arc<dyn DatabaseDB>,
 }
 
 impl DatabaseKVPersistence {
-  pub fn new(database: Arc<dyn GridDatabase>) -> Self {
+  pub fn new(database: Arc<dyn DatabaseDB>) -> Self {
     Self { database }
   }
 

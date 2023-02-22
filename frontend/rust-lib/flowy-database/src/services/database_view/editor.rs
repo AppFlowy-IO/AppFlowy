@@ -38,7 +38,7 @@ use std::future::Future;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
-pub trait DatabaseViewEditorDelegate: Send + Sync + 'static {
+pub trait DatabaseViewData: Send + Sync + 'static {
   /// If the field_ids is None, then it will return all the field revisions
   fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>>;
 
@@ -73,25 +73,25 @@ pub trait DatabaseViewEditorDelegate: Send + Sync + 'static {
   ) -> Option<Box<dyn TypeOptionCellDataHandler>>;
 }
 
-pub struct DatabaseViewRevisionEditor {
+pub struct DatabaseViewEditor {
   user_id: String,
   view_id: String,
   pad: Arc<RwLock<DatabaseViewRevisionPad>>,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
-  delegate: Arc<dyn DatabaseViewEditorDelegate>,
+  delegate: Arc<dyn DatabaseViewData>,
   group_controller: Arc<RwLock<Box<dyn GroupController>>>,
   filter_controller: Arc<FilterController>,
   sort_controller: Arc<RwLock<SortController>>,
   pub notifier: DatabaseViewChangedNotifier,
 }
 
-impl DatabaseViewRevisionEditor {
+impl DatabaseViewEditor {
   #[tracing::instrument(level = "trace", skip_all, err)]
   pub async fn new(
     user_id: &str,
     token: &str,
     view_id: String,
-    delegate: Arc<dyn DatabaseViewEditorDelegate>,
+    delegate: Arc<dyn DatabaseViewData>,
     cell_data_cache: AtomicCellDataCache,
     mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
   ) -> FlowyResult<Self> {
@@ -109,6 +109,7 @@ impl DatabaseViewRevisionEditor {
       Err(err) => {
         // It shouldn't be here, because the snapshot should come to recue.
         tracing::error!("Deserialize grid view revisions failed: {}", err);
+        //TODO(nathan): generate database id
         let view = DatabaseViewRevisionPad::new(
           view_id.to_owned(),
           view_id.to_owned(),
@@ -805,7 +806,7 @@ impl DatabaseViewRevisionEditor {
 }
 /// Returns the list of cells corresponding to the given field.
 pub(crate) async fn get_cells_for_field(
-  delegate: Arc<dyn DatabaseViewEditorDelegate>,
+  delegate: Arc<dyn DatabaseViewData>,
   field_id: &str,
 ) -> FlowyResult<Vec<RowSingleCellData>> {
   let row_revs = delegate.get_row_revs(None).await;
@@ -834,7 +835,7 @@ pub(crate) async fn get_cells_for_field(
 }
 
 #[async_trait]
-impl RefCountValue for DatabaseViewRevisionEditor {
+impl RefCountValue for DatabaseViewEditor {
   async fn did_remove(&self) {
     self.close().await;
   }
@@ -845,7 +846,7 @@ async fn new_group_controller(
   view_id: String,
   view_rev_pad: Arc<RwLock<DatabaseViewRevisionPad>>,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
-  delegate: Arc<dyn DatabaseViewEditorDelegate>,
+  delegate: Arc<dyn DatabaseViewData>,
 ) -> FlowyResult<Box<dyn GroupController>> {
   let configuration_reader = GroupConfigurationReaderImpl {
     pad: view_rev_pad.clone(),
@@ -906,7 +907,7 @@ async fn new_group_controller_with_field_rev(
 
 async fn make_filter_controller(
   view_id: &str,
-  delegate: Arc<dyn DatabaseViewEditorDelegate>,
+  delegate: Arc<dyn DatabaseViewData>,
   notifier: DatabaseViewChangedNotifier,
   cell_data_cache: AtomicCellDataCache,
   pad: Arc<RwLock<DatabaseViewRevisionPad>>,
@@ -942,7 +943,7 @@ async fn make_filter_controller(
 
 async fn make_sort_controller(
   view_id: &str,
-  delegate: Arc<dyn DatabaseViewEditorDelegate>,
+  delegate: Arc<dyn DatabaseViewData>,
   notifier: DatabaseViewChangedNotifier,
   filter_controller: Arc<FilterController>,
   pad: Arc<RwLock<DatabaseViewRevisionPad>>,

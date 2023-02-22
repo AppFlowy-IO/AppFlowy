@@ -1,7 +1,7 @@
 use crate::entities::FieldType;
 use crate::services::cell::AtomicCellDataCache;
 use crate::services::database::DatabaseBlockManager;
-use crate::services::database_view::DatabaseViewEditorDelegate;
+use crate::services::database_view::DatabaseViewData;
 use crate::services::field::{TypeOptionCellDataHandler, TypeOptionCellExt};
 use crate::services::row::DatabaseBlockRowRevision;
 
@@ -13,14 +13,14 @@ use std::any::type_name;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-pub struct DatabaseViewEditorDelegateImpl {
+pub struct DatabaseViewDataImpl {
   pub(crate) pad: Arc<RwLock<DatabaseRevisionPad>>,
   pub(crate) block_manager: Arc<DatabaseBlockManager>,
   pub(crate) task_scheduler: Arc<RwLock<TaskDispatcher>>,
   pub(crate) cell_data_cache: AtomicCellDataCache,
 }
 
-impl DatabaseViewEditorDelegate for DatabaseViewEditorDelegateImpl {
+impl DatabaseViewData for DatabaseViewDataImpl {
   fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>> {
     let pad = self.pad.clone();
     to_fut(async move {
@@ -29,7 +29,7 @@ impl DatabaseViewEditorDelegate for DatabaseViewEditorDelegateImpl {
         Err(e) => {
           tracing::error!(
             "[{}] get field revisions failed: {}",
-            type_name::<DatabaseViewEditorDelegateImpl>(),
+            type_name::<DatabaseViewDataImpl>(),
             e
           );
           vec![]

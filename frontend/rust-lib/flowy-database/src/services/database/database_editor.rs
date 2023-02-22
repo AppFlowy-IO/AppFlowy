@@ -12,8 +12,8 @@ use crate::services::field::{
   FieldBuilder, RowSingleCellData,
 };
 
-use crate::services::database::DatabaseViewEditorDelegateImpl;
-use crate::services::database_view::{DatabaseViewChanged, DatabaseViewManager};
+use crate::services::database::DatabaseViewDataImpl;
+use crate::services::database_view::{DatabaseViewChanged, DatabaseViews};
 use crate::services::filter::FilterType;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{DatabaseBlockRow, DatabaseBlockRowRevision, RowRevisionBuilder};
@@ -38,22 +38,22 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
-pub struct DatabaseRevisionEditor {
+pub struct DatabaseEditor {
   pub database_id: String,
   database_pad: Arc<RwLock<DatabaseRevisionPad>>,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
-  database_view_manager: Arc<DatabaseViewManager>,
+  database_view_manager: Arc<DatabaseViews>,
   database_block_manager: Arc<DatabaseBlockManager>,
   cell_data_cache: AtomicCellDataCache,
 }
 
-impl Drop for DatabaseRevisionEditor {
+impl Drop for DatabaseEditor {
   fn drop(&mut self) {
     tracing::trace!("Drop DatabaseRevisionEditor");
   }
 }
 
-impl DatabaseRevisionEditor {
+impl DatabaseEditor {
   pub async fn new(
     database_id: &str,
     user: Arc<dyn DatabaseUser>,
@@ -71,7 +71,7 @@ impl DatabaseRevisionEditor {
     let database_block_manager = Arc::new(
       DatabaseBlockManager::new(&user, block_meta_revs, persistence, block_event_tx).await?,
     );
-    let delegate = Arc::new(DatabaseViewEditorDelegateImpl {
+    let delegate = Arc::new(DatabaseViewDataImpl {
       pad: database_pad.clone(),
       block_manager: database_block_manager.clone(),
       task_scheduler,
@@ -80,7 +80,7 @@ impl DatabaseRevisionEditor {
 
     // View manager
     let database_view_manager = Arc::new(
-      DatabaseViewManager::new(
+      DatabaseViews::new(
         database_id.to_owned(),
         user.clone(),
         delegate,
@@ -1028,7 +1028,7 @@ impl DatabaseRevisionEditor {
 }
 
 #[cfg(feature = "flowy_unit_test")]
-impl DatabaseRevisionEditor {
+impl DatabaseEditor {
   pub fn rev_manager(&self) -> Arc<RevisionManager<Arc<ConnectionPool>>> {
     self.rev_manager.clone()
   }
