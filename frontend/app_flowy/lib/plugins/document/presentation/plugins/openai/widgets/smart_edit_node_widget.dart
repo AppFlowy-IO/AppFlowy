@@ -211,8 +211,8 @@ class _SmartEditInputState extends State<_SmartEditInput> {
   }
 
   Future<void> _onReplace() async {
-    final selection =
-        widget.editorState.service.selectionService.currentSelection.value;
+    final selection = widget.editorState.service.selectionService
+        .currentSelection.value?.normalized;
     final selectedNodes =
         widget.editorState.service.selectionService.currentSelectedNodes;
     if (selection == null || result == null || result!.isLeft()) {
@@ -222,7 +222,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
       ..removeWhere((element) => element.isEmpty);
     final transaction = widget.editorState.transaction;
     transaction.insertNodes(
-      widget.node.path,
+      selection.start.path,
       texts.map((e) => TextNode(delta: Delta()..insert(e.trim()))),
     );
     transaction.deleteNodes(selectedNodes);
