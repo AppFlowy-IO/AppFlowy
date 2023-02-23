@@ -20,6 +20,7 @@ export const BoardBlockItem = ({
   endMove: () => void;
 }) => {
   const [isMoving, setIsMoving] = useState(false);
+  const [isDown, setIsDown] = useState(false);
   const [ghostWidth, setGhostWidth] = useState(0);
   const [ghostHeight, setGhostHeight] = useState(0);
   const [ghostLeft, setGhostLeft] = useState(0);
@@ -32,6 +33,8 @@ export const BoardBlockItem = ({
       setGhostHeight(height);
       setGhostLeft(left);
       setGhostTop(top);
+
+      startMove();
 
       const gEl = document.getElementById('ghost-block');
       if (gEl?.innerHTML) {
@@ -47,13 +50,24 @@ export const BoardBlockItem = ({
 
   const onMouseUp: MouseEventHandler<HTMLDivElement> = (e) => {
     setIsMoving(false);
+    endMove();
+  };
+
+  const dragStart = () => {
+    if (isDown) {
+      setIsMoving(true);
+      setIsDown(false);
+    }
   };
 
   return (
     <>
       <div
         ref={el}
-        onMouseDown={() => setIsMoving(true)}
+        onMouseDown={() => setIsDown(true)}
+        onMouseMove={dragStart}
+        onMouseUp={() => setIsDown(false)}
+        onClick={() => console.log('on click')}
         className={`relative cursor-pointer select-none rounded-lg border border-shade-6 bg-white px-3 py-2 transition-transform duration-100 hover:bg-main-selector `}
       >
         <button className={'absolute right-4 top-2.5 h-5 w-5 rounded hover:bg-surface-2'}>
@@ -93,13 +107,14 @@ export const BoardBlockItem = ({
           onMouseUp={onMouseUp}
           onMouseLeave={onMouseUp}
           id={'ghost-block'}
-          className={'fixed z-10 rotate-6 scale-105 cursor-pointer rounded-lg border border-shade-6 bg-white px-3 py-2'}
+          className={
+            'fixed z-10 rotate-6 scale-105 cursor-pointer select-none rounded-lg border border-shade-6 bg-white px-3 py-2'
+          }
           style={{
             width: `${ghostWidth}px`,
             height: `${ghostHeight}px`,
             left: `${ghostLeft}px`,
             top: `${ghostTop}px`,
-            userSelect: 'none',
           }}
         >
           &nbsp;
