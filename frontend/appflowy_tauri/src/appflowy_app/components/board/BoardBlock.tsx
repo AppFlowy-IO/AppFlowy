@@ -10,6 +10,8 @@ export const BoardBlock = ({
   fields,
   columns,
   rows,
+  startMove,
+  endMove,
 }: {
   title: string;
   groupingFieldId: string;
@@ -17,9 +19,11 @@ export const BoardBlock = ({
   fields: DatabaseFieldMap;
   columns: IDatabaseColumn[];
   rows: IDatabaseRow[];
+  startMove: (id: string) => void;
+  endMove: () => void;
 }) => {
   return (
-    <div className={'flex h-full min-w-[250px] flex-col rounded-lg bg-surface-1'}>
+    <div className={'flex h-full w-[250px] flex-col rounded-lg bg-surface-1'}>
       <div className={'flex items-center justify-between p-4'}>
         <div className={'flex items-center gap-2'}>
           <span>{title}</span>
@@ -42,6 +46,8 @@ export const BoardBlock = ({
             fields={fields}
             columns={columns}
             row={row}
+            startMove={() => startMove(row.rowId)}
+            endMove={() => endMove()}
           ></BoardBlockItem>
         ))}
       </div>

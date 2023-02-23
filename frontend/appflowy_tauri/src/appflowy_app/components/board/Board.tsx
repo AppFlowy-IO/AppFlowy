@@ -8,13 +8,23 @@ import { useBoard } from './Board.hooks';
 
 export const Board = ({ databaseId }: { databaseId: string }) => {
   const { database, newField, renameField, newRow } = useDatabase(databaseId);
-  const { groupingFieldId, changeGroupingField } = useBoard(databaseId);
+  const {
+    title,
+    boardColumns,
+    groupingFieldId,
+    changeGroupingField,
+    startMove,
+    endMove,
+    onGhostItemMove,
+    movingRowId,
+    ghostLocation,
+  } = useBoard(databaseId);
 
   return (
     <>
       <div className='flex w-full items-center justify-between'>
         <div className={'flex items-center text-xl font-semibold'}>
-          <div>{database?.title}</div>
+          <div>{title}</div>
           <button className={'ml-2 h-5 w-5'}>
             <SettingsSvg></SettingsSvg>
           </button>
@@ -26,22 +36,26 @@ export const Board = ({ databaseId }: { databaseId: string }) => {
       </div>
       <div className={'relative w-full flex-1 overflow-auto'}>
         <div className={'absolute flex h-full flex-shrink-0 items-start justify-start gap-4'}>
-          {database?.fields[groupingFieldId].fieldOptions.selectOptions?.map((groupFieldItem, index) => {
+          {
+            /*database?.fields[groupingFieldId].fieldOptions.selectOptions?.map((groupFieldItem, index) => {
             const rows = database?.rows.filter((row) =>
               row.cells[groupingFieldId].optionIds?.some((so) => so === groupFieldItem.selectOptionId)
-            );
-            return (
-              <BoardBlock
-                key={index}
-                title={groupFieldItem.title}
-                groupingFieldId={groupingFieldId}
-                count={rows.length}
-                fields={database?.fields}
-                columns={database?.columns}
-                rows={rows}
-              />
-            );
-          })}
+            );*/
+            database &&
+              boardColumns?.map((column, index) => (
+                <BoardBlock
+                  key={index}
+                  title={column.title}
+                  groupingFieldId={groupingFieldId}
+                  count={column.rows.length}
+                  fields={database.fields}
+                  columns={database.columns}
+                  rows={column.rows}
+                  startMove={startMove}
+                  endMove={endMove}
+                />
+              ))
+          }
 
           <NewBoardBlock onClick={() => console.log('new block')}></NewBoardBlock>
         </div>

@@ -39,7 +39,7 @@ export const useGrid = () => {
           CellIdPB.fromObject({
             database_id: id,
             field_id: pb4.fields[1].field_id,
-            row_id: pb4.rows[2].id,
+            row_id: pb4.rows[1].id,
           })
         );
         if (getCellResult.ok) {
