@@ -1,17 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export interface IBoardGroupingFields {
-  [keys: string]: string;
-}
-
-const initialState: IBoardGroupingFields = { testDb: 'field1' };
+const initialState = 'field1';
 
 export const boardSlice = createSlice({
   name: 'board',
-  initialState: initialState,
+  initialState: initialState as string,
   reducers: {
-    setGroupingFieldId: (state, action: PayloadAction<{ databaseId: string; fieldId: string }>) => {
-      state[action.payload.databaseId] = action.payload.fieldId;
+    setGroupingFieldId: (state, action: PayloadAction<{ fieldId: string }>) => {
+      return action.payload.fieldId;
     },
   },
 });

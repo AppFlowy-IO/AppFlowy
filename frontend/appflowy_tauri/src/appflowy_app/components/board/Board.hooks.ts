@@ -3,12 +3,10 @@ import { useAppDispatch, useAppSelector } from '../../stores/store';
 import { boardActions } from '../../stores/reducers/board/slice';
 import { ICellData, IDatabase, IDatabaseRow, ISelectOption } from '../../stores/reducers/database/slice';
 
-export const useBoard = (databaseId: string) => {
+export const useBoard = () => {
   const dispatch = useAppDispatch();
-  const boardStore = useAppSelector((state) => state.board);
-  const databaseStore = useAppSelector((state) => state.database);
-  const [database, setDatabase] = useState<IDatabase>();
-  const [groupingFieldId, setGroupingFieldId] = useState('');
+  const groupingFieldId = useAppSelector((state) => state.board);
+  const database = useAppSelector((state) => state.database);
   const [title, setTitle] = useState('');
   const [boardColumns, setBoardColumns] =
     useState<(ISelectOption & { rows: (IDatabaseRow & { isGhost: boolean })[] })[]>();
@@ -16,17 +14,6 @@ export const useBoard = (databaseId: string) => {
   const [ghostLocation, setGhostLocation] = useState<{ column: number; row: number }>({ column: 0, row: 0 });
 
   useEffect(() => {
-    if (!databaseId?.length || !databaseStore) return;
-    setDatabase(databaseStore[databaseId]);
-  }, [databaseStore, databaseId]);
-
-  useEffect(() => {
-    if (!databaseId?.length || !boardStore) return;
-    setGroupingFieldId(boardStore[databaseId]);
-  }, [boardStore, databaseId]);
-
-  useEffect(() => {
-    if (!database) return;
     setTitle(database.title);
     setBoardColumns(
       database.fields[groupingFieldId].fieldOptions.selectOptions?.map((groupFieldItem) => {
@@ -47,7 +34,6 @@ export const useBoard = (databaseId: string) => {
   const changeGroupingField = (fieldId: string) => {
     dispatch(
       boardActions.setGroupingFieldId({
-        databaseId,
         fieldId,
       })
     );

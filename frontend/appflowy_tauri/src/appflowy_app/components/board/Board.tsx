@@ -7,7 +7,7 @@ import { IDatabaseRow } from '../../stores/reducers/database/slice';
 import { useBoard } from './Board.hooks';
 
 export const Board = ({ databaseId }: { databaseId: string }) => {
-  const { database, newField, renameField, newRow } = useDatabase(databaseId);
+  const { database, newField, renameField, newRow } = useDatabase();
   const {
     title,
     boardColumns,
@@ -18,7 +18,7 @@ export const Board = ({ databaseId }: { databaseId: string }) => {
     onGhostItemMove,
     movingRowId,
     ghostLocation,
-  } = useBoard(databaseId);
+  } = useBoard();
 
   return (
     <>
@@ -36,26 +36,20 @@ export const Board = ({ databaseId }: { databaseId: string }) => {
       </div>
       <div className={'relative w-full flex-1 overflow-auto'}>
         <div className={'absolute flex h-full flex-shrink-0 items-start justify-start gap-4'}>
-          {
-            /*database?.fields[groupingFieldId].fieldOptions.selectOptions?.map((groupFieldItem, index) => {
-            const rows = database?.rows.filter((row) =>
-              row.cells[groupingFieldId].optionIds?.some((so) => so === groupFieldItem.selectOptionId)
-            );*/
-            database &&
-              boardColumns?.map((column, index) => (
-                <BoardBlock
-                  key={index}
-                  title={column.title}
-                  groupingFieldId={groupingFieldId}
-                  count={column.rows.length}
-                  fields={database.fields}
-                  columns={database.columns}
-                  rows={column.rows}
-                  startMove={startMove}
-                  endMove={endMove}
-                />
-              ))
-          }
+          {database &&
+            boardColumns?.map((column, index) => (
+              <BoardBlock
+                key={index}
+                title={column.title}
+                groupingFieldId={groupingFieldId}
+                count={column.rows.length}
+                fields={database.fields}
+                columns={database.columns}
+                rows={column.rows}
+                startMove={startMove}
+                endMove={endMove}
+              />
+            ))}
 
           <NewBoardBlock onClick={() => console.log('new block')}></NewBoardBlock>
         </div>

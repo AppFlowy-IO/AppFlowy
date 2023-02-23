@@ -4,22 +4,13 @@ import { databaseActions, IDatabase } from '../../stores/reducers/database/slice
 import { nanoid } from 'nanoid';
 import { FieldType } from '../../../services/backend';
 
-export const useDatabase = (databaseId: string) => {
+export const useDatabase = () => {
   const dispatch = useAppDispatch();
-  const databaseStore = useAppSelector((state) => state.database);
-  const [database, setDatabase] = useState<IDatabase>();
-
-  useEffect(() => {
-    if (!databaseId?.length) return;
-    setDatabase(databaseStore[databaseId]);
-  }, [databaseId]);
+  const database = useAppSelector((state) => state.database);
 
   const newField = () => {
-    if (!database) return;
-
     dispatch(
       databaseActions.addField({
-        databaseId,
         field: {
           fieldId: nanoid(8),
           fieldType: FieldType.RichText,
@@ -31,23 +22,18 @@ export const useDatabase = (databaseId: string) => {
   };
 
   const renameField = (fieldId: string, newTitle: string) => {
-    if (!database) return;
-
     const field = database.fields[fieldId];
     field.title = newTitle;
 
     dispatch(
       databaseActions.updateField({
-        databaseId,
         field,
       })
     );
   };
 
   const newRow = () => {
-    if (!database) return;
-
-    dispatch(databaseActions.addRow({ databaseId }));
+    dispatch(databaseActions.addRow());
   };
 
   return {
