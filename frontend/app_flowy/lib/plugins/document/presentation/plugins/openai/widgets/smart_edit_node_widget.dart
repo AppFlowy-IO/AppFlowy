@@ -213,19 +213,22 @@ class _SmartEditInputState extends State<_SmartEditInput> {
   Future<void> _onReplace() async {
     final selection = widget.editorState.service.selectionService
         .currentSelection.value?.normalized;
-    final selectedNodes =
-        widget.editorState.service.selectionService.currentSelectedNodes;
+    final selectedNodes = widget
+        .editorState.service.selectionService.currentSelectedNodes
+        .whereType<TextNode>();
     if (selection == null || result == null || result!.isLeft()) {
       return;
     }
-    var texts = result!.asRight().choices.first.text.split('\n')
+
+    final texts = result!.asRight().choices.first.text.split('\n')
       ..removeWhere((element) => element.isEmpty);
+    assert(texts.length == selectedNodes.length);
     final transaction = widget.editorState.transaction;
-    transaction.insertNodes(
-      selection.start.path,
-      texts.map((e) => TextNode(delta: Delta()..insert(e.trim()))),
+    transaction.replaceTexts(
+      selectedNodes.toList(growable: false),
+      selection,
+      texts,
     );
-    transaction.deleteNodes(selectedNodes);
     return widget.editorState.apply(transaction);
   }
 

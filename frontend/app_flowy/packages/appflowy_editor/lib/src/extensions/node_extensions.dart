@@ -38,8 +38,8 @@ extension NodeExtensions on Node {
   }
 }
 
-extension NodesExtensions on List<Node> {
-  List<Node> get normalized {
+extension NodesExtensions<T extends Node> on List<T> {
+  List<T> get normalized {
     if (isEmpty) {
       return this;
     }

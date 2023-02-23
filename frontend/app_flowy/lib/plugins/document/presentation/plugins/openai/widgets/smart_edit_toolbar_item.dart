@@ -60,11 +60,14 @@ class _SmartEditWidgetState extends State<_SmartEditWidget> {
         if (selection == null) {
           return;
         }
-        final input = widget.editorState.service.selectionService
-            .currentSelectedNodes.normalized
+        final textNodes = widget
+            .editorState.service.selectionService.currentSelectedNodes
             .whereType<TextNode>()
-            .map((e) => e.toPlainText())
-            .join('\n');
+            .toList(growable: false);
+        final input = widget.editorState.getTextInSelection(
+          textNodes.normalized,
+          selection.normalized,
+        );
         final transaction = widget.editorState.transaction;
         transaction.insertNode(
           selection.normalized.end.path.next,
