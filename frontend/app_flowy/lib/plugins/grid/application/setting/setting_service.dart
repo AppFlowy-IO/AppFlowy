@@ -21,6 +21,7 @@ class SettingFFIService {
     required FieldType fieldType,
   }) {
     final insertGroupPayload = InsertGroupPayloadPB.create()
+      ..viewId = viewId
       ..fieldId = fieldId
       ..fieldType = fieldType;
     final payload = DatabaseSettingChangesetPB.create()

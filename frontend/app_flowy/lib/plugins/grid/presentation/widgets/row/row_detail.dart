@@ -296,11 +296,11 @@ class _RowDetailCellState extends State<_RowDetailCell> {
 
   Widget buildFieldEditor() {
     return FieldEditor(
-      databaseId: widget.cellId.databaseId,
+      databaseId: widget.cellId.viewId,
       fieldName: widget.cellId.fieldInfo.field.name,
       isGroupField: widget.cellId.fieldInfo.isGroupField,
       typeOptionLoader: FieldTypeOptionLoader(
-        viewId: widget.cellId.databaseId,
+        viewId: widget.cellId.viewId,
         field: widget.cellId.fieldInfo.field,
       ),
       onDeleted: (fieldId) {

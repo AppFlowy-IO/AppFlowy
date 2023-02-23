@@ -22,7 +22,7 @@ use database_model::{
   FilterRevision, LayoutRevision, RowChangeset, RowRevision, SortRevision,
 };
 use flowy_client_sync::client_database::{
-  make_grid_view_operations, DatabaseViewRevisionChangeset, DatabaseViewRevisionPad,
+  make_database_view_operations, DatabaseViewRevisionChangeset, DatabaseViewRevisionPad,
 };
 use flowy_error::FlowyResult;
 use flowy_revision::RevisionManager;
@@ -999,7 +999,7 @@ async fn generate_restore_view(view_id: &str) -> (DatabaseViewRevisionPad, Revis
     "".to_string(),
     LayoutRevision::Grid,
   );
-  let bytes = make_grid_view_operations(&view).json_bytes();
+  let bytes = make_database_view_operations(&view).json_bytes();
   let reset_revision = Revision::initial_revision(view_id, bytes);
   (view, reset_revision)
 }

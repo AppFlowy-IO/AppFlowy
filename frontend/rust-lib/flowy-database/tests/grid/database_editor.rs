@@ -80,8 +80,8 @@ impl DatabaseEditorTest {
     self.editor.get_all_row_revs(&self.view_id).await.unwrap()
   }
 
-  pub async fn grid_filters(&self) -> Vec<FilterPB> {
-    self.editor.get_all_filters().await.unwrap()
+  pub async fn database_filters(&self) -> Vec<FilterPB> {
+    self.editor.get_all_filters(&self.view_id).await.unwrap()
   }
 
   pub fn get_field_rev(&self, field_id: &str, field_type: FieldType) -> &Arc<FieldRevision> {

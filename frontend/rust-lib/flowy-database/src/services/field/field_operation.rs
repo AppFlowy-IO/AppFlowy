@@ -5,6 +5,7 @@ use flowy_error::FlowyResult;
 use std::sync::Arc;
 
 pub async fn edit_field_type_option<T>(
+  view_id: &str,
   field_id: &str,
   editor: Arc<DatabaseEditor>,
   action: impl FnOnce(&mut T),
@@ -23,7 +24,7 @@ where
     action(&mut type_option);
     let bytes = type_option.protobuf_bytes().to_vec();
     editor
-      .update_field_type_option(field_id, bytes, old_field_rev)
+      .update_field_type_option(view_id, field_id, bytes, old_field_rev)
       .await?;
   }
 
@@ -31,17 +32,19 @@ where
 }
 
 pub async fn edit_single_select_type_option(
+  view_id: &str,
   field_id: &str,
   editor: Arc<DatabaseEditor>,
   action: impl FnOnce(&mut SingleSelectTypeOptionPB),
 ) -> FlowyResult<()> {
-  edit_field_type_option(field_id, editor, action).await
+  edit_field_type_option(view_id, field_id, editor, action).await
 }
 
 pub async fn edit_multi_select_type_option(
+  view_id: &str,
   field_id: &str,
   editor: Arc<DatabaseEditor>,
   action: impl FnOnce(&mut MultiSelectTypeOptionPB),
 ) -> FlowyResult<()> {
-  edit_field_type_option(field_id, editor, action).await
+  edit_field_type_option(view_id, field_id, editor, action).await
 }

@@ -231,7 +231,7 @@ class GridRowCache {
       if (field.visibility) {
         cellDataMap[field.id] = GridCellIdentifier(
           rowId: rowId,
-          databaseId: databaseId,
+          viewId: databaseId,
           fieldInfo: field,
         );
       }

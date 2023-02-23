@@ -18,7 +18,7 @@ use database_model::{
   gen_database_id, BuildDatabaseContext, DatabaseRevision, DatabaseViewRevision,
 };
 use flowy_client_sync::client_database::{
-  make_database_block_operations, make_database_operations, make_grid_view_operations,
+  make_database_block_operations, make_database_operations, make_database_view_operations,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{
@@ -46,23 +46,24 @@ pub struct DatabaseManager {
   #[allow(dead_code)]
   kv_persistence: Arc<DatabaseKVPersistence>,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
+  #[allow(dead_code)]
   migration: DatabaseMigration,
 }
 
 impl DatabaseManager {
   pub fn new(
-    grid_user: Arc<dyn DatabaseUser>,
+    database_user: Arc<dyn DatabaseUser>,
     _rev_web_socket: Arc<dyn RevisionWebSocket>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     database: Arc<dyn DatabaseDB>,
   ) -> Self {
-    let grid_editors = RwLock::new(RefCountHashMap::new());
+    let database_editors = RwLock::new(RefCountHashMap::new());
     let kv_persistence = Arc::new(DatabaseKVPersistence::new(database.clone()));
     let block_index_cache = Arc::new(BlockIndexCache::new(database.clone()));
-    let migration = DatabaseMigration::new(grid_user.clone(), database);
+    let migration = DatabaseMigration::new(database_user.clone(), database);
     Self {
-      database_editors: grid_editors,
-      database_user: grid_user,
+      database_editors,
+      database_user,
       kv_persistence,
       block_index_cache,
       task_scheduler,
@@ -118,8 +119,6 @@ impl DatabaseManager {
 
   pub async fn open_database<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<Arc<DatabaseEditor>> {
     let view_id = view_id.as_ref();
-    //TODO(nathan): handler run_v1_migration
-    // let _ = self.migration.run_v1_migration(database_id).await;
     self.get_or_create_database_editor(view_id).await
   }
 
@@ -170,11 +169,12 @@ impl DatabaseManager {
     pool: Arc<ConnectionPool>,
   ) -> Result<Arc<DatabaseEditor>, FlowyError> {
     let user = self.database_user.clone();
+    tracing::debug!("Open database view: {}", view_id);
     let (database_view_pad, base_view_rev_manager) =
       make_database_view_revision_pad(view_id, user.clone()).await?;
     let mut database_id = database_view_pad.database_id.clone();
 
-    tracing::debug!("Open database:{}, with view: {}", database_id, view_id);
+    tracing::debug!("Open database:{}", database_id);
     if database_id.is_empty() {
       // Before the database_id concept comes up, we used the view_id directly. So if
       // the database_id is empty, which means we can used the view_id. After the version 0.1.1,
@@ -247,7 +247,7 @@ pub async fn make_database_view_data(
     field_revs,
     block_metas,
     blocks,
-    database_view_data: grid_view_revision_data,
+    database_view_data,
   } = build_context;
 
   for block_meta_data in &blocks {
@@ -259,7 +259,7 @@ pub async fn make_database_view_data(
         .insert(&row.block_id, &row.id);
     });
 
-    // Create grid's block
+    // Create database's block
     let database_block_ops = make_database_block_operations(block_meta_data);
     let database_block_bytes = database_block_ops.json_bytes();
     let revision = Revision::initial_revision(block_id, database_block_bytes);
@@ -268,11 +268,11 @@ pub async fn make_database_view_data(
       .await?;
   }
 
-  // Will replace the grid_id with the value returned by the gen_grid_id()
   let database_id = gen_database_id();
   let database_rev = DatabaseRevision::from_build_context(&database_id, field_revs, block_metas);
 
-  // Create grid
+  tracing::trace!("Create new database: {}", database_id);
+  // Create database
   let database_ops = make_database_operations(&database_rev);
   let database_bytes = database_ops.json_bytes();
   let revision = Revision::initial_revision(&database_id, database_bytes.clone());
@@ -280,13 +280,14 @@ pub async fn make_database_view_data(
     .create_database(&database_id, vec![revision])
     .await?;
 
+  tracing::trace!("Create new database view: {}", view_id);
   // Create database view
-  let grid_view = if grid_view_revision_data.is_empty() {
+  let database_view_rev = if database_view_data.is_empty() {
     DatabaseViewRevision::new(database_id, view_id.to_owned(), true, name, layout.into())
   } else {
-    DatabaseViewRevision::from_json(grid_view_revision_data)?
+    DatabaseViewRevision::from_json(database_view_data)?
   };
-  let database_view_ops = make_grid_view_operations(&grid_view);
+  let database_view_ops = make_database_view_operations(&database_view_rev);
   let database_view_bytes = database_view_ops.json_bytes();
   let revision = Revision::initial_revision(view_id, database_view_bytes);
   database_manager

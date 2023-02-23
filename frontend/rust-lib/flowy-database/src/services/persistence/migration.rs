@@ -1,3 +1,6 @@
+#![allow(clippy::all)]
+#![allow(dead_code)]
+#![allow(unused_variables)]
 use crate::manager::DatabaseUser;
 use crate::services::persistence::rev_sqlite::SQLiteDatabaseRevisionPersistence;
 use crate::services::persistence::DatabaseDB;

@@ -35,7 +35,7 @@ class CellService {
     required String data,
   }) {
     final payload = CellChangesetPB.create()
-      ..databaseId = cellId.databaseId
+      ..databaseId = cellId.viewId
       ..fieldId = cellId.fieldId
       ..rowId = cellId.rowId
       ..typeCellData = data;
@@ -46,7 +46,7 @@ class CellService {
     required GridCellIdentifier cellId,
   }) {
     final payload = CellIdPB.create()
-      ..databaseId = cellId.databaseId
+      ..viewId = cellId.viewId
       ..fieldId = cellId.fieldId
       ..rowId = cellId.rowId;
     return DatabaseEventGetCell(payload).send();
@@ -58,7 +58,7 @@ class CellService {
 @freezed
 class GridCellIdentifier with _$GridCellIdentifier {
   const factory GridCellIdentifier({
-    required String databaseId,
+    required String viewId,
     required String rowId,
     required FieldInfo fieldInfo,
   }) = _GridCellIdentifier;

@@ -118,7 +118,7 @@ impl DatabaseFilterTest {
     }
 
     pub async fn get_all_filters(&self) -> Vec<FilterPB> {
-        self.editor.get_all_filters().await.unwrap()
+        self.editor.get_all_filters(&self.view_id).await.unwrap()
     }
 
     pub async fn run_scripts(&mut self, scripts: Vec<FilterScript>) {
@@ -238,11 +238,11 @@ impl DatabaseFilterTest {
                 self.insert_filter(payload).await;
             }
             FilterScript::AssertFilterCount { count } => {
-                let filters = self.editor.get_all_filters().await.unwrap();
+                let filters = self.editor.get_all_filters(&self.view_id).await.unwrap();
                 assert_eq!(count as usize, filters.len());
             }
             FilterScript::AssertFilterContent { filter_type: filter_id, condition, content} => {
-                let filter = self.editor.get_filters(filter_id).await.unwrap().pop().unwrap();
+                let filter = self.editor.get_filters(&self.view_id, filter_id).await.unwrap().pop().unwrap();
                 assert_eq!(&filter.content, &content);
                 assert_eq!(filter.condition as u32, condition);
 
@@ -254,7 +254,7 @@ impl DatabaseFilterTest {
                 let _ = self.editor.delete_filter(params).await.unwrap();
             }
             FilterScript::AssertGridSetting { expected_setting } => {
-                let setting = self.editor.get_setting().await.unwrap();
+                let setting = self.editor.get_setting(&self.view_id).await.unwrap();
                 assert_eq!(expected_setting, setting);
             }
             FilterScript::AssertNumberOfVisibleRows { expected } => {

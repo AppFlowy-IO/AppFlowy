@@ -10,13 +10,13 @@ use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTran
 use revision_model::Revision;
 use std::sync::Arc;
 
-pub type GridViewOperations = DeltaOperations<EmptyAttributes>;
-pub type GridViewOperationsBuilder = DeltaBuilder;
+pub type DatabaseViewOperations = DeltaOperations<EmptyAttributes>;
+pub type DatabaseViewOperationsBuilder = DeltaBuilder;
 
 #[derive(Debug, Clone)]
 pub struct DatabaseViewRevisionPad {
   view: Arc<DatabaseViewRevision>,
-  operations: GridViewOperations,
+  operations: DatabaseViewOperations,
 }
 
 impl std::ops::Deref for DatabaseViewRevisionPad {
@@ -39,11 +39,11 @@ impl DatabaseViewRevisionPad {
       layout,
     ));
     let json = serde_json::to_string(&view).unwrap();
-    let operations = GridViewOperationsBuilder::new().insert(&json).build();
+    let operations = DatabaseViewOperationsBuilder::new().insert(&json).build();
     Self { view, operations }
   }
 
-  pub fn from_operations(operations: GridViewOperations) -> SyncResult<Self> {
+  pub fn from_operations(operations: DatabaseViewOperations) -> SyncResult<Self> {
     if operations.is_empty() {
       return Err(SyncError::record_not_found().context("Unexpected empty operations"));
     }
@@ -60,7 +60,7 @@ impl DatabaseViewRevisionPad {
   }
 
   pub fn from_revisions(revisions: Vec<Revision>) -> SyncResult<Self> {
-    let operations: GridViewOperations = make_operations_from_revisions(revisions)?;
+    let operations: DatabaseViewOperations = make_operations_from_revisions(revisions)?;
     Self::from_operations(operations)
   }
 
@@ -301,7 +301,7 @@ impl DatabaseViewRevisionPad {
   }
 
   pub fn json_str(&self) -> SyncResult<String> {
-    make_grid_view_rev_json_str(&self.view)
+    make_database_view_rev_json_str(&self.view)
   }
 
   pub fn layout(&self) -> LayoutRevision {
@@ -316,7 +316,7 @@ impl DatabaseViewRevisionPad {
     match f(Arc::make_mut(&mut self.view))? {
       None => Ok(None),
       Some(_) => {
-        let old = make_grid_view_rev_json_str(&cloned_view)?;
+        let old = make_database_view_rev_json_str(&cloned_view)?;
         let new = self.json_str()?;
         match cal_diff::<EmptyAttributes>(old, new) {
           None => Ok(None),
@@ -333,18 +333,18 @@ impl DatabaseViewRevisionPad {
 
 #[derive(Debug)]
 pub struct DatabaseViewRevisionChangeset {
-  pub operations: GridViewOperations,
+  pub operations: DatabaseViewOperations,
   pub md5: String,
 }
 
-pub fn make_grid_view_rev_json_str(grid_revision: &DatabaseViewRevision) -> SyncResult<String> {
+pub fn make_database_view_rev_json_str(grid_revision: &DatabaseViewRevision) -> SyncResult<String> {
   let json = serde_json::to_string(grid_revision).map_err(|err| {
     internal_sync_error(format!("Serialize grid view to json str failed. {:?}", err))
   })?;
   Ok(json)
 }
 
-pub fn make_grid_view_operations(grid_view: &DatabaseViewRevision) -> GridViewOperations {
+pub fn make_database_view_operations(grid_view: &DatabaseViewRevision) -> DatabaseViewOperations {
   let json = serde_json::to_string(grid_view).unwrap();
-  GridViewOperationsBuilder::new().insert(&json).build()
+  DatabaseViewOperationsBuilder::new().insert(&json).build()
 }

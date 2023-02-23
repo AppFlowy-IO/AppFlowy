@@ -140,6 +140,9 @@ pub struct InsertGroupPayloadPB {
 
   #[pb(index = 2)]
   pub field_type: FieldType,
+
+  #[pb(index = 3)]
+  pub view_id: String,
 }
 
 impl TryInto<InsertGroupParams> for InsertGroupPayloadPB {
@@ -150,14 +153,20 @@ impl TryInto<InsertGroupParams> for InsertGroupPayloadPB {
       .map_err(|_| ErrorCode::FieldIdIsEmpty)?
       .0;
 
+    let view_id = NotEmptyStr::parse(self.view_id)
+      .map_err(|_| ErrorCode::ViewIdInvalid)?
+      .0;
+
     Ok(InsertGroupParams {
       field_id,
       field_type_rev: self.field_type.into(),
+      view_id,
     })
   }
 }
 
 pub struct InsertGroupParams {
+  pub view_id: String,
   pub field_id: String,
   pub field_type_rev: FieldTypeRevision,
 }
@@ -172,6 +181,9 @@ pub struct DeleteGroupPayloadPB {
 
   #[pb(index = 3)]
   pub field_type: FieldType,
+
+  #[pb(index = 4)]
+  pub view_id: String,
 }
 
 impl TryInto<DeleteGroupParams> for DeleteGroupPayloadPB {
@@ -184,16 +196,21 @@ impl TryInto<DeleteGroupParams> for DeleteGroupPayloadPB {
     let group_id = NotEmptyStr::parse(self.group_id)
       .map_err(|_| ErrorCode::FieldIdIsEmpty)?
       .0;
+    let view_id = NotEmptyStr::parse(self.view_id)
+      .map_err(|_| ErrorCode::ViewIdInvalid)?
+      .0;
 
     Ok(DeleteGroupParams {
       field_id,
       field_type_rev: self.field_type.into(),
       group_id,
+      view_id,
     })
   }
 }
 
 pub struct DeleteGroupParams {
+  pub view_id: String,
   pub field_id: String,
   pub group_id: String,
   pub field_type_rev: FieldTypeRevision,

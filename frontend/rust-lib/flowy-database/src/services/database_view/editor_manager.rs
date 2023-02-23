@@ -12,7 +12,7 @@ use crate::services::database_view::trait_impl::{
 use crate::services::database_view::{DatabaseViewData, DatabaseViewEditor};
 use crate::services::filter::FilterType;
 use crate::services::persistence::rev_sqlite::{
-  SQLiteDatabaseRevisionSnapshotPersistence, SQLiteGridViewRevisionPersistence,
+  SQLiteDatabaseRevisionSnapshotPersistence, SQLiteDatabaseViewRevisionPersistence,
 };
 use database_model::{FieldRevision, FilterRevision, RowChangeset, RowRevision, SortRevision};
 use flowy_client_sync::client_database::DatabaseViewRevisionPad;
@@ -27,7 +27,6 @@ use tokio::sync::{broadcast, RwLock};
 
 /// It's used to manager the list of views that reference to the same database.
 pub struct DatabaseViews {
-  database_id: String,
   user: Arc<dyn DatabaseUser>,
   delegate: Arc<dyn DatabaseViewData>,
   view_editors: Arc<RwLock<RefCountHashMap<Arc<DatabaseViewEditor>>>>,
@@ -36,7 +35,6 @@ pub struct DatabaseViews {
 
 impl DatabaseViews {
   pub async fn new(
-    database_id: String,
     user: Arc<dyn DatabaseUser>,
     delegate: Arc<dyn DatabaseViewData>,
     cell_data_cache: AtomicCellDataCache,
@@ -47,6 +45,7 @@ impl DatabaseViews {
     let mut view_editors = RefCountHashMap::default();
     let user_id = user.user_id()?;
     let view_id = base_view.view_id.to_owned();
+    // let rev_manager = make_database_view_rev_manager(&user, &view_id).await?;
 
     let base_view_editor = DatabaseViewEditor::from_pad(
       &user_id,
@@ -60,7 +59,6 @@ impl DatabaseViews {
     let view_editors = Arc::new(RwLock::new(view_editors));
     listen_on_database_block_event(block_event_rx, view_editors.clone());
     Ok(Self {
-      database_id,
       user,
       delegate,
       view_editors,
@@ -96,8 +94,8 @@ impl DatabaseViews {
     Ok(row_revs)
   }
 
-  pub async fn duplicate_database_view(&self) -> FlowyResult<String> {
-    let editor = self.get_default_view_editor().await?;
+  pub async fn duplicate_database_view(&self, view_id: &str) -> FlowyResult<String> {
+    let editor = self.get_view_editor(view_id).await?;
     let view_data = editor.duplicate_view_data().await?;
     Ok(view_data)
   }
@@ -132,8 +130,8 @@ impl DatabaseViews {
     }
   }
 
-  pub async fn group_by_field(&self, field_id: &str) -> FlowyResult<()> {
-    let view_editor = self.get_default_view_editor().await?;
+  pub async fn group_by_field(&self, view_id: &str, field_id: &str) -> FlowyResult<()> {
+    let view_editor = self.get_view_editor(view_id).await?;
     view_editor.group_by_view_field(field_id).await?;
     Ok(())
   }
@@ -144,18 +142,22 @@ impl DatabaseViews {
     }
   }
 
-  pub async fn get_setting(&self) -> FlowyResult<DatabaseViewSettingPB> {
-    let view_editor = self.get_default_view_editor().await?;
+  pub async fn get_setting(&self, view_id: &str) -> FlowyResult<DatabaseViewSettingPB> {
+    let view_editor = self.get_view_editor(view_id).await?;
     Ok(view_editor.get_view_setting().await)
   }
 
-  pub async fn get_all_filters(&self) -> FlowyResult<Vec<Arc<FilterRevision>>> {
-    let view_editor = self.get_default_view_editor().await?;
+  pub async fn get_all_filters(&self, view_id: &str) -> FlowyResult<Vec<Arc<FilterRevision>>> {
+    let view_editor = self.get_view_editor(view_id).await?;
     Ok(view_editor.get_all_view_filters().await)
   }
 
-  pub async fn get_filters(&self, filter_id: &FilterType) -> FlowyResult<Vec<Arc<FilterRevision>>> {
-    let view_editor = self.get_default_view_editor().await?;
+  pub async fn get_filters(
+    &self,
+    view_id: &str,
+    filter_id: &FilterType,
+  ) -> FlowyResult<Vec<Arc<FilterRevision>>> {
+    let view_editor = self.get_view_editor(view_id).await?;
     Ok(view_editor.get_view_filters(filter_id).await)
   }
 
@@ -189,24 +191,24 @@ impl DatabaseViews {
     view_editor.delete_view_sort(params).await
   }
 
-  pub async fn load_groups(&self) -> FlowyResult<RepeatedGroupPB> {
-    let view_editor = self.get_default_view_editor().await?;
+  pub async fn load_groups(&self, view_id: &str) -> FlowyResult<RepeatedGroupPB> {
+    let view_editor = self.get_view_editor(view_id).await?;
     let groups = view_editor.load_view_groups().await?;
     Ok(RepeatedGroupPB { items: groups })
   }
 
   pub async fn insert_or_update_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
-    let view_editor = self.get_default_view_editor().await?;
+    let view_editor = self.get_view_editor(&params.view_id).await?;
     view_editor.initialize_new_group(params).await
   }
 
   pub async fn delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
-    let view_editor = self.get_default_view_editor().await?;
+    let view_editor = self.get_view_editor(&params.view_id).await?;
     view_editor.delete_view_group(params).await
   }
 
   pub async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
-    let view_editor = self.get_default_view_editor().await?;
+    let view_editor = self.get_view_editor(&params.view_id).await?;
     view_editor.move_view_group(params).await?;
     Ok(())
   }
@@ -216,13 +218,14 @@ impl DatabaseViews {
   ///
   pub async fn move_group_row(
     &self,
+    view_id: &str,
     row_rev: Arc<RowRevision>,
     to_group_id: String,
     to_row_id: Option<String>,
     recv_row_changeset: impl FnOnce(RowChangeset) -> Fut<()>,
   ) -> FlowyResult<()> {
     let mut row_changeset = RowChangeset::new(row_rev.id.clone());
-    let view_editor = self.get_default_view_editor().await?;
+    let view_editor = self.get_view_editor(view_id).await?;
     view_editor
       .move_view_group_row(
         &row_rev,
@@ -249,10 +252,11 @@ impl DatabaseViews {
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn did_update_view_field_type_option(
     &self,
+    view_id: &str,
     field_id: &str,
     old_field_rev: Option<Arc<FieldRevision>>,
   ) -> FlowyResult<()> {
-    let view_editor = self.get_default_view_editor().await?;
+    let view_editor = self.get_view_editor(view_id).await?;
     if view_editor.group_id().await == field_id {
       view_editor.group_by_view_field(field_id).await?;
     }
@@ -268,15 +272,11 @@ impl DatabaseViews {
     if let Some(editor) = self.view_editors.read().await.get(view_id) {
       return Ok(editor);
     }
-    tracing::trace!("{:p} create view_editor", self);
+    tracing::trace!("{:p} create view:{} editor", self, view_id);
     let mut view_editors = self.view_editors.write().await;
     let editor = Arc::new(self.make_view_editor(view_id).await?);
     view_editors.insert(view_id.to_owned(), editor.clone());
     Ok(editor)
-  }
-
-  async fn get_default_view_editor(&self) -> FlowyResult<Arc<DatabaseViewEditor>> {
-    self.get_view_editor(&self.database_id).await
   }
 
   async fn make_view_editor(&self, view_id: &str) -> FlowyResult<DatabaseViewEditor> {
@@ -297,6 +297,7 @@ impl DatabaseViews {
   }
 }
 
+#[tracing::instrument(level = "trace", skip(user), err)]
 pub async fn make_database_view_revision_pad(
   view_id: &str,
   user: Arc<dyn DatabaseUser>,
@@ -340,7 +341,7 @@ pub async fn make_database_view_rev_manager(
 
   // Create revision persistence
   let pool = user.db_pool()?;
-  let disk_cache = SQLiteGridViewRevisionPersistence::new(&user_id, pool.clone());
+  let disk_cache = SQLiteDatabaseViewRevisionPersistence::new(&user_id, pool.clone());
   let configuration = RevisionPersistenceConfiguration::new(2, false);
   let rev_persistence = RevisionPersistence::new(&user_id, view_id, disk_cache, configuration);
 

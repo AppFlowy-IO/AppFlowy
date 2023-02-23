@@ -39,7 +39,7 @@ async fn grid_filter_text_is_not_empty_test() {
   ];
   test.run_scripts(scripts).await;
 
-  let filter = test.grid_filters().await.pop().unwrap();
+  let filter = test.database_filters().await.pop().unwrap();
   let field_rev = test.get_first_field_rev(FieldType::RichText).clone();
   test
     .run_scripts(vec![
@@ -204,7 +204,7 @@ async fn grid_filter_delete_test() {
   ];
   test.run_scripts(scripts).await;
 
-  let filter = test.grid_filters().await.pop().unwrap();
+  let filter = test.database_filters().await.pop().unwrap();
   test
     .run_scripts(vec![
       DeleteFilter {

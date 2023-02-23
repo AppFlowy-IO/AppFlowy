@@ -17,7 +17,7 @@ class SingleSelectAction with ISelectOptionAction {
     required this.databaseId,
     required this.fieldId,
     required this.typeOptionContext,
-  }) : service = TypeOptionFFIService(databaseId: databaseId, fieldId: fieldId);
+  }) : service = TypeOptionFFIService(viewId: databaseId, fieldId: fieldId);
 
   SingleSelectTypeOptionPB get typeOption => typeOptionContext.typeOption;
 

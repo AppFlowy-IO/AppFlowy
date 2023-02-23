@@ -65,8 +65,8 @@ impl DatabaseViewRevision {
     layout: LayoutRevision,
   ) -> Self {
     DatabaseViewRevision {
-      view_id,
       database_id,
+      view_id,
       layout,
       is_base,
       name,

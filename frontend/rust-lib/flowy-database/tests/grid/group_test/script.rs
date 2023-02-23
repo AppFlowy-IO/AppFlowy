@@ -87,7 +87,7 @@ impl DatabaseGroupTest {
         assert_eq!(row_count, self.group_at_index(group_index).await.rows.len());
       },
       GroupScript::AssertGroupCount(count) => {
-        let groups = self.editor.load_groups().await.unwrap();
+        let groups = self.editor.load_groups(&self.view_id).await.unwrap();
         assert_eq!(count, groups.len());
       },
       GroupScript::MoveRow {
@@ -96,7 +96,7 @@ impl DatabaseGroupTest {
         to_group_index,
         to_row_index,
       } => {
-        let groups: Vec<GroupPB> = self.editor.load_groups().await.unwrap().items;
+        let groups: Vec<GroupPB> = self.editor.load_groups(&self.view_id).await.unwrap().items;
         let from_row = groups
           .get(from_group_index)
           .unwrap()
@@ -237,13 +237,17 @@ impl DatabaseGroupTest {
           .await;
       },
       GroupScript::GroupByField { field_id } => {
-        self.editor.group_by_field(&field_id).await.unwrap();
+        self
+          .editor
+          .group_by_field(&self.view_id, &field_id)
+          .await
+          .unwrap();
       },
     }
   }
 
   pub async fn group_at_index(&self, index: usize) -> GroupPB {
-    let groups = self.editor.load_groups().await.unwrap().items;
+    let groups = self.editor.load_groups(&self.view_id).await.unwrap().items;
     groups.get(index).unwrap().clone()
   }
 
@@ -285,9 +289,14 @@ impl DatabaseGroupTest {
     action: impl FnOnce(&mut SingleSelectTypeOptionPB),
   ) {
     let single_select = self.get_single_select_field().await;
-    edit_single_select_type_option(&single_select.id, self.editor.clone(), action)
-      .await
-      .unwrap();
+    edit_single_select_type_option(
+      &self.view_id,
+      &single_select.id,
+      self.editor.clone(),
+      action,
+    )
+    .await
+    .unwrap();
   }
 
   pub async fn get_url_field(&self) -> Arc<FieldRevision> {

@@ -18,7 +18,7 @@ class MultiSelectAction with ISelectOptionAction {
     required this.fieldId,
     required this.typeOptionContext,
   }) : service = TypeOptionFFIService(
-          databaseId: databaseId,
+          viewId: databaseId,
           fieldId: fieldId,
         );
 

@@ -119,7 +119,7 @@ impl DatabaseRowTest {
         expected,
       } => {
         let id = CellIdParams {
-          database_id: self.view_id.clone(),
+          view_id: self.view_id.clone(),
           field_id,
           row_id,
         };

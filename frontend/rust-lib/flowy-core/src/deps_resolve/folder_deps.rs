@@ -283,8 +283,8 @@ impl ViewDataProcessor for GridViewDataProcessor {
     let database_manager = self.0.clone();
     let view_id = view.id.clone();
     FutureResult::new(async move {
-      let editor = database_manager.open_database(view_id).await?;
-      let delta_bytes = editor.duplicate_database().await?;
+      let editor = database_manager.open_database(&view_id).await?;
+      let delta_bytes = editor.duplicate_database(&view_id).await?;
       Ok(delta_bytes.into())
     })
   }
