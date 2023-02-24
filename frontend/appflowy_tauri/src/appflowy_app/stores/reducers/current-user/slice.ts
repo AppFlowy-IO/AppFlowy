@@ -2,10 +2,10 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { nanoid } from 'nanoid';
 
 export interface ICurrentUser {
-  id: string;
-  displayName: string;
-  email: string;
-  token: string;
+  id?: string;
+  displayName?: string;
+  email?: string;
+  token?: string;
   isAuthenticated: boolean;
 }
 
@@ -24,8 +24,10 @@ export const currentUserSlice = createSlice({
     updateUser: (state, action: PayloadAction<ICurrentUser>) => {
       return action.payload;
     },
-    logout: (state) => {
-      state.isAuthenticated = false;
+    logout: () => {
+      return {
+        isAuthenticated: false,
+      };
     },
   },
 });
