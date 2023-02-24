@@ -8,10 +8,16 @@ import {
 } from '../../../../services/backend/events/flowy-user';
 import { SignInPayloadPB, SignUpPayloadPB } from '../../../../services/backend/models/flowy-user/auth';
 import { UpdateUserProfilePayloadPB } from '../../../../services/backend/models/flowy-user/user_profile';
-import { WorkspaceIdPB, CreateWorkspacePayloadPB } from '../../../../services/backend/models/flowy-folder/workspace';
+import {
+  WorkspaceIdPB,
+  CreateWorkspacePayloadPB,
+  WorkspaceSettingPB,
+  WorkspacePB,
+} from '../../../../services/backend/models/flowy-folder/workspace';
 import {
   FolderEventCreateWorkspace,
   FolderEventOpenWorkspace,
+  FolderEventReadCurrentWorkspace,
   FolderEventReadWorkspaces,
 } from '../../../../services/backend/events/flowy-folder';
 
@@ -39,6 +45,15 @@ export class UserBackendService {
     return UserEventUpdateUserProfile(payload);
   };
 
+  getCurrentWorkspace = async (): Promise<WorkspaceSettingPB> => {
+    const result = await FolderEventReadCurrentWorkspace();
+    if (result.ok) {
+      return result.val;
+    } else {
+      throw new Error(result.val.msg);
+    }
+  };
+
   getWorkspaces = () => {
     const payload = WorkspaceIdPB.fromObject({});
     return FolderEventReadWorkspaces(payload);
@@ -49,9 +64,14 @@ export class UserBackendService {
     return FolderEventOpenWorkspace(payload);
   };
 
-  createWorkspace = (params: { name: string; desc: string }) => {
+  createWorkspace = async (params: { name: string; desc: string }): Promise<WorkspacePB> => {
     const payload = CreateWorkspacePayloadPB.fromObject({ name: params.name, desc: params.desc });
-    return FolderEventCreateWorkspace(payload);
+    const result = await FolderEventCreateWorkspace(payload);
+    if (result.ok) {
+      return result.val;
+    } else {
+      throw new Error(result.val.msg);
+    }
   };
 
   signOut = () => {
