@@ -6,7 +6,7 @@ import { NewBoardBlock } from './NewBoardBlock';
 import { IDatabaseRow } from '../../stores/reducers/database/slice';
 import { useBoard } from './Board.hooks';
 
-export const Board = ({ databaseId }: { databaseId: string }) => {
+export const Board = () => {
   const { database, newField, renameField, newRow } = useDatabase();
   const {
     title,

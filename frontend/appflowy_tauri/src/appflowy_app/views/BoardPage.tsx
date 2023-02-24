@@ -16,7 +16,7 @@ export const BoardPage = () => {
   return (
     <div className='flex h-full flex-col gap-8 px-8 pt-8'>
       <h1 className='text-4xl font-bold'>Board</h1>
-      {databaseId?.length && <Board databaseId={databaseId} />}
+      {databaseId?.length && <Board />}
     </div>
   );
 };
