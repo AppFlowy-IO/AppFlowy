@@ -36,6 +36,7 @@ pub struct DatabaseViewRevision {
   #[serde(rename = "grid_id")]
   pub database_id: String,
 
+  #[serde(skip_serializing_if = "String::is_empty")]
   #[serde(default)]
   pub name: String,
 
@@ -105,7 +106,7 @@ mod tests {
     let s = serde_json::to_string(&grid_view_revision).unwrap();
     assert_eq!(
       s,
-      r#"{"view_id":"1","grid_id":"1","layout":0,"filters":[],"groups":[],"sorts":[]}"#
+      r#"{"view_id":"1","grid_id":"1","is_base":true,"layout":0,"filters":[],"groups":[],"sorts":[]}"#
     );
   }
 }

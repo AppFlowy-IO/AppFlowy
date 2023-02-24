@@ -17,7 +17,7 @@ use database_model::*;
 use strum::IntoEnumIterator;
 
 pub fn make_test_grid() -> BuildDatabaseContext {
-  let mut grid_builder = DatabaseBuilder::new();
+  let mut database_builder = DatabaseBuilder::new();
   // Iterate through the FieldType to create the corresponding Field.
   for field_type in FieldType::iter() {
     let field_type: FieldType = field_type;
@@ -30,7 +30,7 @@ pub fn make_test_grid() -> BuildDatabaseContext {
           .visibility(true)
           .primary(true)
           .build();
-        grid_builder.add_field(text_field);
+        database_builder.add_field(text_field);
       },
       FieldType::Number => {
         // Number
@@ -39,7 +39,7 @@ pub fn make_test_grid() -> BuildDatabaseContext {
           .name("Price")
           .visibility(true)
           .build();
-        grid_builder.add_field(number_field);
+        database_builder.add_field(number_field);
       },
       FieldType::DateTime => {
         // Date
@@ -50,7 +50,7 @@ pub fn make_test_grid() -> BuildDatabaseContext {
           .name("Time")
           .visibility(true)
           .build();
-        grid_builder.add_field(date_field);
+        database_builder.add_field(date_field);
       },
       FieldType::SingleSelect => {
         // Single Select
@@ -62,7 +62,7 @@ pub fn make_test_grid() -> BuildDatabaseContext {
           .name("Status")
           .visibility(true)
           .build();
-        grid_builder.add_field(single_select_field);
+        database_builder.add_field(single_select_field);
       },
       FieldType::MultiSelect => {
         // MultiSelect
@@ -74,7 +74,7 @@ pub fn make_test_grid() -> BuildDatabaseContext {
           .name("Platform")
           .visibility(true)
           .build();
-        grid_builder.add_field(multi_select_field);
+        database_builder.add_field(multi_select_field);
       },
       FieldType::Checkbox => {
         // Checkbox
@@ -83,13 +83,13 @@ pub fn make_test_grid() -> BuildDatabaseContext {
           .name("is urgent")
           .visibility(true)
           .build();
-        grid_builder.add_field(checkbox_field);
+        database_builder.add_field(checkbox_field);
       },
       FieldType::URL => {
         // URL
         let url = URLTypeOptionBuilder::default();
         let url_field = FieldBuilder::new(url).name("link").visibility(true).build();
-        grid_builder.add_field(url_field);
+        database_builder.add_field(url_field);
       },
       FieldType::Checklist => {
         let checklist = ChecklistTypeOptionBuilder::default()
@@ -100,14 +100,14 @@ pub fn make_test_grid() -> BuildDatabaseContext {
           .name("TODO")
           .visibility(true)
           .build();
-        grid_builder.add_field(checklist_field);
+        database_builder.add_field(checklist_field);
       },
     }
   }
 
   for i in 0..6 {
-    let block_id = grid_builder.block_id().to_owned();
-    let field_revs = grid_builder.field_revs();
+    let block_id = database_builder.block_id().to_owned();
+    let field_revs = database_builder.field_revs();
     let mut row_builder = GridRowTestBuilder::new(&block_id, field_revs);
     match i {
       0 => {
@@ -204,7 +204,7 @@ pub fn make_test_grid() -> BuildDatabaseContext {
     }
 
     let row_rev = row_builder.build();
-    grid_builder.add_row(row_rev);
+    database_builder.add_row(row_rev);
   }
-  grid_builder.build()
+  database_builder.build()
 }

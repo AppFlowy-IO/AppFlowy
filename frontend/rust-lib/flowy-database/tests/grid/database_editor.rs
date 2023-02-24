@@ -53,7 +53,11 @@ impl DatabaseEditorTest {
       },
     };
 
-    let editor = sdk.grid_manager.open_database(&test.view.id).await.unwrap();
+    let editor = sdk
+      .database_manager
+      .open_database(&test.view.id)
+      .await
+      .unwrap();
     let field_revs = editor.get_field_revs(None).await.unwrap();
     let block_meta_revs = editor.get_block_meta_revs().await.unwrap();
     let row_pbs = editor.get_all_row_revs(&test.view.id).await.unwrap();

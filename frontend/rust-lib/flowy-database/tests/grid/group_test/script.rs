@@ -106,7 +106,7 @@ impl DatabaseGroupTest {
         let to_group = groups.get(to_group_index).unwrap();
         let to_row = to_group.rows.get(to_row_index).unwrap();
         let params = MoveGroupRowParams {
-          view_id: self.inner.view_id.clone(),
+          view_id: self.view_id.clone(),
           from_row_id: from_row.id.clone(),
           to_group_id: to_group.group_id.clone(),
           to_row_id: Some(to_row.id.clone()),
@@ -127,7 +127,7 @@ impl DatabaseGroupTest {
       GroupScript::CreateRow { group_index } => {
         let group = self.group_at_index(group_index).await;
         let params = CreateRowParams {
-          view_id: self.editor.database_id.clone(),
+          view_id: self.view_id.clone(),
           start_row_id: None,
           group_id: Some(group.group_id.clone()),
           layout: LayoutTypePB::Board,
@@ -212,7 +212,7 @@ impl DatabaseGroupTest {
         let from_group = self.group_at_index(from_group_index).await;
         let to_group = self.group_at_index(to_group_index).await;
         let params = MoveGroupParams {
-          view_id: self.editor.database_id.clone(),
+          view_id: self.view_id.clone(),
           from_group_id: from_group.group_id,
           to_group_id: to_group.group_id,
         };

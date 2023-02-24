@@ -6,7 +6,7 @@ use crate::services::database::{
 use crate::services::database_view::{
   make_database_view_rev_manager, make_database_view_revision_pad,
 };
-use crate::services::persistence::block_index::BlockIndexCache;
+use crate::services::persistence::block_index::BlockRowIndexer;
 use crate::services::persistence::kv::DatabaseKVPersistence;
 use crate::services::persistence::migration::DatabaseMigration;
 use crate::services::persistence::rev_sqlite::{
@@ -25,11 +25,10 @@ use flowy_revision::{
   RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket,
 };
 use flowy_sqlite::ConnectionPool;
+use flowy_task::TaskDispatcher;
 use lib_infra::async_trait::async_trait;
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
 use revision_model::Revision;
-
-use flowy_task::TaskDispatcher;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -42,7 +41,7 @@ pub trait DatabaseUser: Send + Sync {
 pub struct DatabaseManager {
   database_editors: RwLock<RefCountHashMap<Arc<DatabaseEditor>>>,
   database_user: Arc<dyn DatabaseUser>,
-  block_index_cache: Arc<BlockIndexCache>,
+  block_indexer: Arc<BlockRowIndexer>,
   #[allow(dead_code)]
   kv_persistence: Arc<DatabaseKVPersistence>,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
@@ -55,17 +54,17 @@ impl DatabaseManager {
     database_user: Arc<dyn DatabaseUser>,
     _rev_web_socket: Arc<dyn RevisionWebSocket>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
-    database: Arc<dyn DatabaseDB>,
+    database_db: Arc<dyn DatabaseDB>,
   ) -> Self {
     let database_editors = RwLock::new(RefCountHashMap::new());
-    let kv_persistence = Arc::new(DatabaseKVPersistence::new(database.clone()));
-    let block_index_cache = Arc::new(BlockIndexCache::new(database.clone()));
-    let migration = DatabaseMigration::new(database_user.clone(), database);
+    let kv_persistence = Arc::new(DatabaseKVPersistence::new(database_db.clone()));
+    let block_indexer = Arc::new(BlockRowIndexer::new(database_db.clone()));
+    let migration = DatabaseMigration::new(database_user.clone(), database_db);
     Self {
       database_editors,
       database_user,
       kv_persistence,
-      block_index_cache,
+      block_indexer,
       task_scheduler,
       migration,
     }
@@ -149,12 +148,15 @@ impl DatabaseManager {
     }
   }
 
+  pub async fn get_databases(&self) {
+    //
+  }
+
   async fn get_or_create_database_editor(&self, view_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
-    //TODO(nathan): map view_id to database_id
     if let Some(editor) = self.database_editors.read().await.get(view_id) {
       return Ok(editor);
     }
-
+    // Lock the database_editors
     let mut database_editors = self.database_editors.write().await;
     let db_pool = self.database_user.db_pool()?;
     let editor = self.make_database_rev_editor(view_id, db_pool).await?;
@@ -170,9 +172,9 @@ impl DatabaseManager {
   ) -> Result<Arc<DatabaseEditor>, FlowyError> {
     let user = self.database_user.clone();
     tracing::debug!("Open database view: {}", view_id);
-    let (database_view_pad, base_view_rev_manager) =
+    let (base_view_pad, base_view_rev_manager) =
       make_database_view_revision_pad(view_id, user.clone()).await?;
-    let mut database_id = database_view_pad.database_id.clone();
+    let mut database_id = base_view_pad.database_id.clone();
 
     tracing::debug!("Open database:{}", database_id);
     if database_id.is_empty() {
@@ -195,9 +197,9 @@ impl DatabaseManager {
       user,
       database_pad,
       rev_manager,
-      self.block_index_cache.clone(),
+      self.block_indexer.clone(),
       self.task_scheduler.clone(),
-      database_view_pad,
+      base_view_pad,
       base_view_rev_manager,
     )
     .await?;
@@ -219,7 +221,8 @@ impl DatabaseManager {
       RevisionPersistence::new(&user_id, database_id, disk_cache, configuration);
 
     // Create snapshot persistence
-    let snapshot_object_id = format!("grid:{}", database_id);
+    const DATABASE_SP_PREFIX: &str = "grid";
+    let snapshot_object_id = format!("{}:{}", DATABASE_SP_PREFIX, database_id);
     let snapshot_persistence =
       SQLiteDatabaseRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
 
@@ -255,7 +258,7 @@ pub async fn make_database_view_data(
     // Indexing the block's rows
     block_meta_data.rows.iter().for_each(|row| {
       let _ = database_manager
-        .block_index_cache
+        .block_indexer
         .insert(&row.block_id, &row.id);
     });
 

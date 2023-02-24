@@ -181,7 +181,8 @@ impl FolderManager {
     let rev_persistence = RevisionPersistence::new(user_id, object_id, disk_cache, configuration);
     let rev_compactor = FolderRevisionMergeable();
 
-    let snapshot_object_id = format!("folder:{}", object_id);
+    const FOLDER_SP_PREFIX: &str = "folder";
+    let snapshot_object_id = format!("{}:{}", FOLDER_SP_PREFIX, object_id);
     let snapshot_persistence =
       SQLiteFolderRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
     let rev_manager = RevisionManager::new(

@@ -130,7 +130,7 @@ async fn create_view(
   layout: ViewLayoutTypePB,
   data: Vec<u8>,
 ) -> ViewPB {
-  let request = CreateViewPayloadPB {
+  let payload = CreateViewPayloadPB {
     belong_to_id: app_id.to_string(),
     name: "View A".to_string(),
     desc: "".to_string(),
@@ -142,7 +142,7 @@ async fn create_view(
 
   FolderEventBuilder::new(sdk.clone())
     .event(CreateView)
-    .payload(request)
+    .payload(payload)
     .async_send()
     .await
     .parse::<ViewPB>()

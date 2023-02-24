@@ -8,11 +8,11 @@ use flowy_sqlite::{
 use std::sync::Arc;
 
 /// Allow getting the block id from row id.
-pub struct BlockIndexCache {
+pub struct BlockRowIndexer {
   database: Arc<dyn DatabaseDB>,
 }
 
-impl BlockIndexCache {
+impl BlockRowIndexer {
   pub fn new(database: Arc<dyn DatabaseDB>) -> Self {
     Self { database }
   }

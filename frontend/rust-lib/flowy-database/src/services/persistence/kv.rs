@@ -148,12 +148,3 @@ impl<'a> KVTransaction for SqliteTransaction<'a> {
     Ok(())
   }
 }
-
-// impl<T: TryInto<Bytes, Error = ::protobuf::ProtobufError> + GridIdentifiable> std::convert::From<T> for KeyValue {
-//     fn from(value: T) -> Self {
-//         let key = value.id().to_string();
-//         let bytes: Bytes = value.try_into().unwrap();
-//         let value = bytes.to_vec();
-//         KeyValue { key, value }
-//     }
-// }

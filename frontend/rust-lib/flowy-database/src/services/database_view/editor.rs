@@ -10,7 +10,7 @@ use crate::services::filter::{
   FilterChangeset, FilterController, FilterTaskHandler, FilterType, UpdatedFilterType,
 };
 use crate::services::group::{
-  default_group_configuration, find_group_field, make_group_controller, Group,
+  default_group_configuration, find_grouping_field, make_group_controller, Group,
   GroupConfigurationReader, GroupController, MoveGroupRowContext,
 };
 use crate::services::row::DatabaseBlockRowRevision;
@@ -877,7 +877,7 @@ async fn new_group_controller(
         .find(|field_rev| field_rev.id == configuration.field_id)
         .cloned()
     })
-    .unwrap_or_else(|| find_group_field(&field_revs, &layout).unwrap());
+    .unwrap_or_else(|| find_grouping_field(&field_revs, &layout).unwrap());
 
   new_group_controller_with_field_rev(
     user_id,
@@ -898,7 +898,7 @@ async fn new_group_controller_with_field_rev(
   view_id: String,
   view_rev_pad: Arc<RwLock<DatabaseViewRevisionPad>>,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
-  field_rev: Arc<FieldRevision>,
+  grouping_field_rev: Arc<FieldRevision>,
   row_revs: Vec<Arc<RowRevision>>,
   configuration_reader: GroupConfigurationReaderImpl,
 ) -> FlowyResult<Box<dyn GroupController>> {
@@ -909,7 +909,7 @@ async fn new_group_controller_with_field_rev(
   };
   make_group_controller(
     view_id,
-    field_rev,
+    grouping_field_rev,
     row_revs,
     configuration_reader,
     configuration_writer,

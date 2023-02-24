@@ -15,7 +15,7 @@ use crate::services::field::{
 use crate::services::database::DatabaseViewDataImpl;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViews};
 use crate::services::filter::FilterType;
-use crate::services::persistence::block_index::BlockIndexCache;
+use crate::services::persistence::block_index::BlockRowIndexer;
 use crate::services::row::{DatabaseBlockRow, DatabaseBlockRowRevision, RowRevisionBuilder};
 use bytes::Bytes;
 use database_model::*;
@@ -60,7 +60,7 @@ impl DatabaseEditor {
     user: Arc<dyn DatabaseUser>,
     database_pad: Arc<RwLock<DatabaseRevisionPad>>,
     rev_manager: RevisionManager<Arc<ConnectionPool>>,
-    persistence: Arc<BlockIndexCache>,
+    persistence: Arc<BlockRowIndexer>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     base_view: DatabaseViewRevisionPad,
     base_view_rev_manager: RevisionManager<Arc<ConnectionPool>>,
@@ -993,6 +993,7 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  //TODO(nathan): broadcast the changeset to views that reference to this database
   async fn notify_did_update_database(
     &self,
     changeset: DatabaseFieldChangesetPB,

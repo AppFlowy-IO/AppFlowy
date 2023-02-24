@@ -312,6 +312,34 @@ pub async fn make_database_view_revision_pad(
   Ok((view_rev_pad, rev_manager))
 }
 
+pub async fn make_database_view_rev_manager(
+  user: &Arc<dyn DatabaseUser>,
+  view_id: &str,
+) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
+  let user_id = user.user_id()?;
+
+  // Create revision persistence
+  let pool = user.db_pool()?;
+  let disk_cache = SQLiteDatabaseViewRevisionPersistence::new(&user_id, pool.clone());
+  let configuration = RevisionPersistenceConfiguration::new(2, false);
+  let rev_persistence = RevisionPersistence::new(&user_id, view_id, disk_cache, configuration);
+
+  // Create snapshot persistence
+  const DATABASE_VIEW_SP_PREFIX: &str = "grid_view";
+  let snapshot_object_id = format!("{}:{}", DATABASE_VIEW_SP_PREFIX, view_id);
+  let snapshot_persistence =
+    SQLiteDatabaseRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
+
+  let rev_compress = DatabaseViewRevisionMergeable();
+  Ok(RevisionManager::new(
+    &user_id,
+    view_id,
+    rev_persistence,
+    rev_compress,
+    snapshot_persistence,
+  ))
+}
+
 fn listen_on_database_block_event(
   mut block_event_rx: broadcast::Receiver<DatabaseBlockEvent>,
   view_editors: Arc<RwLock<RefCountHashMap<Arc<DatabaseViewEditor>>>>,
@@ -332,30 +360,4 @@ fn listen_on_database_block_event(
       }
     }
   });
-}
-pub async fn make_database_view_rev_manager(
-  user: &Arc<dyn DatabaseUser>,
-  view_id: &str,
-) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
-  let user_id = user.user_id()?;
-
-  // Create revision persistence
-  let pool = user.db_pool()?;
-  let disk_cache = SQLiteDatabaseViewRevisionPersistence::new(&user_id, pool.clone());
-  let configuration = RevisionPersistenceConfiguration::new(2, false);
-  let rev_persistence = RevisionPersistence::new(&user_id, view_id, disk_cache, configuration);
-
-  // Create snapshot persistence
-  let snapshot_object_id = format!("grid_view:{}", view_id);
-  let snapshot_persistence =
-    SQLiteDatabaseRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
-
-  let rev_compress = DatabaseViewRevisionMergeable();
-  Ok(RevisionManager::new(
-    &user_id,
-    view_id,
-    rev_persistence,
-    rev_compress,
-    snapshot_persistence,
-  ))
 }

@@ -570,3 +570,11 @@ pub(crate) async fn move_group_row_handler(
   editor.move_group_row(params).await?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip(manager), err)]
+pub(crate) async fn get_databases_handler(
+  manager: AFPluginState<Arc<DatabaseManager>>,
+) -> FlowyResult<()> {
+  manager.get_databases().await;
+  Ok(())
+}

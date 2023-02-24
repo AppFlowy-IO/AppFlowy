@@ -112,7 +112,7 @@ pub struct AppFlowyCore {
   pub user_session: Arc<UserSession>,
   pub document_manager: Arc<DocumentManager>,
   pub folder_manager: Arc<FolderManager>,
-  pub grid_manager: Arc<DatabaseManager>,
+  pub database_manager: Arc<DatabaseManager>,
   pub event_dispatcher: Arc<AFPluginDispatcher>,
   pub ws_conn: Arc<FlowyWebSocketConnect>,
   pub local_server: Option<Arc<LocalServer>>,
@@ -130,7 +130,7 @@ impl AppFlowyCore {
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
     let (local_server, ws_conn) = mk_local_server(&config.server_config);
-    let (user_session, document_manager, folder_manager, local_server, grid_manager) = runtime
+    let (user_session, document_manager, folder_manager, local_server, database_manager) = runtime
       .block_on(async {
         let user_session = mk_user_session(&config, &local_server, &config.server_config);
         let document_manager = DocumentDepsResolver::resolve(
@@ -141,7 +141,7 @@ impl AppFlowyCore {
           &config.document,
         );
 
-        let grid_manager = GridDepsResolver::resolve(
+        let database_manager = GridDepsResolver::resolve(
           ws_conn.clone(),
           user_session.clone(),
           task_dispatcher.clone(),
@@ -154,7 +154,7 @@ impl AppFlowyCore {
           &config.server_config,
           &ws_conn,
           &document_manager,
-          &grid_manager,
+          &database_manager,
         )
         .await;
 
@@ -167,14 +167,14 @@ impl AppFlowyCore {
           document_manager,
           folder_manager,
           local_server,
-          grid_manager,
+          database_manager,
         )
       });
 
     let user_status_listener = UserStatusListener {
       document_manager: document_manager.clone(),
       folder_manager: folder_manager.clone(),
-      grid_manager: grid_manager.clone(),
+      database_manager: database_manager.clone(),
       ws_conn: ws_conn.clone(),
       config: config.clone(),
     };
@@ -190,7 +190,7 @@ impl AppFlowyCore {
       make_plugins(
         &ws_conn,
         &folder_manager,
-        &grid_manager,
+        &database_manager,
         &user_session,
         &document_manager,
       )
@@ -202,7 +202,7 @@ impl AppFlowyCore {
       user_session,
       document_manager,
       folder_manager,
-      grid_manager,
+      database_manager,
       event_dispatcher,
       ws_conn,
       local_server,
@@ -288,7 +288,7 @@ fn mk_user_session(
 struct UserStatusListener {
   document_manager: Arc<DocumentManager>,
   folder_manager: Arc<FolderManager>,
-  grid_manager: Arc<DatabaseManager>,
+  database_manager: Arc<DatabaseManager>,
   ws_conn: Arc<FlowyWebSocketConnect>,
   config: AppFlowyCoreConfig,
 }
@@ -297,7 +297,7 @@ impl UserStatusListener {
   async fn did_sign_in(&self, token: &str, user_id: &str) -> FlowyResult<()> {
     self.folder_manager.initialize(user_id, token).await?;
     self.document_manager.initialize(user_id).await?;
-    self.grid_manager.initialize(user_id, token).await?;
+    self.database_manager.initialize(user_id, token).await?;
     self
       .ws_conn
       .start(token.to_owned(), user_id.to_owned())
@@ -320,7 +320,7 @@ impl UserStatusListener {
       .await?;
 
     self
-      .grid_manager
+      .database_manager
       .initialize_with_new_user(&user_profile.id, &user_profile.token)
       .await?;
 

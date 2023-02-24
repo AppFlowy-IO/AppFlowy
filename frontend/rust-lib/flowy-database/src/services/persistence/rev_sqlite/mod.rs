@@ -1,9 +1,9 @@
-mod grid_block_sqlite_impl;
-mod grid_snapshot;
-mod grid_sqlite_impl;
-mod grid_view_sqlite_impl;
+mod block_impl;
+mod database_impl;
+mod snapshot_impl;
+mod view_impl;
 
-pub use grid_block_sqlite_impl::*;
-pub use grid_snapshot::*;
-pub use grid_sqlite_impl::*;
-pub use grid_view_sqlite_impl::*;
+pub use block_impl::*;
+pub use database_impl::*;
+pub use snapshot_impl::*;
+pub use view_impl::*;

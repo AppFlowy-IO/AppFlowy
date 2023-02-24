@@ -2,7 +2,7 @@ use crate::entities::{CellChangesetPB, InsertedRowPB, UpdatedRowPB};
 use crate::manager::DatabaseUser;
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::database::{DatabaseBlockEditor, DatabaseBlockRevisionMergeable};
-use crate::services::persistence::block_index::BlockIndexCache;
+use crate::services::persistence::block_index::BlockRowIndexer;
 use crate::services::persistence::rev_sqlite::{
   SQLiteDatabaseBlockRevisionPersistence, SQLiteDatabaseRevisionSnapshotPersistence,
 };
@@ -43,7 +43,7 @@ pub enum DatabaseBlockEvent {
 type BlockId = String;
 pub(crate) struct DatabaseBlocks {
   user: Arc<dyn DatabaseUser>,
-  persistence: Arc<BlockIndexCache>,
+  persistence: Arc<BlockRowIndexer>,
   block_editors: DashMap<BlockId, Arc<DatabaseBlockEditor>>,
   event_notifier: broadcast::Sender<DatabaseBlockEvent>,
 }
@@ -52,7 +52,7 @@ impl DatabaseBlocks {
   pub(crate) async fn new(
     user: &Arc<dyn DatabaseUser>,
     block_meta_revs: Vec<Arc<DatabaseBlockMetaRevision>>,
-    persistence: Arc<BlockIndexCache>,
+    persistence: Arc<BlockRowIndexer>,
     event_notifier: broadcast::Sender<DatabaseBlockEvent>,
   ) -> FlowyResult<Self> {
     let block_editors = make_block_editors(user, block_meta_revs).await?;
@@ -340,7 +340,8 @@ pub fn make_database_block_rev_manager(
   let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache, configuration);
 
   // Create snapshot persistence
-  let snapshot_object_id = format!("grid_block:{}", block_id);
+  const DATABASE_BLOCK_SP_PREFIX: &str = "grid_block";
+  let snapshot_object_id = format!("{}:{}", DATABASE_BLOCK_SP_PREFIX, block_id);
   let snapshot_persistence =
     SQLiteDatabaseRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
 
