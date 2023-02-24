@@ -6,7 +6,8 @@ import { Link } from 'react-router-dom';
 import { Button } from '../../_shared/Button';
 
 export const Login = () => {
-  const { showPassword, onTogglePassword, onSignInClick } = useLogin();
+  const { showPassword, onTogglePassword, onSignInClick, email, setEmail, password, setPassword, authError } =
+    useLogin();
 
   return (
     <form onSubmit={(e) => e.preventDefault()} method='POST'>
@@ -20,9 +21,21 @@ export const Login = () => {
         </div>
 
         <div className='flex w-full max-w-[340px]  flex-col gap-6 '>
-          <input type='text' className='input w-full' placeholder='Phone / Email' />
+          <input
+            type='text'
+            className={`input w-full ${authError && 'error'}`}
+            placeholder='Phone / Email'
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
           <div className='relative w-full'>
-            <input type={showPassword ? 'text' : 'password'} className='input w-full  !pr-10' placeholder='Password' />
+            <input
+              type={showPassword ? 'text' : 'password'}
+              className={`input w-full  !pr-10 ${authError && 'error'}`}
+              placeholder='Password'
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
 
             {/* Show password button */}
             <button

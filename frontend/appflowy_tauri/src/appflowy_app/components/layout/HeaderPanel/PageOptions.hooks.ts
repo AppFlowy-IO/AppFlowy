@@ -13,8 +13,8 @@ export const usePageOptions = () => {
     setShowOptionsPopup(false);
   };
 
-  const onSignOutClick = () => {
-    void logout();
+  const onSignOutClick = async () => {
+    await logout();
     onClose();
   };
 
