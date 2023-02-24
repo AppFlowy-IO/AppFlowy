@@ -39,10 +39,6 @@ class _DocumentPageState extends State<DocumentPage> {
   late DocumentBloc documentBloc;
   final FocusNode _focusNode = FocusNode();
 
-  final directory = getIt<SettingsLocationCubit>()
-      .fetchLocation()
-      .then((value) => Directory(value));
-
   @override
   void initState() {
     // The appflowy editor use Intl as localization, set the default language as fallback.
@@ -129,6 +125,10 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
     documentBloc = context.read<DocumentBloc>();
     editorState = documentBloc.editorState ?? EditorState.empty();
   }
+
+  final directory = getIt<SettingsLocationCubit>()
+      .fetchLocation()
+      .then((value) => Directory(value));
 
   @override
   Widget build(BuildContext context) {

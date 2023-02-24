@@ -9,19 +9,29 @@ String? folderPath;
 String? imageFile;
 String? newImage;
 
-String? copyFile(String src, String? dest, String name) {
-  var path = File(src);
-  path.copy('$dest/images/$name');
-  newImage = '$dest/images/$name';
-  return newImage;
+Future<String?> copyFile(String src, String? dest, String name) async {
+  try {
+    var path = File(src);
+    path.copy('$dest/images/$name');
+    newImage = '$dest/images/$name';
+    return newImage;
+  } catch (e) {
+    debugPrint(e.toString());
+  }
 }
 
 Future<Directory?> checkDir(String? path) async {
-  if (!await Directory('$path/images').exists()) {
-    return Directory('$path/images').create(recursive: true);
+  Directory? tmp;
+  try {
+    if (!await Directory('$path/images').exists()) {
+      return Directory('$path/images').create(recursive: true);
+    } else {
+      tmp = Directory('$path/images');
+    }
+  } catch (e) {
+    debugPrint(e.toString());
   }
-
-  return Directory('$path/images');
+  return tmp;
 }
 
 class LocalImageNodeWidgetBuilder extends NodeWidgetBuilder {
@@ -33,19 +43,23 @@ class LocalImageNodeWidgetBuilder extends NodeWidgetBuilder {
     String src = context.node.attributes['image_src'].toString();
     String imageName = context.node.attributes['name'];
 
-    imageFolder?.then((location) {
+    imageFolder?.then((location) async {
       String value = location.path.toString();
       folderPath = value;
-      checkDir(value);
+      await checkDir(value);
       return value;
     });
 
     Future<String?> checkImg() async {
-      File existingFile = File('$folderPath/images/$imageName');
-      if (await existingFile.exists()) {
-        return newImage = existingFile.path.toString();
-      } else {
-        return copyFile(src, folderPath, imageName);
+      try {
+        File existingFile = File('$folderPath/images/$imageName');
+        if (await existingFile.exists()) {
+          return newImage = existingFile.path.toString();
+        } else if (!await existingFile.exists()) {
+          return await copyFile(src, folderPath, imageName);
+        }
+      } catch (e) {
+        debugPrint(e.toString());
       }
     }
 
