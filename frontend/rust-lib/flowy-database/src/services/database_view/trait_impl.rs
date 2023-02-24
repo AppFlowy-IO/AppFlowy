@@ -1,6 +1,4 @@
-use crate::entities::{
-  CalendarSettingsParams, DatabaseViewSettingPB, LayoutSettingPB, LayoutTypePB,
-};
+use crate::entities::{CalendarSettingsParams, DatabaseViewSettingPB, LayoutSettingPB};
 use crate::services::database_view::{get_cells_for_field, DatabaseViewData};
 use crate::services::field::RowSingleCellData;
 use crate::services::filter::{FilterController, FilterDelegate, FilterType};

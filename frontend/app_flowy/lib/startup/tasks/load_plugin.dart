@@ -1,4 +1,4 @@
-import 'package:app_flowy/plugins/calendar/calendar.dart';
+import 'package:app_flowy/plugins/database_view/calendar/calendar.dart';
 import 'package:app_flowy/plugins/database_view/board/board.dart';
 import 'package:app_flowy/plugins/database_view/grid/grid.dart';
 import 'package:app_flowy/startup/plugin/plugin.dart';
