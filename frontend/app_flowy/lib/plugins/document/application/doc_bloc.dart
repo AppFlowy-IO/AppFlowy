@@ -24,7 +24,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   final ViewListener _listener;
   final TrashService _trashService;
-  late EditorState editorState;
+  EditorState? editorState;
   StreamSubscription? _subscription;
 
   DocumentBloc({
@@ -127,7 +127,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   void _listenOnDocumentChange() {
-    _subscription = editorState.transactionStream.listen((transaction) {
+    _subscription = editorState?.transactionStream.listen((transaction) {
       final json = jsonEncode(TransactionAdaptor(transaction).toJson());
       _documentService
           .applyEdit(docId: view.id, operations: json)

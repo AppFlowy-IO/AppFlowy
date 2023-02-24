@@ -44,12 +44,9 @@ class _DocumentPageState extends State<DocumentPage> {
   }
 
   @override
-  Future<void> dispose() async {
-    // https://github.com/flutter/flutter/issues/64935#issuecomment-686852369
+  void dispose() {
+    documentBloc.close();
     super.dispose();
-
-    await _clearTemporaryNodes();
-    await documentBloc.close();
   }
 
   @override
@@ -69,6 +66,8 @@ class _DocumentPageState extends State<DocumentPage> {
               if (state.forceClose) {
                 widget.onDeleted();
                 return const SizedBox();
+              } else if (documentBloc.editorState == null) {
+                return const SizedBox();
               } else {
                 return _renderDocument(context, state);
               }
@@ -85,10 +84,7 @@ class _DocumentPageState extends State<DocumentPage> {
       children: [
         if (state.isDeleted) _renderBanner(context),
         // AppFlowy Editor
-        _renderAppFlowyEditor(
-          context,
-          context.read<DocumentBloc>().editorState,
-        ),
+        const _AppFlowyEditorPage(),
       ],
     );
   }
@@ -102,12 +98,31 @@ class _DocumentPageState extends State<DocumentPage> {
           .add(const DocumentEvent.deletePermanently()),
     );
   }
+}
 
-  Widget _renderAppFlowyEditor(BuildContext context, EditorState editorState) {
-    // enable open ai features if needed.
-    final userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
-    final openAIKey = userProfilePB?.openaiKey;
+class _AppFlowyEditorPage extends StatefulWidget {
+  const _AppFlowyEditorPage({
+    Key? key,
+  }) : super(key: key);
 
+  @override
+  State<_AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
+}
+
+class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
+  late DocumentBloc documentBloc;
+  late EditorState editorState;
+  String? get openAIKey => documentBloc.state.userProfilePB?.openaiKey;
+
+  @override
+  void initState() {
+    super.initState();
+    documentBloc = context.read<DocumentBloc>();
+    editorState = documentBloc.editorState ?? EditorState.empty();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final editor = AppFlowyEditor(
       editorState: editorState,
@@ -152,7 +167,8 @@ class _DocumentPageState extends State<DocumentPage> {
         // Callout
         calloutMenuItem,
         // AI
-        if (openAIKey != null && openAIKey.isNotEmpty) ...[
+        // enable open ai features if needed.
+        if (openAIKey != null && openAIKey!.isNotEmpty) ...[
           autoGeneratorMenuItem,
         ]
       ],
@@ -174,8 +190,13 @@ class _DocumentPageState extends State<DocumentPage> {
     );
   }
 
+  @override
+  void dispose() {
+    _clearTemporaryNodes();
+    super.dispose();
+  }
+
   Future<void> _clearTemporaryNodes() async {
-    final editorState = documentBloc.editorState;
     final document = editorState.document;
     if (document.root.children.isEmpty) {
       return;
