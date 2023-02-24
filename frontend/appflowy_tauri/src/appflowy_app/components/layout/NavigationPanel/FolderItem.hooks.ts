@@ -1,22 +1,10 @@
 import { foldersActions, IFolder } from '../../../stores/reducers/folders/slice';
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../stores/store';
-import { nanoid } from 'nanoid';
 import { IPage, pagesActions } from '../../../stores/reducers/pages/slice';
-import {
-  AppIdPB,
-  CreateAppPayloadPB,
-  CreateViewPayloadPB,
-  UpdateAppPayloadPB,
-  ViewDataFormatPB,
-  ViewLayoutTypePB,
-} from '../../../../services/backend';
-import {
-  FolderEventCreateApp,
-  FolderEventCreateView,
-  FolderEventDeleteApp,
-  FolderEventUpdateApp,
-} from '../../../../services/backend/events/flowy-folder';
+import { ViewDataFormatPB, ViewLayoutTypePB } from '../../../../services/backend';
+import { AppBackendService } from '../../../stores/effects/folder/app/backend_service';
+import { WorkspaceBackendService } from '../../../stores/effects/folder/workspace/backend_service';
 
 const initialFolderHeight = 40;
 const initialPageHeight = 40;
@@ -33,6 +21,9 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
   const [folderHeight, setFolderHeight] = useState(`${initialFolderHeight}px`);
 
   const workspace = useAppSelector((state) => state.workspace);
+
+  const appBackendService = new AppBackendService(folder.id);
+  const workspaceBackendService = new WorkspaceBackendService(workspace.id || '');
 
   const onFolderNameClick = () => {
     if (showPages) {
@@ -57,13 +48,7 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
   };
 
   const changeFolderTitle = async (newTitle: string) => {
-    await FolderEventUpdateApp(
-      UpdateAppPayloadPB.fromObject({
-        name: newTitle,
-        desc: '',
-        app_id: folder.id,
-      })
-    );
+    await appBackendService.update({ name: newTitle });
     appDispatch(foldersActions.renameFolder({ id: folder.id, newTitle }));
   };
 
@@ -73,29 +58,17 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
 
   const deleteFolder = async () => {
     closePopup();
-    await FolderEventDeleteApp(
-      AppIdPB.fromObject({
-        value: folder.id,
-      })
-    );
+    await appBackendService.delete();
     appDispatch(foldersActions.deleteFolder({ id: folder.id }));
   };
 
   const duplicateFolder = async () => {
     closePopup();
-    const createAppResult = await FolderEventCreateApp(
-      CreateAppPayloadPB.fromObject({
-        workspace_id: workspace.id,
-        name: folder.title,
-        desc: '',
-      })
-    );
-    if (createAppResult.ok) {
-      const pb = createAppResult.val;
-      appDispatch(foldersActions.addFolder({ id: pb.id, title: folder.title }));
-    } else {
-      throw new Error('create folder error');
-    }
+
+    const newApp = await workspaceBackendService.createApp({
+      name: folder.title,
+    });
+    appDispatch(foldersActions.addFolder({ id: newApp.id, title: folder.title }));
   };
 
   const closePopup = () => {
@@ -105,81 +78,51 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
 
   const onAddNewDocumentPage = async () => {
     closePopup();
-    const createViewResult = await FolderEventCreateView(
-      CreateViewPayloadPB.fromObject({
-        name: 'New Page 1',
-        layout: ViewLayoutTypePB.Document,
-        belong_to_id: folder.id,
-        data_format: ViewDataFormatPB.NodeFormat,
-        desc: '',
-        thumbnail: '',
-        initial_data: new Uint8Array([]),
+    const newView = await appBackendService.createView({
+      name: 'New Document 1',
+      dataFormatType: ViewDataFormatPB.NodeFormat,
+      layoutType: ViewLayoutTypePB.Document,
+    });
+
+    appDispatch(
+      pagesActions.addPage({
+        folderId: folder.id,
+        pageType: ViewLayoutTypePB.Document,
+        title: newView.name,
+        id: newView.id,
       })
     );
-    if (createViewResult.ok) {
-      const pb = createViewResult.val;
-      appDispatch(
-        pagesActions.addPage({
-          folderId: folder.id,
-          pageType: ViewLayoutTypePB.Document,
-          title: pb.name,
-          id: pb.id,
-        })
-      );
-    } else {
-      throw new Error('create view error');
-    }
   };
 
   const onAddNewBoardPage = async () => {
     closePopup();
-    const createViewResult = await FolderEventCreateView(
-      CreateViewPayloadPB.fromObject({
-        name: 'New Board 1',
-        layout: ViewLayoutTypePB.Board,
-        belong_to_id: folder.id,
-        data_format: ViewDataFormatPB.DatabaseFormat,
-        desc: '',
-        thumbnail: '',
-        initial_data: new Uint8Array([]),
+    const newView = await appBackendService.createView({
+      name: 'New Board 1',
+      dataFormatType: ViewDataFormatPB.DatabaseFormat,
+      layoutType: ViewLayoutTypePB.Board,
+    });
+
+    appDispatch(
+      pagesActions.addPage({
+        folderId: folder.id,
+        pageType: ViewLayoutTypePB.Board,
+        title: newView.name,
+        id: newView.id,
       })
     );
-    if (createViewResult.ok) {
-      const pb = createViewResult.val;
-      appDispatch(
-        pagesActions.addPage({
-          folderId: folder.id,
-          pageType: ViewLayoutTypePB.Board,
-          title: pb.name,
-          id: pb.id,
-        })
-      );
-    } else {
-      throw new Error('create view error');
-    }
   };
 
   const onAddNewGridPage = async () => {
     closePopup();
-    const createViewResult = await FolderEventCreateView(
-      CreateViewPayloadPB.fromObject({
-        name: 'New Grid 1',
-        layout: ViewLayoutTypePB.Grid,
-        belong_to_id: folder.id,
-        data_format: ViewDataFormatPB.DatabaseFormat,
-        desc: '',
-        thumbnail: '',
-        initial_data: new Uint8Array([]),
-      })
+    const newView = await appBackendService.createView({
+      name: 'New Grid 1',
+      dataFormatType: ViewDataFormatPB.DatabaseFormat,
+      layoutType: ViewLayoutTypePB.Grid,
+    });
+
+    appDispatch(
+      pagesActions.addPage({ folderId: folder.id, pageType: ViewLayoutTypePB.Grid, title: newView.name, id: newView.id })
     );
-    if (createViewResult.ok) {
-      const pb = createViewResult.val;
-      appDispatch(
-        pagesActions.addPage({ folderId: folder.id, pageType: ViewLayoutTypePB.Grid, title: pb.name, id: pb.id })
-      );
-    } else {
-      throw new Error('create view error');
-    }
   };
 
   return {

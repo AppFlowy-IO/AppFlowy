@@ -2,19 +2,13 @@ import { IPage, pagesActions } from '../../../stores/reducers/pages/slice';
 import { useAppDispatch } from '../../../stores/store';
 import { useState } from 'react';
 import { nanoid } from 'nanoid';
-import {
-  FolderEventCloseView,
-  FolderEventDeleteView,
-  FolderEventUpdateView,
-  RepeatedViewIdPB,
-  UpdateViewPayloadPB,
-  ViewIdPB,
-} from '../../../../services/backend/events/flowy-folder';
+import { ViewBackendService } from '../../../stores/effects/folder/view/backend_service';
 
 export const usePageEvents = (page: IPage) => {
   const appDispatch = useAppDispatch();
   const [showPageOptions, setShowPageOptions] = useState(false);
   const [showRenamePopup, setShowRenamePopup] = useState(false);
+  const viewBackendService: ViewBackendService = new ViewBackendService(page.id);
 
   const onPageOptionsClick = () => {
     setShowPageOptions(!showPageOptions);
@@ -26,22 +20,13 @@ export const usePageEvents = (page: IPage) => {
   };
 
   const changePageTitle = async (newTitle: string) => {
-    await FolderEventUpdateView(
-      UpdateViewPayloadPB.fromObject({
-        view_id: page.id,
-        name: newTitle,
-      })
-    );
+    await viewBackendService.update({ name: newTitle });
     appDispatch(pagesActions.renamePage({ id: page.id, newTitle }));
   };
 
   const deletePage = async () => {
     closePopup();
-    await FolderEventDeleteView(
-      RepeatedViewIdPB.fromObject({
-        items: [page.id],
-      })
-    );
+    await viewBackendService.delete();
     appDispatch(pagesActions.deletePage({ id: page.id }));
   };
 

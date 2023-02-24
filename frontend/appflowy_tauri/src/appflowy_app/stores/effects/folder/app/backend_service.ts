@@ -27,7 +27,7 @@ export class AppBackendService {
     return FolderEventReadApp(payload);
   };
 
-  createView = (params: {
+  createView = async (params: {
     name: string;
     desc?: string;
     dataFormatType: ViewDataFormatPB;
@@ -46,7 +46,13 @@ export class AppBackendService {
       initial_data: encoder.encode(params.initialData || ''),
     });
 
-    return FolderEventCreateView(payload);
+    const result = await FolderEventCreateView(payload);
+
+    if (result.ok) {
+      return result.val;
+    } else {
+      throw new Error(result.val.msg);
+    }
   };
 
   getAllViews = (): Promise<Result<ViewPB[], FlowyError>> => {
@@ -70,14 +76,20 @@ export class AppBackendService {
     }
   };
 
-  update = (params: { name: string }) => {
+  update = async (params: { name: string }) => {
     const payload = UpdateAppPayloadPB.fromObject({ app_id: this.appId, name: params.name });
-    return FolderEventUpdateApp(payload);
+    const result = await FolderEventUpdateApp(payload);
+    if (!result.ok) {
+      throw new Error(result.val.msg);
+    }
   };
 
-  delete = () => {
+  delete = async () => {
     const payload = AppIdPB.fromObject({ value: this.appId });
-    return FolderEventDeleteApp(payload);
+    const result = await FolderEventDeleteApp(payload);
+    if (!result.ok) {
+      throw new Error(result.val.msg);
+    }
   };
 
   deleteView = (viewId: string) => {
