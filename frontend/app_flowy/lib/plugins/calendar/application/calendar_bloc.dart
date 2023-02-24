@@ -1,6 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
-import 'package:app_flowy/plugins/grid/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -16,7 +15,6 @@ part 'calendar_bloc.freezed.dart';
 
 class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   final CalendarDataController _databaseDataController;
-  final MoveRowFFIService _rowService;
   final EventController calendarEventsController = EventController();
 
   GridFieldController get fieldController =>
@@ -24,8 +22,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   String get databaseId => _databaseDataController.databaseId;
 
   CalendarBloc({required ViewPB view})
-      : _rowService = MoveRowFFIService(viewId: view.id),
-        _databaseDataController = CalendarDataController(view: view),
+      : _databaseDataController = CalendarDataController(view: view),
         super(CalendarState.initial(view.id)) {
     on<CalendarEvent>(
       (event, emit) async {
