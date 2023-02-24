@@ -648,6 +648,26 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
+  /// Returns the current calendar settings
+  pub async fn get_calendar_settings(&self) -> FlowyResult<CalendarSettingsParams> {
+    let settings = self
+      .pad
+      .read()
+      .await
+      .get_layout_setting(&LayoutRevision::Calendar)
+      .unwrap_or_else(|| CalendarSettingsParams::default_with(self.view_id.to_string()));
+    Ok(settings)
+  }
+
+  /// Update the calendar settings and send the notification to refresh the UI
+  pub async fn update_calendar_settings(&self, params: CalendarSettingsParams) -> FlowyResult<()> {
+    // Maybe it needs no send notification to refresh the UI
+    self
+      .modify(|pad| Ok(pad.update_layout_setting(&LayoutRevision::Calendar, &params)?))
+      .await?;
+    Ok(())
+  }
+
   #[tracing::instrument(level = "trace", skip_all, err)]
   pub async fn did_update_view_field_type_option(
     &self,
@@ -891,7 +911,7 @@ async fn new_group_controller(
   .await
 }
 
-/// Returns a [GroupController]  
+/// Returns a [GroupController]
 ///
 async fn new_group_controller_with_field_rev(
   user_id: String,

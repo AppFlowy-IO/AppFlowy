@@ -285,7 +285,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
         final transaction = widget.editorState.transaction;
         transaction.deleteNodesAtPath(
           start,
-          end.last - start.last,
+          end.last - start.last + 1,
         );
         await widget.editorState.apply(transaction);
       }

@@ -48,8 +48,11 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::MoveGroup, move_group_handler)
         .event(DatabaseEvent::MoveGroupRow, move_group_row_handler)
         .event(DatabaseEvent::GetGroup, get_groups_handler)
-        // database
-        .event(DatabaseEvent::GetDatabases, get_databases_handler);
+        // Database
+        .event(DatabaseEvent::GetDatabases, get_databases_handler)
+        // Calendar
+        .event(DatabaseEvent::SetCalenderSetting, set_calendar_setting_handler)
+        .event(DatabaseEvent::GetCalendarSetting, get_calendar_setting_handler);
 
   plugin
 }
@@ -234,4 +237,10 @@ pub enum DatabaseEvent {
 
   #[event()]
   GetDatabases = 114,
+
+  #[event(input = "CalendarSettingsPB")]
+  SetCalenderSetting = 115,
+
+  #[event()]
+  GetCalendarSetting = 116,
 }

@@ -1,25 +1,24 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
-  AlterFilterParams, AlterFilterPayloadPB, AlterSortParams, AlterSortPayloadPB, DeleteFilterParams,
-  DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB, DeleteSortParams,
-  DeleteSortPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterPB,
+  AlterFilterParams, AlterFilterPayloadPB, AlterSortParams, AlterSortPayloadPB, CalendarSettingsPB,
+  DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB,
+  DeleteSortParams, DeleteSortPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterPB,
   RepeatedGroupConfigurationPB, RepeatedSortPB,
 };
 use database_model::LayoutRevision;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use std::convert::TryInto;
-use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 /// [DatabaseViewSettingPB] defines the setting options for the grid. Such as the filter, group, and sort.
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct DatabaseViewSettingPB {
   #[pb(index = 1)]
-  pub support_layouts: Vec<ViewLayoutPB>,
+  pub current_layout: LayoutTypePB,
 
   #[pb(index = 2)]
-  pub current_layout: LayoutTypePB,
+  pub layout_setting: LayoutSettingPB,
 
   #[pb(index = 3)]
   pub filters: RepeatedFilterPB,
@@ -29,23 +28,6 @@ pub struct DatabaseViewSettingPB {
 
   #[pb(index = 5)]
   pub sorts: RepeatedSortPB,
-}
-
-#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct ViewLayoutPB {
-  #[pb(index = 1)]
-  ty: LayoutTypePB,
-}
-
-impl ViewLayoutPB {
-  pub fn all() -> Vec<ViewLayoutPB> {
-    let mut layouts = vec![];
-    for layout_ty in LayoutTypePB::iter() {
-      layouts.push(ViewLayoutPB { ty: layout_ty })
-    }
-
-    layouts
-  }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumIter)]
@@ -174,5 +156,17 @@ pub struct DatabaseSettingChangesetParams {
 impl DatabaseSettingChangesetParams {
   pub fn is_filter_changed(&self) -> bool {
     self.insert_filter.is_some() || self.delete_filter.is_some()
+  }
+}
+
+#[derive(Debug, Eq, PartialEq, Default, ProtoBuf, Clone)]
+pub struct LayoutSettingPB {
+  #[pb(index = 1, one_of)]
+  pub calendar: Option<CalendarSettingsPB>,
+}
+
+impl LayoutSettingPB {
+  pub fn new() -> Self {
+    Self::default()
   }
 }
