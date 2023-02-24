@@ -77,7 +77,7 @@ class CreateSortBloc extends Bloc<CreateSortEvent, CreateSortState> {
       fields.retainWhere((field) => field.canCreateSort);
       add(CreateSortEvent.didReceiveFields(fields));
     };
-    fieldController.addListener(onFields: _onFieldFn);
+    fieldController.addListener(onReceiveFields: _onFieldFn);
   }
 
   Future<Either<Unit, FlowyError>> _createDefaultSort(FieldInfo field) async {

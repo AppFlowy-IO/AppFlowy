@@ -58,7 +58,7 @@ class GridFilterMenuBloc
       onFilters: (filters) {
         _onFilterFn?.call(filters);
       },
-      onFields: (fields) {
+      onReceiveFields: (fields) {
         _onFieldFn?.call(fields);
       },
     );

@@ -11,7 +11,7 @@ class FieldActionSheetBloc
     extends Bloc<FieldActionSheetEvent, FieldActionSheetState> {
   final FieldBackendService fieldService;
 
-  FieldActionSheetBloc({required GridFieldCellContext fieldCellContext})
+  FieldActionSheetBloc({required FieldCellContext fieldCellContext})
       : fieldService = FieldBackendService(
           viewId: fieldCellContext.viewId,
           fieldId: fieldCellContext.field.id,

@@ -350,7 +350,7 @@ class GridCellFieldNotifierImpl extends ICellFieldNotifier {
       }
     };
     _fieldController.addListener(
-      onFieldsUpdated: _onChangesetFn,
+      onReceiveFields: _onChangesetFn,
     );
   }
 }

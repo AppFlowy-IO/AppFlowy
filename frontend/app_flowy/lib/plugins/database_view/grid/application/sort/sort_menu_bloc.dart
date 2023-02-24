@@ -58,7 +58,7 @@ class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
       onSorts: (sortInfos) {
         _onSortChangeFn?.call(sortInfos);
       },
-      onFields: (fields) {
+      onReceiveFields: (fields) {
         _onFieldFn?.call(fields);
       },
     );

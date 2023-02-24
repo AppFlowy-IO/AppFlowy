@@ -107,9 +107,9 @@ class FieldBackendService {
 }
 
 @freezed
-class GridFieldCellContext with _$GridFieldCellContext {
-  const factory GridFieldCellContext({
+class FieldCellContext with _$FieldCellContext {
+  const factory FieldCellContext({
     required String viewId,
     required FieldPB field,
-  }) = _GridFieldCellContext;
+  }) = _FieldCellContext;
 }

@@ -15,7 +15,7 @@ import 'field_cell_action_sheet.dart';
 import 'field_type_extension.dart';
 
 class GridFieldCell extends StatefulWidget {
-  final GridFieldCellContext cellContext;
+  final FieldCellContext cellContext;
   const GridFieldCell({
     Key? key,
     required this.cellContext,

@@ -58,7 +58,7 @@ class DatabasePropertyBloc
     _onFieldsFn =
         (fields) => add(DatabasePropertyEvent.didReceiveFieldUpdate(fields));
     _fieldController.addListener(
-      onFields: _onFieldsFn,
+      onReceiveFields: _onFieldsFn,
       listenWhen: () => !isClosed,
     );
   }

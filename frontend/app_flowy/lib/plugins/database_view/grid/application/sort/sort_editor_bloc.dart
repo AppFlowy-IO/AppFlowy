@@ -75,7 +75,7 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
 
     fieldController.addListener(
       listenWhen: () => !isClosed,
-      onFields: _onFieldFn,
+      onReceiveFields: _onFieldFn,
       onSorts: (sorts) {
         add(SortEditorEvent.didReceiveSorts(sorts));
       },

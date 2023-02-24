@@ -24,21 +24,21 @@ class RowBloc extends Bloc<RowEvent, RowState> {
         super(RowState.initial(rowInfo, dataController.loadData())) {
     on<RowEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (_InitialRow value) async {
+        await event.when(
+          initial: () async {
             await _startListening();
           },
-          createRow: (_CreateRow value) {
+          createRow: () {
             _rowBackendSvc.createRow(rowInfo.rowPB.id);
           },
-          didReceiveCells: (_DidReceiveCells value) async {
-            final cells = value.gridCellMap.values
+          didReceiveCells: (cellByFieldId, reason) async {
+            final cells = cellByFieldId.values
                 .map((e) => GridCellEquatable(e.fieldInfo))
                 .toList();
             emit(state.copyWith(
-              gridCellMap: value.gridCellMap,
+              cellByFieldId: cellByFieldId,
               cells: UnmodifiableListView(cells),
-              changeReason: value.reason,
+              changeReason: reason,
             ));
           },
         );
@@ -68,24 +68,25 @@ class RowEvent with _$RowEvent {
   const factory RowEvent.initial() = _InitialRow;
   const factory RowEvent.createRow() = _CreateRow;
   const factory RowEvent.didReceiveCells(
-      GridCellMap gridCellMap, RowsChangedReason reason) = _DidReceiveCells;
+          CellByFieldId cellsByFieldId, RowsChangedReason reason) =
+      _DidReceiveCells;
 }
 
 @freezed
 class RowState with _$RowState {
   const factory RowState({
     required RowInfo rowInfo,
-    required GridCellMap gridCellMap,
+    required CellByFieldId cellByFieldId,
     required UnmodifiableListView<GridCellEquatable> cells,
     RowsChangedReason? changeReason,
   }) = _RowState;
 
-  factory RowState.initial(RowInfo rowInfo, GridCellMap cellDataMap) =>
+  factory RowState.initial(RowInfo rowInfo, CellByFieldId cellByFieldId) =>
       RowState(
         rowInfo: rowInfo,
-        gridCellMap: cellDataMap,
+        cellByFieldId: cellByFieldId,
         cells: UnmodifiableListView(
-          cellDataMap.values
+          cellByFieldId.values
               .map((e) => GridCellEquatable(e.fieldInfo))
               .toList(),
         ),

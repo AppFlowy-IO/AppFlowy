@@ -121,7 +121,7 @@ class BoardTestContext {
     await gridResponseFuture();
 
     return CellControllerBuilder(
-      cellId: rowBloc.state.gridCellMap[fieldId]!,
+      cellId: rowBloc.state.cellByFieldId[fieldId]!,
       cellCache: rowCache.cellCache,
       delegate: rowDataController,
     );
@@ -142,9 +142,9 @@ class BoardTestContext {
     return fieldInfo;
   }
 
-  GridFieldCellContext singleSelectFieldCellContext() {
+  FieldCellContext singleSelectFieldCellContext() {
     final field = singleSelectFieldContext().field;
-    return GridFieldCellContext(viewId: gridView.id, field: field);
+    return FieldCellContext(viewId: gridView.id, field: field);
   }
 
   FieldInfo textFieldContext() {

@@ -49,7 +49,7 @@ class DatabaseController {
     _onRowChanged = onRowsChanged;
 
     fieldController.addListener(
-      onFields: (fields) {
+      onReceiveFields: (fields) {
         onFieldsChanged?.call(UnmodifiableListView(fields));
       },
       onFilters: onFiltersChanged,

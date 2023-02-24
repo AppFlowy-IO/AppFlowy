@@ -67,7 +67,7 @@ class BoardDataController {
     _onRowsChanged = onRowsChanged;
     _onError = onError;
 
-    fieldController.addListener(onFields: (fields) {
+    fieldController.addListener(onReceiveFields: (fields) {
       _onFieldsChanged?.call(UnmodifiableListView(fields));
     });
 

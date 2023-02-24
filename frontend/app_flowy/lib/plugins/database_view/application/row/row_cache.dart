@@ -12,9 +12,8 @@ part 'row_cache.freezed.dart';
 
 typedef RowUpdateCallback = void Function();
 
-abstract class RowChangesetNotifierForward {
-  void onRowFieldsChanged(VoidCallback callback);
-  void onRowFieldChanged(void Function(FieldInfo) callback);
+abstract class RowFieldsDelegate {
+  void onFieldsChanged(void Function(List<FieldInfo>) callback);
 }
 
 abstract class RowCacheDelegate {
@@ -47,16 +46,19 @@ class RowCache {
 
   RowCache({
     required this.viewId,
-    required RowChangesetNotifierForward notifier,
-    required RowCacheDelegate delegate,
+    required RowFieldsDelegate fieldsDelegate,
+    required RowCacheDelegate cacheDelegate,
   })  : _cellCache = CellCache(viewId: viewId),
         _rowChangeReasonNotifier = RowChangesetNotifier(),
-        _delegate = delegate {
+        _delegate = cacheDelegate {
     //
-    notifier.onRowFieldsChanged(() => _rowChangeReasonNotifier
-        .receive(const RowsChangedReason.fieldDidChange()));
-    notifier.onRowFieldChanged(
-        (field) => _cellCache.removeCellWithFieldId(field.id));
+    fieldsDelegate.onFieldsChanged((fieldInfos) {
+      for (final fieldInfo in fieldInfos) {
+        _cellCache.removeCellWithFieldId(fieldInfo.id);
+      }
+      _rowChangeReasonNotifier
+          .receive(const RowsChangedReason.fieldDidChange());
+    });
   }
 
   void initializeRows(List<RowPB> rows) {
@@ -169,7 +171,7 @@ class RowCache {
 
   RowUpdateCallback addListener({
     required String rowId,
-    void Function(GridCellMap, RowsChangedReason)? onCellUpdated,
+    void Function(CellByFieldId, RowsChangedReason)? onCellUpdated,
     bool Function()? listenWhen,
   }) {
     listenerHandler() async {
@@ -181,7 +183,7 @@ class RowCache {
         if (onCellUpdated != null) {
           final rowInfo = _rowList.get(rowId);
           if (rowInfo != null) {
-            final GridCellMap cellDataMap =
+            final CellByFieldId cellDataMap =
                 _makeGridCells(rowId, rowInfo.rowPB);
             onCellUpdated(cellDataMap, _rowChangeReasonNotifier.reason);
           }
@@ -204,7 +206,7 @@ class RowCache {
     _rowChangeReasonNotifier.removeListener(callback);
   }
 
-  GridCellMap loadGridCells(String rowId) {
+  CellByFieldId loadGridCells(String rowId) {
     final RowPB? data = _rowList.get(rowId)?.rowPB;
     if (data == null) {
       _loadRow(rowId);
@@ -224,9 +226,9 @@ class RowCache {
     );
   }
 
-  GridCellMap _makeGridCells(String rowId, RowPB? row) {
+  CellByFieldId _makeGridCells(String rowId, RowPB? row) {
     // ignore: prefer_collection_literals
-    var cellDataMap = GridCellMap();
+    var cellDataMap = CellByFieldId();
     for (final field in _delegate.fields) {
       if (field.visibility) {
         cellDataMap[field.id] = CellIdentifier(

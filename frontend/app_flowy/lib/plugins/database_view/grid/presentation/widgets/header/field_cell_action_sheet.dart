@@ -18,7 +18,7 @@ import '../../layout/sizes.dart';
 import 'field_editor.dart';
 
 class GridFieldCellActionSheet extends StatefulWidget {
-  final GridFieldCellContext cellContext;
+  final FieldCellContext cellContext;
   const GridFieldCellActionSheet({required this.cellContext, Key? key})
       : super(key: key);
 
@@ -69,7 +69,7 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
 }
 
 class _EditFieldButton extends StatelessWidget {
-  final GridFieldCellContext cellContext;
+  final FieldCellContext cellContext;
   final void Function()? onTap;
   const _EditFieldButton({required this.cellContext, Key? key, this.onTap})
       : super(key: key);
@@ -93,7 +93,7 @@ class _EditFieldButton extends StatelessWidget {
 }
 
 class _FieldOperationList extends StatelessWidget {
-  final GridFieldCellContext fieldInfo;
+  final FieldCellContext fieldInfo;
   const _FieldOperationList(this.fieldInfo, {Key? key}) : super(key: key);
 
   @override
@@ -134,7 +134,7 @@ class _FieldOperationList extends StatelessWidget {
 }
 
 class FieldActionCell extends StatelessWidget {
-  final GridFieldCellContext fieldInfo;
+  final FieldCellContext fieldInfo;
   final FieldAction action;
   final bool enable;
 
@@ -196,7 +196,7 @@ extension _FieldActionExtension on FieldAction {
     }
   }
 
-  void run(BuildContext context, GridFieldCellContext fieldInfo) {
+  void run(BuildContext context, FieldCellContext fieldInfo) {
     switch (this) {
       case FieldAction.hide:
         context

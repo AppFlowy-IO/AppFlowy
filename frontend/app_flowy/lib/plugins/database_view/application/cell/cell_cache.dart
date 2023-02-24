@@ -1,6 +1,6 @@
 part of 'cell_service.dart';
 
-typedef GridCellMap = LinkedHashMap<String, CellIdentifier>;
+typedef CellByFieldId = LinkedHashMap<String, CellIdentifier>;
 
 class GridBaseCell {
   dynamic object;

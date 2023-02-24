@@ -213,14 +213,14 @@ class RowContent extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: _makeCells(context, state.gridCellMap),
+          children: _makeCells(context, state.cellByFieldId),
         ));
       },
     );
   }
 
-  List<Widget> _makeCells(BuildContext context, GridCellMap gridCellMap) {
-    return gridCellMap.values.map(
+  List<Widget> _makeCells(BuildContext context, CellByFieldId cellByFieldId) {
+    return cellByFieldId.values.map(
       (cellId) {
         final GridCellWidget child = builder.build(cellId);
 

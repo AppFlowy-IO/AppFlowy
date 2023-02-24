@@ -14,7 +14,7 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
   final FieldBackendService _fieldBackendSvc;
 
   FieldCellBloc({
-    required GridFieldCellContext cellContext,
+    required FieldCellContext cellContext,
   })  : _fieldListener = SingleFieldListener(fieldId: cellContext.field.id),
         _fieldBackendSvc = FieldBackendService(
             viewId: cellContext.viewId, fieldId: cellContext.field.id),
@@ -79,7 +79,7 @@ class FieldCellState with _$FieldCellState {
     required double width,
   }) = _FieldCellState;
 
-  factory FieldCellState.initial(GridFieldCellContext cellContext) =>
+  factory FieldCellState.initial(FieldCellContext cellContext) =>
       FieldCellState(
         viewId: cellContext.viewId,
         field: cellContext.field,

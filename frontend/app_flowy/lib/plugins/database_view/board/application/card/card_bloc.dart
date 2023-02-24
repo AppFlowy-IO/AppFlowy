@@ -81,7 +81,7 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
 }
 
 List<BoardCellEquatable> _makeCells(
-    String groupFieldId, GridCellMap originalCellMap) {
+    String groupFieldId, CellByFieldId originalCellMap) {
   List<BoardCellEquatable> cells = [];
   for (final entry in originalCellMap.entries) {
     // Filter out the cell if it's fieldId equal to the groupFieldId

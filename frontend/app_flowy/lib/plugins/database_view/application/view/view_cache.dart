@@ -17,11 +17,11 @@ class DatabaseViewCache {
     required this.viewId,
     required FieldController fieldController,
   }) : _gridViewListener = DatabaseViewListener(viewId: viewId) {
-    final delegate = GridRowFieldNotifierImpl(fieldController);
+    final delegate = RowDelegatesImpl(fieldController);
     _rowCache = RowCache(
       viewId: viewId,
-      notifier: delegate,
-      delegate: delegate,
+      fieldsDelegate: delegate,
+      cacheDelegate: delegate,
     );
 
     _gridViewListener.start(

@@ -7,7 +7,7 @@ import '../../../application/field/field_controller.dart';
 import '../../../application/row/row_cache.dart';
 import '../../presentation/card/card_cell_builder.dart';
 
-typedef OnCardChanged = void Function(GridCellMap, RowsChangedReason);
+typedef OnCardChanged = void Function(CellByFieldId, RowsChangedReason);
 
 class CardDataController extends BoardCellBuilderDelegate {
   final RowPB rowPB;
@@ -22,7 +22,7 @@ class CardDataController extends BoardCellBuilderDelegate {
   })  : _fieldController = fieldController,
         _rowCache = rowCache;
 
-  GridCellMap loadData() {
+  CellByFieldId loadData() {
     return _rowCache.loadGridCells(rowPB.id);
   }
 

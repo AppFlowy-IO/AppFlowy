@@ -56,7 +56,8 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
 
   Future<void> _startListening() async {
     fieldController.addListener(
-      onFields: (fields) => add(GridHeaderEvent.didReceiveFieldUpdate(fields)),
+      onReceiveFields: (fields) =>
+          add(GridHeaderEvent.didReceiveFieldUpdate(fields)),
       listenWhen: () => !isClosed,
     );
   }

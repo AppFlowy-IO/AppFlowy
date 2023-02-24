@@ -81,7 +81,7 @@ class GridCreateFilterBloc
       fields.retainWhere((field) => field.canCreateFilter);
       add(GridCreateFilterEvent.didReceiveFields(fields));
     };
-    fieldController.addListener(onFields: _onFieldFn);
+    fieldController.addListener(onReceiveFields: _onFieldFn);
   }
 
   Future<Either<Unit, FlowyError>> _createDefaultFilter(FieldInfo field) async {

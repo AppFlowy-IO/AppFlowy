@@ -53,7 +53,7 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
     _onFieldsFn = (fieldContexts) =>
         add(DatabaseGroupEvent.didReceiveFieldUpdate(fieldContexts));
     _fieldController.addListener(
-      onFields: _onFieldsFn,
+      onReceiveFields: _onFieldsFn,
       listenWhen: () => !isClosed,
     );
   }

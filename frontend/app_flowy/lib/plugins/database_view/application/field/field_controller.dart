@@ -381,9 +381,9 @@ class FieldController {
           _deleteFields(changeset.deletedFields);
           _insertFields(changeset.insertedFields);
 
-          final updateFields = _updateFields(changeset.updatedFields);
+          final updatedFields = _updateFields(changeset.updatedFields);
           for (final listener in _updatedFieldCallbacks.values) {
-            listener(updateFields);
+            listener(updatedFields);
           }
         },
         (err) => Log.error(err),
@@ -517,32 +517,32 @@ class FieldController {
   }
 
   void addListener({
-    OnReceiveFields? onFields,
-    OnReceiveUpdateFields? onFieldsUpdated,
+    OnReceiveFields? onReceiveFields,
+    OnReceiveUpdateFields? onFieldsChanged,
     OnReceiveFilters? onFilters,
     OnReceiveSorts? onSorts,
     bool Function()? listenWhen,
   }) {
-    if (onFieldsUpdated != null) {
+    if (onFieldsChanged != null) {
       callback(List<FieldInfo> updateFields) {
         if (listenWhen != null && listenWhen() == false) {
           return;
         }
-        onFieldsUpdated(updateFields);
+        onFieldsChanged(updateFields);
       }
 
-      _updatedFieldCallbacks[onFieldsUpdated] = callback;
+      _updatedFieldCallbacks[onFieldsChanged] = callback;
     }
 
-    if (onFields != null) {
+    if (onReceiveFields != null) {
       callback() {
         if (listenWhen != null && listenWhen() == false) {
           return;
         }
-        onFields(fieldInfos);
+        onReceiveFields(fieldInfos);
       }
 
-      _fieldCallbacks[onFields] = callback;
+      _fieldCallbacks[onReceiveFields] = callback;
       _fieldNotifier?.addListener(callback);
     }
 
@@ -652,32 +652,21 @@ class FieldController {
   }
 }
 
-class GridRowFieldNotifierImpl extends RowChangesetNotifierForward
-    with RowCacheDelegate {
+class RowDelegatesImpl extends RowFieldsDelegate with RowCacheDelegate {
   final FieldController _cache;
-  OnReceiveUpdateFields? _onChangesetFn;
   OnReceiveFields? _onFieldFn;
-  GridRowFieldNotifierImpl(FieldController cache) : _cache = cache;
+  RowDelegatesImpl(FieldController cache) : _cache = cache;
 
   @override
   UnmodifiableListView<FieldInfo> get fields =>
       UnmodifiableListView(_cache.fieldInfos);
 
   @override
-  void onRowFieldsChanged(VoidCallback callback) {
-    _onFieldFn = (_) => callback();
-    _cache.addListener(onFields: _onFieldFn);
-  }
-
-  @override
-  void onRowFieldChanged(void Function(FieldInfo) callback) {
-    _onChangesetFn = (List<FieldInfo> fieldInfos) {
-      for (final updatedField in fieldInfos) {
-        callback(updatedField);
-      }
+  void onFieldsChanged(void Function(List<FieldInfo>) callback) {
+    _onFieldFn = (fieldInfos) {
+      callback(fieldInfos);
     };
-
-    _cache.addListener(onFieldsUpdated: _onChangesetFn);
+    _cache.addListener(onReceiveFields: _onFieldFn);
   }
 
   @override
@@ -685,11 +674,6 @@ class GridRowFieldNotifierImpl extends RowChangesetNotifierForward
     if (_onFieldFn != null) {
       _cache.removeListener(onFieldsListener: _onFieldFn!);
       _onFieldFn = null;
-    }
-
-    if (_onChangesetFn != null) {
-      _cache.removeListener(onChangesetListener: _onChangesetFn!);
-      _onChangesetFn = null;
     }
   }
 }
