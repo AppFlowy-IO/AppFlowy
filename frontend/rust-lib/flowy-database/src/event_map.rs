@@ -47,7 +47,10 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::CreateBoardCard, create_board_card_handler)
         .event(DatabaseEvent::MoveGroup, move_group_handler)
         .event(DatabaseEvent::MoveGroupRow, move_group_row_handler)
-        .event(DatabaseEvent::GetGroup, get_groups_handler);
+        .event(DatabaseEvent::GetGroup, get_groups_handler)
+        // Calendar
+      .event(DatabaseEvent::SetCalenderSetting, set_calendar_setting_handler)
+        .event(DatabaseEvent::GetCalendarSetting, get_calendar_setting_handler);
 
   plugin
 }
@@ -229,4 +232,10 @@ pub enum DatabaseEvent {
 
   #[event(input = "MoveGroupRowPayloadPB")]
   GroupByField = 113,
+
+  #[event(input = "CalendarSettingsPB")]
+  SetCalenderSetting = 114,
+
+  #[event()]
+  GetCalendarSetting = 115,
 }

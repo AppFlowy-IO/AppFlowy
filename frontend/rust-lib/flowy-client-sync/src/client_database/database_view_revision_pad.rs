@@ -294,6 +294,33 @@ impl DatabaseViewRevisionPad {
     })
   }
 
+  /// Returns the settings for the given layout. If it's not exists then will return the
+  /// default settings for the given layout.
+  /// Each [database view](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/database-view) has its own settings.
+  pub fn get_layout_setting<T>(&self, layout: &LayoutRevision) -> Option<T>
+  where
+    T: serde::de::DeserializeOwned,
+  {
+    let settings_str = self.view.layout_settings.get(layout)?;
+    serde_json::from_str::<T>(settings_str).ok()
+  }
+
+  /// updates the settings for the given layout type
+  pub fn update_layout_setting<T>(
+    &mut self,
+    layout: &LayoutRevision,
+    settings: &T,
+  ) -> SyncResult<Option<GridViewRevisionChangeset>>
+  where
+    T: serde::Serialize,
+  {
+    let settings_str = serde_json::to_string(settings).map_err(internal_sync_error)?;
+    self.modify(|view| {
+      view.layout_settings.insert(layout.clone(), settings_str);
+      Ok(Some(()))
+    })
+  }
+
   pub fn json_str(&self) -> SyncResult<String> {
     make_grid_view_rev_json_str(&self.view)
   }

@@ -1,4 +1,4 @@
-use crate::entities::{DatabaseViewSettingPB, LayoutTypePB, ViewLayoutPB};
+use crate::entities::{CalendarSettingsParams, DatabaseViewSettingPB, LayoutSettingPB};
 use crate::services::database_view::{get_cells_for_field, DatabaseViewEditorDelegate};
 use crate::services::field::RowSingleCellData;
 use crate::services::filter::{FilterController, FilterDelegate, FilterType};
@@ -7,8 +7,8 @@ use crate::services::row::DatabaseBlockRowRevision;
 use crate::services::sort::{SortDelegate, SortType};
 use bytes::Bytes;
 use database_model::{
-  FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, RowRevision,
-  SortRevision,
+  FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, LayoutRevision,
+  RowRevision, SortRevision,
 };
 use flowy_client_sync::client_database::{DatabaseViewRevisionPad, GridViewRevisionChangeset};
 use flowy_client_sync::make_operations_from_revisions;
@@ -146,13 +146,24 @@ pub fn make_grid_setting(
   view_pad: &DatabaseViewRevisionPad,
   field_revs: &[Arc<FieldRevision>],
 ) -> DatabaseViewSettingPB {
-  let layout_type: LayoutTypePB = view_pad.layout.clone().into();
+  let layout_type: LayoutRevision = view_pad.layout.clone();
+  let mut layout_settings = LayoutSettingPB::new();
+  match layout_type {
+    LayoutRevision::Grid => {},
+    LayoutRevision::Board => {},
+    LayoutRevision::Calendar => {
+      layout_settings.calendar = view_pad
+        .get_layout_setting::<CalendarSettingsParams>(&layout_type)
+        .map(|params| params.into());
+    },
+  }
+
   let filters = view_pad.get_all_filters(field_revs);
   let group_configurations = view_pad.get_groups_by_field_revs(field_revs);
   let sorts = view_pad.get_all_sorts(field_revs);
   DatabaseViewSettingPB {
-    support_layouts: ViewLayoutPB::all(),
-    current_layout: layout_type,
+    current_layout: layout_type.into(),
+    layout_setting: layout_settings,
     filters: filters.into(),
     sorts: sorts.into(),
     group_configurations: group_configurations.into(),
