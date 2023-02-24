@@ -76,7 +76,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   Future<void> _initial(Initial value, Emitter<DocumentState> emit) async {
-    final userProfile = await UserService.getCurrentUserProfile();
+    final userProfile = await UserBackendService.getCurrentUserProfile();
     if (userProfile.isRight()) {
       emit(
         state.copyWith(

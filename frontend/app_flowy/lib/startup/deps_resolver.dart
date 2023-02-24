@@ -1,11 +1,21 @@
 import 'package:app_flowy/core/network_monitor.dart';
+import 'package:app_flowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:app_flowy/plugins/database_view/application/field/field_action_sheet_bloc.dart';
+import 'package:app_flowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:app_flowy/plugins/database_view/application/field/field_service.dart';
+import 'package:app_flowy/plugins/database_view/application/setting/property_bloc.dart';
+import 'package:app_flowy/plugins/database_view/grid/application/cell/checkbox_cell_bloc.dart';
+import 'package:app_flowy/plugins/database_view/grid/application/cell/date_cell_bloc.dart';
+import 'package:app_flowy/plugins/database_view/grid/application/cell/number_cell_bloc.dart';
+import 'package:app_flowy/plugins/database_view/grid/application/cell/select_option_cell_bloc.dart';
+import 'package:app_flowy/plugins/database_view/grid/application/cell/text_cell_bloc.dart';
+import 'package:app_flowy/plugins/database_view/grid/application/grid_header_bloc.dart';
 import 'package:app_flowy/user/application/user_listener.dart';
 import 'package:app_flowy/user/application/user_service.dart';
 import 'package:app_flowy/util/file_picker/file_picker_impl.dart';
 import 'package:app_flowy/util/file_picker/file_picker_service.dart';
 import 'package:app_flowy/workspace/application/app/prelude.dart';
 import 'package:app_flowy/plugins/document/application/prelude.dart';
-import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:app_flowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:app_flowy/workspace/application/user/prelude.dart';
 import 'package:app_flowy/workspace/application/workspace/prelude.dart';
@@ -23,8 +33,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
-
-import '../plugins/grid/application/field/field_controller.dart';
 
 class DependencyResolver {
   static Future<void> resolve(GetIt getIt) async {
@@ -73,7 +81,7 @@ void _resolveHomeDeps(GetIt getIt) {
 
   getIt.registerFactoryParam<WelcomeBloc, UserProfilePB, void>(
     (user, _) => WelcomeBloc(
-      userService: UserService(userId: user.id),
+      userService: UserBackendService(userId: user.id),
       userWorkspaceListener: UserWorkspaceListener(userProfile: user),
     ),
   );
@@ -141,7 +149,7 @@ void _resolveDocDeps(GetIt getIt) {
 }
 
 void _resolveGridDeps(GetIt getIt) {
-  getIt.registerFactoryParam<GridHeaderBloc, String, GridFieldController>(
+  getIt.registerFactoryParam<GridHeaderBloc, String, FieldController>(
     (viewId, fieldController) => GridHeaderBloc(
       viewId: viewId,
       fieldController: fieldController,
@@ -152,39 +160,40 @@ void _resolveGridDeps(GetIt getIt) {
     (data, _) => FieldActionSheetBloc(fieldCellContext: data),
   );
 
-  getIt.registerFactoryParam<TextCellBloc, GridTextCellController, void>(
+  getIt.registerFactoryParam<TextCellBloc, TextCellController, void>(
     (context, _) => TextCellBloc(
       cellController: context,
     ),
   );
 
-  getIt.registerFactoryParam<SelectOptionCellBloc,
-      GridSelectOptionCellController, void>(
+  getIt.registerFactoryParam<SelectOptionCellBloc, SelectOptionCellController,
+      void>(
     (context, _) => SelectOptionCellBloc(
       cellController: context,
     ),
   );
 
-  getIt.registerFactoryParam<NumberCellBloc, GridTextCellController, void>(
+  getIt.registerFactoryParam<NumberCellBloc, TextCellController, void>(
     (context, _) => NumberCellBloc(
       cellController: context,
     ),
   );
 
-  getIt.registerFactoryParam<DateCellBloc, GridDateCellController, void>(
+  getIt.registerFactoryParam<DateCellBloc, DateCellController, void>(
     (context, _) => DateCellBloc(
       cellController: context,
     ),
   );
 
-  getIt.registerFactoryParam<CheckboxCellBloc, GridTextCellController, void>(
+  getIt.registerFactoryParam<CheckboxCellBloc, TextCellController, void>(
     (cellData, _) => CheckboxCellBloc(
-      service: CellService(),
+      service: CellBackendService(),
       cellController: cellData,
     ),
   );
 
-  getIt.registerFactoryParam<GridPropertyBloc, String, GridFieldController>(
-    (viewId, cache) => GridPropertyBloc(viewId: viewId, fieldController: cache),
+  getIt.registerFactoryParam<DatabasePropertyBloc, String, FieldController>(
+    (viewId, cache) =>
+        DatabasePropertyBloc(viewId: viewId, fieldController: cache),
   );
 }

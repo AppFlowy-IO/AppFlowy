@@ -1,5 +1,5 @@
-import 'package:app_flowy/plugins/grid/application/filter/filter_menu_bloc.dart';
-import 'package:app_flowy/plugins/grid/application/filter/filter_service.dart';
+import 'package:app_flowy/plugins/database_view/application/filter/filter_service.dart';
+import 'package:app_flowy/plugins/database_view/grid/application/filter/filter_menu_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/text_filter.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -19,7 +19,7 @@ void main() {
     await gridResponseFuture();
     assert(menuBloc.state.creatableFields.length == 3);
 
-    final service = FilterFFIService(viewId: context.gridView.id);
+    final service = FilterBackendService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
     await service.insertTextFilter(
         fieldId: textField.id,
@@ -36,7 +36,7 @@ void main() {
       ..add(const GridFilterMenuEvent.initial());
     await gridResponseFuture();
 
-    final service = FilterFFIService(viewId: context.gridView.id);
+    final service = FilterBackendService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
 
     // Create filter

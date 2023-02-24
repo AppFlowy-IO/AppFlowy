@@ -10,7 +10,7 @@ import 'package:dartz/dartz.dart';
 part 'welcome_bloc.freezed.dart';
 
 class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
-  final UserService userService;
+  final UserBackendService userService;
   final UserWorkspaceListener userWorkspaceListener;
   WelcomeBloc({required this.userService, required this.userWorkspaceListener})
       : super(WelcomeState.initial()) {

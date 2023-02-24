@@ -1,4 +1,4 @@
-import 'package:app_flowy/plugins/board/application/board_bloc.dart';
+import 'package:app_flowy/plugins/database_view/board/application/board_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'util.dart';

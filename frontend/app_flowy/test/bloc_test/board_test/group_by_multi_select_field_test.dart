@@ -1,7 +1,7 @@
-import 'package:app_flowy/plugins/board/application/board_bloc.dart';
-import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
-import 'package:app_flowy/plugins/grid/application/cell/select_option_editor_bloc.dart';
-import 'package:app_flowy/plugins/grid/application/setting/group_bloc.dart';
+import 'package:app_flowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:app_flowy/plugins/database_view/application/setting/group_bloc.dart';
+import 'package:app_flowy/plugins/database_view/board/application/board_bloc.dart';
+import 'package:app_flowy/plugins/database_view/grid/application/cell/select_option_editor_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -24,13 +24,13 @@ void main() {
     final multiSelectField = context.fieldContexts.last.field;
 
     // set grouped by the new multi-select field"
-    final gridGroupBloc = GridGroupBloc(
+    final gridGroupBloc = DatabaseGroupBloc(
       viewId: context.gridView.id,
       fieldController: context.fieldController,
-    )..add(const GridGroupEvent.initial());
+    )..add(const DatabaseGroupEvent.initial());
     await boardResponseFuture();
 
-    gridGroupBloc.add(GridGroupEvent.setGroupByField(
+    gridGroupBloc.add(DatabaseGroupEvent.setGroupByField(
       multiSelectField.id,
       multiSelectField.fieldType,
     ));
@@ -59,7 +59,7 @@ void main() {
 
     // Create options
     final cellController = await context.makeCellController(multiSelectField.id)
-        as GridSelectOptionCellController;
+        as SelectOptionCellController;
 
     final multiSelectOptionBloc =
         SelectOptionCellEditorBloc(cellController: cellController);
@@ -71,13 +71,13 @@ void main() {
     await boardResponseFuture();
 
     // set grouped by the new multi-select field"
-    final gridGroupBloc = GridGroupBloc(
+    final gridGroupBloc = DatabaseGroupBloc(
       viewId: context.gridView.id,
       fieldController: context.fieldController,
-    )..add(const GridGroupEvent.initial());
+    )..add(const DatabaseGroupEvent.initial());
     await boardResponseFuture();
 
-    gridGroupBloc.add(GridGroupEvent.setGroupByField(
+    gridGroupBloc.add(DatabaseGroupEvent.setGroupByField(
       multiSelectField.id,
       multiSelectField.fieldType,
     ));

@@ -1,5 +1,5 @@
-import 'package:app_flowy/plugins/grid/application/field/field_action_sheet_bloc.dart';
-import 'package:app_flowy/plugins/grid/application/grid_header_bloc.dart';
+import 'package:app_flowy/plugins/database_view/application/field/field_action_sheet_bloc.dart';
+import 'package:app_flowy/plugins/database_view/grid/application/grid_header_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -6,8 +6,8 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 
-class UserService {
-  UserService({
+class UserBackendService {
+  UserBackendService({
     required this.userId,
   });
 

@@ -11,7 +11,7 @@ import 'package:dartz/dartz.dart';
 part 'menu_user_bloc.freezed.dart';
 
 class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
-  final UserService _userService;
+  final UserBackendService _userService;
   final UserListener _userListener;
   final UserWorkspaceListener _userWorkspaceListener;
   final UserProfilePB userProfile;
@@ -20,7 +20,7 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
       : _userListener = UserListener(userProfile: userProfile),
         _userWorkspaceListener =
             UserWorkspaceListener(userProfile: userProfile),
-        _userService = UserService(userId: userProfile.id),
+        _userService = UserBackendService(userId: userProfile.id),
         super(MenuUserState.initial(userProfile)) {
     on<MenuUserEvent>((event, emit) async {
       await event.when(

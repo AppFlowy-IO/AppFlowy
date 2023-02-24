@@ -1,13 +1,13 @@
-import 'package:app_flowy/plugins/board/application/board_data_controller.dart';
-import 'package:app_flowy/plugins/board/board.dart';
-import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_editor_bloc.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
-import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
-import 'package:app_flowy/plugins/grid/application/row/row_bloc.dart';
-import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
-import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
+import 'package:app_flowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:app_flowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:app_flowy/plugins/database_view/application/field/field_editor_bloc.dart';
+import 'package:app_flowy/plugins/database_view/application/field/field_service.dart';
+import 'package:app_flowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:app_flowy/plugins/database_view/application/row/row_cache.dart';
+import 'package:app_flowy/plugins/database_view/application/row/row_data_controller.dart';
+import 'package:app_flowy/plugins/database_view/board/application/board_data_controller.dart';
+import 'package:app_flowy/plugins/database_view/board/board.dart';
+import 'package:app_flowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:app_flowy/workspace/application/app/app_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
@@ -72,7 +72,7 @@ class BoardTestContext {
 
   List<FieldInfo> get fieldContexts => fieldController.fieldInfos;
 
-  GridFieldController get fieldController {
+  FieldController get fieldController {
     return _boardDataController.fieldController;
   }
 
@@ -96,12 +96,12 @@ class BoardTestContext {
     return editorBloc;
   }
 
-  Future<GridCellController> makeCellController(String fieldId) async {
+  Future<CellController> makeCellController(String fieldId) async {
     final builder = await makeCellControllerBuilder(fieldId);
     return builder.build();
   }
 
-  Future<GridCellControllerBuilder> makeCellControllerBuilder(
+  Future<CellControllerBuilder> makeCellControllerBuilder(
     String fieldId,
   ) async {
     final RowInfo rowInfo = rowInfos.last;
@@ -120,7 +120,7 @@ class BoardTestContext {
     )..add(const RowEvent.initial());
     await gridResponseFuture();
 
-    return GridCellControllerBuilder(
+    return CellControllerBuilder(
       cellId: rowBloc.state.gridCellMap[fieldId]!,
       cellCache: rowCache.cellCache,
       delegate: rowDataController,

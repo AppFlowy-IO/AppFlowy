@@ -122,7 +122,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   }
 
   Future<void> _saveAppearanceSettings() async {
-    SettingsFFIService().setAppearanceSetting(_setting).then((result) {
+    UserSettingsBackendService().setAppearanceSetting(_setting).then((result) {
       result.fold(
         (l) => null,
         (error) => Log.error(error),

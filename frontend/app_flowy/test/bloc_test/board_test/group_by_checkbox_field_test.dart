@@ -1,5 +1,5 @@
-import 'package:app_flowy/plugins/board/application/board_bloc.dart';
-import 'package:app_flowy/plugins/grid/application/setting/group_bloc.dart';
+import 'package:app_flowy/plugins/database_view/application/setting/group_bloc.dart';
+import 'package:app_flowy/plugins/database_view/board/application/board_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -30,11 +30,11 @@ void main() {
 
     // set group by checkbox
     final checkboxField = context.fieldContexts.last.field;
-    final gridGroupBloc = GridGroupBloc(
+    final gridGroupBloc = DatabaseGroupBloc(
       viewId: context.gridView.id,
       fieldController: context.fieldController,
-    )..add(const GridGroupEvent.initial());
-    gridGroupBloc.add(GridGroupEvent.setGroupByField(
+    )..add(const DatabaseGroupEvent.initial());
+    gridGroupBloc.add(DatabaseGroupEvent.setGroupByField(
       checkboxField.id,
       checkboxField.fieldType,
     ));

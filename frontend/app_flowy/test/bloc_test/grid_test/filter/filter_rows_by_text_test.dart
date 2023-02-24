@@ -1,4 +1,4 @@
-import 'package:app_flowy/plugins/grid/application/filter/filter_service.dart';
+import 'package:app_flowy/plugins/database_view/application/filter/filter_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/text_filter.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -14,7 +14,7 @@ void main() {
   test('filter rows by text is empty condition)', () async {
     final context = await createTestFilterGrid(gridTest);
 
-    final service = FilterFFIService(viewId: context.gridView.id);
+    final service = FilterBackendService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
     // create a new filter
     await service.insertTextFilter(
@@ -41,7 +41,7 @@ void main() {
   test('filter rows by text is not empty condition)', () async {
     final context = await createTestFilterGrid(gridTest);
 
-    final service = FilterFFIService(viewId: context.gridView.id);
+    final service = FilterBackendService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
     // create a new filter
     await service.insertTextFilter(
@@ -66,7 +66,7 @@ void main() {
   test('filter rows by text is empty or is not empty condition)', () async {
     final context = await createTestFilterGrid(gridTest);
 
-    final service = FilterFFIService(viewId: context.gridView.id);
+    final service = FilterBackendService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
     // create a new filter
     await service.insertTextFilter(
@@ -102,7 +102,7 @@ void main() {
   test('filter rows by text is condition)', () async {
     final context = await createTestFilterGrid(gridTest);
 
-    final service = FilterFFIService(viewId: context.gridView.id);
+    final service = FilterBackendService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
     // create a new filter
     await service.insertTextFilter(

@@ -5,7 +5,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
 
-class SettingsFFIService {
+class UserSettingsBackendService {
   Future<AppearanceSettingsPB> getAppearanceSetting() async {
     final result = await UserEventGetAppearanceSetting().send();
 

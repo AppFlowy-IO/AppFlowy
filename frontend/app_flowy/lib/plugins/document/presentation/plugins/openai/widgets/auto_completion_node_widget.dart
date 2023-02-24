@@ -242,7 +242,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     final loading = Loading(context);
     loading.start();
     await _updateEditingText();
-    final result = await UserService.getCurrentUserProfile();
+    final result = await UserBackendService.getCurrentUserProfile();
     result.fold((userProfile) async {
       final openAIRepository = HttpOpenAIRepository(
         client: http.Client(),

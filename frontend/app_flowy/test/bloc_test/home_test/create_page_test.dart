@@ -1,7 +1,7 @@
-import 'package:app_flowy/plugins/board/board.dart';
 import 'package:app_flowy/plugins/calendar/calendar.dart';
+import 'package:app_flowy/plugins/database_view/board/board.dart';
+import 'package:app_flowy/plugins/database_view/grid/grid.dart';
 import 'package:app_flowy/plugins/document/document.dart';
-import 'package:app_flowy/plugins/grid/grid.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';

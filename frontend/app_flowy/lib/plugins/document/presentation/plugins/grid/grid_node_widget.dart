@@ -1,6 +1,6 @@
+import 'package:app_flowy/plugins/database_view/grid/presentation/grid_page.dart';
 import 'package:app_flowy/plugins/document/presentation/plugins/base/built_in_page_widget.dart';
 import 'package:app_flowy/plugins/document/presentation/plugins/base/insert_page_command.dart';
-import 'package:app_flowy/plugins/grid/presentation/grid_page.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 

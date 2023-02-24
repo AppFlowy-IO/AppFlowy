@@ -17,7 +17,8 @@ void main() {
   group('$AppearanceSettingsCubit', () {
     late AppearanceSettingsPB appearanceSetting;
     setUp(() async {
-      appearanceSetting = await SettingsFFIService().getAppearanceSetting();
+      appearanceSetting =
+          await UserSettingsBackendService().getAppearanceSetting();
       await blocResponseFuture();
     });
 

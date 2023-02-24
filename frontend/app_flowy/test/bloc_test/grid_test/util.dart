@@ -1,13 +1,13 @@
-import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_editor_bloc.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
-import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
-import 'package:app_flowy/plugins/grid/application/grid_data_controller.dart';
-import 'package:app_flowy/plugins/grid/application/row/row_bloc.dart';
-import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
-import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
-import 'package:app_flowy/plugins/grid/grid.dart';
+import 'package:app_flowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:app_flowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:app_flowy/plugins/database_view/application/field/field_editor_bloc.dart';
+import 'package:app_flowy/plugins/database_view/application/field/field_service.dart';
+import 'package:app_flowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:app_flowy/plugins/database_view/application/row/row_cache.dart';
+import 'package:app_flowy/plugins/database_view/application/row/row_data_controller.dart';
+import 'package:app_flowy/plugins/database_view/grid/application/grid_data_controller.dart';
+import 'package:app_flowy/plugins/database_view/grid/application/row/row_bloc.dart';
+import 'package:app_flowy/plugins/database_view/grid/grid.dart';
 import 'package:app_flowy/workspace/application/app/app_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
@@ -16,7 +16,7 @@ import '../../util.dart';
 
 class GridTestContext {
   final ViewPB gridView;
-  final GridController gridController;
+  final DatabaseController gridController;
 
   GridTestContext(this.gridView, this.gridController);
 
@@ -26,7 +26,7 @@ class GridTestContext {
 
   List<FieldInfo> get fieldContexts => fieldController.fieldInfos;
 
-  GridFieldController get fieldController {
+  FieldController get fieldController {
     return gridController.fieldController;
   }
 
@@ -54,13 +54,13 @@ class GridTestContext {
     return editorBloc;
   }
 
-  Future<GridCellController> makeCellController(
+  Future<CellController> makeCellController(
       String fieldId, int rowIndex) async {
     final builder = await makeCellControllerBuilder(fieldId, rowIndex);
     return builder.build();
   }
 
-  Future<GridCellControllerBuilder> makeCellControllerBuilder(
+  Future<CellControllerBuilder> makeCellControllerBuilder(
     String fieldId,
     int rowIndex,
   ) async {
@@ -80,7 +80,7 @@ class GridTestContext {
     )..add(const RowEvent.initial());
     await gridResponseFuture();
 
-    return GridCellControllerBuilder(
+    return CellControllerBuilder(
       cellId: rowBloc.state.gridCellMap[fieldId]!,
       cellCache: rowCache.cellCache,
       delegate: rowDataController,
@@ -119,7 +119,7 @@ class GridTestContext {
     return fieldInfo;
   }
 
-  Future<GridSelectOptionCellController> makeSelectOptionCellController(
+  Future<SelectOptionCellController> makeSelectOptionCellController(
       FieldType fieldType, int rowIndex) async {
     assert(fieldType == FieldType.SingleSelect ||
         fieldType == FieldType.MultiSelect);
@@ -127,24 +127,23 @@ class GridTestContext {
     final field =
         fieldContexts.firstWhere((element) => element.fieldType == fieldType);
     final cellController = await makeCellController(field.id, rowIndex)
-        as GridSelectOptionCellController;
+        as SelectOptionCellController;
     return cellController;
   }
 
-  Future<GridTextCellController> makeTextCellController(int rowIndex) async {
+  Future<TextCellController> makeTextCellController(int rowIndex) async {
     final field = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.RichText);
     final cellController =
-        await makeCellController(field.id, rowIndex) as GridTextCellController;
+        await makeCellController(field.id, rowIndex) as TextCellController;
     return cellController;
   }
 
-  Future<GridTextCellController> makeCheckboxCellController(
-      int rowIndex) async {
+  Future<TextCellController> makeCheckboxCellController(int rowIndex) async {
     final field = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.Checkbox);
     final cellController =
-        await makeCellController(field.id, rowIndex) as GridTextCellController;
+        await makeCellController(field.id, rowIndex) as TextCellController;
     return cellController;
   }
 }
@@ -173,7 +172,7 @@ class AppFlowyGridTest {
         .then((result) {
       return result.fold(
         (view) async {
-          final context = GridTestContext(view, GridController(view: view));
+          final context = GridTestContext(view, DatabaseController(view: view));
           final result = await context.gridController.openGrid();
           result.fold((l) => null, (r) => throw Exception(r));
           return context;
@@ -207,7 +206,7 @@ class AppFlowyGridCellTest {
     await context.createRow();
   }
 
-  Future<GridSelectOptionCellController> makeSelectOptionCellController(
+  Future<SelectOptionCellController> makeSelectOptionCellController(
       FieldType fieldType, int rowIndex) async {
     return await context.makeSelectOptionCellController(fieldType, rowIndex);
   }

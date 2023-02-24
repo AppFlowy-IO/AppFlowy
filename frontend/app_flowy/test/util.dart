@@ -26,7 +26,7 @@ class AppFlowyIntegrateTest {
 
 class AppFlowyUnitTest {
   late UserProfilePB userProfile;
-  late UserService userService;
+  late UserBackendService userService;
   late WorkspaceService workspaceService;
   late List<WorkspacePB> workspaces;
 
@@ -59,7 +59,7 @@ class AppFlowyUnitTest {
     return result.fold(
       (user) {
         userProfile = user;
-        userService = UserService(userId: userProfile.id);
+        userService = UserBackendService(userId: userProfile.id);
       },
       (error) {},
     );

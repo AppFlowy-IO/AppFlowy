@@ -1,6 +1,6 @@
+import 'package:app_flowy/plugins/database_view/grid/grid.dart';
 import 'package:app_flowy/plugins/document/application/doc_bloc.dart';
 import 'package:app_flowy/plugins/document/document.dart';
-import 'package:app_flowy/plugins/grid/grid.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_view_section_bloc.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';

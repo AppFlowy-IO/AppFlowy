@@ -1,5 +1,4 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -11,6 +10,7 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
 
+import '../../database_view/grid/presentation/layout/sizes.dart';
 import 'layout/sizes.dart';
 import 'toolbar/calendar_toolbar.dart';
 

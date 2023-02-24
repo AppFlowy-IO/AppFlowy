@@ -1,5 +1,5 @@
-import 'package:app_flowy/plugins/grid/application/grid_data_controller.dart';
-import 'package:app_flowy/plugins/grid/grid.dart';
+import 'package:app_flowy/plugins/database_view/grid/application/grid_data_controller.dart';
+import 'package:app_flowy/plugins/database_view/grid/grid.dart';
 import 'package:app_flowy/workspace/application/app/app_service.dart';
 
 import '../util.dart';
@@ -17,7 +17,7 @@ Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
       .then((result) {
     return result.fold(
       (view) async {
-        final context = GridTestContext(view, GridController(view: view));
+        final context = GridTestContext(view, DatabaseController(view: view));
         final result = await context.gridController.openGrid();
 
         await editCells(context);

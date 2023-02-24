@@ -190,18 +190,18 @@ impl DatabaseViewEditor {
     let changeset = match event.into_owned() {
       DatabaseBlockEvent::InsertRow { block_id: _, row } => {
         //
-        ViewRowsChangesetPB::from_insert(self.view_id.clone(), vec![row])
+        RowsChangesetPB::from_insert(self.view_id.clone(), vec![row])
       },
       DatabaseBlockEvent::UpdateRow { block_id: _, row } => {
         //
-        ViewRowsChangesetPB::from_update(self.view_id.clone(), vec![row])
+        RowsChangesetPB::from_update(self.view_id.clone(), vec![row])
       },
       DatabaseBlockEvent::DeleteRow {
         block_id: _,
         row_id,
       } => {
         //
-        ViewRowsChangesetPB::from_delete(self.view_id.clone(), vec![row_id])
+        RowsChangesetPB::from_delete(self.view_id.clone(), vec![row_id])
       },
       DatabaseBlockEvent::Move {
         block_id: _,
@@ -209,7 +209,7 @@ impl DatabaseViewEditor {
         inserted_row,
       } => {
         //
-        ViewRowsChangesetPB::from_move(
+        RowsChangesetPB::from_move(
           self.view_id.clone(),
           vec![deleted_row_id],
           vec![inserted_row],

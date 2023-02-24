@@ -10,13 +10,13 @@ import 'package:dartz/dartz.dart';
 part 'settings_user_bloc.freezed.dart';
 
 class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
-  final UserService _userService;
+  final UserBackendService _userService;
   final UserListener _userListener;
   final UserProfilePB userProfile;
 
   SettingsUserViewBloc(this.userProfile)
       : _userListener = UserListener(userProfile: userProfile),
-        _userService = UserService(userId: userProfile.id),
+        _userService = UserBackendService(userId: userProfile.id),
         super(SettingsUserState.initial(userProfile)) {
     on<SettingsUserEvent>((event, emit) async {
       await event.when(

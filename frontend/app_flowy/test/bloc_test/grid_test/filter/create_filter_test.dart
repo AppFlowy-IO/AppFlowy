@@ -1,6 +1,6 @@
-import 'package:app_flowy/plugins/grid/application/filter/filter_service.dart';
-import 'package:app_flowy/plugins/grid/application/grid_bloc.dart';
-import 'package:app_flowy/plugins/grid/application/grid_data_controller.dart';
+import 'package:app_flowy/plugins/database_view/application/filter/filter_service.dart';
+import 'package:app_flowy/plugins/database_view/grid/application/grid_bloc.dart';
+import 'package:app_flowy/plugins/database_view/grid/application/grid_data_controller.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/checkbox_filter.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/text_filter.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,7 +15,7 @@ void main() {
 
   test('create a text filter)', () async {
     final context = await gridTest.createTestGrid();
-    final service = FilterFFIService(viewId: context.gridView.id);
+    final service = FilterBackendService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
     await service.insertTextFilter(
         fieldId: textField.id,
@@ -28,7 +28,7 @@ void main() {
 
   test('delete a text filter)', () async {
     final context = await gridTest.createTestGrid();
-    final service = FilterFFIService(viewId: context.gridView.id);
+    final service = FilterBackendService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
     await service.insertTextFilter(
         fieldId: textField.id,
@@ -49,8 +49,8 @@ void main() {
 
   test('filter rows with condition: text is empty', () async {
     final context = await gridTest.createTestGrid();
-    final service = FilterFFIService(viewId: context.gridView.id);
-    final gridController = GridController(view: context.gridView);
+    final service = FilterBackendService(viewId: context.gridView.id);
+    final gridController = DatabaseController(view: context.gridView);
     final gridBloc = GridBloc(
       view: context.gridView,
       gridController: gridController,
@@ -70,8 +70,8 @@ void main() {
   test('filter rows with condition: text is empty(After edit the row)',
       () async {
     final context = await gridTest.createTestGrid();
-    final service = FilterFFIService(viewId: context.gridView.id);
-    final gridController = GridController(view: context.gridView);
+    final service = FilterBackendService(viewId: context.gridView.id);
+    final gridController = DatabaseController(view: context.gridView);
     final gridBloc = GridBloc(
       view: context.gridView,
       gridController: gridController,
@@ -97,7 +97,7 @@ void main() {
 
   test('filter rows with condition: text is not empty', () async {
     final context = await gridTest.createTestGrid();
-    final service = FilterFFIService(viewId: context.gridView.id);
+    final service = FilterBackendService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
     await gridResponseFuture();
     await service.insertTextFilter(
@@ -111,8 +111,8 @@ void main() {
   test('filter rows with condition: checkbox uncheck', () async {
     final context = await gridTest.createTestGrid();
     final checkboxField = context.checkboxFieldContext();
-    final service = FilterFFIService(viewId: context.gridView.id);
-    final gridController = GridController(view: context.gridView);
+    final service = FilterBackendService(viewId: context.gridView.id);
+    final gridController = DatabaseController(view: context.gridView);
     final gridBloc = GridBloc(
       view: context.gridView,
       gridController: gridController,
@@ -130,8 +130,8 @@ void main() {
   test('filter rows with condition: checkbox check', () async {
     final context = await gridTest.createTestGrid();
     final checkboxField = context.checkboxFieldContext();
-    final service = FilterFFIService(viewId: context.gridView.id);
-    final gridController = GridController(view: context.gridView);
+    final service = FilterBackendService(viewId: context.gridView.id);
+    final gridController = DatabaseController(view: context.gridView);
     final gridBloc = GridBloc(
       view: context.gridView,
       gridController: gridController,
