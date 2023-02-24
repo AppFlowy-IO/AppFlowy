@@ -7,7 +7,22 @@ import { Link } from 'react-router-dom';
 import { Button } from '../../_shared/Button';
 
 export const SignUp = () => {
-  const { showPassword, onTogglePassword, showConfirmPassword, onToggleConfirmPassword, onSignUpClick } = useSignUp();
+  const {
+    showPassword,
+    onTogglePassword,
+    showConfirmPassword,
+    onToggleConfirmPassword,
+    onSignUpClick,
+    email,
+    setEmail,
+    displayName,
+    setDisplayName,
+    password,
+    setPassword,
+    repeatedPassword,
+    setRepeatedPassword,
+    authError,
+  } = useSignUp();
 
   return (
     <form method='POST' onSubmit={(e) => e.preventDefault()}>
@@ -21,9 +36,28 @@ export const SignUp = () => {
         </div>
 
         <div className='flex w-full max-w-[340px]  flex-col gap-6'>
-          <input type='text' className='input w-full' placeholder='Phone / Email' />
+          <input
+            type='text'
+            className={`input w-full ${authError && 'error'}`}
+            placeholder='Phone / Email'
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+            type='text'
+            className={`input w-full ${authError && 'error'}`}
+            placeholder='Name'
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+          />
           <div className='relative w-full'>
-            <input type={showPassword ? 'text' : 'password'} className='input w-full !pr-10' placeholder='Password' />
+            <input
+              type={showPassword ? 'text' : 'password'}
+              className={`input w-full !pr-10 ${authError && 'error'}`}
+              placeholder='Password'
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
 
             <button
               className='absolute right-0 top-0 flex h-full w-12 items-center justify-center '
@@ -37,8 +71,10 @@ export const SignUp = () => {
           <div className='relative w-full'>
             <input
               type={showConfirmPassword ? 'text' : 'password'}
-              className='input w-full !pr-10'
+              className={`input w-full !pr-10 ${authError && 'error'}`}
               placeholder='Repeat Password'
+              value={repeatedPassword}
+              onChange={(e) => setRepeatedPassword(e.target.value)}
             />
 
             <button
