@@ -47,7 +47,7 @@ async fn grid_cell_update() {
 
       scripts.push(UpdateCell {
         changeset: CellChangesetPB {
-          database_id: block_id.to_string(),
+          view_id: block_id.to_string(),
           row_id: row_rev.id.clone(),
           field_id: field_rev.id.clone(),
           type_cell_data: data,

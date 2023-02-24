@@ -112,7 +112,7 @@ class _GridHeaderState extends State<_GridHeader> {
               scrollController: ScrollController(),
               header: const _CellLeading(),
               needsLongPressDraggable: false,
-              footer: _CellTrailing(databaseId: widget.viewId),
+              footer: _CellTrailing(viewId: widget.viewId),
               onReorder: (int oldIndex, int newIndex) {
                 _onReorder(cells, oldIndex, context, newIndex);
               },
@@ -147,8 +147,8 @@ class _CellLeading extends StatelessWidget {
 }
 
 class _CellTrailing extends StatelessWidget {
-  final String databaseId;
-  const _CellTrailing({required this.databaseId, Key? key}) : super(key: key);
+  final String viewId;
+  const _CellTrailing({required this.viewId, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -160,15 +160,14 @@ class _CellTrailing extends StatelessWidget {
         border: Border(top: borderSide, bottom: borderSide),
       ),
       padding: GridSize.headerContentInsets,
-      child: CreateFieldButton(databaseId: databaseId),
+      child: CreateFieldButton(viewId: viewId),
     );
   }
 }
 
 class CreateFieldButton extends StatelessWidget {
-  final String databaseId;
-  const CreateFieldButton({required this.databaseId, Key? key})
-      : super(key: key);
+  final String viewId;
+  const CreateFieldButton({required this.viewId, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -188,8 +187,8 @@ class CreateFieldButton extends StatelessWidget {
       ),
       popupBuilder: (BuildContext popover) {
         return FieldEditor(
-          databaseId: databaseId,
-          typeOptionLoader: NewFieldTypeOptionLoader(viewId: databaseId),
+          viewId: viewId,
+          typeOptionLoader: NewFieldTypeOptionLoader(viewId: viewId),
         );
       },
     );

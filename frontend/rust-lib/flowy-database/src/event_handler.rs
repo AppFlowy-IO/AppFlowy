@@ -127,7 +127,7 @@ pub(crate) async fn update_field_handler(
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let changeset: FieldChangesetParams = data.into_inner().try_into()?;
-  let editor = manager.get_database_editor(&changeset.database_id).await?;
+  let editor = manager.get_database_editor(&changeset.view_id).await?;
   editor.update_field(changeset).await?;
   Ok(())
 }
@@ -358,7 +358,7 @@ pub(crate) async fn update_cell_handler(
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let changeset: CellChangesetPB = data.into_inner();
-  let editor = manager.get_database_editor(&changeset.database_id).await?;
+  let editor = manager.get_database_editor(&changeset.view_id).await?;
   editor
     .update_cell_with_changeset(
       &changeset.row_id,
@@ -375,7 +375,7 @@ pub(crate) async fn new_select_option_handler(
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<SelectOptionPB, FlowyError> {
   let params: CreateSelectOptionParams = data.into_inner().try_into()?;
-  let editor = manager.get_database_editor(&params.database_id).await?;
+  let editor = manager.get_database_editor(&params.view_id).await?;
   match editor.get_field_rev(&params.field_id).await {
     None => Err(ErrorCode::InvalidData.into()),
     Some(field_rev) => {

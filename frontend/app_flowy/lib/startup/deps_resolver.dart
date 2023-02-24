@@ -142,8 +142,8 @@ void _resolveDocDeps(GetIt getIt) {
 
 void _resolveGridDeps(GetIt getIt) {
   getIt.registerFactoryParam<GridHeaderBloc, String, GridFieldController>(
-    (databaseId, fieldController) => GridHeaderBloc(
-      databaseId: databaseId,
+    (viewId, fieldController) => GridHeaderBloc(
+      viewId: viewId,
       fieldController: fieldController,
     ),
   );
@@ -185,7 +185,6 @@ void _resolveGridDeps(GetIt getIt) {
   );
 
   getIt.registerFactoryParam<GridPropertyBloc, String, GridFieldController>(
-    (databaseId, cache) =>
-        GridPropertyBloc(databaseId: databaseId, fieldController: cache),
+    (viewId, cache) => GridPropertyBloc(viewId: viewId, fieldController: cache),
   );
 }

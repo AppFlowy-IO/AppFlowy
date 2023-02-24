@@ -40,16 +40,16 @@ class BoardDataController {
   OnError? _onError;
 
   List<RowInfo> get rowInfos => _viewCache.rowInfos;
-  GridRowCache get rowCache => _viewCache.rowCache;
+  RowCache get rowCache => _viewCache.rowCache;
 
   BoardDataController({required ViewPB view})
       : viewId = view.id,
         _listener = BoardListener(view.id),
         _databaseFFIService = DatabaseFFIService(viewId: view.id),
-        fieldController = GridFieldController(databaseId: view.id) {
+        fieldController = GridFieldController(viewId: view.id) {
     //
     _viewCache = DatabaseViewCache(
-      databaseId: view.id,
+      viewId: view.id,
       fieldController: fieldController,
     );
     _viewCache.addListener(onRowsChanged: (reason) {

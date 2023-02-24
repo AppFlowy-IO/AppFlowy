@@ -611,7 +611,7 @@ impl DatabaseEditor {
           Some(self.cell_data_cache.clone()),
         )?;
         let cell_changeset = CellChangesetPB {
-          database_id: self.database_id.clone(),
+          view_id: self.database_id.clone(),
           row_id: row_id.to_owned(),
           field_id: field_id.to_owned(),
           type_cell_data,
@@ -814,7 +814,7 @@ impl DatabaseEditor {
                   .cell_by_field_id
                   .into_iter()
                   .map(|(field_id, cell_rev)| CellChangesetPB {
-                    database_id: view_id.clone(),
+                    view_id: view_id.clone(),
                     row_id: row_changeset.row_id.clone(),
                     field_id,
                     type_cell_data: cell_rev.type_cell_data,

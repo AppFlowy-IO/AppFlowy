@@ -117,7 +117,7 @@ class TypeOptionContext<T extends GeneratedMessage> {
     required TypeOptionDataController dataController,
   }) : _dataController = dataController;
 
-  String get databaseId => _dataController.databaseId;
+  String get viewId => _dataController.viewId;
 
   String get fieldId => _dataController.field.id;
 

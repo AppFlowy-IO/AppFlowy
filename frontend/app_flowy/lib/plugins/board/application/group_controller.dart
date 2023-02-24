@@ -18,7 +18,7 @@ class GroupController {
   final GroupControllerDelegate delegate;
 
   GroupController({
-    required String databaseId,
+    required String viewId,
     required this.group,
     required this.delegate,
   }) : _listener = GroupListener(group);

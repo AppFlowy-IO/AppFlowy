@@ -13,13 +13,13 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   final TypeOptionDataController dataController;
 
   FieldEditorBloc({
-    required String databaseId,
+    required String viewId,
     required String fieldName,
     required bool isGroupField,
     required IFieldTypeOptionLoader loader,
   })  : dataController =
-            TypeOptionDataController(databaseId: databaseId, loader: loader),
-        super(FieldEditorState.initial(databaseId, fieldName, isGroupField)) {
+            TypeOptionDataController(viewId: viewId, loader: loader),
+        super(FieldEditorState.initial(viewId, fieldName, isGroupField)) {
     on<FieldEditorEvent>(
       (event, emit) async {
         await event.when(
@@ -49,7 +49,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
               () => null,
               (field) {
                 final fieldService = FieldService(
-                  viewId: databaseId,
+                  viewId: viewId,
                   fieldId: field.id,
                 );
                 fieldService.deleteField();
@@ -84,7 +84,7 @@ class FieldEditorEvent with _$FieldEditorEvent {
 @freezed
 class FieldEditorState with _$FieldEditorState {
   const factory FieldEditorState({
-    required String databaseId,
+    required String viewId,
     required String errorText,
     required String name,
     required Option<FieldPB> field,
@@ -93,12 +93,12 @@ class FieldEditorState with _$FieldEditorState {
   }) = _FieldEditorState;
 
   factory FieldEditorState.initial(
-    String databaseId,
+    String viewId,
     String fieldName,
     bool isGroupField,
   ) =>
       FieldEditorState(
-        databaseId: databaseId,
+        viewId: viewId,
         errorText: '',
         field: none(),
         canDelete: false,

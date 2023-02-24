@@ -74,14 +74,14 @@ class GridGroupEvent with _$GridGroupEvent {
 @freezed
 class GridGroupState with _$GridGroupState {
   const factory GridGroupState({
-    required String databaseId,
+    required String viewId,
     required List<FieldInfo> fieldContexts,
   }) = _GridGroupState;
 
   factory GridGroupState.initial(
-          String databaseId, List<FieldInfo> fieldContexts) =>
+          String viewId, List<FieldInfo> fieldContexts) =>
       GridGroupState(
-        databaseId: databaseId,
+        viewId: viewId,
         fieldContexts: fieldContexts,
       );
 }

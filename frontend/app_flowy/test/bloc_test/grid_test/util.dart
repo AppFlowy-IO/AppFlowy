@@ -49,7 +49,7 @@ class GridTestContext {
       fieldName: fieldInfo?.name ?? '',
       isGroupField: fieldInfo?.isGroupField ?? false,
       loader: loader,
-      databaseId: gridView.id,
+      viewId: gridView.id,
     );
     return editorBloc;
   }

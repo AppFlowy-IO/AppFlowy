@@ -12,13 +12,13 @@ import 'row_service.dart';
 part 'row_bloc.freezed.dart';
 
 class RowBloc extends Bloc<RowEvent, RowState> {
-  final RowFFIService _rowService;
+  final RowBackendService _rowService;
   final RowDataController _dataController;
 
   RowBloc({
     required RowInfo rowInfo,
     required RowDataController dataController,
-  })  : _rowService = RowFFIService(databaseId: rowInfo.databaseId),
+  })  : _rowService = RowBackendService(viewId: rowInfo.viewId),
         _dataController = dataController,
         super(RowState.initial(rowInfo, dataController.loadData())) {
     on<RowEvent>(

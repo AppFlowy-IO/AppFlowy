@@ -2,9 +2,9 @@ part of 'cell_service.dart';
 
 typedef GridCellMap = LinkedHashMap<String, GridCellIdentifier>;
 
-class GridCell {
+class GridBaseCell {
   dynamic object;
-  GridCell({
+  GridBaseCell({
     required this.object,
   });
 }
@@ -24,13 +24,13 @@ class GridCellCacheKey {
 /// We use GridCellCacheKey to index the cell in the cache.
 /// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid
 /// for more information
-class GridCellCache {
-  final String databaseId;
+class CellCache {
+  final String viewId;
 
   /// fieldId: {cacheKey: GridCell}
   final Map<String, Map<String, dynamic>> _cellDataByFieldId = {};
-  GridCellCache({
-    required this.databaseId,
+  CellCache({
+    required this.viewId,
   });
 
   void removeCellWithFieldId(String fieldId) {
@@ -44,7 +44,7 @@ class GridCellCache {
     }
   }
 
-  void insert<T extends GridCell>(GridCellCacheKey key, T value) {
+  void insert<T extends GridBaseCell>(GridCellCacheKey key, T value) {
     var map = _cellDataByFieldId[key.fieldId];
     if (map == null) {
       _cellDataByFieldId[key.fieldId] = {};

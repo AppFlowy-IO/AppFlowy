@@ -27,14 +27,14 @@ abstract class RowCacheDelegate {
 ///
 /// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid for more information.
 
-class GridRowCache {
-  final String databaseId;
+class RowCache {
+  final String viewId;
 
   /// _rows containers the current block's rows
   /// Use List to reverse the order of the GridRow.
   final RowList _rowList = RowList();
 
-  final GridCellCache _cellCache;
+  final CellCache _cellCache;
   final RowCacheDelegate _delegate;
   final RowChangesetNotifier _rowChangeReasonNotifier;
 
@@ -43,13 +43,13 @@ class GridRowCache {
     return UnmodifiableListView(visibleRows);
   }
 
-  GridCellCache get cellCache => _cellCache;
+  CellCache get cellCache => _cellCache;
 
-  GridRowCache({
-    required this.databaseId,
+  RowCache({
+    required this.viewId,
     required RowChangesetNotifierForward notifier,
     required RowCacheDelegate delegate,
-  })  : _cellCache = GridCellCache(databaseId: databaseId),
+  })  : _cellCache = CellCache(viewId: viewId),
         _rowChangeReasonNotifier = RowChangesetNotifier(),
         _delegate = delegate {
     //
@@ -214,7 +214,7 @@ class GridRowCache {
 
   Future<void> _loadRow(String rowId) async {
     final payload = RowIdPB.create()
-      ..viewId = databaseId
+      ..viewId = viewId
       ..rowId = rowId;
 
     final result = await DatabaseEventGetRow(payload).send();
@@ -231,7 +231,7 @@ class GridRowCache {
       if (field.visibility) {
         cellDataMap[field.id] = GridCellIdentifier(
           rowId: rowId,
-          viewId: databaseId,
+          viewId: viewId,
           fieldInfo: field,
         );
       }
@@ -265,7 +265,7 @@ class GridRowCache {
 
   RowInfo buildGridRow(RowPB rowPB) {
     return RowInfo(
-      databaseId: databaseId,
+      viewId: viewId,
       fields: _delegate.fields,
       rowPB: rowPB,
     );
@@ -294,7 +294,7 @@ class RowChangesetNotifier extends ChangeNotifier {
 @unfreezed
 class RowInfo with _$RowInfo {
   factory RowInfo({
-    required String databaseId,
+    required String viewId,
     required UnmodifiableListView<FieldInfo> fields,
     required RowPB rowPB,
   }) = _RowInfo;

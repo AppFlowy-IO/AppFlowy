@@ -14,7 +14,7 @@ class SingleSelectOptionFilterDelegateImpl
 
   SingleSelectOptionFilterDelegateImpl(FilterInfo filterInfo)
       : typeOptionContext = makeSingleSelectTypeOptionContext(
-          databaseId: filterInfo.viewId,
+          viewId: filterInfo.viewId,
           fieldPB: filterInfo.fieldInfo.field,
         );
 
@@ -34,7 +34,7 @@ class MultiSelectOptionFilterDelegateImpl
 
   MultiSelectOptionFilterDelegateImpl(FilterInfo filterInfo)
       : typeOptionContext = makeMultiSelectTypeOptionContext(
-          databaseId: filterInfo.viewId,
+          viewId: filterInfo.viewId,
           fieldPB: filterInfo.fieldInfo.field,
         );
 

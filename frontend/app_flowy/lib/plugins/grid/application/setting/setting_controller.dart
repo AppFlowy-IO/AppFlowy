@@ -18,7 +18,7 @@ class SettingController {
   SettingController({
     required this.viewId,
   })  : _ffiService = SettingFFIService(viewId: viewId),
-        _listener = DatabaseSettingListener(databaseId: viewId) {
+        _listener = DatabaseSettingListener(viewId: viewId) {
     // Load setting
     _ffiService.getSetting().then((result) {
       result.fold(

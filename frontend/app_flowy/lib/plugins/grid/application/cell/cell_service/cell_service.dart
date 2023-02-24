@@ -35,7 +35,7 @@ class CellService {
     required String data,
   }) {
     final payload = CellChangesetPB.create()
-      ..databaseId = cellId.viewId
+      ..viewId = cellId.viewId
       ..fieldId = cellId.fieldId
       ..rowId = cellId.rowId
       ..typeCellData = data;

@@ -7,20 +7,20 @@ import '../row/row_cache.dart';
 
 /// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid for more information
 class DatabaseViewCache {
-  final String databaseId;
-  late GridRowCache _rowCache;
+  final String viewId;
+  late RowCache _rowCache;
   final GridViewListener _gridViewListener;
 
   List<RowInfo> get rowInfos => _rowCache.visibleRows;
-  GridRowCache get rowCache => _rowCache;
+  RowCache get rowCache => _rowCache;
 
   DatabaseViewCache({
-    required this.databaseId,
+    required this.viewId,
     required GridFieldController fieldController,
-  }) : _gridViewListener = GridViewListener(viewId: databaseId) {
+  }) : _gridViewListener = GridViewListener(viewId: viewId) {
     final delegate = GridRowFieldNotifierImpl(fieldController);
-    _rowCache = GridRowCache(
-      databaseId: databaseId,
+    _rowCache = RowCache(
+      viewId: viewId,
       notifier: delegate,
       delegate: delegate,
     );

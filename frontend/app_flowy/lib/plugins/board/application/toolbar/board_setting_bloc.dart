@@ -6,8 +6,8 @@ import 'package:dartz/dartz.dart';
 part 'board_setting_bloc.freezed.dart';
 
 class BoardSettingBloc extends Bloc<BoardSettingEvent, BoardSettingState> {
-  final String databaseId;
-  BoardSettingBloc({required this.databaseId})
+  final String viewId;
+  BoardSettingBloc({required this.viewId})
       : super(BoardSettingState.initial()) {
     on<BoardSettingEvent>(
       (event, emit) async {

@@ -11,12 +11,12 @@ class RowDataController extends GridCellBuilderDelegate {
   final RowInfo rowInfo;
   final List<VoidCallback> _onRowChangedListeners = [];
   final GridFieldController _fieldController;
-  final GridRowCache _rowCache;
+  final RowCache _rowCache;
 
   RowDataController({
     required this.rowInfo,
     required GridFieldController fieldController,
-    required GridRowCache rowCache,
+    required RowCache rowCache,
   })  : _fieldController = fieldController,
         _rowCache = rowCache;
 
@@ -45,5 +45,5 @@ class RowDataController extends GridCellBuilderDelegate {
   }
 
   @override
-  GridCellCache get cellCache => _rowCache.cellCache;
+  CellCache get cellCache => _rowCache.cellCache;
 }

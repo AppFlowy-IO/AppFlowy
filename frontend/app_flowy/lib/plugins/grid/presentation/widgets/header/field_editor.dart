@@ -15,14 +15,14 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'field_type_option_editor.dart';
 
 class FieldEditor extends StatefulWidget {
-  final String databaseId;
+  final String viewId;
   final String fieldName;
   final bool isGroupField;
   final Function(String)? onDeleted;
   final IFieldTypeOptionLoader typeOptionLoader;
 
   const FieldEditor({
-    required this.databaseId,
+    required this.viewId,
     this.fieldName = "",
     required this.typeOptionLoader,
     this.isGroupField = false,
@@ -59,7 +59,7 @@ class _FieldEditorState extends State<FieldEditor> {
     ];
     return BlocProvider(
       create: (context) => FieldEditorBloc(
-        databaseId: widget.databaseId,
+        viewId: widget.viewId,
         fieldName: widget.fieldName,
         isGroupField: widget.isGroupField,
         loader: widget.typeOptionLoader,
@@ -170,8 +170,9 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
               focusNode: focusNode,
               onSubmitted: (String _) => PopoverContainer.of(context).close(),
               text: context.read<FieldEditorBloc>().state.name,
-              errorText: context.read<FieldEditorBloc>().state.errorText.isEmpty ?
-                null : context.read<FieldEditorBloc>().state.errorText,
+              errorText: context.read<FieldEditorBloc>().state.errorText.isEmpty
+                  ? null
+                  : context.read<FieldEditorBloc>().state.errorText,
               onChanged: (newName) {
                 context
                     .read<FieldEditorBloc>()

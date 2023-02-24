@@ -13,7 +13,7 @@ Future<FieldEditorBloc> createEditorBloc(AppFlowyGridTest gridTest) async {
   );
 
   return FieldEditorBloc(
-    databaseId: context.gridView.id,
+    viewId: context.gridView.id,
     fieldName: fieldInfo.name,
     isGroupField: fieldInfo.isGroupField,
     loader: loader,
@@ -83,7 +83,7 @@ Future<FieldEditorBloc> makeEditorBloc(AppFlowyGridTest gridTest) async {
   );
 
   final editorBloc = FieldEditorBloc(
-    databaseId: context.gridView.id,
+    viewId: context.gridView.id,
     fieldName: fieldInfo.name,
     isGroupField: fieldInfo.isGroupField,
     loader: loader,

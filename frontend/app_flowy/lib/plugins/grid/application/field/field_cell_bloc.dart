@@ -73,14 +73,14 @@ class FieldCellEvent with _$FieldCellEvent {
 @freezed
 class FieldCellState with _$FieldCellState {
   const factory FieldCellState({
-    required String databaseId,
+    required String viewId,
     required FieldPB field,
     required double width,
   }) = _FieldCellState;
 
   factory FieldCellState.initial(GridFieldCellContext cellContext) =>
       FieldCellState(
-        databaseId: cellContext.viewId,
+        viewId: cellContext.viewId,
         field: cellContext.field,
         width: cellContext.field.width.toDouble(),
       );

@@ -6,9 +6,8 @@ import 'package:dartz/dartz.dart';
 part 'setting_bloc.freezed.dart';
 
 class GridSettingBloc extends Bloc<GridSettingEvent, GridSettingState> {
-  final String databaseId;
-  GridSettingBloc({required this.databaseId})
-      : super(GridSettingState.initial()) {
+  final String viewId;
+  GridSettingBloc({required this.viewId}) : super(GridSettingState.initial()) {
     on<GridSettingEvent>(
       (event, emit) async {
         event.map(performAction: (_PerformAction value) {

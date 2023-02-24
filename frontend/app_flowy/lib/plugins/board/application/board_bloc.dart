@@ -28,7 +28,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   GridFieldController get fieldController =>
       _gridDataController.fieldController;
-  String get databaseId => _gridDataController.viewId;
+  String get viewId => _gridDataController.viewId;
 
   BoardBloc({required ViewPB view})
       : _rowService = MoveRowFFIService(viewId: view.id),
@@ -204,7 +204,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     }
   }
 
-  GridRowCache? getRowCache(String blockId) {
+  RowCache? getRowCache(String blockId) {
     return _gridDataController.rowCache;
   }
 
@@ -285,7 +285,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       },
     );
     final controller = GroupController(
-      databaseId: state.databaseId,
+      viewId: state.viewId,
       group: group,
       delegate: delegate,
     );
@@ -332,7 +332,7 @@ class BoardEvent with _$BoardEvent {
 @freezed
 class BoardState with _$BoardState {
   const factory BoardState({
-    required String databaseId,
+    required String viewId,
     required Option<DatabasePB> grid,
     required List<String> groupIds,
     required Option<BoardEditingRow> editingRow,
@@ -340,9 +340,9 @@ class BoardState with _$BoardState {
     required Option<FlowyError> noneOrError,
   }) = _BoardState;
 
-  factory BoardState.initial(String databaseId) => BoardState(
+  factory BoardState.initial(String viewId) => BoardState(
         grid: none(),
-        databaseId: databaseId,
+        viewId: viewId,
         groupIds: [],
         editingRow: none(),
         noneOrError: none(),

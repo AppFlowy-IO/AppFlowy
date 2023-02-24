@@ -13,11 +13,9 @@ class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
   Function(List<FieldInfo>)? _onFieldsFn;
 
   GridPropertyBloc(
-      {required String databaseId,
-      required GridFieldController fieldController})
+      {required String viewId, required GridFieldController fieldController})
       : _fieldController = fieldController,
-        super(
-            GridPropertyState.initial(databaseId, fieldController.fieldInfos)) {
+        super(GridPropertyState.initial(viewId, fieldController.fieldInfos)) {
     on<GridPropertyEvent>(
       (event, emit) async {
         await event.map(
@@ -26,7 +24,7 @@ class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
           },
           setFieldVisibility: (_SetFieldVisibility value) async {
             final fieldService =
-                FieldService(viewId: databaseId, fieldId: value.fieldId);
+                FieldService(viewId: viewId, fieldId: value.fieldId);
             final result =
                 await fieldService.updateField(visibility: value.visibility);
             result.fold(
@@ -78,16 +76,16 @@ class GridPropertyEvent with _$GridPropertyEvent {
 @freezed
 class GridPropertyState with _$GridPropertyState {
   const factory GridPropertyState({
-    required String databaseId,
+    required String viewId,
     required List<FieldInfo> fieldContexts,
   }) = _GridPropertyState;
 
   factory GridPropertyState.initial(
-    String databaseId,
+    String viewId,
     List<FieldInfo> fieldContexts,
   ) =>
       GridPropertyState(
-        databaseId: databaseId,
+        viewId: viewId,
         fieldContexts: fieldContexts,
       );
 }

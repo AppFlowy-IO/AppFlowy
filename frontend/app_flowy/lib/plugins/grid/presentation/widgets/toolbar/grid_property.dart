@@ -17,10 +17,10 @@ import '../../../application/field/field_controller.dart';
 import '../../layout/sizes.dart';
 
 class GridPropertyList extends StatefulWidget {
-  final String databaseId;
+  final String viewId;
   final GridFieldController fieldController;
   const GridPropertyList({
-    required this.databaseId,
+    required this.viewId,
     required this.fieldController,
     Key? key,
   }) : super(key: key);
@@ -42,14 +42,14 @@ class _GridPropertyListState extends State<GridPropertyList> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt<GridPropertyBloc>(
-          param1: widget.databaseId, param2: widget.fieldController)
+          param1: widget.viewId, param2: widget.fieldController)
         ..add(const GridPropertyEvent.initial()),
       child: BlocBuilder<GridPropertyBloc, GridPropertyState>(
         builder: (context, state) {
           final cells = state.fieldContexts.map((field) {
             return _GridPropertyCell(
               popoverMutex: _popoverMutex,
-              databaseId: widget.databaseId,
+              viewId: widget.viewId,
               fieldInfo: field,
               key: ValueKey(field.id),
             );
@@ -72,11 +72,11 @@ class _GridPropertyListState extends State<GridPropertyList> {
 
 class _GridPropertyCell extends StatefulWidget {
   final FieldInfo fieldInfo;
-  final String databaseId;
+  final String viewId;
   final PopoverMutex popoverMutex;
 
   const _GridPropertyCell({
-    required this.databaseId,
+    required this.viewId,
     required this.fieldInfo,
     required this.popoverMutex,
     Key? key,
@@ -136,10 +136,10 @@ class _GridPropertyCellState extends State<_GridPropertyCell> {
       ).padding(horizontal: 6.0),
       popupBuilder: (BuildContext context) {
         return FieldEditor(
-          databaseId: widget.databaseId,
+          viewId: widget.viewId,
           fieldName: widget.fieldInfo.name,
           typeOptionLoader: FieldTypeOptionLoader(
-            viewId: widget.databaseId,
+            viewId: widget.viewId,
             field: widget.fieldInfo.field,
           ),
         );

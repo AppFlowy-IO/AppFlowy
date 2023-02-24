@@ -8,16 +8,16 @@ import 'type_option_context.dart';
 import 'type_option_service.dart';
 
 class SingleSelectAction with ISelectOptionAction {
-  final String databaseId;
+  final String viewId;
   final String fieldId;
   final SingleSelectTypeOptionContext typeOptionContext;
-  final TypeOptionFFIService service;
+  final TypeOptionBackendService service;
 
   SingleSelectAction({
-    required this.databaseId,
+    required this.viewId,
     required this.fieldId,
     required this.typeOptionContext,
-  }) : service = TypeOptionFFIService(viewId: databaseId, fieldId: fieldId);
+  }) : service = TypeOptionBackendService(viewId: viewId, fieldId: fieldId);
 
   SingleSelectTypeOptionPB get typeOption => typeOptionContext.typeOption;
 

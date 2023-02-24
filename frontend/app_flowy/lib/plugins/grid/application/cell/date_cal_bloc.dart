@@ -175,7 +175,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
     });
 
     final result = await FieldService.updateFieldTypeOption(
-      viewId: cellController.databaseId,
+      viewId: cellController.viewId,
       fieldId: cellController.fieldInfo.id,
       typeOptionData: newDateTypeOption.writeToBuffer(),
     );

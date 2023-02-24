@@ -62,14 +62,14 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
   required TypeOptionDataController dataController,
   required PopoverMutex popoverMutex,
 }) {
-  final databaseId = dataController.databaseId;
+  final viewId = dataController.viewId;
   final fieldType = dataController.field.fieldType;
 
   switch (dataController.field.fieldType) {
     case FieldType.Checkbox:
       return CheckboxTypeOptionWidgetBuilder(
         makeTypeOptionContextWithDataController<CheckboxTypeOptionPB>(
-          databaseId: databaseId,
+          viewId: viewId,
           fieldType: fieldType,
           dataController: dataController,
         ),
@@ -77,7 +77,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
     case FieldType.DateTime:
       return DateTypeOptionWidgetBuilder(
           makeTypeOptionContextWithDataController<DateTypeOptionPB>(
-            databaseId: databaseId,
+            viewId: viewId,
             fieldType: fieldType,
             dataController: dataController,
           ),
@@ -85,7 +85,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
     case FieldType.SingleSelect:
       return SingleSelectTypeOptionWidgetBuilder(
         makeTypeOptionContextWithDataController<SingleSelectTypeOptionPB>(
-          databaseId: databaseId,
+          viewId: viewId,
           fieldType: fieldType,
           dataController: dataController,
         ),
@@ -94,7 +94,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
     case FieldType.MultiSelect:
       return MultiSelectTypeOptionWidgetBuilder(
         makeTypeOptionContextWithDataController<MultiSelectTypeOptionPB>(
-          databaseId: databaseId,
+          viewId: viewId,
           fieldType: fieldType,
           dataController: dataController,
         ),
@@ -103,7 +103,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
     case FieldType.Number:
       return NumberTypeOptionWidgetBuilder(
         makeTypeOptionContextWithDataController<NumberTypeOptionPB>(
-          databaseId: databaseId,
+          viewId: viewId,
           fieldType: fieldType,
           dataController: dataController,
         ),
@@ -112,7 +112,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
     case FieldType.RichText:
       return RichTextTypeOptionWidgetBuilder(
         makeTypeOptionContextWithDataController<RichTextTypeOptionPB>(
-          databaseId: databaseId,
+          viewId: viewId,
           fieldType: fieldType,
           dataController: dataController,
         ),
@@ -121,7 +121,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
     case FieldType.URL:
       return URLTypeOptionWidgetBuilder(
         makeTypeOptionContextWithDataController<URLTypeOptionPB>(
-          databaseId: databaseId,
+          viewId: viewId,
           fieldType: fieldType,
           dataController: dataController,
         ),
@@ -130,7 +130,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
     case FieldType.Checklist:
       return ChecklistTypeOptionWidgetBuilder(
         makeTypeOptionContextWithDataController<ChecklistTypeOptionPB>(
-          databaseId: databaseId,
+          viewId: viewId,
           fieldType: fieldType,
           dataController: dataController,
         ),
@@ -140,51 +140,50 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
 }
 
 TypeOptionContext<T> makeTypeOptionContext<T extends GeneratedMessage>({
-  required String databaseId,
+  required String viewId,
   required FieldInfo fieldInfo,
 }) {
-  final loader =
-      FieldTypeOptionLoader(viewId: databaseId, field: fieldInfo.field);
+  final loader = FieldTypeOptionLoader(viewId: viewId, field: fieldInfo.field);
   final dataController = TypeOptionDataController(
-    databaseId: databaseId,
+    viewId: viewId,
     loader: loader,
     fieldInfo: fieldInfo,
   );
   return makeTypeOptionContextWithDataController(
-    databaseId: databaseId,
+    viewId: viewId,
     fieldType: fieldInfo.fieldType,
     dataController: dataController,
   );
 }
 
 TypeOptionContext<SingleSelectTypeOptionPB> makeSingleSelectTypeOptionContext({
-  required String databaseId,
+  required String viewId,
   required FieldPB fieldPB,
 }) {
-  return makeSelectTypeOptionContext(databaseId: databaseId, fieldPB: fieldPB);
+  return makeSelectTypeOptionContext(viewId: viewId, fieldPB: fieldPB);
 }
 
 TypeOptionContext<MultiSelectTypeOptionPB> makeMultiSelectTypeOptionContext({
-  required String databaseId,
+  required String viewId,
   required FieldPB fieldPB,
 }) {
-  return makeSelectTypeOptionContext(databaseId: databaseId, fieldPB: fieldPB);
+  return makeSelectTypeOptionContext(viewId: viewId, fieldPB: fieldPB);
 }
 
 TypeOptionContext<T> makeSelectTypeOptionContext<T extends GeneratedMessage>({
-  required String databaseId,
+  required String viewId,
   required FieldPB fieldPB,
 }) {
   final loader = FieldTypeOptionLoader(
-    viewId: databaseId,
+    viewId: viewId,
     field: fieldPB,
   );
   final dataController = TypeOptionDataController(
-    databaseId: databaseId,
+    viewId: viewId,
     loader: loader,
   );
   final typeOptionContext = makeTypeOptionContextWithDataController<T>(
-    databaseId: databaseId,
+    viewId: viewId,
     fieldType: fieldPB.fieldType,
     dataController: dataController,
   );
@@ -193,7 +192,7 @@ TypeOptionContext<T> makeSelectTypeOptionContext<T extends GeneratedMessage>({
 
 TypeOptionContext<T>
     makeTypeOptionContextWithDataController<T extends GeneratedMessage>({
-  required String databaseId,
+  required String viewId,
   required FieldType fieldType,
   required TypeOptionDataController dataController,
 }) {

@@ -15,7 +15,7 @@ import 'url_cell/url_cell.dart';
 
 abstract class GridCellBuilderDelegate
     extends GridCellControllerBuilderDelegate {
-  GridCellCache get cellCache;
+  CellCache get cellCache;
 }
 
 class GridCellBuilder {

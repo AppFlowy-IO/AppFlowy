@@ -40,7 +40,7 @@ void main() {
     );
 
     final editorBloc = FieldEditorBloc(
-      databaseId: context.gridView.id,
+      viewId: context.gridView.id,
       fieldName: textField.field.name,
       isGroupField: false,
       loader: loader,

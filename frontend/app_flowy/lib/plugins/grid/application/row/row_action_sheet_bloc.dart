@@ -12,10 +12,10 @@ part 'row_action_sheet_bloc.freezed.dart';
 
 class RowActionSheetBloc
     extends Bloc<RowActionSheetEvent, RowActionSheetState> {
-  final RowFFIService _rowService;
+  final RowBackendService _rowService;
 
   RowActionSheetBloc({required RowInfo rowInfo})
-      : _rowService = RowFFIService(databaseId: rowInfo.databaseId),
+      : _rowService = RowBackendService(viewId: rowInfo.viewId),
         super(RowActionSheetState.initial(rowInfo)) {
     on<RowActionSheetEvent>(
       (event, emit) async {

@@ -13,7 +13,7 @@ part 'card_bloc.freezed.dart';
 
 class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
   final String groupFieldId;
-  final RowFFIService _rowService;
+  final RowBackendService _rowService;
   final CardDataController _dataController;
 
   BoardCardBloc({
@@ -21,8 +21,8 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
     required String viewId,
     required CardDataController dataController,
     required bool isEditing,
-  })  : _rowService = RowFFIService(
-          databaseId: viewId,
+  })  : _rowService = RowBackendService(
+          viewId: viewId,
         ),
         _dataController = dataController,
         super(
@@ -60,7 +60,7 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
 
   RowInfo rowInfo() {
     return RowInfo(
-      databaseId: _rowService.databaseId,
+      viewId: _rowService.viewId,
       fields: UnmodifiableListView(
         state.cells.map((cell) => cell.identifier.fieldInfo).toList(),
       ),

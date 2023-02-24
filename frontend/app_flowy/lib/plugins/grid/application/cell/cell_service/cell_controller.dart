@@ -17,13 +17,13 @@ abstract class GridCellControllerBuilderDelegate {
 
 class GridCellControllerBuilder {
   final GridCellIdentifier _cellId;
-  final GridCellCache _cellCache;
+  final CellCache _cellCache;
   final GridCellControllerBuilderDelegate delegate;
 
   GridCellControllerBuilder({
     required this.delegate,
     required GridCellIdentifier cellId,
-    required GridCellCache cellCache,
+    required CellCache cellCache,
   })  : _cellCache = cellCache,
         _cellId = cellId;
 
@@ -125,7 +125,7 @@ class GridCellControllerBuilder {
 // ignore: must_be_immutable
 class GridCellController<T, D> extends Equatable {
   final GridCellIdentifier cellId;
-  final GridCellCache _cellsCache;
+  final CellCache _cellsCache;
   final GridCellCacheKey _cacheKey;
   final FieldService _fieldService;
   final GridCellFieldNotifier _fieldNotifier;
@@ -143,7 +143,7 @@ class GridCellController<T, D> extends Equatable {
 
   GridCellController({
     required this.cellId,
-    required GridCellCache cellCache,
+    required CellCache cellCache,
     required GridCellFieldNotifier fieldNotifier,
     required GridCellDataLoader<T> cellDataLoader,
     required GridCellDataPersistence<D> cellDataPersistence,
@@ -160,7 +160,7 @@ class GridCellController<T, D> extends Equatable {
           fieldId: cellId.fieldInfo.id,
         );
 
-  String get databaseId => cellId.viewId;
+  String get viewId => cellId.viewId;
 
   String get rowId => cellId.rowId;
 
@@ -295,7 +295,7 @@ class GridCellController<T, D> extends Equatable {
     _loadDataOperation = Timer(const Duration(milliseconds: 10), () {
       _cellDataLoader.loadData().then((data) {
         if (data != null) {
-          _cellsCache.insert(_cacheKey, GridCell(object: data));
+          _cellsCache.insert(_cacheKey, GridBaseCell(object: data));
         } else {
           _cellsCache.remove(_cacheKey);
         }

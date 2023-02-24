@@ -10,17 +10,17 @@ import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart'
 typedef UpdateFieldNotifiedValue = Either<DatabaseFieldChangesetPB, FlowyError>;
 
 class DatabaseFieldsListener {
-  final String databaseId;
+  final String viewId;
   PublishNotifier<UpdateFieldNotifiedValue>? updateFieldsNotifier =
       PublishNotifier();
   DatabaseNotificationListener? _listener;
-  DatabaseFieldsListener({required this.databaseId});
+  DatabaseFieldsListener({required this.viewId});
 
   void start(
       {required void Function(UpdateFieldNotifiedValue) onFieldsChanged}) {
     updateFieldsNotifier?.addPublishListener(onFieldsChanged);
     _listener = DatabaseNotificationListener(
-      objectId: databaseId,
+      objectId: viewId,
       handler: _handler,
     );
   }

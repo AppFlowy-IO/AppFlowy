@@ -227,7 +227,7 @@ class _BoardContentState extends State<BoardContent> {
     if (rowCache == null) return SizedBox(key: ObjectKey(groupItem));
 
     final fieldController = context.read<BoardBloc>().fieldController;
-    final databaseId = context.read<BoardBloc>().databaseId;
+    final viewId = context.read<BoardBloc>().viewId;
     final cardController = CardDataController(
       fieldController: fieldController,
       rowCache: rowCache,
@@ -249,14 +249,14 @@ class _BoardContentState extends State<BoardContent> {
       margin: config.cardPadding,
       decoration: _makeBoxDecoration(context),
       child: BoardCard(
-        viewId: databaseId,
+        viewId: viewId,
         groupId: groupData.group.groupId,
         fieldId: groupItem.fieldInfo.id,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
         dataController: cardController,
         openCard: (context) => _openCard(
-          databaseId,
+          viewId,
           fieldController,
           rowPB,
           rowCache,
@@ -292,14 +292,14 @@ class _BoardContentState extends State<BoardContent> {
   }
 
   void _openCard(
-    String databaseId,
+    String viewId,
     GridFieldController fieldController,
     RowPB rowPB,
-    GridRowCache rowCache,
+    RowCache rowCache,
     BuildContext context,
   ) {
     final rowInfo = RowInfo(
-      databaseId: databaseId,
+      viewId: viewId,
       fields: UnmodifiableListView(fieldController.fieldInfos),
       rowPB: rowPB,
     );
@@ -331,7 +331,7 @@ class _ToolbarBlocAdaptor extends StatelessWidget {
       builder: (context, state) {
         final bloc = context.read<BoardBloc>();
         final toolbarContext = BoardToolbarContext(
-          viewId: bloc.databaseId,
+          viewId: bloc.viewId,
           fieldController: bloc.fieldController,
         );
 

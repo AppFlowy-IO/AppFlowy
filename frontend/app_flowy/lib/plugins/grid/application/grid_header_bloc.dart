@@ -10,10 +10,10 @@ part 'grid_header_bloc.freezed.dart';
 
 class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   final GridFieldController fieldController;
-  final String databaseId;
+  final String viewId;
 
   GridHeaderBloc({
-    required this.databaseId,
+    required this.viewId,
     required this.fieldController,
   }) : super(GridHeaderState.initial(fieldController.fieldInfos)) {
     on<GridHeaderEvent>(
@@ -45,8 +45,7 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
     fields.insert(value.toIndex, fields.removeAt(value.fromIndex));
     emit(state.copyWith(fields: fields));
 
-    final fieldService =
-        FieldService(viewId: databaseId, fieldId: value.field.id);
+    final fieldService = FieldService(viewId: viewId, fieldId: value.field.id);
     final result = await fieldService.moveField(
       value.fromIndex,
       value.toIndex,

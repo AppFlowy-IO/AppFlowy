@@ -154,7 +154,7 @@ impl TryInto<InsertGroupParams> for InsertGroupPayloadPB {
       .0;
 
     let view_id = NotEmptyStr::parse(self.view_id)
-      .map_err(|_| ErrorCode::ViewIdInvalid)?
+      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
       .0;
 
     Ok(InsertGroupParams {
@@ -197,7 +197,7 @@ impl TryInto<DeleteGroupParams> for DeleteGroupPayloadPB {
       .map_err(|_| ErrorCode::FieldIdIsEmpty)?
       .0;
     let view_id = NotEmptyStr::parse(self.view_id)
-      .map_err(|_| ErrorCode::ViewIdInvalid)?
+      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
       .0;
 
     Ok(DeleteGroupParams {

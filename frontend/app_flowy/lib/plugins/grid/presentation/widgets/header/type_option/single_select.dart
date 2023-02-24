@@ -15,7 +15,7 @@ class SingleSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
   ) : _widget = SingleSelectTypeOptionWidget(
           selectOptionAction: SingleSelectAction(
             fieldId: singleSelectTypeOption.fieldId,
-            databaseId: singleSelectTypeOption.databaseId,
+            viewId: singleSelectTypeOption.viewId,
             typeOptionContext: singleSelectTypeOption,
           ),
           popoverMutex: popoverMutex,

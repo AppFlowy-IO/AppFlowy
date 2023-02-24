@@ -26,7 +26,7 @@ void main() {
       "hides property",
       build: () {
         final bloc = GridHeaderBloc(
-          databaseId: context.gridView.id,
+          viewId: context.gridView.id,
           fieldController: context.fieldController,
         )..add(const GridHeaderEvent.initial());
         return bloc;
@@ -45,7 +45,7 @@ void main() {
       "shows property",
       build: () {
         final bloc = GridHeaderBloc(
-          databaseId: context.gridView.id,
+          viewId: context.gridView.id,
           fieldController: context.fieldController,
         )..add(const GridHeaderEvent.initial());
         return bloc;
@@ -66,7 +66,7 @@ void main() {
       "duplicate property",
       build: () {
         final bloc = GridHeaderBloc(
-          databaseId: context.gridView.id,
+          viewId: context.gridView.id,
           fieldController: context.fieldController,
         )..add(const GridHeaderEvent.initial());
         return bloc;
@@ -85,7 +85,7 @@ void main() {
       "delete property",
       build: () {
         final bloc = GridHeaderBloc(
-          databaseId: context.gridView.id,
+          viewId: context.gridView.id,
           fieldController: context.fieldController,
         )..add(const GridHeaderEvent.initial());
         return bloc;
@@ -104,7 +104,7 @@ void main() {
       "update name",
       build: () {
         final bloc = GridHeaderBloc(
-          databaseId: context.gridView.id,
+          viewId: context.gridView.id,
           fieldController: context.fieldController,
         )..add(const GridHeaderEvent.initial());
         return bloc;

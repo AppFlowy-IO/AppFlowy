@@ -35,7 +35,7 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
       return SizedBox(
         width: 400,
         child: FieldEditor(
-          databaseId: widget.cellContext.viewId,
+          viewId: widget.cellContext.viewId,
           fieldName: field.name,
           typeOptionLoader: FieldTypeOptionLoader(
             viewId: widget.cellContext.viewId,

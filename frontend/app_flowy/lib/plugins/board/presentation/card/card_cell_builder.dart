@@ -13,7 +13,7 @@ import 'board_url_cell.dart';
 
 abstract class BoardCellBuilderDelegate
     extends GridCellControllerBuilderDelegate {
-  GridCellCache get cellCache;
+  CellCache get cellCache;
 }
 
 class BoardCellBuilder {

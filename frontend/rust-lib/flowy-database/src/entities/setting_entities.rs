@@ -114,7 +114,7 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
 
   fn try_into(self) -> Result<DatabaseSettingChangesetParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id)
-      .map_err(|_| ErrorCode::ViewIdInvalid)?
+      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
       .0;
 
     let insert_filter = match self.alter_filter {

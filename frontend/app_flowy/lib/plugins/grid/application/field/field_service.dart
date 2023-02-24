@@ -35,7 +35,7 @@ class FieldService {
     double? width,
   }) {
     var payload = FieldChangesetPB.create()
-      ..databaseId = viewId
+      ..viewId = viewId
       ..fieldId = fieldId;
 
     if (name != null) {

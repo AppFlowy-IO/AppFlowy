@@ -70,7 +70,7 @@ class _GridPageState extends State<GridPage> {
           )..add(const SortMenuEvent.initial()),
         ),
         BlocProvider<GridSettingBloc>(
-          create: (context) => GridSettingBloc(databaseId: widget.view.id),
+          create: (context) => GridSettingBloc(viewId: widget.view.id),
         ),
       ],
       child: BlocBuilder<GridBloc, GridState>(
@@ -146,8 +146,8 @@ class _FlowyGridState extends State<FlowyGrid> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const GridToolbar(),
-            GridAccessoryMenu(viewId: state.databaseId),
-            _gridHeader(context, state.databaseId),
+            GridAccessoryMenu(viewId: state.viewId),
+            _gridHeader(context, state.viewId),
             Flexible(child: child),
             const RowCountBadge(),
           ],
@@ -305,7 +305,7 @@ class _GridRowsState extends State<_GridRows> {
     BuildContext context,
     RowInfo rowInfo,
     GridFieldController fieldController,
-    GridRowCache rowCache,
+    RowCache rowCache,
     GridCellBuilder cellBuilder,
   ) {
     final dataController = RowDataController(

@@ -11,7 +11,7 @@ pub struct CreateSelectOptionPayloadPB {
   pub field_id: String,
 
   #[pb(index = 2)]
-  pub database_id: String,
+  pub view_id: String,
 
   #[pb(index = 3)]
   pub option_name: String,
@@ -19,7 +19,7 @@ pub struct CreateSelectOptionPayloadPB {
 
 pub struct CreateSelectOptionParams {
   pub field_id: String,
-  pub database_id: String,
+  pub view_id: String,
   pub option_name: String,
 }
 
@@ -29,13 +29,12 @@ impl TryInto<CreateSelectOptionParams> for CreateSelectOptionPayloadPB {
   fn try_into(self) -> Result<CreateSelectOptionParams, Self::Error> {
     let option_name =
       NotEmptyStr::parse(self.option_name).map_err(|_| ErrorCode::SelectOptionNameIsEmpty)?;
-    let database_id =
-      NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::ViewIdIsInvalid)?;
     let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
     Ok(CreateSelectOptionParams {
       field_id: field_id.0,
       option_name: option_name.0,
-      database_id: database_id.0,
+      view_id: view_id.0,
     })
   }
 }
@@ -143,7 +142,7 @@ impl std::convert::From<Vec<CellPB>> for RepeatedCellPB {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct CellChangesetPB {
   #[pb(index = 1)]
-  pub database_id: String,
+  pub view_id: String,
 
   #[pb(index = 2)]
   pub row_id: String,

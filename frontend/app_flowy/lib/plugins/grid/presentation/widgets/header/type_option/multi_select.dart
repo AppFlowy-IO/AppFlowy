@@ -16,7 +16,7 @@ class MultiSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
   ) : _widget = MultiSelectTypeOptionWidget(
           selectOptionAction: MultiSelectAction(
             fieldId: typeOptionContext.fieldId,
-            databaseId: typeOptionContext.databaseId,
+            viewId: typeOptionContext.viewId,
             typeOptionContext: typeOptionContext,
           ),
           popoverMutex: popoverMutex,

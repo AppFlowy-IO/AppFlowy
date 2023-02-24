@@ -16,7 +16,7 @@ class SelectOptionFFIService {
 
   Future<Either<Unit, FlowyError>> create(
       {required String name, bool isSelected = true}) {
-    return TypeOptionFFIService(viewId: viewId, fieldId: fieldId)
+    return TypeOptionBackendService(viewId: viewId, fieldId: fieldId)
         .newOption(name: name)
         .then(
       (result) {
