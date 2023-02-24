@@ -13,7 +13,7 @@ class SortFFIService {
   SortFFIService({required this.viewId});
 
   Future<Either<List<SortPB>, FlowyError>> getAllSorts() {
-    final payload = DatabaseIdPB()..value = viewId;
+    final payload = DatabaseViewIdPB()..value = viewId;
 
     return DatabaseEventGetAllSorts(payload).send().then((result) {
       return result.fold(
@@ -37,7 +37,7 @@ class SortFFIService {
       ..sortId = sortId;
 
     final payload = DatabaseSettingChangesetPB.create()
-      ..databaseId = viewId
+      ..viewId = viewId
       ..alterSort = insertSortPayload;
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
@@ -62,7 +62,7 @@ class SortFFIService {
       ..condition = condition;
 
     final payload = DatabaseSettingChangesetPB.create()
-      ..databaseId = viewId
+      ..viewId = viewId
       ..alterSort = insertSortPayload;
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
@@ -87,7 +87,7 @@ class SortFFIService {
       ..fieldType = fieldType;
 
     final payload = DatabaseSettingChangesetPB.create()
-      ..databaseId = viewId
+      ..viewId = viewId
       ..deleteSort = deleteFilterPayload;
 
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
@@ -102,7 +102,7 @@ class SortFFIService {
   }
 
   Future<Either<Unit, FlowyError>> deleteAllSorts() {
-    final payload = DatabaseIdPB(value: viewId);
+    final payload = DatabaseViewIdPB(value: viewId);
     return DatabaseEventDeleteAllSorts(payload).send().then((result) {
       return result.fold(
         (l) => left(l),

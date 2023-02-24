@@ -32,7 +32,7 @@ class GridController {
 
   GridController({required ViewPB view})
       : databaseId = view.id,
-        _gridFFIService = DatabaseFFIService(databaseId: view.id),
+        _gridFFIService = DatabaseFFIService(viewId: view.id),
         fieldController = GridFieldController(databaseId: view.id) {
     _viewCache = DatabaseViewCache(
       databaseId: databaseId,
@@ -58,7 +58,6 @@ class GridController {
     );
   }
 
-  // Loads the rows from each block
   Future<Either<Unit, FlowyError>> openGrid() async {
     return _gridFFIService.openGrid().then((result) {
       return result.fold(

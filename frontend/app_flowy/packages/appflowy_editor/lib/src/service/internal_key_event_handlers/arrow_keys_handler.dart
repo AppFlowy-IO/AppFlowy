@@ -322,6 +322,33 @@ ShortcutEventHandler cursorRightWordSelect = (editorState, event) {
   return KeyEventResult.handled;
 };
 
+ShortcutEventHandler cursorLeftWordDelete = (editorState, event) {
+  final textNodes = editorState.service.selectionService.currentSelectedNodes
+      .whereType<TextNode>();
+  final selection = editorState.service.selectionService.currentSelection.value;
+
+  if (textNodes.isEmpty || selection == null) {
+    return KeyEventResult.ignored;
+  }
+
+  final textNode = textNodes.first;
+
+  final startOfWord =
+      selection.end.goLeft(editorState, selectionRange: _SelectionRange.word);
+
+  if (startOfWord == null) {
+    return KeyEventResult.ignored;
+  }
+
+  final transaction = editorState.transaction;
+  transaction.deleteText(
+      textNode, startOfWord.offset, selection.end.offset - startOfWord.offset);
+
+  editorState.apply(transaction);
+
+  return KeyEventResult.handled;
+};
+
 enum _SelectionRange {
   character,
   word,

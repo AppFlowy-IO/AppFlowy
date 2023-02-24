@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class BuiltInTheme {
   static const String light = 'light';
   static const String dandelion = 'dandelion';
+  static const String lavender = 'lavender';
 }
 
 class AppTheme {

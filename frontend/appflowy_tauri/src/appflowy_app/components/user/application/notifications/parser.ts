@@ -1,14 +1,14 @@
-import { UserNotification } from "../../../../../services/backend";
-import { NotificationParser, OnNotificationError } from "../../../../../services/backend/notifications/parser";
+import { UserNotification } from '../../../../../services/backend';
+import { NotificationParser, OnNotificationError } from '../../../../../services/backend/notifications/parser';
 
 declare type UserNotificationCallback = (ty: UserNotification, payload: Uint8Array) => void;
 
 export class UserNotificationParser extends NotificationParser<UserNotification> {
-  constructor(params: { id?: String; callback: UserNotificationCallback; onError?: OnNotificationError }) {
+  constructor(params: { id?: string; callback: UserNotificationCallback; onError?: OnNotificationError }) {
     super(
       params.callback,
       (ty) => {
-        let notification = UserNotification[ty];
+        const notification = UserNotification[ty];
         if (isUserNotification(notification)) {
           return UserNotification[notification];
         } else {

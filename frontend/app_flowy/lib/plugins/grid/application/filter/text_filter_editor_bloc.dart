@@ -16,7 +16,7 @@ class TextFilterEditorBloc
   final FilterListener _listener;
 
   TextFilterEditorBloc({required this.filterInfo})
-      : _ffiService = FilterFFIService(databaseId: filterInfo.viewId),
+      : _ffiService = FilterFFIService(viewId: filterInfo.viewId),
         _listener = FilterListener(
           viewId: filterInfo.viewId,
           filterId: filterInfo.filter.id,

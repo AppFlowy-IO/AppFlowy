@@ -156,8 +156,8 @@ class EditorState {
       _applyRules(ruleCount);
       if (withUpdateCursor) {
         await updateCursorSelection(transaction.afterSelection);
-        completer.complete();
       }
+      completer.complete();
     });
 
     if (options.recordUndo) {

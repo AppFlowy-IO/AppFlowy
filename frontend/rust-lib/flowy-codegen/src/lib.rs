@@ -16,6 +16,6 @@ pub mod util;
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct ProtoCache {
-    pub structs: Vec<String>,
-    pub enums: Vec<String>,
+  pub structs: Vec<String>,
+  pub enums: Vec<String>,
 }

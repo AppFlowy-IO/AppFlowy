@@ -144,7 +144,7 @@ TypeOptionContext<T> makeTypeOptionContext<T extends GeneratedMessage>({
   required FieldInfo fieldInfo,
 }) {
   final loader =
-      FieldTypeOptionLoader(databaseId: databaseId, field: fieldInfo.field);
+      FieldTypeOptionLoader(viewId: databaseId, field: fieldInfo.field);
   final dataController = TypeOptionDataController(
     databaseId: databaseId,
     loader: loader,
@@ -176,7 +176,7 @@ TypeOptionContext<T> makeSelectTypeOptionContext<T extends GeneratedMessage>({
   required FieldPB fieldPB,
 }) {
   final loader = FieldTypeOptionLoader(
-    databaseId: databaseId,
+    viewId: databaseId,
     field: fieldPB,
   );
   final dataController = TypeOptionDataController(

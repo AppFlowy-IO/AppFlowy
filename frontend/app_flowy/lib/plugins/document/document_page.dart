@@ -3,6 +3,8 @@ import 'package:app_flowy/plugins/document/presentation/plugins/board/board_menu
 import 'package:app_flowy/plugins/document/presentation/plugins/board/board_node_widget.dart';
 import 'package:app_flowy/plugins/document/presentation/plugins/grid/grid_menu_item.dart';
 import 'package:app_flowy/plugins/document/presentation/plugins/grid/grid_node_widget.dart';
+import 'package:app_flowy/plugins/document/presentation/plugins/openai/widgets/auto_completion_node_widget.dart';
+import 'package:app_flowy/plugins/document/presentation/plugins/openai/widgets/auto_completion_plugins.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -51,6 +53,12 @@ class _DocumentPageState extends State<DocumentPage> {
   }
 
   @override
+  void dispose() {
+    documentBloc.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
@@ -67,6 +75,8 @@ class _DocumentPageState extends State<DocumentPage> {
               if (state.forceClose) {
                 widget.onDeleted();
                 return const SizedBox();
+              } else if (documentBloc.editorState == null) {
+                return const SizedBox();
               } else {
                 return _renderDocument(context, state);
               }
@@ -78,21 +88,12 @@ class _DocumentPageState extends State<DocumentPage> {
     );
   }
 
-  @override
-  Future<void> dispose() async {
-    documentBloc.close();
-    _focusNode.dispose();
-    super.dispose();
-  }
-
   Widget _renderDocument(BuildContext context, DocumentState state) {
     return Column(
       children: [
         if (state.isDeleted) _renderBanner(context),
         // AppFlowy Editor
-        _renderAppFlowyEditor(
-          context.read<DocumentBloc>().editorState,
-        ),
+        const _AppFlowyEditorPage(),
       ],
     );
   }
@@ -106,8 +107,31 @@ class _DocumentPageState extends State<DocumentPage> {
           .add(const DocumentEvent.deletePermanently()),
     );
   }
+}
 
-  Widget _renderAppFlowyEditor(EditorState editorState) {
+class _AppFlowyEditorPage extends StatefulWidget {
+  const _AppFlowyEditorPage({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<_AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
+}
+
+class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
+  late DocumentBloc documentBloc;
+  late EditorState editorState;
+  String? get openAIKey => documentBloc.state.userProfilePB?.openaiKey;
+
+  @override
+  void initState() {
+    super.initState();
+    documentBloc = context.read<DocumentBloc>();
+    editorState = documentBloc.editorState ?? EditorState.empty();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final editor = AppFlowyEditor(
       editorState: editorState,
@@ -125,6 +149,8 @@ class _DocumentPageState extends State<DocumentPage> {
         kGridType: GridNodeWidgetBuilder(),
         // Card
         kCalloutType: CalloutNodeWidgetBuilder(),
+        // Auto Generator,
+        kAutoCompletionInputType: AutoCompletionInputBuilder(),
         kLocalImage: LocalImageNodeWidgetBuilder(imageFolder: directory)
       },
       shortcutEvents: [
@@ -150,6 +176,11 @@ class _DocumentPageState extends State<DocumentPage> {
         gridMenuItem,
         // Callout
         calloutMenuItem,
+        // AI
+        // enable open ai features if needed.
+        if (openAIKey != null && openAIKey!.isNotEmpty) ...[
+          autoGeneratorMenuItem,
+        ]
       ],
       themeData: theme.copyWith(extensions: [
         ...theme.extensions.values,
@@ -167,5 +198,35 @@ class _DocumentPageState extends State<DocumentPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _clearTemporaryNodes();
+    super.dispose();
+  }
+
+  Future<void> _clearTemporaryNodes() async {
+    final document = editorState.document;
+    if (document.root.children.isEmpty) {
+      return;
+    }
+    final temporaryNodeTypes = [
+      kAutoCompletionInputType,
+    ];
+    final iterator = NodeIterator(
+      document: document,
+      startNode: document.root.children.first,
+    );
+    final transaction = editorState.transaction;
+    while (iterator.moveNext()) {
+      final node = iterator.current;
+      if (temporaryNodeTypes.contains(node.type)) {
+        transaction.deleteNode(node);
+      }
+    }
+    if (transaction.operations.isNotEmpty) {
+      await editorState.apply(transaction, withUpdateCursor: false);
+    }
   }
 }

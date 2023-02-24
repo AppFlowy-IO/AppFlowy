@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:dartz/dartz.dart';
@@ -6,8 +7,6 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-
-import 'package:app_flowy/startup/plugin/plugin.dart';
 
 class AppService {
   Future<Either<AppPB, FlowyError>> readApp({required String appId}) {
@@ -21,15 +20,21 @@ class AppService {
     required String name,
     String? desc,
     required ViewDataFormatPB dataFormatType,
-    required PluginType pluginType,
     required ViewLayoutTypePB layoutType,
+
+    /// The initial data should be the JSON of the doucment
+    /// For example: {"document":{"type":"editor","children":[]}}
+    String? initialData,
   }) {
-    var payload = CreateViewPayloadPB.create()
+    final payload = CreateViewPayloadPB.create()
       ..belongToId = appId
       ..name = name
       ..desc = desc ?? ""
       ..dataFormat = dataFormatType
-      ..layout = layoutType;
+      ..layout = layoutType
+      ..initialData = utf8.encode(
+        initialData ?? "",
+      );
 
     return FolderEventCreateView(payload).send();
   }

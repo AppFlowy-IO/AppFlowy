@@ -10,7 +10,7 @@ lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-derive = { path = "../flowy-derive" }
 folder-model = { path = "../../../shared-lib/folder-model" }
-grid-model = { path = "../../../shared-lib/grid-model" }
+database-model = { path = "../../../shared-lib/database-model" }
 revision-model = { path = "../../../shared-lib/revision-model" }
 document-model = { path = "../../../shared-lib/document-model" }
 flowy-sync = { path = "../../../shared-lib/flowy-sync" }

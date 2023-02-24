@@ -45,6 +45,7 @@ class NetworkListener {
         case ConnectivityResult.vpn:
           return NetworkTypePB.VPN;
         case ConnectivityResult.none:
+        case ConnectivityResult.other:
           return NetworkTypePB.Unknown;
       }
     }();

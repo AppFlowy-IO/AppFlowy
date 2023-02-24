@@ -2,7 +2,7 @@ pub mod client_database;
 pub mod client_document;
 pub mod client_folder;
 pub mod errors {
-    pub use flowy_sync::errors::*;
+  pub use flowy_sync::errors::*;
 }
 pub mod util;
 

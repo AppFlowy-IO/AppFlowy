@@ -15,6 +15,13 @@ class Selection {
     required this.end,
   });
 
+  factory Selection.fromJson(Map<String, dynamic> json) {
+    return Selection(
+      start: Position.fromJson(json['start']),
+      end: Position.fromJson(json['end']),
+    );
+  }
+
   /// Create a selection with [Path], [startOffset] and [endOffset].
   ///
   /// The [endOffset] is optional.
