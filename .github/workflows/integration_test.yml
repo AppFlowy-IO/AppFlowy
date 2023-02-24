@@ -6,14 +6,14 @@ on:
       - "main"
       - "release/*"
     paths:
-      - "frontend/app_flowy/**"
+      - "frontend/appflowy_flutter/**"
 
   pull_request:
     branches:
       - "main"
       - "release/*"
     paths:
-      - "frontend/app_flowy/**"
+      - "frontend/appflowy_flutter/**"
 
 env:
   CARGO_TERM_COLOR: always

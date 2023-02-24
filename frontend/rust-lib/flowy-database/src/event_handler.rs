@@ -586,6 +586,7 @@ pub(crate) async fn set_calendar_setting_handler(
 ) -> FlowyResult<()> {
   let params: CalendarSettingsParams = data.into_inner().try_into()?;
   let _ = manager.get_database_editor(params.view_id.as_ref()).await?;
+  //TODO(nathan):
   todo!("nathan: depends on the main branch refactoring")
 }
 
@@ -596,5 +597,6 @@ pub(crate) async fn get_calendar_setting_handler(
 ) -> FlowyResult<()> {
   let view_id = data.into_inner().value;
   let _ = manager.get_database_editor(view_id.as_ref()).await?;
+  //TODO(nathan):
   todo!("nathan: depends on the main branch refactoring")
 }

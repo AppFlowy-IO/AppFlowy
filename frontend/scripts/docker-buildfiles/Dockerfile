@@ -36,7 +36,7 @@ cargo install --force duckscript_cli && \
 cargo make appflowy-flutter-deps-tools && \
 cargo make -p production-linux-x86_64 appflowy-linux
 
-CMD ["/home/makepkg/appflowy/frontend/app_flowy/build/linux/x64/release/bundle/app_flowy"]
+CMD ["/home/makepkg/appflowy/frontend/appflowy_flutter/build/linux/x64/release/bundle/app_flowy"]
 
 #################
 FROM archlinux/archlinux
@@ -58,6 +58,6 @@ RUN useradd --create-home --uid $uid --gid $gid $user
 USER $user
 WORKDIR /home/$user
 
-COPY --from=builder /home/makepkg/appflowy/frontend/app_flowy/build/linux/x64/release/bundle/ .
+COPY --from=builder /home/makepkg/appflowy/frontend/appflowy_flutter/build/linux/x64/release/bundle/ .
 
 CMD ["./app_flowy"]
