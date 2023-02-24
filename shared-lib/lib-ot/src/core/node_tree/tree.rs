@@ -293,7 +293,13 @@ impl NodeTree {
     match op {
       NodeOperation::Insert { path, nodes } => self.insert_nodes(&path, nodes),
       NodeOperation::Update { path, changeset } => self.update(&path, changeset),
-      NodeOperation::Delete { path, nodes: _ } => self.delete_node(&path),
+      NodeOperation::Delete { path, nodes } => {
+        if nodes.is_empty() {
+          self.delete_node(&path)
+        } else {
+          self.delete_nodes(&path, nodes)
+        }
+      },
     }
   }
   /// Inserts nodes at given path
@@ -456,14 +462,40 @@ impl NodeTree {
     Ok(())
   }
 
+  /// Removes a node and the consecutive nodes behide it
+  ///
+  /// if the nodes is empty, it will remove the single node at the path.
+  /// else it will remove the nodes at the path and the consecutive nodes behind it.
+  fn delete_nodes(&mut self, path: &Path, nodes: Vec<NodeData>) -> Result<(), OTError> {
+    if !path.is_valid() {
+      return Err(OTErrorCode::InvalidPath.into());
+    }
+
+    let node_id = self.node_id_at_path(path).ok_or_else(|| {
+      tracing::warn!("Can't find any node at path: {:?}", path);
+      OTError::internal().context("Can't find any node at path")
+    });
+
+    if node_id.is_err() {
+      return Err(OTErrorCode::PathNotFound.into());
+    }
+
+    for _ in 0..nodes.len() {
+      let res = self.delete_node(path);
+      res?
+    }
+
+    Ok(())
+  }
+
   /// Update the node at path with the `changeset`
   ///
   /// Do nothing if there is no node at the path.
   ///
   /// # Arguments
   ///
-  /// * `path`: references to the node that will be applied with the changeset  
-  /// * `changeset`: the change that will be applied to the node  
+  /// * `path`: references to the node that will be applied with the changeset
+  /// * `changeset`: the change that will be applied to the node
   ///
   /// returns: Result<(), OTError>
   fn update(&mut self, path: &Path, changeset: Changeset) -> Result<(), OTError> {

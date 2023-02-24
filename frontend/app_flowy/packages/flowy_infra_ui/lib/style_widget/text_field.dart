@@ -20,6 +20,7 @@ class FlowyTextField extends StatefulWidget {
   final bool submitOnLeave;
   final Duration? debounceDuration;
   final String? errorText;
+  final int maxLines;
 
   const FlowyTextField({
     this.hintText = "",
@@ -36,6 +37,7 @@ class FlowyTextField extends StatefulWidget {
     this.submitOnLeave = false,
     this.debounceDuration,
     this.errorText,
+    this.maxLines = 1,
     Key? key,
   }) : super(key: key);
 
@@ -103,7 +105,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       },
       onSubmitted: (text) => _onSubmitted(text),
       onEditingComplete: widget.onEditingComplete,
-      maxLines: 1,
+      maxLines: widget.maxLines,
       maxLength: widget.maxLength,
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
       style: Theme.of(context).textTheme.bodyMedium,

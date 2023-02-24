@@ -318,20 +318,16 @@ impl FolderCouldServiceV1 for LocalServer {
     params: CreateViewParams,
   ) -> FutureResult<ViewRevision, FlowyError> {
     let time = timestamp();
-    let view = ViewRevision {
-      id: params.view_id,
-      app_id: params.belong_to_id,
-      name: params.name,
-      desc: params.desc,
-      data_format: params.data_format.into(),
-      version: 0,
-      belongings: vec![],
-      modified_time: time,
-      create_time: time,
-      ext_data: "".to_string(),
-      thumbnail: params.thumbnail,
-      layout: params.layout.into(),
-    };
+    let view = ViewRevision::new(
+      params.view_id,
+      params.belong_to_id,
+      params.name,
+      params.desc,
+      params.data_format.into(),
+      params.layout.into(),
+      time,
+      time,
+    );
     FutureResult::new(async { Ok(view) })
   }
 

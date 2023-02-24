@@ -131,7 +131,12 @@
     "signIn": "Sign In",
     "signOut": "Sign Out",
     "complete": "Complete",
-    "save": "Save"
+    "save": "Save",
+    "generate": "Generate",
+    "esc": "ESC",
+    "keep": "Keep",
+    "tryAgain": "Try again",
+    "discard": "Discard"
   },
   "label": {
     "welcome": "Welcome!",
@@ -191,6 +196,12 @@
       "create": "Create",
       "folderPath": "Path to store your folder",
       "locationCannotBeEmpty": "Path cannot be empty"
+    },
+    "user": {
+      "name": "Name",
+      "icon": "Icon",
+      "selectAnIcon": "Select an icon",
+      "pleaseInputYourOpenAIKey": "please input your OpenAI key"
     }
   },
   "grid": {
@@ -328,7 +339,14 @@
     },
     "plugins": {
       "referencedBoard": "Referenced Board",
-      "referencedGrid": "Referenced Grid"
+      "referencedGrid": "Referenced Grid",
+      "autoCompletionMenuItemName": "Auto Completion",
+      "autoGeneratorMenuItemName": "Auto Generator",
+      "autoGeneratorTitleName": "Open AI: Auto Generator",
+      "autoGeneratorLearnMore": "Learn more",
+      "autoGeneratorGenerate": "Generate",
+      "autoGeneratorHintText": "Tell us what you want to generate by OpenAI ...",
+      "autoGeneratorCantGetOpenAIKey": "Can't get OpenAI key"
     }
   },
   "board": {

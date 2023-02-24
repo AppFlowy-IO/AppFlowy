@@ -6,11 +6,11 @@ use crate::services::group::action::{
 };
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::entities::Group;
-use flowy_error::FlowyResult;
-use grid_model::{
+use database_model::{
   CellRevision, FieldRevision, GroupConfigurationContentSerde, GroupRevision, RowChangeset,
   RowRevision, TypeOptionDataDeserializer,
 };
+use flowy_error::FlowyResult;
 use std::marker::PhantomData;
 use std::sync::Arc;
 

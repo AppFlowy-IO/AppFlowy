@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid';
-import { FieldType } from '../../../../services/backend/classes/flowy-database/field_entities';
-import { gridActions } from '../../../redux/grid/slice';
-import { useAppDispatch, useAppSelector } from '../../../store';
+import { FieldType } from '../../../../services/backend/models/flowy-database/field_entities';
+import { gridActions } from '../../../stores/reducers/grid/slice';
+import { useAppDispatch, useAppSelector } from '../../../stores/store';
 
 export const useGridTableHeaderHooks = function () {
   const dispatch = useAppDispatch();

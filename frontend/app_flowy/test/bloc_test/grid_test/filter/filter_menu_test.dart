@@ -19,7 +19,7 @@ void main() {
     await gridResponseFuture();
     assert(menuBloc.state.creatableFields.length == 3);
 
-    final service = FilterFFIService(databaseId: context.gridView.id);
+    final service = FilterFFIService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
     await service.insertTextFilter(
         fieldId: textField.id,
@@ -36,7 +36,7 @@ void main() {
       ..add(const GridFilterMenuEvent.initial());
     await gridResponseFuture();
 
-    final service = FilterFFIService(databaseId: context.gridView.id);
+    final service = FilterFFIService(viewId: context.gridView.id);
     final textField = context.textFieldContext();
 
     // Create filter

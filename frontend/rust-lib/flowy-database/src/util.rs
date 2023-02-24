@@ -1,8 +1,8 @@
 use crate::entities::FieldType;
 use crate::services::field::*;
 use crate::services::row::RowRevisionBuilder;
+use database_model::BuildDatabaseContext;
 use flowy_client_sync::client_database::DatabaseBuilder;
-use grid_model::BuildDatabaseContext;
 
 pub fn make_default_grid() -> BuildDatabaseContext {
   let mut database_builder = DatabaseBuilder::new();

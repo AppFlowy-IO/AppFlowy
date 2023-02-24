@@ -28,7 +28,7 @@ class TypeOptionDataController {
   }) {
     if (fieldInfo != null) {
       _typeOptiondata = TypeOptionPB.create()
-        ..databaseId = databaseId
+        ..viewId = databaseId
         ..field_2 = fieldInfo.field;
     }
   }
@@ -66,8 +66,7 @@ class TypeOptionDataController {
 
     _fieldNotifier.value = _typeOptiondata.field_2;
 
-    FieldService(databaseId: databaseId, fieldId: field.id)
-        .updateField(name: name);
+    FieldService(viewId: databaseId, fieldId: field.id).updateField(name: name);
   }
 
   set typeOptionData(List<int> typeOptionData) {
@@ -78,7 +77,7 @@ class TypeOptionDataController {
     });
 
     FieldService.updateFieldTypeOption(
-      databaseId: databaseId,
+      viewId: databaseId,
       fieldId: field.id,
       typeOptionData: typeOptionData,
     );

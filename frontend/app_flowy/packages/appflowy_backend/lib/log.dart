@@ -24,43 +24,43 @@ class Log {
     );
   }
 
-  static void info(dynamic msg) {
+  static void info(dynamic msg, [dynamic error, StackTrace? stackTrace]) {
     if (isReleaseVersion()) {
       log(0, toNativeUtf8(msg));
     } else {
-      Log.shared._logger.i(msg);
+      Log.shared._logger.i(msg, error, stackTrace);
     }
   }
 
-  static void debug(dynamic msg) {
+  static void debug(dynamic msg, [dynamic error, StackTrace? stackTrace]) {
     if (isReleaseVersion()) {
       log(1, toNativeUtf8(msg));
     } else {
-      Log.shared._logger.d(msg);
+      Log.shared._logger.d(msg, error, stackTrace);
     }
   }
 
-  static void warn(dynamic msg) {
+  static void warn(dynamic msg, [dynamic error, StackTrace? stackTrace]) {
     if (isReleaseVersion()) {
       log(3, toNativeUtf8(msg));
     } else {
-      Log.shared._logger.w(msg);
+      Log.shared._logger.w(msg, error, stackTrace);
     }
   }
 
-  static void trace(dynamic msg) {
+  static void trace(dynamic msg, [dynamic error, StackTrace? stackTrace]) {
     if (isReleaseVersion()) {
       log(2, toNativeUtf8(msg));
     } else {
-      Log.shared._logger.v(msg);
+      Log.shared._logger.v(msg, error, stackTrace);
     }
   }
 
-  static void error(dynamic msg) {
+  static void error(dynamic msg, [dynamic error, StackTrace? stackTrace]) {
     if (isReleaseVersion()) {
       log(4, toNativeUtf8(msg));
     } else {
-      Log.shared._logger.e(msg);
+      Log.shared._logger.e(msg, error, stackTrace);
     }
   }
 }

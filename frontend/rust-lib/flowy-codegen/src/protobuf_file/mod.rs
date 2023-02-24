@@ -119,7 +119,7 @@ fn generate_ts_protobuf_files(
   let mut output = PathBuf::new();
   output.push(root);
   output.push(tauri_backend_service_path);
-  output.push("classes");
+  output.push("models");
   output.push(name);
 
   if !output.as_path().exists() {

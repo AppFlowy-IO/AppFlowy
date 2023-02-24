@@ -3,7 +3,7 @@ use crate::services::cell::{
   insert_text_cell, insert_url_cell,
 };
 
-use grid_model::{gen_row_id, CellRevision, FieldRevision, RowRevision, DEFAULT_ROW_HEIGHT};
+use database_model::{gen_row_id, CellRevision, FieldRevision, RowRevision, DEFAULT_ROW_HEIGHT};
 use indexmap::IndexMap;
 use std::collections::HashMap;
 use std::sync::Arc;

@@ -8,8 +8,6 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 
-import 'package:app_flowy/startup/plugin/plugin.dart';
-
 class AppService {
   Future<Either<AppPB, FlowyError>> readApp({required String appId}) {
     final payload = AppIdPB.create()..value = appId;
@@ -22,7 +20,6 @@ class AppService {
     required String name,
     String? desc,
     required ViewDataFormatPB dataFormatType,
-    required PluginType pluginType,
     required ViewLayoutTypePB layoutType,
 
     /// The initial data should be the JSON of the doucment

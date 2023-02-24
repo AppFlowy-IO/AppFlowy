@@ -152,7 +152,7 @@ class GridCellController<T, D> extends Equatable {
         _cellDataPersistence = cellDataPersistence,
         _fieldNotifier = fieldNotifier,
         _fieldService = FieldService(
-          databaseId: cellId.databaseId,
+          viewId: cellId.databaseId,
           fieldId: cellId.fieldInfo.id,
         ),
         _cacheKey = GridCellCacheKey(

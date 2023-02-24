@@ -52,12 +52,23 @@ List<ShortcutEvent> builtInShortcutEvents = [
   ShortcutEvent(
     key: 'Cursor down select',
     command: 'shift+alt+arrow left',
+    windowsCommand: 'shift+alt+arrow left',
+    linuxCommand: 'shift+alt+arrow left',
     handler: cursorLeftWordSelect,
   ),
   ShortcutEvent(
     key: 'Cursor down select',
     command: 'shift+alt+arrow right',
+    windowsCommand: 'shift+alt+arrow right',
+    linuxCommand: 'shift+alt+arrow right',
     handler: cursorRightWordSelect,
+  ),
+  ShortcutEvent(
+    key: 'Cursor word delete',
+    command: 'meta+backspace',
+    windowsCommand: 'ctrl+backspace',
+    linuxCommand: 'ctrl+backspace',
+    handler: cursorLeftWordDelete,
   ),
   ShortcutEvent(
     key: 'Cursor left select',

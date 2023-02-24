@@ -253,8 +253,8 @@ void _deleteTextNodes(
   final last = textNodes.last;
   var content = textNodes.last.toPlainText();
   content = content.substring(selection.end.offset, content.length);
-  // Merge the fist and the last text node content,
-  //  and delete the all nodes expect for the first.
+  // Merge the first and the last text node content,
+  //  and delete all the nodes except for the first.
   transaction
     ..deleteNodes(textNodes.sublist(1))
     ..mergeText(

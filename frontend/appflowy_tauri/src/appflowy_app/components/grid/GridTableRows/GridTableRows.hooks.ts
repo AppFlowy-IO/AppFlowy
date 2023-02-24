@@ -1,4 +1,4 @@
-import { useAppSelector } from '../../../store';
+import { useAppSelector } from '../../../stores/store';
 
 export const useGridTableRowsHooks = () => {
   const grid = useAppSelector((state) => state.grid);

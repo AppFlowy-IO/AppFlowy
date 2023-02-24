@@ -2,7 +2,8 @@ use crate::errors::ErrorCode;
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 use user_model::{
-  UpdateUserProfileParams, UserEmail, UserIcon, UserId, UserName, UserPassword, UserProfile,
+  UpdateUserProfileParams, UserEmail, UserIcon, UserId, UserName, UserOpenaiKey, UserPassword,
+  UserProfile,
 };
 
 #[derive(Default, ProtoBuf)]
@@ -33,6 +34,9 @@ pub struct UserProfilePB {
 
   #[pb(index = 5)]
   pub icon_url: String,
+
+  #[pb(index = 6)]
+  pub openai_key: String,
 }
 
 impl std::convert::From<UserProfile> for UserProfilePB {
@@ -43,6 +47,7 @@ impl std::convert::From<UserProfile> for UserProfilePB {
       name: user_profile.name,
       token: user_profile.token,
       icon_url: user_profile.icon_url,
+      openai_key: user_profile.openai_key,
     }
   }
 }
@@ -63,6 +68,9 @@ pub struct UpdateUserProfilePayloadPB {
 
   #[pb(index = 5, one_of)]
   pub icon_url: Option<String>,
+
+  #[pb(index = 6, one_of)]
+  pub openai_key: Option<String>,
 }
 
 impl UpdateUserProfilePayloadPB {
@@ -90,6 +98,11 @@ impl UpdateUserProfilePayloadPB {
 
   pub fn icon_url(mut self, icon_url: &str) -> Self {
     self.icon_url = Some(icon_url.to_owned());
+    self
+  }
+
+  pub fn openai_key(mut self, openai_key: &str) -> Self {
+    self.openai_key = Some(openai_key.to_owned());
     self
   }
 }
@@ -120,12 +133,18 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
       Some(icon_url) => Some(UserIcon::parse(icon_url)?.0),
     };
 
+    let openai_key = match self.openai_key {
+      None => None,
+      Some(openai_key) => Some(UserOpenaiKey::parse(openai_key)?.0),
+    };
+
     Ok(UpdateUserProfileParams {
       id,
       name,
       email,
       password,
       icon_url,
+      openai_key,
     })
   }
 }

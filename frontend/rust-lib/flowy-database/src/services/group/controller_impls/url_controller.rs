@@ -9,10 +9,10 @@ use crate::services::group::controller::{
 use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroupContext,
 };
-use flowy_error::FlowyResult;
-use grid_model::{
+use database_model::{
   CellRevision, FieldRevision, GroupRevision, RowRevision, URLGroupConfigurationRevision,
 };
+use flowy_error::FlowyResult;
 
 pub type URLGroupController = GenericGroupController<
   URLGroupConfigurationRevision,
@@ -197,6 +197,7 @@ impl GroupGenerator for URLGroupGenerator {
     let group_configs = cells
       .into_iter()
       .flat_map(|value| value.into_url_field_cell_data())
+      .filter(|cell| !cell.content.is_empty())
       .map(|cell| GeneratedGroupConfig {
         group_rev: make_group_from_url_cell(&cell),
         filter_content: cell.content,

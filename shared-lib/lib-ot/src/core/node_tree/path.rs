@@ -43,6 +43,16 @@ impl Path {
   pub fn is_root(&self) -> bool {
     self.0.len() == 1 && self.0[0] == 0
   }
+
+  pub fn next(&self) -> Self {
+    let mut cloned_self = self.clone();
+    if !self.is_valid() {
+      return cloned_self;
+    }
+    let last = cloned_self.pop();
+    cloned_self.push(last.unwrap() + 1);
+    cloned_self
+  }
 }
 
 impl std::ops::Deref for Path {

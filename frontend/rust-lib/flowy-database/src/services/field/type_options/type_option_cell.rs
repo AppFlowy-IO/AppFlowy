@@ -10,8 +10,8 @@ use crate::services::field::{
   URLTypeOptionPB,
 };
 use crate::services::filter::FilterType;
+use database_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use flowy_error::FlowyResult;
-use grid_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use std::any::Any;
 use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;
