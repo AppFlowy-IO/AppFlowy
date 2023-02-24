@@ -187,10 +187,7 @@ extension QuestionBubbleExtension on BubbleAction {
       case BubbleAction.debug:
         return LocaleKeys.questionBubble_debug_name.tr();
       case BubbleAction.shortcuts:
-        // return LocaleKeys.questionBubble_shortcuts.tr();
-
-      // TODO: Use localized approach
-      return "Shortcuts";
+        return LocaleKeys.questionBubble_shortcuts.tr();
     }
   }
 
