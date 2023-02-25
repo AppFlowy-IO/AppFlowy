@@ -166,34 +166,6 @@ impl WSMessageReceiver for FolderWSMessageReceiverImpl {
 
 struct DocumentViewDataProcessor(Arc<DocumentManager>);
 impl ViewDataProcessor for DocumentViewDataProcessor {
-  fn create_view(
-    &self,
-    _user_id: &str,
-    view_id: &str,
-    _name: &str,
-    layout: ViewLayoutTypePB,
-    view_data: Bytes,
-  ) -> FutureResult<(), FlowyError> {
-    // Only accept Document type
-    debug_assert_eq!(layout, ViewLayoutTypePB::Document);
-    let view_data = match String::from_utf8(view_data.to_vec()) {
-      Ok(content) => match make_transaction_from_document_content(&content) {
-        Ok(transaction) => transaction.to_bytes().unwrap_or_else(|_| vec![]),
-        Err(_) => vec![],
-      },
-      Err(_) => vec![],
-    };
-
-    let revision = Revision::initial_revision(view_id, Bytes::from(view_data));
-    let view_id = view_id.to_string();
-    let manager = self.0.clone();
-
-    FutureResult::new(async move {
-      manager.create_document(view_id, vec![revision]).await?;
-      Ok(())
-    })
-  }
-
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
@@ -213,37 +185,50 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     })
   }
 
-  fn create_default_view(
+  fn create_view_with_build_in_data(
     &self,
     user_id: &str,
     view_id: &str,
     _name: &str,
     layout: ViewLayoutTypePB,
     _data_format: ViewDataFormatPB,
-  ) -> FutureResult<Bytes, FlowyError> {
+  ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayoutTypePB::Document);
     let _user_id = user_id.to_string();
     let view_id = view_id.to_string();
     let manager = self.0.clone();
-    let document_content = self.0.initial_document_content();
     FutureResult::new(async move {
-      let delta_data = Bytes::from(document_content);
       let revision = Revision::initial_revision(&view_id, delta_data.clone());
       manager.create_document(view_id, vec![revision]).await?;
-      Ok(delta_data)
+      Ok(())
     })
   }
 
-  fn create_view_with_data(
+  fn create_view_with_custom_data(
     &self,
     _user_id: &str,
-    _view_id: &str,
+    view_id: &str,
     _name: &str,
     data: Vec<u8>,
     layout: ViewLayoutTypePB,
-  ) -> FutureResult<Bytes, FlowyError> {
+  ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayoutTypePB::Document);
-    FutureResult::new(async move { Ok(Bytes::from(data)) })
+    let view_data = match String::from_utf8(data) {
+      Ok(content) => match make_transaction_from_document_content(&content) {
+        Ok(transaction) => transaction.to_bytes().unwrap_or_else(|_| vec![]),
+        Err(_) => vec![],
+      },
+      Err(_) => vec![],
+    };
+
+    let revision = Revision::initial_revision(view_id, Bytes::from(view_data));
+    let view_id = view_id.to_string();
+    let manager = self.0.clone();
+
+    FutureResult::new(async move {
+      manager.create_document(view_id, vec![revision]).await?;
+      Ok(())
+    })
   }
 
   fn data_types(&self) -> Vec<ViewDataFormatPB> {
@@ -253,27 +238,6 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
 
 struct DatabaseViewDataProcessor(Arc<DatabaseManager>);
 impl ViewDataProcessor for DatabaseViewDataProcessor {
-  fn create_view(
-    &self,
-    _user_id: &str,
-    view_id: &str,
-    name: &str,
-    _layout: ViewLayoutTypePB,
-    delta_data: Bytes,
-  ) -> FutureResult<(), FlowyError> {
-    let revision = Revision::initial_revision(view_id, delta_data);
-    let view_id = view_id.to_string();
-    let name = name.to_string();
-    let database_id = gen_database_id();
-    let database_manager = self.0.clone();
-    FutureResult::new(async move {
-      database_manager
-        .create_database(&database_id, view_id, &name, vec![revision])
-        .await?;
-      Ok(())
-    })
-  }
-
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
     let database_manager = self.0.clone();
     let view_id = view_id.to_string();
@@ -293,14 +257,14 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
     })
   }
 
-  fn create_default_view(
+  fn create_view_with_build_in_data(
     &self,
     user_id: &str,
     view_id: &str,
     name: &str,
     layout: ViewLayoutTypePB,
     data_format: ViewDataFormatPB,
-  ) -> FutureResult<Bytes, FlowyError> {
+  ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(data_format, ViewDataFormatPB::DatabaseFormat);
     let (build_context, layout) = match layout {
       ViewLayoutTypePB::Grid => (make_default_grid(), LayoutTypePB::Grid),
@@ -330,14 +294,14 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
     })
   }
 
-  fn create_view_with_data(
+  fn create_view_with_custom_data(
     &self,
     user_id: &str,
     view_id: &str,
     name: &str,
     data: Vec<u8>,
     layout: ViewLayoutTypePB,
-  ) -> FutureResult<Bytes, FlowyError> {
+  ) -> FutureResult<(), FlowyError> {
     let user_id = user_id.to_string();
     let view_id = view_id.to_string();
     let database_manager = self.0.clone();
@@ -357,7 +321,7 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
     FutureResult::new(async move {
       let bytes = Bytes::from(data);
       let build_context = BuildDatabaseContext::try_from(bytes)?;
-      make_database_view_data(
+      let _ = make_database_view_data(
         &user_id,
         &view_id,
         name,
@@ -365,7 +329,8 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
         database_manager,
         build_context,
       )
-      .await
+      .await;
+      Ok(())
     })
   }
 

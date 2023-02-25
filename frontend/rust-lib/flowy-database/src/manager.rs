@@ -260,7 +260,7 @@ pub async fn make_database_view_data(
   layout: LayoutTypePB,
   database_manager: Arc<DatabaseManager>,
   build_context: BuildDatabaseContext,
-) -> FlowyResult<Bytes> {
+) -> FlowyResult<()> {
   let BuildDatabaseContext {
     field_revs,
     block_metas,
@@ -292,7 +292,7 @@ pub async fn make_database_view_data(
   // Create database
   let database_ops = make_database_operations(&database_rev);
   let database_bytes = database_ops.json_bytes();
-  let revision = Revision::initial_revision(&database_id, database_bytes.clone());
+  let revision = Revision::initial_revision(&database_id, database_bytes);
   database_manager
     .create_database(&database_id, &view_id, &name, vec![revision])
     .await?;
@@ -311,7 +311,7 @@ pub async fn make_database_view_data(
     .create_database_view(view_id, vec![revision])
     .await?;
 
-  Ok(database_bytes)
+  Ok(())
 }
 
 #[async_trait]
