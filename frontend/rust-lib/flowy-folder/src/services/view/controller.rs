@@ -85,6 +85,7 @@ impl ViewController {
       self
         .create_view(
           &params.view_id,
+          &params.name,
           params.data_format.clone(),
           params.layout.clone(),
           view_data,
@@ -101,6 +102,7 @@ impl ViewController {
   pub(crate) async fn create_view(
     &self,
     view_id: &str,
+    name: &str,
     data_type: ViewDataFormatPB,
     layout_type: ViewLayoutTypePB,
     view_data: Bytes,
@@ -111,7 +113,7 @@ impl ViewController {
     let user_id = self.user.user_id()?;
     let processor = self.get_data_processor(data_type)?;
     processor
-      .create_view(&user_id, view_id, layout_type, view_data)
+      .create_view(&user_id, view_id, name, layout_type, view_data)
       .await?;
     Ok(())
   }

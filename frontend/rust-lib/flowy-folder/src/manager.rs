@@ -258,7 +258,7 @@ impl DefaultFolderBuilder {
           let _ = view_controller.set_latest_view(&view.id);
           let layout_type = ViewLayoutTypePB::from(view.layout.clone());
           view_controller
-            .create_view(&view.id, view_data_type, layout_type, view_data)
+            .create_view(&view.id, &view.name, view_data_type, layout_type, view_data)
             .await?;
         }
       }
@@ -288,6 +288,7 @@ pub trait ViewDataProcessor {
     &self,
     user_id: &str,
     view_id: &str,
+    name: &str,
     layout: ViewLayoutTypePB,
     view_data: Bytes,
   ) -> FutureResult<(), FlowyError>;

@@ -141,7 +141,7 @@ impl AppFlowyCore {
           &config.document,
         );
 
-        let database_manager = GridDepsResolver::resolve(
+        let database_manager = DatabaseDepsResolver::resolve(
           ws_conn.clone(),
           user_session.clone(),
           task_dispatcher.clone(),

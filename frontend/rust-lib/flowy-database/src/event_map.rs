@@ -235,7 +235,7 @@ pub enum DatabaseEvent {
   #[event(input = "MoveGroupRowPayloadPB")]
   GroupByField = 113,
 
-  #[event()]
+  #[event(output = "RepeatedDatabaseDescPB")]
   GetDatabases = 114,
 
   #[event(input = "CalendarSettingsPB")]

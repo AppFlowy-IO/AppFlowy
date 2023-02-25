@@ -108,7 +108,7 @@ impl GridViewRevisionSql {
           record.revision.object_id,
           record.revision.rev_id
         );
-        let rev_state: GridViewRevisionState = record.state.into();
+        let rev_state: DatabaseViewRevisionState = record.state.into();
         (
           dsl::object_id.eq(record.revision.object_id),
           dsl::base_rev_id.eq(record.revision.base_rev_id),
@@ -126,7 +126,7 @@ impl GridViewRevisionSql {
   }
 
   fn update(changeset: RevisionChangeset, conn: &SqliteConnection) -> Result<(), FlowyError> {
-    let state: GridViewRevisionState = changeset.state.clone().into();
+    let state: DatabaseViewRevisionState = changeset.state.clone().into();
     let filter = dsl::grid_view_rev_table
       .filter(dsl::rev_id.eq(changeset.rev_id))
       .filter(dsl::object_id.eq(changeset.object_id));
@@ -153,7 +153,7 @@ impl GridViewRevisionSql {
     }
     let rows = sql
       .order(dsl::rev_id.asc())
-      .load::<GridViewRevisionTable>(conn)?;
+      .load::<DatabaseViewRevisionTable>(conn)?;
     let records = rows
       .into_iter()
       .map(|row| mk_revision_record_from_table(user_id, row))
@@ -173,7 +173,7 @@ impl GridViewRevisionSql {
       .filter(dsl::rev_id.le(range.end))
       .filter(dsl::object_id.eq(object_id))
       .order(dsl::rev_id.asc())
-      .load::<GridViewRevisionTable>(conn)?;
+      .load::<DatabaseViewRevisionTable>(conn)?;
 
     let revisions = rev_tables
       .into_iter()
@@ -207,32 +207,32 @@ impl GridViewRevisionSql {
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[table_name = "grid_view_rev_table"]
-struct GridViewRevisionTable {
+struct DatabaseViewRevisionTable {
   id: i32,
   object_id: String,
   base_rev_id: i64,
   rev_id: i64,
   data: Vec<u8>,
-  state: GridViewRevisionState,
+  state: DatabaseViewRevisionState,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, FromSqlRow, AsExpression)]
 #[repr(i32)]
 #[sql_type = "Integer"]
-pub enum GridViewRevisionState {
+pub enum DatabaseViewRevisionState {
   Sync = 0,
   Ack = 1,
 }
-impl_sql_integer_expression!(GridViewRevisionState);
-impl_rev_state_map!(GridViewRevisionState);
+impl_sql_integer_expression!(DatabaseViewRevisionState);
+impl_rev_state_map!(DatabaseViewRevisionState);
 
-impl std::default::Default for GridViewRevisionState {
+impl std::default::Default for DatabaseViewRevisionState {
   fn default() -> Self {
-    GridViewRevisionState::Sync
+    DatabaseViewRevisionState::Sync
   }
 }
 
-fn mk_revision_record_from_table(_user_id: &str, table: GridViewRevisionTable) -> SyncRecord {
+fn mk_revision_record_from_table(_user_id: &str, table: DatabaseViewRevisionTable) -> SyncRecord {
   let md5 = md5(&table.data);
   let revision = Revision::new(
     &table.object_id,

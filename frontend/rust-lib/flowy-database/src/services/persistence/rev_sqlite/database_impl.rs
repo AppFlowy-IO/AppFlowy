@@ -22,7 +22,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseRevisionPersistenc
 
   fn create_revision_records(&self, revision_records: Vec<SyncRecord>) -> Result<(), Self::Error> {
     let conn = self.pool.get().map_err(internal_error)?;
-    GridRevisionSql::create(revision_records, &conn)?;
+    DatabaseRevisionSql::create(revision_records, &conn)?;
     Ok(())
   }
 
@@ -36,7 +36,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseRevisionPersistenc
     rev_ids: Option<Vec<i64>>,
   ) -> Result<Vec<SyncRecord>, Self::Error> {
     let conn = self.pool.get().map_err(internal_error)?;
-    let records = GridRevisionSql::read(&self.user_id, object_id, rev_ids, &conn)?;
+    let records = DatabaseRevisionSql::read(&self.user_id, object_id, rev_ids, &conn)?;
     Ok(records)
   }
 
@@ -47,7 +47,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseRevisionPersistenc
   ) -> Result<Vec<SyncRecord>, Self::Error> {
     let conn = &*self.pool.get().map_err(internal_error)?;
     let revisions =
-      GridRevisionSql::read_with_range(&self.user_id, object_id, range.clone(), conn)?;
+      DatabaseRevisionSql::read_with_range(&self.user_id, object_id, range.clone(), conn)?;
     Ok(revisions)
   }
 
@@ -55,7 +55,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseRevisionPersistenc
     let conn = &*self.pool.get().map_err(internal_error)?;
     conn.immediate_transaction::<_, FlowyError, _>(|| {
       for changeset in changesets {
-        GridRevisionSql::update(changeset, conn)?;
+        DatabaseRevisionSql::update(changeset, conn)?;
       }
       Ok(())
     })?;
@@ -68,7 +68,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseRevisionPersistenc
     rev_ids: Option<Vec<i64>>,
   ) -> Result<(), Self::Error> {
     let conn = &*self.pool.get().map_err(internal_error)?;
-    GridRevisionSql::delete(object_id, rev_ids, conn)?;
+    DatabaseRevisionSql::delete(object_id, rev_ids, conn)?;
     Ok(())
   }
 
@@ -80,8 +80,8 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseRevisionPersistenc
   ) -> Result<(), Self::Error> {
     let conn = self.pool.get().map_err(internal_error)?;
     conn.immediate_transaction::<_, FlowyError, _>(|| {
-      GridRevisionSql::delete(object_id, deleted_rev_ids, &conn)?;
-      GridRevisionSql::create(inserted_records, &conn)?;
+      DatabaseRevisionSql::delete(object_id, deleted_rev_ids, &conn)?;
+      DatabaseRevisionSql::create(inserted_records, &conn)?;
       Ok(())
     })
   }
@@ -96,8 +96,8 @@ impl SQLiteDatabaseRevisionPersistence {
   }
 }
 
-struct GridRevisionSql();
-impl GridRevisionSql {
+struct DatabaseRevisionSql();
+impl DatabaseRevisionSql {
   fn create(revision_records: Vec<SyncRecord>, conn: &SqliteConnection) -> Result<(), FlowyError> {
     // Batch insert: https://diesel.rs/guides/all-about-inserts.html
     let records = revision_records
@@ -205,14 +205,14 @@ impl GridRevisionSql {
   }
 }
 
-#[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
+#[derive(PartialEq, Eq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[table_name = "grid_rev_table"]
-struct DatabaseRevisionTable {
+pub struct DatabaseRevisionTable {
   id: i32,
-  object_id: String,
-  base_rev_id: i64,
-  rev_id: i64,
-  data: Vec<u8>,
+  pub object_id: String,
+  pub base_rev_id: i64,
+  pub rev_id: i64,
+  pub data: Vec<u8>,
   state: DatabaseRevisionState,
 }
 

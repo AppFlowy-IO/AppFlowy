@@ -16,6 +16,7 @@ use crate::services::database::DatabaseViewDataImpl;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViews};
 use crate::services::filter::FilterType;
 use crate::services::persistence::block_index::BlockRowIndexer;
+use crate::services::persistence::database_ref::DatabaseRef;
 use crate::services::row::{DatabaseBlockRow, DatabaseBlockRowRevision, RowRevisionBuilder};
 use bytes::Bytes;
 use database_model::*;
@@ -38,6 +39,10 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
+pub trait DatabaseRefIndexerQuery: Send + Sync + 'static {
+  fn get_ref_views(&self, database_id: &str) -> FlowyResult<Vec<DatabaseRef>>;
+}
+
 pub struct DatabaseEditor {
   pub database_id: String,
   database_pad: Arc<RwLock<DatabaseRevisionPad>>,
@@ -45,6 +50,7 @@ pub struct DatabaseEditor {
   database_views: Arc<DatabaseViews>,
   database_blocks: Arc<DatabaseBlocks>,
   cell_data_cache: AtomicCellDataCache,
+  database_ref_query: Arc<dyn DatabaseRefIndexerQuery>,
 }
 
 impl Drop for DatabaseEditor {
@@ -61,6 +67,7 @@ impl DatabaseEditor {
     database_pad: Arc<RwLock<DatabaseRevisionPad>>,
     rev_manager: RevisionManager<Arc<ConnectionPool>>,
     persistence: Arc<BlockRowIndexer>,
+    ref_query: Arc<dyn DatabaseRefIndexerQuery>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     base_view: DatabaseViewRevisionPad,
     base_view_rev_manager: RevisionManager<Arc<ConnectionPool>>,
@@ -98,6 +105,7 @@ impl DatabaseEditor {
       database_blocks,
       database_views,
       cell_data_cache,
+      database_ref_query: ref_query,
     });
 
     Ok(editor)
@@ -963,10 +971,13 @@ impl DatabaseEditor {
   async fn notify_did_insert_database_field(&self, field_id: &str) -> FlowyResult<()> {
     if let Some((index, field_rev)) = self.database_pad.read().await.get_field_rev(field_id) {
       let index_field = IndexFieldPB::from_field_rev(field_rev, index);
-      //TODO(nathan): broadcast the changeset to views that reference to this database
-      let notified_changeset =
-        DatabaseFieldChangesetPB::insert(&self.database_id, vec![index_field]);
-      self.notify_did_update_database(notified_changeset).await?;
+      if let Ok(views) = self.database_ref_query.get_ref_views(&self.database_id) {
+        for view in views {
+          let notified_changeset =
+            DatabaseFieldChangesetPB::insert(&view.view_id, vec![index_field.clone()]);
+          self.notify_did_update_database(notified_changeset).await?;
+        }
+      }
     }
     Ok(())
   }
@@ -993,14 +1004,18 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  //TODO(nathan): broadcast the changeset to views that reference to this database
   async fn notify_did_update_database(
     &self,
     changeset: DatabaseFieldChangesetPB,
   ) -> FlowyResult<()> {
-    send_notification(&self.database_id, DatabaseNotification::DidUpdateFields)
-      .payload(changeset)
-      .send();
+    if let Ok(views) = self.database_ref_query.get_ref_views(&self.database_id) {
+      for view in views {
+        send_notification(&view.view_id, DatabaseNotification::DidUpdateFields)
+          .payload(changeset.clone())
+          .send();
+      }
+    }
+
     Ok(())
   }
 }

@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use flowy_sqlite::ConnectionPool;
 
-use database_model::BuildDatabaseContext;
+use database_model::{gen_database_id, BuildDatabaseContext};
 use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_database::entities::LayoutTypePB;
 use flowy_database::manager::{make_database_view_data, DatabaseManager};
@@ -86,7 +86,7 @@ fn make_view_data_processor(
       map.insert(data_type, document_processor.clone());
     });
 
-  let grid_data_impl = Arc::new(GridViewDataProcessor(database_manager));
+  let grid_data_impl = Arc::new(DatabaseViewDataProcessor(database_manager));
   grid_data_impl
     .data_types()
     .into_iter()
@@ -170,6 +170,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     &self,
     _user_id: &str,
     view_id: &str,
+    _name: &str,
     layout: ViewLayoutTypePB,
     view_data: Bytes,
   ) -> FutureResult<(), FlowyError> {
@@ -250,21 +251,24 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
   }
 }
 
-struct GridViewDataProcessor(Arc<DatabaseManager>);
-impl ViewDataProcessor for GridViewDataProcessor {
+struct DatabaseViewDataProcessor(Arc<DatabaseManager>);
+impl ViewDataProcessor for DatabaseViewDataProcessor {
   fn create_view(
     &self,
     _user_id: &str,
     view_id: &str,
+    name: &str,
     _layout: ViewLayoutTypePB,
     delta_data: Bytes,
   ) -> FutureResult<(), FlowyError> {
     let revision = Revision::initial_revision(view_id, delta_data);
     let view_id = view_id.to_string();
+    let name = name.to_string();
+    let database_id = gen_database_id();
     let database_manager = self.0.clone();
     FutureResult::new(async move {
       database_manager
-        .create_database(view_id, vec![revision])
+        .create_database(&database_id, view_id, &name, vec![revision])
         .await?;
       Ok(())
     })

@@ -1,18 +1,19 @@
 use crate::entities::LayoutTypePB;
 use crate::services::database::{
-  make_database_block_rev_manager, DatabaseEditor, DatabaseRevisionCloudService,
-  DatabaseRevisionMergeable, DatabaseRevisionSerde,
+  make_database_block_rev_manager, DatabaseEditor, DatabaseRefIndexerQuery,
+  DatabaseRevisionCloudService, DatabaseRevisionMergeable, DatabaseRevisionSerde,
 };
 use crate::services::database_view::{
   make_database_view_rev_manager, make_database_view_revision_pad,
 };
 use crate::services::persistence::block_index::BlockRowIndexer;
+use crate::services::persistence::database_ref::{DatabaseInfo, DatabaseRef, DatabaseRefIndexer};
 use crate::services::persistence::kv::DatabaseKVPersistence;
 use crate::services::persistence::migration::DatabaseMigration;
 use crate::services::persistence::rev_sqlite::{
   SQLiteDatabaseRevisionPersistence, SQLiteDatabaseRevisionSnapshotPersistence,
 };
-use crate::services::persistence::DatabaseDB;
+use crate::services::persistence::DatabaseDBConnection;
 use bytes::Bytes;
 use database_model::{
   gen_database_id, BuildDatabaseContext, DatabaseRevision, DatabaseViewRevision,
@@ -42,6 +43,7 @@ pub struct DatabaseManager {
   database_editors: RwLock<RefCountHashMap<Arc<DatabaseEditor>>>,
   database_user: Arc<dyn DatabaseUser>,
   block_indexer: Arc<BlockRowIndexer>,
+  database_ref_indexer: Arc<DatabaseRefIndexer>,
   #[allow(dead_code)]
   kv_persistence: Arc<DatabaseKVPersistence>,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
@@ -54,38 +56,50 @@ impl DatabaseManager {
     database_user: Arc<dyn DatabaseUser>,
     _rev_web_socket: Arc<dyn RevisionWebSocket>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
-    database_db: Arc<dyn DatabaseDB>,
+    database_db: Arc<dyn DatabaseDBConnection>,
   ) -> Self {
     let database_editors = RwLock::new(RefCountHashMap::new());
     let kv_persistence = Arc::new(DatabaseKVPersistence::new(database_db.clone()));
     let block_indexer = Arc::new(BlockRowIndexer::new(database_db.clone()));
-    let migration = DatabaseMigration::new(database_user.clone(), database_db);
+    let database_ref_indexer = Arc::new(DatabaseRefIndexer::new(database_db.clone()));
+    let migration = DatabaseMigration::new(
+      database_user.clone(),
+      database_db,
+      database_ref_indexer.clone(),
+    );
     Self {
       database_editors,
       database_user,
       kv_persistence,
       block_indexer,
+      database_ref_indexer,
       task_scheduler,
       migration,
     }
   }
 
-  pub async fn initialize_with_new_user(&self, _user_id: &str, _token: &str) -> FlowyResult<()> {
+  pub async fn initialize_with_new_user(&self, user_id: &str, _token: &str) -> FlowyResult<()> {
+    self.migration.run(user_id).await?;
     Ok(())
   }
 
-  pub async fn initialize(&self, _user_id: &str, _token: &str) -> FlowyResult<()> {
+  pub async fn initialize(&self, user_id: &str, _token: &str) -> FlowyResult<()> {
+    self.migration.run(user_id).await?;
     Ok(())
   }
 
   #[tracing::instrument(level = "debug", skip_all, err)]
   pub async fn create_database<T: AsRef<str>>(
     &self,
-    database_id: T,
+    database_id: &str,
+    view_id: T,
+    name: &str,
     revisions: Vec<Revision>,
   ) -> FlowyResult<()> {
-    let database_id = database_id.as_ref();
     let db_pool = self.database_user.db_pool()?;
+    let _ = self
+      .database_ref_indexer
+      .bind(database_id, view_id.as_ref(), true, name);
     let rev_manager = self.make_database_rev_manager(database_id, db_pool)?;
     rev_manager.reset_object(revisions).await?;
 
@@ -148,8 +162,8 @@ impl DatabaseManager {
     }
   }
 
-  pub async fn get_databases(&self) {
-    //
+  pub async fn get_databases(&self) -> FlowyResult<Vec<DatabaseInfo>> {
+    self.database_ref_indexer.get_all_databases()
   }
 
   async fn get_or_create_database_editor(&self, view_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
@@ -198,6 +212,7 @@ impl DatabaseManager {
       database_pad,
       rev_manager,
       self.block_indexer.clone(),
+      self.database_ref_indexer.clone(),
       self.task_scheduler.clone(),
       base_view_pad,
       base_view_rev_manager,
@@ -273,14 +288,13 @@ pub async fn make_database_view_data(
 
   let database_id = gen_database_id();
   let database_rev = DatabaseRevision::from_build_context(&database_id, field_revs, block_metas);
-
   tracing::trace!("Create new database: {}", database_id);
   // Create database
   let database_ops = make_database_operations(&database_rev);
   let database_bytes = database_ops.json_bytes();
   let revision = Revision::initial_revision(&database_id, database_bytes.clone());
   database_manager
-    .create_database(&database_id, vec![revision])
+    .create_database(&database_id, &view_id, &name, vec![revision])
     .await?;
 
   tracing::trace!("Create new database view: {}", view_id);
@@ -304,5 +318,17 @@ pub async fn make_database_view_data(
 impl RefCountValue for DatabaseEditor {
   async fn did_remove(&self) {
     self.close().await;
+  }
+}
+
+impl DatabaseRefIndexerQuery for DatabaseRefIndexer {
+  fn get_ref_views(&self, database_id: &str) -> FlowyResult<Vec<DatabaseRef>> {
+    self.get_ref_views_with_database(database_id)
+  }
+}
+
+impl DatabaseRefIndexerQuery for Arc<DatabaseRefIndexer> {
+  fn get_ref_views(&self, database_id: &str) -> FlowyResult<Vec<DatabaseRef>> {
+    (**self).get_ref_views(database_id)
   }
 }

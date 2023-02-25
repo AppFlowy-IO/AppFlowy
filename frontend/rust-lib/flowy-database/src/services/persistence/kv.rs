@@ -1,4 +1,4 @@
-use crate::services::persistence::DatabaseDB;
+use crate::services::persistence::DatabaseDBConnection;
 use ::diesel::{query_dsl::*, ExpressionMethods};
 use bytes::Bytes;
 use diesel::SqliteConnection;
@@ -34,11 +34,11 @@ pub trait KVTransaction {
 }
 
 pub struct DatabaseKVPersistence {
-  database: Arc<dyn DatabaseDB>,
+  database: Arc<dyn DatabaseDBConnection>,
 }
 
 impl DatabaseKVPersistence {
-  pub fn new(database: Arc<dyn DatabaseDB>) -> Self {
+  pub fn new(database: Arc<dyn DatabaseDBConnection>) -> Self {
     Self { database }
   }
 
@@ -46,7 +46,7 @@ impl DatabaseKVPersistence {
   where
     F: for<'a> FnOnce(SqliteTransaction<'a>) -> FlowyResult<O>,
   {
-    let conn = self.database.db_connection()?;
+    let conn = self.database.get_db_connection()?;
     conn.immediate_transaction::<_, FlowyError, _>(|| {
       let sql_transaction = SqliteTransaction { conn: &conn };
       f(sql_transaction)

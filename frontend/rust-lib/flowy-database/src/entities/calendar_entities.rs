@@ -39,7 +39,7 @@ const DEFAULT_SHOW_WEEK_NUMBERS: bool = true;
 impl CalendarSettingsParams {
   pub fn default_with(view_id: String) -> Self {
     CalendarSettingsParams {
-      view_id: view_id.to_string(),
+      view_id,
       layout_ty: CalendarLayout::default(),
       first_day_of_week: DEFAULT_FIRST_DAY_OF_WEEK,
       show_weekends: DEFAULT_SHOW_WEEKENDS,

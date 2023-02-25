@@ -77,7 +77,7 @@ void main() {
       },
       wait: gridResponseDuration(),
       verify: (bloc) {
-        assert(bloc.state.fields.length == 4);
+        expect(bloc.state.fields.length, 4);
       },
     );
 
@@ -96,7 +96,7 @@ void main() {
       },
       wait: gridResponseDuration(),
       verify: (bloc) {
-        assert(bloc.state.fields.length == 2);
+        expect(bloc.state.fields.length, 2);
       },
     );
 
@@ -119,7 +119,7 @@ void main() {
         final field = bloc.state.fields.firstWhere(
             (element) => element.id == actionSheetBloc.fieldService.fieldId);
 
-        assert(field.name == "Hello world");
+        expect(field.name, "Hello world");
       },
     );
   });

@@ -10,7 +10,7 @@ use crate::services::field::{
 use crate::services::row::make_row_from_row_rev;
 use database_model::FieldRevision;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use lib_dispatch::prelude::{data_result, AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use std::sync::Arc;
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
@@ -21,7 +21,7 @@ pub(crate) async fn get_database_data_handler(
   let view_id: DatabaseViewIdPB = data.into_inner();
   let editor = manager.open_database(view_id.as_ref()).await?;
   let database = editor.get_database(view_id.as_ref()).await?;
-  data_result(database)
+  data_result_ok(database)
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
@@ -32,7 +32,7 @@ pub(crate) async fn get_database_setting_handler(
   let view_id: DatabaseViewIdPB = data.into_inner();
   let editor = manager.open_database(view_id.as_ref()).await?;
   let database_setting = editor.get_setting(view_id.as_ref()).await?;
-  data_result(database_setting)
+  data_result_ok(database_setting)
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
@@ -78,7 +78,7 @@ pub(crate) async fn get_all_filters_handler(
   let filters = RepeatedFilterPB {
     items: editor.get_all_filters(view_id.as_ref()).await?,
   };
-  data_result(filters)
+  data_result_ok(filters)
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
@@ -91,7 +91,7 @@ pub(crate) async fn get_all_sorts_handler(
   let sorts = RepeatedSortPB {
     items: editor.get_all_sorts(view_id.as_ref()).await?,
   };
-  data_result(sorts)
+  data_result_ok(sorts)
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
@@ -118,7 +118,7 @@ pub(crate) async fn get_fields_handler(
     .map(FieldPB::from)
     .collect::<Vec<_>>()
     .into();
-  data_result(repeated_field)
+  data_result_ok(repeated_field)
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
@@ -223,7 +223,7 @@ pub(crate) async fn get_field_type_option_data_handler(
         field: field_rev.into(),
         type_option_data,
       };
-      data_result(data)
+      data_result_ok(data)
     },
   }
 }
@@ -242,7 +242,7 @@ pub(crate) async fn create_field_type_option_data_handler(
   let field_type: FieldType = field_rev.ty.into();
   let type_option_data = get_type_option_data(&field_rev, &field_type).await?;
 
-  data_result(TypeOptionPB {
+  data_result_ok(TypeOptionPB {
     view_id: params.view_id,
     field: field_rev.into(),
     type_option_data,
@@ -292,7 +292,7 @@ pub(crate) async fn get_row_handler(
     .await?
     .map(make_row_from_row_rev);
 
-  data_result(OptionalRowPB { row })
+  data_result_ok(OptionalRowPB { row })
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
@@ -336,7 +336,7 @@ pub(crate) async fn create_table_row_handler(
   let params: CreateRowParams = data.into_inner().try_into()?;
   let editor = manager.get_database_editor(params.view_id.as_ref()).await?;
   let row = editor.create_row(params).await?;
-  data_result(row)
+  data_result_ok(row)
 }
 
 #[tracing::instrument(level = "trace", skip_all, err)]
@@ -347,8 +347,8 @@ pub(crate) async fn get_cell_handler(
   let params: CellIdParams = data.into_inner().try_into()?;
   let editor = manager.get_database_editor(&params.view_id).await?;
   match editor.get_cell(&params).await {
-    None => data_result(CellPB::empty(&params.field_id, &params.row_id)),
-    Some(cell) => data_result(cell),
+    None => data_result_ok(CellPB::empty(&params.field_id, &params.row_id)),
+    Some(cell) => data_result_ok(cell),
   }
 }
 
@@ -381,7 +381,7 @@ pub(crate) async fn new_select_option_handler(
     Some(field_rev) => {
       let type_option = select_type_option_from_field_rev(&field_rev)?;
       let select_option = type_option.create_option(&params.option_name);
-      data_result(select_option)
+      data_result_ok(select_option)
     },
   }
 }
@@ -461,7 +461,7 @@ pub(crate) async fn get_select_option_handler(
         "Can't find the select option field with id: {}",
         params.field_id
       );
-      data_result(SelectOptionCellDataPB::default())
+      data_result_ok(SelectOptionCellDataPB::default())
     },
     Some(field_rev) => {
       //
@@ -478,7 +478,7 @@ pub(crate) async fn get_select_option_handler(
       };
       let ids = SelectOptionIds::from_cell_str(&type_cell_data.cell_str)?;
       let selected_options = type_option.get_selected_options(ids);
-      data_result(selected_options)
+      data_result_ok(selected_options)
     },
   }
 }
@@ -535,7 +535,7 @@ pub(crate) async fn get_groups_handler(
   let params: DatabaseViewIdPB = data.into_inner();
   let editor = manager.get_database_editor(&params.value).await?;
   let group = editor.load_groups(&params.value).await?;
-  data_result(group)
+  data_result_ok(group)
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
@@ -546,7 +546,7 @@ pub(crate) async fn create_board_card_handler(
   let params: CreateRowParams = data.into_inner().try_into()?;
   let editor = manager.get_database_editor(params.view_id.as_ref()).await?;
   let row = editor.create_row(params).await?;
-  data_result(row)
+  data_result_ok(row)
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
@@ -574,9 +574,17 @@ pub(crate) async fn move_group_row_handler(
 #[tracing::instrument(level = "debug", skip(manager), err)]
 pub(crate) async fn get_databases_handler(
   manager: AFPluginState<Arc<DatabaseManager>>,
-) -> FlowyResult<()> {
-  manager.get_databases().await;
-  Ok(())
+) -> DataResult<RepeatedDatabaseDescPB, FlowyError> {
+  let items = manager
+    .get_databases()
+    .await?
+    .into_iter()
+    .map(|database_info| DatabaseDescPB {
+      name: database_info.name,
+      database_id: database_info.database_id,
+    })
+    .collect::<Vec<DatabaseDescPB>>();
+  data_result_ok(RepeatedDatabaseDescPB { items })
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]

@@ -365,7 +365,7 @@ fn nodes_delete_test() {
     },
     DeleteNodes {
       path: path.clone(),
-      node_data_list: node_data_list.clone(),
+      node_data_list,
       rev_id: 2,
     },
     AssertNode {
