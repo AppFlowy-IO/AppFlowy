@@ -14,7 +14,7 @@ use crate::services::persistence::rev_sqlite::{
   SQLiteDatabaseRevisionPersistence, SQLiteDatabaseRevisionSnapshotPersistence,
 };
 use crate::services::persistence::DatabaseDBConnection;
-use bytes::Bytes;
+
 use database_model::{
   gen_database_id, BuildDatabaseContext, DatabaseRevision, DatabaseViewRevision,
 };
@@ -253,8 +253,39 @@ impl DatabaseManager {
   }
 }
 
-pub async fn make_database_view_data(
-  _user_id: &str,
+pub async fn link_existing_database(
+  view_id: &str,
+  name: String,
+  database_id: &str,
+  layout: LayoutTypePB,
+  database_manager: Arc<DatabaseManager>,
+) -> FlowyResult<()> {
+  tracing::trace!(
+    "Link database view: {} with database: {}",
+    view_id,
+    database_id
+  );
+  let database_view_rev = DatabaseViewRevision::new(
+    database_id.to_string(),
+    view_id.to_owned(),
+    false,
+    name.clone(),
+    layout.into(),
+  );
+  let database_view_ops = make_database_view_operations(&database_view_rev);
+  let database_view_bytes = database_view_ops.json_bytes();
+  let revision = Revision::initial_revision(view_id, database_view_bytes);
+  database_manager
+    .create_database_view(view_id, vec![revision])
+    .await?;
+
+  let _ = database_manager
+    .database_ref_indexer
+    .bind(database_id, view_id, false, &name);
+  Ok(())
+}
+
+pub async fn create_new_database(
   view_id: &str,
   name: String,
   layout: LayoutTypePB,
@@ -288,8 +319,9 @@ pub async fn make_database_view_data(
 
   let database_id = gen_database_id();
   let database_rev = DatabaseRevision::from_build_context(&database_id, field_revs, block_metas);
-  tracing::trace!("Create new database: {}", database_id);
+
   // Create database
+  tracing::trace!("Create new database: {}", database_id);
   let database_ops = make_database_operations(&database_rev);
   let database_bytes = database_ops.json_bytes();
   let revision = Revision::initial_revision(&database_id, database_bytes);
@@ -297,8 +329,8 @@ pub async fn make_database_view_data(
     .create_database(&database_id, &view_id, &name, vec![revision])
     .await?;
 
-  tracing::trace!("Create new database view: {}", view_id);
   // Create database view
+  tracing::trace!("Create new database view: {}", view_id);
   let database_view_rev = if database_view_data.is_empty() {
     DatabaseViewRevision::new(database_id, view_id.to_owned(), true, name, layout.into())
   } else {

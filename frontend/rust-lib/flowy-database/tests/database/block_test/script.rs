@@ -56,7 +56,7 @@ pub struct DatabaseRowTest {
 
 impl DatabaseRowTest {
   pub async fn new() -> Self {
-    let editor_test = DatabaseEditorTest::new_table().await;
+    let editor_test = DatabaseEditorTest::new_grid().await;
     Self { inner: editor_test }
   }
 

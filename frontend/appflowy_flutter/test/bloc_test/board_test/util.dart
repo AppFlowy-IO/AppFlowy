@@ -32,7 +32,6 @@ class AppFlowyBoardTest {
         .createView(
       appId: app.id,
       name: "Test Board",
-      dataFormatType: builder.dataFormatType,
       layoutType: builder.layoutType!,
     )
         .then((result) {

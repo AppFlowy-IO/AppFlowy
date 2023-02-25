@@ -14,7 +14,7 @@ pub struct DatabaseCellTest {
 
 impl DatabaseCellTest {
   pub async fn new() -> Self {
-    let inner = DatabaseEditorTest::new_table().await;
+    let inner = DatabaseEditorTest::new_grid().await;
     Self { inner }
   }
 

@@ -29,9 +29,6 @@ class GridPluginBuilder implements PluginBuilder {
   PluginType get pluginType => PluginType.grid;
 
   @override
-  ViewDataFormatPB get dataFormatType => ViewDataFormatPB.DatabaseFormat;
-
-  @override
   ViewLayoutTypePB? get layoutType => ViewLayoutTypePB.Grid;
 }
 

@@ -11,7 +11,6 @@ Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
       .createView(
     appId: app.id,
     name: "Filter Grid",
-    dataFormatType: builder.dataFormatType,
     layoutType: builder.layoutType!,
   )
       .then((result) {

@@ -70,7 +70,7 @@ pub struct FolderManager {
   pub(crate) view_controller: Arc<ViewController>,
   pub(crate) trash_controller: Arc<TrashController>,
   web_socket: Arc<dyn RevisionWebSocket>,
-  folder_editor: Arc<TokioRwLock<Option<Arc<FolderEditor>>>>,
+  pub(crate) folder_editor: Arc<TokioRwLock<Option<Arc<FolderEditor>>>>,
 }
 
 impl FolderManager {
@@ -276,13 +276,6 @@ impl DefaultFolderBuilder {
   }
 }
 
-#[cfg(feature = "flowy_unit_test")]
-impl FolderManager {
-  pub async fn folder_editor(&self) -> Arc<FolderEditor> {
-    self.folder_editor.read().await.clone().unwrap()
-  }
-}
-
 pub trait ViewDataProcessor {
   /// Closes the view and releases the resources that this view has in
   /// the backend
@@ -302,6 +295,7 @@ pub trait ViewDataProcessor {
     name: &str,
     layout: ViewLayoutTypePB,
     data_format: ViewDataFormatPB,
+    ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError>;
 
   /// Create a view with custom data
@@ -312,6 +306,7 @@ pub trait ViewDataProcessor {
     name: &str,
     data: Vec<u8>,
     layout: ViewLayoutTypePB,
+    ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError>;
 
   fn data_types(&self) -> Vec<ViewDataFormatPB>;

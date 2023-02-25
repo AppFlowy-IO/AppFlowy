@@ -25,16 +25,11 @@ pub struct ViewTest {
 
 impl ViewTest {
   #[allow(dead_code)]
-  pub async fn new(
-    sdk: &FlowySDKTest,
-    data_format: ViewDataFormatPB,
-    layout: ViewLayoutTypePB,
-    data: Vec<u8>,
-  ) -> Self {
+  pub async fn new(sdk: &FlowySDKTest, layout: ViewLayoutTypePB, data: Vec<u8>) -> Self {
     let workspace = create_workspace(sdk, "Workspace", "").await;
     open_workspace(sdk, &workspace.id).await;
     let app = create_app(sdk, "App", "AppFlowy GitHub Project", &workspace.id).await;
-    let view = create_view(sdk, &app.id, data_format, layout, data).await;
+    let view = create_view(sdk, &app.id, layout, data).await;
     Self {
       sdk: sdk.clone(),
       workspace,
@@ -44,41 +39,19 @@ impl ViewTest {
   }
 
   pub async fn new_grid_view(sdk: &FlowySDKTest, data: Vec<u8>) -> Self {
-    Self::new(
-      sdk,
-      ViewDataFormatPB::DatabaseFormat,
-      ViewLayoutTypePB::Grid,
-      data,
-    )
-    .await
+    Self::new(sdk, ViewLayoutTypePB::Grid, data).await
   }
 
   pub async fn new_board_view(sdk: &FlowySDKTest, data: Vec<u8>) -> Self {
-    Self::new(
-      sdk,
-      ViewDataFormatPB::DatabaseFormat,
-      ViewLayoutTypePB::Board,
-      data,
-    )
-    .await
+    Self::new(sdk, ViewLayoutTypePB::Board, data).await
   }
 
   pub async fn new_calendar_view(sdk: &FlowySDKTest, data: Vec<u8>) -> Self {
-    Self::new(
-      sdk,
-      ViewDataFormatPB::DatabaseFormat,
-      ViewLayoutTypePB::Calendar,
-      data,
-    )
-    .await
+    Self::new(sdk, ViewLayoutTypePB::Calendar, data).await
   }
 
   pub async fn new_document_view(sdk: &FlowySDKTest) -> Self {
-    let view_data_format = match sdk.document_version() {
-      DocumentVersionPB::V0 => ViewDataFormatPB::DeltaFormat,
-      DocumentVersionPB::V1 => ViewDataFormatPB::NodeFormat,
-    };
-    Self::new(sdk, view_data_format, ViewLayoutTypePB::Document, vec![]).await
+    Self::new(sdk, ViewLayoutTypePB::Document, vec![]).await
   }
 }
 
@@ -126,7 +99,6 @@ async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &s
 async fn create_view(
   sdk: &FlowySDKTest,
   app_id: &str,
-  data_format: ViewDataFormatPB,
   layout: ViewLayoutTypePB,
   data: Vec<u8>,
 ) -> ViewPB {
@@ -135,9 +107,9 @@ async fn create_view(
     name: "View A".to_string(),
     desc: "".to_string(),
     thumbnail: Some("http://1.png".to_string()),
-    data_format,
     layout,
     initial_data: data,
+    ext: Default::default(),
   };
 
   FolderEventBuilder::new(sdk.clone())

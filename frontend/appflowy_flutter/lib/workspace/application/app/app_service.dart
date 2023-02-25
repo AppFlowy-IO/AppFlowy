@@ -19,22 +19,25 @@ class AppService {
     required String appId,
     required String name,
     String? desc,
-    required ViewDataFormatPB dataFormatType,
     required ViewLayoutTypePB layoutType,
 
     /// The initial data should be the JSON of the doucment
     /// For example: {"document":{"type":"editor","children":[]}}
     String? initialData,
+    Map<String, String> ext = const {},
   }) {
     final payload = CreateViewPayloadPB.create()
       ..belongToId = appId
       ..name = name
       ..desc = desc ?? ""
-      ..dataFormat = dataFormatType
       ..layout = layoutType
       ..initialData = utf8.encode(
         initialData ?? "",
       );
+
+    if (ext.isNotEmpty) {
+      payload.ext.addAll(ext);
+    }
 
     return FolderEventCreateView(payload).send();
   }

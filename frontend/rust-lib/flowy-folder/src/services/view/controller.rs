@@ -19,11 +19,12 @@ use flowy_sqlite::kv::KV;
 use folder_model::{gen_view_id, ViewRevision};
 use futures::{FutureExt, StreamExt};
 use lib_infra::util::timestamp;
+use std::collections::HashMap;
 use std::{collections::HashSet, sync::Arc};
 
 const LATEST_VIEW_ID: &str = "latest_view_id";
 
-pub(crate) struct ViewController {
+pub struct ViewController {
   user: Arc<dyn WorkspaceUser>,
   cloud_service: Arc<dyn FolderCouldServiceV1>,
   persistence: Arc<FolderPersistence>,
@@ -70,6 +71,7 @@ impl ViewController {
             &params.name,
             params.layout.clone(),
             params.data_format.clone(),
+            params.ext.clone(),
           )
           .await?;
       },
@@ -82,6 +84,7 @@ impl ViewController {
             &params.name,
             params.initial_data.clone(),
             params.layout.clone(),
+            params.ext.clone(),
           )
           .await?;
       },
@@ -127,7 +130,14 @@ impl ViewController {
     let user_id = self.user.user_id()?;
     let processor = self.get_data_processor(data_type)?;
     processor
-      .create_view_with_custom_data(&user_id, view_id, name, view_data.to_vec(), layout_type)
+      .create_view_with_custom_data(
+        &user_id,
+        view_id,
+        name,
+        view_data.to_vec(),
+        layout_type,
+        HashMap::default(),
+      )
       .await?;
     Ok(())
   }
@@ -254,6 +264,7 @@ impl ViewController {
       layout: view_rev.layout.into(),
       initial_data: view_data.to_vec(),
       view_id: gen_view_id(),
+      ext: Default::default(),
     };
 
     let _ = self.create_view_from_params(duplicate_params).await?;

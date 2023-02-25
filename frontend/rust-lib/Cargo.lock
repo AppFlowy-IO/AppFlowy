@@ -1014,6 +1014,8 @@ dependencies = [
  "lib-ws",
  "parking_lot 0.12.1",
  "revision-model",
+ "serde",
+ "serde_json",
  "tokio",
  "tracing",
  "user-model",

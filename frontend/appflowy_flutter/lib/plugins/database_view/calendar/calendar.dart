@@ -29,9 +29,6 @@ class CalendarPluginBuilder extends PluginBuilder {
   PluginType get pluginType => PluginType.calendar;
 
   @override
-  ViewDataFormatPB get dataFormatType => ViewDataFormatPB.DatabaseFormat;
-
-  @override
   ViewLayoutTypePB? get layoutType => ViewLayoutTypePB.Calendar;
 }
 

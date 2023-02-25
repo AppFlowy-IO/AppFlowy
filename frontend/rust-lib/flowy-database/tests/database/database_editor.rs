@@ -14,6 +14,7 @@ use strum::EnumCount;
 
 pub struct DatabaseEditorTest {
   pub sdk: FlowySDKTest,
+  pub app_id: String,
   pub view_id: String,
   pub editor: Arc<DatabaseEditor>,
   pub field_revs: Vec<Arc<FieldRevision>>,
@@ -24,7 +25,7 @@ pub struct DatabaseEditorTest {
 }
 
 impl DatabaseEditorTest {
-  pub async fn new_table() -> Self {
+  pub async fn new_grid() -> Self {
     Self::new(LayoutTypePB::Grid).await
   }
 
@@ -67,10 +68,12 @@ impl DatabaseEditorTest {
     // Because we assert the initialize count of the fields is equal to FieldType::COUNT.
     assert_eq!(field_revs.len(), FieldType::COUNT);
 
-    let grid_id = test.view.id;
+    let view_id = test.view.id;
+    let app_id = test.app.id;
     Self {
       sdk,
-      view_id: grid_id,
+      app_id,
+      view_id,
       editor,
       field_revs,
       block_meta_revs,

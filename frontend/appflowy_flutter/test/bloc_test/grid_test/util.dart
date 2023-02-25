@@ -166,7 +166,6 @@ class AppFlowyGridTest {
         .createView(
       appId: app.id,
       name: "Test Grid",
-      dataFormatType: builder.dataFormatType,
       layoutType: builder.layoutType!,
     )
         .then((result) {

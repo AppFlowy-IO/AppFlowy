@@ -8,6 +8,7 @@ use crate::{
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use folder_model::{gen_view_id, ViewDataFormatRevision, ViewLayoutTypeRevision, ViewRevision};
+use std::collections::HashMap;
 use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -159,13 +160,13 @@ pub struct CreateViewPayloadPB {
   pub thumbnail: Option<String>,
 
   #[pb(index = 5)]
-  pub data_format: ViewDataFormatPB,
-
-  #[pb(index = 6)]
   pub layout: ViewLayoutTypePB,
 
-  #[pb(index = 7)]
+  #[pb(index = 6)]
   pub initial_data: Vec<u8>,
+
+  #[pb(index = 7)]
+  pub ext: HashMap<String, String>,
 }
 
 #[derive(Debug, Clone)]
@@ -178,6 +179,7 @@ pub struct CreateViewParams {
   pub layout: ViewLayoutTypePB,
   pub view_id: String,
   pub initial_data: Vec<u8>,
+  pub ext: HashMap<String, String>,
 }
 
 impl TryInto<CreateViewParams> for CreateViewPayloadPB {
@@ -191,18 +193,31 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
       None => "".to_string(),
       Some(thumbnail) => ViewThumbnail::parse(thumbnail)?.0,
     };
+    let data_format = data_format_from_layout(&self.layout);
 
     Ok(CreateViewParams {
       belong_to_id,
       name,
       desc: self.desc,
-      data_format: self.data_format,
+      data_format,
       layout: self.layout,
       thumbnail,
       view_id,
       initial_data: self.initial_data,
+      ext: self.ext,
     })
   }
+}
+
+pub fn data_format_from_layout(layout: &ViewLayoutTypePB) -> ViewDataFormatPB {
+  let data_format = match layout {
+    ViewLayoutTypePB::Document => ViewDataFormatPB::NodeFormat,
+    ViewLayoutTypePB::Grid => ViewDataFormatPB::DatabaseFormat,
+    ViewLayoutTypePB::Board => ViewDataFormatPB::DatabaseFormat,
+    ViewLayoutTypePB::Calendar => ViewDataFormatPB::DatabaseFormat,
+  };
+
+  return data_format;
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
