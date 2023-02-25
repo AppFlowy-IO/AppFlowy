@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(runner LANGUAGES CXX)
 
-set(BINARY_NAME "app_flowy")
-set(APPLICATION_ID "com.example.app_flowy")
+set(BINARY_NAME "appflowy_flutter")
+set(APPLICATION_ID "com.example.appflowy_flutter")
 
 cmake_policy(SET CMP0063 NEW)
 

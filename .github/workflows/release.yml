@@ -39,7 +39,7 @@ jobs:
     name: ${{ matrix.job.target }} (${{ matrix.job.os }})
     needs: create-release
     env:
-      WINDOWS_APP_RELEASE_PATH: frontend\app_flowy\product\${{ github.ref_name }}\windows
+      WINDOWS_APP_RELEASE_PATH: frontend\appflowy_flutter\product\${{ github.ref_name }}\windows
       WINDOWS_ZIP_NAME: AppFlowy_${{ github.ref_name }}_windows-x86_64.zip
       WINDOWS_INSTALLER_NAME: AppFlowy_${{ github.ref_name }}_windows-x86_64
     runs-on: ${{ matrix.job.os }}

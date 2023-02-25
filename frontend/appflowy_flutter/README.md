@@ -1,4 +1,4 @@
-# app_flowy
+# appflowy_flutter
 
 A new Flutter project.
 

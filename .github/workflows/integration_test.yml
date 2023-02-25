@@ -100,14 +100,14 @@ jobs:
         shell: bash
 
       - name: Flutter Code Generation
-        working-directory: frontend/app_flowy
+        working-directory: frontend/appflowy_flutter
         run: |
           flutter packages pub get
           flutter packages pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations -s en.json
           flutter packages pub run build_runner build --delete-conflicting-outputs
 
       - name: Run AppFlowy tests
-        working-directory: frontend/app_flowy
+        working-directory: frontend/appflowy_flutter
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
             flutter test integration_test -d Linux --coverage

@@ -58,7 +58,7 @@ Get the node of a defined path. In this case we are getting the first node of th
 final firstTextNode = editor.nodeAtPath([0]) as TextNode;
 ```
 
-Update the [Selection](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/lib/src/document/selection.dart) so that our text "Welcome to Appflowy 😁" is selected. We will start our selection from the beginning of the string.
+Update the [Selection](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/appflowy_flutter/packages/appflowy_editor/lib/src/document/selection.dart) so that our text "Welcome to Appflowy 😁" is selected. We will start our selection from the beginning of the string.
 
 ```dart
 await editor.updateSelection(

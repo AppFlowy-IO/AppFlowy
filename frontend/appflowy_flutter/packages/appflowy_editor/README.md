@@ -27,7 +27,7 @@ and the Flutter guide for
 </p>
 
 <div align="center">
-    <img src="https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/documentation/images/appflowy_editor_example.mp4?raw=true" width = "700" style = "padding: 100"/>
+    <img src="https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/appflowy_flutter/packages/appflowy_editor/documentation/images/appflowy_editor_example.mp4?raw=true" width = "700" style = "padding: 100"/>
 </div>
 
 ## Key Features
@@ -38,7 +38,7 @@ and the Flutter guide for
   * shortcut events
   * themes
   * menu options (**coming soon!**)
-* [Test-coverage](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/documentation/testing.md) and ongoing maintenance by AppFlowy's core team and community of more than 1,000 builders
+* [Test-coverage](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/appflowy_flutter/packages/appflowy_editor/documentation/testing.md) and ongoing maintenance by AppFlowy's core team and community of more than 1,000 builders
 
 ## Getting Started
 
@@ -60,7 +60,7 @@ final editor = AppFlowyEditor(
 );
 ```
 
-You can also create an editor from a JSON object in order to configure your initial state. Or you can [create an editor from Markdown or Quill Delta](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/documentation/importing.md).
+You can also create an editor from a JSON object in order to configure your initial state. Or you can [create an editor from Markdown or Quill Delta](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/appflowy_flutter/packages/appflowy_editor/documentation/importing.md).
 
 ```dart
 final json = ...;
@@ -83,7 +83,7 @@ To get a sense of how the AppFlowy Editor works, run our example:
 
 ```shell
 git clone https://github.com/AppFlowy-IO/AppFlowy.git
-cd frontend/app_flowy/packages/appflowy_editor/example
+cd frontend/appflowy_flutter/packages/appflowy_editor/example
 flutter run
 ```
 
@@ -91,23 +91,23 @@ flutter run
 
 ### Customizing Components
 
-Please refer to our documentation on customizing AppFlowy for a detailed discussion about [customizing components](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/documentation/customizing.md#customize-a-component).
+Please refer to our documentation on customizing AppFlowy for a detailed discussion about [customizing components](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/appflowy_flutter/packages/appflowy_editor/documentation/customizing.md#customize-a-component).
 
 Below are some examples of component customizations:
 
- * [Checkbox Text](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/lib/src/render/rich_text/checkbox_text.dart) demonstrates how to extend new styles based on existing rich text components
- * [Image](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/example/lib/plugin/network_image_node_widget.dart) demonstrates how to extend a new node and render it
- * See further examples of [rich-text plugins](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/lib/src/render/rich_text)
+ * [Checkbox Text](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/appflowy_flutter/packages/appflowy_editor/lib/src/render/rich_text/checkbox_text.dart) demonstrates how to extend new styles based on existing rich text components
+ * [Image](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/appflowy_flutter/packages/appflowy_editor/example/lib/plugin/network_image_node_widget.dart) demonstrates how to extend a new node and render it
+ * See further examples of [rich-text plugins](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/appflowy_flutter/packages/appflowy_editor/lib/src/render/rich_text)
 
 ### Customizing Shortcut Events
 
-Please refer to our documentation on customizing AppFlowy for a detailed discussion about [customizing shortcut events](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/documentation/customizing.md#customize-a-shortcut-event).
+Please refer to our documentation on customizing AppFlowy for a detailed discussion about [customizing shortcut events](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/appflowy_flutter/packages/appflowy_editor/documentation/customizing.md#customize-a-shortcut-event).
 
 Below are some examples of shortcut event customizations:
 
- * [BIUS](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/lib/src/service/internal_key_event_handlers/format_style_handler.dart) demonstrates how to make text bold/italic/underline/strikethrough through shortcut keys
- * [Paste HTML](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/lib/src/service/internal_key_event_handlers/copy_paste_handler.dart) gives you an idea on how to handle pasted styles through shortcut keys
- * Need more examples? Check out [Internal key event handlers](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/lib/src/service/internal_key_event_handlers)
+ * [BIUS](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/appflowy_flutter/packages/appflowy_editor/lib/src/service/internal_key_event_handlers/format_style_handler.dart) demonstrates how to make text bold/italic/underline/strikethrough through shortcut keys
+ * [Paste HTML](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/appflowy_flutter/packages/appflowy_editor/lib/src/service/internal_key_event_handlers/copy_paste_handler.dart) gives you an idea on how to handle pasted styles through shortcut keys
+ * Need more examples? Check out [Internal key event handlers](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/appflowy_flutter/packages/appflowy_editor/lib/src/service/internal_key_event_handlers)
 
 ## Glossary
 Please refer to the API documentation.

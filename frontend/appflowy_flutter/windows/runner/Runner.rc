@@ -92,10 +92,10 @@ BEGIN
             VALUE "CompanyName", "com.example" "\0"
             VALUE "FileDescription", "AppFlowy" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "app_flowy" "\0"
+            VALUE "InternalName", "appflowy_flutter" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2021 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "app_flowy.exe" "\0"
-            VALUE "ProductName", "app_flowy" "\0"
+            VALUE "OriginalFilename", "appflowy_flutter.exe" "\0"
+            VALUE "ProductName", "appflowy_flutter" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

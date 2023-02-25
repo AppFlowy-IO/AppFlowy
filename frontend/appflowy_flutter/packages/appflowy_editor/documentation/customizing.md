@@ -136,7 +136,7 @@ Widget build(BuildContext context) {
 
 ![After](./images/customize_a_shortcut_event_after.gif)
 
-Check out the [complete code](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/lib/src/service/internal_key_event_handlers/markdown_syntax_to_styled_text.dart) file of this example.
+Check out the [complete code](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/appflowy_flutter/packages/appflowy_editor/lib/src/service/internal_key_event_handlers/markdown_syntax_to_styled_text.dart) file of this example.
 
 
 ## Customizing a Component
@@ -302,7 +302,7 @@ return AppFlowyEditor(
 
 ![Whew!](./images/customize_a_component.gif)
 
-Check out the [complete code](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/example/lib/plugin/network_image_node_widget.dart) file of this example.
+Check out the [complete code](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/appflowy_flutter/packages/appflowy_editor/example/lib/plugin/network_image_node_widget.dart) file of this example.
 
 ## Customizing a Theme (New Feature in 0.0.7)
 
