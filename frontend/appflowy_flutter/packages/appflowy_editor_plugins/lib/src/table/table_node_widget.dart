@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/src/table/src/models/table_model.dart';
 import 'package:flutter/material.dart';
 
 import 'table_view.dart';
@@ -33,7 +32,7 @@ SelectionMenuItem tableMenuItem = SelectionMenuItem(
     if (textNode.toPlainText().isEmpty) {
       path = textNode.path;
       afterSelection = Selection.single(
-        path: textNode.path.next,
+        path: path.next,
         startOffset: 0,
       );
     } else {
@@ -70,8 +69,15 @@ class TableWidgetBuilder extends NodeWidgetBuilder<Node>
       ActionMenuItem.icon(
         iconData: Icons.content_copy,
         onPressed: () {
+          final state = context.node.key.currentState as _TableWidgetState?;
+          var data = state?.data ?? '';
+
           final transaction = context.editorState.transaction
-            ..insertNode(context.node.path, context.node)
+            ..insertNode(
+                context.node.path.next,
+                Node(
+                    type: kTableType,
+                    attributes: {kTableDataAttr: data.toString()}))
             ..afterSelection = Selection.single(
               path: context.node.path.next,
               startOffset: 0,
@@ -106,15 +112,27 @@ class _TableWidget extends StatefulWidget {
 }
 
 class _TableWidgetState extends State<_TableWidget> with SelectableMixin {
-  RenderBox get _renderBox => context.findRenderObject() as RenderBox;
+  late TableData data;
+
+  @override
+  void initState() {
+    final dataAttr = widget.node.attributes[kTableDataAttr];
+    data = dataAttr.isEmpty
+        ? TableData([
+            ['1', '2'],
+            ['3', '4']
+          ])
+        : TableData.fromJson(dataAttr);
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    //final List<List<String>> data =
-    //    jsonDecode(widget.node.attributes[kTableDataAttr]);
-
-    return TableView();
+    return TableView(data: data);
   }
+
+  RenderBox get _renderBox => context.findRenderObject() as RenderBox;
 
   @override
   Position start() => Position(path: widget.node.path, offset: 0);

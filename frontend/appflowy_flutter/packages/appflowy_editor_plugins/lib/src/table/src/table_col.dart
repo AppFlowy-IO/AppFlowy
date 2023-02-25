@@ -3,12 +3,9 @@ import 'package:appflowy_editor_plugins/src/table/src/table_cell.dart'
     as flowytable;
 
 class TableCol extends StatefulWidget {
-  const TableCol({
-    Key? key,
-    this.data = const ['', ''],
-  }) : super(key: key);
+  const TableCol({Key? key, required this.colIdx}) : super(key: key);
 
-  final List<String> data;
+  final int colIdx;
 
   @override
   State<TableCol> createState() => _TableColState();
@@ -25,12 +22,12 @@ class _TableColState extends State<TableCol> {
               height: 1,
               color: Colors.grey,
             ),
-            flowytable.TableCell(data: widget.data[0]),
+            flowytable.TableCell(colIdx: widget.colIdx, rowIdx: 0),
             Container(
               height: 1,
               color: Colors.grey,
             ),
-            flowytable.TableCell(data: widget.data[1]),
+            flowytable.TableCell(colIdx: widget.colIdx, rowIdx: 1),
             Container(
               height: 1,
               color: Colors.grey,
