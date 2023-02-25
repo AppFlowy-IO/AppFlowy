@@ -11,7 +11,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'calendar_data_controller.dart';
 
-part './calendar_bloc.freezed.dart';
+part 'calendar_bloc.freezed.dart';
 
 class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   final CalendarDataController _databaseDataController;
