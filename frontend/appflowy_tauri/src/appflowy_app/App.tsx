@@ -12,6 +12,7 @@ import { LoginPage } from './views/LoginPage';
 import { ProtectedRoutes } from './components/auth/ProtectedRoutes';
 import { SignUpPage } from './views/SignUpPage';
 import { ConfirmAccountPage } from './views/ConfirmAccountPage';
+import { ErrorHandlerPage } from './components/error/ErrorHandlerPage';
 
 const App = () => {
   return (
@@ -29,8 +30,8 @@ const App = () => {
           <Route path={'/auth/login'} element={<LoginPage />}></Route>
           <Route path={'/auth/signUp'} element={<SignUpPage />}></Route>
           <Route path={'/auth/confirm-account'} element={<ConfirmAccountPage />}></Route>
-          <Route path={'*'}>Not Found</Route>
         </Routes>
+        <ErrorHandlerPage></ErrorHandlerPage>
       </Provider>
     </BrowserRouter>
   );

@@ -15,6 +15,7 @@ import { gridSlice } from './reducers/grid/slice';
 import { workspaceSlice } from './reducers/workspace/slice';
 import { databaseSlice } from './reducers/database/slice';
 import { boardSlice } from './reducers/board/slice';
+import { errorSlice } from './reducers/error/slice';
 
 const listenerMiddlewareInstance = createListenerMiddleware({
   onError: () => console.error,
@@ -30,6 +31,7 @@ const store = configureStore({
     [databaseSlice.name]: databaseSlice.reducer,
     [boardSlice.name]: boardSlice.reducer,
     [workspaceSlice.name]: workspaceSlice.reducer,
+    [errorSlice.name]: errorSlice.reducer,
   },
   middleware: (gDM) => gDM().prepend(listenerMiddlewareInstance.middleware),
 });
