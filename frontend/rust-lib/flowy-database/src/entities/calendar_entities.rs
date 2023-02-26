@@ -39,7 +39,7 @@ const DEFAULT_SHOW_WEEK_NUMBERS: bool = true;
 impl CalendarSettingsParams {
   pub fn default_with(view_id: String) -> Self {
     CalendarSettingsParams {
-      view_id: view_id.to_string(),
+      view_id,
       layout_ty: CalendarLayout::default(),
       first_day_of_week: DEFAULT_FIRST_DAY_OF_WEEK,
       show_weekends: DEFAULT_SHOW_WEEKENDS,
@@ -52,7 +52,7 @@ impl TryInto<CalendarSettingsParams> for CalendarSettingsPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<CalendarSettingsParams, Self::Error> {
-    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::ViewIdInvalid)?;
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::ViewIdIsInvalid)?;
     Ok(CalendarSettingsParams {
       view_id: view_id.0,
       layout_ty: self.layout_ty,

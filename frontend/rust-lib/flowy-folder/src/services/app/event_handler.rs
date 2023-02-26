@@ -6,7 +6,7 @@ use crate::{
   services::{AppController, TrashController, ViewController},
 };
 use folder_model::TrashRevision;
-use lib_dispatch::prelude::{data_result, AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use std::{convert::TryInto, sync::Arc};
 
 pub(crate) async fn create_app_handler(
@@ -16,7 +16,7 @@ pub(crate) async fn create_app_handler(
   let params: CreateAppParams = data.into_inner().try_into()?;
   let detail = controller.create_app_from_params(params).await?;
 
-  data_result(detail)
+  data_result_ok(detail)
 }
 
 pub(crate) async fn delete_app_handler(
@@ -55,7 +55,7 @@ pub(crate) async fn read_app_handler(
   let params: AppIdPB = data.into_inner();
   if let Some(mut app_rev) = app_controller.read_app(params.clone()).await? {
     app_rev.belongings = view_controller.read_views_belong_to(&params.value).await?;
-    data_result(app_rev.into())
+    data_result_ok(app_rev.into())
   } else {
     Err(FlowyError::record_not_found())
   }

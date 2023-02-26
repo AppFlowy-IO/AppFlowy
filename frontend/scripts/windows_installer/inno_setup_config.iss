@@ -7,15 +7,15 @@ SolidCompression=yes
 DefaultDirName={autopf}\AppFlowy\
 DefaultGroupName=AppFlowy
 SetupIconFile=flowy_logo.ico
-UninstallDisplayIcon={app}\app_flowy.exe
+UninstallDisplayIcon={app}\appflowy_flutter.exe
 UninstallDisplayName=AppFlowy
 AppPublisher=AppFlowy-IO
 VersionInfoVersion={#AppVersion}
 
 [Files]
-Source: "AppFlowy\app_flowy.exe";DestDir: "{app}";DestName: "app_flowy.exe"
+Source: "AppFlowy\AppFlowy.exe";DestDir: "{app}";DestName: "appflowy_flutter.exe"
 Source: "AppFlowy\*";DestDir: "{app}"
 Source: "AppFlowy\data\*";DestDir: "{app}\data\"; Flags: recursesubdirs
 
 [Icons]
-Name: "{group}\AppFlowy";Filename: "{app}\app_flowy.exe"
+Name: "{group}\AppFlowy";Filename: "{app}\appflowy_flutter.exe"

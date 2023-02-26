@@ -18,11 +18,13 @@ use bytes::Bytes;
 use flowy_sqlite::kv::KV;
 use folder_model::{gen_view_id, ViewRevision};
 use futures::{FutureExt, StreamExt};
+use lib_infra::util::timestamp;
+use std::collections::HashMap;
 use std::{collections::HashSet, sync::Arc};
 
 const LATEST_VIEW_ID: &str = "latest_view_id";
 
-pub(crate) struct ViewController {
+pub struct ViewController {
   user: Arc<dyn WorkspaceUser>,
   cloud_service: Arc<dyn FolderCouldServiceV1>,
   persistence: Arc<FolderPersistence>,
@@ -55,43 +57,61 @@ impl ViewController {
   #[tracing::instrument(level = "trace", skip(self, params), fields(name = %params.name), err)]
   pub(crate) async fn create_view_from_params(
     &self,
-    mut params: CreateViewParams,
+    params: CreateViewParams,
   ) -> Result<ViewRevision, FlowyError> {
     let processor = self.get_data_processor(params.data_format.clone())?;
     let user_id = self.user.user_id()?;
-    if params.initial_data.is_empty() {
-      tracing::trace!("Create view with build-in data");
-      let view_data = processor
-        .create_default_view(
-          &user_id,
-          &params.view_id,
-          params.layout.clone(),
-          params.data_format.clone(),
-        )
-        .await?;
-      params.initial_data = view_data.to_vec();
-    } else {
-      tracing::trace!("Create view with view data");
-      let view_data = processor
-        .create_view_with_data(
-          &user_id,
-          &params.view_id,
-          params.initial_data.clone(),
-          params.layout.clone(),
-        )
-        .await?;
-      self
-        .create_view(
-          &params.view_id,
-          params.data_format.clone(),
-          params.layout.clone(),
-          view_data,
-        )
-        .await?;
-    };
+    match params.initial_data.is_empty() {
+      true => {
+        tracing::trace!("Create view with build-in data");
+        processor
+          .create_view_with_build_in_data(
+            &user_id,
+            &params.view_id,
+            &params.name,
+            params.layout.clone(),
+            params.data_format.clone(),
+            params.ext.clone(),
+          )
+          .await?;
+      },
+      false => {
+        tracing::trace!("Create view with view data");
+        processor
+          .create_view_with_custom_data(
+            &user_id,
+            &params.view_id,
+            &params.name,
+            params.initial_data.clone(),
+            params.layout.clone(),
+            params.ext.clone(),
+          )
+          .await?;
+      },
+    }
 
-    let view_rev = self.create_view_on_server(params).await?;
-    self.create_view_on_local(view_rev.clone()).await?;
+    let trash_controller = self.trash_controller.clone();
+    let view_rev = self
+      .persistence
+      .begin_transaction(|transaction| {
+        let time = timestamp();
+        let view_rev = ViewRevision::new(
+          params.view_id,
+          params.belong_to_id,
+          params.name,
+          params.desc,
+          params.data_format.into(),
+          params.layout.into(),
+          time,
+          time,
+        );
+        let belong_to_id = view_rev.app_id.clone();
+        transaction.create_view(view_rev.clone())?;
+        notify_views_changed(&belong_to_id, trash_controller, &transaction)?;
+        Ok(view_rev)
+      })
+      .await?;
+
     Ok(view_rev)
   }
 
@@ -99,6 +119,7 @@ impl ViewController {
   pub(crate) async fn create_view(
     &self,
     view_id: &str,
+    name: &str,
     data_type: ViewDataFormatPB,
     layout_type: ViewLayoutTypePB,
     view_data: Bytes,
@@ -109,25 +130,16 @@ impl ViewController {
     let user_id = self.user.user_id()?;
     let processor = self.get_data_processor(data_type)?;
     processor
-      .create_view(&user_id, view_id, layout_type, view_data)
+      .create_view_with_custom_data(
+        &user_id,
+        view_id,
+        name,
+        view_data.to_vec(),
+        layout_type,
+        HashMap::default(),
+      )
       .await?;
     Ok(())
-  }
-
-  pub(crate) async fn create_view_on_local(
-    &self,
-    view_rev: ViewRevision,
-  ) -> Result<(), FlowyError> {
-    let trash_controller = self.trash_controller.clone();
-    self
-      .persistence
-      .begin_transaction(|transaction| {
-        let belong_to_id = view_rev.app_id.clone();
-        transaction.create_view(view_rev)?;
-        notify_views_changed(&belong_to_id, trash_controller, &transaction)?;
-        Ok(())
-      })
-      .await
   }
 
   #[tracing::instrument(level = "debug", skip(self, view_id), err)]
@@ -252,6 +264,7 @@ impl ViewController {
       layout: view_rev.layout.into(),
       initial_data: view_data.to_vec(),
       view_id: gen_view_id(),
+      ext: Default::default(),
     };
 
     let _ = self.create_view_from_params(duplicate_params).await?;
@@ -316,16 +329,6 @@ impl ViewController {
 }
 
 impl ViewController {
-  #[tracing::instrument(level = "debug", skip(self, params), err)]
-  async fn create_view_on_server(
-    &self,
-    params: CreateViewParams,
-  ) -> Result<ViewRevision, FlowyError> {
-    let token = self.user.token()?;
-    let view_rev = self.cloud_service.create_view(&token, params).await?;
-    Ok(view_rev)
-  }
-
   #[tracing::instrument(level = "debug", skip(self), err)]
   fn update_view_on_server(&self, params: UpdateViewParams) -> Result<(), FlowyError> {
     let token = self.user.token()?;

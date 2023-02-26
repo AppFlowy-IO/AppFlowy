@@ -15,7 +15,7 @@
                 "RUST_LOG": "trace",
                 // "RUST_LOG": "debug"
             },
-            "cwd": "${workspaceRoot}/app_flowy"
+            "cwd": "${workspaceRoot}/appflowy_flutter"
         },
         {
             //  This task only builds the Dart code of AppFlowy.
@@ -26,7 +26,7 @@
             "env": {
                 "RUST_LOG": "debug"
             },
-            "cwd": "${workspaceRoot}/app_flowy"
+            "cwd": "${workspaceRoot}/appflowy_flutter"
         },
         {
             // This task builds will:
@@ -41,7 +41,7 @@
             "env": {
                 "RUST_LOG": "trace"
             },
-            "cwd": "${workspaceRoot}/app_flowy"
+            "cwd": "${workspaceRoot}/appflowy_flutter"
         },
         {
             "name": "AF-desktop: Debug Rust",
@@ -55,7 +55,7 @@
         //     "program": "./lib/main.dart",
         //     "type": "dart",
         //     "flutterMode": "profile",
-        //     "cwd": "${workspaceRoot}/app_flowy"
+        //     "cwd": "${workspaceRoot}/appflowy_flutter"
         // },
         {
             // This task builds the Rust and Dart code of AppFlowy for android.
@@ -67,7 +67,7 @@
             "env": {
                 "RUST_LOG": "info"
             },
-            "cwd": "${workspaceRoot}/app_flowy"
+            "cwd": "${workspaceRoot}/appflowy_flutter"
         },
         {
             // This task builds will:
@@ -82,7 +82,7 @@
             "env": {
                 "RUST_LOG": "info"
             },
-            "cwd": "${workspaceRoot}/app_flowy"
+            "cwd": "${workspaceRoot}/appflowy_flutter"
         },
         {
             // https://tauri.app/v1/guides/debugging/vs-code

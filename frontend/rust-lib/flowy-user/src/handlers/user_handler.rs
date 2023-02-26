@@ -19,7 +19,7 @@ pub async fn check_user_handler(
   session: AFPluginState<Arc<UserSession>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
   let user_profile: UserProfilePB = session.check_user().await?.into();
-  data_result(user_profile)
+  data_result_ok(user_profile)
 }
 
 #[tracing::instrument(level = "debug", skip(session))]
@@ -27,7 +27,7 @@ pub async fn get_user_profile_handler(
   session: AFPluginState<Arc<UserSession>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
   let user_profile: UserProfilePB = session.get_user_profile().await?.into();
-  data_result(user_profile)
+  data_result_ok(user_profile)
 }
 
 #[tracing::instrument(level = "debug", name = "sign_out", skip(session))]
@@ -65,7 +65,7 @@ pub async fn set_appearance_setting(
 #[tracing::instrument(level = "debug", err)]
 pub async fn get_appearance_setting() -> DataResult<AppearanceSettingsPB, FlowyError> {
   match KV::get_str(APPEARANCE_SETTING_CACHE_KEY) {
-    None => data_result(AppearanceSettingsPB::default()),
+    None => data_result_ok(AppearanceSettingsPB::default()),
     Some(s) => {
       let setting = match serde_json::from_str(&s) {
         Ok(setting) => setting,
@@ -77,7 +77,7 @@ pub async fn get_appearance_setting() -> DataResult<AppearanceSettingsPB, FlowyE
           AppearanceSettingsPB::default()
         },
       };
-      data_result(setting)
+      data_result_ok(setting)
     },
   }
 }
@@ -87,5 +87,5 @@ pub async fn get_user_setting(
   session: AFPluginState<Arc<UserSession>>,
 ) -> DataResult<UserSettingPB, FlowyError> {
   let user_setting = session.user_setting()?;
-  data_result(user_setting)
+  data_result_ok(user_setting)
 }

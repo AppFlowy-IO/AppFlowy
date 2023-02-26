@@ -3,7 +3,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - "frontend/app_flowy/assets/translations/en.json"
+      - "frontend/appflowy_flutter/assets/translations/en.json"
 
 jobs:
   Discord-Notify:

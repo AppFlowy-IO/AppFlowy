@@ -57,8 +57,7 @@ impl DatabaseRevisionPad {
   pub fn from_operations(operations: DatabaseOperations) -> SyncResult<Self> {
     let content = operations.content()?;
     let database_rev: DatabaseRevision = serde_json::from_str(&content).map_err(|e| {
-      let msg = format!("Deserialize operations to grid failed: {}", e);
-      tracing::error!("{}", msg);
+      let msg = format!("Deserialize operations to database failed: {}", e);
       SyncError::internal().context(msg)
     })?;
 

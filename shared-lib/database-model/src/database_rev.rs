@@ -7,11 +7,11 @@ use std::sync::Arc;
 
 pub fn gen_database_id() -> String {
   // nanoid calculator https://zelark.github.io/nano-id-cc/
-  nanoid!(10)
+  format!("d:{}", nanoid!(10))
 }
 
 pub fn gen_block_id() -> String {
-  nanoid!(10)
+  format!("b:{}", nanoid!(10))
 }
 
 pub fn gen_field_id() -> String {

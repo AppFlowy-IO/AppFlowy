@@ -70,7 +70,7 @@ pub struct FolderManager {
   pub(crate) view_controller: Arc<ViewController>,
   pub(crate) trash_controller: Arc<TrashController>,
   web_socket: Arc<dyn RevisionWebSocket>,
-  folder_editor: Arc<TokioRwLock<Option<Arc<FolderEditor>>>>,
+  pub(crate) folder_editor: Arc<TokioRwLock<Option<Arc<FolderEditor>>>>,
 }
 
 impl FolderManager {
@@ -181,7 +181,8 @@ impl FolderManager {
     let rev_persistence = RevisionPersistence::new(user_id, object_id, disk_cache, configuration);
     let rev_compactor = FolderRevisionMergeable();
 
-    let snapshot_object_id = format!("folder:{}", object_id);
+    const FOLDER_SP_PREFIX: &str = "folder";
+    let snapshot_object_id = format!("{}:{}", FOLDER_SP_PREFIX, object_id);
     let snapshot_persistence =
       SQLiteFolderRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
     let rev_manager = RevisionManager::new(
@@ -257,7 +258,7 @@ impl DefaultFolderBuilder {
           let _ = view_controller.set_latest_view(&view.id);
           let layout_type = ViewLayoutTypePB::from(view.layout.clone());
           view_controller
-            .create_view(&view.id, view_data_type, layout_type, view_data)
+            .create_view(&view.id, &view.name, view_data_type, layout_type, view_data)
             .await?;
         }
       }
@@ -275,41 +276,38 @@ impl DefaultFolderBuilder {
   }
 }
 
-#[cfg(feature = "flowy_unit_test")]
-impl FolderManager {
-  pub async fn folder_editor(&self) -> Arc<FolderEditor> {
-    self.folder_editor.read().await.clone().unwrap()
-  }
-}
-
 pub trait ViewDataProcessor {
-  fn create_view(
-    &self,
-    user_id: &str,
-    view_id: &str,
-    layout: ViewLayoutTypePB,
-    view_data: Bytes,
-  ) -> FutureResult<(), FlowyError>;
-
+  /// Closes the view and releases the resources that this view has in
+  /// the backend
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError>;
 
+  /// Gets the data of the this view.
+  /// For example, the data can be used to duplicate the view.
   fn get_view_data(&self, view: &ViewPB) -> FutureResult<Bytes, FlowyError>;
 
-  fn create_default_view(
+  /// Create a view with the pre-defined data.
+  /// For example, the initial data of the grid/calendar/kanban board when
+  /// you create a new view.
+  fn create_view_with_build_in_data(
     &self,
     user_id: &str,
     view_id: &str,
+    name: &str,
     layout: ViewLayoutTypePB,
     data_format: ViewDataFormatPB,
-  ) -> FutureResult<Bytes, FlowyError>;
+    ext: HashMap<String, String>,
+  ) -> FutureResult<(), FlowyError>;
 
-  fn create_view_with_data(
+  /// Create a view with custom data
+  fn create_view_with_custom_data(
     &self,
     user_id: &str,
     view_id: &str,
+    name: &str,
     data: Vec<u8>,
     layout: ViewLayoutTypePB,
-  ) -> FutureResult<Bytes, FlowyError>;
+    ext: HashMap<String, String>,
+  ) -> FutureResult<(), FlowyError>;
 
   fn data_types(&self) -> Vec<ViewDataFormatPB>;
 }
