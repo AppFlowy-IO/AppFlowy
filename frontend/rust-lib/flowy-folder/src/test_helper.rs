@@ -16,10 +16,10 @@ impl FolderManager {
     app_id: &str,
     name: &str,
     ext: HashMap<String, String>,
-  ) {
+  ) -> String {
     self
       .create_test_view(app_id, name, ViewLayoutTypePB::Grid, ext)
-      .await;
+      .await
   }
 
   pub async fn create_test_board_view(
@@ -27,10 +27,10 @@ impl FolderManager {
     app_id: &str,
     name: &str,
     ext: HashMap<String, String>,
-  ) {
+  ) -> String {
     self
       .create_test_view(app_id, name, ViewLayoutTypePB::Board, ext)
-      .await;
+      .await
   }
 
   async fn create_test_view(
@@ -39,7 +39,7 @@ impl FolderManager {
     name: &str,
     layout: ViewLayoutTypePB,
     ext: HashMap<String, String>,
-  ) {
+  ) -> String {
     let view_id = gen_view_id();
     let data_format = data_format_from_layout(&layout);
     let params = CreateViewParams {
@@ -49,7 +49,7 @@ impl FolderManager {
       thumbnail: "".to_string(),
       data_format,
       layout,
-      view_id,
+      view_id: view_id.clone(),
       initial_data: vec![],
       ext,
     };
@@ -58,5 +58,6 @@ impl FolderManager {
       .create_view_from_params(params)
       .await
       .unwrap();
+    view_id
   }
 }

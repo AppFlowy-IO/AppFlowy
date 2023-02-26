@@ -56,7 +56,7 @@ impl DatabaseEditorTest {
 
     let editor = sdk
       .database_manager
-      .open_database(&test.view.id)
+      .open_database_view(&test.view.id)
       .await
       .unwrap();
     let field_revs = editor.get_field_revs(None).await.unwrap();

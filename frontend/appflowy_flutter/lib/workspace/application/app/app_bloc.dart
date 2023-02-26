@@ -101,7 +101,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       desc: value.desc ?? "",
       layoutType: value.pluginBuilder.layoutType!,
       initialData: value.initialData,
-      ext: value.ext,
+      ext: value.ext ?? {},
     );
     result.fold(
       (view) => emit(state.copyWith(

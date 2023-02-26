@@ -1,5 +1,5 @@
 use crate::database::block_test::script::RowScript::{AssertCell, CreateRow};
-use crate::database::block_test::util::GridRowTestBuilder;
+use crate::database::block_test::util::DatabaseRowTestBuilder;
 use crate::database::database_editor::DatabaseEditorTest;
 use database_model::{
   DatabaseBlockMetaRevision, DatabaseBlockMetaRevisionChangeset, RowChangeset, RowRevision,
@@ -70,8 +70,8 @@ impl DatabaseRowTest {
     }
   }
 
-  pub fn row_builder(&self) -> GridRowTestBuilder {
-    GridRowTestBuilder::new(self.block_id(), &self.field_revs)
+  pub fn row_builder(&self) -> DatabaseRowTestBuilder {
+    DatabaseRowTestBuilder::new(self.block_id().to_string(), self.field_revs.clone())
   }
 
   pub async fn run_script(&mut self, script: RowScript) {
@@ -314,14 +314,14 @@ impl std::ops::DerefMut for DatabaseRowTest {
   }
 }
 
-pub struct CreateRowScriptBuilder<'a> {
-  builder: GridRowTestBuilder<'a>,
+pub struct CreateRowScriptBuilder {
+  builder: DatabaseRowTestBuilder,
   data_by_field_type: HashMap<FieldType, CellTestData>,
   output_by_field_type: HashMap<FieldType, CellTestOutput>,
 }
 
-impl<'a> CreateRowScriptBuilder<'a> {
-  pub fn new(test: &'a DatabaseRowTest) -> Self {
+impl CreateRowScriptBuilder {
+  pub fn new(test: &DatabaseRowTest) -> Self {
     Self {
       builder: test.row_builder(),
       data_by_field_type: HashMap::new(),

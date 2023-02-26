@@ -9,7 +9,7 @@ use flowy_database::util::{make_default_board, make_default_calendar, make_defau
 use flowy_document::editor::make_transaction_from_document_content;
 use flowy_document::DocumentManager;
 
-use flowy_folder::entities::{data_format_from_layout, ViewDataFormatPB, ViewLayoutTypePB, ViewPB};
+use flowy_folder::entities::{ViewDataFormatPB, ViewLayoutTypePB, ViewPB};
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder::{
   errors::{internal_error, FlowyError},
@@ -247,7 +247,7 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
     let database_manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      database_manager.close_database(view_id).await?;
+      database_manager.close_database_view(view_id).await?;
       Ok(())
     })
   }
@@ -256,15 +256,19 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
     let database_manager = self.0.clone();
     let view_id = view.id.clone();
     FutureResult::new(async move {
-      let editor = database_manager.open_database(&view_id).await?;
+      let editor = database_manager.open_database_view(&view_id).await?;
       let delta_bytes = editor.duplicate_database(&view_id).await?;
       Ok(delta_bytes.into())
     })
   }
 
+  /// Create a database view with build-in data.
+  /// If the ext contains the {"database_id": "xx"}, then it will link to
+  /// the existing database. The data of the database will be shared within
+  /// these references views.
   fn create_view_with_build_in_data(
     &self,
-    user_id: &str,
+    _user_id: &str,
     view_id: &str,
     name: &str,
     layout: ViewLayoutTypePB,
@@ -300,9 +304,13 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
     }
   }
 
+  /// Create a database view with custom data.
+  /// If the ext contains the {"database_id": "xx"}, then it will link
+  /// to the existing database. The data of the database will be shared
+  /// within these references views.
   fn create_view_with_custom_data(
     &self,
-    user_id: &str,
+    _user_id: &str,
     view_id: &str,
     name: &str,
     data: Vec<u8>,

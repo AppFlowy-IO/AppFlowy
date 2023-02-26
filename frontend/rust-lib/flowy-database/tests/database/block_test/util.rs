@@ -9,15 +9,15 @@ use std::sync::Arc;
 
 use strum::EnumCount;
 
-pub struct GridRowTestBuilder<'a> {
-  field_revs: &'a [Arc<FieldRevision>],
-  inner_builder: RowRevisionBuilder<'a>,
+pub struct DatabaseRowTestBuilder {
+  field_revs: Vec<Arc<FieldRevision>>,
+  inner_builder: RowRevisionBuilder,
 }
 
-impl<'a> GridRowTestBuilder<'a> {
-  pub fn new(block_id: &str, field_revs: &'a [Arc<FieldRevision>]) -> Self {
+impl DatabaseRowTestBuilder {
+  pub fn new(block_id: String, field_revs: Vec<Arc<FieldRevision>>) -> Self {
     assert_eq!(field_revs.len(), FieldType::COUNT);
-    let inner_builder = RowRevisionBuilder::new(block_id, field_revs);
+    let inner_builder = RowRevisionBuilder::new(&block_id, field_revs.clone());
     Self {
       field_revs,
       inner_builder,
@@ -137,15 +137,15 @@ impl<'a> GridRowTestBuilder<'a> {
   }
 }
 
-impl<'a> std::ops::Deref for GridRowTestBuilder<'a> {
-  type Target = RowRevisionBuilder<'a>;
+impl std::ops::Deref for DatabaseRowTestBuilder {
+  type Target = RowRevisionBuilder;
 
   fn deref(&self) -> &Self::Target {
     &self.inner_builder
   }
 }
 
-impl<'a> std::ops::DerefMut for GridRowTestBuilder<'a> {
+impl std::ops::DerefMut for DatabaseRowTestBuilder {
   fn deref_mut(&mut self) -> &mut Self::Target {
     &mut self.inner_builder
   }

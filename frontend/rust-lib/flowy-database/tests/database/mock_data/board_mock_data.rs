@@ -1,7 +1,7 @@
 // #![allow(clippy::all)]
 // #![allow(dead_code)]
 // #![allow(unused_imports)]
-use crate::database::block_test::util::GridRowTestBuilder;
+use crate::database::block_test::util::DatabaseRowTestBuilder;
 use crate::database::mock_data::{
   COMPLETED, FACEBOOK, FIRST_THING, GOOGLE, PAUSED, PLANNED, SECOND_THING, THIRD_THING, TWITTER,
 };
@@ -108,8 +108,8 @@ pub fn make_test_board() -> BuildDatabaseContext {
   // We have many assumptions base on the number of the rows, so do not change the number of the loop.
   for i in 0..5 {
     let block_id = database_builder.block_id().to_owned();
-    let field_revs = database_builder.field_revs();
-    let mut row_builder = GridRowTestBuilder::new(&block_id, field_revs);
+    let field_revs = database_builder.field_revs().clone();
+    let mut row_builder = DatabaseRowTestBuilder::new(block_id.clone(), field_revs);
     match i {
       0 => {
         for field_type in FieldType::iter() {

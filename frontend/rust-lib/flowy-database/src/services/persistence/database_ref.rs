@@ -57,6 +57,14 @@ impl DatabaseRefIndexer {
     Ok(views)
   }
 
+  pub fn get_database_with_view(&self, view_id: &str) -> FlowyResult<DatabaseInfo> {
+    let conn = self.database.get_db_connection()?;
+    let record = dsl::database_refs
+      .filter(database_refs::view_id.eq(view_id))
+      .first::<DatabaseRefRecord>(&*conn)?;
+    Ok(record.into())
+  }
+
   pub fn get_all_databases(&self) -> FlowyResult<Vec<DatabaseInfo>> {
     let conn = self.database.get_db_connection()?;
     let database_infos = dsl::database_refs

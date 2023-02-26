@@ -210,14 +210,12 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
 }
 
 pub fn data_format_from_layout(layout: &ViewLayoutTypePB) -> ViewDataFormatPB {
-  let data_format = match layout {
+  match layout {
     ViewLayoutTypePB::Document => ViewDataFormatPB::NodeFormat,
     ViewLayoutTypePB::Grid => ViewDataFormatPB::DatabaseFormat,
     ViewLayoutTypePB::Board => ViewDataFormatPB::DatabaseFormat,
     ViewLayoutTypePB::Calendar => ViewDataFormatPB::DatabaseFormat,
-  };
-
-  return data_format;
+  }
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]

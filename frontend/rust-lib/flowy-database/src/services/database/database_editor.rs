@@ -13,7 +13,9 @@ use crate::services::field::{
 };
 
 use crate::services::database::DatabaseViewDataImpl;
-use crate::services::database_view::{DatabaseViewChanged, DatabaseViews};
+use crate::services::database_view::{
+  DatabaseViewChanged, DatabaseViewData, DatabaseViewEditor, DatabaseViews,
+};
 use crate::services::filter::FilterType;
 use crate::services::persistence::block_index::BlockRowIndexer;
 use crate::services::persistence::database_ref::DatabaseRef;
@@ -21,7 +23,7 @@ use crate::services::row::{DatabaseBlockRow, DatabaseBlockRowRevision, RowRevisi
 use bytes::Bytes;
 use database_model::*;
 use flowy_client_sync::client_database::{
-  DatabaseRevisionChangeset, DatabaseRevisionPad, DatabaseViewRevisionPad, JsonDeserializer,
+  DatabaseRevisionChangeset, DatabaseRevisionPad, JsonDeserializer,
 };
 use flowy_client_sync::errors::{SyncError, SyncResult};
 use flowy_client_sync::make_operations_from_revisions;
@@ -49,7 +51,8 @@ pub struct DatabaseEditor {
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
   database_views: Arc<DatabaseViews>,
   database_blocks: Arc<DatabaseBlocks>,
-  cell_data_cache: AtomicCellDataCache,
+  pub database_view_data: Arc<dyn DatabaseViewData>,
+  pub cell_data_cache: AtomicCellDataCache,
   database_ref_query: Arc<dyn DatabaseRefIndexerQuery>,
 }
 
@@ -67,10 +70,8 @@ impl DatabaseEditor {
     database_pad: Arc<RwLock<DatabaseRevisionPad>>,
     rev_manager: RevisionManager<Arc<ConnectionPool>>,
     persistence: Arc<BlockRowIndexer>,
-    ref_query: Arc<dyn DatabaseRefIndexerQuery>,
+    database_ref_query: Arc<dyn DatabaseRefIndexerQuery>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
-    base_view: DatabaseViewRevisionPad,
-    base_view_rev_manager: RevisionManager<Arc<ConnectionPool>>,
   ) -> FlowyResult<Arc<Self>> {
     let rev_manager = Arc::new(rev_manager);
     let cell_data_cache = AnyTypeCache::<u64>::new();
@@ -80,7 +81,8 @@ impl DatabaseEditor {
     let block_meta_revs = database_pad.read().await.get_block_meta_revs();
     let database_blocks =
       Arc::new(DatabaseBlocks::new(&user, block_meta_revs, persistence, block_event_tx).await?);
-    let delegate = Arc::new(DatabaseViewDataImpl {
+
+    let database_view_data = Arc::new(DatabaseViewDataImpl {
       pad: database_pad.clone(),
       blocks: database_blocks.clone(),
       task_scheduler,
@@ -90,11 +92,9 @@ impl DatabaseEditor {
     // View manager
     let database_views = DatabaseViews::new(
       user.clone(),
-      delegate,
+      database_view_data.clone(),
       cell_data_cache.clone(),
       block_event_rx,
-      base_view,
-      base_view_rev_manager,
     )
     .await?;
     let database_views = Arc::new(database_views);
@@ -105,18 +105,30 @@ impl DatabaseEditor {
       database_blocks,
       database_views,
       cell_data_cache,
-      database_ref_query: ref_query,
+      database_ref_query,
+      database_view_data,
     });
 
     Ok(editor)
   }
 
-  #[tracing::instrument(name = "close database editor", level = "trace", skip_all)]
-  pub async fn close(&self) {
-    self.database_blocks.close().await;
+  pub async fn open_view_editor(&self, view_editor: DatabaseViewEditor) {
+    self.database_views.open(view_editor).await
+  }
+
+  #[tracing::instrument(name = "close database editor view", level = "trace", skip_all)]
+  pub async fn close_view_editor(&self, view_id: &str) {
     self.rev_manager.generate_snapshot().await;
+    self.database_views.close(view_id).await;
+  }
+
+  pub async fn dispose(&self) {
+    self.database_blocks.close().await;
     self.rev_manager.close().await;
-    self.database_views.close(&self.database_id).await;
+  }
+
+  pub async fn number_of_ref_views(&self) -> usize {
+    self.database_views.number_of_views().await
   }
 
   /// Save the type-option data to disk and send a `DatabaseNotification::DidUpdateField` notification
@@ -914,7 +926,7 @@ impl DatabaseEditor {
     let block_id = self.block_id().await?;
 
     // insert empty row below the row whose id is upper_row_id
-    let row_rev = RowRevisionBuilder::new(&block_id, &field_revs).build();
+    let row_rev = RowRevisionBuilder::new(&block_id, field_revs).build();
     Ok(row_rev)
   }
 

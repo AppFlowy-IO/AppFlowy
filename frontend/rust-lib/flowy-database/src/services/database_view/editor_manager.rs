@@ -39,24 +39,8 @@ impl DatabaseViews {
     delegate: Arc<dyn DatabaseViewData>,
     cell_data_cache: AtomicCellDataCache,
     block_event_rx: broadcast::Receiver<DatabaseBlockEvent>,
-    base_view: DatabaseViewRevisionPad,
-    base_view_rev_manager: RevisionManager<Arc<ConnectionPool>>,
   ) -> FlowyResult<Self> {
-    let mut view_editors = RefCountHashMap::default();
-    let user_id = user.user_id()?;
-    let view_id = base_view.view_id.to_owned();
-    // let rev_manager = make_database_view_rev_manager(&user, &view_id).await?;
-
-    let base_view_editor = DatabaseViewEditor::from_pad(
-      &user_id,
-      delegate.clone(),
-      cell_data_cache.clone(),
-      base_view_rev_manager,
-      base_view,
-    )
-    .await?;
-    view_editors.insert(view_id, Arc::new(base_view_editor));
-    let view_editors = Arc::new(RwLock::new(view_editors));
+    let view_editors = Arc::new(RwLock::new(RefCountHashMap::default()));
     listen_on_database_block_event(block_event_rx, view_editors.clone());
     Ok(Self {
       user,
@@ -66,8 +50,21 @@ impl DatabaseViews {
     })
   }
 
+  pub async fn open(&self, view_editor: DatabaseViewEditor) {
+    let view_id = view_editor.view_id.clone();
+    self
+      .view_editors
+      .write()
+      .await
+      .insert(view_id, Arc::new(view_editor));
+  }
+
   pub async fn close(&self, view_id: &str) {
     self.view_editors.write().await.remove(view_id).await;
+  }
+
+  pub async fn number_of_views(&self) -> usize {
+    self.view_editors.read().await.values().len()
   }
 
   pub async fn subscribe_view_changed(

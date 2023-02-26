@@ -75,7 +75,7 @@ pub trait DatabaseViewData: Send + Sync + 'static {
 
 pub struct DatabaseViewEditor {
   user_id: String,
-  view_id: String,
+  pub view_id: String,
   pad: Arc<RwLock<DatabaseViewRevisionPad>>,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
   delegate: Arc<dyn DatabaseViewData>,

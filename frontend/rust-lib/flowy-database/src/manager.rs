@@ -4,7 +4,7 @@ use crate::services::database::{
   DatabaseRevisionCloudService, DatabaseRevisionMergeable, DatabaseRevisionSerde,
 };
 use crate::services::database_view::{
-  make_database_view_rev_manager, make_database_view_revision_pad,
+  make_database_view_rev_manager, make_database_view_revision_pad, DatabaseViewEditor,
 };
 use crate::services::persistence::block_index::BlockRowIndexer;
 use crate::services::persistence::database_ref::{DatabaseInfo, DatabaseRef, DatabaseRefIndexer};
@@ -14,6 +14,7 @@ use crate::services::persistence::rev_sqlite::{
   SQLiteDatabaseRevisionPersistence, SQLiteDatabaseRevisionSnapshotPersistence,
 };
 use crate::services::persistence::DatabaseDBConnection;
+use std::collections::HashMap;
 
 use database_model::{
   gen_database_id, BuildDatabaseContext, DatabaseRevision, DatabaseViewRevision,
@@ -27,8 +28,7 @@ use flowy_revision::{
 };
 use flowy_sqlite::ConnectionPool;
 use flowy_task::TaskDispatcher;
-use lib_infra::async_trait::async_trait;
-use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
+
 use revision_model::Revision;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -40,7 +40,7 @@ pub trait DatabaseUser: Send + Sync {
 }
 
 pub struct DatabaseManager {
-  database_editors: RwLock<RefCountHashMap<Arc<DatabaseEditor>>>,
+  database_editors: RwLock<HashMap<String, Arc<DatabaseEditor>>>,
   database_user: Arc<dyn DatabaseUser>,
   block_indexer: Arc<BlockRowIndexer>,
   database_ref_indexer: Arc<DatabaseRefIndexer>,
@@ -58,7 +58,7 @@ impl DatabaseManager {
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     database_db: Arc<dyn DatabaseDBConnection>,
   ) -> Self {
-    let database_editors = RwLock::new(RefCountHashMap::new());
+    let database_editors = RwLock::new(HashMap::new());
     let kv_persistence = Arc::new(DatabaseKVPersistence::new(database_db.clone()));
     let block_indexer = Arc::new(BlockRowIndexer::new(database_db.clone()));
     let database_ref_indexer = Arc::new(DatabaseRefIndexer::new(database_db.clone()));
@@ -130,21 +130,44 @@ impl DatabaseManager {
     Ok(())
   }
 
-  pub async fn open_database<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<Arc<DatabaseEditor>> {
+  pub async fn open_database_view<T: AsRef<str>>(
+    &self,
+    view_id: T,
+  ) -> FlowyResult<Arc<DatabaseEditor>> {
     let view_id = view_id.as_ref();
-    self.get_or_create_database_editor(view_id).await
+    let database_info = self.database_ref_indexer.get_database_with_view(view_id)?;
+    self
+      .get_or_create_database_editor(&database_info.database_id, view_id)
+      .await
   }
 
-  #[tracing::instrument(level = "debug", skip_all, fields(database_id), err)]
-  pub async fn close_database<T: AsRef<str>>(&self, database_id: T) -> FlowyResult<()> {
-    let database_id = database_id.as_ref();
-    tracing::Span::current().record("database_id", database_id);
-    self
+  #[tracing::instrument(level = "debug", skip_all, fields(view_id), err)]
+  pub async fn close_database_view<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<()> {
+    let view_id = view_id.as_ref();
+    let database_info = self.database_ref_indexer.get_database_with_view(view_id)?;
+    tracing::Span::current().record("database_id", &database_info.database_id);
+
+    let mut should_remove_editor = false;
+    if let Some(database_editor) = self
       .database_editors
       .write()
       .await
-      .remove(database_id)
-      .await;
+      .get(&database_info.database_id)
+    {
+      database_editor.close_view_editor(view_id).await;
+      should_remove_editor = database_editor.number_of_ref_views().await == 0;
+      if should_remove_editor {
+        database_editor.dispose().await;
+      }
+    }
+
+    if should_remove_editor {
+      self
+        .database_editors
+        .write()
+        .await
+        .remove(&database_info.database_id);
+    }
     Ok(())
   }
 
@@ -156,9 +179,9 @@ impl DatabaseManager {
       None => {
         // Drop the read_guard ASAP in case of the following read/write lock
         drop(read_guard);
-        self.open_database(view_id).await
+        self.open_database_view(view_id).await
       },
-      Some(editor) => Ok(editor),
+      Some(editor) => Ok(editor.clone()),
     }
   }
 
@@ -166,15 +189,38 @@ impl DatabaseManager {
     self.database_ref_indexer.get_all_databases()
   }
 
-  async fn get_or_create_database_editor(&self, view_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
-    if let Some(editor) = self.database_editors.read().await.get(view_id) {
-      return Ok(editor);
+  pub async fn get_database_ref_views(&self, database_id: &str) -> FlowyResult<Vec<DatabaseRef>> {
+    self
+      .database_ref_indexer
+      .get_ref_views_with_database(database_id)
+  }
+
+  async fn get_or_create_database_editor(
+    &self,
+    database_id: &str,
+    view_id: &str,
+  ) -> FlowyResult<Arc<DatabaseEditor>> {
+    if let Some(database_editor) = self.database_editors.read().await.get(database_id) {
+      let user_id = self.database_user.user_id()?;
+      let (view_pad, view_rev_manager) =
+        make_database_view_revision_pad(view_id, self.database_user.clone()).await?;
+
+      let view_editor = DatabaseViewEditor::from_pad(
+        &user_id,
+        database_editor.database_view_data.clone(),
+        database_editor.cell_data_cache.clone(),
+        view_rev_manager,
+        view_pad,
+      )
+      .await?;
+      database_editor.open_view_editor(view_editor).await;
+      return Ok(database_editor.clone());
     }
     // Lock the database_editors
     let mut database_editors = self.database_editors.write().await;
     let db_pool = self.database_user.db_pool()?;
     let editor = self.make_database_rev_editor(view_id, db_pool).await?;
-    database_editors.insert(view_id.to_string(), editor.clone());
+    database_editors.insert(database_id.to_string(), editor.clone());
     Ok(editor)
   }
 
@@ -206,6 +252,7 @@ impl DatabaseManager {
         .initialize::<DatabaseRevisionSerde>(Some(cloud))
         .await?,
     ));
+    let user_id = user.user_id()?;
     let database_editor = DatabaseEditor::new(
       &database_id,
       user,
@@ -214,10 +261,19 @@ impl DatabaseManager {
       self.block_indexer.clone(),
       self.database_ref_indexer.clone(),
       self.task_scheduler.clone(),
-      base_view_pad,
-      base_view_rev_manager,
     )
     .await?;
+
+    let base_view_editor = DatabaseViewEditor::from_pad(
+      &user_id,
+      database_editor.database_view_data.clone(),
+      database_editor.cell_data_cache.clone(),
+      base_view_rev_manager,
+      base_view_pad,
+    )
+    .await?;
+    database_editor.open_view_editor(base_view_editor).await;
+
     Ok(database_editor)
   }
 
@@ -344,13 +400,6 @@ pub async fn create_new_database(
     .await?;
 
   Ok(())
-}
-
-#[async_trait]
-impl RefCountValue for DatabaseEditor {
-  async fn did_remove(&self) {
-    self.close().await;
-  }
 }
 
 impl DatabaseRefIndexerQuery for DatabaseRefIndexer {
