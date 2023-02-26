@@ -1,12 +1,17 @@
 import { useAppDispatch, useAppSelector } from '../../stores/store';
 import { errorActions } from '../../stores/reducers/error/slice';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export const useError = () => {
   const dispatch = useAppDispatch();
   const error = useAppSelector((state) => state.error);
-  const [errorMessage] = useState(error.message);
-  const [displayError] = useState(error.display);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [displayError, setDisplayError] = useState(false);
+
+  useEffect(() => {
+    setDisplayError(error.display);
+    setErrorMessage(error.message);
+  }, [error]);
 
   const showError = (msg: string) => {
     dispatch(errorActions.showError(msg));

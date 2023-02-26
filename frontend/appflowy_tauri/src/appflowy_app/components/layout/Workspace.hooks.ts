@@ -4,10 +4,12 @@ import { pagesActions } from '../../stores/reducers/pages/slice';
 import { workspaceActions } from '../../stores/reducers/workspace/slice';
 import { WorkspaceBackendService } from '../../stores/effects/folder/workspace/backend_service';
 import { UserBackendService } from '../../stores/effects/user/backend_service';
+import { useError } from '../error/Error.hooks';
 
 export const useWorkspace = () => {
   const appDispatch = useAppDispatch();
   const currentUser = useAppSelector((state) => state.currentUser);
+  const error = useError();
 
   let userBackendService: UserBackendService = new UserBackendService(currentUser.id || '');
   let workspaceBackendService: WorkspaceBackendService;
@@ -33,15 +35,19 @@ export const useWorkspace = () => {
           appDispatch(pagesActions.addPage({ folderId: app.id, id: view.id, pageType: view.layout, title: view.name }));
         }
       }
-    } catch (e) {
+    } catch (e1) {
       // create workspace for first start
-      const workspace = await userBackendService.createWorkspace({ name: 'New Workspace', desc: '' });
-      workspaceBackendService = new WorkspaceBackendService(workspace.id);
+      try {
+        const workspace = await userBackendService.createWorkspace({ name: 'New Workspace', desc: '' });
+        workspaceBackendService = new WorkspaceBackendService(workspace.id);
 
-      appDispatch(workspaceActions.updateWorkspace({ id: workspace.id, name: workspace.name }));
+        appDispatch(workspaceActions.updateWorkspace({ id: workspace.id, name: workspace.name }));
 
-      appDispatch(foldersActions.clearFolders());
-      appDispatch(pagesActions.clearPages());
+        appDispatch(foldersActions.clearFolders());
+        appDispatch(pagesActions.clearPages());
+      } catch (e2: any) {
+        error.showError(e2?.message);
+      }
     }
   };
 

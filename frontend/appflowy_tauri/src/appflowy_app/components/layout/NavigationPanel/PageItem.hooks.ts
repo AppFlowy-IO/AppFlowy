@@ -3,12 +3,14 @@ import { useAppDispatch } from '../../../stores/store';
 import { useState } from 'react';
 import { nanoid } from 'nanoid';
 import { ViewBackendService } from '../../../stores/effects/folder/view/backend_service';
+import { useError } from '../../error/Error.hooks';
 
 export const usePageEvents = (page: IPage) => {
   const appDispatch = useAppDispatch();
   const [showPageOptions, setShowPageOptions] = useState(false);
   const [showRenamePopup, setShowRenamePopup] = useState(false);
   const viewBackendService: ViewBackendService = new ViewBackendService(page.id);
+  const error = useError();
 
   const onPageOptionsClick = () => {
     setShowPageOptions(!showPageOptions);
@@ -20,21 +22,33 @@ export const usePageEvents = (page: IPage) => {
   };
 
   const changePageTitle = async (newTitle: string) => {
-    await viewBackendService.update({ name: newTitle });
-    appDispatch(pagesActions.renamePage({ id: page.id, newTitle }));
+    try {
+      await viewBackendService.update({ name: newTitle });
+      appDispatch(pagesActions.renamePage({ id: page.id, newTitle }));
+    } catch (e: any) {
+      error.showError(e?.message);
+    }
   };
 
   const deletePage = async () => {
     closePopup();
-    await viewBackendService.delete();
-    appDispatch(pagesActions.deletePage({ id: page.id }));
+    try {
+      await viewBackendService.delete();
+      appDispatch(pagesActions.deletePage({ id: page.id }));
+    } catch (e: any) {
+      error.showError(e?.message);
+    }
   };
 
   const duplicatePage = () => {
     closePopup();
-    appDispatch(
-      pagesActions.addPage({ id: nanoid(8), pageType: page.pageType, title: page.title, folderId: page.folderId })
-    );
+    try {
+      appDispatch(
+        pagesActions.addPage({ id: nanoid(8), pageType: page.pageType, title: page.title, folderId: page.folderId })
+      );
+    } catch (e: any) {
+      error.showError(e?.message);
+    }
   };
 
   const closePopup = () => {
