@@ -6,7 +6,7 @@ export const OptionsPopup = ({ onSignOutClick, onClose }: { onSignOutClick: () =
     {
       title: 'Sign out',
       icon: (
-        <i className={'h-5 w-5'}>
+        <i className={'block h-5 w-5 flex-shrink-0'}>
           <CloseSvg></CloseSvg>
         </i>
       ),
