@@ -14,7 +14,7 @@ class CellIdentifier {
 class CellBackendService {
   static updateCell = async (cellId: CellIdentifier, data: string) => {
     const payload = CellChangesetPB.fromObject({
-      database_id: cellId.viewId,
+      view_id: cellId.viewId,
       field_id: cellId.fieldId,
       row_id: cellId.rowId,
       type_cell_data: data,
@@ -24,7 +24,7 @@ class CellBackendService {
 
   getCell = async (cellId: CellIdentifier) => {
     const payload = CellIdPB.fromObject({
-      database_id: cellId.viewId,
+      view_id: cellId.viewId,
       field_id: cellId.fieldId,
       row_id: cellId.rowId,
     });

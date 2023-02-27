@@ -84,8 +84,8 @@ impl DatabaseViews {
       .get_row_revs(Some(vec![block_id.to_owned()]))
       .await;
     if let Ok(view_editor) = self.get_view_editor(view_id).await {
-      view_editor.filter_rows(block_id, &mut row_revs).await;
-      view_editor.sort_rows(&mut row_revs).await;
+      view_editor.v_filter_rows(block_id, &mut row_revs).await;
+      view_editor.v_sort_rows(&mut row_revs).await;
     }
 
     Ok(row_revs)
@@ -93,21 +93,21 @@ impl DatabaseViews {
 
   pub async fn duplicate_database_view(&self, view_id: &str) -> FlowyResult<String> {
     let editor = self.get_view_editor(view_id).await?;
-    let view_data = editor.duplicate_view_data().await?;
+    let view_data = editor.v_duplicate_data().await?;
     Ok(view_data)
   }
 
   /// When the row was created, we may need to modify the [RowRevision] according to the [CreateRowParams].
   pub async fn will_create_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
     for view_editor in self.view_editors.read().await.values() {
-      view_editor.will_create_view_row(row_rev, params).await;
+      view_editor.v_will_create_row(row_rev, params).await;
     }
   }
 
   /// Notify the view that the row was created. For the moment, the view is just sending notifications.
   pub async fn did_create_row(&self, row_pb: &RowPB, params: &CreateRowParams) {
     for view_editor in self.view_editors.read().await.values() {
-      view_editor.did_create_view_row(row_pb, params).await;
+      view_editor.v_did_create_row(row_pb, params).await;
     }
   }
 
@@ -120,7 +120,7 @@ impl DatabaseViews {
       Some((_, row_rev)) => {
         for view_editor in self.view_editors.read().await.values() {
           view_editor
-            .did_update_view_row(old_row_rev.clone(), &row_rev)
+            .v_did_update_row(old_row_rev.clone(), &row_rev)
             .await;
         }
       },
@@ -129,24 +129,24 @@ impl DatabaseViews {
 
   pub async fn group_by_field(&self, view_id: &str, field_id: &str) -> FlowyResult<()> {
     let view_editor = self.get_view_editor(view_id).await?;
-    view_editor.group_by_view_field(field_id).await?;
+    view_editor.v_update_group_setting(field_id).await?;
     Ok(())
   }
 
   pub async fn did_delete_row(&self, row_rev: Arc<RowRevision>) {
     for view_editor in self.view_editors.read().await.values() {
-      view_editor.did_delete_view_row(&row_rev).await;
+      view_editor.v_did_delete_row(&row_rev).await;
     }
   }
 
   pub async fn get_setting(&self, view_id: &str) -> FlowyResult<DatabaseViewSettingPB> {
     let view_editor = self.get_view_editor(view_id).await?;
-    Ok(view_editor.get_view_setting().await)
+    Ok(view_editor.v_get_setting().await)
   }
 
   pub async fn get_all_filters(&self, view_id: &str) -> FlowyResult<Vec<Arc<FilterRevision>>> {
     let view_editor = self.get_view_editor(view_id).await?;
-    Ok(view_editor.get_all_view_filters().await)
+    Ok(view_editor.v_get_all_filters().await)
   }
 
   pub async fn get_filters(
@@ -155,58 +155,58 @@ impl DatabaseViews {
     filter_id: &FilterType,
   ) -> FlowyResult<Vec<Arc<FilterRevision>>> {
     let view_editor = self.get_view_editor(view_id).await?;
-    Ok(view_editor.get_view_filters(filter_id).await)
+    Ok(view_editor.v_get_filters(filter_id).await)
   }
 
   pub async fn create_or_update_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
     let view_editor = self.get_view_editor(&params.view_id).await?;
-    view_editor.insert_view_filter(params).await
+    view_editor.v_insert_filter(params).await
   }
 
   pub async fn delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
     let view_editor = self.get_view_editor(&params.view_id).await?;
-    view_editor.delete_view_filter(params).await
+    view_editor.v_delete_filter(params).await
   }
 
   pub async fn get_all_sorts(&self, view_id: &str) -> FlowyResult<Vec<Arc<SortRevision>>> {
     let view_editor = self.get_view_editor(view_id).await?;
-    Ok(view_editor.get_all_view_sorts().await)
+    Ok(view_editor.v_get_all_sorts().await)
   }
 
   pub async fn create_or_update_sort(&self, params: AlterSortParams) -> FlowyResult<SortRevision> {
     let view_editor = self.get_view_editor(&params.view_id).await?;
-    view_editor.insert_view_sort(params).await
+    view_editor.v_insert_sort(params).await
   }
 
   pub async fn delete_all_sorts(&self, view_id: &str) -> FlowyResult<()> {
     let view_editor = self.get_view_editor(view_id).await?;
-    view_editor.delete_all_view_sorts().await
+    view_editor.v_delete_all_sorts().await
   }
 
   pub async fn delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
     let view_editor = self.get_view_editor(&params.view_id).await?;
-    view_editor.delete_view_sort(params).await
+    view_editor.v_delete_sort(params).await
   }
 
   pub async fn load_groups(&self, view_id: &str) -> FlowyResult<RepeatedGroupPB> {
     let view_editor = self.get_view_editor(view_id).await?;
-    let groups = view_editor.load_view_groups().await?;
+    let groups = view_editor.v_load_groups().await?;
     Ok(RepeatedGroupPB { items: groups })
   }
 
   pub async fn insert_or_update_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
     let view_editor = self.get_view_editor(&params.view_id).await?;
-    view_editor.initialize_new_group(params).await
+    view_editor.v_initialize_new_group(params).await
   }
 
   pub async fn delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
     let view_editor = self.get_view_editor(&params.view_id).await?;
-    view_editor.delete_view_group(params).await
+    view_editor.v_delete_group(params).await
   }
 
   pub async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
     let view_editor = self.get_view_editor(&params.view_id).await?;
-    view_editor.move_view_group(params).await?;
+    view_editor.v_move_group(params).await?;
     Ok(())
   }
 
@@ -224,7 +224,7 @@ impl DatabaseViews {
     let mut row_changeset = RowChangeset::new(row_rev.id.clone());
     let view_editor = self.get_view_editor(view_id).await?;
     view_editor
-      .move_view_group_row(
+      .v_move_group_row(
         &row_rev,
         &mut row_changeset,
         &to_group_id,
@@ -246,20 +246,22 @@ impl DatabaseViews {
   ///
   /// * `field_id`: the id of the field in current view
   ///
-  #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn did_update_view_field_type_option(
+  #[tracing::instrument(level = "debug", skip(self, old_field_rev), err)]
+  pub async fn did_update_field_type_option(
     &self,
     view_id: &str,
     field_id: &str,
     old_field_rev: Option<Arc<FieldRevision>>,
   ) -> FlowyResult<()> {
     let view_editor = self.get_view_editor(view_id).await?;
+    // If the id of the grouping field is equal to the updated field's id, then we need to
+    // update the group setting
     if view_editor.group_id().await == field_id {
-      view_editor.group_by_view_field(field_id).await?;
+      view_editor.v_update_group_setting(field_id).await?;
     }
 
     view_editor
-      .did_update_view_field_type_option(field_id, old_field_rev)
+      .v_did_update_field_type_option(field_id, old_field_rev)
       .await?;
     Ok(())
   }
@@ -269,6 +271,7 @@ impl DatabaseViews {
     if let Some(editor) = self.view_editors.read().await.get(view_id) {
       return Ok(editor);
     }
+
     tracing::trace!("{:p} create view:{} editor", self, view_id);
     let mut view_editors = self.view_editors.write().await;
     let editor = Arc::new(self.make_view_editor(view_id).await?);
