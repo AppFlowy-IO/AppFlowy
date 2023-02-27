@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor_plugins/src/table/src/models/table_model.dart';
+import 'package:appflowy_editor_plugins/src/table/src/models/table_data_model.dart';
 import 'package:appflowy_editor_plugins/src/table/src/table_cell.dart'
     as flowytable;
 
