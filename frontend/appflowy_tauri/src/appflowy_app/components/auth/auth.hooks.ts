@@ -7,7 +7,7 @@ export const useAuth = () => {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((state) => state.currentUser);
   const authBackendService = new AuthBackendService();
-  let userBackendService: UserBackendService;
+  let userBackendService: UserBackndService;
 
   async function register(email: string, password: string, name: string): Promise<UserProfilePB> {
     const result = await authBackendService.signUp({ email, password, name });
