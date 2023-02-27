@@ -73,6 +73,15 @@ class _AppFlowyInputState extends State<AppFlowyInput>
       : {};
 
   @override
+  void didChangeInputControl(
+    TextInputControl? oldControl,
+    TextInputControl? newControl,
+  ) {}
+
+  @override
+  void performSelector(String selectorName) {}
+
+  @override
   void initState() {
     super.initState();
 
