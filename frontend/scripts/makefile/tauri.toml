@@ -1,4 +1,4 @@
-[tasks.build_tauri_backend]
+[tasks.tauri_build]
 description = "Build the Tauri backend"
 script = ["""
     cd appflowy_tauri/src-tauri

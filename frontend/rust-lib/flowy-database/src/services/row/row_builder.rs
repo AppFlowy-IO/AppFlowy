@@ -3,23 +3,23 @@ use crate::services::cell::{
   insert_text_cell, insert_url_cell,
 };
 
-use grid_model::{gen_row_id, CellRevision, FieldRevision, RowRevision, DEFAULT_ROW_HEIGHT};
+use database_model::{gen_row_id, CellRevision, FieldRevision, RowRevision, DEFAULT_ROW_HEIGHT};
 use indexmap::IndexMap;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub struct RowRevisionBuilder<'a> {
+pub struct RowRevisionBuilder {
   block_id: String,
-  field_rev_map: HashMap<&'a String, Arc<FieldRevision>>,
+  field_rev_map: HashMap<String, Arc<FieldRevision>>,
   payload: CreateRowRevisionPayload,
 }
 
-impl<'a> RowRevisionBuilder<'a> {
-  pub fn new(block_id: &str, fields: &'a [Arc<FieldRevision>]) -> Self {
+impl RowRevisionBuilder {
+  pub fn new(block_id: &str, fields: Vec<Arc<FieldRevision>>) -> Self {
     let field_rev_map = fields
       .iter()
-      .map(|field| (&field.id, field.clone()))
-      .collect::<HashMap<&String, Arc<FieldRevision>>>();
+      .map(|field| (field.id.clone(), field.clone()))
+      .collect::<HashMap<String, Arc<FieldRevision>>>();
 
     let payload = CreateRowRevisionPayload {
       row_id: gen_row_id(),

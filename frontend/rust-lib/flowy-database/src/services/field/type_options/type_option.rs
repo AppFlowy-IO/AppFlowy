@@ -5,8 +5,8 @@ use crate::services::cell::{
 
 use crate::services::filter::FromFilterString;
 use bytes::Bytes;
+use database_model::FieldRevision;
 use flowy_error::FlowyResult;
-use grid_model::FieldRevision;
 use protobuf::ProtobufError;
 use std::cmp::Ordering;
 use std::fmt::Debug;

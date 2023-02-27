@@ -1,16 +1,16 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{CreateRowParams, FieldType, LayoutTypePB, RowPB};
 use crate::services::group::Group;
+use database_model::{FieldTypeRevision, GroupConfigurationRevision};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use grid_model::{FieldTypeRevision, GroupConfigurationRevision};
 use std::convert::TryInto;
 use std::sync::Arc;
 
 #[derive(ProtoBuf, Debug, Default, Clone)]
 pub struct CreateBoardCardPayloadPB {
   #[pb(index = 1)]
-  pub database_id: String,
+  pub view_id: String,
 
   #[pb(index = 2)]
   pub group_id: String,
@@ -23,8 +23,7 @@ impl TryInto<CreateRowParams> for CreateBoardCardPayloadPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<CreateRowParams, Self::Error> {
-    let database_id =
-      NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     let group_id = NotEmptyStr::parse(self.group_id).map_err(|_| ErrorCode::GroupIdIsEmpty)?;
     let start_row_id = match self.start_row_id {
       None => None,
@@ -35,7 +34,7 @@ impl TryInto<CreateRowParams> for CreateBoardCardPayloadPB {
       ),
     };
     Ok(CreateRowParams {
-      database_id: database_id.0,
+      view_id: view_id.0,
       start_row_id,
       group_id: Some(group_id.0),
       layout: LayoutTypePB::Board,
@@ -141,6 +140,9 @@ pub struct InsertGroupPayloadPB {
 
   #[pb(index = 2)]
   pub field_type: FieldType,
+
+  #[pb(index = 3)]
+  pub view_id: String,
 }
 
 impl TryInto<InsertGroupParams> for InsertGroupPayloadPB {
@@ -151,14 +153,20 @@ impl TryInto<InsertGroupParams> for InsertGroupPayloadPB {
       .map_err(|_| ErrorCode::FieldIdIsEmpty)?
       .0;
 
+    let view_id = NotEmptyStr::parse(self.view_id)
+      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
+      .0;
+
     Ok(InsertGroupParams {
       field_id,
       field_type_rev: self.field_type.into(),
+      view_id,
     })
   }
 }
 
 pub struct InsertGroupParams {
+  pub view_id: String,
   pub field_id: String,
   pub field_type_rev: FieldTypeRevision,
 }
@@ -173,6 +181,9 @@ pub struct DeleteGroupPayloadPB {
 
   #[pb(index = 3)]
   pub field_type: FieldType,
+
+  #[pb(index = 4)]
+  pub view_id: String,
 }
 
 impl TryInto<DeleteGroupParams> for DeleteGroupPayloadPB {
@@ -185,16 +196,21 @@ impl TryInto<DeleteGroupParams> for DeleteGroupPayloadPB {
     let group_id = NotEmptyStr::parse(self.group_id)
       .map_err(|_| ErrorCode::FieldIdIsEmpty)?
       .0;
+    let view_id = NotEmptyStr::parse(self.view_id)
+      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
+      .0;
 
     Ok(DeleteGroupParams {
       field_id,
       field_type_rev: self.field_type.into(),
       group_id,
+      view_id,
     })
   }
 }
 
 pub struct DeleteGroupParams {
+  pub view_id: String,
   pub field_id: String,
   pub group_id: String,
   pub field_type_rev: FieldTypeRevision,

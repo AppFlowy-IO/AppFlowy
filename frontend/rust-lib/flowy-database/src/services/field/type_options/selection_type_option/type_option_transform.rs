@@ -5,7 +5,7 @@ use crate::services::field::{
   SelectTypeOptionSharedAction, SingleSelectTypeOptionPB, TypeOption, CHECK, UNCHECK,
 };
 
-use grid_model::TypeOptionDataDeserializer;
+use database_model::TypeOptionDataDeserializer;
 
 /// Handles how to transform the cell data when switching between different field types
 pub(crate) struct SelectOptionTypeOptionTransformHelper();

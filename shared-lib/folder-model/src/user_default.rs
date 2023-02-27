@@ -45,18 +45,14 @@ fn create_default_view(app_id: String, time: chrono::DateTime<Utc>) -> ViewRevis
   let view_id = gen_view_id();
   let name = "Read me".to_string();
 
-  ViewRevision {
-    id: view_id,
+  ViewRevision::new(
+    view_id,
     app_id,
     name,
-    desc: "".to_string(),
-    data_format: ViewDataFormatRevision::DeltaFormat,
-    version: 0,
-    belongings: vec![],
-    modified_time: time.timestamp(),
-    create_time: time.timestamp(),
-    ext_data: "".to_string(),
-    thumbnail: "".to_string(),
-    layout: ViewLayoutTypeRevision::Document,
-  }
+    "".to_string(),
+    ViewDataFormatRevision::DeltaFormat,
+    ViewLayoutTypeRevision::Document,
+    time.timestamp(),
+    time.timestamp(),
+  )
 }

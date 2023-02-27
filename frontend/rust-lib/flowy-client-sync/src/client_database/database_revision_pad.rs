@@ -1,10 +1,10 @@
 use crate::errors::{internal_sync_error, SyncError, SyncResult};
 use crate::util::cal_diff;
-use flowy_sync::util::make_operations_from_revisions;
-use grid_model::{
-  gen_block_id, gen_grid_id, DatabaseRevision, FieldRevision, FieldTypeRevision,
-  GridBlockMetaRevision, GridBlockMetaRevisionChangeset,
+use database_model::{
+  gen_block_id, gen_database_id, DatabaseBlockMetaRevision, DatabaseBlockMetaRevisionChangeset,
+  DatabaseRevision, FieldRevision, FieldTypeRevision,
 };
+use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::util::md5;
 use lib_infra::util::move_vec_element;
 use lib_ot::core::{DeltaOperationBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
@@ -17,7 +17,7 @@ pub type DatabaseOperationsBuilder = DeltaOperationBuilder<EmptyAttributes>;
 
 #[derive(Clone)]
 pub struct DatabaseRevisionPad {
-  grid_rev: Arc<DatabaseRevision>,
+  database_rev: Arc<DatabaseRevision>,
   operations: DatabaseOperations,
 }
 
@@ -26,21 +26,22 @@ pub trait JsonDeserializer {
 }
 
 impl DatabaseRevisionPad {
-  pub fn grid_id(&self) -> String {
-    self.grid_rev.grid_id.clone()
+  pub fn database_id(&self) -> String {
+    self.database_rev.database_id.clone()
   }
-  pub async fn duplicate_grid_block_meta(
+
+  pub async fn duplicate_database_block_meta(
     &self,
-  ) -> (Vec<FieldRevision>, Vec<GridBlockMetaRevision>) {
+  ) -> (Vec<FieldRevision>, Vec<DatabaseBlockMetaRevision>) {
     let fields = self
-      .grid_rev
+      .database_rev
       .fields
       .iter()
       .map(|field_rev| field_rev.as_ref().clone())
       .collect();
 
     let blocks = self
-      .grid_rev
+      .database_rev
       .blocks
       .iter()
       .map(|block| {
@@ -48,21 +49,20 @@ impl DatabaseRevisionPad {
         duplicated_block.block_id = gen_block_id();
         duplicated_block
       })
-      .collect::<Vec<GridBlockMetaRevision>>();
+      .collect::<Vec<DatabaseBlockMetaRevision>>();
 
     (fields, blocks)
   }
 
   pub fn from_operations(operations: DatabaseOperations) -> SyncResult<Self> {
     let content = operations.content()?;
-    let grid: DatabaseRevision = serde_json::from_str(&content).map_err(|e| {
-      let msg = format!("Deserialize operations to grid failed: {}", e);
-      tracing::error!("{}", msg);
+    let database_rev: DatabaseRevision = serde_json::from_str(&content).map_err(|e| {
+      let msg = format!("Deserialize operations to database failed: {}", e);
       SyncError::internal().context(msg)
     })?;
 
     Ok(Self {
-      grid_rev: Arc::new(grid),
+      database_rev: Arc::new(database_rev),
       operations,
     })
   }
@@ -78,7 +78,7 @@ impl DatabaseRevisionPad {
     new_field_rev: FieldRevision,
     start_field_id: Option<String>,
   ) -> SyncResult<Option<DatabaseRevisionChangeset>> {
-    self.modify_grid(|grid_meta| {
+    self.modify_database(|grid_meta| {
       // Check if the field exists or not
       if grid_meta
         .fields
@@ -109,7 +109,7 @@ impl DatabaseRevisionPad {
     &mut self,
     field_id: &str,
   ) -> SyncResult<Option<DatabaseRevisionChangeset>> {
-    self.modify_grid(|grid_meta| {
+    self.modify_database(|grid_meta| {
       match grid_meta
         .fields
         .iter()
@@ -133,7 +133,7 @@ impl DatabaseRevisionPad {
     field_id: &str,
     duplicated_field_id: &str,
   ) -> SyncResult<Option<DatabaseRevisionChangeset>> {
-    self.modify_grid(|grid_meta| {
+    self.modify_database(|grid_meta| {
       match grid_meta
         .fields
         .iter()
@@ -176,7 +176,7 @@ impl DatabaseRevisionPad {
     T: Into<FieldTypeRevision>,
   {
     let new_field_type = new_field_type.into();
-    self.modify_grid(|grid_meta| {
+    self.modify_database(|grid_meta| {
       match grid_meta
         .fields
         .iter_mut()
@@ -224,7 +224,7 @@ impl DatabaseRevisionPad {
     &mut self,
     field_rev: Arc<FieldRevision>,
   ) -> SyncResult<Option<DatabaseRevisionChangeset>> {
-    self.modify_grid(|grid_meta| {
+    self.modify_database(|grid_meta| {
       match grid_meta
         .fields
         .iter()
@@ -246,7 +246,7 @@ impl DatabaseRevisionPad {
     from_index: usize,
     to_index: usize,
   ) -> SyncResult<Option<DatabaseRevisionChangeset>> {
-    self.modify_grid(|grid_meta| {
+    self.modify_database(|grid_meta| {
       match move_vec_element(
         &mut grid_meta.fields,
         |field| field.id == field_id,
@@ -263,7 +263,7 @@ impl DatabaseRevisionPad {
 
   pub fn contain_field(&self, field_id: &str) -> bool {
     self
-      .grid_rev
+      .database_rev
       .fields
       .iter()
       .any(|field| field.id == field_id)
@@ -271,7 +271,7 @@ impl DatabaseRevisionPad {
 
   pub fn get_field_rev(&self, field_id: &str) -> Option<(usize, &Arc<FieldRevision>)> {
     self
-      .grid_rev
+      .database_rev
       .fields
       .iter()
       .enumerate()
@@ -283,10 +283,10 @@ impl DatabaseRevisionPad {
     field_ids: Option<Vec<String>>,
   ) -> SyncResult<Vec<Arc<FieldRevision>>> {
     match field_ids {
-      None => Ok(self.grid_rev.fields.clone()),
+      None => Ok(self.database_rev.fields.clone()),
       Some(field_ids) => {
         let field_by_field_id = self
-          .grid_rev
+          .database_rev
           .fields
           .iter()
           .map(|field| (&field.id, field))
@@ -309,9 +309,9 @@ impl DatabaseRevisionPad {
 
   pub fn create_block_meta_rev(
     &mut self,
-    block: GridBlockMetaRevision,
+    block: DatabaseBlockMetaRevision,
   ) -> SyncResult<Option<DatabaseRevisionChangeset>> {
-    self.modify_grid(|grid_meta| {
+    self.modify_database(|grid_meta| {
             if grid_meta.blocks.iter().any(|b| b.block_id == block.block_id) {
                 tracing::warn!("Duplicate grid block");
                 Ok(None)
@@ -333,13 +333,13 @@ impl DatabaseRevisionPad {
         })
   }
 
-  pub fn get_block_meta_revs(&self) -> Vec<Arc<GridBlockMetaRevision>> {
-    self.grid_rev.blocks.clone()
+  pub fn get_block_meta_revs(&self) -> Vec<Arc<DatabaseBlockMetaRevision>> {
+    self.database_rev.blocks.clone()
   }
 
   pub fn update_block_rev(
     &mut self,
-    changeset: GridBlockMetaRevisionChangeset,
+    changeset: DatabaseBlockMetaRevisionChangeset,
   ) -> SyncResult<Option<DatabaseRevisionChangeset>> {
     let block_id = changeset.block_id.clone();
     self.modify_block(&block_id, |block| {
@@ -368,18 +368,18 @@ impl DatabaseRevisionPad {
   }
 
   pub fn get_fields(&self) -> &[Arc<FieldRevision>] {
-    &self.grid_rev.fields
+    &self.database_rev.fields
   }
 
-  fn modify_grid<F>(&mut self, f: F) -> SyncResult<Option<DatabaseRevisionChangeset>>
+  fn modify_database<F>(&mut self, f: F) -> SyncResult<Option<DatabaseRevisionChangeset>>
   where
     F: FnOnce(&mut DatabaseRevision) -> SyncResult<Option<()>>,
   {
-    let cloned_grid = self.grid_rev.clone();
-    match f(Arc::make_mut(&mut self.grid_rev))? {
+    let cloned_database = self.database_rev.clone();
+    match f(Arc::make_mut(&mut self.database_rev))? {
       None => Ok(None),
       Some(_) => {
-        let old = make_database_rev_json_str(&cloned_grid)?;
+        let old = make_database_rev_json_str(&cloned_database)?;
         let new = self.json_str()?;
         match cal_diff::<EmptyAttributes>(old, new) {
           None => Ok(None),
@@ -401,9 +401,9 @@ impl DatabaseRevisionPad {
     f: F,
   ) -> SyncResult<Option<DatabaseRevisionChangeset>>
   where
-    F: FnOnce(&mut GridBlockMetaRevision) -> SyncResult<Option<()>>,
+    F: FnOnce(&mut DatabaseBlockMetaRevision) -> SyncResult<Option<()>>,
   {
-    self.modify_grid(|grid_rev| {
+    self.modify_database(|grid_rev| {
       match grid_rev
         .blocks
         .iter()
@@ -429,7 +429,7 @@ impl DatabaseRevisionPad {
   where
     F: FnOnce(&mut FieldRevision) -> SyncResult<Option<()>>,
   {
-    self.modify_grid(|grid_rev| {
+    self.modify_database(|grid_rev| {
       match grid_rev
         .fields
         .iter()
@@ -448,7 +448,7 @@ impl DatabaseRevisionPad {
   }
 
   pub fn json_str(&self) -> SyncResult<String> {
-    make_database_rev_json_str(&self.grid_rev)
+    make_database_rev_json_str(&self.database_rev)
   }
 }
 
@@ -472,16 +472,16 @@ pub fn make_database_operations(grid_rev: &DatabaseRevision) -> DatabaseOperatio
 pub fn make_database_revisions(_user_id: &str, grid_rev: &DatabaseRevision) -> Vec<Revision> {
   let operations = make_database_operations(grid_rev);
   let bytes = operations.json_bytes();
-  let revision = Revision::initial_revision(&grid_rev.grid_id, bytes);
+  let revision = Revision::initial_revision(&grid_rev.database_id, bytes);
   vec![revision]
 }
 
 impl std::default::Default for DatabaseRevisionPad {
   fn default() -> Self {
-    let grid = DatabaseRevision::new(&gen_grid_id());
-    let operations = make_database_operations(&grid);
+    let database = DatabaseRevision::new(&gen_database_id());
+    let operations = make_database_operations(&database);
     DatabaseRevisionPad {
-      grid_rev: Arc::new(grid),
+      database_rev: Arc::new(database),
       operations,
     }
   }

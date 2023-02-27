@@ -3,8 +3,8 @@ use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerActions,
 };
 use crate::services::group::{Group, GroupController, MoveGroupRowContext};
+use database_model::{FieldRevision, RowRevision};
 use flowy_error::FlowyResult;
-use grid_model::{FieldRevision, RowRevision};
 use std::sync::Arc;
 
 /// A [DefaultGroupController] is used to handle the group actions for the [FieldType] that doesn't

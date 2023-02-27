@@ -73,7 +73,7 @@ impl AFPluginResponder for AFPluginEventResponse {
 
 pub type DataResult<T, E> = std::result::Result<AFPluginData<T>, E>;
 
-pub fn data_result<T, E>(data: T) -> Result<AFPluginData<T>, E>
+pub fn data_result_ok<T, E>(data: T) -> Result<AFPluginData<T>, E>
 where
   E: Into<DispatchError>,
 {

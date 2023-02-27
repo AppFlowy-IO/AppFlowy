@@ -6,13 +6,13 @@ use crate::services::group::{
   MultiSelectGroupController, SelectOptionGroupContext, SingleSelectGroupController,
   URLGroupContext, URLGroupController,
 };
-use flowy_error::FlowyResult;
-use grid_model::{
+use database_model::{
   CheckboxGroupConfigurationRevision, DateGroupConfigurationRevision, FieldRevision,
   GroupConfigurationRevision, GroupRevision, LayoutRevision, NumberGroupConfigurationRevision,
   RowRevision, SelectOptionGroupConfigurationRevision, TextGroupConfigurationRevision,
   URLGroupConfigurationRevision,
 };
+use flowy_error::FlowyResult;
 use std::sync::Arc;
 
 /// Returns a group controller.
@@ -21,7 +21,7 @@ use std::sync::Arc;
 /// # Arguments
 ///
 /// * `view_id`: the id of the view
-/// * `field_rev`: the grouping field
+/// * `grouping_field_rev`: the grouping field
 /// * `row_revs`: the rows will be separated into different groups
 /// * `configuration_reader`: a reader used to read the group configuration from disk
 /// * `configuration_writer`: as writer used to write the group configuration to disk
@@ -29,7 +29,7 @@ use std::sync::Arc;
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub async fn make_group_controller<R, W>(
   view_id: String,
-  field_rev: Arc<FieldRevision>,
+  grouping_field_rev: Arc<FieldRevision>,
   row_revs: Vec<Arc<RowRevision>>,
   configuration_reader: R,
   configuration_writer: W,
@@ -38,68 +38,68 @@ where
   R: GroupConfigurationReader,
   W: GroupConfigurationWriter,
 {
-  let field_type: FieldType = field_rev.ty.into();
+  let grouping_field_type: FieldType = grouping_field_rev.ty.into();
 
   let mut group_controller: Box<dyn GroupController>;
   let configuration_reader = Arc::new(configuration_reader);
   let configuration_writer = Arc::new(configuration_writer);
 
-  match field_type {
+  match grouping_field_type {
     FieldType::SingleSelect => {
       let configuration = SelectOptionGroupContext::new(
         view_id,
-        field_rev.clone(),
+        grouping_field_rev.clone(),
         configuration_reader,
         configuration_writer,
       )
       .await?;
-      let controller = SingleSelectGroupController::new(&field_rev, configuration).await?;
+      let controller = SingleSelectGroupController::new(&grouping_field_rev, configuration).await?;
       group_controller = Box::new(controller);
     },
     FieldType::MultiSelect => {
       let configuration = SelectOptionGroupContext::new(
         view_id,
-        field_rev.clone(),
+        grouping_field_rev.clone(),
         configuration_reader,
         configuration_writer,
       )
       .await?;
-      let controller = MultiSelectGroupController::new(&field_rev, configuration).await?;
+      let controller = MultiSelectGroupController::new(&grouping_field_rev, configuration).await?;
       group_controller = Box::new(controller);
     },
     FieldType::Checkbox => {
       let configuration = CheckboxGroupContext::new(
         view_id,
-        field_rev.clone(),
+        grouping_field_rev.clone(),
         configuration_reader,
         configuration_writer,
       )
       .await?;
-      let controller = CheckboxGroupController::new(&field_rev, configuration).await?;
+      let controller = CheckboxGroupController::new(&grouping_field_rev, configuration).await?;
       group_controller = Box::new(controller);
     },
     FieldType::URL => {
       let configuration = URLGroupContext::new(
         view_id,
-        field_rev.clone(),
+        grouping_field_rev.clone(),
         configuration_reader,
         configuration_writer,
       )
       .await?;
-      let controller = URLGroupController::new(&field_rev, configuration).await?;
+      let controller = URLGroupController::new(&grouping_field_rev, configuration).await?;
       group_controller = Box::new(controller);
     },
     _ => {
-      group_controller = Box::new(DefaultGroupController::new(&field_rev));
+      group_controller = Box::new(DefaultGroupController::new(&grouping_field_rev));
     },
   }
 
   // Separates the rows into different groups
-  group_controller.fill_groups(&row_revs, &field_rev)?;
+  group_controller.fill_groups(&row_revs, &grouping_field_rev)?;
   Ok(group_controller)
 }
 
-pub fn find_group_field(
+pub fn find_grouping_field(
   field_revs: &[Arc<FieldRevision>],
   _layout: &LayoutRevision,
 ) -> Option<Arc<FieldRevision>> {

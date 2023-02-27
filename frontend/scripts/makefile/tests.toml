@@ -22,7 +22,7 @@ env = { RUST_LOG = "info", TEST_RUST_LOG = "info" }
 dependencies = ["build-test-lib"]
 description = "Run flutter unit tests"
 script = '''
-cd app_flowy
+cd appflowy_flutter
 flutter test --dart-define=RUST_LOG=${TEST_RUST_LOG} -j, --concurrency=1
 '''
 
