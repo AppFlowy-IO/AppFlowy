@@ -12,12 +12,12 @@ import { LoginPage } from './views/LoginPage';
 import { ProtectedRoutes } from './components/auth/ProtectedRoutes';
 import { SignUpPage } from './views/SignUpPage';
 import { ConfirmAccountPage } from './views/ConfirmAccountPage';
+import { ErrorHandlerPage } from './components/error/ErrorHandlerPage';
+import initializeI18n from './stores/i18n/initializeI18n';
+
+initializeI18n();
 
 const App = () => {
-  // const location = useLocation();
-
-  // console.log(location);
-
   return (
     <BrowserRouter>
       <Provider store={store}>
@@ -33,8 +33,8 @@ const App = () => {
           <Route path={'/auth/login'} element={<LoginPage />}></Route>
           <Route path={'/auth/signUp'} element={<SignUpPage />}></Route>
           <Route path={'/auth/confirm-account'} element={<ConfirmAccountPage />}></Route>
-          <Route path={'*'}>Not Found</Route>
         </Routes>
+        <ErrorHandlerPage></ErrorHandlerPage>
       </Provider>
     </BrowserRouter>
   );

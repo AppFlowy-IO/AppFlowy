@@ -14,14 +14,19 @@ import { MoveFolderItemPayloadPB } from '../../../../../services/backend/models/
 export class WorkspaceBackendService {
   constructor(public readonly workspaceId: string) {}
 
-  createApp = (params: { name: string; desc?: string }) => {
+  createApp = async (params: { name: string; desc?: string }) => {
     const payload = CreateAppPayloadPB.fromObject({
       workspace_id: this.workspaceId,
       name: params.name,
       desc: params.desc || '',
     });
 
-    return FolderEventCreateApp(payload);
+    const result = await FolderEventCreateApp(payload);
+    if (result.ok) {
+      return result.val;
+    } else {
+      throw new Error(result.val.msg);
+    }
   };
 
   getWorkspace = () => {

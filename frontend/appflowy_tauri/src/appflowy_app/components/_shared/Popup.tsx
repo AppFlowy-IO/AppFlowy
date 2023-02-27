@@ -11,10 +11,12 @@ export const Popup = ({
   items,
   className = '',
   onOutsideClick,
+  columns = 1,
 }: {
   items: IPopupItem[];
   className: string;
   onOutsideClick?: () => void;
+  columns?: 1 | 2 | 3;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   useOutsideClick(ref, () => onOutsideClick && onOutsideClick());
@@ -26,16 +28,22 @@ export const Popup = ({
 
   return (
     <div ref={ref} className={`${className} rounded-lg bg-white px-2 py-2 shadow-md`}>
-      {items.map((item, index) => (
-        <button
-          key={index}
-          className={'flex w-full cursor-pointer items-center rounded-lg px-2 py-2 hover:bg-main-secondary'}
-          onClick={(e) => handleClick(e, item)}
-        >
-          {item.icon}
-          <span className={'ml-2'}>{item.title}</span>
-        </button>
-      ))}
+      <div
+        className={`grid w-full ${columns === 1 && 'grid-cols-1'} ${columns === 2 && 'grid-cols-2'} ${
+          columns === 3 && 'grid-cols-3'
+        } gap-x-4`}
+      >
+        {items.map((item, index) => (
+          <button
+            key={index}
+            className={'flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-2 hover:bg-main-secondary'}
+            onClick={(e) => handleClick(e, item)}
+          >
+            {item.icon}
+            <span className={'flex-shrink-0'}>{item.title}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 };
