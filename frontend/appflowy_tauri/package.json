@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.2",
+    "@tanstack/react-table": "^8.7.9",
     "@tauri-apps/api": "^1.2.0",
     "google-protobuf": "^3.21.2",
     "i18next": "^22.4.10",

@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '../../../stores/store';
 
 export const useGridTitleHooks = function () {
   const dispatch = useAppDispatch();
-  const grid = useAppSelector((state) => state.grid);
+  const grid = useAppSelector((state) => state.database);
 
   const [title, setTitle] = useState(grid.title);
   const [changingTitle, setChangingTitle] = useState(false);

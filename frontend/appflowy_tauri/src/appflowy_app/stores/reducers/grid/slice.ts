@@ -10,24 +10,28 @@ const initialState = {
       fieldType: FieldType.RichText,
       fieldOptions: {},
       name: 'Todo',
+      size: 300,
     },
     {
       fieldId: '2',
       fieldType: FieldType.SingleSelect,
       fieldOptions: [],
       name: 'Status',
+      size: 300,
     },
     {
       fieldId: '3',
       fieldType: FieldType.Number,
       fieldOptions: [],
       name: 'Progress',
+      size: 300,
     },
     {
       fieldId: '4',
       fieldType: FieldType.DateTime,
       fieldOptions: [],
       name: 'Due Date',
+      size: 300,
     },
   ],
   rows: [
@@ -89,6 +93,7 @@ export type field = {
   fieldType: FieldType;
   fieldOptions: any;
   name: string;
+  size: number;
 };
 
 export const gridSlice = createSlice({
@@ -133,6 +138,15 @@ export const gridSlice = createSlice({
         if (cell) {
           cell.value = action.payload.value;
         }
+      }
+    },
+
+    updateColumnSize: (state, action: PayloadAction<{ fieldIndex: number; size: number }>) => {
+      console.log('updateColumnSize', action.payload);
+      const column = state.fields[action.payload.fieldIndex];
+      console.log({ column });
+      if (column) {
+        column.size = action.payload.size;
       }
     },
   },
