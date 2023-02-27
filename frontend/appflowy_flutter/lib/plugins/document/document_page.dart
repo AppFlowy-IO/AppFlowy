@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/document/presentation/plugins/board/board_menu_item.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/board/board_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/grid/grid_menu_item.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/grid/grid_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/auto_completion_node_widget.dart';
@@ -142,6 +143,8 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         kCalloutType: CalloutNodeWidgetBuilder(),
         // Auto Generator,
         kAutoCompletionInputType: AutoCompletionInputBuilder(),
+        // Cover
+        kCoverType: CoverNodeWidgetBuilder(),
       },
       shortcutEvents: [
         // Divider
@@ -170,7 +173,9 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         // enable open ai features if needed.
         if (openAIKey != null && openAIKey!.isNotEmpty) ...[
           autoGeneratorMenuItem,
-        ]
+        ],
+        // Cover
+        coverMenuItem
       ],
       themeData: theme.copyWith(extensions: [
         ...theme.extensions.values,

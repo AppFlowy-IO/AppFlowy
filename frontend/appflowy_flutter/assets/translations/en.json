@@ -363,5 +363,11 @@
       "previousMonth": "Previous Month",
       "nextMonth": "Next Month"
     }
+  },
+  "cover": {
+    "changeCover": "Change Cover",
+    "colors": "Colors",
+    "images": "Images",
+    "abstract": "Abstract"
   }
 }
