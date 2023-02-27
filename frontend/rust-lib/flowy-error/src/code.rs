@@ -45,7 +45,7 @@ pub enum ErrorCode {
   ViewThumbnailInvalid = 13,
 
   #[error("View id can not be empty or whitespace")]
-  ViewIdInvalid = 14,
+  ViewIdIsInvalid = 14,
 
   #[error("View desc too long")]
   ViewDescTooLong = 15,

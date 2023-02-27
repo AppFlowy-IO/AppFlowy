@@ -350,6 +350,44 @@ fn node_delete_test() {
 }
 
 #[test]
+fn nodes_delete_test() {
+  let mut test = NodeTest::new();
+  let node_1 = NodeData::new("a");
+  let node_2 = NodeData::new("b");
+  let node_3 = NodeData::new("c");
+  let node_data_list = vec![node_1, node_2, node_3];
+  let path: Path = 0.into();
+  let scripts = vec![
+    InsertNodes {
+      path: path.clone(),
+      node_data_list: node_data_list.clone(),
+      rev_id: 1,
+    },
+    DeleteNodes {
+      path: path.clone(),
+      node_data_list,
+      rev_id: 2,
+    },
+    AssertNode {
+      path: path.clone(),
+      expected: None,
+    },
+    AssertNode {
+      path: path.next(),
+      expected: None,
+    },
+    AssertNode {
+      path: path.next().next(),
+      expected: None,
+    },
+    AssertTreeJSON {
+      expected: r#""""#.to_string(),
+    },
+  ];
+  test.run_scripts(scripts);
+}
+
+#[test]
 fn node_delete_node_from_list_test() {
   let mut test = NodeTest::new();
   let image_a = NodeData::new("image_a");

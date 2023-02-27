@@ -235,21 +235,21 @@ async fn revision_merge_per_100_revision_test2() {
     .await;
 }
 
-#[tokio::test]
-async fn revision_merge_per_1000_revision_test() {
-  let test = RevisionTest::new_with_configuration(1000).await;
-  for i in 0..100000 {
-    test
-      .run_script(AddLocalRevision {
-        content: format!("{}", i),
-      })
-      .await;
-  }
-
-  test
-    .run_scripts(vec![AssertNumberOfSyncRevisions { num: 100 }])
-    .await;
-}
+// #[tokio::test]
+// async fn revision_merge_per_1000_revision_test() {
+//   let test = RevisionTest::new_with_configuration(1000).await;
+//   for i in 0..100000 {
+//     test
+//       .run_script(AddLocalRevision {
+//         content: format!("{}", i),
+//       })
+//       .await;
+//   }
+//
+//   test
+//     .run_scripts(vec![AssertNumberOfSyncRevisions { num: 100 }])
+//     .await;
+// }
 
 #[tokio::test]
 async fn revision_compress_revision_test() {

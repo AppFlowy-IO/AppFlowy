@@ -9,9 +9,9 @@ use crate::services::field::{
   TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use bytes::Bytes;
+use database_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use grid_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use protobuf::ProtobufError;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;

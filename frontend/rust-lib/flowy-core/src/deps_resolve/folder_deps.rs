@@ -1,12 +1,14 @@
 use bytes::Bytes;
 use flowy_sqlite::ConnectionPool;
 
+use database_model::BuildDatabaseContext;
 use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_database::entities::LayoutTypePB;
-use flowy_database::manager::{make_database_view_data, DatabaseManager};
+use flowy_database::manager::{create_new_database, link_existing_database, DatabaseManager};
 use flowy_database::util::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_document::editor::make_transaction_from_document_content;
 use flowy_document::DocumentManager;
+
 use flowy_folder::entities::{ViewDataFormatPB, ViewLayoutTypePB, ViewPB};
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder::{
@@ -19,7 +21,6 @@ use flowy_net::{http_server::folder::FolderHttpCloudService, local_server::Local
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
-use grid_model::BuildDatabaseContext;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
 use revision_model::Revision;
@@ -36,7 +37,7 @@ impl FolderDepsResolver {
     server_config: &ClientServerConfiguration,
     ws_conn: &Arc<FlowyWebSocketConnect>,
     text_block_manager: &Arc<DocumentManager>,
-    grid_manager: &Arc<DatabaseManager>,
+    database_manager: &Arc<DatabaseManager>,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn WorkspaceUser> = Arc::new(WorkspaceUserImpl(user_session.clone()));
     let database: Arc<dyn WorkspaceDatabase> = Arc::new(WorkspaceDatabaseImpl(user_session));
@@ -47,7 +48,7 @@ impl FolderDepsResolver {
     };
 
     let view_data_processor =
-      make_view_data_processor(text_block_manager.clone(), grid_manager.clone());
+      make_view_data_processor(text_block_manager.clone(), database_manager.clone());
     let folder_manager = Arc::new(
       FolderManager::new(
         user.clone(),
@@ -74,7 +75,7 @@ impl FolderDepsResolver {
 
 fn make_view_data_processor(
   document_manager: Arc<DocumentManager>,
-  grid_manager: Arc<DatabaseManager>,
+  database_manager: Arc<DatabaseManager>,
 ) -> ViewDataProcessorMap {
   let mut map: HashMap<ViewDataFormatPB, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
 
@@ -86,7 +87,7 @@ fn make_view_data_processor(
       map.insert(data_type, document_processor.clone());
     });
 
-  let grid_data_impl = Arc::new(GridViewDataProcessor(grid_manager));
+  let grid_data_impl = Arc::new(DatabaseViewDataProcessor(database_manager));
   grid_data_impl
     .data_types()
     .into_iter()
@@ -166,33 +167,6 @@ impl WSMessageReceiver for FolderWSMessageReceiverImpl {
 
 struct DocumentViewDataProcessor(Arc<DocumentManager>);
 impl ViewDataProcessor for DocumentViewDataProcessor {
-  fn create_view(
-    &self,
-    _user_id: &str,
-    view_id: &str,
-    layout: ViewLayoutTypePB,
-    view_data: Bytes,
-  ) -> FutureResult<(), FlowyError> {
-    // Only accept Document type
-    debug_assert_eq!(layout, ViewLayoutTypePB::Document);
-    let view_data = match String::from_utf8(view_data.to_vec()) {
-      Ok(content) => match make_transaction_from_document_content(&content) {
-        Ok(transaction) => transaction.to_bytes().unwrap_or(vec![]),
-        Err(_) => vec![],
-      },
-      Err(_) => vec![],
-    };
-
-    let revision = Revision::initial_revision(view_id, Bytes::from(view_data));
-    let view_id = view_id.to_string();
-    let manager = self.0.clone();
-
-    FutureResult::new(async move {
-      manager.create_document(view_id, vec![revision]).await?;
-      Ok(())
-    })
-  }
-
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
     let manager = self.0.clone();
     let view_id = view_id.to_string();
@@ -212,13 +186,15 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     })
   }
 
-  fn create_default_view(
+  fn create_view_with_build_in_data(
     &self,
     user_id: &str,
     view_id: &str,
+    _name: &str,
     layout: ViewLayoutTypePB,
     _data_format: ViewDataFormatPB,
-  ) -> FutureResult<Bytes, FlowyError> {
+    _ext: HashMap<String, String>,
+  ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayoutTypePB::Document);
     let _user_id = user_id.to_string();
     let view_id = view_id.to_string();
@@ -226,21 +202,38 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     let document_content = self.0.initial_document_content();
     FutureResult::new(async move {
       let delta_data = Bytes::from(document_content);
-      let revision = Revision::initial_revision(&view_id, delta_data.clone());
+      let revision = Revision::initial_revision(&view_id, delta_data);
       manager.create_document(view_id, vec![revision]).await?;
-      Ok(delta_data)
+      Ok(())
     })
   }
 
-  fn create_view_with_data(
+  fn create_view_with_custom_data(
     &self,
     _user_id: &str,
-    _view_id: &str,
+    view_id: &str,
+    _name: &str,
     data: Vec<u8>,
     layout: ViewLayoutTypePB,
-  ) -> FutureResult<Bytes, FlowyError> {
+    _ext: HashMap<String, String>,
+  ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayoutTypePB::Document);
-    FutureResult::new(async move { Ok(Bytes::from(data)) })
+    let view_data = match String::from_utf8(data) {
+      Ok(content) => match make_transaction_from_document_content(&content) {
+        Ok(transaction) => transaction.to_bytes().unwrap_or_else(|_| vec![]),
+        Err(_) => vec![],
+      },
+      Err(_) => vec![],
+    };
+
+    let revision = Revision::initial_revision(view_id, Bytes::from(view_data));
+    let view_id = view_id.to_string();
+    let manager = self.0.clone();
+
+    FutureResult::new(async move {
+      manager.create_document(view_id, vec![revision]).await?;
+      Ok(())
+    })
   }
 
   fn data_types(&self) -> Vec<ViewDataFormatPB> {
@@ -248,102 +241,121 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
   }
 }
 
-struct GridViewDataProcessor(Arc<DatabaseManager>);
-impl ViewDataProcessor for GridViewDataProcessor {
-  fn create_view(
-    &self,
-    _user_id: &str,
-    view_id: &str,
-    _layout: ViewLayoutTypePB,
-    delta_data: Bytes,
-  ) -> FutureResult<(), FlowyError> {
-    let revision = Revision::initial_revision(view_id, delta_data);
-    let view_id = view_id.to_string();
-    let grid_manager = self.0.clone();
-    FutureResult::new(async move {
-      grid_manager
-        .create_database(view_id, vec![revision])
-        .await?;
-      Ok(())
-    })
-  }
-
+struct DatabaseViewDataProcessor(Arc<DatabaseManager>);
+impl ViewDataProcessor for DatabaseViewDataProcessor {
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
-    let grid_manager = self.0.clone();
+    let database_manager = self.0.clone();
     let view_id = view_id.to_string();
     FutureResult::new(async move {
-      grid_manager.close_database(view_id).await?;
+      database_manager.close_database_view(view_id).await?;
       Ok(())
     })
   }
 
   fn get_view_data(&self, view: &ViewPB) -> FutureResult<Bytes, FlowyError> {
-    let grid_manager = self.0.clone();
+    let database_manager = self.0.clone();
     let view_id = view.id.clone();
     FutureResult::new(async move {
-      let editor = grid_manager.open_database(view_id).await?;
-      let delta_bytes = editor.duplicate_grid().await?;
+      let editor = database_manager.open_database_view(&view_id).await?;
+      let delta_bytes = editor.duplicate_database(&view_id).await?;
       Ok(delta_bytes.into())
     })
   }
 
-  fn create_default_view(
+  /// Create a database view with build-in data.
+  /// If the ext contains the {"database_id": "xx"}, then it will link to
+  /// the existing database. The data of the database will be shared within
+  /// these references views.
+  fn create_view_with_build_in_data(
     &self,
-    user_id: &str,
+    _user_id: &str,
     view_id: &str,
+    name: &str,
     layout: ViewLayoutTypePB,
     data_format: ViewDataFormatPB,
-  ) -> FutureResult<Bytes, FlowyError> {
+    ext: HashMap<String, String>,
+  ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(data_format, ViewDataFormatPB::DatabaseFormat);
-    let (build_context, layout) = match layout {
-      ViewLayoutTypePB::Grid => (make_default_grid(), LayoutTypePB::Grid),
-      ViewLayoutTypePB::Board => (make_default_board(), LayoutTypePB::Board),
-      ViewLayoutTypePB::Calendar => (make_default_calendar(), LayoutTypePB::Calendar),
-      ViewLayoutTypePB::Document => {
-        return FutureResult::new(async move {
-          Err(FlowyError::internal().context(format!("Can't handle {:?} layout type", layout)))
-        });
-      },
-    };
-
-    let user_id = user_id.to_string();
     let view_id = view_id.to_string();
-    let grid_manager = self.0.clone();
-    FutureResult::new(async move {
-      make_database_view_data(&user_id, &view_id, layout, grid_manager, build_context).await
-    })
+    let name = name.to_string();
+    let database_manager = self.0.clone();
+    match DatabaseExtParams::from_map(ext).map(|params| params.database_id) {
+      None => {
+        let (build_context, layout) = match layout {
+          ViewLayoutTypePB::Grid => (make_default_grid(), LayoutTypePB::Grid),
+          ViewLayoutTypePB::Board => (make_default_board(), LayoutTypePB::Board),
+          ViewLayoutTypePB::Calendar => (make_default_calendar(), LayoutTypePB::Calendar),
+          ViewLayoutTypePB::Document => {
+            return FutureResult::new(async move {
+              Err(FlowyError::internal().context(format!("Can't handle {:?} layout type", layout)))
+            });
+          },
+        };
+        FutureResult::new(async move {
+          create_new_database(&view_id, name, layout, database_manager, build_context).await
+        })
+      },
+      Some(database_id) => {
+        let layout = layout_type_from_view_layout(layout);
+        FutureResult::new(async move {
+          link_existing_database(&view_id, name, &database_id, layout, database_manager).await
+        })
+      },
+    }
   }
 
-  fn create_view_with_data(
+  /// Create a database view with custom data.
+  /// If the ext contains the {"database_id": "xx"}, then it will link
+  /// to the existing database. The data of the database will be shared
+  /// within these references views.
+  fn create_view_with_custom_data(
     &self,
-    user_id: &str,
+    _user_id: &str,
     view_id: &str,
+    name: &str,
     data: Vec<u8>,
     layout: ViewLayoutTypePB,
-  ) -> FutureResult<Bytes, FlowyError> {
-    let user_id = user_id.to_string();
+    ext: HashMap<String, String>,
+  ) -> FutureResult<(), FlowyError> {
     let view_id = view_id.to_string();
-    let grid_manager = self.0.clone();
-
-    let layout = match layout {
-      ViewLayoutTypePB::Grid => LayoutTypePB::Grid,
-      ViewLayoutTypePB::Board => LayoutTypePB::Board,
-      ViewLayoutTypePB::Calendar => LayoutTypePB::Calendar,
-      ViewLayoutTypePB::Document => {
-        return FutureResult::new(async move {
-          Err(FlowyError::internal().context(format!("Can't handle {:?} layout type", layout)))
-        });
-      },
-    };
-
-    FutureResult::new(async move {
-      let bytes = Bytes::from(data);
-      let build_context = BuildDatabaseContext::try_from(bytes)?;
-      make_database_view_data(&user_id, &view_id, layout, grid_manager, build_context).await
-    })
+    let database_manager = self.0.clone();
+    let layout = layout_type_from_view_layout(layout);
+    let name = name.to_string();
+    match DatabaseExtParams::from_map(ext).map(|params| params.database_id) {
+      None => FutureResult::new(async move {
+        let bytes = Bytes::from(data);
+        let build_context = BuildDatabaseContext::try_from(bytes)?;
+        let _ = create_new_database(&view_id, name, layout, database_manager, build_context).await;
+        Ok(())
+      }),
+      Some(database_id) => FutureResult::new(async move {
+        link_existing_database(&view_id, name, &database_id, layout, database_manager).await
+      }),
+    }
   }
 
   fn data_types(&self) -> Vec<ViewDataFormatPB> {
     vec![ViewDataFormatPB::DatabaseFormat]
+  }
+}
+
+fn layout_type_from_view_layout(layout: ViewLayoutTypePB) -> LayoutTypePB {
+  match layout {
+    ViewLayoutTypePB::Grid => LayoutTypePB::Grid,
+    ViewLayoutTypePB::Board => LayoutTypePB::Board,
+    ViewLayoutTypePB::Calendar => LayoutTypePB::Calendar,
+    ViewLayoutTypePB::Document => LayoutTypePB::Grid,
+  }
+}
+
+#[derive(Debug, serde::Deserialize)]
+struct DatabaseExtParams {
+  database_id: String,
+}
+
+impl DatabaseExtParams {
+  pub fn from_map(map: HashMap<String, String>) -> Option<Self> {
+    let value = serde_json::to_value(map).ok()?;
+    serde_json::from_value::<Self>(value).ok()
   }
 }

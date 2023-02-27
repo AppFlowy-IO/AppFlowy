@@ -55,7 +55,7 @@ export class FieldBackendService {
 
   updateTypeOption = (typeOptionData: Uint8Array) => {
     const payload = TypeOptionChangesetPB.fromObject({
-      database_id: this.viewId,
+      view_id: this.viewId,
       field_id: this.fieldId,
       type_option_data: typeOptionData,
     });
@@ -64,20 +64,19 @@ export class FieldBackendService {
   };
 
   deleteField = () => {
-    const payload = DeleteFieldPayloadPB.fromObject({ database_id: this.viewId, field_id: this.fieldId });
+    const payload = DeleteFieldPayloadPB.fromObject({ view_id: this.viewId, field_id: this.fieldId });
 
     return DatabaseEventDeleteField(payload);
   };
 
   duplicateField = () => {
-    const payload = DuplicateFieldPayloadPB.fromObject({ database_id: this.viewId, field_id: this.fieldId });
-
+    const payload = DuplicateFieldPayloadPB.fromObject({ view_id: this.viewId, field_id: this.fieldId });
     return DatabaseEventDuplicateField(payload);
   };
 
   getTypeOptionData = (fieldType: FieldType) => {
     const payload = TypeOptionPathPB.fromObject({
-      database_id: this.viewId,
+      view_id: this.viewId,
       field_id: this.fieldId,
       field_type: fieldType,
     });

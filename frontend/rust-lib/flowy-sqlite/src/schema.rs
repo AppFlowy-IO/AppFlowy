@@ -16,6 +16,16 @@ diesel::table! {
 }
 
 diesel::table! {
+    database_refs (ref_id) {
+        ref_id -> Text,
+        name -> Text,
+        is_base -> Bool,
+        view_id -> Text,
+        database_id -> Text,
+    }
+}
+
+diesel::table! {
     document_rev_snapshot (snapshot_id) {
         snapshot_id -> Text,
         object_id -> Text,
@@ -179,20 +189,21 @@ diesel::table! {
 }
 
 diesel::allow_tables_to_appear_in_same_query!(
-  app_table,
-  document_rev_snapshot,
-  document_rev_table,
-  folder_rev_snapshot,
-  grid_block_index_table,
-  grid_meta_rev_table,
-  grid_rev_snapshot,
-  grid_rev_table,
-  grid_view_rev_table,
-  kv_table,
-  rev_snapshot,
-  rev_table,
-  trash_table,
-  user_table,
-  view_table,
-  workspace_table,
+    app_table,
+    database_refs,
+    document_rev_snapshot,
+    document_rev_table,
+    folder_rev_snapshot,
+    grid_block_index_table,
+    grid_meta_rev_table,
+    grid_rev_snapshot,
+    grid_rev_table,
+    grid_view_rev_table,
+    kv_table,
+    rev_snapshot,
+    rev_table,
+    trash_table,
+    user_table,
+    view_table,
+    workspace_table,
 );

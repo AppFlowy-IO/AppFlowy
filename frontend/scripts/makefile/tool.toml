@@ -46,7 +46,7 @@ run_task = { name = "remove_files_with_pattern" }
 
 #Dart Clean
 [tasks.rm_dart_generated_files]
-env = { "dart_flowy_sdk_path" = "./app_flowy/packages/appflowy_backend/" }
+env = { "dart_flowy_sdk_path" = "./appflowy_flutter/packages/appflowy_backend/" }
 run_task = { name = [
   "rm_dart_generated_protobuf_files",
   "rm_dart_generated_event_files",

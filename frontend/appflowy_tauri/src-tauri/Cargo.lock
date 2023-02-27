@@ -851,6 +851,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "database-model"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "indexmap",
+ "nanoid",
+ "serde",
+ "serde_json",
+ "serde_repr",
+]
+
+[[package]]
 name = "derivative"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1133,12 +1145,12 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "chrono",
+ "database-model",
  "dissimilar",
  "document-model",
  "flowy-derive",
  "flowy-sync",
  "folder-model",
- "grid-model",
  "lib-infra",
  "lib-ot",
  "parking_lot",
@@ -1196,6 +1208,7 @@ name = "flowy-core"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "database-model",
  "flowy-client-ws",
  "flowy-database",
  "flowy-document",
@@ -1207,13 +1220,14 @@ dependencies = [
  "flowy-task",
  "flowy-user",
  "futures-core",
- "grid-model",
  "lib-dispatch",
  "lib-infra",
  "lib-log",
  "lib-ws",
  "parking_lot",
  "revision-model",
+ "serde",
+ "serde_json",
  "tokio",
  "tracing",
  "user-model",
@@ -1231,6 +1245,7 @@ dependencies = [
  "chrono",
  "crossbeam-utils",
  "dashmap",
+ "database-model",
  "diesel",
  "fancy-regex 0.10.0",
  "flowy-client-sync",
@@ -1243,7 +1258,6 @@ dependencies = [
  "flowy-sqlite",
  "flowy-task",
  "futures",
- "grid-model",
  "indexmap",
  "lazy_static",
  "lib-dispatch",
@@ -1959,18 +1973,6 @@ dependencies = [
  "glib-sys",
  "libc",
  "system-deps 6.0.3",
-]
-
-[[package]]
-name = "grid-model"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "indexmap",
- "nanoid",
- "serde",
- "serde_json",
- "serde_repr",
 ]
 
 [[package]]

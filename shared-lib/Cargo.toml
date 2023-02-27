@@ -3,7 +3,7 @@ members = [
   "lib-ot",
   "lib-ws",
   "lib-infra",
-  "grid-model",
+  "database-model",
   "folder-model",
   "document-model",
   "ws-model",

@@ -1,0 +1,76 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'dart:async';
+
+import '../../../application/cell/cell_service.dart';
+
+part 'board_checkbox_cell_bloc.freezed.dart';
+
+class BoardCheckboxCellBloc
+    extends Bloc<BoardCheckboxCellEvent, BoardCheckboxCellState> {
+  final CheckboxCellController cellController;
+  void Function()? _onCellChangedFn;
+  BoardCheckboxCellBloc({
+    required this.cellController,
+  }) : super(BoardCheckboxCellState.initial(cellController)) {
+    on<BoardCheckboxCellEvent>(
+      (event, emit) async {
+        await event.when(
+          initial: () async {
+            _startListening();
+          },
+          didReceiveCellUpdate: (cellData) {
+            emit(state.copyWith(isSelected: _isSelected(cellData)));
+          },
+          select: () async {
+            cellController.saveCellData(!state.isSelected ? "Yes" : "No");
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  Future<void> close() async {
+    if (_onCellChangedFn != null) {
+      cellController.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
+    await cellController.dispose();
+    return super.close();
+  }
+
+  void _startListening() {
+    _onCellChangedFn = cellController.startListening(
+      onCellChanged: ((cellContent) {
+        if (!isClosed) {
+          add(BoardCheckboxCellEvent.didReceiveCellUpdate(cellContent ?? ""));
+        }
+      }),
+    );
+  }
+}
+
+@freezed
+class BoardCheckboxCellEvent with _$BoardCheckboxCellEvent {
+  const factory BoardCheckboxCellEvent.initial() = _InitialCell;
+  const factory BoardCheckboxCellEvent.select() = _Selected;
+  const factory BoardCheckboxCellEvent.didReceiveCellUpdate(
+      String cellContent) = _DidReceiveCellUpdate;
+}
+
+@freezed
+class BoardCheckboxCellState with _$BoardCheckboxCellState {
+  const factory BoardCheckboxCellState({
+    required bool isSelected,
+  }) = _CheckboxCellState;
+
+  factory BoardCheckboxCellState.initial(TextCellController context) {
+    return BoardCheckboxCellState(
+        isSelected: _isSelected(context.getCellData()));
+  }
+}
+
+bool _isSelected(String? cellData) {
+  return cellData == "Yes";
+}

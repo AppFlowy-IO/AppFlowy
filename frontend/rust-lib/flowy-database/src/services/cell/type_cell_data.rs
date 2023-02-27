@@ -1,8 +1,8 @@
 use crate::entities::FieldType;
 
 use bytes::Bytes;
+use database_model::CellRevision;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use grid_model::CellRevision;
 use serde::{Deserialize, Serialize};
 
 /// TypeCellData is a generic CellData, you can parse the type_cell_data according to the field_type.

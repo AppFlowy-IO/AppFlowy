@@ -1,26 +1,27 @@
 use crate::errors::{SyncError, SyncResult};
 use crate::util::cal_diff;
-use flowy_sync::util::make_operations_from_revisions;
-use grid_model::{
+use database_model::{
   gen_block_id, gen_row_id, CellRevision, DatabaseBlockRevision, RowChangeset, RowRevision,
 };
+use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::util::md5;
 use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
 use revision_model::Revision;
+use std::any::type_name;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub type GridBlockOperations = DeltaOperations<EmptyAttributes>;
-pub type GridBlockOperationsBuilder = DeltaBuilder;
+pub type DatabaseBlockOperations = DeltaOperations<EmptyAttributes>;
+pub type DatabaseBlockOperationsBuilder = DeltaBuilder;
 
 #[derive(Debug, Clone)]
-pub struct GridBlockRevisionPad {
+pub struct DatabaseBlockRevisionPad {
   block: DatabaseBlockRevision,
-  operations: GridBlockOperations,
+  operations: DatabaseBlockOperations,
 }
 
-impl std::ops::Deref for GridBlockRevisionPad {
+impl std::ops::Deref for DatabaseBlockRevisionPad {
   type Target = DatabaseBlockRevision;
 
   fn deref(&self) -> &Self::Target {
@@ -28,7 +29,7 @@ impl std::ops::Deref for GridBlockRevisionPad {
   }
 }
 
-impl GridBlockRevisionPad {
+impl DatabaseBlockRevisionPad {
   pub fn duplicate_data(&self, duplicated_block_id: &str) -> DatabaseBlockRevision {
     let duplicated_rows = self
       .block
@@ -47,10 +48,14 @@ impl GridBlockRevisionPad {
     }
   }
 
-  pub fn from_operations(operations: GridBlockOperations) -> SyncResult<Self> {
+  pub fn from_operations(operations: DatabaseBlockOperations) -> SyncResult<Self> {
     let s = operations.content()?;
     let revision: DatabaseBlockRevision = serde_json::from_str(&s).map_err(|e| {
-      let msg = format!("Deserialize operations to GridBlockRevision failed: {}", e);
+      let msg = format!(
+        "Deserialize operations to {} failed: {}",
+        type_name::<DatabaseBlockRevision>(),
+        e
+      );
       tracing::error!("{}", s);
       SyncError::internal().context(msg)
     })?;
@@ -60,8 +65,8 @@ impl GridBlockRevisionPad {
     })
   }
 
-  pub fn from_revisions(_grid_id: &str, revisions: Vec<Revision>) -> SyncResult<Self> {
-    let operations: GridBlockOperations = make_operations_from_revisions(revisions)?;
+  pub fn from_revisions(revisions: Vec<Revision>) -> SyncResult<Self> {
+    let operations: DatabaseBlockOperations = make_operations_from_revisions(revisions)?;
     Self::from_operations(operations)
   }
 
@@ -70,7 +75,7 @@ impl GridBlockRevisionPad {
     &mut self,
     row: RowRevision,
     start_row_id: Option<String>,
-  ) -> SyncResult<Option<GridBlockRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseBlockRevisionChangeset>> {
     self.modify(|rows| {
       if let Some(start_row_id) = start_row_id {
         if !start_row_id.is_empty() {
@@ -89,7 +94,7 @@ impl GridBlockRevisionPad {
   pub fn delete_rows(
     &mut self,
     row_ids: Vec<Cow<'_, String>>,
-  ) -> SyncResult<Option<GridBlockRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseBlockRevisionChangeset>> {
     self.modify(|rows| {
       rows.retain(|row| !row_ids.contains(&Cow::Borrowed(&row.id)));
       Ok(Some(()))
@@ -168,7 +173,7 @@ impl GridBlockRevisionPad {
   pub fn update_row(
     &mut self,
     changeset: RowChangeset,
-  ) -> SyncResult<Option<GridBlockRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseBlockRevisionChangeset>> {
     let row_id = changeset.row_id.clone();
     self.modify_row(&row_id, |row| {
       let mut is_changed = None;
@@ -201,7 +206,7 @@ impl GridBlockRevisionPad {
     row_id: &str,
     from: usize,
     to: usize,
-  ) -> SyncResult<Option<GridBlockRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseBlockRevisionChangeset>> {
     self.modify(|row_revs| {
       if let Some(position) = row_revs.iter().position(|row_rev| row_rev.id == row_id) {
         debug_assert_eq!(from, position);
@@ -218,7 +223,7 @@ impl GridBlockRevisionPad {
     })
   }
 
-  pub fn modify<F>(&mut self, f: F) -> SyncResult<Option<GridBlockRevisionChangeset>>
+  pub fn modify<F>(&mut self, f: F) -> SyncResult<Option<DatabaseBlockRevisionChangeset>>
   where
     F: for<'a> FnOnce(&'a mut Vec<Arc<RowRevision>>) -> SyncResult<Option<()>>,
   {
@@ -232,11 +237,12 @@ impl GridBlockRevisionPad {
           None => Ok(None),
           Some(operations) => {
             tracing::trace!(
-              "[GridBlockRevision] Composing operations {}",
+              "[{}] Composing operations {}",
+              type_name::<DatabaseBlockRevision>(),
               operations.json_str()
             );
             self.operations = self.operations.compose(&operations)?;
-            Ok(Some(GridBlockRevisionChangeset {
+            Ok(Some(DatabaseBlockRevisionChangeset {
               operations,
               md5: md5(&self.operations.json_bytes()),
             }))
@@ -246,7 +252,11 @@ impl GridBlockRevisionPad {
     }
   }
 
-  fn modify_row<F>(&mut self, row_id: &str, f: F) -> SyncResult<Option<GridBlockRevisionChangeset>>
+  fn modify_row<F>(
+    &mut self,
+    row_id: &str,
+    f: F,
+  ) -> SyncResult<Option<DatabaseBlockRevisionChangeset>>
   where
     F: FnOnce(&mut RowRevision) -> SyncResult<Option<()>>,
   {
@@ -270,28 +280,30 @@ impl GridBlockRevisionPad {
   }
 }
 
-pub struct GridBlockRevisionChangeset {
-  pub operations: GridBlockOperations,
+pub struct DatabaseBlockRevisionChangeset {
+  pub operations: DatabaseBlockOperations,
   /// md5: the md5 of the grid after applying the change.
   pub md5: String,
 }
 
-pub fn make_database_block_operations(block_rev: &DatabaseBlockRevision) -> GridBlockOperations {
+pub fn make_database_block_operations(
+  block_rev: &DatabaseBlockRevision,
+) -> DatabaseBlockOperations {
   let json = serde_json::to_string(&block_rev).unwrap();
-  GridBlockOperationsBuilder::new().insert(&json).build()
+  DatabaseBlockOperationsBuilder::new().insert(&json).build()
 }
 
-pub fn make_grid_block_revisions(
+pub fn make_database_block_revisions(
   _user_id: &str,
-  grid_block_meta_data: &DatabaseBlockRevision,
+  database_block_meta_data: &DatabaseBlockRevision,
 ) -> Vec<Revision> {
-  let operations = make_database_block_operations(grid_block_meta_data);
+  let operations = make_database_block_operations(database_block_meta_data);
   let bytes = operations.json_bytes();
-  let revision = Revision::initial_revision(&grid_block_meta_data.block_id, bytes);
+  let revision = Revision::initial_revision(&database_block_meta_data.block_id, bytes);
   vec![revision]
 }
 
-impl std::default::Default for GridBlockRevisionPad {
+impl std::default::Default for DatabaseBlockRevisionPad {
   fn default() -> Self {
     let block_revision = DatabaseBlockRevision {
       block_id: gen_block_id(),
@@ -299,7 +311,7 @@ impl std::default::Default for GridBlockRevisionPad {
     };
 
     let operations = make_database_block_operations(&block_revision);
-    GridBlockRevisionPad {
+    DatabaseBlockRevisionPad {
       block: block_revision,
       operations,
     }
@@ -308,8 +320,8 @@ impl std::default::Default for GridBlockRevisionPad {
 
 #[cfg(test)]
 mod tests {
-  use crate::client_database::{GridBlockOperations, GridBlockRevisionPad};
-  use grid_model::{RowChangeset, RowRevision};
+  use crate::client_database::{DatabaseBlockOperations, DatabaseBlockRevisionPad};
+  use database_model::{RowChangeset, RowRevision};
 
   use std::borrow::Cow;
 
@@ -365,7 +377,7 @@ mod tests {
     assert_eq!(*pad.rows[2], row_3);
   }
 
-  fn test_row_rev(id: &str, pad: &GridBlockRevisionPad) -> RowRevision {
+  fn test_row_rev(id: &str, pad: &DatabaseBlockRevisionPad) -> RowRevision {
     RowRevision {
       id: id.to_string(),
       block_id: pad.block_id.clone(),
@@ -470,9 +482,10 @@ mod tests {
     );
   }
 
-  fn test_pad() -> GridBlockRevisionPad {
+  fn test_pad() -> DatabaseBlockRevisionPad {
     let operations =
-      GridBlockOperations::from_json(r#"[{"insert":"{\"block_id\":\"1\",\"rows\":[]}"}]"#).unwrap();
-    GridBlockRevisionPad::from_operations(operations).unwrap()
+      DatabaseBlockOperations::from_json(r#"[{"insert":"{\"block_id\":\"1\",\"rows\":[]}"}]"#)
+        .unwrap();
+    DatabaseBlockRevisionPad::from_operations(operations).unwrap()
   }
 }
