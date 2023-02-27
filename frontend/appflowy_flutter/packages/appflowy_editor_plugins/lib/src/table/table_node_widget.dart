@@ -41,8 +41,7 @@ SelectionMenuItem tableMenuItem = SelectionMenuItem(
     }
 
     final transaction = editorState.transaction
-      ..insertNode(
-          path, Node(type: kTableType, attributes: {kTableDataAttr: ''}))
+      ..insertNode(path, Node(type: kTableType, attributes: {}))
       ..afterSelection = afterSelection;
     editorState.apply(transaction);
   },
@@ -60,8 +59,7 @@ class TableWidgetBuilder extends NodeWidgetBuilder<Node>
   }
 
   @override
-  NodeValidator<Node> get nodeValidator =>
-      (node) => node.attributes[kTableDataAttr] is String;
+  NodeValidator<Node> get nodeValidator => (node) => true;
 
   @override
   List<ActionMenuItem> actions(NodeWidgetContext<Node> context) {
@@ -70,14 +68,18 @@ class TableWidgetBuilder extends NodeWidgetBuilder<Node>
         iconData: Icons.content_copy,
         onPressed: () {
           final state = context.node.key.currentState as _TableWidgetState?;
-          var data = state?.data ?? '';
+          Map<String, dynamic> attributes = {};
+          if (state != null) {
+            attributes = state.data.toJson();
+          }
 
           final transaction = context.editorState.transaction
             ..insertNode(
                 context.node.path.next,
                 Node(
-                    type: kTableType,
-                    attributes: {kTableDataAttr: data.toString()}))
+                  type: kTableType,
+                  attributes: attributes,
+                ))
             ..afterSelection = Selection.single(
               path: context.node.path.next,
               startOffset: 0,
@@ -116,20 +118,21 @@ class _TableWidgetState extends State<_TableWidget> with SelectableMixin {
 
   @override
   void initState() {
-    final dataAttr = widget.node.attributes[kTableDataAttr];
-    data = dataAttr.isEmpty
-        ? TableData([
+    final dataAttr = widget.node.attributes;
+    data = dataAttr.isNotEmpty
+        ? TableData.fromJson(dataAttr)
+        : TableData([
             ['1', '2'],
             ['3', '4']
-          ])
-        : TableData.fromJson(dataAttr);
+          ]);
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return TableView(data: data);
+    return TableView(
+        data: data, editorState: widget.editorState, node: widget.node);
   }
 
   RenderBox get _renderBox => context.findRenderObject() as RenderBox;

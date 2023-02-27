@@ -2,28 +2,45 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
+typedef CellData = Map<String, Object>;
+typedef ColumnData = List<CellData>;
+
 class TableData extends ChangeNotifier {
-  late List<List<String>> cells = [];
+  late List<ColumnData> cells = [];
 
-  TableData(this.cells);
-  TableData.fromJson(String s) {
-    List<dynamic> list = jsonDecode(s);
-    cells = List<List<String>>.from(list.map((l) => List<String>.from(l)));
+  // TODO(zoli): assertions: e.g that each column and row have equal cells
+  TableData(List<List<String>> data) {
+    cells.addAll(data.map((col) => col
+        .map((cell) => CellData.from({
+              "type": "text",
+              "delta": [
+                {"insert": cell}
+              ]
+            }))
+        .toList()));
   }
 
-  @override
-  String toString() {
-    return jsonEncode(cells).toString();
+  TableData.fromJson(Map<String, dynamic> json) {
+    print(json);
+    final jData = json['table_data'] as List?;
+    if (jData != null) {
+      cells.addAll(jData.map(
+          (col) => ColumnData.from(col.map((cell) => CellData.from(cell)))));
+    }
   }
 
-  String getCell(int col, int row) => cells[col][row];
+  Map<String, Object> toJson() {
+    var map = <String, Object>{};
+    map['table_data'] = cells
+        .map((col) => col
+            .map((cell) => Map<String, Object>.from(cell))
+            .toList(growable: false))
+        .toList(growable: false);
 
-  //setCell(int col, int row, String val) => cells[col][row] = val;
-  setCell(int col, int row, String val) {
-    print(cells);
-    cells[col][row] = val;
-    print(cells);
-
-    notifyListeners();
+    return map;
   }
+
+  CellData getCell(int col, int row) => cells[col][row];
+
+  setCell(int col, int row, CellData val) => cells[col][row] = val;
 }
