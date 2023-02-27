@@ -16,5 +16,7 @@ pub mod runtime;
 pub use errors::Error;
 
 pub mod prelude {
-    pub use crate::{byte_trait::*, data::*, dispatcher::*, errors::*, module::*, request::*, response::*};
+  pub use crate::{
+    byte_trait::*, data::*, dispatcher::*, errors::*, module::*, request::*, response::*,
+  };
 }

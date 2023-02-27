@@ -2,22 +2,22 @@ import { Routes, Route, BrowserRouter } from 'react-router-dom';
 
 import { TestColors } from './components/TestColors/TestColors';
 import TestApiButton from './components/TestApiButton/TestApiButton';
-import { Welcome } from './pages/Welcome';
+import { Welcome } from './views/Welcome';
 import { Provider } from 'react-redux';
-import { store } from './store';
-import { DocumentPage } from './pages/DocumentPage';
-import { BoardPage } from './pages/BoardPage';
-import { GridPage } from './pages/GridPage';
-import { LoginPage } from './pages/LoginPage';
+import { store } from './stores/store';
+import { DocumentPage } from './views/DocumentPage';
+import { BoardPage } from './views/BoardPage';
+import { GridPage } from './views/GridPage';
+import { LoginPage } from './views/LoginPage';
 import { ProtectedRoutes } from './components/auth/ProtectedRoutes';
-import { SignUpPage } from './pages/SignUpPage';
-import { ConfirmAccountPage } from './pages/ConfirmAccountPage';
+import { SignUpPage } from './views/SignUpPage';
+import { ConfirmAccountPage } from './views/ConfirmAccountPage';
+import { ErrorHandlerPage } from './components/error/ErrorHandlerPage';
+import initializeI18n from './stores/i18n/initializeI18n';
+
+initializeI18n();
 
 const App = () => {
-  // const location = useLocation();
-
-  // console.log(location);
-
   return (
     <BrowserRouter>
       <Provider store={store}>
@@ -33,8 +33,8 @@ const App = () => {
           <Route path={'/auth/login'} element={<LoginPage />}></Route>
           <Route path={'/auth/signUp'} element={<SignUpPage />}></Route>
           <Route path={'/auth/confirm-account'} element={<ConfirmAccountPage />}></Route>
-          <Route path={'*'}>Not Found</Route>
         </Routes>
+        <ErrorHandlerPage></ErrorHandlerPage>
       </Provider>
     </BrowserRouter>
   );

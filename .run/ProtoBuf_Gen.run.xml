@@ -10,7 +10,7 @@
       <env name="flowy_tool" value="${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/scripts/flowy-tool/Cargo.toml" />
       <env name="rust_lib" value="${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/" />
       <env name="shared_lib" value="${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/../shared_lib" />
-      <env name="flutter_lib" value="${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages" />
+      <env name="flutter_lib" value="${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/packages" />
       <env name="derive_meta" value="${shared_lib}/flowy-derive/src/derive_cache/derive_cache.rs" />
       <env name="flutter_package_lib" value="${flutter_lib}/flowy_sdk/lib" />
     </envs>

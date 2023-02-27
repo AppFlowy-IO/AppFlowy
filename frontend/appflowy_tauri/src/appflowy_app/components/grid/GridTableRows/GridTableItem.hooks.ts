@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { gridActions } from '../../../redux/grid/slice';
-import { useAppDispatch, useAppSelector } from '../../../store';
+import { gridActions } from '../../../stores/reducers/grid/slice';
+import { useAppDispatch, useAppSelector } from '../../../stores/store';
 
 export const useGridTableItemHooks = (
   rowItem: { value: string | number; fieldId: string; cellId: string },

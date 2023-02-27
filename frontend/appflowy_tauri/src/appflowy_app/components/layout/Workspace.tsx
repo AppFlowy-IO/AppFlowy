@@ -1,7 +1,15 @@
-import { useAppSelector } from '../../store';
+import { useAppSelector } from '../../stores/store';
+import { useWorkspace } from './Workspace.hooks';
+import { useEffect } from 'react';
 
 export const Workspace = () => {
   const currentUser = useAppSelector((state) => state.currentUser);
+  const { loadWorkspaceItems } = useWorkspace();
+  useEffect(() => {
+    void (async () => {
+      await loadWorkspaceItems();
+    })();
+  }, [currentUser.isAuthenticated]);
 
   return (
     <div className={'flex items-center justify-between px-2 py-2'}>

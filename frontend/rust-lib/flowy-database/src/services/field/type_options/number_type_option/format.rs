@@ -7,56 +7,56 @@ use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 lazy_static! {
-    pub static ref CURRENCY_SYMBOL: Vec<String> = NumberFormat::iter()
-        .map(|format| format.symbol())
-        .collect::<Vec<String>>();
-    pub static ref STRIP_SYMBOL: Vec<String> = vec![",".to_owned(), ".".to_owned()];
+  pub static ref CURRENCY_SYMBOL: Vec<String> = NumberFormat::iter()
+    .map(|format| format.symbol())
+    .collect::<Vec<String>>();
+  pub static ref STRIP_SYMBOL: Vec<String> = vec![",".to_owned(), ".".to_owned()];
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, EnumIter, Serialize, Deserialize, ProtoBuf_Enum)]
 pub enum NumberFormat {
-    Num = 0,
-    USD = 1,
-    CanadianDollar = 2,
-    EUR = 4,
-    Pound = 5,
-    Yen = 6,
-    Ruble = 7,
-    Rupee = 8,
-    Won = 9,
-    Yuan = 10,
-    Real = 11,
-    Lira = 12,
-    Rupiah = 13,
-    Franc = 14,
-    HongKongDollar = 15,
-    NewZealandDollar = 16,
-    Krona = 17,
-    NorwegianKrone = 18,
-    MexicanPeso = 19,
-    Rand = 20,
-    NewTaiwanDollar = 21,
-    DanishKrone = 22,
-    Baht = 23,
-    Forint = 24,
-    Koruna = 25,
-    Shekel = 26,
-    ChileanPeso = 27,
-    PhilippinePeso = 28,
-    Dirham = 29,
-    ColombianPeso = 30,
-    Riyal = 31,
-    Ringgit = 32,
-    Leu = 33,
-    ArgentinePeso = 34,
-    UruguayanPeso = 35,
-    Percent = 36,
+  Num = 0,
+  USD = 1,
+  CanadianDollar = 2,
+  EUR = 4,
+  Pound = 5,
+  Yen = 6,
+  Ruble = 7,
+  Rupee = 8,
+  Won = 9,
+  Yuan = 10,
+  Real = 11,
+  Lira = 12,
+  Rupiah = 13,
+  Franc = 14,
+  HongKongDollar = 15,
+  NewZealandDollar = 16,
+  Krona = 17,
+  NorwegianKrone = 18,
+  MexicanPeso = 19,
+  Rand = 20,
+  NewTaiwanDollar = 21,
+  DanishKrone = 22,
+  Baht = 23,
+  Forint = 24,
+  Koruna = 25,
+  Shekel = 26,
+  ChileanPeso = 27,
+  PhilippinePeso = 28,
+  Dirham = 29,
+  ColombianPeso = 30,
+  Riyal = 31,
+  Ringgit = 32,
+  Leu = 33,
+  ArgentinePeso = 34,
+  UruguayanPeso = 35,
+  Percent = 36,
 }
 
 impl std::default::Default for NumberFormat {
-    fn default() -> Self {
-        NumberFormat::Num
-    }
+  fn default() -> Self {
+    NumberFormat::Num
+  }
 }
 
 define_currency_set!(
@@ -407,48 +407,48 @@ define_currency_set!(
 );
 
 impl NumberFormat {
-    pub fn currency(&self) -> &'static number_currency::Currency {
-        match self {
-            NumberFormat::Num => number_currency::NUMBER,
-            NumberFormat::USD => number_currency::USD,
-            NumberFormat::CanadianDollar => number_currency::CANADIAN_DOLLAR,
-            NumberFormat::EUR => number_currency::EUR,
-            NumberFormat::Pound => number_currency::GIP,
-            NumberFormat::Yen => number_currency::CNY,
-            NumberFormat::Ruble => number_currency::RUB,
-            NumberFormat::Rupee => number_currency::INR,
-            NumberFormat::Won => number_currency::KRW,
-            NumberFormat::Yuan => number_currency::YUAN,
-            NumberFormat::Real => number_currency::BRL,
-            NumberFormat::Lira => number_currency::TRY,
-            NumberFormat::Rupiah => number_currency::IDR,
-            NumberFormat::Franc => number_currency::CHF,
-            NumberFormat::HongKongDollar => number_currency::HONG_KONG_DOLLAR,
-            NumberFormat::NewZealandDollar => number_currency::NEW_ZEALAND_DOLLAR,
-            NumberFormat::Krona => number_currency::SEK,
-            NumberFormat::NorwegianKrone => number_currency::NOK,
-            NumberFormat::MexicanPeso => number_currency::MEXICAN_PESO,
-            NumberFormat::Rand => number_currency::ZAR,
-            NumberFormat::NewTaiwanDollar => number_currency::NEW_TAIWAN_DOLLAR,
-            NumberFormat::DanishKrone => number_currency::DKK,
-            NumberFormat::Baht => number_currency::THB,
-            NumberFormat::Forint => number_currency::HUF,
-            NumberFormat::Koruna => number_currency::KORUNA,
-            NumberFormat::Shekel => number_currency::SHEKEL,
-            NumberFormat::ChileanPeso => number_currency::CLP,
-            NumberFormat::PhilippinePeso => number_currency::PHP,
-            NumberFormat::Dirham => number_currency::AED,
-            NumberFormat::ColombianPeso => number_currency::COP,
-            NumberFormat::Riyal => number_currency::SAR,
-            NumberFormat::Ringgit => number_currency::MYR,
-            NumberFormat::Leu => number_currency::RON,
-            NumberFormat::ArgentinePeso => number_currency::ARS,
-            NumberFormat::UruguayanPeso => number_currency::UYU,
-            NumberFormat::Percent => number_currency::PERCENT,
-        }
+  pub fn currency(&self) -> &'static number_currency::Currency {
+    match self {
+      NumberFormat::Num => number_currency::NUMBER,
+      NumberFormat::USD => number_currency::USD,
+      NumberFormat::CanadianDollar => number_currency::CANADIAN_DOLLAR,
+      NumberFormat::EUR => number_currency::EUR,
+      NumberFormat::Pound => number_currency::GIP,
+      NumberFormat::Yen => number_currency::CNY,
+      NumberFormat::Ruble => number_currency::RUB,
+      NumberFormat::Rupee => number_currency::INR,
+      NumberFormat::Won => number_currency::KRW,
+      NumberFormat::Yuan => number_currency::YUAN,
+      NumberFormat::Real => number_currency::BRL,
+      NumberFormat::Lira => number_currency::TRY,
+      NumberFormat::Rupiah => number_currency::IDR,
+      NumberFormat::Franc => number_currency::CHF,
+      NumberFormat::HongKongDollar => number_currency::HONG_KONG_DOLLAR,
+      NumberFormat::NewZealandDollar => number_currency::NEW_ZEALAND_DOLLAR,
+      NumberFormat::Krona => number_currency::SEK,
+      NumberFormat::NorwegianKrone => number_currency::NOK,
+      NumberFormat::MexicanPeso => number_currency::MEXICAN_PESO,
+      NumberFormat::Rand => number_currency::ZAR,
+      NumberFormat::NewTaiwanDollar => number_currency::NEW_TAIWAN_DOLLAR,
+      NumberFormat::DanishKrone => number_currency::DKK,
+      NumberFormat::Baht => number_currency::THB,
+      NumberFormat::Forint => number_currency::HUF,
+      NumberFormat::Koruna => number_currency::KORUNA,
+      NumberFormat::Shekel => number_currency::SHEKEL,
+      NumberFormat::ChileanPeso => number_currency::CLP,
+      NumberFormat::PhilippinePeso => number_currency::PHP,
+      NumberFormat::Dirham => number_currency::AED,
+      NumberFormat::ColombianPeso => number_currency::COP,
+      NumberFormat::Riyal => number_currency::SAR,
+      NumberFormat::Ringgit => number_currency::MYR,
+      NumberFormat::Leu => number_currency::RON,
+      NumberFormat::ArgentinePeso => number_currency::ARS,
+      NumberFormat::UruguayanPeso => number_currency::UYU,
+      NumberFormat::Percent => number_currency::PERCENT,
     }
+  }
 
-    pub fn symbol(&self) -> String {
-        self.currency().symbol.to_string()
-    }
+  pub fn symbol(&self) -> String {
+    self.currency().symbol.to_string()
+  }
 }

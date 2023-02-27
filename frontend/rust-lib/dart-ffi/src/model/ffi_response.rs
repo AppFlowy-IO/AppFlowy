@@ -3,43 +3,43 @@ use lib_dispatch::prelude::{AFPluginEventResponse, Payload, StatusCode};
 
 #[derive(ProtoBuf_Enum, Clone, Copy)]
 pub enum FFIStatusCode {
-    Ok = 0,
-    Err = 1,
-    Internal = 2,
+  Ok = 0,
+  Err = 1,
+  Internal = 2,
 }
 
 impl std::default::Default for FFIStatusCode {
-    fn default() -> FFIStatusCode {
-        FFIStatusCode::Ok
-    }
+  fn default() -> FFIStatusCode {
+    FFIStatusCode::Ok
+  }
 }
 
 #[derive(ProtoBuf, Default)]
 pub struct FFIResponse {
-    #[pb(index = 1)]
-    payload: Vec<u8>,
+  #[pb(index = 1)]
+  payload: Vec<u8>,
 
-    #[pb(index = 2)]
-    code: FFIStatusCode,
+  #[pb(index = 2)]
+  code: FFIStatusCode,
 }
 
 impl std::convert::From<AFPluginEventResponse> for FFIResponse {
-    fn from(resp: AFPluginEventResponse) -> Self {
-        let payload = match resp.payload {
-            Payload::Bytes(bytes) => bytes.to_vec(),
-            Payload::None => vec![],
-        };
+  fn from(resp: AFPluginEventResponse) -> Self {
+    let payload = match resp.payload {
+      Payload::Bytes(bytes) => bytes.to_vec(),
+      Payload::None => vec![],
+    };
 
-        let code = match resp.status_code {
-            StatusCode::Ok => FFIStatusCode::Ok,
-            StatusCode::Err => FFIStatusCode::Err,
-        };
+    let code = match resp.status_code {
+      StatusCode::Ok => FFIStatusCode::Ok,
+      StatusCode::Err => FFIStatusCode::Err,
+    };
 
-        // let msg = match resp.error {
-        //     None => "".to_owned(),
-        //     Some(e) => format!("{:?}", e),
-        // };
+    // let msg = match resp.error {
+    //     None => "".to_owned(),
+    //     Some(e) => format!("{:?}", e),
+    // };
 
-        FFIResponse { payload, code }
-    }
+    FFIResponse { payload, code }
+  }
 }

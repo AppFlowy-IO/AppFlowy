@@ -8,7 +8,7 @@ export class UserNotificationParser extends NotificationParser<UserNotification>
     super(
       params.callback,
       (ty) => {
-        let notification = UserNotification[ty];
+        const notification = UserNotification[ty];
         if (isUserNotification(notification)) {
           return UserNotification[notification];
         } else {

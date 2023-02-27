@@ -1,7 +1,7 @@
 import { useResizer } from '../../_shared/useResizer';
-import { useAppDispatch, useAppSelector } from '../../../store';
+import { useAppDispatch, useAppSelector } from '../../../stores/store';
 import { useEffect } from 'react';
-import { navigationWidthActions } from '../../../redux/navigation-width/slice';
+import { navigationWidthActions } from '../../../stores/reducers/navigation-width/slice';
 
 export const NavigationResizer = () => {
   const width = useAppSelector((state) => state.navigationWidth);

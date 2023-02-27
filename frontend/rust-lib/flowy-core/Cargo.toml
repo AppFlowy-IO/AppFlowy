@@ -12,7 +12,7 @@ flowy-user = { path = "../flowy-user" }
 flowy-net = { path = "../flowy-net" }
 flowy-folder = { path = "../flowy-folder" }
 flowy-database = { path = "../flowy-database" }
-grid-model = { path = "../../../shared-lib/grid-model" }
+database-model = { path = "../../../shared-lib/database-model" }
 user-model = { path = "../../../shared-lib/user-model" }
 flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws" }
 flowy-sqlite = { path = "../flowy-sqlite", optional = true }
@@ -31,6 +31,8 @@ revision-model = { path = "../../../shared-lib/revision-model" }
 ws-model = { path = "../../../shared-lib/ws-model" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
+serde = "1.0"
+serde_json = "1.0"
 
 [features]
 default = ["rev-sqlite"]

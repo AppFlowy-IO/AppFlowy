@@ -1,9 +1,6 @@
 import {
-  UserEventSignIn,
   SignInPayloadPB,
-  UserEventGetUserProfile,
-  UserEventGetUserSetting,
-} from '../../../services/backend/events/flowy-user/index';
+} from '../../../services/backend/models/flowy-user/index';
 import { nanoid } from 'nanoid';
 import { UserNotificationListener } from '../user/application/notifications';
 import {
@@ -11,14 +8,13 @@ import {
   CreateAppPayloadPB,
   CreateWorkspacePayloadPB,
   FolderEventCreateApp,
-  FolderEventCreateView,
   FolderEventCreateWorkspace,
   FolderEventOpenWorkspace,
-  FolderEventReadCurrentWorkspace,
   WorkspaceIdPB,
 } from '../../../services/backend/events/flowy-folder';
 import { useEffect, useState } from 'react';
-import * as dependency_1 from '../../../services/backend/classes/flowy-folder/app';
+import * as dependency_1 from '../../../services/backend/models/flowy-folder/app';
+import { UserEventGetUserSetting, UserEventSignIn } from '../../../services/backend/events/flowy-user';
 
 const TestApiButton = () => {
   const [workspaceId, setWorkspaceId] = useState('');
@@ -59,14 +55,14 @@ const TestApiButton = () => {
   }, [workspaceId]);
 
   async function sendSignInEvent() {
-    let make_payload = () =>
+    const make_payload = () =>
       SignInPayloadPB.fromObject({
         email: nanoid(4) + '@gmail.com',
         password: 'A!@123abc',
         name: 'abc',
       });
 
-    let listener = new UserNotificationListener({
+    const listener = new UserNotificationListener({
       onUserSignIn: (userProfile) => {
         console.log(userProfile);
       },
