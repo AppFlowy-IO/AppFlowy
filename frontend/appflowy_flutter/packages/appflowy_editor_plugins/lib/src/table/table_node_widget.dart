@@ -132,7 +132,10 @@ class _TableWidgetState extends State<_TableWidget> with SelectableMixin {
   @override
   Widget build(BuildContext context) {
     return TableView(
-        data: data, editorState: widget.editorState, node: widget.node);
+      data: data,
+      node: widget.node,
+      editorState: widget.editorState,
+    );
   }
 
   RenderBox get _renderBox => context.findRenderObject() as RenderBox;

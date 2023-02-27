@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 
 typedef CellData = Map<String, Object>;
@@ -21,7 +19,6 @@ class TableData extends ChangeNotifier {
   }
 
   TableData.fromJson(Map<String, dynamic> json) {
-    print(json);
     final jData = json['table_data'] as List?;
     if (jData != null) {
       cells.addAll(jData.map(
@@ -43,4 +40,7 @@ class TableData extends ChangeNotifier {
   CellData getCell(int col, int row) => cells[col][row];
 
   setCell(int col, int row, CellData val) => cells[col][row] = val;
+
+  get colsLen => cells.length;
+  get colLen => cells[0].length;
 }
