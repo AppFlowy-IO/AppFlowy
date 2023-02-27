@@ -222,20 +222,20 @@ impl DatabaseViewEditor {
       .send();
   }
 
-  pub async fn sort_rows(&self, rows: &mut Vec<Arc<RowRevision>>) {
+  pub async fn v_sort_rows(&self, rows: &mut Vec<Arc<RowRevision>>) {
     self.sort_controller.write().await.sort_rows(rows).await
   }
 
-  pub async fn filter_rows(&self, _block_id: &str, rows: &mut Vec<Arc<RowRevision>>) {
+  pub async fn v_filter_rows(&self, _block_id: &str, rows: &mut Vec<Arc<RowRevision>>) {
     self.filter_controller.filter_row_revs(rows).await;
   }
 
-  pub async fn duplicate_view_data(&self) -> FlowyResult<String> {
+  pub async fn v_duplicate_data(&self) -> FlowyResult<String> {
     let json_str = self.pad.read().await.json_str()?;
     Ok(json_str)
   }
 
-  pub async fn will_create_view_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
+  pub async fn v_will_create_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
     if params.group_id.is_none() {
       return;
     }
@@ -248,7 +248,7 @@ impl DatabaseViewEditor {
       .await;
   }
 
-  pub async fn did_create_view_row(&self, row_pb: &RowPB, params: &CreateRowParams) {
+  pub async fn v_did_create_row(&self, row_pb: &RowPB, params: &CreateRowParams) {
     // Send the group notification if the current view has groups
     match params.group_id.as_ref() {
       None => {},
@@ -275,7 +275,7 @@ impl DatabaseViewEditor {
   }
 
   #[tracing::instrument(level = "trace", skip_all)]
-  pub async fn did_delete_view_row(&self, row_rev: &RowRevision) {
+  pub async fn v_did_delete_row(&self, row_rev: &RowRevision) {
     // Send the group notification if the current view has groups;
     let result = self
       .mut_group_controller(|group_controller, field_rev| {
@@ -291,7 +291,7 @@ impl DatabaseViewEditor {
     }
   }
 
-  pub async fn did_update_view_row(
+  pub async fn v_did_update_row(
     &self,
     old_row_rev: Option<Arc<RowRevision>>,
     row_rev: &RowRevision,
@@ -339,7 +339,7 @@ impl DatabaseViewEditor {
     });
   }
 
-  pub async fn move_view_group_row(
+  pub async fn v_move_group_row(
     &self,
     row_rev: &RowRevision,
     row_changeset: &mut RowChangeset,
@@ -377,7 +377,7 @@ impl DatabaseViewEditor {
   }
   /// Only call once after grid view editor initialized
   #[tracing::instrument(level = "trace", skip(self))]
-  pub async fn load_view_groups(&self) -> FlowyResult<Vec<GroupPB>> {
+  pub async fn v_load_groups(&self) -> FlowyResult<Vec<GroupPB>> {
     let groups = self
       .group_controller
       .read()
@@ -391,7 +391,7 @@ impl DatabaseViewEditor {
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn move_view_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
+  pub async fn v_move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
     self
       .group_controller
       .write()
@@ -430,7 +430,7 @@ impl DatabaseViewEditor {
 
   /// Initialize new group when grouping by a new field
   ///
-  pub async fn initialize_new_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
+  pub async fn v_initialize_new_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
     if let Some(field_rev) = self.delegate.get_field_rev(&params.field_id).await {
       self
         .modify(|pad| {
@@ -445,13 +445,13 @@ impl DatabaseViewEditor {
         .await?;
     }
     if self.group_controller.read().await.field_id() != params.field_id {
-      self.group_by_view_field(&params.field_id).await?;
+      self.v_update_group_setting(&params.field_id).await?;
       self.notify_did_update_setting().await;
     }
     Ok(())
   }
 
-  pub async fn delete_view_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
+  pub async fn v_delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
     self
       .modify(|pad| {
         let changeset =
@@ -461,18 +461,18 @@ impl DatabaseViewEditor {
       .await
   }
 
-  pub async fn get_view_setting(&self) -> DatabaseViewSettingPB {
+  pub async fn v_get_setting(&self) -> DatabaseViewSettingPB {
     let field_revs = self.delegate.get_field_revs(None).await;
     make_database_view_setting(&*self.pad.read().await, &field_revs)
   }
 
-  pub async fn get_all_view_sorts(&self) -> Vec<Arc<SortRevision>> {
+  pub async fn v_get_all_sorts(&self) -> Vec<Arc<SortRevision>> {
     let field_revs = self.delegate.get_field_revs(None).await;
     self.pad.read().await.get_all_sorts(&field_revs)
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn insert_view_sort(&self, params: AlterSortParams) -> FlowyResult<SortRevision> {
+  pub async fn v_insert_sort(&self, params: AlterSortParams) -> FlowyResult<SortRevision> {
     let sort_type = SortType::from(&params);
     let is_exist = params.sort_id.is_some();
     let sort_id = match params.sort_id {
@@ -514,7 +514,7 @@ impl DatabaseViewEditor {
     Ok(sort_rev)
   }
 
-  pub async fn delete_view_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
+  pub async fn v_delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
     let notification = self
       .sort_controller
       .write()
@@ -537,8 +537,8 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
-  pub async fn delete_all_view_sorts(&self) -> FlowyResult<()> {
-    let all_sorts = self.get_all_view_sorts().await;
+  pub async fn v_delete_all_sorts(&self) -> FlowyResult<()> {
+    let all_sorts = self.v_get_all_sorts().await;
     self.sort_controller.write().await.delete_all_sorts().await;
     self
       .modify(|pad| {
@@ -556,12 +556,12 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
-  pub async fn get_all_view_filters(&self) -> Vec<Arc<FilterRevision>> {
+  pub async fn v_get_all_filters(&self) -> Vec<Arc<FilterRevision>> {
     let field_revs = self.delegate.get_field_revs(None).await;
     self.pad.read().await.get_all_filters(&field_revs)
   }
 
-  pub async fn get_view_filters(&self, filter_type: &FilterType) -> Vec<Arc<FilterRevision>> {
+  pub async fn v_get_filters(&self, filter_type: &FilterType) -> Vec<Arc<FilterRevision>> {
     let field_type_rev: FieldTypeRevision = filter_type.field_type.clone().into();
     self
       .pad
@@ -571,7 +571,7 @@ impl DatabaseViewEditor {
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn insert_view_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
+  pub async fn v_insert_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
     let filter_type = FilterType::from(&params);
     let is_exist = params.filter_id.is_some();
     let filter_id = match params.filter_id {
@@ -624,7 +624,7 @@ impl DatabaseViewEditor {
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn delete_view_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
+  pub async fn v_delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
     let filter_type = params.filter_type;
     let changeset = self
       .filter_controller
@@ -649,7 +649,7 @@ impl DatabaseViewEditor {
   }
 
   /// Returns the current calendar settings
-  pub async fn get_calendar_settings(&self) -> FlowyResult<CalendarSettingsParams> {
+  pub async fn v_get_calendar_settings(&self) -> FlowyResult<CalendarSettingsParams> {
     let settings = self
       .pad
       .read()
@@ -660,7 +660,10 @@ impl DatabaseViewEditor {
   }
 
   /// Update the calendar settings and send the notification to refresh the UI
-  pub async fn update_calendar_settings(&self, params: CalendarSettingsParams) -> FlowyResult<()> {
+  pub async fn v_update_calendar_settings(
+    &self,
+    params: CalendarSettingsParams,
+  ) -> FlowyResult<()> {
     // Maybe it needs no send notification to refresh the UI
     self
       .modify(|pad| Ok(pad.update_layout_setting(&LayoutRevision::Calendar, &params)?))
@@ -669,7 +672,7 @@ impl DatabaseViewEditor {
   }
 
   #[tracing::instrument(level = "trace", skip_all, err)]
-  pub async fn did_update_view_field_type_option(
+  pub async fn v_did_update_field_type_option(
     &self,
     field_id: &str,
     old_field_rev: Option<Arc<FieldRevision>>,
@@ -709,7 +712,7 @@ impl DatabaseViewEditor {
   /// * `field_id`:
   ///
   #[tracing::instrument(level = "debug", skip_all, err)]
-  pub async fn group_by_view_field(&self, field_id: &str) -> FlowyResult<()> {
+  pub async fn v_update_group_setting(&self, field_id: &str) -> FlowyResult<()> {
     if let Some(field_rev) = self.delegate.get_field_rev(field_id).await {
       let row_revs = self.delegate.get_row_revs(None).await;
       let configuration_reader = GroupConfigurationReaderImpl {
@@ -750,7 +753,7 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
-  pub(crate) async fn get_cells_for_field(
+  pub(crate) async fn v_get_cells_for_field(
     &self,
     field_id: &str,
   ) -> FlowyResult<Vec<RowSingleCellData>> {
@@ -758,7 +761,7 @@ impl DatabaseViewEditor {
   }
 
   async fn notify_did_update_setting(&self) {
-    let setting = self.get_view_setting().await;
+    let setting = self.v_get_setting().await;
     send_notification(&self.view_id, DatabaseNotification::DidUpdateSettings)
       .payload(setting)
       .send();

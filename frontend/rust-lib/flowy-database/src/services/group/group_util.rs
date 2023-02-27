@@ -26,7 +26,17 @@ use std::sync::Arc;
 /// * `configuration_reader`: a reader used to read the group configuration from disk
 /// * `configuration_writer`: as writer used to write the group configuration to disk
 ///
-#[tracing::instrument(level = "trace", skip_all, err)]
+#[tracing::instrument(
+  level = "debug",
+  skip(
+    row_revs,
+    configuration_reader,
+    configuration_writer,
+    grouping_field_rev
+  ),
+  fields(grouping_field_id=%grouping_field_rev.id, grouping_field_type)
+  err
+)]
 pub async fn make_group_controller<R, W>(
   view_id: String,
   grouping_field_rev: Arc<FieldRevision>,
@@ -39,6 +49,7 @@ where
   W: GroupConfigurationWriter,
 {
   let grouping_field_type: FieldType = grouping_field_rev.ty.into();
+  tracing::Span::current().record("grouping_field_type", &format!("{}", grouping_field_type));
 
   let mut group_controller: Box<dyn GroupController>;
   let configuration_reader = Arc::new(configuration_reader);
@@ -99,17 +110,31 @@ where
   Ok(group_controller)
 }
 
+#[tracing::instrument(level = "debug", skip_all)]
 pub fn find_grouping_field(
   field_revs: &[Arc<FieldRevision>],
   _layout: &LayoutRevision,
 ) -> Option<Arc<FieldRevision>> {
-  field_revs
+  let mut groupable_field_revs = field_revs
     .iter()
-    .find(|field_rev| {
+    .flat_map(|field_rev| {
       let field_type: FieldType = field_rev.ty.into();
-      field_type.can_be_group()
+      match field_type.can_be_group() {
+        true => Some(field_rev.clone()),
+        false => None,
+      }
     })
-    .cloned()
+    .collect::<Vec<Arc<FieldRevision>>>();
+
+  if groupable_field_revs.is_empty() {
+    // If there is not groupable fields then we use the primary field.
+    field_revs
+      .iter()
+      .find(|field_rev| field_rev.is_primary)
+      .cloned()
+  } else {
+    Some(groupable_field_revs.remove(0))
+  }
 }
 
 /// Returns a `default` group configuration for the [FieldRevision]

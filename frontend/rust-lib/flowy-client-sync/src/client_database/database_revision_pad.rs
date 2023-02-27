@@ -109,18 +109,18 @@ impl DatabaseRevisionPad {
     &mut self,
     field_id: &str,
   ) -> SyncResult<Option<DatabaseRevisionChangeset>> {
-    self.modify_database(|grid_meta| {
-      match grid_meta
+    self.modify_database(|database| {
+      match database
         .fields
         .iter()
         .position(|field| field.id == field_id)
       {
         None => Ok(None),
         Some(index) => {
-          if grid_meta.fields[index].is_primary {
+          if database.fields[index].is_primary {
             Err(SyncError::can_not_delete_primary_field())
           } else {
-            grid_meta.fields.remove(index);
+            database.fields.remove(index);
             Ok(Some(()))
           }
         },

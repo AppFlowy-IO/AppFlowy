@@ -126,7 +126,7 @@ class BoardDataController {
 
   Future<void> dispose() async {
     await _viewCache.dispose();
-    await _databaseFFIService.closeGrid();
+    await _databaseFFIService.closeView();
     await fieldController.dispose();
   }
 

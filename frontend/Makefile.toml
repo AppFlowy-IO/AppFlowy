@@ -18,7 +18,7 @@ on_error_task = "catch"
 run_task = { name = ["restore-crate-type"] }
 
 [env]
-RUST_LOG = "debug"
+RUST_LOG = "info"
 CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
@@ -48,7 +48,6 @@ TAURI_BACKEND_SERVICE_PATH = "appflowy_tauri/src/services/backend"
 # Test default config
 TEST_CRATE_TYPE = "cdylib"
 TEST_LIB_EXT = "dylib"
-TEST_RUST_LOG = "info"
 TEST_BUILD_FLAG = "debug"
 TEST_COMPILE_TARGET = "x86_64-apple-darwin"
 

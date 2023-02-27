@@ -22,7 +22,7 @@ void main() {
     await boardResponseFuture();
   });
 
-  group('Group with not support grouping field:', () {
+  group('Group with not support grouping field', () {
     blocTest<FieldEditorBloc, FieldEditorState>(
       "switch to text field",
       build: () => editorBloc,
