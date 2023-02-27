@@ -14,6 +14,10 @@ export const OptionsPopup = ({ onSignOutClick, onClose }: { onSignOutClick: () =
     },
   ];
   return (
-    <Popup className={'absolute top-full right-0 z-10 whitespace-nowrap'} items={items} onOutsideClick={onClose}></Popup>
+    <Popup
+      className={'absolute top-[50px] right-[30px] z-10 whitespace-nowrap'}
+      items={items}
+      onOutsideClick={onClose}
+    ></Popup>
   );
 };
