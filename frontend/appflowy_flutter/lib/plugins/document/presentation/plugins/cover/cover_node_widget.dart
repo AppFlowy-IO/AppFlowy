@@ -8,13 +8,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/close_button.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 const String kCoverType = 'cover';
 const String kCoverSelectionTypeAttribute = 'cover_selection_type';
@@ -44,7 +41,6 @@ SelectionMenuItem coverMenuItem = SelectionMenuItem.node(
 class CoverNodeWidgetBuilder implements NodeWidgetBuilder {
   @override
   Widget build(NodeWidgetContext<Node> context) {
-    // TODO: implement build
     return _CoverImageNodeWidget(
       key: context.node.key,
       node: context.node,
@@ -53,7 +49,6 @@ class CoverNodeWidgetBuilder implements NodeWidgetBuilder {
   }
 
   @override
-  // TODO: implement nodeValidator
   NodeValidator<Node> get nodeValidator => (node) {
         return true;
       };
@@ -80,7 +75,6 @@ class __CoverImageNodeWidgetState extends State<_CoverImageNodeWidget>
   late PopoverMutex popoverMutex;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     popoverMutex = PopoverMutex();
   }
@@ -100,7 +94,7 @@ class __CoverImageNodeWidgetState extends State<_CoverImageNodeWidget>
             children: [
               AppFlowyPopover(
                 mutex: popoverMutex,
-                offset: Offset(-125, 10),
+                offset: const Offset(-125, 10),
                 controller: _popoverController,
                 direction: PopoverDirection.bottomWithCenterAligned,
                 triggerActions: PopoverTriggerFlags.none,
@@ -224,67 +218,50 @@ class __CoverImageNodeWidgetState extends State<_CoverImageNodeWidget>
     }
   }
 
-  @override
   Position start() => Position(path: widget.node.path, offset: 0);
 
-  @override
   Position end() => Position(path: widget.node.path, offset: 1);
 
-  @override
   Position getPositionInOffset(Offset start) => end();
 
-  @override
   List<Rect> getRectsInSelection(Selection selection) =>
       [Offset.zero & _renderBox.size];
 
-  @override
   Selection getSelectionInRange(Offset start, Offset end) => Selection.single(
         path: widget.node.path,
         startOffset: 0,
         endOffset: 1,
       );
 
-  @override
   Offset localToGlobal(Offset offset) => _renderBox.localToGlobal(offset);
 
   @override
-  void addListener(VoidCallback listener) {
-    // TODO: implement addListener
-  }
+  void addListener(VoidCallback listener) {}
 
   @override
   SelectionResult dispatchSelectionEvent(SelectionEvent event) {
-    // TODO: implement dispatchSelectionEvent
     throw UnimplementedError();
   }
 
   @override
   SelectedContent? getSelectedContent() {
-    // TODO: implement getSelectedContent
     throw UnimplementedError();
   }
 
   @override
   Matrix4 getTransformTo(RenderObject? ancestor) {
-    // TODO: implement getTransformTo
     throw UnimplementedError();
   }
 
   @override
-  void pushHandleLayers(LayerLink? startHandle, LayerLink? endHandle) {
-    // TODO: implement pushHandleLayers
-  }
+  void pushHandleLayers(LayerLink? startHandle, LayerLink? endHandle) {}
 
   @override
-  void removeListener(VoidCallback listener) {
-    // TODO: implement removeListener
-  }
+  void removeListener(VoidCallback listener) {}
 
   @override
-  // TODO: implement size
   Size get size => throw UnimplementedError();
 
   @override
-  // TODO: implement value
   SelectionGeometry get value => throw UnimplementedError();
 }

@@ -9,14 +9,8 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
-import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
-import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:appflowy_editor/src/render/color_menu/color_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -47,29 +41,29 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.all(15),
+        padding: const EdgeInsets.all(15),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               FlowyText.semibold(LocaleKeys.cover_colors.tr()),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               _buildColorPickerList(),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               FlowyText.semibold(LocaleKeys.cover_images.tr()),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               _buildFileImagePicker(),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               FlowyText.semibold(LocaleKeys.cover_abstract.tr()),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               _buildAbstractImagePicker(),
@@ -96,6 +90,14 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               itemBuilder: (BuildContext ctx, index) {
                 if (index == 0) {
                   return Container(
+                    decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(0.15),
+                        border: Border.all(
+                            color: Theme.of(context).colorScheme.primary),
+                        borderRadius: Corners.s8Border),
                     child: FlowyIconButton(
                         iconPadding: EdgeInsets.zero,
                         icon: Icon(
@@ -106,14 +108,6 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
                         onPressed: () {
                           _pickImages();
                         }),
-                    decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .primary
-                            .withOpacity(0.15),
-                        border: Border.all(
-                            color: Theme.of(context).colorScheme.primary),
-                        borderRadius: Corners.s8Border),
                   );
                 }
                 return InkWell(
@@ -177,21 +171,22 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
 
   void _pickImages() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String>? _imagePathList = prefs.getStringList("cover_images");
-    _imagePathList == null ? _imagePathList = [] : null;
+    List<String>? imagePathList = prefs.getStringList("cover_images");
+    imagePathList == null ? imagePathList = [] : null;
     FilePickerResult? filePickerResults = await getIt<FilePickerService>()
         .pickFiles(
             dialogTitle: "Add cover images",
             allowMultiple: true,
             allowedExtensions: ['jpg', 'png', 'jpg']);
     if (filePickerResults != null) {
-      filePickerResults.files.forEach((file) {
-        if (file.path!.endsWith("png") || file.path!.endsWith("jpg"))
-          _imagePathList!.add(file.path!);
-      });
+      for (var file in filePickerResults.files) {
+        if (file.path!.endsWith("png") || file.path!.endsWith("jpg")) {
+          imagePathList.add(file.path!);
+        }
+      }
     }
 
-    await prefs.setStringList("cover_images", _imagePathList);
+    await prefs.setStringList("cover_images", imagePathList);
     setState(() {});
   }
 
@@ -261,11 +256,6 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
   }
 }
 
-enum _ColorType {
-  font,
-  background,
-}
-
 class CoverColorPicker extends StatefulWidget {
   const CoverColorPicker({
     super.key,
@@ -291,7 +281,6 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     scrollController.dispose();
   }
@@ -312,28 +301,25 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
               itemCount: widget.backgroundColorOptions.length,
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, index) {
-                return _buildColorItems(
-                    _ColorType.background,
-                    widget.backgroundColorOptions,
+                return _buildColorItems(widget.backgroundColorOptions,
                     widget.selectedBackgroundColorHex);
               }),
         ));
   }
 
-  Widget _buildColorItems(
-      _ColorType type, List<ColorOption> options, String? selectedColor) {
+  Widget _buildColorItems(List<ColorOption> options, String? selectedColor) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: options
-          .map((e) => _buildColorItem(type, e, e.colorHex == selectedColor))
+          .map((e) => _buildColorItem(e, e.colorHex == selectedColor))
           .toList(),
     );
   }
 
-  Widget _buildColorItem(_ColorType type, ColorOption option, bool isChecked) {
+  Widget _buildColorItem(ColorOption option, bool isChecked) {
     return InkWell(
-      customBorder: RoundedRectangleBorder(
+      customBorder: const RoundedRectangleBorder(
         borderRadius: Corners.s6Border,
       ),
       hoverColor: widget.pickerItemHoverColor,
