@@ -148,7 +148,7 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         // Cover
         kCoverType: CoverNodeWidgetBuilder(),
         // Smart Edit,
-        kSmartEditType: SmartEditInputBuilder(),
+        kSmartEditType: SmartEditInputBuilder()
 
       },
       shortcutEvents: [
