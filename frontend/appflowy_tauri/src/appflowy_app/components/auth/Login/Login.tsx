@@ -79,7 +79,6 @@ export const Login = () => {
               </span>
             </div>
           </div>
-
           <div className={'absolute right-0 top-0 px-12 py-8'}>
             <div className={'relative h-full w-full'}>
               <button className={'h-8 w-8 text-shade-3 hover:text-black'} onClick={() => setShowLanguagePopup(true)}>

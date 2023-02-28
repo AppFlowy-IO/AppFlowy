@@ -1,4 +1,3 @@
-import { flexRender } from '@tanstack/react-table';
 import { GridTableHeader } from '../GridTableHeader/GridTableHeader';
 import { GridTableRow } from '../GridTableRow/GridTableRow';
 import { useGridTableHooks } from './GridTable.hooks';
