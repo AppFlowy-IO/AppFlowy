@@ -36,7 +36,7 @@ export class FieldController {
     }
   };
 
-  subscribeOnFieldsChanged = (callback: (fieldInfos: FieldInfo[]) => void) => {
+  subscribeOnFieldsChanged = (callback: (fieldInfos: readonly FieldInfo[]) => void) => {
     return this._fieldNotifier.observer.subscribe((fieldInfos) => {
       callback(fieldInfos);
     });

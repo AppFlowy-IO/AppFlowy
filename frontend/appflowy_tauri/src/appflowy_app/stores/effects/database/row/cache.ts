@@ -1,4 +1,10 @@
-import { RowPB, InsertedRowPB, UpdatedRowPB } from '../../../../../services/backend/models/flowy-database/row_entities';
+import {
+  RowPB,
+  InsertedRowPB,
+  UpdatedRowPB,
+  RowIdPB,
+  OptionalRowPB,
+} from '../../../../../services/backend/models/flowy-database/row_entities';
 import { ChangeNotifier } from '../../../../utils/change_notifier';
 import { FieldInfo } from '../field/controller';
 import { CellCache, CellCacheKey } from '../cell/cache';
@@ -8,6 +14,10 @@ import {
 } from '../../../../../services/backend/models/flowy-database/view_entities';
 import { CellIdentifier } from '../cell/backend_service';
 import { ReorderSingleRowPB } from '../../../../../services/backend/models/flowy-database/sort_entities';
+import { DatabaseEventGetRow } from '../../../../../services/backend/events/flowy-database';
+import { None, Option, Some } from 'ts-results';
+
+type CellByFieldId = Map<string, CellIdentifier>;
 
 export class RowCache {
   _rowList: RowList;
@@ -23,6 +33,20 @@ export class RowCache {
   get rows(): readonly RowInfo[] {
     return this._rowList.rows;
   }
+
+  loadCells = async (rowId: string): Promise<CellByFieldId> => {
+    const opRow = this._rowList.getRow(rowId);
+    if (opRow.some) {
+      return this._toCellMap(opRow.val.row.id, this.getFieldInfos());
+    } else {
+      const rowResult = await this._loadRow(rowId);
+      if (rowResult.ok) {
+        return new Map();
+      } else {
+        return new Map();
+      }
+    }
+  };
 
   subscribeOnRowsChanged = (callback: (reason: RowChangedReason, cellMap?: Map<string, CellIdentifier>) => void) => {
     return this._notifier.observer.subscribe((change) => {
@@ -71,6 +95,25 @@ export class RowCache {
       this._rowList.move({ rowId: reorderRow.row_id, fromIndex: reorderRow.old_index, toIndex: reorderRow.new_index });
       this._notifier.withChange(RowChangedReason.ReorderSingleRow, reorderRow.row_id);
     }
+  };
+
+  _refreshRow = (opRow: OptionalRowPB) => {
+    if (!opRow.has_row) {
+      return;
+    }
+    const updatedRow = opRow.row;
+    const option = this._rowList.getRowWithIndex(updatedRow.id);
+    if (option.some) {
+      const { rowInfo, index } = option.val;
+      // const updatedRowInfo = new RowInfo({ ...rowInfo, row: updatedRow });
+    } else {
+      //
+    }
+  };
+
+  _loadRow = (rowId: string) => {
+    const payload = RowIdPB.fromObject({ view_id: this.viewId, row_id: rowId });
+    return DatabaseEventGetRow(payload);
   };
 
   _deleteRows = (rowIds: string[]) => {
@@ -140,7 +183,7 @@ export class RowCache {
     return new RowInfo(this.viewId, this.getFieldInfos(), rowPB);
   };
 
-  _toCellMap = (rowId: string, fieldInfos: readonly FieldInfo[]): Map<string, CellIdentifier> => {
+  _toCellMap = (rowId: string, fieldInfos: readonly FieldInfo[]): CellByFieldId => {
     const cellIdentifierByFieldId: Map<string, CellIdentifier> = new Map();
 
     fieldInfos.forEach((fieldInfo) => {
@@ -160,17 +203,22 @@ class RowList {
     return this._rowInfos;
   }
 
-  getRow = (rowId: string) => {
-    return this._rowInfoByRowId.get(rowId);
+  getRow = (rowId: string): Option<RowInfo> => {
+    const rowInfo = this._rowInfoByRowId.get(rowId);
+    if (rowInfo === undefined) {
+      return None;
+    } else {
+      return Some(rowInfo);
+    }
   };
 
-  getRowWithIndex = (rowId: string): { rowInfo: RowInfo; index: number } | undefined => {
+  getRowWithIndex = (rowId: string): Option<{ rowInfo: RowInfo; index: number }> => {
     const rowInfo = this._rowInfoByRowId.get(rowId);
     if (rowInfo !== undefined) {
       const index = this._rowInfos.indexOf(rowInfo, 0);
-      return { rowInfo: rowInfo, index: index };
+      return Some({ rowInfo: rowInfo, index: index });
     }
-    return undefined;
+    return None;
   };
 
   indexOfRow = (rowId: string): number => {
@@ -194,27 +242,29 @@ class RowList {
 
   remove = (rowId: string): DeletedRow | undefined => {
     const result = this.getRowWithIndex(rowId);
-    if (result !== undefined) {
-      this._rowInfoByRowId.delete(result.rowInfo.row.id);
-      this._rowInfos.splice(result.index, 1);
-      return new DeletedRow(result.index, result.rowInfo);
+    if (result.some) {
+      const { rowInfo, index } = result.val;
+      this._rowInfoByRowId.delete(rowInfo.row.id);
+      this._rowInfos.splice(index, 1);
+      return new DeletedRow(index, rowInfo);
     } else {
       return undefined;
     }
   };
 
-  insert = (index: number, newRowInfo: RowInfo): InsertedRow | undefined => {
+  insert = (insertIndex: number, newRowInfo: RowInfo): InsertedRow | undefined => {
     const rowId = newRowInfo.row.id;
     // Calibrate where to insert
-    let insertedIndex = index;
+    let insertedIndex = insertIndex;
     if (this._rowInfos.length <= insertedIndex) {
       insertedIndex = this._rowInfos.length;
     }
     const result = this.getRowWithIndex(rowId);
 
-    if (result !== undefined) {
+    if (result.some) {
+      const { index } = result.val;
       // remove the old row info
-      this._rowInfos.splice(result.index, 1);
+      this._rowInfos.splice(index, 1);
       // insert the new row info to the insertedIndex
       this._rowInfos.splice(insertedIndex, 0, newRowInfo);
       this._rowInfoByRowId.set(rowId, newRowInfo);
