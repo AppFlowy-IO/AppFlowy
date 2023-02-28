@@ -8,6 +8,7 @@ import { AppBackendService } from '../../stores/effects/folder/app/backend_servi
 import { DatabaseController } from '../../stores/effects/database/controller';
 import { Log } from '../../utils/log';
 import { RowController } from '../../stores/effects/database/row/controller';
+import { CellControllerBuilder } from '../../stores/effects/database/cell/controller_builder';
 
 export const TestCreateGridButton = () => {
   async function createGrid() {
@@ -25,19 +26,31 @@ export const TestCreateGridButton = () => {
       },
       onRowsChanged: async (rows) => {
         // Rendering rows
-        Log.debug('Did receive rows:' + rows);
+        console.log(rows);
         const rowInfo = rows[0];
-        const rowController = new RowController(
-          rowInfo,
-          databaseController.fieldController,
-          databaseController.databaseViewCache.getRowCache()
-        );
+        const rowCache = databaseController.databaseViewCache.getRowCache();
+        const cellCache = rowCache.getCellCache();
+        const fieldController = databaseController.fieldController;
+        const rowController = new RowController(rowInfo, fieldController, rowCache);
 
-        const a = await rowController.loadCells();
+        const cellByFieldId = await rowController.loadCells();
+        console.log(cellByFieldId);
+
+        // Initial each cell controller
+        for (let [fieldId, cell] of cellByFieldId.entries()) {
+          const builder = new CellControllerBuilder(cell, cellCache, fieldController);
+          const cellController = builder.build();
+          cellController.subscribeChanged({
+            onCellChanged: (value) => {
+              Log.debug(value);
+            },
+          });
+
+          cellController.getCellData();
+        }
       },
       onFieldsChanged: (fields) => {
-        // Rendering fields
-        Log.debug('Did receive fields:' + fields);
+        console.log(fields);
       },
     });
 

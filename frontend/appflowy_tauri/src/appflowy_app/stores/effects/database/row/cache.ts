@@ -16,13 +16,14 @@ import { CellIdentifier } from '../cell/backend_service';
 import { ReorderSingleRowPB } from '../../../../../services/backend/models/flowy-database/sort_entities';
 import { DatabaseEventGetRow } from '../../../../../services/backend/events/flowy-database';
 import { None, Option, Some } from 'ts-results';
+import { Log } from '../../../../utils/log';
 
 type CellByFieldId = Map<string, CellIdentifier>;
 
 export class RowCache {
-  _rowList: RowList;
-  _cellCache: CellCache;
-  _notifier: RowChangeNotifier;
+  private _rowList: RowList;
+  private _cellCache: CellCache;
+  private _notifier: RowChangeNotifier;
 
   constructor(public readonly viewId: string, private readonly getFieldInfos: () => readonly FieldInfo[]) {
     this._rowList = new RowList();
@@ -34,6 +35,10 @@ export class RowCache {
     return this._rowList.rows;
   }
 
+  getCellCache = () => {
+    return this._cellCache;
+  };
+
   loadCells = async (rowId: string): Promise<CellByFieldId> => {
     const opRow = this._rowList.getRow(rowId);
     if (opRow.some) {
@@ -41,8 +46,10 @@ export class RowCache {
     } else {
       const rowResult = await this._loadRow(rowId);
       if (rowResult.ok) {
-        return new Map();
+        this._refreshRow(rowResult.val);
+        return this._toCellMap(rowId, this.getFieldInfos());
       } else {
+        Log.error(rowResult.val);
         return new Map();
       }
     }
@@ -71,6 +78,7 @@ export class RowCache {
     rows.forEach((rowPB) => {
       this._rowList.push(this._toRowInfo(rowPB));
     });
+    this._notifier.withChange(RowChangedReason.ReorderRows);
   };
 
   applyRowsChanged = (changeset: RowsChangesetPB) => {
@@ -97,7 +105,7 @@ export class RowCache {
     }
   };
 
-  _refreshRow = (opRow: OptionalRowPB) => {
+  private _refreshRow = (opRow: OptionalRowPB) => {
     if (!opRow.has_row) {
       return;
     }
@@ -105,18 +113,21 @@ export class RowCache {
     const option = this._rowList.getRowWithIndex(updatedRow.id);
     if (option.some) {
       const { rowInfo, index } = option.val;
-      // const updatedRowInfo = new RowInfo({ ...rowInfo, row: updatedRow });
+      const updatedRowInfo = new RowInfo(rowInfo.viewId, rowInfo.fieldInfos, updatedRow);
+      this._rowList.remove(rowInfo.row.id);
+      this._rowList.insert(index, updatedRowInfo);
     } else {
-      //
+      const newRowInfo = new RowInfo(this.viewId, this.getFieldInfos(), updatedRow);
+      this._rowList.push(newRowInfo);
     }
   };
 
-  _loadRow = (rowId: string) => {
+  private _loadRow = (rowId: string) => {
     const payload = RowIdPB.fromObject({ view_id: this.viewId, row_id: rowId });
     return DatabaseEventGetRow(payload);
   };
 
-  _deleteRows = (rowIds: string[]) => {
+  private _deleteRows = (rowIds: string[]) => {
     rowIds.forEach((rowId) => {
       const deletedRow = this._rowList.remove(rowId);
       if (deletedRow !== undefined) {
@@ -125,7 +136,7 @@ export class RowCache {
     });
   };
 
-  _insertRows = (rows: InsertedRowPB[]) => {
+  private _insertRows = (rows: InsertedRowPB[]) => {
     rows.forEach((insertedRow) => {
       const rowInfo = this._toRowInfo(insertedRow.row);
       const insertedIndex = this._rowList.insert(insertedRow.index, rowInfo);
@@ -135,7 +146,7 @@ export class RowCache {
     });
   };
 
-  _updateRows = (updatedRows: UpdatedRowPB[]) => {
+  private _updateRows = (updatedRows: UpdatedRowPB[]) => {
     if (updatedRows.length === 0) {
       return;
     }
@@ -156,7 +167,7 @@ export class RowCache {
     });
   };
 
-  _hideRows = (rowIds: string[]) => {
+  private _hideRows = (rowIds: string[]) => {
     rowIds.forEach((rowId) => {
       const deletedRow = this._rowList.remove(rowId);
       if (deletedRow !== undefined) {
@@ -165,7 +176,7 @@ export class RowCache {
     });
   };
 
-  _displayRows = (insertedRows: InsertedRowPB[]) => {
+  private _displayRows = (insertedRows: InsertedRowPB[]) => {
     insertedRows.forEach((insertedRow) => {
       const insertedIndex = this._rowList.insert(insertedRow.index, this._toRowInfo(insertedRow.row));
 
@@ -179,11 +190,11 @@ export class RowCache {
     this._notifier.dispose();
   };
 
-  _toRowInfo = (rowPB: RowPB) => {
+  private _toRowInfo = (rowPB: RowPB) => {
     return new RowInfo(this.viewId, this.getFieldInfos(), rowPB);
   };
 
-  _toCellMap = (rowId: string, fieldInfos: readonly FieldInfo[]): CellByFieldId => {
+  private _toCellMap = (rowId: string, fieldInfos: readonly FieldInfo[]): CellByFieldId => {
     const cellIdentifierByFieldId: Map<string, CellIdentifier> = new Map();
 
     fieldInfos.forEach((fieldInfo) => {

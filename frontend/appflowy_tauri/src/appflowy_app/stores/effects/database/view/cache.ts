@@ -5,9 +5,9 @@ import { RowPB } from '../../../../../services/backend/models/flowy-database/row
 import { Subscription } from 'rxjs';
 
 export class DatabaseViewCache {
-  private _rowsObserver: DatabaseViewRowsObserver;
-  private _rowCache: RowCache;
-  private _fieldSubscription?: Subscription;
+  private readonly _rowsObserver: DatabaseViewRowsObserver;
+  private readonly _rowCache: RowCache;
+  private readonly _fieldSubscription?: Subscription;
 
   constructor(public readonly viewId: string, fieldController: FieldController) {
     this._rowsObserver = new DatabaseViewRowsObserver(viewId);

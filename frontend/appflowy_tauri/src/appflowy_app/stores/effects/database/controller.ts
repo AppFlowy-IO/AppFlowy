@@ -36,8 +36,9 @@ export class DatabaseController {
     if (result.ok) {
       const database: DatabasePB = result.val;
       this._callback?.onViewChanged(database);
+      await this.fieldController.loadFields(database.fields);
       this.databaseViewCache.initializeWithRows(database.rows);
-      return Ok(await this.fieldController.loadFields(database.fields));
+      return Ok.EMPTY;
     } else {
       return Err(result.val);
     }
