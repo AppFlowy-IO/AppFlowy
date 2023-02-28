@@ -58,8 +58,10 @@ impl DateTypeOptionPB {
     Self::default()
   }
 
-  fn today_desc_from_timestamp<T: Into<i64>>(&self, timestamp: T) -> DateCellDataPB {
-    let timestamp = timestamp.into();
+  fn today_desc_from_timestamp(&self, cell_data: DateCellData) -> DateCellDataPB {
+    let timestamp = cell_data.timestamp.unwrap_or_default();
+    let include_time = cell_data.include_time;
+
     let native = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0);
     if native.is_none() {
       return DateCellDataPB::default();
@@ -90,6 +92,7 @@ impl DateTypeOptionPB {
     DateCellDataPB {
       date,
       time,
+      include_time,
       timestamp,
     }
   }
@@ -181,10 +184,21 @@ impl CellDataChangeset for DateTypeOptionPB {
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
-    _type_cell_data: Option<TypeCellData>,
+    type_cell_data: Option<TypeCellData>,
   ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
-    let cell_data = match changeset.date_timestamp() {
-      None => 0,
+    let (timestamp, include_time) = match type_cell_data {
+      None => (None, false),
+      Some(type_cell_data) => {
+        let cell_data = DateCellData::from_cell_str(&type_cell_data.cell_str).unwrap_or_default();
+        (cell_data.timestamp, cell_data.include_time)
+      },
+    };
+    let include_time = match changeset.include_time {
+      None => include_time,
+      Some(include_time) => include_time,
+    };
+    let timestamp = match changeset.date_timestamp() {
+      None => timestamp.unwrap_or_default(),
       Some(date_timestamp) => match (self.include_time, changeset.time) {
         (true, Some(time)) => {
           let time = Some(time.trim().to_uppercase());
@@ -199,7 +213,10 @@ impl CellDataChangeset for DateTypeOptionPB {
         _ => date_timestamp,
       },
     };
-    let date_cell_data = DateCellData(Some(cell_data));
+    let date_cell_data = DateCellData {
+      timestamp: Some(timestamp),
+      include_time,
+    };
     Ok((date_cell_data.to_string(), date_cell_data))
   }
 }
@@ -215,7 +232,7 @@ impl TypeOptionCellDataFilter for DateTypeOptionPB {
       return true;
     }
 
-    filter.is_visible(cell_data.0)
+    filter.is_visible(cell_data.timestamp)
   }
 }
 
@@ -225,7 +242,7 @@ impl TypeOptionCellDataCompare for DateTypeOptionPB {
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
   ) -> Ordering {
-    match (cell_data.0, other_cell_data.0) {
+    match (cell_data.timestamp, other_cell_data.timestamp) {
       (Some(left), Some(right)) => left.cmp(&right),
       (Some(_), None) => Ordering::Greater,
       (None, Some(_)) => Ordering::Less,

@@ -157,9 +157,10 @@ mod tests {
     field_rev: &FieldRevision,
   ) {
     let changeset = DateCellChangeset {
-      date: Some(timestamp.to_string()),
+      date: timestamp.to_string(),
       time: include_time_str,
       is_utc: false,
+      include_time: Some(false),
     };
     let (cell_str, _) = type_option.apply_changeset(changeset, None).unwrap();
 

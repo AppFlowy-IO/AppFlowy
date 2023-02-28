@@ -19,6 +19,9 @@ pub struct DateCellDataPB {
 
   #[pb(index = 3)]
   pub timestamp: i64,
+
+  #[pb(index = 4)]
+  pub include_time: bool,
 }
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
@@ -26,32 +29,32 @@ pub struct DateChangesetPB {
   #[pb(index = 1)]
   pub cell_path: CellIdPB,
 
-  #[pb(index = 2, one_of)]
-  pub date: Option<String>,
+  #[pb(index = 2)]
+  pub date: String,
 
   #[pb(index = 3, one_of)]
   pub time: Option<String>,
 
-  #[pb(index = 4)]
+  #[pb(index = 4, one_of)]
+  pub include_time: Option<bool>,
+
+  #[pb(index = 5)]
   pub is_utc: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DateCellChangeset {
-  pub date: Option<String>,
+  pub date: String,
   pub time: Option<String>,
+  pub include_time: Option<bool>,
   pub is_utc: bool,
 }
 
 impl DateCellChangeset {
   pub fn date_timestamp(&self) -> Option<i64> {
-    if let Some(date) = &self.date {
-      match date.parse::<i64>() {
-        Ok(date_timestamp) => Some(date_timestamp),
-        Err(_) => None,
-      }
-    } else {
-      None
+    match self.date.parse::<i64>() {
+      Ok(date_timestamp) => Some(date_timestamp),
+      Err(_) => None,
     }
   }
 }
@@ -71,19 +74,10 @@ impl ToCellChangesetString for DateCellChangeset {
   }
 }
 
-#[derive(Default, Clone, Debug)]
-pub struct DateCellData(pub Option<i64>);
-
-impl std::convert::From<DateCellData> for i64 {
-  fn from(timestamp: DateCellData) -> Self {
-    timestamp.0.unwrap_or(0)
-  }
-}
-
-impl std::convert::From<DateCellData> for Option<i64> {
-  fn from(timestamp: DateCellData) -> Self {
-    timestamp.0
-  }
+#[derive(Default, Clone, Debug, Serialize, Deserialize)]
+pub struct DateCellData {
+  pub timestamp: Option<i64>,
+  pub include_time: bool,
 }
 
 impl FromCellString for DateCellData {
@@ -91,16 +85,16 @@ impl FromCellString for DateCellData {
   where
     Self: Sized,
   {
-    let num = s.parse::<i64>().ok();
-    Ok(DateCellData(num))
+    let result: DateCellData = serde_json::from_str(s).unwrap_or_default();
+    Ok(result)
   }
 }
 
 impl ToString for DateCellData {
   fn to_string(&self) -> String {
-    match self.0 {
+    match self.timestamp {
       None => "".to_string(),
-      Some(val) => val.to_string(),
+      Some(_) => serde_json::to_string(self).unwrap(),
     }
   }
 }
