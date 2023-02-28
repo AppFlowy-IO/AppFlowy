@@ -2,6 +2,7 @@ import { Err, Ok } from 'ts-results';
 import {
   FolderEventCreateApp,
   FolderEventMoveItem,
+  FolderEventReadCurrentWorkspace,
   FolderEventReadWorkspaceApps,
   FolderEventReadWorkspaces,
 } from '../../../../../services/backend/events/flowy-folder';

@@ -39,7 +39,7 @@ export class DateCellDataPersistence extends CellDataPersistence<CalendarData> {
 
 function _makeCellPath(cellIdentifier: CellIdentifier): CellIdPB {
   return CellIdPB.fromObject({
-    database_id: cellIdentifier.viewId,
+    view_id: cellIdentifier.viewId,
     field_id: cellIdentifier.fieldId,
     row_id: cellIdentifier.rowId,
   });

@@ -16,6 +16,7 @@ import {
 import { CellCache } from './cache';
 import { FieldController } from '../field/controller';
 import { DateCellDataPersistence, TextCellDataPersistence } from './data_persistence';
+
 export type TextCellController = CellController<string, string>;
 
 export type CheckboxCellController = CellController<string, string>;
@@ -27,6 +28,7 @@ export type SelectOptionCellController = CellController<SelectOptionCellDataPB, 
 export type ChecklistCellController = CellController<SelectOptionCellDataPB, string>;
 
 export type DateCellController = CellController<DateCellDataPB, CalendarData>;
+
 export class CalendarData {
   constructor(public readonly date: Date, public readonly time?: string) {}
 }
@@ -35,6 +37,7 @@ export type URLCellController = CellController<URLCellDataPB, string>;
 
 export class CellControllerBuilder {
   _fieldNotifier: CellFieldNotifierImpl;
+
   constructor(
     public readonly cellIdentifier: CellIdentifier,
     public readonly cellCache: CellCache,
@@ -42,6 +45,8 @@ export class CellControllerBuilder {
   ) {
     this._fieldNotifier = new CellFieldNotifierImpl(this.fieldController);
   }
+
+  ///
   build = () => {
     switch (this.cellIdentifier.fieldType) {
       case FieldType.Checkbox:

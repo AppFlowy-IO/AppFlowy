@@ -189,22 +189,35 @@ script = [
 ]
 script_runner = "@duckscript"
 
-[tasks.build-test-lib]
+[tasks.build_test_backend]
 category = "Build"
 dependencies = ["env_check"]
 run_task = { name = [
   "setup-test-crate-type",
-  "build-test-backend",
+  "compile_test_backend",
   "copy-to-sandbox-folder",
   "restore-test-crate-type",
 ] }
 
-[tasks.build-test-backend]
-mac_alias = "build-test-backend-default"
-windows_alias = "build-test-backend-widnows"
-linux_alias = "build-test-backend-default"
+[tasks.compile_test_backend]
+mac_alias = "compile_test_backend_default"
+windows_alias = "compile_test_backend_widnows"
+linux_alias = "compile_test_backend_default"
 
-[tasks.build-test-backend-default]
+[tasks.compile_test_backend_default]
+private = true
+script = [
+  """
+    cd rust-lib/
+    rustup show
+    echo RUST_LOG=${RUST_LOG} cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    RUST_LOG=${RUST_LOG} cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cd ../
+  """,
+]
+script_runner = "@shell"
+
+[tasks.compile_test_backend_widnows]
 private = true
 script = [
   """
@@ -212,19 +225,6 @@ script = [
     rustup show
     echo cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     RUST_LOG=${RUST_LOG} cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
-    cd ../
-  """,
-]
-script_runner = "@shell"
-
-[tasks.build-test-backend-widnows]
-private = true
-script = [
-  """
-    cd rust-lib/
-    rustup show
-    echo cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
-    RUST_LOG=${TEST_RUST_LOG} cargo build --package=dart-ffi --target ${TEST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
 ]

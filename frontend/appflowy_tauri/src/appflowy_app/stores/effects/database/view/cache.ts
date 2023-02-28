@@ -1,13 +1,13 @@
 import { DatabaseViewRowsObserver } from './row_observer';
-import { RowCache, RowChangedReason } from '../row/cache';
+import { RowCache, RowChangedReason, RowInfo } from '../row/cache';
 import { FieldController } from '../field/controller';
 import { RowPB } from '../../../../../services/backend/models/flowy-database/row_entities';
 import { Subscription } from 'rxjs';
 
 export class DatabaseViewCache {
-  _rowsObserver: DatabaseViewRowsObserver;
-  _rowCache: RowCache;
-  _fieldSubscription?: Subscription;
+  private readonly _rowsObserver: DatabaseViewRowsObserver;
+  private readonly _rowCache: RowCache;
+  private readonly _fieldSubscription?: Subscription;
 
   constructor(public readonly viewId: string, fieldController: FieldController) {
     this._rowsObserver = new DatabaseViewRowsObserver(viewId);
@@ -24,6 +24,14 @@ export class DatabaseViewCache {
 
   initializeWithRows = (rows: RowPB[]) => {
     this._rowCache.initializeRows(rows);
+  };
+
+  get rowInfos(): readonly RowInfo[] {
+    return this._rowCache.rows;
+  }
+
+  getRowCache = () => {
+    return this._rowCache;
   };
 
   subscribeOnRowsChanged = (onRowsChanged: (reason: RowChangedReason) => void) => {

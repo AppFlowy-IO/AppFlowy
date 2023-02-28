@@ -30,9 +30,8 @@ export class AppBackendService {
   createView = async (params: {
     name: string;
     desc?: string;
-    dataFormatType: ViewDataFormatPB;
     layoutType: ViewLayoutTypePB;
-    /// The initial data should be the JSON of the doucment
+    /// The initial data should be the JSON of the document
     /// For example: {"document":{"type":"editor","children":[]}}
     initialData?: string;
   }) => {
@@ -41,7 +40,6 @@ export class AppBackendService {
       belong_to_id: this.appId,
       name: params.name,
       desc: params.desc || '',
-      data_format: params.dataFormatType,
       layout: params.layoutType,
       initial_data: encoder.encode(params.initialData || ''),
     });

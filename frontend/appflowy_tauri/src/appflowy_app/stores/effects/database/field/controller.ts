@@ -5,9 +5,9 @@ import { FieldIdPB, FieldPB, IndexFieldPB } from '../../../../../services/backen
 import { ChangeNotifier } from '../../../../utils/change_notifier';
 
 export class FieldController {
-  _fieldListener: DatabaseFieldObserver;
-  _backendService: DatabaseBackendService;
-  _fieldNotifier = new FieldNotifier([]);
+  private _fieldListener: DatabaseFieldObserver;
+  private _backendService: DatabaseBackendService;
+  private _fieldNotifier = new FieldNotifier([]);
 
   constructor(public readonly viewId: string) {
     this._backendService = new DatabaseBackendService(viewId);
@@ -33,10 +33,12 @@ export class FieldController {
     const result = await this._backendService.getFields(fieldIds);
     if (result.ok) {
       this._fieldNotifier.fieldInfos = result.val.map((field) => new FieldInfo(field));
+    } else {
+      Log.error(result.val);
     }
   };
 
-  subscribeOnFieldsChanged = (callback: (fieldInfos: FieldInfo[]) => void) => {
+  subscribeOnFieldsChanged = (callback: (fieldInfos: readonly FieldInfo[]) => void) => {
     return this._fieldNotifier.observer.subscribe((fieldInfos) => {
       callback(fieldInfos);
     });

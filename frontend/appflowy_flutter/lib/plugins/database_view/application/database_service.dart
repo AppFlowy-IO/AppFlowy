@@ -53,7 +53,7 @@ class DatabaseBackendService {
     });
   }
 
-  Future<Either<Unit, FlowyError>> closeGrid() {
+  Future<Either<Unit, FlowyError>> closeView() {
     final request = ViewIdPB(value: viewId);
     return FolderEventCloseView(request).send();
   }

@@ -109,7 +109,7 @@ class CalendarDataController {
 
   Future<void> dispose() async {
     await _viewCache.dispose();
-    await _databaseBackendSvc.closeGrid();
+    await _databaseBackendSvc.closeView();
     await fieldController.dispose();
   }
 }

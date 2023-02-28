@@ -9,6 +9,7 @@ import { EarthSvg } from '../../_shared/svg/EarthSvg';
 import { useState } from 'react';
 import { LanguageSelectPopup } from '../../_shared/LanguageSelectPopup';
 
+
 export const Login = () => {
   const { showPassword, onTogglePassword, onSignInClick, email, setEmail, password, setPassword, authError } =
     useLogin();
@@ -38,6 +39,8 @@ export const Login = () => {
               onChange={(e) => setEmail(e.target.value)}
             />
             <div className='relative w-full'>
+              {/* Password input field */}
+              
               <input
                 type={showPassword ? 'text' : 'password'}
                 className={`input w-full  !pr-10 ${authError && 'error'}`}
