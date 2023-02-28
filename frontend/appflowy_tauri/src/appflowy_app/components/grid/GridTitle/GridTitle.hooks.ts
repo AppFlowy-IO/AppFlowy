@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { gridActions } from '../../../stores/reducers/grid/slice';
 
-import { useAppDispatch, useAppSelector } from '../../../stores/store';
+import { useAppSelector } from '../../../stores/store';
 
 export const useGridTitleHooks = function () {
-  const dispatch = useAppDispatch();
   const grid = useAppSelector((state) => state.database);
 
   const [title, setTitle] = useState(grid.title);
@@ -15,11 +13,6 @@ export const useGridTitleHooks = function () {
     setTitle(event.target.value);
   };
 
-  const onTitleBlur = () => {
-    dispatch(gridActions.updateGridTitle({ title }));
-    setChangingTitle(false);
-  };
-
   const onTitleClick = () => {
     setChangingTitle(true);
   };
@@ -27,7 +20,6 @@ export const useGridTitleHooks = function () {
   return {
     title,
     onTitleChange,
-    onTitleBlur,
     onTitleClick,
     changingTitle,
     showOptions,

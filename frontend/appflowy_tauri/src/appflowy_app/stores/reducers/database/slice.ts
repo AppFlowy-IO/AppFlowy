@@ -322,9 +322,18 @@ export const databaseSlice = createSlice({
 
     updateCellValue: (source, action: PayloadAction<{ cell: ICellData }>) => {
       const { cell } = action.payload;
+      console.log({ cell });
       const row = source.rows.find((r) => r.rowId === cell.rowId);
       if (row) {
         row.cells[cell.fieldId] = cell;
+      }
+    },
+
+    updateColumnSize: (state, action: PayloadAction<{ fieldId: string; size: number }>) => {
+      const { fieldId, size } = action.payload;
+      const column = state.columns.find((c) => c.fieldId === fieldId);
+      if (column) {
+        column.size = size;
       }
     },
   },

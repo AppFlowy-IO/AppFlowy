@@ -1,83 +1,62 @@
 import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useEffect, useState } from 'react';
-import { gridActions } from '../../../stores/reducers/grid/slice';
+import { databaseActions } from '../../../stores/reducers/database/slice';
 import { useAppDispatch, useAppSelector } from '../../../stores/store';
 import { GridTableCell } from '../GridTableCell/GridTableCell';
 
 export const useGridTableHooks = function () {
   const dispatch = useAppDispatch();
 
-  const grid = useAppSelector((state) => state.grid);
+  const database = useAppSelector((state) => state.database);
 
-  // find the field with an id of fieldId
-  const findField = (fieldId: string) => {
-    return grid.fields.find((field) => field.fieldId === fieldId)?.name;
-  };
-
-  const defaultData = grid.rows.map((row) => {
-    const values: any = {
+  const d = database.rows.map((row) => {
+    return {
       rowId: row.rowId,
+      ...row.cells,
     };
-    row.values.forEach((cell) => {
-      values[findField(cell.fieldId)!] = cell.value;
-    });
-    return values;
   });
 
-  const defaultColumns: ColumnDef<any>[] = grid.fields.map((field) => {
+  const defaultColumns: ColumnDef<any>[] = database.columns.map((column) => {
     return {
-      header: field.name,
-      id: field.fieldId,
-      meta: field.fieldType,
-      accessorKey: field.name,
-      fieldType: field.fieldType,
+      header: column.fieldId,
+      id: column.fieldId,
+      accessorKey: column.fieldId,
+
       cell(props) {
         return <GridTableCell props={props} />;
       },
     };
   });
 
-  const [data, setData] = useState(() => [...defaultData]);
+  const [data, setData] = useState(() => [...d]);
   const [columns, setColumns] = useState<typeof defaultColumns>(() => [...defaultColumns]);
 
   useEffect(() => {
-    setData(
-      grid.rows.map((row) => {
-        const values: any = {
-          rowId: row.rowId,
-        };
-        row.values.forEach((cell) => {
-          values[findField(cell.fieldId)!] = cell.value;
-        });
-        return values;
-      })
-    );
-  }, [grid.rows]);
+    setData([...d]);
+  }, [database.rows]);
 
   useEffect(() => {
     setColumns(
-      grid.fields.map((field) => {
+      database.columns.map((column) => {
         return {
-          header: field.name,
-          // 100% divided by the number of cols
-          size: field.size,
+          header: column.fieldId,
+          id: column.fieldId,
+          accessorKey: column.fieldId,
+          size: column.size,
           maxSize: Number.MAX_SAFE_INTEGER,
           minSize: 100,
 
-          id: field.fieldId,
-          meta: field.fieldType,
-          accessorKey: field.name,
-          fieldType: field.fieldType,
           cell(props) {
             return <GridTableCell props={props} />;
           },
         };
       })
     );
-  }, [grid.fields]);
+  }, [database.columns]);
 
-  const updateColumnSize = (fieldIndex: number, size: number) => {
-    dispatch(gridActions.updateColumnSize({ fieldIndex, size }));
+  const updateColumnSize = (fieldId: string, size: number) => {
+    console.log({ fieldId, size });
+    dispatch(databaseActions.updateColumnSize({ fieldId, size }));
   };
 
   const table = useReactTable({
@@ -93,15 +72,17 @@ export const useGridTableHooks = function () {
   useEffect(() => {
     const sizes = table.getState().columnSizing;
 
+    console.log(sizes);
+
     Object.keys(sizes).forEach((key) => {
       const size = sizes[key];
-      updateColumnSize(Number(key) - 1, size);
+      updateColumnSize(key, size);
     });
   }, [table.getState().columnSizing]);
 
   return {
-    fields: grid.fields,
-    rows: grid.rows,
+    fields: database.columns,
+    rows: database.rows,
 
     updateColumnSize,
     data,

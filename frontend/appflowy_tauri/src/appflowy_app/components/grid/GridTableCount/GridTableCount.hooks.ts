@@ -1,8 +1,8 @@
 import { useAppSelector } from '../../../stores/store';
 
 export const useGridTableCount = () => {
-  const { grid } = useAppSelector((state) => state);
-  const { rows } = grid;
+  const { database } = useAppSelector((state) => state);
+  const { rows } = database;
 
   return {
     count: rows.length,

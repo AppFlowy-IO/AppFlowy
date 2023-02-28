@@ -1,19 +1,21 @@
 import { useState } from 'react';
-import { gridActions } from '../../../stores/reducers/grid/slice';
+import { databaseActions } from '../../../stores/reducers/database/slice';
 import { useAppDispatch } from '../../../stores/store';
 
 export const useGridTableCellHooks = (props: any) => {
   const dispatch = useAppDispatch();
-  const [value, setValue] = useState(props.getValue());
+  const [value, setValue] = useState(props.getValue().data);
 
   function onValueChange(event: React.ChangeEvent<HTMLInputElement>) {
     setValue(event.target.value);
   }
 
   function onValueBlur() {
-    console.log({ props });
+    const updatedCell = { ...props.getValue(), data: value };
     dispatch(
-      gridActions.updateRowValue({ rowId: props.cell.row.original.rowId, cellId: props.cell.id.split('_')[1], value })
+      databaseActions.updateCellValue({
+        cell: updatedCell,
+      })
     );
   }
 

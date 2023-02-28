@@ -1,20 +1,21 @@
-import { nanoid } from 'nanoid';
 import { FieldType } from '../../../../services/backend';
-import { gridActions } from '../../../stores/reducers/grid/slice';
-import { useAppDispatch } from '../../../stores/store';
+import { databaseActions } from '../../../stores/reducers/database/slice';
+
+import { useAppDispatch, useAppSelector } from '../../../stores/store';
 
 export const GridTableHeaderHooks = () => {
   const dispatch = useAppDispatch();
 
+  const database = useAppSelector((state) => state.database);
+
   const onAddField = () => {
     dispatch(
-      gridActions.addField({
+      databaseActions.addField({
         field: {
-          fieldId: nanoid(8),
-          name: 'Name',
+          fieldId: `field${database.columns.length + 1}`,
+          title: 'Name',
           fieldOptions: {},
           fieldType: FieldType.RichText,
-          size: 300,
         },
       })
     );
