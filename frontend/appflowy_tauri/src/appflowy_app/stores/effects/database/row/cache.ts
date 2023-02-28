@@ -113,9 +113,8 @@ export class RowCache {
     const option = this._rowList.getRowWithIndex(updatedRow.id);
     if (option.some) {
       const { rowInfo, index } = option.val;
-      const updatedRowInfo = new RowInfo(rowInfo.viewId, rowInfo.fieldInfos, updatedRow);
       this._rowList.remove(rowInfo.row.id);
-      this._rowList.insert(index, updatedRowInfo);
+      this._rowList.insert(index, rowInfo.copyWith({ row: updatedRow }));
     } else {
       const newRowInfo = new RowInfo(this.viewId, this.getFieldInfos(), updatedRow);
       this._rowList.push(newRowInfo);
@@ -333,6 +332,10 @@ export class RowInfo {
     public readonly fieldInfos: readonly FieldInfo[],
     public readonly row: RowPB
   ) {}
+
+  copyWith = (params: { row?: RowPB }) => {
+    return new RowInfo(this.viewId, this.fieldInfos, params.row || this.row);
+  };
 }
 
 export class DeletedRow {

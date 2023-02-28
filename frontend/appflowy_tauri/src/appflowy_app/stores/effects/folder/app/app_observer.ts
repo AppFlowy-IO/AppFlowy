@@ -1,6 +1,5 @@
 import { Ok, Result } from 'ts-results';
-import { AppPB, FolderNotification } from '../../../../../services/backend';
-import { FlowyError } from '../../../../../services/backend/models/flowy-error';
+import { AppPB, FlowyError, FolderNotification } from '../../../../../services/backend';
 import { ChangeNotifier } from '../../../../utils/change_notifier';
 import { FolderNotificationObserver } from '../notifications/observer';
 
@@ -18,10 +17,14 @@ export class WorkspaceObserver {
 
     this._listener = new FolderNotificationObserver({
       viewId: this.appId,
-      parserHandler: (notification, payload) => {
+      parserHandler: (notification, result) => {
         switch (notification) {
           case FolderNotification.DidUpdateWorkspaceApps:
-            this._appNotifier?.notify(Ok(AppPB.deserializeBinary(payload)));
+            if (result.ok) {
+              this._appNotifier?.notify(Ok(AppPB.deserializeBinary(result.val)));
+            } else {
+              this._appNotifier?.notify(result);
+            }
             break;
           default:
             break;
