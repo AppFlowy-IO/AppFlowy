@@ -3,8 +3,8 @@ import { ChangeNotifier } from '../../../../utils/change_notifier';
 import { FieldInfo } from '../field/controller';
 import { CellCache, CellCacheKey } from '../cell/cache';
 import {
-  ViewRowsChangesetPB,
-  ViewRowsVisibilityChangesetPB,
+  RowsChangesetPB,
+  RowsVisibilityChangesetPB,
 } from '../../../../../services/backend/models/flowy-database/view_entities';
 import { CellIdentifier } from '../cell/backend_service';
 import { ReorderSingleRowPB } from '../../../../../services/backend/models/flowy-database/sort_entities';
@@ -49,13 +49,13 @@ export class RowCache {
     });
   };
 
-  applyRowsChanged = (changeset: ViewRowsChangesetPB) => {
+  applyRowsChanged = (changeset: RowsChangesetPB) => {
     this._deleteRows(changeset.deleted_rows);
     this._insertRows(changeset.inserted_rows);
     this._updateRows(changeset.updated_rows);
   };
 
-  applyRowsVisibility = (changeset: ViewRowsVisibilityChangesetPB) => {
+  applyRowsVisibility = (changeset: RowsVisibilityChangesetPB) => {
     this._hideRows(changeset.invisible_rows);
     this._displayRows(changeset.visible_rows);
   };

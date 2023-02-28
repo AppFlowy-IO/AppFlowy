@@ -116,7 +116,7 @@ impl DatabaseEditor {
     self.database_views.open(view_editor).await
   }
 
-  #[tracing::instrument(name = "close database editor view", level = "trace", skip_all)]
+  #[tracing::instrument(name = "Close database editor view", level = "debug", skip_all)]
   pub async fn close_view_editor(&self, view_id: &str) {
     self.rev_manager.generate_snapshot().await;
     self.database_views.close(view_id).await;
@@ -175,7 +175,7 @@ impl DatabaseEditor {
 
     self
       .database_views
-      .did_update_view_field_type_option(view_id, field_id, old_field_rev)
+      .did_update_field_type_option(view_id, field_id, old_field_rev)
       .await?;
     self.notify_did_update_database_field(field_id).await?;
     Ok(())
@@ -275,7 +275,7 @@ impl DatabaseEditor {
     if is_changed {
       match self
         .database_views
-        .did_update_view_field_type_option(view_id, field_id, old_field_rev)
+        .did_update_field_type_option(view_id, field_id, old_field_rev)
         .await
       {
         Ok(_) => {},
@@ -600,7 +600,7 @@ impl DatabaseEditor {
     field_id: &str,
   ) -> FlowyResult<Vec<RowSingleCellData>> {
     let view_editor = self.database_views.get_view_editor(view_id).await?;
-    view_editor.get_cells_for_field(field_id).await
+    view_editor.v_get_cells_for_field(field_id).await
   }
 
   #[tracing::instrument(level = "trace", skip_all, err)]

@@ -162,7 +162,7 @@ pub(crate) async fn delete_field_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "trace", skip(data, manager), err)]
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn switch_to_field_handler(
   data: AFPluginData<UpdateFieldTypePayloadPB>,
   manager: AFPluginState<Arc<DatabaseManager>>,

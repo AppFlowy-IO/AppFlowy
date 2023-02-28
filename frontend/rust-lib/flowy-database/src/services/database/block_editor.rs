@@ -129,15 +129,14 @@ impl DatabaseBlockEditor {
     if let Ok(pad) = self.pad.try_read() {
       Ok(pad.get_row_rev(row_id))
     } else {
-      tracing::error!("Required grid block read lock failed, retrying");
       let retry = GetRowDataRetryAction {
         row_id: row_id.to_owned(),
         pad: self.pad.clone(),
       };
       match spawn_retry(3, 300, retry).await {
         Ok(value) => Ok(value),
-        Err(err) => {
-          tracing::error!("Read row revision failed with: {}", err);
+        Err(_) => {
+          tracing::error!("Required database block read lock failed");
           Ok(None)
         },
       }

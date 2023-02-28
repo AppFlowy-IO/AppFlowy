@@ -41,7 +41,6 @@ export class AppBackendService {
       belong_to_id: this.appId,
       name: params.name,
       desc: params.desc || '',
-      data_format: params.dataFormatType,
       layout: params.layoutType,
       initial_data: encoder.encode(params.initialData || ''),
     });

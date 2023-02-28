@@ -77,7 +77,7 @@ class DatabaseController {
   }
 
   Future<void> dispose() async {
-    await _databaseBackendSvc.closeGrid();
+    await _databaseBackendSvc.closeView();
     await fieldController.dispose();
   }
 }
