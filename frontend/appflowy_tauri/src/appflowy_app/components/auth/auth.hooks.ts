@@ -1,7 +1,7 @@
 import { currentUserActions } from '../../stores/reducers/current-user/slice';
 import { useAppDispatch, useAppSelector } from '../../stores/store';
 import { UserProfilePB } from '../../../services/backend/events/flowy-user';
-import { AuthBackendService } from '../../stores/effects/user/backend_service';
+import { AuthBackendService } from '../../stores/effects/user/user_bd_svc';
 import { FolderEventReadCurrentWorkspace } from '../../../services/backend/events/flowy-folder';
 import { WorkspaceSettingPB } from '../../../services/backend/models/flowy-folder/workspace';
 
@@ -37,7 +37,6 @@ export const useAuth = () => {
       throw new Error(authResult.val.msg);
     }
   }
-
 
   async function login(email: string, password: string): Promise<UserProfilePB> {
     const result = await authBackendService.signIn({ email, password });

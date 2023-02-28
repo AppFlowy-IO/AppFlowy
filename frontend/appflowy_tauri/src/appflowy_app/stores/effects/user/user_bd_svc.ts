@@ -6,14 +6,15 @@ import {
   UserEventSignUp,
   UserEventUpdateUserProfile,
 } from '../../../../services/backend/events/flowy-user';
-import { SignInPayloadPB, SignUpPayloadPB } from '../../../../services/backend/models/flowy-user/auth';
-import { UpdateUserProfilePayloadPB } from '../../../../services/backend/models/flowy-user/user_profile';
 import {
+  SignInPayloadPB,
+  SignUpPayloadPB,
+  UpdateUserProfilePayloadPB,
   WorkspaceIdPB,
   CreateWorkspacePayloadPB,
   WorkspaceSettingPB,
   WorkspacePB,
-} from '../../../../services/backend/models/flowy-folder/workspace';
+} from '../../../../services/backend';
 import {
   FolderEventCreateWorkspace,
   FolderEventOpenWorkspace,

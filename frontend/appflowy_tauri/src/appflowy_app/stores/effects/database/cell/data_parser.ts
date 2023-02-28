@@ -1,5 +1,5 @@
 import utf8 from 'utf8';
-import { CellBackendService, CellIdentifier } from './backend_service';
+import { CellBackendService, CellIdentifier } from './cell_bd_svc';
 import { DateCellDataPB } from '../../../../../services/backend/models/flowy-database/date_type_option_entities';
 import { SelectOptionCellDataPB } from '../../../../../services/backend/models/flowy-database/select_type_option';
 import { URLCellDataPB } from '../../../../../services/backend/models/flowy-database/url_type_option_entities';
@@ -30,9 +30,11 @@ class CellDataLoader<T> {
   };
 }
 
+const utf8Decoder = new TextDecoder('utf-8');
+
 class StringCellDataParser extends CellDataParser<string> {
   parserData(data: Uint8Array): string {
-    return utf8.decode(data.toString());
+    return utf8Decoder.decode(data);
   }
 }
 

@@ -1,5 +1,5 @@
 import { Log } from '../../../../utils/log';
-import { DatabaseBackendService } from '../backend_service';
+import { DatabaseBackendService } from '../database_bd_svc';
 import { DatabaseFieldObserver } from './field_observer';
 import { FieldIdPB, FieldPB, IndexFieldPB } from '../../../../../services/backend/models/flowy-database/field_entities';
 import { ChangeNotifier } from '../../../../utils/change_notifier';
@@ -38,9 +38,9 @@ export class FieldController {
     }
   };
 
-  subscribeOnFieldsChanged = (callback: (fieldInfos: readonly FieldInfo[]) => void) => {
+  subscribeOnFieldsChanged = (callback?: (fieldInfos: readonly FieldInfo[]) => void) => {
     return this._fieldNotifier.observer.subscribe((fieldInfos) => {
-      callback(fieldInfos);
+      callback?.(fieldInfos);
     });
   };
 

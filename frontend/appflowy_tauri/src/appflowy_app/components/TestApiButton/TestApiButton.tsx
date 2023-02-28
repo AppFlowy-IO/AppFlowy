@@ -118,7 +118,7 @@ const TestApiButton = () => {
   return (
     <>
       <div>
-        <button className='rounded-md bg-gray-700 p-4' type='button' onClick={() => sendSignInEvent()}>
+        <button className='rounded-md bg-gray-300 p-4' type='button' onClick={() => sendSignInEvent()}>
           Sign in and create sample data
         </button>
       </div>

@@ -4,8 +4,8 @@ import {
   SelectOptionCellDataPB,
   URLCellDataPB,
 } from '../../../../../services/backend/models/flowy-database';
-import { CellIdentifier } from './backend_service';
-import { CellController, CellFieldNotifierImpl } from './controller';
+import { CellIdentifier } from './cell_bd_svc';
+import { CellController, CellFieldNotifierImpl } from './cell_controller';
 import {
   CellDataLoader,
   DateCellDataParser,
@@ -13,8 +13,8 @@ import {
   StringCellDataParser,
   URLCellDataParser,
 } from './data_parser';
-import { CellCache } from './cache';
-import { FieldController } from '../field/controller';
+import { CellCache } from './cell_cache';
+import { FieldController } from '../field/field_controller';
 import { DateCellDataPersistence, TextCellDataPersistence } from './data_persistence';
 
 export type TextCellController = CellController<string, string>;
@@ -24,8 +24,6 @@ export type CheckboxCellController = CellController<string, string>;
 export type NumberCellController = CellController<string, string>;
 
 export type SelectOptionCellController = CellController<SelectOptionCellDataPB, string>;
-
-export type ChecklistCellController = CellController<SelectOptionCellDataPB, string>;
 
 export type DateCellController = CellController<DateCellDataPB, CalendarData>;
 

@@ -1,14 +1,14 @@
-import { DatabaseBackendService } from './backend_service';
-import { FieldController, FieldInfo } from './field/controller';
-import { DatabaseViewCache } from './view/cache';
+import { DatabaseBackendService } from './database_bd_svc';
+import { FieldController, FieldInfo } from './field/field_controller';
+import { DatabaseViewCache } from './view/database_view_cache';
 import { DatabasePB } from '../../../../services/backend/models/flowy-database/grid_entities';
-import { RowChangedReason, RowInfo } from './row/cache';
+import { RowChangedReason, RowInfo } from './row/row_cache';
 import { Err, Ok } from 'ts-results';
 
 export type SubscribeCallback = {
-  onViewChanged: (data: DatabasePB) => void;
-  onRowsChanged: (rowInfos: readonly RowInfo[], reason: RowChangedReason) => void;
-  onFieldsChanged: (fieldInfos: readonly FieldInfo[]) => void;
+  onViewChanged?: (data: DatabasePB) => void;
+  onRowsChanged?: (rowInfos: readonly RowInfo[], reason: RowChangedReason) => void;
+  onFieldsChanged?: (fieldInfos: readonly FieldInfo[]) => void;
 };
 
 export class DatabaseController {
@@ -26,8 +26,8 @@ export class DatabaseController {
   subscribe = (callbacks: SubscribeCallback) => {
     this._callback = callbacks;
     this.fieldController.subscribeOnFieldsChanged(callbacks.onFieldsChanged);
-    this.databaseViewCache.subscribeOnRowsChanged((reason) => {
-      this._callback?.onRowsChanged(this.databaseViewCache.rowInfos, reason);
+    this.databaseViewCache.getRowCache().subscribeOnRowsChanged((reason) => {
+      this._callback?.onRowsChanged?.(this.databaseViewCache.rowInfos, reason);
     });
   };
 
@@ -35,7 +35,7 @@ export class DatabaseController {
     const result = await this._backendService.openDatabase();
     if (result.ok) {
       const database: DatabasePB = result.val;
-      this._callback?.onViewChanged(database);
+      this._callback?.onViewChanged?.(database);
       await this.fieldController.loadFields(database.fields);
       this.databaseViewCache.initializeWithRows(database.rows);
       return Ok.EMPTY;

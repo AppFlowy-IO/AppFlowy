@@ -1,5 +1,5 @@
-import { CellByFieldId, RowCache, RowInfo } from './cache';
-import { FieldController } from '../field/controller';
+import { CellByFieldId, RowCache, RowInfo } from './row_cache';
+import { FieldController } from '../field/field_controller';
 
 export class RowController {
   constructor(

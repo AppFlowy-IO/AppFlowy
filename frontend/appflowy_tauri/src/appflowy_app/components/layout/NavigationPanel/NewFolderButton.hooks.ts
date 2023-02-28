@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from '../../../stores/store';
 import { foldersActions } from '../../../stores/reducers/folders/slice';
-import { WorkspaceBackendService } from '../../../stores/effects/folder/workspace/backend_service';
+import { WorkspaceBackendService } from '../../../stores/effects/folder/workspace/workspace_bd_svc';
 import { useError } from '../../error/Error.hooks';
 
 export const useNewFolder = () => {

@@ -2,8 +2,7 @@ import { foldersActions } from '../../stores/reducers/folders/slice';
 import { useAppDispatch, useAppSelector } from '../../stores/store';
 import { pagesActions } from '../../stores/reducers/pages/slice';
 import { workspaceActions } from '../../stores/reducers/workspace/slice';
-import { WorkspaceBackendService } from '../../stores/effects/folder/workspace/backend_service';
-import { UserBackendService } from '../../stores/effects/user/backend_service';
+import { UserBackendService } from '../../stores/effects/user/user_bd_svc';
 import { useError } from '../error/Error.hooks';
 
 export const useWorkspace = () => {
@@ -11,18 +10,13 @@ export const useWorkspace = () => {
   const currentUser = useAppSelector((state) => state.currentUser);
   const error = useError();
 
-  let userBackendService: UserBackendService = new UserBackendService(currentUser.id || '');
-  let workspaceBackendService: WorkspaceBackendService;
+  const userBackendService: UserBackendService = new UserBackendService(currentUser.id || '');
 
   const loadWorkspaceItems = async () => {
     try {
       const workspaceSettingPB = await userBackendService.getCurrentWorkspace();
-
       const workspace = workspaceSettingPB.workspace;
-      workspaceBackendService = new WorkspaceBackendService(workspace.id);
-
       appDispatch(workspaceActions.updateWorkspace({ id: workspace.id, name: workspace.name }));
-
       appDispatch(foldersActions.clearFolders());
       appDispatch(pagesActions.clearPages());
 
@@ -39,8 +33,6 @@ export const useWorkspace = () => {
       // create workspace for first start
       try {
         const workspace = await userBackendService.createWorkspace({ name: 'New Workspace', desc: '' });
-        workspaceBackendService = new WorkspaceBackendService(workspace.id);
-
         appDispatch(workspaceActions.updateWorkspace({ id: workspace.id, name: workspace.name }));
 
         appDispatch(foldersActions.clearFolders());

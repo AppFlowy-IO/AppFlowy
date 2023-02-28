@@ -2,15 +2,15 @@ import {
   DatabaseEventCreateRow,
   DatabaseEventGetDatabase,
   DatabaseEventGetFields,
-} from '../../../../services/backend/events/flowy-database/event';
-import { DatabaseViewIdPB } from '../../../../services/backend/models/flowy-database';
-import { CreateRowPayloadPB } from '../../../../services/backend/models/flowy-database/row_entities';
+} from '../../../../services/backend/events/flowy-database';
 import {
   GetFieldPayloadPB,
   RepeatedFieldIdPB,
   FieldIdPB,
-} from '../../../../services/backend/models/flowy-database/field_entities';
-import { ViewIdPB } from '../../../../services/backend/models/flowy-folder/view';
+  DatabaseViewIdPB,
+  CreateRowPayloadPB,
+  ViewIdPB,
+} from '../../../../services/backend';
 import { FolderEventCloseView } from '../../../../services/backend/events/flowy-folder';
 
 export class DatabaseBackendService {

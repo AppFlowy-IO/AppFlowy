@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../stores/store';
 import { IPage, pagesActions } from '../../../stores/reducers/pages/slice';
 import { ViewLayoutTypePB } from '../../../../services/backend';
-import { AppBackendService } from '../../../stores/effects/folder/app/backend_service';
-import { WorkspaceBackendService } from '../../../stores/effects/folder/workspace/backend_service';
+import { AppBackendService } from '../../../stores/effects/folder/app/app_bd_svc';
+import { WorkspaceBackendService } from '../../../stores/effects/folder/workspace/workspace_bd_svc';
 import { useError } from '../../error/Error.hooks';
 
 const initialFolderHeight = 40;

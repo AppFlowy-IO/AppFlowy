@@ -9,9 +9,9 @@ import {
   ReorderSingleRowPB,
 } from '../../../../../services/backend';
 import { ChangeNotifier } from '../../../../utils/change_notifier';
-import { FieldInfo } from '../field/controller';
-import { CellCache, CellCacheKey } from '../cell/cache';
-import { CellIdentifier } from '../cell/backend_service';
+import { FieldInfo } from '../field/field_controller';
+import { CellCache, CellCacheKey } from '../cell/cell_cache';
+import { CellIdentifier } from '../cell/cell_bd_svc';
 import { DatabaseEventGetRow } from '../../../../../services/backend/events/flowy-database';
 import { None, Option, Some } from 'ts-results';
 import { Log } from '../../../../utils/log';

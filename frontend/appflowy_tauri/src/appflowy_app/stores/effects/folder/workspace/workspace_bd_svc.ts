@@ -2,15 +2,11 @@ import { Err, Ok } from 'ts-results';
 import {
   FolderEventCreateApp,
   FolderEventMoveItem,
-  FolderEventReadCurrentWorkspace,
   FolderEventReadWorkspaceApps,
   FolderEventReadWorkspaces,
 } from '../../../../../services/backend/events/flowy-folder';
-import { CreateAppPayloadPB } from '../../../../../services/backend/models/flowy-folder/app';
-import { WorkspaceIdPB } from '../../../../../services/backend/models/flowy-folder/workspace';
+import { CreateAppPayloadPB, WorkspaceIdPB, FlowyError, MoveFolderItemPayloadPB } from '../../../../../services/backend';
 import assert from 'assert';
-import { FlowyError } from '../../../../../services/backend/models/flowy-error/errors';
-import { MoveFolderItemPayloadPB } from '../../../../../services/backend/models/flowy-folder/view';
 
 export class WorkspaceBackendService {
   constructor(public readonly workspaceId: string) {}

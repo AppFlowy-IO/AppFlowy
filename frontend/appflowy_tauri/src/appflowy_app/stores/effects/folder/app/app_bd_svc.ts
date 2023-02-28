@@ -5,18 +5,18 @@ import {
   FolderEventMoveItem,
   FolderEventReadApp,
   FolderEventUpdateApp,
-  ViewDataFormatPB,
   ViewLayoutTypePB,
 } from '../../../../../services/backend/events/flowy-folder';
-import { AppIdPB, UpdateAppPayloadPB } from '../../../../../services/backend/models/flowy-folder/app';
 import {
+  AppIdPB,
+  UpdateAppPayloadPB,
   CreateViewPayloadPB,
   RepeatedViewIdPB,
   ViewPB,
   MoveFolderItemPayloadPB,
   MoveFolderItemType,
-} from '../../../../../services/backend/models/flowy-folder/view';
-import { FlowyError } from '../../../../../services/backend/models/flowy-error/errors';
+  FlowyError,
+} from '../../../../../services/backend';
 import { None, Result, Some } from 'ts-results';
 
 export class AppBackendService {

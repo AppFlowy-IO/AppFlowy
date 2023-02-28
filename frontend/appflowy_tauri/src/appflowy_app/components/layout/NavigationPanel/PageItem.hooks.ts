@@ -2,7 +2,7 @@ import { IPage, pagesActions } from '../../../stores/reducers/pages/slice';
 import { useAppDispatch } from '../../../stores/store';
 import { useState } from 'react';
 import { nanoid } from 'nanoid';
-import { ViewBackendService } from '../../../stores/effects/folder/view/backend_service';
+import { ViewBackendService } from '../../../stores/effects/folder/view/view_bd_svc';
 import { useError } from '../../error/Error.hooks';
 
 export const usePageEvents = (page: IPage) => {
