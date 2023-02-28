@@ -50,14 +50,14 @@ List<ShortcutEvent> builtInShortcutEvents = [
     handler: cursorDownSelect,
   ),
   ShortcutEvent(
-    key: 'Cursor down select',
+    key: 'Cursor left word select',
     command: 'shift+alt+arrow left',
     windowsCommand: 'shift+alt+arrow left',
     linuxCommand: 'shift+alt+arrow left',
     handler: cursorLeftWordSelect,
   ),
   ShortcutEvent(
-    key: 'Cursor down select',
+    key: 'Cursor right word select',
     command: 'shift+alt+arrow right',
     windowsCommand: 'shift+alt+arrow right',
     linuxCommand: 'shift+alt+arrow right',
