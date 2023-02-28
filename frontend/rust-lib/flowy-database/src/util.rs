@@ -62,8 +62,10 @@ pub fn make_default_board() -> BuildDatabaseContext {
   database_builder.add_field(single_select_field);
 
   for i in 0..3 {
-    let mut row_builder =
-      RowRevisionBuilder::new(database_builder.block_id(), database_builder.field_revs());
+    let mut row_builder = RowRevisionBuilder::new(
+      database_builder.block_id(),
+      database_builder.field_revs().clone(),
+    );
     row_builder.insert_select_option_cell(&single_select_field_id, vec![to_do_option.id.clone()]);
     let data = format!("Card {}", i + 1);
     row_builder.insert_text_cell(&text_field_id, data);
@@ -147,8 +149,10 @@ pub fn make_default_board_2() -> BuildDatabaseContext {
   database_builder.add_field(multi_select_field);
 
   for i in 0..3 {
-    let mut row_builder =
-      RowRevisionBuilder::new(database_builder.block_id(), database_builder.field_revs());
+    let mut row_builder = RowRevisionBuilder::new(
+      database_builder.block_id(),
+      database_builder.field_revs().clone(),
+    );
     row_builder.insert_select_option_cell(&single_select_field_id, vec![to_do_option.id.clone()]);
     match i {
       0 => {
@@ -174,8 +178,10 @@ pub fn make_default_board_2() -> BuildDatabaseContext {
   }
 
   for i in 0..3 {
-    let mut row_builder =
-      RowRevisionBuilder::new(database_builder.block_id(), database_builder.field_revs());
+    let mut row_builder = RowRevisionBuilder::new(
+      database_builder.block_id(),
+      database_builder.field_revs().clone(),
+    );
     row_builder.insert_select_option_cell(&single_select_field_id, vec![doing_option.id.clone()]);
     match i {
       0 => {
@@ -202,8 +208,10 @@ pub fn make_default_board_2() -> BuildDatabaseContext {
   }
 
   for i in 0..2 {
-    let mut row_builder =
-      RowRevisionBuilder::new(database_builder.block_id(), database_builder.field_revs());
+    let mut row_builder = RowRevisionBuilder::new(
+      database_builder.block_id(),
+      database_builder.field_revs().clone(),
+    );
     row_builder.insert_select_option_cell(&single_select_field_id, vec![done_option.id.clone()]);
     match i {
       0 => {

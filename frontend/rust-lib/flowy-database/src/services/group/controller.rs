@@ -66,7 +66,7 @@ pub struct MoveGroupRowContext<'a> {
 /// G: the group generator, [GroupGenerator]
 /// P: the parser that impl [CellProtobufBlobParser] for the CellBytes
 pub struct GenericGroupController<C, T, G, P> {
-  pub field_id: String,
+  pub grouping_field_id: String,
   pub type_option: Option<T>,
   pub group_ctx: GroupContext<C>,
   group_action_phantom: PhantomData<G>,
@@ -80,15 +80,16 @@ where
   G: GroupGenerator<Context = GroupContext<C>, TypeOptionType = T>,
 {
   pub async fn new(
-    field_rev: &Arc<FieldRevision>,
+    grouping_field_rev: &Arc<FieldRevision>,
     mut configuration: GroupContext<C>,
   ) -> FlowyResult<Self> {
-    let type_option = field_rev.get_type_option::<T>(field_rev.ty);
-    let generated_group_context = G::generate_groups(field_rev, &configuration, &type_option);
+    let type_option = grouping_field_rev.get_type_option::<T>(grouping_field_rev.ty);
+    let generated_group_context =
+      G::generate_groups(grouping_field_rev, &configuration, &type_option);
     let _ = configuration.init_groups(generated_group_context)?;
 
     Ok(Self {
-      field_id: field_rev.id.clone(),
+      grouping_field_id: grouping_field_rev.id.clone(),
       type_option,
       group_ctx: configuration,
       group_action_phantom: PhantomData,
@@ -180,7 +181,7 @@ where
   Self: GroupCustomize<CellData = P::Object>,
 {
   fn field_id(&self) -> &str {
-    &self.field_id
+    &self.grouping_field_id
   }
 
   fn groups(&self) -> Vec<&Group> {
@@ -199,7 +200,7 @@ where
     field_rev: &FieldRevision,
   ) -> FlowyResult<()> {
     for row_rev in row_revs {
-      let cell_rev = match row_rev.cells.get(&self.field_id) {
+      let cell_rev = match row_rev.cells.get(&self.grouping_field_id) {
         None => self.placeholder_cell(),
         Some(cell_rev) => Some(cell_rev.clone()),
       };
@@ -288,7 +289,7 @@ where
       deleted_group: None,
       row_changesets: vec![],
     };
-    if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
+    if let Some(cell_rev) = row_rev.cells.get(&self.grouping_field_id) {
       let cell_bytes = get_type_cell_protobuf(cell_rev.type_cell_data.clone(), field_rev, None).1;
       let cell_data = cell_bytes.parser::<P>()?;
       if !cell_data.is_empty() {
@@ -321,7 +322,7 @@ where
       deleted_group: None,
       row_changesets: vec![],
     };
-    let cell_rev = match context.row_rev.cells.get(&self.field_id) {
+    let cell_rev = match context.row_rev.cells.get(&self.grouping_field_id) {
       Some(cell_rev) => Some(cell_rev.clone()),
       None => self.placeholder_cell(),
     };

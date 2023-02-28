@@ -39,7 +39,7 @@ jobs:
     name: ${{ matrix.job.target }} (${{ matrix.job.os }})
     needs: create-release
     env:
-      WINDOWS_APP_RELEASE_PATH: frontend\app_flowy\product\${{ github.ref_name }}\windows
+      WINDOWS_APP_RELEASE_PATH: frontend\appflowy_flutter\product\${{ github.ref_name }}\windows
       WINDOWS_ZIP_NAME: AppFlowy_${{ github.ref_name }}_windows-x86_64.zip
       WINDOWS_INSTALLER_NAME: AppFlowy_${{ github.ref_name }}_windows-x86_64
     runs-on: ${{ matrix.job.os }}
@@ -129,7 +129,7 @@ jobs:
     runs-on: ${{ matrix.job.os }}
     needs: create-release
     env:
-      MACOS_APP_RELEASE_PATH: frontend/app_flowy/product/${{ github.ref_name }}/macos/Release
+      MACOS_APP_RELEASE_PATH: frontend/appflowy_flutter/product/${{ github.ref_name }}/macos/Release
       MACOS_X86_ZIP_NAME: AppFlowy_${{ github.ref_name }}_macos-x86_64.zip
       MACOS_DMG_NAME: AppFlowy_${{ github.ref_name }}_macos-x86_64
     strategy:
@@ -217,7 +217,7 @@ jobs:
     runs-on: ${{ matrix.job.os }}
     needs: create-release
     env:
-      LINUX_APP_RELEASE_PATH: frontend/app_flowy/product/${{ github.ref_name }}/linux/Release
+      LINUX_APP_RELEASE_PATH: frontend/appflowy_flutter/product/${{ github.ref_name }}/linux/Release
       LINUX_ZIP_NAME: AppFlowy_${{ matrix.job.target }}_${{ matrix.job.os }}.tar.gz
       LINUX_PACKAGE_NAME: AppFlowy_${{ github.ref_name }}_${{ matrix.job.os }}.deb
       # PKG_CONFIG_SYSROOT_DIR: /

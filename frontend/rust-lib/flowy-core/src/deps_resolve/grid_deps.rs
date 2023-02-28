@@ -2,7 +2,7 @@ use crate::FlowyError;
 use bytes::Bytes;
 use flowy_client_ws::FlowyWebSocketConnect;
 use flowy_database::manager::{DatabaseManager, DatabaseUser};
-use flowy_database::services::persistence::GridDatabase;
+use flowy_database::services::persistence::DatabaseDBConnection;
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
 use flowy_sqlite::ConnectionPool;
 use flowy_task::TaskDispatcher;
@@ -15,9 +15,9 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use ws_model::ws_revision::ClientRevisionWSData;
 
-pub struct GridDepsResolver();
+pub struct DatabaseDepsResolver();
 
-impl GridDepsResolver {
+impl DatabaseDepsResolver {
   pub async fn resolve(
     ws_conn: Arc<FlowyWebSocketConnect>,
     user_session: Arc<UserSession>,
@@ -25,27 +25,27 @@ impl GridDepsResolver {
   ) -> Arc<DatabaseManager> {
     let user = Arc::new(GridUserImpl(user_session.clone()));
     let rev_web_socket = Arc::new(GridRevisionWebSocket(ws_conn));
-    let grid_manager = Arc::new(DatabaseManager::new(
+    let database_manager = Arc::new(DatabaseManager::new(
       user.clone(),
       rev_web_socket,
       task_scheduler,
-      Arc::new(GridDatabaseImpl(user_session)),
+      Arc::new(DatabaseDBConnectionImpl(user_session)),
     ));
 
     if let (Ok(user_id), Ok(token)) = (user.user_id(), user.token()) {
-      match grid_manager.initialize(&user_id, &token).await {
+      match database_manager.initialize(&user_id, &token).await {
         Ok(_) => {},
         Err(e) => tracing::error!("Initialize grid manager failed: {}", e),
       }
     }
 
-    grid_manager
+    database_manager
   }
 }
 
-struct GridDatabaseImpl(Arc<UserSession>);
-impl GridDatabase for GridDatabaseImpl {
-  fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError> {
+struct DatabaseDBConnectionImpl(Arc<UserSession>);
+impl DatabaseDBConnection for DatabaseDBConnectionImpl {
+  fn get_db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError> {
     self
       .0
       .db_pool()

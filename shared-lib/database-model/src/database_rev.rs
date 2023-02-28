@@ -7,11 +7,11 @@ use std::sync::Arc;
 
 pub fn gen_database_id() -> String {
   // nanoid calculator https://zelark.github.io/nano-id-cc/
-  nanoid!(10)
+  format!("d:{}", nanoid!(10))
 }
 
 pub fn gen_block_id() -> String {
-  nanoid!(10)
+  format!("b:{}", nanoid!(10))
 }
 
 pub fn gen_field_id() -> String {
@@ -115,7 +115,7 @@ pub struct FieldRevision {
   #[serde(with = "indexmap::serde_seq")]
   pub type_options: IndexMap<String, String>,
 
-  #[serde(default = "DEFAULT_IS_PRIMARY")]
+  #[serde(default = "DEFAULT_IS_PRIMARY_VALUE")]
   pub is_primary: bool,
 }
 
@@ -125,7 +125,7 @@ impl AsRef<FieldRevision> for FieldRevision {
   }
 }
 
-const DEFAULT_IS_PRIMARY: fn() -> bool = || false;
+const DEFAULT_IS_PRIMARY_VALUE: fn() -> bool = || false;
 
 impl FieldRevision {
   pub fn new<T: Into<FieldTypeRevision>>(

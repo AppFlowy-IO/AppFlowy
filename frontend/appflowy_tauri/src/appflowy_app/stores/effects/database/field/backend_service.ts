@@ -28,7 +28,7 @@ export class FieldBackendService {
     visibility?: boolean;
     width?: number;
   }) => {
-    const payload = FieldChangesetPB.fromObject({ database_id: this.viewId, field_id: this.fieldId });
+    const payload = FieldChangesetPB.fromObject({ view_id: this.viewId, field_id: this.fieldId });
 
     if (data.name !== undefined) {
       payload.name = data.name;

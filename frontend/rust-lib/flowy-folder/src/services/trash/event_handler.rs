@@ -3,7 +3,7 @@ use crate::{
   errors::FlowyError,
   services::TrashController,
 };
-use lib_dispatch::prelude::{data_result, AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use std::sync::Arc;
 
 #[tracing::instrument(level = "debug", skip(controller), err)]
@@ -11,7 +11,7 @@ pub(crate) async fn read_trash_handler(
   controller: AFPluginState<Arc<TrashController>>,
 ) -> DataResult<RepeatedTrashPB, FlowyError> {
   let repeated_trash = controller.read_trash().await?;
-  data_result(repeated_trash)
+  data_result_ok(repeated_trash)
 }
 
 #[tracing::instrument(level = "debug", skip(identifier, controller), err)]

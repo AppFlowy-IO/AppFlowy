@@ -5,7 +5,7 @@ use crate::entities::{
 use crate::DocumentManager;
 use flowy_error::FlowyError;
 
-use lib_dispatch::prelude::{data_result, AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use std::convert::TryInto;
 use std::sync::Arc;
 
@@ -16,7 +16,7 @@ pub(crate) async fn get_document_handler(
   let context: OpenDocumentPayloadPB = data.into_inner();
   let editor = manager.open_document_editor(&context.document_id).await?;
   let document_data = editor.export().await?;
-  data_result(DocumentDataPB {
+  data_result_ok(DocumentDataPB {
     doc_id: context.document_id,
     content: document_data,
   })
@@ -39,7 +39,7 @@ pub(crate) async fn export_handler(
   let params: ExportParams = data.into_inner().try_into()?;
   let editor = manager.open_document_editor(&params.view_id).await?;
   let document_data = editor.export().await?;
-  data_result(ExportDataPB {
+  data_result_ok(ExportDataPB {
     data: document_data,
     export_type: params.export_type,
   })

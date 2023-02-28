@@ -51,7 +51,7 @@ impl FlowyError {
   static_flowy_error!(invalid_app_id, ErrorCode::AppIdInvalid);
   static_flowy_error!(view_name, ErrorCode::ViewNameInvalid);
   static_flowy_error!(view_thumbnail, ErrorCode::ViewThumbnailInvalid);
-  static_flowy_error!(invalid_view_id, ErrorCode::ViewIdInvalid);
+  static_flowy_error!(invalid_view_id, ErrorCode::ViewIdIsInvalid);
   static_flowy_error!(view_desc, ErrorCode::ViewDescTooLong);
   static_flowy_error!(view_data, ErrorCode::ViewDataInvalid);
   static_flowy_error!(unauthorized, ErrorCode::UserUnauthorized);

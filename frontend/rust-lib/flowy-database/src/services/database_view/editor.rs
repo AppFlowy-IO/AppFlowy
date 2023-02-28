@@ -10,7 +10,7 @@ use crate::services::filter::{
   FilterChangeset, FilterController, FilterTaskHandler, FilterType, UpdatedFilterType,
 };
 use crate::services::group::{
-  default_group_configuration, find_group_field, make_group_controller, Group,
+  default_group_configuration, find_grouping_field, make_group_controller, Group,
   GroupConfigurationReader, GroupController, MoveGroupRowContext,
 };
 use crate::services::row::DatabaseBlockRowRevision;
@@ -18,11 +18,11 @@ use crate::services::sort::{
   DeletedSortType, SortChangeset, SortController, SortTaskHandler, SortType,
 };
 use database_model::{
-  gen_database_filter_id, gen_database_sort_id, FieldRevision, FieldTypeRevision, FilterRevision,
-  LayoutRevision, RowChangeset, RowRevision, SortRevision,
+  gen_database_filter_id, gen_database_id, gen_database_sort_id, FieldRevision, FieldTypeRevision,
+  FilterRevision, LayoutRevision, RowChangeset, RowRevision, SortRevision,
 };
 use flowy_client_sync::client_database::{
-  make_grid_view_operations, DatabaseViewRevisionPad, GridViewRevisionChangeset,
+  make_database_view_operations, DatabaseViewRevisionChangeset, DatabaseViewRevisionPad,
 };
 use flowy_error::FlowyResult;
 use flowy_revision::RevisionManager;
@@ -38,7 +38,7 @@ use std::future::Future;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
-pub trait DatabaseViewEditorDelegate: Send + Sync + 'static {
+pub trait DatabaseViewData: Send + Sync + 'static {
   /// If the field_ids is None, then it will return all the field revisions
   fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>>;
 
@@ -73,53 +73,29 @@ pub trait DatabaseViewEditorDelegate: Send + Sync + 'static {
   ) -> Option<Box<dyn TypeOptionCellDataHandler>>;
 }
 
-pub struct DatabaseViewRevisionEditor {
+pub struct DatabaseViewEditor {
   user_id: String,
-  view_id: String,
+  pub view_id: String,
   pad: Arc<RwLock<DatabaseViewRevisionPad>>,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
-  delegate: Arc<dyn DatabaseViewEditorDelegate>,
+  delegate: Arc<dyn DatabaseViewData>,
   group_controller: Arc<RwLock<Box<dyn GroupController>>>,
   filter_controller: Arc<FilterController>,
   sort_controller: Arc<RwLock<SortController>>,
   pub notifier: DatabaseViewChangedNotifier,
 }
 
-impl DatabaseViewRevisionEditor {
-  #[tracing::instrument(level = "trace", skip_all, err)]
-  pub async fn new(
+impl DatabaseViewEditor {
+  pub async fn from_pad(
     user_id: &str,
-    token: &str,
-    view_id: String,
-    delegate: Arc<dyn DatabaseViewEditorDelegate>,
+    delegate: Arc<dyn DatabaseViewData>,
     cell_data_cache: AtomicCellDataCache,
-    mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
+    rev_manager: RevisionManager<Arc<ConnectionPool>>,
+    view_rev_pad: DatabaseViewRevisionPad,
   ) -> FlowyResult<Self> {
+    let view_id = view_rev_pad.view_id.clone();
     let (notifier, _) = broadcast::channel(100);
     tokio::spawn(DatabaseViewChangedReceiverRunner(Some(notifier.subscribe())).run());
-    let cloud = Arc::new(GridViewRevisionCloudService {
-      token: token.to_owned(),
-    });
-
-    let view_rev_pad = match rev_manager
-      .initialize::<GridViewRevisionSerde>(Some(cloud))
-      .await
-    {
-      Ok(pad) => pad,
-      Err(err) => {
-        // It shouldn't be here, because the snapshot should come to recue.
-        tracing::error!("Deserialize grid view revisions failed: {}", err);
-        let view = DatabaseViewRevisionPad::new(
-          view_id.to_owned(),
-          view_id.to_owned(),
-          LayoutRevision::Grid,
-        );
-        let bytes = make_grid_view_operations(&view).json_bytes();
-        let reset_revision = Revision::initial_revision(&view_id, bytes);
-        let _ = rev_manager.reset_object(vec![reset_revision]).await;
-        view
-      },
-    };
 
     let view_rev_pad = Arc::new(RwLock::new(view_rev_pad));
     let rev_manager = Arc::new(rev_manager);
@@ -165,6 +141,43 @@ impl DatabaseViewRevisionEditor {
     })
   }
 
+  #[tracing::instrument(level = "trace", skip_all, err)]
+  pub async fn new(
+    user_id: &str,
+    token: &str,
+    view_id: String,
+    delegate: Arc<dyn DatabaseViewData>,
+    cell_data_cache: AtomicCellDataCache,
+    mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
+  ) -> FlowyResult<Self> {
+    let cloud = Arc::new(DatabaseViewRevisionCloudService {
+      token: token.to_owned(),
+    });
+
+    let view_rev_pad = match rev_manager
+      .initialize::<DatabaseViewRevisionSerde>(Some(cloud))
+      .await
+    {
+      Ok(pad) => pad,
+      Err(err) => {
+        // It shouldn't be here, because the snapshot should come to recue.
+        tracing::error!("Deserialize database view revisions failed: {}", err);
+        let (view, reset_revision) = generate_restore_view(&view_id).await;
+        let _ = rev_manager.reset_object(vec![reset_revision]).await;
+        view
+      },
+    };
+
+    Self::from_pad(
+      user_id,
+      delegate,
+      cell_data_cache,
+      rev_manager,
+      view_rev_pad,
+    )
+    .await
+  }
+
   #[tracing::instrument(name = "close grid view editor", level = "trace", skip_all)]
   pub async fn close(&self) {
     self.rev_manager.generate_snapshot().await;
@@ -177,18 +190,18 @@ impl DatabaseViewRevisionEditor {
     let changeset = match event.into_owned() {
       DatabaseBlockEvent::InsertRow { block_id: _, row } => {
         //
-        ViewRowsChangesetPB::from_insert(self.view_id.clone(), vec![row])
+        RowsChangesetPB::from_insert(self.view_id.clone(), vec![row])
       },
       DatabaseBlockEvent::UpdateRow { block_id: _, row } => {
         //
-        ViewRowsChangesetPB::from_update(self.view_id.clone(), vec![row])
+        RowsChangesetPB::from_update(self.view_id.clone(), vec![row])
       },
       DatabaseBlockEvent::DeleteRow {
         block_id: _,
         row_id,
       } => {
         //
-        ViewRowsChangesetPB::from_delete(self.view_id.clone(), vec![row_id])
+        RowsChangesetPB::from_delete(self.view_id.clone(), vec![row_id])
       },
       DatabaseBlockEvent::Move {
         block_id: _,
@@ -196,7 +209,7 @@ impl DatabaseViewRevisionEditor {
         inserted_row,
       } => {
         //
-        ViewRowsChangesetPB::from_move(
+        RowsChangesetPB::from_move(
           self.view_id.clone(),
           vec![deleted_row_id],
           vec![inserted_row],
@@ -209,20 +222,20 @@ impl DatabaseViewRevisionEditor {
       .send();
   }
 
-  pub async fn sort_rows(&self, rows: &mut Vec<Arc<RowRevision>>) {
+  pub async fn v_sort_rows(&self, rows: &mut Vec<Arc<RowRevision>>) {
     self.sort_controller.write().await.sort_rows(rows).await
   }
 
-  pub async fn filter_rows(&self, _block_id: &str, rows: &mut Vec<Arc<RowRevision>>) {
+  pub async fn v_filter_rows(&self, _block_id: &str, rows: &mut Vec<Arc<RowRevision>>) {
     self.filter_controller.filter_row_revs(rows).await;
   }
 
-  pub async fn duplicate_view_data(&self) -> FlowyResult<String> {
+  pub async fn v_duplicate_data(&self) -> FlowyResult<String> {
     let json_str = self.pad.read().await.json_str()?;
     Ok(json_str)
   }
 
-  pub async fn will_create_view_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
+  pub async fn v_will_create_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
     if params.group_id.is_none() {
       return;
     }
@@ -235,7 +248,7 @@ impl DatabaseViewRevisionEditor {
       .await;
   }
 
-  pub async fn did_create_view_row(&self, row_pb: &RowPB, params: &CreateRowParams) {
+  pub async fn v_did_create_row(&self, row_pb: &RowPB, params: &CreateRowParams) {
     // Send the group notification if the current view has groups
     match params.group_id.as_ref() {
       None => {},
@@ -262,7 +275,7 @@ impl DatabaseViewRevisionEditor {
   }
 
   #[tracing::instrument(level = "trace", skip_all)]
-  pub async fn did_delete_view_row(&self, row_rev: &RowRevision) {
+  pub async fn v_did_delete_row(&self, row_rev: &RowRevision) {
     // Send the group notification if the current view has groups;
     let result = self
       .mut_group_controller(|group_controller, field_rev| {
@@ -278,7 +291,7 @@ impl DatabaseViewRevisionEditor {
     }
   }
 
-  pub async fn did_update_view_row(
+  pub async fn v_did_update_row(
     &self,
     old_row_rev: Option<Arc<RowRevision>>,
     row_rev: &RowRevision,
@@ -326,7 +339,7 @@ impl DatabaseViewRevisionEditor {
     });
   }
 
-  pub async fn move_view_group_row(
+  pub async fn v_move_group_row(
     &self,
     row_rev: &RowRevision,
     row_changeset: &mut RowChangeset,
@@ -364,7 +377,7 @@ impl DatabaseViewRevisionEditor {
   }
   /// Only call once after grid view editor initialized
   #[tracing::instrument(level = "trace", skip(self))]
-  pub async fn load_view_groups(&self) -> FlowyResult<Vec<GroupPB>> {
+  pub async fn v_load_groups(&self) -> FlowyResult<Vec<GroupPB>> {
     let groups = self
       .group_controller
       .read()
@@ -378,7 +391,7 @@ impl DatabaseViewRevisionEditor {
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn move_view_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
+  pub async fn v_move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
     self
       .group_controller
       .write()
@@ -417,7 +430,7 @@ impl DatabaseViewRevisionEditor {
 
   /// Initialize new group when grouping by a new field
   ///
-  pub async fn initialize_new_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
+  pub async fn v_initialize_new_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
     if let Some(field_rev) = self.delegate.get_field_rev(&params.field_id).await {
       self
         .modify(|pad| {
@@ -432,13 +445,13 @@ impl DatabaseViewRevisionEditor {
         .await?;
     }
     if self.group_controller.read().await.field_id() != params.field_id {
-      self.group_by_view_field(&params.field_id).await?;
+      self.v_update_group_setting(&params.field_id).await?;
       self.notify_did_update_setting().await;
     }
     Ok(())
   }
 
-  pub async fn delete_view_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
+  pub async fn v_delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
     self
       .modify(|pad| {
         let changeset =
@@ -448,18 +461,18 @@ impl DatabaseViewRevisionEditor {
       .await
   }
 
-  pub async fn get_view_setting(&self) -> DatabaseViewSettingPB {
+  pub async fn v_get_setting(&self) -> DatabaseViewSettingPB {
     let field_revs = self.delegate.get_field_revs(None).await;
-    make_grid_setting(&*self.pad.read().await, &field_revs)
+    make_database_view_setting(&*self.pad.read().await, &field_revs)
   }
 
-  pub async fn get_all_view_sorts(&self) -> Vec<Arc<SortRevision>> {
+  pub async fn v_get_all_sorts(&self) -> Vec<Arc<SortRevision>> {
     let field_revs = self.delegate.get_field_revs(None).await;
     self.pad.read().await.get_all_sorts(&field_revs)
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn insert_view_sort(&self, params: AlterSortParams) -> FlowyResult<SortRevision> {
+  pub async fn v_insert_sort(&self, params: AlterSortParams) -> FlowyResult<SortRevision> {
     let sort_type = SortType::from(&params);
     let is_exist = params.sort_id.is_some();
     let sort_id = match params.sort_id {
@@ -501,7 +514,7 @@ impl DatabaseViewRevisionEditor {
     Ok(sort_rev)
   }
 
-  pub async fn delete_view_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
+  pub async fn v_delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
     let notification = self
       .sort_controller
       .write()
@@ -524,8 +537,8 @@ impl DatabaseViewRevisionEditor {
     Ok(())
   }
 
-  pub async fn delete_all_view_sorts(&self) -> FlowyResult<()> {
-    let all_sorts = self.get_all_view_sorts().await;
+  pub async fn v_delete_all_sorts(&self) -> FlowyResult<()> {
+    let all_sorts = self.v_get_all_sorts().await;
     self.sort_controller.write().await.delete_all_sorts().await;
     self
       .modify(|pad| {
@@ -543,12 +556,12 @@ impl DatabaseViewRevisionEditor {
     Ok(())
   }
 
-  pub async fn get_all_view_filters(&self) -> Vec<Arc<FilterRevision>> {
+  pub async fn v_get_all_filters(&self) -> Vec<Arc<FilterRevision>> {
     let field_revs = self.delegate.get_field_revs(None).await;
     self.pad.read().await.get_all_filters(&field_revs)
   }
 
-  pub async fn get_view_filters(&self, filter_type: &FilterType) -> Vec<Arc<FilterRevision>> {
+  pub async fn v_get_filters(&self, filter_type: &FilterType) -> Vec<Arc<FilterRevision>> {
     let field_type_rev: FieldTypeRevision = filter_type.field_type.clone().into();
     self
       .pad
@@ -558,7 +571,7 @@ impl DatabaseViewRevisionEditor {
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn insert_view_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
+  pub async fn v_insert_filter(&self, params: AlterFilterParams) -> FlowyResult<()> {
     let filter_type = FilterType::from(&params);
     let is_exist = params.filter_id.is_some();
     let filter_id = match params.filter_id {
@@ -611,7 +624,7 @@ impl DatabaseViewRevisionEditor {
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn delete_view_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
+  pub async fn v_delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
     let filter_type = params.filter_type;
     let changeset = self
       .filter_controller
@@ -636,7 +649,7 @@ impl DatabaseViewRevisionEditor {
   }
 
   /// Returns the current calendar settings
-  pub async fn get_calendar_settings(&self) -> FlowyResult<CalendarSettingsParams> {
+  pub async fn v_get_calendar_settings(&self) -> FlowyResult<CalendarSettingsParams> {
     let settings = self
       .pad
       .read()
@@ -647,7 +660,10 @@ impl DatabaseViewRevisionEditor {
   }
 
   /// Update the calendar settings and send the notification to refresh the UI
-  pub async fn update_calendar_settings(&self, params: CalendarSettingsParams) -> FlowyResult<()> {
+  pub async fn v_update_calendar_settings(
+    &self,
+    params: CalendarSettingsParams,
+  ) -> FlowyResult<()> {
     // Maybe it needs no send notification to refresh the UI
     self
       .modify(|pad| Ok(pad.update_layout_setting(&LayoutRevision::Calendar, &params)?))
@@ -656,7 +672,7 @@ impl DatabaseViewRevisionEditor {
   }
 
   #[tracing::instrument(level = "trace", skip_all, err)]
-  pub async fn did_update_view_field_type_option(
+  pub async fn v_did_update_field_type_option(
     &self,
     field_id: &str,
     old_field_rev: Option<Arc<FieldRevision>>,
@@ -696,7 +712,7 @@ impl DatabaseViewRevisionEditor {
   /// * `field_id`:
   ///
   #[tracing::instrument(level = "debug", skip_all, err)]
-  pub async fn group_by_view_field(&self, field_id: &str) -> FlowyResult<()> {
+  pub async fn v_update_group_setting(&self, field_id: &str) -> FlowyResult<()> {
     if let Some(field_rev) = self.delegate.get_field_rev(field_id).await {
       let row_revs = self.delegate.get_row_revs(None).await;
       let configuration_reader = GroupConfigurationReaderImpl {
@@ -737,7 +753,7 @@ impl DatabaseViewRevisionEditor {
     Ok(())
   }
 
-  pub(crate) async fn get_cells_for_field(
+  pub(crate) async fn v_get_cells_for_field(
     &self,
     field_id: &str,
   ) -> FlowyResult<Vec<RowSingleCellData>> {
@@ -745,7 +761,7 @@ impl DatabaseViewRevisionEditor {
   }
 
   async fn notify_did_update_setting(&self) {
-    let setting = self.get_view_setting().await;
+    let setting = self.v_get_setting().await;
     send_notification(&self.view_id, DatabaseNotification::DidUpdateSettings)
       .payload(setting)
       .send();
@@ -781,7 +797,7 @@ impl DatabaseViewRevisionEditor {
   where
     F: for<'a> FnOnce(
       &'a mut DatabaseViewRevisionPad,
-    ) -> FlowyResult<Option<GridViewRevisionChangeset>>,
+    ) -> FlowyResult<Option<DatabaseViewRevisionChangeset>>,
   {
     let mut write_guard = self.pad.write().await;
     match f(&mut write_guard)? {
@@ -825,7 +841,7 @@ impl DatabaseViewRevisionEditor {
 }
 /// Returns the list of cells corresponding to the given field.
 pub(crate) async fn get_cells_for_field(
-  delegate: Arc<dyn DatabaseViewEditorDelegate>,
+  delegate: Arc<dyn DatabaseViewData>,
   field_id: &str,
 ) -> FlowyResult<Vec<RowSingleCellData>> {
   let row_revs = delegate.get_row_revs(None).await;
@@ -854,7 +870,7 @@ pub(crate) async fn get_cells_for_field(
 }
 
 #[async_trait]
-impl RefCountValue for DatabaseViewRevisionEditor {
+impl RefCountValue for DatabaseViewEditor {
   async fn did_remove(&self) {
     self.close().await;
   }
@@ -865,7 +881,7 @@ async fn new_group_controller(
   view_id: String,
   view_rev_pad: Arc<RwLock<DatabaseViewRevisionPad>>,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
-  delegate: Arc<dyn DatabaseViewEditorDelegate>,
+  delegate: Arc<dyn DatabaseViewData>,
 ) -> FlowyResult<Box<dyn GroupController>> {
   let configuration_reader = GroupConfigurationReaderImpl {
     pad: view_rev_pad.clone(),
@@ -884,7 +900,7 @@ async fn new_group_controller(
         .find(|field_rev| field_rev.id == configuration.field_id)
         .cloned()
     })
-    .unwrap_or_else(|| find_group_field(&field_revs, &layout).unwrap());
+    .unwrap_or_else(|| find_grouping_field(&field_revs, &layout).unwrap());
 
   new_group_controller_with_field_rev(
     user_id,
@@ -905,7 +921,7 @@ async fn new_group_controller_with_field_rev(
   view_id: String,
   view_rev_pad: Arc<RwLock<DatabaseViewRevisionPad>>,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
-  field_rev: Arc<FieldRevision>,
+  grouping_field_rev: Arc<FieldRevision>,
   row_revs: Vec<Arc<RowRevision>>,
   configuration_reader: GroupConfigurationReaderImpl,
 ) -> FlowyResult<Box<dyn GroupController>> {
@@ -916,7 +932,7 @@ async fn new_group_controller_with_field_rev(
   };
   make_group_controller(
     view_id,
-    field_rev,
+    grouping_field_rev,
     row_revs,
     configuration_reader,
     configuration_writer,
@@ -926,7 +942,7 @@ async fn new_group_controller_with_field_rev(
 
 async fn make_filter_controller(
   view_id: &str,
-  delegate: Arc<dyn DatabaseViewEditorDelegate>,
+  delegate: Arc<dyn DatabaseViewData>,
   notifier: DatabaseViewChangedNotifier,
   cell_data_cache: AtomicCellDataCache,
   pad: Arc<RwLock<DatabaseViewRevisionPad>>,
@@ -934,7 +950,7 @@ async fn make_filter_controller(
   let field_revs = delegate.get_field_revs(None).await;
   let filter_revs = pad.read().await.get_all_filters(&field_revs);
   let task_scheduler = delegate.get_task_scheduler();
-  let filter_delegate = GridViewFilterDelegateImpl {
+  let filter_delegate = DatabaseViewFilterDelegateImpl {
     editor_delegate: delegate.clone(),
     view_revision_pad: pad,
   };
@@ -962,7 +978,7 @@ async fn make_filter_controller(
 
 async fn make_sort_controller(
   view_id: &str,
-  delegate: Arc<dyn DatabaseViewEditorDelegate>,
+  delegate: Arc<dyn DatabaseViewData>,
   notifier: DatabaseViewChangedNotifier,
   filter_controller: Arc<FilterController>,
   pad: Arc<RwLock<DatabaseViewRevisionPad>>,
@@ -971,7 +987,7 @@ async fn make_sort_controller(
   let handler_id = gen_handler_id();
   let field_revs = delegate.get_field_revs(None).await;
   let sorts = pad.read().await.get_all_sorts(&field_revs);
-  let sort_delegate = GridViewSortDelegateImpl {
+  let sort_delegate = DatabaseViewSortDelegateImpl {
     editor_delegate: delegate.clone(),
     view_revision_pad: pad,
     filter_controller,
@@ -996,6 +1012,19 @@ async fn make_sort_controller(
 
 fn gen_handler_id() -> String {
   nanoid!(10)
+}
+
+async fn generate_restore_view(view_id: &str) -> (DatabaseViewRevisionPad, Revision) {
+  let database_id = gen_database_id();
+  let view = DatabaseViewRevisionPad::new(
+    database_id,
+    view_id.to_owned(),
+    "".to_string(),
+    LayoutRevision::Grid,
+  );
+  let bytes = make_database_view_operations(&view).json_bytes();
+  let reset_revision = Revision::initial_revision(view_id, bytes);
+  (view, reset_revision)
 }
 
 #[cfg(test)]
