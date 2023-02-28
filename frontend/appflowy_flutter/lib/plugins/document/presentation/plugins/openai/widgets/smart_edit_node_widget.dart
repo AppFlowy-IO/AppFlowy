@@ -256,16 +256,21 @@ class _SmartEditInputState extends State<_SmartEditInput> {
         instruction: instruction,
       );
       return edits.fold((error) async {
-        return const dartz.Left(
-          OpenAIError(message: 'Could not get edits'),
+        return dartz.Left(
+          OpenAIError(
+            message:
+                LocaleKeys.document_plugins_smartEditCouldNotFetchResult.tr(),
+          ),
         );
       }, (textEdit) async {
         return dartz.Right(textEdit);
       });
     }, (error) async {
       // error
-      return const dartz.Left(
-        OpenAIError(message: 'Could not get user profile'),
+      return dartz.Left(
+        OpenAIError(
+          message: LocaleKeys.document_plugins_smartEditCouldNotFetchKey.tr(),
+        ),
       );
     });
   }

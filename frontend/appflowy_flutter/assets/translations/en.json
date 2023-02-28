@@ -350,7 +350,9 @@
       "autoGeneratorCantGetOpenAIKey": "Can't get OpenAI key",
       "smartEditTitleName": "Open AI: Smart Edit",
       "smartEditFixSpelling": "Fix spelling",
-      "smartEditSummarize": "Summarize"
+      "smartEditSummarize": "Summarize",
+      "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
+      "smartEditCouldNotFetchKey": "Could not fetch OpenAI key"
     }
   },
   "board": {
