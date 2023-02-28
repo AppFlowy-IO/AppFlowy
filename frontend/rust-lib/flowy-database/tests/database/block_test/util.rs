@@ -43,7 +43,7 @@ impl DatabaseRowTestBuilder {
 
   pub fn insert_date_cell(&mut self, data: &str) -> String {
     let value = serde_json::to_string(&DateCellChangeset {
-      date: data.to_string(),
+      date: Some(data.to_string()),
       time: None,
       is_utc: true,
       include_time: Some(false),

@@ -8,7 +8,7 @@ use crate::services::field::{
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
-use chrono::{NaiveDateTime, Timelike};
+use chrono::NaiveDateTime;
 use database_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -23,9 +23,6 @@ pub struct DateTypeOptionPB {
 
   #[pb(index = 2)]
   pub time_format: TimeFormat,
-
-  #[pb(index = 3)]
-  pub include_time: bool,
 }
 impl_type_option!(DateTypeOptionPB, FieldType::DateTime);
 
@@ -70,16 +67,12 @@ impl DateTypeOptionPB {
     if native.timestamp() == 0 {
       return DateCellDataPB::default();
     }
-
-    let time = native.time();
-    let has_time = time.hour() != 0 || time.second() != 0;
-
     let utc = self.utc_date_time_from_native(native);
     let fmt = self.date_format.format_str();
     let date = format!("{}", utc.format_with_items(StrftimeItems::new(fmt)));
 
     let mut time = "".to_string();
-    if has_time && self.include_time {
+    if include_time {
       let fmt = format!(
         "{}{}",
         self.date_format.format_str(),
@@ -98,23 +91,19 @@ impl DateTypeOptionPB {
   }
 
   fn date_fmt(&self, time: &Option<String>) -> String {
-    if self.include_time {
-      match time.as_ref() {
-        None => self.date_format.format_str().to_string(),
-        Some(time_str) => {
-          if time_str.is_empty() {
-            self.date_format.format_str().to_string()
-          } else {
-            format!(
-              "{} {}",
-              self.date_format.format_str(),
-              self.time_format.format_str()
-            )
-          }
-        },
-      }
-    } else {
-      self.date_format.format_str().to_string()
+    match time.as_ref() {
+      None => self.date_format.format_str().to_string(),
+      Some(time_str) => {
+        if time_str.is_empty() {
+          self.date_format.format_str().to_string()
+        } else {
+          format!(
+            "{} {}",
+            self.date_format.format_str(),
+            self.time_format.format_str()
+          )
+        }
+      },
     }
   }
 
@@ -198,23 +187,23 @@ impl CellDataChangeset for DateTypeOptionPB {
       Some(include_time) => include_time,
     };
     let timestamp = match changeset.date_timestamp() {
-      None => timestamp.unwrap_or_default(),
-      Some(date_timestamp) => match (self.include_time, changeset.time) {
+      None => timestamp,
+      Some(date_timestamp) => match (include_time, changeset.time) {
         (true, Some(time)) => {
           let time = Some(time.trim().to_uppercase());
           let native = NaiveDateTime::from_timestamp_opt(date_timestamp, 0);
           if let Some(native) = native {
             let utc = self.utc_date_time_from_native(native);
-            self.timestamp_from_utc_with_time(&utc, &time)?
+            Some(self.timestamp_from_utc_with_time(&utc, &time)?)
           } else {
-            date_timestamp
+            Some(date_timestamp)
           }
         },
-        _ => date_timestamp,
+        _ => Some(date_timestamp),
       },
     };
     let date_cell_data = DateCellData {
-      timestamp: Some(timestamp),
+      timestamp,
       include_time,
     };
     Ok((date_cell_data.to_string(), date_cell_data))

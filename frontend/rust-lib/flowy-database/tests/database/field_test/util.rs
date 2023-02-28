@@ -61,7 +61,7 @@ pub fn create_single_select_field(grid_id: &str) -> (CreateFieldParams, FieldRev
 
 pub fn make_date_cell_string(s: &str) -> String {
   serde_json::to_string(&DateCellChangeset {
-    date: s.to_string(),
+    date: Some(s.to_string()),
     time: None,
     is_utc: true,
     include_time: Some(false),

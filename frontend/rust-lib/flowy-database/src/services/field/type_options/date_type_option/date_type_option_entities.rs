@@ -29,8 +29,8 @@ pub struct DateChangesetPB {
   #[pb(index = 1)]
   pub cell_path: CellIdPB,
 
-  #[pb(index = 2)]
-  pub date: String,
+  #[pb(index = 2, one_of)]
+  pub date: Option<String>,
 
   #[pb(index = 3, one_of)]
   pub time: Option<String>,
@@ -44,7 +44,7 @@ pub struct DateChangesetPB {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DateCellChangeset {
-  pub date: String,
+  pub date: Option<String>,
   pub time: Option<String>,
   pub include_time: Option<bool>,
   pub is_utc: bool,
@@ -52,9 +52,13 @@ pub struct DateCellChangeset {
 
 impl DateCellChangeset {
   pub fn date_timestamp(&self) -> Option<i64> {
-    match self.date.parse::<i64>() {
-      Ok(date_timestamp) => Some(date_timestamp),
-      Err(_) => None,
+    if let Some(date) = &self.date {
+      match date.parse::<i64>() {
+        Ok(date_timestamp) => Some(date_timestamp),
+        Err(_) => None,
+      }
+    } else {
+      None
     }
   }
 }
