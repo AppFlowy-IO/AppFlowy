@@ -5,54 +5,27 @@ import 'package:appflowy_editor/src/render/selection_menu/selection_menu_item_wi
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-typedef SelectionMenuItemHandler = void Function(
-  EditorState editorState,
-  SelectionMenuService menuService,
-  BuildContext context,
-);
-
 /// Selection Menu Item
 class SelectionMenuItem {
   SelectionMenuItem({
     required this.name,
     required this.icon,
     required this.keywords,
-    required SelectionMenuItemHandler handler,
-  }) {
-    this.handler = (editorState, menuService, context) {
-      _deleteToSlash(editorState);
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        handler(editorState, menuService, context);
-      });
-    };
-  }
+    required this.handler,
+  });
 
-  final String Function() name;
+  final String name;
   final Widget Function(EditorState editorState, bool onSelected) icon;
 
   /// Customizes keywords for item.
   ///
   /// The keywords are used to quickly retrieve items.
   final List<String> keywords;
-  late final SelectionMenuItemHandler handler;
-
-  void _deleteToSlash(EditorState editorState) {
-    final selectionService = editorState.service.selectionService;
-    final selection = selectionService.currentSelection.value;
-    final nodes = selectionService.currentSelectedNodes;
-    if (selection != null && nodes.length == 1) {
-      final node = nodes.first as TextNode;
-      final end = selection.start.offset;
-      final start = node.toPlainText().substring(0, end).lastIndexOf('/');
-      final transaction = editorState.transaction
-        ..deleteText(
-          node,
-          start,
-          selection.start.offset - start,
-        );
-      editorState.apply(transaction);
-    }
-  }
+  final void Function(
+    EditorState editorState,
+    SelectionMenuService menuService,
+    BuildContext context,
+  ) handler;
 
   /// Creates a selection menu entry for inserting a [Node].
   /// [name] and [iconData] define the appearance within the selection menu.
@@ -81,7 +54,7 @@ class SelectionMenuItem {
         updateSelection,
   }) {
     return SelectionMenuItem(
-      name: () => name,
+      name: name,
       icon: (editorState, onSelected) => Icon(
         iconData,
         color: onSelected
@@ -305,8 +278,11 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
 
     if (event.logicalKey == LogicalKeyboardKey.enter) {
       if (0 <= _selectedIndex && _selectedIndex < _showingItems.length) {
-        _showingItems[_selectedIndex]
-            .handler(widget.editorState, widget.menuService, context);
+        _deleteLastCharacters(length: keyword.length + 1);
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+          _showingItems[_selectedIndex]
+              .handler(widget.editorState, widget.menuService, context);
+        });
         return KeyEventResult.handled;
       }
     } else if (event.logicalKey == LogicalKeyboardKey.escape) {
