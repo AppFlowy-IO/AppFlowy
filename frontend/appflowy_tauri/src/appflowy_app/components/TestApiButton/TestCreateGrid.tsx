@@ -25,16 +25,16 @@ export const TestCreateGridButton = () => {
         Log.debug('Did receive database:' + databasePB);
       },
       onRowsChanged: async (rows) => {
-        // Rendering rows
-        Log.debug(rows);
+        if (rows.length === 0) {
+          return;
+        }
+
         const rowInfo = rows[0];
         const rowCache = databaseController.databaseViewCache.getRowCache();
         const cellCache = rowCache.getCellCache();
         const fieldController = databaseController.fieldController;
         const rowController = new RowController(rowInfo, fieldController, rowCache);
-
         const cellByFieldId = await rowController.loadCells();
-        console.log(cellByFieldId);
 
         // Initial each cell controller
         for (const cellIdentifier of cellByFieldId.values()) {

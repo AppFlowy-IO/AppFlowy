@@ -4,26 +4,24 @@ import {
   UpdatedRowPB,
   RowIdPB,
   OptionalRowPB,
-} from '../../../../../services/backend/models/flowy-database/row_entities';
+  RowsChangesetPB,
+  RowsVisibilityChangesetPB,
+  ReorderSingleRowPB,
+} from '../../../../../services/backend';
 import { ChangeNotifier } from '../../../../utils/change_notifier';
 import { FieldInfo } from '../field/controller';
 import { CellCache, CellCacheKey } from '../cell/cache';
-import {
-  RowsChangesetPB,
-  RowsVisibilityChangesetPB,
-} from '../../../../../services/backend/models/flowy-database/view_entities';
 import { CellIdentifier } from '../cell/backend_service';
-import { ReorderSingleRowPB } from '../../../../../services/backend/models/flowy-database/sort_entities';
 import { DatabaseEventGetRow } from '../../../../../services/backend/events/flowy-database';
 import { None, Option, Some } from 'ts-results';
 import { Log } from '../../../../utils/log';
 
-type CellByFieldId = Map<string, CellIdentifier>;
+export type CellByFieldId = Map<string, CellIdentifier>;
 
 export class RowCache {
-  private _rowList: RowList;
-  private _cellCache: CellCache;
-  private _notifier: RowChangeNotifier;
+  private readonly _rowList: RowList;
+  private readonly _cellCache: CellCache;
+  private readonly _notifier: RowChangeNotifier;
 
   constructor(public readonly viewId: string, private readonly getFieldInfos: () => readonly FieldInfo[]) {
     this._rowList = new RowList();

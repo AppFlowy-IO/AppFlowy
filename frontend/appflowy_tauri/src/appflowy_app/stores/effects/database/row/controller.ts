@@ -1,4 +1,4 @@
-import { RowCache, RowInfo } from './cache';
+import { CellByFieldId, RowCache, RowInfo } from './cache';
 import { FieldController } from '../field/controller';
 
 export class RowController {
@@ -10,7 +10,7 @@ export class RowController {
     //
   }
 
-  loadCells = async () => {
+  loadCells = async (): Promise<CellByFieldId> => {
     return this.cache.loadCells(this.rowInfo.row.id);
   };
 }
