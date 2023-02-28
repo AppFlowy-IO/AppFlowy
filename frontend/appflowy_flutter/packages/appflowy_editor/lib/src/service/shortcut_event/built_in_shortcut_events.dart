@@ -285,16 +285,6 @@ List<ShortcutEvent> builtInShortcutEvents = [
     handler: tabHandler,
   ),
   ShortcutEvent(
-    key: 'Double stars to bold',
-    command: 'shift+asterisk',
-    handler: doubleAsterisksToBold,
-  ),
-  ShortcutEvent(
-    key: 'Double underscores to bold',
-    command: 'shift+underscore',
-    handler: doubleUnderscoresToBold,
-  ),
-  ShortcutEvent(
     key: 'Backquote to code',
     command: 'backquote',
     handler: backquoteToCodeHandler,
