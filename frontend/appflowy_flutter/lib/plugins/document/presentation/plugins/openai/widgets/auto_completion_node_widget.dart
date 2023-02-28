@@ -167,7 +167,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
                 text: '↵',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Colors.grey,
-                    ), // FIXME: color
+                    ),
               ),
             ],
           ),
@@ -185,7 +185,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
                 text: LocaleKeys.button_esc.tr(),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Colors.grey,
-                    ), // FIXME: color
+                    ),
               ),
             ],
           ),
@@ -198,7 +198,6 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   Widget _buildFooterWidget(BuildContext context) {
     return Row(
       children: [
-        // FIXME: l10n
         FlowyRichTextButton(
           TextSpan(
             children: [

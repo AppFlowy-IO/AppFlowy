@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { None, Option, Some } from 'ts-results';
+
 export class CellCacheKey {
   constructor(public readonly fieldId: string, public readonly rowId: string) {}
 }
@@ -27,19 +29,19 @@ export class CellCache {
     inner.set(key.rowId, value);
   };
 
-  get<T>(key: CellCacheKey): T | null {
+  get<T>(key: CellCacheKey): Option<T> {
     const inner = this._cellDataByFieldId.get(key.fieldId);
     if (inner === undefined) {
-      return null;
+      return None;
     } else {
       const value = inner.get(key.rowId);
       if (typeof value === typeof undefined || typeof value === typeof null) {
-        return null;
+        return None;
       }
       if (value satisfies T) {
-        return value as T;
+        return Some(value as T);
       }
-      return null;
+      return None;
     }
   }
 }

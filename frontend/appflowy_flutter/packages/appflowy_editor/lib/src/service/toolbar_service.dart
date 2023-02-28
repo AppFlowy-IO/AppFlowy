@@ -78,7 +78,7 @@ class _FlowyToolbarState extends State<FlowyToolbar>
       assert(items.length == 1, 'The toolbar item\'s id must be unique');
       return false;
     }
-    items.first.handler(widget.editorState, context);
+    items.first.handler?.call(widget.editorState, context);
     return true;
   }
 

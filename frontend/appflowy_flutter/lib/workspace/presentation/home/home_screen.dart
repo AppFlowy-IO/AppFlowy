@@ -244,7 +244,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 animate: true)
             .animate(layout.animDuration, Curves.easeOut),
         homeMenuResizer
-            .positioned(left: layout.homePageLOffset - 5)
+            .positioned(left: layout.menuWidth - 5)
             .animate(layout.animDuration, Curves.easeOut),
       ],
     );

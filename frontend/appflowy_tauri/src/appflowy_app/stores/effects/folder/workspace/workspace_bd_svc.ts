@@ -5,23 +5,25 @@ import {
   FolderEventReadWorkspaceApps,
   FolderEventReadWorkspaces,
 } from '../../../../../services/backend/events/flowy-folder';
-import { CreateAppPayloadPB } from '../../../../../services/backend/models/flowy-folder/app';
-import { WorkspaceIdPB } from '../../../../../services/backend/models/flowy-folder/workspace';
+import { CreateAppPayloadPB, WorkspaceIdPB, FlowyError, MoveFolderItemPayloadPB } from '../../../../../services/backend';
 import assert from 'assert';
-import { FlowyError } from '../../../../../services/backend/models/flowy-error/errors';
-import { MoveFolderItemPayloadPB } from '../../../../../services/backend/models/flowy-folder/view';
 
 export class WorkspaceBackendService {
   constructor(public readonly workspaceId: string) {}
 
-  createApp = (params: { name: string; desc?: string }) => {
+  createApp = async (params: { name: string; desc?: string }) => {
     const payload = CreateAppPayloadPB.fromObject({
       workspace_id: this.workspaceId,
       name: params.name,
       desc: params.desc || '',
     });
 
-    return FolderEventCreateApp(payload);
+    const result = await FolderEventCreateApp(payload);
+    if (result.ok) {
+      return result.val;
+    } else {
+      throw new Error(result.val.msg);
+    }
   };
 
   getWorkspace = () => {

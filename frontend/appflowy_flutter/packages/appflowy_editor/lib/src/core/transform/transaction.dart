@@ -266,6 +266,9 @@ extension TextTransaction on Transaction {
           textNode.delta.slice(max(index - 1, 0), index).first.attributes;
       if (newAttributes != null) {
         newAttributes = {...newAttributes}; // make a copy
+      } else {
+        newAttributes =
+            textNode.delta.slice(index, index + length).first.attributes;
       }
     }
     updateText(
@@ -281,5 +284,53 @@ extension TextTransaction on Transaction {
         offset: index + text.length,
       ),
     );
+  }
+
+  void replaceTexts(
+    List<TextNode> textNodes,
+    Selection selection,
+    List<String> texts,
+  ) {
+    if (textNodes.isEmpty) {
+      return;
+    }
+
+    if (selection.isSingle) {
+      assert(textNodes.length == 1 && texts.length == 1);
+      replaceText(
+        textNodes.first,
+        selection.startIndex,
+        selection.length,
+        texts.first,
+      );
+    } else {
+      final length = textNodes.length;
+      for (var i = 0; i < length; i++) {
+        final textNode = textNodes[i];
+        final text = texts[i];
+        if (i == 0) {
+          replaceText(
+            textNode,
+            selection.startIndex,
+            textNode.toPlainText().length,
+            text,
+          );
+        } else if (i == length - 1) {
+          replaceText(
+            textNode,
+            0,
+            selection.endIndex,
+            text,
+          );
+        } else {
+          replaceText(
+            textNode,
+            0,
+            textNode.toPlainText().length,
+            text,
+          );
+        }
+      }
+    }
   }
 }

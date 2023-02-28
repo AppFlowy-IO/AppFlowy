@@ -28,6 +28,10 @@ body {
   @apply rounded-xl border border-gray-300 px-[18px] py-[14px] text-sm;
 }
 
+.input.error {
+  @apply border-main-alert bg-main-alert/10;
+}
+
 th {
   @apply text-left font-normal;
 }

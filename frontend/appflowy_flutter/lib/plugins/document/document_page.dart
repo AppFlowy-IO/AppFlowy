@@ -5,6 +5,8 @@ import 'package:appflowy/plugins/document/presentation/plugins/grid/grid_menu_it
 import 'package:appflowy/plugins/document/presentation/plugins/grid/grid_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/auto_completion_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/auto_completion_plugins.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_toolbar_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -145,6 +147,9 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         kAutoCompletionInputType: AutoCompletionInputBuilder(),
         // Cover
         kCoverType: CoverNodeWidgetBuilder(),
+        // Smart Edit,
+        kSmartEditType: SmartEditInputBuilder(),
+
       },
       shortcutEvents: [
         // Divider
@@ -177,6 +182,9 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         // Cover
         coverMenuItem
       ],
+      toolbarItems: [
+        smartEditItem,
+      ],
       themeData: theme.copyWith(extensions: [
         ...theme.extensions.values,
         customEditorTheme(context),
@@ -208,6 +216,7 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
     }
     final temporaryNodeTypes = [
       kAutoCompletionInputType,
+      kSmartEditType,
     ];
     final iterator = NodeIterator(
       document: document,

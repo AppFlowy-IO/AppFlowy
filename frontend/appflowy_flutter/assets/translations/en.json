@@ -71,6 +71,7 @@
   },
   "dialogCreatePageNameHint": "Page name",
   "questionBubble": {
+    "shortcuts": "Shortcuts",
     "whatsNew": "What's new?",
     "help": "Help & Support",
     "debug": {
@@ -136,7 +137,8 @@
     "esc": "ESC",
     "keep": "Keep",
     "tryAgain": "Try again",
-    "discard": "Discard"
+    "discard": "Discard",
+    "replace": "Replace"
   },
   "label": {
     "welcome": "Welcome!",
@@ -346,7 +348,12 @@
       "autoGeneratorLearnMore": "Learn more",
       "autoGeneratorGenerate": "Generate",
       "autoGeneratorHintText": "Tell us what you want to generate by OpenAI ...",
-      "autoGeneratorCantGetOpenAIKey": "Can't get OpenAI key"
+      "autoGeneratorCantGetOpenAIKey": "Can't get OpenAI key",
+      "smartEditTitleName": "Open AI: Smart Edit",
+      "smartEditFixSpelling": "Fix spelling",
+      "smartEditSummarize": "Summarize",
+      "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
+      "smartEditCouldNotFetchKey": "Could not fetch OpenAI key"
     }
   },
   "board": {

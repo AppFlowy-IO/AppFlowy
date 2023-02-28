@@ -1,5 +1,4 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/commands/command_extension.dart';
 
 extension TextCommands on EditorState {
   /// Insert text at the given index of the given [TextNode] or the [Path].
