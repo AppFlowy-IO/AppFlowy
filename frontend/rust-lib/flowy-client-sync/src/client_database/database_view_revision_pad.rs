@@ -10,13 +10,13 @@ use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTran
 use revision_model::Revision;
 use std::sync::Arc;
 
-pub type GridViewOperations = DeltaOperations<EmptyAttributes>;
-pub type GridViewOperationsBuilder = DeltaBuilder;
+pub type DatabaseViewOperations = DeltaOperations<EmptyAttributes>;
+pub type DatabaseViewOperationsBuilder = DeltaBuilder;
 
 #[derive(Debug, Clone)]
 pub struct DatabaseViewRevisionPad {
   view: Arc<DatabaseViewRevision>,
-  operations: GridViewOperations,
+  operations: DatabaseViewOperations,
 }
 
 impl std::ops::Deref for DatabaseViewRevisionPad {
@@ -30,14 +30,20 @@ impl std::ops::Deref for DatabaseViewRevisionPad {
 impl DatabaseViewRevisionPad {
   // For the moment, the view_id is equal to grid_id. The database_id represents the database id.
   // A database can be referenced by multiple views.
-  pub fn new(database_id: String, view_id: String, layout: LayoutRevision) -> Self {
-    let view = Arc::new(DatabaseViewRevision::new(database_id, view_id, layout));
+  pub fn new(database_id: String, view_id: String, name: String, layout: LayoutRevision) -> Self {
+    let view = Arc::new(DatabaseViewRevision::new(
+      database_id,
+      view_id,
+      true,
+      name,
+      layout,
+    ));
     let json = serde_json::to_string(&view).unwrap();
-    let operations = GridViewOperationsBuilder::new().insert(&json).build();
+    let operations = DatabaseViewOperationsBuilder::new().insert(&json).build();
     Self { view, operations }
   }
 
-  pub fn from_operations(operations: GridViewOperations) -> SyncResult<Self> {
+  pub fn from_operations(operations: DatabaseViewOperations) -> SyncResult<Self> {
     if operations.is_empty() {
       return Err(SyncError::record_not_found().context("Unexpected empty operations"));
     }
@@ -54,7 +60,7 @@ impl DatabaseViewRevisionPad {
   }
 
   pub fn from_revisions(revisions: Vec<Revision>) -> SyncResult<Self> {
-    let operations: GridViewOperations = make_operations_from_revisions(revisions)?;
+    let operations: DatabaseViewOperations = make_operations_from_revisions(revisions)?;
     Self::from_operations(operations)
   }
 
@@ -75,7 +81,7 @@ impl DatabaseViewRevisionPad {
     field_id: &str,
     field_type: &FieldTypeRevision,
     group_configuration_rev: GroupConfigurationRevision,
-  ) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     self.modify(|view| {
       // Only save one group
       view.groups.clear();
@@ -98,7 +104,7 @@ impl DatabaseViewRevisionPad {
     field_type: &FieldTypeRevision,
     configuration_id: &str,
     mut_configuration_fn: F,
-  ) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     self.modify(
       |view| match view.groups.get_mut_objects(field_id, field_type) {
         None => Ok(None),
@@ -120,7 +126,7 @@ impl DatabaseViewRevisionPad {
     group_id: &str,
     field_id: &str,
     field_type: &FieldTypeRevision,
-  ) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     self.modify(|view| {
       if let Some(groups) = view.groups.get_mut_objects(field_id, field_type) {
         groups.retain(|group| group.id != group_id);
@@ -162,7 +168,7 @@ impl DatabaseViewRevisionPad {
     &mut self,
     field_id: &str,
     sort_rev: SortRevision,
-  ) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     self.modify(|view| {
       let field_type = sort_rev.field_type;
       view.sorts.add_object(field_id, &field_type, sort_rev);
@@ -174,7 +180,7 @@ impl DatabaseViewRevisionPad {
     &mut self,
     field_id: &str,
     sort_rev: SortRevision,
-  ) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     self.modify(|view| {
       if let Some(sort) = view
         .sorts
@@ -196,7 +202,7 @@ impl DatabaseViewRevisionPad {
     sort_id: &str,
     field_id: &str,
     field_type: T,
-  ) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     let field_type = field_type.into();
     self.modify(|view| {
       if let Some(sorts) = view.sorts.get_mut_objects(field_id, &field_type) {
@@ -208,7 +214,7 @@ impl DatabaseViewRevisionPad {
     })
   }
 
-  pub fn delete_all_sorts(&mut self) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  pub fn delete_all_sorts(&mut self) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     self.modify(|view| {
       view.sorts.clear();
       Ok(Some(()))
@@ -246,7 +252,7 @@ impl DatabaseViewRevisionPad {
     &mut self,
     field_id: &str,
     filter_rev: FilterRevision,
-  ) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     self.modify(|view| {
       let field_type = filter_rev.field_type;
       view.filters.add_object(field_id, &field_type, filter_rev);
@@ -258,7 +264,7 @@ impl DatabaseViewRevisionPad {
     &mut self,
     field_id: &str,
     filter_rev: FilterRevision,
-  ) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     self.modify(|view| {
       if let Some(filter) =
         view
@@ -282,7 +288,7 @@ impl DatabaseViewRevisionPad {
     filter_id: &str,
     field_id: &str,
     field_type: T,
-  ) -> SyncResult<Option<GridViewRevisionChangeset>> {
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>> {
     let field_type = field_type.into();
     self.modify(|view| {
       if let Some(filters) = view.filters.get_mut_objects(field_id, &field_type) {
@@ -294,15 +300,42 @@ impl DatabaseViewRevisionPad {
     })
   }
 
+  /// Returns the settings for the given layout. If it's not exists then will return the
+  /// default settings for the given layout.
+  /// Each [database view](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/database-view) has its own settings.
+  pub fn get_layout_setting<T>(&self, layout: &LayoutRevision) -> Option<T>
+  where
+    T: serde::de::DeserializeOwned,
+  {
+    let settings_str = self.view.layout_settings.get(layout)?;
+    serde_json::from_str::<T>(settings_str).ok()
+  }
+
+  /// updates the settings for the given layout type
+  pub fn update_layout_setting<T>(
+    &mut self,
+    layout: &LayoutRevision,
+    settings: &T,
+  ) -> SyncResult<Option<DatabaseViewRevisionChangeset>>
+  where
+    T: serde::Serialize,
+  {
+    let settings_str = serde_json::to_string(settings).map_err(internal_sync_error)?;
+    self.modify(|view| {
+      view.layout_settings.insert(layout.clone(), settings_str);
+      Ok(Some(()))
+    })
+  }
+
   pub fn json_str(&self) -> SyncResult<String> {
-    make_grid_view_rev_json_str(&self.view)
+    make_database_view_rev_json_str(&self.view)
   }
 
   pub fn layout(&self) -> LayoutRevision {
     self.layout.clone()
   }
 
-  fn modify<F>(&mut self, f: F) -> SyncResult<Option<GridViewRevisionChangeset>>
+  fn modify<F>(&mut self, f: F) -> SyncResult<Option<DatabaseViewRevisionChangeset>>
   where
     F: FnOnce(&mut DatabaseViewRevision) -> SyncResult<Option<()>>,
   {
@@ -310,14 +343,14 @@ impl DatabaseViewRevisionPad {
     match f(Arc::make_mut(&mut self.view))? {
       None => Ok(None),
       Some(_) => {
-        let old = make_grid_view_rev_json_str(&cloned_view)?;
+        let old = make_database_view_rev_json_str(&cloned_view)?;
         let new = self.json_str()?;
         match cal_diff::<EmptyAttributes>(old, new) {
           None => Ok(None),
           Some(operations) => {
             self.operations = self.operations.compose(&operations)?;
             let md5 = md5(&self.operations.json_bytes());
-            Ok(Some(GridViewRevisionChangeset { operations, md5 }))
+            Ok(Some(DatabaseViewRevisionChangeset { operations, md5 }))
           },
         }
       },
@@ -326,19 +359,19 @@ impl DatabaseViewRevisionPad {
 }
 
 #[derive(Debug)]
-pub struct GridViewRevisionChangeset {
-  pub operations: GridViewOperations,
+pub struct DatabaseViewRevisionChangeset {
+  pub operations: DatabaseViewOperations,
   pub md5: String,
 }
 
-pub fn make_grid_view_rev_json_str(grid_revision: &DatabaseViewRevision) -> SyncResult<String> {
+pub fn make_database_view_rev_json_str(grid_revision: &DatabaseViewRevision) -> SyncResult<String> {
   let json = serde_json::to_string(grid_revision).map_err(|err| {
     internal_sync_error(format!("Serialize grid view to json str failed. {:?}", err))
   })?;
   Ok(json)
 }
 
-pub fn make_grid_view_operations(grid_view: &DatabaseViewRevision) -> GridViewOperations {
+pub fn make_database_view_operations(grid_view: &DatabaseViewRevision) -> DatabaseViewOperations {
   let json = serde_json::to_string(grid_view).unwrap();
-  GridViewOperationsBuilder::new().insert(&json).build()
+  DatabaseViewOperationsBuilder::new().insert(&json).build()
 }

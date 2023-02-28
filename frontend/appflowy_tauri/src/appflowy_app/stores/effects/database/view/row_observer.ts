@@ -5,15 +5,15 @@ import {
   ReorderSingleRowPB,
 } from '../../../../../services/backend/events/flowy-database';
 import {
-  ViewRowsChangesetPB,
-  ViewRowsVisibilityChangesetPB,
+  RowsChangesetPB,
+  RowsVisibilityChangesetPB,
 } from '../../../../../services/backend/models/flowy-database/view_entities';
 import { FlowyError } from '../../../../../services/backend/models/flowy-error/errors';
 import { ChangeNotifier } from '../../../../utils/change_notifier';
 import { DatabaseNotificationObserver } from '../notifications/observer';
 
-export type RowsVisibilityNotifyValue = Result<ViewRowsVisibilityChangesetPB, FlowyError>;
-export type RowsNotifyValue = Result<ViewRowsChangesetPB, FlowyError>;
+export type RowsVisibilityNotifyValue = Result<RowsVisibilityChangesetPB, FlowyError>;
+export type RowsNotifyValue = Result<RowsChangesetPB, FlowyError>;
 export type ReorderRowsNotifyValue = Result<string[], FlowyError>;
 export type ReorderSingleRowNotifyValue = Result<ReorderSingleRowPB, FlowyError>;
 
@@ -43,10 +43,10 @@ export class DatabaseViewRowsObserver {
       parserHandler: (notification, payload) => {
         switch (notification) {
           case DatabaseNotification.DidUpdateViewRowsVisibility:
-            this._rowsVisibilityNotifier.notify(Ok(ViewRowsVisibilityChangesetPB.deserializeBinary(payload)));
+            this._rowsVisibilityNotifier.notify(Ok(RowsVisibilityChangesetPB.deserializeBinary(payload)));
             break;
           case DatabaseNotification.DidUpdateViewRows:
-            this._rowsNotifier.notify(Ok(ViewRowsChangesetPB.deserializeBinary(payload)));
+            this._rowsNotifier.notify(Ok(RowsChangesetPB.deserializeBinary(payload)));
             break;
           case DatabaseNotification.DidReorderRows:
             this._reorderRowsNotifier.notify(Ok(ReorderAllRowsPB.deserializeBinary(payload).row_orders));

@@ -8,7 +8,7 @@ use crate::{
   manager::FolderManager,
   services::{get_current_workspace, read_workspace_apps, WorkspaceController},
 };
-use lib_dispatch::prelude::{data_result, AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(level = "debug", skip(data, controller), err)]
@@ -19,7 +19,7 @@ pub(crate) async fn create_workspace_handler(
   let controller = controller.get_ref().clone();
   let params: CreateWorkspaceParams = data.into_inner().try_into()?;
   let workspace_rev = controller.create_workspace_from_params(params).await?;
-  data_result(workspace_rev.into())
+  data_result_ok(workspace_rev.into())
 }
 
 #[tracing::instrument(level = "debug", skip(controller), err)]
@@ -33,7 +33,7 @@ pub(crate) async fn read_workspace_apps_handler(
     .map(|app_rev| app_rev.into())
     .collect();
   let repeated_app = RepeatedAppPB { items };
-  data_result(repeated_app)
+  data_result_ok(repeated_app)
 }
 
 #[tracing::instrument(level = "debug", skip(data, controller), err)]
@@ -43,7 +43,7 @@ pub(crate) async fn open_workspace_handler(
 ) -> DataResult<WorkspacePB, FlowyError> {
   let params: WorkspaceIdPB = data.into_inner();
   let workspaces = controller.open_workspace(params).await?;
-  data_result(workspaces)
+  data_result_ok(workspaces)
 }
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
@@ -71,7 +71,7 @@ pub(crate) async fn read_workspaces_handler(
       Ok(workspaces)
     })
     .await?;
-  data_result(workspaces)
+  data_result_ok(workspaces)
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
@@ -99,5 +99,5 @@ pub async fn read_cur_workspace_handler(
     workspace,
     latest_view,
   };
-  data_result(setting)
+  data_result_ok(setting)
 }

@@ -57,8 +57,7 @@ impl DatabaseRevisionPad {
   pub fn from_operations(operations: DatabaseOperations) -> SyncResult<Self> {
     let content = operations.content()?;
     let database_rev: DatabaseRevision = serde_json::from_str(&content).map_err(|e| {
-      let msg = format!("Deserialize operations to grid failed: {}", e);
-      tracing::error!("{}", msg);
+      let msg = format!("Deserialize operations to database failed: {}", e);
       SyncError::internal().context(msg)
     })?;
 
@@ -110,18 +109,18 @@ impl DatabaseRevisionPad {
     &mut self,
     field_id: &str,
   ) -> SyncResult<Option<DatabaseRevisionChangeset>> {
-    self.modify_database(|grid_meta| {
-      match grid_meta
+    self.modify_database(|database| {
+      match database
         .fields
         .iter()
         .position(|field| field.id == field_id)
       {
         None => Ok(None),
         Some(index) => {
-          if grid_meta.fields[index].is_primary {
+          if database.fields[index].is_primary {
             Err(SyncError::can_not_delete_primary_field())
           } else {
-            grid_meta.fields.remove(index);
+            database.fields.remove(index);
             Ok(Some(()))
           }
         },

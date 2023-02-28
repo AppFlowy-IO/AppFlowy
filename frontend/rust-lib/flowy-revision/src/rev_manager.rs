@@ -1,4 +1,4 @@
-use crate::rev_queue::{RevCommand, RevCommandSender, RevQueue};
+use crate::rev_queue::{RevCommandSender, RevisionCommand, RevisionQueue};
 use crate::{
   RevisionPersistence, RevisionSnapshotController, RevisionSnapshotData,
   RevisionSnapshotPersistence, WSDataProviderDataSource,
@@ -111,7 +111,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
       rev_compress.clone(),
     );
     let (rev_queue, receiver) = mpsc::channel(1000);
-    let queue = RevQueue::new(
+    let queue = RevisionQueue::new(
       object_id.to_owned(),
       rev_id_counter.clone(),
       rev_persistence.clone(),
@@ -261,7 +261,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
     let (ret, rx) = oneshot::channel();
     self
       .rev_queue
-      .send(RevCommand::RevisionData {
+      .send(RevisionCommand::RevisionData {
         data,
         object_md5,
         ret,

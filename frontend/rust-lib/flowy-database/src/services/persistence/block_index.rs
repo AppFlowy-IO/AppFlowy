@@ -1,4 +1,4 @@
-use crate::services::persistence::GridDatabase;
+use crate::services::persistence::DatabaseDBConnection;
 use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 use flowy_error::FlowyResult;
 use flowy_sqlite::{
@@ -8,17 +8,17 @@ use flowy_sqlite::{
 use std::sync::Arc;
 
 /// Allow getting the block id from row id.
-pub struct BlockIndexCache {
-  database: Arc<dyn GridDatabase>,
+pub struct BlockRowIndexer {
+  database: Arc<dyn DatabaseDBConnection>,
 }
 
-impl BlockIndexCache {
-  pub fn new(database: Arc<dyn GridDatabase>) -> Self {
+impl BlockRowIndexer {
+  pub fn new(database: Arc<dyn DatabaseDBConnection>) -> Self {
     Self { database }
   }
 
   pub fn get_block_id(&self, row_id: &str) -> FlowyResult<String> {
-    let conn = self.database.db_connection()?;
+    let conn = self.database.get_db_connection()?;
     let block_id = dsl::grid_block_index_table
       .filter(grid_block_index_table::row_id.eq(row_id))
       .select(grid_block_index_table::block_id)
@@ -28,7 +28,7 @@ impl BlockIndexCache {
   }
 
   pub fn insert(&self, block_id: &str, row_id: &str) -> FlowyResult<()> {
-    let conn = self.database.db_connection()?;
+    let conn = self.database.get_db_connection()?;
     let item = IndexItem {
       row_id: row_id.to_string(),
       block_id: block_id.to_string(),

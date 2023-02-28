@@ -11,7 +11,7 @@ on:
       - "main"
       - "release/*"
     paths:
-      - "frontend/app_flowy/packages/appflowy_editor/**"
+      - "frontend/appflowy_flutter/packages/appflowy_editor/**"
 
 env:
   CARGO_TERM_COLOR: always
@@ -35,7 +35,7 @@ jobs:
           cache: true
 
       - name: Run FlowyEditor tests
-        working-directory: frontend/app_flowy/packages/appflowy_editor
+        working-directory: frontend/appflowy_flutter/packages/appflowy_editor
         run: |
           flutter pub get
           flutter format --set-exit-if-changed .
