@@ -1,5 +1,5 @@
 import { IPopupItem, Popup } from '../../_shared/Popup';
-import { CloseSvg } from '../../_shared/svg/CloseSvg';
+import { LogoutSvg } from '../../_shared/svg/LogoutSvg';
 
 export const OptionsPopup = ({ onSignOutClick, onClose }: { onSignOutClick: () => void; onClose: () => void }) => {
   const items: IPopupItem[] = [
@@ -7,7 +7,7 @@ export const OptionsPopup = ({ onSignOutClick, onClose }: { onSignOutClick: () =
       title: 'Sign out',
       icon: (
         <i className={'block h-5 w-5 flex-shrink-0'}>
-          <CloseSvg></CloseSvg>
+          <LogoutSvg></LogoutSvg>
         </i>
       ),
       onClick: onSignOutClick,
