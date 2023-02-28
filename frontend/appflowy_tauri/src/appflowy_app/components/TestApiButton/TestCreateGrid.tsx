@@ -37,8 +37,8 @@ export const TestCreateGridButton = () => {
         console.log(cellByFieldId);
 
         // Initial each cell controller
-        for (let [fieldId, cell] of cellByFieldId.entries()) {
-          const builder = new CellControllerBuilder(cell, cellCache, fieldController);
+        for (const cellIdentifier of cellByFieldId.values()) {
+          const builder = new CellControllerBuilder(cellIdentifier, cellCache, fieldController);
           const cellController = builder.build();
           cellController.subscribeChanged({
             onCellChanged: (value) => {

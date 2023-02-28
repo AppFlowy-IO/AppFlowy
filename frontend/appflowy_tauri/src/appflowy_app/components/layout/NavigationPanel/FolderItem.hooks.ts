@@ -2,7 +2,7 @@ import { foldersActions, IFolder } from '../../../stores/reducers/folders/slice'
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../stores/store';
 import { IPage, pagesActions } from '../../../stores/reducers/pages/slice';
-import { ViewDataFormatPB, ViewLayoutTypePB } from '../../../../services/backend';
+import { ViewLayoutTypePB } from '../../../../services/backend';
 import { AppBackendService } from '../../../stores/effects/folder/app/backend_service';
 import { WorkspaceBackendService } from '../../../stores/effects/folder/workspace/backend_service';
 import { useError } from '../../error/Error.hooks';
@@ -94,7 +94,6 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
     try {
       const newView = await appBackendService.createView({
         name: 'New Document 1',
-        dataFormatType: ViewDataFormatPB.NodeFormat,
         layoutType: ViewLayoutTypePB.Document,
       });
 
@@ -116,7 +115,6 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
     try {
       const newView = await appBackendService.createView({
         name: 'New Board 1',
-        dataFormatType: ViewDataFormatPB.DatabaseFormat,
         layoutType: ViewLayoutTypePB.Board,
       });
 
@@ -138,7 +136,6 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
     try {
       const newView = await appBackendService.createView({
         name: 'New Grid 1',
-        dataFormatType: ViewDataFormatPB.DatabaseFormat,
         layoutType: ViewLayoutTypePB.Grid,
       });
 
