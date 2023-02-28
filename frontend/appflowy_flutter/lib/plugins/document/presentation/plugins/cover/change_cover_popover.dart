@@ -11,16 +11,15 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
-import 'package:appflowy_editor/src/render/color_menu/color_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ChangeCoverPopover extends StatefulWidget {
   final EditorState editorState;
   final Node node;
-  void Function(CoverSelectionType selectionType, String selection)
+  final Function(CoverSelectionType selectionType, String selection)
       onCoverChanged;
 
-  ChangeCoverPopover(
+  const ChangeCoverPopover(
       {super.key,
       required this.editorState,
       required this.onCoverChanged,
@@ -80,7 +79,6 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
             List<String>? images = snapshot.data as List<String>;
             return GridView.builder(
               shrinkWrap: true,
-              // physics: NeverScrollableScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
                   childAspectRatio: 1 / 0.65,
@@ -136,7 +134,6 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
   _buildAbstractImagePicker() {
     return GridView.builder(
       shrinkWrap: true,
-      // physics: NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
           childAspectRatio: 1 / 0.65,
@@ -177,7 +174,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
         .pickFiles(
             dialogTitle: "Add cover images",
             allowMultiple: true,
-            allowedExtensions: ['jpg', 'png', 'jpg']);
+            allowedExtensions: ['jpg', 'png']);
     if (filePickerResults != null) {
       for (var file in filePickerResults.files) {
         if (file.path!.endsWith("png") || file.path!.endsWith("jpg")) {
@@ -345,7 +342,7 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
                 ? SizedBox.square(
                     dimension: 25,
                     child: Container(
-                      margin: EdgeInsets.all(4),
+                      margin: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color:
                             Color(int.tryParse(option.colorHex) ?? 0xFFFFFFFF),
@@ -370,4 +367,14 @@ extension on Color {
   String toHex() {
     return '0x${value.toRadixString(16)}';
   }
+}
+
+class ColorOption {
+  const ColorOption({
+    required this.colorHex,
+    required this.name,
+  });
+
+  final String colorHex;
+  final String name;
 }
