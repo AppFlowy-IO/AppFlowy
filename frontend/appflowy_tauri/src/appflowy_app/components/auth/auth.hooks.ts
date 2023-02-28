@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from '../../stores/store';
 import { UserProfilePB } from '../../../services/backend/events/flowy-user';
 import { AuthBackendService } from '../../stores/effects/user/backend_service';
 import { FolderEventReadCurrentWorkspace } from '../../../services/backend/events/flowy-folder';
+import { WorkspaceSettingPB } from '../../../services/backend/models/flowy-folder/workspace';
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
@@ -11,11 +12,14 @@ export const useAuth = () => {
 
   async function register(email: string, password: string, name: string): Promise<UserProfilePB> {
     const authResult = await authBackendService.signUp({ email, password, name });
-      const openWorkspaceResult = await _openWorkspace();
+
     if (authResult.ok) {
       const { id, token } = authResult.val;
+      // Get the workspace setting after user registered. The workspace setting
+      // contains the latest visiting view and the current workspace data.
+      const openWorkspaceResult = await _openWorkspace();
       if (openWorkspaceResult.ok) {
-        const workspaceSetting = openWorkspaceResult.val;
+        const workspaceSetting: WorkspaceSettingPB = openWorkspaceResult.val;
         dispatch(
           currentUserActions.updateUser({
             id: id,
