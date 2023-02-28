@@ -1,5 +1,5 @@
 import { foldersActions, IFolder } from '../../../stores/reducers/folders/slice';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../stores/store';
 import { IPage, pagesActions } from '../../../stores/reducers/pages/slice';
 import { ViewLayoutTypePB } from '../../../../services/backend';
@@ -26,6 +26,11 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
   const appBackendService = new AppBackendService(folder.id);
   const workspaceBackendService = new WorkspaceBackendService(workspace.id || '');
   const error = useError();
+  useEffect(() => {
+    if (showPages) {
+      setFolderHeight(`${initialFolderHeight + pages.length * initialPageHeight}px`);
+    }
+  }, [pages]);
 
   const onFolderNameClick = () => {
     if (showPages) {

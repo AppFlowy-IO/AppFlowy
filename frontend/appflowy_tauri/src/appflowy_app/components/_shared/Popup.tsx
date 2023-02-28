@@ -29,14 +29,14 @@ export const Popup = ({
   return (
     <div ref={ref} className={`${className} rounded-lg bg-white px-2 py-2 shadow-md`}>
       <div
-        className={`grid w-full ${columns === 1 && 'grid-cols-1'} ${columns === 2 && 'grid-cols-2'} ${
+        className={`grid ${columns === 1 && 'grid-cols-1'} ${columns === 2 && 'grid-cols-2'} ${
           columns === 3 && 'grid-cols-3'
         } gap-x-4`}
       >
         {items.map((item, index) => (
           <button
             key={index}
-            className={'flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-2 hover:bg-main-secondary'}
+            className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 hover:bg-main-secondary'}
             onClick={(e) => handleClick(e, item)}
           >
             {item.icon}
