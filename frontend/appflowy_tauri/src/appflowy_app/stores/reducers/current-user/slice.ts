@@ -1,12 +1,14 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { nanoid } from 'nanoid';
+import { WorkspaceSettingPB } from '../../../../services/backend/models/flowy-folder/workspace';
 
 export interface ICurrentUser {
-  id: string;
-  displayName: string;
-  email: string;
-  token: string;
+  id?: string;
+  displayName?: string;
+  email?: string;
+  token?: string;
   isAuthenticated: boolean;
+  workspaceSetting?: WorkspaceSettingPB,
 }
 
 const initialState: ICurrentUser | null = {
@@ -24,8 +26,10 @@ export const currentUserSlice = createSlice({
     updateUser: (state, action: PayloadAction<ICurrentUser>) => {
       return action.payload;
     },
-    logout: (state) => {
-      state.isAuthenticated = false;
+    logout: () => {
+      return {
+        isAuthenticated: false,
+      };
     },
   },
 });

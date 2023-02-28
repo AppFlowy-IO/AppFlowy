@@ -1,23 +1,23 @@
-import { CellIdentifier } from './backend_service';
-import { CellCache, CellCacheKey } from './cache';
-import { FieldController } from '../field/controller';
+import { CellIdentifier } from './cell_bd_svc';
+import { CellCache, CellCacheKey } from './cell_cache';
+import { FieldController } from '../field/field_controller';
 import { CellDataLoader } from './data_parser';
 import { CellDataPersistence } from './data_persistence';
-import { FieldBackendService, TypeOptionParser } from '../field/backend_service';
+import { FieldBackendService, TypeOptionParser } from '../field/field_bd_svc';
 import { ChangeNotifier } from '../../../../utils/change_notifier';
 import { CellObserver } from './cell_observer';
 import { Log } from '../../../../utils/log';
-import { Err, Ok } from 'ts-results';
+import { Err, None, Ok, Option, Some } from 'ts-results';
 
 export abstract class CellFieldNotifier {
   abstract subscribeOnFieldChanged(callback: () => void): void;
 }
 
 export class CellController<T, D> {
-  _fieldBackendService: FieldBackendService;
-  _cellDataNotifier: CellDataNotifier<T | null>;
-  _cellObserver: CellObserver;
-  _cacheKey: CellCacheKey;
+  private _fieldBackendService: FieldBackendService;
+  private _cellDataNotifier: CellDataNotifier<Option<T>>;
+  private _cellObserver: CellObserver;
+  private _cacheKey: CellCacheKey;
 
   constructor(
     public readonly cellIdentifier: CellIdentifier,
@@ -27,15 +27,9 @@ export class CellController<T, D> {
     private readonly cellDataPersistence: CellDataPersistence<D>
   ) {
     this._fieldBackendService = new FieldBackendService(cellIdentifier.viewId, cellIdentifier.fieldId);
-
     this._cacheKey = new CellCacheKey(cellIdentifier.rowId, cellIdentifier.fieldId);
-
-    this._cellDataNotifier = new CellDataNotifier(cellCache.get(this._cacheKey));
-
+    this._cellDataNotifier = new CellDataNotifier(cellCache.get<T>(this._cacheKey));
     this._cellObserver = new CellObserver(cellIdentifier.rowId, cellIdentifier.fieldId);
-  }
-
-  subscribeChanged = (callbacks: { onCellChanged: (value: T | null) => void; onFieldChanged?: () => void }) => {
     this._cellObserver.subscribe({
       /// 1.Listen on user edit event and load the new cell data if needed.
       /// For example:
@@ -46,10 +40,11 @@ export class CellController<T, D> {
         await this._loadCellData();
       },
     });
+  }
 
+  subscribeChanged = (callbacks: { onCellChanged: (value: Option<T>) => void; onFieldChanged?: () => void }) => {
     /// 2.Listen on the field event and load the cell data if needed.
     this.fieldNotifier.subscribeOnFieldChanged(async () => {
-      //
       callbacks.onFieldChanged?.();
 
       /// reloadOnFieldChanged should be true if you need to load the data when the corresponding field is changed
@@ -61,7 +56,9 @@ export class CellController<T, D> {
     });
 
     this._cellDataNotifier.observer.subscribe((cellData) => {
-      callbacks.onCellChanged(cellData);
+      if (cellData !== null) {
+        callbacks.onCellChanged(cellData);
+      }
     });
   };
 
@@ -81,14 +78,26 @@ export class CellController<T, D> {
     }
   };
 
-  _loadCellData = () => {
+  /// Return the cell data if it exists in the cache
+  /// If the cell data is not exist, it will load the cell
+  /// data from the backend and then the [onCellChanged] will
+  /// get called
+  getCellData = (): Option<T> => {
+    const cellData = this.cellCache.get<T>(this._cacheKey);
+    if (cellData.none) {
+      void this._loadCellData();
+    }
+    return cellData;
+  };
+
+  private _loadCellData = () => {
     return this.cellDataLoader.loadData().then((result) => {
       if (result.ok && result.val !== undefined) {
         this.cellCache.insert(this._cacheKey, result.val);
-        this._cellDataNotifier.cellData = result.val;
+        this._cellDataNotifier.cellData = Some(result.val);
       } else {
         this.cellCache.remove(this._cacheKey);
-        this._cellDataNotifier.cellData = null;
+        this._cellDataNotifier.cellData = None;
       }
     });
   };
@@ -98,6 +107,7 @@ export class CellFieldNotifierImpl extends CellFieldNotifier {
   constructor(private readonly fieldController: FieldController) {
     super();
   }
+
   subscribeOnFieldChanged(callback: () => void): void {
     this.fieldController.subscribeOnFieldsChanged(callback);
   }
@@ -105,6 +115,7 @@ export class CellFieldNotifierImpl extends CellFieldNotifier {
 
 class CellDataNotifier<T> extends ChangeNotifier<T | null> {
   _cellData: T | null;
+
   constructor(cellData: T) {
     super();
     this._cellData = cellData;

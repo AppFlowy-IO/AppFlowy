@@ -71,7 +71,6 @@ export class FieldBackendService {
 
   duplicateField = () => {
     const payload = DuplicateFieldPayloadPB.fromObject({ view_id: this.viewId, field_id: this.fieldId });
-
     return DatabaseEventDuplicateField(payload);
   };
 
