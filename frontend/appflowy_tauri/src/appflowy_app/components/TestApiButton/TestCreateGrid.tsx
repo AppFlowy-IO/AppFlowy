@@ -26,7 +26,7 @@ export const TestCreateGridButton = () => {
       },
       onRowsChanged: async (rows) => {
         // Rendering rows
-        console.log(rows);
+        Log.debug(rows);
         const rowInfo = rows[0];
         const rowCache = databaseController.databaseViewCache.getRowCache();
         const cellCache = rowCache.getCellCache();
@@ -46,7 +46,8 @@ export const TestCreateGridButton = () => {
             },
           });
 
-          cellController.getCellData();
+          const cellData = cellController.getCellData();
+          Log.debug(cellData);
         }
       },
       onFieldsChanged: (fields) => {
