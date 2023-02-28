@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:appflowy/plugins/document/presentation/plugins/openai/service/text_edit.dart';
+
 import 'text_completion.dart';
 import 'package:dartz/dartz.dart';
 import 'dart:async';
@@ -38,6 +40,18 @@ abstract class OpenAIRepository {
     int maxTokens = 50,
     double temperature = .3,
   });
+
+  ///  Get edits from GPT-3
+  ///
+  /// [input] is the input text
+  /// [instruction] is the instruction text
+  /// [temperature] is the temperature of the model
+  ///
+  Future<Either<OpenAIError, TextEditResponse>> getEdits({
+    required String input,
+    required String instruction,
+    double temperature = 0.3,
+  });
 }
 
 class HttpOpenAIRepository implements OpenAIRepository {
@@ -70,7 +84,7 @@ class HttpOpenAIRepository implements OpenAIRepository {
       'stream': false,
     };
 
-    final response = await http.post(
+    final response = await client.post(
       OpenAIRequestType.textCompletion.uri,
       headers: headers,
       body: json.encode(parameters),
@@ -78,6 +92,32 @@ class HttpOpenAIRepository implements OpenAIRepository {
 
     if (response.statusCode == 200) {
       return Right(TextCompletionResponse.fromJson(json.decode(response.body)));
+    } else {
+      return Left(OpenAIError.fromJson(json.decode(response.body)['error']));
+    }
+  }
+
+  @override
+  Future<Either<OpenAIError, TextEditResponse>> getEdits({
+    required String input,
+    required String instruction,
+    double temperature = 0.3,
+  }) async {
+    final parameters = {
+      'model': 'text-davinci-edit-001',
+      'input': input,
+      'instruction': instruction,
+      'temperature': temperature,
+    };
+
+    final response = await client.post(
+      OpenAIRequestType.textEdit.uri,
+      headers: headers,
+      body: json.encode(parameters),
+    );
+
+    if (response.statusCode == 200) {
+      return Right(TextEditResponse.fromJson(json.decode(response.body)));
     } else {
       return Left(OpenAIError.fromJson(json.decode(response.body)['error']));
     }

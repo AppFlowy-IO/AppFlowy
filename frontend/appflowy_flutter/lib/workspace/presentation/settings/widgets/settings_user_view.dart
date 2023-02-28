@@ -121,7 +121,6 @@ class _OpenaiKeyInputState extends State<_OpenaiKeyInput> {
         ),
       ),
       onSubmitted: (val) {
-        // TODO: validate key
         context
             .read<SettingsUserViewBloc>()
             .add(SettingsUserEvent.updateUserOpenAIKey(val));
