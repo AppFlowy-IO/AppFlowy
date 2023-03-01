@@ -14,6 +14,20 @@ import {
 } from '../../../../../services/backend/events/flowy-database';
 
 export class SelectOptionBackendService {
+  constructor(public readonly viewId: string, public readonly fieldId: string) {}
+
+  createOption = async (params: { name: string }) => {
+    const payload = CreateSelectOptionPayloadPB.fromObject({
+      option_name: params.name,
+      view_id: this.viewId,
+      field_id: this.fieldId,
+    });
+
+    return DatabaseEventCreateSelectOption(payload);
+  };
+}
+
+export class SelectOptionCellBackendService {
   constructor(public readonly cellIdentifier: CellIdentifier) {}
 
   createOption = async (params: { name: string; isSelect?: boolean }) => {
@@ -29,6 +43,16 @@ export class SelectOptionBackendService {
     } else {
       return result;
     }
+  };
+
+  private _insertOption = (option: SelectOptionPB, isSelect: boolean) => {
+    const payload = SelectOptionChangesetPB.fromObject({ cell_identifier: this._cellIdentifier() });
+    if (isSelect) {
+      payload.insert_options.push(option);
+    } else {
+      payload.update_options.push(option);
+    }
+    return DatabaseEventUpdateSelectOption(payload);
   };
 
   updateOption = (option: SelectOptionPB) => {
@@ -57,16 +81,6 @@ export class SelectOptionBackendService {
     const payload = SelectOptionCellChangesetPB.fromObject({ cell_identifier: this._cellIdentifier() });
     payload.delete_option_ids.push(...optionIds);
     return DatabaseEventUpdateSelectOptionCell(payload);
-  };
-
-  private _insertOption = (option: SelectOptionPB, isSelect: boolean) => {
-    const payload = SelectOptionChangesetPB.fromObject({ cell_identifier: this._cellIdentifier() });
-    if (isSelect) {
-      payload.insert_options.push(option);
-    } else {
-      payload.update_options.push(option);
-    }
-    return DatabaseEventUpdateSelectOption(payload);
   };
 
   private _cellIdentifier = () => {

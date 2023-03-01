@@ -4,11 +4,12 @@ import {
   TestCreateGrid,
   TestCreateNewField,
   TestCreateRow,
-  TestCreateSelectOption,
+  TestCreateSelectOptionInCell,
   TestDeleteField,
   TestDeleteRow,
   TestEditCell,
   TestEditField,
+  TestGetSingleSelectFieldData,
 } from './TestGrid';
 
 export const TestAPI = () => {
@@ -20,7 +21,8 @@ export const TestAPI = () => {
         <TestCreateRow></TestCreateRow>
         <TestDeleteRow></TestDeleteRow>
         <TestEditCell></TestEditCell>
-        <TestCreateSelectOption></TestCreateSelectOption>
+        <TestCreateSelectOptionInCell></TestCreateSelectOptionInCell>
+        <TestGetSingleSelectFieldData></TestGetSingleSelectFieldData>
         <TestEditField></TestEditField>
         <TestCreateNewField></TestCreateNewField>
         <TestDeleteField></TestDeleteField>
