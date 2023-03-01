@@ -125,7 +125,7 @@ Future<EditorWidgetTester> _prepare(WidgetTester tester) async {
   );
 
   for (final item in defaultSelectionMenuItems) {
-    expect(find.text(item.name()), findsOneWidget);
+    expect(find.text(item.name), findsOneWidget);
   }
 
   return Future.value(editor);
