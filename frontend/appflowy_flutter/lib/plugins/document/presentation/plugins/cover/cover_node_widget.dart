@@ -8,6 +8,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ enum CoverSelectionType {
   color,
   file,
   asset,
+  deleted,
 }
 
 SelectionMenuItem coverMenuItem = SelectionMenuItem.node(
@@ -83,84 +85,125 @@ class __CoverImageNodeWidgetState extends State<_CoverImageNodeWidget>
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
 
+    return _buildCoverSection(screenSize);
+  }
+
+  _buildCoverSection(screenSize) {
+    if (widget.node.attributes[kCoverSelectionTypeAttribute] ==
+        CoverSelectionType.deleted.toString()) {
+      return _buildAddCoverButton();
+    }
     return Stack(
       children: [
-        _buildCover(screenSize),
-        Positioned(
-          bottom: 12,
-          right: 12,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AppFlowyPopover(
-                mutex: popoverMutex,
-                offset: const Offset(-125, 10),
-                controller: _popoverController,
-                direction: PopoverDirection.bottomWithCenterAligned,
-                triggerActions: PopoverTriggerFlags.none,
-                constraints: BoxConstraints.loose(const Size(380, 450)),
-                margin: EdgeInsets.zero,
-                child: RoundedTextButton(
-                  onPressed: () {
-                    _popoverController.show();
-                  },
-                  hoverColor: Theme.of(context).colorScheme.surface,
-                  textColor: Theme.of(context).colorScheme.onSurface,
-                  fillColor:
-                      Theme.of(context).colorScheme.surface.withOpacity(0.8),
-                  width: 120,
-                  height: 28,
-                  // fontSize: 12,
-                  title: LocaleKeys.cover_changeCover.tr(),
-                ),
-                popupBuilder: (BuildContext popoverContext) {
-                  return ChangeCoverPopover(
-                    node: widget.node,
-                    editorState: widget.editorState,
-                    onCoverChanged: (type, value) async {
-                      final transaction = widget.editorState.transaction;
-
-                      transaction.updateNode(
-                        widget.node,
-                        {
-                          kCoverSelectionTypeAttribute: type.toString(),
-                          kCoverSelectionAttribute: value
-                        },
-                      );
-                      await widget.editorState.apply(transaction);
-                      setState(() {});
-                    },
-                  );
-                },
-              ),
-              const SizedBox(width: 10),
-              FlowyIconButton(
-                fillColor:
-                    Theme.of(context).colorScheme.surface.withOpacity(0.8),
-                hoverColor: Theme.of(context).colorScheme.surface,
-                iconPadding: const EdgeInsets.all(5),
-                width: 28,
-                icon: svgWidget(
-                  "editor/delete",
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                onPressed: () async {
-                  final transaction = widget.editorState.transaction;
-
-                  transaction.deleteNode(
-                    widget.node,
-                  );
-                  await widget.editorState.apply(transaction);
-                },
-              ),
-            ],
-          ),
-        ),
+        _buildCoverImage(screenSize),
+        _buildCoverOverlayButtons(),
       ],
     );
   }
 
-  _buildCover(screenSize) {
+  _buildCoverOverlayButtons() {
+    return Positioned(
+      bottom: 12,
+      right: 12,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppFlowyPopover(
+            mutex: popoverMutex,
+            offset: const Offset(-125, 10),
+            controller: _popoverController,
+            direction: PopoverDirection.bottomWithCenterAligned,
+            triggerActions: PopoverTriggerFlags.none,
+            constraints: BoxConstraints.loose(const Size(380, 450)),
+            margin: EdgeInsets.zero,
+            child: RoundedTextButton(
+              onPressed: () {
+                _popoverController.show();
+              },
+              hoverColor: Theme.of(context).colorScheme.surface,
+              textColor: Theme.of(context).colorScheme.onSurface,
+              fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
+              width: 120,
+              height: 28,
+              title: LocaleKeys.cover_changeCover.tr(),
+            ),
+            popupBuilder: (BuildContext popoverContext) {
+              return ChangeCoverPopover(
+                node: widget.node,
+                editorState: widget.editorState,
+                onCoverChanged: (type, value) async {
+                  final transaction = widget.editorState.transaction;
+
+                  transaction.updateNode(
+                    widget.node,
+                    {
+                      kCoverSelectionTypeAttribute: type.toString(),
+                      kCoverSelectionAttribute: value
+                    },
+                  );
+                  await widget.editorState.apply(transaction);
+                  setState(() {});
+                },
+              );
+            },
+          ),
+          const SizedBox(width: 10),
+          FlowyIconButton(
+            fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
+            hoverColor: Theme.of(context).colorScheme.surface,
+            iconPadding: const EdgeInsets.all(5),
+            width: 28,
+            icon: svgWidget(
+              "editor/delete",
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            onPressed: () async {
+              final transaction = widget.editorState.transaction;
+
+              transaction.updateNode(
+                widget.node,
+                {
+                  kCoverSelectionTypeAttribute:
+                      CoverSelectionType.deleted.toString(),
+                  kCoverSelectionAttribute: null,
+                },
+              );
+              await widget.editorState.apply(transaction);
+              setState(() {});
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  _buildAddCoverButton() {
+    return FlowyButton(
+      leftIconSize: const Size.square(18),
+      onTap: () async {
+        final transaction = widget.editorState.transaction;
+        transaction.updateNode(
+          widget.node,
+          {
+            kCoverSelectionTypeAttribute: CoverSelectionType.asset.toString(),
+            kCoverSelectionAttribute:
+                "assets/images/app_flowy_abstract_cover_2.jpg"
+          },
+        );
+        await widget.editorState.apply(transaction);
+      },
+      useIntrinsicWidth: true,
+      leftIcon: svgWidget(
+        "editor/image",
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
+      text: FlowyText.regular(
+        LocaleKeys.cover_addCover.tr(),
+      ),
+    );
+  }
+
+  _buildCoverImage(screenSize) {
     if (widget.node.attributes[kCoverSelectionTypeAttribute] ==
         CoverSelectionType.file.toString()) {
       return Positioned(
@@ -203,6 +246,10 @@ class __CoverImageNodeWidgetState extends State<_CoverImageNodeWidget>
           ),
         ),
       );
+    }
+    if (widget.node.attributes[kCoverSelectionTypeAttribute] ==
+        CoverSelectionType.deleted.toString()) {
+      return Container();
     } else {
       return Positioned(
         child: ClipRRect(
