@@ -76,7 +76,7 @@ mod tests {
             &type_option,
             1653609600,
             None,
-            "May 27,2022",
+            "May 27,2022 00:00",
             true,
             &field_rev,
           );
@@ -94,7 +94,7 @@ mod tests {
             &type_option,
             1653609600,
             None,
-            "May 27,2022",
+            "May 27,2022 12:00 AM",
             true,
             &field_rev,
           );
@@ -144,7 +144,7 @@ mod tests {
       &type_option,
       1653609600,
       Some("".to_owned()),
-      "May 27,2022",
+      "May 27,2022 00:00",
       true,
       &field_rev,
     );
