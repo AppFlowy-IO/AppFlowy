@@ -25,10 +25,14 @@ export const TestCreateGrid = () => {
         Log.debug('Did receive database:' + databasePB);
       },
       onRowsChanged: async (rows) => {
-        assert(rows.length === 3);
+        if (rows.length !== 3) {
+          throw Error();
+        }
       },
       onFieldsChanged: (fields) => {
-        assert(fields.length === 3);
+        if (fields.length !== 3) {
+          throw Error();
+        }
       },
     });
     await databaseController.open().then((result) => result.unwrap());
@@ -96,9 +100,10 @@ export const TestEditField = () => {
     const firstFieldInfo = fieldInfos[0];
     const controller = new TypeOptionController(view.id, Some(firstFieldInfo));
     await controller.initialize();
-    await controller.setFieldName('hello world');
+    const newName = 'hello world';
+    await controller.setFieldName(newName);
 
-    await assertFieldName(view.id, firstFieldInfo.field.id, firstFieldInfo.field.field_type, 'hello world');
+    await assertFieldName(view.id, firstFieldInfo.field.id, firstFieldInfo.field.field_type, newName);
   }
 
   return TestButton('Test edit the column name', testEditField);
@@ -126,8 +131,10 @@ export const TestDeleteField = () => {
     const databaseController = await openTestDatabase(view.id);
     await databaseController.open().then((result) => result.unwrap());
 
-    // Modify the name of the field
-    const fieldInfo = databaseController.fieldController.fieldInfos[0];
+    // Modify the name of the field.
+    // The fieldInfos[0] is the primary field by default, we can't delete it.
+    // So let choose the second fieldInfo.
+    const fieldInfo = databaseController.fieldController.fieldInfos[1];
     const controller = new TypeOptionController(view.id, Some(fieldInfo));
     await controller.initialize();
     await assertNumberOfFields(view.id, 3);

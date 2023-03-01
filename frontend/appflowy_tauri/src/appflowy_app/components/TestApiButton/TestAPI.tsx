@@ -19,7 +19,7 @@ export const TestAPI = () => {
         <TestCreateSelectOption></TestCreateSelectOption>
         <TestEditField></TestEditField>
         <TestCreateNewField></TestCreateNewField>
-        {/*<TestDeleteField></TestDeleteField>*/}
+        <TestDeleteField></TestDeleteField>
       </ul>
     </React.Fragment>
   );
