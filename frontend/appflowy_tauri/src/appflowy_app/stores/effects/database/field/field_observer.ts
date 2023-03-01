@@ -7,24 +7,24 @@ type UpdateFieldNotifiedValue = Result<DatabaseFieldChangesetPB, FlowyError>;
 export type DatabaseNotificationCallback = (value: UpdateFieldNotifiedValue) => void;
 
 export class DatabaseFieldChangesetObserver {
-  private _notifier?: ChangeNotifier<UpdateFieldNotifiedValue>;
-  private _listener?: DatabaseNotificationObserver;
+  private notifier?: ChangeNotifier<UpdateFieldNotifiedValue>;
+  private listener?: DatabaseNotificationObserver;
 
   constructor(public readonly viewId: string) {}
 
-  subscribe = (callbacks: { onFieldsChanged: DatabaseNotificationCallback }) => {
-    this._notifier = new ChangeNotifier();
-    this._notifier?.observer.subscribe(callbacks.onFieldsChanged);
+  subscribe = async (callbacks: { onFieldsChanged: DatabaseNotificationCallback }) => {
+    this.notifier = new ChangeNotifier();
+    this.notifier?.observer.subscribe(callbacks.onFieldsChanged);
 
-    this._listener = new DatabaseNotificationObserver({
+    this.listener = new DatabaseNotificationObserver({
       viewId: this.viewId,
       parserHandler: (notification, result) => {
         switch (notification) {
           case DatabaseNotification.DidUpdateFields:
             if (result.ok) {
-              this._notifier?.notify(Ok(DatabaseFieldChangesetPB.deserializeBinary(result.val)));
+              this.notifier?.notify(Ok(DatabaseFieldChangesetPB.deserializeBinary(result.val)));
             } else {
-              this._notifier?.notify(result);
+              this.notifier?.notify(result);
             }
             return;
           default:
@@ -32,12 +32,12 @@ export class DatabaseFieldChangesetObserver {
         }
       },
     });
-    return undefined;
+    await this.listener.start();
   };
 
   unsubscribe = async () => {
-    this._notifier?.unsubscribe();
-    await this._listener?.stop();
+    this.notifier?.unsubscribe();
+    await this.listener?.stop();
   };
 }
 
@@ -50,7 +50,7 @@ export class DatabaseFieldObserver {
 
   constructor(public readonly fieldId: string) {}
 
-  subscribe = (callbacks: { onFieldsChanged: FieldNotificationCallback }) => {
+  subscribe = async (callbacks: { onFieldsChanged: FieldNotificationCallback }) => {
     this._notifier = new ChangeNotifier();
     this._notifier?.observer.subscribe(callbacks.onFieldsChanged);
 
@@ -70,7 +70,7 @@ export class DatabaseFieldObserver {
         }
       },
     });
-    return undefined;
+    await this._listener.start();
   };
 
   unsubscribe = async () => {

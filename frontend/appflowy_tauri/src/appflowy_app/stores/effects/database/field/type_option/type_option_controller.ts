@@ -59,10 +59,10 @@ export class TypeOptionController {
     }
   };
 
-  set typeOption(data: Uint8Array) {
+  saveTypeOption = async (data: Uint8Array) => {
     if (this.typeOptionData.some) {
       this.typeOptionData.val.type_option_data = data;
-      void this.fieldBackendSvc?.updateTypeOption(data).then((result) => {
+      await this.fieldBackendSvc?.updateTypeOption(data).then((result) => {
         if (result.err) {
           Log.error(result.val);
         }
@@ -70,7 +70,7 @@ export class TypeOptionController {
     } else {
       throw Error('Unexpect empty type option data. Should call initialize first');
     }
-  }
+  };
 
   deleteField = async () => {
     if (this.fieldBackendSvc === undefined) {

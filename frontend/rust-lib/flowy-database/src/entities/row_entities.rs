@@ -191,7 +191,7 @@ impl TryInto<CreateRowParams> for CreateRowPayloadPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<CreateRowParams, Self::Error> {
-    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::ViewIdIsInvalid)?;
 
     Ok(CreateRowParams {
       view_id: view_id.0,

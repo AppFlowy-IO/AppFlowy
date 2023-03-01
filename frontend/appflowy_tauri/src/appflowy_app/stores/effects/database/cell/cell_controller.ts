@@ -14,10 +14,10 @@ export abstract class CellFieldNotifier {
 }
 
 export class CellController<T, D> {
-  private _fieldBackendService: FieldBackendService;
-  private _cellDataNotifier: CellDataNotifier<Option<T>>;
-  private _cellObserver: CellObserver;
-  private _cacheKey: CellCacheKey;
+  private fieldBackendService: FieldBackendService;
+  private cellDataNotifier: CellDataNotifier<Option<T>>;
+  private cellObserver: CellObserver;
+  private readonly cacheKey: CellCacheKey;
 
   constructor(
     public readonly cellIdentifier: CellIdentifier,
@@ -26,17 +26,17 @@ export class CellController<T, D> {
     private readonly cellDataLoader: CellDataLoader<T>,
     private readonly cellDataPersistence: CellDataPersistence<D>
   ) {
-    this._fieldBackendService = new FieldBackendService(cellIdentifier.viewId, cellIdentifier.fieldId);
-    this._cacheKey = new CellCacheKey(cellIdentifier.rowId, cellIdentifier.fieldId);
-    this._cellDataNotifier = new CellDataNotifier(cellCache.get<T>(this._cacheKey));
-    this._cellObserver = new CellObserver(cellIdentifier.rowId, cellIdentifier.fieldId);
-    this._cellObserver.subscribe({
+    this.fieldBackendService = new FieldBackendService(cellIdentifier.viewId, cellIdentifier.fieldId);
+    this.cacheKey = new CellCacheKey(cellIdentifier.rowId, cellIdentifier.fieldId);
+    this.cellDataNotifier = new CellDataNotifier(cellCache.get<T>(this.cacheKey));
+    this.cellObserver = new CellObserver(cellIdentifier.rowId, cellIdentifier.fieldId);
+    void this.cellObserver.subscribe({
       /// 1.Listen on user edit event and load the new cell data if needed.
       /// For example:
       ///  user input: 12
       ///  cell display: $12
       onCellChanged: async () => {
-        this.cellCache.remove(this._cacheKey);
+        this.cellCache.remove(this.cacheKey);
         await this._loadCellData();
       },
     });
@@ -55,7 +55,7 @@ export class CellController<T, D> {
       }
     });
 
-    this._cellDataNotifier.observer.subscribe((cellData) => {
+    this.cellDataNotifier.observer.subscribe((cellData) => {
       if (cellData !== null) {
         callbacks.onCellChanged(cellData);
       }
@@ -63,7 +63,7 @@ export class CellController<T, D> {
   };
 
   getTypeOption = async <P extends TypeOptionParser<PD>, PD>(parser: P) => {
-    const result = await this._fieldBackendService.getTypeOptionData(this.cellIdentifier.fieldType);
+    const result = await this.fieldBackendService.getTypeOptionData(this.cellIdentifier.fieldType);
     if (result.ok) {
       return Ok(parser.fromBuffer(result.val.type_option_data));
     } else {
@@ -83,7 +83,7 @@ export class CellController<T, D> {
   /// data from the backend and then the [onCellChanged] will
   /// get called
   getCellData = (): Option<T> => {
-    const cellData = this.cellCache.get<T>(this._cacheKey);
+    const cellData = this.cellCache.get<T>(this.cacheKey);
     if (cellData.none) {
       void this._loadCellData();
     }
@@ -93,13 +93,17 @@ export class CellController<T, D> {
   private _loadCellData = () => {
     return this.cellDataLoader.loadData().then((result) => {
       if (result.ok && result.val !== undefined) {
-        this.cellCache.insert(this._cacheKey, result.val);
-        this._cellDataNotifier.cellData = Some(result.val);
+        this.cellCache.insert(this.cacheKey, result.val);
+        this.cellDataNotifier.cellData = Some(result.val);
       } else {
-        this.cellCache.remove(this._cacheKey);
-        this._cellDataNotifier.cellData = None;
+        this.cellCache.remove(this.cacheKey);
+        this.cellDataNotifier.cellData = None;
       }
     });
+  };
+
+  dispose = async () => {
+    await this.cellObserver.unsubscribe();
   };
 }
 

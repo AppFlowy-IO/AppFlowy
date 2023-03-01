@@ -12,13 +12,13 @@ export type SubscribeCallback = {
 };
 
 export class DatabaseController {
-  private _backendService: DatabaseBackendService;
+  private backendService: DatabaseBackendService;
   fieldController: FieldController;
   databaseViewCache: DatabaseViewCache;
   private _callback?: SubscribeCallback;
 
   constructor(public readonly viewId: string) {
-    this._backendService = new DatabaseBackendService(viewId);
+    this.backendService = new DatabaseBackendService(viewId);
     this.fieldController = new FieldController(viewId);
     this.databaseViewCache = new DatabaseViewCache(viewId, this.fieldController);
   }
@@ -32,11 +32,13 @@ export class DatabaseController {
   };
 
   open = async () => {
-    const result = await this._backendService.openDatabase();
+    const result = await this.backendService.openDatabase();
     if (result.ok) {
       const database: DatabasePB = result.val;
       this._callback?.onViewChanged?.(database);
       await this.fieldController.loadFields(database.fields);
+      await this.databaseViewCache.listenOnRowsChanged();
+      await this.fieldController.listenOnFieldChanges();
       this.databaseViewCache.initializeWithRows(database.rows);
       return Ok.EMPTY;
     } else {
@@ -45,11 +47,11 @@ export class DatabaseController {
   };
 
   createRow = async () => {
-    return this._backendService.createRow();
+    return this.backendService.createRow();
   };
 
   dispose = async () => {
-    await this._backendService.closeDatabase();
+    await this.backendService.closeDatabase();
     await this.fieldController.dispose();
     await this.databaseViewCache.dispose();
   };

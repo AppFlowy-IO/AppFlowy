@@ -33,8 +33,7 @@ export class DatabaseBackendService {
   };
 
   createRow = async (rowId?: string) => {
-    const props = { database_id: this.viewId, start_row_id: rowId ?? undefined };
-    const payload = CreateRowPayloadPB.fromObject(props);
+    const payload = CreateRowPayloadPB.fromObject({ view_id: this.viewId, start_row_id: rowId ?? undefined });
     return DatabaseEventCreateRow(payload);
   };
 

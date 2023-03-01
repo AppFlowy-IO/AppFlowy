@@ -13,7 +13,7 @@ export class CellObserver {
 
   constructor(public readonly rowId: string, public readonly fieldId: string) {}
 
-  subscribe = (callbacks: { onCellChanged: CellChangedCallback }) => {
+  subscribe = async (callbacks: { onCellChanged: CellChangedCallback }) => {
     this._notifier = new ChangeNotifier();
     this._notifier?.observer.subscribe(callbacks.onCellChanged);
 
@@ -33,7 +33,7 @@ export class CellObserver {
         }
       },
     });
-    return undefined;
+    await this._listener.start();
   };
 
   unsubscribe = async () => {

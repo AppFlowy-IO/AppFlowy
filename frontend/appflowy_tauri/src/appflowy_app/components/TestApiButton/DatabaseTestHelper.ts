@@ -35,7 +35,7 @@ export async function assertTextCell(rowInfo: RowInfo, databaseController: Datab
     onCellChanged: (value) => {
       const cellContent = value.unwrap();
       if (cellContent !== expectedContent) {
-        throw Error();
+        throw Error('Text cell content is not match');
       }
     },
   });
@@ -111,7 +111,7 @@ export async function assertFieldName(viewId: string, fieldId: string, fieldType
   const svc = new TypeOptionBackendService(viewId);
   const typeOptionPB = await svc.getTypeOption(fieldId, fieldType).then((result) => result.unwrap());
   if (typeOptionPB.field.name !== expected) {
-    throw Error();
+    throw Error('Expect field name:' + expected + 'but receive:' + typeOptionPB.field.name);
   }
 }
 
@@ -119,6 +119,14 @@ export async function assertNumberOfFields(viewId: string, expected: number) {
   const svc = new DatabaseBackendService(viewId);
   const databasePB = await svc.openDatabase().then((result) => result.unwrap());
   if (databasePB.fields.length !== expected) {
-    throw Error();
+    throw Error('Expect number of fields:' + expected + 'but receive:' + databasePB.fields.length);
+  }
+}
+
+export async function assertNumberOfRows(viewId: string, expected: number) {
+  const svc = new DatabaseBackendService(viewId);
+  const databasePB = await svc.openDatabase().then((result) => result.unwrap());
+  if (databasePB.rows.length !== expected) {
+    throw Error('Expect number of rows:' + expected + 'but receive:' + databasePB.rows.length);
   }
 }

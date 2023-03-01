@@ -11,6 +11,7 @@ import {
   URLTypeOptionPB,
 } from '../../../../../../services/backend';
 import { utf8Decoder, utf8Encoder } from '../../cell/data_parser';
+import { DatabaseFieldObserver } from '../field_observer';
 
 abstract class TypeOptionSerde<T> {
   abstract deserialize(buffer: Uint8Array): T;
@@ -164,9 +165,17 @@ class ChecklistTypeOptionSerde extends TypeOptionSerde<ChecklistTypeOptionPB> {
 
 export class TypeOptionContext<T> {
   private typeOption: Option<T>;
+  private fieldObserver: DatabaseFieldObserver;
 
   constructor(public readonly parser: TypeOptionSerde<T>, private readonly controller: TypeOptionController) {
     this.typeOption = None;
+    this.fieldObserver = new DatabaseFieldObserver(controller.fieldId);
+
+    void this.fieldObserver.subscribe({
+      onFieldsChanged: () => {
+        void this.getTypeOption();
+      },
+    });
   }
 
   get viewId(): string {
@@ -174,20 +183,23 @@ export class TypeOptionContext<T> {
   }
 
   getTypeOption = async (): Promise<Result<T, FlowyError>> => {
-    if (this.typeOption.some) {
-      return Ok(this.typeOption.val);
-    }
-
     const result = await this.controller.getTypeOption();
     if (result.ok) {
-      return Ok(this.parser.deserialize(result.val.type_option_data));
+      const typeOption = this.parser.deserialize(result.val.type_option_data);
+      this.typeOption = Some(typeOption);
+      return Ok(typeOption);
     } else {
       return result;
     }
   };
 
-  setTypeOption = (typeOption: T) => {
-    this.controller.typeOption = this.parser.serialize(typeOption);
+  // Save the typeOption to disk
+  setTypeOption = async (typeOption: T) => {
+    await this.controller.saveTypeOption(this.parser.serialize(typeOption));
     this.typeOption = Some(typeOption);
+  };
+
+  dispose = async () => {
+    await this.fieldObserver.unsubscribe();
   };
 }
