@@ -37,7 +37,7 @@ abstract class OpenAIRepository {
   Future<Either<OpenAIError, TextCompletionResponse>> getCompletions({
     required String prompt,
     String? suffix,
-    int maxTokens = 50,
+    int maxTokens = 500,
     double temperature = .3,
   });
 
@@ -72,7 +72,7 @@ class HttpOpenAIRepository implements OpenAIRepository {
   Future<Either<OpenAIError, TextCompletionResponse>> getCompletions({
     required String prompt,
     String? suffix,
-    int maxTokens = 50,
+    int maxTokens = 500,
     double temperature = 0.3,
   }) async {
     final parameters = {
@@ -102,12 +102,14 @@ class HttpOpenAIRepository implements OpenAIRepository {
     required String input,
     required String instruction,
     double temperature = 0.3,
+    int n = 1,
   }) async {
     final parameters = {
       'model': 'text-davinci-edit-001',
       'input': input,
       'instruction': instruction,
       'temperature': temperature,
+      'n': n,
     };
 
     final response = await client.post(
