@@ -15,7 +15,6 @@ export class CellCache {
   remove = (key: CellCacheKey) => {
     const cellDataByRowId = this.cellDataByFieldId.get(key.fieldId);
     if (cellDataByRowId !== undefined) {
-      console.log('cellDataByRowId', cellDataByRowId);
       cellDataByRowId.delete(key.rowId);
     }
   };

@@ -26,7 +26,7 @@ export const TestCreateGrid = () => {
       },
       onRowsChanged: async (rows) => {
         if (rows.length !== 3) {
-          throw Error('Expected number of rows is 3, but receive ' + rows.length);
+          throw Error('Expected number of rows is 3, but receive ' + rows.length + view.id);
         }
       },
       onFieldsChanged: (fields) => {
@@ -36,6 +36,7 @@ export const TestCreateGrid = () => {
       },
     });
     await databaseController.open().then((result) => result.unwrap());
+    await databaseController.dispose();
   }
 
   return TestButton('Test create build-in grid', createBuildInGrid);
