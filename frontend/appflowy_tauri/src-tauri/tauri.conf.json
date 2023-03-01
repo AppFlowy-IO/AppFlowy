@@ -60,11 +60,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 1000,
+        "height": 1200,
         "resizable": true,
         "title": "AppFlowy",
-        "width": 1200,
-        "transparent": true
+        "width": 1200
       }
     ]
   }

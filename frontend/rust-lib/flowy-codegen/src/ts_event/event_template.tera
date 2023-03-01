@@ -27,7 +27,7 @@ export async function {{ event_func_name }}(): Promise<Result<{{ output_deserial
         console.log({{ event_func_name }}.name, object);
         return Ok(object);
     {%- else %}
-        return Ok.EMPTYDatabaseNotification;
+        return Ok.EMPTY;
     {%- endif %}
     } else {
         let error = {{ error_deserializer }}.deserializeBinary(result.payload);

@@ -11,11 +11,9 @@ import {
   makeSingleSelectCellController,
   openTestDatabase,
 } from './DatabaseTestHelper';
-import assert from 'assert';
 import { SelectOptionBackendService } from '../../stores/effects/database/cell/select_option_bd_svc';
 import { TypeOptionController } from '../../stores/effects/database/field/type_option/type_option_controller';
 import { None, Some } from 'ts-results';
-import { TypeOptionBackendService } from '../../stores/effects/database/field/type_option/type_option_bd_svc';
 import { RowBackendService } from '../../stores/effects/database/row/row_bd_svc';
 
 export const TestCreateGrid = () => {
