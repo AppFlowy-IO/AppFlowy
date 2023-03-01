@@ -13,6 +13,8 @@ import {
 } from '../../stores/effects/database/cell/controller_builder';
 import assert from 'assert';
 import { None, Option, Some } from 'ts-results';
+import { TypeOptionBackendService } from '../../stores/effects/database/field/type_option/type_option_bd_svc';
+import { DatabaseBackendService } from '../../stores/effects/database/database_bd_svc';
 
 // Create a database view for specific layout type
 // Do not use it production code. Just for testing
@@ -103,4 +105,20 @@ export async function makeCellControllerBuilder(
   }
 
   return None;
+}
+
+export async function assertFieldName(viewId: string, fieldId: string, fieldType: FieldType, expected: string) {
+  const svc = new TypeOptionBackendService(viewId);
+  const typeOptionPB = await svc.getTypeOption(fieldId, fieldType).then((result) => result.unwrap());
+  if (typeOptionPB.field.name !== expected) {
+    throw Error();
+  }
+}
+
+export async function assertNumberOfFields(viewId: string, expected: number) {
+  const svc = new DatabaseBackendService(viewId);
+  const databasePB = await svc.openDatabase().then((result) => result.unwrap());
+  if (databasePB.fields.length !== expected) {
+    throw Error();
+  }
 }

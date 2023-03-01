@@ -1,17 +1,17 @@
 import { Log } from '../../../../utils/log';
 import { DatabaseBackendService } from '../database_bd_svc';
-import { DatabaseFieldObserver } from './field_observer';
+import { DatabaseFieldChangesetObserver } from './field_observer';
 import { FieldIdPB, FieldPB, IndexFieldPB } from '../../../../../services/backend/models/flowy-database/field_entities';
 import { ChangeNotifier } from '../../../../utils/change_notifier';
 
 export class FieldController {
-  private _fieldListener: DatabaseFieldObserver;
+  private _fieldListener: DatabaseFieldChangesetObserver;
   private _backendService: DatabaseBackendService;
   private _fieldNotifier = new FieldNotifier([]);
 
   constructor(public readonly viewId: string) {
     this._backendService = new DatabaseBackendService(viewId);
-    this._fieldListener = new DatabaseFieldObserver(viewId);
+    this._fieldListener = new DatabaseFieldChangesetObserver(viewId);
 
     this._listenOnFieldChanges();
   }

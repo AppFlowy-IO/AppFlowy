@@ -2,6 +2,8 @@ import React from 'react';
 import { SelectOptionCellDataPB, ViewLayoutTypePB } from '../../../services/backend';
 import { Log } from '../../utils/log';
 import {
+  assertFieldName,
+  assertNumberOfFields,
   assertTextCell,
   createTestDatabaseView,
   editTextCell,
@@ -10,6 +12,9 @@ import {
 } from './DatabaseTestHelper';
 import assert from 'assert';
 import { SelectOptionBackendService } from '../../stores/effects/database/cell/select_option_bd_svc';
+import { TypeOptionController } from '../../stores/effects/database/field/type_option/type_option_controller';
+import { None, Some } from 'ts-results';
+import { TypeOptionBackendService } from '../../stores/effects/database/field/type_option/type_option_bd_svc';
 
 export const TestCreateGrid = () => {
   async function createBuildInGrid() {
@@ -78,6 +83,59 @@ export const TestCreateSelectOption = () => {
   }
 
   return TestButton('Test create a select option', testCreateOption);
+};
+
+export const TestEditField = () => {
+  async function testEditField() {
+    const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+    const databaseController = await openTestDatabase(view.id);
+    await databaseController.open().then((result) => result.unwrap());
+    const fieldInfos = databaseController.fieldController.fieldInfos;
+
+    // Modify the name of the field
+    const firstFieldInfo = fieldInfos[0];
+    const controller = new TypeOptionController(view.id, Some(firstFieldInfo));
+    await controller.initialize();
+    await controller.setFieldName('hello world');
+
+    await assertFieldName(view.id, firstFieldInfo.field.id, firstFieldInfo.field.field_type, 'hello world');
+  }
+
+  return TestButton('Test edit the column name', testEditField);
+};
+
+export const TestCreateNewField = () => {
+  async function testCreateNewField() {
+    const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+    const databaseController = await openTestDatabase(view.id);
+    await databaseController.open().then((result) => result.unwrap());
+    await assertNumberOfFields(view.id, 3);
+
+    // Modify the name of the field
+    const controller = new TypeOptionController(view.id, None);
+    await controller.initialize();
+    await assertNumberOfFields(view.id, 4);
+  }
+
+  return TestButton('Test create a new column', testCreateNewField);
+};
+
+export const TestDeleteField = () => {
+  async function testDeleteField() {
+    const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+    const databaseController = await openTestDatabase(view.id);
+    await databaseController.open().then((result) => result.unwrap());
+
+    // Modify the name of the field
+    const fieldInfo = databaseController.fieldController.fieldInfos[0];
+    const controller = new TypeOptionController(view.id, Some(fieldInfo));
+    await controller.initialize();
+    await assertNumberOfFields(view.id, 3);
+    await controller.deleteField();
+    await assertNumberOfFields(view.id, 2);
+  }
+
+  return TestButton('Test delete a new column', testDeleteField);
 };
 
 const TestButton = (title: string, onClick: () => void) => {

@@ -1,6 +1,13 @@
 import React from 'react';
 import TestApiButton from './TestApiButton';
-import { TestCreateGrid, TestCreateSelectOption, TestEditCell } from './TestGrid';
+import {
+  TestCreateGrid,
+  TestCreateNewField,
+  TestCreateSelectOption,
+  TestDeleteField,
+  TestEditCell,
+  TestEditField,
+} from './TestGrid';
 
 export const TestAPI = () => {
   return (
@@ -10,6 +17,9 @@ export const TestAPI = () => {
         <TestCreateGrid></TestCreateGrid>
         <TestEditCell></TestEditCell>
         <TestCreateSelectOption></TestCreateSelectOption>
+        <TestEditField></TestEditField>
+        <TestCreateNewField></TestCreateNewField>
+        {/*<TestDeleteField></TestDeleteField>*/}
       </ul>
     </React.Fragment>
   );
