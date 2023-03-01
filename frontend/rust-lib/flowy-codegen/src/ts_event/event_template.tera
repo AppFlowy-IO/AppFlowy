@@ -24,14 +24,14 @@ export async function {{ event_func_name }}(): Promise<Result<{{ output_deserial
     if (result.code == 0) {
     {%- if has_output  %}
         let object = {{ output_deserializer }}.deserializeBinary(result.payload);
-        console.log("Success:" + JSON.stringify(object.toObject()))
+        console.log({{ event_func_name }}.name, object);
         return Ok(object);
     {%- else %}
-        return Ok.EMPTY;
+        return Ok.EMPTYDatabaseNotification;
     {%- endif %}
     } else {
         let error = {{ error_deserializer }}.deserializeBinary(result.payload);
-        console.log("Error:" + JSON.stringify(error.toObject()))
+        console.log({{ event_func_name }}.name, error);
         return Err(error);
     }
 }

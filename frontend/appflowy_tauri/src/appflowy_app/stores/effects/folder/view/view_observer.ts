@@ -18,7 +18,7 @@ export class ViewObserver {
 
   constructor(public readonly viewId: string) {}
 
-  subscribe = (callbacks: {
+  subscribe = async (callbacks: {
     onViewUpdate?: (value: UpdateViewNotifyValue) => void;
     onViewDelete?: (value: DeleteViewNotifyValue) => void;
     onViewRestored?: (value: RestoreViewNotifyValue) => void;
@@ -77,7 +77,7 @@ export class ViewObserver {
         }
       },
     });
-    return undefined;
+    await this._listener.start();
   };
 
   unsubscribe = async () => {

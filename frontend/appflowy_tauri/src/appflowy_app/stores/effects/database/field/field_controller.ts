@@ -5,47 +5,45 @@ import { FieldIdPB, FieldPB, IndexFieldPB } from '../../../../../services/backen
 import { ChangeNotifier } from '../../../../utils/change_notifier';
 
 export class FieldController {
-  private _fieldListener: DatabaseFieldChangesetObserver;
-  private _backendService: DatabaseBackendService;
-  private _fieldNotifier = new FieldNotifier([]);
+  private fieldListener: DatabaseFieldChangesetObserver;
+  private backendService: DatabaseBackendService;
+  private fieldNotifier = new FieldNotifier([]);
 
   constructor(public readonly viewId: string) {
-    this._backendService = new DatabaseBackendService(viewId);
-    this._fieldListener = new DatabaseFieldChangesetObserver(viewId);
-
-    this._listenOnFieldChanges();
+    this.backendService = new DatabaseBackendService(viewId);
+    this.fieldListener = new DatabaseFieldChangesetObserver(viewId);
   }
 
   dispose = async () => {
-    this._fieldNotifier.unsubscribe();
-    await this._fieldListener.unsubscribe();
+    this.fieldNotifier.unsubscribe();
+    await this.fieldListener.unsubscribe();
   };
 
   get fieldInfos(): readonly FieldInfo[] {
-    return this._fieldNotifier.fieldInfos;
+    return this.fieldNotifier.fieldInfos;
   }
 
   getField = (fieldId: string): FieldInfo | undefined => {
-    return this._fieldNotifier.fieldInfos.find((element) => element.field.id === fieldId);
+    return this.fieldNotifier.fieldInfos.find((element) => element.field.id === fieldId);
   };
 
   loadFields = async (fieldIds: FieldIdPB[]) => {
-    const result = await this._backendService.getFields(fieldIds);
+    const result = await this.backendService.getFields(fieldIds);
     if (result.ok) {
-      this._fieldNotifier.fieldInfos = result.val.map((field) => new FieldInfo(field));
+      this.fieldNotifier.fieldInfos = result.val.map((field) => new FieldInfo(field));
     } else {
       Log.error(result.val);
     }
   };
 
   subscribeOnFieldsChanged = (callback?: (fieldInfos: readonly FieldInfo[]) => void) => {
-    return this._fieldNotifier.observer.subscribe((fieldInfos) => {
+    return this.fieldNotifier.observer.subscribe((fieldInfos) => {
       callback?.(fieldInfos);
     });
   };
 
-  _listenOnFieldChanges = () => {
-    this._fieldListener.subscribe({
+  listenOnFieldChanges = async () => {
+    await this.fieldListener.subscribe({
       onFieldsChanged: (result) => {
         if (result.ok) {
           const changeset = result.val;
@@ -70,7 +68,7 @@ export class FieldController {
     };
     const newFieldInfos = [...this.fieldInfos];
     newFieldInfos.filter(predicate);
-    this._fieldNotifier.fieldInfos = newFieldInfos;
+    this.fieldNotifier.fieldInfos = newFieldInfos;
   };
 
   _insertFields = (insertedFields: IndexFieldPB[]) => {
@@ -86,7 +84,7 @@ export class FieldController {
         newFieldInfos.push(fieldInfo);
       }
     });
-    this._fieldNotifier.fieldInfos = newFieldInfos;
+    this.fieldNotifier.fieldInfos = newFieldInfos;
   };
 
   _updateFields = (updatedFields: FieldPB[]) => {
@@ -104,7 +102,7 @@ export class FieldController {
         }
       });
     });
-    this._fieldNotifier.fieldInfos = newFieldInfos;
+    this.fieldNotifier.fieldInfos = newFieldInfos;
   };
 }
 

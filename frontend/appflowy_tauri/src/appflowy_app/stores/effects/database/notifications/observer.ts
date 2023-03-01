@@ -1,7 +1,6 @@
-import { DatabaseNotification } from '../../../../../services/backend';
+import { DatabaseNotification, FlowyError } from '../../../../../services/backend';
 import { AFNotificationObserver } from '../../../../../services/backend/notifications';
 import { DatabaseNotificationParser } from './parser';
-import { FlowyError } from '../../../../../services/backend';
 import { Result } from 'ts-results';
 
 export type ParserHandler = (notification: DatabaseNotification, result: Result<Uint8Array, FlowyError>) => void;
