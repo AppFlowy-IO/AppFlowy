@@ -177,7 +177,9 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         ]
       ],
       toolbarItems: [
-        smartEditItem,
+        if (openAIKey != null && openAIKey!.isNotEmpty) ...[
+          smartEditItem,
+        ]
       ],
       themeData: theme.copyWith(extensions: [
         ...theme.extensions.values,
