@@ -34,7 +34,7 @@ ShortcutEventHandler _insertDividerHandler = (editorState, event) {
 };
 
 SelectionMenuItem dividerMenuItem = SelectionMenuItem(
-  name: () => 'Divider',
+  name: 'Divider',
   icon: (editorState, onSelected) => Icon(
     Icons.horizontal_rule,
     color: onSelected
