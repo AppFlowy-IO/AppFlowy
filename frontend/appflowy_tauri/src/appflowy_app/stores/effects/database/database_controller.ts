@@ -5,7 +5,7 @@ import { DatabasePB } from '../../../../services/backend/models/flowy-database/g
 import { RowChangedReason, RowInfo } from './row/row_cache';
 import { Err, Ok } from 'ts-results';
 
-export type SubscribeCallback = {
+export type SubscribeCallbacks = {
   onViewChanged?: (data: DatabasePB) => void;
   onRowsChanged?: (rowInfos: readonly RowInfo[], reason: RowChangedReason) => void;
   onFieldsChanged?: (fieldInfos: readonly FieldInfo[]) => void;
@@ -15,7 +15,7 @@ export class DatabaseController {
   private backendService: DatabaseBackendService;
   fieldController: FieldController;
   databaseViewCache: DatabaseViewCache;
-  private _callback?: SubscribeCallback;
+  private _callback?: SubscribeCallbacks;
 
   constructor(public readonly viewId: string) {
     this.backendService = new DatabaseBackendService(viewId);
@@ -23,9 +23,9 @@ export class DatabaseController {
     this.databaseViewCache = new DatabaseViewCache(viewId, this.fieldController);
   }
 
-  subscribe = (callbacks: SubscribeCallback) => {
+  subscribe = (callbacks: SubscribeCallbacks) => {
     this._callback = callbacks;
-    this.fieldController.subscribeOnFieldsChanged(callbacks.onFieldsChanged);
+    this.fieldController.subscribeOnNumOfFieldsChanged(callbacks.onFieldsChanged);
     this.databaseViewCache.getRowCache().subscribeOnRowsChanged((reason) => {
       this._callback?.onRowsChanged?.(this.databaseViewCache.rowInfos, reason);
     });

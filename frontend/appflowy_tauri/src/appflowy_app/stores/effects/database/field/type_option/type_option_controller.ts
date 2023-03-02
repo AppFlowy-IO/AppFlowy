@@ -13,14 +13,20 @@ export class TypeOptionController {
   private typeOptionBackendSvc: TypeOptionBackendService;
 
   // Must call [initialize] if the passed-in fieldInfo is None
-  constructor(public readonly viewId: string, private initialFieldInfo: Option<FieldInfo> = None) {
+  constructor(
+    public readonly viewId: string,
+    private readonly initialFieldInfo: Option<FieldInfo> = None,
+    private readonly defaultFieldType: FieldType = FieldType.RichText
+  ) {
     this.typeOptionData = None;
     this.typeOptionBackendSvc = new TypeOptionBackendService(viewId);
   }
 
+  // It will create a new field for the defaultFieldType if the [initialFieldInfo] is None.
+  // Otherwise, it will get the type option of the [initialFieldInfo]
   initialize = async () => {
     if (this.initialFieldInfo.none) {
-      await this.createTypeOption();
+      await this.createTypeOption(this.defaultFieldType);
     } else {
       await this.getTypeOption();
     }
@@ -45,8 +51,16 @@ export class TypeOptionController {
     return new FieldInfo(this.typeOptionData.val.field);
   };
 
-  switchToField = (fieldType: FieldType) => {
-    return this.typeOptionBackendSvc.updateTypeOptionType(this.fieldId, fieldType);
+  switchToField = async (fieldType: FieldType) => {
+    const result = await this.typeOptionBackendSvc.updateTypeOptionType(this.fieldId, fieldType);
+    if (result.ok) {
+      const getResult = await this.typeOptionBackendSvc.getTypeOption(this.fieldId, fieldType);
+      if (getResult.ok) {
+        this.updateTypeOptionData(getResult.val);
+      }
+      return getResult;
+    }
+    return result;
   };
 
   setFieldName = async (name: string) => {
@@ -96,7 +110,7 @@ export class TypeOptionController {
     });
   };
 
-  private createTypeOption = (fieldType: FieldType = FieldType.RichText) => {
+  private createTypeOption = (fieldType: FieldType) => {
     return this.typeOptionBackendSvc.createTypeOption(fieldType).then((result) => {
       if (result.ok) {
         this.updateTypeOptionData(result.val);

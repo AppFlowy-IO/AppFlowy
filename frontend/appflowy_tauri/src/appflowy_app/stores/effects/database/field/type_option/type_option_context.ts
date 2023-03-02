@@ -172,7 +172,7 @@ export class TypeOptionContext<T> {
     this.fieldObserver = new DatabaseFieldObserver(controller.fieldId);
 
     void this.fieldObserver.subscribe({
-      onFieldsChanged: () => {
+      onFieldChanged: () => {
         void this.getTypeOption();
       },
     });

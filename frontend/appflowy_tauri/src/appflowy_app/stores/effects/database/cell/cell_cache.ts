@@ -35,18 +35,19 @@ export class CellCache {
   };
 
   get<T>(key: CellCacheKey): Option<T> {
-    const inner = this.cellDataByFieldId.get(key.fieldId);
-    if (inner === undefined) {
+    const cellDataByRowId = this.cellDataByFieldId.get(key.fieldId);
+    if (cellDataByRowId === undefined) {
       return None;
     } else {
-      const value = inner.get(key.rowId);
-      if (typeof value === typeof undefined || typeof value === typeof null) {
+      const value = cellDataByRowId.get(key.rowId);
+      if (typeof value === typeof undefined) {
         return None;
       }
-      if (value satisfies T) {
-        return Some(value as T);
-      }
-      return None;
+
+      // if (value satisfies T) {
+      //   return Some(value as T);
+      // }
+      return Some(value);
     }
   }
 }

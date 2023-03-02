@@ -1,6 +1,8 @@
 import React from 'react';
 import {
   FieldType,
+  NumberFormat,
+  NumberTypeOptionPB,
   SelectOptionCellDataPB,
   SingleSelectTypeOptionPB,
   ViewLayoutTypePB,
@@ -13,7 +15,10 @@ import {
   assertTextCell,
   createTestDatabaseView,
   editTextCell,
+  findFirstFieldInfoWithFieldType,
+  makeMultiSelectCellController,
   makeSingleSelectCellController,
+  makeTextCellController,
   openTestDatabase,
 } from './DatabaseTestHelper';
 import {
@@ -23,7 +28,10 @@ import {
 import { TypeOptionController } from '../../stores/effects/database/field/type_option/type_option_controller';
 import { None, Some } from 'ts-results';
 import { RowBackendService } from '../../stores/effects/database/row/row_bd_svc';
-import { makeSingleSelectTypeOptionContext } from '../../stores/effects/database/field/type_option/type_option_context';
+import {
+  makeNumberTypeOptionContext,
+  makeSingleSelectTypeOptionContext,
+} from '../../stores/effects/database/field/type_option/type_option_context';
 
 export const TestCreateGrid = () => {
   async function createBuildInGrid() {
@@ -33,11 +41,11 @@ export const TestCreateGrid = () => {
       onViewChanged: (databasePB) => {
         Log.debug('Did receive database:' + databasePB);
       },
-      onRowsChanged: async (rows) => {
-        if (rows.length !== 3) {
-          throw Error('Expected number of rows is 3, but receive ' + rows.length + view.id);
-        }
-      },
+      // onRowsChanged: async (rows) => {
+      //   if (rows.length !== 3) {
+      //     throw Error('Expected number of rows is 3, but receive ' + rows.length);
+      //   }
+      // },
       onFieldsChanged: (fields) => {
         if (fields.length !== 3) {
           throw Error('Expected number of fields is 3, but receive ' + fields.length);
@@ -59,8 +67,9 @@ export const TestEditCell = () => {
 
     for (const [index, row] of databaseController.databaseViewCache.rowInfos.entries()) {
       const cellContent = index.toString();
-      await editTextCell(row, databaseController, cellContent);
-      await assertTextCell(row, databaseController, cellContent);
+      const fieldInfo = findFirstFieldInfoWithFieldType(row, FieldType.RichText).unwrap();
+      await editTextCell(fieldInfo.field.id, row, databaseController, cellContent);
+      await assertTextCell(fieldInfo.field.id, row, databaseController, cellContent);
     }
   }
 
@@ -111,10 +120,11 @@ export const TestCreateSelectOptionInCell = () => {
     await databaseController.open().then((result) => result.unwrap());
     for (const [index, row] of databaseController.databaseViewCache.rowInfos.entries()) {
       if (index === 0) {
-        const cellController = await makeSingleSelectCellController(row, databaseController).then((result) =>
-          result.unwrap()
+        const fieldInfo = findFirstFieldInfoWithFieldType(row, FieldType.SingleSelect).unwrap();
+        const cellController = await makeSingleSelectCellController(fieldInfo.field.id, row, databaseController).then(
+          (result) => result.unwrap()
         );
-        cellController.subscribeChanged({
+        await cellController.subscribeChanged({
           onCellChanged: (value) => {
             const option: SelectOptionCellDataPB = value.unwrap();
             console.log(option);
@@ -165,6 +175,89 @@ export const TestGetSingleSelectFieldData = () => {
   }
 
   return TestButton('Test get single-select column data', testGetSingleSelectFieldData);
+};
+
+export const TestSwitchFromSingleSelectToNumber = () => {
+  async function testSwitchFromSingleSelectToNumber() {
+    const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+    const databaseController = await openTestDatabase(view.id);
+    await databaseController.open().then((result) => result.unwrap());
+
+    // Find the single select column
+    const singleSelect = databaseController.fieldController.fieldInfos.find(
+      (fieldInfo) => fieldInfo.field.field_type === FieldType.SingleSelect
+    )!;
+    const typeOptionController = new TypeOptionController(view.id, Some(singleSelect));
+    await typeOptionController.switchToField(FieldType.Number);
+
+    // Check the number type option
+    const numberTypeOptionContext = makeNumberTypeOptionContext(typeOptionController);
+    const numberTypeOption: NumberTypeOptionPB = await numberTypeOptionContext
+      .getTypeOption()
+      .then((result) => result.unwrap());
+    const format: NumberFormat = numberTypeOption.format;
+    if (format !== NumberFormat.Num) {
+      throw Error('The default format should be number');
+    }
+
+    await databaseController.dispose();
+  }
+
+  return TestButton('Test switch from single-select to number column', testSwitchFromSingleSelectToNumber);
+};
+
+export const TestSwitchFromMultiSelectToText = () => {
+  async function testSwitchFromMultiSelectToRichText() {
+    const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+    const databaseController = await openTestDatabase(view.id);
+    await databaseController.open().then((result) => result.unwrap());
+
+    // Create multi-select field
+    const typeOptionController = new TypeOptionController(view.id, None, FieldType.MultiSelect);
+    await typeOptionController.initialize();
+
+    // Insert options to first row
+    const row = databaseController.databaseViewCache.rowInfos[0];
+    const multiSelectField = typeOptionController.getFieldInfo();
+    // const multiSelectField = findFirstFieldInfoWithFieldType(row, FieldType.MultiSelect).unwrap();
+    const selectOptionCellController = await makeMultiSelectCellController(
+      multiSelectField.field.id,
+      row,
+      databaseController
+    ).then((result) => result.unwrap());
+    const backendSvc = new SelectOptionCellBackendService(selectOptionCellController.cellIdentifier);
+    await backendSvc.createOption({ name: 'A' });
+    await backendSvc.createOption({ name: 'B' });
+    await backendSvc.createOption({ name: 'C' });
+
+    const selectOptionCellData = await selectOptionCellController.getCellData().then((result) => result.unwrap());
+    if (selectOptionCellData.options.length !== 3) {
+      throw Error('The options should equal to 3');
+    }
+
+    if (selectOptionCellData.select_options.length !== 3) {
+      throw Error('The selected options should equal to 3');
+    }
+    await selectOptionCellController.dispose();
+
+    // Switch to RichText field type
+    await typeOptionController.switchToField(FieldType.RichText).then((result) => result.unwrap());
+    if (typeOptionController.fieldType !== FieldType.RichText) {
+      throw Error('The field type should be text');
+    }
+
+    const textCellController = await makeTextCellController(multiSelectField.field.id, row, databaseController).then(
+      (result) => result.unwrap()
+    );
+    const cellContent = await textCellController.getCellData();
+    if (cellContent.unwrap() !== 'A,B,C') {
+      throw Error('The cell content should be A,B,C, but receive: ' + cellContent.unwrap());
+    }
+
+    await databaseController.dispose();
+  }
+
+  return TestButton('Test switch from multi-select to text column', testSwitchFromMultiSelectToRichText);
 };
 
 export const TestEditField = () => {

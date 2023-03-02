@@ -178,12 +178,12 @@ impl DatabaseViewEditor {
     .await
   }
 
-  #[tracing::instrument(name = "close grid view editor", level = "trace", skip_all)]
+  #[tracing::instrument(name = "close database view editor", level = "trace", skip_all)]
   pub async fn close(&self) {
     self.rev_manager.generate_snapshot().await;
     self.rev_manager.close().await;
     self.filter_controller.close().await;
-    self.sort_controller.read().await.close().await;
+    self.sort_controller.write().await.close().await;
   }
 
   pub async fn handle_block_event(&self, event: Cow<'_, DatabaseBlockEvent>) {
@@ -509,8 +509,8 @@ impl DatabaseViewEditor {
         .did_receive_changes(SortChangeset::from_insert(sort_type))
         .await
     };
-    self.notify_did_update_sort(changeset).await;
     drop(sort_controller);
+    self.notify_did_update_sort(changeset).await;
     Ok(sort_rev)
   }
 
@@ -539,7 +539,7 @@ impl DatabaseViewEditor {
 
   pub async fn v_delete_all_sorts(&self) -> FlowyResult<()> {
     let all_sorts = self.v_get_all_sorts().await;
-    self.sort_controller.write().await.delete_all_sorts().await;
+    // self.sort_controller.write().await.delete_all_sorts().await;
     self
       .modify(|pad| {
         let changeset = pad.delete_all_sorts()?;

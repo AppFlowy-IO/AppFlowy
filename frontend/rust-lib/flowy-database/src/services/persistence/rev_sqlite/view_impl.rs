@@ -31,7 +31,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseViewRevisionPersis
 
   fn create_revision_records(&self, revision_records: Vec<SyncRecord>) -> Result<(), Self::Error> {
     let conn = self.pool.get().map_err(internal_error)?;
-    GridViewRevisionSql::create(revision_records, &conn)?;
+    DatabaseViewRevisionSql::create(revision_records, &conn)?;
     Ok(())
   }
 
@@ -45,7 +45,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseViewRevisionPersis
     rev_ids: Option<Vec<i64>>,
   ) -> Result<Vec<SyncRecord>, Self::Error> {
     let conn = self.pool.get().map_err(internal_error)?;
-    let records = GridViewRevisionSql::read(&self.user_id, object_id, rev_ids, &conn)?;
+    let records = DatabaseViewRevisionSql::read(&self.user_id, object_id, rev_ids, &conn)?;
     Ok(records)
   }
 
@@ -56,7 +56,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseViewRevisionPersis
   ) -> Result<Vec<SyncRecord>, Self::Error> {
     let conn = &*self.pool.get().map_err(internal_error)?;
     let revisions =
-      GridViewRevisionSql::read_with_range(&self.user_id, object_id, range.clone(), conn)?;
+      DatabaseViewRevisionSql::read_with_range(&self.user_id, object_id, range.clone(), conn)?;
     Ok(revisions)
   }
 
@@ -64,7 +64,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseViewRevisionPersis
     let conn = &*self.pool.get().map_err(internal_error)?;
     conn.immediate_transaction::<_, FlowyError, _>(|| {
       for changeset in changesets {
-        GridViewRevisionSql::update(changeset, conn)?;
+        DatabaseViewRevisionSql::update(changeset, conn)?;
       }
       Ok(())
     })?;
@@ -77,7 +77,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseViewRevisionPersis
     rev_ids: Option<Vec<i64>>,
   ) -> Result<(), Self::Error> {
     let conn = &*self.pool.get().map_err(internal_error)?;
-    GridViewRevisionSql::delete(object_id, rev_ids, conn)?;
+    DatabaseViewRevisionSql::delete(object_id, rev_ids, conn)?;
     Ok(())
   }
 
@@ -89,22 +89,23 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseViewRevisionPersis
   ) -> Result<(), Self::Error> {
     let conn = self.pool.get().map_err(internal_error)?;
     conn.immediate_transaction::<_, FlowyError, _>(|| {
-      GridViewRevisionSql::delete(object_id, deleted_rev_ids, &conn)?;
-      GridViewRevisionSql::create(inserted_records, &conn)?;
+      DatabaseViewRevisionSql::delete(object_id, deleted_rev_ids, &conn)?;
+      DatabaseViewRevisionSql::create(inserted_records, &conn)?;
       Ok(())
     })
   }
 }
 
-struct GridViewRevisionSql();
-impl GridViewRevisionSql {
+struct DatabaseViewRevisionSql();
+impl DatabaseViewRevisionSql {
   fn create(revision_records: Vec<SyncRecord>, conn: &SqliteConnection) -> Result<(), FlowyError> {
     // Batch insert: https://diesel.rs/guides/all-about-inserts.html
     let records = revision_records
       .into_iter()
       .map(|record| {
         tracing::trace!(
-          "[GridViewRevisionSql] create revision: {}:{:?}",
+          "[{}] create revision: {}:{:?}",
+          std::any::type_name::<Self>(),
           record.revision.object_id,
           record.revision.rev_id
         );
@@ -132,7 +133,8 @@ impl GridViewRevisionSql {
       .filter(dsl::object_id.eq(changeset.object_id));
     let _ = update(filter).set(dsl::state.eq(state)).execute(conn)?;
     tracing::debug!(
-      "[GridViewRevisionSql] update revision:{} state:to {:?}",
+      "[{}] update revision:{} state:to {:?}",
+      std::any::type_name::<Self>(),
       changeset.rev_id,
       changeset.state
     );
@@ -192,7 +194,8 @@ impl GridViewRevisionSql {
 
     if let Some(rev_ids) = rev_ids {
       tracing::trace!(
-        "[GridViewRevisionSql] Delete revision: {}:{:?}",
+        "[{}] Delete revision: {}:{:?}",
+        std::any::type_name::<Self>(),
         object_id,
         rev_ids
       );
@@ -200,7 +203,11 @@ impl GridViewRevisionSql {
     }
 
     let affected_row = sql.execute(conn)?;
-    tracing::trace!("[GridViewRevisionSql] Delete {} rows", affected_row);
+    tracing::trace!(
+      "[{}] Delete {} rows",
+      std::any::type_name::<Self>(),
+      affected_row
+    );
     Ok(())
   }
 }

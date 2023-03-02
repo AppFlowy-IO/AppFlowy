@@ -31,7 +31,7 @@ use flowy_task::TaskDispatcher;
 
 use revision_model::Revision;
 use std::sync::Arc;
-use tokio::sync::RwLock;
+use tokio::sync::{RwLock, RwLockWriteGuard, TryLockError};
 
 pub trait DatabaseUser: Send + Sync {
   fn user_id(&self) -> Result<String, FlowyError>;
@@ -118,7 +118,6 @@ impl DatabaseManager {
     Ok(())
   }
 
-  #[tracing::instrument(level = "debug", skip_all, err)]
   pub async fn create_database_block<T: AsRef<str>>(
     &self,
     block_id: T,
@@ -141,33 +140,32 @@ impl DatabaseManager {
       .await
   }
 
+  #[tracing::instrument(level = "debug", skip_all)]
   pub async fn close_database_view<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<()> {
     let view_id = view_id.as_ref();
     let database_info = self.database_ref_indexer.get_database_with_view(view_id)?;
     tracing::Span::current().record("database_id", &database_info.database_id);
 
-    let mut should_remove_editor = false;
-    if let Some(database_editor) = self
-      .editors_by_database_id
-      .write()
-      .await
-      .get(&database_info.database_id)
-    {
-      database_editor.close_view_editor(view_id).await;
-      should_remove_editor = database_editor.number_of_ref_views().await == 0;
-      if should_remove_editor {
-        database_editor.dispose().await;
-      }
+    match self.editors_by_database_id.try_write() {
+      Ok(mut write_guard) => {
+        if let Some(database_editor) = write_guard.remove(&database_info.database_id) {
+          database_editor.close_view_editor(view_id).await;
+          if database_editor.number_of_ref_views().await == 0 {
+            database_editor.dispose().await;
+          } else {
+            self
+              .editors_by_database_id
+              .write()
+              .await
+              .insert(database_info.database_id, database_editor);
+          }
+        }
+      },
+      Err(_) => {
+        tracing::error!("Try to get the lock of editors_by_database_id failed");
+      },
     }
 
-    if should_remove_editor {
-      tracing::debug!("Close database base editor: {}", database_info.database_id);
-      self
-        .editors_by_database_id
-        .write()
-        .await
-        .remove(&database_info.database_id);
-    }
     Ok(())
   }
 
@@ -235,12 +233,10 @@ impl DatabaseManager {
     pool: Arc<ConnectionPool>,
   ) -> Result<Arc<DatabaseEditor>, FlowyError> {
     let user = self.database_user.clone();
-    tracing::debug!("Open database view: {}", view_id);
     let (base_view_pad, base_view_rev_manager) =
       make_database_view_revision_pad(view_id, user.clone()).await?;
     let mut database_id = base_view_pad.database_id.clone();
-
-    tracing::debug!("Open database: {}", database_id);
+    tracing::debug!("Open database: {} with view: {}", database_id, view_id);
     if database_id.is_empty() {
       // Before the database_id concept comes up, we used the view_id directly. So if
       // the database_id is empty, which means we can used the view_id. After the version 0.1.1,

@@ -60,7 +60,11 @@ impl DatabaseViews {
   }
 
   pub async fn close(&self, view_id: &str) {
-    self.view_editors.write().await.remove(view_id).await;
+    if let Ok(mut view_editors) = self.view_editors.try_write() {
+      view_editors.remove(view_id).await;
+    } else {
+      tracing::error!("Try to get the lock of view_editors failed");
+    }
   }
 
   pub async fn number_of_views(&self) -> usize {

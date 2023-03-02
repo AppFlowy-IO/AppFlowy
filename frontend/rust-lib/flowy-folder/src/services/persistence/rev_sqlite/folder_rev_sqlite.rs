@@ -106,7 +106,8 @@ impl FolderRevisionSql {
       .into_iter()
       .map(|record| {
         tracing::trace!(
-          "[TextRevisionSql] create revision: {}:{:?}",
+          "[{}] create revision: {}:{:?}",
+          std::any::type_name::<Self>(),
           record.revision.object_id,
           record.revision.rev_id
         );
@@ -135,7 +136,8 @@ impl FolderRevisionSql {
       .filter(dsl::doc_id.eq(changeset.object_id));
     let _ = update(filter).set(dsl::state.eq(state)).execute(conn)?;
     tracing::debug!(
-      "[TextRevisionSql] update revision:{} state:to {:?}",
+      "[{}] update revision:{} state:to {:?}",
+      std::any::type_name::<Self>(),
       changeset.rev_id,
       changeset.state
     );
@@ -193,7 +195,8 @@ impl FolderRevisionSql {
 
     if let Some(rev_ids) = rev_ids {
       tracing::trace!(
-        "[TextRevisionSql] Delete revision: {}:{:?}",
+        "[{}] Delete revision: {}:{:?}",
+        std::any::type_name::<Self>(),
         object_id,
         rev_ids
       );
@@ -201,7 +204,11 @@ impl FolderRevisionSql {
     }
 
     let affected_row = sql.execute(conn)?;
-    tracing::trace!("[TextRevisionSql] Delete {} rows", affected_row);
+    tracing::trace!(
+      "[{}] Delete {} rows",
+      std::any::type_name::<Self>(),
+      affected_row
+    );
     Ok(())
   }
 }

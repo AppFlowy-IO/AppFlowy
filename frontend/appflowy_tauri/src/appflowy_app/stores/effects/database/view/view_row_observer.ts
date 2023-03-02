@@ -38,7 +38,7 @@ export class DatabaseViewRowsObserver {
     this.reorderSingleRowNotifier.observer.subscribe(callbacks.onReorderSingleRow);
 
     this._listener = new DatabaseNotificationObserver({
-      viewId: this.viewId,
+      id: this.viewId,
       parserHandler: (notification, result) => {
         switch (notification) {
           case DatabaseNotification.DidUpdateViewRowsVisibility:

@@ -7,11 +7,11 @@ import { Err, Ok } from 'ts-results';
 import { Log } from '../../../../utils/log';
 
 abstract class CellDataParser<T> {
-  abstract parserData(data: Uint8Array): T | undefined;
+  abstract parserData(data: Uint8Array): T;
 }
 
 class CellDataLoader<T> {
-  _service = new CellBackendService();
+  private service = new CellBackendService();
 
   constructor(
     readonly cellId: CellIdentifier,
@@ -20,7 +20,7 @@ class CellDataLoader<T> {
   ) {}
 
   loadData = async () => {
-    const result = await this._service.getCell(this.cellId);
+    const result = await this.service.getCell(this.cellId);
     if (result.ok) {
       return Ok(this.parser.parserData(result.val.data));
     } else {

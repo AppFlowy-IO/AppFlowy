@@ -12,10 +12,11 @@ export class DatabaseViewCache {
   constructor(public readonly viewId: string, fieldController: FieldController) {
     this.rowsObserver = new DatabaseViewRowsObserver(viewId);
     this.rowCache = new RowCache(viewId, () => fieldController.fieldInfos);
-    this.fieldSubscription = fieldController.subscribeOnFieldsChanged((fieldInfos) => {
+    this.fieldSubscription = fieldController.subscribeOnNumOfFieldsChanged((fieldInfos) => {
       fieldInfos.forEach((fieldInfo) => {
         this.rowCache.onFieldUpdated(fieldInfo);
       });
+      this.rowCache.onNumberOfFieldsUpdated(fieldInfos);
     });
   }
 
