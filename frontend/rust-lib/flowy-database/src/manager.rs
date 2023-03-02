@@ -31,7 +31,7 @@ use flowy_task::TaskDispatcher;
 
 use revision_model::Revision;
 use std::sync::Arc;
-use tokio::sync::{RwLock, RwLockWriteGuard, TryLockError};
+use tokio::sync::RwLock;
 
 pub trait DatabaseUser: Send + Sync {
   fn user_id(&self) -> Result<String, FlowyError>;
@@ -146,24 +146,25 @@ impl DatabaseManager {
     let database_info = self.database_ref_indexer.get_database_with_view(view_id)?;
     tracing::Span::current().record("database_id", &database_info.database_id);
 
-    match self.editors_by_database_id.try_write() {
-      Ok(mut write_guard) => {
-        if let Some(database_editor) = write_guard.remove(&database_info.database_id) {
-          database_editor.close_view_editor(view_id).await;
-          if database_editor.number_of_ref_views().await == 0 {
-            database_editor.dispose().await;
-          } else {
-            self
-              .editors_by_database_id
-              .write()
-              .await
-              .insert(database_info.database_id, database_editor);
-          }
-        }
-      },
-      Err(_) => {
-        tracing::error!("Try to get the lock of editors_by_database_id failed");
-      },
+    // Create a temporary reference database_editor in case of holding the write lock
+    // of editors_by_database_id too long.
+    let database_editor = self
+      .editors_by_database_id
+      .write()
+      .await
+      .remove(&database_info.database_id);
+
+    if let Some(database_editor) = database_editor {
+      database_editor.close_view_editor(view_id).await;
+      if database_editor.number_of_ref_views().await == 0 {
+        database_editor.dispose().await;
+      } else {
+        self
+          .editors_by_database_id
+          .write()
+          .await
+          .insert(database_info.database_id, database_editor);
+      }
     }
 
     Ok(())

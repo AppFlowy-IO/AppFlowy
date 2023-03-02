@@ -28,9 +28,7 @@ use flowy_error::FlowyResult;
 use flowy_revision::RevisionManager;
 use flowy_sqlite::ConnectionPool;
 use flowy_task::TaskDispatcher;
-use lib_infra::async_trait::async_trait;
 use lib_infra::future::Fut;
-use lib_infra::ref_map::RefCountValue;
 use nanoid::nanoid;
 use revision_model::Revision;
 use std::borrow::Cow;
@@ -182,8 +180,8 @@ impl DatabaseViewEditor {
   pub async fn close(&self) {
     self.rev_manager.generate_snapshot().await;
     self.rev_manager.close().await;
-    self.filter_controller.close().await;
     self.sort_controller.write().await.close().await;
+    // self.filter_controller.close().await;
   }
 
   pub async fn handle_block_event(&self, event: Cow<'_, DatabaseBlockEvent>) {
@@ -867,13 +865,6 @@ pub(crate) async fn get_cells_for_field(
     }
   }
   Ok(cells)
-}
-
-#[async_trait]
-impl RefCountValue for DatabaseViewEditor {
-  async fn did_remove(&self) {
-    self.close().await;
-  }
 }
 
 async fn new_group_controller(
