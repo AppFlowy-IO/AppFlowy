@@ -1,6 +1,6 @@
 <h1 align="center" style="margin:0"> AppFlowy_Flutter</h1>
 <div align="center">
-  <img src="https://img.shields.io/badge/Flutter-v3.10.0-blue"/>
+  <img src="https://img.shields.io/badge/Flutter-v3.3.10-blue"/>
   <img src="https://img.shields.io/badge/Rust-v1.65-orange"/>
 </div>
 
@@ -15,7 +15,16 @@ This Repository contains the codebase for the frontend of the application, curre
 > We later expect to extend support to Android and iOS devices using Flutter.
 
 ### Am I Eligible to Contribute?
-Yes! You are eligible to contribute, check out the ways in which you can [contribute to AppFlowy](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/contributing-to-appflowy). However to contribute to `AppFlowy_Flutter` codebase specifically (coding contribution) we suggest you to have basic knowledge of Flutter. In case you are new to Flutter, we may suggest you to learn the basics and then try to contribute, get started with Flutter [here](https://flutter.dev/docs/get-started/codelab).
+Yes! You are eligible to contribute, check out the ways in which you can [contribute to AppFlowy](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/contributing-to-appflowy). Some of the ways in which you can contribute are:
+- Non-Coding Contributions
+  - Documentation
+  - Feature Requests and Feedbacks
+  - Report Bugs
+  - Improve Translations
+- Coding Contributions
+
+
+To contribute to `AppFlowy_Flutter` codebase specifically (coding contribution) we suggest you to have basic knowledge of Flutter. In case you are new to Flutter, we may suggest you to learn the basics and then try to contribute, get started with Flutter [here](https://flutter.dev/docs/get-started/codelab).
 
 ### What OS Should I Use for Development?
 We support all OS for Development i.e Linux, macOS and Windows. However, most of us promote macOS and Linux over Windows. We have detailed [docs](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/software-contributions/environment-setup) on How to Setup `AppFlowy_Flutter` in your local system in each OS.
