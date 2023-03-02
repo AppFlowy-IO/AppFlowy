@@ -66,7 +66,6 @@ class _CoverImageNodeWidget extends StatefulWidget {
 }
 
 class _CoverImageNodeWidgetState extends State<_CoverImageNodeWidget> {
-  final popoverController = PopoverController();
   CoverSelectionType get selectionType => CoverSelectionType.fromString(
         widget.node.attributes[kCoverSelectionTypeAttribute],
       );
@@ -74,8 +73,127 @@ class _CoverImageNodeWidgetState extends State<_CoverImageNodeWidget> {
   @override
   Widget build(BuildContext context) {
     if (selectionType == CoverSelectionType.initial) {
-      return _buildAddCoverButton();
+      return _AddCoverButton(
+        onTap: () {
+          _insertCover(CoverSelectionType.asset, builtInAssetImages.first);
+        },
+      );
+    } else {
+      return _CoverImage(
+        editorState: widget.editorState,
+        node: widget.node,
+        onCoverChanged: (type, value) {
+          _insertCover(type, value);
+        },
+      );
     }
+  }
+
+  Future<void> _insertCover(CoverSelectionType type, dynamic cover) async {
+    final transaction = widget.editorState.transaction;
+    transaction.updateNode(widget.node, {
+      kCoverSelectionTypeAttribute: type.toString(),
+      kCoverSelectionAttribute: cover,
+    });
+    return widget.editorState.apply(transaction);
+  }
+}
+
+class _AddCoverButton extends StatefulWidget {
+  const _AddCoverButton({
+    required this.onTap,
+  });
+
+  final VoidCallback onTap;
+
+  @override
+  State<_AddCoverButton> createState() => _AddCoverButtonState();
+}
+
+class _AddCoverButtonState extends State<_AddCoverButton> {
+  bool isHidden = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (event) {
+        setHidden(false);
+      },
+      onExit: (event) {
+        setHidden(true);
+      },
+      child: Container(
+        height: 50.0,
+        width: double.infinity,
+        padding: const EdgeInsets.only(top: 20, bottom: 5),
+        // color: Colors.red,
+        child: isHidden
+            ? const SizedBox()
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  // Add Cover Button.
+                  FlowyButton(
+                    leftIconSize: const Size.square(18),
+                    onTap: widget.onTap,
+                    useIntrinsicWidth: true,
+                    leftIcon: svgWidget(
+                      'editor/image',
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    text: FlowyText.regular(
+                      LocaleKeys.document_plugins_cover_addCover.tr(),
+                    ),
+                  )
+                  // Add Icon Button.
+                  // ...
+                ],
+              ),
+      ),
+    );
+  }
+
+  void setHidden(bool value) {
+    if (isHidden == value) return;
+    setState(() {
+      isHidden = value;
+    });
+  }
+}
+
+class _CoverImage extends StatefulWidget {
+  const _CoverImage({
+    required this.editorState,
+    required this.node,
+    required this.onCoverChanged,
+  });
+
+  final Node node;
+  final EditorState editorState;
+  final Function(
+    CoverSelectionType selectionType,
+    dynamic selection,
+  ) onCoverChanged;
+
+  @override
+  State<_CoverImage> createState() => _CoverImageState();
+}
+
+class _CoverImageState extends State<_CoverImage> {
+  final popoverController = PopoverController();
+
+  CoverSelectionType get selectionType => CoverSelectionType.fromString(
+        widget.node.attributes[kCoverSelectionTypeAttribute],
+      );
+  Color get color =>
+      Color(int.tryParse(widget.node.attributes[kCoverSelectionAttribute]) ??
+          0xFFFFFFFF);
+
+  bool isOverlayButtonsHidden = true;
+
+  @override
+  Widget build(BuildContext context) {
     return Stack(
       children: [
         _buildCoverImage(context),
@@ -95,7 +213,6 @@ class _CoverImageNodeWidgetState extends State<_CoverImageNodeWidget> {
             offset: const Offset(-125, 10),
             controller: popoverController,
             direction: PopoverDirection.bottomWithCenterAligned,
-            triggerActions: PopoverTriggerFlags.none,
             constraints: BoxConstraints.loose(const Size(380, 450)),
             margin: EdgeInsets.zero,
             child: RoundedTextButton(
@@ -113,17 +230,7 @@ class _CoverImageNodeWidgetState extends State<_CoverImageNodeWidget> {
               return ChangeCoverPopover(
                 node: widget.node,
                 editorState: widget.editorState,
-                onCoverChanged: (type, value) async {
-                  final transaction = widget.editorState.transaction;
-                  transaction.updateNode(
-                    widget.node,
-                    {
-                      kCoverSelectionTypeAttribute: type.toString(),
-                      kCoverSelectionAttribute: value,
-                    },
-                  );
-                  await widget.editorState.apply(transaction);
-                },
+                onCoverChanged: widget.onCoverChanged,
               );
             },
           ),
@@ -134,52 +241,14 @@ class _CoverImageNodeWidgetState extends State<_CoverImageNodeWidget> {
             iconPadding: const EdgeInsets.all(5),
             width: 28,
             icon: svgWidget(
-              "editor/delete",
+              'editor/delete',
               color: Theme.of(context).colorScheme.onSurface,
             ),
-            onPressed: () async {
-              final transaction = widget.editorState.transaction;
-              transaction.updateNode(
-                widget.node,
-                {
-                  kCoverSelectionTypeAttribute:
-                      CoverSelectionType.initial.toString(),
-                  kCoverSelectionAttribute: null,
-                },
-              );
-              await widget.editorState.apply(transaction);
+            onPressed: () {
+              widget.onCoverChanged(CoverSelectionType.initial, null);
             },
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildAddCoverButton() {
-    return Container(
-      padding: const EdgeInsets.only(top: 20, bottom: 5),
-      child: FlowyButton(
-        leftIconSize: const Size.square(18),
-        onTap: () async {
-          final transaction = widget.editorState.transaction;
-          transaction.updateNode(
-            widget.node,
-            {
-              kCoverSelectionTypeAttribute: CoverSelectionType.asset.toString(),
-              kCoverSelectionAttribute:
-                  "assets/images/app_flowy_abstract_cover_2.jpg"
-            },
-          );
-          await widget.editorState.apply(transaction);
-        },
-        useIntrinsicWidth: true,
-        leftIcon: svgWidget(
-          "editor/image",
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
-        text: FlowyText.regular(
-          LocaleKeys.document_plugins_cover_addCover.tr(),
-        ),
       ),
     );
   }
@@ -204,9 +273,7 @@ class _CoverImageNodeWidgetState extends State<_CoverImageNodeWidget> {
       case CoverSelectionType.color:
         coverImage = Container(
           decoration: BoxDecoration(
-            color: Color(int.tryParse(
-                    widget.node.attributes[kCoverSelectionAttribute]) ??
-                0xFFFFFFFF),
+            color: color,
             borderRadius: Corners.s6Border,
           ),
           alignment: Alignment.center,
@@ -224,5 +291,12 @@ class _CoverImageNodeWidgetState extends State<_CoverImageNodeWidget> {
         child: coverImage,
       ),
     );
+  }
+
+  void setOverlayButtonsHidden(bool value) {
+    if (isOverlayButtonsHidden == value) return;
+    setState(() {
+      isOverlayButtonsHidden = value;
+    });
   }
 }

@@ -19,7 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const String kLocalImagesKey = 'local_images';
 
-List<String> get _assetImages => [
+List<String> get builtInAssetImages => [
       "assets/images/app_flowy_abstract_cover_1.jpg",
       "assets/images/app_flowy_abstract_cover_2.jpg"
     ];
@@ -115,19 +115,19 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
           childAspectRatio: 1 / 0.65,
           crossAxisSpacing: 7,
           mainAxisSpacing: 7),
-      itemCount: _assetImages.length,
+      itemCount: builtInAssetImages.length,
       itemBuilder: (BuildContext ctx, index) {
         return InkWell(
           onTap: () {
             widget.onCoverChanged(
               CoverSelectionType.asset,
-              _assetImages[index],
+              builtInAssetImages[index],
             );
           },
           child: Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(_assetImages[index]),
+                image: AssetImage(builtInAssetImages[index]),
                 fit: BoxFit.cover,
               ),
               borderRadius: Corners.s8Border,
