@@ -353,7 +353,15 @@
       "smartEditFixSpelling": "Fix spelling",
       "smartEditSummarize": "Summarize",
       "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
-      "smartEditCouldNotFetchKey": "Could not fetch OpenAI key"
+      "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
+      "cover": {
+        "changeCover": "Change Cover",
+        "colors": "Colors",
+        "images": "Images",
+        "abstract": "Abstract",
+        "addCover": "Add Cover",
+        "addLocalImage": "Add local image"
+      }
     }
   },
   "board": {
@@ -370,12 +378,5 @@
       "previousMonth": "Previous Month",
       "nextMonth": "Next Month"
     }
-  },
-  "cover": {
-    "changeCover": "Change Cover",
-    "colors": "Colors",
-    "images": "Images",
-    "abstract": "Abstract",
-    "addCover": "Add Cover"
   }
 }

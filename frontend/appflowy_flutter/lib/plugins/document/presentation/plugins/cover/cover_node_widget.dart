@@ -12,33 +12,28 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 const String kCoverType = 'cover';
 const String kCoverSelectionTypeAttribute = 'cover_selection_type';
 const String kCoverSelectionAttribute = 'cover_selection';
 
 enum CoverSelectionType {
+  initial,
+
   color,
   file,
-  asset,
-  deleted,
-}
+  asset;
 
-SelectionMenuItem coverMenuItem = SelectionMenuItem.node(
-  name: 'Cover',
-  iconData: Icons.image,
-  keywords: ['cover'],
-  nodeBuilder: (editorState) {
-    final node = Node(type: kCoverType);
-    node.insert(TextNode.empty());
-    return node;
-  },
-  replace: (_, textNode) => textNode.toPlainText().isEmpty,
-  updateSelection: (_, path, __, ___) {
-    return Selection.single(path: [...path, 0], startOffset: 0);
-  },
-);
+  static CoverSelectionType fromString(String? value) {
+    if (value == null) {
+      return CoverSelectionType.initial;
+    }
+    return CoverSelectionType.values.firstWhere(
+      (e) => e.toString() == value,
+      orElse: () => CoverSelectionType.initial,
+    );
+  }
+}
 
 class CoverNodeWidgetBuilder implements NodeWidgetBuilder {
   @override
@@ -67,65 +62,52 @@ class _CoverImageNodeWidget extends StatefulWidget {
   final EditorState editorState;
 
   @override
-  State<_CoverImageNodeWidget> createState() => __CoverImageNodeWidgetState();
+  State<_CoverImageNodeWidget> createState() => _CoverImageNodeWidgetState();
 }
 
-class __CoverImageNodeWidgetState extends State<_CoverImageNodeWidget>
-    with Selectable {
-  RenderBox get _renderBox => context.findRenderObject() as RenderBox;
-  final _popoverController = PopoverController();
-  late PopoverMutex popoverMutex;
-  @override
-  void initState() {
-    super.initState();
-    popoverMutex = PopoverMutex();
-  }
+class _CoverImageNodeWidgetState extends State<_CoverImageNodeWidget> {
+  final popoverController = PopoverController();
+  CoverSelectionType get selectionType => CoverSelectionType.fromString(
+        widget.node.attributes[kCoverSelectionTypeAttribute],
+      );
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-
-    return _buildCoverSection(screenSize);
-  }
-
-  _buildCoverSection(screenSize) {
-    if (widget.node.attributes[kCoverSelectionTypeAttribute] ==
-        CoverSelectionType.deleted.toString()) {
+    if (selectionType == CoverSelectionType.initial) {
       return _buildAddCoverButton();
     }
     return Stack(
       children: [
-        _buildCoverImage(screenSize),
-        _buildCoverOverlayButtons(),
+        _buildCoverImage(context),
+        _buildCoverOverlayButtons(context),
       ],
     );
   }
 
-  _buildCoverOverlayButtons() {
+  Widget _buildCoverOverlayButtons(BuildContext context) {
     return Positioned(
-      bottom: 12,
+      bottom: 22,
       right: 12,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           AppFlowyPopover(
-            mutex: popoverMutex,
             offset: const Offset(-125, 10),
-            controller: _popoverController,
+            controller: popoverController,
             direction: PopoverDirection.bottomWithCenterAligned,
             triggerActions: PopoverTriggerFlags.none,
             constraints: BoxConstraints.loose(const Size(380, 450)),
             margin: EdgeInsets.zero,
             child: RoundedTextButton(
               onPressed: () {
-                _popoverController.show();
+                popoverController.show();
               },
               hoverColor: Theme.of(context).colorScheme.surface,
               textColor: Theme.of(context).colorScheme.onSurface,
               fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
               width: 120,
               height: 28,
-              title: LocaleKeys.cover_changeCover.tr(),
+              title: LocaleKeys.document_plugins_cover_changeCover.tr(),
             ),
             popupBuilder: (BuildContext popoverContext) {
               return ChangeCoverPopover(
@@ -133,16 +115,14 @@ class __CoverImageNodeWidgetState extends State<_CoverImageNodeWidget>
                 editorState: widget.editorState,
                 onCoverChanged: (type, value) async {
                   final transaction = widget.editorState.transaction;
-
                   transaction.updateNode(
                     widget.node,
                     {
                       kCoverSelectionTypeAttribute: type.toString(),
-                      kCoverSelectionAttribute: value
+                      kCoverSelectionAttribute: value,
                     },
                   );
                   await widget.editorState.apply(transaction);
-                  setState(() {});
                 },
               );
             },
@@ -159,17 +139,15 @@ class __CoverImageNodeWidgetState extends State<_CoverImageNodeWidget>
             ),
             onPressed: () async {
               final transaction = widget.editorState.transaction;
-
               transaction.updateNode(
                 widget.node,
                 {
                   kCoverSelectionTypeAttribute:
-                      CoverSelectionType.deleted.toString(),
+                      CoverSelectionType.initial.toString(),
                   kCoverSelectionAttribute: null,
                 },
               );
               await widget.editorState.apply(transaction);
-              setState(() {});
             },
           ),
         ],
@@ -177,138 +155,74 @@ class __CoverImageNodeWidgetState extends State<_CoverImageNodeWidget>
     );
   }
 
-  _buildAddCoverButton() {
-    return FlowyButton(
-      leftIconSize: const Size.square(18),
-      onTap: () async {
-        final transaction = widget.editorState.transaction;
-        transaction.updateNode(
-          widget.node,
-          {
-            kCoverSelectionTypeAttribute: CoverSelectionType.asset.toString(),
-            kCoverSelectionAttribute:
-                "assets/images/app_flowy_abstract_cover_2.jpg"
-          },
-        );
-        await widget.editorState.apply(transaction);
-      },
-      useIntrinsicWidth: true,
-      leftIcon: svgWidget(
-        "editor/image",
-        color: Theme.of(context).colorScheme.onSurface,
-      ),
-      text: FlowyText.regular(
-        LocaleKeys.cover_addCover.tr(),
+  Widget _buildAddCoverButton() {
+    return Container(
+      padding: const EdgeInsets.only(top: 20, bottom: 5),
+      child: FlowyButton(
+        leftIconSize: const Size.square(18),
+        onTap: () async {
+          final transaction = widget.editorState.transaction;
+          transaction.updateNode(
+            widget.node,
+            {
+              kCoverSelectionTypeAttribute: CoverSelectionType.asset.toString(),
+              kCoverSelectionAttribute:
+                  "assets/images/app_flowy_abstract_cover_2.jpg"
+            },
+          );
+          await widget.editorState.apply(transaction);
+        },
+        useIntrinsicWidth: true,
+        leftIcon: svgWidget(
+          "editor/image",
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
+        text: FlowyText.regular(
+          LocaleKeys.document_plugins_cover_addCover.tr(),
+        ),
       ),
     );
   }
 
-  _buildCoverImage(screenSize) {
-    if (widget.node.attributes[kCoverSelectionTypeAttribute] ==
-        CoverSelectionType.file.toString()) {
-      return Positioned(
-        child: ClipRRect(
-          borderRadius: Corners.s6Border,
-          child: Image.file(
-            File(widget.node.attributes[kCoverSelectionAttribute]),
-            height: 250,
-            width: screenSize.width,
-            fit: BoxFit.cover,
-          ),
-        ),
-      );
-    }
-    if (widget.node.attributes[kCoverSelectionTypeAttribute] ==
-        CoverSelectionType.color.toString()) {
-      return Positioned(
-        child: Container(
-          height: 250,
-          width: screenSize.width,
+  Widget _buildCoverImage(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    const height = 200.0;
+    final Widget coverImage;
+    switch (selectionType) {
+      case CoverSelectionType.file:
+        coverImage = Image.file(
+          File(widget.node.attributes[kCoverSelectionAttribute]),
+          fit: BoxFit.cover,
+        );
+        break;
+      case CoverSelectionType.asset:
+        coverImage = Image.asset(
+          widget.node.attributes[kCoverSelectionAttribute],
+          fit: BoxFit.cover,
+        );
+        break;
+      case CoverSelectionType.color:
+        coverImage = Container(
           decoration: BoxDecoration(
-              color: Color(int.tryParse(
-                      widget.node.attributes[kCoverSelectionAttribute]) ??
-                  0xFFFFFFFF),
-              borderRadius: Corners.s6Border),
+            color: Color(int.tryParse(
+                    widget.node.attributes[kCoverSelectionAttribute]) ??
+                0xFFFFFFFF),
+            borderRadius: Corners.s6Border,
+          ),
           alignment: Alignment.center,
-        ),
-      );
+        );
+        break;
+      case CoverSelectionType.initial:
+        coverImage = const SizedBox(); // just an empty sizebox
+        break;
     }
-    if (widget.node.attributes[kCoverSelectionTypeAttribute] ==
-        CoverSelectionType.asset.toString()) {
-      return Positioned(
-        child: ClipRRect(
-          borderRadius: Corners.s6Border,
-          child: Image.asset(
-            widget.node.attributes[kCoverSelectionAttribute],
-            height: 250,
-            width: screenSize.width,
-            fit: BoxFit.cover,
-          ),
-        ),
-      );
-    }
-    if (widget.node.attributes[kCoverSelectionTypeAttribute] ==
-        CoverSelectionType.deleted.toString()) {
-      return Container();
-    } else {
-      return Positioned(
-        child: ClipRRect(
-          borderRadius: Corners.s6Border,
-          child: Image.asset(
-            "assets/images/app_flowy_abstract_cover_2.jpg",
-            height: 250,
-            width: screenSize.width,
-            fit: BoxFit.cover,
-          ),
-        ),
-      );
-    }
+    return UnconstrainedBox(
+      child: Container(
+        padding: const EdgeInsets.only(bottom: 10),
+        height: height,
+        width: screenSize.width,
+        child: coverImage,
+      ),
+    );
   }
-
-  Position start() => Position(path: widget.node.path, offset: 0);
-
-  Position end() => Position(path: widget.node.path, offset: 1);
-
-  Position getPositionInOffset(Offset start) => end();
-
-  List<Rect> getRectsInSelection(Selection selection) =>
-      [Offset.zero & _renderBox.size];
-
-  Selection getSelectionInRange(Offset start, Offset end) => Selection.single(
-        path: widget.node.path,
-        startOffset: 0,
-        endOffset: 1,
-      );
-
-  Offset localToGlobal(Offset offset) => _renderBox.localToGlobal(offset);
-
-  @override
-  void addListener(VoidCallback listener) {}
-
-  @override
-  SelectionResult dispatchSelectionEvent(SelectionEvent event) {
-    throw UnimplementedError();
-  }
-
-  @override
-  SelectedContent? getSelectedContent() {
-    throw UnimplementedError();
-  }
-
-  @override
-  Matrix4 getTransformTo(RenderObject? ancestor) {
-    throw UnimplementedError();
-  }
-
-  @override
-  void pushHandleLayers(LayerLink? startHandle, LayerLink? endHandle) {}
-
-  @override
-  void removeListener(VoidCallback listener) {}
-
-  @override
-  Size get size => throw UnimplementedError();
-
-  @override
-  SelectionGeometry get value => throw UnimplementedError();
 }
