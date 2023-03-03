@@ -9,27 +9,30 @@ type UpdateFieldNotifiedValue = Result<DatabaseFieldChangesetPB, FlowyError>;
 export type DatabaseNotificationCallback = (value: UpdateFieldNotifiedValue) => void;
 
 export class DatabaseFieldObserver {
-  _notifier?: ChangeNotifier<UpdateFieldNotifiedValue>;
-  _listener?: DatabaseNotificationObserver;
+  private _notifier?: ChangeNotifier<UpdateFieldNotifiedValue>;
+  private _listener?: DatabaseNotificationObserver;
 
-  constructor(public readonly databaseId: string) {}
+  constructor(public readonly viewId: string) {}
 
   subscribe = (callbacks: { onFieldsChanged: DatabaseNotificationCallback }) => {
     this._notifier = new ChangeNotifier();
     this._notifier?.observer.subscribe(callbacks.onFieldsChanged);
 
     this._listener = new DatabaseNotificationObserver({
-      viewId: this.databaseId,
-      parserHandler: (notification, payload) => {
+      viewId: this.viewId,
+      parserHandler: (notification, result) => {
         switch (notification) {
           case DatabaseNotification.DidUpdateFields:
-            this._notifier?.notify(Ok(DatabaseFieldChangesetPB.deserializeBinary(payload)));
+            if (result.ok) {
+              this._notifier?.notify(Ok(DatabaseFieldChangesetPB.deserializeBinary(result.val)));
+            } else {
+              this._notifier?.notify(result);
+            }
             return;
           default:
             break;
         }
       },
-      onError: (error) => this._notifier?.notify(Err(error)),
     });
     return undefined;
   };

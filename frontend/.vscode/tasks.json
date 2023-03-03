@@ -169,8 +169,8 @@
 			"label": "AF: Tauri UI Dev",
 			"type": "shell",
 			"isBackground": true,
-			"command": "npm run dev",
-			"problemMatcher": "$tsc-watch",
+			"command": "yarn",
+			"args": ["dev"],
 			"options": {
 				"cwd": "${workspaceFolder}/appflowy_tauri"
 			}
@@ -179,7 +179,6 @@
 			"label": "AF: Tauri UI Build",
 			"type": "shell",
 			"command": "npm run build",
-			"problemMatcher": "$tsc-watch",
 			"options": {
 				"cwd": "${workspaceFolder}/appflowy_tauri"
 			}
@@ -187,8 +186,7 @@
 		{
 			"label": "AF: Tauri Dev",
 			"type": "shell",
-			"command": "npm run tauri dev",
-			"problemMatcher": "$tsc-watch",
+			"command": "npm run tauri:dev",
 			"options": {
 				"cwd": "${workspaceFolder}/appflowy_tauri"
 			}
@@ -199,8 +197,7 @@
 			"command": "cargo make tauri_clean",
 			"options": {
 				"cwd": "${workspaceFolder}"
-			},
-			"problemMatcher": "$tsc-watch"
+			}
 		},
 		{
 			"label": "AF: Tauri Clean + Dev",

@@ -1,14 +1,12 @@
 import { Ok, Result } from 'ts-results';
 import {
   DatabaseNotification,
+  FlowyError,
   ReorderAllRowsPB,
   ReorderSingleRowPB,
-} from '../../../../../services/backend/events/flowy-database';
-import {
   RowsChangesetPB,
   RowsVisibilityChangesetPB,
-} from '../../../../../services/backend/models/flowy-database/view_entities';
-import { FlowyError } from '../../../../../services/backend/models/flowy-error/errors';
+} from '../../../../../services/backend';
 import { ChangeNotifier } from '../../../../utils/change_notifier';
 import { DatabaseNotificationObserver } from '../notifications/observer';
 
@@ -18,12 +16,13 @@ export type ReorderRowsNotifyValue = Result<string[], FlowyError>;
 export type ReorderSingleRowNotifyValue = Result<ReorderSingleRowPB, FlowyError>;
 
 export class DatabaseViewRowsObserver {
-  _rowsVisibilityNotifier = new ChangeNotifier<RowsVisibilityNotifyValue>();
-  _rowsNotifier = new ChangeNotifier<RowsNotifyValue>();
-  _reorderRowsNotifier = new ChangeNotifier<ReorderRowsNotifyValue>();
-  _reorderSingleRowNotifier = new ChangeNotifier<ReorderSingleRowNotifyValue>();
+  private _rowsVisibilityNotifier = new ChangeNotifier<RowsVisibilityNotifyValue>();
+  private _rowsNotifier = new ChangeNotifier<RowsNotifyValue>();
+  private _reorderRowsNotifier = new ChangeNotifier<ReorderRowsNotifyValue>();
+  private _reorderSingleRowNotifier = new ChangeNotifier<ReorderSingleRowNotifyValue>();
 
-  _listener?: DatabaseNotificationObserver;
+  private _listener?: DatabaseNotificationObserver;
+
   constructor(public readonly viewId: string) {}
 
   subscribe = (callbacks: {
@@ -40,19 +39,35 @@ export class DatabaseViewRowsObserver {
 
     this._listener = new DatabaseNotificationObserver({
       viewId: this.viewId,
-      parserHandler: (notification, payload) => {
+      parserHandler: (notification, result) => {
         switch (notification) {
           case DatabaseNotification.DidUpdateViewRowsVisibility:
-            this._rowsVisibilityNotifier.notify(Ok(RowsVisibilityChangesetPB.deserializeBinary(payload)));
+            if (result.ok) {
+              this._rowsVisibilityNotifier.notify(Ok(RowsVisibilityChangesetPB.deserializeBinary(result.val)));
+            } else {
+              this._rowsVisibilityNotifier.notify(result);
+            }
             break;
           case DatabaseNotification.DidUpdateViewRows:
-            this._rowsNotifier.notify(Ok(RowsChangesetPB.deserializeBinary(payload)));
+            if (result.ok) {
+              this._rowsNotifier.notify(Ok(RowsChangesetPB.deserializeBinary(result.val)));
+            } else {
+              this._rowsNotifier.notify(result);
+            }
             break;
           case DatabaseNotification.DidReorderRows:
-            this._reorderRowsNotifier.notify(Ok(ReorderAllRowsPB.deserializeBinary(payload).row_orders));
+            if (result.ok) {
+              this._reorderRowsNotifier.notify(Ok(ReorderAllRowsPB.deserializeBinary(result.val).row_orders));
+            } else {
+              this._reorderRowsNotifier.notify(result);
+            }
             break;
           case DatabaseNotification.DidReorderSingleRow:
-            this._reorderSingleRowNotifier.notify(Ok(ReorderSingleRowPB.deserializeBinary(payload)));
+            if (result.ok) {
+              this._reorderSingleRowNotifier.notify(Ok(ReorderSingleRowPB.deserializeBinary(result.val)));
+            } else {
+              this._reorderSingleRowNotifier.notify(result);
+            }
             break;
           default:
             break;

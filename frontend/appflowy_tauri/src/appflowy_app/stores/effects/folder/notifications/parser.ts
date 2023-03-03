@@ -1,7 +1,8 @@
 import { NotificationParser, OnNotificationError } from '../../../../../services/backend/notifications';
-import { FolderNotification } from '../../../../../services/backend/models/flowy-folder/notification';
+import { FlowyError, FolderNotification } from '../../../../../services/backend';
+import { Result } from 'ts-results';
 
-declare type FolderNotificationCallback = (ty: FolderNotification, payload: Uint8Array) => void;
+declare type FolderNotificationCallback = (ty: FolderNotification, payload: Result<Uint8Array, FlowyError>) => void;
 
 export class FolderNotificationParser extends NotificationParser<FolderNotification> {
   constructor(params: { id?: string; callback: FolderNotificationCallback; onError?: OnNotificationError }) {
@@ -15,8 +16,7 @@ export class FolderNotificationParser extends NotificationParser<FolderNotificat
           return FolderNotification.Unknown;
         }
       },
-      params.id,
-      params.onError
+      params.id
     );
   }
 }

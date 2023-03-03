@@ -1,4 +1,4 @@
-import { AuthBackendService, UserBackendService } from '../appflowy_app/stores/effects/user/backend_service';
+import { AuthBackendService, UserBackendService } from '../appflowy_app/stores/effects/user/user_bd_svc';
 import { randomFillSync } from 'crypto';
 import { nanoid } from '@reduxjs/toolkit';
 

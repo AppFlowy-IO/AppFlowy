@@ -228,7 +228,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
     Ok(revisions)
   }
 
-  #[tracing::instrument(level = "debug", skip(self, revisions), err)]
+  #[tracing::instrument(level = "trace", skip(self, revisions), err)]
   pub async fn reset_object(&self, revisions: Vec<Revision>) -> FlowyResult<()> {
     let rev_id = pair_rev_id_from_revisions(&revisions).1;
     self.rev_persistence.reset(revisions).await?;
