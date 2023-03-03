@@ -1,3 +1,4 @@
+#![allow(clippy::while_let_loop)]
 use crate::entities::{
   AlterFilterParams, AlterSortParams, CreateRowParams, DatabaseViewSettingPB, DeleteFilterParams,
   DeleteGroupParams, DeleteSortParams, InsertGroupParams, MoveGroupParams, RepeatedGroupPB, RowPB,
