@@ -6,9 +6,9 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/cell_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
 
-class SelectOptionFFIService {
+class SelectOptionBackendService {
   final CellIdentifier cellId;
-  SelectOptionFFIService({required this.cellId});
+  SelectOptionBackendService({required this.cellId});
 
   String get viewId => cellId.viewId;
   String get fieldId => cellId.fieldInfo.id;
@@ -60,7 +60,7 @@ class SelectOptionFFIService {
     return DatabaseEventUpdateSelectOption(payload).send();
   }
 
-  Future<Either<SelectOptionCellDataPB, FlowyError>> getOptionContext() {
+  Future<Either<SelectOptionCellDataPB, FlowyError>> getCellData() {
     final payload = CellIdPB.create()
       ..viewId = viewId
       ..fieldId = fieldId

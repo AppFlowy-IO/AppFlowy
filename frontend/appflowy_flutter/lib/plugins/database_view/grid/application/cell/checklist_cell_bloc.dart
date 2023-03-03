@@ -10,12 +10,12 @@ part 'checklist_cell_bloc.freezed.dart';
 
 class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
   final ChecklistCellController cellController;
-  final SelectOptionFFIService _selectOptionService;
+  final SelectOptionBackendService _selectOptionSvc;
   void Function()? _onCellChangedFn;
   ChecklistCellBloc({
     required this.cellController,
-  })  : _selectOptionService =
-            SelectOptionFFIService(cellId: cellController.cellId),
+  })  : _selectOptionSvc =
+            SelectOptionBackendService(cellId: cellController.cellId),
         super(ChecklistCellState.initial(cellController)) {
     on<ChecklistCellEvent>(
       (event, emit) async {
@@ -60,7 +60,7 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
   }
 
   void _loadOptions() {
-    _selectOptionService.getOptionContext().then((result) {
+    _selectOptionSvc.getCellData().then((result) {
       if (isClosed) return;
 
       return result.fold(

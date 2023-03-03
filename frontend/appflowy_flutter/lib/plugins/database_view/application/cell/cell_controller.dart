@@ -124,7 +124,7 @@ class CellControllerBuilder {
 // ignore: must_be_immutable
 class CellController<T, D> extends Equatable {
   final CellIdentifier cellId;
-  final CellCache _cellsCache;
+  final CellCache _cellCache;
   final CellCacheKey _cacheKey;
   final FieldBackendService _fieldBackendSvc;
   final CellFieldNotifier _fieldNotifier;
@@ -146,7 +146,7 @@ class CellController<T, D> extends Equatable {
     required CellFieldNotifier fieldNotifier,
     required CellDataLoader<T> cellDataLoader,
     required CellDataPersistence<D> cellDataPersistence,
-  })  : _cellsCache = cellCache,
+  })  : _cellCache = cellCache,
         _cellDataLoader = cellDataLoader,
         _cellDataPersistence = cellDataPersistence,
         _fieldNotifier = fieldNotifier,
@@ -157,7 +157,27 @@ class CellController<T, D> extends Equatable {
         _cacheKey = CellCacheKey(
           rowId: cellId.rowId,
           fieldId: cellId.fieldInfo.id,
-        );
+        ) {
+    _cellDataNotifier = CellDataNotifier(value: _cellCache.get(_cacheKey));
+    _cellListener = CellListener(
+      rowId: cellId.rowId,
+      fieldId: cellId.fieldInfo.id,
+    );
+
+    /// 1.Listen on user edit event and load the new cell data if needed.
+    /// For example:
+    ///  user input: 12
+    ///  cell display: $12
+    _cellListener?.start(onCellChanged: (result) {
+      result.fold(
+        (_) {
+          _cellCache.remove(_cacheKey);
+          _loadData();
+        },
+        (err) => Log.error(err),
+      );
+    });
+  }
 
   String get viewId => cellId.viewId;
 
@@ -170,19 +190,8 @@ class CellController<T, D> extends Equatable {
   FieldType get fieldType => cellId.fieldInfo.fieldType;
 
   /// Listen on the cell content or field changes
-  ///
-  /// An optional [listenWhenOnCellChanged] can be implemented for more
-  ///  granular control over when [listener] is called.
-  /// [listenWhenOnCellChanged] will be invoked on each [onCellChanged]
-  /// get called.
-  /// [listenWhenOnCellChanged] takes the previous `value` and current
-  /// `value` and must return a [bool] which determines whether or not
-  ///  the [onCellChanged] function will be invoked.
-  /// [onCellChanged] is optional and if omitted, it will default to `true`.
-  ///
   VoidCallback? startListening({
     required void Function(T?) onCellChanged,
-    bool Function(T? oldValue, T? newValue)? listenWhenOnCellChanged,
     VoidCallback? onCellFieldChanged,
   }) {
     if (isListening) {
@@ -190,27 +199,6 @@ class CellController<T, D> extends Equatable {
       return null;
     }
     isListening = true;
-
-    _cellDataNotifier = CellDataNotifier(
-      value: _cellsCache.get(_cacheKey),
-      listenWhen: listenWhenOnCellChanged,
-    );
-    _cellListener =
-        CellListener(rowId: cellId.rowId, fieldId: cellId.fieldInfo.id);
-
-    /// 1.Listen on user edit event and load the new cell data if needed.
-    /// For example:
-    ///  user input: 12
-    ///  cell display: $12
-    _cellListener?.start(onCellChanged: (result) {
-      result.fold(
-        (_) {
-          _cellsCache.remove(_cacheKey);
-          _loadData();
-        },
-        (err) => Log.error(err),
-      );
-    });
 
     /// 2.Listen on the field event and load the cell data if needed.
     _onFieldChangedFn = () {
@@ -244,7 +232,7 @@ class CellController<T, D> extends Equatable {
   /// The cell data will be read from the Cache first, and load from disk if it does not exist.
   /// You can set [loadIfNotExist] to false (default is true) to disable loading the cell data.
   T? getCellData({bool loadIfNotExist = true}) {
-    final data = _cellsCache.get(_cacheKey);
+    final data = _cellCache.get(_cacheKey);
     if (data == null && loadIfNotExist) {
       _loadData();
     }
@@ -294,9 +282,9 @@ class CellController<T, D> extends Equatable {
     _loadDataOperation = Timer(const Duration(milliseconds: 10), () {
       _cellDataLoader.loadData().then((data) {
         if (data != null) {
-          _cellsCache.insert(_cacheKey, GridBaseCell(object: data));
+          _cellCache.insert(_cacheKey, GridBaseCell(object: data));
         } else {
-          _cellsCache.remove(_cacheKey);
+          _cellCache.remove(_cacheKey);
         }
 
         _cellDataNotifier?.value = data;
@@ -325,7 +313,7 @@ class CellController<T, D> extends Equatable {
 
   @override
   List<Object> get props =>
-      [_cellsCache.get(_cacheKey) ?? "", cellId.rowId + cellId.fieldInfo.id];
+      [_cellCache.get(_cacheKey) ?? "", cellId.rowId + cellId.fieldInfo.id];
 }
 
 class GridCellFieldNotifierImpl extends ICellFieldNotifier {

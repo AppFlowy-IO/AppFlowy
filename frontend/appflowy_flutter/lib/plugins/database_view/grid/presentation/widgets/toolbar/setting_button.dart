@@ -35,7 +35,7 @@ class _SettingButtonState extends State<SettingButton> {
     return BlocSelector<GridBloc, GridState, GridSettingContext>(
       selector: (state) {
         final fieldController =
-            context.read<GridBloc>().gridController.fieldController;
+            context.read<GridBloc>().databaseController.fieldController;
         return GridSettingContext(
           viewId: state.viewId,
           fieldController: fieldController,

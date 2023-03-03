@@ -23,11 +23,11 @@ typedef SwitchToFieldCallback = Future<Either<TypeOptionPB, FlowyError>>
 );
 
 class FieldTypeOptionEditor extends StatelessWidget {
-  final TypeOptionDataController _dataController;
+  final TypeOptionController _dataController;
   final PopoverMutex popoverMutex;
 
   const FieldTypeOptionEditor({
-    required TypeOptionDataController dataController,
+    required TypeOptionController dataController,
     required this.popoverMutex,
     Key? key,
   })  : _dataController = dataController,

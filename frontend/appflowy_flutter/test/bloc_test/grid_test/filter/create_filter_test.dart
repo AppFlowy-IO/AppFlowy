@@ -53,7 +53,7 @@ void main() {
     final gridController = DatabaseController(view: context.gridView);
     final gridBloc = GridBloc(
       view: context.gridView,
-      gridController: gridController,
+      databaseController: gridController,
     )..add(const GridEvent.initial());
     await gridResponseFuture();
 
@@ -74,7 +74,7 @@ void main() {
     final gridController = DatabaseController(view: context.gridView);
     final gridBloc = GridBloc(
       view: context.gridView,
-      gridController: gridController,
+      databaseController: gridController,
     )..add(const GridEvent.initial());
     await gridResponseFuture();
 
@@ -115,7 +115,7 @@ void main() {
     final gridController = DatabaseController(view: context.gridView);
     final gridBloc = GridBloc(
       view: context.gridView,
-      gridController: gridController,
+      databaseController: gridController,
     )..add(const GridEvent.initial());
 
     await gridResponseFuture();
@@ -134,7 +134,7 @@ void main() {
     final gridController = DatabaseController(view: context.gridView);
     final gridBloc = GridBloc(
       view: context.gridView,
-      gridController: gridController,
+      databaseController: gridController,
     )..add(const GridEvent.initial());
 
     await gridResponseFuture();

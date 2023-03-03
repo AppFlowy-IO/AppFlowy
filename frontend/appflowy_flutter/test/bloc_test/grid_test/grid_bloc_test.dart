@@ -20,7 +20,7 @@ void main() {
       "create a row",
       build: () => GridBloc(
           view: context.gridView,
-          gridController: DatabaseController(view: context.gridView))
+          databaseController: DatabaseController(view: context.gridView))
         ..add(const GridEvent.initial()),
       act: (bloc) => bloc.add(const GridEvent.createRow()),
       wait: const Duration(milliseconds: 300),
@@ -33,7 +33,7 @@ void main() {
       "delete the last row",
       build: () => GridBloc(
           view: context.gridView,
-          gridController: DatabaseController(view: context.gridView))
+          databaseController: DatabaseController(view: context.gridView))
         ..add(const GridEvent.initial()),
       act: (bloc) async {
         await gridResponseFuture();

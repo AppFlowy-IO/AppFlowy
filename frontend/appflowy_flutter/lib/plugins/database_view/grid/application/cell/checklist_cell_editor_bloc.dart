@@ -13,13 +13,13 @@ part 'checklist_cell_editor_bloc.freezed.dart';
 
 class ChecklistCellEditorBloc
     extends Bloc<ChecklistCellEditorEvent, ChecklistCellEditorState> {
-  final SelectOptionFFIService _selectOptionService;
+  final SelectOptionBackendService _selectOptionService;
   final ChecklistCellController cellController;
 
   ChecklistCellEditorBloc({
     required this.cellController,
   })  : _selectOptionService =
-            SelectOptionFFIService(cellId: cellController.cellId),
+            SelectOptionBackendService(cellId: cellController.cellId),
         super(ChecklistCellEditorState.initial(cellController)) {
     on<ChecklistCellEditorEvent>(
       (event, emit) async {
@@ -87,7 +87,7 @@ class ChecklistCellEditorBloc
   }
 
   void _loadOptions() {
-    _selectOptionService.getOptionContext().then((result) {
+    _selectOptionService.getCellData().then((result) {
       if (isClosed) return;
 
       return result.fold(

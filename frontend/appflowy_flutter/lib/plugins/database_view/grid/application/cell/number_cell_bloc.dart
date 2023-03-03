@@ -49,22 +49,13 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
   }
 
   void _startListening() {
-    _onCellChangedFn =
-        cellController.startListening(onCellChanged: ((cellContent) {
-      if (!isClosed) {
-        add(NumberCellEvent.didReceiveCellUpdate(cellContent));
-      }
-    }), listenWhenOnCellChanged: (oldValue, newValue) {
-      // If the new value is not the same as the content, which means the
-      // backend formatted the content that user enter. For example:
-      //
-      // state.cellContent: "abc"
-      // oldValue: ""
-      // newValue: ""
-      // The oldValue is the same as newValue. So the [onCellChanged] won't
-      // get called. So just return true to refresh the cell content
-      return true;
-    });
+    _onCellChangedFn = cellController.startListening(
+      onCellChanged: ((cellContent) {
+        if (!isClosed) {
+          add(NumberCellEvent.didReceiveCellUpdate(cellContent));
+        }
+      }),
+    );
   }
 }
 
