@@ -102,6 +102,7 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   filters.push(format!("dart_ffi={}", "info"));
   filters.push(format!("flowy_sqlite={}", "info"));
   filters.push(format!("flowy_net={}", "info"));
+  filters.push(format!("tokio=trace,runtime=trace"));
   filters.join(",")
 }
 
@@ -121,6 +122,8 @@ pub struct AppFlowyCore {
 
 impl AppFlowyCore {
   pub fn new(config: AppFlowyCoreConfig) -> Self {
+    // console_subscriber::init();
+
     init_log(&config);
     init_kv(&config.storage_path);
     tracing::debug!("🔥 {:?}", config);

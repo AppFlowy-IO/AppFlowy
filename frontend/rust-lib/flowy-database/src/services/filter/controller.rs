@@ -46,6 +46,12 @@ pub struct FilterController {
   notifier: DatabaseViewChangedNotifier,
 }
 
+impl Drop for FilterController {
+  fn drop(&mut self) {
+    tracing::trace!("Drop {}", std::any::type_name::<Self>());
+  }
+}
+
 impl FilterController {
   pub async fn new<T>(
     view_id: &str,

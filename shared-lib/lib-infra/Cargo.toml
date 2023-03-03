@@ -6,11 +6,11 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-chrono = "0.4.19"
-bytes = { version = "1.0" }
+chrono = "0.4.23"
+bytes = { version = "1.4" }
 pin-project = "1.0.12"
 futures-core = { version = "0.3" }
-tokio = { version = "1", features = ["time", "rt"] }
+tokio = { version = "1.26", features = ["time", "rt"] }
 rand = "0.8.5"
-async-trait = "0.1.59"
+async-trait = "0.1.64"
 md5 = "0.7.0"

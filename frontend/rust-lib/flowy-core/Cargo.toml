@@ -23,8 +23,9 @@ flowy-task = { path = "../flowy-task" }
 
 tracing = { version = "0.1", features = ["log"] }
 futures-core = { version = "0.3", default-features = false }
-bytes = "1.0"
-tokio = { version = "1", features = ["rt"] }
+bytes = "1.4"
+tokio = { version = "1.26", features = ["full", "tracing"] }
+console-subscriber = "0.1.8"
 parking_lot = "0.12.1"
 
 revision-model = { path = "../../../shared-lib/revision-model" }

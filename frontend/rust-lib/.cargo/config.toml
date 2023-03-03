@@ -1,5 +1,5 @@
-#[build]
-#target-dir = "./bin"
+[build]
+rustflags = ["--cfg", "tokio_unstable"]
 
 [target.x86_64-apple-darwin]
 rustflags=["-C", "link-arg=-mmacosx-version-min=10.11"]

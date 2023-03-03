@@ -15,6 +15,6 @@ document-model = { path = "../document-model" }
 strum = "0.21"
 strum_macros = "0.21"
 parking_lot = "0.12.1"
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1.26", features = ["full"] }
 serde = { version = "1.0", features = ["derive", "rc"] }
 tracing = { version = "0.1", features = ["log"] }

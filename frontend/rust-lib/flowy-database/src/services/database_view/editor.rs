@@ -83,6 +83,12 @@ pub struct DatabaseViewEditor {
   pub notifier: DatabaseViewChangedNotifier,
 }
 
+impl Drop for DatabaseViewEditor {
+  fn drop(&mut self) {
+    tracing::trace!("Drop {}", std::any::type_name::<Self>());
+  }
+}
+
 impl DatabaseViewEditor {
   pub async fn from_pad(
     user_id: &str,
@@ -181,7 +187,7 @@ impl DatabaseViewEditor {
     self.rev_manager.generate_snapshot().await;
     self.rev_manager.close().await;
     self.sort_controller.write().await.close().await;
-    // self.filter_controller.close().await;
+    self.filter_controller.close().await;
   }
 
   pub async fn handle_block_event(&self, event: Cow<'_, DatabaseBlockEvent>) {

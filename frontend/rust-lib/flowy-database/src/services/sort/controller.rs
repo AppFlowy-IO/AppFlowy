@@ -37,6 +37,12 @@ pub struct SortController {
   notifier: DatabaseViewChangedNotifier,
 }
 
+impl Drop for SortController {
+  fn drop(&mut self) {
+    tracing::trace!("Drop {}", std::any::type_name::<Self>());
+  }
+}
+
 impl SortController {
   pub fn new<T>(
     view_id: &str,
