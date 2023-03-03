@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
 import 'package:dartz/dartz.dart';
-import 'package:equatable/equatable.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -15,13 +14,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:convert' show utf8;
 
 import '../field/field_controller.dart';
-import '../field/field_service.dart';
-import '../field/type_option/type_option_context.dart';
-import 'cell_field_notifier.dart';
-import 'cell_listener.dart';
 part 'cell_service.freezed.dart';
 part 'cell_data_loader.dart';
-part 'cell_controller.dart';
 part 'cell_cache.dart';
 part 'cell_data_persistence.dart';
 

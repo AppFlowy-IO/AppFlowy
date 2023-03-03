@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -13,21 +14,16 @@ import 'select_option_cell/select_option_cell.dart';
 import 'text_cell.dart';
 import 'url_cell/url_cell.dart';
 
-abstract class GridCellBuilderDelegate extends CellControllerBuilderDelegate {
-  CellCache get cellCache;
-}
-
 class GridCellBuilder {
-  final GridCellBuilderDelegate delegate;
+  final CellCache cellCache;
   GridCellBuilder({
-    required this.delegate,
+    required this.cellCache,
   });
 
   GridCellWidget build(CellIdentifier cellId, {GridCellStyle? style}) {
     final cellControllerBuilder = CellControllerBuilder(
       cellId: cellId,
-      cellCache: delegate.cellCache,
-      delegate: delegate,
+      cellCache: cellCache,
     );
 
     final key = cellId.key();

@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../application/cell/cell_service.dart';
 import '../../../application/cell/number_cell_bloc.dart';
 import '../../layout/sizes.dart';
 import 'cell_builder.dart';

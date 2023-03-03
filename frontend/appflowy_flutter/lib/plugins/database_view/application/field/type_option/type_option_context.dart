@@ -109,11 +109,11 @@ class ChecklistTypeOptionWidgetDataParser
 class TypeOptionContext<T extends GeneratedMessage> {
   T? _typeOptionObject;
   final TypeOptionParser<T> dataParser;
-  final TypeOptionDataController _dataController;
+  final TypeOptionController _dataController;
 
   TypeOptionContext({
     required this.dataParser,
-    required TypeOptionDataController dataController,
+    required TypeOptionController dataController,
   }) : _dataController = dataController;
 
   String get viewId => _dataController.viewId;

@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 
@@ -11,7 +12,7 @@ import 'board_select_option_cell.dart';
 import 'board_text_cell.dart';
 import 'board_url_cell.dart';
 
-abstract class BoardCellBuilderDelegate extends CellControllerBuilderDelegate {
+abstract class BoardCellBuilderDelegate {
   CellCache get cellCache;
 }
 
@@ -26,7 +27,6 @@ class BoardCellBuilder {
     EditableCellNotifier cellNotifier,
   ) {
     final cellControllerBuilder = CellControllerBuilder(
-      delegate: delegate,
       cellId: cellId,
       cellCache: delegate.cellCache,
     );

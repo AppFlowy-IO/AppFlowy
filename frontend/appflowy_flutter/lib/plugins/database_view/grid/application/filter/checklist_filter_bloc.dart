@@ -13,14 +13,11 @@ class ChecklistFilterEditorBloc
     extends Bloc<ChecklistFilterEditorEvent, ChecklistFilterEditorState> {
   final FilterInfo filterInfo;
   final FilterBackendService _filterBackendSvc;
-  // final SelectOptionFFIService _selectOptionService;
   final FilterListener _listener;
 
   ChecklistFilterEditorBloc({
     required this.filterInfo,
   })  : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
-        // _selectOptionService =
-        //           SelectOptionFFIService(cellId: cellController.cellId)
         _listener = FilterListener(
           viewId: filterInfo.viewId,
           filterId: filterInfo.filter.id,

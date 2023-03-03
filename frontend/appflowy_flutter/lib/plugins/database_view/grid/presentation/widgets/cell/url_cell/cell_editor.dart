@@ -1,9 +1,8 @@
+import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../application/cell/cell_service.dart';
 import '../../../../application/cell/url_cell_editor_bloc.dart';
 
 class URLCellEditor extends StatefulWidget {
