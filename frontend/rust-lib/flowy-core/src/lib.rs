@@ -122,7 +122,7 @@ pub struct AppFlowyCore {
 
 impl AppFlowyCore {
   pub fn new(config: AppFlowyCoreConfig) -> Self {
-    // console_subscriber::init();
+    console_subscriber::init();
 
     init_log(&config);
     init_kv(&config.storage_path);
