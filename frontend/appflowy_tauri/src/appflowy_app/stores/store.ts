@@ -33,7 +33,7 @@ const store = configureStore({
     [workspaceSlice.name]: workspaceSlice.reducer,
     [errorSlice.name]: errorSlice.reducer,
   },
-  middleware: (gDM) => gDM().prepend(listenerMiddlewareInstance.middleware),
+  middleware: (gDM) => gDM({ serializableCheck: false }).prepend(listenerMiddlewareInstance.middleware),
 });
 
 export { store };
