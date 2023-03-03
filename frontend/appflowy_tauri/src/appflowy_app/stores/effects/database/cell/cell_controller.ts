@@ -1,6 +1,5 @@
 import { CellIdentifier } from './cell_bd_svc';
 import { CellCache, CellCacheKey } from './cell_cache';
-import { FieldController } from '../field/field_controller';
 import { CellDataLoader } from './data_parser';
 import { CellDataPersistence } from './data_persistence';
 import { FieldBackendService, TypeOptionParser } from '../field/field_bd_svc';
@@ -112,21 +111,24 @@ export class CellController<T, D> {
 }
 
 class CellDataNotifier<T> extends ChangeNotifier<T | null> {
-  _cellData: T | null;
+  _cellData: Option<T>;
 
   constructor(cellData: T) {
     super();
-    this._cellData = cellData;
+    this._cellData = Some(cellData);
   }
 
-  set cellData(data: T | null) {
+  set cellData(data: Option<T>) {
     if (this._cellData !== data) {
       this._cellData = data;
-      this.notify(this._cellData);
+
+      if (this._cellData.some) {
+        this.notify(this._cellData.val);
+      }
     }
   }
 
-  get cellData(): T | null {
+  get cellData(): Option<T> {
     return this._cellData;
   }
 }
