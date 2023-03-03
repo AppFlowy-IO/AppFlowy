@@ -1,51 +1,49 @@
 import { Log } from '../../../../utils/log';
 import { DatabaseBackendService } from '../database_bd_svc';
-import { DatabaseFieldObserver } from './field_observer';
-import { FieldIdPB, FieldPB, IndexFieldPB } from '../../../../../services/backend/models/flowy-database/field_entities';
+import { DatabaseFieldChangesetObserver } from './field_observer';
+import { FieldIdPB, FieldPB, IndexFieldPB } from '../../../../../services/backend';
 import { ChangeNotifier } from '../../../../utils/change_notifier';
 
 export class FieldController {
-  private _fieldListener: DatabaseFieldObserver;
-  private _backendService: DatabaseBackendService;
-  private _fieldNotifier = new FieldNotifier([]);
+  private backendService: DatabaseBackendService;
+  private numOfFieldsObserver: DatabaseFieldChangesetObserver;
+  private numOfFieldsNotifier = new NumOfFieldsNotifier([]);
 
   constructor(public readonly viewId: string) {
-    this._backendService = new DatabaseBackendService(viewId);
-    this._fieldListener = new DatabaseFieldObserver(viewId);
-
-    this._listenOnFieldChanges();
+    this.backendService = new DatabaseBackendService(viewId);
+    this.numOfFieldsObserver = new DatabaseFieldChangesetObserver(viewId);
   }
 
   dispose = async () => {
-    this._fieldNotifier.unsubscribe();
-    await this._fieldListener.unsubscribe();
+    this.numOfFieldsNotifier.unsubscribe();
+    await this.numOfFieldsObserver.unsubscribe();
   };
 
   get fieldInfos(): readonly FieldInfo[] {
-    return this._fieldNotifier.fieldInfos;
+    return this.numOfFieldsNotifier.fieldInfos;
   }
 
   getField = (fieldId: string): FieldInfo | undefined => {
-    return this._fieldNotifier.fieldInfos.find((element) => element.field.id === fieldId);
+    return this.numOfFieldsNotifier.fieldInfos.find((element) => element.field.id === fieldId);
   };
 
   loadFields = async (fieldIds: FieldIdPB[]) => {
-    const result = await this._backendService.getFields(fieldIds);
+    const result = await this.backendService.getFields(fieldIds);
     if (result.ok) {
-      this._fieldNotifier.fieldInfos = result.val.map((field) => new FieldInfo(field));
+      this.numOfFieldsNotifier.fieldInfos = result.val.map((field) => new FieldInfo(field));
     } else {
       Log.error(result.val);
     }
   };
 
-  subscribeOnFieldsChanged = (callback?: (fieldInfos: readonly FieldInfo[]) => void) => {
-    return this._fieldNotifier.observer.subscribe((fieldInfos) => {
+  subscribeOnNumOfFieldsChanged = (callback?: (fieldInfos: readonly FieldInfo[]) => void) => {
+    return this.numOfFieldsNotifier.observer.subscribe((fieldInfos) => {
       callback?.(fieldInfos);
     });
   };
 
-  _listenOnFieldChanges = () => {
-    this._fieldListener.subscribe({
+  listenOnFieldChanges = async () => {
+    await this.numOfFieldsObserver.subscribe({
       onFieldsChanged: (result) => {
         if (result.ok) {
           const changeset = result.val;
@@ -59,7 +57,7 @@ export class FieldController {
     });
   };
 
-  _deleteFields = (deletedFields: FieldIdPB[]) => {
+  private _deleteFields = (deletedFields: FieldIdPB[]) => {
     if (deletedFields.length === 0) {
       return;
     }
@@ -70,10 +68,10 @@ export class FieldController {
     };
     const newFieldInfos = [...this.fieldInfos];
     newFieldInfos.filter(predicate);
-    this._fieldNotifier.fieldInfos = newFieldInfos;
+    this.numOfFieldsNotifier.fieldInfos = newFieldInfos;
   };
 
-  _insertFields = (insertedFields: IndexFieldPB[]) => {
+  private _insertFields = (insertedFields: IndexFieldPB[]) => {
     if (insertedFields.length === 0) {
       return;
     }
@@ -86,29 +84,28 @@ export class FieldController {
         newFieldInfos.push(fieldInfo);
       }
     });
-    this._fieldNotifier.fieldInfos = newFieldInfos;
+    this.numOfFieldsNotifier.fieldInfos = newFieldInfos;
   };
 
-  _updateFields = (updatedFields: FieldPB[]) => {
+  private _updateFields = (updatedFields: FieldPB[]) => {
     if (updatedFields.length === 0) {
       return;
     }
 
     const newFieldInfos = [...this.fieldInfos];
     updatedFields.forEach((updatedField) => {
-      newFieldInfos.map((element) => {
-        if (element.field.id === updatedField.id) {
-          return updatedField;
-        } else {
-          return element;
-        }
+      const index = newFieldInfos.findIndex((fieldInfo) => {
+        return fieldInfo.field.id === updatedField.id;
       });
+      if (index !== -1) {
+        newFieldInfos.splice(index, 1, new FieldInfo(updatedField));
+      }
     });
-    this._fieldNotifier.fieldInfos = newFieldInfos;
+    this.numOfFieldsNotifier.fieldInfos = newFieldInfos;
   };
 }
 
-class FieldNotifier extends ChangeNotifier<FieldInfo[]> {
+class NumOfFieldsNotifier extends ChangeNotifier<FieldInfo[]> {
   constructor(private _fieldInfos: FieldInfo[]) {
     super();
   }

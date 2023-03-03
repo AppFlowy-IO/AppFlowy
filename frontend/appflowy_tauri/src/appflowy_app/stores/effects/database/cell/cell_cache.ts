@@ -5,43 +5,49 @@ export class CellCacheKey {
   constructor(public readonly fieldId: string, public readonly rowId: string) {}
 }
 
+type CellDataByRowId = Map<string, any>;
+
 export class CellCache {
-  _cellDataByFieldId = new Map<string, Map<string, any>>();
+  private cellDataByFieldId = new Map<string, CellDataByRowId>();
 
   constructor(public readonly databaseId: string) {}
 
   remove = (key: CellCacheKey) => {
-    const inner = this._cellDataByFieldId.get(key.fieldId);
-    if (inner !== undefined) {
-      inner.delete(key.rowId);
+    const cellDataByRowId = this.cellDataByFieldId.get(key.fieldId);
+    if (cellDataByRowId !== undefined) {
+      cellDataByRowId.delete(key.rowId);
     }
   };
 
   removeWithFieldId = (fieldId: string) => {
-    this._cellDataByFieldId.delete(fieldId);
+    this.cellDataByFieldId.delete(fieldId);
   };
 
   insert = (key: CellCacheKey, value: any) => {
-    let inner = this._cellDataByFieldId.get(key.fieldId);
-    if (inner === undefined) {
-      inner = this._cellDataByFieldId.set(key.fieldId, new Map());
+    const cellDataByRowId = this.cellDataByFieldId.get(key.fieldId);
+    if (cellDataByRowId === undefined) {
+      const map = new Map();
+      map.set(key.rowId, value);
+      this.cellDataByFieldId.set(key.fieldId, map);
+    } else {
+      cellDataByRowId.set(key.rowId, value);
     }
-    inner.set(key.rowId, value);
   };
 
   get<T>(key: CellCacheKey): Option<T> {
-    const inner = this._cellDataByFieldId.get(key.fieldId);
-    if (inner === undefined) {
+    const cellDataByRowId = this.cellDataByFieldId.get(key.fieldId);
+    if (cellDataByRowId === undefined) {
       return None;
     } else {
-      const value = inner.get(key.rowId);
-      if (typeof value === typeof undefined || typeof value === typeof null) {
+      const value = cellDataByRowId.get(key.rowId);
+      if (typeof value === typeof undefined) {
         return None;
       }
-      if (value satisfies T) {
-        return Some(value as T);
-      }
-      return None;
+
+      // if (value satisfies T) {
+      //   return Some(value as T);
+      // }
+      return Some(value);
     }
   }
 }

@@ -3,15 +3,15 @@ import { CellBackendService, CellIdentifier } from './cell_bd_svc';
 import { DateCellDataPB } from '../../../../../services/backend/models/flowy-database/date_type_option_entities';
 import { SelectOptionCellDataPB } from '../../../../../services/backend/models/flowy-database/select_type_option';
 import { URLCellDataPB } from '../../../../../services/backend/models/flowy-database/url_type_option_entities';
-import { Err, Ok } from 'ts-results';
+import { Err, None, Ok, Option, Some } from 'ts-results';
 import { Log } from '../../../../utils/log';
 
 abstract class CellDataParser<T> {
-  abstract parserData(data: Uint8Array): T | undefined;
+  abstract parserData(data: Uint8Array): Option<T>;
 }
 
 class CellDataLoader<T> {
-  _service = new CellBackendService();
+  private service = new CellBackendService();
 
   constructor(
     readonly cellId: CellIdentifier,
@@ -20,7 +20,7 @@ class CellDataLoader<T> {
   ) {}
 
   loadData = async () => {
-    const result = await this._service.getCell(this.cellId);
+    const result = await this.service.getCell(this.cellId);
     if (result.ok) {
       return Ok(this.parser.parserData(result.val.data));
     } else {
@@ -30,35 +30,36 @@ class CellDataLoader<T> {
   };
 }
 
-const utf8Decoder = new TextDecoder('utf-8');
+export const utf8Decoder = new TextDecoder('utf-8');
+export const utf8Encoder = new TextEncoder();
 
 class StringCellDataParser extends CellDataParser<string> {
-  parserData(data: Uint8Array): string {
-    return utf8Decoder.decode(data);
+  parserData(data: Uint8Array): Option<string> {
+    return Some(utf8Decoder.decode(data));
   }
 }
 
 class DateCellDataParser extends CellDataParser<DateCellDataPB> {
-  parserData(data: Uint8Array): DateCellDataPB {
-    return DateCellDataPB.deserializeBinary(data);
+  parserData(data: Uint8Array): Option<DateCellDataPB> {
+    return Some(DateCellDataPB.deserializeBinary(data));
   }
 }
 
-class SelectOptionCellDataParser extends CellDataParser<SelectOptionCellDataPB | undefined> {
-  parserData(data: Uint8Array): SelectOptionCellDataPB | undefined {
+class SelectOptionCellDataParser extends CellDataParser<SelectOptionCellDataPB> {
+  parserData(data: Uint8Array): Option<SelectOptionCellDataPB> {
     if (data.length === 0) {
-      return undefined;
+      return None;
     }
-    return SelectOptionCellDataPB.deserializeBinary(data);
+    return Some(SelectOptionCellDataPB.deserializeBinary(data));
   }
 }
 
-class URLCellDataParser extends CellDataParser<URLCellDataPB | undefined> {
-  parserData(data: Uint8Array): URLCellDataPB | undefined {
+class URLCellDataParser extends CellDataParser<URLCellDataPB> {
+  parserData(data: Uint8Array): Option<URLCellDataPB> {
     if (data.length === 0) {
-      return undefined;
+      return None;
     }
-    return URLCellDataPB.deserializeBinary(data);
+    return Some(URLCellDataPB.deserializeBinary(data));
   }
 }
 

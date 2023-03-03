@@ -1,63 +1,63 @@
 import { DatabaseViewRowsObserver } from './view_row_observer';
-import { RowCache, RowChangedReason, RowInfo } from '../row/row_cache';
+import { RowCache, RowInfo } from '../row/row_cache';
 import { FieldController } from '../field/field_controller';
-import { RowPB } from '../../../../../services/backend/models/flowy-database/row_entities';
+import { RowPB } from '../../../../../services/backend';
 import { Subscription } from 'rxjs';
 
 export class DatabaseViewCache {
-  private readonly _rowsObserver: DatabaseViewRowsObserver;
-  private readonly _rowCache: RowCache;
-  private readonly _fieldSubscription?: Subscription;
+  private readonly rowsObserver: DatabaseViewRowsObserver;
+  private readonly rowCache: RowCache;
+  private readonly fieldSubscription?: Subscription;
 
   constructor(public readonly viewId: string, fieldController: FieldController) {
-    this._rowsObserver = new DatabaseViewRowsObserver(viewId);
-    this._rowCache = new RowCache(viewId, () => fieldController.fieldInfos);
-    this._fieldSubscription = fieldController.subscribeOnFieldsChanged((fieldInfos) => {
+    this.rowsObserver = new DatabaseViewRowsObserver(viewId);
+    this.rowCache = new RowCache(viewId, () => fieldController.fieldInfos);
+    this.fieldSubscription = fieldController.subscribeOnNumOfFieldsChanged((fieldInfos) => {
       fieldInfos.forEach((fieldInfo) => {
-        this._rowCache.onFieldUpdated(fieldInfo);
+        this.rowCache.onFieldUpdated(fieldInfo);
       });
+      this.rowCache.onNumberOfFieldsUpdated(fieldInfos);
     });
-    this._listenOnRowsChanged();
   }
 
   initializeWithRows = (rows: RowPB[]) => {
-    this._rowCache.initializeRows(rows);
+    this.rowCache.initializeRows(rows);
   };
 
   get rowInfos(): readonly RowInfo[] {
-    return this._rowCache.rows;
+    return this.rowCache.rows;
   }
 
   getRowCache = () => {
-    return this._rowCache;
+    return this.rowCache;
   };
 
   dispose = async () => {
-    this._fieldSubscription?.unsubscribe();
-    await this._rowsObserver.unsubscribe();
-    await this._rowCache.dispose();
+    this.fieldSubscription?.unsubscribe();
+    await this.rowsObserver.unsubscribe();
+    await this.rowCache.dispose();
   };
 
-  _listenOnRowsChanged = () => {
-    this._rowsObserver.subscribe({
+  listenOnRowsChanged = async () => {
+    await this.rowsObserver.subscribe({
       onRowsVisibilityChanged: (result) => {
         if (result.ok) {
-          this._rowCache.applyRowsVisibility(result.val);
+          this.rowCache.applyRowsVisibility(result.val);
         }
       },
       onNumberOfRowsChanged: (result) => {
         if (result.ok) {
-          this._rowCache.applyRowsChanged(result.val);
+          this.rowCache.applyRowsChanged(result.val);
         }
       },
       onReorderRows: (result) => {
         if (result.ok) {
-          this._rowCache.applyReorderRows(result.val);
+          this.rowCache.applyReorderRows(result.val);
         }
       },
       onReorderSingleRow: (result) => {
         if (result.ok) {
-          this._rowCache.applyReorderSingleRow(result.val);
+          this.rowCache.applyReorderSingleRow(result.val);
         }
       },
     });

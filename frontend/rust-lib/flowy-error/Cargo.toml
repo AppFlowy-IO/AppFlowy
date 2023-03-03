@@ -7,8 +7,8 @@ edition = "2018"
 
 [dependencies]
 flowy-derive = { path = "../flowy-derive" }
-protobuf = {version = "2.20.0"}
-bytes = "1.0"
+protobuf = {version = "2.28.0"}
+bytes = "1.4"
 anyhow = "1.0"
 thiserror = "1.0"
 
@@ -20,7 +20,7 @@ flowy-client-ws = { path = "../../../shared-lib/flowy-client-ws", optional = tru
 serde_json = {version = "1.0", optional = true}
 serde_repr = { version = "0.1" }
 serde = "1.0"
-reqwest = { version = "0.11", optional = true }
+reqwest = { version = "0.11.14", optional = true }
 http-error-code = { git = "https://github.com/AppFlowy-IO/AppFlowy-Server", branch = "refactor/appflowy_server", optional = true }
 flowy-sqlite = { path = "../flowy-sqlite", optional = true}
 r2d2 = { version = "0.8", optional = true}

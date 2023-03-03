@@ -9,4 +9,4 @@ edition = "2021"
 config = { version = "0.10.1", default-features = false, features = ["yaml"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-serde-aux = "1.0.1"
+serde-aux = "1.1.0"

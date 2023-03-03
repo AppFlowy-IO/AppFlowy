@@ -32,7 +32,6 @@ impl std::convert::From<AFPluginEventResponse> for AFTauriResponse {
 }
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tracing::instrument(level = "trace", skip(app_handler))]
 #[tauri::command]
 pub async fn invoke_request(
   request: AFTauriRequest,

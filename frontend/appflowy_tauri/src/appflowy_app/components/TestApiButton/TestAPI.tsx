@@ -1,6 +1,18 @@
 import React from 'react';
 import TestApiButton from './TestApiButton';
-import { TestCreateGrid, TestCreateSelectOption, TestEditCell } from './TestGrid';
+import {
+  TestCreateGrid,
+  TestCreateNewField,
+  TestCreateRow,
+  TestCreateSelectOptionInCell,
+  TestDeleteField,
+  TestDeleteRow,
+  TestEditCell,
+  TestEditField,
+  TestGetSingleSelectFieldData,
+  TestSwitchFromMultiSelectToText,
+  TestSwitchFromSingleSelectToNumber,
+} from './TestGrid';
 
 export const TestAPI = () => {
   return (
@@ -8,8 +20,16 @@ export const TestAPI = () => {
       <ul className='m-6, space-y-2'>
         <TestApiButton></TestApiButton>
         <TestCreateGrid></TestCreateGrid>
+        <TestCreateRow></TestCreateRow>
+        <TestDeleteRow></TestDeleteRow>
         <TestEditCell></TestEditCell>
-        <TestCreateSelectOption></TestCreateSelectOption>
+        <TestCreateSelectOptionInCell></TestCreateSelectOptionInCell>
+        <TestGetSingleSelectFieldData></TestGetSingleSelectFieldData>
+        <TestEditField></TestEditField>
+        <TestCreateNewField></TestCreateNewField>
+        <TestDeleteField></TestDeleteField>
+        <TestSwitchFromSingleSelectToNumber></TestSwitchFromSingleSelectToNumber>
+        <TestSwitchFromMultiSelectToText></TestSwitchFromMultiSelectToText>
       </ul>
     </React.Fragment>
   );

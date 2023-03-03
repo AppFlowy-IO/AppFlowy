@@ -1,3 +1,4 @@
+#![allow(clippy::while_let_loop)]
 use crate::old_editor::web_socket::DeltaDocumentResolveOperations;
 use crate::DocumentUser;
 use async_stream::stream;

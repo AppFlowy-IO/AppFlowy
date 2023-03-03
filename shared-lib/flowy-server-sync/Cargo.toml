@@ -11,13 +11,13 @@ ws-model = { path = "../ws-model" }
 document-model = { path = "../document-model" }
 folder-model = { path = "../folder-model" }
 flowy-sync = { path = "../flowy-sync" }
-bytes = "1.0"
-log = "0.4.14"
-tokio = { version = "1", features = ["full"] }
+bytes = "1.4"
+log = "0.4.17"
+tokio = { version = "1.26", features = ["full"] }
 serde = { version = "1.0", features = ["derive", "rc"] }
 lib-ot = { path = "../lib-ot" }
 lib-infra = { path = "../lib-infra" }
 dashmap = "5"
-futures = "0.3.15"
-async-stream = "0.3.2"
+futures = "0.3.26"
+async-stream = "0.3.4"
 tracing = { version = "0.1", features = ["log"] }

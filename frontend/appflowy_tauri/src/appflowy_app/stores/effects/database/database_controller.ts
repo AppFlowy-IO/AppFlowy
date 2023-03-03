@@ -1,42 +1,44 @@
 import { DatabaseBackendService } from './database_bd_svc';
 import { FieldController, FieldInfo } from './field/field_controller';
 import { DatabaseViewCache } from './view/database_view_cache';
-import { DatabasePB } from '../../../../services/backend/models/flowy-database/grid_entities';
+import { DatabasePB } from '../../../../services/backend';
 import { RowChangedReason, RowInfo } from './row/row_cache';
 import { Err, Ok } from 'ts-results';
 
-export type SubscribeCallback = {
+export type SubscribeCallbacks = {
   onViewChanged?: (data: DatabasePB) => void;
   onRowsChanged?: (rowInfos: readonly RowInfo[], reason: RowChangedReason) => void;
   onFieldsChanged?: (fieldInfos: readonly FieldInfo[]) => void;
 };
 
 export class DatabaseController {
-  private _backendService: DatabaseBackendService;
+  private backendService: DatabaseBackendService;
   fieldController: FieldController;
   databaseViewCache: DatabaseViewCache;
-  private _callback?: SubscribeCallback;
+  private _callback?: SubscribeCallbacks;
 
   constructor(public readonly viewId: string) {
-    this._backendService = new DatabaseBackendService(viewId);
+    this.backendService = new DatabaseBackendService(viewId);
     this.fieldController = new FieldController(viewId);
     this.databaseViewCache = new DatabaseViewCache(viewId, this.fieldController);
   }
 
-  subscribe = (callbacks: SubscribeCallback) => {
+  subscribe = (callbacks: SubscribeCallbacks) => {
     this._callback = callbacks;
-    this.fieldController.subscribeOnFieldsChanged(callbacks.onFieldsChanged);
+    this.fieldController.subscribeOnNumOfFieldsChanged(callbacks.onFieldsChanged);
     this.databaseViewCache.getRowCache().subscribeOnRowsChanged((reason) => {
       this._callback?.onRowsChanged?.(this.databaseViewCache.rowInfos, reason);
     });
   };
 
   open = async () => {
-    const result = await this._backendService.openDatabase();
+    const result = await this.backendService.openDatabase();
     if (result.ok) {
       const database: DatabasePB = result.val;
       this._callback?.onViewChanged?.(database);
       await this.fieldController.loadFields(database.fields);
+      await this.databaseViewCache.listenOnRowsChanged();
+      await this.fieldController.listenOnFieldChanges();
       this.databaseViewCache.initializeWithRows(database.rows);
       return Ok.EMPTY;
     } else {
@@ -45,11 +47,11 @@ export class DatabaseController {
   };
 
   createRow = async () => {
-    return this._backendService.createRow();
+    return this.backendService.createRow();
   };
 
   dispose = async () => {
-    await this._backendService.closeDatabase();
+    await this.backendService.closeDatabase();
     await this.fieldController.dispose();
     await this.databaseViewCache.dispose();
   };

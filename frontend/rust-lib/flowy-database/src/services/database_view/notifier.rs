@@ -1,3 +1,4 @@
+#![allow(clippy::while_let_loop)]
 use crate::entities::{ReorderAllRowsPB, ReorderSingleRowPB, RowsVisibilityChangesetPB};
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::filter::FilterResultNotification;

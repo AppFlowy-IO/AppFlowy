@@ -102,6 +102,13 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   filters.push(format!("dart_ffi={}", "info"));
   filters.push(format!("flowy_sqlite={}", "info"));
   filters.push(format!("flowy_net={}", "info"));
+
+  #[cfg(feature = "profiling")]
+  filters.push(format!("tokio={}", level));
+
+  #[cfg(feature = "profiling")]
+  filters.push(format!("runtime={}", level));
+
   filters.join(",")
 }
 
@@ -121,6 +128,9 @@ pub struct AppFlowyCore {
 
 impl AppFlowyCore {
   pub fn new(config: AppFlowyCoreConfig) -> Self {
+    #[cfg(feature = "profiling")]
+    console_subscriber::init();
+
     init_log(&config);
     init_kv(&config.storage_path);
     tracing::debug!("🔥 {:?}", config);
