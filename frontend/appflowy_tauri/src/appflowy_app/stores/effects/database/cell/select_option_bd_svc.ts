@@ -30,6 +30,7 @@ export class SelectOptionBackendService {
 export class SelectOptionCellBackendService {
   constructor(public readonly cellIdentifier: CellIdentifier) {}
 
+  // Creates a new option and insert this option to the cell
   createOption = async (params: { name: string; isSelect?: boolean }) => {
     const payload = CreateSelectOptionPayloadPB.fromObject({
       option_name: params.name,
@@ -39,7 +40,7 @@ export class SelectOptionCellBackendService {
 
     const result = await DatabaseEventCreateSelectOption(payload);
     if (result.ok) {
-      return this._insertOption(result.val, params.isSelect || true);
+      return await this._insertOption(result.val, params.isSelect || true);
     } else {
       return result;
     }

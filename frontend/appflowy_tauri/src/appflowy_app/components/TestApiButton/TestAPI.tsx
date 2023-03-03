@@ -10,6 +10,8 @@ import {
   TestEditCell,
   TestEditField,
   TestGetSingleSelectFieldData,
+  TestSwitchFromMultiSelectToText,
+  TestSwitchFromSingleSelectToNumber,
 } from './TestGrid';
 
 export const TestAPI = () => {
@@ -26,6 +28,8 @@ export const TestAPI = () => {
         <TestEditField></TestEditField>
         <TestCreateNewField></TestCreateNewField>
         <TestDeleteField></TestDeleteField>
+        <TestSwitchFromSingleSelectToNumber></TestSwitchFromSingleSelectToNumber>
+        <TestSwitchFromMultiSelectToText></TestSwitchFromMultiSelectToText>
       </ul>
     </React.Fragment>
   );

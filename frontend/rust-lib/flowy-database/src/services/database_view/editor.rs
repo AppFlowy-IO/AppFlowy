@@ -28,9 +28,7 @@ use flowy_error::FlowyResult;
 use flowy_revision::RevisionManager;
 use flowy_sqlite::ConnectionPool;
 use flowy_task::TaskDispatcher;
-use lib_infra::async_trait::async_trait;
 use lib_infra::future::Fut;
-use lib_infra::ref_map::RefCountValue;
 use nanoid::nanoid;
 use revision_model::Revision;
 use std::borrow::Cow;
@@ -83,6 +81,12 @@ pub struct DatabaseViewEditor {
   filter_controller: Arc<FilterController>,
   sort_controller: Arc<RwLock<SortController>>,
   pub notifier: DatabaseViewChangedNotifier,
+}
+
+impl Drop for DatabaseViewEditor {
+  fn drop(&mut self) {
+    tracing::trace!("Drop {}", std::any::type_name::<Self>());
+  }
 }
 
 impl DatabaseViewEditor {
@@ -178,12 +182,12 @@ impl DatabaseViewEditor {
     .await
   }
 
-  #[tracing::instrument(name = "close grid view editor", level = "trace", skip_all)]
+  #[tracing::instrument(name = "close database view editor", level = "trace", skip_all)]
   pub async fn close(&self) {
     self.rev_manager.generate_snapshot().await;
     self.rev_manager.close().await;
+    self.sort_controller.write().await.close().await;
     self.filter_controller.close().await;
-    self.sort_controller.read().await.close().await;
   }
 
   pub async fn handle_block_event(&self, event: Cow<'_, DatabaseBlockEvent>) {
@@ -509,8 +513,8 @@ impl DatabaseViewEditor {
         .did_receive_changes(SortChangeset::from_insert(sort_type))
         .await
     };
-    self.notify_did_update_sort(changeset).await;
     drop(sort_controller);
+    self.notify_did_update_sort(changeset).await;
     Ok(sort_rev)
   }
 
@@ -539,7 +543,7 @@ impl DatabaseViewEditor {
 
   pub async fn v_delete_all_sorts(&self) -> FlowyResult<()> {
     let all_sorts = self.v_get_all_sorts().await;
-    self.sort_controller.write().await.delete_all_sorts().await;
+    // self.sort_controller.write().await.delete_all_sorts().await;
     self
       .modify(|pad| {
         let changeset = pad.delete_all_sorts()?;
@@ -867,13 +871,6 @@ pub(crate) async fn get_cells_for_field(
     }
   }
   Ok(cells)
-}
-
-#[async_trait]
-impl RefCountValue for DatabaseViewEditor {
-  async fn did_remove(&self) {
-    self.close().await;
-  }
 }
 
 async fn new_group_controller(

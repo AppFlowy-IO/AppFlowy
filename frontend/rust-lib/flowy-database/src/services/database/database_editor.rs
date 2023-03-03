@@ -116,13 +116,13 @@ impl DatabaseEditor {
     self.database_views.open(view_editor).await
   }
 
-  #[tracing::instrument(name = "Close database editor view", level = "debug", skip_all)]
+  #[tracing::instrument(level = "debug", skip_all)]
   pub async fn close_view_editor(&self, view_id: &str) {
-    self.rev_manager.generate_snapshot().await;
     self.database_views.close(view_id).await;
   }
 
   pub async fn dispose(&self) {
+    self.rev_manager.generate_snapshot().await;
     self.database_blocks.close().await;
     self.rev_manager.close().await;
   }

@@ -104,7 +104,8 @@ impl DatabaseRevisionSql {
       .into_iter()
       .map(|record| {
         tracing::trace!(
-          "[GridRevisionSql] create revision: {}:{:?}",
+          "[{}] create revision: {}:{:?}",
+          std::any::type_name::<Self>(),
           record.revision.object_id,
           record.revision.rev_id
         );
@@ -132,7 +133,8 @@ impl DatabaseRevisionSql {
       .filter(dsl::object_id.eq(changeset.object_id));
     let _ = update(filter).set(dsl::state.eq(state)).execute(conn)?;
     tracing::debug!(
-      "[GridRevisionSql] update revision:{} state:to {:?}",
+      "[{}] update revision:{} state:to {:?}",
+      std::any::type_name::<Self>(),
       changeset.rev_id,
       changeset.state
     );
@@ -192,7 +194,8 @@ impl DatabaseRevisionSql {
 
     if let Some(rev_ids) = rev_ids {
       tracing::trace!(
-        "[GridRevisionSql] Delete revision: {}:{:?}",
+        "[{}] Delete revision: {}:{:?}",
+        std::any::type_name::<Self>(),
         object_id,
         rev_ids
       );
@@ -200,7 +203,11 @@ impl DatabaseRevisionSql {
     }
 
     let affected_row = sql.execute(conn)?;
-    tracing::trace!("[GridRevisionSql] Delete {} rows", affected_row);
+    tracing::trace!(
+      "[{}] Delete {} rows",
+      std::any::type_name::<Self>(),
+      affected_row
+    );
     Ok(())
   }
 }

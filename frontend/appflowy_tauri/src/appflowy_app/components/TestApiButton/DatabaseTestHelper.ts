@@ -11,7 +11,6 @@ import {
   SelectOptionCellController,
   TextCellController,
 } from '../../stores/effects/database/cell/controller_builder';
-import assert from 'assert';
 import { None, Option, Some } from 'ts-results';
 import { TypeOptionBackendService } from '../../stores/effects/database/field/type_option/type_option_bd_svc';
 import { DatabaseBackendService } from '../../stores/effects/database/database_bd_svc';
@@ -29,9 +28,16 @@ export async function openTestDatabase(viewId: string): Promise<DatabaseControll
   return new DatabaseController(viewId);
 }
 
-export async function assertTextCell(rowInfo: RowInfo, databaseController: DatabaseController, expectedContent: string) {
-  const cellController = await makeTextCellController(rowInfo, databaseController).then((result) => result.unwrap());
-  cellController.subscribeChanged({
+export async function assertTextCell(
+  fieldId: string,
+  rowInfo: RowInfo,
+  databaseController: DatabaseController,
+  expectedContent: string
+) {
+  const cellController = await makeTextCellController(fieldId, rowInfo, databaseController).then((result) =>
+    result.unwrap()
+  );
+  await cellController.subscribeChanged({
     onCellChanged: (value) => {
       const cellContent = value.unwrap();
       if (cellContent !== expectedContent) {
@@ -39,55 +45,78 @@ export async function assertTextCell(rowInfo: RowInfo, databaseController: Datab
       }
     },
   });
-  cellController.getCellData();
+  await cellController.getCellData();
 }
 
-export async function editTextCell(rowInfo: RowInfo, databaseController: DatabaseController, content: string) {
-  const cellController = await makeTextCellController(rowInfo, databaseController).then((result) => result.unwrap());
+export async function editTextCell(
+  fieldId: string,
+  rowInfo: RowInfo,
+  databaseController: DatabaseController,
+  content: string
+) {
+  const cellController = await makeTextCellController(fieldId, rowInfo, databaseController).then((result) =>
+    result.unwrap()
+  );
   await cellController.saveCellData(content);
 }
 
 export async function makeTextCellController(
+  fieldId: string,
   rowInfo: RowInfo,
   databaseController: DatabaseController
 ): Promise<Option<TextCellController>> {
-  const builder = await makeCellControllerBuilder(rowInfo, FieldType.RichText, databaseController).then((result) =>
-    result.unwrap()
+  const builder = await makeCellControllerBuilder(fieldId, rowInfo, FieldType.RichText, databaseController).then(
+    (result) => result.unwrap()
   );
   return Some(builder.build() as TextCellController);
 }
 
 export async function makeNumberCellController(
+  fieldId: string,
   rowInfo: RowInfo,
   databaseController: DatabaseController
 ): Promise<Option<NumberCellController>> {
-  const builder = await makeCellControllerBuilder(rowInfo, FieldType.Number, databaseController).then((result) =>
-    result.unwrap()
+  const builder = await makeCellControllerBuilder(fieldId, rowInfo, FieldType.Number, databaseController).then(
+    (result) => result.unwrap()
   );
   return Some(builder.build() as NumberCellController);
 }
 
 export async function makeSingleSelectCellController(
+  fieldId: string,
   rowInfo: RowInfo,
   databaseController: DatabaseController
 ): Promise<Option<SelectOptionCellController>> {
-  const builder = await makeCellControllerBuilder(rowInfo, FieldType.SingleSelect, databaseController).then((result) =>
-    result.unwrap()
+  const builder = await makeCellControllerBuilder(fieldId, rowInfo, FieldType.SingleSelect, databaseController).then(
+    (result) => result.unwrap()
+  );
+  return Some(builder.build() as SelectOptionCellController);
+}
+
+export async function makeMultiSelectCellController(
+  fieldId: string,
+  rowInfo: RowInfo,
+  databaseController: DatabaseController
+): Promise<Option<SelectOptionCellController>> {
+  const builder = await makeCellControllerBuilder(fieldId, rowInfo, FieldType.MultiSelect, databaseController).then(
+    (result) => result.unwrap()
   );
   return Some(builder.build() as SelectOptionCellController);
 }
 
 export async function makeDateCellController(
+  fieldId: string,
   rowInfo: RowInfo,
   databaseController: DatabaseController
 ): Promise<Option<DateCellController>> {
-  const builder = await makeCellControllerBuilder(rowInfo, FieldType.DateTime, databaseController).then((result) =>
-    result.unwrap()
+  const builder = await makeCellControllerBuilder(fieldId, rowInfo, FieldType.DateTime, databaseController).then(
+    (result) => result.unwrap()
   );
   return Some(builder.build() as DateCellController);
 }
 
 export async function makeCellControllerBuilder(
+  fieldId: string,
   rowInfo: RowInfo,
   fieldType: FieldType,
   databaseController: DatabaseController
@@ -99,12 +128,21 @@ export async function makeCellControllerBuilder(
   const cellByFieldId = await rowController.loadCells();
   for (const cellIdentifier of cellByFieldId.values()) {
     const builder = new CellControllerBuilder(cellIdentifier, cellCache, fieldController);
-    if (cellIdentifier.fieldType === fieldType) {
+    if (cellIdentifier.fieldId === fieldId) {
       return Some(builder);
     }
   }
 
   return None;
+}
+
+export function findFirstFieldInfoWithFieldType(rowInfo: RowInfo, fieldType: FieldType) {
+  const fieldInfo = rowInfo.fieldInfos.find((element) => element.field.field_type === fieldType);
+  if (fieldInfo === undefined) {
+    return None;
+  } else {
+    return Some(fieldInfo);
+  }
 }
 
 export async function assertFieldName(viewId: string, fieldId: string, fieldType: FieldType, expected: string) {

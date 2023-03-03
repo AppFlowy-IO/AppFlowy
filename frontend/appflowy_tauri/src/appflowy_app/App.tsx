@@ -14,6 +14,7 @@ import { ConfirmAccountPage } from './views/ConfirmAccountPage';
 import { ErrorHandlerPage } from './components/error/ErrorHandlerPage';
 import initializeI18n from './stores/i18n/initializeI18n';
 import { TestAPI } from './components/TestApiButton/TestAPI';
+import { GetStarted } from './components/auth/GetStarted/GetStarted';
 
 initializeI18n();
 
@@ -31,6 +32,7 @@ const App = () => {
             <Route path={'/'} element={<Welcome />} />
           </Route>
           <Route path={'/auth/login'} element={<LoginPage />}></Route>
+          <Route path={'/auth/getStarted'} element={<GetStarted />}></Route>
           <Route path={'/auth/signUp'} element={<SignUpPage />}></Route>
           <Route path={'/auth/confirm-account'} element={<ConfirmAccountPage />}></Route>
         </Routes>

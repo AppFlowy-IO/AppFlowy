@@ -17,7 +17,7 @@ export class DatabaseFieldChangesetObserver {
     this.notifier?.observer.subscribe(callbacks.onFieldsChanged);
 
     this.listener = new DatabaseNotificationObserver({
-      viewId: this.viewId,
+      id: this.viewId,
       parserHandler: (notification, result) => {
         switch (notification) {
           case DatabaseNotification.DidUpdateFields:
@@ -50,12 +50,12 @@ export class DatabaseFieldObserver {
 
   constructor(public readonly fieldId: string) {}
 
-  subscribe = async (callbacks: { onFieldsChanged: FieldNotificationCallback }) => {
+  subscribe = async (callbacks: { onFieldChanged: FieldNotificationCallback }) => {
     this._notifier = new ChangeNotifier();
-    this._notifier?.observer.subscribe(callbacks.onFieldsChanged);
+    this._notifier?.observer.subscribe(callbacks.onFieldChanged);
 
     this._listener = new DatabaseNotificationObserver({
-      viewId: this.fieldId,
+      id: this.fieldId,
       parserHandler: (notification, result) => {
         switch (notification) {
           case DatabaseNotification.DidUpdateField:

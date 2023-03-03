@@ -6,10 +6,10 @@ import { Result } from 'ts-results';
 export type ParserHandler = (notification: DatabaseNotification, result: Result<Uint8Array, FlowyError>) => void;
 
 export class DatabaseNotificationObserver extends AFNotificationObserver<DatabaseNotification> {
-  constructor(params: { viewId?: string; parserHandler: ParserHandler }) {
+  constructor(params: { id?: string; parserHandler: ParserHandler }) {
     const parser = new DatabaseNotificationParser({
       callback: params.parserHandler,
-      id: params.viewId,
+      id: params.id,
     });
     super(parser);
   }

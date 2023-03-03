@@ -1,11 +1,6 @@
-import {
-  DateCellDataPB,
-  FieldType,
-  SelectOptionCellDataPB,
-  URLCellDataPB,
-} from '../../../../../services/backend/models/flowy-database';
+import { DateCellDataPB, FieldType, SelectOptionCellDataPB, URLCellDataPB } from '../../../../../services/backend';
 import { CellIdentifier } from './cell_bd_svc';
-import { CellController, CellFieldNotifierImpl } from './cell_controller';
+import { CellController } from './cell_controller';
 import {
   CellDataLoader,
   DateCellDataParser,
@@ -34,15 +29,11 @@ export class CalendarData {
 export type URLCellController = CellController<URLCellDataPB, string>;
 
 export class CellControllerBuilder {
-  _fieldNotifier: CellFieldNotifierImpl;
-
   constructor(
     public readonly cellIdentifier: CellIdentifier,
     public readonly cellCache: CellCache,
     public readonly fieldController: FieldController
-  ) {
-    this._fieldNotifier = new CellFieldNotifierImpl(this.fieldController);
-  }
+  ) {}
 
   ///
   build = () => {
@@ -68,77 +59,41 @@ export class CellControllerBuilder {
     const loader = new CellDataLoader(this.cellIdentifier, new SelectOptionCellDataParser(), true);
     const persistence = new TextCellDataPersistence(this.cellIdentifier);
 
-    return new CellController<SelectOptionCellDataPB, string>(
-      this.cellIdentifier,
-      this.cellCache,
-      this._fieldNotifier,
-      loader,
-      persistence
-    );
+    return new CellController<SelectOptionCellDataPB, string>(this.cellIdentifier, this.cellCache, loader, persistence);
   };
 
   makeURLCellController = (): URLCellController => {
     const loader = new CellDataLoader(this.cellIdentifier, new URLCellDataParser());
     const persistence = new TextCellDataPersistence(this.cellIdentifier);
 
-    return new CellController<URLCellDataPB, string>(
-      this.cellIdentifier,
-      this.cellCache,
-      this._fieldNotifier,
-      loader,
-      persistence
-    );
+    return new CellController<URLCellDataPB, string>(this.cellIdentifier, this.cellCache, loader, persistence);
   };
 
   makeDateCellController = (): DateCellController => {
     const loader = new CellDataLoader(this.cellIdentifier, new DateCellDataParser(), true);
     const persistence = new DateCellDataPersistence(this.cellIdentifier);
 
-    return new CellController<DateCellDataPB, CalendarData>(
-      this.cellIdentifier,
-      this.cellCache,
-      this._fieldNotifier,
-      loader,
-      persistence
-    );
+    return new CellController<DateCellDataPB, CalendarData>(this.cellIdentifier, this.cellCache, loader, persistence);
   };
 
   makeNumberCellController = (): NumberCellController => {
     const loader = new CellDataLoader(this.cellIdentifier, new StringCellDataParser(), true);
     const persistence = new TextCellDataPersistence(this.cellIdentifier);
 
-    return new CellController<string, string>(
-      this.cellIdentifier,
-      this.cellCache,
-      this._fieldNotifier,
-      loader,
-      persistence
-    );
+    return new CellController<string, string>(this.cellIdentifier, this.cellCache, loader, persistence);
   };
 
   makeTextCellController = (): TextCellController => {
     const loader = new CellDataLoader(this.cellIdentifier, new StringCellDataParser());
     const persistence = new TextCellDataPersistence(this.cellIdentifier);
 
-    return new CellController<string, string>(
-      this.cellIdentifier,
-      this.cellCache,
-      this._fieldNotifier,
-      loader,
-      persistence
-    );
+    return new CellController<string, string>(this.cellIdentifier, this.cellCache, loader, persistence);
   };
 
   makeCheckboxCellController = (): CheckboxCellController => {
     const loader = new CellDataLoader(this.cellIdentifier, new StringCellDataParser());
     const persistence = new TextCellDataPersistence(this.cellIdentifier);
 
-    return new CellController<string, string>(
-      this.cellIdentifier,
-      this.cellCache,
-      this._fieldNotifier,
-      loader,
-      persistence
-    );
+    return new CellController<string, string>(this.cellIdentifier, this.cellCache, loader, persistence);
   };
 }

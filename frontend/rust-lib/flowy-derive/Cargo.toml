@@ -14,7 +14,7 @@ name = "tests"
 path = "tests/progress.rs"
 
 [dependencies]
-syn = { version = "1.0.60", features = ["extra-traits", "visit"] }
+syn = { version = "1.0.109", features = ["extra-traits", "visit"] }
 quote = "1.0"
 proc-macro2 = "1.0"
 flowy-ast = { path = "../flowy-ast" }
@@ -22,9 +22,9 @@ lazy_static = {version = "1.4.0"}
 dashmap = "5"
 flowy-codegen = { path = "../flowy-codegen"}
 serde_json = "1.0"
-walkdir = "2.3.1"
+walkdir = "2.3.2"
 
 [dev-dependencies]
-tokio = { version = "1", features = ["full"] }
-trybuild = "1.0.40"
-log = "0.4.11"
+tokio = { version = "1.26", features = ["full"] }
+trybuild = "1.0.77"
+log = "0.4.17"
