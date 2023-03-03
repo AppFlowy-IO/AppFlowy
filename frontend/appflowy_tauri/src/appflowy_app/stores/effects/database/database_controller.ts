@@ -1,7 +1,7 @@
 import { DatabaseBackendService } from './database_bd_svc';
 import { FieldController, FieldInfo } from './field/field_controller';
 import { DatabaseViewCache } from './view/database_view_cache';
-import { DatabasePB } from '../../../../services/backend/models/flowy-database/grid_entities';
+import { DatabasePB } from '../../../../services/backend';
 import { RowChangedReason, RowInfo } from './row/row_cache';
 import { Err, Ok } from 'ts-results';
 

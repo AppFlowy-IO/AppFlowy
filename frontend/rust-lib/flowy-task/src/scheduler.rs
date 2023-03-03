@@ -59,7 +59,6 @@ impl TaskDispatcher {
     self.store.clear();
   }
 
-  #[tracing::instrument(level = "trace", skip_all)]
   pub(crate) async fn process_next_task(&mut self) -> Option<()> {
     let pending_task = self.queue.mut_head(|list| list.pop())?;
     let mut task = self.store.remove_task(&pending_task.id)?;

@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from './auth.hooks';
-import { Screen } from '../../components/layout/Screen';
+import { Screen } from '../layout/Screen';
 
 export const ProtectedRoutes = () => {
   const location = useLocation();
@@ -11,6 +11,6 @@ export const ProtectedRoutes = () => {
       <Outlet />
     </Screen>
   ) : (
-    <Navigate to='/auth/login' replace state={{ from: location }} />
+    <Navigate to='/auth/getStarted' replace state={{ from: location }} />
   );
 };
