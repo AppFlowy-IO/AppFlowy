@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
@@ -11,13 +11,13 @@ part 'select_option_editor_bloc.freezed.dart';
 
 class SelectOptionCellEditorBloc
     extends Bloc<SelectOptionEditorEvent, SelectOptionEditorState> {
-  final SelectOptionFFIService _selectOptionService;
+  final SelectOptionBackendService _selectOptionService;
   final SelectOptionCellController cellController;
 
   SelectOptionCellEditorBloc({
     required this.cellController,
   })  : _selectOptionService =
-            SelectOptionFFIService(cellId: cellController.cellId),
+            SelectOptionBackendService(cellId: cellController.cellId),
         super(SelectOptionEditorState.initial(cellController)) {
     on<SelectOptionEditorEvent>(
       (event, emit) async {
@@ -159,7 +159,7 @@ class SelectOptionCellEditorBloc
   }
 
   Future<void> _loadOptions() async {
-    final result = await _selectOptionService.getOptionContext();
+    final result = await _selectOptionService.getCellData();
     if (isClosed) {
       Log.warn("Unexpected closing the bloc");
       return;

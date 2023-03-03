@@ -1,4 +1,5 @@
-import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database_view/application/cell/cell_controller.dart';
+import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
@@ -66,11 +67,9 @@ class GridTestContext {
   ) async {
     final RowInfo rowInfo = rowInfos[rowIndex];
     final rowCache = gridController.rowCache;
-    final fieldController = gridController.fieldController;
 
     final rowDataController = RowDataController(
       rowInfo: rowInfo,
-      fieldController: fieldController,
       rowCache: rowCache,
     );
 
@@ -83,7 +82,6 @@ class GridTestContext {
     return CellControllerBuilder(
       cellId: rowBloc.state.cellByFieldId[fieldId]!,
       cellCache: rowCache.cellCache,
-      delegate: rowDataController,
     );
   }
 
