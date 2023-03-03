@@ -15,7 +15,7 @@ crate-type = ["staticlib"]
 allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
 byteorder = { version = "1.4.3" }
 protobuf = { version = "2.28.0" }
-tokio = { version = "1.26", features = ["rt", "rt-multi-thread"] }
+tokio = { version = "1.26", features = ["full", "rt-multi-thread", "tracing"] }
 log = "0.4.17"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0" }

@@ -352,17 +352,20 @@ fn listen_on_database_block_event(
 ) {
   tokio::spawn(async move {
     loop {
-      while let Ok(event) = block_event_rx.recv().await {
-        let read_guard = view_editors.read().await;
-        let view_editors = read_guard.values();
-        let event = if view_editors.len() == 1 {
-          Cow::Owned(event)
-        } else {
-          Cow::Borrowed(&event)
-        };
-        for view_editor in view_editors {
-          view_editor.handle_block_event(event.clone()).await;
-        }
+      match block_event_rx.recv().await {
+        Ok(event) => {
+          let read_guard = view_editors.read().await;
+          let view_editors = read_guard.values();
+          let event = if view_editors.len() == 1 {
+            Cow::Owned(event)
+          } else {
+            Cow::Borrowed(&event)
+          };
+          for view_editor in view_editors {
+            view_editor.handle_block_event(event.clone()).await;
+          }
+        },
+        Err(_) => break,
       }
     }
   });
