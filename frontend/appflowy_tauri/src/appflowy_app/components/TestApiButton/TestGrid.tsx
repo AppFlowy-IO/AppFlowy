@@ -5,7 +5,7 @@ import {
   SingleSelectTypeOptionPB,
   ViewLayoutTypePB,
 } from '../../../services/backend';
-import { Log } from '../../utils/log';
+import {Log} from '../../utils/log';
 import {
   assertFieldName,
   assertNumberOfFields,
@@ -20,10 +20,10 @@ import {
   SelectOptionBackendService,
   SelectOptionCellBackendService,
 } from '../../stores/effects/database/cell/select_option_bd_svc';
-import { TypeOptionController } from '../../stores/effects/database/field/type_option/type_option_controller';
-import { None, Some } from 'ts-results';
-import { RowBackendService } from '../../stores/effects/database/row/row_bd_svc';
-import { makeSingleSelectTypeOptionContext } from '../../stores/effects/database/field/type_option/type_option_context';
+import {TypeOptionController} from '../../stores/effects/database/field/type_option/type_option_controller';
+import {None, Some} from 'ts-results';
+import {RowBackendService} from '../../stores/effects/database/row/row_bd_svc';
+import {makeSingleSelectTypeOptionContext} from '../../stores/effects/database/field/type_option/type_option_context';
 
 export const TestCreateGrid = () => {
   async function createBuildInGrid() {
@@ -180,6 +180,7 @@ export const TestEditField = () => {
     await controller.initialize();
     const newName = 'hello world';
     await controller.setFieldName(newName);
+    await controller.switchToField(FieldType.MultiSelect);
 
     await assertFieldName(view.id, firstFieldInfo.field.id, firstFieldInfo.field.field_type, newName);
     await databaseController.dispose();
@@ -199,6 +200,9 @@ export const TestCreateNewField = () => {
     const controller = new TypeOptionController(view.id, None);
     await controller.initialize();
     await assertNumberOfFields(view.id, 4);
+
+
+
     await databaseController.dispose();
   }
 

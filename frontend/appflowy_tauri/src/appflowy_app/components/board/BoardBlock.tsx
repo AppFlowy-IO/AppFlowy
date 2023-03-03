@@ -1,24 +1,26 @@
 import { Details2Svg } from '../_shared/svg/Details2Svg';
 import AddSvg from '../_shared/svg/AddSvg';
-import { DatabaseFieldMap, ICellData, IDatabaseColumn, IDatabaseRow } from '../../stores/reducers/database/slice';
-import { BoardBlockItem } from './BoardBlockItem';
+import { DatabaseFieldMap, IDatabaseColumn, IDatabaseRow } from '../../stores/reducers/database/slice';
+import { BoardCard } from './BoardCard';
+import { RowInfo } from '../../stores/effects/database/row/row_cache';
+import { useEffect } from 'react';
+import { useRow } from '../_shared/database-hooks/useRow';
+import { DatabaseController } from '../../stores/effects/database/database_controller';
 
 export const BoardBlock = ({
+  viewId,
+  controller,
   title,
   groupingFieldId,
-  count,
-  fields,
-  columns,
   rows,
   startMove,
   endMove,
 }: {
+  viewId: string;
+  controller: DatabaseController;
   title: string;
   groupingFieldId: string;
-  count: number;
-  fields: DatabaseFieldMap;
-  columns: IDatabaseColumn[];
-  rows: IDatabaseRow[];
+  rows: readonly RowInfo[];
   startMove: (id: string) => void;
   endMove: () => void;
 }) => {
@@ -27,7 +29,7 @@ export const BoardBlock = ({
       <div className={'flex items-center justify-between p-4'}>
         <div className={'flex items-center gap-2'}>
           <span>{title}</span>
-          <span className={'text-shade-4'}>({count})</span>
+          <span className={'text-shade-4'}>()</span>
         </div>
         <div className={'flex items-center gap-2'}>
           <button className={'h-5 w-5 rounded hover:bg-surface-2'}>
@@ -40,15 +42,15 @@ export const BoardBlock = ({
       </div>
       <div className={'flex flex-1 flex-col gap-1 overflow-auto px-2'}>
         {rows.map((row, index) => (
-          <BoardBlockItem
+          <BoardCard
+            viewId={viewId}
+            controller={controller}
             key={index}
             groupingFieldId={groupingFieldId}
-            fields={fields}
-            columns={columns}
             row={row}
-            startMove={() => startMove(row.rowId)}
+            startMove={() => startMove(row.row.id)}
             endMove={() => endMove()}
-          ></BoardBlockItem>
+          ></BoardCard>
         ))}
       </div>
       <div className={'p-2'}>

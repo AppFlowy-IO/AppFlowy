@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../stores/store';
 import { boardActions } from '../../stores/reducers/board/slice';
-import { ICellData, IDatabase, IDatabaseRow, ISelectOption } from '../../stores/reducers/database/slice';
+import { IDatabase, IDatabaseRow, ISelectOption } from '../../stores/reducers/database/slice';
 
 export const useBoard = () => {
   const dispatch = useAppDispatch();
@@ -15,20 +15,22 @@ export const useBoard = () => {
 
   useEffect(() => {
     setTitle(database.title);
-    setBoardColumns(
-      database.fields[groupingFieldId].fieldOptions.selectOptions?.map((groupFieldItem) => {
-        const rows = database.rows
-          .filter((row) => row.cells[groupingFieldId].optionIds?.some((so) => so === groupFieldItem.selectOptionId))
-          .map((row) => ({
-            ...row,
-            isGhost: false,
-          }));
-        return {
-          ...groupFieldItem,
-          rows: rows,
-        };
-      }) || []
-    );
+    if (database.fields[groupingFieldId]) {
+      setBoardColumns(
+        database.fields[groupingFieldId].fieldOptions.selectOptions?.map((groupFieldItem) => {
+        /*  const rows = database.rows
+            .filter((row) => row.cells[groupingFieldId].data?.some((so) => so === groupFieldItem.selectOptionId))
+            .map((row) => ({
+              ...row,
+              isGhost: false,
+            }));*/
+          return {
+            ...groupFieldItem,
+            rows: [],
+          };
+        }) || []
+      );
+    }
   }, [database, groupingFieldId]);
 
   const changeGroupingField = (fieldId: string) => {
