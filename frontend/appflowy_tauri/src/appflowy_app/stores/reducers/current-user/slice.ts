@@ -12,10 +12,6 @@ export interface ICurrentUser {
 }
 
 const initialState: ICurrentUser | null = {
-  id: nanoid(8),
-  displayName: 'Me 😃',
-  email: `${nanoid(4)}@gmail.com`,
-  token: nanoid(8),
   isAuthenticated: false,
 };
 
