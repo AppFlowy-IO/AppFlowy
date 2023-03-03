@@ -1,9 +1,8 @@
+import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/url_type_option_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-
-import '../../../application/cell/cell_service.dart';
 
 part 'board_url_cell_bloc.freezed.dart';
 

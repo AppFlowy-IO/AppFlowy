@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 
-import '../../../application/cell/cell_service.dart';
+import '../../../application/cell/cell_controller_builder.dart';
 import '../../../application/field/field_controller.dart';
 part 'board_date_cell_bloc.freezed.dart';
 

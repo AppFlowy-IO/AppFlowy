@@ -229,7 +229,6 @@ class _BoardContentState extends State<BoardContent> {
     final fieldController = context.read<BoardBloc>().fieldController;
     final viewId = context.read<BoardBloc>().viewId;
     final cardController = CardDataController(
-      fieldController: fieldController,
       rowCache: rowCache,
       rowPB: rowPB,
     );
@@ -306,7 +305,6 @@ class _BoardContentState extends State<BoardContent> {
 
     final dataController = RowDataController(
       rowInfo: rowInfo,
-      fieldController: fieldController,
       rowCache: rowCache,
     );
 
@@ -314,7 +312,7 @@ class _BoardContentState extends State<BoardContent> {
       context: context,
       builder: (BuildContext context) {
         return RowDetailPage(
-          cellBuilder: GridCellBuilder(delegate: dataController),
+          cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
           dataController: dataController,
         );
       },

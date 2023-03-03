@@ -1,7 +1,7 @@
+import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../application/cell/cell_service.dart';
 import '../../application/card/board_number_cell_bloc.dart';
 import 'define.dart';
 

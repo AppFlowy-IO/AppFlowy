@@ -277,7 +277,6 @@ class _GridRowsState extends State<_GridRows> {
         context.read<GridBloc>().databaseController.fieldController;
     final dataController = RowDataController(
       rowInfo: rowInfo,
-      fieldController: fieldController,
       rowCache: rowCache,
     );
 
@@ -286,7 +285,7 @@ class _GridRowsState extends State<_GridRows> {
       child: GridRowWidget(
         rowInfo: rowInfo,
         dataController: dataController,
-        cellBuilder: GridCellBuilder(delegate: dataController),
+        cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
         openDetailPage: (context, cellBuilder) {
           _openRowDetailPage(
             context,
@@ -310,7 +309,6 @@ class _GridRowsState extends State<_GridRows> {
   ) {
     final dataController = RowDataController(
       rowInfo: rowInfo,
-      fieldController: fieldController,
       rowCache: rowCache,
     );
 

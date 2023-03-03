@@ -1,118 +1,16 @@
-part of 'cell_service.dart';
-
-typedef TextCellController = CellController<String, String>;
-typedef CheckboxCellController = CellController<String, String>;
-typedef NumberCellController = CellController<String, String>;
-typedef SelectOptionCellController
-    = CellController<SelectOptionCellDataPB, String>;
-typedef ChecklistCellController
-    = CellController<SelectOptionCellDataPB, String>;
-typedef DateCellController = CellController<DateCellDataPB, CalendarData>;
-typedef URLCellController = CellController<URLCellDataPB, String>;
-
-abstract class CellControllerBuilderDelegate {
-  CellFieldNotifier buildFieldNotifier();
-}
-
-class CellControllerBuilder {
-  final CellIdentifier _cellId;
-  final CellCache _cellCache;
-  final CellControllerBuilderDelegate delegate;
-
-  CellControllerBuilder({
-    required this.delegate,
-    required CellIdentifier cellId,
-    required CellCache cellCache,
-  })  : _cellCache = cellCache,
-        _cellId = cellId;
-
-  CellController build() {
-    final cellFieldNotifier = delegate.buildFieldNotifier();
-    switch (_cellId.fieldType) {
-      case FieldType.Checkbox:
-        final cellDataLoader = CellDataLoader(
-          cellId: _cellId,
-          parser: StringCellDataParser(),
-        );
-        return TextCellController(
-          cellId: _cellId,
-          cellCache: _cellCache,
-          cellDataLoader: cellDataLoader,
-          fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
-        );
-      case FieldType.DateTime:
-        final cellDataLoader = CellDataLoader(
-          cellId: _cellId,
-          parser: DateCellDataParser(),
-          reloadOnFieldChanged: true,
-        );
-
-        return DateCellController(
-          cellId: _cellId,
-          cellCache: _cellCache,
-          cellDataLoader: cellDataLoader,
-          fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: DateCellDataPersistence(cellId: _cellId),
-        );
-      case FieldType.Number:
-        final cellDataLoader = CellDataLoader(
-          cellId: _cellId,
-          parser: StringCellDataParser(),
-          reloadOnFieldChanged: true,
-        );
-        return NumberCellController(
-          cellId: _cellId,
-          cellCache: _cellCache,
-          cellDataLoader: cellDataLoader,
-          fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
-        );
-      case FieldType.RichText:
-        final cellDataLoader = CellDataLoader(
-          cellId: _cellId,
-          parser: StringCellDataParser(),
-        );
-        return TextCellController(
-          cellId: _cellId,
-          cellCache: _cellCache,
-          cellDataLoader: cellDataLoader,
-          fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
-        );
-      case FieldType.MultiSelect:
-      case FieldType.SingleSelect:
-      case FieldType.Checklist:
-        final cellDataLoader = CellDataLoader(
-          cellId: _cellId,
-          parser: SelectOptionCellDataParser(),
-          reloadOnFieldChanged: true,
-        );
-
-        return SelectOptionCellController(
-          cellId: _cellId,
-          cellCache: _cellCache,
-          cellDataLoader: cellDataLoader,
-          fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
-        );
-
-      case FieldType.URL:
-        final cellDataLoader = CellDataLoader(
-          cellId: _cellId,
-          parser: URLCellDataParser(),
-        );
-        return URLCellController(
-          cellId: _cellId,
-          cellCache: _cellCache,
-          cellDataLoader: cellDataLoader,
-          fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: TextCellDataPersistence(cellId: _cellId),
-        );
-    }
-    throw UnimplementedError;
-  }
-}
+import 'dart:async';
+import 'package:appflowy/plugins/database_view/application/field/field_listener.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:dartz/dartz.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
+import '../field/field_controller.dart';
+import '../field/field_service.dart';
+import '../field/type_option/type_option_context.dart';
+import 'cell_listener.dart';
+import 'cell_service.dart';
 
 /// IGridCellController is used to manipulate the cell and receive notifications.
 /// * Read/Write cell data
@@ -127,29 +25,36 @@ class CellController<T, D> extends Equatable {
   final CellCache _cellCache;
   final CellCacheKey _cacheKey;
   final FieldBackendService _fieldBackendSvc;
-  final CellFieldNotifier _fieldNotifier;
+  final SingleFieldListener _fieldListener;
   final CellDataLoader<T> _cellDataLoader;
   final CellDataPersistence<D> _cellDataPersistence;
 
   CellListener? _cellListener;
   CellDataNotifier<T?>? _cellDataNotifier;
 
-  bool isListening = false;
-  VoidCallback? _onFieldChangedFn;
+  VoidCallback? _onCellFieldChanged;
   Timer? _loadDataOperation;
   Timer? _saveDataOperation;
-  bool _isDispose = false;
+
+  String get viewId => cellId.viewId;
+
+  String get rowId => cellId.rowId;
+
+  String get fieldId => cellId.fieldInfo.id;
+
+  FieldInfo get fieldInfo => cellId.fieldInfo;
+
+  FieldType get fieldType => cellId.fieldInfo.fieldType;
 
   CellController({
     required this.cellId,
     required CellCache cellCache,
-    required CellFieldNotifier fieldNotifier,
     required CellDataLoader<T> cellDataLoader,
     required CellDataPersistence<D> cellDataPersistence,
   })  : _cellCache = cellCache,
         _cellDataLoader = cellDataLoader,
         _cellDataPersistence = cellDataPersistence,
-        _fieldNotifier = fieldNotifier,
+        _fieldListener = SingleFieldListener(fieldId: cellId.fieldId),
         _fieldBackendSvc = FieldBackendService(
           viewId: cellId.viewId,
           fieldId: cellId.fieldInfo.id,
@@ -177,44 +82,27 @@ class CellController<T, D> extends Equatable {
         (err) => Log.error(err),
       );
     });
+
+    /// 2.Listen on the field event and load the cell data if needed.
+    _fieldListener.start(onFieldChanged: (result) {
+      result.fold((fieldPB) {
+        /// reloadOnFieldChanged should be true if you need to load the data when the corresponding field is changed
+        /// For example:
+        ///   ￥12 -> $12
+        if (_cellDataLoader.reloadOnFieldChanged) {
+          _loadData();
+        }
+        _onCellFieldChanged?.call();
+      }, (err) => Log.error(err));
+    });
   }
-
-  String get viewId => cellId.viewId;
-
-  String get rowId => cellId.rowId;
-
-  String get fieldId => cellId.fieldInfo.id;
-
-  FieldInfo get fieldInfo => cellId.fieldInfo;
-
-  FieldType get fieldType => cellId.fieldInfo.fieldType;
 
   /// Listen on the cell content or field changes
   VoidCallback? startListening({
     required void Function(T?) onCellChanged,
     VoidCallback? onCellFieldChanged,
   }) {
-    if (isListening) {
-      Log.error("Already started. It seems like you should call clone first");
-      return null;
-    }
-    isListening = true;
-
-    /// 2.Listen on the field event and load the cell data if needed.
-    _onFieldChangedFn = () {
-      if (onCellFieldChanged != null) {
-        onCellFieldChanged();
-      }
-
-      /// reloadOnFieldChanged should be true if you need to load the data when the corresponding field is changed
-      /// For example:
-      ///   ￥12 -> $12
-      if (_cellDataLoader.reloadOnFieldChanged) {
-        _loadData();
-      }
-    };
-
-    _fieldNotifier.register(_cacheKey, _onFieldChangedFn!);
+    _onCellFieldChanged = onCellFieldChanged;
 
     /// Notify the listener, the cell data was changed.
     onCellChangedFn() => onCellChanged(_cellDataNotifier?.value);
@@ -293,54 +181,17 @@ class CellController<T, D> extends Equatable {
   }
 
   Future<void> dispose() async {
-    if (_isDispose) {
-      Log.error("$this should only dispose once");
-      return;
-    }
-    _isDispose = true;
     await _cellListener?.stop();
     _loadDataOperation?.cancel();
     _saveDataOperation?.cancel();
     _cellDataNotifier?.dispose();
+    await _fieldListener.stop();
     _cellDataNotifier = null;
-
-    if (_onFieldChangedFn != null) {
-      _fieldNotifier.unregister(_cacheKey, _onFieldChangedFn!);
-      await _fieldNotifier.dispose();
-      _onFieldChangedFn = null;
-    }
   }
 
   @override
   List<Object> get props =>
       [_cellCache.get(_cacheKey) ?? "", cellId.rowId + cellId.fieldInfo.id];
-}
-
-class GridCellFieldNotifierImpl extends ICellFieldNotifier {
-  final FieldController _fieldController;
-  OnReceiveUpdateFields? _onChangesetFn;
-
-  GridCellFieldNotifierImpl(FieldController cache) : _fieldController = cache;
-
-  @override
-  void onCellDispose() {
-    if (_onChangesetFn != null) {
-      _fieldController.removeListener(onChangesetListener: _onChangesetFn!);
-      _onChangesetFn = null;
-    }
-  }
-
-  @override
-  void onCellFieldChanged(void Function(FieldInfo) callback) {
-    _onChangesetFn = (List<FieldInfo> filedInfos) {
-      for (final field in filedInfos) {
-        callback(field);
-      }
-    };
-    _fieldController.addListener(
-      onReceiveFields: _onChangesetFn,
-    );
-  }
 }
 
 class CellDataNotifier<T> extends ChangeNotifier {
