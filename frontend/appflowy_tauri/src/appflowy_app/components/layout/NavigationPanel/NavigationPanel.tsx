@@ -23,22 +23,12 @@ export const NavigationPanel = ({
 }) => {
   return (
     <>
+      f
       <div className={'flex flex-col justify-between bg-surface-1 text-sm'} style={{ width: `${width}px` }}>
         <div className={'flex flex-col'}>
           <AppLogo iconToShow={'hide'} onHideMenuClick={onCollapseNavigationClick}></AppLogo>
-
           <Workspace></Workspace>
-
-          <div className={'flex flex-col px-2'}>
-            {folders.map((folder, index) => (
-              <FolderItem
-                key={index}
-                folder={folder}
-                pages={pages.filter((page) => page.folderId === folder.id)}
-                onPageClick={onPageClick}
-              ></FolderItem>
-            ))}
-          </div>
+          <FolderItems folders={folders} pages={pages} onPageClick={onPageClick} />
         </div>
 
         <div className={'flex flex-col'}>
@@ -54,3 +44,22 @@ export const NavigationPanel = ({
     </>
   );
 };
+
+type FolderItemsContext = {
+  folders: IFolder[];
+  pages: IPage[];
+  onPageClick: (page: IPage) => void;
+};
+
+const FolderItems: React.FC<FolderItemsContext> = ({ folders, pages, onPageClick }) => (
+  <div className={'flex flex-col px-2'}>
+    {folders.map((folder, index) => (
+      <FolderItem
+        key={index}
+        folder={folder}
+        pages={pages.filter((page) => page.folderId === folder.id)}
+        onPageClick={onPageClick}
+      ></FolderItem>
+    ))}
+  </div>
+);
