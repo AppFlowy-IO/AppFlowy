@@ -1,7 +1,6 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 
 import { TestColors } from './components/TestColors/TestColors';
-import { Welcome } from './views/Welcome';
 import { Provider } from 'react-redux';
 import { store } from './stores/store';
 import { DocumentPage } from './views/DocumentPage';
@@ -29,7 +28,6 @@ const App = () => {
             <Route path={'/page/document/:id'} element={<DocumentPage />} />
             <Route path={'/page/board/:id'} element={<BoardPage />} />
             <Route path={'/page/grid/:id'} element={<GridPage />} />
-            <Route path={'/'} element={<Welcome />} />
           </Route>
           <Route path={'/auth/login'} element={<LoginPage />}></Route>
           <Route path={'/auth/getStarted'} element={<GetStarted />}></Route>
