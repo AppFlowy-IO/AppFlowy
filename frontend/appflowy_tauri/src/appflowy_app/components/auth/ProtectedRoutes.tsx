@@ -11,15 +11,16 @@ export const ProtectedRoutes = () => {
 
   useEffect(() => {
     void checkUser().then(async (result) => {
+      await new Promise(() =>
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 1200)
+      );
+
       if (result.err) {
         throw new Error(result.val.msg);
       }
 
-      await new Promise(() =>
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 1200)
-      );
     });
   }, []);
 
