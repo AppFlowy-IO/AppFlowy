@@ -203,28 +203,45 @@ impl DatabaseManager {
     database_id: &str,
     view_id: &str,
   ) -> FlowyResult<Arc<DatabaseEditor>> {
-    if let Some(database_editor) = self.editors_by_database_id.read().await.get(database_id) {
-      let user_id = self.database_user.user_id()?;
-      let (view_pad, view_rev_manager) =
-        make_database_view_revision_pad(view_id, self.database_user.clone()).await?;
-
-      let view_editor = DatabaseViewEditor::from_pad(
+    let user = self.database_user.clone();
+    let create_view_editor = |database_editor: Arc<DatabaseEditor>| async move {
+      let user_id = user.user_id()?;
+      let (view_pad, view_rev_manager) = make_database_view_revision_pad(view_id, user).await?;
+      return DatabaseViewEditor::from_pad(
         &user_id,
         database_editor.database_view_data.clone(),
         database_editor.cell_data_cache.clone(),
         view_rev_manager,
         view_pad,
       )
-      .await?;
-      database_editor.open_view_editor(view_editor).await;
-      return Ok(database_editor.clone());
-    }
-    // Lock the database_editors
-    let mut editors_by_database_id = self.editors_by_database_id.write().await;
-    let db_pool = self.database_user.db_pool()?;
-    let editor = self.make_database_rev_editor(view_id, db_pool).await?;
-    editors_by_database_id.insert(database_id.to_string(), editor.clone());
-    Ok(editor)
+      .await;
+    };
+
+    let database_editor = self
+      .editors_by_database_id
+      .read()
+      .await
+      .get(database_id)
+      .cloned();
+
+    return match database_editor {
+      None => {
+        let mut editors_by_database_id = self.editors_by_database_id.write().await;
+        let db_pool = self.database_user.db_pool()?;
+        let database_editor = self.make_database_rev_editor(view_id, db_pool).await?;
+        editors_by_database_id.insert(database_id.to_string(), database_editor.clone());
+        Ok(database_editor)
+      },
+      Some(database_editor) => {
+        let is_open = database_editor.is_view_open(view_id).await;
+        if !is_open {
+          let database_view_editor = create_view_editor(database_editor.clone()).await?;
+          database_editor.open_view_editor(database_view_editor).await;
+        }
+
+        Ok(database_editor)
+      },
+    };
   }
 
   #[tracing::instrument(level = "trace", skip(self, pool), err)]

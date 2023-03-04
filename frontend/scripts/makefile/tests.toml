@@ -1,23 +1,23 @@
 
 [tasks.dart_unit_test]
 script = '''
-cargo make --profile test-macos dart_unit_test_impl
+cargo make --profile test-macos run_dart_unit_test
 '''
 script_runner = "@shell"
 
 [tasks.dart_unit_test.windows]
 script = '''
-cargo make --profile test-windows dart_unit_test_impl
+cargo make --profile test-windows run_dart_unit_test
 '''
 script_runner = "@shell"
 
 [tasks.dart_unit_test.linux]
 script = '''
-cargo make --profile test-linux dart_unit_test_impl
+cargo make --profile test-linux run_dart_unit_test
 '''
 script_runner = "@shell"
 
-[tasks.dart_unit_test_impl]
+[tasks.run_dart_unit_test]
 env = { RUST_LOG = "info" }
 dependencies = ["build_test_backend"]
 description = "Run flutter unit tests"
