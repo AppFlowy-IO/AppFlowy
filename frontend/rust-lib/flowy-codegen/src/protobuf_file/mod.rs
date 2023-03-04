@@ -132,7 +132,7 @@ fn generate_ts_protobuf_files(
     };
 
     if result.is_err() {
-      panic!("Generate dart pb file failed with: {}, {:?}", path, result)
+      panic!("Generate ts pb file failed with: {}, {:?}", path, result)
     };
   });
 
