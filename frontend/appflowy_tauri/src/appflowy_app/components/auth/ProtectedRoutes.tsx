@@ -14,25 +14,31 @@ export const ProtectedRoutes = () => {
       if (result.err) {
         throw new Error(result.val.msg);
       }
+
       await new Promise(() =>
         setTimeout(() => {
           setIsLoading(false);
-        }, 1000)
+        }, 1200)
       );
     });
   }, []);
 
   if (isLoading) {
-    return (
-      <div className='flex h-screen w-full flex-col items-center justify-center'>
-        <div className='h-40 w-40 justify-center'>
-          <AppflowyLogo />
-        </div>
-      </div>
-    );
+    // It's better to make a fading effect to disappear the loading page
+    return <StartLoading />;
   } else {
     return <SplashScreen isAuthenticated={currentUser.isAuthenticated} />;
   }
+};
+
+const StartLoading = () => {
+  return (
+    <div className='flex h-screen w-full flex-col items-center justify-center'>
+      <div className='h-40 w-40 justify-center'>
+        <AppflowyLogo />
+      </div>
+    </div>
+  );
 };
 
 const SplashScreen = ({ isAuthenticated }: { isAuthenticated: boolean }) => {

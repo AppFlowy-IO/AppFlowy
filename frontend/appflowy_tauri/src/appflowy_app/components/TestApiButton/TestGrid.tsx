@@ -126,8 +126,10 @@ export const TestCreateSelectOptionInCell = () => {
         );
         await cellController.subscribeChanged({
           onCellChanged: (value) => {
-            const option: SelectOptionCellDataPB = value.unwrap();
-            console.log(option);
+            if (value.some) {
+              const option: SelectOptionCellDataPB = value.unwrap();
+              console.log(option);
+            }
           },
         });
         const backendSvc = new SelectOptionCellBackendService(cellController.cellIdentifier);
