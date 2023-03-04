@@ -11,7 +11,7 @@ export const useAuth = () => {
   const currentUser = useAppSelector((state) => state.currentUser);
   const authBackendService = new AuthBackendService();
 
-  async function checkUser(): Promise<void> {
+  async function checkUser() {
     const result = await UserBackendService.checkUser();
     if (result.ok) {
       const userProfile = result.val;
@@ -32,11 +32,8 @@ export const useAuth = () => {
           workspaceSetting: workspaceSetting,
         })
       );
-      return;
-    } else {
-      Log.error(result.val.msg);
-      throw new Error(result.val.msg);
     }
+    return result;
   }
 
   async function register(email: string, password: string, name: string): Promise<UserProfilePB> {
