@@ -118,7 +118,7 @@ class CellDataNotifier<T> extends ChangeNotifier<T> {
 
   constructor(cellData: Option<T>) {
     super();
-    this._cellData = Some(cellData);
+    this._cellData = cellData;
   }
 
   set cellData(data: Option<T>) {
