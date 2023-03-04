@@ -12,10 +12,6 @@ export interface ICurrentUser {
 }
 
 const initialState: ICurrentUser | null = {
-  id: nanoid(8),
-  displayName: 'Me 😃',
-  email: `${nanoid(4)}@gmail.com`,
-  token: nanoid(8),
   isAuthenticated: false,
 };
 
@@ -23,6 +19,9 @@ export const currentUserSlice = createSlice({
   name: 'currentUser',
   initialState: initialState,
   reducers: {
+    checkUser: (state, action: PayloadAction<ICurrentUser>) => {
+      return action.payload;
+    },
     updateUser: (state, action: PayloadAction<ICurrentUser>) => {
       return action.payload;
     },
