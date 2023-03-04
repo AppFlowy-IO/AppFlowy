@@ -46,9 +46,25 @@ else
    printSuccess "Rust has been detected on your system, so Rust installation has been skipped"
 fi
 
-# Enable the flutter stable channel
 printMessage "Setting up Flutter"
-flutter channel stable
+# Get the current Flutter version
+FLUTTER_VERSION=$(flutter --version | grep -oP 'Flutter \K\S+')
+# Check if the current version is 3.3.10
+if [ "$FLUTTER_VERSION" = "3.3.10" ]; then
+    echo "Flutter version is already 3.3.10"
+else
+    # Get the path to the Flutter SDK
+    FLUTTER_PATH=$(which flutter)
+    FLUTTER_PATH=${FLUTTER_PATH%/bin/flutter}
+
+    # Use git to checkout version 3.3.10 of Flutter
+    cd $FLUTTER_PATH
+    git checkout 3.3.10
+
+    echo "Switched to Flutter version 3.3.10"
+fi
+
+
 
 # Add pub cache and cargo to PATH
 powershell '[Environment]::SetEnvironmentVariable("PATH", $Env:PATH + ";" + $Env:LOCALAPPDATA + "\Pub\Cache\Bin", [EnvironmentVariableTarget]::User)'
