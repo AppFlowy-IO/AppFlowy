@@ -22,25 +22,18 @@ class TableView extends StatefulWidget {
 }
 
 class _TableViewState extends State<TableView> {
-  final Widget columnBorder = Container(
-    height: 100,
-    width: 1,
-    color: Colors.grey,
-  );
-  final Widget cellBorder = Container(
-    height: 1,
-    color: Colors.grey,
-  );
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
         value: widget.data,
         builder: (context, child) {
           return Container(
-            padding: const EdgeInsets.all(8.0),
-            width: 225,
+            padding: const EdgeInsets.all(4.0),
+            //decoration: BoxDecoration(
+            //  border: Border.all(width: 1, color: Colors.red),
+            //),
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: _buildColumns(context),
             ),
           );
@@ -50,27 +43,38 @@ class _TableViewState extends State<TableView> {
   List<Widget> _buildColumns(BuildContext context) {
     var colsLen = context.read<TableData>().colsLen;
     var cols = [];
+
+    final Widget columnBorder = Container(
+      width: 1,
+      height: context.select((TableData td) => td.colsHeight) + 3,
+      color: Colors.grey,
+    );
+
     for (var i = 0; i < colsLen; i++) {
-      cols.add(Container(
-        width: 100,
-        child: Column(children: _buildCells(context, i)),
-      ));
-      if (i != colsLen - 1) {
-        cols.add(columnBorder);
-      }
+      cols.add(
+        SizedBox(
+          width: 80,
+          child: Column(children: _buildColumn(context, i)),
+        ),
+      );
+      cols.add(columnBorder);
     }
 
     return [
       columnBorder,
       ...cols,
-      columnBorder,
     ];
   }
 
-  List<Widget> _buildCells(BuildContext context, int colIdx) {
-    var colLen = context.read<TableData>().colLen;
+  List<Widget> _buildColumn(BuildContext context, int colIdx) {
+    var rowsLen = context.read<TableData>().rowsLen;
     var cells = [];
-    for (var i = 0; i < colLen; i++) {
+    final Widget cellBorder = Container(
+      height: 1,
+      color: Colors.grey,
+    );
+
+    for (var i = 0; i < rowsLen; i++) {
       cells.add(
         flowytable.TableCell(
           colIdx: colIdx,
@@ -79,15 +83,12 @@ class _TableViewState extends State<TableView> {
           editorState: widget.editorState,
         ),
       );
-      if (i != colLen - 1) {
-        cells.add(cellBorder);
-      }
+      cells.add(cellBorder);
     }
 
     return [
       cellBorder,
       ...cells,
-      cellBorder,
     ];
   }
 }

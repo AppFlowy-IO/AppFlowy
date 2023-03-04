@@ -38,19 +38,54 @@ class _TableCellState extends State<TableCell> {
     widget.node.children.add(_textNode);
     _textNode.parent = widget.node;
 
+    context.read<TableData>().setNode(widget.colIdx, widget.rowIdx, _textNode);
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      child: widget.editorState.service.renderPluginService.buildPluginWidget(
-        NodeWidgetContext<TextNode>(
-          context: context,
-          node: _textNode,
-          editorState: widget.editorState,
-        ),
+    return Container(
+      constraints: BoxConstraints(
+        minHeight:
+            context.select((TableData td) => td.getRowHeight(widget.rowIdx)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          widget.editorState.service.renderPluginService.buildPluginWidget(
+            NodeWidgetContext<TextNode>(
+              context: context,
+              node: _textNode,
+              editorState: widget.editorState,
+            ),
+            afterNodeBuildCB,
+          )
+        ],
       ),
     );
+
+    /*return NotificationListener<SizeChangedLayoutNotification>(
+      onNotification: (SizeChangedLayoutNotification notification) {
+        print('BBBBBBBBBBBBBBB ${context.size}');
+        return true;
+      },
+      child: SizeChangedLayoutNotifier(
+        child: widget.editorState.service.renderPluginService.buildPluginWidget(
+          NodeWidgetContext<TextNode>(
+            context: context,
+            node: _textNode,
+            editorState: widget.editorState,
+          ),
+        ),
+      ),
+    );*/
+  }
+
+  Future<void> afterNodeBuildCB() async {
+    if (!mounted) {
+      return;
+    }
+    context.read<TableData>().notifyNodeUpdate(widget.colIdx, widget.rowIdx);
   }
 }

@@ -1,10 +1,18 @@
 import 'package:flutter/foundation.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'dart:math';
+
+import 'package:flutter/material.dart';
 
 typedef CellData = Map<String, Object>;
 typedef ColumnData = List<CellData>;
+typedef ColumnNode = List<TextNode>;
 
 class TableData extends ChangeNotifier {
-  late List<ColumnData> cells = [];
+  List<ColumnData> cells = [];
+  List<ColumnNode> cellNodes = [];
+
+  List<double> rowsHeight = [];
 
   // TODO(zoli): assertions: e.g that each column and row have equal cells
   TableData(List<List<String>> data) {
@@ -16,6 +24,8 @@ class TableData extends ChangeNotifier {
               ]
             }))
         .toList()));
+
+    fill();
   }
 
   TableData.fromJson(Map<String, dynamic> json) {
@@ -23,6 +33,14 @@ class TableData extends ChangeNotifier {
     if (jData != null) {
       cells.addAll(jData.map(
           (col) => ColumnData.from(col.map((cell) => CellData.from(cell)))));
+    }
+
+    fill();
+  }
+
+  fill() {
+    for (var i = 0; i < rowsLen; i++) {
+      rowsHeight.add(40);
     }
   }
 
@@ -37,10 +55,37 @@ class TableData extends ChangeNotifier {
     return map;
   }
 
-  CellData getCell(int col, int row) => cells[col][row];
+  CellData getCell(int col, row) => cells[col][row];
 
-  setCell(int col, int row, CellData val) => cells[col][row] = val;
+  setCell(int col, row, CellData val) => cells[col][row] = val;
+  setNode(int col, row, TextNode val) {
+    if (cellNodes.length <= col) {
+      cellNodes.add([val]);
+    } else {
+      cellNodes[col].add(val);
+    }
+  }
 
   get colsLen => cells.length;
-  get colLen => cells[0].length;
+  get rowsLen => cells[0].length;
+
+  double getRowHeight(int row) => rowsHeight[row];
+  get colsHeight => rowsHeight.fold<double>(0, (prev, cur) => prev + cur);
+
+  notifyNodeUpdate(int col, row) {
+    var node = cellNodes[col][row], height = node.context?.size?.height ?? 0.0;
+    if (rowsHeight.length <= col) {
+      rowsHeight.add(height);
+      notifyListeners();
+    } else {
+      double maxHeight = cellNodes
+          .map<double>((col) => col[row].context?.size?.height ?? 0.0)
+          .reduce(max);
+
+      if (rowsHeight[row] != maxHeight) {
+        rowsHeight[row] = maxHeight;
+        notifyListeners();
+      }
+    }
+  }
 }
