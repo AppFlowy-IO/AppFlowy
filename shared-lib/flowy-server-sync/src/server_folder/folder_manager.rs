@@ -251,12 +251,9 @@ impl FolderCommandRunner {
       .expect("FolderCommandRunner's receiver should only take one time");
 
     let stream = stream! {
-        loop {
-            match receiver.recv().await {
-                Some(msg) => yield msg,
-                None => break,
-            }
-        }
+      while let Some(msg) = receiver.recv().await {
+        yield msg;
+      }
     };
     stream.for_each(|msg| self.handle_message(msg)).await;
   }

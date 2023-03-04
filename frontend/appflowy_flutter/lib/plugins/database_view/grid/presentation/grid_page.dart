@@ -35,11 +35,11 @@ class GridPage extends StatefulWidget {
     required this.view,
     this.onDeleted,
     Key? key,
-  })  : gridController = DatabaseController(view: view),
+  })  : databaseController = DatabaseController(view: view),
         super(key: key);
 
   final ViewPB view;
-  final DatabaseController gridController;
+  final DatabaseController databaseController;
   final VoidCallback? onDeleted;
 
   @override
@@ -54,19 +54,19 @@ class _GridPageState extends State<GridPage> {
         BlocProvider<GridBloc>(
           create: (context) => GridBloc(
             view: widget.view,
-            gridController: widget.gridController,
+            databaseController: widget.databaseController,
           )..add(const GridEvent.initial()),
         ),
         BlocProvider<GridFilterMenuBloc>(
           create: (context) => GridFilterMenuBloc(
             viewId: widget.view.id,
-            fieldController: widget.gridController.fieldController,
+            fieldController: widget.databaseController.fieldController,
           )..add(const GridFilterMenuEvent.initial()),
         ),
         BlocProvider<SortMenuBloc>(
           create: (context) => SortMenuBloc(
             viewId: widget.view.id,
-            fieldController: widget.gridController.fieldController,
+            fieldController: widget.databaseController.fieldController,
           )..add(const SortMenuEvent.initial()),
         ),
         BlocProvider<DatabaseSettingBloc>(
@@ -190,7 +190,7 @@ class _FlowyGridState extends State<FlowyGrid> {
 
   Widget _gridHeader(BuildContext context, String viewId) {
     final fieldController =
-        context.read<GridBloc>().gridController.fieldController;
+        context.read<GridBloc>().databaseController.fieldController;
     return GridHeaderSliverAdaptor(
       viewId: viewId,
       fieldController: fieldController,
@@ -274,10 +274,9 @@ class _GridRowsState extends State<_GridRows> {
     if (rowCache == null) return const SizedBox();
 
     final fieldController =
-        context.read<GridBloc>().gridController.fieldController;
+        context.read<GridBloc>().databaseController.fieldController;
     final dataController = RowDataController(
       rowInfo: rowInfo,
-      fieldController: fieldController,
       rowCache: rowCache,
     );
 
@@ -286,7 +285,7 @@ class _GridRowsState extends State<_GridRows> {
       child: GridRowWidget(
         rowInfo: rowInfo,
         dataController: dataController,
-        cellBuilder: GridCellBuilder(delegate: dataController),
+        cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
         openDetailPage: (context, cellBuilder) {
           _openRowDetailPage(
             context,
@@ -310,7 +309,6 @@ class _GridRowsState extends State<_GridRows> {
   ) {
     final dataController = RowDataController(
       rowInfo: rowInfo,
-      fieldController: fieldController,
       rowCache: rowCache,
     );
 

@@ -1,4 +1,5 @@
-import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database_view/application/cell/cell_controller.dart';
+import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
@@ -105,11 +106,9 @@ class BoardTestContext {
   ) async {
     final RowInfo rowInfo = rowInfos.last;
     final rowCache = _boardDataController.rowCache;
-    final fieldController = _boardDataController.fieldController;
 
     final rowDataController = RowDataController(
       rowInfo: rowInfo,
-      fieldController: fieldController,
       rowCache: rowCache,
     );
 
@@ -122,7 +121,6 @@ class BoardTestContext {
     return CellControllerBuilder(
       cellId: rowBloc.state.cellByFieldId[fieldId]!,
       cellCache: rowCache.cellCache,
-      delegate: rowDataController,
     );
   }
 

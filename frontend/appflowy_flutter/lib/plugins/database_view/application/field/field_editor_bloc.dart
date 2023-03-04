@@ -10,7 +10,7 @@ import 'type_option/type_option_data_controller.dart';
 part 'field_editor_bloc.freezed.dart';
 
 class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
-  final TypeOptionDataController dataController;
+  final TypeOptionController dataController;
 
   FieldEditorBloc({
     required String viewId,
@@ -18,7 +18,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
     required bool isGroupField,
     required IFieldTypeOptionLoader loader,
   })  : dataController =
-            TypeOptionDataController(viewId: viewId, loader: loader),
+            TypeOptionController(viewId: viewId, loader: loader),
         super(FieldEditorState.initial(viewId, fieldName, isGroupField)) {
     on<FieldEditorEvent>(
       (event, emit) async {

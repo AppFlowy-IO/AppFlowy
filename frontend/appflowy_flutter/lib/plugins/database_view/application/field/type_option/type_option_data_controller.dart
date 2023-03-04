@@ -9,25 +9,25 @@ import 'package:appflowy_backend/log.dart';
 import '../field_service.dart';
 import 'type_option_context.dart';
 
-class TypeOptionDataController {
+class TypeOptionController {
   final String viewId;
+  late TypeOptionPB _typeOption;
   final IFieldTypeOptionLoader loader;
-  late TypeOptionPB _typeOptiondata;
   final PublishNotifier<FieldPB> _fieldNotifier = PublishNotifier();
 
-  /// Returns a [TypeOptionDataController] used to modify the specified
+  /// Returns a [TypeOptionController] used to modify the specified
   /// [FieldPB]'s data
   ///
   /// Should call [loadTypeOptionData] if the passed-in [FieldInfo]
   /// is null
   ///
-  TypeOptionDataController({
+  TypeOptionController({
     required this.viewId,
     required this.loader,
     FieldInfo? fieldInfo,
   }) {
     if (fieldInfo != null) {
-      _typeOptiondata = TypeOptionPB.create()
+      _typeOption = TypeOptionPB.create()
         ..viewId = viewId
         ..field_2 = fieldInfo.field;
     }
@@ -38,7 +38,7 @@ class TypeOptionDataController {
     return result.fold(
       (data) {
         data.freeze();
-        _typeOptiondata = data;
+        _typeOption = data;
         _fieldNotifier.value = data.field_2;
         return left(data);
       },
@@ -50,28 +50,28 @@ class TypeOptionDataController {
   }
 
   FieldPB get field {
-    return _typeOptiondata.field_2;
+    return _typeOption.field_2;
   }
 
   T getTypeOption<T>(TypeOptionParser<T> parser) {
-    return parser.fromBuffer(_typeOptiondata.typeOptionData);
+    return parser.fromBuffer(_typeOption.typeOptionData);
   }
 
   set fieldName(String name) {
-    _typeOptiondata = _typeOptiondata.rebuild((rebuildData) {
+    _typeOption = _typeOption.rebuild((rebuildData) {
       rebuildData.field_2 = rebuildData.field_2.rebuild((rebuildField) {
         rebuildField.name = name;
       });
     });
 
-    _fieldNotifier.value = _typeOptiondata.field_2;
+    _fieldNotifier.value = _typeOption.field_2;
 
     FieldBackendService(viewId: viewId, fieldId: field.id)
         .updateField(name: name);
   }
 
   set typeOptionData(List<int> typeOptionData) {
-    _typeOptiondata = _typeOptiondata.rebuild((rebuildData) {
+    _typeOption = _typeOption.rebuild((rebuildData) {
       if (typeOptionData.isNotEmpty) {
         rebuildData.typeOptionData = typeOptionData;
       }

@@ -107,7 +107,7 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
 
   #[cfg(feature = "profiling")]
   filters.push(format!("runtime={}", level));
-  filters.push(format!("tokio=trace,runtime=trace"));
+
   filters.join(",")
 }
 

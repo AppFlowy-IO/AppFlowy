@@ -13,7 +13,7 @@ type Callbacks<T> = { onCellChanged: (value: Option<T>) => void; onFieldChanged?
 
 export class CellController<T, D> {
   private fieldBackendService: FieldBackendService;
-  private cellDataNotifier: CellDataNotifier<Option<T>>;
+  private cellDataNotifier: CellDataNotifier<T>;
   private cellObserver: CellObserver;
   private readonly cacheKey: CellCacheKey;
   private readonly fieldNotifier: DatabaseFieldObserver;
@@ -59,7 +59,7 @@ export class CellController<T, D> {
     this.subscribeCallbacks = callbacks;
     this.cellDataNotifier.observer.subscribe((cellData) => {
       if (cellData !== null) {
-        callbacks.onCellChanged(cellData);
+        callbacks.onCellChanged(Some(cellData));
       }
     });
   };
@@ -95,8 +95,11 @@ export class CellController<T, D> {
   private _loadCellData = () => {
     return this.cellDataLoader.loadData().then((result) => {
       if (result.ok) {
-        this.cellCache.insert(this.cacheKey, result.val);
-        this.cellDataNotifier.cellData = Some(result.val);
+        const cellData = result.val;
+        if (cellData.some) {
+          this.cellCache.insert(this.cacheKey, cellData.val);
+          this.cellDataNotifier.cellData = cellData;
+        }
       } else {
         this.cellCache.remove(this.cacheKey);
         this.cellDataNotifier.cellData = None;
@@ -110,10 +113,10 @@ export class CellController<T, D> {
   };
 }
 
-class CellDataNotifier<T> extends ChangeNotifier<T | null> {
+class CellDataNotifier<T> extends ChangeNotifier<T> {
   _cellData: Option<T>;
 
-  constructor(cellData: T) {
+  constructor(cellData: Option<T>) {
     super();
     this._cellData = Some(cellData);
   }

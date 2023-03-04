@@ -1,3 +1,4 @@
+#![allow(clippy::while_let_loop)]
 use crate::entities::{
   AlterFilterParams, AlterSortParams, CreateRowParams, DatabaseViewSettingPB, DeleteFilterParams,
   DeleteGroupParams, DeleteSortParams, InsertGroupParams, MoveGroupParams, RepeatedGroupPB, RowPB,
@@ -60,17 +61,18 @@ impl DatabaseViews {
   }
 
   pub async fn close(&self, view_id: &str) {
-    if let Ok(mut view_editors) = self.view_editors.try_write() {
-      if let Some(view_editor) = view_editors.remove(view_id) {
-        view_editor.close().await;
-      }
-    } else {
-      tracing::error!("Try to get the lock of view_editors failed");
+    if let Some(view_editor) = self.view_editors.write().await.remove(view_id) {
+      view_editor.close().await;
+
     }
   }
 
   pub async fn number_of_views(&self) -> usize {
     self.view_editors.read().await.values().len()
+  }
+
+  pub async fn is_view_exist(&self, view_id: &str) -> bool {
+    self.view_editors.read().await.get(view_id).is_some()
   }
 
   pub async fn subscribe_view_changed(

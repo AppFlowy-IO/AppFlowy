@@ -534,8 +534,8 @@ pub(crate) async fn get_groups_handler(
 ) -> DataResult<RepeatedGroupPB, FlowyError> {
   let params: DatabaseViewIdPB = data.into_inner();
   let editor = manager.get_database_editor(&params.value).await?;
-  let group = editor.load_groups(&params.value).await?;
-  data_result_ok(group)
+  let groups = editor.load_groups(&params.value).await?;
+  data_result_ok(groups)
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]

@@ -1,5 +1,6 @@
 import { nanoid } from '@reduxjs/toolkit';
 import {
+  UserEventCheckUser,
   UserEventGetUserProfile,
   UserEventSignIn,
   UserEventSignOut,
@@ -27,6 +28,10 @@ export class UserBackendService {
 
   getUserProfile = () => {
     return UserEventGetUserProfile();
+  };
+
+  static checkUser = () => {
+    return UserEventCheckUser();
   };
 
   updateUserProfile = (params: { name?: string; password?: string; email?: string; openAIKey?: string }) => {

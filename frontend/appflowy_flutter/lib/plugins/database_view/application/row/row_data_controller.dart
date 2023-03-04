@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
-import '../../grid/presentation/widgets/cell/cell_builder.dart';
-import '../cell/cell_field_notifier.dart';
 import '../cell/cell_service.dart';
-import '../field/field_controller.dart';
 import 'row_cache.dart';
 
 typedef OnRowChanged = void Function(CellByFieldId, RowsChangedReason);
 
-class RowDataController extends GridCellBuilderDelegate {
+class RowDataController {
   final RowInfo rowInfo;
   final List<VoidCallback> _onRowChangedListeners = [];
-  final FieldController _fieldController;
   final RowCache _rowCache;
+
+  get cellCache => _rowCache.cellCache;
 
   RowDataController({
     required this.rowInfo,
-    required FieldController fieldController,
     required RowCache rowCache,
-  })  : _fieldController = fieldController,
-        _rowCache = rowCache;
+  }) : _rowCache = rowCache;
 
   CellByFieldId loadData() {
     return _rowCache.loadGridCells(rowInfo.rowPB.id);
@@ -36,14 +32,4 @@ class RowDataController extends GridCellBuilderDelegate {
       _rowCache.removeRowListener(fn);
     }
   }
-
-  // GridCellBuilderDelegate implementation
-  @override
-  CellFieldNotifier buildFieldNotifier() {
-    return CellFieldNotifier(
-        notifier: GridCellFieldNotifierImpl(_fieldController));
-  }
-
-  @override
-  CellCache get cellCache => _rowCache.cellCache;
 }
