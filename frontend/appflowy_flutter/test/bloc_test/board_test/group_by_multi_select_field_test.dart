@@ -1,6 +1,6 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/setting/group_bloc.dart';
-// import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/cell/select_option_editor_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -37,15 +37,15 @@ void main() {
     await boardResponseFuture();
 
     //assert only have the 'No status' group
-    // final boardBloc = BoardBloc(view: context.gridView)
-    //   ..add(const BoardEvent.initial());
-    // await boardResponseFuture();
-    // assert(boardBloc.groupControllers.values.length == 1,
-    //     "Expected 1, but receive ${boardBloc.groupControllers.values.length}");
-    // final expectedGroupName = "No ${multiSelectField.name}";
-    // assert(
-    //     boardBloc.groupControllers.values.first.group.desc == expectedGroupName,
-    //     "Expected $expectedGroupName, but receive ${boardBloc.groupControllers.values.first.group.desc}");
+    final boardBloc = BoardBloc(view: context.gridView)
+      ..add(const BoardEvent.initial());
+    await boardResponseFuture();
+    assert(boardBloc.groupControllers.values.length == 1,
+        "Expected 1, but receive ${boardBloc.groupControllers.values.length}");
+    final expectedGroupName = "No ${multiSelectField.name}";
+    assert(
+        boardBloc.groupControllers.values.first.group.desc == expectedGroupName,
+        "Expected $expectedGroupName, but receive ${boardBloc.groupControllers.values.first.group.desc}");
   });
 
   test('group by multi select with no options test', () async {
@@ -84,16 +84,16 @@ void main() {
     await boardResponseFuture();
 
     // assert there are only three group
-    // final boardBloc = BoardBloc(view: context.gridView)
-    //   ..add(const BoardEvent.initial());
-    // await boardResponseFuture();
-    // assert(boardBloc.groupControllers.values.length == 3,
-    //     "Expected 3, but receive ${boardBloc.groupControllers.values.length}");
+    final boardBloc = BoardBloc(view: context.gridView)
+      ..add(const BoardEvent.initial());
+    await boardResponseFuture();
+    assert(boardBloc.groupControllers.values.length == 3,
+        "Expected 3, but receive ${boardBloc.groupControllers.values.length}");
 
-    // final groups =
-    //     boardBloc.groupControllers.values.map((e) => e.group).toList();
-    // assert(groups[0].desc == "No ${multiSelectField.name}");
-    // assert(groups[1].desc == "B");
-    // assert(groups[2].desc == "A");
+    final groups =
+        boardBloc.groupControllers.values.map((e) => e.group).toList();
+    assert(groups[0].desc == "No ${multiSelectField.name}");
+    assert(groups[1].desc == "B");
+    assert(groups[2].desc == "A");
   });
 }

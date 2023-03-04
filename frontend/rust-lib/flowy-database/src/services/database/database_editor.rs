@@ -131,6 +131,9 @@ impl DatabaseEditor {
     self.database_views.number_of_views().await
   }
 
+  pub async fn is_view_open(&self, view_id: &str) -> bool {
+    self.database_views.is_view_exist(view_id).await
+  }
   /// Save the type-option data to disk and send a `DatabaseNotification::DidUpdateField` notification
   /// to dart side.
   ///
