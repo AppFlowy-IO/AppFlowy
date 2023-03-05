@@ -26,7 +26,7 @@ export const TestAPI = () => {
   return (
     <React.Fragment>
       <ul className='m-6, space-y-2'>
-        {/*<TestApiButton></TestApiButton>*/}
+        {/*<tests></tests>*/}
         <RunAllGridTests></RunAllGridTests>
         <TestCreateGrid></TestCreateGrid>
         <TestCreateRow></TestCreateRow>
