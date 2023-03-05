@@ -12,7 +12,7 @@ export const useLogin = () => {
   const currentUser = useAppSelector((state) => state.currentUser);
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [authError, setAuthError] = useState(false);
+  const [authErrorMessage, setAuthErrorMessage] = useState('');
 
   function onTogglePassword() {
     setShowPassword(!showPassword);
@@ -20,12 +20,12 @@ export const useLogin = () => {
 
   // reset error
   function _setEmail(v: string) {
-    setAuthError(false);
+    setAuthErrorMessage('');
     setEmail(v);
   }
 
   function _setPassword(v: string) {
-    setAuthError(false);
+    setAuthErrorMessage('');
     setPassword(v);
   }
 
@@ -43,8 +43,8 @@ export const useLogin = () => {
         })
       );
       navigate('/');
-    } catch (e) {
-      setAuthError(true);
+    } catch (e: any) {
+      setAuthErrorMessage(e.message);
     }
   }
 
@@ -56,6 +56,6 @@ export const useLogin = () => {
     setEmail: _setEmail,
     password,
     setPassword: _setPassword,
-    authError,
+    authErrorMessage,
   };
 };

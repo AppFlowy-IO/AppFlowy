@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { LanguageSelectPopup } from '../../_shared/LanguageSelectPopup';
 
 export const Login = () => {
-  const { showPassword, onTogglePassword, onSignInClick, email, setEmail, password, setPassword, authError } =
+  const { showPassword, onTogglePassword, onSignInClick, email, setEmail, password, setPassword, authErrorMessage } =
     useLogin();
   const { t } = useTranslation('');
   const [showLanguagePopup, setShowLanguagePopup] = useState(false);
@@ -32,7 +32,7 @@ export const Login = () => {
           <div className='flex w-full max-w-[340px]  flex-col gap-6 '>
             <input
               type='text'
-              className={`input w-full ${authError && 'error'}`}
+              className={`input w-full ${authErrorMessage && 'error'}`}
               placeholder={t('signIn.emailHint') || ''}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -40,7 +40,7 @@ export const Login = () => {
             <div className='relative w-full'>
               <input
                 type={showPassword ? 'text' : 'password'}
-                className={`input w-full  !pr-10 ${authError && 'error'}`}
+                className={`input w-full  !pr-10 ${authErrorMessage && 'error'}`}
                 placeholder={t('signIn.passwordHint') || ''}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -54,6 +54,11 @@ export const Login = () => {
               >
                 <span className='h-6 w-6'>{showPassword ? <EyeClosed /> : <EyeOpened />}</span>
               </button>
+            </div>
+
+            {/* Error div */}
+            <div className='inline-block min-h-[25px]'>
+              <span className='text-xs text-red-500'>{authErrorMessage}</span>
             </div>
 
             <div className='flex justify-center'>
