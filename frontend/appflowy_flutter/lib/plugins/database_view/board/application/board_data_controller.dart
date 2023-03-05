@@ -21,7 +21,7 @@ typedef OnResetGroups = void Function(List<GroupPB>);
 
 class BoardDataController {
   final String viewId;
-  final DatabaseBackendService _databaseFFIService;
+  final DatabaseBackendService _databaseSvc;
   final FieldController fieldController;
   final BoardListener _listener;
   late DatabaseViewCache _viewCache;
@@ -38,7 +38,7 @@ class BoardDataController {
   BoardDataController({required ViewPB view})
       : viewId = view.id,
         _listener = BoardListener(view.id),
-        _databaseFFIService = DatabaseBackendService(viewId: view.id),
+        _databaseSvc = DatabaseBackendService(viewId: view.id),
         fieldController = FieldController(viewId: view.id) {
     //
     _viewCache = DatabaseViewCache(
@@ -100,7 +100,7 @@ class BoardDataController {
   }
 
   Future<Either<Unit, FlowyError>> openGrid() async {
-    final result = await _databaseFFIService.openGrid();
+    final result = await _databaseSvc.openGrid();
     return result.fold(
       (grid) async {
         _onDatabaseChanged?.call(grid);
@@ -121,17 +121,17 @@ class BoardDataController {
 
   Future<Either<RowPB, FlowyError>> createBoardCard(String groupId,
       {String? startRowId}) {
-    return _databaseFFIService.createBoardCard(groupId, startRowId);
+    return _databaseSvc.createBoardCard(groupId, startRowId);
   }
 
   Future<void> dispose() async {
     await _viewCache.dispose();
-    await _databaseFFIService.closeView();
+    await _databaseSvc.closeView();
     await fieldController.dispose();
   }
 
   Future<void> _loadGroups() async {
-    final result = await _databaseFFIService.loadGroups();
+    final result = await _databaseSvc.loadGroups();
     return Future(
       () => result.fold(
         (groups) {

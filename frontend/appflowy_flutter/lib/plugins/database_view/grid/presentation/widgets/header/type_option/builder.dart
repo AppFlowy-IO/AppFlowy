@@ -48,7 +48,7 @@ abstract class TypeOptionWidgetBuilder {
 
 Widget? makeTypeOptionWidget({
   required BuildContext context,
-  required TypeOptionDataController dataController,
+  required TypeOptionController dataController,
   required PopoverMutex popoverMutex,
 }) {
   final builder = makeTypeOptionWidgetBuilder(
@@ -59,7 +59,7 @@ Widget? makeTypeOptionWidget({
 }
 
 TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
-  required TypeOptionDataController dataController,
+  required TypeOptionController dataController,
   required PopoverMutex popoverMutex,
 }) {
   final viewId = dataController.viewId;
@@ -144,7 +144,7 @@ TypeOptionContext<T> makeTypeOptionContext<T extends GeneratedMessage>({
   required FieldInfo fieldInfo,
 }) {
   final loader = FieldTypeOptionLoader(viewId: viewId, field: fieldInfo.field);
-  final dataController = TypeOptionDataController(
+  final dataController = TypeOptionController(
     viewId: viewId,
     loader: loader,
     fieldInfo: fieldInfo,
@@ -178,7 +178,7 @@ TypeOptionContext<T> makeSelectTypeOptionContext<T extends GeneratedMessage>({
     viewId: viewId,
     field: fieldPB,
   );
-  final dataController = TypeOptionDataController(
+  final dataController = TypeOptionController(
     viewId: viewId,
     loader: loader,
   );
@@ -194,7 +194,7 @@ TypeOptionContext<T>
     makeTypeOptionContextWithDataController<T extends GeneratedMessage>({
   required String viewId,
   required FieldType fieldType,
-  required TypeOptionDataController dataController,
+  required TypeOptionController dataController,
 }) {
   switch (fieldType) {
     case FieldType.Checkbox:

@@ -42,11 +42,13 @@ class _SmartEditWidgetState extends State<_SmartEditWidget> {
           .toList(),
       buildChild: (controller) {
         return FlowyIconButton(
+          hoverColor: Colors.transparent,
           tooltipText: 'Smart Edit',
           preferBelow: false,
           icon: const Icon(
-            Icons.edit,
-            size: 14,
+            Icons.lightbulb_outline,
+            size: 13,
+            color: Colors.white,
           ),
           onPressed: () {
             controller.show();
@@ -55,39 +57,44 @@ class _SmartEditWidgetState extends State<_SmartEditWidget> {
       },
       onSelected: (action, controller) {
         controller.close();
-        final selection =
-            widget.editorState.service.selectionService.currentSelection.value;
-        if (selection == null) {
-          return;
-        }
-        final textNodes = widget
-            .editorState.service.selectionService.currentSelectedNodes
-            .whereType<TextNode>()
-            .toList(growable: false);
-        final input = widget.editorState.getTextInSelection(
-          textNodes.normalized,
-          selection.normalized,
-        );
-        final transaction = widget.editorState.transaction;
-        transaction.insertNode(
-          selection.normalized.end.path.next,
-          Node(
-            type: kSmartEditType,
-            attributes: {
-              kSmartEditInstructionType: action.inner.toInstruction,
-              kSmartEditInputType: input,
-            },
-          ),
-        );
-        widget.editorState.apply(
-          transaction,
-          options: const ApplyOptions(
-            recordUndo: false,
-            recordRedo: false,
-          ),
-          withUpdateCursor: false,
-        );
+        _insertSmartEditNode(action);
       },
+    );
+  }
+
+  Future<void> _insertSmartEditNode(
+      SmartEditActionWrapper actionWrapper) async {
+    final selection =
+        widget.editorState.service.selectionService.currentSelection.value;
+    if (selection == null) {
+      return;
+    }
+    final textNodes = widget
+        .editorState.service.selectionService.currentSelectedNodes
+        .whereType<TextNode>()
+        .toList(growable: false);
+    final input = widget.editorState.getTextInSelection(
+      textNodes.normalized,
+      selection.normalized,
+    );
+    final transaction = widget.editorState.transaction;
+    transaction.insertNode(
+      selection.normalized.end.path.next,
+      Node(
+        type: kSmartEditType,
+        attributes: {
+          kSmartEditInstructionType: actionWrapper.inner.toInstruction,
+          kSmartEditInputType: input,
+        },
+      ),
+    );
+    return widget.editorState.apply(
+      transaction,
+      options: const ApplyOptions(
+        recordUndo: false,
+        recordRedo: false,
+      ),
+      withUpdateCursor: false,
     );
   }
 }

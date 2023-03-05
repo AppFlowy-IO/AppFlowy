@@ -44,7 +44,7 @@ void main() {
     );
     await gridResponseFuture();
 
-    assert(context.fieldController.filterInfos.isEmpty);
+    expect(context.fieldController.filterInfos.length, 0);
   });
 
   test('filter rows with condition: text is empty', () async {
@@ -53,7 +53,7 @@ void main() {
     final gridController = DatabaseController(view: context.gridView);
     final gridBloc = GridBloc(
       view: context.gridView,
-      gridController: gridController,
+      databaseController: gridController,
     )..add(const GridEvent.initial());
     await gridResponseFuture();
 
@@ -64,7 +64,7 @@ void main() {
         content: "");
     await gridResponseFuture();
 
-    assert(gridBloc.state.rowInfos.length == 3);
+    expect(gridBloc.state.rowInfos.length, 3);
   });
 
   test('filter rows with condition: text is empty(After edit the row)',
@@ -74,7 +74,7 @@ void main() {
     final gridController = DatabaseController(view: context.gridView);
     final gridBloc = GridBloc(
       view: context.gridView,
-      gridController: gridController,
+      databaseController: gridController,
     )..add(const GridEvent.initial());
     await gridResponseFuture();
 
@@ -115,7 +115,7 @@ void main() {
     final gridController = DatabaseController(view: context.gridView);
     final gridBloc = GridBloc(
       view: context.gridView,
-      gridController: gridController,
+      databaseController: gridController,
     )..add(const GridEvent.initial());
 
     await gridResponseFuture();
@@ -134,7 +134,7 @@ void main() {
     final gridController = DatabaseController(view: context.gridView);
     final gridBloc = GridBloc(
       view: context.gridView,
-      gridController: gridController,
+      databaseController: gridController,
     )..add(const GridEvent.initial());
 
     await gridResponseFuture();

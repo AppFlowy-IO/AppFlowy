@@ -32,6 +32,7 @@ class AppFlowyEditor extends StatefulWidget {
     this.toolbarItems = const [],
     this.editable = true,
     this.autoFocus = false,
+    this.focusedSelection,
     this.customActionMenuBuilder,
     ThemeData? themeData,
   }) : super(key: key) {
@@ -60,6 +61,7 @@ class AppFlowyEditor extends StatefulWidget {
 
   /// Set the value to true to focus the editor on the start of the document.
   final bool autoFocus;
+  final Selection? focusedSelection;
 
   final Positioned Function(BuildContext context, List<ActionMenuItem> items)?
       customActionMenuBuilder;
@@ -89,7 +91,8 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       if (widget.editable && widget.autoFocus) {
         editorState.service.selectionService.updateSelection(
-          Selection.single(path: [0], startOffset: 0),
+          widget.focusedSelection ??
+              Selection.single(path: [0], startOffset: 0),
         );
       }
     });

@@ -1,6 +1,6 @@
 import { useAppSelector } from '../../stores/store';
 
-export const Workspace = () => {
+export const WorkspaceUser = () => {
   const currentUser = useAppSelector((state) => state.currentUser);
 
   return (

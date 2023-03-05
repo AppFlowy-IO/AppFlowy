@@ -59,12 +59,18 @@ extension CommandExtension on EditorState {
     List<String> res = [];
     if (!selection.isCollapsed) {
       for (var i = 0; i < textNodes.length; i++) {
+        final plainText = textNodes[i].toPlainText();
         if (i == 0) {
-          res.add(textNodes[i].toPlainText().substring(selection.startIndex));
+          res.add(
+            plainText.substring(
+              selection.startIndex,
+              plainText.length,
+            ),
+          );
         } else if (i == textNodes.length - 1) {
-          res.add(textNodes[i].toPlainText().substring(0, selection.endIndex));
+          res.add(plainText.substring(0, selection.endIndex));
         } else {
-          res.add(textNodes[i].toPlainText());
+          res.add(plainText);
         }
       }
     }

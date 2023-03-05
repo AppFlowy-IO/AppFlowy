@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,12 +10,12 @@ part 'checklist_cell_bloc.freezed.dart';
 
 class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
   final ChecklistCellController cellController;
-  final SelectOptionFFIService _selectOptionService;
+  final SelectOptionBackendService _selectOptionSvc;
   void Function()? _onCellChangedFn;
   ChecklistCellBloc({
     required this.cellController,
-  })  : _selectOptionService =
-            SelectOptionFFIService(cellId: cellController.cellId),
+  })  : _selectOptionSvc =
+            SelectOptionBackendService(cellId: cellController.cellId),
         super(ChecklistCellState.initial(cellController)) {
     on<ChecklistCellEvent>(
       (event, emit) async {
@@ -60,7 +60,7 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
   }
 
   void _loadOptions() {
-    _selectOptionService.getOptionContext().then((result) {
+    _selectOptionSvc.getCellData().then((result) {
       if (isClosed) return;
 
       return result.fold(

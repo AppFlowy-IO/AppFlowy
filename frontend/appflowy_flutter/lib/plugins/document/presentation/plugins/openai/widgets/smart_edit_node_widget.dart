@@ -254,6 +254,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
       final edits = await openAIRepository.getEdits(
         input: input,
         instruction: instruction,
+        n: input.split('\n').length,
       );
       return edits.fold((error) async {
         return dartz.Left(

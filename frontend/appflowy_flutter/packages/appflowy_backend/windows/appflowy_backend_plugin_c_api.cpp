@@ -5,8 +5,9 @@
 #include "appflowy_flutter_backend_plugin.h"
 
 void AppFlowyBackendPluginCApiRegisterWithRegistrar(
-    FlutterDesktopPluginRegistrarRef registrar) {
-  appflowy_backend::AppFlowyBackendPlugin::RegisterWithRegistrar(
-      flutter::PluginRegistrarManager::GetInstance()
-          ->GetRegistrar<flutter::PluginRegistrarWindows>(registrar));
+    FlutterDesktopPluginRegistrarRef registrar)
+{
+    appflowy_backend::AppFlowyBackendPlugin::RegisterWithRegistrar(
+        flutter::PluginRegistrarManager::GetInstance()
+            ->GetRegistrar<flutter::PluginRegistrarWindows>(registrar));
 }

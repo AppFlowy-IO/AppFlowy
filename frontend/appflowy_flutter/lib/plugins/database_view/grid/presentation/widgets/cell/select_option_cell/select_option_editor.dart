@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/grid/application/cell/select_option_editor_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -15,7 +16,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 
-import '../../../../../application/cell/cell_service.dart';
 import '../../../layout/sizes.dart';
 import '../../common/type_option_separator.dart';
 import '../../header/type_option/select_option_editor.dart';
