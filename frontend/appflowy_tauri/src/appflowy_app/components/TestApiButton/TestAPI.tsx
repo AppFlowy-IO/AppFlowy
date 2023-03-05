@@ -12,7 +12,14 @@ import {
   TestSwitchFromMultiSelectToText,
   TestSwitchFromSingleSelectToNumber,
 } from './TestGrid';
-import { TestCreateKanbanBoard, TestCreateKanbanBoardRowInNoStatusGroup } from './TestGroup';
+import {
+  TestCreateKanbanBoard,
+  TestCreateKanbanBoardColumn,
+  TestCreateKanbanBoardRowInNoStatusGroup,
+  TestKanbanAllTests,
+  TestMoveKanbanBoardColumn,
+  TestMoveKanbanBoardRow,
+} from './TestGroup';
 
 export const TestAPI = () => {
   return (
@@ -30,8 +37,13 @@ export const TestAPI = () => {
         <TestDeleteField></TestDeleteField>
         <TestSwitchFromSingleSelectToNumber></TestSwitchFromSingleSelectToNumber>
         <TestSwitchFromMultiSelectToText></TestSwitchFromMultiSelectToText>
+        {/*kanban board */}
+        <TestKanbanAllTests></TestKanbanAllTests>
         <TestCreateKanbanBoard></TestCreateKanbanBoard>
         <TestCreateKanbanBoardRowInNoStatusGroup></TestCreateKanbanBoardRowInNoStatusGroup>
+        <TestMoveKanbanBoardRow></TestMoveKanbanBoardRow>
+        <TestMoveKanbanBoardColumn></TestMoveKanbanBoardColumn>
+        <TestCreateKanbanBoardColumn></TestCreateKanbanBoardColumn>
       </ul>
     </React.Fragment>
   );

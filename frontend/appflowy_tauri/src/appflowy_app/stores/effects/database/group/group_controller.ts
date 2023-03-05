@@ -23,9 +23,25 @@ export class DatabaseGroupController {
   private dataObserver: GroupDataObserver;
   private callbacks?: GroupDataCallbacks;
 
-  constructor(public readonly group: GroupPB, private databaseBackendSvc: DatabaseBackendService) {
+  constructor(private group: GroupPB, private databaseBackendSvc: DatabaseBackendService) {
     this.dataObserver = new GroupDataObserver(group.group_id);
   }
+
+  get groupId() {
+    return this.group.group_id;
+  }
+
+  get rows() {
+    return this.group.rows;
+  }
+
+  get name() {
+    return this.group.desc;
+  }
+
+  updateGroup = (group: GroupPB) => {
+    this.group = group;
+  };
 
   rowAtIndex = (index: number): Option<RowPB> => {
     if (this.group.rows.length < index) {
@@ -41,7 +57,7 @@ export class DatabaseGroupController {
           const changeset = result.val;
           // Delete
           changeset.deleted_rows.forEach((deletedRowId) => {
-            this.group.rows = this.group.rows.filter((row) => row.id === deletedRowId);
+            this.group.rows = this.group.rows.filter((row) => row.id !== deletedRowId);
             this.callbacks?.onRemoveRow(this.group.group_id, deletedRowId);
           });
 

@@ -6,6 +6,8 @@ import { RowChangedReason, RowInfo } from './row/row_cache';
 import { Err } from 'ts-results';
 import { DatabaseGroupController } from './group/group_controller';
 import { BehaviorSubject } from 'rxjs';
+import { DatabaseGroupObserver } from './group/group_observer';
+import { Log } from '../../../utils/log';
 
 export type DatabaseSubscriberCallbacks = {
   onViewChanged?: (data: DatabasePB) => void;
@@ -26,12 +28,14 @@ export class DatabaseController {
   databaseViewCache: DatabaseViewCache;
   private _callback?: DatabaseSubscriberCallbacks;
   public groups: BehaviorSubject<DatabaseGroupController[]>;
+  private groupsObserver: DatabaseGroupObserver;
 
   constructor(public readonly viewId: string) {
     this.backendService = new DatabaseBackendService(viewId);
     this.fieldController = new FieldController(viewId);
     this.databaseViewCache = new DatabaseViewCache(viewId, this.fieldController);
     this.groups = new BehaviorSubject<DatabaseGroupController[]>([]);
+    this.groupsObserver = new DatabaseGroupObserver(viewId);
   }
 
   subscribe = (callbacks: DatabaseSubscriberCallbacks) => {
@@ -48,25 +52,35 @@ export class DatabaseController {
     const openDatabaseResult = await this.backendService.openDatabase();
     if (openDatabaseResult.ok) {
       const database: DatabasePB = openDatabaseResult.val;
-      this._callback?.onViewChanged?.(database);
-
-      // listeners
       await this.databaseViewCache.initialize();
       await this.fieldController.initialize();
+
+      // subscriptions
+      await this.subscribeOnGroupsChanged();
 
       // load database initial data
       await this.fieldController.loadFields(database.fields);
       const loadGroupResult = await this.loadGroup();
 
       this.databaseViewCache.initializeWithRows(database.rows);
+
+      this._callback?.onViewChanged?.(database);
       return loadGroupResult;
     } else {
       return Err(openDatabaseResult.val);
     }
   };
 
-  createRow = async () => {
+  createRow = () => {
     return this.backendService.createRow();
+  };
+
+  moveRow = (rowId: string, groupId: string) => {
+    return this.backendService.moveRow(rowId, groupId);
+  };
+
+  moveGroup = (fromGroupId: string, toGroupId: string) => {
+    return this.backendService.moveGroup(fromGroupId, toGroupId);
   };
 
   private loadGroup = async () => {
@@ -74,7 +88,6 @@ export class DatabaseController {
     if (result.ok) {
       const groups = result.val.items;
       await this.initialGroups(groups);
-      this._callback?.onGroupByField?.(groups);
     }
     return result;
   };
@@ -91,6 +104,45 @@ export class DatabaseController {
       controllers.push(controller);
     }
     this.groups.next(controllers);
+    this.groups.value;
+  };
+
+  private subscribeOnGroupsChanged = async () => {
+    await this.groupsObserver.subscribe({
+      onGroupBy: async (result) => {
+        if (result.ok) {
+          await this.initialGroups(result.val);
+        }
+      },
+      onGroupChangeset: (result) => {
+        if (result.err) {
+          Log.error(result.val);
+          return;
+        }
+        const changeset = result.val;
+        let existControllers = [...this.groups.getValue()];
+        for (const deleteId of changeset.deleted_groups) {
+          existControllers = existControllers.filter((c) => c.groupId !== deleteId);
+        }
+
+        for (const update of changeset.update_groups) {
+          const index = existControllers.findIndex((c) => c.groupId === update.group_id);
+          if (index !== -1) {
+            existControllers[index].updateGroup(update);
+          }
+        }
+
+        for (const insert of changeset.inserted_groups) {
+          const controller = new DatabaseGroupController(insert.group, this.backendService);
+          if (insert.index > existControllers.length) {
+            existControllers.push(controller);
+          } else {
+            existControllers.splice(insert.index, 0, controller);
+          }
+        }
+        this.groups.next(existControllers);
+      },
+    });
   };
 
   dispose = async () => {
