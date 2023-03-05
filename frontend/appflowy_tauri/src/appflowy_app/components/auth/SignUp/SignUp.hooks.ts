@@ -15,25 +15,25 @@ export const useSignUp = () => {
   const currentUser = useAppSelector((state) => state.currentUser);
   const navigate = useNavigate();
   const { register } = useAuth();
-  const [authError, setAuthError] = useState(false);
+  const [authErrorMessage, setAuthErrorMessage] = useState('');
 
   const setEmail = (v: string) => {
-    setAuthError(false);
+    setAuthErrorMessage('');
     _setEmail(v);
   };
 
   const setDisplayName = (v: string) => {
-    setAuthError(false);
+    setAuthErrorMessage('');
     _setDisplayName(v);
   };
 
   const setPassword = (v: string) => {
-    setAuthError(false);
+    setAuthErrorMessage('');
     _setPassword(v);
   };
 
   const setRepeatedPassword = (v: string) => {
-    setAuthError(false);
+    setAuthErrorMessage('');
     _setRepeatedPassword(v);
   };
 
@@ -59,8 +59,8 @@ export const useSignUp = () => {
         })
       );
       navigate('/');
-    } catch (e) {
-      setAuthError(true);
+    } catch (e: any) {
+      setAuthErrorMessage(e.message);
     }
   }
 
@@ -78,6 +78,6 @@ export const useSignUp = () => {
     showConfirmPassword,
     onToggleConfirmPassword,
     onSignUpClick,
-    authError,
+    authErrorMessage,
   };
 };

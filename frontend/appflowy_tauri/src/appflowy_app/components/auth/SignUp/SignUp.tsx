@@ -25,7 +25,7 @@ export const SignUp = () => {
     setPassword,
     repeatedPassword,
     setRepeatedPassword,
-    authError,
+    authErrorMessage,
   } = useSignUp();
   const { t } = useTranslation('');
   const [showLanguagePopup, setShowLanguagePopup] = useState(false);
@@ -44,7 +44,7 @@ export const SignUp = () => {
         <div className='flex w-full max-w-[340px]  flex-col gap-6'>
           <input
             type='text'
-            className={`input w-full ${authError && 'error'}`}
+            className={`input w-full ${authErrorMessage && 'error'}`}
             placeholder={t('signUp.emailHint') || ''}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -52,7 +52,7 @@ export const SignUp = () => {
           {/* new user should enter his name, need translation for this field */}
           <input
             type='text'
-            className={`input w-full ${authError && 'error'}`}
+            className={`input w-full ${authErrorMessage && 'error'}`}
             placeholder='Name'
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
@@ -60,7 +60,7 @@ export const SignUp = () => {
           <div className='relative w-full'>
             <input
               type={showPassword ? 'text' : 'password'}
-              className={`input w-full !pr-10 ${authError && 'error'}`}
+              className={`input w-full !pr-10 ${authErrorMessage && 'error'}`}
               placeholder={t('signUp.passwordHint') || ''}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -78,7 +78,7 @@ export const SignUp = () => {
           <div className='relative w-full'>
             <input
               type={showConfirmPassword ? 'text' : 'password'}
-              className={`input w-full !pr-10 ${authError && 'error'}`}
+              className={`input w-full !pr-10 ${authErrorMessage && 'error'}`}
               placeholder={t('signUp.repeatPasswordHint') || ''}
               value={repeatedPassword}
               onChange={(e) => setRepeatedPassword(e.target.value)}
@@ -92,6 +92,11 @@ export const SignUp = () => {
               <span className='h-6 w-6'>{showConfirmPassword ? <EyeClosed /> : <EyeOpened />}</span>
             </button>
           </div>
+        </div>
+
+        {/* Error div */}
+        <div className='inline-block min-h-[25px]'>
+          <span className='text-xs text-red-500'>{authErrorMessage}</span>
         </div>
 
         <div className='flex w-full max-w-[340px] flex-col gap-6 '>

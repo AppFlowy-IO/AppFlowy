@@ -1,18 +1,19 @@
-import { nanoid } from 'nanoid';
-import { FieldType } from '../../../../services/backend/models/flowy-database/field_entities';
-import { gridActions } from '../../../stores/reducers/grid/slice';
+import { FieldType } from '../../../../services/backend';
+import { databaseActions } from '../../../stores/reducers/database/slice';
+
 import { useAppDispatch, useAppSelector } from '../../../stores/store';
 
-export const useGridTableHeaderHooks = function () {
+export const GridTableHeaderHooks = () => {
   const dispatch = useAppDispatch();
-  const grid = useAppSelector((state) => state.grid);
+
+  const database = useAppSelector((state) => state.database);
 
   const onAddField = () => {
     dispatch(
-      gridActions.addField({
+      databaseActions.addField({
         field: {
-          fieldId: nanoid(8),
-          name: 'Name',
+          fieldId: `field${database.columns.length + 1}`,
+          title: 'Name',
           fieldOptions: {},
           fieldType: FieldType.RichText,
         },
@@ -21,7 +22,6 @@ export const useGridTableHeaderHooks = function () {
   };
 
   return {
-    fields: grid.fields,
     onAddField,
   };
 };

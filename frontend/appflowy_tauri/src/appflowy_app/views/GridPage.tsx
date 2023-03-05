@@ -1,14 +1,14 @@
-import { GridAddView } from '../components/grid/GridAddView/GridAddView';
 import { GridTableCount } from '../components/grid/GridTableCount/GridTableCount';
-import { GridTableHeader } from '../components/grid/GridTableHeader/GridTableHeader';
-import { GridAddRow } from '../components/grid/GridTableRows/GridAddRow';
-import { GridTableRows } from '../components/grid/GridTableRows/GridTableRows';
+
+import { GridAddRow } from '../components/grid/GridAddRow/GridAddRow';
+
 import { GridTitle } from '../components/grid/GridTitle/GridTitle';
-import { SearchInput } from '../components/_shared/SearchInput';
+
 import { GridToolbar } from '../components/grid/GridToolbar/GridToolbar';
 import { useParams } from 'react-router-dom';
 import { useGrid } from './GridPage.hooks';
 import { useEffect } from 'react';
+import { GridTable } from '../components/grid/GridTable/GridTable';
 
 export const GridPage = () => {
   const params = useParams();
@@ -31,10 +31,7 @@ export const GridPage = () => {
 
       {/* table component view with text area for td */}
       <div className='flex flex-col gap-4'>
-        <table className='w-full table-fixed text-sm'>
-          <GridTableHeader />
-          <GridTableRows />
-        </table>
+        <GridTable />
 
         <GridAddRow />
       </div>

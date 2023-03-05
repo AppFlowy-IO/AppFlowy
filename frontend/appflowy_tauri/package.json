@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.2",
+    "@tanstack/react-table": "^8.7.9",
     "@tauri-apps/api": "^1.2.0",
     "google-protobuf": "^3.21.2",
     "i18next": "^22.4.10",
@@ -23,6 +24,7 @@
     "nanoid": "^4.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-error-boundary": "^3.1.4",
     "react-i18next": "^12.2.0",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.8.0",

@@ -25,7 +25,7 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
 
   const appBackendService = new AppBackendService(folder.id);
   const workspaceBackendService = new WorkspaceBackendService(workspace.id || '');
-  const error = useError();
+  // const error = useError();
   useEffect(() => {
     if (showPages) {
       setFolderHeight(`${initialFolderHeight + pages.length * initialPageHeight}px`);
@@ -55,12 +55,12 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
   };
 
   const changeFolderTitle = async (newTitle: string) => {
-    try {
-      await appBackendService.update({ name: newTitle });
-      appDispatch(foldersActions.renameFolder({ id: folder.id, newTitle }));
-    } catch (e: any) {
-      error.showError(e?.message);
-    }
+    // try {
+    await appBackendService.update({ name: newTitle });
+    appDispatch(foldersActions.renameFolder({ id: folder.id, newTitle }));
+    // } catch (e: any) {
+    //   error.showError(e?.message);
+    // }
   };
 
   const closeRenamePopup = () => {
@@ -69,24 +69,24 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
 
   const deleteFolder = async () => {
     closePopup();
-    try {
-      await appBackendService.delete();
-      appDispatch(foldersActions.deleteFolder({ id: folder.id }));
-    } catch (e: any) {
-      error.showError(e?.message);
-    }
+    // try {
+    await appBackendService.delete();
+    appDispatch(foldersActions.deleteFolder({ id: folder.id }));
+    // } catch (e: any) {
+    //   error.showError(e?.message);
+    // }
   };
 
   const duplicateFolder = async () => {
     closePopup();
-    try {
-      const newApp = await workspaceBackendService.createApp({
-        name: folder.title,
-      });
-      appDispatch(foldersActions.addFolder({ id: newApp.id, title: folder.title }));
-    } catch (e: any) {
-      error.showError(e?.message);
-    }
+    // try {
+    const newApp = await workspaceBackendService.createApp({
+      name: folder.title,
+    });
+    appDispatch(foldersActions.addFolder({ id: newApp.id, title: folder.title }));
+    // } catch (e: any) {
+    //   error.showError(e?.message);
+    // }
   };
 
   const closePopup = () => {
@@ -96,65 +96,65 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
 
   const onAddNewDocumentPage = async () => {
     closePopup();
-    try {
-      const newView = await appBackendService.createView({
-        name: 'New Document 1',
-        layoutType: ViewLayoutTypePB.Document,
-      });
+    // try {
+    const newView = await appBackendService.createView({
+      name: 'New Document 1',
+      layoutType: ViewLayoutTypePB.Document,
+    });
 
-      appDispatch(
-        pagesActions.addPage({
-          folderId: folder.id,
-          pageType: ViewLayoutTypePB.Document,
-          title: newView.name,
-          id: newView.id,
-        })
-      );
-    } catch (e: any) {
-      error.showError(e?.message);
-    }
+    appDispatch(
+      pagesActions.addPage({
+        folderId: folder.id,
+        pageType: ViewLayoutTypePB.Document,
+        title: newView.name,
+        id: newView.id,
+      })
+    );
+    // } catch (e: any) {
+    //   error.showError(e?.message);
+    // }
   };
 
   const onAddNewBoardPage = async () => {
     closePopup();
-    try {
-      const newView = await appBackendService.createView({
-        name: 'New Board 1',
-        layoutType: ViewLayoutTypePB.Board,
-      });
+    // try {
+    const newView = await appBackendService.createView({
+      name: 'New Board 1',
+      layoutType: ViewLayoutTypePB.Board,
+    });
 
-      appDispatch(
-        pagesActions.addPage({
-          folderId: folder.id,
-          pageType: ViewLayoutTypePB.Board,
-          title: newView.name,
-          id: newView.id,
-        })
-      );
-    } catch (e: any) {
-      error.showError(e?.message);
-    }
+    appDispatch(
+      pagesActions.addPage({
+        folderId: folder.id,
+        pageType: ViewLayoutTypePB.Board,
+        title: newView.name,
+        id: newView.id,
+      })
+    );
+    // } catch (e: any) {
+    //   error.showError(e?.message);
+    // }
   };
 
   const onAddNewGridPage = async () => {
     closePopup();
-    try {
-      const newView = await appBackendService.createView({
-        name: 'New Grid 1',
-        layoutType: ViewLayoutTypePB.Grid,
-      });
+    // try {
+    const newView = await appBackendService.createView({
+      name: 'New Grid 1',
+      layoutType: ViewLayoutTypePB.Grid,
+    });
 
-      appDispatch(
-        pagesActions.addPage({
-          folderId: folder.id,
-          pageType: ViewLayoutTypePB.Grid,
-          title: newView.name,
-          id: newView.id,
-        })
-      );
-    } catch (e: any) {
-      error.showError(e?.message);
-    }
+    appDispatch(
+      pagesActions.addPage({
+        folderId: folder.id,
+        pageType: ViewLayoutTypePB.Grid,
+        title: newView.name,
+        id: newView.id,
+      })
+    );
+    // } catch (e: any) {
+    //   error.showError(e?.message);
+    // }
   };
 
   return {

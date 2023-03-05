@@ -1,5 +1,4 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
-
 import { TestColors } from './components/TestColors/TestColors';
 import { Provider } from 'react-redux';
 import { store } from './stores/store';
@@ -14,6 +13,7 @@ import { ErrorHandlerPage } from './components/error/ErrorHandlerPage';
 import initializeI18n from './stores/i18n/initializeI18n';
 import { TestAPI } from './components/TestApiButton/TestAPI';
 import { GetStarted } from './components/auth/GetStarted/GetStarted';
+import { ErrorBoundary } from 'react-error-boundary';
 
 initializeI18n();
 
@@ -21,20 +21,21 @@ const App = () => {
   return (
     <BrowserRouter>
       <Provider store={store}>
-        <Routes>
-          <Route path={'/'} element={<ProtectedRoutes />}>
-            <Route path={'/page/colors'} element={<TestColors />} />
-            <Route path={'/page/api-test'} element={<TestAPI />} />
-            <Route path={'/page/document/:id'} element={<DocumentPage />} />
-            <Route path={'/page/board/:id'} element={<BoardPage />} />
-            <Route path={'/page/grid/:id'} element={<GridPage />} />
-          </Route>
-          <Route path={'/auth/login'} element={<LoginPage />}></Route>
-          <Route path={'/auth/getStarted'} element={<GetStarted />}></Route>
-          <Route path={'/auth/signUp'} element={<SignUpPage />}></Route>
-          <Route path={'/auth/confirm-account'} element={<ConfirmAccountPage />}></Route>
-        </Routes>
-        <ErrorHandlerPage></ErrorHandlerPage>
+        <ErrorBoundary FallbackComponent={ErrorHandlerPage}>
+          <Routes>
+            <Route path={'/'} element={<ProtectedRoutes />}>
+              <Route path={'/page/colors'} element={<TestColors />} />
+              <Route path={'/page/api-test'} element={<TestAPI />} />
+              <Route path={'/page/document/:id'} element={<DocumentPage />} />
+              <Route path={'/page/board/:id'} element={<BoardPage />} />
+              <Route path={'/page/grid/:id'} element={<GridPage />} />
+            </Route>
+            <Route path={'/auth/login'} element={<LoginPage />}></Route>
+            <Route path={'/auth/getStarted'} element={<GetStarted />}></Route>
+            <Route path={'/auth/signUp'} element={<SignUpPage />}></Route>
+            <Route path={'/auth/confirm-account'} element={<ConfirmAccountPage />}></Route>
+          </Routes>
+        </ErrorBoundary>
       </Provider>
     </BrowserRouter>
   );

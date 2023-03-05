@@ -29,6 +29,7 @@ export interface IDatabaseColumn {
   sort: 'none' | 'asc' | 'desc';
   filter?: any;
   visible: boolean;
+  size: number;
 }
 
 export interface ICellData {
@@ -64,21 +65,25 @@ const initialState: IDatabase = {
       visible: true,
       fieldId: 'field1',
       sort: 'none',
+      size: 300,
     },
     {
       visible: true,
       fieldId: 'field2',
       sort: 'none',
+      size: 300,
     },
     {
       visible: true,
       fieldId: 'field3',
       sort: 'none',
+      size: 300,
     },
     {
       visible: true,
       fieldId: 'field4',
       sort: 'none',
+      size: 300,
     },
   ],
   fields: {
@@ -247,6 +252,7 @@ export const databaseSlice = createSlice({
         fieldId: field.fieldId,
         sort: 'none',
         visible: true,
+        size: 300,
       });
       state.rows = state.rows.map<IDatabaseRow>((r: IDatabaseRow) => {
         const cells = r.cells;
@@ -319,6 +325,14 @@ export const databaseSlice = createSlice({
       const row = source.rows.find((r) => r.rowId === cell.rowId);
       if (row) {
         row.cells[cell.fieldId] = cell;
+      }
+    },
+
+    updateColumnSize: (state, action: PayloadAction<{ fieldId: string; size: number }>) => {
+      const { fieldId, size } = action.payload;
+      const column = state.columns.find((c) => c.fieldId === fieldId);
+      if (column) {
+        column.size = size;
       }
     },
   },

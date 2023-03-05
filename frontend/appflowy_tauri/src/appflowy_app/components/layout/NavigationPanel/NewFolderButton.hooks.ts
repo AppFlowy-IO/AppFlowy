@@ -7,17 +7,17 @@ export const useNewFolder = () => {
   const appDispatch = useAppDispatch();
   const workspace = useAppSelector((state) => state.workspace);
   const workspaceBackendService = new WorkspaceBackendService(workspace.id || '');
-  const error = useError();
+  // const error = useError();
 
   const onNewFolder = async () => {
-    try {
-      const newApp = await workspaceBackendService.createApp({
-        name: 'New Folder 1',
-      });
-      appDispatch(foldersActions.addFolder({ id: newApp.id, title: newApp.name }));
-    } catch (e: any) {
-      error.showError(e?.message);
-    }
+    // try {
+    const newApp = await workspaceBackendService.createApp({
+      name: 'New Folder 1',
+    });
+    appDispatch(foldersActions.addFolder({ id: newApp.id, title: newApp.name }));
+    // } catch (e: any) {
+    //   error.showError(e?.message);
+    // }
   };
 
   return {
