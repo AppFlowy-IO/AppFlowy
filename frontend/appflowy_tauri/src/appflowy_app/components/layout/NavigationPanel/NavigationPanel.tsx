@@ -15,7 +15,6 @@ const ANIMATION_DURATION = 300;
 export const NavigationPanel = ({
   onHideMenuClick,
   menuHidden,
-  onCollapseNavigationClick,
   width,
   folders,
   pages,
@@ -23,7 +22,6 @@ export const NavigationPanel = ({
 }: {
   onHideMenuClick: () => void;
   menuHidden: boolean;
-  onCollapseNavigationClick: () => void;
   width: number;
   folders: IFolder[];
   pages: IPage[];
