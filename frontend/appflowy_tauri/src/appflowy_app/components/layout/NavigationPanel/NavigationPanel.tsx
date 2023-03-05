@@ -29,7 +29,7 @@ export const NavigationPanel = ({
 
           <Workspace></Workspace>
 
-          <div className={'flex flex-col px-2'}>
+          <div className={'flex flex-col px-2 overflow-auto'} style={{height: 'calc(100vh - 280px)'}}>
             {folders.map((folder, index) => (
               <FolderItem
                 key={index}
