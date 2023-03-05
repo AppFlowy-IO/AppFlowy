@@ -23,6 +23,9 @@ pub struct DateTypeOptionPB {
 
   #[pb(index = 2)]
   pub time_format: TimeFormat,
+
+  #[pb(index = 3)]
+  pub include_time: bool,
 }
 impl_type_option!(DateTypeOptionPB, FieldType::DateTime);
 

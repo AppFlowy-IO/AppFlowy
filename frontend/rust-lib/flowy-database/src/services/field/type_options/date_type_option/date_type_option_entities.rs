@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::entities::CellIdPB;
 use crate::services::cell::{
   CellProtobufBlobParser, DecodedCellData, FromCellChangesetString, FromCellString,
@@ -6,6 +8,7 @@ use crate::services::cell::{
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, FlowyResult};
+use serde::de::Visitor;
 use serde::{Deserialize, Serialize};
 use strum_macros::EnumIter;
 
@@ -78,10 +81,75 @@ impl ToCellChangesetString for DateCellChangeset {
   }
 }
 
-#[derive(Default, Clone, Debug, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Serialize)]
 pub struct DateCellData {
   pub timestamp: Option<i64>,
   pub include_time: bool,
+}
+
+impl<'de> serde::Deserialize<'de> for DateCellData {
+  fn deserialize<D>(deserializer: D) -> core::result::Result<Self, D::Error>
+  where
+    D: serde::Deserializer<'de>,
+  {
+    struct DateCellVisitor();
+
+    impl<'de> Visitor<'de> for DateCellVisitor {
+      type Value = DateCellData;
+
+      fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        formatter.write_str(
+          "DateCellData with type: str containing either an integer timestamp or the JSON representation",
+        )
+      }
+
+      fn visit_i64<E>(self, value: i64) -> Result<Self::Value, E>
+      where
+        E: serde::de::Error,
+      {
+        Ok(DateCellData {
+          timestamp: Some(value),
+          include_time: false,
+        })
+      }
+
+      fn visit_u64<E>(self, value: u64) -> Result<Self::Value, E>
+      where
+        E: serde::de::Error,
+      {
+        self.visit_i64(value as i64)
+      }
+
+      fn visit_map<M>(self, mut map: M) -> Result<Self::Value, M::Error>
+      where
+        M: serde::de::MapAccess<'de>,
+      {
+        let mut timestamp: Option<i64> = None;
+        let mut include_time: Option<bool> = None;
+
+        while let Some(key) = map.next_key()? {
+          match key {
+            "timestamp" => {
+              timestamp = map.next_value()?;
+            },
+            "include_time" => {
+              include_time = map.next_value()?;
+            },
+            _ => {},
+          }
+        }
+
+        let include_time = include_time.unwrap_or(false);
+
+        Ok(DateCellData {
+          timestamp,
+          include_time,
+        })
+      }
+    }
+
+    deserializer.deserialize_any(DateCellVisitor())
+  }
 }
 
 impl FromCellString for DateCellData {
