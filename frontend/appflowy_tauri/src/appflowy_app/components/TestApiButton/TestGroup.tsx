@@ -8,7 +8,7 @@ import {
 import { FieldType, ViewLayoutTypePB } from '../../../services/backend';
 import React from 'react';
 
-export const TestKanbanAllTests = () => {
+export const TestAllKanbanTests = () => {
   async function run() {
     await createBuildInBoard();
     await createKanbanBoardRow();
@@ -17,7 +17,15 @@ export const TestKanbanAllTests = () => {
     await createColumnInBoard();
   }
 
-  return TestButton('Run all kanban board tests', run);
+  return (
+    <React.Fragment>
+      <div>
+        <button className='rounded-md bg-red-400 p-4' type='button' onClick={() => run()}>
+          Run all kanban board tests
+        </button>
+      </div>
+    </React.Fragment>
+  );
 };
 
 async function createBuildInBoard() {
