@@ -8,6 +8,8 @@ import { NavigationResizer } from './NavigationResizer';
 import { IFolder } from '../../../stores/reducers/folders/slice';
 import { IPage } from '../../../stores/reducers/pages/slice';
 
+const MINIMUM_WIDTH = 200;
+
 export const NavigationPanel = ({
   onCollapseNavigationClick,
   width,
@@ -29,7 +31,7 @@ export const NavigationPanel = ({
 
           <Workspace></Workspace>
 
-          <div className={'flex flex-col px-2 overflow-auto'} style={{height: 'calc(100vh - 280px)'}}>
+          <div className={'flex flex-col overflow-auto px-2'} style={{ height: 'calc(100vh - 280px)' }}>
             {folders.map((folder, index) => (
               <FolderItem
                 key={index}
@@ -50,7 +52,7 @@ export const NavigationPanel = ({
           <NewFolderButton></NewFolderButton>
         </div>
       </div>
-      <NavigationResizer></NavigationResizer>
+      <NavigationResizer minWidth={MINIMUM_WIDTH}></NavigationResizer>
     </>
   );
 };
