@@ -68,38 +68,14 @@ class GroupController {
 
             if (index != -1) {
               group.rows[index] = updatedRow;
+              delegate.updateRow(group, updatedRow);
             }
-
-            delegate.updateRow(group, updatedRow);
           }
         },
         (err) => Log.error(err),
       );
     });
   }
-
-  // GroupChangesetPB _transformChangeset(GroupChangesetPB changeset) {
-  //   final insertedRows = changeset.insertedRows
-  //       .where(
-  //         (delete) => !changeset.deletedRows.contains(delete.row.id),
-  //       )
-  //       .toList();
-
-  //   final deletedRows = changeset.deletedRows
-  //       .where((deletedRowId) =>
-  //           changeset.insertedRows
-  //               .indexWhere((insert) => insert.row.id == deletedRowId) ==
-  //           -1)
-  //       .toList();
-
-  //   return changeset.rebuild((rebuildChangeset) {
-  //     rebuildChangeset.insertedRows.clear();
-  //     rebuildChangeset.insertedRows.addAll(insertedRows);
-
-  //     rebuildChangeset.deletedRows.clear();
-  //     rebuildChangeset.deletedRows.addAll(deletedRows);
-  //   });
-  // }
 
   Future<void> dispose() async {
     _listener.stop();

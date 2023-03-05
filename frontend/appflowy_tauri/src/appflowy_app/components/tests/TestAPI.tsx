@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  RunAllGridTests,
   TestCreateGrid,
   TestCreateNewField,
   TestCreateRow,
@@ -12,12 +13,21 @@ import {
   TestSwitchFromMultiSelectToText,
   TestSwitchFromSingleSelectToNumber,
 } from './TestGrid';
+import {
+  TestCreateKanbanBoard,
+  TestCreateKanbanBoardColumn,
+  TestCreateKanbanBoardRowInNoStatusGroup,
+  TestAllKanbanTests,
+  TestMoveKanbanBoardColumn,
+  TestMoveKanbanBoardRow,
+} from './TestGroup';
 
 export const TestAPI = () => {
   return (
     <React.Fragment>
       <ul className='m-6, space-y-2'>
-        {/*<TestApiButton></TestApiButton>*/}
+        {/*<tests></tests>*/}
+        <RunAllGridTests></RunAllGridTests>
         <TestCreateGrid></TestCreateGrid>
         <TestCreateRow></TestCreateRow>
         <TestDeleteRow></TestDeleteRow>
@@ -29,6 +39,13 @@ export const TestAPI = () => {
         <TestDeleteField></TestDeleteField>
         <TestSwitchFromSingleSelectToNumber></TestSwitchFromSingleSelectToNumber>
         <TestSwitchFromMultiSelectToText></TestSwitchFromMultiSelectToText>
+        {/*kanban board */}
+        <TestAllKanbanTests></TestAllKanbanTests>
+        <TestCreateKanbanBoard></TestCreateKanbanBoard>
+        <TestCreateKanbanBoardRowInNoStatusGroup></TestCreateKanbanBoardRowInNoStatusGroup>
+        <TestMoveKanbanBoardRow></TestMoveKanbanBoardRow>
+        <TestMoveKanbanBoardColumn></TestMoveKanbanBoardColumn>
+        <TestCreateKanbanBoardColumn></TestCreateKanbanBoardColumn>
       </ul>
     </React.Fragment>
   );

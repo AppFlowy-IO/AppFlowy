@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:appflowy_backend/protobuf/flowy-database/grid_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/database_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 
 import '../grid/presentation/widgets/filter/filter_info.dart';
