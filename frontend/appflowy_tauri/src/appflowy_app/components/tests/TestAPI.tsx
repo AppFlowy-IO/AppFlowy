@@ -21,6 +21,7 @@ import {
   TestMoveKanbanBoardColumn,
   TestMoveKanbanBoardRow,
 } from './TestGroup';
+import { TestCreateDocument } from './TestDocument';
 
 export const TestAPI = () => {
   return (
@@ -46,6 +47,7 @@ export const TestAPI = () => {
         <TestMoveKanbanBoardRow></TestMoveKanbanBoardRow>
         <TestMoveKanbanBoardColumn></TestMoveKanbanBoardColumn>
         <TestCreateKanbanBoardColumn></TestCreateKanbanBoardColumn>
+        <TestCreateDocument></TestCreateDocument>
       </ul>
     </React.Fragment>
   );
