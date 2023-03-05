@@ -12,7 +12,7 @@ export const useLogin = () => {
   const appDispatch = useAppDispatch();
   const currentUser = useAppSelector((state) => state.currentUser);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const [authErrorMessage, setAuthErrorMessage] = useState('');
 
   function onTogglePassword() {
@@ -26,7 +26,7 @@ export const useLogin = () => {
   }
 
   function _setPassword(v: string) {
-    setAuthErrorMessage(false);
+    setAuthErrorMessage('');
     setPassword(v);
   }
 
@@ -46,8 +46,8 @@ export const useLogin = () => {
         })
       );
       navigate('/');
-    } catch (e) {
-      setAuthErrorMessage(true);
+    } catch (e: any) {
+      setAuthErrorMessage(e.message);
     }
   }
 
