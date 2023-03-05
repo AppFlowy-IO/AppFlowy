@@ -73,14 +73,13 @@ class TableData extends ChangeNotifier {
   get colsHeight => rowsHeight.fold<double>(0, (prev, cur) => prev + cur);
 
   notifyNodeUpdate(int col, row) {
-    var node = cellNodes[col][row], height = node.context?.size?.height ?? 0.0;
+    var node = cellNodes[col][row], height = node.rect.height;
     if (rowsHeight.length <= col) {
       rowsHeight.add(height);
       notifyListeners();
     } else {
-      double maxHeight = cellNodes
-          .map<double>((col) => col[row].context?.size?.height ?? 0.0)
-          .reduce(max);
+      double maxHeight =
+          cellNodes.map<double>((col) => col[row].rect.height).reduce(max);
 
       if (rowsHeight[row] != maxHeight) {
         rowsHeight[row] = maxHeight;

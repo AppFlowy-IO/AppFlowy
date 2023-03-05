@@ -45,24 +45,25 @@ class _TableCellState extends State<TableCell> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(
-        minHeight:
-            context.select((TableData td) => td.getRowHeight(widget.rowIdx)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          widget.editorState.service.renderPluginService.buildPluginWidget(
+    return Column(
+      children: [
+        Container(
+          constraints: BoxConstraints(
+            minHeight: context
+                .select((TableData td) => td.getRowHeight(widget.rowIdx)),
+          ),
+          width: double.infinity,
+          child:
+              widget.editorState.service.renderPluginService.buildPluginWidget(
             NodeWidgetContext<TextNode>(
               context: context,
               node: _textNode,
               editorState: widget.editorState,
             ),
             afterNodeBuildCB,
-          )
-        ],
-      ),
+          ),
+        )
+      ],
     );
 
     /*return NotificationListener<SizeChangedLayoutNotification>(
