@@ -28,7 +28,8 @@ class _TableViewState extends State<TableView> {
         value: widget.data,
         builder: (context, child) {
           return Container(
-            padding: const EdgeInsets.all(4.0),
+            padding:
+                const EdgeInsets.only(left: 0, bottom: 8, right: 80, top: 8),
             //decoration: BoxDecoration(
             //  border: Border.all(width: 1, color: Colors.red),
             //),
