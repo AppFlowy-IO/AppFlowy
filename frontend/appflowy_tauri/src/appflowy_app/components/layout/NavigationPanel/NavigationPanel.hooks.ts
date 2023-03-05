@@ -56,13 +56,10 @@ export const useNavigationPanelHooks = function () {
 
   return {
     width,
-
     folders,
     pages,
-
     navigate,
     onPageClick,
-
     onCollapseNavigationClick,
     onFixNavigationClick,
     navigationPanelFixed,
