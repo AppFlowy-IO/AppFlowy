@@ -9,15 +9,18 @@ import { IFolder } from '../../../stores/reducers/folders/slice';
 import { IPage } from '../../../stores/reducers/pages/slice';
 
 const MINIMUM_WIDTH = 200;
+const ANIMATION_DURATION = 300;
 
 export const NavigationPanel = ({
-  onCollapseNavigationClick,
+  onHideMenuClick,
+  menuHidden,
   width,
   folders,
   pages,
   onPageClick,
 }: {
-  onCollapseNavigationClick: () => void;
+  onHideMenuClick: () => void;
+  menuHidden: boolean;
   width: number;
   folders: IFolder[];
   pages: IPage[];
@@ -25,9 +28,16 @@ export const NavigationPanel = ({
 }) => {
   return (
     <>
-      <div className={'flex flex-col justify-between bg-surface-1 text-sm'} style={{ width: `${width}px` }}>
+      <div
+        className={`absolute inset-0 flex flex-col justify-between bg-surface-1 text-sm`}
+        style={{
+          transition: `left ${ANIMATION_DURATION}ms ease-out`,
+          width: `${width}px`,
+          left: `${menuHidden ? -width : 0}px`,
+        }}
+      >
         <div className={'flex flex-col'}>
-          <AppLogo iconToShow={'hide'} onHideMenuClick={onCollapseNavigationClick}></AppLogo>
+          <AppLogo iconToShow={'hide'} onHideMenuClick={onHideMenuClick}></AppLogo>
 
           <Workspace></Workspace>
 

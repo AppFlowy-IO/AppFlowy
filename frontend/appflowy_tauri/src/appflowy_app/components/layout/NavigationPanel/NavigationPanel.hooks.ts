@@ -14,6 +14,7 @@ export const useNavigationPanelHooks = function () {
   const width = useAppSelector((state) => state.navigationWidth);
   const [navigationPanelFixed, setNavigationPanelFixed] = useState(true);
   const [slideInFloatingPanel, setSlideInFloatingPanel] = useState(true);
+  const [menuHidden, setMenuHidden] = useState(false);
 
   const navigate = useNavigate();
 
@@ -27,6 +28,14 @@ export const useNavigationPanelHooks = function () {
   };
 
   const [floatingPanelWidth, setFloatingPanelWidth] = useState(0);
+
+  const onHideMenuClick = () => {
+    setMenuHidden(true);
+  };
+
+  const onShowMenuClick = () => {
+    setMenuHidden(false);
+  };
 
   const onPageClick = (page: IPage) => {
     let pageTypeRoute = (() => {
@@ -69,5 +78,8 @@ export const useNavigationPanelHooks = function () {
     onScreenMouseMove,
     slideInFloatingPanel,
     setFloatingPanelWidth,
+    menuHidden,
+    onHideMenuClick,
+    onShowMenuClick,
   };
 };
