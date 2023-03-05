@@ -168,3 +168,13 @@ export async function assertNumberOfRows(viewId: string, expected: number) {
     throw Error('Expect number of rows:' + expected + 'but receive:' + databasePB.rows.length);
   }
 }
+
+export async function assertNumberOfRowsInGroup(viewId: string, groupId: string, expected: number) {
+  const svc = new DatabaseBackendService(viewId);
+  await svc.openDatabase();
+
+  const group = await svc.getGroup(groupId).then((result) => result.unwrap());
+  if (group.rows.length !== expected) {
+    throw Error('Expect number of rows in group:' + expected + 'but receive:' + group.rows.length);
+  }
+}

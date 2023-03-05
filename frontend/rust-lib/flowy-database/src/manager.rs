@@ -207,14 +207,14 @@ impl DatabaseManager {
     let create_view_editor = |database_editor: Arc<DatabaseEditor>| async move {
       let user_id = user.user_id()?;
       let (view_pad, view_rev_manager) = make_database_view_revision_pad(view_id, user).await?;
-      return DatabaseViewEditor::from_pad(
+      DatabaseViewEditor::from_pad(
         &user_id,
         database_editor.database_view_data.clone(),
         database_editor.cell_data_cache.clone(),
         view_rev_manager,
         view_pad,
       )
-      .await;
+      .await
     };
 
     let database_editor = self
@@ -224,7 +224,7 @@ impl DatabaseManager {
       .get(database_id)
       .cloned();
 
-    return match database_editor {
+    match database_editor {
       None => {
         let mut editors_by_database_id = self.editors_by_database_id.write().await;
         let db_pool = self.database_user.db_pool()?;
@@ -241,7 +241,7 @@ impl DatabaseManager {
 
         Ok(database_editor)
       },
-    };
+    }
   }
 
   #[tracing::instrument(level = "trace", skip(self, pool), err)]

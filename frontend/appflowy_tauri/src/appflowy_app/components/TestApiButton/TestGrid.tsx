@@ -321,7 +321,7 @@ export const TestDeleteField = () => {
   return TestButton('Test delete a new column', testDeleteField);
 };
 
-const TestButton = (title: string, onClick: () => void) => {
+export const TestButton = (title: string, onClick: () => void) => {
   return (
     <React.Fragment>
       <div>

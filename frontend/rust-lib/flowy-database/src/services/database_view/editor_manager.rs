@@ -1,7 +1,8 @@
 #![allow(clippy::while_let_loop)]
 use crate::entities::{
   AlterFilterParams, AlterSortParams, CreateRowParams, DatabaseViewSettingPB, DeleteFilterParams,
-  DeleteGroupParams, DeleteSortParams, InsertGroupParams, MoveGroupParams, RepeatedGroupPB, RowPB,
+  DeleteGroupParams, DeleteSortParams, GroupPB, InsertGroupParams, MoveGroupParams,
+  RepeatedGroupPB, RowPB,
 };
 use crate::manager::DatabaseUser;
 use crate::services::cell::AtomicCellDataCache;
@@ -199,6 +200,11 @@ impl DatabaseViews {
     let view_editor = self.get_view_editor(view_id).await?;
     let groups = view_editor.v_load_groups().await?;
     Ok(RepeatedGroupPB { items: groups })
+  }
+
+  pub async fn get_group(&self, view_id: &str, group_id: &str) -> FlowyResult<GroupPB> {
+    let view_editor = self.get_view_editor(view_id).await?;
+    view_editor.v_get_group(group_id).await
   }
 
   pub async fn insert_or_update_group(&self, params: InsertGroupParams) -> FlowyResult<()> {

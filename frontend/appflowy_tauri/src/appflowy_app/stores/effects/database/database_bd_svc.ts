@@ -1,7 +1,12 @@
 import {
+  CreateBoardCardPayloadPB,
+  DatabaseEventCreateBoardCard,
   DatabaseEventCreateRow,
   DatabaseEventGetDatabase,
   DatabaseEventGetFields,
+  DatabaseEventGetGroup,
+  DatabaseEventGetGroups,
+  DatabaseGroupIdPB,
 } from '../../../../services/backend/events/flowy-database';
 import {
   GetFieldPayloadPB,
@@ -37,6 +42,14 @@ export class DatabaseBackendService {
     return DatabaseEventCreateRow(payload);
   };
 
+  createGroupRow = async (groupId: string, startRowId?: string) => {
+    const payload = CreateBoardCardPayloadPB.fromObject({ view_id: this.viewId, group_id: groupId });
+    if (startRowId !== undefined) {
+      payload.start_row_id = startRowId;
+    }
+    return DatabaseEventCreateBoardCard(payload);
+  };
+
   getFields = async (fieldIds?: FieldIdPB[]) => {
     const payload = GetFieldPayloadPB.fromObject({ view_id: this.viewId });
 
@@ -45,5 +58,15 @@ export class DatabaseBackendService {
     }
 
     return DatabaseEventGetFields(payload).then((result) => result.map((value) => value.items));
+  };
+
+  getGroup = (groupId: string) => {
+    const payload = DatabaseGroupIdPB.fromObject({ view_id: this.viewId, group_id: groupId });
+    return DatabaseEventGetGroup(payload);
+  };
+
+  loadGroups = () => {
+    const payload = DatabaseViewIdPB.fromObject({ value: this.viewId });
+    return DatabaseEventGetGroups(payload);
   };
 }

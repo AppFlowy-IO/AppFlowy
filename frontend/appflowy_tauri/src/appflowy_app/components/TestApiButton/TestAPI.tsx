@@ -12,6 +12,7 @@ import {
   TestSwitchFromMultiSelectToText,
   TestSwitchFromSingleSelectToNumber,
 } from './TestGrid';
+import { TestCreateKanbanBoard, TestCreateKanbanBoardRowInNoStatusGroup } from './TestGroup';
 
 export const TestAPI = () => {
   return (
@@ -29,6 +30,8 @@ export const TestAPI = () => {
         <TestDeleteField></TestDeleteField>
         <TestSwitchFromSingleSelectToNumber></TestSwitchFromSingleSelectToNumber>
         <TestSwitchFromMultiSelectToText></TestSwitchFromMultiSelectToText>
+        <TestCreateKanbanBoard></TestCreateKanbanBoard>
+        <TestCreateKanbanBoardRowInNoStatusGroup></TestCreateKanbanBoardRowInNoStatusGroup>
       </ul>
     </React.Fragment>
   );
