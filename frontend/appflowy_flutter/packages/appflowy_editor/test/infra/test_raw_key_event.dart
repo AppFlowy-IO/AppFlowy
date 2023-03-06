@@ -145,6 +145,9 @@ extension on LogicalKeyboardKey {
     if (this == LogicalKeyboardKey.tilde) {
       return PhysicalKeyboardKey.backquote;
     }
+    if (this == LogicalKeyboardKey.digit8) {
+      return PhysicalKeyboardKey.digit8;
+    }
     throw UnimplementedError();
   }
 }

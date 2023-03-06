@@ -257,4 +257,98 @@ void main() async {
       });
     });
   });
+
+  group('convert double asterisk to bold', () {
+    Future<void> insertAsterisk(
+      EditorWidgetTester editor, {
+      int repeat = 1,
+    }) async {
+      for (var i = 0; i < repeat; i++) {
+        await editor.pressLogicKey(
+          LogicalKeyboardKey.digit8,
+          isShiftPressed: true,
+        );
+      }
+    }
+
+    testWidgets('**AppFlowy** to bold AppFlowy', ((widgetTester) async {
+      const text = '**AppFlowy*';
+      final editor = widgetTester.editor..insertTextNode('');
+
+      await editor.startTesting();
+      await editor.updateSelection(Selection.single(path: [0], startOffset: 0));
+      final textNode = editor.nodeAtPath([0]) as TextNode;
+      for (var i = 0; i < text.length; i++) {
+        await editor.insertText(textNode, text[i], i);
+      }
+
+      await insertAsterisk(editor);
+
+      final allBold = textNode.allSatisfyBoldInSelection(Selection.single(
+          path: [0], startOffset: 0, endOffset: textNode.toPlainText().length));
+
+      expect(allBold, true);
+      expect(textNode.toPlainText(), 'AppFlowy');
+    }));
+
+    testWidgets('App**Flowy** to bold AppFlowy', ((widgetTester) async {
+      const text = 'App**Flowy*';
+      final editor = widgetTester.editor..insertTextNode('');
+
+      await editor.startTesting();
+      await editor.updateSelection(Selection.single(path: [0], startOffset: 0));
+      final textNode = editor.nodeAtPath([0]) as TextNode;
+      for (var i = 0; i < text.length; i++) {
+        await editor.insertText(textNode, text[i], i);
+      }
+
+      await insertAsterisk(editor);
+
+      final allBold = textNode.allSatisfyBoldInSelection(Selection.single(
+          path: [0], startOffset: 3, endOffset: textNode.toPlainText().length));
+
+      expect(allBold, true);
+      expect(textNode.toPlainText(), 'AppFlowy');
+    }));
+
+    testWidgets('***AppFlowy** to bold *AppFlowy', ((widgetTester) async {
+      const text = '***AppFlowy*';
+      final editor = widgetTester.editor..insertTextNode('');
+
+      await editor.startTesting();
+      await editor.updateSelection(Selection.single(path: [0], startOffset: 0));
+      final textNode = editor.nodeAtPath([0]) as TextNode;
+      for (var i = 0; i < text.length; i++) {
+        await editor.insertText(textNode, text[i], i);
+      }
+
+      await insertAsterisk(editor);
+
+      final allBold = textNode.allSatisfyBoldInSelection(Selection.single(
+          path: [0], startOffset: 1, endOffset: textNode.toPlainText().length));
+
+      expect(allBold, true);
+      expect(textNode.toPlainText(), '*AppFlowy');
+    }));
+
+    testWidgets('**** nothing changes', ((widgetTester) async {
+      const text = '***';
+      final editor = widgetTester.editor..insertTextNode('');
+
+      await editor.startTesting();
+      await editor.updateSelection(Selection.single(path: [0], startOffset: 0));
+      final textNode = editor.nodeAtPath([0]) as TextNode;
+      for (var i = 0; i < text.length; i++) {
+        await editor.insertText(textNode, text[i], i);
+      }
+
+      await insertAsterisk(editor);
+
+      final allBold = textNode.allSatisfyBoldInSelection(Selection.single(
+          path: [0], startOffset: 0, endOffset: textNode.toPlainText().length));
+
+      expect(allBold, false);
+      expect(textNode.toPlainText(), text);
+    }));
+  });
 }
