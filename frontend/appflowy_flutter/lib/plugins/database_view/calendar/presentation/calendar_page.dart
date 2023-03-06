@@ -1,4 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -8,29 +10,22 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
 import 'layout/sizes.dart';
 import 'toolbar/calendar_toolbar.dart';
 
-class CalendarPage extends StatelessWidget {
-  const CalendarPage({super.key});
+class CalendarPage extends StatefulWidget {
+  final ViewPB view;
+  const CalendarPage({required this.view, super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const CalendarContent();
-  }
+  State<CalendarPage> createState() => _CalendarPageState();
 }
 
-class CalendarContent extends StatefulWidget {
-  const CalendarContent({super.key});
-
-  @override
-  State<CalendarContent> createState() => _CalendarContentState();
-}
-
-class _CalendarContentState extends State<CalendarContent> {
+class _CalendarPageState extends State<CalendarPage> {
   late EventController _eventController;
   GlobalKey<MonthViewState>? _calendarState;
 
@@ -45,12 +40,25 @@ class _CalendarContentState extends State<CalendarContent> {
   Widget build(BuildContext context) {
     return CalendarControllerProvider(
       controller: _eventController,
-      child: Column(
-        children: [
-          // const _ToolbarBlocAdaptor(),
-          _toolbar(),
-          _buildCalendar(_eventController),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<CalendarBloc>(
+            create: (context) => CalendarBloc(
+              view: widget.view,
+            )..add(const CalendarEvent.initial()),
+          )
         ],
+        child: BlocBuilder<CalendarBloc, CalendarState>(
+          builder: (context, state) {
+            return Column(
+              children: [
+                // const _ToolbarBlocAdaptor(),
+                _toolbar(),
+                _buildCalendar(_eventController),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

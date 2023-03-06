@@ -34,7 +34,7 @@ class CalendarPluginBuilder extends PluginBuilder {
 
 class CalendarPluginConfig implements PluginConfig {
   @override
-  bool get creatable => false;
+  bool get creatable => true;
 }
 
 class CalendarPlugin extends Plugin {
@@ -77,8 +77,7 @@ class CalendarPluginDisplay extends PluginDisplay {
       });
     });
 
-    return CalendarPage(key: ValueKey(view.id));
-    // return CalendarPage(key: ValueKey(view.id), view: view);
+    return CalendarPage(key: ValueKey(view.id), view: view);
   }
 
   @override
