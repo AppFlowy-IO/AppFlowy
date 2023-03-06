@@ -124,7 +124,7 @@ export const TestCreateSelectOptionInCell = () => {
         const cellController = await makeSingleSelectCellController(fieldInfo.field.id, row, databaseController).then(
           (result) => result.unwrap()
         );
-        await cellController.subscribeChanged({
+        cellController.subscribeChanged({
           onCellChanged: (value) => {
             if (value.some) {
               const option: SelectOptionCellDataPB = value.unwrap();

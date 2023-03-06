@@ -8,19 +8,25 @@ export interface ISelectOption {
   color?: SelectOptionColorPB;
 }
 
-export interface IFieldOptions {
-  selectOptions?: ISelectOption[];
-  dateFormat?: DateFormat;
-  timeFormat?: TimeFormat;
-  includeTime?: boolean;
-  numberFormat?: NumberFormat;
+export interface ISelectOptionType {
+  selectOptions: ISelectOption[];
+}
+
+export interface IDateType {
+  dateFormat: DateFormat;
+  timeFormat: TimeFormat;
+  includeTime: boolean;
+}
+
+export interface INumberType {
+  numberFormat: NumberFormat;
 }
 
 export interface IDatabaseField {
   fieldId: string;
   title: string;
   fieldType: FieldType;
-  fieldOptions: IFieldOptions;
+  fieldOptions?: ISelectOptionType | IDateType | INumberType;
 }
 
 export interface IDatabaseColumn {
@@ -29,19 +35,8 @@ export interface IDatabaseColumn {
   visible: boolean;
 }
 
-/*export interface ICellData {
-  rowId: string;
-  fieldId: string;
-  cellId: string;
-  data: string[];
-}*/
-
-// export type DatabaseCellMap = { [keys: string]: ICellData };
-
 export interface IDatabaseRow {
   rowId: string;
-  // key(fieldId) -> value(Cell)
-  // cells: DatabaseCellMap;
 }
 
 export type DatabaseFieldMap = { [keys: string]: IDatabaseField };

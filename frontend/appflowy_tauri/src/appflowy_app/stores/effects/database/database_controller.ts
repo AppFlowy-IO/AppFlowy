@@ -4,7 +4,6 @@ import { DatabaseViewCache } from './view/database_view_cache';
 import { DatabasePB } from '../../../../services/backend';
 import { RowChangedReason, RowInfo } from './row/row_cache';
 import { Err, Ok, Result } from 'ts-results';
-import { FlowyError, RowPB } from '../../../../services/backend';
 
 export type SubscribeCallbacks = {
   onViewChanged?: (data: DatabasePB) => void;
