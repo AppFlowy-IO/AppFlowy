@@ -13,7 +13,7 @@ import '../../application/row/row_cache.dart';
 import '../../application/view/view_cache.dart';
 import 'board_listener.dart';
 
-typedef DidLoadGroups = void Function(List<GroupPB>);
+typedef OnGroupByField = void Function(List<GroupPB>);
 typedef OnUpdatedGroup = void Function(List<GroupPB>);
 typedef OnDeletedGroup = void Function(List<String>);
 typedef OnInsertedGroup = void Function(InsertedGroupPB);
@@ -23,12 +23,12 @@ class BoardDataController {
   final String viewId;
   final DatabaseBackendService _databaseSvc;
   final FieldController fieldController;
-  final BoardListener _listener;
+  final DatabaseGroupListener _listener;
   late DatabaseViewCache _viewCache;
 
   OnFieldsChanged? _onFieldsChanged;
   OnDatabaseChanged? _onDatabaseChanged;
-  DidLoadGroups? _didLoadGroup;
+  OnGroupByField? _onGroupByField;
   OnRowsChanged? _onRowsChanged;
   OnError? _onError;
 
@@ -37,7 +37,7 @@ class BoardDataController {
 
   BoardDataController({required ViewPB view})
       : viewId = view.id,
-        _listener = BoardListener(view.id),
+        _listener = DatabaseGroupListener(view.id),
         _databaseSvc = DatabaseBackendService(viewId: view.id),
         fieldController = FieldController(viewId: view.id) {
     //
@@ -53,17 +53,16 @@ class BoardDataController {
   void addListener({
     required OnDatabaseChanged onDatabaseChanged,
     OnFieldsChanged? onFieldsChanged,
-    required DidLoadGroups didLoadGroups,
+    required OnGroupByField onGroupByField,
     OnRowsChanged? onRowsChanged,
     required OnUpdatedGroup onUpdatedGroup,
     required OnDeletedGroup onDeletedGroup,
     required OnInsertedGroup onInsertedGroup,
-    required OnResetGroups onResetGroups,
     required OnError? onError,
   }) {
     _onDatabaseChanged = onDatabaseChanged;
     _onFieldsChanged = onFieldsChanged;
-    _didLoadGroup = didLoadGroups;
+    _onGroupByField = onGroupByField;
     _onRowsChanged = onRowsChanged;
     _onError = onError;
 
@@ -72,7 +71,7 @@ class BoardDataController {
     });
 
     _listener.start(
-      onBoardChanged: (result) {
+      onNumOfGroupsChanged: (result) {
         result.fold(
           (changeset) {
             if (changeset.updateGroups.isNotEmpty) {
@@ -92,7 +91,7 @@ class BoardDataController {
       },
       onGroupByNewField: (result) {
         result.fold(
-          (groups) => onResetGroups(groups),
+          (groups) => onGroupByField(groups),
           (e) => _onError?.call(e),
         );
       },
@@ -135,7 +134,7 @@ class BoardDataController {
     return Future(
       () => result.fold(
         (groups) {
-          _didLoadGroup?.call(groups.items);
+          _onGroupByField?.call(groups.items);
         },
         (err) => _onError?.call(err),
       ),

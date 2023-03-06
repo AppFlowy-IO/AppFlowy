@@ -214,7 +214,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           add(BoardEvent.didReceiveGridUpdate(grid));
         }
       },
-      didLoadGroups: (groups) {
+      onGroupByField: (groups) {
         if (isClosed) return;
         initializeGroups(groups);
         add(BoardEvent.didReceiveGroups(groups));
@@ -241,12 +241,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       },
       onError: (err) {
         Log.error(err);
-      },
-      onResetGroups: (groups) {
-        if (isClosed) return;
-
-        initializeGroups(groups);
-        add(BoardEvent.didReceiveGroups(groups));
       },
     );
   }

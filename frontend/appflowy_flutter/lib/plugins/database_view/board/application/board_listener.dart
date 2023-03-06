@@ -11,20 +11,20 @@ import 'package:appflowy_backend/protobuf/flowy-database/group_changeset.pb.dart
 typedef GroupUpdateValue = Either<GroupChangesetPB, FlowyError>;
 typedef GroupByNewFieldValue = Either<List<GroupPB>, FlowyError>;
 
-class BoardListener {
+class DatabaseGroupListener {
   final String viewId;
-  PublishNotifier<GroupUpdateValue>? _groupUpdateNotifier = PublishNotifier();
-  PublishNotifier<GroupByNewFieldValue>? _groupByNewFieldNotifier =
+  PublishNotifier<GroupUpdateValue>? _numOfGroupsNotifier = PublishNotifier();
+  PublishNotifier<GroupByNewFieldValue>? _groupByFieldNotifier =
       PublishNotifier();
   DatabaseNotificationListener? _listener;
-  BoardListener(this.viewId);
+  DatabaseGroupListener(this.viewId);
 
   void start({
-    required void Function(GroupUpdateValue) onBoardChanged,
+    required void Function(GroupUpdateValue) onNumOfGroupsChanged,
     required void Function(GroupByNewFieldValue) onGroupByNewField,
   }) {
-    _groupUpdateNotifier?.addPublishListener(onBoardChanged);
-    _groupByNewFieldNotifier?.addPublishListener(onGroupByNewField);
+    _numOfGroupsNotifier?.addPublishListener(onNumOfGroupsChanged);
+    _groupByFieldNotifier?.addPublishListener(onGroupByNewField);
     _listener = DatabaseNotificationListener(
       objectId: viewId,
       handler: _handler,
@@ -38,16 +38,16 @@ class BoardListener {
     switch (ty) {
       case DatabaseNotification.DidUpdateGroups:
         result.fold(
-          (payload) => _groupUpdateNotifier?.value =
+          (payload) => _numOfGroupsNotifier?.value =
               left(GroupChangesetPB.fromBuffer(payload)),
-          (error) => _groupUpdateNotifier?.value = right(error),
+          (error) => _numOfGroupsNotifier?.value = right(error),
         );
         break;
       case DatabaseNotification.DidGroupByField:
         result.fold(
-          (payload) => _groupByNewFieldNotifier?.value =
+          (payload) => _groupByFieldNotifier?.value =
               left(GroupChangesetPB.fromBuffer(payload).initialGroups),
-          (error) => _groupByNewFieldNotifier?.value = right(error),
+          (error) => _groupByFieldNotifier?.value = right(error),
         );
         break;
       default:
@@ -57,10 +57,10 @@ class BoardListener {
 
   Future<void> stop() async {
     await _listener?.stop();
-    _groupUpdateNotifier?.dispose();
-    _groupUpdateNotifier = null;
+    _numOfGroupsNotifier?.dispose();
+    _numOfGroupsNotifier = null;
 
-    _groupByNewFieldNotifier?.dispose();
-    _groupByNewFieldNotifier = null;
+    _groupByFieldNotifier?.dispose();
+    _groupByFieldNotifier = null;
   }
 }
