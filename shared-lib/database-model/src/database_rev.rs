@@ -1,8 +1,9 @@
-use crate::DatabaseBlockRevision;
+use crate::{DatabaseBlockRevision, LayoutSetting};
 use bytes::Bytes;
 use indexmap::IndexMap;
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
+use serde_repr::{Deserialize_repr, Serialize_repr};
 use std::sync::Arc;
 
 pub fn gen_database_id() -> String {
@@ -195,6 +196,7 @@ pub struct BuildDatabaseContext {
   pub field_revs: Vec<Arc<FieldRevision>>,
   pub block_metas: Vec<DatabaseBlockMetaRevision>,
   pub blocks: Vec<DatabaseBlockRevision>,
+  pub layout_setting: LayoutSetting,
 
   // String in JSON format. It can be deserialized into [GridViewRevision]
   pub database_view_data: String,
@@ -223,3 +225,24 @@ impl std::convert::TryFrom<Bytes> for BuildDatabaseContext {
 }
 
 pub type FieldTypeRevision = u8;
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CalendarLayoutSetting {
+  pub layout_ty: CalendarLayout,
+  pub first_day_of_week: i32,
+  pub show_weekends: bool,
+  pub show_week_numbers: bool,
+  pub layout_field_id: String,
+}
+
+#[derive(Debug, Clone, Default, Serialize_repr, Deserialize_repr)]
+#[repr(u8)]
+pub enum CalendarLayout {
+  #[default]
+  MonthLayout = 0,
+  WeekLayout = 1,
+  DayLayout = 2,
+}
+
+pub const DEFAULT_FIRST_DAY_OF_WEEK: i32 = 0;
+pub const DEFAULT_SHOW_WEEKENDS: bool = true;
+pub const DEFAULT_SHOW_WEEK_NUMBERS: bool = true;

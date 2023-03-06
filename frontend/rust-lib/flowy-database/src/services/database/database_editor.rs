@@ -915,6 +915,7 @@ impl DatabaseEditor {
       field_revs: duplicated_fields.into_iter().map(Arc::new).collect(),
       block_metas: duplicated_blocks,
       blocks: blocks_meta_data,
+      layout_setting: Default::default(),
       database_view_data,
     })
   }

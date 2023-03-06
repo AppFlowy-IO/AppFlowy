@@ -670,14 +670,9 @@ impl DatabaseViewEditor {
       LayoutRevision::Grid => {},
       LayoutRevision::Board => {},
       LayoutRevision::Calendar => {
-        layout_setting.calendar = Some(
-          self
-            .pad
-            .read()
-            .await
-            .get_layout_setting(layout_ty)
-            .unwrap_or_default(),
-        );
+        if let Some(calendar) = self.pad.read().await.get_layout_setting(layout_ty) {
+          layout_setting.calendar = Some(calendar);
+        }
       },
     }
 

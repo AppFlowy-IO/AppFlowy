@@ -605,7 +605,7 @@ pub(crate) async fn set_layout_setting_handler(
 ) -> FlowyResult<()> {
   let params: UpdateLayoutSettingParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_editor(params.view_id.as_ref()).await?;
-  let _ = database_editor
+  database_editor
     .set_layout_setting(&params.view_id, params.layout_setting)
     .await?;
   Ok(())

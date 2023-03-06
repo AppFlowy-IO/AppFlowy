@@ -1,4 +1,4 @@
-use crate::entities::{CalendarLayoutSettingsParams, DatabaseViewSettingPB, LayoutSettingPB};
+use crate::entities::{DatabaseViewSettingPB, LayoutSettingPB};
 use crate::services::database_view::{get_cells_for_field, DatabaseViewData};
 use crate::services::field::RowSingleCellData;
 use crate::services::filter::{FilterController, FilterDelegate, FilterType};
@@ -7,8 +7,8 @@ use crate::services::row::DatabaseBlockRowRevision;
 use crate::services::sort::{SortDelegate, SortType};
 use bytes::Bytes;
 use database_model::{
-  FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, LayoutRevision,
-  RowRevision, SortRevision,
+  CalendarLayoutSetting, FieldRevision, FieldTypeRevision, FilterRevision,
+  GroupConfigurationRevision, LayoutRevision, RowRevision, SortRevision,
 };
 use flowy_client_sync::client_database::{DatabaseViewRevisionChangeset, DatabaseViewRevisionPad};
 use flowy_client_sync::make_operations_from_revisions;
@@ -153,7 +153,7 @@ pub fn make_database_view_setting(
     LayoutRevision::Board => {},
     LayoutRevision::Calendar => {
       layout_settings.calendar = view_pad
-        .get_layout_setting::<CalendarLayoutSettingsParams>(&layout_type)
+        .get_layout_setting::<CalendarLayoutSetting>(&layout_type)
         .map(|params| params.into());
     },
   }

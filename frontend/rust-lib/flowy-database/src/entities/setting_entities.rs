@@ -1,12 +1,11 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
   AlterFilterParams, AlterFilterPayloadPB, AlterSortParams, AlterSortPayloadPB,
-  CalendarLayoutSettingsPB, CalendarLayoutSettingsParams, DeleteFilterParams,
-  DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB, DeleteSortParams,
-  DeleteSortPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterPB,
-  RepeatedGroupConfigurationPB, RepeatedSortPB,
+  CalendarLayoutSettingsPB, DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams,
+  DeleteGroupPayloadPB, DeleteSortParams, DeleteSortPayloadPB, InsertGroupParams,
+  InsertGroupPayloadPB, RepeatedFilterPB, RepeatedGroupConfigurationPB, RepeatedSortPB,
 };
-use database_model::LayoutRevision;
+use database_model::{CalendarLayoutSetting, LayoutRevision};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use std::convert::TryInto;
@@ -222,5 +221,5 @@ impl std::convert::From<LayoutSettingPB> for LayoutSettingParams {
 
 #[derive(Debug, Default, Clone)]
 pub struct LayoutSettingParams {
-  pub calendar: Option<CalendarLayoutSettingsParams>,
+  pub calendar: Option<CalendarLayoutSetting>,
 }

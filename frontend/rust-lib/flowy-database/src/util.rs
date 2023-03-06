@@ -1,7 +1,10 @@
 use crate::entities::FieldType;
 use crate::services::field::*;
 use crate::services::row::RowRevisionBuilder;
-use database_model::BuildDatabaseContext;
+use database_model::{
+  BuildDatabaseContext, CalendarLayout, CalendarLayoutSetting, LayoutRevision, LayoutSetting,
+  DEFAULT_FIRST_DAY_OF_WEEK, DEFAULT_SHOW_WEEKENDS, DEFAULT_SHOW_WEEK_NUMBERS,
+};
 use flowy_client_sync::client_database::DatabaseBuilder;
 
 pub fn make_default_grid() -> BuildDatabaseContext {
@@ -100,7 +103,22 @@ pub fn make_default_calendar() -> BuildDatabaseContext {
     .name("Tags")
     .visibility(true)
     .build();
+  let layout_field_id = multi_select_field.id.clone();
   database_builder.add_field(multi_select_field);
+
+  let calendar_layout_setting = CalendarLayoutSetting {
+    layout_ty: CalendarLayout::default(),
+    first_day_of_week: DEFAULT_FIRST_DAY_OF_WEEK,
+    show_weekends: DEFAULT_SHOW_WEEKENDS,
+    show_week_numbers: DEFAULT_SHOW_WEEK_NUMBERS,
+    layout_field_id,
+  };
+
+  let mut layout_setting = LayoutSetting::new();
+  let settings_str = serde_json::to_string(&calendar_layout_setting).unwrap();
+  layout_setting.insert(LayoutRevision::Calendar, settings_str);
+  database_builder.set_layout_setting(layout_setting);
+
   database_builder.build()
 }
 
