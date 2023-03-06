@@ -12,8 +12,9 @@ ShortcutEventHandler backspaceEventHandler = (editorState, event) {
   nodes = selection.isBackward ? nodes : nodes.reversed.toList(growable: false);
   selection = selection.isBackward ? selection : selection.reversed;
   final textNodes = nodes.whereType<TextNode>().toList();
-  final List<Node> nonTextNodes =
-      nodes.where((node) => node is! TextNode).toList(growable: false);
+  final List<Node> nonTextNodes = nodes
+      .where((node) => node is! TextNode && node.selectable != null)
+      .toList(growable: false);
 
   final transaction = editorState.transaction;
   List<int>? cancelNumberListPath;
