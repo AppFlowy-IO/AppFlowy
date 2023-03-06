@@ -18,8 +18,9 @@ use crate::services::sort::{
   DeletedSortType, SortChangeset, SortController, SortTaskHandler, SortType,
 };
 use database_model::{
-  gen_database_filter_id, gen_database_id, gen_database_sort_id, FieldRevision, FieldTypeRevision,
-  FilterRevision, LayoutRevision, RowChangeset, RowRevision, SortRevision,
+  gen_database_filter_id, gen_database_id, gen_database_sort_id, CalendarLayoutSetting,
+  FieldRevision, FieldTypeRevision, FilterRevision, LayoutRevision, RowChangeset, RowRevision,
+  SortRevision,
 };
 use flowy_client_sync::client_database::{
   make_database_view_operations, DatabaseViewRevisionChangeset, DatabaseViewRevisionPad,
@@ -670,8 +671,21 @@ impl DatabaseViewEditor {
       LayoutRevision::Grid => {},
       LayoutRevision::Board => {},
       LayoutRevision::Calendar => {
-        if let Some(calendar) = self.pad.read().await.get_layout_setting(layout_ty) {
-          layout_setting.calendar = Some(calendar);
+        if let Some(calendar) = self
+          .pad
+          .read()
+          .await
+          .get_layout_setting::<CalendarLayoutSetting>(layout_ty)
+        {
+          // Check the field exist or not
+          if let Some(field_rev) = self.delegate.get_field_rev(&calendar.layout_field_id).await {
+            let field_type: FieldType = field_rev.ty.into();
+
+            // Check the type of field is Datetime or not
+            if field_type == FieldType::DateTime {
+              layout_setting.calendar = Some(calendar);
+            }
+          }
         }
       },
     }
@@ -682,10 +696,46 @@ impl DatabaseViewEditor {
   /// Update the calendar settings and send the notification to refresh the UI
   pub async fn v_set_layout_settings(&self, params: LayoutSettingParams) -> FlowyResult<()> {
     // Maybe it needs no send notification to refresh the UI
-    if let Some(calendar_setting) = params.calendar {
-      self
-        .modify(|pad| Ok(pad.update_layout_setting(&LayoutRevision::Calendar, &calendar_setting)?))
-        .await?;
+    if let Some(new_calendar_setting) = params.calendar {
+      if let Some(field_rev) = self
+        .delegate
+        .get_field_rev(&new_calendar_setting.layout_field_id)
+        .await
+      {
+        let field_type: FieldType = field_rev.ty.into();
+        if field_type != FieldType::DateTime {
+          return Err(FlowyError::unexpect_calendar_field_type());
+        }
+
+        let layout_ty = LayoutRevision::Calendar;
+        let old_calender_setting = self.v_get_layout_settings(&layout_ty).await?.calendar;
+        self
+          .modify(|pad| Ok(pad.update_layout_setting(&layout_ty, &new_calendar_setting)?))
+          .await?;
+
+        let new_field_id = new_calendar_setting.layout_field_id.clone();
+        let layout_setting_pb: LayoutSettingPB = LayoutSettingParams {
+          calendar: Some(new_calendar_setting),
+        }
+        .into();
+
+        if let Some(old_calendar_setting) = old_calender_setting {
+          // compare the new layout field id is equal to old layout field id
+          // if not equal, send the  DidSetNewLayoutField notification
+          // if equal, send the  DidUpdateLayoutSettings notification
+          if old_calendar_setting.layout_field_id != new_field_id {
+            send_notification(&self.view_id, DatabaseNotification::DidSetNewLayoutField)
+              .payload(layout_setting_pb)
+              .send();
+          } else {
+            send_notification(&self.view_id, DatabaseNotification::DidUpdateLayoutSettings)
+              .payload(layout_setting_pb)
+              .send();
+          }
+        } else {
+          tracing::warn!("Calendar setting should not be empty")
+        }
+      }
     }
 
     Ok(())

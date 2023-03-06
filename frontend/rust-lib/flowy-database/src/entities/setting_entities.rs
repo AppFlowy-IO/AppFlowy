@@ -206,7 +206,7 @@ impl LayoutSettingPB {
 impl std::convert::From<LayoutSettingParams> for LayoutSettingPB {
   fn from(params: LayoutSettingParams) -> Self {
     Self {
-      calendar: params.calendar.map(|calendar| calendar.into()),
+      calendar: params.calendar.map(|calender| calender.into()),
     }
   }
 }
@@ -214,7 +214,7 @@ impl std::convert::From<LayoutSettingParams> for LayoutSettingPB {
 impl std::convert::From<LayoutSettingPB> for LayoutSettingParams {
   fn from(params: LayoutSettingPB) -> Self {
     Self {
-      calendar: params.calendar.map(|calendar| calendar.into()),
+      calendar: params.calendar.map(|calender| calender.into()),
     }
   }
 }

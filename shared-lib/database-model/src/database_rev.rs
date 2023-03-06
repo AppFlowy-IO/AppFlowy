@@ -234,6 +234,18 @@ pub struct CalendarLayoutSetting {
   pub layout_field_id: String,
 }
 
+impl CalendarLayoutSetting {
+  pub fn new(layout_field_id: String) -> Self {
+    CalendarLayoutSetting {
+      layout_ty: CalendarLayout::default(),
+      first_day_of_week: DEFAULT_FIRST_DAY_OF_WEEK,
+      show_weekends: DEFAULT_SHOW_WEEKENDS,
+      show_week_numbers: DEFAULT_SHOW_WEEK_NUMBERS,
+      layout_field_id,
+    }
+  }
+}
+
 #[derive(Debug, Clone, Default, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum CalendarLayout {
