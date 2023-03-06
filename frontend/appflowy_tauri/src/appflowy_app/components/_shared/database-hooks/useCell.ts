@@ -30,7 +30,8 @@ export const useCell = (cellIdentifier: CellIdentifier, cellCache: CellCache, fi
       },
     });
 
-    cellController.getCellData();
+    // ignore the return value, because we are using the subscription
+    void cellController.getCellData();
   };
 
   return {
