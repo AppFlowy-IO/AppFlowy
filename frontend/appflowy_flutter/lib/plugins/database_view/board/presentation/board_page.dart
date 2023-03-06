@@ -17,13 +17,13 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Card;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../application/board_bloc.dart';
 import '../application/card/card_data_controller.dart';
-import 'card/card.dart';
-import 'card/card_cell_builder.dart';
+import '../../widgets/card/card.dart';
+import '../../widgets/card/card_cell_builder.dart';
 import 'toolbar/board_toolbar.dart';
 
 class BoardPage extends StatelessWidget {
@@ -233,7 +233,7 @@ class _BoardContentState extends State<BoardContent> {
       rowPB: rowPB,
     );
 
-    final cellBuilder = BoardCellBuilder(cardController);
+    final cellBuilder = CardCellBuilder(cardController);
     bool isEditing = false;
     context.read<BoardBloc>().state.editingRow.fold(
       () => null,
@@ -247,7 +247,7 @@ class _BoardContentState extends State<BoardContent> {
       key: ValueKey(groupItemId),
       margin: config.cardPadding,
       decoration: _makeBoxDecoration(context),
-      child: BoardCard(
+      child: Card(
         viewId: viewId,
         groupId: groupData.group.groupId,
         fieldId: groupItem.fieldInfo.id,

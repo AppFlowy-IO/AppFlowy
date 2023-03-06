@@ -4,32 +4,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 
-import '../../application/card/board_url_cell_bloc.dart';
-import 'define.dart';
+import '../bloc/board_url_cell_bloc.dart';
+import '../define.dart';
 
-class BoardUrlCell extends StatefulWidget {
-  final String groupId;
+class URLCardCell extends StatefulWidget {
   final CellControllerBuilder cellControllerBuilder;
 
-  const BoardUrlCell({
-    required this.groupId,
+  const URLCardCell({
     required this.cellControllerBuilder,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<BoardUrlCell> createState() => _BoardUrlCellState();
+  State<URLCardCell> createState() => _URLCardCellState();
 }
 
-class _BoardUrlCellState extends State<BoardUrlCell> {
-  late BoardURLCellBloc _cellBloc;
+class _URLCardCellState extends State<URLCardCell> {
+  late URLCardCellBloc _cellBloc;
 
   @override
   void initState() {
     final cellController =
         widget.cellControllerBuilder.build() as URLCellController;
-    _cellBloc = BoardURLCellBloc(cellController: cellController);
-    _cellBloc.add(const BoardURLCellEvent.initial());
+    _cellBloc = URLCardCellBloc(cellController: cellController);
+    _cellBloc.add(const URLCardCellEvent.initial());
     super.initState();
   }
 
@@ -37,7 +35,7 @@ class _BoardUrlCellState extends State<BoardUrlCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocBuilder<BoardURLCellBloc, BoardURLCellState>(
+      child: BlocBuilder<URLCardCellBloc, URLCardCellState>(
         buildWhen: (previous, current) => previous.content != current.content,
         builder: (context, state) {
           if (state.content.isEmpty) {
@@ -47,7 +45,7 @@ class _BoardUrlCellState extends State<BoardUrlCell> {
               alignment: Alignment.centerLeft,
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  vertical: BoardSizes.cardCellVPadding,
+                  vertical: CardSizes.cardCellVPadding,
                 ),
                 child: RichText(
                   textAlign: TextAlign.left,

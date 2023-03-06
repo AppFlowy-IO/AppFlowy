@@ -3,28 +3,28 @@ import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart'
 import 'package:flutter/material.dart';
 
 import '../../../application/cell/cell_service.dart';
-import 'board_cell.dart';
-import 'board_checkbox_cell.dart';
-import 'board_checklist_cell.dart';
-import 'board_date_cell.dart';
-import 'board_number_cell.dart';
-import 'board_select_option_cell.dart';
-import 'board_text_cell.dart';
-import 'board_url_cell.dart';
+import 'card_cell.dart';
+import 'checkbox_card_cell.dart';
+import 'checklist_card_cell.dart';
+import 'date_card_cell.dart';
+import 'number_card_cell.dart';
+import 'select_option_card_cell.dart';
+import 'text_card_cell.dart';
+import 'url_card_cell.dart';
 
 abstract class BoardCellBuilderDelegate {
   CellCache get cellCache;
 }
 
-class BoardCellBuilder {
+class CardCellBuilder {
   final BoardCellBuilderDelegate delegate;
 
-  BoardCellBuilder(this.delegate);
+  CardCellBuilder(this.delegate);
 
   Widget buildCell(
     String groupId,
     CellIdentifier cellId,
-    EditableCellNotifier cellNotifier,
+    EditableCardNotifier cellNotifier,
   ) {
     final cellControllerBuilder = CellControllerBuilder(
       cellId: cellId,
@@ -34,51 +34,46 @@ class BoardCellBuilder {
     final key = cellId.key();
     switch (cellId.fieldType) {
       case FieldType.Checkbox:
-        return BoardCheckboxCell(
-          groupId: groupId,
+        return CheckboxCardCell(
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.DateTime:
-        return BoardDateCell(
-          groupId: groupId,
+        return DateCardCell(
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.SingleSelect:
-        return BoardSelectOptionCell(
+        return SelectOptionCardCell(
           groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.MultiSelect:
-        return BoardSelectOptionCell(
+        return SelectOptionCardCell(
           groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
           editableNotifier: cellNotifier,
           key: key,
         );
       case FieldType.Checklist:
-        return BoardChecklistCell(
+        return ChecklistCardCell(
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.Number:
-        return BoardNumberCell(
-          groupId: groupId,
+        return NumberCardCell(
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.RichText:
-        return BoardTextCell(
-          groupId: groupId,
+        return TextCardCell(
           cellControllerBuilder: cellControllerBuilder,
           editableNotifier: cellNotifier,
           key: key,
         );
       case FieldType.URL:
-        return BoardUrlCell(
-          groupId: groupId,
+        return URLCardCell(
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );

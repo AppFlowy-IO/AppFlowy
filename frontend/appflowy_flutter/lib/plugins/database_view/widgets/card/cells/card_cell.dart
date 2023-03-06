@@ -1,14 +1,14 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:flutter/material.dart';
 
-abstract class FocusableBoardCell {
+abstract class FocusableCardCell {
   set becomeFocus(bool isFocus);
 }
 
-class EditableCellNotifier {
+class EditableCardNotifier {
   final ValueNotifier<bool> isCellEditing;
 
-  EditableCellNotifier({bool isEditing = false})
+  EditableCardNotifier({bool isEditing = false})
       : isCellEditing = ValueNotifier(isEditing);
 
   void dispose() {
@@ -17,7 +17,7 @@ class EditableCellNotifier {
 }
 
 class EditableRowNotifier {
-  final Map<EditableCellId, EditableCellNotifier> _cells = {};
+  final Map<EditableCellId, EditableCardNotifier> _cells = {};
   final ValueNotifier<bool> isEditing;
 
   EditableRowNotifier({required bool isEditing})
@@ -25,7 +25,7 @@ class EditableRowNotifier {
 
   void bindCell(
     CellIdentifier cellIdentifier,
-    EditableCellNotifier notifier,
+    EditableCardNotifier notifier,
   ) {
     assert(
       _cells.values.isEmpty,
@@ -80,7 +80,7 @@ abstract class EditableCell {
   // the row notifier receive its cells event. For example: begin editing the
   // cell or end editing the cell.
   //
-  EditableCellNotifier? get editableNotifier;
+  EditableCardNotifier? get editableNotifier;
 }
 
 class EditableCellId {

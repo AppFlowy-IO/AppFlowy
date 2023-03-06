@@ -1,27 +1,27 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/cell/checklist_cell/checklist_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../grid/application/cell/checklist_cell_bloc.dart';
-import '../../../grid/presentation/widgets/cell/checklist_cell/checklist_progress_bar.dart';
 
-class BoardChecklistCell extends StatefulWidget {
+class ChecklistCardCell extends StatefulWidget {
   final CellControllerBuilder cellControllerBuilder;
-  const BoardChecklistCell({required this.cellControllerBuilder, Key? key})
+  const ChecklistCardCell({required this.cellControllerBuilder, Key? key})
       : super(key: key);
 
   @override
-  State<BoardChecklistCell> createState() => _BoardChecklistCellState();
+  State<ChecklistCardCell> createState() => _ChecklistCardCellState();
 }
 
-class _BoardChecklistCellState extends State<BoardChecklistCell> {
-  late ChecklistCellBloc _cellBloc;
+class _ChecklistCardCellState extends State<ChecklistCardCell> {
+  late ChecklistCardCellBloc _cellBloc;
 
   @override
   void initState() {
     final cellController =
         widget.cellControllerBuilder.build() as ChecklistCellController;
-    _cellBloc = ChecklistCellBloc(cellController: cellController);
+    _cellBloc = ChecklistCardCellBloc(cellController: cellController);
     _cellBloc.add(const ChecklistCellEvent.initial());
     super.initState();
   }
@@ -30,7 +30,7 @@ class _BoardChecklistCellState extends State<BoardChecklistCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
+      child: BlocBuilder<ChecklistCardCellBloc, ChecklistCellState>(
         builder: (context, state) =>
             ChecklistProgressBar(percent: state.percent),
       ),

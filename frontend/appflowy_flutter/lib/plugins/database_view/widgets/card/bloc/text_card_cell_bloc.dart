@@ -3,15 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 
-part 'board_text_cell_bloc.freezed.dart';
+part 'text_card_cell_bloc.freezed.dart';
 
-class BoardTextCellBloc extends Bloc<BoardTextCellEvent, BoardTextCellState> {
+class TextCardCellBloc extends Bloc<TextCardCellEvent, TextCardCellState> {
   final TextCellController cellController;
   void Function()? _onCellChangedFn;
-  BoardTextCellBloc({
+  TextCardCellBloc({
     required this.cellController,
-  }) : super(BoardTextCellState.initial(cellController)) {
-    on<BoardTextCellEvent>(
+  }) : super(TextCardCellState.initial(cellController)) {
+    on<TextCardCellEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
@@ -48,7 +48,7 @@ class BoardTextCellBloc extends Bloc<BoardTextCellEvent, BoardTextCellState> {
     _onCellChangedFn = cellController.startListening(
       onCellChanged: ((cellContent) {
         if (!isClosed) {
-          add(BoardTextCellEvent.didReceiveCellUpdate(cellContent ?? ""));
+          add(TextCardCellEvent.didReceiveCellUpdate(cellContent ?? ""));
         }
       }),
     );
@@ -56,23 +56,23 @@ class BoardTextCellBloc extends Bloc<BoardTextCellEvent, BoardTextCellState> {
 }
 
 @freezed
-class BoardTextCellEvent with _$BoardTextCellEvent {
-  const factory BoardTextCellEvent.initial() = _InitialCell;
-  const factory BoardTextCellEvent.updateText(String text) = _UpdateContent;
-  const factory BoardTextCellEvent.enableEdit(bool enabled) = _EnableEdit;
-  const factory BoardTextCellEvent.didReceiveCellUpdate(String cellContent) =
+class TextCardCellEvent with _$TextCardCellEvent {
+  const factory TextCardCellEvent.initial() = _InitialCell;
+  const factory TextCardCellEvent.updateText(String text) = _UpdateContent;
+  const factory TextCardCellEvent.enableEdit(bool enabled) = _EnableEdit;
+  const factory TextCardCellEvent.didReceiveCellUpdate(String cellContent) =
       _DidReceiveCellUpdate;
 }
 
 @freezed
-class BoardTextCellState with _$BoardTextCellState {
-  const factory BoardTextCellState({
+class TextCardCellState with _$TextCardCellState {
+  const factory TextCardCellState({
     required String content,
     required bool enableEdit,
-  }) = _BoardTextCellState;
+  }) = _TextCardCellState;
 
-  factory BoardTextCellState.initial(TextCellController context) =>
-      BoardTextCellState(
+  factory TextCardCellState.initial(TextCellController context) =>
+      TextCardCellState(
         content: context.getCellData() ?? "",
         enableEdit: false,
       );

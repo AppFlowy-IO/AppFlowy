@@ -4,16 +4,16 @@ import 'dart:async';
 
 import '../../../application/cell/cell_controller_builder.dart';
 
-part 'board_number_cell_bloc.freezed.dart';
+part 'number_card_cell_bloc.freezed.dart';
 
-class BoardNumberCellBloc
-    extends Bloc<BoardNumberCellEvent, BoardNumberCellState> {
+class NumberCardCellBloc
+    extends Bloc<NumberCardCellEvent, NumberCardCellState> {
   final NumberCellController cellController;
   void Function()? _onCellChangedFn;
-  BoardNumberCellBloc({
+  NumberCardCellBloc({
     required this.cellController,
-  }) : super(BoardNumberCellState.initial(cellController)) {
-    on<BoardNumberCellEvent>(
+  }) : super(NumberCardCellState.initial(cellController)) {
+    on<NumberCardCellEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
@@ -41,7 +41,7 @@ class BoardNumberCellBloc
     _onCellChangedFn = cellController.startListening(
       onCellChanged: ((cellContent) {
         if (!isClosed) {
-          add(BoardNumberCellEvent.didReceiveCellUpdate(cellContent ?? ""));
+          add(NumberCardCellEvent.didReceiveCellUpdate(cellContent ?? ""));
         }
       }),
     );
@@ -49,20 +49,20 @@ class BoardNumberCellBloc
 }
 
 @freezed
-class BoardNumberCellEvent with _$BoardNumberCellEvent {
-  const factory BoardNumberCellEvent.initial() = _InitialCell;
-  const factory BoardNumberCellEvent.didReceiveCellUpdate(String cellContent) =
+class NumberCardCellEvent with _$NumberCardCellEvent {
+  const factory NumberCardCellEvent.initial() = _InitialCell;
+  const factory NumberCardCellEvent.didReceiveCellUpdate(String cellContent) =
       _DidReceiveCellUpdate;
 }
 
 @freezed
-class BoardNumberCellState with _$BoardNumberCellState {
-  const factory BoardNumberCellState({
+class NumberCardCellState with _$NumberCardCellState {
+  const factory NumberCardCellState({
     required String content,
-  }) = _BoardNumberCellState;
+  }) = _NumberCardCellState;
 
-  factory BoardNumberCellState.initial(TextCellController context) =>
-      BoardNumberCellState(
+  factory NumberCardCellState.initial(TextCellController context) =>
+      NumberCardCellState(
         content: context.getCellData() ?? "",
       );
 }

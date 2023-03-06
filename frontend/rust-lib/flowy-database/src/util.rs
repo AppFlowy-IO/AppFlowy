@@ -80,7 +80,7 @@ pub fn make_default_calendar() -> BuildDatabaseContext {
   let mut database_builder = DatabaseBuilder::new();
   // text
   let text_field = FieldBuilder::new(RichTextTypeOptionBuilder::default())
-    .name("Description")
+    .name("Title")
     .visibility(true)
     .primary(true)
     .build();

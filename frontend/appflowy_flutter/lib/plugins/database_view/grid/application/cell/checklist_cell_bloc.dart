@@ -8,11 +8,12 @@ import 'checklist_cell_editor_bloc.dart';
 import 'select_option_service.dart';
 part 'checklist_cell_bloc.freezed.dart';
 
-class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
+class ChecklistCardCellBloc
+    extends Bloc<ChecklistCellEvent, ChecklistCellState> {
   final ChecklistCellController cellController;
   final SelectOptionBackendService _selectOptionSvc;
   void Function()? _onCellChangedFn;
-  ChecklistCellBloc({
+  ChecklistCardCellBloc({
     required this.cellController,
   })  : _selectOptionSvc =
             SelectOptionBackendService(cellId: cellController.cellId),

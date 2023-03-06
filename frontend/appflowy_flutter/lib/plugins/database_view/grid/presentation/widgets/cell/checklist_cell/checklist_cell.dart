@@ -20,7 +20,7 @@ class GridChecklistCell extends GridCellWidget {
 }
 
 class GridChecklistCellState extends GridCellState<GridChecklistCell> {
-  late ChecklistCellBloc _cellBloc;
+  late ChecklistCardCellBloc _cellBloc;
   late final PopoverController _popover;
 
   @override
@@ -28,7 +28,7 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
     _popover = PopoverController();
     final cellController =
         widget.cellControllerBuilder.build() as ChecklistCellController;
-    _cellBloc = ChecklistCellBloc(cellController: cellController);
+    _cellBloc = ChecklistCardCellBloc(cellController: cellController);
     _cellBloc.add(const ChecklistCellEvent.initial());
     super.initState();
   }
@@ -54,7 +54,7 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
         onClose: () => widget.onCellEditing.value = false,
         child: Padding(
           padding: GridSize.cellContentInsets,
-          child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
+          child: BlocBuilder<ChecklistCardCellBloc, ChecklistCellState>(
             builder: (context, state) =>
                 ChecklistProgressBar(percent: state.percent),
           ),

@@ -4,19 +4,20 @@ import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import '../../../application/cell/cell_service.dart';
-import '../../../application/row/row_cache.dart';
-import '../../../application/row/row_service.dart';
-import 'card_data_controller.dart';
+
+import '../../application/cell/cell_service.dart';
+import '../../application/row/row_cache.dart';
+import '../../application/row/row_service.dart';
+import 'bloc/card_data_controller.dart';
 
 part 'card_bloc.freezed.dart';
 
-class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
+class CardBloc extends Bloc<BoardCardEvent, BoardCardState> {
   final String groupFieldId;
   final RowBackendService _rowBackendSvc;
   final CardDataController _dataController;
 
-  BoardCardBloc({
+  CardBloc({
     required this.groupFieldId,
     required String viewId,
     required CardDataController dataController,
