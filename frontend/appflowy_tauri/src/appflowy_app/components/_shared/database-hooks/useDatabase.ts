@@ -9,12 +9,14 @@ import {
 import { useAppDispatch, useAppSelector } from '../../../stores/store';
 import loadField from './loadField';
 import { FieldInfo } from '../../../stores/effects/database/field/field_controller';
+import { RowInfo } from '../../../stores/effects/database/row/row_cache';
 
 export const useDatabase = (viewId: string) => {
   const dispatch = useAppDispatch();
   const databaseStore = useAppSelector((state) => state.database);
   const boardStore = useAppSelector((state) => state.board);
   const [controller, setController] = useState<DatabaseController>();
+  const [rows, setRows] = useState<readonly RowInfo[]>([]);
 
   useEffect(() => {
     if (!viewId.length) return;
@@ -46,5 +48,21 @@ export const useDatabase = (viewId: string) => {
     console.log(fields, columns);
   };
 
-  return { loadFields, controller };
+  useEffect(() => {
+    if (!controller) return;
+
+    void (async () => {
+      controller.subscribe({
+        onRowsChanged: (rowInfos) => {
+          setRows(rowInfos);
+        },
+        onFieldsChanged: (fieldInfos) => {
+          void loadFields(fieldInfos);
+        },
+      });
+      await controller.open();
+    })();
+  }, [controller]);
+
+  return { loadFields, controller, rows };
 };

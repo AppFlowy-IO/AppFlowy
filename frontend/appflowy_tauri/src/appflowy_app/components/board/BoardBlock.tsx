@@ -1,10 +1,7 @@
 import { Details2Svg } from '../_shared/svg/Details2Svg';
 import AddSvg from '../_shared/svg/AddSvg';
-import { DatabaseFieldMap, IDatabaseColumn, IDatabaseRow } from '../../stores/reducers/database/slice';
 import { BoardCard } from './BoardCard';
 import { RowInfo } from '../../stores/effects/database/row/row_cache';
-import { useEffect } from 'react';
-import { useRow } from '../_shared/database-hooks/useRow';
 import { DatabaseController } from '../../stores/effects/database/database_controller';
 
 export const BoardBlock = ({

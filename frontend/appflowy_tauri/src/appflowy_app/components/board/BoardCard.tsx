@@ -28,6 +28,8 @@ export const BoardCard = ({
   startMove: () => void;
   endMove: () => void;
 }) => {
+  const { cells } = useRow(viewId, controller, row);
+
   const databaseStore = useAppSelector((state) => state.database);
   const [isMoving, setIsMoving] = useState(false);
   const [isDown, setIsDown] = useState(false);
@@ -36,6 +38,7 @@ export const BoardCard = ({
   const [ghostLeft, setGhostLeft] = useState(0);
   const [ghostTop, setGhostTop] = useState(0);
   const el = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (el.current?.getBoundingClientRect && isMoving) {
       const { left, top, width, height } = el.current.getBoundingClientRect();
@@ -52,13 +55,6 @@ export const BoardCard = ({
       }
     }
   }, [el, isMoving]);
-
-  const { loadRow, cells } = useRow(viewId, controller, row);
-  useEffect(() => {
-    void (async () => {
-      await loadRow();
-    })();
-  }, []);
 
   const onMouseMove: MouseEventHandler<HTMLDivElement> = (e) => {
     setGhostLeft(ghostLeft + e.movementX);

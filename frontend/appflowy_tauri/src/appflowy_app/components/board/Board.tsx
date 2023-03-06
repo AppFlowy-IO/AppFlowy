@@ -4,11 +4,9 @@ import { BoardBlock } from './BoardBlock';
 import { NewBoardBlock } from './NewBoardBlock';
 import { useBoard } from './Board.hooks';
 import { useDatabase } from '../_shared/database-hooks/useDatabase';
-import { useEffect, useState } from 'react';
-import { RowInfo } from '../../stores/effects/database/row/row_cache';
 
 export const Board = ({ viewId }: { viewId: string }) => {
-  const { controller, loadFields } = useDatabase(viewId);
+  const { controller, rows } = useDatabase(viewId);
 
   const {
     title,
@@ -21,24 +19,6 @@ export const Board = ({ viewId }: { viewId: string }) => {
     movingRowId,
     ghostLocation,
   } = useBoard();
-
-  const [rows, setRows] = useState<readonly RowInfo[]>([]);
-
-  useEffect(() => {
-    if (!controller) return;
-
-    void (async () => {
-      controller.subscribe({
-        onRowsChanged: (rowInfos) => {
-          setRows(rowInfos);
-        },
-        onFieldsChanged: (fieldInfos) => {
-          void loadFields(fieldInfos);
-        },
-      });
-      await controller.open();
-    })();
-  }, [controller]);
 
   return (
     <>

@@ -2,31 +2,42 @@ import { DatabaseController } from '../../../stores/effects/database/database_co
 import { RowController } from '../../../stores/effects/database/row/row_controller';
 import { RowInfo } from '../../../stores/effects/database/row/row_cache';
 import { CellIdentifier } from '../../../stores/effects/database/cell/cell_bd_svc';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export const useRow = (viewId: string, databaseController: DatabaseController, rowInfo: RowInfo) => {
   const [cells, setCells] = useState<{ fieldId: string; cellIdentifier: CellIdentifier }[]>([]);
+  const [rowController, setRowController] = useState<RowController>();
 
-  const rowCache = databaseController.databaseViewCache.getRowCache();
-  const fieldController = databaseController.fieldController;
-  const rowController = new RowController(rowInfo, fieldController, rowCache);
+  useEffect(() => {
+    const rowCache = databaseController.databaseViewCache.getRowCache();
+    const fieldController = databaseController.fieldController;
+    const c = new RowController(rowInfo, fieldController, rowCache);
+    setRowController(c);
 
-  const loadRow = async () => {
-    const cellsPB = await rowController.loadCells();
-    const loadingCells: { fieldId: string; cellIdentifier: CellIdentifier }[] = [];
+    return () => {
+      // dispose row controller in future
+    };
+  }, []);
 
-    for (const [fieldId, cellIdentifier] of cellsPB.entries()) {
-      loadingCells.push({
-        fieldId,
-        cellIdentifier,
-      });
-    }
+  useEffect(() => {
+    if (!rowController) return;
 
-    setCells(loadingCells);
-  };
+    void (async () => {
+      const cellsPB = await rowController.loadCells();
+      const loadingCells: { fieldId: string; cellIdentifier: CellIdentifier }[] = [];
+
+      for (const [fieldId, cellIdentifier] of cellsPB.entries()) {
+        loadingCells.push({
+          fieldId,
+          cellIdentifier,
+        });
+      }
+
+      setCells(loadingCells);
+    })();
+  }, [rowController]);
 
   return {
-    loadRow: loadRow,
     cells: cells,
   };
 };
