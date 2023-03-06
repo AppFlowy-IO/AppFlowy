@@ -51,9 +51,9 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetGroup, get_group_handler)
         // Database
         .event(DatabaseEvent::GetDatabases, get_databases_handler)
-        // Calendar
-        .event(DatabaseEvent::SetCalenderSetting, set_calendar_setting_handler)
-        .event(DatabaseEvent::GetCalendarSetting, get_calendar_setting_handler);
+        // Layout setting
+        .event(DatabaseEvent::SetLayoutSetting, set_layout_setting_handler)
+        .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler);
 
   plugin
 }
@@ -242,9 +242,9 @@ pub enum DatabaseEvent {
   #[event(output = "RepeatedDatabaseDescPB")]
   GetDatabases = 114,
 
-  #[event(input = "CalendarSettingsPB")]
-  SetCalenderSetting = 115,
+  #[event(input = "UpdateLayoutSettingPB")]
+  SetLayoutSetting = 115,
 
-  #[event()]
-  GetCalendarSetting = 116,
+  #[event(input = "DatabaseLayoutIdPB", output = "LayoutSettingPB")]
+  GetLayoutSetting = 116,
 }

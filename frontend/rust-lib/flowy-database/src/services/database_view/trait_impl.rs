@@ -1,4 +1,4 @@
-use crate::entities::{CalendarSettingsParams, DatabaseViewSettingPB, LayoutSettingPB};
+use crate::entities::{CalendarLayoutSettingsParams, DatabaseViewSettingPB, LayoutSettingPB};
 use crate::services::database_view::{get_cells_for_field, DatabaseViewData};
 use crate::services::field::RowSingleCellData;
 use crate::services::filter::{FilterController, FilterDelegate, FilterType};
@@ -153,7 +153,7 @@ pub fn make_database_view_setting(
     LayoutRevision::Board => {},
     LayoutRevision::Calendar => {
       layout_settings.calendar = view_pad
-        .get_layout_setting::<CalendarSettingsParams>(&layout_type)
+        .get_layout_setting::<CalendarLayoutSettingsParams>(&layout_type)
         .map(|params| params.into());
     },
   }

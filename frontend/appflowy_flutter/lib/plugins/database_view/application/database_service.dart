@@ -1,5 +1,7 @@
+import 'package:appflowy_backend/protobuf/flowy-database/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/database_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/group_changeset.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -85,6 +87,28 @@ class DatabaseBackendService {
     return DatabaseEventGetFields(payload).send().then((result) {
       return result.fold((l) => left(l.items), (r) => right(r));
     });
+  }
+
+  Future<Either<LayoutSettingPB, FlowyError>> getLayoutSetting(
+      LayoutTypePB layoutType) {
+    final payload = DatabaseLayoutIdPB.create()
+      ..viewId = viewId
+      ..layout = layoutType;
+    return DatabaseEventGetLayoutSetting(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> updateLayoutSetting(
+      {CalendarLayoutSettingsPB? calendarLayoutSetting}) {
+    final layoutSetting = LayoutSettingPB.create();
+    if (calendarLayoutSetting != null) {
+      layoutSetting.calendar = calendarLayoutSetting;
+    }
+
+    final payload = UpdateLayoutSettingPB.create()
+      ..viewId = viewId
+      ..layoutSetting = layoutSetting;
+
+    return DatabaseEventSetLayoutSetting(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> closeView() {

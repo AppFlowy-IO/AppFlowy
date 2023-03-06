@@ -599,23 +599,27 @@ pub(crate) async fn get_databases_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn set_calendar_setting_handler(
-  data: AFPluginData<CalendarSettingsPB>,
+pub(crate) async fn set_layout_setting_handler(
+  data: AFPluginData<UpdateLayoutSettingPB>,
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> FlowyResult<()> {
-  let params: CalendarSettingsParams = data.into_inner().try_into()?;
-  let _ = manager.get_database_editor(params.view_id.as_ref()).await?;
-  //TODO(nathan):
-  todo!("nathan: depends on the main branch refactoring")
+  let params: UpdateLayoutSettingParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_editor(params.view_id.as_ref()).await?;
+  let _ = database_editor
+    .set_layout_setting(&params.view_id, params.layout_setting)
+    .await?;
+  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn get_calendar_setting_handler(
-  data: AFPluginData<DatabaseViewIdPB>,
+pub(crate) async fn get_layout_setting_handler(
+  data: AFPluginData<DatabaseLayoutIdPB>,
   manager: AFPluginState<Arc<DatabaseManager>>,
-) -> FlowyResult<()> {
-  let view_id = data.into_inner().value;
-  let _ = manager.get_database_editor(view_id.as_ref()).await?;
-  //TODO(nathan):
-  todo!("nathan: depends on the main branch refactoring")
+) -> DataResult<LayoutSettingPB, FlowyError> {
+  let params = data.into_inner();
+  let database_editor = manager.get_database_editor(&params.view_id).await?;
+  let layout_setting = database_editor
+    .get_layout_setting(&params.view_id, params.layout)
+    .await?;
+  data_result_ok(layout_setting.into())
 }

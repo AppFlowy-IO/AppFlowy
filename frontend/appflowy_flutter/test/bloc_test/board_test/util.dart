@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/database_view/board/board.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:appflowy/workspace/application/app/app_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 
@@ -38,9 +39,14 @@ class AppFlowyBoardTest {
         .then((result) {
       return result.fold(
         (view) async {
-          final context =
-              BoardTestContext(view, DatabaseController(view: view));
-          final result = await context._boardDataController.openGrid();
+          final context = BoardTestContext(
+            view,
+            DatabaseController(
+              view: view,
+              layoutType: LayoutTypePB.Board,
+            ),
+          );
+          final result = await context._boardDataController.open();
           result.fold((l) => null, (r) => throw Exception(r));
           return context;
         },

@@ -929,6 +929,29 @@ impl DatabaseEditor {
     self.database_views.get_group(view_id, group_id).await
   }
 
+  pub async fn get_layout_setting<T: Into<LayoutRevision>>(
+    &self,
+    view_id: &str,
+    layout_ty: T,
+  ) -> FlowyResult<LayoutSettingParams> {
+    let layout_ty = layout_ty.into();
+    self
+      .database_views
+      .get_layout_setting(view_id, &layout_ty)
+      .await
+  }
+
+  pub async fn set_layout_setting(
+    &self,
+    view_id: &str,
+    layout_setting: LayoutSettingParams,
+  ) -> FlowyResult<()> {
+    self
+      .database_views
+      .set_layout_setting(view_id, layout_setting)
+      .await
+  }
+
   async fn create_row_rev(&self) -> FlowyResult<RowRevision> {
     let field_revs = self.database_pad.read().await.get_field_revs(None)?;
     let block_id = self.block_id().await?;

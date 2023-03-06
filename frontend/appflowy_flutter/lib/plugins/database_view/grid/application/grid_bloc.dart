@@ -87,7 +87,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   }
 
   Future<void> _openGrid(Emitter<GridState> emit) async {
-    final result = await databaseController.openGrid();
+    final result = await databaseController.open();
     result.fold(
       (grid) {
         emit(

@@ -1,8 +1,9 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
-  AlterFilterParams, AlterFilterPayloadPB, AlterSortParams, AlterSortPayloadPB, CalendarSettingsPB,
-  DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB,
-  DeleteSortParams, DeleteSortPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterPB,
+  AlterFilterParams, AlterFilterPayloadPB, AlterSortParams, AlterSortPayloadPB,
+  CalendarLayoutSettingsPB, CalendarLayoutSettingsParams, DeleteFilterParams,
+  DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB, DeleteSortParams,
+  DeleteSortPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterPB,
   RepeatedGroupConfigurationPB, RepeatedSortPB,
 };
 use database_model::LayoutRevision;
@@ -160,13 +161,66 @@ impl DatabaseSettingChangesetParams {
 }
 
 #[derive(Debug, Eq, PartialEq, Default, ProtoBuf, Clone)]
+pub struct UpdateLayoutSettingPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub layout_setting: LayoutSettingPB,
+}
+
+#[derive(Debug)]
+pub struct UpdateLayoutSettingParams {
+  pub view_id: String,
+  pub layout_setting: LayoutSettingParams,
+}
+
+impl TryInto<UpdateLayoutSettingParams> for UpdateLayoutSettingPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<UpdateLayoutSettingParams, Self::Error> {
+    let view_id = NotEmptyStr::parse(self.view_id)
+      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
+      .0;
+
+    let layout_setting: LayoutSettingParams = self.layout_setting.into();
+
+    Ok(UpdateLayoutSettingParams {
+      view_id,
+      layout_setting,
+    })
+  }
+}
+
+#[derive(Debug, Eq, PartialEq, Default, ProtoBuf, Clone)]
 pub struct LayoutSettingPB {
   #[pb(index = 1, one_of)]
-  pub calendar: Option<CalendarSettingsPB>,
+  pub calendar: Option<CalendarLayoutSettingsPB>,
 }
 
 impl LayoutSettingPB {
   pub fn new() -> Self {
     Self::default()
   }
+}
+
+impl std::convert::From<LayoutSettingParams> for LayoutSettingPB {
+  fn from(params: LayoutSettingParams) -> Self {
+    Self {
+      calendar: params.calendar.map(|calendar| calendar.into()),
+    }
+  }
+}
+
+impl std::convert::From<LayoutSettingPB> for LayoutSettingParams {
+  fn from(params: LayoutSettingPB) -> Self {
+    Self {
+      calendar: params.calendar.map(|calendar| calendar.into()),
+    }
+  }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct LayoutSettingParams {
+  pub calendar: Option<CalendarLayoutSettingsParams>,
 }

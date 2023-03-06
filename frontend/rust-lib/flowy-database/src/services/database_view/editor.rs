@@ -661,25 +661,38 @@ impl DatabaseViewEditor {
   }
 
   /// Returns the current calendar settings
-  pub async fn v_get_calendar_settings(&self) -> FlowyResult<CalendarSettingsParams> {
-    let settings = self
-      .pad
-      .read()
-      .await
-      .get_layout_setting(&LayoutRevision::Calendar)
-      .unwrap_or_else(|| CalendarSettingsParams::default_with(self.view_id.to_string()));
-    Ok(settings)
+  pub async fn v_get_layout_settings(
+    &self,
+    layout_ty: &LayoutRevision,
+  ) -> FlowyResult<LayoutSettingParams> {
+    let mut layout_setting = LayoutSettingParams::default();
+    match layout_ty {
+      LayoutRevision::Grid => {},
+      LayoutRevision::Board => {},
+      LayoutRevision::Calendar => {
+        layout_setting.calendar = Some(
+          self
+            .pad
+            .read()
+            .await
+            .get_layout_setting(layout_ty)
+            .unwrap_or_default(),
+        );
+      },
+    }
+
+    Ok(layout_setting)
   }
 
   /// Update the calendar settings and send the notification to refresh the UI
-  pub async fn v_update_calendar_settings(
-    &self,
-    params: CalendarSettingsParams,
-  ) -> FlowyResult<()> {
+  pub async fn v_set_layout_settings(&self, params: LayoutSettingParams) -> FlowyResult<()> {
     // Maybe it needs no send notification to refresh the UI
-    self
-      .modify(|pad| Ok(pad.update_layout_setting(&LayoutRevision::Calendar, &params)?))
-      .await?;
+    if let Some(calendar_setting) = params.calendar {
+      self
+        .modify(|pad| Ok(pad.update_layout_setting(&LayoutRevision::Calendar, &calendar_setting)?))
+        .await?;
+    }
+
     Ok(())
   }
 

@@ -28,7 +28,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   String get viewId => _databaseController.viewId;
 
   BoardBloc({required ViewPB view})
-      : _databaseController = DatabaseController(view: view),
+      : _databaseController = DatabaseController(
+          view: view,
+          layoutType: LayoutTypePB.Board,
+        ),
         super(BoardState.initial(view.id)) {
     boardController = AppFlowyBoardController(
       onMoveGroup: (
@@ -242,7 +245,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   Future<void> _openGrid(Emitter<BoardState> emit) async {
-    final result = await _databaseController.openGrid();
+    final result = await _databaseController.open();
     result.fold(
       (grid) => emit(
         state.copyWith(loadingState: GridLoadingState.finish(left(unit))),

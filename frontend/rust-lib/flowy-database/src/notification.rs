@@ -31,7 +31,7 @@ pub enum DatabaseNotification {
   DidReorderSingleRow = 66,
   /// Trigger when the settings of the database are changed
   DidUpdateSettings = 70,
-  DidUpdateCalendarSettings = 80,
+  DidUpdateLayoutSettings = 80,
   DidArrangeCalendarWithNewField = 81,
 }
 
