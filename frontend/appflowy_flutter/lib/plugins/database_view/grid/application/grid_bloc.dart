@@ -9,7 +9,7 @@ import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../application/field/field_controller.dart';
-import 'grid_data_controller.dart';
+import '../../application/database_controller.dart';
 import 'dart:collection';
 
 part 'grid_bloc.freezed.dart';

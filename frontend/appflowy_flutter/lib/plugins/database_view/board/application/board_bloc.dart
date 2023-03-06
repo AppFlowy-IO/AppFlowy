@@ -13,8 +13,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../application/field/field_controller.dart';
 import '../../application/row/row_cache.dart';
-import '../../application/row/row_service.dart';
-import '../../grid/application/grid_data_controller.dart';
+import '../../application/database_controller.dart';
 import 'group_controller.dart';
 
 part 'board_bloc.freezed.dart';
@@ -22,7 +21,6 @@ part 'board_bloc.freezed.dart';
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
   final DatabaseController _databaseController;
   late final AppFlowyBoardController boardController;
-  final GroupBackendService _groupBackendSvc;
   final LinkedHashMap<String, GroupController> groupControllers =
       LinkedHashMap();
 
@@ -30,8 +28,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   String get viewId => _databaseController.viewId;
 
   BoardBloc({required ViewPB view})
-      : _groupBackendSvc = GroupBackendService(viewId: view.id),
-        _databaseController = DatabaseController(view: view),
+      : _databaseController = DatabaseController(view: view),
         super(BoardState.initial(view.id)) {
     boardController = AppFlowyBoardController(
       onMoveGroup: (
@@ -40,7 +37,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         toGroupId,
         toIndex,
       ) {
-        _moveGroup(fromGroupId, toGroupId);
+        _databaseController.moveGroup(
+          fromGroupId: fromGroupId,
+          toGroupId: toGroupId,
+        );
       },
       onMoveGroupItem: (
         groupId,
@@ -49,7 +49,13 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       ) {
         final fromRow = groupControllers[groupId]?.rowAtIndex(fromIndex);
         final toRow = groupControllers[groupId]?.rowAtIndex(toIndex);
-        _moveRow(fromRow, groupId, toRow);
+        if (fromRow != null) {
+          _databaseController.moveRow(
+            fromRow,
+            toRow: toRow,
+            groupId: groupId,
+          );
+        }
       },
       onMoveGroupItemToGroup: (
         fromGroupId,
@@ -59,7 +65,13 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       ) {
         final fromRow = groupControllers[fromGroupId]?.rowAtIndex(fromIndex);
         final toRow = groupControllers[toGroupId]?.rowAtIndex(toIndex);
-        _moveRow(fromRow, toGroupId, toRow);
+        if (fromRow != null) {
+          _databaseController.moveRow(
+            fromRow,
+            toRow: toRow,
+            groupId: toGroupId,
+          );
+        }
       },
     );
 
@@ -142,39 +154,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     }
 
     boardController.enableGroupDragging(!isEdit);
-    // boardController.updateGroupItem(
-    //   group.groupId,
-    //   GroupItem(
-    //     row: row,
-    //     fieldInfo: fieldInfo,
-    //     isDraggable: !isEdit,
-    //   ),
-    // );
-  }
-
-  void _moveRow(RowPB? fromRow, String columnId, RowPB? toRow) {
-    if (fromRow != null) {
-      _groupBackendSvc
-          .moveGroupRow(
-        fromRowId: fromRow.id,
-        toGroupId: columnId,
-        toRowId: toRow?.id,
-      )
-          .then((result) {
-        result.fold((l) => null, (r) => add(BoardEvent.didReceiveError(r)));
-      });
-    }
-  }
-
-  void _moveGroup(String fromGroupId, String toGroupId) {
-    _groupBackendSvc
-        .moveGroup(
-      fromGroupId: fromGroupId,
-      toGroupId: toGroupId,
-    )
-        .then((result) {
-      result.fold((l) => null, (r) => add(BoardEvent.didReceiveError(r)));
-    });
   }
 
   @override

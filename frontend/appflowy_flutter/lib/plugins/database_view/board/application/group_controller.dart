@@ -1,7 +1,11 @@
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart';
-import 'group_listener.dart';
+import 'dart:typed_data';
+
+import 'package:appflowy/core/grid_notification.dart';
+import 'package:flowy_infra/notifier.dart';
+import 'package:dartz/dartz.dart';
 
 typedef OnGroupError = void Function(FlowyError);
 
@@ -14,14 +18,14 @@ abstract class GroupControllerDelegate {
 
 class GroupController {
   final GroupPB group;
-  final GroupListener _listener;
+  final SingleGroupListener _listener;
   final GroupControllerDelegate delegate;
 
   GroupController({
     required String viewId,
     required this.group,
     required this.delegate,
-  }) : _listener = GroupListener(group);
+  }) : _listener = SingleGroupListener(group);
 
   RowPB? rowAtIndex(int index) {
     if (index < group.rows.length) {
@@ -79,5 +83,47 @@ class GroupController {
 
   Future<void> dispose() async {
     _listener.stop();
+  }
+}
+
+typedef UpdateGroupNotifiedValue = Either<GroupRowsNotificationPB, FlowyError>;
+
+class SingleGroupListener {
+  final GroupPB group;
+  PublishNotifier<UpdateGroupNotifiedValue>? _groupNotifier = PublishNotifier();
+  DatabaseNotificationListener? _listener;
+  SingleGroupListener(this.group);
+
+  void start({
+    required void Function(UpdateGroupNotifiedValue) onGroupChanged,
+  }) {
+    _groupNotifier?.addPublishListener(onGroupChanged);
+    _listener = DatabaseNotificationListener(
+      objectId: group.groupId,
+      handler: _handler,
+    );
+  }
+
+  void _handler(
+    DatabaseNotification ty,
+    Either<Uint8List, FlowyError> result,
+  ) {
+    switch (ty) {
+      case DatabaseNotification.DidUpdateGroupRow:
+        result.fold(
+          (payload) => _groupNotifier?.value =
+              left(GroupRowsNotificationPB.fromBuffer(payload)),
+          (error) => _groupNotifier?.value = right(error),
+        );
+        break;
+      default:
+        break;
+    }
+  }
+
+  Future<void> stop() async {
+    await _listener?.stop();
+    _groupNotifier?.dispose();
+    _groupNotifier = null;
   }
 }

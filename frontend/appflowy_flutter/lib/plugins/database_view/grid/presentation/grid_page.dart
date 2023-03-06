@@ -16,7 +16,7 @@ import '../../application/row/row_data_controller.dart';
 import '../../application/setting/setting_bloc.dart';
 import '../application/filter/filter_menu_bloc.dart';
 import '../application/grid_bloc.dart';
-import '../application/grid_data_controller.dart';
+import '../../application/database_controller.dart';
 import '../application/sort/sort_menu_bloc.dart';
 import 'grid_scroll.dart';
 import 'layout/layout.dart';

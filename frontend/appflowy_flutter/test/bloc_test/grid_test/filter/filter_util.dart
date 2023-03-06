@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database_view/grid/application/grid_data_controller.dart';
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/grid.dart';
 import 'package:appflowy/workspace/application/app/app_service.dart';
 
