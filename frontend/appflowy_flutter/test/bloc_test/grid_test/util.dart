@@ -10,8 +10,11 @@ import 'package:appflowy/plugins/database_view/grid/application/grid_data_contro
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/grid.dart';
 import 'package:appflowy/workspace/application/app/app_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
+import 'package:dartz/dartz.dart';
 
 import '../../util.dart';
 
@@ -31,7 +34,7 @@ class GridTestContext {
     return gridController.fieldController;
   }
 
-  Future<void> createRow() async {
+  Future<Either<RowPB, FlowyError>> createRow() async {
     return gridController.createRow();
   }
 

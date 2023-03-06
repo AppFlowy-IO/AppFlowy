@@ -20,13 +20,15 @@ class DatabaseBackendService {
     return DatabaseEventGetDatabase(payload).send();
   }
 
-  Future<Either<RowPB, FlowyError>> createRow({Option<String>? startRowId}) {
+  Future<Either<RowPB, FlowyError>> createRow({String? startRowId}) {
     var payload = CreateRowPayloadPB.create()..viewId = viewId;
-    startRowId?.fold(() => null, (id) => payload.startRowId = id);
+    if (startRowId != null) {
+      payload.startRowId = startRowId;
+    }
     return DatabaseEventCreateRow(payload).send();
   }
 
-  Future<Either<RowPB, FlowyError>> createBoardCard(
+  Future<Either<RowPB, FlowyError>> createGroupRow(
     String groupId,
     String? startRowId,
   ) {

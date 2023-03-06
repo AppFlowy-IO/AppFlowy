@@ -96,7 +96,7 @@ class CalendarDataController {
             .then((result) {
           return result.fold(
             (l) => Future(() async {
-              _viewCache.rowCache.initializeRows(database.rows);
+              _viewCache.rowCache.setInitialRows(database.rows);
               return left(l);
             }),
             (err) => right(err),

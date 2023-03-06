@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/database_view/application/view/view_cache.dart'
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/group.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/group_changeset.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
@@ -29,12 +30,25 @@ class GroupCallbacks {
   final OnDeleteGroup? onDeleteGroup;
   final OnInsertGroup? onInsertGroup;
 
-  GroupCallbacks(
+  GroupCallbacks({
     this.onGroupByField,
     this.onUpdateGroup,
     this.onDeleteGroup,
     this.onInsertGroup,
-  );
+  });
+}
+
+class DatabaseCallbacks {
+  OnDatabaseChanged? onDatabaseChanged;
+  OnRowsChanged? onRowsChanged;
+  OnFieldsChanged? onFieldsChanged;
+  OnFiltersChanged? onFiltersChanged;
+  DatabaseCallbacks({
+    this.onDatabaseChanged,
+    this.onRowsChanged,
+    this.onFieldsChanged,
+    this.onFiltersChanged,
+  });
 }
 
 class DatabaseController {
@@ -44,8 +58,7 @@ class DatabaseController {
   late DatabaseViewCache _viewCache;
 
   // Callbacks
-  OnRowsChanged? _onRowChanged;
-  OnDatabaseChanged? _onDatabaseChanged;
+  DatabaseCallbacks? _databaseCallbacks;
   GroupCallbacks? _groupCallbacks;
 
   // Getters
@@ -64,38 +77,39 @@ class DatabaseController {
       viewId: viewId,
       fieldController: fieldController,
     );
-    _viewCache.addListener(onRowsChanged: (reason) {
-      _onRowChanged?.call(rowInfos, reason);
-    });
+    _listenOnRowsChanged();
+    _listenOnFieldsChanged();
+    _listenOnGroupChanged();
   }
 
   void addListener({
-    OnDatabaseChanged? onGridChanged,
-    OnRowsChanged? onRowsChanged,
-    OnFieldsChanged? onFieldsChanged,
-    OnFiltersChanged? onFiltersChanged,
+    DatabaseCallbacks? onDatabaseChanged,
     GroupCallbacks? onGroupChanged,
   }) {
-    _onDatabaseChanged = onGridChanged;
-    _onRowChanged = onRowsChanged;
-
-    fieldController.addListener(
-      onReceiveFields: (fields) {
-        onFieldsChanged?.call(UnmodifiableListView(fields));
-      },
-      onFilters: onFiltersChanged,
-    );
+    _databaseCallbacks = onDatabaseChanged;
+    _groupCallbacks = onGroupChanged;
   }
 
   Future<Either<Unit, FlowyError>> openGrid() async {
     return _databaseBackendSvc.openGrid().then((result) {
       return result.fold(
         (database) async {
-          _onDatabaseChanged?.call(database);
-          _viewCache.rowCache.initializeRows(database.rows);
-          await _loadGroups();
-          return await fieldController.loadFields(
+          _databaseCallbacks?.onDatabaseChanged?.call(database);
+          _viewCache.rowCache.setInitialRows(database.rows);
+          return await fieldController
+              .loadFields(
             fieldIds: database.fields,
+          )
+              .then(
+            (result) {
+              return result.fold(
+                (l) => Future(() async {
+                  await _loadGroups();
+                  return left(l);
+                }),
+                (err) => right(err),
+              );
+            },
           );
         },
         (err) => right(err),
@@ -103,13 +117,19 @@ class DatabaseController {
     });
   }
 
-  Future<void> createRow() async {
-    await _databaseBackendSvc.createRow();
+  Future<Either<RowPB, FlowyError>> createRow(
+      {String? startRowId, String? groupId}) {
+    if (groupId != null) {
+      return _databaseBackendSvc.createGroupRow(groupId, startRowId);
+    } else {
+      return _databaseBackendSvc.createRow(startRowId: startRowId);
+    }
   }
 
   Future<void> dispose() async {
     await _databaseBackendSvc.closeView();
     await fieldController.dispose();
+    await groupListener.stop();
   }
 
   Future<void> _loadGroups() async {
@@ -121,6 +141,48 @@ class DatabaseController {
         },
         (err) => Log.error(err),
       ),
+    );
+  }
+
+  void _listenOnRowsChanged() {
+    _viewCache.addListener(onRowsChanged: (reason) {
+      _databaseCallbacks?.onRowsChanged?.call(rowInfos, reason);
+    });
+  }
+
+  void _listenOnFieldsChanged() {
+    fieldController.addListener(
+      onReceiveFields: (fields) {
+        _databaseCallbacks?.onFieldsChanged?.call(UnmodifiableListView(fields));
+      },
+      onFilters: (filters) {
+        _databaseCallbacks?.onFiltersChanged?.call(filters);
+      },
+    );
+  }
+
+  void _listenOnGroupChanged() {
+    groupListener.start(
+      onNumOfGroupsChanged: (result) {
+        result.fold((changeset) {
+          if (changeset.updateGroups.isNotEmpty) {
+            _groupCallbacks?.onUpdateGroup?.call(changeset.updateGroups);
+          }
+
+          if (changeset.deletedGroups.isNotEmpty) {
+            _groupCallbacks?.onDeleteGroup?.call(changeset.deletedGroups);
+          }
+
+          for (final insertedGroup in changeset.insertedGroups) {
+            _groupCallbacks?.onInsertGroup?.call(insertedGroup);
+          }
+        }, (r) => Log.error(r));
+      },
+      onGroupByNewField: (result) {
+        result.fold((groups) {
+          _groupCallbacks?.onGroupByField?.call(groups);
+        }, (r) => Log.error(r));
+      },
     );
   }
 }

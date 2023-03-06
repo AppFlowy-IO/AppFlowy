@@ -66,10 +66,10 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   }
 
   void _startListening() {
-    databaseController.addListener(
-      onGridChanged: (grid) {
+    final onDatabaseChanged = DatabaseCallbacks(
+      onDatabaseChanged: (database) {
         if (!isClosed) {
-          add(GridEvent.didReceiveGridUpdate(grid));
+          add(GridEvent.didReceiveGridUpdate(database));
         }
       },
       onRowsChanged: (rowInfos, reason) {
@@ -83,6 +83,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
         }
       },
     );
+    databaseController.addListener(onDatabaseChanged: onDatabaseChanged);
   }
 
   Future<void> _openGrid(Emitter<GridState> emit) async {
