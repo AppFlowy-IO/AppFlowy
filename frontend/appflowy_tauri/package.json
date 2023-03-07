@@ -11,6 +11,7 @@
     "test:code": "eslint --max-warnings=0 --ext .js,.ts,.tsx .",
     "test:errors": "eslint --quiet --ext .js,.ts,.tsx .",
     "test:prettier": "yarn prettier --list-different src",
+    "tauri:clean": "cargo make --cwd .. tauri_clean",
     "tauri:dev": "tauri dev",
     "test": "jest"
   },
