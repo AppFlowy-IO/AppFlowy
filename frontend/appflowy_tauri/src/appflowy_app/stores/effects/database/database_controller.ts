@@ -1,53 +1,148 @@
 import { DatabaseBackendService } from './database_bd_svc';
 import { FieldController, FieldInfo } from './field/field_controller';
 import { DatabaseViewCache } from './view/database_view_cache';
-import { DatabasePB } from '../../../../services/backend';
+import { DatabasePB, GroupPB } from '../../../../services/backend';
 import { RowChangedReason, RowInfo } from './row/row_cache';
-import { Err, Ok, Result } from 'ts-results';
+import { Err } from 'ts-results';
+import { DatabaseGroupController } from './group/group_controller';
+import { BehaviorSubject } from 'rxjs';
+import { DatabaseGroupObserver } from './group/group_observer';
+import { Log } from '../../../utils/log';
 
-export type SubscribeCallbacks = {
+export type DatabaseSubscriberCallbacks = {
   onViewChanged?: (data: DatabasePB) => void;
   onRowsChanged?: (rowInfos: readonly RowInfo[], reason: RowChangedReason) => void;
   onFieldsChanged?: (fieldInfos: readonly FieldInfo[]) => void;
+  onGroupByField?: (groups: GroupPB[]) => void;
+
+  onNumOfGroupChanged?: {
+    onUpdateGroup: (value: GroupPB[]) => void;
+    onDeleteGroup: (value: GroupPB[]) => void;
+    onInsertGroup: (value: GroupPB[]) => void;
+  };
 };
 
 export class DatabaseController {
-  private backendService: DatabaseBackendService;
+  private readonly backendService: DatabaseBackendService;
   fieldController: FieldController;
   databaseViewCache: DatabaseViewCache;
-  private _callback?: SubscribeCallbacks;
+  private _callback?: DatabaseSubscriberCallbacks;
+  public groups: BehaviorSubject<DatabaseGroupController[]>;
+  private groupsObserver: DatabaseGroupObserver;
 
   constructor(public readonly viewId: string) {
     this.backendService = new DatabaseBackendService(viewId);
     this.fieldController = new FieldController(viewId);
     this.databaseViewCache = new DatabaseViewCache(viewId, this.fieldController);
+    this.groups = new BehaviorSubject<DatabaseGroupController[]>([]);
+    this.groupsObserver = new DatabaseGroupObserver(viewId);
   }
 
-  subscribe = (callbacks: SubscribeCallbacks) => {
+  subscribe = (callbacks: DatabaseSubscriberCallbacks) => {
     this._callback = callbacks;
-    this.fieldController.subscribeOnNumOfFieldsChanged(callbacks.onFieldsChanged);
-    this.databaseViewCache.getRowCache().subscribeOnRowsChanged((reason) => {
-      this._callback?.onRowsChanged?.(this.databaseViewCache.rowInfos, reason);
+    this.fieldController.subscribe({ onNumOfFieldsChanged: callbacks.onFieldsChanged });
+    this.databaseViewCache.getRowCache().subscribe({
+      onRowsChanged: (reason) => {
+        this._callback?.onRowsChanged?.(this.databaseViewCache.rowInfos, reason);
+      },
     });
   };
 
   open = async () => {
-    const result = await this.backendService.openDatabase();
-    if (result.ok) {
-      const database: DatabasePB = result.val;
-      this._callback?.onViewChanged?.(database);
+    const openDatabaseResult = await this.backendService.openDatabase();
+    if (openDatabaseResult.ok) {
+      const database: DatabasePB = openDatabaseResult.val;
+      await this.databaseViewCache.initialize();
+      await this.fieldController.initialize();
+
+      // subscriptions
+      await this.subscribeOnGroupsChanged();
+
+      // load database initial data
       await this.fieldController.loadFields(database.fields);
-      await this.databaseViewCache.listenOnRowsChanged();
-      await this.fieldController.listenOnFieldChanges();
+      const loadGroupResult = await this.loadGroup();
+
       this.databaseViewCache.initializeWithRows(database.rows);
-      return Ok.EMPTY;
+
+      this._callback?.onViewChanged?.(database);
+      return loadGroupResult;
     } else {
-      return Err(result.val);
+      return Err(openDatabaseResult.val);
     }
   };
 
-  createRow = async () => {
+  createRow = () => {
     return this.backendService.createRow();
+  };
+
+  moveRow = (rowId: string, groupId: string) => {
+    return this.backendService.moveRow(rowId, groupId);
+  };
+
+  moveGroup = (fromGroupId: string, toGroupId: string) => {
+    return this.backendService.moveGroup(fromGroupId, toGroupId);
+  };
+
+  private loadGroup = async () => {
+    const result = await this.backendService.loadGroups();
+    if (result.ok) {
+      const groups = result.val.items;
+      await this.initialGroups(groups);
+    }
+    return result;
+  };
+
+  private initialGroups = async (groups: GroupPB[]) => {
+    this.groups.getValue().forEach((controller) => {
+      void controller.dispose();
+    });
+
+    const controllers: DatabaseGroupController[] = [];
+    for (const groupPB of groups) {
+      const controller = new DatabaseGroupController(groupPB, this.backendService);
+      await controller.initialize();
+      controllers.push(controller);
+    }
+    this.groups.next(controllers);
+    this.groups.value;
+  };
+
+  private subscribeOnGroupsChanged = async () => {
+    await this.groupsObserver.subscribe({
+      onGroupBy: async (result) => {
+        if (result.ok) {
+          await this.initialGroups(result.val);
+        }
+      },
+      onGroupChangeset: (result) => {
+        if (result.err) {
+          Log.error(result.val);
+          return;
+        }
+        const changeset = result.val;
+        let existControllers = [...this.groups.getValue()];
+        for (const deleteId of changeset.deleted_groups) {
+          existControllers = existControllers.filter((c) => c.groupId !== deleteId);
+        }
+
+        for (const update of changeset.update_groups) {
+          const index = existControllers.findIndex((c) => c.groupId === update.group_id);
+          if (index !== -1) {
+            existControllers[index].updateGroup(update);
+          }
+        }
+
+        for (const insert of changeset.inserted_groups) {
+          const controller = new DatabaseGroupController(insert.group, this.backendService);
+          if (insert.index > existControllers.length) {
+            existControllers.push(controller);
+          } else {
+            existControllers.splice(insert.index, 0, controller);
+          }
+        }
+        this.groups.next(existControllers);
+      },
+    });
   };
 
   dispose = async () => {

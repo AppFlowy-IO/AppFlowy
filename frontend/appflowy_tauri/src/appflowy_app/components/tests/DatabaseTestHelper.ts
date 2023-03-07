@@ -1,4 +1,10 @@
-import { FieldType, ViewLayoutTypePB, ViewPB, WorkspaceSettingPB } from '../../../services/backend';
+import {
+  FieldType,
+  SingleSelectTypeOptionPB,
+  ViewLayoutTypePB,
+  ViewPB,
+  WorkspaceSettingPB,
+} from '../../../services/backend';
 import { FolderEventReadCurrentWorkspace } from '../../../services/backend/events/flowy-folder';
 import { AppBackendService } from '../../stores/effects/folder/app/app_bd_svc';
 import { DatabaseController } from '../../stores/effects/database/database_controller';
@@ -14,6 +20,10 @@ import {
 import { None, Option, Some } from 'ts-results';
 import { TypeOptionBackendService } from '../../stores/effects/database/field/type_option/type_option_bd_svc';
 import { DatabaseBackendService } from '../../stores/effects/database/database_bd_svc';
+import { FieldInfo } from '../../stores/effects/database/field/field_controller';
+import { TypeOptionController } from '../../stores/effects/database/field/type_option/type_option_controller';
+import { makeSingleSelectTypeOptionContext } from '../../stores/effects/database/field/type_option/type_option_context';
+import { SelectOptionBackendService } from '../../stores/effects/database/cell/select_option_bd_svc';
 
 // Create a database view for specific layout type
 // Do not use it production code. Just for testing
@@ -166,5 +176,38 @@ export async function assertNumberOfRows(viewId: string, expected: number) {
   const databasePB = await svc.openDatabase().then((result) => result.unwrap());
   if (databasePB.rows.length !== expected) {
     throw Error('Expect number of rows:' + expected + 'but receive:' + databasePB.rows.length);
+  }
+}
+
+export async function assertNumberOfRowsInGroup(viewId: string, groupId: string, expected: number) {
+  const svc = new DatabaseBackendService(viewId);
+  await svc.openDatabase();
+
+  const group = await svc.getGroup(groupId).then((result) => result.unwrap());
+  if (group.rows.length !== expected) {
+    throw Error('Expect number of rows in group:' + expected + 'but receive:' + group.rows.length);
+  }
+}
+
+export async function createSingleSelectOptions(viewId: string, fieldInfo: FieldInfo, optionNames: string[]) {
+  assert(fieldInfo.field.field_type === FieldType.SingleSelect, 'Only work on single select');
+  const typeOptionController = new TypeOptionController(viewId, Some(fieldInfo));
+  const singleSelectTypeOptionContext = makeSingleSelectTypeOptionContext(typeOptionController);
+  const singleSelectTypeOptionPB: SingleSelectTypeOptionPB = await singleSelectTypeOptionContext
+    .getTypeOption()
+    .then((result) => result.unwrap());
+
+  const backendSvc = new SelectOptionBackendService(viewId, fieldInfo.field.id);
+  for (const optionName of optionNames) {
+    const option = await backendSvc.createOption({ name: optionName }).then((result) => result.unwrap());
+    singleSelectTypeOptionPB.options.splice(0, 0, option);
+  }
+  await singleSelectTypeOptionContext.setTypeOption(singleSelectTypeOptionPB);
+  return singleSelectTypeOptionContext;
+}
+
+export function assert(condition: boolean, msg?: string) {
+  if (!condition) {
+    throw Error(msg);
   }
 }

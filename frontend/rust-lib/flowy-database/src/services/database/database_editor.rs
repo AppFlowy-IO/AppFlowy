@@ -924,6 +924,11 @@ impl DatabaseEditor {
     self.database_views.load_groups(view_id).await
   }
 
+  #[tracing::instrument(level = "trace", skip_all, err)]
+  pub async fn get_group(&self, view_id: &str, group_id: &str) -> FlowyResult<GroupPB> {
+    self.database_views.get_group(view_id, group_id).await
+  }
+
   async fn create_row_rev(&self) -> FlowyResult<RowRevision> {
     let field_revs = self.database_pad.read().await.get_field_revs(None)?;
     let block_id = self.block_id().await?;

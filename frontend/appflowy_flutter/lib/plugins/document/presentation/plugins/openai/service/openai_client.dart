@@ -91,7 +91,13 @@ class HttpOpenAIRepository implements OpenAIRepository {
     );
 
     if (response.statusCode == 200) {
-      return Right(TextCompletionResponse.fromJson(json.decode(response.body)));
+      return Right(
+        TextCompletionResponse.fromJson(
+          json.decode(
+            utf8.decode(response.bodyBytes),
+          ),
+        ),
+      );
     } else {
       return Left(OpenAIError.fromJson(json.decode(response.body)['error']));
     }
@@ -119,7 +125,13 @@ class HttpOpenAIRepository implements OpenAIRepository {
     );
 
     if (response.statusCode == 200) {
-      return Right(TextEditResponse.fromJson(json.decode(response.body)));
+      return Right(
+        TextEditResponse.fromJson(
+          json.decode(
+            utf8.decode(response.bodyBytes),
+          ),
+        ),
+      );
     } else {
       return Left(OpenAIError.fromJson(json.decode(response.body)['error']));
     }

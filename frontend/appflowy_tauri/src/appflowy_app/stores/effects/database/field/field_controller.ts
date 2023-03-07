@@ -6,17 +6,17 @@ import { ChangeNotifier } from '../../../../utils/change_notifier';
 
 export class FieldController {
   private backendService: DatabaseBackendService;
-  private numOfFieldsObserver: DatabaseFieldChangesetObserver;
+  private fieldChangesetObserver: DatabaseFieldChangesetObserver;
   private numOfFieldsNotifier = new NumOfFieldsNotifier([]);
 
   constructor(public readonly viewId: string) {
     this.backendService = new DatabaseBackendService(viewId);
-    this.numOfFieldsObserver = new DatabaseFieldChangesetObserver(viewId);
+    this.fieldChangesetObserver = new DatabaseFieldChangesetObserver(viewId);
   }
 
   dispose = async () => {
     this.numOfFieldsNotifier.unsubscribe();
-    await this.numOfFieldsObserver.unsubscribe();
+    await this.fieldChangesetObserver.unsubscribe();
   };
 
   get fieldInfos(): readonly FieldInfo[] {
@@ -36,14 +36,14 @@ export class FieldController {
     }
   };
 
-  subscribeOnNumOfFieldsChanged = (callback?: (fieldInfos: readonly FieldInfo[]) => void) => {
-    return this.numOfFieldsNotifier.observer.subscribe((fieldInfos) => {
-      callback?.(fieldInfos);
+  subscribe = (callbacks: { onNumOfFieldsChanged?: (fieldInfos: readonly FieldInfo[]) => void}) => {
+     this.numOfFieldsNotifier.observer.subscribe((fieldInfos) => {
+      callbacks.onNumOfFieldsChanged?.(fieldInfos);
     });
   };
 
-  listenOnFieldChanges = async () => {
-    await this.numOfFieldsObserver.subscribe({
+  initialize = async () => {
+    await this.fieldChangesetObserver.subscribe({
       onFieldsChanged: (result) => {
         if (result.ok) {
           const changeset = result.val;

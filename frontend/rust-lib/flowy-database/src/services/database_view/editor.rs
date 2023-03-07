@@ -24,7 +24,7 @@ use database_model::{
 use flowy_client_sync::client_database::{
   make_database_view_operations, DatabaseViewRevisionChangeset, DatabaseViewRevisionPad,
 };
-use flowy_error::FlowyResult;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::RevisionManager;
 use flowy_sqlite::ConnectionPool;
 use flowy_task::TaskDispatcher;
@@ -379,7 +379,7 @@ impl DatabaseViewEditor {
       }
     }
   }
-  /// Only call once after grid view editor initialized
+  /// Only call once after database view editor initialized
   #[tracing::instrument(level = "trace", skip(self))]
   pub async fn v_load_groups(&self) -> FlowyResult<Vec<GroupPB>> {
     let groups = self
@@ -392,6 +392,14 @@ impl DatabaseViewEditor {
       .collect::<Vec<Group>>();
     tracing::trace!("Number of groups: {}", groups.len());
     Ok(groups.into_iter().map(GroupPB::from).collect())
+  }
+
+  #[tracing::instrument(level = "trace", skip(self))]
+  pub async fn v_get_group(&self, group_id: &str) -> FlowyResult<GroupPB> {
+    match self.group_controller.read().await.get_group(group_id) {
+      None => Err(FlowyError::record_not_found().context("Can't find the group")),
+      Some((_, group)) => Ok(GroupPB::from(group)),
+    }
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]

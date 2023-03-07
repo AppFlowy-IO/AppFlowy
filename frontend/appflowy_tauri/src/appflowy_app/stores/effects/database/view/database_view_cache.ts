@@ -7,16 +7,17 @@ import { Subscription } from 'rxjs';
 export class DatabaseViewCache {
   private readonly rowsObserver: DatabaseViewRowsObserver;
   private readonly rowCache: RowCache;
-  private readonly fieldSubscription?: Subscription;
 
   constructor(public readonly viewId: string, fieldController: FieldController) {
     this.rowsObserver = new DatabaseViewRowsObserver(viewId);
     this.rowCache = new RowCache(viewId, () => fieldController.fieldInfos);
-    this.fieldSubscription = fieldController.subscribeOnNumOfFieldsChanged((fieldInfos) => {
-      fieldInfos.forEach((fieldInfo) => {
-        this.rowCache.onFieldUpdated(fieldInfo);
-      });
-      this.rowCache.onNumberOfFieldsUpdated(fieldInfos);
+    fieldController.subscribe({
+      onNumOfFieldsChanged: (fieldInfos) => {
+        fieldInfos.forEach((fieldInfo) => {
+          this.rowCache.onFieldUpdated(fieldInfo);
+        });
+        this.rowCache.onNumberOfFieldsUpdated(fieldInfos);
+      },
     });
   }
 
@@ -33,12 +34,11 @@ export class DatabaseViewCache {
   };
 
   dispose = async () => {
-    this.fieldSubscription?.unsubscribe();
     await this.rowsObserver.unsubscribe();
     await this.rowCache.dispose();
   };
 
-  listenOnRowsChanged = async () => {
+  initialize = async () => {
     await this.rowsObserver.subscribe({
       onRowsVisibilityChanged: (result) => {
         if (result.ok) {

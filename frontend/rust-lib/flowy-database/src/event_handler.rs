@@ -538,6 +538,17 @@ pub(crate) async fn get_groups_handler(
   data_result_ok(groups)
 }
 
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn get_group_handler(
+  data: AFPluginData<DatabaseGroupIdPB>,
+  manager: AFPluginState<Arc<DatabaseManager>>,
+) -> DataResult<GroupPB, FlowyError> {
+  let params: DatabaseGroupIdParams = data.into_inner().try_into()?;
+  let editor = manager.get_database_editor(&params.view_id).await?;
+  let group = editor.get_group(&params.view_id, &params.group_id).await?;
+  data_result_ok(group)
+}
+
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn create_board_card_handler(
   data: AFPluginData<CreateBoardCardPayloadPB>,
