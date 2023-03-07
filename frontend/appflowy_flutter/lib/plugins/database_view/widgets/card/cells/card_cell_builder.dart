@@ -12,14 +12,10 @@ import 'select_option_card_cell.dart';
 import 'text_card_cell.dart';
 import 'url_card_cell.dart';
 
-abstract class BoardCellBuilderDelegate {
-  CellCache get cellCache;
-}
-
 class CardCellBuilder {
-  final BoardCellBuilderDelegate delegate;
+  final CellCache cellCache;
 
-  CardCellBuilder(this.delegate);
+  CardCellBuilder(this.cellCache);
 
   Widget buildCell(
     String groupId,
@@ -28,7 +24,7 @@ class CardCellBuilder {
   ) {
     final cellControllerBuilder = CellControllerBuilder(
       cellId: cellId,
-      cellCache: delegate.cellCache,
+      cellCache: cellCache,
     );
 
     final key = cellId.key();

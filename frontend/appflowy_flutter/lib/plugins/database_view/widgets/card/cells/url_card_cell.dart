@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 
-import '../bloc/board_url_cell_bloc.dart';
+import '../bloc/url_card_cell_bloc.dart';
 import '../define.dart';
+import 'card_cell.dart';
 
-class URLCardCell extends StatefulWidget {
+class URLCardCell extends CardCell {
   final CellControllerBuilder cellControllerBuilder;
 
   const URLCardCell({

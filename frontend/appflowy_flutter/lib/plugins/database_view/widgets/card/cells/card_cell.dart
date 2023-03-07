@@ -1,8 +1,8 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:flutter/material.dart';
 
-abstract class FocusableCardCell {
-  set becomeFocus(bool isFocus);
+abstract class CardCell extends StatefulWidget {
+  const CardCell({super.key});
 }
 
 class EditableCardNotifier {

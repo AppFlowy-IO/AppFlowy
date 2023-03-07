@@ -2,7 +2,7 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_controller_
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'bloc/board_number_cell_bloc.dart';
+import 'bloc/number_card_cell_bloc.dart';
 import 'define.dart';
 
 class BoardNumberCell extends StatefulWidget {

@@ -4,9 +4,10 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../bloc/board_checkbox_cell_bloc.dart';
+import '../bloc/checkbox_card_cell_bloc.dart';
+import 'card_cell.dart';
 
-class CheckboxCardCell extends StatefulWidget {
+class CheckboxCardCell extends CardCell {
   final CellControllerBuilder cellControllerBuilder;
 
   const CheckboxCardCell({

@@ -20,10 +20,10 @@ import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../widgets/card/bloc/card_data_controller.dart';
+import '../../widgets/card/cells/card_cell_builder.dart';
 import '../application/board_bloc.dart';
-import '../application/card/card_data_controller.dart';
 import '../../widgets/card/card.dart';
-import '../../widgets/card/card_cell_builder.dart';
 import 'toolbar/board_toolbar.dart';
 
 class BoardPage extends StatelessWidget {
@@ -225,15 +225,11 @@ class _BoardContentState extends State<BoardContent> {
 
     /// Return placeholder widget if the rowCache is null.
     if (rowCache == null) return SizedBox(key: ObjectKey(groupItem));
-
+    final cellCache = rowCache.cellCache;
     final fieldController = context.read<BoardBloc>().fieldController;
     final viewId = context.read<BoardBloc>().viewId;
-    final cardController = CardDataController(
-      rowCache: rowCache,
-      rowPB: rowPB,
-    );
 
-    final cellBuilder = CardCellBuilder(cardController);
+    final cellBuilder = CardCellBuilder(cellCache);
     bool isEditing = false;
     context.read<BoardBloc>().state.editingRow.fold(
       () => null,
@@ -248,12 +244,13 @@ class _BoardContentState extends State<BoardContent> {
       margin: config.cardPadding,
       decoration: _makeBoxDecoration(context),
       child: Card(
+        row: rowPB,
         viewId: viewId,
+        rowCache: rowCache,
         groupId: groupData.group.groupId,
         fieldId: groupItem.fieldInfo.id,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
-        dataController: cardController,
         openCard: (context) => _openCard(
           viewId,
           fieldController,

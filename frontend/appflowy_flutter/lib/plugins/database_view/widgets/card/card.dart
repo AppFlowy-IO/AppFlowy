@@ -1,11 +1,12 @@
+import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/row_action_sheet.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'bloc/card_data_controller.dart';
 import 'card_bloc.dart';
 import 'cells/card_cell.dart';
 import 'cells/card_cell_builder.dart';
@@ -13,22 +14,24 @@ import 'container/accessory.dart';
 import 'container/card_container.dart';
 
 class Card extends StatefulWidget {
+  final RowPB row;
   final String viewId;
   final String groupId;
   final String fieldId;
   final bool isEditing;
-  final CardDataController dataController;
+  final RowCache rowCache;
   final CardCellBuilder cellBuilder;
   final void Function(BuildContext) openCard;
   final VoidCallback onStartEditing;
   final VoidCallback onEndEditing;
 
   const Card({
+    required this.row,
     required this.viewId,
     required this.groupId,
     required this.fieldId,
     required this.isEditing,
-    required this.dataController,
+    required this.rowCache,
     required this.cellBuilder,
     required this.openCard,
     required this.onStartEditing,
@@ -52,8 +55,9 @@ class _CardState extends State<Card> {
     _cardBloc = CardBloc(
       viewId: widget.viewId,
       groupFieldId: widget.fieldId,
-      dataController: widget.dataController,
       isEditing: widget.isEditing,
+      row: widget.row,
+      rowCache: widget.rowCache,
     )..add(const BoardCardEvent.initial());
 
     rowNotifier.isEditing.addListener(() {

@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../grid/application/cell/checklist_cell_bloc.dart';
+import 'card_cell.dart';
 
-class ChecklistCardCell extends StatefulWidget {
+class ChecklistCardCell extends CardCell {
   final CellControllerBuilder cellControllerBuilder;
   const ChecklistCardCell({required this.cellControllerBuilder, Key? key})
       : super(key: key);
