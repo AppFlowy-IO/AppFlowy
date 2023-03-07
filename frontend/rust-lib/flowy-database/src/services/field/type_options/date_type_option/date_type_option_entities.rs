@@ -157,17 +157,14 @@ impl FromCellString for DateCellData {
   where
     Self: Sized,
   {
-    let result: DateCellData = serde_json::from_str(s).unwrap_or_default();
+    let result: DateCellData = serde_json::from_str(s).unwrap();
     Ok(result)
   }
 }
 
 impl ToString for DateCellData {
   fn to_string(&self) -> String {
-    match self.timestamp {
-      None => "".to_string(),
-      Some(_) => serde_json::to_string(self).unwrap(),
-    }
+    serde_json::to_string(self).unwrap()
   }
 }
 

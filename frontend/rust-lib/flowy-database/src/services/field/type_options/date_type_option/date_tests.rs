@@ -83,6 +83,14 @@ mod tests {
           assert_date(
             &type_option,
             1653609600,
+            Some("9:00".to_owned()),
+            "May 27,2022 09:00",
+            true,
+            &field_rev,
+          );
+          assert_date(
+            &type_option,
+            1653609600,
             Some("23:00".to_owned()),
             "May 27,2022 23:00",
             true,
@@ -95,6 +103,14 @@ mod tests {
             1653609600,
             None,
             "May 27,2022 12:00 AM",
+            true,
+            &field_rev,
+          );
+          assert_date(
+            &type_option,
+            1653609600,
+            Some("9:00 AM".to_owned()),
+            "May 27,2022 09:00 AM",
             true,
             &field_rev,
           );
@@ -150,7 +166,22 @@ mod tests {
     );
   }
 
-  /// The default time format is TwentyFourHour, so the include_time_str  in twelve_hours_format will cause parser error.
+  #[test]
+  fn date_type_midnight_include_time_str_test() {
+    let type_option = DateTypeOptionPB::new();
+    let field_type = FieldType::DateTime;
+    let field_rev = FieldBuilder::from_field_type(&field_type).build();
+    assert_date(
+      &type_option,
+      1653609600,
+      Some("00:00".to_owned()),
+      "May 27,2022 00:00",
+      true,
+      &field_rev,
+    );
+  }
+
+  /// The default time format is TwentyFourHour, so the include_time_str in twelve_hours_format will cause parser error.
   #[test]
   #[should_panic]
   fn date_type_option_twelve_hours_include_time_str_in_twenty_four_hours_format() {
@@ -162,6 +193,24 @@ mod tests {
       1653609600,
       Some("1:00 am".to_owned()),
       "May 27,2022 01:00 AM",
+      true,
+      &field_rev,
+    );
+  }
+
+  // Attempting to parse include_time_str as TwelveHour when TwentyFourHour format is given should cause parser error.
+  #[test]
+  #[should_panic]
+  fn date_type_option_twenty_four_hours_include_time_str_in_twelve_hours_format() {
+    let mut type_option = DateTypeOptionPB::new();
+    type_option.time_format = TimeFormat::TwelveHour;
+    let field_rev = FieldBuilder::from_field_type(&FieldType::DateTime).build();
+
+    assert_date(
+      &type_option,
+      1653609600,
+      Some("20:00".to_owned()),
+      "May 27,2022 08:00 PM",
       true,
       &field_rev,
     );

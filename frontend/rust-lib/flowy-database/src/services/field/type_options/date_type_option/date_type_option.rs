@@ -185,6 +185,7 @@ impl CellDataChangeset for DateTypeOptionPB {
         (cell_data.timestamp, cell_data.include_time)
       },
     };
+
     let include_time = match changeset.include_time {
       None => include_time,
       Some(include_time) => include_time,
@@ -205,6 +206,7 @@ impl CellDataChangeset for DateTypeOptionPB {
         _ => Some(date_timestamp),
       },
     };
+
     let date_cell_data = DateCellData {
       timestamp,
       include_time,
