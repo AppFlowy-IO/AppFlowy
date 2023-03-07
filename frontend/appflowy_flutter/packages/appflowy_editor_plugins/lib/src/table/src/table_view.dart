@@ -27,26 +27,55 @@ class _TableViewState extends State<TableView> {
     return ChangeNotifierProvider.value(
         value: widget.data,
         builder: (context, _) {
-          return Container(
-            padding:
-                const EdgeInsets.only(left: 0, bottom: 8, right: 80, top: 8),
+          return Padding(
+            padding: const EdgeInsets.only(right: 30, top: 8),
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              children: _buildColumns(context),
+              children: [
+                Column(
+                  children: [
+                    Row(
+                      children: [
+                        ..._buildColumns(context),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 1),
+                          child: ActionMenuWidget(items: [
+                            ActionMenuItem.icon(
+                                iconData: Icons.add,
+                                onPressed: () {
+                                  context.read<TableData>().addCol();
+                                }),
+                          ]),
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 1, right: 32),
+                      child: ActionMenuWidget(items: [
+                        ActionMenuItem.icon(
+                            iconData: Icons.add,
+                            onPressed: () {
+                              context.read<TableData>().addRow();
+                            }),
+                      ]),
+                    )
+                  ],
+                ),
+              ],
             ),
           );
         });
   }
 
   List<Widget> _buildColumns(BuildContext context) {
-    var colsLen = context.read<TableData>().colsLen;
+    var colsLen = context.select((TableData td) => td.colsLen);
     var cols = [];
 
     final Widget columnBorder = MouseRegion(
       cursor: SystemMouseCursors.resizeLeftRight,
       child: Container(
         width: 2,
-        height: context.select((TableData td) => td.colsHeight) + 6,
+        height: context.select((TableData td) => td.colsHeight),
         color: Colors.grey,
       ),
     );
@@ -68,7 +97,7 @@ class _TableViewState extends State<TableView> {
   }
 
   List<Widget> _buildColumn(BuildContext context, int colIdx) {
-    var rowsLen = context.read<TableData>().rowsLen;
+    var rowsLen = context.select((TableData td) => td.rowsLen);
     var cells = [];
     final Widget cellBorder = MouseRegion(
       cursor: SystemMouseCursors.resizeUpDown,

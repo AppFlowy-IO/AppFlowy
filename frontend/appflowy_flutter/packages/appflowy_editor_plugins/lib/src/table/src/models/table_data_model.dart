@@ -25,7 +25,7 @@ class TableData extends ChangeNotifier {
             }))
         .toList()));
 
-    fill();
+    _fill();
   }
 
   TableData.fromJson(Map<String, dynamic> json) {
@@ -35,10 +35,10 @@ class TableData extends ChangeNotifier {
           (col) => ColumnData.from(col.map((cell) => CellData.from(cell)))));
     }
 
-    fill();
+    _fill();
   }
 
-  fill() {
+  _fill() {
     for (var i = 0; i < rowsLen; i++) {
       rowsHeight.add(40);
     }
@@ -70,21 +70,53 @@ class TableData extends ChangeNotifier {
   get rowsLen => cells[0].length;
 
   double getRowHeight(int row) => rowsHeight[row];
-  get colsHeight => rowsHeight.fold<double>(0, (prev, cur) => prev + cur);
+  get colsHeight =>
+      rowsHeight.fold<double>(0, (prev, cur) => prev + cur + 2) + 2;
 
   notifyNodeUpdate(int col, row) {
     var node = cellNodes[col][row], height = node.rect.height;
-    if (rowsHeight.length <= col) {
+    if (rowsHeight.length <= row) {
       rowsHeight.add(height);
       notifyListeners();
     } else {
       double maxHeight =
-          cellNodes.map<double>((col) => col[row].rect.height).reduce(max);
+          cellNodes.map<double>((c) => c[row].rect.height).reduce(max);
 
       if (rowsHeight[row] != maxHeight) {
         rowsHeight[row] = maxHeight;
         notifyListeners();
       }
     }
+  }
+
+  addCol() {
+    cells.add(ColumnData.generate(
+      rowsLen,
+      (_) => CellData.from({
+        "type": "text",
+        "delta": [
+          {"insert": ''}
+        ]
+      }),
+    ));
+
+    notifyListeners();
+  }
+
+  addRow() {
+    for (var i = 0; i < cells.length; i++) {
+      cells[i].add(
+        CellData.from({
+          "type": "text",
+          "delta": [
+            {"insert": ''}
+          ]
+        }),
+      );
+    }
+
+    rowsHeight.add(40);
+
+    notifyListeners();
   }
 }
