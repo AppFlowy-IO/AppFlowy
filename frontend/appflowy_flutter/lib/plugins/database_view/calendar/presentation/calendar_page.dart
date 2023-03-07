@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -28,7 +27,7 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-  final _eventController = EventController<CalendarEventPB>();
+  final _eventController = EventController<CalendarCardData>();
   GlobalKey<MonthViewState>? _calendarState;
 
   @override
@@ -145,7 +144,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
   Widget _calendarDayBuilder(
     DateTime date,
-    List<CalendarEventData<CalendarEventPB>> calenderEvents,
+    List<CalendarEventData<CalendarCardData>> calenderEvents,
     isToday,
     isInMonth,
   ) {

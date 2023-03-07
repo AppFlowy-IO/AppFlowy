@@ -1,3 +1,6 @@
+import 'dart:collection';
+
+import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -66,16 +69,41 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       result.fold(
         (events) {
           if (!isClosed) {
-            final calendarEvents = events.items.map((calendarEvent) {
-              // final date = DateTime.fromMillisecondsSinceEpoch(
-              //   calendarEvent.timestamp.toInt(),
-              // );
-              return CalendarEventData(
-                title: calendarEvent.title,
-                date: DateTime.now(),
-                event: calendarEvent,
-              );
-            }).toList();
+            final calendarEvents = <CalendarEventData<CalendarCardData>>[];
+            final fieldInfoByFieldId =
+                LinkedHashMap<String, FieldInfo>.fromIterable(
+              _databaseController.fieldController.fieldInfos,
+              key: (fieldInfo) => fieldInfo.field.id,
+              value: (fieldInfo) => fieldInfo,
+            );
+
+            for (final event in events.items) {
+              final fieldInfo = fieldInfoByFieldId[event.fieldId];
+              if (fieldInfo != null) {
+                final cellId = CellIdentifier(
+                  viewId: viewId,
+                  rowId: event.rowId,
+                  fieldInfo: fieldInfo,
+                );
+
+                final eventData = CalendarCardData(
+                  event: event,
+                  cellId: cellId,
+                );
+
+                // final date = DateTime.fromMillisecondsSinceEpoch(
+                //   calendarEvent.timestamp.toInt(),
+                // );
+                final calendarEvent = CalendarEventData(
+                  title: event.title,
+                  date: DateTime.now(),
+                  event: eventData,
+                );
+
+                calendarEvents.add(calendarEvent);
+              }
+            }
+
             add(CalendarEvent.didReceiveEvents(calendarEvents));
           }
         },
@@ -120,7 +148,7 @@ class CalendarEvent with _$CalendarEvent {
   const factory CalendarEvent.didReceiveCalendarSettings(
       CalendarLayoutSettingsPB settings) = _DidReceiveCalendarSettings;
   const factory CalendarEvent.didReceiveEvents(
-          List<CalendarEventData<CalendarEventPB>> events) =
+          List<CalendarEventData<CalendarCardData>> events) =
       _DidReceiveCalendarEvents;
   const factory CalendarEvent.didReceiveDatabaseUpdate(DatabasePB database) =
       _DidReceiveDatabaseUpdate;
@@ -131,8 +159,7 @@ class CalendarState with _$CalendarState {
   const factory CalendarState({
     required String databaseId,
     required Option<DatabasePB> database,
-    required Option<List<RowInfo>> unscheduledRows,
-    required List<CalendarEventData<CalendarEventPB>> events,
+    required List<CalendarEventData<CalendarCardData>> events,
     required Option<CalendarLayoutSettingsPB> settings,
     required DatabaseLoadingState loadingState,
     required Option<FlowyError> noneOrError,
@@ -141,7 +168,6 @@ class CalendarState with _$CalendarState {
   factory CalendarState.initial(String databaseId) => CalendarState(
         database: none(),
         databaseId: databaseId,
-        unscheduledRows: none(),
         events: [],
         settings: none(),
         noneOrError: none(),
@@ -166,7 +192,8 @@ class CalendarEditingRow {
   });
 }
 
-class CalendarData {
-  final RowInfo rowInfo;
-  CalendarData(this.rowInfo);
+class CalendarCardData {
+  final CalendarEventPB event;
+  final CellIdentifier cellId;
+  CalendarCardData({required this.cellId, required this.event});
 }
