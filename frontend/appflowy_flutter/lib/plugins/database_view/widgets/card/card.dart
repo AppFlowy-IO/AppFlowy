@@ -13,22 +13,22 @@ import 'cells/card_cell_builder.dart';
 import 'container/accessory.dart';
 import 'container/card_container.dart';
 
-class Card extends StatefulWidget {
+class Card<T> extends StatefulWidget {
   final RowPB row;
   final String viewId;
-  final String groupId;
   final String fieldId;
+  final T? cardData;
   final bool isEditing;
   final RowCache rowCache;
-  final CardCellBuilder cellBuilder;
+  final CardCellBuilder<T> cellBuilder;
   final void Function(BuildContext) openCard;
   final VoidCallback onStartEditing;
   final VoidCallback onEndEditing;
+  final RenderHookByFieldType<T>? renderHooks;
 
   const Card({
     required this.row,
     required this.viewId,
-    required this.groupId,
     required this.fieldId,
     required this.isEditing,
     required this.rowCache,
@@ -36,14 +36,16 @@ class Card extends StatefulWidget {
     required this.openCard,
     required this.onStartEditing,
     required this.onEndEditing,
+    this.cardData,
+    this.renderHooks,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<Card> createState() => _CardState();
+  State<Card<T>> createState() => _CardState<T>();
 }
 
-class _CardState extends State<Card> {
+class _CardState<T> extends State<Card<T>> {
   late CardBloc _cardBloc;
   late EditableRowNotifier rowNotifier;
   late PopoverController popoverController;
@@ -114,11 +116,12 @@ class _CardState extends State<Card> {
               },
               openAccessory: _handleOpenAccessory,
               openCard: (context) => widget.openCard(context),
-              child: _CellColumn(
-                groupId: widget.groupId,
+              child: _CardContent<T>(
                 rowNotifier: rowNotifier,
                 cellBuilder: widget.cellBuilder,
                 cells: state.cells,
+                renderHooks: widget.renderHooks,
+                cardData: widget.cardData,
               ),
             ),
           );
@@ -160,16 +163,18 @@ class _CardState extends State<Card> {
   }
 }
 
-class _CellColumn extends StatelessWidget {
-  final String groupId;
-  final CardCellBuilder cellBuilder;
+class _CardContent<T> extends StatelessWidget {
+  final CardCellBuilder<T> cellBuilder;
   final EditableRowNotifier rowNotifier;
   final List<BoardCellEquatable> cells;
-  const _CellColumn({
-    required this.groupId,
+  final RenderHookByFieldType<T>? renderHooks;
+  final T? cardData;
+  const _CardContent({
     required this.rowNotifier,
     required this.cellBuilder,
     required this.cells,
+    required this.cardData,
+    this.renderHooks,
     Key? key,
   }) : super(key: key);
 
@@ -204,9 +209,10 @@ class _CellColumn extends StatelessWidget {
           key: cell.identifier.key(),
           padding: const EdgeInsets.only(left: 4, right: 4),
           child: cellBuilder.buildCell(
-            groupId,
-            cell.identifier,
-            cellNotifier,
+            cellId: cell.identifier,
+            cellNotifier: cellNotifier,
+            renderHooks: renderHooks,
+            cardData: cardData,
           ),
         );
 

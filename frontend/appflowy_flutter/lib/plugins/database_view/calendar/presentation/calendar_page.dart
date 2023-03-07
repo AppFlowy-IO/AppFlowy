@@ -152,6 +152,7 @@ class _CalendarPageState extends State<CalendarPage> {
     if (calenderEvents.isNotEmpty) {
       Log.info(calenderEvents[0].event);
     }
+
     Color dayTextColor = Theme.of(context).colorScheme.onSurface;
     Color cellBackgroundColor = Theme.of(context).colorScheme.surface;
     String dayString = date.day == 1

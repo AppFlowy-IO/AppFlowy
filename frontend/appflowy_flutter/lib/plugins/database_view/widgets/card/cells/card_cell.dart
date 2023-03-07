@@ -1,8 +1,14 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pbenum.dart';
 import 'package:flutter/material.dart';
 
-abstract class CardCell extends StatefulWidget {
-  const CardCell({super.key});
+typedef CellRenderHook<C, T> = Widget? Function(C cellData, T cardData);
+typedef RenderHookByFieldType<T> = Map<FieldType, CellRenderHook<dynamic, T>>;
+
+abstract class CardCell<T> extends StatefulWidget {
+  final T? cardData;
+
+  const CardCell({super.key, this.cardData});
 }
 
 class EditableCardNotifier {

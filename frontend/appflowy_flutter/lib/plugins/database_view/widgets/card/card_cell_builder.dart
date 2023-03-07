@@ -12,16 +12,18 @@ import 'select_option_card_cell.dart';
 import 'text_card_cell.dart';
 import 'url_card_cell.dart';
 
-class CardCellBuilder {
+// T represents as the Generic card data
+class CardCellBuilder<T> {
   final CellCache cellCache;
 
   CardCellBuilder(this.cellCache);
 
-  Widget buildCell(
-    String groupId,
-    CellIdentifier cellId,
-    EditableCardNotifier cellNotifier,
-  ) {
+  Widget buildCell({
+    T? cardData,
+    required CellIdentifier cellId,
+    EditableCardNotifier? cellNotifier,
+    RenderHookByFieldType<T>? renderHooks,
+  }) {
     final cellControllerBuilder = CellControllerBuilder(
       cellId: cellId,
       cellCache: cellCache,
@@ -40,15 +42,17 @@ class CardCellBuilder {
           key: key,
         );
       case FieldType.SingleSelect:
-        return SelectOptionCardCell(
-          groupId: groupId,
+        return SelectOptionCardCell<T>(
+          renderHook: renderHooks?[FieldType.SingleSelect],
           cellControllerBuilder: cellControllerBuilder,
+          cardData: cardData,
           key: key,
         );
       case FieldType.MultiSelect:
-        return SelectOptionCardCell(
-          groupId: groupId,
+        return SelectOptionCardCell<T>(
+          renderHook: renderHooks?[FieldType.MultiSelect],
           cellControllerBuilder: cellControllerBuilder,
+          cardData: cardData,
           editableNotifier: cellNotifier,
           key: key,
         );

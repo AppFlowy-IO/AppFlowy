@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/cell/select_option_cell/extension.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/cell/select_option_cell/select_option_editor.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -8,18 +9,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/select_option_card_cell_bloc.dart';
 import 'card_cell.dart';
 
-class SelectOptionCardCell extends CardCell with EditableCell {
-  final String groupId;
+class SelectOptionCardCell<T> extends CardCell<T> with EditableCell {
   final CellControllerBuilder cellControllerBuilder;
+  final CellRenderHook<List<SelectOptionPB>, T>? renderHook;
+
   @override
   final EditableCardNotifier? editableNotifier;
 
-  const SelectOptionCardCell({
-    required this.groupId,
+  SelectOptionCardCell({
     required this.cellControllerBuilder,
+    required T? cardData,
+    this.renderHook,
     this.editableNotifier,
     Key? key,
-  }) : super(key: key);
+  }) : super(key: key, cardData: cardData);
 
   @override
   State<SelectOptionCardCell> createState() => _SelectOptionCardCellState();
@@ -47,8 +50,13 @@ class _SelectOptionCardCellState extends State<SelectOptionCardCell> {
           buildWhen: (previous, current) {
         return previous.selectedOptions != current.selectedOptions;
       }, builder: (context, state) {
-        // Returns SizedBox if the content of the cell is empty
-        if (_isEmpty(state)) return const SizedBox();
+        Widget? custom = widget.renderHook?.call(
+          state.selectedOptions,
+          widget.cardData,
+        );
+        if (custom != null) {
+          return custom;
+        }
 
         final children = state.selectedOptions.map(
           (option) {
@@ -71,14 +79,6 @@ class _SelectOptionCardCellState extends State<SelectOptionCardCell> {
         );
       }),
     );
-  }
-
-  bool _isEmpty(SelectOptionCardCellState state) {
-    // The cell should hide if the option id is equal to the groupId.
-    final isInGroup = state.selectedOptions
-        .where((element) => element.id == widget.groupId)
-        .isNotEmpty;
-    return isInGroup || state.selectedOptions.isEmpty;
   }
 
   Widget _wrapPopover(Widget child) {
