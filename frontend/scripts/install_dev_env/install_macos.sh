@@ -39,6 +39,7 @@ printMessage "Installing sqlLite3."
 brew install sqlite3 
 
 printMessage "Setting up Flutter"
+
 # Get the current Flutter version
 FLUTTER_VERSION=$(flutter --version | grep -oE 'Flutter [^ ]+' | grep -oE '[^ ]+$')
 # Check if the current version is 3.3.10
