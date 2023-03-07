@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 typedef CellData = Map<String, Object>;
 typedef ColumnData = List<CellData>;
-typedef ColumnNode = List<TextNode>;
+typedef ColumnNode = List<Node>;
 
 class TableData extends ChangeNotifier {
   List<ColumnData> cells = [];
@@ -58,7 +58,7 @@ class TableData extends ChangeNotifier {
   CellData getCell(int col, row) => cells[col][row];
 
   setCell(int col, row, CellData val) => cells[col][row] = val;
-  setNode(int col, row, TextNode val) {
+  setNode(int col, row, Node val) {
     if (cellNodes.length <= col) {
       cellNodes.add([val]);
     } else {

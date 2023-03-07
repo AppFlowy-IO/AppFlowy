@@ -26,13 +26,10 @@ class _TableViewState extends State<TableView> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
         value: widget.data,
-        builder: (context, child) {
+        builder: (context, _) {
           return Container(
             padding:
                 const EdgeInsets.only(left: 0, bottom: 8, right: 80, top: 8),
-            //decoration: BoxDecoration(
-            //  border: Border.all(width: 1, color: Colors.red),
-            //),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: _buildColumns(context),
@@ -45,10 +42,13 @@ class _TableViewState extends State<TableView> {
     var colsLen = context.read<TableData>().colsLen;
     var cols = [];
 
-    final Widget columnBorder = Container(
-      width: 1,
-      height: context.select((TableData td) => td.colsHeight) + 3,
-      color: Colors.grey,
+    final Widget columnBorder = MouseRegion(
+      cursor: SystemMouseCursors.resizeLeftRight,
+      child: Container(
+        width: 2,
+        height: context.select((TableData td) => td.colsHeight) + 6,
+        color: Colors.grey,
+      ),
     );
 
     for (var i = 0; i < colsLen; i++) {
@@ -70,9 +70,12 @@ class _TableViewState extends State<TableView> {
   List<Widget> _buildColumn(BuildContext context, int colIdx) {
     var rowsLen = context.read<TableData>().rowsLen;
     var cells = [];
-    final Widget cellBorder = Container(
-      height: 1,
-      color: Colors.grey,
+    final Widget cellBorder = MouseRegion(
+      cursor: SystemMouseCursors.resizeUpDown,
+      child: Container(
+        height: 2,
+        color: Colors.grey,
+      ),
     );
 
     for (var i = 0; i < rowsLen; i++) {
