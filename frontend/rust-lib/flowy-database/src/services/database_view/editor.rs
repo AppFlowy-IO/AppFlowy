@@ -33,6 +33,7 @@ use lib_infra::future::Fut;
 use nanoid::nanoid;
 use revision_model::Revision;
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::future::Future;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
@@ -43,6 +44,8 @@ pub trait DatabaseViewData: Send + Sync + 'static {
 
   /// Returns the field with the field_id
   fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>>;
+
+  fn get_primary_field_rev(&self) -> Fut<Option<Arc<FieldRevision>>>;
 
   /// Returns the index of the row with row_id
   fn index_of_row(&self, row_id: &str) -> Fut<Option<usize>>;
@@ -662,6 +665,7 @@ impl DatabaseViewEditor {
   }
 
   /// Returns the current calendar settings
+  #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn v_get_layout_settings(
     &self,
     layout_ty: &LayoutRevision,
@@ -690,6 +694,7 @@ impl DatabaseViewEditor {
       },
     }
 
+    tracing::debug!("{:?}", layout_setting);
     Ok(layout_setting)
   }
 
@@ -710,7 +715,7 @@ impl DatabaseViewEditor {
         let layout_ty = LayoutRevision::Calendar;
         let old_calender_setting = self.v_get_layout_settings(&layout_ty).await?.calendar;
         self
-          .modify(|pad| Ok(pad.update_layout_setting(&layout_ty, &new_calendar_setting)?))
+          .modify(|pad| Ok(pad.set_layout_setting(&layout_ty, &new_calendar_setting)?))
           .await?;
 
         let new_field_id = new_calendar_setting.layout_field_id.clone();
@@ -828,6 +833,69 @@ impl DatabaseViewEditor {
     field_id: &str,
   ) -> FlowyResult<Vec<RowSingleCellData>> {
     get_cells_for_field(self.delegate.clone(), field_id).await
+  }
+
+  pub async fn v_get_calendar_events(&self) -> Option<Vec<CalendarEventPB>> {
+    let layout_ty = LayoutRevision::Calendar;
+    let calendar_setting = self
+      .v_get_layout_settings(&layout_ty)
+      .await
+      .ok()?
+      .calendar?;
+
+    // Text
+    let primary_field = self.delegate.get_primary_field_rev().await?;
+    let text_cells = self.v_get_cells_for_field(&primary_field.id).await.ok()?;
+
+    // Date
+    let _date_field = self
+      .delegate
+      .get_field_rev(&calendar_setting.layout_field_id)
+      .await?;
+
+    // // Get the type option of the date field to format the timestamp
+    // let date_field_type_option = DateTypeOptionPB::from(&date_field);
+
+    let timestamp_by_row_id = self
+      .v_get_cells_for_field(&calendar_setting.layout_field_id)
+      .await
+      .ok()?
+      .into_iter()
+      .map(|date_cell| {
+        let row_id = date_cell.row_id.clone();
+
+        // timestamp
+        let timestamp = date_cell
+          .into_date_field_cell_data()
+          .map(|date_cell_data| date_cell_data.0.unwrap_or_default())
+          .unwrap_or_default();
+
+        (row_id, timestamp)
+      })
+      .collect::<HashMap<String, i64>>();
+
+    let mut events: Vec<CalendarEventPB> = vec![];
+    for text_cell in text_cells {
+      let row_id = text_cell.row_id.clone();
+      let timestamp = timestamp_by_row_id
+        .get(&row_id)
+        .cloned()
+        .unwrap_or_default();
+
+      let title = text_cell
+        .into_text_field_cell_data()
+        .unwrap_or_default()
+        .into();
+
+      let event = CalendarEventPB {
+        row_id,
+        title,
+        timestamp,
+      };
+      events.push(event);
+    }
+
+    Some(events)
   }
 
   async fn notify_did_update_setting(&self) {

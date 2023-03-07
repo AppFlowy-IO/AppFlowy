@@ -20,7 +20,6 @@ import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../widgets/card/bloc/card_data_controller.dart';
 import '../../widgets/card/cells/card_cell_builder.dart';
 import '../application/board_bloc.dart';
 import '../../widgets/card/card.dart';

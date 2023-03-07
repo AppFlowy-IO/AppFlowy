@@ -193,9 +193,12 @@ class DatabaseController {
 
   Future<void> _loadLayoutSetting() async {
     _databaseBackendSvc.getLayoutSetting(layoutType).then((result) {
-      result.fold((l) {
-        _layoutCallbacks?.onLoadLayout(l);
-      }, (r) => Log.error(r));
+      result.fold(
+        (l) {
+          _layoutCallbacks?.onLoadLayout(l);
+        },
+        (r) => Log.error(r),
+      );
     });
   }
 

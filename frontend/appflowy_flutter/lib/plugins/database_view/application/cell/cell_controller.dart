@@ -170,7 +170,7 @@ class CellController<T, D> extends Equatable {
     _loadDataOperation = Timer(const Duration(milliseconds: 10), () {
       _cellDataLoader.loadData().then((data) {
         if (data != null) {
-          _cellCache.insert(_cacheKey, GridBaseCell(object: data));
+          _cellCache.insert(_cacheKey, DatabaseCell(object: data));
         } else {
           _cellCache.remove(_cacheKey);
         }

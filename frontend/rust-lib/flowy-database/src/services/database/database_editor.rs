@@ -953,6 +953,19 @@ impl DatabaseEditor {
       .await
   }
 
+  pub async fn get_calendar_events(&self, view_id: &str) -> Vec<CalendarEventPB> {
+    match self.database_views.get_view_editor(view_id).await {
+      Ok(view_editor) => view_editor
+        .v_get_calendar_events()
+        .await
+        .unwrap_or_default(),
+      Err(err) => {
+        tracing::error!("Get calendar event failed: {}", err);
+        vec![]
+      },
+    }
+  }
+
   async fn create_row_rev(&self) -> FlowyResult<RowRevision> {
     let field_revs = self.database_pad.read().await.get_field_revs(None)?;
     let block_id = self.block_id().await?;

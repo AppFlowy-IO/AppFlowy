@@ -1,5 +1,7 @@
+use crate::entities::parser::NotEmptyStr;
 use database_model::{CalendarLayout, CalendarLayoutSetting};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_error::ErrorCode;
 
 #[derive(Debug, Clone, Eq, PartialEq, Default, ProtoBuf)]
 pub struct CalendarLayoutSettingsPB {
@@ -69,4 +71,51 @@ impl std::convert::From<CalendarLayout> for CalendarLayoutPB {
       CalendarLayout::DayLayout => CalendarLayoutPB::DayLayout,
     }
   }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct CalendarEventRequestPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  // Currently, requesting the events within the specified month
+  // is not supported
+  #[pb(index = 2)]
+  pub month: String,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct CalendarEventRequestParams {
+  pub view_id: String,
+  pub month: String,
+}
+
+impl TryInto<CalendarEventRequestParams> for CalendarEventRequestPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<CalendarEventRequestParams, Self::Error> {
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::ViewIdIsInvalid)?;
+    Ok(CalendarEventRequestParams {
+      view_id: view_id.0,
+      month: self.month,
+    })
+  }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct CalendarEventPB {
+  #[pb(index = 1)]
+  pub row_id: String,
+
+  #[pb(index = 2)]
+  pub title: String,
+
+  #[pb(index = 3)]
+  pub timestamp: i64,
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct RepeatedCalendarEventPB {
+  #[pb(index = 1)]
+  pub items: Vec<CalendarEventPB>,
 }

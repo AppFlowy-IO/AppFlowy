@@ -623,3 +623,14 @@ pub(crate) async fn get_layout_setting_handler(
     .await?;
   data_result_ok(layout_setting.into())
 }
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn get_calendar_events_handler(
+  data: AFPluginData<CalendarEventRequestPB>,
+  manager: AFPluginState<Arc<DatabaseManager>>,
+) -> DataResult<RepeatedCalendarEventPB, FlowyError> {
+  let params: CalendarEventRequestParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_editor(&params.view_id).await?;
+  let events = database_editor.get_calendar_events(&params.view_id).await;
+  data_result_ok(RepeatedCalendarEventPB { items: events })
+}

@@ -246,7 +246,7 @@ impl CalendarLayoutSetting {
   }
 }
 
-#[derive(Debug, Clone, Default, Serialize_repr, Deserialize_repr)]
+#[derive(Debug, Clone, Eq, PartialEq, Default, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum CalendarLayout {
   #[default]

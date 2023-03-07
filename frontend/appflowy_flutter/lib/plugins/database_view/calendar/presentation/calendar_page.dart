@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -26,12 +28,11 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-  late EventController _eventController;
+  final _eventController = EventController<CalendarEventPB>();
   GlobalKey<MonthViewState>? _calendarState;
 
   @override
   void initState() {
-    _eventController = EventController();
     _calendarState = GlobalKey<MonthViewState>();
     super.initState();
   }
@@ -48,16 +49,25 @@ class _CalendarPageState extends State<CalendarPage> {
             )..add(const CalendarEvent.initial()),
           )
         ],
-        child: BlocBuilder<CalendarBloc, CalendarState>(
-          builder: (context, state) {
-            return Column(
-              children: [
-                // const _ToolbarBlocAdaptor(),
-                _toolbar(),
-                _buildCalendar(_eventController),
-              ],
-            );
+        child: BlocListener<CalendarBloc, CalendarState>(
+          listenWhen: (previous, current) => previous.events != current.events,
+          listener: (context, state) {
+            if (state.events.isNotEmpty) {
+              _eventController.removeWhere((element) => true);
+              _eventController.addAll(state.events);
+            }
           },
+          child: BlocBuilder<CalendarBloc, CalendarState>(
+            builder: (context, state) {
+              return Column(
+                children: [
+                  // const _ToolbarBlocAdaptor(),
+                  _toolbar(),
+                  _buildCalendar(_eventController),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -133,7 +143,15 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
-  Widget _calendarDayBuilder(date, event, isToday, isInMonth) {
+  Widget _calendarDayBuilder(
+    DateTime date,
+    List<CalendarEventData<CalendarEventPB>> calenderEvents,
+    isToday,
+    isInMonth,
+  ) {
+    if (calenderEvents.isNotEmpty) {
+      Log.info(calenderEvents[0].event);
+    }
     Color dayTextColor = Theme.of(context).colorScheme.onSurface;
     Color cellBackgroundColor = Theme.of(context).colorScheme.surface;
     String dayString = date.day == 1
