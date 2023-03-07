@@ -40,7 +40,7 @@ brew install sqlite3
 
 printMessage "Setting up Flutter"
 # Get the current Flutter version
-FLUTTER_VERSION=$(flutter --version | grep -oP 'Flutter \K\S+')
+FLUTTER_VERSION=$(flutter --version | grep -oE 'Flutter [^ ]+' | grep -oE '[^ ]+$')
 # Check if the current version is 3.3.10
 if [ "$FLUTTER_VERSION" = "3.3.10" ]; then
     echo "Flutter version is already 3.3.10"
