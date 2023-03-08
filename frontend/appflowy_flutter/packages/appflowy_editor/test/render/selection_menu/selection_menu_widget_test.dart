@@ -18,13 +18,28 @@ void main() async {
     //
     // Use const value temporarily instead.
     const i = 7;
-    testWidgets('Selects number.$i item in selection menu', (tester) async {
+    testWidgets('Selects number.$i item in selection menu with keyboard',
+        (tester) async {
       final editor = await _prepare(tester);
       for (var j = 0; j < i; j++) {
         await editor.pressLogicKey(LogicalKeyboardKey.arrowDown);
       }
 
       await editor.pressLogicKey(LogicalKeyboardKey.enter);
+      expect(
+        find.byType(SelectionMenuWidget, skipOffstage: false),
+        findsNothing,
+      );
+      if (defaultSelectionMenuItems[i].name != 'Image') {
+        await _testDefaultSelectionMenuItems(i, editor);
+      }
+    });
+
+    testWidgets('Selects number.$i item in selection menu with clicking',
+        (tester) async {
+      final editor = await _prepare(tester);
+      await tester.tap(find.byType(SelectionMenuItemWidget).at(i));
+      await tester.pumpAndSettle();
       expect(
         find.byType(SelectionMenuWidget, skipOffstage: false),
         findsNothing,
@@ -135,19 +150,27 @@ Future<void> _testDefaultSelectionMenuItems(
     int index, EditorWidgetTester editor) async {
   expect(editor.documentLength, 4);
   expect(editor.documentSelection, Selection.single(path: [2], startOffset: 0));
+  expect((editor.nodeAtPath([0]) as TextNode).toPlainText(),
+      'Welcome to Appflowy 😁');
+  expect((editor.nodeAtPath([1]) as TextNode).toPlainText(),
+      'Welcome to Appflowy 😁');
   final node = editor.nodeAtPath([2]);
   final item = defaultSelectionMenuItems[index];
   if (item.name == 'Text') {
     expect(node?.subtype == null, true);
+    expect(node?.toString(), null);
   } else if (item.name == 'Heading 1') {
     expect(node?.subtype, BuiltInAttributeKey.heading);
     expect(node?.attributes.heading, BuiltInAttributeKey.h1);
+    expect(node?.toString(), null);
   } else if (item.name == 'Heading 2') {
     expect(node?.subtype, BuiltInAttributeKey.heading);
     expect(node?.attributes.heading, BuiltInAttributeKey.h2);
+    expect(node?.toString(), null);
   } else if (item.name == 'Heading 3') {
     expect(node?.subtype, BuiltInAttributeKey.heading);
     expect(node?.attributes.heading, BuiltInAttributeKey.h3);
+    expect(node?.toString(), null);
   } else if (item.name == 'Bulleted list') {
     expect(node?.subtype, BuiltInAttributeKey.bulletedList);
   } else if (item.name == 'Checkbox') {

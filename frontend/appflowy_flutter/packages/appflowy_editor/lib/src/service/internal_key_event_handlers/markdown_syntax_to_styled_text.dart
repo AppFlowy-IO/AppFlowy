@@ -309,3 +309,59 @@ ShortcutEventHandler underscoreToItalicHandler = (editorState, event) {
 
   return KeyEventResult.handled;
 };
+
+ShortcutEventHandler doubleAsteriskToBoldHanlder = (editorState, event) {
+  final selectionService = editorState.service.selectionService;
+  final selection = selectionService.currentSelection.value;
+  final textNodes = selectionService.currentSelectedNodes.whereType<TextNode>();
+
+  if (selection == null || !selection.isSingle || textNodes.length != 1) {
+    return KeyEventResult.ignored;
+  }
+
+  final textNode = textNodes.first;
+  final text = textNode.toPlainText();
+
+// make sure the last two characters are '**'
+  if (text.length < 2 || text[selection.end.offset - 1] != '*') {
+    return KeyEventResult.ignored;
+  }
+
+// find all the index of '*'
+  final asteriskIndexList = <int>[];
+  for (var i = 0; i < text.length; i++) {
+    if (text[i] == '*') {
+      asteriskIndexList.add(i);
+    }
+  }
+
+  if (asteriskIndexList.length < 3) return KeyEventResult.ignored;
+
+// make sure the second to last and third to last asterisk are connected
+  final thirdToLastAsteriskIndex =
+      asteriskIndexList[asteriskIndexList.length - 3];
+  final secondToLastAsteriskIndex =
+      asteriskIndexList[asteriskIndexList.length - 2];
+  final lastAsteriskIndex = asteriskIndexList[asteriskIndexList.length - 1];
+  if (secondToLastAsteriskIndex != thirdToLastAsteriskIndex + 1 ||
+      lastAsteriskIndex == secondToLastAsteriskIndex + 1) {
+    return KeyEventResult.ignored;
+  }
+
+//delete the last three asterisks
+//update the style of the text surround by '** **' to bold
+//update the cursor position
+  final transaction = editorState.transaction
+    ..deleteText(textNode, lastAsteriskIndex, 1)
+    ..deleteText(textNode, thirdToLastAsteriskIndex, 2)
+    ..formatText(textNode, thirdToLastAsteriskIndex,
+        selection.end.offset - thirdToLastAsteriskIndex - 2, {
+      BuiltInAttributeKey.bold: true,
+    })
+    ..afterSelection = Selection.collapsed(
+        Position(path: textNode.path, offset: selection.end.offset - 3));
+
+  editorState.apply(transaction);
+
+  return KeyEventResult.handled;
+};
