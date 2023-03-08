@@ -314,6 +314,11 @@ List<ShortcutEvent> builtInShortcutEvents = [
     command: 'shift+digit 8',
     handler: doubleAsteriskToBoldHanlder,
   ),
+  ShortcutEvent(
+    key: 'Double underscore to bold',
+    command: 'shift+underscore',
+    handler: doubleUnderscoreToBoldHanlder,
+  ),
   // https://github.com/flutter/flutter/issues/104944
   // Workaround: Using space editing on the web platform often results in errors,
   //  so adding a shortcut event to handle the space input instead of using the
