@@ -1,34 +1,36 @@
 import 'dart:collection';
 import 'package:equatable/equatable.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import '../../../application/cell/cell_service.dart';
-import '../../../application/row/row_cache.dart';
-import '../../../application/row/row_service.dart';
-import 'card_data_controller.dart';
+
+import '../../application/cell/cell_service.dart';
+import '../../application/row/row_cache.dart';
+import '../../application/row/row_service.dart';
 
 part 'card_bloc.freezed.dart';
 
-class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
+class CardBloc extends Bloc<BoardCardEvent, BoardCardState> {
+  final RowPB row;
   final String groupFieldId;
   final RowBackendService _rowBackendSvc;
-  final CardDataController _dataController;
+  final RowCache _rowCache;
+  VoidCallback? _rowCallback;
 
-  BoardCardBloc({
+  CardBloc({
+    required this.row,
     required this.groupFieldId,
     required String viewId,
-    required CardDataController dataController,
+    required RowCache rowCache,
     required bool isEditing,
-  })  : _rowBackendSvc = RowBackendService(
-          viewId: viewId,
-        ),
-        _dataController = dataController,
+  })  : _rowBackendSvc = RowBackendService(viewId: viewId),
+        _rowCache = rowCache,
         super(
           BoardCardState.initial(
-            dataController.rowPB,
-            _makeCells(groupFieldId, dataController.loadData()),
+            row,
+            _makeCells(groupFieldId, rowCache.loadGridCells(row.id)),
             isEditing,
           ),
         ) {
@@ -54,7 +56,10 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
 
   @override
   Future<void> close() async {
-    _dataController.dispose();
+    if (_rowCallback != null) {
+      _rowCache.removeRowListener(_rowCallback!);
+      _rowCallback = null;
+    }
     return super.close();
   }
 
@@ -69,8 +74,9 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
   }
 
   Future<void> _startListening() async {
-    _dataController.addListener(
-      onRowChanged: (cellMap, reason) {
+    _rowCallback = _rowCache.addListener(
+      rowId: row.id,
+      onCellUpdated: (cellMap, reason) {
         if (!isClosed) {
           final cells = _makeCells(groupFieldId, cellMap);
           add(BoardCardEvent.didReceiveCells(cells, reason));

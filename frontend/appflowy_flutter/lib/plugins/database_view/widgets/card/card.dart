@@ -1,47 +1,52 @@
-import 'package:appflowy/plugins/database_view/board/application/card/card_bloc.dart';
-import 'package:appflowy/plugins/database_view/board/application/card/card_data_controller.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/row_action_sheet.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'board_cell.dart';
+import 'card_bloc.dart';
+import 'cells/card_cell.dart';
 import 'card_cell_builder.dart';
 import 'container/accessory.dart';
 import 'container/card_container.dart';
 
-class BoardCard extends StatefulWidget {
+class Card<CustomCardData> extends StatefulWidget {
+  final RowPB row;
   final String viewId;
-  final String groupId;
   final String fieldId;
+  final CustomCardData? cardData;
   final bool isEditing;
-  final CardDataController dataController;
-  final BoardCellBuilder cellBuilder;
+  final RowCache rowCache;
+  final CardCellBuilder<CustomCardData> cellBuilder;
   final void Function(BuildContext) openCard;
   final VoidCallback onStartEditing;
   final VoidCallback onEndEditing;
+  final CardConfiguration<CustomCardData>? configuration;
 
-  const BoardCard({
+  const Card({
+    required this.row,
     required this.viewId,
-    required this.groupId,
     required this.fieldId,
     required this.isEditing,
-    required this.dataController,
+    required this.rowCache,
     required this.cellBuilder,
     required this.openCard,
     required this.onStartEditing,
     required this.onEndEditing,
+    this.cardData,
+    this.configuration,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<BoardCard> createState() => _BoardCardState();
+  State<Card<CustomCardData>> createState() => _CardState<CustomCardData>();
 }
 
-class _BoardCardState extends State<BoardCard> {
-  late BoardCardBloc _cardBloc;
+class _CardState<T> extends State<Card<T>> {
+  late CardBloc _cardBloc;
   late EditableRowNotifier rowNotifier;
   late PopoverController popoverController;
   AccessoryType? accessoryType;
@@ -49,11 +54,12 @@ class _BoardCardState extends State<BoardCard> {
   @override
   void initState() {
     rowNotifier = EditableRowNotifier(isEditing: widget.isEditing);
-    _cardBloc = BoardCardBloc(
+    _cardBloc = CardBloc(
       viewId: widget.viewId,
       groupFieldId: widget.fieldId,
-      dataController: widget.dataController,
       isEditing: widget.isEditing,
+      row: widget.row,
+      rowCache: widget.rowCache,
     )..add(const BoardCardEvent.initial());
 
     rowNotifier.isEditing.addListener(() {
@@ -75,7 +81,7 @@ class _BoardCardState extends State<BoardCard> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cardBloc,
-      child: BlocBuilder<BoardCardBloc, BoardCardState>(
+      child: BlocBuilder<CardBloc, BoardCardState>(
         buildWhen: (previous, current) {
           // Rebuild when:
           // 1.If the length of the cells is not the same
@@ -110,11 +116,12 @@ class _BoardCardState extends State<BoardCard> {
               },
               openAccessory: _handleOpenAccessory,
               openCard: (context) => widget.openCard(context),
-              child: _CellColumn(
-                groupId: widget.groupId,
+              child: _CardContent<T>(
                 rowNotifier: rowNotifier,
                 cellBuilder: widget.cellBuilder,
                 cells: state.cells,
+                cardConfiguration: widget.configuration,
+                cardData: widget.cardData,
               ),
             ),
           );
@@ -143,7 +150,7 @@ class _BoardCardState extends State<BoardCard> {
         throw UnimplementedError();
       case AccessoryType.more:
         return GridRowActionSheet(
-          rowData: context.read<BoardCardBloc>().rowInfo(),
+          rowData: context.read<CardBloc>().rowInfo(),
         );
     }
   }
@@ -156,16 +163,18 @@ class _BoardCardState extends State<BoardCard> {
   }
 }
 
-class _CellColumn extends StatelessWidget {
-  final String groupId;
-  final BoardCellBuilder cellBuilder;
+class _CardContent<CustomCardData> extends StatelessWidget {
+  final CardCellBuilder<CustomCardData> cellBuilder;
   final EditableRowNotifier rowNotifier;
   final List<BoardCellEquatable> cells;
-  const _CellColumn({
-    required this.groupId,
+  final CardConfiguration<CustomCardData>? cardConfiguration;
+  final CustomCardData? cardData;
+  const _CardContent({
     required this.rowNotifier,
     required this.cellBuilder,
     required this.cells,
+    required this.cardData,
+    this.cardConfiguration,
     Key? key,
   }) : super(key: key);
 
@@ -188,7 +197,7 @@ class _CellColumn extends StatelessWidget {
     cells.asMap().forEach(
       (int index, BoardCellEquatable cell) {
         final isEditing = index == 0 ? rowNotifier.isEditing.value : false;
-        final cellNotifier = EditableCellNotifier(isEditing: isEditing);
+        final cellNotifier = EditableCardNotifier(isEditing: isEditing);
 
         if (index == 0) {
           // Only use the first cell to receive user's input when click the edit
@@ -200,9 +209,10 @@ class _CellColumn extends StatelessWidget {
           key: cell.identifier.key(),
           padding: const EdgeInsets.only(left: 4, right: 4),
           child: cellBuilder.buildCell(
-            groupId,
-            cell.identifier,
-            cellNotifier,
+            cellId: cell.identifier,
+            cellNotifier: cellNotifier,
+            cardConfiguration: cardConfiguration,
+            cardData: cardData,
           ),
         );
 

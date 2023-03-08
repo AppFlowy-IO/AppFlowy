@@ -1,14 +1,39 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
 import 'package:flutter/material.dart';
 
-abstract class FocusableBoardCell {
-  set becomeFocus(bool isFocus);
+typedef CellRenderHook<C, T> = Widget? Function(C cellData, T cardData);
+typedef RenderHookByFieldType<C> = Map<FieldType, CellRenderHook<dynamic, C>>;
+
+class CardConfiguration<CustomCardData> {
+  final RenderHookByFieldType<CustomCardData> renderHook = {};
+  CardConfiguration();
+
+  void addSelectOptionHook(
+    CellRenderHook<List<SelectOptionPB>, CustomCardData> hook,
+  ) {
+    selectOptionHook(cellData, cardData) {
+      if (cellData is List<SelectOptionPB>) {
+        hook(cellData, cardData);
+      }
+    }
+
+    renderHook[FieldType.SingleSelect] = selectOptionHook;
+    renderHook[FieldType.MultiSelect] = selectOptionHook;
+  }
 }
 
-class EditableCellNotifier {
+abstract class CardCell<T> extends StatefulWidget {
+  final T? cardData;
+
+  const CardCell({super.key, this.cardData});
+}
+
+class EditableCardNotifier {
   final ValueNotifier<bool> isCellEditing;
 
-  EditableCellNotifier({bool isEditing = false})
+  EditableCardNotifier({bool isEditing = false})
       : isCellEditing = ValueNotifier(isEditing);
 
   void dispose() {
@@ -17,7 +42,7 @@ class EditableCellNotifier {
 }
 
 class EditableRowNotifier {
-  final Map<EditableCellId, EditableCellNotifier> _cells = {};
+  final Map<EditableCellId, EditableCardNotifier> _cells = {};
   final ValueNotifier<bool> isEditing;
 
   EditableRowNotifier({required bool isEditing})
@@ -25,7 +50,7 @@ class EditableRowNotifier {
 
   void bindCell(
     CellIdentifier cellIdentifier,
-    EditableCellNotifier notifier,
+    EditableCardNotifier notifier,
   ) {
     assert(
       _cells.values.isEmpty,
@@ -80,7 +105,7 @@ abstract class EditableCell {
   // the row notifier receive its cells event. For example: begin editing the
   // cell or end editing the cell.
   //
-  EditableCellNotifier? get editableNotifier;
+  EditableCardNotifier? get editableNotifier;
 }
 
 class EditableCellId {

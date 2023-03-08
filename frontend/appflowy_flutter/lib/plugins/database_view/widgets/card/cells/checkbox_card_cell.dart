@@ -1,33 +1,33 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/board/application/card/board_checkbox_cell_bloc.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class BoardCheckboxCell extends StatefulWidget {
-  final String groupId;
+import '../bloc/checkbox_card_cell_bloc.dart';
+import 'card_cell.dart';
+
+class CheckboxCardCell extends CardCell {
   final CellControllerBuilder cellControllerBuilder;
 
-  const BoardCheckboxCell({
-    required this.groupId,
+  const CheckboxCardCell({
     required this.cellControllerBuilder,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<BoardCheckboxCell> createState() => _BoardCheckboxCellState();
+  State<CheckboxCardCell> createState() => _CheckboxCardCellState();
 }
 
-class _BoardCheckboxCellState extends State<BoardCheckboxCell> {
-  late BoardCheckboxCellBloc _cellBloc;
+class _CheckboxCardCellState extends State<CheckboxCardCell> {
+  late CheckboxCardCellBloc _cellBloc;
 
   @override
   void initState() {
     final cellController =
         widget.cellControllerBuilder.build() as CheckboxCellController;
-    _cellBloc = BoardCheckboxCellBloc(cellController: cellController);
-    _cellBloc.add(const BoardCheckboxCellEvent.initial());
+    _cellBloc = CheckboxCardCellBloc(cellController: cellController);
+    _cellBloc.add(const CheckboxCardCellEvent.initial());
     super.initState();
   }
 
@@ -35,7 +35,7 @@ class _BoardCheckboxCellState extends State<BoardCheckboxCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocBuilder<BoardCheckboxCellBloc, BoardCheckboxCellState>(
+      child: BlocBuilder<CheckboxCardCellBloc, CheckboxCardCellState>(
         buildWhen: (previous, current) =>
             previous.isSelected != current.isSelected,
         builder: (context, state) {
@@ -49,8 +49,8 @@ class _BoardCheckboxCellState extends State<BoardCheckboxCell> {
               icon: icon,
               width: 20,
               onPressed: () => context
-                  .read<BoardCheckboxCellBloc>()
-                  .add(const BoardCheckboxCellEvent.select()),
+                  .read<CheckboxCardCellBloc>()
+                  .add(const CheckboxCardCellEvent.select()),
             ),
           );
         },

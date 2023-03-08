@@ -3,16 +3,16 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import '../../../application/cell/cell_controller_builder.dart';
 
-part 'board_checkbox_cell_bloc.freezed.dart';
+part 'checkbox_card_cell_bloc.freezed.dart';
 
-class BoardCheckboxCellBloc
-    extends Bloc<BoardCheckboxCellEvent, BoardCheckboxCellState> {
+class CheckboxCardCellBloc
+    extends Bloc<CheckboxCardCellEvent, CheckboxCardCellState> {
   final CheckboxCellController cellController;
   void Function()? _onCellChangedFn;
-  BoardCheckboxCellBloc({
+  CheckboxCardCellBloc({
     required this.cellController,
-  }) : super(BoardCheckboxCellState.initial(cellController)) {
-    on<BoardCheckboxCellEvent>(
+  }) : super(CheckboxCardCellState.initial(cellController)) {
+    on<CheckboxCardCellEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
@@ -43,7 +43,7 @@ class BoardCheckboxCellBloc
     _onCellChangedFn = cellController.startListening(
       onCellChanged: ((cellContent) {
         if (!isClosed) {
-          add(BoardCheckboxCellEvent.didReceiveCellUpdate(cellContent ?? ""));
+          add(CheckboxCardCellEvent.didReceiveCellUpdate(cellContent ?? ""));
         }
       }),
     );
@@ -51,21 +51,21 @@ class BoardCheckboxCellBloc
 }
 
 @freezed
-class BoardCheckboxCellEvent with _$BoardCheckboxCellEvent {
-  const factory BoardCheckboxCellEvent.initial() = _InitialCell;
-  const factory BoardCheckboxCellEvent.select() = _Selected;
-  const factory BoardCheckboxCellEvent.didReceiveCellUpdate(
-      String cellContent) = _DidReceiveCellUpdate;
+class CheckboxCardCellEvent with _$CheckboxCardCellEvent {
+  const factory CheckboxCardCellEvent.initial() = _InitialCell;
+  const factory CheckboxCardCellEvent.select() = _Selected;
+  const factory CheckboxCardCellEvent.didReceiveCellUpdate(String cellContent) =
+      _DidReceiveCellUpdate;
 }
 
 @freezed
-class BoardCheckboxCellState with _$BoardCheckboxCellState {
-  const factory BoardCheckboxCellState({
+class CheckboxCardCellState with _$CheckboxCardCellState {
+  const factory CheckboxCardCellState({
     required bool isSelected,
   }) = _CheckboxCellState;
 
-  factory BoardCheckboxCellState.initial(TextCellController context) {
-    return BoardCheckboxCellState(
+  factory CheckboxCardCellState.initial(TextCellController context) {
+    return CheckboxCardCellState(
         isSelected: _isSelected(context.getCellData()));
   }
 }

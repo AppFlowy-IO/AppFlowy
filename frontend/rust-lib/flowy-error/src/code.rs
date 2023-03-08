@@ -186,6 +186,9 @@ pub enum ErrorCode {
 
   #[error("Payload should not be empty")]
   UnexpectedEmptyPayload = 60,
+
+  #[error("Only the date type can be used in calendar")]
+  UnexpectedCalendarFieldType = 61,
 }
 
 impl ErrorCode {

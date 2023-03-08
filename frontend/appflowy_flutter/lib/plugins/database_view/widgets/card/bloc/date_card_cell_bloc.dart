@@ -5,15 +5,15 @@ import 'dart:async';
 
 import '../../../application/cell/cell_controller_builder.dart';
 import '../../../application/field/field_controller.dart';
-part 'board_date_cell_bloc.freezed.dart';
+part 'date_card_cell_bloc.freezed.dart';
 
-class BoardDateCellBloc extends Bloc<BoardDateCellEvent, BoardDateCellState> {
+class DateCardCellBloc extends Bloc<DateCardCellEvent, DateCardCellState> {
   final DateCellController cellController;
   void Function()? _onCellChangedFn;
 
-  BoardDateCellBloc({required this.cellController})
-      : super(BoardDateCellState.initial(cellController)) {
-    on<BoardDateCellEvent>(
+  DateCardCellBloc({required this.cellController})
+      : super(DateCardCellState.initial(cellController)) {
+    on<DateCardCellEvent>(
       (event, emit) async {
         event.when(
           initial: () => _startListening(),
@@ -40,7 +40,7 @@ class BoardDateCellBloc extends Bloc<BoardDateCellEvent, BoardDateCellState> {
     _onCellChangedFn = cellController.startListening(
       onCellChanged: ((data) {
         if (!isClosed) {
-          add(BoardDateCellEvent.didReceiveCellUpdate(data));
+          add(DateCardCellEvent.didReceiveCellUpdate(data));
         }
       }),
     );
@@ -48,24 +48,24 @@ class BoardDateCellBloc extends Bloc<BoardDateCellEvent, BoardDateCellState> {
 }
 
 @freezed
-class BoardDateCellEvent with _$BoardDateCellEvent {
-  const factory BoardDateCellEvent.initial() = _InitialCell;
-  const factory BoardDateCellEvent.didReceiveCellUpdate(DateCellDataPB? data) =
+class DateCardCellEvent with _$DateCardCellEvent {
+  const factory DateCardCellEvent.initial() = _InitialCell;
+  const factory DateCardCellEvent.didReceiveCellUpdate(DateCellDataPB? data) =
       _DidReceiveCellUpdate;
 }
 
 @freezed
-class BoardDateCellState with _$BoardDateCellState {
-  const factory BoardDateCellState({
+class DateCardCellState with _$DateCardCellState {
+  const factory DateCardCellState({
     required DateCellDataPB? data,
     required String dateStr,
     required FieldInfo fieldInfo,
-  }) = _BoardDateCellState;
+  }) = _DateCardCellState;
 
-  factory BoardDateCellState.initial(DateCellController context) {
+  factory DateCardCellState.initial(DateCellController context) {
     final cellData = context.getCellData();
 
-    return BoardDateCellState(
+    return DateCardCellState(
       fieldInfo: context.fieldInfo,
       data: cellData,
       dateStr: _dateStrFromCellData(cellData),

@@ -5,29 +5,27 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
-import '../../application/card/board_text_cell_bloc.dart';
-import 'board_cell.dart';
-import 'define.dart';
+import '../bloc/text_card_cell_bloc.dart';
+import '../define.dart';
+import 'card_cell.dart';
 
-class BoardTextCell extends StatefulWidget with EditableCell {
-  final String groupId;
+class TextCardCell extends CardCell with EditableCell {
   @override
-  final EditableCellNotifier? editableNotifier;
+  final EditableCardNotifier? editableNotifier;
   final CellControllerBuilder cellControllerBuilder;
 
-  const BoardTextCell({
-    required this.groupId,
+  const TextCardCell({
     required this.cellControllerBuilder,
     this.editableNotifier,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<BoardTextCell> createState() => _BoardTextCellState();
+  State<TextCardCell> createState() => _TextCardCellState();
 }
 
-class _BoardTextCellState extends State<BoardTextCell> {
-  late BoardTextCellBloc _cellBloc;
+class _TextCardCellState extends State<TextCardCell> {
+  late TextCardCellBloc _cellBloc;
   late TextEditingController _controller;
   bool focusWhenInit = false;
   final focusNode = SingleListenerFocusNode();
@@ -36,8 +34,8 @@ class _BoardTextCellState extends State<BoardTextCell> {
   void initState() {
     final cellController =
         widget.cellControllerBuilder.build() as TextCellController;
-    _cellBloc = BoardTextCellBloc(cellController: cellController)
-      ..add(const BoardTextCellEvent.initial());
+    _cellBloc = TextCardCellBloc(cellController: cellController)
+      ..add(const TextCardCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
     focusWhenInit = widget.editableNotifier?.isCellEditing.value ?? false;
     if (focusWhenInit) {
@@ -51,7 +49,7 @@ class _BoardTextCellState extends State<BoardTextCell> {
       if (!focusNode.hasFocus) {
         focusWhenInit = false;
         widget.editableNotifier?.isCellEditing.value = false;
-        _cellBloc.add(const BoardTextCellEvent.enableEdit(false));
+        _cellBloc.add(const TextCardCellEvent.enableEdit(false));
       }
     });
     _bindEditableNotifier();
@@ -68,12 +66,12 @@ class _BoardTextCellState extends State<BoardTextCell> {
           focusNode.requestFocus();
         });
       }
-      _cellBloc.add(BoardTextCellEvent.enableEdit(isEditing));
+      _cellBloc.add(TextCardCellEvent.enableEdit(isEditing));
     });
   }
 
   @override
-  void didUpdateWidget(covariant BoardTextCell oldWidget) {
+  void didUpdateWidget(covariant TextCardCell oldWidget) {
     _bindEditableNotifier();
     super.didUpdateWidget(oldWidget);
   }
@@ -82,13 +80,13 @@ class _BoardTextCellState extends State<BoardTextCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocListener<BoardTextCellBloc, BoardTextCellState>(
+      child: BlocListener<TextCardCellBloc, TextCardCellState>(
         listener: (context, state) {
           if (_controller.text != state.content) {
             _controller.text = state.content;
           }
         },
-        child: BlocBuilder<BoardTextCellBloc, BoardTextCellState>(
+        child: BlocBuilder<TextCardCellBloc, TextCardCellState>(
           buildWhen: (previous, current) {
             if (previous.content != current.content &&
                 _controller.text == current.content &&
@@ -120,7 +118,7 @@ class _BoardTextCellState extends State<BoardTextCell> {
   }
 
   Future<void> focusChanged() async {
-    _cellBloc.add(BoardTextCellEvent.updateText(_controller.text));
+    _cellBloc.add(TextCardCellEvent.updateText(_controller.text));
   }
 
   @override
@@ -131,10 +129,10 @@ class _BoardTextCellState extends State<BoardTextCell> {
     super.dispose();
   }
 
-  Widget _buildText(BoardTextCellState state) {
+  Widget _buildText(TextCardCellState state) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        vertical: BoardSizes.cardCellVPadding,
+        vertical: CardSizes.cardCellVPadding,
       ),
       child: FlowyText.medium(
         state.content,
@@ -156,7 +154,7 @@ class _BoardTextCellState extends State<BoardTextCell> {
         decoration: InputDecoration(
           // Magic number 4 makes the textField take up the same space as FlowyText
           contentPadding: EdgeInsets.symmetric(
-            vertical: BoardSizes.cardCellVPadding + 4,
+            vertical: CardSizes.cardCellVPadding + 4,
           ),
           border: InputBorder.none,
           isDense: true,

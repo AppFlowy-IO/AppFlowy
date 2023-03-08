@@ -9,7 +9,7 @@ import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../application/field/field_controller.dart';
-import 'grid_data_controller.dart';
+import '../../application/database_controller.dart';
 import 'dart:collection';
 
 part 'grid_bloc.freezed.dart';
@@ -66,10 +66,10 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   }
 
   void _startListening() {
-    databaseController.addListener(
-      onGridChanged: (grid) {
+    final onDatabaseChanged = DatabaseCallbacks(
+      onDatabaseChanged: (database) {
         if (!isClosed) {
-          add(GridEvent.didReceiveGridUpdate(grid));
+          add(GridEvent.didReceiveGridUpdate(database));
         }
       },
       onRowsChanged: (rowInfos, reason) {
@@ -83,10 +83,11 @@ class GridBloc extends Bloc<GridEvent, GridState> {
         }
       },
     );
+    databaseController.addListener(onDatabaseChanged: onDatabaseChanged);
   }
 
   Future<void> _openGrid(Emitter<GridState> emit) async {
-    final result = await databaseController.openGrid();
+    final result = await databaseController.open();
     result.fold(
       (grid) {
         emit(

@@ -7,8 +7,6 @@ use flowy_database::services::field::{
 use flowy_database::services::row::RowRevisionBuilder;
 use std::sync::Arc;
 
-use strum::EnumCount;
-
 pub struct DatabaseRowTestBuilder {
   field_revs: Vec<Arc<FieldRevision>>,
   inner_builder: RowRevisionBuilder,
@@ -16,7 +14,6 @@ pub struct DatabaseRowTestBuilder {
 
 impl DatabaseRowTestBuilder {
   pub fn new(block_id: String, field_revs: Vec<Arc<FieldRevision>>) -> Self {
-    assert_eq!(field_revs.len(), FieldType::COUNT);
     let inner_builder = RowRevisionBuilder::new(&block_id, field_revs.clone());
     Self {
       field_revs,

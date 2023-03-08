@@ -2,33 +2,33 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_controller_
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../application/card/board_number_cell_bloc.dart';
-import 'define.dart';
 
-class BoardNumberCell extends StatefulWidget {
-  final String groupId;
+import '../bloc/number_card_cell_bloc.dart';
+import '../define.dart';
+import 'card_cell.dart';
+
+class NumberCardCell extends CardCell {
   final CellControllerBuilder cellControllerBuilder;
 
-  const BoardNumberCell({
-    required this.groupId,
+  const NumberCardCell({
     required this.cellControllerBuilder,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<BoardNumberCell> createState() => _BoardNumberCellState();
+  State<NumberCardCell> createState() => _NumberCardCellState();
 }
 
-class _BoardNumberCellState extends State<BoardNumberCell> {
-  late BoardNumberCellBloc _cellBloc;
+class _NumberCardCellState extends State<NumberCardCell> {
+  late NumberCardCellBloc _cellBloc;
 
   @override
   void initState() {
     final cellController =
         widget.cellControllerBuilder.build() as NumberCellController;
 
-    _cellBloc = BoardNumberCellBloc(cellController: cellController)
-      ..add(const BoardNumberCellEvent.initial());
+    _cellBloc = NumberCardCellBloc(cellController: cellController)
+      ..add(const NumberCardCellEvent.initial());
     super.initState();
   }
 
@@ -36,7 +36,7 @@ class _BoardNumberCellState extends State<BoardNumberCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocBuilder<BoardNumberCellBloc, BoardNumberCellState>(
+      child: BlocBuilder<NumberCardCellBloc, NumberCardCellState>(
         buildWhen: (previous, current) => previous.content != current.content,
         builder: (context, state) {
           if (state.content.isEmpty) {
@@ -46,7 +46,7 @@ class _BoardNumberCellState extends State<BoardNumberCell> {
               alignment: Alignment.centerLeft,
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  vertical: BoardSizes.cardCellVPadding,
+                  vertical: CardSizes.cardCellVPadding,
                 ),
                 child: FlowyText.medium(
                   state.content,

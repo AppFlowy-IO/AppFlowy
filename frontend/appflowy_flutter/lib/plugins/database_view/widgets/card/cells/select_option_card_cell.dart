@@ -1,32 +1,35 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/cell/select_option_cell/extension.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/cell/select_option_cell/select_option_editor.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../grid/presentation/widgets/cell/select_option_cell/extension.dart';
-import '../../../grid/presentation/widgets/cell/select_option_cell/select_option_editor.dart';
-import '../../application/card/board_select_option_cell_bloc.dart';
-import 'board_cell.dart';
+import '../bloc/select_option_card_cell_bloc.dart';
+import 'card_cell.dart';
 
-class BoardSelectOptionCell extends StatefulWidget with EditableCell {
-  final String groupId;
+class SelectOptionCardCell<T> extends CardCell<T> with EditableCell {
   final CellControllerBuilder cellControllerBuilder;
-  @override
-  final EditableCellNotifier? editableNotifier;
+  final CellRenderHook<List<SelectOptionPB>, T>? renderHook;
 
-  const BoardSelectOptionCell({
-    required this.groupId,
+  @override
+  final EditableCardNotifier? editableNotifier;
+
+  SelectOptionCardCell({
     required this.cellControllerBuilder,
+    required T? cardData,
+    this.renderHook,
     this.editableNotifier,
     Key? key,
-  }) : super(key: key);
+  }) : super(key: key, cardData: cardData);
 
   @override
-  State<BoardSelectOptionCell> createState() => _BoardSelectOptionCellState();
+  State<SelectOptionCardCell> createState() => _SelectOptionCardCellState();
 }
 
-class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
-  late BoardSelectOptionCellBloc _cellBloc;
+class _SelectOptionCardCellState extends State<SelectOptionCardCell> {
+  late SelectOptionCardCellBloc _cellBloc;
   late PopoverController _popover;
 
   @override
@@ -34,8 +37,8 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
     _popover = PopoverController();
     final cellController =
         widget.cellControllerBuilder.build() as SelectOptionCellController;
-    _cellBloc = BoardSelectOptionCellBloc(cellController: cellController)
-      ..add(const BoardSelectOptionCellEvent.initial());
+    _cellBloc = SelectOptionCardCellBloc(cellController: cellController)
+      ..add(const SelectOptionCardCellEvent.initial());
     super.initState();
   }
 
@@ -43,12 +46,17 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocBuilder<BoardSelectOptionCellBloc, BoardSelectOptionCellState>(
+      child: BlocBuilder<SelectOptionCardCellBloc, SelectOptionCardCellState>(
           buildWhen: (previous, current) {
         return previous.selectedOptions != current.selectedOptions;
       }, builder: (context, state) {
-        // Returns SizedBox if the content of the cell is empty
-        if (_isEmpty(state)) return const SizedBox();
+        Widget? custom = widget.renderHook?.call(
+          state.selectedOptions,
+          widget.cardData,
+        );
+        if (custom != null) {
+          return custom;
+        }
 
         final children = state.selectedOptions.map(
           (option) {
@@ -71,14 +79,6 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
         );
       }),
     );
-  }
-
-  bool _isEmpty(BoardSelectOptionCellState state) {
-    // The cell should hide if the option id is equal to the groupId.
-    final isInGroup = state.selectedOptions
-        .where((element) => element.id == widget.groupId)
-        .isNotEmpty;
-    return isInGroup || state.selectedOptions.isEmpty;
   }
 
   Widget _wrapPopover(Widget child) {

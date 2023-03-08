@@ -4,17 +4,17 @@ import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.d
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'board_select_option_cell_bloc.freezed.dart';
+part 'select_option_card_cell_bloc.freezed.dart';
 
-class BoardSelectOptionCellBloc
-    extends Bloc<BoardSelectOptionCellEvent, BoardSelectOptionCellState> {
+class SelectOptionCardCellBloc
+    extends Bloc<SelectOptionCardCellEvent, SelectOptionCardCellState> {
   final SelectOptionCellController cellController;
   void Function()? _onCellChangedFn;
 
-  BoardSelectOptionCellBloc({
+  SelectOptionCardCellBloc({
     required this.cellController,
-  }) : super(BoardSelectOptionCellState.initial(cellController)) {
-    on<BoardSelectOptionCellEvent>(
+  }) : super(SelectOptionCardCellState.initial(cellController)) {
+    on<SelectOptionCardCellEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
@@ -42,7 +42,7 @@ class BoardSelectOptionCellBloc
     _onCellChangedFn = cellController.startListening(
       onCellChanged: ((selectOptionContext) {
         if (!isClosed) {
-          add(BoardSelectOptionCellEvent.didReceiveOptions(
+          add(SelectOptionCardCellEvent.didReceiveOptions(
             selectOptionContext?.selectOptions ?? [],
           ));
         }
@@ -52,23 +52,23 @@ class BoardSelectOptionCellBloc
 }
 
 @freezed
-class BoardSelectOptionCellEvent with _$BoardSelectOptionCellEvent {
-  const factory BoardSelectOptionCellEvent.initial() = _InitialCell;
-  const factory BoardSelectOptionCellEvent.didReceiveOptions(
+class SelectOptionCardCellEvent with _$SelectOptionCardCellEvent {
+  const factory SelectOptionCardCellEvent.initial() = _InitialCell;
+  const factory SelectOptionCardCellEvent.didReceiveOptions(
     List<SelectOptionPB> selectedOptions,
   ) = _DidReceiveOptions;
 }
 
 @freezed
-class BoardSelectOptionCellState with _$BoardSelectOptionCellState {
-  const factory BoardSelectOptionCellState({
+class SelectOptionCardCellState with _$SelectOptionCardCellState {
+  const factory SelectOptionCardCellState({
     required List<SelectOptionPB> selectedOptions,
-  }) = _BoardSelectOptionCellState;
+  }) = _SelectOptionCardCellState;
 
-  factory BoardSelectOptionCellState.initial(
+  factory SelectOptionCardCellState.initial(
       SelectOptionCellController context) {
     final data = context.getCellData();
-    return BoardSelectOptionCellState(
+    return SelectOptionCardCellState(
       selectedOptions: data?.selectOptions ?? [],
     );
   }

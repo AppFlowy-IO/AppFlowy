@@ -4,15 +4,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 
-part 'board_url_cell_bloc.freezed.dart';
+part 'url_card_cell_bloc.freezed.dart';
 
-class BoardURLCellBloc extends Bloc<BoardURLCellEvent, BoardURLCellState> {
+class URLCardCellBloc extends Bloc<URLCardCellEvent, URLCardCellState> {
   final URLCellController cellController;
   void Function()? _onCellChangedFn;
-  BoardURLCellBloc({
+  URLCardCellBloc({
     required this.cellController,
-  }) : super(BoardURLCellState.initial(cellController)) {
-    on<BoardURLCellEvent>(
+  }) : super(URLCardCellState.initial(cellController)) {
+    on<URLCardCellEvent>(
       (event, emit) async {
         event.when(
           initial: () {
@@ -46,7 +46,7 @@ class BoardURLCellBloc extends Bloc<BoardURLCellEvent, BoardURLCellState> {
     _onCellChangedFn = cellController.startListening(
       onCellChanged: ((cellData) {
         if (!isClosed) {
-          add(BoardURLCellEvent.didReceiveCellUpdate(cellData));
+          add(URLCardCellEvent.didReceiveCellUpdate(cellData));
         }
       }),
     );
@@ -54,23 +54,23 @@ class BoardURLCellBloc extends Bloc<BoardURLCellEvent, BoardURLCellState> {
 }
 
 @freezed
-class BoardURLCellEvent with _$BoardURLCellEvent {
-  const factory BoardURLCellEvent.initial() = _InitialCell;
-  const factory BoardURLCellEvent.updateURL(String url) = _UpdateURL;
-  const factory BoardURLCellEvent.didReceiveCellUpdate(URLCellDataPB? cell) =
+class URLCardCellEvent with _$URLCardCellEvent {
+  const factory URLCardCellEvent.initial() = _InitialCell;
+  const factory URLCardCellEvent.updateURL(String url) = _UpdateURL;
+  const factory URLCardCellEvent.didReceiveCellUpdate(URLCellDataPB? cell) =
       _DidReceiveCellUpdate;
 }
 
 @freezed
-class BoardURLCellState with _$BoardURLCellState {
-  const factory BoardURLCellState({
+class URLCardCellState with _$URLCardCellState {
+  const factory URLCardCellState({
     required String content,
     required String url,
-  }) = _BoardURLCellState;
+  }) = _URLCardCellState;
 
-  factory BoardURLCellState.initial(URLCellController context) {
+  factory URLCardCellState.initial(URLCellController context) {
     final cellData = context.getCellData();
-    return BoardURLCellState(
+    return URLCardCellState(
       content: cellData?.content ?? "",
       url: cellData?.url ?? "",
     );

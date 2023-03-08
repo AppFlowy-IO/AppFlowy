@@ -17,13 +17,13 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Card;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../widgets/card/cells/card_cell.dart';
+import '../../widgets/card/card_cell_builder.dart';
 import '../application/board_bloc.dart';
-import '../application/card/card_data_controller.dart';
-import 'card/card.dart';
-import 'card/card_cell_builder.dart';
+import '../../widgets/card/card.dart';
 import 'toolbar/board_toolbar.dart';
 
 class BoardPage extends StatelessWidget {
@@ -78,6 +78,7 @@ class BoardContent extends StatefulWidget {
 
 class _BoardContentState extends State<BoardContent> {
   late AppFlowyBoardScrollController scrollManager;
+  final cardConfiguration = CardConfiguration<String>();
 
   final config = AppFlowyBoardConfig(
     groupBackgroundColor: HexColor.fromHex('#F7F8FC'),
@@ -86,6 +87,16 @@ class _BoardContentState extends State<BoardContent> {
   @override
   void initState() {
     scrollManager = AppFlowyBoardScrollController();
+    cardConfiguration.addSelectOptionHook((options, groupId) {
+      // The cell should hide if the option id is equal to the groupId.
+      final isInGroup =
+          options.where((element) => element.id == groupId).isNotEmpty;
+      if (isInGroup || options.isEmpty) {
+        return const SizedBox();
+      }
+      return null;
+    });
+
     super.initState();
   }
 
@@ -225,15 +236,11 @@ class _BoardContentState extends State<BoardContent> {
 
     /// Return placeholder widget if the rowCache is null.
     if (rowCache == null) return SizedBox(key: ObjectKey(groupItem));
-
+    final cellCache = rowCache.cellCache;
     final fieldController = context.read<BoardBloc>().fieldController;
     final viewId = context.read<BoardBloc>().viewId;
-    final cardController = CardDataController(
-      rowCache: rowCache,
-      rowPB: rowPB,
-    );
 
-    final cellBuilder = BoardCellBuilder(cardController);
+    final cellBuilder = CardCellBuilder<String>(cellCache);
     bool isEditing = false;
     context.read<BoardBloc>().state.editingRow.fold(
       () => null,
@@ -247,13 +254,15 @@ class _BoardContentState extends State<BoardContent> {
       key: ValueKey(groupItemId),
       margin: config.cardPadding,
       decoration: _makeBoxDecoration(context),
-      child: BoardCard(
+      child: Card<String>(
+        row: rowPB,
         viewId: viewId,
-        groupId: groupData.group.groupId,
+        rowCache: rowCache,
+        cardData: groupData.group.groupId,
         fieldId: groupItem.fieldInfo.id,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
-        dataController: cardController,
+        configuration: cardConfiguration,
         openCard: (context) => _openCard(
           viewId,
           fieldController,
@@ -304,7 +313,8 @@ class _BoardContentState extends State<BoardContent> {
     );
 
     final dataController = RowDataController(
-      rowInfo: rowInfo,
+      rowId: rowInfo.rowPB.id,
+      viewId: rowInfo.viewId,
       rowCache: rowCache,
     );
 
