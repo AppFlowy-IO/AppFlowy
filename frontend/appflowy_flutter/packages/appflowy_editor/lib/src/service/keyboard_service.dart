@@ -35,7 +35,10 @@ abstract class AppFlowyKeyboardService {
   ///   you can disable the keyboard service of flowy_editor.
   /// But you need to call the `enable` function to restore after exiting
   ///   your custom component, otherwise the keyboard service will fails.
-  void disable({bool showCursor = false});
+  void disable({
+    bool showCursor = false,
+    UnfocusDisposition disposition = UnfocusDisposition.scope,
+  });
 }
 
 /// Process keyboard events
@@ -102,10 +105,13 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
   }
 
   @override
-  void disable({bool showCursor = false}) {
+  void disable({
+    bool showCursor = false,
+    UnfocusDisposition disposition = UnfocusDisposition.scope,
+  }) {
     isFocus = false;
     this.showCursor = showCursor;
-    _focusNode.unfocus();
+    _focusNode.unfocus(disposition: disposition);
   }
 
   @override

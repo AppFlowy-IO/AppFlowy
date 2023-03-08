@@ -11,6 +11,10 @@ extension TextRobot on EditorState {
     TextRobotInputType inputType = TextRobotInputType.word,
     Duration delay = const Duration(milliseconds: 10),
   }) async {
+    if (text == '\n') {
+      await insertNewLineAtCurrentSelection();
+      return;
+    }
     final lines = text.split('\n');
     for (final line in lines) {
       if (line.isEmpty) {
@@ -28,13 +32,21 @@ extension TextRobot on EditorState {
           }
           break;
         case TextRobotInputType.word:
-          final words = line.split(' ').map((e) => '$e ');
-          for (final word in words) {
+          final words = line.split(' ');
+          if (words.length == 1 ||
+              (words.length == 2 &&
+                  (words.first.isEmpty || words.last.isEmpty))) {
             await insertTextAtCurrentSelection(
-              word,
+              line,
             );
-            await Future.delayed(delay, () {});
+          } else {
+            for (final word in words.map((e) => '$e ')) {
+              await insertTextAtCurrentSelection(
+                word,
+              );
+            }
           }
+          await Future.delayed(delay, () {});
           break;
       }
     }
