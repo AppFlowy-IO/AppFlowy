@@ -1,9 +1,28 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
 import 'package:flutter/material.dart';
 
 typedef CellRenderHook<C, T> = Widget? Function(C cellData, T cardData);
-typedef RenderHookByFieldType<T> = Map<FieldType, CellRenderHook<dynamic, T>>;
+typedef RenderHookByFieldType<C> = Map<FieldType, CellRenderHook<dynamic, C>>;
+
+class CardConfiguration<CustomCardData> {
+  final RenderHookByFieldType<CustomCardData> renderHook = {};
+  CardConfiguration();
+
+  void addSelectOptionHook(
+    CellRenderHook<List<SelectOptionPB>, CustomCardData> hook,
+  ) {
+    selectOptionHook(cellData, cardData) {
+      if (cellData is List<SelectOptionPB>) {
+        hook(cellData, cardData);
+      }
+    }
+
+    renderHook[FieldType.SingleSelect] = selectOptionHook;
+    renderHook[FieldType.MultiSelect] = selectOptionHook;
+  }
+}
 
 abstract class CardCell<T> extends StatefulWidget {
   final T? cardData;

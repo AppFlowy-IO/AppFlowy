@@ -8,7 +8,6 @@ import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/cell/cell_builder.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/row_detail.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
@@ -22,7 +21,7 @@ import 'package:flutter/material.dart' hide Card;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../widgets/card/cells/card_cell.dart';
-import '../../widgets/card/cells/card_cell_builder.dart';
+import '../../widgets/card/card_cell_builder.dart';
 import '../application/board_bloc.dart';
 import '../../widgets/card/card.dart';
 import 'toolbar/board_toolbar.dart';
@@ -79,7 +78,7 @@ class BoardContent extends StatefulWidget {
 
 class _BoardContentState extends State<BoardContent> {
   late AppFlowyBoardScrollController scrollManager;
-  final renderHooks = <FieldType, CellRenderHook<dynamic, String>>{};
+  final cardConfiguration = CardConfiguration<String>();
 
   final config = AppFlowyBoardConfig(
     groupBackgroundColor: HexColor.fromHex('#F7F8FC'),
@@ -88,21 +87,16 @@ class _BoardContentState extends State<BoardContent> {
   @override
   void initState() {
     scrollManager = AppFlowyBoardScrollController();
-
-    optionCellHook(cellData, groupId) {
+    cardConfiguration.addSelectOptionHook((options, groupId) {
       // The cell should hide if the option id is equal to the groupId.
-      if (cellData is List<SelectOptionPB>) {
-        final isInGroup =
-            cellData.where((element) => element.id == groupId).isNotEmpty;
-        if (isInGroup || cellData.isEmpty) {
-          return const SizedBox();
-        }
+      final isInGroup =
+          options.where((element) => element.id == groupId).isNotEmpty;
+      if (isInGroup || options.isEmpty) {
+        return const SizedBox();
       }
       return null;
-    }
+    });
 
-    renderHooks[FieldType.SingleSelect] = optionCellHook;
-    renderHooks[FieldType.MultiSelect] = optionCellHook;
     super.initState();
   }
 
@@ -268,7 +262,7 @@ class _BoardContentState extends State<BoardContent> {
         fieldId: groupItem.fieldInfo.id,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
-        renderHooks: renderHooks,
+        configuration: cardConfiguration,
         openCard: (context) => _openCard(
           viewId,
           fieldController,

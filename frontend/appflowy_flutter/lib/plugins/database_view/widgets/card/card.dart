@@ -9,22 +9,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'card_bloc.dart';
 import 'cells/card_cell.dart';
-import 'cells/card_cell_builder.dart';
+import 'card_cell_builder.dart';
 import 'container/accessory.dart';
 import 'container/card_container.dart';
 
-class Card<T> extends StatefulWidget {
+class Card<CustomCardData> extends StatefulWidget {
   final RowPB row;
   final String viewId;
   final String fieldId;
-  final T? cardData;
+  final CustomCardData? cardData;
   final bool isEditing;
   final RowCache rowCache;
-  final CardCellBuilder<T> cellBuilder;
+  final CardCellBuilder<CustomCardData> cellBuilder;
   final void Function(BuildContext) openCard;
   final VoidCallback onStartEditing;
   final VoidCallback onEndEditing;
-  final RenderHookByFieldType<T>? renderHooks;
+  final CardConfiguration<CustomCardData>? configuration;
 
   const Card({
     required this.row,
@@ -37,12 +37,12 @@ class Card<T> extends StatefulWidget {
     required this.onStartEditing,
     required this.onEndEditing,
     this.cardData,
-    this.renderHooks,
+    this.configuration,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<Card<T>> createState() => _CardState<T>();
+  State<Card<CustomCardData>> createState() => _CardState<CustomCardData>();
 }
 
 class _CardState<T> extends State<Card<T>> {
@@ -120,7 +120,7 @@ class _CardState<T> extends State<Card<T>> {
                 rowNotifier: rowNotifier,
                 cellBuilder: widget.cellBuilder,
                 cells: state.cells,
-                renderHooks: widget.renderHooks,
+                cardConfiguration: widget.configuration,
                 cardData: widget.cardData,
               ),
             ),
@@ -163,18 +163,18 @@ class _CardState<T> extends State<Card<T>> {
   }
 }
 
-class _CardContent<T> extends StatelessWidget {
-  final CardCellBuilder<T> cellBuilder;
+class _CardContent<CustomCardData> extends StatelessWidget {
+  final CardCellBuilder<CustomCardData> cellBuilder;
   final EditableRowNotifier rowNotifier;
   final List<BoardCellEquatable> cells;
-  final RenderHookByFieldType<T>? renderHooks;
-  final T? cardData;
+  final CardConfiguration<CustomCardData>? cardConfiguration;
+  final CustomCardData? cardData;
   const _CardContent({
     required this.rowNotifier,
     required this.cellBuilder,
     required this.cells,
     required this.cardData,
-    this.renderHooks,
+    this.cardConfiguration,
     Key? key,
   }) : super(key: key);
 
@@ -211,7 +211,7 @@ class _CardContent<T> extends StatelessWidget {
           child: cellBuilder.buildCell(
             cellId: cell.identifier,
             cellNotifier: cellNotifier,
-            renderHooks: renderHooks,
+            cardConfiguration: cardConfiguration,
             cardData: cardData,
           ),
         );

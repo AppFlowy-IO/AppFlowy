@@ -20,8 +20,9 @@ part 'calendar_bloc.freezed.dart';
 class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   final DatabaseController _databaseController;
 
-  FieldController get fieldController => _databaseController.fieldController;
+  // Getters
   String get viewId => _databaseController.viewId;
+  CellCache get cellCache => _databaseController.rowCache.cellCache;
 
   CalendarBloc({required ViewPB view})
       : _databaseController = DatabaseController(
@@ -91,6 +92,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
                   cellId: cellId,
                 );
 
+                // Will use the actual date later
                 // final date = DateTime.fromMillisecondsSinceEpoch(
                 //   calendarEvent.timestamp.toInt(),
                 // );

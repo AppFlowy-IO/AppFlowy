@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
-import 'package:appflowy_backend/log.dart';
+import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -29,11 +29,21 @@ class CalendarPage extends StatefulWidget {
 class _CalendarPageState extends State<CalendarPage> {
   final _eventController = EventController<CalendarCardData>();
   GlobalKey<MonthViewState>? _calendarState;
+  late CalendarBloc _calendarBloc;
 
   @override
   void initState() {
     _calendarState = GlobalKey<MonthViewState>();
+    _calendarBloc = CalendarBloc(view: widget.view)
+      ..add(const CalendarEvent.initial());
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _calendarBloc.close();
+    super.dispose();
   }
 
   @override
@@ -42,10 +52,8 @@ class _CalendarPageState extends State<CalendarPage> {
       controller: _eventController,
       child: MultiBlocProvider(
         providers: [
-          BlocProvider<CalendarBloc>(
-            create: (context) => CalendarBloc(
-              view: widget.view,
-            )..add(const CalendarEvent.initial()),
+          BlocProvider<CalendarBloc>.value(
+            value: _calendarBloc,
           )
         ],
         child: BlocListener<CalendarBloc, CalendarState>(
@@ -148,12 +156,51 @@ class _CalendarPageState extends State<CalendarPage> {
     isToday,
     isInMonth,
   ) {
-    if (calenderEvents.isNotEmpty) {
-      Log.info(calenderEvents[0].event);
+    final builder = CardCellBuilder(_calendarBloc.cellCache);
+    final cells = calenderEvents.map((value) => value.event!).map((event) {
+      return builder.buildCell(cellId: event.cellId);
+    }).toList();
+
+    Color backgroundColor = Theme.of(context).colorScheme.surface;
+    if (!isInMonth) {
+      backgroundColor = AFThemeExtension.of(context).lightGreyHover;
     }
 
+    final header = _Header(
+      isToday: isToday,
+      isInMonth: isInMonth,
+      date: date,
+    );
+
+    return Container(
+      color: backgroundColor,
+      child: Column(
+        children: [
+          Align(
+            alignment: Alignment.topRight,
+            child: header.padding(all: 6.0),
+          ),
+          ...cells,
+        ],
+      ),
+    );
+  }
+}
+
+class _Header extends StatelessWidget {
+  final bool isToday;
+  final bool isInMonth;
+  final DateTime date;
+  const _Header({
+    required this.isToday,
+    required this.isInMonth,
+    required this.date,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     Color dayTextColor = Theme.of(context).colorScheme.onSurface;
-    Color cellBackgroundColor = Theme.of(context).colorScheme.surface;
     String dayString = date.day == 1
         ? DateFormat('MMM d', context.locale.toLanguageTag()).format(date)
         : date.day.toString();
@@ -163,7 +210,6 @@ class _CalendarPageState extends State<CalendarPage> {
     }
     if (!isInMonth) {
       dayTextColor = Theme.of(context).disabledColor;
-      cellBackgroundColor = AFThemeExtension.of(context).lightGreyHover;
     }
     Widget day = Container(
       decoration: BoxDecoration(
@@ -177,12 +223,6 @@ class _CalendarPageState extends State<CalendarPage> {
       ),
     );
 
-    return Container(
-      color: cellBackgroundColor,
-      child: Align(
-        alignment: Alignment.topRight,
-        child: day.padding(all: 6.0),
-      ),
-    );
+    return day;
   }
 }

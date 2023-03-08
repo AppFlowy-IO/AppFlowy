@@ -2,27 +2,27 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_controller_
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 
-import '../../../application/cell/cell_service.dart';
-import 'card_cell.dart';
-import 'checkbox_card_cell.dart';
-import 'checklist_card_cell.dart';
-import 'date_card_cell.dart';
-import 'number_card_cell.dart';
-import 'select_option_card_cell.dart';
-import 'text_card_cell.dart';
-import 'url_card_cell.dart';
+import '../../application/cell/cell_service.dart';
+import 'cells/card_cell.dart';
+import 'cells/checkbox_card_cell.dart';
+import 'cells/checklist_card_cell.dart';
+import 'cells/date_card_cell.dart';
+import 'cells/number_card_cell.dart';
+import 'cells/select_option_card_cell.dart';
+import 'cells/text_card_cell.dart';
+import 'cells/url_card_cell.dart';
 
 // T represents as the Generic card data
-class CardCellBuilder<T> {
+class CardCellBuilder<CustomCardData> {
   final CellCache cellCache;
 
   CardCellBuilder(this.cellCache);
 
   Widget buildCell({
-    T? cardData,
+    CustomCardData? cardData,
     required CellIdentifier cellId,
     EditableCardNotifier? cellNotifier,
-    RenderHookByFieldType<T>? renderHooks,
+    CardConfiguration<CustomCardData>? cardConfiguration,
   }) {
     final cellControllerBuilder = CellControllerBuilder(
       cellId: cellId,
@@ -42,15 +42,15 @@ class CardCellBuilder<T> {
           key: key,
         );
       case FieldType.SingleSelect:
-        return SelectOptionCardCell<T>(
-          renderHook: renderHooks?[FieldType.SingleSelect],
+        return SelectOptionCardCell<CustomCardData>(
+          renderHook: cardConfiguration?.renderHook[FieldType.SingleSelect],
           cellControllerBuilder: cellControllerBuilder,
           cardData: cardData,
           key: key,
         );
       case FieldType.MultiSelect:
-        return SelectOptionCardCell<T>(
-          renderHook: renderHooks?[FieldType.MultiSelect],
+        return SelectOptionCardCell<CustomCardData>(
+          renderHook: cardConfiguration?.renderHook[FieldType.MultiSelect],
           cellControllerBuilder: cellControllerBuilder,
           cardData: cardData,
           editableNotifier: cellNotifier,
