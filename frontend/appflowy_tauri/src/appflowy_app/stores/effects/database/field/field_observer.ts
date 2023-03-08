@@ -3,16 +3,15 @@ import { DatabaseNotification, DatabaseFieldChangesetPB, FlowyError, FieldPB } f
 import { ChangeNotifier } from '../../../../utils/change_notifier';
 import { DatabaseNotificationObserver } from '../notifications/observer';
 
-type UpdateFieldNotifiedValue = Result<DatabaseFieldChangesetPB, FlowyError>;
-export type DatabaseNotificationCallback = (value: UpdateFieldNotifiedValue) => void;
+export type FieldChangesetSubscribeCallback = (value: Result<DatabaseFieldChangesetPB, FlowyError>) => void;
 
 export class DatabaseFieldChangesetObserver {
-  private notifier?: ChangeNotifier<UpdateFieldNotifiedValue>;
+  private notifier?: ChangeNotifier<Result<DatabaseFieldChangesetPB, FlowyError>>;
   private listener?: DatabaseNotificationObserver;
 
   constructor(public readonly viewId: string) {}
 
-  subscribe = async (callbacks: { onFieldsChanged: DatabaseNotificationCallback }) => {
+  subscribe = async (callbacks: { onFieldsChanged: FieldChangesetSubscribeCallback }) => {
     this.notifier = new ChangeNotifier();
     this.notifier?.observer.subscribe(callbacks.onFieldsChanged);
 
@@ -41,16 +40,15 @@ export class DatabaseFieldChangesetObserver {
   };
 }
 
-type FieldNotifiedValue = Result<FieldPB, FlowyError>;
-export type FieldNotificationCallback = (value: FieldNotifiedValue) => void;
+export type FieldSubscribeCallback = (value: Result<FieldPB, FlowyError>) => void;
 
 export class DatabaseFieldObserver {
-  private _notifier?: ChangeNotifier<FieldNotifiedValue>;
+  private _notifier?: ChangeNotifier<Result<FieldPB, FlowyError>>;
   private _listener?: DatabaseNotificationObserver;
 
   constructor(public readonly fieldId: string) {}
 
-  subscribe = async (callbacks: { onFieldChanged: FieldNotificationCallback }) => {
+  subscribe = async (callbacks: { onFieldChanged: FieldSubscribeCallback }) => {
     this._notifier = new ChangeNotifier();
     this._notifier?.observer.subscribe(callbacks.onFieldChanged);
 

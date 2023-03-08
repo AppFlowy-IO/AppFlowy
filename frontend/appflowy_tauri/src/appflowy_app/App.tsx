@@ -12,7 +12,7 @@ import { SignUpPage } from './views/SignUpPage';
 import { ConfirmAccountPage } from './views/ConfirmAccountPage';
 import { ErrorHandlerPage } from './components/error/ErrorHandlerPage';
 import initializeI18n from './stores/i18n/initializeI18n';
-import { TestAPI } from './components/TestApiButton/TestAPI';
+import { TestAPI } from './components/tests/TestAPI';
 import { GetStarted } from './components/auth/GetStarted/GetStarted';
 
 initializeI18n();

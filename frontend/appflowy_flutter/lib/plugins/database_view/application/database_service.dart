@@ -1,9 +1,9 @@
+import 'package:appflowy_backend/protobuf/flowy-database/database_entities.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/grid_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/group.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
 
@@ -60,6 +60,6 @@ class DatabaseBackendService {
 
   Future<Either<RepeatedGroupPB, FlowyError>> loadGroups() {
     final payload = DatabaseViewIdPB(value: viewId);
-    return DatabaseEventGetGroup(payload).send();
+    return DatabaseEventGetGroups(payload).send();
   }
 }

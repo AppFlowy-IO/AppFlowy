@@ -3,11 +3,10 @@ import { AppPB, FlowyError, FolderNotification } from '../../../../../services/b
 import { ChangeNotifier } from '../../../../utils/change_notifier';
 import { FolderNotificationObserver } from '../notifications/observer';
 
-export type AppUpdateNotifyValue = Result<AppPB, FlowyError>;
-export type AppUpdateNotifyCallback = (value: AppUpdateNotifyValue) => void;
+export type AppUpdateNotifyCallback = (value: Result<AppPB, FlowyError>) => void;
 
 export class AppObserver {
-  _appNotifier = new ChangeNotifier<AppUpdateNotifyValue>();
+  _appNotifier = new ChangeNotifier<Result<AppPB, FlowyError>>();
   _listener?: FolderNotificationObserver;
 
   constructor(public readonly appId: string) {}
