@@ -3,22 +3,34 @@ import { Details2Svg } from '../_shared/svg/Details2Svg';
 import { FieldType } from '../../../services/backend';
 import { getBgColor } from '../_shared/getColor';
 import { MouseEventHandler, useEffect, useRef, useState } from 'react';
+import { RowInfo } from '../../stores/effects/database/row/row_cache';
+import { useRow } from '../_shared/database-hooks/useRow';
+import { DatabaseController } from '../../stores/effects/database/database_controller';
+import { useAppSelector } from '../../stores/store';
+import { BoardCell } from './BoardCell';
 
-export const BoardBlockItem = ({
+export const BoardCard = ({
+  viewId,
+  controller,
   groupingFieldId,
-  fields,
-  columns,
+  // fields,
+  // columns,
   row,
   startMove,
   endMove,
 }: {
+  viewId: string;
+  controller: DatabaseController;
   groupingFieldId: string;
-  fields: DatabaseFieldMap;
-  columns: IDatabaseColumn[];
-  row: IDatabaseRow;
+  // fields: DatabaseFieldMap;
+  // columns: IDatabaseColumn[];
+  row: RowInfo;
   startMove: () => void;
   endMove: () => void;
 }) => {
+  const { cells } = useRow(viewId, controller, row);
+
+  const databaseStore = useAppSelector((state) => state.database);
   const [isMoving, setIsMoving] = useState(false);
   const [isDown, setIsDown] = useState(false);
   const [ghostWidth, setGhostWidth] = useState(0);
@@ -26,6 +38,7 @@ export const BoardBlockItem = ({
   const [ghostLeft, setGhostLeft] = useState(0);
   const [ghostTop, setGhostTop] = useState(0);
   const el = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (el.current?.getBoundingClientRect && isMoving) {
       const { left, top, width, height } = el.current.getBoundingClientRect();
@@ -74,31 +87,14 @@ export const BoardBlockItem = ({
           <Details2Svg></Details2Svg>
         </button>
         <div className={'flex flex-col gap-3'}>
-          {columns
-            .filter((column) => column.fieldId !== groupingFieldId)
-            .map((column, index) => {
-              switch (fields[column.fieldId].fieldType) {
-                case FieldType.MultiSelect:
-                  return (
-                    <div key={index} className={'flex flex-wrap items-center gap-2'}>
-                      {row.cells[column.fieldId].optionIds?.map((option, indexOption) => {
-                        const selectOptions = fields[column.fieldId].fieldOptions.selectOptions;
-                        const selectedOption = selectOptions?.find((so) => so.selectOptionId === option);
-                        return (
-                          <div
-                            key={indexOption}
-                            className={`rounded px-1 py-0.5 text-sm ${getBgColor(selectedOption?.color)}`}
-                          >
-                            {selectedOption?.title}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                default:
-                  return <div key={index}>{row.cells[column.fieldId].data}</div>;
-              }
-            })}
+          {cells.map((cell, index) => (
+            <BoardCell
+              key={index}
+              cellIdentifier={cell.cellIdentifier}
+              cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
+              fieldController={controller.fieldController}
+            ></BoardCell>
+          ))}
         </div>
       </div>
       {isMoving && (

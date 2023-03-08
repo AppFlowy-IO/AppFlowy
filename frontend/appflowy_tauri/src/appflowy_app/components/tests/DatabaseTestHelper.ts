@@ -47,7 +47,7 @@ export async function assertTextCell(
   const cellController = await makeTextCellController(fieldId, rowInfo, databaseController).then((result) =>
     result.unwrap()
   );
-  await cellController.subscribeChanged({
+  cellController.subscribeChanged({
     onCellChanged: (value) => {
       const cellContent = value.unwrap();
       if (cellContent !== expectedContent) {

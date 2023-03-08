@@ -26,30 +26,25 @@ export const Screen = ({ children }: { children: ReactNode }) => {
     onScreenMouseMove,
     slideInFloatingPanel,
     setFloatingPanelWidth,
+    onHideMenuClick,
+    onShowMenuClick,
+    menuHidden,
   } = useNavigationPanelHooks();
 
   return (
     <div onMouseMove={onScreenMouseMove} className='flex h-screen w-screen bg-white text-black'>
-      {navigationPanelFixed ? (
-        <NavigationPanel
-          onCollapseNavigationClick={onCollapseNavigationClick}
-          width={width}
-          folders={folders}
-          pages={pages}
-          onPageClick={onPageClick}
-        ></NavigationPanel>
-      ) : (
-        <NavigationFloatingPanel
-          onFixNavigationClick={onFixNavigationClick}
-          slideInFloatingPanel={slideInFloatingPanel}
-          folders={folders}
-          pages={pages}
-          onPageClick={onPageClick}
-          setWidth={setFloatingPanelWidth}
-        ></NavigationFloatingPanel>
-      )}
+      <NavigationPanel
+        onHideMenuClick={onHideMenuClick}
+        width={width}
+        folders={folders}
+        pages={pages}
+        onPageClick={onPageClick}
+        menuHidden={menuHidden}
+      ></NavigationPanel>
 
-      <MainPanel>{children}</MainPanel>
+      <MainPanel left={width} menuHidden={menuHidden} onShowMenuClick={onShowMenuClick}>
+        {children}
+      </MainPanel>
     </div>
   );
 };
