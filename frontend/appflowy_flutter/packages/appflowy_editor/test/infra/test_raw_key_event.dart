@@ -148,6 +148,9 @@ extension on LogicalKeyboardKey {
     if (this == LogicalKeyboardKey.digit8) {
       return PhysicalKeyboardKey.digit8;
     }
+    if (this == LogicalKeyboardKey.underscore) {
+      return PhysicalKeyboardKey.minus;
+    }
     throw UnimplementedError();
   }
 }
