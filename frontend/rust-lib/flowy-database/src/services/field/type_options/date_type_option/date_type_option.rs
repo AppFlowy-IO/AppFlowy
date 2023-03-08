@@ -62,29 +62,24 @@ impl DateTypeOptionPB {
     let timestamp = cell_data.timestamp.unwrap_or_default();
     let include_time = cell_data.include_time;
 
-    let native = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0);
-    if native.is_none() {
+    let naive = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0);
+    if naive.is_none() {
       return DateCellDataPB::default();
     }
-    let native = native.unwrap();
-    if native.timestamp() == 0 {
+    let naive = naive.unwrap();
+    if timestamp == 0 {
       return DateCellDataPB::default();
     }
-    let utc = self.utc_date_time_from_native(native);
     let fmt = self.date_format.format_str();
-    let date = format!("{}", utc.format_with_items(StrftimeItems::new(fmt)));
+    let date = format!("{}", naive.format_with_items(StrftimeItems::new(fmt)));
 
-    let mut time = "".to_string();
-    if include_time {
-      let fmt = format!(
-        "{}{}",
-        self.date_format.format_str(),
-        self.time_format.format_str()
-      );
-      time = format!("{}", utc.format_with_items(StrftimeItems::new(&fmt))).replace(&date, "");
-    }
+    let time = if include_time {
+      let fmt = self.time_format.format_str();
+      format!("{}", naive.format_with_items(StrftimeItems::new(&fmt)))
+    } else {
+      "".to_string()
+    };
 
-    let timestamp = native.timestamp();
     DateCellDataPB {
       date,
       time,
@@ -93,57 +88,29 @@ impl DateTypeOptionPB {
     }
   }
 
-  fn date_fmt(&self, time: &Option<String>) -> String {
-    match time.as_ref() {
-      None => self.date_format.format_str().to_string(),
-      Some(time_str) => {
-        if time_str.is_empty() {
-          self.date_format.format_str().to_string()
-        } else {
-          format!(
-            "{} {}",
-            self.date_format.format_str(),
-            self.time_format.format_str()
-          )
-        }
-      },
-    }
-  }
-
   fn timestamp_from_utc_with_time(
     &self,
-    utc: &chrono::DateTime<chrono::Utc>,
-    time: &Option<String>,
+    naive_date: &NaiveDateTime,
+    time_str: &Option<String>,
   ) -> FlowyResult<i64> {
-    if let Some(time_str) = time.as_ref() {
+    if let Some(time_str) = time_str.as_ref() {
       if !time_str.is_empty() {
-        let date_str = format!(
-          "{}{}",
-          utc.format_with_items(StrftimeItems::new(self.date_format.format_str())),
-          &time_str
-        );
+        let naive_time =
+          chrono::NaiveTime::parse_from_str(&time_str, self.time_format.format_str());
 
-        return match NaiveDateTime::parse_from_str(&date_str, &self.date_fmt(time)) {
-          Ok(native) => {
-            let utc = self.utc_date_time_from_native(native);
-            Ok(utc.timestamp())
+        match naive_time {
+          Ok(naive_time) => {
+            return Ok(naive_date.date().and_time(naive_time).timestamp());
           },
           Err(_e) => {
-            let msg = format!("Parse {} failed", date_str);
-            Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, &msg))
+            let msg = format!("Parse {} failed", time_str);
+            return Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, &msg));
           },
         };
       }
     }
 
-    Ok(utc.timestamp())
-  }
-
-  fn utc_date_time_from_native(
-    &self,
-    naive: chrono::NaiveDateTime,
-  ) -> chrono::DateTime<chrono::Utc> {
-    chrono::DateTime::<chrono::Utc>::from_utc(naive, chrono::Utc)
+    Ok(naive_date.timestamp())
   }
 }
 
@@ -195,10 +162,9 @@ impl CellDataChangeset for DateTypeOptionPB {
       Some(date_timestamp) => match (include_time, changeset.time) {
         (true, Some(time)) => {
           let time = Some(time.trim().to_uppercase());
-          let native = NaiveDateTime::from_timestamp_opt(date_timestamp, 0);
-          if let Some(native) = native {
-            let utc = self.utc_date_time_from_native(native);
-            Some(self.timestamp_from_utc_with_time(&utc, &time)?)
+          let naive = NaiveDateTime::from_timestamp_opt(date_timestamp, 0);
+          if let Some(naive) = naive {
+            Some(self.timestamp_from_utc_with_time(&naive, &time)?)
           } else {
             Some(date_timestamp)
           }
