@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:appflowy/plugins/document/presentation/plugins/openai/service/text_edit.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter/material.dart';
 
 import 'text_completion.dart';
 import 'package:dartz/dartz.dart';
@@ -39,7 +38,7 @@ abstract class OpenAIRepository {
   Future<Either<OpenAIError, TextCompletionResponse>> getCompletions({
     required String prompt,
     String? suffix,
-    int maxTokens = 500,
+    int maxTokens = 2048,
     double temperature = .3,
   });
 
@@ -47,10 +46,10 @@ abstract class OpenAIRepository {
     required String prompt,
     required Future<void> Function() onStart,
     required Future<void> Function(TextCompletionResponse response) onProcess,
-    required VoidCallback onEnd,
+    required Future<void> Function() onEnd,
     required void Function(OpenAIError error) onError,
     String? suffix,
-    int maxTokens = 500,
+    int maxTokens = 2048,
     double temperature = 0.3,
   });
 
@@ -85,7 +84,7 @@ class HttpOpenAIRepository implements OpenAIRepository {
   Future<Either<OpenAIError, TextCompletionResponse>> getCompletions({
     required String prompt,
     String? suffix,
-    int maxTokens = 500,
+    int maxTokens = 2048,
     double temperature = 0.3,
   }) async {
     final parameters = {
@@ -121,10 +120,10 @@ class HttpOpenAIRepository implements OpenAIRepository {
     required String prompt,
     required Future<void> Function() onStart,
     required Future<void> Function(TextCompletionResponse response) onProcess,
-    required VoidCallback onEnd,
+    required Future<void> Function() onEnd,
     required void Function(OpenAIError error) onError,
     String? suffix,
-    int maxTokens = 500,
+    int maxTokens = 2048,
     double temperature = 0.3,
   }) async {
     final parameters = {
@@ -159,21 +158,23 @@ class HttpOpenAIRepository implements OpenAIRepository {
           continue;
         }
         final data = chunk.trim().split('data: ');
-        if (data.length > 1 && data[1] != '[DONE]') {
-          final response = TextCompletionResponse.fromJson(
-            json.decode(data[1]),
-          );
-          if (response.choices.isNotEmpty) {
-            final text = response.choices.first.text;
-            if (text == previousSyntax && text == '\n') {
-              continue;
+        Log.editor.info(data.toString());
+        if (data.length > 1) {
+          if (data[1] != '[DONE]') {
+            final response = TextCompletionResponse.fromJson(
+              json.decode(data[1]),
+            );
+            if (response.choices.isNotEmpty) {
+              final text = response.choices.first.text;
+              if (text == previousSyntax && text == '\n') {
+                continue;
+              }
+              await onProcess(response);
+              previousSyntax = response.choices.first.text;
             }
-            await onProcess(response);
-            previousSyntax = response.choices.first.text;
-            Log.editor.info(response.choices.first.text);
+          } else {
+            onEnd();
           }
-        } else {
-          onEnd();
         }
       }
     } else {
