@@ -66,7 +66,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
               Expanded(
                 child: _PropertyList(
                   cellBuilder: widget.cellBuilder,
-                  viewId: widget.dataController.rowInfo.viewId,
+                  viewId: widget.dataController.viewId,
                 ),
               ),
             ],

@@ -329,7 +329,7 @@ pub(crate) async fn move_row_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn create_table_row_handler(
+pub(crate) async fn create_row_handler(
   data: AFPluginData<CreateRowPayloadPB>,
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RowPB, FlowyError> {
@@ -620,6 +620,24 @@ pub(crate) async fn get_calendar_events_handler(
 ) -> DataResult<RepeatedCalendarEventPB, FlowyError> {
   let params: CalendarEventRequestParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_editor(&params.view_id).await?;
-  let events = database_editor.get_calendar_events(&params.view_id).await;
+  let events = database_editor
+    .get_all_calendar_events(&params.view_id)
+    .await;
   data_result_ok(RepeatedCalendarEventPB { items: events })
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn get_calendar_event_handler(
+  data: AFPluginData<RowIdPB>,
+  manager: AFPluginState<Arc<DatabaseManager>>,
+) -> DataResult<CalendarEventPB, FlowyError> {
+  let params: RowIdParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_editor(&params.view_id).await?;
+  let event = database_editor
+    .get_calendar_event(&params.view_id, &params.row_id)
+    .await;
+  match event {
+    None => Err(FlowyError::record_not_found()),
+    Some(event) => data_result_ok(event),
+  }
 }

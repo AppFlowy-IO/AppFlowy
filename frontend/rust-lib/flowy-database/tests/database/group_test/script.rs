@@ -130,6 +130,7 @@ impl DatabaseGroupTest {
           view_id: self.view_id.clone(),
           start_row_id: None,
           group_id: Some(group.group_id.clone()),
+          cell_data_by_field_id: None,
         };
         let _ = self.editor.create_row(params).await.unwrap();
       },

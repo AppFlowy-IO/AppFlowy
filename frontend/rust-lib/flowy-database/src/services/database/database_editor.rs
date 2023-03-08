@@ -955,10 +955,10 @@ impl DatabaseEditor {
       .await
   }
 
-  pub async fn get_calendar_events(&self, view_id: &str) -> Vec<CalendarEventPB> {
+  pub async fn get_all_calendar_events(&self, view_id: &str) -> Vec<CalendarEventPB> {
     match self.database_views.get_view_editor(view_id).await {
       Ok(view_editor) => view_editor
-        .v_get_calendar_events()
+        .v_get_all_calendar_events()
         .await
         .unwrap_or_default(),
       Err(err) => {
@@ -966,6 +966,12 @@ impl DatabaseEditor {
         vec![]
       },
     }
+  }
+
+  #[tracing::instrument(level = "trace", skip(self))]
+  pub async fn get_calendar_event(&self, view_id: &str, row_id: &str) -> Option<CalendarEventPB> {
+    let view_editor = self.database_views.get_view_editor(view_id).await.ok()?;
+    view_editor.v_get_calendar_event(row_id).await
   }
 
   async fn create_row_rev(

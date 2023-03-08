@@ -28,7 +28,7 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetTypeOption, get_field_type_option_data_handler)
         .event(DatabaseEvent::CreateTypeOption, create_field_type_option_data_handler)
         // Row
-        .event(DatabaseEvent::CreateRow, create_table_row_handler)
+        .event(DatabaseEvent::CreateRow, create_row_handler)
         .event(DatabaseEvent::GetRow, get_row_handler)
         .event(DatabaseEvent::DeleteRow, delete_row_handler)
         .event(DatabaseEvent::DuplicateRow, duplicate_row_handler)
@@ -51,7 +51,8 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
         // Database
         .event(DatabaseEvent::GetDatabases, get_databases_handler)
         // Calendar
-        .event(DatabaseEvent::GetCalendarEvents, get_calendar_events_handler)
+        .event(DatabaseEvent::GetAllCalendarEvents, get_calendar_events_handler)
+        .event(DatabaseEvent::GetCalendarEvent, get_calendar_event_handler)
         // Layout setting
         .event(DatabaseEvent::SetLayoutSetting, set_layout_setting_handler)
         .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler);
@@ -247,8 +248,11 @@ pub enum DatabaseEvent {
   GetLayoutSetting = 116,
 
   #[event(input = "CalendarEventRequestPB", output = "RepeatedCalendarEventPB")]
-  GetCalendarEvents = 117,
+  GetAllCalendarEvents = 117,
+
+  #[event(input = "RowIdPB", output = "CalendarEventPB")]
+  GetCalendarEvent = 118,
 
   #[event(input = "MoveCalendarEventPB")]
-  MoveCalendarEvent = 118,
+  MoveCalendarEvent = 119,
 }

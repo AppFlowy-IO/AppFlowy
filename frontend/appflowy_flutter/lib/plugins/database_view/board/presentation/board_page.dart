@@ -313,7 +313,8 @@ class _BoardContentState extends State<BoardContent> {
     );
 
     final dataController = RowDataController(
-      rowInfo: rowInfo,
+      rowId: rowInfo.rowPB.id,
+      viewId: rowInfo.viewId,
       rowCache: rowCache,
     );
 

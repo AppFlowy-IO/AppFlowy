@@ -114,7 +114,8 @@ class BoardTestContext {
     final rowCache = _boardDataController.rowCache;
 
     final rowDataController = RowDataController(
-      rowInfo: rowInfo,
+      viewId: rowInfo.viewId,
+      rowId: rowInfo.rowPB.id,
       rowCache: rowCache,
     );
 

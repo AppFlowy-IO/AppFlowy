@@ -26,6 +26,7 @@ class DatabaseBackendService {
   Future<Either<RowPB, FlowyError>> createRow({
     String? startRowId,
     String? groupId,
+    Map<String, String>? cellDataByFieldId,
   }) {
     var payload = CreateRowPayloadPB.create()..viewId = viewId;
     if (startRowId != null) {
@@ -34,6 +35,10 @@ class DatabaseBackendService {
 
     if (groupId != null) {
       payload.groupId = groupId;
+    }
+
+    if (cellDataByFieldId != null && cellDataByFieldId.isNotEmpty) {
+      payload.data = RowDataPB(cellDataByFieldId: cellDataByFieldId);
     }
 
     return DatabaseEventCreateRow(payload).send();

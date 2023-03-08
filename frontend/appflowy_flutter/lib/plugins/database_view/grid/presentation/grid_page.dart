@@ -280,7 +280,8 @@ class _GridRowsState extends State<_GridRows> {
     final fieldController =
         context.read<GridBloc>().databaseController.fieldController;
     final dataController = RowDataController(
-      rowInfo: rowInfo,
+      rowId: rowInfo.rowPB.id,
+      viewId: rowInfo.viewId,
       rowCache: rowCache,
     );
 
@@ -312,7 +313,8 @@ class _GridRowsState extends State<_GridRows> {
     GridCellBuilder cellBuilder,
   ) {
     final dataController = RowDataController(
-      rowInfo: rowInfo,
+      viewId: rowInfo.viewId,
+      rowId: rowInfo.rowPB.id,
       rowCache: rowCache,
     );
 

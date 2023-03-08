@@ -57,7 +57,7 @@ impl DatabaseLayoutTest {
         let events = self
           .database_test
           .editor
-          .get_calendar_events(&self.database_test.view_id)
+          .get_all_calendar_events(&self.database_test.view_id)
           .await;
         assert_eq!(events.len(), 5);
 

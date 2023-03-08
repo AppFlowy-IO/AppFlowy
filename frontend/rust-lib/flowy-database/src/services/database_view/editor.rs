@@ -835,7 +835,44 @@ impl DatabaseViewEditor {
     get_cells_for_field(self.delegate.clone(), field_id).await
   }
 
-  pub async fn v_get_calendar_events(&self) -> Option<Vec<CalendarEventPB>> {
+  pub async fn v_get_calendar_event(&self, row_id: &str) -> Option<CalendarEventPB> {
+    let layout_ty = LayoutRevision::Calendar;
+    let calendar_setting = self
+      .v_get_layout_settings(&layout_ty)
+      .await
+      .ok()?
+      .calendar?;
+
+    // Text
+    let primary_field = self.delegate.get_primary_field_rev().await?;
+    let text_cell = get_cell_for_row(self.delegate.clone(), &primary_field.id, row_id).await?;
+
+    // Date
+    let date_field = self
+      .delegate
+      .get_field_rev(&calendar_setting.layout_field_id)
+      .await?;
+
+    let date_cell = get_cell_for_row(self.delegate.clone(), &date_field.id, row_id).await?;
+    let title = text_cell
+      .into_text_field_cell_data()
+      .unwrap_or_default()
+      .into();
+
+    let timestamp = date_cell
+      .into_date_field_cell_data()
+      .unwrap_or_default()
+      .into();
+
+    Some(CalendarEventPB {
+      row_id: row_id.to_string(),
+      title_field_id: primary_field.id.clone(),
+      title,
+      timestamp,
+    })
+  }
+
+  pub async fn v_get_all_calendar_events(&self) -> Option<Vec<CalendarEventPB>> {
     let layout_ty = LayoutRevision::Calendar;
     let calendar_setting = self
       .v_get_layout_settings(&layout_ty)
@@ -848,14 +885,6 @@ impl DatabaseViewEditor {
     let text_cells = self.v_get_cells_for_field(&primary_field.id).await.ok()?;
 
     // Date
-    let _date_field = self
-      .delegate
-      .get_field_rev(&calendar_setting.layout_field_id)
-      .await?;
-
-    // // Get the type option of the date field to format the timestamp
-    // let date_field_type_option = DateTypeOptionPB::from(&date_field);
-
     let timestamp_by_row_id = self
       .v_get_cells_for_field(&calendar_setting.layout_field_id)
       .await
@@ -876,8 +905,8 @@ impl DatabaseViewEditor {
 
     let mut events: Vec<CalendarEventPB> = vec![];
     for text_cell in text_cells {
+      let title_field_id = text_cell.field_id.clone();
       let row_id = text_cell.row_id.clone();
-      let field_id = text_cell.field_id.clone();
       let timestamp = timestamp_by_row_id
         .get(&row_id)
         .cloned()
@@ -890,7 +919,7 @@ impl DatabaseViewEditor {
 
       let event = CalendarEventPB {
         row_id,
-        field_id,
+        title_field_id,
         title,
         timestamp,
       };
@@ -979,12 +1008,38 @@ impl DatabaseViewEditor {
     }
   }
 }
-/// Returns the list of cells corresponding to the given field.
+
+pub(crate) async fn get_cell_for_row(
+  delegate: Arc<dyn DatabaseViewData>,
+  field_id: &str,
+  row_id: &str,
+) -> Option<RowSingleCellData> {
+  let (_, row_rev) = delegate.get_row_rev(row_id).await?;
+  let mut cells = get_cells_for_field_in_rows(delegate, field_id, vec![row_rev])
+    .await
+    .ok()?;
+  if cells.is_empty() {
+    None
+  } else {
+    assert_eq!(cells.len(), 1);
+    Some(cells.remove(0))
+  }
+}
+
+// Returns the list of cells corresponding to the given field.
 pub(crate) async fn get_cells_for_field(
   delegate: Arc<dyn DatabaseViewData>,
   field_id: &str,
 ) -> FlowyResult<Vec<RowSingleCellData>> {
   let row_revs = delegate.get_row_revs(None).await;
+  get_cells_for_field_in_rows(delegate, field_id, row_revs).await
+}
+
+pub(crate) async fn get_cells_for_field_in_rows(
+  delegate: Arc<dyn DatabaseViewData>,
+  field_id: &str,
+  row_revs: Vec<Arc<RowRevision>>,
+) -> FlowyResult<Vec<RowSingleCellData>> {
   let field_rev = delegate.get_field_rev(field_id).await.unwrap();
   let field_type: FieldType = field_rev.ty.into();
   let mut cells = vec![];

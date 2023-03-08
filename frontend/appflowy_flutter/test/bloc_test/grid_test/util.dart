@@ -73,7 +73,8 @@ class GridTestContext {
     final rowCache = gridController.rowCache;
 
     final rowDataController = RowDataController(
-      rowInfo: rowInfo,
+      rowId: rowInfo.rowPB.id,
+      viewId: rowInfo.viewId,
       rowCache: rowCache,
     );
 

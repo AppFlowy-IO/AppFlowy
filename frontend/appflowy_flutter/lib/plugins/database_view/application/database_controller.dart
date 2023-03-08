@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_controlle
 import 'package:appflowy/plugins/database_view/application/view/view_cache.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/calendar_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/group.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/group_changeset.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
@@ -138,17 +139,25 @@ class DatabaseController {
     });
   }
 
-  Future<Either<RowPB, FlowyError>> createRow(
-      {String? startRowId, String? groupId}) {
+  Future<Either<RowPB, FlowyError>> createRow({
+    String? startRowId,
+    String? groupId,
+    void Function(RowDataBuilder builder)? withCells,
+  }) {
+    Map<String, String>? cellDataByFieldId;
+
+    if (withCells != null) {
+      final rowBuilder = RowDataBuilder();
+      withCells(rowBuilder);
+      cellDataByFieldId = rowBuilder.build();
+    }
+
     return _databaseBackendSvc.createRow(
       startRowId: startRowId,
       groupId: groupId,
+      cellDataByFieldId: cellDataByFieldId,
     );
   }
-
-  // Future<Either<RowPB, FlowyError>> createRowWithData() {
-
-  // }
 
   Future<Either<Unit, FlowyError>> moveRow(RowPB fromRow,
       {RowPB? toRow, String? groupId}) {
@@ -253,5 +262,29 @@ class DatabaseController {
         _layoutCallbacks?.onLayoutChanged(l);
       }, (r) => Log.error(r));
     });
+  }
+}
+
+class RowDataBuilder {
+  final _cellDataByFieldId = <String, String>{};
+
+  void insertText(FieldInfo fieldInfo, String text) {
+    assert(fieldInfo.fieldType == FieldType.RichText);
+    _cellDataByFieldId[fieldInfo.field.id] = text;
+  }
+
+  void insertNumber(FieldInfo fieldInfo, int num) {
+    assert(fieldInfo.fieldType == FieldType.Number);
+    _cellDataByFieldId[fieldInfo.field.id] = num.toString();
+  }
+
+  void insertDate(FieldInfo fieldInfo, DateTime date) {
+    assert(fieldInfo.fieldType == FieldType.DateTime);
+    final timestamp = (date.millisecondsSinceEpoch ~/ 1000);
+    _cellDataByFieldId[fieldInfo.field.id] = timestamp.toString();
+  }
+
+  Map<String, String> build() {
+    return _cellDataByFieldId;
   }
 }

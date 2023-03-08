@@ -3,7 +3,6 @@ use crate::services::field::*;
 use crate::services::row::RowRevisionBuilder;
 use database_model::{BuildDatabaseContext, CalendarLayoutSetting, LayoutRevision, LayoutSetting};
 use flowy_client_sync::client_database::DatabaseBuilder;
-use lib_infra::util::timestamp;
 
 pub fn make_default_grid() -> BuildDatabaseContext {
   let mut database_builder = DatabaseBuilder::new();
@@ -85,7 +84,6 @@ pub fn make_default_calendar() -> BuildDatabaseContext {
     .visibility(true)
     .primary(true)
     .build();
-  let text_field_id = text_field.id.clone();
   database_builder.add_field(text_field);
 
   // date
@@ -105,23 +103,11 @@ pub fn make_default_calendar() -> BuildDatabaseContext {
     .build();
   database_builder.add_field(multi_select_field);
 
-  let calendar_layout_setting = CalendarLayoutSetting::new(date_field_id.clone());
+  let calendar_layout_setting = CalendarLayoutSetting::new(date_field_id);
   let mut layout_setting = LayoutSetting::new();
   let calendar_setting = serde_json::to_string(&calendar_layout_setting).unwrap();
   layout_setting.insert(LayoutRevision::Calendar, calendar_setting);
   database_builder.set_layout_setting(layout_setting);
-
-  for i in 0..3 {
-    let mut row_builder = RowRevisionBuilder::new(
-      database_builder.block_id(),
-      database_builder.field_revs().clone(),
-    );
-    row_builder.insert_text_cell(&text_field_id, format!("Card {}", i + 1));
-    row_builder.insert_date_cell(&date_field_id, timestamp());
-    let row = row_builder.build();
-    database_builder.add_row(row);
-  }
-
   database_builder.build()
 }
 

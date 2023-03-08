@@ -81,6 +81,7 @@ impl DatabaseRowTest {
           view_id: self.editor.database_id.clone(),
           start_row_id: None,
           group_id: None,
+          cell_data_by_field_id: None,
         };
         let row_order = self.editor.create_row(params).await.unwrap();
         self

@@ -108,7 +108,7 @@ pub struct CalendarEventPB {
   pub row_id: String,
 
   #[pb(index = 2)]
-  pub field_id: String,
+  pub title_field_id: String,
 
   #[pb(index = 3)]
   pub title: String,

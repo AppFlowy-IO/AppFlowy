@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/cell/cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:calendar_view/calendar_view.dart';
@@ -7,14 +9,16 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
+import '../../grid/presentation/widgets/row/row_detail.dart';
 import 'layout/sizes.dart';
 import 'toolbar/calendar_toolbar.dart';
 
@@ -158,7 +162,34 @@ class _CalendarPageState extends State<CalendarPage> {
   ) {
     final builder = CardCellBuilder(_calendarBloc.cellCache);
     final cells = calenderEvents.map((value) => value.event!).map((event) {
-      return builder.buildCell(cellId: event.cellId);
+      final child = builder.buildCell(cellId: event.cellId);
+
+      return FlowyHover(
+        child: GestureDetector(
+          onTap: () {
+            final dataController = RowDataController(
+              rowId: event.cellId.rowId,
+              viewId: widget.view.id,
+              rowCache: _calendarBloc.rowCache,
+            );
+
+            FlowyOverlay.show(
+              context: context,
+              builder: (BuildContext context) {
+                return RowDetailPage(
+                  cellBuilder:
+                      GridCellBuilder(cellCache: _calendarBloc.cellCache),
+                  dataController: dataController,
+                );
+              },
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: child,
+          ),
+        ),
+      );
     }).toList();
 
     return _CalendarCard(
@@ -167,7 +198,12 @@ class _CalendarPageState extends State<CalendarPage> {
       date: date,
       children: cells,
       onCreateEvent: (date) {
-        _calendarBloc.add(CalendarEvent.createEvent(date));
+        _calendarBloc.add(
+          CalendarEvent.createEvent(
+            date,
+            LocaleKeys.calendar_defaultNewCalendarTitle.tr(),
+          ),
+        );
       },
     );
   }
@@ -214,8 +250,8 @@ class _CalendarCard extends StatelessWidget {
                     isInMonth: isInMonth,
                     isToday: isToday,
                     onCreate: () => onCreateEvent(date),
-                  )
-                  // ...children
+                  ),
+                  ...children
                 ],
               ),
             ),
@@ -312,6 +348,7 @@ class _DayBadge extends StatelessWidget {
     if (!isInMonth) {
       dayTextColor = Theme.of(context).disabledColor;
     }
+
     Widget day = Container(
       decoration: BoxDecoration(
         color: isToday ? Theme.of(context).colorScheme.primary : null,
