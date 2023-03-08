@@ -122,3 +122,15 @@ pub struct RepeatedCalendarEventPB {
   #[pb(index = 1)]
   pub items: Vec<CalendarEventPB>,
 }
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct MoveCalendarEventPB {
+  #[pb(index = 1)]
+  pub row_id: String,
+
+  #[pb(index = 2)]
+  pub field_id: String,
+
+  #[pb(index = 3)]
+  pub timestamp: i64,
+}

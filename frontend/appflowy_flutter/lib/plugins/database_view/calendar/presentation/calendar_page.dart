@@ -12,7 +12,7 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:styled_widget/styled_widget.dart';
+import 'package:provider/provider.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
 import 'layout/sizes.dart';
@@ -161,29 +161,75 @@ class _CalendarPageState extends State<CalendarPage> {
       return builder.buildCell(cellId: event.cellId);
     }).toList();
 
+    return _CalendarCard(
+      isToday: isToday,
+      isInMonth: isInMonth,
+      date: date,
+      children: cells,
+      onCreateEvent: (date) {
+        _calendarBloc.add(CalendarEvent.createEvent(date));
+      },
+    );
+  }
+}
+
+class _CalendarCard extends StatelessWidget {
+  final bool isToday;
+  final bool isInMonth;
+  final DateTime date;
+  final List<Widget> children;
+  final void Function(DateTime) onCreateEvent;
+
+  const _CalendarCard({
+    required this.isToday,
+    required this.isInMonth,
+    required this.date,
+    required this.children,
+    required this.onCreateEvent,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     Color backgroundColor = Theme.of(context).colorScheme.surface;
     if (!isInMonth) {
       backgroundColor = AFThemeExtension.of(context).lightGreyHover;
     }
 
-    final header = _Header(
-      isToday: isToday,
-      isInMonth: isInMonth,
-      date: date,
-    );
-
-    return Container(
-      color: backgroundColor,
-      child: Column(
-        children: [
-          Align(
-            alignment: Alignment.topRight,
-            child: header.padding(all: 6.0),
+    return ChangeNotifierProvider(
+      create: (_) => _CardEnterNotifier(),
+      builder: ((context, child) {
+        return Container(
+          color: backgroundColor,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            onEnter: (p) => notifyEnter(context, true),
+            onExit: (p) => notifyEnter(context, false),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  _Header(
+                    date: date,
+                    isInMonth: isInMonth,
+                    isToday: isToday,
+                    onCreate: () => onCreateEvent(date),
+                  )
+                  // ...children
+                ],
+              ),
+            ),
           ),
-          ...cells,
-        ],
-      ),
+        );
+      }),
     );
+  }
+
+  notifyEnter(BuildContext context, bool isEnter) {
+    Provider.of<_CardEnterNotifier>(
+      context,
+      listen: false,
+    ).onEnter = isEnter;
   }
 }
 
@@ -191,7 +237,62 @@ class _Header extends StatelessWidget {
   final bool isToday;
   final bool isInMonth;
   final DateTime date;
+  final VoidCallback onCreate;
   const _Header({
+    required this.isToday,
+    required this.isInMonth,
+    required this.date,
+    required this.onCreate,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<_CardEnterNotifier>(
+      builder: (context, notifier, _) {
+        final badge = _DayBadge(
+          isToday: isToday,
+          isInMonth: isInMonth,
+          date: date,
+        );
+        return Row(
+          children: [
+            if (notifier.onEnter) _NewEventButton(onClick: onCreate),
+            const Spacer(),
+            badge,
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _NewEventButton extends StatelessWidget {
+  final VoidCallback onClick;
+  const _NewEventButton({
+    required this.onClick,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyIconButton(
+      onPressed: onClick,
+      iconPadding: EdgeInsets.zero,
+      icon: svgWidget(
+        "home/add",
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
+      width: 22,
+    );
+  }
+}
+
+class _DayBadge extends StatelessWidget {
+  final bool isToday;
+  final bool isInMonth;
+  final DateTime date;
+  const _DayBadge({
     required this.isToday,
     required this.isInMonth,
     required this.date,
@@ -225,4 +326,19 @@ class _Header extends StatelessWidget {
 
     return day;
   }
+}
+
+class _CardEnterNotifier extends ChangeNotifier {
+  bool _onEnter = false;
+
+  _CardEnterNotifier();
+
+  set onEnter(bool value) {
+    if (_onEnter != value) {
+      _onEnter = value;
+      notifyListeners();
+    }
+  }
+
+  bool get onEnter => _onEnter;
 }

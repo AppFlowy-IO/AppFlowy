@@ -252,4 +252,7 @@ pub enum DatabaseEvent {
 
   #[event(input = "CalendarEventRequestPB", output = "RepeatedCalendarEventPB")]
   GetCalendarEvents = 117,
+
+  #[event(input = "MoveCalendarEventPB")]
+  MoveCalendarEvent = 118,
 }

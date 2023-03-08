@@ -47,6 +47,9 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           didReceiveEvents: (events) {
             emit(state.copyWith(events: events));
           },
+          createEvent: (DateTime date) {
+            final timestamp = (date.millisecondsSinceEpoch ~/ 1000);
+          },
         );
       },
     );
@@ -152,6 +155,7 @@ class CalendarEvent with _$CalendarEvent {
   const factory CalendarEvent.didReceiveEvents(
           List<CalendarEventData<CalendarCardData>> events) =
       _DidReceiveCalendarEvents;
+  const factory CalendarEvent.createEvent(DateTime date) = _CreateEvent;
   const factory CalendarEvent.didReceiveDatabaseUpdate(DatabasePB database) =
       _DidReceiveDatabaseUpdate;
 }

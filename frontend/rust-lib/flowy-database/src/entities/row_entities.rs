@@ -177,6 +177,9 @@ pub struct CreateRowPayloadPB {
 
   #[pb(index = 2, one_of)]
   pub start_row_id: Option<String>,
+
+  #[pb(index = 3, one_of)]
+  pub group_id: Option<String>,
 }
 
 #[derive(Default)]
