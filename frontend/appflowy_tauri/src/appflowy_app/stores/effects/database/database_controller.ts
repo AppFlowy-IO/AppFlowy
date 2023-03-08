@@ -3,7 +3,7 @@ import { FieldController, FieldInfo } from './field/field_controller';
 import { DatabaseViewCache } from './view/database_view_cache';
 import { DatabasePB } from '../../../../services/backend';
 import { RowChangedReason, RowInfo } from './row/row_cache';
-import { Err, Ok } from 'ts-results';
+import { Err, Ok, Result } from 'ts-results';
 
 export type SubscribeCallbacks = {
   onViewChanged?: (data: DatabasePB) => void;

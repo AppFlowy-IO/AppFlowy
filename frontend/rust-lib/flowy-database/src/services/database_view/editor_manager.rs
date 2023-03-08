@@ -63,6 +63,7 @@ impl DatabaseViews {
   pub async fn close(&self, view_id: &str) {
     if let Some(view_editor) = self.view_editors.write().await.remove(view_id) {
       view_editor.close().await;
+
     }
   }
 

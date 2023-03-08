@@ -20,13 +20,16 @@ export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () =
     duplicatePage,
     closePopup,
     closeRenamePopup,
+    activePageId,
   } = usePageEvents(page);
 
   return (
     <div className={'relative'}>
       <div
         onClick={() => onPageClick()}
-        className={'flex cursor-pointer items-center justify-between rounded-lg py-2 pl-8 pr-4 hover:bg-surface-2 '}
+        className={`flex cursor-pointer items-center justify-between rounded-lg py-2 pl-8 pr-4 hover:bg-surface-2 ${
+          activePageId === page.id ? 'bg-surface-2' : ''
+        }`}
       >
         <button className={'flex min-w-0 flex-1 items-center'}>
           <i className={'ml-1 mr-1 h-[16px] w-[16px]'}>

@@ -9,14 +9,19 @@ import { IPage } from '../../../stores/reducers/pages/slice';
 import { useNavigate } from 'react-router-dom';
 import React from 'react';
 
+const MINIMUM_WIDTH = 200;
+const ANIMATION_DURATION = 300;
+
 export const NavigationPanel = ({
-  onCollapseNavigationClick,
+  onHideMenuClick,
+  menuHidden,
   width,
   folders,
   pages,
   onPageClick,
 }: {
-  onCollapseNavigationClick: () => void;
+  onHideMenuClick: () => void;
+  menuHidden: boolean;
   width: number;
   folders: IFolder[];
   pages: IPage[];
@@ -24,9 +29,16 @@ export const NavigationPanel = ({
 }) => {
   return (
     <>
-      <div className={'flex flex-col justify-between bg-surface-1 text-sm'} style={{ width: `${width}px` }}>
+      <div
+        className={`absolute inset-0 flex flex-col justify-between bg-surface-1 text-sm`}
+        style={{
+          transition: `left ${ANIMATION_DURATION}ms ease-out`,
+          width: `${width}px`,
+          left: `${menuHidden ? -width : 0}px`,
+        }}
+      >
         <div className={'flex flex-col'}>
-          <AppLogo iconToShow={'hide'} onHideMenuClick={onCollapseNavigationClick}></AppLogo>
+          <AppLogo iconToShow={'hide'} onHideMenuClick={onHideMenuClick}></AppLogo>
           <WorkspaceUser></WorkspaceUser>
           <WorkspaceApps folders={folders} pages={pages} onPageClick={onPageClick} />
         </div>
@@ -46,7 +58,7 @@ export const NavigationPanel = ({
           <NewFolderButton></NewFolderButton>
         </div>
       </div>
-      <NavigationResizer></NavigationResizer>
+      <NavigationResizer minWidth={MINIMUM_WIDTH}></NavigationResizer>
     </>
   );
 };
@@ -58,7 +70,7 @@ type AppsContext = {
 };
 
 const WorkspaceApps: React.FC<AppsContext> = ({ folders, pages, onPageClick }) => (
-  <div className={'flex flex-col px-2'}>
+  <div className={'flex flex-col overflow-auto px-2'} style={{ height: 'calc(100vh - 300px)' }}>
     {folders.map((folder, index) => (
       <FolderItem
         key={index}
