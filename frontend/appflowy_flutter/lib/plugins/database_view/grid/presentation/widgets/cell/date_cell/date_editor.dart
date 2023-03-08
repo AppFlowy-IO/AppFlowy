@@ -113,12 +113,14 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
       child: BlocBuilder<DateCalBloc, DateCalState>(
         buildWhen: (p, c) => p != c,
         builder: (context, state) {
+          bool includeTime = state.dateCellData
+              .fold(() => false, (dateData) => dateData.includeTime);
           List<Widget> children = [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: _buildCalendar(context),
             ),
-            if (state.dateTypeOptionPB.includeTime) ...[
+            if (includeTime) ...[
               const VSpace(12.0),
               _TimeTextField(
                 bloc: context.read<DateCalBloc>(),
@@ -208,7 +210,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
                 textStyle.textColor(Theme.of(context).disabledColor),
           ),
           selectedDayPredicate: (day) {
-            return state.calData.fold(
+            return state.dateCellData.fold(
               () => false,
               (dateData) => isSameDay(dateData.date, day),
             );
@@ -238,7 +240,10 @@ class _IncludeTimeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocSelector<DateCalBloc, DateCalState, bool>(
-      selector: (state) => state.dateTypeOptionPB.includeTime,
+      selector: (state) => state.dateCellData.fold(
+        () => false,
+        (dateData) => dateData.includeTime,
+      ),
       builder: (context, includeTime) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),

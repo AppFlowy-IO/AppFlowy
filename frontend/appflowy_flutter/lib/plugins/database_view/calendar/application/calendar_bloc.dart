@@ -86,9 +86,9 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   void _initializeEvents(FieldPB dateField) {
     calendarEventsController.removeWhere((element) => true);
 
-    const events = <CalendarEventData<CalendarData>>[];
+    const events = <CalendarEventData<DateCellData>>[];
 
-    // final List<CalendarEventData<CalendarData>> events = rows.map((row) {
+    // final List<CalendarEventData<DateCellData>> events = rows.map((row) {
     // final event = CalendarEventData(
     //   title: "",
     //   date: row -> dateField -> value,
@@ -153,7 +153,7 @@ class CalendarEditingRow {
   });
 }
 
-class CalendarData {
+class DateCellData {
   final RowInfo rowInfo;
-  CalendarData(this.rowInfo);
+  DateCellData(this.rowInfo);
 }
