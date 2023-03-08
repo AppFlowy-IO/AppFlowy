@@ -1,5 +1,3 @@
-// List<>
-
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/arrow_keys_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/backspace_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/copy_paste_handler.dart';

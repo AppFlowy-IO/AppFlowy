@@ -423,3 +423,4 @@ ShortcutEventHandler doubleUnderscoreToBoldHanlder = (editorState, event) {
 
   return KeyEventResult.handled;
 };
+
