@@ -44,7 +44,6 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
         // Date
         .event(DatabaseEvent::UpdateDateCell, update_date_cell_handler)
         // Group
-        .event(DatabaseEvent::CreateBoardCard, create_board_card_handler)
         .event(DatabaseEvent::MoveGroup, move_group_handler)
         .event(DatabaseEvent::MoveGroupRow, move_group_row_handler)
         .event(DatabaseEvent::GetGroups, get_groups_handler)
@@ -228,9 +227,6 @@ pub enum DatabaseEvent {
 
   #[event(input = "DatabaseGroupIdPB", output = "GroupPB")]
   GetGroup = 101,
-
-  #[event(input = "CreateBoardCardPayloadPB", output = "RowPB")]
-  CreateBoardCard = 110,
 
   #[event(input = "MoveGroupPayloadPB")]
   MoveGroup = 111,

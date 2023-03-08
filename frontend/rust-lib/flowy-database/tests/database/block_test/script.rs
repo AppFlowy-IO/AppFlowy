@@ -4,7 +4,7 @@ use crate::database::database_editor::DatabaseEditorTest;
 use database_model::{
   DatabaseBlockMetaRevision, DatabaseBlockMetaRevisionChangeset, RowChangeset, RowRevision,
 };
-use flowy_database::entities::{CellIdParams, CreateRowParams, FieldType, LayoutTypePB, RowPB};
+use flowy_database::entities::{CellIdParams, CreateRowParams, FieldType, RowPB};
 use flowy_database::services::field::*;
 use flowy_database::services::row::DatabaseBlockRow;
 use std::collections::HashMap;
@@ -81,7 +81,6 @@ impl DatabaseRowTest {
           view_id: self.editor.database_id.clone(),
           start_row_id: None,
           group_id: None,
-          layout: LayoutTypePB::Grid,
         };
         let row_order = self.editor.create_row(params).await.unwrap();
         self

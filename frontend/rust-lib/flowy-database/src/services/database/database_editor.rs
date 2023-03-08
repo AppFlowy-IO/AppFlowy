@@ -425,7 +425,9 @@ impl DatabaseEditor {
   }
 
   pub async fn create_row(&self, params: CreateRowParams) -> FlowyResult<RowPB> {
-    let mut row_rev = self.create_row_rev().await?;
+    let mut row_rev = self
+      .create_row_rev(params.cell_data_by_field_id.clone())
+      .await?;
 
     self
       .database_views
@@ -966,12 +968,22 @@ impl DatabaseEditor {
     }
   }
 
-  async fn create_row_rev(&self) -> FlowyResult<RowRevision> {
+  async fn create_row_rev(
+    &self,
+    cell_data_by_field_id: Option<HashMap<String, String>>,
+  ) -> FlowyResult<RowRevision> {
     let field_revs = self.database_pad.read().await.get_field_revs(None)?;
     let block_id = self.block_id().await?;
 
     // insert empty row below the row whose id is upper_row_id
-    let row_rev = RowRevisionBuilder::new(&block_id, field_revs).build();
+    let builder = match cell_data_by_field_id {
+      None => RowRevisionBuilder::new(&block_id, field_revs),
+      Some(cell_data_by_field_id) => {
+        RowRevisionBuilder::new_with_data(&block_id, field_revs, cell_data_by_field_id)
+      },
+    };
+
+    let row_rev = builder.build();
     Ok(row_rev)
   }
 

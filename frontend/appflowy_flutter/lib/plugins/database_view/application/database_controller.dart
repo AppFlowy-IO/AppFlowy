@@ -140,12 +140,15 @@ class DatabaseController {
 
   Future<Either<RowPB, FlowyError>> createRow(
       {String? startRowId, String? groupId}) {
-    if (groupId != null) {
-      return _databaseBackendSvc.createGroupRow(groupId, startRowId);
-    } else {
-      return _databaseBackendSvc.createRow(startRowId: startRowId);
-    }
+    return _databaseBackendSvc.createRow(
+      startRowId: startRowId,
+      groupId: groupId,
+    );
   }
+
+  // Future<Either<RowPB, FlowyError>> createRowWithData() {
+
+  // }
 
   Future<Either<Unit, FlowyError>> moveRow(RowPB fromRow,
       {RowPB? toRow, String? groupId}) {
