@@ -449,12 +449,12 @@ Position? _goUp(EditorState editorState) {
     final rect = rects.reduce(
       (current, next) => current.bottom >= next.bottom ? current : next,
     );
-    offset = rect.center.translate(0, -rect.height);
+    offset = rect.topRight.translate(0, -rect.height);
   } else {
     final rect = rects.reduce(
       (current, next) => current.top <= next.top ? current : next,
     );
-    offset = rect.center.translate(0, -rect.height);
+    offset = rect.topLeft.translate(0, -rect.height);
   }
   return editorState.service.selectionService.getPositionInOffset(offset);
 }
@@ -470,12 +470,12 @@ Position? _goDown(EditorState editorState) {
     final rect = rects.reduce(
       (current, next) => current.bottom >= next.bottom ? current : next,
     );
-    offset = rect.center.translate(0, rect.height);
+    offset = rect.bottomRight.translate(0, rect.height);
   } else {
     final rect = rects.reduce(
       (current, next) => current.top <= next.top ? current : next,
     );
-    offset = rect.center.translate(0, rect.height);
+    offset = rect.bottomLeft.translate(0, rect.height);
   }
   return editorState.service.selectionService.getPositionInOffset(offset);
 }
