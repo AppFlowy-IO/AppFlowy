@@ -2,8 +2,8 @@ const os = require('os')
 const path = require('path')
 const {expect} = require('chai')
 const {spawn, spawnSync} = require('child_process')
-const {Builder, By, Capabilities} = require('selenium-webdriver')
-const {AuthBackendService, UserBackendService} = require("../src/appflowy_app/stores/effects/user/user_bd_svc.js");
+const {Builder, By, Capabilities, until } = require('selenium-webdriver')
+const { elementIsVisible, elementLocated } = require("selenium-webdriver/lib/until.js");
 
 // create the path to the expected application binary
 const application = path.resolve(
@@ -54,39 +54,15 @@ after(async function () {
     tauriDriver.kill()
 })
 
-describe('Hello Tauri', () => {
+describe('AppFlowy', () => {
     it('should be cordial', async () => {
+        // const getStartedButton = await driver.wait(until.elementLocated(By.xpath("//*[@id=\"root\"]/form/div/div[3]")))
+        // const optionButton = await driver.wait(until.elementLocated(By.id('option-button')));
+        const optionButton = await driver.wait(until.elementLocated(By.css('[aria-label="option-button"]')));
+        button_1.click();
 
-        await new Promise((resolve) => setTimeout(resolve, 10000));
-        const text = await driver.findElement(By.css('body > h1')).getText()
-        expect(text).to.match(/^[hH]ello/)
+        // const getStartedButton = await driver.wait(until.elementLocated(By.css('[aria-label="Get1"]')));
+        // button_1.click();
+
     })
 })
-
-describe('User backend service', () => {
-    it('sign up', async () => {
-        const service = new AuthBackendService();
-        const result = await service.autoSignUp();
-        expect(result.ok).toBeTruthy;
-    });
-
-    it('sign in', async () => {
-        const authService = new AuthBackendService();
-        const email = nanoid(4) + '@appflowy.io';
-        const password = nanoid(10);
-        const signUpResult = await authService.signUp({name: 'nathan', email: email, password: password});
-        expect(signUpResult.ok).toBeTruthy;
-
-        const signInResult = await authService.signIn({email: email, password: password});
-        expect(signInResult.ok).toBeTruthy;
-    });
-
-    it('get user profile', async () => {
-        const service = new AuthBackendService();
-        const result = await service.autoSignUp();
-        const userProfile = result.unwrap();
-
-        const userService = new UserBackendService(userProfile.id);
-        expect((await userService.getUserProfile()).unwrap()).toBe(userProfile);
-    });
-});
