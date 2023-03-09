@@ -10,9 +10,15 @@ export default function BulletedListBlock({ title, block }: { title: JSX.Element
   const blocksMap = useMemo(() => (id ? getDocumentBlocksMap(id) : undefined), [id]);
 
   return (
-    <div className='bulleted-list-block'>
-      {title}
-      <div>
+    <div className='bulleted-list-block relative'>
+      <div className='relative flex'>
+        <div className={`relative mb-2 min-w-[24px] leading-5`}>
+          <Circle sx={{ width: 8, height: 8 }} />
+        </div>
+        {title}
+      </div>
+
+      <div className='pl-[24px]'>
         {block.children?.map((item) => (
           <div key={item.id}>
             <BlockComponent block={item} />

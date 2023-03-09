@@ -40,6 +40,7 @@ export default function ColumnBlock({
           flexShrink: 0,
           width: `calc((100% - ${resizerWidth}px) * ${block.data.ratio})`,
         }}
+        data-block-id={block.id}
       >
         {block.children?.map((item) => (
           <BlockComponent key={item.id} block={item} />

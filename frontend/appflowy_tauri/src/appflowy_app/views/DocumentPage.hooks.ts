@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   DocumentEventGetDocument,
   DocumentVersionPB,
@@ -10,6 +10,7 @@ import { setDocumentBlocksMap } from '../utils/block_context';
 
 export const useDocument = () => {
   const params = useParams();
+  const [blockId, setBlockId] = useState<string>();
   const loadDocument = async (id: string): Promise<any> => {
     const getDocumentResult = await DocumentEventGetDocument(
       OpenDocumentPayloadPB.fromObject({
@@ -26,10 +27,10 @@ export const useDocument = () => {
     }
   };
 
-  const loadBlockData = async (blockId: string): Promise<Record<string, Block>> => {
+  const loadBlockData = async (id: string): Promise<Record<string, Block>> => {
     return {
-      [blockId]: {
-        id: blockId,
+      [id]: {
+        id: id,
         type: BlockType.PageBlock,
         data: { title: 'Document Title' },
         parent: null,
@@ -42,7 +43,7 @@ export const useDocument = () => {
         id: "A",
         type: BlockType.HeadingBlock,
         data: { level: 1, content: [{ text: 'Heading 1' }] },
-        parent: blockId,
+        parent: id,
         prev: null,
         next: "B",
         firstChild: null,
@@ -61,7 +62,7 @@ export const useDocument = () => {
           { text: 'italic', italic: true },
           { text: ', or anything else you might want to do!' },
         ] },
-        parent: blockId,
+        parent: id,
         prev: "A",
         next: "C",
         firstChild: null,
@@ -76,7 +77,7 @@ export const useDocument = () => {
           { text: '.' },
         ] },
         prev: null,
-        parent: blockId,
+        parent: id,
         next: "D",
         firstChild: "F",
         lastChild: null,
@@ -96,17 +97,50 @@ export const useDocument = () => {
           },
         ] },
         prev: "C",
-        parent: blockId,
+        parent: id,
         next: null,
-        firstChild: "G",
+        firstChild: "D-1",
         lastChild: "H",
       },
+      "D-1": {
+        id: "D-1",
+        type: BlockType.ListBlock,
+        data: { type: 'numbered', content: [
+          {
+            text:
+              "Since it's rich text, you can do things like turn a selection of text ",
+          },
+          
+        ] },
+        prev: null,
+        parent: "D",
+        next: "D-2",
+        firstChild: null,
+        lastChild: null,
+      },
+      "D-2": {
+        id: "D-2",
+        type: BlockType.ListBlock,
+        data: { type: 'numbered', content: [
+          {
+            text:
+              "Since it's rich text, you can do things like turn a selection of text ",
+          },
+          
+        ] },
+        prev: "D-1",
+        parent: "D",
+        next: "G",
+        firstChild: null,
+        lastChild: null,
+      },
+
       "E": {
         id: "E",
         type: BlockType.TextBlock,
         data: { content: [{ text: 'A wise quote.' }] },
         prev: "D",
-        parent: blockId,
+        parent: id,
         next: null,
         firstChild: null,
         lastChild: null,
@@ -123,9 +157,9 @@ export const useDocument = () => {
       },
       "G": {
         id: "G",
-        type: BlockType.TextBlock,
-        data: { content: [{ text: 'Item 1' }] },
-        prev: null,
+        type: BlockType.ListBlock,
+        data: { type: 'bulleted', content: [{ text: 'Item 1' }] },
+        prev: "D-2",
         parent: "D",
         next: "H",
         firstChild: null,
@@ -145,7 +179,7 @@ export const useDocument = () => {
         id: "I",
         type: BlockType.HeadingBlock,
         data: { level: 2, content: [{ text: 'Heading 2' }] },
-        parent: blockId,
+        parent: id,
         prev: "H",
         next: 'L',
         firstChild: null,
@@ -155,7 +189,7 @@ export const useDocument = () => {
         id: "L",
         type: BlockType.TextBlock,
         data: { content: [{ text: 'Try it out for yourself!' }] },
-        parent: blockId,
+        parent: id,
         prev: "I",
         next: 'J',
         firstChild: null,
@@ -165,7 +199,7 @@ export const useDocument = () => {
         id: "J",
         type: BlockType.HeadingBlock,
         data: { level: 3, content: [{ text: 'Heading 3' }] },
-        parent: blockId,
+        parent: id,
         prev: "L",
         next: "K",
         firstChild: null,
@@ -175,7 +209,7 @@ export const useDocument = () => {
         id: "K",
         type: BlockType.TextBlock,
         data: { content: [{ text: 'Try it out for yourself!' }] },
-        parent: blockId,
+        parent: id,
         prev: "J",
         next: "M",
         firstChild: null,
@@ -185,7 +219,7 @@ export const useDocument = () => {
         id: "M",
         type: BlockType.ListBlock,
         data: { type: 'column' },
-        parent: blockId,
+        parent: id,
         prev: "K",
         next: null,
         firstChild: "N",
@@ -280,7 +314,8 @@ export const useDocument = () => {
       const data = await loadBlockData(params.id);
       console.log(data);
       setDocumentBlocksMap(params.id, data);
+      setBlockId(params.id)
     })();
   }, [params]);
-  return { blockId: params.id };
+  return { blockId };
 };
