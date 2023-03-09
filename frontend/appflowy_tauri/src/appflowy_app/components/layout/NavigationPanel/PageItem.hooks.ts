@@ -60,6 +60,10 @@ export const usePageEvents = (page: IPage) => {
     setShowRenamePopup(false);
   };
 
+  const setOffsetTop = (v: number) => {
+    pagesActions.setOffsetTop({ id: page.id, offset: v });
+  };
+
   return {
     showPageOptions,
     onPageOptionsClick,
@@ -71,5 +75,6 @@ export const usePageEvents = (page: IPage) => {
     closePopup,
     closeRenamePopup,
     activePageId,
+    setOffsetTop,
   };
 };

@@ -8,6 +8,7 @@ import { Button } from '../../_shared/Button';
 import { usePageEvents } from './PageItem.hooks';
 import { RenamePopup } from './RenamePopup';
 import { ViewLayoutTypePB } from '../../../../services/backend';
+import { useEffect, useRef } from 'react';
 
 export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () => void }) => {
   const {
@@ -21,10 +22,17 @@ export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () =
     closePopup,
     closeRenamePopup,
     activePageId,
+    setOffsetTop,
   } = usePageEvents(page);
 
+  const el = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setOffsetTop(el.current?.offsetTop || 0);
+  }, [el]);
+
   return (
-    <div className={'relative'}>
+    <div className={'relative'} ref={el}>
       <div
         onClick={() => onPageClick()}
         className={`flex cursor-pointer items-center justify-between rounded-lg py-2 pl-8 pr-4 hover:bg-surface-2 ${

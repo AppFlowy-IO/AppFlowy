@@ -6,6 +6,7 @@ export interface IPage {
   title: string;
   pageType: ViewLayoutTypePB;
   folderId: string;
+  offsetTop?: number;
 }
 
 const initialState: IPage[] = [];
@@ -15,12 +16,7 @@ export const pagesSlice = createSlice({
   initialState: initialState,
   reducers: {
     didReceivePages(state, action: PayloadAction<IPage[]>) {
-      action.payload.forEach((updatedPage) => {
-        const index = state.findIndex((page) => page.id === updatedPage.id);
-        if (index !== -1) {
-          state.splice(index, 1, updatedPage);
-        }
-      });
+      return action.payload;
     },
     addPage(state, action: PayloadAction<IPage>) {
       state.push(action.payload);
@@ -35,6 +31,9 @@ export const pagesSlice = createSlice({
     },
     clearPages() {
       return [];
+    },
+    setOffsetTop(state, action: PayloadAction<{ id: string; offset: number }>) {
+      return state.map((page) => (page.id === action.payload.id ? { ...page, offsetTop: action.payload.offset } : page));
     },
   },
 });

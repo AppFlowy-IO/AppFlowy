@@ -8,7 +8,7 @@ import { IPage } from '../../../stores/reducers/pages/slice';
 import { PageItem } from './PageItem';
 import { Button } from '../../_shared/Button';
 import { RenamePopup } from './RenamePopup';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { DropDownShowSvg } from '../../_shared/svg/DropDownShowSvg';
 
 let timeoutHandle: any;
@@ -44,6 +44,7 @@ export const FolderItem = ({
     closePopup,
     folderHeight,
     animationDuration,
+    setOffsetTop,
   } = useFolderEvents(folder, pages);
 
   const [hideOverflow, setHideOverflow] = useState(!showPages);
@@ -59,9 +60,14 @@ export const FolderItem = ({
     }
   }, [showPages]);
 
+  const el = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setOffsetTop(el.current?.offsetTop || 0);
+  }, [el, showPages]);
+
   return (
-    /*transitionTimingFunction:'cubic-bezier(.36,1.55,.65,1.1)'*/
-    <div className={'relative'}>
+    <div className={'relative'} ref={el}>
       <div
         className={`relative my-2 ${hideOverflow ? 'overflow-hidden' : ''} transition-all `}
         style={{ height: folderHeight, transitionDuration: `${animationDuration}ms` }}
