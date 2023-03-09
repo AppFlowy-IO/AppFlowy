@@ -57,12 +57,15 @@ after(async function () {
 describe('AppFlowy', () => {
     it('should be cordial', async () => {
         // const getStartedButton = await driver.wait(until.elementLocated(By.xpath("//*[@id=\"root\"]/form/div/div[3]")))
-        // const optionButton = await driver.wait(until.elementLocated(By.id('option-button')));
-        const optionButton = await driver.wait(until.elementLocated(By.css('[aria-label="option-button"]')));
-        button_1.click();
+        // getStartedButton.click();
+        
+        const optionButton = await driver.wait(until.elementLocated(By.xpath("//*[@id=\"optionButton\"]")));
 
-        // const getStartedButton = await driver.wait(until.elementLocated(By.css('[aria-label="Get1"]')));
-        // button_1.click();
+        // const optionButton = await driver.wait(until.elementLocated(By.className('#option-button')));
+        // const optionButton = await driver.wait(until.elementLocated(By.id('#optionButton')));
+        // const optionButton = await driver.wait(until.elementLocated(By.css('[aria-label=option]')));
+
+        await new Promise((resolve) => setTimeout(resolve, 4000));
 
     })
 })

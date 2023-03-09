@@ -13,7 +13,7 @@
     "test:prettier": "yarn prettier --list-different src",
     "tauri:clean": "cargo make --cwd .. tauri_clean",
     "tauri:dev": "tauri dev",
-    "test": "mocha"
+    "test": "mocha --timeout 10000"
   },
   "dependencies": {
     "@emotion/react": "^11.10.6",

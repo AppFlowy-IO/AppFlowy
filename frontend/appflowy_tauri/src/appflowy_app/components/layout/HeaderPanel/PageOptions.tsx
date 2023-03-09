@@ -13,7 +13,7 @@ export const PageOptions = () => {
           Share
         </Button>
 
-        <button className={'relative h-8 w-8'} onClick={onOptionsClick} id='option-button' aria-label='option-button'>
+        <button id='optionButton' className={'relative h-8 w-8'} onClick={onOptionsClick}  >
           <Details2Svg></Details2Svg>
         </button>
       </div>
