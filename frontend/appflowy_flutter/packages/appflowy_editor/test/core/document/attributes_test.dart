@@ -54,6 +54,37 @@ void main() async {
         'b': 3,
         'c': 4,
       });
+      expect(invertAttributes(null, base), {
+        'a': null,
+        'b': null,
+      });
+      expect(invertAttributes(other, null), {
+        'b': 3,
+        'c': 4,
+      });
     });
+    test(
+      "hasAttributes",
+      () {
+        final base = {
+          'a': 1,
+          'b': 2,
+        };
+        final other = {
+          'c': 3,
+          'd': 4,
+        };
+
+        var x = hashAttributes(base);
+        var y = hashAttributes(base);
+        // x & y should have same hash code
+        expect(x == y, true);
+
+        y = hashAttributes(other);
+
+        // x & y should have different hash code
+        expect(x == y, false);
+      },
+    );
   });
 }

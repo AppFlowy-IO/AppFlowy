@@ -141,6 +141,7 @@ export const useDocument = () => {
         data: { content: [{ text: 'A wise quote.' }] },
         prev: "D",
         parent: id,
+
         next: null,
         firstChild: null,
         lastChild: null,

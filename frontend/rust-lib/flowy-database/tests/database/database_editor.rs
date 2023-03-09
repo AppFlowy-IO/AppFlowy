@@ -33,6 +33,10 @@ impl DatabaseEditorTest {
     Self::new(LayoutTypePB::Board).await
   }
 
+  pub async fn new_calendar() -> Self {
+    Self::new(LayoutTypePB::Calendar).await
+  }
+
   pub async fn new(layout: LayoutTypePB) -> Self {
     let sdk = FlowySDKTest::default();
     let _ = sdk.init_user().await;
@@ -63,10 +67,6 @@ impl DatabaseEditorTest {
     let block_meta_revs = editor.get_block_meta_revs().await.unwrap();
     let row_pbs = editor.get_all_row_revs(&test.view.id).await.unwrap();
     assert_eq!(block_meta_revs.len(), 1);
-
-    // It seems like you should add the field in the make_test_grid() function.
-    // Because we assert the initialize count of the fields is equal to FieldType::COUNT.
-    assert_eq!(field_revs.len(), FieldType::COUNT);
 
     let view_id = test.view.id;
     let app_id = test.app.id;

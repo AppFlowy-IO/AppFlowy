@@ -4,7 +4,6 @@ export function buildTree(id: string, blocksMap: Record<string, Block>) {
   const head = blocksMap[id];
   let node: Block | null = head;
   while(node) {
-
     if (node.parent) {
       const parent = blocksMap[node.parent];
       !parent.children && (parent.children = []);

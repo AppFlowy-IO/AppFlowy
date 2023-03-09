@@ -94,7 +94,7 @@ export class DatabaseGroupController {
   };
 
   createRow = async () => {
-    return this.databaseBackendSvc.createGroupRow(this.group.group_id);
+    return this.databaseBackendSvc.createRow(this.group.group_id);
   };
 
   subscribe = (callbacks: GroupDataCallbacks) => {

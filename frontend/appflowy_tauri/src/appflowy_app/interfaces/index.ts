@@ -13,6 +13,7 @@ export enum BlockType {
   MediaBlock = 'media',
   TableBlock = 'table',
   ColumnBlock = 'column'
+
 }
 
 

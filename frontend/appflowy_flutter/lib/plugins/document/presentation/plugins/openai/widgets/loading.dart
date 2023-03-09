@@ -32,3 +32,28 @@ class Loading {
     return Navigator.of(loadingContext).pop();
   }
 }
+
+class BarrierDialog {
+  BarrierDialog(
+    this.context,
+  );
+
+  late BuildContext loadingContext;
+  final BuildContext context;
+
+  Future<void> show() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.transparent,
+      builder: (BuildContext context) {
+        loadingContext = context;
+        return Container();
+      },
+    );
+  }
+
+  Future<void> dismiss() async {
+    return Navigator.of(loadingContext).pop();
+  }
+}

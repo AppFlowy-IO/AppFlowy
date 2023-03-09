@@ -6,10 +6,11 @@ import 'package:appflowy/plugins/database_view/application/field/field_service.d
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
-import 'package:appflowy/plugins/database_view/board/application/board_data_controller.dart';
 import 'package:appflowy/plugins/database_view/board/board.dart';
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:appflowy/workspace/application/app/app_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 
@@ -38,9 +39,14 @@ class AppFlowyBoardTest {
         .then((result) {
       return result.fold(
         (view) async {
-          final context =
-              BoardTestContext(view, BoardDataController(view: view));
-          final result = await context._boardDataController.openGrid();
+          final context = BoardTestContext(
+            view,
+            DatabaseController(
+              view: view,
+              layoutType: LayoutTypePB.Board,
+            ),
+          );
+          final result = await context._boardDataController.open();
           result.fold((l) => null, (r) => throw Exception(r));
           return context;
         },
@@ -62,7 +68,7 @@ Duration boardResponseDuration({int milliseconds = 200}) {
 
 class BoardTestContext {
   final ViewPB gridView;
-  final BoardDataController _boardDataController;
+  final DatabaseController _boardDataController;
 
   BoardTestContext(this.gridView, this._boardDataController);
 
@@ -107,8 +113,9 @@ class BoardTestContext {
     final RowInfo rowInfo = rowInfos.last;
     final rowCache = _boardDataController.rowCache;
 
-    final rowDataController = RowDataController(
-      rowInfo: rowInfo,
+    final rowDataController = RowController(
+      viewId: rowInfo.viewId,
+      rowId: rowInfo.rowPB.id,
       rowCache: rowCache,
     );
 

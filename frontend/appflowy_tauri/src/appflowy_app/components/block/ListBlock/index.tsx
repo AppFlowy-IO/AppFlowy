@@ -31,4 +31,5 @@ export default function ListBlock({ block }: { block: Block<BlockType.ListBlock>
   }
 
   return null;
+
 }

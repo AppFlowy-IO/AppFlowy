@@ -15,3 +15,4 @@ export function setDocumentBlocksMap(id: string, blocksMap: Record<string, Block
 export function getDocumentBlocksMap(id: string) {
   return documentBlocksMap.get(id);
 }
+

@@ -61,7 +61,7 @@ class RowCache {
     });
   }
 
-  void initializeRows(List<RowPB> rows) {
+  void setInitialRows(List<RowPB> rows) {
     for (final row in rows) {
       final rowInfo = buildGridRow(row);
       _rowList.add(rowInfo);
