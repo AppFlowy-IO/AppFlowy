@@ -149,6 +149,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     clearSelection();
     WidgetsBinding.instance.removeObserver(this);
     currentSelection.removeListener(_onSelectionChange);
+    _clearToolbar();
 
     super.dispose();
   }

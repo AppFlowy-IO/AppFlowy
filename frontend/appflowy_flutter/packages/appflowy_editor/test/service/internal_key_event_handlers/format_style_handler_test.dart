@@ -245,6 +245,7 @@ Future<void> _testLinkMenuInSingleTextSelection(WidgetTester tester) async {
   await editor.updateSelection(selection);
 
   // show toolbar
+  await tester.pumpAndSettle(const Duration(milliseconds: 500));
   expect(find.byType(ToolbarWidget), findsOneWidget);
 
   // trigger the link menu
