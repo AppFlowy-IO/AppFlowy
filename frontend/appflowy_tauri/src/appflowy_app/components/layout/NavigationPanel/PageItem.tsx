@@ -35,11 +35,11 @@ export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () =
   const [popupY, setPopupY] = useState(0);
 
   useEffect(() => {
-    if (showPageOptions && el.current) {
+    if (el.current) {
       const { top } = el.current.getBoundingClientRect();
       setPopupY(top);
     }
-  }, [showPageOptions]);
+  }, [showPageOptions, showRenamePopup]);
 
   return (
     <div ref={el}>
@@ -80,6 +80,7 @@ export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () =
           value={page.title}
           onChange={(newTitle) => changePageTitle(newTitle)}
           onClose={closeRenamePopup}
+          top={popupY - 124 + 40}
         ></RenamePopup>
       )}
     </div>
