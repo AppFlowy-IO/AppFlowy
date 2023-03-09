@@ -69,6 +69,8 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   void dispose() {
     controller.dispose();
     textFieldFocusNode.removeListener(_onFocusChanged);
+    widget.editorState.service.selectionService.currentSelection
+        .removeListener(_onCancelWhenSelectionChanged);
 
     super.dispose();
   }
@@ -239,6 +241,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     final result = await UserBackendService.getCurrentUserProfile();
 
     result.fold((userProfile) async {
+      BarrierDialog? barrierDialog;
       final openAIRepository = HttpOpenAIRepository(
         client: http.Client(),
         apiKey: userProfile.openaiKey,
@@ -247,6 +250,8 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
         prompt: controller.text,
         onStart: () async {
           loading.stop();
+          barrierDialog = BarrierDialog(context);
+          barrierDialog?.show();
           await _makeSurePreviousNodeIsEmptyTextNode();
         },
         onProcess: (response) async {
@@ -255,10 +260,15 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
             await widget.editorState.autoInsertText(
               text,
               inputType: TextRobotInputType.word,
+              delay: Duration.zero,
             );
           }
         },
-        onEnd: () {},
+        onEnd: () async {
+          await barrierDialog?.dismiss();
+          widget.editorState.service.selectionService.currentSelection
+              .addListener(_onCancelWhenSelectionChanged);
+        },
         onError: (error) async {
           loading.stop();
           await _showError(error.message);
@@ -353,4 +363,6 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
       widget.editorState.service.keyboardService?.enable();
     }
   }
+
+  void _onCancelWhenSelectionChanged() {}
 }
