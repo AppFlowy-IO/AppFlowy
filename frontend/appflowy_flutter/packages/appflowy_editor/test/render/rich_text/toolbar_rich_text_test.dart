@@ -25,6 +25,7 @@ void main() async {
 
       await editor.updateSelection(h1);
 
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
 
       final h1Button = find.byWidgetPredicate((widget) {
@@ -52,6 +53,7 @@ void main() async {
           end: Position(path: [0], offset: singleLineText.length));
 
       await editor.updateSelection(h2);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
 
       final h2Button = find.byWidgetPredicate((widget) {
@@ -77,6 +79,7 @@ void main() async {
           end: Position(path: [0], offset: singleLineText.length));
 
       await editor.updateSelection(h3);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
 
       final h3Button = find.byWidgetPredicate((widget) {
@@ -104,6 +107,7 @@ void main() async {
           end: Position(path: [0], offset: singleLineText.length));
 
       await editor.updateSelection(underline);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
       final underlineButton = find.byWidgetPredicate((widget) {
         if (widget is ToolbarItemWidget) {
@@ -132,6 +136,7 @@ void main() async {
           end: Position(path: [0], offset: singleLineText.length));
 
       await editor.updateSelection(bold);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
       final boldButton = find.byWidgetPredicate((widget) {
         if (widget is ToolbarItemWidget) {
@@ -159,6 +164,7 @@ void main() async {
           end: Position(path: [0], offset: singleLineText.length));
 
       await editor.updateSelection(italic);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
       final italicButton = find.byWidgetPredicate((widget) {
         if (widget is ToolbarItemWidget) {
@@ -187,6 +193,7 @@ void main() async {
 
       await editor.updateSelection(strikeThrough);
 
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
       final strikeThroughButton = find.byWidgetPredicate((widget) {
         if (widget is ToolbarItemWidget) {
@@ -214,6 +221,7 @@ void main() async {
           end: Position(path: [0], offset: singleLineText.length));
 
       await editor.updateSelection(code);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
       final codeButton = find.byWidgetPredicate((widget) {
         if (widget is ToolbarItemWidget) {
@@ -250,6 +258,7 @@ void main() async {
           end: Position(path: [0], offset: singleLineText.length));
 
       await editor.updateSelection(quote);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
       final quoteButton = find.byWidgetPredicate((widget) {
         if (widget is ToolbarItemWidget) {
@@ -276,6 +285,7 @@ void main() async {
           end: Position(path: [0], offset: singleLineText.length));
 
       await editor.updateSelection(bulletList);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
       final bulletListButton = find.byWidgetPredicate((widget) {
         if (widget is ToolbarItemWidget) {
@@ -306,6 +316,7 @@ void main() async {
           end: Position(path: [0], offset: singleLineText.length));
 
       await editor.updateSelection(selection);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
       final highlightButton = find.byWidgetPredicate((widget) {
         if (widget is ToolbarItemWidget) {
@@ -343,6 +354,7 @@ void main() async {
       );
 
       await editor.updateSelection(selection);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
       final colorButton = find.byWidgetPredicate((widget) {
         if (widget is ToolbarItemWidget) {
