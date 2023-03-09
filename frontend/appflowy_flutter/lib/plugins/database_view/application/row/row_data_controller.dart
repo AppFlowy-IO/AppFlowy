@@ -4,25 +4,27 @@ import 'row_cache.dart';
 
 typedef OnRowChanged = void Function(CellByFieldId, RowsChangedReason);
 
-class RowDataController {
-  final RowInfo rowInfo;
+class RowController {
+  final String rowId;
+  final String viewId;
   final List<VoidCallback> _onRowChangedListeners = [];
   final RowCache _rowCache;
 
   get cellCache => _rowCache.cellCache;
 
-  RowDataController({
-    required this.rowInfo,
+  RowController({
+    required this.rowId,
+    required this.viewId,
     required RowCache rowCache,
   }) : _rowCache = rowCache;
 
   CellByFieldId loadData() {
-    return _rowCache.loadGridCells(rowInfo.rowPB.id);
+    return _rowCache.loadGridCells(rowId);
   }
 
   void addListener({OnRowChanged? onRowChanged}) {
     _onRowChangedListeners.add(_rowCache.addListener(
-      rowId: rowInfo.rowPB.id,
+      rowId: rowId,
       onCellUpdated: onRowChanged,
     ));
   }

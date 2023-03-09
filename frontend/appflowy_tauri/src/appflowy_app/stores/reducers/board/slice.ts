@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-const initialState = 'field1';
+const initialState = '';
 
 export const boardSlice = createSlice({
   name: 'board',

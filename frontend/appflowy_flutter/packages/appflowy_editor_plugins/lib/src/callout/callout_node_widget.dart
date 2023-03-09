@@ -4,8 +4,6 @@ import 'package:appflowy_editor_plugins/src/extensions/theme_extension.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/style_widget/color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

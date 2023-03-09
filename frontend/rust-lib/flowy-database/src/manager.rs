@@ -371,6 +371,7 @@ pub async fn create_new_database(
     block_metas,
     blocks,
     database_view_data,
+    layout_setting,
   } = build_context;
 
   for block_meta_data in &blocks {
@@ -405,11 +406,14 @@ pub async fn create_new_database(
 
   // Create database view
   tracing::trace!("Create new database view: {}", view_id);
-  let database_view_rev = if database_view_data.is_empty() {
+  let mut database_view_rev = if database_view_data.is_empty() {
     DatabaseViewRevision::new(database_id, view_id.to_owned(), true, name, layout.into())
   } else {
     DatabaseViewRevision::from_json(database_view_data)?
   };
+
+  tracing::trace!("Initial calendar layout setting: {:?}", layout_setting);
+  database_view_rev.layout_settings = layout_setting;
   let database_view_ops = make_database_view_operations(&database_view_rev);
   let database_view_bytes = database_view_ops.json_bytes();
   let revision = Revision::initial_revision(view_id, database_view_bytes);

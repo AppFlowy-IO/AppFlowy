@@ -1,5 +1,4 @@
-import { OnNotificationError } from '../../../../../services/backend/notifications';
-import { AFNotificationObserver } from '../../../../../services/backend/notifications';
+import { OnNotificationError, AFNotificationObserver } from '../../../../../services/backend/notifications';
 import { FolderNotificationParser } from './parser';
 import { FlowyError, FolderNotification } from '../../../../../services/backend';
 import { Result } from 'ts-results';

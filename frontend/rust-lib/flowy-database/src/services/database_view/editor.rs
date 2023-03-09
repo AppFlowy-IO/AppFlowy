@@ -18,8 +18,9 @@ use crate::services::sort::{
   DeletedSortType, SortChangeset, SortController, SortTaskHandler, SortType,
 };
 use database_model::{
-  gen_database_filter_id, gen_database_id, gen_database_sort_id, FieldRevision, FieldTypeRevision,
-  FilterRevision, LayoutRevision, RowChangeset, RowRevision, SortRevision,
+  gen_database_filter_id, gen_database_id, gen_database_sort_id, CalendarLayoutSetting,
+  FieldRevision, FieldTypeRevision, FilterRevision, LayoutRevision, RowChangeset, RowRevision,
+  SortRevision,
 };
 use flowy_client_sync::client_database::{
   make_database_view_operations, DatabaseViewRevisionChangeset, DatabaseViewRevisionPad,
@@ -32,6 +33,7 @@ use lib_infra::future::Fut;
 use nanoid::nanoid;
 use revision_model::Revision;
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::future::Future;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
@@ -42,6 +44,8 @@ pub trait DatabaseViewData: Send + Sync + 'static {
 
   /// Returns the field with the field_id
   fn get_field_rev(&self, field_id: &str) -> Fut<Option<Arc<FieldRevision>>>;
+
+  fn get_primary_field_rev(&self) -> Fut<Option<Arc<FieldRevision>>>;
 
   /// Returns the index of the row with row_id
   fn index_of_row(&self, row_id: &str) -> Fut<Option<usize>>;
@@ -661,25 +665,84 @@ impl DatabaseViewEditor {
   }
 
   /// Returns the current calendar settings
-  pub async fn v_get_calendar_settings(&self) -> FlowyResult<CalendarSettingsParams> {
-    let settings = self
-      .pad
-      .read()
-      .await
-      .get_layout_setting(&LayoutRevision::Calendar)
-      .unwrap_or_else(|| CalendarSettingsParams::default_with(self.view_id.to_string()));
-    Ok(settings)
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn v_get_layout_settings(
+    &self,
+    layout_ty: &LayoutRevision,
+  ) -> FlowyResult<LayoutSettingParams> {
+    let mut layout_setting = LayoutSettingParams::default();
+    match layout_ty {
+      LayoutRevision::Grid => {},
+      LayoutRevision::Board => {},
+      LayoutRevision::Calendar => {
+        if let Some(calendar) = self
+          .pad
+          .read()
+          .await
+          .get_layout_setting::<CalendarLayoutSetting>(layout_ty)
+        {
+          // Check the field exist or not
+          if let Some(field_rev) = self.delegate.get_field_rev(&calendar.layout_field_id).await {
+            let field_type: FieldType = field_rev.ty.into();
+
+            // Check the type of field is Datetime or not
+            if field_type == FieldType::DateTime {
+              layout_setting.calendar = Some(calendar);
+            }
+          }
+        }
+      },
+    }
+
+    tracing::debug!("{:?}", layout_setting);
+    Ok(layout_setting)
   }
 
   /// Update the calendar settings and send the notification to refresh the UI
-  pub async fn v_update_calendar_settings(
-    &self,
-    params: CalendarSettingsParams,
-  ) -> FlowyResult<()> {
+  pub async fn v_set_layout_settings(&self, params: LayoutSettingParams) -> FlowyResult<()> {
     // Maybe it needs no send notification to refresh the UI
-    self
-      .modify(|pad| Ok(pad.update_layout_setting(&LayoutRevision::Calendar, &params)?))
-      .await?;
+    if let Some(new_calendar_setting) = params.calendar {
+      if let Some(field_rev) = self
+        .delegate
+        .get_field_rev(&new_calendar_setting.layout_field_id)
+        .await
+      {
+        let field_type: FieldType = field_rev.ty.into();
+        if field_type != FieldType::DateTime {
+          return Err(FlowyError::unexpect_calendar_field_type());
+        }
+
+        let layout_ty = LayoutRevision::Calendar;
+        let old_calender_setting = self.v_get_layout_settings(&layout_ty).await?.calendar;
+        self
+          .modify(|pad| Ok(pad.set_layout_setting(&layout_ty, &new_calendar_setting)?))
+          .await?;
+
+        let new_field_id = new_calendar_setting.layout_field_id.clone();
+        let layout_setting_pb: LayoutSettingPB = LayoutSettingParams {
+          calendar: Some(new_calendar_setting),
+        }
+        .into();
+
+        if let Some(old_calendar_setting) = old_calender_setting {
+          // compare the new layout field id is equal to old layout field id
+          // if not equal, send the  DidSetNewLayoutField notification
+          // if equal, send the  DidUpdateLayoutSettings notification
+          if old_calendar_setting.layout_field_id != new_field_id {
+            send_notification(&self.view_id, DatabaseNotification::DidSetNewLayoutField)
+              .payload(layout_setting_pb)
+              .send();
+          } else {
+            send_notification(&self.view_id, DatabaseNotification::DidUpdateLayoutSettings)
+              .payload(layout_setting_pb)
+              .send();
+          }
+        } else {
+          tracing::warn!("Calendar setting should not be empty")
+        }
+      }
+    }
+
     Ok(())
   }
 
@@ -772,6 +835,100 @@ impl DatabaseViewEditor {
     get_cells_for_field(self.delegate.clone(), field_id).await
   }
 
+  pub async fn v_get_calendar_event(&self, row_id: &str) -> Option<CalendarEventPB> {
+    let layout_ty = LayoutRevision::Calendar;
+    let calendar_setting = self
+      .v_get_layout_settings(&layout_ty)
+      .await
+      .ok()?
+      .calendar?;
+
+    // Text
+    let primary_field = self.delegate.get_primary_field_rev().await?;
+    let text_cell = get_cell_for_row(self.delegate.clone(), &primary_field.id, row_id).await?;
+
+    // Date
+    let date_field = self
+      .delegate
+      .get_field_rev(&calendar_setting.layout_field_id)
+      .await?;
+
+    let date_cell = get_cell_for_row(self.delegate.clone(), &date_field.id, row_id).await?;
+    let title = text_cell
+      .into_text_field_cell_data()
+      .unwrap_or_default()
+      .into();
+
+    let timestamp = date_cell
+      .into_date_field_cell_data()
+      .unwrap_or_default()
+      .into();
+
+    Some(CalendarEventPB {
+      row_id: row_id.to_string(),
+      title_field_id: primary_field.id.clone(),
+      title,
+      timestamp,
+    })
+  }
+
+  pub async fn v_get_all_calendar_events(&self) -> Option<Vec<CalendarEventPB>> {
+    let layout_ty = LayoutRevision::Calendar;
+    let calendar_setting = self
+      .v_get_layout_settings(&layout_ty)
+      .await
+      .ok()?
+      .calendar?;
+
+    // Text
+    let primary_field = self.delegate.get_primary_field_rev().await?;
+    let text_cells = self.v_get_cells_for_field(&primary_field.id).await.ok()?;
+
+    // Date
+    let timestamp_by_row_id = self
+      .v_get_cells_for_field(&calendar_setting.layout_field_id)
+      .await
+      .ok()?
+      .into_iter()
+      .map(|date_cell| {
+        let row_id = date_cell.row_id.clone();
+
+        // timestamp
+        let timestamp = date_cell
+          .into_date_field_cell_data()
+          .map(|date_cell_data| date_cell_data.0.unwrap_or_default())
+          .unwrap_or_default();
+
+        (row_id, timestamp)
+      })
+      .collect::<HashMap<String, i64>>();
+
+    let mut events: Vec<CalendarEventPB> = vec![];
+    for text_cell in text_cells {
+      let title_field_id = text_cell.field_id.clone();
+      let row_id = text_cell.row_id.clone();
+      let timestamp = timestamp_by_row_id
+        .get(&row_id)
+        .cloned()
+        .unwrap_or_default();
+
+      let title = text_cell
+        .into_text_field_cell_data()
+        .unwrap_or_default()
+        .into();
+
+      let event = CalendarEventPB {
+        row_id,
+        title_field_id,
+        title,
+        timestamp,
+      };
+      events.push(event);
+    }
+
+    Some(events)
+  }
+
   async fn notify_did_update_setting(&self) {
     let setting = self.v_get_setting().await;
     send_notification(&self.view_id, DatabaseNotification::DidUpdateSettings)
@@ -851,12 +1008,38 @@ impl DatabaseViewEditor {
     }
   }
 }
-/// Returns the list of cells corresponding to the given field.
+
+pub(crate) async fn get_cell_for_row(
+  delegate: Arc<dyn DatabaseViewData>,
+  field_id: &str,
+  row_id: &str,
+) -> Option<RowSingleCellData> {
+  let (_, row_rev) = delegate.get_row_rev(row_id).await?;
+  let mut cells = get_cells_for_field_in_rows(delegate, field_id, vec![row_rev])
+    .await
+    .ok()?;
+  if cells.is_empty() {
+    None
+  } else {
+    assert_eq!(cells.len(), 1);
+    Some(cells.remove(0))
+  }
+}
+
+// Returns the list of cells corresponding to the given field.
 pub(crate) async fn get_cells_for_field(
   delegate: Arc<dyn DatabaseViewData>,
   field_id: &str,
 ) -> FlowyResult<Vec<RowSingleCellData>> {
   let row_revs = delegate.get_row_revs(None).await;
+  get_cells_for_field_in_rows(delegate, field_id, row_revs).await
+}
+
+pub(crate) async fn get_cells_for_field_in_rows(
+  delegate: Arc<dyn DatabaseViewData>,
+  field_id: &str,
+  row_revs: Vec<Arc<RowRevision>>,
+) -> FlowyResult<Vec<RowSingleCellData>> {
   let field_rev = delegate.get_field_rev(field_id).await.unwrap();
   let field_type: FieldType = field_rev.ty.into();
   let mut cells = vec![];
