@@ -10,6 +10,7 @@ import { Button } from '../../_shared/Button';
 import { RenamePopup } from './RenamePopup';
 import { useEffect, useRef, useState } from 'react';
 import { DropDownShowSvg } from '../../_shared/svg/DropDownShowSvg';
+import { ANIMATION_DURATION } from '../../_shared/constants';
 
 let timeoutHandle: any;
 
@@ -43,7 +44,6 @@ export const FolderItem = ({
 
     closePopup,
     folderHeight,
-    animationDuration,
     setOffsetTop,
   } = useFolderEvents(folder, pages);
 
@@ -54,7 +54,7 @@ export const FolderItem = ({
     if (showPages) {
       timeoutHandle = setTimeout(() => {
         setHideOverflow(!showPages);
-      }, animationDuration);
+      }, ANIMATION_DURATION);
     } else {
       setHideOverflow(!showPages);
     }
@@ -70,7 +70,7 @@ export const FolderItem = ({
     <div className={'relative'} ref={el}>
       <div
         className={`relative my-2 ${hideOverflow ? 'overflow-hidden' : ''} transition-all `}
-        style={{ height: folderHeight, transitionDuration: `${animationDuration}ms` }}
+        style={{ height: folderHeight, transitionDuration: `${ANIMATION_DURATION}ms` }}
       >
         <div
           onClick={() => onFolderNameClick()}

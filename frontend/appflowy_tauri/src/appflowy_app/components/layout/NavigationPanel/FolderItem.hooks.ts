@@ -9,10 +9,7 @@ import { useError } from '../../error/Error.hooks';
 import { AppObserver } from '../../../stores/effects/folder/app/app_observer';
 import { activePageIdActions } from '../../../stores/reducers/activePageId/slice';
 import { useNavigate } from 'react-router-dom';
-
-const initialFolderHeight = 40;
-const initialPageHeight = 40;
-const animationDuration = 500;
+import { INITIAL_FOLDER_HEIGHT, PAGE_ITEM_HEIGHT } from '../../_shared/constants';
 
 export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
   const appDispatch = useAppDispatch();
@@ -27,7 +24,7 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
   const [showRenamePopup, setShowRenamePopup] = useState(false);
 
   // UI configurations
-  const [folderHeight, setFolderHeight] = useState(`${initialFolderHeight}px`);
+  const [folderHeight, setFolderHeight] = useState(`${INITIAL_FOLDER_HEIGHT}px`);
 
   // Observers
   const appObserver = new AppObserver(folder.id);
@@ -62,15 +59,15 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
 
   useEffect(() => {
     if (showPages) {
-      setFolderHeight(`${initialFolderHeight + pages.length * initialPageHeight}px`);
+      setFolderHeight(`${INITIAL_FOLDER_HEIGHT + pages.length * PAGE_ITEM_HEIGHT}px`);
     }
   }, [pages]);
 
   const onFolderNameClick = () => {
     if (showPages) {
-      setFolderHeight(`${initialFolderHeight}px`);
+      setFolderHeight(`${INITIAL_FOLDER_HEIGHT}px`);
     } else {
-      setFolderHeight(`${initialFolderHeight + pages.length * initialPageHeight}px`);
+      setFolderHeight(`${INITIAL_FOLDER_HEIGHT + pages.length * PAGE_ITEM_HEIGHT}px`);
     }
     setShowPages(!showPages);
   };
@@ -228,7 +225,6 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
 
     closePopup,
     folderHeight,
-    animationDuration,
     setOffsetTop,
   };
 };

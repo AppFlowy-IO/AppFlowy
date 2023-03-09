@@ -7,10 +7,10 @@ import { NavigationResizer } from './NavigationResizer';
 import { IFolder } from '../../../stores/reducers/folders/slice';
 import { IPage } from '../../../stores/reducers/pages/slice';
 import { useNavigate } from 'react-router-dom';
-import React from 'react';
-
-const MINIMUM_WIDTH = 200;
-const ANIMATION_DURATION = 300;
+import React, { useEffect, useRef } from 'react';
+import { useDispatch } from 'react-redux';
+import { useAppSelector } from '../../../stores/store';
+import { ANIMATION_DURATION, NAV_PANEL_MINIMUM_WIDTH } from '../../_shared/constants';
 
 export const NavigationPanel = ({
   onHideMenuClick,
@@ -27,6 +27,12 @@ export const NavigationPanel = ({
   pages: IPage[];
   onPageClick: (page: IPage) => void;
 }) => {
+  const el = useRef<HTMLDivElement>(null);
+  const dispatch = useDispatch();
+  const foldersStore = useAppSelector((state) => state.folders);
+  const pagesStore = useAppSelector((state) => state.pages);
+  const activePageId = useAppSelector((state) => state.activePageId);
+
   return (
     <>
       <div
@@ -40,7 +46,9 @@ export const NavigationPanel = ({
         <div className={'flex flex-col'}>
           <AppLogo iconToShow={'hide'} onHideMenuClick={onHideMenuClick}></AppLogo>
           <WorkspaceUser></WorkspaceUser>
-          <WorkspaceApps folders={folders} pages={pages} onPageClick={onPageClick} />
+          <div className={'flex flex-col overflow-auto px-2'} style={{ height: 'calc(100vh - 300px)' }} ref={el}>
+            <WorkspaceApps folders={folders} pages={pages} onPageClick={onPageClick} />
+          </div>
         </div>
 
         <div className={'flex flex-col'}>
@@ -58,7 +66,7 @@ export const NavigationPanel = ({
           <NewFolderButton></NewFolderButton>
         </div>
       </div>
-      <NavigationResizer minWidth={MINIMUM_WIDTH}></NavigationResizer>
+      <NavigationResizer minWidth={NAV_PANEL_MINIMUM_WIDTH}></NavigationResizer>
     </>
   );
 };
@@ -70,7 +78,7 @@ type AppsContext = {
 };
 
 const WorkspaceApps: React.FC<AppsContext> = ({ folders, pages, onPageClick }) => (
-  <div className={'flex flex-col overflow-auto px-2'} style={{ height: 'calc(100vh - 300px)' }}>
+  <>
     {folders.map((folder, index) => (
       <FolderItem
         key={index}
@@ -79,7 +87,7 @@ const WorkspaceApps: React.FC<AppsContext> = ({ folders, pages, onPageClick }) =
         onPageClick={onPageClick}
       ></FolderItem>
     ))}
-  </div>
+  </>
 );
 
 export const TestBackendButton = () => {

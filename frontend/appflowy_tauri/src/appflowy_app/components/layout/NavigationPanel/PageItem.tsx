@@ -9,6 +9,7 @@ import { usePageEvents } from './PageItem.hooks';
 import { RenamePopup } from './RenamePopup';
 import { ViewLayoutTypePB } from '../../../../services/backend';
 import { useEffect, useRef } from 'react';
+import { PAGE_ITEM_HEIGHT } from '../../_shared/constants';
 
 export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () => void }) => {
   const {
@@ -29,15 +30,16 @@ export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () =
 
   useEffect(() => {
     setOffsetTop(el.current?.offsetTop || 0);
-  }, [el]);
+  }, [el.current]);
 
   return (
     <div className={'relative'} ref={el}>
       <div
         onClick={() => onPageClick()}
-        className={`flex cursor-pointer items-center justify-between rounded-lg py-2 pl-8 pr-4 hover:bg-surface-2 ${
+        className={`flex cursor-pointer items-center justify-between rounded-lg pl-8 pr-4 hover:bg-surface-2 ${
           activePageId === page.id ? 'bg-surface-2' : ''
         }`}
+        style={{ height: PAGE_ITEM_HEIGHT }}
       >
         <button className={'flex min-w-0 flex-1 items-center'}>
           <i className={'ml-1 mr-1 h-[16px] w-[16px]'}>
