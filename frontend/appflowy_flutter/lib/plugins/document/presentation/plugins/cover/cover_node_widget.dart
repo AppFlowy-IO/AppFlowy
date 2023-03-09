@@ -281,13 +281,11 @@ class _CoverImageState extends State<_CoverImage> {
         coverImage = const SizedBox(); // just an empty sizebox
         break;
     }
-    return UnconstrainedBox(
-      child: Container(
-        padding: const EdgeInsets.only(bottom: 10),
-        height: height,
-        width: screenSize.width,
-        child: coverImage,
-      ),
+    return Container(
+      padding: const EdgeInsets.only(bottom: 10),
+      height: height,
+      width: screenSize.width,
+      child: coverImage,
     );
   }
 
