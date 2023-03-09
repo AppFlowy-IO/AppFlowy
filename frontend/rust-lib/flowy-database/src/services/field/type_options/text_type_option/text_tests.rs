@@ -22,6 +22,21 @@ mod tests {
       ),
       "Mar 14,2022"
     );
+
+    let data = DateCellData {
+      timestamp: Some(1647251762),
+      include_time: true,
+    };
+
+    assert_eq!(
+      stringify_cell_data(
+        data.to_string(),
+        &FieldType::RichText,
+        &field_type,
+        &field_rev
+      ),
+      "Mar 14,2022"
+    );
   }
 
   // Test parser the cell data which field's type is FieldType::SingleSelect to cell data

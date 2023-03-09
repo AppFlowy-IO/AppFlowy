@@ -43,6 +43,7 @@ impl DatabaseRowTestBuilder {
       date: Some(data.to_string()),
       time: None,
       is_utc: true,
+      include_time: Some(false),
     })
     .unwrap();
     let date_field = self.field_rev_with_type(&FieldType::DateTime);

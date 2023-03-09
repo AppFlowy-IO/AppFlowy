@@ -39,7 +39,7 @@ pub trait CellDataChangeset: TypeOption {
   /// The changeset is able to parse into the concrete data struct if `TypeOption::CellChangeset`
   /// implements the `FromCellChangesetString` trait.
   /// For example,the SelectOptionCellChangeset,DateCellChangeset. etc.
-  ///  
+  ///
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
@@ -142,7 +142,7 @@ where
 
 /// Decode the opaque cell data from one field type to another using the corresponding `TypeOption`
 ///
-/// The cell data might become an empty string depends on the to_field_type's `TypeOption`   
+/// The cell data might become an empty string depends on the to_field_type's `TypeOption`
 /// support transform the from_field_type's cell data or not.
 ///
 /// # Arguments
@@ -252,6 +252,7 @@ pub fn insert_date_cell(timestamp: i64, field_rev: &FieldRevision) -> CellRevisi
   let cell_data = serde_json::to_string(&DateCellChangeset {
     date: Some(timestamp.to_string()),
     time: None,
+    include_time: Some(false),
     is_utc: true,
   })
   .unwrap();
@@ -279,7 +280,7 @@ pub fn delete_select_option_cell(
   CellRevision::new(data)
 }
 
-/// Deserialize the String into cell specific data type.  
+/// Deserialize the String into cell specific data type.
 pub trait FromCellString {
   fn from_cell_str(s: &str) -> FlowyResult<Self>
   where

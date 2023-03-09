@@ -13,7 +13,7 @@ typedef SelectOptionCellController
     = CellController<SelectOptionCellDataPB, String>;
 typedef ChecklistCellController
     = CellController<SelectOptionCellDataPB, String>;
-typedef DateCellController = CellController<DateCellDataPB, CalendarData>;
+typedef DateCellController = CellController<DateCellDataPB, DateCellData>;
 typedef URLCellController = CellController<URLCellDataPB, String>;
 
 class CellControllerBuilder {

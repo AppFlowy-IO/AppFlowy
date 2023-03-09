@@ -862,7 +862,8 @@ impl DatabaseViewEditor {
     let timestamp = date_cell
       .into_date_field_cell_data()
       .unwrap_or_default()
-      .into();
+      .timestamp
+      .unwrap_or_default();
 
     Some(CalendarEventPB {
       row_id: row_id.to_string(),
@@ -896,7 +897,7 @@ impl DatabaseViewEditor {
         // timestamp
         let timestamp = date_cell
           .into_date_field_cell_data()
-          .map(|date_cell_data| date_cell_data.0.unwrap_or_default())
+          .map(|date_cell_data| date_cell_data.timestamp.unwrap_or_default())
           .unwrap_or_default();
 
         (row_id, timestamp)
