@@ -9,12 +9,14 @@ export default function ListBlock({ block }: { block: Block<BlockType.ListBlock>
   const title = useMemo(() => {
     if (block.data.type === 'column') return <></>;
     return (
-      <TextBlock
-        block={{
-          ...block,
-          children: [],
-        }}
-      />
+      <div className='flex-1'>
+        <TextBlock
+          block={{
+            ...block,
+            children: [],
+          }}
+        />
+      </div>
     );
   }, [block]);
 
@@ -31,5 +33,4 @@ export default function ListBlock({ block }: { block: Block<BlockType.ListBlock>
   }
 
   return null;
-
 }

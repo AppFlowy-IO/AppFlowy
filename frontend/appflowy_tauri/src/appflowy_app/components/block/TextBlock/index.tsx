@@ -2,7 +2,7 @@ import React, { useContext, useMemo, useState } from 'react';
 import { Block, BlockType } from '$app/interfaces';
 import BlockComponent from '../BlockList/BlockComponent';
 
-import { createEditor } from 'slate';
+import { Editor, Transforms, createEditor } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
 import Leaf from './Leaf';
 import HoveringToolbar from '$app/components/HoveringToolbar';
@@ -55,6 +55,14 @@ export default function TextBlock({ block }: { block: Block<BlockType.TextBlock>
             }
 
             triggerHotkey(event, editor);
+          }}
+          onDOMBeforeInput={(e) => {
+            // COMPAT: in Apple, `compositionend` is dispatched after the
+            // `beforeinput` for "insertFromComposition". It will cause repeated characters when inputting Chinese.
+            // Here, prevent the beforeInput event and wait for the compositionend event to take effect
+            if (e.inputType === 'insertFromComposition') {
+              e.preventDefault();
+            }
           }}
           renderLeaf={(props) => <Leaf {...props} />}
           placeholder='Enter some text...'
