@@ -1,7 +1,7 @@
 use crate::database::database_editor::DatabaseEditorTest;
 use database_model::{FieldRevision, RowChangeset};
 use flowy_database::entities::{
-  CreateRowParams, FieldType, GroupPB, LayoutTypePB, MoveGroupParams, MoveGroupRowParams, RowPB,
+  CreateRowParams, FieldType, GroupPB, MoveGroupParams, MoveGroupRowParams, RowPB,
 };
 use flowy_database::services::cell::{
   delete_select_option_cell, insert_select_option_cell, insert_url_cell,
@@ -130,7 +130,7 @@ impl DatabaseGroupTest {
           view_id: self.view_id.clone(),
           start_row_id: None,
           group_id: Some(group.group_id.clone()),
-          layout: LayoutTypePB::Board,
+          cell_data_by_field_id: None,
         };
         let _ = self.editor.create_row(params).await.unwrap();
       },

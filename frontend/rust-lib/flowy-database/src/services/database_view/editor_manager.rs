@@ -1,7 +1,8 @@
 #![allow(clippy::while_let_loop)]
 use crate::entities::{
   AlterFilterParams, AlterSortParams, CreateRowParams, DatabaseViewSettingPB, DeleteFilterParams,
-  DeleteGroupParams, DeleteSortParams, InsertGroupParams, MoveGroupParams, RepeatedGroupPB, RowPB,
+  DeleteGroupParams, DeleteSortParams, GroupPB, InsertGroupParams, LayoutSettingParams,
+  MoveGroupParams, RepeatedGroupPB, RowPB,
 };
 use crate::manager::DatabaseUser;
 use crate::services::cell::AtomicCellDataCache;
@@ -15,7 +16,9 @@ use crate::services::filter::FilterType;
 use crate::services::persistence::rev_sqlite::{
   SQLiteDatabaseRevisionSnapshotPersistence, SQLiteDatabaseViewRevisionPersistence,
 };
-use database_model::{FieldRevision, FilterRevision, RowChangeset, RowRevision, SortRevision};
+use database_model::{
+  FieldRevision, FilterRevision, LayoutRevision, RowChangeset, RowRevision, SortRevision,
+};
 use flowy_client_sync::client_database::DatabaseViewRevisionPad;
 use flowy_error::FlowyResult;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration};
@@ -199,6 +202,29 @@ impl DatabaseViews {
     let view_editor = self.get_view_editor(view_id).await?;
     let groups = view_editor.v_load_groups().await?;
     Ok(RepeatedGroupPB { items: groups })
+  }
+
+  pub async fn get_group(&self, view_id: &str, group_id: &str) -> FlowyResult<GroupPB> {
+    let view_editor = self.get_view_editor(view_id).await?;
+    view_editor.v_get_group(group_id).await
+  }
+
+  pub async fn get_layout_setting(
+    &self,
+    view_id: &str,
+    layout_ty: &LayoutRevision,
+  ) -> FlowyResult<LayoutSettingParams> {
+    let view_editor = self.get_view_editor(view_id).await?;
+    view_editor.v_get_layout_settings(layout_ty).await
+  }
+
+  pub async fn set_layout_setting(
+    &self,
+    view_id: &str,
+    layout_setting: LayoutSettingParams,
+  ) -> FlowyResult<()> {
+    let view_editor = self.get_view_editor(view_id).await?;
+    view_editor.v_set_layout_settings(layout_setting).await
   }
 
   pub async fn insert_or_update_group(&self, params: InsertGroupParams) -> FlowyResult<()> {

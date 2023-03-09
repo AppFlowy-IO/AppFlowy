@@ -207,14 +207,14 @@ impl DatabaseManager {
     let create_view_editor = |database_editor: Arc<DatabaseEditor>| async move {
       let user_id = user.user_id()?;
       let (view_pad, view_rev_manager) = make_database_view_revision_pad(view_id, user).await?;
-      return DatabaseViewEditor::from_pad(
+      DatabaseViewEditor::from_pad(
         &user_id,
         database_editor.database_view_data.clone(),
         database_editor.cell_data_cache.clone(),
         view_rev_manager,
         view_pad,
       )
-      .await;
+      .await
     };
 
     let database_editor = self
@@ -224,7 +224,7 @@ impl DatabaseManager {
       .get(database_id)
       .cloned();
 
-    return match database_editor {
+    match database_editor {
       None => {
         let mut editors_by_database_id = self.editors_by_database_id.write().await;
         let db_pool = self.database_user.db_pool()?;
@@ -241,7 +241,7 @@ impl DatabaseManager {
 
         Ok(database_editor)
       },
-    };
+    }
   }
 
   #[tracing::instrument(level = "trace", skip(self, pool), err)]
@@ -371,6 +371,7 @@ pub async fn create_new_database(
     block_metas,
     blocks,
     database_view_data,
+    layout_setting,
   } = build_context;
 
   for block_meta_data in &blocks {
@@ -405,11 +406,14 @@ pub async fn create_new_database(
 
   // Create database view
   tracing::trace!("Create new database view: {}", view_id);
-  let database_view_rev = if database_view_data.is_empty() {
+  let mut database_view_rev = if database_view_data.is_empty() {
     DatabaseViewRevision::new(database_id, view_id.to_owned(), true, name, layout.into())
   } else {
     DatabaseViewRevision::from_json(database_view_data)?
   };
+
+  tracing::trace!("Initial calendar layout setting: {:?}", layout_setting);
+  database_view_rev.layout_settings = layout_setting;
   let database_view_ops = make_database_view_operations(&database_view_rev);
   let database_view_bytes = database_view_ops.json_bytes();
   let revision = Revision::initial_revision(view_id, database_view_bytes);

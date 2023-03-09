@@ -1,4 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
@@ -16,17 +18,16 @@ import '../../application/row/row_data_controller.dart';
 import '../../application/setting/setting_bloc.dart';
 import '../application/filter/filter_menu_bloc.dart';
 import '../application/grid_bloc.dart';
-import '../application/grid_data_controller.dart';
+import '../../application/database_controller.dart';
 import '../application/sort/sort_menu_bloc.dart';
 import 'grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
 import 'widgets/accessory_menu.dart';
-import 'widgets/cell/cell_builder.dart';
-import 'widgets/row/grid_row.dart';
+import 'widgets/row/row.dart';
 import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
-import 'widgets/row/row_detail.dart';
+import '../../widgets/row/row_detail.dart';
 import 'widgets/shortcuts.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
 
@@ -35,7 +36,10 @@ class GridPage extends StatefulWidget {
     required this.view,
     this.onDeleted,
     Key? key,
-  })  : databaseController = DatabaseController(view: view),
+  })  : databaseController = DatabaseController(
+          view: view,
+          layoutType: LayoutTypePB.Grid,
+        ),
         super(key: key);
 
   final ViewPB view;
@@ -275,14 +279,15 @@ class _GridRowsState extends State<_GridRows> {
 
     final fieldController =
         context.read<GridBloc>().databaseController.fieldController;
-    final dataController = RowDataController(
-      rowInfo: rowInfo,
+    final dataController = RowController(
+      rowId: rowInfo.rowPB.id,
+      viewId: rowInfo.viewId,
       rowCache: rowCache,
     );
 
     return SizeTransition(
       sizeFactor: animation,
-      child: GridRowWidget(
+      child: GridRow(
         rowInfo: rowInfo,
         dataController: dataController,
         cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
@@ -307,8 +312,9 @@ class _GridRowsState extends State<_GridRows> {
     RowCache rowCache,
     GridCellBuilder cellBuilder,
   ) {
-    final dataController = RowDataController(
-      rowInfo: rowInfo,
+    final dataController = RowController(
+      viewId: rowInfo.viewId,
+      rowId: rowInfo.rowPB.id,
       rowCache: rowCache,
     );
 

@@ -7,7 +7,7 @@ const String kMathEquationType = 'math_equation';
 const String kMathEquationAttr = 'math_equation';
 
 SelectionMenuItem mathEquationMenuItem = SelectionMenuItem(
-  name: () => 'Math Equation',
+  name: 'Math Equation',
   icon: (editorState, onSelected) => Icon(
     Icons.text_fields_rounded,
     color: onSelected

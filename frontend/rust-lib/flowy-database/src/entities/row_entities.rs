@@ -1,8 +1,9 @@
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::LayoutTypePB;
+
 use database_model::RowRevision;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
+use std::collections::HashMap;
 use std::sync::Arc;
 
 /// [RowPB] Describes a row. Has the id of the parent Block. Has the metadata of the row.
@@ -177,6 +178,18 @@ pub struct CreateRowPayloadPB {
 
   #[pb(index = 2, one_of)]
   pub start_row_id: Option<String>,
+
+  #[pb(index = 3, one_of)]
+  pub group_id: Option<String>,
+
+  #[pb(index = 4, one_of)]
+  pub data: Option<RowDataPB>,
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct RowDataPB {
+  #[pb(index = 1)]
+  pub cell_data_by_field_id: HashMap<String, String>,
 }
 
 #[derive(Default)]
@@ -184,7 +197,7 @@ pub struct CreateRowParams {
   pub view_id: String,
   pub start_row_id: Option<String>,
   pub group_id: Option<String>,
-  pub layout: LayoutTypePB,
+  pub cell_data_by_field_id: Option<HashMap<String, String>>,
 }
 
 impl TryInto<CreateRowParams> for CreateRowPayloadPB {
@@ -192,12 +205,20 @@ impl TryInto<CreateRowParams> for CreateRowPayloadPB {
 
   fn try_into(self) -> Result<CreateRowParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::ViewIdIsInvalid)?;
+    let start_row_id = match self.start_row_id {
+      None => None,
+      Some(start_row_id) => Some(
+        NotEmptyStr::parse(start_row_id)
+          .map_err(|_| ErrorCode::RowIdIsEmpty)?
+          .0,
+      ),
+    };
 
     Ok(CreateRowParams {
       view_id: view_id.0,
-      start_row_id: self.start_row_id,
-      group_id: None,
-      layout: LayoutTypePB::Grid,
+      start_row_id,
+      group_id: self.group_id,
+      cell_data_by_field_id: self.data.map(|data| data.cell_data_by_field_id),
     })
   }
 }

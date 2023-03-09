@@ -36,7 +36,7 @@ class DocumentService {
   }
 
   Future<Either<Unit, FlowyError>> closeDocument({required String docId}) {
-    final request = ViewIdPB(value: docId);
-    return FolderEventCloseView(request).send();
+    final payload = ViewIdPB(value: docId);
+    return FolderEventCloseView(payload).send();
   }
 }

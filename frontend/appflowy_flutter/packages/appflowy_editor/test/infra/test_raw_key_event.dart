@@ -142,14 +142,14 @@ extension on LogicalKeyboardKey {
     if (this == LogicalKeyboardKey.keyZ) {
       return PhysicalKeyboardKey.keyZ;
     }
-    if (this == LogicalKeyboardKey.asterisk) {
+    if (this == LogicalKeyboardKey.tilde) {
+      return PhysicalKeyboardKey.backquote;
+    }
+    if (this == LogicalKeyboardKey.digit8) {
       return PhysicalKeyboardKey.digit8;
     }
     if (this == LogicalKeyboardKey.underscore) {
       return PhysicalKeyboardKey.minus;
-    }
-    if (this == LogicalKeyboardKey.tilde) {
-      return PhysicalKeyboardKey.backquote;
     }
     throw UnimplementedError();
   }

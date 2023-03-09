@@ -1,7 +1,15 @@
-export const Breadcrumbs = () => {
+import { ShowMenuSvg } from '../../_shared/svg/ShowMenuSvg';
+
+export const Breadcrumbs = ({ menuHidden, onShowMenuClick }: { menuHidden: boolean; onShowMenuClick: () => void }) => {
   return (
     <div className={'flex items-center'}>
       <div className={'mr-4 flex items-center'}>
+        {menuHidden && (
+          <button onClick={() => onShowMenuClick()} className={'mr-2 h-5 w-5'}>
+            <ShowMenuSvg></ShowMenuSvg>
+          </button>
+        )}
+
         <button className={'p-1'} onClick={() => history.back()}>
           <img src={'/images/home/arrow_left.svg'} />
         </button>

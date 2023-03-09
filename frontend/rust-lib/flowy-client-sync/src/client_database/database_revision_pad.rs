@@ -176,8 +176,8 @@ impl DatabaseRevisionPad {
     T: Into<FieldTypeRevision>,
   {
     let new_field_type = new_field_type.into();
-    self.modify_database(|grid_meta| {
-      match grid_meta
+    self.modify_database(|database_rev| {
+      match database_rev
         .fields
         .iter_mut()
         .find(|field_rev| field_rev.id == field_id)

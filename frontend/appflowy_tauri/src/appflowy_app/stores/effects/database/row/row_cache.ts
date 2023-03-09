@@ -53,12 +53,14 @@ export class RowCache {
     }
   };
 
-  subscribeOnRowsChanged = (callback: (reason: RowChangedReason, cellMap?: Map<string, CellIdentifier>) => void) => {
+  subscribe = (callbacks: {
+    onRowsChanged: (reason: RowChangedReason, cellMap?: Map<string, CellIdentifier>) => void;
+  }) => {
     return this.notifier.observer.subscribe((change) => {
       if (change.rowId !== undefined) {
-        callback(change.reason, this._toCellMap(change.rowId, this.getFieldInfos()));
+        callbacks.onRowsChanged(change.reason, this._toCellMap(change.rowId, this.getFieldInfos()));
       } else {
-        callback(change.reason);
+        callbacks.onRowsChanged(change.reason);
       }
     });
   };

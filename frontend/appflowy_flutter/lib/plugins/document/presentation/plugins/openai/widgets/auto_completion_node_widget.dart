@@ -61,19 +61,16 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   void initState() {
     super.initState();
 
-    focusNode.addListener(() {
-      if (focusNode.hasFocus) {
-        widget.editorState.service.selectionService.clearSelection();
-      } else {
-        widget.editorState.service.keyboardService?.enable();
-      }
-    });
+    textFieldFocusNode.addListener(_onFocusChanged);
     textFieldFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
     controller.dispose();
+    textFieldFocusNode.removeListener(_onFocusChanged);
+    widget.editorState.service.selectionService.currentSelection
+        .removeListener(_onCancelWhenSelectionChanged);
 
     super.dispose();
   }
@@ -242,30 +239,41 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     loading.start();
     await _updateEditingText();
     final result = await UserBackendService.getCurrentUserProfile();
+
     result.fold((userProfile) async {
+      BarrierDialog? barrierDialog;
       final openAIRepository = HttpOpenAIRepository(
         client: http.Client(),
         apiKey: userProfile.openaiKey,
       );
-      final completions = await openAIRepository.getCompletions(
+      await openAIRepository.getStreamedCompletions(
         prompt: controller.text,
+        onStart: () async {
+          loading.stop();
+          barrierDialog = BarrierDialog(context);
+          barrierDialog?.show();
+          await _makeSurePreviousNodeIsEmptyTextNode();
+        },
+        onProcess: (response) async {
+          if (response.choices.isNotEmpty) {
+            final text = response.choices.first.text;
+            await widget.editorState.autoInsertText(
+              text,
+              inputType: TextRobotInputType.word,
+              delay: Duration.zero,
+            );
+          }
+        },
+        onEnd: () async {
+          await barrierDialog?.dismiss();
+          widget.editorState.service.selectionService.currentSelection
+              .addListener(_onCancelWhenSelectionChanged);
+        },
+        onError: (error) async {
+          loading.stop();
+          await _showError(error.message);
+        },
       );
-      completions.fold((error) async {
-        loading.stop();
-        await _showError(error.message);
-      }, (textCompletion) async {
-        loading.stop();
-        await _makeSurePreviousNodeIsEmptyTextNode();
-        // Open AI result uses two '\n' as the begin syntax.
-        var texts = textCompletion.choices.first.text.split('\n');
-        if (texts.length > 2) {
-          texts.removeRange(0, 2);
-          await widget.editorState.autoInsertText(
-            texts.join('\n'),
-          );
-        }
-        focusNode.requestFocus();
-      });
     }, (error) async {
       loading.stop();
       await _showError(
@@ -345,4 +353,16 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
       ),
     );
   }
+
+  void _onFocusChanged() {
+    if (textFieldFocusNode.hasFocus) {
+      widget.editorState.service.keyboardService?.disable(
+        disposition: UnfocusDisposition.previouslyFocusedChild,
+      );
+    } else {
+      widget.editorState.service.keyboardService?.enable();
+    }
+  }
+
+  void _onCancelWhenSelectionChanged() {}
 }
