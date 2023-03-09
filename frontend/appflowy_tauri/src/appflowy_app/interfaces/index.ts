@@ -1,29 +1,32 @@
+import { Descendant } from "slate";
 
 // eslint-disable-next-line no-shadow
 export enum BlockType {
-  PageBlock = 0,
-  HeadingBlock = 1,
-  ListBlock = 2,
-  TextBlock = 3,
-  CodeBlock = 4,
-  EmbedBlock = 5,
-  QuoteBlock = 6,
-  DividerBlock = 7,
-  MediaBlock = 8,
-  TableBlock = 9,
+  PageBlock = 'page',
+  HeadingBlock = 'heading',
+  ListBlock = 'list',
+  TextBlock = 'text',
+  CodeBlock = 'code',
+  EmbedBlock = 'embed',
+  QuoteBlock = 'quote',
+  DividerBlock = 'divider',
+  MediaBlock = 'media',
+  TableBlock = 'table',
+  ColumnBlock = 'column'
 }
 
 
 
 export type BlockData<T> = T extends BlockType.TextBlock ? TextBlockData :
 T extends BlockType.PageBlock ? PageBlockData :
-T extends BlockType.HeadingBlock ? HeadingBlockData: 
-T extends BlockType.ListBlock ? ListBlockData : any;
+T extends BlockType.HeadingBlock ? HeadingBlockData : 
+T extends BlockType.ListBlock ? ListBlockData :
+T extends BlockType.ColumnBlock ? ColumnBlockData :  any;
 
-export interface Block {
+export interface Block<T = BlockType> {
   id: string;
   type: BlockType;
-  data: BlockData<BlockType>;
+  data: BlockData<T>;
   parent: string | null;
   prev: string | null;
   next: string | null;
@@ -34,18 +37,21 @@ export interface Block {
 
 
 interface TextBlockData {
-  text: string;
-  attr: string;
+  content: Descendant[];
 }
 
 interface PageBlockData {
   title: string;
 }
 
-interface ListBlockData {
-  type: 'ul' | 'ol';
+interface ListBlockData extends TextBlockData {
+  type: 'numbered' | 'bulleted' | 'column';
 }
 
-interface HeadingBlockData {
+interface HeadingBlockData extends TextBlockData {
   level: number;
+}
+
+interface ColumnBlockData {
+  ratio: string;
 }

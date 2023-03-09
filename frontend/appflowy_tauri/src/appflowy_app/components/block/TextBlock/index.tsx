@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { Block } from '$app/interfaces';
+import { Block, BlockType } from '$app/interfaces';
 import BlockComponent from '../BlockList/BlockComponent';
 
 import { createEditor } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
 import Leaf from './Leaf';
 import HoveringToolbar from '$app/components/HoveringToolbar';
-import { triggerHotkey } from '$app/utils/editor/hotkey';
+import { triggerHotkey } from '@/appflowy_app/utils/slate/hotkey';
 
-export default function TextBlock({ block }: { block: Block }) {
+export default function TextBlock({ block }: { block: Block<BlockType.TextBlock> }) {
   const [editor] = useState(() => withReact(createEditor()));
 
   return (
@@ -21,7 +21,7 @@ export default function TextBlock({ block }: { block: Block }) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             type: 'paragraph',
-            children: [{ text: block.data.text }],
+            children: block.data.content,
           },
         ]}
       >
@@ -42,11 +42,13 @@ export default function TextBlock({ block }: { block: Block }) {
           placeholder='Enter some text...'
         />
       </Slate>
-      <div className='pl-[1.5em]'>
-        {block.children?.map((item: Block) => (
-          <BlockComponent key={item.id} block={item} />
-        ))}
-      </div>
+      {block.children && block.children.length > 0 ? (
+        <div className='pl-[1.5em]'>
+          {block.children.map((item: Block) => (
+            <BlockComponent key={item.id} block={item} />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -9,7 +9,7 @@ const theme = createTheme({
   },
 });
 export const DocumentPage = () => {
-  const { blocksMap, blockId } = useDocument();
+  const { blockId } = useDocument();
 
   return (
     <ThemeProvider theme={theme}>
@@ -17,7 +17,6 @@ export const DocumentPage = () => {
         <BlockContext.Provider
           value={{
             id: blockId,
-            blocksMap,
           }}
         >
           <BlockList />

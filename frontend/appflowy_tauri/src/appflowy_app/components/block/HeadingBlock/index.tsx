@@ -1,5 +1,5 @@
 import React from 'react';
-import { Block } from '$app/interfaces';
+import { Block, BlockType } from '$app/interfaces';
 import TextBlock from '../TextBlock';
 
 const fontSize: Record<string, string> = {
@@ -7,7 +7,7 @@ const fontSize: Record<string, string> = {
   2: 'mt-6 text-2xl',
   3: 'mt-4 text-xl',
 };
-export default function HeadingBlock({ block }: { block: Block }) {
+export default function HeadingBlock({ block }: { block: Block<BlockType.HeadingBlock> }) {
   return (
     <div className={`${fontSize[block.data.level]} font-semibold	`}>
       <TextBlock

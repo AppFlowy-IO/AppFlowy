@@ -28,6 +28,7 @@ export default function BlockComponent({ block }: { block: Block }) {
   return (
     <div className='relative' data-block-id={block.id}>
       {renderComponent()}
+      <div className='block-overlay'></div>
     </div>
   );
 }

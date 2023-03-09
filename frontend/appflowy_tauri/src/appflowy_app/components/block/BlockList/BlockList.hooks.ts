@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { BlockContext } from "$app/utils/block_context";
+import { BlockContext, getDocumentBlocksMap } from "$app/utils/block_context";
 import { buildTree } from "$app/utils/tree";
 import { Block } from "$app/interfaces";
 
@@ -11,9 +11,15 @@ export function useBlockList() {
   const [title, setTitle] = useState<string>('');
 
   useEffect(() => {
+
     if (!blockContext) return;
-    const { blocksMap, id } = blockContext;
-    if (!id || !blocksMap) return;
+
+    const { id } = blockContext;
+    if (!id) return;
+
+    const blocksMap = getDocumentBlocksMap(id);
+    if (!blocksMap) return;
+
     const root = buildTree(id, blocksMap);
     if (!root) return;
     console.log(root);

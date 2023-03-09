@@ -1,29 +1,34 @@
-import React from 'react';
-import { Block } from '$app/interfaces';
-import BlockComponent from '../BlockList/BlockComponent';
+import React, { useMemo } from 'react';
+import { Block, BlockType } from '$app/interfaces';
 import TextBlock from '../TextBlock';
+import NumberedListBlock from './NumberedListBlock';
+import BulletedListBlock from './BulletedListBlock';
+import ColumnListBlock from './ColumnListBlock';
 
-export default function ListBlock({ block }: { block: Block }) {
-  const renderChildren = () => {
-    return block.children?.map((item) => (
-      <li key={item.id}>
-        <BlockComponent block={item} />
-      </li>
-    ));
-  };
+export default function ListBlock({ block }: { block: Block<BlockType.ListBlock> }) {
+  const title = useMemo(() => {
+    if (block.data.type === 'column') return <></>;
+    return (
+      <TextBlock
+        block={{
+          ...block,
+          children: [],
+        }}
+      />
+    );
+  }, [block]);
 
-  return (
-    <div className={`${block.data.type === 'ul' ? 'bulleted_list' : 'number_list'} flex`}>
-      <li className='w-[24px]' />
-      <div>
-        <TextBlock
-          block={{
-            ...block,
-            children: [],
-          }}
-        />
-        {renderChildren()}
-      </div>
-    </div>
-  );
+  if (block.data.type === 'numbered') {
+    return <NumberedListBlock title={title} block={block} />;
+  }
+
+  if (block.data.type === 'bulleted') {
+    return <BulletedListBlock title={title} block={block} />;
+  }
+
+  if (block.data.type === 'column') {
+    return <ColumnListBlock block={block} />;
+  }
+
+  return null;
 }

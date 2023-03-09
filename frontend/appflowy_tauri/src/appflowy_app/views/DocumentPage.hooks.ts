@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import {
   DocumentEventGetDocument,
   DocumentVersionPB,
@@ -6,10 +6,10 @@ import {
 } from '../../services/backend/events/flowy-document';
 import { Block, BlockType } from '../interfaces';
 import { useParams } from 'react-router-dom';
+import { setDocumentBlocksMap } from '../utils/block_context';
 
 export const useDocument = () => {
   const params = useParams();
-  const [blocksMap, setBlocksMap] = useState<Record<string, Block>>();
   const loadDocument = async (id: string): Promise<any> => {
     const getDocumentResult = await DocumentEventGetDocument(
       OpenDocumentPayloadPB.fromObject({
@@ -41,7 +41,7 @@ export const useDocument = () => {
       "A": {
         id: "A",
         type: BlockType.HeadingBlock,
-        data: { level: 1, text: 'A Heading-1' },
+        data: { level: 1, content: [{ text: 'Heading 1' }] },
         parent: blockId,
         prev: null,
         next: "B",
@@ -51,7 +51,16 @@ export const useDocument = () => {
       "B": {
         id: "B",
         type: BlockType.TextBlock,
-        data: { text: 'Hello', attr: '' },
+        data: { content: [
+          {
+            text:
+              'This example shows how you can make a hovering menu appear above your content, which you can use to make text ',
+          },
+          { text: 'bold', bold: true },
+          { text: ', ' },
+          { text: 'italic', italic: true },
+          { text: ', or anything else you might want to do!' },
+        ] },
         parent: blockId,
         prev: "A",
         next: "C",
@@ -61,7 +70,11 @@ export const useDocument = () => {
       "C": {
         id: "C",
         type: BlockType.TextBlock,
-        data: { text: 'block c' },
+        data: { content: [
+          { text: 'Try it out yourself! Just ' },
+          { text: 'select any piece of text and the menu will appear', bold: true },
+          { text: '.' },
+        ] },
         prev: null,
         parent: blockId,
         next: "D",
@@ -71,7 +84,17 @@ export const useDocument = () => {
       "D": {
         id: "D",
         type: BlockType.ListBlock,
-        data: { type: 'number_list', text: 'D List' },
+        data: { type: 'bulleted', content: [
+          {
+            text:
+              "Since it's rich text, you can do things like turn a selection of text ",
+          },
+          { text: 'bold', bold: true },
+          {
+            text:
+              ', or add a semantically rendered block quote in the middle of the page, like this:',
+          },
+        ] },
         prev: "C",
         parent: blockId,
         next: null,
@@ -81,7 +104,7 @@ export const useDocument = () => {
       "E": {
         id: "E",
         type: BlockType.TextBlock,
-        data: { text: 'World', attr: '' },
+        data: { content: [{ text: 'A wise quote.' }] },
         prev: "D",
         parent: blockId,
         next: null,
@@ -91,7 +114,7 @@ export const useDocument = () => {
       "F": {
         id: "F",
         type: BlockType.TextBlock,
-        data: { text: 'Heading', attr: '' },
+        data: { content: [{ text: 'Try it out for yourself!' }] },
         prev: null,
         parent: "C",
         next: null,
@@ -101,7 +124,7 @@ export const useDocument = () => {
       "G": {
         id: "G",
         type: BlockType.TextBlock,
-        data: { text: 'Item 1', attr: '' },
+        data: { content: [{ text: 'Item 1' }] },
         prev: null,
         parent: "D",
         next: "H",
@@ -111,7 +134,7 @@ export const useDocument = () => {
       "H": {
         id: "H",
         type: BlockType.TextBlock,
-        data: { text: 'Item 2', attr: '' },
+        data: { content: [{ text: 'Item 2' }] },
         prev: "G",
         parent: "D",
         next: "I",
@@ -121,7 +144,7 @@ export const useDocument = () => {
       "I": {
         id: "I",
         type: BlockType.HeadingBlock,
-        data: { level: 2, text: 'B Heading-1' },
+        data: { level: 2, content: [{ text: 'Heading 2' }] },
         parent: blockId,
         prev: "H",
         next: 'L',
@@ -131,7 +154,7 @@ export const useDocument = () => {
       "L": {
         id: "L",
         type: BlockType.TextBlock,
-        data: { text: '456' },
+        data: { content: [{ text: 'Try it out for yourself!' }] },
         parent: blockId,
         prev: "I",
         next: 'J',
@@ -141,7 +164,7 @@ export const useDocument = () => {
       "J": {
         id: "J",
         type: BlockType.HeadingBlock,
-        data: { level: 3, text: 'C Heading-1' },
+        data: { level: 3, content: [{ text: 'Heading 3' }] },
         parent: blockId,
         prev: "L",
         next: "K",
@@ -151,13 +174,103 @@ export const useDocument = () => {
       "K": {
         id: "K",
         type: BlockType.TextBlock,
-        data: { text: '123' },
+        data: { content: [{ text: 'Try it out for yourself!' }] },
         parent: blockId,
         prev: "J",
-        next: null,
+        next: "M",
         firstChild: null,
         lastChild: null,
       },
+      "M": {
+        id: "M",
+        type: BlockType.ListBlock,
+        data: { type: 'column' },
+        parent: blockId,
+        prev: "K",
+        next: null,
+        firstChild: "N",
+        lastChild: "P"
+      },
+      "N": {
+        id: "N",
+        type: BlockType.ColumnBlock,
+        data: { ratio: '0.33' },
+        parent: "M",
+        prev: null,
+        next: "O",
+        firstChild: "N-1",
+        lastChild: "N-2",
+      },
+      "O": {
+        id: "O",
+        type: BlockType.ColumnBlock,
+        data: { ratio: '0.33' },
+        parent: "M",
+        prev: "N",
+        next: "P",
+        firstChild: "O-1",
+        lastChild: null,
+      },
+      "P": {
+        id: "P",
+        type: BlockType.ColumnBlock,
+        data: { ratio: '0.33' },
+        parent: "M",
+        prev: "O",
+        next: null,
+        firstChild: "P-1",
+        lastChild: "P-2",
+      },
+      "N-1": {
+        id: "N-1",
+        type: BlockType.TextBlock,
+        data: { content: [{ text: 'Column-1-Row-1' }] },
+        parent: "N",
+        prev: null,
+        next: "N-2",
+        firstChild: null,
+        lastChild: null
+      },
+      "N-2": {
+        id: "N-2",
+        type: BlockType.TextBlock,
+        data: { content: [{ text: 'Column-1-Row-2' }] },
+        parent: "N",
+        prev: "N-1",
+        next: null,
+        firstChild: null,
+        lastChild: null
+      },
+      "O-1": {
+        id: "O-1",
+        type: BlockType.TextBlock,
+        data: { content: [{ text: 'Column-2-Row-1' }] },
+        parent: "O",
+        prev: null,
+        next: null,
+        firstChild: null,
+        lastChild: null
+      },
+      "P-1": {
+        id: "P-1",
+        type: BlockType.TextBlock,
+        data: { content: [{ text: 'Column-3-Row-1' }] },
+        parent: "P",
+        prev: null,
+        next: "P-2",
+        firstChild: null,
+        lastChild: null
+      },
+      "P-2": {
+        id: "P-2",
+        type: BlockType.TextBlock,
+        data: { content: [{ text: 'Column-3-Row-2' }] },
+        parent: "P",
+        prev: "P-1",
+        next: null,
+        firstChild: null,
+        lastChild: null
+      }
     }
   }
 
@@ -166,8 +279,8 @@ export const useDocument = () => {
       if (!params?.id) return;
       const data = await loadBlockData(params.id);
       console.log(data);
-      setBlocksMap(data);
+      setDocumentBlocksMap(params.id, data);
     })();
   }, [params]);
-  return { blocksMap, blockId: params.id };
+  return { blockId: params.id };
 };
