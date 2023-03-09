@@ -2,16 +2,12 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_controller_
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../application/cell/checklist_cell_editor_bloc.dart';
-import '../../../layout/sizes.dart';
-import '../../header/type_option/select_option_editor.dart';
+import '../../../../grid/presentation/layout/sizes.dart';
+import '../../../../grid/presentation/widgets/header/type_option/select_option_editor.dart';
+import 'checklist_cell_editor_bloc.dart';
 import 'checklist_progress_bar.dart';
 
 class GridChecklistCellEditor extends StatefulWidget {

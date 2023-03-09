@@ -113,7 +113,7 @@ class BoardTestContext {
     final RowInfo rowInfo = rowInfos.last;
     final rowCache = _boardDataController.rowCache;
 
-    final rowDataController = RowDataController(
+    final rowDataController = RowController(
       viewId: rowInfo.viewId,
       rowId: rowInfo.rowPB.id,
       rowCache: rowCache,

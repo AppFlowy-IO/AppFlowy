@@ -1,9 +1,9 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/cell/checklist_cell/checklist_progress_bar.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/checklist_cell/checklist_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../grid/application/cell/checklist_cell_bloc.dart';
+import '../../row/cells/checklist_cell/checklist_cell_bloc.dart';
 import 'card_cell.dart';
 
 class ChecklistCardCell extends CardCell {

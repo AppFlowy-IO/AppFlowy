@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 
-import '../../layout/sizes.dart';
-import '../row/grid_row.dart';
-import 'cell_accessory.dart';
-import 'cell_builder.dart';
-import 'cell_shortcuts.dart';
+import '../../../grid/presentation/layout/sizes.dart';
+import '../../../grid/presentation/widgets/row/row.dart';
+import '../accessory/cell_accessory.dart';
+import '../accessory/cell_shortcuts.dart';
+import '../cell_builder.dart';
 
 class CellContainer extends StatelessWidget {
   final GridCellWidget child;

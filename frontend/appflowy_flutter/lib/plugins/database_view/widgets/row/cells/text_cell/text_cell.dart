@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/grid/application/cell/text_cell_bloc.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:appflowy/startup/startup.dart';
-import '../../layout/sizes.dart';
-import 'cell_builder.dart';
+import '../../../../grid/presentation/layout/sizes.dart';
+import '../../cell_builder.dart';
 
 class GridTextCellStyle extends GridCellStyle {
   String? placeholder;
@@ -40,8 +39,9 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
 
   @override
   void initState() {
-    final cellController = widget.cellControllerBuilder.build();
-    _cellBloc = getIt<TextCellBloc>(param1: cellController);
+    final cellController =
+        widget.cellControllerBuilder.build() as TextCellController;
+    _cellBloc = TextCellBloc(cellController: cellController);
     _cellBloc.add(const TextCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
     super.initState();

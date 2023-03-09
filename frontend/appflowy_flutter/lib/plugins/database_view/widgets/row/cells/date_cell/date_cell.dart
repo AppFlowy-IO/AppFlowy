@@ -1,13 +1,12 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/grid/application/cell/date_cell_bloc.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
-import '../../../layout/sizes.dart';
-import '../cell_builder.dart';
+import '../../../../grid/presentation/layout/sizes.dart';
+import '../../cell_builder.dart';
+import 'date_cell_bloc.dart';
 import 'date_editor.dart';
 
 class DateCellStyle extends GridCellStyle {
@@ -50,7 +49,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
     _popover = PopoverController();
     final cellController =
         widget.cellControllerBuilder.build() as DateCellController;
-    _cellBloc = getIt<DateCellBloc>(param1: cellController)
+    _cellBloc = DateCellBloc(cellController: cellController)
       ..add(const DateCellEvent.initial());
     super.initState();
   }

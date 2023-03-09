@@ -12,9 +12,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../layout/sizes.dart';
 
-class GridRowActionSheet extends StatelessWidget {
+class RowActions extends StatelessWidget {
   final RowInfo rowData;
-  const GridRowActionSheet({required this.rowData, Key? key}) : super(key: key);
+  const RowActions({required this.rowData, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +24,7 @@ class GridRowActionSheet extends StatelessWidget {
         builder: (context, state) {
           final cells = _RowAction.values
               .where((value) => value.enable())
-              .map(
-                (action) => _RowActionCell(action: action),
-              )
+              .map((action) => _ActionCell(action: action))
               .toList();
 
           //
@@ -49,9 +47,9 @@ class GridRowActionSheet extends StatelessWidget {
   }
 }
 
-class _RowActionCell extends StatelessWidget {
+class _ActionCell extends StatelessWidget {
   final _RowAction action;
-  const _RowActionCell({required this.action, Key? key}) : super(key: key);
+  const _ActionCell({required this.action, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

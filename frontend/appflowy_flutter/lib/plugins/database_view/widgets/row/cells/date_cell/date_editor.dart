@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
-import 'package:appflowy/plugins/database_view/grid/application/cell/date_cal_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -11,9 +10,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/date_type_option.pb.dart';
@@ -21,9 +18,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
-import '../../../layout/sizes.dart';
-import '../../common/type_option_separator.dart';
-import '../../header/type_option/date.dart';
+import '../../../../grid/presentation/layout/sizes.dart';
+import '../../../../grid/presentation/widgets/common/type_option_separator.dart';
+import '../../../../grid/presentation/widgets/header/type_option/date.dart';
+import 'date_cal_bloc.dart';
 
 final kToday = DateTime.now();
 final kFirstDay = DateTime(kToday.year, kToday.month - 3, kToday.day);
@@ -92,17 +90,17 @@ class _CellCalendarWidget extends StatefulWidget {
 
 class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
   late PopoverMutex popoverMutex;
-  late DateCalBloc bloc;
+  late DateCellCalendarBloc bloc;
 
   @override
   void initState() {
     popoverMutex = PopoverMutex();
 
-    bloc = DateCalBloc(
+    bloc = DateCellCalendarBloc(
       dateTypeOptionPB: widget.dateTypeOptionPB,
       cellData: widget.cellContext.getCellData(),
       cellController: widget.cellContext,
-    )..add(const DateCalEvent.initial());
+    )..add(const DateCellCalendarEvent.initial());
     super.initState();
   }
 
@@ -110,7 +108,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: bloc,
-      child: BlocBuilder<DateCalBloc, DateCalState>(
+      child: BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
         buildWhen: (p, c) => p != c,
         builder: (context, state) {
           List<Widget> children = [
@@ -121,7 +119,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             if (state.dateTypeOptionPB.includeTime) ...[
               const VSpace(12.0),
               _TimeTextField(
-                bloc: context.read<DateCalBloc>(),
+                bloc: context.read<DateCellCalendarBloc>(),
                 popoverMutex: popoverMutex,
               ),
             ],
@@ -151,7 +149,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
   }
 
   Widget _buildCalendar(BuildContext context) {
-    return BlocBuilder<DateCalBloc, DateCalState>(
+    return BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
       builder: (context, state) {
         final textStyle = Theme.of(context).textTheme.bodyMedium!;
         final boxDecoration = BoxDecoration(
@@ -215,16 +213,18 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
           },
           onDaySelected: (selectedDay, focusedDay) {
             context
-                .read<DateCalBloc>()
-                .add(DateCalEvent.selectDay(selectedDay));
+                .read<DateCellCalendarBloc>()
+                .add(DateCellCalendarEvent.selectDay(selectedDay));
           },
           onFormatChanged: (format) {
-            context.read<DateCalBloc>().add(DateCalEvent.setCalFormat(format));
+            context
+                .read<DateCellCalendarBloc>()
+                .add(DateCellCalendarEvent.setCalFormat(format));
           },
           onPageChanged: (focusedDay) {
             context
-                .read<DateCalBloc>()
-                .add(DateCalEvent.setFocusedDay(focusedDay));
+                .read<DateCellCalendarBloc>()
+                .add(DateCellCalendarEvent.setFocusedDay(focusedDay));
           },
         );
       },
@@ -237,7 +237,7 @@ class _IncludeTimeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<DateCalBloc, DateCalState, bool>(
+    return BlocSelector<DateCellCalendarBloc, DateCellCalendarState, bool>(
       selector: (state) => state.dateTypeOptionPB.includeTime,
       builder: (context, includeTime) {
         return Padding(
@@ -258,8 +258,8 @@ class _IncludeTimeButton extends StatelessWidget {
                   Toggle(
                     value: includeTime,
                     onChanged: (value) => context
-                        .read<DateCalBloc>()
-                        .add(DateCalEvent.setIncludeTime(!value)),
+                        .read<DateCellCalendarBloc>()
+                        .add(DateCellCalendarEvent.setIncludeTime(!value)),
                     style: ToggleStyle.big,
                     padding: EdgeInsets.zero,
                   ),
@@ -274,7 +274,7 @@ class _IncludeTimeButton extends StatelessWidget {
 }
 
 class _TimeTextField extends StatefulWidget {
-  final DateCalBloc bloc;
+  final DateCellCalendarBloc bloc;
   final PopoverMutex popoverMutex;
 
   const _TimeTextField({
@@ -298,7 +298,7 @@ class _TimeTextFieldState extends State<_TimeTextField> {
 
     _focusNode.addListener(() {
       if (mounted) {
-        widget.bloc.add(DateCalEvent.setTime(_controller.text));
+        widget.bloc.add(DateCellCalendarEvent.setTime(_controller.text));
       }
     });
 
@@ -340,7 +340,7 @@ class _TimeTextFieldState extends State<_TimeTextField> {
           errorText: widget.bloc.state.timeFormatError
               .fold(() => "", (error) => error),
           onEditingComplete: (value) =>
-              widget.bloc.add(DateCalEvent.setTime(value)),
+              widget.bloc.add(DateCellCalendarEvent.setTime(value)),
         ),
       ),
     );
@@ -364,7 +364,8 @@ class _DateTypeOptionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final title =
         "${LocaleKeys.grid_field_dateFormat.tr()} & ${LocaleKeys.grid_field_timeFormat.tr()}";
-    return BlocSelector<DateCalBloc, DateCalState, DateTypeOptionPB>(
+    return BlocSelector<DateCellCalendarBloc, DateCellCalendarState,
+        DateTypeOptionPB>(
       selector: (state) => state.dateTypeOptionPB,
       builder: (context, dateTypeOptionPB) {
         return AppFlowyPopover(
@@ -391,7 +392,7 @@ class _DateTypeOptionButton extends StatelessWidget {
             return _CalDateTimeSetting(
               dateTypeOptionPB: dateTypeOptionPB,
               onEvent: (event) {
-                context.read<DateCalBloc>().add(event);
+                context.read<DateCellCalendarBloc>().add(event);
                 popoverMutex.close();
               },
             );
@@ -404,7 +405,7 @@ class _DateTypeOptionButton extends StatelessWidget {
 
 class _CalDateTimeSetting extends StatefulWidget {
   final DateTypeOptionPB dateTypeOptionPB;
-  final Function(DateCalEvent) onEvent;
+  final Function(DateCellCalendarEvent) onEvent;
   const _CalDateTimeSetting({
     required this.dateTypeOptionPB,
     required this.onEvent,
@@ -430,7 +431,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
           return DateFormatList(
             selectedFormat: widget.dateTypeOptionPB.dateFormat,
             onSelected: (format) {
-              widget.onEvent(DateCalEvent.setDateFormat(format));
+              widget.onEvent(DateCellCalendarEvent.setDateFormat(format));
               timeSettingPopoverMutex.close();
             },
           );
@@ -448,7 +449,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
           return TimeFormatList(
               selectedFormat: widget.dateTypeOptionPB.timeFormat,
               onSelected: (format) {
-                widget.onEvent(DateCalEvent.setTimeFormat(format));
+                widget.onEvent(DateCellCalendarEvent.setTimeFormat(format));
                 timeSettingPopoverMutex.close();
               });
         },

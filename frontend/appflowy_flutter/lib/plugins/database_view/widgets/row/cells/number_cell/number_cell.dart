@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../application/cell/number_cell_bloc.dart';
-import '../../layout/sizes.dart';
-import 'cell_builder.dart';
+import 'number_cell_bloc.dart';
+import '../../../../grid/presentation/layout/sizes.dart';
+import '../../cell_builder.dart';
 
 class GridNumberCell extends GridCellWidget {
   final CellControllerBuilder cellControllerBuilder;
@@ -26,8 +25,9 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
 
   @override
   void initState() {
-    final cellController = widget.cellControllerBuilder.build();
-    _cellBloc = getIt<NumberCellBloc>(param1: cellController)
+    final cellController =
+        widget.cellControllerBuilder.build() as NumberCellController;
+    _cellBloc = NumberCellBloc(cellController: cellController)
       ..add(const NumberCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.cellContent);
     super.initState();

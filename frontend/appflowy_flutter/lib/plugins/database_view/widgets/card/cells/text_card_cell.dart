@@ -1,10 +1,10 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/cell/cell_builder.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
+import '../../row/cell_builder.dart';
 import '../bloc/text_card_cell_bloc.dart';
 import '../define.dart';
 import 'card_cell.dart';

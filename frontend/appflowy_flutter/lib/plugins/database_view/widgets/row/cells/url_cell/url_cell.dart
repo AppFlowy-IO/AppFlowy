@@ -10,11 +10,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../../application/cell/url_cell_bloc.dart';
-import '../../../layout/sizes.dart';
-import '../cell_accessory.dart';
-import '../cell_builder.dart';
+import '../../../../grid/presentation/layout/sizes.dart';
+import '../../accessory/cell_accessory.dart';
+import '../../cell_builder.dart';
 import 'cell_editor.dart';
+import 'url_cell_bloc.dart';
 
 class GridURLCellStyle extends GridCellStyle {
   String? placeholder;

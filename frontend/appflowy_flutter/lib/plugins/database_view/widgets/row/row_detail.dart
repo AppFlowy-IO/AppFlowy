@@ -6,10 +6,7 @@ import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
@@ -17,14 +14,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
-import '../../layout/sizes.dart';
-import '../cell/cell_accessory.dart';
-import '../cell/prelude.dart';
-import '../header/field_cell.dart';
-import '../header/field_editor.dart';
+import '../../grid/presentation/layout/sizes.dart';
+import 'accessory/cell_accessory.dart';
+import 'cell_builder.dart';
+import 'cells/date_cell/date_cell.dart';
+import 'cells/select_option_cell/select_option_cell.dart';
+import 'cells/text_cell/text_cell.dart';
+import 'cells/url_cell/url_cell.dart';
+import '../../grid/presentation/widgets/header/field_cell.dart';
+import '../../grid/presentation/widgets/header/field_editor.dart';
 
 class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
-  final RowDataController dataController;
+  final RowController dataController;
   final GridCellBuilder cellBuilder;
 
   const RowDetailPage({
@@ -42,6 +43,11 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
 }
 
 class _RowDetailPageState extends State<RowDetailPage> {
+  final padding = const EdgeInsets.symmetric(
+    horizontal: 40,
+    vertical: 20,
+  );
+
   @override
   Widget build(BuildContext context) {
     return FlowyDialog(
@@ -54,17 +60,12 @@ class _RowDetailPageState extends State<RowDetailPage> {
           return bloc;
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+          padding: padding,
           child: Column(
             children: [
-              SizedBox(
-                height: 30,
-                child: Row(
-                  children: const [Spacer(), _CloseButton()],
-                ),
-              ),
+              const _Header(),
               Expanded(
-                child: _PropertyList(
+                child: _PropertyColumn(
                   cellBuilder: widget.cellBuilder,
                   viewId: widget.dataController.viewId,
                 ),
@@ -77,6 +78,20 @@ class _RowDetailPageState extends State<RowDetailPage> {
   }
 }
 
+class _Header extends StatelessWidget {
+  const _Header({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 30,
+      child: Row(
+        children: const [Spacer(), _CloseButton()],
+      ),
+    );
+  }
+}
+
 class _CloseButton extends StatelessWidget {
   const _CloseButton({Key? key}) : super(key: key);
 
@@ -84,9 +99,7 @@ class _CloseButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyIconButton(
       width: 24,
-      onPressed: () {
-        FlowyOverlay.pop(context);
-      },
+      onPressed: () => FlowyOverlay.pop(context),
       iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
       icon: svgWidget(
         "home/close",
@@ -96,11 +109,11 @@ class _CloseButton extends StatelessWidget {
   }
 }
 
-class _PropertyList extends StatelessWidget {
+class _PropertyColumn extends StatelessWidget {
   final String viewId;
   final GridCellBuilder cellBuilder;
   final ScrollController _scrollController;
-  _PropertyList({
+  _PropertyColumn({
     required this.viewId,
     required this.cellBuilder,
     Key? key,
@@ -114,11 +127,11 @@ class _PropertyList extends StatelessWidget {
       builder: (context, state) {
         return Column(
           children: [
-            Expanded(child: _wrapScrollbar(buildRowCells(state))),
+            Expanded(child: _wrapScrollbar(buildPropertyCells(state))),
             const VSpace(10),
-            _CreateFieldButton(
+            _CreatePropertyButton(
               viewId: viewId,
-              onClosed: _handleDidCreateField,
+              onClosed: _scrollToNewProperty,
             ),
           ],
         );
@@ -126,12 +139,12 @@ class _PropertyList extends StatelessWidget {
     );
   }
 
-  Widget buildRowCells(RowDetailState state) {
+  Widget buildPropertyCells(RowDetailState state) {
     return ListView.separated(
       controller: _scrollController,
       itemCount: state.gridCells.length,
       itemBuilder: (BuildContext context, int index) {
-        return _RowDetailCell(
+        return _PropertyCell(
           cellId: state.gridCells[index],
           cellBuilder: cellBuilder,
         );
@@ -152,7 +165,7 @@ class _PropertyList extends StatelessWidget {
     );
   }
 
-  void _handleDidCreateField() {
+  void _scrollToNewProperty() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
@@ -163,21 +176,21 @@ class _PropertyList extends StatelessWidget {
   }
 }
 
-class _CreateFieldButton extends StatefulWidget {
+class _CreatePropertyButton extends StatefulWidget {
   final String viewId;
   final VoidCallback onClosed;
 
-  const _CreateFieldButton({
+  const _CreatePropertyButton({
     required this.viewId,
     required this.onClosed,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<_CreateFieldButton> createState() => _CreateFieldButtonState();
+  State<_CreatePropertyButton> createState() => _CreatePropertyButtonState();
 }
 
-class _CreateFieldButtonState extends State<_CreateFieldButton> {
+class _CreatePropertyButtonState extends State<_CreatePropertyButton> {
   late PopoverController popoverController;
 
   @override
@@ -234,20 +247,20 @@ class _CreateFieldButtonState extends State<_CreateFieldButton> {
   }
 }
 
-class _RowDetailCell extends StatefulWidget {
+class _PropertyCell extends StatefulWidget {
   final CellIdentifier cellId;
   final GridCellBuilder cellBuilder;
-  const _RowDetailCell({
+  const _PropertyCell({
     required this.cellId,
     required this.cellBuilder,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _RowDetailCellState();
+  State<StatefulWidget> createState() => _PropertyCellState();
 }
 
-class _RowDetailCellState extends State<_RowDetailCell> {
+class _PropertyCellState extends State<_PropertyCell> {
   final PopoverController popover = PopoverController();
 
   @override
