@@ -228,5 +228,23 @@ void main() async {
       final textNode = TextNode.empty()..delta = (Delta()..insert('AppFlowy'));
       expect(textNode.toPlainText(), 'AppFlowy');
     });
+    test('test node id', () {
+      final nodeA = Node(
+        type: 'example',
+        children: LinkedList(),
+        attributes: {},
+      );
+      final nodeAId = nodeA.id;
+      expect(nodeAId, 'example');
+      final nodeB = Node(
+        type: 'example',
+        children: LinkedList(),
+        attributes: {
+          'subtype': 'exampleSubtype',
+        },
+      );
+      final nodeBId = nodeB.id;
+      expect(nodeBId, 'example/exampleSubtype');
+    });
   });
 }
