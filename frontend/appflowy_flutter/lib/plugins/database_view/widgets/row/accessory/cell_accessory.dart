@@ -9,7 +9,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 
-import '../cells/cell_builder.dart';
+import '../cell_builder.dart';
 
 class GridCellAccessoryBuildContext {
   final BuildContext anchorContext;

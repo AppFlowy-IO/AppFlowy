@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
@@ -23,7 +24,6 @@ import 'grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
 import 'widgets/accessory_menu.dart';
-import '../../widgets/row/cells/cell_builder.dart';
 import 'widgets/row/row.dart';
 import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';

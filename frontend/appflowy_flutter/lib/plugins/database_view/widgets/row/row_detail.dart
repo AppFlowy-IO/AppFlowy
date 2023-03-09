@@ -16,10 +16,10 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
 import 'accessory/cell_accessory.dart';
-import 'cells/cell_builder.dart';
+import 'cell_builder.dart';
 import 'cells/date_cell/date_cell.dart';
 import 'cells/select_option_cell/select_option_cell.dart';
-import 'cells/text_cell.dart';
+import 'cells/text_cell/text_cell.dart';
 import 'cells/url_cell/url_cell.dart';
 import '../../grid/presentation/widgets/header/field_cell.dart';
 import '../../grid/presentation/widgets/header/field_editor.dart';

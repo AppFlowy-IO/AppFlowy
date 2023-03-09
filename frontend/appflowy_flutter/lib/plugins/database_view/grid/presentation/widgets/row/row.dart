@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_service.dar
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -12,7 +13,6 @@ import 'package:provider/provider.dart';
 
 import '../../../../widgets/row/accessory/cell_accessory.dart';
 import '../../layout/sizes.dart';
-import '../../../../widgets/row/cells/cell_builder.dart';
 import '../../../../widgets/row/cells/cell_container.dart';
 import 'action.dart';
 import "package:appflowy/generated/locale_keys.g.dart";

@@ -1,12 +1,12 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/grid/application/cell/checklist_cell_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../cell_builder.dart';
+import '../../cell_builder.dart';
+import 'checklist_cell_bloc.dart';
 import 'checklist_cell_editor.dart';
 import 'checklist_progress_bar.dart';
 

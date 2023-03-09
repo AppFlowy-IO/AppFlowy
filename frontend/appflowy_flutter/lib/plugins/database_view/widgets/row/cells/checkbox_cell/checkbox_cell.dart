@@ -1,12 +1,12 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../grid/application/cell/checkbox_cell_bloc.dart';
-import '../../../grid/presentation/layout/sizes.dart';
-import 'cell_builder.dart';
+import 'checkbox_cell_bloc.dart';
+import '../../../../grid/presentation/layout/sizes.dart';
+import '../../cell_builder.dart';
 
 class GridCheckboxCell extends GridCellWidget {
   final CellControllerBuilder cellControllerBuilder;
@@ -26,7 +26,8 @@ class _CheckboxCellState extends GridCellState<GridCheckboxCell> {
   void initState() {
     final cellController =
         widget.cellControllerBuilder.build() as CheckboxCellController;
-    _cellBloc = getIt<CheckboxCellBloc>(param1: cellController)
+    _cellBloc = CheckboxCellBloc(
+        service: CellBackendService(), cellController: cellController)
       ..add(const CheckboxCellEvent.initial());
     super.initState();
   }

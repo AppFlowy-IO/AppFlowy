@@ -1,6 +1,5 @@
 import 'dart:collection';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/grid/application/cell/select_option_editor_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme_extension.dart';
 
@@ -17,6 +16,7 @@ import '../../../../grid/presentation/layout/sizes.dart';
 import '../../../../grid/presentation/widgets/common/type_option_separator.dart';
 import '../../../../grid/presentation/widgets/header/type_option/select_option_editor.dart';
 import 'extension.dart';
+import 'select_option_editor_bloc.dart';
 import 'text_field.dart';
 
 const double _editorPanelWidth = 300;

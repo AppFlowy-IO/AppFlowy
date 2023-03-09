@@ -6,7 +6,7 @@ import '../../../grid/presentation/layout/sizes.dart';
 import '../../../grid/presentation/widgets/row/row.dart';
 import '../accessory/cell_accessory.dart';
 import '../accessory/cell_shortcuts.dart';
-import 'cell_builder.dart';
+import '../cell_builder.dart';
 
 class CellContainer extends StatelessWidget {
   final GridCellWidget child;

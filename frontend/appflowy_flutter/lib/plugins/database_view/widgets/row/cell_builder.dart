@@ -6,12 +6,12 @@ import 'package:flutter/material.dart';
 import '../../application/cell/cell_service.dart';
 import 'accessory/cell_accessory.dart';
 import 'accessory/cell_shortcuts.dart';
-import 'cells/checkbox_cell.dart';
+import 'cells/checkbox_cell/checkbox_cell.dart';
 import 'cells/checklist_cell/checklist_cell.dart';
 import 'cells/date_cell/date_cell.dart';
-import 'cells/number_cell.dart';
+import 'cells/number_cell/number_cell.dart';
 import 'cells/select_option_cell/select_option_cell.dart';
-import 'cells/text_cell.dart';
+import 'cells/text_cell/text_cell.dart';
 import 'cells/url_cell/url_cell.dart';
 
 class GridCellBuilder {

@@ -6,10 +6,10 @@ import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.d
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../grid/application/cell/select_option_cell_bloc.dart';
 import '../../../../grid/presentation/layout/sizes.dart';
-import '../cell_builder.dart';
+import '../../cell_builder.dart';
 import 'extension.dart';
+import 'select_option_cell_bloc.dart';
 import 'select_option_editor.dart';
 
 class SelectOptionCellStyle extends GridCellStyle {
@@ -48,7 +48,7 @@ class _SingleSelectCellState extends GridCellState<GridSingleSelectCell> {
   void initState() {
     final cellController =
         widget.cellControllerBuilder.build() as SelectOptionCellController;
-    _cellBloc = getIt<SelectOptionCellBloc>(param1: cellController)
+    _cellBloc = SelectOptionCellBloc(cellController: cellController)
       ..add(const SelectOptionCellEvent.initial());
     _popover = PopoverController();
     super.initState();

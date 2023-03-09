@@ -18,16 +18,17 @@ import 'package:protobuf/protobuf.dart';
 import 'package:fixnum/fixnum.dart' as $fixnum;
 part 'date_cal_bloc.freezed.dart';
 
-class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
+class DateCellCalendarBloc
+    extends Bloc<DateCellCalendarEvent, DateCellCalendarState> {
   final DateCellController cellController;
   void Function()? _onCellChangedFn;
 
-  DateCalBloc({
+  DateCellCalendarBloc({
     required DateTypeOptionPB dateTypeOptionPB,
     required DateCellDataPB? cellData,
     required this.cellController,
-  }) : super(DateCalState.initial(dateTypeOptionPB, cellData)) {
-    on<DateCalEvent>(
+  }) : super(DateCellCalendarState.initial(dateTypeOptionPB, cellData)) {
+    on<DateCellCalendarEvent>(
       (event, emit) async {
         await event.when(
           initial: () async => _startListening(),
@@ -70,7 +71,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
     );
   }
 
-  Future<void> _updateDateData(Emitter<DateCalState> emit,
+  Future<void> _updateDateData(Emitter<DateCellCalendarState> emit,
       {DateTime? date, String? time}) {
     final CalendarData newDateData = state.calData.fold(
       () => CalendarData(date: date ?? DateTime.now(), time: time),
@@ -91,7 +92,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
   }
 
   Future<void> _saveDateData(
-      Emitter<DateCalState> emit, CalendarData newCalData) async {
+      Emitter<DateCellCalendarState> emit, CalendarData newCalData) async {
     if (state.calData == Some(newCalData)) {
       return;
     }
@@ -99,7 +100,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
     updateCalData(
         Option<CalendarData> calData, Option<String> timeFormatError) {
       if (!isClosed) {
-        add(DateCalEvent.didUpdateCalData(calData, timeFormatError));
+        add(DateCellCalendarEvent.didUpdateCalData(calData, timeFormatError));
       }
     }
 
@@ -148,14 +149,14 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
     _onCellChangedFn = cellController.startListening(
       onCellChanged: ((cell) {
         if (!isClosed) {
-          add(DateCalEvent.didReceiveCellUpdate(cell));
+          add(DateCellCalendarEvent.didReceiveCellUpdate(cell));
         }
       }),
     );
   }
 
   Future<void>? _updateTypeOption(
-    Emitter<DateCalState> emit, {
+    Emitter<DateCellCalendarState> emit, {
     DateFormat? dateFormat,
     TimeFormat? timeFormat,
     bool? includeTime,
@@ -191,26 +192,29 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
 }
 
 @freezed
-class DateCalEvent with _$DateCalEvent {
-  const factory DateCalEvent.initial() = _Initial;
-  const factory DateCalEvent.selectDay(DateTime day) = _SelectDay;
-  const factory DateCalEvent.setCalFormat(CalendarFormat format) =
+class DateCellCalendarEvent with _$DateCellCalendarEvent {
+  const factory DateCellCalendarEvent.initial() = _Initial;
+  const factory DateCellCalendarEvent.selectDay(DateTime day) = _SelectDay;
+  const factory DateCellCalendarEvent.setCalFormat(CalendarFormat format) =
       _CalendarFormat;
-  const factory DateCalEvent.setFocusedDay(DateTime day) = _FocusedDay;
-  const factory DateCalEvent.setTimeFormat(TimeFormat timeFormat) = _TimeFormat;
-  const factory DateCalEvent.setDateFormat(DateFormat dateFormat) = _DateFormat;
-  const factory DateCalEvent.setIncludeTime(bool includeTime) = _IncludeTime;
-  const factory DateCalEvent.setTime(String time) = _Time;
-  const factory DateCalEvent.didReceiveCellUpdate(DateCellDataPB? data) =
-      _DidReceiveCellUpdate;
-  const factory DateCalEvent.didUpdateCalData(
+  const factory DateCellCalendarEvent.setFocusedDay(DateTime day) = _FocusedDay;
+  const factory DateCellCalendarEvent.setTimeFormat(TimeFormat timeFormat) =
+      _TimeFormat;
+  const factory DateCellCalendarEvent.setDateFormat(DateFormat dateFormat) =
+      _DateFormat;
+  const factory DateCellCalendarEvent.setIncludeTime(bool includeTime) =
+      _IncludeTime;
+  const factory DateCellCalendarEvent.setTime(String time) = _Time;
+  const factory DateCellCalendarEvent.didReceiveCellUpdate(
+      DateCellDataPB? data) = _DidReceiveCellUpdate;
+  const factory DateCellCalendarEvent.didUpdateCalData(
           Option<CalendarData> data, Option<String> timeFormatError) =
       _DidUpdateCalData;
 }
 
 @freezed
-class DateCalState with _$DateCalState {
-  const factory DateCalState({
+class DateCellCalendarState with _$DateCellCalendarState {
+  const factory DateCellCalendarState({
     required DateTypeOptionPB dateTypeOptionPB,
     required CalendarFormat format,
     required DateTime focusedDay,
@@ -218,16 +222,16 @@ class DateCalState with _$DateCalState {
     required Option<CalendarData> calData,
     required String? time,
     required String timeHintText,
-  }) = _DateCalState;
+  }) = _DateCellCalendarState;
 
-  factory DateCalState.initial(
+  factory DateCellCalendarState.initial(
     DateTypeOptionPB dateTypeOptionPB,
     DateCellDataPB? cellData,
   ) {
     Option<CalendarData> calData = calDataFromCellData(cellData);
     final time =
         calData.foldRight("", (dateData, previous) => dateData.time ?? '');
-    return DateCalState(
+    return DateCellCalendarState(
       dateTypeOptionPB: dateTypeOptionPB,
       format: CalendarFormat.month,
       focusedDay: DateTime.now(),
