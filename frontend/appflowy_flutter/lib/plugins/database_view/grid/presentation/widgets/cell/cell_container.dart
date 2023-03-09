@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 import '../../layout/sizes.dart';
-import '../row/grid_row.dart';
+import '../row/row.dart';
 import 'cell_accessory.dart';
 import 'cell_builder.dart';
 import 'cell_shortcuts.dart';

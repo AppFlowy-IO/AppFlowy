@@ -4,7 +4,7 @@ import 'row_cache.dart';
 
 typedef OnRowChanged = void Function(CellByFieldId, RowsChangedReason);
 
-class RowDataController {
+class RowController {
   final String rowId;
   final String viewId;
   final List<VoidCallback> _onRowChangedListeners = [];
@@ -12,7 +12,7 @@ class RowDataController {
 
   get cellCache => _rowCache.cellCache;
 
-  RowDataController({
+  RowController({
     required this.rowId,
     required this.viewId,
     required RowCache rowCache,

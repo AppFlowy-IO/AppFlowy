@@ -24,10 +24,10 @@ import 'layout/layout.dart';
 import 'layout/sizes.dart';
 import 'widgets/accessory_menu.dart';
 import 'widgets/cell/cell_builder.dart';
-import 'widgets/row/grid_row.dart';
+import 'widgets/row/row.dart';
 import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
-import 'widgets/row/row_detail.dart';
+import '../../widgets/row/row_detail.dart';
 import 'widgets/shortcuts.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
 
@@ -279,7 +279,7 @@ class _GridRowsState extends State<_GridRows> {
 
     final fieldController =
         context.read<GridBloc>().databaseController.fieldController;
-    final dataController = RowDataController(
+    final dataController = RowController(
       rowId: rowInfo.rowPB.id,
       viewId: rowInfo.viewId,
       rowCache: rowCache,
@@ -287,7 +287,7 @@ class _GridRowsState extends State<_GridRows> {
 
     return SizeTransition(
       sizeFactor: animation,
-      child: GridRowWidget(
+      child: GridRow(
         rowInfo: rowInfo,
         dataController: dataController,
         cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
@@ -312,7 +312,7 @@ class _GridRowsState extends State<_GridRows> {
     RowCache rowCache,
     GridCellBuilder cellBuilder,
   ) {
-    final dataController = RowDataController(
+    final dataController = RowController(
       viewId: rowInfo.viewId,
       rowId: rowInfo.rowPB.id,
       rowCache: rowCache,

@@ -7,7 +7,7 @@ import '../../../application/row/row_data_controller.dart';
 part 'row_detail_bloc.freezed.dart';
 
 class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
-  final RowDataController dataController;
+  final RowController dataController;
 
   RowDetailBloc({
     required this.dataController,

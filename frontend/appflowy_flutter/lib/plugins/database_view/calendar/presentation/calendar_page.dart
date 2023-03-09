@@ -10,15 +10,13 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
-import '../../grid/presentation/widgets/row/row_detail.dart';
+import '../../widgets/row/row_detail.dart';
 import 'layout/sizes.dart';
 import 'toolbar/calendar_toolbar.dart';
 
@@ -167,7 +165,7 @@ class _CalendarPageState extends State<CalendarPage> {
       return FlowyHover(
         child: GestureDetector(
           onTap: () {
-            final dataController = RowDataController(
+            final dataController = RowController(
               rowId: event.cellId.rowId,
               viewId: widget.view.id,
               rowCache: _calendarBloc.rowCache,

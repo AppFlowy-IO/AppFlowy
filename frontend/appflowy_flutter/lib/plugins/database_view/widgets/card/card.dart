@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/row_action_sheet.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
@@ -149,7 +149,7 @@ class _CardState<T> extends State<Card<T>> {
       case AccessoryType.edit:
         throw UnimplementedError();
       case AccessoryType.more:
-        return GridRowActionSheet(
+        return RowActions(
           rowData: context.read<CardBloc>().rowInfo(),
         );
     }
