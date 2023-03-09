@@ -6,7 +6,10 @@ import HeadingBlock from '../HeadingBlock';
 import ListBlock from '../ListBlock';
 import CodeBlock from '../CodeBlock';
 
-export default function BlockComponent({ block }: { block: Block }) {
+function BlockComponent({
+  block,
+  ...props
+}: { block: Block } & React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
   const renderComponent = () => {
     switch (block.type) {
       case BlockType.PageBlock:
@@ -19,16 +22,18 @@ export default function BlockComponent({ block }: { block: Block }) {
         return <ListBlock block={block} />;
       case BlockType.CodeBlock:
         return <CodeBlock block={block} />;
-
       default:
         return null;
     }
   };
 
   return (
-    <div className='relative' data-block-id={block.id}>
+    <div className='relative' data-block-id={block.id} {...props}>
       {renderComponent()}
+      {props.children}
       <div className='block-overlay'></div>
     </div>
   );
 }
+
+export default React.memo(BlockComponent);

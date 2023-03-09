@@ -7,10 +7,12 @@ export default function ColumnListBlock({ block }: { block: Block<BlockType.List
     return 46 * (block.children?.length || 0);
   }, [block.children?.length]);
   return (
-    <div className='column-list-block flex-grow-1 relative flex flex-row'>
-      {block.children?.map((item, index) => (
-        <ColumnBlock key={item.id} index={index} resizerWidth={resizerWidth} block={item} />
-      ))}
-    </div>
+    <>
+      <div className='column-list-block flex-grow-1 flex flex-row'>
+        {block.children?.map((item, index) => (
+          <ColumnBlock key={item.id} index={index} resizerWidth={resizerWidth} block={item} />
+        ))}
+      </div>
+    </>
   );
 }

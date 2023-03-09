@@ -11,6 +11,7 @@ const theme = createTheme({
 export const DocumentPage = () => {
   const { blockId } = useDocument();
 
+  if (!blockId) return <div className='error-page'></div>;
   return (
     <ThemeProvider theme={theme}>
       <div id='appflowy-block-doc' className='flex flex-col items-center'>
@@ -19,7 +20,7 @@ export const DocumentPage = () => {
             id: blockId,
           }}
         >
-          <BlockList />
+          <BlockList blockId={blockId} />
         </BlockContext.Provider>
       </div>
     </ThemeProvider>

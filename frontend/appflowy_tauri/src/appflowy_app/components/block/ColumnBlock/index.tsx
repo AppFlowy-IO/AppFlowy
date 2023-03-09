@@ -33,19 +33,19 @@ export default function ColumnBlock({
         renderResizer()
       )}
 
-      <div
+      <BlockComponent
         className={`column-block py-3`}
         style={{
           flexGrow: 0,
           flexShrink: 0,
           width: `calc((100% - ${resizerWidth}px) * ${block.data.ratio})`,
         }}
-        data-block-id={block.id}
+        block={block}
       >
         {block.children?.map((item) => (
           <BlockComponent key={item.id} block={item} />
         ))}
-      </div>
+      </BlockComponent>
     </>
   );
 }

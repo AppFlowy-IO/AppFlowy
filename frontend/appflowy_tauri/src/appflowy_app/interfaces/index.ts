@@ -24,6 +24,7 @@ T extends BlockType.HeadingBlock ? HeadingBlockData :
 T extends BlockType.ListBlock ? ListBlockData :
 T extends BlockType.ColumnBlock ? ColumnBlockData :  any;
 
+
 export interface Block<T = BlockType> {
   id: string;
   type: BlockType;
@@ -56,3 +57,4 @@ interface HeadingBlockData extends TextBlockData {
 interface ColumnBlockData {
   ratio: string;
 }
+
