@@ -1,5 +1,3 @@
-// List<>
-
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/arrow_keys_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/backspace_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/copy_paste_handler.dart';
@@ -313,6 +311,11 @@ List<ShortcutEvent> builtInShortcutEvents = [
     key: 'Double asterisk to bold',
     command: 'shift+digit 8',
     handler: doubleAsteriskToBoldHanlder,
+  ),
+  ShortcutEvent(
+    key: 'Double underscore to bold',
+    command: 'shift+underscore',
+    handler: doubleUnderscoreToBoldHanlder,
   ),
   // https://github.com/flutter/flutter/issues/104944
   // Workaround: Using space editing on the web platform often results in errors,

@@ -365,3 +365,62 @@ ShortcutEventHandler doubleAsteriskToBoldHanlder = (editorState, event) {
 
   return KeyEventResult.handled;
 };
+
+//Implement in the same way as doubleAsteriskToBoldHanlder
+ShortcutEventHandler doubleUnderscoreToBoldHanlder = (editorState, event) {
+  final selectionService = editorState.service.selectionService;
+  final selection = selectionService.currentSelection.value;
+  final textNodes = selectionService.currentSelectedNodes.whereType<TextNode>();
+
+  if (selection == null || !selection.isSingle || textNodes.length != 1) {
+    return KeyEventResult.ignored;
+  }
+
+  final textNode = textNodes.first;
+  final text = textNode.toPlainText();
+
+// make sure the last two characters are '__'
+  if (text.length < 2 || text[selection.end.offset - 1] != '_') {
+    return KeyEventResult.ignored;
+  }
+
+// find all the index of '_'
+  final underscoreIndexList = <int>[];
+  for (var i = 0; i < text.length; i++) {
+    if (text[i] == '_') {
+      underscoreIndexList.add(i);
+    }
+  }
+
+  if (underscoreIndexList.length < 3) return KeyEventResult.ignored;
+
+// make sure the second to last and third to last underscore are connected
+  final thirdToLastUnderscoreIndex =
+      underscoreIndexList[underscoreIndexList.length - 3];
+  final secondToLastUnderscoreIndex =
+      underscoreIndexList[underscoreIndexList.length - 2];
+  final lastUnderscoreIndex =
+      underscoreIndexList[underscoreIndexList.length - 1];
+  if (secondToLastUnderscoreIndex != thirdToLastUnderscoreIndex + 1 ||
+      lastUnderscoreIndex == secondToLastUnderscoreIndex + 1) {
+    return KeyEventResult.ignored;
+  }
+
+//delete the last three underscores
+//update the style of the text surround by '__ __' to bold
+//update the cursor position
+  final transaction = editorState.transaction
+    ..deleteText(textNode, lastUnderscoreIndex, 1)
+    ..deleteText(textNode, thirdToLastUnderscoreIndex, 2)
+    ..formatText(textNode, thirdToLastUnderscoreIndex,
+        selection.end.offset - thirdToLastUnderscoreIndex - 2, {
+      BuiltInAttributeKey.bold: true,
+    })
+    ..afterSelection = Selection.collapsed(
+        Position(path: textNode.path, offset: selection.end.offset - 3));
+
+  editorState.apply(transaction);
+
+  return KeyEventResult.handled;
+};
+
