@@ -7,7 +7,7 @@ import { NavigationResizer } from './NavigationResizer';
 import { IFolder } from '../../../stores/reducers/folders/slice';
 import { IPage } from '../../../stores/reducers/pages/slice';
 import { useNavigate } from 'react-router-dom';
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '../../../stores/store';
 import { ANIMATION_DURATION, NAV_PANEL_MINIMUM_WIDTH } from '../../_shared/constants';
@@ -46,8 +46,10 @@ export const NavigationPanel = ({
         <div className={'flex flex-col'}>
           <AppLogo iconToShow={'hide'} onHideMenuClick={onHideMenuClick}></AppLogo>
           <WorkspaceUser></WorkspaceUser>
-          <div className={'flex flex-col overflow-auto px-2'} style={{ height: 'calc(100vh - 300px)' }} ref={el}>
-            <WorkspaceApps folders={folders} pages={pages} onPageClick={onPageClick} />
+          <div className={'relative flex flex-col'} style={{ height: 'calc(100vh - 300px)' }} ref={el}>
+            <div className={'flex flex-col overflow-auto px-2'}>
+              <WorkspaceApps folders={folders} pages={pages} onPageClick={onPageClick} />
+            </div>
           </div>
         </div>
 

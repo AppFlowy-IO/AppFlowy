@@ -14,6 +14,7 @@ import { INITIAL_FOLDER_HEIGHT, PAGE_ITEM_HEIGHT } from '../../_shared/constants
 export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
   const appDispatch = useAppDispatch();
   const workspace = useAppSelector((state) => state.workspace);
+  const foldersStore = useAppSelector((state) => state.folders);
 
   const navigate = useNavigate();
 
@@ -64,6 +65,7 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
   }, [pages]);
 
   const onFolderNameClick = () => {
+    appDispatch(foldersActions.toggleShowPages({ id: folder.id }));
     if (showPages) {
       setFolderHeight(`${INITIAL_FOLDER_HEIGHT}px`);
     } else {

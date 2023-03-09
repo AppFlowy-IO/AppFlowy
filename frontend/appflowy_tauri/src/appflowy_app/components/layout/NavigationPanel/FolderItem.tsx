@@ -12,8 +12,6 @@ import { useEffect, useRef, useState } from 'react';
 import { DropDownShowSvg } from '../../_shared/svg/DropDownShowSvg';
 import { ANIMATION_DURATION } from '../../_shared/constants';
 
-let timeoutHandle: any;
-
 export const FolderItem = ({
   folder,
   pages,
@@ -47,18 +45,7 @@ export const FolderItem = ({
     setOffsetTop,
   } = useFolderEvents(folder, pages);
 
-  const [hideOverflow, setHideOverflow] = useState(!showPages);
-
-  useEffect(() => {
-    clearTimeout(timeoutHandle);
-    if (showPages) {
-      timeoutHandle = setTimeout(() => {
-        setHideOverflow(!showPages);
-      }, ANIMATION_DURATION);
-    } else {
-      setHideOverflow(!showPages);
-    }
-  }, [showPages]);
+  const [popupY, setPopupY] = useState(0);
 
   const el = useRef<HTMLDivElement>(null);
 
@@ -66,10 +53,17 @@ export const FolderItem = ({
     setOffsetTop(el.current?.offsetTop || 0);
   }, [el, showPages]);
 
+  useEffect(() => {
+    if (el.current) {
+      const { top } = el.current.getBoundingClientRect();
+      setPopupY(top);
+    }
+  }, [showFolderOptions, showNewPageOptions, showRenamePopup]);
+
   return (
-    <div className={'relative'} ref={el}>
+    <div ref={el}>
       <div
-        className={`relative my-2 ${hideOverflow ? 'overflow-hidden' : ''} transition-all `}
+        className={`my-2 overflow-hidden transition-all`}
         style={{ height: folderHeight, transitionDuration: `${ANIMATION_DURATION}ms` }}
       >
         <div
@@ -84,7 +78,7 @@ export const FolderItem = ({
               {folder.title}
             </span>
           </button>
-          <div className={'relative flex items-center'}>
+          <div className={'flex items-center'}>
             <Button size={'box-small-transparent'} onClick={() => onFolderOptionsClick()}>
               <Details2Svg></Details2Svg>
             </Button>
@@ -104,6 +98,7 @@ export const FolderItem = ({
           onDeleteClick={() => deleteFolder()}
           onDuplicateClick={() => duplicateFolder()}
           onClose={() => closePopup()}
+          top={popupY - 124 + 40}
         ></NavItemOptionsPopup>
       )}
       {showNewPageOptions && (
@@ -112,6 +107,7 @@ export const FolderItem = ({
           onBoardClick={() => onAddNewBoardPage()}
           onGridClick={() => onAddNewGridPage()}
           onClose={() => closePopup()}
+          top={popupY - 124 + 40}
         ></NewPagePopup>
       )}
       {showRenamePopup && (
@@ -119,6 +115,7 @@ export const FolderItem = ({
           value={folder.title}
           onChange={(newTitle) => changeFolderTitle(newTitle)}
           onClose={closeRenamePopup}
+          top={popupY - 124 + 40}
         ></RenamePopup>
       )}
     </div>

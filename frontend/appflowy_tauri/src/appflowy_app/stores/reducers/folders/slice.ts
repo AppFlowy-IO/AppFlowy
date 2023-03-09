@@ -4,6 +4,7 @@ export interface IFolder {
   id: string;
   title: string;
   offsetTop?: number;
+  showPages?: boolean;
 }
 
 const initialState: IFolder[] = [];
@@ -26,6 +27,9 @@ export const foldersSlice = createSlice({
     },
     setOffsetTop(state, action: PayloadAction<{ id: string; offset: number }>) {
       return state.map((f) => (f.id === action.payload.id ? { ...f, offsetTop: action.payload.offset } : f));
+    },
+    toggleShowPages(state, action: PayloadAction<{ id: string }>) {
+      return state.map((f) => (f.id === action.payload.id ? { ...f, showPages: !f.showPages } : f));
     },
   },
 });

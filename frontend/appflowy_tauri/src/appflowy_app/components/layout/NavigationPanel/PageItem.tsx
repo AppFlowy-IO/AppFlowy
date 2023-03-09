@@ -8,7 +8,7 @@ import { Button } from '../../_shared/Button';
 import { usePageEvents } from './PageItem.hooks';
 import { RenamePopup } from './RenamePopup';
 import { ViewLayoutTypePB } from '../../../../services/backend';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PAGE_ITEM_HEIGHT } from '../../_shared/constants';
 
 export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () => void }) => {
@@ -32,8 +32,17 @@ export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () =
     setOffsetTop(el.current?.offsetTop || 0);
   }, [el.current]);
 
+  const [popupY, setPopupY] = useState(0);
+
+  useEffect(() => {
+    if (showPageOptions && el.current) {
+      const { top } = el.current.getBoundingClientRect();
+      setPopupY(top);
+    }
+  }, [showPageOptions]);
+
   return (
-    <div className={'relative'} ref={el}>
+    <div ref={el}>
       <div
         onClick={() => onPageClick()}
         className={`flex cursor-pointer items-center justify-between rounded-lg pl-8 pr-4 hover:bg-surface-2 ${
@@ -51,7 +60,7 @@ export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () =
             {page.title}
           </span>
         </button>
-        <div className={'relative flex items-center'}>
+        <div className={'flex items-center'}>
           <Button size={'box-small-transparent'} onClick={() => onPageOptionsClick()}>
             <Details2Svg></Details2Svg>
           </Button>
@@ -63,6 +72,7 @@ export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () =
           onDeleteClick={() => deletePage()}
           onDuplicateClick={() => duplicatePage()}
           onClose={() => closePopup()}
+          top={popupY - 124 + 40}
         ></NavItemOptionsPopup>
       )}
       {showRenamePopup && (
