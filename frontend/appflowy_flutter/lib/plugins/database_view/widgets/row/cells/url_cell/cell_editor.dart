@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../application/cell/url_cell_editor_bloc.dart';
+import '../../../../grid/application/cell/url_cell_editor_bloc.dart';
 
 class URLCellEditor extends StatefulWidget {
   final VoidCallback onExit;

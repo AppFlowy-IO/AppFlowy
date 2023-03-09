@@ -19,9 +19,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
-import '../../../layout/sizes.dart';
-import '../../common/type_option_separator.dart';
-import '../../header/type_option/date.dart';
+import '../../../../grid/presentation/layout/sizes.dart';
+import '../../../../grid/presentation/widgets/common/type_option_separator.dart';
+import '../../../../grid/presentation/widgets/header/type_option/date.dart';
 
 final kToday = DateTime.now();
 final kFirstDay = DateTime(kToday.year, kToday.month - 3, kToday.day);

@@ -15,12 +15,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
-import '../../grid/presentation/widgets/cell/cell_accessory.dart';
-import '../../grid/presentation/widgets/cell/cell_builder.dart';
-import '../../grid/presentation/widgets/cell/date_cell/date_cell.dart';
-import '../../grid/presentation/widgets/cell/select_option_cell/select_option_cell.dart';
-import '../../grid/presentation/widgets/cell/text_cell.dart';
-import '../../grid/presentation/widgets/cell/url_cell/url_cell.dart';
+import 'accessory/cell_accessory.dart';
+import 'cells/cell_builder.dart';
+import 'cells/date_cell/date_cell.dart';
+import 'cells/select_option_cell/select_option_cell.dart';
+import 'cells/text_cell.dart';
+import 'cells/url_cell/url_cell.dart';
 import '../../grid/presentation/widgets/header/field_cell.dart';
 import '../../grid/presentation/widgets/header/field_editor.dart';
 

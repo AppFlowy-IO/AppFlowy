@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
-import '../../../layout/sizes.dart';
+import '../../../../grid/presentation/layout/sizes.dart';
 import '../cell_builder.dart';
 import 'date_editor.dart';
 

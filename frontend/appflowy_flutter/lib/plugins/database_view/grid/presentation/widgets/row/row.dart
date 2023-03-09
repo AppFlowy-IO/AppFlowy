@@ -10,10 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../widgets/row/accessory/cell_accessory.dart';
 import '../../layout/sizes.dart';
-import '../cell/cell_accessory.dart';
-import '../cell/cell_builder.dart';
-import '../cell/cell_container.dart';
+import '../../../../widgets/row/cells/cell_builder.dart';
+import '../../../../widgets/row/cells/cell_container.dart';
 import 'action.dart';
 import "package:appflowy/generated/locale_keys.g.dart";
 import 'package:easy_localization/easy_localization.dart';

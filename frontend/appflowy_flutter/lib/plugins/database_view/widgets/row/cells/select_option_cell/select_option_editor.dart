@@ -13,9 +13,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 
-import '../../../layout/sizes.dart';
-import '../../common/type_option_separator.dart';
-import '../../header/type_option/select_option_editor.dart';
+import '../../../../grid/presentation/layout/sizes.dart';
+import '../../../../grid/presentation/widgets/common/type_option_separator.dart';
+import '../../../../grid/presentation/widgets/header/type_option/select_option_editor.dart';
 import 'extension.dart';
 import 'text_field.dart';
 

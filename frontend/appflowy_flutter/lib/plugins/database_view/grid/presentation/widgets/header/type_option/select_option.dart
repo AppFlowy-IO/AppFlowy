@@ -9,7 +9,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
 import '../../../layout/sizes.dart';
-import '../../cell/select_option_cell/extension.dart';
+import '../../../../../widgets/row/cells/select_option_cell/extension.dart';
 import '../../common/type_option_separator.dart';
 import 'select_option_editor.dart';
 

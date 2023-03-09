@@ -4,7 +4,7 @@ import 'package:appflowy/plugins/database_view/grid/application/cell/text_cell_b
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
-import '../../layout/sizes.dart';
+import '../../../grid/presentation/layout/sizes.dart';
 import 'cell_builder.dart';
 
 class GridTextCellStyle extends GridCellStyle {

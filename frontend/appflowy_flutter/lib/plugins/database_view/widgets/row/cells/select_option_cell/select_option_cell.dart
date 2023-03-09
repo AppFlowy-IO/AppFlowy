@@ -6,8 +6,8 @@ import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.d
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../application/cell/select_option_cell_bloc.dart';
-import '../../../layout/sizes.dart';
+import '../../../../grid/application/cell/select_option_cell_bloc.dart';
+import '../../../../grid/presentation/layout/sizes.dart';
 import '../cell_builder.dart';
 import 'extension.dart';
 import 'select_option_editor.dart';

@@ -3,16 +3,16 @@ import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart'
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
-import '../../../../application/cell/cell_service.dart';
-import 'cell_accessory.dart';
-import 'cell_shortcuts.dart';
-import 'checkbox_cell.dart';
-import 'checklist_cell/checklist_cell.dart';
-import 'date_cell/date_cell.dart';
-import 'number_cell.dart';
-import 'select_option_cell/select_option_cell.dart';
-import 'text_cell.dart';
-import 'url_cell/url_cell.dart';
+import '../../application/cell/cell_service.dart';
+import 'accessory/cell_accessory.dart';
+import 'accessory/cell_shortcuts.dart';
+import 'cells/checkbox_cell.dart';
+import 'cells/checklist_cell/checklist_cell.dart';
+import 'cells/date_cell/date_cell.dart';
+import 'cells/number_cell.dart';
+import 'cells/select_option_cell/select_option_cell.dart';
+import 'cells/text_cell.dart';
+import 'cells/url_cell/url_cell.dart';
 
 class GridCellBuilder {
   final CellCache cellCache;

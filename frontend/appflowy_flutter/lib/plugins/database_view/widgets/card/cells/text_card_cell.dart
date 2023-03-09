@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/cell/cell_builder.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/cell_builder.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';

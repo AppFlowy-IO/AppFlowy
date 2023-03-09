@@ -23,7 +23,7 @@ import 'grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
 import 'widgets/accessory_menu.dart';
-import 'widgets/cell/cell_builder.dart';
+import '../../widgets/row/cells/cell_builder.dart';
 import 'widgets/row/row.dart';
 import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';

@@ -4,8 +4,8 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../application/cell/checkbox_cell_bloc.dart';
-import '../../layout/sizes.dart';
+import '../../../grid/application/cell/checkbox_cell_bloc.dart';
+import '../../../grid/presentation/layout/sizes.dart';
 import 'cell_builder.dart';
 
 class GridCheckboxCell extends GridCellWidget {

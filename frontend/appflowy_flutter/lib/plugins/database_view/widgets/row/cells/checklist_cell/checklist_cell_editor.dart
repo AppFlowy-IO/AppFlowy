@@ -5,9 +5,9 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../application/cell/checklist_cell_editor_bloc.dart';
-import '../../../layout/sizes.dart';
-import '../../header/type_option/select_option_editor.dart';
+import '../../../../grid/application/cell/checklist_cell_editor_bloc.dart';
+import '../../../../grid/presentation/layout/sizes.dart';
+import '../../../../grid/presentation/widgets/header/type_option/select_option_editor.dart';
 import 'checklist_progress_bar.dart';
 
 class GridChecklistCellEditor extends StatefulWidget {
