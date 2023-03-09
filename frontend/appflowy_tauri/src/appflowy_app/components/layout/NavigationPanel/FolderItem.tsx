@@ -42,16 +42,11 @@ export const FolderItem = ({
 
     closePopup,
     folderHeight,
-    setOffsetTop,
   } = useFolderEvents(folder, pages);
 
   const [popupY, setPopupY] = useState(0);
 
   const el = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setOffsetTop(el.current?.offsetTop || 0);
-  }, [el, showPages]);
 
   useEffect(() => {
     if (el.current) {

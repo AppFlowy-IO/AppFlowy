@@ -3,7 +3,6 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export interface IFolder {
   id: string;
   title: string;
-  offsetTop?: number;
   showPages?: boolean;
 }
 
@@ -24,9 +23,6 @@ export const foldersSlice = createSlice({
     },
     clearFolders() {
       return [];
-    },
-    setOffsetTop(state, action: PayloadAction<{ id: string; offset: number }>) {
-      return state.map((f) => (f.id === action.payload.id ? { ...f, offsetTop: action.payload.offset } : f));
     },
     toggleShowPages(state, action: PayloadAction<{ id: string }>) {
       return state.map((f) => (f.id === action.payload.id ? { ...f, showPages: !f.showPages } : f));

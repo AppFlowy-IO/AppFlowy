@@ -202,10 +202,6 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
     }
   };
 
-  const setOffsetTop = (v: number) => {
-    foldersActions.setOffsetTop({ id: folder.id, offset: v });
-  };
-
   return {
     showPages,
     onFolderNameClick,
@@ -227,6 +223,5 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
 
     closePopup,
     folderHeight,
-    setOffsetTop,
   };
 };

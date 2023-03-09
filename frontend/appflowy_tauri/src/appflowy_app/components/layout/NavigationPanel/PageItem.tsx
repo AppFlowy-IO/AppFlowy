@@ -23,14 +23,9 @@ export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () =
     closePopup,
     closeRenamePopup,
     activePageId,
-    setOffsetTop,
   } = usePageEvents(page);
 
   const el = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setOffsetTop(el.current?.offsetTop || 0);
-  }, [el.current]);
 
   const [popupY, setPopupY] = useState(0);
 
