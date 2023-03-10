@@ -1,46 +1,11 @@
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::{CreateRowParams, FieldType, LayoutTypePB, RowPB};
+use crate::entities::{FieldType, RowPB};
 use crate::services::group::Group;
 use database_model::{FieldTypeRevision, GroupConfigurationRevision};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use std::convert::TryInto;
 use std::sync::Arc;
-
-#[derive(ProtoBuf, Debug, Default, Clone)]
-pub struct CreateBoardCardPayloadPB {
-  #[pb(index = 1)]
-  pub view_id: String,
-
-  #[pb(index = 2)]
-  pub group_id: String,
-
-  #[pb(index = 3, one_of)]
-  pub start_row_id: Option<String>,
-}
-
-impl TryInto<CreateRowParams> for CreateBoardCardPayloadPB {
-  type Error = ErrorCode;
-
-  fn try_into(self) -> Result<CreateRowParams, Self::Error> {
-    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
-    let group_id = NotEmptyStr::parse(self.group_id).map_err(|_| ErrorCode::GroupIdIsEmpty)?;
-    let start_row_id = match self.start_row_id {
-      None => None,
-      Some(start_row_id) => Some(
-        NotEmptyStr::parse(start_row_id)
-          .map_err(|_| ErrorCode::RowIdIsEmpty)?
-          .0,
-      ),
-    };
-    Ok(CreateRowParams {
-      view_id: view_id.0,
-      start_row_id,
-      group_id: Some(group_id.0),
-      layout: LayoutTypePB::Board,
-    })
-  }
-}
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct GroupConfigurationPB {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy_editor/src/flutter/overlay.dart';
 import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:appflowy_editor/src/service/context_menu/built_in_context_menu_item.dart';
@@ -121,6 +123,9 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
   EditorState get editorState => widget.editorState;
 
+  // Toolbar
+  Timer? _toolbarTimer;
+
   @override
   void initState() {
     super.initState();
@@ -144,6 +149,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     clearSelection();
     WidgetsBinding.instance.removeObserver(this);
     currentSelection.removeListener(_onSelectionChange);
+    _clearToolbar();
 
     super.dispose();
   }
@@ -236,7 +242,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     // clear cursor areas
 
     // hide toolbar
-    editorState.service.toolbarService?.hide();
+    // editorState.service.toolbarService?.hide();
 
     // clear context menu
     _clearContextMenu();
@@ -482,13 +488,8 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
     Overlay.of(context)?.insertAll(_selectionAreas);
 
-    if (toolbarOffset != null && layerLink != null) {
-      editorState.service.toolbarService?.showInOffset(
-        toolbarOffset,
-        alignment!,
-        layerLink,
-      );
-    }
+    // show toolbar
+    _showToolbarWithDelay(toolbarOffset, layerLink, alignment!);
   }
 
   void _updateCursorAreas(Position position) {
@@ -502,6 +503,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     currentSelectedNodes = [node];
 
     _showCursor(node, position);
+    _clearToolbar();
   }
 
   void _showCursor(Node node, Position position) {
@@ -626,6 +628,40 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
   void _onSelectionChange() {
     _scrollUpOrDownIfNeeded();
+  }
+
+  void _showToolbarWithDelay(
+    Offset? toolbarOffset,
+    LayerLink? layerLink,
+    Alignment alignment, {
+    Duration delay = const Duration(milliseconds: 400),
+  }) {
+    if (toolbarOffset == null && layerLink == null) {
+      _clearToolbar();
+      return;
+    }
+    if (_toolbarTimer?.isActive ?? false) {
+      _toolbarTimer?.cancel();
+    }
+    _toolbarTimer = Timer(
+      delay,
+      () {
+        if (toolbarOffset != null && layerLink != null) {
+          editorState.service.toolbarService?.showInOffset(
+            toolbarOffset,
+            alignment,
+            layerLink,
+          );
+        }
+      },
+    );
+  }
+
+  void _clearToolbar() {
+    editorState.service.toolbarService?.hide();
+    if (_toolbarTimer?.isActive ?? false) {
+      _toolbarTimer?.cancel();
+    }
   }
 
   void _showDebugLayerIfNeeded({Offset? offset}) {

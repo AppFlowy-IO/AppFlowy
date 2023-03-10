@@ -8,7 +8,7 @@ import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.d
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../cell/select_option_cell/extension.dart';
+import '../../../../../../widgets/row/cells/select_option_cell/extension.dart';
 import '../../filter_info.dart';
 import 'select_option_loader.dart';
 

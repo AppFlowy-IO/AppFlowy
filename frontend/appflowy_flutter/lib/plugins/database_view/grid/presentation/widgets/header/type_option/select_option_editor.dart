@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/field/type_option/edit_select_option_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/cell/select_option_cell/extension.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';

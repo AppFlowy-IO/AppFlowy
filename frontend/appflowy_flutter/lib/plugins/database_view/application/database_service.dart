@@ -1,4 +1,7 @@
+import 'package:appflowy_backend/protobuf/flowy-database/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/database_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/group_changeset.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -20,25 +23,56 @@ class DatabaseBackendService {
     return DatabaseEventGetDatabase(payload).send();
   }
 
-  Future<Either<RowPB, FlowyError>> createRow({Option<String>? startRowId}) {
-    var payload = CreateRowPayloadPB.create()..viewId = viewId;
-    startRowId?.fold(() => null, (id) => payload.startRowId = id);
-    return DatabaseEventCreateRow(payload).send();
-  }
-
-  Future<Either<RowPB, FlowyError>> createBoardCard(
-    String groupId,
+  Future<Either<RowPB, FlowyError>> createRow({
     String? startRowId,
-  ) {
-    CreateBoardCardPayloadPB payload = CreateBoardCardPayloadPB.create()
-      ..viewId = viewId
-      ..groupId = groupId;
-
+    String? groupId,
+    Map<String, String>? cellDataByFieldId,
+  }) {
+    var payload = CreateRowPayloadPB.create()..viewId = viewId;
     if (startRowId != null) {
       payload.startRowId = startRowId;
     }
 
-    return DatabaseEventCreateBoardCard(payload).send();
+    if (groupId != null) {
+      payload.groupId = groupId;
+    }
+
+    if (cellDataByFieldId != null && cellDataByFieldId.isNotEmpty) {
+      payload.data = RowDataPB(cellDataByFieldId: cellDataByFieldId);
+    }
+
+    return DatabaseEventCreateRow(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> moveRow({
+    required String fromRowId,
+    required String? toGroupId,
+    required String? toRowId,
+  }) {
+    var payload = MoveGroupRowPayloadPB.create()
+      ..viewId = viewId
+      ..fromRowId = fromRowId;
+    if (toGroupId != null) {
+      payload.toGroupId = toGroupId;
+    }
+
+    if (toRowId != null) {
+      payload.toRowId = toRowId;
+    }
+
+    return DatabaseEventMoveGroupRow(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> moveGroup({
+    required String fromGroupId,
+    required String toGroupId,
+  }) {
+    final payload = MoveGroupPayloadPB.create()
+      ..viewId = viewId
+      ..fromGroupId = fromGroupId
+      ..toGroupId = toGroupId;
+
+    return DatabaseEventMoveGroup(payload).send();
   }
 
   Future<Either<List<FieldPB>, FlowyError>> getFields(
@@ -51,6 +85,28 @@ class DatabaseBackendService {
     return DatabaseEventGetFields(payload).send().then((result) {
       return result.fold((l) => left(l.items), (r) => right(r));
     });
+  }
+
+  Future<Either<LayoutSettingPB, FlowyError>> getLayoutSetting(
+      LayoutTypePB layoutType) {
+    final payload = DatabaseLayoutIdPB.create()
+      ..viewId = viewId
+      ..layout = layoutType;
+    return DatabaseEventGetLayoutSetting(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> updateLayoutSetting(
+      {CalendarLayoutSettingsPB? calendarLayoutSetting}) {
+    final layoutSetting = LayoutSettingPB.create();
+    if (calendarLayoutSetting != null) {
+      layoutSetting.calendar = calendarLayoutSetting;
+    }
+
+    final payload = UpdateLayoutSettingPB.create()
+      ..viewId = viewId
+      ..layoutSetting = layoutSetting;
+
+    return DatabaseEventSetLayoutSetting(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> closeView() {
