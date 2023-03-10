@@ -1,6 +1,8 @@
+#![allow(clippy::while_let_loop)]
 use crate::entities::{
   AlterFilterParams, AlterSortParams, CreateRowParams, DatabaseViewSettingPB, DeleteFilterParams,
-  DeleteGroupParams, DeleteSortParams, InsertGroupParams, MoveGroupParams, RepeatedGroupPB, RowPB,
+  DeleteGroupParams, DeleteSortParams, GroupPB, InsertGroupParams, LayoutSettingParams,
+  MoveGroupParams, RepeatedGroupPB, RowPB,
 };
 use crate::manager::DatabaseUser;
 use crate::services::cell::AtomicCellDataCache;
@@ -14,14 +16,16 @@ use crate::services::filter::FilterType;
 use crate::services::persistence::rev_sqlite::{
   SQLiteDatabaseRevisionSnapshotPersistence, SQLiteDatabaseViewRevisionPersistence,
 };
-use database_model::{FieldRevision, FilterRevision, RowChangeset, RowRevision, SortRevision};
+use database_model::{
+  FieldRevision, FilterRevision, LayoutRevision, RowChangeset, RowRevision, SortRevision,
+};
 use flowy_client_sync::client_database::DatabaseViewRevisionPad;
 use flowy_error::FlowyResult;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration};
 use flowy_sqlite::ConnectionPool;
 use lib_infra::future::Fut;
-use lib_infra::ref_map::RefCountHashMap;
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
@@ -29,7 +33,7 @@ use tokio::sync::{broadcast, RwLock};
 pub struct DatabaseViews {
   user: Arc<dyn DatabaseUser>,
   delegate: Arc<dyn DatabaseViewData>,
-  view_editors: Arc<RwLock<RefCountHashMap<Arc<DatabaseViewEditor>>>>,
+  view_editors: Arc<RwLock<HashMap<String, Arc<DatabaseViewEditor>>>>,
   cell_data_cache: AtomicCellDataCache,
 }
 
@@ -40,7 +44,7 @@ impl DatabaseViews {
     cell_data_cache: AtomicCellDataCache,
     block_event_rx: broadcast::Receiver<DatabaseBlockEvent>,
   ) -> FlowyResult<Self> {
-    let view_editors = Arc::new(RwLock::new(RefCountHashMap::default()));
+    let view_editors = Arc::new(RwLock::new(HashMap::default()));
     listen_on_database_block_event(block_event_rx, view_editors.clone());
     Ok(Self {
       user,
@@ -60,11 +64,17 @@ impl DatabaseViews {
   }
 
   pub async fn close(&self, view_id: &str) {
-    self.view_editors.write().await.remove(view_id).await;
+    if let Some(view_editor) = self.view_editors.write().await.remove(view_id) {
+      view_editor.close().await;
+    }
   }
 
   pub async fn number_of_views(&self) -> usize {
     self.view_editors.read().await.values().len()
+  }
+
+  pub async fn is_view_exist(&self, view_id: &str) -> bool {
+    self.view_editors.read().await.get(view_id).is_some()
   }
 
   pub async fn subscribe_view_changed(
@@ -194,6 +204,29 @@ impl DatabaseViews {
     Ok(RepeatedGroupPB { items: groups })
   }
 
+  pub async fn get_group(&self, view_id: &str, group_id: &str) -> FlowyResult<GroupPB> {
+    let view_editor = self.get_view_editor(view_id).await?;
+    view_editor.v_get_group(group_id).await
+  }
+
+  pub async fn get_layout_setting(
+    &self,
+    view_id: &str,
+    layout_ty: &LayoutRevision,
+  ) -> FlowyResult<LayoutSettingParams> {
+    let view_editor = self.get_view_editor(view_id).await?;
+    view_editor.v_get_layout_settings(layout_ty).await
+  }
+
+  pub async fn set_layout_setting(
+    &self,
+    view_id: &str,
+    layout_setting: LayoutSettingParams,
+  ) -> FlowyResult<()> {
+    let view_editor = self.get_view_editor(view_id).await?;
+    view_editor.v_set_layout_settings(layout_setting).await
+  }
+
   pub async fn insert_or_update_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
     let view_editor = self.get_view_editor(&params.view_id).await?;
     view_editor.v_initialize_new_group(params).await
@@ -269,7 +302,7 @@ impl DatabaseViews {
   pub async fn get_view_editor(&self, view_id: &str) -> FlowyResult<Arc<DatabaseViewEditor>> {
     debug_assert!(!view_id.is_empty());
     if let Some(editor) = self.view_editors.read().await.get(view_id) {
-      return Ok(editor);
+      return Ok(editor.clone());
     }
 
     tracing::trace!("{:p} create view:{} editor", self, view_id);
@@ -342,21 +375,24 @@ pub async fn make_database_view_rev_manager(
 
 fn listen_on_database_block_event(
   mut block_event_rx: broadcast::Receiver<DatabaseBlockEvent>,
-  view_editors: Arc<RwLock<RefCountHashMap<Arc<DatabaseViewEditor>>>>,
+  view_editors: Arc<RwLock<HashMap<String, Arc<DatabaseViewEditor>>>>,
 ) {
   tokio::spawn(async move {
     loop {
-      while let Ok(event) = block_event_rx.recv().await {
-        let read_guard = view_editors.read().await;
-        let view_editors = read_guard.values();
-        let event = if view_editors.len() == 1 {
-          Cow::Owned(event)
-        } else {
-          Cow::Borrowed(&event)
-        };
-        for view_editor in view_editors.iter() {
-          view_editor.handle_block_event(event.clone()).await;
-        }
+      match block_event_rx.recv().await {
+        Ok(event) => {
+          let read_guard = view_editors.read().await;
+          let view_editors = read_guard.values();
+          let event = if view_editors.len() == 1 {
+            Cow::Owned(event)
+          } else {
+            Cow::Borrowed(&event)
+          };
+          for view_editor in view_editors {
+            view_editor.handle_block_event(event.clone()).await;
+          }
+        },
+        Err(_) => break,
       }
     }
   });

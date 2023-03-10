@@ -13,25 +13,25 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../application/field/field_controller.dart';
 import '../../application/row/row_cache.dart';
-import '../../application/row/row_service.dart';
-import 'board_data_controller.dart';
+import '../../application/database_controller.dart';
 import 'group_controller.dart';
 
 part 'board_bloc.freezed.dart';
 
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
-  final BoardDataController _gridDataController;
+  final DatabaseController _databaseController;
   late final AppFlowyBoardController boardController;
-  final GroupBackendService _groupBackendSvc;
   final LinkedHashMap<String, GroupController> groupControllers =
       LinkedHashMap();
 
-  FieldController get fieldController => _gridDataController.fieldController;
-  String get viewId => _gridDataController.viewId;
+  FieldController get fieldController => _databaseController.fieldController;
+  String get viewId => _databaseController.viewId;
 
   BoardBloc({required ViewPB view})
-      : _groupBackendSvc = GroupBackendService(viewId: view.id),
-        _gridDataController = BoardDataController(view: view),
+      : _databaseController = DatabaseController(
+          view: view,
+          layoutType: LayoutTypePB.Board,
+        ),
         super(BoardState.initial(view.id)) {
     boardController = AppFlowyBoardController(
       onMoveGroup: (
@@ -40,7 +40,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         toGroupId,
         toIndex,
       ) {
-        _moveGroup(fromGroupId, toGroupId);
+        _databaseController.moveGroup(
+          fromGroupId: fromGroupId,
+          toGroupId: toGroupId,
+        );
       },
       onMoveGroupItem: (
         groupId,
@@ -49,7 +52,13 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       ) {
         final fromRow = groupControllers[groupId]?.rowAtIndex(fromIndex);
         final toRow = groupControllers[groupId]?.rowAtIndex(toIndex);
-        _moveRow(fromRow, groupId, toRow);
+        if (fromRow != null) {
+          _databaseController.moveRow(
+            fromRow,
+            toRow: toRow,
+            groupId: groupId,
+          );
+        }
       },
       onMoveGroupItemToGroup: (
         fromGroupId,
@@ -59,7 +68,13 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       ) {
         final fromRow = groupControllers[fromGroupId]?.rowAtIndex(fromIndex);
         final toRow = groupControllers[toGroupId]?.rowAtIndex(toIndex);
-        _moveRow(fromRow, toGroupId, toRow);
+        if (fromRow != null) {
+          _databaseController.moveRow(
+            fromRow,
+            toRow: toRow,
+            groupId: toGroupId,
+          );
+        }
       },
     );
 
@@ -72,8 +87,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           },
           createBottomRow: (groupId) async {
             final startRowId = groupControllers[groupId]?.lastRow()?.id;
-            final result = await _gridDataController.createBoardCard(
-              groupId,
+            final result = await _databaseController.createRow(
+              groupId: groupId,
               startRowId: startRowId,
             );
             result.fold(
@@ -82,7 +97,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             );
           },
           createHeaderRow: (String groupId) async {
-            final result = await _gridDataController.createBoardCard(groupId);
+            final result =
+                await _databaseController.createRow(groupId: groupId);
             result.fold(
               (_) {},
               (err) => Log.error(err),
@@ -141,44 +157,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     }
 
     boardController.enableGroupDragging(!isEdit);
-    // boardController.updateGroupItem(
-    //   group.groupId,
-    //   GroupItem(
-    //     row: row,
-    //     fieldInfo: fieldInfo,
-    //     isDraggable: !isEdit,
-    //   ),
-    // );
-  }
-
-  void _moveRow(RowPB? fromRow, String columnId, RowPB? toRow) {
-    if (fromRow != null) {
-      _groupBackendSvc
-          .moveGroupRow(
-        fromRowId: fromRow.id,
-        toGroupId: columnId,
-        toRowId: toRow?.id,
-      )
-          .then((result) {
-        result.fold((l) => null, (r) => add(BoardEvent.didReceiveError(r)));
-      });
-    }
-  }
-
-  void _moveGroup(String fromGroupId, String toGroupId) {
-    _groupBackendSvc
-        .moveGroup(
-      fromGroupId: fromGroupId,
-      toGroupId: toGroupId,
-    )
-        .then((result) {
-      result.fold((l) => null, (r) => add(BoardEvent.didReceiveError(r)));
-    });
   }
 
   @override
   Future<void> close() async {
-    await _gridDataController.dispose();
+    await _databaseController.dispose();
     for (final controller in groupControllers.values) {
       controller.dispose();
     }
@@ -204,34 +187,36 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   RowCache? getRowCache(String blockId) {
-    return _gridDataController.rowCache;
+    return _databaseController.rowCache;
   }
 
   void _startListening() {
-    _gridDataController.addListener(
-      onDatabaseChanged: (grid) {
+    final onDatabaseChanged = DatabaseCallbacks(
+      onDatabaseChanged: (database) {
         if (!isClosed) {
-          add(BoardEvent.didReceiveGridUpdate(grid));
+          add(BoardEvent.didReceiveGridUpdate(database));
         }
       },
-      didLoadGroups: (groups) {
+    );
+    final onGroupChanged = GroupCallbacks(
+      onGroupByField: (groups) {
         if (isClosed) return;
         initializeGroups(groups);
         add(BoardEvent.didReceiveGroups(groups));
       },
-      onDeletedGroup: (groupIds) {
+      onDeleteGroup: (groupIds) {
         if (isClosed) return;
         boardController.removeGroups(groupIds);
       },
-      onInsertedGroup: (insertedGroup) {
+      onInsertGroup: (insertGroups) {
         if (isClosed) return;
-        final group = insertedGroup.group;
+        final group = insertGroups.group;
         final newGroup = initializeGroupData(group);
         final controller = initializeGroupController(group);
         groupControllers[controller.group.groupId] = (controller);
         boardController.addGroup(newGroup);
       },
-      onUpdatedGroup: (updatedGroups) {
+      onUpdateGroup: (updatedGroups) {
         if (isClosed) return;
         for (final group in updatedGroups) {
           final columnController =
@@ -239,15 +224,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           columnController?.updateGroupName(group.desc);
         }
       },
-      onError: (err) {
-        Log.error(err);
-      },
-      onResetGroups: (groups) {
-        if (isClosed) return;
+    );
 
-        initializeGroups(groups);
-        add(BoardEvent.didReceiveGroups(groups));
-      },
+    _databaseController.addListener(
+      onDatabaseChanged: onDatabaseChanged,
+      onGroupChanged: onGroupChanged,
     );
   }
 
@@ -264,7 +245,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   Future<void> _openGrid(Emitter<BoardState> emit) async {
-    final result = await _gridDataController.openGrid();
+    final result = await _databaseController.open();
     result.fold(
       (grid) => emit(
         state.copyWith(loadingState: GridLoadingState.finish(left(unit))),

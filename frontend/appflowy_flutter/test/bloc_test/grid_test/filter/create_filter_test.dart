@@ -1,7 +1,8 @@
 import 'package:appflowy/plugins/database_view/application/filter/filter_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/application/grid_data_controller.dart';
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/checkbox_filter.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/text_filter.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -44,16 +45,19 @@ void main() {
     );
     await gridResponseFuture();
 
-    assert(context.fieldController.filterInfos.isEmpty);
+    expect(context.fieldController.filterInfos.length, 0);
   });
 
   test('filter rows with condition: text is empty', () async {
     final context = await gridTest.createTestGrid();
     final service = FilterBackendService(viewId: context.gridView.id);
-    final gridController = DatabaseController(view: context.gridView);
+    final gridController = DatabaseController(
+      view: context.gridView,
+      layoutType: LayoutTypePB.Grid,
+    );
     final gridBloc = GridBloc(
       view: context.gridView,
-      gridController: gridController,
+      databaseController: gridController,
     )..add(const GridEvent.initial());
     await gridResponseFuture();
 
@@ -64,17 +68,20 @@ void main() {
         content: "");
     await gridResponseFuture();
 
-    assert(gridBloc.state.rowInfos.length == 3);
+    expect(gridBloc.state.rowInfos.length, 3);
   });
 
   test('filter rows with condition: text is empty(After edit the row)',
       () async {
     final context = await gridTest.createTestGrid();
     final service = FilterBackendService(viewId: context.gridView.id);
-    final gridController = DatabaseController(view: context.gridView);
+    final gridController = DatabaseController(
+      view: context.gridView,
+      layoutType: LayoutTypePB.Grid,
+    );
     final gridBloc = GridBloc(
       view: context.gridView,
-      gridController: gridController,
+      databaseController: gridController,
     )..add(const GridEvent.initial());
     await gridResponseFuture();
 
@@ -112,10 +119,13 @@ void main() {
     final context = await gridTest.createTestGrid();
     final checkboxField = context.checkboxFieldContext();
     final service = FilterBackendService(viewId: context.gridView.id);
-    final gridController = DatabaseController(view: context.gridView);
+    final gridController = DatabaseController(
+      view: context.gridView,
+      layoutType: LayoutTypePB.Grid,
+    );
     final gridBloc = GridBloc(
       view: context.gridView,
-      gridController: gridController,
+      databaseController: gridController,
     )..add(const GridEvent.initial());
 
     await gridResponseFuture();
@@ -131,10 +141,13 @@ void main() {
     final context = await gridTest.createTestGrid();
     final checkboxField = context.checkboxFieldContext();
     final service = FilterBackendService(viewId: context.gridView.id);
-    final gridController = DatabaseController(view: context.gridView);
+    final gridController = DatabaseController(
+      view: context.gridView,
+      layoutType: LayoutTypePB.Grid,
+    );
     final gridBloc = GridBloc(
       view: context.gridView,
-      gridController: gridController,
+      databaseController: gridController,
     )..add(const GridEvent.initial());
 
     await gridResponseFuture();

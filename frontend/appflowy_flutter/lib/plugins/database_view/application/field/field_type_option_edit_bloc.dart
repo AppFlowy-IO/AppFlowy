@@ -8,10 +8,10 @@ part 'field_type_option_edit_bloc.freezed.dart';
 
 class FieldTypeOptionEditBloc
     extends Bloc<FieldTypeOptionEditEvent, FieldTypeOptionEditState> {
-  final TypeOptionDataController _dataController;
+  final TypeOptionController _dataController;
   void Function()? _fieldListenFn;
 
-  FieldTypeOptionEditBloc(TypeOptionDataController dataController)
+  FieldTypeOptionEditBloc(TypeOptionController dataController)
       : _dataController = dataController,
         super(FieldTypeOptionEditState.initial(dataController)) {
     on<FieldTypeOptionEditEvent>(
@@ -58,9 +58,9 @@ class FieldTypeOptionEditState with _$FieldTypeOptionEditState {
   }) = _FieldTypeOptionEditState;
 
   factory FieldTypeOptionEditState.initial(
-    TypeOptionDataController typeOptionDataController,
+    TypeOptionController typeOptionController,
   ) =>
       FieldTypeOptionEditState(
-        field: typeOptionDataController.field,
+        field: typeOptionController.field,
       );
 }

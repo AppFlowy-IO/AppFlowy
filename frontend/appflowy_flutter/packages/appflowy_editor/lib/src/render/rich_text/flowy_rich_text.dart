@@ -95,11 +95,18 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
               textPosition, Rect.zero) ??
           Offset.zero;
     }
+    if (widget.cursorHeight != null && cursorHeight != null) {
+      cursorOffset = Offset(
+        cursorOffset.dx,
+        cursorOffset.dy + (cursorHeight - widget.cursorHeight!) / 2,
+      );
+      cursorHeight = widget.cursorHeight;
+    }
     final rect = Rect.fromLTWH(
       cursorOffset.dx - (widget.cursorWidth / 2.0),
       cursorOffset.dy,
       widget.cursorWidth,
-      widget.cursorHeight ?? cursorHeight ?? 16.0,
+      cursorHeight ?? 16.0,
     );
     return rect;
   }

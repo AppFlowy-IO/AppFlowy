@@ -1,7 +1,7 @@
 use crate::entities::FieldType;
 use crate::services::field::*;
 use crate::services::row::RowRevisionBuilder;
-use database_model::BuildDatabaseContext;
+use database_model::{BuildDatabaseContext, CalendarLayoutSetting, LayoutRevision, LayoutSetting};
 use flowy_client_sync::client_database::DatabaseBuilder;
 
 pub fn make_default_grid() -> BuildDatabaseContext {
@@ -80,7 +80,7 @@ pub fn make_default_calendar() -> BuildDatabaseContext {
   let mut database_builder = DatabaseBuilder::new();
   // text
   let text_field = FieldBuilder::new(RichTextTypeOptionBuilder::default())
-    .name("Description")
+    .name("Title")
     .visibility(true)
     .primary(true)
     .build();
@@ -92,6 +92,7 @@ pub fn make_default_calendar() -> BuildDatabaseContext {
     .name("Date")
     .visibility(true)
     .build();
+  let date_field_id = date_field.id.clone();
   database_builder.add_field(date_field);
 
   // single select
@@ -101,6 +102,12 @@ pub fn make_default_calendar() -> BuildDatabaseContext {
     .visibility(true)
     .build();
   database_builder.add_field(multi_select_field);
+
+  let calendar_layout_setting = CalendarLayoutSetting::new(date_field_id);
+  let mut layout_setting = LayoutSetting::new();
+  let calendar_setting = serde_json::to_string(&calendar_layout_setting).unwrap();
+  layout_setting.insert(LayoutRevision::Calendar, calendar_setting);
+  database_builder.set_layout_setting(layout_setting);
   database_builder.build()
 }
 

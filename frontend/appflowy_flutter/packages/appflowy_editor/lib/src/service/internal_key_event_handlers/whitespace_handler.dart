@@ -56,7 +56,9 @@ ShortcutEventHandler whiteSpaceHandler = (editorState, event) {
   } else if (numberMatch != null) {
     final matchText = numberMatch.group(0);
     final numText = numberMatch.group(1);
-    if (matchText != null && numText != null) {
+    if (matchText != null &&
+        numText != null &&
+        matchText.length == selection.startIndex) {
       return _toNumberList(editorState, textNode, matchText, numText);
     }
   }

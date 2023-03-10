@@ -9,16 +9,15 @@ import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../application/field/field_controller.dart';
-import 'grid_data_controller.dart';
+import '../../application/database_controller.dart';
 import 'dart:collection';
 
 part 'grid_bloc.freezed.dart';
 
 class GridBloc extends Bloc<GridEvent, GridState> {
-  final DatabaseController gridController;
-  void Function()? _createRowOperation;
+  final DatabaseController databaseController;
 
-  GridBloc({required ViewPB view, required this.gridController})
+  GridBloc({required ViewPB view, required this.databaseController})
       : super(GridState.initial(view.id)) {
     on<GridEvent>(
       (event, emit) async {
@@ -28,12 +27,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             await _openGrid(emit);
           },
           createRow: () {
-            state.loadingState.when(
-              loading: () {
-                _createRowOperation = () => gridController.createRow();
-              },
-              finish: (_) => gridController.createRow(),
-            );
+            databaseController.createRow();
           },
           deleteRow: (rowInfo) async {
             final rowService = RowBackendService(
@@ -63,19 +57,19 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
   @override
   Future<void> close() async {
-    await gridController.dispose();
+    await databaseController.dispose();
     return super.close();
   }
 
   RowCache? getRowCache(String blockId, String rowId) {
-    return gridController.rowCache;
+    return databaseController.rowCache;
   }
 
   void _startListening() {
-    gridController.addListener(
-      onGridChanged: (grid) {
+    final onDatabaseChanged = DatabaseCallbacks(
+      onDatabaseChanged: (database) {
         if (!isClosed) {
-          add(GridEvent.didReceiveGridUpdate(grid));
+          add(GridEvent.didReceiveGridUpdate(database));
         }
       },
       onRowsChanged: (rowInfos, reason) {
@@ -89,16 +83,13 @@ class GridBloc extends Bloc<GridEvent, GridState> {
         }
       },
     );
+    databaseController.addListener(onDatabaseChanged: onDatabaseChanged);
   }
 
   Future<void> _openGrid(Emitter<GridState> emit) async {
-    final result = await gridController.openGrid();
+    final result = await databaseController.open();
     result.fold(
       (grid) {
-        if (_createRowOperation != null) {
-          _createRowOperation?.call();
-          _createRowOperation = null;
-        }
         emit(
           state.copyWith(loadingState: GridLoadingState.finish(left(unit))),
         );

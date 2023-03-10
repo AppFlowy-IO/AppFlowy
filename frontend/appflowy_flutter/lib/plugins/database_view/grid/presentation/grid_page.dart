@@ -1,4 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
@@ -16,17 +18,16 @@ import '../../application/row/row_data_controller.dart';
 import '../../application/setting/setting_bloc.dart';
 import '../application/filter/filter_menu_bloc.dart';
 import '../application/grid_bloc.dart';
-import '../application/grid_data_controller.dart';
+import '../../application/database_controller.dart';
 import '../application/sort/sort_menu_bloc.dart';
 import 'grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
 import 'widgets/accessory_menu.dart';
-import 'widgets/cell/cell_builder.dart';
-import 'widgets/row/grid_row.dart';
+import 'widgets/row/row.dart';
 import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
-import 'widgets/row/row_detail.dart';
+import '../../widgets/row/row_detail.dart';
 import 'widgets/shortcuts.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
 
@@ -35,11 +36,14 @@ class GridPage extends StatefulWidget {
     required this.view,
     this.onDeleted,
     Key? key,
-  })  : gridController = DatabaseController(view: view),
+  })  : databaseController = DatabaseController(
+          view: view,
+          layoutType: LayoutTypePB.Grid,
+        ),
         super(key: key);
 
   final ViewPB view;
-  final DatabaseController gridController;
+  final DatabaseController databaseController;
   final VoidCallback? onDeleted;
 
   @override
@@ -54,19 +58,19 @@ class _GridPageState extends State<GridPage> {
         BlocProvider<GridBloc>(
           create: (context) => GridBloc(
             view: widget.view,
-            gridController: widget.gridController,
+            databaseController: widget.databaseController,
           )..add(const GridEvent.initial()),
         ),
         BlocProvider<GridFilterMenuBloc>(
           create: (context) => GridFilterMenuBloc(
             viewId: widget.view.id,
-            fieldController: widget.gridController.fieldController,
+            fieldController: widget.databaseController.fieldController,
           )..add(const GridFilterMenuEvent.initial()),
         ),
         BlocProvider<SortMenuBloc>(
           create: (context) => SortMenuBloc(
             viewId: widget.view.id,
-            fieldController: widget.gridController.fieldController,
+            fieldController: widget.databaseController.fieldController,
           )..add(const SortMenuEvent.initial()),
         ),
         BlocProvider<DatabaseSettingBloc>(
@@ -190,7 +194,7 @@ class _FlowyGridState extends State<FlowyGrid> {
 
   Widget _gridHeader(BuildContext context, String viewId) {
     final fieldController =
-        context.read<GridBloc>().gridController.fieldController;
+        context.read<GridBloc>().databaseController.fieldController;
     return GridHeaderSliverAdaptor(
       viewId: viewId,
       fieldController: fieldController,
@@ -274,19 +278,19 @@ class _GridRowsState extends State<_GridRows> {
     if (rowCache == null) return const SizedBox();
 
     final fieldController =
-        context.read<GridBloc>().gridController.fieldController;
-    final dataController = RowDataController(
-      rowInfo: rowInfo,
-      fieldController: fieldController,
+        context.read<GridBloc>().databaseController.fieldController;
+    final dataController = RowController(
+      rowId: rowInfo.rowPB.id,
+      viewId: rowInfo.viewId,
       rowCache: rowCache,
     );
 
     return SizeTransition(
       sizeFactor: animation,
-      child: GridRowWidget(
+      child: GridRow(
         rowInfo: rowInfo,
         dataController: dataController,
-        cellBuilder: GridCellBuilder(delegate: dataController),
+        cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
         openDetailPage: (context, cellBuilder) {
           _openRowDetailPage(
             context,
@@ -308,9 +312,9 @@ class _GridRowsState extends State<_GridRows> {
     RowCache rowCache,
     GridCellBuilder cellBuilder,
   ) {
-    final dataController = RowDataController(
-      rowInfo: rowInfo,
-      fieldController: fieldController,
+    final dataController = RowController(
+      viewId: rowInfo.viewId,
+      rowId: rowInfo.rowPB.id,
       rowCache: rowCache,
     );
 

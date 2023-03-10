@@ -23,20 +23,20 @@ flowy-revision = { path = "../flowy-revision" }
 flowy-revision-persistence = { path = "../flowy-revision-persistence" }
 
 parking_lot = "0.12.1"
-protobuf = {version = "2.18.0"}
-log = "0.4.14"
+protobuf = {version = "2.28.0"}
+log = "0.4.17"
 diesel = {version = "1.4.8", features = ["sqlite"]}
 diesel_derives = {version = "1.4.1", features = ["sqlite"]}
-futures = "0.3.15"
+futures = "0.3.26"
 pin-project = "1.0"
 strum = "0.21"
 strum_macros = "0.21"
-tokio = { version = "1", features = ["rt"] }
+tokio = { version = "1.26", features = ["rt"] }
 lazy_static = "1.4.0"
 serde = { version = "1.0", features = ["derive"] }
 tracing = { version = "0.1", features = ["log"] }
-bytes = { version = "1.0" }
-unicode-segmentation = "1.8"
+bytes = { version = "1.4" }
+unicode-segmentation = "1.10"
 serde_json = "1.0"
 
 [dev-dependencies]

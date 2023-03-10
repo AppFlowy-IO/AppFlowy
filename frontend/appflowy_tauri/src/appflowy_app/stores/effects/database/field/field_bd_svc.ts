@@ -23,7 +23,7 @@ export class FieldBackendService {
 
   updateField = (data: {
     name?: string;
-    fieldType: FieldType;
+    fieldType?: FieldType;
     frozen?: boolean;
     visibility?: boolean;
     width?: number;
@@ -65,7 +65,6 @@ export class FieldBackendService {
 
   deleteField = () => {
     const payload = DeleteFieldPayloadPB.fromObject({ view_id: this.viewId, field_id: this.fieldId });
-
     return DatabaseEventDeleteField(payload);
   };
 

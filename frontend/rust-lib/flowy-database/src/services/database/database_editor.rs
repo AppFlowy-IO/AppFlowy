@@ -116,13 +116,13 @@ impl DatabaseEditor {
     self.database_views.open(view_editor).await
   }
 
-  #[tracing::instrument(name = "Close database editor view", level = "debug", skip_all)]
+  #[tracing::instrument(level = "debug", skip_all)]
   pub async fn close_view_editor(&self, view_id: &str) {
-    self.rev_manager.generate_snapshot().await;
     self.database_views.close(view_id).await;
   }
 
   pub async fn dispose(&self) {
+    self.rev_manager.generate_snapshot().await;
     self.database_blocks.close().await;
     self.rev_manager.close().await;
   }
@@ -131,6 +131,9 @@ impl DatabaseEditor {
     self.database_views.number_of_views().await
   }
 
+  pub async fn is_view_open(&self, view_id: &str) -> bool {
+    self.database_views.is_view_exist(view_id).await
+  }
   /// Save the type-option data to disk and send a `DatabaseNotification::DidUpdateField` notification
   /// to dart side.
   ///
@@ -422,7 +425,9 @@ impl DatabaseEditor {
   }
 
   pub async fn create_row(&self, params: CreateRowParams) -> FlowyResult<RowPB> {
-    let mut row_rev = self.create_row_rev().await?;
+    let mut row_rev = self
+      .create_row_rev(params.cell_data_by_field_id.clone())
+      .await?;
 
     self
       .database_views
@@ -912,6 +917,7 @@ impl DatabaseEditor {
       field_revs: duplicated_fields.into_iter().map(Arc::new).collect(),
       block_metas: duplicated_blocks,
       blocks: blocks_meta_data,
+      layout_setting: Default::default(),
       database_view_data,
     })
   }
@@ -921,12 +927,69 @@ impl DatabaseEditor {
     self.database_views.load_groups(view_id).await
   }
 
-  async fn create_row_rev(&self) -> FlowyResult<RowRevision> {
+  #[tracing::instrument(level = "trace", skip_all, err)]
+  pub async fn get_group(&self, view_id: &str, group_id: &str) -> FlowyResult<GroupPB> {
+    self.database_views.get_group(view_id, group_id).await
+  }
+
+  pub async fn get_layout_setting<T: Into<LayoutRevision>>(
+    &self,
+    view_id: &str,
+    layout_ty: T,
+  ) -> FlowyResult<LayoutSettingParams> {
+    let layout_ty = layout_ty.into();
+    self
+      .database_views
+      .get_layout_setting(view_id, &layout_ty)
+      .await
+  }
+
+  pub async fn set_layout_setting(
+    &self,
+    view_id: &str,
+    layout_setting: LayoutSettingParams,
+  ) -> FlowyResult<()> {
+    self
+      .database_views
+      .set_layout_setting(view_id, layout_setting)
+      .await
+  }
+
+  pub async fn get_all_calendar_events(&self, view_id: &str) -> Vec<CalendarEventPB> {
+    match self.database_views.get_view_editor(view_id).await {
+      Ok(view_editor) => view_editor
+        .v_get_all_calendar_events()
+        .await
+        .unwrap_or_default(),
+      Err(err) => {
+        tracing::error!("Get calendar event failed: {}", err);
+        vec![]
+      },
+    }
+  }
+
+  #[tracing::instrument(level = "trace", skip(self))]
+  pub async fn get_calendar_event(&self, view_id: &str, row_id: &str) -> Option<CalendarEventPB> {
+    let view_editor = self.database_views.get_view_editor(view_id).await.ok()?;
+    view_editor.v_get_calendar_event(row_id).await
+  }
+
+  async fn create_row_rev(
+    &self,
+    cell_data_by_field_id: Option<HashMap<String, String>>,
+  ) -> FlowyResult<RowRevision> {
     let field_revs = self.database_pad.read().await.get_field_revs(None)?;
     let block_id = self.block_id().await?;
 
     // insert empty row below the row whose id is upper_row_id
-    let row_rev = RowRevisionBuilder::new(&block_id, field_revs).build();
+    let builder = match cell_data_by_field_id {
+      None => RowRevisionBuilder::new(&block_id, field_revs),
+      Some(cell_data_by_field_id) => {
+        RowRevisionBuilder::new_with_data(&block_id, field_revs, cell_data_by_field_id)
+      },
+    };
+
+    let row_rev = builder.build();
     Ok(row_rev)
   }
 

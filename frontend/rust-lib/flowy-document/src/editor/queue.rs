@@ -1,3 +1,4 @@
+#![allow(clippy::while_let_loop)]
 use crate::editor::document::Document;
 use crate::DocumentUser;
 use async_stream::stream;

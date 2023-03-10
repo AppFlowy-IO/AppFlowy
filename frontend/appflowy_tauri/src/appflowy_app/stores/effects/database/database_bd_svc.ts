@@ -2,6 +2,13 @@ import {
   DatabaseEventCreateRow,
   DatabaseEventGetDatabase,
   DatabaseEventGetFields,
+  DatabaseEventGetGroup,
+  DatabaseEventGetGroups,
+  DatabaseEventMoveGroup,
+  DatabaseEventMoveGroupRow,
+  DatabaseGroupIdPB,
+  MoveGroupPayloadPB,
+  MoveGroupRowPayloadPB,
 } from '../../../../services/backend/events/flowy-database';
 import {
   GetFieldPayloadPB,
@@ -32,10 +39,29 @@ export class DatabaseBackendService {
     return FolderEventCloseView(payload);
   };
 
-  createRow = async (rowId?: string) => {
-    const props = { database_id: this.viewId, start_row_id: rowId ?? undefined };
-    const payload = CreateRowPayloadPB.fromObject(props);
+  createRow = async (rowId?: string, groupId?: string) => {
+    const payload = CreateRowPayloadPB.fromObject({ view_id: this.viewId, start_row_id: rowId ?? undefined });
+    if (groupId !== undefined) {
+      payload.group_id = groupId;
+    }
     return DatabaseEventCreateRow(payload);
+  };
+
+  moveRow = (rowId: string, groupId?: string) => {
+    const payload = MoveGroupRowPayloadPB.fromObject({ view_id: this.viewId, from_row_id: rowId });
+    if (groupId !== undefined) {
+      payload.to_group_id = groupId;
+    }
+    return DatabaseEventMoveGroupRow(payload);
+  };
+
+  moveGroup = (fromGroupId: string, toGroupId: string) => {
+    const payload = MoveGroupPayloadPB.fromObject({
+      view_id: this.viewId,
+      from_group_id: fromGroupId,
+      to_group_id: toGroupId,
+    });
+    return DatabaseEventMoveGroup(payload);
   };
 
   getFields = async (fieldIds?: FieldIdPB[]) => {
@@ -46,5 +72,15 @@ export class DatabaseBackendService {
     }
 
     return DatabaseEventGetFields(payload).then((result) => result.map((value) => value.items));
+  };
+
+  getGroup = (groupId: string) => {
+    const payload = DatabaseGroupIdPB.fromObject({ view_id: this.viewId, group_id: groupId });
+    return DatabaseEventGetGroup(payload);
+  };
+
+  loadGroups = () => {
+    const payload = DatabaseViewIdPB.fromObject({ value: this.viewId });
+    return DatabaseEventGetGroups(payload);
   };
 }

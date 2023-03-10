@@ -9,4 +9,4 @@ edition = "2021"
 serde = { version = "1.0" }
 serde_json = { version = "1.0" }
 md5 = "0.7.0"
-bytes = "1.0"
+bytes = "1.4"

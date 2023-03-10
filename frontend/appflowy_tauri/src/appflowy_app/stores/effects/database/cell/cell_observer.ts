@@ -8,24 +8,27 @@ type UpdateCellNotifiedValue = Result<void, FlowyError>;
 export type CellChangedCallback = (value: UpdateCellNotifiedValue) => void;
 
 export class CellObserver {
-  private _notifier?: ChangeNotifier<UpdateCellNotifiedValue>;
-  private _listener?: DatabaseNotificationObserver;
+  private notifier?: ChangeNotifier<UpdateCellNotifiedValue>;
+  private listener?: DatabaseNotificationObserver;
 
   constructor(public readonly rowId: string, public readonly fieldId: string) {}
 
-  subscribe = (callbacks: { onCellChanged: CellChangedCallback }) => {
-    this._notifier = new ChangeNotifier();
-    this._notifier?.observer.subscribe(callbacks.onCellChanged);
+  subscribe = async (callbacks: { onCellChanged: CellChangedCallback }) => {
+    this.notifier = new ChangeNotifier();
+    this.notifier?.observer.subscribe(callbacks.onCellChanged);
 
-    this._listener = new DatabaseNotificationObserver({
-      viewId: this.rowId + ':' + this.fieldId,
+    this.listener = new DatabaseNotificationObserver({
+      // The rowId combine with fieldId can identifier the cell.
+      // This format rowId:fieldId is also defined in the backend,
+      // so don't change this.
+      id: this.rowId + ':' + this.fieldId,
       parserHandler: (notification, result) => {
         switch (notification) {
           case DatabaseNotification.DidUpdateCell:
             if (result.ok) {
-              this._notifier?.notify(Ok.EMPTY);
+              this.notifier?.notify(Ok.EMPTY);
             } else {
-              this._notifier?.notify(result);
+              this.notifier?.notify(result);
             }
             return;
           default:
@@ -33,11 +36,11 @@ export class CellObserver {
         }
       },
     });
-    return undefined;
+    await this.listener.start();
   };
 
   unsubscribe = async () => {
-    this._notifier?.unsubscribe();
-    await this._listener?.stop();
+    this.notifier?.unsubscribe();
+    await this.listener?.stop();
   };
 }

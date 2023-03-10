@@ -3,18 +3,16 @@ import { AppPB, FlowyError, FolderNotification } from '../../../../../services/b
 import { ChangeNotifier } from '../../../../utils/change_notifier';
 import { FolderNotificationObserver } from '../notifications/observer';
 
-export type AppUpdateNotifyValue = Result<AppPB, FlowyError>;
-export type AppUpdateNotifyCallback = (value: AppUpdateNotifyValue) => void;
+export type AppUpdateNotifyCallback = (value: Result<AppPB, FlowyError>) => void;
 
-export class WorkspaceObserver {
-  _appNotifier = new ChangeNotifier<AppUpdateNotifyValue>();
+export class AppObserver {
+  _appNotifier = new ChangeNotifier<Result<AppPB, FlowyError>>();
   _listener?: FolderNotificationObserver;
 
   constructor(public readonly appId: string) {}
 
-  subscribe = (callbacks: { onAppChanged: AppUpdateNotifyCallback }) => {
+  subscribe = async (callbacks: { onAppChanged: AppUpdateNotifyCallback }) => {
     this._appNotifier?.observer.subscribe(callbacks.onAppChanged);
-
     this._listener = new FolderNotificationObserver({
       viewId: this.appId,
       parserHandler: (notification, result) => {
@@ -31,7 +29,7 @@ export class WorkspaceObserver {
         }
       },
     });
-    return undefined;
+    await this._listener.start();
   };
 
   unsubscribe = async () => {

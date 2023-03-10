@@ -118,7 +118,6 @@ impl DatabaseManager {
     Ok(())
   }
 
-  #[tracing::instrument(level = "debug", skip_all, err)]
   pub async fn create_database_block<T: AsRef<str>>(
     &self,
     block_id: T,
@@ -141,33 +140,33 @@ impl DatabaseManager {
       .await
   }
 
+  #[tracing::instrument(level = "debug", skip_all)]
   pub async fn close_database_view<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<()> {
     let view_id = view_id.as_ref();
     let database_info = self.database_ref_indexer.get_database_with_view(view_id)?;
     tracing::Span::current().record("database_id", &database_info.database_id);
 
-    let mut should_remove_editor = false;
-    if let Some(database_editor) = self
+    // Create a temporary reference database_editor in case of holding the write lock
+    // of editors_by_database_id too long.
+    let database_editor = self
       .editors_by_database_id
       .write()
       .await
-      .get(&database_info.database_id)
-    {
+      .remove(&database_info.database_id);
+
+    if let Some(database_editor) = database_editor {
       database_editor.close_view_editor(view_id).await;
-      should_remove_editor = database_editor.number_of_ref_views().await == 0;
-      if should_remove_editor {
+      if database_editor.number_of_ref_views().await == 0 {
         database_editor.dispose().await;
+      } else {
+        self
+          .editors_by_database_id
+          .write()
+          .await
+          .insert(database_info.database_id, database_editor);
       }
     }
 
-    if should_remove_editor {
-      tracing::debug!("Close database base editor: {}", database_info.database_id);
-      self
-        .editors_by_database_id
-        .write()
-        .await
-        .remove(&database_info.database_id);
-    }
     Ok(())
   }
 
@@ -204,28 +203,45 @@ impl DatabaseManager {
     database_id: &str,
     view_id: &str,
   ) -> FlowyResult<Arc<DatabaseEditor>> {
-    if let Some(database_editor) = self.editors_by_database_id.read().await.get(database_id) {
-      let user_id = self.database_user.user_id()?;
-      let (view_pad, view_rev_manager) =
-        make_database_view_revision_pad(view_id, self.database_user.clone()).await?;
-
-      let view_editor = DatabaseViewEditor::from_pad(
+    let user = self.database_user.clone();
+    let create_view_editor = |database_editor: Arc<DatabaseEditor>| async move {
+      let user_id = user.user_id()?;
+      let (view_pad, view_rev_manager) = make_database_view_revision_pad(view_id, user).await?;
+      DatabaseViewEditor::from_pad(
         &user_id,
         database_editor.database_view_data.clone(),
         database_editor.cell_data_cache.clone(),
         view_rev_manager,
         view_pad,
       )
-      .await?;
-      database_editor.open_view_editor(view_editor).await;
-      return Ok(database_editor.clone());
+      .await
+    };
+
+    let database_editor = self
+      .editors_by_database_id
+      .read()
+      .await
+      .get(database_id)
+      .cloned();
+
+    match database_editor {
+      None => {
+        let mut editors_by_database_id = self.editors_by_database_id.write().await;
+        let db_pool = self.database_user.db_pool()?;
+        let database_editor = self.make_database_rev_editor(view_id, db_pool).await?;
+        editors_by_database_id.insert(database_id.to_string(), database_editor.clone());
+        Ok(database_editor)
+      },
+      Some(database_editor) => {
+        let is_open = database_editor.is_view_open(view_id).await;
+        if !is_open {
+          let database_view_editor = create_view_editor(database_editor.clone()).await?;
+          database_editor.open_view_editor(database_view_editor).await;
+        }
+
+        Ok(database_editor)
+      },
     }
-    // Lock the database_editors
-    let mut editors_by_database_id = self.editors_by_database_id.write().await;
-    let db_pool = self.database_user.db_pool()?;
-    let editor = self.make_database_rev_editor(view_id, db_pool).await?;
-    editors_by_database_id.insert(database_id.to_string(), editor.clone());
-    Ok(editor)
   }
 
   #[tracing::instrument(level = "trace", skip(self, pool), err)]
@@ -235,12 +251,10 @@ impl DatabaseManager {
     pool: Arc<ConnectionPool>,
   ) -> Result<Arc<DatabaseEditor>, FlowyError> {
     let user = self.database_user.clone();
-    tracing::debug!("Open database view: {}", view_id);
     let (base_view_pad, base_view_rev_manager) =
       make_database_view_revision_pad(view_id, user.clone()).await?;
     let mut database_id = base_view_pad.database_id.clone();
-
-    tracing::debug!("Open database: {}", database_id);
+    tracing::debug!("Open database: {} with view: {}", database_id, view_id);
     if database_id.is_empty() {
       // Before the database_id concept comes up, we used the view_id directly. So if
       // the database_id is empty, which means we can used the view_id. After the version 0.1.1,
@@ -357,6 +371,7 @@ pub async fn create_new_database(
     block_metas,
     blocks,
     database_view_data,
+    layout_setting,
   } = build_context;
 
   for block_meta_data in &blocks {
@@ -391,11 +406,14 @@ pub async fn create_new_database(
 
   // Create database view
   tracing::trace!("Create new database view: {}", view_id);
-  let database_view_rev = if database_view_data.is_empty() {
+  let mut database_view_rev = if database_view_data.is_empty() {
     DatabaseViewRevision::new(database_id, view_id.to_owned(), true, name, layout.into())
   } else {
     DatabaseViewRevision::from_json(database_view_data)?
   };
+
+  tracing::trace!("Initial calendar layout setting: {:?}", layout_setting);
+  database_view_rev.layout_settings = layout_setting;
   let database_view_ops = make_database_view_operations(&database_view_rev);
   let database_view_bytes = database_view_ops.json_bytes();
   let revision = Revision::initial_revision(view_id, database_view_bytes);

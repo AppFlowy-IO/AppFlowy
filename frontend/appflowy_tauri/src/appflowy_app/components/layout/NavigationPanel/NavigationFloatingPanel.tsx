@@ -1,5 +1,5 @@
 import { AppLogo } from '../AppLogo';
-import { Workspace } from '../Workspace';
+import { WorkspaceUser } from '../WorkspaceUser';
 import { FolderItem } from './FolderItem';
 import { PluginsButton } from './PluginsButton';
 import { TrashButton } from './TrashButton';
@@ -52,7 +52,7 @@ export const NavigationFloatingPanel = ({
       <div className={'flex flex-col'}>
         <AppLogo iconToShow={'show'} onShowMenuClick={onFixNavigationClick}></AppLogo>
 
-        <Workspace></Workspace>
+        <WorkspaceUser></WorkspaceUser>
 
         <div className={'flex flex-col px-2'}>
           {folders.map((folder, index) => (
