@@ -264,7 +264,10 @@ Option<DateCellData> calDataFromCellData(DateCellDataPB? cellData) {
   Option<DateCellData> dateData = none();
   if (cellData != null) {
     final timestamp = cellData.timestamp * 1000;
-    final date = DateTime.fromMillisecondsSinceEpoch(timestamp.toInt());
+    final date = DateTime.fromMillisecondsSinceEpoch(
+      timestamp.toInt(),
+      isUtc: true,
+    );
     dateData = Some(DateCellData(
       date: date,
       time: time,
