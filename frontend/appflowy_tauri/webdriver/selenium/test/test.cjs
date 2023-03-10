@@ -63,7 +63,7 @@ describe("AppFlowy Unit Test", () => {
     getStartedButton.click();
   });
 
-  it("should get sign out button", async () => {
+  it("should get sign out button", async (done) => {
     // const optionButton = await driver.wait(until.elementLocated(By.css('*[test-id=option-button]')));
     // const optionButton = await driver.wait(until.elementLocated(By.id('option-button')));
     // const optionButton = await driver.wait(until.elementLocated(By.css('[aria-label=option]')));
@@ -71,6 +71,6 @@ describe("AppFlowy Unit Test", () => {
     // Currently, only the find className is work
     const optionButton = await driver.wait(until.elementLocated(By.className("relative h-8 w-8")));
     optionButton.click();
-    // await new Promise((resolve) => setTimeout(resolve, 4000));
+    await new Promise((resolve) => setTimeout(resolve, 4000));
   });
 });
