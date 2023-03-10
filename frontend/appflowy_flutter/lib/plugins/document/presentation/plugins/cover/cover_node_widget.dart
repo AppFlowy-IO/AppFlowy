@@ -194,7 +194,7 @@ class _CoverImageState extends State<_CoverImage> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        _buildCoverImage(context),
+        _buildCoverImage(context, widget.editorState),
         _buildCoverOverlayButtons(context),
       ],
     );
@@ -251,7 +251,7 @@ class _CoverImageState extends State<_CoverImage> {
     );
   }
 
-  Widget _buildCoverImage(BuildContext context) {
+  Widget _buildCoverImage(BuildContext context, EditorState editorState) {
     final screenSize = MediaQuery.of(context).size;
     const height = 200.0;
     final Widget coverImage;
@@ -281,11 +281,19 @@ class _CoverImageState extends State<_CoverImage> {
         coverImage = const SizedBox(); // just an empty sizebox
         break;
     }
-    return Container(
-      padding: const EdgeInsets.only(bottom: 10),
+//OverflowBox needs to be wraped by a widget with contraints(or from its parent) first,otherwise it will occur an erorr
+    return SizedBox(
       height: height,
-      width: screenSize.width,
-      child: coverImage,
+      child: OverflowBox(
+        maxWidth:
+            screenSize.width + editorState.editorStyle.padding!.horizontal,
+        child: Container(
+          padding: const EdgeInsets.only(bottom: 10),
+          height: double.infinity,
+          width: double.infinity,
+          child: coverImage,
+        ),
+      ),
     );
   }
 
