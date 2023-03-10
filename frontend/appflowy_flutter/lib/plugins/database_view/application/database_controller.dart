@@ -18,11 +18,6 @@ import 'layout/layout_setting_listener.dart';
 import 'row/row_cache.dart';
 import 'group/group_listener.dart';
 
-typedef OnRowsChanged = void Function(
-  List<RowInfo> rowInfos,
-  RowsChangedReason,
-);
-
 typedef OnGroupByField = void Function(List<GroupPB>);
 typedef OnUpdateGroup = void Function(List<GroupPB>);
 typedef OnDeleteGroup = void Function(List<String>);
@@ -54,14 +49,21 @@ class LayoutCallbacks {
 
 class DatabaseCallbacks {
   OnDatabaseChanged? onDatabaseChanged;
-  OnRowsChanged? onRowsChanged;
   OnFieldsChanged? onFieldsChanged;
   OnFiltersChanged? onFiltersChanged;
+  OnRowsChanged? onRowsChanged;
+  OnRowsDeleted? onRowsDeleted;
+  OnRowsUpdated? onRowsUpdated;
+  OnRowsCreated? onRowsCreated;
+
   DatabaseCallbacks({
     this.onDatabaseChanged,
     this.onRowsChanged,
     this.onFieldsChanged,
     this.onFiltersChanged,
+    this.onRowsUpdated,
+    this.onRowsDeleted,
+    this.onRowsCreated,
   });
 }
 
@@ -78,7 +80,6 @@ class DatabaseController {
   LayoutCallbacks? _layoutCallbacks;
 
   // Getters
-  List<RowInfo> get rowInfos => _viewCache.rowInfos;
   RowCache get rowCache => _viewCache.rowCache;
 
   // Listener
@@ -215,9 +216,17 @@ class DatabaseController {
   }
 
   void _listenOnRowsChanged() {
-    _viewCache.addListener(onRowsChanged: (reason) {
-      _databaseCallbacks?.onRowsChanged?.call(rowInfos, reason);
+    final callbacks =
+        DatabaseViewCallbacks(onRowsChanged: (rows, rowByRowId, reason) {
+      _databaseCallbacks?.onRowsChanged?.call(rows, rowByRowId, reason);
+    }, onRowsDeleted: (ids) {
+      _databaseCallbacks?.onRowsDeleted?.call(ids);
+    }, onRowsUpdated: (ids) {
+      _databaseCallbacks?.onRowsUpdated?.call(ids);
+    }, onRowsCreated: (ids) {
+      _databaseCallbacks?.onRowsCreated?.call(ids);
     });
+    _viewCache.addListener(callbacks);
   }
 
   void _listenOnFieldsChanged() {

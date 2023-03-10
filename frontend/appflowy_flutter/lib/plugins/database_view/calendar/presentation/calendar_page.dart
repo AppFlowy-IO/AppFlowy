@@ -51,14 +51,42 @@ class _CalendarPageState extends State<CalendarPage> {
             value: _calendarBloc,
           )
         ],
-        child: BlocListener<CalendarBloc, CalendarState>(
-          listenWhen: (previous, current) => previous.events != current.events,
-          listener: (context, state) {
-            if (state.events.isNotEmpty) {
-              _eventController.removeWhere((element) => true);
-              _eventController.addAll(state.events);
-            }
-          },
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<CalendarBloc, CalendarState>(
+              listenWhen: (p, c) => p.initialEvents != c.initialEvents,
+              listener: (context, state) =>
+                  _eventController.addAll(state.initialEvents),
+            ),
+            BlocListener<CalendarBloc, CalendarState>(
+              listenWhen: (p, c) => p.deleteEventIds != c.deleteEventIds,
+              listener: (context, state) {
+                _eventController.removeWhere(
+                  (element) =>
+                      state.deleteEventIds.contains(element.event!.eventId),
+                );
+              },
+            ),
+            BlocListener<CalendarBloc, CalendarState>(
+              listenWhen: (p, c) => p.updateEvent != c.updateEvent,
+              listener: (context, state) {
+                if (state.updateEvent != null) {
+                  _eventController.removeWhere((element) =>
+                      state.updateEvent!.event!.eventId ==
+                      element.event!.eventId);
+                  _eventController.add(state.updateEvent!);
+                }
+              },
+            ),
+            BlocListener<CalendarBloc, CalendarState>(
+              listenWhen: (p, c) => p.newEvent != c.newEvent,
+              listener: (context, state) {
+                if (state.newEvent != null) {
+                  _eventController.add(state.newEvent!);
+                }
+              },
+            ),
+          ],
           child: BlocBuilder<CalendarBloc, CalendarState>(
             builder: (context, state) {
               return Column(

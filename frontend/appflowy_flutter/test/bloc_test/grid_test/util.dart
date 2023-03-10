@@ -26,7 +26,7 @@ class GridTestContext {
   GridTestContext(this.gridView, this.gridController);
 
   List<RowInfo> get rowInfos {
-    return gridController.rowInfos;
+    return gridController.rowCache.rowInfos;
   }
 
   List<FieldInfo> get fieldContexts => fieldController.fieldInfos;
