@@ -1,22 +1,15 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
-import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 
-import '../../grid/presentation/layout/sizes.dart';
-import '../../widgets/row/cell_builder.dart';
-import '../../widgets/row/row_detail.dart';
+import 'calendar_day.dart';
 import 'layout/sizes.dart';
 import 'toolbar/calendar_toolbar.dart';
 
@@ -29,7 +22,7 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-  final _eventController = EventController<CalendarCardData>();
+  final _eventController = EventController<CalendarDayEvent>();
   GlobalKey<MonthViewState>? _calendarState;
   late CalendarBloc _calendarBloc;
 
@@ -91,7 +84,7 @@ class _CalendarPageState extends State<CalendarPage> {
       child: MonthView(
         key: _calendarState,
         controller: _eventController,
-        cellAspectRatio: 1.75,
+        cellAspectRatio: .9,
         borderColor: Theme.of(context).dividerColor,
         headerBuilder: _headerNavigatorBuilder,
         weekDayBuilder: _headerWeekDayBuilder,
@@ -154,47 +147,19 @@ class _CalendarPageState extends State<CalendarPage> {
 
   Widget _calendarDayBuilder(
     DateTime date,
-    List<CalendarEventData<CalendarCardData>> calenderEvents,
+    List<CalendarEventData<CalendarDayEvent>> calenderEvents,
     isToday,
     isInMonth,
   ) {
-    final builder = CardCellBuilder(_calendarBloc.cellCache);
-    final cells = calenderEvents.map((value) => value.event!).map((event) {
-      final child = builder.buildCell(cellId: event.cellId);
+    final events = calenderEvents.map((value) => value.event!).toList();
 
-      return FlowyHover(
-        child: GestureDetector(
-          onTap: () {
-            final dataController = RowController(
-              rowId: event.cellId.rowId,
-              viewId: widget.view.id,
-              rowCache: _calendarBloc.rowCache,
-            );
-
-            FlowyOverlay.show(
-              context: context,
-              builder: (BuildContext context) {
-                return RowDetailPage(
-                  cellBuilder:
-                      GridCellBuilder(cellCache: _calendarBloc.cellCache),
-                  dataController: dataController,
-                );
-              },
-            );
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: child,
-          ),
-        ),
-      );
-    }).toList();
-
-    return _CalendarCard(
+    return CalendarDayCard(
+      viewId: widget.view.id,
       isToday: isToday,
       isInMonth: isInMonth,
+      events: events,
       date: date,
-      children: cells,
+      rowCache: _calendarBloc.rowCache,
       onCreateEvent: (date) {
         _calendarBloc.add(
           CalendarEvent.createEvent(
@@ -205,175 +170,4 @@ class _CalendarPageState extends State<CalendarPage> {
       },
     );
   }
-}
-
-class _CalendarCard extends StatelessWidget {
-  final bool isToday;
-  final bool isInMonth;
-  final DateTime date;
-  final List<Widget> children;
-  final void Function(DateTime) onCreateEvent;
-
-  const _CalendarCard({
-    required this.isToday,
-    required this.isInMonth,
-    required this.date,
-    required this.children,
-    required this.onCreateEvent,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    Color backgroundColor = Theme.of(context).colorScheme.surface;
-    if (!isInMonth) {
-      backgroundColor = AFThemeExtension.of(context).lightGreyHover;
-    }
-
-    return ChangeNotifierProvider(
-      create: (_) => _CardEnterNotifier(),
-      builder: ((context, child) {
-        return Container(
-          color: backgroundColor,
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            onEnter: (p) => notifyEnter(context, true),
-            onExit: (p) => notifyEnter(context, false),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  _Header(
-                    date: date,
-                    isInMonth: isInMonth,
-                    isToday: isToday,
-                    onCreate: () => onCreateEvent(date),
-                  ),
-                  ...children
-                ],
-              ),
-            ),
-          ),
-        );
-      }),
-    );
-  }
-
-  notifyEnter(BuildContext context, bool isEnter) {
-    Provider.of<_CardEnterNotifier>(
-      context,
-      listen: false,
-    ).onEnter = isEnter;
-  }
-}
-
-class _Header extends StatelessWidget {
-  final bool isToday;
-  final bool isInMonth;
-  final DateTime date;
-  final VoidCallback onCreate;
-  const _Header({
-    required this.isToday,
-    required this.isInMonth,
-    required this.date,
-    required this.onCreate,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<_CardEnterNotifier>(
-      builder: (context, notifier, _) {
-        final badge = _DayBadge(
-          isToday: isToday,
-          isInMonth: isInMonth,
-          date: date,
-        );
-        return Row(
-          children: [
-            if (notifier.onEnter) _NewEventButton(onClick: onCreate),
-            const Spacer(),
-            badge,
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _NewEventButton extends StatelessWidget {
-  final VoidCallback onClick;
-  const _NewEventButton({
-    required this.onClick,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return FlowyIconButton(
-      onPressed: onClick,
-      iconPadding: EdgeInsets.zero,
-      icon: svgWidget(
-        "home/add",
-        color: Theme.of(context).colorScheme.onSurface,
-      ),
-      width: 22,
-    );
-  }
-}
-
-class _DayBadge extends StatelessWidget {
-  final bool isToday;
-  final bool isInMonth;
-  final DateTime date;
-  const _DayBadge({
-    required this.isToday,
-    required this.isInMonth,
-    required this.date,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    Color dayTextColor = Theme.of(context).colorScheme.onSurface;
-    String dayString = date.day == 1
-        ? DateFormat('MMM d', context.locale.toLanguageTag()).format(date)
-        : date.day.toString();
-
-    if (isToday) {
-      dayTextColor = Theme.of(context).colorScheme.onPrimary;
-    }
-    if (!isInMonth) {
-      dayTextColor = Theme.of(context).disabledColor;
-    }
-
-    Widget day = Container(
-      decoration: BoxDecoration(
-        color: isToday ? Theme.of(context).colorScheme.primary : null,
-        borderRadius: Corners.s6Border,
-      ),
-      padding: GridSize.typeOptionContentInsets,
-      child: FlowyText.medium(
-        dayString,
-        color: dayTextColor,
-      ),
-    );
-
-    return day;
-  }
-}
-
-class _CardEnterNotifier extends ChangeNotifier {
-  bool _onEnter = false;
-
-  _CardEnterNotifier();
-
-  set onEnter(bool value) {
-    if (_onEnter != value) {
-      _onEnter = value;
-      notifyListeners();
-    }
-  }
-
-  bool get onEnter => _onEnter;
 }

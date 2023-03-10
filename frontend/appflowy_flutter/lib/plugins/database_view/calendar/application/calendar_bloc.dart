@@ -49,7 +49,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           createEvent: (DateTime date, String title) async {
             await _createEvent(date, title);
           },
-          didReceiveEvent: (CalendarEventData<CalendarCardData> newEvent) {
+          didReceiveEvent: (CalendarEventData<CalendarDayEvent> newEvent) {
             emit(state.copyWith(events: [...state.events, newEvent]));
           },
           didUpdateFieldInfos: (Map<String, FieldInfo> fieldInfoByFieldId) {
@@ -140,7 +140,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       result.fold(
         (events) {
           if (!isClosed) {
-            final calendarEvents = <CalendarEventData<CalendarCardData>>[];
+            final calendarEvents = <CalendarEventData<CalendarDayEvent>>[];
             for (final eventPB in events.items) {
               final calendarEvent = _calendarEventDataFromEventPB(eventPB);
               if (calendarEvent != null) {
@@ -156,7 +156,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     });
   }
 
-  CalendarEventData<CalendarCardData>? _calendarEventDataFromEventPB(
+  CalendarEventData<CalendarDayEvent>? _calendarEventDataFromEventPB(
       CalendarEventPB eventPB) {
     final fieldInfo = state.fieldInfoByFieldId[eventPB.titleFieldId];
     if (fieldInfo != null) {
@@ -166,7 +166,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         fieldInfo: fieldInfo,
       );
 
-      final eventData = CalendarCardData(
+      final eventData = CalendarDayEvent(
         event: eventPB,
         cellId: cellId,
       );
@@ -217,7 +217,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   }
 }
 
-typedef Events = List<CalendarEventData<CalendarCardData>>;
+typedef Events = List<CalendarEventData<CalendarDayEvent>>;
 
 @freezed
 class CalendarEvent with _$CalendarEvent {
@@ -227,7 +227,7 @@ class CalendarEvent with _$CalendarEvent {
   const factory CalendarEvent.didLoadAllEvents(Events events) =
       _ReceiveCalendarEvents;
   const factory CalendarEvent.didReceiveEvent(
-      CalendarEventData<CalendarCardData> event) = _ReceiveEvent;
+      CalendarEventData<CalendarDayEvent> event) = _ReceiveEvent;
   const factory CalendarEvent.didUpdateFieldInfos(
       Map<String, FieldInfo> fieldInfoByFieldId) = _DidUpdateFieldInfos;
   const factory CalendarEvent.createEvent(DateTime date, String title) =
@@ -276,8 +276,8 @@ class CalendarEditingRow {
   });
 }
 
-class CalendarCardData {
+class CalendarDayEvent {
   final CalendarEventPB event;
   final CellIdentifier cellId;
-  CalendarCardData({required this.cellId, required this.event});
+  CalendarDayEvent({required this.cellId, required this.event});
 }
