@@ -98,7 +98,6 @@ impl FolderTest {
       &app.id,
       "Folder View",
       "Folder test view",
-      ViewDataFormatPB::DeltaFormat,
       ViewLayoutTypePB::Document,
     )
     .await;
@@ -189,7 +188,7 @@ impl FolderTest {
           ViewDataFormatPB::NodeFormat => ViewLayoutTypePB::Document,
           ViewDataFormatPB::DatabaseFormat => ViewLayoutTypePB::Grid,
         };
-        let view = create_view(sdk, &self.app.id, &name, &desc, data_type, layout).await;
+        let view = create_view(sdk, &self.app.id, &name, &desc, layout).await;
         self.view = view;
       },
       FolderScript::AssertView(view) => {
@@ -372,7 +371,6 @@ pub async fn create_view(
   app_id: &str,
   name: &str,
   desc: &str,
-  data_type: ViewDataFormatPB,
   layout: ViewLayoutTypePB,
 ) -> ViewPB {
   let request = CreateViewPayloadPB {
@@ -380,9 +378,9 @@ pub async fn create_view(
     name: name.to_string(),
     desc: desc.to_string(),
     thumbnail: None,
-    data_format: data_type,
     layout,
     initial_data: vec![],
+    ext: Default::default(),
   };
   FolderEventBuilder::new(sdk.clone())
     .event(CreateView)

@@ -1,7 +1,7 @@
 use crate::entities::FieldType;
 use crate::services::cell::AtomicCellDataCache;
-use crate::services::database::DatabaseBlockManager;
-use crate::services::database_view::DatabaseViewEditorDelegate;
+use crate::services::database::DatabaseBlocks;
+use crate::services::database_view::DatabaseViewData;
 use crate::services::field::{TypeOptionCellDataHandler, TypeOptionCellExt};
 use crate::services::row::DatabaseBlockRowRevision;
 
@@ -13,14 +13,14 @@ use std::any::type_name;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-pub struct DatabaseViewEditorDelegateImpl {
+pub struct DatabaseViewDataImpl {
   pub(crate) pad: Arc<RwLock<DatabaseRevisionPad>>,
-  pub(crate) block_manager: Arc<DatabaseBlockManager>,
+  pub(crate) blocks: Arc<DatabaseBlocks>,
   pub(crate) task_scheduler: Arc<RwLock<TaskDispatcher>>,
   pub(crate) cell_data_cache: AtomicCellDataCache,
 }
 
-impl DatabaseViewEditorDelegate for DatabaseViewEditorDelegateImpl {
+impl DatabaseViewData for DatabaseViewDataImpl {
   fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<FieldRevision>>> {
     let pad = self.pad.clone();
     to_fut(async move {
@@ -29,7 +29,7 @@ impl DatabaseViewEditorDelegate for DatabaseViewEditorDelegateImpl {
         Err(e) => {
           tracing::error!(
             "[{}] get field revisions failed: {}",
-            type_name::<DatabaseViewEditorDelegateImpl>(),
+            type_name::<DatabaseViewDataImpl>(),
             e
           );
           vec![]
@@ -43,14 +43,24 @@ impl DatabaseViewEditorDelegate for DatabaseViewEditorDelegateImpl {
     to_fut(async move { Some(pad.read().await.get_field_rev(&field_id)?.1.clone()) })
   }
 
+  fn get_primary_field_rev(&self) -> Fut<Option<Arc<FieldRevision>>> {
+    let pad = self.pad.clone();
+    to_fut(async move {
+      let field_revs = pad.read().await.get_field_revs(None).ok()?;
+      field_revs
+        .into_iter()
+        .find(|field_rev| field_rev.is_primary)
+    })
+  }
+
   fn index_of_row(&self, row_id: &str) -> Fut<Option<usize>> {
-    let block_manager = self.block_manager.clone();
+    let block_manager = self.blocks.clone();
     let row_id = row_id.to_owned();
     to_fut(async move { block_manager.index_of_row(&row_id).await })
   }
 
   fn get_row_rev(&self, row_id: &str) -> Fut<Option<(usize, Arc<RowRevision>)>> {
-    let block_manager = self.block_manager.clone();
+    let block_manager = self.blocks.clone();
     let row_id = row_id.to_owned();
     to_fut(async move {
       match block_manager.get_row_rev(&row_id).await {
@@ -61,7 +71,7 @@ impl DatabaseViewEditorDelegate for DatabaseViewEditorDelegateImpl {
   }
 
   fn get_row_revs(&self, block_id: Option<Vec<String>>) -> Fut<Vec<Arc<RowRevision>>> {
-    let block_manager = self.block_manager.clone();
+    let block_manager = self.blocks.clone();
 
     to_fut(async move {
       let blocks = block_manager.get_blocks(block_id).await.unwrap();
@@ -77,7 +87,7 @@ impl DatabaseViewEditorDelegate for DatabaseViewEditorDelegateImpl {
   // }
 
   fn get_blocks(&self) -> Fut<Vec<DatabaseBlockRowRevision>> {
-    let block_manager = self.block_manager.clone();
+    let block_manager = self.blocks.clone();
     to_fut(async move { block_manager.get_blocks(None).await.unwrap_or_default() })
   }
 

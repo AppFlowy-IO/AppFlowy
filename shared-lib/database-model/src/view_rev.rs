@@ -37,10 +37,18 @@ pub struct DatabaseViewRevision {
   #[serde(rename = "grid_id")]
   pub database_id: String,
 
+  #[serde(skip_serializing_if = "String::is_empty")]
+  #[serde(default)]
+  pub name: String,
+
+  #[serde(default = "DEFAULT_BASE_VALUE")]
+  pub is_base: bool,
+
   pub layout: LayoutRevision,
 
   #[serde(default)]
-  pub layout_settings: LayoutSettings,
+  #[serde(skip_serializing_if = "LayoutSetting::is_empty")]
+  pub layout_settings: LayoutSetting,
 
   #[serde(default)]
   pub filters: FilterConfiguration,
@@ -52,12 +60,22 @@ pub struct DatabaseViewRevision {
   pub sorts: SortConfiguration,
 }
 
+const DEFAULT_BASE_VALUE: fn() -> bool = || true;
+
 impl DatabaseViewRevision {
-  pub fn new(database_id: String, view_id: String, layout: LayoutRevision) -> Self {
+  pub fn new(
+    database_id: String,
+    view_id: String,
+    is_base: bool,
+    name: String,
+    layout: LayoutRevision,
+  ) -> Self {
     DatabaseViewRevision {
-      view_id,
       database_id,
+      view_id,
       layout,
+      is_base,
+      name,
       layout_settings: Default::default(),
       filters: Default::default(),
       groups: Default::default(),
@@ -72,12 +90,23 @@ impl DatabaseViewRevision {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(transparent)]
-pub struct LayoutSettings {
+pub struct LayoutSetting {
   #[serde(with = "indexmap::serde_seq")]
   inner: IndexMap<LayoutRevision, String>,
 }
 
-impl std::ops::Deref for LayoutSettings {
+impl LayoutSetting {
+  pub fn new() -> Self {
+    Self {
+      inner: Default::default(),
+    }
+  }
+  pub fn is_empty(&self) -> bool {
+    self.inner.is_empty()
+  }
+}
+
+impl std::ops::Deref for LayoutSetting {
   type Target = IndexMap<LayoutRevision, String>;
 
   fn deref(&self) -> &Self::Target {
@@ -85,7 +114,7 @@ impl std::ops::Deref for LayoutSettings {
   }
 }
 
-impl std::ops::DerefMut for LayoutSettings {
+impl std::ops::DerefMut for LayoutSetting {
   fn deref_mut(&mut self) -> &mut Self::Target {
     &mut self.inner
   }
@@ -105,6 +134,8 @@ mod tests {
     let grid_view_revision = DatabaseViewRevision {
       view_id: "1".to_string(),
       database_id: "1".to_string(),
+      name: "".to_string(),
+      is_base: true,
       layout: Default::default(),
       layout_settings: Default::default(),
       filters: Default::default(),
@@ -114,7 +145,7 @@ mod tests {
     let s = serde_json::to_string(&grid_view_revision).unwrap();
     assert_eq!(
       s,
-      r#"{"view_id":"1","grid_id":"1","layout":0,"layout_settings":[],"filters":[],"groups":[],"sorts":[]}"#
+      r#"{"view_id":"1","grid_id":"1","is_base":true,"layout":0,"filters":[],"groups":[],"sorts":[]}"#
     );
   }
 }

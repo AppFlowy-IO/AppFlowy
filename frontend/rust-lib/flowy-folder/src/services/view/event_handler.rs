@@ -13,7 +13,7 @@ use crate::{
   services::{TrashController, ViewController},
 };
 use folder_model::TrashRevision;
-use lib_dispatch::prelude::{data_result, AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use std::{convert::TryInto, sync::Arc};
 
 pub(crate) async fn create_view_handler(
@@ -22,7 +22,7 @@ pub(crate) async fn create_view_handler(
 ) -> DataResult<ViewPB, FlowyError> {
   let params: CreateViewParams = data.into_inner().try_into()?;
   let view_rev = controller.create_view_from_params(params).await?;
-  data_result(view_rev.into())
+  data_result_ok(view_rev.into())
 }
 
 pub(crate) async fn read_view_handler(
@@ -31,7 +31,7 @@ pub(crate) async fn read_view_handler(
 ) -> DataResult<ViewPB, FlowyError> {
   let view_id: ViewIdPB = data.into_inner();
   let view_rev = controller.read_view(&view_id.value).await?;
-  data_result(view_rev.into())
+  data_result_ok(view_rev.into())
 }
 
 #[tracing::instrument(level = "debug", skip(data, controller), err)]

@@ -51,7 +51,7 @@ impl FlowyError {
   static_flowy_error!(invalid_app_id, ErrorCode::AppIdInvalid);
   static_flowy_error!(view_name, ErrorCode::ViewNameInvalid);
   static_flowy_error!(view_thumbnail, ErrorCode::ViewThumbnailInvalid);
-  static_flowy_error!(invalid_view_id, ErrorCode::ViewIdInvalid);
+  static_flowy_error!(invalid_view_id, ErrorCode::ViewIdIsInvalid);
   static_flowy_error!(view_desc, ErrorCode::ViewDescTooLong);
   static_flowy_error!(view_data, ErrorCode::ViewDataInvalid);
   static_flowy_error!(unauthorized, ErrorCode::UserUnauthorized);
@@ -82,6 +82,10 @@ impl FlowyError {
   static_flowy_error!(field_record_not_found, ErrorCode::FieldRecordNotFound);
   static_flowy_error!(payload_none, ErrorCode::UnexpectedEmptyPayload);
   static_flowy_error!(http, ErrorCode::HttpError);
+  static_flowy_error!(
+    unexpect_calendar_field_type,
+    ErrorCode::UnexpectedCalendarFieldType
+  );
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {

@@ -1,5 +1,5 @@
-use crate::entities::{CalendarSettingsParams, DatabaseViewSettingPB, LayoutSettingPB};
-use crate::services::database_view::{get_cells_for_field, DatabaseViewEditorDelegate};
+use crate::entities::{DatabaseViewSettingPB, LayoutSettingPB};
+use crate::services::database_view::{get_cells_for_field, DatabaseViewData};
 use crate::services::field::RowSingleCellData;
 use crate::services::filter::{FilterController, FilterDelegate, FilterType};
 use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter};
@@ -7,10 +7,10 @@ use crate::services::row::DatabaseBlockRowRevision;
 use crate::services::sort::{SortDelegate, SortType};
 use bytes::Bytes;
 use database_model::{
-  FieldRevision, FieldTypeRevision, FilterRevision, GroupConfigurationRevision, LayoutRevision,
-  RowRevision, SortRevision,
+  CalendarLayoutSetting, FieldRevision, FieldTypeRevision, FilterRevision,
+  GroupConfigurationRevision, LayoutRevision, RowRevision, SortRevision,
 };
-use flowy_client_sync::client_database::{DatabaseViewRevisionPad, GridViewRevisionChangeset};
+use flowy_client_sync::client_database::{DatabaseViewRevisionChangeset, DatabaseViewRevisionPad};
 use flowy_client_sync::make_operations_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{
@@ -24,12 +24,12 @@ use revision_model::Revision;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-pub(crate) struct GridViewRevisionCloudService {
+pub(crate) struct DatabaseViewRevisionCloudService {
   #[allow(dead_code)]
   pub(crate) token: String,
 }
 
-impl RevisionCloudService for GridViewRevisionCloudService {
+impl RevisionCloudService for DatabaseViewRevisionCloudService {
   fn fetch_object(
     &self,
     _user_id: &str,
@@ -39,8 +39,8 @@ impl RevisionCloudService for GridViewRevisionCloudService {
   }
 }
 
-pub(crate) struct GridViewRevisionSerde();
-impl RevisionObjectDeserializer for GridViewRevisionSerde {
+pub(crate) struct DatabaseViewRevisionSerde();
+impl RevisionObjectDeserializer for DatabaseViewRevisionSerde {
   type Output = DatabaseViewRevisionPad;
 
   fn deserialize_revisions(
@@ -56,23 +56,23 @@ impl RevisionObjectDeserializer for GridViewRevisionSerde {
   }
 }
 
-impl RevisionObjectSerializer for GridViewRevisionSerde {
+impl RevisionObjectSerializer for DatabaseViewRevisionSerde {
   fn combine_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
     let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
     Ok(operations.json_bytes())
   }
 }
 
-pub(crate) struct GridViewRevisionMergeable();
-impl RevisionMergeable for GridViewRevisionMergeable {
+pub(crate) struct DatabaseViewRevisionMergeable();
+impl RevisionMergeable for DatabaseViewRevisionMergeable {
   fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-    GridViewRevisionSerde::combine_revisions(revisions)
+    DatabaseViewRevisionSerde::combine_revisions(revisions)
   }
 }
 
 pub(crate) struct GroupConfigurationReaderImpl {
   pub(crate) pad: Arc<RwLock<DatabaseViewRevisionPad>>,
-  pub(crate) view_editor_delegate: Arc<dyn DatabaseViewEditorDelegate>,
+  pub(crate) view_editor_delegate: Arc<dyn DatabaseViewData>,
 }
 
 impl GroupConfigurationReader for GroupConfigurationReaderImpl {
@@ -131,9 +131,9 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
 pub(crate) async fn apply_change(
   _user_id: &str,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
-  change: GridViewRevisionChangeset,
+  change: DatabaseViewRevisionChangeset,
 ) -> FlowyResult<()> {
-  let GridViewRevisionChangeset {
+  let DatabaseViewRevisionChangeset {
     operations: delta,
     md5,
   } = change;
@@ -142,7 +142,7 @@ pub(crate) async fn apply_change(
   Ok(())
 }
 
-pub fn make_grid_setting(
+pub fn make_database_view_setting(
   view_pad: &DatabaseViewRevisionPad,
   field_revs: &[Arc<FieldRevision>],
 ) -> DatabaseViewSettingPB {
@@ -153,7 +153,7 @@ pub fn make_grid_setting(
     LayoutRevision::Board => {},
     LayoutRevision::Calendar => {
       layout_settings.calendar = view_pad
-        .get_layout_setting::<CalendarSettingsParams>(&layout_type)
+        .get_layout_setting::<CalendarLayoutSetting>(&layout_type)
         .map(|params| params.into());
     },
   }
@@ -170,12 +170,12 @@ pub fn make_grid_setting(
   }
 }
 
-pub(crate) struct GridViewFilterDelegateImpl {
-  pub(crate) editor_delegate: Arc<dyn DatabaseViewEditorDelegate>,
+pub(crate) struct DatabaseViewFilterDelegateImpl {
+  pub(crate) editor_delegate: Arc<dyn DatabaseViewData>,
   pub(crate) view_revision_pad: Arc<RwLock<DatabaseViewRevisionPad>>,
 }
 
-impl FilterDelegate for GridViewFilterDelegateImpl {
+impl FilterDelegate for DatabaseViewFilterDelegateImpl {
   fn get_filter_rev(&self, filter_type: FilterType) -> Fut<Option<Arc<FilterRevision>>> {
     let pad = self.view_revision_pad.clone();
     to_fut(async move {
@@ -210,13 +210,13 @@ impl FilterDelegate for GridViewFilterDelegateImpl {
   }
 }
 
-pub(crate) struct GridViewSortDelegateImpl {
-  pub(crate) editor_delegate: Arc<dyn DatabaseViewEditorDelegate>,
+pub(crate) struct DatabaseViewSortDelegateImpl {
+  pub(crate) editor_delegate: Arc<dyn DatabaseViewData>,
   pub(crate) view_revision_pad: Arc<RwLock<DatabaseViewRevisionPad>>,
   pub(crate) filter_controller: Arc<FilterController>,
 }
 
-impl SortDelegate for GridViewSortDelegateImpl {
+impl SortDelegate for DatabaseViewSortDelegateImpl {
   fn get_sort_rev(&self, sort_type: SortType) -> Fut<Option<Arc<SortRevision>>> {
     let pad = self.view_revision_pad.clone();
     to_fut(async move {

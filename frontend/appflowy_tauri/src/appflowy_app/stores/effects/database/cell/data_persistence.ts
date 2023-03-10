@@ -1,6 +1,6 @@
 import { Result } from 'ts-results';
 import { FlowyError } from '../../../../../services/backend/models/flowy-error';
-import { CellBackendService, CellIdentifier } from './backend_service';
+import { CellBackendService, CellIdentifier } from './cell_bd_svc';
 import { CalendarData } from './controller_builder';
 import { DateChangesetPB } from '../../../../../services/backend/models/flowy-database/date_type_option_entities';
 import { CellIdPB } from '../../../../../services/backend/models/flowy-database/cell_entities';
@@ -24,12 +24,11 @@ export class DateCellDataPersistence extends CellDataPersistence<CalendarData> {
   constructor(public readonly cellIdentifier: CellIdentifier) {
     super();
   }
+
   save(data: CalendarData): Promise<Result<void, FlowyError>> {
     const payload = DateChangesetPB.fromObject({ cell_path: _makeCellPath(this.cellIdentifier) });
-
     payload.date = data.date.getUTCMilliseconds.toString();
     payload.is_utc = true;
-
     if (data.time !== undefined) {
       payload.time = data.time;
     }
@@ -39,7 +38,7 @@ export class DateCellDataPersistence extends CellDataPersistence<CalendarData> {
 
 function _makeCellPath(cellIdentifier: CellIdentifier): CellIdPB {
   return CellIdPB.fromObject({
-    database_id: cellIdentifier.viewId,
+    view_id: cellIdentifier.viewId,
     field_id: cellIdentifier.fieldId,
     row_id: cellIdentifier.rowId,
   });

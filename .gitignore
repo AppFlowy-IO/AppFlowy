@@ -29,7 +29,7 @@ node_modules
 
 # Commit the highest level pubspec.lock, but ignore the others
 pubspec.lock
-!frontend/app_flowy/pubspec.lock
+!frontend/appflowy_flutter/pubspec.lock
 
 # ignore tool used for commit linting
 .githooks/gitlint

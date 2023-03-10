@@ -3,8 +3,9 @@ use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 use serde_repr::*;
 pub fn gen_view_id() -> String {
-  nanoid!(10)
+  format!("v:{}", nanoid!(10))
 }
+
 #[derive(Default, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ViewRevision {
   pub id: String,

@@ -1,16 +1,56 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { useAuth } from './auth.hooks';
-import { Screen } from '../../components/layout/Screen';
+import { Screen } from '../layout/Screen';
+import { useEffect, useState } from 'react';
+import { GetStarted } from './GetStarted/GetStarted';
+import { AppflowyLogo } from '../_shared/svg/AppflowyLogo';
+
 
 export const ProtectedRoutes = () => {
-  const location = useLocation();
-  const { currentUser } = useAuth();
+  const { currentUser, checkUser } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
 
-  return currentUser.isAuthenticated ? (
-    <Screen>
-      <Outlet />
-    </Screen>
-  ) : (
-    <Navigate to='/auth/login' replace state={{ from: location }} />
+  useEffect(() => {
+    void checkUser().then(async (result) => {
+      await new Promise(() =>
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 1200)
+      );
+
+      if (result.err) {
+        throw new Error(result.val.msg);
+      }
+
+    });
+  }, []);
+
+  if (isLoading) {
+    // It's better to make a fading effect to disappear the loading page
+    return <StartLoading />;
+  } else {
+    return <SplashScreen isAuthenticated={currentUser.isAuthenticated} />;
+  }
+};
+
+const StartLoading = () => {
+  return (
+    <div className='flex h-screen w-full flex-col items-center justify-center'>
+      <div className='h-40 w-40 justify-center'>
+        <AppflowyLogo />
+      </div>
+    </div>
   );
+};
+
+const SplashScreen = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
+  if (isAuthenticated) {
+    return (
+      <Screen>
+        <Outlet />
+      </Screen>
+    );
+  } else {
+    return <GetStarted></GetStarted>;
+  }
 };

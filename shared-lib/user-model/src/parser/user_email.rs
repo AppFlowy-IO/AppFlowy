@@ -27,7 +27,6 @@ impl AsRef<str> for UserEmail {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use claim::assert_err;
   use fake::{faker::internet::en::SafeEmail, Fake};
   use rand::prelude::StdRng;
   use rand_core::SeedableRng;
@@ -35,19 +34,19 @@ mod tests {
   #[test]
   fn empty_string_is_rejected() {
     let email = "".to_string();
-    assert_err!(UserEmail::parse(email));
+    assert!(UserEmail::parse(email).is_err());
   }
 
   #[test]
   fn email_missing_at_symbol_is_rejected() {
     let email = "helloworld.com".to_string();
-    assert_err!(UserEmail::parse(email));
+    assert!(UserEmail::parse(email).is_err());
   }
 
   #[test]
   fn email_missing_subject_is_rejected() {
     let email = "@domain.com".to_string();
-    assert_err!(UserEmail::parse(email));
+    assert!(UserEmail::parse(email).is_err());
   }
 
   #[derive(Debug, Clone)]

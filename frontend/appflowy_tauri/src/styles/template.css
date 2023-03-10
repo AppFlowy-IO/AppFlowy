@@ -16,6 +16,10 @@ body {
   font-family: Poppins;
 }
 
+::selection {
+  @apply bg-[#E0F8FF]
+}
+
 .btn {
   @apply rounded-xl border border-gray-500 px-4 py-3;
 }
@@ -26,6 +30,10 @@ body {
 
 .input {
   @apply rounded-xl border border-gray-300 px-[18px] py-[14px] text-sm;
+}
+
+.input.error {
+  @apply border-main-alert bg-main-alert/10;
 }
 
 th {

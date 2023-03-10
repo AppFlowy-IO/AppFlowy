@@ -1,8 +1,8 @@
 use crate::entities::{CellChangesetPB, InsertedRowPB, UpdatedRowPB};
 use crate::manager::DatabaseUser;
 use crate::notification::{send_notification, DatabaseNotification};
-use crate::services::database::{DatabaseBlockRevisionEditor, DatabaseBlockRevisionMergeable};
-use crate::services::persistence::block_index::BlockIndexCache;
+use crate::services::database::{DatabaseBlockEditor, DatabaseBlockRevisionMergeable};
+use crate::services::persistence::block_index::BlockRowIndexer;
 use crate::services::persistence::rev_sqlite::{
   SQLiteDatabaseBlockRevisionPersistence, SQLiteDatabaseRevisionSnapshotPersistence,
 };
@@ -41,18 +41,18 @@ pub enum DatabaseBlockEvent {
 }
 
 type BlockId = String;
-pub(crate) struct DatabaseBlockManager {
+pub(crate) struct DatabaseBlocks {
   user: Arc<dyn DatabaseUser>,
-  persistence: Arc<BlockIndexCache>,
-  block_editors: DashMap<BlockId, Arc<DatabaseBlockRevisionEditor>>,
+  persistence: Arc<BlockRowIndexer>,
+  block_editors: DashMap<BlockId, Arc<DatabaseBlockEditor>>,
   event_notifier: broadcast::Sender<DatabaseBlockEvent>,
 }
 
-impl DatabaseBlockManager {
+impl DatabaseBlocks {
   pub(crate) async fn new(
     user: &Arc<dyn DatabaseUser>,
     block_meta_revs: Vec<Arc<DatabaseBlockMetaRevision>>,
-    persistence: Arc<BlockIndexCache>,
+    persistence: Arc<BlockRowIndexer>,
     event_notifier: broadcast::Sender<DatabaseBlockEvent>,
   ) -> FlowyResult<Self> {
     let block_editors = make_block_editors(user, block_meta_revs).await?;
@@ -76,7 +76,7 @@ impl DatabaseBlockManager {
   pub(crate) async fn get_or_create_block_editor(
     &self,
     block_id: &str,
-  ) -> FlowyResult<Arc<DatabaseBlockRevisionEditor>> {
+  ) -> FlowyResult<Arc<DatabaseBlockEditor>> {
     debug_assert!(!block_id.is_empty());
     match self.block_editors.get(block_id) {
       None => {
@@ -97,7 +97,7 @@ impl DatabaseBlockManager {
   pub(crate) async fn get_editor_from_row_id(
     &self,
     row_id: &str,
-  ) -> FlowyResult<Arc<DatabaseBlockRevisionEditor>> {
+  ) -> FlowyResult<Arc<DatabaseBlockEditor>> {
     let block_id = self.persistence.get_block_id(row_id)?;
     self.get_or_create_block_editor(&block_id).await
   }
@@ -306,7 +306,7 @@ impl DatabaseBlockManager {
 async fn make_block_editors(
   user: &Arc<dyn DatabaseUser>,
   block_meta_revs: Vec<Arc<DatabaseBlockMetaRevision>>,
-) -> FlowyResult<DashMap<String, Arc<DatabaseBlockRevisionEditor>>> {
+) -> FlowyResult<DashMap<String, Arc<DatabaseBlockEditor>>> {
   let editor_map = DashMap::new();
   for block_meta_rev in block_meta_revs {
     let editor = make_database_block_editor(user, &block_meta_rev.block_id).await?;
@@ -319,12 +319,12 @@ async fn make_block_editors(
 async fn make_database_block_editor(
   user: &Arc<dyn DatabaseUser>,
   block_id: &str,
-) -> FlowyResult<DatabaseBlockRevisionEditor> {
+) -> FlowyResult<DatabaseBlockEditor> {
   tracing::trace!("Open block:{} editor", block_id);
   let token = user.token()?;
   let user_id = user.user_id()?;
   let rev_manager = make_database_block_rev_manager(user, block_id)?;
-  DatabaseBlockRevisionEditor::new(&user_id, &token, block_id, rev_manager).await
+  DatabaseBlockEditor::new(&user_id, &token, block_id, rev_manager).await
 }
 
 pub fn make_database_block_rev_manager(
@@ -340,7 +340,8 @@ pub fn make_database_block_rev_manager(
   let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache, configuration);
 
   // Create snapshot persistence
-  let snapshot_object_id = format!("grid_block:{}", block_id);
+  const DATABASE_BLOCK_SP_PREFIX: &str = "grid_block";
+  let snapshot_object_id = format!("{}:{}", DATABASE_BLOCK_SP_PREFIX, block_id);
   let snapshot_persistence =
     SQLiteDatabaseRevisionSnapshotPersistence::new(&snapshot_object_id, pool);
 

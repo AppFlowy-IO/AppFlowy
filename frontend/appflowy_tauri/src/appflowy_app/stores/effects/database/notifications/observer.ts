@@ -1,16 +1,15 @@
-import { DatabaseNotification } from '../../../../../services/backend/models/flowy-database/notification';
-import { OnNotificationError } from '../../../../../services/backend/notifications';
-import { AFNotificationObserver } from '../../../../../services/backend/notifications/observer';
+import { DatabaseNotification, FlowyError } from '../../../../../services/backend';
+import { AFNotificationObserver } from '../../../../../services/backend/notifications';
 import { DatabaseNotificationParser } from './parser';
+import { Result } from 'ts-results';
 
-export type ParserHandler = (notification: DatabaseNotification, payload: Uint8Array) => void;
+export type ParserHandler = (notification: DatabaseNotification, result: Result<Uint8Array, FlowyError>) => void;
 
 export class DatabaseNotificationObserver extends AFNotificationObserver<DatabaseNotification> {
-  constructor(params: { viewId?: string; parserHandler: ParserHandler; onError?: OnNotificationError }) {
+  constructor(params: { id?: string; parserHandler: ParserHandler }) {
     const parser = new DatabaseNotificationParser({
       callback: params.parserHandler,
-      id: params.viewId,
-      onError: params.onError,
+      id: params.id,
     });
     super(parser);
   }

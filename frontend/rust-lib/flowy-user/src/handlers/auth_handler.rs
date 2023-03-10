@@ -13,7 +13,7 @@ pub async fn sign_in(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let params: SignInParams = data.into_inner().try_into()?;
   let user_profile: UserProfilePB = session.sign_in(params).await?.into();
-  data_result(user_profile)
+  data_result_ok(user_profile)
 }
 
 #[tracing::instrument(
@@ -33,5 +33,5 @@ pub async fn sign_up(
   let params: SignUpParams = data.into_inner().try_into()?;
   let user_profile: UserProfilePB = session.sign_up(params).await?.into();
 
-  data_result(user_profile)
+  data_result_ok(user_profile)
 }

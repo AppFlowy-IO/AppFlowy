@@ -28,7 +28,7 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetTypeOption, get_field_type_option_data_handler)
         .event(DatabaseEvent::CreateTypeOption, create_field_type_option_data_handler)
         // Row
-        .event(DatabaseEvent::CreateRow, create_table_row_handler)
+        .event(DatabaseEvent::CreateRow, create_row_handler)
         .event(DatabaseEvent::GetRow, get_row_handler)
         .event(DatabaseEvent::DeleteRow, delete_row_handler)
         .event(DatabaseEvent::DuplicateRow, duplicate_row_handler)
@@ -44,13 +44,18 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
         // Date
         .event(DatabaseEvent::UpdateDateCell, update_date_cell_handler)
         // Group
-        .event(DatabaseEvent::CreateBoardCard, create_board_card_handler)
         .event(DatabaseEvent::MoveGroup, move_group_handler)
         .event(DatabaseEvent::MoveGroupRow, move_group_row_handler)
-        .event(DatabaseEvent::GetGroup, get_groups_handler)
+        .event(DatabaseEvent::GetGroups, get_groups_handler)
+        .event(DatabaseEvent::GetGroup, get_group_handler)
+        // Database
+        .event(DatabaseEvent::GetDatabases, get_databases_handler)
         // Calendar
-      .event(DatabaseEvent::SetCalenderSetting, set_calendar_setting_handler)
-        .event(DatabaseEvent::GetCalendarSetting, get_calendar_setting_handler);
+        .event(DatabaseEvent::GetAllCalendarEvents, get_calendar_events_handler)
+        .event(DatabaseEvent::GetCalendarEvent, get_calendar_event_handler)
+        // Layout setting
+        .event(DatabaseEvent::SetLayoutSetting, set_layout_setting_handler)
+        .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler);
 
   plugin
 }
@@ -219,10 +224,10 @@ pub enum DatabaseEvent {
   UpdateDateCell = 80,
 
   #[event(input = "DatabaseViewIdPB", output = "RepeatedGroupPB")]
-  GetGroup = 100,
+  GetGroups = 100,
 
-  #[event(input = "CreateBoardCardPayloadPB", output = "RowPB")]
-  CreateBoardCard = 110,
+  #[event(input = "DatabaseGroupIdPB", output = "GroupPB")]
+  GetGroup = 101,
 
   #[event(input = "MoveGroupPayloadPB")]
   MoveGroup = 111,
@@ -233,9 +238,21 @@ pub enum DatabaseEvent {
   #[event(input = "MoveGroupRowPayloadPB")]
   GroupByField = 113,
 
-  #[event(input = "CalendarSettingsPB")]
-  SetCalenderSetting = 114,
+  #[event(output = "RepeatedDatabaseDescPB")]
+  GetDatabases = 114,
 
-  #[event()]
-  GetCalendarSetting = 115,
+  #[event(input = "UpdateLayoutSettingPB")]
+  SetLayoutSetting = 115,
+
+  #[event(input = "DatabaseLayoutIdPB", output = "LayoutSettingPB")]
+  GetLayoutSetting = 116,
+
+  #[event(input = "CalendarEventRequestPB", output = "RepeatedCalendarEventPB")]
+  GetAllCalendarEvents = 117,
+
+  #[event(input = "RowIdPB", output = "CalendarEventPB")]
+  GetCalendarEvent = 118,
+
+  #[event(input = "MoveCalendarEventPB")]
+  MoveCalendarEvent = 119,
 }

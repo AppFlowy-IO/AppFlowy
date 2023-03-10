@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::entities::CellIdPB;
 use crate::services::cell::{
   CellProtobufBlobParser, DecodedCellData, FromCellChangesetString, FromCellString,
@@ -6,6 +8,7 @@ use crate::services::cell::{
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, FlowyResult};
+use serde::de::Visitor;
 use serde::{Deserialize, Serialize};
 use strum_macros::EnumIter;
 
@@ -19,6 +22,9 @@ pub struct DateCellDataPB {
 
   #[pb(index = 3)]
   pub timestamp: i64,
+
+  #[pb(index = 4)]
+  pub include_time: bool,
 }
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
@@ -32,7 +38,10 @@ pub struct DateChangesetPB {
   #[pb(index = 3, one_of)]
   pub time: Option<String>,
 
-  #[pb(index = 4)]
+  #[pb(index = 4, one_of)]
+  pub include_time: Option<bool>,
+
+  #[pb(index = 5)]
   pub is_utc: bool,
 }
 
@@ -40,6 +49,7 @@ pub struct DateChangesetPB {
 pub struct DateCellChangeset {
   pub date: Option<String>,
   pub time: Option<String>,
+  pub include_time: Option<bool>,
   pub is_utc: bool,
 }
 
@@ -71,18 +81,74 @@ impl ToCellChangesetString for DateCellChangeset {
   }
 }
 
-#[derive(Default, Clone, Debug)]
-pub struct DateCellData(pub Option<i64>);
-
-impl std::convert::From<DateCellData> for i64 {
-  fn from(timestamp: DateCellData) -> Self {
-    timestamp.0.unwrap_or(0)
-  }
+#[derive(Default, Clone, Debug, Serialize)]
+pub struct DateCellData {
+  pub timestamp: Option<i64>,
+  pub include_time: bool,
 }
 
-impl std::convert::From<DateCellData> for Option<i64> {
-  fn from(timestamp: DateCellData) -> Self {
-    timestamp.0
+impl<'de> serde::Deserialize<'de> for DateCellData {
+  fn deserialize<D>(deserializer: D) -> core::result::Result<Self, D::Error>
+  where
+    D: serde::Deserializer<'de>,
+  {
+    struct DateCellVisitor();
+
+    impl<'de> Visitor<'de> for DateCellVisitor {
+      type Value = DateCellData;
+
+      fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        formatter.write_str(
+          "DateCellData with type: str containing either an integer timestamp or the JSON representation",
+        )
+      }
+
+      fn visit_i64<E>(self, value: i64) -> Result<Self::Value, E>
+      where
+        E: serde::de::Error,
+      {
+        Ok(DateCellData {
+          timestamp: Some(value),
+          include_time: false,
+        })
+      }
+
+      fn visit_u64<E>(self, value: u64) -> Result<Self::Value, E>
+      where
+        E: serde::de::Error,
+      {
+        self.visit_i64(value as i64)
+      }
+
+      fn visit_map<M>(self, mut map: M) -> Result<Self::Value, M::Error>
+      where
+        M: serde::de::MapAccess<'de>,
+      {
+        let mut timestamp: Option<i64> = None;
+        let mut include_time: Option<bool> = None;
+
+        while let Some(key) = map.next_key()? {
+          match key {
+            "timestamp" => {
+              timestamp = map.next_value()?;
+            },
+            "include_time" => {
+              include_time = map.next_value()?;
+            },
+            _ => {},
+          }
+        }
+
+        let include_time = include_time.unwrap_or(false);
+
+        Ok(DateCellData {
+          timestamp,
+          include_time,
+        })
+      }
+    }
+
+    deserializer.deserialize_any(DateCellVisitor())
   }
 }
 
@@ -91,17 +157,14 @@ impl FromCellString for DateCellData {
   where
     Self: Sized,
   {
-    let num = s.parse::<i64>().ok();
-    Ok(DateCellData(num))
+    let result: DateCellData = serde_json::from_str(s).unwrap();
+    Ok(result)
   }
 }
 
 impl ToString for DateCellData {
   fn to_string(&self) -> String {
-    match self.0 {
-      None => "".to_string(),
-      Some(val) => val.to_string(),
-    }
+    serde_json::to_string(self).unwrap()
   }
 }
 

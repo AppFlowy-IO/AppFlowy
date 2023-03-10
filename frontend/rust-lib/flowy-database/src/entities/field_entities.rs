@@ -392,7 +392,7 @@ pub struct FieldChangesetPB {
   pub field_id: String,
 
   #[pb(index = 2)]
-  pub database_id: String,
+  pub view_id: String,
 
   #[pb(index = 3, one_of)]
   pub name: Option<String>,
@@ -419,8 +419,7 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<FieldChangesetParams, Self::Error> {
-    let database_id =
-      NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
     let field_type = self.field_type.map(FieldTypeRevision::from);
     // if let Some(type_option_data) = self.type_option_data.as_ref() {
@@ -431,7 +430,7 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
 
     Ok(FieldChangesetParams {
       field_id: field_id.0,
-      database_id: database_id.0,
+      view_id: view_id.0,
       name: self.name,
       desc: self.desc,
       field_type,
@@ -447,7 +446,7 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
 pub struct FieldChangesetParams {
   pub field_id: String,
 
-  pub database_id: String,
+  pub view_id: String,
 
   pub name: Option<String>,
 
@@ -573,7 +572,7 @@ impl FieldType {
   }
 
   pub fn can_be_group(&self) -> bool {
-    self.is_select_option() || self.is_checkbox()
+    self.is_select_option() || self.is_checkbox() || self.is_url()
   }
 }
 

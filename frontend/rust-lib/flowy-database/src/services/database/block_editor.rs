@@ -19,7 +19,7 @@ use std::borrow::Cow;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-pub struct DatabaseBlockRevisionEditor {
+pub struct DatabaseBlockEditor {
   #[allow(dead_code)]
   user_id: String,
   pub block_id: String,
@@ -27,7 +27,7 @@ pub struct DatabaseBlockRevisionEditor {
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
 }
 
-impl DatabaseBlockRevisionEditor {
+impl DatabaseBlockEditor {
   pub async fn new(
     user_id: &str,
     token: &str,
@@ -129,15 +129,14 @@ impl DatabaseBlockRevisionEditor {
     if let Ok(pad) = self.pad.try_read() {
       Ok(pad.get_row_rev(row_id))
     } else {
-      tracing::error!("Required grid block read lock failed, retrying");
       let retry = GetRowDataRetryAction {
         row_id: row_id.to_owned(),
         pad: self.pad.clone(),
       };
       match spawn_retry(3, 300, retry).await {
         Ok(value) => Ok(value),
-        Err(err) => {
-          tracing::error!("Read row revision failed with: {}", err);
+        Err(_) => {
+          tracing::error!("Required database block read lock failed");
           Ok(None)
         },
       }

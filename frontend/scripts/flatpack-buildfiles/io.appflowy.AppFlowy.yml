@@ -2,7 +2,7 @@ app-id: io.appflowy.AppFlowy
 runtime: org.freedesktop.Platform
 runtime-version: '21.08'
 sdk: org.freedesktop.Sdk
-command: app_flowy
+command: appflowy_flutter
 separate-locales: false
 finish-args:
   - --share=ipc
@@ -18,10 +18,10 @@ modules:
     build-commands:
       # - ls .
       - cp -r appflowy /app/appflowy
-      - chmod +x /app/appflowy/app_flowy
+      - chmod +x /app/appflowy/appflowy_flutter
       - install -Dm644 logo.svg /app/share/icons/hicolor/scalable/apps/io.appflowy.AppFlowy.svg
       - mkdir /app/bin
-      - ln -s /app/appflowy/app_flowy /app/bin/app_flowy
+      - ln -s /app/appflowy/appflowy_flutter /app/bin/appflowy_flutter
       - install -Dm644 io.appflowy.AppFlowy.desktop /app/share/applications/io.appflowy.AppFlowy.desktop
     sources:
       - type: archive
