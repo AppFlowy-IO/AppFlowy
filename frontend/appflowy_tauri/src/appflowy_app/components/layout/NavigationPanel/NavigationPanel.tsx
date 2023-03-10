@@ -70,8 +70,6 @@ export const NavigationPanel = ({
       const elHeight = el.current.getBoundingClientRect().height;
       const scrollTop = el.current.scrollTop;
 
-      console.log(`scrollTop: ${scrollTop}, elHeight: ${elHeight.toFixed(0)}, height: ${height}`);
-
       if (scrollTop + elHeight < height) {
         el.current.scrollTo({ top: height - elHeight, behavior: 'smooth' });
       }
