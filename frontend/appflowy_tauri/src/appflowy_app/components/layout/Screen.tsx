@@ -14,24 +14,10 @@ export const Screen = ({ children }: { children: ReactNode }) => {
     })();
   }, [currentUser.isAuthenticated]);
 
-  const {
-    width,
-    folders,
-    pages,
-    onPageClick,
-    onCollapseNavigationClick,
-    onFixNavigationClick,
-    navigationPanelFixed,
-    onScreenMouseMove,
-    slideInFloatingPanel,
-    setFloatingPanelWidth,
-    onHideMenuClick,
-    onShowMenuClick,
-    menuHidden,
-  } = useNavigationPanelHooks();
+  const { width, folders, pages, onPageClick, onHideMenuClick, onShowMenuClick, menuHidden } = useNavigationPanelHooks();
 
   return (
-    <div onMouseMove={onScreenMouseMove} className='flex h-screen w-screen bg-white text-black'>
+    <div className='flex h-screen w-screen bg-white text-black'>
       <NavigationPanel
         onHideMenuClick={onHideMenuClick}
         width={width}
