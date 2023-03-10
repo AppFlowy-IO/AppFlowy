@@ -24,8 +24,8 @@ export const foldersSlice = createSlice({
     clearFolders() {
       return [];
     },
-    toggleShowPages(state, action: PayloadAction<{ id: string }>) {
-      return state.map((f) => (f.id === action.payload.id ? { ...f, showPages: !f.showPages } : f));
+    setShowPages(state, action: PayloadAction<{ id: string; showPages: boolean }>) {
+      return state.map((f) => (f.id === action.payload.id ? { ...f, showPages: action.payload.showPages } : f));
     },
   },
 });

@@ -7,10 +7,16 @@ import { NavigationResizer } from './NavigationResizer';
 import { IFolder } from '../../../stores/reducers/folders/slice';
 import { IPage } from '../../../stores/reducers/pages/slice';
 import { useNavigate } from 'react-router-dom';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '../../../stores/store';
-import { ANIMATION_DURATION, NAV_PANEL_MINIMUM_WIDTH } from '../../_shared/constants';
+import {
+  ANIMATION_DURATION,
+  FOLDER_MARGIN,
+  INITIAL_FOLDER_HEIGHT,
+  NAV_PANEL_MINIMUM_WIDTH,
+  PAGE_ITEM_HEIGHT,
+} from '../../_shared/constants';
 
 export const NavigationPanel = ({
   onHideMenuClick,
@@ -33,6 +39,44 @@ export const NavigationPanel = ({
   const pagesStore = useAppSelector((state) => state.pages);
   const activePageId = useAppSelector((state) => state.activePageId);
 
+  useEffect(() => {
+    setTimeout(() => {
+      if (!el.current) return;
+      if (!activePageId?.length) return;
+      const activePage = pagesStore.find((page) => page.id === activePageId);
+      if (!activePage) return;
+
+      const folderIndex = foldersStore.findIndex((folder) => folder.id === activePage.folderId);
+      if (folderIndex === -1) return;
+
+      let height = 0;
+      for (let i = 0; i < folderIndex; i++) {
+        height += INITIAL_FOLDER_HEIGHT + FOLDER_MARGIN;
+        if (foldersStore[i].showPages === true) {
+          height += pagesStore.filter((p) => p.folderId === foldersStore[i].id).length * PAGE_ITEM_HEIGHT;
+        }
+      }
+
+      height += INITIAL_FOLDER_HEIGHT + FOLDER_MARGIN / 2;
+
+      const pageIndex = pagesStore
+        .filter((p) => p.folderId === foldersStore[folderIndex].id)
+        .findIndex((p) => p.id === activePageId);
+      for (let i = 0; i <= pageIndex; i++) {
+        height += PAGE_ITEM_HEIGHT;
+      }
+
+      const elHeight = el.current.getBoundingClientRect().height;
+      const scrollTop = el.current.scrollTop;
+
+      console.log(`scrollTop: ${scrollTop}, elHeight: ${elHeight.toFixed(0)}, height: ${height}`);
+
+      if (scrollTop + elHeight < height) {
+        el.current.scrollTo(0, height - elHeight);
+      }
+    }, ANIMATION_DURATION);
+  }, [activePageId]);
+
   return (
     <>
       <div
@@ -46,8 +90,8 @@ export const NavigationPanel = ({
         <div className={'flex flex-col'}>
           <AppLogo iconToShow={'hide'} onHideMenuClick={onHideMenuClick}></AppLogo>
           <WorkspaceUser></WorkspaceUser>
-          <div className={'relative flex flex-col'} style={{ height: 'calc(100vh - 300px)' }} ref={el}>
-            <div className={'flex flex-col overflow-auto px-2'}>
+          <div className={'relative flex flex-col'} style={{ height: 'calc(100vh - 300px)' }}>
+            <div className={'flex flex-col overflow-auto px-2'} ref={el}>
               <WorkspaceApps folders={folders} pages={pages} onPageClick={onPageClick} />
             </div>
           </div>
