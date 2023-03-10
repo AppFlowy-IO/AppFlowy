@@ -6,24 +6,26 @@ homepage: https://github.com/AppFlowy-IO/AppFlowy
 publish_to: none
 
 environment:
-  sdk: ">=2.18.0 <3.0.0"
-  flutter: ">=3.3.0"
+  sdk: ">=2.19.0 <3.0.0"
+  flutter: ">=3.7.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  appflowy_editor:
-    path: ../appflowy_editor
-  flowy_infra: 
+  appflowy_editor: ^0.1.1
+  flowy_infra:
     path: ../flowy_infra
   flowy_infra_ui:
     path: ../flowy_infra_ui
-  appflowy_popover: 
+  appflowy_popover:
     path: ../appflowy_popover
-  flutter_math_fork: ^0.6.3+1
+  flutter_math_fork:
+    git:
+      url: https://github.com/LucasXu0/flutter_math_fork.git
+      ref: master
   highlight: ^0.7.0
   shared_preferences: ^2.0.15
-  flutter_svg: ^1.1.1+1
+  flutter_svg: ^2.0.2
   provider: ^6.0.3
 
 dev_dependencies:
