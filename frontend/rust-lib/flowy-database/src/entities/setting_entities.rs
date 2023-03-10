@@ -1,25 +1,24 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
-  AlterFilterParams, AlterFilterPayloadPB, AlterSortParams, AlterSortPayloadPB, DeleteFilterParams,
-  DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB, DeleteSortParams,
-  DeleteSortPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedFilterPB,
-  RepeatedGroupConfigurationPB, RepeatedSortPB,
+  AlterFilterParams, AlterFilterPayloadPB, AlterSortParams, AlterSortPayloadPB,
+  CalendarLayoutSettingsPB, DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams,
+  DeleteGroupPayloadPB, DeleteSortParams, DeleteSortPayloadPB, InsertGroupParams,
+  InsertGroupPayloadPB, RepeatedFilterPB, RepeatedGroupConfigurationPB, RepeatedSortPB,
 };
+use database_model::{CalendarLayoutSetting, LayoutRevision};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use grid_model::LayoutRevision;
 use std::convert::TryInto;
-use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 /// [DatabaseViewSettingPB] defines the setting options for the grid. Such as the filter, group, and sort.
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct DatabaseViewSettingPB {
   #[pb(index = 1)]
-  pub support_layouts: Vec<ViewLayoutPB>,
+  pub current_layout: LayoutTypePB,
 
   #[pb(index = 2)]
-  pub current_layout: LayoutTypePB,
+  pub layout_setting: LayoutSettingPB,
 
   #[pb(index = 3)]
   pub filters: RepeatedFilterPB,
@@ -29,23 +28,6 @@ pub struct DatabaseViewSettingPB {
 
   #[pb(index = 5)]
   pub sorts: RepeatedSortPB,
-}
-
-#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct ViewLayoutPB {
-  #[pb(index = 1)]
-  ty: LayoutTypePB,
-}
-
-impl ViewLayoutPB {
-  pub fn all() -> Vec<ViewLayoutPB> {
-    let mut layouts = vec![];
-    for layout_ty in LayoutTypePB::iter() {
-      layouts.push(ViewLayoutPB { ty: layout_ty })
-    }
-
-    layouts
-  }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumIter)]
@@ -85,7 +67,7 @@ impl std::convert::From<LayoutTypePB> for LayoutRevision {
 #[derive(Default, ProtoBuf)]
 pub struct DatabaseSettingChangesetPB {
   #[pb(index = 1)]
-  pub database_id: String,
+  pub view_id: String,
 
   #[pb(index = 2)]
   pub layout_type: LayoutTypePB,
@@ -113,8 +95,8 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<DatabaseSettingChangesetParams, Self::Error> {
-    let database_id = NotEmptyStr::parse(self.database_id)
-      .map_err(|_| ErrorCode::ViewIdInvalid)?
+    let view_id = NotEmptyStr::parse(self.view_id)
+      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
       .0;
 
     let insert_filter = match self.alter_filter {
@@ -148,7 +130,7 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
     };
 
     Ok(DatabaseSettingChangesetParams {
-      database_id,
+      view_id,
       layout_type: self.layout_type.into(),
       insert_filter,
       delete_filter,
@@ -161,7 +143,7 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
 }
 
 pub struct DatabaseSettingChangesetParams {
-  pub database_id: String,
+  pub view_id: String,
   pub layout_type: LayoutRevision,
   pub insert_filter: Option<AlterFilterParams>,
   pub delete_filter: Option<DeleteFilterParams>,
@@ -175,4 +157,69 @@ impl DatabaseSettingChangesetParams {
   pub fn is_filter_changed(&self) -> bool {
     self.insert_filter.is_some() || self.delete_filter.is_some()
   }
+}
+
+#[derive(Debug, Eq, PartialEq, Default, ProtoBuf, Clone)]
+pub struct UpdateLayoutSettingPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub layout_setting: LayoutSettingPB,
+}
+
+#[derive(Debug)]
+pub struct UpdateLayoutSettingParams {
+  pub view_id: String,
+  pub layout_setting: LayoutSettingParams,
+}
+
+impl TryInto<UpdateLayoutSettingParams> for UpdateLayoutSettingPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<UpdateLayoutSettingParams, Self::Error> {
+    let view_id = NotEmptyStr::parse(self.view_id)
+      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
+      .0;
+
+    let layout_setting: LayoutSettingParams = self.layout_setting.into();
+
+    Ok(UpdateLayoutSettingParams {
+      view_id,
+      layout_setting,
+    })
+  }
+}
+
+#[derive(Debug, Eq, PartialEq, Default, ProtoBuf, Clone)]
+pub struct LayoutSettingPB {
+  #[pb(index = 1, one_of)]
+  pub calendar: Option<CalendarLayoutSettingsPB>,
+}
+
+impl LayoutSettingPB {
+  pub fn new() -> Self {
+    Self::default()
+  }
+}
+
+impl std::convert::From<LayoutSettingParams> for LayoutSettingPB {
+  fn from(params: LayoutSettingParams) -> Self {
+    Self {
+      calendar: params.calendar.map(|calender| calender.into()),
+    }
+  }
+}
+
+impl std::convert::From<LayoutSettingPB> for LayoutSettingParams {
+  fn from(params: LayoutSettingPB) -> Self {
+    Self {
+      calendar: params.calendar.map(|calender| calender.into()),
+    }
+  }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct LayoutSettingParams {
+  pub calendar: Option<CalendarLayoutSetting>,
 }

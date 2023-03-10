@@ -3,16 +3,16 @@ use crate::entities::{FieldType, InsertedRowPB, RowPB};
 use crate::services::cell::{
   AnyTypeCache, AtomicCellDataCache, AtomicCellFilterCache, TypeCellData,
 };
+use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
 use crate::services::field::*;
 use crate::services::filter::{
   FilterChangeset, FilterResult, FilterResultNotification, FilterType,
 };
 use crate::services::row::DatabaseBlockRowRevision;
-use crate::services::view_editor::{DatabaseViewChanged, GridViewChangedNotifier};
 use dashmap::DashMap;
+use database_model::{CellRevision, FieldId, FieldRevision, FilterRevision, RowRevision};
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
-use grid_model::{CellRevision, FieldId, FieldRevision, FilterRevision, RowRevision};
 use lib_infra::future::Fut;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -43,7 +43,13 @@ pub struct FilterController {
   cell_data_cache: AtomicCellDataCache,
   cell_filter_cache: AtomicCellFilterCache,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
-  notifier: GridViewChangedNotifier,
+  notifier: DatabaseViewChangedNotifier,
+}
+
+impl Drop for FilterController {
+  fn drop(&mut self) {
+    tracing::trace!("Drop {}", std::any::type_name::<Self>());
+  }
 }
 
 impl FilterController {
@@ -54,7 +60,7 @@ impl FilterController {
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     filter_revs: Vec<Arc<FilterRevision>>,
     cell_data_cache: AtomicCellDataCache,
-    notifier: GridViewChangedNotifier,
+    notifier: DatabaseViewChangedNotifier,
   ) -> Self
   where
     T: FilterDelegate + 'static,
@@ -74,12 +80,11 @@ impl FilterController {
   }
 
   pub async fn close(&self) {
-    self
-      .task_scheduler
-      .write()
-      .await
-      .unregister_handler(&self.handler_id)
-      .await;
+    if let Ok(mut task_scheduler) = self.task_scheduler.try_write() {
+      task_scheduler.unregister_handler(&self.handler_id).await;
+    } else {
+      tracing::error!("Try to get the lock of task_scheduler failed");
+    }
   }
 
   #[tracing::instrument(name = "schedule_filter_task", level = "trace", skip(self))]

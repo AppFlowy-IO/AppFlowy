@@ -1,4 +1,4 @@
-use crate::services::persistence::GridDatabase;
+use crate::services::persistence::DatabaseDBConnection;
 use ::diesel::{query_dsl::*, ExpressionMethods};
 use bytes::Bytes;
 use diesel::SqliteConnection;
@@ -34,11 +34,11 @@ pub trait KVTransaction {
 }
 
 pub struct DatabaseKVPersistence {
-  database: Arc<dyn GridDatabase>,
+  database: Arc<dyn DatabaseDBConnection>,
 }
 
 impl DatabaseKVPersistence {
-  pub fn new(database: Arc<dyn GridDatabase>) -> Self {
+  pub fn new(database: Arc<dyn DatabaseDBConnection>) -> Self {
     Self { database }
   }
 
@@ -46,7 +46,7 @@ impl DatabaseKVPersistence {
   where
     F: for<'a> FnOnce(SqliteTransaction<'a>) -> FlowyResult<O>,
   {
-    let conn = self.database.db_connection()?;
+    let conn = self.database.get_db_connection()?;
     conn.immediate_transaction::<_, FlowyError, _>(|| {
       let sql_transaction = SqliteTransaction { conn: &conn };
       f(sql_transaction)
@@ -148,12 +148,3 @@ impl<'a> KVTransaction for SqliteTransaction<'a> {
     Ok(())
   }
 }
-
-// impl<T: TryInto<Bytes, Error = ::protobuf::ProtobufError> + GridIdentifiable> std::convert::From<T> for KeyValue {
-//     fn from(value: T) -> Self {
-//         let key = value.id().to_string();
-//         let bytes: Bytes = value.try_into().unwrap();
-//         let value = bytes.to_vec();
-//         KeyValue { key, value }
-//     }
-// }

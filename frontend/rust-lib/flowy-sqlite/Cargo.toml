@@ -20,4 +20,4 @@ openssl = { version = "0.10.38", optional = true, features = ["vendored"] }
 openssl-sys = { version = "0.9.69", optional = true, features = ["vendored"] }
 
 [features]
-openssl_vendored = ["openssl/vendored", "openssl-sys/vendored"]
+openssl_vendored = ["openssl", "openssl-sys"]

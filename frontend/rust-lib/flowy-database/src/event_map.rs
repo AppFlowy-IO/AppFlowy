@@ -28,7 +28,7 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetTypeOption, get_field_type_option_data_handler)
         .event(DatabaseEvent::CreateTypeOption, create_field_type_option_data_handler)
         // Row
-        .event(DatabaseEvent::CreateRow, create_table_row_handler)
+        .event(DatabaseEvent::CreateRow, create_row_handler)
         .event(DatabaseEvent::GetRow, get_row_handler)
         .event(DatabaseEvent::DeleteRow, delete_row_handler)
         .event(DatabaseEvent::DuplicateRow, duplicate_row_handler)
@@ -44,10 +44,18 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
         // Date
         .event(DatabaseEvent::UpdateDateCell, update_date_cell_handler)
         // Group
-        .event(DatabaseEvent::CreateBoardCard, create_board_card_handler)
         .event(DatabaseEvent::MoveGroup, move_group_handler)
         .event(DatabaseEvent::MoveGroupRow, move_group_row_handler)
-        .event(DatabaseEvent::GetGroup, get_groups_handler);
+        .event(DatabaseEvent::GetGroups, get_groups_handler)
+        .event(DatabaseEvent::GetGroup, get_group_handler)
+        // Database
+        .event(DatabaseEvent::GetDatabases, get_databases_handler)
+        // Calendar
+        .event(DatabaseEvent::GetAllCalendarEvents, get_calendar_events_handler)
+        .event(DatabaseEvent::GetCalendarEvent, get_calendar_event_handler)
+        // Layout setting
+        .event(DatabaseEvent::SetLayoutSetting, set_layout_setting_handler)
+        .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler);
 
   plugin
 }
@@ -59,15 +67,15 @@ pub fn init(database_manager: Arc<DatabaseManager>) -> AFPlugin {
 pub enum DatabaseEvent {
   /// [GetDatabase] event is used to get the [DatabasePB]
   ///
-  /// The event handler accepts a [DatabaseIdPB] and returns a [DatabasePB] if there are no errors.
-  #[event(input = "DatabaseIdPB", output = "DatabasePB")]
+  /// The event handler accepts a [DatabaseViewIdPB] and returns a [DatabasePB] if there are no errors.
+  #[event(input = "DatabaseViewIdPB", output = "DatabasePB")]
   GetDatabase = 0,
 
   /// [GetDatabaseSetting] event is used to get the database's settings.
   ///
-  /// The event handler accepts [DatabaseIdPB] and return [DatabaseViewSettingPB]
+  /// The event handler accepts [DatabaseViewIdPB] and return [DatabaseViewSettingPB]
   /// if there is no errors.
-  #[event(input = "DatabaseIdPB", output = "DatabaseViewSettingPB")]
+  #[event(input = "DatabaseViewIdPB", output = "DatabaseViewSettingPB")]
   GetDatabaseSetting = 2,
 
   /// [UpdateDatabaseSetting] event is used to update the database's settings.
@@ -76,13 +84,13 @@ pub enum DatabaseEvent {
   #[event(input = "DatabaseSettingChangesetPB")]
   UpdateDatabaseSetting = 3,
 
-  #[event(input = "DatabaseIdPB", output = "RepeatedFilterPB")]
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedFilterPB")]
   GetAllFilters = 4,
 
-  #[event(input = "DatabaseIdPB", output = "RepeatedSortPB")]
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedSortPB")]
   GetAllSorts = 5,
 
-  #[event(input = "DatabaseIdPB")]
+  #[event(input = "DatabaseViewIdPB")]
   DeleteAllSorts = 6,
 
   /// [GetFields] event is used to get the database's settings.
@@ -215,11 +223,11 @@ pub enum DatabaseEvent {
   #[event(input = "DateChangesetPB")]
   UpdateDateCell = 80,
 
-  #[event(input = "DatabaseIdPB", output = "RepeatedGroupPB")]
-  GetGroup = 100,
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedGroupPB")]
+  GetGroups = 100,
 
-  #[event(input = "CreateBoardCardPayloadPB", output = "RowPB")]
-  CreateBoardCard = 110,
+  #[event(input = "DatabaseGroupIdPB", output = "GroupPB")]
+  GetGroup = 101,
 
   #[event(input = "MoveGroupPayloadPB")]
   MoveGroup = 111,
@@ -229,4 +237,22 @@ pub enum DatabaseEvent {
 
   #[event(input = "MoveGroupRowPayloadPB")]
   GroupByField = 113,
+
+  #[event(output = "RepeatedDatabaseDescPB")]
+  GetDatabases = 114,
+
+  #[event(input = "UpdateLayoutSettingPB")]
+  SetLayoutSetting = 115,
+
+  #[event(input = "DatabaseLayoutIdPB", output = "LayoutSettingPB")]
+  GetLayoutSetting = 116,
+
+  #[event(input = "CalendarEventRequestPB", output = "RepeatedCalendarEventPB")]
+  GetAllCalendarEvents = 117,
+
+  #[event(input = "RowIdPB", output = "CalendarEventPB")]
+  GetCalendarEvent = 118,
+
+  #[event(input = "MoveCalendarEventPB")]
+  MoveCalendarEvent = 119,
 }

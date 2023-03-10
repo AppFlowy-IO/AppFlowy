@@ -96,7 +96,7 @@
 			"type": "shell",
 			"command": "flutter clean",
 			"options": {
-				"cwd": "${workspaceFolder}/app_flowy"
+				"cwd": "${workspaceFolder}/appflowy_flutter"
 			}
 		},
 		{
@@ -104,7 +104,7 @@
 			"type": "shell",
 			"command": "flutter pub get",
 			"options": {
-				"cwd": "${workspaceFolder}/app_flowy"
+				"cwd": "${workspaceFolder}/appflowy_flutter"
 			}
 		},
 		{
@@ -112,7 +112,7 @@
 			"type": "shell",
 			"command": "flutter packages pub get",
 			"options": {
-				"cwd": "${workspaceFolder}/app_flowy"
+				"cwd": "${workspaceFolder}/appflowy_flutter"
 			}
 		},
 		{
@@ -120,7 +120,7 @@
 			"type": "shell",
 			"command": "flutter pub run build_runner build --delete-conflicting-outputs",
 			"options": {
-				"cwd": "${workspaceFolder}/app_flowy"
+				"cwd": "${workspaceFolder}/appflowy_flutter"
 			}
 		},
 		{
@@ -163,14 +163,14 @@
 			],
 			"group": "build",
 			"problemMatcher": [],
-			"detail": "app_flowy"
+			"detail": "appflowy_flutter"
 		},
 		{
 			"label": "AF: Tauri UI Dev",
 			"type": "shell",
 			"isBackground": true,
-			"command": "npm run dev",
-			"problemMatcher": ["$tsc"],
+			"command": "yarn",
+			"args": ["dev"],
 			"options": {
 				"cwd": "${workspaceFolder}/appflowy_tauri"
 			}
@@ -179,7 +179,6 @@
 			"label": "AF: Tauri UI Build",
 			"type": "shell",
 			"command": "npm run build",
-			"problemMatcher": ["$tsc"],
 			"options": {
 				"cwd": "${workspaceFolder}/appflowy_tauri"
 			}
@@ -187,8 +186,7 @@
 		{
 			"label": "AF: Tauri Dev",
 			"type": "shell",
-			"command": "npm run tauri dev",
-			"problemMatcher": ["$tsc"],
+			"command": "npm run tauri:dev",
 			"options": {
 				"cwd": "${workspaceFolder}/appflowy_tauri"
 			}
@@ -199,8 +197,7 @@
 			"command": "cargo make tauri_clean",
 			"options": {
 				"cwd": "${workspaceFolder}"
-			},
-			"problemMatcher": ["$tsc"]
+			}
 		},
 		{
 			"label": "AF: Tauri Clean + Dev",
@@ -213,6 +210,14 @@
 			"options": {
 				"cwd": "${workspaceFolder}"
 			}
-		}
+		},
+		{
+			"label": "AF: Tauri ESLint",
+			"type": "shell",
+			"command": "npx eslint --fix src",
+			"options": {
+				"cwd": "${workspaceFolder}/appflowy_tauri"
+			}
+		},	
 	]
 }

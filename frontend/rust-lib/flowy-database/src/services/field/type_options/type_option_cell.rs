@@ -10,8 +10,8 @@ use crate::services::field::{
   URLTypeOptionPB,
 };
 use crate::services::filter::FilterType;
+use database_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use flowy_error::FlowyResult;
-use grid_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use std::any::Any;
 use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;
@@ -289,6 +289,7 @@ where
     decoded_field_type: &FieldType,
     field_rev: &FieldRevision,
   ) -> FlowyResult<BoxCellData> {
+    // tracing::debug!("get_cell_data: {:?}", std::any::type_name::<Self>());
     let cell_data = if self.transformable() {
       match self.transform_type_option_cell_str(&cell_str, decoded_field_type, field_rev) {
         None => self.get_decoded_cell_data(cell_str, decoded_field_type, field_rev)?,

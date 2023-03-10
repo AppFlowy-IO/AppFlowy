@@ -62,15 +62,15 @@ impl fmt::Display for SyncError {
 pub enum ErrorCode {
   DocumentIdInvalid = 0,
   DocumentNotfound = 1,
-  UndoFail = 200,
-  RedoFail = 201,
-  OutOfBound = 202,
-  RevisionConflict = 203,
-  RecordNotFound = 300,
-  CannotDeleteThePrimaryField = 301,
-  UnexpectedEmptyRevision = 302,
-  SerdeError = 999,
-  InternalError = 1000,
+  UndoFail = 2,
+  RedoFail = 3,
+  OutOfBound = 4,
+  RevisionConflict = 5,
+  RecordNotFound = 6,
+  CannotDeleteThePrimaryField = 7,
+  UnexpectedEmptyRevision = 8,
+  SerdeError = 100,
+  InternalError = 101,
 }
 
 impl std::convert::From<lib_ot::errors::OTError> for SyncError {

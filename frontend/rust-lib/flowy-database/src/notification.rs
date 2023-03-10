@@ -31,6 +31,12 @@ pub enum DatabaseNotification {
   DidReorderSingleRow = 66,
   /// Trigger when the settings of the database are changed
   DidUpdateSettings = 70,
+  // Trigger when the layout setting of the database is updated
+  DidUpdateLayoutSettings = 80,
+  // Trigger when the layout field of the database is changed
+  DidSetNewLayoutField = 81,
+
+  DidArrangeCalendarWithNewField = 82,
 }
 
 impl std::default::Default for DatabaseNotification {

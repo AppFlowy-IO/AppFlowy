@@ -99,7 +99,7 @@ jobs:
           cargo make --profile ${{ matrix.flutter_profile }} appflowy-dev
 
       - name: Flutter Analyzer
-        working-directory: frontend/app_flowy
+        working-directory: frontend/appflowy_flutter
         run: flutter analyze
 
       - name: Run Flutter unit tests

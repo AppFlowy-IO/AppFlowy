@@ -1,3 +1,4 @@
+#![allow(clippy::while_let_loop)]
 use crate::{RevIdCounter, RevisionMergeable, RevisionPersistence};
 use async_stream::stream;
 use bytes::Bytes;
@@ -9,7 +10,7 @@ use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::sync::oneshot;
 
 #[derive(Debug)]
-pub(crate) enum RevCommand {
+pub(crate) enum RevisionCommand {
   RevisionData {
     data: Bytes,
     object_md5: String,
@@ -17,7 +18,8 @@ pub(crate) enum RevCommand {
   },
 }
 
-pub(crate) struct RevQueue<Connection> {
+/// [RevisionQueue] is used to keep the [RevisionCommand] processing in order.
+pub(crate) struct RevisionQueue<Connection> {
   object_id: String,
   rev_id_counter: Arc<RevIdCounter>,
   rev_persistence: Arc<RevisionPersistence<Connection>>,
@@ -25,7 +27,7 @@ pub(crate) struct RevQueue<Connection> {
   receiver: Option<RevCommandReceiver>,
 }
 
-impl<Connection> RevQueue<Connection>
+impl<Connection> RevisionQueue<Connection>
 where
   Connection: 'static,
 {
@@ -69,9 +71,9 @@ where
       .await;
   }
 
-  async fn handle_command(&self, command: RevCommand) -> Result<(), FlowyError> {
+  async fn handle_command(&self, command: RevisionCommand) -> Result<(), FlowyError> {
     match command {
-      RevCommand::RevisionData {
+      RevisionCommand::RevisionData {
         data,
         object_md5: data_md5,
         ret,
@@ -93,6 +95,6 @@ where
   }
 }
 
-pub(crate) type RevCommandSender = Sender<RevCommand>;
-pub(crate) type RevCommandReceiver = Receiver<RevCommand>;
+pub(crate) type RevCommandSender = Sender<RevisionCommand>;
+pub(crate) type RevCommandReceiver = Receiver<RevisionCommand>;
 pub(crate) type Ret<T> = oneshot::Sender<Result<T, FlowyError>>;

@@ -1,14 +1,14 @@
 use crate::entities::FieldType;
 use crate::entities::SortChangesetNotificationPB;
 use crate::services::cell::{AtomicCellDataCache, TypeCellData};
+use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
 use crate::services::field::{default_order, TypeOptionCellExt};
 use crate::services::sort::{
   ReorderAllRowsResult, ReorderSingleRowResult, SortChangeset, SortType,
 };
-use crate::services::view_editor::{DatabaseViewChanged, GridViewChangedNotifier};
+use database_model::{CellRevision, FieldRevision, RowRevision, SortCondition, SortRevision};
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
-use grid_model::{CellRevision, FieldRevision, RowRevision, SortCondition, SortRevision};
 use lib_infra::future::Fut;
 use rayon::prelude::ParallelSliceMut;
 use serde::{Deserialize, Serialize};
@@ -34,7 +34,13 @@ pub struct SortController {
   sorts: Vec<Arc<SortRevision>>,
   cell_data_cache: AtomicCellDataCache,
   row_index_cache: HashMap<String, usize>,
-  notifier: GridViewChangedNotifier,
+  notifier: DatabaseViewChangedNotifier,
+}
+
+impl Drop for SortController {
+  fn drop(&mut self) {
+    tracing::trace!("Drop {}", std::any::type_name::<Self>());
+  }
 }
 
 impl SortController {
@@ -45,7 +51,7 @@ impl SortController {
     delegate: T,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     cell_data_cache: AtomicCellDataCache,
-    notifier: GridViewChangedNotifier,
+    notifier: DatabaseViewChangedNotifier,
   ) -> Self
   where
     T: SortDelegate + 'static,
@@ -63,12 +69,11 @@ impl SortController {
   }
 
   pub async fn close(&self) {
-    self
-      .task_scheduler
-      .write()
-      .await
-      .unregister_handler(&self.handler_id)
-      .await;
+    if let Ok(mut task_scheduler) = self.task_scheduler.try_write() {
+      task_scheduler.unregister_handler(&self.handler_id).await;
+    } else {
+      tracing::error!("Try to get the lock of task_scheduler failed");
+    }
   }
 
   pub async fn did_receive_row_changed(&self, row_id: &str) {

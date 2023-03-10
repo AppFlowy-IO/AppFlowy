@@ -12,7 +12,6 @@ use flowy_sqlite::{
   schema::{view_table, view_table::dsl},
   SqliteConnection,
 };
-
 use folder_model::{ViewDataFormatRevision, ViewLayoutTypeRevision, ViewRevision};
 use lib_infra::util::timestamp;
 
@@ -111,7 +110,7 @@ impl ViewTable {
       thumbnail: view_rev.thumbnail,
       view_type: data_type,
       ext_data: view_rev.ext_data,
-      version: view_rev.version,
+      version: 0,
       is_trash: false,
     }
   }
@@ -119,28 +118,24 @@ impl ViewTable {
 
 impl std::convert::From<ViewTable> for ViewRevision {
   fn from(table: ViewTable) -> Self {
-    let data_type = match table.view_type {
+    let data_format = match table.view_type {
       SqlViewDataFormat::Delta => ViewDataFormatRevision::DeltaFormat,
       SqlViewDataFormat::Database => ViewDataFormatRevision::DatabaseFormat,
       SqlViewDataFormat::Tree => ViewDataFormatRevision::NodeFormat,
     };
 
-    ViewRevision {
-      id: table.id,
-      app_id: table.belong_to_id,
-      name: table.name,
-      desc: table.desc,
-      data_format: data_type,
-      belongings: vec![],
-      modified_time: table.modified_time,
-      version: table.version,
-      create_time: table.create_time,
-      ext_data: "".to_string(),
-      thumbnail: table.thumbnail,
+    ViewRevision::new(
+      table.id,
+      table.belong_to_id,
+      table.name,
+      table.desc,
+      data_format,
       // Store the view in ViewTable was deprecated since v0.0.2.
       // No need to worry about layout.
-      layout: ViewLayoutTypeRevision::Document,
-    }
+      ViewLayoutTypeRevision::Document,
+      table.modified_time,
+      table.create_time,
+    )
   }
 }
 

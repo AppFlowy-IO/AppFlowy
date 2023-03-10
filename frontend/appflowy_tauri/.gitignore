@@ -23,5 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 
-**/src/services/backend/classes/
+**/src/services/backend/models/
 **/src/services/backend/events/

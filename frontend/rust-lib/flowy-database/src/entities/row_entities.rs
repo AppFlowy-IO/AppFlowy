@@ -1,8 +1,9 @@
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::LayoutTypePB;
+
+use database_model::RowRevision;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use grid_model::RowRevision;
+use std::collections::HashMap;
 use std::sync::Arc;
 
 /// [RowPB] Describes a row. Has the id of the parent Block. Has the metadata of the row.
@@ -136,14 +137,14 @@ pub struct UpdatedRowPB {
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct RowIdPB {
   #[pb(index = 1)]
-  pub database_id: String,
+  pub view_id: String,
 
   #[pb(index = 2)]
   pub row_id: String,
 }
 
 pub struct RowIdParams {
-  pub database_id: String,
+  pub view_id: String,
   pub row_id: String,
 }
 
@@ -151,12 +152,11 @@ impl TryInto<RowIdParams> for RowIdPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<RowIdParams, Self::Error> {
-    let database_id =
-      NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
 
     Ok(RowIdParams {
-      database_id: database_id.0,
+      view_id: view_id.0,
       row_id: row_id.0,
     })
   }
@@ -174,32 +174,51 @@ pub struct BlockRowIdPB {
 #[derive(ProtoBuf, Default)]
 pub struct CreateRowPayloadPB {
   #[pb(index = 1)]
-  pub database_id: String,
+  pub view_id: String,
 
   #[pb(index = 2, one_of)]
   pub start_row_id: Option<String>,
+
+  #[pb(index = 3, one_of)]
+  pub group_id: Option<String>,
+
+  #[pb(index = 4, one_of)]
+  pub data: Option<RowDataPB>,
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct RowDataPB {
+  #[pb(index = 1)]
+  pub cell_data_by_field_id: HashMap<String, String>,
 }
 
 #[derive(Default)]
 pub struct CreateRowParams {
-  pub database_id: String,
+  pub view_id: String,
   pub start_row_id: Option<String>,
   pub group_id: Option<String>,
-  pub layout: LayoutTypePB,
+  pub cell_data_by_field_id: Option<HashMap<String, String>>,
 }
 
 impl TryInto<CreateRowParams> for CreateRowPayloadPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<CreateRowParams, Self::Error> {
-    let database_id =
-      NotEmptyStr::parse(self.database_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::ViewIdIsInvalid)?;
+    let start_row_id = match self.start_row_id {
+      None => None,
+      Some(start_row_id) => Some(
+        NotEmptyStr::parse(start_row_id)
+          .map_err(|_| ErrorCode::RowIdIsEmpty)?
+          .0,
+      ),
+    };
 
     Ok(CreateRowParams {
-      database_id: database_id.0,
-      start_row_id: self.start_row_id,
-      group_id: None,
-      layout: LayoutTypePB::Grid,
+      view_id: view_id.0,
+      start_row_id,
+      group_id: self.group_id,
+      cell_data_by_field_id: self.data.map(|data| data.cell_data_by_field_id),
     })
   }
 }

@@ -1,7 +1,7 @@
 use crate::entities::{
   AlterFilterParams, DatabaseSettingChangesetParams, DeleteFilterParams, FieldType, InsertedRowPB,
 };
-use grid_model::{FieldRevision, FieldTypeRevision};
+use database_model::{FieldRevision, FieldTypeRevision};
 use std::sync::Arc;
 
 #[derive(Debug)]

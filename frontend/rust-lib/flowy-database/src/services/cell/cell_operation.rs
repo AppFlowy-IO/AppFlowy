@@ -2,8 +2,9 @@ use crate::entities::FieldType;
 use crate::services::cell::{AtomicCellDataCache, CellProtobufBlob, TypeCellData};
 use crate::services::field::*;
 
+use crate::services::group::make_no_status_group;
+use database_model::{CellRevision, FieldRevision};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use grid_model::{CellRevision, FieldRevision};
 
 use std::fmt::Debug;
 
@@ -38,7 +39,7 @@ pub trait CellDataChangeset: TypeOption {
   /// The changeset is able to parse into the concrete data struct if `TypeOption::CellChangeset`
   /// implements the `FromCellChangesetString` trait.
   /// For example,the SelectOptionCellChangeset,DateCellChangeset. etc.
-  ///  
+  ///
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
@@ -141,7 +142,7 @@ where
 
 /// Decode the opaque cell data from one field type to another using the corresponding `TypeOption`
 ///
-/// The cell data might become an empty string depends on the to_field_type's `TypeOption`   
+/// The cell data might become an empty string depends on the to_field_type's `TypeOption`
 /// support transform the from_field_type's cell data or not.
 ///
 /// # Arguments
@@ -223,6 +224,16 @@ pub fn insert_number_cell(num: i64, field_rev: &FieldRevision) -> CellRevision {
 }
 
 pub fn insert_url_cell(url: String, field_rev: &FieldRevision) -> CellRevision {
+  // checking if url is equal to group id of no status group because everywhere
+  // except group of rows with empty url the group id is equal to the url
+  // so then on the case that url is equal to empty url group id we should change
+  // the url to empty string
+  let _no_status_group_id = make_no_status_group(field_rev).id;
+  let url = match url {
+    a if a == _no_status_group_id => "".to_owned(),
+    _ => url,
+  };
+
   let data = apply_cell_data_changeset(url, None, field_rev, None).unwrap();
   CellRevision::new(data)
 }
@@ -241,6 +252,7 @@ pub fn insert_date_cell(timestamp: i64, field_rev: &FieldRevision) -> CellRevisi
   let cell_data = serde_json::to_string(&DateCellChangeset {
     date: Some(timestamp.to_string()),
     time: None,
+    include_time: Some(false),
     is_utc: true,
   })
   .unwrap();
@@ -268,7 +280,7 @@ pub fn delete_select_option_cell(
   CellRevision::new(data)
 }
 
-/// Deserialize the String into cell specific data type.  
+/// Deserialize the String into cell specific data type.
 pub trait FromCellString {
   fn from_cell_str(s: &str) -> FlowyResult<Self>
   where

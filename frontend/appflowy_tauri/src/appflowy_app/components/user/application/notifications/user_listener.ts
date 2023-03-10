@@ -1,11 +1,12 @@
 import { FlowyError, UserNotification, UserProfilePB } from '../../../../../services/backend';
-import { AFNotificationListener, OnNotificationError } from '../../../../../services/backend/notifications';
+import { AFNotificationObserver, OnNotificationError } from '../../../../../services/backend/notifications';
 import { UserNotificationParser } from './parser';
+import { Ok, Result } from 'ts-results';
 
-declare type OnUserProfileUpdate = (userProfile: UserProfilePB) => void;
-declare type OnUserSignIn = (userProfile: UserProfilePB) => void;
+declare type OnUserProfileUpdate = (result: Result<UserProfilePB, FlowyError>) => void;
+declare type OnUserSignIn = (result: Result<UserProfilePB, FlowyError>) => void;
 
-export class UserNotificationListener extends AFNotificationListener<UserNotification> {
+export class UserNotificationListener extends AFNotificationObserver<UserNotification> {
   onProfileUpdate?: OnUserProfileUpdate;
   onUserSignIn?: OnUserSignIn;
 
@@ -15,14 +16,22 @@ export class UserNotificationListener extends AFNotificationListener<UserNotific
     onProfileUpdate?: OnUserProfileUpdate;
     onError?: OnNotificationError;
   }) {
-    let parser = new UserNotificationParser({
-      callback: (notification, payload) => {
+    const parser = new UserNotificationParser({
+      callback: (notification, result) => {
         switch (notification) {
           case UserNotification.DidUpdateUserProfile:
-            this.onProfileUpdate?.(UserProfilePB.deserializeBinary(payload));
+            if (result.ok) {
+              this.onProfileUpdate?.(Ok(UserProfilePB.deserializeBinary(result.val)));
+            } else {
+              this.onProfileUpdate?.(result);
+            }
             break;
           case UserNotification.DidUserSignIn:
-            this.onUserSignIn?.(UserProfilePB.deserializeBinary(payload));
+            if (result.ok) {
+              this.onUserSignIn?.(Ok(UserProfilePB.deserializeBinary(result.val)));
+            } else {
+              this.onUserSignIn?.(result);
+            }
             break;
           default:
             break;

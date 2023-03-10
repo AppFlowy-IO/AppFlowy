@@ -9,14 +9,14 @@ edition = "2018"
 serde = { version = "1.0", features = ["derive", "rc"] }
 thiserror = "1.0"
 serde_json = { version = "1.0" }
-indexmap = {version = "1.9.1", features = ["serde"]}
+indexmap = {version = "1.9.2", features = ["serde"]}
 log = "0.4"
 tracing = { version = "0.1", features = ["log"] }
 lazy_static = "1.4.0"
 strum = "0.21"
 strum_macros = "0.21"
-bytes = "1.0"
-indextree = "4.4.0"
+bytes = "1.4"
+indextree = "4.5.0"
 
 
 [features]

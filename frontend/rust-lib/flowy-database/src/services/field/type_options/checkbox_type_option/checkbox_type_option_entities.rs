@@ -11,6 +11,10 @@ pub const UNCHECK: &str = "No";
 pub struct CheckboxCellData(String);
 
 impl CheckboxCellData {
+  pub fn into_inner(self) -> bool {
+    self.is_check()
+  }
+
   pub fn is_check(&self) -> bool {
     self.0 == CHECK
   }

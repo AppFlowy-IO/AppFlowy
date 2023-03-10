@@ -1,6 +1,7 @@
 use crate::errors::{SyncError, SyncResult};
-use grid_model::{
-  BuildDatabaseContext, DatabaseBlockRevision, FieldRevision, GridBlockMetaRevision, RowRevision,
+use database_model::{
+  BuildDatabaseContext, DatabaseBlockMetaRevision, DatabaseBlockRevision, FieldRevision,
+  LayoutSetting, RowRevision,
 };
 use std::sync::Arc;
 
@@ -12,7 +13,7 @@ impl std::default::Default for DatabaseBuilder {
   fn default() -> Self {
     let mut build_context = BuildDatabaseContext::new();
 
-    let block_meta = GridBlockMetaRevision::new();
+    let block_meta = DatabaseBlockMetaRevision::new();
     let block_meta_data = DatabaseBlockRevision {
       block_id: block_meta.block_id.clone(),
       rows: vec![],
@@ -29,6 +30,7 @@ impl DatabaseBuilder {
   pub fn new() -> Self {
     Self::default()
   }
+
   pub fn add_field(&mut self, field: FieldRevision) {
     self.build_context.field_revs.push(Arc::new(field));
   }
@@ -51,6 +53,10 @@ impl DatabaseBuilder {
 
   pub fn block_id(&self) -> &str {
     &self.build_context.block_metas.first().unwrap().block_id
+  }
+
+  pub fn set_layout_setting(&mut self, layout_setting: LayoutSetting) {
+    self.build_context.layout_setting = layout_setting;
   }
 
   pub fn build(self) -> BuildDatabaseContext {

@@ -7,7 +7,7 @@ import { SingleSelectTypeSvg } from '../../_shared/svg/SingleSelectTypeSvg';
 import { MultiSelectTypeSvg } from '../../_shared/svg/MultiSelectTypeSvg';
 import { ChecklistTypeSvg } from '../../_shared/svg/ChecklistTypeSvg';
 import { UrlTypeSvg } from '../../_shared/svg/UrlTypeSvg';
-import { FieldType } from '../../../../services/backend/classes/flowy-database/field_entities';
+import { FieldType } from '../../../../services/backend/models/flowy-database/field_entities';
 
 export const GridTableHeader = () => {
   const { fields, onAddField } = useGridTableHeaderHooks();

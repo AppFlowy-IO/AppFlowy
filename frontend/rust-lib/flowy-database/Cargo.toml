@@ -15,7 +15,7 @@ flowy-error = { path = "../flowy-error", features = ["adaptor_database", "adapto
 flowy-derive = { path = "../flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
-grid-model = { path = "../../../shared-lib/grid-model" }
+database-model = { path = "../../../shared-lib/database-model" }
 flowy-client-sync = { path = "../flowy-client-sync"}
 revision-model = { path = "../../../shared-lib/revision-model" }
 flowy-sqlite = { path = "../flowy-sqlite", optional = true }
@@ -24,28 +24,28 @@ anyhow = "1.0"
 strum = "0.21"
 strum_macros = "0.21"
 tracing = { version = "0.1", features = ["log"] }
-protobuf = {version = "2.18.0"}
-rust_decimal = "1.8.1"
-rusty-money = {version = "0.4.0", features = ["iso"]}
+protobuf = {version = "2.28.0"}
+rust_decimal = "1.28.1"
+rusty-money = {version = "0.4.1", features = ["iso"]}
 lazy_static = "1.4.0"
-chrono = "0.4.19"
+chrono = "0.4.23"
 nanoid = "0.4.0"
-bytes = { version = "1.0" }
+bytes = { version = "1.4" }
 diesel = {version = "1.4.8", features = ["sqlite"]}
 dashmap = "5"
-tokio = {version = "1", features = ["sync"]}
-rayon = "1.5.2"
+tokio = { version = "1.26", features = ["sync"]}
+rayon = "1.6.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}
 serde_repr = "0.1"
-indexmap = {version = "1.9.1", features = ["serde"]}
+indexmap = {version = "1.9.2", features = ["serde"]}
 fancy-regex = "0.10.0"
-regex = "1.5.6"
+regex = "1.7.1"
 url = { version = "2"}
-futures = "0.3.15"
-atomic_refcell = "0.1.8"
-crossbeam-utils = "0.8.7"
-async-stream = "0.3.2"
+futures = "0.3.26"
+atomic_refcell = "0.1.9"
+crossbeam-utils = "0.8.15"
+async-stream = "0.3.4"
 parking_lot = "0.12.1"
 
 [dev-dependencies]
