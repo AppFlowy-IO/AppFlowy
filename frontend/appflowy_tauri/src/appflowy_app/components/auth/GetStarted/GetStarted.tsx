@@ -19,8 +19,8 @@ export const GetStarted = () => {
             </span>
           </div>
 
-          <div id='GetId' className='flex w-full max-w-[340px] flex-col gap-6 ' aria-label='Get1' >
-            <Button size={'primary'} onClick={() => onAutoSignInClick()} aria-label='Get2' >
+          <div id='Get-Started' className='flex w-full max-w-[340px] flex-col gap-6 ' aria-label='Get-Started' >
+            <Button size={'primary'} onClick={() => onAutoSignInClick()} >
               {t('signUp.getStartedText')}
             </Button>
           </div>

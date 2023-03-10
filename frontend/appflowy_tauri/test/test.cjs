@@ -54,18 +54,21 @@ after(async function () {
     tauriDriver.kill()
 })
 
-describe('AppFlowy', () => {
-    it('should be cordial', async () => {
-        // const getStartedButton = await driver.wait(until.elementLocated(By.xpath("//*[@id=\"root\"]/form/div/div[3]")))
-        // getStartedButton.click();
-        
-        const optionButton = await driver.wait(until.elementLocated(By.xpath("//*[@id=\"optionButton\"]")));
+describe('AppFlowy Unit Test', () => {
+    it('should find get started button', async () => {
+        // should sign out if already sign in
+        const getStartedButton = await driver.wait(until.elementLocated(By.xpath("//*[@id=\"root\"]/form/div/div[3]")))
+        getStartedButton.click();
+    })
 
-        // const optionButton = await driver.wait(until.elementLocated(By.className('#option-button')));
-        // const optionButton = await driver.wait(until.elementLocated(By.id('#optionButton')));
+    it('should get sign out button', async () => {
+        // const optionButton = await driver.wait(until.elementLocated(By.css('*[test-id=option-button]')));
+        // const optionButton = await driver.wait(until.elementLocated(By.id('option-button')));
         // const optionButton = await driver.wait(until.elementLocated(By.css('[aria-label=option]')));
 
-        await new Promise((resolve) => setTimeout(resolve, 4000));
-
+        // Currently, only the find className is work
+        const optionButton = await driver.wait(until.elementLocated(By.className('relative h-8 w-8')));
+        optionButton.click();
+        // await new Promise((resolve) => setTimeout(resolve, 4000));
     })
 })
