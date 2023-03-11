@@ -1,6 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/src/table/src/models/table_data_model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'table_view.dart';
 
@@ -114,6 +115,8 @@ class _TableWidget extends StatefulWidget {
 }
 
 class _TableWidgetState extends State<_TableWidget> with SelectableMixin {
+  final _scrollController = ScrollController();
+
   late TableData data;
 
   @override
@@ -131,11 +134,30 @@ class _TableWidgetState extends State<_TableWidget> with SelectableMixin {
 
   @override
   Widget build(BuildContext context) {
-    return TableView(
-      data: data,
-      node: widget.node,
-      editorState: widget.editorState,
+    return ChangeNotifierProvider.value(
+      value: data,
+      builder: (context, _) {
+        return Scrollbar(
+          controller: _scrollController,
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            scrollDirection: Axis.horizontal,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 30, top: 8),
+              child: TableView(
+                node: widget.node,
+                editorState: widget.editorState,
+              ),
+            ),
+          ),
+        );
+      },
     );
+    //return TableView(
+    //  data: data,
+    //  node: widget.node,
+    //  editorState: widget.editorState,
+    //);
   }
 
   RenderBox get _renderBox => context.findRenderObject() as RenderBox;
