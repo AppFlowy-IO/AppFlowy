@@ -1,13 +1,13 @@
 import React from 'react';
-import { Block, BlockType } from '$app/interfaces/index';
+import { TreeNodeImp } from '$app/interfaces/index';
 import BlockComponent from '../BlockList/BlockComponent';
 
 export default function ColumnBlock({
-  block,
+  node,
   resizerWidth,
   index,
 }: {
-  block: Block<BlockType.ColumnBlock>;
+  node: TreeNodeImp;
   resizerWidth: number;
   index: number;
 }) {
@@ -38,12 +38,12 @@ export default function ColumnBlock({
         style={{
           flexGrow: 0,
           flexShrink: 0,
-          width: `calc((100% - ${resizerWidth}px) * ${block.data.ratio})`,
+          width: `calc((100% - ${resizerWidth}px) * ${node.data.ratio})`,
         }}
-        block={block}
+        node={node}
       >
-        {block.children?.map((item) => (
-          <BlockComponent key={item.id} block={item} />
+        {node.children?.map((item) => (
+          <BlockComponent key={item.id} node={item} />
         ))}
       </BlockComponent>
     </>

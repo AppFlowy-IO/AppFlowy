@@ -1,14 +1,9 @@
-import React, { useContext, useMemo } from 'react';
-import { Circle, CircleOutlined, Square } from '@mui/icons-material';
-import { Block, BlockType } from '@/appflowy_app/interfaces';
-import { BlockContext } from '@/appflowy_app/utils/block_context';
-import { getDocumentBlocksMap } from '../../../utils/block_context';
+import { Circle } from '@mui/icons-material';
+
 import BlockComponent from '../BlockList/BlockComponent';
+import { TreeNodeImp } from '$app/interfaces/index';
 
-export default function BulletedListBlock({ title, block }: { title: JSX.Element; block: Block<BlockType.ListBlock> }) {
-  const { id } = useContext(BlockContext);
-  const blocksMap = useMemo(() => (id ? getDocumentBlocksMap(id) : undefined), [id]);
-
+export default function BulletedListBlock({ title, node }: { title: JSX.Element; node: TreeNodeImp }) {
   return (
     <div className='bulleted-list-block relative'>
       <div className='relative flex'>
@@ -19,9 +14,9 @@ export default function BulletedListBlock({ title, block }: { title: JSX.Element
       </div>
 
       <div className='pl-[24px]'>
-        {block.children?.map((item) => (
+        {node.children?.map((item) => (
           <div key={item.id}>
-            <BlockComponent block={item} />
+            <BlockComponent node={item} />
           </div>
         ))}
       </div>

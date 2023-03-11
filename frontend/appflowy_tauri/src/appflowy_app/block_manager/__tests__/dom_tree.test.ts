@@ -1,12 +1,5 @@
-import { useEffect, useState } from 'react';
-import {
-  DocumentEventGetDocument,
-  DocumentVersionPB,
-  OpenDocumentPayloadPB,
-} from '../../services/backend/events/flowy-document';
-import { Block, BlockType } from '../interfaces';
-import { useParams } from 'react-router-dom';
-import { getBlockManagerInstance, createBlockManagerInstance } from '../block_manager';
+import { DOMTree } from '../dom_tree';
+import { BlockType, Block } from '../../interfaces/index';
 
 const loadBlockData = async (id: string): Promise<Record<string, Block>> => {
   return {
@@ -204,43 +197,17 @@ const loadBlockData = async (id: string): Promise<Record<string, Block>> => {
     },
   }
 }
-export const useDocument = () => {
-  const params = useParams();
-  const [blockId, setBlockId] = useState<string>();
-  const loadDocument = async (id: string): Promise<any> => {
-    const getDocumentResult = await DocumentEventGetDocument(
-      OpenDocumentPayloadPB.fromObject({
-        document_id: id,
-        version: DocumentVersionPB.V1,
-      })
-    );
 
-    if (getDocumentResult.ok) {
-      const pb = getDocumentResult.val;
-      return JSON.parse(pb.content);
-    } else {
-      throw new Error('get document error');
-    }
-  };
 
-  useEffect(() => {
-    void (async () => {
-      if (!params?.id) return;
-      const data = await loadBlockData(params.id);
-      console.log('==== enter ====', params?.id, data);
-  
-      const blockManager = getBlockManagerInstance();
-      if (blockManager) {
-        blockManager.changeDoc(params?.id, data);
-      } else {
-        createBlockManagerInstance(params?.id, data);
-      }
-
-      setBlockId(params.id)
-    })();
-    return () => {
-      console.log('==== leave ====', params?.id)
-    }
-  }, [params.id]);
-  return { blockId };
-};
+describe("test tree", () => {
+  test('blocks to tree', async () => {
+    const id = "test-1";
+    const blocksData = await loadBlockData(id);
+    const getBlock = (blockId: string) => blocksData[blockId];
+    const tree = new DOMTree(getBlock);
+    const root = tree.blocksToTree(id);
+    expect(root).not.toEqual(null);
+    expect(root!.id).toEqual(id);
+    expect(root!.children.length).toEqual(7);
+  });
+})

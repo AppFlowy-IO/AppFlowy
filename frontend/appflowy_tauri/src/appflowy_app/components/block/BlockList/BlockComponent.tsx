@@ -1,5 +1,5 @@
 import React from 'react';
-import { Block, BlockType } from '$app/interfaces';
+import { BlockType, TreeNodeImp } from '$app/interfaces';
 import PageBlock from '../PageBlock';
 import TextBlock from '../TextBlock';
 import HeadingBlock from '../HeadingBlock';
@@ -7,28 +7,28 @@ import ListBlock from '../ListBlock';
 import CodeBlock from '../CodeBlock';
 
 function BlockComponent({
-  block,
+  node,
   ...props
-}: { block: Block } & React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
+}: { node: TreeNodeImp } & React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
   const renderComponent = () => {
-    switch (block.type) {
+    switch (node.type) {
       case BlockType.PageBlock:
-        return <PageBlock block={block} />;
+        return <PageBlock node={node} />;
       case BlockType.TextBlock:
-        return <TextBlock block={block} />;
+        return <TextBlock node={node} />;
       case BlockType.HeadingBlock:
-        return <HeadingBlock block={block} />;
+        return <HeadingBlock node={node} />;
       case BlockType.ListBlock:
-        return <ListBlock block={block} />;
+        return <ListBlock node={node} />;
       case BlockType.CodeBlock:
-        return <CodeBlock block={block} />;
+        return <CodeBlock node={node} />;
       default:
         return null;
     }
   };
 
   return (
-    <div className='relative' data-block-id={block.id} {...props}>
+    <div className='relative' data-block-id={node.id} {...props}>
       {renderComponent()}
       {props.children}
       <div className='block-overlay'></div>

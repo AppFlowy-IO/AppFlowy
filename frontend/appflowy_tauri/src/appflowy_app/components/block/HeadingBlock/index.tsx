@@ -1,18 +1,18 @@
 import React from 'react';
-import { Block, BlockType } from '$app/interfaces';
 import TextBlock from '../TextBlock';
+import { TreeNodeImp } from '$app/interfaces/index';
 
 const fontSize: Record<string, string> = {
   1: 'mt-8 text-3xl',
   2: 'mt-6 text-2xl',
   3: 'mt-4 text-xl',
 };
-export default function HeadingBlock({ block }: { block: Block<BlockType.HeadingBlock> }) {
+export default function HeadingBlock({ node }: { node: TreeNodeImp }) {
   return (
-    <div className={`${fontSize[block.data.level]} font-semibold	`}>
+    <div className={`${fontSize[node.data.level]} font-semibold	`}>
       <TextBlock
-        block={{
-          ...block,
+        node={{
+          ...node,
           children: [],
         }}
       />

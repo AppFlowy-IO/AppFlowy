@@ -29,12 +29,8 @@ export interface Block<T = BlockType> {
   id: string;
   type: BlockType;
   data: BlockData<T>;
-  parent: string | null;
-  prev: string | null;
   next: string | null;
   firstChild: string | null;
-  lastChild: string | null;
-  children?: Block[];
 }
 
 
@@ -58,3 +54,11 @@ interface ColumnBlockData {
   ratio: string;
 }
 
+
+export interface TreeNodeImp {
+  id: string;
+  type: BlockType;
+  parent: TreeNodeImp | null;
+  children: TreeNodeImp[];
+  data: BlockData<BlockType>;
+}

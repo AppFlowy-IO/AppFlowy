@@ -1,26 +1,19 @@
-import { useContext, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useFocused, useSlate } from 'slate-react';
 import FormatButton from './FormatButton';
 import Portal from './Portal';
 import { calcToolbarPosition } from '@/appflowy_app/utils/slate/toolbar';
-import { getBlockRect } from '@/appflowy_app/utils/tree';
-import { BlockContext } from '../../utils/block_context';
 
 const HoveringToolbar = ({ blockId }: { blockId: string }) => {
   const editor = useSlate();
   const inFocus = useFocused();
   const ref = useRef<HTMLDivElement | null>(null);
-  const { id } = useContext(BlockContext);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || !id) return;
+    if (!el) return;
 
-    const blockRect = getBlockRect(id, blockId);
-
-    if (!blockRect) return;
-
-    const position = calcToolbarPosition(editor, el, blockRect);
+    const position = calcToolbarPosition(editor, el, blockId);
 
     if (!position) {
       el.style.opacity = '0';

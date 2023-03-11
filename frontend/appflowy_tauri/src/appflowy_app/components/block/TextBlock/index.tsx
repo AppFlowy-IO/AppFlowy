@@ -1,26 +1,29 @@
 import React, { useContext, useMemo, useState } from 'react';
-import { Block, BlockType } from '$app/interfaces';
+import { TreeNodeImp } from '$app/interfaces';
 import BlockComponent from '../BlockList/BlockComponent';
 
-import { Editor, Transforms, createEditor } from 'slate';
+import { createEditor } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
 import Leaf from './Leaf';
 import HoveringToolbar from '$app/components/HoveringToolbar';
 import { triggerHotkey } from '@/appflowy_app/utils/slate/hotkey';
-import { updateBlockPositionCache } from '../../../utils/tree';
-import { BlockContext } from '../../../utils/block_context';
+import { BlockContext } from '$app/utils/block_context';
 import { debounce } from '@/appflowy_app/utils/tool';
+import { getBlockManagerInstance } from '$app/block_manager/index';
 
 const INPUT_CHANGE_CACHE_DELAY = 300;
 
-export default function TextBlock({ block }: { block: Block<BlockType.TextBlock> }) {
+export default function TextBlock({ node }: { node: TreeNodeImp }) {
+  const blockManager = getBlockManagerInstance();
+  if (!blockManager) return null;
+
   const [editor] = useState(() => withReact(createEditor()));
 
   const { id } = useContext(BlockContext);
 
   const debounceUpdateBlockCache = useMemo(
-    () => debounce(updateBlockPositionCache, INPUT_CHANGE_CACHE_DELAY),
-    [id, block.id]
+    () => debounce(blockManager.updateBlockRect, INPUT_CHANGE_CACHE_DELAY),
+    [id, node.id]
   );
 
   return (
@@ -31,7 +34,7 @@ export default function TextBlock({ block }: { block: Block<BlockType.TextBlock>
           if (editor.operations[0].type !== 'set_selection') {
             console.log('=== text op ===', e, editor.operations);
             // Temporary code, in the future, it is necessary to monitor the OP changes of the document to determine whether the location cache of the block needs to be updated
-            debounceUpdateBlockCache(id, block.id);
+            debounceUpdateBlockCache(node.id);
           }
         }}
         value={[
@@ -39,11 +42,11 @@ export default function TextBlock({ block }: { block: Block<BlockType.TextBlock>
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             type: 'paragraph',
-            children: block.data.content,
+            children: node.data.content,
           },
         ]}
       >
-        <HoveringToolbar blockId={block.id} />
+        <HoveringToolbar blockId={node.id} />
         <Editable
           onKeyDownCapture={(event) => {
             switch (event.key) {
@@ -68,10 +71,10 @@ export default function TextBlock({ block }: { block: Block<BlockType.TextBlock>
           placeholder='Enter some text...'
         />
       </Slate>
-      {block.children && block.children.length > 0 ? (
+      {node.children && node.children.length > 0 ? (
         <div className='pl-[1.5em]'>
-          {block.children.map((item: Block) => (
-            <BlockComponent key={item.id} block={item} />
+          {node.children.map((item) => (
+            <BlockComponent key={item.id} node={item} />
           ))}
         </div>
       ) : null}
