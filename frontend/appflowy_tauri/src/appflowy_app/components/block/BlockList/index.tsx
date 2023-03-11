@@ -1,21 +1,24 @@
 import BlockComponent from './BlockComponent';
 import React, { useEffect } from 'react';
 import { debounce } from '@/appflowy_app/utils/tool';
-import { getBlockManagerInstance } from '../../../block_manager';
+import { getBlockEditor } from '../../../block_editor';
 
 const RESIZE_DELAY = 200;
 
 function BlockList({ blockId }: { blockId: string }) {
-  const blockManager = getBlockManagerInstance();
-  if (!blockManager) return null;
+  const blockEditor = getBlockEditor();
+  if (!blockEditor) return null;
 
-  const root = blockManager.createDOMTree();
+  const root = blockEditor.renderTree.build(blockId);
   console.log('==== build tree ====', root);
 
   useEffect(() => {
+    // update rect cache when did mount
+    blockEditor.renderTree.updateRects();
+
     const resize = debounce(() => {
       // update rect cache when window resized
-      blockManager.updateDOMTreeRects();
+      blockEditor.renderTree.updateRects();
     }, RESIZE_DELAY);
 
     window.addEventListener('resize', resize);

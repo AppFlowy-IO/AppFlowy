@@ -1,4 +1,4 @@
-import { TreeNodeImp } from "../interfaces";
+import { TreeNodeInterface } from "../interfaces";
 
 
 export function calculateBlockRect(blockId: string) {
@@ -13,7 +13,7 @@ export class RectManager {
 
   private updatedQueue: Set<string>;
 
-  constructor(private getTreeNode: (nodeId: string) => TreeNodeImp | null) {
+  constructor(private getTreeNode: (nodeId: string) => TreeNodeInterface | null) {
     this.map = new Map();
     this.orderList = new Set();
     this.updatedQueue = new Set();
@@ -21,15 +21,18 @@ export class RectManager {
 
   build() {
     console.log('====update all blocks position====')
-    this.orderList.forEach(id => this.updateBlockRect(id));
+    this.orderList.forEach(id => this.updateNodeRect(id));
   }
 
-  getBlockRect = (blockId: string) => {
-    return this.map.get(blockId) || null;
+  getNodeRect = (nodeId: string) => {
+    return this.map.get(nodeId) || null;
   }
 
   update() {
+    // In order to avoid excessive calculation frequency
+    // calculate and update the block position information in the queue every frame
     requestAnimationFrame(() => {
+      // there is nothing to do if the updated queue is empty
       if (this.updatedQueue.size === 0) return;
       console.log(`==== update ${this.updatedQueue.size} blocks rect cache ====`)
       this.updatedQueue.forEach((id: string) => {
@@ -40,9 +43,9 @@ export class RectManager {
     });
   }
 
-  updateBlockRect = (blockId: string) => {
-    if (this.updatedQueue.has(blockId)) return;
-    let node: TreeNodeImp | null = this.getTreeNode(blockId);
+  updateNodeRect = (nodeId: string) => {
+    if (this.updatedQueue.has(nodeId)) return;
+    let node: TreeNodeInterface | null = this.getTreeNode(nodeId);
 
     // When one of the blocks is updated
     // the positions of all its parent and child blocks need to be updated

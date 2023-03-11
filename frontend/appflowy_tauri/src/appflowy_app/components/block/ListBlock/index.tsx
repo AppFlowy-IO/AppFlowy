@@ -3,9 +3,9 @@ import TextBlock from '../TextBlock';
 import NumberedListBlock from './NumberedListBlock';
 import BulletedListBlock from './BulletedListBlock';
 import ColumnListBlock from './ColumnListBlock';
-import { TreeNodeImp } from '$app/interfaces/index';
+import { TreeNodeInterface } from '$app/interfaces/index';
 
-export default function ListBlock({ node }: { node: TreeNodeImp }) {
+export default function ListBlock({ node }: { node: TreeNodeInterface }) {
   const title = useMemo(() => {
     if (node.data.type === 'column') return <></>;
     return (

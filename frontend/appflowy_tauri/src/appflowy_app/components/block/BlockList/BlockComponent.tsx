@@ -1,5 +1,5 @@
 import React from 'react';
-import { BlockType, TreeNodeImp } from '$app/interfaces';
+import { BlockType, TreeNodeInterface } from '$app/interfaces';
 import PageBlock from '../PageBlock';
 import TextBlock from '../TextBlock';
 import HeadingBlock from '../HeadingBlock';
@@ -9,7 +9,7 @@ import CodeBlock from '../CodeBlock';
 function BlockComponent({
   node,
   ...props
-}: { node: TreeNodeImp } & React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
+}: { node: TreeNodeInterface } & React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
   const renderComponent = () => {
     switch (node.type) {
       case BlockType.PageBlock:

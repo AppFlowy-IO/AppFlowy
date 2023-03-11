@@ -1,8 +1,8 @@
-import { TreeNodeImp } from '@/appflowy_app/interfaces';
+import { TreeNodeInterface } from '@/appflowy_app/interfaces';
 import React, { useMemo } from 'react';
 import BlockComponent from '../BlockList/BlockComponent';
 
-export default function NumberedListBlock({ title, node }: { title: JSX.Element; node: TreeNodeImp }) {
+export default function NumberedListBlock({ title, node }: { title: JSX.Element; node: TreeNodeInterface }) {
   const index = useMemo(() => {
     const i = node.parent?.children?.findIndex((item) => item.id === node.id) || 0;
     return i + 1;

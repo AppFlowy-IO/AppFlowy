@@ -1,4 +1,4 @@
-import { getBlockManagerInstance } from '@/appflowy_app/block_manager';
+import { getBlockEditor } from '@/appflowy_app/block_editor';
 import { Editor, Range } from 'slate';
 export function calcToolbarPosition(editor: Editor, toolbarDom: HTMLDivElement, blockId: string) {
   const { selection } = editor;
@@ -10,8 +10,8 @@ export function calcToolbarPosition(editor: Editor, toolbarDom: HTMLDivElement, 
     return;
   }
 
-  const blockManagerInstance = getBlockManagerInstance();
-  const blockRect = blockManagerInstance?.getBlockRect(blockId);
+  const blockEditor = getBlockEditor();
+  const blockRect = blockEditor?.renderTree.getNodeRect(blockId);
   const blockDom = document.querySelector(`[data-block-id=${blockId}]`);
 
   if (!blockDom || !blockRect) return;
@@ -26,7 +26,6 @@ export function calcToolbarPosition(editor: Editor, toolbarDom: HTMLDivElement, 
 
   const rect = domRange?.getBoundingClientRect() || { top: 0, left: 0, width: 0, height: 0 };
   
-  console.log( scrollContainer.scrollTop, rect.top, blockRect)
   const top = `${-toolbarDom.offsetHeight - 5 + (rect.top + scrollContainer.scrollTop - blockRect.top)}px`;
   const left = `${rect.left - blockRect.left - toolbarDom.offsetWidth / 2 + rect.width / 2}px`;
   

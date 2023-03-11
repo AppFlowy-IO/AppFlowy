@@ -3,7 +3,8 @@ export function debounce(fn: (...args: any[]) => void, delay: number) {
   return (...args: any[]) => {
     clearTimeout(timeout)
     timeout = setTimeout(()=>{
-      fn.apply(this, args)
+      // eslint-disable-next-line prefer-spread
+      fn.apply(undefined, args)
     }, delay)
   }
 }

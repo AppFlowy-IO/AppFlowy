@@ -1,23 +1,34 @@
 import { RectManager } from "./rect";
-import { Block, BlockData, BlockType, TreeNodeImp } from '../interfaces/index';
+import { BlockInterface, BlockData, BlockType, TreeNodeInterface } from '../interfaces/index';
 
-export class DOMTree {
+export class TreeManager {
 
-  rect: RectManager;
+  // RenderTreeManager holds RectManager, which manages the position information of each node in the render tree.
+  private rect: RectManager;
 
   root: TreeNode | null = null;
 
   map: Map<string, TreeNode> = new Map();
 
-  constructor(private getBlock: (blockId: string) => Block | null) {
+  constructor(private getBlock: (blockId: string) => BlockInterface | null) {
     this.rect = new RectManager(this.getTreeNode);
   }
 
-  getTreeNode = (nodeId: string): TreeNodeImp | null => {
+  /**
+   * Get render node data by nodeId
+   * @param nodeId string
+   * @returns TreeNode
+   */
+  getTreeNode = (nodeId: string): TreeNodeInterface | null => {
     return this.map.get(nodeId) || null;
   }
 
-  blocksToTree(rootId: string) {
+  /**
+   * build tree node for rendering
+   * @param rootId 
+   * @returns 
+   */
+  build(rootId: string): TreeNode | null {
     const head = this.getBlock(rootId);
 
     if (!head) return null;
@@ -26,6 +37,7 @@ export class DOMTree {
 
     let node = this.root;
 
+    // loop line
     while (node) {
       this.map.set(node.id, node);
       this.rect.orderList.add(node.id);
@@ -74,11 +86,28 @@ export class DOMTree {
     return this.root;
   }
 
-  build(rootId: string): TreeNode | null {
-    const root = this.blocksToTree(rootId);
-    // update all blocks position
+  /**
+  * update dom rects cache
+  */
+  updateRects = () => {
     this.rect.build();
-    return root;
+  }
+
+  /**
+   * get block rect cache
+   * @param id string
+   * @returns DOMRect
+   */
+  getNodeRect = (nodeId: string) => {
+    return this.rect.getNodeRect(nodeId);
+  }
+
+  /**
+   * update block rect cache
+   * @param id string
+   */
+  updateNodeRect = (nodeId: string) => {
+    this.rect.updateNodeRect(nodeId);
   }
   
   destroy() {
@@ -87,7 +116,7 @@ export class DOMTree {
 }
 
 
-class TreeNode implements TreeNodeImp {
+class TreeNode implements TreeNodeInterface {
   id: string;
   type: BlockType;
   parent: TreeNode | null = null;
@@ -98,7 +127,7 @@ class TreeNode implements TreeNodeImp {
     id,
     type,
     data
-  }: Block) {
+  }: BlockInterface) {
     this.id = id;
     this.data = data;
     this.type = type;

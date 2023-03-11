@@ -1,5 +1,5 @@
 import React, { useContext, useMemo, useState } from 'react';
-import { TreeNodeImp } from '$app/interfaces';
+import { TreeNodeInterface } from '$app/interfaces';
 import BlockComponent from '../BlockList/BlockComponent';
 
 import { createEditor } from 'slate';
@@ -9,20 +9,20 @@ import HoveringToolbar from '$app/components/HoveringToolbar';
 import { triggerHotkey } from '@/appflowy_app/utils/slate/hotkey';
 import { BlockContext } from '$app/utils/block_context';
 import { debounce } from '@/appflowy_app/utils/tool';
-import { getBlockManagerInstance } from '$app/block_manager/index';
+import { getBlockEditor } from '@/appflowy_app/block_editor/index';
 
 const INPUT_CHANGE_CACHE_DELAY = 300;
 
-export default function TextBlock({ node }: { node: TreeNodeImp }) {
-  const blockManager = getBlockManagerInstance();
-  if (!blockManager) return null;
+export default function TextBlock({ node }: { node: TreeNodeInterface }) {
+  const blockEditor = getBlockEditor();
+  if (!blockEditor) return null;
 
   const [editor] = useState(() => withReact(createEditor()));
 
   const { id } = useContext(BlockContext);
 
   const debounceUpdateBlockCache = useMemo(
-    () => debounce(blockManager.updateBlockRect, INPUT_CHANGE_CACHE_DELAY),
+    () => debounce(blockEditor.renderTree.updateNodeRect, INPUT_CHANGE_CACHE_DELAY),
     [id, node.id]
   );
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import { TreeNodeImp } from '$app/interfaces';
+import { TreeNodeInterface } from '$app/interfaces';
 
-export default function CodeBlock({ node }: { node: TreeNodeImp }) {
+export default function CodeBlock({ node }: { node: TreeNodeInterface }) {
   return <div>{node.data.text}</div>;
 }

@@ -1,6 +1,6 @@
 import React from 'react';
-import { TreeNodeImp } from '$app/interfaces';
+import { TreeNodeInterface } from '$app/interfaces';
 
-export default function PageBlock({ node }: { node: TreeNodeImp }) {
+export default function PageBlock({ node }: { node: TreeNodeInterface }) {
   return <div className='cursor-pointer underline'>{node.data.title}</div>;
 }

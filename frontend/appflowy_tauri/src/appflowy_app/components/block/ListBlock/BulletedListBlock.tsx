@@ -1,9 +1,9 @@
 import { Circle } from '@mui/icons-material';
 
 import BlockComponent from '../BlockList/BlockComponent';
-import { TreeNodeImp } from '$app/interfaces/index';
+import { TreeNodeInterface } from '$app/interfaces/index';
 
-export default function BulletedListBlock({ title, node }: { title: JSX.Element; node: TreeNodeImp }) {
+export default function BulletedListBlock({ title, node }: { title: JSX.Element; node: TreeNodeInterface }) {
   return (
     <div className='bulleted-list-block relative'>
       <div className='relative flex'>

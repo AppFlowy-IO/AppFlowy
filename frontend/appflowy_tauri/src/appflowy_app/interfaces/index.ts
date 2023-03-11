@@ -25,7 +25,7 @@ T extends BlockType.ListBlock ? ListBlockData :
 T extends BlockType.ColumnBlock ? ColumnBlockData :  any;
 
 
-export interface Block<T = BlockType> {
+export interface BlockInterface<T = BlockType> {
   id: string;
   type: BlockType;
   data: BlockData<T>;
@@ -55,10 +55,10 @@ interface ColumnBlockData {
 }
 
 
-export interface TreeNodeImp {
+export interface TreeNodeInterface {
   id: string;
   type: BlockType;
-  parent: TreeNodeImp | null;
-  children: TreeNodeImp[];
+  parent: TreeNodeInterface | null;
+  children: TreeNodeInterface[];
   data: BlockData<BlockType>;
 }

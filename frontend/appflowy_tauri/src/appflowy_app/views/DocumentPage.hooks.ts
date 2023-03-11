@@ -4,11 +4,11 @@ import {
   DocumentVersionPB,
   OpenDocumentPayloadPB,
 } from '../../services/backend/events/flowy-document';
-import { Block, BlockType } from '../interfaces';
+import { BlockInterface, BlockType } from '../interfaces';
 import { useParams } from 'react-router-dom';
-import { getBlockManagerInstance, createBlockManagerInstance } from '../block_manager';
+import { getBlockEditor, createBlockEditor } from '../block_editor';
 
-const loadBlockData = async (id: string): Promise<Record<string, Block>> => {
+const loadBlockData = async (id: string): Promise<Record<string, BlockInterface>> => {
   return {
     [id]: {
       id: id,
@@ -229,11 +229,11 @@ export const useDocument = () => {
       const data = await loadBlockData(params.id);
       console.log('==== enter ====', params?.id, data);
   
-      const blockManager = getBlockManagerInstance();
-      if (blockManager) {
-        blockManager.changeDoc(params?.id, data);
+      const blockEditor = getBlockEditor();
+      if (blockEditor) {
+        blockEditor.changeDoc(params?.id, data);
       } else {
-        createBlockManagerInstance(params?.id, data);
+        createBlockEditor(params?.id, data);
       }
 
       setBlockId(params.id)

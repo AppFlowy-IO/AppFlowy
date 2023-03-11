@@ -1,5 +1,5 @@
 import React from 'react';
-import { TreeNodeImp } from '$app/interfaces/index';
+import { TreeNodeInterface } from '$app/interfaces/index';
 import BlockComponent from '../BlockList/BlockComponent';
 
 export default function ColumnBlock({
@@ -7,7 +7,7 @@ export default function ColumnBlock({
   resizerWidth,
   index,
 }: {
-  node: TreeNodeImp;
+  node: TreeNodeInterface;
   resizerWidth: number;
   index: number;
 }) {
