@@ -7,14 +7,12 @@ import { AppBackendService } from '../../../stores/effects/folder/app/app_bd_svc
 import { WorkspaceBackendService } from '../../../stores/effects/folder/workspace/workspace_bd_svc';
 import { useError } from '../../error/Error.hooks';
 import { AppObserver } from '../../../stores/effects/folder/app/app_observer';
-import { activePageIdActions } from '../../../stores/reducers/activePageId/slice';
 import { useNavigate } from 'react-router-dom';
 import { INITIAL_FOLDER_HEIGHT, PAGE_ITEM_HEIGHT } from '../../_shared/constants';
 
 export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
   const appDispatch = useAppDispatch();
   const workspace = useAppSelector((state) => state.workspace);
-  const foldersStore = useAppSelector((state) => state.folders);
 
   const navigate = useNavigate();
 
@@ -145,8 +143,6 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
 
       setShowPages(true);
 
-      appDispatch(activePageIdActions.setActivePageId(newView.id));
-
       navigate(`/page/document/${newView.id}`);
     } catch (e: any) {
       error.showError(e?.message);
@@ -172,8 +168,6 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
         })
       );
 
-      appDispatch(activePageIdActions.setActivePageId(newView.id));
-
       navigate(`/page/board/${newView.id}`);
     } catch (e: any) {
       error.showError(e?.message);
@@ -198,8 +192,6 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
           id: newView.id,
         })
       );
-
-      appDispatch(activePageIdActions.setActivePageId(newView.id));
 
       navigate(`/page/grid/${newView.id}`);
     } catch (e: any) {

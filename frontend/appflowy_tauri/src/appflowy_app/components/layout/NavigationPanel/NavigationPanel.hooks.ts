@@ -1,12 +1,10 @@
-import { useAppDispatch, useAppSelector } from '../../../stores/store';
+import { useAppSelector } from '../../../stores/store';
 import { useNavigate } from 'react-router-dom';
 import { IPage } from '../../../stores/reducers/pages/slice';
 import { ViewLayoutTypePB } from '../../../../services/backend';
 import { useState } from 'react';
-import { activePageIdActions } from '../../../stores/reducers/activePageId/slice';
 
 export const useNavigationPanelHooks = function () {
-  const dispatch = useAppDispatch();
   const folders = useAppSelector((state) => state.folders);
   const pages = useAppSelector((state) => state.pages);
   const width = useAppSelector((state) => state.navigationWidth);
@@ -36,8 +34,6 @@ export const useNavigationPanelHooks = function () {
           return 'document';
       }
     })();
-
-    dispatch(activePageIdActions.setActivePageId(page.id));
 
     navigate(`/page/${pageTypeRoute}/${page.id}`);
   };

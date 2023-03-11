@@ -2,43 +2,28 @@ import { ShowMenuSvg } from '../../_shared/svg/ShowMenuSvg';
 import { useEffect, useState } from 'react';
 import { useAppSelector } from '../../../stores/store';
 import { useLocation } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { activePageIdActions } from '../../../stores/reducers/activePageId/slice';
 
 export const Breadcrumbs = ({ menuHidden, onShowMenuClick }: { menuHidden: boolean; onShowMenuClick: () => void }) => {
-  const dispatch = useDispatch();
   const [folderName, setFolderName] = useState('');
   const [pageName, setPageName] = useState('');
-  const activePageId = useAppSelector((state) => state.activePageId);
+  const [activePageId, setActivePageId] = useState<string>('');
+  const currentLocation = useLocation();
   const pagesStore = useAppSelector((state) => state.pages);
   const foldersStore = useAppSelector((state) => state.folders);
-  const [pageHistory, setPageHistory] = useState<string[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(0);
+
+  useEffect(() => {
+    const { pathname } = currentLocation;
+    const parts = pathname.split('/');
+    const pageId = parts[parts.length - 1];
+    setActivePageId(pageId);
+  }, [currentLocation]);
 
   useEffect(() => {
     const page = pagesStore.find((p) => p.id === activePageId);
     const folder = foldersStore.find((f) => f.id === page?.folderId);
     setFolderName(folder?.title || '');
     setPageName(page?.title || '');
-    setPageHistory([...pageHistory, activePageId]);
   }, [pagesStore, foldersStore, activePageId]);
-
-  const currentLocation = useLocation();
-
-  useEffect(() => {
-    // if there is no active page, we should try to get the page id from the url
-    if (!activePageId?.length) {
-      const { pathname } = currentLocation;
-      const parts = pathname.split('/');
-      // `/"page"/{pageType}/{pageId}`
-      if (parts.length !== 4) return;
-
-      const pageId = parts[parts.length - 1];
-      // const pageType = parts[parts.length - 2];
-
-      dispatch(activePageIdActions.setActivePageId(pageId));
-    }
-  }, [activePageId, currentLocation]);
 
   return (
     <div className={'flex items-center'}>
@@ -50,10 +35,10 @@ export const Breadcrumbs = ({ menuHidden, onShowMenuClick }: { menuHidden: boole
         )}
 
         <button className={'p-1'} onClick={() => history.back()}>
-          <img src={'/images/home/arrow_left.svg'} />
+          <img src={'/images/home/arrow_left.svg'} alt={''} />
         </button>
         <button className={'p-1'} onClick={() => history.forward()}>
-          <img src={'/images/home/arrow_right.svg'} />
+          <img src={'/images/home/arrow_right.svg'} alt={''} />
         </button>
       </div>
       <div className={'mr-8 flex items-center gap-4'}>

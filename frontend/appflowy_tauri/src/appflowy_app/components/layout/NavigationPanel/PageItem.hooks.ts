@@ -1,17 +1,26 @@
 import { IPage, pagesActions } from '../../../stores/reducers/pages/slice';
-import { useAppDispatch, useAppSelector } from '../../../stores/store';
-import { useState } from 'react';
+import { useAppDispatch } from '../../../stores/store';
+import { useEffect, useState } from 'react';
 import { nanoid } from 'nanoid';
 import { ViewBackendService } from '../../../stores/effects/folder/view/view_bd_svc';
 import { useError } from '../../error/Error.hooks';
+import { useLocation } from 'react-router-dom';
 
 export const usePageEvents = (page: IPage) => {
   const appDispatch = useAppDispatch();
   const [showPageOptions, setShowPageOptions] = useState(false);
   const [showRenamePopup, setShowRenamePopup] = useState(false);
-  const activePageId = useAppSelector((state) => state.activePageId);
+  const [activePageId, setActivePageId] = useState<string>('');
+  const currentLocation = useLocation();
   const viewBackendService: ViewBackendService = new ViewBackendService(page.id);
   const error = useError();
+
+  useEffect(() => {
+    const { pathname } = currentLocation;
+    const parts = pathname.split('/');
+    const pageId = parts[parts.length - 1];
+    setActivePageId(pageId);
+  }, [currentLocation]);
 
   const onPageOptionsClick = () => {
     setShowPageOptions(!showPageOptions);

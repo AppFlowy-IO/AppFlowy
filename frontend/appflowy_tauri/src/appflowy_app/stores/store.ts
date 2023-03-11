@@ -16,7 +16,6 @@ import { workspaceSlice } from './reducers/workspace/slice';
 import { databaseSlice } from './reducers/database/slice';
 import { boardSlice } from './reducers/board/slice';
 import { errorSlice } from './reducers/error/slice';
-import { activePageIdSlice } from './reducers/activePageId/slice';
 
 const listenerMiddlewareInstance = createListenerMiddleware({
   onError: () => console.error,
@@ -26,7 +25,6 @@ const store = configureStore({
   reducer: {
     [foldersSlice.name]: foldersSlice.reducer,
     [pagesSlice.name]: pagesSlice.reducer,
-    [activePageIdSlice.name]: activePageIdSlice.reducer,
     [navigationWidthSlice.name]: navigationWidthSlice.reducer,
     [currentUserSlice.name]: currentUserSlice.reducer,
     [gridSlice.name]: gridSlice.reducer,

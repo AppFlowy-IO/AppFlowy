@@ -6,9 +6,8 @@ import { NewFolderButton } from './NewFolderButton';
 import { NavigationResizer } from './NavigationResizer';
 import { IFolder } from '../../../stores/reducers/folders/slice';
 import { IPage } from '../../../stores/reducers/pages/slice';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useAppSelector } from '../../../stores/store';
 import {
   ANIMATION_DURATION,
@@ -34,11 +33,18 @@ export const NavigationPanel = ({
   onPageClick: (page: IPage) => void;
 }) => {
   const el = useRef<HTMLDivElement>(null);
-  const dispatch = useDispatch();
   const foldersStore = useAppSelector((state) => state.folders);
   const pagesStore = useAppSelector((state) => state.pages);
-  const activePageId = useAppSelector((state) => state.activePageId);
+  const [activePageId, setActivePageId] = useState<string>('');
+  const currentLocation = useLocation();
   const [maxHeight, setMaxHeight] = useState(0);
+
+  useEffect(() => {
+    const { pathname } = currentLocation;
+    const parts = pathname.split('/');
+    const pageId = parts[parts.length - 1];
+    setActivePageId(pageId);
+  }, [currentLocation]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -70,7 +76,7 @@ export const NavigationPanel = ({
       const elHeight = el.current.getBoundingClientRect().height;
       const scrollTop = el.current.scrollTop;
 
-      if (scrollTop + elHeight < height) {
+      if (scrollTop + elHeight < height || scrollTop > height) {
         el.current.scrollTo({ top: height - elHeight, behavior: 'smooth' });
       }
     }, ANIMATION_DURATION);
