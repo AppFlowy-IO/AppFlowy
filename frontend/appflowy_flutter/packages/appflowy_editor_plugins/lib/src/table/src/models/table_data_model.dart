@@ -12,7 +12,9 @@ class TableData extends ChangeNotifier {
   List<ColumnData> cells = [];
   List<ColumnNode> cellNodes = [];
 
+  final colDefaultWidth = 80.0, rowDefaultHeight = 40.0, colMinimumWidth = 40.0;
   List<double> rowsHeight = [];
+  List<double> colsWidth = [];
 
   // TODO(zoli): assertions: e.g that each column and row have equal cells
   TableData(List<List<String>> data) {
@@ -40,7 +42,11 @@ class TableData extends ChangeNotifier {
 
   _fill() {
     for (var i = 0; i < rowsLen; i++) {
-      rowsHeight.add(40);
+      rowsHeight.add(rowDefaultHeight);
+    }
+
+    for (var i = 0; i < colsLen; i++) {
+      colsWidth.add(colDefaultWidth);
     }
   }
 
@@ -73,6 +79,13 @@ class TableData extends ChangeNotifier {
   get colsHeight =>
       rowsHeight.fold<double>(0, (prev, cur) => prev + cur + 2) + 2;
 
+  double getColWidth(int col) => colsWidth[col];
+  setColWidth(int col, double w) {
+    w = w < colMinimumWidth ? colMinimumWidth : w;
+    colsWidth[col] = w;
+    notifyListeners();
+  }
+
   notifyNodeUpdate(int col, row) {
     var node = cellNodes[col][row], height = node.rect.height;
     if (rowsHeight.length <= row) {
@@ -100,6 +113,8 @@ class TableData extends ChangeNotifier {
       }),
     ));
 
+    colsWidth.add(colDefaultWidth);
+
     notifyListeners();
   }
 
@@ -115,7 +130,7 @@ class TableData extends ChangeNotifier {
       );
     }
 
-    rowsHeight.add(40);
+    rowsHeight.add(rowDefaultHeight);
 
     notifyListeners();
   }

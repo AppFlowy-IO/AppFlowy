@@ -56,14 +56,22 @@ class _TableCellState extends State<TableCell> {
             context.select((TableData td) => td.getRowHeight(widget.rowIdx)),
       ),
       width: double.infinity,
-      child: CellNodeWidget(
-        key: node.key,
-        node: node,
-        textNode: textNode,
-        editorState: widget.editorState,
-        colIdx: widget.colIdx,
-        rowIdx: widget.rowIdx,
-      ),
+      child: ChangeNotifierProvider.value(
+          value: node,
+          builder: (_, child) {
+            return Consumer<Node>(
+              builder: ((_, value, child) {
+                return CellNodeWidget(
+                  key: node.key,
+                  node: node,
+                  textNode: textNode,
+                  editorState: widget.editorState,
+                  colIdx: widget.colIdx,
+                  rowIdx: widget.rowIdx,
+                );
+              }),
+            );
+          }),
     );
   }
 }

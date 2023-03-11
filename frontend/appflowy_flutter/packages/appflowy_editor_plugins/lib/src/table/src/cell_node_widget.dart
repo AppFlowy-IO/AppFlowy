@@ -39,13 +39,17 @@ class _CellNodeWidgetState extends State<CellNodeWidget>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            widget.editorState.service.renderPluginService.buildPluginWidget(
-              NodeWidgetContext<TextNode>(
-                context: context,
-                node: widget.textNode,
-                editorState: widget.editorState,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: widget.editorState.service.renderPluginService
+                  .buildPluginWidget(
+                NodeWidgetContext<TextNode>(
+                  context: context,
+                  node: widget.textNode,
+                  editorState: widget.editorState,
+                ),
+                afterNodeBuildCB,
               ),
-              afterNodeBuildCB,
             ),
           ],
         ));

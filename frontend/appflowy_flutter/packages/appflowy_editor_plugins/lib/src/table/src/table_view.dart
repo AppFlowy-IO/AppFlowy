@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/src/table/src/models/table_data_model.dart';
-import 'package:appflowy_editor_plugins/src/table/src/table_cell.dart'
-    as flowytable;
+import 'package:appflowy_editor_plugins/src/table/src/table_col.dart';
 
 class TableView extends StatefulWidget {
   const TableView({
@@ -71,57 +70,18 @@ class _TableViewState extends State<TableView> {
     var colsLen = context.select((TableData td) => td.colsLen);
     var cols = [];
 
-    final Widget columnBorder = MouseRegion(
-      cursor: SystemMouseCursors.resizeLeftRight,
-      child: Container(
+    for (var i = 0; i < colsLen; i++) {
+      cols.add(TableCol(
+          colIdx: i, editorState: widget.editorState, node: widget.node));
+    }
+
+    return [
+      Container(
         width: 2,
         height: context.select((TableData td) => td.colsHeight),
         color: Colors.grey,
       ),
-    );
-
-    for (var i = 0; i < colsLen; i++) {
-      cols.add(
-        SizedBox(
-          width: 80,
-          child: Column(children: _buildColumn(context, i)),
-        ),
-      );
-      cols.add(columnBorder);
-    }
-
-    return [
-      columnBorder,
       ...cols,
-    ];
-  }
-
-  List<Widget> _buildColumn(BuildContext context, int colIdx) {
-    var rowsLen = context.select((TableData td) => td.rowsLen);
-    var cells = [];
-    final Widget cellBorder = MouseRegion(
-      cursor: SystemMouseCursors.resizeUpDown,
-      child: Container(
-        height: 2,
-        color: Colors.grey,
-      ),
-    );
-
-    for (var i = 0; i < rowsLen; i++) {
-      cells.add(
-        flowytable.TableCell(
-          colIdx: colIdx,
-          rowIdx: i,
-          node: widget.node,
-          editorState: widget.editorState,
-        ),
-      );
-      cells.add(cellBorder);
-    }
-
-    return [
-      cellBorder,
-      ...cells,
     ];
   }
 }
