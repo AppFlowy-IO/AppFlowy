@@ -82,8 +82,8 @@ Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
     },
   );
   final pluginTheme = Theme.of(context).brightness == Brightness.dark
-      ? darkPlguinStyleExtension
-      : lightPlguinStyleExtension;
+      ? darkPluginStyleExtension
+      : lightPluginStyleExtension;
   return pluginTheme.toList()
     ..removeWhere((element) =>
         element is HeadingPluginStyle || element is NumberListPluginStyle)

@@ -128,11 +128,11 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final autoFocusParamters = _autoFocusParamters();
+    final autoFocusParameters = _autoFocusParameters();
     final editor = AppFlowyEditor(
       editorState: editorState,
-      autoFocus: autoFocusParamters.value1,
-      focusedSelection: autoFocusParamters.value2,
+      autoFocus: autoFocusParameters.value1,
+      focusedSelection: autoFocusParameters.value2,
       customBuilders: {
         // Divider
         kDividerType: DividerWidgetBuilder(),
@@ -236,7 +236,7 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
     }
   }
 
-  dartz.Tuple2<bool, Selection?> _autoFocusParamters() {
+  dartz.Tuple2<bool, Selection?> _autoFocusParameters() {
     if (editorState.document.isEmpty) {
       return dartz.Tuple2(true, Selection.single(path: [0], startOffset: 0));
     }

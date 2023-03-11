@@ -21,7 +21,7 @@ class AppService {
     String? desc,
     required ViewLayoutTypePB layoutType,
 
-    /// The initial data should be the JSON of the doucment
+    /// The initial data should be the JSON of the document
     /// For example: {"document":{"type":"editor","children":[]}}
     String? initialData,
     Map<String, String> ext = const {},

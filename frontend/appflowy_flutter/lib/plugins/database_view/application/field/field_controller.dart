@@ -162,7 +162,7 @@ class FieldController {
     //Listen on setting changes
     _listenOnSettingChanges();
 
-    //Listen on the fitler changes
+    //Listen on the filter changes
     _listenOnFilterChanges();
 
     //Listen on the sort changes
@@ -177,7 +177,7 @@ class FieldController {
   }
 
   void _listenOnFilterChanges() {
-    //Listen on the fitler changes
+    //Listen on the filter changes
 
     deleteFilterFromChangeset(
       List<FilterInfo> filters,
@@ -230,7 +230,7 @@ class FieldController {
               .removeWhere((key, value) => value.id == updatedFilter.filterId);
         }
 
-        // Insert the filter if there is a fitler and its field info is
+        // Insert the filter if there is a filter and its field info is
         // not null
         if (updatedFilter.hasFilter()) {
           final fieldInfo = _findFieldInfo(

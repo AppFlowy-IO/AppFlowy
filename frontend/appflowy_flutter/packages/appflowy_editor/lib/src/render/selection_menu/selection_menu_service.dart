@@ -69,7 +69,7 @@ class SelectionMenu implements SelectionMenuService {
         editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
     final editorHeight = editorState.renderBox!.size.height;
 
-    // show below defualt
+    // show below default
     var showBelow = true;
     _alignment = Alignment.bottomLeft;
     final bottomRight = selectionRects.first.bottomRight;
