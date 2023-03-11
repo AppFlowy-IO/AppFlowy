@@ -42,6 +42,7 @@ class BubbleActionList extends StatelessWidget {
     return PopoverActionList<PopoverAction>(
       direction: PopoverDirection.topWithRightAligned,
       actions: actions,
+      offset: const Offset(0, -8),
       buildChild: (controller) {
         return FlowyTextButton(
           '?',
