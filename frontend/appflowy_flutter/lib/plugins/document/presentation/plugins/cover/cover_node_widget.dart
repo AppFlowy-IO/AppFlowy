@@ -285,8 +285,7 @@ class _CoverImageState extends State<_CoverImage> {
     return SizedBox(
       height: height,
       child: OverflowBox(
-        maxWidth:
-            screenSize.width + editorState.editorStyle.padding!.horizontal,
+        maxWidth: screenSize.width,
         child: Container(
           padding: const EdgeInsets.only(bottom: 10),
           height: double.infinity,
