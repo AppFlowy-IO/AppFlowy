@@ -13,7 +13,7 @@ script_runner = "@shell"
 
 [tasks.install_tauri_protobuf.linux]
 script = """
-npm install -g protoc-gen-ts
+sudo npm install -g protoc-gen-ts
 """
 script_runner = "@shell"
 
