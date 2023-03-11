@@ -47,9 +47,13 @@ else
     FLUTTER_PATH=$(which flutter)
     FLUTTER_PATH=${FLUTTER_PATH%/bin/flutter}
 
-    # Use git to checkout version 3.3.10 of Flutter
+    current_dir=$(pwd)
+
     cd $FLUTTER_PATH
+    # Use git to checkout version 3.3.10 of Flutter
     git checkout 3.3.10
+    # Get back to current working directory
+    cd "$current_dir" 
 
     echo "Switched to Flutter version 3.3.10"
 fi
