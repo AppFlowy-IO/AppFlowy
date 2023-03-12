@@ -68,6 +68,7 @@ class CoverImagePickerBloc
                         .tr()),
               ),
             ));
+            emit(CoverImagePickerState.initial());
           }
         });
       },
