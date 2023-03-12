@@ -1,0 +1,90 @@
+import 'package:appflowy/workspace/presentation/widgets/emoji_picker/emoji_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/emoji_picker/src/default_emoji_picker_view.dart';
+import 'package:appflowy/workspace/presentation/widgets/emoji_picker/src/emoji_view_state.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flutter/material.dart';
+
+class EmojiPopover extends StatefulWidget {
+  final EditorState editorState;
+  final Node node;
+  final void Function(Emoji emoji) onEmojiChanged;
+  final void Function()? removeIcon;
+  final bool showRemoveButton;
+
+  const EmojiPopover({
+    super.key,
+    required this.editorState,
+    required this.node,
+    required this.onEmojiChanged,
+    required this.removeIcon,
+    required this.showRemoveButton,
+  });
+
+  @override
+  State<EmojiPopover> createState() => _EmojiPopoverState();
+}
+
+class _EmojiPopoverState extends State<EmojiPopover> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(15),
+      child: EmojiPicker(
+        onEmojiSelected: (category, emoji) {
+          widget.onEmojiChanged(emoji);
+        },
+        customWidget: (Config config, EmojiViewState state) {
+          return Stack(
+            alignment: Alignment.topRight,
+            children: [
+              Container(
+                  padding:
+                      EdgeInsets.only(top: widget.showRemoveButton ? 25 : 0),
+                  child: DefaultEmojiPickerView(config, state)),
+              !widget.showRemoveButton
+                  ? Container()
+                  : FlowyButton(
+                      onTap: () => widget.removeIcon!(),
+                      useIntrinsicWidth: true,
+                      hoverColor: Theme.of(context).colorScheme.onPrimary,
+                      text: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          svgWidget("editor/delete"),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          const FlowyText(
+                            "Remove Icon",
+                            color: Colors.grey,
+                          ),
+                        ],
+                      ),
+                    )
+            ],
+          );
+        },
+        config: const Config(
+          columns: 8,
+          emojiSizeMax: 28,
+          bgColor: Colors.transparent,
+          iconColor: Colors.grey,
+          iconColorSelected: Color(0xff333333),
+          indicatorColor: Color(0xff333333),
+          progressIndicatorColor: Color(0xff333333),
+          buttonMode: ButtonMode.CUPERTINO,
+          initCategory: Category.RECENT,
+        ),
+      ),
+    );
+  }
+}
