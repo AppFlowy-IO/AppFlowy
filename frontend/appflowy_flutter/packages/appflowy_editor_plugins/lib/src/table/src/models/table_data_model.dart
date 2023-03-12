@@ -1,3 +1,4 @@
+import 'package:appflowy_editor_plugins/src/table/src/table_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'dart:math';
@@ -9,101 +10,134 @@ typedef ColumnData = List<CellData>;
 typedef ColumnNode = List<Node>;
 
 class TableData extends ChangeNotifier {
-  List<ColumnData> cells = [];
-  List<ColumnNode> cellNodes = [];
+  final List<ColumnData> _cells = [];
+  final List<ColumnNode> _cellNodes = [];
 
-  final colDefaultWidth = 80.0, rowDefaultHeight = 40.0, colMinimumWidth = 40.0;
-  List<double> rowsHeight = [];
-  List<double> colsWidth = [];
+  final TableConfig _config;
+
+  final List<double> _rowsHeight = [], _colsWidth = [];
 
   // TODO(zoli): assertions: e.g that each column and row have equal cells
-  TableData(List<List<String>> data) {
-    cells.addAll(data.map((col) => col
-        .map((cell) => CellData.from({
-              "type": "text",
-              "delta": [
-                {"insert": cell}
-              ]
-            }))
-        .toList()));
+  TableData(List<List<String>> list, {config = const TableConfig()})
+      : _config = config {
+    assert(list.isNotEmpty);
+    for (var i = 0; i < list.length; i++) {
+      assert(list[i].isNotEmpty);
 
-    _fill();
-  }
+      _cells.add(ColumnData.from(list[i].map((cell) => CellData.from({
+            "type": "text",
+            "delta": [
+              {"insert": cell}
+            ]
+          }))));
+      assert(_cells[0].length == _cells[i].length);
 
-  TableData.fromJson(Map<String, dynamic> json) {
-    final jData = json['table_data'] as List?;
-    if (jData != null) {
-      cells.addAll(jData.map(
-          (col) => ColumnData.from(col.map((cell) => CellData.from(cell)))));
+      _colsWidth.add(_config.colDefaultWidth);
     }
 
-    _fill();
+    _fillRowsHeight();
   }
 
-  _fill() {
+  TableData.fromJson(Map<String, dynamic> json)
+      : _config = json.containsKey('config')
+            ? TableConfig.fromJson(json['config'])
+            : const TableConfig() {
+    assert(json['columns'] is List);
+    assert(json['columns'].isNotEmpty);
+    final jColumns = json['columns'] as List<dynamic>;
+
+    for (var i = 0; i < jColumns.length; i++) {
+      assert(jColumns[i].containsKey('cells'));
+
+      assert(jColumns[i]['cells'] is List);
+      assert(jColumns[i]['cells'].isNotEmpty);
+      final jCells = jColumns[i]['cells'] as List<dynamic>;
+      _cells.add(ColumnData.from(jCells.map((cell) => CellData.from(cell))));
+      assert(_cells[0].length == _cells[i].length);
+
+      var cw = _config.colDefaultWidth;
+      if (jColumns[i].containsKey('width')) {
+        cw = double.tryParse(jColumns[i]['width'].toString())!;
+      }
+      _colsWidth.add(cw);
+    }
+
+    _fillRowsHeight();
+  }
+
+  _fillRowsHeight() {
     for (var i = 0; i < rowsLen; i++) {
-      rowsHeight.add(rowDefaultHeight);
-    }
-
-    for (var i = 0; i < colsLen; i++) {
-      colsWidth.add(colDefaultWidth);
+      _rowsHeight.add(_config.rowDefaultHeight);
     }
   }
 
   Map<String, Object> toJson() {
-    var map = <String, Object>{};
-    map['table_data'] = cells
-        .map((col) => col
-            .map((cell) => Map<String, Object>.from(cell))
-            .toList(growable: false))
-        .toList(growable: false);
+    var map = <String, Object>{'config': _config.toJson()};
+
+    var columns = [];
+    for (var i = 0; i < _cells.length; i++) {
+      var cells = _cells[i]
+          .map((cell) => Map<String, Object>.from(cell))
+          .toList(growable: false);
+
+      columns.add({'width': getColWidth(i), 'cells': cells});
+    }
+    map['columns'] = columns;
 
     return map;
   }
 
-  CellData getCell(int col, row) => cells[col][row];
+  CellData getCell(int col, row) => _cells[col][row];
 
-  setCell(int col, row, CellData val) => cells[col][row] = val;
+  setCell(int col, row, CellData val) => _cells[col][row] = val;
+
   setNode(int col, row, Node val) {
-    if (cellNodes.length <= col) {
-      cellNodes.add([val]);
+    if (_cellNodes.length <= col) {
+      _cellNodes.add([val]);
     } else {
-      cellNodes[col].add(val);
+      _cellNodes[col].add(val);
     }
   }
 
-  get colsLen => cells.length;
-  get rowsLen => cells[0].length;
+  get config => _config.clone();
 
-  double getRowHeight(int row) => rowsHeight[row];
+  get colsLen => _cells.length;
+
+  get rowsLen => _cells[0].length;
+
+  double getRowHeight(int row) => _rowsHeight[row];
+
   get colsHeight =>
-      rowsHeight.fold<double>(0, (prev, cur) => prev + cur + 2) + 2;
+      _rowsHeight.fold<double>(
+          0, (prev, cur) => prev + cur + _config.tableBorderWidth) +
+      _config.tableBorderWidth;
 
-  double getColWidth(int col) => colsWidth[col];
+  double getColWidth(int col) => _colsWidth[col];
+
   setColWidth(int col, double w) {
-    w = w < colMinimumWidth ? colMinimumWidth : w;
-    colsWidth[col] = w;
+    w = w < _config.colMinimumWidth ? _config.colMinimumWidth : w;
+    _colsWidth[col] = w;
     notifyListeners();
   }
 
   notifyNodeUpdate(int col, row) {
-    var node = cellNodes[col][row], height = node.rect.height;
-    if (rowsHeight.length <= row) {
-      rowsHeight.add(height);
+    var node = _cellNodes[col][row], height = node.rect.height;
+    if (_rowsHeight.length <= row) {
+      _rowsHeight.add(height);
       notifyListeners();
     } else {
       double maxHeight =
-          cellNodes.map<double>((c) => c[row].rect.height).reduce(max);
+          _cellNodes.map<double>((c) => c[row].rect.height).reduce(max);
 
-      if (rowsHeight[row] != maxHeight) {
-        rowsHeight[row] = maxHeight;
+      if (_rowsHeight[row] != maxHeight) {
+        _rowsHeight[row] = maxHeight;
         notifyListeners();
       }
     }
   }
 
   addCol() {
-    cells.add(ColumnData.generate(
+    _cells.add(ColumnData.generate(
       rowsLen,
       (_) => CellData.from({
         "type": "text",
@@ -113,14 +147,14 @@ class TableData extends ChangeNotifier {
       }),
     ));
 
-    colsWidth.add(colDefaultWidth);
+    _colsWidth.add(_config.colDefaultWidth);
 
     notifyListeners();
   }
 
   addRow() {
-    for (var i = 0; i < cells.length; i++) {
-      cells[i].add(
+    for (var i = 0; i < _cells.length; i++) {
+      _cells[i].add(
         CellData.from({
           "type": "text",
           "delta": [
@@ -130,7 +164,7 @@ class TableData extends ChangeNotifier {
       );
     }
 
-    rowsHeight.add(rowDefaultHeight);
+    _rowsHeight.add(_config.rowDefaultHeight);
 
     notifyListeners();
   }
