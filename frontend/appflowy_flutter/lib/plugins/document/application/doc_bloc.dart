@@ -1,15 +1,18 @@
 import 'dart:convert';
+import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_node_widget.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/plugins/document/application/doc_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
-    show EditorState, Document, Transaction;
+    show EditorState, Document, Transaction, Node;
 import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:dartz/dartz.dart';
@@ -78,28 +81,27 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   Future<void> _initial(Initial value, Emitter<DocumentState> emit) async {
     final userProfile = await UserBackendService.getCurrentUserProfile();
     if (userProfile.isRight()) {
-      emit(
+      return emit(
         state.copyWith(
-          loadingState:
-              DocumentLoadingState.finish(right(userProfile.asRight())),
+          loadingState: DocumentLoadingState.finish(
+            right(userProfile.asRight()),
+          ),
         ),
       );
-      return;
     }
     final result = await _documentService.openDocument(view: view);
-    result.fold(
-      (documentData) {
-        final document = Document.fromJson(jsonDecode(documentData.content));
-        editorState = EditorState(document: document);
-        _listenOnDocumentChange();
-        emit(
-          state.copyWith(
-            loadingState: DocumentLoadingState.finish(left(unit)),
-            userProfilePB: userProfile.asLeft(),
-          ),
-        );
+    return result.fold(
+      (documentData) async {
+        await _initEditorState(documentData).whenComplete(() {
+          emit(
+            state.copyWith(
+              loadingState: DocumentLoadingState.finish(left(unit)),
+              userProfilePB: userProfile.asLeft(),
+            ),
+          );
+        });
       },
-      (err) {
+      (err) async {
         emit(
           state.copyWith(
             loadingState: DocumentLoadingState.finish(right(err)),
@@ -126,8 +128,13 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     );
   }
 
-  void _listenOnDocumentChange() {
-    _subscription = editorState?.transactionStream.listen((transaction) {
+  Future<void> _initEditorState(DocumentDataPB documentData) async {
+    final document = Document.fromJson(jsonDecode(documentData.content));
+    final editorState = EditorState(document: document);
+    this.editorState = editorState;
+
+    // listen on document change
+    _subscription = editorState.transactionStream.listen((transaction) {
       final json = jsonEncode(TransactionAdaptor(transaction).toJson());
       _documentService
           .applyEdit(docId: view.id, operations: json)
@@ -138,6 +145,15 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         );
       });
     });
+    // log
+    if (kDebugMode) {
+      editorState.logConfiguration.handler = (log) {
+        Log.debug(log);
+      };
+    }
+    // migration
+    final migration = DocumentMigration(editorState: editorState);
+    await migration.apply();
   }
 }
 
@@ -212,5 +228,35 @@ class TransactionAdaptor {
           .toJson();
     }
     return json;
+  }
+}
+
+class DocumentMigration {
+  const DocumentMigration({
+    required this.editorState,
+  });
+
+  final EditorState editorState;
+
+  /// Migrate the document to the latest version.
+  Future<void> apply() async {
+    final transaction = editorState.transaction;
+
+    // A temporary solution to migrate the document to the latest version.
+    // Once the editor is stable, we can remove this.
+
+    // cover plugin
+    if (editorState.document.nodeAtPath([0])?.type != kCoverType) {
+      transaction.insertNode(
+        [0],
+        Node(type: kCoverType),
+      );
+    }
+
+    transaction.afterSelection = null;
+
+    if (transaction.operations.isNotEmpty) {
+      editorState.apply(transaction);
+    }
   }
 }

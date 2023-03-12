@@ -1,15 +1,23 @@
 import { Button } from '../../_shared/Button';
+import { Details2Svg } from '../../_shared/svg/Details2Svg';
+import { usePageOptions } from './PageOptions.hooks';
+import { OptionsPopup } from './OptionsPopup';
 
 export const PageOptions = () => {
-  return (
-    <div className={'flex items-center'}>
-      <Button size={'small'} onClick={() => console.log('share click')}>
-        Share
-      </Button>
+  const { showOptionsPopup, onOptionsClick, onClose, onSignOutClick } = usePageOptions();
 
-      <button className={'ml-8'}>
-        <img className={'h-8 w-8'} src={`/images/editor/details.svg`} />
-      </button>
-    </div>
+  return (
+    <>
+      <div className={'relative flex items-center gap-4'}>
+        <Button size={'small'} onClick={() => console.log('share click')}>
+          Share
+        </Button>
+
+        <button id='option-button' className={'relative h-8 w-8'} onClick={onOptionsClick}  >
+          <Details2Svg></Details2Svg>
+        </button>
+      </div>
+      {showOptionsPopup && <OptionsPopup onSignOutClick={onSignOutClick} onClose={onClose}></OptionsPopup>}
+    </>
   );
 };

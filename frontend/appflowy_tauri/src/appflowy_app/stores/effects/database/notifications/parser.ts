@@ -1,10 +1,11 @@
-import { DatabaseNotification } from '../../../../../services/backend';
-import { NotificationParser, OnNotificationError } from '../../../../../services/backend/notifications';
+import { DatabaseNotification, FlowyError } from '../../../../../services/backend';
+import { NotificationParser } from '../../../../../services/backend/notifications';
+import { Result } from 'ts-results';
 
-declare type DatabaseNotificationCallback = (ty: DatabaseNotification, payload: Uint8Array) => void;
+declare type DatabaseNotificationCallback = (ty: DatabaseNotification, payload: Result<Uint8Array, FlowyError>) => void;
 
 export class DatabaseNotificationParser extends NotificationParser<DatabaseNotification> {
-  constructor(params: { id?: string; callback: DatabaseNotificationCallback; onError?: OnNotificationError }) {
+  constructor(params: { id?: string; callback: DatabaseNotificationCallback }) {
     super(
       params.callback,
       (ty) => {
@@ -15,8 +16,7 @@ export class DatabaseNotificationParser extends NotificationParser<DatabaseNotif
           return DatabaseNotification.Unknown;
         }
       },
-      params.id,
-      params.onError
+      params.id
     );
   }
 }

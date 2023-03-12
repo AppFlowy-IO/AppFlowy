@@ -1,3 +1,4 @@
+#![allow(clippy::unused_unit)]
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyResult};
 use flowy_revision::{RevisionSnapshotData, RevisionSnapshotPersistence};

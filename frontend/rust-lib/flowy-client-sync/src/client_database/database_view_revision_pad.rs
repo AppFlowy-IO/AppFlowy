@@ -312,7 +312,7 @@ impl DatabaseViewRevisionPad {
   }
 
   /// updates the settings for the given layout type
-  pub fn update_layout_setting<T>(
+  pub fn set_layout_setting<T>(
     &mut self,
     layout: &LayoutRevision,
     settings: &T,
@@ -364,14 +364,18 @@ pub struct DatabaseViewRevisionChangeset {
   pub md5: String,
 }
 
-pub fn make_database_view_rev_json_str(grid_revision: &DatabaseViewRevision) -> SyncResult<String> {
-  let json = serde_json::to_string(grid_revision).map_err(|err| {
+pub fn make_database_view_rev_json_str(
+  database_view_rev: &DatabaseViewRevision,
+) -> SyncResult<String> {
+  let json = serde_json::to_string(database_view_rev).map_err(|err| {
     internal_sync_error(format!("Serialize grid view to json str failed. {:?}", err))
   })?;
   Ok(json)
 }
 
-pub fn make_database_view_operations(grid_view: &DatabaseViewRevision) -> DatabaseViewOperations {
-  let json = serde_json::to_string(grid_view).unwrap();
+pub fn make_database_view_operations(
+  database_view_rev: &DatabaseViewRevision,
+) -> DatabaseViewOperations {
+  let json = serde_json::to_string(database_view_rev).unwrap();
   DatabaseViewOperationsBuilder::new().insert(&json).build()
 }

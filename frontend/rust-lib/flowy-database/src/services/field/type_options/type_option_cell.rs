@@ -289,6 +289,7 @@ where
     decoded_field_type: &FieldType,
     field_rev: &FieldRevision,
   ) -> FlowyResult<BoxCellData> {
+    // tracing::debug!("get_cell_data: {:?}", std::any::type_name::<Self>());
     let cell_data = if self.transformable() {
       match self.transform_type_option_cell_str(&cell_str, decoded_field_type, field_rev) {
         None => self.get_decoded_cell_data(cell_str, decoded_field_type, field_rev)?,

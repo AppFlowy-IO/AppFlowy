@@ -48,7 +48,7 @@ export const NavItemOptionsPopup = ({
     <Popup
       onOutsideClick={() => onClose && onClose()}
       items={items}
-      className={'absolute right-0 top-full z-10'}
+      className={'absolute right-0 top-[40px] z-10'}
     ></Popup>
   );
 };

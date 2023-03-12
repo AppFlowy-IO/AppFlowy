@@ -2,9 +2,9 @@ part of 'cell_service.dart';
 
 typedef CellByFieldId = LinkedHashMap<String, CellIdentifier>;
 
-class GridBaseCell {
+class DatabaseCell {
   dynamic object;
-  GridBaseCell({
+  DatabaseCell({
     required this.object,
   });
 }
@@ -44,7 +44,7 @@ class CellCache {
     }
   }
 
-  void insert<T extends GridBaseCell>(CellCacheKey key, T value) {
+  void insert<T extends DatabaseCell>(CellCacheKey key, T value) {
     var map = _cellDataByFieldId[key.fieldId];
     if (map == null) {
       _cellDataByFieldId[key.fieldId] = {};

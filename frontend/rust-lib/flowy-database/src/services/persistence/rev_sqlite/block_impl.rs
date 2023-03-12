@@ -22,7 +22,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseBlockRevisionPersi
 
   fn create_revision_records(&self, revision_records: Vec<SyncRecord>) -> Result<(), Self::Error> {
     let conn = self.pool.get().map_err(internal_error)?;
-    GridMetaRevisionSql::create(revision_records, &conn)?;
+    DatabaseBlockMetaRevisionSql::create(revision_records, &conn)?;
     Ok(())
   }
 
@@ -36,7 +36,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseBlockRevisionPersi
     rev_ids: Option<Vec<i64>>,
   ) -> Result<Vec<SyncRecord>, Self::Error> {
     let conn = self.pool.get().map_err(internal_error)?;
-    let records = GridMetaRevisionSql::read(&self.user_id, object_id, rev_ids, &conn)?;
+    let records = DatabaseBlockMetaRevisionSql::read(&self.user_id, object_id, rev_ids, &conn)?;
     Ok(records)
   }
 
@@ -47,7 +47,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseBlockRevisionPersi
   ) -> Result<Vec<SyncRecord>, Self::Error> {
     let conn = &*self.pool.get().map_err(internal_error)?;
     let revisions =
-      GridMetaRevisionSql::read_with_range(&self.user_id, object_id, range.clone(), conn)?;
+      DatabaseBlockMetaRevisionSql::read_with_range(&self.user_id, object_id, range.clone(), conn)?;
     Ok(revisions)
   }
 
@@ -55,7 +55,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseBlockRevisionPersi
     let conn = &*self.pool.get().map_err(internal_error)?;
     conn.immediate_transaction::<_, FlowyError, _>(|| {
       for changeset in changesets {
-        GridMetaRevisionSql::update(changeset, conn)?;
+        DatabaseBlockMetaRevisionSql::update(changeset, conn)?;
       }
       Ok(())
     })?;
@@ -68,7 +68,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseBlockRevisionPersi
     rev_ids: Option<Vec<i64>>,
   ) -> Result<(), Self::Error> {
     let conn = &*self.pool.get().map_err(internal_error)?;
-    GridMetaRevisionSql::delete(object_id, rev_ids, conn)?;
+    DatabaseBlockMetaRevisionSql::delete(object_id, rev_ids, conn)?;
     Ok(())
   }
 
@@ -80,8 +80,8 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDatabaseBlockRevisionPersi
   ) -> Result<(), Self::Error> {
     let conn = self.pool.get().map_err(internal_error)?;
     conn.immediate_transaction::<_, FlowyError, _>(|| {
-      GridMetaRevisionSql::delete(object_id, deleted_rev_ids, &conn)?;
-      GridMetaRevisionSql::create(inserted_records, &conn)?;
+      DatabaseBlockMetaRevisionSql::delete(object_id, deleted_rev_ids, &conn)?;
+      DatabaseBlockMetaRevisionSql::create(inserted_records, &conn)?;
       Ok(())
     })
   }
@@ -96,8 +96,8 @@ impl SQLiteDatabaseBlockRevisionPersistence {
   }
 }
 
-struct GridMetaRevisionSql();
-impl GridMetaRevisionSql {
+struct DatabaseBlockMetaRevisionSql();
+impl DatabaseBlockMetaRevisionSql {
   fn create(revision_records: Vec<SyncRecord>, conn: &SqliteConnection) -> Result<(), FlowyError> {
     // Batch insert: https://diesel.rs/guides/all-about-inserts.html
 
@@ -105,7 +105,8 @@ impl GridMetaRevisionSql {
       .into_iter()
       .map(|record| {
         tracing::trace!(
-          "[GridMetaRevisionSql] create revision: {}:{:?}",
+          "[{}] create revision: {}:{:?}",
+          std::any::type_name::<Self>(),
           record.revision.object_id,
           record.revision.rev_id
         );
@@ -133,7 +134,8 @@ impl GridMetaRevisionSql {
       .filter(dsl::object_id.eq(changeset.object_id));
     let _ = update(filter).set(dsl::state.eq(state)).execute(conn)?;
     tracing::debug!(
-      "[GridMetaRevisionSql] update revision:{} state:to {:?}",
+      "[{}] update revision:{} state:to {:?}",
+      std::any::type_name::<Self>(),
       changeset.rev_id,
       changeset.state
     );
@@ -193,7 +195,8 @@ impl GridMetaRevisionSql {
 
     if let Some(rev_ids) = rev_ids {
       tracing::trace!(
-        "[GridMetaRevisionSql] Delete revision: {}:{:?}",
+        "[{}] Delete revision: {}:{:?}",
+        std::any::type_name::<Self>(),
         object_id,
         rev_ids
       );
@@ -201,7 +204,11 @@ impl GridMetaRevisionSql {
     }
 
     let affected_row = sql.execute(conn)?;
-    tracing::trace!("[GridMetaRevisionSql] Delete {} rows", affected_row);
+    tracing::trace!(
+      "[{}] Delete {} rows",
+      std::any::type_name::<Self>(),
+      affected_row
+    );
     Ok(())
   }
 }

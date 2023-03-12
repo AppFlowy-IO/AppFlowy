@@ -14,6 +14,7 @@ class FlowyIconButton extends StatelessWidget {
   final EdgeInsets iconPadding;
   final BorderRadius? radius;
   final String? tooltipText;
+  final bool preferBelow;
 
   const FlowyIconButton({
     Key? key,
@@ -25,6 +26,7 @@ class FlowyIconButton extends StatelessWidget {
     this.iconPadding = EdgeInsets.zero,
     this.radius,
     this.tooltipText,
+    this.preferBelow = true,
     required this.icon,
   }) : super(key: key);
 
@@ -44,6 +46,7 @@ class FlowyIconButton extends StatelessWidget {
       constraints:
           BoxConstraints.tightFor(width: size.width, height: size.height),
       child: Tooltip(
+        preferBelow: preferBelow,
         message: tooltipText ?? '',
         showDuration: Duration.zero,
         child: RawMaterialButton(

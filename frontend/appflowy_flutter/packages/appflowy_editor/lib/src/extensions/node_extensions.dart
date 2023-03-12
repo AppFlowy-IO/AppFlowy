@@ -37,3 +37,17 @@ extension NodeExtensions on Node {
         currentSelectedNodes.first == this;
   }
 }
+
+extension NodesExtensions<T extends Node> on List<T> {
+  List<T> get normalized {
+    if (isEmpty) {
+      return this;
+    }
+
+    if (first.path > last.path) {
+      return reversed.toList();
+    }
+
+    return this;
+  }
+}

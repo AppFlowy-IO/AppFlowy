@@ -1,8 +1,28 @@
-import { useParams } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useDocument } from './DocumentPage.hooks';
+import BlockList from '../components/block/BlockList';
+import { BlockContext } from '../utils/block_context';
+import { createTheme, ThemeProvider } from '@mui/material';
 
+const theme = createTheme({
+  typography: {
+    fontFamily: ['Poppins'].join(','),
+  },
+});
 export const DocumentPage = () => {
-  const params = useParams();
+  const { blocksMap, blockId } = useDocument();
 
-  return <div className={'p-8'}>Document Page ID: {params.id}</div>;
+  return (
+    <ThemeProvider theme={theme}>
+      <div id='appflowy-block-doc' className='flex flex-col items-center'>
+        <BlockContext.Provider
+          value={{
+            id: blockId,
+            blocksMap,
+          }}
+        >
+          <BlockList />
+        </BlockContext.Provider>
+      </div>
+    </ThemeProvider>
+  );
 };

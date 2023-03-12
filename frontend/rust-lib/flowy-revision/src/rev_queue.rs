@@ -1,3 +1,4 @@
+#![allow(clippy::while_let_loop)]
 use crate::{RevIdCounter, RevisionMergeable, RevisionPersistence};
 use async_stream::stream;
 use bytes::Bytes;

@@ -87,6 +87,8 @@ class AddButtonActionWrapper extends ActionCell {
 
   @override
   String get name => pluginBuilder.menuName;
+
+  PluginType get pluginType => pluginBuilder.pluginType;
 }
 
 class ImportActionWrapper extends ActionCell {

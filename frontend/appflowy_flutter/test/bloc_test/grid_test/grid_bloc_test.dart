@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/application/grid_data_controller.dart';
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pbenum.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'util.dart';
@@ -20,7 +21,10 @@ void main() {
       "create a row",
       build: () => GridBloc(
           view: context.gridView,
-          gridController: DatabaseController(view: context.gridView))
+          databaseController: DatabaseController(
+            view: context.gridView,
+            layoutType: LayoutTypePB.Grid,
+          ))
         ..add(const GridEvent.initial()),
       act: (bloc) => bloc.add(const GridEvent.createRow()),
       wait: const Duration(milliseconds: 300),
@@ -33,7 +37,10 @@ void main() {
       "delete the last row",
       build: () => GridBloc(
           view: context.gridView,
-          gridController: DatabaseController(view: context.gridView))
+          databaseController: DatabaseController(
+            view: context.gridView,
+            layoutType: LayoutTypePB.Grid,
+          ))
         ..add(const GridEvent.initial()),
       act: (bloc) async {
         await gridResponseFuture();

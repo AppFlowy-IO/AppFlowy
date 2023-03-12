@@ -1,40 +1,46 @@
-import { Err, Ok, Result } from 'ts-results';
+import { Ok, Result } from 'ts-results';
 import { ChangeNotifier } from '../../../../utils/change_notifier';
 import { DatabaseNotificationObserver } from '../notifications/observer';
-import { FlowyError } from '../../../../../services/backend/models/flowy-error';
-import { DatabaseNotification } from '../../../../../services/backend';
+import { DatabaseNotification, FlowyError } from '../../../../../services/backend';
 
 type UpdateCellNotifiedValue = Result<void, FlowyError>;
 
-export type CellListenerCallback = (value: UpdateCellNotifiedValue) => void;
+export type CellChangedCallback = (value: UpdateCellNotifiedValue) => void;
 
 export class CellObserver {
-  _notifier?: ChangeNotifier<UpdateCellNotifiedValue>;
-  _listener?: DatabaseNotificationObserver;
+  private notifier?: ChangeNotifier<UpdateCellNotifiedValue>;
+  private listener?: DatabaseNotificationObserver;
+
   constructor(public readonly rowId: string, public readonly fieldId: string) {}
 
-  subscribe = (callbacks: { onCellChanged: CellListenerCallback }) => {
-    this._notifier = new ChangeNotifier();
-    this._notifier?.observer.subscribe(callbacks.onCellChanged);
+  subscribe = async (callbacks: { onCellChanged: CellChangedCallback }) => {
+    this.notifier = new ChangeNotifier();
+    this.notifier?.observer.subscribe(callbacks.onCellChanged);
 
-    this._listener = new DatabaseNotificationObserver({
-      viewId: this.rowId + ':' + this.fieldId,
-      parserHandler: (notification) => {
+    this.listener = new DatabaseNotificationObserver({
+      // The rowId combine with fieldId can identifier the cell.
+      // This format rowId:fieldId is also defined in the backend,
+      // so don't change this.
+      id: this.rowId + ':' + this.fieldId,
+      parserHandler: (notification, result) => {
         switch (notification) {
           case DatabaseNotification.DidUpdateCell:
-            this._notifier?.notify(Ok.EMPTY);
+            if (result.ok) {
+              this.notifier?.notify(Ok.EMPTY);
+            } else {
+              this.notifier?.notify(result);
+            }
             return;
           default:
             break;
         }
       },
-      onError: (error) => this._notifier?.notify(Err(error)),
     });
-    return undefined;
+    await this.listener.start();
   };
 
   unsubscribe = async () => {
-    this._notifier?.unsubscribe();
-    await this._listener?.stop();
+    this.notifier?.unsubscribe();
+    await this.listener?.stop();
   };
 }

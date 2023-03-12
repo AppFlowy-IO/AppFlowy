@@ -61,10 +61,12 @@ class TrashCell extends StatelessWidget {
   }
 
   String dateFormatter($fixnum.Int64 inputTimestamps) {
-    var outputFormat = DateFormat('MM/dd/yyyy hh:mm a');
-    var date =
-        DateTime.fromMillisecondsSinceEpoch(inputTimestamps.toInt() * 1000);
-    var outputDate = outputFormat.format(date);
+    final outputFormat = DateFormat('MM/dd/yyyy hh:mm a');
+    final date = DateTime.fromMillisecondsSinceEpoch(
+      inputTimestamps.toInt() * 1000,
+      isUtc: true,
+    );
+    final outputDate = outputFormat.format(date);
     return outputDate;
   }
 }

@@ -2,9 +2,10 @@ use crate::queue::TaskQueue;
 use crate::store::TaskStore;
 use crate::{Task, TaskContent, TaskId, TaskState};
 use anyhow::Error;
-use lib_infra::async_trait::async_trait;
+
 use lib_infra::future::BoxResultFuture;
-use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
+
+use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -15,7 +16,7 @@ pub struct TaskDispatcher {
   queue: TaskQueue,
   store: TaskStore,
   timeout: Duration,
-  handlers: RefCountHashMap<RefCountTaskHandler>,
+  handlers: HashMap<String, Arc<dyn TaskHandler>>,
 
   notifier: watch::Sender<bool>,
   pub(crate) notifier_rx: Option<watch::Receiver<bool>>,
@@ -28,7 +29,7 @@ impl TaskDispatcher {
       queue: TaskQueue::new(),
       store: TaskStore::new(),
       timeout,
-      handlers: RefCountHashMap::new(),
+      handlers: HashMap::new(),
       notifier,
       notifier_rx: Some(notifier_rx),
     }
@@ -39,13 +40,17 @@ impl TaskDispatcher {
     T: TaskHandler,
   {
     let handler_id = handler.handler_id().to_owned();
-    self
-      .handlers
-      .insert(handler_id, RefCountTaskHandler(Arc::new(handler)));
+    self.handlers.insert(handler_id, Arc::new(handler));
   }
 
   pub async fn unregister_handler<T: AsRef<str>>(&mut self, handler_id: T) {
-    self.handlers.remove(handler_id.as_ref()).await;
+    if let Some(handler) = self.handlers.remove(handler_id.as_ref()) {
+      tracing::trace!(
+        "{}:{} is unregistered",
+        handler.handler_name(),
+        handler.handler_id()
+      );
+    }
   }
 
   pub fn stop(&mut self) {
@@ -69,25 +74,25 @@ impl TaskDispatcher {
     let content = task.content.take()?;
     if let Some(handler) = self.handlers.get(&task.handler_id) {
       task.set_state(TaskState::Processing);
-      tracing::trace!(
-        "Run {} task with content: {:?}",
-        handler.handler_name(),
-        content
-      );
+      tracing::trace!("{} task is running", handler.handler_name(),);
       match tokio::time::timeout(self.timeout, handler.run(content)).await {
         Ok(result) => match result {
-          Ok(_) => task.set_state(TaskState::Done),
+          Ok(_) => {
+            tracing::trace!("{} task is done", handler.handler_name(),);
+            task.set_state(TaskState::Done)
+          },
           Err(e) => {
-            tracing::error!("Process {} task failed: {:?}", handler.handler_name(), e);
+            tracing::error!("{} task is failed: {:?}", handler.handler_name(), e);
             task.set_state(TaskState::Failure);
           },
         },
         Err(e) => {
-          tracing::error!("Process {} task timeout: {:?}", handler.handler_name(), e);
+          tracing::error!("{} task is timeout: {:?}", handler.handler_name(), e);
           task.set_state(TaskState::Timeout);
         },
       }
     } else {
+      tracing::trace!("{} is cancel", task.handler_id);
       task.set_state(TaskState::Cancel);
     }
     let _ = ret.send(task.into());
@@ -195,20 +200,5 @@ where
 
   fn run(&self, content: TaskContent) -> BoxResultFuture<(), Error> {
     (**self).run(content)
-  }
-}
-#[derive(Clone)]
-struct RefCountTaskHandler(Arc<dyn TaskHandler>);
-
-#[async_trait]
-impl RefCountValue for RefCountTaskHandler {
-  async fn did_remove(&self) {}
-}
-
-impl std::ops::Deref for RefCountTaskHandler {
-  type Target = Arc<dyn TaskHandler>;
-
-  fn deref(&self) -> &Self::Target {
-    &self.0
   }
 }

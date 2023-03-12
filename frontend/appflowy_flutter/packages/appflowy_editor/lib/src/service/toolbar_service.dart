@@ -7,7 +7,11 @@ import 'package:appflowy_editor/src/extensions/object_extensions.dart';
 
 abstract class AppFlowyToolbarService {
   /// Show the toolbar widget beside the offset.
-  void showInOffset(Offset offset, Alignment alignment, LayerLink layerLink);
+  void showInOffset(
+    Offset offset,
+    Alignment alignment,
+    LayerLink layerLink,
+  );
 
   /// Hide the toolbar widget.
   void hide();
@@ -45,7 +49,11 @@ class _FlowyToolbarState extends State<FlowyToolbar>
   }
 
   @override
-  void showInOffset(Offset offset, Alignment alignment, LayerLink layerLink) {
+  void showInOffset(
+    Offset offset,
+    Alignment alignment,
+    LayerLink layerLink,
+  ) {
     hide();
     final items = _filterItems(toolbarItems);
     if (items.isEmpty) {
@@ -78,7 +86,7 @@ class _FlowyToolbarState extends State<FlowyToolbar>
       assert(items.length == 1, 'The toolbar item\'s id must be unique');
       return false;
     }
-    items.first.handler(widget.editorState, context);
+    items.first.handler?.call(widget.editorState, context);
     return true;
   }
 

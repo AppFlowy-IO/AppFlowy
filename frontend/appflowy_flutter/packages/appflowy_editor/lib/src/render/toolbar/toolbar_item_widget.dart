@@ -16,24 +16,27 @@ class ToolbarItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 28,
-      height: 28,
-      child: Tooltip(
-        preferBelow: false,
-        message: item.tooltipsMessage,
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: IconButton(
-            hoverColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            padding: EdgeInsets.zero,
-            icon: item.iconBuilder(isHighlight),
-            iconSize: 28,
-            onPressed: onPressed,
+    if (item.iconBuilder != null) {
+      return SizedBox(
+        width: 28,
+        height: 28,
+        child: Tooltip(
+          preferBelow: false,
+          message: item.tooltipsMessage,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: IconButton(
+              hoverColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              padding: EdgeInsets.zero,
+              icon: item.iconBuilder!(isHighlight),
+              iconSize: 28,
+              onPressed: onPressed,
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
+    return const SizedBox.shrink();
   }
 }

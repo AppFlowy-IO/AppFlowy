@@ -30,7 +30,7 @@ export const RenamePopup = ({
     <div
       ref={ref}
       className={
-        'absolute left-[30px] top-[30px] z-10 flex w-[300px] rounded bg-white py-1 px-1.5 shadow-md ' + className
+        'absolute left-[50px] top-[40px] z-10 flex w-[300px] rounded bg-white py-1 px-1.5 shadow-md ' + className
       }
     >
       <input

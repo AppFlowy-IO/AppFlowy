@@ -10,15 +10,15 @@ type RestoreViewNotifyValue = Result<ViewPB, FlowyError>;
 type MoveToTrashViewNotifyValue = Result<DeletedViewPB, FlowyError>;
 
 export class ViewObserver {
-  _deleteViewNotifier = new ChangeNotifier<DeleteViewNotifyValue>();
-  _updateViewNotifier = new ChangeNotifier<UpdateViewNotifyValue>();
-  _restoreViewNotifier = new ChangeNotifier<RestoreViewNotifyValue>();
-  _moveToTashNotifier = new ChangeNotifier<MoveToTrashViewNotifyValue>();
-  _listener?: FolderNotificationObserver;
+  private _deleteViewNotifier = new ChangeNotifier<DeleteViewNotifyValue>();
+  private _updateViewNotifier = new ChangeNotifier<UpdateViewNotifyValue>();
+  private _restoreViewNotifier = new ChangeNotifier<RestoreViewNotifyValue>();
+  private _moveToTashNotifier = new ChangeNotifier<MoveToTrashViewNotifyValue>();
+  private _listener?: FolderNotificationObserver;
 
   constructor(public readonly viewId: string) {}
 
-  subscribe = (callbacks: {
+  subscribe = async (callbacks: {
     onViewUpdate?: (value: UpdateViewNotifyValue) => void;
     onViewDelete?: (value: DeleteViewNotifyValue) => void;
     onViewRestored?: (value: RestoreViewNotifyValue) => void;
@@ -42,26 +42,42 @@ export class ViewObserver {
 
     this._listener = new FolderNotificationObserver({
       viewId: this.viewId,
-      parserHandler: (notification, payload) => {
+      parserHandler: (notification, result) => {
         switch (notification) {
           case FolderNotification.DidUpdateView:
-            this._updateViewNotifier.notify(Ok(ViewPB.deserializeBinary(payload)));
+            if (result.ok) {
+              this._updateViewNotifier.notify(Ok(ViewPB.deserializeBinary(result.val)));
+            } else {
+              this._updateViewNotifier.notify(result);
+            }
             break;
           case FolderNotification.DidDeleteView:
-            this._deleteViewNotifier.notify(Ok(ViewPB.deserializeBinary(payload)));
+            if (result.ok) {
+              this._deleteViewNotifier.notify(Ok(ViewPB.deserializeBinary(result.val)));
+            } else {
+              this._deleteViewNotifier.notify(result);
+            }
             break;
           case FolderNotification.DidRestoreView:
-            this._restoreViewNotifier.notify(Ok(ViewPB.deserializeBinary(payload)));
+            if (result.ok) {
+              this._restoreViewNotifier.notify(Ok(ViewPB.deserializeBinary(result.val)));
+            } else {
+              this._restoreViewNotifier.notify(result);
+            }
             break;
           case FolderNotification.DidMoveViewToTrash:
-            this._moveToTashNotifier.notify(Ok(DeletedViewPB.deserializeBinary(payload)));
+            if (result.ok) {
+              this._moveToTashNotifier.notify(Ok(DeletedViewPB.deserializeBinary(result.val)));
+            } else {
+              this._moveToTashNotifier.notify(result);
+            }
             break;
           default:
             break;
         }
       },
     });
-    return undefined;
+    await this._listener.start();
   };
 
   unsubscribe = async () => {

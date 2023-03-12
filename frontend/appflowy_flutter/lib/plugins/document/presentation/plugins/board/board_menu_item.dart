@@ -7,7 +7,7 @@ import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
 
 SelectionMenuItem boardMenuItem = SelectionMenuItem(
-  name: () => LocaleKeys.document_plugins_referencedBoard.tr(),
+  name: LocaleKeys.document_plugins_referencedBoard.tr(),
   icon: (editorState, onSelected) {
     return svgWidget(
       'editor/board',
