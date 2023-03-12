@@ -2,6 +2,7 @@ import 'package:appflowy/workspace/application/settings/shortcuts/settings_short
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsCustomizeShortcuts extends StatelessWidget {
@@ -86,11 +87,82 @@ class ShortcutsListTile extends StatelessWidget {
         FlowyTextButton(
           shortcutEvent.command,
           onPressed: () {
-            print(shortcutEvent);
+            showEditingDialog(shortcutEvent, context);
           },
         )
       ],
     );
+  }
+
+  void showEditingDialog(ShortcutEvent shortcutEvent, BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final controller = TextEditingController(text: shortcutEvent.command);
+        return AlertDialog(
+          title: const Text('Edit Shortcut Keybinding'),
+          content: RawKeyboardListener(
+            focusNode: FocusNode(),
+            onKey: (key) {
+              if (key is! RawKeyDownEvent) return;
+              if (key.logicalKey == LogicalKeyboardKey.enter &&
+                  !key.isShiftPressed) {
+                //this means that the user submits the key binding
+              } else if (key.logicalKey == LogicalKeyboardKey.escape) {
+                _dismiss(context);
+              } else {
+                //extract the keybinding command from the rawkeyevent.
+                controller.text = key.convertToCommand;
+              }
+            },
+            child: TextField(
+              autofocus: true,
+              controller: controller,
+              readOnly: true,
+              maxLines: null,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => _dismiss(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => _dismiss(context),
+              child: const Text('Done'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  _dismiss(BuildContext context) => Navigator.of(context).pop();
+}
+
+extension on RawKeyEvent {
+  String get convertToCommand {
+    String command = '';
+    if (isAltPressed) {
+      command += 'alt+';
+    }
+    if (isControlPressed) {
+      command += 'ctrl+';
+    }
+    if (isShiftPressed) {
+      command += 'shift+';
+    }
+    if (isMetaPressed) {
+      command += 'meta+';
+    }
+    String keyPressed = keyToCodeMapping.keys.firstWhere(
+        (k) => keyToCodeMapping[k] == logicalKey.keyId,
+        orElse: () => '');
+    command += keyPressed;
+    return command;
   }
 }
 
