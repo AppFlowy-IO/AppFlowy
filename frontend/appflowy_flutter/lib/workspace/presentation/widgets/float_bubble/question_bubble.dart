@@ -66,7 +66,7 @@ class BubbleActionList extends StatelessWidget {
               break;
             case BubbleAction.shortcuts:
               _launchURL(
-                  "https://github.com/AppFlowy-IO/AppFlowy-Docs/blob/main/essential-documentation/shortcuts.md");
+                  "https://appflowy.gitbook.io/docs/essential-documentation/shortcuts");
               break;
           }
         }
