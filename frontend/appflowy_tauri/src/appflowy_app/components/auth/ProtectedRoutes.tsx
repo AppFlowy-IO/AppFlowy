@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { GetStarted } from './GetStarted/GetStarted';
 import { AppflowyLogo } from '../_shared/svg/AppflowyLogo';
 
+
 export const ProtectedRoutes = () => {
   const { currentUser, checkUser } = useAuth();
   const [isLoading, setIsLoading] = useState(true);

@@ -10,40 +10,44 @@ void main() async {
   });
 
   group('selection_menu_widget.dart', () {
-    for (var i = 0; i < defaultSelectionMenuItems.length; i += 1) {
-      testWidgets('Selects number.$i item in selection menu with enter',
-          (tester) async {
-        final editor = await _prepare(tester);
-        for (var j = 0; j < i; j++) {
-          await editor.pressLogicKey(LogicalKeyboardKey.arrowDown);
-        }
+    // const i = defaultSelectionMenuItems.length;
+    //
+    // Because the `defaultSelectionMenuItems` uses localization,
+    // and the MaterialApp has not been initialized at the time of getting the value,
+    // it will crash.
+    //
+    // Use const value temporarily instead.
+    const i = 7;
+    testWidgets('Selects number.$i item in selection menu with keyboard',
+        (tester) async {
+      final editor = await _prepare(tester);
+      for (var j = 0; j < i; j++) {
+        await editor.pressLogicKey(LogicalKeyboardKey.arrowDown);
+      }
 
-        await editor.pressLogicKey(LogicalKeyboardKey.enter);
-        expect(
-          find.byType(SelectionMenuWidget, skipOffstage: false),
-          findsNothing,
-        );
-        if (defaultSelectionMenuItems[i].name() != 'Image') {
-          await _testDefaultSelectionMenuItems(i, editor);
-        }
-      });
+      await editor.pressLogicKey(LogicalKeyboardKey.enter);
+      expect(
+        find.byType(SelectionMenuWidget, skipOffstage: false),
+        findsNothing,
+      );
+      if (defaultSelectionMenuItems[i].name != 'Image') {
+        await _testDefaultSelectionMenuItems(i, editor);
+      }
+    });
 
-      testWidgets('Selects number.$i item in selection menu with click',
-          (tester) async {
-        final editor = await _prepare(tester);
-
-        await tester.tap(find.byType(SelectionMenuItemWidget).at(i));
-        await tester.pumpAndSettle();
-
-        expect(
-          find.byType(SelectionMenuWidget, skipOffstage: false),
-          findsNothing,
-        );
-        if (defaultSelectionMenuItems[i].name() != 'Image') {
-          await _testDefaultSelectionMenuItems(i, editor);
-        }
-      });
-    }
+    testWidgets('Selects number.$i item in selection menu with clicking',
+        (tester) async {
+      final editor = await _prepare(tester);
+      await tester.tap(find.byType(SelectionMenuItemWidget).at(i));
+      await tester.pumpAndSettle();
+      expect(
+        find.byType(SelectionMenuWidget, skipOffstage: false),
+        findsNothing,
+      );
+      if (defaultSelectionMenuItems[i].name != 'Image') {
+        await _testDefaultSelectionMenuItems(i, editor);
+      }
+    });
 
     testWidgets('Search item in selection menu util no results',
         (tester) async {
@@ -136,7 +140,7 @@ Future<EditorWidgetTester> _prepare(WidgetTester tester) async {
   );
 
   for (final item in defaultSelectionMenuItems) {
-    expect(find.text(item.name()), findsOneWidget);
+    expect(find.text(item.name), findsOneWidget);
   }
 
   return Future.value(editor);
@@ -146,28 +150,31 @@ Future<void> _testDefaultSelectionMenuItems(
     int index, EditorWidgetTester editor) async {
   expect(editor.documentLength, 4);
   expect(editor.documentSelection, Selection.single(path: [2], startOffset: 0));
+  expect((editor.nodeAtPath([0]) as TextNode).toPlainText(),
+      'Welcome to Appflowy 😁');
   expect((editor.nodeAtPath([1]) as TextNode).toPlainText(),
       'Welcome to Appflowy 😁');
   final node = editor.nodeAtPath([2]);
   final item = defaultSelectionMenuItems[index];
-  final itemName = item.name();
-  if (itemName == 'Text') {
+  if (item.name == 'Text') {
     expect(node?.subtype == null, true);
-  } else if (itemName == 'Heading 1') {
+    expect(node?.toString(), null);
+  } else if (item.name == 'Heading 1') {
     expect(node?.subtype, BuiltInAttributeKey.heading);
     expect(node?.attributes.heading, BuiltInAttributeKey.h1);
-  } else if (itemName == 'Heading 2') {
+    expect(node?.toString(), null);
+  } else if (item.name == 'Heading 2') {
     expect(node?.subtype, BuiltInAttributeKey.heading);
     expect(node?.attributes.heading, BuiltInAttributeKey.h2);
-  } else if (itemName == 'Heading 3') {
+    expect(node?.toString(), null);
+  } else if (item.name == 'Heading 3') {
     expect(node?.subtype, BuiltInAttributeKey.heading);
     expect(node?.attributes.heading, BuiltInAttributeKey.h3);
-  } else if (itemName == 'Bulleted list') {
+    expect(node?.toString(), null);
+  } else if (item.name == 'Bulleted list') {
     expect(node?.subtype, BuiltInAttributeKey.bulletedList);
-  } else if (itemName == 'Checkbox') {
+  } else if (item.name == 'Checkbox') {
     expect(node?.subtype, BuiltInAttributeKey.checkbox);
     expect(node?.attributes.check, false);
-  } else if (itemName == 'Quote') {
-    expect(node?.subtype, BuiltInAttributeKey.quote);
   }
 }

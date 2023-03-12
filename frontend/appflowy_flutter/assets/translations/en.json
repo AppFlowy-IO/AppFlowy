@@ -360,7 +360,20 @@
         "images": "Images",
         "abstract": "Abstract",
         "addCover": "Add Cover",
-        "addLocalImage": "Add local image"
+        "addLocalImage": "Add local image",
+        "invalidImageUrl": "Invalid image URL",
+        "failedToAddImageToGallery": "Failed to add image to gallery",
+        "enterImageUrl": "Enter image URL",
+        "add": "Add",
+        "back": "Back",
+        "saveToGallery": "Save to gallery",
+        "removeIcon": "Remove Icon",
+        "pasteImageUrlorPickImageFromFiles": "Paste image URL or pick image from files",
+        "or": "OR",
+        "pickFromFiles": "Pick from files",
+        "couldNotFetchImage": "Could not fetch image",
+        "imageSavingFailed": "Image Saving Failed",
+        "addIcon": "Add Icon"
       }
     }
   },
@@ -372,6 +385,7 @@
   },
   "calendar": {
     "menuName": "Calendar",
+    "defaultNewCalendarTitle": "Untitled",
     "navigation": {
       "today": "Today",
       "jumpToday": "Jump to Today",

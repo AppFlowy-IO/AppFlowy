@@ -102,6 +102,8 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
         key: _richTextKey,
         textNode: widget.textNode,
         editorState: widget.editorState,
+        lineHeight: 1.0,
+        cursorHeight: 15.0,
         textSpanDecorator: (textSpan) => TextSpan(
           style: widget.editorState.editorStyle.textStyle,
           children: codeTextSpan,

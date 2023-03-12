@@ -42,8 +42,9 @@ class CoverImagePickerBloc
           if (validateImage) {
             emit(CoverImagePickerState.networkImage(left(urlSubmit.path)));
           } else {
-            emit(CoverImagePickerState.networkImage(
-                right(FlowyError(msg: "Could not fetch image"))));
+            emit(CoverImagePickerState.networkImage(right(FlowyError(
+                msg: LocaleKeys.document_plugins_cover_couldNotFetchImage
+                    .tr()))));
           }
         }, pickFileImage: (PickFileImage pickFileImage) async {
           final imagePickerResults = await _pickImages();
@@ -62,7 +63,9 @@ class CoverImagePickerBloc
           } else {
             emit(CoverImagePickerState.done(
               right(
-                FlowyError(msg: "Image Saving Failed"),
+                FlowyError(
+                    msg: LocaleKeys.document_plugins_cover_imageSavingFailed
+                        .tr()),
               ),
             ));
           }

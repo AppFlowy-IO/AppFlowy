@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/cover_image_picker_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -48,7 +50,9 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
             const SizedBox(
               width: 3,
             ),
-            const FlowyText("Paste image URL or pick image from files"),
+            FlowyText(LocaleKeys
+                .document_plugins_cover_pasteImageUrlorPickImageFromFiles
+                .tr()),
           ],
         ),
         const SizedBox(
@@ -70,8 +74,8 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
             "file_icon",
             size: const Size(25, 25),
           ),
-          text: const FlowyText(
-            "Browse from file",
+          text: FlowyText(
+            LocaleKeys.document_plugins_cover_pickFromFiles.tr(),
           ),
         ),
       ],
@@ -108,12 +112,17 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
         listener: (context, state) {
           if (state is NetworkImagePicked) {
             state.successOrFail.isRight()
-                ? showSnapBar(context, "Invalid image URL")
+                ? showSnapBar(context,
+                    LocaleKeys.document_plugins_cover_invalidImageUrl.tr())
                 : null;
           }
           if (state is Done) {
-            state.successOrFail.fold((l) => widget.onFileSubmit(l),
-                (r) => showSnapBar(context, "Failed to add image to gallery"));
+            state.successOrFail.fold(
+                (l) => widget.onFileSubmit(l),
+                (r) => showSnapBar(
+                    context,
+                    LocaleKeys.document_plugins_cover_failedToAddImageToGallery
+                        .tr()));
           }
         },
         child: BlocBuilder<CoverImagePickerBloc, CoverImagePickerState>(
@@ -179,7 +188,9 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
                       flex: 4,
                       child: FlowyTextField(
                         controller: urlController,
-                        hintText: "Enter image URL",
+                        hintText: LocaleKeys
+                            .document_plugins_cover_enterImageUrl
+                            .tr(),
                       ),
                     ),
                     const SizedBox(
@@ -200,7 +211,7 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
                             ? Colors.grey
                             : Theme.of(context).colorScheme.primary,
                         height: 36,
-                        title: "Add",
+                        title: LocaleKeys.document_plugins_cover_add.tr(),
                         borderRadius: Corners.s8Border,
                       ),
                     )
@@ -213,14 +224,14 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     FlowyTextButton(
-                      "Back",
+                      LocaleKeys.document_plugins_cover_back.tr(),
                       hoverColor: Colors.transparent,
                       fillColor: Colors.transparent,
                       mainAxisAlignment: MainAxisAlignment.end,
                       onPressed: () => widget.onBackPressed(),
                     ),
                     FlowyTextButton(
-                      "Save to gallery",
+                      LocaleKeys.document_plugins_cover_saveToGallery.tr(),
                       onPressed: () async {
                         context
                             .read<CoverImagePickerBloc>()

@@ -47,8 +47,8 @@ pub struct DatabaseViewRevision {
   pub layout: LayoutRevision,
 
   #[serde(default)]
-  #[serde(skip_serializing_if = "LayoutSettings::is_empty")]
-  pub layout_settings: LayoutSettings,
+  #[serde(skip_serializing_if = "LayoutSetting::is_empty")]
+  pub layout_settings: LayoutSetting,
 
   #[serde(default)]
   pub filters: FilterConfiguration,
@@ -90,18 +90,23 @@ impl DatabaseViewRevision {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(transparent)]
-pub struct LayoutSettings {
+pub struct LayoutSetting {
   #[serde(with = "indexmap::serde_seq")]
   inner: IndexMap<LayoutRevision, String>,
 }
 
-impl LayoutSettings {
+impl LayoutSetting {
+  pub fn new() -> Self {
+    Self {
+      inner: Default::default(),
+    }
+  }
   pub fn is_empty(&self) -> bool {
     self.inner.is_empty()
   }
 }
 
-impl std::ops::Deref for LayoutSettings {
+impl std::ops::Deref for LayoutSetting {
   type Target = IndexMap<LayoutRevision, String>;
 
   fn deref(&self) -> &Self::Target {
@@ -109,7 +114,7 @@ impl std::ops::Deref for LayoutSettings {
   }
 }
 
-impl std::ops::DerefMut for LayoutSettings {
+impl std::ops::DerefMut for LayoutSetting {
   fn deref_mut(&mut self) -> &mut Self::Target {
     &mut self.inner
   }

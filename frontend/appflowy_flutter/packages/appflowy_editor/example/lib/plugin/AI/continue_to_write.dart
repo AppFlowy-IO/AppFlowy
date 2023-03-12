@@ -4,7 +4,7 @@ import 'package:example/plugin/AI/text_robot.dart';
 import 'package:flutter/material.dart';
 
 SelectionMenuItem continueToWriteMenuItem = SelectionMenuItem(
-  name: () => 'Continue To Write',
+  name: 'Continue To Write',
   icon: (editorState, onSelected) => Icon(
     Icons.print,
     size: 18.0,

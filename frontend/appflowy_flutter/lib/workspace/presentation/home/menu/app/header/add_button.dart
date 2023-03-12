@@ -1,10 +1,9 @@
 import 'package:appflowy/plugins/document/document.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_node_widget.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/header/import/import_panel.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' show Document, Node;
+import 'package:appflowy_editor/appflowy_editor.dart' show Document;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
@@ -61,12 +60,7 @@ class AddButton extends StatelessWidget {
       },
       onSelected: (action, controller) {
         if (action is AddButtonActionWrapper) {
-          Document? document;
-          if (action.pluginType == PluginType.editor) {
-            // initialize the document if needed.
-            document = buildInitialDocument();
-          }
-          onSelected(action.pluginBuilder, document);
+          onSelected(action.pluginBuilder, null);
         }
         if (action is ImportActionWrapper) {
           showImportPanel(context, (document) {
@@ -79,12 +73,6 @@ class AddButton extends StatelessWidget {
         controller.close();
       },
     );
-  }
-
-  Document buildInitialDocument() {
-    final document = Document.empty();
-    document.insert([0], [Node(type: kCoverType)]);
-    return document;
   }
 }
 

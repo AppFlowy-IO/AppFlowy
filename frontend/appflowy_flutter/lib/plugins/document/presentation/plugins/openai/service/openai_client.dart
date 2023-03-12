@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:appflowy/plugins/document/presentation/plugins/openai/service/text_edit.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 
 import 'text_completion.dart';
 import 'package:dartz/dartz.dart';
@@ -37,8 +38,19 @@ abstract class OpenAIRepository {
   Future<Either<OpenAIError, TextCompletionResponse>> getCompletions({
     required String prompt,
     String? suffix,
-    int maxTokens = 500,
+    int maxTokens = 2048,
     double temperature = .3,
+  });
+
+  Future<void> getStreamedCompletions({
+    required String prompt,
+    required Future<void> Function() onStart,
+    required Future<void> Function(TextCompletionResponse response) onProcess,
+    required Future<void> Function() onEnd,
+    required void Function(OpenAIError error) onError,
+    String? suffix,
+    int maxTokens = 2048,
+    double temperature = 0.3,
   });
 
   ///  Get edits from GPT-3
@@ -72,7 +84,7 @@ class HttpOpenAIRepository implements OpenAIRepository {
   Future<Either<OpenAIError, TextCompletionResponse>> getCompletions({
     required String prompt,
     String? suffix,
-    int maxTokens = 500,
+    int maxTokens = 2048,
     double temperature = 0.3,
   }) async {
     final parameters = {
@@ -91,9 +103,85 @@ class HttpOpenAIRepository implements OpenAIRepository {
     );
 
     if (response.statusCode == 200) {
-      return Right(TextCompletionResponse.fromJson(json.decode(response.body)));
+      return Right(
+        TextCompletionResponse.fromJson(
+          json.decode(
+            utf8.decode(response.bodyBytes),
+          ),
+        ),
+      );
     } else {
       return Left(OpenAIError.fromJson(json.decode(response.body)['error']));
+    }
+  }
+
+  @override
+  Future<void> getStreamedCompletions({
+    required String prompt,
+    required Future<void> Function() onStart,
+    required Future<void> Function(TextCompletionResponse response) onProcess,
+    required Future<void> Function() onEnd,
+    required void Function(OpenAIError error) onError,
+    String? suffix,
+    int maxTokens = 2048,
+    double temperature = 0.3,
+  }) async {
+    final parameters = {
+      'model': 'text-davinci-003',
+      'prompt': prompt,
+      'suffix': suffix,
+      'max_tokens': maxTokens,
+      'temperature': temperature,
+      'stream': true,
+    };
+
+    final request = http.Request('POST', OpenAIRequestType.textCompletion.uri);
+    request.headers.addAll(headers);
+    request.body = jsonEncode(parameters);
+
+    final response = await client.send(request);
+
+    // NEED TO REFACTOR.
+    // WHY OPENAI USE TWO LINES TO INDICATE THE START OF THE STREAMING RESPONSE?
+    // AND WHY OPENAI USE [DONE] TO INDICATE THE END OF THE STREAMING RESPONSE?
+    int syntax = 0;
+    var previousSyntax = '';
+    if (response.statusCode == 200) {
+      await for (final chunk in response.stream
+          .transform(const Utf8Decoder())
+          .transform(const LineSplitter())) {
+        syntax += 1;
+        if (syntax == 3) {
+          await onStart();
+          continue;
+        } else if (syntax < 3) {
+          continue;
+        }
+        final data = chunk.trim().split('data: ');
+        Log.editor.info(data.toString());
+        if (data.length > 1) {
+          if (data[1] != '[DONE]') {
+            final response = TextCompletionResponse.fromJson(
+              json.decode(data[1]),
+            );
+            if (response.choices.isNotEmpty) {
+              final text = response.choices.first.text;
+              if (text == previousSyntax && text == '\n') {
+                continue;
+              }
+              await onProcess(response);
+              previousSyntax = response.choices.first.text;
+            }
+          } else {
+            onEnd();
+          }
+        }
+      }
+    } else {
+      final body = await response.stream.bytesToString();
+      onError(
+        OpenAIError.fromJson(json.decode(body)['error']),
+      );
     }
   }
 
@@ -119,7 +207,13 @@ class HttpOpenAIRepository implements OpenAIRepository {
     );
 
     if (response.statusCode == 200) {
-      return Right(TextEditResponse.fromJson(json.decode(response.body)));
+      return Right(
+        TextEditResponse.fromJson(
+          json.decode(
+            utf8.decode(response.bodyBytes),
+          ),
+        ),
+      );
     } else {
       return Left(OpenAIError.fromJson(json.decode(response.body)['error']));
     }

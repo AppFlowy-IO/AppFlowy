@@ -156,7 +156,7 @@ List<SelectionMenuItem> get defaultSelectionMenuItems =>
     _defaultSelectionMenuItems;
 final List<SelectionMenuItem> _defaultSelectionMenuItems = [
   SelectionMenuItem(
-    name: () => AppFlowyEditorLocalizations.current.text,
+    name: AppFlowyEditorLocalizations.current.text,
     icon: (editorState, onSelected) =>
         _selectionMenuIcon('text', editorState, onSelected),
     keywords: ['text'],
@@ -165,7 +165,7 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
     },
   ),
   SelectionMenuItem(
-    name: () => AppFlowyEditorLocalizations.current.heading1,
+    name: AppFlowyEditorLocalizations.current.heading1,
     icon: (editorState, onSelected) =>
         _selectionMenuIcon('h1', editorState, onSelected),
     keywords: ['heading 1, h1'],
@@ -174,7 +174,7 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
     },
   ),
   SelectionMenuItem(
-    name: () => AppFlowyEditorLocalizations.current.heading2,
+    name: AppFlowyEditorLocalizations.current.heading2,
     icon: (editorState, onSelected) =>
         _selectionMenuIcon('h2', editorState, onSelected),
     keywords: ['heading 2, h2'],
@@ -183,7 +183,7 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
     },
   ),
   SelectionMenuItem(
-    name: () => AppFlowyEditorLocalizations.current.heading3,
+    name: AppFlowyEditorLocalizations.current.heading3,
     icon: (editorState, onSelected) =>
         _selectionMenuIcon('h3', editorState, onSelected),
     keywords: ['heading 3, h3'],
@@ -192,14 +192,14 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
     },
   ),
   SelectionMenuItem(
-    name: () => AppFlowyEditorLocalizations.current.image,
+    name: AppFlowyEditorLocalizations.current.image,
     icon: (editorState, onSelected) =>
         _selectionMenuIcon('image', editorState, onSelected),
     keywords: ['image'],
     handler: showImageUploadMenu,
   ),
   SelectionMenuItem(
-    name: () => AppFlowyEditorLocalizations.current.bulletedList,
+    name: AppFlowyEditorLocalizations.current.bulletedList,
     icon: (editorState, onSelected) =>
         _selectionMenuIcon('bulleted_list', editorState, onSelected),
     keywords: ['bulleted list', 'list', 'unordered list'],
@@ -208,7 +208,7 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
     },
   ),
   SelectionMenuItem(
-    name: () => AppFlowyEditorLocalizations.current.numberedList,
+    name: AppFlowyEditorLocalizations.current.numberedList,
     icon: (editorState, onSelected) =>
         _selectionMenuIcon('number', editorState, onSelected),
     keywords: ['numbered list', 'list', 'ordered list'],
@@ -217,7 +217,7 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
     },
   ),
   SelectionMenuItem(
-    name: () => AppFlowyEditorLocalizations.current.checkbox,
+    name: AppFlowyEditorLocalizations.current.checkbox,
     icon: (editorState, onSelected) =>
         _selectionMenuIcon('checkbox', editorState, onSelected),
     keywords: ['todo list', 'list', 'checkbox list'],
@@ -226,7 +226,7 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
     },
   ),
   SelectionMenuItem(
-    name: () => AppFlowyEditorLocalizations.current.quote,
+    name: AppFlowyEditorLocalizations.current.quote,
     icon: (editorState, onSelected) =>
         _selectionMenuIcon('quote', editorState, onSelected),
     keywords: ['quote', 'refer'],

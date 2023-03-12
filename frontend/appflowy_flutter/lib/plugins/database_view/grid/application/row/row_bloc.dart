@@ -14,11 +14,11 @@ part 'row_bloc.freezed.dart';
 
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowBackendService _rowBackendSvc;
-  final RowDataController _dataController;
+  final RowController _dataController;
 
   RowBloc({
     required RowInfo rowInfo,
-    required RowDataController dataController,
+    required RowController dataController,
   })  : _rowBackendSvc = RowBackendService(viewId: rowInfo.viewId),
         _dataController = dataController,
         super(RowState.initial(rowInfo, dataController.loadData())) {

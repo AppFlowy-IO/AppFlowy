@@ -55,18 +55,26 @@ class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
 
     return IntrinsicWidth(
       key: ValueKey(_controller.text),
-      child: TextField(
-        controller: _controller,
-        focusNode: _focusNode,
-        scrollPadding: EdgeInsets.zero,
-        decoration: const InputDecoration(
-          contentPadding: EdgeInsets.symmetric(vertical: 4.0),
-          border: InputBorder.none,
-          isDense: true,
+      child: GestureDetector(
+        onDoubleTap: () {
+          _controller.selection = TextSelection(
+            baseOffset: 0,
+            extentOffset: _controller.text.length,
+          );
+        },
+        child: TextField(
+          controller: _controller,
+          focusNode: _focusNode,
+          scrollPadding: EdgeInsets.zero,
+          decoration: const InputDecoration(
+            contentPadding: EdgeInsets.symmetric(vertical: 4.0),
+            border: InputBorder.none,
+            isDense: true,
+          ),
+          style: Theme.of(context).textTheme.bodyMedium,
+          // cursorColor: widget.cursorColor,
+          // obscureText: widget.enableObscure,
         ),
-        style: Theme.of(context).textTheme.bodyMedium,
-        // cursorColor: widget.cursorColor,
-        // obscureText: widget.enableObscure,
       ),
     );
   }

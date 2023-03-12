@@ -55,7 +55,7 @@ export class CellController<T, D> {
     });
   }
 
-  subscribeChanged = async (callbacks: Callbacks<T>) => {
+  subscribeChanged = (callbacks: Callbacks<T>) => {
     this.subscribeCallbacks = callbacks;
     this.cellDataNotifier.observer.subscribe((cellData) => {
       if (cellData !== null) {

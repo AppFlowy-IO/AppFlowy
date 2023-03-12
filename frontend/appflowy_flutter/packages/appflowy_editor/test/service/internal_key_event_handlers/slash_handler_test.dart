@@ -29,7 +29,7 @@ void main() async {
       );
 
       for (final item in defaultSelectionMenuItems) {
-        expect(find.text(item.name()), findsOneWidget);
+        expect(find.text(item.name), findsOneWidget);
       }
 
       await editor.updateSelection(Selection.single(path: [1], startOffset: 0));

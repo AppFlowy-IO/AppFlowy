@@ -43,6 +43,16 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     to_fut(async move { Some(pad.read().await.get_field_rev(&field_id)?.1.clone()) })
   }
 
+  fn get_primary_field_rev(&self) -> Fut<Option<Arc<FieldRevision>>> {
+    let pad = self.pad.clone();
+    to_fut(async move {
+      let field_revs = pad.read().await.get_field_revs(None).ok()?;
+      field_revs
+        .into_iter()
+        .find(|field_rev| field_rev.is_primary)
+    })
+  }
+
   fn index_of_row(&self, row_id: &str) -> Fut<Option<usize>> {
     let block_manager = self.blocks.clone();
     let row_id = row_id.to_owned();

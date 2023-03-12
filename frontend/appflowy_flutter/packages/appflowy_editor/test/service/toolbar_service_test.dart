@@ -24,6 +24,7 @@ void main() async {
       );
       await editor.updateSelection(selection);
 
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
 
       // no link item
@@ -72,6 +73,7 @@ void main() async {
       await editor.updateSelection(
         Selection.single(path: [0], startOffset: 0, endOffset: text.length),
       );
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
 
       void testHighlight(bool expectedValue) {
@@ -138,6 +140,7 @@ void main() async {
       await editor.updateSelection(
         Selection.single(path: [0], startOffset: 0, endOffset: text.length),
       );
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
       var itemWidget = _itemWidgetForId(tester, 'appflowy.toolbar.h1');
       expect(itemWidget.isHighlight, true);
@@ -145,6 +148,7 @@ void main() async {
       await editor.updateSelection(
         Selection.single(path: [1], startOffset: 0, endOffset: text.length),
       );
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
       itemWidget = _itemWidgetForId(tester, 'appflowy.toolbar.quote');
       expect(itemWidget.isHighlight, true);
@@ -152,6 +156,7 @@ void main() async {
       await editor.updateSelection(
         Selection.single(path: [2], startOffset: 0, endOffset: text.length),
       );
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
       itemWidget = _itemWidgetForId(tester, 'appflowy.toolbar.bulleted_list');
       expect(itemWidget.isHighlight, true);
@@ -183,6 +188,7 @@ void main() async {
       await editor.updateSelection(
         Selection.single(path: [2], startOffset: text.length, endOffset: 0),
       );
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
       expect(
         _itemWidgetForId(tester, 'appflowy.toolbar.h1').isHighlight,
@@ -199,6 +205,7 @@ void main() async {
           end: Position(path: [1], offset: 0),
         ),
       );
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
       expect(
         _itemWidgetForId(tester, 'appflowy.toolbar.bold').isHighlight,
@@ -211,6 +218,7 @@ void main() async {
           end: Position(path: [0], offset: 0),
         ),
       );
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       expect(find.byType(ToolbarWidget), findsOneWidget);
       expect(
         _itemWidgetForId(tester, 'appflowy.toolbar.bold').isHighlight,

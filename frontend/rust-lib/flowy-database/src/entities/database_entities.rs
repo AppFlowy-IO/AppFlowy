@@ -1,5 +1,5 @@
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::{FieldIdPB, RowPB};
+use crate::entities::{FieldIdPB, LayoutTypePB, RowPB};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 
@@ -194,4 +194,12 @@ impl TryInto<DatabaseGroupIdParams> for DatabaseGroupIdPB {
       group_id: group_id.0,
     })
   }
+}
+#[derive(Clone, ProtoBuf, Default, Debug)]
+pub struct DatabaseLayoutIdPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub layout: LayoutTypePB,
 }

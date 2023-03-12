@@ -329,7 +329,7 @@ pub(crate) async fn move_row_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn create_table_row_handler(
+pub(crate) async fn create_row_handler(
   data: AFPluginData<CreateRowPayloadPB>,
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> DataResult<RowPB, FlowyError> {
@@ -517,6 +517,7 @@ pub(crate) async fn update_date_cell_handler(
   let cell_changeset = DateCellChangeset {
     date: data.date,
     time: data.time,
+    include_time: data.include_time,
     is_utc: data.is_utc,
   };
 
@@ -547,17 +548,6 @@ pub(crate) async fn get_group_handler(
   let editor = manager.get_database_editor(&params.view_id).await?;
   let group = editor.get_group(&params.view_id, &params.group_id).await?;
   data_result_ok(group)
-}
-
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn create_board_card_handler(
-  data: AFPluginData<CreateBoardCardPayloadPB>,
-  manager: AFPluginState<Arc<DatabaseManager>>,
-) -> DataResult<RowPB, FlowyError> {
-  let params: CreateRowParams = data.into_inner().try_into()?;
-  let editor = manager.get_database_editor(params.view_id.as_ref()).await?;
-  let row = editor.create_row(params).await?;
-  data_result_ok(row)
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
@@ -599,23 +589,56 @@ pub(crate) async fn get_databases_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn set_calendar_setting_handler(
-  data: AFPluginData<CalendarSettingsPB>,
+pub(crate) async fn set_layout_setting_handler(
+  data: AFPluginData<UpdateLayoutSettingPB>,
   manager: AFPluginState<Arc<DatabaseManager>>,
 ) -> FlowyResult<()> {
-  let params: CalendarSettingsParams = data.into_inner().try_into()?;
-  let _ = manager.get_database_editor(params.view_id.as_ref()).await?;
-  //TODO(nathan):
-  todo!("nathan: depends on the main branch refactoring")
+  let params: UpdateLayoutSettingParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_editor(params.view_id.as_ref()).await?;
+  database_editor
+    .set_layout_setting(&params.view_id, params.layout_setting)
+    .await?;
+  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn get_calendar_setting_handler(
-  data: AFPluginData<DatabaseViewIdPB>,
+pub(crate) async fn get_layout_setting_handler(
+  data: AFPluginData<DatabaseLayoutIdPB>,
   manager: AFPluginState<Arc<DatabaseManager>>,
-) -> FlowyResult<()> {
-  let view_id = data.into_inner().value;
-  let _ = manager.get_database_editor(view_id.as_ref()).await?;
-  //TODO(nathan):
-  todo!("nathan: depends on the main branch refactoring")
+) -> DataResult<LayoutSettingPB, FlowyError> {
+  let params = data.into_inner();
+  let database_editor = manager.get_database_editor(&params.view_id).await?;
+  let layout_setting = database_editor
+    .get_layout_setting(&params.view_id, params.layout)
+    .await?;
+  data_result_ok(layout_setting.into())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn get_calendar_events_handler(
+  data: AFPluginData<CalendarEventRequestPB>,
+  manager: AFPluginState<Arc<DatabaseManager>>,
+) -> DataResult<RepeatedCalendarEventPB, FlowyError> {
+  let params: CalendarEventRequestParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_editor(&params.view_id).await?;
+  let events = database_editor
+    .get_all_calendar_events(&params.view_id)
+    .await;
+  data_result_ok(RepeatedCalendarEventPB { items: events })
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn get_calendar_event_handler(
+  data: AFPluginData<RowIdPB>,
+  manager: AFPluginState<Arc<DatabaseManager>>,
+) -> DataResult<CalendarEventPB, FlowyError> {
+  let params: RowIdParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_editor(&params.view_id).await?;
+  let event = database_editor
+    .get_calendar_event(&params.view_id, &params.row_id)
+    .await;
+  match event {
+    None => Err(FlowyError::record_not_found()),
+    Some(event) => data_result_ok(event),
+  }
 }

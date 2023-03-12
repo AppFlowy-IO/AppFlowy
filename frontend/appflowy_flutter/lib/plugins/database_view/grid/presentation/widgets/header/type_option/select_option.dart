@@ -2,8 +2,6 @@ import 'package:appflowy/plugins/database_view/application/field/type_option/sel
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,7 +9,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
 import '../../../layout/sizes.dart';
-import '../../cell/select_option_cell/extension.dart';
+import '../../../../../widgets/row/cells/select_option_cell/extension.dart';
 import '../../common/type_option_separator.dart';
 import 'select_option_editor.dart';
 

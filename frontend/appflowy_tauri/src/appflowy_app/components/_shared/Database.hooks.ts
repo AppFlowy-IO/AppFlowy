@@ -9,7 +9,7 @@ export const useDatabase = () => {
   const database = useAppSelector((state) => state.database);
 
   const newField = () => {
-    dispatch(
+    /* dispatch(
       databaseActions.addField({
         field: {
           fieldId: nanoid(8),
@@ -18,22 +18,25 @@ export const useDatabase = () => {
           title: 'new field',
         },
       })
-    );
+    );*/
+    console.log('depreciated');
   };
 
   const renameField = (fieldId: string, newTitle: string) => {
-    const field = database.fields[fieldId];
+    /*   const field = database.fields[fieldId];
     field.title = newTitle;
 
     dispatch(
       databaseActions.updateField({
         field,
       })
-    );
+    );*/
+    console.log('depreciated');
   };
 
   const newRow = () => {
-    dispatch(databaseActions.addRow());
+    // dispatch(databaseActions.addRow());
+    console.log('depreciated');
   };
 
   return {

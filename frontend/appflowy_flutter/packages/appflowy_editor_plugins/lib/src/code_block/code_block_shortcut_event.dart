@@ -79,7 +79,7 @@ ShortcutEventHandler _pasteHandler = (editorState, event) {
 };
 
 SelectionMenuItem codeBlockMenuItem = SelectionMenuItem(
-  name: () => 'Code Block',
+  name: 'Code Block',
   icon: (editorState, onSelected) => Icon(
     Icons.abc,
     color: onSelected
