@@ -1,6 +1,4 @@
 import {
-  CreateBoardCardPayloadPB,
-  DatabaseEventCreateBoardCard,
   DatabaseEventCreateRow,
   DatabaseEventGetDatabase,
   DatabaseEventGetFields,
@@ -41,17 +39,12 @@ export class DatabaseBackendService {
     return FolderEventCloseView(payload);
   };
 
-  createRow = async (rowId?: string) => {
+  createRow = async (rowId?: string, groupId?: string) => {
     const payload = CreateRowPayloadPB.fromObject({ view_id: this.viewId, start_row_id: rowId ?? undefined });
-    return DatabaseEventCreateRow(payload);
-  };
-
-  createGroupRow = async (groupId: string, startRowId?: string) => {
-    const payload = CreateBoardCardPayloadPB.fromObject({ view_id: this.viewId, group_id: groupId });
-    if (startRowId !== undefined) {
-      payload.start_row_id = startRowId;
+    if (groupId !== undefined) {
+      payload.group_id = groupId;
     }
-    return DatabaseEventCreateBoardCard(payload);
+    return DatabaseEventCreateRow(payload);
   };
 
   moveRow = (rowId: string, groupId?: string) => {

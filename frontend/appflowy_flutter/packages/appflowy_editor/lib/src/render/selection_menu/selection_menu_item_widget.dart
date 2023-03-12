@@ -47,7 +47,7 @@ class _SelectionMenuItemWidgetState extends State<SelectionMenuItemWidget> {
                 : MaterialStateProperty.all(Colors.transparent),
           ),
           label: Text(
-            widget.item.name(),
+            widget.item.name,
             textAlign: TextAlign.left,
             style: TextStyle(
               color: (widget.isSelected || _onHover)

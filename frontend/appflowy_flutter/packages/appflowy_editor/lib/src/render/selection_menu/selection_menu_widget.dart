@@ -20,14 +20,14 @@ class SelectionMenuItem {
     required SelectionMenuItemHandler handler,
   }) {
     this.handler = (editorState, menuService, context) {
-      _deleteToSlash(editorState);
+      _deleteSlash(editorState);
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         handler(editorState, menuService, context);
       });
     };
   }
 
-  final String Function() name;
+  final String name;
   final Widget Function(EditorState editorState, bool onSelected) icon;
 
   /// Customizes keywords for item.
@@ -36,20 +36,23 @@ class SelectionMenuItem {
   final List<String> keywords;
   late final SelectionMenuItemHandler handler;
 
-  void _deleteToSlash(EditorState editorState) {
+  void _deleteSlash(EditorState editorState) {
     final selectionService = editorState.service.selectionService;
     final selection = selectionService.currentSelection.value;
     final nodes = selectionService.currentSelectedNodes;
     if (selection != null && nodes.length == 1) {
       final node = nodes.first as TextNode;
       final end = selection.start.offset;
-      final start = node.toPlainText().substring(0, end).lastIndexOf('/');
+      final lastSlashIndex =
+          node.toPlainText().substring(0, end).lastIndexOf('/');
+      // delete all the texts after '/' along with '/'
       final transaction = editorState.transaction
         ..deleteText(
           node,
-          start,
-          selection.start.offset - start,
+          lastSlashIndex,
+          end - lastSlashIndex,
         );
+
       editorState.apply(transaction);
     }
   }
@@ -81,7 +84,7 @@ class SelectionMenuItem {
         updateSelection,
   }) {
     return SelectionMenuItem(
-      name: () => name,
+      name: name,
       icon: (editorState, onSelected) => Icon(
         iconData,
         color: onSelected

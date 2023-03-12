@@ -6,12 +6,16 @@ import 'package:appflowy/plugins/database_view/application/field/field_service.d
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
-import 'package:appflowy/plugins/database_view/grid/application/grid_data_controller.dart';
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/grid.dart';
 import 'package:appflowy/workspace/application/app/app_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
+import 'package:dartz/dartz.dart';
 
 import '../../util.dart';
 
@@ -31,7 +35,7 @@ class GridTestContext {
     return gridController.fieldController;
   }
 
-  Future<void> createRow() async {
+  Future<Either<RowPB, FlowyError>> createRow() async {
     return gridController.createRow();
   }
 
@@ -68,8 +72,9 @@ class GridTestContext {
     final RowInfo rowInfo = rowInfos[rowIndex];
     final rowCache = gridController.rowCache;
 
-    final rowDataController = RowDataController(
-      rowInfo: rowInfo,
+    final rowDataController = RowController(
+      rowId: rowInfo.rowPB.id,
+      viewId: rowInfo.viewId,
       rowCache: rowCache,
     );
 
@@ -169,8 +174,13 @@ class AppFlowyGridTest {
         .then((result) {
       return result.fold(
         (view) async {
-          final context = GridTestContext(view, DatabaseController(view: view));
-          final result = await context.gridController.openGrid();
+          final context = GridTestContext(
+              view,
+              DatabaseController(
+                view: view,
+                layoutType: LayoutTypePB.Grid,
+              ));
+          final result = await context.gridController.open();
           result.fold((l) => null, (r) => throw Exception(r));
           return context;
         },

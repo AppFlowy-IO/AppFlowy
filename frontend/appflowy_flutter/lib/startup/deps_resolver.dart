@@ -1,15 +1,8 @@
 import 'package:appflowy/core/network_monitor.dart';
-import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_action_sheet_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/application/cell/checkbox_cell_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/application/cell/date_cell_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/application/cell/number_cell_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/application/cell/select_option_cell_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/application/cell/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
@@ -159,38 +152,6 @@ void _resolveGridDeps(GetIt getIt) {
 
   getIt.registerFactoryParam<FieldActionSheetBloc, FieldCellContext, void>(
     (data, _) => FieldActionSheetBloc(fieldCellContext: data),
-  );
-
-  getIt.registerFactoryParam<TextCellBloc, TextCellController, void>(
-    (context, _) => TextCellBloc(
-      cellController: context,
-    ),
-  );
-
-  getIt.registerFactoryParam<SelectOptionCellBloc, SelectOptionCellController,
-      void>(
-    (context, _) => SelectOptionCellBloc(
-      cellController: context,
-    ),
-  );
-
-  getIt.registerFactoryParam<NumberCellBloc, TextCellController, void>(
-    (context, _) => NumberCellBloc(
-      cellController: context,
-    ),
-  );
-
-  getIt.registerFactoryParam<DateCellBloc, DateCellController, void>(
-    (context, _) => DateCellBloc(
-      cellController: context,
-    ),
-  );
-
-  getIt.registerFactoryParam<CheckboxCellBloc, TextCellController, void>(
-    (cellData, _) => CheckboxCellBloc(
-      service: CellBackendService(),
-      cellController: cellData,
-    ),
   );
 
   getIt.registerFactoryParam<DatabasePropertyBloc, String, FieldController>(

@@ -27,24 +27,28 @@ class TextCellDataPersistence implements CellDataPersistence<String> {
 }
 
 @freezed
-class CalendarData with _$CalendarData {
-  const factory CalendarData({required DateTime date, String? time}) =
-      _CalendarData;
+class DateCellData with _$DateCellData {
+  const factory DateCellData({
+    required DateTime date,
+    String? time,
+    required bool includeTime,
+  }) = _DateCellData;
 }
 
-class DateCellDataPersistence implements CellDataPersistence<CalendarData> {
+class DateCellDataPersistence implements CellDataPersistence<DateCellData> {
   final CellIdentifier cellId;
   DateCellDataPersistence({
     required this.cellId,
   });
 
   @override
-  Future<Option<FlowyError>> save(CalendarData data) {
+  Future<Option<FlowyError>> save(DateCellData data) {
     var payload = DateChangesetPB.create()..cellPath = _makeCellPath(cellId);
 
     final date = (data.date.millisecondsSinceEpoch ~/ 1000).toString();
     payload.date = date;
     payload.isUtc = data.date.isUtc;
+    payload.includeTime = data.includeTime;
 
     if (data.time != null) {
       payload.time = data.time!;
