@@ -11,7 +11,7 @@ class SettingsCustomizeShortcuts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ShortcutsCubit>(
-      create: (context) => ShortcutsCubit()..fetchShortcuts(),
+      create: (_) => ShortcutsCubit()..fetchShortcuts(),
       child: const CustomizeShortcutsView(),
     );
   }
@@ -30,10 +30,9 @@ class CustomizeShortcutsView extends StatelessWidget {
           case ShortcutsStatus.failure:
             return const ShortcutsErrorView();
           case ShortcutsStatus.initial:
+          case ShortcutsStatus.updating:
             return const Center(
-              child: CircularProgressIndicator(
-                color: Colors.green,
-              ),
+              child: CircularProgressIndicator(),
             );
         }
       },
@@ -87,29 +86,30 @@ class ShortcutsListTile extends StatelessWidget {
         FlowyTextButton(
           shortcutEvent.command,
           onPressed: () {
-            showEditingDialog(shortcutEvent, context);
+            showKeyListenerDialog(context);
           },
         )
       ],
     );
   }
 
-  void showEditingDialog(ShortcutEvent shortcutEvent, BuildContext context) {
+  void showKeyListenerDialog(BuildContext widgetContext) {
     showDialog(
-      context: context,
-      builder: (context) {
+      context: widgetContext,
+      builder: (builderContext) {
         final controller = TextEditingController(text: shortcutEvent.command);
         return AlertDialog(
-          title: const Text('Edit Shortcut Keybinding'),
+          title: const Text('Press desired key combination and press Enter'),
           content: RawKeyboardListener(
             focusNode: FocusNode(),
             onKey: (key) {
               if (key is! RawKeyDownEvent) return;
               if (key.logicalKey == LogicalKeyboardKey.enter &&
                   !key.isShiftPressed) {
-                //this means that the user submits the key binding
+                _updateKey(widgetContext, controller.text);
+                _dismiss(builderContext);
               } else if (key.logicalKey == LogicalKeyboardKey.escape) {
-                _dismiss(context);
+                _dismiss(builderContext);
               } else {
                 //extract the keybinding command from the rawkeyevent.
                 controller.text = key.convertToCommand;
@@ -125,21 +125,14 @@ class ShortcutsListTile extends StatelessWidget {
               ),
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => _dismiss(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => _dismiss(context),
-              child: const Text('Done'),
-            ),
-          ],
         );
       },
     );
   }
 
+  _updateKey(BuildContext context, String command) =>
+      BlocProvider.of<ShortcutsCubit>(context)
+          .updateShortcut(command: command, shortcutEvent: shortcutEvent);
   _dismiss(BuildContext context) => Navigator.of(context).pop();
 }
 
@@ -171,10 +164,20 @@ class ShortcutsErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: FlowyText.medium(
-        "Could Not Load Customized Shortcuts",
-        overflow: TextOverflow.ellipsis,
+    return Center(
+      child: Column(
+        children: [
+          const FlowyText.medium(
+            "Could Not Load Customized Shortcuts",
+            overflow: TextOverflow.ellipsis,
+          ),
+          FlowyButton(
+            text: const Text('Retry'),
+            onTap: () {
+              BlocProvider.of<ShortcutsCubit>(context).fetchShortcuts();
+            },
+          )
+        ],
       ),
     );
   }

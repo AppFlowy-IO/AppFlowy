@@ -6,13 +6,20 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
   ShortcutsCubit() : super(const ShortcutsState());
 
   void fetchShortcuts() {
-    print("Inside Fetch Shortcuts");
+    emit(state.copyWith(
+        status: ShortcutsStatus.success, shortcuts: builtInShortcutEvents));
+  }
+
+  void updateShortcut(
+      {required ShortcutEvent shortcutEvent, required String command}) {
+    emit(state.copyWith(status: ShortcutsStatus.updating));
+    shortcutEvent.updateCommand(command: command);
     emit(state.copyWith(
         status: ShortcutsStatus.success, shortcuts: builtInShortcutEvents));
   }
 }
 
-enum ShortcutsStatus { initial, success, failure }
+enum ShortcutsStatus { initial, updating, success, failure }
 
 class ShortcutsState extends Equatable {
   final List<ShortcutEvent> shortcuts;
