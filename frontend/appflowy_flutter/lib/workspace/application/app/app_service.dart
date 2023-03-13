@@ -8,7 +8,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 
-class AppService {
+class AppBackendService {
   Future<Either<AppPB, FlowyError>> readApp({required String appId}) {
     final payload = AppIdPB.create()..value = appId;
 
@@ -21,9 +21,18 @@ class AppService {
     String? desc,
     required ViewLayoutTypePB layoutType,
 
-    /// The initial data should be the JSON of the doucment
-    /// For example: {"document":{"type":"editor","children":[]}}
+    /// The initial data should be the JSON of the document.
+    /// Currently, only support create document with initial data.
+    ///
+    /// The initial data must be follow this format as shown below.
+    ///  {"document":{"type":"editor","children":[]}}
     String? initialData,
+
+    /// The [ext] is used to pass through the custom configuration
+    /// to the backend.
+    /// Linking the view to the existing database, it needs to pass
+    /// the database id. For example: "database_id": "xxx"
+    ///
     Map<String, String> ext = const {},
   }) {
     final payload = CreateViewPayloadPB.create()

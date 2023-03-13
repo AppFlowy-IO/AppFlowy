@@ -30,7 +30,7 @@ class AppFlowyBoardTest {
   Future<BoardTestContext> createTestBoard() async {
     final app = await unitTest.createTestApp();
     final builder = BoardPluginBuilder();
-    return AppService()
+    return AppBackendService()
         .createView(
       appId: app.id,
       name: "Test Board",

@@ -7,7 +7,9 @@ use crate::services::database_view::{
   make_database_view_rev_manager, make_database_view_revision_pad, DatabaseViewEditor,
 };
 use crate::services::persistence::block_index::BlockRowIndexer;
-use crate::services::persistence::database_ref::{DatabaseInfo, DatabaseRef, DatabaseRefIndexer};
+use crate::services::persistence::database_ref::{
+  DatabaseInfo, DatabaseRefIndexer, DatabaseViewRef,
+};
 use crate::services::persistence::kv::DatabaseKVPersistence;
 use crate::services::persistence::migration::DatabaseMigration;
 use crate::services::persistence::rev_sqlite::{
@@ -192,7 +194,10 @@ impl DatabaseManager {
     self.database_ref_indexer.get_all_databases()
   }
 
-  pub async fn get_database_ref_views(&self, database_id: &str) -> FlowyResult<Vec<DatabaseRef>> {
+  pub async fn get_database_ref_views(
+    &self,
+    database_id: &str,
+  ) -> FlowyResult<Vec<DatabaseViewRef>> {
     self
       .database_ref_indexer
       .get_ref_views_with_database(database_id)
@@ -425,13 +430,13 @@ pub async fn create_new_database(
 }
 
 impl DatabaseRefIndexerQuery for DatabaseRefIndexer {
-  fn get_ref_views(&self, database_id: &str) -> FlowyResult<Vec<DatabaseRef>> {
+  fn get_ref_views(&self, database_id: &str) -> FlowyResult<Vec<DatabaseViewRef>> {
     self.get_ref_views_with_database(database_id)
   }
 }
 
 impl DatabaseRefIndexerQuery for Arc<DatabaseRefIndexer> {
-  fn get_ref_views(&self, database_id: &str) -> FlowyResult<Vec<DatabaseRef>> {
+  fn get_ref_views(&self, database_id: &str) -> FlowyResult<Vec<DatabaseViewRef>> {
     (**self).get_ref_views(database_id)
   }
 }

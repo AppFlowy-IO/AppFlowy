@@ -575,17 +575,17 @@ pub(crate) async fn move_group_row_handler(
 #[tracing::instrument(level = "debug", skip(manager), err)]
 pub(crate) async fn get_databases_handler(
   manager: AFPluginState<Arc<DatabaseManager>>,
-) -> DataResult<RepeatedDatabaseDescPB, FlowyError> {
+) -> DataResult<RepeatedDatabaseDescriptionPB, FlowyError> {
   let items = manager
     .get_databases()
     .await?
     .into_iter()
-    .map(|database_info| DatabaseDescPB {
+    .map(|database_info| DatabaseDescriptionPB {
       name: database_info.name,
       database_id: database_info.database_id,
     })
-    .collect::<Vec<DatabaseDescPB>>();
-  data_result_ok(RepeatedDatabaseDescPB { items })
+    .collect::<Vec<DatabaseDescriptionPB>>();
+  data_result_ok(RepeatedDatabaseDescriptionPB { items })
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
