@@ -107,12 +107,17 @@ class TableData extends ChangeNotifier {
 
   double getRowHeight(int row) => _rowsHeight[row];
 
-  get colsHeight =>
+  double get colsHeight =>
       _rowsHeight.fold<double>(
           0, (prev, cur) => prev + cur + _config.tableBorderWidth) +
       _config.tableBorderWidth;
 
   double getColWidth(int col) => _colsWidth[col];
+
+  double get colsWidth =>
+      _colsWidth.fold<double>(
+          0, (prev, cur) => prev + cur + _config.tableBorderWidth) +
+      _config.tableBorderWidth;
 
   setColWidth(int col, double w) {
     w = w < _config.colMinimumWidth ? _config.colMinimumWidth : w;

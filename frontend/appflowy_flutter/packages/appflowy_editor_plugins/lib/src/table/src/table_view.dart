@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/src/table/src/models/table_data_model.dart';
+import 'package:appflowy_editor_plugins/src/table/src/table_action_button.dart';
 import 'package:appflowy_editor_plugins/src/table/src/table_col.dart';
 
 class TableView extends StatefulWidget {
@@ -29,28 +30,20 @@ class _TableViewState extends State<TableView> {
             Row(
               children: [
                 ..._buildColumns(context),
-                Padding(
+                TableActionButton(
                   padding: const EdgeInsets.only(left: 1),
-                  child: ActionMenuWidget(items: [
-                    ActionMenuItem.icon(
-                        iconData: Icons.add,
-                        onPressed: () {
-                          context.read<TableData>().addCol();
-                        }),
-                  ]),
+                  width: 35,
+                  height: context.select((TableData td) => td.colsHeight),
+                  onPressed: context.read<TableData>().addCol,
                 ),
               ],
             ),
-            Padding(
+            TableActionButton(
               padding: const EdgeInsets.only(top: 1, right: 32),
-              child: ActionMenuWidget(items: [
-                ActionMenuItem.icon(
-                    iconData: Icons.add,
-                    onPressed: () {
-                      context.read<TableData>().addRow();
-                    }),
-              ]),
-            )
+              height: 35,
+              width: context.select((TableData td) => td.colsWidth),
+              onPressed: context.read<TableData>().addRow,
+            ),
           ],
         ),
       ],

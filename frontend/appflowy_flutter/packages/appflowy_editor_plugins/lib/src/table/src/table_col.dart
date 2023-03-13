@@ -23,8 +23,8 @@ class TableCol extends StatefulWidget {
 
 class _TableColState extends State<TableCol> {
   final GlobalKey _borderKey = GlobalKey();
-  bool borderHovering = false;
-  bool borderDragging = false;
+  bool _borderHovering = false;
+  bool _borderDragging = false;
 
   @override
   Widget build(BuildContext context) {
@@ -37,11 +37,12 @@ class _TableColState extends State<TableCol> {
         ),
         MouseRegion(
           cursor: SystemMouseCursors.resizeLeftRight,
-          onEnter: (_) => setState(() => borderHovering = true),
-          onExit: (_) => setState(() => borderHovering = false),
+          onEnter: (_) => setState(() => _borderHovering = true),
+          onExit: (_) => setState(() => _borderHovering = false),
           child: GestureDetector(
-            onHorizontalDragStart: (_) => setState(() => borderDragging = true),
-            onHorizontalDragEnd: (_) => setState(() => borderDragging = false),
+            onHorizontalDragStart: (_) =>
+                setState(() => _borderDragging = true),
+            onHorizontalDragEnd: (_) => setState(() => _borderDragging = false),
             onHorizontalDragUpdate: (DragUpdateDetails details) {
               RenderBox box =
                   _borderKey.currentContext?.findRenderObject() as RenderBox;
@@ -62,8 +63,9 @@ class _TableColState extends State<TableCol> {
               key: _borderKey,
               width: 2,
               height: context.select((TableData td) => td.colsHeight),
-              color:
-                  borderHovering || borderDragging ? Colors.blue : Colors.grey,
+              color: _borderHovering || _borderDragging
+                  ? Colors.blue
+                  : Colors.grey,
             ),
           ),
         )
