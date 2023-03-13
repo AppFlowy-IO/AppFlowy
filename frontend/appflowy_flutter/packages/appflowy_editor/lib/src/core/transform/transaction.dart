@@ -355,7 +355,7 @@ extension TextTransaction on Transaction {
             texts.last,
           );
         } else {
-          if (i < texts.length) {
+          if (i < texts.length - 1) {
             replaceText(
               textNode,
               0,
@@ -367,6 +367,7 @@ extension TextTransaction on Transaction {
           }
         }
       }
+      afterSelection = null;
       return;
     }
 
@@ -389,21 +390,25 @@ extension TextTransaction on Transaction {
             text,
           );
         } else {
-          if (i < textNodes.length) {
+          if (i < textNodes.length - 1) {
             replaceText(
               textNodes[i],
               0,
               textNodes[i].toPlainText().length,
-              texts[i],
+              text,
             );
           } else {
-            insertNode(
-              textNodes.last.path,
-              TextNode(delta: Delta()..insert(text)),
-            );
+            var path = textNodes.first.path;
+            var j = i - textNodes.length + length - 1;
+            while (j > 0) {
+              path = path.next;
+              j--;
+            }
+            insertNode(path, TextNode(delta: Delta()..insert(text)));
           }
         }
       }
+      afterSelection = null;
       return;
     }
   }
