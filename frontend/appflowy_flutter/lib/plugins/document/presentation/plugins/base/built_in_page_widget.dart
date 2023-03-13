@@ -59,7 +59,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           child: CircularProgressIndicator(),
         );
       },
-      future: AppService().getView(appID, gridID),
+      future: AppBackendService().getView(appID, gridID),
     );
   }
 

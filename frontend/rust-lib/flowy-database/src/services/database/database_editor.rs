@@ -18,7 +18,7 @@ use crate::services::database_view::{
 };
 use crate::services::filter::FilterType;
 use crate::services::persistence::block_index::BlockRowIndexer;
-use crate::services::persistence::database_ref::DatabaseRef;
+use crate::services::persistence::database_ref::DatabaseViewRef;
 use crate::services::row::{DatabaseBlockRow, DatabaseBlockRowRevision, RowRevisionBuilder};
 use bytes::Bytes;
 use database_model::*;
@@ -42,7 +42,7 @@ use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
 
 pub trait DatabaseRefIndexerQuery: Send + Sync + 'static {
-  fn get_ref_views(&self, database_id: &str) -> FlowyResult<Vec<DatabaseRef>>;
+  fn get_ref_views(&self, database_id: &str) -> FlowyResult<Vec<DatabaseViewRef>>;
 }
 
 pub struct DatabaseEditor {
