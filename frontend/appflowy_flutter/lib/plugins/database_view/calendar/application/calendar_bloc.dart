@@ -50,6 +50,10 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           createEvent: (DateTime date, String title) async {
             await _createEvent(date, title);
           },
+          updateCalendarLayoutSetting:
+              (CalendarLayoutSettingsPB layoutSetting) async {
+            await _updateCalendarLayoutSetting(layoutSetting);
+          },
           didUpdateEvent: (CalendarEventData<CalendarDayEvent> eventData) {
             var allEvents = [...state.allEvents];
             final index = allEvents.indexWhere(
@@ -143,6 +147,11 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         }
       },
     );
+  }
+
+  Future<void> _updateCalendarLayoutSetting(
+      CalendarLayoutSettingsPB layoutSetting) async {
+    return _databaseController.updateCalenderLayoutSetting(layoutSetting);
   }
 
   Future<CalendarEventData<CalendarDayEvent>?> _loadEvent(String rowId) async {
@@ -294,6 +303,10 @@ class CalendarEvent with _$CalendarEvent {
   // Called when creating a new event
   const factory CalendarEvent.createEvent(DateTime date, String title) =
       _CreateEvent;
+
+  // Called when updating the calendar's layout settings
+  const factory CalendarEvent.updateCalendarLayoutSetting(
+      CalendarLayoutSettingsPB layoutSetting) = _UpdateCalendarLayoutSetting;
 
   const factory CalendarEvent.didReceiveDatabaseUpdate(DatabasePB database) =
       _ReceiveDatabaseUpdate;
