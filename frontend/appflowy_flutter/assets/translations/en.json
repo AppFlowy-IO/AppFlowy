@@ -216,7 +216,8 @@
       "addFilter": "Add Filter",
       "deleteFilter": "Delete filter",
       "filterBy": "Filter by...",
-      "typeAValue": "Type a value..."
+      "typeAValue": "Type a value...",
+      "layout": "Layout"
     },
     "textFilter": {
       "contains": "Contains",

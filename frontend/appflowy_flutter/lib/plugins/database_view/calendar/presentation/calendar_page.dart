@@ -92,8 +92,12 @@ class _CalendarPageState extends State<CalendarPage> {
               return Column(
                 children: [
                   // const _ToolbarBlocAdaptor(),
-                  _toolbar(),
-                  _buildCalendar(_eventController),
+                  const CalendarToolbar(),
+                  _buildCalendar(
+                    _eventController,
+                    state.settings
+                        .foldLeft(0, (previous, a) => a.firstDayOfWeek),
+                  ),
                 ],
               );
             },
@@ -103,16 +107,13 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
-  Widget _toolbar() {
-    return const CalendarToolbar();
-  }
-
-  Widget _buildCalendar(EventController eventController) {
+  Widget _buildCalendar(EventController eventController, int firstDayOfWeek) {
     return Expanded(
       child: MonthView(
         key: _calendarState,
         controller: _eventController,
         cellAspectRatio: .9,
+        startDay: _weekdayFromInt(firstDayOfWeek),
         borderColor: Theme.of(context).dividerColor,
         headerBuilder: _headerNavigatorBuilder,
         weekDayBuilder: _headerWeekDayBuilder,
@@ -197,5 +198,10 @@ class _CalendarPageState extends State<CalendarPage> {
         );
       },
     );
+  }
+
+  WeekDays _weekdayFromInt(int dayOfWeek) {
+    // MonthView places the first day of week on the second column for some reason.
+    return WeekDays.values[(dayOfWeek + 1) % 7];
   }
 }

@@ -5,7 +5,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../application/calendar_bloc.dart';
 import 'calendar_setting.dart';
 
 class CalendarToolbar extends StatelessWidget {
@@ -45,7 +47,7 @@ class _SettingButtonState extends State<_SettingButton> {
       controller: popoverController,
       direction: PopoverDirection.bottomWithRightAligned,
       triggerActions: PopoverTriggerFlags.none,
-      constraints: BoxConstraints.loose(const Size(260, 400)),
+      constraints: BoxConstraints.loose(const Size(300, 400)),
       margin: EdgeInsets.zero,
       child: FlowyTextButton(
         LocaleKeys.settings_title.tr(),
@@ -54,7 +56,20 @@ class _SettingButtonState extends State<_SettingButton> {
         padding: GridSize.typeOptionContentInsets,
         onPressed: () => popoverController.show(),
       ),
-      popupBuilder: (BuildContext context) => CalendarSettingList(),
+      popupBuilder: (BuildContext popoverContext) {
+        final settings = context.watch<CalendarBloc>().state.settings;
+        return CalendarSetting(
+          layoutSettings: settings.fold(() => null, (settings) => settings),
+          onUpdated: (layoutSettings) {
+            if (layoutSettings == null) {
+              return;
+            }
+            context
+                .read<CalendarBloc>()
+                .add(CalendarEvent.updateCalendarLayoutSetting(layoutSettings));
+          },
+        );
+      }, // use blocbuilder
     );
   }
 }
