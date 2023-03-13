@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/workspace/application/sidebar_theme_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -265,7 +266,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         surfaceVariant: theme.bg1,
         shadow: theme.shadow,
       ),
-      extensions: [
+      extensions: <ThemeExtension<dynamic>>[
         AFThemeExtension(
           warning: theme.yellow,
           success: theme.green,
@@ -297,7 +298,10 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
             fontWeight: FontWeight.w400,
             fontColor: theme.shader3,
           ),
-        )
+        ),
+        brightness == Brightness.light
+            ? AFSideBarThemeExtension.light
+            : AFSideBarThemeExtension.dark,
       ],
     );
   }
