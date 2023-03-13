@@ -222,7 +222,6 @@ class _SmartEditInputState extends State<_SmartEditInput> {
 
     final texts = result!.asRight().choices.first.text.split('\n')
       ..removeWhere((element) => element.isEmpty);
-    assert(texts.length == selectedNodes.length);
     final transaction = widget.editorState.transaction;
     transaction.replaceTexts(
       selectedNodes.toList(growable: false),
@@ -254,7 +253,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
       final edits = await openAIRepository.getEdits(
         input: input,
         instruction: instruction,
-        n: input.split('\n').length,
+        n: 1,
       );
       return edits.fold((error) async {
         return dartz.Left(

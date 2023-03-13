@@ -349,11 +349,13 @@
       "autoGeneratorGenerate": "Generate",
       "autoGeneratorHintText": "Tell us what you want to generate by OpenAI ...",
       "autoGeneratorCantGetOpenAIKey": "Can't get OpenAI key",
+      "smartEdit": "Smart Edit",
       "smartEditTitleName": "Open AI: Smart Edit",
       "smartEditFixSpelling": "Fix spelling",
       "smartEditSummarize": "Summarize",
       "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
       "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
+      "smartEditDisabled": "Connect OpenAI in Settings",
       "cover": {
         "changeCover": "Change Cover",
         "colors": "Colors",
