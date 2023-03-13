@@ -4,6 +4,7 @@ import { BoardBlock } from './BoardBlock';
 import { NewBoardBlock } from './NewBoardBlock';
 import { useDatabase } from '../_shared/database-hooks/useDatabase';
 import { ViewLayoutTypePB } from '@/services/backend';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 
 export const Board = ({ viewId }: { viewId: string }) => {
   const { controller, rows, groups } = useDatabase(viewId, ViewLayoutTypePB.Board);
@@ -22,24 +23,31 @@ export const Board = ({ viewId }: { viewId: string }) => {
           <SearchInput />
         </div>
       </div>
-      <div className={'relative w-full flex-1 overflow-auto'}>
-        <div className={'absolute flex h-full flex-shrink-0 items-start justify-start gap-4'}>
-          {controller &&
-            groups &&
-            groups.map((group, index) => (
-              <BoardBlock
-                key={index}
-                viewId={viewId}
-                controller={controller}
-                rows={group.rows}
-                title={group.name}
-                allRows={rows}
-              />
-            ))}
-
-          <NewBoardBlock onClick={() => console.log('new block')}></NewBoardBlock>
+      <DragDropContext onDragEnd={(res) => console.log(res)}>
+        <div className={'relative w-full flex-1 overflow-auto'}>
+          <div className={'absolute flex h-full flex-shrink-0 items-start justify-start gap-4'}>
+            {controller &&
+              groups &&
+              groups.map((group, index) => (
+                <Droppable droppableId={group.groupId} key={index}>
+                  {(provided, snapshot) => (
+                    <div className={'h-full'} {...provided.droppableProps} ref={provided.innerRef}>
+                      <BoardBlock
+                        key={index}
+                        viewId={viewId}
+                        controller={controller}
+                        rows={group.rows}
+                        title={group.name}
+                        allRows={rows}
+                      />
+                    </div>
+                  )}
+                </Droppable>
+              ))}
+            <NewBoardBlock onClick={() => console.log('new block')}></NewBoardBlock>
+          </div>
         </div>
-      </div>
+      </DragDropContext>
     </>
   );
 };

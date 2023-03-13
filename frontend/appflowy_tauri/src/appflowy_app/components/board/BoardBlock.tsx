@@ -4,6 +4,7 @@ import { BoardCard } from './BoardCard';
 import { RowInfo } from '../../stores/effects/database/row/row_cache';
 import { DatabaseController } from '../../stores/effects/database/database_controller';
 import { RowPB } from '@/services/backend';
+import { Draggable } from 'react-beautiful-dnd';
 
 export const BoardBlock = ({
   viewId,
@@ -38,7 +39,13 @@ export const BoardBlock = ({
         {rows.map((row_pb, index) => {
           const row = allRows.find((r) => r.row.id === row_pb.id);
           return row ? (
-            <BoardCard viewId={viewId} controller={controller} key={index} rowInfo={row}></BoardCard>
+            <Draggable draggableId={row_pb.id} index={index}>
+              {(provided, snapshot) => (
+                <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                  <BoardCard viewId={viewId} controller={controller} key={index} rowInfo={row}></BoardCard>
+                </div>
+              )}
+            </Draggable>
           ) : (
             <span key={index}></span>
           );
