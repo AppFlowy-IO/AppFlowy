@@ -140,9 +140,12 @@ class _SmartEditInputState extends State<_SmartEditInput> {
   }
 
   Widget _buildResultWidget(BuildContext context) {
-    final loading = SizedBox.fromSize(
-      size: const Size.square(14),
-      child: const CircularProgressIndicator(),
+    final loading = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: SizedBox.fromSize(
+        size: const Size.square(14),
+        child: const CircularProgressIndicator(),
+      ),
     );
     if (result == null) {
       return loading;
