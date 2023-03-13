@@ -33,6 +33,10 @@ use user_model::UserProfile;
 
 static INIT_LOG: AtomicBool = AtomicBool::new(false);
 
+/// This name will be used as to identify the current [AppFlowyCore] instance.
+/// Don't change this.
+pub const DEFAULT_NAME: &str = "appflowy";
+
 #[derive(Clone)]
 pub struct AppFlowyCoreConfig {
   /// Different `AppFlowyCoreConfig` instance should have different name

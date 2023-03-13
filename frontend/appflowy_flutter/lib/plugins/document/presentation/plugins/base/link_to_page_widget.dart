@@ -169,7 +169,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
           );
         }
       },
-      future: AppService().fetchViews(widget.layoutType),
+      future: AppBackendService().fetchViews(widget.layoutType),
     );
   }
 

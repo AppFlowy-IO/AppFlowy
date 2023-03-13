@@ -165,7 +165,7 @@ class AppFlowyGridTest {
   Future<GridTestContext> createTestGrid() async {
     final app = await unitTest.createTestApp();
     final builder = GridPluginBuilder();
-    final context = await AppService()
+    final context = await AppBackendService()
         .createView(
       appId: app.id,
       name: "Test Grid",

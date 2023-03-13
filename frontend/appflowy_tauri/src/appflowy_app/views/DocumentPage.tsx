@@ -9,18 +9,18 @@ const theme = createTheme({
   },
 });
 export const DocumentPage = () => {
-  const { blocksMap, blockId } = useDocument();
+  const { blockId } = useDocument();
 
+  if (!blockId) return <div className='error-page'></div>;
   return (
     <ThemeProvider theme={theme}>
-      <div id='appflowy-block-doc' className='flex flex-col items-center'>
+      <div id='appflowy-block-doc' className='doc-scroller-container flex h-[100%] flex-col items-center overflow-auto'>
         <BlockContext.Provider
           value={{
             id: blockId,
-            blocksMap,
           }}
         >
-          <BlockList />
+          <BlockList blockId={blockId} />
         </BlockContext.Provider>
       </div>
     </ThemeProvider>
