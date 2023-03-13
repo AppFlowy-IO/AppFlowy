@@ -16,7 +16,7 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:path/path.dart' as Path;
+import 'package:path/path.dart' as path;
 
 const String kLocalImagesKey = 'local_images';
 
@@ -264,7 +264,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
       if (path != null) {
         final directory = await _coverPath();
         final newPath = await File(path).copy(
-          '$directory/${Path.split(path).last}}',
+          '$directory/${path.split(path).last}}',
         );
         imageNames.add(newPath.path);
       }
@@ -275,7 +275,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
 
   Future<String> _coverPath() async {
     final directory = await getIt<SettingsLocationCubit>().fetchLocation();
-    return Directory(Path.join(directory, 'covers'))
+    return Directory(path.join(directory, 'covers'))
         .create(recursive: true)
         .then((value) => value.path);
   }
