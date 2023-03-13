@@ -1,5 +1,5 @@
 import { useSlate } from 'slate-react';
-import { toggleFormat, isFormatActive } from '$app/utils/editor/format';
+import { toggleFormat, isFormatActive } from '@/appflowy_app/utils/slate/format';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import { useMemo } from 'react';
