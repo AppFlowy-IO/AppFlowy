@@ -1,5 +1,12 @@
-import 'package:flowy_infra_ui/style_widget/button.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+
+import 'calendar_setting.dart';
 
 class CalendarToolbar extends StatelessWidget {
   const CalendarToolbar({super.key});
@@ -10,14 +17,44 @@ class CalendarToolbar extends StatelessWidget {
       height: 40,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
-        children: const [
-          FlowyTextButton(
-            "Settings",
-            fillColor: Colors.transparent,
-            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          ),
+        children: [
+          _SettingButton(),
         ],
       ),
+    );
+  }
+}
+
+class _SettingButton extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _SettingButtonState();
+}
+
+class _SettingButtonState extends State<_SettingButton> {
+  late PopoverController popoverController;
+
+  @override
+  void initState() {
+    popoverController = PopoverController();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AppFlowyPopover(
+      controller: popoverController,
+      direction: PopoverDirection.bottomWithRightAligned,
+      triggerActions: PopoverTriggerFlags.none,
+      constraints: BoxConstraints.loose(const Size(260, 400)),
+      margin: EdgeInsets.zero,
+      child: FlowyTextButton(
+        LocaleKeys.settings_title.tr(),
+        fillColor: Colors.transparent,
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        padding: GridSize.typeOptionContentInsets,
+        onPressed: () => popoverController.show(),
+      ),
+      popupBuilder: (BuildContext context) => CalendarSettingList(),
     );
   }
 }
