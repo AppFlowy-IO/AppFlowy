@@ -348,7 +348,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
   void _onPanStart(DragStartDetails details) {
     clearSelection();
 
-    _panStartOffset = details.globalPosition;
+    _panStartOffset = details.globalPosition.translate(-5.0, 0);
     _panStartScrollDy = editorState.service.scrollService?.dy;
 
     _enableInteraction();
