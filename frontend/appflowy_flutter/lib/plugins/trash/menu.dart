@@ -1,5 +1,6 @@
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/sidebar_theme_extension.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -43,6 +44,8 @@ class MenuTrash extends StatelessWidget {
   }
 
   Widget _render(BuildContext context) {
+    final sideBarStyle =
+        Theme.of(context).extension<AFSideBarThemeExtension>()!;
     return Row(
       children: [
         SizedBox(
@@ -50,11 +53,14 @@ class MenuTrash extends StatelessWidget {
           height: 16,
           child: svgWidget(
             "home/trash",
-            color: Theme.of(context).colorScheme.onSurface,
+            color: sideBarStyle.iconColor,
           ),
         ),
         const HSpace(6),
-        FlowyText.medium(LocaleKeys.trash_text.tr()),
+        FlowyText.medium(
+          LocaleKeys.trash_text.tr(),
+          color: sideBarStyle.subTitleTextColor,
+        ),
       ],
     );
   }
