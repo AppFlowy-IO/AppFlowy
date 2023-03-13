@@ -153,11 +153,6 @@ class _TableWidgetState extends State<_TableWidget> with SelectableMixin {
         );
       },
     );
-    //return TableView(
-    //  data: data,
-    //  node: widget.node,
-    //  editorState: widget.editorState,
-    //);
   }
 
   RenderBox get _renderBox => context.findRenderObject() as RenderBox;
@@ -171,6 +166,7 @@ class _TableWidgetState extends State<_TableWidget> with SelectableMixin {
   @override
   Position getPositionInOffset(Offset start) => end();
 
+  // TODO(zoli): extract action buttons and menu from selection space
   @override
   List<Rect> getRectsInSelection(Selection selection) =>
       [Offset.zero & _renderBox.size];
