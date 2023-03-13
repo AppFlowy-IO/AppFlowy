@@ -140,9 +140,12 @@ class _SmartEditInputState extends State<_SmartEditInput> {
   }
 
   Widget _buildResultWidget(BuildContext context) {
-    final loading = SizedBox.fromSize(
-      size: const Size.square(14),
-      child: const CircularProgressIndicator(),
+    final loading = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: SizedBox.fromSize(
+        size: const Size.square(14),
+        child: const CircularProgressIndicator(),
+      ),
     );
     if (result == null) {
       return loading;
@@ -222,7 +225,6 @@ class _SmartEditInputState extends State<_SmartEditInput> {
 
     final texts = result!.asRight().choices.first.text.split('\n')
       ..removeWhere((element) => element.isEmpty);
-    assert(texts.length == selectedNodes.length);
     final transaction = widget.editorState.transaction;
     transaction.replaceTexts(
       selectedNodes.toList(growable: false),
@@ -254,7 +256,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
       final edits = await openAIRepository.getEdits(
         input: input,
         instruction: instruction,
-        n: input.split('\n').length,
+        n: 1,
       );
       return edits.fold((error) async {
         return dartz.Left(
