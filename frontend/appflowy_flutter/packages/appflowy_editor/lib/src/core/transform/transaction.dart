@@ -291,46 +291,125 @@ extension TextTransaction on Transaction {
     Selection selection,
     List<String> texts,
   ) {
-    if (textNodes.isEmpty) {
+    if (textNodes.isEmpty || texts.isEmpty) {
       return;
     }
 
-    if (selection.isSingle) {
-      assert(textNodes.length == 1 && texts.length == 1);
-      replaceText(
-        textNodes.first,
-        selection.startIndex,
-        selection.length,
-        texts.first,
-      );
-    } else {
+    if (textNodes.length == texts.length) {
       final length = textNodes.length;
-      for (var i = 0; i < length; i++) {
+
+      if (length == 1) {
+        replaceText(
+          textNodes.first,
+          selection.startIndex,
+          selection.endIndex - selection.startIndex,
+          texts.first,
+        );
+        return;
+      }
+
+      for (var i = 0; i < textNodes.length; i++) {
         final textNode = textNodes[i];
-        final text = texts[i];
         if (i == 0) {
           replaceText(
             textNode,
             selection.startIndex,
             textNode.toPlainText().length,
-            text,
+            texts.first,
           );
         } else if (i == length - 1) {
           replaceText(
             textNode,
             0,
             selection.endIndex,
-            text,
+            texts.last,
           );
         } else {
           replaceText(
             textNode,
             0,
             textNode.toPlainText().length,
-            text,
+            texts[i],
           );
         }
       }
+      return;
+    }
+
+    if (textNodes.length > texts.length) {
+      final length = textNodes.length;
+      for (var i = 0; i < textNodes.length; i++) {
+        final textNode = textNodes[i];
+        if (i == 0) {
+          replaceText(
+            textNode,
+            selection.startIndex,
+            textNode.toPlainText().length,
+            texts.first,
+          );
+        } else if (i == length - 1) {
+          replaceText(
+            textNode,
+            0,
+            selection.endIndex,
+            texts.last,
+          );
+        } else {
+          if (i < texts.length - 1) {
+            replaceText(
+              textNode,
+              0,
+              textNode.toPlainText().length,
+              texts[i],
+            );
+          } else {
+            deleteNode(textNode);
+          }
+        }
+      }
+      afterSelection = null;
+      return;
+    }
+
+    if (textNodes.length < texts.length) {
+      final length = texts.length;
+      for (var i = 0; i < texts.length; i++) {
+        final text = texts[i];
+        if (i == 0) {
+          replaceText(
+            textNodes.first,
+            selection.startIndex,
+            textNodes.first.toPlainText().length,
+            text,
+          );
+        } else if (i == length - 1) {
+          replaceText(
+            textNodes.last,
+            0,
+            selection.endIndex,
+            text,
+          );
+        } else {
+          if (i < textNodes.length - 1) {
+            replaceText(
+              textNodes[i],
+              0,
+              textNodes[i].toPlainText().length,
+              text,
+            );
+          } else {
+            var path = textNodes.first.path;
+            var j = i - textNodes.length + length - 1;
+            while (j > 0) {
+              path = path.next;
+              j--;
+            }
+            insertNode(path, TextNode(delta: Delta()..insert(text)));
+          }
+        }
+      }
+      afterSelection = null;
+      return;
     }
   }
 }

@@ -8,7 +8,6 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:http/http.dart' as http;
@@ -99,28 +98,16 @@ class _SmartEditInputState extends State<_SmartEditInput> {
   }
 
   Widget _buildSmartEditPanel(BuildContext context) {
-    return RawKeyboardListener(
-      focusNode: focusNode,
-      onKey: (RawKeyEvent event) async {
-        if (event is! RawKeyDownEvent) return;
-        if (event.logicalKey == LogicalKeyboardKey.enter) {
-          await _onReplace();
-          await _onExit();
-        } else if (event.logicalKey == LogicalKeyboardKey.escape) {
-          await _onExit();
-        }
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeaderWidget(context),
-          const Space(0, 10),
-          _buildResultWidget(context),
-          const Space(0, 10),
-          _buildInputFooterWidget(context),
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildHeaderWidget(context),
+        const Space(0, 10),
+        _buildResultWidget(context),
+        const Space(0, 10),
+        _buildInputFooterWidget(context),
+      ],
     );
   }
 
@@ -140,9 +127,12 @@ class _SmartEditInputState extends State<_SmartEditInput> {
   }
 
   Widget _buildResultWidget(BuildContext context) {
-    final loading = SizedBox.fromSize(
-      size: const Size.square(14),
-      child: const CircularProgressIndicator(),
+    final loading = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: SizedBox.fromSize(
+        size: const Size.square(14),
+        child: const CircularProgressIndicator(),
+      ),
     );
     if (result == null) {
       return loading;
@@ -172,14 +162,8 @@ class _SmartEditInputState extends State<_SmartEditInput> {
           TextSpan(
             children: [
               TextSpan(
-                text: '${LocaleKeys.button_replace.tr()}  ',
+                text: LocaleKeys.button_replace.tr(),
                 style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              TextSpan(
-                text: '↵',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey,
-                    ),
               ),
             ],
           ),
@@ -193,14 +177,8 @@ class _SmartEditInputState extends State<_SmartEditInput> {
           TextSpan(
             children: [
               TextSpan(
-                text: '${LocaleKeys.button_Cancel.tr()}  ',
+                text: LocaleKeys.button_Cancel.tr(),
                 style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              TextSpan(
-                text: LocaleKeys.button_esc.tr(),
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey,
-                    ),
               ),
             ],
           ),
@@ -222,7 +200,6 @@ class _SmartEditInputState extends State<_SmartEditInput> {
 
     final texts = result!.asRight().choices.first.text.split('\n')
       ..removeWhere((element) => element.isEmpty);
-    assert(texts.length == selectedNodes.length);
     final transaction = widget.editorState.transaction;
     transaction.replaceTexts(
       selectedNodes.toList(growable: false),
@@ -254,7 +231,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
       final edits = await openAIRepository.getEdits(
         input: input,
         instruction: instruction,
-        n: input.split('\n').length,
+        n: 1,
       );
       return edits.fold((error) async {
         return dartz.Left(

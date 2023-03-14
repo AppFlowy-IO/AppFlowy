@@ -10,9 +10,9 @@ enum SmartEditAction {
   String get toInstruction {
     switch (this) {
       case SmartEditAction.summarize:
-        return 'Make it shorter';
+        return 'Make this shorter and more concise:';
       case SmartEditAction.fixSpelling:
-        return 'Fix all the spelling mistakes';
+        return 'Correct this to standard English:';
     }
   }
 }
