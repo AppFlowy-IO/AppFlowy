@@ -16,7 +16,8 @@ ToolbarItem smartEditItem = ToolbarItem(
   validator: (editorState) {
     // All selected nodes must be text.
     final nodes = editorState.service.selectionService.currentSelectedNodes;
-    return nodes.whereType<TextNode>().length == nodes.length;
+    return nodes.whereType<TextNode>().length == nodes.length &&
+        nodes.length == 1;
   },
   itemBuilder: (context, editorState) {
     return _SmartEditWidget(

@@ -142,7 +142,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
           TextSpan(
             children: [
               TextSpan(
-                text: '${LocaleKeys.button_generate.tr()}  ',
+                text: LocaleKeys.button_generate.tr(),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
@@ -154,7 +154,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
           TextSpan(
             children: [
               TextSpan(
-                text: '${LocaleKeys.button_Cancel.tr()}  ',
+                text: LocaleKeys.button_Cancel.tr(),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],

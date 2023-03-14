@@ -162,7 +162,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
           TextSpan(
             children: [
               TextSpan(
-                text: '${LocaleKeys.button_replace.tr()}  ',
+                text: LocaleKeys.button_replace.tr(),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
@@ -177,7 +177,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
           TextSpan(
             children: [
               TextSpan(
-                text: '${LocaleKeys.button_Cancel.tr()}  ',
+                text: LocaleKeys.button_Cancel.tr(),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
