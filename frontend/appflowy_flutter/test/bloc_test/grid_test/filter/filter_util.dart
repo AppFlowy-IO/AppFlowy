@@ -8,7 +8,7 @@ import '../util.dart';
 Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
   final app = await gridTest.unitTest.createTestApp();
   final builder = GridPluginBuilder();
-  final context = await AppService()
+  final context = await AppBackendService()
       .createView(
     appId: app.id,
     name: "Filter Grid",

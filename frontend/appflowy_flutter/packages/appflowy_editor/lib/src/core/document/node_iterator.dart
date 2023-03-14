@@ -27,10 +27,10 @@ class NodeIterator implements Iterator<Node> {
       return true;
     }
 
-    final node = _currentNode;
-    if (node == null) {
+    if (_currentNode == null) {
       return false;
     }
+    Node node = _currentNode!;
 
     if (endNode != null && endNode == node) {
       _currentNode = null;
@@ -38,16 +38,19 @@ class NodeIterator implements Iterator<Node> {
     }
 
     if (node.children.isNotEmpty) {
-      _currentNode = _findLeadingChild(node);
+      _currentNode = node.children.first;
     } else if (node.next != null) {
       _currentNode = node.next!;
     } else {
-      final parent = node.parent!;
-      final nextOfParent = parent.next;
-      if (nextOfParent == null) {
-        _currentNode = null;
-      } else {
-        _currentNode = nextOfParent;
+      while (node.parent != null) {
+        node = node.parent!;
+        final nextOfParent = node.next;
+        if (nextOfParent == null) {
+          _currentNode = null;
+        } else {
+          _currentNode = nextOfParent;
+          break;
+        }
       }
     }
 
@@ -60,12 +63,5 @@ class NodeIterator implements Iterator<Node> {
       result.add(current);
     }
     return result;
-  }
-
-  Node _findLeadingChild(Node node) {
-    while (node.children.isNotEmpty) {
-      node = node.children.first;
-    }
-    return node;
   }
 }

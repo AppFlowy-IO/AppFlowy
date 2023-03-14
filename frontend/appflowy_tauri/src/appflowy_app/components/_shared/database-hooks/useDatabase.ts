@@ -1,30 +1,26 @@
 import { useEffect, useState } from 'react';
 import { DatabaseController } from '../../../stores/effects/database/database_controller';
-import {
-  databaseActions,
-  DatabaseFieldMap,
-  IDatabaseColumn,
-  IDatabaseRow,
-} from '../../../stores/reducers/database/slice';
-import { useAppDispatch, useAppSelector } from '../../../stores/store';
+import { databaseActions, DatabaseFieldMap, IDatabaseColumn } from '../../../stores/reducers/database/slice';
+import { useAppDispatch } from '../../../stores/store';
 import loadField from './loadField';
 import { FieldInfo } from '../../../stores/effects/database/field/field_controller';
 import { RowInfo } from '../../../stores/effects/database/row/row_cache';
+import { ViewLayoutTypePB } from '@/services/backend';
+import { DatabaseGroupController } from '$app/stores/effects/database/group/group_controller';
 
-export const useDatabase = (viewId: string) => {
+export const useDatabase = (viewId: string, type?: ViewLayoutTypePB) => {
   const dispatch = useAppDispatch();
-  const databaseStore = useAppSelector((state) => state.database);
-  const boardStore = useAppSelector((state) => state.board);
   const [controller, setController] = useState<DatabaseController>();
   const [rows, setRows] = useState<readonly RowInfo[]>([]);
+  const [groups, setGroups] = useState<readonly DatabaseGroupController[]>([]);
 
   useEffect(() => {
     if (!viewId.length) return;
     const c = new DatabaseController(viewId);
     setController(c);
 
-    // on unmount dispose the controller
-    return () => void c.dispose();
+    // dispose is causing an error
+    // return () => void c.dispose();
   }, [viewId]);
 
   const loadFields = async (fieldInfos: readonly FieldInfo[]) => {
@@ -45,7 +41,6 @@ export const useDatabase = (viewId: string) => {
 
     dispatch(databaseActions.updateFields({ fields }));
     dispatch(databaseActions.updateColumns({ columns }));
-    console.log(fields, columns);
   };
 
   useEffect(() => {
@@ -61,8 +56,12 @@ export const useDatabase = (viewId: string) => {
         },
       });
       await controller.open();
+
+      if (type === ViewLayoutTypePB.Board) {
+        setGroups(controller.groups.value);
+      }
     })();
   }, [controller]);
 
-  return { loadFields, controller, rows };
+  return { loadFields, controller, rows, groups };
 };
