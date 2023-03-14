@@ -1,5 +1,4 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
@@ -111,7 +110,7 @@ class _MultiSelectCellState extends GridCellState<GridMultiSelectCell> {
   void initState() {
     final cellController =
         widget.cellControllerBuilder.build() as SelectOptionCellController;
-    _cellBloc = getIt<SelectOptionCellBloc>(param1: cellController)
+    _cellBloc = SelectOptionCellBloc(cellController: cellController)
       ..add(const SelectOptionCellEvent.initial());
     _popover = PopoverController();
     super.initState();

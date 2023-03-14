@@ -112,6 +112,7 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
     isFocus = false;
     this.showCursor = showCursor;
     _focusNode.unfocus(disposition: disposition);
+    _onFocusChange(false);
   }
 
   @override

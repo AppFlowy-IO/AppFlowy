@@ -8,11 +8,13 @@ export const NavItemOptionsPopup = ({
   onDeleteClick,
   onDuplicateClick,
   onClose,
+  top,
 }: {
   onRenameClick: () => void;
   onDeleteClick: () => void;
   onDuplicateClick: () => void;
   onClose?: () => void;
+  top: number;
 }) => {
   const items: IPopupItem[] = [
     {
@@ -48,7 +50,8 @@ export const NavItemOptionsPopup = ({
     <Popup
       onOutsideClick={() => onClose && onClose()}
       items={items}
-      className={'absolute right-0 top-[40px] z-10'}
+      className={`absolute right-0`}
+      style={{ top: `${top}px` }}
     ></Popup>
   );
 };

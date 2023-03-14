@@ -30,7 +30,7 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
 
   let server_config = get_client_server_configuration().unwrap();
   let log_crates = vec!["flowy-ffi".to_string()];
-  let config = AppFlowyCoreConfig::new(path, "appflowy".to_string(), server_config)
+  let config = AppFlowyCoreConfig::new(path, DEFAULT_NAME.to_string(), server_config)
     .log_filter("info", log_crates);
   *APPFLOWY_CORE.write() = Some(AppFlowyCore::new(config));
 

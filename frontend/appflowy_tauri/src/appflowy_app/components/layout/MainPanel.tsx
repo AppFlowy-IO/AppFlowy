@@ -1,8 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { HeaderPanel } from './HeaderPanel/HeaderPanel';
 import { FooterPanel } from './FooterPanel';
-
-const ANIMATION_DURATION = 300;
+import { ANIMATION_DURATION } from '../_shared/constants';
 
 export const MainPanel = ({
   left,

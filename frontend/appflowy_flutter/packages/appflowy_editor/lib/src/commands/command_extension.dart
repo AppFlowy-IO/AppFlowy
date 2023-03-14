@@ -57,7 +57,10 @@ extension CommandExtension on EditorState {
     Selection selection,
   ) {
     List<String> res = [];
-    if (!selection.isCollapsed) {
+    if (selection.isSingle) {
+      final plainText = textNodes.first.toPlainText();
+      res.add(plainText.substring(selection.startIndex, selection.endIndex));
+    } else if (!selection.isCollapsed) {
       for (var i = 0; i < textNodes.length; i++) {
         final plainText = textNodes[i].toPlainText();
         if (i == 0) {
