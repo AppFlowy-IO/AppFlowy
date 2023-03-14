@@ -118,11 +118,11 @@ jobs:
           fi
         shell: bash
 
-      - uses: codecov/codecov-action@v3
-        with: 
-          name: appflowy
-          flags: appflowy
-          env_vars: ${{ matrix.os }}
-          fail_ci_if_error: true
-          verbose: true
+      # - uses: codecov/codecov-action@v3
+      #   with:
+      #     name: appflowy
+      #     flags: appflowy
+      #     env_vars: ${{ matrix.os }}
+      #     fail_ci_if_error: true
+      #     verbose: true
 
