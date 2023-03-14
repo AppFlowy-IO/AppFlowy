@@ -49,10 +49,21 @@ class ShortcutsListView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const FlowyText.medium(
-          "Customize Shortcuts",
-          overflow: TextOverflow.ellipsis,
+        Row(
+          children: const [
+            Expanded(
+              child: FlowyText.semibold(
+                "Command",
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            FlowyText.semibold(
+              "Key Binding ",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
+        const SizedBox(height: 8),
         Expanded(
           child: ListView.builder(
             itemCount: shortcuts.length,
@@ -78,13 +89,14 @@ class ShortcutsListTile extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: FlowyText.regular(
+          child: FlowyText.medium(
             shortcutEvent.key,
             overflow: TextOverflow.ellipsis,
           ),
         ),
         FlowyTextButton(
           shortcutEvent.command,
+          fillColor: Colors.transparent,
           onPressed: () {
             showKeyListenerDialog(context);
           },
