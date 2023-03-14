@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/application/cover_image_picker_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_image_picker_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -50,14 +50,16 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
             const SizedBox(
               width: 3,
             ),
-            FlowyText(LocaleKeys.document_plugins_cover_pasteImageUrl.tr()),
+            FlowyText(
+              LocaleKeys.document_plugins_cover_pasteImageUrl.tr(),
+            ),
           ],
         ),
         const SizedBox(
           height: 10,
         ),
-        const FlowyText(
-          LocaleKeys.document_plugins_cover_or,
+        FlowyText(
+          LocaleKeys.document_plugins_cover_or.tr(),
           color: Colors.grey,
         ),
         const SizedBox(
