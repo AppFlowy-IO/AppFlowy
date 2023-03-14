@@ -1,140 +1,94 @@
-import { RectManager } from "./rect";
-import { BlockInterface, BlockData, BlockType, TreeNodeInterface } from '../interfaces/index';
+import { BlockPositionManager } from "./position";
+import { BlockChain } from './block_chain';
+import { Block } from './block';
+import { TreeNode } from "./tree_node";
 
-export class TreeManager {
+export class RenderTree {
+  private positionManager: BlockPositionManager;
+  private root: TreeNode | null = null;
+  private map: Map<string, TreeNode> = new Map();
 
-  // RenderTreeManager holds RectManager, which manages the position information of each node in the render tree.
-  private rect: RectManager;
-
-  root: TreeNode | null = null;
-
-  map: Map<string, TreeNode> = new Map();
-
-  constructor(private getBlock: (blockId: string) => BlockInterface | null) {
-    this.rect = new RectManager(this.getTreeNode);
+  constructor(private blockChain: BlockChain) {
+    this.positionManager = new BlockPositionManager();
   }
 
   /**
-   * Get render node data by nodeId
+   * Get the TreeNode data by nodeId
    * @param nodeId string
-   * @returns TreeNode
+   * @returns TreeNode|null
    */
-  getTreeNode = (nodeId: string): TreeNodeInterface | null => {
+  getTreeNode = (nodeId: string): TreeNode | null => {
+    // Return the TreeNode instance from the map or null if it does not exist
     return this.map.get(nodeId) || null;
   }
 
+  private createNode(block: Block) {
+    return new TreeNode(block, {
+      getRect: (id: string) => this.positionManager.getBlockPosition(id),
+    });
+  }
+
   /**
-   * build tree node for rendering
-   * @param rootId 
-   * @returns 
+   * Build the tree structure from the given rootId
+   * @param rootId string
+   * @returns TreeNode|null
    */
   build(rootId: string): TreeNode | null {
-    const head = this.getBlock(rootId);
+    // Clear the map of TreeNode instances
+    this.map.clear();
 
-    if (!head) return null;
+    // Define a callback function for the blockChain.traverse() method
+    const callback = (block: Block) => {
+      // Check if the TreeNode instance already exists in the map
+      let node = this.map.get(block.id);
+      if (!node) {
+        // If it doesn't exist, create a new instance of TreeNode with the given block data
+        node = this.createNode(block);
+      }
+      // Add the TreeNode instance to the map
+      this.map.set(block.id, node);
 
-    this.root = new TreeNode(head);
-
-    let node = this.root;
-
-    // loop line
-    while (node) {
-      this.map.set(node.id, node);
-      this.rect.orderList.add(node.id);
-
-      const block = this.getBlock(node.id)!;
-      const next = block.next ? this.getBlock(block.next) : null;
-      const firstChild = block.firstChild ? this.getBlock(block.firstChild) : null;
-
-      // find next line
+      // Add the first child of the block as a child of the current TreeNode instance
+      const firstChild = block.firstChild;
       if (firstChild) {
-        // the next line is node's first child
-        const child = new TreeNode(firstChild);
+        const child = this.createNode(firstChild);
         node.addChild(child);
-        node = child;
-      } else if (next) {
-        // the next line is node's sibling
-        const sibling = new TreeNode(next);
-        node.parent?.addChild(sibling);
-        node = sibling;
-      } else {
-        // the next line is parent's sibling
-        let isFind = false;
-        while(node.parent) {
-          const parentId = node.parent.id;
-          const parent = this.getBlock(parentId)!;
-          const parentNext = parent.next ? this.getBlock(parent.next) : null;
-          if (parentNext) {
-            const parentSibling = new TreeNode(parentNext);
-            node.parent?.parent?.addChild(parentSibling);
-            node = parentSibling;
-            isFind = true;
-            break;
-          } else {
-            node = node.parent;
-          }
-        }
+        this.map.set(child.id, child);
+      }
 
-        if (!isFind) {
-          // Exit if next line not found
-          break;
-        }
-        
+      // Add the next block as a sibling of the current TreeNode instance
+      const next = block.next;
+      if (next) {
+        const nextNode = this.createNode(next);
+        node.parent?.addChild(nextNode);
+        this.map.set(next.id, nextNode);
       }
     }
 
-    return this.root;
+    // Traverse the blockChain using the callback function
+    this.blockChain.traverse(callback);
+
+    // Get the root node from the map and return it
+    const root = this.map.get(rootId);
+    return root || null;
+  }
+
+  observeNode(blockId: string, el: HTMLDivElement) {
+    const node = this.getTreeNode(blockId);
+    if (!node) return;
+    return this.positionManager.observeBlock(node, el);
+  }
+
+  updateBlockPosition(blockId: string, isNewBlock = false) {
+    const node = this.getTreeNode(blockId);
+    if (!node) return;
+    this.positionManager.updateBlock(node.id);
   }
 
   /**
-  * update dom rects cache
-  */
-  updateRects = () => {
-    this.rect.build();
-  }
-
-  /**
-   * get block rect cache
-   * @param id string
-   * @returns DOMRect
+   * Destroy the RenderTreeRectManager instance
    */
-  getNodeRect = (nodeId: string) => {
-    return this.rect.getNodeRect(nodeId);
-  }
-
-  /**
-   * update block rect cache
-   * @param id string
-   */
-  updateNodeRect = (nodeId: string) => {
-    this.rect.updateNodeRect(nodeId);
-  }
-  
   destroy() {
-    this.rect?.destroy();
-  }
-}
-
-
-class TreeNode implements TreeNodeInterface {
-  id: string;
-  type: BlockType;
-  parent: TreeNode | null = null;
-  children: TreeNode[] = [];
-  data: BlockData<BlockType>;
-
-  constructor({
-    id,
-    type,
-    data
-  }: BlockInterface) {
-    this.id = id;
-    this.data = data;
-    this.type = type;
-  }
-
-  addChild(node: TreeNode) {
-    node.parent = this;
-    this.children.push(node);
+    this.positionManager?.destroy();
   }
 }

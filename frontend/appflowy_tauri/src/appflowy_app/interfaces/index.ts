@@ -16,9 +16,7 @@ export enum BlockType {
 
 }
 
-
-
-export type BlockData<T> = T extends BlockType.TextBlock ? TextBlockData :
+export type BlockData<T = BlockType> = T extends BlockType.TextBlock ? TextBlockData :
 T extends BlockType.PageBlock ? PageBlockData :
 T extends BlockType.HeadingBlock ? HeadingBlockData : 
 T extends BlockType.ListBlock ? ListBlockData :
@@ -54,11 +52,3 @@ interface ColumnBlockData {
   ratio: string;
 }
 
-
-export interface TreeNodeInterface {
-  id: string;
-  type: BlockType;
-  parent: TreeNodeInterface | null;
-  children: TreeNodeInterface[];
-  data: BlockData<BlockType>;
-}

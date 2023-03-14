@@ -21,6 +21,7 @@
     "@mui/material": "^5.11.12",
     "@reduxjs/toolkit": "^1.9.2",
     "@tauri-apps/api": "^1.2.0",
+    "events": "^3.3.0",
     "google-protobuf": "^3.21.2",
     "i18next": "^22.4.10",
     "i18next-browser-languagedetector": "^7.0.1",
@@ -39,6 +40,7 @@
     "slate": "^0.91.4",
     "slate-react": "^0.91.9",
     "ts-results": "^3.3.0",
+    "ulid": "^2.3.0",
     "utf8": "^3.0.0"
   },
   "devDependencies": {

@@ -1,5 +1,6 @@
 import React from 'react';
-import { TreeNodeInterface } from '$app/interfaces/index';
+import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
+
 import BlockComponent from '../BlockList/BlockComponent';
 
 export default function ColumnBlock({
@@ -7,7 +8,7 @@ export default function ColumnBlock({
   resizerWidth,
   index,
 }: {
-  node: TreeNodeInterface;
+  node: TreeNode;
   resizerWidth: number;
   index: number;
 }) {

@@ -22,6 +22,7 @@ specifiers:
   autoprefixer: ^10.4.13
   eslint: ^8.34.0
   eslint-plugin-react: ^7.32.2
+  events: ^3.3.0
   google-protobuf: ^3.21.2
   i18next: ^22.4.10
   i18next-browser-languagedetector: ^7.0.1
@@ -46,6 +47,7 @@ specifiers:
   ts-jest: ^29.0.5
   ts-results: ^3.3.0
   typescript: ^4.6.4
+  ulid: ^2.3.0
   utf8: ^3.0.0
   vite: ^4.0.0
 
@@ -56,6 +58,7 @@ dependencies:
   '@mui/material': 5.11.12_xqeqsl5kvjjtyxwyi3jhw3yuli
   '@reduxjs/toolkit': 1.9.3_k4ae6lp43ej6mezo3ztvx6pykq
   '@tauri-apps/api': 1.2.0
+  events: 3.3.0
   google-protobuf: 3.21.2
   i18next: 22.4.10
   i18next-browser-languagedetector: 7.0.1
@@ -74,6 +77,7 @@ dependencies:
   slate: 0.91.4
   slate-react: 0.91.9_6tgy34rvmll7duwkm4ydcekf3u
   ts-results: 3.3.0
+  ulid: 2.3.0
   utf8: 3.0.0
 
 devDependencies:
@@ -2442,6 +2446,11 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
+  /events/3.3.0:
+    resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
+    engines: {node: '>=0.8.x'}
+    dev: false
+
   /execa/5.1.1:
     resolution: {integrity: sha512-8uSpZZocAZRBAPIEINJj3Lo9HyGitllczc27Eh5YYojjMFMn8yHMDMaUHE2Jqfq05D/wucwI4JGURyXt1vchyg==}
     engines: {node: '>=10'}
@@ -4554,6 +4563,11 @@ packages:
     engines: {node: '>=4.2.0'}
     hasBin: true
     dev: true
+
+  /ulid/2.3.0:
+    resolution: {integrity: sha512-keqHubrlpvT6G2wH0OEfSW4mquYRcbe/J8NMmveoQOjUqmo+hXtO+ORCpWhdbZ7k72UtY61BL7haGxW6enBnjw==}
+    hasBin: true
+    dev: false
 
   /unbox-primitive/1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}

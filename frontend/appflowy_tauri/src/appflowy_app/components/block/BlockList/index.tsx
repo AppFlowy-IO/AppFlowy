@@ -1,32 +1,9 @@
 import BlockComponent from './BlockComponent';
-import React, { useEffect } from 'react';
-import { debounce } from '@/appflowy_app/utils/tool';
-import { getBlockEditor } from '../../../block_editor';
+import React from 'react';
+import { BlockListProps, useBlockList, withSelection } from './BlockList.hooks';
 
-const RESIZE_DELAY = 200;
-
-function BlockList({ blockId }: { blockId: string }) {
-  const blockEditor = getBlockEditor();
-  if (!blockEditor) return null;
-
-  const root = blockEditor.renderTree.build(blockId);
-  console.log('==== build tree ====', root);
-
-  useEffect(() => {
-    // update rect cache when did mount
-    blockEditor.renderTree.updateRects();
-
-    const resize = debounce(() => {
-      // update rect cache when window resized
-      blockEditor.renderTree.updateRects();
-    }, RESIZE_DELAY);
-
-    window.addEventListener('resize', resize);
-
-    return () => {
-      window.removeEventListener('resize', resize);
-    };
-  }, []);
+function BlockList(props: BlockListProps) {
+  const { root } = useBlockList(props);
 
   return (
     <div className='min-x-[0%] p-lg w-[900px] max-w-[100%]'>
@@ -40,4 +17,4 @@ function BlockList({ blockId }: { blockId: string }) {
   );
 }
 
-export default React.memo(BlockList);
+export default React.memo(withSelection(BlockList));
