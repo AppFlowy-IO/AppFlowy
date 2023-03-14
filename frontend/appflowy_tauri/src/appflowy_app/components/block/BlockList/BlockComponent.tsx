@@ -1,15 +1,23 @@
-import React from 'react';
-import { BlockType, TreeNodeInterface } from '$app/interfaces';
+import React, { useContext, useEffect, useRef } from 'react';
+import { BlockType } from '$app/interfaces';
 import PageBlock from '../PageBlock';
 import TextBlock from '../TextBlock';
 import HeadingBlock from '../HeadingBlock';
 import ListBlock from '../ListBlock';
 import CodeBlock from '../CodeBlock';
+import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
+import { withErrorBoundary } from 'react-error-boundary';
+import { ErrorBoundaryFallbackComponent } from './BlockList.hooks';
+import { BlockContext } from '@/appflowy_app/utils/block';
 
 function BlockComponent({
   node,
   ...props
-}: { node: TreeNodeInterface } & React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
+}: { node: TreeNode } & React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
+  const { blockEditor } = useContext(BlockContext);
+
+  const ref = useRef<HTMLDivElement>(null);
+
   const renderComponent = () => {
     switch (node.type) {
       case BlockType.PageBlock:
@@ -27,8 +35,18 @@ function BlockComponent({
     }
   };
 
+  useEffect(() => {
+    if (!ref.current) return;
+
+    const observe = blockEditor?.renderTree.observeNode(node.id, ref.current);
+
+    return () => {
+      observe?.disconnect();
+    };
+  }, []);
+
   return (
-    <div className='relative' data-block-id={node.id} {...props}>
+    <div ref={ref} className='relative' data-block-id={node.id} {...props}>
       {renderComponent()}
       {props.children}
       <div className='block-overlay'></div>
@@ -36,4 +54,7 @@ function BlockComponent({
   );
 }
 
-export default React.memo(BlockComponent);
+const ComponentWithErrorBoundary = withErrorBoundary(BlockComponent, {
+  FallbackComponent: ErrorBoundaryFallbackComponent,
+});
+export default React.memo(ComponentWithErrorBoundary);

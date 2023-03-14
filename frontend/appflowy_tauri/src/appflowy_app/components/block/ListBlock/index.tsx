@@ -3,19 +3,14 @@ import TextBlock from '../TextBlock';
 import NumberedListBlock from './NumberedListBlock';
 import BulletedListBlock from './BulletedListBlock';
 import ColumnListBlock from './ColumnListBlock';
-import { TreeNodeInterface } from '$app/interfaces/index';
+import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
 
-export default function ListBlock({ node }: { node: TreeNodeInterface }) {
+export default function ListBlock({ node }: { node: TreeNode }) {
   const title = useMemo(() => {
     if (node.data.type === 'column') return <></>;
     return (
       <div className='flex-1'>
-        <TextBlock
-          node={{
-            ...node,
-            children: [],
-          }}
-        />
+        <TextBlock node={node} needRenderChildren={false} />
       </div>
     );
   }, [node]);

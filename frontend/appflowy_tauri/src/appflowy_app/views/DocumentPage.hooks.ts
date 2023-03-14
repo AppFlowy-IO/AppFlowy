@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   DocumentEventGetDocument,
   DocumentVersionPB,
@@ -6,7 +6,7 @@ import {
 } from '../../services/backend/events/flowy-document';
 import { BlockInterface, BlockType } from '../interfaces';
 import { useParams } from 'react-router-dom';
-import { getBlockEditor, createBlockEditor } from '../block_editor';
+import { BlockEditor } from '../block_editor';
 
 const loadBlockData = async (id: string): Promise<Record<string, BlockInterface>> => {
   return {
@@ -142,7 +142,7 @@ const loadBlockData = async (id: string): Promise<Record<string, BlockInterface>
       type: BlockType.ListBlock,
       data: { type: 'column' },
       
-      next: "L1-8",
+      next: null,
       firstChild: "L1-7-1",
     },
     "L1-7-1": {
@@ -207,21 +207,8 @@ const loadBlockData = async (id: string): Promise<Record<string, BlockInterface>
 export const useDocument = () => {
   const params = useParams();
   const [blockId, setBlockId] = useState<string>();
-  const loadDocument = async (id: string): Promise<any> => {
-    const getDocumentResult = await DocumentEventGetDocument(
-      OpenDocumentPayloadPB.fromObject({
-        document_id: id,
-        version: DocumentVersionPB.V1,
-      })
-    );
+  const blockEditorRef = useRef<BlockEditor | null>(null)
 
-    if (getDocumentResult.ok) {
-      const pb = getDocumentResult.val;
-      return JSON.parse(pb.content);
-    } else {
-      throw new Error('get document error');
-    }
-  };
 
   useEffect(() => {
     void (async () => {
@@ -229,11 +216,10 @@ export const useDocument = () => {
       const data = await loadBlockData(params.id);
       console.log('==== enter ====', params?.id, data);
   
-      const blockEditor = getBlockEditor();
-      if (blockEditor) {
-        blockEditor.changeDoc(params?.id, data);
+      if (!blockEditorRef.current) {
+        blockEditorRef.current = new BlockEditor(params?.id, data);
       } else {
-        createBlockEditor(params?.id, data);
+        blockEditorRef.current.changeDoc(params?.id, data);
       }
 
       setBlockId(params.id)
@@ -242,5 +228,5 @@ export const useDocument = () => {
       console.log('==== leave ====', params?.id)
     }
   }, [params.id]);
-  return { blockId };
+  return { blockId, blockEditor: blockEditorRef.current };
 };
