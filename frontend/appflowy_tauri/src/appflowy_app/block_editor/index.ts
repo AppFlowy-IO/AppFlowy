@@ -1,48 +1,59 @@
-import { BlockInterface } from '../interfaces';
-import { BlockDataManager } from './block';
-import { TreeManager } from './tree';
+// Import dependencies
+import { BlockInterface, BlockType } from '../interfaces';
+import { BlockChain, BlockChangeProps } from './block_chain';
+import { RenderTree } from './tree';
+import { Operation } from './operation';
 
 /**
- * BlockEditor is a document data manager that operates on and renders data through managing blockData and RenderTreeManager.
- * The render tree will be re-render and update react component when block makes changes to the data.
- * RectManager updates the cache of node rect when the react component update is completed.
+ * The BlockEditor class manages a block chain and a render tree for a document editor.
+ * The block chain stores the content blocks of the document in sequence, while the
+ * render tree displays the document as a hierarchical tree structure.
  */
 export class BlockEditor {
-  // blockData manages document block data, including operations such as add, delete, update, and move.
-  public blockData: BlockDataManager;
-  // RenderTreeManager manages data rendering, including the construction and updating of the render tree.
-  public renderTree: TreeManager;
+  // Public properties
+  public blockChain: BlockChain; // (local data) the block chain used to store the document
+  public renderTree: RenderTree; // the render tree used to display the document
+  public operation: Operation;
+  /**
+   * Constructs a new BlockEditor object.
+   * @param id - the ID of the document
+   * @param data - the initial data for the document
+   */
+  constructor(private id: string, data: Record<string, BlockInterface>) {    
+    // Create the block chain and render tree
+    this.blockChain = new BlockChain(this.blockChange);
+    this.operation = new Operation(this.blockChain);
+    this.changeDoc(id, data);
 
-  constructor(private id: string, data: Record<string, BlockInterface>) {
-    this.blockData = new BlockDataManager(id, data);
-    this.renderTree = new TreeManager(this.blockData.getBlock);
+    this.renderTree = new RenderTree(this.blockChain);
   }
 
   /**
-   * update id and map when the doc is change
-   * @param id 
-   * @param data 
+   * Updates the document ID and block chain when the document changes.
+   * @param id - the new ID of the document
+   * @param data - the updated data for the document
    */
   changeDoc = (id: string, data: Record<string, BlockInterface>) => {
-    console.log('==== change document ====', id, data)
+    console.log('==== change document ====', id, data);
+    
+    // Update the document ID and rebuild the block chain
     this.id = id;
-    this.blockData.setBlocksMap(id, data);
+    this.blockChain.rebuild(id, data);
   }
 
+  /**
+   * Destroys the block chain and render tree.
+   */
   destroy = () => {
+    // Destroy the block chain and render tree
+    this.blockChain.destroy();
     this.renderTree.destroy();
-    this.blockData.destroy();
+    this.operation.destroy();
   }
-  
+
+  private blockChange = (command: string, data: BlockChangeProps) => {
+    this.renderTree.onBlockChange(command, data);
+  }
+
 }
 
-let blockEditorInstance: BlockEditor | null;
-
-export function getBlockEditor() {
-  return blockEditorInstance;
-}
-
-export function createBlockEditor(id: string, data: Record<string, BlockInterface>) {
-  blockEditorInstance = new BlockEditor(id, data);
-  return blockEditorInstance;
-}

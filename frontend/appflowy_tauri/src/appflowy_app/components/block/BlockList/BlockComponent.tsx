@@ -1,39 +1,86 @@
-import React from 'react';
-import { BlockType, TreeNodeInterface } from '$app/interfaces';
+import React, { useEffect, forwardRef, useState } from 'react';
+import { BlockCommonProps, BlockType } from '$app/interfaces';
 import PageBlock from '../PageBlock';
 import TextBlock from '../TextBlock';
 import HeadingBlock from '../HeadingBlock';
 import ListBlock from '../ListBlock';
 import CodeBlock from '../CodeBlock';
+import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
+import { withErrorBoundary } from 'react-error-boundary';
+import { ErrorBoundaryFallbackComponent } from './BlockList.hooks';
 
-function BlockComponent({
-  node,
-  ...props
-}: { node: TreeNodeInterface } & React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
-  const renderComponent = () => {
-    switch (node.type) {
-      case BlockType.PageBlock:
-        return <PageBlock node={node} />;
-      case BlockType.TextBlock:
-        return <TextBlock node={node} />;
-      case BlockType.HeadingBlock:
-        return <HeadingBlock node={node} />;
-      case BlockType.ListBlock:
-        return <ListBlock node={node} />;
-      case BlockType.CodeBlock:
-        return <CodeBlock node={node} />;
-      default:
-        return null;
-    }
-  };
+const BlockComponent = forwardRef(
+  (
+    {
+      node,
+      renderChild,
+      ...props
+    }: { node: TreeNode; renderChild?: (_node: TreeNode) => React.ReactNode } & React.DetailedHTMLProps<
+      React.HTMLAttributes<HTMLDivElement>,
+      HTMLDivElement
+    >,
+    ref: React.ForwardedRef<HTMLDivElement>
+  ) => {
+    const [version, forceUpdate] = useState<number>(0);
 
-  return (
-    <div className='relative' data-block-id={node.id} {...props}>
-      {renderComponent()}
-      {props.children}
-      <div className='block-overlay'></div>
-    </div>
-  );
-}
+    const renderComponent = () => {
+      let BlockComponentClass: (_: BlockCommonProps<TreeNode>) => JSX.Element | null;
+      switch (node.type) {
+        case BlockType.PageBlock:
+          BlockComponentClass = PageBlock;
+          break;
+        case BlockType.TextBlock:
+          BlockComponentClass = TextBlock;
+          break;
+        case BlockType.HeadingBlock:
+          BlockComponentClass = HeadingBlock;
+          break;
+        case BlockType.ListBlock:
+          BlockComponentClass = ListBlock;
+          break;
+        case BlockType.CodeBlock:
+          BlockComponentClass = CodeBlock;
+          break;
+        default:
+          break;
+      }
 
-export default React.memo(BlockComponent);
+      const blockProps: BlockCommonProps<TreeNode> = {
+        version,
+        node,
+      };
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      if (BlockComponentClass) {
+        return <BlockComponentClass {...blockProps} />;
+      }
+      return null;
+    };
+
+    useEffect(() => {
+      node.registerUpdate(() => forceUpdate((prev) => prev + 1));
+      return () => {
+        node.unregisterUpdate();
+      };
+    }, []);
+
+    return (
+      <div
+        ref={ref}
+        {...props}
+        data-block-id={node.id}
+        className={props.className ? `${props.className} relative` : 'relative'}
+      >
+        {renderComponent()}
+        {renderChild ? node.children.map(renderChild) : null}
+        <div className='block-overlay'></div>
+      </div>
+    );
+  }
+);
+
+const ComponentWithErrorBoundary = withErrorBoundary(BlockComponent, {
+  FallbackComponent: ErrorBoundaryFallbackComponent,
+});
+export default React.memo(ComponentWithErrorBoundary);

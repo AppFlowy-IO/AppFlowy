@@ -1,29 +1,10 @@
-import { useEffect, useRef } from 'react';
-import { useFocused, useSlate } from 'slate-react';
 import FormatButton from './FormatButton';
 import Portal from './Portal';
-import { calcToolbarPosition } from '@/appflowy_app/utils/slate/toolbar';
+import { TreeNode } from '../../block_editor/tree_node';
+import { useHoveringToolbar } from './index.hooks';
 
-const HoveringToolbar = ({ blockId }: { blockId: string }) => {
-  const editor = useSlate();
-  const inFocus = useFocused();
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const position = calcToolbarPosition(editor, el, blockId);
-
-    if (!position) {
-      el.style.opacity = '0';
-    } else {
-      el.style.opacity = '1';
-      el.style.top = position.top;
-      el.style.left = position.left;
-    }
-  });
-
+const HoveringToolbar = ({ blockId, node }: { blockId: string; node: TreeNode }) => {
+  const { inFocus, ref, editor } = useHoveringToolbar({ node });
   if (!inFocus) return null;
 
   return (
@@ -40,7 +21,7 @@ const HoveringToolbar = ({ blockId }: { blockId: string }) => {
         }}
       >
         {['bold', 'italic', 'underlined', 'strikethrough', 'code'].map((format) => (
-          <FormatButton key={format} format={format} icon={format} />
+          <FormatButton key={format} editor={editor} format={format} icon={format} />
         ))}
       </div>
     </Portal>

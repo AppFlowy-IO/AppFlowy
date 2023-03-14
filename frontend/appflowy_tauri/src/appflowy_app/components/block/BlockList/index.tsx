@@ -1,43 +1,57 @@
+import React from 'react';
+import { BlockListProps, useBlockList, withTextBlockManager } from './BlockList.hooks';
+import { withErrorBoundary } from 'react-error-boundary';
+import ListFallbackComponent from './ListFallbackComponent';
+import BlockListTitle from './BlockListTitle';
 import BlockComponent from './BlockComponent';
-import React, { useEffect } from 'react';
-import { debounce } from '@/appflowy_app/utils/tool';
-import { getBlockEditor } from '../../../block_editor';
 
-const RESIZE_DELAY = 200;
+function BlockList(props: BlockListProps) {
+  const { root, rowVirtualizer, parentRef } = useBlockList(props);
 
-function BlockList({ blockId }: { blockId: string }) {
-  const blockEditor = getBlockEditor();
-  if (!blockEditor) return null;
-
-  const root = blockEditor.renderTree.build(blockId);
-  console.log('==== build tree ====', root);
-
-  useEffect(() => {
-    // update rect cache when did mount
-    blockEditor.renderTree.updateRects();
-
-    const resize = debounce(() => {
-      // update rect cache when window resized
-      blockEditor.renderTree.updateRects();
-    }, RESIZE_DELAY);
-
-    window.addEventListener('resize', resize);
-
-    return () => {
-      window.removeEventListener('resize', resize);
-    };
-  }, []);
-
+  const virtualItems = rowVirtualizer.getVirtualItems();
   return (
-    <div className='min-x-[0%] p-lg w-[900px] max-w-[100%]'>
-      <div className='my-[50px] flex px-14 text-4xl font-bold'>{root?.data.title}</div>
-      <div className='px-14'>
-        {root && root.children.length > 0
-          ? root.children.map((node) => <BlockComponent key={node.id} node={node} />)
-          : null}
+    <div id='appflowy-block-doc' className='h-[100%] overflow-hidden'>
+      <div
+        ref={parentRef}
+        className='doc-scroller-container flex h-[100%] flex-wrap items-center justify-center overflow-auto px-10'
+      >
+        <div
+          className='doc-body max-w-screen w-[900px] min-w-0'
+          style={{
+            height: rowVirtualizer.getTotalSize(),
+            width: '100%',
+            position: 'relative',
+          }}
+        >
+          {root && virtualItems.length ? (
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                transform: `translateY(${virtualItems[0].start || 0}px)`,
+              }}
+            >
+              {virtualItems.map((virtualRow) => {
+                const id = root.children[virtualRow.index].id;
+                return (
+                  <div key={id} data-index={virtualRow.index} ref={rowVirtualizer.measureElement}>
+                    {virtualRow.index === 0 ? <BlockListTitle node={root} /> : null}
+                    <BlockComponent node={root.children[virtualRow.index]} />
+                  </div>
+                );
+              })}
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );
 }
 
-export default React.memo(BlockList);
+const ListWithErrorBoundary = withErrorBoundary(withTextBlockManager(BlockList), {
+  FallbackComponent: ListFallbackComponent,
+});
+
+export default React.memo(ListWithErrorBoundary);
