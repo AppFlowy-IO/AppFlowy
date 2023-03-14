@@ -9,7 +9,6 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -127,26 +126,12 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   }
 
   Widget _buildInputWidget(BuildContext context) {
-    return RawKeyboardListener(
-      focusNode: focusNode,
-      onKey: (RawKeyEvent event) async {
-        if (event is! RawKeyDownEvent) return;
-        if (event.logicalKey == LogicalKeyboardKey.enter) {
-          if (controller.text.isNotEmpty) {
-            textFieldFocusNode.unfocus();
-            await _onGenerate();
-          }
-        } else if (event.logicalKey == LogicalKeyboardKey.escape) {
-          await _onExit();
-        }
-      },
-      child: FlowyTextField(
-        hintText: LocaleKeys.document_plugins_autoGeneratorHintText.tr(),
-        controller: controller,
-        maxLines: 3,
-        focusNode: textFieldFocusNode,
-        autoFocus: false,
-      ),
+    return FlowyTextField(
+      hintText: LocaleKeys.document_plugins_autoGeneratorHintText.tr(),
+      controller: controller,
+      maxLines: 3,
+      focusNode: textFieldFocusNode,
+      autoFocus: false,
     );
   }
 
@@ -160,12 +145,6 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
                 text: '${LocaleKeys.button_generate.tr()}  ',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-              TextSpan(
-                text: '↵',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey,
-                    ),
-              ),
             ],
           ),
           onPressed: () async => await _onGenerate(),
@@ -177,12 +156,6 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
               TextSpan(
                 text: '${LocaleKeys.button_Cancel.tr()}  ',
                 style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              TextSpan(
-                text: LocaleKeys.button_esc.tr(),
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey,
-                    ),
               ),
             ],
           ),
