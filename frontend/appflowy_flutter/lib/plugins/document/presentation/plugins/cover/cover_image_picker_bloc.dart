@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
