@@ -50,16 +50,14 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
             const SizedBox(
               width: 3,
             ),
-            FlowyText(LocaleKeys
-                .document_plugins_cover_pasteImageUrlorPickImageFromFiles
-                .tr()),
+            FlowyText(LocaleKeys.document_plugins_cover_pasteImageUrl.tr()),
           ],
         ),
         const SizedBox(
           height: 10,
         ),
         const FlowyText(
-          "OR ",
+          LocaleKeys.document_plugins_cover_or,
           color: Colors.grey,
         ),
         const SizedBox(
