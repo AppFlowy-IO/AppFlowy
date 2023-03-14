@@ -34,7 +34,7 @@ class Svg extends StatelessWidget {
     if (name != null) {
       return SvgPicture.asset(
         'assets/images/$name.svg',
-        color: color,
+        colorFilter: ColorFilter.mode(color ?? Colors.black, BlendMode.color),
         fit: BoxFit.fill,
         height: height,
         width: width,

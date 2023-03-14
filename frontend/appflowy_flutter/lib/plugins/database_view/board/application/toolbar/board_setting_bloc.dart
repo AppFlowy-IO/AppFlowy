@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 import 'package:dartz/dartz.dart';
 
 part 'board_setting_bloc.freezed.dart';
@@ -16,11 +15,6 @@ class BoardSettingBloc extends Bloc<BoardSettingEvent, BoardSettingState> {
         });
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    return super.close();
   }
 }
 

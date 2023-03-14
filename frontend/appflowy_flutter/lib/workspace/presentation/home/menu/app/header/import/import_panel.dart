@@ -44,7 +44,7 @@ enum _ImportType {
       case _ImportType.markdownOrText:
         return 'Text & Markdown';
       default:
-        assert(false, 'Unsupported Type ${this}');
+        assert(false, 'Unsupported Type $this');
         return '';
     }
   }
@@ -54,7 +54,7 @@ enum _ImportType {
       case _ImportType.markdownOrText:
         return svgWidget('editor/documents');
       default:
-        assert(false, 'Unsupported Type ${this}');
+        assert(false, 'Unsupported Type $this');
         return null;
     }
   }
@@ -64,7 +64,7 @@ enum _ImportType {
       case _ImportType.markdownOrText:
         return ['md', 'txt'];
       default:
-        assert(false, 'Unsupported Type ${this}');
+        assert(false, 'Unsupported Type $this');
         return [];
     }
   }

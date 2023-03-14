@@ -59,22 +59,22 @@ dependencies:
   sized_context: ^1.0.0+1
   styled_widget: "^0.3.1"
   expandable: ^5.0.1
-  flutter_colorpicker: ^0.6.0
+  flutter_colorpicker: ^1.0.3
   package_info_plus: ^1.3.0
   url_launcher: ^6.0.2
   # file_picker: ^4.2.1
   clipboard: ^0.1.3
-  connectivity_plus: ^2.3.6+1
+  connectivity_plus: ^3.0.3
   connectivity_plus_platform_interface: ^1.2.2
   easy_localization: ^3.0.0
   textfield_tags: ^2.0.2
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  device_info_plus: ^3.2.1
+  device_info_plus: ^4.0.0
   fluttertoast: ^8.0.9
   table_calendar: ^3.0.5
-  reorderables: ^0.5.1
+  reorderables: ^0.6.0
   linked_scroll_controller: ^0.2.0
   hotkey_manager: ^0.1.7
   fixnum: ^1.0.1
@@ -85,7 +85,7 @@ dependencies:
   bloc: ^8.1.0
   textstyle_extensions: "2.0.0-nullsafety"
   shared_preferences: ^2.0.15
-  google_fonts: ^3.0.1
+  google_fonts: ^4.0.3
   file_picker: <=5.0.0
   percent_indicator: ^4.0.1
   
