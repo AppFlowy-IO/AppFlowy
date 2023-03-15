@@ -8,46 +8,6 @@ import 'table_view.dart';
 const String kTableType = 'table';
 const String kTableDataAttr = 'table_data';
 
-SelectionMenuItem tableMenuItem = SelectionMenuItem(
-  name: () => 'Table',
-  icon: (editorState, onSelected) => Icon(
-    Icons.table_view,
-    color: onSelected
-        ? editorState.editorStyle.selectionMenuItemSelectedIconColor
-        : editorState.editorStyle.selectionMenuItemIconColor,
-    size: 18.0,
-  ),
-  keywords: ['table'],
-  handler: (editorState, _, __) {
-    final selection =
-        editorState.service.selectionService.currentSelection.value;
-    final textNodes = editorState.service.selectionService.currentSelectedNodes
-        .whereType<TextNode>();
-    if (textNodes.length != 1 || selection == null) {
-      return;
-    }
-    final textNode = textNodes.first;
-
-    final Path path;
-    final Selection afterSelection;
-    if (textNode.toPlainText().isEmpty) {
-      path = textNode.path;
-      afterSelection = Selection.single(
-        path: path.next,
-        startOffset: 0,
-      );
-    } else {
-      path = selection.end.path.next;
-      afterSelection = selection;
-    }
-
-    final transaction = editorState.transaction
-      ..insertNode(path, Node(type: kTableType, attributes: {}))
-      ..afterSelection = afterSelection;
-    editorState.apply(transaction);
-  },
-);
-
 class TableWidgetBuilder extends NodeWidgetBuilder<Node>
     with ActionProvider<Node> {
   @override
@@ -166,10 +126,9 @@ class _TableWidgetState extends State<_TableWidget> with SelectableMixin {
   @override
   Position getPositionInOffset(Offset start) => end();
 
-  // TODO(zoli): extract action buttons and menu from selection space
   @override
   List<Rect> getRectsInSelection(Selection selection) =>
-      [Offset.zero & _renderBox.size];
+      [Offset.zero & Size(data.colsWidth + 10, data.colsHeight + 10)];
 
   @override
   Selection getSelectionInRange(Offset start, Offset end) => Selection.single(
@@ -184,3 +143,43 @@ class _TableWidgetState extends State<_TableWidget> with SelectableMixin {
   @override
   Offset localToGlobal(Offset offset) => _renderBox.localToGlobal(offset);
 }
+
+SelectionMenuItem tableMenuItem = SelectionMenuItem(
+  name: 'Table',
+  icon: (editorState, onSelected) => Icon(
+    Icons.table_view,
+    color: onSelected
+        ? editorState.editorStyle.selectionMenuItemSelectedIconColor
+        : editorState.editorStyle.selectionMenuItemIconColor,
+    size: 18.0,
+  ),
+  keywords: ['table'],
+  handler: (editorState, _, __) {
+    final selection =
+        editorState.service.selectionService.currentSelection.value;
+    final textNodes = editorState.service.selectionService.currentSelectedNodes
+        .whereType<TextNode>();
+    if (textNodes.length != 1 || selection == null) {
+      return;
+    }
+    final textNode = textNodes.first;
+
+    final Path path;
+    final Selection afterSelection;
+    if (textNode.toPlainText().isEmpty) {
+      path = textNode.path;
+      afterSelection = Selection.single(
+        path: path,
+        startOffset: 0,
+      );
+    } else {
+      path = selection.end.path.next;
+      afterSelection = selection;
+    }
+
+    final transaction = editorState.transaction
+      ..insertNode(path, Node(type: kTableType, attributes: {}))
+      ..afterSelection = afterSelection;
+    editorState.apply(transaction);
+  },
+);

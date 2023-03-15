@@ -23,15 +23,7 @@ class CellNodeWidget extends StatefulWidget {
   State<CellNodeWidget> createState() => _CellNodeWidgetState();
 }
 
-class _CellNodeWidgetState extends State<CellNodeWidget>
-    with SelectableMixin, DefaultSelectable {
-  @override
-  SelectableMixin<StatefulWidget> get forward =>
-      widget.textNode.key.currentState as SelectableMixin;
-
-  @override
-  GlobalKey<State<StatefulWidget>>? get iconKey => null;
-
+class _CellNodeWidgetState extends State<CellNodeWidget> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
