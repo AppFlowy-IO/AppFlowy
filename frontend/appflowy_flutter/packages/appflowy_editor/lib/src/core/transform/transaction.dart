@@ -264,11 +264,11 @@ extension TextTransaction on Transaction {
     if (index != 0 && attributes == null) {
       newAttributes =
           textNode.delta.slice(max(index - 1, 0), index).first.attributes;
-      if (newAttributes != null) {
-        newAttributes = {...newAttributes}; // make a copy
-      } else {
-        newAttributes =
-            textNode.delta.slice(index, index + length).first.attributes;
+      if (newAttributes == null) {
+        final slicedDelta = textNode.delta.slice(index, index + length);
+        if (slicedDelta.isNotEmpty) {
+          newAttributes = slicedDelta.first.attributes;
+        }
       }
     }
     updateText(
@@ -276,7 +276,7 @@ extension TextTransaction on Transaction {
       Delta()
         ..retain(index)
         ..delete(length)
-        ..insert(text, attributes: newAttributes),
+        ..insert(text, attributes: {...newAttributes ?? {}}),
     );
     afterSelection = Selection.collapsed(
       Position(
