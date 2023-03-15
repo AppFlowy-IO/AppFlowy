@@ -21,9 +21,11 @@ dependencies = ["env_check"]
 run_task = { name = [
   "setup-crate-type",
   "setup-sqlite-crate",
+  "setup-openssl-vendored",
   "sdk-build-android",
   "restore-crate-type",
   "restore-sqlite-crate",
+  "restore-openssl-vendored",
 ] }
 
 [tasks.appflowy-core-dev-ci-android]
@@ -32,9 +34,11 @@ dependencies = ["env_check"]
 run_task = { name = [
   "setup-crate-type",
   "setup-sqlite-crate",
+  "setup-openssl-vendored",
   "ci-sdk-build-android",
   "restore-crate-type",
   "restore-sqlite-crate",
+  "restore-openssl-vendored",
 ] }
 
 [tasks.appflowy-core-dev-macos]

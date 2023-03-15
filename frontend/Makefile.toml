@@ -204,6 +204,20 @@ script = [
 ]
 script_runner = "@duckscript"
 
+[tasks.setup-openssl-vendored]
+private = true
+script = [
+  ''' 
+      org = set "\"openssl\", \"openssl-sys\""
+      mod = set "\"openssl/vendored\", \"openssl-sys/vendored\""
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-sqlite/Cargo.toml
+      val = replace ${toml} ${org} ${mod}
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-sqlite/Cargo.toml ${val}
+      assert ${result}
+''',
+]
+script_runner = "@duckscript"
+
 [tasks.restore-crate-type]
 private = true
 script = [
@@ -228,6 +242,19 @@ script = [
 ]
 script_runner = "@duckscript"
 
+[tasks.restore-openssl-vendored]
+private = true
+script = [
+  ''' 
+      org = set "\"openssl\", \"openssl-sys\""
+      mod = set "\"openssl/vendored\", \"openssl-sys/vendored\""
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-sqlite/Cargo.toml
+      val = replace ${toml} ${mod} ${org}
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-sqlite/Cargo.toml ${val}
+      assert ${result}
+''',
+]
+script_runner = "@duckscript"
 [env.test-macos]
 TEST_CRATE_TYPE = "cdylib"
 TEST_LIB_EXT = "dylib"
