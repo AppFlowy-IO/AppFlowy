@@ -1,24 +1,29 @@
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_setting_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart'
     hide DateFormat;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:protobuf/protobuf.dart';
-import 'package:styled_widget/styled_widget.dart';
+
+import 'calendar_setting.dart';
 
 class CalendarLayoutSetting extends StatelessWidget {
+  final CalendarSettingContext settingContext;
   final Function(CalendarLayoutSettingsPB? layoutSettings) onUpdated;
 
   const CalendarLayoutSetting({
     required this.onUpdated,
+    required this.settingContext,
     super.key,
   });
 
@@ -60,6 +65,16 @@ class CalendarLayoutSetting extends StatelessWidget {
                       onUpdated: onUpdated, firstDayOfWeek: firstDayOfWeek);
                 },
               );
+            case CalendarLayoutSettingAction.layoutField:
+              return LayoutDateField(
+                fieldController: settingContext.fieldController,
+                viewId: settingContext.viewId,
+                fieldId: settings.layoutFieldId,
+                onUpdated: (fieldId) {
+                  _updateLayoutSettings(context,
+                      onUpdated: onUpdated, layoutFieldId: fieldId);
+                },
+              );
             default:
               return ShowWeekends(
                 showWeekends: settings.showWeekends,
@@ -91,7 +106,7 @@ class CalendarLayoutSetting extends StatelessWidget {
   List<CalendarLayoutSettingAction> _availableCalendarSettings(
       CalendarLayoutSettingsPB layoutSettings) {
     List<CalendarLayoutSettingAction> settings = [
-      // CalendarLayoutSettingAction.layoutField,
+      CalendarLayoutSettingAction.layoutField,
       // CalendarLayoutSettingAction.layoutType,
       // CalendarLayoutSettingAction.showWeekNumber,
     ];
@@ -102,9 +117,9 @@ class CalendarLayoutSetting extends StatelessWidget {
         break;
       case CalendarLayoutPB.MonthLayout:
         settings.addAll([
-          // CalendarLayoutSettingAction.showWeekends,
-          // if (layoutSettings.showWeekends)
-          CalendarLayoutSettingAction.firstDayOfWeek,
+          CalendarLayoutSettingAction.showWeekends,
+          if (layoutSettings.showWeekends)
+            CalendarLayoutSettingAction.firstDayOfWeek,
         ]);
         break;
       case CalendarLayoutPB.WeekLayout:
@@ -126,6 +141,7 @@ class CalendarLayoutSetting extends StatelessWidget {
     bool? showWeekends,
     bool? showWeekNumbers,
     int? firstDayOfWeek,
+    String? layoutFieldId,
   }) {
     CalendarLayoutSettingsPB setting = context
         .read<CalendarSettingBloc>()
@@ -143,11 +159,83 @@ class CalendarLayoutSetting extends StatelessWidget {
       if (firstDayOfWeek != null) {
         setting.firstDayOfWeek = firstDayOfWeek;
       }
+      if (layoutFieldId != null) {
+        setting.layoutFieldId = layoutFieldId;
+      }
     });
     context
         .read<CalendarSettingBloc>()
         .add(CalendarSettingEvent.updateLayoutSetting(setting));
     onUpdated(setting);
+  }
+}
+
+class LayoutDateField extends StatelessWidget {
+  final String fieldId;
+  final String viewId;
+  final FieldController fieldController;
+  final Function(String fieldId) onUpdated;
+
+  const LayoutDateField({
+    required this.fieldId,
+    required this.onUpdated,
+    required this.viewId,
+    required this.fieldController,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AppFlowyPopover(
+      direction: PopoverDirection.leftWithTopAligned,
+      constraints: BoxConstraints.loose(const Size(300, 400)),
+      popupBuilder: (context) {
+        return BlocProvider(
+          create: (context) => getIt<DatabasePropertyBloc>(
+              param1: viewId, param2: fieldController)
+            ..add(const DatabasePropertyEvent.initial()),
+          child: BlocBuilder<DatabasePropertyBloc, DatabasePropertyState>(
+            builder: (context, state) {
+              final items = state.fieldContexts
+                  .where((field) => field.fieldType == FieldType.DateTime)
+                  .map(
+                (fieldInfo) {
+                  return SizedBox(
+                    height: GridSize.popoverItemHeight,
+                    child: FlowyButton(
+                      text: FlowyText.medium(fieldInfo.name),
+                      onTap: () => onUpdated(fieldInfo.id),
+                      leftIcon: svgWidget('grid/field/date'),
+                      rightIcon: fieldInfo.id == fieldId
+                          ? svgWidget('grid/checkmark')
+                          : null,
+                    ),
+                  );
+                },
+              ).toList();
+
+              return SizedBox(
+                width: 200,
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) => items[index],
+                  separatorBuilder: (context, index) =>
+                      VSpace(GridSize.typeOptionSeparatorHeight),
+                  itemCount: items.length,
+                ),
+              );
+            },
+          ),
+        );
+      },
+      child: SizedBox(
+        height: GridSize.popoverItemHeight,
+        child: const FlowyButton(
+          margin: EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+          text: FlowyText.medium("Layout calendar by"),
+        ),
+      ),
+    );
   }
 }
 
@@ -217,6 +305,8 @@ class FirstDayOfWeek extends StatelessWidget {
             child: FlowyButton(
               text: FlowyText.medium(string),
               onTap: () => onUpdated(index),
+              rightIcon:
+                  firstDayOfWeek == index ? svgWidget('grid/checkmark') : null,
             ),
           );
         }).toList();

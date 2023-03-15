@@ -21,6 +21,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
 
   // Getters
   String get viewId => _databaseController.viewId;
+  FieldController get fieldController => _databaseController.fieldController;
   CellCache get cellCache => _databaseController.rowCache.cellCache;
   RowCache get rowCache => _databaseController.rowCache;
 
@@ -46,6 +47,10 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           },
           didLoadAllEvents: (events) {
             emit(state.copyWith(initialEvents: events, allEvents: events));
+          },
+          didReceiveNewLayoutField: (CalendarLayoutSettingsPB layoutSettings) {
+            _loadAllEvents();
+            emit(state.copyWith(settings: Some(layoutSettings)));
           },
           createEvent: (DateTime date, String title) async {
             await _createEvent(date, title);
@@ -260,9 +265,13 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       onLoadLayout: _didReceiveLayoutSetting,
     );
 
+    final onCalendarLayoutFieldChanged = CalendarLayoutCallbacks(
+        onCalendarLayoutChanged: _didReceiveNewLayoutField);
+
     _databaseController.addListener(
       onDatabaseChanged: onDatabaseChanged,
       onLayoutChanged: onLayoutChanged,
+      onCalendarLayoutChanged: onCalendarLayoutFieldChanged,
     );
   }
 
@@ -270,6 +279,13 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     if (layoutSetting.hasCalendar()) {
       if (isClosed) return;
       add(CalendarEvent.didReceiveCalendarSettings(layoutSetting.calendar));
+    }
+  }
+
+  void _didReceiveNewLayoutField(LayoutSettingPB layoutSetting) {
+    if (layoutSetting.hasCalendar()) {
+      if (isClosed) return;
+      add(CalendarEvent.didReceiveNewLayoutField(layoutSetting.calendar));
     }
   }
 }
@@ -310,6 +326,9 @@ class CalendarEvent with _$CalendarEvent {
 
   const factory CalendarEvent.didReceiveDatabaseUpdate(DatabasePB database) =
       _ReceiveDatabaseUpdate;
+
+  const factory CalendarEvent.didReceiveNewLayoutField(
+      CalendarLayoutSettingsPB layoutSettings) = _DidReceiveNewLayoutField;
 }
 
 @freezed

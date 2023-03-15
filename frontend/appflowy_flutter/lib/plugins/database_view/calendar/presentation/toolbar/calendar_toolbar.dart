@@ -57,9 +57,17 @@ class _SettingButtonState extends State<_SettingButton> {
         onPressed: () => popoverController.show(),
       ),
       popupBuilder: (BuildContext popoverContext) {
-        final settings = context.watch<CalendarBloc>().state.settings;
+        final bloc = context.watch<CalendarBloc>();
+        final settingContext = CalendarSettingContext(
+          viewId: bloc.viewId,
+          fieldController: bloc.fieldController,
+        );
         return CalendarSetting(
-          layoutSettings: settings.fold(() => null, (settings) => settings),
+          settingContext: settingContext,
+          layoutSettings: bloc.state.settings.fold(
+            () => null,
+            (settings) => settings,
+          ),
           onUpdated: (layoutSettings) {
             if (layoutSettings == null) {
               return;

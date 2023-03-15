@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_setting_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/protobuf.dart';
@@ -17,12 +18,14 @@ import 'calendar_layout_setting.dart';
 /// "Settings" button. By default, shows [AllCalendarSettings] but upon
 /// selecting a category, replaces contents with contents of the submenu.
 class CalendarSetting extends StatelessWidget {
+  final CalendarSettingContext settingContext;
   final CalendarLayoutSettingsPB? layoutSettings;
   final Function(CalendarLayoutSettingsPB? layoutSettings) onUpdated;
 
   const CalendarSetting({
     required this.onUpdated,
     required this.layoutSettings,
+    required this.settingContext,
     super.key,
   });
 
@@ -36,7 +39,10 @@ class CalendarSetting extends StatelessWidget {
               state.selectedAction.foldLeft(null, (previous, action) => action);
           switch (action) {
             case CalendarSettingAction.layout:
-              return CalendarLayoutSetting(onUpdated: onUpdated);
+              return CalendarLayoutSetting(
+                onUpdated: onUpdated,
+                settingContext: settingContext,
+              );
             default:
               return const AllCalendarSettings().padding(all: 6.0);
           }
@@ -93,4 +99,14 @@ extension _SettingExtension on CalendarSettingAction {
         return LocaleKeys.grid_settings_layout.tr();
     }
   }
+}
+
+class CalendarSettingContext {
+  final String viewId;
+  final FieldController fieldController;
+
+  CalendarSettingContext({
+    required this.viewId,
+    required this.fieldController,
+  });
 }
