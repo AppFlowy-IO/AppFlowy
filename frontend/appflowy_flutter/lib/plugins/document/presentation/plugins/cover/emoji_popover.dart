@@ -13,7 +13,7 @@ class EmojiPopover extends StatefulWidget {
   final EditorState editorState;
   final Node node;
   final void Function(Emoji emoji) onEmojiChanged;
-  final void Function()? removeIcon;
+  final VoidCallback removeIcon;
   final bool showRemoveButton;
 
   const EmojiPopover({
@@ -31,11 +31,6 @@ class EmojiPopover extends StatefulWidget {
 
 class _EmojiPopoverState extends State<EmojiPopover> {
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(15),
@@ -48,30 +43,10 @@ class _EmojiPopoverState extends State<EmojiPopover> {
             alignment: Alignment.topRight,
             children: [
               Container(
-                  padding:
-                      EdgeInsets.only(top: widget.showRemoveButton ? 25 : 0),
-                  child: DefaultEmojiPickerView(config, state)),
-              !widget.showRemoveButton
-                  ? Container()
-                  : FlowyButton(
-                      onTap: () => widget.removeIcon!(),
-                      useIntrinsicWidth: true,
-                      hoverColor: Theme.of(context).colorScheme.onPrimary,
-                      text: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          svgWidget("editor/delete"),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          FlowyText(
-                            LocaleKeys.document_plugins_cover_removeIcon.tr(),
-                            color: Colors.grey,
-                          ),
-                        ],
-                      ),
-                    )
+                padding: EdgeInsets.only(top: widget.showRemoveButton ? 25 : 0),
+                child: DefaultEmojiPickerView(config, state),
+              ),
+              _buildDeleteButtonIfNeed(),
             ],
           );
         },
@@ -86,6 +61,31 @@ class _EmojiPopoverState extends State<EmojiPopover> {
           buttonMode: ButtonMode.CUPERTINO,
           initCategory: Category.RECENT,
         ),
+      ),
+    );
+  }
+
+  Widget _buildDeleteButtonIfNeed() {
+    if (!widget.showRemoveButton) {
+      return const SizedBox();
+    }
+    return FlowyButton(
+      onTap: () => widget.removeIcon(),
+      useIntrinsicWidth: true,
+      hoverColor: Theme.of(context).colorScheme.onPrimary,
+      text: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          svgWidget("editor/delete"),
+          const SizedBox(
+            width: 5,
+          ),
+          FlowyText(
+            LocaleKeys.document_plugins_cover_removeIcon.tr(),
+            color: Colors.grey,
+          ),
+        ],
       ),
     );
   }
