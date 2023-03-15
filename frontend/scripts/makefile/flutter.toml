@@ -91,6 +91,7 @@ script_runner = "@shell"
 mac_alias = "copy-to-product-macos"
 windows_alias = "copy-to-product-windows"
 linux_alias = "copy-to-product-linux"
+android_alias = "appflowy-android"
 
 [tasks.copy-to-product-macos]
 script = [
@@ -104,6 +105,23 @@ script = [
 
   product=${PRODUCT_NAME}.${PRODUCT_EXT}
   cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/build/${TARGET_OS}/Build/Products/${FLUTTER_OUTPUT_DIR}/${product} \
+  ${output_path}/${product}
+  """,
+]
+script_runner = "@shell"
+
+[tasks.copy-to-product-android]
+script = [
+  """
+  product_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/product/${APP_VERSION}
+  output_path=${product_path}/${TARGET_OS}/${FLUTTER_OUTPUT_DIR}
+  if [ -d "${output_path}" ]; then
+    rm -rf ${output_path}/
+  fi
+  mkdir -p ${output_path}
+
+  product=${PRODUCT_NAME}
+  cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/build/app/outputs/flutter-apk/ \
   ${output_path}/${product}
   """,
 ]
