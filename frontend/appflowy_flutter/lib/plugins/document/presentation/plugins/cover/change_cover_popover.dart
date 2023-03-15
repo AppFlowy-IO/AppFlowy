@@ -2,21 +2,17 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_image_picker.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_node_widget.dart';
-import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/util/file_picker/file_picker_service.dart';
-import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:file_picker/file_picker.dart' show FileType;
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:path/path.dart' as path;
 
 const String kLocalImagesKey = 'local_images';
 
@@ -76,6 +72,7 @@ class CoverColorPicker extends StatefulWidget {
 
 class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
   late Future<List<String>>? fileImages;
+  bool isAddingImage = false;
 
   @override
   void initState() {
@@ -88,23 +85,37 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
     return Padding(
       padding: const EdgeInsets.all(15),
       child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FlowyText.semibold(LocaleKeys.document_plugins_cover_colors.tr()),
-            const SizedBox(height: 10),
-            _buildColorPickerList(),
-            const SizedBox(height: 10),
-            FlowyText.semibold(LocaleKeys.document_plugins_cover_images.tr()),
-            const SizedBox(height: 10),
-            _buildFileImagePicker(),
-            const SizedBox(height: 10),
-            FlowyText.semibold(LocaleKeys.document_plugins_cover_abstract.tr()),
-            const SizedBox(height: 10),
-            _buildAbstractImagePicker(),
-          ],
-        ),
+        child: isAddingImage
+            ? CoverImagePicker(
+                onBackPressed: () => setState(() {
+                      isAddingImage = false;
+                    }),
+                onFileSubmit: (List<String> path) {
+                  setState(() {
+                    isAddingImage = false;
+                  });
+                })
+            : _buildCoverSelection(),
       ),
+    );
+  }
+
+  Widget _buildCoverSelection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FlowyText.semibold(LocaleKeys.document_plugins_cover_colors.tr()),
+        const SizedBox(height: 10),
+        _buildColorPickerList(),
+        const SizedBox(height: 10),
+        FlowyText.semibold(LocaleKeys.document_plugins_cover_images.tr()),
+        const SizedBox(height: 10),
+        _buildFileImagePicker(),
+        const SizedBox(height: 10),
+        FlowyText.semibold(LocaleKeys.document_plugins_cover_abstract.tr()),
+        const SizedBox(height: 10),
+        _buildAbstractImagePicker(),
+      ],
     );
   }
 
@@ -197,7 +208,9 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
                       ),
                       width: 20,
                       onPressed: () {
-                        _pickImages();
+                        setState(() {
+                          isAddingImage = true;
+                        });
                       },
                     ),
                   );
@@ -248,36 +261,6 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
     imageNames.removeWhere((element) => removeNames.contains(element));
     prefs.setStringList(kLocalImagesKey, imageNames);
     return imageNames;
-  }
-
-  Future<void> _pickImages() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> imageNames = prefs.getStringList(kLocalImagesKey) ?? [];
-    FilePickerResult? result = await getIt<FilePickerService>().pickFiles(
-      dialogTitle: LocaleKeys.document_plugins_cover_addLocalImage.tr(),
-      allowMultiple: false,
-      type: FileType.image,
-      allowedExtensions: ['jpg', 'png', 'jpeg'],
-    );
-    if (result != null && result.files.isNotEmpty) {
-      final path = result.files.first.path;
-      if (path != null) {
-        final directory = await _coverPath();
-        final newPath = await File(path).copy(
-          '$directory/${path.split(path).last}}',
-        );
-        imageNames.add(newPath.path);
-      }
-    }
-    await prefs.setStringList(kLocalImagesKey, imageNames);
-    setState(() {});
-  }
-
-  Future<String> _coverPath() async {
-    final directory = await getIt<SettingsLocationCubit>().fetchLocation();
-    return Directory(path.join(directory, 'covers'))
-        .create(recursive: true)
-        .then((value) => value.path);
   }
 }
 

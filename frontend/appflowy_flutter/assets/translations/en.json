@@ -362,7 +362,20 @@
         "images": "Images",
         "abstract": "Abstract",
         "addCover": "Add Cover",
-        "addLocalImage": "Add local image"
+        "addLocalImage": "Add local image",
+        "invalidImageUrl": "Invalid image URL",
+        "failedToAddImageToGallery": "Failed to add image to gallery",
+        "enterImageUrl": "Enter image URL",
+        "add": "Add",
+        "back": "Back",
+        "saveToGallery": "Save to gallery",
+        "removeIcon": "Remove Icon",
+        "pasteImageUrl": "Paste image URL",
+        "or": "OR",
+        "pickFromFiles": "Pick from files",
+        "couldNotFetchImage": "Could not fetch image",
+        "imageSavingFailed": "Image Saving Failed",
+        "addIcon": "Add Icon"
       }
     }
   },
