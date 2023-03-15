@@ -25,7 +25,7 @@ export interface BlockPosition {
 /**
  * The number of milliseconds to wait before updating the block position.
  */
-const UPDATE_BLOCK_POSITION_DELAY = 200;
+const UPDATE_BLOCK_POSITION_DELAY = 500;
 
 /**
  * The `BlockPositionManager` class is responsible for managing the position of blocks on the screen.
@@ -75,6 +75,7 @@ export class BlockPositionManager {
           this.viewportBlocks.add(blockId);
           this.updateBlock(blockId);
         } else {
+          this.updateQueue.delete(blockId);
           this.viewportBlocks.delete(blockId)
         }
       }
@@ -139,6 +140,7 @@ export class BlockPositionManager {
  * @param {string} blockId - The id of the block to be removed.
  */
   private removeBlock(blockId: string) {
+    this.updateQueue.delete(blockId);
     this.viewportBlocks.delete(blockId)
     this.blockPositions.delete(blockId);
   }
@@ -172,8 +174,8 @@ export class BlockPositionManager {
     this.viewportBlocks.forEach(key => {
       if (!this.updateQueue.has(key)) {
         reUpdate = true;
+        this.updateQueue.add(key)
       }
-      this.updateQueue.add(key)
     });
     if (reUpdate) {
       this.debounceUpdatePositions();
