@@ -58,7 +58,7 @@ void showLinkToPageMenu(
     );
   });
 
-  Overlay.of(context)?.insert(_linkToPageMenu!);
+  Overlay.of(context).insert(_linkToPageMenu!);
 
   editorState.service.selectionService.currentSelection
       .addListener(dismissLinkToPageMenu);

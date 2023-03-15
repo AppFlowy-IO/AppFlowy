@@ -1,6 +1,7 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/app/app_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_view_section_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:flutter/material.dart';

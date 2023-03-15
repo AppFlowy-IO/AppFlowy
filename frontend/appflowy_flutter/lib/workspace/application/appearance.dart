@@ -244,7 +244,6 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       disabledColor: theme.shader4,
       highlightColor: theme.main1,
       indicatorColor: theme.main1,
-      toggleableActiveColor: theme.main1,
       colorScheme: ColorScheme(
         brightness: brightness,
         primary: theme.main1,
