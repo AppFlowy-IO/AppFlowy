@@ -9,7 +9,7 @@ import {
   DatabaseGroupIdPB,
   MoveGroupPayloadPB,
   MoveGroupRowPayloadPB,
-} from '../../../../services/backend/events/flowy-database';
+} from '@/services/backend/events/flowy-database';
 import {
   GetFieldPayloadPB,
   RepeatedFieldIdPB,
@@ -17,9 +17,10 @@ import {
   DatabaseViewIdPB,
   CreateRowPayloadPB,
   ViewIdPB,
-} from '../../../../services/backend';
-import { FolderEventCloseView } from '../../../../services/backend/events/flowy-folder';
+} from '@/services/backend';
+import { FolderEventCloseView } from '@/services/backend/events/flowy-folder';
 
+/// A service that wraps the backend service
 export class DatabaseBackendService {
   viewId: string;
 
@@ -27,6 +28,7 @@ export class DatabaseBackendService {
     this.viewId = viewId;
   }
 
+  /// Open a database
   openDatabase = async () => {
     const payload = DatabaseViewIdPB.fromObject({
       value: this.viewId,
@@ -34,6 +36,7 @@ export class DatabaseBackendService {
     return DatabaseEventGetDatabase(payload);
   };
 
+  /// Close a database
   closeDatabase = async () => {
     const payload = ViewIdPB.fromObject({ value: this.viewId });
     return FolderEventCloseView(payload);
@@ -56,6 +59,7 @@ export class DatabaseBackendService {
     return DatabaseEventCreateRow(payload);
   };
 
+  /// Move a row to another group
   moveRow = (rowId: string, groupId?: string) => {
     const payload = MoveGroupRowPayloadPB.fromObject({ view_id: this.viewId, from_row_id: rowId });
     if (groupId !== undefined) {
@@ -73,6 +77,7 @@ export class DatabaseBackendService {
     return DatabaseEventMoveGroup(payload);
   };
 
+  /// Get all fields in database
   getFields = async (fieldIds?: FieldIdPB[]) => {
     const payload = GetFieldPayloadPB.fromObject({ view_id: this.viewId });
 
@@ -83,11 +88,13 @@ export class DatabaseBackendService {
     return DatabaseEventGetFields(payload).then((result) => result.map((value) => value.items));
   };
 
+  /// Get a group by id
   getGroup = (groupId: string) => {
     const payload = DatabaseGroupIdPB.fromObject({ view_id: this.viewId, group_id: groupId });
     return DatabaseEventGetGroup(payload);
   };
 
+  /// Get all groups in database
   loadGroups = () => {
     const payload = DatabaseViewIdPB.fromObject({ value: this.viewId });
     return DatabaseEventGetGroups(payload);
