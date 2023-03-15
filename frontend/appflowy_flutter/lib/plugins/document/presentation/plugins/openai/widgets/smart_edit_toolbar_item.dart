@@ -1,10 +1,14 @@
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_node_widget.dart';
+import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 ToolbarItem smartEditItem = ToolbarItem(
   id: 'appflowy.toolbar.smart_edit',
@@ -33,6 +37,20 @@ class _SmartEditWidget extends StatefulWidget {
 }
 
 class _SmartEditWidgetState extends State<_SmartEditWidget> {
+  bool isOpenAIEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    UserBackendService.getCurrentUserProfile().then((value) {
+      setState(() {
+        isOpenAIEnabled =
+            value.fold((l) => l.openaiKey.isNotEmpty, (r) => false);
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopoverActionList<SmartEditActionWrapper>(
@@ -43,7 +61,9 @@ class _SmartEditWidgetState extends State<_SmartEditWidget> {
       buildChild: (controller) {
         return FlowyIconButton(
           hoverColor: Colors.transparent,
-          tooltipText: 'Smart Edit',
+          tooltipText: isOpenAIEnabled
+              ? LocaleKeys.document_plugins_smartEdit.tr()
+              : LocaleKeys.document_plugins_smartEditDisabled.tr(),
           preferBelow: false,
           icon: const Icon(
             Icons.lightbulb_outline,
@@ -51,7 +71,11 @@ class _SmartEditWidgetState extends State<_SmartEditWidget> {
             color: Colors.white,
           ),
           onPressed: () {
-            controller.show();
+            if (isOpenAIEnabled) {
+              controller.show();
+            } else {
+              _showError(LocaleKeys.document_plugins_smartEditDisabled.tr());
+            }
           },
         );
       },
@@ -95,6 +119,20 @@ class _SmartEditWidgetState extends State<_SmartEditWidget> {
         recordRedo: false,
       ),
       withUpdateCursor: false,
+    );
+  }
+
+  Future<void> _showError(String message) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        action: SnackBarAction(
+          label: LocaleKeys.button_Cancel.tr(),
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
+        content: FlowyText(message),
+      ),
     );
   }
 }

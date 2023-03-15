@@ -12,7 +12,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
-import 'database_service.dart';
+import 'database_view_service.dart';
 import 'defines.dart';
 import 'layout/layout_setting_listener.dart';
 import 'row/row_cache.dart';
@@ -67,7 +67,7 @@ class DatabaseCallbacks {
 
 class DatabaseController {
   final String viewId;
-  final DatabaseBackendService _databaseBackendSvc;
+  final DatabaseViewBackendService _databaseViewBackendSvc;
   final FieldController fieldController;
   late DatabaseViewCache _viewCache;
   final LayoutTypePB layoutType;
@@ -87,7 +87,7 @@ class DatabaseController {
 
   DatabaseController({required ViewPB view, required this.layoutType})
       : viewId = view.id,
-        _databaseBackendSvc = DatabaseBackendService(viewId: view.id),
+        _databaseViewBackendSvc = DatabaseViewBackendService(viewId: view.id),
         fieldController = FieldController(viewId: view.id),
         groupListener = DatabaseGroupListener(view.id),
         layoutListener = DatabaseLayoutListener(view.id) {
@@ -112,7 +112,7 @@ class DatabaseController {
   }
 
   Future<Either<Unit, FlowyError>> open() async {
-    return _databaseBackendSvc.openGrid().then((result) {
+    return _databaseViewBackendSvc.openGrid().then((result) {
       return result.fold(
         (database) async {
           _databaseCallbacks?.onDatabaseChanged?.call(database);
@@ -152,7 +152,7 @@ class DatabaseController {
       cellDataByFieldId = rowBuilder.build();
     }
 
-    return _databaseBackendSvc.createRow(
+    return _databaseViewBackendSvc.createRow(
       startRowId: startRowId,
       groupId: groupId,
       cellDataByFieldId: cellDataByFieldId,
@@ -161,7 +161,7 @@ class DatabaseController {
 
   Future<Either<Unit, FlowyError>> moveRow(RowPB fromRow,
       {RowPB? toRow, String? groupId}) {
-    return _databaseBackendSvc.moveRow(
+    return _databaseViewBackendSvc.moveRow(
       fromRowId: fromRow.id,
       toGroupId: groupId,
       toRowId: toRow?.id,
@@ -170,7 +170,7 @@ class DatabaseController {
 
   Future<Either<Unit, FlowyError>> moveGroup(
       {required String fromGroupId, required String toGroupId}) {
-    return _databaseBackendSvc.moveGroup(
+    return _databaseViewBackendSvc.moveGroup(
       fromGroupId: fromGroupId,
       toGroupId: toGroupId,
     );
@@ -178,7 +178,7 @@ class DatabaseController {
 
   Future<void> updateCalenderLayoutSetting(
       CalendarLayoutSettingsPB layoutSetting) async {
-    await _databaseBackendSvc
+    await _databaseViewBackendSvc
         .updateLayoutSetting(calendarLayoutSetting: layoutSetting)
         .then((result) {
       result.fold((l) => null, (r) => Log.error(r));
@@ -186,13 +186,13 @@ class DatabaseController {
   }
 
   Future<void> dispose() async {
-    await _databaseBackendSvc.closeView();
+    await _databaseViewBackendSvc.closeView();
     await fieldController.dispose();
     await groupListener.stop();
   }
 
   Future<void> _loadGroups() async {
-    final result = await _databaseBackendSvc.loadGroups();
+    final result = await _databaseViewBackendSvc.loadGroups();
     return Future(
       () => result.fold(
         (groups) {
@@ -204,7 +204,7 @@ class DatabaseController {
   }
 
   Future<void> _loadLayoutSetting() async {
-    _databaseBackendSvc.getLayoutSetting(layoutType).then((result) {
+    _databaseViewBackendSvc.getLayoutSetting(layoutType).then((result) {
       result.fold(
         (l) {
           _layoutCallbacks?.onLoadLayout(l);
