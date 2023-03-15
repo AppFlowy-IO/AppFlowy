@@ -14,16 +14,14 @@ export const DocumentPage = () => {
   if (!blockId || !blockEditor) return <div className='error-page'></div>;
   return (
     <ThemeProvider theme={theme}>
-      <div id='appflowy-block-doc' className='doc-scroller-container flex h-[100%] flex-col items-center overflow-auto'>
-        <BlockContext.Provider
-          value={{
-            id: blockId,
-            blockEditor,
-          }}
-        >
-          <BlockList blockEditor={blockEditor} blockId={blockId} />
-        </BlockContext.Provider>
-      </div>
+      <BlockContext.Provider
+        value={{
+          id: blockId,
+          blockEditor,
+        }}
+      >
+        <BlockList blockEditor={blockEditor} blockId={blockId} />
+      </BlockContext.Provider>
     </ThemeProvider>
   );
 };
