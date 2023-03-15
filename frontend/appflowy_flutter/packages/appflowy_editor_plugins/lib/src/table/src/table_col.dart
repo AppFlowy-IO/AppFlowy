@@ -48,7 +48,10 @@ class _TableColState extends State<TableCol> {
                   _borderKey.currentContext?.findRenderObject() as RenderBox;
               Offset pos = box.localToGlobal(Offset.zero);
               double colsHeight = context.read<TableData>().colsHeight;
-              if ((pos.dx - details.globalPosition.dx).abs() > 50 ||
+              final int direction = details.delta.dx > 0 ? 1 : -1;
+              if ((details.globalPosition.dx - pos.dx - (direction * 90))
+                          .abs() >
+                      110 ||
                   (details.globalPosition.dy - pos.dy) > colsHeight + 50 ||
                   (details.globalPosition.dy - pos.dy) < -50) {
                 return;
