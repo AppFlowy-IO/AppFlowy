@@ -1,6 +1,7 @@
 import { Block } from './block';
 import { BlockChain } from './block_chain';
 import { Operation, OPAdapter } from './op_adapter';
+import { SelectionManager } from './selection';
 
 /**
  * BlockEditorSync is a class that synchronizes changes made to a block chain with a server.
@@ -12,22 +13,32 @@ export class BlockEditorSync {
   private appliedOps: Operation[] = [];
   private opAdapter: OPAdapter = new OPAdapter();
   
-  constructor(private server: any, private blockChain: BlockChain) {
+  constructor(private server: any, private blockChain: BlockChain, private selection: SelectionManager) {
 
   }
 
-  public prependChild(parentId: string, content: any): void {
+  public update(blockId: string, data: { paths: string[], data: any }) {
+    const block = this.blockChain.updateBlock(blockId, data);
+    const op = this.opAdapter.update(blockId, data);
+    this.pendingOps.push({
+      ...op,
+      version: this.version
+    });
+    return block;
+  }
+
+  public prependChild(parentId: string, content: any) {
     const newBlock = this.blockChain.prependChild(parentId, content);
     if (!newBlock) return;
     this.newBlockMovePos(newBlock);
-    this.sendOps();
+    return newBlock;
   }
 
-  public addSibling(prevId: string, content: any): void {
+  public addSibling(prevId: string, content: any) {
     const newBlock = this.blockChain.addSibling(prevId, content);
     if (!newBlock) return;
     this.newBlockMovePos(newBlock);
-    this.sendOps();
+    return newBlock;
   }
 
   public remove(blockId: string): void {
@@ -37,7 +48,6 @@ export class BlockEditorSync {
       ...op,
       version: this.version
     });
-    this.sendOps();
   }
 
   public move(blockId: string, newParentId: string, newPrevId: string): void {
@@ -47,8 +57,21 @@ export class BlockEditorSync {
       ...op,
       version: this.version
     });
-    this.sendOps();
   }
+
+  public moveBulk(startBlockId: string, endBlockId: string, newParentId: string, newPrevId: string): void {
+    this.blockChain.moveBulk(startBlockId, endBlockId, newParentId, newPrevId);
+    const op = this.opAdapter.moveBulk(startBlockId, endBlockId, newParentId, newPrevId);
+    this.pendingOps.push({
+      ...op,
+      version: this.version
+    });
+  }
+
+  public setSelection(blockId: string, data: any) {
+    this.selection.focusBlock(blockId, data)
+  }
+
 
   private applyOp(op: Operation): void {
     // Apply the prependChild operation to the local document
@@ -69,9 +92,15 @@ export class BlockEditorSync {
     // Implement conflict resolution logic here
   }
 
-  private sendOps(): void {
+  public sendOps() {
     // Send the pending operations to the server
-    console.log('==== sync pending ops ====', this.pendingOps);
+    const promise = new Promise(resolve => {
+      setTimeout(() => {
+        console.log('==== sync pending ops ====', [...this.pendingOps]);
+        this.pendingOps.length = 0;
+        resolve(true);
+      }, 1000);
+    })
   }
 
   private newBlockMovePos(newBlock: Block) {

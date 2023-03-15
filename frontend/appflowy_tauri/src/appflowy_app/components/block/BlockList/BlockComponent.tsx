@@ -46,7 +46,7 @@ function BlockComponent({
   }, []);
 
   return (
-    <div ref={ref} className='relative' data-block-id={node.id} {...props}>
+    <div ref={ref} {...props} data-block-id={node.id} className={props.className + ' relative'}>
       {renderComponent()}
       {props.children}
       <div className='block-overlay'></div>

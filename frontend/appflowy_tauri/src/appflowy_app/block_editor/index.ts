@@ -1,10 +1,10 @@
 // Import dependencies
 import { EventEmitter } from 'events';
 import { BlockInterface } from '../interfaces';
-import { Block } from './block';
-import { BlockChain } from './block_chain';
+import { BlockChain, BlockChangeProps } from './block_chain';
 import { RenderTree } from './tree';
 import { BlockEditorSync } from './sync';
+import { SelectionManager } from './selection';
 
 /**
  * The BlockEditor class manages a block chain and a render tree for a document editor.
@@ -17,6 +17,7 @@ export class BlockEditor {
   public renderTree: RenderTree; // the render tree used to display the document
   public sync: BlockEditorSync; // send/receive op and update local data
   public event: EventEmitter;
+  public selection: SelectionManager;
   /**
    * Constructs a new BlockEditor object.
    * @param id - the ID of the document
@@ -27,7 +28,8 @@ export class BlockEditor {
     
     // Create the block chain and render tree
     this.blockChain = new BlockChain(this.blockChange);
-    this.sync = new BlockEditorSync(null, this.blockChain);
+    this.selection = new SelectionManager();
+    this.sync = new BlockEditorSync(null, this.blockChain, this.selection);
     this.changeDoc(id, data);
     this.renderTree = new RenderTree(this.blockChain);
   }
@@ -42,6 +44,7 @@ export class BlockEditor {
     
     // Update the document ID and rebuild the block chain
     this.event.removeAllListeners();
+    this.selection.destroy();
     this.id = id;
     this.blockChain.rebuild(id, data);
   }
@@ -54,18 +57,15 @@ export class BlockEditor {
     this.blockChain.destroy();
     this.renderTree.destroy();
     this.event.removeAllListeners();
+    this.selection.destroy();
   }
 
-  private blockChange = (command: string, data: {
-    block: Block,
-    oldParentId?: string,
-    oldPrevId?: string,
-  }) => {
-    console.log('====block change====', command, data);
+  private blockChange = (command: string, data: BlockChangeProps) => {
     this.event.emit('block_change', {
       command,
       data
     });
   }
+
 }
 

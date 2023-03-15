@@ -1,70 +1,31 @@
-import React, { useContext, useEffect, useState } from 'react';
 import BlockComponent from '../BlockList/BlockComponent';
-
-import { Editor, Transforms, createEditor } from 'slate';
-import { Slate, Editable, withReact, ReactEditor } from 'slate-react';
+import { Slate, Editable } from 'slate-react';
 import Leaf from './Leaf';
 import HoveringToolbar from '$app/components/HoveringToolbar';
-import { triggerHotkey } from '@/appflowy_app/utils/slate/hotkey';
-import { BlockContext, SelectionContext } from '@/appflowy_app/utils/block';
 import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
-import { triggerEnter } from '@/appflowy_app/utils/slate/action';
+import { useTextBlock } from './index.hooks';
+import { TextBlockToolbarProps } from '@/appflowy_app/interfaces';
+import { toolbarDefaultProps } from '@/appflowy_app/constants/toolbar';
 
 export default function TextBlock({
   node,
   needRenderChildren = true,
+  toolbarProps,
+  ...props
 }: {
   node: TreeNode;
   needRenderChildren?: boolean;
-}) {
-  const [editor] = useState(() => withReact(createEditor()));
-
-  const { focusNodeId } = useContext(SelectionContext);
-  const { blockEditor } = useContext(BlockContext);
-
-  useEffect(() => {
-    if (focusNodeId !== node.id) {
-      return;
-    }
-    ReactEditor.focus(editor);
-    Transforms.select(editor, Editor.end(editor, []));
-  }, [focusNodeId, node.id, editor]);
+  toolbarProps?: TextBlockToolbarProps;
+} & React.HTMLAttributes<HTMLDivElement>) {
+  const { editor, value, onChange, onKeyDownCapture } = useTextBlock({ node });
+  const { showGroups } = toolbarProps || toolbarDefaultProps;
 
   return (
-    <div className='py-1'>
-      <Slate
-        editor={editor}
-        onChange={(e) => {
-          if (editor.operations[0].type !== 'set_selection') {
-            console.log('=== text op ===', e, editor.operations);
-          }
-        }}
-        value={[
-          {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            type: 'paragraph',
-            children: node.data.content,
-          },
-        ]}
-      >
-        <HoveringToolbar node={node} blockId={node.id} />
+    <div {...props} className={props.className + ' py-1'}>
+      <Slate editor={editor} onChange={onChange} value={value}>
+        {showGroups.length > 0 && <HoveringToolbar node={node} blockId={node.id} />}
         <Editable
-          onKeyDownCapture={(event) => {
-            switch (event.key) {
-              case 'Enter': {
-                event.stopPropagation();
-                event.preventDefault();
-                if (blockEditor) {
-                  triggerEnter(blockEditor, node);
-                }
-
-                return;
-              }
-            }
-
-            triggerHotkey(event, editor);
-          }}
+          onKeyDownCapture={onKeyDownCapture}
           onDOMBeforeInput={(e) => {
             // COMPAT: in Apple, `compositionend` is dispatched after the
             // `beforeinput` for "insertFromComposition". It will cause repeated characters when inputting Chinese.
@@ -73,7 +34,7 @@ export default function TextBlock({
               e.preventDefault();
             }
           }}
-          renderLeaf={(props) => <Leaf {...props} />}
+          renderLeaf={(leafProps) => <Leaf {...leafProps} />}
           placeholder='Enter some text...'
         />
       </Slate>

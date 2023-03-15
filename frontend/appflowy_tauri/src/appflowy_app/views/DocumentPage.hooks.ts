@@ -13,7 +13,7 @@ const loadBlockData = async (id: string): Promise<Record<string, BlockInterface>
     [id]: {
       id: id,
       type: BlockType.PageBlock,
-      data: { title: 'Document Title' },
+      data: { content: [{ text: 'Document Title' }] },
       next: null,
       firstChild: "L1-1",
     },

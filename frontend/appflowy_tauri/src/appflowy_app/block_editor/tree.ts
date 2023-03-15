@@ -22,7 +22,10 @@ export class RenderTree {
     return this.map.get(nodeId) || null;
   }
 
-  private createNode(block: Block) {
+  private createNode(block: Block): TreeNode {
+    if (this.map.has(block.id)) {
+      return this.map.get(block.id)!;
+    }
     return new TreeNode(block, {
       getRect: (id: string) => this.positionManager.getBlockPosition(id),
     });
@@ -34,17 +37,11 @@ export class RenderTree {
    * @returns TreeNode|null
    */
   build(rootId: string): TreeNode | null {
-    // Clear the map of TreeNode instances
-    this.map.clear();
-
     // Define a callback function for the blockChain.traverse() method
     const callback = (block: Block) => {
       // Check if the TreeNode instance already exists in the map
-      let node = this.map.get(block.id);
-      if (!node) {
-        // If it doesn't exist, create a new instance of TreeNode with the given block data
-        node = this.createNode(block);
-      }
+      const node = this.createNode(block);
+
       // Add the TreeNode instance to the map
       this.map.set(block.id, node);
 
@@ -79,7 +76,7 @@ export class RenderTree {
     return this.positionManager.observeBlock(node, el);
   }
 
-  updateBlockPosition(blockId: string, isNewBlock = false) {
+  updateBlockPosition(blockId: string) {
     const node = this.getTreeNode(blockId);
     if (!node) return;
     this.positionManager.updateBlock(node.id);

@@ -9,10 +9,6 @@ export const BlockContext = createContext<{
 }>({});
 
 
-export const SelectionContext = createContext({
-  focusNodeId: '',
-});
-
 export function generateBlockId() {
   const blockId = ulid()
   return `block-id-${blockId}`;

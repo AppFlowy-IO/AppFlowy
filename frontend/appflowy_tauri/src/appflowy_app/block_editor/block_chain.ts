@@ -1,15 +1,18 @@
 import { BlockData, BlockInterface, BlockType } from '$app/interfaces/index';
+import { set } from '../utils/tool';
 import { Block } from './block';
-
+export interface BlockChangeProps {
+  block?: Block,
+  startBlock?: Block,
+  endBlock?: Block,
+  oldParentId?: string,
+  oldPrevId?: string
+}
 export class BlockChain {
   private map: Map<string, Block<BlockType>> = new Map();
   public head: Block<BlockType> | null = null;
 
-  constructor(private onBlockChange: (command: string, data: {
-    block: Block,
-    oldParentId?: string,
-    oldPrevId?: string
-  }) => void) {
+  constructor(private onBlockChange: (command: string, data: BlockChangeProps) => void) {
 
   }
   /**
@@ -143,6 +146,74 @@ export class BlockChain {
     });
     return block;
   }
+
+  updateBlock(id: string, data: { paths: string[], data: any }) {
+    const block = this.getBlock(id);
+    if (!block) return null;
+    
+    set(block, data.paths, data.data);
+    this.onBlockChange('update', {
+      block
+    });
+  }
+
+
+  moveBulk(startBlockId: string, endBlockId: string, newParentId: string, newPrevId: string): [Block, Block] | null {
+    const startBlock = this.getBlock(startBlockId);
+    const endBlock = this.getBlock(endBlockId);
+    if (!startBlock || !endBlock) return null;
+
+    if (startBlockId === endBlockId) {
+      const block = this.move(startBlockId, newParentId, '');
+      if (!block) return null;
+      return [block, block];
+    }
+
+    const oldParent = startBlock.parent;
+    const prev = startBlock.prev;
+    const newParent = this.getBlock(newParentId);
+    if (!oldParent || !newParent) return null;
+
+    if (oldParent.firstChild === startBlock) {
+      oldParent.firstChild = endBlock.next;
+    } else if (prev) {
+      prev.next = endBlock.next;
+    }
+    startBlock.prev = null;
+    endBlock.next = null;
+
+    startBlock.parent = newParent;
+    endBlock.parent = newParent;
+    const newPrev = this.getBlock(newPrevId);
+    if (!newPrev) {
+      const firstChild = newParent.firstChild;
+      newParent.firstChild = startBlock;
+      if (firstChild) {
+        endBlock.next = firstChild;
+        firstChild.prev = endBlock;
+      }
+    } else {
+      const next = newPrev.next;
+      newPrev.next = startBlock;
+      endBlock.next = next;
+      if (next) {
+        next.prev = endBlock;
+      }
+    }
+
+    this.onBlockChange('move', {
+      startBlock,
+      endBlock,
+      oldParentId: oldParent.id,
+      oldPrevId: prev?.id
+    });
+    
+    return [
+      startBlock,
+      endBlock
+    ];
+  }
+
 
   private createBlock(id: string, type: BlockType, data: BlockData<BlockType>) {
     const block = new Block(id, type, data);

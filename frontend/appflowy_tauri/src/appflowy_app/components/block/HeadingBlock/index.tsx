@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import TextBlock from '../TextBlock';
 import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
 
@@ -7,6 +7,7 @@ const fontSize: Record<string, string> = {
   2: 'mt-6 text-2xl',
   3: 'mt-4 text-xl',
 };
+
 export default function HeadingBlock({ node }: { node: TreeNode }) {
   return (
     <div className={`${fontSize[node.data.level]} font-semibold	`}>

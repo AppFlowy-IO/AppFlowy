@@ -1,0 +1,35 @@
+import { useEffect, useRef } from 'react';
+import { useFocused, useSlate } from 'slate-react';
+import { calcToolbarPosition } from '@/appflowy_app/utils/slate/toolbar';
+import { TreeNode } from '../../block_editor/tree_node';
+
+export function useHoveringToolbar({node}: {
+  node: TreeNode
+}) {
+  const editor = useSlate();
+  const inFocus = useFocused();
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    const nodeRect = node.rect.getRect();
+    if (!el || !nodeRect) return;
+
+    const position = calcToolbarPosition(editor, el, nodeRect);
+
+    if (!position) {
+      el.style.opacity = '0';
+      el.style.zIndex = '-1';
+    } else {
+      el.style.opacity = '1';
+      el.style.zIndex = '1';
+      el.style.top = position.top;
+      el.style.left = position.left;
+    }
+  });
+  return {
+    ref,
+    inFocus,
+    editor
+  }
+}

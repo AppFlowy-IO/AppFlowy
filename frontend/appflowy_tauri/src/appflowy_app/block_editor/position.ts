@@ -124,10 +124,6 @@ export class BlockPositionManager {
    * Adds an update task to the queue.
    */
   private addUpdateTask = () => {
-    if (this.updateQueue.size) {
-      console.log('=== update block postion ===', this.updateQueue);
-    }
-
     this.updateQueue.forEach(id => {
       this.updateBlockPosition(id);
       this.updateQueue.delete(id);

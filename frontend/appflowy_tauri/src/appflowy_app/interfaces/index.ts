@@ -52,3 +52,17 @@ interface ColumnBlockData {
   ratio: string;
 }
 
+// eslint-disable-next-line no-shadow
+export enum TextBlockToolbarGroup {
+  ASK_AI,
+  BLOCK_SELECT,
+  ADD_LINK,
+  COMMENT,
+  TEXT_FORMAT,
+  TEXT_COLOR,
+  MENTION,
+  MORE
+}
+export interface TextBlockToolbarProps {
+  showGroups: TextBlockToolbarGroup[]
+}
