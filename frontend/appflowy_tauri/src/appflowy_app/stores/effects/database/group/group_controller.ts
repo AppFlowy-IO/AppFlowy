@@ -1,10 +1,4 @@
-import {
-  DatabaseNotification,
-  FlowyError,
-  GroupPB,
-  GroupRowsNotificationPB,
-  RowPB,
-} from '@/services/backend';
+import { DatabaseNotification, FlowyError, GroupPB, GroupRowsNotificationPB, RowPB } from '@/services/backend';
 import { ChangeNotifier } from '$app/utils/change_notifier';
 import { None, Ok, Option, Result, Some } from 'ts-results';
 import { DatabaseNotificationObserver } from '../notifications/observer';

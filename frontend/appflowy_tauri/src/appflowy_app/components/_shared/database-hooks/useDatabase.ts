@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { DatabaseController } from '../../../stores/effects/database/database_controller';
-import { databaseActions, DatabaseFieldMap, IDatabaseColumn } from '../../../stores/reducers/database/slice';
-import { useAppDispatch } from '../../../stores/store';
+import { DatabaseController } from '$app/stores/effects/database/database_controller';
+import { databaseActions, DatabaseFieldMap, IDatabaseColumn } from '$app/stores/reducers/database/slice';
+import { useAppDispatch } from '$app/stores/store';
 import loadField from './loadField';
-import { FieldInfo } from '../../../stores/effects/database/field/field_controller';
-import { RowInfo } from '../../../stores/effects/database/row/row_cache';
+import { FieldInfo } from '$app/stores/effects/database/field/field_controller';
+import { RowInfo } from '$app/stores/effects/database/row/row_cache';
 import { ViewLayoutTypePB } from '@/services/backend';
 import { DatabaseGroupController } from '$app/stores/effects/database/group/group_controller';
 
@@ -19,7 +19,6 @@ export const useDatabase = (viewId: string, type?: ViewLayoutTypePB) => {
     const c = new DatabaseController(viewId);
     setController(c);
 
-    // dispose is causing an error
     return () => void c.dispose();
   }, [viewId]);
 

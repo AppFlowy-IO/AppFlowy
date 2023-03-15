@@ -146,6 +146,9 @@ export class DatabaseController {
   };
 
   dispose = async () => {
+    this.groups.value.forEach((group) => {
+      void group.dispose();
+    });
     await this.backendService.closeDatabase();
     await this.fieldController.dispose();
     await this.databaseViewCache.dispose();
