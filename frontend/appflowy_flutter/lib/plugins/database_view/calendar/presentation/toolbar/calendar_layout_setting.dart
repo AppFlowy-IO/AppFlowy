@@ -118,9 +118,9 @@ class CalendarLayoutSetting extends StatelessWidget {
         break;
       case CalendarLayoutPB.MonthLayout:
         settings.addAll([
-          CalendarLayoutSettingAction.showWeekends,
-          if (layoutSettings.showWeekends)
-            CalendarLayoutSettingAction.firstDayOfWeek,
+          // CalendarLayoutSettingAction.showWeekends,
+          // if (layoutSettings.showWeekends)
+          CalendarLayoutSettingAction.firstDayOfWeek,
         ]);
         break;
       case CalendarLayoutPB.WeekLayout:
