@@ -7,13 +7,15 @@ Widget svgWidget(String name, {Size? size, Color? color}) {
       size: size,
       child: SvgPicture.asset(
         'assets/images/$name.svg',
-        colorFilter: ColorFilter.mode(color ?? Colors.black, BlendMode.color),
+        colorFilter:
+            color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
       ),
     );
   } else {
     return SvgPicture.asset(
       'assets/images/$name.svg',
-      colorFilter: ColorFilter.mode(color ?? Colors.black, BlendMode.color),
+      colorFilter:
+          color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
     );
   }
 }
