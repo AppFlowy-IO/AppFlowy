@@ -379,6 +379,12 @@
       "jumpToday": "Jump to Today",
       "previousMonth": "Previous Month",
       "nextMonth": "Next Month"
+    },
+    "settings": {
+      "showWeekNumbers": "Show week numbers",
+      "showWeekends": "Show weekends",
+      "firstDayOfWeek": "First day of week",
+      "layoutDateField": "Layout calendar by"
     }
   }
 }

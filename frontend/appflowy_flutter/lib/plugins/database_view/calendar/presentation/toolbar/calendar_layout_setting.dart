@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_setting_bloc.dart';
@@ -230,9 +231,10 @@ class LayoutDateField extends StatelessWidget {
       },
       child: SizedBox(
         height: GridSize.popoverItemHeight,
-        child: const FlowyButton(
-          margin: EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
-          text: FlowyText.medium("Layout calendar by"),
+        child: FlowyButton(
+          margin: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+          text: FlowyText.medium(
+              LocaleKeys.calendar_settings_layoutDateField.tr()),
         ),
       ),
     );
@@ -253,7 +255,7 @@ class ShowWeekNumber extends StatelessWidget {
         onUpdated(!showWeekNumbers);
       },
       value: showWeekNumbers,
-      text: "Show week numbers",
+      text: LocaleKeys.calendar_settings_showWeekNumbers.tr(),
     );
   }
 }
@@ -274,7 +276,7 @@ class ShowWeekends extends StatelessWidget {
         onUpdated(!showWeekends);
       },
       value: showWeekends,
-      text: "Show weekends",
+      text: LocaleKeys.calendar_settings_showWeekends.tr(),
     );
   }
 }
@@ -324,9 +326,10 @@ class FirstDayOfWeek extends StatelessWidget {
       },
       child: SizedBox(
         height: GridSize.popoverItemHeight,
-        child: const FlowyButton(
-          margin: EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
-          text: FlowyText.medium("First day of week"),
+        child: FlowyButton(
+          margin: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+          text: FlowyText.medium(
+              LocaleKeys.calendar_settings_firstDayOfWeek.tr()),
         ),
       ),
     );
