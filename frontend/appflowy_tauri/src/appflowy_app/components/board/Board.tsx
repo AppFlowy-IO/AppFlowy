@@ -7,7 +7,7 @@ import { ViewLayoutTypePB } from '@/services/backend';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 
 export const Board = ({ viewId }: { viewId: string }) => {
-  const { controller, rows, groups } = useDatabase(viewId, ViewLayoutTypePB.Board);
+  const { controller, rows, groups, onNewRowClick } = useDatabase(viewId, ViewLayoutTypePB.Board);
 
   return (
     <>
@@ -39,6 +39,7 @@ export const Board = ({ viewId }: { viewId: string }) => {
                         rows={group.rows}
                         title={group.name}
                         allRows={rows}
+                        onNewRowClick={() => onNewRowClick(index)}
                       />
                     </div>
                   )}

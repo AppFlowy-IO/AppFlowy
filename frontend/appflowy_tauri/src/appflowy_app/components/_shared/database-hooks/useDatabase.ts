@@ -20,7 +20,7 @@ export const useDatabase = (viewId: string, type?: ViewLayoutTypePB) => {
     setController(c);
 
     // dispose is causing an error
-    // return () => void c.dispose();
+    return () => void c.dispose();
   }, [viewId]);
 
   const loadFields = async (fieldInfos: readonly FieldInfo[]) => {
@@ -49,10 +49,14 @@ export const useDatabase = (viewId: string, type?: ViewLayoutTypePB) => {
     void (async () => {
       controller.subscribe({
         onRowsChanged: (rowInfos) => {
+          console.log('rows changed: ', rowInfos);
           setRows(rowInfos);
         },
         onFieldsChanged: (fieldInfos) => {
           void loadFields(fieldInfos);
+        },
+        onGroupByField: (g) => {
+          console.log('on group by field: ', g);
         },
       });
       await controller.open();
@@ -63,5 +67,20 @@ export const useDatabase = (viewId: string, type?: ViewLayoutTypePB) => {
     })();
   }, [controller]);
 
-  return { loadFields, controller, rows, groups };
+  const onNewRowClick = async (index: number) => {
+    if (!groups) return;
+    if (!controller?.groups) return;
+    const group = groups[index];
+    await group.createRow();
+
+    const newGroups = controller.groups.value;
+
+    newGroups.forEach((g) => {
+      console.log(g.name, g.rows);
+    });
+
+    setGroups([...controller.groups.value]);
+  };
+
+  return { loadFields, controller, rows, groups, onNewRowClick };
 };

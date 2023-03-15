@@ -22,7 +22,7 @@ export const useCell = (cellIdentifier: CellIdentifier, cellCache: CellCache, fi
 
     return () => {
       // dispose is causing an error
-      // void cellController.dispose();
+      void cellController.dispose();
     };
   }, []);
 

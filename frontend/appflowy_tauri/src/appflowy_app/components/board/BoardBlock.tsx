@@ -12,12 +12,14 @@ export const BoardBlock = ({
   title,
   rows,
   allRows,
+  onNewRowClick,
 }: {
   viewId: string;
   controller: DatabaseController;
   title: string;
   rows: RowPB[];
   allRows: readonly RowInfo[];
+  onNewRowClick: () => void;
 }) => {
   return (
     <div className={'flex h-full w-[250px] flex-col rounded-lg bg-surface-1'}>
@@ -39,7 +41,7 @@ export const BoardBlock = ({
         {rows.map((row_pb, index) => {
           const row = allRows.find((r) => r.row.id === row_pb.id);
           return row ? (
-            <Draggable draggableId={row_pb.id} index={index}>
+            <Draggable draggableId={row_pb.id} index={index} key={index}>
               {(provided, snapshot) => (
                 <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
                   <BoardCard viewId={viewId} controller={controller} key={index} rowInfo={row}></BoardCard>
@@ -52,7 +54,10 @@ export const BoardBlock = ({
         })}
       </div>
       <div className={'p-2'}>
-        <button className={'flex w-full items-center gap-2 rounded-lg px-2 py-2 hover:bg-surface-2'}>
+        <button
+          onClick={onNewRowClick}
+          className={'flex w-full items-center gap-2 rounded-lg px-2 py-2 hover:bg-surface-2'}
+        >
           <span className={'h-5 w-5'}>
             <AddSvg></AddSvg>
           </span>
