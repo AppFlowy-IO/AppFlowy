@@ -34,6 +34,8 @@ class TableWidgetBuilder extends NodeWidgetBuilder<Node>
             attributes = state.data.toJson();
           }
 
+          final selection = context
+              .editorState.service.selectionService.currentSelection.value;
           final transaction = context.editorState.transaction
             ..insertNode(
                 context.node.path.next,
@@ -41,10 +43,7 @@ class TableWidgetBuilder extends NodeWidgetBuilder<Node>
                   type: kTableType,
                   attributes: attributes,
                 ))
-            ..afterSelection = Selection.single(
-              path: context.node.path.next,
-              startOffset: 0,
-            );
+            ..afterSelection = selection;
           context.editorState.apply(transaction);
         },
       ),
@@ -82,6 +81,11 @@ class _TableWidgetState extends State<_TableWidget> with SelectableMixin {
   @override
   void initState() {
     final dataAttr = widget.node.attributes;
+    if (dataAttr['focus'] ?? false) {
+      widget.node.addListener(focusFirstCell);
+    }
+    dataAttr.remove('focus');
+
     data = dataAttr.isNotEmpty
         ? TableData.fromJson(dataAttr)
         : TableData([
@@ -113,6 +117,21 @@ class _TableWidgetState extends State<_TableWidget> with SelectableMixin {
         );
       },
     );
+  }
+
+  focusFirstCell() {
+    if (data.getCellNode(0, 0).parent == null) {
+      return;
+    }
+
+    final transaction = widget.editorState.transaction
+      ..afterSelection = Selection.single(
+        path: data.getCellNode(0, 0).path,
+        startOffset: 0,
+      );
+    widget.editorState.apply(transaction);
+
+    widget.node.removeListener(focusFirstCell);
   }
 
   RenderBox get _renderBox => context.findRenderObject() as RenderBox;
@@ -169,7 +188,7 @@ SelectionMenuItem tableMenuItem = SelectionMenuItem(
     if (textNode.toPlainText().isEmpty) {
       path = textNode.path;
       afterSelection = Selection.single(
-        path: path,
+        path: path.next,
         startOffset: 0,
       );
     } else {
@@ -178,7 +197,7 @@ SelectionMenuItem tableMenuItem = SelectionMenuItem(
     }
 
     final transaction = editorState.transaction
-      ..insertNode(path, Node(type: kTableType, attributes: {}))
+      ..insertNode(path, Node(type: kTableType, attributes: {'focus': true}))
       ..afterSelection = afterSelection;
     editorState.apply(transaction);
   },
