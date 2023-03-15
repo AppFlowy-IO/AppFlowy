@@ -28,25 +28,40 @@ class _TableCellState extends State<TableCell> {
 
   @override
   void initState() {
-    node = Node(type: 'table/cell');
-    // TODO(zoli): move this to parent.
-    final cellData =
-        context.read<TableData>().getCell(widget.colIdx, widget.rowIdx);
+    final int nodeIdx =
+        (widget.colIdx * context.read<TableData>().rowsLen) + widget.rowIdx;
 
-    textNode = Node.fromJson(cellData) as TextNode;
-    textNode.addListener(() => context
-        .read<TableData>()
-        .setCell(widget.colIdx, widget.rowIdx, textNode.toJson()));
+    if (nodeIdx >= widget.node.children.length) {
+      node = Node(type: 'table/cell');
+      // TODO(zoli): move this to parent.
+      final cellData =
+          context.read<TableData>().getCell(widget.colIdx, widget.rowIdx);
+      textNode = Node.fromJson(cellData) as TextNode;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      node.insert(textNode);
-      widget.node.insert(node);
-    });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        node.insert(textNode);
+        widget.node.insert(node);
+      });
+    } else {
+      node = widget.node.childAtIndex(nodeIdx)!;
+      textNode = node.childAtIndex(0)! as TextNode;
+    }
 
     context.read<TableData>().setNode(widget.colIdx, widget.rowIdx, textNode);
+    textNode.addListener(updateCellData);
 
     super.initState();
   }
+
+  @override
+  void dispose() {
+    textNode.removeListener(updateCellData);
+    super.dispose();
+  }
+
+  updateCellData() => context
+      .read<TableData>()
+      .setCell(widget.colIdx, widget.rowIdx, textNode.toJson());
 
   @override
   Widget build(BuildContext context) {

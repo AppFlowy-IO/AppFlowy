@@ -39,9 +39,7 @@ class TableData extends ChangeNotifier {
   }
 
   TableData.fromJson(Map<String, dynamic> json)
-      : _config = json.containsKey('config')
-            ? TableConfig.fromJson(json['config'])
-            : const TableConfig() {
+      : _config = TableConfig.fromJson(json['config'] ?? {}) {
     assert(json['columns'] is List);
     assert(json['columns'].isNotEmpty);
     final jColumns = json['columns'] as List<dynamic>;
@@ -101,11 +99,11 @@ class TableData extends ChangeNotifier {
     }
   }
 
-  get config => _config.clone();
+  TableConfig get config => _config.clone();
 
-  get colsLen => _cells.length;
+  int get colsLen => _cells.length;
 
-  get rowsLen => _cells[0].length;
+  int get rowsLen => _cells[0].length;
 
   double getRowHeight(int row) => _rowsHeight[row];
 

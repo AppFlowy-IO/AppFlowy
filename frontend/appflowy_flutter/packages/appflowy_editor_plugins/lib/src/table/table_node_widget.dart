@@ -97,6 +97,12 @@ class _TableWidgetState extends State<_TableWidget> with SelectableMixin {
   }
 
   @override
+  void dispose() {
+    widget.node.updateAttributes(data.toJson());
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: data,
