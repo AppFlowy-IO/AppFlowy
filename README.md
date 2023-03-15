@@ -44,13 +44,13 @@ You are in charge of your data and customizations.
 <p align="center"><img src="https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/howtostar.gif" alt="AppFlowy Github - how to star the repo" width="100%" /></p>
 
 ## Getting Started with development
+
 Please view the [documentation](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy) for OS specific development instructions
 
 ## Roadmap
 
-- [AppFlowy Roadmap ReadMe](https://appflowy.gitbook.io/docs/essential-documentation/roadmap)
-- [AppFlowy Public Roadmap](https://github.com/orgs/AppFlowy-IO/projects/5/views/12)
-
+* [AppFlowy Roadmap ReadMe](https://appflowy.gitbook.io/docs/essential-documentation/roadmap)
+* [AppFlowy Public Roadmap](https://github.com/orgs/AppFlowy-IO/projects/5/views/12)
 
 If you'd like to propose a feature, submit a feature request [here](https://github.com/AppFlowy-IO/AppFlowy/issues/new?assignees=&labels=&template=feature_request.yaml&title=%5BFR%5D+) <br/>
 If you'd like to report a bug, submit a bug report [here](https://github.com/AppFlowy-IO/AppFlowy/issues/new?assignees=&labels=&template=bug_report.yaml&title=%5BBug%5D+)
@@ -63,11 +63,11 @@ Please see the [changelog](https://www.appflowy.io/whatsnew) for more details ab
 
 Contributions make the open-source community a fantastic place to learn, inspire, and create. Any contributions you make are **greatly appreciated**. Please look at [Contributing to AppFlowy](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/contributing-to-appflowy) for details.
 
-If your Pull Request is accepted as it fixes a bug, adds functionality, or makes AppFlowy's codebase significantly easier to use or understand. Congratulations! If your administrative and managerial work behind the scenes sustains the community. Congratulations! You are now an official contributor to AppFlowy. Get in touch with us ([link](https://tally.so/r/mKP5z3)) to receive the very special Contributor T-shirt!
+If your Pull Request is accepted as it fixes a bug, adds functionality, or makes AppFlowy's codebase significantly easier to use or understand, **Congratulations!** If your administrative and managerial work behind the scenes sustains the community, **Congratulations!** You are now an official contributor to AppFlowy. Get in touch with us ([link](https://tally.so/r/mKP5z3)) to receive the very special Contributor T-shirt!
 Proudly wear your T-shirt and show it to us by tagging [@appflowy](https://twitter.com/appflowy) on Twitter.
 
+## Join the community to build AppFlowy together
 
-## Join the community to build AppFlowy together!
 <a href="https://github.com/AppFlowy-IO/AppFlowy/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=AppFlowy-IO/AppFlowy" />
 </a>
@@ -82,14 +82,14 @@ When a customer's evolving core needs are not satisfied, they either switch to a
 
 All these restrictions necessitate our mission - to make it possible for anyone to create apps that suit their needs well.
 
-- To individuals, we would like to offer Notion's functionality, data security, and cross-platform native experience.
-- To enterprises and hackers, AppFlowy is dedicated to offering building blocks and collaboration infra services to enable you to make apps on your own. Moreover, you have 100% control of your data. You can design and modify AppFlowy your way, with a single codebase written in Flutter and Rust supporting multiple platforms armed with long-term maintainability.
+* To individuals, we would like to offer Notion's functionality, data security, and cross-platform native experience.
+* To enterprises and hackers, AppFlowy is dedicated to offering building blocks and collaboration infra services to enable you to make apps on your own. Moreover, you have 100% control of your data. You can design and modify AppFlowy your way, with a single codebase written in Flutter and Rust supporting multiple platforms armed with long-term maintainability.
 
 We decided to achieve this mission by upholding the three most fundamental values:
 
-- Data privacy first
-- Reliable native experience
-- Community-driven extensibility
+* Data privacy first
+* Reliable native experience
+* Community-driven extensibility
 
 We do not claim to outperform Notion in terms of functionality and design, at least for now. Besides, our priority doesn't lie in more functionality at the moment. Instead, we would like to cultivate a community to democratize the knowledge and wheels of making complex workplace management tools while enabling people and businesses to create beautiful things on their own by equipping them with a versatile toolbox of building blocks.
 
@@ -101,6 +101,6 @@ Distributed under the AGPLv3 License. See [`LICENSE.md`](https://github.com/AppF
 
 Special thanks to these amazing projects which help power AppFlowy.IO:
 
-- [flutter-quill](https://github.com/singerdmx/flutter-quill)
-- [cargo-make](https://github.com/sagiegurari/cargo-make)
-- [contrib.rocks](https://contrib.rocks)
+* [flutter-quill](https://github.com/singerdmx/flutter-quill)
+* [cargo-make](https://github.com/sagiegurari/cargo-make)
+* [contrib.rocks](https://contrib.rocks)
