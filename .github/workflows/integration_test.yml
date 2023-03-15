@@ -35,7 +35,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: "stable"
-          flutter-version: "3.3.9"
+          flutter-version: "3.7.5"
           cache: true
 
       - name: Cache Cargo
