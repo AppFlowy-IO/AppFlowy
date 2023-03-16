@@ -337,7 +337,6 @@ extension TextTransaction on Transaction {
     }
 
     if (textNodes.length > texts.length) {
-      final length = textNodes.length;
       for (var i = 0; i < textNodes.length; i++) {
         final textNode = textNodes[i];
         if (i == 0) {
@@ -347,24 +346,15 @@ extension TextTransaction on Transaction {
             textNode.toPlainText().length,
             texts.first,
           );
-        } else if (i == length - 1) {
+        } else if (i < texts.length - 1) {
           replaceText(
             textNode,
             0,
-            selection.endIndex,
-            texts.last,
+            textNode.toPlainText().length,
+            texts[i],
           );
         } else {
-          if (i < texts.length - 1) {
-            replaceText(
-              textNode,
-              0,
-              textNode.toPlainText().length,
-              texts[i],
-            );
-          } else {
-            deleteNode(textNode);
-          }
+          deleteNode(textNode);
         }
       }
       afterSelection = null;

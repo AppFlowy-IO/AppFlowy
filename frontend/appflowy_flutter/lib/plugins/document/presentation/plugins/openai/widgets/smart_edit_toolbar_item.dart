@@ -16,8 +16,7 @@ ToolbarItem smartEditItem = ToolbarItem(
   validator: (editorState) {
     // All selected nodes must be text.
     final nodes = editorState.service.selectionService.currentSelectedNodes;
-    return nodes.whereType<TextNode>().length == nodes.length &&
-        nodes.length == 1;
+    return nodes.whereType<TextNode>().length == nodes.length;
   },
   itemBuilder: (context, editorState) {
     return _SmartEditWidget(
@@ -102,14 +101,17 @@ class _SmartEditWidgetState extends State<_SmartEditWidget> {
       textNodes.normalized,
       selection.normalized,
     );
+    while (input.last.isEmpty) {
+      input.removeLast();
+    }
     final transaction = widget.editorState.transaction;
     transaction.insertNode(
       selection.normalized.end.path.next,
       Node(
         type: kSmartEditType,
         attributes: {
-          kSmartEditInstructionType: actionWrapper.inner.toInstruction,
-          kSmartEditInputType: input,
+          kSmartEditInstructionType: actionWrapper.inner.index,
+          kSmartEditInputType: input.join('\n\n'),
         },
       ),
     );

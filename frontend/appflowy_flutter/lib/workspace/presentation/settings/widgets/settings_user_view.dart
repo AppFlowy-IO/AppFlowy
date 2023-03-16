@@ -1,6 +1,5 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/debounce.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
@@ -133,7 +132,6 @@ class _OpenaiKeyInputState extends State<_OpenaiKeyInput> {
       ),
       onChanged: (value) {
         debounce.call(() {
-          Log.debug('SettingsUserViewBloc');
           context
               .read<SettingsUserViewBloc>()
               .add(SettingsUserEvent.updateUserOpenAIKey(value));
