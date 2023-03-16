@@ -18,7 +18,7 @@ import 'package:protobuf/protobuf.dart';
 
 import 'calendar_setting.dart';
 
-class CalendarLayoutSetting extends StatelessWidget {
+class CalendarLayoutSetting extends StatefulWidget {
   final CalendarSettingContext settingContext;
   final Function(CalendarLayoutSettingsPB? layoutSettings) onUpdated;
 
@@ -27,6 +27,19 @@ class CalendarLayoutSetting extends StatelessWidget {
     required this.settingContext,
     super.key,
   });
+
+  @override
+  State<CalendarLayoutSetting> createState() => _CalendarLayoutSettingState();
+}
+
+class _CalendarLayoutSettingState extends State<CalendarLayoutSetting> {
+  late final PopoverMutex popoverMutex;
+
+  @override
+  void initState() {
+    popoverMutex = PopoverMutex();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,34 +59,45 @@ class CalendarLayoutSetting extends StatelessWidget {
               return ShowWeekNumber(
                 showWeekNumbers: settings.showWeekNumbers,
                 onUpdated: (showWeekNumbers) {
-                  _updateLayoutSettings(context,
-                      onUpdated: onUpdated, showWeekNumbers: showWeekNumbers);
+                  _updateLayoutSettings(
+                    context,
+                    showWeekNumbers: showWeekNumbers,
+                    onUpdated: widget.onUpdated,
+                  );
                 },
               );
             case CalendarLayoutSettingAction.showWeekends:
               return ShowWeekends(
                 showWeekends: settings.showWeekends,
                 onUpdated: (showWeekends) {
-                  _updateLayoutSettings(context,
-                      onUpdated: onUpdated, showWeekends: showWeekends);
+                  _updateLayoutSettings(
+                    context,
+                    showWeekends: showWeekends,
+                    onUpdated: widget.onUpdated,
+                  );
                 },
               );
             case CalendarLayoutSettingAction.firstDayOfWeek:
               return FirstDayOfWeek(
                 firstDayOfWeek: settings.firstDayOfWeek,
+                popoverMutex: popoverMutex,
                 onUpdated: (firstDayOfWeek) {
-                  _updateLayoutSettings(context,
-                      onUpdated: onUpdated, firstDayOfWeek: firstDayOfWeek);
+                  _updateLayoutSettings(
+                    context,
+                    onUpdated: widget.onUpdated,
+                    firstDayOfWeek: firstDayOfWeek,
+                  );
                 },
               );
             case CalendarLayoutSettingAction.layoutField:
               return LayoutDateField(
-                fieldController: settingContext.fieldController,
-                viewId: settingContext.viewId,
+                fieldController: widget.settingContext.fieldController,
+                viewId: widget.settingContext.viewId,
                 fieldId: settings.layoutFieldId,
+                popoverMutex: popoverMutex,
                 onUpdated: (fieldId) {
                   _updateLayoutSettings(context,
-                      onUpdated: onUpdated, layoutFieldId: fieldId);
+                      onUpdated: widget.onUpdated, layoutFieldId: fieldId);
                 },
               );
             default:
@@ -81,7 +105,7 @@ class CalendarLayoutSetting extends StatelessWidget {
                 showWeekends: settings.showWeekends,
                 onUpdated: (showWeekends) {
                   _updateLayoutSettings(context,
-                      onUpdated: onUpdated, showWeekends: showWeekends);
+                      onUpdated: widget.onUpdated, showWeekends: showWeekends);
                 },
               );
           }
@@ -175,13 +199,15 @@ class LayoutDateField extends StatelessWidget {
   final String fieldId;
   final String viewId;
   final FieldController fieldController;
+  final PopoverMutex popoverMutex;
   final Function(String fieldId) onUpdated;
 
   const LayoutDateField({
     required this.fieldId,
-    required this.onUpdated,
-    required this.viewId,
     required this.fieldController,
+    required this.viewId,
+    required this.popoverMutex,
+    required this.onUpdated,
     super.key,
   });
 
@@ -190,6 +216,7 @@ class LayoutDateField extends StatelessWidget {
     return AppFlowyPopover(
       direction: PopoverDirection.leftWithTopAligned,
       constraints: BoxConstraints.loose(const Size(300, 400)),
+      mutex: popoverMutex,
       popupBuilder: (context) {
         return BlocProvider(
           create: (context) => getIt<DatabasePropertyBloc>(
@@ -205,7 +232,10 @@ class LayoutDateField extends StatelessWidget {
                     height: GridSize.popoverItemHeight,
                     child: FlowyButton(
                       text: FlowyText.medium(fieldInfo.name),
-                      onTap: () => onUpdated(fieldInfo.id),
+                      onTap: () {
+                        onUpdated(fieldInfo.id);
+                        popoverMutex.close();
+                      },
                       leftIcon: svgWidget('grid/field/date'),
                       rightIcon: fieldInfo.id == fieldId
                           ? svgWidget('grid/checkmark')
@@ -245,8 +275,11 @@ class ShowWeekNumber extends StatelessWidget {
   final bool showWeekNumbers;
   final Function(bool showWeekNumbers) onUpdated;
 
-  const ShowWeekNumber(
-      {super.key, required this.showWeekNumbers, required this.onUpdated});
+  const ShowWeekNumber({
+    required this.showWeekNumbers,
+    required this.onUpdated,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -283,11 +316,13 @@ class ShowWeekends extends StatelessWidget {
 
 class FirstDayOfWeek extends StatelessWidget {
   final int firstDayOfWeek;
+  final PopoverMutex popoverMutex;
   final Function(int firstDayOfWeek) onUpdated;
   const FirstDayOfWeek({
     super.key,
     required this.firstDayOfWeek,
     required this.onUpdated,
+    required this.popoverMutex,
   });
 
   @override
@@ -295,6 +330,7 @@ class FirstDayOfWeek extends StatelessWidget {
     return AppFlowyPopover(
       direction: PopoverDirection.leftWithTopAligned,
       constraints: BoxConstraints.loose(const Size(300, 400)),
+      mutex: popoverMutex,
       popupBuilder: (context) {
         final symbols =
             DateFormat.EEEE(context.locale.toLanguageTag()).dateSymbols;
@@ -306,7 +342,10 @@ class FirstDayOfWeek extends StatelessWidget {
             height: GridSize.popoverItemHeight,
             child: FlowyButton(
               text: FlowyText.medium(string),
-              onTap: () => onUpdated(index),
+              onTap: () {
+                onUpdated(index);
+                popoverMutex.close();
+              },
               rightIcon:
                   firstDayOfWeek == index ? svgWidget('grid/checkmark') : null,
             ),
