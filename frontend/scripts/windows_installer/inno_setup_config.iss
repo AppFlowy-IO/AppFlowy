@@ -13,7 +13,7 @@ AppPublisher=AppFlowy-IO
 VersionInfoVersion={#AppVersion}
 
 [Files]
-Source: "AppFlowy\AppFlowy.exe";DestDir: "{app}";DestName: "appflowy_flutter.exe"
+Source: "AppFlowy\appflowy_flutter.exe";DestDir: "{app}";DestName: "appflowy_flutter.exe"
 Source: "AppFlowy\*";DestDir: "{app}"
 Source: "AppFlowy\data\*";DestDir: "{app}\data\"; Flags: recursesubdirs
 
