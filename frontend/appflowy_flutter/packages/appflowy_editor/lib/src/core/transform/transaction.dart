@@ -337,6 +337,7 @@ extension TextTransaction on Transaction {
     }
 
     if (textNodes.length > texts.length) {
+      final length = textNodes.length;
       for (var i = 0; i < textNodes.length; i++) {
         final textNode = textNodes[i];
         if (i == 0) {
@@ -345,6 +346,13 @@ extension TextTransaction on Transaction {
             selection.startIndex,
             textNode.toPlainText().length,
             texts.first,
+          );
+        } else if (i == length - 1 && texts.length >= 2) {
+          replaceText(
+            textNode,
+            0,
+            selection.endIndex,
+            texts.last,
           );
         } else if (i < texts.length - 1) {
           replaceText(
