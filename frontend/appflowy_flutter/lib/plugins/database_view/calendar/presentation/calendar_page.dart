@@ -55,8 +55,10 @@ class _CalendarPageState extends State<CalendarPage> {
           listeners: [
             BlocListener<CalendarBloc, CalendarState>(
               listenWhen: (p, c) => p.initialEvents != c.initialEvents,
-              listener: (context, state) =>
-                  _eventController.addAll(state.initialEvents),
+              listener: (context, state) {
+                _eventController.removeWhere((_) => true);
+                _eventController.addAll(state.initialEvents);
+              },
             ),
             BlocListener<CalendarBloc, CalendarState>(
               listenWhen: (p, c) => p.deleteEventIds != c.deleteEventIds,
