@@ -2,10 +2,13 @@ import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/au
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
+
 SelectionMenuItem autoGeneratorMenuItem = SelectionMenuItem.node(
-  name: 'Auto Generator',
+  name: LocaleKeys.document_plugins_autoGeneratorMenuItemName.tr(),
   iconData: Icons.generating_tokens,
-  keywords: ['autogenerator', 'auto generator'],
+  keywords: ['ai', 'openai' 'writer', 'autogenerator'],
   nodeBuilder: (editorState) {
     final node = Node(
       type: kAutoCompletionInputType,
