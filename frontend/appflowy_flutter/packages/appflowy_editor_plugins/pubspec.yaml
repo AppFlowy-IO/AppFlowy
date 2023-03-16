@@ -12,7 +12,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  appflowy_editor: ^0.1.1
+  appflowy_editor: ^0.1.2
   flowy_infra:
     path: ../flowy_infra
   flowy_infra_ui:
