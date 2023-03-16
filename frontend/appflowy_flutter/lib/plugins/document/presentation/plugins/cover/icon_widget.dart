@@ -28,28 +28,25 @@ class _EmojiIconWidgetState extends State<EmojiIconWidget> {
       onExit: (event) {
         setHidden(true);
       },
-      child: GestureDetector(
-        // onTap: () => widget.onEmojiTapped(),
-        child: Container(
-          height: 130,
-          width: 130,
-          margin: const EdgeInsets.only(top: 18),
-          decoration: BoxDecoration(
-            color: !hover
-                ? Theme.of(context).colorScheme.secondary
-                : Colors.transparent,
-            borderRadius: Corners.s8Border,
-          ),
-          alignment: Alignment.center,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              FlowyText(
-                widget.emoji.toString(),
-                fontSize: 80,
-              ),
-            ],
-          ),
+      child: Container(
+        height: 130,
+        width: 130,
+        margin: const EdgeInsets.only(top: 18),
+        decoration: BoxDecoration(
+          color: !hover
+              ? Theme.of(context).colorScheme.secondary
+              : Colors.transparent,
+          borderRadius: Corners.s8Border,
+        ),
+        alignment: Alignment.center,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            FlowyText(
+              widget.emoji.toString(),
+              fontSize: 80,
+            ),
+          ],
         ),
       ),
     );
