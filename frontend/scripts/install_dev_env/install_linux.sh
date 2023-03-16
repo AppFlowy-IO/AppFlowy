@@ -6,39 +6,56 @@ RED="\e[31m"
 ENDCOLOR="\e[0m"
 
 printMessage() {
-   printf "${YELLOW}AppFlowy : $1${ENDCOLOR}\n"
+    printf "${YELLOW}AppFlowy : $1${ENDCOLOR}\n"
 }
 
 printSuccess() {
-   printf "${GREEN}AppFlowy : $1${ENDCOLOR}\n"
+    printf "${GREEN}AppFlowy : $1${ENDCOLOR}\n"
 }
 
 printError() {
-   printf "${RED}AppFlowy : $1${ENDCOLOR}\n"
+    printf "${RED}AppFlowy : $1${ENDCOLOR}\n"
 }
-
 
 # Note: This script does not install applications which are installed by the package manager. There are too many package managers out there.
 
-# Install Rust 
+# Install Rust
 printMessage "The Rust programming language is required to compile AppFlowy."
 printMessage "We can install it now if you don't already have it on your system."
 
 read -p "$(printSuccess "Do you want to install Rust? [y/N]") " installrust
 
 if [ ${installrust^^} == "Y" ]; then
-   printMessage "Installing Rust."
-   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-   source $HOME/.cargo/env
-   rustup toolchain install stable
-   rustup default stable
+    printMessage "Installing Rust."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    source $HOME/.cargo/env
+    rustup toolchain install stable
+    rustup default stable
 else
-   printMessage "Skipping Rust installation."
+    printMessage "Skipping Rust installation."
 fi
 
-# Enable the flutter stable channel
 printMessage "Setting up Flutter"
-flutter channel stable
+# Get the current Flutter version
+FLUTTER_VERSION=$(flutter --version | grep -oP 'Flutter \K\S+')
+# Check if the current version is 3.3.10
+if [ "$FLUTTER_VERSION" = "3.3.10" ]; then
+    echo "Flutter version is already 3.3.10"
+else
+    # Get the path to the Flutter SDK
+    FLUTTER_PATH=$(which flutter)
+    FLUTTER_PATH=${FLUTTER_PATH%/bin/flutter}
+
+    current_dir=$(pwd)
+
+    cd $FLUTTER_PATH
+    # Use git to checkout version 3.3.10 of Flutter
+    git checkout 3.3.10
+    # Get back to current working directory
+    cd "$current_dir"
+
+    echo "Switched to Flutter version 3.3.10"
+fi
 
 # Enable linux desktop
 flutter config --enable-linux-desktop
@@ -47,9 +64,9 @@ flutter config --enable-linux-desktop
 flutter doctor
 
 printMessage "Installing keybinder-3.0"
-if command apt-get &> /dev/null; then
+if command apt-get &>/dev/null; then
     sudo apt-get install keybinder-3.0-dev
-elif command dnf &> /dev/null; then
+elif command dnf &>/dev/null; then
     sudo dnf install keybinder3-devel
 else
     echo 'Your system is not supported, please install keybinder3 manually.'
@@ -59,11 +76,11 @@ fi
 printMessage "Setting up githooks."
 git config core.hooksPath .githooks
 
-# Install go-gitlint 
+# Install go-gitlint
 printMessage "Installing go-gitlint."
 GOLINT_FILENAME="go-gitlint_1.1.0_linux_x86_64.tar.gz"
 wget https://github.com/llorllale/go-gitlint/releases/download/1.1.0/${GOLINT_FILENAME}
-tar -zxv --directory .githooks/. -f ${GOLINT_FILENAME} gitlint 
+tar -zxv --directory .githooks/. -f ${GOLINT_FILENAME} gitlint
 rm ${GOLINT_FILENAME}
 
 # Change to the frontend directory

@@ -17,7 +17,7 @@ import 'package:flutter/material.dart';
 const String kCoverType = 'cover';
 const String kCoverSelectionTypeAttribute = 'cover_selection_type';
 const String kCoverSelectionAttribute = 'cover_selection';
-const String kIconSelection = 'selected_icon';
+const String kIconSelectionAttribute = 'selected_icon';
 
 enum CoverSelectionType {
   initial,
@@ -88,6 +88,7 @@ class _CoverImageNodeWidgetState extends State<_CoverImageNodeWidget> {
     transaction.updateNode(widget.node, {
       kCoverSelectionTypeAttribute: type.toString(),
       kCoverSelectionAttribute: cover,
+      kIconSelectionAttribute: widget.node.attributes[kIconSelectionAttribute]
     });
     return widget.editorState.apply(transaction);
   }
@@ -224,7 +225,11 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
   Future<void> _insertIcon(Emoji emoji) async {
     final transaction = widget.editorState.transaction;
     transaction.updateNode(widget.node, {
-      kIconSelection: emoji.emoji,
+      kCoverSelectionTypeAttribute:
+          widget.node.attributes[kCoverSelectionTypeAttribute],
+      kCoverSelectionAttribute:
+          widget.node.attributes[kCoverSelectionAttribute],
+      kIconSelectionAttribute: emoji.emoji,
     });
     return widget.editorState.apply(transaction);
   }
@@ -232,7 +237,11 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
   Future<void> _removeIcon() async {
     final transaction = widget.editorState.transaction;
     transaction.updateNode(widget.node, {
-      kIconSelection: "",
+      kIconSelectionAttribute: "",
+      kCoverSelectionTypeAttribute:
+          widget.node.attributes[kCoverSelectionTypeAttribute],
+      kCoverSelectionAttribute:
+          widget.node.attributes[kCoverSelectionAttribute],
     });
     return widget.editorState.apply(transaction);
   }
@@ -271,9 +280,9 @@ class _CoverImageState extends State<_CoverImage> {
   Color get color =>
       Color(int.tryParse(widget.node.attributes[kCoverSelectionAttribute]) ??
           0xFFFFFFFF);
-  bool get hasIcon => widget.node.attributes[kIconSelection] == null
+  bool get hasIcon => widget.node.attributes[kIconSelectionAttribute] == null
       ? false
-      : widget.node.attributes[kIconSelection].isNotEmpty;
+      : widget.node.attributes[kIconSelectionAttribute].isNotEmpty;
   bool isOverlayButtonsHidden = true;
   PopoverController iconPopoverController = PopoverController();
   bool get hasCover =>
@@ -303,7 +312,7 @@ class _CoverImageState extends State<_CoverImage> {
                   constraints: BoxConstraints.loose(const Size(320, 380)),
                   margin: EdgeInsets.zero,
                   child: EmojiIconWidget(
-                    emoji: widget.node.attributes[kIconSelection],
+                    emoji: widget.node.attributes[kIconSelectionAttribute],
                     onEmojiTapped: () {
                       iconPopoverController.show();
                     },
@@ -344,7 +353,7 @@ class _CoverImageState extends State<_CoverImage> {
     transaction.updateNode(widget.node, {
       kCoverSelectionTypeAttribute: type.toString(),
       kCoverSelectionAttribute: cover,
-      kIconSelection: widget.node.attributes[kIconSelection]
+      kIconSelectionAttribute: widget.node.attributes[kIconSelectionAttribute]
     });
     return widget.editorState.apply(transaction);
   }
@@ -352,7 +361,11 @@ class _CoverImageState extends State<_CoverImage> {
   Future<void> _insertIcon(Emoji emoji) async {
     final transaction = widget.editorState.transaction;
     transaction.updateNode(widget.node, {
-      kIconSelection: emoji.emoji,
+      kCoverSelectionTypeAttribute:
+          widget.node.attributes[kCoverSelectionTypeAttribute],
+      kCoverSelectionAttribute:
+          widget.node.attributes[kCoverSelectionAttribute],
+      kIconSelectionAttribute: emoji.emoji,
     });
     return widget.editorState.apply(transaction);
   }
@@ -360,7 +373,11 @@ class _CoverImageState extends State<_CoverImage> {
   Future<void> _removeIcon() async {
     final transaction = widget.editorState.transaction;
     transaction.updateNode(widget.node, {
-      kIconSelection: "",
+      kIconSelectionAttribute: "",
+      kCoverSelectionTypeAttribute:
+          widget.node.attributes[kCoverSelectionTypeAttribute],
+      kCoverSelectionAttribute:
+          widget.node.attributes[kCoverSelectionAttribute],
     });
     return widget.editorState.apply(transaction);
   }
