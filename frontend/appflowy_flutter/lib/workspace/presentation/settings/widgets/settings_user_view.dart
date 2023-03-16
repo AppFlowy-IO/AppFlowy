@@ -1,4 +1,6 @@
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/debounce.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
@@ -98,11 +100,20 @@ class _OpenaiKeyInput extends StatefulWidget {
 
 class _OpenaiKeyInputState extends State<_OpenaiKeyInput> {
   bool visible = false;
+  final textEditingController = TextEditingController();
+  final debounce = Debounce();
+
+  @override
+  void initState() {
+    super.initState();
+
+    textEditingController.text = widget.openAIKey;
+  }
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: TextEditingController()..text = widget.openAIKey,
+      controller: textEditingController,
       obscureText: !visible,
       decoration: InputDecoration(
         labelText: 'OpenAI Key',
@@ -120,12 +131,21 @@ class _OpenaiKeyInputState extends State<_OpenaiKeyInput> {
           },
         ),
       ),
-      onSubmitted: (val) {
-        context
-            .read<SettingsUserViewBloc>()
-            .add(SettingsUserEvent.updateUserOpenAIKey(val));
+      onChanged: (value) {
+        debounce.call(() {
+          Log.debug('SettingsUserViewBloc');
+          context
+              .read<SettingsUserViewBloc>()
+              .add(SettingsUserEvent.updateUserOpenAIKey(value));
+        });
       },
     );
+  }
+
+  @override
+  void dispose() {
+    debounce.dispose();
+    super.dispose();
   }
 }
 
