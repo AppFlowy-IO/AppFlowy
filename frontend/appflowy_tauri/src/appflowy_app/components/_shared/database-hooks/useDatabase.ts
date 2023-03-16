@@ -82,12 +82,18 @@ export const useDatabase = (viewId: string, type?: ViewLayoutTypePB) => {
   };
 
   const onDragEnd: OnDragEndResponder = async (result) => {
+    if (!controller) return;
     const { source, destination } = result;
-    // move inside the block (group)
+    const group = groups.find((g) => g.groupId === source.droppableId);
+    if (!group) return;
+
     if (source.droppableId === destination?.droppableId) {
-      const group = groups.find((g) => g.groupId === source.droppableId);
-      if (!group || !controller) return;
+      // move inside the block (group)
       await controller.exchangeRow(group.rows[source.index].id, group.rows[destination.index].id);
+    } else {
+      // move to different block (group)
+      if (!destination?.droppableId) return;
+      await controller.moveRow(group.rows[source.index].id, destination.droppableId);
     }
   };
 
