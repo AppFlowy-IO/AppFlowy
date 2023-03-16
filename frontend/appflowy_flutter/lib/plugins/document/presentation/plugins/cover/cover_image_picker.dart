@@ -1,3 +1,4 @@
+
 import 'dart:io';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_image_picker_bloc.dart';
@@ -25,16 +26,6 @@ class CoverImagePicker extends StatefulWidget {
 }
 
 class _CoverImagePickerState extends State<CoverImagePicker> {
-  TextEditingController urlController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    urlController.addListener(() {
-      setState(() {});
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
