@@ -7,7 +7,7 @@ import { ViewLayoutTypePB } from '@/services/backend';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 
 export const Board = ({ viewId }: { viewId: string }) => {
-  const { controller, rows, groups, onNewRowClick } = useDatabase(viewId, ViewLayoutTypePB.Board);
+  const { controller, rows, groups, onNewRowClick, onDragEnd } = useDatabase(viewId, ViewLayoutTypePB.Board);
 
   return (
     <>
@@ -23,7 +23,7 @@ export const Board = ({ viewId }: { viewId: string }) => {
           <SearchInput />
         </div>
       </div>
-      <DragDropContext onDragEnd={(res) => console.log(res)}>
+      <DragDropContext onDragEnd={onDragEnd}>
         <div className={'relative w-full flex-1 overflow-auto'}>
           <div className={'absolute flex h-full flex-shrink-0 items-start justify-start gap-4'}>
             {controller &&

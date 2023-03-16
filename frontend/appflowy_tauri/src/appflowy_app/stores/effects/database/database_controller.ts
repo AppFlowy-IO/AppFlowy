@@ -79,6 +79,11 @@ export class DatabaseController {
     return this.backendService.moveRow(rowId, groupId);
   };
 
+  exchangeRow = async (fromRowId: string, toRowId: string) => {
+    await this.backendService.exchangeRow(fromRowId, toRowId);
+    await this.loadGroup();
+  };
+
   moveGroup = (fromGroupId: string, toGroupId: string) => {
     return this.backendService.moveGroup(fromGroupId, toGroupId);
   };

@@ -7,6 +7,7 @@ import { FieldInfo } from '$app/stores/effects/database/field/field_controller';
 import { RowInfo } from '$app/stores/effects/database/row/row_cache';
 import { ViewLayoutTypePB } from '@/services/backend';
 import { DatabaseGroupController } from '$app/stores/effects/database/group/group_controller';
+import { OnDragEndResponder } from 'react-beautiful-dnd';
 
 export const useDatabase = (viewId: string, type?: ViewLayoutTypePB) => {
   const dispatch = useAppDispatch();
@@ -48,7 +49,6 @@ export const useDatabase = (viewId: string, type?: ViewLayoutTypePB) => {
     void (async () => {
       controller.subscribe({
         onRowsChanged: (rowInfos) => {
-          console.log('rows changed: ', rowInfos);
           setRows(rowInfos);
         },
         onFieldsChanged: (fieldInfos) => {
@@ -81,5 +81,15 @@ export const useDatabase = (viewId: string, type?: ViewLayoutTypePB) => {
     setGroups([...controller.groups.value]);
   };
 
-  return { loadFields, controller, rows, groups, onNewRowClick };
+  const onDragEnd: OnDragEndResponder = async (result) => {
+    const { source, destination } = result;
+    // move inside the block (group)
+    if (source.droppableId === destination?.droppableId) {
+      const group = groups.find((g) => g.groupId === source.droppableId);
+      if (!group || !controller) return;
+      await controller.exchangeRow(group.rows[source.index].id, group.rows[destination.index].id);
+    }
+  };
+
+  return { loadFields, controller, rows, groups, onNewRowClick, onDragEnd };
 };

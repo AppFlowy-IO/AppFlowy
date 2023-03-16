@@ -6,9 +6,11 @@ import {
   DatabaseEventGetGroups,
   DatabaseEventMoveGroup,
   DatabaseEventMoveGroupRow,
+  DatabaseEventMoveRow,
   DatabaseGroupIdPB,
   MoveGroupPayloadPB,
   MoveGroupRowPayloadPB,
+  MoveRowPayloadPB,
 } from '@/services/backend/events/flowy-database';
 import {
   GetFieldPayloadPB,
@@ -66,6 +68,15 @@ export class DatabaseBackendService {
       payload.to_group_id = groupId;
     }
     return DatabaseEventMoveGroupRow(payload);
+  };
+
+  exchangeRow = (fromRowId: string, toRowId: string) => {
+    const payload = MoveRowPayloadPB.fromObject({
+      view_id: this.viewId,
+      from_row_id: fromRowId,
+      to_row_id: toRowId,
+    });
+    return DatabaseEventMoveRow(payload);
   };
 
   moveGroup = (fromGroupId: string, toGroupId: string) => {
