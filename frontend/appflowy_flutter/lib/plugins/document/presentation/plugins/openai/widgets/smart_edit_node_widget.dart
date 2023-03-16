@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/plugins/openai/service/error.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/service/openai_client.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/service/text_edit.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/openai/util/learn_more_action.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -119,9 +120,15 @@ class _SmartEditInputState extends State<_SmartEditInput> {
           fontSize: 14,
         ),
         const Spacer(),
-        FlowyText.regular(
-          LocaleKeys.document_plugins_autoGeneratorLearnMore.tr(),
-        ),
+        FlowyButton(
+          useIntrinsicWidth: true,
+          text: FlowyText.regular(
+            LocaleKeys.document_plugins_autoGeneratorLearnMore.tr(),
+          ),
+          onTap: () async {
+            await openLearnMorePage();
+          },
+        )
       ],
     );
   }

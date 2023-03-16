@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:appflowy/plugins/document/presentation/plugins/openai/service/openai_client.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/openai/util/learn_more_action.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/loading.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -118,9 +119,15 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
           fontSize: 14,
         ),
         const Spacer(),
-        FlowyText.regular(
-          LocaleKeys.document_plugins_autoGeneratorLearnMore.tr(),
-        ),
+        FlowyButton(
+          useIntrinsicWidth: true,
+          text: FlowyText.regular(
+            LocaleKeys.document_plugins_autoGeneratorLearnMore.tr(),
+          ),
+          onTap: () async {
+            await openLearnMorePage();
+          },
+        )
       ],
     );
   }
