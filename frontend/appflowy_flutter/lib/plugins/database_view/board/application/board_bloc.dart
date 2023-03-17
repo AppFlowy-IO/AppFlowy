@@ -54,7 +54,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         final toRow = groupControllers[groupId]?.rowAtIndex(toIndex);
         if (fromRow != null) {
           _databaseController.moveRow(
-            fromRow,
+            fromRow: fromRow,
             toRow: toRow,
             groupId: groupId,
           );
@@ -70,7 +70,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         final toRow = groupControllers[toGroupId]?.rowAtIndex(toIndex);
         if (fromRow != null) {
           _databaseController.moveRow(
-            fromRow,
+            fromRow: fromRow,
             toRow: toRow,
             groupId: toGroupId,
           );

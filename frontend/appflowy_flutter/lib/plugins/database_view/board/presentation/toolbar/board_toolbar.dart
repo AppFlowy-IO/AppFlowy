@@ -65,6 +65,7 @@ class _SettingButtonState extends State<_SettingButton> {
     return AppFlowyPopover(
       controller: popoverController,
       direction: PopoverDirection.leftWithTopAligned,
+      offset: const Offset(-8, 0),
       triggerActions: PopoverTriggerFlags.none,
       constraints: BoxConstraints.loose(const Size(260, 400)),
       margin: EdgeInsets.zero,

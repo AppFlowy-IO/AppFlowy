@@ -159,8 +159,11 @@ class DatabaseController {
     );
   }
 
-  Future<Either<Unit, FlowyError>> moveRow(RowPB fromRow,
-      {RowPB? toRow, String? groupId}) {
+  Future<Either<Unit, FlowyError>> moveRow({
+    required RowPB fromRow,
+    required String groupId,
+    RowPB? toRow,
+  }) {
     return _databaseViewBackendSvc.moveRow(
       fromRowId: fromRow.id,
       toGroupId: groupId,

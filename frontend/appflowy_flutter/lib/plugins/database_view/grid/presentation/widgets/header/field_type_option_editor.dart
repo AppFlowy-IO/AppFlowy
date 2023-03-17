@@ -87,7 +87,7 @@ class _SwitchFieldButton extends StatelessWidget {
       asBarrier: true,
       triggerActions: PopoverTriggerFlags.click,
       mutex: popoverMutex,
-      offset: const Offset(20, 0),
+      offset: const Offset(8, 0),
       popupBuilder: (popOverContext) {
         return FieldTypeList(onSelectField: (newFieldType) {
           context

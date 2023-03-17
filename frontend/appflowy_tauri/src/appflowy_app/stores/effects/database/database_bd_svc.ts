@@ -61,12 +61,19 @@ export class DatabaseBackendService {
     return DatabaseEventCreateRow(payload);
   };
 
-  /// Move a row to another group
-  moveRow = (rowId: string, groupId?: string) => {
-    const payload = MoveGroupRowPayloadPB.fromObject({ view_id: this.viewId, from_row_id: rowId });
-    if (groupId !== undefined) {
-      payload.to_group_id = groupId;
+  /// Move the row from one group to another group
+  /// [groupId] can be the moving row's group id or others.
+  /// [toRowId] is used to locate the moving row location.
+  moveGroupRow = (fromRowId: string, groupId: string, toRowId?: string) => {
+    const payload = MoveGroupRowPayloadPB.fromObject({
+      view_id: this.viewId,
+      from_row_id: fromRowId,
+      to_group_id: groupId,
+    });
+    if (toRowId !== undefined) {
+      payload.to_row_id = toRowId;
     }
+
     return DatabaseEventMoveGroupRow(payload);
   };
 
@@ -106,6 +113,7 @@ export class DatabaseBackendService {
   };
 
   /// Get all groups in database
+  /// It should only call once after the board open
   loadGroups = () => {
     const payload = DatabaseViewIdPB.fromObject({ value: this.viewId });
     return DatabaseEventGetGroups(payload);

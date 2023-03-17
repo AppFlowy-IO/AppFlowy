@@ -12,13 +12,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:path/path.dart' as path;
+import 'package:path/path.dart' as p;
 import 'change_cover_popover.dart';
 
 part 'cover_image_picker_bloc.freezed.dart';
 
 class CoverImagePickerBloc
     extends Bloc<CoverImagePickerEvent, CoverImagePickerState> {
+  static const allowedExtensions = ['jpg', 'png', 'jpeg'];
+
   CoverImagePickerBloc() : super(const CoverImagePickerState.initial()) {
     on<CoverImagePickerEvent>(
       (event, emit) async {
@@ -28,7 +30,7 @@ class CoverImagePickerBloc
           },
           urlSubmit: (UrlSubmit urlSubmit) async {
             emit(const CoverImagePickerState.loading());
-            final validateImage = await _validateUrl(urlSubmit.path);
+            final validateImage = await _validateURL(urlSubmit.path);
             if (validateImage) {
               emit(CoverImagePickerState.networkImage(left(urlSubmit.path)));
             } else {
@@ -86,28 +88,22 @@ class CoverImagePickerBloc
     if (state is FileImagePicked) {
       try {
         final path = state.path;
-        final newPath = '$directory/${path.split("\\").last}';
+        final newPath = p.join(directory, p.split(path).last);
         final newFile = await File(path).copy(newPath);
         imagePaths.add(newFile.path);
-        await prefs.setStringList(kLocalImagesKey, imagePaths);
-        return imagePaths;
       } catch (e) {
         return null;
       }
     } else if (state is NetworkImagePicked) {
       try {
-        String? url = state.successOrFail.fold((path) => path, (r) => null);
+        final url = state.successOrFail.fold((path) => path, (r) => null);
         if (url != null) {
           final response = await http.get(Uri.parse(url));
-          final newPath =
-              "$directory/IMG_$_timeStampString.${_getExtention(url)}";
-
+          final newPath = p.join(directory, _networkImageName(url));
           final imageFile = File(newPath);
           await imageFile.create();
           await imageFile.writeAsBytes(response.bodyBytes);
           imagePaths.add(imageFile.absolute.path);
-          await prefs.setStringList(kLocalImagesKey, imagePaths);
-          return imagePaths;
         } else {
           return null;
         }
@@ -115,59 +111,71 @@ class CoverImagePickerBloc
         return null;
       }
     }
+    await prefs.setStringList(kLocalImagesKey, imagePaths);
+    return imagePaths;
   }
 
-  _pickImages() async {
-    FilePickerResult? result = await getIt<FilePickerService>().pickFiles(
+  Future<String?> _pickImages() async {
+    final result = await getIt<FilePickerService>().pickFiles(
       dialogTitle: LocaleKeys.document_plugins_cover_addLocalImage.tr(),
       allowMultiple: false,
       type: fp.FileType.image,
-      allowedExtensions: ['jpg', 'png', 'jpeg'],
+      allowedExtensions: allowedExtensions,
     );
     if (result != null && result.files.isNotEmpty) {
-      final path = result.files.first.path;
-      if (path != null) {
-        return path;
-      } else {
-        return null;
-      }
+      return result.files.first.path;
     }
     return null;
   }
 
   Future<String> _coverPath() async {
     final directory = await getIt<SettingsLocationCubit>().fetchLocation();
-    return Directory(path.join(directory, 'covers'))
+    return Directory(p.join(directory, 'covers'))
         .create(recursive: true)
         .then((value) => value.path);
   }
 
-  String get _timeStampString =>
-      DateTime.now().millisecondsSinceEpoch.toString();
+  String _networkImageName(String url) {
+    return 'IMG_${DateTime.now().millisecondsSinceEpoch.toString()}.${_getExtention(
+      url,
+      fromNetwork: true,
+    )}';
+  }
 
-  String? _getExtention(String path) => path.contains(".jpg")
-      ? "jpg"
-      : path.contains(".png")
-          ? "png"
-          : path.contains(".jpeg")
-              ? "jpeg"
-              : (path.contains("auto=format") && path.contains("unsplash"))
-                  ? "jpeg"
-                  : null;
-
-  _validateUrl(String path) async {
-    if (_getExtention(path) != null) {
-      try {
-        final response = await http.get(Uri.parse(path));
-        if (response.statusCode == 200) {
-          return true;
-        } else {
-          return false;
-        }
-      } catch (e) {
-        return false;
+  String? _getExtention(
+    String path, {
+    bool fromNetwork = false,
+  }) {
+    String? ext;
+    if (!fromNetwork) {
+      final extension = p.extension(path);
+      if (extension.isEmpty) {
+        return null;
       }
+      ext = extension.substring(1);
     } else {
+      final uri = Uri.parse(path);
+      final paramters = uri.queryParameters;
+      final dl = paramters['dl'];
+      if (dl != null) {
+        ext = p.extension(dl).substring(1);
+      }
+    }
+    if (allowedExtensions.contains(ext)) {
+      return ext;
+    }
+    return null;
+  }
+
+  Future<bool> _validateURL(String path) async {
+    final extension = _getExtention(path, fromNetwork: true);
+    if (extension == null) {
+      return false;
+    }
+    try {
+      final response = await http.head(Uri.parse(path));
+      return response.statusCode == 200;
+    } catch (e) {
       return false;
     }
   }
