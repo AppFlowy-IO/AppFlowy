@@ -53,9 +53,8 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           final board = snapshot.data?.getLeftOrNull<ViewPB>();
           if (board != null) {
             return _build(context, board);
-          } else {
-            return const SizedBox.shrink();
           }
+          return const SizedBox.shrink();
         } else if (snapshot.hasError) {
           return const SizedBox.shrink();
         } else {
