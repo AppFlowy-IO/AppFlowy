@@ -154,6 +154,7 @@ export class DatabaseController {
     this.groups.value.forEach((group) => {
       void group.dispose();
     });
+    await this.groupsObserver.unsubscribe();
     await this.backendService.closeDatabase();
     await this.fieldController.dispose();
     await this.databaseViewCache.dispose();
