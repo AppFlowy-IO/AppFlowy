@@ -212,6 +212,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
     selectionRects.clear();
     clearSelection();
+    _clearToolbar();
 
     if (selection != null) {
       if (selection.isCollapsed) {
