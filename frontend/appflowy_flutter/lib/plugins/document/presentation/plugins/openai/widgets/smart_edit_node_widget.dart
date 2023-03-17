@@ -164,12 +164,6 @@ class _SmartEditInputState extends State<_SmartEditInput> {
   }
 
   @override
-  void reassemble() {
-    super.reassemble();
-    _onExit();
-  }
-
-  @override
   void dispose() {
     client.close();
     super.dispose();
@@ -205,7 +199,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
     return Row(
       children: [
         FlowyText.medium(
-          LocaleKeys.document_plugins_smartEditTitleName.tr(),
+          '${LocaleKeys.document_plugins_openAI}: ${action.name}',
           fontSize: 14,
         ),
         const Spacer(),
@@ -283,6 +277,11 @@ class _SmartEditInputState extends State<_SmartEditInput> {
             ],
           ),
           onPressed: () async => await _onExit(),
+        ),
+        const Spacer(),
+        FlowyText.regular(
+          LocaleKeys.document_plugins_warning.tr(),
+          color: Theme.of(context).hintColor,
         ),
       ],
     );

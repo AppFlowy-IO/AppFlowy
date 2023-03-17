@@ -125,8 +125,7 @@ class PopoverState extends State<Popover> {
           PopoverMask(
             decoration: widget.maskDecoration,
             onTap: () async {
-              final canClose = widget.canClose;
-              if (canClose != null && !(await canClose())) {
+              if (!(await widget.canClose?.call() ?? true)) {
                 return;
               }
               _removeRootOverlay();
