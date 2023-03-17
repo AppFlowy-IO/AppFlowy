@@ -1,20 +1,19 @@
 import { TreeNode } from "@/appflowy_app/block_editor/tree_node";
-import { BlockContext } from "@/appflowy_app/utils/block";
-import { triggerEnter } from "@/appflowy_app/utils/slate/action";
 import { triggerHotkey } from "@/appflowy_app/utils/slate/hotkey";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Transforms, createEditor, Descendant } from 'slate';
 import { ReactEditor, withReact } from 'slate-react';
-import { debounce } from '../../../utils/tool';
+import { debounce } from '$app/utils/tool';
+import { TextBlockContext } from '$app/utils/slate/context';
 
 export function useTextBlock({
-  node
+  node,
 }: {
-  node: TreeNode
+  node: TreeNode;
 }) {
   const [editor] = useState(() => withReact(createEditor()));
 
-  const { blockEditor } = useContext(BlockContext);
+  const { textBlockManager } = useContext(TextBlockContext);
 
   const value = [
     {
@@ -25,27 +24,21 @@ export function useTextBlock({
     },
   ];
 
-  const debounceSync = useMemo(() => debounce((content) => {
-    blockEditor?.sync.update(node.id, {
-      paths: ['data', 'content'],
-      data: content,
-    });
-    blockEditor?.sync.sendOps();
-  }, 500), [blockEditor, node.id])
-
   const onChange = useCallback(
     (e: Descendant[]) => {
+      if (!editor.operations || editor.operations.length === 0) return;
+      
       if (editor.operations[0].type !== 'set_selection') {
-        const content = 'children' in e[0] ? e[0].children : [];
-        debounceSync(content);
+        console.log('====text block ==== ', editor.operations)
+        const children = 'children' in e[0] ? e[0].children : [];
+        textBlockManager?.update(node, ['data', 'content'], children);
       } else {
         const newProperties = editor.operations[0].newProperties;
-        console.log('===', newProperties, editor.selection)
-        blockEditor?.sync.setSelection(node.id, editor.selection);
+        textBlockManager?.setSelection(node, editor.selection);
       }
     },
     [node.id, editor],
-  )
+  );
   
 
   const onKeyDownCapture = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -53,9 +46,7 @@ export function useTextBlock({
       case 'Enter': {
         event.stopPropagation();
         event.preventDefault();
-        if (blockEditor) {
-          triggerEnter(blockEditor, editor, node);
-        }
+        textBlockManager?.splitNode(node, editor);
 
         return;
       }
@@ -63,20 +54,30 @@ export function useTextBlock({
 
     triggerHotkey(event, editor);
   }
-  
 
-  useEffect(() => {
-    if (!blockEditor) return;
-    const { focusBlockId, selection } = blockEditor.selection.getFocusBlockSelection();
-    if (focusBlockId !== node.id || !selection) {
-      return;
+  editor.children = value;
+  Transforms.collapse(editor);
+
+  if (!textBlockManager) {
+    return {
+      editor,
+      value,
+      onChange,
+      onKeyDownCapture
     }
-    ReactEditor.focus(editor);
-    Transforms.select(editor, selection);
-  }, [node.id, editor, blockEditor]);
+  }
 
+  const { focusId, selection } = textBlockManager.selectionManager.getFocusSelection();
+  
+  useEffect(() => {
+    if (focusId === node.id && selection) {
+      ReactEditor.focus(editor);
+      Transforms.select(editor, selection)
+    }
+  }, [])
+  
+  
   return {
-    blockEditor,
     editor,
     value,
     onChange,

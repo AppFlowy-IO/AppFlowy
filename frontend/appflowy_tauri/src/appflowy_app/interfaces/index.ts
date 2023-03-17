@@ -32,7 +32,7 @@ export interface BlockInterface<T = BlockType> {
 }
 
 
-interface TextBlockData {
+export interface TextBlockData {
   content: Descendant[];
 }
 
@@ -65,4 +65,48 @@ export enum TextBlockToolbarGroup {
 }
 export interface TextBlockToolbarProps {
   showGroups: TextBlockToolbarGroup[]
+}
+
+
+export interface BlockCommonProps<T> {
+  version: number;
+  node: T;
+}
+
+export interface BackendOp {
+  type: 'update' | 'insert' | 'remove' | 'move' | 'move_range';
+  version: number;
+  data: UpdateOpData | InsertOpData | moveRangeOpData | moveOpData | removeOpData;
+}
+export interface LocalOp {
+  type: 'update' | 'insert' | 'remove' | 'move' | 'move_range';
+  version: number;
+  data: UpdateOpData | InsertOpData | moveRangeOpData | moveOpData | removeOpData;
+}
+
+export interface UpdateOpData {
+  blockId: string;
+  value: BlockData;
+  path: string[];
+}
+export interface InsertOpData {
+  block: BlockInterface;
+  parentId: string;
+  prevId?: string
+}
+
+export interface moveRangeOpData {
+  range: [string, string];
+  newParentId: string;
+  newPrevId?: string
+}
+
+export interface moveOpData {
+  blockId: string;
+  newParentId: string;
+  newPrevId?: string
+}
+
+export interface removeOpData {
+  blockId: string
 }

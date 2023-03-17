@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
 import TextBlock from '../TextBlock';
 import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
+import { BlockCommonProps } from '@/appflowy_app/interfaces';
 
 const fontSize: Record<string, string> = {
   1: 'mt-8 text-3xl',
@@ -8,10 +8,10 @@ const fontSize: Record<string, string> = {
   3: 'mt-4 text-xl',
 };
 
-export default function HeadingBlock({ node }: { node: TreeNode }) {
+export default function HeadingBlock({ node, version }: BlockCommonProps<TreeNode>) {
   return (
     <div className={`${fontSize[node.data.level]} font-semibold	`}>
-      <TextBlock node={node} needRenderChildren={false} />
+      <TextBlock version={version} node={node} needRenderChildren={false} />
     </div>
   );
 }

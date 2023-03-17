@@ -1,10 +1,8 @@
 // Import dependencies
-import { EventEmitter } from 'events';
-import { BlockInterface } from '../interfaces';
+import { BlockInterface, BlockType } from '../interfaces';
 import { BlockChain, BlockChangeProps } from './block_chain';
 import { RenderTree } from './tree';
-import { BlockEditorSync } from './sync';
-import { SelectionManager } from './selection';
+import { Operation } from './operation';
 
 /**
  * The BlockEditor class manages a block chain and a render tree for a document editor.
@@ -15,22 +13,19 @@ export class BlockEditor {
   // Public properties
   public blockChain: BlockChain; // (local data) the block chain used to store the document
   public renderTree: RenderTree; // the render tree used to display the document
-  public sync: BlockEditorSync; // send/receive op and update local data
-  public event: EventEmitter;
-  public selection: SelectionManager;
+  public operation: Operation;
+  public blockManagers: Map<BlockType, any> = new Map();
   /**
    * Constructs a new BlockEditor object.
    * @param id - the ID of the document
    * @param data - the initial data for the document
    */
-  constructor(private id: string, data: Record<string, BlockInterface>) {
-    this.event = new EventEmitter();
-    
+  constructor(private id: string, data: Record<string, BlockInterface>) {    
     // Create the block chain and render tree
     this.blockChain = new BlockChain(this.blockChange);
-    this.selection = new SelectionManager();
-    this.sync = new BlockEditorSync(null, this.blockChain, this.selection);
+    this.operation = new Operation(this.blockChain);
     this.changeDoc(id, data);
+
     this.renderTree = new RenderTree(this.blockChain);
   }
 
@@ -43,8 +38,6 @@ export class BlockEditor {
     console.log('==== change document ====', id, data);
     
     // Update the document ID and rebuild the block chain
-    this.event.removeAllListeners();
-    this.selection.destroy();
     this.id = id;
     this.blockChain.rebuild(id, data);
   }
@@ -56,15 +49,10 @@ export class BlockEditor {
     // Destroy the block chain and render tree
     this.blockChain.destroy();
     this.renderTree.destroy();
-    this.event.removeAllListeners();
-    this.selection.destroy();
   }
 
   private blockChange = (command: string, data: BlockChangeProps) => {
-    this.event.emit('block_change', {
-      command,
-      data
-    });
+    this.renderTree.onBlockChange(command, data);
   }
 
 }

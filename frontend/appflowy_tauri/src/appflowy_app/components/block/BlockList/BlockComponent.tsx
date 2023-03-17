@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useRef } from 'react';
-import { BlockType } from '$app/interfaces';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { BlockCommonProps, BlockType } from '$app/interfaces';
 import PageBlock from '../PageBlock';
 import TextBlock from '../TextBlock';
 import HeadingBlock from '../HeadingBlock';
@@ -12,43 +12,73 @@ import { BlockContext } from '@/appflowy_app/utils/block';
 
 function BlockComponent({
   node,
+  renderChild,
   ...props
-}: { node: TreeNode } & React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
+}: { node: TreeNode; renderChild?: (_node: TreeNode) => React.ReactNode } & React.DetailedHTMLProps<
+  React.HTMLAttributes<HTMLDivElement>,
+  HTMLDivElement
+>) {
   const { blockEditor } = useContext(BlockContext);
+
+  const [version, forceUpdate] = useState<number>(0);
 
   const ref = useRef<HTMLDivElement>(null);
 
   const renderComponent = () => {
+    let BlockComponentClass: (_: BlockCommonProps<TreeNode>) => JSX.Element | null;
     switch (node.type) {
       case BlockType.PageBlock:
-        return <PageBlock node={node} />;
+        BlockComponentClass = PageBlock;
+        break;
       case BlockType.TextBlock:
-        return <TextBlock node={node} />;
+        BlockComponentClass = TextBlock;
+        break;
       case BlockType.HeadingBlock:
-        return <HeadingBlock node={node} />;
+        BlockComponentClass = HeadingBlock;
+        break;
       case BlockType.ListBlock:
-        return <ListBlock node={node} />;
+        BlockComponentClass = ListBlock;
+        break;
       case BlockType.CodeBlock:
-        return <CodeBlock node={node} />;
+        BlockComponentClass = CodeBlock;
+        break;
       default:
-        return null;
+        break;
     }
+
+    const blockProps: BlockCommonProps<TreeNode> = {
+      version,
+      node,
+    };
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (BlockComponentClass) {
+      return <BlockComponentClass {...blockProps} />;
+    }
+    return null;
   };
 
   useEffect(() => {
     if (!ref.current) return;
 
     const observe = blockEditor?.renderTree.observeNode(node.id, ref.current);
-
+    node.registerUpdate(() => forceUpdate((prev) => prev + 1));
     return () => {
       observe?.disconnect();
+      node.unregisterUpdate();
     };
   }, []);
 
   return (
-    <div ref={ref} {...props} data-block-id={node.id} className={props.className + ' relative'}>
+    <div
+      ref={ref}
+      {...props}
+      data-block-id={node.id}
+      className={props.className ? `${props.className} relative` : 'relative'}
+    >
       {renderComponent()}
-      {props.children}
+      {renderChild ? node.children.map(renderChild) : null}
       <div className='block-overlay'></div>
     </div>
   );

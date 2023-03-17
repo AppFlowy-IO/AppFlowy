@@ -165,7 +165,7 @@ export class BlockPositionManager {
   /**
  * Updates the viewport blocks.
  */
-  private updateViewportBlocks() {
+  public updateViewportBlocks() {
     let reUpdate = false;
     this.viewportBlocks.forEach(key => {
       if (!this.updateQueue.has(key)) {

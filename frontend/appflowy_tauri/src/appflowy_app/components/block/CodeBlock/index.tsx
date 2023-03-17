@@ -1,6 +1,6 @@
 import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
-import React from 'react';
+import { BlockCommonProps } from '@/appflowy_app/interfaces';
 
-export default function CodeBlock({ node }: { node: TreeNode }) {
+export default function CodeBlock({ node }: BlockCommonProps<TreeNode>) {
   return <div>{node.data.text}</div>;
 }

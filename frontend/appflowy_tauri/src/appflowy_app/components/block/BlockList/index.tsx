@@ -1,5 +1,5 @@
 import React from 'react';
-import { BlockListProps, useBlockList } from './BlockList.hooks';
+import { BlockListProps, useBlockList, withTextBlockManager } from './BlockList.hooks';
 import { withErrorBoundary } from 'react-error-boundary';
 
 import ListFallbackComponent from './ListFallbackComponent';
@@ -11,21 +11,19 @@ function BlockList(props: BlockListProps) {
 
   return (
     <div id='appflowy-block-doc' className='h-[100%] overflow-hidden'>
-      {root && root.children.length > 0 ? (
-        <div className='doc-scroller-container h-[100%] overflow-auto'>
-          <div className='flex flex-wrap items-center justify-center px-10'>
-            <BlockListTitle node={root} />
-            {root.children.map((item) => (
-              <BlockComponent key={item.id} node={item} className='max-w-screen w-[900px] min-w-0' />
-            ))}
-          </div>
+      <div className='doc-scroller-container flex h-[100%] flex-wrap items-center justify-center overflow-auto px-10'>
+        <div className='max-w-screen w-[900px] min-w-0'>
+          <BlockListTitle node={root} />
+          {root?.children.map((item) => (
+            <BlockComponent key={item.id} node={item} className='' />
+          ))}
         </div>
-      ) : null}
+      </div>
     </div>
   );
 }
 
-const ListWithErrorBoundary = withErrorBoundary(BlockList, {
+const ListWithErrorBoundary = withErrorBoundary(withTextBlockManager(BlockList), {
   FallbackComponent: ListFallbackComponent,
 });
 

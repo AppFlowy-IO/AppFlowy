@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { debounce } from '@/appflowy_app/utils/tool';
 import { BlockEditor } from '@/appflowy_app/block_editor';
 import { TreeNode } from '$app/block_editor/tree_node';
 import { Alert } from '@mui/material';
 import { FallbackProps } from 'react-error-boundary';
-import { BlockChangeProps } from '@/appflowy_app/block_editor/block_chain';
+import { TextBlockManager } from '../../../block_editor/text_block';
+import { TextBlockContext } from '@/appflowy_app/utils/slate/context';
 
 const RESIZE_DELAY = 200;
 export interface BlockListProps {
@@ -15,55 +16,32 @@ export interface BlockListProps {
 export function useBlockList({ blockId, blockEditor }: BlockListProps) {
   const [root, setRoot] = useState<TreeNode | null>(null);
 
-  const buildTree = useCallback(() => {
-    const treeNode = blockEditor.renderTree.build(blockId);
+  const [version, forceUpdate] = useState<number>(0);
+
+  const buildDeepTree = useCallback(() => {
+    const treeNode = blockEditor.renderTree.buildDeep(blockId);
     setRoot(treeNode);
   }, [blockEditor]);
 
-  const debounceBuildTree = useMemo(() => debounce(buildTree, 100), [buildTree]);
-
   useEffect(() => {
-    const blockChange = (info: { command: string; data: BlockChangeProps }) => {
-      const { command, data } = info;
-      const { block, startBlock, endBlock } = data;
-
-      switch (command) {
-        case 'insert':
-          debounceBuildTree();
-          if (block) {
-            blockEditor.selection.focusBlockStart(block.id);
-          }
-          break;
-        case 'update':
-          break;
-        case 'move':
-          debounceBuildTree();
-          break;
-        default:
-          break;
-      }
-
-      if (block) {
-        blockEditor.renderTree.updateBlockPosition(block.id);
-      }
-      if (startBlock && endBlock) {
-        blockEditor.renderTree.updateBlockPosition(startBlock.id);
-        blockEditor.renderTree.updateBlockPosition(endBlock.id);
-      }
-    };
-
-    debounceBuildTree();
-    blockEditor.event.on('block_change', blockChange);
+    buildDeepTree();
 
     return () => {
       console.log('off');
-      blockEditor.event.off('block_change', blockChange);
     };
-  }, [blockId, blockEditor, debounceBuildTree]);
+  }, [blockId, blockEditor, buildDeepTree]);
+
+  useEffect(() => {
+    root?.registerUpdate(() => forceUpdate((prev) => prev + 1));
+
+    return () => {
+      root?.unregisterUpdate();
+    };
+  }, [root]);
 
   useEffect(() => {
     const resize = debounce(() => {
-      // update rect cache when window resized
+      blockEditor.renderTree.updateViewportBlocks();
     }, RESIZE_DELAY);
 
     window.addEventListener('resize', resize);
@@ -88,4 +66,19 @@ export function ErrorBoundaryFallbackComponent({ error, resetErrorBoundary }: Fa
       <button onClick={resetErrorBoundary}>Try again</button>
     </Alert>
   );
+}
+
+export function withTextBlockManager(Component: (props: BlockListProps) => React.ReactElement) {
+  return (props: BlockListProps) => {
+    const textBlockManager = new TextBlockManager(props.blockEditor.operation);
+    return (
+      <TextBlockContext.Provider
+        value={{
+          textBlockManager,
+        }}
+      >
+        <Component {...props} />
+      </TextBlockContext.Provider>
+    );
+  };
 }

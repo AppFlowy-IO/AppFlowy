@@ -4,7 +4,7 @@ import Leaf from './Leaf';
 import HoveringToolbar from '$app/components/HoveringToolbar';
 import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
 import { useTextBlock } from './index.hooks';
-import { TextBlockToolbarProps } from '@/appflowy_app/interfaces';
+import { BlockCommonProps, TextBlockToolbarProps } from '@/appflowy_app/interfaces';
 import { toolbarDefaultProps } from '@/appflowy_app/constants/toolbar';
 
 export default function TextBlock({
@@ -13,10 +13,10 @@ export default function TextBlock({
   toolbarProps,
   ...props
 }: {
-  node: TreeNode;
   needRenderChildren?: boolean;
   toolbarProps?: TextBlockToolbarProps;
-} & React.HTMLAttributes<HTMLDivElement>) {
+} & BlockCommonProps<TreeNode> &
+  React.HTMLAttributes<HTMLDivElement>) {
   const { editor, value, onChange, onKeyDownCapture } = useTextBlock({ node });
   const { showGroups } = toolbarProps || toolbarDefaultProps;
 

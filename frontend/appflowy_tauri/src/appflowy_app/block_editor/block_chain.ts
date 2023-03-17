@@ -69,6 +69,7 @@ export class BlockChain {
   destroy() {
     this.map.clear();
     this.head = null;
+    this.onBlockChange = () => null;
   }
 
   /**
@@ -147,14 +148,15 @@ export class BlockChain {
     return block;
   }
 
-  updateBlock(id: string, data: { paths: string[], data: any }) {
+  updateBlock(id: string, data: { path: string[], value: any }) {
     const block = this.getBlock(id);
     if (!block) return null;
     
-    set(block, data.paths, data.data);
+    set(block, data.path, data.value);
     this.onBlockChange('update', {
       block
     });
+    return block;
   }
 
 

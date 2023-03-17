@@ -17,6 +17,7 @@ export default function ColumnBlock({
       <div className={`relative w-[46px] flex-shrink-0 flex-grow-0 transition-opacity`} style={{ opacity: 0 }}></div>
     );
   };
+
   return (
     <>
       {index === 0 ? (
@@ -42,11 +43,8 @@ export default function ColumnBlock({
           width: `calc((100% - ${resizerWidth}px) * ${node.data.ratio})`,
         }}
         node={node}
-      >
-        {node.children?.map((item) => (
-          <BlockComponent key={item.id} node={item} />
-        ))}
-      </BlockComponent>
+        renderChild={(item) => <BlockComponent key={item.id} node={item} />}
+      />
     </>
   );
 }

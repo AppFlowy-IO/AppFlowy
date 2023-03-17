@@ -11,6 +11,8 @@ export class TreeNode {
   parent: TreeNode | null = null;
   children: TreeNode[] = [];
   data: BlockData<BlockType>;
+
+  private forceUpdate?: () => void;
   
   private _rect: {
     getRect: () => BlockPosition | null;
@@ -28,6 +30,26 @@ export class TreeNode {
     this._rect = {
       getRect: () => opts.getRect(this.id)
     }
+  }
+
+  registerUpdate(forceUpdate: () => void) {
+    this.forceUpdate = forceUpdate;
+  }
+
+  unregisterUpdate() {
+    this.forceUpdate = undefined;
+  }
+
+  reRender() {
+    this.forceUpdate?.();
+  }
+
+  update(block: Block, children: TreeNode[]) {
+    this.data = block.data;
+    this.children = [];
+    children.forEach(child => {
+      this.addChild(child);
+    })
   }
 
   /**

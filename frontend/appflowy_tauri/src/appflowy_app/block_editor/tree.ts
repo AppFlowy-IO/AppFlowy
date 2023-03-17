@@ -1,11 +1,10 @@
 import { BlockPositionManager } from "./position";
-import { BlockChain } from './block_chain';
+import { BlockChain, BlockChangeProps } from './block_chain';
 import { Block } from './block';
 import { TreeNode } from "./tree_node";
 
 export class RenderTree {
   private positionManager: BlockPositionManager;
-  private root: TreeNode | null = null;
   private map: Map<string, TreeNode> = new Map();
 
   constructor(private blockChain: BlockChain) {
@@ -26,17 +25,16 @@ export class RenderTree {
     if (this.map.has(block.id)) {
       return this.map.get(block.id)!;
     }
-    return new TreeNode(block, {
+    const node = new TreeNode(block, {
       getRect: (id: string) => this.positionManager.getBlockPosition(id),
     });
+    this.map.set(block.id, node);
+    return node;
   }
 
-  /**
-   * Build the tree structure from the given rootId
-   * @param rootId string
-   * @returns TreeNode|null
-   */
-  build(rootId: string): TreeNode | null {
+
+  buildDeep(rootId: string): TreeNode | null {
+    this.map.clear();
     // Define a callback function for the blockChain.traverse() method
     const callback = (block: Block) => {
       // Check if the TreeNode instance already exists in the map
@@ -70,6 +68,7 @@ export class RenderTree {
     return root || null;
   }
 
+
   observeNode(blockId: string, el: HTMLDivElement) {
     const node = this.getTreeNode(blockId);
     if (!node) return;
@@ -80,6 +79,68 @@ export class RenderTree {
     const node = this.getTreeNode(blockId);
     if (!node) return;
     this.positionManager.updateBlock(node.id);
+  }
+
+  updateViewportBlocks() {
+    this.positionManager.updateViewportBlocks();
+  }
+
+  rebuild(nodeId: string): TreeNode | null {
+    const block = this.blockChain.getBlock(nodeId);
+    if (!block) return null;
+    const node = this.createNode(block);
+    if (!node) return null;
+
+    const children: TreeNode[] = [];
+    let childBlock = block.firstChild;
+
+    while(childBlock) {
+      const child = this.createNode(childBlock);
+      child.update(childBlock, child.children);
+      children.push(child);
+      childBlock = childBlock.next;
+    }
+
+    node.update(block, children);
+
+    console.log(node);
+
+    return node;
+  }
+
+  reRender(nodeId: string) {
+    const node = this.rebuild(nodeId);
+    node?.reRender();
+  }
+
+  onBlockChange(command: string, data: BlockChangeProps) {
+    const { block, startBlock, endBlock, oldParentId = '', oldPrevId = '' } = data;
+    switch (command) {
+      case 'insert':
+        if (block?.parent) this.reRender(block.parent.id);
+        break;
+      case 'update':
+        this.reRender(block!.id);
+        break;
+      case 'move':
+        if (oldParentId) this.reRender(oldParentId);
+        if (block?.parent) this.reRender(block.parent.id);
+        if (startBlock?.parent) this.reRender(startBlock.parent.id);
+        break;
+      default:
+        break;
+    }
+    if (block) {
+      this.updateBlockPosition(block.id);
+    } else if (startBlock) {
+      this.updateBlockPosition(startBlock.id);
+    } else if (endBlock) {
+      this.updateBlockPosition(endBlock.id);
+    } else if (oldParentId) {
+      this.updateBlockPosition(oldParentId);
+    } else if (oldPrevId) {
+      this.updateBlockPosition(oldPrevId);
+    }
   }
 
   /**
