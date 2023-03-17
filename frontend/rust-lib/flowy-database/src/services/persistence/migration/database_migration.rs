@@ -1,6 +1,7 @@
 #![allow(clippy::all)]
 #![allow(dead_code)]
 #![allow(unused_variables)]
+use crate::services::persistence::migration::MigratedDatabase;
 use crate::services::persistence::rev_sqlite::SQLiteDatabaseRevisionPersistence;
 use bytes::Bytes;
 use database_model::DatabaseRevision;
@@ -16,25 +17,29 @@ use revision_model::Revision;
 use std::sync::Arc;
 
 const V1_MIGRATION: &str = "DATABASE_V1_MIGRATION";
+pub fn is_database_rev_migrated(user_id: &str) -> bool {
+  let key = migration_flag_key(&user_id, V1_MIGRATION);
+  KV::get_bool(&key)
+}
 
-pub async fn migration_database_rev_struct(
+pub(crate) async fn migration_database_rev_struct(
   user_id: &str,
-  database_ids: &Vec<String>,
+  databases: &Vec<MigratedDatabase>,
   pool: Arc<ConnectionPool>,
 ) -> FlowyResult<()> {
-  let key = migration_flag_key(&user_id, V1_MIGRATION);
-  if KV::get_bool(&key) {
+  if is_database_rev_migrated(user_id) || databases.is_empty() {
     return Ok(());
   }
-  tracing::trace!("Migrate database");
-  for database_id in database_ids {
+  tracing::debug!("Migrate databases");
+  for database in databases {
     let object = DatabaseRevisionResettable {
-      database_id: database_id.to_owned(),
+      database_id: database.view_id.clone(),
     };
     let disk_cache = SQLiteDatabaseRevisionPersistence::new(&user_id, pool.clone());
     let reset = RevisionStructReset::new(&user_id, object, Arc::new(disk_cache));
     reset.run().await?;
   }
+  let key = migration_flag_key(&user_id, V1_MIGRATION);
   KV::set_bool(&key, true);
   Ok(())
 }

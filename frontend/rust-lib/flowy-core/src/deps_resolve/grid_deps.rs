@@ -25,21 +25,12 @@ impl DatabaseDepsResolver {
   ) -> Arc<DatabaseManager> {
     let user = Arc::new(GridUserImpl(user_session.clone()));
     let rev_web_socket = Arc::new(GridRevisionWebSocket(ws_conn));
-    let database_manager = Arc::new(DatabaseManager::new(
-      user.clone(),
+    Arc::new(DatabaseManager::new(
+      user,
       rev_web_socket,
       task_scheduler,
       Arc::new(DatabaseDBConnectionImpl(user_session)),
-    ));
-
-    if let (Ok(user_id), Ok(token)) = (user.user_id(), user.token()) {
-      match database_manager.initialize(&user_id, &token).await {
-        Ok(_) => {},
-        Err(e) => tracing::error!("Initialize grid manager failed: {}", e),
-      }
-    }
-
-    database_manager
+    ))
   }
 }
 
