@@ -82,6 +82,7 @@ class ShareActionList extends StatelessWidget {
     final docShareBloc = context.read<DocShareBloc>();
     return PopoverActionList<ShareActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
+      offset: const Offset(0, 8),
       actions: ShareAction.values
           .map((action) => ShareActionWrapper(action))
           .toList(),

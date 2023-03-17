@@ -176,7 +176,7 @@ class _AddSortButtonState extends State<_AddSortButton> {
       mutex: widget.popoverMutex,
       direction: PopoverDirection.bottomWithLeftAligned,
       constraints: BoxConstraints.loose(const Size(200, 300)),
-      offset: const Offset(0, 10),
+      offset: const Offset(0, 8),
       triggerActions: PopoverTriggerFlags.none,
       asBarrier: true,
       child: SizedBox(
