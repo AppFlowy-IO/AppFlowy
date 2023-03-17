@@ -1,6 +1,7 @@
 #![allow(clippy::all)]
 #![allow(dead_code)]
 #![allow(unused_variables)]
+use crate::services::persistence::migration::MigratedDatabase;
 use crate::services::persistence::rev_sqlite::SQLiteDatabaseRevisionPersistence;
 use bytes::Bytes;
 use database_model::DatabaseRevision;
@@ -15,31 +16,36 @@ use lib_infra::util::md5;
 use revision_model::Revision;
 use std::sync::Arc;
 
-const V1_MIGRATION: &str = "GRID_V1_MIGRATION";
+const V1_MIGRATION: &str = "DATABASE_V1_MIGRATION";
+pub fn is_database_rev_migrated(user_id: &str) -> bool {
+  let key = migration_flag_key(&user_id, V1_MIGRATION);
+  KV::get_bool(&key)
+}
 
-pub async fn migration_database_rev_struct(
+pub(crate) async fn migration_database_rev_struct(
   user_id: &str,
-  database_id: &str,
+  databases: &Vec<MigratedDatabase>,
   pool: Arc<ConnectionPool>,
 ) -> FlowyResult<()> {
-  let key = migration_flag_key(&user_id, V1_MIGRATION, database_id);
-  if KV::get_bool(&key) {
+  if is_database_rev_migrated(user_id) || databases.is_empty() {
     return Ok(());
   }
-  let object = DatabaseRevisionResettable {
-    database_id: database_id.to_owned(),
-  };
-  let disk_cache = SQLiteDatabaseRevisionPersistence::new(&user_id, pool);
-  let reset = RevisionStructReset::new(&user_id, object, Arc::new(disk_cache));
-  reset.run().await?;
-
-  tracing::trace!("Run database:{} v1 migration", database_id);
+  tracing::debug!("Migrate databases");
+  for database in databases {
+    let object = DatabaseRevisionResettable {
+      database_id: database.view_id.clone(),
+    };
+    let disk_cache = SQLiteDatabaseRevisionPersistence::new(&user_id, pool.clone());
+    let reset = RevisionStructReset::new(&user_id, object, Arc::new(disk_cache));
+    reset.run().await?;
+  }
+  let key = migration_flag_key(&user_id, V1_MIGRATION);
   KV::set_bool(&key, true);
   Ok(())
 }
 
-fn migration_flag_key(user_id: &str, version: &str, grid_id: &str) -> String {
-  md5(format!("{}{}{}", user_id, version, grid_id,))
+fn migration_flag_key(user_id: &str, version: &str) -> String {
+  md5(format!("{}{}", user_id, version,))
 }
 
 struct DatabaseRevisionResettable {
