@@ -203,7 +203,7 @@ class _OptionCellState extends State<_OptionCell> {
     return AppFlowyPopover(
       controller: _popoverController,
       mutex: widget.popoverMutex,
-      offset: const Offset(20, 0),
+      offset: const Offset(8, 0),
       margin: EdgeInsets.zero,
       asBarrier: true,
       constraints: BoxConstraints.loose(const Size(460, 460)),

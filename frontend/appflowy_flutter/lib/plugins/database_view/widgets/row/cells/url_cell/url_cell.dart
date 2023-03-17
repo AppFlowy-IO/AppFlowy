@@ -127,7 +127,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
             constraints: BoxConstraints.loose(const Size(300, 160)),
             direction: PopoverDirection.bottomWithLeftAligned,
             triggerActions: PopoverTriggerFlags.none,
-            offset: const Offset(0, 20),
+            offset: const Offset(0, 8),
             child: SizedBox.expand(
               child: GestureDetector(
                 child: Align(alignment: Alignment.centerLeft, child: richText),
@@ -210,7 +210,7 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
       constraints: BoxConstraints.loose(const Size(300, 160)),
       controller: _popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
-      offset: const Offset(0, 20),
+      offset: const Offset(0, 8),
       child: svgWidget(
         "editor/edit",
         color: Theme.of(context).colorScheme.onSurface,

@@ -58,7 +58,7 @@ class _SortButtonState extends State<SortButton> {
       controller: _popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
       constraints: BoxConstraints.loose(const Size(200, 300)),
-      offset: const Offset(0, 10),
+      offset: const Offset(0, 8),
       margin: const EdgeInsets.all(6),
       triggerActions: PopoverTriggerFlags.none,
       child: child,
