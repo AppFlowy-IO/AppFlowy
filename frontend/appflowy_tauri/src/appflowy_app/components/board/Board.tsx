@@ -4,7 +4,7 @@ import { BoardBlock } from './BoardBlock';
 import { NewBoardBlock } from './NewBoardBlock';
 import { useDatabase } from '../_shared/database-hooks/useDatabase';
 import { ViewLayoutTypePB } from '@/services/backend';
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { DragDropContext } from 'react-beautiful-dnd';
 
 export const Board = ({ viewId }: { viewId: string }) => {
   const { controller, rows, groups, onNewRowClick, onDragEnd } = useDatabase(viewId, ViewLayoutTypePB.Board);
@@ -29,21 +29,16 @@ export const Board = ({ viewId }: { viewId: string }) => {
             {controller &&
               groups &&
               groups.map((group, index) => (
-                <Droppable droppableId={group.groupId} key={index}>
-                  {(provided, snapshot) => (
-                    <div className={'h-full'} {...provided.droppableProps} ref={provided.innerRef}>
-                      <BoardBlock
-                        key={index}
-                        viewId={viewId}
-                        controller={controller}
-                        rows={group.rows}
-                        title={group.name}
-                        allRows={rows}
-                        onNewRowClick={() => onNewRowClick(index)}
-                      />
-                    </div>
-                  )}
-                </Droppable>
+                <BoardBlock
+                  groupId={group.groupId}
+                  key={index}
+                  viewId={viewId}
+                  controller={controller}
+                  rows={group.rows}
+                  title={group.name}
+                  allRows={rows}
+                  onNewRowClick={() => onNewRowClick(index)}
+                />
               ))}
             <NewBoardBlock onClick={() => console.log('new block')}></NewBoardBlock>
           </div>
