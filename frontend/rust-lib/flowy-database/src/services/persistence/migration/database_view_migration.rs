@@ -49,7 +49,7 @@ pub(crate) async fn migrate_database_view(
         match select(exist).get_result::<bool>(&*conn) {
           Ok(is_exist) => {
             if is_exist {
-              database_with_view.push(database.clone())
+              database_with_view.push((**database).clone())
             }
             !is_exist
           },
@@ -87,8 +87,8 @@ pub(crate) async fn migrate_database_view(
     let object = DatabaseViewRevisionResettable {
       database_view_id: database.view_id.clone(),
     };
-    let disk_cache = SQLiteDatabaseViewRevisionPersistence::new(&user_id, pool.clone());
-    let reset = RevisionStructReset::new(&user_id, object, Arc::new(disk_cache));
+    let disk_cache = SQLiteDatabaseViewRevisionPersistence::new(user_id, pool.clone());
+    let reset = RevisionStructReset::new(user_id, object, Arc::new(disk_cache));
     reset.run().await?;
   }
 
