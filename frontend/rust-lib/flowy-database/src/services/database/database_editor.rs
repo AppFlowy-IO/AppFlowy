@@ -695,6 +695,7 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn get_database(&self, view_id: &str) -> FlowyResult<DatabasePB> {
     let pad = self.database_pad.read().await;
     let fields = pad

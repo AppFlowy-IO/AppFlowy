@@ -60,12 +60,12 @@ impl FolderDepsResolver {
       .await,
     );
 
-    if let (Ok(user_id), Ok(token)) = (user.user_id(), user.token()) {
-      match folder_manager.initialize(&user_id, &token).await {
-        Ok(_) => {},
-        Err(e) => tracing::error!("Initialize folder manager failed: {}", e),
-      }
-    }
+    // if let (Ok(user_id), Ok(token)) = (user.user_id(), user.token()) {
+    //   match folder_manager.initialize(&user_id, &token).await {
+    //     Ok(_) => {},
+    //     Err(e) => tracing::error!("Initialize folder manager failed: {}", e),
+    //   }
+    // }
 
     let receiver = Arc::new(FolderWSMessageReceiverImpl(folder_manager.clone()));
     ws_conn.add_ws_message_receiver(receiver).unwrap();
@@ -339,7 +339,7 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
   }
 }
 
-fn layout_type_from_view_layout(layout: ViewLayoutTypePB) -> LayoutTypePB {
+pub fn layout_type_from_view_layout(layout: ViewLayoutTypePB) -> LayoutTypePB {
   match layout {
     ViewLayoutTypePB::Grid => LayoutTypePB::Grid,
     ViewLayoutTypePB::Board => LayoutTypePB::Board,
