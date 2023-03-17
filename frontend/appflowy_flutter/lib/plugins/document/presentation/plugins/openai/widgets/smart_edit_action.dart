@@ -10,10 +10,29 @@ enum SmartEditAction {
   String get toInstruction {
     switch (this) {
       case SmartEditAction.summarize:
-        return 'Make this shorter and more concise:';
+        return 'Tl;dr';
       case SmartEditAction.fixSpelling:
         return 'Correct this to standard English:';
     }
+  }
+
+  String prompt(String input) {
+    switch (this) {
+      case SmartEditAction.summarize:
+        return '$input\n\nTl;dr';
+      case SmartEditAction.fixSpelling:
+        return 'Correct this to standard English:\n\n$input';
+    }
+  }
+
+  static SmartEditAction from(int index) {
+    switch (index) {
+      case 0:
+        return SmartEditAction.summarize;
+      case 1:
+        return SmartEditAction.fixSpelling;
+    }
+    return SmartEditAction.fixSpelling;
   }
 }
 

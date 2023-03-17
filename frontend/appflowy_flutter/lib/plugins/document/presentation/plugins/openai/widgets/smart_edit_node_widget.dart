@@ -1,6 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/plugins/openai/service/error.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/service/openai_client.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/openai/service/text_edit.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/util/learn_more_action.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy/user/application/user_service.dart';
@@ -12,8 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:http/http.dart' as http;
-import 'package:dartz/dartz.dart' as dartz;
-import 'package:appflowy/util/either_extension.dart';
 
 const String kSmartEditType = 'smart_edit_input';
 const String kSmartEditInstructionType = 'smart_edit_instruction';
@@ -22,9 +18,9 @@ const String kSmartEditInputType = 'smart_edit_input';
 class SmartEditInputBuilder extends NodeWidgetBuilder<Node> {
   @override
   NodeValidator<Node> get nodeValidator => (node) {
-        return SmartEditAction.values.map((e) => e.toInstruction).contains(
-                  node.attributes[kSmartEditInstructionType],
-                ) &&
+        return SmartEditAction.values
+                .map((e) => e.index)
+                .contains(node.attributes[kSmartEditInstructionType]) &&
             node.attributes[kSmartEditInputType] is String;
       };
 
@@ -53,13 +49,14 @@ class _SmartEditInput extends StatefulWidget {
 }
 
 class _SmartEditInputState extends State<_SmartEditInput> {
-  String get instruction => widget.node.attributes[kSmartEditInstructionType];
+  SmartEditAction get action =>
+      SmartEditAction.from(widget.node.attributes[kSmartEditInstructionType]);
   String get input => widget.node.attributes[kSmartEditInputType];
 
   final focusNode = FocusNode();
   final client = http.Client();
-  dartz.Either<OpenAIError, TextEditResponse>? result;
   bool loading = true;
+  String result = '';
 
   @override
   void initState() {
@@ -72,12 +69,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
         widget.editorState.service.keyboardService?.enable();
       }
     });
-    _requestEdits().then(
-      (value) => setState(() {
-        result = value;
-        loading = false;
-      }),
-    );
+    _requestCompletions();
   }
 
   @override
@@ -141,25 +133,14 @@ class _SmartEditInputState extends State<_SmartEditInput> {
         child: const CircularProgressIndicator(),
       ),
     );
-    if (result == null) {
+    if (result.isEmpty) {
       return loading;
     }
-    return result!.fold((error) {
-      return Flexible(
-        child: Text(
-          error.message,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.red,
-              ),
-        ),
-      );
-    }, (response) {
-      return Flexible(
-        child: Text(
-          response.choices.map((e) => e.text).join('\n'),
-        ),
-      );
-    });
+    return Flexible(
+      child: Text(
+        result,
+      ),
+    );
   }
 
   Widget _buildInputFooterWidget(BuildContext context) {
@@ -174,8 +155,23 @@ class _SmartEditInputState extends State<_SmartEditInput> {
               ),
             ],
           ),
-          onPressed: () {
-            _onReplace();
+          onPressed: () async {
+            await _onReplace();
+            _onExit();
+          },
+        ),
+        const Space(10, 0),
+        FlowyRichTextButton(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: LocaleKeys.button_insertBelow.tr(),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+          ),
+          onPressed: () async {
+            await _onInsertBelow();
             _onExit();
           },
         ),
@@ -201,17 +197,35 @@ class _SmartEditInputState extends State<_SmartEditInput> {
     final selectedNodes = widget
         .editorState.service.selectionService.currentSelectedNodes.normalized
         .whereType<TextNode>();
-    if (selection == null || result == null || result!.isLeft()) {
+    if (selection == null || result.isEmpty) {
       return;
     }
 
-    final texts = result!.asRight().choices.first.text.split('\n')
-      ..removeWhere((element) => element.isEmpty);
+    final texts = result.split('\n')..removeWhere((element) => element.isEmpty);
     final transaction = widget.editorState.transaction;
     transaction.replaceTexts(
       selectedNodes.toList(growable: false),
       selection,
       texts,
+    );
+    return widget.editorState.apply(transaction);
+  }
+
+  Future<void> _onInsertBelow() async {
+    final selection = widget.editorState.service.selectionService
+        .currentSelection.value?.normalized;
+    if (selection == null || result.isEmpty) {
+      return;
+    }
+    final texts = result.split('\n')..removeWhere((element) => element.isEmpty);
+    final transaction = widget.editorState.transaction;
+    transaction.insertNodes(
+      selection.normalized.end.path.next,
+      texts.map(
+        (e) => TextNode(
+          delta: Delta()..insert(e),
+        ),
+      ),
     );
     return widget.editorState.apply(transaction);
   }
@@ -228,35 +242,62 @@ class _SmartEditInputState extends State<_SmartEditInput> {
     );
   }
 
-  Future<dartz.Either<OpenAIError, TextEditResponse>> _requestEdits() async {
+  Future<void> _requestCompletions() async {
     final result = await UserBackendService.getCurrentUserProfile();
-    return result.fold((userProfile) async {
+    return result.fold((l) async {
       final openAIRepository = HttpOpenAIRepository(
         client: client,
-        apiKey: userProfile.openaiKey,
+        apiKey: l.openaiKey,
       );
-      final edits = await openAIRepository.getEdits(
-        input: input,
-        instruction: instruction,
-        n: 1,
-      );
-      return edits.fold((error) async {
-        return dartz.Left(
-          OpenAIError(
-            message:
-                LocaleKeys.document_plugins_smartEditCouldNotFetchResult.tr(),
-          ),
+      var lines = input.split('\n\n');
+      if (action == SmartEditAction.summarize) {
+        lines = [lines.join('\n')];
+      }
+      for (var i = 0; i < lines.length; i++) {
+        final element = lines[i];
+        await openAIRepository.getStreamedCompletions(
+          useAction: true,
+          prompt: action.prompt(element),
+          onStart: () async {
+            setState(() {
+              loading = false;
+            });
+          },
+          onProcess: (response) async {
+            setState(() {
+              this.result += response.choices.first.text;
+            });
+          },
+          onEnd: () async {
+            setState(() {
+              if (i != lines.length - 1) {
+                this.result += '\n';
+              }
+            });
+          },
+          onError: (error) async {
+            await _showError(error.message);
+            await _onExit();
+          },
         );
-      }, (textEdit) async {
-        return dartz.Right(textEdit);
-      });
-    }, (error) async {
-      // error
-      return dartz.Left(
-        OpenAIError(
-          message: LocaleKeys.document_plugins_smartEditCouldNotFetchKey.tr(),
-        ),
-      );
+      }
+    }, (r) async {
+      await _showError(r.msg);
+      await _onExit();
     });
+  }
+
+  Future<void> _showError(String message) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        action: SnackBarAction(
+          label: LocaleKeys.button_Cancel.tr(),
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
+        content: FlowyText(message),
+      ),
+    );
   }
 }

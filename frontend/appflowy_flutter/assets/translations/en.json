@@ -138,7 +138,8 @@
     "keep": "Keep",
     "tryAgain": "Try again",
     "discard": "Discard",
-    "replace": "Replace"
+    "replace": "Replace",
+    "insertBelow": "Insert Below"
   },
   "label": {
     "welcome": "Welcome!",
@@ -342,8 +343,7 @@
     "plugins": {
       "referencedBoard": "Referenced Board",
       "referencedGrid": "Referenced Grid",
-      "autoCompletionMenuItemName": "Auto Completion",
-      "autoGeneratorMenuItemName": "Auto Generator",
+      "autoGeneratorMenuItemName": "OpenAI Writer",
       "autoGeneratorTitleName": "OpenAI: Ask AI to write anything...",
       "autoGeneratorLearnMore": "Learn more",
       "autoGeneratorGenerate": "Generate",

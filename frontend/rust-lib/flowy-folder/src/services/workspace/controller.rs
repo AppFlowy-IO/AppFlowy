@@ -11,6 +11,7 @@ use crate::{
 };
 use flowy_sqlite::kv::KV;
 use folder_model::{AppRevision, WorkspaceRevision};
+use lib_dispatch::prelude::ToBytes;
 use std::sync::Arc;
 
 pub struct WorkspaceController {
@@ -41,7 +42,6 @@ impl WorkspaceController {
   ) -> Result<WorkspaceRevision, FlowyError> {
     let workspace = self.create_workspace_on_server(params.clone()).await?;
     let user_id = self.user.user_id()?;
-    let token = self.user.token()?;
     let workspaces = self
       .persistence
       .begin_transaction(|transaction| {
@@ -53,9 +53,7 @@ impl WorkspaceController {
       .map(|workspace_rev| workspace_rev.into())
       .collect();
     let repeated_workspace = RepeatedWorkspacePB { items: workspaces };
-    send_notification(&token, FolderNotification::DidCreateWorkspace)
-      .payload(repeated_workspace)
-      .send();
+    send_workspace_notification(FolderNotification::DidCreateWorkspace, repeated_workspace);
     set_current_workspace(&user_id, &workspace.id);
     Ok(workspace)
   }
@@ -76,9 +74,7 @@ impl WorkspaceController {
       })
       .await?;
 
-    send_notification(&workspace_id, FolderNotification::DidUpdateWorkspace)
-      .payload(workspace)
-      .send();
+    send_workspace_notification(FolderNotification::DidUpdateWorkspace, workspace);
     self.update_workspace_on_server(params)?;
 
     Ok(())
@@ -87,7 +83,6 @@ impl WorkspaceController {
   #[allow(dead_code)]
   pub(crate) async fn delete_workspace(&self, workspace_id: &str) -> Result<(), FlowyError> {
     let user_id = self.user.user_id()?;
-    let token = self.user.token()?;
     let repeated_workspace = self
       .persistence
       .begin_transaction(|transaction| {
@@ -95,9 +90,8 @@ impl WorkspaceController {
         self.read_workspaces(None, &user_id, &transaction)
       })
       .await?;
-    send_notification(&token, FolderNotification::DidDeleteWorkspace)
-      .payload(repeated_workspace)
-      .send();
+
+    send_workspace_notification(FolderNotification::DidDeleteWorkspace, repeated_workspace);
     self.delete_workspace_on_server(workspace_id)?;
     Ok(())
   }
@@ -224,7 +218,6 @@ pub async fn notify_workspace_setting_did_change(
   view_id: &str,
 ) -> FlowyResult<()> {
   let user_id = folder_manager.user.user_id()?;
-  let token = folder_manager.user.token()?;
   let workspace_id = get_current_workspace(&user_id)?;
 
   let workspace_setting = folder_manager
@@ -250,11 +243,20 @@ pub async fn notify_workspace_setting_did_change(
       Ok(setting)
     })
     .await?;
-
-  send_notification(&token, FolderNotification::DidUpdateWorkspaceSetting)
-    .payload(workspace_setting)
-    .send();
+  send_workspace_notification(
+    FolderNotification::DidUpdateWorkspaceSetting,
+    workspace_setting,
+  );
   Ok(())
+}
+
+/// The [CURRENT_WORKSPACE] represents as the current workspace that opened by the
+/// user. Only one workspace can be opened at a time.
+const CURRENT_WORKSPACE: &str = "current-workspace";
+fn send_workspace_notification<T: ToBytes>(ty: FolderNotification, payload: T) {
+  send_notification(CURRENT_WORKSPACE, ty)
+    .payload(payload)
+    .send();
 }
 
 const CURRENT_WORKSPACE_ID: &str = "current_workspace_id";

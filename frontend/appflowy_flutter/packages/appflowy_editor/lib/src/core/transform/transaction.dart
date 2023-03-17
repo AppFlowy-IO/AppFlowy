@@ -347,24 +347,22 @@ extension TextTransaction on Transaction {
             textNode.toPlainText().length,
             texts.first,
           );
-        } else if (i == length - 1) {
+        } else if (i == length - 1 && texts.length >= 2) {
           replaceText(
             textNode,
             0,
             selection.endIndex,
             texts.last,
           );
+        } else if (i < texts.length - 1) {
+          replaceText(
+            textNode,
+            0,
+            textNode.toPlainText().length,
+            texts[i],
+          );
         } else {
-          if (i < texts.length - 1) {
-            replaceText(
-              textNode,
-              0,
-              textNode.toPlainText().length,
-              texts[i],
-            );
-          } else {
-            deleteNode(textNode);
-          }
+          deleteNode(textNode);
         }
       }
       afterSelection = null;
