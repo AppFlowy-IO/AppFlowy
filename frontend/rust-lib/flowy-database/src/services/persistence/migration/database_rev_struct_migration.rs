@@ -15,31 +15,32 @@ use lib_infra::util::md5;
 use revision_model::Revision;
 use std::sync::Arc;
 
-const V1_MIGRATION: &str = "GRID_V1_MIGRATION";
+const V1_MIGRATION: &str = "DATABASE_V1_MIGRATION";
 
 pub async fn migration_database_rev_struct(
   user_id: &str,
-  database_id: &str,
+  database_ids: &Vec<String>,
   pool: Arc<ConnectionPool>,
 ) -> FlowyResult<()> {
-  let key = migration_flag_key(&user_id, V1_MIGRATION, database_id);
+  let key = migration_flag_key(&user_id, V1_MIGRATION);
   if KV::get_bool(&key) {
     return Ok(());
   }
-  let object = DatabaseRevisionResettable {
-    database_id: database_id.to_owned(),
-  };
-  let disk_cache = SQLiteDatabaseRevisionPersistence::new(&user_id, pool);
-  let reset = RevisionStructReset::new(&user_id, object, Arc::new(disk_cache));
-  reset.run().await?;
-
-  tracing::trace!("Run database:{} v1 migration", database_id);
+  tracing::trace!("Migrate database");
+  for database_id in database_ids {
+    let object = DatabaseRevisionResettable {
+      database_id: database_id.to_owned(),
+    };
+    let disk_cache = SQLiteDatabaseRevisionPersistence::new(&user_id, pool.clone());
+    let reset = RevisionStructReset::new(&user_id, object, Arc::new(disk_cache));
+    reset.run().await?;
+  }
   KV::set_bool(&key, true);
   Ok(())
 }
 
-fn migration_flag_key(user_id: &str, version: &str, grid_id: &str) -> String {
-  md5(format!("{}{}{}", user_id, version, grid_id,))
+fn migration_flag_key(user_id: &str, version: &str) -> String {
+  md5(format!("{}{}", user_id, version,))
 }
 
 struct DatabaseRevisionResettable {

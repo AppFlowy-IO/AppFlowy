@@ -63,12 +63,8 @@ impl DatabaseManager {
     let editors_by_database_id = RwLock::new(HashMap::new());
     let kv_persistence = Arc::new(DatabaseKVPersistence::new(database_db.clone()));
     let block_indexer = Arc::new(BlockRowIndexer::new(database_db.clone()));
-    let database_ref_indexer = Arc::new(DatabaseRefIndexer::new(database_db.clone()));
-    let migration = DatabaseMigration::new(
-      database_user.clone(),
-      database_db,
-      database_ref_indexer.clone(),
-    );
+    let database_ref_indexer = Arc::new(DatabaseRefIndexer::new(database_db));
+    let migration = DatabaseMigration::new(database_user.clone(), database_ref_indexer.clone());
     Self {
       editors_by_database_id,
       database_user,
