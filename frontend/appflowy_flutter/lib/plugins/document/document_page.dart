@@ -1,4 +1,6 @@
-import 'package:appflowy/plugins/document/presentation/plugins/board/board_menu_item.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/board/board_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/grid/grid_menu_item.dart';
@@ -7,19 +9,17 @@ import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/au
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/auto_completion_plugins.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_toolbar_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../startup/startup.dart';
 import 'application/doc_bloc.dart';
 import 'editor_styles.dart';
 import 'presentation/banner.dart';
+import 'presentation/plugins/board/board_menu_item.dart';
 
 class DocumentPage extends StatefulWidget {
   final VoidCallback onDeleted;
@@ -172,6 +172,8 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         emojiMenuItem,
         // Board
         boardMenuItem,
+        // Create Board
+        boardViewMenuItem(documentBloc),
         // Grid
         gridMenuItem,
         // Callout
