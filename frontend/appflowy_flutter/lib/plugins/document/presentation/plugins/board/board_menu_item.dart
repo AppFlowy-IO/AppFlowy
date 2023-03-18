@@ -25,7 +25,8 @@ SelectionMenuItem boardMenuItem = SelectionMenuItem(
           : editorState.editorStyle.selectionMenuItemIconColor,
     );
   },
-  keywords: ['board', 'kanban'],
+  // TODO(a-wallen): Translate keywords
+  keywords: ['referenced board', 'referenced kanban'],
   handler: (editorState, menuService, context) {
     showLinkToPageMenu(
       editorState,
@@ -50,7 +51,8 @@ SelectionMenuItem boardViewMenuItem(DocumentBloc documentBloc) =>
               : editorState.editorStyle.selectionMenuItemIconColor,
         );
       },
-      keywords: ['board view', 'kanban view'],
+      // TODO(a-wallen): Translate keywords.
+      keywords: ['board', 'kanban'],
       handler: (editorState, menuService, context) async {
         if (!documentBloc.view.hasAppId()) {
           return;
