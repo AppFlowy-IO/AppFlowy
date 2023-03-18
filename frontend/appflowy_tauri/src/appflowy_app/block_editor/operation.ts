@@ -144,4 +144,10 @@ export class Operation {
         break;
     }
   }
+
+  destroy() {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this.blockChain = null;
+  }
 }

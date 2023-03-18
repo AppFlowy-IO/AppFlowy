@@ -3,9 +3,9 @@ import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
 import { BlockCommonProps } from '@/appflowy_app/interfaces';
 
 const fontSize: Record<string, string> = {
-  1: 'mt-8 text-3xl',
-  2: 'mt-6 text-2xl',
-  3: 'mt-4 text-xl',
+  1: 'pt-8 text-3xl',
+  2: 'pt-6 text-2xl',
+  3: 'pt-4 text-xl',
 };
 
 export default function HeadingBlock({ node, version }: BlockCommonProps<TreeNode>) {

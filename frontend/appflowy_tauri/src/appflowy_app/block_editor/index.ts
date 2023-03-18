@@ -14,7 +14,6 @@ export class BlockEditor {
   public blockChain: BlockChain; // (local data) the block chain used to store the document
   public renderTree: RenderTree; // the render tree used to display the document
   public operation: Operation;
-  public blockManagers: Map<BlockType, any> = new Map();
   /**
    * Constructs a new BlockEditor object.
    * @param id - the ID of the document
@@ -49,6 +48,7 @@ export class BlockEditor {
     // Destroy the block chain and render tree
     this.blockChain.destroy();
     this.renderTree.destroy();
+    this.operation.destroy();
   }
 
   private blockChange = (command: string, data: BlockChangeProps) => {

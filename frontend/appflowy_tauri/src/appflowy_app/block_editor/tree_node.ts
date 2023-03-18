@@ -1,6 +1,5 @@
 import { BlockData, BlockType } from '../interfaces/index';
 import { Block } from './block';
-import { BlockPosition } from './position';
 
 /**
  * Represents a node in a tree structure of blocks.
@@ -13,23 +12,15 @@ export class TreeNode {
   data: BlockData<BlockType>;
 
   private forceUpdate?: () => void;
-  
-  private _rect: {
-    getRect: () => BlockPosition | null;
-  }
+
   /**
    * Create a new TreeNode instance.
    * @param block - The block data used to create the node.
    */
-  constructor(private _block: Block, opts: {
-    getRect: (nodeId: string) => BlockPosition | null;
-  }) {
+  constructor(private _block: Block) {
     this.id = _block.id;
     this.data = _block.data;
     this.type = _block.type;
-    this._rect = {
-      getRect: () => opts.getRect(this.id)
-    }
   }
 
   registerUpdate(forceUpdate: () => void) {
@@ -59,10 +50,6 @@ export class TreeNode {
   addChild(node: TreeNode) {
     node.parent = this;
     this.children.push(node);
-  }
-
-  get rect() {
-    return this._rect;
   }
 
   get block() {

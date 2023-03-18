@@ -1,20 +1,31 @@
-import { useCallback, useEffect, useState } from 'react';
-import { debounce } from '@/appflowy_app/utils/tool';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { BlockEditor } from '@/appflowy_app/block_editor';
 import { TreeNode } from '$app/block_editor/tree_node';
 import { Alert } from '@mui/material';
 import { FallbackProps } from 'react-error-boundary';
-import { TextBlockManager } from '../../../block_editor/text_block';
+import { TextBlockManager } from '$app/block_editor/text_block';
 import { TextBlockContext } from '@/appflowy_app/utils/slate/context';
+import { useVirtualizer } from '@tanstack/react-virtual';
 
-const RESIZE_DELAY = 200;
 export interface BlockListProps {
   blockId: string;
   blockEditor: BlockEditor;
 }
 
+const defaultSize = 45;
+
 export function useBlockList({ blockId, blockEditor }: BlockListProps) {
   const [root, setRoot] = useState<TreeNode | null>(null);
+
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const rowVirtualizer = useVirtualizer({
+    count: root?.children.length || 0,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => {
+      return defaultSize;
+    },
+  });
 
   const [version, forceUpdate] = useState<number>(0);
 
@@ -25,7 +36,6 @@ export function useBlockList({ blockId, blockEditor }: BlockListProps) {
 
   useEffect(() => {
     buildDeepTree();
-
     return () => {
       console.log('off');
     };
@@ -33,28 +43,15 @@ export function useBlockList({ blockId, blockEditor }: BlockListProps) {
 
   useEffect(() => {
     root?.registerUpdate(() => forceUpdate((prev) => prev + 1));
-
     return () => {
       root?.unregisterUpdate();
     };
   }, [root]);
 
-  useEffect(() => {
-    const resize = debounce(() => {
-      blockEditor.renderTree.updateViewportBlocks();
-    }, RESIZE_DELAY);
-
-    window.addEventListener('resize', resize);
-
-    return () => {
-      window.removeEventListener('resize', resize);
-    };
-  }, []);
-
-  console.log('==== build tree ====', root);
-
   return {
     root,
+    rowVirtualizer,
+    parentRef,
   };
 }
 
@@ -71,6 +68,13 @@ export function ErrorBoundaryFallbackComponent({ error, resetErrorBoundary }: Fa
 export function withTextBlockManager(Component: (props: BlockListProps) => React.ReactElement) {
   return (props: BlockListProps) => {
     const textBlockManager = new TextBlockManager(props.blockEditor.operation);
+
+    useEffect(() => {
+      return () => {
+        textBlockManager.destroy();
+      };
+    }, []);
+
     return (
       <TextBlockContext.Provider
         value={{

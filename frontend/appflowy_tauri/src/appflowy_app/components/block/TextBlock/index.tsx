@@ -17,7 +17,7 @@ export default function TextBlock({
   toolbarProps?: TextBlockToolbarProps;
 } & BlockCommonProps<TreeNode> &
   React.HTMLAttributes<HTMLDivElement>) {
-  const { editor, value, onChange, onKeyDownCapture } = useTextBlock({ node });
+  const { editor, value, onChange, onKeyDownCapture, onDOMBeforeInput } = useTextBlock({ node });
   const { showGroups } = toolbarProps || toolbarDefaultProps;
 
   return (
@@ -26,14 +26,7 @@ export default function TextBlock({
         {showGroups.length > 0 && <HoveringToolbar node={node} blockId={node.id} />}
         <Editable
           onKeyDownCapture={onKeyDownCapture}
-          onDOMBeforeInput={(e) => {
-            // COMPAT: in Apple, `compositionend` is dispatched after the
-            // `beforeinput` for "insertFromComposition". It will cause repeated characters when inputting Chinese.
-            // Here, prevent the beforeInput event and wait for the compositionend event to take effect
-            if (e.inputType === 'insertFromComposition') {
-              e.preventDefault();
-            }
-          }}
+          onDOMBeforeInput={onDOMBeforeInput}
           renderLeaf={(leafProps) => <Leaf {...leafProps} />}
           placeholder='Enter some text...'
         />

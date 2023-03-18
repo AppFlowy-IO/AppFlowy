@@ -1,6 +1,6 @@
 import { TreeNode } from "@/appflowy_app/block_editor/tree_node";
 import { triggerHotkey } from "@/appflowy_app/utils/slate/hotkey";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useLayoutEffect, useMemo, useState } from "react";
 import { Transforms, createEditor, Descendant } from 'slate';
 import { ReactEditor, withReact } from 'slate-react';
 import { debounce } from '$app/utils/tool';
@@ -69,18 +69,38 @@ export function useTextBlock({
 
   const { focusId, selection } = textBlockManager.selectionManager.getFocusSelection();
   
-  useEffect(() => {
+  useLayoutEffect(() => {
+    let timer: NodeJS.Timeout;
     if (focusId === node.id && selection) {
       ReactEditor.focus(editor);
-      Transforms.select(editor, selection)
+      Transforms.select(editor, selection);
+      // Use setTimeout to delay setting the selection
+      // until Slate has fully loaded and rendered all components and contents,
+      // to ensure that the operation succeeds.
+      timer = setTimeout(() => {
+        Transforms.select(editor, selection);
+      }, 100);
     }
-  }, [])
+    
+    return () => timer && clearTimeout(timer)
+  }, [editor]);
+
+  const onDOMBeforeInput = useCallback((e: InputEvent) => {
+    // COMPAT: in Apple, `compositionend` is dispatched after the
+    // `beforeinput` for "insertFromComposition". It will cause repeated characters when inputting Chinese.
+    // Here, prevent the beforeInput event and wait for the compositionend event to take effect
+    if (e.inputType === 'insertFromComposition') {
+      e.preventDefault();
+    }
+    
+  }, []);
   
   
   return {
     editor,
     value,
     onChange,
-    onKeyDownCapture
+    onKeyDownCapture,
+    onDOMBeforeInput,
   }
 }

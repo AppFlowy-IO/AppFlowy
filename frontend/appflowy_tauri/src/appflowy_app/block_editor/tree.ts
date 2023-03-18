@@ -1,15 +1,14 @@
-import { BlockPositionManager } from "./position";
 import { BlockChain, BlockChangeProps } from './block_chain';
 import { Block } from './block';
 import { TreeNode } from "./tree_node";
 
 export class RenderTree {
-  private positionManager: BlockPositionManager;
   private map: Map<string, TreeNode> = new Map();
 
+  private root: TreeNode | null = null;
   constructor(private blockChain: BlockChain) {
-    this.positionManager = new BlockPositionManager();
   }
+
 
   /**
    * Get the TreeNode data by nodeId
@@ -25,9 +24,7 @@ export class RenderTree {
     if (this.map.has(block.id)) {
       return this.map.get(block.id)!;
     }
-    const node = new TreeNode(block, {
-      getRect: (id: string) => this.positionManager.getBlockPosition(id),
-    });
+    const node = new TreeNode(block);
     this.map.set(block.id, node);
     return node;
   }
@@ -64,26 +61,11 @@ export class RenderTree {
     this.blockChain.traverse(callback);
 
     // Get the root node from the map and return it
-    const root = this.map.get(rootId);
+    const root = this.map.get(rootId)!;
+    this.root = root;
     return root || null;
   }
 
-
-  observeNode(blockId: string, el: HTMLDivElement) {
-    const node = this.getTreeNode(blockId);
-    if (!node) return;
-    return this.positionManager.observeBlock(node, el);
-  }
-
-  updateBlockPosition(blockId: string) {
-    const node = this.getTreeNode(blockId);
-    if (!node) return;
-    this.positionManager.updateBlock(node.id);
-  }
-
-  updateViewportBlocks() {
-    this.positionManager.updateViewportBlocks();
-  }
 
   rebuild(nodeId: string): TreeNode | null {
     const block = this.blockChain.getBlock(nodeId);
@@ -130,23 +112,15 @@ export class RenderTree {
       default:
         break;
     }
-    if (block) {
-      this.updateBlockPosition(block.id);
-    } else if (startBlock) {
-      this.updateBlockPosition(startBlock.id);
-    } else if (endBlock) {
-      this.updateBlockPosition(endBlock.id);
-    } else if (oldParentId) {
-      this.updateBlockPosition(oldParentId);
-    } else if (oldPrevId) {
-      this.updateBlockPosition(oldPrevId);
-    }
+    
   }
 
   /**
    * Destroy the RenderTreeRectManager instance
    */
   destroy() {
-    this.positionManager?.destroy();
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this.blockChain = null;
   }
 }

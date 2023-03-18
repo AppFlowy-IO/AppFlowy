@@ -20,6 +20,7 @@
     "@mui/icons-material": "^5.11.11",
     "@mui/material": "^5.11.12",
     "@reduxjs/toolkit": "^1.9.2",
+    "@tanstack/react-virtual": "3.0.0-beta.54",
     "@tauri-apps/api": "^1.2.0",
     "events": "^3.3.0",
     "google-protobuf": "^3.21.2",

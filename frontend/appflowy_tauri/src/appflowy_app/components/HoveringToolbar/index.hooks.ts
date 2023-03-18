@@ -12,9 +12,10 @@ export function useHoveringToolbar({node}: {
 
   useEffect(() => {
     const el = ref.current;
-    const nodeRect = node.rect.getRect();
-    if (!el || !nodeRect) return;
+    if (!el) return;
+    const nodeRect = document.querySelector(`[data-block-id=${node.id}]`)?.getBoundingClientRect();
 
+    if (!nodeRect) return;
     const position = calcToolbarPosition(editor, el, nodeRect);
 
     if (!position) {
