@@ -28,17 +28,16 @@ class SettingsShortcutService {
   }
 
   Future<List<ShortcutEvent>> loadShortcuts() async {
-    String shortcutsInJson = '';
-    shortcutsInJson = await file.readAsString();
+    final shortcutsInJson = await file.readAsString();
 
     if (shortcutsInJson.isEmpty) {
       return builtInShortcutEvents;
     } else {
-      return loadUpdatedShortcuts(shortcutsInJson);
+      return loadAllSavedShortcuts(shortcutsInJson);
     }
   }
 
-  List<ShortcutEvent> loadUpdatedShortcuts(String savedJson) {
+  List<ShortcutEvent> loadAllSavedShortcuts(String savedJson) {
     final shortcuts = Shortcuts.fromJson(jsonDecode(savedJson));
     for (final shortcut in shortcuts.shortcuts) {
       ShortcutEvent? shortcutEvent = builtInShortcutEvents.firstWhereOrNull(
