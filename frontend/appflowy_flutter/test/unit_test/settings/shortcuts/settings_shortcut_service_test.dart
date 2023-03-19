@@ -20,16 +20,16 @@ void main() {
 {
 "shortcuts": [
 { 
-"key":"Copy",
-"command":"ctrl+shift+c"
+"key":"Home",
+"command":"alt+home"
 },
 {
-"key":"Redo",
-"command":"ctrl+y"
+"key":"End",
+"command":"alt+end"
 },
 {
-"key":"Undo",
-"command":"ctrl+shift+z"
+"key":"Delete Text",
+"command":"alt+delete"
 }
 ]
 }""";
@@ -45,11 +45,13 @@ void main() {
         },
       );
 
-      test('returns shortcut event list from json string', () {
-        final shortcuts = service.loadUpdatedShortcuts(shortcutsJson);
+      test('returns updated shortcut event list from json', () {
+        final shortcuts = service.loadAllSavedShortcuts(shortcutsJson);
         final updatedCopyShortcutEvent =
-            shortcuts.firstWhere((el) => el.key == "Copy");
-        expect(updatedCopyShortcutEvent.command, 'ctrl+shift+c');
+            shortcuts.firstWhere((el) => el.key == "Home");
+        expect(updatedCopyShortcutEvent.command, 'alt+home');
+        expect(shortcuts.length, builtInShortcutEvents.length);
+        expect(shortcuts, builtInShortcutEvents);
       });
 
       test(
@@ -57,12 +59,12 @@ void main() {
         () async {
           final currentShortcuts = builtInShortcutEvents;
           final shortcutEvent = currentShortcuts
-              .firstWhere((element) => element.key == "Move cursor up");
+              .firstWhere((element) => element.key == "Page up");
 
-          expect(shortcutEvent.command, 'arrow up');
+          expect(shortcutEvent.command, 'page up');
 
           //updating the command.
-          shortcutEvent.updateCommand(command: 'alt+arrow up');
+          shortcutEvent.updateCommand(command: 'alt+page up');
 
           //saving the updated shortcuts
           final expectedShortcutJson = jsonEncode(currentShortcuts.toJson());
@@ -72,24 +74,24 @@ void main() {
           final savedDataInFile = await mockFile.readAsString();
           expect(expectedShortcutJson, savedDataInFile);
 
-          //now checking if the modified command of paste is shift+insert
-          final shortcuts = service.loadUpdatedShortcuts(savedDataInFile);
-          final updatedPasteShortcutEvent =
-              shortcuts.firstWhere((el) => el.key == "Move cursor up");
+          //now checking if the modified command of page up is alt+page up
+          final shortcuts = service.loadAllSavedShortcuts(savedDataInFile);
+          final updatedPageUpSEvent =
+              shortcuts.firstWhere((el) => el.key == "Page up");
 
-          expect(updatedPasteShortcutEvent.command, 'alt+arrow up');
+          expect(updatedPageUpSEvent.command, 'alt+page up');
         },
       );
 
       test('load shortcuts from file', () async {
         final currentShortcuts = builtInShortcutEvents;
         final shortcutEvent =
-            currentShortcuts.firstWhere((e) => e.key == "Move cursor down");
+            currentShortcuts.firstWhere((e) => e.key == "Page down");
 
-        expect(shortcutEvent.command, 'arrow down');
+        expect(shortcutEvent.command, 'page down');
 
         //updating the command.
-        shortcutEvent.updateCommand(command: 'alt+arrow down');
+        shortcutEvent.updateCommand(command: 'alt+page down');
 
         //saving the updated shortcuts
         service.saveShortcuts(currentShortcuts);
