@@ -6,7 +6,7 @@ use flowy_database::manager::DatabaseManager;
 use flowy_document::entities::DocumentVersionPB;
 use flowy_document::{DocumentConfig, DocumentManager};
 use flowy_error::FlowyResult;
-use flowy_folder::entities::ViewDataFormatPB;
+use flowy_folder::entities::{ViewDataFormatPB, ViewLayoutTypePB};
 use flowy_folder::{errors::FlowyError, manager::FolderManager};
 pub use flowy_net::get_client_server_configuration;
 use flowy_net::local_server::LocalServer;
@@ -17,6 +17,7 @@ use flowy_user::services::{UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::tokio_default_runtime;
 
+use flowy_database::entities::LayoutTypePB;
 use lib_infra::future::{to_fut, Fut};
 use module::make_plugins;
 pub use module::*;
@@ -306,7 +307,36 @@ impl UserStatusListener {
   async fn did_sign_in(&self, token: &str, user_id: &str) -> FlowyResult<()> {
     self.folder_manager.initialize(user_id, token).await?;
     self.document_manager.initialize(user_id).await?;
-    self.database_manager.initialize(user_id, token).await?;
+
+    let cloned_folder_manager = self.folder_manager.clone();
+    let get_views_fn = to_fut(async move {
+      cloned_folder_manager
+        .get_current_workspace()
+        .await
+        .map(|workspace| {
+          workspace
+            .apps
+            .items
+            .into_iter()
+            .flat_map(|app| app.belongings.items)
+            .flat_map(|view| match view.layout {
+              ViewLayoutTypePB::Grid | ViewLayoutTypePB::Board | ViewLayoutTypePB::Calendar => {
+                Some((
+                  view.id,
+                  view.name,
+                  layout_type_from_view_layout(view.layout),
+                ))
+              },
+              _ => None,
+            })
+            .collect::<Vec<(String, String, LayoutTypePB)>>()
+        })
+        .unwrap_or_default()
+    });
+    self
+      .database_manager
+      .initialize(user_id, token, get_views_fn)
+      .await?;
     self
       .ws_conn
       .start(token.to_owned(), user_id.to_owned())

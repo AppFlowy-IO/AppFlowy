@@ -7,11 +7,11 @@ use flowy_sqlite::{
 };
 use std::sync::Arc;
 
-pub struct DatabaseRefIndexer {
+pub struct DatabaseRefs {
   database: Arc<dyn DatabaseDBConnection>,
 }
 
-impl DatabaseRefIndexer {
+impl DatabaseRefs {
   pub fn new(database: Arc<dyn DatabaseDBConnection>) -> Self {
     Self { database }
   }
@@ -45,7 +45,10 @@ impl DatabaseRefIndexer {
     Ok(())
   }
 
-  pub fn get_ref_views_with_database(&self, database_id: &str) -> FlowyResult<Vec<DatabaseRef>> {
+  pub fn get_ref_views_with_database(
+    &self,
+    database_id: &str,
+  ) -> FlowyResult<Vec<DatabaseViewRef>> {
     let conn = self.database.get_db_connection()?;
     let views = dsl::database_refs
       .filter(database_refs::database_id.like(database_id))
@@ -93,12 +96,12 @@ struct DatabaseRefRecord {
   database_id: String,
 }
 
-pub struct DatabaseRef {
+pub struct DatabaseViewRef {
   pub view_id: String,
   pub name: String,
   pub database_id: String,
 }
-impl std::convert::From<DatabaseRefRecord> for DatabaseRef {
+impl std::convert::From<DatabaseRefRecord> for DatabaseViewRef {
   fn from(record: DatabaseRefRecord) -> Self {
     Self {
       view_id: record.view_id,

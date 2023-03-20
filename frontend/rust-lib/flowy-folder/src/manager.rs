@@ -1,5 +1,5 @@
 use crate::entities::view::ViewDataFormatPB;
-use crate::entities::{ViewLayoutTypePB, ViewPB};
+use crate::entities::{ViewLayoutTypePB, ViewPB, WorkspacePB};
 use crate::services::folder_editor::FolderRevisionMergeable;
 use crate::{
   entities::workspace::RepeatedWorkspacePB,
@@ -21,10 +21,10 @@ use folder_model::user_default;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 
-use crate::services::clear_current_workspace;
 use crate::services::persistence::rev_sqlite::{
   SQLiteFolderRevisionPersistence, SQLiteFolderRevisionSnapshotPersistence,
 };
+use crate::services::{clear_current_workspace, get_current_workspace};
 use flowy_client_sync::client_folder::FolderPad;
 use std::convert::TryFrom;
 use std::{collections::HashMap, fmt::Formatter, sync::Arc};
@@ -207,6 +207,20 @@ impl FolderManager {
     self.view_controller.initialize()?;
     write_guard.insert(user_id.to_owned(), true);
     Ok(())
+  }
+
+  pub async fn get_current_workspace(&self) -> FlowyResult<WorkspacePB> {
+    let user_id = self.user.user_id()?;
+    let workspace_id = get_current_workspace(&user_id)?;
+    let workspace = self
+      .persistence
+      .begin_transaction(|transaction| {
+        self
+          .workspace_controller
+          .read_workspace(workspace_id, &user_id, &transaction)
+      })
+      .await?;
+    Ok(workspace)
   }
 
   pub async fn initialize_with_new_user(

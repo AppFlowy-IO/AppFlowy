@@ -2,7 +2,7 @@ use crate::database::block_test::util::DatabaseRowTestBuilder;
 use crate::database::database_editor::DatabaseEditorTest;
 use database_model::RowRevision;
 use flowy_database::services::database::DatabaseEditor;
-use flowy_database::services::persistence::database_ref::{DatabaseInfo, DatabaseRef};
+use flowy_database::services::persistence::database_ref::{DatabaseInfo, DatabaseViewRef};
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -61,7 +61,7 @@ impl DatabaseRefTest {
       .unwrap()
   }
 
-  pub async fn all_database_ref_views(&self, database_id: &str) -> Vec<DatabaseRef> {
+  pub async fn all_database_ref_views(&self, database_id: &str) -> Vec<DatabaseViewRef> {
     self
       .inner
       .sdk
