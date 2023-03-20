@@ -15,8 +15,8 @@ import 'package:styled_widget/styled_widget.dart';
 import 'calendar_layout_setting.dart';
 
 /// The highest-level widget shown in the popover triggered by clicking the
-/// "Settings" button. By default, shows [AllCalendarSettings] but upon
-/// selecting a category, replaces contents with contents of the submenu.
+/// "Settings" button. Shows [AllCalendarSettings] by default, but replaces its
+/// contents with the submenu when a category is selected.
 class CalendarSetting extends StatelessWidget {
   final CalendarSettingContext settingContext;
   final CalendarLayoutSettingsPB? layoutSettings;
