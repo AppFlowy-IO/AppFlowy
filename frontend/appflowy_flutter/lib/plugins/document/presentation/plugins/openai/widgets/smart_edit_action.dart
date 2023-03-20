@@ -34,6 +34,15 @@ enum SmartEditAction {
     }
     return SmartEditAction.fixSpelling;
   }
+
+  String get name {
+    switch (this) {
+      case SmartEditAction.summarize:
+        return LocaleKeys.document_plugins_smartEditSummarize.tr();
+      case SmartEditAction.fixSpelling:
+        return LocaleKeys.document_plugins_smartEditFixSpelling.tr();
+    }
+  }
 }
 
 class SmartEditActionWrapper extends ActionCell {
@@ -45,11 +54,6 @@ class SmartEditActionWrapper extends ActionCell {
 
   @override
   String get name {
-    switch (inner) {
-      case SmartEditAction.summarize:
-        return LocaleKeys.document_plugins_smartEditSummarize.tr();
-      case SmartEditAction.fixSpelling:
-        return LocaleKeys.document_plugins_smartEditFixSpelling.tr();
-    }
+    return inner.name;
   }
 }

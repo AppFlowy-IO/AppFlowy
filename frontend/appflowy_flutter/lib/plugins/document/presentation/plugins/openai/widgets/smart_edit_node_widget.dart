@@ -1,11 +1,14 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/document/presentation/plugins/openai/service/openai_client.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/util/learn_more_action.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/discard_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -26,7 +29,7 @@ class SmartEditInputBuilder extends NodeWidgetBuilder<Node> {
 
   @override
   Widget build(NodeWidgetContext<Node> context) {
-    return _SmartEditInput(
+    return _HoverSmartInput(
       key: context.node.key,
       node: context.node,
       editorState: context.editorState,
@@ -34,15 +37,97 @@ class SmartEditInputBuilder extends NodeWidgetBuilder<Node> {
   }
 }
 
-class _SmartEditInput extends StatefulWidget {
-  final Node node;
-
-  final EditorState editorState;
-  const _SmartEditInput({
-    Key? key,
+class _HoverSmartInput extends StatefulWidget {
+  const _HoverSmartInput({
+    required super.key,
     required this.node,
     required this.editorState,
   });
+
+  final Node node;
+  final EditorState editorState;
+
+  @override
+  State<_HoverSmartInput> createState() => _HoverSmartInputState();
+}
+
+class _HoverSmartInputState extends State<_HoverSmartInput> {
+  final popoverController = PopoverController();
+  final key = GlobalKey(debugLabel: 'smart_edit_input');
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      popoverController.show();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final width = _maxWidth();
+
+    return AppFlowyPopover(
+      controller: popoverController,
+      direction: PopoverDirection.bottomWithLeftAligned,
+      triggerActions: PopoverTriggerFlags.none,
+      margin: EdgeInsets.zero,
+      constraints: BoxConstraints(maxWidth: width),
+      decoration: FlowyDecoration.decoration(
+        Colors.transparent,
+        Colors.transparent,
+      ),
+      child: const SizedBox(
+        width: double.infinity,
+      ),
+      canClose: () async {
+        final completer = Completer<bool>();
+        final state = key.currentState as _SmartEditInputState;
+        if (state.result.isEmpty) {
+          completer.complete(true);
+        } else {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return DiscardDialog(
+                onConfirm: () => completer.complete(true),
+                onCancel: () => completer.complete(false),
+              );
+            },
+          );
+        }
+        return completer.future;
+      },
+      popupBuilder: (BuildContext popoverContext) {
+        return _SmartEditInput(
+          key: key,
+          node: widget.node,
+          editorState: widget.editorState,
+        );
+      },
+    );
+  }
+
+  double _maxWidth() {
+    var width = double.infinity;
+    final editorSize = widget.editorState.renderBox?.size;
+    final padding = widget.editorState.editorStyle.padding;
+    if (editorSize != null && padding != null) {
+      width = editorSize.width - padding.left - padding.right;
+    }
+    return width;
+  }
+}
+
+class _SmartEditInput extends StatefulWidget {
+  const _SmartEditInput({
+    required super.key,
+    required this.node,
+    required this.editorState,
+  });
+
+  final Node node;
+  final EditorState editorState;
 
   @override
   State<_SmartEditInput> createState() => _SmartEditInputState();
@@ -108,7 +193,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
     return Row(
       children: [
         FlowyText.medium(
-          LocaleKeys.document_plugins_smartEditTitleName.tr(),
+          '${LocaleKeys.document_plugins_openAI.tr()}: ${action.name}',
           fontSize: 14,
         ),
         const Spacer(),
@@ -186,6 +271,11 @@ class _SmartEditInputState extends State<_SmartEditInput> {
             ],
           ),
           onPressed: () async => await _onExit(),
+        ),
+        const Spacer(),
+        FlowyText.regular(
+          LocaleKeys.document_plugins_warning.tr(),
+          color: Theme.of(context).hintColor,
         ),
       ],
     );
