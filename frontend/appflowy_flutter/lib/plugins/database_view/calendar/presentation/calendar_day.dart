@@ -143,11 +143,20 @@ class _DayEventCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final borderSide = BorderSide(
+      color: Theme.of(context).dividerColor,
+      width: 1.0,
+    );
+
     return FlowyHover(
       child: GestureDetector(
         onTap: onClick,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            border: Border.fromBorderSide(borderSide),
+            borderRadius: Corners.s6Border,
+          ),
           child: child,
         ),
       ),
