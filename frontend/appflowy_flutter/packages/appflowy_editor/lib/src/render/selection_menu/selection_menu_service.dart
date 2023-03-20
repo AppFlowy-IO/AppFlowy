@@ -91,20 +91,24 @@ class SelectionMenu implements SelectionMenuService {
         top: showBelow ? _offset.dy : null,
         bottom: showBelow ? null : _offset.dy,
         left: offset.dx,
-        child: SelectionMenuWidget(
-          items: [
-            ..._defaultSelectionMenuItems,
-            ...editorState.selectionMenuItems,
-          ],
-          maxItemInRow: 5,
-          editorState: editorState,
-          menuService: this,
-          onExit: () {
-            dismiss();
-          },
-          onSelectionUpdate: () {
-            _selectionUpdateByInner = true;
-          },
+        right: 0,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SelectionMenuWidget(
+            items: [
+              ..._defaultSelectionMenuItems,
+              ...editorState.selectionMenuItems,
+            ],
+            maxItemInRow: 5,
+            editorState: editorState,
+            menuService: this,
+            onExit: () {
+              dismiss();
+            },
+            onSelectionUpdate: () {
+              _selectionUpdateByInner = true;
+            },
+          ),
         ),
       );
     });
