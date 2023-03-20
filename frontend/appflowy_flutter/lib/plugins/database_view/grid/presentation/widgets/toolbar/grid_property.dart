@@ -109,7 +109,7 @@ class _GridPropertyCellState extends State<_GridPropertyCell> {
     return AppFlowyPopover(
       mutex: widget.popoverMutex,
       controller: _popoverController,
-      offset: const Offset(20, 0),
+      offset: const Offset(8, 0),
       direction: PopoverDirection.leftWithTopAligned,
       constraints: BoxConstraints.loose(const Size(240, 400)),
       triggerActions: PopoverTriggerFlags.none,

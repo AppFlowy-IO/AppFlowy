@@ -1,25 +1,38 @@
+import { BaseText } from 'slate';
 import { RenderLeafProps } from 'slate-react';
 
-const Leaf = ({ attributes, children, leaf }: RenderLeafProps) => {
+const Leaf = ({
+  attributes,
+  children,
+  leaf,
+}: RenderLeafProps & {
+  leaf: BaseText & {
+    bold?: boolean;
+    code?: boolean;
+    italic?: boolean;
+    underlined?: boolean;
+    strikethrough?: boolean;
+  };
+}) => {
   let newChildren = children;
-  if ('bold' in leaf && leaf.bold) {
+  if (leaf.bold) {
     newChildren = <strong>{children}</strong>;
   }
 
-  if ('code' in leaf && leaf.code) {
+  if (leaf.code) {
     newChildren = <code className='rounded-sm	 bg-[#F2FCFF] p-1'>{newChildren}</code>;
   }
 
-  if ('italic' in leaf && leaf.italic) {
+  if (leaf.italic) {
     newChildren = <em>{newChildren}</em>;
   }
 
-  if ('underlined' in leaf && leaf.underlined) {
+  if (leaf.underlined) {
     newChildren = <u>{newChildren}</u>;
   }
 
   return (
-    <span {...attributes} className={'strikethrough' in leaf && leaf.strikethrough ? `line-through` : ''}>
+    <span {...attributes} className={leaf.strikethrough ? `line-through` : ''}>
       {newChildren}
     </span>
   );

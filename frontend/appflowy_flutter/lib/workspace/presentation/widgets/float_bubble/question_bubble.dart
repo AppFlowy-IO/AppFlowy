@@ -42,6 +42,7 @@ class BubbleActionList extends StatelessWidget {
     return PopoverActionList<PopoverAction>(
       direction: PopoverDirection.topWithRightAligned,
       actions: actions,
+      offset: const Offset(0, -8),
       buildChild: (controller) {
         return FlowyTextButton(
           '?',
@@ -66,7 +67,7 @@ class BubbleActionList extends StatelessWidget {
               break;
             case BubbleAction.shortcuts:
               _launchURL(
-                  "https://github.com/AppFlowy-IO/AppFlowy-Docs/blob/main/essential-documentation/shortcuts.md");
+                  "https://appflowy.gitbook.io/docs/essential-documentation/shortcuts");
               break;
           }
         }

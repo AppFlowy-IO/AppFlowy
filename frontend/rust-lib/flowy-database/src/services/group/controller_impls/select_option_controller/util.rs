@@ -115,6 +115,8 @@ pub fn move_group_row(
     }
 
     // Update the corresponding row's cell content.
+    // If the from_index is none which means the row is not belong to this group before and
+    // it is moved from other groups.
     if from_index.is_none() {
       let cell_rev = make_inserted_cell_rev(&group.id, field_rev);
       if let Some(cell_rev) = cell_rev {
@@ -126,7 +128,6 @@ pub fn move_group_row(
         row_changeset
           .cell_by_field_id
           .insert(field_rev.id.clone(), cell_rev);
-        changeset.updated_rows.push(RowPB::from(*row_rev));
       }
     }
   }

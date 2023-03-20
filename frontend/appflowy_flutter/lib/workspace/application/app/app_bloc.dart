@@ -18,11 +18,11 @@ import 'package:dartz/dartz.dart';
 part 'app_bloc.freezed.dart';
 
 class AppBloc extends Bloc<AppEvent, AppState> {
-  final AppService appService;
+  final AppBackendService appService;
   final AppListener appListener;
 
   AppBloc({required AppPB app})
-      : appService = AppService(),
+      : appService = AppBackendService(),
         appListener = AppListener(appId: app.id),
         super(AppState.initial(app)) {
     on<AppEvent>((event, emit) async {

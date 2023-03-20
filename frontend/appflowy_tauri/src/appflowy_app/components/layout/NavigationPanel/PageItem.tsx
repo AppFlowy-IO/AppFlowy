@@ -8,6 +8,8 @@ import { Button } from '../../_shared/Button';
 import { usePageEvents } from './PageItem.hooks';
 import { RenamePopup } from './RenamePopup';
 import { ViewLayoutTypePB } from '../../../../services/backend';
+import { useEffect, useRef, useState } from 'react';
+import { PAGE_ITEM_HEIGHT } from '../../_shared/constants';
 
 export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () => void }) => {
   const {
@@ -23,13 +25,25 @@ export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () =
     activePageId,
   } = usePageEvents(page);
 
+  const el = useRef<HTMLDivElement>(null);
+
+  const [popupY, setPopupY] = useState(0);
+
+  useEffect(() => {
+    if (el.current) {
+      const { top } = el.current.getBoundingClientRect();
+      setPopupY(top);
+    }
+  }, [showPageOptions, showRenamePopup]);
+
   return (
-    <div className={'relative'}>
+    <div ref={el}>
       <div
         onClick={() => onPageClick()}
-        className={`flex cursor-pointer items-center justify-between rounded-lg py-2 pl-8 pr-4 hover:bg-surface-2 ${
+        className={`flex cursor-pointer items-center justify-between rounded-lg pl-8 pr-4 hover:bg-surface-2 ${
           activePageId === page.id ? 'bg-surface-2' : ''
         }`}
+        style={{ height: PAGE_ITEM_HEIGHT }}
       >
         <button className={'flex min-w-0 flex-1 items-center'}>
           <i className={'ml-1 mr-1 h-[16px] w-[16px]'}>
@@ -41,7 +55,7 @@ export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () =
             {page.title}
           </span>
         </button>
-        <div className={'relative flex items-center'}>
+        <div className={'flex items-center'}>
           <Button size={'box-small-transparent'} onClick={() => onPageOptionsClick()}>
             <Details2Svg></Details2Svg>
           </Button>
@@ -53,6 +67,7 @@ export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () =
           onDeleteClick={() => deletePage()}
           onDuplicateClick={() => duplicatePage()}
           onClose={() => closePopup()}
+          top={popupY - 124 + 40}
         ></NavItemOptionsPopup>
       )}
       {showRenamePopup && (
@@ -60,6 +75,7 @@ export const PageItem = ({ page, onPageClick }: { page: IPage; onPageClick: () =
           value={page.title}
           onChange={(newTitle) => changePageTitle(newTitle)}
           onClose={closeRenamePopup}
+          top={popupY - 124 + 40}
         ></RenamePopup>
       )}
     </div>

@@ -7,14 +7,14 @@ import { AppBackendService } from '../../../stores/effects/folder/app/app_bd_svc
 import { WorkspaceBackendService } from '../../../stores/effects/folder/workspace/workspace_bd_svc';
 import { useError } from '../../error/Error.hooks';
 import { AppObserver } from '../../../stores/effects/folder/app/app_observer';
-
-const initialFolderHeight = 40;
-const initialPageHeight = 40;
-const animationDuration = 500;
+import { useNavigate } from 'react-router-dom';
+import { INITIAL_FOLDER_HEIGHT, PAGE_ITEM_HEIGHT } from '../../_shared/constants';
 
 export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
   const appDispatch = useAppDispatch();
   const workspace = useAppSelector((state) => state.workspace);
+
+  const navigate = useNavigate();
 
   // Actions
   const [showPages, setShowPages] = useState(false);
@@ -23,7 +23,7 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
   const [showRenamePopup, setShowRenamePopup] = useState(false);
 
   // UI configurations
-  const [folderHeight, setFolderHeight] = useState(`${initialFolderHeight}px`);
+  const [folderHeight, setFolderHeight] = useState(`${INITIAL_FOLDER_HEIGHT}px`);
 
   // Observers
   const appObserver = new AppObserver(folder.id);
@@ -58,15 +58,15 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
 
   useEffect(() => {
     if (showPages) {
-      setFolderHeight(`${initialFolderHeight + pages.length * initialPageHeight}px`);
+      setFolderHeight(`${INITIAL_FOLDER_HEIGHT + pages.length * PAGE_ITEM_HEIGHT}px`);
     }
   }, [pages]);
 
   const onFolderNameClick = () => {
     if (showPages) {
-      setFolderHeight(`${initialFolderHeight}px`);
+      setFolderHeight(`${INITIAL_FOLDER_HEIGHT}px`);
     } else {
-      setFolderHeight(`${initialFolderHeight + pages.length * initialPageHeight}px`);
+      setFolderHeight(`${INITIAL_FOLDER_HEIGHT + pages.length * PAGE_ITEM_HEIGHT}px`);
     }
     setShowPages(!showPages);
   };
@@ -140,6 +140,10 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
           id: newView.id,
         })
       );
+
+      setShowPages(true);
+
+      navigate(`/page/document/${newView.id}`);
     } catch (e: any) {
       error.showError(e?.message);
     }
@@ -153,6 +157,8 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
         layoutType: ViewLayoutTypePB.Board,
       });
 
+      setShowPages(true);
+
       appDispatch(
         pagesActions.addPage({
           folderId: folder.id,
@@ -161,6 +167,8 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
           id: newView.id,
         })
       );
+
+      navigate(`/page/board/${newView.id}`);
     } catch (e: any) {
       error.showError(e?.message);
     }
@@ -174,6 +182,8 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
         layoutType: ViewLayoutTypePB.Grid,
       });
 
+      setShowPages(true);
+
       appDispatch(
         pagesActions.addPage({
           folderId: folder.id,
@@ -182,10 +192,16 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
           id: newView.id,
         })
       );
+
+      navigate(`/page/grid/${newView.id}`);
     } catch (e: any) {
       error.showError(e?.message);
     }
   };
+
+  useEffect(() => {
+    appDispatch(foldersActions.setShowPages({ id: folder.id, showPages: showPages }));
+  }, [showPages]);
 
   return {
     showPages,
@@ -208,6 +224,5 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
 
     closePopup,
     folderHeight,
-    animationDuration,
   };
 };

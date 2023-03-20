@@ -13,6 +13,7 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
   final Widget Function(PopoverController) buildChild;
   final VoidCallback? onClosed;
   final bool asBarrier;
+  final Offset offset;
 
   const PopoverActionList({
     required this.actions,
@@ -22,6 +23,7 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
     this.onClosed,
     this.direction = PopoverDirection.rightWithTopAligned,
     this.asBarrier = false,
+    this.offset = Offset.zero,
     this.constraints = const BoxConstraints(
       minWidth: 120,
       maxWidth: 460,
@@ -54,6 +56,7 @@ class _PopoverActionListState<T extends PopoverAction>
       constraints: widget.constraints,
       direction: widget.direction,
       mutex: widget.mutex,
+      offset: widget.offset,
       triggerActions: PopoverTriggerFlags.none,
       onClose: widget.onClosed,
       popupBuilder: (BuildContext popoverContext) {

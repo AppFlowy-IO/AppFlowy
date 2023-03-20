@@ -127,6 +127,15 @@ fn generate_ts_protobuf_files(
   }
   let protoc_bin_path = protoc_bin_path.to_str().unwrap().to_owned();
   paths.iter().for_each(|path| {
+    // if let Err(err) = Command::new(protoc_bin_path.clone())
+    //   .arg(format!("--ts_out={}", output.to_str().unwrap()))
+    //   .arg(format!("--proto_path={}", proto_file_output_path))
+    //   .arg(path)
+    //   .spawn()
+    // {
+    //   panic!("Generate ts pb file failed: {}, {:?}", path, err);
+    // }
+
     let result = cmd_lib::run_cmd! {
         ${protoc_bin_path} --ts_out=${output} --proto_path=${proto_file_output_path} ${path}
     };
