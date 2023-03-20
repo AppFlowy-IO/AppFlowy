@@ -86,7 +86,7 @@ void main() {
       await tester.tapGoButton();
       await tester.expectToSeeWelcomePage();
 
-      // swith to user B
+      // switch to user B
       {
         await tester.openSettings();
         await tester.openSettingsPage(SettingsPage.user);
@@ -120,7 +120,7 @@ void main() {
         expect(find.textContaining(userA), findsOneWidget);
       }
 
-      // swith to the userB again
+      // switch to the userB again
       {
         await tester.openSettings();
         await tester.openSettingsPage(SettingsPage.files);
