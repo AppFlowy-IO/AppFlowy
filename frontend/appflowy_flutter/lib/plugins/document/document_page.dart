@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/plugins/board/board_view_menu_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
