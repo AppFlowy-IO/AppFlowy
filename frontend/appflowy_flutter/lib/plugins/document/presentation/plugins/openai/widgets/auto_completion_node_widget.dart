@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:appflowy/plugins/document/presentation/plugins/openai/service/openai_client.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/util/learn_more_action.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/discard_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/loading.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -10,6 +11,7 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -56,6 +58,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
   final controller = TextEditingController();
   final focusNode = FocusNode();
   final textFieldFocusNode = FocusNode();
+  final interceptor = SelectionInterceptor();
 
   @override
   void initState() {
@@ -63,6 +66,34 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
 
     textFieldFocusNode.addListener(_onFocusChanged);
     textFieldFocusNode.requestFocus();
+    widget.editorState.service.selectionService.register(interceptor
+      ..canTap = (details) {
+        final renderBox = context.findRenderObject() as RenderBox?;
+        if (renderBox != null) {
+          if (!isTapDownDetailsInRenderBox(details, renderBox)) {
+            if (text.isNotEmpty || controller.text.isEmpty) {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return DiscardDialog(
+                    onConfirm: () => _onDiscard(),
+                    onCancel: () {},
+                  );
+                },
+              );
+            } else if (controller.text.isEmpty) {
+              _onExit();
+            }
+          }
+        }
+        return false;
+      });
+  }
+
+  bool isTapDownDetailsInRenderBox(TapDownDetails details, RenderBox box) {
+    var result = BoxHitTestResult();
+    box.hitTest(result, position: box.globalToLocal(details.globalPosition));
+    return result.path.any((entry) => entry.target == box);
   }
 
   @override
@@ -71,6 +102,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
     textFieldFocusNode.removeListener(_onFocusChanged);
     widget.editorState.service.selectionService.currentSelection
         .removeListener(_onCancelWhenSelectionChanged);
+    widget.editorState.service.selectionService.unRegister(interceptor);
 
     super.dispose();
   }
@@ -167,6 +199,11 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
             ],
           ),
           onPressed: () async => await _onExit(),
+        ),
+        const Spacer(),
+        FlowyText.regular(
+          LocaleKeys.document_plugins_warning.tr(),
+          color: Theme.of(context).hintColor,
         ),
       ],
     );

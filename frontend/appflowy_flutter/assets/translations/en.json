@@ -365,7 +365,8 @@
         "abstract": "Abstract",
         "addCover": "Add Cover",
         "addLocalImage": "Add local image"
-      }
+      },
+      "discardResponse": "Do you want to discard the AI responses?"
     }
   },
   "board": {

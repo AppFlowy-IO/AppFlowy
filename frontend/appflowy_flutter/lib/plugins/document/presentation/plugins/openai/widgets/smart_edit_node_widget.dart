@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/document/presentation/plugins/openai/service/openai_client.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/util/learn_more_action.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/discard_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -89,15 +89,9 @@ class _HoverSmartInputState extends State<_HoverSmartInput> {
           showDialog(
             context: context,
             builder: (context) {
-              return NavigatorOkCancelDialog(
-                title: 'Discard',
-                message: '',
-                onOkPressed: () {
-                  completer.complete(true);
-                },
-                onCancelPressed: () {
-                  completer.complete(false);
-                },
+              return DiscardDialog(
+                onConfirm: () => completer.complete(true),
+                onCancel: () => completer.complete(false),
               );
             },
           );
@@ -199,7 +193,7 @@ class _SmartEditInputState extends State<_SmartEditInput> {
     return Row(
       children: [
         FlowyText.medium(
-          '${LocaleKeys.document_plugins_openAI}: ${action.name}',
+          '${LocaleKeys.document_plugins_openAI.tr()}: ${action.name}',
           fontSize: 14,
         ),
         const Spacer(),
