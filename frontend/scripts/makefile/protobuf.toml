@@ -7,7 +7,7 @@ script_runner = "@shell"
 
 [tasks.install_tauri_protobuf.mac]
 script = """
-npm install -g protoc-gen-ts
+sudo npm install -g protoc-gen-ts
 """
 script_runner = "@shell"
 
