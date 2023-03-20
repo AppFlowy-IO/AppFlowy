@@ -88,25 +88,28 @@ class SelectionMenu implements SelectionMenuService {
 
     _selectionMenuEntry = OverlayEntry(builder: (context) {
       return Positioned(
-        top: showBelow ? _offset.dy : null,
-        bottom: showBelow ? null : _offset.dy,
-        left: offset.dx,
-        child: SelectionMenuWidget(
-          items: [
-            ..._defaultSelectionMenuItems,
-            ...editorState.selectionMenuItems,
-          ],
-          maxItemInRow: 5,
-          editorState: editorState,
-          menuService: this,
-          onExit: () {
-            dismiss();
-          },
-          onSelectionUpdate: () {
-            _selectionUpdateByInner = true;
-          },
-        ),
-      );
+          top: showBelow ? _offset.dy : null,
+          bottom: showBelow ? null : _offset.dy,
+          left: offset.dx,
+          right: 0,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SelectionMenuWidget(
+              items: [
+                ..._defaultSelectionMenuItems,
+                ...editorState.selectionMenuItems,
+              ],
+              maxItemInRow: 5,
+              editorState: editorState,
+              menuService: this,
+              onExit: () {
+                dismiss();
+              },
+              onSelectionUpdate: () {
+                _selectionUpdateByInner = true;
+              },
+            ),
+          ));
     });
 
     Overlay.of(context)?.insert(_selectionMenuEntry!);
