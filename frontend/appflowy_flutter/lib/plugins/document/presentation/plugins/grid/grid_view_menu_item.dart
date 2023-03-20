@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 
 SelectionMenuItem gridViewMenuItem(DocumentBloc documentBloc) =>
     SelectionMenuItem(
-      name: "New grid",
+      name: LocaleKeys.document_slashMenu_grid_createANewGrid.tr(),
       icon: (editorState, onSelected) {
         return svgWidget(
           'editor/grid',

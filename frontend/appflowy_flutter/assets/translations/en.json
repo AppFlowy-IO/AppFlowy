@@ -337,7 +337,8 @@
         "selectABoardToLinkTo": "Select a Board to link to"
       },
       "grid": {
-        "selectAGridToLinkTo": "Select a Grid to link to"
+        "selectAGridToLinkTo": "Select a Grid to link to",
+        "createANewGrid": "Create a new Grid"
       }
     },
     "plugins": {
