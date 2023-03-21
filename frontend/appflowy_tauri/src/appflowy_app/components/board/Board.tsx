@@ -5,9 +5,18 @@ import { NewBoardBlock } from './NewBoardBlock';
 import { useDatabase } from '../_shared/database-hooks/useDatabase';
 import { ViewLayoutTypePB } from '@/services/backend';
 import { DragDropContext } from 'react-beautiful-dnd';
+import { useState } from 'react';
+import { RowInfo } from '$app/stores/effects/database/row/row_cache';
 
 export const Board = ({ viewId }: { viewId: string }) => {
   const { controller, rows, groups, onNewRowClick, onDragEnd } = useDatabase(viewId, ViewLayoutTypePB.Board);
+  const [showBoardRow, setShowBoardRow] = useState(false);
+  const [boardRowInfo, setBoardRowInfo] = useState<RowInfo>();
+
+  const onOpenRow = (rowInfo: RowInfo) => {
+    setBoardRowInfo(rowInfo);
+    setShowBoardRow(true);
+  };
 
   return (
     <>
@@ -30,20 +39,20 @@ export const Board = ({ viewId }: { viewId: string }) => {
               groups &&
               groups.map((group, index) => (
                 <BoardBlock
-                  groupId={group.groupId}
                   key={index}
                   viewId={viewId}
                   controller={controller}
-                  rows={group.rows}
-                  title={group.name}
+                  group={group}
                   allRows={rows}
                   onNewRowClick={() => onNewRowClick(index)}
+                  onOpenRow={onOpenRow}
                 />
               ))}
             <NewBoardBlock onClick={() => console.log('new block')}></NewBoardBlock>
           </div>
         </div>
       </DragDropContext>
+
     </>
   );
 };

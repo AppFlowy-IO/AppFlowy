@@ -10,11 +10,13 @@ export const BoardCard = ({
   viewId,
   controller,
   rowInfo,
+  onOpenRow,
 }: {
   index: number;
   viewId: string;
   controller: DatabaseController;
   rowInfo: RowInfo;
+  onOpenRow: (rowId: RowInfo) => void;
 }) => {
   const { cells } = useRow(viewId, controller, rowInfo);
 
@@ -25,7 +27,7 @@ export const BoardCard = ({
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          onClick={() => console.log('on click')}
+          onClick={() => onOpenRow(rowInfo)}
           className={`relative cursor-pointer select-none rounded-lg border border-shade-6 bg-white px-3 py-2 transition-transform duration-100 hover:bg-main-selector `}
         >
           <button className={'absolute right-4 top-2.5 h-5 w-5 rounded hover:bg-surface-2'}>
