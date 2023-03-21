@@ -239,7 +239,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       ),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       canvasColor: theme.shader6,
-      dividerColor: theme.shader6,
+      dividerColor: theme.divider,
       hintColor: theme.shader3,
       disabledColor: theme.shader4,
       highlightColor: theme.main1,
@@ -262,7 +262,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         onError: theme.shader7,
         error: theme.red,
         outline: theme.shader4,
-        surfaceVariant: theme.bg1,
+        surfaceVariant: theme.sidebarBg,
         shadow: theme.shadow,
       ),
       extensions: [
