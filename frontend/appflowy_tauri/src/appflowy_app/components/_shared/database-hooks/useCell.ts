@@ -12,14 +12,13 @@ export const useCell = (cellIdentifier: CellIdentifier, cellCache: CellCache, fi
     if (!cellIdentifier || !cellCache || !fieldController) return;
     const builder = new CellControllerBuilder(cellIdentifier, cellCache, fieldController);
     const cellController = builder.build();
-    cellController.subscribeChanged({
-      onCellChanged: (value) => {
-        setData(value.unwrap());
-      },
-    });
 
-    // ignore the return value, because we are using the subscription
-    void cellController.getCellData();
+    void (async () => {
+      const cellData = await cellController.getCellData();
+      if (cellData.some) {
+        setData(cellData.unwrap());
+      }
+    })();
 
     return () => {
       void cellController.dispose();
