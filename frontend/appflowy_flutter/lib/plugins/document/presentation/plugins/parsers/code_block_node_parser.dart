@@ -8,6 +8,6 @@ class CodeBlockNodeParser extends NodeParser {
 
   @override
   String transform(Node node) {
-    return '```$node.attributes[id]```';
+    return '```\n$node.attributes[id]\n```';
   }
 }
