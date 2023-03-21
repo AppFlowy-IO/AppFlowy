@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/base/insert_page_command.dart';
-import 'package:appflowy/plugins/document/presentation/plugins/base/link_to_page_widget.dart';
 import 'package:appflowy/workspace/application/app/app_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
