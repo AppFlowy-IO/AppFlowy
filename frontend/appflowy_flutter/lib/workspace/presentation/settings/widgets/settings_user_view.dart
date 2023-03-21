@@ -11,6 +11,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import 'dart:convert';
+import 'dart:async';
 
 const defaultUserAvatar = '1F600';
 
@@ -62,26 +63,55 @@ class SettingsUserView extends StatelessWidget {
 }
 
 @visibleForTesting
-class UserNameInput extends StatelessWidget {
+class UserNameInput extends StatefulWidget {
   final String name;
+
   const UserNameInput(
     this.name, {
     Key? key,
   }) : super(key: key);
 
   @override
+  UserNameInputState createState() => UserNameInputState();
+}
+
+class UserNameInputState extends State<UserNameInput> {
+  late TextEditingController _controller;
+
+  Timer? _debounce;
+  final Duration _debounceDuration = const Duration(milliseconds: 500);
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.name);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: TextEditingController()..text = name,
+      controller: _controller,
       decoration: InputDecoration(
         labelText: LocaleKeys.settings_user_name.tr(),
       ),
-      onSubmitted: (val) {
-        context
-            .read<SettingsUserViewBloc>()
-            .add(SettingsUserEvent.updateUserName(val));
+      onChanged: (val) {
+        if (_debounce?.isActive ?? false) {
+          _debounce!.cancel();
+        }
+
+        _debounce = Timer(_debounceDuration, () {
+          context
+              .read<SettingsUserViewBloc>()
+              .add(SettingsUserEvent.updateUserName(val));
+        });
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
 
