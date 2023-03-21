@@ -158,7 +158,7 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
                           useIntrinsicWidth: true,
                           leftIcon: svgWidget(
                             'editor/image',
-                            color: Theme.of(context).colorScheme.onSurface,
+                            color: Theme.of(context).iconTheme.color,
                           ),
                           text: FlowyText.regular(
                             LocaleKeys.document_plugins_cover_addCover.tr(),
@@ -174,7 +174,7 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
                           useIntrinsicWidth: true,
                           leftIcon: Icon(
                             Icons.emoji_emotions_outlined,
-                            color: Theme.of(context).colorScheme.onSurface,
+                            color: Theme.of(context).iconTheme.color,
                             size: 18,
                           ),
                           text: FlowyText.regular(LocaleKeys
@@ -198,7 +198,7 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
                             leftIconSize: const Size.square(18),
                             useIntrinsicWidth: true,
                             leftIcon: Icon(Icons.emoji_emotions_outlined,
-                                color: Theme.of(context).colorScheme.onSurface,
+                                color: Theme.of(context).iconTheme.color,
                                 size: 18),
                             text: FlowyText.regular(
                                 LocaleKeys.document_plugins_cover_addIcon.tr()),
@@ -422,7 +422,7 @@ class _CoverImageState extends State<_CoverImage> {
             width: 28,
             icon: svgWidget(
               'editor/delete',
-              color: Theme.of(context).colorScheme.onSurface,
+              color: Theme.of(context).iconTheme.color,
             ),
             onPressed: () {
               widget.onCoverChanged(CoverSelectionType.initial, null);

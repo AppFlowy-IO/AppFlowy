@@ -87,7 +87,7 @@ class FlowyNavigation extends StatelessWidget {
                   iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
                   icon: svgWidget(
                     "home/hide_menu",
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: Theme.of(context).iconTheme.color,
                   ),
                 )),
           );

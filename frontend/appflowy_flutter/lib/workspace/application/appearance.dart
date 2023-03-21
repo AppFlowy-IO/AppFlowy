@@ -219,7 +219,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         selectionHandleColor: theme.main2,
       ),
       primaryIconTheme: IconThemeData(color: theme.hover),
-      iconTheme: IconThemeData(color: theme.shader1),
+      iconTheme: IconThemeData(color: theme.icon),
       scrollbarTheme: ScrollbarThemeData(
         thumbColor: MaterialStateProperty.all(theme.shader3),
         thickness: MaterialStateProperty.resolveWith((states) {
@@ -254,7 +254,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         secondary: theme.hover,
         onSecondary: theme.shader1,
         secondaryContainer: theme.selector,
-        onSecondaryContainer: theme.shader1,
+        onSecondaryContainer: theme.topbarBg,
         background: theme.surface,
         onBackground: theme.shader1,
         surface: theme.surface,

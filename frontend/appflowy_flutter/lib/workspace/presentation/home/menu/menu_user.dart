@@ -90,7 +90,7 @@ class MenuUser extends StatelessWidget {
           dimension: 20,
           child: svgWidget(
             "home/settings",
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).iconTheme.color,
           ),
         ),
       ),
