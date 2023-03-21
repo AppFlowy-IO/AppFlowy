@@ -1,9 +1,12 @@
 name: Tauri-CI
 on:
   pull_request:
+    paths:
+      - "frontend/rust-lib/**"
+      - "frontend/appflowy_tauri/**"
 
 env:
-  NODE_VERSION: "17"
+  NODE_VERSION: "16"
   RUST_TOOLCHAIN: "1.65"
 
 jobs:
@@ -12,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         # platform: [macos-latest, ubuntu-20.04, windows-latest]
-        platform: [macos-latest, ubuntu-20.04]
+        platform: [macos-latest]
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -28,11 +31,11 @@ jobs:
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
           override: true
-#          profile: minimal
+          profile: minimal
 
-#      - uses: Swatinem/rust-cache@v2
-#        with:
-#          prefix-key: ${{ matrix.platform }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: ${{ matrix.platform }}
 
       - name: install dependencies (windows only)
         if: matrix.platform == 'windows-latest'
@@ -71,7 +74,6 @@ jobs:
         run: |
           mkdir dist
           npm install
-          cargo make --cwd .. tauri_clean
           cargo make --cwd .. tauri_build 
           yarn && yarn build
 
