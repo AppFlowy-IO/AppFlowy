@@ -200,10 +200,15 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
           ),
           onPressed: () async => await _onExit(),
         ),
-        const Spacer(),
-        FlowyText.regular(
-          LocaleKeys.document_plugins_warning.tr(),
-          color: Theme.of(context).hintColor,
+        Expanded(
+          child: Container(
+            alignment: Alignment.centerRight,
+            child: FlowyText.regular(
+              LocaleKeys.document_plugins_warning.tr(),
+              color: Theme.of(context).hintColor,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ),
       ],
     );
