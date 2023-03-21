@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useContext } from 'react';
 
-import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
+import { TreeNode } from '@/appflowy_app/block_editor/view/tree_node';
 import { BlockContext } from '$app/utils/block';
 
 export function useBlockComponent({

@@ -1,5 +1,5 @@
-import { BlockData, BlockType } from '../interfaces/index';
-import { Block } from './block';
+import { BlockData, BlockType } from '$app/interfaces/index';
+import { Block } from '../core/block';
 
 /**
  * Represents a node in a tree structure of blocks.

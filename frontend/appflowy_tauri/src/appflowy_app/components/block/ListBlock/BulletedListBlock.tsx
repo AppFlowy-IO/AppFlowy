@@ -1,7 +1,7 @@
 import { Circle } from '@mui/icons-material';
 
 import BlockComponent from '../BlockComponent';
-import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
+import { TreeNode } from '@/appflowy_app/block_editor/view/tree_node';
 
 export default function BulletedListBlock({ title, node }: { title: JSX.Element; node: TreeNode }) {
   return (

@@ -1,5 +1,5 @@
 import { useBlockSelection } from './BlockSelection.hooks';
-import { BlockEditor } from '../../../block_editor/index';
+import { BlockEditor } from '$app/block_editor';
 import React from 'react';
 
 function BlockSelection({ container, blockEditor }: { container: HTMLDivElement; blockEditor: BlockEditor }) {

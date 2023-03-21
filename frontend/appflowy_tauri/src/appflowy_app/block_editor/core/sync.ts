@@ -1,4 +1,4 @@
-import { BackendOp, LocalOp } from '../interfaces';
+import { BackendOp, LocalOp } from '$app/interfaces';
 import { OpAdapter } from './op_adapter';
 
 /**

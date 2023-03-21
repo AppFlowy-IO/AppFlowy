@@ -1,5 +1,5 @@
 import { BlockChain } from './block_chain';
-import { BlockInterface, BlockType, InsertOpData, LocalOp, UpdateOpData, moveOpData, moveRangeOpData, removeOpData, BlockData } from '../interfaces/index';
+import { BlockInterface, BlockType, InsertOpData, LocalOp, UpdateOpData, moveOpData, moveRangeOpData, removeOpData, BlockData } from '$app/interfaces';
 import { BlockEditorSync } from './sync';
 import { Block } from './block';
 

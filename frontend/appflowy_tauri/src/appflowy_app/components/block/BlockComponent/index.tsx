@@ -5,7 +5,7 @@ import TextBlock from '../TextBlock';
 import HeadingBlock from '../HeadingBlock';
 import ListBlock from '../ListBlock';
 import CodeBlock from '../CodeBlock';
-import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
+import { TreeNode } from '@/appflowy_app/block_editor/view/tree_node';
 import { withErrorBoundary } from 'react-error-boundary';
 import { ErrorBoundaryFallbackComponent } from '../BlockList/BlockList.hooks';
 import { useBlockComponent } from './BlockComponet.hooks';

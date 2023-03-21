@@ -1,6 +1,6 @@
 import FormatButton from './FormatButton';
 import Portal from './Portal';
-import { TreeNode } from '../../block_editor/tree_node';
+import { TreeNode } from '$app/block_editor/view/tree_node';
 import { useHoveringToolbar } from './index.hooks';
 
 const HoveringToolbar = ({ blockId, node }: { blockId: string; node: TreeNode }) => {

@@ -6,6 +6,7 @@ export function useBlockSelection({ container, blockEditor }: { container: HTMLD
 
   const [isDragging, setDragging] = useState(false);
   const pointRef = useRef<number[]>([]);
+  const startScrollTopRef = useRef<number>(0);
 
   const [rect, setRect] = useState<{
     startX: number;
@@ -50,6 +51,7 @@ export function useBlockSelection({ container, blockEditor }: { container: HTMLD
     const startX = e.clientX + container.scrollLeft;
     const startY = e.clientY + container.scrollTop;
     pointRef.current = [startX, startY];
+    startScrollTopRef.current = container.scrollTop;
     setRect({
       startX,
       startY,
@@ -88,6 +90,15 @@ export function useBlockSelection({ container, blockEditor }: { container: HTMLD
       if (!isDragging || !blockPositionManager) return;
       e.preventDefault();
       calcIntersectBlocks(e.clientX, e.clientY);
+
+      const { top, bottom } = container.getBoundingClientRect();
+      let delta = 0;
+      if (e.clientY >= bottom) {
+        delta = e.clientY - bottom;
+      } else if (e.clientY <= top) {
+        delta = e.clientY - top;
+      }
+      container.scrollBy(0, delta);
     },
     [isDragging]
   );

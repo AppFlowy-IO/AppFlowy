@@ -1,6 +1,5 @@
-import { BlockType } from '$app/interfaces/index';
-import { BlockData } from '../interfaces/index';
-import { generateBlockId } from '../utils/block';
+import { BlockType, BlockData } from '$app/interfaces/index';
+import { generateBlockId } from '$app/utils/block';
 
 /**
  * Represents a single block of content in a document.

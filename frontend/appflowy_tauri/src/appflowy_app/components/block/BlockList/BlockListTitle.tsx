@@ -1,5 +1,5 @@
 import TextBlock from '../TextBlock';
-import { TreeNode } from '$app/block_editor/tree_node';
+import { TreeNode } from '$app/block_editor/view/tree_node';
 
 export default function BlockListTitle({ node }: { node: TreeNode | null }) {
   if (!node) return null;

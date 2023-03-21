@@ -1,7 +1,8 @@
-import { BlockChain, BlockChangeProps } from './block_chain';
-import { Block } from './block';
+import { BlockChain, BlockChangeProps } from '../core/block_chain';
+import { Block } from '../core/block';
 import { TreeNode } from "./tree_node";
 import { BlockPositionManager } from './block_position';
+import { filterSelections } from '@/appflowy_app/utils/block_selection';
 
 export class RenderTree {
   public blockPositionManager?: BlockPositionManager;
@@ -130,16 +131,20 @@ export class RenderTree {
   }
 
   updateSelections(selections: string[]) {
+    const newSelections = filterSelections(selections, this.map);
+
     let isDiff = false;
-    if (selections.length !== this.selections.size) {
+    if (newSelections.length !== this.selections.size) {
       isDiff = true;
     }
-    const selectedBlocksSet = new Set(selections);
+
+    const selectedBlocksSet = new Set(newSelections);
     if (Array.from(this.selections).some((id) => !selectedBlocksSet.has(id))) {
       isDiff = true;
     }
+
     if (isDiff) {
-      const shouldUpdateIds = new Set([...this.selections, ...selections]);
+      const shouldUpdateIds = new Set([...this.selections, ...newSelections]);
       this.selections = selectedBlocksSet;
       shouldUpdateIds.forEach((id) => this.forceUpdate(id));
     }

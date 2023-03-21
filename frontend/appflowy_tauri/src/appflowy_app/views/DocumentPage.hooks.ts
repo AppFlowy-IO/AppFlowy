@@ -499,7 +499,7 @@ const loadBlockData = async (id: string): Promise<Record<string, BlockInterface>
         { text: '.' },
       ] },
       next: "L3-1",
-      firstChild: "L2-5-1",
+      firstChild: "L2-12-1",
     },
     "L2-12-1": {
       id: "L2-12-1",
@@ -749,7 +749,7 @@ const loadBlockData = async (id: string): Promise<Record<string, BlockInterface>
         { text: '.' },
       ] },
       next: null,
-      firstChild: "L3-5-1",
+      firstChild: "L3-12-1",
     },
     "L3-12-1": {
       id: "L3-12-1",

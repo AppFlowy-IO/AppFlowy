@@ -3,7 +3,7 @@ import TextBlock from '../TextBlock';
 import NumberedListBlock from './NumberedListBlock';
 import BulletedListBlock from './BulletedListBlock';
 import ColumnListBlock from './ColumnListBlock';
-import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
+import { TreeNode } from '@/appflowy_app/block_editor/view/tree_node';
 import { BlockCommonProps } from '@/appflowy_app/interfaces';
 
 export default function ListBlock({ node, version }: BlockCommonProps<TreeNode>) {

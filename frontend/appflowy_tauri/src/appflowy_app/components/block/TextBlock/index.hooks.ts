@@ -1,4 +1,4 @@
-import { TreeNode } from "@/appflowy_app/block_editor/tree_node";
+import { TreeNode } from "@/appflowy_app/block_editor/view/tree_node";
 import { triggerHotkey } from "@/appflowy_app/utils/slate/hotkey";
 import { useCallback, useContext, useLayoutEffect, useState } from "react";
 import { Transforms, createEditor, Descendant } from 'slate';
@@ -57,10 +57,6 @@ export function useTextBlock({
   
 
   const { focusId, selection } = textBlockManager!.selectionManager.getFocusSelection();
-  
-  if (focusId === node.id && selection) {
-    editor.selection = selection; 
-  }
   
   editor.children = value;
   Transforms.collapse(editor);

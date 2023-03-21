@@ -1,7 +1,7 @@
-import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
+import { TreeNode } from '@/appflowy_app/block_editor/view/tree_node';
 import BlockComponent from '../BlockComponent';
 import { BlockType } from '@/appflowy_app/interfaces';
-import { Block } from '@/appflowy_app/block_editor/block';
+import { Block } from '@/appflowy_app/block_editor/core/block';
 
 export default function NumberedListBlock({ title, node }: { title: JSX.Element; node: TreeNode }) {
   let prev = node.block.prev;

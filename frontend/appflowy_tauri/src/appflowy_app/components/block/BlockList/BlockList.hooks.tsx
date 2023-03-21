@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { BlockEditor } from '@/appflowy_app/block_editor';
-import { TreeNode } from '$app/block_editor/tree_node';
+import { TreeNode } from '$app/block_editor/view/tree_node';
 import { Alert } from '@mui/material';
 import { FallbackProps } from 'react-error-boundary';
-import { TextBlockManager } from '$app/block_editor/text_block';
+import { TextBlockManager } from '@/appflowy_app/block_editor/blocks/text_block';
 import { TextBlockContext } from '@/appflowy_app/utils/slate/context';
 import { useVirtualizer } from '@tanstack/react-virtual';
 export interface BlockListProps {
@@ -21,6 +21,7 @@ export function useBlockList({ blockId, blockEditor }: BlockListProps) {
   const rowVirtualizer = useVirtualizer({
     count: root?.children.length || 0,
     getScrollElement: () => parentRef.current,
+    overscan: 5,
     estimateSize: () => {
       return defaultSize;
     },

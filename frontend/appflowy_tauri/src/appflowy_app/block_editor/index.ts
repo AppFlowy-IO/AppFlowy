@@ -1,8 +1,8 @@
 // Import dependencies
-import { BlockInterface, BlockType } from '../interfaces';
-import { BlockChain, BlockChangeProps } from './block_chain';
-import { RenderTree } from './tree';
-import { Operation } from './operation';
+import { BlockInterface } from '../interfaces';
+import { BlockChain, BlockChangeProps } from './core/block_chain';
+import { RenderTree } from './view/tree';
+import { Operation } from './core/operation';
 
 /**
  * The BlockEditor class manages a block chain and a render tree for a document editor.

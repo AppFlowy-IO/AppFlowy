@@ -1,5 +1,5 @@
 import { BlockData, BlockInterface, BlockType } from '$app/interfaces/index';
-import { set } from '../utils/tool';
+import { set } from '../../utils/tool';
 import { Block } from './block';
 export interface BlockChangeProps {
   block?: Block,

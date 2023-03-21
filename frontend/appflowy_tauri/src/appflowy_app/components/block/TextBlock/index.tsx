@@ -2,11 +2,10 @@ import BlockComponent from '../BlockComponent';
 import { Slate, Editable } from 'slate-react';
 import Leaf from './Leaf';
 import HoveringToolbar from '$app/components/HoveringToolbar';
-import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
+import { TreeNode } from '@/appflowy_app/block_editor/view/tree_node';
 import { useTextBlock } from './index.hooks';
 import { BlockCommonProps, TextBlockToolbarProps } from '@/appflowy_app/interfaces';
 import { toolbarDefaultProps } from '@/appflowy_app/constants/toolbar';
-import { useState } from 'react';
 
 export default function TextBlock({
   node,

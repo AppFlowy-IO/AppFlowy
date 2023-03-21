@@ -1,6 +1,6 @@
 import { BaseEditor, BaseSelection, Descendant } from "slate";
-import { TreeNode } from './tree_node';
-import { Operation } from "./operation";
+import { TreeNode } from '$app/block_editor/view/tree_node';
+import { Operation } from "$app/block_editor/core/operation";
 import { TextBlockSelectionManager } from './text_selection';
 
 export class TextBlockManager {

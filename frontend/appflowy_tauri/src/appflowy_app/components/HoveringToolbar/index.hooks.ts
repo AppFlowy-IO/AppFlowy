@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useFocused, useSlate } from 'slate-react';
 import { calcToolbarPosition } from '@/appflowy_app/utils/slate/toolbar';
-import { TreeNode } from '../../block_editor/tree_node';
+import { TreeNode } from '$app/block_editor/view/tree_node';
 
 export function useHoveringToolbar({node}: {
   node: TreeNode
