@@ -1,24 +1,31 @@
-interface NodeInfo {
-  id: string;
-  parent: NodeInfo | null;
-  children: NodeInfo[];
-}
+import { BlockData, BlockType } from "../interfaces";
 
-type NodeMap = Map<string, NodeInfo>;
-export function filterSelections(ids: string[], nodeMap: NodeMap): string[] {
+
+export function filterSelections<TreeNode extends {
+  id: string;
+  children: TreeNode[];
+  parent: TreeNode | null;
+  type: BlockType;
+  data: BlockData;
+}>(ids: string[], nodeMap: Map<string, TreeNode>): string[] {
   const selected = new Set(ids);
   const newSelected = new Set<string>();
   ids.forEach(selectedId => {
-    if (nodeMap.get(selectedId)?.children.length === 0) {
+    const node = nodeMap.get(selectedId);
+    if (!node) return;
+    if (node.type === BlockType.ListBlock && node.data.type === 'column') {
+      return;
+    }
+    if (node.children.length === 0) {
       newSelected.add(selectedId);
       return;
     }
-    const hasChildSelected = nodeMap.get(selectedId)?.children.some(i => selected.has(i.id));
+    const hasChildSelected = node.children.some(i => selected.has(i.id));
     if (!hasChildSelected) {
       newSelected.add(selectedId);
       return;
     }
-    const hasSiblingSelected = nodeMap.get(selectedId)?.parent?.children.filter(i => i.id !== selectedId).some(i => selected.has(i.id));
+    const hasSiblingSelected = node.parent?.children.filter(i => i.id !== selectedId).some(i => selected.has(i.id));
     if (hasChildSelected && hasSiblingSelected) {
       newSelected.add(selectedId);
       return;

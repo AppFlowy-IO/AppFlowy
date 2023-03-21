@@ -131,7 +131,7 @@ export class RenderTree {
   }
 
   updateSelections(selections: string[]) {
-    const newSelections = filterSelections(selections, this.map);
+    const newSelections = filterSelections<TreeNode>(selections, this.map);
 
     let isDiff = false;
     if (newSelections.length !== this.selections.size) {

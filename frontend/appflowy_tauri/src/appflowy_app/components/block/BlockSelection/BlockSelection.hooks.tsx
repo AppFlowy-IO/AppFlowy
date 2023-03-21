@@ -92,13 +92,13 @@ export function useBlockSelection({ container, blockEditor }: { container: HTMLD
       calcIntersectBlocks(e.clientX, e.clientY);
 
       const { top, bottom } = container.getBoundingClientRect();
-      let delta = 0;
       if (e.clientY >= bottom) {
-        delta = e.clientY - bottom;
+        const delta = e.clientY - bottom;
+        container.scrollBy(0, delta);
       } else if (e.clientY <= top) {
-        delta = e.clientY - top;
+        const delta = e.clientY - top;
+        container.scrollBy(0, delta);
       }
-      container.scrollBy(0, delta);
     },
     [isDragging]
   );
