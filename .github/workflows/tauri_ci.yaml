@@ -3,7 +3,7 @@ on:
   pull_request:
 
 env:
-  NODE_VERSION: "16"
+  NODE_VERSION: "17"
   RUST_TOOLCHAIN: "1.65"
 
 jobs:
