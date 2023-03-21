@@ -13,7 +13,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:styled_widget/styled_widget.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
 import '../application/calendar_bloc.dart';
