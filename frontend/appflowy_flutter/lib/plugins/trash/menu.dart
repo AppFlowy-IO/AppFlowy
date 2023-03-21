@@ -50,7 +50,7 @@ class MenuTrash extends StatelessWidget {
           height: 16,
           child: svgWidget(
             "home/trash",
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).iconTheme.color,
           ),
         ),
         const HSpace(6),

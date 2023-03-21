@@ -55,7 +55,7 @@ class AddButton extends StatelessWidget {
           onPressed: () => controller.show(),
           icon: svgWidget(
             "home/add",
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).iconTheme.color,
           ).padding(horizontal: 3, vertical: 3),
         );
       },

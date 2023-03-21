@@ -5,9 +5,12 @@ import 'colorscheme.dart';
 const _black = Color(0xff000000);
 const _white = Color(0xFFFFFFFF);
 const _lightBg1 = Color(0xfff7f8fc);
+const _lightShader1 = Color(0xff333333);
 const _lightShader6 = Color(0xfff2f2f2);
-const _darkShader3 = Color(0xff363D49);
+const _darkShader1 = Color(0xff131720);
 const _darkShader2 = Color(0xff1A202C);
+const _darkShader3 = Color(0xff363D49);
+const _darkShader6 = Color(0xffF2F2F2);
 
 class DefaultColorScheme extends FlowyColorScheme {
   const DefaultColorScheme.light()
@@ -18,7 +21,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           red: const Color(0xfffb006d),
           yellow: const Color(0xffffd667),
           green: const Color(0xff66cf80),
-          shader1: const Color(0xff333333),
+          shader1: _lightShader1,
           shader2: const Color(0xff4f4f4f),
           shader3: const Color(0xff828282),
           shader4: const Color(0xffbdbdbd),
@@ -43,6 +46,8 @@ class DefaultColorScheme extends FlowyColorScheme {
           shadow: _black,
           sidebarBg: _lightBg1,
           divider: _lightShader6,
+          topbarBg: _white,
+          icon: _lightShader1,
         );
 
   const DefaultColorScheme.dark()
@@ -53,12 +58,12 @@ class DefaultColorScheme extends FlowyColorScheme {
           red: const Color(0xfffb006d),
           yellow: const Color(0xffF7CF46),
           green: const Color(0xff66CF80),
-          shader1: const Color(0xff131720),
+          shader1: _darkShader1,
           shader2: _darkShader2,
           shader3: _darkShader3,
           shader4: const Color(0xff7C8CA5),
           shader5: const Color(0xffBBC3CD),
-          shader6: const Color(0xffF2F2F2),
+          shader6: _darkShader6,
           shader7: _white,
           bg1: const Color(0xffF7F8FC),
           bg2: const Color(0xffEDEEF2),
@@ -78,5 +83,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           shadow: _black,
           sidebarBg: const Color(0xff232B38),
           divider: _darkShader3,
+          topbarBg: _darkShader1,
+          icon: _darkShader6,
         );
 }

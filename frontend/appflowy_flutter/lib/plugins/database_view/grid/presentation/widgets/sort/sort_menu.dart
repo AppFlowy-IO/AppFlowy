@@ -61,7 +61,7 @@ class SortChoiceChip extends StatelessWidget {
     final text = LocaleKeys.grid_settings_sort.tr();
     final leftIcon = svgWidget(
       "grid/setting/sort",
-      color: Theme.of(context).colorScheme.onSurface,
+      color: Theme.of(context).iconTheme.color,
     );
 
     return SizedBox(

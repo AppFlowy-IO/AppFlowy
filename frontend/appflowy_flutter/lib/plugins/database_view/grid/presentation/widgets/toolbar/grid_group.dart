@@ -82,7 +82,7 @@ class _GridGroupCell extends StatelessWidget {
         text: FlowyText.medium(fieldInfo.name),
         leftIcon: svgWidget(
           fieldInfo.fieldType.iconName(),
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).iconTheme.color,
         ),
         rightIcon: rightIcon,
         onTap: () {

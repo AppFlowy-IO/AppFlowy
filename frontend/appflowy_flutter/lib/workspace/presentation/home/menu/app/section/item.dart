@@ -186,7 +186,7 @@ class ViewDisclosureButton extends StatelessWidget {
           width: 26,
           icon: svgWidget(
             "editor/details",
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).iconTheme.color,
           ),
           onPressed: () {
             onEdit(true);

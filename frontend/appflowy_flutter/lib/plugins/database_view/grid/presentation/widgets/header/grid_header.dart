@@ -182,7 +182,7 @@ class CreateFieldButton extends StatelessWidget {
         onTap: () {},
         leftIcon: svgWidget(
           "home/add",
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).iconTheme.color,
         ),
       ),
       popupBuilder: (BuildContext popover) {
