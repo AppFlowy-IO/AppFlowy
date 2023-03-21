@@ -10,6 +10,7 @@ const _lightShader6 = Color(0xfff2f2f2);
 const _darkShader1 = Color(0xff131720);
 const _darkShader2 = Color(0xff1A202C);
 const _darkShader3 = Color(0xff363D49);
+const _darkShader5 = Color(0xffBBC3CD);
 const _darkShader6 = Color(0xffF2F2F2);
 
 class DefaultColorScheme extends FlowyColorScheme {
@@ -48,6 +49,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           divider: _lightShader6,
           topbarBg: _white,
           icon: _lightShader1,
+          text: _lightShader1,
         );
 
   const DefaultColorScheme.dark()
@@ -85,5 +87,6 @@ class DefaultColorScheme extends FlowyColorScheme {
           divider: _darkShader3,
           topbarBg: _darkShader1,
           icon: _darkShader6,
+          text: _darkShader5,
         );
 }
