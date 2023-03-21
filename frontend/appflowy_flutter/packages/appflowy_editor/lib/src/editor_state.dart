@@ -77,7 +77,7 @@ class EditorState {
 
   // TODO: only for testing.
   bool disableSealTimer = false;
-  bool disbaleRules = false;
+  bool disableRules = false;
 
   bool editable = true;
 
@@ -209,7 +209,7 @@ class EditorState {
 
   void _applyRules(int ruleCount) {
     // Set a maximum count to prevent a dead loop.
-    if (ruleCount >= 5 || disbaleRules) {
+    if (ruleCount >= 5 || disableRules) {
       return;
     }
 

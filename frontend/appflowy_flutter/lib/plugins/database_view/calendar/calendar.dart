@@ -34,7 +34,7 @@ class CalendarPluginBuilder extends PluginBuilder {
 
 class CalendarPluginConfig implements PluginConfig {
   @override
-  bool get creatable => false;
+  bool get creatable => true;
 }
 
 class CalendarPlugin extends Plugin {

@@ -2,14 +2,14 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:flutter/material.dart';
 
-Iterable<ThemeExtension<dynamic>> get lightPlguinStyleExtension => [
+Iterable<ThemeExtension<dynamic>> get lightPluginStyleExtension => [
       HeadingPluginStyle.light,
       CheckboxPluginStyle.light,
       NumberListPluginStyle.light,
       QuotedTextPluginStyle.light,
     ];
 
-Iterable<ThemeExtension<dynamic>> get darkPlguinStyleExtension => [
+Iterable<ThemeExtension<dynamic>> get darkPluginStyleExtension => [
       HeadingPluginStyle.dark,
       CheckboxPluginStyle.dark,
       NumberListPluginStyle.dark,
