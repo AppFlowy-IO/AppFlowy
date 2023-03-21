@@ -6,7 +6,6 @@ import { FallbackProps } from 'react-error-boundary';
 import { TextBlockManager } from '$app/block_editor/text_block';
 import { TextBlockContext } from '@/appflowy_app/utils/slate/context';
 import { useVirtualizer } from '@tanstack/react-virtual';
-
 export interface BlockListProps {
   blockId: string;
   blockEditor: BlockEditor;
@@ -35,11 +34,14 @@ export function useBlockList({ blockId, blockEditor }: BlockListProps) {
   }, [blockEditor]);
 
   useEffect(() => {
+    if (!parentRef.current) return;
+    blockEditor.renderTree.createPositionManager(parentRef.current);
     buildDeepTree();
+
     return () => {
-      console.log('off');
+      blockEditor.destroy();
     };
-  }, [blockId, blockEditor, buildDeepTree]);
+  }, [blockId, blockEditor]);
 
   useEffect(() => {
     root?.registerUpdate(() => forceUpdate((prev) => prev + 1));
@@ -52,6 +54,7 @@ export function useBlockList({ blockId, blockEditor }: BlockListProps) {
     root,
     rowVirtualizer,
     parentRef,
+    blockEditor,
   };
 }
 

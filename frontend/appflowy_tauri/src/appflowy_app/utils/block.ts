@@ -5,7 +5,7 @@ import { BlockEditor } from '../block_editor/index';
 
 export const BlockContext = createContext<{
   id?: string;
-  blockEditor?: BlockEditor
+  blockEditor?: BlockEditor;
 }>({});
 
 
@@ -21,3 +21,5 @@ export function calculateViewportBlockMaxCount() {
 
   return viewportBlockCount;
 }
+
+

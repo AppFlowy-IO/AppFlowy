@@ -1,4 +1,4 @@
-import React, { useEffect, forwardRef, useState } from 'react';
+import React, { forwardRef } from 'react';
 import { BlockCommonProps, BlockType } from '$app/interfaces';
 import PageBlock from '../PageBlock';
 import TextBlock from '../TextBlock';
@@ -7,7 +7,8 @@ import ListBlock from '../ListBlock';
 import CodeBlock from '../CodeBlock';
 import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
 import { withErrorBoundary } from 'react-error-boundary';
-import { ErrorBoundaryFallbackComponent } from './BlockList.hooks';
+import { ErrorBoundaryFallbackComponent } from '../BlockList/BlockList.hooks';
+import { useBlockComponent } from './BlockComponet.hooks';
 
 const BlockComponent = forwardRef(
   (
@@ -21,7 +22,9 @@ const BlockComponent = forwardRef(
     >,
     ref: React.ForwardedRef<HTMLDivElement>
   ) => {
-    const [version, forceUpdate] = useState<number>(0);
+    const { myRef, className, version, isSelected } = useBlockComponent({
+      node,
+    });
 
     const renderComponent = () => {
       let BlockComponentClass: (_: BlockCommonProps<TreeNode>) => JSX.Element | null;
@@ -58,23 +61,25 @@ const BlockComponent = forwardRef(
       return null;
     };
 
-    useEffect(() => {
-      node.registerUpdate(() => forceUpdate((prev) => prev + 1));
-      return () => {
-        node.unregisterUpdate();
-      };
-    }, []);
-
     return (
       <div
-        ref={ref}
+        ref={(el: HTMLDivElement | null) => {
+          myRef.current = el;
+          if (typeof ref === 'function') {
+            ref(el);
+          } else if (ref) {
+            ref.current = el;
+          }
+        }}
         {...props}
         data-block-id={node.id}
-        className={props.className ? `${props.className} relative` : 'relative'}
+        data-block-selected={isSelected}
+        className={props.className ? `${props.className} ${className}` : className}
       >
         {renderComponent()}
         {renderChild ? node.children.map(renderChild) : null}
         <div className='block-overlay'></div>
+        {isSelected ? <div className='pointer-events-none absolute inset-0 z-[-1] rounded-[4px] bg-[#E0F8FF]' /> : null}
       </div>
     );
   }

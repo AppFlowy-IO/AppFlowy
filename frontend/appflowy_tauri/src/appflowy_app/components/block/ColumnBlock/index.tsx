@@ -1,7 +1,7 @@
 import React from 'react';
 import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
 
-import BlockComponent from '../BlockList/BlockComponent';
+import BlockComponent from '../BlockComponent';
 
 export default function ColumnBlock({
   node,

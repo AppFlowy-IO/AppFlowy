@@ -1,15 +1,29 @@
 import { BlockChain, BlockChangeProps } from './block_chain';
 import { Block } from './block';
 import { TreeNode } from "./tree_node";
+import { BlockPositionManager } from './block_position';
 
 export class RenderTree {
-  private map: Map<string, TreeNode> = new Map();
+  public blockPositionManager?: BlockPositionManager;
 
+  private map: Map<string, TreeNode> = new Map();
   private root: TreeNode | null = null;
+  private selections: Set<string> = new Set();
   constructor(private blockChain: BlockChain) {
   }
 
 
+  createPositionManager(container: HTMLDivElement) {
+    this.blockPositionManager = new BlockPositionManager(container);
+  }
+
+  observeBlock(node: HTMLDivElement) {
+    return this.blockPositionManager?.observeBlock(node);
+  }
+
+  getBlockPosition(nodeId: string) {
+    return this.blockPositionManager?.getBlockPosition(nodeId) || null;
+  }
   /**
    * Get the TreeNode data by nodeId
    * @param nodeId string
@@ -113,6 +127,26 @@ export class RenderTree {
         break;
     }
     
+  }
+
+  updateSelections(selections: string[]) {
+    let isDiff = false;
+    if (selections.length !== this.selections.size) {
+      isDiff = true;
+    }
+    const selectedBlocksSet = new Set(selections);
+    if (Array.from(this.selections).some((id) => !selectedBlocksSet.has(id))) {
+      isDiff = true;
+    }
+    if (isDiff) {
+      const shouldUpdateIds = new Set([...this.selections, ...selections]);
+      this.selections = selectedBlocksSet;
+      shouldUpdateIds.forEach((id) => this.forceUpdate(id));
+    }
+  }
+
+  isSelected(nodeId: string) {
+    return this.selections.has(nodeId);
   }
 
   /**

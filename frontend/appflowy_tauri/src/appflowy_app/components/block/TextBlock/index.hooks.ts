@@ -1,9 +1,8 @@
 import { TreeNode } from "@/appflowy_app/block_editor/tree_node";
 import { triggerHotkey } from "@/appflowy_app/utils/slate/hotkey";
-import { useCallback, useContext, useLayoutEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useLayoutEffect, useState } from "react";
 import { Transforms, createEditor, Descendant } from 'slate';
 import { ReactEditor, withReact } from 'slate-react';
-import { debounce } from '$app/utils/tool';
 import { TextBlockContext } from '$app/utils/slate/context';
 
 export function useTextBlock({
@@ -24,10 +23,10 @@ export function useTextBlock({
     },
   ];
 
+
   const onChange = useCallback(
     (e: Descendant[]) => {
       if (!editor.operations || editor.operations.length === 0) return;
-      
       if (editor.operations[0].type !== 'set_selection') {
         console.log('====text block ==== ', editor.operations)
         const children = 'children' in e[0] ? e[0].children : [];
@@ -55,20 +54,17 @@ export function useTextBlock({
     triggerHotkey(event, editor);
   }
 
+  
+
+  const { focusId, selection } = textBlockManager!.selectionManager.getFocusSelection();
+  
+  if (focusId === node.id && selection) {
+    editor.selection = selection; 
+  }
+  
   editor.children = value;
   Transforms.collapse(editor);
 
-  if (!textBlockManager) {
-    return {
-      editor,
-      value,
-      onChange,
-      onKeyDownCapture
-    }
-  }
-
-  const { focusId, selection } = textBlockManager.selectionManager.getFocusSelection();
-  
   useLayoutEffect(() => {
     let timer: NodeJS.Timeout;
     if (focusId === node.id && selection) {

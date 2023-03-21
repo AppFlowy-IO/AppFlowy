@@ -1,4 +1,4 @@
-import BlockComponent from '../BlockList/BlockComponent';
+import BlockComponent from '../BlockComponent';
 import { Slate, Editable } from 'slate-react';
 import Leaf from './Leaf';
 import HoveringToolbar from '$app/components/HoveringToolbar';
@@ -6,6 +6,7 @@ import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
 import { useTextBlock } from './index.hooks';
 import { BlockCommonProps, TextBlockToolbarProps } from '@/appflowy_app/interfaces';
 import { toolbarDefaultProps } from '@/appflowy_app/constants/toolbar';
+import { useState } from 'react';
 
 export default function TextBlock({
   node,
@@ -21,7 +22,7 @@ export default function TextBlock({
   const { showGroups } = toolbarProps || toolbarDefaultProps;
 
   return (
-    <div {...props} className={props.className + ' py-1'}>
+    <div {...props} className={`${props.className} py-1`}>
       <Slate editor={editor} onChange={onChange} value={value}>
         {showGroups.length > 0 && <HoveringToolbar node={node} blockId={node.id} />}
         <Editable

@@ -1,5 +1,5 @@
 import { TreeNode } from '@/appflowy_app/block_editor/tree_node';
-import BlockComponent from '../BlockList/BlockComponent';
+import BlockComponent from '../BlockComponent';
 import { BlockType } from '@/appflowy_app/interfaces';
 import { Block } from '@/appflowy_app/block_editor/block';
 

@@ -41,6 +41,7 @@ export class BlockEditor {
     this.blockChain.rebuild(id, data);
   }
 
+
   /**
    * Destroys the block chain and render tree.
    */
