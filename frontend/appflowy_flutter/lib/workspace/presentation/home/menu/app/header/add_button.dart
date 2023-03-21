@@ -48,6 +48,7 @@ class AddButton extends StatelessWidget {
     return PopoverActionList<PopoverAction>(
       direction: PopoverDirection.bottomWithLeftAligned,
       actions: actions,
+      offset: const Offset(0, 8),
       buildChild: (controller) {
         return FlowyIconButton(
           width: 22,

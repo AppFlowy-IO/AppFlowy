@@ -4,7 +4,7 @@ import '../infra/test_editor.dart';
 
 void main() {
   group('command_extension.dart', () {
-    testWidgets('insert a new checkbox after an exsiting checkbox',
+    testWidgets('insert a new checkbox after an existing checkbox',
         (tester) async {
       final editor = tester.editor
         ..insertTextNode(

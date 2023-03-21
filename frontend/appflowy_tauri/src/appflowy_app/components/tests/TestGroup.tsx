@@ -69,6 +69,37 @@ async function moveKanbanBoardRow() {
   // Create row in no status group
   const firstGroup = databaseController.groups.getValue()[1];
   const secondGroup = databaseController.groups.getValue()[2];
+  // subscribe the group changes
+  firstGroup.subscribe({
+    onRemoveRow: (groupId, deleteRowId) => {
+      console.log(groupId + 'did remove:' + deleteRowId);
+    },
+    onInsertRow: (groupId, rowPB) => {
+      console.log(groupId + 'did insert:' + rowPB.id);
+    },
+    onUpdateRow: (groupId, rowPB) => {
+      console.log(groupId + 'did update:' + rowPB.id);
+    },
+    onCreateRow: (groupId, rowPB) => {
+      console.log(groupId + 'did create:' + rowPB.id);
+    },
+  });
+
+  secondGroup.subscribe({
+    onRemoveRow: (groupId, deleteRowId) => {
+      console.log(groupId + 'did remove:' + deleteRowId);
+    },
+    onInsertRow: (groupId, rowPB) => {
+      console.log(groupId + 'did insert:' + rowPB.id);
+    },
+    onUpdateRow: (groupId, rowPB) => {
+      console.log(groupId + 'did update:' + rowPB.id);
+    },
+    onCreateRow: (groupId, rowPB) => {
+      console.log(groupId + 'did create:' + rowPB.id);
+    },
+  });
+
   const row = firstGroup.rowAtIndex(0).unwrap();
   await databaseController.moveRow(row.id, secondGroup.groupId);
 

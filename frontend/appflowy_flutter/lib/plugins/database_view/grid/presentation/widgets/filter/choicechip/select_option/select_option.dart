@@ -96,7 +96,7 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
           SelectOptionFilterEditorState>(
         builder: (context, state) {
           List<Widget> slivers = [
-            SliverToBoxAdapter(child: _buildFilterPannel(context, state)),
+            SliverToBoxAdapter(child: _buildFilterPanel(context, state)),
           ];
 
           if (state.filter.condition != SelectOptionConditionPB.OptionIsEmpty &&
@@ -131,7 +131,7 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
     );
   }
 
-  Widget _buildFilterPannel(
+  Widget _buildFilterPanel(
       BuildContext context, SelectOptionFilterEditorState state) {
     return SizedBox(
       height: 20,

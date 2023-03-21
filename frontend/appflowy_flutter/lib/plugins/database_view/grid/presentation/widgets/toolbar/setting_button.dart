@@ -41,23 +41,26 @@ class _SettingButtonState extends State<SettingButton> {
         );
       },
       builder: (context, settingContext) {
-        return AppFlowyPopover(
-          controller: _popoverController,
-          constraints: BoxConstraints.loose(const Size(260, 400)),
-          direction: PopoverDirection.bottomWithLeftAligned,
-          offset: const Offset(0, 10),
-          margin: EdgeInsets.zero,
-          triggerActions: PopoverTriggerFlags.none,
-          child: FlowyTextButton(
-            LocaleKeys.settings_title.tr(),
-            fillColor: Colors.transparent,
-            hoverColor: AFThemeExtension.of(context).lightGreyHover,
-            padding: GridSize.typeOptionContentInsets,
-            onPressed: () => _popoverController.show(),
+        return SizedBox(
+          height: 26,
+          child: AppFlowyPopover(
+            controller: _popoverController,
+            constraints: BoxConstraints.loose(const Size(260, 400)),
+            direction: PopoverDirection.bottomWithLeftAligned,
+            offset: const Offset(0, 8),
+            margin: EdgeInsets.zero,
+            triggerActions: PopoverTriggerFlags.none,
+            child: FlowyTextButton(
+              LocaleKeys.settings_title.tr(),
+              fillColor: Colors.transparent,
+              hoverColor: AFThemeExtension.of(context).lightGreyHover,
+              padding: GridSize.typeOptionContentInsets,
+              onPressed: () => _popoverController.show(),
+            ),
+            popupBuilder: (BuildContext context) {
+              return _GridSettingListPopover(settingContext: settingContext);
+            },
           ),
-          popupBuilder: (BuildContext context) {
-            return _GridSettingListPopover(settingContext: settingContext);
-          },
         );
       },
     );
