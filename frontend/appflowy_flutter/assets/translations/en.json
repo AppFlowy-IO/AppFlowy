@@ -334,7 +334,8 @@
     },
     "slashMenu": {
       "board": {
-        "selectABoardToLinkTo": "Select a Board to link to"
+        "selectABoardToLinkTo": "Select a Board to link to",
+        "createANewBoard": "Create a new Board"
       },
       "grid": {
         "selectAGridToLinkTo": "Select a Grid to link to",
