@@ -247,7 +247,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       colorScheme: ColorScheme(
         brightness: brightness,
         primary: theme.main1,
-        onPrimary: _white,
+        onPrimary: theme.buttonFill,
         primaryContainer: theme.main2,
         onPrimaryContainer: _white,
         secondary: theme.hover,

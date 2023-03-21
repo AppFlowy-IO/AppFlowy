@@ -61,6 +61,7 @@ abstract class FlowyColorScheme {
   final Color topbarBg;
   final Color icon;
   final Color text;
+  final Color buttonFill;
 
   const FlowyColorScheme({
     required this.surface,
@@ -97,6 +98,7 @@ abstract class FlowyColorScheme {
     required this.topbarBg,
     required this.icon,
     required this.text,
+    required this.buttonFill,
   });
 
   factory FlowyColorScheme.builtIn(String themeName, Brightness brightness) {

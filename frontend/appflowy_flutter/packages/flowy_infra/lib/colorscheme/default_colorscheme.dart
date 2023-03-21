@@ -50,6 +50,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           topbarBg: _white,
           icon: _lightShader1,
           text: _lightShader1,
+          buttonFill: _white,
         );
 
   const DefaultColorScheme.dark()
@@ -88,5 +89,6 @@ class DefaultColorScheme extends FlowyColorScheme {
           topbarBg: _darkShader1,
           icon: _darkShader6,
           text: _darkShader5,
+          buttonFill: _darkShader1,
         );
 }
