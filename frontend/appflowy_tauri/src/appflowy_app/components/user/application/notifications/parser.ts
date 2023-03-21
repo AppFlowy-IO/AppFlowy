@@ -1,5 +1,5 @@
-import { FlowyError, UserNotification } from '../../../../../services/backend';
-import { NotificationParser, OnNotificationError } from '../../../../../services/backend/notifications';
+import { FlowyError, UserNotification } from '@/services/backend';
+import { NotificationParser, OnNotificationError } from '@/services/backend/notifications';
 import { Result } from 'ts-results';
 
 declare type UserNotificationCallback = (ty: UserNotification, payload: Result<Uint8Array, FlowyError>) => void;

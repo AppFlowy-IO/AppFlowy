@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ViewLayoutTypePB } from '../../../../services/backend';
+import { ViewLayoutTypePB } from '@/services/backend';
 
 export interface IPage {
   id: string;
