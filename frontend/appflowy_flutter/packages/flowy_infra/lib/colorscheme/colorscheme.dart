@@ -15,14 +15,14 @@ const Map<String, List<FlowyColorScheme>> themeMap = {
     DefaultColorScheme.light(),
     DefaultColorScheme.dark(),
   ],
-  BuiltInTheme.dandelion: [
-    DandelionColorScheme.light(),
-    DandelionColorScheme.dark(),
-  ],
-  BuiltInTheme.lavender: [
-    LavenderColorScheme.light(),
-    LavenderColorScheme.dark(),
-  ],
+  // BuiltInTheme.dandelion: [
+  //   DandelionColorScheme.light(),
+  //   DandelionColorScheme.dark(),
+  // ],
+  // BuiltInTheme.lavender: [
+  //   LavenderColorScheme.light(),
+  //   LavenderColorScheme.dark(),
+  // ],
 };
 
 @immutable
@@ -56,6 +56,8 @@ abstract class FlowyColorScheme {
   final Color main1;
   final Color main2;
   final Color shadow;
+  final Color sidebarBg;
+  final Color divider;
 
   const FlowyColorScheme({
     required this.surface,
@@ -87,6 +89,8 @@ abstract class FlowyColorScheme {
     required this.main1,
     required this.main2,
     required this.shadow,
+    required this.sidebarBg,
+    required this.divider,
   });
 
   factory FlowyColorScheme.builtIn(String themeName, Brightness brightness) {

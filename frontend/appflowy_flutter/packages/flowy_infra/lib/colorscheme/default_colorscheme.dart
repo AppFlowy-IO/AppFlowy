@@ -4,6 +4,10 @@ import 'colorscheme.dart';
 
 const _black = Color(0xff000000);
 const _white = Color(0xFFFFFFFF);
+const _lightBg1 = Color(0xfff7f8fc);
+const _lightShader6 = Color(0xfff2f2f2);
+const _darkShader3 = Color(0xff363D49);
+const _darkShader2 = Color(0xff1A202C);
 
 class DefaultColorScheme extends FlowyColorScheme {
   const DefaultColorScheme.light()
@@ -19,9 +23,9 @@ class DefaultColorScheme extends FlowyColorScheme {
           shader3: const Color(0xff828282),
           shader4: const Color(0xffbdbdbd),
           shader5: const Color(0xffe0e0e0),
-          shader6: const Color(0xfff2f2f2),
+          shader6: _lightShader6,
           shader7: _white,
-          bg1: const Color(0xfff7f8fc),
+          bg1: _lightBg1,
           bg2: const Color(0xffedeef2),
           bg3: const Color(0xffe2e4eb),
           bg4: const Color(0xff2c144b),
@@ -37,38 +41,42 @@ class DefaultColorScheme extends FlowyColorScheme {
           main1: const Color(0xff00bcf0),
           main2: const Color(0xff00b7ea),
           shadow: _black,
+          sidebarBg: _lightBg1,
+          divider: _lightShader6,
         );
 
   const DefaultColorScheme.dark()
       : super(
-          surface: const Color(0xff292929),
+          surface: _darkShader2,
           hover: const Color(0xffE0F8FF),
           selector: const Color(0xffF2FCFF),
           red: const Color(0xfffb006d),
-          yellow: const Color(0xffffd667),
-          green: const Color(0xff66cf80),
-          shader1: const Color(0xff7C8CA5),
-          shader2: const Color(0xff4F4F4F),
-          shader3: const Color(0xff828282),
-          shader4: const Color(0xffBDBDBD),
-          shader5: const Color(0xffE0E0E0),
+          yellow: const Color(0xffF7CF46),
+          green: const Color(0xff66CF80),
+          shader1: const Color(0xff131720),
+          shader2: _darkShader2,
+          shader3: _darkShader3,
+          shader4: const Color(0xff7C8CA5),
+          shader5: const Color(0xffBBC3CD),
           shader6: const Color(0xffF2F2F2),
           shader7: _white,
           bg1: const Color(0xffF7F8FC),
           bg2: const Color(0xffEDEEF2),
           bg3: const Color(0xffE2E4EB),
           bg4: const Color(0xff2C144B),
-          tint1: const Color(0xffE8E0FF),
-          tint2: const Color(0xffFFE7FD),
-          tint3: const Color(0xffFFE7EE),
-          tint4: const Color(0xffFFEFE3),
-          tint5: const Color(0xffFFF2CD),
-          tint6: const Color(0xffF5FFDC),
-          tint7: const Color(0xffDDFFD6),
-          tint8: const Color(0xffDEFFF1),
-          tint9: const Color(0xffE1FBFF),
+          tint1: const Color(0xff8738F5),
+          tint2: const Color(0xffE6336E),
+          tint3: const Color(0xffFF2D9E),
+          tint4: const Color(0xffE9973E),
+          tint5: const Color(0xffFBF000),
+          tint6: const Color(0xffC0F000),
+          tint7: const Color(0xff15F74E),
+          tint8: const Color(0xff00F0E2),
+          tint9: const Color(0xff00BCF0),
           main1: const Color(0xff00BCF0),
           main2: const Color(0xff00B7EA),
           shadow: _black,
+          sidebarBg: const Color(0xff232B38),
+          divider: _darkShader3,
         );
 }
