@@ -6,8 +6,8 @@ import {
   ReorderSingleRowPB,
   RowsChangesetPB,
   RowsVisibilityChangesetPB,
-} from '../../../../../services/backend';
-import { ChangeNotifier } from '../../../../utils/change_notifier';
+} from '@/services/backend';
+import { ChangeNotifier } from '$app/utils/change_notifier';
 import { DatabaseNotificationObserver } from '../notifications/observer';
 
 export type RowsVisibilityNotifyValue = Result<RowsVisibilityChangesetPB, FlowyError>;
