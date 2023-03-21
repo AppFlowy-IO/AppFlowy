@@ -71,7 +71,7 @@ class _AutoCompletionInputState extends State<_AutoCompletionInput> {
         final renderBox = context.findRenderObject() as RenderBox?;
         if (renderBox != null) {
           if (!isTapDownDetailsInRenderBox(details, renderBox)) {
-            if (text.isNotEmpty || controller.text.isEmpty) {
+            if (text.isNotEmpty || controller.text.isNotEmpty) {
               showDialog(
                 context: context,
                 builder: (context) {
