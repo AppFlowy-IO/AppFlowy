@@ -13,6 +13,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:styled_widget/styled_widget.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
 import '../application/calendar_bloc.dart';
@@ -62,30 +63,32 @@ class CalendarDayCard extends StatelessWidget {
           );
         }).toList();
 
-        final child = Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _Header(
-                  date: date,
-                  isInMonth: isInMonth,
-                  isToday: isToday,
-                  onCreate: () => onCreateEvent(date),
-                ),
-                VSpace(GridSize.typeOptionSeparatorHeight),
-                Flexible(
-                  child: ListView.separated(
-                    itemBuilder: (BuildContext context, int index) {
-                      return children[index];
-                    },
-                    itemCount: children.length,
-                    separatorBuilder: (BuildContext context, int index) =>
-                        VSpace(GridSize.typeOptionSeparatorHeight),
-                  ),
-                ),
-              ],
-            ));
+        final child = Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: _Header(
+                date: date,
+                isInMonth: isInMonth,
+                isToday: isToday,
+                onCreate: () => onCreateEvent(date),
+              ),
+            ),
+            VSpace(GridSize.typeOptionSeparatorHeight),
+            Flexible(
+              child: ListView.separated(
+                itemBuilder: (BuildContext context, int index) {
+                  return children[index];
+                },
+                itemCount: children.length,
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                separatorBuilder: (BuildContext context, int index) =>
+                    VSpace(GridSize.typeOptionSeparatorHeight),
+              ),
+            ),
+          ],
+        );
 
         return Container(
           color: backgroundColor,
@@ -93,7 +96,10 @@ class CalendarDayCard extends StatelessWidget {
             cursor: SystemMouseCursors.click,
             onEnter: (p) => notifyEnter(context, true),
             onExit: (p) => notifyEnter(context, false),
-            child: child,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: child,
+            ),
           ),
         );
       }),
