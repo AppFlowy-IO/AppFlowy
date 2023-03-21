@@ -7,11 +7,11 @@ use flowy_sqlite::{
 };
 use std::sync::Arc;
 
-pub struct DatabaseRefIndexer {
+pub struct DatabaseRefs {
   database: Arc<dyn DatabaseDBConnection>,
 }
 
-impl DatabaseRefIndexer {
+impl DatabaseRefs {
   pub fn new(database: Arc<dyn DatabaseDBConnection>) -> Self {
     Self { database }
   }

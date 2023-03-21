@@ -313,7 +313,9 @@ impl DatabaseViews {
   }
 
   async fn make_view_editor(&self, view_id: &str) -> FlowyResult<DatabaseViewEditor> {
-    let rev_manager = make_database_view_rev_manager(&self.user, view_id).await?;
+    let user_id = self.user.user_id()?;
+    let pool = self.user.db_pool()?;
+    let rev_manager = make_database_view_rev_manager(&user_id, pool, view_id).await?;
     let user_id = self.user.user_id()?;
     let token = self.user.token()?;
     let view_id = view_id.to_owned();
@@ -338,7 +340,9 @@ pub async fn make_database_view_revision_pad(
   DatabaseViewRevisionPad,
   RevisionManager<Arc<ConnectionPool>>,
 )> {
-  let mut rev_manager = make_database_view_rev_manager(&user, view_id).await?;
+  let user_id = user.user_id()?;
+  let pool = user.db_pool()?;
+  let mut rev_manager = make_database_view_rev_manager(&user_id, pool, view_id).await?;
   let view_rev_pad = rev_manager
     .initialize::<DatabaseViewRevisionSerde>(None)
     .await?;
@@ -346,16 +350,14 @@ pub async fn make_database_view_revision_pad(
 }
 
 pub async fn make_database_view_rev_manager(
-  user: &Arc<dyn DatabaseUser>,
+  user_id: &str,
+  pool: Arc<ConnectionPool>,
   view_id: &str,
 ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
-  let user_id = user.user_id()?;
-
   // Create revision persistence
-  let pool = user.db_pool()?;
-  let disk_cache = SQLiteDatabaseViewRevisionPersistence::new(&user_id, pool.clone());
+  let disk_cache = SQLiteDatabaseViewRevisionPersistence::new(user_id, pool.clone());
   let configuration = RevisionPersistenceConfiguration::new(2, false);
-  let rev_persistence = RevisionPersistence::new(&user_id, view_id, disk_cache, configuration);
+  let rev_persistence = RevisionPersistence::new(user_id, view_id, disk_cache, configuration);
 
   // Create snapshot persistence
   const DATABASE_VIEW_SP_PREFIX: &str = "grid_view";
@@ -365,7 +367,7 @@ pub async fn make_database_view_rev_manager(
 
   let rev_compress = DatabaseViewRevisionMergeable();
   Ok(RevisionManager::new(
-    &user_id,
+    user_id,
     view_id,
     rev_persistence,
     rev_compress,

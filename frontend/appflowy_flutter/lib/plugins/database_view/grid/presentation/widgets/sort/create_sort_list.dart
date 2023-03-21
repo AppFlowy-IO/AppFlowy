@@ -122,7 +122,7 @@ class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
         color: Theme.of(context).colorScheme.background,
         height: fixHeight,
         child: FlowyTextField(
-          hintText: LocaleKeys.grid_settings_filterBy.tr(),
+          hintText: LocaleKeys.grid_settings_sortBy.tr(),
           onChanged: (text) {
             context
                 .read<CreateSortBloc>()

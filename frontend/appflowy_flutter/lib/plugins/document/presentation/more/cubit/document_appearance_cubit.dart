@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String _kDocumentAppearenceFontSize = 'kDocumentAppearenceFontSize';
+const String _kDocumentAppearanceFontSize = 'kDocumentAppearanceFontSize';
 
 class DocumentAppearance {
   const DocumentAppearance({
@@ -24,7 +24,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
 
   void fetch() async {
     final prefs = await SharedPreferences.getInstance();
-    final fontSize = prefs.getDouble(_kDocumentAppearenceFontSize) ?? 14.0;
+    final fontSize = prefs.getDouble(_kDocumentAppearanceFontSize) ?? 14.0;
     emit(state.copyWith(
       fontSize: fontSize,
     ));
@@ -32,7 +32,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
 
   void syncFontSize(double fontSize) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setDouble(_kDocumentAppearenceFontSize, fontSize);
+    prefs.setDouble(_kDocumentAppearanceFontSize, fontSize);
     emit(state.copyWith(
       fontSize: fontSize,
     ));

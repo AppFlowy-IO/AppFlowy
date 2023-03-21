@@ -216,7 +216,8 @@
       "addFilter": "Add Filter",
       "deleteFilter": "Delete filter",
       "filterBy": "Filter by...",
-      "typeAValue": "Type a value..."
+      "typeAValue": "Type a value...",
+      "layout": "Layout"
     },
     "textFilter": {
       "contains": "Contains",
@@ -333,7 +334,8 @@
     },
     "slashMenu": {
       "board": {
-        "selectABoardToLinkTo": "Select a Board to link to"
+        "selectABoardToLinkTo": "Select a Board to link to",
+        "createANewBoard": "Create a new Board"
       },
       "grid": {
         "selectAGridToLinkTo": "Select a Grid to link to"
@@ -393,6 +395,12 @@
       "jumpToday": "Jump to Today",
       "previousMonth": "Previous Month",
       "nextMonth": "Next Month"
+    },
+    "settings": {
+      "showWeekNumbers": "Show week numbers",
+      "showWeekends": "Show weekends",
+      "firstDayOfWeek": "First day of week",
+      "layoutDateField": "Layout calendar by"
     }
   }
 }
