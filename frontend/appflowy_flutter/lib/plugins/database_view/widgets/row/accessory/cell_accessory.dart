@@ -69,7 +69,6 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
   Widget build(BuildContext context) {
     return Tooltip(
       message: LocaleKeys.tooltip_openAsPage.tr(),
-      textStyle: AFThemeExtension.of(context).caption.textColor(Colors.white),
       child: svgWidget(
         "grid/expander",
         color: Theme.of(context).colorScheme.primary,

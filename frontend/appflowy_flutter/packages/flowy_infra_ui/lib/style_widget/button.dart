@@ -195,7 +195,6 @@ class FlowyTextButton extends StatelessWidget {
     if (tooltip != null) {
       child = Tooltip(
         message: tooltip!,
-        textStyle: AFThemeExtension.of(context).caption.textColor(Colors.white),
         child: child,
       );
     }
@@ -285,7 +284,6 @@ class FlowyRichTextButton extends StatelessWidget {
     if (tooltip != null) {
       child = Tooltip(
         message: tooltip!,
-        textStyle: AFThemeExtension.of(context).caption.textColor(Colors.white),
         child: child,
       );
     }
