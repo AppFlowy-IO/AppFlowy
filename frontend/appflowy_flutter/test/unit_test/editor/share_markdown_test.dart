@@ -55,7 +55,7 @@ void main() {
       final result = documentToMarkdown(document, customParsers: [
         const CodeBlockNodeParser(),
       ]);
-      expect(result, r'```Some Code```');
+      expect(result, '```\nSome Code\n```');
     });
     test('divider', () {
       const text = '''
