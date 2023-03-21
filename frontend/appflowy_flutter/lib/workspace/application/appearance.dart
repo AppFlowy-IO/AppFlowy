@@ -219,6 +219,14 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       ),
       primaryIconTheme: IconThemeData(color: theme.hover),
       iconTheme: IconThemeData(color: theme.icon),
+      tooltipTheme: TooltipThemeData(
+        textStyle: _getFontStyle(
+          fontFamily: fontFamily,
+          fontSize: FontSizes.s11,
+          fontWeight: FontWeight.w400,
+          fontColor: theme.surface,
+        ),
+      ),
       scrollbarTheme: ScrollbarThemeData(
         thumbColor: MaterialStateProperty.all(theme.shader3),
         thickness: MaterialStateProperty.resolveWith((states) {

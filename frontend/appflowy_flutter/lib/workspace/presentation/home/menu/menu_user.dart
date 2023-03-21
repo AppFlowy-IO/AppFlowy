@@ -76,7 +76,6 @@ class MenuUser extends StatelessWidget {
     final userProfile = context.read<MenuUserBloc>().state.userProfile;
     return Tooltip(
       message: LocaleKeys.settings_menu_open.tr(),
-      textStyle: AFThemeExtension.of(context).caption.textColor(Colors.white),
       child: IconButton(
         onPressed: () {
           showDialog(

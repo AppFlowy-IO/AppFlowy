@@ -180,11 +180,9 @@ TextSpan sidebarTooltipTextSpan(BuildContext context, String hintText) =>
       children: [
         TextSpan(
           text: "$hintText\n",
-          style: AFThemeExtension.of(context).callout.textColor(Colors.white),
         ),
         TextSpan(
           text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
-          style: AFThemeExtension.of(context).caption.textColor(Colors.white60),
         ),
       ],
     );
