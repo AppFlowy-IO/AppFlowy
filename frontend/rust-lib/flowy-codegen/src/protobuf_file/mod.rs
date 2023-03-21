@@ -141,7 +141,7 @@ fn generate_ts_protobuf_files(
     };
 
     if result.is_err() {
-      eprintln!("Generate ts pb file failed with: {}, {:?}", path, result)
+      panic!("Generate ts pb file failed with: {}, {:?}", path, result)
     };
   });
 

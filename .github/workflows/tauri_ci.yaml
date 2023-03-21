@@ -31,11 +31,11 @@ jobs:
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
           override: true
-          profile: minimal
+#          profile: minimal
 
-      - uses: Swatinem/rust-cache@v2
-        with:
-          prefix-key: ${{ matrix.platform }}
+#      - uses: Swatinem/rust-cache@v2
+#        with:
+#          prefix-key: ${{ matrix.platform }}
 
       - name: install dependencies (windows only)
         if: matrix.platform == 'windows-latest'
@@ -74,6 +74,7 @@ jobs:
         run: |
           mkdir dist
           npm install
+          cargo make --cwd .. tauri_clean
           cargo make --cwd .. tauri_build 
           yarn && yarn build
 
