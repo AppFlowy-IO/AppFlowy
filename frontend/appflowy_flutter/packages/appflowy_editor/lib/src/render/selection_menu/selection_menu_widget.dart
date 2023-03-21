@@ -339,15 +339,11 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
       newSelectedIndex -= 1;
     } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
       newSelectedIndex += 1;
-    }else if (event.logicalKey == LogicalKeyboardKey.tab) {
+    } else if (event.logicalKey == LogicalKeyboardKey.tab) {
       newSelectedIndex += widget.maxItemInRow;
       var currRow = (newSelectedIndex) % widget.maxItemInRow;
       if (newSelectedIndex >= _showingItems.length) {
-        if (currRow + 1 >= widget.maxItemInRow) {
-          newSelectedIndex = 0;
-        } else {
-          newSelectedIndex = (currRow + 1);
-        }
+        newSelectedIndex = (currRow + 1) % widget.maxItemInRow;
       }
     }
 
