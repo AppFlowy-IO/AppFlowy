@@ -13,6 +13,7 @@ const _darkShader2 = Color(0xff1A202C);
 const _darkShader3 = Color(0xff363D49);
 const _darkShader5 = Color(0xffBBC3CD);
 const _darkShader6 = Color(0xffF2F2F2);
+const _darkMain1 = Color(0xff00BCF0);
 
 class DefaultColorScheme extends FlowyColorScheme {
   const DefaultColorScheme.light()
@@ -59,7 +60,7 @@ class DefaultColorScheme extends FlowyColorScheme {
   const DefaultColorScheme.dark()
       : super(
           surface: _darkShader2,
-          hover: const Color(0xffE0F8FF),
+          hover: _darkMain1,
           selector: const Color(0xffF2FCFF),
           red: const Color(0xfffb006d),
           yellow: const Color(0xffF7CF46),
@@ -73,7 +74,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           shader7: _white,
           bg1: const Color(0xffF7F8FC),
           bg2: const Color(0xffEDEEF2),
-          bg3: const Color(0xffE2E4EB),
+          bg3: _darkMain1,
           bg4: const Color(0xff2C144B),
           tint1: const Color(0xff8738F5),
           tint2: const Color(0xffE6336E),
@@ -84,7 +85,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           tint7: const Color(0xff15F74E),
           tint8: const Color(0xff00F0E2),
           tint9: const Color(0xff00BCF0),
-          main1: const Color(0xff00BCF0),
+          main1: _darkMain1,
           main2: const Color(0xff00B7EA),
           shadow: _black,
           sidebarBg: const Color(0xff232B38),
