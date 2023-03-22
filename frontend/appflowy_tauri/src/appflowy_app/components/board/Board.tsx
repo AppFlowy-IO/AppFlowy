@@ -7,7 +7,7 @@ import { ViewLayoutTypePB } from '@/services/backend';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { useState } from 'react';
 import { RowInfo } from '$app/stores/effects/database/row/row_cache';
-import { EditRow } from '$app/components/board/EditBoardRow/EditRow';
+import { EditRow } from '$app/components/_shared/EditRow/EditRow';
 
 export const Board = ({ viewId }: { viewId: string }) => {
   const { controller, rows, groups, onNewRowClick, onDragEnd } = useDatabase(viewId, ViewLayoutTypePB.Board);
