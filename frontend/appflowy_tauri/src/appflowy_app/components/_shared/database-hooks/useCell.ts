@@ -4,28 +4,32 @@ import { FieldController } from '$app/stores/effects/database/field/field_contro
 import { CellControllerBuilder } from '$app/stores/effects/database/cell/controller_builder';
 import { DateCellDataPB, SelectOptionCellDataPB, URLCellDataPB } from '$app/../services/backend';
 import { useEffect, useState } from 'react';
+import { CellController } from '$app/stores/effects/database/cell/cell_controller';
 
 export const useCell = (cellIdentifier: CellIdentifier, cellCache: CellCache, fieldController: FieldController) => {
   const [data, setData] = useState<DateCellDataPB | URLCellDataPB | SelectOptionCellDataPB | string | undefined>();
+  const [cellController, setCellController] = useState<CellController<any, any>>();
 
   useEffect(() => {
     if (!cellIdentifier || !cellCache || !fieldController) return;
     const builder = new CellControllerBuilder(cellIdentifier, cellCache, fieldController);
-    const cellController = builder.build();
+    const c = builder.build();
+    setCellController(c);
 
     void (async () => {
-      const cellData = await cellController.getCellData();
+      const cellData = await c.getCellData();
       if (cellData.some) {
         setData(cellData.unwrap());
       }
     })();
 
     return () => {
-      void cellController.dispose();
+      void c.dispose();
     };
   }, [cellIdentifier, cellCache, fieldController]);
 
   return {
+    cellController,
     data,
   };
 };
