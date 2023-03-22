@@ -10,7 +10,10 @@ import { RowInfo } from '$app/stores/effects/database/row/row_cache';
 import { EditRow } from '$app/components/_shared/EditRow/EditRow';
 
 export const Board = ({ viewId }: { viewId: string }) => {
-  const { controller, rows, groups, onNewRowClick, onDragEnd } = useDatabase(viewId, ViewLayoutTypePB.Board);
+  const { controller, rows, groups, groupByFieldId, onNewRowClick, onDragEnd } = useDatabase(
+    viewId,
+    ViewLayoutTypePB.Board
+  );
   const [showBoardRow, setShowBoardRow] = useState(false);
   const [boardRowInfo, setBoardRowInfo] = useState<RowInfo>();
 
@@ -45,6 +48,7 @@ export const Board = ({ viewId }: { viewId: string }) => {
                   controller={controller}
                   group={group}
                   allRows={rows}
+                  groupByFieldId={groupByFieldId}
                   onNewRowClick={() => onNewRowClick(index)}
                   onOpenRow={onOpenRow}
                 />

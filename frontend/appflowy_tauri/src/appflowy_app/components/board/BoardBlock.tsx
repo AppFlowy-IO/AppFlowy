@@ -10,6 +10,7 @@ export const BoardBlock = ({
   viewId,
   controller,
   allRows,
+  groupByFieldId,
   onNewRowClick,
   onOpenRow,
   group,
@@ -17,6 +18,7 @@ export const BoardBlock = ({
   viewId: string;
   controller: DatabaseController;
   allRows: readonly RowInfo[];
+  groupByFieldId: string;
   onNewRowClick: () => void;
   onOpenRow: (rowId: RowInfo) => void;
   group: DatabaseGroupController;
@@ -53,6 +55,7 @@ export const BoardBlock = ({
                   index={index}
                   key={row.row.id}
                   rowInfo={row}
+                  groupByFieldId={groupByFieldId}
                   onOpenRow={onOpenRow}
                 ></BoardCard>
               ) : (

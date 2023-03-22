@@ -1,6 +1,7 @@
 import {
   DatabaseEventCreateRow,
   DatabaseEventGetDatabase,
+  DatabaseEventGetDatabaseSetting,
   DatabaseEventGetFields,
   DatabaseEventGetGroup,
   DatabaseEventGetGroups,
@@ -117,5 +118,10 @@ export class DatabaseBackendService {
   loadGroups = () => {
     const payload = DatabaseViewIdPB.fromObject({ value: this.viewId });
     return DatabaseEventGetGroups(payload);
+  };
+
+  getSettings = () => {
+    const payload = DatabaseViewIdPB.fromObject({ value: this.viewId });
+    return DatabaseEventGetDatabaseSetting(payload);
   };
 }

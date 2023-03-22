@@ -10,12 +10,14 @@ export const BoardCard = ({
   viewId,
   controller,
   rowInfo,
+  groupByFieldId,
   onOpenRow,
 }: {
   index: number;
   viewId: string;
   controller: DatabaseController;
   rowInfo: RowInfo;
+  groupByFieldId: string;
   onOpenRow: (rowId: RowInfo) => void;
 }) => {
   const { cells } = useRow(viewId, controller, rowInfo);
@@ -34,14 +36,16 @@ export const BoardCard = ({
             <Details2Svg></Details2Svg>
           </button>
           <div className={'flex flex-col gap-3'}>
-            {cells.map((cell, cellIndex) => (
-              <BoardCell
-                key={cellIndex}
-                cellIdentifier={cell.cellIdentifier}
-                cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
-                fieldController={controller.fieldController}
-              ></BoardCell>
-            ))}
+            {cells
+              .filter((cell) => cell.fieldId !== groupByFieldId)
+              .map((cell, cellIndex) => (
+                <BoardCell
+                  key={cellIndex}
+                  cellIdentifier={cell.cellIdentifier}
+                  cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
+                  fieldController={controller.fieldController}
+                ></BoardCell>
+              ))}
           </div>
         </div>
       )}
