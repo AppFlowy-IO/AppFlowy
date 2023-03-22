@@ -94,6 +94,7 @@ void main() async {
       await editor.updateSelection(
         Selection.single(path: [1], startOffset: 0, endOffset: text.length * 2),
       );
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       testHighlight(false);
 
       await editor.updateSelection(
@@ -103,6 +104,7 @@ void main() async {
           endOffset: text.length * 2,
         ),
       );
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       testHighlight(true);
 
       await editor.updateSelection(
@@ -112,6 +114,7 @@ void main() async {
           endOffset: text.length * 2 - 2,
         ),
       );
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
       testHighlight(true);
     });
 

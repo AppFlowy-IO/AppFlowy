@@ -26,11 +26,11 @@ void main() {
           .editorState.service.selectionService.currentSelectedNodes
           .whereType<TextNode>()
           .toList(growable: false);
-      final text = editor.editorState.getTextInSelection(
+      final texts = editor.editorState.getTextInSelection(
         textNodes.normalized,
         selection.normalized,
       );
-      expect(text, 'me\nto\nAppfl');
+      expect(texts, ['me', 'to', 'Appfl']);
     });
   });
 }

@@ -101,14 +101,17 @@ class _SmartEditWidgetState extends State<_SmartEditWidget> {
       textNodes.normalized,
       selection.normalized,
     );
+    while (input.last.isEmpty) {
+      input.removeLast();
+    }
     final transaction = widget.editorState.transaction;
     transaction.insertNode(
       selection.normalized.end.path.next,
       Node(
         type: kSmartEditType,
         attributes: {
-          kSmartEditInstructionType: actionWrapper.inner.toInstruction,
-          kSmartEditInputType: input,
+          kSmartEditInstructionType: actionWrapper.inner.index,
+          kSmartEditInputType: input.join('\n\n'),
         },
       ),
     );
