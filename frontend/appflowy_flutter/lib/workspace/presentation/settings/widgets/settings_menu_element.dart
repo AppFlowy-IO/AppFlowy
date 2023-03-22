@@ -44,6 +44,7 @@ class SettingsMenuElement extends StatelessWidget {
         label,
         fontSize: FontSizes.s14,
         overflow: TextOverflow.ellipsis,
+        color: Theme.of(context).colorScheme.tertiary,
       ),
     );
   }
