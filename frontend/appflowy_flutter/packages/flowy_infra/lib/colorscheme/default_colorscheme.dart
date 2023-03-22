@@ -6,6 +6,7 @@ const _black = Color(0xff000000);
 const _white = Color(0xFFFFFFFF);
 const _lightBg1 = Color(0xfff7f8fc);
 const _lightShader1 = Color(0xff333333);
+const _lightShader3 = Color(0xff828282);
 const _lightShader6 = Color(0xfff2f2f2);
 const _darkShader1 = Color(0xff131720);
 const _darkShader2 = Color(0xff1A202C);
@@ -24,11 +25,11 @@ class DefaultColorScheme extends FlowyColorScheme {
           green: const Color(0xff66cf80),
           shader1: _lightShader1,
           shader2: const Color(0xff4f4f4f),
-          shader3: const Color(0xff828282),
+          shader3: _lightShader3,
           shader4: const Color(0xffbdbdbd),
           shader5: const Color(0xffe0e0e0),
           shader6: _lightShader6,
-          shader7: _white,
+          shader7: _lightShader1,
           bg1: _lightBg1,
           bg2: const Color(0xffedeef2),
           bg3: const Color(0xffe2e4eb),
@@ -51,6 +52,8 @@ class DefaultColorScheme extends FlowyColorScheme {
           icon: _lightShader1,
           text: _lightShader1,
           buttonFill: _white,
+          input: _white,
+          hint: _lightShader3,
         );
 
   const DefaultColorScheme.dark()
@@ -61,11 +64,11 @@ class DefaultColorScheme extends FlowyColorScheme {
           red: const Color(0xfffb006d),
           yellow: const Color(0xffF7CF46),
           green: const Color(0xff66CF80),
-          shader1: _darkShader1,
+          shader1: _darkShader5,
           shader2: _darkShader2,
           shader3: _darkShader3,
           shader4: const Color(0xff7C8CA5),
-          shader5: const Color(0xffBBC3CD),
+          shader5: _darkShader5,
           shader6: _darkShader6,
           shader7: _white,
           bg1: const Color(0xffF7F8FC),
@@ -90,5 +93,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           icon: _darkShader6,
           text: _darkShader5,
           buttonFill: _darkShader1,
+          input: const Color(0xff282E3A),
+          hint: _darkShader5,
         );
 }
