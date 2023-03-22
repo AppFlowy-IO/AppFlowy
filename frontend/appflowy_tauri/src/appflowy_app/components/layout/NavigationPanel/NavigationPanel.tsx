@@ -6,11 +6,16 @@ import { NewFolderButton } from './NewFolderButton';
 import { NavigationResizer } from './NavigationResizer';
 import { IFolder } from '../../../stores/reducers/folders/slice';
 import { IPage } from '../../../stores/reducers/pages/slice';
-import { useNavigate } from 'react-router-dom';
-import React from 'react';
-
-const MINIMUM_WIDTH = 200;
-const ANIMATION_DURATION = 300;
+import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { useAppSelector } from '../../../stores/store';
+import {
+  ANIMATION_DURATION,
+  FOLDER_MARGIN,
+  INITIAL_FOLDER_HEIGHT,
+  NAV_PANEL_MINIMUM_WIDTH,
+  PAGE_ITEM_HEIGHT,
+} from '../../_shared/constants';
 
 export const NavigationPanel = ({
   onHideMenuClick,
@@ -27,6 +32,66 @@ export const NavigationPanel = ({
   pages: IPage[];
   onPageClick: (page: IPage) => void;
 }) => {
+  const el = useRef<HTMLDivElement>(null);
+  const foldersStore = useAppSelector((state) => state.folders);
+  const pagesStore = useAppSelector((state) => state.pages);
+  const [activePageId, setActivePageId] = useState<string>('');
+  const currentLocation = useLocation();
+  const [maxHeight, setMaxHeight] = useState(0);
+
+  useEffect(() => {
+    const { pathname } = currentLocation;
+    const parts = pathname.split('/');
+    const pageId = parts[parts.length - 1];
+    setActivePageId(pageId);
+  }, [currentLocation]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (!el.current) return;
+      if (!activePageId?.length) return;
+      const activePage = pagesStore.find((page) => page.id === activePageId);
+      if (!activePage) return;
+
+      const folderIndex = foldersStore.findIndex((folder) => folder.id === activePage.folderId);
+      if (folderIndex === -1) return;
+
+      let height = 0;
+      for (let i = 0; i < folderIndex; i++) {
+        height += INITIAL_FOLDER_HEIGHT + FOLDER_MARGIN;
+        if (foldersStore[i].showPages === true) {
+          height += pagesStore.filter((p) => p.folderId === foldersStore[i].id).length * PAGE_ITEM_HEIGHT;
+        }
+      }
+
+      height += INITIAL_FOLDER_HEIGHT + FOLDER_MARGIN / 2;
+
+      const pageIndex = pagesStore
+        .filter((p) => p.folderId === foldersStore[folderIndex].id)
+        .findIndex((p) => p.id === activePageId);
+      for (let i = 0; i <= pageIndex; i++) {
+        height += PAGE_ITEM_HEIGHT;
+      }
+
+      const elHeight = el.current.getBoundingClientRect().height;
+      const scrollTop = el.current.scrollTop;
+
+      if (scrollTop + elHeight < height || scrollTop > height) {
+        el.current.scrollTo({ top: height - elHeight, behavior: 'smooth' });
+      }
+    }, ANIMATION_DURATION);
+  }, [activePageId]);
+
+  useEffect(() => {
+    setMaxHeight(foldersStore.length * (INITIAL_FOLDER_HEIGHT + FOLDER_MARGIN) + pagesStore.length * PAGE_ITEM_HEIGHT);
+  }, [foldersStore, pagesStore]);
+
+  const scrollDown = () => {
+    setTimeout(() => {
+      el?.current?.scrollTo({ top: maxHeight, behavior: 'smooth' });
+    }, ANIMATION_DURATION);
+  };
+
   return (
     <>
       <div
@@ -40,7 +105,11 @@ export const NavigationPanel = ({
         <div className={'flex flex-col'}>
           <AppLogo iconToShow={'hide'} onHideMenuClick={onHideMenuClick}></AppLogo>
           <WorkspaceUser></WorkspaceUser>
-          <WorkspaceApps folders={folders} pages={pages} onPageClick={onPageClick} />
+          <div className={'relative flex flex-col'} style={{ height: 'calc(100vh - 300px)' }}>
+            <div className={'flex flex-col overflow-auto px-2'} ref={el}>
+              <WorkspaceApps folders={folders} pages={pages} onPageClick={onPageClick} />
+            </div>
+          </div>
         </div>
 
         <div className={'flex flex-col'}>
@@ -55,10 +124,10 @@ export const NavigationPanel = ({
           </div>
 
           {/*New Folder Button*/}
-          <NewFolderButton></NewFolderButton>
+          <NewFolderButton scrollDown={scrollDown}></NewFolderButton>
         </div>
       </div>
-      <NavigationResizer minWidth={MINIMUM_WIDTH}></NavigationResizer>
+      <NavigationResizer minWidth={NAV_PANEL_MINIMUM_WIDTH}></NavigationResizer>
     </>
   );
 };
@@ -70,7 +139,7 @@ type AppsContext = {
 };
 
 const WorkspaceApps: React.FC<AppsContext> = ({ folders, pages, onPageClick }) => (
-  <div className={'flex flex-col overflow-auto px-2'} style={{ height: 'calc(100vh - 300px)' }}>
+  <>
     {folders.map((folder, index) => (
       <FolderItem
         key={index}
@@ -79,7 +148,7 @@ const WorkspaceApps: React.FC<AppsContext> = ({ folders, pages, onPageClick }) =
         onPageClick={onPageClick}
       ></FolderItem>
     ))}
-  </div>
+  </>
 );
 
 export const TestBackendButton = () => {

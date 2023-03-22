@@ -20,9 +20,9 @@ export const useCell = (cellIdentifier: CellIdentifier, cellCache: CellCache, fi
     // ignore the return value, because we are using the subscription
     void cellController.getCellData();
 
-    // dispose the cell controller when the component is unmounted
     return () => {
-      void cellController.dispose();
+      // dispose is causing an error
+      // void cellController.dispose();
     };
   }, []);
 

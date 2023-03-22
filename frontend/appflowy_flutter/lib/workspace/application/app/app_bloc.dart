@@ -18,11 +18,11 @@ import 'package:dartz/dartz.dart';
 part 'app_bloc.freezed.dart';
 
 class AppBloc extends Bloc<AppEvent, AppState> {
-  final AppService appService;
+  final AppBackendService appService;
   final AppListener appListener;
 
   AppBloc({required AppPB app})
-      : appService = AppService(),
+      : appService = AppBackendService(),
         appListener = AppListener(appId: app.id),
         super(AppState.initial(app)) {
     on<AppEvent>((event, emit) async {
@@ -141,7 +141,7 @@ class AppEvent with _$AppEvent {
     PluginBuilder pluginBuilder, {
     String? desc,
 
-    /// The initial data should be the JSON of the doucment
+    /// The initial data should be the JSON of the document
     /// For example: {"document":{"type":"editor","children":[]}}
     String? initialData,
     Map<String, String>? ext,

@@ -9,14 +9,14 @@ class RowList {
   List<RowInfo> get rows => List.from(_rowInfos);
 
   /// Use Map for faster access the raw row data.
-  final HashMap<String, RowInfo> _rowInfoByRowId = HashMap();
+  final HashMap<String, RowInfo> rowInfoByRowId = HashMap();
 
   RowInfo? get(String rowId) {
-    return _rowInfoByRowId[rowId];
+    return rowInfoByRowId[rowId];
   }
 
   int? indexOfRow(String rowId) {
-    final rowInfo = _rowInfoByRowId[rowId];
+    final rowInfo = rowInfoByRowId[rowId];
     if (rowInfo != null) {
       return _rowInfos.indexOf(rowInfo);
     }
@@ -33,7 +33,7 @@ class RowList {
     } else {
       _rowInfos.add(rowInfo);
     }
-    _rowInfoByRowId[rowId] = rowInfo;
+    rowInfoByRowId[rowId] = rowInfo;
   }
 
   InsertedIndex? insert(int index, RowInfo rowInfo) {
@@ -47,21 +47,21 @@ class RowList {
     if (oldRowInfo != null) {
       _rowInfos.insert(insertedIndex, rowInfo);
       _rowInfos.remove(oldRowInfo);
-      _rowInfoByRowId[rowId] = rowInfo;
+      rowInfoByRowId[rowId] = rowInfo;
       return null;
     } else {
       _rowInfos.insert(insertedIndex, rowInfo);
-      _rowInfoByRowId[rowId] = rowInfo;
+      rowInfoByRowId[rowId] = rowInfo;
       return InsertedIndex(index: insertedIndex, rowId: rowId);
     }
   }
 
   DeletedIndex? remove(String rowId) {
-    final rowInfo = _rowInfoByRowId[rowId];
+    final rowInfo = rowInfoByRowId[rowId];
     if (rowInfo != null) {
       final index = _rowInfos.indexOf(rowInfo);
       if (index != -1) {
-        _rowInfoByRowId.remove(rowInfo.rowPB.id);
+        rowInfoByRowId.remove(rowInfo.rowPB.id);
         _rowInfos.remove(rowInfo);
       }
       return DeletedIndex(index: index, rowInfo: rowInfo);
@@ -105,7 +105,7 @@ class RowList {
       if (deletedRowByRowId[rowInfo.rowPB.id] == null) {
         newRows.add(rowInfo);
       } else {
-        _rowInfoByRowId.remove(rowInfo.rowPB.id);
+        rowInfoByRowId.remove(rowInfo.rowPB.id);
         deletedIndex.add(DeletedIndex(index: index, rowInfo: rowInfo));
       }
     });
@@ -136,7 +136,7 @@ class RowList {
     _rowInfos.clear();
 
     for (final rowId in rowIds) {
-      final rowInfo = _rowInfoByRowId[rowId];
+      final rowInfo = rowInfoByRowId[rowId];
       if (rowInfo != null) {
         _rowInfos.add(rowInfo);
       }
@@ -155,6 +155,6 @@ class RowList {
   }
 
   bool contains(String rowId) {
-    return _rowInfoByRowId[rowId] != null;
+    return rowInfoByRowId[rowId] != null;
   }
 }

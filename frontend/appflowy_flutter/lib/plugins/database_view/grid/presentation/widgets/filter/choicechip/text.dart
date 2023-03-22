@@ -94,7 +94,7 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
       child: BlocBuilder<TextFilterEditorBloc, TextFilterEditorState>(
         builder: (context, state) {
           final List<Widget> children = [
-            _buildFilterPannel(context, state),
+            _buildFilterPanel(context, state),
           ];
 
           if (state.filter.condition != TextFilterConditionPB.TextIsEmpty &&
@@ -112,7 +112,7 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
     );
   }
 
-  Widget _buildFilterPannel(BuildContext context, TextFilterEditorState state) {
+  Widget _buildFilterPanel(BuildContext context, TextFilterEditorState state) {
     return SizedBox(
       height: 20,
       child: Row(

@@ -145,7 +145,7 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
   Widget _wrapPopover(Widget child) {
     return AppFlowyPopover(
       controller: _popoverController,
-      offset: const Offset(20, 0),
+      offset: const Offset(8, 0),
       asBarrier: true,
       constraints: BoxConstraints.loose(const Size(200, 300)),
       mutex: widget.popoverMutex,

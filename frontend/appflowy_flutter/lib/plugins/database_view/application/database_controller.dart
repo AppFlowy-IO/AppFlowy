@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/layout/calendar_setting_listener.dart';
 import 'package:appflowy/plugins/database_view/application/view/view_cache.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/calendar_entities.pb.dart';
@@ -12,16 +13,11 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
-import 'database_service.dart';
+import 'database_view_service.dart';
 import 'defines.dart';
 import 'layout/layout_setting_listener.dart';
 import 'row/row_cache.dart';
 import 'group/group_listener.dart';
-
-typedef OnRowsChanged = void Function(
-  List<RowInfo> rowInfos,
-  RowsChangedReason,
-);
 
 typedef OnGroupByField = void Function(List<GroupPB>);
 typedef OnUpdateGroup = void Function(List<GroupPB>);
@@ -52,22 +48,35 @@ class LayoutCallbacks {
   });
 }
 
+class CalendarLayoutCallbacks {
+  final void Function(LayoutSettingPB) onCalendarLayoutChanged;
+
+  CalendarLayoutCallbacks({required this.onCalendarLayoutChanged});
+}
+
 class DatabaseCallbacks {
   OnDatabaseChanged? onDatabaseChanged;
-  OnRowsChanged? onRowsChanged;
   OnFieldsChanged? onFieldsChanged;
   OnFiltersChanged? onFiltersChanged;
+  OnRowsChanged? onRowsChanged;
+  OnRowsDeleted? onRowsDeleted;
+  OnRowsUpdated? onRowsUpdated;
+  OnRowsCreated? onRowsCreated;
+
   DatabaseCallbacks({
     this.onDatabaseChanged,
     this.onRowsChanged,
     this.onFieldsChanged,
     this.onFiltersChanged,
+    this.onRowsUpdated,
+    this.onRowsDeleted,
+    this.onRowsCreated,
   });
 }
 
 class DatabaseController {
   final String viewId;
-  final DatabaseBackendService _databaseBackendSvc;
+  final DatabaseViewBackendService _databaseViewBackendSvc;
   final FieldController fieldController;
   late DatabaseViewCache _viewCache;
   final LayoutTypePB layoutType;
@@ -76,21 +85,23 @@ class DatabaseController {
   DatabaseCallbacks? _databaseCallbacks;
   GroupCallbacks? _groupCallbacks;
   LayoutCallbacks? _layoutCallbacks;
+  CalendarLayoutCallbacks? _calendarLayoutCallbacks;
 
   // Getters
-  List<RowInfo> get rowInfos => _viewCache.rowInfos;
   RowCache get rowCache => _viewCache.rowCache;
 
   // Listener
   final DatabaseGroupListener groupListener;
   final DatabaseLayoutListener layoutListener;
+  final DatabaseCalendarLayoutListener calendarLayoutListener;
 
   DatabaseController({required ViewPB view, required this.layoutType})
       : viewId = view.id,
-        _databaseBackendSvc = DatabaseBackendService(viewId: view.id),
+        _databaseViewBackendSvc = DatabaseViewBackendService(viewId: view.id),
         fieldController = FieldController(viewId: view.id),
         groupListener = DatabaseGroupListener(view.id),
-        layoutListener = DatabaseLayoutListener(view.id) {
+        layoutListener = DatabaseLayoutListener(view.id),
+        calendarLayoutListener = DatabaseCalendarLayoutListener(view.id) {
     _viewCache = DatabaseViewCache(
       viewId: viewId,
       fieldController: fieldController,
@@ -99,20 +110,25 @@ class DatabaseController {
     _listenOnFieldsChanged();
     _listenOnGroupChanged();
     _listenOnLayoutChanged();
+    if (layoutType == LayoutTypePB.Calendar) {
+      _listenOnCalendarLayoutChanged();
+    }
   }
 
   void addListener({
     DatabaseCallbacks? onDatabaseChanged,
     LayoutCallbacks? onLayoutChanged,
     GroupCallbacks? onGroupChanged,
+    CalendarLayoutCallbacks? onCalendarLayoutChanged,
   }) {
     _layoutCallbacks = onLayoutChanged;
     _databaseCallbacks = onDatabaseChanged;
     _groupCallbacks = onGroupChanged;
+    _calendarLayoutCallbacks = onCalendarLayoutChanged;
   }
 
   Future<Either<Unit, FlowyError>> open() async {
-    return _databaseBackendSvc.openGrid().then((result) {
+    return _databaseViewBackendSvc.openGrid().then((result) {
       return result.fold(
         (database) async {
           _databaseCallbacks?.onDatabaseChanged?.call(database);
@@ -152,16 +168,19 @@ class DatabaseController {
       cellDataByFieldId = rowBuilder.build();
     }
 
-    return _databaseBackendSvc.createRow(
+    return _databaseViewBackendSvc.createRow(
       startRowId: startRowId,
       groupId: groupId,
       cellDataByFieldId: cellDataByFieldId,
     );
   }
 
-  Future<Either<Unit, FlowyError>> moveRow(RowPB fromRow,
-      {RowPB? toRow, String? groupId}) {
-    return _databaseBackendSvc.moveRow(
+  Future<Either<Unit, FlowyError>> moveRow({
+    required RowPB fromRow,
+    required String groupId,
+    RowPB? toRow,
+  }) {
+    return _databaseViewBackendSvc.moveRow(
       fromRowId: fromRow.id,
       toGroupId: groupId,
       toRowId: toRow?.id,
@@ -170,7 +189,7 @@ class DatabaseController {
 
   Future<Either<Unit, FlowyError>> moveGroup(
       {required String fromGroupId, required String toGroupId}) {
-    return _databaseBackendSvc.moveGroup(
+    return _databaseViewBackendSvc.moveGroup(
       fromGroupId: fromGroupId,
       toGroupId: toGroupId,
     );
@@ -178,7 +197,7 @@ class DatabaseController {
 
   Future<void> updateCalenderLayoutSetting(
       CalendarLayoutSettingsPB layoutSetting) async {
-    await _databaseBackendSvc
+    await _databaseViewBackendSvc
         .updateLayoutSetting(calendarLayoutSetting: layoutSetting)
         .then((result) {
       result.fold((l) => null, (r) => Log.error(r));
@@ -186,13 +205,13 @@ class DatabaseController {
   }
 
   Future<void> dispose() async {
-    await _databaseBackendSvc.closeView();
+    await _databaseViewBackendSvc.closeView();
     await fieldController.dispose();
     await groupListener.stop();
   }
 
   Future<void> _loadGroups() async {
-    final result = await _databaseBackendSvc.loadGroups();
+    final result = await _databaseViewBackendSvc.loadGroups();
     return Future(
       () => result.fold(
         (groups) {
@@ -204,7 +223,7 @@ class DatabaseController {
   }
 
   Future<void> _loadLayoutSetting() async {
-    _databaseBackendSvc.getLayoutSetting(layoutType).then((result) {
+    _databaseViewBackendSvc.getLayoutSetting(layoutType).then((result) {
       result.fold(
         (l) {
           _layoutCallbacks?.onLoadLayout(l);
@@ -215,9 +234,17 @@ class DatabaseController {
   }
 
   void _listenOnRowsChanged() {
-    _viewCache.addListener(onRowsChanged: (reason) {
-      _databaseCallbacks?.onRowsChanged?.call(rowInfos, reason);
+    final callbacks =
+        DatabaseViewCallbacks(onRowsChanged: (rows, rowByRowId, reason) {
+      _databaseCallbacks?.onRowsChanged?.call(rows, rowByRowId, reason);
+    }, onRowsDeleted: (ids) {
+      _databaseCallbacks?.onRowsDeleted?.call(ids);
+    }, onRowsUpdated: (ids) {
+      _databaseCallbacks?.onRowsUpdated?.call(ids);
+    }, onRowsCreated: (ids) {
+      _databaseCallbacks?.onRowsCreated?.call(ids);
     });
+    _viewCache.addListener(callbacks);
   }
 
   void _listenOnFieldsChanged() {
@@ -260,6 +287,14 @@ class DatabaseController {
     layoutListener.start(onLayoutChanged: (result) {
       result.fold((l) {
         _layoutCallbacks?.onLayoutChanged(l);
+      }, (r) => Log.error(r));
+    });
+  }
+
+  void _listenOnCalendarLayoutChanged() {
+    calendarLayoutListener.start(onCalendarLayoutChanged: (result) {
+      result.fold((l) {
+        _calendarLayoutCallbacks?.onCalendarLayoutChanged(l);
       }, (r) => Log.error(r));
     });
   }

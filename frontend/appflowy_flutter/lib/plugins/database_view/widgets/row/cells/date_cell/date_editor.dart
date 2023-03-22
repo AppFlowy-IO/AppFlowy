@@ -376,7 +376,7 @@ class _DateTypeOptionButton extends StatelessWidget {
         return AppFlowyPopover(
           mutex: popoverMutex,
           triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
-          offset: const Offset(20, 0),
+          offset: const Offset(8, 0),
           margin: EdgeInsets.zero,
           constraints: BoxConstraints.loose(const Size(140, 100)),
           child: Padding(
@@ -431,7 +431,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
       AppFlowyPopover(
         mutex: timeSettingPopoverMutex,
         triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
-        offset: const Offset(20, 0),
+        offset: const Offset(8, 0),
         popupBuilder: (BuildContext context) {
           return DateFormatList(
             selectedFormat: widget.dateTypeOptionPB.dateFormat,
@@ -449,7 +449,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
       AppFlowyPopover(
         mutex: timeSettingPopoverMutex,
         triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
-        offset: const Offset(20, 0),
+        offset: const Offset(8, 0),
         popupBuilder: (BuildContext context) {
           return TimeFormatList(
               selectedFormat: widget.dateTypeOptionPB.timeFormat,

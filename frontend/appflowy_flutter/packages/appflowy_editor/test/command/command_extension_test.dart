@@ -4,7 +4,7 @@ import '../infra/test_editor.dart';
 
 void main() {
   group('command_extension.dart', () {
-    testWidgets('insert a new checkbox after an exsiting checkbox',
+    testWidgets('insert a new checkbox after an existing checkbox',
         (tester) async {
       final editor = tester.editor
         ..insertTextNode(
@@ -26,11 +26,11 @@ void main() {
           .editorState.service.selectionService.currentSelectedNodes
           .whereType<TextNode>()
           .toList(growable: false);
-      final text = editor.editorState.getTextInSelection(
+      final texts = editor.editorState.getTextInSelection(
         textNodes.normalized,
         selection.normalized,
       );
-      expect(text, 'me\nto\nAppfl');
+      expect(texts, ['me', 'to', 'Appfl']);
     });
   });
 }

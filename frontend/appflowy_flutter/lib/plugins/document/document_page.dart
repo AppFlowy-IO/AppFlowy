@@ -1,4 +1,7 @@
-import 'package:appflowy/plugins/document/presentation/plugins/board/board_menu_item.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/board/board_view_menu_item.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/board/board_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/grid/grid_menu_item.dart';
@@ -7,19 +10,18 @@ import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/au
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/auto_completion_plugins.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_toolbar_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../startup/startup.dart';
 import 'application/doc_bloc.dart';
 import 'editor_styles.dart';
 import 'presentation/banner.dart';
+import 'presentation/plugins/grid/grid_view_menu_item.dart';
+import 'presentation/plugins/board/board_menu_item.dart';
 
 class DocumentPage extends StatefulWidget {
   final VoidCallback onDeleted;
@@ -128,11 +130,11 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final autoFocusParamters = _autoFocusParamters();
+    final autoFocusParameters = _autoFocusParameters();
     final editor = AppFlowyEditor(
       editorState: editorState,
-      autoFocus: autoFocusParamters.value1,
-      focusedSelection: autoFocusParamters.value2,
+      autoFocus: autoFocusParameters.value1,
+      focusedSelection: autoFocusParameters.value2,
       customBuilders: {
         // Divider
         kDividerType: DividerWidgetBuilder(),
@@ -172,8 +174,12 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         emojiMenuItem,
         // Board
         boardMenuItem,
+        // Create Board
+        boardViewMenuItem(documentBloc),
         // Grid
         gridMenuItem,
+        // Create Grid
+        gridViewMenuItem(documentBloc),
         // Callout
         calloutMenuItem,
         // AI
@@ -183,9 +189,7 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         ],
       ],
       toolbarItems: [
-        if (openAIKey != null && openAIKey!.isNotEmpty) ...[
-          smartEditItem,
-        ]
+        smartEditItem,
       ],
       themeData: theme.copyWith(extensions: [
         ...theme.extensions.values,
@@ -236,7 +240,7 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
     }
   }
 
-  dartz.Tuple2<bool, Selection?> _autoFocusParamters() {
+  dartz.Tuple2<bool, Selection?> _autoFocusParameters() {
     if (editorState.document.isEmpty) {
       return dartz.Tuple2(true, Selection.single(path: [0], startOffset: 0));
     }

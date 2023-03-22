@@ -1,52 +1,43 @@
-import React, { useState } from 'react';
-import { Block } from '$app/interfaces';
-import BlockComponent from '../BlockList/BlockComponent';
-
-import { createEditor } from 'slate';
-import { Slate, Editable, withReact } from 'slate-react';
+import BlockComponent from '../BlockComponent';
+import { Slate, Editable } from 'slate-react';
 import Leaf from './Leaf';
 import HoveringToolbar from '$app/components/HoveringToolbar';
-import { triggerHotkey } from '$app/utils/editor/hotkey';
+import { TreeNode } from '@/appflowy_app/block_editor/view/tree_node';
+import { useTextBlock } from './index.hooks';
+import { BlockCommonProps, TextBlockToolbarProps } from '@/appflowy_app/interfaces';
+import { toolbarDefaultProps } from '@/appflowy_app/constants/toolbar';
 
-export default function TextBlock({ block }: { block: Block }) {
-  const [editor] = useState(() => withReact(createEditor()));
+export default function TextBlock({
+  node,
+  needRenderChildren = true,
+  toolbarProps,
+  ...props
+}: {
+  needRenderChildren?: boolean;
+  toolbarProps?: TextBlockToolbarProps;
+} & BlockCommonProps<TreeNode> &
+  React.HTMLAttributes<HTMLDivElement>) {
+  const { editor, value, onChange, onKeyDownCapture, onDOMBeforeInput } = useTextBlock({ node });
+  const { showGroups } = toolbarProps || toolbarDefaultProps;
 
   return (
-    <div className='mb-2'>
-      <Slate
-        editor={editor}
-        onChange={(e) => console.log('===', e, editor.operations)}
-        value={[
-          {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            type: 'paragraph',
-            children: [{ text: block.data.text }],
-          },
-        ]}
-      >
-        <HoveringToolbar blockId={block.id} />
+    <div {...props} className={`${props.className} py-1`}>
+      <Slate editor={editor} onChange={onChange} value={value}>
+        {showGroups.length > 0 && <HoveringToolbar node={node} blockId={node.id} />}
         <Editable
-          onKeyDownCapture={(event) => {
-            switch (event.key) {
-              case 'Enter': {
-                event.stopPropagation();
-                event.preventDefault();
-                return;
-              }
-            }
-
-            triggerHotkey(event, editor);
-          }}
-          renderLeaf={(props) => <Leaf {...props} />}
+          onKeyDownCapture={onKeyDownCapture}
+          onDOMBeforeInput={onDOMBeforeInput}
+          renderLeaf={(leafProps) => <Leaf {...leafProps} />}
           placeholder='Enter some text...'
         />
       </Slate>
-      <div className='pl-[1.5em]'>
-        {block.children?.map((item: Block) => (
-          <BlockComponent key={item.id} block={item} />
-        ))}
-      </div>
+      {needRenderChildren && node.children.length > 0 ? (
+        <div className='pl-[1.5em]'>
+          {node.children.map((item) => (
+            <BlockComponent key={item.id} node={item} />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

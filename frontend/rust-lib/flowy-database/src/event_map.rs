@@ -238,7 +238,8 @@ pub enum DatabaseEvent {
   #[event(input = "MoveGroupRowPayloadPB")]
   GroupByField = 113,
 
-  #[event(output = "RepeatedDatabaseDescPB")]
+  /// Returns all the databases
+  #[event(output = "RepeatedDatabaseDescriptionPB")]
   GetDatabases = 114,
 
   #[event(input = "UpdateLayoutSettingPB")]

@@ -72,6 +72,7 @@ class Popover extends StatefulWidget {
   final PopoverDirection direction;
 
   final void Function()? onClose;
+  final Future<bool> Function()? canClose;
 
   final bool asBarrier;
 
@@ -92,6 +93,7 @@ class Popover extends StatefulWidget {
     this.mutex,
     this.windowPadding,
     this.onClose,
+    this.canClose,
     this.asBarrier = false,
   }) : super(key: key);
 
@@ -122,7 +124,12 @@ class PopoverState extends State<Popover> {
         children.add(
           PopoverMask(
             decoration: widget.maskDecoration,
-            onTap: () => _removeRootOverlay(),
+            onTap: () async {
+              if (!(await widget.canClose?.call() ?? true)) {
+                return;
+              }
+              _removeRootOverlay();
+            },
             onExit: () => _removeRootOverlay(),
           ),
         );

@@ -13,11 +13,11 @@ class ViewSectionBloc extends Bloc<ViewSectionEvent, ViewSectionState> {
   void Function()? _viewsListener;
   void Function()? _selectedViewlistener;
   final AppViewDataContext _appViewData;
-  late final AppService _appService;
+  late final AppBackendService _appService;
 
   ViewSectionBloc({
     required AppViewDataContext appViewData,
-  })  : _appService = AppService(),
+  })  : _appService = AppBackendService(),
         _appViewData = appViewData,
         super(ViewSectionState.initial(appViewData)) {
     on<ViewSectionEvent>((event, emit) async {

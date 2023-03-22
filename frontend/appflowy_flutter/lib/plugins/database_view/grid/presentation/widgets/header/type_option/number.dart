@@ -77,7 +77,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
               mutex: popoverMutex,
               triggerActions:
                   PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
-              offset: const Offset(20, 0),
+              offset: const Offset(8, 0),
               constraints: BoxConstraints.loose(const Size(460, 440)),
               margin: EdgeInsets.zero,
               child: Padding(

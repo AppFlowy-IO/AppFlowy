@@ -118,6 +118,79 @@ void main() async {
         findsNothing,
       );
     });
+
+    group('tab and arrow keys move selection in desired direction', () {
+
+      testWidgets('left and right keys move selection in desired direction',
+        (tester) async {
+        final editor = await _prepare(tester);
+
+        var initialSelection = getSelectedMenuItem(tester);
+        expect(defaultSelectionMenuItems.indexOf(initialSelection.item), 0);
+
+        await editor.pressLogicKey(LogicalKeyboardKey.arrowRight);
+
+        var newSelection = getSelectedMenuItem(tester);
+        expect(defaultSelectionMenuItems.indexOf(newSelection.item), 5);
+
+        await editor.pressLogicKey(LogicalKeyboardKey.arrowLeft);
+
+        var finalSelection = getSelectedMenuItem(tester);
+        expect(defaultSelectionMenuItems.indexOf(initialSelection.item), 0);
+      });
+
+      testWidgets('up and down keys move selection in desired direction',
+        (tester) async {
+        final editor = await _prepare(tester);
+
+        var initialSelection = getSelectedMenuItem(tester);
+        expect(defaultSelectionMenuItems.indexOf(initialSelection.item), 0);
+
+        await editor.pressLogicKey(LogicalKeyboardKey.arrowDown);
+
+        var newSelection = getSelectedMenuItem(tester);
+        expect(defaultSelectionMenuItems.indexOf(newSelection.item), 1);
+
+        await editor.pressLogicKey(LogicalKeyboardKey.arrowUp);
+
+        var finalSelection = getSelectedMenuItem(tester);
+        expect(defaultSelectionMenuItems.indexOf(finalSelection.item), 0);
+      });
+
+      testWidgets('arrow keys and tab move same selection',
+        (tester) async {
+        final editor = await _prepare(tester);
+
+        var initialSelection = getSelectedMenuItem(tester);
+        expect(defaultSelectionMenuItems.indexOf(initialSelection.item), 0);
+
+        await editor.pressLogicKey(LogicalKeyboardKey.arrowDown);
+
+        var newSelection = getSelectedMenuItem(tester);
+        expect(defaultSelectionMenuItems.indexOf(newSelection.item), 1);
+
+        await editor.pressLogicKey(LogicalKeyboardKey.tab);
+
+        var finalSelection = getSelectedMenuItem(tester);
+        expect(defaultSelectionMenuItems.indexOf(finalSelection.item), 6);
+      });
+
+      testWidgets('tab moves selection to next row Item on reaching end of current row',
+        (tester) async {
+        final editor = await _prepare(tester);
+
+        final initialSelection = getSelectedMenuItem(tester);
+
+        expect(defaultSelectionMenuItems.indexOf(initialSelection.item), 0);
+
+        await editor.pressLogicKey(LogicalKeyboardKey.tab);
+        await editor.pressLogicKey(LogicalKeyboardKey.tab);
+
+        final finalSelection = getSelectedMenuItem(tester);
+
+        expect(defaultSelectionMenuItems.indexOf(finalSelection.item), 1);
+      });
+    });
   });
 }
 
@@ -177,4 +250,12 @@ Future<void> _testDefaultSelectionMenuItems(
     expect(node?.subtype, BuiltInAttributeKey.checkbox);
     expect(node?.attributes.check, false);
   }
+}
+
+SelectionMenuItemWidget getSelectedMenuItem(WidgetTester tester) {
+  return tester
+      .state(find.byWidgetPredicate(
+        (widget) => widget is SelectionMenuItemWidget && widget.isSelected,
+  ))
+      .widget as SelectionMenuItemWidget;
 }

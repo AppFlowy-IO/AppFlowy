@@ -155,7 +155,7 @@ impl TryInto<MoveGroupRowParams> for MoveGroupRowPayloadPB {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct DatabaseDescPB {
+pub struct DatabaseDescriptionPB {
   #[pb(index = 1)]
   pub name: String,
 
@@ -164,9 +164,9 @@ pub struct DatabaseDescPB {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct RepeatedDatabaseDescPB {
+pub struct RepeatedDatabaseDescriptionPB {
   #[pb(index = 1)]
-  pub items: Vec<DatabaseDescPB>,
+  pub items: Vec<DatabaseDescriptionPB>,
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]

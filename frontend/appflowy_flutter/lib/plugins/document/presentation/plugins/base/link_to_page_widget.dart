@@ -20,7 +20,7 @@ void showLinkToPageMenu(
   BuildContext context,
   ViewLayoutTypePB pageType,
 ) {
-  final aligment = menuService.alignment;
+  final alignment = menuService.alignment;
   final offset = menuService.offset;
   menuService.dismiss();
 
@@ -41,8 +41,8 @@ void showLinkToPageMenu(
   _linkToPageMenu?.remove();
   _linkToPageMenu = OverlayEntry(builder: (context) {
     return Positioned(
-      top: aligment == Alignment.bottomLeft ? offset.dy : null,
-      bottom: aligment == Alignment.topLeft ? offset.dy : null,
+      top: alignment == Alignment.bottomLeft ? offset.dy : null,
+      bottom: alignment == Alignment.topLeft ? offset.dy : null,
       left: offset.dx,
       child: Material(
         color: Colors.transparent,
@@ -169,7 +169,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
           );
         }
       },
-      future: AppService().fetchViews(widget.layoutType),
+      future: AppBackendService().fetchViews(widget.layoutType),
     );
   }
 

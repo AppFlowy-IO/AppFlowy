@@ -26,7 +26,7 @@ class GridTestContext {
   GridTestContext(this.gridView, this.gridController);
 
   List<RowInfo> get rowInfos {
-    return gridController.rowInfos;
+    return gridController.rowCache.rowInfos;
   }
 
   List<FieldInfo> get fieldContexts => fieldController.fieldInfos;
@@ -165,7 +165,7 @@ class AppFlowyGridTest {
   Future<GridTestContext> createTestGrid() async {
     final app = await unitTest.createTestApp();
     final builder = GridPluginBuilder();
-    final context = await AppService()
+    final context = await AppBackendService()
         .createView(
       appId: app.id,
       name: "Test Grid",

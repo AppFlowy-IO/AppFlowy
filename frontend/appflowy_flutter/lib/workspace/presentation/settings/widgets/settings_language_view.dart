@@ -57,35 +57,36 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
       onEnter: (event) => {hoverEnterLanguage()},
       onExit: (event) => {hoverExitLanguage()},
       child: Container(
-        margin: const EdgeInsets.only(left: 8, right: 8),
+        margin: const EdgeInsets.symmetric(horizontal: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           color: currHoverColor,
         ),
         child: DropdownButtonHideUnderline(
-          child: DropdownButton<Locale>(
-            value: context.locale,
-            onChanged: (val) {
-              setState(() {
-                context
-                    .read<AppearanceSettingsCubit>()
-                    .setLocale(context, val!);
-              });
-            },
-            icon: const Visibility(
-              visible: false,
-              child: (Icon(Icons.arrow_downward)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: DropdownButton<Locale>(
+              value: context.locale,
+              onChanged: (val) {
+                setState(() {
+                  context
+                      .read<AppearanceSettingsCubit>()
+                      .setLocale(context, val!);
+                });
+              },
+              autofocus: true,
+              borderRadius: BorderRadius.circular(8),
+              items:
+                  EasyLocalization.of(context)!.supportedLocales.map((locale) {
+                return DropdownMenuItem<Locale>(
+                  value: locale,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: FlowyText.medium(languageFromLocale(locale)),
+                  ),
+                );
+              }).toList(),
             ),
-            borderRadius: BorderRadius.circular(8),
-            items: EasyLocalization.of(context)!.supportedLocales.map((locale) {
-              return DropdownMenuItem<Locale>(
-                value: locale,
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: FlowyText.medium(languageFromLocale(locale)),
-                ),
-              );
-            }).toList(),
           ),
         ),
       ),

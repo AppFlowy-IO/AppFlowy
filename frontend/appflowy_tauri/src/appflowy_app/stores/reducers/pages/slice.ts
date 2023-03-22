@@ -15,12 +15,7 @@ export const pagesSlice = createSlice({
   initialState: initialState,
   reducers: {
     didReceivePages(state, action: PayloadAction<IPage[]>) {
-      action.payload.forEach((updatedPage) => {
-        const index = state.findIndex((page) => page.id === updatedPage.id);
-        if (index !== -1) {
-          state.splice(index, 1, updatedPage);
-        }
-      });
+      return action.payload;
     },
     addPage(state, action: PayloadAction<IPage>) {
       state.push(action.payload);

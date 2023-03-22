@@ -20,11 +20,15 @@ pub struct FlowyConfig {
 }
 
 fn default_proto_output() -> String {
-  "resources/proto".to_owned()
+  let mut path = PathBuf::from("resources");
+  path.push("proto");
+  path.to_str().unwrap().to_owned()
 }
 
 fn default_protobuf_crate() -> String {
-  "src/protobuf".to_owned()
+  let mut path = PathBuf::from("src");
+  path.push("protobuf");
+  path.to_str().unwrap().to_owned()
 }
 
 impl FlowyConfig {
