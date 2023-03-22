@@ -2,7 +2,7 @@ import { CloseSvg } from '$app/components/_shared/svg/CloseSvg';
 import { useRow } from '$app/components/_shared/database-hooks/useRow';
 import { DatabaseController } from '$app/stores/effects/database/database_controller';
 import { RowInfo } from '$app/stores/effects/database/row/row_cache';
-import { EditCellWrapper } from '$app/components/board/EditBoardRow/EditCellWrapper';
+import { EditCellWrapper } from '$app/components/_shared/EditRow/EditCellWrapper';
 import AddSvg from '$app/components/_shared/svg/AddSvg';
 import { useTranslation } from 'react-i18next';
 

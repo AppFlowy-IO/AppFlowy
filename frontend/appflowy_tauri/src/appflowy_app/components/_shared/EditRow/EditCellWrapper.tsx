@@ -8,9 +8,9 @@ import { getBgColor } from '$app/components/_shared/getColor';
 import { EditorCheckSvg } from '$app/components/_shared/svg/EditorCheckSvg';
 import { EditorUncheckSvg } from '$app/components/_shared/svg/EditorUncheckSvg';
 import { useState } from 'react';
-import { EditCellText } from '$app/components/board/EditBoardRow/EditCellText';
-import { EditFieldPopup } from '$app/components/board/EditBoardRow/EditFieldPopup';
-import { FieldTypeIcon } from '$app/components/board/EditBoardRow/FieldTypeIcon';
+import { EditCellText } from '$app/components/_shared/EditRow/EditCellText';
+import { EditFieldPopup } from '$app/components/_shared/EditRow/EditFieldPopup';
+import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 
 export const EditCellWrapper = ({
   viewId,
