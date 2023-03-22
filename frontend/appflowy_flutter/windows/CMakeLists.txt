@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(appflowy_flutter LANGUAGES CXX)
 
-set(BINARY_NAME "appflowy_flutter")
+set(BINARY_NAME "AppFlowy")
 
 cmake_policy(SET CMP0063 NEW)
 
@@ -9,6 +9,7 @@ set(CMAKE_INSTALL_RPATH "$ORIGIN/lib")
 
 # Configure build options.
 get_property(IS_MULTICONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
 if(IS_MULTICONFIG)
   set(CMAKE_CONFIGURATION_TYPES "Debug;Profile;Release"
     CACHE STRING "" FORCE)
@@ -50,14 +51,15 @@ add_subdirectory("runner")
 # them to the application.
 include(flutter/generated_plugins.cmake)
 
-
 # === Installation ===
 # Support files are copied into place next to the executable, so that it can
 # run in place. This is done instead of making a separate bundle (as on Linux)
 # so that building and running from within Visual Studio will work.
 set(BUILD_BUNDLE_DIR "$<TARGET_FILE_DIR:${BINARY_NAME}>")
+
 # Make the "install" step default, as it's required to run.
 set(CMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD 1)
+
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   set(CMAKE_INSTALL_PREFIX "${BUILD_BUNDLE_DIR}" CACHE PATH "..." FORCE)
 endif()
