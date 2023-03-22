@@ -62,6 +62,8 @@ abstract class FlowyColorScheme {
   final Color icon;
   final Color text;
   final Color buttonFill;
+  final Color input;
+  final Color hint;
 
   const FlowyColorScheme({
     required this.surface,
@@ -99,6 +101,8 @@ abstract class FlowyColorScheme {
     required this.icon,
     required this.text,
     required this.buttonFill,
+    required this.input,
+    required this.hint,
   });
 
   factory FlowyColorScheme.builtIn(String themeName, Brightness brightness) {
