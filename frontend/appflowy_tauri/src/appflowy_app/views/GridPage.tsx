@@ -1,45 +1,22 @@
-import { GridAddView } from '../components/grid/GridAddView/GridAddView';
-import { GridTableCount } from '../components/grid/GridTableCount/GridTableCount';
-import { GridTableHeader } from '../components/grid/GridTableHeader/GridTableHeader';
-import { GridAddRow } from '../components/grid/GridTableRows/GridAddRow';
-import { GridTableRows } from '../components/grid/GridTableRows/GridTableRows';
-import { GridTitle } from '../components/grid/GridTitle/GridTitle';
-import { SearchInput } from '../components/_shared/SearchInput';
-import { GridToolbar } from '../components/grid/GridToolbar/GridToolbar';
 import { useParams } from 'react-router-dom';
-import { useGrid } from './GridPage.hooks';
-import { useEffect } from 'react';
+
+import { useEffect, useState } from 'react';
+import { Grid } from '../components/grid/Grid/Grid';
 
 export const GridPage = () => {
   const params = useParams();
-  const { loadGrid } = useGrid();
+  const [viewId, setViewId] = useState('');
   useEffect(() => {
-    void (async () => {
-      if (!params?.id) return;
-      await loadGrid(params.id);
-    })();
+    if (params?.id?.length) {
+      setViewId(params.id);
+      // setDatabaseId('testDb');
+    }
   }, [params]);
 
   return (
-    <div className='mx-auto mt-8 flex flex-col gap-8 px-8'>
-      <h1 className='text-4xl font-bold'>Grid</h1>
-
-      <div className='flex w-full  items-center justify-between'>
-        <GridTitle />
-        <GridToolbar />
-      </div>
-
-      {/* table component view with text area for td */}
-      <div className='flex flex-col gap-4'>
-        <table className='w-full table-fixed text-sm'>
-          <GridTableHeader />
-          <GridTableRows />
-        </table>
-
-        <GridAddRow />
-      </div>
-
-      <GridTableCount />
+    <div className='flex h-full flex-col gap-8 px-8 pt-8'>
+      <h1 className='text-4xl font-bold'>Grid: {viewId}</h1>
+      {viewId?.length && <Grid viewId={viewId} />}
     </div>
   );
 };

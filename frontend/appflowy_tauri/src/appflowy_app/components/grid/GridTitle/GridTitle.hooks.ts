@@ -1,7 +1,5 @@
+import { useAppDispatch, useAppSelector } from '@/appflowy_app/stores/store';
 import { useState } from 'react';
-import { gridActions } from '../../../stores/reducers/grid/slice';
-
-import { useAppDispatch, useAppSelector } from '../../../stores/store';
 
 export const useGridTitleHooks = function () {
   const dispatch = useAppDispatch();
@@ -9,14 +7,10 @@ export const useGridTitleHooks = function () {
 
   const [title, setTitle] = useState(grid.title);
   const [changingTitle, setChangingTitle] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
 
   const onTitleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTitle(event.target.value);
-  };
-
-  const onTitleBlur = () => {
-    dispatch(gridActions.updateGridTitle({ title }));
-    setChangingTitle(false);
   };
 
   const onTitleClick = () => {
@@ -26,8 +20,9 @@ export const useGridTitleHooks = function () {
   return {
     title,
     onTitleChange,
-    onTitleBlur,
     onTitleClick,
     changingTitle,
+    showOptions,
+    setShowOptions,
   };
 };

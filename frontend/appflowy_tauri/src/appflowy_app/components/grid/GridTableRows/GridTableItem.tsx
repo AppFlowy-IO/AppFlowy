@@ -15,7 +15,7 @@ export const GridTableItem = ({
   return (
     <div>
       <input
-        className='h-full w-full rounded-lg border border-transparent p-2 hover:border-main-accent'
+        className='h-full w-full rounded-lg border border-transparent p-2 focus:border-main-accent'
         type='text'
         value={value}
         onChange={onValueChange}
