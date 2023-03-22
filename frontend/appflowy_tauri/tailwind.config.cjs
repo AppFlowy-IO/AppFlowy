@@ -41,6 +41,9 @@ module.exports = {
           fiol: '#2C144B',
         },
       },
+      boxShadow: {
+        md: '0px 0px 20px rgba(0, 0, 0, 0.1);',
+      },
     },
   },
   plugins: [],

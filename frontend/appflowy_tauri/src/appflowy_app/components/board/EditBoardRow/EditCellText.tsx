@@ -9,7 +9,7 @@ export const EditCellText = ({ data, cellController }: { data: string; cellContr
   }, [data]);
 
   useEffect(() => {
-    setContentRows(Math.max(1, value.split('\n').length));
+    setContentRows(Math.max(1, (value || '').split('\n').length));
   }, [value]);
 
   const onTextFieldChange = async (v: string) => {
@@ -21,13 +21,12 @@ export const EditCellText = ({ data, cellController }: { data: string; cellContr
   };
 
   return (
-    <div>
-      <textarea
-        rows={contentRows}
-        value={value}
-        onChange={(e) => onTextFieldChange(e.target.value)}
-        onBlur={() => save()}
-      />
-    </div>
+    <textarea
+      className={'h-full w-full resize-none'}
+      rows={contentRows}
+      value={value}
+      onChange={(e) => onTextFieldChange(e.target.value)}
+      onBlur={() => save()}
+    />
   );
 };
