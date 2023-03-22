@@ -4,6 +4,7 @@ import { DatabaseController } from '$app/stores/effects/database/database_contro
 import { RowInfo } from '$app/stores/effects/database/row/row_cache';
 import { EditCellWrapper } from '$app/components/board/EditBoardRow/EditCellWrapper';
 import AddSvg from '$app/components/_shared/svg/AddSvg';
+import { useTranslation } from 'react-i18next';
 
 export const EditRow = ({
   onClose,
@@ -17,6 +18,7 @@ export const EditRow = ({
   rowInfo: RowInfo;
 }) => {
   const { cells, onNewColumnClick } = useRow(viewId, controller, rowInfo);
+  const { t } = useTranslation('');
 
   return (
     <div className={'fixed inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm'}>
@@ -26,10 +28,11 @@ export const EditRow = ({
             <CloseSvg></CloseSvg>
           </button>
         </div>
-        <div className={'flex flex-1 flex-col gap-4'}>
+        <div className={'flex flex-1 flex-col gap-2'}>
           {cells.map((cell, cellIndex) => (
             <EditCellWrapper
               key={cellIndex}
+              viewId={viewId}
               cellIdentifier={cell.cellIdentifier}
               cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
               fieldController={controller.fieldController}
@@ -44,7 +47,7 @@ export const EditRow = ({
             <i className={'h-5 w-5'}>
               <AddSvg></AddSvg>
             </i>
-            <span>New Column</span>
+            <span>{t('grid.field.newColumn')}</span>
           </button>
         </div>
       </div>
