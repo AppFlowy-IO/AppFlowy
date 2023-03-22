@@ -3,6 +3,8 @@ import { RowController } from '$app/stores/effects/database/row/row_controller';
 import { RowInfo } from '$app/stores/effects/database/row/row_cache';
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { useEffect, useState } from 'react';
+import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
+import { None } from 'ts-results';
 
 export const useRow = (viewId: string, databaseController: DatabaseController, rowInfo: RowInfo) => {
   const [cells, setCells] = useState<{ fieldId: string; cellIdentifier: CellIdentifier }[]>([]);
@@ -38,7 +40,14 @@ export const useRow = (viewId: string, databaseController: DatabaseController, r
     })();
   }, [rowController]);
 
+  const onNewColumnClick = async () => {
+    if (!databaseController) return;
+    const controller = new TypeOptionController(viewId, None);
+    await controller.initialize();
+  };
+
   return {
-    cells: cells,
+    cells,
+    onNewColumnClick,
   };
 };

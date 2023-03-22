@@ -51,7 +51,7 @@ export const BoardBlock = ({
                   viewId={viewId}
                   controller={controller}
                   index={index}
-                  key={index}
+                  key={row.row.id}
                   rowInfo={row}
                   onOpenRow={onOpenRow}
                 ></BoardCard>

@@ -14,5 +14,11 @@ export const BoardTextCell = ({
 }) => {
   const { data } = useCell(cellIdentifier, cellCache, fieldController);
 
-  return <div>{(data as string | undefined) || ''}</div>;
+  return (
+    <div>
+      {((data as string | undefined) || '').split('\n').map((line, index) => (
+        <div key={index}>{line}</div>
+      ))}
+    </div>
+  );
 };

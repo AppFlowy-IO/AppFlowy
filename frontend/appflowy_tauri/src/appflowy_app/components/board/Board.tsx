@@ -7,6 +7,7 @@ import { ViewLayoutTypePB } from '@/services/backend';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { useState } from 'react';
 import { RowInfo } from '$app/stores/effects/database/row/row_cache';
+import { EditRow } from '$app/components/board/EditBoardRow/EditRow';
 
 export const Board = ({ viewId }: { viewId: string }) => {
   const { controller, rows, groups, onNewRowClick, onDragEnd } = useDatabase(viewId, ViewLayoutTypePB.Board);
@@ -39,7 +40,7 @@ export const Board = ({ viewId }: { viewId: string }) => {
               groups &&
               groups.map((group, index) => (
                 <BoardBlock
-                  key={index}
+                  key={group.groupId}
                   viewId={viewId}
                   controller={controller}
                   group={group}
@@ -52,7 +53,14 @@ export const Board = ({ viewId }: { viewId: string }) => {
           </div>
         </div>
       </DragDropContext>
-
+      {controller && showBoardRow && boardRowInfo && (
+        <EditRow
+          onClose={() => setShowBoardRow(false)}
+          viewId={viewId}
+          controller={controller}
+          rowInfo={boardRowInfo}
+        ></EditRow>
+      )}
     </>
   );
 };
