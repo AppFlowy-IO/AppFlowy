@@ -90,6 +90,7 @@ class _TrashPageState extends State<TrashPage> {
           FlowyText.semibold(
             LocaleKeys.trash_text.tr(),
             fontSize: FontSizes.s16,
+            color: Theme.of(context).colorScheme.tertiary,
           ),
           const Spacer(),
           IntrinsicWidth(
