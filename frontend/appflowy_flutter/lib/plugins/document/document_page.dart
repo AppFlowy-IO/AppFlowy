@@ -1,7 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/plugins/board/board_view_menu_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/board/board_menu_item.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/board/board_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/grid/grid_menu_item.dart';
@@ -10,10 +7,14 @@ import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/au
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/auto_completion_plugins.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_toolbar_item.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/title/title_node_widget.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../../startup/startup.dart';
@@ -107,9 +108,7 @@ class _DocumentPageState extends State<DocumentPage> {
 }
 
 class _AppFlowyEditorPage extends StatefulWidget {
-  const _AppFlowyEditorPage({
-    Key? key,
-  }) : super(key: key);
+  const _AppFlowyEditorPage({Key? key}) : super(key: key);
 
   @override
   State<_AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
@@ -130,11 +129,11 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final autoFocusParameters = _autoFocusParameters();
+    final autoFocusParamters = _autoFocusParamters();
     final editor = AppFlowyEditor(
       editorState: editorState,
-      autoFocus: autoFocusParameters.value1,
-      focusedSelection: autoFocusParameters.value2,
+      autoFocus: autoFocusParamters.value1,
+      focusedSelection: autoFocusParamters.value2,
       customBuilders: {
         // Divider
         kDividerType: DividerWidgetBuilder(),
@@ -154,6 +153,7 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         kCoverType: CoverNodeWidgetBuilder(),
         // Smart Edit,
         kSmartEditType: SmartEditInputBuilder(),
+        kTitleType: TitleNodeWidgetBuilder(docBloc: documentBloc)
       },
       shortcutEvents: [
         // Divider
@@ -174,12 +174,8 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         emojiMenuItem,
         // Board
         boardMenuItem,
-        // Create Board
-        boardViewMenuItem(documentBloc),
         // Grid
         gridMenuItem,
-        // Create Grid
-        gridViewMenuItem(documentBloc),
         // Callout
         calloutMenuItem,
         // AI
@@ -189,7 +185,9 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         ],
       ],
       toolbarItems: [
-        smartEditItem,
+        if (openAIKey != null && openAIKey!.isNotEmpty) ...[
+          smartEditItem,
+        ]
       ],
       themeData: theme.copyWith(extensions: [
         ...theme.extensions.values,
@@ -240,7 +238,7 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
     }
   }
 
-  dartz.Tuple2<bool, Selection?> _autoFocusParameters() {
+  dartz.Tuple2<bool, Selection?> _autoFocusParamters() {
     if (editorState.document.isEmpty) {
       return dartz.Tuple2(true, Selection.single(path: [0], startOffset: 0));
     }

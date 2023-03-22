@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/title/title_node_widget.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
@@ -247,10 +248,8 @@ class DocumentMigration {
 
     // cover plugin
     if (editorState.document.nodeAtPath([0])?.type != kCoverType) {
-      transaction.insertNode(
-        [0],
-        Node(type: kCoverType),
-      );
+      transaction
+          .insertNodes([0], [Node(type: kCoverType), Node(type: kTitleType)]);
     }
 
     transaction.afterSelection = null;
