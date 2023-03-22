@@ -32,10 +32,7 @@ impl DocumentMigration {
     let conn = &*pool.get()?;
     let disk_cache = SQLiteDocumentRevisionPersistence::new(&self.user_id, pool);
     let documents = DeltaRevisionSql::read_all_documents(&self.user_id, conn)?;
-    tracing::debug!(
-      "[Document Migration]: try migrate {} documents",
-      documents.len()
-    );
+    tracing::debug!("[Migration]: try migrate {} documents", documents.len());
     for revisions in documents {
       if revisions.is_empty() {
         continue;

@@ -30,7 +30,7 @@ class AppFlowyBoardTest {
   Future<BoardTestContext> createTestBoard() async {
     final app = await unitTest.createTestApp();
     final builder = BoardPluginBuilder();
-    return AppService()
+    return AppBackendService()
         .createView(
       appId: app.id,
       name: "Test Board",
@@ -73,7 +73,7 @@ class BoardTestContext {
   BoardTestContext(this.gridView, this._boardDataController);
 
   List<RowInfo> get rowInfos {
-    return _boardDataController.rowInfos;
+    return _boardDataController.rowCache.rowInfos;
   }
 
   List<FieldInfo> get fieldContexts => fieldController.fieldInfos;

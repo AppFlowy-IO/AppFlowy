@@ -39,19 +39,36 @@ export class DatabaseBackendService {
     return FolderEventCloseView(payload);
   };
 
-  createRow = async (rowId?: string, groupId?: string) => {
-    const payload = CreateRowPayloadPB.fromObject({ view_id: this.viewId, start_row_id: rowId ?? undefined });
-    if (groupId !== undefined) {
-      payload.group_id = groupId;
+  /// Create a row in database
+  /// 1.The row will be the last row in database if the params is undefined
+  /// 2.The row will be placed after the passed-in rowId
+  /// 3.The row will be moved to the group with groupId. Currently, grouping is
+  /// only support in kanban board.
+  createRow = async (params?: { rowId?: string; groupId?: string }) => {
+    const payload = CreateRowPayloadPB.fromObject({ view_id: this.viewId });
+    if (params?.rowId !== undefined) {
+      payload.start_row_id = params.rowId;
+    }
+
+    if (params?.groupId !== undefined) {
+      payload.group_id = params.groupId;
     }
     return DatabaseEventCreateRow(payload);
   };
 
-  moveRow = (rowId: string, groupId?: string) => {
-    const payload = MoveGroupRowPayloadPB.fromObject({ view_id: this.viewId, from_row_id: rowId });
-    if (groupId !== undefined) {
-      payload.to_group_id = groupId;
+  /// Move the row from one group to another group
+  /// [groupId] can be the moving row's group id or others.
+  /// [toRowId] is used to locate the moving row location.
+  moveGroupRow = (fromRowId: string, groupId: string, toRowId?: string) => {
+    const payload = MoveGroupRowPayloadPB.fromObject({
+      view_id: this.viewId,
+      from_row_id: fromRowId,
+      to_group_id: groupId,
+    });
+    if (toRowId !== undefined) {
+      payload.to_row_id = toRowId;
     }
+
     return DatabaseEventMoveGroupRow(payload);
   };
 
@@ -79,6 +96,8 @@ export class DatabaseBackendService {
     return DatabaseEventGetGroup(payload);
   };
 
+  /// Get all groups in database
+  /// It should only call once after the board open
   loadGroups = () => {
     const payload = DatabaseViewIdPB.fromObject({ value: this.viewId });
     return DatabaseEventGetGroups(payload);

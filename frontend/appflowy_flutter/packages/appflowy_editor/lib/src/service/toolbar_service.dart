@@ -66,7 +66,7 @@ class _FlowyToolbarState extends State<FlowyToolbar>
         layerLink: layerLink,
         offset: offset,
         items: items,
-        aligment: alignment,
+        alignment: alignment,
       ),
     );
     Overlay.of(context)?.insert(_toolbarOverlay!);

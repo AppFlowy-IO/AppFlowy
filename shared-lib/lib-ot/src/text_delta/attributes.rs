@@ -139,7 +139,7 @@ lazy_static! {
     BuildInTextAttributeKey::Background,
     BuildInTextAttributeKey::InlineCode,
   ]);
-  static ref INGORE_KEYS: HashSet<BuildInTextAttributeKey> = HashSet::from_iter(vec![
+  static ref IGNORE_KEYS: HashSet<BuildInTextAttributeKey> = HashSet::from_iter(vec![
     BuildInTextAttributeKey::Width,
     BuildInTextAttributeKey::Height,
   ]);

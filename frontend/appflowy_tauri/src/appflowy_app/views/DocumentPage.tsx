@@ -1,6 +1,6 @@
 import { useDocument } from './DocumentPage.hooks';
 import BlockList from '../components/block/BlockList';
-import { BlockContext } from '../utils/block_context';
+import { BlockContext } from '../utils/block';
 import { createTheme, ThemeProvider } from '@mui/material';
 
 const theme = createTheme({
@@ -9,20 +9,19 @@ const theme = createTheme({
   },
 });
 export const DocumentPage = () => {
-  const { blocksMap, blockId } = useDocument();
+  const { blockId, blockEditor } = useDocument();
 
+  if (!blockId || !blockEditor) return <div className='error-page'></div>;
   return (
     <ThemeProvider theme={theme}>
-      <div id='appflowy-block-doc' className='flex flex-col items-center'>
-        <BlockContext.Provider
-          value={{
-            id: blockId,
-            blocksMap,
-          }}
-        >
-          <BlockList />
-        </BlockContext.Provider>
-      </div>
+      <BlockContext.Provider
+        value={{
+          id: blockId,
+          blockEditor,
+        }}
+      >
+        <BlockList blockEditor={blockEditor} blockId={blockId} />
+      </BlockContext.Provider>
     </ThemeProvider>
   );
 };

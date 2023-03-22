@@ -1,6 +1,6 @@
-import React from 'react';
-import { Block } from '$app/interfaces';
+import { TreeNode } from '@/appflowy_app/block_editor/view/tree_node';
+import { BlockCommonProps } from '@/appflowy_app/interfaces';
 
-export default function PageBlock({ block }: { block: Block }) {
-  return <div className='cursor-pointer underline'>{block.data.title}</div>;
+export default function PageBlock({ node }: BlockCommonProps<TreeNode>) {
+  return <div className='cursor-pointer underline'>{node.data.title}</div>;
 }

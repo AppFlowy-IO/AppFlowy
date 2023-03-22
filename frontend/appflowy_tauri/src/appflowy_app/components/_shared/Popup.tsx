@@ -12,11 +12,13 @@ export const Popup = ({
   className = '',
   onOutsideClick,
   columns = 1,
+  style,
 }: {
   items: IPopupItem[];
   className: string;
   onOutsideClick?: () => void;
   columns?: 1 | 2 | 3;
+  style?: any;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   useOutsideClick(ref, () => onOutsideClick && onOutsideClick());
@@ -27,7 +29,7 @@ export const Popup = ({
   };
 
   return (
-    <div ref={ref} className={`${className} rounded-lg bg-white px-2 py-2 shadow-md`}>
+    <div ref={ref} className={`${className} rounded-lg bg-white px-2 py-2 shadow-md`} style={style}>
       <div
         className={`grid ${columns === 1 && 'grid-cols-1'} ${columns === 2 && 'grid-cols-2'} ${
           columns === 3 && 'grid-cols-3'

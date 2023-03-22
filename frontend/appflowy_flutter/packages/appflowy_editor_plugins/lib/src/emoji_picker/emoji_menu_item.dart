@@ -24,15 +24,15 @@ void _showEmojiSelectionMenu(
   SelectionMenuService menuService,
   BuildContext context,
 ) {
-  final aligment = menuService.alignment;
+  final alignment = menuService.alignment;
   final offset = menuService.offset;
   menuService.dismiss();
 
   _emojiSelectionMenu?.remove();
   _emojiSelectionMenu = OverlayEntry(builder: (context) {
     return Positioned(
-      top: aligment == Alignment.bottomLeft ? offset.dy : null,
-      bottom: aligment == Alignment.topLeft ? offset.dy : null,
+      top: alignment == Alignment.bottomLeft ? offset.dy : null,
+      bottom: alignment == Alignment.topLeft ? offset.dy : null,
       left: offset.dx,
       child: Material(
         child: EmojiSelectionMenu(

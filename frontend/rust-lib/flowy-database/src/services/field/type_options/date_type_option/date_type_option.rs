@@ -75,7 +75,7 @@ impl DateTypeOptionPB {
 
     let time = if include_time {
       let fmt = self.time_format.format_str();
-      format!("{}", naive.format_with_items(StrftimeItems::new(&fmt)))
+      format!("{}", naive.format_with_items(StrftimeItems::new(fmt)))
     } else {
       "".to_string()
     };
@@ -95,8 +95,7 @@ impl DateTypeOptionPB {
   ) -> FlowyResult<i64> {
     if let Some(time_str) = time_str.as_ref() {
       if !time_str.is_empty() {
-        let naive_time =
-          chrono::NaiveTime::parse_from_str(&time_str, self.time_format.format_str());
+        let naive_time = chrono::NaiveTime::parse_from_str(time_str, self.time_format.format_str());
 
         match naive_time {
           Ok(naive_time) => {

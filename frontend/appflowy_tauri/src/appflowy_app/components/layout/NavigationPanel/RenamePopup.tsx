@@ -6,11 +6,13 @@ export const RenamePopup = ({
   onChange,
   onClose,
   className = '',
+  top,
 }: {
   value: string;
   onChange: (newTitle: string) => void;
   onClose: () => void;
   className?: string;
+  top?: number;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -32,6 +34,7 @@ export const RenamePopup = ({
       className={
         'absolute left-[50px] top-[40px] z-10 flex w-[300px] rounded bg-white py-1 px-1.5 shadow-md ' + className
       }
+      style={{ top: `${top}px` }}
     >
       <input
         ref={inputRef}

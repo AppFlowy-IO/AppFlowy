@@ -89,12 +89,14 @@ dependencies:
   google_fonts: ^3.0.1
   file_picker: <=5.0.0
   percent_indicator: ^4.0.1
+  
   appflowy_editor_plugins:
     path: packages/appflowy_editor_plugins
   calendar_view: ^1.0.1
   window_manager: ^0.3.0
   http: ^0.13.5
   json_annotation: ^4.7.0
+  path: ^1.8.2
 
 dev_dependencies:
   flutter_lints: ^2.0.1

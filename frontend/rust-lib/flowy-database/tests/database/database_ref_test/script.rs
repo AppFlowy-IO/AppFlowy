@@ -2,12 +2,12 @@ use crate::database::block_test::util::DatabaseRowTestBuilder;
 use crate::database::database_editor::DatabaseEditorTest;
 use database_model::RowRevision;
 use flowy_database::services::database::DatabaseEditor;
-use flowy_database::services::persistence::database_ref::{DatabaseInfo, DatabaseRef};
+use flowy_database::services::persistence::database_ref::{DatabaseInfo, DatabaseViewRef};
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub enum DatabaseRefScript {
-  LinkGridToDatabase {
+pub enum LinkDatabaseTestScript {
+  CreateGridViewAndLinkToDatabase {
     database_id: String,
   },
   #[allow(dead_code)]
@@ -28,17 +28,17 @@ pub enum DatabaseRefScript {
   },
 }
 
-pub struct DatabaseRefTest {
+pub struct LinkDatabaseTest {
   inner: DatabaseEditorTest,
 }
 
-impl DatabaseRefTest {
+impl LinkDatabaseTest {
   pub async fn new() -> Self {
     let inner = DatabaseEditorTest::new_grid().await;
     Self { inner }
   }
 
-  pub async fn run_scripts(&mut self, scripts: Vec<DatabaseRefScript>) {
+  pub async fn run_scripts(&mut self, scripts: Vec<LinkDatabaseTestScript>) {
     for script in scripts {
       self.run_script(script).await;
     }
@@ -61,7 +61,7 @@ impl DatabaseRefTest {
       .unwrap()
   }
 
-  pub async fn all_database_ref_views(&self, database_id: &str) -> Vec<DatabaseRef> {
+  pub async fn all_database_ref_views(&self, database_id: &str) -> Vec<DatabaseViewRef> {
     self
       .inner
       .sdk
@@ -87,9 +87,9 @@ impl DatabaseRefTest {
     DatabaseRowTestBuilder::new(self.block_id(view_id).await, field_revs)
   }
 
-  pub async fn run_script(&mut self, script: DatabaseRefScript) {
+  pub async fn run_script(&mut self, script: LinkDatabaseTestScript) {
     match script {
-      DatabaseRefScript::LinkGridToDatabase { database_id } => {
+      LinkDatabaseTestScript::CreateGridViewAndLinkToDatabase { database_id } => {
         let mut ext = HashMap::new();
         ext.insert("database_id".to_owned(), database_id);
         self
@@ -99,7 +99,7 @@ impl DatabaseRefTest {
           .create_test_grid_view(&self.inner.app_id, "test link grid", ext)
           .await;
       },
-      DatabaseRefScript::LinkBoardToDatabase { database_id } => {
+      LinkDatabaseTestScript::LinkBoardToDatabase { database_id } => {
         let mut ext = HashMap::new();
         ext.insert("database_id".to_owned(), database_id);
         self
@@ -109,7 +109,7 @@ impl DatabaseRefTest {
           .create_test_board_view(&self.inner.app_id, "test link board", ext)
           .await;
       },
-      DatabaseRefScript::CreateNewGrid => {
+      LinkDatabaseTestScript::CreateNewGrid => {
         self
           .inner
           .sdk
@@ -117,15 +117,15 @@ impl DatabaseRefTest {
           .create_test_grid_view(&self.inner.app_id, "Create test grid", HashMap::new())
           .await;
       },
-      DatabaseRefScript::AssertNumberOfDatabase { expected } => {
+      LinkDatabaseTestScript::AssertNumberOfDatabase { expected } => {
         let databases = self.all_databases().await;
         assert_eq!(databases.len(), expected);
       },
-      DatabaseRefScript::CreateRow { view_id, row_rev } => {
+      LinkDatabaseTestScript::CreateRow { view_id, row_rev } => {
         let editor = self.get_database_editor(&view_id).await;
         let _ = editor.insert_rows(vec![row_rev]).await.unwrap();
       },
-      DatabaseRefScript::AssertNumberOfRows { view_id, expected } => {
+      LinkDatabaseTestScript::AssertNumberOfRows { view_id, expected } => {
         let editor = self.get_database_editor(&view_id).await;
         let rows = editor.get_all_row_revs(&view_id).await.unwrap();
         assert_eq!(rows.len(), expected);

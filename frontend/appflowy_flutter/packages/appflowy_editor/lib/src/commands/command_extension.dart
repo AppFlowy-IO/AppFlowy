@@ -52,12 +52,15 @@ extension CommandExtension on EditorState {
     throw Exception('path and textNode cannot be null at the same time');
   }
 
-  String getTextInSelection(
+  List<String> getTextInSelection(
     List<TextNode> textNodes,
     Selection selection,
   ) {
     List<String> res = [];
-    if (!selection.isCollapsed) {
+    if (selection.isSingle) {
+      final plainText = textNodes.first.toPlainText();
+      res.add(plainText.substring(selection.startIndex, selection.endIndex));
+    } else if (!selection.isCollapsed) {
       for (var i = 0; i < textNodes.length; i++) {
         final plainText = textNodes[i].toPlainText();
         if (i == 0) {
@@ -74,6 +77,6 @@ extension CommandExtension on EditorState {
         }
       }
     }
-    return res.join('\n');
+    return res;
   }
 }

@@ -129,10 +129,6 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
     editorState = documentBloc.editorState ?? EditorState.empty();
   }
 
-  final directory = getIt<SettingsLocationCubit>()
-      .fetchLocation()
-      .then((value) => Directory(value));
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -180,8 +176,12 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         emojiMenuItem,
         // Board
         boardMenuItem,
+        // Create Board
+        boardViewMenuItem(documentBloc),
         // Grid
         gridMenuItem,
+        // Create Grid
+        gridViewMenuItem(documentBloc),
         // Callout
         calloutMenuItem,
         // AI

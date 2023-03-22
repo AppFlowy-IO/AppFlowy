@@ -201,7 +201,7 @@ run_task = { name = [
 
 [tasks.compile_test_backend]
 mac_alias = "compile_test_backend_default"
-windows_alias = "compile_test_backend_widnows"
+windows_alias = "compile_test_backend_windows"
 linux_alias = "compile_test_backend_default"
 
 [tasks.compile_test_backend_default]
@@ -217,7 +217,7 @@ script = [
 ]
 script_runner = "@shell"
 
-[tasks.compile_test_backend_widnows]
+[tasks.compile_test_backend_windows]
 private = true
 script = [
   """

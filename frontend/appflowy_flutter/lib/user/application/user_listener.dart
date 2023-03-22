@@ -83,11 +83,10 @@ class UserWorkspaceListener {
       PublishNotifier();
 
   FolderNotificationListener? _listener;
-  final UserProfilePB _userProfile;
 
   UserWorkspaceListener({
     required UserProfilePB userProfile,
-  }) : _userProfile = userProfile;
+  });
 
   void start({
     void Function(AuthNotifyValue)? onAuthChanged,
@@ -106,14 +105,18 @@ class UserWorkspaceListener {
       _settingChangedNotifier?.addPublishListener(onSettingUpdated);
     }
 
+    // The "current-workspace" is predefined in the backend. Do not try to
+    // modify it
     _listener = FolderNotificationListener(
-      objectId: _userProfile.token,
+      objectId: "current-workspace",
       handler: _handleObservableType,
     );
   }
 
   void _handleObservableType(
-      FolderNotification ty, Either<Uint8List, FlowyError> result) {
+    FolderNotification ty,
+    Either<Uint8List, FlowyError> result,
+  ) {
     switch (ty) {
       case FolderNotification.DidCreateWorkspace:
       case FolderNotification.DidDeleteWorkspace:

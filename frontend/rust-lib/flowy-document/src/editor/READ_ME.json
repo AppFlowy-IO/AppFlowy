@@ -241,7 +241,7 @@
             "insert": "bold text",
             "attributes": {
               "bold": true,
-              "defaultFormating": true
+              "defaultFormatting": true
             }
           }
         ]

@@ -17,7 +17,6 @@ printError() {
    printf "${RED}AppFlowy : $1${ENDCOLOR}\n"
 }
 
-
 # Note: This script does not install applications which are installed by the package manager. There are too many package managers out there.
 
 # Install Rust
@@ -46,9 +45,27 @@ else
    printSuccess "Rust has been detected on your system, so Rust installation has been skipped"
 fi
 
-# Enable the flutter stable channel
 printMessage "Setting up Flutter"
-flutter channel stable
+# Get the current Flutter version
+FLUTTER_VERSION=$(flutter --version | grep -oP 'Flutter \K\S+')
+# Check if the current version is 3.3.10
+if [ "$FLUTTER_VERSION" = "3.3.10" ]; then
+   echo "Flutter version is already 3.3.10"
+else
+   # Get the path to the Flutter SDK
+   FLUTTER_PATH=$(which flutter)
+   FLUTTER_PATH=${FLUTTER_PATH%/bin/flutter}
+
+   current_dir=$(pwd)
+
+   cd $FLUTTER_PATH
+   # Use git to checkout version 3.3.10 of Flutter
+   git checkout 3.3.10
+   # Get back to current working directory
+   cd "$current_dir"
+
+   echo "Switched to Flutter version 3.3.10"
+fi
 
 # Add pub cache and cargo to PATH
 powershell '[Environment]::SetEnvironmentVariable("PATH", $Env:PATH + ";" + $Env:LOCALAPPDATA + "\Pub\Cache\Bin", [EnvironmentVariableTarget]::User)'
@@ -64,14 +81,14 @@ flutter doctor
 printMessage "Setting up githooks."
 git config core.hooksPath .githooks
 
-# Install go-gitlint 
+# Install go-gitlint
 printMessage "Installing go-gitlint."
 GOLINT_FILENAME="go-gitlint_1.1.0_windows_x86_64.tar.gz"
 if curl --proto '=https' --tlsv1.2 -sSfL https://github.com/llorllale/go-gitlint/releases/download/1.1.0/${GOLINT_FILENAME} -o ${GOLINT_FILENAME}; then
    tar -zxv --directory .githooks/. -f ${GOLINT_FILENAME} gitlint.exe
    rm ${GOLINT_FILENAME}
 else
- printError "Failed to install go-gitlint"
+   printError "Failed to install go-gitlint"
 fi
 
 # Change to the frontend directory

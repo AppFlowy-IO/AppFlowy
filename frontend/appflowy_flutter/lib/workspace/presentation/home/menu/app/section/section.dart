@@ -33,14 +33,14 @@ class ViewSection extends StatelessWidget {
         },
         child: BlocBuilder<ViewSectionBloc, ViewSectionState>(
           builder: (context, state) {
-            return _reorderableColum(context, state);
+            return _reorderableColumn(context, state);
           },
         ),
       ),
     );
   }
 
-  ReorderableColumn _reorderableColum(
+  ReorderableColumn _reorderableColumn(
       BuildContext context, ViewSectionState state) {
     final children = state.views.map((view) {
       return ViewSectionItem(

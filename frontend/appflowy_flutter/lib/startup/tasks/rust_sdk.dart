@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
 import '../startup.dart';
 
@@ -35,13 +36,11 @@ Future<Directory> appFlowyDocumentDirectory() async {
   switch (integrationEnv()) {
     case IntegrationMode.develop:
       Directory documentsDir = await getApplicationDocumentsDirectory();
-      Directory('${documentsDir.path}/images').create(recursive: true);
-      return Directory(documentsDir.path).create();
+      return Directory(path.join(documentsDir.path, 'flowy_dev')).create();
     case IntegrationMode.release:
       Directory documentsDir = await getApplicationDocumentsDirectory();
-      Directory('${documentsDir.path}/images').create(recursive: true);
-      return Directory(documentsDir.path).create();
+      return Directory(path.join(documentsDir.path, 'flowy')).create();
     case IntegrationMode.test:
-      return Directory("${Directory.current.path}/.sandbox");
+      return Directory(path.join(Directory.current.path, '.sandbox'));
   }
 }

@@ -3,23 +3,20 @@ import AddSvg from '../_shared/svg/AddSvg';
 import { BoardCard } from './BoardCard';
 import { RowInfo } from '../../stores/effects/database/row/row_cache';
 import { DatabaseController } from '../../stores/effects/database/database_controller';
+import { RowPB } from '@/services/backend';
 
 export const BoardBlock = ({
   viewId,
   controller,
   title,
-  groupingFieldId,
   rows,
-  startMove,
-  endMove,
+  allRows,
 }: {
   viewId: string;
   controller: DatabaseController;
   title: string;
-  groupingFieldId: string;
-  rows: readonly RowInfo[];
-  startMove: (id: string) => void;
-  endMove: () => void;
+  rows: RowPB[];
+  allRows: readonly RowInfo[];
 }) => {
   return (
     <div className={'flex h-full w-[250px] flex-col rounded-lg bg-surface-1'}>
@@ -38,17 +35,14 @@ export const BoardBlock = ({
         </div>
       </div>
       <div className={'flex flex-1 flex-col gap-1 overflow-auto px-2'}>
-        {rows.map((row, index) => (
-          <BoardCard
-            viewId={viewId}
-            controller={controller}
-            key={index}
-            groupingFieldId={groupingFieldId}
-            row={row}
-            startMove={() => startMove(row.row.id)}
-            endMove={() => endMove()}
-          ></BoardCard>
-        ))}
+        {rows.map((row_pb, index) => {
+          const row = allRows.find((r) => r.row.id === row_pb.id);
+          return row ? (
+            <BoardCard viewId={viewId} controller={controller} key={index} rowInfo={row}></BoardCard>
+          ) : (
+            <span key={index}></span>
+          );
+        })}
       </div>
       <div className={'p-2'}>
         <button className={'flex w-full items-center gap-2 rounded-lg px-2 py-2 hover:bg-surface-2'}>

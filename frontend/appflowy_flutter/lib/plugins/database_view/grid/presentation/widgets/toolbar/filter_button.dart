@@ -30,20 +30,23 @@ class _FilterButtonState extends State<FilterButton> {
 
         return _wrapPopover(
           context,
-          FlowyTextButton(
-            LocaleKeys.grid_settings_filter.tr(),
-            fontColor: textColor,
-            fillColor: Colors.transparent,
-            hoverColor: AFThemeExtension.of(context).lightGreyHover,
-            padding: GridSize.typeOptionContentInsets,
-            onPressed: () {
-              final bloc = context.read<GridFilterMenuBloc>();
-              if (bloc.state.filters.isEmpty) {
-                _popoverController.show();
-              } else {
-                bloc.add(const GridFilterMenuEvent.toggleMenu());
-              }
-            },
+          SizedBox(
+            height: 26,
+            child: FlowyTextButton(
+              LocaleKeys.grid_settings_filter.tr(),
+              fontColor: textColor,
+              fillColor: Colors.transparent,
+              hoverColor: AFThemeExtension.of(context).lightGreyHover,
+              padding: GridSize.typeOptionContentInsets,
+              onPressed: () {
+                final bloc = context.read<GridFilterMenuBloc>();
+                if (bloc.state.filters.isEmpty) {
+                  _popoverController.show();
+                } else {
+                  bloc.add(const GridFilterMenuEvent.toggleMenu());
+                }
+              },
+            ),
           ),
         );
       },
@@ -55,7 +58,7 @@ class _FilterButtonState extends State<FilterButton> {
       controller: _popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
       constraints: BoxConstraints.loose(const Size(200, 300)),
-      offset: const Offset(0, 10),
+      offset: const Offset(0, 8),
       triggerActions: PopoverTriggerFlags.none,
       child: child,
       popupBuilder: (BuildContext context) {

@@ -23,6 +23,7 @@ class CardCellBuilder<CustomCardData> {
     required CellIdentifier cellId,
     EditableCardNotifier? cellNotifier,
     CardConfiguration<CustomCardData>? cardConfiguration,
+    Map<FieldType, CardCellStyle>? styles,
   }) {
     final cellControllerBuilder = CellControllerBuilder(
       cellId: cellId,
@@ -30,6 +31,7 @@ class CardCellBuilder<CustomCardData> {
     );
 
     final key = cellId.key();
+    final style = styles?[cellId.fieldType];
     switch (cellId.fieldType) {
       case FieldType.Checkbox:
         return CheckboxCardCell(
@@ -70,6 +72,7 @@ class CardCellBuilder<CustomCardData> {
         return TextCardCell(
           cellControllerBuilder: cellControllerBuilder,
           editableNotifier: cellNotifier,
+          style: isStyleOrNull<TextCardCellStyle>(style),
           key: key,
         );
       case FieldType.URL:

@@ -11,7 +11,7 @@ import 'package:appflowy_backend/protobuf/flowy-database/util.pb.dart';
 import 'package:flutter/foundation.dart';
 import '../../grid/presentation/widgets/filter/filter_info.dart';
 import '../../grid/presentation/widgets/sort/sort_info.dart';
-import '../database_service.dart';
+import '../database_view_service.dart';
 import '../filter/filter_listener.dart';
 import '../filter/filter_service.dart';
 import '../row/row_cache.dart';
@@ -80,7 +80,7 @@ class FieldController {
   final SortsListener _sortsListener;
 
   // FFI services
-  final DatabaseBackendService _databaseBackendSvc;
+  final DatabaseViewBackendService _databaseViewBackendSvc;
   final SettingBackendService _settingBackendSvc;
   final FilterBackendService _filterBackendSvc;
   final SortBackendService _sortBackendSvc;
@@ -152,7 +152,7 @@ class FieldController {
         _settingListener = DatabaseSettingListener(viewId: viewId),
         _filterBackendSvc = FilterBackendService(viewId: viewId),
         _filtersListener = FiltersListener(viewId: viewId),
-        _databaseBackendSvc = DatabaseBackendService(viewId: viewId),
+        _databaseViewBackendSvc = DatabaseViewBackendService(viewId: viewId),
         _sortBackendSvc = SortBackendService(viewId: viewId),
         _sortsListener = SortsListener(viewId: viewId),
         _settingBackendSvc = SettingBackendService(viewId: viewId) {
@@ -162,7 +162,7 @@ class FieldController {
     //Listen on setting changes
     _listenOnSettingChanges();
 
-    //Listen on the fitler changes
+    //Listen on the filter changes
     _listenOnFilterChanges();
 
     //Listen on the sort changes
@@ -177,7 +177,7 @@ class FieldController {
   }
 
   void _listenOnFilterChanges() {
-    //Listen on the fitler changes
+    //Listen on the filter changes
 
     deleteFilterFromChangeset(
       List<FilterInfo> filters,
@@ -230,7 +230,7 @@ class FieldController {
               .removeWhere((key, value) => value.id == updatedFilter.filterId);
         }
 
-        // Insert the filter if there is a fitler and its field info is
+        // Insert the filter if there is a filter and its field info is
         // not null
         if (updatedFilter.hasFilter()) {
           final fieldInfo = _findFieldInfo(
@@ -448,7 +448,7 @@ class FieldController {
   Future<Either<Unit, FlowyError>> loadFields({
     required List<FieldIdPB> fieldIds,
   }) async {
-    final result = await _databaseBackendSvc.getFields(fieldIds: fieldIds);
+    final result = await _databaseViewBackendSvc.getFields(fieldIds: fieldIds);
     return Future(
       () => result.fold(
         (newFields) {
