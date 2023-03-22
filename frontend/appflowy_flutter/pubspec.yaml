@@ -42,7 +42,10 @@ dependencies:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
       ref: a183c57
-  appflowy_editor: ^0.1.1
+  appflowy_editor:
+    git:
+      url: https://github.com/AppFlowy-IO/appflowy-editor.git
+      ref: main
   appflowy_popover:
     path: packages/appflowy_popover
 
@@ -88,7 +91,7 @@ dependencies:
   google_fonts: ^4.0.3
   file_picker: <=5.0.0
   percent_indicator: ^4.0.1
-  
+
   appflowy_editor_plugins:
     path: packages/appflowy_editor_plugins
   calendar_view: ^1.0.1
