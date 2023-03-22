@@ -1,9 +1,9 @@
 import { DatabaseBackendService } from './database_bd_svc';
 import { FieldController, FieldInfo } from './field/field_controller';
 import { DatabaseViewCache } from './view/database_view_cache';
-import { DatabasePB, GroupPB } from '@/services/backend';
+import { DatabasePB, FlowyError, GroupPB } from '@/services/backend';
 import { RowChangedReason, RowInfo } from './row/row_cache';
-import { Err } from 'ts-results';
+import { Err, Ok } from 'ts-results';
 import { DatabaseGroupController } from './group/group_controller';
 import { BehaviorSubject } from 'rxjs';
 import { DatabaseGroupObserver } from './group/group_observer';
@@ -68,6 +68,20 @@ export class DatabaseController {
       return loadGroupResult;
     } else {
       return Err(openDatabaseResult.val);
+    }
+  };
+
+  getGroupByFieldId = async () => {
+    const settingsResult = await this.backendService.getSettings();
+    if (settingsResult.ok) {
+      const settings = settingsResult.val;
+      const groupConfig = settings.group_configurations.items;
+      if (groupConfig.length === 0) {
+        return Err(new FlowyError({ msg: 'this database has no groups' }));
+      }
+      return Ok(settings.group_configurations.items[0].field_id);
+    } else {
+      return Err(settingsResult.val);
     }
   };
 

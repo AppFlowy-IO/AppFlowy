@@ -14,6 +14,7 @@ export const useDatabase = (viewId: string, type?: ViewLayoutTypePB) => {
   const [controller, setController] = useState<DatabaseController>();
   const [rows, setRows] = useState<readonly RowInfo[]>([]);
   const [groups, setGroups] = useState<readonly DatabaseGroupController[]>([]);
+  const [groupByFieldId, setGroupByFieldId] = useState('');
 
   useEffect(() => {
     if (!viewId.length) return;
@@ -54,13 +55,12 @@ export const useDatabase = (viewId: string, type?: ViewLayoutTypePB) => {
         onFieldsChanged: (fieldInfos) => {
           void loadFields(fieldInfos);
         },
-        onGroupByField: (g) => {
-          console.log('on group by field: ', g);
-        },
       });
       await controller.open();
 
       if (type === ViewLayoutTypePB.Board) {
+        const fieldId = await controller.getGroupByFieldId();
+        setGroupByFieldId(fieldId.unwrap());
         setGroups(controller.groups.value);
       }
     })();
@@ -97,5 +97,5 @@ export const useDatabase = (viewId: string, type?: ViewLayoutTypePB) => {
     }
   };
 
-  return { loadFields, controller, rows, groups, onNewRowClick, onDragEnd };
+  return { loadFields, controller, rows, groups, groupByFieldId, onNewRowClick, onDragEnd };
 };
