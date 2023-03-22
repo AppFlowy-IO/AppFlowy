@@ -21,8 +21,8 @@ import '../../startup/startup.dart';
 import 'application/doc_bloc.dart';
 import 'editor_styles.dart';
 import 'presentation/banner.dart';
+import 'presentation/plugins/board/board_view_menu_item.dart';
 import 'presentation/plugins/grid/grid_view_menu_item.dart';
-import 'presentation/plugins/board/board_menu_item.dart';
 
 class DocumentPage extends StatefulWidget {
   final VoidCallback onDeleted;
@@ -174,8 +174,12 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         emojiMenuItem,
         // Board
         boardMenuItem,
+        // Create Board
+        boardViewMenuItem(documentBloc),
         // Grid
         gridMenuItem,
+        // Create Grid
+        gridViewMenuItem(documentBloc),
         // Callout
         calloutMenuItem,
         // AI
