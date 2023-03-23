@@ -27,7 +27,7 @@ import 'tasks/prelude.dart';
 //                                   └───▶│AppWidgetTask│────────▶│ApplicationWidget │─────▶│ SplashScreen  │
 //                                        └─────────────┘         └──────────────────┘      └───────────────┘
 //
-//                                                 3.build MeterialApp
+//                                                 3.build MaterialApp
 final getIt = GetIt.instance;
 
 abstract class EntryPoint {

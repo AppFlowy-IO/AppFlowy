@@ -27,7 +27,7 @@ void main() async {
         Selection.single(path: [1], startOffset: 0, endOffset: text.length),
       );
 
-      // mutliple selection
+      // multiple selection
       await _testSelection(
         editor,
         Selection(

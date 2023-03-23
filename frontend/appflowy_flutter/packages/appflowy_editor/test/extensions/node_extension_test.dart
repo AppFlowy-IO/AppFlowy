@@ -45,7 +45,7 @@ void main() {
       expect(result, false);
     });
 
-    testWidgets('insert a new checkbox after an exsiting checkbox',
+    testWidgets('insert a new checkbox after an existing checkbox',
         (tester) async {
       const text = 'Welcome to Appflowy 😁';
       final editor = tester.editor

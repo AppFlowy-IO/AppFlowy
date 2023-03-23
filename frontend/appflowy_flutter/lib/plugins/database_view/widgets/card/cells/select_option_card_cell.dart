@@ -9,7 +9,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/select_option_card_cell_bloc.dart';
 import 'card_cell.dart';
 
-class SelectOptionCardCell<T> extends CardCell<T> with EditableCell {
+class SelectOptionCardCellStyle extends CardCellStyle {}
+
+class SelectOptionCardCell<T> extends CardCell<T, SelectOptionCardCellStyle>
+    with EditableCell {
   final CellControllerBuilder cellControllerBuilder;
   final CellRenderHook<List<SelectOptionPB>, T>? renderHook;
 

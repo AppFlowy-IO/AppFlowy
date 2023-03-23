@@ -1,16 +1,21 @@
-import { TreeNodeInterface } from '@/appflowy_app/interfaces';
-import React, { useMemo } from 'react';
-import BlockComponent from '../BlockList/BlockComponent';
+import { TreeNode } from '@/appflowy_app/block_editor/view/tree_node';
+import BlockComponent from '../BlockComponent';
+import { BlockType } from '@/appflowy_app/interfaces';
+import { Block } from '@/appflowy_app/block_editor/core/block';
 
-export default function NumberedListBlock({ title, node }: { title: JSX.Element; node: TreeNodeInterface }) {
-  const index = useMemo(() => {
-    const i = node.parent?.children?.findIndex((item) => item.id === node.id) || 0;
-    return i + 1;
-  }, [node]);
+export default function NumberedListBlock({ title, node }: { title: JSX.Element; node: TreeNode }) {
+  let prev = node.block.prev;
+  let index = 1;
+  while (prev && prev.type === BlockType.ListBlock && (prev as Block<BlockType.ListBlock>).data.type === 'numbered') {
+    index++;
+    prev = prev.prev;
+  }
   return (
     <div className='numbered-list-block'>
       <div className='relative flex'>
-        <div className={`relative mb-2 min-w-[24px] max-w-[24px]`}>{`${index} .`}</div>
+        <div
+          className={`relative flex h-[calc(1.5em_+_3px_+_3px)] min-w-[24px] max-w-[24px] select-none items-center`}
+        >{`${index} .`}</div>
         {title}
       </div>
 

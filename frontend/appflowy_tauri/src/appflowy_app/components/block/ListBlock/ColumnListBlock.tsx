@@ -1,8 +1,8 @@
-import { TreeNodeInterface } from '@/appflowy_app/interfaces';
+import { TreeNode } from '@/appflowy_app/block_editor/view/tree_node';
 import React, { useMemo } from 'react';
-import ColumnBlock from '../ColumnBlock/index';
+import ColumnBlock from '../ColumnBlock';
 
-export default function ColumnListBlock({ node }: { node: TreeNodeInterface }) {
+export default function ColumnListBlock({ node }: { node: TreeNode }) {
   const resizerWidth = useMemo(() => {
     return 46 * (node.children?.length || 0);
   }, [node.children?.length]);

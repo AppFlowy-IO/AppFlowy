@@ -71,7 +71,7 @@ void main() async {
 
     // https://github.com/AppFlowy-IO/AppFlowy/issues/1763
     // // [Bug] Mouse unable to click a certain area #1763
-    testWidgets('insert a new checkbox after an exsiting checkbox',
+    testWidgets('insert a new checkbox after an existing checkbox',
         (tester) async {
       // Before
       //

@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/layout/calendar_setting_listener.dart';
 import 'package:appflowy/plugins/database_view/application/view/view_cache.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/calendar_entities.pb.dart';
@@ -17,11 +18,6 @@ import 'defines.dart';
 import 'layout/layout_setting_listener.dart';
 import 'row/row_cache.dart';
 import 'group/group_listener.dart';
-
-typedef OnRowsChanged = void Function(
-  List<RowInfo> rowInfos,
-  RowsChangedReason,
-);
 
 typedef OnGroupByField = void Function(List<GroupPB>);
 typedef OnUpdateGroup = void Function(List<GroupPB>);
@@ -52,16 +48,29 @@ class LayoutCallbacks {
   });
 }
 
+class CalendarLayoutCallbacks {
+  final void Function(LayoutSettingPB) onCalendarLayoutChanged;
+
+  CalendarLayoutCallbacks({required this.onCalendarLayoutChanged});
+}
+
 class DatabaseCallbacks {
   OnDatabaseChanged? onDatabaseChanged;
-  OnRowsChanged? onRowsChanged;
   OnFieldsChanged? onFieldsChanged;
   OnFiltersChanged? onFiltersChanged;
+  OnRowsChanged? onRowsChanged;
+  OnRowsDeleted? onRowsDeleted;
+  OnRowsUpdated? onRowsUpdated;
+  OnRowsCreated? onRowsCreated;
+
   DatabaseCallbacks({
     this.onDatabaseChanged,
     this.onRowsChanged,
     this.onFieldsChanged,
     this.onFiltersChanged,
+    this.onRowsUpdated,
+    this.onRowsDeleted,
+    this.onRowsCreated,
   });
 }
 
@@ -76,21 +85,23 @@ class DatabaseController {
   DatabaseCallbacks? _databaseCallbacks;
   GroupCallbacks? _groupCallbacks;
   LayoutCallbacks? _layoutCallbacks;
+  CalendarLayoutCallbacks? _calendarLayoutCallbacks;
 
   // Getters
-  List<RowInfo> get rowInfos => _viewCache.rowInfos;
   RowCache get rowCache => _viewCache.rowCache;
 
   // Listener
   final DatabaseGroupListener groupListener;
   final DatabaseLayoutListener layoutListener;
+  final DatabaseCalendarLayoutListener calendarLayoutListener;
 
   DatabaseController({required ViewPB view, required this.layoutType})
       : viewId = view.id,
         _databaseViewBackendSvc = DatabaseViewBackendService(viewId: view.id),
         fieldController = FieldController(viewId: view.id),
         groupListener = DatabaseGroupListener(view.id),
-        layoutListener = DatabaseLayoutListener(view.id) {
+        layoutListener = DatabaseLayoutListener(view.id),
+        calendarLayoutListener = DatabaseCalendarLayoutListener(view.id) {
     _viewCache = DatabaseViewCache(
       viewId: viewId,
       fieldController: fieldController,
@@ -99,16 +110,21 @@ class DatabaseController {
     _listenOnFieldsChanged();
     _listenOnGroupChanged();
     _listenOnLayoutChanged();
+    if (layoutType == LayoutTypePB.Calendar) {
+      _listenOnCalendarLayoutChanged();
+    }
   }
 
   void addListener({
     DatabaseCallbacks? onDatabaseChanged,
     LayoutCallbacks? onLayoutChanged,
     GroupCallbacks? onGroupChanged,
+    CalendarLayoutCallbacks? onCalendarLayoutChanged,
   }) {
     _layoutCallbacks = onLayoutChanged;
     _databaseCallbacks = onDatabaseChanged;
     _groupCallbacks = onGroupChanged;
+    _calendarLayoutCallbacks = onCalendarLayoutChanged;
   }
 
   Future<Either<Unit, FlowyError>> open() async {
@@ -218,9 +234,17 @@ class DatabaseController {
   }
 
   void _listenOnRowsChanged() {
-    _viewCache.addListener(onRowsChanged: (reason) {
-      _databaseCallbacks?.onRowsChanged?.call(rowInfos, reason);
+    final callbacks =
+        DatabaseViewCallbacks(onRowsChanged: (rows, rowByRowId, reason) {
+      _databaseCallbacks?.onRowsChanged?.call(rows, rowByRowId, reason);
+    }, onRowsDeleted: (ids) {
+      _databaseCallbacks?.onRowsDeleted?.call(ids);
+    }, onRowsUpdated: (ids) {
+      _databaseCallbacks?.onRowsUpdated?.call(ids);
+    }, onRowsCreated: (ids) {
+      _databaseCallbacks?.onRowsCreated?.call(ids);
     });
+    _viewCache.addListener(callbacks);
   }
 
   void _listenOnFieldsChanged() {
@@ -263,6 +287,14 @@ class DatabaseController {
     layoutListener.start(onLayoutChanged: (result) {
       result.fold((l) {
         _layoutCallbacks?.onLayoutChanged(l);
+      }, (r) => Log.error(r));
+    });
+  }
+
+  void _listenOnCalendarLayoutChanged() {
+    calendarLayoutListener.start(onCalendarLayoutChanged: (result) {
+      result.fold((l) {
+        _calendarLayoutCallbacks?.onCalendarLayoutChanged(l);
       }, (r) => Log.error(r));
     });
   }
