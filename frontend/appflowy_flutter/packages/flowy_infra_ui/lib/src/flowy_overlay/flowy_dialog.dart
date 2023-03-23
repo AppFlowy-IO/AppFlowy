@@ -31,6 +31,7 @@ class FlowyDialog extends StatelessWidget {
         children: [
           Material(
             type: MaterialType.transparency,
+            color: Theme.of(context).cardColor,
             child: Container(
               padding: padding,
               height: size.height,
