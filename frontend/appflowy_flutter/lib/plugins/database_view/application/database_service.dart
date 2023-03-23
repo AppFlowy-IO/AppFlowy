@@ -5,7 +5,7 @@ import 'package:dartz/dartz.dart';
 
 class DatabaseBackendService {
   static Future<Either<List<DatabaseDescriptionPB>, FlowyError>>
-      getAllDatabase() {
+      getAllDatabases() {
     return DatabaseEventGetDatabases().send().then((result) {
       return result.fold((l) => left(l.items), (r) => right(r));
     });
