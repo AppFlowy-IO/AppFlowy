@@ -2,7 +2,6 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -13,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class MenuUser extends StatelessWidget {
   final UserProfilePB user;
@@ -69,6 +67,7 @@ class MenuUser extends StatelessWidget {
     return FlowyText.medium(
       name,
       overflow: TextOverflow.ellipsis,
+      color: Theme.of(context).colorScheme.tertiary,
     );
   }
 
@@ -89,7 +88,7 @@ class MenuUser extends StatelessWidget {
           dimension: 20,
           child: svgWidget(
             "home/settings",
-            color: Theme.of(context).iconTheme.color,
+            color: Theme.of(context).colorScheme.tertiary,
           ),
         ),
       ),
