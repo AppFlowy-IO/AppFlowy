@@ -26,8 +26,8 @@ class SettingsMenuElement extends StatelessWidget {
         icon,
         size: 16,
         color: page == selectedPage
-            ? Theme.of(context).colorScheme.onSurface
-            : Theme.of(context).colorScheme.onSurface,
+            ? Theme.of(context).colorScheme.tertiary
+            : Theme.of(context).colorScheme.tertiary,
       ),
       onTap: () {
         changeSelectedPage(page);

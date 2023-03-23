@@ -61,7 +61,7 @@ class DefaultColorScheme extends FlowyColorScheme {
       : super(
           surface: _darkShader2,
           hover: _darkMain1,
-          selector: const Color(0xffF2FCFF),
+          selector: _darkShader2,
           red: const Color(0xfffb006d),
           yellow: const Color(0xffF7CF46),
           green: const Color(0xff66CF80),
