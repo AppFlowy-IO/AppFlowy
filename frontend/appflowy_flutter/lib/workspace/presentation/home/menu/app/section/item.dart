@@ -60,7 +60,6 @@ class ViewSectionItem extends StatelessWidget {
                   blocContext,
                   onHover,
                   state,
-                  Theme.of(context).colorScheme.onSurface,
                 ),
                 isSelected: () => state.isEditing || isSelected,
               ),
@@ -75,13 +74,12 @@ class ViewSectionItem extends StatelessWidget {
     BuildContext blocContext,
     bool onHover,
     ViewState state,
-    Color iconColor,
   ) {
     List<Widget> children = [
       SizedBox(
         width: 16,
         height: 16,
-        child: state.view.renderThumbnail(iconColor: iconColor),
+        child: state.view.renderThumbnail(),
       ),
       const HSpace(2),
       Expanded(
