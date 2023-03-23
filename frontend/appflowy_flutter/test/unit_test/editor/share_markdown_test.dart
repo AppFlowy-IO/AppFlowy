@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:appflowy/plugins/document/presentation/plugins/parsers/code_block_node_parser.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/parsers/divider_node_parser.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/parsers/math_equation_node_parser.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -31,7 +32,31 @@ void main() {
       ]);
       expect(result, r'$$E = MC^2$$');
     });
-
+    // Changes
+    test('code block', () {
+      const text = '''
+{
+    "document":{
+        "type":"editor",
+        "children":[
+            {
+                "type":"code_block",
+                "attributes":{
+                    "code_block":"Some Code"
+                }
+            }
+        ]
+    }
+}
+''';
+      final document = Document.fromJson(
+        Map<String, Object>.from(json.decode(text)),
+      );
+      final result = documentToMarkdown(document, customParsers: [
+        const CodeBlockNodeParser(),
+      ]);
+      expect(result, '```\nSome Code\n```');
+    });
     test('divider', () {
       const text = '''
 {
