@@ -27,6 +27,7 @@ export const GridTableHeader = () => {
                     {field.fieldType === FieldType.SingleSelect && <SingleSelectTypeSvg></SingleSelectTypeSvg>}
                     {field.fieldType === FieldType.MultiSelect && <MultiSelectTypeSvg></MultiSelectTypeSvg>}
                     {field.fieldType === FieldType.Checklist && <ChecklistTypeSvg></ChecklistTypeSvg>}
+                    {field.fieldType === FieldType.Checkbox && <ChecklistTypeSvg></ChecklistTypeSvg>}
                     {field.fieldType === FieldType.URL && <UrlTypeSvg></UrlTypeSvg>}
                   </i>
                   <span>{field.name}</span>

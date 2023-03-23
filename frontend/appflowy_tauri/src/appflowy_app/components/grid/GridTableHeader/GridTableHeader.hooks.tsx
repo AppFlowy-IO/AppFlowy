@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '../../../stores/store';
 
 export const useGridTableHeaderHooks = function () {
   const dispatch = useAppDispatch();
-  const grid = useAppSelector((state) => state.grid);
+  const database = useAppSelector((state) => state.database);
 
   const onAddField = () => {
     dispatch(
@@ -21,7 +21,13 @@ export const useGridTableHeaderHooks = function () {
   };
 
   return {
-    fields: grid.fields,
+    fields: Object.values(database.fields).map((field) => {
+      return {
+        fieldId: field.fieldId,
+        name: field.title,
+        fieldType: field.fieldType,
+      };
+    }),
     onAddField,
   };
 };

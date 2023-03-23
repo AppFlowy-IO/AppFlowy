@@ -1,11 +1,7 @@
-import { gridActions } from '../../../stores/reducers/grid/slice';
-import { useAppDispatch } from '../../../stores/store';
-
 export const useGridAddRow = () => {
-  const dispatch = useAppDispatch();
-
   function addRow() {
-    dispatch(gridActions.addRow());
+    // create a new row
+    console.log('create a new row');
   }
 
   return {
