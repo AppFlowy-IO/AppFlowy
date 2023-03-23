@@ -217,7 +217,6 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         cursorColor: theme.main2,
         selectionHandleColor: theme.main2,
       ),
-      primaryIconTheme: IconThemeData(color: theme.hover),
       iconTheme: IconThemeData(color: theme.icon),
       tooltipTheme: TooltipThemeData(
         textStyle: _getFontStyle(
@@ -265,7 +264,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         onSecondaryContainer: theme.topbarBg,
         tertiary: theme.shader7,
         background: theme.surface,
-        onBackground: theme.shader1,
+        onBackground: theme.text,
         surface: theme.surface,
         onSurface: theme.shader1,
         onError: theme.shader7,

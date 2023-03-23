@@ -83,8 +83,7 @@ class AddButtonActionWrapper extends ActionCell {
   AddButtonActionWrapper({required this.pluginBuilder});
 
   @override
-  Widget? leftIcon(Color iconColor) =>
-      svgWidget(pluginBuilder.menuIcon, color: iconColor);
+  Widget? leftIcon(Color iconColor) => FlowySvg(name: pluginBuilder.menuIcon);
 
   @override
   String get name => pluginBuilder.menuName;
@@ -100,9 +99,8 @@ class ImportActionWrapper extends ActionCell {
   });
 
   @override
-  Widget? leftIcon(Color iconColor) => svgWidget(
-        'editor/import',
-        color: iconColor,
+  Widget? leftIcon(Color iconColor) => const FlowySvg(
+        name: 'editor/import',
       );
 
   @override

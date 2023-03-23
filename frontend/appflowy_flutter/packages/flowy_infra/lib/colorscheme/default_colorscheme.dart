@@ -65,7 +65,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           red: const Color(0xfffb006d),
           yellow: const Color(0xffF7CF46),
           green: const Color(0xff66CF80),
-          shader1: _darkShader5,
+          shader1: _darkShader1,
           shader2: _darkShader2,
           shader3: _darkShader3,
           shader4: const Color(0xff7C8CA5),
