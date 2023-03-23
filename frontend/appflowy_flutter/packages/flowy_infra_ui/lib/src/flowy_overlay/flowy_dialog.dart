@@ -25,13 +25,13 @@ class FlowyDialog extends StatelessWidget {
     final windowSize = MediaQuery.of(context).size;
     final size = windowSize * 0.7;
     return SimpleDialog(
+        backgroundColor: Theme.of(context).cardColor,
         title: title,
         shape: shape ??
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         children: [
           Material(
             type: MaterialType.transparency,
-            color: Theme.of(context).cardColor,
             child: Container(
               padding: padding,
               height: size.height,
