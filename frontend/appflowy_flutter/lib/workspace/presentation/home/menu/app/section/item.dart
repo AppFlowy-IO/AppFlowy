@@ -152,11 +152,11 @@ extension ViewDisclosureExtension on ViewDisclosureAction {
   Widget icon(Color iconColor) {
     switch (this) {
       case ViewDisclosureAction.rename:
-        return svgWidget('editor/edit', color: iconColor);
+        return const FlowySvg(name: 'editor/edit');
       case ViewDisclosureAction.delete:
-        return svgWidget('editor/delete', color: iconColor);
+        return const FlowySvg(name: 'editor/delete');
       case ViewDisclosureAction.duplicate:
-        return svgWidget('editor/copy', color: iconColor);
+        return const FlowySvg(name: 'editor/copy');
     }
   }
 }
