@@ -7,7 +7,7 @@ class TableConfig {
     this.colMinimumWidth = minimumColWidth,
   });
 
-  static TableConfig fromJson(Map<String, dynamic> json) {
+  static TableConfig fromJson(Map<String, Object> json) {
     func(String key, double defaultVal) => json.containsKey(key)
         ? double.tryParse(json[key].toString())!
         : defaultVal;
