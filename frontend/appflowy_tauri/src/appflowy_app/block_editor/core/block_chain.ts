@@ -118,9 +118,10 @@ export class BlockChain {
   remove(blockId: string) {
     const block = this.getBlock(blockId);
     if (!block) return;
+    const oldParentId = block.parent?.id;
     block.remove();
     this.map.delete(block.id);
-    this.onBlockChange('delete', { block });
+    this.onBlockChange('remove', { oldParentId });
     return block;
   }
 

@@ -36,6 +36,7 @@ export class TreeNode {
   }
 
   update(block: Block, children: TreeNode[]) {
+    this.type = block.type;
     this.data = block.data;
     this.children = [];
     children.forEach(child => {

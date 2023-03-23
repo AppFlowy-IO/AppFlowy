@@ -87,27 +87,28 @@ export class RenderTree {
     if (!block) return null;
     const node = this.createNode(block);
     if (!node) return null;
-
-    if (shouldUpdateChildren) {
-      const children: TreeNode[] = [];
-      let childBlock = block.firstChild;
-
-      while(childBlock) {
-        const child = this.createNode(childBlock);
-        child.update(childBlock, child.children);
-        children.push(child);
-        childBlock = childBlock.next;
-      }
-
-      node.update(block, children);
-      node?.reRender();
-      node?.children.forEach(child => {
-        child.reRender();
-      })
-    } else {
-      node.update(block, node.children);
-      node?.reRender();
+    if (!shouldUpdateChildren) {
+      node.update(node.block, node.children);
+      node.reRender();
+      return;
     }
+
+
+    const children: TreeNode[] = [];
+    let childBlock = block.firstChild;
+
+    while (childBlock) {
+      const child = this.createNode(childBlock);
+      child.update(childBlock, child.children);
+      children.push(child);
+      childBlock = childBlock.next;
+    }
+
+    node.update(block, children);
+    node.reRender();
+    node.children.forEach(child => {
+      child.reRender();
+    });
   }
 
   onBlockChange(command: string, data: BlockChangeProps) {
@@ -119,6 +120,9 @@ export class RenderTree {
       case 'update':
         this.forceUpdate(block!.id);
         break;
+      case 'remove':
+        if (oldParentId) this.forceUpdate(oldParentId, true);
+        break;
       case 'move':
         if (oldParentId) this.forceUpdate(oldParentId, true);
         if (block?.parent) this.forceUpdate(block.parent.id, true);
@@ -127,7 +131,7 @@ export class RenderTree {
       default:
         break;
     }
-    
+
   }
 
   updateSelections(selections: string[]) {

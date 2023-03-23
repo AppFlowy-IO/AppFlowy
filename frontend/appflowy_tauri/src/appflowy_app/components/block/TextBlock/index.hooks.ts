@@ -1,7 +1,7 @@
 import { TreeNode } from "@/appflowy_app/block_editor/view/tree_node";
 import { triggerHotkey } from "@/appflowy_app/utils/slate/hotkey";
-import { useCallback, useContext, useLayoutEffect, useState } from "react";
-import { Transforms, createEditor, Descendant } from 'slate';
+import { useCallback, useContext, useEffect, useLayoutEffect, useState } from "react";
+import { Transforms, createEditor, Descendant, Range } from 'slate';
 import { ReactEditor, withReact } from 'slate-react';
 import { TextBlockContext } from '$app/utils/slate/context';
 
@@ -50,7 +50,14 @@ export function useTextBlock({
         return;
       }
       case 'Backspace': {
-        console.log(editor.selection)
+        if (!editor.selection) return;
+        const { anchor } = editor.selection;
+        const isCollapase = Range.isCollapsed(editor.selection);
+        if (isCollapase && anchor.offset === 0 && anchor.path.toString() === '0,0') {
+          event.stopPropagation();
+          event.preventDefault();
+          textBlockManager?.deleteNode(node);
+        }
       }
     }
 
@@ -64,7 +71,17 @@ export function useTextBlock({
   editor.children = value;
   Transforms.collapse(editor);
 
+  useEffect(() => {
+    textBlockManager?.register(node.id, editor);
+  
+    return () => {
+      textBlockManager?.unregister(node.id);
+    }
+  }, [ editor ])
+  
+
   useLayoutEffect(() => {
+    
     let timer: NodeJS.Timeout;
     if (focusId === node.id && selection) {
       ReactEditor.focus(editor);
