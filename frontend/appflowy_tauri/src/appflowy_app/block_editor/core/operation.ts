@@ -5,6 +5,7 @@ import { Block } from './block';
 
 export class Operation {
   private sync: BlockEditorSync;
+
   constructor(private blockChain: BlockChain) {
     this.sync = new BlockEditorSync();
   }
@@ -66,6 +67,19 @@ export class Operation {
     });
     this.sync.sendOps([op]);
   }
+
+  moveNode(blockId: string, newParentId: string, newPrevId: string) {
+    const op = this.getMoveOp(blockId, newParentId, newPrevId);
+    this.blockChain.move(blockId, newParentId, newPrevId);
+    this.sync.sendOps([op]);
+  }
+
+  deleteNode(blockId: string) {
+    const op = this.getRemoveOp(blockId);
+    this.blockChain.remove(blockId);
+    this.sync.sendOps([op]);
+  }
+
   private getUpdateNodeOp<T>(blockId: string, path: string[], value: T): {
     type: 'update',
     data: UpdateOpData

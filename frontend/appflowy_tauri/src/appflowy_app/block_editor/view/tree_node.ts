@@ -52,6 +52,24 @@ export class TreeNode {
     this.children.push(node);
   }
 
+  get lastChild() {
+    return this.children[this.children.length - 1];
+  }
+
+  get prevLine(): TreeNode | null {
+    if (!this.parent) return null;
+    const index = this.parent?.children.findIndex(item => item.id === this.id);
+    if (index === 0) {
+      return this.parent;
+    }
+    const prev = this.parent.children[index - 1];
+    let line = prev;
+    while(line.lastChild) {
+      line = line.lastChild;
+    }
+    return line;
+  }
+
   get block() {
     return this._block;
   }

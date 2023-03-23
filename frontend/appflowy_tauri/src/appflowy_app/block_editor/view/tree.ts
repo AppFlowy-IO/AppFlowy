@@ -133,21 +133,25 @@ export class RenderTree {
   updateSelections(selections: string[]) {
     const newSelections = filterSelections<TreeNode>(selections, this.map);
 
-    let isDiff = false;
-    if (newSelections.length !== this.selections.size) {
-      isDiff = true;
-    }
-
     const selectedBlocksSet = new Set(newSelections);
-    if (Array.from(this.selections).some((id) => !selectedBlocksSet.has(id))) {
-      isDiff = true;
-    }
 
-    if (isDiff) {
-      const shouldUpdateIds = new Set([...this.selections, ...newSelections]);
-      this.selections = selectedBlocksSet;
-      shouldUpdateIds.forEach((id) => this.forceUpdate(id));
-    }
+    const updateNotSelected: string[] = [];
+    const updateSelected: string[] = [];
+    Array.from(this.selections).forEach((id) => {
+      if (!selectedBlocksSet.has(id)) {
+        updateNotSelected.push(id);
+      }
+    });
+    newSelections.forEach(id => {
+      if (!this.selections.has(id)) {
+        updateSelected.push(id);
+      }
+    });
+
+    this.selections = selectedBlocksSet;
+    [...updateNotSelected, ...updateSelected].forEach((id) => {
+      this.forceUpdate(id);
+    });
   }
 
   isSelected(nodeId: string) {

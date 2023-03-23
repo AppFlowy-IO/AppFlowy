@@ -49,6 +49,9 @@ export function useTextBlock({
 
         return;
       }
+      case 'Backspace': {
+        console.log(editor.selection)
+      }
     }
 
     triggerHotkey(event, editor);

@@ -2,10 +2,11 @@ import { BaseEditor, BaseSelection, Descendant } from "slate";
 import { TreeNode } from '$app/block_editor/view/tree_node';
 import { Operation } from "$app/block_editor/core/operation";
 import { TextBlockSelectionManager } from './text_selection';
+import { BlockType } from "@/appflowy_app/interfaces";
 
 export class TextBlockManager {
   public selectionManager: TextBlockSelectionManager;
-  constructor(private operation: Operation) {
+  constructor(private rootId: string, private operation: Operation) {
     this.selectionManager = new TextBlockSelectionManager();
   }
 
@@ -16,6 +17,24 @@ export class TextBlockManager {
 
   update(node: TreeNode, path: string[], data: Descendant[]) {
     this.operation.updateNode(node.id, path, data);
+  }
+
+  deleteNode(node: TreeNode) {
+    if (node.type !== BlockType.TextBlock) {
+      this.operation.updateNode(node.id, ['type'], BlockType.TextBlock);
+      return;
+    }
+    if (node.parent!.id !== this.rootId) {
+      const newParent = node.parent!.parent!;
+      const newPrev = node.parent;
+      this.operation.moveNode(node.id, newParent.id, newPrev?.id || '');
+    }
+    if (!node.prevLine) return;
+    this.operation.updateNode(node.prevLine.id, ['data', 'content'], [
+      ...node.prevLine.data.content,
+      ...node.data.content,
+    ]);
+    this.operation.deleteNode(node.id);
   }
 
   splitNode(node: TreeNode, editor: BaseEditor) {

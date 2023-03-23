@@ -21,7 +21,6 @@ export function useBlockList({ blockId, blockEditor }: BlockListProps) {
   const rowVirtualizer = useVirtualizer({
     count: root?.children.length || 0,
     getScrollElement: () => parentRef.current,
-    overscan: 5,
     estimateSize: () => {
       return defaultSize;
     },
@@ -71,7 +70,7 @@ export function ErrorBoundaryFallbackComponent({ error, resetErrorBoundary }: Fa
 
 export function withTextBlockManager(Component: (props: BlockListProps) => React.ReactElement) {
   return (props: BlockListProps) => {
-    const textBlockManager = new TextBlockManager(props.blockEditor.operation);
+    const textBlockManager = new TextBlockManager(props.blockId, props.blockEditor.operation);
 
     useEffect(() => {
       return () => {

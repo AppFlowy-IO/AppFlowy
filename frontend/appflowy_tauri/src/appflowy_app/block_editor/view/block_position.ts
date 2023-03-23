@@ -3,30 +3,31 @@ export class BlockPositionManager {
   private regionGrid: RegionGrid;
   private viewportBlocks: Set<string> = new Set();
   private blockPositions: Map<string, BlockPosition> = new Map();
-  private observer: IntersectionObserver;
   private container: HTMLDivElement | null = null;
 
   constructor(container: HTMLDivElement) {
     this.container = container;
     this.regionGrid = new RegionGrid(container.offsetHeight);
-    this.observer = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        const blockId = entry.target.getAttribute('data-block-id');
-        if (!blockId) return;
-        if (entry.isIntersecting) {
-          this.updateBlockPosition(blockId);
-          this.viewportBlocks.add(blockId);
-        } else {
-          this.viewportBlocks.delete(blockId);
-        }
-      }
-    }, { root: container });
+    
+  }
+
+  isInViewport(nodeId: string) {
+    return this.viewportBlocks.has(nodeId);
   }
 
   observeBlock(node: HTMLDivElement) {
-    this.observer.observe(node);
+    const blockId = node.getAttribute('data-block-id');
+    if (blockId) {
+      this.updateBlockPosition(blockId);
+      this.viewportBlocks.add(blockId);
+    }
+    
     return {
-      unobserve: () => this.observer.unobserve(node),
+      unobserve: () => {
+        if (blockId) {
+          this.viewportBlocks.delete(blockId);
+        }
+      },
     }
   }
 
@@ -67,7 +68,6 @@ export class BlockPositionManager {
 
   destroy() {
     this.container = null;
-    this.observer.disconnect();
   }
 
 }
