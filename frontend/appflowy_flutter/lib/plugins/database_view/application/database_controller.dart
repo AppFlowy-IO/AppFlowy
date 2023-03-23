@@ -338,7 +338,7 @@ class RowDataBuilder {
 
   void insertDate(FieldInfo fieldInfo, DateTime date) {
     assert(fieldInfo.fieldType == FieldType.DateTime);
-    final timestamp = (date.millisecondsSinceEpoch ~/ 1000);
+    final timestamp = date.millisecondsSinceEpoch ~/ 1000;
     _cellDataByFieldId[fieldInfo.field.id] = timestamp.toString();
   }
 

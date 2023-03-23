@@ -64,7 +64,6 @@ class TrashCell extends StatelessWidget {
     final outputFormat = DateFormat('MM/dd/yyyy hh:mm a');
     final date = DateTime.fromMillisecondsSinceEpoch(
       inputTimestamps.toInt() * 1000,
-      isUtc: true,
     );
     final outputDate = outputFormat.format(date);
     return outputDate;
