@@ -463,7 +463,7 @@ class _CoverImageState extends State<_CoverImage> {
         coverImage = const SizedBox();
         break;
     }
-//OverflowBox needs to be wraped by a widget with constraints(or from its parent) first,otherwise it will occur an erorr
+//OverflowBox needs to be wraped by a widget with constraints(or from its parent) first,otherwise it will occur an error
     return SizedBox(
       height: height,
       child: OverflowBox(

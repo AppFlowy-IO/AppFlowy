@@ -1,3 +1,4 @@
+
 import 'dart:io';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_image_picker_bloc.dart';
@@ -25,6 +26,84 @@ class CoverImagePicker extends StatefulWidget {
 }
 
 class _CoverImagePickerState extends State<CoverImagePicker> {
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => CoverImagePickerBloc()
+        ..add(const CoverImagePickerEvent.initialEvent()),
+      child: BlocListener<CoverImagePickerBloc, CoverImagePickerState>(
+        listener: (context, state) {
+          if (state is NetworkImagePicked) {
+            state.successOrFail.isRight()
+                ? showSnapBar(context,
+                    LocaleKeys.document_plugins_cover_invalidImageUrl.tr())
+                : null;
+          }
+          if (state is Done) {
+            state.successOrFail.fold(
+                (l) => widget.onFileSubmit(l),
+                (r) => showSnapBar(
+                    context,
+                    LocaleKeys.document_plugins_cover_failedToAddImageToGallery
+                        .tr()));
+          }
+        },
+        child: BlocBuilder<CoverImagePickerBloc, CoverImagePickerState>(
+          builder: (context, state) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                state is Loading
+                    ? const SizedBox(
+                        height: 180,
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    : CoverImagePreviewWidget(state: state),
+                const SizedBox(
+                  height: 10,
+                ),
+                NetworkImageUrlInput(
+                  onAdd: (url) {
+                    context.read<CoverImagePickerBloc>().add(UrlSubmit(url));
+                  },
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                ImagePickerActionButtons(
+                  onBackPressed: () {
+                    widget.onBackPressed();
+                  },
+                  onSave: () {
+                    context.read<CoverImagePickerBloc>().add(
+                          SaveToGallery(state),
+                        );
+                  },
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class NetworkImageUrlInput extends StatefulWidget {
+  final void Function(String color) onAdd;
+
+  const NetworkImageUrlInput({
+    super.key,
+    required this.onAdd,
+  });
+
+  @override
+  State<NetworkImageUrlInput> createState() => _NetworkImageUrlInputState();
+}
+
+class _NetworkImageUrlInputState extends State<NetworkImageUrlInput> {
   TextEditingController urlController = TextEditingController();
   bool get buttonDisabled => urlController.text.isEmpty;
 
@@ -36,6 +115,85 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
     });
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 4,
+          child: FlowyTextField(
+            controller: urlController,
+            hintText: LocaleKeys.document_plugins_cover_enterImageUrl.tr(),
+          ),
+        ),
+        const SizedBox(
+          width: 5,
+        ),
+        Expanded(
+          flex: 1,
+          child: RoundedTextButton(
+            onPressed: () {
+              urlController.text.isNotEmpty
+                  ? widget.onAdd(urlController.text)
+                  : null;
+            },
+            hoverColor: Colors.transparent,
+            fillColor: buttonDisabled
+                ? Colors.grey
+                : Theme.of(context).colorScheme.primary,
+            height: 36,
+            title: LocaleKeys.document_plugins_cover_add.tr(),
+            borderRadius: Corners.s8Border,
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class ImagePickerActionButtons extends StatelessWidget {
+  final VoidCallback onBackPressed;
+  final VoidCallback onSave;
+
+  const ImagePickerActionButtons(
+      {super.key, required this.onBackPressed, required this.onSave});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        FlowyTextButton(
+          LocaleKeys.document_plugins_cover_back.tr(),
+          hoverColor: Colors.transparent,
+          fillColor: Colors.transparent,
+          mainAxisAlignment: MainAxisAlignment.end,
+          onPressed: () => onBackPressed(),
+        ),
+        FlowyTextButton(
+          LocaleKeys.document_plugins_cover_saveToGallery.tr(),
+          onPressed: () => onSave(),
+          hoverColor: Colors.transparent,
+          fillColor: Colors.transparent,
+          mainAxisAlignment: MainAxisAlignment.end,
+          fontColor: Theme.of(context).colorScheme.primary,
+        ),
+      ],
+    );
+  }
+}
+
+class CoverImagePreviewWidget extends StatefulWidget {
+  final dynamic state;
+
+  const CoverImagePreviewWidget({super.key, required this.state});
+
+  @override
+  State<CoverImagePreviewWidget> createState() =>
+      _CoverImagePreviewWidgetState();
+}
+
+class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
   _buildFilePickerWidget(BuildContext ctx) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -105,150 +263,43 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => CoverImagePickerBloc()
-        ..add(const CoverImagePickerEvent.initialEvent()),
-      child: BlocListener<CoverImagePickerBloc, CoverImagePickerState>(
-        listener: (context, state) {
-          if (state is NetworkImagePicked) {
-            state.successOrFail.isRight()
-                ? showSnapBar(context,
-                    LocaleKeys.document_plugins_cover_invalidImageUrl.tr())
-                : null;
-          }
-          if (state is Done) {
-            state.successOrFail.fold(
-                (l) => widget.onFileSubmit(l),
-                (r) => showSnapBar(
-                    context,
-                    LocaleKeys.document_plugins_cover_failedToAddImageToGallery
-                        .tr()));
-          }
-        },
-        child: BlocBuilder<CoverImagePickerBloc, CoverImagePickerState>(
-          builder: (context, state) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                state is Loading
-                    ? const SizedBox(
-                        height: 180,
-                        child: Center(
-                          child: CircularProgressIndicator(),
+    return Stack(
+      children: [
+        Container(
+            height: 180,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.secondary,
+                borderRadius: Corners.s6Border,
+                image: widget.state is Initial
+                    ? null
+                    : widget.state is NetworkImagePicked
+                        ? widget.state.successOrFail.fold(
+                            (path) => DecorationImage(
+                                image: NetworkImage(path), fit: BoxFit.cover),
+                            (r) => null)
+                        : widget.state is FileImagePicked
+                            ? DecorationImage(
+                                image: FileImage(File(widget.state.path)),
+                                fit: BoxFit.cover)
+                            : null),
+            child: (widget.state is Initial)
+                ? _buildFilePickerWidget(context)
+                : (widget.state is NetworkImagePicked)
+                    ? widget.state.successOrFail.fold(
+                        (l) => null,
+                        (r) => _buildFilePickerWidget(
+                          context,
                         ),
                       )
-                    : Stack(
-                        children: [
-                          Container(
-                              height: 180,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                  borderRadius: Corners.s6Border,
-                                  image: state is Initial
-                                      ? null
-                                      : state is NetworkImagePicked
-                                          ? state.successOrFail.fold(
-                                              (path) => DecorationImage(
-                                                  image: NetworkImage(path),
-                                                  fit: BoxFit.cover),
-                                              (r) => null)
-                                          : state is FileImagePicked
-                                              ? DecorationImage(
-                                                  image: FileImage(
-                                                      File(state.path)),
-                                                  fit: BoxFit.cover)
-                                              : null),
-                              child: (state is Initial)
-                                  ? _buildFilePickerWidget(context)
-                                  : (state is NetworkImagePicked)
-                                      ? state.successOrFail.fold(
-                                          (l) => null,
-                                          (r) => _buildFilePickerWidget(
-                                            context,
-                                          ),
-                                        )
-                                      : null),
-                          (state is FileImagePicked)
-                              ? _buildImageDeleteButton(context)
-                              : (state is NetworkImagePicked)
-                                  ? state.successOrFail.fold(
-                                      (l) => _buildImageDeleteButton(context),
-                                      (r) => Container())
-                                  : Container()
-                        ],
-                      ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 4,
-                      child: FlowyTextField(
-                        controller: urlController,
-                        hintText: LocaleKeys
-                            .document_plugins_cover_enterImageUrl
-                            .tr(),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: RoundedTextButton(
-                        onPressed: () {
-                          urlController.text.isNotEmpty
-                              ? context
-                                  .read<CoverImagePickerBloc>()
-                                  .add(UrlSubmit(urlController.text))
-                              : null;
-                        },
-                        hoverColor: Colors.transparent,
-                        fillColor: buttonDisabled
-                            ? Colors.grey
-                            : Theme.of(context).colorScheme.primary,
-                        height: 36,
-                        title: LocaleKeys.document_plugins_cover_add.tr(),
-                        borderRadius: Corners.s8Border,
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    FlowyTextButton(
-                      LocaleKeys.document_plugins_cover_back.tr(),
-                      hoverColor: Colors.transparent,
-                      fillColor: Colors.transparent,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      onPressed: () => widget.onBackPressed(),
-                    ),
-                    FlowyTextButton(
-                      LocaleKeys.document_plugins_cover_saveToGallery.tr(),
-                      onPressed: () async {
-                        context
-                            .read<CoverImagePickerBloc>()
-                            .add(SaveToGallery(state));
-                      },
-                      hoverColor: Colors.transparent,
-                      fillColor: Colors.transparent,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      fontColor: Theme.of(context).colorScheme.primary,
-                    ),
-                  ],
-                )
-              ],
-            );
-          },
-        ),
-      ),
+                    : null),
+        (widget.state is FileImagePicked)
+            ? _buildImageDeleteButton(context)
+            : (widget.state is NetworkImagePicked)
+                ? widget.state.successOrFail.fold(
+                    (l) => _buildImageDeleteButton(context), (r) => Container())
+                : Container()
+      ],
     );
   }
 }

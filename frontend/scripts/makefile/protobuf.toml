@@ -1,19 +1,19 @@
 
 [tasks.install_tauri_protobuf.windows]
 script = """
-npm install -g protoc-gen-ts
+npm install -g protoc-gen-ts typescript@4.9.5
 """
 script_runner = "@shell"
 
 [tasks.install_tauri_protobuf.mac]
 script = """
-npm install -g protoc-gen-ts
+sudo npm install -g protoc-gen-ts typescript@4.9.5
 """
 script_runner = "@shell"
 
 [tasks.install_tauri_protobuf.linux]
 script = """
-sudo npm install -g protoc-gen-ts
+sudo npm install -g protoc-gen-ts typescript@4.9.5
 """
 script_runner = "@shell"
 

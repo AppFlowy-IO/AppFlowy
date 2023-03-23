@@ -27,7 +27,7 @@ class SettingController {
       );
     });
 
-    // Listen on the seting changes
+    // Listen on the setting changes
     _listener.start(onSettingUpdated: (result) {
       result.fold(
         (newSetting) => updateSetting(newSetting),
@@ -36,7 +36,7 @@ class SettingController {
     });
   }
 
-  void startListeing({
+  void startListening({
     required OnSettingUpdated onSettingUpdated,
     required OnError onError,
   }) {

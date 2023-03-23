@@ -16,9 +16,7 @@ export enum BlockType {
 
 }
 
-
-
-export type BlockData<T> = T extends BlockType.TextBlock ? TextBlockData :
+export type BlockData<T = BlockType> = T extends BlockType.TextBlock ? TextBlockData :
 T extends BlockType.PageBlock ? PageBlockData :
 T extends BlockType.HeadingBlock ? HeadingBlockData : 
 T extends BlockType.ListBlock ? ListBlockData :
@@ -34,7 +32,7 @@ export interface BlockInterface<T = BlockType> {
 }
 
 
-interface TextBlockData {
+export interface TextBlockData {
   content: Descendant[];
 }
 
@@ -54,11 +52,61 @@ interface ColumnBlockData {
   ratio: string;
 }
 
+// eslint-disable-next-line no-shadow
+export enum TextBlockToolbarGroup {
+  ASK_AI,
+  BLOCK_SELECT,
+  ADD_LINK,
+  COMMENT,
+  TEXT_FORMAT,
+  TEXT_COLOR,
+  MENTION,
+  MORE
+}
+export interface TextBlockToolbarProps {
+  showGroups: TextBlockToolbarGroup[]
+}
 
-export interface TreeNodeInterface {
-  id: string;
-  type: BlockType;
-  parent: TreeNodeInterface | null;
-  children: TreeNodeInterface[];
-  data: BlockData<BlockType>;
+
+export interface BlockCommonProps<T> {
+  version: number;
+  node: T;
+}
+
+export interface BackendOp {
+  type: 'update' | 'insert' | 'remove' | 'move' | 'move_range';
+  version: number;
+  data: UpdateOpData | InsertOpData | moveRangeOpData | moveOpData | removeOpData;
+}
+export interface LocalOp {
+  type: 'update' | 'insert' | 'remove' | 'move' | 'move_range';
+  version: number;
+  data: UpdateOpData | InsertOpData | moveRangeOpData | moveOpData | removeOpData;
+}
+
+export interface UpdateOpData {
+  blockId: string;
+  value: BlockData;
+  path: string[];
+}
+export interface InsertOpData {
+  block: BlockInterface;
+  parentId: string;
+  prevId?: string
+}
+
+export interface moveRangeOpData {
+  range: [string, string];
+  newParentId: string;
+  newPrevId?: string
+}
+
+export interface moveOpData {
+  blockId: string;
+  newParentId: string;
+  newPrevId?: string
+}
+
+export interface removeOpData {
+  blockId: string
 }
