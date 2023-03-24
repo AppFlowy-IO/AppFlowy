@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/document/presentation/plugins/board/board_node_
 import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/grid/grid_menu_item.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/grid/grid_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/local_image_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/auto_completion_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/auto_completion_plugins.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_node_widget.dart';
@@ -23,6 +24,8 @@ import 'presentation/banner.dart';
 import 'package:get_it/get_it.dart';
 import '../../workspace/application/settings/settings_location_cubit.dart';
 import 'dart:io';
+import 'presentation/plugins/board/board_view_menu_item.dart';
+import 'presentation/plugins/grid/grid_view_menu_item.dart';
 
 class DocumentPage extends StatefulWidget {
   final VoidCallback onDeleted;
@@ -129,6 +132,10 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
     editorState = documentBloc.editorState ?? EditorState.empty();
   }
 
+  final directory = getIt<SettingsLocationCubit>()
+      .fetchLocation()
+      .then((value) => Directory(value));
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -156,6 +163,8 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
         kCoverType: CoverNodeWidgetBuilder(),
         // Smart Edit,
         kSmartEditType: SmartEditInputBuilder(),
+        // Local Image
+        kLocalImage: LocalImageNodeWidgetBuilder(imageFolder: directory)
       },
       shortcutEvents: [
         // Divider

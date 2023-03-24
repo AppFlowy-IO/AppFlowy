@@ -9,29 +9,30 @@ String? folderPath;
 String? imageFile;
 String? newImage;
 
-Future<String?> copyFile(String src, String? dest, String name) async {
+String? copyFile(String src, String? dest, String name) {
   try {
     var path = File(src);
-    path.copy('$dest/images/$name');
+    path.copySync('$dest/images/$name');
     newImage = '$dest/images/$name';
     return newImage;
   } catch (e) {
     debugPrint(e.toString());
+    return null;
   }
 }
 
-Future<Directory?> checkDir(String? path) async {
-  Directory? tmp;
+Directory? checkDir(String? path) {
+  Directory dir = Directory('$path/images');
   try {
-    if (!await Directory('$path/images').exists()) {
-      return Directory('$path/images').create(recursive: true);
-    } else {
-      tmp = Directory('$path/images');
+    if (!Directory('$path/images').existsSync()) {
+      dir.createSync(recursive: true);
+      return dir;
     }
+    return dir;
   } catch (e) {
     debugPrint(e.toString());
+    return null;
   }
-  return tmp;
 }
 
 class LocalImageNodeWidgetBuilder extends NodeWidgetBuilder {
@@ -46,33 +47,39 @@ class LocalImageNodeWidgetBuilder extends NodeWidgetBuilder {
     imageFolder?.then((location) async {
       String value = location.path.toString();
       folderPath = value;
-      await checkDir(value);
+      checkDir(value);
       return value;
     });
 
     Future<String?> checkImg() async {
+      File existingFile = File('$folderPath/images/$imageName');
       try {
-        File existingFile = File('$folderPath/images/$imageName');
-        if (await existingFile.exists()) {
+        if (existingFile.existsSync()) {
           return newImage = existingFile.path.toString();
-        } else if (!await existingFile.exists()) {
-          return await copyFile(src, folderPath, imageName);
         }
+        return copyFile(src, folderPath, imageName);
       } catch (e) {
         debugPrint(e.toString());
+        return null;
       }
     }
 
     return FutureBuilder(
         future: checkImg(),
         builder: (BuildContext _, AsyncSnapshot snapshot) {
-          if (snapshot.hasData) {
-            return _LocalImageNodeWidget(
-                key: context.node.key,
-                node: context.node,
-                image: snapshot.data);
-          } else if (snapshot.hasError) {
-            return Text('Can not load image ${snapshot.error}');
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          } else if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData) {
+              return _LocalImageNodeWidget(
+                  key: context.node.key,
+                  node: context.node,
+                  image: snapshot.data);
+            } else if (snapshot.hasError) {
+              return Text('Can not load image ${snapshot.error}');
+            } else {
+              return const CircularProgressIndicator();
+            }
           } else {
             return const CircularProgressIndicator();
           }
