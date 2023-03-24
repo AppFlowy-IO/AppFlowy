@@ -62,11 +62,6 @@ class _AppFlowyInputState extends State<AppFlowyInput>
   TextInputConnection? _textInputConnection;
   TextRange? _composingTextRange;
 
-  @override
-  dynamic noSuchMethod(Invocation invocation) {
-    print("noSuchMethod Ran");
-  }
-
   EditorState get _editorState => widget.editorState;
 
   // Disable space shortcut on the Web platform.
