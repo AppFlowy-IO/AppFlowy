@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database_view/application/database_service.dart';
 import 'package:appflowy/plugins/database_view/application/database_view_service.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/board/board_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/grid/grid_node_widget.dart';
