@@ -35,21 +35,20 @@ ShortcutEventHandler _enterInTableCellHandler = (editorState, event) {
       final cell = inTableNodes.first.parent!;
       final col = cell.attributes['position']['col'];
       final row = cell.attributes['position']['row'];
-      final transaction = editorState.transaction;
       final nextNode = cell.parent?.children.firstWhereOrNull((n) =>
           n.attributes['position']['col'] == col &&
           n.attributes['position']['row'] == row + 1);
       if (nextNode == null) {
+        final transaction = editorState.transaction;
         transaction.insertNode(cell.parent!.path.next, TextNode.empty());
         transaction.afterSelection =
             Selection.single(path: cell.parent!.path.next, startOffset: 0);
+        editorState.apply(transaction);
       } else if (nextNode.children.isNotEmpty &&
           nextNode.childAtIndex(0)! is TextNode) {
-        transaction.afterSelection = Selection.single(
-            path: nextNode.childAtIndex(0)!.path, startOffset: 0);
+        editorState.service.selectionService.updateSelection(Selection.single(
+            path: nextNode.childAtIndex(0)!.path, startOffset: 0));
       }
-
-      editorState.apply(transaction);
     }
     return KeyEventResult.handled;
   }
@@ -77,11 +76,9 @@ ShortcutEventHandler _leftInTableCellHandler = (editorState, event) {
     if (nextNode != null &&
         nextNode.children.isNotEmpty &&
         nextNode.childAtIndex(0)! is TextNode) {
-      final transaction = editorState.transaction;
       final target = nextNode.childAtIndex(0)! as TextNode;
-      transaction.afterSelection =
-          Selection.single(path: target.path, startOffset: target.delta.length);
-      editorState.apply(transaction);
+      editorState.service.selectionService.updateSelection(Selection.single(
+          path: target.path, startOffset: target.delta.length));
     }
 
     return KeyEventResult.handled;
@@ -110,10 +107,8 @@ ShortcutEventHandler _rightInTableCellHandler = (editorState, event) {
     if (nextNode != null &&
         nextNode.children.isNotEmpty &&
         nextNode.childAtIndex(0)! is TextNode) {
-      final transaction = editorState.transaction;
-      transaction.afterSelection = Selection.single(
-          path: nextNode.childAtIndex(0)!.path, startOffset: 0);
-      editorState.apply(transaction);
+      editorState.service.selectionService.updateSelection(Selection.single(
+          path: nextNode.childAtIndex(0)!.path, startOffset: 0));
     }
 
     return KeyEventResult.handled;

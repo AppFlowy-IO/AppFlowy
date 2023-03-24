@@ -30,8 +30,47 @@ void main() async {
       expect(tableNode.node.children.first.children.first is TextNode, true);
     });
 
-    testWidgets('table delete action', (tester) async {});
+    testWidgets('table delete action', (tester) async {
+      final table = TableNode.fromList([
+        ['']
+      ]);
+      final editor = tester.editor..insert(table.node);
 
-    testWidgets('table duplicate action', (tester) async {});
+      await editor.startTesting(customBuilders: {
+        kTableType: TableNodeWidgetBuilder(),
+        kTableCellType: TableCellNodeWidgetBuilder()
+      });
+      await tester.pumpAndSettle();
+
+      expect(editor.documentLength, 1);
+      expect(find.byType(TableNodeWidget), findsOneWidget);
+
+      final tableNode = editor.document.nodeAtPath([0]);
+      expect(editor.runAction(1, tableNode!), true);
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.byType(TableNodeWidget), findsNothing);
+    });
+
+    testWidgets('table duplicate action', (tester) async {
+      final table = TableNode.fromList([
+        ['']
+      ]);
+      final editor = tester.editor..insert(table.node);
+
+      await editor.startTesting(customBuilders: {
+        kTableType: TableNodeWidgetBuilder(),
+        kTableCellType: TableCellNodeWidgetBuilder()
+      });
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TableNodeWidget), findsOneWidget);
+
+      final tableNode = editor.document.nodeAtPath([0]);
+      expect(editor.runAction(0, tableNode!), true);
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.byType(TableNodeWidget), findsNWidgets(2));
+    });
   });
 }

@@ -1,3 +1,4 @@
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/src/table/src/table_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:appflowy_editor_plugins/src/table/src/table_node.dart';
@@ -296,12 +297,12 @@ void main() {
               tableNode.config.tableBorderWidth * 3);
     });
 
-    /*test('addCol', () {
+    test('addCol', () {
       final tableNode = TableNode.fromList([
         ['1', '2'],
         ['3', '4']
       ]);
-      tableNode.addCol();
+      tableNode.addCol(Transaction(document: Document.empty()));
 
       expect(tableNode.colsLen, 3);
       expect(
@@ -323,7 +324,7 @@ void main() {
         ['1', '2'],
         ['3', '4']
       ]);
-      tableNode.addRow();
+      tableNode.addRow(Transaction(document: Document.empty()));
 
       expect(tableNode.rowsLen, 3);
       expect(
@@ -338,6 +339,6 @@ void main() {
         },
       );
       expect(tableNode.getRowHeight(2), tableNode.config.rowDefaultHeight);
-    });*/
+    });
   });
 }
