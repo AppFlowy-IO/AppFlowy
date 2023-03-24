@@ -56,7 +56,15 @@ export const useDatabase = (viewId: string, type?: ViewLayoutTypePB) => {
           void loadFields(fieldInfos);
         },
       });
-      await controller.open();
+
+      const openResult = await controller.open();
+      if (openResult.ok) {
+        setRows(
+          openResult.val.map((pb) => {
+            return new RowInfo(viewId, controller.fieldController.fieldInfos, pb);
+          })
+        );
+      }
 
       if (type === ViewLayoutTypePB.Board) {
         const fieldId = await controller.getGroupByFieldId();

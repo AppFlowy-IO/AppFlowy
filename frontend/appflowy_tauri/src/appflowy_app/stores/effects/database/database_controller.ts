@@ -65,7 +65,9 @@ export class DatabaseController {
       this.databaseViewCache.initializeWithRows(database.rows);
 
       this._callback?.onViewChanged?.(database);
-      return loadGroupResult;
+
+      // temporary fix for grid rows misfire issue
+      return Ok(database.rows);
     } else {
       return Err(openDatabaseResult.val);
     }
