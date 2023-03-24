@@ -21,7 +21,6 @@ import '../../startup/startup.dart';
 import 'application/doc_bloc.dart';
 import 'editor_styles.dart';
 import 'presentation/banner.dart';
-import 'package:get_it/get_it.dart';
 import '../../workspace/application/settings/settings_location_cubit.dart';
 import 'dart:io';
 import 'presentation/plugins/board/board_view_menu_item.dart';
@@ -43,7 +42,6 @@ class DocumentPage extends StatefulWidget {
 
 class _DocumentPageState extends State<DocumentPage> {
   late DocumentBloc documentBloc;
-  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
