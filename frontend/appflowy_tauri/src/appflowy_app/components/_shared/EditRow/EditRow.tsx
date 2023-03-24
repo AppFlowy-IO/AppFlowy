@@ -78,6 +78,9 @@ export const EditRow = ({
 
     const typeOptionController = new TypeOptionController(viewId, Some(currentField));
     await typeOptionController.switchToField(newType);
+
+    setEditingCell(new CellIdentifier(viewId, rowInfo.row.id, editingCell.fieldId, newType));
+
     setShowChangeFieldTypePopup(false);
   };
 
