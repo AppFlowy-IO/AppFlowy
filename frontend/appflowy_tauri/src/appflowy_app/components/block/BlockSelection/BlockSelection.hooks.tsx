@@ -1,12 +1,25 @@
 import { BlockEditor } from '@/appflowy_app/block_editor';
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 
-export function useBlockSelection({ container, blockEditor }: { container: HTMLDivElement; blockEditor: BlockEditor }) {
+export function useBlockSelection({
+  container,
+  blockEditor,
+  onDragging,
+}: {
+  container: HTMLDivElement;
+  blockEditor: BlockEditor;
+  onDragging?: (_isDragging: boolean) => void;
+}) {
   const blockPositionManager = blockEditor.renderTree.blockPositionManager;
+  const ref = useRef<HTMLDivElement | null>(null);
 
   const [isDragging, setDragging] = useState(false);
   const pointRef = useRef<number[]>([]);
   const startScrollTopRef = useRef<number>(0);
+
+  useEffect(() => {
+    onDragging?.(isDragging);
+  }, [isDragging]);
 
   const [rect, setRect] = useState<{
     startX: number;
@@ -89,6 +102,7 @@ export function useBlockSelection({ container, blockEditor }: { container: HTMLD
     (e: MouseEvent) => {
       if (!isDragging || !blockPositionManager) return;
       e.preventDefault();
+      e.stopPropagation();
       calcIntersectBlocks(e.clientX, e.clientY);
 
       const { top, bottom } = container.getBoundingClientRect();
@@ -119,19 +133,21 @@ export function useBlockSelection({ container, blockEditor }: { container: HTMLD
   );
 
   useEffect(() => {
-    window.addEventListener('mousedown', handleDragStart);
-    window.addEventListener('mousemove', handleDraging);
-    window.addEventListener('mouseup', handleDragEnd);
+    if (!ref.current) return;
+    document.addEventListener('mousedown', handleDragStart);
+    document.addEventListener('mousemove', handleDraging);
+    document.addEventListener('mouseup', handleDragEnd);
 
     return () => {
-      window.removeEventListener('mousedown', handleDragStart);
-      window.removeEventListener('mousemove', handleDraging);
-      window.removeEventListener('mouseup', handleDragEnd);
+      document.removeEventListener('mousedown', handleDragStart);
+      document.removeEventListener('mousemove', handleDraging);
+      document.removeEventListener('mouseup', handleDragEnd);
     };
   }, [handleDragStart, handleDragEnd, handleDraging]);
 
   return {
     isDragging,
     style,
+    ref,
   };
 }

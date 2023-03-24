@@ -4,7 +4,7 @@ import { withErrorBoundary } from 'react-error-boundary';
 import ListFallbackComponent from './ListFallbackComponent';
 import BlockListTitle from './BlockListTitle';
 import BlockComponent from '../BlockComponent';
-import BlockSelection from '../BlockSelection';
+import Overlay from './Overlay';
 
 function BlockList(props: BlockListProps) {
   const { root, rowVirtualizer, parentRef, blockEditor } = useBlockList(props);
@@ -46,7 +46,7 @@ function BlockList(props: BlockListProps) {
           ) : null}
         </div>
       </div>
-      {parentRef.current ? <BlockSelection blockEditor={blockEditor} container={parentRef.current} /> : null}
+      {parentRef.current ? <Overlay container={parentRef.current} blockEditor={blockEditor} /> : null}
     </div>
   );
 }

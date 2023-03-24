@@ -9,6 +9,21 @@ export function debounce(fn: (...args: any[]) => void, delay: number) {
   }
 }
 
+export function throttle(fn: (...args: any[]) => void, delay: number, immediate = true) {
+  let timeout: NodeJS.Timeout | null = null
+  return (...args: any[]) => {
+    if (!timeout) {
+      timeout = setTimeout(() => {
+        timeout = null
+        // eslint-disable-next-line prefer-spread
+        !immediate && fn.apply(undefined, args)
+      }, delay)
+      // eslint-disable-next-line prefer-spread
+      immediate && fn.apply(undefined, args)
+    }
+  }
+}
+
 export function get(obj: any, path: string[], defaultValue?: any) {
   let value = obj;
   for (const prop of path) {

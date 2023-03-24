@@ -21,7 +21,7 @@ export default function TextBlock({
   const { showGroups } = toolbarProps || toolbarDefaultProps;
 
   return (
-    <div {...props} className={`${props.className} py-1`}>
+    <div {...props} className={`${props.className || ''} py-1`}>
       <Slate editor={editor} onChange={onChange} value={value}>
         {showGroups.length > 0 && <HoveringToolbar node={node} blockId={node.id} />}
         <Editable

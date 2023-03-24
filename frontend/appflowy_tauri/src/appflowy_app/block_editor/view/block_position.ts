@@ -8,7 +8,6 @@ export class BlockPositionManager {
   constructor(container: HTMLDivElement) {
     this.container = container;
     this.regionGrid = new RegionGrid(container.offsetHeight);
-    
   }
 
   isInViewport(nodeId: string) {
@@ -21,12 +20,9 @@ export class BlockPositionManager {
       this.updateBlockPosition(blockId);
       this.viewportBlocks.add(blockId);
     }
-    
     return {
       unobserve: () => {
-        if (blockId) {
-          this.viewportBlocks.delete(blockId);
-        }
+        if (blockId) this.viewportBlocks.delete(blockId);
       },
     }
   }
@@ -65,6 +61,24 @@ export class BlockPositionManager {
   getIntersectBlocks(startX: number, startY: number, endX: number, endY: number): BlockPosition[] {
     return this.regionGrid.getIntersectBlocks(startX, startY, endX, endY);
   }
+
+  getViewportBlockByPoint(x: number, y: number): BlockPosition | null {
+    let blockPosition: BlockPosition | null = null;
+    this.viewportBlocks.forEach(id => {
+      this.updateBlockPosition(id);
+      const block = this.blockPositions.get(id);
+      if (!block) return;
+      
+      if (block.x + block.width - 1 >= x &&
+        block.y + block.height - 1 >= y && block.y <= y) {
+          if (!blockPosition || block.y > blockPosition.y) {
+            blockPosition = block;
+          }
+      }
+    });
+    return blockPosition;
+  }
+
 
   destroy() {
     this.container = null;
