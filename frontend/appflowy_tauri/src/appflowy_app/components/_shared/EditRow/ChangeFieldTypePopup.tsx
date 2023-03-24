@@ -1,7 +1,8 @@
 import { FieldType } from '@/services/backend';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 import { FieldTypeName } from '$app/components/_shared/EditRow/FieldTypeName';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import useOutsideClick from '$app/components/_shared/useOutsideClick';
 
 const typesOrder: FieldType[] = [
   FieldType.RichText,
@@ -14,9 +15,22 @@ const typesOrder: FieldType[] = [
   FieldType.Checklist,
 ];
 
-export const ChangeFieldTypePopup = ({ top, right, onClick }: { top: number; right: number; onClick: () => void }) => {
+export const ChangeFieldTypePopup = ({
+  top,
+  right,
+  onClick,
+  onOutsideClick,
+}: {
+  top: number;
+  right: number;
+  onClick: () => void;
+  onOutsideClick: () => void;
+}) => {
   const ref = useRef<HTMLDivElement>(null);
-  const [adjustedTop, setAdjustedTop] = useState(0);
+  const [adjustedTop, setAdjustedTop] = useState(-100);
+  useOutsideClick(ref, async () => {
+    onOutsideClick();
+  });
 
   useEffect(() => {
     if (!ref.current) return;
@@ -31,7 +45,9 @@ export const ChangeFieldTypePopup = ({ top, right, onClick }: { top: number; rig
   return (
     <div
       ref={ref}
-      className={'fixed z-20 rounded-lg bg-white p-2 shadow-md'}
+      className={`fixed z-10 rounded-lg bg-white p-2 text-xs shadow-md transition-opacity duration-300 ${
+        adjustedTop === -100 ? 'opacity-0' : 'opacity-100'
+      }`}
       style={{ top: `${adjustedTop}px`, left: `${right + 30}px` }}
     >
       <div className={'flex flex-col'}>

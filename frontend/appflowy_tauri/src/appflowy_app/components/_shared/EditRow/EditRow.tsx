@@ -6,7 +6,7 @@ import { EditCellWrapper } from '$app/components/_shared/EditRow/EditCellWrapper
 import AddSvg from '$app/components/_shared/svg/AddSvg';
 import { useTranslation } from 'react-i18next';
 import { EditFieldPopup } from '$app/components/_shared/EditRow/EditFieldPopup';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { ChangeFieldTypePopup } from '$app/components/_shared/EditRow/ChangeFieldTypePopup';
 
@@ -23,12 +23,22 @@ export const EditRow = ({
 }) => {
   const { cells, onNewColumnClick } = useRow(viewId, controller, rowInfo);
   const { t } = useTranslation('');
+  const [unveilBackdrop, setUnveilBackdrop] = useState(false);
+  const [unveilForm, setUnveilForm] = useState(false);
   const [showFieldEditor, setShowFieldEditor] = useState(false);
   const [editFieldTop, setEditFieldTop] = useState(0);
   const [editFieldRight, setEditFieldRight] = useState(0);
   const [showChangeFieldTypePopup, setShowChangeFieldTypePopup] = useState(false);
   const [changeFieldTypeTop, setChangeFieldTypeTop] = useState(0);
   const [changeFieldTypeRight, setChangeFieldTypeRight] = useState(0);
+  const [editingCell, setEditingCell] = useState<{ cellIdentifier: CellIdentifier; fieldId: string } | null>(null);
+
+  useEffect(() => {
+    setUnveilBackdrop(true);
+    setTimeout(() => {
+      setUnveilForm(true);
+    }, 300);
+  }, []);
 
   const onEditFieldClick = (cell: { cellIdentifier: CellIdentifier; fieldId: string }, top: number, right: number) => {
     setEditingCell(cell);
@@ -37,12 +47,38 @@ export const EditRow = ({
     setShowFieldEditor(true);
   };
 
-  const [editingCell, setEditingCell] = useState<{ cellIdentifier: CellIdentifier; fieldId: string } | null>(null);
+  const onChangeFieldTypeClick = (buttonTop: number, buttonRight: number) => {
+    setChangeFieldTypeTop(buttonTop);
+    setChangeFieldTypeRight(buttonRight);
+    setShowChangeFieldTypePopup(true);
+  };
+
+  const onOutsideEditFieldClick = () => {
+    if (!showChangeFieldTypePopup) {
+      setShowFieldEditor(false);
+    }
+  };
+
+  const onCloseClick = () => {
+    setUnveilBackdrop(false);
+    setUnveilForm(false);
+    setTimeout(() => {
+      onClose();
+    }, 300);
+  };
 
   return (
-    <div className={'fixed inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm'}>
-      <div className={'flex h-[90%] w-[70%] flex-col gap-8 rounded-xl bg-white px-8 pb-4 pt-12'}>
-        <div onClick={() => onClose()} className={'absolute top-4 right-4'}>
+    <div
+      className={`fixed inset-0 z-10 flex items-center justify-center bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${
+        unveilBackdrop ? 'opacity-100' : 'opacity-0'
+      }`}
+    >
+      <div
+        className={`relative flex h-[90%] w-[70%] flex-col gap-8 rounded-xl bg-white px-8 pb-4 pt-12 transition-opacity duration-300 ${
+          unveilForm ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        <div onClick={() => onCloseClick()} className={'absolute top-4 right-4'}>
           <button className={'block h-8 w-8 rounded-lg text-shade-2 hover:bg-main-secondary'}>
             <CloseSvg></CloseSvg>
           </button>
@@ -64,8 +100,9 @@ export const EditRow = ({
             right={editFieldRight}
             cellIdentifier={editingCell.cellIdentifier}
             viewId={viewId}
-            onOutsideClick={() => setShowFieldEditor(false)}
+            onOutsideClick={onOutsideEditFieldClick}
             fieldInfo={controller.fieldController.getField(editingCell.cellIdentifier.fieldId)}
+            changeFieldTypeClick={onChangeFieldTypeClick}
           ></EditFieldPopup>
         )}
         {showChangeFieldTypePopup && (
@@ -73,6 +110,7 @@ export const EditRow = ({
             top={changeFieldTypeTop}
             right={changeFieldTypeRight}
             onClick={() => setShowChangeFieldTypePopup(false)}
+            onOutsideClick={() => setShowChangeFieldTypePopup(false)}
           ></ChangeFieldTypePopup>
         )}
         <div className={'border-t border-shade-6 pt-2'}>
