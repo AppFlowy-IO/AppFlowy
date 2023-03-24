@@ -1,0 +1,27 @@
+[package]
+name = "flowy-folder2"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+collab = { path = "../../../../../Documents/proj/appflowy-collab/collab" }
+collab-folder = { path = "../../../../../Documents/proj/appflowy-collab/collab-folder" }
+collab-persistence= { path = "../../../../../Documents/proj/appflowy-collab/collab-persistence" }
+flowy-derive = { path = "../flowy-derive" }
+flowy-notification = { path = "../flowy-notification" }
+parking_lot = "0.12.1"
+unicode-segmentation = "1.10"
+tracing = { version = "0.1", features = ["log"] }
+flowy-error = { path = "../flowy-error", features = ["adaptor_dispatch"]}
+lib-dispatch = { path = "../lib-dispatch" }
+bytes = { version = "1.4" }
+lib-infra = { path = "../../../shared-lib/lib-infra" }
+
+[build-dependencies]
+flowy-codegen = { path = "../flowy-codegen"}
+
+[features]
+dart = ["flowy-codegen/dart", "flowy-notification/dart"]
+ts = ["flowy-codegen/ts", "flowy-notification/ts"]

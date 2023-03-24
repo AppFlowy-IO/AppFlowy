@@ -9,6 +9,7 @@ members = [
   "flowy-test",
   "flowy-sqlite",
   "flowy-folder",
+  "flowy-folder2",
   "flowy-notification",
   "flowy-document",
   "flowy-error",
