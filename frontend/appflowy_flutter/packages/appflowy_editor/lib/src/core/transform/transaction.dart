@@ -33,19 +33,19 @@ class Transaction {
 
   /// Inserts the [Node] at the given [Path].
   void insertNode(
-      Path path,
-      Node node, {
-        bool deepCopy = true,
-      }) {
+    Path path,
+    Node node, {
+    bool deepCopy = true,
+  }) {
     insertNodes(path, [node], deepCopy: deepCopy);
   }
 
   /// Inserts a sequence of [Node]s at the given [Path].
   void insertNodes(
-      Path path,
-      Iterable<Node> nodes, {
-        bool deepCopy = true,
-      }) {
+    Path path,
+    Iterable<Node> nodes, {
+    bool deepCopy = true,
+  }) {
     if (deepCopy) {
       add(InsertOperation(path, nodes.map((e) => e.copyWith())));
     } else {
@@ -122,7 +122,9 @@ class Transaction {
   void add(Operation op, {bool transform = true}) {
     final Operation? last = operations.isEmpty ? null : operations.last;
     if (last != null) {
-      if (op is UpdateTextOperation && last is UpdateTextOperation && op.path.equals(last.path)) {
+      if (op is UpdateTextOperation &&
+          last is UpdateTextOperation &&
+          op.path.equals(last.path)) {
         final newOp = UpdateTextOperation(
           op.path,
           last.delta.compose(op.delta),
@@ -146,11 +148,11 @@ class Transaction {
 
 extension TextTransaction on Transaction {
   void mergeText(
-      TextNode first,
-      TextNode second, {
-        int? firstOffset,
-        int secondOffset = 0,
-      }) {
+    TextNode first,
+    TextNode second, {
+    int? firstOffset,
+    int secondOffset = 0,
+  }) {
     final firstLength = first.delta.length;
     final secondLength = second.delta.length;
     firstOffset ??= firstLength;
@@ -190,14 +192,15 @@ extension TextTransaction on Transaction {
   /// Optionally, you may specify formatting attributes that are applied to the inserted string.
   /// By default, the formatting attributes before the insert position will be reused.
   void insertText(
-      TextNode textNode,
-      int index,
-      String text, {
-        Attributes? attributes,
-      }) {
+    TextNode textNode,
+    int index,
+    String text, {
+    Attributes? attributes,
+  }) {
     var newAttributes = attributes;
     if (index != 0 && attributes == null) {
-      newAttributes = textNode.delta.slice(max(index - 1, 0), index).first.attributes;
+      newAttributes =
+          textNode.delta.slice(max(index - 1, 0), index).first.attributes;
       if (newAttributes != null) {
         newAttributes = {...newAttributes}; // make a copy
       }
@@ -215,11 +218,11 @@ extension TextTransaction on Transaction {
 
   /// Assigns a formatting attributes to a range of text.
   void formatText(
-      TextNode textNode,
-      int index,
-      int length,
-      Attributes attributes,
-      ) {
+    TextNode textNode,
+    int index,
+    int length,
+    Attributes attributes,
+  ) {
     afterSelection = beforeSelection;
     updateText(
       textNode,
@@ -231,10 +234,10 @@ extension TextTransaction on Transaction {
 
   /// Deletes the text of specified length starting at index.
   void deleteText(
-      TextNode textNode,
-      int index,
-      int length,
-      ) {
+    TextNode textNode,
+    int index,
+    int length,
+  ) {
     updateText(
       textNode,
       Delta()
@@ -251,15 +254,16 @@ extension TextTransaction on Transaction {
   /// Optionally, you may specify formatting attributes that are applied to the inserted string.
   /// By default, the formatting attributes before the insert position will be reused.
   void replaceText(
-      TextNode textNode,
-      int index,
-      int length,
-      String text, {
-        Attributes? attributes,
-      }) {
+    TextNode textNode,
+    int index,
+    int length,
+    String text, {
+    Attributes? attributes,
+  }) {
     var newAttributes = attributes;
     if (index != 0 && attributes == null) {
-      newAttributes = textNode.delta.slice(max(index - 1, 0), index).first.attributes;
+      newAttributes =
+          textNode.delta.slice(max(index - 1, 0), index).first.attributes;
       if (newAttributes == null) {
         final slicedDelta = textNode.delta.slice(index, index + length);
         if (slicedDelta.isNotEmpty) {
@@ -283,10 +287,10 @@ extension TextTransaction on Transaction {
   }
 
   void replaceTexts(
-      List<TextNode> textNodes,
-      Selection selection,
-      List<String> texts,
-      ) {
+    List<TextNode> textNodes,
+    Selection selection,
+    List<String> texts,
+  ) {
     if (textNodes.isEmpty || texts.isEmpty) {
       return;
     }
@@ -384,7 +388,6 @@ extension TextTransaction on Transaction {
             textNodes.first.toPlainText().length,
             text,
           );
-          path = path.next;
         } else if (i == length - 1 && textNodes.length >= 2) {
           replaceText(
             textNodes.last,
@@ -392,7 +395,6 @@ extension TextTransaction on Transaction {
             selection.endIndex,
             text,
           );
-          path = path.next;
         } else {
           if (i < textNodes.length - 1) {
             replaceText(
@@ -401,26 +403,24 @@ extension TextTransaction on Transaction {
               textNodes[i].toPlainText().length,
               text,
             );
-            path = path.next;
           } else {
             if (i == texts.length - 1) {
               //ADD OFFSET CHARACTER TO END OF LAST TEXT-NODE TO AVOID DATA LOSS
-              insertNode(
-                path,
+              document.insert(path, [
                 TextNode(
                   delta: Delta()..insert("${text}${offSetChar}"),
                 ),
-              );
+              ]);
             } else {
-              insertNode(
-                path,
+              document.insert(path, [
                 TextNode(
                   delta: Delta()..insert(text),
                 ),
-              );
+              ]);
             }
           }
         }
+        path = path.next;
       }
       afterSelection = null;
       return;
