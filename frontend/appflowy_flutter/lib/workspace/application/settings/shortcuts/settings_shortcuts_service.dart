@@ -10,13 +10,13 @@ class SettingsShortcutService {
 
   SettingsShortcutService({File? passedFile}) {
     if (passedFile == null) {
-      initializeService();
+      _initializeService();
     } else {
       file = passedFile;
     }
   }
 
-  Future<void> initializeService() async {
+  Future<void> _initializeService() async {
     Directory flowyDir = await appFlowyDocumentDirectory();
     file = await File('${flowyDir.path}/shortcuts/shorcuts.json')
         .create(recursive: true);

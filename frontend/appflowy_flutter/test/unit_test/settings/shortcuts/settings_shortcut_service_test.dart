@@ -16,7 +16,8 @@ void main() {
     final MemoryFileSystem fileSystem = MemoryFileSystem.test();
     mockFile = await fileSystem.file("shortcuts.json").create(recursive: true);
     service = SettingsShortcutService(passedFile: mockFile);
-    shortcutsJson = """
+    shortcutsJson =
+        """
 {
 "shortcuts": [
 { 
@@ -71,6 +72,7 @@ void main() {
           service.saveShortcuts(currentShortcuts);
 
           //reading from the mock file the saved shortcut list.
+
           final savedDataInFile = await mockFile.readAsString();
           expect(expectedShortcutJson, savedDataInFile);
 
