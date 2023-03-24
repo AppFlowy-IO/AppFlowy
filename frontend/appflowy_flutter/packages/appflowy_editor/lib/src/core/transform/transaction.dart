@@ -388,6 +388,7 @@ extension TextTransaction on Transaction {
             textNodes.first.toPlainText().length,
             text,
           );
+          path = path.next;
         } else if (i == length - 1 && textNodes.length >= 2) {
           replaceText(
             textNodes.last,
@@ -395,6 +396,7 @@ extension TextTransaction on Transaction {
             selection.endIndex,
             text,
           );
+          path = path.next;
         } else {
           if (i < textNodes.length - 1) {
             replaceText(
@@ -403,24 +405,26 @@ extension TextTransaction on Transaction {
               textNodes[i].toPlainText().length,
               text,
             );
+            path = path.next;
           } else {
             if (i == texts.length - 1) {
               //ADD OFFSET CHARACTER TO END OF LAST TEXT-NODE TO AVOID DATA LOSS
-              document.insert(path, [
+              insertNode(
+                path,
                 TextNode(
                   delta: Delta()..insert("${text}${offSetChar}"),
                 ),
-              ]);
+              );
             } else {
-              document.insert(path, [
+              insertNode(
+                path,
                 TextNode(
                   delta: Delta()..insert(text),
                 ),
-              ]);
+              );
             }
           }
         }
-        path = path.next;
       }
       afterSelection = null;
       return;
