@@ -91,7 +91,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           sidebarBg: const Color(0xff232B38),
           divider: _darkShader3,
           topbarBg: _darkShader1,
-          icon: _darkShader6,
+          icon: _darkShader5,
           text: _darkShader5,
           buttonFill: _darkShader1,
           input: const Color(0xff282E3A),
