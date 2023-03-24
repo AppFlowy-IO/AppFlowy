@@ -20,7 +20,12 @@ class NewAppButton extends StatelessWidget {
       hoverColor: Colors.transparent,
       fontColor: Theme.of(context).colorScheme.tertiary,
       onPressed: () async => await _showCreateAppDialog(context),
-      heading: svgWidget("home/new_app", size: const Size(16, 16)),
+      heading: Theme.of(context).brightness == Brightness.light
+          ? svgWidget("home/new_app", size: const Size(16, 16))
+          : svgWidget(
+              "home/new_app_dark",
+              size: const Size(16, 16),
+            ),
       padding: EdgeInsets.symmetric(horizontal: Insets.l, vertical: 20),
     );
 
