@@ -26,8 +26,7 @@ export const EditRow = ({
 }) => {
   const { cells, onNewColumnClick } = useRow(viewId, controller, rowInfo);
   const { t } = useTranslation('');
-  const [unveilBackdrop, setUnveilBackdrop] = useState(false);
-  const [unveilForm, setUnveilForm] = useState(false);
+  const [unveil, setUnveil] = useState(false);
   const [showFieldEditor, setShowFieldEditor] = useState(false);
   const [editFieldTop, setEditFieldTop] = useState(0);
   const [editFieldRight, setEditFieldRight] = useState(0);
@@ -37,10 +36,7 @@ export const EditRow = ({
   const [editingCell, setEditingCell] = useState<CellIdentifier | null>(null);
 
   useEffect(() => {
-    setUnveilBackdrop(true);
-    setTimeout(() => {
-      setUnveilForm(true);
-    }, 300);
+    setUnveil(true);
   }, []);
 
   const onEditFieldClick = (cellIdentifier: CellIdentifier, top: number, right: number) => {
@@ -63,8 +59,7 @@ export const EditRow = ({
   };
 
   const onCloseClick = () => {
-    setUnveilBackdrop(false);
-    setUnveilForm(false);
+    setUnveil(false);
     setTimeout(() => {
       onClose();
     }, 300);
@@ -87,14 +82,10 @@ export const EditRow = ({
   return (
     <div
       className={`fixed inset-0 z-10 flex items-center justify-center bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${
-        unveilBackdrop ? 'opacity-100' : 'opacity-0'
+        unveil ? 'opacity-100' : 'opacity-0'
       }`}
     >
-      <div
-        className={`relative flex h-[90%] w-[70%] flex-col gap-8 rounded-xl bg-white px-8 pb-4 pt-12 transition-opacity duration-300 ${
-          unveilForm ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
+      <div className={`relative flex h-[90%] w-[70%] flex-col gap-8 rounded-xl bg-white px-8 pb-4 pt-12`}>
         <div onClick={() => onCloseClick()} className={'absolute top-4 right-4'}>
           <button className={'block h-8 w-8 rounded-lg text-shade-2 hover:bg-main-secondary'}>
             <CloseSvg></CloseSvg>
