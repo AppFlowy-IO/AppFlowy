@@ -125,7 +125,7 @@ void main() async {
           .map((e) => editor.nodeAtPath([e])!)
           .whereType<TextNode>()
           .toList(growable: false);
-      expect(textNodes[0].toPlainText(), '0123ABC');
+      expect(textNodes[0].toPlainText(), '0123ABC456789');
     });
 
     testWidgets('test replaceTexts, textNodes.length < texts.length',

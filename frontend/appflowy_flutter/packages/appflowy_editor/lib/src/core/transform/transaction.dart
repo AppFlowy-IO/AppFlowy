@@ -363,6 +363,19 @@ extension TextTransaction on Transaction {
           );
         } else {
           deleteNode(textNode);
+          if (i == textNodes.length - 1) {
+            final delta = Delta()
+              ..insert(texts[0])
+              ..addAll(
+                textNodes.last.delta.slice(selection.end.offset),
+              );
+            replaceText(
+              textNode,
+              selection.start.offset,
+              texts[0].length,
+              delta.toPlainText(),
+            );
+          }
         }
       }
       afterSelection = null;
