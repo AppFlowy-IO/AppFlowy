@@ -247,7 +247,7 @@ List<ShortcutEvent> builtInShortcutEvents = [
   ),
   ShortcutEvent(
     key: 'selection menu',
-    command: 'slash,shift+slash',
+    character: '/',
     handler: slashShortcutHandler,
   ),
   ShortcutEvent(
@@ -304,7 +304,7 @@ List<ShortcutEvent> builtInShortcutEvents = [
   ),
   ShortcutEvent(
     key: 'Underscore to italic',
-    command: 'shift+underscore',
+    character: '_',
     handler: underscoreToItalicHandler,
   ),
   ShortcutEvent(
