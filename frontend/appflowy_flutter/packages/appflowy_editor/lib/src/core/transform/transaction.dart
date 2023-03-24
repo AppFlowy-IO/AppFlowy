@@ -373,12 +373,6 @@ extension TextTransaction on Transaction {
       final length = texts.length;
       var path = textNodes.first.path;
 
-      //FIND OFFSET CHARACTERS AFTER SELECTION
-      String offSetChar =
-      (document.nodeAtPath(selection.end.path) as TextNode)
-          .toPlainText()
-          .substring(selection.end.offset);
-
       for (var i = 0; i < texts.length; i++) {
         final text = texts[i];
         if (i == 0) {
@@ -408,11 +402,15 @@ extension TextTransaction on Transaction {
             path = path.next;
           } else {
             if (i == texts.length - 1) {
-              //ADD OFFSET CHARACTER TO END OF LAST TEXT-NODE TO AVOID DATA LOSS
+              final delta = Delta()
+                ..insert(text)
+                ..addAll(
+                  textNodes.last.delta.slice(selection.end.offset),
+                );
               insertNode(
                 path,
                 TextNode(
-                  delta: Delta()..insert("${text}${offSetChar}"),
+                  delta: delta,
                 ),
               );
             } else {

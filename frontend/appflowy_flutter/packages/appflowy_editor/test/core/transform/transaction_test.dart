@@ -155,52 +155,52 @@ void main() async {
       editor.editorState.apply(transaction);
       await tester.pumpAndSettle();
 
-          expect(editor.documentLength, 4);
-          textNodes = [0, 1, 2, 3]
-              .map((e) => editor.nodeAtPath([e])!)
-              .whereType<TextNode>()
-              .toList(growable: false);
-          expect(textNodes[0].toPlainText(), '0123ABC');
-          expect(textNodes[1].toPlainText(), 'ABC');
-          expect(textNodes[2].toPlainText(), 'ABC');
-          expect(textNodes[3].toPlainText(), 'ABC456789');
-        });
+      expect(editor.documentLength, 4);
+      textNodes = [0, 1, 2, 3]
+          .map((e) => editor.nodeAtPath([e])!)
+          .whereType<TextNode>()
+          .toList(growable: false);
+      expect(textNodes[0].toPlainText(), '0123ABC');
+      expect(textNodes[1].toPlainText(), 'ABC');
+      expect(textNodes[2].toPlainText(), 'ABC');
+      expect(textNodes[3].toPlainText(), 'ABC456789');
+    });
 
     testWidgets('test replaceTexts, textNodes.length << texts.length',
-            (tester) async {
-          TestWidgetsFlutterBinding.ensureInitialized();
+        (tester) async {
+      TestWidgetsFlutterBinding.ensureInitialized();
 
-          final editor = tester.editor
-            ..insertTextNode('some text');
-          await editor.startTesting();
-          await tester.pumpAndSettle();
+      final editor = tester.editor..insertTextNode('Welcome to AppFlowy!');
+      await editor.startTesting();
+      await tester.pumpAndSettle();
 
-          expect(editor.documentLength, 1);
+      expect(editor.documentLength, 1);
 
-          final selection = Selection(
-            start: Position(path: [0], offset:0),
-            end: Position(path: [0], offset: 9),
-          );
-          final transaction = editor.editorState.transaction;
-          var textNodes = [0]
-              .map((e) => editor.nodeAtPath([e])!)
-              .whereType<TextNode>()
-              .toList(growable: false);
-          final texts = ['ABC1', 'ABC2', 'ABC3', 'ABC4','ABC5'];
-          transaction.replaceTexts(textNodes, selection, texts);
-          editor.editorState.apply(transaction);
-          await tester.pumpAndSettle();
+      // select 'to'
+      final selection = Selection(
+        start: Position(path: [0], offset: 8),
+        end: Position(path: [0], offset: 10),
+      );
+      final transaction = editor.editorState.transaction;
+      var textNodes = [0]
+          .map((e) => editor.nodeAtPath([e])!)
+          .whereType<TextNode>()
+          .toList(growable: false);
+      final texts = ['ABC1', 'ABC2', 'ABC3', 'ABC4', 'ABC5'];
+      transaction.replaceTexts(textNodes, selection, texts);
+      editor.editorState.apply(transaction);
+      await tester.pumpAndSettle();
 
-          expect(editor.documentLength, 5);
-          textNodes = [0, 1, 2, 3,4]
-              .map((e) => editor.nodeAtPath([e])!)
-              .whereType<TextNode>()
-              .toList(growable: false);
-          expect(textNodes[0].toPlainText(), 'ABC1');
-          expect(textNodes[1].toPlainText(), 'ABC2');
-          expect(textNodes[2].toPlainText(), 'ABC3');
-          expect(textNodes[3].toPlainText(), 'ABC4');
-          expect(textNodes[4].toPlainText(), 'ABC5');
-        });
+      expect(editor.documentLength, 5);
+      textNodes = [0, 1, 2, 3, 4]
+          .map((e) => editor.nodeAtPath([e])!)
+          .whereType<TextNode>()
+          .toList(growable: false);
+      expect(textNodes[0].toPlainText(), 'Welcome ABC1');
+      expect(textNodes[1].toPlainText(), 'ABC2');
+      expect(textNodes[2].toPlainText(), 'ABC3');
+      expect(textNodes[3].toPlainText(), 'ABC4');
+      expect(textNodes[4].toPlainText(), 'ABC5 AppFlowy!');
+    });
   });
 }
