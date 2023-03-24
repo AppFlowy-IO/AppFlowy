@@ -57,7 +57,7 @@ class AppFlowyInput extends StatefulWidget {
   State<AppFlowyInput> createState() => _AppFlowyInputState();
 }
 
-class _AppFlowyInputState extends State<AppFlowyInput> 
+class _AppFlowyInputState extends State<AppFlowyInput>
     implements AppFlowyInputService, DeltaTextInputClient {
   TextInputConnection? _textInputConnection;
   TextRange? _composingTextRange;
@@ -72,7 +72,7 @@ class _AppFlowyInputState extends State<AppFlowyInput>
   // Disable space shortcut on the Web platform.
   final Map<ShortcutActivator, Intent> _shortcuts = kIsWeb
       ? {
-          LogicalKeySet(LogicalKeyboardKey.space): 
+          LogicalKeySet(LogicalKeyboardKey.space):
               const DoNothingAndStopPropagationIntent(),
         }
       : {};
@@ -108,7 +108,7 @@ class _AppFlowyInputState extends State<AppFlowyInput>
 
   @override
   void attach(TextEditingValue textEditingValue) {
-    if (_textInputConnection == null || 
+    if (_textInputConnection == null ||
         _textInputConnection!.attached == false) {
       _textInputConnection = TextInput.attach(
         this,
@@ -144,8 +144,8 @@ class _AppFlowyInputState extends State<AppFlowyInput>
 
   void _updateComposing(TextEditingDelta delta) {
     if (delta is! TextEditingDeltaNonTextUpdate) {
-      if (_composingTextRange != null && 
-          delta.composing.end != -1 && 
+      if (_composingTextRange != null &&
+          delta.composing.end != -1 &&
           _composingTextRange!.start != -1) {
         _composingTextRange = TextRange(
           start: _composingTextRange!.start,
@@ -269,7 +269,7 @@ class _AppFlowyInputState extends State<AppFlowyInput>
   @override
   void updateEditingValueWithDeltas(List<TextEditingDelta> textEditingDeltas) {
     Log.input
-      .debug(textEditingDeltas.map((delta) => delta.toString()).toString());
+        .debug(textEditingDeltas.map((delta) => delta.toString()).toString());
 
     apply(textEditingDeltas);
   }
@@ -282,7 +282,7 @@ class _AppFlowyInputState extends State<AppFlowyInput>
   void _onSelectionChange() {
     final textNodes = _editorState.service.selectionService.currentSelectedNodes
         .whereType<TextNode>();
-    final selection = 
+    final selection =
         _editorState.service.selectionService.currentSelection.value;
     // FIXME: upward and selection update.
     if (textNodes.isNotEmpty && selection != null) {
