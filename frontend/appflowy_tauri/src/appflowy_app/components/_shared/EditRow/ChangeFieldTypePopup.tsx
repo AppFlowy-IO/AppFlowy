@@ -23,7 +23,7 @@ export const ChangeFieldTypePopup = ({
 }: {
   top: number;
   right: number;
-  onClick: () => void;
+  onClick: (newType: FieldType) => void;
   onOutsideClick: () => void;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -53,7 +53,7 @@ export const ChangeFieldTypePopup = ({
       <div className={'flex flex-col'}>
         {typesOrder.map((t, i) => (
           <button
-            onClick={() => onClick()}
+            onClick={() => onClick(t)}
             key={i}
             className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-main-secondary'}
           >
