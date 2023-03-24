@@ -1,4 +1,5 @@
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcut_cubit.dart';
+import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,8 @@ class SettingsCustomizeShortcuts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ShortcutsCubit>(
-      create: (_) => ShortcutsCubit()..fetchShortcuts(),
+      create: (_) =>
+          ShortcutsCubit(SettingsShortcutService())..fetchShortcuts(),
       child: const CustomizeShortcutsView(),
     );
   }
@@ -142,9 +144,11 @@ class ShortcutsListTile extends StatelessWidget {
     );
   }
 
-  _updateKey(BuildContext context, String command) =>
-      BlocProvider.of<ShortcutsCubit>(context)
-          .updateShortcut(command: command, shortcutEvent: shortcutEvent);
+  _updateKey(BuildContext context, String command) {
+    shortcutEvent.updateCommand(command: command);
+    BlocProvider.of<ShortcutsCubit>(context).updateShortcuts();
+  }
+
   _dismiss(BuildContext context) => Navigator.of(context).pop();
 }
 
@@ -176,21 +180,21 @@ class ShortcutsErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: [
-          const FlowyText.medium(
-            "Could Not Load Customized Shortcuts",
+    return Row(
+      children: [
+        const Expanded(
+          child: FlowyText.medium(
+            "Could Not Load Shortcuts",
             overflow: TextOverflow.ellipsis,
           ),
-          FlowyButton(
-            text: const Text('Retry'),
-            onTap: () {
-              BlocProvider.of<ShortcutsCubit>(context).fetchShortcuts();
-            },
-          )
-        ],
-      ),
+        ),
+        FlowyIconButton(
+          icon: const Icon(Icons.replay_outlined),
+          onPressed: () {
+            BlocProvider.of<ShortcutsCubit>(context).fetchShortcuts();
+          },
+        ),
+      ],
     );
   }
 }
