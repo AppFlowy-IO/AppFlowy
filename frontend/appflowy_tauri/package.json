@@ -34,6 +34,7 @@
     "react-i18next": "^12.2.0",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.8.0",
+    "react-tailwindcss-datepicker": "^1.5.1",
     "react18-input-otp": "^1.1.2",
     "redux": "^4.2.1",
     "rxjs": "^7.8.0",

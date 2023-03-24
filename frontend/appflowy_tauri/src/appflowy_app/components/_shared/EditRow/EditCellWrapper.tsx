@@ -7,33 +7,37 @@ import { useAppSelector } from '$app/stores/store';
 import { getBgColor } from '$app/components/_shared/getColor';
 import { EditorCheckSvg } from '$app/components/_shared/svg/EditorCheckSvg';
 import { EditorUncheckSvg } from '$app/components/_shared/svg/EditorUncheckSvg';
-import { useState } from 'react';
 import { EditCellText } from '$app/components/_shared/EditRow/EditCellText';
-import { EditFieldPopup } from '$app/components/_shared/EditRow/EditFieldPopup';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
+import { EditCellDate } from '$app/components/_shared/EditRow/EditCellDate';
+import { useRef } from 'react';
 
 export const EditCellWrapper = ({
-  viewId,
   cellIdentifier,
   cellCache,
   fieldController,
+  onEditFieldClick,
 }: {
-  viewId: string;
   cellIdentifier: CellIdentifier;
   cellCache: CellCache;
   fieldController: FieldController;
+  onEditFieldClick: (top: number, right: number) => void;
 }) => {
   const { data, cellController } = useCell(cellIdentifier, cellCache, fieldController);
   const databaseStore = useAppSelector((state) => state.database);
-  const [showFieldEditor, setShowFieldEditor] = useState(false);
-  const onEditFieldClick = () => {
-    setShowFieldEditor(true);
+  const el = useRef<HTMLDivElement>(null);
+
+  const onClick = () => {
+    if (!el.current) return;
+    const { top, right } = el.current.getBoundingClientRect();
+    onEditFieldClick(top, right);
   };
 
   return (
     <div className={'flex w-full items-center text-xs'}>
       <div
-        onClick={() => onEditFieldClick()}
+        ref={el}
+        onClick={() => onClick()}
         className={'relative flex w-[180px] cursor-pointer items-center gap-2 rounded-lg px-3 py-1.5 hover:bg-shade-6'}
       >
         <div className={'flex h-5 w-5 flex-shrink-0 items-center justify-center'}>
@@ -42,16 +46,6 @@ export const EditCellWrapper = ({
         <span className={'overflow-hidden text-ellipsis whitespace-nowrap'}>
           {databaseStore.fields[cellIdentifier.fieldId].title}
         </span>
-        {showFieldEditor && cellController && (
-          <EditFieldPopup
-            fieldName={databaseStore.fields[cellIdentifier.fieldId].title}
-            fieldType={cellIdentifier.fieldType}
-            viewId={viewId}
-            cellController={cellController}
-            onOutsideClick={() => setShowFieldEditor(false)}
-            fieldInfo={fieldController.getField(cellIdentifier.fieldId)}
-          ></EditFieldPopup>
-        )}
       </div>
       <div className={'flex-1 cursor-pointer rounded-lg px-4 py-2 hover:bg-shade-6'}>
         {(cellIdentifier.fieldType === FieldType.SingleSelect ||
@@ -72,7 +66,9 @@ export const EditCellWrapper = ({
           </div>
         )}
 
-        {cellIdentifier.fieldType === FieldType.DateTime && <div>{(data as DateCellDataPB | undefined)?.date}</div>}
+        {cellIdentifier.fieldType === FieldType.DateTime && cellController && (
+          <EditCellDate data={data as DateCellDataPB | undefined} cellController={cellController}></EditCellDate>
+        )}
 
         {(cellIdentifier.fieldType === FieldType.RichText ||
           cellIdentifier.fieldType === FieldType.URL ||
