@@ -7,12 +7,14 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 
 class SettingsShortcutService {
   late File file;
+  bool shouldWaitForInitializing = true;
 
   SettingsShortcutService({File? passedFile}) {
     if (passedFile == null) {
       _initializeService();
     } else {
       file = passedFile;
+      shouldWaitForInitializing = false;
     }
   }
 
@@ -28,6 +30,10 @@ class SettingsShortcutService {
   }
 
   Future<List<ShortcutEvent>> loadShortcuts() async {
+    if (shouldWaitForInitializing) {
+      await _initializeService();
+      shouldWaitForInitializing = false;
+    }
     final shortcutsInJson = await file.readAsString();
 
     if (shortcutsInJson.isEmpty) {
