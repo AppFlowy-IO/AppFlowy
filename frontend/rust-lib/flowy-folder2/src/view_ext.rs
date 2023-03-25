@@ -1,8 +1,10 @@
-use crate::entities::{ViewDataFormatPB, ViewLayoutTypePB, ViewPB};
+use crate::entities::{CreateViewParams, ViewDataFormatPB, ViewLayoutTypePB, ViewPB};
 use bytes::Bytes;
-use collab_folder::core::ViewLayout;
+use collab_folder::core::{View, ViewLayout};
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
+use lib_infra::util::timestamp;
+use nanoid::nanoid;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -13,25 +15,24 @@ pub trait ViewDataProcessor {
 
   /// Gets the data of the this view.
   /// For example, the data can be used to duplicate the view.
-  fn get_view_data(&self, view: &ViewPB) -> FutureResult<Bytes, FlowyError>;
+  fn get_view_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError>;
 
   /// Create a view with the pre-defined data.
   /// For example, the initial data of the grid/calendar/kanban board when
   /// you create a new view.
   fn create_view_with_build_in_data(
     &self,
-    user_id: &str,
+    user_id: i64,
     view_id: &str,
     name: &str,
-    layout: ViewLayoutTypePB,
-    data_format: ViewDataFormatPB,
+    layout: ViewLayout,
     ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError>;
 
   /// Create a view with custom data
   fn create_view_with_custom_data(
     &self,
-    user_id: &str,
+    user_id: i64,
     view_id: &str,
     name: &str,
     data: Vec<u8>,
@@ -53,4 +54,21 @@ impl From<ViewLayoutTypePB> for ViewLayout {
       ViewLayoutTypePB::Calendar => ViewLayout::Calendar,
     }
   }
+}
+
+pub fn view_from_create_view_params(params: CreateViewParams, layout: ViewLayout) -> View {
+  let time = timestamp();
+  View {
+    id: params.view_id,
+    bid: params.belong_to_id,
+    name: params.name,
+    desc: params.desc,
+    belongings: Default::default(),
+    created_at: time,
+    layout,
+    visible: true,
+  }
+}
+pub fn gen_view_id() -> String {
+  format!("v:{}", nanoid!(10))
 }

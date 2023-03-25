@@ -1,3 +1,4 @@
+use crate::view_ext::gen_view_id;
 use crate::{
   entities::parser::{
     app::AppIdentify,
@@ -6,7 +7,9 @@ use crate::{
   errors::ErrorCode,
   impl_def_and_def_mut,
 };
+use collab_folder::core::{View, ViewLayout};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_error::ErrorCode;
 use folder_model::{gen_view_id, ViewDataFormatRevision, ViewLayoutTypeRevision, ViewRevision};
 use std::collections::HashMap;
 use std::convert::TryInto;
@@ -23,28 +26,20 @@ pub struct ViewPB {
   pub name: String,
 
   #[pb(index = 4)]
-  pub data_format: ViewDataFormatPB,
-
-  #[pb(index = 5)]
-  pub modified_time: i64,
-
-  #[pb(index = 6)]
   pub create_time: i64,
 
-  #[pb(index = 7)]
+  #[pb(index = 5)]
   pub layout: ViewLayoutTypePB,
 }
 
-impl std::convert::From<ViewRevision> for ViewPB {
-  fn from(rev: ViewRevision) -> Self {
+impl std::convert::From<View> for ViewPB {
+  fn from(view: View) -> Self {
     ViewPB {
-      id: rev.id,
-      app_id: rev.app_id,
-      name: rev.name,
-      data_format: rev.data_format.into(),
-      modified_time: rev.modified_time,
-      create_time: rev.create_time,
-      layout: rev.layout.into(),
+      id: view.id,
+      app_id: view.bid,
+      name: view.name,
+      create_time: view.created_at,
+      layout: view.layout.into(),
     }
   }
 }
@@ -100,24 +95,24 @@ impl std::default::Default for ViewLayoutTypePB {
   }
 }
 
-impl std::convert::From<ViewLayoutTypeRevision> for ViewLayoutTypePB {
-  fn from(rev: ViewLayoutTypeRevision) -> Self {
+impl std::convert::From<ViewLayout> for ViewLayoutTypePB {
+  fn from(rev: ViewLayout) -> Self {
     match rev {
-      ViewLayoutTypeRevision::Grid => ViewLayoutTypePB::Grid,
-      ViewLayoutTypeRevision::Board => ViewLayoutTypePB::Board,
-      ViewLayoutTypeRevision::Document => ViewLayoutTypePB::Document,
-      ViewLayoutTypeRevision::Calendar => ViewLayoutTypePB::Calendar,
+      ViewLayout::Grid => ViewLayoutTypePB::Grid,
+      ViewLayout::Board => ViewLayoutTypePB::Board,
+      ViewLayout::Document => ViewLayoutTypePB::Document,
+      ViewLayout::Calendar => ViewLayoutTypePB::Calendar,
     }
   }
 }
 
-impl std::convert::From<ViewLayoutTypePB> for ViewLayoutTypeRevision {
+impl std::convert::From<ViewLayoutTypePB> for ViewLayout {
   fn from(rev: ViewLayoutTypePB) -> Self {
     match rev {
-      ViewLayoutTypePB::Grid => ViewLayoutTypeRevision::Grid,
-      ViewLayoutTypePB::Board => ViewLayoutTypeRevision::Board,
-      ViewLayoutTypePB::Document => ViewLayoutTypeRevision::Document,
-      ViewLayoutTypePB::Calendar => ViewLayoutTypeRevision::Calendar,
+      ViewLayoutTypePB::Grid => ViewLayout::Grid,
+      ViewLayoutTypePB::Board => ViewLayout::Board,
+      ViewLayoutTypePB::Document => ViewLayout::Document,
+      ViewLayoutTypePB::Calendar => ViewLayout::Calendar,
     }
   }
 }
@@ -130,9 +125,9 @@ pub struct RepeatedViewPB {
 
 impl_def_and_def_mut!(RepeatedViewPB, ViewPB);
 
-impl std::convert::From<Vec<ViewRevision>> for RepeatedViewPB {
-  fn from(values: Vec<ViewRevision>) -> Self {
-    let items = values
+impl std::convert::From<Vec<View>> for RepeatedViewPB {
+  fn from(views: Vec<View>) -> Self {
+    let items = views
       .into_iter()
       .map(|value| value.into())
       .collect::<Vec<ViewPB>>();
@@ -174,8 +169,6 @@ pub struct CreateViewParams {
   pub belong_to_id: String,
   pub name: String,
   pub desc: String,
-  pub thumbnail: String,
-  pub data_format: ViewDataFormatPB,
   pub layout: ViewLayoutTypePB,
   pub view_id: String,
   pub initial_data: Vec<u8>,
@@ -189,19 +182,12 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
     let name = ViewName::parse(self.name)?.0;
     let belong_to_id = AppIdentify::parse(self.belong_to_id)?.0;
     let view_id = gen_view_id();
-    let thumbnail = match self.thumbnail {
-      None => "".to_string(),
-      Some(thumbnail) => ViewThumbnail::parse(thumbnail)?.0,
-    };
-    let data_format = data_format_from_layout(&self.layout);
 
     Ok(CreateViewParams {
       belong_to_id,
       name,
       desc: self.desc,
-      data_format,
       layout: self.layout,
-      thumbnail,
       view_id,
       initial_data: self.initial_data,
       ext: self.ext,

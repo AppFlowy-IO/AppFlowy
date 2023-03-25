@@ -529,6 +529,7 @@ dependencies = [
  "serde_json",
  "serde_repr",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -1377,7 +1378,9 @@ dependencies = [
  "flowy-notification",
  "lib-dispatch",
  "lib-infra",
+ "nanoid",
  "parking_lot 0.12.1",
+ "tokio",
  "tracing",
  "unicode-segmentation",
 ]
