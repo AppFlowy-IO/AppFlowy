@@ -14,11 +14,12 @@ export const GridTableRow = ({
 }) => {
   const { cells } = useRow(viewId, controller, row);
 
+  console.log({ cells });
   return (
     <tr>
       {cells.map((cell, cellIndex) => {
         return (
-          <td className='m-0 border border-l-0 border-shade-6 p-0 '>
+          <td className='m-0 border border-l-0 border-shade-6 p-0 ' key={cellIndex}>
             <GridTableCell
               key={cellIndex}
               cellIdentifier={cell.cellIdentifier}
