@@ -298,7 +298,26 @@ class _SmartEditInputState extends State<_SmartEditInput> {
       selection,
       texts,
     );
-    return widget.editorState.apply(transaction);
+    widget.editorState.apply(transaction).then(
+      (_) {
+        int endOffset = texts.last.length;
+        if (texts.length == 1) {
+          endOffset += selection.start.offset;
+        }
+        widget.editorState.updateCursorSelection(
+          Selection(
+            start: Position(
+              path: selection.start.path,
+              offset: selection.start.offset,
+            ),
+            end: Position(
+              path: [selection.start.path.first + texts.length - 1],
+              offset: endOffset,
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _onInsertBelow() async {
@@ -317,7 +336,18 @@ class _SmartEditInputState extends State<_SmartEditInput> {
         ),
       ),
     );
-    return widget.editorState.apply(transaction);
+    widget.editorState.apply(transaction).then(
+      (_) {
+        widget.editorState.updateCursorSelection(
+          Selection(
+            start: Position(path: selection.end.path.next, offset: 0),
+            end: Position(
+              path: [selection.end.path.next.first + texts.length],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _onExit() async {
