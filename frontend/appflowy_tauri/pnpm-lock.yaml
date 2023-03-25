@@ -6,6 +6,7 @@ specifiers:
   '@mui/icons-material': ^5.11.11
   '@mui/material': ^5.11.12
   '@reduxjs/toolkit': ^1.9.2
+  '@slate-yjs/core': ^0.3.1
   '@tanstack/react-virtual': 3.0.0-beta.54
   '@tauri-apps/api': ^1.2.0
   '@tauri-apps/cli': ^1.2.2
@@ -15,6 +16,7 @@ specifiers:
   '@types/react': ^18.0.15
   '@types/react-dom': ^18.0.6
   '@types/utf8': ^3.0.1
+  '@types/uuid': ^9.0.1
   '@typescript-eslint/eslint-plugin': ^5.51.0
   '@typescript-eslint/parser': ^5.51.0
   '@vitejs/plugin-react': ^3.0.0
@@ -31,6 +33,7 @@ specifiers:
   postcss: ^8.4.21
   prettier: 2.8.4
   prettier-plugin-tailwindcss: ^0.2.2
+  protoc-gen-ts: ^0.8.5
   react: ^18.2.0
   react-dom: ^18.2.0
   react-error-boundary: ^3.1.4
@@ -45,9 +48,11 @@ specifiers:
   tailwindcss: ^3.2.7
   ts-results: ^3.3.0
   typescript: ^4.6.4
-  ulid: ^2.3.0
   utf8: ^3.0.0
+  uuid: ^9.0.0
   vite: ^4.0.0
+  y-indexeddb: ^9.0.9
+  yjs: ^13.5.51
 
 dependencies:
   '@emotion/react': 11.10.6_pmekkgnqduwlme35zpnqhenc34
@@ -55,6 +60,7 @@ dependencies:
   '@mui/icons-material': 5.11.11_ao76n7r2cajsoyr3cbwrn7geoi
   '@mui/material': 5.11.12_xqeqsl5kvjjtyxwyi3jhw3yuli
   '@reduxjs/toolkit': 1.9.3_k4ae6lp43ej6mezo3ztvx6pykq
+  '@slate-yjs/core': 0.3.1_slate@0.91.4+yjs@13.5.51
   '@tanstack/react-virtual': 3.0.0-beta.54_react@18.2.0
   '@tauri-apps/api': 1.2.0
   events: 3.3.0
@@ -64,6 +70,7 @@ dependencies:
   is-hotkey: 0.2.0
   jest: 29.5.0_@types+node@18.14.6
   nanoid: 4.0.1
+  protoc-gen-ts: 0.8.6_ss7alqtodw6rv4lluxhr36xjoa
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-error-boundary: 3.1.4_react@18.2.0
@@ -76,8 +83,9 @@ dependencies:
   slate: 0.91.4
   slate-react: 0.91.9_6tgy34rvmll7duwkm4ydcekf3u
   ts-results: 3.3.0
-  ulid: 2.3.0
   utf8: 3.0.0
+  y-indexeddb: 9.0.9_yjs@13.5.51
+  yjs: 13.5.51
 
 devDependencies:
   '@tauri-apps/cli': 1.2.3
@@ -87,6 +95,7 @@ devDependencies:
   '@types/react': 18.0.28
   '@types/react-dom': 18.0.11
   '@types/utf8': 3.0.1
+  '@types/uuid': 9.0.1
   '@typescript-eslint/eslint-plugin': 5.54.0_6mj2wypvdnknez7kws2nfdgupi
   '@typescript-eslint/parser': 5.54.0_ycpbpc6yetojsgtrx3mwntkhsu
   '@vitejs/plugin-react': 3.1.0_vite@4.1.4
@@ -98,6 +107,7 @@ devDependencies:
   prettier-plugin-tailwindcss: 0.2.4_prettier@2.8.4
   tailwindcss: 3.2.7_postcss@8.4.21
   typescript: 4.9.5
+  uuid: 9.0.0
   vite: 4.1.4_@types+node@18.14.6
 
 packages:
@@ -1308,6 +1318,17 @@ packages:
       '@sinonjs/commons': 2.0.0
     dev: false
 
+  /@slate-yjs/core/0.3.1_slate@0.91.4+yjs@13.5.51:
+    resolution: {integrity: sha512-8nvS9m5FhMNONgydAfzwDCUhuoWbgzx5Bvw1/foSe+JO331UOT1xAKbUX5FzGCOunUcbRjMPXSdNyiPc0dodJg==}
+    peerDependencies:
+      slate: '>=0.70.0'
+      yjs: ^13.5.29
+    dependencies:
+      slate: 0.91.4
+      y-protocols: 1.0.5
+      yjs: 13.5.51
+    dev: false
+
   /@tanstack/react-virtual/3.0.0-beta.54_react@18.2.0:
     resolution: {integrity: sha512-D1mDMf4UPbrtHRZZriCly5bXTBMhylslm4dhcHqTtDJ6brQcgGmk8YD9JdWBGWfGSWPKoh2x1H3e7eh+hgPXtQ==}
     peerDependencies:
@@ -1551,6 +1572,10 @@ packages:
 
   /@types/utf8/3.0.1:
     resolution: {integrity: sha512-1EkWuw7rT3BMz2HpmcEOr/HL61mWNA6Ulr/KdbXR9AI0A55wD4Qfv8hizd8Q1DnknSIzzDvQmvvY/guvX7jjZA==}
+    dev: true
+
+  /@types/uuid/9.0.1:
+    resolution: {integrity: sha512-rFT3ak0/2trgvp4yYZo5iKFEPsET7vKydKF+VRCxlQ9bpheehyAJH89dAkaLEq/j/RZXJIqcgsmPJKUP1Z28HA==}
     dev: true
 
   /@types/yargs-parser/21.0.0:
@@ -3050,6 +3075,10 @@ packages:
   /isexe/2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
+  /isomorphic.js/0.2.5:
+    resolution: {integrity: sha512-PIeMbHqMt4DnUP3MA/Flc0HElYjMXArsw1qwJZcm9sqR8mq3l8NYizFMty0pWwE/tzIGH3EKK5+jes5mAr85yw==}
+    dev: false
+
   /istanbul-lib-coverage/3.2.0:
     resolution: {integrity: sha512-eOeJ5BHCmHYvQK7xt9GkdHuzuCGS1Y6g9Gvnx3Ym33fz/HpLRYxiS0wHNr+m/MBC8B647Xt608vCDEvhl9c6Mw==}
     engines: {node: '>=8'}
@@ -3575,6 +3604,14 @@ packages:
       type-check: 0.4.0
     dev: true
 
+  /lib0/0.2.73:
+    resolution: {integrity: sha512-aJJIElCLWnHMcYZPtsM07QoSfHwpxCy4VUzBYGXFYEmh/h2QS5uZNbCCfL0CqnkOE30b7Tp9DVfjXag+3qzZjQ==}
+    engines: {node: '>=14'}
+    hasBin: true
+    dependencies:
+      isomorphic.js: 0.2.5
+    dev: false
+
   /lilconfig/2.1.0:
     resolution: {integrity: sha512-utWOt/GHzuUxnLKxB6dk81RoOeoNeHgbrXiuGk4yyF5qlRz+iIVWu56E2fqGHFrXz0QNUhLB/8nKqvRH66JKGQ==}
     engines: {node: '>=10'}
@@ -4054,6 +4091,17 @@ packages:
       loose-envify: 1.4.0
       object-assign: 4.1.1
       react-is: 16.13.1
+
+  /protoc-gen-ts/0.8.6_ss7alqtodw6rv4lluxhr36xjoa:
+    resolution: {integrity: sha512-66oeorGy4QBvYjQGd/gaeOYyFqKyRmRgTpofmnw8buMG0P7A0jQjoKSvKJz5h5tNUaVkIzvGBUTRVGakrhhwpA==}
+    hasBin: true
+    peerDependencies:
+      google-protobuf: ^3.13.0
+      typescript: 4.x.x
+    dependencies:
+      google-protobuf: 3.21.2
+      typescript: 4.9.5
+    dev: false
 
   /punycode/2.3.0:
     resolution: {integrity: sha512-rRV+zQD8tVFys26lAGR9WUuS4iUAngJScM+ZRSKtvl5tKeZ2t5bvdNFdNHBW9FWR4guGHlgmsZ1G7BSm2wTbuA==}
@@ -4678,12 +4726,6 @@ packages:
     resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
     engines: {node: '>=4.2.0'}
     hasBin: true
-    dev: true
-
-  /ulid/2.3.0:
-    resolution: {integrity: sha512-keqHubrlpvT6G2wH0OEfSW4mquYRcbe/J8NMmveoQOjUqmo+hXtO+ORCpWhdbZ7k72UtY61BL7haGxW6enBnjw==}
-    hasBin: true
-    dev: false
 
   /unbox-primitive/1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
@@ -4724,6 +4766,11 @@ packages:
 
   /util-deprecate/1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
+    dev: true
+
+  /uuid/9.0.0:
+    resolution: {integrity: sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==}
+    hasBin: true
     dev: true
 
   /v8-to-istanbul/9.1.0:
@@ -4839,6 +4886,21 @@ packages:
     engines: {node: '>=0.4'}
     dev: true
 
+  /y-indexeddb/9.0.9_yjs@13.5.51:
+    resolution: {integrity: sha512-GcJbiJa2eD5hankj46Hea9z4hbDnDjvh1fT62E5SpZRsv8GcEemw34l1hwI2eknGcv5Ih9JfusT37JLx9q3LFg==}
+    peerDependencies:
+      yjs: ^13.0.0
+    dependencies:
+      lib0: 0.2.73
+      yjs: 13.5.51
+    dev: false
+
+  /y-protocols/1.0.5:
+    resolution: {integrity: sha512-Wil92b7cGk712lRHDqS4T90IczF6RkcvCwAD0A2OPg+adKmOe+nOiT/N2hvpQIWS3zfjmtL4CPaH5sIW1Hkm/A==}
+    dependencies:
+      lib0: 0.2.73
+    dev: false
+
   /y18n/5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
     engines: {node: '>=10'}
@@ -4870,6 +4932,13 @@ packages:
       string-width: 4.2.3
       y18n: 5.0.8
       yargs-parser: 21.1.1
+    dev: false
+
+  /yjs/13.5.51:
+    resolution: {integrity: sha512-F1Nb3z3TdandD80IAeQqgqy/2n9AhDLcXoBhZvCUX1dNVe0ef7fIwi6MjSYaGAYF2Ev8VcLcsGnmuGGOl7AWbw==}
+    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
+    dependencies:
+      lib0: 0.2.73
     dev: false
 
   /yocto-queue/0.1.0:

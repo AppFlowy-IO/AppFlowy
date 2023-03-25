@@ -2,6 +2,7 @@
 import { createContext } from 'react';
 import { ulid } from "ulid";
 import { BlockEditor } from '../block_editor/index';
+import { BlockType } from '../interfaces';
 
 export const BlockContext = createContext<{
   id?: string;
@@ -22,4 +23,12 @@ export function calculateViewportBlockMaxCount() {
   return viewportBlockCount;
 }
 
+
+export interface NestedNode {
+  id: string;
+  children: string;
+  parent: string | null;
+  type: BlockType;
+  data: any;
+}
 

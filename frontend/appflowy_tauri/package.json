@@ -20,6 +20,7 @@
     "@mui/icons-material": "^5.11.11",
     "@mui/material": "^5.11.12",
     "@reduxjs/toolkit": "^1.9.2",
+    "@slate-yjs/core": "^0.3.1",
     "@tanstack/react-virtual": "3.0.0-beta.54",
     "@tauri-apps/api": "^1.2.0",
     "events": "^3.3.0",
@@ -42,8 +43,9 @@
     "slate": "^0.91.4",
     "slate-react": "^0.91.9",
     "ts-results": "^3.3.0",
-    "ulid": "^2.3.0",
-    "utf8": "^3.0.0"
+    "utf8": "^3.0.0",
+    "yjs": "^13.5.51",
+		"y-indexeddb": "^9.0.9"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1.2.2",
@@ -53,6 +55,7 @@
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
     "@types/utf8": "^3.0.1",
+    "@types/uuid": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^5.51.0",
     "@typescript-eslint/parser": "^5.51.0",
     "@vitejs/plugin-react": "^3.0.0",
@@ -64,6 +67,7 @@
     "prettier-plugin-tailwindcss": "^0.2.2",
     "tailwindcss": "^3.2.7",
     "typescript": "^4.6.4",
+    "uuid": "^9.0.0",
     "vite": "^4.0.0"
   }
 }

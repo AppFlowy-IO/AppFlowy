@@ -9,6 +9,7 @@ import { useError } from '../../error/Error.hooks';
 import { AppObserver } from '../../../stores/effects/folder/app/app_observer';
 import { useNavigate } from 'react-router-dom';
 import { INITIAL_FOLDER_HEIGHT, PAGE_ITEM_HEIGHT } from '../../_shared/constants';
+import { YDocController } from '$app/stores/effects/document/document_controller';
 
 export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
   const appDispatch = useAppDispatch();
@@ -131,6 +132,10 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
         name: 'New Document 1',
         layoutType: ViewLayoutTypePB.Document,
       });
+
+      // temp: let me try it by yjs
+      const ydocController = new YDocController(newView.id);
+      await ydocController.createDocument();
 
       appDispatch(
         pagesActions.addPage({

@@ -1,5 +1,5 @@
 import FormatButton from './FormatButton';
-import Portal from '../block/BlockPortal';
+import Portal from '../BlockPortal';
 import { TreeNode } from '$app/block_editor/view/tree_node';
 import { useHoveringToolbar } from './index.hooks';
 
