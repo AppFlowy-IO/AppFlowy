@@ -2,12 +2,13 @@ mod deps_resolve;
 pub mod module;
 use crate::deps_resolve::*;
 use flowy_client_ws::{listen_on_websocket, FlowyWebSocketConnect, NetworkType};
+use flowy_database::entities::LayoutTypePB;
 use flowy_database::manager::DatabaseManager;
 use flowy_document::entities::DocumentVersionPB;
 use flowy_document::{DocumentConfig, DocumentManager};
 use flowy_error::FlowyResult;
-use flowy_folder::entities::{ViewDataFormatPB, ViewLayoutTypePB};
-use flowy_folder::{errors::FlowyError, manager::FolderManager};
+use flowy_folder::errors::FlowyError;
+use flowy_folder2::manager::Folder2Manager;
 pub use flowy_net::get_client_server_configuration;
 use flowy_net::local_server::LocalServer;
 use flowy_net::ClientServerConfiguration;
@@ -16,8 +17,6 @@ use flowy_user::event_map::UserStatusCallback;
 use flowy_user::services::{UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::tokio_default_runtime;
-
-use flowy_database::entities::LayoutTypePB;
 use lib_infra::future::{to_fut, Fut};
 use module::make_plugins;
 pub use module::*;
@@ -122,7 +121,7 @@ pub struct AppFlowyCore {
   pub config: AppFlowyCoreConfig,
   pub user_session: Arc<UserSession>,
   pub document_manager: Arc<DocumentManager>,
-  pub folder_manager: Arc<FolderManager>,
+  pub folder_manager: Arc<Folder2Manager>,
   pub database_manager: Arc<DatabaseManager>,
   pub event_dispatcher: Arc<AFPluginDispatcher>,
   pub ws_conn: Arc<FlowyWebSocketConnect>,
@@ -162,15 +161,9 @@ impl AppFlowyCore {
         )
         .await;
 
-        let folder_manager = FolderDepsResolver::resolve(
-          local_server.clone(),
-          user_session.clone(),
-          &config.server_config,
-          &ws_conn,
-          &document_manager,
-          &database_manager,
-        )
-        .await;
+        let folder_manager =
+          Folder2DepsResolver::resolve(user_session.clone(), &document_manager, &database_manager)
+            .await;
 
         if let Some(local_server) = local_server.as_ref() {
           local_server.run();
@@ -232,11 +225,11 @@ impl AppFlowyCore {
 fn _start_listening(
   event_dispatcher: &AFPluginDispatcher,
   ws_conn: &Arc<FlowyWebSocketConnect>,
-  folder_manager: &Arc<FolderManager>,
+  folder_manager: &Arc<Folder2Manager>,
 ) {
   let subscribe_network_type = ws_conn.subscribe_network_ty();
   let folder_manager = folder_manager.clone();
-  let cloned_folder_manager = folder_manager;
+  let _cloned_folder_manager = folder_manager;
   let ws_conn = ws_conn.clone();
 
   event_dispatcher.spawn(async move {
@@ -244,7 +237,7 @@ fn _start_listening(
   });
 
   event_dispatcher.spawn(async move {
-    _listen_network_status(subscribe_network_type, cloned_folder_manager).await;
+    _listen_network_status(subscribe_network_type).await;
   });
 }
 
@@ -263,10 +256,7 @@ fn mk_local_server(
   }
 }
 
-async fn _listen_network_status(
-  mut subscribe: broadcast::Receiver<NetworkType>,
-  _core: Arc<FolderManager>,
-) {
+async fn _listen_network_status(mut subscribe: broadcast::Receiver<NetworkType>) {
   while let Ok(_new_type) = subscribe.recv().await {
     // core.network_state_changed(new_type);
   }
@@ -301,7 +291,7 @@ fn mk_user_session(
 
 struct UserStatusListener {
   document_manager: Arc<DocumentManager>,
-  folder_manager: Arc<FolderManager>,
+  folder_manager: Arc<Folder2Manager>,
   database_manager: Arc<DatabaseManager>,
   ws_conn: Arc<FlowyWebSocketConnect>,
   config: AppFlowyCoreConfig,
@@ -315,23 +305,17 @@ impl UserStatusListener {
     let cloned_folder_manager = self.folder_manager.clone();
     let get_views_fn = to_fut(async move {
       cloned_folder_manager
-        .get_current_workspace()
+        .get_current_workspace_views(|layout| layout.is_database())
         .await
-        .map(|workspace| {
-          workspace
-            .apps
-            .items
+        .map(|views| {
+          views
             .into_iter()
-            .flat_map(|app| app.belongings.items)
-            .flat_map(|view| match view.layout {
-              ViewLayoutTypePB::Grid | ViewLayoutTypePB::Board | ViewLayoutTypePB::Calendar => {
-                Some((
-                  view.id,
-                  view.name,
-                  layout_type_from_view_layout(view.layout),
-                ))
-              },
-              _ => None,
+            .map(|view| {
+              (
+                view.id,
+                view.name,
+                layout_type_from_view_layout(view.layout),
+              )
             })
             .collect::<Vec<(String, String, LayoutTypePB)>>()
         })
@@ -349,13 +333,9 @@ impl UserStatusListener {
   }
 
   async fn did_sign_up(&self, user_profile: &UserProfile) -> FlowyResult<()> {
-    let view_data_type = match self.config.document.version {
-      DocumentVersionPB::V0 => ViewDataFormatPB::DeltaFormat,
-      DocumentVersionPB::V1 => ViewDataFormatPB::NodeFormat,
-    };
     self
       .folder_manager
-      .initialize_with_new_user(&user_profile.id, &user_profile.token, view_data_type)
+      .initialize_with_new_user(&user_profile.id)
       .await?;
     self
       .document_manager

@@ -7,23 +7,14 @@ use document_model::document::{
 use flowy_client_sync::errors::SyncError;
 use flowy_document::DocumentCloudService;
 use flowy_error::{internal_error, FlowyError};
-use flowy_folder::entities::{
-  app::{AppIdPB, CreateAppParams, UpdateAppParams},
-  trash::RepeatedTrashIdPB,
-  view::{CreateViewParams, RepeatedViewIdPB, UpdateViewParams, ViewIdPB},
-  workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdPB},
-};
-use flowy_folder::event_map::FolderCouldServiceV1;
 use flowy_server_sync::server_document::ServerDocumentManager;
 use flowy_server_sync::server_folder::ServerFolderManager;
 use flowy_sync::{RevisionSyncResponse, RevisionUser};
 use flowy_user::entities::UserProfilePB;
 use flowy_user::event_map::UserCloudService;
-use folder_model::{
-  gen_app_id, gen_workspace_id, AppRevision, TrashRevision, ViewRevision, WorkspaceRevision,
-};
+
 use futures_util::stream::StreamExt;
-use lib_infra::{future::FutureResult, util::timestamp};
+use lib_infra::future::FutureResult;
 use lib_ws::{WSChannel, WebSocketRawMessage};
 use nanoid::nanoid;
 use parking_lot::RwLock;
@@ -268,130 +259,6 @@ impl RevisionUser for LocalRevisionUser {
         },
       }
     });
-  }
-}
-
-impl FolderCouldServiceV1 for LocalServer {
-  fn init(&self) {}
-
-  fn create_workspace(
-    &self,
-    _token: &str,
-    params: CreateWorkspaceParams,
-  ) -> FutureResult<WorkspaceRevision, FlowyError> {
-    let time = timestamp();
-    let workspace = WorkspaceRevision {
-      id: gen_workspace_id(),
-      name: params.name,
-      desc: params.desc,
-      apps: vec![],
-      modified_time: time,
-      create_time: time,
-    };
-
-    FutureResult::new(async { Ok(workspace) })
-  }
-
-  fn read_workspace(
-    &self,
-    _token: &str,
-    _params: WorkspaceIdPB,
-  ) -> FutureResult<Vec<WorkspaceRevision>, FlowyError> {
-    FutureResult::new(async { Ok(vec![]) })
-  }
-
-  fn update_workspace(
-    &self,
-    _token: &str,
-    _params: UpdateWorkspaceParams,
-  ) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async { Ok(()) })
-  }
-
-  fn delete_workspace(&self, _token: &str, _params: WorkspaceIdPB) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async { Ok(()) })
-  }
-
-  fn create_view(
-    &self,
-    _token: &str,
-    params: CreateViewParams,
-  ) -> FutureResult<ViewRevision, FlowyError> {
-    let time = timestamp();
-    let view = ViewRevision::new(
-      params.view_id,
-      params.belong_to_id,
-      params.name,
-      params.desc,
-      params.data_format.into(),
-      params.layout.into(),
-      time,
-      time,
-    );
-    FutureResult::new(async { Ok(view) })
-  }
-
-  fn read_view(
-    &self,
-    _token: &str,
-    _params: ViewIdPB,
-  ) -> FutureResult<Option<ViewRevision>, FlowyError> {
-    FutureResult::new(async { Ok(None) })
-  }
-
-  fn delete_view(&self, _token: &str, _params: RepeatedViewIdPB) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async { Ok(()) })
-  }
-
-  fn update_view(&self, _token: &str, _params: UpdateViewParams) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async { Ok(()) })
-  }
-
-  fn create_app(
-    &self,
-    _token: &str,
-    params: CreateAppParams,
-  ) -> FutureResult<AppRevision, FlowyError> {
-    let time = timestamp();
-    let app = AppRevision {
-      id: gen_app_id(),
-      workspace_id: params.workspace_id,
-      name: params.name,
-      desc: params.desc,
-      belongings: vec![],
-      version: 0,
-      modified_time: time,
-      create_time: time,
-    };
-    FutureResult::new(async { Ok(app) })
-  }
-
-  fn read_app(
-    &self,
-    _token: &str,
-    _params: AppIdPB,
-  ) -> FutureResult<Option<AppRevision>, FlowyError> {
-    FutureResult::new(async { Ok(None) })
-  }
-
-  fn update_app(&self, _token: &str, _params: UpdateAppParams) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async { Ok(()) })
-  }
-
-  fn delete_app(&self, _token: &str, _params: AppIdPB) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async { Ok(()) })
-  }
-
-  fn create_trash(&self, _token: &str, _params: RepeatedTrashIdPB) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async { Ok(()) })
-  }
-
-  fn delete_trash(&self, _token: &str, _params: RepeatedTrashIdPB) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async { Ok(()) })
-  }
-
-  fn read_trash(&self, _token: &str) -> FutureResult<Vec<TrashRevision>, FlowyError> {
-    FutureResult::new(async { Ok(vec![]) })
   }
 }
 

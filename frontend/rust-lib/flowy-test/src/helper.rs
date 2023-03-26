@@ -1,13 +1,4 @@
 use crate::prelude::*;
-use flowy_folder::entities::WorkspaceIdPB;
-use flowy_folder::{
-  entities::{
-    app::*,
-    view::*,
-    workspace::{CreateWorkspacePayloadPB, WorkspacePB},
-  },
-  event_map::FolderEvent::{CreateWorkspace, OpenWorkspace, *},
-};
 use flowy_user::{
   entities::{SignInPayloadPB, SignUpPayloadPB, UserProfilePB},
   errors::FlowyError,
@@ -15,6 +6,8 @@ use flowy_user::{
 };
 use lib_dispatch::prelude::{AFPluginDispatcher, AFPluginRequest, ToBytes};
 use std::{fs, path::PathBuf, sync::Arc};
+use flowy_folder2::entities::{AppPB, CreateAppPayloadPB, CreateViewPayloadPB, CreateWorkspacePayloadPB, ViewLayoutTypePB, ViewPB, WorkspaceIdPB, WorkspacePB};
+use flowy_folder2::event_map::FolderEvent::{CreateApp, CreateView, CreateWorkspace, OpenWorkspace};
 
 pub struct ViewTest {
   pub sdk: FlowySDKTest,

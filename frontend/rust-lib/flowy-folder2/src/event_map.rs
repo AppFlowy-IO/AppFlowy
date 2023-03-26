@@ -1,12 +1,12 @@
 use crate::event_handler::*;
-use crate::manager::FolderManager;
+use crate::manager::Folder2Manager;
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 
 use lib_dispatch::prelude::*;
 use std::sync::Arc;
 use strum_macros::Display;
 
-pub fn init(folder: Arc<FolderManager>) -> AFPlugin {
+pub fn init(folder: Arc<Folder2Manager>) -> AFPlugin {
   AFPlugin::new().name("Flowy-Folder").state(folder)
     // Workspace
     .event(FolderEvent::CreateWorkspace, create_workspace_handler)

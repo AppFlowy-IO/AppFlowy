@@ -8,7 +8,7 @@ members = [
   "flowy-user",
   "flowy-test",
   "flowy-sqlite",
-  "flowy-folder",
+#  "flowy-folder",
   "flowy-folder2",
   "flowy-notification",
   "flowy-document",

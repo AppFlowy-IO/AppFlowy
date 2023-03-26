@@ -35,3 +35,4 @@ flowy-codegen = { path = "../flowy-codegen"}
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 ts = ["flowy-codegen/ts", "flowy-notification/ts"]
+test_helper = []

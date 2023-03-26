@@ -1,6 +1,6 @@
 use crate::entities::{AppPB, CreateViewParams, CreateWorkspaceParams, UpdateViewParams};
 use crate::notification::{send_notification, FolderNotification};
-use crate::user_default::{gen_workspace_id, DefaultFolderBuilder};
+use crate::user_default::gen_workspace_id;
 use crate::view_ext::{
   gen_view_id, view_from_create_view_params, ViewDataProcessor, ViewDataProcessorMap,
 };
@@ -17,7 +17,6 @@ use parking_lot::Mutex;
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::sync::Arc;
-use tokio::sync::RwLock;
 
 pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -25,16 +24,16 @@ pub trait FolderUser: Send + Sync {
   fn kv_db(&self) -> Result<Arc<CollabKV>, FlowyError>;
 }
 
-pub struct FolderManager {
+pub struct Folder2Manager {
   folder: Folder,
   user: Arc<dyn FolderUser>,
   view_processors: ViewDataProcessorMap,
 }
 
-unsafe impl Send for FolderManager {}
-unsafe impl Sync for FolderManager {}
+unsafe impl Send for Folder2Manager {}
+unsafe impl Sync for Folder2Manager {}
 
-impl FolderManager {
+impl Folder2Manager {
   pub async fn new(
     user: Arc<dyn FolderUser>,
     view_processors: ViewDataProcessorMap,
@@ -81,7 +80,22 @@ impl FolderManager {
     }
   }
 
-  pub async fn initialize_with_new_user(&self, user_id: &str, token: &str) -> FlowyResult<()> {
+  pub async fn get_current_workspace_views<F>(&self, filter: F) -> FlowyResult<Vec<View>>
+  where
+    F: Fn(&ViewLayout) -> bool,
+  {
+    Ok(
+      self
+        .folder
+        .lock()
+        .get_views_belong_to_current_workspace()
+        .into_iter()
+        .filter(|view| filter(&view.layout))
+        .collect::<Vec<_>>(),
+    )
+  }
+
+  pub async fn initialize_with_new_user(&self, user_id: &str) -> FlowyResult<()> {
     // DefaultFolderBuilder::build(self.folder.clone());
     Ok(())
   }

@@ -8,7 +8,7 @@ use flowy_document::editor::make_transaction_from_document_content;
 use flowy_document::DocumentManager;
 use flowy_error::FlowyError;
 
-use flowy_folder2::manager::{FolderManager, FolderUser};
+use flowy_folder2::manager::{Folder2Manager, FolderUser};
 use flowy_folder2::view_ext::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder2::ViewLayout;
 use flowy_user::services::UserSession;
@@ -22,15 +22,15 @@ pub struct Folder2DepsResolver();
 impl Folder2DepsResolver {
   pub async fn resolve(
     user_session: Arc<UserSession>,
-    text_block_manager: &Arc<DocumentManager>,
+    document_manager: &Arc<DocumentManager>,
     database_manager: &Arc<DatabaseManager>,
-  ) -> Arc<FolderManager> {
+  ) -> Arc<Folder2Manager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl(user_session.clone()));
 
     let view_data_processor =
-      make_view_data_processor(text_block_manager.clone(), database_manager.clone());
+      make_view_data_processor(document_manager.clone(), database_manager.clone());
     Arc::new(
-      FolderManager::new(user.clone(), view_data_processor)
+      Folder2Manager::new(user.clone(), view_data_processor)
         .await
         .unwrap(),
     )
@@ -60,7 +60,7 @@ impl FolderUser for FolderUserImpl {
     //   .0
     //   .user_id()
     //   .map_err(|e| FlowyError::internal().context(e))
-    todo!()
+    Ok(123456)
   }
 
   fn token(&self) -> Result<String, FlowyError> {
@@ -249,7 +249,7 @@ impl DatabaseExtParams {
   }
 }
 
-fn layout_type_from_view_layout(layout: ViewLayout) -> LayoutTypePB {
+pub fn layout_type_from_view_layout(layout: ViewLayout) -> LayoutTypePB {
   match layout {
     ViewLayout::Grid => LayoutTypePB::Grid,
     ViewLayout::Board => LayoutTypePB::Board,
