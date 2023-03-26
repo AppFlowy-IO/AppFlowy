@@ -12,6 +12,8 @@ import { ChangeFieldTypePopup } from '$app/components/_shared/EditRow/ChangeFiel
 import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
 import { Some } from 'ts-results';
 import { FieldType } from '@/services/backend';
+import { CellOptions } from '$app/components/_shared/EditRow/CellOptions';
+import { CellOptionsPopup } from '$app/components/_shared/EditRow/CellOptionsPopup';
 
 export const EditRow = ({
   onClose,
@@ -27,36 +29,23 @@ export const EditRow = ({
   const { cells, onNewColumnClick } = useRow(viewId, controller, rowInfo);
   const { t } = useTranslation('');
   const [unveil, setUnveil] = useState(false);
+
+  const [editingCell, setEditingCell] = useState<CellIdentifier | null>(null);
   const [showFieldEditor, setShowFieldEditor] = useState(false);
   const [editFieldTop, setEditFieldTop] = useState(0);
   const [editFieldRight, setEditFieldRight] = useState(0);
+
   const [showChangeFieldTypePopup, setShowChangeFieldTypePopup] = useState(false);
   const [changeFieldTypeTop, setChangeFieldTypeTop] = useState(0);
   const [changeFieldTypeRight, setChangeFieldTypeRight] = useState(0);
-  const [editingCell, setEditingCell] = useState<CellIdentifier | null>(null);
+
+  const [showChangeOptionsPopup, setShowChangeOptionsPopup] = useState(false);
+  const [changeOptionsTop, setChangeOptionsTop] = useState(0);
+  const [changeOptionsLeft, setChangeOptionsLeft] = useState(0);
 
   useEffect(() => {
     setUnveil(true);
   }, []);
-
-  const onEditFieldClick = (cellIdentifier: CellIdentifier, top: number, right: number) => {
-    setEditingCell(cellIdentifier);
-    setEditFieldTop(top);
-    setEditFieldRight(right);
-    setShowFieldEditor(true);
-  };
-
-  const onChangeFieldTypeClick = (buttonTop: number, buttonRight: number) => {
-    setChangeFieldTypeTop(buttonTop);
-    setChangeFieldTypeRight(buttonRight);
-    setShowChangeFieldTypePopup(true);
-  };
-
-  const onOutsideEditFieldClick = () => {
-    if (!showChangeFieldTypePopup) {
-      setShowFieldEditor(false);
-    }
-  };
 
   const onCloseClick = () => {
     setUnveil(false);
@@ -65,7 +54,26 @@ export const EditRow = ({
     }, 300);
   };
 
-  const changeFieldTypeClick = async (newType: FieldType) => {
+  const onEditFieldClick = (cellIdentifier: CellIdentifier, top: number, right: number) => {
+    setEditingCell(cellIdentifier);
+    setEditFieldTop(top);
+    setEditFieldRight(right);
+    setShowFieldEditor(true);
+  };
+
+  const onOutsideEditFieldClick = () => {
+    if (!showChangeFieldTypePopup) {
+      setShowFieldEditor(false);
+    }
+  };
+
+  const onChangeFieldTypeClick = (buttonTop: number, buttonRight: number) => {
+    setChangeFieldTypeTop(buttonTop);
+    setChangeFieldTypeRight(buttonRight);
+    setShowChangeFieldTypePopup(true);
+  };
+
+  const changeFieldType = async (newType: FieldType) => {
     if (!editingCell) return;
 
     const currentField = controller.fieldController.getField(editingCell.fieldId);
@@ -77,6 +85,13 @@ export const EditRow = ({
     setEditingCell(new CellIdentifier(viewId, rowInfo.row.id, editingCell.fieldId, newType));
 
     setShowChangeFieldTypePopup(false);
+  };
+
+  const onEditOptionsClick = async (cellIdentifier: CellIdentifier, left: number, top: number) => {
+    setEditingCell(cellIdentifier);
+    setChangeOptionsLeft(left);
+    setChangeOptionsTop(top);
+    setShowChangeOptionsPopup(true);
   };
 
   return (
@@ -99,9 +114,22 @@ export const EditRow = ({
               cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
               fieldController={controller.fieldController}
               onEditFieldClick={(top: number, right: number) => onEditFieldClick(cell.cellIdentifier, top, right)}
+              onEditOptionsClick={(left: number, top: number) => onEditOptionsClick(cell.cellIdentifier, left, top)}
             ></EditCellWrapper>
           ))}
         </div>
+        <div className={'border-t border-shade-6 pt-2'}>
+          <button
+            onClick={() => onNewColumnClick()}
+            className={'flex w-full items-center gap-2 rounded-lg px-4 py-2 hover:bg-shade-6'}
+          >
+            <i className={'h-5 w-5'}>
+              <AddSvg></AddSvg>
+            </i>
+            <span>{t('grid.field.newColumn')}</span>
+          </button>
+        </div>
+
         {showFieldEditor && editingCell && (
           <EditFieldPopup
             top={editFieldTop}
@@ -117,21 +145,19 @@ export const EditRow = ({
           <ChangeFieldTypePopup
             top={changeFieldTypeTop}
             right={changeFieldTypeRight}
-            onClick={(newType) => changeFieldTypeClick(newType)}
+            onClick={(newType) => changeFieldType(newType)}
             onOutsideClick={() => setShowChangeFieldTypePopup(false)}
           ></ChangeFieldTypePopup>
         )}
-        <div className={'border-t border-shade-6 pt-2'}>
-          <button
-            onClick={() => onNewColumnClick()}
-            className={'flex w-full items-center gap-2 rounded-lg px-4 py-2 hover:bg-shade-6'}
-          >
-            <i className={'h-5 w-5'}>
-              <AddSvg></AddSvg>
-            </i>
-            <span>{t('grid.field.newColumn')}</span>
-          </button>
-        </div>
+        {showChangeOptionsPopup && editingCell && (
+          <CellOptionsPopup
+            top={changeOptionsTop}
+            left={changeOptionsLeft}
+            cellIdentifier={editingCell}
+            cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
+            fieldController={controller.fieldController}
+          ></CellOptionsPopup>
+        )}
       </div>
     </div>
   );

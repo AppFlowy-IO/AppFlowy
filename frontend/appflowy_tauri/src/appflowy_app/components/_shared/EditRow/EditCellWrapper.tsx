@@ -11,17 +11,20 @@ import { EditCellText } from '$app/components/_shared/EditRow/EditCellText';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 import { EditCellDate } from '$app/components/_shared/EditRow/EditCellDate';
 import { useRef } from 'react';
+import { CellOptions } from '$app/components/_shared/EditRow/CellOptions';
 
 export const EditCellWrapper = ({
   cellIdentifier,
   cellCache,
   fieldController,
   onEditFieldClick,
+  onEditOptionsClick,
 }: {
   cellIdentifier: CellIdentifier;
   cellCache: CellCache;
   fieldController: FieldController;
   onEditFieldClick: (top: number, right: number) => void;
+  onEditOptionsClick: (left: number, top: number) => void;
 }) => {
   const { data, cellController } = useCell(cellIdentifier, cellCache, fieldController);
   const databaseStore = useAppSelector((state) => state.database);
@@ -50,15 +53,13 @@ export const EditCellWrapper = ({
       <div className={'flex-1 cursor-pointer rounded-lg px-4 py-2 hover:bg-shade-6'}>
         {(cellIdentifier.fieldType === FieldType.SingleSelect ||
           cellIdentifier.fieldType === FieldType.MultiSelect ||
-          cellIdentifier.fieldType === FieldType.Checklist) && (
-          <div className={'flex items-center gap-2'}>
-            {(data as SelectOptionCellDataPB | undefined)?.select_options?.map((option, index) => (
-              <div className={`${getBgColor(option.color)} rounded px-2 py-0.5`} key={index}>
-                {option?.name || ''}
-              </div>
-            )) || ''}
-          </div>
-        )}
+          cellIdentifier.fieldType === FieldType.Checklist) &&
+          cellController && (
+            <CellOptions
+              data={data as SelectOptionCellDataPB | undefined}
+              onEditClick={onEditOptionsClick}
+            ></CellOptions>
+          )}
 
         {cellIdentifier.fieldType === FieldType.Checkbox && (
           <div className={'h-8 w-8'}>
