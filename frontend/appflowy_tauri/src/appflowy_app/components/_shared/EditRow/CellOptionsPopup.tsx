@@ -52,7 +52,7 @@ export const CellOptionsPopup = ({
       className={`fixed z-10 rounded-lg bg-white px-2 py-2 text-xs shadow-md transition-opacity duration-300 ${
         adjustedTop === -100 ? 'opacity-0' : 'opacity-100'
       }`}
-      style={{ top: `${adjustedTop + 50}px`, left: `${left}px` }}
+      style={{ top: `${adjustedTop + 40}px`, left: `${left}px` }}
     >
       <div className={'flex flex-col gap-2 p-2'}>
         <div className={'border-shades-3 flex flex-1 items-center gap-2 rounded border bg-main-selector px-2 '}>
