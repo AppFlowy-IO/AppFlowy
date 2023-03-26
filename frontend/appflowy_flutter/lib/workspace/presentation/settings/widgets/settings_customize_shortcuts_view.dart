@@ -1,3 +1,5 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcut_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -52,15 +54,15 @@ class ShortcutsListView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          children: const [
+          children: [
             Expanded(
               child: FlowyText.semibold(
-                "Command",
+                LocaleKeys.settings_shortcuts_command.tr(),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             FlowyText.semibold(
-              "Key Binding ",
+              LocaleKeys.settings_shortcuts_keyBinding.tr(),
               overflow: TextOverflow.ellipsis,
             ),
           ],
@@ -97,7 +99,8 @@ class ShortcutsListTile extends StatelessWidget {
           ),
         ),
         FlowyTextButton(
-          shortcutEvent.command ?? 'add new command',
+          shortcutEvent.command ??
+              LocaleKeys.settings_shortcuts_addNewCommand.tr(),
           fillColor: Colors.transparent,
           onPressed: () {
             showKeyListenerDialog(context);
@@ -113,7 +116,7 @@ class ShortcutsListTile extends StatelessWidget {
       builder: (builderContext) {
         final controller = TextEditingController(text: shortcutEvent.command);
         return AlertDialog(
-          title: const Text('Press desired key combination and press Enter'),
+          title: Text(LocaleKeys.settings_shortcuts_updateShorcutStep.tr()),
           content: RawKeyboardListener(
             focusNode: FocusNode(),
             onKey: (key) {
@@ -182,9 +185,9 @@ class ShortcutsErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Expanded(
+        Expanded(
           child: FlowyText.medium(
-            "Could Not Load Shortcuts",
+            LocaleKeys.settings_shortcuts_couldNotLoadShortcuts.tr(),
             overflow: TextOverflow.ellipsis,
           ),
         ),
