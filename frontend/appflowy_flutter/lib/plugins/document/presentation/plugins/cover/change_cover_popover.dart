@@ -284,9 +284,8 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
             );
           },
         );
-      } else {
-        return Container();
       }
+      return Container();
     });
   }
 

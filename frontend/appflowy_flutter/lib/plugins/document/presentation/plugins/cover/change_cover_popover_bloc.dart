@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:appflowy/plugins/document/presentation/plugins/cover/change_cover_popover.dart';
@@ -9,7 +10,13 @@ part 'change_cover_popover_bloc.freezed.dart';
 
 class ChangeCoverPopoverBloc
     extends Bloc<ChangeCoverPopoverEvent, ChangeCoverPopoverState> {
+  late final SharedPreferences _prefs;
+  final _initCompleter = Completer<void>();
   ChangeCoverPopoverBloc() : super(const ChangeCoverPopoverState.initial()) {
+    SharedPreferences.getInstance().then((prefs) {
+      _prefs = prefs;
+      _initCompleter.complete;
+    });
     on<ChangeCoverPopoverEvent>((event, emit) async {
       await event.map(
         fetchPickedImagePaths:
@@ -43,22 +50,16 @@ class ChangeCoverPopoverBloc
   }
 
   Future<List<String>> _getPreviouslyPickedImagePaths() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final imageNames = prefs.getStringList(kLocalImagesKey) ?? [];
-    final removeNames = [];
-    for (final name in imageNames) {
-      if (!File(name).existsSync()) {
-        removeNames.add(name);
-      }
+    final imageNames = _prefs.getStringList(kLocalImagesKey) ?? [];
+    if (imageNames.isEmpty) {
+      return imageNames;
     }
-    imageNames.removeWhere((element) => removeNames.contains(element));
-    prefs.setStringList(kLocalImagesKey, imageNames);
+    imageNames.removeWhere((name) => !File(name).existsSync());
     return imageNames;
   }
 
   Future<void> _updateImagePathsInStorage(List<String> imagePaths) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setStringList(kLocalImagesKey, imagePaths);
+    _prefs.setStringList(kLocalImagesKey, imagePaths);
     return;
   }
 
