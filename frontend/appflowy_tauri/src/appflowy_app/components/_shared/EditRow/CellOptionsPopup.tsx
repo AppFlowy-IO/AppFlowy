@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Details2Svg } from '$app/components/_shared/svg/Details2Svg';
 import { CheckmarkSvg } from '$app/components/_shared/svg/CheckmarkSvg';
 import { CloseSvg } from '$app/components/_shared/svg/CloseSvg';
+import useOutsideClick from '$app/components/_shared/useOutsideClick';
 
 export const CellOptionsPopup = ({
   top,
@@ -16,12 +17,14 @@ export const CellOptionsPopup = ({
   cellIdentifier,
   cellCache,
   fieldController,
+  onOutsideClick,
 }: {
   top: number;
   left: number;
   cellIdentifier: CellIdentifier;
   cellCache: CellCache;
   fieldController: FieldController;
+  onOutsideClick: () => void;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const { t } = useTranslation('');
@@ -38,6 +41,10 @@ export const CellOptionsPopup = ({
       setAdjustedTop(top);
     }
   }, [ref, window, top, left]);
+
+  useOutsideClick(ref, async () => {
+    onOutsideClick();
+  });
 
   return (
     <div

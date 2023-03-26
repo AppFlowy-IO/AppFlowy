@@ -21,12 +21,14 @@ export const EditCellText = ({ data, cellController }: { data: string; cellContr
   };
 
   return (
-    <textarea
-      className={'h-full w-full resize-none'}
-      rows={contentRows}
-      value={value}
-      onChange={(e) => onTextFieldChange(e.target.value)}
-      onBlur={() => save()}
-    />
+    <div className={'px-4 py-2'}>
+      <textarea
+        className={'h-full w-full resize-none'}
+        rows={contentRows}
+        value={value}
+        onChange={(e) => onTextFieldChange(e.target.value)}
+        onBlur={() => save()}
+      />
+    </div>
   );
 };

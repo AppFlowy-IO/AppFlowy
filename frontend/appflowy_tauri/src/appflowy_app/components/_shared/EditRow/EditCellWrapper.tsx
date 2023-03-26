@@ -50,7 +50,7 @@ export const EditCellWrapper = ({
           {databaseStore.fields[cellIdentifier.fieldId].title}
         </span>
       </div>
-      <div className={'flex-1 cursor-pointer rounded-lg px-4 py-2 hover:bg-shade-6'}>
+      <div className={'flex-1 cursor-pointer rounded-lg hover:bg-shade-6'}>
         {(cellIdentifier.fieldType === FieldType.SingleSelect ||
           cellIdentifier.fieldType === FieldType.MultiSelect ||
           cellIdentifier.fieldType === FieldType.Checklist) &&
@@ -62,7 +62,7 @@ export const EditCellWrapper = ({
           )}
 
         {cellIdentifier.fieldType === FieldType.Checkbox && (
-          <div className={'h-8 w-8'}>
+          <div className={'h-8 w-8 px-4 py-2'}>
             {(data as boolean | undefined) ? <EditorCheckSvg></EditorCheckSvg> : <EditorUncheckSvg></EditorUncheckSvg>}
           </div>
         )}

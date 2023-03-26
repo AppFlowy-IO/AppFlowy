@@ -20,5 +20,9 @@ export const EditCellDate = ({
     console.log(v);
   };
 
-  return <Picker value={value} onChange={onChange} useRange={false} asSingle={true}></Picker>;
+  return (
+    <div className={'px-4 py-2'}>
+      <Picker value={value} onChange={onChange} useRange={false} asSingle={true}></Picker>;
+    </div>
+  );
 };

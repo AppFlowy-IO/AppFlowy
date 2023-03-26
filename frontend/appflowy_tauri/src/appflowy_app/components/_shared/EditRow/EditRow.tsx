@@ -118,6 +118,7 @@ export const EditRow = ({
             ></EditCellWrapper>
           ))}
         </div>
+
         <div className={'border-t border-shade-6 pt-2'}>
           <button
             onClick={() => onNewColumnClick()}
@@ -156,6 +157,7 @@ export const EditRow = ({
             cellIdentifier={editingCell}
             cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
             fieldController={controller.fieldController}
+            onOutsideClick={() => setShowChangeOptionsPopup(false)}
           ></CellOptionsPopup>
         )}
       </div>
