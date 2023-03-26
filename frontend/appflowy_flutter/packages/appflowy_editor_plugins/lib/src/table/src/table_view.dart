@@ -1,3 +1,4 @@
+import 'package:appflowy_editor_plugins/src/table/src/table_action.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/src/table/src/table_node.dart';
@@ -35,7 +36,7 @@ class _TableViewState extends State<TableView> {
                   height: widget.tableNode.colsHeight,
                   onPressed: () {
                     final transaction = widget.editorState.transaction;
-                    widget.tableNode.addCol(transaction);
+                    addCol(widget.tableNode.node, transaction);
                     widget.editorState.apply(transaction);
                   },
                 ),
@@ -47,7 +48,7 @@ class _TableViewState extends State<TableView> {
               width: widget.tableNode.tableWidth,
               onPressed: () {
                 final transaction = widget.editorState.transaction;
-                widget.tableNode.addRow(transaction);
+                addRow(widget.tableNode.node, transaction);
                 widget.editorState.apply(transaction);
               },
             ),

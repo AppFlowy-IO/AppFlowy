@@ -17,5 +17,6 @@ export 'src/table/table_const.dart';
 export 'src/table/table_node_widget.dart';
 export 'src/table/table_cell_node_widget_builder.dart';
 export 'src/table/table_shortcut_event.dart';
+export 'src/table/table_context_menu_item.dart';
 
 export 'src/extensions/theme_extension.dart';

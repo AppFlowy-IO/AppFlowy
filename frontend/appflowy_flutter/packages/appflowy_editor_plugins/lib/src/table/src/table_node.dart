@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/src/table/src/table_action.dart';
 import 'package:appflowy_editor_plugins/src/table/src/table_config.dart';
 import 'package:appflowy_editor_plugins/src/table/table_const.dart';
 
@@ -13,31 +14,33 @@ class TableNode {
 
   TableNode({
     required this.node,
-    TableConfig? config,
-  }) : _config =
-            config ?? TableConfig.fromJson(node.attributes['config'] ?? {}) {
+  }) : _config = TableConfig.fromJson(node.attributes['config']) {
     assert(node.type == kTableType);
     assert(node.attributes.containsKey('colsLen'));
     assert(node.attributes['colsLen'] is int);
     assert(node.attributes.containsKey('rowsLen'));
     assert(node.attributes['rowsLen'] is int);
 
-    final int colsLen = node.attributes['colsLen'];
-    final int rowsLen = node.attributes['rowsLen'];
-    assert(node.children.length == colsLen * rowsLen);
+    assert(node.attributes['config']['rowDefaultHeight'] != null);
+    assert(node.attributes['config']['colMinimumWidth'] != null);
+    assert(node.attributes['config']['colDefaultWidth'] != null);
+
+    final int colsCount = node.attributes['colsLen'];
+    final int rowsCount = node.attributes['rowsLen'];
+    assert(node.children.length == colsCount * rowsCount);
     assert(node.children.every((n) => n.attributes.containsKey('position')));
     assert(node.children.every((n) =>
         n.attributes['position'].containsKey('row') &&
         n.attributes['position'].containsKey('col')));
 
-    for (var i = 0; i < colsLen; i++) {
+    for (var i = 0; i < colsCount; i++) {
       _cells.add([]);
-      for (var j = 0; j < rowsLen; j++) {
+      for (var j = 0; j < rowsCount; j++) {
         final cell = node.children.where((n) =>
             n.attributes['position']['col'] == i &&
             n.attributes['position']['row'] == j);
         assert(cell.length == 1);
-        _cells[i].add(newCellNode(cell.first));
+        _cells[i].add(newCellNode(node, cell.first));
       }
     }
   }
@@ -51,9 +54,13 @@ class TableNode {
     assert(cols[0].isNotEmpty);
     assert(cols.every((col) => col.length == cols[0].length));
 
-    Node node = Node(
-        type: kTableType,
-        attributes: {'colsLen': cols.length, 'rowsLen': cols[0].length});
+    config = config ?? const TableConfig();
+
+    Node node = Node(type: kTableType, attributes: {
+      'colsLen': cols.length,
+      'rowsLen': cols[0].length,
+      'config': config.toJson()
+    });
     for (var i = 0; i < cols.length; i++) {
       for (var j = 0; j < cols[0].length; j++) {
         final n = Node(
@@ -70,7 +77,7 @@ class TableNode {
       }
     }
 
-    return TableNode(node: node, config: config);
+    return TableNode(node: node);
   }
 
   Node getCell(int col, row) => _cells[col][row];
@@ -79,7 +86,7 @@ class TableNode {
 
   int get colsLen => _cells.length;
 
-  int get rowsLen => _cells[0].length;
+  int get rowsLen => _cells.isNotEmpty ? _cells[0].length : 0;
 
   double getRowHeight(int row) =>
       double.tryParse(_cells[0][row].attributes['height'].toString()) ??
@@ -121,54 +128,5 @@ class TableNode {
       }
       node.updateAttributes({'colsHeight': colsHeight});
     }
-  }
-
-  addCol(Transaction transaction) {
-    ColumnNode cellNodes = [];
-    for (var i = 0; i < rowsLen; i++) {
-      final node = Node(
-        type: kTableCellType,
-        attributes: {
-          'position': {'col': colsLen, 'row': i}
-        },
-      );
-      node.insert(TextNode.empty());
-
-      cellNodes.add(newCellNode(node));
-    }
-
-    transaction.insertNodes(
-        _cells[colsLen - 1][rowsLen - 1].path.next, cellNodes);
-    _cells.add(cellNodes);
-    node.updateAttributes({'colsLen': colsLen});
-  }
-
-  addRow(Transaction transaction) {
-    int rl = rowsLen;
-    for (var i = 0; i < _cells.length; i++) {
-      final node = Node(
-        type: kTableCellType,
-        attributes: {
-          'position': {'col': i, 'row': rl}
-        },
-      );
-      node.insert(TextNode.empty());
-
-      transaction.insertNode(_cells[i][rl - 1].path.next, node);
-      _cells[i].add(newCellNode(node));
-    }
-    node.updateAttributes({'rowsLen': rowsLen});
-  }
-
-  newCellNode(Node n) {
-    final row = n.attributes['position']['row'] as int;
-
-    if (!n.attributes.containsKey('height')) {
-      double nodeHeight =
-          _cells[0].length > row ? getRowHeight(row) : _config.rowDefaultHeight;
-      n.updateAttributes({'height': nodeHeight});
-    }
-
-    return n;
   }
 }

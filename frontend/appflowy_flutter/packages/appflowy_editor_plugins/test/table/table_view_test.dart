@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/src/table/src/table_action.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:appflowy_editor_plugins/src/table/src/table_node.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -78,6 +79,78 @@ void main() async {
       await tester.pump(const Duration(milliseconds: 300));
 
       expect(tableNode.getRowHeight(0), row0beforeHeight);
+    });
+
+    testWidgets('add column', (tester) async {
+      var tableNode = TableNode.fromList([
+        ['', ''],
+        ['', '']
+      ]);
+      final editor = tester.editor..insert(tableNode.node);
+
+      await editor.startTesting(customBuilders: {
+        kTableType: TableNodeWidgetBuilder(),
+        kTableCellType: TableCellNodeWidgetBuilder()
+      });
+      await tester.pumpAndSettle();
+
+      final transaction = editor.editorState.transaction;
+      addCol(tableNode.node, transaction);
+      editor.editorState.apply(transaction);
+      await tester.pump(const Duration(milliseconds: 100));
+      tableNode = TableNode(node: tableNode.node);
+
+      expect(tableNode.colsLen, 3);
+      expect(
+        tableNode.getCell(2, 1).children.first.toJson(),
+        {
+          "type": "text",
+          "delta": [
+            {
+              "insert": "",
+            }
+          ]
+        },
+      );
+      expect(tableNode.getColWidth(2), tableNode.config.colDefaultWidth);
+    });
+
+    testWidgets('add row', (tester) async {
+      var tableNode = TableNode.fromList([
+        ['', ''],
+        ['', '']
+      ]);
+      final editor = tester.editor..insert(tableNode.node);
+
+      await editor.startTesting(customBuilders: {
+        kTableType: TableNodeWidgetBuilder(),
+        kTableCellType: TableCellNodeWidgetBuilder()
+      });
+      await tester.pumpAndSettle();
+
+      final transaction = editor.editorState.transaction;
+      addRow(tableNode.node, transaction);
+      editor.editorState.apply(transaction);
+      await tester.pump(const Duration(milliseconds: 100));
+      tableNode = TableNode(node: tableNode.node);
+
+      expect(tableNode.rowsLen, 3);
+      expect(
+        tableNode.getCell(0, 2).children.first.toJson(),
+        {
+          "type": "text",
+          "delta": [
+            {
+              "insert": "",
+            }
+          ]
+        },
+      );
+
+      var cell12 = tableNode.node.children.firstWhereOrNull((n) =>
+          n.attributes['position']['col'] == 1 &&
+          n.attributes['position']['row'] == 2)!;
+      expect(tableNode.getRowHeight(2), cell12.children.first.rect.height);
     });
   });
 }

@@ -206,6 +206,8 @@ void main() {
       expect(tableNode.config.colMinimumWidth, config.colMinimumWidth);
       expect(tableNode.config.colDefaultWidth, config.colDefaultWidth);
       expect(tableNode.config.rowDefaultHeight, config.rowDefaultHeight);
+      expect(tableNode.node.attributes['config']['colMinimumWidth'],
+          config.colMinimumWidth);
 
       expect(tableNode.getColWidth(0), config.colDefaultWidth);
       expect(tableNode.getColWidth(1), config.colDefaultWidth);
@@ -295,50 +297,6 @@ void main() {
           tableNode.colsHeight,
           tableNode.config.rowDefaultHeight * 2 +
               tableNode.config.tableBorderWidth * 3);
-    });
-
-    test('addCol', () {
-      final tableNode = TableNode.fromList([
-        ['1', '2'],
-        ['3', '4']
-      ]);
-      tableNode.addCol(Transaction(document: Document.empty()));
-
-      expect(tableNode.colsLen, 3);
-      expect(
-        tableNode.getCell(2, 1).children.first.toJson(),
-        {
-          "type": "text",
-          "delta": [
-            {
-              "insert": "",
-            }
-          ]
-        },
-      );
-      expect(tableNode.getColWidth(2), tableNode.config.colDefaultWidth);
-    });
-
-    test('addRow', () {
-      final tableNode = TableNode.fromList([
-        ['1', '2'],
-        ['3', '4']
-      ]);
-      tableNode.addRow(Transaction(document: Document.empty()));
-
-      expect(tableNode.rowsLen, 3);
-      expect(
-        tableNode.getCell(0, 2).children.first.toJson(),
-        {
-          "type": "text",
-          "delta": [
-            {
-              "insert": "",
-            }
-          ]
-        },
-      );
-      expect(tableNode.getRowHeight(2), tableNode.config.rowDefaultHeight);
     });
   });
 }
