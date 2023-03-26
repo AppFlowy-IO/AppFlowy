@@ -7,13 +7,15 @@ use crate::view_ext::{
 use collab::plugin_impl::disk::CollabDiskPlugin;
 use collab::preclude::CollabBuilder;
 use collab_folder::core::{
-  Folder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashItem, View, ViewChange,
-  ViewChangeReceiver, ViewLayout, Workspace,
+  Folder as InnerFolder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashItem,
+  View, ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
 };
 use collab_persistence::CollabKV;
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::util::timestamp;
+use parking_lot::Mutex;
 use std::collections::HashMap;
+use std::ops::Deref;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -24,7 +26,7 @@ pub trait FolderUser: Send + Sync {
 }
 
 pub struct FolderManager {
-  folder: Arc<RwLock<Folder>>,
+  folder: Folder,
   user: Arc<dyn FolderUser>,
   view_processors: ViewDataProcessorMap,
 }
@@ -51,7 +53,10 @@ impl FolderManager {
       view_change_tx: Some(view_tx),
       trash_change_tx: Some(trash_tx),
     };
-    let folder = Arc::new(RwLock::new(Folder::create(collab, folder_context)));
+    let folder = Folder(Arc::new(Mutex::new(InnerFolder::create(
+      collab,
+      folder_context,
+    ))));
     listen_on_trash_change(trash_rx, folder.clone());
     listen_on_view_change(view_rx, folder.clone());
     let manager = Self {
@@ -70,14 +75,14 @@ impl FolderManager {
   }
 
   pub async fn get_current_workspace(&self) -> FlowyResult<Workspace> {
-    match self.folder.read().await.get_current_workspace() {
+    match self.folder.lock().get_current_workspace() {
       None => Err(FlowyError::record_not_found().context("Can not find the workspace")),
       Some(workspace) => Ok(workspace),
     }
   }
 
   pub async fn initialize_with_new_user(&self, user_id: &str, token: &str) -> FlowyResult<()> {
-    DefaultFolderBuilder::build(self.folder.clone());
+    // DefaultFolderBuilder::build(self.folder.clone());
     Ok(())
   }
 
@@ -94,44 +99,29 @@ impl FolderManager {
       belongings: Default::default(),
       created_at: timestamp(),
     };
-    self
-      .folder
-      .read()
-      .await
-      .workspaces
-      .create_workspace(workspace.clone());
-    self
-      .folder
-      .read()
-      .await
-      .set_current_workspace(&workspace.id);
+    let folder = self.folder.lock();
+    folder.workspaces.create_workspace(workspace.clone());
+    folder.set_current_workspace(&workspace.id);
     Ok(workspace)
   }
 
   pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<Workspace> {
-    let workspace = self
-      .folder
-      .read()
-      .await
+    let folder = self.folder.lock();
+    let workspace = folder
       .workspaces
       .get_workspace(workspace_id)
       .ok_or_else(|| FlowyError::record_not_found().context("Can't open not existing workspace"))?;
+    folder.set_current_workspace(workspace_id);
 
-    self.folder.read().await.set_current_workspace(workspace_id);
     Ok(workspace)
   }
 
   pub async fn get_workspace(&self, workspace_id: &str) -> Option<Workspace> {
-    self
-      .folder
-      .read()
-      .await
-      .workspaces
-      .get_workspace(workspace_id)
+    self.folder.lock().workspaces.get_workspace(workspace_id)
   }
 
   pub async fn get_all_workspaces(&self) -> Vec<Workspace> {
-    self.folder.read().await.workspaces.get_all_workspaces()
+    self.folder.lock().workspaces.get_all_workspaces()
   }
 
   pub async fn create_view_with_params(&self, params: CreateViewParams) -> FlowyResult<View> {
@@ -167,14 +157,14 @@ impl FolderManager {
       },
     }
     let view = view_from_create_view_params(params, view_layout);
-    self.folder.read().await.views.insert_view(view.clone());
+    self.folder.lock().views.insert_view(view.clone());
     Ok(view)
   }
 
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub(crate) async fn close_view(&self, view_id: &str) -> Result<(), FlowyError> {
     let view =
-      self.folder.read().await.views.get_view(view_id).ok_or(
+      self.folder.lock().views.get_view(view_id).ok_or(
         FlowyError::record_not_found().context("Can't find the view when closing the view"),
       )?;
     let processor = self.get_data_processor(&view.layout)?;
@@ -206,7 +196,7 @@ impl FolderManager {
 
   #[tracing::instrument(level = "debug", skip(self, view_id), err)]
   pub async fn get_view(&self, view_id: &str) -> FlowyResult<View> {
-    match self.folder.read().await.views.get_view(view_id) {
+    match self.folder.lock().views.get_view(view_id) {
       None => Err(FlowyError::record_not_found()),
       Some(view) => Ok(view),
     }
@@ -214,13 +204,13 @@ impl FolderManager {
 
   #[tracing::instrument(level = "debug", skip(self, view_id), err)]
   pub async fn delete_view(&self, view_id: &str) -> FlowyResult<()> {
-    self.folder.read().await.views.delete_views(vec![view_id]);
+    self.folder.lock().views.delete_views(vec![view_id]);
     Ok(())
   }
 
   #[tracing::instrument(level = "debug", skip(self, view_id), err)]
   pub async fn move_view_to_trash(&self, view_id: &str) -> FlowyResult<()> {
-    let folder = self.folder.read().await;
+    let folder = self.folder.lock();
     folder.trash.add_trash(TrashItem {
       id: view_id.to_string(),
       created_at: timestamp(),
@@ -239,8 +229,7 @@ impl FolderManager {
   pub async fn move_view(&self, bid: &str, from: usize, to: usize) -> FlowyResult<()> {
     self
       .folder
-      .read()
-      .await
+      .lock()
       .belongings
       .move_belonging(bid, from as u32, to as u32);
     Ok(())
@@ -248,25 +237,16 @@ impl FolderManager {
 
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn get_workspace_views(&self) -> FlowyResult<Vec<View>> {
-    let workspace = self
-      .folder
-      .read()
-      .await
+    let folder = self.folder.lock();
+    let workspace = folder
       .get_current_workspace()
       .ok_or_else(|| FlowyError::record_not_found())?;
-    Ok(
-      self
-        .folder
-        .read()
-        .await
-        .views
-        .get_views_belong_to(&workspace.id),
-    )
+    Ok(folder.views.get_views_belong_to(&workspace.id))
   }
 
   #[tracing::instrument(level = "debug", skip(self, bid), err)]
   pub async fn get_views_belong_to(&self, bid: &str) -> FlowyResult<Vec<View>> {
-    let views = self.folder.read().await.views.get_views_belong_to(bid);
+    let views = self.folder.lock().views.get_views_belong_to(bid);
     Ok(views)
   }
 
@@ -274,8 +254,7 @@ impl FolderManager {
   pub async fn update_view_with_params(&self, params: UpdateViewParams) -> FlowyResult<View> {
     let view = self
       .folder
-      .read()
-      .await
+      .lock()
       .views
       .update_view(&params.view_id, |update| {
         update
@@ -293,8 +272,7 @@ impl FolderManager {
   pub(crate) async fn duplicate_view(&self, view_id: &str) -> Result<(), FlowyError> {
     let view = self
       .folder
-      .read()
-      .await
+      .lock()
       .views
       .get_view(view_id)
       .ok_or(FlowyError::record_not_found().context("Can't duplicate the view"))?;
@@ -321,41 +299,41 @@ impl FolderManager {
 
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub(crate) async fn set_current_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    self.folder.read().await.set_current_view(view_id);
+    self.folder.lock().set_current_view(view_id);
     Ok(())
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn get_current_view(&self) -> Option<View> {
-    let view_id = self.folder.read().await.get_current_view()?;
-    self.folder.read().await.views.get_view(&view_id)
+    let view_id = self.folder.lock().get_current_view()?;
+    self.folder.lock().views.get_view(&view_id)
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn get_all_trash(&self) -> Vec<TrashInfo> {
-    self.folder.read().await.trash.get_all_trash()
+    self.folder.lock().trash.get_all_trash()
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn restore_all_trash(&self) {
-    self.folder.read().await.trash.clear();
+    self.folder.lock().trash.clear();
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn restore_trash(&self, trash_id: &str) {
-    self.folder.read().await.trash.delete_trash(trash_id);
+    self.folder.lock().trash.delete_trash(trash_id);
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn delete_trash(&self, trash_id: &str) {
-    let folder = self.folder.read().await;
+    let folder = self.folder.lock();
     folder.trash.delete_trash(trash_id);
     folder.views.delete_views(vec![trash_id]);
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn delete_all_trash(&self) {
-    let folder = self.folder.read().await;
+    let folder = self.folder.lock();
     let trash = folder.trash.get_all_trash();
     folder.trash.clear();
     folder.views.delete_views(trash);
@@ -375,7 +353,7 @@ impl FolderManager {
   }
 }
 
-fn listen_on_view_change(mut rx: ViewChangeReceiver, folder: Arc<RwLock<Folder>>) {
+fn listen_on_view_change(mut rx: ViewChangeReceiver, folder: Folder) {
   tokio::spawn(async move {
     while let Ok(value) = rx.recv().await {
       match value {
@@ -393,7 +371,7 @@ fn listen_on_view_change(mut rx: ViewChangeReceiver, folder: Arc<RwLock<Folder>>
   });
 }
 
-fn listen_on_trash_change(mut rx: TrashChangeReceiver, folder: Arc<RwLock<Folder>>) {
+fn listen_on_trash_change(mut rx: TrashChangeReceiver, folder: Folder) {
   tokio::spawn(async move {
     while let Ok(value) = rx.recv().await {
       match value {
@@ -404,10 +382,9 @@ fn listen_on_trash_change(mut rx: TrashChangeReceiver, folder: Arc<RwLock<Folder
   });
 }
 
-async fn notify_view_did_change(folder: Arc<RwLock<Folder>>, view_id: &str) {
+async fn notify_view_did_change(folder: Folder, view_id: &str) {
+  let folder = folder.lock();
   let trash_ids = folder
-    .read()
-    .await
     .trash
     .get_all_trash()
     .into_iter()
@@ -415,13 +392,12 @@ async fn notify_view_did_change(folder: Arc<RwLock<Folder>>, view_id: &str) {
     .collect::<Vec<String>>();
 
   let views = folder
-    .read()
-    .await
     .views
     .get_views_belong_to(view_id)
     .into_iter()
     .filter(|view| !trash_ids.contains(&view.id))
     .collect::<Vec<View>>();
+  drop(folder);
 
   let app = AppPB {
     id: view_id.to_string(),
@@ -449,3 +425,16 @@ impl AsRef<str> for FolderId {
     &self.0
   }
 }
+#[derive(Clone)]
+pub struct Folder(Arc<Mutex<InnerFolder>>);
+
+impl Deref for Folder {
+  type Target = Arc<Mutex<InnerFolder>>;
+  fn deref(&self) -> &Self::Target {
+    &self.0
+  }
+}
+
+unsafe impl Sync for Folder {}
+
+unsafe impl Send for Folder {}
