@@ -11,6 +11,7 @@ lib-log = { path = "../lib-log" }
 flowy-user = { path = "../flowy-user" }
 flowy-net = { path = "../flowy-net" }
 flowy-folder = { path = "../flowy-folder" }
+flowy-folder2 = { path = "../flowy-folder2" }
 flowy-database = { path = "../flowy-database" }
 database-model = { path = "../../../shared-lib/database-model" }
 user-model = { path = "../../../shared-lib/user-model" }
@@ -20,6 +21,7 @@ flowy-document = { path = "../flowy-document" }
 flowy-revision = { path = "../flowy-revision" }
 flowy-error = { path = "../flowy-error", features = ["adaptor_ws"] }
 flowy-task = { path = "../flowy-task" }
+collab-persistence= { path = "../../../../../Documents/proj/appflowy-collab/collab-persistence" }
 
 tracing = { version = "0.1", features = ["log"] }
 futures-core = { version = "0.3", default-features = false }
@@ -45,6 +47,7 @@ dart = [
     "flowy-user/dart",
     "flowy-net/dart",
     "flowy-folder/dart",
+    "flowy-folder2/dart",
     "flowy-database/dart",
     "flowy-document/dart",
 ]
@@ -52,6 +55,7 @@ ts = [
     "flowy-user/ts",
     "flowy-net/ts",
     "flowy-folder/ts",
+    "flowy-folder2/ts",
     "flowy-database/ts",
     "flowy-document/ts",
 ]

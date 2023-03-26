@@ -1,16 +1,9 @@
-use crate::{
-  entities::parser::{
-    app::{AppColorStyle, AppIdentify, AppName},
-    workspace::WorkspaceIdentify,
-  },
-  entities::view::RepeatedViewPB,
-  errors::ErrorCode,
-  impl_def_and_def_mut,
-};
+use crate::entities::parser::app::{AppColorStyle, AppIdentify, AppName};
+use crate::entities::parser::workspace::WorkspaceIdentify;
+use crate::entities::RepeatedViewPB;
 use collab_folder::core::View;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use folder_model::AppRevision;
 use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]

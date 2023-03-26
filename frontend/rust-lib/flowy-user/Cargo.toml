@@ -13,6 +13,7 @@ user-model = { path = "../../../shared-lib/user-model" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-notification = { path = "../flowy-notification" }
 lib-dispatch = { path = "../lib-dispatch" }
+collab-persistence= { path = "../../../../../Documents/proj/appflowy-collab/collab-persistence" }
 
 tracing = { version = "0.1", features = ["log"] }
 bytes = "1.4"

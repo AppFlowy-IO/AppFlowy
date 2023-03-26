@@ -1,4 +1,4 @@
-use crate::entities::{CreateViewParams, ViewDataFormatPB, ViewLayoutTypePB, ViewPB};
+use crate::entities::{CreateViewParams, ViewLayoutTypePB, ViewPB};
 use bytes::Bytes;
 use collab_folder::core::{View, ViewLayout};
 use flowy_error::FlowyError;
@@ -39,8 +39,6 @@ pub trait ViewDataProcessor {
     layout: ViewLayout,
     ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError>;
-
-  fn data_types(&self) -> Vec<ViewDataFormatPB>;
 }
 
 pub type ViewDataProcessorMap = Arc<HashMap<ViewLayout, Arc<dyn ViewDataProcessor + Send + Sync>>>;
@@ -66,7 +64,7 @@ pub fn view_from_create_view_params(params: CreateViewParams, layout: ViewLayout
     belongings: Default::default(),
     created_at: time,
     layout,
-    visible: true,
+    database_id: None,
   }
 }
 pub fn gen_view_id() -> String {

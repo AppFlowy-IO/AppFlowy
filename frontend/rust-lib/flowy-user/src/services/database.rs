@@ -1,3 +1,4 @@
+use collab_persistence::CollabKV;
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{schema::user_table, DBConnection, Database};
@@ -50,6 +51,34 @@ impl UserDB {
     Ok(pool)
   }
 
+  fn open_kv_db_if_need(&self, user_id: &str) -> Result<Arc<CollabKV>, FlowyError> {
+    if user_id.is_empty() {
+      return Err(ErrorCode::UserIdIsEmpty.into());
+    }
+
+    if let Some(kv) = KVDB_MAP.read().get(user_id) {
+      return Ok(kv.clone());
+    }
+
+    let mut write_guard = KVDB_MAP.write();
+    // The Write guard acquire exclusive access that will guarantee the user db only initialize once.
+    match write_guard.get(user_id) {
+      None => {},
+      Some(kv) => return Ok(kv.clone()),
+    }
+
+    let mut dir = PathBuf::new();
+    dir.push(&self.db_dir);
+    dir.push(user_id);
+
+    tracing::trace!("open kv db {} at path: {:?}", user_id, dir);
+    let kv_db = CollabKV::open(dir).map_err(|err| FlowyError::internal().context(err))?;
+    let kv_db = Arc::new(kv_db);
+    write_guard.insert(user_id.to_owned(), kv_db.clone());
+    drop(write_guard);
+    Ok(kv_db)
+  }
+
   pub(crate) fn close_user_db(&self, user_id: &str) -> Result<(), FlowyError> {
     match DB_MAP.try_write_for(Duration::from_millis(300)) {
       None => Err(FlowyError::internal().context("Acquire write lock to close user db failed")),
@@ -69,10 +98,16 @@ impl UserDB {
     let pool = self.open_user_db_if_need(user_id)?;
     Ok(pool)
   }
+
+  pub(crate) fn get_kv_db(&self, user_id: &str) -> Result<Arc<CollabKV>, FlowyError> {
+    let kv_db = self.open_kv_db_if_need(user_id)?;
+    Ok(kv_db)
+  }
 }
 
 lazy_static! {
   static ref DB_MAP: RwLock<HashMap<String, Database>> = RwLock::new(HashMap::new());
+  static ref KVDB_MAP: RwLock<HashMap<String, Arc<CollabKV>>> = RwLock::new(HashMap::new());
 }
 
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]

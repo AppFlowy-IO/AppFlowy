@@ -1,16 +1,11 @@
-use crate::view_ext::gen_view_id;
-use crate::{
-  entities::parser::{
-    app::AppIdentify,
-    view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail},
-  },
-  errors::ErrorCode,
-  impl_def_and_def_mut,
+use crate::entities::parser::{
+  app::AppIdentify,
+  view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail},
 };
+use crate::view_ext::gen_view_id;
 use collab_folder::core::{View, ViewLayout};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use folder_model::{gen_view_id, ViewDataFormatRevision, ViewLayoutTypeRevision, ViewRevision};
 use std::collections::HashMap;
 use std::convert::TryInto;
 
@@ -45,43 +40,6 @@ impl std::convert::From<View> for ViewPB {
 }
 
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone)]
-pub enum ViewDataFormatPB {
-  /// Indicate this view is using `Delta` for the persistence data format, it's deprecated.
-  DeltaFormat = 0,
-  /// Indicate this view is using `Database` for the persistence data format. It is used in AppFlowy database
-  /// views including Grid,Board, and Calendar.
-  DatabaseFormat = 1,
-  /// Indicate this view is using `Node` for the persistence data format. It is used in AppFlowy document
-  NodeFormat = 2,
-}
-
-impl std::default::Default for ViewDataFormatPB {
-  fn default() -> Self {
-    ViewDataFormatRevision::default().into()
-  }
-}
-
-impl std::convert::From<ViewDataFormatRevision> for ViewDataFormatPB {
-  fn from(rev: ViewDataFormatRevision) -> Self {
-    match rev {
-      ViewDataFormatRevision::DeltaFormat => ViewDataFormatPB::DeltaFormat,
-      ViewDataFormatRevision::DatabaseFormat => ViewDataFormatPB::DatabaseFormat,
-      ViewDataFormatRevision::NodeFormat => ViewDataFormatPB::NodeFormat,
-    }
-  }
-}
-
-impl std::convert::From<ViewDataFormatPB> for ViewDataFormatRevision {
-  fn from(ty: ViewDataFormatPB) -> Self {
-    match ty {
-      ViewDataFormatPB::DeltaFormat => ViewDataFormatRevision::DeltaFormat,
-      ViewDataFormatPB::DatabaseFormat => ViewDataFormatRevision::DatabaseFormat,
-      ViewDataFormatPB::NodeFormat => ViewDataFormatRevision::NodeFormat,
-    }
-  }
-}
-
-#[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone)]
 pub enum ViewLayoutTypePB {
   Document = 0,
   Grid = 3,
@@ -106,24 +64,11 @@ impl std::convert::From<ViewLayout> for ViewLayoutTypePB {
   }
 }
 
-impl std::convert::From<ViewLayoutTypePB> for ViewLayout {
-  fn from(rev: ViewLayoutTypePB) -> Self {
-    match rev {
-      ViewLayoutTypePB::Grid => ViewLayout::Grid,
-      ViewLayoutTypePB::Board => ViewLayout::Board,
-      ViewLayoutTypePB::Document => ViewLayout::Document,
-      ViewLayoutTypePB::Calendar => ViewLayout::Calendar,
-    }
-  }
-}
-
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
 pub struct RepeatedViewPB {
   #[pb(index = 1)]
   pub items: Vec<ViewPB>,
 }
-
-impl_def_and_def_mut!(RepeatedViewPB, ViewPB);
 
 impl std::convert::From<Vec<View>> for RepeatedViewPB {
   fn from(views: Vec<View>) -> Self {
@@ -192,15 +137,6 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
       initial_data: self.initial_data,
       ext: self.ext,
     })
-  }
-}
-
-pub fn data_format_from_layout(layout: &ViewLayoutTypePB) -> ViewDataFormatPB {
-  match layout {
-    ViewLayoutTypePB::Document => ViewDataFormatPB::NodeFormat,
-    ViewLayoutTypePB::Grid => ViewDataFormatPB::DatabaseFormat,
-    ViewLayoutTypePB::Board => ViewDataFormatPB::DatabaseFormat,
-    ViewLayoutTypePB::Calendar => ViewDataFormatPB::DatabaseFormat,
   }
 }
 

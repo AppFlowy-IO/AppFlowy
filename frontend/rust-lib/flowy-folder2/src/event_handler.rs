@@ -9,7 +9,7 @@ use flowy_error::FlowyError;
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use std::sync::Arc;
 
-#[tracing::instrument(level = "debug", skip(data, controller), err)]
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn create_workspace_handler(
   data: AFPluginData<CreateWorkspacePayloadPB>,
   folder: AFPluginState<Arc<FolderManager>>,
@@ -19,27 +19,26 @@ pub(crate) async fn create_workspace_handler(
   data_result_ok(workspace.into())
 }
 
-#[tracing::instrument(level = "debug", skip(controller), err)]
+#[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_workspace_apps_handler(
   folder: AFPluginState<Arc<FolderManager>>,
 ) -> DataResult<RepeatedAppPB, FlowyError> {
   let views = folder.get_workspace_views().await?;
   let mut repeated_app = RepeatedAppPB { items: vec![] };
   for view in views.into_iter() {
-    if let Some(child_views) = folder.get_views_belong_to(&view.id).await {
-      repeated_app.items.push(AppPB {
-        id: view.id,
-        workspace_id: view.bid,
-        name: view.name,
-        belongings: child_views.into(),
-        create_time: view.created_at,
-      })
-    }
+    let child_views = folder.get_views_belong_to(&view.id).await?;
+    repeated_app.items.push(AppPB {
+      id: view.id,
+      workspace_id: view.bid,
+      name: view.name,
+      belongings: child_views.into(),
+      create_time: view.created_at,
+    })
   }
   data_result_ok(repeated_app)
 }
 
-#[tracing::instrument(level = "debug", skip(data, controller), err)]
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn open_workspace_handler(
   data: AFPluginData<WorkspaceIdPB>,
   folder: AFPluginState<Arc<FolderManager>>,
@@ -49,7 +48,8 @@ pub(crate) async fn open_workspace_handler(
     None => Err(FlowyError::workspace_id().context("workspace id should not be empty")),
     Some(workspace_id) => {
       let workspace = folder.open_workspace(&workspace_id).await?;
-      data_result_ok(workspace.into())
+      let workspace_pb: WorkspacePB = workspace.into();
+      data_result_ok(workspace_pb)
     },
   }
 }
@@ -68,10 +68,7 @@ pub(crate) async fn read_workspaces_handler(
       .map(|workspace| vec![workspace])
       .unwrap_or_default(),
   };
-  let repeated_workspace = RepeatedWorkspacePB {
-    items: workspaces.into(),
-  };
-  data_result_ok(repeated_workspace)
+  data_result_ok(workspaces.into())
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
@@ -101,10 +98,10 @@ pub(crate) async fn read_view_handler(
 ) -> DataResult<ViewPB, FlowyError> {
   let view_id: ViewIdPB = data.into_inner();
   let view = folder.get_view(&view_id.value).await?;
-  data_result_ok(view.into(0))
+  data_result_ok(view.into())
 }
 
-#[tracing::instrument(level = "debug", skip(data, controller), err)]
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn update_view_handler(
   data: AFPluginData<UpdateViewPayloadPB>,
   folder: AFPluginState<Arc<FolderManager>>,
@@ -130,7 +127,7 @@ pub(crate) async fn set_latest_view_handler(
   folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {
   let view_id: ViewIdPB = data.into_inner();
-  let _ = folder.set_current_view(&view_id.value)?;
+  let _ = folder.set_current_view(&view_id.value);
   Ok(())
 }
 
@@ -155,7 +152,7 @@ pub(crate) async fn move_item_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, controller), err)]
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn duplicate_view_handler(
   data: AFPluginData<ViewPB>,
   folder: AFPluginState<Arc<FolderManager>>,
@@ -165,15 +162,15 @@ pub(crate) async fn duplicate_view_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(controller), err)]
+#[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_trash_handler(
   folder: AFPluginState<Arc<FolderManager>>,
 ) -> DataResult<RepeatedTrashPB, FlowyError> {
-  let trash = folder.get_all_trash();
+  let trash = folder.get_all_trash().await;
   data_result_ok(trash.into())
 }
 
-#[tracing::instrument(level = "debug", skip(identifier, controller), err)]
+#[tracing::instrument(level = "debug", skip(identifier, folder), err)]
 pub(crate) async fn putback_trash_handler(
   identifier: AFPluginData<TrashIdPB>,
   folder: AFPluginState<Arc<FolderManager>>,
@@ -182,7 +179,7 @@ pub(crate) async fn putback_trash_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(identifiers, controller), err)]
+#[tracing::instrument(level = "debug", skip(identifiers, folder), err)]
 pub(crate) async fn delete_trash_handler(
   identifiers: AFPluginData<RepeatedTrashIdPB>,
   folder: AFPluginState<Arc<FolderManager>>,
@@ -194,7 +191,7 @@ pub(crate) async fn delete_trash_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(controller), err)]
+#[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn restore_all_trash_handler(
   folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {
@@ -202,7 +199,7 @@ pub(crate) async fn restore_all_trash_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(controller), err)]
+#[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn delete_all_trash_handler(
   folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {

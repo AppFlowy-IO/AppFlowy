@@ -1,7 +1,11 @@
-mod entities;
-mod event_handler;
+pub mod entities;
+pub mod event_handler;
 mod event_map;
 pub mod manager;
 mod notification;
 mod user_default;
-mod view_ext;
+pub mod view_ext;
+
+pub mod protobuf;
+
+pub use collab_folder::core::ViewLayout;

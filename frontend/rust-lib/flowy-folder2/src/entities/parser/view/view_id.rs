@@ -1,4 +1,4 @@
-use crate::errors::ErrorCode;
+use flowy_error::ErrorCode;
 
 #[derive(Debug)]
 pub struct ViewIdentify(pub String);

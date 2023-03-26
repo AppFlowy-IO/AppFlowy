@@ -1161,6 +1161,7 @@ name = "flowy-core"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "collab-persistence",
  "console-subscriber",
  "database-model",
  "flowy-client-ws",
@@ -1168,6 +1169,7 @@ dependencies = [
  "flowy-document",
  "flowy-error",
  "flowy-folder",
+ "flowy-folder2",
  "flowy-net",
  "flowy-revision",
  "flowy-sqlite",
@@ -1376,12 +1378,16 @@ dependencies = [
  "flowy-codegen",
  "flowy-derive",
  "flowy-error",
+ "flowy-folder2",
  "flowy-notification",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
  "nanoid",
  "parking_lot 0.12.1",
+ "protobuf",
+ "strum",
+ "strum_macros",
  "tokio",
  "tracing",
  "unicode-segmentation",
@@ -1583,6 +1589,7 @@ name = "flowy-user"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "collab-persistence",
  "diesel",
  "diesel_derives",
  "flowy-codegen",

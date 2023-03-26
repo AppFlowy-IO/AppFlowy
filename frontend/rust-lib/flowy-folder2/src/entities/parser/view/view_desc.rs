@@ -1,4 +1,4 @@
-use crate::errors::ErrorCode;
+use flowy_error::ErrorCode;
 use unicode_segmentation::UnicodeSegmentation;
 
 #[derive(Debug)]

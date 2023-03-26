@@ -1,15 +1,10 @@
-use crate::entities::{
-  app::{AppIdPB, CreateAppParams, UpdateAppParams},
-  trash::RepeatedTrashIdPB,
-  view::{CreateViewParams, RepeatedViewIdPB, UpdateViewParams, ViewIdPB},
-  workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdPB},
-};
 use crate::event_handler::*;
 use crate::manager::FolderManager;
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
-use flowy_error::FlowyError;
+
 use lib_dispatch::prelude::*;
 use std::sync::Arc;
+use strum_macros::Display;
 
 pub fn init(folder: Arc<FolderManager>) -> AFPlugin {
   let mut plugin = AFPlugin::new().name("Flowy-Folder").state(folder.clone())

@@ -3,10 +3,11 @@ use chrono::Utc;
 use collab_folder::core::{Belongings, Folder, FolderData, View, ViewLayout, Workspace};
 use nanoid::nanoid;
 use std::sync::Arc;
+use tokio::sync::RwLock;
 
 pub struct DefaultFolderBuilder();
 impl DefaultFolderBuilder {
-  pub fn build(folder: Arc<Folder>) {
+  pub async fn build(folder: Arc<RwLock<Folder>>) {
     let time = Utc::now().timestamp();
     let workspace_id = gen_workspace_id();
     let view_id = gen_view_id();
@@ -20,6 +21,7 @@ impl DefaultFolderBuilder {
       belongings: Default::default(),
       created_at: time,
       layout: ViewLayout::Document,
+      database_id: None,
     };
 
     let view = View {
@@ -30,6 +32,7 @@ impl DefaultFolderBuilder {
       belongings: Belongings::new(vec![child_view.id.clone()]),
       created_at: time,
       layout: ViewLayout::Document,
+      database_id: None,
     };
 
     let workspace = Workspace {
@@ -46,7 +49,7 @@ impl DefaultFolderBuilder {
       views: vec![view, child_view],
     };
 
-    folder.create_with_data(data);
+    folder.read().await.create_with_data(data);
   }
 }
 

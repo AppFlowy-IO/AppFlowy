@@ -1,7 +1,6 @@
 use crate::{
   entities::parser::workspace::{WorkspaceDesc, WorkspaceIdentify, WorkspaceName},
   entities::{app::RepeatedAppPB, view::ViewPB},
-  errors::*,
 };
 use collab_folder::core::Workspace;
 use flowy_derive::ProtoBuf;
@@ -38,6 +37,17 @@ impl std::convert::From<Workspace> for WorkspacePB {
 pub struct RepeatedWorkspacePB {
   #[pb(index = 1)]
   pub items: Vec<WorkspacePB>,
+}
+
+impl From<Vec<Workspace>> for RepeatedWorkspacePB {
+  fn from(workspaces: Vec<Workspace>) -> Self {
+    Self {
+      items: workspaces
+        .into_iter()
+        .map(|workspace| workspace.into())
+        .collect::<Vec<WorkspacePB>>(),
+    }
+  }
 }
 
 #[derive(ProtoBuf, Default)]

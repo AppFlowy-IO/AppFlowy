@@ -59,12 +59,6 @@ pub struct TrashIdPB {
   pub id: String,
 }
 
-impl std::fmt::Display for TrashIdPB {
-  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    f.write_str(&format!("{:?}:{}", self.ty, self.id))
-  }
-}
-
 impl std::convert::From<&TrashInfo> for TrashIdPB {
   fn from(trash_info: &TrashInfo) -> Self {
     TrashIdPB {
