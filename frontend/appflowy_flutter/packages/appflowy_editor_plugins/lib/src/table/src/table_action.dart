@@ -42,6 +42,28 @@ addRow(Node tableNode, Transaction transaction) {
   transaction.updateNode(tableNode, {'rowsLen': rowsLen + 1});
 }
 
+removeCol(Node tableNode, int col, Transaction transaction) {
+  final int rowsLen = tableNode.attributes['rowsLen'],
+      colsLen = tableNode.attributes['colsLen'];
+  List<Node> nodes = [];
+  for (var i = 0; i < rowsLen; i++) {
+    nodes.add(getNode(tableNode, col, i));
+  }
+  transaction.deleteNodes(nodes);
+  transaction.updateNode(tableNode, {'colsLen': colsLen - 1});
+}
+
+removeRow(Node tableNode, int row, Transaction transaction) {
+  final int rowsLen = tableNode.attributes['rowsLen'],
+      colsLen = tableNode.attributes['colsLen'];
+  List<Node> nodes = [];
+  for (var i = 0; i < colsLen; i++) {
+    nodes.add(getNode(tableNode, i, row));
+  }
+  transaction.deleteNodes(nodes);
+  transaction.updateNode(tableNode, {'rowsLen': rowsLen - 1});
+}
+
 newCellNode(Node tableNode, n) {
   final row = n.attributes['position']['row'] as int;
   final int rowsLen = tableNode.attributes['rowsLen'];

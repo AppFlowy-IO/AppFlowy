@@ -8,32 +8,56 @@ final tableContextMenuItems = [
       name: 'Add Column',
       isApplicable: isSelectionInTable,
       onPressed: (editorState) {
-        var node = getTableNode(editorState);
-        addColHandler(node, editorState);
+        var tableNode = getTableCellNode(editorState).parent!;
+        final transaction = editorState.transaction;
+        addCol(tableNode, transaction);
+        editorState.apply(transaction);
       },
     ),
     ContextMenuItem(
       name: 'Add Row',
       isApplicable: isSelectionInTable,
       onPressed: (editorState) {
-        var node = getTableNode(editorState);
-        addRowHandler(node, editorState);
+        var tableNode = getTableCellNode(editorState).parent!;
+        final transaction = editorState.transaction;
+        addRow(tableNode, transaction);
+        editorState.apply(transaction);
       },
     ),
-    //ContextMenuItem(
-    //  name: 'Remove Column',
-    //  isApplicable: isSelectionInTable,
-    //  onPressed: (editorState) {
-    //    removeColHandler(node);
-    //  },
-    //),
-    //ContextMenuItem(
-    //  name: 'Remove Row',
-    //  isApplicable: isSelectionInTable,
-    //  onPressed: (editorState) {
-    //    removeRowHandler(node);
-    //  },
-    //),
+    ContextMenuItem(
+      name: 'Remove Column',
+      isApplicable: (EditorState editorState) {
+        if (!isSelectionInTable(editorState)) {
+          return false;
+        }
+        var tableNode = getTableCellNode(editorState).parent!;
+        return tableNode.attributes['colsLen'] > 1;
+      },
+      onPressed: (editorState) {
+        var node = getTableCellNode(editorState);
+        final transaction = editorState.transaction;
+        removeCol(
+            node.parent!, node.attributes['position']['col'], transaction);
+        editorState.apply(transaction);
+      },
+    ),
+    ContextMenuItem(
+      name: 'Remove Row',
+      isApplicable: (EditorState editorState) {
+        if (!isSelectionInTable(editorState)) {
+          return false;
+        }
+        var tableNode = getTableCellNode(editorState).parent!;
+        return tableNode.attributes['rowsLen'] > 1;
+      },
+      onPressed: (editorState) {
+        var node = getTableCellNode(editorState);
+        final transaction = editorState.transaction;
+        removeRow(
+            node.parent!, node.attributes['position']['row'], transaction);
+        editorState.apply(transaction);
+      },
+    ),
   ],
 ];
 
@@ -48,19 +72,7 @@ bool isSelectionInTable(EditorState editorState) {
   return node.id == kTableCellType || node.parent?.type == kTableCellType;
 }
 
-Node getTableNode(EditorState editorState) {
+Node getTableCellNode(EditorState editorState) {
   var node = editorState.service.selectionService.currentSelectedNodes.first;
-  return node.id == kTableCellType ? node.parent! : node.parent!.parent!;
-}
-
-addColHandler(Node node, EditorState editorState) {
-  final transaction = editorState.transaction;
-  addCol(node, transaction);
-  editorState.apply(transaction);
-}
-
-addRowHandler(Node node, EditorState editorState) {
-  final transaction = editorState.transaction;
-  addRow(node, transaction);
-  editorState.apply(transaction);
+  return node.id == kTableCellType ? node : node.parent!;
 }
