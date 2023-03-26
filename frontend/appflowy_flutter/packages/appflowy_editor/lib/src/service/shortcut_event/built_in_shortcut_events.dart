@@ -308,8 +308,13 @@ List<ShortcutEvent> builtInShortcutEvents = [
     handler: underscoreToItalicHandler,
   ),
   ShortcutEvent(
+    key: 'Asterisk to italic',
+    character: '*',
+    handler: asteriskToItalicHandler,
+  ),
+  ShortcutEvent(
     key: 'Double asterisk to bold',
-    command: 'shift+digit 8',
+    command: 'shift+asterisk',
     handler: doubleAsteriskToBoldHandler,
   ),
   ShortcutEvent(

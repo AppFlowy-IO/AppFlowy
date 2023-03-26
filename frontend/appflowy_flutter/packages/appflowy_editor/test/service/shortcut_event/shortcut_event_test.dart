@@ -219,5 +219,42 @@ void main() async {
         Selection.single(path: [1], startOffset: text.length),
       );
     });
+
+    //TODO(JRS296): How to test Italicized state of textnode
+    testWidgets('Test Single Asterisk for Italics', (tester) async {
+      const text = '*Welcome to Appflowy 😁';
+      final editor = tester.editor
+        ..insertTextNode(text)
+        ..insertTextNode(text);
+      await editor.startTesting();
+      await editor.updateSelection(
+        Selection.single(path: [1], startOffset: text.length),
+      );
+      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+        await editor.pressLogicKey(
+          LogicalKeyboardKey.digit8,
+          isShiftPressed: true,
+        );
+      }
+
+      expect(
+        editor.documentSelection,
+        Selection.single(path: [1], startOffset: text.length),
+      );
+      await editor.updateSelection(
+        Selection.single(path: [1], startOffset: 0),
+      );
+
+      if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+        await editor.pressLogicKey(
+          LogicalKeyboardKey.digit8,
+          isShiftPressed: true,
+        );
+      }
+      expect(
+        editor.documentSelection,
+        Selection.single(path: [1], startOffset: 0),
+      );
+    });
   });
 }
