@@ -20,6 +20,8 @@ bytes = { version = "1.4" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 tokio = { version = "1.26", features = ["full"] }
 nanoid = "0.4.0"
+lazy_static = "1.4.0"
+chrono = { version = "0.4.24"}
 
 [build-dependencies]
 flowy-codegen = { path = "../flowy-codegen"}

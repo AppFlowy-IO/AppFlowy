@@ -16,8 +16,8 @@ pub fn init(folder: Arc<FolderManager>) -> AFPlugin {
     // Workspace
     .event(FolderEvent::CreateWorkspace, create_workspace_handler)
     .event(
-      FolderEvent::ReadCurrentWorkspace,
-      read_cur_workspace_handler,
+        FolderEvent::ReadCurrentWorkspace,
+        read_cur_workspace_setting_handler,
     )
     .event(FolderEvent::ReadWorkspaces, read_workspaces_handler)
     .event(FolderEvent::OpenWorkspace, open_workspace_handler)

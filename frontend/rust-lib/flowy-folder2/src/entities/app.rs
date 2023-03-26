@@ -7,7 +7,9 @@ use crate::{
   errors::ErrorCode,
   impl_def_and_def_mut,
 };
+use collab_folder::core::View;
 use flowy_derive::ProtoBuf;
+use flowy_error::ErrorCode;
 use folder_model::AppRevision;
 use std::convert::TryInto;
 
@@ -23,52 +25,18 @@ pub struct AppPB {
   pub name: String,
 
   #[pb(index = 4)]
-  pub desc: String,
-
-  #[pb(index = 5)]
   pub belongings: RepeatedViewPB,
 
-  #[pb(index = 6)]
-  pub version: i64,
-
-  #[pb(index = 7)]
-  pub modified_time: i64,
-
-  #[pb(index = 8)]
+  #[pb(index = 5)]
   pub create_time: i64,
 }
 
-impl std::convert::From<AppRevision> for AppPB {
-  fn from(app_serde: AppRevision) -> Self {
-    AppPB {
-      id: app_serde.id,
-      workspace_id: app_serde.workspace_id,
-      name: app_serde.name,
-      desc: app_serde.desc,
-      belongings: app_serde.belongings.into(),
-      version: app_serde.version,
-      modified_time: app_serde.modified_time,
-      create_time: app_serde.create_time,
-    }
-  }
-}
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
 pub struct RepeatedAppPB {
   #[pb(index = 1)]
   pub items: Vec<AppPB>,
 }
 
-impl_def_and_def_mut!(RepeatedAppPB, AppPB);
-
-impl std::convert::From<Vec<AppRevision>> for RepeatedAppPB {
-  fn from(values: Vec<AppRevision>) -> Self {
-    let items = values
-      .into_iter()
-      .map(|value| value.into())
-      .collect::<Vec<AppPB>>();
-    RepeatedAppPB { items }
-  }
-}
 #[derive(ProtoBuf, Default)]
 pub struct CreateAppPayloadPB {
   #[pb(index = 1)]

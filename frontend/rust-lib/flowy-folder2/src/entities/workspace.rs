@@ -2,10 +2,10 @@ use crate::{
   entities::parser::workspace::{WorkspaceDesc, WorkspaceIdentify, WorkspaceName},
   entities::{app::RepeatedAppPB, view::ViewPB},
   errors::*,
-  impl_def_and_def_mut,
 };
+use collab_folder::core::Workspace;
 use flowy_derive::ProtoBuf;
-use folder_model::WorkspaceRevision;
+use flowy_error::ErrorCode;
 use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
@@ -17,37 +17,28 @@ pub struct WorkspacePB {
   pub name: String,
 
   #[pb(index = 3)]
-  pub desc: String,
-
-  #[pb(index = 4)]
   pub apps: RepeatedAppPB,
 
-  #[pb(index = 5)]
-  pub modified_time: i64,
-
-  #[pb(index = 6)]
+  #[pb(index = 4)]
   pub create_time: i64,
 }
 
-impl std::convert::From<WorkspaceRevision> for WorkspacePB {
-  fn from(workspace_serde: WorkspaceRevision) -> Self {
+impl std::convert::From<Workspace> for WorkspacePB {
+  fn from(workspace: Workspace) -> Self {
     WorkspacePB {
-      id: workspace_serde.id,
-      name: workspace_serde.name,
-      desc: workspace_serde.desc,
-      apps: workspace_serde.apps.into(),
-      modified_time: workspace_serde.modified_time,
-      create_time: workspace_serde.create_time,
+      id: workspace.id,
+      name: workspace.name,
+      apps: Default::default(),
+      create_time: workspace.created_at,
     }
   }
 }
+
 #[derive(PartialEq, Eq, Debug, Default, ProtoBuf)]
 pub struct RepeatedWorkspacePB {
   #[pb(index = 1)]
   pub items: Vec<WorkspacePB>,
 }
-
-impl_def_and_def_mut!(RepeatedWorkspacePB, WorkspacePB);
 
 #[derive(ProtoBuf, Default)]
 pub struct CreateWorkspacePayloadPB {

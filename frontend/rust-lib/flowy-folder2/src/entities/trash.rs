@@ -72,3 +72,9 @@ impl std::convert::From<&TrashInfo> for TrashIdPB {
     }
   }
 }
+
+#[derive(PartialEq, Eq, ProtoBuf, Default, Debug, Clone)]
+pub struct RepeatedTrashIdPB {
+  #[pb(index = 1)]
+  pub items: Vec<TrashIdPB>,
+}
