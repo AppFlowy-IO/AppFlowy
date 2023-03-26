@@ -97,7 +97,7 @@ class ShortcutsListTile extends StatelessWidget {
           ),
         ),
         FlowyTextButton(
-          shortcutEvent.command,
+          shortcutEvent.command ?? 'add new command',
           fillColor: Colors.transparent,
           onPressed: () {
             showKeyListenerDialog(context);
