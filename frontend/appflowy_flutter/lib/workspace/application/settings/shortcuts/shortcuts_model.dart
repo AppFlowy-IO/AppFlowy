@@ -30,7 +30,7 @@ class Shortcut {
       Shortcut(key: json["key"], command: json["command"]);
 
   factory Shortcut.fromShortcutEvent(ShortcutEvent sEvent) =>
-      Shortcut(key: sEvent.key, command: sEvent.command);
+      Shortcut(key: sEvent.key, command: sEvent.command ?? '');
 
   Map<String, dynamic> toJson() => {
         "key": key,
