@@ -68,6 +68,15 @@ export const EditFieldPopup = ({
     changeFieldTypeClick(buttonTop, buttonRight);
   };
 
+  // this is causing an error right now
+  const onDeleteFieldClick = async () => {
+    if (!fieldInfo) return;
+    const controller = new TypeOptionController(viewId, Some(fieldInfo));
+    await controller.initialize();
+    await controller.deleteField();
+    onOutsideClick();
+  };
+
   return (
     <div
       ref={ref}
@@ -85,6 +94,7 @@ export const EditFieldPopup = ({
         />
 
         <button
+          onClick={() => onDeleteFieldClick()}
           className={
             'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-main-alert hover:bg-main-secondary'
           }

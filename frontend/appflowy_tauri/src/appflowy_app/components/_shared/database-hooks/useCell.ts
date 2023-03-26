@@ -16,6 +16,14 @@ export const useCell = (cellIdentifier: CellIdentifier, cellCache: CellCache, fi
     const c = builder.build();
     setCellController(c);
 
+    c.subscribeChanged({
+      onCellChanged: (cellData) => {
+        if (cellData.some) {
+          setData(cellData.val);
+        }
+      },
+    });
+
     void (async () => {
       const cellData = await c.getCellData();
       if (cellData.some) {

@@ -23,11 +23,11 @@ export const CellOptions = ({
       onClick={() => onClick()}
       className={'flex flex-wrap items-center gap-2 px-4 py-2 text-xs text-black'}
     >
-      {data?.select_options.map((option, index) => (
+      {data?.select_options?.map((option, index) => (
         <div className={`${getBgColor(option.color)} rounded px-2 py-0.5`} key={index}>
           {option?.name || ''}
         </div>
-      ))}
+      )) || ''}
       &nbsp;
     </div>
   );

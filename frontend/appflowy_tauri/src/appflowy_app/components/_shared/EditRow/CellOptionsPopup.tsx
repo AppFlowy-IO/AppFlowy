@@ -1,15 +1,17 @@
-import { useEffect, useRef, useState } from 'react';
+import { KeyboardEventHandler, useEffect, useRef, useState } from 'react';
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { useCell } from '$app/components/_shared/database-hooks/useCell';
 import { CellCache } from '$app/stores/effects/database/cell/cell_cache';
 import { FieldController } from '$app/stores/effects/database/field/field_controller';
-import { SelectOptionCellDataPB } from '@/services/backend';
+import { SelectOptionCellDataPB, SelectOptionPB } from '@/services/backend';
 import { getBgColor } from '$app/components/_shared/getColor';
 import { useTranslation } from 'react-i18next';
 import { Details2Svg } from '$app/components/_shared/svg/Details2Svg';
 import { CheckmarkSvg } from '$app/components/_shared/svg/CheckmarkSvg';
 import { CloseSvg } from '$app/components/_shared/svg/CloseSvg';
 import useOutsideClick from '$app/components/_shared/useOutsideClick';
+import { SelectOptionCellBackendService } from '$app/stores/effects/database/cell/select_option_bd_svc';
+import { CellController } from '$app/stores/effects/database/cell/cell_controller';
 
 export const CellOptionsPopup = ({
   top,
@@ -46,6 +48,31 @@ export const CellOptionsPopup = ({
     onOutsideClick();
   });
 
+  const onKeyDown: KeyboardEventHandler = async (e) => {
+    if (e.key === 'Enter' && value.length > 0) {
+      await new SelectOptionCellBackendService(cellIdentifier).createOption({ name: value });
+      setValue('');
+    }
+  };
+
+  const onUnselectOptionClick = async (option: SelectOptionPB) => {
+    await new SelectOptionCellBackendService(cellIdentifier).unselectOption([option.id]);
+    setValue('');
+  };
+
+  const onToggleOptionClick = async (option: SelectOptionPB) => {
+    if (
+      (data as SelectOptionCellDataPB | undefined)?.select_options?.find(
+        (selectedOption) => selectedOption.id === option.id
+      )
+    ) {
+      await new SelectOptionCellBackendService(cellIdentifier).unselectOption([option.id]);
+    } else {
+      await new SelectOptionCellBackendService(cellIdentifier).selectOption([option.id]);
+    }
+    setValue('');
+  };
+
   return (
     <div
       ref={ref}
@@ -60,9 +87,9 @@ export const CellOptionsPopup = ({
             {(data as SelectOptionCellDataPB | undefined)?.select_options?.map((option, index) => (
               <div className={`${getBgColor(option.color)} flex items-center gap-0.5 rounded px-1 py-0.5`} key={index}>
                 <span>{option?.name || ''}</span>
-                <i className={'h-5 w-5 cursor-pointer'}>
+                <button onClick={() => onUnselectOptionClick(option)} className={'h-5 w-5 cursor-pointer'}>
                   <CloseSvg></CloseSvg>{' '}
-                </i>
+                </button>
               </div>
             )) || ''}
           </div>
@@ -71,6 +98,7 @@ export const CellOptionsPopup = ({
             value={value}
             onChange={(e) => setValue(e.target.value)}
             placeholder={t('grid.selectOption.searchOption') || ''}
+            onKeyDown={onKeyDown}
           />
           <div className={'font-mono text-shade-3'}>{value.length}/30</div>
         </div>
@@ -80,6 +108,7 @@ export const CellOptionsPopup = ({
           {(data as SelectOptionCellDataPB | undefined)?.options.map((option, index) => (
             <div
               key={index}
+              onClick={() => onToggleOptionClick(option)}
               className={
                 'flex cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-main-secondary'
               }
