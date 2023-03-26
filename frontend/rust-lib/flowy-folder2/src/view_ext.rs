@@ -1,4 +1,4 @@
-use crate::entities::{CreateViewParams, ViewLayoutTypePB, ViewPB};
+use crate::entities::{CreateViewParams, ViewLayoutTypePB};
 use bytes::Bytes;
 use collab_folder::core::{View, ViewLayout};
 use flowy_error::FlowyError;

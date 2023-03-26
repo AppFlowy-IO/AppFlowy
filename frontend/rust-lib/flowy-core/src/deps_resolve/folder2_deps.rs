@@ -7,11 +7,10 @@ use flowy_database::util::{make_default_board, make_default_calendar, make_defau
 use flowy_document::editor::make_transaction_from_document_content;
 use flowy_document::DocumentManager;
 use flowy_error::FlowyError;
-use flowy_folder2::entities::ViewPB;
+
 use flowy_folder2::manager::{FolderManager, FolderUser};
 use flowy_folder2::view_ext::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder2::ViewLayout;
-use flowy_sqlite::UserDatabaseConnection;
 use flowy_user::services::UserSession;
 use lib_infra::future::FutureResult;
 use revision_model::Revision;
@@ -30,7 +29,11 @@ impl Folder2DepsResolver {
 
     let view_data_processor =
       make_view_data_processor(text_block_manager.clone(), database_manager.clone());
-    Arc::new(FolderManager::new(user.clone(), view_data_processor).await?)
+    Arc::new(
+      FolderManager::new(user.clone(), view_data_processor)
+        .await
+        .unwrap(),
+    )
   }
 }
 
@@ -41,31 +44,23 @@ fn make_view_data_processor(
   let mut map: HashMap<ViewLayout, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
 
   let document_processor = Arc::new(DocumentViewDataProcessor(document_manager));
-  document_processor
-    .data_types()
-    .into_iter()
-    .for_each(|data_type| {
-      map.insert(data_type, document_processor.clone());
-    });
+  map.insert(ViewLayout::Document, document_processor);
 
-  let grid_data_impl = Arc::new(DatabaseViewDataProcessor(database_manager));
-  grid_data_impl
-    .data_types()
-    .into_iter()
-    .for_each(|data_type| {
-      map.insert(data_type, grid_data_impl.clone());
-    });
-
+  let database_processor = Arc::new(DatabaseViewDataProcessor(database_manager));
+  map.insert(ViewLayout::Board, database_processor.clone());
+  map.insert(ViewLayout::Grid, database_processor.clone());
+  map.insert(ViewLayout::Calendar, database_processor);
   Arc::new(map)
 }
 
 struct FolderUserImpl(Arc<UserSession>);
 impl FolderUser for FolderUserImpl {
-  fn user_id(&self) -> Result<String, FlowyError> {
-    self
-      .0
-      .user_id()
-      .map_err(|e| FlowyError::internal().context(e))
+  fn user_id(&self) -> Result<i64, FlowyError> {
+    // self
+    //   .0
+    //   .user_id()
+    //   .map_err(|e| FlowyError::internal().context(e))
+    todo!()
   }
 
   fn token(&self) -> Result<String, FlowyError> {
@@ -91,9 +86,9 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     })
   }
 
-  fn get_view_data(&self, view: &ViewPB) -> FutureResult<Bytes, FlowyError> {
-    let view_id = view.id.clone();
+  fn get_view_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
     let manager = self.0.clone();
+    let view_id = view_id.to_string();
     FutureResult::new(async move {
       let editor = manager.open_document_editor(view_id).await?;
       let document_data = Bytes::from(editor.duplicate().await?);
@@ -103,11 +98,11 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
 
   fn create_view_with_build_in_data(
     &self,
-    user_id: i64,
+    _user_id: i64,
     view_id: &str,
-    name: &str,
+    _name: &str,
     layout: ViewLayout,
-    ext: HashMap<String, String>,
+    _ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayout::Document);
     let view_id = view_id.to_string();
@@ -123,12 +118,12 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
 
   fn create_view_with_custom_data(
     &self,
-    user_id: i64,
+    _user_id: i64,
     view_id: &str,
-    name: &str,
+    _name: &str,
     data: Vec<u8>,
     layout: ViewLayout,
-    ext: HashMap<String, String>,
+    _ext: HashMap<String, String>,
   ) -> FutureResult<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayout::Document);
     let view_data = match String::from_utf8(data) {
@@ -161,9 +156,9 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
     })
   }
 
-  fn get_view_data(&self, view: &ViewPB) -> FutureResult<Bytes, FlowyError> {
+  fn get_view_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
     let database_manager = self.0.clone();
-    let view_id = view.id.clone();
+    let view_id = view_id.to_owned();
     FutureResult::new(async move {
       let editor = database_manager.open_database_view(&view_id).await?;
       let delta_bytes = editor.duplicate_database(&view_id).await?;
@@ -177,7 +172,7 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
   /// these references views.
   fn create_view_with_build_in_data(
     &self,
-    user_id: i64,
+    _user_id: i64,
     view_id: &str,
     name: &str,
     layout: ViewLayout,
@@ -217,7 +212,7 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
   /// within these references views.
   fn create_view_with_custom_data(
     &self,
-    user_id: i64,
+    _user_id: i64,
     view_id: &str,
     name: &str,
     data: Vec<u8>,
@@ -251,5 +246,14 @@ impl DatabaseExtParams {
   pub fn from_map(map: HashMap<String, String>) -> Option<Self> {
     let value = serde_json::to_value(map).ok()?;
     serde_json::from_value::<Self>(value).ok()
+  }
+}
+
+fn layout_type_from_view_layout(layout: ViewLayout) -> LayoutTypePB {
+  match layout {
+    ViewLayout::Grid => LayoutTypePB::Grid,
+    ViewLayout::Board => LayoutTypePB::Board,
+    ViewLayout::Calendar => LayoutTypePB::Calendar,
+    ViewLayout::Document => LayoutTypePB::Grid,
   }
 }

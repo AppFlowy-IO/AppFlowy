@@ -7,7 +7,7 @@ use std::sync::Arc;
 use strum_macros::Display;
 
 pub fn init(folder: Arc<FolderManager>) -> AFPlugin {
-  let mut plugin = AFPlugin::new().name("Flowy-Folder").state(folder.clone())
+  AFPlugin::new().name("Flowy-Folder").state(folder)
     // Workspace
     .event(FolderEvent::CreateWorkspace, create_workspace_handler)
     .event(
@@ -31,9 +31,7 @@ pub fn init(folder: Arc<FolderManager>) -> AFPlugin {
     .event(FolderEvent::PutbackTrash, putback_trash_handler)
     .event(FolderEvent::DeleteTrash, delete_trash_handler)
     .event(FolderEvent::RestoreAllTrash, restore_all_trash_handler)
-    .event(FolderEvent::DeleteAllTrash, delete_all_trash_handler);
-
-  plugin
+    .event(FolderEvent::DeleteAllTrash, delete_all_trash_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]

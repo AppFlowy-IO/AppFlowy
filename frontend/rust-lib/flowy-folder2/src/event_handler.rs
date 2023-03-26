@@ -1,8 +1,8 @@
 use crate::entities::{
   AppPB, CreateViewParams, CreateViewPayloadPB, CreateWorkspaceParams, CreateWorkspacePayloadPB,
   MoveFolderItemParams, MoveFolderItemPayloadPB, RepeatedAppPB, RepeatedTrashIdPB, RepeatedTrashPB,
-  RepeatedViewIdPB, RepeatedViewPB, RepeatedWorkspacePB, TrashIdPB, UpdateViewParams,
-  UpdateViewPayloadPB, ViewIdPB, ViewPB, WorkspaceIdPB, WorkspacePB, WorkspaceSettingPB,
+  RepeatedViewIdPB, RepeatedWorkspacePB, TrashIdPB, UpdateViewParams, UpdateViewPayloadPB,
+  ViewIdPB, ViewPB, WorkspaceIdPB, WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager::FolderManager;
 use flowy_error::FlowyError;
@@ -117,7 +117,7 @@ pub(crate) async fn delete_view_handler(
 ) -> Result<(), FlowyError> {
   let params: RepeatedViewIdPB = data.into_inner();
   for view_id in &params.items {
-    folder.move_view_to_trash(view_id);
+    folder.move_view_to_trash(view_id).await;
   }
   Ok(())
 }
@@ -136,7 +136,7 @@ pub(crate) async fn close_view_handler(
   folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {
   let view_id: ViewIdPB = data.into_inner();
-  folder.close_view(&view_id.value);
+  folder.close_view(&view_id.value).await;
   Ok(())
 }
 
@@ -175,7 +175,7 @@ pub(crate) async fn putback_trash_handler(
   identifier: AFPluginData<TrashIdPB>,
   folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {
-  folder.restore_trash(&identifier.id);
+  folder.restore_trash(&identifier.id).await;
   Ok(())
 }
 
@@ -186,7 +186,7 @@ pub(crate) async fn delete_trash_handler(
 ) -> Result<(), FlowyError> {
   let trash_ids = identifiers.into_inner().items;
   for trash_id in trash_ids {
-    folder.delete_trash(&trash_id.id);
+    folder.delete_trash(&trash_id.id).await;
   }
   Ok(())
 }
@@ -195,7 +195,7 @@ pub(crate) async fn delete_trash_handler(
 pub(crate) async fn restore_all_trash_handler(
   folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {
-  folder.restore_all_trash();
+  folder.restore_all_trash().await;
   Ok(())
 }
 
@@ -203,6 +203,6 @@ pub(crate) async fn restore_all_trash_handler(
 pub(crate) async fn delete_all_trash_handler(
   folder: AFPluginState<Arc<FolderManager>>,
 ) -> Result<(), FlowyError> {
-  folder.delete_all_trash();
+  folder.delete_all_trash().await;
   Ok(())
 }

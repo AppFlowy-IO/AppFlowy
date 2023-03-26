@@ -1,6 +1,5 @@
 use collab_folder::core::TrashInfo;
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use std::fmt::Formatter;
+use flowy_derive::ProtoBuf;
 
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct TrashPB {

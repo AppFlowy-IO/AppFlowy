@@ -1,7 +1,7 @@
 use crate::entities::parser::app::{AppColorStyle, AppIdentify, AppName};
 use crate::entities::parser::workspace::WorkspaceIdentify;
 use crate::entities::RepeatedViewPB;
-use collab_folder::core::View;
+
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use std::convert::TryInto;
