@@ -50,6 +50,7 @@ class ChangeCoverPopoverBloc
   }
 
   Future<List<String>> _getPreviouslyPickedImagePaths() async {
+    await _initCompleter.future;
     final imageNames = _prefs.getStringList(kLocalImagesKey) ?? [];
     if (imageNames.isEmpty) {
       return imageNames;
@@ -59,6 +60,7 @@ class ChangeCoverPopoverBloc
   }
 
   Future<void> _updateImagePathsInStorage(List<String> imagePaths) async {
+    await _initCompleter.future;
     _prefs.setStringList(kLocalImagesKey, imagePaths);
     return;
   }
