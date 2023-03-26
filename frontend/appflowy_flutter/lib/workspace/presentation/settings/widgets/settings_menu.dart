@@ -61,7 +61,7 @@ class SettingsMenu extends StatelessWidget {
         SettingsMenuElement(
           page: SettingsPage.shortcuts,
           selectedPage: currentPage,
-          label: "Shortcuts",
+          label: LocaleKeys.settings_shortcuts_shortcutsLabel.tr(),
           icon: Icons.cut,
           changeSelectedPage: changeSelectedPage,
         ),
