@@ -3,7 +3,7 @@ import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { useCell } from '$app/components/_shared/database-hooks/useCell';
 import { CellCache } from '$app/stores/effects/database/cell/cell_cache';
 import { FieldController } from '$app/stores/effects/database/field/field_controller';
-import { SelectOptionCellDataPB, SelectOptionPB } from '@/services/backend';
+import { SelectOptionCellDataPB, SelectOptionColorPB, SelectOptionPB } from '@/services/backend';
 import { getBgColor } from '$app/components/_shared/getColor';
 import { useTranslation } from 'react-i18next';
 import { Details2Svg } from '$app/components/_shared/svg/Details2Svg';
@@ -11,7 +11,8 @@ import { CheckmarkSvg } from '$app/components/_shared/svg/CheckmarkSvg';
 import { CloseSvg } from '$app/components/_shared/svg/CloseSvg';
 import useOutsideClick from '$app/components/_shared/useOutsideClick';
 import { SelectOptionCellBackendService } from '$app/stores/effects/database/cell/select_option_bd_svc';
-import { CellController } from '$app/stores/effects/database/cell/cell_controller';
+import { useAppSelector } from '$app/stores/store';
+import { ISelectOptionType } from '$app/stores/reducers/database/slice';
 
 export const CellOptionsPopup = ({
   top,
@@ -33,6 +34,7 @@ export const CellOptionsPopup = ({
   const [adjustedTop, setAdjustedTop] = useState(-100);
   const [value, setValue] = useState('');
   const { data, cellController } = useCell(cellIdentifier, cellCache, fieldController);
+  const databaseStore = useAppSelector((state) => state.database);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -73,6 +75,11 @@ export const CellOptionsPopup = ({
     setValue('');
   };
 
+  useEffect(() => {
+    console.log('loaded data: ', data);
+    console.log('have stored ', databaseStore.fields[cellIdentifier.fieldId]);
+  }, [data]);
+
   return (
     <div
       ref={ref}
@@ -105,29 +112,39 @@ export const CellOptionsPopup = ({
         <div className={'-mx-4 h-[1px] bg-shade-6'}></div>
         <div className={'font-semibold text-shade-3'}>{t('grid.selectOption.panelTitle') || ''}</div>
         <div className={'flex flex-col gap-1'}>
-          {(data as SelectOptionCellDataPB | undefined)?.options.map((option, index) => (
-            <div
-              key={index}
-              onClick={() => onToggleOptionClick(option)}
-              className={
-                'flex cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-main-secondary'
-              }
-            >
-              <div className={`${getBgColor(option.color)} rounded px-2 py-0.5`}>{option.name}</div>
-              <div className={'flex items-center'}>
-                {(data as SelectOptionCellDataPB | undefined)?.select_options?.find(
-                  (selectedOption) => selectedOption.id === option.id
-                ) && (
-                  <button className={'h-5 w-5 p-1'}>
-                    <CheckmarkSvg></CheckmarkSvg>
+          {(databaseStore.fields[cellIdentifier.fieldId]?.fieldOptions as ISelectOptionType).selectOptions.map(
+            (option, index) => (
+              <div
+                key={index}
+                onClick={() =>
+                  onToggleOptionClick(
+                    new SelectOptionPB({
+                      id: option.selectOptionId,
+                      name: option.title,
+                      color: option.color || SelectOptionColorPB.Purple,
+                    })
+                  )
+                }
+                className={
+                  'flex cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-main-secondary'
+                }
+              >
+                <div className={`${getBgColor(option.color)} rounded px-2 py-0.5`}>{option.title}</div>
+                <div className={'flex items-center'}>
+                  {(data as SelectOptionCellDataPB | undefined)?.select_options?.find(
+                    (selectedOption) => selectedOption.id === option.selectOptionId
+                  ) && (
+                    <button className={'h-5 w-5 p-1'}>
+                      <CheckmarkSvg></CheckmarkSvg>
+                    </button>
+                  )}
+                  <button className={'h-6 w-6 p-1'}>
+                    <Details2Svg></Details2Svg>
                   </button>
-                )}
-                <button className={'h-6 w-6 p-1'}>
-                  <Details2Svg></Details2Svg>
-                </button>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          )}
         </div>
       </div>
     </div>
