@@ -28,6 +28,7 @@ protobuf = {version = "2.28.0"}
 
 [dev-dependencies]
 flowy-folder2 = { path = "../flowy-folder2"}
+flowy-test = { path = "../flowy-test" }
 
 [build-dependencies]
 flowy-codegen = { path = "../flowy-codegen"}

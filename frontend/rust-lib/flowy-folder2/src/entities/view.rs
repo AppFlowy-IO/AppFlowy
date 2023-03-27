@@ -8,6 +8,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use std::collections::HashMap;
 use std::convert::TryInto;
+use std::ops::{Deref, DerefMut};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct ViewPB {
@@ -79,6 +80,21 @@ impl std::convert::From<Vec<View>> for RepeatedViewPB {
     RepeatedViewPB { items }
   }
 }
+
+impl Deref for RepeatedViewPB {
+  type Target = Vec<ViewPB>;
+
+  fn deref(&self) -> &Self::Target {
+    &self.items
+  }
+}
+
+impl DerefMut for RepeatedViewPB {
+  fn deref_mut(&mut self) -> &mut Self::Target {
+    &mut self.items
+  }
+}
+
 #[derive(Default, ProtoBuf)]
 pub struct RepeatedViewIdPB {
   #[pb(index = 1)]

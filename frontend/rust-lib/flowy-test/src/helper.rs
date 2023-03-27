@@ -1,4 +1,11 @@
 use crate::prelude::*;
+use flowy_folder2::entities::{
+  AppPB, CreateAppPayloadPB, CreateViewPayloadPB, CreateWorkspacePayloadPB, ViewLayoutTypePB,
+  ViewPB, WorkspaceIdPB, WorkspacePB,
+};
+use flowy_folder2::event_map::FolderEvent::{
+  CreateApp, CreateView, CreateWorkspace, OpenWorkspace,
+};
 use flowy_user::{
   entities::{SignInPayloadPB, SignUpPayloadPB, UserProfilePB},
   errors::FlowyError,
@@ -6,8 +13,6 @@ use flowy_user::{
 };
 use lib_dispatch::prelude::{AFPluginDispatcher, AFPluginRequest, ToBytes};
 use std::{fs, path::PathBuf, sync::Arc};
-use flowy_folder2::entities::{AppPB, CreateAppPayloadPB, CreateViewPayloadPB, CreateWorkspacePayloadPB, ViewLayoutTypePB, ViewPB, WorkspaceIdPB, WorkspacePB};
-use flowy_folder2::event_map::FolderEvent::{CreateApp, CreateView, CreateWorkspace, OpenWorkspace};
 
 pub struct ViewTest {
   pub sdk: FlowySDKTest,
@@ -54,7 +59,7 @@ async fn create_workspace(sdk: &FlowySDKTest, name: &str, desc: &str) -> Workspa
     desc: desc.to_owned(),
   };
 
-  FolderEventBuilder::new(sdk.clone())
+  Folder2EventBuilder::new(sdk.clone())
     .event(CreateWorkspace)
     .payload(request)
     .async_send()
@@ -66,7 +71,7 @@ async fn open_workspace(sdk: &FlowySDKTest, workspace_id: &str) {
   let payload = WorkspaceIdPB {
     value: Some(workspace_id.to_owned()),
   };
-  let _ = FolderEventBuilder::new(sdk.clone())
+  let _ = Folder2EventBuilder::new(sdk.clone())
     .event(OpenWorkspace)
     .payload(payload)
     .async_send()
@@ -81,7 +86,7 @@ async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &s
     color_style: Default::default(),
   };
 
-  FolderEventBuilder::new(sdk.clone())
+  Folder2EventBuilder::new(sdk.clone())
     .event(CreateApp)
     .payload(create_app_request)
     .async_send()
@@ -105,7 +110,7 @@ async fn create_view(
     ext: Default::default(),
   };
 
-  FolderEventBuilder::new(sdk.clone())
+  Folder2EventBuilder::new(sdk.clone())
     .event(CreateView)
     .payload(payload)
     .async_send()

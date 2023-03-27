@@ -1380,6 +1380,7 @@ dependencies = [
  "flowy-error",
  "flowy-folder2",
  "flowy-notification",
+ "flowy-test",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
