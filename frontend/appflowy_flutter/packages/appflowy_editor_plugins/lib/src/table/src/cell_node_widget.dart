@@ -24,24 +24,21 @@ class _CellNodeWidgetState extends State<CellNodeWidget> {
         minHeight: context.select((Node n) => n.attributes['height']),
       ),
       width: double.infinity,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.text,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: widget.editorState.service.renderPluginService
-                  .buildPluginWidget(
-                NodeWidgetContext<TextNode>(
-                  context: context,
-                  node: widget.node.children.first as TextNode,
-                  editorState: widget.editorState,
-                ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: widget.editorState.service.renderPluginService
+                .buildPluginWidget(
+              NodeWidgetContext<TextNode>(
+                context: context,
+                node: widget.node.children.first as TextNode,
+                editorState: widget.editorState,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
