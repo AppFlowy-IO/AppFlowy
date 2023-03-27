@@ -156,10 +156,7 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
                           leftIconSize: const Size.square(18),
                           onTap: widget.onTap,
                           useIntrinsicWidth: true,
-                          leftIcon: svgWidget(
-                            'editor/image',
-                            color: Theme.of(context).iconTheme.color,
-                          ),
+                          leftIcon: const FlowySvg(name: 'editor/image'),
                           text: FlowyText.regular(
                             LocaleKeys.document_plugins_cover_addCover.tr(),
                           ),
@@ -197,8 +194,7 @@ class _AddCoverButtonState extends State<_AddCoverButton> {
                           child: FlowyButton(
                             leftIconSize: const Size.square(18),
                             useIntrinsicWidth: true,
-                            leftIcon: Icon(Icons.emoji_emotions_outlined,
-                                color: Theme.of(context).iconTheme.color,
+                            leftIcon: const Icon(Icons.emoji_emotions_outlined,
                                 size: 18),
                             text: FlowyText.regular(
                                 LocaleKeys.document_plugins_cover_addIcon.tr()),
