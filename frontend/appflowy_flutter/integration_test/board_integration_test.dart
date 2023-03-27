@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/plugins/base/built_in_page_widget.dart';
+import 'package:appflowy_board/appflowy_board.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'util/util.dart';
@@ -11,10 +11,11 @@ void main() {
     setUpAll(() async => await service.setUpAll());
     setUp(() async => await service.setUp());
 
-    testWidgets('example',
+    testWidgets(
+        'integration test unzips the proper workspace and loads it correctly.',
         (tester) async {
       await tester.initializeAppFlowy();
-      expect(find.byType(BuiltInPageWidget), findsOneWidget);
+      expect(find.byType(AppFlowyBoard), findsOneWidget);
     });
   });
 }
