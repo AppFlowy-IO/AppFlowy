@@ -308,13 +308,18 @@ List<ShortcutEvent> builtInShortcutEvents = [
     handler: underscoreToItalicHandler,
   ),
   ShortcutEvent(
+    key: 'Asterisk to italic',
+    character: '*',
+    handler: asteriskToItalicHandler,
+  ),
+  ShortcutEvent(
     key: 'Double asterisk to bold',
-    command: 'shift+digit 8',
+    command: '*',
     handler: doubleAsteriskToBoldHandler,
   ),
   ShortcutEvent(
     key: 'Double underscore to bold',
-    command: 'shift+underscore',
+    command: '_',
     handler: doubleUnderscoreToBoldHandler,
   ),
   // https://github.com/flutter/flutter/issues/104944
