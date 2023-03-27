@@ -8,36 +8,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SettingsCustomizeShortcuts extends StatelessWidget {
-  const SettingsCustomizeShortcuts({super.key});
+class SettingsCustomizeShortcutsWrapper extends StatelessWidget {
+  const SettingsCustomizeShortcutsWrapper({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ShortcutsCubit>(
       create: (_) =>
           ShortcutsCubit(SettingsShortcutService())..fetchShortcuts(),
-      child: const CustomizeShortcutsView(),
+      child: const SettingsCustomizeShortcutsView(),
     );
   }
 }
 
-class CustomizeShortcutsView extends StatelessWidget {
-  const CustomizeShortcutsView({super.key});
+class SettingsCustomizeShortcutsView extends StatelessWidget {
+  const SettingsCustomizeShortcutsView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ShortcutsCubit, ShortcutsState>(
       builder: (context, state) {
         switch (state.status) {
+          case ShortcutsStatus.initial:
+          case ShortcutsStatus.updating:
+            return const Center(child: CircularProgressIndicator());
           case ShortcutsStatus.success:
             return ShortcutsListView(shortcuts: state.shortcuts);
           case ShortcutsStatus.failure:
             return const ShortcutsErrorView();
-          case ShortcutsStatus.initial:
-          case ShortcutsStatus.updating:
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
         }
       },
     );
@@ -94,6 +92,7 @@ class ShortcutsListTile extends StatelessWidget {
       children: [
         Expanded(
           child: FlowyText.medium(
+            key: Key(shortcutEvent.key),
             shortcutEvent.key,
             overflow: TextOverflow.ellipsis,
           ),
