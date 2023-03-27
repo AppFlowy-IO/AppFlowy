@@ -5,6 +5,7 @@ import 'colorscheme.dart';
 const _black = Color(0xff000000);
 const _white = Color(0xFFFFFFFF);
 const _lightHover = Color(0xFFe0f8ff);
+const _lightSelector = Color(0xfff2fcff);
 const _lightBg1 = Color(0xfff7f8fc);
 const _lightBg2 = Color(0xffedeef2);
 const _lightShader1 = Color(0xff333333);
@@ -23,7 +24,7 @@ class DefaultColorScheme extends FlowyColorScheme {
       : super(
           surface: _white,
           hover: _lightHover,
-          selector: const Color(0xfff2fcff),
+          selector: _lightSelector,
           red: const Color(0xfffb006d),
           yellow: const Color(0xffffd667),
           green: const Color(0xff66cf80),
@@ -62,6 +63,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           hoverBG1: _lightBg2,
           hoverBG2: _lightHover,
           hoverFG: _lightShader1,
+          questionBubbleBG: _lightSelector,
         );
 
   const DefaultColorScheme.dark()
@@ -107,5 +109,6 @@ class DefaultColorScheme extends FlowyColorScheme {
           hoverBG1: _darkMain1,
           hoverBG2: _darkMain1,
           hoverFG: _darkShader1,
+          questionBubbleBG: _darkShader3,
         );
 }
