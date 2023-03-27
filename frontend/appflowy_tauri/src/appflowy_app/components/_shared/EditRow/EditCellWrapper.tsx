@@ -2,16 +2,16 @@ import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
 import { useCell } from '$app/components/_shared/database-hooks/useCell';
 import { CellCache } from '$app/stores/effects/database/cell/cell_cache';
 import { FieldController } from '$app/stores/effects/database/field/field_controller';
-import { DateCellDataPB, FieldType, SelectOptionCellDataPB } from '@/services/backend';
+import { DateCellDataPB, FieldType, SelectOptionCellDataPB, URLCellDataPB } from '@/services/backend';
 import { useAppSelector } from '$app/stores/store';
-import { getBgColor } from '$app/components/_shared/getColor';
-import { EditorCheckSvg } from '$app/components/_shared/svg/EditorCheckSvg';
-import { EditorUncheckSvg } from '$app/components/_shared/svg/EditorUncheckSvg';
 import { EditCellText } from '$app/components/_shared/EditRow/EditCellText';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 import { EditCellDate } from '$app/components/_shared/EditRow/EditCellDate';
 import { useRef } from 'react';
 import { CellOptions } from '$app/components/_shared/EditRow/CellOptions';
+import { EditCellNumber } from '$app/components/_shared/EditRow/EditCellNumber';
+import { EditCheckboxCell } from '$app/components/_shared/EditRow/EditCheckboxCell';
+import { EditCellUrl } from '$app/components/_shared/EditRow/EditCellUrl';
 
 export const EditCellWrapper = ({
   cellIdentifier,
@@ -61,20 +61,25 @@ export const EditCellWrapper = ({
             ></CellOptions>
           )}
 
-        {cellIdentifier.fieldType === FieldType.Checkbox && (
-          <div className={'h-8 w-8 px-4 py-2'}>
-            {(data as boolean | undefined) ? <EditorCheckSvg></EditorCheckSvg> : <EditorUncheckSvg></EditorUncheckSvg>}
-          </div>
+        {cellIdentifier.fieldType === FieldType.Checkbox && cellController && (
+          <EditCheckboxCell data={data as boolean | undefined} cellController={cellController}></EditCheckboxCell>
         )}
 
         {cellIdentifier.fieldType === FieldType.DateTime && cellController && (
           <EditCellDate data={data as DateCellDataPB | undefined} cellController={cellController}></EditCellDate>
         )}
 
-        {(cellIdentifier.fieldType === FieldType.RichText ||
-          cellIdentifier.fieldType === FieldType.URL ||
-          cellIdentifier.fieldType === FieldType.Number) &&
-          cellController && <EditCellText data={data as string} cellController={cellController}></EditCellText>}
+        {cellIdentifier.fieldType === FieldType.Number && cellController && (
+          <EditCellNumber data={data as string | undefined} cellController={cellController}></EditCellNumber>
+        )}
+
+        {cellIdentifier.fieldType === FieldType.URL && cellController && (
+          <EditCellUrl data={data as URLCellDataPB | undefined} cellController={cellController}></EditCellUrl>
+        )}
+
+        {cellIdentifier.fieldType === FieldType.RichText && cellController && (
+          <EditCellText data={data as string | undefined} cellController={cellController}></EditCellText>
+        )}
       </div>
     </div>
   );
