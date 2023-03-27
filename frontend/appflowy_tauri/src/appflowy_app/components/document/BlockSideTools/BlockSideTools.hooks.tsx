@@ -2,7 +2,7 @@ import { BlockType } from '@/appflowy_app/interfaces/document';
 import { useAppSelector } from '@/appflowy_app/stores/store';
 import { debounce } from '@/appflowy_app/utils/tool';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { YDocControllerContext } from '../../../stores/effects/document/document_controller';
+import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
 import { Node } from '@/appflowy_app/stores/reducers/document/slice';
 import { v4 } from 'uuid';
 
@@ -74,7 +74,7 @@ export function useBlockSideTools({ container }: { container: HTMLDivElement }) 
 }
 
 function useController() {
-  const controller = useContext(YDocControllerContext);
+  const controller = useContext(DocumentControllerContext);
 
   const insertAfter = useCallback((node: Node) => {
     const parentId = node.parent;

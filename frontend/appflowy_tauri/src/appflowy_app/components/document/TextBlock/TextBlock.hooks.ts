@@ -2,16 +2,15 @@ import { triggerHotkey } from "@/appflowy_app/utils/slate/hotkey";
 import { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { Descendant, Range } from "slate";
 import { useBindYjs } from "./BindYjs.hooks";
-import { YDocControllerContext } from '../../../stores/effects/document/document_controller';
-import { Delta } from "@slate-yjs/core/dist/model/types";
-import { TextDelta } from '../../../interfaces/document';
+import { DocumentControllerContext } from '$app/stores/effects/document/document_controller';
+import { TextDelta } from '$app/interfaces/document';
 import { debounce } from "@/appflowy_app/utils/tool";
 
 function useController(textId: string) {
-  const docController = useContext(YDocControllerContext);
+  const docController = useContext(DocumentControllerContext);
 
   const update  = useCallback(
-    (delta: Delta) => {
+    (delta: TextDelta[]) => {
       docController?.yTextApply(textId, delta)
     },
     [textId],
@@ -44,7 +43,7 @@ function useTransact(textId: string) {
   const debounceSendTransact = useMemo(() => debounce(sendTransact, 300), [transact]);
 
   const sendDelta = useCallback(
-    (delta: Delta) => {
+    (delta: TextDelta[]) => {
       const action = () => update(delta);
       pendingActions.current.push(action);
       debounceSendTransact()

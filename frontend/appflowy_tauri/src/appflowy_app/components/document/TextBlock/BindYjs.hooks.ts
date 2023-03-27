@@ -14,7 +14,7 @@ const initialValue = [{
   children: [{ text: '' }],
 }];
 
-export function useBindYjs(delta: TextDelta[], update: (_delta: Delta) => void) {
+export function useBindYjs(delta: TextDelta[], update: (_delta: TextDelta[]) => void) {
   const yTextRef = useRef<Y.XmlText>();
   // Create a yjs document and get the shared type
   const sharedType = useMemo(() => {
@@ -46,7 +46,7 @@ export function useBindYjs(delta: TextDelta[], update: (_delta: Delta) => void) 
     if (!yText) return;
 
     const textEventHandler = (event: Y.YTextEvent) => {
-      update(event.changes.delta as Delta);
+      update(event.changes.delta as TextDelta[]);
     }
     yText.applyDelta(delta);
     yText.observe(textEventHandler);
