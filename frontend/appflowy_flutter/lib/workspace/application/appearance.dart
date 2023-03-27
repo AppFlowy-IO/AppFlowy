@@ -267,6 +267,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         secondaryContainer: theme.selector,
         onSecondaryContainer: theme.topbarBg,
         tertiary: theme.shader7,
+        tertiaryContainer: theme.questionBubbleBG,
         background: theme.surface,
         onBackground: theme.text,
         surface: theme.surface,
