@@ -12,6 +12,7 @@ import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 
 const String kSmartEditType = 'smart_edit_input';
@@ -363,12 +364,10 @@ class _SmartEditInputState extends State<_SmartEditInput> {
   }
 
   Future<void> _requestCompletions() async {
+    final getIt = GetIt.instance;
     final result = await UserBackendService.getCurrentUserProfile();
     return result.fold((l) async {
-      final openAIRepository = HttpOpenAIRepository(
-        client: client,
-        apiKey: l.openaiKey,
-      );
+      final openAIRepository = await getIt.getAsync<OpenAIRepository>() as HttpOpenAIRepository;
 
       var lines = input.split('\n\n');
       if (action == SmartEditAction.summarize) {

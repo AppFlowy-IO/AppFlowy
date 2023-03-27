@@ -81,4 +81,14 @@ extension AppFlowySettings on WidgetTester {
     await testTextInput.receiveAction(TextInputAction.done);
     await pumpAndSettle();
   }
+  /// Enter dummy api key
+  Future<void> enterDummyApiKey(String key) async {
+    final uni = find.byType(OpenaiKeyInput);
+    expect(uni, findsOneWidget);
+    await tap(uni);
+    await enterText(uni, key);
+    await wait(300); //
+    await testTextInput.receiveAction(TextInputAction.done);
+    await pumpAndSettle();
+  }
 }
