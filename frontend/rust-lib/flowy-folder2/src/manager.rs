@@ -1,9 +1,10 @@
 use crate::entities::{AppPB, CreateViewParams, CreateWorkspaceParams, UpdateViewParams};
 use crate::notification::{send_notification, FolderNotification};
-use crate::user_default::gen_workspace_id;
+use crate::user_default::{gen_workspace_id, DefaultFolderBuilder};
 use crate::view_ext::{
   gen_view_id, view_from_create_view_params, ViewDataProcessor, ViewDataProcessorMap,
 };
+
 use collab::plugin_impl::disk::CollabDiskPlugin;
 use collab::preclude::CollabBuilder;
 use collab_folder::core::{
@@ -39,11 +40,11 @@ impl Folder2Manager {
     view_processors: ViewDataProcessorMap,
   ) -> FlowyResult<Self> {
     let uid = user.user_id()?;
-    let db = user.kv_db()?;
+    // let db = user.kv_db()?;
 
     let folder_id = FolderId::new(uid);
     let collab = CollabBuilder::new(uid, folder_id)
-      .with_plugin(CollabDiskPlugin::new(db).unwrap())
+      // .with_plugin(CollabDiskPlugin::new(db).unwrap())
       .build();
 
     let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
@@ -69,7 +70,15 @@ impl Folder2Manager {
 
   /// Called immediately after the application launched with the user sign in/sign up.
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn initialize(&self, user_id: &str, token: &str) -> FlowyResult<()> {
+  pub async fn initialize(&self, user_id: &str, build_default_folder: bool) -> FlowyResult<()> {
+    let db = self.user.kv_db()?;
+    let disk_plugin =
+      Arc::new(CollabDiskPlugin::new(db).map_err(|err| FlowyError::internal().context(err))?);
+    self.folder.lock().add_plugins(vec![disk_plugin]);
+
+    if build_default_folder {
+      DefaultFolderBuilder::build(self.folder.clone());
+    }
     Ok(())
   }
 
@@ -80,7 +89,16 @@ impl Folder2Manager {
     }
   }
 
-  pub async fn get_current_workspace_views<F>(&self, filter: F) -> FlowyResult<Vec<View>>
+  pub async fn get_current_workspace_views(&self) -> FlowyResult<Vec<View>> {
+    let views = self.folder.lock().get_views_belong_to_current_workspace();
+    Ok(views)
+  }
+
+  pub async fn get_workspace_views<F>(
+    &self,
+    workspace_id: &str,
+    filter: F,
+  ) -> FlowyResult<Vec<View>>
   where
     F: Fn(&ViewLayout) -> bool,
   {
@@ -88,7 +106,8 @@ impl Folder2Manager {
       self
         .folder
         .lock()
-        .get_views_belong_to_current_workspace()
+        .views
+        .get_views_belong_to(workspace_id)
         .into_iter()
         .filter(|view| filter(&view.layout))
         .collect::<Vec<_>>(),
@@ -96,7 +115,7 @@ impl Folder2Manager {
   }
 
   pub async fn initialize_with_new_user(&self, user_id: &str) -> FlowyResult<()> {
-    // DefaultFolderBuilder::build(self.folder.clone());
+    self.initialize(user_id, true).await?;
     Ok(())
   }
 
@@ -247,15 +266,6 @@ impl Folder2Manager {
       .belongings
       .move_belonging(bid, from as u32, to as u32);
     Ok(())
-  }
-
-  #[tracing::instrument(level = "debug", skip(self), err)]
-  pub async fn get_workspace_views(&self) -> FlowyResult<Vec<View>> {
-    let folder = self.folder.lock();
-    let workspace = folder
-      .get_current_workspace()
-      .ok_or_else(|| FlowyError::record_not_found())?;
-    Ok(folder.views.get_views_belong_to(&workspace.id))
   }
 
   #[tracing::instrument(level = "debug", skip(self, bid), err)]

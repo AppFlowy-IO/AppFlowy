@@ -299,27 +299,25 @@ struct UserStatusListener {
 
 impl UserStatusListener {
   async fn did_sign_in(&self, token: &str, user_id: &str) -> FlowyResult<()> {
-    self.folder_manager.initialize(user_id, token).await?;
+    self.folder_manager.initialize(user_id, false).await?;
     self.document_manager.initialize(user_id).await?;
 
     let cloned_folder_manager = self.folder_manager.clone();
     let get_views_fn = to_fut(async move {
       cloned_folder_manager
-        .get_current_workspace_views(|layout| layout.is_database())
+        .get_current_workspace_views()
         .await
-        .map(|views| {
-          views
-            .into_iter()
-            .map(|view| {
-              (
-                view.id,
-                view.name,
-                layout_type_from_view_layout(view.layout),
-              )
-            })
-            .collect::<Vec<(String, String, LayoutTypePB)>>()
-        })
         .unwrap_or_default()
+        .into_iter()
+        .filter(|view| view.layout.is_database())
+        .map(|view| {
+          (
+            view.id,
+            view.name,
+            layout_type_from_view_layout(view.layout),
+          )
+        })
+        .collect::<Vec<(String, String, LayoutTypePB)>>()
     });
     self
       .database_manager

@@ -24,6 +24,9 @@ pub struct ViewPB {
   #[pb(index = 4)]
   pub create_time: i64,
 
+  #[pb(index = 4)]
+  pub belongings: Vec<String>,
+
   #[pb(index = 5)]
   pub layout: ViewLayoutTypePB,
 }
@@ -35,6 +38,7 @@ impl std::convert::From<View> for ViewPB {
       app_id: view.bid,
       name: view.name,
       create_time: view.created_at,
+      belongings: view.belongings.into_inner(),
       layout: view.layout.into(),
     }
   }

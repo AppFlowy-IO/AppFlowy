@@ -1,13 +1,14 @@
+use crate::manager::Folder;
 use crate::view_ext::gen_view_id;
 use chrono::Utc;
-use collab_folder::core::{Belongings, Folder, FolderData, View, ViewLayout, Workspace};
+use collab_folder::core::{Belongings, FolderData, View, ViewLayout, Workspace};
 use nanoid::nanoid;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub struct DefaultFolderBuilder();
 impl DefaultFolderBuilder {
-  pub async fn build(folder: Arc<RwLock<Folder>>) {
+  pub fn build(folder: Folder) {
     let time = Utc::now().timestamp();
     let workspace_id = gen_workspace_id();
     let view_id = gen_view_id();
@@ -49,7 +50,7 @@ impl DefaultFolderBuilder {
       views: vec![view, child_view],
     };
 
-    folder.read().await.create_with_data(data);
+    folder.lock().create_with_data(data);
   }
 }
 

@@ -57,7 +57,7 @@ pub struct FolderTest {
   pub sdk: FlowySDKTest,
   pub all_workspace: Vec<WorkspacePB>,
   pub workspace: WorkspacePB,
-  pub app: AppPB,
+  pub app: ViewPB,
   pub view: ViewPB,
   pub trash: Vec<TrashPB>,
   // pub folder_editor:
@@ -221,20 +221,23 @@ pub async fn read_workspace(sdk: &FlowySDKTest, workspace_id: Option<String>) ->
   workspaces
 }
 
-pub async fn create_app(sdk: &FlowySDKTest, workspace_id: &str, name: &str, desc: &str) -> AppPB {
-  let create_app_request = CreateAppPayloadPB {
-    workspace_id: workspace_id.to_owned(),
+pub async fn create_app(sdk: &FlowySDKTest, workspace_id: &str, name: &str, desc: &str) -> ViewPB {
+  let create_view_request = CreateViewPayloadPB {
+    belong_to_id: workspace_id.to_owned(),
     name: name.to_string(),
     desc: desc.to_string(),
-    color_style: Default::default(),
+    thumbnail: None,
+    layout: ViewLayout::Document.into(),
+    initial_data: vec![],
+    ext: Default::default(),
   };
 
   Folder2EventBuilder::new(sdk.clone())
-    .event(CreateApp)
-    .payload(create_app_request)
+    .event(CreateView)
+    .payload(create_view_request)
     .async_send()
     .await
-    .parse::<AppPB>()
+    .parse::<ViewPB>()
 }
 
 pub async fn read_app(sdk: &FlowySDKTest, app_id: &str) -> AppPB {

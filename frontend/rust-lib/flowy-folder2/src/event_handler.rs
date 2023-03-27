@@ -23,7 +23,7 @@ pub(crate) async fn create_workspace_handler(
 pub(crate) async fn read_workspace_apps_handler(
   folder: AFPluginState<Arc<Folder2Manager>>,
 ) -> DataResult<RepeatedAppPB, FlowyError> {
-  let views = folder.get_workspace_views().await?;
+  let views = folder.get_current_workspace_views().await?;
   let mut repeated_app = RepeatedAppPB { items: vec![] };
   for view in views.into_iter() {
     let child_views = folder.get_views_belong_to(&view.id).await?;
@@ -68,6 +68,7 @@ pub(crate) async fn read_workspaces_handler(
       .map(|workspace| vec![workspace])
       .unwrap_or_default(),
   };
+
   data_result_ok(workspaces.into())
 }
 
