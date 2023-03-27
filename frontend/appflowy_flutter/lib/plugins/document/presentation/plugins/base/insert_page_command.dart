@@ -3,11 +3,9 @@ import 'package:appflowy/plugins/database_view/application/database_view_service
 import 'package:appflowy/plugins/document/presentation/plugins/board/board_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/grid/grid_node_widget.dart';
 import 'package:appflowy/workspace/application/app/app_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-database/database_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 const String kAppID = 'app_id';
 const String kViewID = 'view_id';
