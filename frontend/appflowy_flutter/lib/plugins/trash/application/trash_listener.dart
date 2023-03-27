@@ -3,9 +3,9 @@ import 'dart:typed_data';
 import 'package:appflowy/core/folder_notification.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/trash.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 
 typedef TrashUpdatedCallback = void Function(

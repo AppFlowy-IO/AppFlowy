@@ -3,7 +3,7 @@ import 'package:appflowy/plugins/database_view/board/board.dart';
 import 'package:appflowy/plugins/database_view/grid/grid.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/workspace/application/app/app_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../util.dart';
 

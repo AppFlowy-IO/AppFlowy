@@ -1,4 +1,4 @@
-import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/app.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsFileExportState {
