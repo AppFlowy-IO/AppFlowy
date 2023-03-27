@@ -46,8 +46,7 @@ export function useBindYjs(delta: TextDelta[], update: (_delta: Delta) => void) 
     if (!yText) return;
 
     const textEventHandler = (event: Y.YTextEvent) => {
-      console.log(event.delta, event.target.toDelta());
-      update(event.delta as Delta);
+      update(event.changes.delta as Delta);
     }
     yText.applyDelta(delta);
     yText.observe(textEventHandler);

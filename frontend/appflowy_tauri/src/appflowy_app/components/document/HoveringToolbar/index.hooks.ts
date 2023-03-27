@@ -11,7 +11,7 @@ export function useHoveringToolbar(id: string) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const nodeRect = document.querySelector(`[data-block-id=${id}]`)?.getBoundingClientRect();
+    const nodeRect = document.querySelector(`[data-block-id="${id}"]`)?.getBoundingClientRect();
 
     if (!nodeRect) return;
     const position = calcToolbarPosition(editor, el, nodeRect);

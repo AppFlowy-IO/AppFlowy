@@ -4,21 +4,25 @@ import { useTextBlock } from './TextBlock.hooks';
 import { Node } from '@/appflowy_app/stores/reducers/document/slice';
 import NodeComponent from '../Node';
 import HoveringToolbar from '../HoveringToolbar';
+import { TextDelta } from '@/appflowy_app/interfaces/document';
+import React from 'react';
 
-export default function TextBlock({
+function TextBlock({
   node,
   childIds,
   placeholder,
+  delta,
   ...props
 }: {
   node: Node;
+  delta: TextDelta[];
   childIds?: string[];
   placeholder?: string;
 } & React.HTMLAttributes<HTMLDivElement>) {
-  const { editor, value, onChange, onKeyDownCapture, onDOMBeforeInput } = useTextBlock(node.data.text!, node.delta);
+  const { editor, value, onChange, onKeyDownCapture, onDOMBeforeInput } = useTextBlock(node.data.text!, delta);
 
   return (
-    <div {...props} className={props.className}>
+    <div {...props} className={`py-[2px] ${props.className}`}>
       <Slate editor={editor} onChange={onChange} value={value}>
         <HoveringToolbar id={node.id} />
         <Editable
@@ -38,3 +42,5 @@ export default function TextBlock({
     </div>
   );
 }
+
+export default React.memo(TextBlock);

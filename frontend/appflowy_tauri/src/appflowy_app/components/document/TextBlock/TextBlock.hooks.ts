@@ -1,29 +1,65 @@
 import { triggerHotkey } from "@/appflowy_app/utils/slate/hotkey";
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { Descendant, Range } from "slate";
 import { useBindYjs } from "./BindYjs.hooks";
 import { YDocControllerContext } from '../../../stores/effects/document/document_controller';
 import { Delta } from "@slate-yjs/core/dist/model/types";
 import { TextDelta } from '../../../interfaces/document';
+import { debounce } from "@/appflowy_app/utils/tool";
 
 function useController(textId: string) {
   const docController = useContext(YDocControllerContext);
-  
+
   const update  = useCallback(
     (delta: Delta) => {
       docController?.yTextApply(textId, delta)
     },
     [textId],
+  );
+  const transact = useCallback(
+    (actions: (() => void)[]) => {
+      docController?.transact(actions)
+    },
+    [textId],
   )
   
   return {
-    update
+    update,
+    transact
+  }
+}
+
+function useTransact(textId: string) {
+  const pendingActions = useRef<(() => void)[]>([]);
+  const { update, transact } = useController(textId);
+
+  const sendTransact = useCallback(
+    () => {
+      const actions = pendingActions.current;
+      transact(actions);
+    },
+    [transact],
+  )
+  
+  const debounceSendTransact = useMemo(() => debounce(sendTransact, 300), [transact]);
+
+  const sendDelta = useCallback(
+    (delta: Delta) => {
+      const action = () => update(delta);
+      pendingActions.current.push(action);
+      debounceSendTransact()
+    },
+    [update, debounceSendTransact],
+  );
+  return {
+    sendDelta
   }
 }
 
 export function useTextBlock(text: string, delta: TextDelta[]) {
-  const { update } = useController(text);
-  const { editor } = useBindYjs(delta, update);
+  const { sendDelta } = useTransact(text);
+
+  const { editor } = useBindYjs(delta, sendDelta);
   const [value, setValue] = useState<Descendant[]>([]);
   
   const onChange = useCallback(
