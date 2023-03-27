@@ -9,11 +9,12 @@ enum TestWorkspace {
 
   const TestWorkspace(this._name);
 
-  static const String _prefix = "integration_test/util/test_workspaces/";
+  static const String _prefix = "integration_test/util/test_workspaces";
 
   final String _name;
-  String get path => "${Directory.current.path}/$_prefix/$_name.zip";
+  String get zip => "${Directory.current.path}/$_prefix/$_name.zip";
   String get _out => "${Directory.current.path}/$_prefix/.ephemeral/";
+  String get directory => "$_out/$name";
 }
 
 class TestWorkspaceService {
@@ -24,14 +25,14 @@ class TestWorkspaceService {
   /// Instructs the application to read workspace data from the workspace found under this [TestWorkspace]'s path.
   Future<void> setUpAll() async {
     SharedPreferences.setMockInitialValues(
-      {kSettingsLocationDefaultLocation: TestWorkspace.board.path},
+      {kSettingsLocationDefaultLocation: TestWorkspace.board.directory},
     );
   }
 
   /// Workspaces that are checked into source are compressed. [TestWorkspaceService.setUp()] decompresses the file into an ephemeral directory that will be ignored by source control.
   Future<void> setUp() async {
-    final inputStream = InputFileStream(workspace.path);
+    final inputStream = InputFileStream(workspace.zip);
     final archive = ZipDecoder().decodeBuffer(inputStream);
-    extractArchiveToDisk(archive, workspace._out);
+    extractArchiveToDisk(archive, workspace.directory);
   }
 }
