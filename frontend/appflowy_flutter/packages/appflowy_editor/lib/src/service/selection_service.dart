@@ -91,6 +91,12 @@ class SelectionInterceptor {
   bool Function(TapDownDetails details)? canTap;
 }
 
+final Set<Node> selectables = {};
+
+abstract class Selectable<T extends StatefulWidget> {
+  void setSelection(Selection selection);
+}
+
 class AppFlowySelection extends StatefulWidget {
   const AppFlowySelection({
     Key? key,
@@ -161,6 +167,12 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     super.dispose();
   }
 
+  DragStartDetails? _panStartDetails;
+  DragUpdateDetails? _panUpdateDetails;
+
+  Position? _startPosition;
+  Position? _updatePosition;
+
   @override
   Widget build(BuildContext context) {
     if (!widget.editable) {
@@ -189,10 +201,8 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
   @override
   List<Node> getNodesInSelection(Selection selection) {
-    final start =
-        selection.isBackward ? selection.start.path : selection.end.path;
-    final end =
-        selection.isBackward ? selection.end.path : selection.start.path;
+    final start = selection.normalized.start.path;
+    final end = selection.normalized.end.path;
     assert(start <= end);
     final startNode = editorState.document.nodeAtPath(start);
     final endNode = editorState.document.nodeAtPath(end);
@@ -218,8 +228,8 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     }
 
     selectionRects.clear();
-    clearSelection();
-    _clearToolbar();
+    // clearSelection();
+    // _clearToolbar();
 
     if (selection != null) {
       if (selection.isCollapsed) {
@@ -231,6 +241,9 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
         Log.selection.debug('update cursor area, $selection');
         _updateSelectionAreas(selection);
       }
+      for (final element in selectables) {
+        element.selectable?.setSelection(selection);
+      }
     }
 
     currentSelection.value = selection;
@@ -239,6 +252,10 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
   @override
   void clearSelection() {
+    for (final element in selectables) {
+      element.selectable?.setSelection(null);
+    }
+
     currentSelectedNodes = [];
     currentSelection.value = null;
 
@@ -272,8 +289,14 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
   @override
   Node? getNodeInOffset(Offset offset) {
-    final sortedNodes =
-        editorState.document.root.children.toList(growable: false);
+    // final sortedNodes =
+    //     editorState.document.root.children.toList(growable: false);
+    final sortedNodes = [
+      ...selectables.toList(growable: false)
+        ..sort((a, b) {
+          return a.path <= b.path ? -1 : 1;
+        })
+    ];
     return _getNodeInOffset(
       sortedNodes,
       offset,
@@ -294,12 +317,16 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
   }
 
   void _onTapDown(TapDownDetails details) {
+    _startPosition = null;
+    _updatePosition = null;
     final canTap =
         _interceptors.every((element) => element.canTap?.call(details) ?? true);
     if (!canTap) return;
 
     // clear old state.
     _panStartOffset = null;
+    _panStartDetails = null;
+    _panUpdateDetails = null;
 
     final position = getPositionInOffset(details.globalPosition);
     if (position == null) {
@@ -358,6 +385,10 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
   }
 
   void _onPanStart(DragStartDetails details) {
+    _panStartDetails = details;
+    _startPosition = getPositionInOffset(details.globalPosition);
+    return;
+
     clearSelection();
     _clearToolbar();
 
@@ -368,6 +399,17 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
+    _panUpdateDetails = details;
+    _updatePosition = getPositionInOffset(details.globalPosition);
+    _panUpdateDetails = details;
+    final selection = Selection(start: _startPosition!, end: _updatePosition!);
+    updateSelection(selection);
+    final size =
+        _panUpdateDetails!.globalPosition - _panStartDetails!.globalPosition;
+    widget.editorState.service.scrollService
+        ?.startAutoScrollIfNecessary(details.globalPosition);
+    return;
+    return;
     if (_panStartOffset == null || _panStartScrollDy == null) {
       return;
     }
@@ -404,6 +446,8 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     final nodes = getNodesInSelection(selection);
 
     currentSelectedNodes = nodes;
+
+    return;
 
     // TODO: need to be refactored.
     Offset? toolbarOffset;
@@ -506,6 +550,10 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
   }
 
   void _updateCursorAreas(Position position) {
+    for (var element in selectables) {
+      element.selectable?.setSelection(null);
+    }
+
     final node = editorState.document.root.childAtPath(position.path);
 
     if (node == null) {
@@ -515,8 +563,8 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
     currentSelectedNodes = [node];
 
-    _showCursor(node, position);
-    _clearToolbar();
+    // _showCursor(node, position);
+    // _clearToolbar();
   }
 
   void _showCursor(Node node, Position position) {
@@ -640,6 +688,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
   }
 
   void _onSelectionChange() {
+    return;
     _scrollUpOrDownIfNeeded();
   }
 

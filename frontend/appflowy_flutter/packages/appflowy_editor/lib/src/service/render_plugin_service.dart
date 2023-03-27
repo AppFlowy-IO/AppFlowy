@@ -1,8 +1,4 @@
-import 'package:appflowy_editor/src/core/document/node.dart';
-import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/infra/log.dart';
-import 'package:appflowy_editor/src/render/action_menu/action_menu.dart';
-import 'package:appflowy_editor/src/render/action_menu/action_menu_item.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -154,17 +150,21 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
 
   Widget _buildWithActions(
       NodeWidgetBuilder builder, NodeWidgetContext context) {
+    final child = _SelectionWrapper(
+      node: context.node,
+      child: builder.build(context),
+    );
     if (builder is ActionProvider) {
       return ChangeNotifierProvider(
         create: (_) => ActionMenuState(context.node.path),
         child: ActionMenuOverlay(
           items: builder.actions(context),
           customActionMenuBuilder: customActionMenuBuilder,
-          child: builder.build(context),
+          child: child,
         ),
       );
     } else {
-      return builder.build(context);
+      return child;
     }
   }
 
@@ -176,5 +176,34 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
     if (_builders.containsKey(name)) {
       throw Exception('Plugin name($name) already exists.');
     }
+  }
+}
+
+class _SelectionWrapper extends StatefulWidget {
+  const _SelectionWrapper({
+    required this.node,
+    required this.child,
+  });
+
+  final Node node;
+  final Widget child;
+
+  @override
+  State<_SelectionWrapper> createState() => __SelectionWrapperState();
+}
+
+class __SelectionWrapperState extends State<_SelectionWrapper> {
+  @override
+  Widget build(BuildContext context) {
+    print('[optimize] +++, ${widget.node.path}');
+    selectables.add(widget.node);
+    return widget.child;
+  }
+
+  @override
+  void dispose() {
+    print('[optimize] ---, ${widget.node.path}');
+    selectables.remove(widget.node);
+    super.dispose();
   }
 }

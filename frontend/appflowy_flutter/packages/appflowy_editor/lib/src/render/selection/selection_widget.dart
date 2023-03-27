@@ -24,7 +24,7 @@ class _SelectionWidgetState extends State<SelectionWidget> {
       child: CompositedTransformFollower(
         link: widget.layerLink,
         offset: widget.rect.topLeft,
-        showWhenUnlinked: true,
+        showWhenUnlinked: false,
         // Ignore the gestures in selection overlays
         //  to solve the problem that selection areas cannot overlap.
         child: IgnorePointer(

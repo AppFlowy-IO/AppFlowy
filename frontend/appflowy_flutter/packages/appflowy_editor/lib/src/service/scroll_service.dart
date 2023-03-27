@@ -43,6 +43,8 @@ abstract class AppFlowyScrollService {
   /// But you need to call the `enable` function to restore after exiting
   ///   your custom component, otherwise the scroll service will fails.
   void disable();
+
+  void startAutoScrollIfNecessary(Offset position);
 }
 
 class AppFlowyScroll extends StatefulWidget {
@@ -90,6 +92,7 @@ class _AppFlowyScrollState extends State<AppFlowyScroll>
 
   @override
   Widget build(BuildContext context) {
+    return widget.child;
     return Listener(
       onPointerSignal: _onPointerSignal,
       onPointerPanZoomUpdate: _onPointerPanZoomUpdate,
@@ -142,4 +145,7 @@ class _AppFlowyScrollState extends State<AppFlowyScroll>
       scrollTo(dy);
     }
   }
+
+  @override
+  void startAutoScrollIfNecessary(Offset position) {}
 }

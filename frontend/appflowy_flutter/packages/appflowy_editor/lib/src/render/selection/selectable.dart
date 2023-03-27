@@ -1,5 +1,6 @@
 import 'package:appflowy_editor/src/core/location/position.dart';
 import 'package:appflowy_editor/src/core/location/selection.dart';
+import 'package:appflowy_editor/src/service/selection_service.dart';
 import 'package:flutter/material.dart';
 
 enum CursorStyle {
@@ -66,4 +67,6 @@ mixin SelectableMixin<T extends StatefulWidget> on State<T> {
   bool get shouldCursorBlink => true;
 
   CursorStyle get cursorStyle => CursorStyle.verticalLine;
+
+  void setSelection(Selection? selection) {}
 }

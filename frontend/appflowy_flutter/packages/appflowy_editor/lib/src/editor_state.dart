@@ -139,6 +139,8 @@ class EditorState {
     ruleCount = 0,
     withUpdateCursor = true,
   }) async {
+    final stopWatch = Stopwatch();
+    stopWatch.start();
     final completer = Completer<void>();
 
     if (!editable) {
@@ -157,6 +159,10 @@ class EditorState {
       if (withUpdateCursor) {
         await updateCursorSelection(transaction.afterSelection);
       }
+      stopWatch.stop();
+      print(
+        '[EditorState] apply transaction: ${stopWatch.elapsedMilliseconds}ms',
+      );
       completer.complete();
     });
 
