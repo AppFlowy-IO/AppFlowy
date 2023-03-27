@@ -16,23 +16,21 @@ void main() {
     final MemoryFileSystem fileSystem = MemoryFileSystem.test();
     mockFile = await fileSystem.file("shortcuts.json").create(recursive: true);
     service = SettingsShortcutService(passedFile: mockFile);
-    shortcutsJson =
-        """
-{
-"shortcuts": [
-{ 
-"key":"Home",
-"command":"alt+home"
-},
-{
-"key":"End",
-"command":"alt+end"
-},
-{
-"key":"Delete Text",
-"command":"alt+delete"
-}
-]
+    shortcutsJson = """{
+   "shortcuts":[
+      {
+         "key":"Home",
+         "command":"alt+home"
+      },
+      {
+         "key":"End",
+         "command":"alt+end"
+      },
+      {
+         "key":"Delete Text",
+         "command":"alt+delete"
+      }
+   ]
 }""";
   });
 
