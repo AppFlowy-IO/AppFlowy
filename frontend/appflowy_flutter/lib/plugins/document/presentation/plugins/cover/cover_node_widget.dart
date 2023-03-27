@@ -400,7 +400,7 @@ class _CoverImageState extends State<_CoverImage> {
                 popoverController.show();
               },
               hoverColor: Theme.of(context).colorScheme.surface,
-              textColor: Theme.of(context).colorScheme.onSurface,
+              textColor: Theme.of(context).colorScheme.tertiary,
               fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
               width: 120,
               height: 28,
@@ -422,7 +422,7 @@ class _CoverImageState extends State<_CoverImage> {
             width: 28,
             icon: svgWidget(
               'editor/delete',
-              color: Theme.of(context).iconTheme.color,
+              color: Theme.of(context).colorScheme.tertiary,
             ),
             onPressed: () {
               widget.onCoverChanged(CoverSelectionType.initial, null);
