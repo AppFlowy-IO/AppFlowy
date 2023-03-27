@@ -36,7 +36,7 @@ class _TableColState extends State<TableCol> {
     children.addAll([
       SizedBox(
         width: context.select(
-            (Node n) => getCellNode(n, widget.colIdx, 0)!.attributes['width']),
+            (Node n) => getCellNode(n, widget.colIdx, 0)?.attributes['width']),
         child: Column(children: _buildCells(context)),
       ),
       TableColBorder(
