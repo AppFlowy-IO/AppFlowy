@@ -5,14 +5,14 @@ import { documentActions } from '$app/stores/reducers/document/slice';
 
 export function useParseTree(documentData: DocumentData) {
   const dispatch = useAppDispatch();
-  const { blocks, ytexts, yarrays } = documentData;
+  const { blocks, meta } = documentData;
 
   useEffect(() => {
     dispatch(
-      documentActions.createTree({
+      documentActions.create({
         nodes: blocks,
-        delta: ytexts,
-        children: yarrays,
+        delta: meta.text_map,
+        children: meta.children_map,
       })
     );
 

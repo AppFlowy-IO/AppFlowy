@@ -1,7 +1,7 @@
 import { useDocument } from './DocumentPage.hooks';
 import { createTheme, ThemeProvider } from '@mui/material';
 import Root from '../components/document/Root';
-import { YDocControllerContext } from '../stores/effects/document/document_controller';
+import { DocumentControllerContext } from '../stores/effects/document/document_controller';
 
 const theme = createTheme({
   typography: {
@@ -15,9 +15,9 @@ export const DocumentPage = () => {
   if (!documentId || !documentData || !controller) return null;
   return (
     <ThemeProvider theme={theme}>
-      <YDocControllerContext.Provider value={controller}>
+      <DocumentControllerContext.Provider value={controller}>
         <Root documentData={documentData} />
-      </YDocControllerContext.Provider>
+      </DocumentControllerContext.Provider>
     </ThemeProvider>
   );
 };

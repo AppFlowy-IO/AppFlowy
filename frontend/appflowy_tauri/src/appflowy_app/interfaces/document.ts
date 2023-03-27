@@ -16,6 +16,8 @@ export interface NestedBlock {
   id: string;
   type: BlockType;
   data: Record<string, any>;
+  externalId: string;
+  externalType: 'text' | 'array' | 'map';
   parent: string | null;
   children: string;
 }
@@ -26,6 +28,8 @@ export interface TextDelta {
 export interface DocumentData {
   rootId: string;
   blocks: Record<string, NestedBlock>;
-  ytexts: Record<string, TextDelta[]>;
-  yarrays: Record<string, string[]>;
+  meta: {
+    text_map: Record<string, TextDelta[]>;
+    children_map: Record<string, string[]>;
+  }
 }

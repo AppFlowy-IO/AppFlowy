@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useFocused, useSlate } from 'slate-react';
-import { calcToolbarPosition } from '@/appflowy_app/utils/slate/toolbar';
-
+import { calcToolbarPosition } from '$app/utils/slate/toolbar';
 
 export function useHoveringToolbar(id: string) {
   const editor = useSlate();
@@ -29,6 +28,6 @@ export function useHoveringToolbar(id: string) {
   return {
     ref,
     inFocus,
-    editor
-  }
+    editor,
+  };
 }

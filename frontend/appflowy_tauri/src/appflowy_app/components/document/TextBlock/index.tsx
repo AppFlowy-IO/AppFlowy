@@ -3,7 +3,7 @@ import Leaf from './Leaf';
 import { useTextBlock } from './TextBlock.hooks';
 import { Node } from '@/appflowy_app/stores/reducers/document/slice';
 import NodeComponent from '../Node';
-import HoveringToolbar from '../HoveringToolbar';
+import HoveringToolbar from '../_shared/HoveringToolbar';
 import { TextDelta } from '@/appflowy_app/interfaces/document';
 import React from 'react';
 
