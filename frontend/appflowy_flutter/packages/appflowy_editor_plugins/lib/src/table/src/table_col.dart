@@ -83,5 +83,7 @@ class _TableColState extends State<TableCol> {
   }
 
   updateRowHeightCallback(int row) => WidgetsBinding.instance
-      .addPostFrameCallback((_) => widget.tableNode.updateRowHeight(row));
+      .addPostFrameCallback((_) => row < widget.tableNode.rowsLen
+          ? widget.tableNode.updateRowHeight(row)
+          : null);
 }

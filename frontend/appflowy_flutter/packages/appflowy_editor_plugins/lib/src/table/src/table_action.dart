@@ -52,6 +52,15 @@ removeCol(Node tableNode, int col, Transaction transaction) {
     nodes.add(getCellNode(tableNode, col, i)!);
   }
   transaction.deleteNodes(nodes);
+
+  for (var i = col + 1; i < colsLen; i++) {
+    for (var j = 0; j < rowsLen; j++) {
+      transaction.updateNode(getCellNode(tableNode, i, j)!, {
+        'position': {'col': i - 1, 'row': j}
+      });
+    }
+  }
+
   transaction.updateNode(tableNode, {'colsLen': colsLen - 1});
 }
 
@@ -63,6 +72,15 @@ removeRow(Node tableNode, int row, Transaction transaction) {
     nodes.add(getCellNode(tableNode, i, row)!);
   }
   transaction.deleteNodes(nodes);
+
+  for (var i = row + 1; i < rowsLen; i++) {
+    for (var j = 0; j < colsLen; j++) {
+      transaction.updateNode(getCellNode(tableNode, j, i)!, {
+        'position': {'col': j, 'row': i - 1}
+      });
+    }
+  }
+
   transaction.updateNode(tableNode, {'rowsLen': rowsLen - 1});
 }
 
