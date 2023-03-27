@@ -530,6 +530,7 @@ dependencies = [
  "serde_repr",
  "thiserror",
  "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -1377,6 +1378,7 @@ dependencies = [
  "collab-persistence",
  "flowy-codegen",
  "flowy-derive",
+ "flowy-document",
  "flowy-error",
  "flowy-folder2",
  "flowy-notification",

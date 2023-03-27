@@ -4,7 +4,6 @@ use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent::*;
 use flowy_test::event_builder::Folder2EventBuilder;
 use flowy_test::FlowySDKTest;
-use std::sync::Arc;
 
 pub enum FolderScript {
   // Workspace
@@ -64,8 +63,8 @@ impl FolderTest {
   pub async fn new() -> Self {
     let sdk = FlowySDKTest::default();
     let _ = sdk.init_user().await;
-    let mut workspace = create_workspace(&sdk, "FolderWorkspace", "Folder test workspace").await;
-    let mut root_view = create_app(&sdk, &workspace.id, "Folder App", "Folder test app").await;
+    let workspace = create_workspace(&sdk, "FolderWorkspace", "Folder test workspace").await;
+    let root_view = create_app(&sdk, &workspace.id, "Folder App", "Folder test app").await;
     let view = create_view(
       &sdk,
       &root_view.id,
@@ -116,11 +115,11 @@ impl FolderTest {
         assert_eq!(self.root_view, app, "App not equal");
       },
       FolderScript::RefreshRootView(app_id) => {
-        let app = read_app(sdk, &app_id).await;
+        let app = read_view(sdk, &app_id).await;
         self.root_view = app;
       },
       FolderScript::UpdateRootView { name, desc } => {
-        update_app(sdk, &self.root_view.id, name, desc).await;
+        update_view(sdk, &self.root_view.id, name, desc).await;
       },
       FolderScript::DeleteRootView => {
         delete_view(sdk, vec![self.root_view.id.clone()]).await;
@@ -153,7 +152,7 @@ impl FolderTest {
         restore_view_from_trash(sdk, &self.view.id).await;
       },
       FolderScript::ReadTrash => {
-        let mut trash = read_trash(sdk).await;
+        let trash = read_trash(sdk).await;
         self.trash = trash.items;
       },
       FolderScript::DeleteAllTrash => {
@@ -189,7 +188,7 @@ pub async fn read_workspace(sdk: &FlowySDKTest, workspace_id: Option<String>) ->
   let request = WorkspaceIdPB {
     value: workspace_id,
   };
-  let mut repeated_workspace = Folder2EventBuilder::new(sdk.clone())
+  let repeated_workspace = Folder2EventBuilder::new(sdk.clone())
     .event(ReadWorkspaces)
     .payload(request.clone())
     .async_send()
@@ -228,51 +227,6 @@ pub async fn create_app(sdk: &FlowySDKTest, workspace_id: &str, name: &str, desc
     .async_send()
     .await
     .parse::<ViewPB>()
-}
-
-pub async fn read_app(sdk: &FlowySDKTest, app_id: &str) -> ViewPB {
-  let request = AppIdPB {
-    value: app_id.to_owned(),
-  };
-
-  Folder2EventBuilder::new(sdk.clone())
-    .event(ReadView)
-    .payload(request)
-    .async_send()
-    .await
-    .parse::<ViewPB>()
-}
-
-pub async fn update_app(
-  sdk: &FlowySDKTest,
-  app_id: &str,
-  name: Option<String>,
-  desc: Option<String>,
-) {
-  let request = UpdateViewPayloadPB {
-    view_id: app_id.to_string(),
-    name,
-    desc,
-    thumbnail: None,
-  };
-
-  Folder2EventBuilder::new(sdk.clone())
-    .event(UpdateView)
-    .payload(request)
-    .async_send()
-    .await;
-}
-
-pub async fn delete_app(sdk: &FlowySDKTest, app_id: &str) {
-  let request = AppIdPB {
-    value: app_id.to_string(),
-  };
-
-  Folder2EventBuilder::new(sdk.clone())
-    .event(DeleteApp)
-    .payload(request)
-    .async_send()
-    .await;
 }
 
 pub async fn create_view(

@@ -29,8 +29,9 @@ impl Folder2DepsResolver {
 
     let view_data_processor =
       make_view_data_processor(document_manager.clone(), database_manager.clone());
+    let kv_db = user_session.get_kv_db().ok();
     Arc::new(
-      Folder2Manager::new(user.clone(), view_data_processor)
+      Folder2Manager::new(user.clone(), view_data_processor, kv_db)
         .await
         .unwrap(),
     )

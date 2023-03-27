@@ -3,6 +3,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/app.pb.dart';
@@ -81,7 +82,7 @@ class AppFlowyUnitTest {
     workspaceService = WorkspaceService(workspaceId: currentWorkspace.id);
   }
 
-  Future<AppPB> createTestApp() async {
+  Future<ViewPB> createTestApp() async {
     final result = await workspaceService.createApp(name: "Test App");
     return result.fold(
       (app) => app,
@@ -89,7 +90,7 @@ class AppFlowyUnitTest {
     );
   }
 
-  Future<List<AppPB>> loadApps() async {
+  Future<List<ViewPB>> loadApps() async {
     final result = await workspaceService.getApps();
 
     return result.fold(

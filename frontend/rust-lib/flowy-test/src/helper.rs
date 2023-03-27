@@ -1,11 +1,9 @@
 use crate::prelude::*;
 use flowy_folder2::entities::{
-  AppPB, CreateAppPayloadPB, CreateViewPayloadPB, CreateWorkspacePayloadPB, ViewLayoutTypePB,
-  ViewPB, WorkspaceIdPB, WorkspacePB,
+  CreateViewPayloadPB, CreateWorkspacePayloadPB, ViewLayoutTypePB, ViewPB, WorkspaceIdPB,
+  WorkspacePB,
 };
-use flowy_folder2::event_map::FolderEvent::{
-  CreateApp, CreateView, CreateWorkspace, OpenWorkspace,
-};
+use flowy_folder2::event_map::FolderEvent::{CreateView, CreateWorkspace, OpenWorkspace};
 use flowy_user::{
   entities::{SignInPayloadPB, SignUpPayloadPB, UserProfilePB},
   errors::FlowyError,
@@ -17,8 +15,8 @@ use std::{fs, path::PathBuf, sync::Arc};
 pub struct ViewTest {
   pub sdk: FlowySDKTest,
   pub workspace: WorkspacePB,
-  pub app: AppPB,
-  pub view: ViewPB,
+  pub root_view: ViewPB,
+  pub child_view: ViewPB,
 }
 
 impl ViewTest {
@@ -31,8 +29,8 @@ impl ViewTest {
     Self {
       sdk: sdk.clone(),
       workspace,
-      app,
-      view,
+      root_view: app,
+      child_view: view,
     }
   }
 
@@ -78,20 +76,23 @@ async fn open_workspace(sdk: &FlowySDKTest, workspace_id: &str) {
     .await;
 }
 
-async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &str) -> AppPB {
-  let create_app_request = CreateAppPayloadPB {
-    workspace_id: workspace_id.to_owned(),
+async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &str) -> ViewPB {
+  let create_app_request = CreateViewPayloadPB {
+    belong_to_id: workspace_id.to_owned(),
     name: name.to_string(),
     desc: desc.to_string(),
-    color_style: Default::default(),
+    thumbnail: None,
+    layout: Default::default(),
+    initial_data: vec![],
+    ext: Default::default(),
   };
 
   Folder2EventBuilder::new(sdk.clone())
-    .event(CreateApp)
+    .event(CreateView)
     .payload(create_app_request)
     .async_send()
     .await
-    .parse::<AppPB>()
+    .parse::<ViewPB>()
 }
 
 async fn create_view(

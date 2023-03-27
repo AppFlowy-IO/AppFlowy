@@ -122,11 +122,6 @@ void _resolveFolderDeps(GetIt getIt) {
     (user, _) => SettingsUserViewBloc(user),
   );
 
-  // AppPB
-  getIt.registerFactoryParam<AppBloc, AppPB, void>(
-    (app, _) => AppBloc(app: app),
-  );
-
   // trash
   getIt.registerLazySingleton<TrashService>(() => TrashService());
   getIt.registerLazySingleton<TrashListener>(() => TrashListener());

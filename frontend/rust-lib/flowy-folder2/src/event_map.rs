@@ -58,24 +58,8 @@ pub enum FolderEvent {
   OpenWorkspace = 4,
 
   /// Return a list of apps that belong to this workspace
-  #[event(input = "WorkspaceIdPB", output = "RepeatedAppPB")]
+  #[event(input = "WorkspaceIdPB", output = "RepeatedViewPB")]
   ReadWorkspaceApps = 5,
-
-  /// Create a new app
-  #[event(input = "CreateAppPayloadPB", output = "AppPB")]
-  CreateApp = 101,
-
-  /// Delete the app
-  #[event(input = "AppIdPB")]
-  DeleteApp = 102,
-
-  /// Read the app
-  #[event(input = "AppIdPB", output = "AppPB")]
-  ReadApp = 103,
-
-  /// Update the app's properties including the name,description, etc.
-  #[event(input = "UpdateAppPayloadPB")]
-  UpdateApp = 104,
 
   /// Create a new view in the corresponding app
   #[event(input = "CreateViewPayloadPB", output = "ViewPB")]

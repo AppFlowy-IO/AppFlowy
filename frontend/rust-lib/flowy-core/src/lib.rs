@@ -88,6 +88,8 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
     .collect::<Vec<String>>();
   filters.push(format!("flowy_core={}", level));
   filters.push(format!("flowy_folder={}", level));
+  filters.push(format!("flowy_folder2={}", level));
+  filters.push(format!("collab_folder={}", level));
   filters.push(format!("flowy_user={}", level));
   filters.push(format!("flowy_document={}", level));
   filters.push(format!("flowy_database={}", level));
@@ -294,12 +296,13 @@ struct UserStatusListener {
   folder_manager: Arc<Folder2Manager>,
   database_manager: Arc<DatabaseManager>,
   ws_conn: Arc<FlowyWebSocketConnect>,
+  #[allow(dead_code)]
   config: AppFlowyCoreConfig,
 }
 
 impl UserStatusListener {
   async fn did_sign_in(&self, token: &str, user_id: &str) -> FlowyResult<()> {
-    self.folder_manager.initialize(user_id, false).await?;
+    self.folder_manager.initialize(user_id).await?;
     self.document_manager.initialize(user_id).await?;
 
     let cloned_folder_manager = self.folder_manager.clone();

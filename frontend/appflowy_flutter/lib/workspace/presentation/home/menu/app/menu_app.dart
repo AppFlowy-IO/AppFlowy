@@ -1,4 +1,5 @@
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:expandable/expandable.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/app.pb.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'section/section.dart';
 
 class MenuApp extends StatefulWidget {
-  final AppPB app;
+  final ViewPB app;
   const MenuApp(this.app, {Key? key}) : super(key: key);
 
   @override
@@ -31,7 +32,7 @@ class _MenuAppState extends State<MenuApp> {
       providers: [
         BlocProvider<AppBloc>(
           create: (context) {
-            final appBloc = getIt<AppBloc>(param1: widget.app);
+            final appBloc = AppBloc(app: widget.app);
             appBloc.add(const AppEvent.initial());
             return appBloc;
           },

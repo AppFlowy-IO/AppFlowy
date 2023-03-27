@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../util.dart';
 
 class TrashTestContext {
-  late AppPB app;
+  late ViewPB app;
   late AppBloc appBloc;
   late List<ViewPB> allViews;
   final AppFlowyUnitTest unitTest;
@@ -40,7 +40,7 @@ class TrashTestContext {
     );
     await blocResponseFuture();
 
-    allViews = [...appBloc.state.app.belongings.items];
+    allViews = [...appBloc.state.app.belongings];
     assert(allViews.length == 3, 'but receive ${allViews.length}');
   }
 }
@@ -65,17 +65,17 @@ void main() {
       await blocResponseFuture(millisecond: 200);
 
       // delete a view
-      final deletedView = context.appBloc.state.app.belongings.items[0];
+      final deletedView = context.appBloc.state.app.belongings[0];
       context.appBloc.add(AppEvent.deleteView(deletedView.id));
       await blocResponseFuture();
-      assert(context.appBloc.state.app.belongings.items.length == 2);
+      assert(context.appBloc.state.app.belongings.length == 2);
       assert(trashBloc.state.objects.length == 1);
       assert(trashBloc.state.objects.first.id == deletedView.id);
 
       // put back
       trashBloc.add(TrashEvent.putback(deletedView.id));
       await blocResponseFuture();
-      assert(context.appBloc.state.app.belongings.items.length == 3);
+      assert(context.appBloc.state.app.belongings.length == 3);
       assert(trashBloc.state.objects.isEmpty);
 
       // delete all views

@@ -10,7 +10,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/notification.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 
-typedef AppDidUpdateCallback = void Function(AppPB app);
+typedef AppDidUpdateCallback = void Function(ViewPB app);
 typedef ViewsDidChangeCallback = void Function(
     Either<List<ViewPB>, FlowyError> viewsOrFailed);
 
@@ -38,7 +38,7 @@ class AppListener {
         if (_updated != null) {
           result.fold(
             (payload) {
-              final app = AppPB.fromBuffer(payload);
+              final app = ViewPB.fromBuffer(payload);
               _updated!(app);
             },
             (error) => Log.error(error),

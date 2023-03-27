@@ -41,15 +41,14 @@ SelectionMenuItem gridViewMenuItem(DocumentBloc documentBloc) =>
           return;
         }
 
-        final app =
-            (await service.readApp(appId: result.appId)).getLeftOrNull();
+        final app = (await service.getView(result.appId)).getLeftOrNull();
         // We should show an error dialog.
         if (app == null) {
           return;
         }
 
-        final view =
-            (await service.getView(result.appId, result.id)).getLeftOrNull();
+        final view = (await service.getChildView(result.appId, result.id))
+            .getLeftOrNull();
         // As this.
         if (view == null) {
           return;

@@ -1,29 +1,45 @@
 use crate::manager::Folder;
-use crate::view_ext::gen_view_id;
+use crate::view_ext::{gen_view_id, ViewDataProcessorMap};
 use chrono::Utc;
 use collab_folder::core::{Belonging, Belongings, FolderData, View, ViewLayout, Workspace};
+use flowy_document::editor::initial_read_me;
 use nanoid::nanoid;
-use std::sync::Arc;
-use tokio::sync::RwLock;
+use std::collections::HashMap;
 
 pub struct DefaultFolderBuilder();
 impl DefaultFolderBuilder {
-  pub fn build(folder: Folder) {
+  pub async fn build(uid: i64, folder: Folder, view_processors: &ViewDataProcessorMap) {
     let time = Utc::now().timestamp();
     let workspace_id = gen_workspace_id();
     let view_id = gen_view_id();
     let child_view_id = gen_view_id();
 
+    let child_view_layout = ViewLayout::Document;
     let child_view = View {
-      id: child_view_id,
+      id: child_view_id.clone(),
       bid: view_id.clone(),
       name: "Read me".to_string(),
       desc: "".to_string(),
       belongings: Default::default(),
       created_at: time,
-      layout: ViewLayout::Document,
+      layout: child_view_layout.clone(),
       database_id: None,
     };
+
+    // create the document
+    let data = initial_read_me().into_bytes();
+    let processor = view_processors.get(&child_view_layout).unwrap();
+    processor
+      .create_view_with_custom_data(
+        uid,
+        &child_view.id,
+        &child_view.name,
+        data,
+        child_view_layout.clone(),
+        HashMap::default(),
+      )
+      .await
+      .unwrap();
 
     let view = View {
       id: view_id,
@@ -51,7 +67,7 @@ impl DefaultFolderBuilder {
 
     let data = FolderData {
       current_workspace: workspace.id.clone(),
-      current_view: view.id.clone(),
+      current_view: child_view_id,
       workspaces: vec![workspace],
       views: vec![view, child_view],
     };

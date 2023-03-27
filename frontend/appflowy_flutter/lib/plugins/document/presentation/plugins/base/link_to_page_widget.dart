@@ -85,7 +85,7 @@ class LinkToPageMenu extends StatefulWidget {
   final EditorState editorState;
   final ViewLayoutTypePB layoutType;
   final String hintText;
-  final void Function(AppPB appPB, ViewPB viewPB) onSelected;
+  final void Function(ViewPB appPB, ViewPB viewPB) onSelected;
 
   @override
   State<LinkToPageMenu> createState() => _LinkToPageMenuState();
@@ -118,7 +118,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   }
 
   Widget _buildListWidget(BuildContext context) {
-    return FutureBuilder<List<dartz.Tuple2<AppPB, List<ViewPB>>>>(
+    return FutureBuilder<List<dartz.Tuple2<ViewPB, List<ViewPB>>>>(
       builder: (context, snapshot) {
         if (snapshot.hasData &&
             snapshot.connectionState == ConnectionState.done) {

@@ -135,7 +135,7 @@ class _ExpandedListState extends State<_ExpandedList> {
     List<Widget> expandedChildren = [];
     if (isExpaned) {
       for (var i = 0; i < selectedItems[index].length; i++) {
-        final name = apps[index].belongings.items[i].name;
+        final name = apps[index].belongings[i].name;
         final checkbox = CheckboxListTile(
           value: selectedItems[index][i],
           onChanged: (value) {

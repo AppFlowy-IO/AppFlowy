@@ -38,14 +38,18 @@ impl Folder2Manager {
   pub async fn new(
     user: Arc<dyn FolderUser>,
     view_processors: ViewDataProcessorMap,
+    kv_db: Option<Arc<CollabKV>>,
   ) -> FlowyResult<Self> {
     let uid = user.user_id()?;
-    // let db = user.kv_db()?;
-
     let folder_id = FolderId::new(uid);
-    let collab = CollabBuilder::new(uid, folder_id)
-      // .with_plugin(CollabDiskPlugin::new(db).unwrap())
-      .build();
+
+    let mut collab = CollabBuilder::new(uid, folder_id).build();
+    if let Some(kv_db) = kv_db {
+      let disk_plugin =
+        Arc::new(CollabDiskPlugin::new(kv_db).map_err(|err| FlowyError::internal().context(err))?);
+      collab.add_plugin(disk_plugin);
+      collab.initial();
+    }
 
     let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
     let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
@@ -70,15 +74,7 @@ impl Folder2Manager {
 
   /// Called immediately after the application launched with the user sign in/sign up.
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn initialize(&self, user_id: &str, build_default_folder: bool) -> FlowyResult<()> {
-    let db = self.user.kv_db()?;
-    let disk_plugin =
-      Arc::new(CollabDiskPlugin::new(db).map_err(|err| FlowyError::internal().context(err))?);
-    self.folder.lock().add_plugins(vec![disk_plugin]);
-
-    if build_default_folder {
-      DefaultFolderBuilder::build(self.folder.clone());
-    }
+  pub async fn initialize(&self, user_id: &str) -> FlowyResult<()> {
     Ok(())
   }
 
@@ -114,14 +110,25 @@ impl Folder2Manager {
     )
   }
 
-  pub async fn initialize_with_new_user(&self, user_id: &str) -> FlowyResult<()> {
-    self.initialize(user_id, true).await?;
+  pub async fn initialize_with_new_user(&self, _user_id: &str) -> FlowyResult<()> {
+    let db = self.user.kv_db()?;
+    let disk_plugin =
+      Arc::new(CollabDiskPlugin::new(db).map_err(|err| FlowyError::internal().context(err))?);
+    self.folder.lock().add_plugins(vec![disk_plugin]);
+    self.folder.lock().initial();
+
+    DefaultFolderBuilder::build(
+      self.user.user_id()?,
+      self.folder.clone(),
+      &self.view_processors,
+    )
+    .await;
     Ok(())
   }
 
   /// Called when the current user logout
   ///
-  pub async fn clear(&self, user_id: &str) {
+  pub async fn clear(&self, _user_id: &str) {
     todo!()
   }
 
@@ -196,10 +203,9 @@ impl Folder2Manager {
 
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub(crate) async fn close_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    let view =
-      self.folder.lock().views.get_view(view_id).ok_or(
-        FlowyError::record_not_found().context("Can't find the view when closing the view"),
-      )?;
+    let view = self.folder.lock().views.get_view(view_id).ok_or_else(|| {
+      FlowyError::record_not_found().context("Can't find the view when closing the view")
+    })?;
     let processor = self.get_data_processor(&view.layout)?;
     processor.close_view(view_id).await?;
     Ok(())
@@ -315,7 +321,7 @@ impl Folder2Manager {
       .lock()
       .views
       .get_view(view_id)
-      .ok_or(FlowyError::record_not_found().context("Can't duplicate the view"))?;
+      .ok_or_else(|| FlowyError::record_not_found().context("Can't duplicate the view"))?;
 
     let processor = self.get_data_processor(&view.layout)?;
     let view_data = processor.get_view_data(&view.id).await?;
@@ -401,7 +407,7 @@ fn listen_on_view_change(mut rx: ViewChangeReceiver, folder: Folder) {
           let bid = view.bid.clone();
           notify_view_did_change(folder.clone(), &bid).await;
         },
-        ViewChange::DidDeleteView { views } => {},
+        ViewChange::DidDeleteView { views: _ } => {},
         ViewChange::DidUpdate { view } => {
           let bid = view.bid.clone();
           notify_view_did_change(folder.clone(), &bid).await;
@@ -411,12 +417,12 @@ fn listen_on_view_change(mut rx: ViewChangeReceiver, folder: Folder) {
   });
 }
 
-fn listen_on_trash_change(mut rx: TrashChangeReceiver, folder: Folder) {
+fn listen_on_trash_change(mut rx: TrashChangeReceiver, _folder: Folder) {
   tokio::spawn(async move {
     while let Ok(value) = rx.recv().await {
       match value {
-        TrashChange::DidCreateTrash { ids } => {},
-        TrashChange::DidDeleteTrash { ids } => {},
+        TrashChange::DidCreateTrash { ids: _ } => {},
+        TrashChange::DidDeleteTrash { ids: _ } => {},
       }
     }
   });
@@ -447,7 +453,7 @@ async fn notify_view_did_change(folder: Folder, view_id: &str) {
     create_time: 0,
   };
 
-  send_notification(&view_id, FolderNotification::DidUpdateApp)
+  send_notification(view_id, FolderNotification::DidUpdateApp)
     .payload(app)
     .send();
 }

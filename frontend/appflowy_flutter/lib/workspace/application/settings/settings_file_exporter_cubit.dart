@@ -1,4 +1,5 @@
 import 'package:appflowy_backend/protobuf/flowy-folder2/app.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsFileExportState {
@@ -8,13 +9,13 @@ class SettingsFileExportState {
     initialize();
   }
 
-  List<AppPB> apps;
+  List<ViewPB> apps;
   List<bool> expanded = [];
   List<bool> selectedApps = [];
   List<List<bool>> selectedItems = [];
 
   SettingsFileExportState copyWith({
-    List<AppPB>? apps,
+    List<ViewPB>? apps,
     List<bool>? expanded,
     List<bool>? selectedApps,
     List<List<bool>>? selectedItems,
@@ -32,13 +33,13 @@ class SettingsFileExportState {
     expanded = apps.map((e) => true).toList();
     selectedApps = apps.map((e) => true).toList();
     selectedItems =
-        apps.map((e) => e.belongings.items.map((e) => true).toList()).toList();
+        apps.map((e) => e.belongings.map((e) => true).toList()).toList();
   }
 }
 
 class SettingsFileExporterCubit extends Cubit<SettingsFileExportState> {
   SettingsFileExporterCubit({
-    required List<AppPB> apps,
+    required List<ViewPB> apps,
   }) : super(SettingsFileExportState(apps: apps));
 
   void selectOrDeselectItem(int outerIndex, int innerIndex) {
@@ -63,7 +64,7 @@ class SettingsFileExporterCubit extends Cubit<SettingsFileExportState> {
       final ids = <String>[];
       for (var j = 0; j < selectedItem.length; j++) {
         if (selectedItem[j]) {
-          ids.add(apps[i].belongings.items[j].id);
+          ids.add(apps[i].belongings[j].id);
         }
       }
       if (ids.isNotEmpty) {

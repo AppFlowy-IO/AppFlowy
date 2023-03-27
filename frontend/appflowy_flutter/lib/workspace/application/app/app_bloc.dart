@@ -21,7 +21,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   final AppBackendService appService;
   final AppListener appListener;
 
-  AppBloc({required AppPB app})
+  AppBloc({required ViewPB app})
       : appService = AppBackendService(),
         appListener = AppListener(appId: app.id),
         super(AppState.initial(app)) {
@@ -41,7 +41,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         await _renameView(e, emit);
       }, appDidUpdate: (e) async {
         final latestCreatedView = state.latestCreatedView;
-        final views = e.app.belongings.items;
+        final views = e.app.belongings;
         AppState newState = state.copyWith(
           views: views,
           app: e.app,
@@ -150,21 +150,21 @@ class AppEvent with _$AppEvent {
   const factory AppEvent.delete() = DeleteApp;
   const factory AppEvent.deleteView(String viewId) = DeleteView;
   const factory AppEvent.rename(String newName) = Rename;
-  const factory AppEvent.appDidUpdate(AppPB app) = AppDidUpdate;
+  const factory AppEvent.appDidUpdate(ViewPB app) = AppDidUpdate;
 }
 
 @freezed
 class AppState with _$AppState {
   const factory AppState({
-    required AppPB app,
+    required ViewPB app,
     required List<ViewPB> views,
     ViewPB? latestCreatedView,
     required Either<Unit, FlowyError> successOrFailure,
   }) = _AppState;
 
-  factory AppState.initial(AppPB app) => AppState(
+  factory AppState.initial(ViewPB app) => AppState(
         app: app,
-        views: app.belongings.items,
+        views: app.belongings,
         successOrFailure: left(unit),
       );
 }

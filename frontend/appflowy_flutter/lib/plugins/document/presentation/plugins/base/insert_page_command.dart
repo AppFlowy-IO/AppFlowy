@@ -8,7 +8,7 @@ const String kAppID = 'app_id';
 const String kViewID = 'view_id';
 
 extension InsertPage on EditorState {
-  void insertPage(AppPB appPB, ViewPB viewPB) {
+  void insertPage(ViewPB appPB, ViewPB viewPB) {
     final selection = service.selectionService.currentSelection.value;
     final textNodes =
         service.selectionService.currentSelectedNodes.whereType<TextNode>();

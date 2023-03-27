@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
@@ -21,7 +22,7 @@ import '../menu_app.dart';
 import 'add_button.dart';
 
 class MenuAppHeader extends StatelessWidget {
-  final AppPB app;
+  final ViewPB app;
   const MenuAppHeader(
     this.app, {
     Key? key,
@@ -169,7 +170,7 @@ class AppActionList extends StatelessWidget {
           onSecondaryTap: () {
             controller.show();
           },
-          child: BlocSelector<AppBloc, AppState, AppPB>(
+          child: BlocSelector<AppBloc, AppState, ViewPB>(
             selector: (state) => state.app,
             builder: (context, app) => FlowyText.medium(
               app.name,

@@ -1,7 +1,7 @@
 use crate::entities::RepeatedViewPB;
 use crate::{
   entities::parser::workspace::{WorkspaceDesc, WorkspaceIdentify, WorkspaceName},
-  entities::{app::RepeatedAppPB, view::ViewPB},
+  entities::view::ViewPB,
 };
 use collab_folder::core::Workspace;
 use flowy_derive::ProtoBuf;

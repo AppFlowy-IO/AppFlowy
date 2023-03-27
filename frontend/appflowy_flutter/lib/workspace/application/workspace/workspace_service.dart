@@ -6,7 +6,12 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/app.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart'
-    show MoveFolderItemPayloadPB, MoveFolderItemType;
+    show
+        CreateViewPayloadPB,
+        MoveFolderItemPayloadPB,
+        MoveFolderItemType,
+        ViewLayoutTypePB,
+        ViewPB;
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -16,13 +21,15 @@ class WorkspaceService {
   WorkspaceService({
     required this.workspaceId,
   });
-  Future<Either<AppPB, FlowyError>> createApp(
+  Future<Either<ViewPB, FlowyError>> createApp(
       {required String name, String? desc}) {
-    final payload = CreateAppPayloadPB.create()
+    final payload = CreateViewPayloadPB.create()
+      ..belongToId = workspaceId
       ..name = name
-      ..workspaceId = workspaceId
-      ..desc = desc ?? "";
-    return FolderEventCreateApp(payload).send();
+      ..desc = desc ?? ""
+      ..layout = ViewLayoutTypePB.Document;
+
+    return FolderEventCreateView(payload).send();
   }
 
   Future<Either<WorkspacePB, FlowyError>> getWorkspace() {
@@ -44,7 +51,7 @@ class WorkspaceService {
     });
   }
 
-  Future<Either<List<AppPB>, FlowyError>> getApps() {
+  Future<Either<List<ViewPB>, FlowyError>> getApps() {
     final payload = WorkspaceIdPB.create()..value = workspaceId;
     return FolderEventReadWorkspaceApps(payload).send().then((result) {
       return result.fold(

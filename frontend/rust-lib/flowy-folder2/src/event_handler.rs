@@ -1,10 +1,11 @@
 use crate::entities::{
-  AppPB, CreateViewParams, CreateViewPayloadPB, CreateWorkspaceParams, CreateWorkspacePayloadPB,
-  MoveFolderItemParams, MoveFolderItemPayloadPB, RepeatedAppPB, RepeatedTrashIdPB, RepeatedTrashPB,
-  RepeatedViewIdPB, RepeatedWorkspacePB, TrashIdPB, UpdateViewParams, UpdateViewPayloadPB,
-  ViewIdPB, ViewPB, WorkspaceIdPB, WorkspacePB, WorkspaceSettingPB,
+  CreateViewParams, CreateViewPayloadPB, CreateWorkspaceParams, CreateWorkspacePayloadPB,
+  MoveFolderItemParams, MoveFolderItemPayloadPB, RepeatedTrashIdPB, RepeatedTrashPB,
+  RepeatedViewIdPB, RepeatedViewPB, RepeatedWorkspacePB, TrashIdPB, UpdateViewParams,
+  UpdateViewPayloadPB, ViewIdPB, ViewPB, WorkspaceIdPB, WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager::Folder2Manager;
+use collab_folder::core::View;
 use flowy_error::FlowyError;
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use std::sync::Arc;
@@ -22,20 +23,10 @@ pub(crate) async fn create_workspace_handler(
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_workspace_apps_handler(
   folder: AFPluginState<Arc<Folder2Manager>>,
-) -> DataResult<RepeatedAppPB, FlowyError> {
-  let views = folder.get_current_workspace_views().await?;
-  let mut repeated_app = RepeatedAppPB { items: vec![] };
-  for view in views.into_iter() {
-    let child_views = folder.get_views_belong_to(&view.id).await?;
-    repeated_app.items.push(AppPB {
-      id: view.id,
-      workspace_id: view.bid,
-      name: view.name,
-      belongings: child_views.into(),
-      create_time: view.created_at,
-    })
-  }
-  data_result_ok(repeated_app)
+) -> DataResult<RepeatedViewPB, FlowyError> {
+  let child_views = folder.get_current_workspace_views().await?;
+  let repeated_view: RepeatedViewPB = child_views.into();
+  data_result_ok(repeated_view)
 }
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
@@ -77,11 +68,25 @@ pub async fn read_cur_workspace_setting_handler(
   folder: AFPluginState<Arc<Folder2Manager>>,
 ) -> DataResult<WorkspaceSettingPB, FlowyError> {
   let workspace: WorkspacePB = folder.get_current_workspace().await?.into();
-  let latest_view: Option<ViewPB> = folder.get_current_view().await.map(|view| view.into());
+  let latest_view: Option<ViewPB> = match folder.get_current_view().await {
+    None => None,
+    Some(view) => Some(view_pb_from_view(view, &folder).await),
+  };
   data_result_ok(WorkspaceSettingPB {
     workspace,
     latest_view,
   })
+}
+
+async fn view_pb_from_view(view: View, folder: &Arc<Folder2Manager>) -> ViewPB {
+  let mut view_pb: ViewPB = view.into();
+  if let Ok(child_views) = folder.get_views_belong_to(&view_pb.id).await {
+    view_pb.belongings = child_views
+      .into_iter()
+      .map(|view| view.into())
+      .collect::<Vec<ViewPB>>();
+  }
+  view_pb
 }
 
 pub(crate) async fn create_view_handler(
@@ -99,7 +104,8 @@ pub(crate) async fn read_view_handler(
 ) -> DataResult<ViewPB, FlowyError> {
   let view_id: ViewIdPB = data.into_inner();
   let view = folder.get_view(&view_id.value).await?;
-  data_result_ok(view.into())
+  let view_pb = view_pb_from_view(view, &folder).await;
+  data_result_ok(view_pb)
 }
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
@@ -123,12 +129,13 @@ pub(crate) async fn delete_view_handler(
   Ok(())
 }
 
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn set_latest_view_handler(
   data: AFPluginData<ViewIdPB>,
   folder: AFPluginState<Arc<Folder2Manager>>,
 ) -> Result<(), FlowyError> {
   let view_id: ViewIdPB = data.into_inner();
-  let _ = folder.set_current_view(&view_id.value);
+  let _ = folder.set_current_view(&view_id.value).await;
   Ok(())
 }
 
