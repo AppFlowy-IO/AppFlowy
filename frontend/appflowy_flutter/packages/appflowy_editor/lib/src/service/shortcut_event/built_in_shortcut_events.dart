@@ -314,12 +314,12 @@ List<ShortcutEvent> builtInShortcutEvents = [
   ),
   ShortcutEvent(
     key: 'Double asterisk to bold',
-    command: 'shift+asterisk',
+    command: '*',
     handler: doubleAsteriskToBoldHandler,
   ),
   ShortcutEvent(
     key: 'Double underscore to bold',
-    command: 'shift+underscore',
+    command: '_',
     handler: doubleUnderscoreToBoldHandler,
   ),
   // https://github.com/flutter/flutter/issues/104944
