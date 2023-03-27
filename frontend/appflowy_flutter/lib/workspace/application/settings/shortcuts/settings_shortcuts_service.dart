@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -7,21 +8,22 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 
 class SettingsShortcutService {
   late File file;
-  bool shouldWaitForInitializing = true;
+  final _initCompleter = Completer<void>();
 
   SettingsShortcutService({File? passedFile}) {
     if (passedFile == null) {
       _initializeService();
     } else {
       file = passedFile;
-      shouldWaitForInitializing = false;
+      _initCompleter.complete();
     }
   }
 
   Future<void> _initializeService() async {
     Directory flowyDir = await appFlowyDocumentDirectory();
-    file = await File('${flowyDir.path}/shortcuts/shorcuts.json')
-        .create(recursive: true);
+    file = File('${flowyDir.path}/shortcuts/shorcuts.json')
+      ..createSync(recursive: true);
+    _initCompleter.complete();
   }
 
   Future<void> saveShortcuts(List<ShortcutEvent> currentShortcuts) async {
@@ -30,10 +32,7 @@ class SettingsShortcutService {
   }
 
   Future<List<ShortcutEvent>> loadShortcuts() async {
-    if (shouldWaitForInitializing) {
-      await _initializeService();
-      shouldWaitForInitializing = false;
-    }
+    await _initCompleter.future;
     final shortcutsInJson = await file.readAsString();
 
     if (shortcutsInJson.isEmpty) {
