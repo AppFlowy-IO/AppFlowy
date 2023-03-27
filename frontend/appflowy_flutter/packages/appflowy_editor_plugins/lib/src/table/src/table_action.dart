@@ -68,7 +68,9 @@ removeRow(Node tableNode, int row, Transaction transaction) {
 
 newCellNode(Node tableNode, n) {
   final row = n.attributes['position']['row'] as int;
+  final col = n.attributes['position']['col'] as int;
   final int rowsLen = tableNode.attributes['rowsLen'];
+  final int colsLen = tableNode.attributes['colsLen'];
 
   if (!n.attributes.containsKey('height')) {
     double nodeHeight = double.tryParse(
@@ -85,9 +87,9 @@ newCellNode(Node tableNode, n) {
   if (!n.attributes.containsKey('width')) {
     double nodeWidth = double.tryParse(
         tableNode.attributes['config']['colDefaultWidth'].toString())!;
-    if (row < rowsLen) {
+    if (col < colsLen) {
       nodeWidth = double.tryParse(
-              getCellNode(tableNode, 0, row)!.attributes['width'].toString()) ??
+              getCellNode(tableNode, col, 0)!.attributes['width'].toString()) ??
           nodeWidth;
     }
     n.updateAttributes({'width': nodeWidth});

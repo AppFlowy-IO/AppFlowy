@@ -2,6 +2,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:appflowy_editor_plugins/src/table/src/table_action.dart';
 
+// TODO(zoli): better to have sub context menu
 final tableContextMenuItems = [
   [
     ContextMenuItem(
