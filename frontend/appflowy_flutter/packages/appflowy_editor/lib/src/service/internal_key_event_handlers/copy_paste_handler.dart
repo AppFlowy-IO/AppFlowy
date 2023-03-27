@@ -232,7 +232,7 @@ void _pasteSingleLine(
 /// parse url from the line text
 /// reference: https://stackoverflow.com/questions/59444837/flutter-dart-regex-to-extract-urls-from-a-string
 Delta _lineContentToDelta(String lineContent) {
-  final exp = RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
+  final exp = RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\#\w/\-?=%.]+');
   final Iterable<RegExpMatch> matches = exp.allMatches(lineContent);
 
   final delta = Delta();

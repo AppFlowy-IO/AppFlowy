@@ -55,9 +55,9 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
       newLocale = const Locale('en');
     }
 
-    context.setLocale(newLocale);
-
     if (state.locale != newLocale) {
+      context.setLocale(newLocale);
+
       _setting.locale.languageCode = newLocale.languageCode;
       _setting.locale.countryCode = newLocale.countryCode ?? "";
       _saveAppearanceSettings();
