@@ -22,7 +22,7 @@ extension InsertPage on EditorState {
     }
 
     // get the database that the view is associated with
-    final DatabasePB? database =
+    final database =
         await DatabaseViewBackendService(viewId: viewPB.id).openGrid().then(
               (value) => value.getLeftOrNull(),
             );
@@ -33,7 +33,7 @@ The database associated with ${viewPB.id} could not be found while attempting to
 ''');
     }
 
-    final String prefix = referencedBoardPrefix(viewPB.layout);
+    final prefix = referencedBoardPrefix(viewPB.layout);
 
     final ref = await AppBackendService().createView(
       appId: appPB.id,
