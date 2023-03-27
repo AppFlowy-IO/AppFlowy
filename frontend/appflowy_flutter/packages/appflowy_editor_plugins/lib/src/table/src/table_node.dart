@@ -128,6 +128,9 @@ class TableNode {
       for (var i = 0; i < colsLen; i++) {
         _cells[i][row].updateAttributes({'height': maxHeight});
       }
+    }
+
+    if (node.attributes['colsHeight'] != colsHeight) {
       node.updateAttributes({'colsHeight': colsHeight});
     }
   }
