@@ -15,7 +15,7 @@ class ChangeCoverPopoverBloc
   ChangeCoverPopoverBloc() : super(const ChangeCoverPopoverState.initial()) {
     SharedPreferences.getInstance().then((prefs) {
       _prefs = prefs;
-      _initCompleter.complete;
+      _initCompleter.complete();
     });
     on<ChangeCoverPopoverEvent>((event, emit) async {
       await event.map(

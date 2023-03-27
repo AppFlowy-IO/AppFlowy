@@ -241,46 +241,14 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
                 ),
               );
             }
-            return Stack(
-              children: [
-                InkWell(
-                  onTap: () {
-                    widget.onCoverChanged(
-                      CoverSelectionType.file,
-                      images[index - 1],
-                    );
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: FileImage(File(images[index - 1])),
-                        fit: BoxFit.cover,
-                      ),
-                      borderRadius: Corners.s8Border,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  right: 2,
-                  top: 2,
-                  child: FlowyIconButton(
-                    fillColor:
-                        Theme.of(context).colorScheme.surface.withOpacity(0.8),
-                    hoverColor: Theme.of(context).colorScheme.surface,
-                    iconPadding: const EdgeInsets.all(5),
-                    width: 28,
-                    icon: svgWidget(
-                      'editor/delete',
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    onPressed: () {
-                      context.read<ChangeCoverPopoverBloc>().add(
-                          ChangeCoverPopoverEvent.deleteImage(
-                              images[index - 1]));
-                    },
-                  ),
-                ),
-              ],
+            return ImageGridItem(
+              onImageSelect: () {
+                widget.onCoverChanged(
+                  CoverSelectionType.file,
+                  images[index - 1],
+                );
+              },
+              imagePath: images[index - 1],
             );
           },
         );
@@ -296,6 +264,75 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               name: t.tintName(AppFlowyEditorLocalizations.current),
             ))
         .toList();
+  }
+}
+
+class ImageGridItem extends StatefulWidget {
+  const ImageGridItem({
+    Key? key,
+    required this.onImageSelect,
+    required this.imagePath,
+  }) : super(key: key);
+
+  final Function() onImageSelect;
+  final String imagePath;
+
+  @override
+  State<ImageGridItem> createState() => _ImageGridItemState();
+}
+
+class _ImageGridItemState extends State<ImageGridItem> {
+  bool showDeleteButton = false;
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() {
+          showDeleteButton = true;
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          showDeleteButton = false;
+        });
+      },
+      child: Stack(
+        children: [
+          InkWell(
+            onTap: widget.onImageSelect,
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: FileImage(File(widget.imagePath)),
+                  fit: BoxFit.cover,
+                ),
+                borderRadius: Corners.s8Border,
+              ),
+            ),
+          ),
+          if (showDeleteButton)
+            Positioned(
+              right: 2,
+              top: 2,
+              child: FlowyIconButton(
+                fillColor:
+                    Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                hoverColor: Theme.of(context).colorScheme.surface,
+                iconPadding: const EdgeInsets.all(5),
+                width: 28,
+                icon: svgWidget(
+                  'editor/delete',
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                onPressed: () {
+                  context.read<ChangeCoverPopoverBloc>().add(
+                      ChangeCoverPopoverEvent.deleteImage(widget.imagePath));
+                },
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
 
