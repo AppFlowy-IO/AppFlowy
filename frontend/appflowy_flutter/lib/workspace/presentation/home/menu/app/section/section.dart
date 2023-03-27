@@ -58,7 +58,6 @@ class ViewSection extends StatelessWidget {
             .read<ViewSectionBloc>()
             .add(ViewSectionEvent.moveView(oldIndex, index));
       },
-      ignorePrimaryScrollController: true,
       children: children,
     );
   }
