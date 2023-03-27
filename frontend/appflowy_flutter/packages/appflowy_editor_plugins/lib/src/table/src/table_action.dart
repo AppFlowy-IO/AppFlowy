@@ -1,12 +1,13 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
+import 'package:appflowy_editor_plugins/src/table/src/util.dart';
 
 addCol(Node tableNode, Transaction transaction) {
   List<Node> cellNodes = [];
   final int rowsLen = tableNode.attributes['rowsLen'],
       colsLen = tableNode.attributes['colsLen'];
 
-  var lastCellNode = getNode(tableNode, colsLen - 1, rowsLen - 1);
+  var lastCellNode = getCellNode(tableNode, colsLen - 1, rowsLen - 1)!;
   for (var i = 0; i < rowsLen; i++) {
     final node = Node(
       type: kTableCellType,
@@ -19,7 +20,8 @@ addCol(Node tableNode, Transaction transaction) {
     cellNodes.add(newCellNode(tableNode, node));
   }
 
-  //TODO(zoli): this calls notifyListener rowsLen+1 times
+  // TODO(zoli): this calls notifyListener rowsLen+1 times. isn't there a better
+  // way?
   transaction.insertNodes(lastCellNode.path.next, cellNodes);
   transaction.updateNode(tableNode, {'colsLen': colsLen + 1});
 }
@@ -36,7 +38,7 @@ addRow(Node tableNode, Transaction transaction) {
     );
     node.insert(TextNode.empty());
 
-    transaction.insertNode(getNode(tableNode, i, rowsLen - 1).path.next,
+    transaction.insertNode(getCellNode(tableNode, i, rowsLen - 1)!.path.next,
         newCellNode(tableNode, node));
   }
   transaction.updateNode(tableNode, {'rowsLen': rowsLen + 1});
@@ -47,7 +49,7 @@ removeCol(Node tableNode, int col, Transaction transaction) {
       colsLen = tableNode.attributes['colsLen'];
   List<Node> nodes = [];
   for (var i = 0; i < rowsLen; i++) {
-    nodes.add(getNode(tableNode, col, i));
+    nodes.add(getCellNode(tableNode, col, i)!);
   }
   transaction.deleteNodes(nodes);
   transaction.updateNode(tableNode, {'colsLen': colsLen - 1});
@@ -58,7 +60,7 @@ removeRow(Node tableNode, int row, Transaction transaction) {
       colsLen = tableNode.attributes['colsLen'];
   List<Node> nodes = [];
   for (var i = 0; i < colsLen; i++) {
-    nodes.add(getNode(tableNode, i, row));
+    nodes.add(getCellNode(tableNode, i, row)!);
   }
   transaction.deleteNodes(nodes);
   transaction.updateNode(tableNode, {'rowsLen': rowsLen - 1});
@@ -72,18 +74,24 @@ newCellNode(Node tableNode, n) {
     double nodeHeight = double.tryParse(
         tableNode.attributes['config']['rowDefaultHeight'].toString())!;
     if (row < rowsLen) {
-      nodeHeight = double.tryParse(
-              getNode(tableNode, 0, row).attributes['height'].toString()) ??
+      nodeHeight = double.tryParse(getCellNode(tableNode, 0, row)!
+              .attributes['height']
+              .toString()) ??
           nodeHeight;
     }
     n.updateAttributes({'height': nodeHeight});
   }
 
-  return n;
-}
+  if (!n.attributes.containsKey('width')) {
+    double nodeWidth = double.tryParse(
+        tableNode.attributes['config']['colDefaultWidth'].toString())!;
+    if (row < rowsLen) {
+      nodeWidth = double.tryParse(
+              getCellNode(tableNode, 0, row)!.attributes['width'].toString()) ??
+          nodeWidth;
+    }
+    n.updateAttributes({'width': nodeWidth});
+  }
 
-Node getNode(Node tableNode, int col, row) {
-  return tableNode.children.firstWhereOrNull((n) =>
-      n.attributes['position']['col'] == col &&
-      n.attributes['position']['row'] == row)!;
+  return n;
 }

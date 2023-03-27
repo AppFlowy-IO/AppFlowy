@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/src/table/src/util.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:appflowy_editor_plugins/src/table/src/table_node.dart';
@@ -26,18 +27,14 @@ void main() async {
       ]);
       await tester.pumpAndSettle();
 
-      var cell00 = tableNode.node.children.firstWhereOrNull((n) =>
-          n.attributes['position']['col'] == 0 &&
-          n.attributes['position']['row'] == 0)!;
+      var cell00 = getCellNode(tableNode.node, 0, 0)!;
 
       await editor.updateSelection(
           Selection.single(path: cell00.childAtIndex(0)!.path, startOffset: 0));
       await editor.pressLogicKey(LogicalKeyboardKey.enter);
 
       var selection = editor.documentSelection!;
-      var cell01 = tableNode.node.children.firstWhereOrNull((n) =>
-          n.attributes['position']['col'] == 0 &&
-          n.attributes['position']['row'] == 1)!;
+      var cell01 = getCellNode(tableNode.node, 0, 1)!;
 
       expect(selection.isCollapsed, true);
       expect(selection.start.path, cell01.childAtIndex(0)!.path);
@@ -59,9 +56,7 @@ void main() async {
       ]);
       await tester.pumpAndSettle();
 
-      var cell11 = tableNode.node.children.firstWhereOrNull((n) =>
-          n.attributes['position']['col'] == 1 &&
-          n.attributes['position']['row'] == 1)!;
+      var cell11 = getCellNode(tableNode.node, 1, 1)!;
 
       await editor.updateSelection(
           Selection.single(path: cell11.childAtIndex(0)!.path, startOffset: 0));
@@ -90,9 +85,7 @@ void main() async {
       ]);
       await tester.pumpAndSettle();
 
-      var cell10 = tableNode.node.children.firstWhereOrNull((n) =>
-          n.attributes['position']['col'] == 1 &&
-          n.attributes['position']['row'] == 0)!;
+      var cell10 = getCellNode(tableNode.node, 1, 0)!;
 
       await editor.updateSelection(
           Selection.single(path: cell10.childAtIndex(0)!.path, startOffset: 0));

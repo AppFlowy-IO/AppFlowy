@@ -1,3 +1,4 @@
+import 'package:appflowy_editor_plugins/src/table/src/util.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/src/table/table_const.dart';
@@ -21,31 +22,21 @@ ShortcutEvent rightInTableCell = ShortcutEvent(
 );
 
 ShortcutEventHandler _enterInTableCellHandler = (editorState, event) {
-  final nodes = editorState.service.selectionService.currentSelectedNodes;
-  final inTableNodes = nodes
-      .whereType<TextNode>()
-      .where((node) => node.parent?.id.contains(kTableType) ?? false);
+  final inTableNodes = _inTableNodes(editorState);
   if (inTableNodes.isNotEmpty) {
     final selection =
         editorState.service.selectionService.currentSelection.value;
-    if (inTableNodes.length == 1 &&
-        selection != null &&
-        selection.isCollapsed &&
-        inTableNodes.first.parent?.id == 'table/cell') {
+    if (_hasSelectionAndTableCell(inTableNodes, selection)) {
       final cell = inTableNodes.first.parent!;
-      final col = cell.attributes['position']['col'];
-      final row = cell.attributes['position']['row'];
-      final nextNode = cell.parent?.children.firstWhereOrNull((n) =>
-          n.attributes['position']['col'] == col &&
-          n.attributes['position']['row'] == row + 1);
+      final nextNode = _getNextNode(inTableNodes, 0, 1);
+
       if (nextNode == null) {
         final transaction = editorState.transaction;
         transaction.insertNode(cell.parent!.path.next, TextNode.empty());
         transaction.afterSelection =
             Selection.single(path: cell.parent!.path.next, startOffset: 0);
         editorState.apply(transaction);
-      } else if (nextNode.children.isNotEmpty &&
-          nextNode.childAtIndex(0)! is TextNode) {
+      } else if (_nodeHasTextChild(nextNode)) {
         editorState.service.selectionService.updateSelection(Selection.single(
             path: nextNode.childAtIndex(0)!.path, startOffset: 0));
       }
@@ -56,27 +47,14 @@ ShortcutEventHandler _enterInTableCellHandler = (editorState, event) {
 };
 
 ShortcutEventHandler _leftInTableCellHandler = (editorState, event) {
-  final nodes = editorState.service.selectionService.currentSelectedNodes;
-  final inTableNodes = nodes
-      .whereType<TextNode>()
-      .where((node) => node.parent?.id.contains(kTableType) ?? false);
+  final inTableNodes = _inTableNodes(editorState);
   final selection = editorState.service.selectionService.currentSelection.value;
-  if (inTableNodes.isNotEmpty &&
-      inTableNodes.length == 1 &&
-      selection != null &&
-      selection.isCollapsed &&
-      selection.start.offset == 0 &&
-      inTableNodes.first.parent?.id == 'table/cell') {
-    final cell = inTableNodes.first.parent!;
-    final col = cell.attributes['position']['col'];
-    final row = cell.attributes['position']['row'];
-    final nextNode = cell.parent?.children.firstWhereOrNull((n) =>
-        n.attributes['position']['col'] == col - 1 &&
-        n.attributes['position']['row'] == row);
-    if (nextNode != null &&
-        nextNode.children.isNotEmpty &&
-        nextNode.childAtIndex(0)! is TextNode) {
-      final target = nextNode.childAtIndex(0)! as TextNode;
+  if (_hasSelectionAndTableCell(inTableNodes, selection) &&
+      selection!.start.offset == 0) {
+    final nextNode = _getNextNode(inTableNodes, -1, 0);
+
+    if (_nodeHasTextChild(nextNode)) {
+      final target = nextNode!.childAtIndex(0)! as TextNode;
       editorState.service.selectionService.updateSelection(Selection.single(
           path: target.path, startOffset: target.delta.length));
     }
@@ -87,31 +65,44 @@ ShortcutEventHandler _leftInTableCellHandler = (editorState, event) {
 };
 
 ShortcutEventHandler _rightInTableCellHandler = (editorState, event) {
-  final nodes = editorState.service.selectionService.currentSelectedNodes;
-  final inTableNodes = nodes
-      .whereType<TextNode>()
-      .where((node) => node.parent?.id.contains(kTableType) ?? false);
+  final inTableNodes = _inTableNodes(editorState);
   final selection = editorState.service.selectionService.currentSelection.value;
-  if (inTableNodes.isNotEmpty &&
-      inTableNodes.length == 1 &&
-      selection != null &&
-      selection.isCollapsed &&
-      selection.start.offset == inTableNodes.first.delta.length &&
-      inTableNodes.first.parent?.id == 'table/cell') {
-    final cell = inTableNodes.first.parent!;
-    final col = cell.attributes['position']['col'];
-    final row = cell.attributes['position']['row'];
-    final nextNode = cell.parent?.children.firstWhereOrNull((n) =>
-        n.attributes['position']['col'] == col + 1 &&
-        n.attributes['position']['row'] == row);
-    if (nextNode != null &&
-        nextNode.children.isNotEmpty &&
-        nextNode.childAtIndex(0)! is TextNode) {
+  if (_hasSelectionAndTableCell(inTableNodes, selection) &&
+      selection!.start.offset == inTableNodes.first.delta.length) {
+    final nextNode = _getNextNode(inTableNodes, 1, 0);
+
+    if (_nodeHasTextChild(nextNode)) {
       editorState.service.selectionService.updateSelection(Selection.single(
-          path: nextNode.childAtIndex(0)!.path, startOffset: 0));
+          path: nextNode!.childAtIndex(0)!.path, startOffset: 0));
     }
 
     return KeyEventResult.handled;
   }
   return KeyEventResult.ignored;
 };
+
+Iterable<TextNode> _inTableNodes(EditorState editorState) {
+  final nodes = editorState.service.selectionService.currentSelectedNodes;
+  return nodes
+      .whereType<TextNode>()
+      .where((node) => node.parent?.id.contains(kTableType) ?? false);
+}
+
+bool _hasSelectionAndTableCell(
+        Iterable<TextNode> nodes, Selection? selection) =>
+    nodes.length == 1 &&
+    selection != null &&
+    selection.isCollapsed &&
+    nodes.first.parent?.id == 'table/cell';
+
+Node? _getNextNode(Iterable<TextNode> nodes, int colDiff, rowDiff) {
+  final cell = nodes.first.parent!;
+  final col = cell.attributes['position']['col'];
+  final row = cell.attributes['position']['row'];
+  return cell.parent != null
+      ? getCellNode(cell.parent!, col + colDiff, row + rowDiff)
+      : null;
+}
+
+bool _nodeHasTextChild(Node? n) =>
+    n != null && n.children.isNotEmpty && n.childAtIndex(0)! is TextNode;

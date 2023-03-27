@@ -1,5 +1,6 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/src/table/src/table_action.dart';
+import 'package:appflowy_editor_plugins/src/table/src/util.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:appflowy_editor_plugins/src/table/src/table_node.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -11,8 +12,8 @@ void main() async {
   });
 
   group('table_view.dart', () {
-    //TODO(zoli)
-    //testWidgets('resize column', (tester) async {});
+    // TODO(zoli)
+    // testWidgets('resize column', (tester) async {});
 
     testWidgets('row height changing base on cell height', (tester) async {
       final tableNode = TableNode.fromList([
@@ -31,9 +32,7 @@ void main() async {
       var row1beforeHeight = tableNode.getRowHeight(1);
       expect(row0beforeHeight == row1beforeHeight, true);
 
-      var cell10 = tableNode.node.children.firstWhereOrNull((n) =>
-          n.attributes['position']['col'] == 1 &&
-          n.attributes['position']['row'] == 0)!;
+      var cell10 = getCellNode(tableNode.node, 1, 0)!;
       await editor.updateSelection(
           Selection.single(path: cell10.childAtIndex(0)!.path, startOffset: 0));
       await editor.insertText(
@@ -63,9 +62,7 @@ void main() async {
       var row1beforeHeight = tableNode.getRowHeight(1);
       expect(row0beforeHeight == row1beforeHeight, true);
 
-      var cell10 = tableNode.node.children.firstWhereOrNull((n) =>
-          n.attributes['position']['col'] == 1 &&
-          n.attributes['position']['row'] == 0)!;
+      var cell10 = getCellNode(tableNode.node, 1, 0)!;
       await editor.updateSelection(
           Selection.single(path: cell10.childAtIndex(0)!.path, startOffset: 0));
       await editor.insertText(
@@ -147,9 +144,7 @@ void main() async {
         },
       );
 
-      var cell12 = tableNode.node.children.firstWhereOrNull((n) =>
-          n.attributes['position']['col'] == 1 &&
-          n.attributes['position']['row'] == 2)!;
+      var cell12 = getCellNode(tableNode.node, 1, 2)!;
       expect(tableNode.getRowHeight(2), cell12.children.first.rect.height);
     });
   });

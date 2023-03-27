@@ -108,12 +108,14 @@ class TableNode {
 
   setColWidth(int col, double w) {
     w = w < _config.colMinimumWidth ? _config.colMinimumWidth : w;
-    if (_cells[col][0].attributes['width'] != w) {
-      _cells[col][0].updateAttributes({'width': w});
+    if (getColWidth(col) != w) {
+      for (var i = 0; i < rowsLen; i++) {
+        _cells[col][i].updateAttributes({'width': w});
+      }
       for (var i = 0; i < rowsLen; i++) {
         updateRowHeight(i);
       }
-      node.updateAttributes({'col${col}Width': w});
+      node.updateAttributes({});
     }
   }
 

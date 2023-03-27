@@ -6,9 +6,9 @@ final tableContextMenuItems = [
   [
     ContextMenuItem(
       name: 'Add Column',
-      isApplicable: isSelectionInTable,
+      isApplicable: _isSelectionInTable,
       onPressed: (editorState) {
-        var tableNode = getTableCellNode(editorState).parent!;
+        var tableNode = _getTableCellNode(editorState).parent!;
         final transaction = editorState.transaction;
         addCol(tableNode, transaction);
         editorState.apply(transaction);
@@ -16,9 +16,9 @@ final tableContextMenuItems = [
     ),
     ContextMenuItem(
       name: 'Add Row',
-      isApplicable: isSelectionInTable,
+      isApplicable: _isSelectionInTable,
       onPressed: (editorState) {
-        var tableNode = getTableCellNode(editorState).parent!;
+        var tableNode = _getTableCellNode(editorState).parent!;
         final transaction = editorState.transaction;
         addRow(tableNode, transaction);
         editorState.apply(transaction);
@@ -27,14 +27,14 @@ final tableContextMenuItems = [
     ContextMenuItem(
       name: 'Remove Column',
       isApplicable: (EditorState editorState) {
-        if (!isSelectionInTable(editorState)) {
+        if (!_isSelectionInTable(editorState)) {
           return false;
         }
-        var tableNode = getTableCellNode(editorState).parent!;
+        var tableNode = _getTableCellNode(editorState).parent!;
         return tableNode.attributes['colsLen'] > 1;
       },
       onPressed: (editorState) {
-        var node = getTableCellNode(editorState);
+        var node = _getTableCellNode(editorState);
         final transaction = editorState.transaction;
         removeCol(
             node.parent!, node.attributes['position']['col'], transaction);
@@ -44,14 +44,14 @@ final tableContextMenuItems = [
     ContextMenuItem(
       name: 'Remove Row',
       isApplicable: (EditorState editorState) {
-        if (!isSelectionInTable(editorState)) {
+        if (!_isSelectionInTable(editorState)) {
           return false;
         }
-        var tableNode = getTableCellNode(editorState).parent!;
+        var tableNode = _getTableCellNode(editorState).parent!;
         return tableNode.attributes['rowsLen'] > 1;
       },
       onPressed: (editorState) {
-        var node = getTableCellNode(editorState);
+        var node = _getTableCellNode(editorState);
         final transaction = editorState.transaction;
         removeRow(
             node.parent!, node.attributes['position']['row'], transaction);
@@ -61,7 +61,7 @@ final tableContextMenuItems = [
   ],
 ];
 
-bool isSelectionInTable(EditorState editorState) {
+bool _isSelectionInTable(EditorState editorState) {
   var selection = editorState.service.selectionService.currentSelection.value;
   if (selection == null || !selection.isSingle) {
     return false;
@@ -72,7 +72,7 @@ bool isSelectionInTable(EditorState editorState) {
   return node.id == kTableCellType || node.parent?.type == kTableCellType;
 }
 
-Node getTableCellNode(EditorState editorState) {
+Node _getTableCellNode(EditorState editorState) {
   var node = editorState.service.selectionService.currentSelectedNodes.first;
   return node.id == kTableCellType ? node : node.parent!;
 }

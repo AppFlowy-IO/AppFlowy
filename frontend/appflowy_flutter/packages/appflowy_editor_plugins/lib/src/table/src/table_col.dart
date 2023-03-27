@@ -1,3 +1,5 @@
+import 'package:appflowy_editor_plugins/src/table/src/table_col_border.dart';
+import 'package:appflowy_editor_plugins/src/table/src/util.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/src/table/src/table_node.dart';
@@ -20,59 +22,27 @@ class TableCol extends StatefulWidget {
 }
 
 class _TableColState extends State<TableCol> {
-  final GlobalKey _borderKey = GlobalKey();
-  bool _borderHovering = false;
-  bool _borderDragging = false;
-
   @override
   Widget build(BuildContext context) {
     List<Widget> children = [];
     if (widget.colIdx == 0) {
-      children.add(
-        Container(
-          width: widget.tableNode.config.tableBorderWidth,
-          height: context.select((Node n) => n.attributes['colsHeight']),
-          color: Colors.grey,
-        ),
-      );
+      children.add(TableColBorder(
+        resizable: false,
+        tableNode: widget.tableNode,
+        colIdx: widget.colIdx,
+      ));
     }
 
     children.addAll([
       SizedBox(
-        width: widget.tableNode.getColWidth(widget.colIdx),
+        width: context.select(
+            (Node n) => getCellNode(n, widget.colIdx, 0)!.attributes['width']),
         child: Column(children: _buildCells(context)),
       ),
-      MouseRegion(
-        cursor: SystemMouseCursors.resizeLeftRight,
-        onEnter: (_) => setState(() => _borderHovering = true),
-        onExit: (_) => setState(() => _borderHovering = false),
-        child: GestureDetector(
-          onHorizontalDragStart: (_) => setState(() => _borderDragging = true),
-          onHorizontalDragEnd: (_) => setState(() => _borderDragging = false),
-          onHorizontalDragUpdate: (DragUpdateDetails details) {
-            RenderBox box =
-                _borderKey.currentContext?.findRenderObject() as RenderBox;
-            Offset pos = box.localToGlobal(Offset.zero);
-            double colsHeight = widget.tableNode.colsHeight;
-            final int direction = details.delta.dx > 0 ? 1 : -1;
-            if ((details.globalPosition.dx - pos.dx - (direction * 90)).abs() >
-                    110 ||
-                (details.globalPosition.dy - pos.dy) > colsHeight + 50 ||
-                (details.globalPosition.dy - pos.dy) < -50) {
-              return;
-            }
-
-            final w = widget.tableNode.getColWidth(widget.colIdx);
-            widget.tableNode.setColWidth(widget.colIdx, w + details.delta.dx);
-          },
-          child: Container(
-            key: _borderKey,
-            width: widget.tableNode.config.tableBorderWidth,
-            height: context.select((Node n) => n.attributes['colsHeight']),
-            color:
-                _borderHovering || _borderDragging ? Colors.blue : Colors.grey,
-          ),
-        ),
+      TableColBorder(
+        resizable: true,
+        tableNode: widget.tableNode,
+        colIdx: widget.colIdx,
       )
     ]);
 
