@@ -309,7 +309,7 @@ List<ShortcutEvent> builtInShortcutEvents = [
   ),
   ShortcutEvent(
     key: 'Double asterisk to bold',
-    command: 'shift+digit 8',
+    character: '*',
     handler: doubleAsteriskToBoldHandler,
   ),
   ShortcutEvent(
