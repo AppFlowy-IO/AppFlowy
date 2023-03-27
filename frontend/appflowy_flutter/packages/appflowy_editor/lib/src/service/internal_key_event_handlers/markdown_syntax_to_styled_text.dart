@@ -310,7 +310,7 @@ ShortcutEventHandler underscoreToItalicHandler = (editorState, event) {
   return KeyEventResult.handled;
 };
 
-//Same functionality implemented for Asterisk - for italics
+//Same functionality implemented via Asterisk - for italics
 ShortcutEventHandler asteriskToItalicHandler = (editorState, event) {
   final selectionService = editorState.service.selectionService;
   final selection = selectionService.currentSelection.value;
@@ -321,21 +321,21 @@ ShortcutEventHandler asteriskToItalicHandler = (editorState, event) {
 
   final textNode = textNodes.first;
   final text = textNode.toPlainText();
-  // Determine if an 'underscore' already exists in the text node and only once.
-  final firstUnderscore = text.indexOf('*');
-  final lastUnderscore = text.lastIndexOf('*');
-  if (firstUnderscore == -1 ||
-      firstUnderscore != lastUnderscore ||
-      firstUnderscore == selection.start.offset - 1) {
+  // Determine if an 'asterisk' already exists in the text node and only once.
+  final firstAsterisk = text.indexOf('*');
+  final lastAsterisk = text.lastIndexOf('*');
+  if (firstAsterisk == -1 ||
+      firstAsterisk != lastAsterisk ||
+      firstAsterisk == selection.start.offset - 1) {
     return KeyEventResult.ignored;
   }
 
   final transaction = editorState.transaction
-    ..deleteText(textNode, firstUnderscore, 1)
+    ..deleteText(textNode, firstAsterisk, 1)
     ..formatText(
       textNode,
-      firstUnderscore,
-      selection.end.offset - firstUnderscore - 1,
+      firstAsterisk,
+      selection.end.offset - firstAsterisk - 1,
       {
         BuiltInAttributeKey.italic: true,
       },
