@@ -13,7 +13,6 @@ pub enum FolderScript {
     name: String,
     desc: String,
   },
-  // AssertWorkspaceRevisionJson(String),
   AssertWorkspace(WorkspacePB),
   ReadWorkspace(Option<String>),
 
@@ -22,14 +21,13 @@ pub enum FolderScript {
     name: String,
     desc: String,
   },
-  // AssertAppRevisionJson(String),
-  AssertApp(AppPB),
-  ReadApp(String),
-  UpdateApp {
+  AssertRootView(ViewPB),
+  RefreshRootView(String),
+  UpdateRootView {
     name: Option<String>,
     desc: Option<String>,
   },
-  DeleteApp,
+  DeleteRootView,
 
   // View
   CreateView {
@@ -57,10 +55,9 @@ pub struct FolderTest {
   pub sdk: FlowySDKTest,
   pub all_workspace: Vec<WorkspacePB>,
   pub workspace: WorkspacePB,
-  pub app: ViewPB,
+  pub root_view: ViewPB,
   pub view: ViewPB,
   pub trash: Vec<TrashPB>,
-  // pub folder_editor:
 }
 
 impl FolderTest {
@@ -68,27 +65,20 @@ impl FolderTest {
     let sdk = FlowySDKTest::default();
     let _ = sdk.init_user().await;
     let mut workspace = create_workspace(&sdk, "FolderWorkspace", "Folder test workspace").await;
-    let mut app = create_app(&sdk, &workspace.id, "Folder App", "Folder test app").await;
+    let mut root_view = create_app(&sdk, &workspace.id, "Folder App", "Folder test app").await;
     let view = create_view(
       &sdk,
-      &app.id,
+      &root_view.id,
       "Folder View",
       "Folder test view",
       ViewLayout::Document,
     )
     .await;
-    // app.belongings = RepeatedViewPB {
-    //   items: vec![view.clone()],
-    // };
-    //
-    // workspace.apps = RepeatedAppPB {
-    //   items: vec![app.clone()],
-    // };
     Self {
       sdk,
       all_workspace: vec![],
       workspace,
-      app,
+      root_view,
       view,
       trash: vec![],
     }
@@ -120,24 +110,24 @@ impl FolderTest {
       },
       FolderScript::CreateApp { name, desc } => {
         let app = create_app(sdk, &self.workspace.id, &name, &desc).await;
-        self.app = app;
+        self.root_view = app;
       },
-      FolderScript::AssertApp(app) => {
-        assert_eq!(self.app, app, "App not equal");
+      FolderScript::AssertRootView(app) => {
+        assert_eq!(self.root_view, app, "App not equal");
       },
-      FolderScript::ReadApp(app_id) => {
+      FolderScript::RefreshRootView(app_id) => {
         let app = read_app(sdk, &app_id).await;
-        self.app = app;
+        self.root_view = app;
       },
-      FolderScript::UpdateApp { name, desc } => {
-        update_app(sdk, &self.app.id, name, desc).await;
+      FolderScript::UpdateRootView { name, desc } => {
+        update_app(sdk, &self.root_view.id, name, desc).await;
       },
-      FolderScript::DeleteApp => {
-        delete_app(sdk, &self.app.id).await;
+      FolderScript::DeleteRootView => {
+        delete_view(sdk, vec![self.root_view.id.clone()]).await;
       },
 
       FolderScript::CreateView { name, desc, layout } => {
-        let view = create_view(sdk, &self.app.id, &name, &desc, layout).await;
+        let view = create_view(sdk, &self.root_view.id, &name, &desc, layout).await;
         self.view = view;
       },
       FolderScript::AssertView(view) => {
@@ -157,7 +147,7 @@ impl FolderTest {
         delete_view(sdk, view_ids).await;
       },
       FolderScript::RestoreAppFromTrash => {
-        restore_app_from_trash(sdk, &self.app.id).await;
+        restore_app_from_trash(sdk, &self.root_view.id).await;
       },
       FolderScript::RestoreViewFromTrash => {
         restore_view_from_trash(sdk, &self.view.id).await;
@@ -240,17 +230,17 @@ pub async fn create_app(sdk: &FlowySDKTest, workspace_id: &str, name: &str, desc
     .parse::<ViewPB>()
 }
 
-pub async fn read_app(sdk: &FlowySDKTest, app_id: &str) -> AppPB {
+pub async fn read_app(sdk: &FlowySDKTest, app_id: &str) -> ViewPB {
   let request = AppIdPB {
     value: app_id.to_owned(),
   };
 
   Folder2EventBuilder::new(sdk.clone())
-    .event(ReadApp)
+    .event(ReadView)
     .payload(request)
     .async_send()
     .await
-    .parse::<AppPB>()
+    .parse::<ViewPB>()
 }
 
 pub async fn update_app(
@@ -259,16 +249,15 @@ pub async fn update_app(
   name: Option<String>,
   desc: Option<String>,
 ) {
-  let request = UpdateAppPayloadPB {
-    app_id: app_id.to_string(),
+  let request = UpdateViewPayloadPB {
+    view_id: app_id.to_string(),
     name,
     desc,
-    color_style: None,
-    is_trash: None,
+    thumbnail: None,
   };
 
   Folder2EventBuilder::new(sdk.clone())
-    .event(UpdateApp)
+    .event(UpdateView)
     .payload(request)
     .async_send()
     .await;

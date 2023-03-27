@@ -3,7 +3,7 @@ use crate::entities::parser::{
   view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail},
 };
 use crate::view_ext::gen_view_id;
-use collab_folder::core::{View, ViewLayout};
+use collab_folder::core::{Belonging, View, ViewLayout};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use std::collections::HashMap;
@@ -24,10 +24,10 @@ pub struct ViewPB {
   #[pb(index = 4)]
   pub create_time: i64,
 
-  #[pb(index = 4)]
-  pub belongings: Vec<String>,
-
   #[pb(index = 5)]
+  pub belongings: Vec<BelongingPB>,
+
+  #[pb(index = 6)]
   pub layout: ViewLayoutTypePB,
 }
 
@@ -38,8 +38,31 @@ impl std::convert::From<View> for ViewPB {
       app_id: view.bid,
       name: view.name,
       create_time: view.created_at,
-      belongings: view.belongings.into_inner(),
+      belongings: view
+        .belongings
+        .into_inner()
+        .into_iter()
+        .map(|belonging| belonging.into())
+        .collect::<Vec<BelongingPB>>(),
       layout: view.layout.into(),
+    }
+  }
+}
+
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct BelongingPB {
+  #[pb(index = 1)]
+  pub id: String,
+
+  #[pb(index = 2)]
+  pub name: String,
+}
+
+impl From<Belonging> for BelongingPB {
+  fn from(value: Belonging) -> Self {
+    Self {
+      id: value.id,
+      name: value.name,
     }
   }
 }

@@ -56,8 +56,8 @@ async fn workspace_create_with_apps() {
     }])
     .await;
 
-  let app = test.app.clone();
-  test.run_scripts(vec![ReadApp(app.id)]).await;
+  let app = test.root_view.clone();
+  test.run_scripts(vec![RefreshRootView(app.id)]).await;
 }
 
 #[tokio::test]
@@ -85,56 +85,53 @@ async fn workspace_create_with_invalid_name() {
 #[should_panic]
 async fn app_delete() {
   let mut test = FolderTest::new().await;
-  let app = test.app.clone();
-  test.run_scripts(vec![DeleteApp, ReadApp(app.id)]).await;
+  let app = test.root_view.clone();
+  test
+    .run_scripts(vec![DeleteRootView, RefreshRootView(app.id)])
+    .await;
 }
 
 #[tokio::test]
 async fn app_delete_then_restore() {
   let mut test = FolderTest::new().await;
-  let app = test.app.clone();
+  test
+    .run_scripts(vec![RefreshRootView(test.root_view.id.clone())])
+    .await;
+
+  let root_view = test.root_view.clone();
   test
     .run_scripts(vec![
-      DeleteApp,
+      DeleteRootView,
       RestoreAppFromTrash,
-      ReadApp(app.id.clone()),
-      AssertApp(app),
+      RefreshRootView(root_view.id.clone()),
+      AssertRootView(root_view),
     ])
-    .await;
-}
-
-#[tokio::test]
-async fn app_read() {
-  let mut test = FolderTest::new().await;
-  let app = test.app.clone();
-  test
-    .run_scripts(vec![ReadApp(app.id.clone()), AssertApp(app)])
     .await;
 }
 
 #[tokio::test]
 async fn app_update() {
   let mut test = FolderTest::new().await;
-  let app = test.app.clone();
+  let app = test.root_view.clone();
   let new_name = "😁 hell world".to_owned();
   assert_ne!(app.name, new_name);
 
   test
     .run_scripts(vec![
-      UpdateApp {
+      UpdateRootView {
         name: Some(new_name.clone()),
         desc: None,
       },
-      ReadApp(app.id),
+      RefreshRootView(app.id),
     ])
     .await;
-  assert_eq!(test.app.name, new_name);
+  assert_eq!(test.root_view.name, new_name);
 }
 
 #[tokio::test]
 async fn app_create_with_view() {
   let mut test = FolderTest::new().await;
-  let mut app = test.app.clone();
+  let mut app = test.root_view.clone();
   test
     .run_scripts(vec![
       CreateView {
@@ -147,11 +144,11 @@ async fn app_create_with_view() {
         desc: "Grid description".to_owned(),
         layout: ViewLayout::Grid,
       },
-      ReadApp(app.id),
+      RefreshRootView(app.id),
     ])
     .await;
 
-  app = test.app.clone();
+  app = test.root_view.clone();
   assert_eq!(app.belongings.len(), 3);
   assert_eq!(app.belongings[1].name, "View A");
   assert_eq!(app.belongings[2].name, "Grid")
@@ -201,7 +198,7 @@ async fn view_delete_then_restore() {
 #[tokio::test]
 async fn view_delete_all() {
   let mut test = FolderTest::new().await;
-  let app = test.app.clone();
+  let app = test.root_view.clone();
   test
     .run_scripts(vec![
       CreateView {
@@ -214,42 +211,13 @@ async fn view_delete_all() {
         desc: "Grid description".to_owned(),
         layout: ViewLayout::Grid,
       },
-      ReadApp(app.id.clone()),
+      RefreshRootView(app.id.clone()),
     ])
     .await;
 
-  assert_eq!(test.app.belongings.len(), 3);
+  assert_eq!(test.root_view.belongings.len(), 3);
   let view_ids = test
-    .app
-    .belongings
-    .iter()
-    .map(|view| view.id.clone())
-    .collect::<Vec<String>>();
-  test
-    .run_scripts(vec![DeleteViews(view_ids), ReadApp(app.id), ReadTrash])
-    .await;
-
-  assert_eq!(test.app.belongings.len(), 0);
-  assert_eq!(test.trash.len(), 3);
-}
-
-#[tokio::test]
-async fn view_delete_all_permanent() {
-  let mut test = FolderTest::new().await;
-  let app = test.app.clone();
-  test
-    .run_scripts(vec![
-      CreateView {
-        name: "View A".to_owned(),
-        desc: "View A description".to_owned(),
-        layout: ViewLayout::Document,
-      },
-      ReadApp(app.id.clone()),
-    ])
-    .await;
-
-  let view_ids = test
-    .app
+    .root_view
     .belongings
     .iter()
     .map(|view| view.id.clone())
@@ -257,12 +225,45 @@ async fn view_delete_all_permanent() {
   test
     .run_scripts(vec![
       DeleteViews(view_ids),
-      ReadApp(app.id),
+      RefreshRootView(app.id),
+      ReadTrash,
+    ])
+    .await;
+
+  assert_eq!(test.root_view.belongings.len(), 0);
+  assert_eq!(test.trash.len(), 3);
+}
+
+#[tokio::test]
+async fn view_delete_all_permanent() {
+  let mut test = FolderTest::new().await;
+  let app = test.root_view.clone();
+  test
+    .run_scripts(vec![
+      CreateView {
+        name: "View A".to_owned(),
+        desc: "View A description".to_owned(),
+        layout: ViewLayout::Document,
+      },
+      RefreshRootView(app.id.clone()),
+    ])
+    .await;
+
+  let view_ids = test
+    .root_view
+    .belongings
+    .iter()
+    .map(|view| view.id.clone())
+    .collect::<Vec<String>>();
+  test
+    .run_scripts(vec![
+      DeleteViews(view_ids),
+      RefreshRootView(app.id),
       DeleteAllTrash,
       ReadTrash,
     ])
     .await;
 
-  assert_eq!(test.app.belongings.len(), 0);
+  assert_eq!(test.root_view.belongings.len(), 0);
   assert_eq!(test.trash.len(), 0);
 }

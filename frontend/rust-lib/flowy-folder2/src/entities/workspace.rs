@@ -1,3 +1,4 @@
+use crate::entities::RepeatedViewPB;
 use crate::{
   entities::parser::workspace::{WorkspaceDesc, WorkspaceIdentify, WorkspaceName},
   entities::{app::RepeatedAppPB, view::ViewPB},
@@ -16,7 +17,7 @@ pub struct WorkspacePB {
   pub name: String,
 
   #[pb(index = 3)]
-  pub apps: RepeatedAppPB,
+  pub apps: RepeatedViewPB,
 
   #[pb(index = 4)]
   pub create_time: i64,

@@ -229,9 +229,25 @@ impl Folder2Manager {
 
   #[tracing::instrument(level = "debug", skip(self, view_id), err)]
   pub async fn get_view(&self, view_id: &str) -> FlowyResult<View> {
-    match self.folder.lock().views.get_view(view_id) {
+    let view_id = view_id.to_string();
+    let folder = self.folder.lock();
+    let trash_ids = folder
+      .trash
+      .get_all_trash()
+      .into_iter()
+      .map(|trash| trash.id)
+      .collect::<Vec<String>>();
+
+    if trash_ids.contains(&view_id) {
+      return Err(FlowyError::record_not_found());
+    }
+
+    match folder.views.get_view(&view_id) {
       None => Err(FlowyError::record_not_found()),
-      Some(view) => Ok(view),
+      Some(mut view) => {
+        view.belongings.retain(|b| !trash_ids.contains(&b.id));
+        Ok(view)
+      },
     }
   }
 
