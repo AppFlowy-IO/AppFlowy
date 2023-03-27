@@ -28,7 +28,8 @@ extension InsertPage on EditorState {
             );
 
     if (database == null) {
-      throw StateError('The database associated with ${viewPB.id} could not be found while attempting to create a referenced ${viewPB.layout.name}.');
+      throw StateError(
+          'The database associated with ${viewPB.id} could not be found while attempting to create a referenced ${viewPB.layout.name}.');
     }
 
     final prefix = referencedBoardPrefix(viewPB.layout);
@@ -44,6 +45,11 @@ extension InsertPage on EditorState {
     ).then(
       (value) => value.getLeftOrNull(),
     );
+
+    // TODO(a-wallen): Show error dialog here.
+    if (ref == null) {
+      return;
+    }
 
     final transaction = this.transaction;
     transaction.insertNode(
