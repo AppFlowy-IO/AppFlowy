@@ -1,4 +1,3 @@
-// ignore_for_file: prefer_const_constructors
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcut_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
@@ -30,7 +29,7 @@ void main() {
 
     test('initial state is correct', () {
       final shortcutsCubit = ShortcutsCubit(service);
-      expect(shortcutsCubit.state, ShortcutsState());
+      expect(shortcutsCubit.state, const ShortcutsState());
     });
 
     group('fetchShortcuts', () {
@@ -53,8 +52,8 @@ void main() {
         build: () => shortcutsCubit,
         act: (cubit) => cubit.fetchShortcuts(),
         expect: () => <ShortcutsState>[
-          ShortcutsState(status: ShortcutsStatus.updating),
-          ShortcutsState(status: ShortcutsStatus.failure),
+          const ShortcutsState(status: ShortcutsStatus.updating),
+          const ShortcutsState(status: ShortcutsStatus.failure),
         ],
       );
 
@@ -63,7 +62,7 @@ void main() {
         build: () => shortcutsCubit,
         act: (cubit) => cubit.fetchShortcuts(),
         expect: () => <dynamic>[
-          ShortcutsState(status: ShortcutsStatus.updating),
+          const ShortcutsState(status: ShortcutsStatus.updating),
           isA<ShortcutsState>()
               .having((w) => w.status, 'status', ShortcutsStatus.success)
               .having(
@@ -95,8 +94,8 @@ void main() {
         build: () => shortcutsCubit,
         act: (cubit) => cubit.updateShortcuts(),
         expect: () => <ShortcutsState>[
-          ShortcutsState(status: ShortcutsStatus.updating),
-          ShortcutsState(status: ShortcutsStatus.failure),
+          const ShortcutsState(status: ShortcutsStatus.updating),
+          const ShortcutsState(status: ShortcutsStatus.failure),
         ],
       );
 
@@ -105,7 +104,7 @@ void main() {
         build: () => shortcutsCubit,
         act: (cubit) => cubit.updateShortcuts(),
         expect: () => <dynamic>[
-          ShortcutsState(status: ShortcutsStatus.updating),
+          const ShortcutsState(status: ShortcutsStatus.updating),
           isA<ShortcutsState>()
               .having((w) => w.status, 'status', ShortcutsStatus.success)
         ],

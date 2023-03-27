@@ -69,9 +69,8 @@ class ShortcutsListView extends StatelessWidget {
         Expanded(
           child: ListView.builder(
             itemCount: shortcuts.length,
-            itemBuilder: ((context, i) {
-              return ShortcutsListTile(shortcutEvent: shortcuts[i]);
-            }),
+            itemBuilder: (context, index) =>
+                ShortcutsListTile(shortcutEvent: shortcuts[index]),
           ),
         )
       ],
@@ -169,11 +168,13 @@ extension on RawKeyEvent {
     if (isMetaPressed) {
       command += 'meta+';
     }
-    String keyPressed = keyToCodeMapping.keys.firstWhere(
-        (k) => keyToCodeMapping[k] == logicalKey.keyId,
-        orElse: () => '');
-    command += keyPressed;
-    return command;
+
+    final keyPressed = keyToCodeMapping.keys.firstWhere(
+      (k) => keyToCodeMapping[k] == logicalKey.keyId,
+      orElse: () => '',
+    );
+
+    return command += keyPressed;
   }
 }
 

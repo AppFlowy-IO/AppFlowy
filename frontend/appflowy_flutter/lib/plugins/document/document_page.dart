@@ -11,9 +11,6 @@ import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/au
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/widgets/smart_edit_toolbar_item.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
