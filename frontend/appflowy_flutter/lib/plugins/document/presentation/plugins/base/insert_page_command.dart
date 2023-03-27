@@ -13,7 +13,7 @@ const String kAppID = 'app_id';
 const String kViewID = 'view_id';
 
 extension InsertPage on EditorState {
-  void insertPage(AppPB appPB, ViewPB viewPB) async {
+  Future<void> insertPage(AppPB appPB, ViewPB viewPB) async {
     final selection = service.selectionService.currentSelection.value;
     final textNodes =
         service.selectionService.currentSelectedNodes.whereType<TextNode>();
