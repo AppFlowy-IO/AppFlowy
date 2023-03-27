@@ -56,12 +56,12 @@ void _dismissImageUploadMenu() {
 }
 
 class ImageUploadMenu extends StatefulWidget {
-  const ImageUploadMenu(
-      {Key? key,
-      required this.onSubmitted,
-      required this.onUpload,
-      this.editorState})
-      : super(key: key);
+  const ImageUploadMenu({
+    super.key,
+    required this.onSubmitted,
+    required this.onUpload,
+    this.editorState,
+  });
 
   final void Function(String text) onSubmitted;
   final void Function(String text) onUpload;
@@ -119,14 +119,11 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
       _isLoading = false;
       for (var e in _paths!) {
         _fileName = e.name;
-      }
-      for (var e in _paths!) {
         src = e.path;
       }
 
       _userAborted = _paths == null;
 
-      File srcImg = File('$src');
       imageName = _fileName!;
       widget.onSubmitted(src!);
     });
@@ -170,7 +167,7 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
+        children: [
           TabBar(
             controller: _tabController,
             tabs: const [
@@ -194,20 +191,18 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
           ),
           SizedBox(
               height: 200.0,
-              child: TabBarView(controller: _tabController, children: <Widget>[
+              child: TabBarView(controller: _tabController, children: [
                 InkWell(
-                  onTap: (() => _pickFiles()),
+                  onTap: _pickFiles,
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[_buildFileInput(context)]),
+                      children: [_buildFileInput(context)]),
                 ),
-                Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      _buildURLInput(),
-                      const SizedBox(height: 15.0),
-                      _buildUploadButton(context)
-                    ])
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  _buildURLInput(),
+                  const SizedBox(height: 15.0),
+                  _buildUploadButton(context)
+                ]),
               ])),
           const SizedBox(height: 18.0),
         ],

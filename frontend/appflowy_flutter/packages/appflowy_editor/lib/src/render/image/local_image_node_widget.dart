@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 
 class LocalImageNode extends StatefulWidget {
   const LocalImageNode({
-    Key? key,
+    super.key,
     required this.node,
     required this.src,
     required this.type,
@@ -20,7 +20,7 @@ class LocalImageNode extends StatefulWidget {
     required this.onDelete,
     required this.onAlign,
     required this.onResize,
-  }) : super(key: key);
+  });
 
   final Node node;
   final String src;
@@ -45,7 +45,7 @@ class _LocalImageNodeState extends State<LocalImageNode> with SelectableMixin {
   bool _onFocus = false;
 
   ImageStream? _imageStream;
-  late ImageStreamListener _imageStreamListener;
+  late final ImageStreamListener _imageStreamListener;
 
   @override
   void initState() {
@@ -152,6 +152,7 @@ class _LocalImageNodeState extends State<LocalImageNode> with SelectableMixin {
     return Stack(
       children: [
         fileImage,
+        //TODO: Fix editorState.editable
         _buildEdgeGesture(
           context,
           top: 0,
@@ -372,7 +373,7 @@ class ImageToolbar extends StatelessWidget {
                 name: 'image_toolbar/copy',
               ),
               onPressed: () {
-                onCopy();
+                onCopy;
               },
             ),
             IconButton(
@@ -383,7 +384,7 @@ class ImageToolbar extends StatelessWidget {
                 name: 'image_toolbar/delete',
               ),
               onPressed: () {
-                onDelete();
+                onDelete;
               },
             ),
           ],

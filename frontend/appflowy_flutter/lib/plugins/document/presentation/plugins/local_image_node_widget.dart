@@ -11,7 +11,7 @@ String? newImage;
 
 String? copyFile(String src, String? dest, String name) {
   try {
-    var path = File(src);
+    final path = File(src);
     path.copySync('$dest/images/$name');
     newImage = '$dest/images/$name';
     return newImage;
@@ -22,7 +22,7 @@ String? copyFile(String src, String? dest, String name) {
 }
 
 Directory? checkDir(String? path) {
-  Directory dir = Directory('$path/images');
+  final Directory dir = Directory('$path/images');
   try {
     if (!Directory('$path/images').existsSync()) {
       dir.createSync(recursive: true);
@@ -45,14 +45,13 @@ class LocalImageNodeWidgetBuilder extends NodeWidgetBuilder {
     String imageName = context.node.attributes['name'];
 
     imageFolder?.then((location) async {
-      String value = location.path.toString();
-      folderPath = value;
-      checkDir(value);
-      return value;
+      folderPath = location.path.toString();
+      checkDir(folderPath);
+      return folderPath;
     });
 
     Future<String?> checkImg() async {
-      File existingFile = File('$folderPath/images/$imageName');
+      final File existingFile = File('$folderPath/images/$imageName');
       try {
         if (existingFile.existsSync()) {
           return newImage = existingFile.path.toString();
@@ -67,9 +66,7 @@ class LocalImageNodeWidgetBuilder extends NodeWidgetBuilder {
     return FutureBuilder(
         future: checkImg(),
         builder: (BuildContext _, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          } else if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasData) {
               return _LocalImageNodeWidget(
                   key: context.node.key,
@@ -77,12 +74,9 @@ class LocalImageNodeWidgetBuilder extends NodeWidgetBuilder {
                   image: snapshot.data);
             } else if (snapshot.hasError) {
               return Text('Can not load image ${snapshot.error}');
-            } else {
-              return const CircularProgressIndicator();
             }
-          } else {
-            return const CircularProgressIndicator();
           }
+          return const CircularProgressIndicator();
         });
   }
 
@@ -95,6 +89,7 @@ class LocalImageNodeWidgetBuilder extends NodeWidgetBuilder {
 }
 
 class _LocalImageNodeWidget extends StatefulWidget {
+  //TODO: Add a super init somewhere...
   const _LocalImageNodeWidget({Key? key, required this.node, this.image})
       : super(key: key);
 
@@ -146,9 +141,8 @@ class __LocalImageNodeWidgetState extends State<_LocalImageNodeWidget>
   Selection getSelectionInRange(Offset start, Offset end) {
     if (start <= end) {
       return Selection(start: this.start(), end: this.end());
-    } else {
-      return Selection(start: this.end(), end: this.start());
     }
+    return Selection(start: this.end(), end: this.start());
   }
 
   @override
