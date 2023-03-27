@@ -87,7 +87,7 @@ class SettingsDialog extends StatelessWidget {
       case SettingsPage.user:
         return SettingsUserView(user);
       case SettingsPage.shortcuts:
-        return const SettingsCustomizeShortcuts();
+        return const SettingsCustomizeShortcutsWrapper();
       default:
         return Container();
     }
