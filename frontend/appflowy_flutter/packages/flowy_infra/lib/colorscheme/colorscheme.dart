@@ -15,14 +15,14 @@ const Map<String, List<FlowyColorScheme>> themeMap = {
     DefaultColorScheme.light(),
     DefaultColorScheme.dark(),
   ],
-  // BuiltInTheme.dandelion: [
-  //   DandelionColorScheme.light(),
-  //   DandelionColorScheme.dark(),
-  // ],
-  // BuiltInTheme.lavender: [
-  //   LavenderColorScheme.light(),
-  //   LavenderColorScheme.dark(),
-  // ],
+  BuiltInTheme.dandelion: [
+    DandelionColorScheme.light(),
+    DandelionColorScheme.dark(),
+  ],
+  BuiltInTheme.lavender: [
+    LavenderColorScheme.light(),
+    LavenderColorScheme.dark(),
+  ],
 };
 
 @immutable
