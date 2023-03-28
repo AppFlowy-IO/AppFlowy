@@ -15,7 +15,7 @@ use std::{fs, path::PathBuf, sync::Arc};
 pub struct ViewTest {
   pub sdk: FlowySDKTest,
   pub workspace: WorkspacePB,
-  pub root_view: ViewPB,
+  pub parent_view: ViewPB,
   pub child_view: ViewPB,
 }
 
@@ -29,7 +29,7 @@ impl ViewTest {
     Self {
       sdk: sdk.clone(),
       workspace,
-      root_view: app,
+      parent_view: app,
       child_view: view,
     }
   }

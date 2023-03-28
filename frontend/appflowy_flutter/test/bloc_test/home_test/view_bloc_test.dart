@@ -13,7 +13,7 @@ void main() {
 
   test('rename view test', () async {
     final app = await testContext.createTestApp();
-    final appBloc = AppBloc(app: app)..add(const AppEvent.initial());
+    final appBloc = AppBloc(view: app)..add(const AppEvent.initial());
     appBloc.add(AppEvent.createView(
       "Test document",
       DocumentPluginBuilder(),
@@ -30,7 +30,7 @@ void main() {
 
   test('duplicate view test', () async {
     final app = await testContext.createTestApp();
-    final appBloc = AppBloc(app: app)..add(const AppEvent.initial());
+    final appBloc = AppBloc(view: app)..add(const AppEvent.initial());
     await blocResponseFuture();
 
     appBloc.add(AppEvent.createView(
@@ -51,7 +51,7 @@ void main() {
 
   test('delete view test', () async {
     final app = await testContext.createTestApp();
-    final appBloc = AppBloc(app: app)..add(const AppEvent.initial());
+    final appBloc = AppBloc(view: app)..add(const AppEvent.initial());
     await blocResponseFuture();
 
     appBloc.add(AppEvent.createView(

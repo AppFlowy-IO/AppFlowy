@@ -1,4 +1,4 @@
-use crate::entities::{RepeatedViewPB, ViewPB, WorkspacePB};
+use crate::entities::{ViewPB, WorkspacePB};
 use crate::manager::Folder;
 use crate::view_ext::{gen_view_id, ViewDataProcessorMap};
 use chrono::Utc;

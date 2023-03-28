@@ -11,18 +11,16 @@ pub(crate) enum FolderNotification {
   Unknown = 0,
   /// Trigger after creating a workspace
   DidCreateWorkspace = 1,
-  /// Trigger after deleting a workspace
-  // DidDeleteWorkspace = 2,
   // /// Trigger after updating a workspace
-  // DidUpdateWorkspace = 3,
-  // /// Trigger when the number of apps of the workspace is changed
-  // DidUpdateWorkspaceApps = 4,
+  DidUpdateWorkspace = 2,
+
+  DidUpdateWorkspaceViews = 3,
   /// Trigger when the settings of the workspace are changed. The changes including the latest visiting view, etc
-  DidUpdateWorkspaceSetting = 2,
-  /// Trigger when the properties including rename,update description of the app are changed
-  DidUpdateApp = 20,
+  DidUpdateWorkspaceSetting = 4,
+
+  DidUpdateView = 29,
   /// Trigger when the properties including rename,update description of the view are changed
-  DidUpdateView = 30,
+  DidUpdateChildViews = 30,
   /// Trigger after deleting the view
   DidDeleteView = 31,
   /// Trigger when restore the view from trash
@@ -50,11 +48,6 @@ pub(crate) fn send_notification(id: &str, ty: FolderNotification) -> Notificatio
   NotificationBuilder::new(id, ty, OBSERVABLE_CATEGORY)
 }
 
-#[tracing::instrument(level = "trace")]
-pub(crate) fn send_anonymous_notification(ty: FolderNotification) -> NotificationBuilder {
-  NotificationBuilder::new("", ty, OBSERVABLE_CATEGORY)
-}
-
 /// The [CURRENT_WORKSPACE] represents as the current workspace that opened by the
 /// user. Only one workspace can be opened at a time.
 const CURRENT_WORKSPACE: &str = "current-workspace";
@@ -69,7 +62,7 @@ pub(crate) fn send_workspace_setting_notification(
   current_view: Option<View>,
 ) -> Option<()> {
   let workspace: WorkspacePB = current_workspace?.into();
-  let latest_view = current_view.map(|view| ViewPB::from(view));
+  let latest_view = current_view.map(ViewPB::from);
   let setting = WorkspaceSettingPB {
     workspace,
     latest_view,

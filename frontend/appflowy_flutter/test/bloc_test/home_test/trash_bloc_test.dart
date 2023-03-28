@@ -16,7 +16,7 @@ class TrashTestContext {
 
   Future<void> initialize() async {
     view = await unitTest.createTestApp();
-    appBloc = AppBloc(app: view)..add(const AppEvent.initial());
+    appBloc = AppBloc(view: view)..add(const AppEvent.initial());
     await blocResponseFuture();
 
     appBloc.add(AppEvent.createView(

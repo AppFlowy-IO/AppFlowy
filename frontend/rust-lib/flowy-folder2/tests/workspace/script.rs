@@ -54,8 +54,8 @@ pub struct FolderTest {
   pub sdk: FlowySDKTest,
   pub all_workspace: Vec<WorkspacePB>,
   pub workspace: WorkspacePB,
-  pub root_view: ViewPB,
-  pub view: ViewPB,
+  pub parent_view: ViewPB,
+  pub child_view: ViewPB,
   pub trash: Vec<TrashPB>,
 }
 
@@ -64,10 +64,10 @@ impl FolderTest {
     let sdk = FlowySDKTest::default();
     let _ = sdk.init_user().await;
     let workspace = create_workspace(&sdk, "FolderWorkspace", "Folder test workspace").await;
-    let root_view = create_app(&sdk, &workspace.id, "Folder App", "Folder test app").await;
+    let parent_view = create_app(&sdk, &workspace.id, "Folder App", "Folder test app").await;
     let view = create_view(
       &sdk,
-      &root_view.id,
+      &parent_view.id,
       "Folder View",
       "Folder test view",
       ViewLayout::Document,
@@ -77,8 +77,8 @@ impl FolderTest {
       sdk,
       all_workspace: vec![],
       workspace,
-      root_view,
-      view,
+      parent_view,
+      child_view: view,
       trash: vec![],
     }
   }
@@ -109,47 +109,47 @@ impl FolderTest {
       },
       FolderScript::CreateApp { name, desc } => {
         let app = create_app(sdk, &self.workspace.id, &name, &desc).await;
-        self.root_view = app;
+        self.parent_view = app;
       },
       FolderScript::AssertRootView(app) => {
-        assert_eq!(self.root_view, app, "App not equal");
+        assert_eq!(self.parent_view, app, "App not equal");
       },
       FolderScript::RefreshRootView(app_id) => {
         let app = read_view(sdk, &app_id).await;
-        self.root_view = app;
+        self.parent_view = app;
       },
       FolderScript::UpdateRootView { name, desc } => {
-        update_view(sdk, &self.root_view.id, name, desc).await;
+        update_view(sdk, &self.parent_view.id, name, desc).await;
       },
       FolderScript::DeleteRootView => {
-        delete_view(sdk, vec![self.root_view.id.clone()]).await;
+        delete_view(sdk, vec![self.parent_view.id.clone()]).await;
       },
 
       FolderScript::CreateView { name, desc, layout } => {
-        let view = create_view(sdk, &self.root_view.id, &name, &desc, layout).await;
-        self.view = view;
+        let view = create_view(sdk, &self.parent_view.id, &name, &desc, layout).await;
+        self.child_view = view;
       },
       FolderScript::AssertView(view) => {
-        assert_eq!(self.view, view, "View not equal");
+        assert_eq!(self.child_view, view, "View not equal");
       },
       FolderScript::ReadView(view_id) => {
         let view = read_view(sdk, &view_id).await;
-        self.view = view;
+        self.child_view = view;
       },
       FolderScript::UpdateView { name, desc } => {
-        update_view(sdk, &self.view.id, name, desc).await;
+        update_view(sdk, &self.child_view.id, name, desc).await;
       },
       FolderScript::DeleteView => {
-        delete_view(sdk, vec![self.view.id.clone()]).await;
+        delete_view(sdk, vec![self.child_view.id.clone()]).await;
       },
       FolderScript::DeleteViews(view_ids) => {
         delete_view(sdk, view_ids).await;
       },
       FolderScript::RestoreAppFromTrash => {
-        restore_app_from_trash(sdk, &self.root_view.id).await;
+        restore_app_from_trash(sdk, &self.parent_view.id).await;
       },
       FolderScript::RestoreViewFromTrash => {
-        restore_view_from_trash(sdk, &self.view.id).await;
+        restore_view_from_trash(sdk, &self.child_view.id).await;
       },
       FolderScript::ReadTrash => {
         let trash = read_trash(sdk).await;

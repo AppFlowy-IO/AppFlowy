@@ -20,10 +20,10 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   final AppBackendService appService;
   final AppListener appListener;
 
-  AppBloc({required ViewPB app})
+  AppBloc({required ViewPB view})
       : appService = AppBackendService(),
-        appListener = AppListener(appId: app.id),
-        super(AppState.initial(app)) {
+        appListener = AppListener(viewId: view.id),
+        super(AppState.initial(view)) {
     on<AppEvent>((event, emit) async {
       await event.map(initial: (e) async {
         _startListening();

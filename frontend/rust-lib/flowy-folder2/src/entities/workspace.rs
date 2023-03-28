@@ -1,4 +1,3 @@
-use crate::entities::RepeatedViewPB;
 use crate::{
   entities::parser::workspace::{WorkspaceDesc, WorkspaceIdentify, WorkspaceName},
   entities::view::ViewPB,

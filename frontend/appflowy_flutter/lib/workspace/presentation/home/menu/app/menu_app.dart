@@ -31,7 +31,7 @@ class _MenuAppState extends State<MenuApp> {
       providers: [
         BlocProvider<AppBloc>(
           create: (context) {
-            final appBloc = AppBloc(app: widget.app);
+            final appBloc = AppBloc(view: widget.app);
             appBloc.add(const AppEvent.initial());
             return appBloc;
           },

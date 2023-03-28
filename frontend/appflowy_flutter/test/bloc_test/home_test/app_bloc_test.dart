@@ -15,7 +15,7 @@ void main() {
 
   test('rename app test', () async {
     final app = await testContext.createTestApp();
-    final bloc = AppBloc(app: app)..add(const AppEvent.initial());
+    final bloc = AppBloc(view: app)..add(const AppEvent.initial());
     await blocResponseFuture();
 
     bloc.add(const AppEvent.rename('Hello world'));
@@ -26,7 +26,7 @@ void main() {
 
   test('delete app test', () async {
     final app = await testContext.createTestApp();
-    final bloc = AppBloc(app: app)..add(const AppEvent.initial());
+    final bloc = AppBloc(view: app)..add(const AppEvent.initial());
     await blocResponseFuture();
 
     bloc.add(const AppEvent.delete());
@@ -38,7 +38,7 @@ void main() {
 
   test('create documents in order', () async {
     final app = await testContext.createTestApp();
-    final bloc = AppBloc(app: app)..add(const AppEvent.initial());
+    final bloc = AppBloc(view: app)..add(const AppEvent.initial());
     await blocResponseFuture();
 
     bloc.add(AppEvent.createView("1", DocumentPluginBuilder()));
@@ -55,7 +55,7 @@ void main() {
 
   test('reorder documents test', () async {
     final app = await testContext.createTestApp();
-    final bloc = AppBloc(app: app)..add(const AppEvent.initial());
+    final bloc = AppBloc(view: app)..add(const AppEvent.initial());
     await blocResponseFuture();
 
     bloc.add(AppEvent.createView("1", DocumentPluginBuilder()));
@@ -84,7 +84,7 @@ void main() {
 
   test('open latest view test', () async {
     final app = await testContext.createTestApp();
-    final bloc = AppBloc(app: app)..add(const AppEvent.initial());
+    final bloc = AppBloc(view: app)..add(const AppEvent.initial());
     await blocResponseFuture();
     assert(
       bloc.state.latestCreatedView == null,
@@ -108,7 +108,7 @@ void main() {
 
   test('open latest documents test', () async {
     final app = await testContext.createTestApp();
-    final bloc = AppBloc(app: app)..add(const AppEvent.initial());
+    final bloc = AppBloc(view: app)..add(const AppEvent.initial());
     await blocResponseFuture();
 
     bloc.add(AppEvent.createView("document 1", DocumentPluginBuilder()));
@@ -135,7 +135,7 @@ void main() {
 
   test('open latest document test', () async {
     final app = await testContext.createTestApp();
-    final bloc = AppBloc(app: app)..add(const AppEvent.initial());
+    final bloc = AppBloc(view: app)..add(const AppEvent.initial());
     await blocResponseFuture();
 
     bloc.add(AppEvent.createView("document 1", DocumentPluginBuilder()));

@@ -55,7 +55,7 @@ class WorkspaceListener {
           (error) => _workspaceUpdatedNotifier?.value = right(error),
         );
         break;
-      case FolderNotification.DidUpdateWorkspaceApps:
+      case FolderNotification.DidUpdateWorkspaceViews:
         result.fold(
           (payload) => _appsChangedNotifier?.value =
               left(RepeatedViewPB.fromBuffer(payload).items),

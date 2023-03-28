@@ -69,7 +69,7 @@ impl DatabaseEditorTest {
     assert_eq!(block_meta_revs.len(), 1);
 
     let view_id = test.child_view.id;
-    let app_id = test.root_view.id;
+    let app_id = test.parent_view.id;
     Self {
       sdk,
       app_id,

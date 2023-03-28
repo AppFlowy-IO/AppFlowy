@@ -19,7 +19,10 @@ class TrashListener {
 
   void start({TrashUpdatedCallback? trashUpdated}) {
     _trashUpdated = trashUpdated;
-    _parser = FolderNotificationParser(callback: _observableCallback);
+    _parser = FolderNotificationParser(
+      id: "trash",
+      callback: _observableCallback,
+    );
     _subscription =
         RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }

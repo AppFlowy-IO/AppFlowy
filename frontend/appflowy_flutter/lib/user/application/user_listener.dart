@@ -119,13 +119,6 @@ class UserWorkspaceListener {
   ) {
     switch (ty) {
       case FolderNotification.DidCreateWorkspace:
-      case FolderNotification.DidDeleteWorkspace:
-        result.fold(
-          (payload) => _workspacesChangedNotifier?.value =
-              left(RepeatedWorkspacePB.fromBuffer(payload).items),
-          (error) => _workspacesChangedNotifier?.value = right(error),
-        );
-        break;
       case FolderNotification.DidUpdateWorkspaceSetting:
         result.fold(
           (payload) => _settingChangedNotifier?.value =
