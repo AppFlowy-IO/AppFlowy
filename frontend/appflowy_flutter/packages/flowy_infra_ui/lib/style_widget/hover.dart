@@ -131,27 +131,28 @@ class FlowyHoverContainer extends StatelessWidget {
     );
 
     return Container(
-        margin: style.contentMargin,
-        decoration: BoxDecoration(
-          border: hoverBorder,
-          color: style.hoverColor ?? Theme.of(context).colorScheme.secondary,
-          borderRadius: style.borderRadius,
+      margin: style.contentMargin,
+      decoration: BoxDecoration(
+        border: hoverBorder,
+        color: style.hoverColor ?? Theme.of(context).colorScheme.secondary,
+        borderRadius: style.borderRadius,
+      ),
+      child:
+          //override text's theme with new color when it is hovered
+          Theme(
+        data: Theme.of(context).copyWith(
+          textTheme: Theme.of(context).textTheme.copyWith(
+                bodyMedium: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+              ),
+          iconTheme: Theme.of(context)
+              .iconTheme
+              .copyWith(color: Theme.of(context).colorScheme.onSurface),
         ),
-        child:
-            //override text's theme with new color when it is hovered
-            Theme(
-          data: Theme.of(context).copyWith(
-              textTheme: Theme.of(context).textTheme.copyWith(
-                    bodyMedium: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface),
-                  ),
-              iconTheme: Theme.of(context)
-                  .iconTheme
-                  .copyWith(color: Theme.of(context).colorScheme.onSurface)),
-          child: child!,
-        ));
+        child: child!,
+      ),
+    );
   }
 }
