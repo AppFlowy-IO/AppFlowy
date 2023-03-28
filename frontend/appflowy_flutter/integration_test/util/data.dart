@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:archive/archive_io.dart';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum TestWorkspace {
@@ -10,15 +12,31 @@ enum TestWorkspace {
 
   const TestWorkspace(this._name);
 
-  static const String _prefix = "integration_test/util/test_workspaces";
-
   final String _name;
-  String get zip => p.normalize(
-      "${Platform.script.toFilePath(windows: _windows)}/../$_prefix/$_name.zip");
-  String get _out =>
-      p.normalize("${Platform.script.toFilePath(windows: _windows)}/../$_prefix/.ephemeral/");
-  String get directory => "$_out/$name";
-  bool get _windows => Platform.isWindows;
+
+  Future<File> get zip async {
+    final Directory parent = await TestWorkspace._parent;
+    final File out = File(p.join(parent.path, '$_name.zip'));
+    if (await out.exists()) return out;
+    await out.create();
+    final ByteData data = await rootBundle.load(_asset);
+    await out.writeAsBytes(data.buffer.asUint8List());
+    return out;
+  }
+
+  Future<Directory> get root async {
+    return Directory(p.join(await TestWorkspace._parent.then((value) => value.path), name));
+  }
+
+  static Future<Directory> get _parent async {
+    final Directory root = await getTemporaryDirectory();
+    if (await root.exists()) return root;
+    await root.create();
+    return root;
+  }
+
+  String get _asset => 'assets/test/workspaces/$_name.zip';
+
 }
 
 class TestWorkspaceService {
@@ -29,14 +47,16 @@ class TestWorkspaceService {
   /// Instructs the application to read workspace data from the workspace found under this [TestWorkspace]'s path.
   Future<void> setUpAll() async {
     SharedPreferences.setMockInitialValues(
-      {kSettingsLocationDefaultLocation: TestWorkspace.board.directory},
+      {
+        kSettingsLocationDefaultLocation: await workspace.root.then((value) => value.path),
+      },
     );
   }
 
   /// Workspaces that are checked into source are compressed. [TestWorkspaceService.setUp()] decompresses the file into an ephemeral directory that will be ignored by source control.
   Future<void> setUp() async {
-    final inputStream = InputFileStream(workspace.zip);
+    final inputStream = InputFileStream(await workspace.zip.then((value) => value.path));
     final archive = ZipDecoder().decodeBuffer(inputStream);
-    extractArchiveToDisk(archive, workspace.directory);
+    extractArchiveToDisk(archive, await TestWorkspace._parent.then((value) => value.path));
   }
 }
