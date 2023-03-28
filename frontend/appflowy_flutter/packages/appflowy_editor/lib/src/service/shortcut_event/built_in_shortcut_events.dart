@@ -289,7 +289,7 @@ List<ShortcutEvent> builtInShortcutEvents = [
   ),
   ShortcutEvent(
     key: 'Double tilde to strikethrough',
-    command: 'tilde,shift+tilde',
+    character: '~',
     handler: doubleTildeToStrikethrough,
   ),
   ShortcutEvent(
@@ -309,12 +309,12 @@ List<ShortcutEvent> builtInShortcutEvents = [
   ),
   ShortcutEvent(
     key: 'Double asterisk to bold',
-    command: 'shift+digit 8',
+    character: '*',
     handler: doubleAsteriskToBoldHandler,
   ),
   ShortcutEvent(
     key: 'Double underscore to bold',
-    command: 'shift+underscore',
+    character: '_',
     handler: doubleUnderscoreToBoldHandler,
   ),
   // https://github.com/flutter/flutter/issues/104944

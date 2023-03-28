@@ -26,7 +26,7 @@ void main() async {
       // Pressing the enter key continuously.
       for (int i = 1; i <= 10; i++) {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.enter,
+          key: LogicalKeyboardKey.enter,
         );
         expect(editor.documentLength, i + 1);
         expect(editor.documentSelection,
@@ -64,7 +64,7 @@ void main() async {
         Selection.single(path: [lines - 1], startOffset: 0),
       );
       await editor.pressLogicKey(
-        LogicalKeyboardKey.enter,
+        key: LogicalKeyboardKey.enter,
       );
       lines += 1;
       expect(editor.documentLength, lines);
@@ -132,7 +132,7 @@ void main() async {
       await editor.updateSelection(
         Selection.single(path: [0], startOffset: 0),
       );
-      await editor.pressLogicKey(LogicalKeyboardKey.enter);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.enter);
       expect(editor.documentLength, 2);
       expect((editor.nodeAtPath([1]) as TextNode).toPlainText(), text);
     });
@@ -159,7 +159,7 @@ Future<void> _testStyleNeedToBeCopy(WidgetTester tester, String style) async {
     Selection.single(path: [1], startOffset: 0),
   );
   await editor.pressLogicKey(
-    LogicalKeyboardKey.enter,
+    key: LogicalKeyboardKey.enter,
   );
   expect(editor.documentSelection, Selection.single(path: [2], startOffset: 0));
 
@@ -167,7 +167,7 @@ Future<void> _testStyleNeedToBeCopy(WidgetTester tester, String style) async {
     Selection.single(path: [3], startOffset: text.length),
   );
   await editor.pressLogicKey(
-    LogicalKeyboardKey.enter,
+    key: LogicalKeyboardKey.enter,
   );
   expect(editor.documentSelection, Selection.single(path: [4], startOffset: 0));
 
@@ -176,7 +176,7 @@ Future<void> _testStyleNeedToBeCopy(WidgetTester tester, String style) async {
     expect(editor.nodeAtPath([4])?.subtype, null);
 
     await editor.pressLogicKey(
-      LogicalKeyboardKey.enter,
+      key: LogicalKeyboardKey.enter,
     );
     expect(
         editor.documentSelection, Selection.single(path: [5], startOffset: 0));
@@ -185,7 +185,7 @@ Future<void> _testStyleNeedToBeCopy(WidgetTester tester, String style) async {
     expect(editor.nodeAtPath([4])?.subtype, style);
 
     await editor.pressLogicKey(
-      LogicalKeyboardKey.enter,
+      key: LogicalKeyboardKey.enter,
     );
     expect(
         editor.documentSelection, Selection.single(path: [4], startOffset: 0));
@@ -223,7 +223,7 @@ Future<void> _testMultipleSelection(
     end: isBackwardSelection ? end : start,
   ));
   await editor.pressLogicKey(
-    LogicalKeyboardKey.enter,
+    key: LogicalKeyboardKey.enter,
   );
 
   expect(editor.documentLength, 2);

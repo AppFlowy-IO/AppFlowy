@@ -23,9 +23,8 @@ import '../../../../grid/presentation/widgets/common/type_option_separator.dart'
 import '../../../../grid/presentation/widgets/header/type_option/date.dart';
 import 'date_cal_bloc.dart';
 
-final kToday = DateTime.now();
-final kFirstDay = DateTime(kToday.year, kToday.month - 3, kToday.day);
-final kLastDay = DateTime(kToday.year, kToday.month + 3, kToday.day);
+final kFirstDay = DateTime.utc(1970, 1, 1);
+final kLastDay = DateTime.utc(2100, 1, 1);
 
 class DateCellEditor extends StatefulWidget {
   final VoidCallback onDismissed;

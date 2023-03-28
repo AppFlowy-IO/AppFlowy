@@ -95,13 +95,13 @@ Future<void> _testUpdateTextStyleByCommandX(
   await editor.updateSelection(selection);
   if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(
-      key,
+      key: key,
       isShiftPressed: isShiftPressed,
       isControlPressed: true,
     );
   } else {
     await editor.pressLogicKey(
-      key,
+      key: key,
       isShiftPressed: isShiftPressed,
       isMetaPressed: true,
     );
@@ -122,13 +122,13 @@ Future<void> _testUpdateTextStyleByCommandX(
   await editor.updateSelection(selection);
   if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(
-      key,
+      key: key,
       isShiftPressed: isShiftPressed,
       isControlPressed: true,
     );
   } else {
     await editor.pressLogicKey(
-      key,
+      key: key,
       isShiftPressed: isShiftPressed,
       isMetaPressed: true,
     );
@@ -147,13 +147,13 @@ Future<void> _testUpdateTextStyleByCommandX(
   await editor.updateSelection(selection);
   if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(
-      key,
+      key: key,
       isShiftPressed: isShiftPressed,
       isControlPressed: true,
     );
   } else {
     await editor.pressLogicKey(
-      key,
+      key: key,
       isShiftPressed: isShiftPressed,
       isMetaPressed: true,
     );
@@ -169,13 +169,13 @@ Future<void> _testUpdateTextStyleByCommandX(
   await editor.updateSelection(selection);
   if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(
-      key,
+      key: key,
       isShiftPressed: isShiftPressed,
       isControlPressed: true,
     );
   } else {
     await editor.pressLogicKey(
-      key,
+      key: key,
       isShiftPressed: isShiftPressed,
       isMetaPressed: true,
     );
@@ -204,13 +204,13 @@ Future<void> _testUpdateTextStyleByCommandX(
 
   if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(
-      key,
+      key: key,
       isShiftPressed: isShiftPressed,
       isControlPressed: true,
     );
   } else {
     await editor.pressLogicKey(
-      key,
+      key: key,
       isShiftPressed: isShiftPressed,
       isMetaPressed: true,
     );
@@ -250,9 +250,11 @@ Future<void> _testLinkMenuInSingleTextSelection(WidgetTester tester) async {
 
   // trigger the link menu
   if (Platform.isWindows || Platform.isLinux) {
-    await editor.pressLogicKey(LogicalKeyboardKey.keyK, isControlPressed: true);
+    await editor.pressLogicKey(
+        key: LogicalKeyboardKey.keyK, isControlPressed: true);
   } else {
-    await editor.pressLogicKey(LogicalKeyboardKey.keyK, isMetaPressed: true);
+    await editor.pressLogicKey(
+        key: LogicalKeyboardKey.keyK, isMetaPressed: true);
   }
   expect(find.byType(LinkMenu), findsOneWidget);
 
@@ -273,9 +275,11 @@ Future<void> _testLinkMenuInSingleTextSelection(WidgetTester tester) async {
 
   await editor.updateSelection(selection);
   if (Platform.isWindows || Platform.isLinux) {
-    await editor.pressLogicKey(LogicalKeyboardKey.keyK, isControlPressed: true);
+    await editor.pressLogicKey(
+        key: LogicalKeyboardKey.keyK, isControlPressed: true);
   } else {
-    await editor.pressLogicKey(LogicalKeyboardKey.keyK, isMetaPressed: true);
+    await editor.pressLogicKey(
+        key: LogicalKeyboardKey.keyK, isMetaPressed: true);
   }
   expect(find.byType(LinkMenu), findsOneWidget);
   expect(
@@ -290,9 +294,11 @@ Future<void> _testLinkMenuInSingleTextSelection(WidgetTester tester) async {
 
   // Remove link
   if (Platform.isWindows || Platform.isLinux) {
-    await editor.pressLogicKey(LogicalKeyboardKey.keyK, isControlPressed: true);
+    await editor.pressLogicKey(
+        key: LogicalKeyboardKey.keyK, isControlPressed: true);
   } else {
-    await editor.pressLogicKey(LogicalKeyboardKey.keyK, isMetaPressed: true);
+    await editor.pressLogicKey(
+        key: LogicalKeyboardKey.keyK, isMetaPressed: true);
   }
   final removeLink = find.text('Remove link');
   expect(removeLink, findsOneWidget);
