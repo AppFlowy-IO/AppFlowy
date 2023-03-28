@@ -1,3 +1,4 @@
+use crate::entities::{RepeatedViewPB, ViewPB, WorkspacePB};
 use crate::manager::Folder;
 use crate::view_ext::{gen_view_id, ViewDataProcessorMap};
 use chrono::Utc;
@@ -8,7 +9,11 @@ use std::collections::HashMap;
 
 pub struct DefaultFolderBuilder();
 impl DefaultFolderBuilder {
-  pub async fn build(uid: i64, folder: Folder, view_processors: &ViewDataProcessorMap) {
+  pub async fn build(
+    uid: i64,
+    folder: Folder,
+    view_processors: &ViewDataProcessorMap,
+  ) -> WorkspacePB {
     let time = Utc::now().timestamp();
     let workspace_id = gen_workspace_id();
     let view_id = gen_view_id();
@@ -65,6 +70,8 @@ impl DefaultFolderBuilder {
       created_at: time,
     };
 
+    let workspace_pb = workspace_pb_from_workspace(&workspace, &view, &child_view);
+
     let data = FolderData {
       current_workspace: workspace.id.clone(),
       current_view: child_view_id,
@@ -73,9 +80,27 @@ impl DefaultFolderBuilder {
     };
 
     folder.lock().create_with_data(data);
+    workspace_pb
   }
 }
 
 pub fn gen_workspace_id() -> String {
   nanoid!(10)
+}
+
+fn workspace_pb_from_workspace(
+  workspace: &Workspace,
+  view: &View,
+  child_view: &View,
+) -> WorkspacePB {
+  let child_view_pb: ViewPB = child_view.clone().into();
+  let mut view_pb: ViewPB = view.clone().into();
+  view_pb.belongings.push(child_view_pb);
+
+  WorkspacePB {
+    id: workspace.id.clone(),
+    name: workspace.name.clone(),
+    views: vec![view_pb],
+    create_time: workspace.created_at,
+  }
 }

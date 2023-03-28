@@ -73,9 +73,9 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
             snapshot.connectionState == ConnectionState.done) {
           final workspaces = snapshot.data?.getLeftOrNull<WorkspaceSettingPB>();
           if (workspaces != null) {
-            final apps = workspaces.workspace.apps.items;
+            final views = workspaces.workspace.views;
             return BlocProvider<SettingsFileExporterCubit>(
-              create: (_) => SettingsFileExporterCubit(apps: apps),
+              create: (_) => SettingsFileExporterCubit(views: views),
               child: const _ExpandedList(),
             );
           }

@@ -121,7 +121,7 @@ class MenuState with _$MenuState {
   }) = _MenuState;
 
   factory MenuState.initial(WorkspacePB workspace) => MenuState(
-        views: workspace.apps.items,
+        views: workspace.views,
         successOrFailure: left(unit),
         plugin: makePlugin(pluginType: PluginType.blank),
       );

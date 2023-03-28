@@ -336,7 +336,7 @@ impl UserStatusListener {
   async fn did_sign_up(&self, user_profile: &UserProfile) -> FlowyResult<()> {
     self
       .folder_manager
-      .initialize_with_new_user(&user_profile.id)
+      .initialize_with_new_user(&user_profile.id, &user_profile.token)
       .await?;
     self
       .document_manager

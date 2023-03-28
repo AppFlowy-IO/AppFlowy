@@ -1,5 +1,9 @@
+use crate::entities::{ViewPB, WorkspacePB, WorkspaceSettingPB};
+use collab_folder::core::{View, Workspace};
 use flowy_derive::ProtoBuf_Enum;
 use flowy_notification::NotificationBuilder;
+use lib_dispatch::prelude::ToBytes;
+
 const OBSERVABLE_CATEGORY: &str = "Workspace";
 
 #[derive(ProtoBuf_Enum, Debug)]
@@ -8,13 +12,13 @@ pub(crate) enum FolderNotification {
   /// Trigger after creating a workspace
   DidCreateWorkspace = 1,
   /// Trigger after deleting a workspace
-  DidDeleteWorkspace = 2,
-  /// Trigger after updating a workspace
-  DidUpdateWorkspace = 3,
-  /// Trigger when the number of apps of the workspace is changed
-  DidUpdateWorkspaceApps = 4,
+  // DidDeleteWorkspace = 2,
+  // /// Trigger after updating a workspace
+  // DidUpdateWorkspace = 3,
+  // /// Trigger when the number of apps of the workspace is changed
+  // DidUpdateWorkspaceApps = 4,
   /// Trigger when the settings of the workspace are changed. The changes including the latest visiting view, etc
-  DidUpdateWorkspaceSetting = 5,
+  DidUpdateWorkspaceSetting = 2,
   /// Trigger when the properties including rename,update description of the app are changed
   DidUpdateApp = 20,
   /// Trigger when the properties including rename,update description of the view are changed
@@ -49,4 +53,27 @@ pub(crate) fn send_notification(id: &str, ty: FolderNotification) -> Notificatio
 #[tracing::instrument(level = "trace")]
 pub(crate) fn send_anonymous_notification(ty: FolderNotification) -> NotificationBuilder {
   NotificationBuilder::new("", ty, OBSERVABLE_CATEGORY)
+}
+
+/// The [CURRENT_WORKSPACE] represents as the current workspace that opened by the
+/// user. Only one workspace can be opened at a time.
+const CURRENT_WORKSPACE: &str = "current-workspace";
+pub(crate) fn send_workspace_notification<T: ToBytes>(ty: FolderNotification, payload: T) {
+  send_notification(CURRENT_WORKSPACE, ty)
+    .payload(payload)
+    .send();
+}
+
+pub(crate) fn send_workspace_setting_notification(
+  current_workspace: Option<Workspace>,
+  current_view: Option<View>,
+) -> Option<()> {
+  let workspace: WorkspacePB = current_workspace?.into();
+  let latest_view = current_view.map(|view| ViewPB::from(view));
+  let setting = WorkspaceSettingPB {
+    workspace,
+    latest_view,
+  };
+  send_workspace_notification(FolderNotification::DidUpdateWorkspaceSetting, setting);
+  None
 }

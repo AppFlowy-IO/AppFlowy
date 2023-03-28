@@ -95,16 +95,16 @@ class AppBackendService {
     return FolderEventReadCurrentWorkspace().send().then((value) async {
       final workspaces = value.getLeftOrNull<WorkspaceSettingPB>();
       if (workspaces != null) {
-        final apps = workspaces.workspace.apps.items;
-        for (var app in apps) {
-          final views = await getViews(viewId: app.id).then(
+        final views = workspaces.workspace.views;
+        for (var view in views) {
+          final childViews = await getViews(viewId: view.id).then(
             (value) => value
                 .getLeftOrNull<List<ViewPB>>()
                 ?.where((e) => e.layout == layoutType)
                 .toList(),
           );
-          if (views != null && views.isNotEmpty) {
-            result.add(Tuple2(app, views));
+          if (childViews != null && childViews.isNotEmpty) {
+            result.add(Tuple2(view, childViews));
           }
         }
       }

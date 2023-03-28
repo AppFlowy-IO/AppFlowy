@@ -17,7 +17,7 @@ pub struct WorkspacePB {
   pub name: String,
 
   #[pb(index = 3)]
-  pub apps: RepeatedViewPB,
+  pub views: Vec<ViewPB>,
 
   #[pb(index = 4)]
   pub create_time: i64,
@@ -28,7 +28,7 @@ impl std::convert::From<Workspace> for WorkspacePB {
     WorkspacePB {
       id: workspace.id,
       name: workspace.name,
-      apps: Default::default(),
+      views: Default::default(),
       create_time: workspace.created_at,
     }
   }

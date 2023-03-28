@@ -38,8 +38,8 @@ class SettingsFileExportState {
 
 class SettingsFileExporterCubit extends Cubit<SettingsFileExportState> {
   SettingsFileExporterCubit({
-    required List<ViewPB> apps,
-  }) : super(SettingsFileExportState(views: apps));
+    required List<ViewPB> views,
+  }) : super(SettingsFileExportState(views: views));
 
   void selectOrDeselectItem(int outerIndex, int innerIndex) {
     final selectedItems = state.selectedItems;

@@ -1,5 +1,10 @@
-use crate::entities::{AppPB, CreateViewParams, CreateWorkspaceParams, UpdateViewParams, ViewPB};
-use crate::notification::{send_notification, FolderNotification};
+use crate::entities::{
+  AppPB, CreateViewParams, CreateWorkspaceParams, RepeatedWorkspacePB, UpdateViewParams, ViewPB,
+};
+use crate::notification::{
+  send_notification, send_workspace_notification, send_workspace_setting_notification,
+  FolderNotification,
+};
 use crate::user_default::{gen_workspace_id, DefaultFolderBuilder};
 use crate::view_ext::{
   gen_view_id, view_from_create_view_params, ViewDataProcessor, ViewDataProcessorMap,
@@ -111,19 +116,25 @@ impl Folder2Manager {
     )
   }
 
-  pub async fn initialize_with_new_user(&self, _user_id: &str) -> FlowyResult<()> {
+  pub async fn initialize_with_new_user(&self, _user_id: &str, token: &str) -> FlowyResult<()> {
     let db = self.user.kv_db()?;
     let disk_plugin =
       Arc::new(CollabDiskPlugin::new(db).map_err(|err| FlowyError::internal().context(err))?);
     self.folder.lock().add_plugins(vec![disk_plugin]);
     self.folder.lock().initial();
 
-    DefaultFolderBuilder::build(
+    let workspace_pb = DefaultFolderBuilder::build(
       self.user.user_id()?,
       self.folder.clone(),
       &self.view_processors,
     )
     .await;
+
+    send_notification(token, FolderNotification::DidCreateWorkspace)
+      .payload(RepeatedWorkspacePB {
+        items: vec![workspace_pb],
+      })
+      .send();
     Ok(())
   }
 
@@ -143,6 +154,11 @@ impl Folder2Manager {
     let folder = self.folder.lock();
     folder.workspaces.create_workspace(workspace.clone());
     folder.set_current_workspace(&workspace.id);
+
+    let repeated_workspace = RepeatedWorkspacePB {
+      items: vec![workspace.clone().into()],
+    };
+    send_workspace_notification(FolderNotification::DidCreateWorkspace, repeated_workspace);
     Ok(workspace)
   }
 
@@ -346,7 +362,14 @@ impl Folder2Manager {
 
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub(crate) async fn set_current_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    self.folder.lock().set_current_view(view_id);
+    let folder = self.folder.lock();
+    folder.set_current_view(view_id);
+
+    let workspace = folder.get_current_workspace();
+    let view = folder
+      .get_current_view()
+      .and_then(|view_id| folder.views.get_view(&view_id));
+    send_workspace_setting_notification(workspace, view);
     Ok(())
   }
 
@@ -420,8 +443,8 @@ fn listen_on_trash_change(mut rx: TrashChangeReceiver, _folder: Folder) {
   tokio::spawn(async move {
     while let Ok(value) = rx.recv().await {
       match value {
-        TrashChange::DidCreateTrash { ids: _ } => {},
-        TrashChange::DidDeleteTrash { ids: _ } => {},
+        TrashChange::DidCreateTrash { ids } => {},
+        TrashChange::DidDeleteTrash { ids } => {},
       }
     }
   });
