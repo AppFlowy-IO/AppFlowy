@@ -215,13 +215,6 @@ final List<SelectionMenuListItem> _defaultSelectionMenuListItems = [
       insertHeadingAfterSelection(editorState, BuiltInAttributeKey.h3);
     },
   ),
-  // SelectionMenuListItem(
-  //   name: AppFlowyEditorLocalizations.current.image,
-  //   icon: (editorState, onSelected) =>
-  //       _selectionMenuIcon('image', editorState, onSelected),
-  //   keywords: ['image'],
-  //   handler: showImageUploadMenu,
-  // ),
   SelectionMenuListItem(
     name: AppFlowyEditorLocalizations.current.bulletedList,
     group: SelectionMenuListGroup.group2,
