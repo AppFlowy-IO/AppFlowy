@@ -77,10 +77,10 @@ Next we will simulate the input of a shortcut key being pressed that will select
 
 ```dart
 // Meta + A.
-await editor.pressLogicKey(LogicalKeyboardKey.keyA, isMetaPressed: true);
+await editor.pressLogicKey(key: LogicalKeyboardKey.keyA, isMetaPressed: true);
 // Meta + shift + S.
-await editor.pressLogicKey(
-    LogicalKeyboardKey.keyS,
+await editor.pressLogicKey
+    key: LogicalKeyboardKey.keyS,
     isMetaPressed: true,
     isShiftPressed: true,
 );
@@ -130,7 +130,7 @@ void main() async {
         editor.insertTextNode(text);
       }
       await editor.startTesting();
-      await editor.pressLogicKey(LogicalKeyboardKey.keyA, isMetaPressed: true);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.keyA, isMetaPressed: true);
 
       expect(
         editor.documentSelection,

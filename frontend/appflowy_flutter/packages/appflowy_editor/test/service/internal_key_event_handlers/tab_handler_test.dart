@@ -18,7 +18,7 @@ void main() async {
 
       var selection = Selection.single(path: [0], startOffset: 0);
       await editor.updateSelection(selection);
-      await editor.pressLogicKey(LogicalKeyboardKey.tab);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.tab);
 
       expect(
         editor.documentSelection,
@@ -27,7 +27,7 @@ void main() async {
 
       selection = Selection.single(path: [1], startOffset: 0);
       await editor.updateSelection(selection);
-      await editor.pressLogicKey(LogicalKeyboardKey.tab);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.tab);
 
       expect(
         editor.documentSelection,
@@ -61,7 +61,7 @@ void main() async {
 
       var selection = Selection.single(path: [0], startOffset: 0);
       await editor.updateSelection(selection);
-      await editor.pressLogicKey(LogicalKeyboardKey.tab);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.tab);
 
       // nothing happens
       expect(
@@ -82,7 +82,7 @@ void main() async {
       selection = Selection.single(path: [1], startOffset: 0);
       await editor.updateSelection(selection);
 
-      await editor.pressLogicKey(LogicalKeyboardKey.tab);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.tab);
 
       expect(
         editor.documentSelection,
@@ -96,7 +96,7 @@ void main() async {
 
       selection = Selection.single(path: [1], startOffset: 0);
       await editor.updateSelection(selection);
-      await editor.pressLogicKey(LogicalKeyboardKey.tab);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.tab);
 
       expect(
         editor.documentSelection,
@@ -121,7 +121,7 @@ void main() async {
       document = editor.document;
       selection = Selection.single(path: [0, 0], startOffset: 0);
       await editor.updateSelection(selection);
-      await editor.pressLogicKey(LogicalKeyboardKey.tab);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.tab);
 
       expect(
         editor.documentSelection,
@@ -131,7 +131,7 @@ void main() async {
 
       selection = Selection.single(path: [0, 1], startOffset: 0);
       await editor.updateSelection(selection);
-      await editor.pressLogicKey(LogicalKeyboardKey.tab);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.tab);
 
       expect(
         editor.documentSelection,
@@ -182,7 +182,7 @@ void main() async {
 
     var selection = Selection.single(path: [0], startOffset: 0);
     await editor.updateSelection(selection);
-    await editor.pressLogicKey(LogicalKeyboardKey.tab);
+    await editor.pressLogicKey(key: LogicalKeyboardKey.tab);
 
     // nothing happens
     expect(
@@ -203,7 +203,7 @@ void main() async {
     selection = Selection.single(path: [1], startOffset: 0);
     await editor.updateSelection(selection);
 
-    await editor.pressLogicKey(LogicalKeyboardKey.tab);
+    await editor.pressLogicKey(key: LogicalKeyboardKey.tab);
 
     expect(
       editor.documentSelection,
@@ -216,7 +216,7 @@ void main() async {
 
     selection = Selection.single(path: [1], startOffset: 0);
     await editor.updateSelection(selection);
-    await editor.pressLogicKey(LogicalKeyboardKey.tab);
+    await editor.pressLogicKey(key: LogicalKeyboardKey.tab);
 
     expect(
       editor.documentSelection,
@@ -239,7 +239,7 @@ void main() async {
     document = editor.document;
     selection = Selection.single(path: [0, 0], startOffset: 0);
     await editor.updateSelection(selection);
-    await editor.pressLogicKey(LogicalKeyboardKey.tab);
+    await editor.pressLogicKey(key: LogicalKeyboardKey.tab);
 
     expect(
       editor.documentSelection,
@@ -249,7 +249,7 @@ void main() async {
 
     selection = Selection.single(path: [0, 1], startOffset: 0);
     await editor.updateSelection(selection);
-    await editor.pressLogicKey(LogicalKeyboardKey.tab);
+    await editor.pressLogicKey(key: LogicalKeyboardKey.tab);
 
     expect(
       editor.documentSelection,

@@ -24,7 +24,7 @@ void main() async {
         await editor.updateSelection(
           Selection.single(path: [i], startOffset: 1),
         );
-        await editor.pressLogicKey(LogicalKeyboardKey.space);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.space);
         expect(
           (editor.nodeAtPath([i]) as TextNode).toPlainText(),
           'W elcome to Appflowy 😁',
@@ -34,7 +34,7 @@ void main() async {
         await editor.updateSelection(
           Selection.single(path: [i], startOffset: text.length + 1),
         );
-        await editor.pressLogicKey(LogicalKeyboardKey.space);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.space);
         expect(
           (editor.nodeAtPath([i]) as TextNode).toPlainText(),
           'W elcome to Appflowy 😁 ',

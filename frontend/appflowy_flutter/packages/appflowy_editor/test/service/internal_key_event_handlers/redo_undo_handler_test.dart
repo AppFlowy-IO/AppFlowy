@@ -40,17 +40,17 @@ Future<void> _testBackspaceUndoRedo(
     end: isDownwardSelection ? end : start,
   );
   await editor.updateSelection(selection);
-  await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+  await editor.pressLogicKey(key: LogicalKeyboardKey.backspace);
   expect(editor.documentLength, 2);
 
   if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(
-      LogicalKeyboardKey.keyZ,
+      key: LogicalKeyboardKey.keyZ,
       isControlPressed: true,
     );
   } else {
     await editor.pressLogicKey(
-      LogicalKeyboardKey.keyZ,
+      key: LogicalKeyboardKey.keyZ,
       isMetaPressed: true,
     );
   }
@@ -61,13 +61,13 @@ Future<void> _testBackspaceUndoRedo(
 
   if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(
-      LogicalKeyboardKey.keyZ,
+      key: LogicalKeyboardKey.keyZ,
       isControlPressed: true,
       isShiftPressed: true,
     );
   } else {
     await editor.pressLogicKey(
-      LogicalKeyboardKey.keyZ,
+      key: LogicalKeyboardKey.keyZ,
       isMetaPressed: true,
       isShiftPressed: true,
     );
