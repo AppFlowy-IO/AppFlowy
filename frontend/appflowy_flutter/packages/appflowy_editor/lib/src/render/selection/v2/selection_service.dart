@@ -32,8 +32,11 @@ class SelectionAndScroll extends StatefulWidget {
 class _SelectionAndScrollState extends State<SelectionAndScroll>
     with WidgetsBindingObserver
     implements SelectionService, ScrollService {
-  //
+  // Scroll
   ScrollableState? scrollableState;
+  EdgeDraggingAutoScroller? scroller;
+
+  // Selection
   final ValueNotifier<Selection?> _selection = ValueNotifier(null);
   final Set<Node> visibleNodes = {};
 
@@ -68,7 +71,7 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
       child: ListView.builder(
         itemBuilder: (context, index) {
           // TODO: Any good ideas to get the scrollableState?
-          scrollableState ??= Scrollable.of(context);
+          _initScrollServiceIfNeed(context);
 
           // build child
           final node = nodes[index];
@@ -191,48 +194,55 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
   }
 
   void _onPanStart(DragStartDetails details) {
-    final node = getNodeInOffset(details.globalPosition);
-    final selectable = node?.selectableV2;
-    if (selectable != null) {
-      _startPosition = selectable.getPositionInOffset(details.globalPosition);
-    }
+    _startPosition = _getPositionInOffset(details.globalPosition);
     assert(_startPosition != null);
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
-    final node = getNodeInOffset(details.globalPosition);
-    final selectable = node?.selectableV2;
-    if (selectable != null && _startPosition != null) {
-      _endPosition = selectable.getPositionInOffset(details.globalPosition);
-      _selection.value = Selection(
-        start: _startPosition!,
-        end: _endPosition!,
-      );
-    }
+    _endPosition = _getPositionInOffset(details.globalPosition);
     assert(_endPosition != null);
+    if (_startPosition == null || _endPosition == null) {
+      return;
+    }
+    _selection.value = Selection(
+      start: _startPosition!,
+      end: _endPosition!,
+    );
+    _startAutoScrollIfNecessary(details.globalPosition);
   }
 
   void _onTapDown(TapDownDetails details) {
-    final node = getNodeInOffset(details.globalPosition);
-    final selectable = node?.selectableV2;
-    if (selectable != null) {
-      _startPosition = selectable.getPositionInOffset(details.globalPosition);
-      _endPosition = _startPosition?.copyWith();
-      _selection.value = Selection(
-        start: _startPosition!,
-        end: _endPosition!,
-      );
-    }
+    _startPosition = _getPositionInOffset(details.globalPosition);
     assert(_startPosition != null);
+    if (_startPosition == null) {
+      return;
+    }
+    _endPosition = _startPosition?.copyWith();
+    _selection.value = Selection(
+      start: _startPosition!,
+      end: _endPosition!,
+    );
+    _startAutoScrollIfNecessary(details.globalPosition);
   }
 
-  void _updateVisibleNodesSelection(Selection selection) {
-    for (final node in visibleNodes) {
-      final selectable = node.selectableV2;
-      if (selectable != null) {
-        selectable.setSelectionV2(selection);
-      }
-    }
+  Position? _getPositionInOffset(Offset offset) {
+    final node = getNodeInOffset(offset);
+    final selectable = node?.selectableV2;
+    return selectable?.getPositionInOffset(offset);
+  }
+
+  void _initScrollServiceIfNeed(BuildContext context) {
+    scrollableState ??= Scrollable.of(context);
+    scroller ??= EdgeDraggingAutoScroller(
+      scrollableState!,
+      velocityScalar: 30,
+      onScrollViewScrolled: () {},
+    );
+  }
+
+  void _startAutoScrollIfNecessary(Offset offset) {
+    final rect = Rect.fromCenter(center: offset, width: 200, height: 200);
+    scroller?.startAutoScrollIfNecessary(rect);
   }
 }
 
