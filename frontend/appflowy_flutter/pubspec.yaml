@@ -165,6 +165,7 @@ flutter:
     - assets/images/common/
     - assets/images/grid/setting/
     - assets/translations/
+    - assets/test/workspaces/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
