@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/base/built_in_page_widget.dart';
 import 'package:appflowy/user/presentation/folder/folder_widget.dart';
+import 'package:appflowy_board/appflowy_board.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
@@ -291,6 +292,20 @@ void main() {
       // Checks whether the new board is in the side bar.
       final sidebarLabel = LocaleKeys.newPageText.tr();
       expect(find.text(sidebarLabel), findsOneWidget);
+    });
+  });
+
+  const service = TestWorkspaceService(TestWorkspace.board);
+
+  group('board', () {
+    setUpAll(() async => await service.setUpAll());
+    setUp(() async => await service.setUp());
+
+    testWidgets(
+        'integration test unzips the proper workspace and loads it correctly.',
+        (tester) async {
+      await tester.initializeAppFlowy();
+      expect(find.byType(AppFlowyBoard), findsOneWidget);
     });
   });
 }
