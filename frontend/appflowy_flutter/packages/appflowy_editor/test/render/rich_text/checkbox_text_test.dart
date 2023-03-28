@@ -100,16 +100,16 @@ void main() async {
         Selection.single(path: [0], startOffset: text.length),
       );
 
-      await editor.pressLogicKey(LogicalKeyboardKey.enter);
-      await editor.pressLogicKey(LogicalKeyboardKey.enter);
-      await editor.pressLogicKey(LogicalKeyboardKey.enter);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.enter);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.enter);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.enter);
 
       expect(
         editor.documentSelection,
         Selection.single(path: [2], startOffset: 0),
       );
 
-      await editor.pressLogicKey(LogicalKeyboardKey.slash);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.slash);
       await tester.pumpAndSettle(const Duration(milliseconds: 1000));
 
       expect(

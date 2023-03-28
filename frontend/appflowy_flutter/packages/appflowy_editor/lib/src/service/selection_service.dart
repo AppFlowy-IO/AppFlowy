@@ -82,6 +82,13 @@ abstract class AppFlowySelectionService {
 
   /// The current selection areas's rect in editor.
   List<Rect> get selectionRects;
+
+  void register(SelectionInterceptor interceptor);
+  void unRegister(SelectionInterceptor interceptor);
+}
+
+class SelectionInterceptor {
+  bool Function(TapDownDetails details)? canTap;
 }
 
 class AppFlowySelection extends StatefulWidget {
@@ -212,6 +219,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
     selectionRects.clear();
     clearSelection();
+    _clearToolbar();
 
     if (selection != null) {
       if (selection.isCollapsed) {
@@ -286,6 +294,10 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
   }
 
   void _onTapDown(TapDownDetails details) {
+    final canTap =
+        _interceptors.every((element) => element.canTap?.call(details) ?? true);
+    if (!canTap) return;
+
     // clear old state.
     _panStartOffset = null;
 
@@ -700,5 +712,16 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     //     _debugOverlay = null;
     //   }
     // }
+  }
+
+  final List<SelectionInterceptor> _interceptors = [];
+  @override
+  void register(SelectionInterceptor interceptor) {
+    _interceptors.add(interceptor);
+  }
+
+  @override
+  void unRegister(SelectionInterceptor interceptor) {
+    _interceptors.removeWhere((element) => element == interceptor);
   }
 }

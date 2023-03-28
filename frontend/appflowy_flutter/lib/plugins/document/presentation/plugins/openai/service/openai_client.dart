@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:appflowy/plugins/document/presentation/plugins/openai/service/text_edit.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 
 import 'text_completion.dart';
 import 'package:dartz/dartz.dart';
@@ -125,6 +124,7 @@ class HttpOpenAIRepository implements OpenAIRepository {
     String? suffix,
     int maxTokens = 2048,
     double temperature = 0.3,
+    bool useAction = false,
   }) async {
     final parameters = {
       'model': 'text-davinci-003',
@@ -151,14 +151,22 @@ class HttpOpenAIRepository implements OpenAIRepository {
           .transform(const Utf8Decoder())
           .transform(const LineSplitter())) {
         syntax += 1;
-        if (syntax == 3) {
-          await onStart();
-          continue;
-        } else if (syntax < 3) {
-          continue;
+        if (!useAction) {
+          if (syntax == 3) {
+            await onStart();
+            continue;
+          } else if (syntax < 3) {
+            continue;
+          }
+        } else {
+          if (syntax == 2) {
+            await onStart();
+            continue;
+          } else if (syntax < 2) {
+            continue;
+          }
         }
         final data = chunk.trim().split('data: ');
-        Log.editor.info(data.toString());
         if (data.length > 1) {
           if (data[1] != '[DONE]') {
             final response = TextCompletionResponse.fromJson(
@@ -173,7 +181,7 @@ class HttpOpenAIRepository implements OpenAIRepository {
               previousSyntax = response.choices.first.text;
             }
           } else {
-            onEnd();
+            await onEnd();
           }
         }
       }
@@ -183,6 +191,7 @@ class HttpOpenAIRepository implements OpenAIRepository {
         OpenAIError.fromJson(json.decode(body)['error']),
       );
     }
+    return;
   }
 
   @override

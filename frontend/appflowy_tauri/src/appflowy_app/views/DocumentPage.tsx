@@ -1,28 +1,23 @@
 import { useDocument } from './DocumentPage.hooks';
-import BlockList from '../components/block/BlockList';
-import { BlockContext } from '../utils/block_context';
 import { createTheme, ThemeProvider } from '@mui/material';
+import Root from '../components/document/Root';
+import { DocumentControllerContext } from '../stores/effects/document/document_controller';
 
 const theme = createTheme({
   typography: {
     fontFamily: ['Poppins'].join(','),
   },
 });
-export const DocumentPage = () => {
-  const { blockId } = useDocument();
 
-  if (!blockId) return <div className='error-page'></div>;
+export const DocumentPage = () => {
+  const { documentId, documentData, controller } = useDocument();
+
+  if (!documentId || !documentData || !controller) return null;
   return (
     <ThemeProvider theme={theme}>
-      <div id='appflowy-block-doc' className='doc-scroller-container flex h-[100%] flex-col items-center overflow-auto'>
-        <BlockContext.Provider
-          value={{
-            id: blockId,
-          }}
-        >
-          <BlockList blockId={blockId} />
-        </BlockContext.Provider>
-      </div>
+      <DocumentControllerContext.Provider value={controller}>
+        <Root documentData={documentData} />
+      </DocumentControllerContext.Provider>
     </ThemeProvider>
   );
 };

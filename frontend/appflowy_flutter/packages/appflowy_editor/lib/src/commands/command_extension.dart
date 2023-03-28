@@ -52,7 +52,7 @@ extension CommandExtension on EditorState {
     throw Exception('path and textNode cannot be null at the same time');
   }
 
-  String getTextInSelection(
+  List<String> getTextInSelection(
     List<TextNode> textNodes,
     Selection selection,
   ) {
@@ -77,6 +77,6 @@ extension CommandExtension on EditorState {
         }
       }
     }
-    return res.join('\n');
+    return res;
   }
 }
