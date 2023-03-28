@@ -8,7 +8,9 @@ ShortcutEventHandler selectAllHandler = (editorState, event) {
   if (editorState.document.root.children.isEmpty) {
     return KeyEventResult.handled;
   }
-  final firstNode = editorState.document.root.children.first;
+  final firstNode = editorState.document.root.children.firstWhere(
+    (element) => element is TextNode,
+  );
   final lastNode = editorState.document.root.children.last;
   var offset = 0;
   if (lastNode is TextNode) {

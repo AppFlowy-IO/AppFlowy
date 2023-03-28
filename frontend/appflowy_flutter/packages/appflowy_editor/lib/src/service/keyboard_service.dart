@@ -129,7 +129,7 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
 
     // TODO: use cache to optimize the searching time.
     for (final shortcutEvent in widget.shortcutEvents) {
-      if (shortcutEvent.keybindings.containsKeyEvent(event)) {
+      if (shortcutEvent.canRespondToRawKeyEvent(event)) {
         final result = shortcutEvent.handler(widget.editorState, event);
         if (result == KeyEventResult.handled) {
           return KeyEventResult.handled;
@@ -155,5 +155,12 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
 
   KeyEventResult _onKey(FocusNode node, RawKeyEvent event) {
     return onKey(event);
+  }
+}
+
+extension on ShortcutEvent {
+  bool canRespondToRawKeyEvent(RawKeyEvent event) {
+    return ((character?.isNotEmpty ?? false) && character == event.character) ||
+        keybindings.containsKeyEvent(event);
   }
 }

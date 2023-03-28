@@ -349,7 +349,6 @@
       "autoGeneratorGenerate": "Gerar",
       "autoGeneratorHintText": "Diga-nos o que você deseja gerar por IA ...",
       "autoGeneratorCantGetOpenAIKey": "Não foi possível obter a chave da OpenAI",
-      "smartEditTitleName": "IA: edição inteligente",
       "smartEditFixSpelling": "Corrigir ortografia",
       "smartEditSummarize": "Resumir",
       "smartEditCouldNotFetchResult": "Não foi possível obter o resultado do OpenAI",
