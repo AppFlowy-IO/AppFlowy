@@ -46,7 +46,17 @@ class SettingsFileLocationCustomzierState
               onDoubleTap: () {
                 Clipboard.setData(ClipboardData(
                   text: state.path,
-                ));
+                )).then((_) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: FlowyText(
+                          LocaleKeys.settings_files_pathCopiedSnackbar.tr(),
+                        ),
+                      ),
+                    );
+                  }
+                });
               },
               child: FlowyText.regular(
                 state.path ?? '',
