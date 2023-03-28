@@ -1,3 +1,5 @@
+import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../application/doc_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -25,11 +27,10 @@ class TitleNodeWidgetBuilder extends NodeWidgetBuilder {
 
 class _TitleNodeWidget extends StatefulWidget {
   const _TitleNodeWidget(
-      {Key? key,
+      {super.key,
       required this.node,
       required this.editorState,
-      required this.title})
-      : super(key: key);
+      required this.title});
 
   final Node node;
   final EditorState editorState;
@@ -44,10 +45,12 @@ class _TitleNodeWidgetState extends State<_TitleNodeWidget> {
   late DocumentBloc? docBloc;
   final focusNode = FocusNode();
   var textEditingController = TextEditingController();
+  final service = ViewService();
 
   @override
   void initState() {
     super.initState();
+    docBloc = context.read<DocumentBloc>();
     textEditingController = TextEditingController.fromValue(
         TextEditingValue(text: docBloc!.view.name.toString()));
   }
@@ -56,6 +59,10 @@ class _TitleNodeWidgetState extends State<_TitleNodeWidget> {
   void dispose() {
     textEditingController.dispose();
     super.dispose();
+  }
+
+  void updateName(String value) async {
+    await service.updateView(viewId: docBloc!.view.id, name: value);
   }
 
   @override
@@ -70,10 +77,7 @@ class _TitleNodeWidgetState extends State<_TitleNodeWidget> {
       cursorColor: Colors.blue,
       backgroundCursorColor: Colors.blue,
       onSubmitted: (value) {
-        setState(() {
-          //NOTE: The property is only READONLY
-          // docBloc!.view.name = value;
-        });
+        updateName(value);
       },
     ));
   }
