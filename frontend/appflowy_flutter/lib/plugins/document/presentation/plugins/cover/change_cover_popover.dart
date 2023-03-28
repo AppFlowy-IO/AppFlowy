@@ -134,6 +134,8 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
           children: [
             FlowyText.semibold(LocaleKeys.document_plugins_cover_images.tr()),
             FlowyTextButton(
+              fillColor: Theme.of(context).colorScheme.surface,
+              hoverColor: Theme.of(context).colorScheme.secondaryContainer,
               LocaleKeys.document_plugins_cover_clearAll.tr(),
               onPressed: () {
                 context
@@ -317,12 +319,13 @@ class _ImageGridItemState extends State<ImageGridItem> {
               child: FlowyIconButton(
                 fillColor:
                     Theme.of(context).colorScheme.surface.withOpacity(0.8),
-                hoverColor: Theme.of(context).colorScheme.surface,
+                hoverColor:
+                    Theme.of(context).colorScheme.surface.withOpacity(0.8),
                 iconPadding: const EdgeInsets.all(5),
                 width: 28,
                 icon: svgWidget(
                   'editor/delete',
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.onSecondary,
                 ),
                 onPressed: () {
                   context.read<ChangeCoverPopoverBloc>().add(
