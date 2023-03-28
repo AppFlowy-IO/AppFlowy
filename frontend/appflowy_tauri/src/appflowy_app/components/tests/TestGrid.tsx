@@ -19,6 +19,7 @@ import {
   makeMultiSelectCellController,
   makeSingleSelectCellController,
   makeTextCellController,
+  makeURLCellController,
   openTestDatabase,
 } from './DatabaseTestHelper';
 import { SelectOptionCellBackendService } from '$app/stores/effects/database/cell/select_option_bd_svc';
@@ -106,6 +107,34 @@ async function testEditTextCell() {
   });
 
   await textCellController.saveCellData('hello react');
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  await databaseController.dispose();
+}
+
+async function testEditURLCell() {
+  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const databaseController = await openTestDatabase(view.id);
+  await databaseController.open().then((result) => result.unwrap());
+
+  const typeOptionController = new TypeOptionController(view.id, None, FieldType.URL);
+  await typeOptionController.initialize();
+
+  const row = databaseController.databaseViewCache.rowInfos[0];
+  const urlCellController = await makeURLCellController(typeOptionController.fieldId, row, databaseController).then(
+    (result) => result.unwrap()
+  );
+
+  urlCellController.subscribeChanged({
+    onCellChanged: (content) => {
+      const pb = content.unwrap();
+      Log.info('Receive url data:', pb.url, pb.content);
+    },
+  });
+
+  await urlCellController.saveCellData('hello react');
+  await new Promise((resolve) => setTimeout(resolve, 200));
+
+  await urlCellController.saveCellData('appflowy.io');
   await new Promise((resolve) => setTimeout(resolve, 200));
 }
 
@@ -328,6 +357,9 @@ export const TestEditTextCell = () => {
   return TestButton('Test editing text cell', testEditTextCell);
 };
 
+export const TestEditURLCell = () => {
+  return TestButton('Test editing URL cell', testEditURLCell);
+};
 export const TestCreateRow = () => {
   return TestButton('Test create row', testCreateRow);
 };
