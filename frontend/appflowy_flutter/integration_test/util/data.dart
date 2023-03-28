@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:archive/archive_io.dart';
+import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum TestWorkspace {
@@ -12,9 +13,12 @@ enum TestWorkspace {
   static const String _prefix = "integration_test/util/test_workspaces";
 
   final String _name;
-  String get zip => "${Directory.current.path}/$_prefix/$_name.zip";
-  String get _out => "${Directory.current.path}/$_prefix/.ephemeral/";
+  String get zip => p.normalize(
+      "${Platform.script.toFilePath(windows: _windows)}/../$_prefix/$_name.zip");
+  String get _out =>
+      p.normalize("${Platform.script.toFilePath(windows: _windows)}/../$_prefix/.ephemeral/");
   String get directory => "$_out/$name";
+  bool get _windows => Platform.isWindows;
 }
 
 class TestWorkspaceService {
