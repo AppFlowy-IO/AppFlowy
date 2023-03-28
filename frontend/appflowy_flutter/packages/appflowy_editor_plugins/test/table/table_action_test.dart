@@ -1,6 +1,4 @@
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/src/table/src/table_action.dart';
-import 'package:appflowy_editor_plugins/src/table/src/util.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:appflowy_editor_plugins/src/table/src/table_node.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
