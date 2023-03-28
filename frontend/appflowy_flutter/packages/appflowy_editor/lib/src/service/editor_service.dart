@@ -29,6 +29,7 @@ class AppFlowyEditor extends StatefulWidget {
     this.customBuilders = const {},
     this.shortcutEvents = const [],
     this.selectionMenuItems = const [],
+    this.selectionMenuListItems = const [],
     this.toolbarItems = const [],
     this.editable = true,
     this.autoFocus = false,
@@ -52,6 +53,8 @@ class AppFlowyEditor extends StatefulWidget {
   final List<ShortcutEvent> shortcutEvents;
 
   final List<SelectionMenuItem> selectionMenuItems;
+
+  final List<SelectionMenuListItem> selectionMenuListItems;
 
   final List<ToolbarItem> toolbarItems;
 
@@ -82,6 +85,7 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
     super.initState();
 
     editorState.selectionMenuItems = widget.selectionMenuItems;
+    editorState.selectionMenuListItems = widget.selectionMenuListItems;
     editorState.toolbarItems = widget.toolbarItems;
     editorState.themeData = widget.themeData;
     editorState.service.renderPluginService = _createRenderPlugin();
