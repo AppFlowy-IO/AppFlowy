@@ -248,8 +248,13 @@ class DocumentMigration {
 
     // cover plugin
     if (editorState.document.nodeAtPath([0])?.type != kCoverType) {
-      transaction
-          .insertNodes([0], [Node(type: kCoverType), Node(type: kTitleType)]);
+      transaction.insertNodes(
+        [0],
+        [
+          Node(type: kCoverType),
+          Node(type: kTitleType),
+        ],
+      );
     }
 
     transaction.afterSelection = null;

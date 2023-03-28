@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 const String kTitleType = 'title';
-const String kTitleAttribute = 'docBloc';
 
 class TitleNodeWidgetBuilder extends NodeWidgetBuilder {
   TitleNodeWidgetBuilder({required this.docBloc});
@@ -13,10 +12,11 @@ class TitleNodeWidgetBuilder extends NodeWidgetBuilder {
   @override
   Widget build(NodeWidgetContext<Node> context) {
     return _TitleNodeWidget(
-        key: context.node.key,
-        node: context.node,
-        editorState: context.editorState,
-        title: docBloc);
+      key: context.node.key,
+      node: context.node,
+      editorState: context.editorState,
+      title: docBloc,
+    );
   }
 
   @override
@@ -26,11 +26,12 @@ class TitleNodeWidgetBuilder extends NodeWidgetBuilder {
 }
 
 class _TitleNodeWidget extends StatefulWidget {
-  const _TitleNodeWidget(
-      {super.key,
-      required this.node,
-      required this.editorState,
-      required this.title});
+  const _TitleNodeWidget({
+    super.key,
+    required this.node,
+    required this.editorState,
+    required this.title,
+  });
 
   final Node node;
   final EditorState editorState;
