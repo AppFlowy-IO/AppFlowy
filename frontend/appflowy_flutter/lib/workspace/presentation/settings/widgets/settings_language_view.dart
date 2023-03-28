@@ -54,8 +54,8 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      onEnter: (event) => {hoverEnterLanguage()},
-      onExit: (event) => {hoverExitLanguage()},
+      onEnter: (_) => hoverEnterLanguage(),
+      onExit: (_) => hoverExitLanguage(),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 8),
         decoration: BoxDecoration(
@@ -68,12 +68,10 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
             child: DropdownButton<Locale>(
               value: context.locale,
               dropdownColor: Theme.of(context).cardColor,
-              onChanged: (val) {
-                setState(() {
-                  context
-                      .read<AppearanceSettingsCubit>()
-                      .setLocale(context, val!);
-                });
+              onChanged: (locale) {
+                context
+                    .read<AppearanceSettingsCubit>()
+                    .setLocale(context, locale!);
               },
               autofocus: true,
               borderRadius: BorderRadius.circular(8),

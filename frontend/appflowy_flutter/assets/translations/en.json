@@ -138,7 +138,8 @@
     "keep": "Keep",
     "tryAgain": "Try again",
     "discard": "Discard",
-    "replace": "Replace"
+    "replace": "Replace",
+    "insertBelow": "Insert Below"
   },
   "label": {
     "welcome": "Welcome!",
@@ -338,26 +339,28 @@
         "createANewBoard": "Create a new Board"
       },
       "grid": {
-        "selectAGridToLinkTo": "Select a Grid to link to"
+        "selectAGridToLinkTo": "Select a Grid to link to",
+        "createANewGrid": "Create a new Grid"
       }
     },
     "plugins": {
       "referencedBoard": "Referenced Board",
       "referencedGrid": "Referenced Grid",
-      "autoCompletionMenuItemName": "Auto Completion",
-      "autoGeneratorMenuItemName": "Auto Generator",
+      "autoGeneratorMenuItemName": "OpenAI Writer",
       "autoGeneratorTitleName": "OpenAI: Ask AI to write anything...",
       "autoGeneratorLearnMore": "Learn more",
       "autoGeneratorGenerate": "Generate",
-      "autoGeneratorHintText": "Tell us what you want to generate by OpenAI ...",
+      "autoGeneratorHintText": "Ask OpenAI ...",
       "autoGeneratorCantGetOpenAIKey": "Can't get OpenAI key",
-      "smartEdit": "Smart Edit",
-      "smartEditTitleName": "OpenAI: Smart Edit",
+      "smartEdit": "AI Assistants",
+      "openAI": "OpenAI",
       "smartEditFixSpelling": "Fix spelling",
+      "warning": "⚠️ AI responses can be inaccurate or misleading.",
       "smartEditSummarize": "Summarize",
       "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
       "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
       "smartEditDisabled": "Connect OpenAI in Settings",
+      "discardResponse": "Do you want to discard the AI responses?",
       "cover": {
         "changeCover": "Change Cover",
         "colors": "Colors",
@@ -379,6 +382,7 @@
         "imageSavingFailed": "Image Saving Failed",
         "addIcon": "Add Icon"
       }
+
     }
   },
   "board": {

@@ -138,7 +138,6 @@ class FlowyVersionDescription extends CustomActionCell {
           PackageInfo packageInfo = snapshot.data;
           String appName = packageInfo.appName;
           String version = packageInfo.version;
-          String buildNumber = packageInfo.buildNumber;
 
           return SizedBox(
             height: 30,
@@ -152,7 +151,7 @@ class FlowyVersionDescription extends CustomActionCell {
                     thickness: 1.0),
                 const VSpace(6),
                 FlowyText(
-                  "$appName $version.$buildNumber",
+                  "$appName $version",
                   color: Theme.of(context).hintColor,
                 ),
               ],
