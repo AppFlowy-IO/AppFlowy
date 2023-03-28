@@ -30,12 +30,6 @@ class SelectionMenuListItemWidget extends StatefulWidget {
 
 class _SelectionMenuItemWidgetState extends State<SelectionMenuListItemWidget> {
   var _onHover = false;
-  final containerKey = GlobalKey();
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +38,6 @@ class _SelectionMenuItemWidgetState extends State<SelectionMenuListItemWidget> {
       clipBehavior: Clip.none,
       children: [
         Container(
-          key: containerKey,
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
           child: SizedBox(
             width: widget.width,
@@ -124,18 +117,5 @@ class _SelectionMenuItemWidgetState extends State<SelectionMenuListItemWidget> {
         ),
       ],
     );
-  }
-}
-
-extension GlobalKeyExtension on GlobalKey {
-  Rect? get globalPaintBounds {
-    final renderObject = currentContext?.findRenderObject();
-    final translation = renderObject?.getTransformTo(null).getTranslation();
-    if (translation != null && renderObject?.paintBounds != null) {
-      final offset = Offset(translation.x, translation.y);
-      return renderObject!.paintBounds.shift(offset);
-    } else {
-      return null;
-    }
   }
 }
