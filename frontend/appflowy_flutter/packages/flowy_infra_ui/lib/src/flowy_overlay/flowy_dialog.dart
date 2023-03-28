@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-const _overlayContainerPadding = EdgeInsets.all(12);
+const _overlayContainerPadding = EdgeInsets.symmetric(vertical: 12);
 const overlayContainerMaxWidth = 760.0;
 const overlayContainerMinWidth = 320.0;
 
@@ -25,6 +25,7 @@ class FlowyDialog extends StatelessWidget {
     final windowSize = MediaQuery.of(context).size;
     final size = windowSize * 0.7;
     return SimpleDialog(
+        contentPadding: EdgeInsets.zero,
         title: title,
         shape: shape ??
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -32,7 +33,6 @@ class FlowyDialog extends StatelessWidget {
           Material(
             type: MaterialType.transparency,
             child: Container(
-              padding: padding,
               height: size.height,
               width: max(min(size.width, overlayContainerMaxWidth),
                   overlayContainerMinWidth),

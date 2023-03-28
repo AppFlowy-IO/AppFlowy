@@ -19,7 +19,7 @@ void main() async {
       }
       await editor.startTesting();
       await editor.updateSelection(Selection.single(path: [1], startOffset: 0));
-      await editor.pressLogicKey(LogicalKeyboardKey.slash);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.slash);
 
       await tester.pumpAndSettle(const Duration(milliseconds: 1000));
 
@@ -52,7 +52,7 @@ void main() async {
       }
       await editor.startTesting();
       await editor.updateSelection(Selection.single(path: [1], startOffset: 5));
-      await editor.pressLogicKey(LogicalKeyboardKey.slash);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.slash);
 
       await tester.pumpAndSettle(const Duration(milliseconds: 1000));
 

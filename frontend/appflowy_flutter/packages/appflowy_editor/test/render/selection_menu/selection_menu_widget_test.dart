@@ -21,10 +21,10 @@ void main() async {
         (tester) async {
       final editor = await _prepare(tester);
       for (var j = 0; j < i; j++) {
-        await editor.pressLogicKey(LogicalKeyboardKey.arrowDown);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.arrowDown);
       }
 
-      await editor.pressLogicKey(LogicalKeyboardKey.enter);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.enter);
       expect(
         find.byType(SelectionMenuWidget, skipOffstage: false),
         findsNothing,
@@ -51,33 +51,33 @@ void main() async {
     testWidgets('Search item in selection menu util no results',
         (tester) async {
       final editor = await _prepare(tester);
-      await editor.pressLogicKey(LogicalKeyboardKey.keyT);
-      await editor.pressLogicKey(LogicalKeyboardKey.keyE);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.keyT);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.keyE);
       expect(
         find.byType(SelectionMenuItemWidget, skipOffstage: false),
         findsNWidgets(3),
       );
-      await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.backspace);
       expect(
         find.byType(SelectionMenuItemWidget, skipOffstage: false),
         findsNWidgets(5),
       );
-      await editor.pressLogicKey(LogicalKeyboardKey.keyE);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.keyE);
       expect(
         find.byType(SelectionMenuItemWidget, skipOffstage: false),
         findsNWidgets(3),
       );
-      await editor.pressLogicKey(LogicalKeyboardKey.keyX);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.keyX);
       expect(
         find.byType(SelectionMenuItemWidget, skipOffstage: false),
         findsNWidgets(1),
       );
-      await editor.pressLogicKey(LogicalKeyboardKey.keyT);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.keyT);
       expect(
         find.byType(SelectionMenuItemWidget, skipOffstage: false),
         findsNWidgets(1),
       );
-      await editor.pressLogicKey(LogicalKeyboardKey.keyT);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.keyT);
       expect(
         find.byType(SelectionMenuItemWidget, skipOffstage: false),
         findsNothing,
@@ -87,13 +87,13 @@ void main() async {
     testWidgets('Search item in selection menu and presses esc',
         (tester) async {
       final editor = await _prepare(tester);
-      await editor.pressLogicKey(LogicalKeyboardKey.keyT);
-      await editor.pressLogicKey(LogicalKeyboardKey.keyE);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.keyT);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.keyE);
       expect(
         find.byType(SelectionMenuItemWidget, skipOffstage: false),
         findsNWidgets(3),
       );
-      await editor.pressLogicKey(LogicalKeyboardKey.escape);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.escape);
       expect(
         find.byType(SelectionMenuItemWidget, skipOffstage: false),
         findsNothing,
@@ -103,15 +103,15 @@ void main() async {
     testWidgets('Search item in selection menu and presses backspace',
         (tester) async {
       final editor = await _prepare(tester);
-      await editor.pressLogicKey(LogicalKeyboardKey.keyT);
-      await editor.pressLogicKey(LogicalKeyboardKey.keyE);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.keyT);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.keyE);
       expect(
         find.byType(SelectionMenuItemWidget, skipOffstage: false),
         findsNWidgets(3),
       );
-      await editor.pressLogicKey(LogicalKeyboardKey.backspace);
-      await editor.pressLogicKey(LogicalKeyboardKey.backspace);
-      await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.backspace);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.backspace);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.backspace);
       expect(
         find.byType(SelectionMenuItemWidget, skipOffstage: false),
         findsNothing,
@@ -126,12 +126,12 @@ void main() async {
         var initialSelection = getSelectedMenuItem(tester);
         expect(defaultSelectionMenuItems.indexOf(initialSelection.item), 0);
 
-        await editor.pressLogicKey(LogicalKeyboardKey.arrowRight);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.arrowRight);
 
         var newSelection = getSelectedMenuItem(tester);
         expect(defaultSelectionMenuItems.indexOf(newSelection.item), 5);
 
-        await editor.pressLogicKey(LogicalKeyboardKey.arrowLeft);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.arrowLeft);
 
         var finalSelection = getSelectedMenuItem(tester);
         expect(defaultSelectionMenuItems.indexOf(initialSelection.item), 0);
@@ -144,12 +144,12 @@ void main() async {
         var initialSelection = getSelectedMenuItem(tester);
         expect(defaultSelectionMenuItems.indexOf(initialSelection.item), 0);
 
-        await editor.pressLogicKey(LogicalKeyboardKey.arrowDown);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.arrowDown);
 
         var newSelection = getSelectedMenuItem(tester);
         expect(defaultSelectionMenuItems.indexOf(newSelection.item), 1);
 
-        await editor.pressLogicKey(LogicalKeyboardKey.arrowUp);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.arrowUp);
 
         var finalSelection = getSelectedMenuItem(tester);
         expect(defaultSelectionMenuItems.indexOf(finalSelection.item), 0);
@@ -161,12 +161,12 @@ void main() async {
         var initialSelection = getSelectedMenuItem(tester);
         expect(defaultSelectionMenuItems.indexOf(initialSelection.item), 0);
 
-        await editor.pressLogicKey(LogicalKeyboardKey.arrowDown);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.arrowDown);
 
         var newSelection = getSelectedMenuItem(tester);
         expect(defaultSelectionMenuItems.indexOf(newSelection.item), 1);
 
-        await editor.pressLogicKey(LogicalKeyboardKey.tab);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.tab);
 
         var finalSelection = getSelectedMenuItem(tester);
         expect(defaultSelectionMenuItems.indexOf(finalSelection.item), 6);
@@ -181,8 +181,8 @@ void main() async {
 
         expect(defaultSelectionMenuItems.indexOf(initialSelection.item), 0);
 
-        await editor.pressLogicKey(LogicalKeyboardKey.tab);
-        await editor.pressLogicKey(LogicalKeyboardKey.tab);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.tab);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.tab);
 
         final finalSelection = getSelectedMenuItem(tester);
 
@@ -201,7 +201,7 @@ Future<EditorWidgetTester> _prepare(WidgetTester tester) async {
   }
   await editor.startTesting();
   await editor.updateSelection(Selection.single(path: [1], startOffset: 0));
-  await editor.pressLogicKey(LogicalKeyboardKey.slash);
+  await editor.pressLogicKey(key: LogicalKeyboardKey.slash);
 
   await tester.pumpAndSettle(const Duration(milliseconds: 1000));
 
