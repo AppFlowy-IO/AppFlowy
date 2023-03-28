@@ -1,5 +1,4 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/render/selection_menu/selection_menu_item_widget.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../infra/test_editor.dart';
@@ -120,9 +119,8 @@ void main() async {
     });
 
     group('tab and arrow keys move selection in desired direction', () {
-
       testWidgets('left and right keys move selection in desired direction',
-        (tester) async {
+          (tester) async {
         final editor = await _prepare(tester);
 
         var initialSelection = getSelectedMenuItem(tester);
@@ -140,7 +138,7 @@ void main() async {
       });
 
       testWidgets('up and down keys move selection in desired direction',
-        (tester) async {
+          (tester) async {
         final editor = await _prepare(tester);
 
         var initialSelection = getSelectedMenuItem(tester);
@@ -157,8 +155,7 @@ void main() async {
         expect(defaultSelectionMenuItems.indexOf(finalSelection.item), 0);
       });
 
-      testWidgets('arrow keys and tab move same selection',
-        (tester) async {
+      testWidgets('arrow keys and tab move same selection', (tester) async {
         final editor = await _prepare(tester);
 
         var initialSelection = getSelectedMenuItem(tester);
@@ -175,8 +172,9 @@ void main() async {
         expect(defaultSelectionMenuItems.indexOf(finalSelection.item), 6);
       });
 
-      testWidgets('tab moves selection to next row Item on reaching end of current row',
-        (tester) async {
+      testWidgets(
+          'tab moves selection to next row Item on reaching end of current row',
+          (tester) async {
         final editor = await _prepare(tester);
 
         final initialSelection = getSelectedMenuItem(tester);
@@ -256,6 +254,6 @@ SelectionMenuItemWidget getSelectedMenuItem(WidgetTester tester) {
   return tester
       .state(find.byWidgetPredicate(
         (widget) => widget is SelectionMenuItemWidget && widget.isSelected,
-  ))
+      ))
       .widget as SelectionMenuItemWidget;
 }

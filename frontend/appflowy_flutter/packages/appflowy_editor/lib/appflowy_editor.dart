@@ -50,3 +50,6 @@ export 'src/extensions/node_extensions.dart';
 export 'src/render/action_menu/action_menu.dart';
 export 'src/render/action_menu/action_menu_item.dart';
 export 'src/core/document/node_iterator.dart';
+export 'src/render/selection_menu_list/selection_menu_list_item_widget.dart';
+export 'src/render/selection_menu_list/selection_menu_list_service.dart';
+export 'src/render/selection_menu_list/selection_menu_list_widget.dart';

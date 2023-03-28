@@ -1,11 +1,11 @@
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/core/transform/transaction.dart';
-import 'package:appflowy_editor/src/render/selection_menu/selection_menu_service.dart';
+import 'package:appflowy_editor/src/render/selection_menu_list/selection_menu_list_service.dart';
 import 'package:appflowy_editor/src/extensions/node_extensions.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
 import 'package:flutter/material.dart';
 
-SelectionMenuService? _selectionMenuService;
+SelectionMenuListService? _selectionMenuListService;
 ShortcutEventHandler slashShortcutHandler = (editorState, event) {
   final textNodes = editorState.service.selectionService.currentSelectedNodes
       .whereType<TextNode>();
@@ -30,9 +30,9 @@ ShortcutEventHandler slashShortcutHandler = (editorState, event) {
   editorState.apply(transaction);
 
   WidgetsBinding.instance.addPostFrameCallback((_) {
-    _selectionMenuService =
-        SelectionMenu(context: context, editorState: editorState);
-    _selectionMenuService?.show();
+    _selectionMenuListService =
+        SelectionMenuList(context: context, editorState: editorState);
+    _selectionMenuListService?.show();
   });
 
   return KeyEventResult.handled;

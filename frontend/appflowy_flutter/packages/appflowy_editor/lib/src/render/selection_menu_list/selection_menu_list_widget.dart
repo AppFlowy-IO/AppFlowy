@@ -4,19 +4,22 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-typedef SelectionMenuItemHandler = void Function(
+typedef SelectionMenuListItemHandler = void Function(
   EditorState editorState,
-  SelectionMenuService menuService,
+  SelectionMenuListService menuService,
   BuildContext context,
 );
 
 /// Selection Menu Item
-class SelectionMenuItem {
-  SelectionMenuItem({
+class SelectionMenuListItem {
+  SelectionMenuListItem({
     required this.name,
+    required this.group,
     required this.icon,
+    required this.subtitle,
+    required this.tooltipIcon,
     required this.keywords,
-    required SelectionMenuItemHandler handler,
+    required SelectionMenuListItemHandler handler,
   }) {
     this.handler = (editorState, menuService, context) {
       _deleteSlash(editorState);
@@ -27,13 +30,18 @@ class SelectionMenuItem {
   }
 
   final String name;
+  final String subtitle;
+  final Widget Function(EditorState editorState, bool onSelected) tooltipIcon;
+
+  final SelectionMenuListGroup group;
+
   final Widget Function(EditorState editorState, bool onSelected) icon;
 
   /// Customizes keywords for item.
   ///
   /// The keywords are used to quickly retrieve items.
   final List<String> keywords;
-  late final SelectionMenuItemHandler handler;
+  late final SelectionMenuListItemHandler handler;
 
   void _deleteSlash(EditorState editorState) {
     final selectionService = editorState.service.selectionService;
@@ -67,9 +75,12 @@ class SelectionMenuItem {
   ///
   /// [updateSelection] can be used to update the selection after the node
   /// has been inserted.
-  factory SelectionMenuItem.node({
+  factory SelectionMenuListItem.node({
     required String name,
+    required String subtitle,
+    required SelectionMenuListGroup group,
     required IconData iconData,
+    required IconData tooltipIconData,
     required List<String> keywords,
     required Node Function(EditorState editorState) nodeBuilder,
     bool Function(EditorState editorState, TextNode textNode)? insertBefore,
@@ -82,8 +93,17 @@ class SelectionMenuItem {
     )?
         updateSelection,
   }) {
-    return SelectionMenuItem(
+    return SelectionMenuListItem(
       name: name,
+      subtitle: subtitle,
+      group: group,
+      tooltipIcon: (editorState, onSelected) => Icon(
+        tooltipIconData,
+        color: onSelected
+            ? editorState.editorStyle.selectionMenuItemSelectedIconColor
+            : editorState.editorStyle.selectionMenuItemIconColor,
+        size: 18.0,
+      ),
       icon: (editorState, onSelected) => Icon(
         iconData,
         color: onSelected
@@ -132,8 +152,8 @@ class SelectionMenuItem {
   }
 }
 
-class SelectionMenuWidget extends StatefulWidget {
-  const SelectionMenuWidget({
+class SelectionMenuListWidget extends StatefulWidget {
+  const SelectionMenuListWidget({
     Key? key,
     required this.items,
     required this.maxItemInRow,
@@ -143,25 +163,28 @@ class SelectionMenuWidget extends StatefulWidget {
     required this.onSelectionUpdate,
   }) : super(key: key);
 
-  final List<SelectionMenuItem> items;
+  final List<SelectionMenuListItem> items;
   final int maxItemInRow;
 
-  final SelectionMenuService menuService;
+  final SelectionMenuListService menuService;
   final EditorState editorState;
 
   final VoidCallback onSelectionUpdate;
   final VoidCallback onExit;
 
   @override
-  State<SelectionMenuWidget> createState() => _SelectionMenuWidgetState();
+  State<SelectionMenuListWidget> createState() =>
+      _SelectionMenuListWidgetState();
 }
 
-class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
+class _SelectionMenuListWidgetState extends State<SelectionMenuListWidget> {
   final _focusNode = FocusNode(debugLabel: 'popup_list_widget');
 
   int _selectedIndex = 0;
-  List<SelectionMenuItem> _showingItems = [];
-
+  int hoveringIndex = 0;
+  bool hovering = false;
+  List<SelectionMenuListItem> _showingItems = [];
+  ScrollController listViewScrollConroller = ScrollController();
   String _keyword = '';
   String get keyword => _keyword;
   set keyword(String newKeyword) {
@@ -196,9 +219,7 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
   @override
   void initState() {
     super.initState();
-
     _showingItems = widget.items;
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
     });
@@ -207,60 +228,177 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
   @override
   void dispose() {
     _focusNode.dispose();
-
     super.dispose();
+  }
+
+  _onHover(
+    value,
+    index,
+  ) {
+    setState(() {
+      hovering = value;
+      hoveringIndex = index;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Focus(
-      focusNode: _focusNode,
-      onKey: _onKey,
-      child: Container(
-        decoration: BoxDecoration(
-          color: widget.editorState.editorStyle.selectionMenuBackgroundColor,
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 5,
-              spreadRadius: 1,
-              color: Colors.black.withOpacity(0.1),
+        focusNode: _focusNode,
+        onKey: _onKey,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color:
+                    widget.editorState.editorStyle.selectionMenuBackgroundColor,
+                boxShadow: [
+                  BoxShadow(
+                    blurRadius: 5,
+                    spreadRadius: 1,
+                    color: Colors.black.withOpacity(0.1),
+                  ),
+                ],
+                borderRadius: BorderRadius.circular(6.0),
+              ),
+              child: _showingItems.isEmpty
+                  ? _buildNoResultsWidget(context)
+                  : _buildResultsWidget(
+                      context,
+                      _showingItems,
+                      _selectedIndex,
+                      (v, i, r) {
+                        _onHover(
+                          v,
+                          i,
+                        );
+                      },
+                    ),
+            ),
+            _buildTooltip()
+          ],
+        ));
+  }
+
+  _buildTooltip() {
+    return !hovering
+        ? Container()
+        : Positioned(
+            right: -160,
+            height: 158,
+            width: 150,
+            child: Container(
+              width: 170,
+              height: 180,
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(6),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    height: 100,
+                    width: 150,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(5),
+                      ),
+                    ),
+                    child: _showingItems[hoveringIndex]
+                        .icon(widget.editorState, false),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Material(
+                    color: Colors.transparent,
+                    child: Text(
+                      _showingItems[hoveringIndex].subtitle,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+  }
+
+  Widget _buildGroupTag(
+    BuildContext context,
+    String text,
+  ) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Material(
+        color: Colors.transparent,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 1,
+              width: 300.0,
+              color: Colors.grey.shade300,
+              alignment: Alignment.center,
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 15),
+              child: Text(text),
             ),
           ],
-          borderRadius: BorderRadius.circular(6.0),
         ),
-        child: _showingItems.isEmpty
-            ? _buildNoResultsWidget(context)
-            : _buildResultsWidget(
-                context,
-                _showingItems,
-                _selectedIndex,
-              ),
       ),
     );
   }
 
   Widget _buildResultsWidget(
     BuildContext buildContext,
-    List<SelectionMenuItem> items,
+    List<SelectionMenuListItem> items,
     int selectedIndex,
+    void Function(bool value, int index, double position) onHover,
   ) {
     List<Widget> columns = [];
     List<Widget> itemWidgets = [];
-    for (var i = 0; i < items.length; i++) {
-      if (i != 0 && i % (widget.maxItemInRow) == 0) {
-        columns.add(Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: itemWidgets,
-        ));
-        itemWidgets = [];
+
+    List<String> groups = [];
+    for (int k = 0; k < SelectionMenuListGroup.values.length; k++) {
+      if (items.firstWhereOrNull(
+              (element) => element.group == SelectionMenuListGroup.values[k]) !=
+          null) {
+        groups.add(SelectionMenuListGroup.values[k].name);
       }
-      itemWidgets.add(SelectionMenuItemWidget(
-        item: items[i],
-        isSelected: selectedIndex == i,
-        editorState: widget.editorState,
-        menuService: widget.menuService,
-      ));
     }
+
+    for (int j = 0; j < groups.length; j++) {
+      itemWidgets.add(_buildGroupTag(context, groups[j]));
+      for (var i = 0; i < items.length; i++) {
+        if (groups[j] == items[i].group.name) {
+          itemWidgets.add(
+            SelectionMenuListItemWidget(
+              item: items[i],
+              isSelected: selectedIndex == i,
+              editorState: widget.editorState,
+              menuService: widget.menuService,
+              hovering: (value) {
+                _onHover(value, i);
+              },
+            ),
+          );
+        }
+      }
+    }
+
     if (itemWidgets.isNotEmpty) {
       columns.add(Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,10 +406,14 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
       ));
       itemWidgets = [];
     }
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: columns,
-    );
+    return ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 0, maxHeight: 300),
+        child: SingleChildScrollView(
+          controller: listViewScrollConroller,
+          child: Column(
+            children: columns,
+          ),
+        ));
   }
 
   Widget _buildNoResultsWidget(BuildContext context) {
@@ -286,6 +428,18 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
           ),
         ),
       ),
+    );
+  }
+
+  scrollToIndex(i) {
+    final contentSize = listViewScrollConroller.position.viewportDimension +
+        listViewScrollConroller.position.maxScrollExtent;
+    final index = i;
+    final target = contentSize * index / _showingItems.length - 2;
+    listViewScrollConroller.animateTo(
+      target,
+      duration: const Duration(milliseconds: 1),
+      curve: Curves.easeInOut,
     );
   }
 
@@ -339,22 +493,20 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
       newSelectedIndex -= 1;
     } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
       newSelectedIndex += 1;
-    } else if (event.logicalKey == LogicalKeyboardKey.tab) {
-      newSelectedIndex += widget.maxItemInRow;
-      var currRow = (newSelectedIndex) % widget.maxItemInRow;
-      if (newSelectedIndex >= _showingItems.length) {
-        newSelectedIndex = (currRow + 1) % widget.maxItemInRow;
-      }
     }
 
     if (newSelectedIndex != _selectedIndex) {
       setState(() {
         _selectedIndex = newSelectedIndex.clamp(0, _showingItems.length - 1);
       });
+      scrollToIndex(_selectedIndex);
+
       return KeyEventResult.handled;
     }
     return KeyEventResult.ignored;
   }
+
+  visibility(totalCount, currentIndex) {}
 
   void _deleteLastCharacters({int length = 1}) {
     final selectionService = widget.editorState.service.selectionService;
@@ -385,7 +537,9 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
           selection.end.offset,
           text,
         );
-      widget.editorState.apply(transaction);
+      widget.editorState.apply(
+        transaction,
+      );
     }
   }
 }

@@ -134,6 +134,7 @@ class _AppFlowyEditorPageState extends State<_AppFlowyEditorPage> {
       editorState: editorState,
       autoFocus: autoFocusParameters.value1,
       focusedSelection: autoFocusParameters.value2,
+      selectionMenuListItems: [],
       customBuilders: {
         // Divider
         kDividerType: DividerWidgetBuilder(),
