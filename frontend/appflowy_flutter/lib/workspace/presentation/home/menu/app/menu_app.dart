@@ -9,8 +9,8 @@ import 'package:provider/provider.dart';
 import 'section/section.dart';
 
 class MenuApp extends StatefulWidget {
-  final ViewPB app;
-  const MenuApp(this.app, {Key? key}) : super(key: key);
+  final ViewPB view;
+  const MenuApp(this.view, {Key? key}) : super(key: key);
 
   @override
   State<MenuApp> createState() => _MenuAppState();
@@ -21,7 +21,7 @@ class _MenuAppState extends State<MenuApp> {
 
   @override
   void initState() {
-    viewDataContext = AppViewDataContext(appId: widget.app.id);
+    viewDataContext = AppViewDataContext(viewId: widget.view.id);
     super.initState();
   }
 
@@ -31,7 +31,7 @@ class _MenuAppState extends State<MenuApp> {
       providers: [
         BlocProvider<AppBloc>(
           create: (context) {
-            final appBloc = AppBloc(view: widget.app);
+            final appBloc = AppBloc(view: widget.view);
             appBloc.add(const AppEvent.initial());
             return appBloc;
           },
@@ -86,7 +86,7 @@ class _MenuAppState extends State<MenuApp> {
                 iconPadding: EdgeInsets.zero,
                 hasIcon: false,
               ),
-              header: MenuAppHeader(widget.app),
+              header: MenuAppHeader(widget.view),
               expanded: ViewSection(appViewData: viewDataContext),
               collapsed: const SizedBox(),
             ),

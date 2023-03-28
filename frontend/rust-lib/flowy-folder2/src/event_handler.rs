@@ -95,6 +95,7 @@ pub(crate) async fn create_view_handler(
 ) -> DataResult<ViewPB, FlowyError> {
   let params: CreateViewParams = data.into_inner().try_into()?;
   let view = folder.create_view_with_params(params).await?;
+  let _ = folder.set_current_view(&view.id).await;
   data_result_ok(view.into())
 }
 

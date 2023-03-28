@@ -216,6 +216,7 @@ impl Folder2Manager {
     }
     let view = view_from_create_view_params(params, view_layout);
     self.folder.lock().insert_view(view.clone());
+    notify_parent_view_did_change(self.folder.clone(), vec![view.bid.clone()]).await;
     Ok(view)
   }
 

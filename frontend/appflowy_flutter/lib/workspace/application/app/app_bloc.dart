@@ -43,7 +43,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         final views = e.app.belongings;
         AppState newState = state.copyWith(
           views: views,
-          app: e.app,
+          view: e.app,
         );
         if (latestCreatedView != null) {
           final index =
@@ -69,7 +69,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   Future<void> _renameView(Rename e, Emitter<AppState> emit) async {
     final result =
-        await appService.updateApp(appId: state.app.id, name: e.newName);
+        await appService.updateApp(appId: state.view.id, name: e.newName);
     result.fold(
       (l) => emit(state.copyWith(successOrFailure: left(unit))),
       (error) => emit(state.copyWith(successOrFailure: right(error))),
@@ -78,7 +78,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
 // Delete the current app
   Future<void> _deleteApp(Emitter<AppState> emit) async {
-    final result = await appService.delete(viewId: state.app.id);
+    final result = await appService.delete(viewId: state.view.id);
     result.fold(
       (unit) => emit(state.copyWith(successOrFailure: left(unit))),
       (error) => emit(state.copyWith(successOrFailure: right(error))),
@@ -95,7 +95,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   Future<void> _createView(CreateView value, Emitter<AppState> emit) async {
     final result = await appService.createView(
-      appId: state.app.id,
+      appId: state.view.id,
       name: value.name,
       desc: value.desc ?? "",
       layoutType: value.pluginBuilder.layoutType!,
@@ -121,7 +121,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   Future<void> _loadViews(Emitter<AppState> emit) async {
-    final viewsOrFailed = await appService.getViews(viewId: state.app.id);
+    final viewsOrFailed = await appService.getViews(viewId: state.view.id);
     viewsOrFailed.fold(
       (views) => emit(state.copyWith(views: views)),
       (error) {
@@ -155,28 +155,28 @@ class AppEvent with _$AppEvent {
 @freezed
 class AppState with _$AppState {
   const factory AppState({
-    required ViewPB app,
+    required ViewPB view,
     required List<ViewPB> views,
     ViewPB? latestCreatedView,
     required Either<Unit, FlowyError> successOrFailure,
   }) = _AppState;
 
-  factory AppState.initial(ViewPB app) => AppState(
-        app: app,
-        views: app.belongings,
+  factory AppState.initial(ViewPB view) => AppState(
+        view: view,
+        views: view.belongings,
         successOrFailure: left(unit),
       );
 }
 
 class AppViewDataContext extends ChangeNotifier {
-  final String appId;
+  final String viewId;
   final ValueNotifier<List<ViewPB>> _viewsNotifier = ValueNotifier([]);
   final ValueNotifier<ViewPB?> _selectedViewNotifier = ValueNotifier(null);
   VoidCallback? _menuSharedStateListener;
   ExpandableController expandController =
       ExpandableController(initialExpanded: false);
 
-  AppViewDataContext({required this.appId}) {
+  AppViewDataContext({required this.viewId}) {
     _setLatestView(getIt<MenuSharedState>().latestOpenView);
     _menuSharedStateListener =
         getIt<MenuSharedState>().addLatestViewListener((view) {

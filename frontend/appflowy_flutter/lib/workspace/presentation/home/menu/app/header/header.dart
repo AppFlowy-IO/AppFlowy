@@ -85,7 +85,7 @@ class MenuAppHeader extends StatelessWidget {
             case AppDisclosureAction.rename:
               NavigatorTextFieldDialog(
                 title: LocaleKeys.menuAppHeader_renameDialog.tr(),
-                value: context.read<AppBloc>().state.app.name,
+                value: context.read<AppBloc>().state.view.name,
                 confirm: (newValue) {
                   context.read<AppBloc>().add(AppEvent.rename(newValue));
                 },
@@ -170,7 +170,7 @@ class AppActionList extends StatelessWidget {
             controller.show();
           },
           child: BlocSelector<AppBloc, AppState, ViewPB>(
-            selector: (state) => state.app,
+            selector: (state) => state.view,
             builder: (context, app) => FlowyText.medium(
               app.name,
               overflow: TextOverflow.ellipsis,

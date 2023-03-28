@@ -21,7 +21,7 @@ void main() {
     bloc.add(const AppEvent.rename('Hello world'));
     await blocResponseFuture();
 
-    assert(bloc.state.app.name == 'Hello world');
+    assert(bloc.state.view.name == 'Hello world');
   });
 
   test('delete app test', () async {
@@ -66,7 +66,7 @@ void main() {
     await blocResponseFuture();
     assert(bloc.state.views.length == 3);
 
-    final appViewData = AppViewDataContext(appId: app.id);
+    final appViewData = AppViewDataContext(viewId: app.id);
     appViewData.views = bloc.state.views;
 
     final viewSectionBloc = ViewSectionBloc(
