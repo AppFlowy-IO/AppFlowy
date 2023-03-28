@@ -121,8 +121,6 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
       return KeyEventResult.ignored;
     }
 
-    Log.keyboard.debug('on keyboard event $event');
-
     if (event is! RawKeyDownEvent) {
       return KeyEventResult.ignored;
     }
