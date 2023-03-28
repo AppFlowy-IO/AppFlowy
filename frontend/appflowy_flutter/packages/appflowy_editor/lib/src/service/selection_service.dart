@@ -93,10 +93,6 @@ class SelectionInterceptor {
 
 final Set<Node> selectables = {};
 
-abstract class Selectable<T extends StatefulWidget> {
-  void setSelection(Selection selection);
-}
-
 class AppFlowySelection extends StatefulWidget {
   const AppFlowySelection({
     Key? key,

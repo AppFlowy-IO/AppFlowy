@@ -1,12 +1,18 @@
-import 'package:appflowy_editor/src/service/input_service.dart';
-import 'package:appflowy_editor/src/service/keyboard_service.dart';
-import 'package:appflowy_editor/src/service/render_plugin_service.dart';
-import 'package:appflowy_editor/src/service/scroll_service.dart';
-import 'package:appflowy_editor/src/service/selection_service.dart';
-import 'package:appflowy_editor/src/service/toolbar_service.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/render/selection/v2/selection_service.dart';
 import 'package:flutter/material.dart';
 
 class FlowyService {
+  // selection service v2
+  final selectionAndScrollServiceKey = GlobalKey(
+    debugLabel: 'editor_selection_and_scroll_service',
+  );
+  SelectionService get selectionServiceV2 {
+    assert(selectionAndScrollServiceKey.currentState != null &&
+        selectionAndScrollServiceKey.currentState is SelectionService);
+    return selectionAndScrollServiceKey.currentState! as SelectionService;
+  }
+
   // selection service
   final selectionServiceKey = GlobalKey(debugLabel: 'flowy_selection_service');
   AppFlowySelectionService get selectionService {

@@ -8,8 +8,10 @@ import 'package:appflowy_editor/src/render/rich_text/heading_text.dart';
 import 'package:appflowy_editor/src/render/rich_text/number_list_text.dart';
 import 'package:appflowy_editor/src/render/rich_text/quoted_text.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text.dart';
+import 'package:appflowy_editor/src/render/selection/v2/selection_service.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/built_in_shortcut_events.dart';
 import 'package:flutter/material.dart' hide Overlay, OverlayEntry;
+import 'package:provider/provider.dart';
 
 NodeWidgetBuilders defaultBuilders = {
   'editor': EditorEntryWidgetBuilder(),
@@ -126,42 +128,31 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
   }
 
   Widget _buildServices(BuildContext context) {
-    return Theme(
-      data: widget.themeData,
-      child: AppFlowyScroll(
+    final nodes = editorState.document.root.children.toList(
+      growable: false,
+    );
+    return Provider.value(
+      value: editorState,
+      child: Theme(
+        data: widget.themeData,
         child: Container(
           color: editorStyle.backgroundColor,
           padding: editorStyle.padding!,
-          child: AppFlowySelection(
-            key: editorState.service.selectionServiceKey,
-            cursorColor: editorStyle.cursorColor!,
-            selectionColor: editorStyle.selectionColor!,
+          child: AppFlowyInput(
+            key: editorState.service.inputServiceKey,
             editorState: editorState,
             editable: widget.editable,
-            child: AppFlowyInput(
-              key: editorState.service.inputServiceKey,
-              editorState: editorState,
+            child: AppFlowyKeyboard(
+              key: editorState.service.keyboardServiceKey,
               editable: widget.editable,
-              child: AppFlowyKeyboard(
-                key: editorState.service.keyboardServiceKey,
-                editable: widget.editable,
-                shortcutEvents: [
-                  ...widget.shortcutEvents,
-                  ...builtInShortcutEvents,
-                ],
-                editorState: editorState,
-                child: FlowyToolbar(
-                  key: editorState.service.toolbarServiceKey,
-                  editorState: editorState,
-                  child:
-                      editorState.service.renderPluginService.buildPluginWidget(
-                    NodeWidgetContext(
-                      context: context,
-                      node: editorState.document.root,
-                      editorState: editorState,
-                    ),
-                  ),
-                ),
+              shortcutEvents: [
+                ...widget.shortcutEvents,
+                ...builtInShortcutEvents,
+              ],
+              editorState: editorState,
+              child: SelectionAndScroll(
+                key: editorState.service.selectionAndScrollServiceKey,
+                nodes: nodes,
               ),
             ),
           ),

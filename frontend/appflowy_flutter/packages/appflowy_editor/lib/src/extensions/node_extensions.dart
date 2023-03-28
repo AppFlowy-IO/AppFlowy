@@ -4,6 +4,7 @@ import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/extensions/object_extensions.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
+import 'package:appflowy_editor/src/render/selection/v2/selectable_v2.dart';
 import 'package:flutter/material.dart';
 
 extension NodeExtensions on Node {
@@ -13,6 +14,7 @@ extension NodeExtensions on Node {
   BuildContext? get context => key.currentContext;
   SelectableMixin? get selectable =>
       key.currentState?.unwrapOrNull<SelectableMixin>();
+  Selectable? get selectableV2 => key.currentState?.unwrapOrNull<Selectable>();
 
   bool inSelection(Selection selection) {
     if (selection.start.path <= selection.end.path) {

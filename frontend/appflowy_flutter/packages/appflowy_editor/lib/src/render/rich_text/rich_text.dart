@@ -3,6 +3,7 @@ import 'package:appflowy_editor/src/flutter/overlay.dart';
 import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
 import 'package:appflowy_editor/src/render/selection/cursor_widget.dart';
 import 'package:appflowy_editor/src/render/selection/selection_widget.dart';
+import 'package:appflowy_editor/src/render/selection/v2/selectable_v2.dart';
 import 'package:flutter/material.dart' hide Overlay, OverlayEntry;
 import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
 
@@ -41,7 +42,11 @@ class RichTextNodeWidget extends BuiltInTextWidget {
 // customize
 
 class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
-    with SelectableMixin, DefaultSelectable, BuiltInTextWidgetMixin {
+    with
+        SelectableMixin,
+        DefaultSelectable,
+        BuiltInTextWidgetMixin,
+        Selectable {
   @override
   GlobalKey? get iconKey => null;
 
@@ -66,10 +71,10 @@ class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
   void initState() {
     super.initState();
 
+    widget.editorState.service.selectionServiceV2.addListenr(_updateSelection);
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      final selection =
-          widget.editorState.service.selectionService.currentSelection.value;
-      setSelection(selection);
+      _updateSelection();
     });
   }
 
@@ -94,11 +99,16 @@ class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
 
   Selection? _cacheSelection;
 
+  void _updateSelection() {
+    final selection = widget.editorState.service.selectionServiceV2.selection;
+    setSelectionV2(selection);
+  }
+
   @override
   void setSelection(Selection? selection) {
-    if (_cacheSelection == selection) {
-      return;
-    }
+    // if (_cacheSelection == selection) {
+    //   return;
+    // }
     _cacheSelection = selection;
     _selectionOverlays
       ..forEach((element) => element.remove())
@@ -176,7 +186,15 @@ class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
 
   @override
   void dispose() {
-    setSelection(null);
+    widget.editorState.service.selectionServiceV2
+        .removeListerner(_updateSelection);
+    setSelectionV2(null);
     super.dispose();
+  }
+
+  @override
+  Future<void> setSelectionV2(Selection? selection) async {
+    setSelection(selection);
+    return;
   }
 }

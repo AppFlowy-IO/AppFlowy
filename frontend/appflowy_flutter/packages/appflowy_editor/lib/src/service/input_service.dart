@@ -77,8 +77,8 @@ class _AppFlowyInputState extends State<AppFlowyInput>
     super.initState();
 
     if (widget.editable) {
-      _editorState.service.selectionService.currentSelection
-          .addListener(_onSelectionChange);
+      // _editorState.service.selectionService.currentSelection
+      //     .addListener(_onSelectionChange);
     }
   }
 
@@ -86,8 +86,8 @@ class _AppFlowyInputState extends State<AppFlowyInput>
   void dispose() {
     if (widget.editable) {
       close();
-      _editorState.service.selectionService.currentSelection
-          .removeListener(_onSelectionChange);
+      // _editorState.service.selectionService.currentSelection
+      //     .removeListener(_onSelectionChange);
     }
 
     super.dispose();
