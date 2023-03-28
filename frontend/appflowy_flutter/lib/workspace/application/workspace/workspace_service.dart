@@ -4,7 +4,6 @@ import 'package:dartz/dartz.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/app.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart'
     show
         CreateViewPayloadPB,

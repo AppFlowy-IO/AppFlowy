@@ -5,7 +5,6 @@ import 'package:appflowy/workspace/application/workspace/workspace_service.dart'
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/app.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -43,20 +42,21 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
         },
         didReceiveApps: (e) async {
           emit(e.appsOrFail.fold(
-            (apps) => state.copyWith(apps: apps, successOrFailure: left(unit)),
+            (views) =>
+                state.copyWith(views: views, successOrFailure: left(unit)),
             (err) => state.copyWith(successOrFailure: right(err)),
           ));
         },
         moveApp: (_MoveApp value) {
-          if (state.apps.length > value.fromIndex) {
-            final app = state.apps[value.fromIndex];
+          if (state.views.length > value.fromIndex) {
+            final view = state.views[value.fromIndex];
             _workspaceService.moveApp(
-                appId: app.id,
+                appId: view.id,
                 fromIndex: value.fromIndex,
                 toIndex: value.toIndex);
-            final apps = List<ViewPB>.from(state.apps);
+            final apps = List<ViewPB>.from(state.views);
             apps.insert(value.toIndex, apps.removeAt(value.fromIndex));
-            emit(state.copyWith(apps: apps));
+            emit(state.copyWith(views: apps));
           }
         },
       );
@@ -86,7 +86,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   Future<void> _fetchApps(Emitter<MenuState> emit) async {
     final appsOrFail = await _workspaceService.getApps();
     emit(appsOrFail.fold(
-      (apps) => state.copyWith(apps: apps),
+      (views) => state.copyWith(views: views),
       (error) {
         Log.error(error);
         return state.copyWith(successOrFailure: right(error));
@@ -115,13 +115,13 @@ class MenuEvent with _$MenuEvent {
 @freezed
 class MenuState with _$MenuState {
   const factory MenuState({
-    required List<ViewPB> apps,
+    required List<ViewPB> views,
     required Either<Unit, FlowyError> successOrFailure,
     required Plugin plugin,
   }) = _MenuState;
 
   factory MenuState.initial(WorkspacePB workspace) => MenuState(
-        apps: workspace.apps.items,
+        views: workspace.apps.items,
         successOrFailure: left(unit),
         plugin: makePlugin(pluginType: PluginType.blank),
       );

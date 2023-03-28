@@ -1,27 +1,26 @@
-import 'package:appflowy_backend/protobuf/flowy-folder2/app.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsFileExportState {
   SettingsFileExportState({
-    required this.apps,
+    required this.views,
   }) {
     initialize();
   }
 
-  List<ViewPB> apps;
+  List<ViewPB> views;
   List<bool> expanded = [];
   List<bool> selectedApps = [];
   List<List<bool>> selectedItems = [];
 
   SettingsFileExportState copyWith({
-    List<ViewPB>? apps,
+    List<ViewPB>? views,
     List<bool>? expanded,
     List<bool>? selectedApps,
     List<List<bool>>? selectedItems,
   }) {
     final state = SettingsFileExportState(
-      apps: apps ?? this.apps,
+      views: views ?? this.views,
     );
     state.expanded = expanded ?? this.expanded;
     state.selectedApps = selectedApps ?? this.selectedApps;
@@ -30,17 +29,17 @@ class SettingsFileExportState {
   }
 
   void initialize() {
-    expanded = apps.map((e) => true).toList();
-    selectedApps = apps.map((e) => true).toList();
+    expanded = views.map((e) => true).toList();
+    selectedApps = views.map((e) => true).toList();
     selectedItems =
-        apps.map((e) => e.belongings.map((e) => true).toList()).toList();
+        views.map((e) => e.belongings.map((e) => true).toList()).toList();
   }
 }
 
 class SettingsFileExporterCubit extends Cubit<SettingsFileExportState> {
   SettingsFileExporterCubit({
     required List<ViewPB> apps,
-  }) : super(SettingsFileExportState(apps: apps));
+  }) : super(SettingsFileExportState(views: apps));
 
   void selectOrDeselectItem(int outerIndex, int innerIndex) {
     final selectedItems = state.selectedItems;
@@ -56,7 +55,7 @@ class SettingsFileExporterCubit extends Cubit<SettingsFileExportState> {
   }
 
   Map<String, List<String>> fetchSelectedPages() {
-    final apps = state.apps;
+    final apps = state.views;
     final selectedItems = state.selectedItems;
     Map<String, List<String>> result = {};
     for (var i = 0; i < selectedItems.length; i++) {

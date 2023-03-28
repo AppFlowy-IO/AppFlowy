@@ -1,14 +1,13 @@
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/plugins/trash/application/trash_bloc.dart';
 import 'package:appflowy/workspace/application/app/app_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/app.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../util.dart';
 
 class TrashTestContext {
-  late ViewPB app;
+  late ViewPB view;
   late AppBloc appBloc;
   late List<ViewPB> allViews;
   final AppFlowyUnitTest unitTest;
@@ -16,8 +15,8 @@ class TrashTestContext {
   TrashTestContext(this.unitTest);
 
   Future<void> initialize() async {
-    app = await unitTest.createTestApp();
-    appBloc = AppBloc(app: app)..add(const AppEvent.initial());
+    view = await unitTest.createTestApp();
+    appBloc = AppBloc(app: view)..add(const AppEvent.initial());
     await blocResponseFuture();
 
     appBloc.add(AppEvent.createView(

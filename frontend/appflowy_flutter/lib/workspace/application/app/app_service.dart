@@ -5,7 +5,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/app.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 
 class AppBackendService {
@@ -45,8 +44,8 @@ class AppBackendService {
     return FolderEventCreateView(payload).send();
   }
 
-  Future<Either<List<ViewPB>, FlowyError>> getViews({required String appId}) {
-    final payload = ViewIdPB.create()..value = appId;
+  Future<Either<List<ViewPB>, FlowyError>> getViews({required String viewId}) {
+    final payload = ViewIdPB.create()..value = viewId;
 
     return FolderEventReadView(payload).send().then((result) {
       return result.fold(
@@ -56,8 +55,8 @@ class AppBackendService {
     });
   }
 
-  Future<Either<Unit, FlowyError>> delete({required String appId}) {
-    final request = RepeatedViewIdPB.create()..items.add(appId);
+  Future<Either<Unit, FlowyError>> delete({required String viewId}) {
+    final request = RepeatedViewIdPB.create()..items.add(viewId);
     return FolderEventDeleteView(request).send();
   }
 
@@ -98,7 +97,7 @@ class AppBackendService {
       if (workspaces != null) {
         final apps = workspaces.workspace.apps.items;
         for (var app in apps) {
-          final views = await getViews(appId: app.id).then(
+          final views = await getViews(viewId: app.id).then(
             (value) => value
                 .getLeftOrNull<List<ViewPB>>()
                 ?.where((e) => e.layout == layoutType)

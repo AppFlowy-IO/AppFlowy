@@ -1,4 +1,4 @@
-use crate::entities::{AppPB, CreateViewParams, CreateWorkspaceParams, UpdateViewParams};
+use crate::entities::{AppPB, CreateViewParams, CreateWorkspaceParams, UpdateViewParams, ViewPB};
 use crate::notification::{send_notification, FolderNotification};
 use crate::user_default::{gen_workspace_id, DefaultFolderBuilder};
 use crate::view_ext::{
@@ -18,6 +18,7 @@ use parking_lot::Mutex;
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::sync::Arc;
+use tracing::{event, Level};
 
 pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -197,7 +198,7 @@ impl Folder2Manager {
       },
     }
     let view = view_from_create_view_params(params, view_layout);
-    self.folder.lock().views.insert_view(view.clone());
+    self.folder.lock().insert_view(view.clone());
     Ok(view)
   }
 
@@ -404,13 +405,11 @@ fn listen_on_view_change(mut rx: ViewChangeReceiver, folder: Folder) {
     while let Ok(value) = rx.recv().await {
       match value {
         ViewChange::DidCreateView { view } => {
-          let bid = view.bid.clone();
-          notify_view_did_change(folder.clone(), &bid).await;
+          notify_view_did_change(folder.clone(), &view).await;
         },
         ViewChange::DidDeleteView { views: _ } => {},
         ViewChange::DidUpdate { view } => {
-          let bid = view.bid.clone();
-          notify_view_did_change(folder.clone(), &bid).await;
+          notify_view_did_change(folder.clone(), &view).await;
         },
       };
     }
@@ -428,7 +427,8 @@ fn listen_on_trash_change(mut rx: TrashChangeReceiver, _folder: Folder) {
   });
 }
 
-async fn notify_view_did_change(folder: Folder, view_id: &str) {
+#[tracing::instrument(level = "debug", skip(folder))]
+async fn notify_view_did_change(folder: Folder, view: &View) {
   let folder = folder.lock();
   let trash_ids = folder
     .trash
@@ -437,24 +437,26 @@ async fn notify_view_did_change(folder: Folder, view_id: &str) {
     .map(|trash| trash.id)
     .collect::<Vec<String>>();
 
-  let views = folder
-    .views
-    .get_views_belong_to(view_id)
-    .into_iter()
-    .filter(|view| !trash_ids.contains(&view.id))
-    .collect::<Vec<View>>();
+  let mut child_views = folder.views.get_views_belong_to(&view.bid);
+  child_views.retain(|view| !trash_ids.contains(&view.id));
   drop(folder);
 
-  let app = AppPB {
-    id: view_id.to_string(),
-    workspace_id: "".to_string(),
-    name: "".to_string(),
-    belongings: views.into(),
-    create_time: 0,
+  event!(Level::DEBUG, child_views_count = child_views.len());
+  let root_view = ViewPB {
+    id: view.bid.clone(),
+    app_id: view.bid.clone(),
+    name: view.name.clone(),
+    belongings: child_views
+      .into_iter()
+      .map(|child_view| child_view.into())
+      .collect::<Vec<ViewPB>>(),
+    create_time: view.created_at,
+    layout: Default::default(),
   };
 
-  send_notification(view_id, FolderNotification::DidUpdateApp)
-    .payload(app)
+  event!(Level::DEBUG, child_views_count = root_view.belongings.len());
+  send_notification(&view.bid, FolderNotification::DidUpdateApp)
+    .payload(root_view)
     .send();
 }
 

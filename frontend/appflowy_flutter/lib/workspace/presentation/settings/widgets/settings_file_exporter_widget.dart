@@ -118,7 +118,7 @@ class _ExpandedListState extends State<_ExpandedList> {
   }
 
   List<Widget> _buildChildren(BuildContext context) {
-    final apps = context.read<SettingsFileExporterCubit>().state.apps;
+    final apps = context.read<SettingsFileExporterCubit>().state.views;
     List<Widget> children = [];
     for (var i = 0; i < apps.length; i++) {
       children.add(_buildExpandedItem(context, i));
@@ -128,7 +128,7 @@ class _ExpandedListState extends State<_ExpandedList> {
 
   Widget _buildExpandedItem(BuildContext context, int index) {
     final state = context.read<SettingsFileExporterCubit>().state;
-    final apps = state.apps;
+    final apps = state.views;
     final expanded = state.expanded;
     final selectedItems = state.selectedItems;
     final isExpaned = expanded[index] == true;

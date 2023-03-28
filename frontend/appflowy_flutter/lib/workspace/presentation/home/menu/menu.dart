@@ -112,7 +112,7 @@ class HomeMenu extends StatelessWidget {
         child: ScrollConfiguration(
           behavior: const ScrollBehavior().copyWith(scrollbars: false),
           child: BlocSelector<MenuBloc, MenuState, List<Widget>>(
-            selector: (state) => state.apps
+            selector: (state) => state.views
                 .map((app) => MenuApp(app, key: ValueKey(app.id)))
                 .toList(),
             builder: (context, menuItems) {

@@ -7,7 +7,6 @@ import 'package:appflowy/workspace/application/app/app_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:expandable/expandable.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/app.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter/foundation.dart';
@@ -79,7 +78,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
 // Delete the current app
   Future<void> _deleteApp(Emitter<AppState> emit) async {
-    final result = await appService.delete(appId: state.app.id);
+    final result = await appService.delete(viewId: state.app.id);
     result.fold(
       (unit) => emit(state.copyWith(successOrFailure: left(unit))),
       (error) => emit(state.copyWith(successOrFailure: right(error))),
@@ -122,7 +121,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   Future<void> _loadViews(Emitter<AppState> emit) async {
-    final viewsOrFailed = await appService.getViews(appId: state.app.id);
+    final viewsOrFailed = await appService.getViews(viewId: state.app.id);
     viewsOrFailed.fold(
       (views) => emit(state.copyWith(views: views)),
       (error) {
