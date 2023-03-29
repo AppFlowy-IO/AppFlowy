@@ -3,9 +3,7 @@ import 'package:mocktail/mocktail.dart';
 import 'dart:convert';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/service/text_completion.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/openai/service/error.dart';
-
 import 'package:http/http.dart' as http;
-import 'package:appflowy/startup/startup.dart';
 import 'dart:async';
 
 class MyMockClient extends Mock implements http.Client {
@@ -18,7 +16,7 @@ class MyMockClient extends Mock implements http.Client {
       final responseHeaders = <String, String>{'content-type': 'text/event-stream'};
       final responseBody = Stream.fromIterable([
         utf8.encode(
-            '{ "choices": [{"text": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec", "index": 0, "logprobs": null, "finish_reason": null}]}'),
+            '{ "choices": [{"text": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula ", "index": 0, "logprobs": null, "finish_reason": null}]}'),
         utf8.encode('\n'),
         utf8.encode('[DONE]'),
       ]);
@@ -75,15 +73,4 @@ class MockOpenAIRepository extends HttpOpenAIRepository {
     }
     return;
   }
-
-}
-
-Future<void> mockOpenAIRepository() async {
-  await getIt.unregister<OpenAIRepository>();
-  getIt.registerFactoryAsync<OpenAIRepository>(
-    () => Future.value(
-      MockOpenAIRepository(),
-    ),
-  );
-  return;
 }

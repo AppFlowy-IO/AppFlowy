@@ -53,13 +53,13 @@ void _resolveCommonService(GetIt getIt) async {
     () async {
       final result = await UserBackendService.getCurrentUserProfile();
       return result.fold(
-        (l) async {
+        (l) {
           return HttpOpenAIRepository(
             client: http.Client(),
             apiKey: l.openaiKey,
           );
         },
-        (r) async {
+        (r) {
           throw Exception('Failed to get user profile: ${r.msg}');
         },
       );
