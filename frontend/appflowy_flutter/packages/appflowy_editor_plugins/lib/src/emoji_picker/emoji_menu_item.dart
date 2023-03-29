@@ -35,6 +35,7 @@ void _showEmojiSelectionMenu(
       bottom: alignment == Alignment.topLeft ? offset.dy : null,
       left: offset.dx,
       child: Material(
+        color: Colors.transparent,
         child: EmojiSelectionMenu(
           editorState: editorState,
           onSubmitted: (text) {
@@ -123,7 +124,7 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
           BoxShadow(
             blurRadius: 5,
             spreadRadius: 1,
-            color: Colors.black.withOpacity(0.1),
+            color: Theme.of(context).colorScheme.shadow.withOpacity(0.1),
           ),
         ],
         borderRadius: BorderRadius.circular(6.0),
