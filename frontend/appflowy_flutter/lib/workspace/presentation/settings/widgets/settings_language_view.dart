@@ -81,7 +81,10 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
                   value: locale,
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
-                    child: FlowyText.medium(languageFromLocale(locale)),
+                    child: FlowyText.medium(
+                      languageFromLocale(locale),
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
                   ),
                 );
               }).toList(),
