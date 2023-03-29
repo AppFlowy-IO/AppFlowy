@@ -57,12 +57,6 @@ impl Folder2Manager {
     Ok(manager)
   }
 
-  /// Called immediately after the application launched with the user sign in/sign up.
-  #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn initialize(&self, user_id: i64) -> FlowyResult<()> {
-    Ok(())
-  }
-
   pub async fn get_current_workspace(&self) -> FlowyResult<Workspace> {
     match self.with_folder(None, |folder| folder.get_current_workspace()) {
       None => Err(FlowyError::record_not_found().context("Can not find the workspace")),
@@ -95,14 +89,36 @@ impl Folder2Manager {
     }))
   }
 
-  pub async fn initialize_with_new_user(&self, user_id: i64, token: &str) -> FlowyResult<()> {
-    let db = self.user.kv_db()?;
-    let disk_plugin = Arc::new(
-      CollabDiskPlugin::new(user_id, db).map_err(|err| FlowyError::internal().context(err))?,
-    );
-    self.folder.lock().add_plugins(vec![disk_plugin]);
-    self.folder.lock().initial();
+  /// Called immediately after the application launched with the user sign in/sign up.
+  #[tracing::instrument(level = "trace", skip(self), err)]
+  pub async fn initialize(&self, user_id: i64) -> FlowyResult<()> {
+    if let Ok(uid) = self.user.user_id() {
+      let folder_id = FolderId::new(uid);
+      let mut collab = CollabBuilder::new(uid, folder_id).build();
+      if let Ok(kv_db) = self.user.kv_db() {
+        let disk_plugin = Arc::new(
+          CollabDiskPlugin::new(uid, kv_db).map_err(|err| FlowyError::internal().context(err))?,
+        );
+        collab.add_plugin(disk_plugin);
+        collab.initial();
+      }
 
+      let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
+      let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
+      let folder_context = FolderContext {
+        view_change_tx: Some(view_tx),
+        trash_change_tx: Some(trash_tx),
+      };
+      *self.folder.lock() = Some(InnerFolder::create(collab, folder_context));
+      listen_on_trash_change(trash_rx, self.folder.clone());
+      listen_on_view_change(view_rx, self.folder.clone());
+    }
+
+    Ok(())
+  }
+
+  pub async fn initialize_with_new_user(&self, user_id: i64, token: &str) -> FlowyResult<()> {
+    self.initialize(user_id).await?;
     let (folder_data, workspace_pb) =
       DefaultFolderBuilder::build(self.user.user_id()?, &self.view_processors).await;
     self.with_folder((), |folder| {
@@ -144,7 +160,7 @@ impl Folder2Manager {
   }
 
   pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<Workspace> {
-    let workspace = self.with_folder(Err(FlowyError::internal()), |folder| {
+    self.with_folder(Err(FlowyError::internal()), |folder| {
       let workspace = folder
         .workspaces
         .get_workspace(workspace_id)
@@ -153,9 +169,7 @@ impl Folder2Manager {
         })?;
       folder.set_current_workspace(workspace_id);
       Ok::<Workspace, FlowyError>(workspace)
-    });
-
-    workspace
+    })
   }
 
   pub async fn get_workspace(&self, workspace_id: &str) -> Option<Workspace> {
@@ -253,10 +267,10 @@ impl Folder2Manager {
   }
 
   #[tracing::instrument(level = "debug", skip(self, view_id), err)]
-  pub async fn get_view(&self, view_id: &str) -> FlowyResult<View> {
+  pub async fn get_view(&self, view_id: &str) -> FlowyResult<ViewPB> {
     let view_id = view_id.to_string();
     let folder = self.folder.lock();
-    let folder = folder.as_ref().ok_or(folder_not_init_error())?;
+    let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
     let trash_ids = folder
       .trash
       .get_all_trash()
@@ -272,7 +286,15 @@ impl Folder2Manager {
       None => Err(FlowyError::record_not_found()),
       Some(mut view) => {
         view.belongings.retain(|b| !trash_ids.contains(&b.id));
-        Ok(view)
+        let mut view_pb: ViewPB = view.into();
+        view_pb.belongings = folder
+          .views
+          .get_views_belong_to(&view_pb.id)
+          .into_iter()
+          .filter(|view| !trash_ids.contains(&view.id))
+          .map(|view| view.into())
+          .collect::<Vec<ViewPB>>();
+        Ok(view_pb)
       },
     }
   }
@@ -304,7 +326,7 @@ impl Folder2Manager {
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn move_view(&self, view_id: &str, from: usize, to: usize) -> FlowyResult<()> {
     let folder = self.folder.lock();
-    let folder = folder.as_ref().ok_or(folder_not_init_error())?;
+    let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
     match folder.move_view(view_id, from as u32, to as u32) {
       None => {
         tracing::error!("Couldn't find the view. It should not be empty");
@@ -328,7 +350,7 @@ impl Folder2Manager {
       .folder
       .lock()
       .as_ref()
-      .ok_or(folder_not_init_error())?
+      .ok_or_else(folder_not_init_error)?
       .views
       .update_view(&params.view_id, |update| {
         update
@@ -380,7 +402,7 @@ impl Folder2Manager {
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub(crate) async fn set_current_view(&self, view_id: &str) -> Result<(), FlowyError> {
     let folder = self.folder.lock();
-    let folder = folder.as_ref().ok_or(folder_not_init_error())?;
+    let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
     folder.set_current_view(view_id);
 
     let workspace = folder.get_current_workspace();
@@ -392,11 +414,9 @@ impl Folder2Manager {
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
-  pub(crate) async fn get_current_view(&self) -> Option<View> {
-    self.with_folder(None, |folder| {
-      let view_id = folder.get_current_view()?;
-      folder.views.get_view(&view_id)
-    })
+  pub(crate) async fn get_current_view(&self) -> Option<ViewPB> {
+    let view_id = self.with_folder(None, |folder| folder.get_current_view())?;
+    self.get_view(&view_id).await.ok()
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
@@ -506,7 +526,8 @@ fn notify_parent_view_did_change<T: AsRef<str>>(
   folder: Folder,
   parent_view_ids: Vec<T>,
 ) -> Option<()> {
-  let folder = folder.lock().as_ref()?;
+  let folder = folder.lock();
+  let folder = folder.as_ref()?;
   let workspace_id = folder.get_current_workspace_id()?;
   let trash_ids = folder
     .trash
@@ -548,36 +569,6 @@ fn notify_parent_view_did_change<T: AsRef<str>>(
   }
 
   None
-}
-
-fn make_user_folder(user: Arc<dyn FolderUser>) -> FlowyResult<Option<Folder>> {
-  if let Ok(uid) = user.user_id() {
-    let folder_id = FolderId::new(uid);
-    let mut collab = CollabBuilder::new(uid, folder_id).build();
-    if let Ok(kv_db) = user.kv_db() {
-      let disk_plugin = Arc::new(
-        CollabDiskPlugin::new(uid, kv_db).map_err(|err| FlowyError::internal().context(err))?,
-      );
-      collab.add_plugin(disk_plugin);
-      collab.initial();
-    }
-
-    let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
-    let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
-    let folder_context = FolderContext {
-      view_change_tx: Some(view_tx),
-      trash_change_tx: Some(trash_tx),
-    };
-    let folder = Folder(Arc::new(Mutex::new(Some(InnerFolder::create(
-      collab,
-      folder_context,
-    )))));
-    listen_on_trash_change(trash_rx, folder.clone());
-    listen_on_view_change(view_rx, folder.clone());
-    Ok(Some(folder))
-  } else {
-    Ok(None)
-  }
 }
 
 fn folder_not_init_error() -> FlowyError {

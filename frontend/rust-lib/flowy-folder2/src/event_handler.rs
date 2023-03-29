@@ -5,7 +5,7 @@ use crate::entities::{
   ViewPB, WorkspaceIdPB, WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager::Folder2Manager;
-use collab_folder::core::View;
+
 use flowy_error::FlowyError;
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use std::sync::Arc;
@@ -68,25 +68,11 @@ pub async fn read_cur_workspace_setting_handler(
   folder: AFPluginState<Arc<Folder2Manager>>,
 ) -> DataResult<WorkspaceSettingPB, FlowyError> {
   let workspace: WorkspacePB = folder.get_current_workspace().await?.into();
-  let latest_view: Option<ViewPB> = match folder.get_current_view().await {
-    None => None,
-    Some(view) => Some(view_pb_from_view(view, &folder).await),
-  };
+  let latest_view: Option<ViewPB> = folder.get_current_view().await.map(|view| view);
   data_result_ok(WorkspaceSettingPB {
     workspace,
     latest_view,
   })
-}
-
-async fn view_pb_from_view(view: View, folder: &Arc<Folder2Manager>) -> ViewPB {
-  let mut view_pb: ViewPB = view.into();
-  if let Ok(child_views) = folder.get_views_belong_to(&view_pb.id).await {
-    view_pb.belongings = child_views
-      .into_iter()
-      .map(|view| view.into())
-      .collect::<Vec<ViewPB>>();
-  }
-  view_pb
 }
 
 pub(crate) async fn create_view_handler(
@@ -104,8 +90,7 @@ pub(crate) async fn read_view_handler(
   folder: AFPluginState<Arc<Folder2Manager>>,
 ) -> DataResult<ViewPB, FlowyError> {
   let view_id: ViewIdPB = data.into_inner();
-  let view = folder.get_view(&view_id.value).await?;
-  let view_pb = view_pb_from_view(view, &folder).await;
+  let view_pb = folder.get_view(&view_id.value).await?;
   data_result_ok(view_pb)
 }
 

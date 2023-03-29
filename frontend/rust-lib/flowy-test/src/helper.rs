@@ -82,7 +82,7 @@ async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &s
     name: name.to_string(),
     desc: desc.to_string(),
     thumbnail: None,
-    layout: Default::default(),
+    layout: ViewLayoutTypePB::Document,
     initial_data: vec![],
     ext: Default::default(),
   };

@@ -198,7 +198,7 @@ async fn view_delete_then_restore() {
 #[tokio::test]
 async fn view_delete_all() {
   let mut test = FolderTest::new().await;
-  let app = test.parent_view.clone();
+  let parent_view = test.parent_view.clone();
   test
     .run_scripts(vec![
       CreateView {
@@ -211,11 +211,15 @@ async fn view_delete_all() {
         desc: "Grid description".to_owned(),
         layout: ViewLayout::Grid,
       },
-      RefreshRootView(app.id.clone()),
+      RefreshRootView(parent_view.id.clone()),
     ])
     .await;
 
-  assert_eq!(test.parent_view.belongings.len(), 3);
+  assert_eq!(
+    test.parent_view.belongings.len(),
+    3,
+    "num of belongings should be 3"
+  );
   let view_ids = test
     .parent_view
     .belongings
@@ -225,7 +229,7 @@ async fn view_delete_all() {
   test
     .run_scripts(vec![
       DeleteViews(view_ids),
-      RefreshRootView(app.id),
+      RefreshRootView(parent_view.id),
       ReadTrash,
     ])
     .await;

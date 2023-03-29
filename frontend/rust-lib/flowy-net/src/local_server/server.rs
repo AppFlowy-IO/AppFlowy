@@ -18,7 +18,8 @@ use futures_util::stream::StreamExt;
 use lib_infra::future::FutureResult;
 use lib_ws::{WSChannel, WebSocketRawMessage};
 
-use parking_lot::RwLock;
+use lazy_static::lazy_static;
+use parking_lot::{Mutex, RwLock};
 use std::{
   convert::{TryFrom, TryInto},
   fmt::Debug,
@@ -27,9 +28,11 @@ use std::{
 use tokio::sync::{broadcast, mpsc, mpsc::UnboundedSender};
 use user_model::*;
 use ws_model::ws_revision::{ClientRevisionWSData, ClientRevisionWSDataType};
+lazy_static! {
+  static ref ID_GEN: Mutex<UserIDGenerator> = Mutex::new(UserIDGenerator::new(1));
+}
 
 pub struct LocalServer {
-  id_generator: RwLock<UserIDGenerator>,
   doc_manager: Arc<ServerDocumentManager>,
   folder_manager: Arc<ServerFolderManager>,
   stop_tx: RwLock<Option<mpsc::Sender<()>>>,
@@ -46,9 +49,7 @@ impl LocalServer {
     let doc_manager = Arc::new(ServerDocumentManager::new(persistence.clone()));
     let folder_manager = Arc::new(ServerFolderManager::new(persistence));
     let stop_tx = RwLock::new(None);
-    let id_generator = RwLock::new(UserIDGenerator::new(1));
     LocalServer {
-      id_generator,
       doc_manager,
       folder_manager,
       stop_tx,
@@ -267,7 +268,7 @@ impl RevisionUser for LocalRevisionUser {
 
 impl UserCloudService for LocalServer {
   fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError> {
-    let uid = self.id_generator.write().next_id();
+    let uid = ID_GEN.lock().next_id();
     FutureResult::new(async move {
       Ok(SignUpResponse {
         user_id: uid,
@@ -279,7 +280,7 @@ impl UserCloudService for LocalServer {
   }
 
   fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError> {
-    let uid = self.id_generator.write().next_id();
+    let uid = ID_GEN.lock().next_id();
     FutureResult::new(async move {
       Ok(SignInResponse {
         user_id: uid,
