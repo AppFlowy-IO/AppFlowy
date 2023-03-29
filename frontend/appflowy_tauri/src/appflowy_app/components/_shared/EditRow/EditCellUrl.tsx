@@ -10,34 +10,22 @@ export const EditCellUrl = ({
   data: URLCellDataPB | undefined;
   cellController: CellController<any, any>;
 }) => {
-  const [url, setUrl] = useState('');
-  const [content, setContent] = useState('');
+  const [value, setValue] = useState('');
 
   useEffect(() => {
-    setUrl((data as URLCellDataPB)?.url || '');
+    setValue((data as URLCellDataPB)?.url || '');
   }, [data]);
 
   const save = async () => {
-    await (cellController as URLCellController)?.saveCellData(url);
-    // console.log('saving url');
+    await (cellController as URLCellController)?.saveCellData(value);
   };
 
   return (
-    <div className={'flex flex-col px-4 py-2'}>
-      <label className={'mb-1'}>URL:</label>
-      <input
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-        className={'-mx-2 mb-4 rounded bg-white px-2 py-1'}
-        onBlur={() => save()}
-      />
-      <label className={'mb-1'}>Content:</label>
-      <input
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        className={'-mx-2 mb-2 rounded bg-white px-2 py-1'}
-        onBlur={() => save()}
-      />
-    </div>
+    <input
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onBlur={() => save()}
+      className={'w-full px-4 py-2'}
+    ></input>
   );
 };
