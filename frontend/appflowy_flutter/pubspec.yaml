@@ -97,6 +97,7 @@ dependencies:
   http: ^0.13.5
   json_annotation: ^4.7.0
   path: ^1.8.2
+  mocktail: ^0.3.0
 
 dev_dependencies:
   flutter_lints: ^2.0.1

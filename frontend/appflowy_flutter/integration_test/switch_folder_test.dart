@@ -11,7 +11,7 @@ import 'package:integration_test/integration_test.dart';
 import 'util/mock/mock_file_picker.dart';
 import 'util/util.dart';
 
-void main() {
+void run() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('customize the folder path', () {
