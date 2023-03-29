@@ -7,7 +7,6 @@ import 'package:appflowy_editor/src/render/rich_text/checkbox_text.dart';
 import 'package:appflowy_editor/src/render/rich_text/heading_text.dart';
 import 'package:appflowy_editor/src/render/rich_text/number_list_text.dart';
 import 'package:appflowy_editor/src/render/rich_text/quoted_text.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text.dart';
 import 'package:appflowy_editor/src/render/selection/v2/selection_service.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/built_in_shortcut_events.dart';
 import 'package:flutter/material.dart' hide Overlay, OverlayEntry;
@@ -15,7 +14,8 @@ import 'package:provider/provider.dart';
 
 NodeWidgetBuilders defaultBuilders = {
   'editor': EditorEntryWidgetBuilder(),
-  'text': RichTextNodeWidgetBuilder(),
+  'text': TextBlockBuilder(),
+  // 'text': RichTextNodeWidgetBuilder(),
   'text/checkbox': CheckboxNodeWidgetBuilder(),
   'text/heading': HeadingTextNodeWidgetBuilder(),
   'text/bulleted-list': BulletedListTextNodeWidgetBuilder(),

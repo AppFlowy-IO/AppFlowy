@@ -14,7 +14,8 @@ extension NodeExtensions on Node {
   BuildContext? get context => key.currentContext;
   SelectableMixin? get selectable =>
       key.currentState?.unwrapOrNull<SelectableMixin>();
-  Selectable? get selectableV2 => key.currentState?.unwrapOrNull<Selectable>();
+  SelectableState? get selectableV2 =>
+      key.currentState?.unwrapOrNull<SelectableState>();
 
   bool inSelection(Selection selection) {
     if (selection.start.path <= selection.end.path) {

@@ -46,7 +46,7 @@ class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
         SelectableMixin,
         DefaultSelectable,
         BuiltInTextWidgetMixin,
-        Selectable {
+        SelectableState {
   @override
   GlobalKey? get iconKey => null;
 
@@ -83,7 +83,7 @@ class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: (_) {
-        print('on type');
+        print('on tap down');
       },
       child: Padding(
         padding: textPadding,
