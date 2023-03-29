@@ -14,6 +14,7 @@ import { Some } from 'ts-results';
 import { FieldType } from '@/services/backend';
 import { CellOptions } from '$app/components/_shared/EditRow/CellOptions';
 import { CellOptionsPopup } from '$app/components/_shared/EditRow/CellOptionsPopup';
+import { DatePickerPopup } from '$app/components/_shared/EditRow/DatePickerPopup';
 
 export const EditRow = ({
   onClose,
@@ -42,6 +43,10 @@ export const EditRow = ({
   const [showChangeOptionsPopup, setShowChangeOptionsPopup] = useState(false);
   const [changeOptionsTop, setChangeOptionsTop] = useState(0);
   const [changeOptionsLeft, setChangeOptionsLeft] = useState(0);
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [datePickerTop, setDatePickerTop] = useState(0);
+  const [datePickerLeft, setDatePickerLeft] = useState(0);
 
   useEffect(() => {
     setUnveil(true);
@@ -94,6 +99,13 @@ export const EditRow = ({
     setShowChangeOptionsPopup(true);
   };
 
+  const onEditDateClick = async (cellIdentifier: CellIdentifier, left: number, top: number) => {
+    setEditingCell(cellIdentifier);
+    setDatePickerLeft(left);
+    setDatePickerTop(top);
+    setShowDatePicker(true);
+  };
+
   return (
     <div
       className={`fixed inset-0 z-10 flex items-center justify-center bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${
@@ -115,6 +127,7 @@ export const EditRow = ({
               fieldController={controller.fieldController}
               onEditFieldClick={(top: number, right: number) => onEditFieldClick(cell.cellIdentifier, top, right)}
               onEditOptionsClick={(left: number, top: number) => onEditOptionsClick(cell.cellIdentifier, left, top)}
+              onEditDateClick={(left: number, top: number) => onEditDateClick(cell.cellIdentifier, left, top)}
             ></EditCellWrapper>
           ))}
         </div>
@@ -159,6 +172,16 @@ export const EditRow = ({
             fieldController={controller.fieldController}
             onOutsideClick={() => setShowChangeOptionsPopup(false)}
           ></CellOptionsPopup>
+        )}
+        {showDatePicker && editingCell && (
+          <DatePickerPopup
+            top={datePickerTop}
+            left={datePickerLeft}
+            cellIdentifier={editingCell}
+            cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
+            fieldController={controller.fieldController}
+            onOutsideClick={() => setShowDatePicker(false)}
+          ></DatePickerPopup>
         )}
       </div>
     </div>

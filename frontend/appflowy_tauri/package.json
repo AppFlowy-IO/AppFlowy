@@ -23,6 +23,7 @@
     "@slate-yjs/core": "^0.3.1",
     "@tanstack/react-virtual": "3.0.0-beta.54",
     "@tauri-apps/api": "^1.2.0",
+    "dayjs": "^1.11.7",
     "events": "^3.3.0",
     "google-protobuf": "^3.21.2",
     "i18next": "^22.4.10",
@@ -33,12 +34,12 @@
     "protoc-gen-ts": "^0.8.5",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
+    "react-calendar": "^4.1.0",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^3.1.4",
     "react-i18next": "^12.2.0",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.8.0",
-    "react-tailwindcss-datepicker": "^1.5.1",
     "react18-input-otp": "^1.1.2",
     "redux": "^4.2.1",
     "rxjs": "^7.8.0",
@@ -46,8 +47,8 @@
     "slate-react": "^0.91.9",
     "ts-results": "^3.3.0",
     "utf8": "^3.0.0",
-    "yjs": "^13.5.51",
-		"y-indexeddb": "^9.0.9"
+    "y-indexeddb": "^9.0.9",
+    "yjs": "^13.5.51"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1.2.2",

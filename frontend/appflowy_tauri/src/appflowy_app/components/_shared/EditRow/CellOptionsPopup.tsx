@@ -39,8 +39,8 @@ export const CellOptionsPopup = ({
   useEffect(() => {
     if (!ref.current) return;
     const { height } = ref.current.getBoundingClientRect();
-    if (top + height > window.innerHeight) {
-      setAdjustedTop(window.innerHeight - height);
+    if (top + height + 40 > window.innerHeight) {
+      setAdjustedTop(window.innerHeight - height - 40);
     } else {
       setAdjustedTop(top);
     }

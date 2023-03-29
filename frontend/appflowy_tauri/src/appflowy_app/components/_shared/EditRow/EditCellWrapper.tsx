@@ -19,12 +19,14 @@ export const EditCellWrapper = ({
   fieldController,
   onEditFieldClick,
   onEditOptionsClick,
+  onEditDateClick,
 }: {
   cellIdentifier: CellIdentifier;
   cellCache: CellCache;
   fieldController: FieldController;
   onEditFieldClick: (top: number, right: number) => void;
   onEditOptionsClick: (left: number, top: number) => void;
+  onEditDateClick: (left: number, top: number) => void;
 }) => {
   const { data, cellController } = useCell(cellIdentifier, cellCache, fieldController);
   const databaseStore = useAppSelector((state) => state.database);
@@ -66,7 +68,11 @@ export const EditCellWrapper = ({
         )}
 
         {cellIdentifier.fieldType === FieldType.DateTime && cellController && (
-          <EditCellDate data={data as DateCellDataPB | undefined} cellController={cellController}></EditCellDate>
+          <EditCellDate
+            data={data as DateCellDataPB | undefined}
+            onEditClick={onEditDateClick}
+            cellController={cellController}
+          ></EditCellDate>
         )}
 
         {cellIdentifier.fieldType === FieldType.Number && cellController && (
