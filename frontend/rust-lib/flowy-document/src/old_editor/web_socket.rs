@@ -45,19 +45,14 @@ pub type DocumentConflictController =
 #[allow(dead_code)]
 pub(crate) async fn make_document_ws_manager(
   doc_id: String,
-  user_id: String,
   edit_cmd_tx: EditorCommandSender,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
   rev_web_socket: Arc<dyn RevisionWebSocket>,
 ) -> Arc<RevisionWebSocketManager> {
   let ws_data_provider = Arc::new(WSDataProvider::new(&doc_id, Arc::new(rev_manager.clone())));
   let resolver = Arc::new(DocumentConflictResolver { edit_cmd_tx });
-  let conflict_controller = DocumentConflictController::new(
-    &user_id,
-    resolver,
-    Arc::new(ws_data_provider.clone()),
-    rev_manager,
-  );
+  let conflict_controller =
+    DocumentConflictController::new(resolver, Arc::new(ws_data_provider.clone()), rev_manager);
   let ws_data_stream = Arc::new(DocumentRevisionWSDataStream::new(conflict_controller));
   let ws_data_sink = Arc::new(DocumentWSDataSink(ws_data_provider));
   let ping_duration = Duration::from_millis(TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS);
@@ -69,16 +64,12 @@ pub(crate) async fn make_document_ws_manager(
     ws_data_stream,
     ping_duration,
   ));
-  listen_document_ws_state(&user_id, &doc_id, ws_manager.scribe_state());
+  listen_document_ws_state(&doc_id, ws_manager.scribe_state());
   ws_manager
 }
 
 #[allow(dead_code)]
-fn listen_document_ws_state(
-  _user_id: &str,
-  _doc_id: &str,
-  mut subscriber: broadcast::Receiver<WSConnectState>,
-) {
+fn listen_document_ws_state(_doc_id: &str, mut subscriber: broadcast::Receiver<WSConnectState>) {
   tokio::spawn(async move {
     while let Ok(state) = subscriber.recv().await {
       match state {

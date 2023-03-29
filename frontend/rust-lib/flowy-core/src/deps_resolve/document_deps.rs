@@ -61,7 +61,7 @@ impl DocumentUser for BlockUserImpl {
     Ok(doc_dir)
   }
 
-  fn user_id(&self) -> Result<String, FlowyError> {
+  fn user_id(&self) -> Result<i64, FlowyError> {
     self.0.user_id()
   }
 

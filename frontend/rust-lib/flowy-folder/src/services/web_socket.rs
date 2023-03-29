@@ -39,7 +39,6 @@ pub type FolderConflictController =
 
 #[allow(dead_code)]
 pub(crate) async fn make_folder_ws_manager(
-  user_id: &str,
   folder_id: &str,
   rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
   web_socket: Arc<dyn RevisionWebSocket>,
@@ -50,12 +49,8 @@ pub(crate) async fn make_folder_ws_manager(
     Arc::new(rev_manager.clone()),
   ));
   let resolver = Arc::new(FolderConflictResolver { folder_pad });
-  let conflict_controller = FolderConflictController::new(
-    user_id,
-    resolver,
-    Arc::new(ws_data_provider.clone()),
-    rev_manager,
-  );
+  let conflict_controller =
+    FolderConflictController::new(resolver, Arc::new(ws_data_provider.clone()), rev_manager);
   let ws_data_stream = Arc::new(FolderRevisionWSDataStream::new(conflict_controller));
   let ws_data_sink = Arc::new(FolderWSDataSink(ws_data_provider));
   let ping_duration = Duration::from_millis(FOLDER_SYNC_INTERVAL_IN_MILLIS);

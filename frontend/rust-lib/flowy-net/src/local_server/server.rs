@@ -13,10 +13,11 @@ use flowy_sync::{RevisionSyncResponse, RevisionUser};
 use flowy_user::entities::UserProfilePB;
 use flowy_user::event_map::UserCloudService;
 
+use flowy_user::uid::UserIDGenerator;
 use futures_util::stream::StreamExt;
 use lib_infra::future::FutureResult;
 use lib_ws::{WSChannel, WebSocketRawMessage};
-use nanoid::nanoid;
+
 use parking_lot::RwLock;
 use std::{
   convert::{TryFrom, TryInto},
@@ -28,6 +29,7 @@ use user_model::*;
 use ws_model::ws_revision::{ClientRevisionWSData, ClientRevisionWSDataType};
 
 pub struct LocalServer {
+  id_generator: RwLock<UserIDGenerator>,
   doc_manager: Arc<ServerDocumentManager>,
   folder_manager: Arc<ServerFolderManager>,
   stop_tx: RwLock<Option<mpsc::Sender<()>>>,
@@ -44,8 +46,9 @@ impl LocalServer {
     let doc_manager = Arc::new(ServerDocumentManager::new(persistence.clone()));
     let folder_manager = Arc::new(ServerFolderManager::new(persistence));
     let stop_tx = RwLock::new(None);
-
+    let id_generator = RwLock::new(UserIDGenerator::new(1));
     LocalServer {
+      id_generator,
       doc_manager,
       folder_manager,
       stop_tx,
@@ -264,25 +267,25 @@ impl RevisionUser for LocalRevisionUser {
 
 impl UserCloudService for LocalServer {
   fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError> {
-    let uid = nanoid!(20);
+    let uid = self.id_generator.write().next_id();
     FutureResult::new(async move {
       Ok(SignUpResponse {
-        user_id: uid.clone(),
+        user_id: uid,
         name: params.name,
         email: params.email,
-        token: uid,
+        token: "".to_string(),
       })
     })
   }
 
   fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError> {
-    let user_id = nanoid!(20);
-    FutureResult::new(async {
+    let uid = self.id_generator.write().next_id();
+    FutureResult::new(async move {
       Ok(SignInResponse {
-        user_id: user_id.clone(),
+        user_id: uid,
         name: params.name,
         email: params.email,
-        token: user_id,
+        token: "".to_string(),
       })
     })
   }

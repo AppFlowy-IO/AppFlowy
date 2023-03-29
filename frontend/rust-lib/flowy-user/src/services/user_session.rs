@@ -62,7 +62,7 @@ impl UserSession {
   pub async fn init<C: UserStatusCallback + 'static>(&self, user_status_callback: C) {
     if let Ok(session) = self.get_session() {
       let _ = user_status_callback
-        .did_sign_in(&session.token, &session.user_id)
+        .did_sign_in(&session.token, session.user_id)
         .await;
     }
     *self.user_status_callback.write().await = Some(Arc::new(user_status_callback));
@@ -70,7 +70,7 @@ impl UserSession {
 
   pub fn db_connection(&self) -> Result<DBConnection, FlowyError> {
     let user_id = self.get_session()?.user_id;
-    self.database.get_connection(&user_id)
+    self.database.get_connection(user_id)
   }
 
   // The caller will be not 'Sync' before of the return value,
@@ -81,12 +81,12 @@ impl UserSession {
   // let conn: PooledConnection<ConnectionManager> = pool.get()?;
   pub fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError> {
     let user_id = self.get_session()?.user_id;
-    self.database.get_pool(&user_id)
+    self.database.get_pool(user_id)
   }
 
   pub fn get_kv_db(&self) -> Result<Arc<CollabKV>, FlowyError> {
     let user_id = self.get_session()?.user_id;
-    self.database.get_kv_db(&user_id)
+    self.database.get_kv_db(user_id)
   }
 
   #[tracing::instrument(level = "debug", skip(self))]
@@ -112,7 +112,7 @@ impl UserSession {
         .await
         .as_ref()
         .unwrap()
-        .did_sign_in(&user_profile.token, &user_profile.id)
+        .did_sign_in(&user_profile.token, user_profile.id)
         .await;
       send_sign_in_notification()
         .payload::<UserProfilePB>(user_profile.clone().into())
@@ -146,9 +146,10 @@ impl UserSession {
   #[tracing::instrument(level = "debug", skip(self))]
   pub async fn sign_out(&self) -> Result<(), FlowyError> {
     let session = self.get_session()?;
-    let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id)))
+    let uid = session.user_id.to_string();
+    let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&uid)))
       .execute(&*(self.db_connection()?))?;
-    self.database.close_user_db(&session.user_id)?;
+    self.database.close_user_db(session.user_id)?;
     self.set_session(None)?;
     let _ = self
       .user_status_callback
@@ -156,7 +157,7 @@ impl UserSession {
       .await
       .as_ref()
       .unwrap()
-      .did_expired(&session.token, &session.user_id)
+      .did_expired(&session.token, session.user_id)
       .await;
     self.sign_out_on_server(&session.token).await?;
 
@@ -187,7 +188,7 @@ impl UserSession {
 
   pub async fn check_user(&self) -> Result<UserProfile, FlowyError> {
     let (user_id, token) = self.get_session()?.into_part();
-
+    let user_id = user_id.to_string();
     let user = dsl::user_table
       .filter(user_table::id.eq(&user_id))
       .first::<UserTable>(&*(self.db_connection()?))?;
@@ -198,6 +199,7 @@ impl UserSession {
 
   pub async fn get_user_profile(&self) -> Result<UserProfile, FlowyError> {
     let (user_id, token) = self.get_session()?.into_part();
+    let user_id = user_id.to_string();
     let user = dsl::user_table
       .filter(user_table::id.eq(&user_id))
       .first::<UserTable>(&*(self.db_connection()?))?;
@@ -218,7 +220,7 @@ impl UserSession {
     Ok(user_setting)
   }
 
-  pub fn user_id(&self) -> Result<String, FlowyError> {
+  pub fn user_id(&self) -> Result<i64, FlowyError> {
     Ok(self.get_session()?.user_id)
   }
 
@@ -321,7 +323,7 @@ impl UserDatabaseConnection for UserSession {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 struct Session {
-  user_id: String,
+  user_id: i64,
   token: String,
   email: String,
   #[serde(default)]
@@ -351,7 +353,7 @@ impl std::convert::From<SignUpResponse> for Session {
 }
 
 impl Session {
-  pub fn into_part(self) -> (String, String) {
+  pub fn into_part(self) -> (i64, String) {
     (self.user_id, self.token)
   }
 }

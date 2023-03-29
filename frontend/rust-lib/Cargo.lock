@@ -538,11 +538,13 @@ name = "collab-persistence"
 version = "0.1.0"
 dependencies = [
  "bincode",
+ "chrono",
  "lib0",
  "serde",
  "sled",
  "smallvec",
  "thiserror",
+ "tokio",
  "yrs",
 ]
 

@@ -4,6 +4,7 @@ mod handlers;
 mod notification;
 pub mod protobuf;
 pub mod services;
+pub mod uid;
 // mod sql_tables;
 
 #[macro_use]

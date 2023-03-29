@@ -35,7 +35,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub trait DatabaseUser: Send + Sync {
-  fn user_id(&self) -> Result<String, FlowyError>;
+  fn user_id(&self) -> Result<i64, FlowyError>;
   fn token(&self) -> Result<String, FlowyError>;
   fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError>;
 }
@@ -75,13 +75,13 @@ impl DatabaseManager {
     }
   }
 
-  pub async fn initialize_with_new_user(&self, _user_id: &str, _token: &str) -> FlowyResult<()> {
+  pub async fn initialize_with_new_user(&self, _user_id: i64, _token: &str) -> FlowyResult<()> {
     Ok(())
   }
 
   pub async fn initialize(
     &self,
-    user_id: &str,
+    user_id: i64,
     _token: &str,
     get_views_fn: Fut<Vec<(String, String, LayoutTypePB)>>,
   ) -> FlowyResult<()> {
@@ -114,9 +114,8 @@ impl DatabaseManager {
     revisions: Vec<Revision>,
   ) -> FlowyResult<()> {
     let view_id = view_id.as_ref();
-    let user_id = self.database_user.user_id()?;
     let pool = self.database_user.db_pool()?;
-    let rev_manager = make_database_view_rev_manager(&user_id, pool, view_id).await?;
+    let rev_manager = make_database_view_rev_manager(pool, view_id).await?;
     rev_manager.reset_object(revisions).await?;
     Ok(())
   }
@@ -210,10 +209,8 @@ impl DatabaseManager {
   ) -> FlowyResult<Arc<DatabaseEditor>> {
     let user = self.database_user.clone();
     let create_view_editor = |database_editor: Arc<DatabaseEditor>| async move {
-      let user_id = user.user_id()?;
       let (view_pad, view_rev_manager) = make_database_view_revision_pad(view_id, user).await?;
       DatabaseViewEditor::from_pad(
-        &user_id,
         database_editor.database_view_data.clone(),
         database_editor.cell_data_cache.clone(),
         view_rev_manager,
@@ -275,7 +272,6 @@ impl DatabaseManager {
         .initialize::<DatabaseRevisionSerde>(Some(cloud))
         .await?,
     ));
-    let user_id = user.user_id()?;
     let database_editor = DatabaseEditor::new(
       &database_id,
       user,
@@ -288,7 +284,6 @@ impl DatabaseManager {
     .await?;
 
     let base_view_editor = DatabaseViewEditor::from_pad(
-      &user_id,
       database_editor.database_view_data.clone(),
       database_editor.cell_data_cache.clone(),
       base_view_rev_manager,
@@ -306,13 +301,10 @@ impl DatabaseManager {
     database_id: &str,
     pool: Arc<ConnectionPool>,
   ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
-    let user_id = self.database_user.user_id()?;
-
     // Create revision persistence
-    let disk_cache = SQLiteDatabaseRevisionPersistence::new(&user_id, pool.clone());
+    let disk_cache = SQLiteDatabaseRevisionPersistence::new(pool.clone());
     let configuration = RevisionPersistenceConfiguration::new(6, false);
-    let rev_persistence =
-      RevisionPersistence::new(&user_id, database_id, disk_cache, configuration);
+    let rev_persistence = RevisionPersistence::new(database_id, disk_cache, configuration);
 
     // Create snapshot persistence
     const DATABASE_SP_PREFIX: &str = "grid";
@@ -322,7 +314,6 @@ impl DatabaseManager {
 
     let rev_compress = DatabaseRevisionMergeable();
     let rev_manager = RevisionManager::new(
-      &user_id,
       database_id,
       rev_persistence,
       rev_compress,

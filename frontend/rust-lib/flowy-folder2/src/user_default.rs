@@ -1,5 +1,5 @@
 use crate::entities::{ViewPB, WorkspacePB};
-use crate::manager::Folder;
+
 use crate::view_ext::{gen_view_id, ViewDataProcessorMap};
 use chrono::Utc;
 use collab_folder::core::{Belonging, Belongings, FolderData, View, ViewLayout, Workspace};
@@ -11,9 +11,8 @@ pub struct DefaultFolderBuilder();
 impl DefaultFolderBuilder {
   pub async fn build(
     uid: i64,
-    folder: Folder,
     view_processors: &ViewDataProcessorMap,
-  ) -> WorkspacePB {
+  ) -> (FolderData, WorkspacePB) {
     let time = Utc::now().timestamp();
     let workspace_id = gen_workspace_id();
     let view_id = gen_view_id();
@@ -72,15 +71,15 @@ impl DefaultFolderBuilder {
 
     let workspace_pb = workspace_pb_from_workspace(&workspace, &view, &child_view);
 
-    let data = FolderData {
-      current_workspace: workspace.id.clone(),
-      current_view: child_view_id,
-      workspaces: vec![workspace],
-      views: vec![view, child_view],
-    };
-
-    folder.lock().create_with_data(data);
-    workspace_pb
+    (
+      FolderData {
+        current_workspace: workspace.id.clone(),
+        current_view: child_view_id,
+        workspaces: vec![workspace],
+        views: vec![view, child_view],
+      },
+      workspace_pb,
+    )
   }
 }
 

@@ -29,9 +29,8 @@ impl Folder2DepsResolver {
 
     let view_data_processor =
       make_view_data_processor(document_manager.clone(), database_manager.clone());
-    let kv_db = user_session.get_kv_db().ok();
     Arc::new(
-      Folder2Manager::new(user.clone(), view_data_processor, kv_db)
+      Folder2Manager::new(user.clone(), view_data_processor)
         .await
         .unwrap(),
     )
@@ -57,11 +56,10 @@ fn make_view_data_processor(
 struct FolderUserImpl(Arc<UserSession>);
 impl FolderUser for FolderUserImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
-    // self
-    //   .0
-    //   .user_id()
-    //   .map_err(|e| FlowyError::internal().context(e))
-    Ok(123456)
+    self
+      .0
+      .user_id()
+      .map_err(|e| FlowyError::internal().context(e))
   }
 
   fn token(&self) -> Result<String, FlowyError> {

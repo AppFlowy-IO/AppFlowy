@@ -113,7 +113,7 @@ impl FolderMigration {
 
     let pool = self.database.db_pool()?;
     let disk_cache = SQLiteFolderRevisionPersistence::new(&self.user_id, pool);
-    let reset = RevisionStructReset::new(&self.user_id, object, Arc::new(disk_cache));
+    let reset = RevisionStructReset::new(object, Arc::new(disk_cache));
     reset.run().await
   }
 }

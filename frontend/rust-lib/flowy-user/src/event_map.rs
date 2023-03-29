@@ -25,9 +25,9 @@ pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {
-  fn did_sign_in(&self, token: &str, user_id: &str) -> Fut<FlowyResult<()>>;
+  fn did_sign_in(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
   fn did_sign_up(&self, user_profile: &UserProfile) -> Fut<FlowyResult<()>>;
-  fn did_expired(&self, token: &str, user_id: &str) -> Fut<FlowyResult<()>>;
+  fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
 }
 
 pub trait UserCloudService: Send + Sync {
