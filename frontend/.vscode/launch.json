@@ -12,8 +12,8 @@
             "type": "dart",
             "preLaunchTask": "AF: Build Appflowy Core",
             "env": {
-                // "RUST_LOG": "trace",
-                "RUST_LOG": "debug"
+                "RUST_LOG": "trace",
+                // "RUST_LOG": "debug"
             },
             "cwd": "${workspaceRoot}/appflowy_flutter"
         },

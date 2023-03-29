@@ -417,7 +417,6 @@ pub async fn create_new_database(
     DatabaseViewRevision::from_json(database_view_data)?
   };
 
-  tracing::trace!("Initial calendar layout setting: {:?}", layout_setting);
   database_view_rev.layout_settings = layout_setting;
   let database_view_ops = make_database_view_operations(&database_view_rev);
   let database_view_bytes = database_view_ops.json_bytes();

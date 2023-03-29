@@ -198,7 +198,8 @@
       "browser": "Browse",
       "create": "Create",
       "folderPath": "Path to store your folder",
-      "locationCannotBeEmpty": "Path cannot be empty"
+      "locationCannotBeEmpty": "Path cannot be empty",
+      "pathCopiedSnackbar": "File storage path copied to clipboard!"
     },
     "user": {
       "name": "Name",
