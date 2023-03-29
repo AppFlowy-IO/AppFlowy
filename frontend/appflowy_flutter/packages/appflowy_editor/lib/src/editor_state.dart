@@ -1,16 +1,7 @@
 import 'dart:async';
-import 'package:appflowy_editor/src/core/document/node.dart';
-import 'package:appflowy_editor/src/infra/log.dart';
-import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.dart';
-import 'package:appflowy_editor/src/render/style/editor_style.dart';
-import 'package:appflowy_editor/src/render/toolbar/toolbar_item.dart';
-import 'package:appflowy_editor/src/service/service.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
-import 'package:appflowy_editor/src/core/location/selection.dart';
-import 'package:appflowy_editor/src/core/document/document.dart';
-import 'package:appflowy_editor/src/core/transform/operation.dart';
-import 'package:appflowy_editor/src/core/transform/transaction.dart';
 import 'package:appflowy_editor/src/history/undo_manager.dart';
 
 class ApplyOptions {
@@ -108,7 +99,8 @@ class EditorState {
 
     // broadcast to other users here
     if (reason != CursorUpdateReason.uiEvent) {
-      service.selectionService.updateSelection(cursorSelection);
+      // service.selectionService.updateSelection(cursorSelection);
+      service.selectionServiceV2.selection = cursorSelection;
     }
     _cursorSelection = cursorSelection;
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -184,6 +176,27 @@ class EditorState {
     }
 
     return completer.future;
+  }
+
+  List<Node> getNodesInSelection(Selection selection) {
+    final start = selection.normalized.start.path;
+    final end = selection.normalized.end.path;
+    assert(start <= end);
+    final startNode = document.nodeAtPath(start);
+    final endNode = document.nodeAtPath(end);
+    if (startNode != null && endNode != null) {
+      final nodes = NodeIterator(
+        document: document,
+        startNode: startNode,
+        endNode: endNode,
+      ).toList();
+      if (selection.isBackward) {
+        return nodes;
+      } else {
+        return nodes.reversed.toList(growable: false);
+      }
+    }
+    return [];
   }
 
   void _debouncedSealHistoryItem() {

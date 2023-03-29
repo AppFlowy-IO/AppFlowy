@@ -65,6 +65,7 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onPanStart: _onPanStart,
       onPanUpdate: _onPanUpdate,
       onTapDown: _onTapDown,

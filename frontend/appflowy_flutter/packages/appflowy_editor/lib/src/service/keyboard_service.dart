@@ -126,7 +126,6 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
     if (event is! RawKeyDownEvent) {
       return KeyEventResult.ignored;
     }
-
     // TODO: use cache to optimize the searching time.
     for (final shortcutEvent in widget.shortcutEvents) {
       if (shortcutEvent.canRespondToRawKeyEvent(event)) {

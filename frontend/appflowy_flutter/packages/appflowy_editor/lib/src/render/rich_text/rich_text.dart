@@ -80,16 +80,22 @@ class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
 
   @override
   Widget buildWithSingle(BuildContext context) {
-    return Padding(
-      padding: textPadding,
-      child: FlowyRichText(
-        key: _richTextKey,
-        textNode: widget.textNode,
-        textSpanDecorator: (textSpan) => textSpan,
-        placeholderTextSpanDecorator: (textSpan) =>
-            textSpan.updateTextStyle(textStyle),
-        lineHeight: widget.editorState.editorStyle.lineHeight,
-        editorState: widget.editorState,
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (_) {
+        print('on type');
+      },
+      child: Padding(
+        padding: textPadding,
+        child: FlowyRichText(
+          key: _richTextKey,
+          textNode: widget.textNode,
+          textSpanDecorator: (textSpan) => textSpan,
+          placeholderTextSpanDecorator: (textSpan) =>
+              textSpan.updateTextStyle(textStyle),
+          lineHeight: widget.editorState.editorStyle.lineHeight,
+          editorState: widget.editorState,
+        ),
       ),
     );
   }

@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 ShortcutEventHandler backspaceEventHandler = (editorState, event) {
-  var selection = editorState.service.selectionService.currentSelection.value;
+  var selection = editorState.service.selectionServiceV2.selection;
   if (selection == null) {
     return KeyEventResult.ignored;
   }
-  var nodes = editorState.service.selectionService.currentSelectedNodes;
+  var nodes = editorState.getNodesInSelection(selection);
   nodes = selection.isBackward ? nodes : nodes.reversed.toList(growable: false);
   selection = selection.isBackward ? selection : selection.reversed;
   final textNodes = nodes.whereType<TextNode>().toList();
