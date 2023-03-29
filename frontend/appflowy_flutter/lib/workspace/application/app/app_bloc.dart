@@ -141,7 +141,7 @@ class AppEvent with _$AppEvent {
     PluginBuilder pluginBuilder, {
     String? desc,
 
-    /// The initial data should be the JSON of the doucment
+    /// The initial data should be the JSON of the document
     /// For example: {"document":{"type":"editor","children":[]}}
     String? initialData,
     Map<String, String>? ext,

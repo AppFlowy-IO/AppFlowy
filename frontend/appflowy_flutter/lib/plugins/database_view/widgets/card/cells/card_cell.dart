@@ -24,10 +24,21 @@ class CardConfiguration<CustomCardData> {
   }
 }
 
-abstract class CardCell<T> extends StatefulWidget {
-  final T? cardData;
+abstract class CardCellStyle {}
 
-  const CardCell({super.key, this.cardData});
+S? isStyleOrNull<S>(CardCellStyle? style) {
+  if (style is S) {
+    return style as S;
+  } else {
+    return null;
+  }
+}
+
+abstract class CardCell<T, S extends CardCellStyle> extends StatefulWidget {
+  final T? cardData;
+  final S? style;
+
+  const CardCell({super.key, this.cardData, this.style});
 }
 
 class EditableCardNotifier {

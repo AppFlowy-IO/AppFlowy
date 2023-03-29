@@ -310,7 +310,7 @@ ShortcutEventHandler underscoreToItalicHandler = (editorState, event) {
   return KeyEventResult.handled;
 };
 
-ShortcutEventHandler doubleAsteriskToBoldHanlder = (editorState, event) {
+ShortcutEventHandler doubleAsteriskToBoldHandler = (editorState, event) {
   final selectionService = editorState.service.selectionService;
   final selection = selectionService.currentSelection.value;
   final textNodes = selectionService.currentSelectedNodes.whereType<TextNode>();
@@ -366,8 +366,8 @@ ShortcutEventHandler doubleAsteriskToBoldHanlder = (editorState, event) {
   return KeyEventResult.handled;
 };
 
-//Implement in the same way as doubleAsteriskToBoldHanlder
-ShortcutEventHandler doubleUnderscoreToBoldHanlder = (editorState, event) {
+//Implement in the same way as doubleAsteriskToBoldHandler
+ShortcutEventHandler doubleUnderscoreToBoldHandler = (editorState, event) {
   final selectionService = editorState.service.selectionService;
   final selection = selectionService.currentSelection.value;
   final textNodes = selectionService.currentSelectedNodes.whereType<TextNode>();

@@ -87,7 +87,7 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
       child: BlocBuilder<CheckboxFilterEditorBloc, CheckboxFilterEditorState>(
         builder: (context, state) {
           final List<Widget> children = [
-            _buildFilterPannel(context, state),
+            _buildFilterPanel(context, state),
           ];
 
           return Padding(
@@ -99,7 +99,7 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
     );
   }
 
-  Widget _buildFilterPannel(
+  Widget _buildFilterPanel(
       BuildContext context, CheckboxFilterEditorState state) {
     return SizedBox(
       height: 20,

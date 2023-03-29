@@ -695,6 +695,7 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn get_database(&self, view_id: &str) -> FlowyResult<DatabasePB> {
     let pad = self.database_pad.read().await;
     let fields = pad
@@ -887,9 +888,12 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn duplicate_database(&self, view_id: &str) -> FlowyResult<BuildDatabaseContext> {
+  pub async fn duplicate_database(&self, _view_id: &str) -> FlowyResult<BuildDatabaseContext> {
     let database_pad = self.database_pad.read().await;
-    let database_view_data = self.database_views.duplicate_database_view(view_id).await?;
+    // let database_view_data = self
+    //   .database_views
+    //   .duplicate_database_view_setting(view_id)
+    //   .await?;
     let original_blocks = database_pad.get_block_meta_revs();
     let (duplicated_fields, duplicated_blocks) = database_pad.duplicate_database_block_meta().await;
 
@@ -918,7 +922,7 @@ impl DatabaseEditor {
       block_metas: duplicated_blocks,
       blocks: blocks_meta_data,
       layout_setting: Default::default(),
-      database_view_data,
+      database_view_data: "".to_string(),
     })
   }
 
