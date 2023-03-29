@@ -25,7 +25,8 @@ enum TestWorkspace {
   }
 
   Future<Directory> get root async {
-    return Directory(p.join(await TestWorkspace._parent.then((value) => value.path), name));
+    final Directory parent = await TestWorkspace._parent;
+    return Directory(p.join(parent.path, name));
   }
 
   static Future<Directory> get _parent async {
