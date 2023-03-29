@@ -8,6 +8,7 @@ import 'package:appflowy_editor/src/render/link_menu/link_menu.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
 import 'package:appflowy_editor/src/extensions/editor_state_extensions.dart';
 import 'package:appflowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
+import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart' hide Overlay, OverlayEntry;
 
@@ -127,7 +128,9 @@ List<ToolbarItem> defaultToolbarItems = [
   ToolbarItem(
     id: 'appflowy.toolbar.bold',
     type: 2,
-    tooltipsMessage: AppFlowyEditorLocalizations.current.bold,
+    tooltipsMessage: AppFlowyEditorLocalizations.current.bold +
+        "\n" +
+        (Platform.isMacOS ? "⌘ + B" : "CTRL + B"),
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/bold',
       color: isHighlight ? Colors.lightBlue : null,
@@ -143,7 +146,9 @@ List<ToolbarItem> defaultToolbarItems = [
   ToolbarItem(
     id: 'appflowy.toolbar.italic',
     type: 2,
-    tooltipsMessage: AppFlowyEditorLocalizations.current.italic,
+    tooltipsMessage: AppFlowyEditorLocalizations.current.italic +
+        "\n" +
+        (Platform.isMacOS ? "⌘ + I" : "CTRL + I"),
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/italic',
       color: isHighlight ? Colors.lightBlue : null,
@@ -159,7 +164,9 @@ List<ToolbarItem> defaultToolbarItems = [
   ToolbarItem(
     id: 'appflowy.toolbar.underline',
     type: 2,
-    tooltipsMessage: AppFlowyEditorLocalizations.current.underline,
+    tooltipsMessage: AppFlowyEditorLocalizations.current.underline +
+        "\n" +
+        (Platform.isMacOS ? "⌘ + U" : "CTRL + U"),
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/underline',
       color: isHighlight ? Colors.lightBlue : null,
@@ -175,7 +182,9 @@ List<ToolbarItem> defaultToolbarItems = [
   ToolbarItem(
     id: 'appflowy.toolbar.strikethrough',
     type: 2,
-    tooltipsMessage: AppFlowyEditorLocalizations.current.strikethrough,
+    tooltipsMessage: AppFlowyEditorLocalizations.current.strikethrough +
+        "\n" +
+        (Platform.isMacOS ? "⌘ + SHIFT + S" : "CTRL + SHIFT + S"),
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/strikethrough',
       color: isHighlight ? Colors.lightBlue : null,
@@ -191,7 +200,9 @@ List<ToolbarItem> defaultToolbarItems = [
   ToolbarItem(
     id: 'appflowy.toolbar.code',
     type: 2,
-    tooltipsMessage: AppFlowyEditorLocalizations.current.embedCode,
+    tooltipsMessage: AppFlowyEditorLocalizations.current.embedCode +
+        "\n" +
+        (Platform.isMacOS ? "⌘ + E" : "CTRL + E"),
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/code',
       color: isHighlight ? Colors.lightBlue : null,
@@ -241,7 +252,9 @@ List<ToolbarItem> defaultToolbarItems = [
   ToolbarItem(
     id: 'appflowy.toolbar.link',
     type: 4,
-    tooltipsMessage: AppFlowyEditorLocalizations.current.link,
+    tooltipsMessage: AppFlowyEditorLocalizations.current.link +
+        "\n" +
+        (Platform.isMacOS ? "⌘ + K" : "CTRL + K"),
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/link',
       color: isHighlight ? Colors.lightBlue : null,
@@ -257,7 +270,9 @@ List<ToolbarItem> defaultToolbarItems = [
   ToolbarItem(
     id: 'appflowy.toolbar.highlight',
     type: 4,
-    tooltipsMessage: AppFlowyEditorLocalizations.current.highlight,
+    tooltipsMessage: AppFlowyEditorLocalizations.current.highlight +
+        "\n" +
+        (Platform.isMacOS ? "⌘ + SHIFT + H" : "CTRL + SHIFT + H"),
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/highlight',
       color: isHighlight ? Colors.lightBlue : null,
