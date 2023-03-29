@@ -216,7 +216,7 @@ impl Folder2Manager {
     }
     let view = view_from_create_view_params(params, view_layout);
     self.folder.lock().insert_view(view.clone());
-    notify_parent_view_did_change(self.folder.clone(), vec![view.bid.clone()]).await;
+    notify_parent_view_did_change(self.folder.clone(), vec![view.bid.clone()]);
     Ok(view)
   }
 
@@ -300,12 +300,16 @@ impl Folder2Manager {
   }
 
   #[tracing::instrument(level = "debug", skip(self), err)]
-  pub async fn move_view(&self, bid: &str, from: usize, to: usize) -> FlowyResult<()> {
-    self
-      .folder
-      .lock()
-      .belongings
-      .move_belonging(bid, from as u32, to as u32);
+  pub async fn move_view(&self, view_id: &str, from: usize, to: usize) -> FlowyResult<()> {
+    let folder = self.folder.lock();
+    match folder.move_view(view_id, from as u32, to as u32) {
+      None => {
+        tracing::error!("Couldn't find the view. It should not be empty");
+      },
+      Some(view) => {
+        notify_parent_view_did_change(self.folder.clone(), vec![view.bid]);
+      },
+    }
     Ok(())
   }
 
@@ -334,6 +338,8 @@ impl Folder2Manager {
         send_notification(&view.id, FolderNotification::DidUpdateView)
           .payload(view_pb)
           .send();
+
+        notify_parent_view_did_change(self.folder.clone(), vec![view.bid.clone()]);
         Ok(view)
       },
     }
@@ -444,11 +450,11 @@ fn listen_on_view_change(mut rx: ViewChangeReceiver, folder: Folder) {
     while let Ok(value) = rx.recv().await {
       match value {
         ViewChange::DidCreateView { view } => {
-          notify_parent_view_did_change(folder.clone(), vec![view.bid]).await;
+          notify_parent_view_did_change(folder.clone(), vec![view.bid]);
         },
         ViewChange::DidDeleteView { views: _ } => {},
         ViewChange::DidUpdate { view } => {
-          notify_parent_view_did_change(folder.clone(), vec![view.bid]).await;
+          notify_parent_view_did_change(folder.clone(), vec![view.bid]);
         },
       };
     }
@@ -469,7 +475,7 @@ fn listen_on_trash_change(mut rx: TrashChangeReceiver, folder: Folder) {
         unique_ids.insert(view.bid);
       }
       let parent_view_ids = unique_ids.into_iter().collect();
-      notify_parent_view_did_change(folder.clone(), parent_view_ids).await;
+      notify_parent_view_did_change(folder.clone(), parent_view_ids);
 
       let repeated_trash: RepeatedTrashPB = folder.lock().trash.get_all_trash().into();
       send_notification("trash", FolderNotification::DidUpdateTrash)
@@ -480,7 +486,7 @@ fn listen_on_trash_change(mut rx: TrashChangeReceiver, folder: Folder) {
 }
 
 #[tracing::instrument(level = "debug", skip(folder, parent_view_ids))]
-async fn notify_parent_view_did_change<T: AsRef<str>>(
+fn notify_parent_view_did_change<T: AsRef<str>>(
   folder: Folder,
   parent_view_ids: Vec<T>,
 ) -> Option<()> {
@@ -495,6 +501,9 @@ async fn notify_parent_view_did_change<T: AsRef<str>>(
 
   for parent_view_id in parent_view_ids {
     let parent_view_id = parent_view_id.as_ref();
+
+    // if the view's bid is equal to workspace id. Then it will fetch the current
+    // workspace views. Because the the workspace is not a view stored in the views map.
     if parent_view_id == workspace_id {
       let mut child_views = folder.get_views_belong_to_current_workspace();
       child_views.retain(|view| !trash_ids.contains(&view.id));
@@ -503,10 +512,14 @@ async fn notify_parent_view_did_change<T: AsRef<str>>(
         .payload(repeated_view)
         .send();
     } else {
+      // Parent view can contain a list of child views. Currently, only get the first level
+      // child views.
       let parent_view = folder.views.get_view(parent_view_id)?;
       let mut child_views = folder.views.get_views_belong_to(parent_view_id);
       child_views.retain(|view| !trash_ids.contains(&view.id));
       event!(Level::DEBUG, child_views_count = child_views.len());
+
+      // Post the notification
       let mut parent_view_pb: ViewPB = parent_view.into();
       parent_view_pb.belongings = child_views
         .into_iter()

@@ -271,19 +271,19 @@ pub struct MoveFolderItemPayloadPB {
   pub ty: MoveFolderItemType,
 }
 
-pub struct MoveFolderItemParams {
+pub struct MoveViewParams {
   pub item_id: String,
   pub from: usize,
   pub to: usize,
   pub ty: MoveFolderItemType,
 }
 
-impl TryInto<MoveFolderItemParams> for MoveFolderItemPayloadPB {
+impl TryInto<MoveViewParams> for MoveFolderItemPayloadPB {
   type Error = ErrorCode;
 
-  fn try_into(self) -> Result<MoveFolderItemParams, Self::Error> {
+  fn try_into(self) -> Result<MoveViewParams, Self::Error> {
     let view_id = ViewIdentify::parse(self.item_id)?.0;
-    Ok(MoveFolderItemParams {
+    Ok(MoveViewParams {
       item_id: view_id,
       from: self.from as usize,
       to: self.to as usize,

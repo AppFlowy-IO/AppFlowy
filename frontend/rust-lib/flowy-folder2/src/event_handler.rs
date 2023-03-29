@@ -1,8 +1,8 @@
 use crate::entities::{
   CreateViewParams, CreateViewPayloadPB, CreateWorkspaceParams, CreateWorkspacePayloadPB,
-  MoveFolderItemParams, MoveFolderItemPayloadPB, RepeatedTrashIdPB, RepeatedTrashPB,
-  RepeatedViewIdPB, RepeatedViewPB, RepeatedWorkspacePB, TrashIdPB, UpdateViewParams,
-  UpdateViewPayloadPB, ViewIdPB, ViewPB, WorkspaceIdPB, WorkspacePB, WorkspaceSettingPB,
+  MoveFolderItemPayloadPB, MoveViewParams, RepeatedTrashIdPB, RepeatedTrashPB, RepeatedViewIdPB,
+  RepeatedViewPB, RepeatedWorkspacePB, TrashIdPB, UpdateViewParams, UpdateViewPayloadPB, ViewIdPB,
+  ViewPB, WorkspaceIdPB, WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager::Folder2Manager;
 use collab_folder::core::View;
@@ -130,7 +130,6 @@ pub(crate) async fn delete_view_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn set_latest_view_handler(
   data: AFPluginData<ViewIdPB>,
   folder: AFPluginState<Arc<Folder2Manager>>,
@@ -150,11 +149,11 @@ pub(crate) async fn close_view_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn move_item_handler(
+pub(crate) async fn move_view_handler(
   data: AFPluginData<MoveFolderItemPayloadPB>,
   folder: AFPluginState<Arc<Folder2Manager>>,
 ) -> Result<(), FlowyError> {
-  let params: MoveFolderItemParams = data.into_inner().try_into()?;
+  let params: MoveViewParams = data.into_inner().try_into()?;
   folder
     .move_view(&params.item_id, params.from, params.to)
     .await?;
