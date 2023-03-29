@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/blocks/bullet_list_block/bulleted_list_block.dart';
 import 'package:appflowy_editor/src/blocks/text_block/text_node_widget_builder.dart';
 import 'package:appflowy_editor/src/flutter/overlay.dart';
 import 'package:appflowy_editor/src/render/editor/editor_entry.dart';
@@ -16,6 +17,7 @@ import 'package:provider/provider.dart';
 NodeWidgetBuilders defaultBuilders = {
   'editor': EditorEntryWidgetBuilder(),
   'text': TextBlockBuilder(),
+  'bulleted_list': BulletedListBlockBuilder(),
   // 'text': RichTextNodeWidgetBuilder(),
   'text/checkbox': CheckboxNodeWidgetBuilder(),
   'text/heading': HeadingTextNodeWidgetBuilder(),

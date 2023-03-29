@@ -52,7 +52,7 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
     _editorState.service.selectionServiceV2.addListenr(_onSelectionChanged);
 
     final selection = _editorState.service.selectionServiceV2.selection;
-    final textSelection = textSelectionFromEditorSelection(selection);
+    final textSelection = _textSelectionFromEditorSelection(selection);
 
     final text = _buildTextSpan(widget.textNode);
     return MouseRegion(
@@ -80,7 +80,7 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
       _selectionState.updateTextSelection(null);
       return;
     }
-    final textSelection = textSelectionFromEditorSelection(selection);
+    final textSelection = _textSelectionFromEditorSelection(selection);
     if (_cacheSelection == textSelection) {
       return;
     }
@@ -164,7 +164,7 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
     }
   }
 
-  TextSelection? textSelectionFromEditorSelection(Selection? selection) {
+  TextSelection? _textSelectionFromEditorSelection(Selection? selection) {
     if (selection == null) {
       return null;
     }
