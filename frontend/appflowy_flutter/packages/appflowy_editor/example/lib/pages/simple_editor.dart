@@ -50,7 +50,6 @@ class SimpleEditor extends StatelessWidget {
               kMathEquationType: MathEquationNodeWidgetBuidler(),
               // Code Block
               kCodeBlockType: CodeBlockNodeWidgetBuilder(),
-              'text_block': TextBlockBuilder(),
             },
             shortcutEvents: [
               // Divider

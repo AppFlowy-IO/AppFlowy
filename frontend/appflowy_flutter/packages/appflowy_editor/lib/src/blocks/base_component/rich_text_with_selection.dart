@@ -97,6 +97,15 @@ class RichTextWithSelectionState extends State<RichTextWithSelection> {
     return TextPosition(offset: baseOffset);
   }
 
+  Rect getCaretRect(TextPosition textPosition) {
+    final cursorAres = _getCursorAreaForSelection(textPosition);
+    if (cursorAres.isNotEmpty) {
+      return cursorAres.first;
+    }
+    assert(false);
+    return Rect.zero;
+  }
+
   Future<void> _clearSelection() async {
     _selectionAreaOverlays
       ..forEach((area) => area.remove())

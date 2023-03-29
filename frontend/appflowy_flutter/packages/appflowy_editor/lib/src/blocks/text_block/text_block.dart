@@ -1,28 +1,15 @@
 import 'dart:async';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/blocks/base_component/input/input_service.dart';
 import 'package:appflowy_editor/src/blocks/base_component/rich_text_with_selection.dart';
 import 'package:appflowy_editor/src/render/selection/v2/selectable_v2.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
-
-class TextBlockBuilder extends NodeWidgetBuilder<TextNode> {
-  @override
-  Widget build(NodeWidgetContext<TextNode> context) {
-    return TextBlock(
-      key: context.node.key,
-      textNode: context.node,
-    );
-  }
-
-  @override
-  NodeValidator<Node> get nodeValidator => (node) {
-        return true;
-      };
-}
 
 class TextBlock extends StatefulWidget {
   const TextBlock({
@@ -44,24 +31,27 @@ class TextBlock extends StatefulWidget {
 
 class _TextBlockState extends State<TextBlock> with SelectableState {
   final GlobalKey _key = GlobalKey();
+
+  late final _editorState = Provider.of<EditorState>(context, listen: false);
+
+  TextInputService? _inputService;
+  TextSelection? _cacheSelection;
+
   RichTextWithSelectionState get _selectionState =>
       _key.currentState as RichTextWithSelectionState;
 
-  late final editorState = Provider.of<EditorState>(context, listen: false);
-
-  TextSelection? _cacheSelection;
-
   @override
   void dispose() {
-    editorState.service.selectionServiceV2.removeListerner(_onSelectionChanged);
+    _editorState.service.selectionServiceV2
+        .removeListerner(_onSelectionChanged);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    editorState.service.selectionServiceV2.addListenr(_onSelectionChanged);
+    _editorState.service.selectionServiceV2.addListenr(_onSelectionChanged);
 
-    final selection = editorState.service.selectionServiceV2.selection;
+    final selection = _editorState.service.selectionServiceV2.selection;
     final textSelection = textSelectionFromEditorSelection(selection);
 
     final text = _buildTextSpan(widget.textNode);
@@ -98,9 +88,80 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
     _selectionState.updateTextSelection(textSelection);
   }
 
+  void _buildDeltaInputServiceIfNeed() {
+    _inputService ??= DeltaTextInputService(
+      onInsert: _onInsert,
+      onDelete: _onDelete,
+      onReplace: _onReplace,
+      onNonTextUpdate: _onNonTextUpdate,
+    );
+  }
+
+  void _attachInputService() {
+    assert(_inputService != null && _cacheSelection != null);
+    if (_cacheSelection == null) {
+      return;
+    }
+    Log.input.debug('attach input service');
+    final plainText = widget.textNode.toPlainText();
+    final value = TextEditingValue(
+      text: plainText,
+      selection: _cacheSelection!,
+      composing:
+          _inputService?.composingTextRange ?? const TextRange.collapsed(-1),
+    );
+    _inputService?.attach(value);
+    final renderBox = _key.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox != null) {
+      final size = renderBox.size;
+      final transform = renderBox.getTransformTo(null);
+      final rect = _selectionState.getCaretRect(TextPosition(
+        offset: _cacheSelection!.extentOffset,
+      ));
+      _inputService?.updateCaretPosition(size, transform, rect);
+    }
+  }
+
+  void _closeInputService() {
+    if (_inputService == null) {
+      return;
+    }
+    Log.input.debug('close input service');
+    _inputService?.close();
+    _inputService = null;
+  }
+
+  Future<void> _onInsert(TextEditingDeltaInsertion insertion) async {
+    Log.input.debug('[Insert]: $insertion');
+  }
+
+  Future<void> _onDelete(TextEditingDeltaDeletion deletion) async {
+    Log.input.debug('[Delete]: $deletion');
+  }
+
+  Future<void> _onReplace(TextEditingDeltaReplacement replacement) async {
+    Log.input.debug('[Replace]: $replacement');
+  }
+
+  Future<void> _onNonTextUpdate(
+    TextEditingDeltaNonTextUpdate nonTextUpdate,
+  ) async {
+    Log.input.debug('[NonTextUpdate]: $nonTextUpdate');
+  }
+
   void _onSelectionChanged() {
-    final selection = editorState.service.selectionServiceV2.selection;
+    final selection = _editorState.service.selectionServiceV2.selection;
     setSelectionV2(selection);
+
+    // if the selection.isCollapsed, we should show the input service
+    if (selection != null &&
+        selection.isSingle &&
+        selection.start.path.equals(widget.textNode.path)) {
+      _buildDeltaInputServiceIfNeed();
+      _attachInputService();
+    } else {
+      _closeInputService();
+    }
   }
 
   TextSelection? textSelectionFromEditorSelection(Selection? selection) {
@@ -152,7 +213,7 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
 
   TextSpan _buildTextSpan(TextNode textNode) {
     List<TextSpan> textSpans = [];
-    final style = editorState.editorStyle;
+    final style = _editorState.editorStyle;
     final textInserts = textNode.delta.whereType<TextInsert>();
     for (final textInsert in textInserts) {
       var textStyle = style.textStyle!;

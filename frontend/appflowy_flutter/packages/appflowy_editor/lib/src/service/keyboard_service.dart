@@ -72,6 +72,7 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
 
   @override
   Widget build(BuildContext context) {
+    return widget.child;
     return Focus(
       focusNode: _focusNode,
       onKey: _onKey,
@@ -117,6 +118,7 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
 
   @override
   KeyEventResult onKey(RawKeyEvent event) {
+    return KeyEventResult.ignored;
     if (!isFocus) {
       return KeyEventResult.ignored;
     }
