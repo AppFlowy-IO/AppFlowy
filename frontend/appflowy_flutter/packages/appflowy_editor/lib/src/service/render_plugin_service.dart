@@ -174,10 +174,7 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
 
   Widget _buildWithActions(
       NodeWidgetBuilder builder, NodeWidgetContext context) {
-    final child = _SelectionWrapper(
-      node: context.node,
-      child: builder.build(context),
-    );
+    final child = builder.build(context);
     if (builder is ActionProvider) {
       return ChangeNotifierProvider(
         create: (_) => ActionMenuState(context.node.path),
@@ -200,34 +197,5 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
     if (_builders.containsKey(name)) {
       throw Exception('Plugin name($name) already exists.');
     }
-  }
-}
-
-class _SelectionWrapper extends StatefulWidget {
-  const _SelectionWrapper({
-    required this.node,
-    required this.child,
-  });
-
-  final Node node;
-  final Widget child;
-
-  @override
-  State<_SelectionWrapper> createState() => __SelectionWrapperState();
-}
-
-class __SelectionWrapperState extends State<_SelectionWrapper> {
-  @override
-  Widget build(BuildContext context) {
-    print('[optimize] +++, ${widget.node.path}');
-    selectables.add(widget.node);
-    return widget.child;
-  }
-
-  @override
-  void dispose() {
-    print('[optimize] ---, ${widget.node.path}');
-    selectables.remove(widget.node);
-    super.dispose();
   }
 }

@@ -107,6 +107,7 @@ class RichTextWithSelectionState extends State<RichTextWithSelection> {
   }
 
   Future<void> _clearSelection() async {
+    print('mark: clear selection');
     _selectionAreaOverlays
       ..forEach((area) => area.remove())
       ..clear();

@@ -155,7 +155,6 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
               editorState: editorState,
               child: SelectionAndScroll(
                 key: editorState.service.selectionAndScrollServiceKey,
-                nodes: nodes,
               ),
             ),
           ),

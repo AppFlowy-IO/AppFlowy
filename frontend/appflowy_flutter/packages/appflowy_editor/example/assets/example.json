@@ -62,44 +62,6 @@
                   },
                   { "insert": " for " },
                   { "insert": "Flutter", "attributes": { "underline": true } }
-                ],
-                "children": [
-                  {
-                    "type": "text",
-                    "delta": [
-                      { "insert": "3.1 AppFlowy Editor is a" },
-                      { "insert": " " },
-                      {
-                        "insert": "highly customizable",
-                        "attributes": { "bold": true }
-                      },
-                      { "insert": " " },
-                      {
-                        "insert": "rich-text editor",
-                        "attributes": { "italic": true }
-                      },
-                      { "insert": " for " },
-                      {
-                        "insert": "Flutter",
-                        "attributes": { "underline": true }
-                      }
-                    ],
-                    "children": [
-                      {
-                        "type": "bulleted_list",
-                        "children": [
-                          {
-                            "type": "text",
-                            "delta": [
-                              {
-                                "insert": "4.1 AppFlowy Editor is a AppFlowy Editor is a AppFlowy Editor is a AppFlowy Editor is a AppFlowy Editor is a AppFlowy Editor is a AppFlowy Editor is a"
-                              }
-                            ]
-                          }
-                        ]
-                      }
-                    ]
-                  }
                 ]
               }
             ]

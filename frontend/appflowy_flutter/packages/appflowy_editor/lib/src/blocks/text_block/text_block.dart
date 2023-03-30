@@ -50,18 +50,24 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _editorState.service.selectionServiceV2.addListener(_onSelectionChanged);
+      if (mounted) {
+        _editorState.service.selectionServiceV2
+            .addListener(_onSelectionChanged);
+      }
     });
   }
 
   @override
   void dispose() {
     _editorState.service.selectionServiceV2.removeListener(_onSelectionChanged);
+    _closeInputService();
+    _focusNode?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    print('[TextBlock rebuild]');
     final text = _buildTextSpan(widget.textNode);
     final selection = _editorState.service.selectionServiceV2.selection;
     final textSelection = _textSelectionFromEditorSelection(selection);
@@ -204,6 +210,7 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
       _attachInputService();
 
       // shortcuts
+      print('came here!');
       _focusNode?.requestFocus();
     } else {
       // input

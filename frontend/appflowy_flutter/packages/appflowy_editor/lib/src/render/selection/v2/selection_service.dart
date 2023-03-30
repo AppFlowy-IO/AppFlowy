@@ -20,10 +20,7 @@ abstract class ScrollService {
 class SelectionAndScroll extends StatefulWidget {
   const SelectionAndScroll({
     super.key,
-    required this.nodes,
   });
-
-  final List<Node> nodes;
 
   @override
   State<SelectionAndScroll> createState() => _SelectionAndScrollState();
@@ -43,8 +40,9 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
   Position? _startPosition;
   Position? _endPosition;
 
-  List<Node> get nodes => widget.nodes;
-  EditorState get editorState => Provider.of<EditorState>(context);
+  List<Node> nodes = [];
+  EditorState get editorState =>
+      Provider.of<EditorState>(context, listen: false);
 
   @override
   Selection? get selection {
@@ -60,6 +58,21 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // Not a good idea to rebuild the whole list when the root changes.
+    {
+      nodes = editorState.document.root.children.toList(growable: false);
+      editorState.document.root.addListener(_updateNodes);
+    }
+  }
+
+  @override
+  void dispose() {
+    {
+      editorState.document.root.removeListener(_updateNodes);
+    }
+    visibleNodes.clear();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override
@@ -79,10 +92,13 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
           final child = _buildChild(context, node);
           return _SelectionWrapper(
             onCreate: () {
-              print('visibleNodes count = ${visibleNodes.length}');
               visibleNodes.add(node);
+              print('+++ visibleNodes count = ${visibleNodes.length}');
             },
-            onDispose: () => visibleNodes.remove(node),
+            onDispose: () {
+              visibleNodes.remove(node);
+              print('--- visibleNodes count = ${visibleNodes.length}');
+            },
             child: child,
           );
         },
@@ -101,13 +117,6 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
       // optimize it.
       _selection.notifyListeners();
     }
-  }
-
-  @override
-  void dispose() {
-    visibleNodes.clear();
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
   }
 
   @override
@@ -161,6 +170,10 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
               editorState: editorState,
             ),
     );
+  }
+
+  void _updateNodes() {
+    nodes = editorState.document.root.children.toList(growable: false);
   }
 
   Node? _binarySearchNode(
