@@ -1,5 +1,6 @@
 use crate::entities::{UserProfilePB, UserSettingPB};
 use crate::event_map::UserStatusCallback;
+use crate::uid::UserIDGenerator;
 use crate::{
   errors::{ErrorCode, FlowyError},
   event_map::UserCloudService,
@@ -14,6 +15,8 @@ use flowy_sqlite::{
   schema::{user_table, user_table::dsl},
   DBConnection, ExpressionMethods, UserDatabaseConnection,
 };
+use lazy_static::lazy_static;
+use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -21,6 +24,9 @@ use user_model::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
 
+lazy_static! {
+  static ref ID_GEN: Mutex<UserIDGenerator> = Mutex::new(UserIDGenerator::new(1));
+}
 pub struct UserSessionConfig {
   root_dir: String,
 
@@ -60,6 +66,42 @@ impl UserSession {
   }
 
   pub async fn init<C: UserStatusCallback + 'static>(&self, user_status_callback: C) {
+    // if let Some(old_session) = self.get_old_session() {
+    //   let uid = ID_GEN.lock().next_id();
+    //   let _ = user_status_callback
+    //     .will_migrated(&old_session.token, &old_session.user_id, uid)
+    //     .await;
+    //
+    //   let new_session = Session {
+    //     user_id: uid,
+    //     token: old_session.token.clone(),
+    //     email: old_session.email.clone(),
+    //     name: old_session.name.clone(),
+    //   };
+    //   self.set_session(Some(new_session)).unwrap();
+    //
+    //   if let Ok(db) = self.db_connection() {
+    //     // Update db
+    //     let _ = db.immediate_transaction(|| {
+    //       // get the user data
+    //       let mut user = dsl::user_table
+    //         .filter(user_table::id.eq(&old_session.user_id))
+    //         .first::<UserTable>(&*db)?;
+    //
+    //       // delete the existing row
+    //       let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&old_session.user_id)))
+    //         .execute(&*db)?;
+    //
+    //       // insert new row
+    //       user.id = uid.to_string();
+    //       let _ = diesel::insert_into(user_table::table)
+    //         .values(user)
+    //         .execute(&*db)?;
+    //       Ok::<(), FlowyError>(())
+    //     });
+    //   }
+    // }
+
     if let Ok(session) = self.get_session() {
       let _ = user_status_callback
         .did_sign_in(&session.token, session.user_id)
@@ -296,6 +338,11 @@ impl UserSession {
     }
   }
 
+  // fn get_old_session(&self) -> Option<OldSession> {
+  //   let s = KV::get_str(&self.config.session_cache_key)?;
+  //   serde_json::from_str::<OldSession>(&s).ok()
+  // }
+
   fn is_user_login(&self, email: &str) -> bool {
     match self.get_session() {
       Ok(session) => session.email == email,
@@ -379,4 +426,13 @@ impl std::convert::From<Session> for String {
       },
     }
   }
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+struct OldSession {
+  user_id: String,
+  token: String,
+  email: String,
+  #[serde(default)]
+  name: String,
 }

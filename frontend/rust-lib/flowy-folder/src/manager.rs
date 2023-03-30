@@ -172,7 +172,7 @@ impl FolderManager {
 
     let pool = self.persistence.db_pool()?;
     let object_id = folder_id.as_ref();
-    let disk_cache = SQLiteFolderRevisionPersistence::new(user_id, pool.clone());
+    let disk_cache = SQLiteFolderRevisionPersistence::new(pool.clone());
     let configuration = RevisionPersistenceConfiguration::new(200, false);
     let rev_persistence = RevisionPersistence::new(object_id, disk_cache, configuration);
     let rev_compactor = FolderRevisionMergeable();

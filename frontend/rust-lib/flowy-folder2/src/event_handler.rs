@@ -68,7 +68,7 @@ pub async fn read_cur_workspace_setting_handler(
   folder: AFPluginState<Arc<Folder2Manager>>,
 ) -> DataResult<WorkspaceSettingPB, FlowyError> {
   let workspace: WorkspacePB = folder.get_current_workspace().await?.into();
-  let latest_view: Option<ViewPB> = folder.get_current_view().await.map(|view| view);
+  let latest_view: Option<ViewPB> = folder.get_current_view().await;
   data_result_ok(WorkspaceSettingPB {
     workspace,
     latest_view,

@@ -1,6 +1,7 @@
 mod deps_resolve;
 pub mod module;
 use crate::deps_resolve::*;
+
 use flowy_client_ws::{listen_on_websocket, FlowyWebSocketConnect, NetworkType};
 use flowy_database::entities::LayoutTypePB;
 use flowy_database::manager::DatabaseManager;
@@ -304,7 +305,6 @@ impl UserStatusListener {
   async fn did_sign_in(&self, token: &str, user_id: i64) -> FlowyResult<()> {
     self.folder_manager.initialize(user_id).await?;
     self.document_manager.initialize(user_id).await?;
-
     let cloned_folder_manager = self.folder_manager.clone();
     let get_views_fn = to_fut(async move {
       cloned_folder_manager
@@ -385,5 +385,10 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let token = token.to_owned();
     let user_id = user_id.to_owned();
     to_fut(async move { listener.did_expired(&token, user_id).await })
+  }
+
+  fn will_migrated(&self, _token: &str, _old_user_id: &str, _user_id: i64) -> Fut<FlowyResult<()>> {
+    // Read the folder data
+    todo!()
   }
 }
