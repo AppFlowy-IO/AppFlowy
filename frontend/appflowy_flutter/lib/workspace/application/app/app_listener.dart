@@ -33,6 +33,7 @@ class AppListener {
   void _handleCallback(
       FolderNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
+      case FolderNotification.DidUpdateView:
       case FolderNotification.DidUpdateChildViews:
         if (_updated != null) {
           result.fold(

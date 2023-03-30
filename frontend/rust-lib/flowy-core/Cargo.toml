@@ -21,7 +21,6 @@ flowy-document = { path = "../flowy-document" }
 flowy-revision = { path = "../flowy-revision" }
 flowy-error = { path = "../flowy-error", features = ["adaptor_ws"] }
 flowy-task = { path = "../flowy-task" }
-flowy-client-sync = { path = "../flowy-client-sync"}
 collab-persistence= { path = "../../../../../Documents/proj/appflowy-collab/collab-persistence" }
 
 tracing = { version = "0.1", features = ["log"] }
@@ -64,7 +63,6 @@ rev-sqlite = [
     "flowy-sqlite",
     "flowy-user/rev-sqlite",
     "flowy-folder/rev-sqlite",
-    "flowy-folder2/rev-sqlite",
     "flowy-database/rev-sqlite",
     "flowy-document/rev-sqlite",
 ]

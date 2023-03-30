@@ -26,11 +26,12 @@ pub struct FolderEditor {
 }
 
 impl FolderEditor {
+  #[allow(unused_variables)]
   pub async fn new(
     folder_id: &FolderId,
     token: &str,
     mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
-    _web_socket: Arc<dyn RevisionWebSocket>,
+    web_socket: Arc<dyn RevisionWebSocket>,
   ) -> FlowyResult<Self> {
     let cloud = Arc::new(FolderRevisionCloudService {
       token: token.to_string(),

@@ -10,7 +10,6 @@ use crate::user_default::{gen_workspace_id, DefaultFolderBuilder};
 use crate::view_ext::{
   gen_view_id, view_from_create_view_params, ViewDataProcessor, ViewDataProcessorMap,
 };
-
 use collab::plugin_impl::disk::CollabDiskPlugin;
 use collab::preclude::CollabBuilder;
 use collab_folder::core::{
@@ -66,8 +65,18 @@ impl Folder2Manager {
 
   pub async fn get_current_workspace_views(&self) -> FlowyResult<Vec<View>> {
     let views = self.with_folder(vec![], |folder| {
-      folder.get_views_belong_to_current_workspace()
+      let trash_ids = folder
+        .trash
+        .get_all_trash()
+        .into_iter()
+        .map(|trash| trash.id)
+        .collect::<Vec<String>>();
+
+      let mut views = folder.get_views_belong_to_current_workspace();
+      views.retain(|view| !trash_ids.contains(&view.id));
+      views
     });
+
     Ok(views)
   }
 
@@ -325,12 +334,12 @@ impl Folder2Manager {
 
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn move_view(&self, view_id: &str, from: usize, to: usize) -> FlowyResult<()> {
-    let folder = self.folder.lock();
-    let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
-    match folder.move_view(view_id, from as u32, to as u32) {
-      None => {
-        tracing::error!("Couldn't find the view. It should not be empty");
-      },
+    let view = self.with_folder(None, |folder| {
+      folder.move_view(view_id, from as u32, to as u32)
+    });
+
+    match view {
+      None => tracing::error!("Couldn't find the view. It should not be empty"),
       Some(view) => {
         notify_parent_view_did_change(self.folder.clone(), vec![view.bid]);
       },
@@ -344,7 +353,7 @@ impl Folder2Manager {
     Ok(views)
   }
 
-  #[tracing::instrument(level = "debug", skip(self, params), err)]
+  #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn update_view_with_params(&self, params: UpdateViewParams) -> FlowyResult<View> {
     let view = self
       .folder
@@ -477,6 +486,7 @@ impl Folder2Manager {
   }
 }
 
+/// Listen on the [ViewChange] after create/delete/update events happened
 fn listen_on_view_change(mut rx: ViewChangeReceiver, folder: Folder) {
   tokio::spawn(async move {
     while let Ok(value) = rx.recv().await {
@@ -493,6 +503,7 @@ fn listen_on_view_change(mut rx: ViewChangeReceiver, folder: Folder) {
   });
 }
 
+/// Listen on the [TrashChange]s and notify the frontend some views were changed.
 fn listen_on_trash_change(mut rx: TrashChangeReceiver, folder: Folder) {
   tokio::spawn(async move {
     while let Ok(value) = rx.recv().await {

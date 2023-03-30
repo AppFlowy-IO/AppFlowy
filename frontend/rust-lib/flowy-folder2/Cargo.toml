@@ -27,11 +27,6 @@ strum_macros = "0.21"
 protobuf = {version = "2.28.0"}
 flowy-document = { path = "../flowy-document" }
 
-flowy-revision = { path = "../flowy-revision" }
-flowy-sqlite = { path = "../flowy-sqlite", optional = true }
-flowy-client-sync = { path = "../flowy-client-sync"}
-revision-model = { path = "../../../shared-lib/revision-model" }
-
 [dev-dependencies]
 flowy-folder2 = { path = "../flowy-folder2"}
 flowy-test = { path = "../flowy-test" }
@@ -42,5 +37,4 @@ flowy-codegen = { path = "../flowy-codegen"}
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 ts = ["flowy-codegen/ts", "flowy-notification/ts"]
-rev-sqlite = ["flowy-sqlite"]
 test_helper = []

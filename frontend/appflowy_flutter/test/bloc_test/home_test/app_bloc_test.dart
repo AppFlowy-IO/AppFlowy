@@ -21,7 +21,7 @@ void main() {
     bloc.add(const AppEvent.rename('Hello world'));
     await blocResponseFuture();
 
-    assert(bloc.state.view.name == 'Hello world');
+    expect(bloc.state.view.name, 'Hello world');
   });
 
   test('delete app test', () async {
@@ -33,7 +33,7 @@ void main() {
     await blocResponseFuture();
 
     final apps = await testContext.loadApps();
-    assert(apps.where((element) => element.id == app.id).isEmpty);
+    expect(apps.where((element) => element.id == app.id).isEmpty, true);
   });
 
   test('create documents in order', () async {

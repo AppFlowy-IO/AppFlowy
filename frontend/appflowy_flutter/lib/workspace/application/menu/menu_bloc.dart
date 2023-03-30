@@ -38,7 +38,17 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
           emit(state.copyWith(plugin: e.plugin));
         },
         createApp: (_CreateApp event) async {
-          await _performActionOnCreateApp(event, emit);
+          final result = await _workspaceService.createApp(
+            name: event.name,
+            desc: event.desc ?? "",
+          );
+          result.fold(
+            (app) => {},
+            (error) {
+              Log.error(error);
+              emit(state.copyWith(successOrFailure: right(error)));
+            },
+          );
         },
         didReceiveApps: (e) async {
           emit(e.appsOrFail.fold(
@@ -67,19 +77,6 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   Future<void> close() async {
     await _listener.stop();
     return super.close();
-  }
-
-  Future<void> _performActionOnCreateApp(
-      _CreateApp event, Emitter<MenuState> emit) async {
-    final result = await _workspaceService.createApp(
-        name: event.name, desc: event.desc ?? "");
-    result.fold(
-      (app) => {},
-      (error) {
-        Log.error(error);
-        emit(state.copyWith(successOrFailure: right(error)));
-      },
-    );
   }
 
   // ignore: unused_element

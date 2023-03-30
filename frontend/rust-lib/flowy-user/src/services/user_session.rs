@@ -1,6 +1,6 @@
 use crate::entities::{UserProfilePB, UserSettingPB};
 use crate::event_map::UserStatusCallback;
-use crate::uid::UserIDGenerator;
+
 use crate::{
   errors::{ErrorCode, FlowyError},
   event_map::UserCloudService,
@@ -15,8 +15,7 @@ use flowy_sqlite::{
   schema::{user_table, user_table::dsl},
   DBConnection, ExpressionMethods, UserDatabaseConnection,
 };
-use lazy_static::lazy_static;
-use parking_lot::Mutex;
+
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -24,9 +23,9 @@ use user_model::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
 
-lazy_static! {
-  static ref ID_GEN: Mutex<UserIDGenerator> = Mutex::new(UserIDGenerator::new(1));
-}
+// lazy_static! {
+//   static ref ID_GEN: Mutex<UserIDGenerator> = Mutex::new(UserIDGenerator::new(1));
+// }
 pub struct UserSessionConfig {
   root_dir: String,
 
