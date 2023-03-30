@@ -9,9 +9,12 @@ OverlayEntry? _imageUploadMenu;
 EditorState? _editorState;
 void showImageUploadMenu(
   EditorState editorState,
-  SelectionMenuService menuService,
+  SelectionMenuService? menuService,
   BuildContext context,
 ) {
+  if (menuService == null) {
+    return;
+  }
   menuService.dismiss();
 
   _imageUploadMenu?.remove();

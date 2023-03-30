@@ -29,10 +29,10 @@ class TextBlock extends StatefulWidget {
   final List<ShortcutEvent> shortcuts;
 
   @override
-  State<TextBlock> createState() => _TextBlockState();
+  State<TextBlock> createState() => TextBlockState();
 }
 
-class _TextBlockState extends State<TextBlock> with SelectableState {
+class TextBlockState extends State<TextBlock> with SelectableState {
   final GlobalKey _key = GlobalKey();
 
   late final _editorState = Provider.of<EditorState>(context, listen: false);
@@ -42,7 +42,7 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
 
   FocusNode? _focusNode;
 
-  RichTextWithSelectionState get _selectionState =>
+  RichTextWithSelectionState get selectionState =>
       _key.currentState as RichTextWithSelectionState;
 
   @override
@@ -70,7 +70,7 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
     print('[TextBlock rebuild]');
     final text = _buildTextSpan(widget.textNode);
     final selection = _editorState.service.selectionServiceV2.selection;
-    final textSelection = _textSelectionFromEditorSelection(selection);
+    final textSelection = textSelectionFromEditorSelection(selection);
     _cacheSelection = textSelection;
 
     Widget child = MouseRegion(
@@ -95,7 +95,7 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
 
   @override
   Position getPositionInOffset(Offset offset) {
-    final textPosition = _selectionState.getTextPositionInOffset(offset);
+    final textPosition = selectionState.getTextPositionInOffset(offset);
     return Position(
       path: widget.textNode.path,
       offset: textPosition.offset,
@@ -105,15 +105,15 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
   @override
   Future<void> setSelectionV2(Selection? selection) async {
     if (selection == null) {
-      _selectionState.updateTextSelection(null);
+      selectionState.updateTextSelection(null);
       return;
     }
-    final textSelection = _textSelectionFromEditorSelection(selection);
+    final textSelection = textSelectionFromEditorSelection(selection);
     if (_cacheSelection == textSelection) {
       return;
     }
     _cacheSelection = textSelection;
-    _selectionState.updateTextSelection(textSelection);
+    selectionState.updateTextSelection(textSelection);
   }
 
   void _buildDeltaInputServiceIfNeed() {
@@ -144,7 +144,7 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
     if (renderBox != null) {
       final size = renderBox.size;
       final transform = renderBox.getTransformTo(null);
-      final rect = _selectionState.getCaretRect(TextPosition(
+      final rect = selectionState.getCaretRect(TextPosition(
         offset: _cacheSelection!.extentOffset,
       ));
       _inputService?.updateCaretPosition(size, transform, rect);
@@ -210,7 +210,6 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
       _attachInputService();
 
       // shortcuts
-      print('came here!');
       _focusNode?.requestFocus();
     } else {
       // input
@@ -221,7 +220,7 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
     }
   }
 
-  TextSelection? _textSelectionFromEditorSelection(Selection? selection) {
+  TextSelection? textSelectionFromEditorSelection(Selection? selection) {
     if (selection == null) {
       return null;
     }

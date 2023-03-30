@@ -51,3 +51,4 @@ export 'src/render/action_menu/action_menu.dart';
 export 'src/render/action_menu/action_menu_item.dart';
 export 'src/core/document/node_iterator.dart';
 export 'src/blocks/text_block/text_block.dart';
+export 'src/blocks/toolbar/floating_toolbar.dart';

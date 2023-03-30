@@ -40,14 +40,14 @@ class RichTextWithSelection extends StatefulWidget {
 // Optimize it.
 class RichTextWithSelectionState extends State<RichTextWithSelection> {
   final GlobalKey _richTextKey = GlobalKey(debugLabel: 'Rich Text Key');
-  RenderParagraph get _renderParagraph =>
+  RenderParagraph get renderParagraph =>
       _richTextKey.currentContext?.findRenderObject() as RenderParagraph;
   final List<OverlayEntry> _selectionAreaOverlays = [];
-  final List<OverlayEntry> _cursorAreaOverlays = [];
+  final List<OverlayEntry> cursorAreaOverlays = [];
 
   TextSelection? _cacheSelection;
 
-  final LayerLink _layerLink = LayerLink();
+  final LayerLink layerLink = LayerLink();
 
   @override
   void initState() {
@@ -61,7 +61,7 @@ class RichTextWithSelectionState extends State<RichTextWithSelection> {
   @override
   Widget build(BuildContext context) {
     return CompositedTransformTarget(
-      link: _layerLink,
+      link: layerLink,
       child: Text.rich(
         key: _richTextKey,
         widget.text,
@@ -91,9 +91,8 @@ class RichTextWithSelectionState extends State<RichTextWithSelection> {
   }
 
   TextPosition getTextPositionInOffset(Offset offset) {
-    final localOffset = _renderParagraph.globalToLocal(offset);
-    final baseOffset =
-        _renderParagraph.getPositionForOffset(localOffset).offset;
+    final localOffset = renderParagraph.globalToLocal(offset);
+    final baseOffset = renderParagraph.getPositionForOffset(localOffset).offset;
     return TextPosition(offset: baseOffset);
   }
 
@@ -115,7 +114,7 @@ class RichTextWithSelectionState extends State<RichTextWithSelection> {
 
   Future<void> _clearCursor() async {
     print('mark: clear cursor');
-    _cursorAreaOverlays
+    cursorAreaOverlays
       ..forEach((area) => area.remove())
       ..clear();
   }
@@ -126,7 +125,7 @@ class RichTextWithSelectionState extends State<RichTextWithSelection> {
       selectionAreas.map(
         (area) => OverlayEntry(
           builder: (_) => SelectionWidget(
-            layerLink: _layerLink,
+            layerLink: layerLink,
             rect: area,
             color: widget.selectionColor,
           ),
@@ -139,30 +138,30 @@ class RichTextWithSelectionState extends State<RichTextWithSelection> {
   Future<void> _updateCursor(TextPosition textPosition) async {
     print('mark: update cursor');
     final cursorAreas = _getCursorAreaForSelection(textPosition);
-    _cursorAreaOverlays.addAll(
+    cursorAreaOverlays.addAll(
       cursorAreas.map(
         (area) => OverlayEntry(
           builder: (_) => CursorWidget(
-            layerLink: _layerLink,
+            layerLink: layerLink,
             rect: area,
             color: widget.cursorColor,
           ),
         ),
       ),
     );
-    Overlay.of(context)?.insertAll(_cursorAreaOverlays);
+    Overlay.of(context)?.insertAll(cursorAreaOverlays);
   }
 
   List<Rect> _getSelectionAreasForSelection(TextSelection textSelection) {
-    return _renderParagraph
+    return renderParagraph
         .getBoxesForSelection(textSelection)
         .map((box) => box.toRect())
         .toList(growable: false);
   }
 
   List<Rect> _getCursorAreaForSelection(TextPosition textPosition) {
-    var caretHeight = _renderParagraph.getFullHeightForCaret(textPosition);
-    var caretOffset = _renderParagraph.getOffsetForCaret(
+    var caretHeight = renderParagraph.getFullHeightForCaret(textPosition);
+    var caretOffset = renderParagraph.getOffsetForCaret(
       textPosition,
       Rect.zero,
     );

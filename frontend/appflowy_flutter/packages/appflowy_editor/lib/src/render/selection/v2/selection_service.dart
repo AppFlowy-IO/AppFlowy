@@ -41,8 +41,7 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
   Position? _endPosition;
 
   List<Node> nodes = [];
-  EditorState get editorState =>
-      Provider.of<EditorState>(context, listen: false);
+  late EditorState editorState;
 
   @override
   Selection? get selection {
@@ -58,6 +57,7 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    editorState = Provider.of<EditorState>(context, listen: false);
     // Not a good idea to rebuild the whole list when the root changes.
     {
       nodes = editorState.document.root.children.toList(growable: false);

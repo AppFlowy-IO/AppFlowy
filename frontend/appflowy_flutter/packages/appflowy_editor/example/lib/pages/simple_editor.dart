@@ -39,43 +39,46 @@ class SimpleEditor extends StatelessWidget {
             ..level = LogLevel.all;
           onEditorStateChange(editorState);
 
-          return AppFlowyEditor(
+          return FloatingToolbar(
             editorState: editorState,
-            autoFocus: editorState.document.isEmpty,
-            customBuilders: {
-              // Divider
-              kDividerType: DividerWidgetBuilder(),
-              // Math Equation
-              kMathEquationType: MathEquationNodeWidgetBuidler(),
-              // Code Block
-              kCodeBlockType: CodeBlockNodeWidgetBuilder(),
-            },
-            shortcutEvents: [
-              // Divider
-              insertDividerEvent,
-              // Code Block
-              enterInCodeBlock,
-              ignoreKeysInCodeBlock,
-              pasteInCodeBlock,
-            ],
-            selectionMenuItems: [
-              // Divider
-              dividerMenuItem,
-              // Math Equation
-              mathEquationMenuItem,
-              // Code Block
-              codeBlockMenuItem,
-              // Emoji
-              emojiMenuItem,
-              // Open AI
-              if (apiKey.isNotEmpty) ...[
-                autoCompletionMenuItem,
-                continueToWriteMenuItem,
-              ]
-            ],
-            toolbarItems: [
-              smartEditItem,
-            ],
+            child: AppFlowyEditor(
+              editorState: editorState,
+              autoFocus: editorState.document.isEmpty,
+              customBuilders: {
+                // Divider
+                kDividerType: DividerWidgetBuilder(),
+                // Math Equation
+                kMathEquationType: MathEquationNodeWidgetBuidler(),
+                // Code Block
+                kCodeBlockType: CodeBlockNodeWidgetBuilder(),
+              },
+              shortcutEvents: [
+                // Divider
+                insertDividerEvent,
+                // Code Block
+                enterInCodeBlock,
+                ignoreKeysInCodeBlock,
+                pasteInCodeBlock,
+              ],
+              selectionMenuItems: [
+                // Divider
+                dividerMenuItem,
+                // Math Equation
+                mathEquationMenuItem,
+                // Code Block
+                codeBlockMenuItem,
+                // Emoji
+                emojiMenuItem,
+                // Open AI
+                if (apiKey.isNotEmpty) ...[
+                  autoCompletionMenuItem,
+                  continueToWriteMenuItem,
+                ]
+              ],
+              toolbarItems: [
+                smartEditItem,
+              ],
+            ),
           );
         } else {
           return const Center(

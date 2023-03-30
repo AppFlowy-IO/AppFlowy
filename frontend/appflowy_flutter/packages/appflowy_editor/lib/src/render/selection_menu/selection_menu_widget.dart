@@ -1,13 +1,12 @@
 import 'dart:math';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/render/selection_menu/selection_menu_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 typedef SelectionMenuItemHandler = void Function(
   EditorState editorState,
-  SelectionMenuService menuService,
+  SelectionMenuService? menuService,
   BuildContext context,
 );
 
@@ -147,7 +146,7 @@ class SelectionMenuWidget extends StatefulWidget {
   final List<SelectionMenuItem> items;
   final int maxItemInRow;
 
-  final SelectionMenuService menuService;
+  final SelectionMenuService? menuService;
   final EditorState editorState;
 
   final VoidCallback onSelectionUpdate;
@@ -324,7 +323,8 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
       _deleteLastCharacters();
       return KeyEventResult.handled;
     } else if (event.character != null &&
-        !arrowKeys.contains(event.logicalKey) && event.logicalKey != LogicalKeyboardKey.tab) {
+        !arrowKeys.contains(event.logicalKey) &&
+        event.logicalKey != LogicalKeyboardKey.tab) {
       keyword += event.character!;
       _insertText(event.character!);
       return KeyEventResult.handled;

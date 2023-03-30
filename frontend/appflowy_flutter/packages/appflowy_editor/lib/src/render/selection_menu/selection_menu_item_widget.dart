@@ -14,7 +14,7 @@ class SelectionMenuItemWidget extends StatefulWidget {
   }) : super(key: key);
 
   final EditorState editorState;
-  final SelectionMenuService menuService;
+  final SelectionMenuService? menuService;
   final SelectionMenuItem item;
   final double width;
   final bool isSelected;

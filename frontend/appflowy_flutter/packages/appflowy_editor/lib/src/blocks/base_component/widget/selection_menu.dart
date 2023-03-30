@@ -1,20 +1,34 @@
 import 'package:flutter/material.dart';
 
-class SlashMenu extends StatefulWidget {
-  const SlashMenu({super.key});
-
-  @override
-  State<SlashMenu> createState() => _SlashMenuState();
-}
-
-class _SlashMenuState extends State<SlashMenu> {
-  @override
-  Widget build(BuildContext context) {
-    // Just a placeholder for now.
-    return Container(
-      width: 150,
-      height: 200,
-      color: Colors.black,
-    );
+extension FullScreenOverlayEntry on OverlayEntry {
+  static OverlayEntry build({
+    required VoidCallback onDismiss,
+    required Offset offset,
+    required Widget child,
+  }) {
+    return OverlayEntry(builder: (context) {
+      final size = MediaQuery.of(context).size;
+      return Stack(
+        children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            width: size.width,
+            height: size.height,
+            child: GestureDetector(
+              onTap: () => onDismiss(),
+              child: Container(
+                color: Colors.red.withOpacity(0.5),
+              ),
+            ),
+          ),
+          Positioned(
+            top: offset.dy,
+            left: offset.dx,
+            child: child,
+          )
+        ],
+      );
+    });
   }
 }
