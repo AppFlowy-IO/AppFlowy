@@ -78,7 +78,10 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
           final node = nodes[index];
           final child = _buildChild(context, node);
           return _SelectionWrapper(
-            onCreate: () => visibleNodes.add(node),
+            onCreate: () {
+              print('visibleNodes count = ${visibleNodes.length}');
+              visibleNodes.add(node);
+            },
             onDispose: () => visibleNodes.remove(node),
             child: child,
           );
@@ -182,8 +185,10 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
     }
     min = min.clamp(start, end);
     final node = sortedNodes[min];
-    if (node.children.isNotEmpty && node.children.first.rect.top <= offset.dy) {
-      final children = node.children.toList(growable: false);
+    final children = node.children
+        .where((element) => selectables.contains(element))
+        .toList(growable: false);
+    if (children.isNotEmpty && children.first.rect.top <= offset.dy) {
       return _binarySearchNode(
         children,
         offset,

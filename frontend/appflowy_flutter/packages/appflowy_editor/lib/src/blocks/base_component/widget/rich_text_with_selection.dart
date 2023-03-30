@@ -113,6 +113,7 @@ class RichTextWithSelectionState extends State<RichTextWithSelection> {
   }
 
   Future<void> _clearCursor() async {
+    print('mark: clear cursor');
     _cursorAreaOverlays
       ..forEach((area) => area.remove())
       ..clear();
@@ -135,6 +136,7 @@ class RichTextWithSelectionState extends State<RichTextWithSelection> {
   }
 
   Future<void> _updateCursor(TextPosition textPosition) async {
+    print('mark: update cursor');
     final cursorAreas = _getCursorAreaForSelection(textPosition);
     _cursorAreaOverlays.addAll(
       cursorAreas.map(

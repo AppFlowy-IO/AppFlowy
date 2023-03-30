@@ -1,5 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/blocks/base_component/nested_list.dart';
+import 'package:appflowy_editor/src/blocks/base_component/widget/nested_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

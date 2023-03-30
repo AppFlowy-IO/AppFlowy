@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/blocks/base_component/input/input_service.dart';
-import 'package:appflowy_editor/src/blocks/base_component/rich_text_with_selection.dart';
+import 'package:appflowy_editor/src/blocks/base_component/shortcuts/shortcut_service.dart';
+import 'package:appflowy_editor/src/blocks/base_component/widget/rich_text_with_selection.dart';
 import 'package:appflowy_editor/src/render/selection/v2/selectable_v2.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -18,12 +19,14 @@ class TextBlock extends StatefulWidget {
     this.onDebugMode = true,
     this.onTap,
     this.onDoubleTap,
+    this.shortcuts = const [],
   });
 
   final TextNode textNode;
   final bool onDebugMode;
   final Future<void> Function(Map<String, dynamic> values)? onTap;
   final Future<void> Function(Map<String, dynamic> values)? onDoubleTap;
+  final List<ShortcutEvent> shortcuts;
 
   @override
   State<TextBlock> createState() => _TextBlockState();
@@ -37,8 +40,19 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
   TextInputService? _inputService;
   TextSelection? _cacheSelection;
 
+  FocusNode? _focusNode;
+
   RichTextWithSelectionState get _selectionState =>
       _key.currentState as RichTextWithSelectionState;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _editorState.service.selectionServiceV2.addListener(_onSelectionChanged);
+    });
+  }
 
   @override
   void dispose() {
@@ -48,14 +62,12 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
 
   @override
   Widget build(BuildContext context) {
-    _editorState.service.selectionServiceV2.addListener(_onSelectionChanged);
-
+    final text = _buildTextSpan(widget.textNode);
     final selection = _editorState.service.selectionServiceV2.selection;
     final textSelection = _textSelectionFromEditorSelection(selection);
+    _cacheSelection = textSelection;
 
-    final text = _buildTextSpan(widget.textNode);
-
-    return MouseRegion(
+    Widget child = MouseRegion(
       cursor: SystemMouseCursors.text,
       child: RichTextWithSelection(
         key: _key,
@@ -63,6 +75,16 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
         textSelection: textSelection,
       ),
     );
+
+    if (widget.shortcuts.isNotEmpty) {
+      child = BlockShortcuts(
+        focusNode: _focusNode ??= FocusNode(),
+        shortcuts: widget.shortcuts,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   @override
@@ -97,6 +119,7 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
     );
   }
 
+  // TODO: DON'T attach the input service every time.
   void _attachInputService() {
     assert(_inputService != null && _cacheSelection != null);
     if (_cacheSelection == null) {
@@ -176,10 +199,18 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
     if (selection != null &&
         selection.isSingle &&
         selection.start.path.equals(widget.textNode.path)) {
+      // input
       _buildDeltaInputServiceIfNeed();
       _attachInputService();
+
+      // shortcuts
+      _focusNode?.requestFocus();
     } else {
+      // input
       _closeInputService();
+
+      // shortcuts
+      _focusNode?.unfocus();
     }
   }
 

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy_editor/src/blocks/base_component/shortcuts/block_shortcut.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/keybinding.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
 import 'package:flutter/foundation.dart';
@@ -10,6 +11,7 @@ class ShortcutEvent {
     required this.key,
     this.character,
     this.command,
+    this.blockShortcutHandler,
     required this.handler,
     String? windowsCommand,
     String? macOSCommand,
@@ -65,6 +67,7 @@ class ShortcutEvent {
   String? character;
 
   final ShortcutEventHandler handler;
+  final BlockShortcutHandler? blockShortcutHandler;
 
   List<Keybinding> get keybindings => _keybindings;
   List<Keybinding> _keybindings = [];
