@@ -151,7 +151,7 @@ class FlowyHoverContainer extends StatelessWidget {
               .iconTheme
               .copyWith(color: Theme.of(context).colorScheme.onSurface),
         ),
-        child: child!,
+        child: child ?? const SizedBox.shrink(),
       ),
     );
   }
