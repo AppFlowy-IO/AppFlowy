@@ -149,7 +149,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
                     FlowyButton(
                       leftIcon: svgWidget(
                         _iconName(value),
-                        color: Theme.of(context).colorScheme.onSurface,
+                        color: Theme.of(context).iconTheme.color,
                       ),
                       text: FlowyText.regular(value.name),
                       onTap: () => widget.onSelected(app.value1, value),

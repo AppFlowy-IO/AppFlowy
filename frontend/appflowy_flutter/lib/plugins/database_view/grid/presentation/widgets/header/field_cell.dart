@@ -168,7 +168,7 @@ class FieldCellButton extends StatelessWidget {
       onTap: onTap,
       leftIcon: svgWidget(
         field.fieldType.iconName(),
-        color: Theme.of(context).colorScheme.onSurface,
+        color: Theme.of(context).iconTheme.color,
       ),
       radius: BorderRadius.zero,
       text: FlowyText.medium(

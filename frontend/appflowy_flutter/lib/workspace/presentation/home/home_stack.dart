@@ -199,7 +199,7 @@ class HomeTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.surface,
+      color: Theme.of(context).colorScheme.onSecondaryContainer,
       height: HomeSizes.topBarHeight,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

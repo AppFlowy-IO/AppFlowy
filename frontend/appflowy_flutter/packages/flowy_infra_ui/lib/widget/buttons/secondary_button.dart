@@ -42,8 +42,6 @@ class SecondaryButton extends StatelessWidget {
       minHeight: bigMode ? 40 : 38,
       contentPadding: EdgeInsets.zero,
       bgColor: Theme.of(context).colorScheme.surface,
-      hoverColor: Theme.of(context).colorScheme.secondary,
-      downColor: Theme.of(context).colorScheme.primary,
       outlineColor: Theme.of(context).colorScheme.primary,
       borderRadius: bigMode ? Corners.s12Border : Corners.s8Border,
       onPressed: onPressed,

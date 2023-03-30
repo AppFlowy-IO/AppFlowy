@@ -125,7 +125,7 @@ class _SortItem extends StatelessWidget {
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       icon: svgWidget(
         "home/close",
-        color: Theme.of(context).colorScheme.onSurface,
+        color: Theme.of(context).iconTheme.color,
       ),
     );
 
@@ -187,7 +187,7 @@ class _AddSortButtonState extends State<_AddSortButton> {
           onTap: () => _popoverController.show(),
           leftIcon: svgWidget(
             "home/add",
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).iconTheme.color,
           ),
         ),
       ),
@@ -222,7 +222,7 @@ class _DeleteSortButton extends StatelessWidget {
             },
             leftIcon: svgWidget(
               "editor/delete",
-              color: Theme.of(context).colorScheme.onSurface,
+              color: Theme.of(context).iconTheme.color,
             ),
           ),
         );

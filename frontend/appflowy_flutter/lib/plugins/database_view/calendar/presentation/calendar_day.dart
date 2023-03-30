@@ -203,7 +203,7 @@ class _NewEventButton extends StatelessWidget {
       iconPadding: EdgeInsets.zero,
       icon: svgWidget(
         "home/add",
-        color: Theme.of(context).colorScheme.onSurface,
+        color: Theme.of(context).iconTheme.color,
       ),
       width: 22,
     );

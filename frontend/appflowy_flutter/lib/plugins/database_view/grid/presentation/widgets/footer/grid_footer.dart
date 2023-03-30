@@ -19,7 +19,7 @@ class GridAddRowButton extends StatelessWidget {
       onTap: () => context.read<GridBloc>().add(const GridEvent.createRow()),
       leftIcon: svgWidget(
         "home/add",
-        color: Theme.of(context).colorScheme.onSurface,
+        color: Theme.of(context).iconTheme.color,
       ),
     );
   }
