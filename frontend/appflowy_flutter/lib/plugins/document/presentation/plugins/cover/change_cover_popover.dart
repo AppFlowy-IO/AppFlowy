@@ -143,7 +143,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               color: Theme.of(context).colorScheme.tertiary,
             ),
             FlowyTextButton(
-              fillColor: Theme.of(context).colorScheme.surface,
+              fillColor: Theme.of(context).cardColor,
               hoverColor: Theme.of(context).colorScheme.secondaryContainer,
               LocaleKeys.document_plugins_cover_clearAll.tr(),
               fontColor: Theme.of(context).colorScheme.tertiary,
