@@ -203,7 +203,7 @@ extension QuestionBubbleExtension on BubbleAction {
       case BubbleAction.debug:
         return '🐛';
       case BubbleAction.shortcuts:
-        return '⌨️';
+        return '📋';
     }
   }
 }
