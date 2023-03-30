@@ -67,12 +67,8 @@ export const EditCellWrapper = ({
           <EditCheckboxCell data={data as boolean | undefined} cellController={cellController}></EditCheckboxCell>
         )}
 
-        {cellIdentifier.fieldType === FieldType.DateTime && cellController && (
-          <EditCellDate
-            data={data as DateCellDataPB | undefined}
-            onEditClick={onEditDateClick}
-            cellController={cellController}
-          ></EditCellDate>
+        {cellIdentifier.fieldType === FieldType.DateTime && (
+          <EditCellDate data={data as DateCellDataPB | undefined} onEditClick={onEditDateClick}></EditCellDate>
         )}
 
         {cellIdentifier.fieldType === FieldType.Number && cellController && (

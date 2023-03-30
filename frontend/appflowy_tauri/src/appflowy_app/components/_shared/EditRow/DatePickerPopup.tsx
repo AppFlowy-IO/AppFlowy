@@ -8,10 +8,8 @@ import Calendar from 'react-calendar';
 import dayjs from 'dayjs';
 import { ClockSvg } from '$app/components/_shared/svg/ClockSvg';
 import { MoreSvg } from '$app/components/_shared/svg/MoreSvg';
-import { CheckboxSvg } from '$app/components/_shared/svg/CheckboxSvg';
 import { EditorUncheckSvg } from '$app/components/_shared/svg/EditorUncheckSvg';
 import { useCell } from '$app/components/_shared/database-hooks/useCell';
-import { DateCellDataPB } from '@/services/backend';
 
 export const DatePickerPopup = ({
   left,

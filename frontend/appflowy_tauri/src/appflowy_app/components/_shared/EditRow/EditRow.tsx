@@ -12,7 +12,6 @@ import { ChangeFieldTypePopup } from '$app/components/_shared/EditRow/ChangeFiel
 import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
 import { Some } from 'ts-results';
 import { FieldType } from '@/services/backend';
-import { CellOptions } from '$app/components/_shared/EditRow/CellOptions';
 import { CellOptionsPopup } from '$app/components/_shared/EditRow/CellOptionsPopup';
 import { DatePickerPopup } from '$app/components/_shared/EditRow/DatePickerPopup';
 

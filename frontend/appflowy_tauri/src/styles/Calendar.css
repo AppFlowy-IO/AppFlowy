@@ -83,7 +83,6 @@
 }
 
 .react-calendar__month-view__days__day--neighboringMonth {
-  /*color: #757575;*/
   @apply text-shade-4;
 }
 
@@ -95,11 +94,10 @@
 
 .react-calendar__tile {
   max-width: 100%;
-  /*padding: 10px 6.6667px;*/
   background: none;
   text-align: center;
   line-height: 16px;
-  @apply p-1;
+  @apply rounded py-2;
 }
 
 .react-calendar__tile:disabled {
@@ -112,12 +110,12 @@
 }
 
 .react-calendar__tile--now {
-  @apply rounded bg-shade-6;
+  @apply bg-shade-6;
 }
 
 .react-calendar__tile--now:enabled:hover,
 .react-calendar__tile--now:enabled:focus {
-  @apply rounded bg-shade-6;
+  @apply bg-shade-6;
 }
 
 .react-calendar__tile--hasActive {
@@ -130,14 +128,14 @@
 }
 
 .react-calendar__tile--active {
-  @apply rounded bg-main-accent text-white;
+  @apply bg-main-accent text-white;
 }
 
 .react-calendar__tile--active:enabled:hover,
 .react-calendar__tile--active:enabled:focus {
-  background: #1087ff;
+  @apply bg-main-hovered;
 }
 
 .react-calendar--selectRange .react-calendar__tile--hover {
-  background-color: #e6e6e6;
+  @apply bg-shade-4;
 }
