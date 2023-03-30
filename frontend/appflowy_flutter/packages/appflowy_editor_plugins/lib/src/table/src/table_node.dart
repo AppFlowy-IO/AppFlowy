@@ -4,13 +4,11 @@ import 'package:appflowy_editor_plugins/src/table/src/table_action.dart';
 import 'package:appflowy_editor_plugins/src/table/src/table_config.dart';
 import 'package:appflowy_editor_plugins/src/table/table_const.dart';
 
-typedef ColumnNode = List<Node>;
-
 class TableNode {
   final TableConfig _config;
 
   final Node node;
-  final List<ColumnNode> _cells = [];
+  final List<List<Node>> _cells = [];
 
   TableNode({
     required this.node,

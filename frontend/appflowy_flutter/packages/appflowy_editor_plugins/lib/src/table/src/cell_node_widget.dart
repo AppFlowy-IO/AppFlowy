@@ -31,11 +31,17 @@ class _CellNodeWidgetState extends State<CellNodeWidget> {
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: widget.editorState.service.renderPluginService
                 .buildPluginWidget(
-              NodeWidgetContext<TextNode>(
-                context: context,
-                node: widget.node.children.first as TextNode,
-                editorState: widget.editorState,
-              ),
+              widget.node.children.first is TextNode
+                  ? NodeWidgetContext<TextNode>(
+                      context: context,
+                      node: widget.node.children.first as TextNode,
+                      editorState: widget.editorState,
+                    )
+                  : NodeWidgetContext<Node>(
+                      context: context,
+                      node: widget.node.children.first,
+                      editorState: widget.editorState,
+                    ),
             ),
           ),
         ],
