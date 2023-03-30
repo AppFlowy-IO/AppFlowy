@@ -14,6 +14,7 @@ import { Some } from 'ts-results';
 import { FieldType } from '@/services/backend';
 import { CellOptionsPopup } from '$app/components/_shared/EditRow/CellOptionsPopup';
 import { DatePickerPopup } from '$app/components/_shared/EditRow/DatePickerPopup';
+import { DragDropContext, Droppable, OnDragEndResponder } from 'react-beautiful-dnd';
 
 export const EditRow = ({
   onClose,
@@ -105,6 +106,11 @@ export const EditRow = ({
     setShowDatePicker(true);
   };
 
+  const onDragEnd: OnDragEndResponder = (result) => {
+    if (!result.destination?.index) return;
+    void controller.moveField(result.source.droppableId, result.source.index, result.destination.index);
+  };
+
   return (
     <div
       className={`fixed inset-0 z-10 flex items-center justify-center bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${
@@ -117,19 +123,35 @@ export const EditRow = ({
             <CloseSvg></CloseSvg>
           </button>
         </div>
-        <div className={`flex flex-1 flex-col gap-2 ${showFieldEditor ? 'overflow-hidden' : 'overflow-auto'}`}>
-          {cells.map((cell, cellIndex) => (
-            <EditCellWrapper
-              key={cellIndex}
-              cellIdentifier={cell.cellIdentifier}
-              cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
-              fieldController={controller.fieldController}
-              onEditFieldClick={(top: number, right: number) => onEditFieldClick(cell.cellIdentifier, top, right)}
-              onEditOptionsClick={(left: number, top: number) => onEditOptionsClick(cell.cellIdentifier, left, top)}
-              onEditDateClick={(left: number, top: number) => onEditDateClick(cell.cellIdentifier, left, top)}
-            ></EditCellWrapper>
-          ))}
-        </div>
+
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId={'field-list'}>
+            {(provided) => (
+              <div
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                className={`flex flex-1 flex-col gap-2 ${
+                  showFieldEditor || showChangeOptionsPopup || showDatePicker ? 'overflow-hidden' : 'overflow-auto'
+                }`}
+              >
+                {cells.map((cell, cellIndex) => (
+                  <EditCellWrapper
+                    index={cellIndex}
+                    key={cellIndex}
+                    cellIdentifier={cell.cellIdentifier}
+                    cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
+                    fieldController={controller.fieldController}
+                    onEditFieldClick={(top: number, right: number) => onEditFieldClick(cell.cellIdentifier, top, right)}
+                    onEditOptionsClick={(left: number, top: number) =>
+                      onEditOptionsClick(cell.cellIdentifier, left, top)
+                    }
+                    onEditDateClick={(left: number, top: number) => onEditDateClick(cell.cellIdentifier, left, top)}
+                  ></EditCellWrapper>
+                ))}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
 
         <div className={'border-t border-shade-6 pt-2'}>
           <button

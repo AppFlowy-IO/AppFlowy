@@ -102,6 +102,10 @@ export class DatabaseController {
     return this.backendService.moveGroup(fromGroupId, toGroupId);
   };
 
+  moveField = (fieldId: string, fromIndex: number, toIndex: number) => {
+    return this.backendService.moveField(fieldId, fromIndex, toIndex);
+  };
+
   private loadGroup = async () => {
     const result = await this.backendService.loadGroups();
     if (result.ok) {
