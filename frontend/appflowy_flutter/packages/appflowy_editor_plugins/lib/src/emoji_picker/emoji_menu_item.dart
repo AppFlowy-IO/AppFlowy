@@ -21,9 +21,12 @@ OverlayEntry? _emojiSelectionMenu;
 EditorState? _editorState;
 void _showEmojiSelectionMenu(
   EditorState editorState,
-  SelectionMenuService menuService,
+  SelectionMenuService? menuService,
   BuildContext context,
 ) {
+  if (menuService == null) {
+    return;
+  }
   final alignment = menuService.alignment;
   final offset = menuService.offset;
   menuService.dismiss();

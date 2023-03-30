@@ -67,8 +67,6 @@ class SimpleEditor extends StatelessWidget {
                 mathEquationMenuItem,
                 // Code Block
                 codeBlockMenuItem,
-                // Emoji
-                emojiMenuItem,
                 // Open AI
                 if (apiKey.isNotEmpty) ...[
                   autoCompletionMenuItem,

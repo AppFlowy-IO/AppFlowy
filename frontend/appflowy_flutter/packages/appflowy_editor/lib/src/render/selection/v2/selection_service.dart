@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 abstract class SelectionService {
   Selection? selection;
+  Set<Node> get visibleNodes;
 
   void addListener(VoidCallback listener);
   void removeListener(VoidCallback listener);
@@ -15,6 +16,8 @@ abstract class ScrollService {
   Offset get offset;
 
   Future<void> scrollTo(Offset offset);
+
+  ScrollController get scrollController;
 }
 
 class SelectionAndScroll extends StatefulWidget {
@@ -30,11 +33,15 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
     with WidgetsBindingObserver
     implements SelectionService, ScrollService {
   // Scroll
+  @override
   ScrollableState? scrollableState;
   EdgeDraggingAutoScroller? scroller;
+  @override
+  final ScrollController scrollController = ScrollController();
 
   // Selection
   final ValueNotifier<Selection?> _selection = ValueNotifier(null);
+  @override
   final Set<Node> visibleNodes = {};
 
   Position? _startPosition;
@@ -83,6 +90,7 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
       onPanUpdate: _onPanUpdate,
       onTapDown: _onTapDown,
       child: ListView.builder(
+        controller: scrollController,
         itemBuilder: (context, index) {
           // TODO: Any good ideas to get the scrollableState?
           _initScrollServiceIfNeed(context);
@@ -219,7 +227,6 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
 
   void _onPanUpdate(DragUpdateDetails details) {
     _endPosition = _getPositionInOffset(details.globalPosition);
-    assert(_endPosition != null);
     if (_startPosition == null || _endPosition == null) {
       return;
     }

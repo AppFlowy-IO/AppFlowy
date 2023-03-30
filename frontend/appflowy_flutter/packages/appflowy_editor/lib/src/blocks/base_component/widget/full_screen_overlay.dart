@@ -6,7 +6,8 @@ extension FullScreenOverlayEntry on OverlayEntry {
     required Offset offset,
     required Widget child,
   }) {
-    return OverlayEntry(builder: (context) {
+    late OverlayEntry entry;
+    entry = OverlayEntry(builder: (context) {
       final size = MediaQuery.of(context).size;
       return Stack(
         children: [
@@ -16,19 +17,18 @@ extension FullScreenOverlayEntry on OverlayEntry {
             width: size.width,
             height: size.height,
             child: GestureDetector(
-              onTap: () => onDismiss(),
-              child: Container(
-                color: Colors.red.withOpacity(0.5),
-              ),
+              behavior: HitTestBehavior.opaque,
+              onTapDown: (_) => entry.remove(),
             ),
           ),
           Positioned(
             top: offset.dy,
             left: offset.dx,
             child: child,
-          )
+          ),
         ],
       );
     });
+    return entry;
   }
 }

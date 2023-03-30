@@ -1,6 +1,6 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/blocks/base_component/shortcuts/block_shortcut.dart';
-import 'package:appflowy_editor/src/blocks/base_component/widget/selection_menu.dart';
+import 'package:appflowy_editor/src/blocks/base_component/widget/full_screen_overlay.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
 import 'package:flutter/material.dart';

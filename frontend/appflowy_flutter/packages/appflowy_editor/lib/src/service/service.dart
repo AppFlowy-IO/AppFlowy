@@ -13,6 +13,11 @@ class FlowyService {
     return selectionAndScrollServiceKey.currentState! as SelectionService;
   }
 
+  // scroll service
+  ScrollService get scrollServiceV2 {
+    return selectionAndScrollServiceKey.currentState! as ScrollService;
+  }
+
   // selection service
   final selectionServiceKey = GlobalKey(debugLabel: 'flowy_selection_service');
   AppFlowySelectionService get selectionService {
