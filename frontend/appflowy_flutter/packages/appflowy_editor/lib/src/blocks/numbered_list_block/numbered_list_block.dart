@@ -4,8 +4,8 @@ import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class QuoteBlock extends StatefulWidget {
-  const QuoteBlock({
+class NumberedListBlock extends StatefulWidget {
+  const NumberedListBlock({
     super.key,
     required this.node,
   });
@@ -13,10 +13,19 @@ class QuoteBlock extends StatefulWidget {
   final Node node;
 
   @override
-  State<QuoteBlock> createState() => _QuoteBlockState();
+  State<NumberedListBlock> createState() => _NumberedListBlockState();
 }
 
-class _QuoteBlockState extends State<QuoteBlock> {
+class _NumberedListBlockState extends State<NumberedListBlock> {
+  int get _level {
+    var level = 1;
+    var previousSibling = widget.node.previous;
+    if (previousSibling != null && previousSibling.type == 'numbered_list') {
+      level += 1;
+    }
+    return level;
+  }
+
   @override
   Widget build(BuildContext context) {
     final editorState = Provider.of<EditorState>(context);
@@ -28,9 +37,8 @@ class _QuoteBlockState extends State<QuoteBlock> {
         nodes,
         editorState,
       ),
-      child: const FlowySvg(
-        width: 20,
-        name: 'quote',
+      child: FlowySvg(
+        number: _level,
       ),
     );
   }
