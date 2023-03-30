@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/render/selection/v2/selection_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -174,7 +175,16 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
 
   Widget _buildWithActions(
       NodeWidgetBuilder builder, NodeWidgetContext context) {
-    final child = builder.build(context);
+    final visibleNodes =
+        Provider.of<EditorState>(context.context, listen: false)
+            .service
+            .selectionServiceV2
+            .visibleNodes;
+    final child = SelectionWrapper(
+      onCreate: () => visibleNodes.add(context.node),
+      onDispose: () => visibleNodes.remove(context.node),
+      child: builder.build(context),
+    );
     if (builder is ActionProvider) {
       return ChangeNotifierProvider(
         create: (_) => ActionMenuState(context.node.path),

@@ -1,10 +1,11 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/blocks/base_component/widget/nested_list.dart';
+import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class BulletedListBlock extends StatefulWidget {
-  const BulletedListBlock({
+class QuoteBlock extends StatefulWidget {
+  const QuoteBlock({
     super.key,
     required this.node,
   });
@@ -12,32 +13,10 @@ class BulletedListBlock extends StatefulWidget {
   final Node node;
 
   @override
-  State<BulletedListBlock> createState() => _BulletedListBlockState();
+  State<QuoteBlock> createState() => _QuoteBlockState();
 }
 
-class _BulletedListBlockState extends State<BulletedListBlock> {
-  static final _bulletListPrefixes = [
-    '♠',
-    '♥',
-    '♣',
-    '♦',
-  ];
-
-  int get _level {
-    var level = 1;
-    var parent = widget.node.parent;
-    while (parent != null) {
-      if (parent.type == 'bulleted_list') {
-        level += 1;
-      }
-      parent = parent.parent;
-    }
-    return level;
-  }
-
-  String get _prefix =>
-      _bulletListPrefixes[_level % _bulletListPrefixes.length];
-
+class _QuoteBlockState extends State<QuoteBlock> {
   @override
   Widget build(BuildContext context) {
     final editorState = Provider.of<EditorState>(context);
@@ -49,7 +28,10 @@ class _BulletedListBlockState extends State<BulletedListBlock> {
         nodes,
         editorState,
       ),
-      child: Text('$_prefix  '),
+      child: const FlowySvg(
+        width: 10,
+        name: 'quote',
+      ),
     );
   }
 }

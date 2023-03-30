@@ -98,17 +98,7 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
           // build child
           final node = nodes[index];
           final child = _buildChild(context, node);
-          return _SelectionWrapper(
-            onCreate: () {
-              visibleNodes.add(node);
-              print('+++ visibleNodes count = ${visibleNodes.length}');
-            },
-            onDispose: () {
-              visibleNodes.remove(node);
-              print('--- visibleNodes count = ${visibleNodes.length}');
-            },
-            child: child,
-          );
+          return child;
         },
         itemCount: nodes.length,
       ),
@@ -267,34 +257,5 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
   void _startAutoScrollIfNecessary(Offset offset) {
     final rect = Rect.fromCenter(center: offset, width: 200, height: 200);
     scroller?.startAutoScrollIfNecessary(rect);
-  }
-}
-
-class _SelectionWrapper extends StatefulWidget {
-  const _SelectionWrapper({
-    required this.onCreate,
-    required this.onDispose,
-    required this.child,
-  });
-
-  final VoidCallback onCreate;
-  final VoidCallback onDispose;
-  final Widget child;
-
-  @override
-  State<_SelectionWrapper> createState() => __SelectionWrapperState();
-}
-
-class __SelectionWrapperState extends State<_SelectionWrapper> {
-  @override
-  Widget build(BuildContext context) {
-    widget.onCreate();
-    return widget.child;
-  }
-
-  @override
-  void dispose() {
-    widget.onDispose();
-    super.dispose();
   }
 }
