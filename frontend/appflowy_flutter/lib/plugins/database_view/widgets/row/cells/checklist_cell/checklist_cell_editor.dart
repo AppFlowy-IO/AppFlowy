@@ -137,7 +137,7 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
       iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
       icon: svgWidget(
         "editor/details",
-        color: Theme.of(context).colorScheme.onSurface,
+        color: Theme.of(context).iconTheme.color,
       ),
     );
   }

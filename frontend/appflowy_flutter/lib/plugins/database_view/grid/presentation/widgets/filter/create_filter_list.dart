@@ -162,7 +162,7 @@ class _FilterPropertyCell extends StatelessWidget {
       onTap: () => onTap(fieldInfo),
       leftIcon: svgWidget(
         fieldInfo.fieldType.iconName(),
-        color: Theme.of(context).colorScheme.onSurface,
+        color: Theme.of(context).iconTheme.color,
       ),
     );
   }

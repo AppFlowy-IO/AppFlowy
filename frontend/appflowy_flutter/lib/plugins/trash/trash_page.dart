@@ -90,6 +90,7 @@ class _TrashPageState extends State<TrashPage> {
           FlowyText.semibold(
             LocaleKeys.trash_text.tr(),
             fontSize: FontSizes.s16,
+            color: Theme.of(context).colorScheme.tertiary,
           ),
           const Spacer(),
           IntrinsicWidth(
@@ -97,7 +98,7 @@ class _TrashPageState extends State<TrashPage> {
               text: FlowyText.medium(LocaleKeys.trash_restoreAll.tr()),
               leftIcon: svgWidget(
                 'editor/restore',
-                color: Theme.of(context).colorScheme.onSurface,
+                color: Theme.of(context).iconTheme.color,
               ),
               onTap: () => context.read<TrashBloc>().add(
                     const TrashEvent.restoreAll(),
@@ -110,7 +111,7 @@ class _TrashPageState extends State<TrashPage> {
               text: FlowyText.medium(LocaleKeys.trash_deleteAll.tr()),
               leftIcon: svgWidget(
                 'editor/delete',
-                color: Theme.of(context).colorScheme.onSurface,
+                color: Theme.of(context).iconTheme.color,
               ),
               onTap: () =>
                   context.read<TrashBloc>().add(const TrashEvent.deleteAll()),

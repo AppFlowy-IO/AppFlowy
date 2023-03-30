@@ -10,11 +10,13 @@ class AppFlowyPopover extends StatelessWidget {
   final int triggerActions;
   final BoxConstraints constraints;
   final void Function()? onClose;
+  final Future<bool> Function()? canClose;
   final PopoverMutex? mutex;
   final Offset? offset;
   final bool asBarrier;
   final EdgeInsets margin;
   final EdgeInsets windowPadding;
+  final Decoration? decoration;
 
   const AppFlowyPopover({
     Key? key,
@@ -22,6 +24,7 @@ class AppFlowyPopover extends StatelessWidget {
     required this.popupBuilder,
     this.direction = PopoverDirection.rightWithTopAligned,
     this.onClose,
+    this.canClose,
     this.constraints = const BoxConstraints(maxWidth: 240, maxHeight: 600),
     this.mutex,
     this.triggerActions = PopoverTriggerFlags.click,
@@ -30,6 +33,7 @@ class AppFlowyPopover extends StatelessWidget {
     this.asBarrier = false,
     this.margin = const EdgeInsets.all(6),
     this.windowPadding = const EdgeInsets.all(8.0),
+    this.decoration,
   }) : super(key: key);
 
   @override
@@ -37,6 +41,7 @@ class AppFlowyPopover extends StatelessWidget {
     return Popover(
       controller: controller,
       onClose: onClose,
+      canClose: canClose,
       direction: direction,
       mutex: mutex,
       asBarrier: asBarrier,
@@ -49,6 +54,7 @@ class AppFlowyPopover extends StatelessWidget {
         return _PopoverContainer(
           constraints: constraints,
           margin: margin,
+          decoration: decoration,
           child: child,
         );
       },
@@ -61,19 +67,23 @@ class _PopoverContainer extends StatelessWidget {
   final Widget child;
   final BoxConstraints constraints;
   final EdgeInsets margin;
+  final Decoration? decoration;
+
   const _PopoverContainer({
     required this.child,
     required this.margin,
     required this.constraints,
+    required this.decoration,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final decoration = FlowyDecoration.decoration(
-      Theme.of(context).colorScheme.surface,
-      Theme.of(context).colorScheme.shadow.withOpacity(0.15),
-    );
+    final decoration = this.decoration ??
+        FlowyDecoration.decoration(
+          Theme.of(context).cardColor,
+          Theme.of(context).colorScheme.shadow.withOpacity(0.15),
+        );
 
     return Material(
       type: MaterialType.transparency,

@@ -17,6 +17,7 @@ SelectionMenuItem gridMenuItem = SelectionMenuItem(
           : editorState.editorStyle.selectionMenuItemIconColor,
     );
   },
+<<<<<<< HEAD
   keywords: ['referenced', 'grid'],
   handler: (editorState, menuService, context) {
     showLinkToPageMenu(

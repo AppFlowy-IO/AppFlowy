@@ -264,11 +264,11 @@ extension TextTransaction on Transaction {
     if (index != 0 && attributes == null) {
       newAttributes =
           textNode.delta.slice(max(index - 1, 0), index).first.attributes;
-      if (newAttributes != null) {
-        newAttributes = {...newAttributes}; // make a copy
-      } else {
-        newAttributes =
-            textNode.delta.slice(index, index + length).first.attributes;
+      if (newAttributes == null) {
+        final slicedDelta = textNode.delta.slice(index, index + length);
+        if (slicedDelta.isNotEmpty) {
+          newAttributes = slicedDelta.first.attributes;
+        }
       }
     }
     updateText(
@@ -276,7 +276,7 @@ extension TextTransaction on Transaction {
       Delta()
         ..retain(index)
         ..delete(length)
-        ..insert(text, attributes: newAttributes),
+        ..insert(text, attributes: {...newAttributes ?? {}}),
     );
     afterSelection = Selection.collapsed(
       Position(
@@ -347,23 +347,34 @@ extension TextTransaction on Transaction {
             textNode.toPlainText().length,
             texts.first,
           );
-        } else if (i == length - 1) {
+        } else if (i == length - 1 && texts.length >= 2) {
           replaceText(
             textNode,
             0,
             selection.endIndex,
             texts.last,
           );
+        } else if (i < texts.length - 1) {
+          replaceText(
+            textNode,
+            0,
+            textNode.toPlainText().length,
+            texts[i],
+          );
         } else {
-          if (i < texts.length - 1) {
+          deleteNode(textNode);
+          if (i == textNodes.length - 1) {
+            final delta = Delta()
+              ..insert(texts[0])
+              ..addAll(
+                textNodes.last.delta.slice(selection.end.offset),
+              );
             replaceText(
               textNode,
-              0,
-              textNode.toPlainText().length,
-              texts[i],
+              selection.start.offset,
+              texts[0].length,
+              delta.toPlainText(),
             );
-          } else {
-            deleteNode(textNode);
           }
         }
       }
@@ -373,6 +384,8 @@ extension TextTransaction on Transaction {
 
     if (textNodes.length < texts.length) {
       final length = texts.length;
+      var path = textNodes.first.path;
+
       for (var i = 0; i < texts.length; i++) {
         final text = texts[i];
         if (i == 0) {
@@ -382,13 +395,15 @@ extension TextTransaction on Transaction {
             textNodes.first.toPlainText().length,
             text,
           );
-        } else if (i == length - 1) {
+          path = path.next;
+        } else if (i == length - 1 && textNodes.length >= 2) {
           replaceText(
             textNodes.last,
             0,
             selection.endIndex,
             text,
           );
+          path = path.next;
         } else {
           if (i < textNodes.length - 1) {
             replaceText(
@@ -397,14 +412,28 @@ extension TextTransaction on Transaction {
               textNodes[i].toPlainText().length,
               text,
             );
+            path = path.next;
           } else {
-            var path = textNodes.first.path;
-            var j = i - textNodes.length + length - 1;
-            while (j > 0) {
-              path = path.next;
-              j--;
+            if (i == texts.length - 1) {
+              final delta = Delta()
+                ..insert(text)
+                ..addAll(
+                  textNodes.last.delta.slice(selection.end.offset),
+                );
+              insertNode(
+                path,
+                TextNode(
+                  delta: delta,
+                ),
+              );
+            } else {
+              insertNode(
+                path,
+                TextNode(
+                  delta: Delta()..insert(text),
+                ),
+              );
             }
-            insertNode(path, TextNode(delta: Delta()..insert(text)));
           }
         }
       }

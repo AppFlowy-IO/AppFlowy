@@ -153,7 +153,7 @@ class DateFormatButton extends StatelessWidget {
         onHover: onHover,
         rightIcon: svgWidget(
           "grid/more",
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).iconTheme.color,
         ),
       ),
     );
@@ -184,7 +184,7 @@ class TimeFormatButton extends StatelessWidget {
         onHover: onHover,
         rightIcon: svgWidget(
           "grid/more",
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).iconTheme.color,
         ),
       ),
     );
