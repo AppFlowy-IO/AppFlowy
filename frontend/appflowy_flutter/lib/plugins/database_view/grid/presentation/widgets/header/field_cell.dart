@@ -166,9 +166,8 @@ class FieldCellButton extends StatelessWidget {
     return FlowyButton(
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       onTap: onTap,
-      leftIcon: svgWidget(
-        field.fieldType.iconName(),
-        color: Theme.of(context).iconTheme.color,
+      leftIcon: FlowySvg(
+        name: field.fieldType.iconName(),
       ),
       radius: BorderRadius.zero,
       text: FlowyText.medium(
