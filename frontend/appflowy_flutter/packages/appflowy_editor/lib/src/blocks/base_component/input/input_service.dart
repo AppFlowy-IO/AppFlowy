@@ -28,7 +28,7 @@ abstract class TextInputService {
   ///   to the text currently being edited.
   ///
   /// For more information, please check [TextEditingDelta].
-  void apply(List<TextEditingDelta> deltas);
+  Future<void> apply(List<TextEditingDelta> deltas);
 
   /// Closes the editing state of the text currently being edited.
   void close();
@@ -54,18 +54,18 @@ class DeltaTextInputService extends TextInputService
   TextEditingValue? get currentTextEditingValue => throw UnimplementedError();
 
   @override
-  void apply(List<TextEditingDelta> deltas) {
+  Future<void> apply(List<TextEditingDelta> deltas) async {
     for (final delta in deltas) {
       _updateComposing(delta);
 
       if (delta is TextEditingDeltaInsertion) {
-        onInsert(delta);
+        await onInsert(delta);
       } else if (delta is TextEditingDeltaDeletion) {
-        onDelete(delta);
+        await onDelete(delta);
       } else if (delta is TextEditingDeltaReplacement) {
-        onReplace(delta);
+        await onReplace(delta);
       } else if (delta is TextEditingDeltaNonTextUpdate) {
-        onNonTextUpdate(delta);
+        await onNonTextUpdate(delta);
       }
     }
   }

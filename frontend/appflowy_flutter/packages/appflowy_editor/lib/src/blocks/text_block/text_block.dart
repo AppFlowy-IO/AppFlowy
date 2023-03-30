@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/blocks/base_component/input/input_service.dart';
-import 'package:appflowy_editor/src/blocks/base_component/nested_list.dart';
 import 'package:appflowy_editor/src/blocks/base_component/rich_text_with_selection.dart';
 import 'package:appflowy_editor/src/render/selection/v2/selectable_v2.dart';
 import 'package:flutter/gestures.dart';
@@ -16,7 +15,7 @@ class TextBlock extends StatefulWidget {
   const TextBlock({
     super.key,
     required this.textNode,
-    this.onDebugMode = false,
+    this.onDebugMode = true,
     this.onTap,
     this.onDoubleTap,
   });
@@ -56,47 +55,14 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
 
     final text = _buildTextSpan(widget.textNode);
 
-    final nodes = widget.textNode.children.toList(growable: false);
-    // final inner = MouseRegion(
-    //   cursor: SystemMouseCursors.text,
-    //   child: RichTextWithSelection(
-    //     key: _key,
-    //     text: text,
-    //     textSelection: textSelection,
-    //   ),
-    // );
-
-    // if (nodes.isNotEmpty) {
-    //   return Column(
-    //     crossAxisAlignment: CrossAxisAlignment.start,
-    //     children: [
-    //       inner,
-    //       ..._editorState.service.renderPluginService.buildPluginWidgets(
-    //         context,
-    //         nodes,
-    //         _editorState,
-    //       )
-    //     ],
-    //   );
-    // } else {
-    //   return inner;
-    // }
-
-    return NestedList(nestedChildren: [
-      MouseRegion(
-        cursor: SystemMouseCursors.text,
-        child: RichTextWithSelection(
-          key: _key,
-          text: text,
-          textSelection: textSelection,
-        ),
+    return MouseRegion(
+      cursor: SystemMouseCursors.text,
+      child: RichTextWithSelection(
+        key: _key,
+        text: text,
+        textSelection: textSelection,
       ),
-      ..._editorState.service.renderPluginService.buildPluginWidgets(
-        context,
-        nodes,
-        _editorState,
-      ),
-    ]);
+    );
   }
 
   @override
@@ -167,14 +133,33 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
 
   Future<void> _onInsert(TextEditingDeltaInsertion insertion) async {
     Log.input.debug('[Insert]: $insertion');
+
+    final tr = _editorState.transaction
+      ..insertText(
+        widget.textNode,
+        insertion.insertionOffset,
+        insertion.textInserted,
+      );
+    return _editorState.apply(tr);
   }
 
   Future<void> _onDelete(TextEditingDeltaDeletion deletion) async {
     Log.input.debug('[Delete]: $deletion');
+
+    // This function never be called, WHY?
   }
 
   Future<void> _onReplace(TextEditingDeltaReplacement replacement) async {
     Log.input.debug('[Replace]: $replacement');
+
+    final tr = _editorState.transaction
+      ..replaceText(
+        widget.textNode,
+        replacement.replacedRange.start,
+        replacement.replacedRange.end - replacement.replacedRange.start,
+        replacement.replacementText,
+      );
+    return _editorState.apply(tr);
   }
 
   Future<void> _onNonTextUpdate(
