@@ -206,9 +206,7 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
     }
     min = min.clamp(start, end);
     final node = sortedNodes[min];
-    final children = node.children
-        .where((element) => selectables.contains(element))
-        .toList(growable: false);
+    final children = node.children.toList(growable: false);
     if (children.isNotEmpty && children.first.rect.top <= offset.dy) {
       return _binarySearchNode(
         children,
