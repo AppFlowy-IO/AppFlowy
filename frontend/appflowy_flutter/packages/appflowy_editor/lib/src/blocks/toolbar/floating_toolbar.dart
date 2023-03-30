@@ -52,6 +52,7 @@ class _FloatingToolbarState extends State<FloatingToolbar> {
     final selection = widget.editorState.service.selectionServiceV2.selection;
     if (selection == null || selection.isCollapsed) {
       _clear();
+      _cacheVisibleSelectedNodes = [];
     } else {
       if (_cacheSelection != selection) {
         _cacheVisibleSelectedNodes = widget.editorState
