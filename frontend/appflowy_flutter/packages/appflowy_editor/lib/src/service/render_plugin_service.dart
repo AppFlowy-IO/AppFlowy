@@ -31,6 +31,30 @@ abstract class AppFlowyRenderPluginService {
   NodeWidgetBuilder? getBuilder(String name);
 
   Widget buildPluginWidget(NodeWidgetContext context);
+
+  List<Widget> buildPluginWidgets(
+    BuildContext context,
+    List<Node> nodes,
+    EditorState editorState,
+  ) {
+    return nodes
+        .map(
+          (child) => buildPluginWidget(
+            child is TextNode
+                ? NodeWidgetContext<TextNode>(
+                    context: context,
+                    node: child,
+                    editorState: editorState,
+                  )
+                : NodeWidgetContext<Node>(
+                    context: context,
+                    node: child,
+                    editorState: editorState,
+                  ),
+          ),
+        )
+        .toList(growable: false);
+  }
 }
 
 class NodeWidgetContext<T extends Node> {

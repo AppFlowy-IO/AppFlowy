@@ -5,8 +5,8 @@ import 'package:provider/provider.dart';
 abstract class SelectionService {
   Selection? selection;
 
-  void addListenr(VoidCallback listener);
-  void removeListerner(VoidCallback listener);
+  void addListener(VoidCallback listener);
+  void removeListener(VoidCallback listener);
 
   Node? getNodeInOffset(Offset offset);
 }
@@ -108,12 +108,12 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
   }
 
   @override
-  void addListenr(VoidCallback listener) {
+  void addListener(VoidCallback listener) {
     _selection.addListener(listener);
   }
 
   @override
-  void removeListerner(VoidCallback listener) {
+  void removeListener(VoidCallback listener) {
     _selection.removeListener(listener);
   }
 

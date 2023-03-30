@@ -41,7 +41,6 @@ class SimpleEditor extends StatelessWidget {
 
           return AppFlowyEditor(
             editorState: editorState,
-            themeData: themeData,
             autoFocus: editorState.document.isEmpty,
             customBuilders: {
               // Divider

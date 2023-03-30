@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/blocks/base_component/nested_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -30,7 +31,14 @@ class BulletedListBlock extends StatefulWidget {
 }
 
 class _BulletedListBlockState extends State<BulletedListBlock> {
-  int get level {
+  static final _bulletListPrefixes = [
+    '♠',
+    '♥',
+    '♣',
+    '♦',
+  ];
+
+  int get _level {
     var level = 1;
     var parent = widget.node.parent;
     while (parent != null) {
@@ -42,36 +50,21 @@ class _BulletedListBlockState extends State<BulletedListBlock> {
     return level;
   }
 
+  String get _prefix =>
+      _bulletListPrefixes[_level % _bulletListPrefixes.length];
+
   @override
   Widget build(BuildContext context) {
     final editorState = Provider.of<EditorState>(context);
-    final children = widget.node.children.toList(growable: false);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('⭐️' * level),
-        Flexible(
-            child: Column(
-          children: children
-              .map(
-                (child) =>
-                    editorState.service.renderPluginService.buildPluginWidget(
-                  child is TextNode
-                      ? NodeWidgetContext<TextNode>(
-                          context: context,
-                          node: child,
-                          editorState: editorState,
-                        )
-                      : NodeWidgetContext<Node>(
-                          context: context,
-                          node: child,
-                          editorState: editorState,
-                        ),
-                ),
-              )
-              .toList(growable: false),
-        ))
-      ],
+    final nodes = widget.node.children.toList(growable: false);
+    return NestedList(
+      nestedChildren:
+          editorState.service.renderPluginService.buildPluginWidgets(
+        context,
+        nodes,
+        editorState,
+      ),
+      child: Text('$_prefix  '),
     );
   }
 }

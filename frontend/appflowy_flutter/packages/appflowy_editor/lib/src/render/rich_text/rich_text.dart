@@ -71,7 +71,7 @@ class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
   void initState() {
     super.initState();
 
-    widget.editorState.service.selectionServiceV2.addListenr(_updateSelection);
+    widget.editorState.service.selectionServiceV2.addListener(_updateSelection);
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _updateSelection();
@@ -193,7 +193,7 @@ class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
   @override
   void dispose() {
     widget.editorState.service.selectionServiceV2
-        .removeListerner(_updateSelection);
+        .removeListener(_updateSelection);
     setSelectionV2(null);
     super.dispose();
   }

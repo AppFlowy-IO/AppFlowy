@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/blocks/base_component/input/input_service.dart';
+import 'package:appflowy_editor/src/blocks/base_component/nested_list.dart';
 import 'package:appflowy_editor/src/blocks/base_component/rich_text_with_selection.dart';
 import 'package:appflowy_editor/src/render/selection/v2/selectable_v2.dart';
 import 'package:flutter/gestures.dart';
@@ -42,27 +43,60 @@ class _TextBlockState extends State<TextBlock> with SelectableState {
 
   @override
   void dispose() {
-    _editorState.service.selectionServiceV2
-        .removeListerner(_onSelectionChanged);
+    _editorState.service.selectionServiceV2.removeListener(_onSelectionChanged);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    _editorState.service.selectionServiceV2.addListenr(_onSelectionChanged);
+    _editorState.service.selectionServiceV2.addListener(_onSelectionChanged);
 
     final selection = _editorState.service.selectionServiceV2.selection;
     final textSelection = _textSelectionFromEditorSelection(selection);
 
     final text = _buildTextSpan(widget.textNode);
-    return MouseRegion(
-      cursor: SystemMouseCursors.text,
-      child: RichTextWithSelection(
-        key: _key,
-        text: text,
-        textSelection: textSelection,
+
+    final nodes = widget.textNode.children.toList(growable: false);
+    // final inner = MouseRegion(
+    //   cursor: SystemMouseCursors.text,
+    //   child: RichTextWithSelection(
+    //     key: _key,
+    //     text: text,
+    //     textSelection: textSelection,
+    //   ),
+    // );
+
+    // if (nodes.isNotEmpty) {
+    //   return Column(
+    //     crossAxisAlignment: CrossAxisAlignment.start,
+    //     children: [
+    //       inner,
+    //       ..._editorState.service.renderPluginService.buildPluginWidgets(
+    //         context,
+    //         nodes,
+    //         _editorState,
+    //       )
+    //     ],
+    //   );
+    // } else {
+    //   return inner;
+    // }
+
+    return NestedList(nestedChildren: [
+      MouseRegion(
+        cursor: SystemMouseCursors.text,
+        child: RichTextWithSelection(
+          key: _key,
+          text: text,
+          textSelection: textSelection,
+        ),
       ),
-    );
+      ..._editorState.service.renderPluginService.buildPluginWidgets(
+        context,
+        nodes,
+        _editorState,
+      ),
+    ]);
   }
 
   @override
