@@ -57,11 +57,10 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           return const SizedBox.shrink();
         } else if (snapshot.hasError) {
           return const SizedBox.shrink();
-        } else {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
         }
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
       },
       future: AppBackendService().getView(appID, gridID),
     );
