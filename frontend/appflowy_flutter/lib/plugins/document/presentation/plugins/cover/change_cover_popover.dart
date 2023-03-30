@@ -146,6 +146,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               fillColor: Theme.of(context).colorScheme.surface,
               hoverColor: Theme.of(context).colorScheme.secondaryContainer,
               LocaleKeys.document_plugins_cover_clearAll.tr(),
+              fontColor: Theme.of(context).colorScheme.tertiary,
               onPressed: () {
                 context
                     .read<ChangeCoverPopoverBloc>()
@@ -334,7 +335,7 @@ class _ImageGridItemState extends State<ImageGridItem> {
                 width: 28,
                 icon: svgWidget(
                   'editor/delete',
-                  color: Theme.of(context).colorScheme.onSecondary,
+                  color: Theme.of(context).colorScheme.tertiary,
                 ),
                 onPressed: () {
                   context.read<ChangeCoverPopoverBloc>().add(
