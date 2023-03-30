@@ -78,7 +78,7 @@ class _SettingItem extends StatelessWidget {
         onTap: () => onAction(action),
         leftIcon: svgWidget(
           action.iconName(),
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).iconTheme.color,
         ),
       ),
     );

@@ -49,6 +49,7 @@ class FlowyLogoTitle extends StatelessWidget {
           FlowyText.semibold(
             title,
             fontSize: FontSizes.s24,
+            color: Theme.of(context).colorScheme.tertiary,
           ),
         ],
       ),

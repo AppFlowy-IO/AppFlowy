@@ -34,7 +34,8 @@ class DocumentBanner extends StatelessWidget {
                   contentPadding: EdgeInsets.zero,
                   bgColor: Colors.transparent,
                   hoverColor: Theme.of(context).colorScheme.primary,
-                  downColor: Theme.of(context).colorScheme.primaryContainer,
+                  highlightColor:
+                      Theme.of(context).colorScheme.primaryContainer,
                   outlineColor: Colors.white,
                   borderRadius: Corners.s8Border,
                   onPressed: onRestore,
@@ -50,7 +51,7 @@ class DocumentBanner extends StatelessWidget {
                   contentPadding: EdgeInsets.zero,
                   bgColor: Colors.transparent,
                   hoverColor: Theme.of(context).colorScheme.primaryContainer,
-                  downColor: Theme.of(context).colorScheme.primary,
+                  highlightColor: Theme.of(context).colorScheme.primary,
                   outlineColor: Colors.white,
                   borderRadius: Corners.s8Border,
                   onPressed: onDelete,

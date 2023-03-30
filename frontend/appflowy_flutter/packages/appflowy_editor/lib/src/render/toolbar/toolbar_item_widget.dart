@@ -21,6 +21,7 @@ class ToolbarItemWidget extends StatelessWidget {
         width: 28,
         height: 28,
         child: Tooltip(
+          textAlign: TextAlign.center,
           preferBelow: false,
           message: item.tooltipsMessage,
           child: MouseRegion(

@@ -6,14 +6,12 @@ import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 typedef NaviAction = void Function();
 
@@ -87,7 +85,7 @@ class FlowyNavigation extends StatelessWidget {
                   iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
                   icon: svgWidget(
                     "home/hide_menu",
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: Theme.of(context).iconTheme.color,
                   ),
                 )),
           );
@@ -180,11 +178,9 @@ TextSpan sidebarTooltipTextSpan(BuildContext context, String hintText) =>
       children: [
         TextSpan(
           text: "$hintText\n",
-          style: AFThemeExtension.of(context).callout.textColor(Colors.white),
         ),
         TextSpan(
           text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
-          style: AFThemeExtension.of(context).caption.textColor(Colors.white60),
         ),
       ],
     );
