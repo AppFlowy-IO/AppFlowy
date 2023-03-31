@@ -42,6 +42,19 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
             var isMenuCollapsed = !state.isMenuCollapsed;
             _appearanceSettingsCubit.saveIsMenuCollapsed(isMenuCollapsed);
             emit(state.copyWith(isMenuCollapsed: isMenuCollapsed));
+            if (state.isSmallScreen) {
+              emit(state.copyWith(pinSideBar: !isMenuCollapsed));
+            } else {
+              if (state.isMenuCollapsed) {
+                emit(state.copyWith(pinSideBar: !isMenuCollapsed));
+              }
+            }
+          },
+          pinSideBar: (_PinSideBar e) {
+            emit(state.copyWith(pinSideBar: e.pinSideBar));
+          },
+          isSmallScreen: (_IsSmallScreen e) {
+            emit(state.copyWith(isSmallScreen: e.isSmallScreen));
           },
           editPanelResizeStart: (_EditPanelResizeStart e) {
             emit(state.copyWith(
@@ -97,6 +110,9 @@ class HomeSettingEvent with _$HomeSettingEvent {
   const factory HomeSettingEvent.didReceiveWorkspaceSetting(
       WorkspaceSettingPB setting) = _DidReceiveWorkspaceSetting;
   const factory HomeSettingEvent.collapseMenu() = _CollapseMenu;
+  const factory HomeSettingEvent.pinSideBar(bool pinSideBar) = _PinSideBar;
+  const factory HomeSettingEvent.isSmallScreen(bool isSmallScreen) =
+      _IsSmallScreen;
   const factory HomeSettingEvent.editPanelResized(double offset) =
       _EditPanelResized;
   const factory HomeSettingEvent.editPanelResizeStart() = _EditPanelResizeStart;
@@ -110,7 +126,9 @@ class HomeSettingState with _$HomeSettingState {
     required WorkspaceSettingPB workspaceSetting,
     required bool unauthorized,
     required bool isMenuCollapsed,
+    required bool pinSideBar,
     required double resizeOffset,
+    required bool isSmallScreen,
     required double resizeStart,
     required MenuResizeType resizeType,
   }) = _HomeSettingState;
@@ -123,6 +141,8 @@ class HomeSettingState with _$HomeSettingState {
         panelContext: none(),
         workspaceSetting: workspaceSetting,
         unauthorized: false,
+        pinSideBar: false,
+        isSmallScreen: false,
         isMenuCollapsed: appearanceSettingsState.isMenuCollapsed,
         resizeOffset: appearanceSettingsState.menuOffset,
         resizeStart: 0,

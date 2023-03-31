@@ -19,12 +19,12 @@ class HomeLayout {
   late double homePageROffset;
   late double menuSpacing;
   late Duration animDuration;
-
+  
   HomeLayout(BuildContext context, BoxConstraints homeScreenConstraint) {
     final homeSetting = context.read<HomeSettingBloc>().state;
 
     showEditPanel = homeSetting.panelContext.isSome();
-
+    
     menuWidth = Sizes.sideBarMed;
     if (context.widthPx >= PageBreaks.desktop) {
       menuWidth = Sizes.sideBarLg;
@@ -32,13 +32,29 @@ class HomeLayout {
 
     menuWidth += homeSetting.resizeOffset;
 
-    if (homeSetting.isMenuCollapsed) {
-      showMenu = false;
-    } else {
-      showMenu = true;
-      menuIsDrawer = context.widthPx <= PageBreaks.tabletPortrait;
-    }
+    bool isSmallScreen = false;
 
+    if (context.widthPx < PageBreaks.tabletPortrait) isSmallScreen = true;
+    context
+        .read<HomeSettingBloc>()
+        .add(HomeSettingEvent.isSmallScreen(isSmallScreen));
+
+    if (isSmallScreen) {
+      if (homeSetting.pinSideBar) {
+        showMenu = true;
+        menuIsDrawer = context.widthPx <= PageBreaks.tabletPortrait;
+      } else {
+        showMenu = false;
+      }
+    } else {
+      if (homeSetting.isMenuCollapsed && !homeSetting.pinSideBar) {
+        showMenu = false;
+      } else {
+        showMenu = true;
+        menuIsDrawer = context.widthPx <= PageBreaks.tabletPortrait;
+      }
+    } 
+       
     homePageLOffset = (showMenu && !menuIsDrawer) ? menuWidth : 0.0;
 
     menuSpacing = !showMenu && Platform.isMacOS ? 80.0 : 0.0;

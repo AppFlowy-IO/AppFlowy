@@ -64,9 +64,9 @@ class FlowyNavigation extends StatelessWidget {
 
   Widget _renderCollapse(BuildContext context) {
     return BlocBuilder<HomeSettingBloc, HomeSettingState>(
-      buildWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed,
+      buildWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed || p.isSmallScreen != c.isSmallScreen,
       builder: (context, state) {
-        if (state.isMenuCollapsed) {
+        if (state.isMenuCollapsed || ((state.isSmallScreen) && !state.pinSideBar)) {
           return RotationTransition(
             turns: const AlwaysStoppedAnimation(180 / 360),
             child: Tooltip(
@@ -77,10 +77,10 @@ class FlowyNavigation extends StatelessWidget {
                 child: FlowyIconButton(
                   width: 24,
                   hoverColor: Colors.transparent,
-                  onPressed: () {
-                    context
+                  onPressed: () {                  
+                      context
                         .read<HomeSettingBloc>()
-                        .add(const HomeSettingEvent.collapseMenu());
+                        .add(const HomeSettingEvent.collapseMenu());   
                   },
                   iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
                   icon: svgWidget(
