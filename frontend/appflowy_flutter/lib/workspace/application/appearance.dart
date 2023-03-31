@@ -292,9 +292,10 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
           tint7: theme.tint7,
           tint8: theme.tint8,
           tint9: theme.tint9,
+          textColor: theme.text,
           greyHover: theme.hoverBG1,
           greySelect: theme.bg3,
-          lightGreyHover: theme.hoverBG1,
+          lightGreyHover: theme.hoverBG3,
           toggleOffFill: theme.shader5,
           code: _getFontStyle(
             fontFamily: monospaceFontFamily,

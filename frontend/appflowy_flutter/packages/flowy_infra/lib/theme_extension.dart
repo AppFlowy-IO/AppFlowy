@@ -15,6 +15,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
   final Color tint8;
   final Color tint9;
 
+  final Color textColor;
   final Color greyHover;
   final Color greySelect;
   final Color lightGreyHover;
@@ -40,6 +41,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     required this.greySelect,
     required this.lightGreyHover,
     required this.toggleOffFill,
+    required this.textColor,
     required this.code,
     required this.callout,
     required this.caption,
@@ -62,6 +64,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     Color? tint7,
     Color? tint8,
     Color? tint9,
+    Color? textColor,
     Color? greyHover,
     Color? greySelect,
     Color? lightGreyHover,
@@ -82,6 +85,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       tint7: tint7 ?? this.tint7,
       tint8: tint8 ?? this.tint8,
       tint9: tint9 ?? this.tint9,
+      textColor: textColor ?? this.textColor,
       greyHover: greyHover ?? this.greyHover,
       greySelect: greySelect ?? this.greySelect,
       lightGreyHover: lightGreyHover ?? this.lightGreyHover,
@@ -110,6 +114,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       tint7: Color.lerp(tint7, other.tint7, t)!,
       tint8: Color.lerp(tint8, other.tint8, t)!,
       tint9: Color.lerp(tint9, other.tint9, t)!,
+      textColor: Color.lerp(textColor, other.textColor, t)!,
       greyHover: Color.lerp(greyHover, other.greyHover, t)!,
       greySelect: Color.lerp(greySelect, other.greySelect, t)!,
       lightGreyHover: Color.lerp(lightGreyHover, other.lightGreyHover, t)!,

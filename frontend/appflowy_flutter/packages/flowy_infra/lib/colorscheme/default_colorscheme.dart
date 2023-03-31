@@ -64,6 +64,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           hoverBG2: _lightHover,
           hoverFG: _lightShader1,
           questionBubbleBG: _lightSelector,
+          hoverBG3: _lightShader6,
         );
 
   const DefaultColorScheme.dark()
@@ -108,6 +109,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           onPrimary: _darkShader1,
           hoverBG1: _darkMain1,
           hoverBG2: _darkMain1,
+          hoverBG3: _darkShader3,
           hoverFG: _darkShader1,
           questionBubbleBG: _darkShader3,
         );

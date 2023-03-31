@@ -15,14 +15,14 @@ const Map<String, List<FlowyColorScheme>> themeMap = {
     DefaultColorScheme.light(),
     DefaultColorScheme.dark(),
   ],
-  BuiltInTheme.dandelion: [
-    DandelionColorScheme.light(),
-    DandelionColorScheme.dark(),
-  ],
-  BuiltInTheme.lavender: [
-    LavenderColorScheme.light(),
-    LavenderColorScheme.dark(),
-  ],
+  // BuiltInTheme.dandelion: [
+  //   DandelionColorScheme.light(),
+  //   DandelionColorScheme.dark(),
+  // ],
+  // BuiltInTheme.lavender: [
+  //   LavenderColorScheme.light(),
+  //   LavenderColorScheme.dark(),
+  // ],
 };
 
 @immutable
@@ -69,6 +69,7 @@ abstract class FlowyColorScheme {
   final Color hoverBG1;
   //action item hover effect
   final Color hoverBG2;
+  final Color hoverBG3;
   //the text color when it is hovered
   final Color hoverFG;
   final Color questionBubbleBG;
@@ -114,6 +115,7 @@ abstract class FlowyColorScheme {
     required this.onPrimary,
     required this.hoverBG1,
     required this.hoverBG2,
+    required this.hoverBG3,
     required this.hoverFG,
     required this.questionBubbleBG,
   });
