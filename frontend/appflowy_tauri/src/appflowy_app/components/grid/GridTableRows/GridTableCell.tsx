@@ -7,13 +7,15 @@ export const GridTableCell = ({
   cellIdentifier,
   cellCache,
   fieldController,
+  onClick,
 }: {
   cellIdentifier: CellIdentifier;
   cellCache: CellCache;
   fieldController: FieldController;
+  onClick: () => void;
 }) => {
   return (
-    <div className='w-full rounded-lg border border-transparent group-active:bg-main-accent'>
+    <div onClick={() => onClick()} className='w-full rounded-lg border border-transparent group-active:bg-main-accent'>
       <BoardCell cellIdentifier={cellIdentifier} cellCache={cellCache} fieldController={fieldController} />
     </div>
   );

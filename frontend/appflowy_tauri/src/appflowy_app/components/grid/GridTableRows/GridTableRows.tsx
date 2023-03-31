@@ -5,15 +5,17 @@ export const GridTableRows = ({
   viewId,
   controller,
   allRows,
+  onOpenRow,
 }: {
   viewId: string;
   controller: DatabaseController;
   allRows: readonly RowInfo[];
+  onOpenRow: (rowId: RowInfo) => void;
 }) => {
   return (
     <tbody>
       {allRows.map((row, i) => {
-        return <GridTableRow row={row} key={i} viewId={viewId} controller={controller} />;
+        return <GridTableRow onOpenRow={onOpenRow} row={row} key={i} viewId={viewId} controller={controller} />;
       })}
     </tbody>
   );
