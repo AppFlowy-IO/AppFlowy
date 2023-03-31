@@ -104,15 +104,24 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        FlowyText.semibold(LocaleKeys.document_plugins_cover_colors.tr()),
+        FlowyText.semibold(
+          LocaleKeys.document_plugins_cover_colors.tr(),
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
         const SizedBox(height: 10),
         _buildColorPickerList(),
         const SizedBox(height: 10),
-        FlowyText.semibold(LocaleKeys.document_plugins_cover_images.tr()),
+        FlowyText.semibold(
+          LocaleKeys.document_plugins_cover_images.tr(),
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
         const SizedBox(height: 10),
         _buildFileImagePicker(),
         const SizedBox(height: 10),
-        FlowyText.semibold(LocaleKeys.document_plugins_cover_abstract.tr()),
+        FlowyText.semibold(
+          LocaleKeys.document_plugins_cover_abstract.tr(),
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
         const SizedBox(height: 10),
         _buildAbstractImagePicker(),
       ],

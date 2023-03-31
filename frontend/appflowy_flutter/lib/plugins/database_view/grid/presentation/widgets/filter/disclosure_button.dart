@@ -34,7 +34,7 @@ class _DisclosureButtonState extends State<DisclosureButton> {
           width: 20,
           icon: svgWidget(
             "editor/details",
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).iconTheme.color,
           ),
           onPressed: () => controller.show(),
         );
