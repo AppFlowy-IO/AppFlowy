@@ -8,7 +8,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum TestWorkspace {
-  board("board");
+  board("board"),
+  emptyDocument("empty_document");
 
   const TestWorkspace(this._name);
 
@@ -26,7 +27,7 @@ enum TestWorkspace {
 
   Future<Directory> get root async {
     final Directory parent = await TestWorkspace._parent;
-    return Directory(p.join(parent.path, name));
+    return Directory(p.join(parent.path, _name));
   }
 
   static Future<Directory> get _parent async {
@@ -37,7 +38,6 @@ enum TestWorkspace {
   }
 
   String get _asset => 'assets/test/workspaces/$_name.zip';
-
 }
 
 class TestWorkspaceService {
@@ -49,15 +49,18 @@ class TestWorkspaceService {
   Future<void> setUpAll() async {
     SharedPreferences.setMockInitialValues(
       {
-        kSettingsLocationDefaultLocation: await workspace.root.then((value) => value.path),
+        kSettingsLocationDefaultLocation:
+            await workspace.root.then((value) => value.path),
       },
     );
   }
 
   /// Workspaces that are checked into source are compressed. [TestWorkspaceService.setUp()] decompresses the file into an ephemeral directory that will be ignored by source control.
   Future<void> setUp() async {
-    final inputStream = InputFileStream(await workspace.zip.then((value) => value.path));
+    final inputStream =
+        InputFileStream(await workspace.zip.then((value) => value.path));
     final archive = ZipDecoder().decodeBuffer(inputStream);
-    extractArchiveToDisk(archive, await TestWorkspace._parent.then((value) => value.path));
+    extractArchiveToDisk(
+        archive, await TestWorkspace._parent.then((value) => value.path));
   }
 }
