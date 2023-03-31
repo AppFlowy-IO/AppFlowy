@@ -34,7 +34,7 @@ ThemeData customizeEditorTheme(BuildContext context) {
 
   return Theme.of(context).copyWith(extensions: [
     editorStyle,
-    ...darkPlguinStyleExtension,
+    ...darkPluginStyleExtension,
     quote,
   ]);
 }

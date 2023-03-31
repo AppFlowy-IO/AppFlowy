@@ -45,7 +45,7 @@ export class TypeOptionController {
       if (this.initialFieldInfo.some) {
         return this.initialFieldInfo.val;
       } else {
-        throw Error('Unexpect empty type option data. Should call initialize first');
+        throw Error('Unexpected empty type option data. Should call initialize first');
       }
     }
     return new FieldInfo(this.typeOptionData.val.field);
@@ -69,7 +69,7 @@ export class TypeOptionController {
       void this.fieldBackendSvc?.updateField({ name: name });
       this.fieldNotifier.notify(this.typeOptionData.val.field);
     } else {
-      throw Error('Unexpect empty type option data. Should call initialize first');
+      throw Error('Unexpected empty type option data. Should call initialize first');
     }
   };
 
@@ -82,20 +82,20 @@ export class TypeOptionController {
         }
       });
     } else {
-      throw Error('Unexpect empty type option data. Should call initialize first');
+      throw Error('Unexpected empty type option data. Should call initialize first');
     }
   };
 
   deleteField = async () => {
     if (this.fieldBackendSvc === undefined) {
-      Log.error('Unexpect empty field backend service');
+      Log.error('Unexpected empty field backend service');
     }
     return this.fieldBackendSvc?.deleteField();
   };
 
   duplicateField = async () => {
     if (this.fieldBackendSvc === undefined) {
-      Log.error('Unexpect empty field backend service');
+      Log.error('Unexpected empty field backend service');
     }
     return this.fieldBackendSvc?.duplicateField();
   };

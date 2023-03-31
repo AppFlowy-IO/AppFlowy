@@ -27,7 +27,7 @@ void main() async {
         Selection.single(path: [1], startOffset: 0, endOffset: text.length),
       );
 
-      // mutliple selection
+      // multiple selection
       await _testSelection(
         editor,
         Selection(
@@ -45,6 +45,6 @@ Future<void> _testSelection(
     EditorWidgetTester editor, Selection selection) async {
   await editor.updateSelection(selection);
   expect(editor.documentSelection, selection);
-  await editor.pressLogicKey(LogicalKeyboardKey.escape);
+  await editor.pressLogicKey(key: LogicalKeyboardKey.escape);
   expect(editor.documentSelection, null);
 }

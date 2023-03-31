@@ -1,11 +1,18 @@
 import { CellController } from '$app/stores/effects/database/cell/cell_controller';
 import { useEffect, useState, KeyboardEvent, useMemo } from 'react';
 
-export const EditCellText = ({ data, cellController }: { data: string; cellController: CellController<any, any> }) => {
+export const EditCellText = ({
+  data,
+  cellController,
+}: {
+  data: string | undefined;
+  cellController: CellController<any, any>;
+}) => {
   const [value, setValue] = useState('');
   const [contentRows, setContentRows] = useState(1);
+
   useEffect(() => {
-    setValue(data);
+    setValue(data || '');
   }, [data]);
 
   useEffect(() => {
@@ -21,12 +28,14 @@ export const EditCellText = ({ data, cellController }: { data: string; cellContr
   };
 
   return (
-    <textarea
-      className={'h-full w-full resize-none'}
-      rows={contentRows}
-      value={value}
-      onChange={(e) => onTextFieldChange(e.target.value)}
-      onBlur={() => save()}
-    />
+    <div className={''}>
+      <textarea
+        className={'mt-0.5 h-full w-full resize-none px-4 py-2'}
+        rows={contentRows}
+        value={value}
+        onChange={(e) => onTextFieldChange(e.target.value)}
+        onBlur={() => save()}
+      />
+    </div>
   );
 };

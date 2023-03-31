@@ -80,12 +80,6 @@ export const useDatabase = (viewId: string, type?: ViewLayoutTypePB) => {
     const group = groups[index];
     await group.createRow();
 
-    const newGroups = controller.groups.value;
-
-    newGroups.forEach((g) => {
-      console.log(g.name, g.rows);
-    });
-
     setGroups([...controller.groups.value]);
   };
 

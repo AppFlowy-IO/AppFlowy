@@ -73,7 +73,7 @@ class BoardTestContext {
   BoardTestContext(this.gridView, this._boardDataController);
 
   List<RowInfo> get rowInfos {
-    return _boardDataController.rowInfos;
+    return _boardDataController.rowCache.rowInfos;
   }
 
   List<FieldInfo> get fieldContexts => fieldController.fieldInfos;

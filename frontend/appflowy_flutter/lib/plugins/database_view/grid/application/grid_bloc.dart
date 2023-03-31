@@ -72,7 +72,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           add(GridEvent.didReceiveGridUpdate(database));
         }
       },
-      onRowsChanged: (rowInfos, reason) {
+      onRowsChanged: (rowInfos, _, reason) {
         if (!isClosed) {
           add(GridEvent.didReceiveRowUpdate(rowInfos, reason));
         }

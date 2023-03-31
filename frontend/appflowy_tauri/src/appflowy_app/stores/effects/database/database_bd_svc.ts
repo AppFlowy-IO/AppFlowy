@@ -5,10 +5,12 @@ import {
   DatabaseEventGetFields,
   DatabaseEventGetGroup,
   DatabaseEventGetGroups,
+  DatabaseEventMoveField,
   DatabaseEventMoveGroup,
   DatabaseEventMoveGroupRow,
   DatabaseEventMoveRow,
   DatabaseGroupIdPB,
+  MoveFieldPayloadPB,
   MoveGroupPayloadPB,
   MoveGroupRowPayloadPB,
   MoveRowPayloadPB,
@@ -94,6 +96,16 @@ export class DatabaseBackendService {
       to_group_id: toGroupId,
     });
     return DatabaseEventMoveGroup(payload);
+  };
+
+  moveField = (fieldId: string, fromIndex: number, toIndex: number) => {
+    const payload = MoveFieldPayloadPB.fromObject({
+      view_id: this.viewId,
+      field_id: fieldId,
+      from_index: fromIndex,
+      to_index: toIndex,
+    });
+    return DatabaseEventMoveField(payload);
   };
 
   /// Get all fields in database

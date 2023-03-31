@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/render/selection_menu/selection_menu_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -324,7 +323,7 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
       _deleteLastCharacters();
       return KeyEventResult.handled;
     } else if (event.character != null &&
-        !arrowKeys.contains(event.logicalKey)) {
+        !arrowKeys.contains(event.logicalKey) && event.logicalKey != LogicalKeyboardKey.tab) {
       keyword += event.character!;
       _insertText(event.character!);
       return KeyEventResult.handled;
@@ -339,7 +338,14 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
       newSelectedIndex -= 1;
     } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
       newSelectedIndex += 1;
+    } else if (event.logicalKey == LogicalKeyboardKey.tab) {
+      newSelectedIndex += widget.maxItemInRow;
+      var currRow = (newSelectedIndex) % widget.maxItemInRow;
+      if (newSelectedIndex >= _showingItems.length) {
+        newSelectedIndex = (currRow + 1) % widget.maxItemInRow;
+      }
     }
+
     if (newSelectedIndex != _selectedIndex) {
       setState(() {
         _selectedIndex = newSelectedIndex.clamp(0, _showingItems.length - 1);

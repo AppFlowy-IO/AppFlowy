@@ -16,6 +16,7 @@ import {
   NumberCellController,
   SelectOptionCellController,
   TextCellController,
+  URLCellController,
 } from '../../stores/effects/database/cell/controller_builder';
 import { None, Option, Some } from 'ts-results';
 import { TypeOptionBackendService } from '../../stores/effects/database/field/type_option/type_option_bd_svc';
@@ -123,6 +124,17 @@ export async function makeDateCellController(
     (result) => result.unwrap()
   );
   return Some(builder.build() as DateCellController);
+}
+
+export async function makeURLCellController(
+  fieldId: string,
+  rowInfo: RowInfo,
+  databaseController: DatabaseController
+): Promise<Option<URLCellController>> {
+  const builder = await makeCellControllerBuilder(fieldId, rowInfo, FieldType.DateTime, databaseController).then(
+    (result) => result.unwrap()
+  );
+  return Some(builder.build() as URLCellController);
 }
 
 export async function makeCellControllerBuilder(
