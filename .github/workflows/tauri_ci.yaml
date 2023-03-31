@@ -8,6 +8,7 @@ on:
 env:
   NODE_VERSION: "16"
   RUST_TOOLCHAIN: "1.65"
+  tauriCache: "tauriCache"
 
 jobs:
   tauri-build:
@@ -35,7 +36,9 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: ${{ matrix.platform }}
+          workspaces: frontend/rust-lib
+          key: ${{ matrix.platform }}
+          shared-key: ${{env.tauriCache}}
 
       - name: install dependencies (windows only)
         if: matrix.platform == 'windows-latest'

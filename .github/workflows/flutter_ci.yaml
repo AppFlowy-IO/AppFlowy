@@ -60,7 +60,8 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: ${{ matrix.job.os }}
+          key: ${{ matrix.job.os }}
+          shared-key: ${{env.global-cache-key}}
 
       - name: Install prerequisites
         working-directory: frontend

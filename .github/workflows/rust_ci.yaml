@@ -21,6 +21,7 @@ env:
   CARGO_TERM_COLOR: always
   RUST_TOOLCHAIN: "1.65"
   FLUTTER_VERSION: "3.3.9"
+  global-cache-key: "rustCacheBuild"
 
 jobs:
   test-on-ubuntu:
@@ -46,15 +47,17 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: frontend/rust-lib
+          key: ${{ matrix.job.os }}
+          shared-key: ${{env.global-cache-key}}
+
       - name: Install prerequisites
         working-directory: frontend
         run: |
           cargo install --force cargo-make
           cargo install --force duckscript_cli
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          prefix-key: ${{ matrix.job.os }}
 
       - name: Build FlowySDK
         working-directory: frontend
