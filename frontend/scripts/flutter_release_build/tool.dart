@@ -66,9 +66,9 @@ class _BuildTool {
     var scanMode = _ScanMode.ignore;
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i];
-      if (line.contains('BEGIN: EXCLUDE_IN_RELEASE')) {
+      if (line.contains(excludeTagBegin)) {
         scanMode = _ScanMode.target;
-      } else if (line.contains('END: EXCLUDE_IN_RELEASE')) {
+      } else if (line.contains(excludeTagBegin)) {
         scanMode = _ScanMode.ignore;
       } else if (scanMode == _ScanMode.target) {
         lines[i] = _modify(line, mode: mode);

@@ -2,6 +2,9 @@ import 'dart:io';
 
 part 'tool.dart';
 
+const excludeTagBegin = 'BEGIN: EXCLUDE_IN_RELEASE';
+const excludeTagEnd = 'END: EXCLUDE_IN_RELEASE';
+
 Future<void> main(List<String> args) async {
   const help = '''
 A build script that modifies build assets before building the release version of AppFlowy.
