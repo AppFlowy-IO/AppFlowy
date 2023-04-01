@@ -162,7 +162,7 @@ class GoButton extends StatelessWidget {
     return FlowyTextButton(
       LocaleKeys.letsGoButtonText.tr(),
       fontSize: FontSizes.s16,
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 12.0),
       onPressed: onPressed,
       fillColor: Theme.of(context).colorScheme.primary,
       fontColor: Theme.of(context).colorScheme.onPrimary,
