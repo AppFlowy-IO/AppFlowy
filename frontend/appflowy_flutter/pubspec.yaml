@@ -169,4 +169,4 @@ flutter:
     # The following assets will be excluded in release.
     # BEGIN: EXCLUDE_IN_RELEASE
     - assets/test/workspaces/
-    # END: EXCLUDE_IN_RELEASEEEEEEE
+    # END: EXCLUDE_IN_RELEASE
