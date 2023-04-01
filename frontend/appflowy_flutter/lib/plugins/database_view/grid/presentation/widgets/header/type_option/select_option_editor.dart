@@ -106,7 +106,7 @@ class _DeleteTag extends StatelessWidget {
         text: FlowyText.medium(LocaleKeys.grid_selectOption_deleteTag.tr()),
         leftIcon: svgWidget(
           "grid/delete",
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).iconTheme.color,
         ),
         onTap: () {
           context

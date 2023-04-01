@@ -116,11 +116,11 @@ class _SwitchFieldButton extends StatelessWidget {
       margin: GridSize.typeOptionContentInsets,
       leftIcon: svgWidget(
         bloc.state.field.fieldType.iconName(),
-        color: Theme.of(context).colorScheme.onSurface,
+        color: Theme.of(context).iconTheme.color,
       ),
       rightIcon: svgWidget(
         "grid/more",
-        color: Theme.of(context).colorScheme.onSurface,
+        color: Theme.of(context).iconTheme.color,
       ),
     );
   }

@@ -173,13 +173,13 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             leftChevronPadding: EdgeInsets.zero,
             leftChevronIcon: svgWidget(
               "home/arrow_left",
-              color: Theme.of(context).colorScheme.onSurface,
+              color: Theme.of(context).iconTheme.color,
             ),
             rightChevronPadding: EdgeInsets.zero,
             rightChevronMargin: EdgeInsets.zero,
             rightChevronIcon: svgWidget(
               "home/arrow_right",
-              color: Theme.of(context).colorScheme.onSurface,
+              color: Theme.of(context).iconTheme.color,
             ),
             headerMargin: const EdgeInsets.only(bottom: 8.0),
           ),
@@ -254,7 +254,7 @@ class _IncludeTimeButton extends StatelessWidget {
                 children: [
                   svgWidget(
                     "grid/clock",
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: Theme.of(context).iconTheme.color,
                   ),
                   const HSpace(4),
                   FlowyText.medium(LocaleKeys.grid_field_includeTime.tr()),
@@ -387,7 +387,7 @@ class _DateTypeOptionButton extends StatelessWidget {
                 margin: GridSize.typeOptionContentInsets,
                 rightIcon: svgWidget(
                   "grid/more",
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).iconTheme.color,
                 ),
               ),
             ),

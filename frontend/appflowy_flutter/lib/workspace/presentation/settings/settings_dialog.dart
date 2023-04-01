@@ -32,6 +32,7 @@ class SettingsDialog extends StatelessWidget {
               LocaleKeys.settings_title.tr(),
               fontSize: 20,
               fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.tertiary,
             ),
           ),
           child: ScaffoldMessenger(
@@ -54,7 +55,9 @@ class SettingsDialog extends StatelessWidget {
                             context.read<SettingsDialogBloc>().state.page,
                       ),
                     ),
-                    const VerticalDivider(),
+                    VerticalDivider(
+                      color: Theme.of(context).dividerColor,
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: getSettingsView(
