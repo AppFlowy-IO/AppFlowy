@@ -59,6 +59,28 @@ final tableContextMenuItems = [
         editorState.apply(transaction);
       },
     ),
+    ContextMenuItem(
+      name: 'Duplicate Column',
+      isApplicable: _isSelectionInTable,
+      onPressed: (editorState) {
+        var node = _getTableCellNode(editorState);
+        final transaction = editorState.transaction;
+        duplicateCol(
+            node.parent!, node.attributes['position']['col'], transaction);
+        editorState.apply(transaction);
+      },
+    ),
+    ContextMenuItem(
+      name: 'Duplicate Row',
+      isApplicable: _isSelectionInTable,
+      onPressed: (editorState) {
+        var node = _getTableCellNode(editorState);
+        final transaction = editorState.transaction;
+        duplicateRow(
+            node.parent!, node.attributes['position']['row'], transaction);
+        editorState.apply(transaction);
+      },
+    ),
   ],
 ];
 

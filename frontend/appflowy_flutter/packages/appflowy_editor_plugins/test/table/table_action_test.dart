@@ -1,4 +1,5 @@
 import 'package:appflowy_editor_plugins/src/table/src/table_action.dart';
+import 'package:appflowy_editor_plugins/src/table/src/util.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:appflowy_editor_plugins/src/table/src/table_node.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -74,6 +75,58 @@ void main() async {
           ]
         },
       );
+    });
+
+    testWidgets('duplicate column', (tester) async {
+      var tableNode = TableNode.fromList([
+        ['1', '2'],
+        ['3', '4']
+      ]);
+      final editor = tester.editor..insert(tableNode.node);
+
+      await editor.startTesting(customBuilders: {
+        kTableType: TableNodeWidgetBuilder(),
+        kTableCellType: TableCellNodeWidgetBuilder()
+      });
+      await tester.pumpAndSettle();
+
+      final transaction = editor.editorState.transaction;
+      duplicateCol(tableNode.node, 0, transaction);
+      editor.editorState.apply(transaction);
+      await tester.pump(const Duration(milliseconds: 100));
+      tableNode = TableNode(node: tableNode.node);
+
+      expect(tableNode.colsLen, 3);
+      for (var i = 0; i < tableNode.rowsLen; i++) {
+        expect(getCellNode(tableNode.node, 0, i)!.children.first.toJson(),
+            getCellNode(tableNode.node, 1, i)!.children.first.toJson());
+      }
+    });
+
+    testWidgets('duplicate row', (tester) async {
+      var tableNode = TableNode.fromList([
+        ['1', '2'],
+        ['3', '4']
+      ]);
+      final editor = tester.editor..insert(tableNode.node);
+
+      await editor.startTesting(customBuilders: {
+        kTableType: TableNodeWidgetBuilder(),
+        kTableCellType: TableCellNodeWidgetBuilder()
+      });
+      await tester.pumpAndSettle();
+
+      final transaction = editor.editorState.transaction;
+      duplicateRow(tableNode.node, 0, transaction);
+      editor.editorState.apply(transaction);
+      await tester.pump(const Duration(milliseconds: 100));
+      tableNode = TableNode(node: tableNode.node);
+
+      expect(tableNode.rowsLen, 3);
+      for (var i = 0; i < tableNode.colsLen; i++) {
+        expect(getCellNode(tableNode.node, i, 0)!.children.first.toJson(),
+            getCellNode(tableNode.node, i, 1)!.children.first.toJson());
+      }
     });
   });
 }

@@ -84,6 +84,54 @@ removeRow(Node tableNode, int row, Transaction transaction) {
   transaction.updateNode(tableNode, {'rowsLen': rowsLen - 1});
 }
 
+duplicateCol(Node tableNode, int col, Transaction transaction) {
+  final int rowsLen = tableNode.attributes['rowsLen'],
+      colsLen = tableNode.attributes['colsLen'];
+  List<Node> nodes = [];
+  for (var i = 0; i < rowsLen; i++) {
+    final node = getCellNode(tableNode, col, i)!;
+    nodes.add(node.copyWith(attributes: {
+      'position': {'col': col + 1, 'row': i}
+    }));
+  }
+  transaction.insertNodes(
+      getCellNode(tableNode, col, rowsLen - 1)!.path.next, nodes);
+
+  for (var i = col + 1; i < colsLen; i++) {
+    for (var j = 0; j < rowsLen; j++) {
+      transaction.updateNode(getCellNode(tableNode, i, j)!, {
+        'position': {'col': i + 1, 'row': j}
+      });
+    }
+  }
+
+  transaction.updateNode(tableNode, {'colsLen': colsLen + 1});
+}
+
+duplicateRow(Node tableNode, int row, Transaction transaction) {
+  final int rowsLen = tableNode.attributes['rowsLen'],
+      colsLen = tableNode.attributes['colsLen'];
+  for (var i = 0; i < colsLen; i++) {
+    final node = getCellNode(tableNode, i, row)!;
+    transaction.insertNode(
+      node.path.next,
+      node.copyWith(attributes: {
+        'position': {'row': row + 1, 'col': i}
+      }),
+    );
+  }
+
+  for (var i = row + 1; i < rowsLen; i++) {
+    for (var j = 0; j < colsLen; j++) {
+      transaction.updateNode(getCellNode(tableNode, j, i)!, {
+        'position': {'col': j, 'row': i + 1}
+      });
+    }
+  }
+
+  transaction.updateNode(tableNode, {'rowsLen': rowsLen + 1});
+}
+
 newCellNode(Node tableNode, n) {
   final row = n.attributes['position']['row'] as int;
   final col = n.attributes['position']['col'] as int;
