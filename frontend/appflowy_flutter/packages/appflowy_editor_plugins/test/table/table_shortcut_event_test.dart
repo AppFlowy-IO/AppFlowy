@@ -31,7 +31,7 @@ void main() async {
 
       await editor.updateSelection(
           Selection.single(path: cell00.childAtIndex(0)!.path, startOffset: 0));
-      await editor.pressLogicKey(LogicalKeyboardKey.enter);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.enter);
 
       var selection = editor.documentSelection!;
       var cell01 = getCellNode(tableNode.node, 0, 1)!;
@@ -60,7 +60,7 @@ void main() async {
 
       await editor.updateSelection(
           Selection.single(path: cell11.childAtIndex(0)!.path, startOffset: 0));
-      await editor.pressLogicKey(LogicalKeyboardKey.enter);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.enter);
 
       var selection = editor.documentSelection!;
 
@@ -89,7 +89,7 @@ void main() async {
 
       await editor.updateSelection(
           Selection.single(path: cell10.childAtIndex(0)!.path, startOffset: 0));
-      await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.backspace);
 
       var selection = editor.documentSelection!;
 
@@ -125,7 +125,7 @@ void main() async {
 
       await editor.updateSelection(
           Selection.single(path: cell01.childAtIndex(0)!.path, startOffset: 1));
-      await editor.pressLogicKey(LogicalKeyboardKey.arrowUp);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.arrowUp);
 
       var selection = editor.documentSelection!;
 
@@ -135,7 +135,7 @@ void main() async {
 
       await editor.updateSelection(
           Selection.single(path: cell01.childAtIndex(0)!.path, startOffset: 3));
-      await editor.pressLogicKey(LogicalKeyboardKey.arrowUp);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.arrowUp);
 
       selection = editor.documentSelection!;
 
@@ -165,7 +165,7 @@ void main() async {
 
       await editor.updateSelection(
           Selection.single(path: cell00.childAtIndex(0)!.path, startOffset: 1));
-      await editor.pressLogicKey(LogicalKeyboardKey.arrowDown);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.arrowDown);
 
       var selection = editor.documentSelection!;
 
@@ -175,7 +175,7 @@ void main() async {
 
       await editor.updateSelection(
           Selection.single(path: cell00.childAtIndex(0)!.path, startOffset: 3));
-      await editor.pressLogicKey(LogicalKeyboardKey.arrowDown);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.arrowDown);
 
       selection = editor.documentSelection!;
 
