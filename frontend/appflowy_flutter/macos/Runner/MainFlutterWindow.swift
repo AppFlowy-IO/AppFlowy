@@ -1,9 +1,10 @@
 import Cocoa
 import FlutterMacOS
+import bitsdojo_window_macos
 
 private let kTrafficLightOffetTop = 22
 
-class MainFlutterWindow: NSWindow {
+class MainFlutterWindow: BitsdojoWindow {
   func registerMethodChannel(flutterViewController: FlutterViewController) {
     let cocoaWindowChannel = FlutterMethodChannel(name: "flutter/cocoaWindow", binaryMessenger: flutterViewController.engine.binaryMessenger)
     cocoaWindowChannel.setMethodCallHandler({
@@ -61,6 +62,10 @@ class MainFlutterWindow: NSWindow {
     customToolbar.view = newView
     self.addTitlebarAccessoryViewController(customToolbar)
   }
+
+  override func bitsdojo_window_configure() -> UInt {
+  return BDW_CUSTOM_FRAME | BDW_HIDE_ON_STARTUP
+}
 
   override func awakeFromNib() {
     let flutterViewController = FlutterViewController.init()

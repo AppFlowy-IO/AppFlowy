@@ -1,5 +1,6 @@
 #include "my_application.h"
 
+#include <bitsdojo_window_linux/bitsdojo_window_plugin.h>
 #include <flutter_linux/flutter_linux.h>
 #ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
@@ -54,7 +55,9 @@ static void my_application_activate(GApplication *application)
     gtk_window_set_title(window, "AppFlowy");
   }
 
-  gtk_window_set_default_size(window, 1280, 720);
+  auto bdw = bitsdojo_window_from(window);
+  bdw->setCustomFrame(true);
+  // gtk_window_set_default_size(window, 1280, 720);
   gtk_widget_show(GTK_WIDGET(window));
 
   g_autoptr(FlDartProject) project = fl_dart_project_new();
