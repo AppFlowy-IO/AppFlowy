@@ -96,6 +96,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   final _focusNode = FocusNode(debugLabel: 'reference_list_widget');
   EditorStyle get style => widget.editorState.editorStyle;
   int _selectedIndex = 0;
+  int _totalItems = 0;
   List<dartz.Tuple2<AppPB, List<ViewPB>>> _availableLayout = [];
   final Map<int, dartz.Tuple2<AppPB, ViewPB>> _items = {};
   bool _isLoading = true;
@@ -112,10 +113,13 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
     for (final app in _availableLayout) {
       for (final view in app.value2) {
         _items.putIfAbsent(index, () => dartz.Tuple2(app.value1, view));
+        index += 1;
       }
-
-      index += 1;
     }
+
+    setState(() {
+      _totalItems = index;
+    });
   }
 
   @override
@@ -182,14 +186,14 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
 
     var newSelectedIndex = _selectedIndex;
     if (event.logicalKey == LogicalKeyboardKey.arrowDown &&
-        newSelectedIndex != _availableLayout.length - 1) {
+        newSelectedIndex != _totalItems - 1) {
       newSelectedIndex += 1;
     } else if (event.logicalKey == LogicalKeyboardKey.arrowUp &&
         newSelectedIndex != 0) {
       newSelectedIndex -= 1;
     } else if (event.logicalKey == LogicalKeyboardKey.tab) {
       newSelectedIndex += 1;
-      newSelectedIndex %= _availableLayout.length;
+      newSelectedIndex %= _totalItems;
     } else if (event.logicalKey == LogicalKeyboardKey.enter) {
       widget.onSelected(
           _items[_selectedIndex]!.value1, _items[_selectedIndex]!.value2);
