@@ -103,5 +103,85 @@ void main() async {
 
     //testWidgets(
     //    'backspace on cell and after table node selection', (tester) async {});
+
+    testWidgets('up arrow key move to above row with same column',
+        (tester) async {
+      final tableNode = TableNode.fromList([
+        ['ab', 'cde'],
+        ['', '']
+      ]);
+      final editor = tester.editor..insert(tableNode.node);
+
+      await editor.startTesting(customBuilders: {
+        kTableType: TableNodeWidgetBuilder(),
+        kTableCellType: TableCellNodeWidgetBuilder()
+      }, shortcutEvents: [
+        upInTableCell
+      ]);
+      await tester.pumpAndSettle();
+
+      var cell01 = getCellNode(tableNode.node, 0, 1)!;
+      var cell00 = getCellNode(tableNode.node, 0, 0)!;
+
+      await editor.updateSelection(
+          Selection.single(path: cell01.childAtIndex(0)!.path, startOffset: 1));
+      await editor.pressLogicKey(LogicalKeyboardKey.arrowUp);
+
+      var selection = editor.documentSelection!;
+
+      expect(selection.isCollapsed, true);
+      expect(selection.start.path, cell00.childAtIndex(0)!.path);
+      expect(selection.start.offset, 1);
+
+      await editor.updateSelection(
+          Selection.single(path: cell01.childAtIndex(0)!.path, startOffset: 3));
+      await editor.pressLogicKey(LogicalKeyboardKey.arrowUp);
+
+      selection = editor.documentSelection!;
+
+      expect(selection.isCollapsed, true);
+      expect(selection.start.path, cell00.childAtIndex(0)!.path);
+      expect(selection.start.offset, 2);
+    });
+
+    testWidgets('down arrow key move to down row with same column',
+        (tester) async {
+      final tableNode = TableNode.fromList([
+        ['abc', 'de'],
+        ['', '']
+      ]);
+      final editor = tester.editor..insert(tableNode.node);
+
+      await editor.startTesting(customBuilders: {
+        kTableType: TableNodeWidgetBuilder(),
+        kTableCellType: TableCellNodeWidgetBuilder()
+      }, shortcutEvents: [
+        downInTableCell
+      ]);
+      await tester.pumpAndSettle();
+
+      var cell01 = getCellNode(tableNode.node, 0, 1)!;
+      var cell00 = getCellNode(tableNode.node, 0, 0)!;
+
+      await editor.updateSelection(
+          Selection.single(path: cell00.childAtIndex(0)!.path, startOffset: 1));
+      await editor.pressLogicKey(LogicalKeyboardKey.arrowDown);
+
+      var selection = editor.documentSelection!;
+
+      expect(selection.isCollapsed, true);
+      expect(selection.start.path, cell01.childAtIndex(0)!.path);
+      expect(selection.start.offset, 1);
+
+      await editor.updateSelection(
+          Selection.single(path: cell00.childAtIndex(0)!.path, startOffset: 3));
+      await editor.pressLogicKey(LogicalKeyboardKey.arrowDown);
+
+      selection = editor.documentSelection!;
+
+      expect(selection.isCollapsed, true);
+      expect(selection.start.path, cell01.childAtIndex(0)!.path);
+      expect(selection.start.offset, 2);
+    });
   });
 }

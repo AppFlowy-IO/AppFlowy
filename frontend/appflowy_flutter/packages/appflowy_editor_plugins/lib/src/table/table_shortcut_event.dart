@@ -21,6 +21,18 @@ ShortcutEvent rightInTableCell = ShortcutEvent(
   handler: _rightInTableCellHandler,
 );
 
+ShortcutEvent upInTableCell = ShortcutEvent(
+  key: 'Move to up cell at same offset',
+  command: 'arrow up',
+  handler: _upInTableCellHandler,
+);
+
+ShortcutEvent downInTableCell = ShortcutEvent(
+  key: 'Move to down cell at same offset',
+  command: 'arrow down',
+  handler: _downInTableCellHandler,
+);
+
 ShortcutEventHandler _enterInTableCellHandler = (editorState, event) {
   final inTableNodes = _inTableNodes(editorState);
   if (inTableNodes.isNotEmpty) {
@@ -74,6 +86,46 @@ ShortcutEventHandler _rightInTableCellHandler = (editorState, event) {
     if (_nodeHasTextChild(nextNode)) {
       editorState.service.selectionService.updateSelection(Selection.single(
           path: nextNode!.childAtIndex(0)!.path, startOffset: 0));
+    }
+
+    return KeyEventResult.handled;
+  }
+  return KeyEventResult.ignored;
+};
+
+ShortcutEventHandler _upInTableCellHandler = (editorState, event) {
+  final inTableNodes = _inTableNodes(editorState);
+  final selection = editorState.service.selectionService.currentSelection.value;
+  if (_hasSelectionAndTableCell(inTableNodes, selection)) {
+    final nextNode = _getNextNode(inTableNodes, 0, -1);
+
+    if (_nodeHasTextChild(nextNode)) {
+      final target = nextNode!.childAtIndex(0)! as TextNode;
+      final off = target.delta.length > selection!.start.offset
+          ? selection.start.offset
+          : target.delta.length;
+      editorState.service.selectionService.updateSelection(
+          Selection.single(path: target.path, startOffset: off));
+    }
+
+    return KeyEventResult.handled;
+  }
+  return KeyEventResult.ignored;
+};
+
+ShortcutEventHandler _downInTableCellHandler = (editorState, event) {
+  final inTableNodes = _inTableNodes(editorState);
+  final selection = editorState.service.selectionService.currentSelection.value;
+  if (_hasSelectionAndTableCell(inTableNodes, selection)) {
+    final nextNode = _getNextNode(inTableNodes, 0, 1);
+
+    if (_nodeHasTextChild(nextNode)) {
+      final target = nextNode!.childAtIndex(0)! as TextNode;
+      final off = target.delta.length > selection!.start.offset
+          ? selection.start.offset
+          : target.delta.length;
+      editorState.service.selectionService.updateSelection(
+          Selection.single(path: target.path, startOffset: off));
     }
 
     return KeyEventResult.handled;
