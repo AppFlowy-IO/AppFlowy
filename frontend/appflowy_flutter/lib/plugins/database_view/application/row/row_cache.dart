@@ -37,9 +37,13 @@ class RowCache {
   final RowCacheDelegate _delegate;
   final RowChangesetNotifier _rowChangeReasonNotifier;
 
-  UnmodifiableListView<RowInfo> get visibleRows {
+  UnmodifiableListView<RowInfo> get rowInfos {
     var visibleRows = [..._rowList.rows];
     return UnmodifiableListView(visibleRows);
+  }
+
+  UnmodifiableMapView<String, RowInfo> get rowByRowId {
+    return UnmodifiableMapView(_rowList.rowInfoByRowId);
   }
 
   CellCache get cellCache => _cellCache;
@@ -59,6 +63,10 @@ class RowCache {
       _rowChangeReasonNotifier
           .receive(const RowsChangedReason.fieldDidChange());
     });
+  }
+
+  RowInfo? getRow(String rowId) {
+    return _rowList.get(rowId);
   }
 
   void setInitialRows(List<RowPB> rows) {

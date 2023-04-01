@@ -232,7 +232,7 @@ class _CardMoreOption extends StatelessWidget with CardAccessory {
       padding: const EdgeInsets.all(3.0),
       child: svgWidget(
         'grid/details',
-        color: Theme.of(context).colorScheme.onSurface,
+        color: Theme.of(context).iconTheme.color,
       ),
     );
   }
@@ -254,7 +254,7 @@ class _CardEditOption extends StatelessWidget with CardAccessory {
       padding: const EdgeInsets.all(3.0),
       child: svgWidget(
         'editor/edit',
-        color: Theme.of(context).colorScheme.onSurface,
+        color: Theme.of(context).iconTheme.color,
       ),
     );
   }

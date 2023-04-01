@@ -39,7 +39,7 @@ extension AppFlowySettings on WidgetTester {
     return;
   }
 
-  /// Open the page taht insides the settings page
+  /// Open the page that insides the settings page
   Future<void> openSettingsPage(SettingsPage page) async {
     final button = find.text(page.name, findRichText: true);
     expect(button, findsOneWidget);
@@ -49,25 +49,25 @@ extension AppFlowySettings on WidgetTester {
 
   /// Restore the AppFlowy data storage location
   Future<void> restoreLocation() async {
-    final buton =
+    final button =
         find.byTooltip(LocaleKeys.settings_files_restoreLocation.tr());
-    expect(buton, findsOneWidget);
-    await tapButton(buton);
+    expect(button, findsOneWidget);
+    await tapButton(button);
     return;
   }
 
   Future<void> tapOpenFolderButton() async {
-    final buton = find.text(LocaleKeys.settings_files_open.tr());
-    expect(buton, findsOneWidget);
-    await tapButton(buton);
+    final button = find.text(LocaleKeys.settings_files_open.tr());
+    expect(button, findsOneWidget);
+    await tapButton(button);
     return;
   }
 
   Future<void> tapCustomLocationButton() async {
-    final buton =
+    final button =
         find.byTooltip(LocaleKeys.settings_files_customizeLocation.tr());
-    expect(buton, findsOneWidget);
-    await tapButton(buton);
+    expect(button, findsOneWidget);
+    await tapButton(button);
     return;
   }
 

@@ -47,45 +47,48 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
 
   void hoverEnterLanguage() {
     setState(() {
-      currHoverColor = Theme.of(context).colorScheme.primary;
+      currHoverColor = Theme.of(context).colorScheme.secondaryContainer;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      onEnter: (event) => {hoverEnterLanguage()},
-      onExit: (event) => {hoverExitLanguage()},
+      onEnter: (_) => hoverEnterLanguage(),
+      onExit: (_) => hoverExitLanguage(),
       child: Container(
-        margin: const EdgeInsets.only(left: 8, right: 8),
+        margin: const EdgeInsets.symmetric(horizontal: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           color: currHoverColor,
         ),
         child: DropdownButtonHideUnderline(
-          child: DropdownButton<Locale>(
-            value: context.locale,
-            onChanged: (val) {
-              setState(() {
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: DropdownButton<Locale>(
+              value: context.locale,
+              dropdownColor: Theme.of(context).cardColor,
+              onChanged: (locale) {
                 context
                     .read<AppearanceSettingsCubit>()
-                    .setLocale(context, val!);
-              });
-            },
-            icon: const Visibility(
-              visible: false,
-              child: (Icon(Icons.arrow_downward)),
+                    .setLocale(context, locale!);
+              },
+              autofocus: true,
+              borderRadius: BorderRadius.circular(8),
+              items:
+                  EasyLocalization.of(context)!.supportedLocales.map((locale) {
+                return DropdownMenuItem<Locale>(
+                  value: locale,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: FlowyText.medium(
+                      languageFromLocale(locale),
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
-            borderRadius: BorderRadius.circular(8),
-            items: EasyLocalization.of(context)!.supportedLocales.map((locale) {
-              return DropdownMenuItem<Locale>(
-                value: locale,
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: FlowyText.medium(languageFromLocale(locale)),
-                ),
-              );
-            }).toList(),
           ),
         ),
       ),

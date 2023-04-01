@@ -194,7 +194,7 @@ class _OptionCellState extends State<_OptionCell> {
             padding: const EdgeInsets.symmetric(horizontal: 6.0),
             child: svgWidget(
               "grid/details",
-              color: Theme.of(context).colorScheme.onSurface,
+              color: Theme.of(context).iconTheme.color,
             ),
           ),
         ],
@@ -251,7 +251,7 @@ class _AddOptionButton extends StatelessWidget {
           },
           leftIcon: svgWidget(
             "home/add",
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).iconTheme.color,
           ),
         ),
       ),

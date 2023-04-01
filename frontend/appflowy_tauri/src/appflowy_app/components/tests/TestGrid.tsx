@@ -5,8 +5,8 @@ import {
   NumberTypeOptionPB,
   SelectOptionCellDataPB,
   ViewLayoutTypePB,
-} from '../../../services/backend';
-import { Log } from '../../utils/log';
+} from '@/services/backend';
+import { Log } from '$app/utils/log';
 import {
   assertFieldName,
   assertNumberOfFields,
@@ -19,18 +19,19 @@ import {
   makeMultiSelectCellController,
   makeSingleSelectCellController,
   makeTextCellController,
+  makeURLCellController,
   openTestDatabase,
 } from './DatabaseTestHelper';
-import { SelectOptionCellBackendService } from '../../stores/effects/database/cell/select_option_bd_svc';
-import { TypeOptionController } from '../../stores/effects/database/field/type_option/type_option_controller';
+import { SelectOptionCellBackendService } from '$app/stores/effects/database/cell/select_option_bd_svc';
+import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
 import { None, Some } from 'ts-results';
-import { RowBackendService } from '../../stores/effects/database/row/row_bd_svc';
-import { makeNumberTypeOptionContext } from '../../stores/effects/database/field/type_option/type_option_context';
+import { RowBackendService } from '$app/stores/effects/database/row/row_bd_svc';
+import { makeNumberTypeOptionContext } from '$app/stores/effects/database/field/type_option/type_option_context';
 
 export const RunAllGridTests = () => {
   async function run() {
     await createBuildInGrid();
-    await testEditGridRow();
+    await testEditGridCell();
     await testCreateRow();
     await testDeleteRow();
     await testCreateOptionInCell();
@@ -75,7 +76,7 @@ async function createBuildInGrid() {
   await databaseController.dispose();
 }
 
-async function testEditGridRow() {
+async function testEditGridCell() {
   const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
@@ -86,6 +87,55 @@ async function testEditGridRow() {
     await editTextCell(fieldInfo.field.id, row, databaseController, cellContent);
     await assertTextCell(fieldInfo.field.id, row, databaseController, cellContent);
   }
+}
+
+async function testEditTextCell() {
+  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const databaseController = await openTestDatabase(view.id);
+  await databaseController.open().then((result) => result.unwrap());
+
+  const row = databaseController.databaseViewCache.rowInfos[0];
+  const textField = findFirstFieldInfoWithFieldType(row, FieldType.RichText).unwrap();
+  const textCellController = await makeTextCellController(textField.field.id, row, databaseController).then((result) =>
+    result.unwrap()
+  );
+
+  textCellController.subscribeChanged({
+    onCellChanged: (content) => {
+      Log.info('Receive text:', content);
+    },
+  });
+
+  await textCellController.saveCellData('hello react');
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  await databaseController.dispose();
+}
+
+async function testEditURLCell() {
+  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const databaseController = await openTestDatabase(view.id);
+  await databaseController.open().then((result) => result.unwrap());
+
+  const typeOptionController = new TypeOptionController(view.id, None, FieldType.URL);
+  await typeOptionController.initialize();
+
+  const row = databaseController.databaseViewCache.rowInfos[0];
+  const urlCellController = await makeURLCellController(typeOptionController.fieldId, row, databaseController).then(
+    (result) => result.unwrap()
+  );
+
+  urlCellController.subscribeChanged({
+    onCellChanged: (content) => {
+      const pb = content.unwrap();
+      Log.info('Receive url data:', pb.url, pb.content);
+    },
+  });
+
+  await urlCellController.saveCellData('hello react');
+  await new Promise((resolve) => setTimeout(resolve, 200));
+
+  await urlCellController.saveCellData('appflowy.io');
+  await new Promise((resolve) => setTimeout(resolve, 200));
 }
 
 async function testCreateRow() {
@@ -129,6 +179,7 @@ async function testCreateOptionInCell() {
       const cellController = await makeSingleSelectCellController(fieldInfo.field.id, row, databaseController).then(
         (result) => result.unwrap()
       );
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       await cellController.subscribeChanged({
         onCellChanged: (value) => {
           if (value.some) {
@@ -299,9 +350,16 @@ export const TestCreateGrid = () => {
 };
 
 export const TestEditCell = () => {
-  return TestButton('Test editing cell', testEditGridRow);
+  return TestButton('Test editing cell', testEditGridCell);
 };
 
+export const TestEditTextCell = () => {
+  return TestButton('Test editing text cell', testEditTextCell);
+};
+
+export const TestEditURLCell = () => {
+  return TestButton('Test editing URL cell', testEditURLCell);
+};
 export const TestCreateRow = () => {
   return TestButton('Test create row', testCreateRow);
 };

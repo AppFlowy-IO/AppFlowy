@@ -71,7 +71,7 @@ void main() async {
 
     // https://github.com/AppFlowy-IO/AppFlowy/issues/1763
     // // [Bug] Mouse unable to click a certain area #1763
-    testWidgets('insert a new checkbox after an exsiting checkbox',
+    testWidgets('insert a new checkbox after an existing checkbox',
         (tester) async {
       // Before
       //
@@ -100,16 +100,16 @@ void main() async {
         Selection.single(path: [0], startOffset: text.length),
       );
 
-      await editor.pressLogicKey(LogicalKeyboardKey.enter);
-      await editor.pressLogicKey(LogicalKeyboardKey.enter);
-      await editor.pressLogicKey(LogicalKeyboardKey.enter);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.enter);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.enter);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.enter);
 
       expect(
         editor.documentSelection,
         Selection.single(path: [2], startOffset: 0),
       );
 
-      await editor.pressLogicKey(LogicalKeyboardKey.slash);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.slash);
       await tester.pumpAndSettle(const Duration(milliseconds: 1000));
 
       expect(

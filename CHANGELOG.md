@@ -1,5 +1,24 @@
 # Release Notes
 
+## Version 0.1.2 - 03/28/2023
+
+### Bug Fixes
+
+- Fix: update calendar selected range.
+- Fix: duplicate view.
+
+## Version 0.1.1 - 03/21/2023
+
+### New features
+
+- AppFlowy brings the power of OpenAI into your AppFlowy pages. Ask AI to write anything for you in AppFlowy.
+- Support adding a cover image to your page, making your pages beautiful.
+- More shortcuts become available. Click on '?' at the bottom right to access our shortcut guide.
+
+### Bug Fixes
+
+- Fix some bugs
+
 ## Version 0.1.0 - 02/09/2023
 
 ### New features

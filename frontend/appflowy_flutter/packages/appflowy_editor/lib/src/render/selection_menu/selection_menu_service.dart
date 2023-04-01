@@ -69,7 +69,7 @@ class SelectionMenu implements SelectionMenuService {
         editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
     final editorHeight = editorState.renderBox!.size.height;
 
-    // show below defualt
+    // show below default
     var showBelow = true;
     _alignment = Alignment.bottomLeft;
     final bottomRight = selectionRects.first.bottomRight;
@@ -91,20 +91,24 @@ class SelectionMenu implements SelectionMenuService {
         top: showBelow ? _offset.dy : null,
         bottom: showBelow ? null : _offset.dy,
         left: offset.dx,
-        child: SelectionMenuWidget(
-          items: [
-            ..._defaultSelectionMenuItems,
-            ...editorState.selectionMenuItems,
-          ],
-          maxItemInRow: 5,
-          editorState: editorState,
-          menuService: this,
-          onExit: () {
-            dismiss();
-          },
-          onSelectionUpdate: () {
-            _selectionUpdateByInner = true;
-          },
+        right: 0,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SelectionMenuWidget(
+            items: [
+              ..._defaultSelectionMenuItems,
+              ...editorState.selectionMenuItems,
+            ],
+            maxItemInRow: 5,
+            editorState: editorState,
+            menuService: this,
+            onExit: () {
+              dismiss();
+            },
+            onSelectionUpdate: () {
+              _selectionUpdateByInner = true;
+            },
+          ),
         ),
       );
     });

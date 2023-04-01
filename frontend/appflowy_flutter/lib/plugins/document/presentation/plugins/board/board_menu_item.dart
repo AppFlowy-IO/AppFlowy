@@ -17,7 +17,8 @@ SelectionMenuItem boardMenuItem = SelectionMenuItem(
           : editorState.editorStyle.selectionMenuItemIconColor,
     );
   },
-  keywords: ['board', 'kanban'],
+  // TODO(a-wallen): Translate keywords
+  keywords: ['referenced', 'board', 'kanban'],
   handler: (editorState, menuService, context) {
     showLinkToPageMenu(
       editorState,

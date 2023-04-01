@@ -247,7 +247,7 @@ List<ShortcutEvent> builtInShortcutEvents = [
   ),
   ShortcutEvent(
     key: 'selection menu',
-    command: 'slash,shift+slash',
+    character: '/',
     handler: slashShortcutHandler,
   ),
   ShortcutEvent(
@@ -289,7 +289,7 @@ List<ShortcutEvent> builtInShortcutEvents = [
   ),
   ShortcutEvent(
     key: 'Double tilde to strikethrough',
-    command: 'tilde,shift+tilde',
+    character: '~',
     handler: doubleTildeToStrikethrough,
   ),
   ShortcutEvent(
@@ -304,18 +304,23 @@ List<ShortcutEvent> builtInShortcutEvents = [
   ),
   ShortcutEvent(
     key: 'Underscore to italic',
-    command: 'shift+underscore',
+    character: '_',
     handler: underscoreToItalicHandler,
   ),
   ShortcutEvent(
+    key: 'Asterisk to italic',
+    character: '*',
+    handler: asteriskToItalicHandler,
+  ),
+  ShortcutEvent(
     key: 'Double asterisk to bold',
-    command: 'shift+digit 8',
-    handler: doubleAsteriskToBoldHanlder,
+    character: '*',
+    handler: doubleAsteriskToBoldHandler,
   ),
   ShortcutEvent(
     key: 'Double underscore to bold',
-    command: 'shift+underscore',
-    handler: doubleUnderscoreToBoldHanlder,
+    character: '_',
+    handler: doubleUnderscoreToBoldHandler,
   ),
   // https://github.com/flutter/flutter/issues/104944
   // Workaround: Using space editing on the web platform often results in errors,
