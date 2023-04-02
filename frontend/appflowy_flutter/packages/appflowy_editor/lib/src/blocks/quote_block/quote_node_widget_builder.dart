@@ -6,7 +6,7 @@ class QuoteBlockBuilder extends NodeWidgetBuilder<Node> {
   @override
   Widget build(NodeWidgetContext<Node> context) {
     return QuoteBlock(
-      key: context.node.key,
+      textKey: context.node.key,
       node: context.node,
     );
   }

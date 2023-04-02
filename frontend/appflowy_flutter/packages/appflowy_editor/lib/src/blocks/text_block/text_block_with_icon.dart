@@ -7,14 +7,14 @@ class TextBlockWithIcon extends StatefulWidget {
   const TextBlockWithIcon({
     super.key,
     required this.icon,
-    required this.textNode,
+    required this.node,
     this.onDebugMode = true,
     this.onTap,
     this.onDoubleTap,
     this.shortcuts = const [],
   });
 
-  final TextNode textNode;
+  final Node node;
   final bool onDebugMode;
   final Future<void> Function(Map<String, dynamic> values)? onTap;
   final Future<void> Function(Map<String, dynamic> values)? onDoubleTap;
@@ -28,32 +28,41 @@ class TextBlockWithIcon extends StatefulWidget {
 
 class _TextBlockWithIconState extends State<TextBlockWithIcon>
     with TextBlockWithInput {
+  late Delta delta;
 
   @override
-  EditorState get editorState => Provider.of<EditorState>(context, listen: false);
+  EditorState get editorState =>
+      Provider.of<EditorState>(context, listen: false);
 
   @override
-  // TODO: implement textNode
-  TextNode get textNode => throw UnimplementedError();
+  void initState() {
+    super.initState();
+
+    delta = Delta.fromJson(widget.node.attributes['texts']);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      // crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         widget.icon,
         TextBlock(
-          delta: widget.textNode.delta,
-          path: widget.textNode.,
+          delta: delta,
+          path: widget.node.path,
           onDebugMode: widget.onDebugMode,
           onTap: widget.onTap,
           onDoubleTap: widget.onDoubleTap,
           shortcuts: widget.shortcuts,
+          onInsert: onInsert,
+          onDelete: onDelete,
+          onReplace: onReplace,
+          onNonTextUpdate: onNonTextUpdate,
         )
       ],
     );
   }
-
-
 }

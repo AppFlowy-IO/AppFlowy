@@ -17,10 +17,10 @@ class TextBlock extends StatefulWidget {
     super.key,
     required this.delta,
     required this.path,
-    required this.onInsert,
-    required this.onDelete,
-    required this.onReplace,
-    required this.onNonTextUpdate,
+    this.onInsert,
+    this.onDelete,
+    this.onReplace,
+    this.onNonTextUpdate,
     this.onDebugMode = true,
     this.onTap,
     this.onDoubleTap,
@@ -35,11 +35,11 @@ class TextBlock extends StatefulWidget {
 
   final List<ShortcutEvent> shortcuts;
 
-  final Future<void> Function(TextEditingDeltaInsertion insertion) onInsert;
-  final Future<void> Function(TextEditingDeltaDeletion deletion) onDelete;
-  final Future<void> Function(TextEditingDeltaReplacement replacement)
+  final Future<void> Function(TextEditingDeltaInsertion insertion)? onInsert;
+  final Future<void> Function(TextEditingDeltaDeletion deletion)? onDelete;
+  final Future<void> Function(TextEditingDeltaReplacement replacement)?
       onReplace;
-  final Future<void> Function(TextEditingDeltaNonTextUpdate nonTextUpdate)
+  final Future<void> Function(TextEditingDeltaNonTextUpdate nonTextUpdate)?
       onNonTextUpdate;
 
   @override
@@ -132,12 +132,14 @@ class TextBlockState extends State<TextBlock> with SelectableState {
 
   void _buildDeltaInputServiceIfNeed() {
     _inputService ??= DeltaTextInputService(
-      onInsert: widget.onInsert,
-      onDelete: widget.onDelete,
-      onReplace: widget.onReplace,
-      onNonTextUpdate: widget.onNonTextUpdate,
+      onInsert: widget.onInsert ?? _voidFutureCallback,
+      onDelete: widget.onDelete ?? _voidFutureCallback,
+      onReplace: widget.onReplace ?? _voidFutureCallback,
+      onNonTextUpdate: widget.onNonTextUpdate ?? _voidFutureCallback,
     );
   }
+
+  Future<void> _voidFutureCallback(dynamic value) async {}
 
   // TODO: DON'T attach the input service every time.
   void _attachInputService() {
