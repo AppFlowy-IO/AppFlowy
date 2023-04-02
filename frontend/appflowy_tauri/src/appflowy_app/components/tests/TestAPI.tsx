@@ -8,6 +8,8 @@ import {
   TestDeleteField,
   TestDeleteRow,
   TestEditCell,
+  TestEditCheckboxCell,
+  TestEditDateCell,
   TestEditField,
   TestEditTextCell,
   TestEditURLCell,
@@ -37,6 +39,8 @@ export const TestAPI = () => {
         <TestEditCell></TestEditCell>
         <TestEditTextCell></TestEditTextCell>
         <TestEditURLCell></TestEditURLCell>
+        <TestEditDateCell></TestEditDateCell>
+        <TestEditCheckboxCell></TestEditCheckboxCell>
         <TestCreateSelectOptionInCell></TestCreateSelectOptionInCell>
         <TestGetSingleSelectFieldData></TestGetSingleSelectFieldData>
         <TestEditField></TestEditField>

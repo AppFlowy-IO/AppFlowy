@@ -23,7 +23,7 @@ export type SelectOptionCellController = CellController<SelectOptionCellDataPB, 
 export type DateCellController = CellController<DateCellDataPB, CalendarData>;
 
 export class CalendarData {
-  constructor(public readonly date: Date, public readonly time?: string) {}
+  constructor(public readonly date: Date, public readonly includeTime: boolean, public readonly time?: string) {}
 }
 
 export type URLCellController = CellController<URLCellDataPB, string>;
