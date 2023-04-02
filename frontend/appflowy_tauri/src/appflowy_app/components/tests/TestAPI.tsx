@@ -14,6 +14,7 @@ import {
   TestEditTextCell,
   TestEditURLCell,
   TestGetSingleSelectFieldData,
+  TestMoveField,
   TestSwitchFromMultiSelectToText,
   TestSwitchFromSingleSelectToNumber,
 } from './TestGrid';
@@ -44,6 +45,7 @@ export const TestAPI = () => {
         <TestCreateSelectOptionInCell></TestCreateSelectOptionInCell>
         <TestGetSingleSelectFieldData></TestGetSingleSelectFieldData>
         <TestEditField></TestEditField>
+        <TestMoveField></TestMoveField>
         <TestCreateNewField></TestCreateNewField>
         <TestDeleteField></TestDeleteField>
         <TestSwitchFromSingleSelectToNumber></TestSwitchFromSingleSelectToNumber>

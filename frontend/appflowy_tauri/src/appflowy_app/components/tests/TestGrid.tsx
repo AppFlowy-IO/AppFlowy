@@ -8,6 +8,7 @@ import {
 } from '@/services/backend';
 import { Log } from '$app/utils/log';
 import {
+  assert,
   assertFieldName,
   assertNumberOfFields,
   assertNumberOfRows,
@@ -30,6 +31,7 @@ import { None, Some } from 'ts-results';
 import { RowBackendService } from '$app/stores/effects/database/row/row_bd_svc';
 import { makeNumberTypeOptionContext } from '$app/stores/effects/database/field/type_option/type_option_context';
 import { CalendarData } from '$app/stores/effects/database/cell/controller_builder';
+import { DatabaseEventMoveField } from '@/services/backend/events/flowy-database';
 
 export const RunAllGridTests = () => {
   async function run() {
@@ -184,7 +186,7 @@ async function testCheckboxCell() {
   checkboxCellController.subscribeChanged({
     onCellChanged: (content) => {
       const pb = content.unwrap();
-      Log.info('Receive url data:', pb);
+      Log.info('Receive checkbox data:', pb);
     },
   });
 
@@ -248,6 +250,24 @@ async function testCreateOptionInCell() {
     }
   }
   await databaseController.dispose();
+}
+
+async function testMoveField() {
+  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const databaseController = await openTestDatabase(view.id);
+  await databaseController.open().then((result) => result.unwrap());
+
+  databaseController.subscribe({
+    onFieldsChanged: (value) => {
+      Log.info('Receive fields data:', value);
+    },
+  });
+
+  const fieldInfos = [...databaseController.fieldController.fieldInfos];
+  const field_id = fieldInfos[0].field.id;
+  await databaseController.moveField({ field_id: field_id, from_index: 0, to_index: 1 });
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  assert(databaseController.fieldController.fieldInfos[1].field.id === field_id);
 }
 
 async function testGetSingleSelectFieldData() {
@@ -442,6 +462,9 @@ export const TestSwitchFromMultiSelectToText = () => {
   return TestButton('Test switch from multi-select to text column', testSwitchFromMultiSelectToRichText);
 };
 
+export const TestMoveField = () => {
+  return TestButton('Test move field', testMoveField);
+};
 export const TestEditField = () => {
   return TestButton('Test edit the column name', testEditField);
 };

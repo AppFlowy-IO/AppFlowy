@@ -1,13 +1,14 @@
 import { DatabaseBackendService } from './database_bd_svc';
 import { FieldController, FieldInfo } from './field/field_controller';
 import { DatabaseViewCache } from './view/database_view_cache';
-import { DatabasePB, GroupPB } from '../../../../services/backend';
+import { DatabasePB, GroupPB, MoveFieldPayloadPB } from '../../../../services/backend';
 import { RowChangedReason, RowInfo } from './row/row_cache';
 import { Err } from 'ts-results';
 import { DatabaseGroupController } from './group/group_controller';
 import { BehaviorSubject } from 'rxjs';
 import { DatabaseGroupObserver } from './group/group_observer';
 import { Log } from '../../../utils/log';
+import { DatabaseEventMoveField } from '@/services/backend/events/flowy-database';
 
 export type DatabaseSubscriberCallbacks = {
   onViewChanged?: (data: DatabasePB) => void;
@@ -81,6 +82,10 @@ export class DatabaseController {
 
   moveGroup = (fromGroupId: string, toGroupId: string) => {
     return this.backendService.moveGroup(fromGroupId, toGroupId);
+  };
+
+  moveField = (params: { field_id: string; from_index: number; to_index: number }) => {
+    return this.backendService.moveField(params);
   };
 
   private loadGroup = async () => {
