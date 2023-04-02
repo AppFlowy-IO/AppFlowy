@@ -1,6 +1,6 @@
 import { Ok, Result } from 'ts-results';
-import { AppPB, FolderNotification, RepeatedAppPB, WorkspacePB, FlowyError } from '../../../../../services/backend';
-import { ChangeNotifier } from '../../../../utils/change_notifier';
+import { AppPB, FolderNotification, RepeatedAppPB, WorkspacePB, FlowyError } from '@/services/backend';
+import { ChangeNotifier } from '$app/utils/change_notifier';
 import { FolderNotificationObserver } from '../notifications/observer';
 
 export type AppListNotifyValue = Result<AppPB[], FlowyError>;

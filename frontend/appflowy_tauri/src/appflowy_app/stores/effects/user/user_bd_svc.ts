@@ -6,7 +6,7 @@ import {
   UserEventSignOut,
   UserEventSignUp,
   UserEventUpdateUserProfile,
-} from '../../../../services/backend/events/flowy-user';
+} from '@/services/backend/events/flowy-user';
 import {
   SignInPayloadPB,
   SignUpPayloadPB,
@@ -15,13 +15,13 @@ import {
   CreateWorkspacePayloadPB,
   WorkspaceSettingPB,
   WorkspacePB,
-} from '../../../../services/backend';
+} from '@/services/backend';
 import {
   FolderEventCreateWorkspace,
   FolderEventOpenWorkspace,
   FolderEventReadCurrentWorkspace,
   FolderEventReadWorkspaces,
-} from '../../../../services/backend/events/flowy-folder';
+} from '@/services/backend/events/flowy-folder';
 
 export class UserBackendService {
   constructor(public readonly userId: string) {}

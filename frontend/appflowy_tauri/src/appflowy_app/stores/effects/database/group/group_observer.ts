@@ -1,6 +1,6 @@
-import { ChangeNotifier } from '../../../../utils/change_notifier';
+import { ChangeNotifier } from '$app/utils/change_notifier';
 import { Ok, Result } from 'ts-results';
-import { DatabaseNotification, FlowyError, GroupChangesetPB, GroupPB } from '../../../../../services/backend';
+import { DatabaseNotification, FlowyError, GroupChangesetPB, GroupPB } from '@/services/backend';
 import { DatabaseNotificationObserver } from '../notifications/observer';
 
 export type GroupByFieldCallback = (value: Result<GroupPB[], FlowyError>) => void;

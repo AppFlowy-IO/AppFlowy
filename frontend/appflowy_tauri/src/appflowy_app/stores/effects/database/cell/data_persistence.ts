@@ -1,10 +1,8 @@
 import { Result } from 'ts-results';
-import { FlowyError } from '../../../../../services/backend/models/flowy-error';
 import { CellBackendService, CellIdentifier } from './cell_bd_svc';
 import { CalendarData } from './controller_builder';
-import { DateChangesetPB } from '../../../../../services/backend/models/flowy-database/date_type_option_entities';
-import { CellIdPB } from '../../../../../services/backend/models/flowy-database/cell_entities';
-import { DatabaseEventUpdateDateCell } from '../../../../../services/backend/events/flowy-database';
+import { DateChangesetPB, FlowyError, CellIdPB } from '@/services/backend';
+import { DatabaseEventUpdateDateCell } from '@/services/backend/events/flowy-database';
 
 export abstract class CellDataPersistence<D> {
   abstract save(data: D): Promise<Result<void, FlowyError>>;
