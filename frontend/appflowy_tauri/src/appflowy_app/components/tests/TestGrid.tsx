@@ -265,7 +265,7 @@ async function testMoveField() {
 
   const fieldInfos = [...databaseController.fieldController.fieldInfos];
   const field_id = fieldInfos[0].field.id;
-  await databaseController.moveField({ field_id: field_id, from_index: 0, to_index: 1 });
+  await databaseController.moveField({ fieldId: field_id, fromIndex: 0, toIndex: 1 });
   await new Promise((resolve) => setTimeout(resolve, 200));
   assert(databaseController.fieldController.fieldInfos[1].field.id === field_id);
 }

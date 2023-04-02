@@ -115,12 +115,12 @@ export class DatabaseBackendService {
     return DatabaseEventGetGroup(payload);
   };
 
-  moveField = (params: { field_id: string; from_index: number; to_index: number }) => {
+  moveField = (params: { fieldId: string; fromIndex: number; toIndex: number }) => {
     const payload = MoveFieldPayloadPB.fromObject({
       view_id: this.viewId,
-      field_id: params.field_id,
-      from_index: params.from_index,
-      to_index: params.to_index,
+      field_id: params.fieldId,
+      from_index: params.fromIndex,
+      to_index: params.toIndex,
     });
     return DatabaseEventMoveField(payload);
   };

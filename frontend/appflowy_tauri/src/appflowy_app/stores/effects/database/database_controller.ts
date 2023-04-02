@@ -102,7 +102,7 @@ export class DatabaseController {
     return this.backendService.moveGroup(fromGroupId, toGroupId);
   };
 
-  moveField = (params: { field_id: string; from_index: number; to_index: number }) => {
+  moveField = (params: { fieldId: string; fromIndex: number; toIndex: number }) => {
     return this.backendService.moveField(params);
   };
 
