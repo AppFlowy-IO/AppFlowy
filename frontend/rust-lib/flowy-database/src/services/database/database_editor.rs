@@ -890,7 +890,7 @@ impl DatabaseEditor {
 
   pub async fn duplicate_database<T: AsRef<str>>(
     &self,
-    view_id: T,
+    _view_id: T,
   ) -> FlowyResult<BuildDatabaseContext> {
     let database_pad = self.database_pad.read().await;
     // let database_view_data = self
