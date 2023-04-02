@@ -1,4 +1,4 @@
-import { DateCellDataPB, FieldType, SelectOptionCellDataPB, URLCellDataPB } from '../../../../../services/backend';
+import { DateCellDataPB, FieldType, SelectOptionCellDataPB, URLCellDataPB } from '@/services/backend';
 import { CellIdentifier } from './cell_bd_svc';
 import { CellController } from './cell_controller';
 import {
