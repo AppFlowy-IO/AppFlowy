@@ -12,6 +12,8 @@ import 'package:provider/provider.dart';
 
 import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
 
+typedef TextSpanDecorator = TextSpan Function(TextSpan textSpan);
+
 class TextBlock extends StatefulWidget {
   const TextBlock({
     super.key,
@@ -25,6 +27,7 @@ class TextBlock extends StatefulWidget {
     this.onTap,
     this.onDoubleTap,
     this.shortcuts = const [],
+    this.textSpanDecorator,
   });
 
   final Delta delta;
@@ -41,6 +44,8 @@ class TextBlock extends StatefulWidget {
       onReplace;
   final Future<void> Function(TextEditingDeltaNonTextUpdate nonTextUpdate)?
       onNonTextUpdate;
+
+  final TextSpanDecorator? textSpanDecorator;
 
   @override
   State<TextBlock> createState() => TextBlockState();
@@ -308,9 +313,10 @@ class TextBlockState extends State<TextBlock> implements SelectableState {
         ),
       );
     }
-    return TextSpan(
+    final textSpan = TextSpan(
       children: textSpans,
     );
+    return (widget.textSpanDecorator ?? (v) => v).call(textSpan);
   }
 
   GestureRecognizer _buildGestureRecognizer(Map<String, dynamic> values) {

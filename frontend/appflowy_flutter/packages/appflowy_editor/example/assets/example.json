@@ -85,6 +85,47 @@
             }
           }
         ]
+      },
+      {
+        "type": "paragraph",
+        "attributes": {
+          "texts": [
+            { "insert": "" }
+          ]
+        }
+      },
+      {
+        "type": "checkbox_list",
+        "attributes": {
+          "checked": true,
+          "texts": [
+            { "insert": "AppFlowy Editor is a" },
+            { "insert": " " },
+            { "insert": "highly customizable", "attributes": { "bold": true } },
+            { "insert": " " },
+            { "insert": "rich-text editor", "attributes": { "italic": true } },
+            { "insert": " for " },
+            { "insert": "Flutter", "attributes": { "underline": true } }
+          ]
+        },
+        "children": [
+          {
+            "type": "paragraph",
+            "attributes": {
+              "texts": [
+                { "insert": "bulleted list children 1" }
+              ]
+            }
+          },
+          {
+            "type": "paragraph",
+            "attributes": {
+              "texts": [
+                { "insert": "bulleted list children 2" }
+              ]
+            }
+          }
+        ]
       }
     ]
   }

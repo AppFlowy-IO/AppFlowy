@@ -10,6 +10,7 @@ class TextBlockWithIcon extends StatelessWidget {
     required this.crossAxisAlignment,
     required this.path,
     required this.delta,
+    this.textSpanDecorator,
   }) : super(key: key);
 
   final GlobalKey<State<StatefulWidget>> textBlockKey;
@@ -17,6 +18,7 @@ class TextBlockWithIcon extends StatelessWidget {
   final Path path;
   final Delta delta;
   final CrossAxisAlignment crossAxisAlignment;
+  final TextSpanDecorator? textSpanDecorator;
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +33,8 @@ class TextBlockWithIcon extends StatelessWidget {
           path: path,
           delta: delta,
           shortcuts: textBlockShortcuts,
+          textSpanDecorator: textSpanDecorator,
         ),
-        // children
       ],
     );
   }

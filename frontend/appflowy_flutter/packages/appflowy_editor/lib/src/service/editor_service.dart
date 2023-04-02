@@ -23,7 +23,7 @@ NodeWidgetBuilders defaultBuilders = {
   'bulleted_list': BulletedListBlockBuilder(),
   'numbered_list': NumberedListBlockBuilder(),
   'quote': QuoteBlockBuilder(),
-  'checkbox': CheckboxBlockBuilder(),
+  'checkbox_list': CheckboxBlockBuilder(),
   // 'text': RichTextNodeWidgetBuilder(),
   'text/checkbox': CheckboxNodeWidgetBuilder(),
   'text/heading': HeadingTextNodeWidgetBuilder(),
