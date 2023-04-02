@@ -1,8 +1,8 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/blocks/base_component/selectable/text_selectable_state_mixin.dart';
 import 'package:appflowy_editor/src/blocks/base_component/widget/nested_list.dart';
 import 'package:appflowy_editor/src/blocks/text_block/text_block_with_icon.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
-import 'package:appflowy_editor/src/render/selection/v2/selectable_v2.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,21 +19,7 @@ class NumberedListBlock extends StatefulWidget {
 }
 
 class _NumberedListBlockState extends State<NumberedListBlock>
-    implements SelectableState<NumberedListBlock> {
-  final GlobalKey textBlockKey = GlobalKey();
-
-  @override
-  Position getPositionInOffset(Offset offset) {
-    return (textBlockKey.currentState as TextBlockState)
-        .getPositionInOffset(offset);
-  }
-
-  @override
-  Future<void> setSelectionV2(Selection? selection) {
-    return (textBlockKey.currentState as TextBlockState)
-        .setSelectionV2(selection);
-  }
-
+    with TextSelectableStateMixin {
   int get _level {
     var level = 1;
     var previousSibling = widget.node.previous;
