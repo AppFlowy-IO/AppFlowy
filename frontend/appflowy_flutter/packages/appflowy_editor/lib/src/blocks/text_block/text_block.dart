@@ -15,18 +15,32 @@ import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
 class TextBlock extends StatefulWidget {
   const TextBlock({
     super.key,
-    required this.textNode,
+    required this.delta,
+    required this.path,
+    required this.onInsert,
+    required this.onDelete,
+    required this.onReplace,
+    required this.onNonTextUpdate,
     this.onDebugMode = true,
     this.onTap,
     this.onDoubleTap,
     this.shortcuts = const [],
   });
 
-  final TextNode textNode;
+  final Delta delta;
+  final Path path;
   final bool onDebugMode;
   final Future<void> Function(Map<String, dynamic> values)? onTap;
   final Future<void> Function(Map<String, dynamic> values)? onDoubleTap;
+
   final List<ShortcutEvent> shortcuts;
+
+  final Future<void> Function(TextEditingDeltaInsertion insertion) onInsert;
+  final Future<void> Function(TextEditingDeltaDeletion deletion) onDelete;
+  final Future<void> Function(TextEditingDeltaReplacement replacement)
+      onReplace;
+  final Future<void> Function(TextEditingDeltaNonTextUpdate nonTextUpdate)
+      onNonTextUpdate;
 
   @override
   State<TextBlock> createState() => TextBlockState();
@@ -68,7 +82,7 @@ class TextBlockState extends State<TextBlock> with SelectableState {
   @override
   Widget build(BuildContext context) {
     print('[TextBlock rebuild]');
-    final text = _buildTextSpan(widget.textNode);
+    final text = _buildTextSpan(widget.delta);
     final selection = _editorState.service.selectionServiceV2.selection;
     final textSelection = textSelectionFromEditorSelection(selection);
     _cacheSelection = textSelection;
@@ -97,7 +111,7 @@ class TextBlockState extends State<TextBlock> with SelectableState {
   Position getPositionInOffset(Offset offset) {
     final textPosition = selectionState.getTextPositionInOffset(offset);
     return Position(
-      path: widget.textNode.path,
+      path: widget.path,
       offset: textPosition.offset,
     );
   }
@@ -118,10 +132,10 @@ class TextBlockState extends State<TextBlock> with SelectableState {
 
   void _buildDeltaInputServiceIfNeed() {
     _inputService ??= DeltaTextInputService(
-      onInsert: _onInsert,
-      onDelete: _onDelete,
-      onReplace: _onReplace,
-      onNonTextUpdate: _onNonTextUpdate,
+      onInsert: widget.onInsert,
+      onDelete: widget.onDelete,
+      onReplace: widget.onReplace,
+      onNonTextUpdate: widget.onNonTextUpdate,
     );
   }
 
@@ -132,7 +146,7 @@ class TextBlockState extends State<TextBlock> with SelectableState {
       return;
     }
     Log.input.debug('attach input service');
-    final plainText = widget.textNode.toPlainText();
+    final plainText = widget.delta.toPlainText();
     final value = TextEditingValue(
       text: plainText,
       selection: _cacheSelection!,
@@ -160,43 +174,6 @@ class TextBlockState extends State<TextBlock> with SelectableState {
     _inputService = null;
   }
 
-  Future<void> _onInsert(TextEditingDeltaInsertion insertion) async {
-    Log.input.debug('[Insert]: $insertion');
-
-    final tr = _editorState.transaction
-      ..insertText(
-        widget.textNode,
-        insertion.insertionOffset,
-        insertion.textInserted,
-      );
-    return _editorState.apply(tr);
-  }
-
-  Future<void> _onDelete(TextEditingDeltaDeletion deletion) async {
-    Log.input.debug('[Delete]: $deletion');
-
-    // This function never be called, WHY?
-  }
-
-  Future<void> _onReplace(TextEditingDeltaReplacement replacement) async {
-    Log.input.debug('[Replace]: $replacement');
-
-    final tr = _editorState.transaction
-      ..replaceText(
-        widget.textNode,
-        replacement.replacedRange.start,
-        replacement.replacedRange.end - replacement.replacedRange.start,
-        replacement.replacementText,
-      );
-    return _editorState.apply(tr);
-  }
-
-  Future<void> _onNonTextUpdate(
-    TextEditingDeltaNonTextUpdate nonTextUpdate,
-  ) async {
-    Log.input.debug('[NonTextUpdate]: $nonTextUpdate');
-  }
-
   void _onSelectionChanged() {
     final selection = _editorState.service.selectionServiceV2.selection;
     setSelectionV2(selection);
@@ -204,7 +181,7 @@ class TextBlockState extends State<TextBlock> with SelectableState {
     // if the selection.isCollapsed, we should show the input service
     if (selection != null &&
         selection.isSingle &&
-        selection.start.path.equals(widget.textNode.path)) {
+        selection.start.path.equals(widget.path)) {
       // input
       _buildDeltaInputServiceIfNeed();
       _attachInputService();
@@ -226,13 +203,13 @@ class TextBlockState extends State<TextBlock> with SelectableState {
     }
 
     final normalized = selection.normalized;
-    final path = widget.textNode.path;
+    final path = widget.path;
     if (path < normalized.start.path || path > normalized.end.path) {
       return null;
     }
 
     TextSelection? textSelection;
-    final length = widget.textNode.delta.length;
+    final length = widget.delta.length;
     if (normalized.isSingle) {
       if (path.equals(normalized.start.path)) {
         if (normalized.isCollapsed) {
@@ -267,10 +244,10 @@ class TextBlockState extends State<TextBlock> with SelectableState {
     return textSelection;
   }
 
-  TextSpan _buildTextSpan(TextNode textNode) {
+  TextSpan _buildTextSpan(Delta delta) {
     List<TextSpan> textSpans = [];
     final style = _editorState.editorStyle;
-    final textInserts = textNode.delta.whereType<TextInsert>();
+    final textInserts = delta.whereType<TextInsert>();
     for (final textInsert in textInserts) {
       var textStyle = style.textStyle!;
       GestureRecognizer? recognizer;
@@ -321,7 +298,7 @@ class TextBlockState extends State<TextBlock> with SelectableState {
     if (widget.onDebugMode) {
       textSpans.add(
         TextSpan(
-          text: '${widget.textNode.path}',
+          text: '${widget.path}',
           style: const TextStyle(
             backgroundColor: Colors.red,
             fontSize: 16.0,
