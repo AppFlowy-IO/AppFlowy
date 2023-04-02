@@ -17,11 +17,10 @@ class QuoteBlock extends StatefulWidget {
 }
 
 class _QuoteBlockState extends State<QuoteBlock>
-    with TextBlockSelectableStateMixin {
+    with TextBlockSelectableStateMixin<QuoteBlock> {
   @override
   Widget build(BuildContext context) {
-    final node = widget.node;
-    final delta = Delta.fromJson(List.from(node.attributes['texts']));
+    final delta = Delta.fromJson(List.from(widget.node.attributes['texts']));
     return IntrinsicHeight(
       child: TextBlockWithIcon(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -30,7 +29,7 @@ class _QuoteBlockState extends State<QuoteBlock>
           name: 'quote',
         ),
         textBlockKey: textBlockKey,
-        path: node.path,
+        path: widget.node.path,
         delta: delta,
       ),
     );

@@ -51,7 +51,8 @@ class TextBlock extends StatefulWidget {
   State<TextBlock> createState() => TextBlockState();
 }
 
-class TextBlockState extends State<TextBlock> implements SelectableState {
+class TextBlockState extends State<TextBlock>
+    implements SelectableState<TextBlock> {
   final GlobalKey _key = GlobalKey();
 
   late final _editorState = Provider.of<EditorState>(context, listen: false);

@@ -176,6 +176,15 @@
             }
           }
         ]
+      },
+      {
+        "type": "heading",
+        "attributes": {
+          "heading": 1,
+          "texts": [
+            { "insert": "Heading 1" }
+          ]
+        }
       }
     ]
   }

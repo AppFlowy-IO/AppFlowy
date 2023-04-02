@@ -18,7 +18,7 @@ class BulletedListBlock extends StatefulWidget {
 }
 
 class _BulletedListBlockState extends State<BulletedListBlock>
-    with TextBlockSelectableStateMixin {
+    with TextBlockSelectableStateMixin<BulletedListBlock> {
   static final _bulletListPrefixes = [
     '♠',
     '♥',

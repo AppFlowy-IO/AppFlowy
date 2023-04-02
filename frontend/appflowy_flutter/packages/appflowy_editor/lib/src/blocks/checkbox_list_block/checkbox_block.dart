@@ -21,7 +21,7 @@ class CheckboxBlock extends StatefulWidget {
 }
 
 class _CheckboxBlockState extends State<CheckboxBlock>
-    with TextBlockSelectableStateMixin {
+    with TextBlockSelectableStateMixin<CheckboxBlock> {
   bool get checked => widget.node.attributes['check'] as bool? ?? false;
   List<Node> get nodes => widget.node.children.toList(growable: false);
 

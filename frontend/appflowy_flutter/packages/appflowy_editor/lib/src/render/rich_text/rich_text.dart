@@ -43,7 +43,7 @@ class RichTextNodeWidget extends BuiltInTextWidget {
 
 class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
     with SelectableMixin, DefaultSelectable, BuiltInTextWidgetMixin
-    implements SelectableState {
+    implements SelectableState<RichTextNodeWidget> {
   @override
   GlobalKey? get iconKey => null;
 

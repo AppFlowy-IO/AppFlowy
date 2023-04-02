@@ -2,7 +2,8 @@ import 'package:appflowy_editor/src/render/selection/v2/selectable_v2.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
-mixin TextBlockSelectableStateMixin implements SelectableState {
+mixin TextBlockSelectableStateMixin<T extends StatefulWidget>
+    implements SelectableState<T> {
   final GlobalKey textBlockKey = GlobalKey();
 
   @override

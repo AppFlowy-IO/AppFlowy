@@ -1,6 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/blocks/bullet_list_block/bulleted_list_node_widget_builder.dart';
 import 'package:appflowy_editor/src/blocks/checkbox_list_block/checkbox_node_widget_builder.dart';
+import 'package:appflowy_editor/src/blocks/heading_block.dart/heading_node_widget_builder.dart';
 import 'package:appflowy_editor/src/blocks/numbered_list_block/numbered_list_node_widget.builder.dart';
 import 'package:appflowy_editor/src/blocks/quote_block/quote_node_widget_builder.dart';
 import 'package:appflowy_editor/src/blocks/text_block/text_node_widget_builder.dart';
@@ -24,6 +25,7 @@ NodeWidgetBuilders defaultBuilders = {
   'numbered_list': NumberedListBlockBuilder(),
   'quote': QuoteBlockBuilder(),
   'checkbox_list': CheckboxBlockBuilder(),
+  'heading': HeadingBlockBuilder(),
   // 'text': RichTextNodeWidgetBuilder(),
   'text/checkbox': CheckboxNodeWidgetBuilder(),
   'text/heading': HeadingTextNodeWidgetBuilder(),
