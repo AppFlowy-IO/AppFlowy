@@ -33,9 +33,10 @@ Future<void> main() async {
   await hotKeyManager.unregisterAll();
 
   doWhenWindowReady(() {
-    const initialSize = Size(600, 450);
-    appWindow.minSize = initialSize;
+    const initialSize = Size(1280, 700);
+    const minSize = Size(600, 400);
     appWindow.size = initialSize;
+    appWindow.minSize = minSize;
     appWindow.alignment = Alignment.center;
     appWindow.show();
   });
