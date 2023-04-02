@@ -1,6 +1,5 @@
-import { DatabaseEventGetCell, DatabaseEventUpdateCell } from '../../../../../services/backend/events/flowy-database';
-import { CellChangesetPB, CellIdPB } from '../../../../../services/backend/models/flowy-database/cell_entities';
-import { FieldType } from '../../../../../services/backend/models/flowy-database/field_entities';
+import { DatabaseEventGetCell, DatabaseEventUpdateCell } from '@/services/backend/events/flowy-database';
+import { CellChangesetPB, CellIdPB, FieldType } from '@/services/backend';
 
 class CellIdentifier {
   constructor(

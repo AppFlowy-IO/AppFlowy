@@ -1,8 +1,8 @@
-import { Log } from '../../../../utils/log';
+import { Log } from '$app/utils/log';
 import { DatabaseBackendService } from '../database_bd_svc';
 import { DatabaseFieldChangesetObserver } from './field_observer';
-import { FieldIdPB, FieldPB, IndexFieldPB } from '../../../../../services/backend';
-import { ChangeNotifier } from '../../../../utils/change_notifier';
+import { FieldIdPB, FieldPB, IndexFieldPB } from '@/services/backend';
+import { ChangeNotifier } from '$app/utils/change_notifier';
 
 export class FieldController {
   private backendService: DatabaseBackendService;

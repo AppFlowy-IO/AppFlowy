@@ -1,14 +1,8 @@
-import {
-  DatabaseNotification,
-  FlowyError,
-  GroupPB,
-  GroupRowsNotificationPB,
-  RowPB,
-} from '../../../../../services/backend';
-import { ChangeNotifier } from '../../../../utils/change_notifier';
+import { DatabaseNotification, FlowyError, GroupPB, GroupRowsNotificationPB, RowPB } from '@/services/backend';
+import { ChangeNotifier } from '$app/utils/change_notifier';
 import { None, Ok, Option, Result, Some } from 'ts-results';
 import { DatabaseNotificationObserver } from '../notifications/observer';
-import { Log } from '../../../../utils/log';
+import { Log } from '$app/utils/log';
 import { DatabaseBackendService } from '../database_bd_svc';
 
 export type GroupDataCallbacks = {
