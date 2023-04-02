@@ -126,6 +126,56 @@
             }
           }
         ]
+      },
+      {
+        "type": "paragraph",
+        "attributes": {
+          "texts": [
+            { "insert": "" }
+          ]
+        }
+      },
+      {
+        "type": "bulleted_list",
+        "attributes": {
+          "texts": [
+            { "insert": "AppFlowy Editor is a" },
+            { "insert": " " },
+            { "insert": "highly customizable", "attributes": { "bold": true } },
+            { "insert": " " },
+            { "insert": "rich-text editor", "attributes": { "italic": true } },
+            { "insert": " for " },
+            { "insert": "Flutter", "attributes": { "underline": true } }
+          ]
+        },
+        "children": [
+          {
+            "type": "bulleted_list",
+            "attributes": {
+              "texts": [
+                { "insert": "bulleted list children 1" }
+              ]
+            },
+            "children": [
+              {
+                "type": "bulleted_list",
+                "attributes": {
+                  "texts": [
+                    { "insert": "bulleted list children 1" }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "bulleted_list",
+            "attributes": {
+              "texts": [
+                { "insert": "bulleted list children 2" }
+              ]
+            }
+          }
+        ]
       }
     ]
   }

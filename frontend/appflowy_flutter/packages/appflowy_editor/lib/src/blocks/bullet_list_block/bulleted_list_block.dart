@@ -1,5 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/blocks/base_component/selectable/text_selectable_state_mixin.dart';
 import 'package:appflowy_editor/src/blocks/base_component/widget/nested_list.dart';
+import 'package:appflowy_editor/src/blocks/text_block/text_block_with_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,7 +17,8 @@ class BulletedListBlock extends StatefulWidget {
   State<BulletedListBlock> createState() => _BulletedListBlockState();
 }
 
-class _BulletedListBlockState extends State<BulletedListBlock> {
+class _BulletedListBlockState extends State<BulletedListBlock>
+    with TextBlockSelectableStateMixin {
   static final _bulletListPrefixes = [
     '♠',
     '♥',
@@ -41,15 +44,24 @@ class _BulletedListBlockState extends State<BulletedListBlock> {
   @override
   Widget build(BuildContext context) {
     final editorState = Provider.of<EditorState>(context);
+    final node = widget.node;
+    final delta = Delta.fromJson(List.from(node.attributes['texts']));
     final nodes = widget.node.children.toList(growable: false);
-    return NestedList(
+
+    return PaddingNestedList(
       nestedChildren:
           editorState.service.renderPluginService.buildPluginWidgets(
         context,
         nodes,
         editorState,
       ),
-      child: Text('$_prefix  '),
+      child: TextBlockWithIcon(
+        icon: Text('$_prefix  '),
+        textBlockKey: textBlockKey,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        path: node.path,
+        delta: delta,
+      ),
     );
   }
 }

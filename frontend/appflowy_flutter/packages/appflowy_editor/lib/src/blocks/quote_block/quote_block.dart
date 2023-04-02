@@ -16,7 +16,8 @@ class QuoteBlock extends StatefulWidget {
   State<QuoteBlock> createState() => _QuoteBlockState();
 }
 
-class _QuoteBlockState extends State<QuoteBlock> with TextSelectableStateMixin {
+class _QuoteBlockState extends State<QuoteBlock>
+    with TextBlockSelectableStateMixin {
   @override
   Widget build(BuildContext context) {
     final node = widget.node;

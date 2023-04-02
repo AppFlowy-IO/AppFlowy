@@ -19,7 +19,7 @@ class NumberedListBlock extends StatefulWidget {
 }
 
 class _NumberedListBlockState extends State<NumberedListBlock>
-    with TextSelectableStateMixin {
+    with TextBlockSelectableStateMixin {
   int get _level {
     var level = 1;
     var previousSibling = widget.node.previous;
