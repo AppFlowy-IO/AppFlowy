@@ -92,7 +92,6 @@ class _FloatingToolbarState extends State<FloatingToolbar> {
             (element) => element.renderBox?.localToGlobal(Offset.zero),
           );
       // .where((element) => element != null && element.dy >= toolbarHeight);
-      print('offsets => $offsets');
       if (offsets.isNotEmpty) {
         _toolbarEntry = OverlayEntry(builder: (context) {
           return Positioned(

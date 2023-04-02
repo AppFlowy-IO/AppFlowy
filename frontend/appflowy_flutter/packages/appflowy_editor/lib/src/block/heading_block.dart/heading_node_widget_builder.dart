@@ -1,5 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/blocks/heading_block.dart/heading_block.dart';
+import 'package:appflowy_editor/src/block/heading_block.dart/heading_block.dart';
 import 'package:flutter/material.dart';
 
 class HeadingBlockBuilder extends NodeWidgetBuilder<Node> {

@@ -470,4 +470,34 @@ extension TextTransaction on Transaction {
       ),
     );
   }
+
+  void mergeTextV2(
+    Node first,
+    Node second, {
+    int? firstOffset,
+    int secondOffset = 0,
+  }) {
+    final firstDelta = first.delta;
+    final secondDelta = second.delta;
+    if (firstDelta == null || secondDelta == null) {
+      return;
+    }
+    final firstLength = firstDelta.length;
+    final secondLength = secondDelta.length;
+    firstOffset ??= firstLength;
+    updateNode(first, {
+      'texts': firstDelta
+          .compose(
+            Delta()
+              ..retain(firstOffset)
+              ..delete(firstLength - firstOffset)
+              ..addAll(secondDelta.slice(secondOffset, secondLength)),
+          )
+          .toJson(),
+    });
+    afterSelection = Selection.collapsed(Position(
+      path: first.path,
+      offset: firstOffset,
+    ));
+  }
 }

@@ -82,7 +82,28 @@
               "texts": [
                 { "insert": "bulleted list children 2" }
               ]
-            }
+            },
+            "children": [
+              {
+                "type": "paragraph",
+                "attributes": {
+                  "texts": [
+                    { "insert": "bulleted list children 3" }
+                  ]
+                }
+              },
+              {
+                "type": "paragraph",
+                "attributes": {
+                  "texts": [
+                    { "insert": "bulleted list children 4" }
+                  ]
+                },
+                "children": [
+
+                ]
+              }
+            ]
           }
         ]
       },

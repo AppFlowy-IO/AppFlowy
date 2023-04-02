@@ -1,7 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/blocks/base_component/selectable/text_selectable_state_mixin.dart';
-import 'package:appflowy_editor/src/blocks/base_component/widget/nested_list.dart';
-import 'package:appflowy_editor/src/blocks/text_block/text_block_with_icon.dart';
+import 'package:appflowy_editor/src/block/base_component/selectable/text_selectable_state_mixin.dart';
+import 'package:appflowy_editor/src/block/base_component/widget/nested_list.dart';
+import 'package:appflowy_editor/src/block/text_block/text_block_with_icon.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +22,7 @@ class CheckboxBlock extends StatefulWidget {
 
 class _CheckboxBlockState extends State<CheckboxBlock>
     with TextBlockSelectableStateMixin<CheckboxBlock> {
-  bool get checked => widget.node.attributes['check'] as bool? ?? false;
+  bool get checked => widget.node.attributes['checked'] as bool? ?? false;
   List<Node> get nodes => widget.node.children.toList(growable: false);
 
   @override
@@ -62,7 +62,7 @@ class _CheckboxBlockState extends State<CheckboxBlock>
     final editorState = Provider.of<EditorState>(context, listen: false);
     final tr = editorState.transaction;
     tr.updateNode(widget.node, {
-      'check': !checked,
+      'checked': !checked,
     });
     return editorState.apply(tr);
   }

@@ -1,6 +1,6 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/blocks/base_component/selectable/text_selectable_state_mixin.dart';
-import 'package:appflowy_editor/src/blocks/text_block/shortcuts/text_block_shortcuts.dart';
+import 'package:appflowy_editor/src/block/base_component/selectable/text_selectable_state_mixin.dart';
+import 'package:appflowy_editor/src/block/text_block/shortcuts/text_block_shortcuts.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy_editor/src/extensions/text_style_extension.dart';

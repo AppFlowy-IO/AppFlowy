@@ -1,10 +1,10 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/blocks/bullet_list_block/bulleted_list_node_widget_builder.dart';
-import 'package:appflowy_editor/src/blocks/checkbox_list_block/checkbox_node_widget_builder.dart';
-import 'package:appflowy_editor/src/blocks/heading_block.dart/heading_node_widget_builder.dart';
-import 'package:appflowy_editor/src/blocks/numbered_list_block/numbered_list_node_widget.builder.dart';
-import 'package:appflowy_editor/src/blocks/quote_block/quote_node_widget_builder.dart';
-import 'package:appflowy_editor/src/blocks/text_block/text_node_widget_builder.dart';
+import 'package:appflowy_editor/src/block/bullet_list_block/bulleted_list_node_widget_builder.dart';
+import 'package:appflowy_editor/src/block/checkbox_list_block/checkbox_node_widget_builder.dart';
+import 'package:appflowy_editor/src/block/heading_block.dart/heading_node_widget_builder.dart';
+import 'package:appflowy_editor/src/block/numbered_list_block/numbered_list_node_widget.builder.dart';
+import 'package:appflowy_editor/src/block/quote_block/quote_node_widget_builder.dart';
+import 'package:appflowy_editor/src/block/paragraph_block/paragraph_node_widget_builder.dart';
 import 'package:appflowy_editor/src/flutter/overlay.dart';
 import 'package:appflowy_editor/src/render/editor/editor_entry.dart';
 import 'package:appflowy_editor/src/render/image/image_node_builder.dart';
@@ -20,7 +20,7 @@ import 'package:provider/provider.dart';
 
 NodeWidgetBuilders defaultBuilders = {
   'editor': EditorEntryWidgetBuilder(),
-  'paragraph': TextBlockBuilder(),
+  'paragraph': ParagraphBlockBuilder(),
   'bulleted_list': BulletedListBlockBuilder(),
   'numbered_list': NumberedListBlockBuilder(),
   'quote': QuoteBlockBuilder(),

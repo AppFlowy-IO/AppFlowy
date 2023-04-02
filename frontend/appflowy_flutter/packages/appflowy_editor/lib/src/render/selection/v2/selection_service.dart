@@ -171,7 +171,9 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
   }
 
   void _updateNodes() {
-    nodes = editorState.document.root.children.toList(growable: false);
+    setState(() {
+      nodes = editorState.document.root.children.toList(growable: false);
+    });
   }
 
   Node? _binarySearchNode(
@@ -257,5 +259,9 @@ class _SelectionAndScrollState extends State<SelectionAndScroll>
   void _startAutoScrollIfNecessary(Offset offset) {
     final rect = Rect.fromCenter(center: offset, width: 200, height: 200);
     scroller?.startAutoScrollIfNecessary(rect);
+  }
+
+  void _refresh() {
+    setState(() {});
   }
 }

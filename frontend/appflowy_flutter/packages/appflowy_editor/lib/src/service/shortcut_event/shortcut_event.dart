@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:appflowy_editor/src/blocks/base_component/shortcuts/text_block_shortcut.dart';
+import 'package:appflowy_editor/src/block/base_component/shortcuts/text_block_shortcut.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/keybinding.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
 import 'package:flutter/foundation.dart';

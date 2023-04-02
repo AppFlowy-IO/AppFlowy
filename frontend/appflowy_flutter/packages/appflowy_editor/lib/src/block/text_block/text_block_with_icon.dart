@@ -1,5 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/blocks/text_block/shortcuts/text_block_shortcuts.dart';
+import 'package:appflowy_editor/src/block/text_block/shortcuts/text_block_shortcuts.dart';
 import 'package:flutter/material.dart';
 
 class TextBlockWithIcon extends StatelessWidget {

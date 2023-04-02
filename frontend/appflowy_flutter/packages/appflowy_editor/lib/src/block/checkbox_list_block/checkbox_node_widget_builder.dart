@@ -1,11 +1,11 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/blocks/numbered_list_block/numbered_list_block.dart';
+import 'package:appflowy_editor/src/block/checkbox_list_block/checkbox_block.dart';
 import 'package:flutter/material.dart';
 
-class NumberedListBlockBuilder extends NodeWidgetBuilder<Node> {
+class CheckboxBlockBuilder extends NodeWidgetBuilder<Node> {
   @override
   Widget build(NodeWidgetContext<Node> context) {
-    return NumberedListBlock(
+    return CheckboxBlock(
       key: context.node.key,
       node: context.node,
     );

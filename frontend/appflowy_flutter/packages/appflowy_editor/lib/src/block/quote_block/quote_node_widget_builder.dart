@@ -1,11 +1,11 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/blocks/checkbox_list_block/checkbox_block.dart';
+import 'package:appflowy_editor/src/block/quote_block/quote_block.dart';
 import 'package:flutter/material.dart';
 
-class CheckboxBlockBuilder extends NodeWidgetBuilder<Node> {
+class QuoteBlockBuilder extends NodeWidgetBuilder<Node> {
   @override
   Widget build(NodeWidgetContext<Node> context) {
-    return CheckboxBlock(
+    return QuoteBlock(
       key: context.node.key,
       node: context.node,
     );
@@ -13,6 +13,6 @@ class CheckboxBlockBuilder extends NodeWidgetBuilder<Node> {
 
   @override
   NodeValidator<Node> get nodeValidator => (node) {
-        return true;
+        return node.children.isEmpty && node.attributes['texts'] is List;
       };
 }

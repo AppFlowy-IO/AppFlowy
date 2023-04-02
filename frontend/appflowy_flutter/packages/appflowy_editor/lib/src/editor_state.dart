@@ -244,8 +244,11 @@ class EditorState {
 
   void _insureLastNodeEditable(Transaction tr) {
     if (document.root.children.isEmpty ||
-        document.root.children.last.id != 'text') {
-      tr.insertNode([document.root.children.length], TextNode.empty());
+        document.root.children.last.id != 'paragraph') {
+      tr.insertNode(
+        [document.root.children.length],
+        Node(type: 'paragraph', attributes: {'texts': []}),
+      );
     }
   }
 }

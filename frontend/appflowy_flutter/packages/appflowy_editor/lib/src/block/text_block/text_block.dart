@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/blocks/base_component/input/input_service.dart';
-import 'package:appflowy_editor/src/blocks/base_component/shortcuts/shortcut_service.dart';
-import 'package:appflowy_editor/src/blocks/base_component/widget/rich_text_with_selection.dart';
+import 'package:appflowy_editor/src/block/base_component/input/input_service.dart';
+import 'package:appflowy_editor/src/block/base_component/shortcuts/shortcut_service.dart';
+import 'package:appflowy_editor/src/block/base_component/widget/rich_text_with_selection.dart';
 import 'package:appflowy_editor/src/render/selection/v2/selectable_v2.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

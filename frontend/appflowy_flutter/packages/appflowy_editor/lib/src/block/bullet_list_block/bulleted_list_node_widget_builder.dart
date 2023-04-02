@@ -1,11 +1,11 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/blocks/quote_block/quote_block.dart';
+import 'package:appflowy_editor/src/block/bullet_list_block/bulleted_list_block.dart';
 import 'package:flutter/material.dart';
 
-class QuoteBlockBuilder extends NodeWidgetBuilder<Node> {
+class BulletedListBlockBuilder extends NodeWidgetBuilder<Node> {
   @override
   Widget build(NodeWidgetContext<Node> context) {
-    return QuoteBlock(
+    return BulletedListBlock(
       key: context.node.key,
       node: context.node,
     );
@@ -13,6 +13,6 @@ class QuoteBlockBuilder extends NodeWidgetBuilder<Node> {
 
   @override
   NodeValidator<Node> get nodeValidator => (node) {
-        return node.children.isEmpty && node.attributes['texts'] is List;
+        return true;
       };
 }
