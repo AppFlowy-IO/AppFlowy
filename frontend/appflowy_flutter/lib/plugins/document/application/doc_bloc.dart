@@ -42,6 +42,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           await _initial(value, emit);
           _listenOnViewChange();
         },
+        updated: (Updated value) async {
+          _updateView(emit);
+        },
         deleted: (Deleted value) async {
           emit(state.copyWith(isDeleted: true));
         },
@@ -111,6 +114,22 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     );
   }
 
+  Future<void> _updateView(Emitter<DocumentState> emit) async {
+    final result = await _documentService.openDocument(view: view);
+
+    result.fold(
+      (documentData) async {
+        await _initEditorState(documentData);
+        emit(
+          state.copyWith(
+            loadingState: DocumentLoadingState.finish(left(unit)),
+          ),
+        );
+      },
+      (_) {},
+    );
+  }
+
   void _listenOnViewChange() {
     _listener.start(
       onViewDeleted: (result) {
@@ -160,6 +179,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 @freezed
 class DocumentEvent with _$DocumentEvent {
   const factory DocumentEvent.initial() = Initial;
+  const factory DocumentEvent.updated() = Updated;
   const factory DocumentEvent.deleted() = Deleted;
   const factory DocumentEvent.restore() = Restore;
   const factory DocumentEvent.restorePage() = RestorePage;

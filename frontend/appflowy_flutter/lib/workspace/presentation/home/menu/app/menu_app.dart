@@ -10,6 +10,7 @@ import 'section/section.dart';
 
 class MenuApp extends StatefulWidget {
   final AppPB app;
+
   const MenuApp(this.app, {Key? key}) : super(key: key);
 
   @override
@@ -17,12 +18,12 @@ class MenuApp extends StatefulWidget {
 }
 
 class _MenuAppState extends State<MenuApp> {
-  late AppViewDataContext viewDataContext;
+  late final AppViewDataContext viewDataContext;
 
   @override
   void initState() {
-    viewDataContext = AppViewDataContext(appId: widget.app.id);
     super.initState();
+    viewDataContext = AppViewDataContext(appId: widget.app.id);
   }
 
   @override
@@ -30,11 +31,8 @@ class _MenuAppState extends State<MenuApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AppBloc>(
-          create: (context) {
-            final appBloc = getIt<AppBloc>(param1: widget.app);
-            appBloc.add(const AppEvent.initial());
-            return appBloc;
-          },
+          create: (context) =>
+              getIt<AppBloc>(param1: widget.app)..add(const AppEvent.initial()),
         ),
       ],
       child: MultiBlocListener(
@@ -76,7 +74,7 @@ class _MenuAppState extends State<MenuApp> {
         scrollOnExpand: false,
         scrollOnCollapse: false,
         child: Column(
-          children: <Widget>[
+          children: [
             ExpandablePanel(
               theme: const ExpandableThemeData(
                 headerAlignment: ExpandablePanelHeaderAlignment.center,

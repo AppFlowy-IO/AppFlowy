@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:appflowy/plugins/document/application/doc_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -86,6 +88,9 @@ class MenuAppHeader extends StatelessWidget {
                 value: context.read<AppBloc>().state.app.name,
                 confirm: (newValue) {
                   context.read<AppBloc>().add(AppEvent.rename(newValue));
+                  context
+                      .read<DocumentBloc>()
+                      .add(const DocumentEvent.updated());
                 },
               ).show(context);
 

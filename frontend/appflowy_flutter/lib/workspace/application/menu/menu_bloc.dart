@@ -73,7 +73,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
     final result = await _workspaceService.createApp(
         name: event.name, desc: event.desc ?? "");
     result.fold(
-      (app) => {},
+      (_) {},
       (error) {
         Log.error(error);
         emit(state.copyWith(successOrFailure: right(error)));
