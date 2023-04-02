@@ -410,4 +410,64 @@ extension TextTransaction on Transaction {
       return;
     }
   }
+
+  void deleteTextV2(
+    Node node,
+    int index,
+    int length,
+  ) {
+    final delta = node.delta;
+    if (delta == null) {
+      return;
+    }
+    final now = delta.compose(
+      Delta()
+        ..retain(index)
+        ..delete(length),
+    );
+    updateNode(node, {
+      'texts': now.toJson(),
+    });
+    afterSelection = Selection.collapsed(
+      Position(path: node.path, offset: index),
+    );
+  }
+
+  void replaceTextV2(
+    Node node,
+    int index,
+    int length,
+    String text, {
+    Attributes? attributes,
+  }) {
+    final delta = node.delta;
+    if (delta == null) {
+      return;
+    }
+    var newAttributes = attributes;
+    if (index != 0 && attributes == null) {
+      newAttributes = delta.slice(max(index - 1, 0), index).first.attributes;
+      if (newAttributes == null) {
+        final slicedDelta = delta.slice(index, index + length);
+        if (slicedDelta.isNotEmpty) {
+          newAttributes = slicedDelta.first.attributes;
+        }
+      }
+    }
+    final now = delta.compose(
+      Delta()
+        ..retain(index)
+        ..delete(length)
+        ..insert(text, attributes: {...newAttributes ?? {}}),
+    );
+    updateNode(node, {
+      'texts': now.toJson(),
+    });
+    afterSelection = Selection.collapsed(
+      Position(
+        path: node.path,
+        offset: index + text.length,
+      ),
+    );
+  }
 }

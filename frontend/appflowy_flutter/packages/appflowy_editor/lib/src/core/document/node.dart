@@ -90,6 +90,13 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     return null;
   }
 
+  Delta? get delta {
+    if (attributes['texts'] is List) {
+      return Delta.fromJson(attributes['texts']);
+    }
+    return null;
+  }
+
   Path get path => _computePath();
 
   void updateAttributes(Attributes attributes) {
@@ -239,6 +246,7 @@ class TextNode extends Node {
         );
 
   Delta _delta;
+  @override
   Delta get delta => _delta;
   set delta(Delta v) {
     _delta = v;

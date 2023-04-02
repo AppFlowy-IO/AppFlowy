@@ -25,18 +25,18 @@
         }
       },
       {
+        "type": "paragraph",
+        "attributes": {
+          "texts": [
+            { "insert": "" }
+          ]
+        }
+      },
+      {
         "type": "quote",
         "attributes": {
           "texts": [
             { "insert": "1. AppFlowy Editor is a" },
-            { "insert": " " },
-            { "insert": "highly customizable", "attributes": { "bold": true } },
-            { "insert": " " },
-            { "insert": "rich-text editor", "attributes": { "italic": true } },
-            { "insert": " for " },
-            { "insert": "Flutter", "attributes": { "underline": true } },
-            { "insert": "\n" },
-            { "insert": "2. AppFlowy Editor is a" },
             { "insert": " " },
             { "insert": "highly customizable", "attributes": { "bold": true } },
             { "insert": " " },
@@ -50,15 +50,15 @@
         "type": "paragraph",
         "attributes": {
           "texts": [
-            { "insert": "1. AppFlowy Editor is a" },
-            { "insert": " " },
-            { "insert": "highly customizable", "attributes": { "bold": true } },
-            { "insert": " " },
-            { "insert": "rich-text editor", "attributes": { "italic": true } },
-            { "insert": " for " },
-            { "insert": "Flutter", "attributes": { "underline": true } },
-            { "insert": "\n" },
-            { "insert": "2. AppFlowy Editor is a" },
+            { "insert": "" }
+          ]
+        }
+      },
+      {
+        "type": "numbered_list",
+        "attributes": {
+          "texts": [
+            { "insert": "AppFlowy Editor is a" },
             { "insert": " " },
             { "insert": "highly customizable", "attributes": { "bold": true } },
             { "insert": " " },
@@ -66,7 +66,25 @@
             { "insert": " for " },
             { "insert": "Flutter", "attributes": { "underline": true } }
           ]
-        }
+        },
+        "children": [
+          {
+            "type": "paragraph",
+            "attributes": {
+              "texts": [
+                { "insert": "bulleted list children 1" }
+              ]
+            }
+          },
+          {
+            "type": "paragraph",
+            "attributes": {
+              "texts": [
+                { "insert": "bulleted list children 2" }
+              ]
+            }
+          }
+        ]
       }
     ]
   }

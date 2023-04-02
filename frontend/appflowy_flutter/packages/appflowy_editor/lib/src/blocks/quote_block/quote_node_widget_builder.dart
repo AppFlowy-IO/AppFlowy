@@ -13,6 +13,6 @@ class QuoteBlockBuilder extends NodeWidgetBuilder<Node> {
 
   @override
   NodeValidator<Node> get nodeValidator => (node) {
-        return true;
+        return node.children.isEmpty && node.attributes['texts'] is List;
       };
 }

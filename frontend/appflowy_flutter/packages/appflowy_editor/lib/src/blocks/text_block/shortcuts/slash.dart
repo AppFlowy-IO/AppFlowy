@@ -13,16 +13,8 @@ TextBlockShortcutHandler slashHandler = (context, textBlockState) {
     return KeyEventResult.ignored;
   }
   final node = editorState.getNodesInSelection(selection).first;
-
-  final previous = Delta.fromJson(node.attributes['texts']);
-  final now = previous.compose(Delta()
-    ..retain(selection.start.offset)
-    ..delete(selection.end.offset - selection.start.offset)
-    ..insert('/'));
   final tr = editorState.transaction;
-  tr.updateNode(node, {
-    'texts': now.toJson(),
-  });
+  tr.replaceTextV2(node, selection.start.offset, selection.length, '/');
   editorState.apply(tr).then((_) {
     // show slash menu.
     // TOO COMPLICATED TO READ. OPTIMIZE IT.
