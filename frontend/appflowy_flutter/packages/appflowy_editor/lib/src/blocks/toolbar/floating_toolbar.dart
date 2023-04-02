@@ -57,7 +57,6 @@ class _FloatingToolbarState extends State<FloatingToolbar> {
       if (_cacheSelection != selection) {
         _cacheVisibleSelectedNodes = widget.editorState
             .getNodesInSelection(selection)
-            .whereType<TextNode>()
             .toList(growable: false)
             .normalized;
       }
@@ -91,8 +90,8 @@ class _FloatingToolbarState extends State<FloatingToolbar> {
           .where((element) => visibleNodes.contains(element))
           .map(
             (element) => element.renderBox?.localToGlobal(Offset.zero),
-          )
-          .where((element) => element != null && element.dy >= toolbarHeight);
+          );
+      // .where((element) => element != null && element.dy >= toolbarHeight);
       print('offsets => $offsets');
       if (offsets.isNotEmpty) {
         _toolbarEntry = OverlayEntry(builder: (context) {

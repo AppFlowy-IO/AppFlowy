@@ -19,7 +19,7 @@ import 'package:provider/provider.dart';
 
 NodeWidgetBuilders defaultBuilders = {
   'editor': EditorEntryWidgetBuilder(),
-  'text': TextBlockBuilder(),
+  'paragraph': TextBlockBuilder(),
   'bulleted_list': BulletedListBlockBuilder(),
   'numbered_list': NumberedListBlockBuilder(),
   'quote': QuoteBlockBuilder(),

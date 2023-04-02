@@ -3,6 +3,28 @@
     "type": "editor",
     "children": [
       {
+        "type": "paragraph",
+        "attributes": {
+          "texts": [
+            { "insert": "1. AppFlowy Editor is a" },
+            { "insert": " " },
+            { "insert": "highly customizable", "attributes": { "bold": true } },
+            { "insert": " " },
+            { "insert": "rich-text editor", "attributes": { "italic": true } },
+            { "insert": " for " },
+            { "insert": "Flutter", "attributes": { "underline": true } },
+            { "insert": "\n" },
+            { "insert": "2. AppFlowy Editor is a" },
+            { "insert": " " },
+            { "insert": "highly customizable", "attributes": { "bold": true } },
+            { "insert": " " },
+            { "insert": "rich-text editor", "attributes": { "italic": true } },
+            { "insert": " for " },
+            { "insert": "Flutter", "attributes": { "underline": true } }
+          ]
+        }
+      },
+      {
         "type": "quote",
         "attributes": {
           "texts": [
@@ -25,7 +47,7 @@
         }
       },
       {
-        "type": "text",
+        "type": "paragraph",
         "attributes": {
           "texts": [
             { "insert": "1. AppFlowy Editor is a" },

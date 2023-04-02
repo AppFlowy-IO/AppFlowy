@@ -6,28 +6,26 @@ import 'package:appflowy_editor/src/service/default_text_operations/format_rich_
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-BlockShortcutHandler slashHandler = (context) {
+TextBlockShortcutHandler slashHandler = (context, textBlockState) {
   final editorState = Provider.of<EditorState>(context, listen: false);
   final selection = editorState.service.selectionServiceV2.selection;
   if (selection == null || !selection.isSingle) {
     return KeyEventResult.ignored;
   }
-  final textNode =
-      editorState.getNodesInSelection(selection).whereType<TextNode>().first;
-  final tr = editorState.transaction
-    ..replaceText(
-      textNode,
-      selection.start.offset,
-      selection.end.offset - selection.start.offset,
-      '/',
-    );
+  final node = editorState.getNodesInSelection(selection).first;
+
+  final previous = Delta.fromJson(node.attributes['texts']);
+  final now = previous.compose(Delta()
+    ..retain(selection.start.offset)
+    ..delete(selection.end.offset - selection.start.offset)
+    ..insert('/'));
+  final tr = editorState.transaction;
+  tr.updateNode(node, {
+    'texts': now.toJson(),
+  });
   editorState.apply(tr).then((_) {
     // show slash menu.
     // TOO COMPLICATED TO READ. OPTIMIZE IT.
-    final textBlockState = textNode.key.currentState as TextBlockState?;
-    if (textBlockState == null) {
-      return;
-    }
     final textPosition =
         textBlockState.textSelectionFromEditorSelection(selection);
     if (textPosition == null || !textPosition.isCollapsed) {

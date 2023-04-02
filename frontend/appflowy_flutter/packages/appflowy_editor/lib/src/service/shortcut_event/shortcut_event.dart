@@ -67,7 +67,7 @@ class ShortcutEvent {
   String? character;
 
   final ShortcutEventHandler handler;
-  final BlockShortcutHandler? blockShortcutHandler;
+  final TextBlockShortcutHandler? blockShortcutHandler;
 
   List<Keybinding> get keybindings => _keybindings;
   List<Keybinding> _keybindings = [];

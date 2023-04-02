@@ -3,23 +3,25 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 
-class BlockShortcuts extends StatefulWidget {
-  const BlockShortcuts({
+class TextBlockShortcuts extends StatefulWidget {
+  const TextBlockShortcuts({
     super.key,
     this.focusNode,
+    required this.textBlockState,
     required this.shortcuts,
     required this.child,
   });
 
   final FocusNode? focusNode;
+  final TextBlockState textBlockState;
   final List<ShortcutEvent> shortcuts;
   final Widget child;
 
   @override
-  State<BlockShortcuts> createState() => _BlockShortcutsState();
+  State<TextBlockShortcuts> createState() => _TextBlockShortcutsState();
 }
 
-class _BlockShortcutsState extends State<BlockShortcuts> {
+class _TextBlockShortcutsState extends State<TextBlockShortcuts> {
   FocusNode? _focusNode;
   FocusNode get _effectiveFocusNode =>
       widget.focusNode ?? (_focusNode ??= FocusNode());
@@ -45,7 +47,8 @@ class _BlockShortcutsState extends State<BlockShortcuts> {
 
     for (final shortcutEvent in widget.shortcuts) {
       if (shortcutEvent.canRespondToRawKeyEvent(event)) {
-        final result = shortcutEvent.blockShortcutHandler?.call(context);
+        final result = shortcutEvent.blockShortcutHandler
+            ?.call(context, widget.textBlockState);
         if (result == KeyEventResult.handled) {
           return KeyEventResult.handled;
         } else if (result == KeyEventResult.skipRemainingHandlers) {

@@ -46,7 +46,8 @@ class TextBlock extends StatefulWidget {
   State<TextBlock> createState() => TextBlockState();
 }
 
-class TextBlockState extends State<TextBlock> with SelectableState {
+class TextBlockState extends State<TextBlock>
+    implements SelectableState<TextBlock> {
   final GlobalKey _key = GlobalKey();
 
   late final _editorState = Provider.of<EditorState>(context, listen: false);
@@ -81,7 +82,6 @@ class TextBlockState extends State<TextBlock> with SelectableState {
 
   @override
   Widget build(BuildContext context) {
-    print('[TextBlock rebuild]');
     final text = _buildTextSpan(widget.delta);
     final selection = _editorState.service.selectionServiceV2.selection;
     final textSelection = textSelectionFromEditorSelection(selection);
@@ -97,8 +97,9 @@ class TextBlockState extends State<TextBlock> with SelectableState {
     );
 
     if (widget.shortcuts.isNotEmpty) {
-      child = BlockShortcuts(
+      child = TextBlockShortcuts(
         focusNode: _focusNode ??= FocusNode(),
+        textBlockState: this,
         shortcuts: widget.shortcuts,
         child: child,
       );
