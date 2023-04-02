@@ -118,14 +118,14 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
     }
 
     setState(() {
-      _totalItems = index;
+      _totalItems = _items.length;
     });
   }
 
   @override
   void initState() {
-    fetchItems();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      fetchItems();
       _focusNode.requestFocus();
     });
     super.initState();
@@ -143,27 +143,24 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
       focusNode: _focusNode,
       onKey: _onKey,
       child: Container(
-        color: Colors.transparent,
         width: 300,
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
-          decoration: BoxDecoration(
-            color: style.selectionMenuBackgroundColor,
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 5,
-                spreadRadius: 1,
-                color: Colors.black.withOpacity(0.1),
-              ),
-            ],
-            borderRadius: BorderRadius.circular(6.0),
-          ),
-          child: _isLoading
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
-              : _buildListWidget(context, _selectedIndex, _availableLayout),
+        padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
+        decoration: BoxDecoration(
+          color: style.selectionMenuBackgroundColor,
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 5,
+              spreadRadius: 1,
+              color: Colors.black.withOpacity(0.1),
+            ),
+          ],
+          borderRadius: BorderRadius.circular(6.0),
         ),
+        child: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : _buildListWidget(context, _selectedIndex, _availableLayout),
       ),
     );
   }
