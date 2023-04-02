@@ -108,6 +108,7 @@ export class CellController<T, D> {
   };
 
   dispose = async () => {
+    this.cellDataNotifier.unsubscribe();
     await this.cellObserver.unsubscribe();
     await this.fieldNotifier.unsubscribe();
   };

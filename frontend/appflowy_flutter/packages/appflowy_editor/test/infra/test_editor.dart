@@ -120,8 +120,9 @@ class EditorWidgetTester {
     await tester.pumpAndSettle();
   }
 
-  Future<void> pressLogicKey(
-    LogicalKeyboardKey key, {
+  Future<void> pressLogicKey({
+    String? character,
+    LogicalKeyboardKey? key,
     bool isControlPressed = false,
     bool isShiftPressed = false,
     bool isAltPressed = false,
@@ -130,11 +131,13 @@ class EditorWidgetTester {
     if (!isControlPressed &&
         !isShiftPressed &&
         !isAltPressed &&
-        !isMetaPressed) {
+        !isMetaPressed &&
+        key != null) {
       await tester.sendKeyDownEvent(key);
     } else {
       final testRawKeyEventData = TestRawKeyEventData(
-        logicalKey: key,
+        logicalKey: key ?? LogicalKeyboardKey.nonConvert,
+        character: character,
         isControlPressed: isControlPressed,
         isShiftPressed: isShiftPressed,
         isAltPressed: isAltPressed,

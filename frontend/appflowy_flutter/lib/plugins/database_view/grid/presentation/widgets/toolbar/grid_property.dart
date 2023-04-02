@@ -96,7 +96,7 @@ class _GridPropertyCellState extends State<_GridPropertyCell> {
   Widget build(BuildContext context) {
     final checkmark = svgWidget(
       widget.fieldInfo.visibility ? 'home/show' : 'home/hide',
-      color: Theme.of(context).colorScheme.onSurface,
+      color: Theme.of(context).iconTheme.color,
     );
 
     return SizedBox(
@@ -118,7 +118,7 @@ class _GridPropertyCellState extends State<_GridPropertyCell> {
         text: FlowyText.medium(widget.fieldInfo.name),
         leftIcon: svgWidget(
           widget.fieldInfo.fieldType.iconName(),
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).iconTheme.color,
         ),
         rightIcon: FlowyIconButton(
           hoverColor: Colors.transparent,

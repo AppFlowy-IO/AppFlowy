@@ -893,10 +893,10 @@ impl DatabaseEditor {
     view_id: T,
   ) -> FlowyResult<BuildDatabaseContext> {
     let database_pad = self.database_pad.read().await;
-    let database_view_data = self
-      .database_views
-      .duplicate_database_view(view_id.as_ref())
-      .await?;
+    // let database_view_data = self
+    //   .database_views
+    //   .duplicate_database_view(view_id.as_ref())
+    //   .await?;
     let original_blocks = database_pad.get_block_meta_revs();
     let (duplicated_fields, duplicated_blocks) = database_pad.duplicate_database_block_meta().await;
 
@@ -925,7 +925,7 @@ impl DatabaseEditor {
       block_metas: duplicated_blocks,
       blocks: blocks_meta_data,
       layout_setting: Default::default(),
-      database_view_data,
+      database_view_data: "".to_string(),
     })
   }
 

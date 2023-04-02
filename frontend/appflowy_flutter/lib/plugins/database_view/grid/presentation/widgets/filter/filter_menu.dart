@@ -76,7 +76,7 @@ class _AddFilterButtonState extends State<AddFilterButton> {
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           leftIcon: svgWidget(
             "home/add",
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).iconTheme.color,
           ),
           onTap: () => popoverController.show(),
         ),

@@ -17,7 +17,7 @@ void main() async {
       }) async {
         for (var i = 0; i < repeat; i++) {
           await editor.pressLogicKey(
-            LogicalKeyboardKey.backquote,
+            key: LogicalKeyboardKey.backquote,
           );
         }
       }
@@ -99,7 +99,7 @@ void main() async {
       }) async {
         for (var i = 0; i < repeat; i++) {
           await editor.pressLogicKey(
-            LogicalKeyboardKey.backquote,
+            key: LogicalKeyboardKey.backquote,
           );
         }
       }
@@ -157,10 +157,7 @@ void main() async {
         int repeat = 1,
       }) async {
         for (var i = 0; i < repeat; i++) {
-          await editor.pressLogicKey(
-            LogicalKeyboardKey.tilde,
-            isShiftPressed: true,
-          );
+          await editor.pressLogicKey(character: '~');
         }
       }
 
@@ -264,10 +261,7 @@ void main() async {
       int repeat = 1,
     }) async {
       for (var i = 0; i < repeat; i++) {
-        await editor.pressLogicKey(
-          LogicalKeyboardKey.digit8,
-          isShiftPressed: true,
-        );
+        await editor.pressLogicKey(character: '*');
       }
     }
 
@@ -358,10 +352,7 @@ void main() async {
       int repeat = 1,
     }) async {
       for (var i = 0; i < repeat; i++) {
-        await editor.pressLogicKey(
-          LogicalKeyboardKey.underscore,
-          isShiftPressed: true,
-        );
+        await editor.pressLogicKey(character: '_');
       }
     }
 
@@ -378,8 +369,13 @@ void main() async {
 
       await insertUnderscore(editor);
 
-      final allBold = textNode.allSatisfyBoldInSelection(Selection.single(
-          path: [0], startOffset: 0, endOffset: textNode.toPlainText().length));
+      final allBold = textNode.allSatisfyBoldInSelection(
+        Selection.single(
+          path: [0],
+          startOffset: 0,
+          endOffset: textNode.toPlainText().length,
+        ),
+      );
 
       expect(allBold, true);
       expect(textNode.toPlainText(), 'AppFlowy');
@@ -444,5 +440,54 @@ void main() async {
       expect(allBold, false);
       expect(textNode.toPlainText(), text);
     }));
+  });
+
+  group('Convert single asterisk to italic', () {
+    testWidgets('Test Single Asterisk for Italics', (tester) async {
+      const text = '*Hello World';
+      final editor = tester.editor..insertTextNode(text);
+      await editor.startTesting();
+
+      await editor.updateSelection(
+        Selection.single(path: [0], startOffset: text.length),
+      );
+
+      await editor.pressLogicKey(character: '*');
+
+      final textNode = editor.nodeAtPath([0]) as TextNode;
+      final allItalic = textNode.allSatisfyItalicInSelection(
+        Selection.single(
+          path: [0],
+          startOffset: 0,
+          endOffset: text.length - 1, // delete the first *
+        ),
+      );
+      expect(allItalic, true);
+    });
+
+    testWidgets(
+        'nothing happens if there\'re more than one * precede the current position',
+        (tester) async {
+      const text = '**Hello World';
+      final editor = tester.editor..insertTextNode(text);
+      await editor.startTesting();
+
+      await editor.updateSelection(
+        Selection.single(path: [0], startOffset: text.length),
+      );
+
+      await editor.pressLogicKey(character: '*');
+      await tester.pumpAndSettle();
+
+      final textNode = editor.nodeAtPath([0]) as TextNode;
+      final allItalic = textNode.allSatisfyItalicInSelection(
+        Selection.single(
+          path: [0],
+          startOffset: 0,
+          endOffset: text.length, // insert a new *
+        ),
+      );
+      expect(allItalic, false);
+    });
   });
 }

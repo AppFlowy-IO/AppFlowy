@@ -277,7 +277,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
             iconPadding: const EdgeInsets.symmetric(horizontal: 6.0),
             icon: svgWidget(
               "editor/details",
-              color: Theme.of(context).colorScheme.onSurface,
+              color: Theme.of(context).iconTheme.color,
             ),
           ),
         ],

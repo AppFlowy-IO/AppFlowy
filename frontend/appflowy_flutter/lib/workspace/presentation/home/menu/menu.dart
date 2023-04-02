@@ -229,7 +229,7 @@ class MenuTopBar extends StatelessWidget {
                     iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
                     icon: svgWidget(
                       "home/hide_menu",
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: Theme.of(context).iconTheme.color,
                     ),
                   ),
                 )

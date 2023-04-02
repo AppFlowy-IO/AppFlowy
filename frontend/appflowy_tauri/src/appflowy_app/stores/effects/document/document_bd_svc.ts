@@ -5,10 +5,10 @@ import {
   FlowyError,
   OpenDocumentPayloadPB,
   ViewIdPB,
-} from '../../../../services/backend';
-import { DocumentEventApplyEdit, DocumentEventGetDocument } from '../../../../services/backend/events/flowy-document';
+} from '@/services/backend';
+import { DocumentEventApplyEdit, DocumentEventGetDocument } from '@/services/backend/events/flowy-document';
 import { Result } from 'ts-results';
-import { FolderEventCloseView } from '../../../../services/backend/events/flowy-folder';
+import { FolderEventCloseView } from '@/services/backend/events/flowy-folder';
 
 export class DocumentBackendService {
   constructor(public readonly viewId: string) {}

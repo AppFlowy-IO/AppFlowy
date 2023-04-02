@@ -18,7 +18,7 @@ SelectionMenuItem boardMenuItem = SelectionMenuItem(
     );
   },
   // TODO(a-wallen): Translate keywords
-  keywords: ['referenced board', 'referenced kanban'],
+  keywords: ['referenced', 'board', 'kanban'],
   handler: (editorState, menuService, context) {
     showLinkToPageMenu(
       editorState,

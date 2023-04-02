@@ -184,7 +184,7 @@ class _BoardContentState extends State<BoardContent> {
         width: 20,
         child: svgWidget(
           "home/add",
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).iconTheme.color,
         ),
       ),
       onAddButtonClick: () {
@@ -207,7 +207,7 @@ class _BoardContentState extends State<BoardContent> {
         width: 20,
         child: svgWidget(
           "home/add",
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).iconTheme.color,
         ),
       ),
       title: FlowyText.medium(
