@@ -13,6 +13,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flowy_infra_ui/style_widget/container.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -120,13 +121,30 @@ class _HomeScreenState extends State<HomeScreen> {
           context: context,
         );
         const bubble = QuestionBubble();
-        return _layoutWidgets(
-          layout: layout,
-          homeStack: homeStack,
-          homeMenu: menu,
-          editPanel: editPanel,
-          bubble: bubble,
-          homeMenuResizer: homeMenuResizer,
+        return Column(
+          children: [
+            Container(
+              color: Theme.of(context).colorScheme.onSecondaryContainer,
+              child: WindowTitleBarBox(
+                child: Row(
+                  children: [
+                    Expanded(child: MoveWindow()),
+                    const WindowButtons()
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: _layoutWidgets(
+                layout: layout,
+                homeStack: homeStack,
+                homeMenu: menu,
+                editPanel: editPanel,
+                bubble: bubble,
+                homeMenuResizer: homeMenuResizer,
+              ),
+            ),
+          ],
         );
       },
     );
@@ -285,5 +303,64 @@ class HomeScreenStackAdaptor extends HomeStackDelegate {
         (err) => Log.error(err),
       );
     });
+  }
+}
+
+class WindowButtons extends StatefulWidget {
+  const WindowButtons({Key? key}) : super(key: key);
+
+  @override
+  WindowButtonsState createState() => WindowButtonsState();
+}
+
+class WindowButtonsState extends State<WindowButtons> {
+  late WindowButtonColors buttonColors;
+  late WindowButtonColors closeButtonColors;
+
+  void maximizeOrRestore() {
+    setState(() {
+      appWindow.maximizeOrRestore();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    buttonColors = WindowButtonColors(
+        normal: Colors.transparent,
+        iconNormal: Theme.of(context).colorScheme.primary,
+        mouseOver: const Color(0xFF404040),
+        mouseDown: const Color(0xFF202020),
+        iconMouseOver: const Color(0xFFFFFFFF),
+        iconMouseDown: const Color(0xFFF0F0F0));
+
+    closeButtonColors = WindowButtonColors(
+        mouseOver: const Color(0xFFD32F2F),
+        mouseDown: const Color(0xFFB71C1C),
+        iconNormal: Theme.of(context).colorScheme.primary,
+        iconMouseOver: const Color(0xFFFFFFFF));
+    super.didChangeDependencies();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        MinimizeWindowButton(
+          colors: buttonColors,
+        ),
+        appWindow.isMaximized
+            ? RestoreWindowButton(
+                colors: buttonColors,
+                onPressed: maximizeOrRestore,
+              )
+            : MaximizeWindowButton(
+                colors: buttonColors,
+                onPressed: maximizeOrRestore,
+              ),
+        CloseWindowButton(
+          colors: closeButtonColors,
+        ),
+      ],
+    );
   }
 }
