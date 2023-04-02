@@ -1,5 +1,6 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/blocks/text_block/shortcuts/text_block_shortcuts.dart';
+import 'package:appflowy_editor/src/blocks/base_component/widget/nested_list.dart';
+import 'package:appflowy_editor/src/blocks/text_block/text_block_with_icon.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/selection/v2/selectable_v2.dart';
 import 'package:flutter/material.dart';
@@ -49,43 +50,22 @@ class _NumberedListBlockState extends State<NumberedListBlock>
     final delta = Delta.fromJson(List.from(node.attributes['texts']));
     final nodes = widget.node.children.toList(growable: false);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FlowySvg(
-              number: _level,
-            ),
-            TextBlock(
-              key: textBlockKey,
-              path: node.path,
-              delta: delta,
-              shortcuts: textBlockShortcuts,
-            ),
-            // children
-          ],
+    return PaddingNestedList(
+      nestedChildren:
+          editorState.service.renderPluginService.buildPluginWidgets(
+        context,
+        nodes,
+        editorState,
+      ),
+      child: TextBlockWithIcon(
+        icon: FlowySvg(
+          number: _level,
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children:
-                editorState.service.renderPluginService.buildPluginWidgets(
-              context,
-              nodes,
-              editorState,
-            ),
-          ),
-        ),
-      ],
+        textBlockKey: textBlockKey,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        path: node.path,
+        delta: delta,
+      ),
     );
   }
 }
