@@ -4,8 +4,8 @@ import {
   FolderEventMoveItem,
   FolderEventReadWorkspaceApps,
   FolderEventReadWorkspaces,
-} from '../../../../../services/backend/events/flowy-folder';
-import { CreateAppPayloadPB, WorkspaceIdPB, FlowyError, MoveFolderItemPayloadPB } from '../../../../../services/backend';
+} from '@/services/backend/events/flowy-folder';
+import { CreateAppPayloadPB, WorkspaceIdPB, FlowyError, MoveFolderItemPayloadPB } from '@/services/backend';
 import assert from 'assert';
 
 export class WorkspaceBackendService {

@@ -1,5 +1,5 @@
-import { DatabaseNotification, FlowyError } from '../../../../../services/backend';
-import { NotificationParser } from '../../../../../services/backend/notifications';
+import { DatabaseNotification, FlowyError } from '@/services/backend';
+import { NotificationParser } from '@/services/backend/notifications';
 import { Result } from 'ts-results';
 
 declare type DatabaseNotificationCallback = (ty: DatabaseNotification, payload: Result<Uint8Array, FlowyError>) => void;

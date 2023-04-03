@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { FieldType } from '../../../../services/backend/models/flowy-database/field_entities';
-import { DateFormat, NumberFormat, SelectOptionColorPB, TimeFormat } from '../../../../services/backend';
+import { FieldType } from '@/services/backend/models/flowy-database/field_entities';
+import { DateFormat, NumberFormat, SelectOptionColorPB, TimeFormat } from '@/services/backend';
 
 export interface ISelectOption {
   selectOptionId: string;
