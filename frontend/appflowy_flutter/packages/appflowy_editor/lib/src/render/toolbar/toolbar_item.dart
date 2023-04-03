@@ -250,6 +250,22 @@ List<ToolbarItem> defaultToolbarItems = [
     handler: (editorState, context) => formatBulletedList(editorState),
   ),
   ToolbarItem(
+    id: 'appflowy.toolbar.number_list',
+    type: 3,
+    tooltipsMessage: AppFlowyEditorLocalizations.current.numberedList,
+    iconBuilder: (isHighlight) => FlowySvg(
+      name: 'toolbar/number_list',
+      color: isHighlight ? Colors.lightBlue : null,
+    ),
+    validator: _onlyShowInSingleTextSelection,
+    highlightCallback: (editorState) => _allSatisfy(
+      editorState,
+      BuiltInAttributeKey.subtype,
+      (value) => value == BuiltInAttributeKey.numberList,
+    ),
+    handler: (editorState, context) => formatNumberedList(editorState),
+  ),
+  ToolbarItem(
     id: 'appflowy.toolbar.link',
     type: 4,
     tooltipsMessage: AppFlowyEditorLocalizations.current.link +
