@@ -1,22 +1,26 @@
 import { EditorCheckSvg } from '$app/components/_shared/svg/EditorCheckSvg';
 import { EditorUncheckSvg } from '$app/components/_shared/svg/EditorUncheckSvg';
-import { CellController } from '$app/stores/effects/database/cell/cell_controller';
+import { CheckboxCellController } from '$app/stores/effects/database/cell/controller_builder';
 
 export const EditCheckboxCell = ({
   data,
   cellController,
 }: {
-  data: boolean | undefined;
-  cellController: CellController<any, any>;
+  data: 'Yes' | 'No' | undefined;
+  cellController: CheckboxCellController;
 }) => {
   const toggleValue = async () => {
-    await cellController?.saveCellData(!data);
+    if (data === 'Yes') {
+      await cellController?.saveCellData('No');
+    } else {
+      await cellController?.saveCellData('Yes');
+    }
   };
 
   return (
     <div onClick={() => toggleValue()} className={'block px-4 py-2'}>
       <button className={'h-5 w-5'}>
-        {data ? <EditorCheckSvg></EditorCheckSvg> : <EditorUncheckSvg></EditorUncheckSvg>}
+        {data === 'Yes' ? <EditorCheckSvg></EditorCheckSvg> : <EditorUncheckSvg></EditorUncheckSvg>}
       </button>
     </div>
   );

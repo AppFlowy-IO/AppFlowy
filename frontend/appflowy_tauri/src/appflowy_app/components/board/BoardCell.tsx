@@ -6,6 +6,7 @@ import { BoardOptionsCell } from './BoardOptionsCell';
 import { BoardDateCell } from './BoardDateCell';
 import { BoardTextCell } from './BoardTextCell';
 import { BoardUrlCell } from '$app/components/board/BoardUrlCell';
+import { BoardCheckboxCell } from '$app/components/board/BoardCheckboxCell';
 
 export const BoardCell = ({
   cellIdentifier,
@@ -38,6 +39,12 @@ export const BoardCell = ({
           cellCache={cellCache}
           fieldController={fieldController}
         ></BoardUrlCell>
+      ) : cellIdentifier.fieldType === FieldType.Checkbox ? (
+        <BoardCheckboxCell
+          cellIdentifier={cellIdentifier}
+          cellCache={cellCache}
+          fieldController={fieldController}
+        ></BoardCheckboxCell>
       ) : (
         <BoardTextCell
           cellIdentifier={cellIdentifier}
