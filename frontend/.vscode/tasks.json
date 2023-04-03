@@ -166,20 +166,6 @@
       "detail": "appflowy_flutter"
     },
     {
-      "label": "AF: flutter build release (host_platform)",
-      "type": "shell",
-      "command": "dart",
-      "args": [
-        "build_flowy.dart",
-        "${workspaceFolder}"
-      ],
-      "group": "build",
-      "detail": "appflowy_flutter",
-      "options": {
-        "cwd": "${workspaceFolder}/scripts/flutter_release_build"
-      }
-    },
-    {
       "label": "AF: Tauri UI Dev",
       "type": "shell",
       "isBackground": true,
