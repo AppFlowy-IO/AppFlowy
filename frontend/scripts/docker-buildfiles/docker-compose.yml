@@ -8,7 +8,9 @@ version: "3"
 
 services:
   app:
-    build: .
+    build:
+      context: ../../..
+      dockerfile: ./frontend/scripts/docker-buildfiles/Dockerfile
     image: appflowy/appflowy:latest
     stdin_open: true
     # tty: true
@@ -22,9 +24,4 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - /dev/dri:/dev/dri
       - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
-      - builder-data:/home/makepkg
-      - /etc/pacman.d/mirrorlist:/etc/pacman.d/mirrorlist
     network_mode: host
-
-volumes:
-  builder-data: # Used to cache build artifacts and thus speed up image rebuilds

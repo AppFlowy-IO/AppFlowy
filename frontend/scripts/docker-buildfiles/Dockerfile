@@ -17,10 +17,14 @@ USER $user
 WORKDIR /home/$user
 
 # Install yay
-RUN sudo pacman -S --needed --noconfirm git
-RUN git clone --depth 1 https://aur.archlinux.org/yay.git && \
-    cd yay && \
-    makepkg -sri --needed --noconfirm
+RUN sudo pacman -S --needed --noconfirm curl tar
+RUN curl -sSfL \
+    --output yay.tar.gz \
+    https://github.com/Jguer/yay/releases/download/v12.0.2/yay_12.0.2_x86_64.tar.gz && \
+  tar -xf yay.tar.gz && \
+  sudo mv yay_12.0.2_x86_64/yay /bin && \
+  rm -rf yay_12.0.2_x86_64 && \
+  yay --version
 
 # Install Rust
 RUN yay -S --noconfirm curl base-devel openssl clang cmake ninja pkg-config xdg-user-dirs
@@ -31,22 +35,26 @@ RUN source ~/.cargo/env && \
     rustup default stable
 
 # Install Flutter
-RUN sudo pacman -S --noconfirm tar gtk3
+RUN sudo pacman -S --noconfirm git tar gtk3
 RUN curl -sSfL \
       --output flutter.tar.xz \
-      https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.3.10-stable.tar.xz && \
+      https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.7.5-stable.tar.xz && \
     tar -xf flutter.tar.xz && \
     rm flutter.tar.xz
 RUN flutter config --enable-linux-desktop
 RUN flutter doctor
 RUN dart pub global activate protoc_plugin
 
-# Build the AppFlowy app
-RUN sudo pacman -S --noconfirm libkeybinder3 sqlite
-RUN git clone --depth 1 https://github.com/AppFlowy-IO/appflowy.git
-RUN cd appflowy/frontend && \
+# Intall build dependencies for AppFlowy
+RUN sudo pacman -S --noconfirm git libkeybinder3 sqlite
+RUN source ~/.cargo/env && cargo install --force cargo-make duckscript_cli
+
+# Build AppFlowy
+COPY . /appflowy
+RUN sudo chown -R $user: /appflowy
+WORKDIR /appflowy
+RUN cd frontend && \
     source ~/.cargo/env && \
-    cargo install --force cargo-make duckscript_cli && \
     cargo make appflowy-flutter-deps-tools && \
     cargo make -p production-linux-x86_64 appflowy-linux
 
@@ -74,7 +82,9 @@ USER $user
 
 # Set up the AppFlowy app
 WORKDIR /home/$user
-COPY --from=builder /home/makepkg/appflowy/frontend/appflowy_flutter/build/linux/x64/release/bundle .
-RUN xdg-user-dirs-update
+COPY --from=builder /appflowy/frontend/appflowy_flutter/build/linux/x64/release/bundle .
+RUN xdg-user-dirs-update && \
+    test -e ./AppFlowy && \
+    file ./AppFlowy
 
 CMD ["./AppFlowy"]
