@@ -247,6 +247,7 @@ class _AddOptionButton extends StatelessWidget {
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           text: FlowyText.medium(
             LocaleKeys.grid_field_addSelectOption.tr(),
+            color: AFThemeExtension.of(context).textColor,
           ),
           onTap: () {
             context
