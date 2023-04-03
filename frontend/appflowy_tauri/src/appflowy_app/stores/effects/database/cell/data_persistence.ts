@@ -25,11 +25,12 @@ export class DateCellDataPersistence extends CellDataPersistence<CalendarData> {
 
   save(data: CalendarData): Promise<Result<void, FlowyError>> {
     const payload = DateChangesetPB.fromObject({ cell_path: _makeCellPath(this.cellIdentifier) });
-    payload.date = data.date.getUTCMilliseconds.toString();
+    payload.date = ((data.date.getTime() / 1000) | 0).toString();
     payload.is_utc = true;
     if (data.time !== undefined) {
       payload.time = data.time;
     }
+    payload.include_time = data.includeTime;
     return DatabaseEventUpdateDateCell(payload);
   }
 }

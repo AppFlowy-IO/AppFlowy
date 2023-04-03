@@ -36,8 +36,8 @@ export class FieldController {
     }
   };
 
-  subscribe = (callbacks: { onNumOfFieldsChanged?: (fieldInfos: readonly FieldInfo[]) => void}) => {
-     this.numOfFieldsNotifier.observer.subscribe((fieldInfos) => {
+  subscribe = (callbacks: { onNumOfFieldsChanged?: (fieldInfos: readonly FieldInfo[]) => void }) => {
+    this.numOfFieldsNotifier.observer.subscribe((fieldInfos) => {
       callbacks.onNumOfFieldsChanged?.(fieldInfos);
     });
   };
@@ -63,12 +63,10 @@ export class FieldController {
     }
 
     const deletedFieldIds = deletedFields.map((field) => field.field_id);
-    const predicate = (element: FieldInfo) => {
-      !deletedFieldIds.includes(element.field.id);
+    const predicate = (element: FieldInfo): boolean => {
+      return !deletedFieldIds.includes(element.field.id);
     };
-    const newFieldInfos = [...this.fieldInfos];
-    newFieldInfos.filter(predicate);
-    this.numOfFieldsNotifier.fieldInfos = newFieldInfos;
+    this.numOfFieldsNotifier.fieldInfos = [...this.fieldInfos].filter(predicate);
   };
 
   private _insertFields = (insertedFields: IndexFieldPB[]) => {
