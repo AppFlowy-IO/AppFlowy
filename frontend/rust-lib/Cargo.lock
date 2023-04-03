@@ -491,6 +491,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f25ce7f#f25ce7f71ef3f0a2a35260ebdf74d75534bfad45"
 dependencies = [
  "anyhow",
  "bytes",
@@ -508,6 +509,7 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f25ce7f#f25ce7f71ef3f0a2a35260ebdf74d75534bfad45"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -519,6 +521,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f25ce7f#f25ce7f71ef3f0a2a35260ebdf74d75534bfad45"
 dependencies = [
  "anyhow",
  "collab",
@@ -536,6 +539,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f25ce7f#f25ce7f71ef3f0a2a35260ebdf74d75534bfad45"
 dependencies = [
  "bincode",
  "chrono",

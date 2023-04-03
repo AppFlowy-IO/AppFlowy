@@ -21,7 +21,7 @@ flowy-document = { path = "../flowy-document" }
 flowy-revision = { path = "../flowy-revision" }
 flowy-error = { path = "../flowy-error", features = ["adaptor_ws"] }
 flowy-task = { path = "../flowy-task" }
-collab-persistence= { path = "../../../../../Documents/proj/appflowy-collab/collab-persistence" }
+collab-persistence = { version = "0.1.0" }
 
 tracing = { version = "0.1", features = ["log"] }
 futures-core = { version = "0.3", default-features = false }
