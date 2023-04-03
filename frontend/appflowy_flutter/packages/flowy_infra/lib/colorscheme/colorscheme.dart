@@ -73,6 +73,7 @@ abstract class FlowyColorScheme {
   //the text color when it is hovered
   final Color hoverFG;
   final Color questionBubbleBG;
+  final Color progressBarBGcolor;
 
   const FlowyColorScheme({
     required this.surface,
@@ -118,6 +119,7 @@ abstract class FlowyColorScheme {
     required this.hoverBG3,
     required this.hoverFG,
     required this.questionBubbleBG,
+    required this.progressBarBGcolor,
   });
 
   factory FlowyColorScheme.builtIn(String themeName, Brightness brightness) {
