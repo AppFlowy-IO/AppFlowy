@@ -97,35 +97,28 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   EditorStyle get style => widget.editorState.editorStyle;
   int _selectedIndex = 0;
   int _totalItems = 0;
-  List<dartz.Tuple2<AppPB, List<ViewPB>>> _availableLayout = [];
+  Future<List<dartz.Tuple2<AppPB, List<ViewPB>>>>? _availableLayout;
   final Map<int, dartz.Tuple2<AppPB, ViewPB>> _items = {};
-  bool _isLoading = true;
 
-  Future<void> fetchItems() async {
+  Future<List<dartz.Tuple2<AppPB, List<ViewPB>>>> fetchItems() async {
     final items = await AppBackendService().fetchViews(widget.layoutType);
 
-    setState(() {
-      _availableLayout = items;
-      _isLoading = false;
-    });
-
     int index = 0;
-    for (final app in _availableLayout) {
+    for (final app in items) {
       for (final view in app.value2) {
         _items.putIfAbsent(index, () => dartz.Tuple2(app.value1, view));
         index += 1;
       }
     }
 
-    setState(() {
-      _totalItems = _items.length;
-    });
+    _totalItems = _items.length;
+    return items;
   }
 
   @override
   void initState() {
+    _availableLayout = fetchItems();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      fetchItems();
       _focusNode.requestFocus();
     });
     super.initState();
@@ -156,17 +149,15 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
           ],
           borderRadius: BorderRadius.circular(6.0),
         ),
-        child: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(),
-              )
-            : _buildListWidget(context, _selectedIndex, _availableLayout),
+        child: _buildListWidget(context, _selectedIndex, _availableLayout),
       ),
     );
   }
 
   KeyEventResult _onKey(FocusNode node, RawKeyEvent event) {
-    if (event is! RawKeyDownEvent || _isLoading || _availableLayout.isEmpty) {
+    if (event is! RawKeyDownEvent ||
+        _availableLayout == null ||
+        _items.isEmpty) {
       return KeyEventResult.ignored;
     }
 
@@ -204,53 +195,64 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   }
 
   Widget _buildListWidget(BuildContext context, int selectedIndex,
-      List<dartz.Tuple2<AppPB, List<ViewPB>>> items) {
+      Future<List<dartz.Tuple2<AppPB, List<ViewPB>>>>? items) {
     int index = 0;
-    return Builder(builder: (context) {
-      final apps = items;
-      final children = <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: FlowyText.regular(
-            widget.hintText,
-            fontSize: 10,
-            color: Colors.grey,
-          ),
-        ),
-      ];
-      if (apps.isNotEmpty) {
-        for (final app in apps) {
-          if (app.value2.isNotEmpty) {
-            children.add(
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: FlowyText.regular(
-                  app.value1.name,
-                ),
+    return FutureBuilder<List<dartz.Tuple2<AppPB, List<ViewPB>>>>(
+      builder: (context, snapshot) {
+        if (snapshot.hasData &&
+            snapshot.connectionState == ConnectionState.done) {
+          final apps = snapshot.data;
+          final children = <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: FlowyText.regular(
+                widget.hintText,
+                fontSize: 10,
+                color: Colors.grey,
               ),
-            );
-            for (final value in app.value2) {
-              children.add(
-                FlowyButton(
-                  isSelected: index == selectedIndex,
-                  leftIcon: svgWidget(
-                    _iconName(value),
-                    color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ];
+          if (apps != null && apps.isNotEmpty) {
+            for (final app in apps) {
+              if (app.value2.isNotEmpty) {
+                children.add(
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: FlowyText.regular(
+                      app.value1.name,
+                    ),
                   ),
-                  text: FlowyText.regular(value.name),
-                  onTap: () => widget.onSelected(app.value1, value),
-                ),
-              );
-              index += 1;
+                );
+                for (final value in app.value2) {
+                  children.add(
+                    FlowyButton(
+                      isSelected: index == _selectedIndex,
+                      leftIcon: svgWidget(
+                        _iconName(value),
+                        color: Theme.of(context).iconTheme.color,
+                      ),
+                      text: FlowyText.regular(value.name),
+                      onTap: () => widget.onSelected(app.value1, value),
+                    ),
+                  );
+
+                  index += 1;
+                }
+              }
             }
           }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: children,
+          );
+        } else {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
         }
-      }
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: children,
-      );
-    });
+      },
+      future: items,
+    );
   }
 
   String _iconName(ViewPB viewPB) {
