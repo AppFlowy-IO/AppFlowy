@@ -6,7 +6,14 @@ String languageFromLocale(Locale locale) {
     case "en":
       return "English";
     case "zh":
-      return "简体中文";
+      switch (locale.countryCode) {
+        case "CN":
+          return "简体中文";
+        case "TW":
+          return "繁體中文";
+        default:
+          return locale.languageCode;
+      }
 
     // Then in alphabetical order
     case "ca":
