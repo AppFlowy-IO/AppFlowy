@@ -2,17 +2,20 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/plugins/cover/change_cover_popover_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_image_picker.dart';
 import 'package:appflowy/plugins/document/presentation/plugins/cover/cover_node_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 const String kLocalImagesKey = 'local_images';
 
@@ -71,31 +74,35 @@ class CoverColorPicker extends StatefulWidget {
 }
 
 class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
-  late Future<List<String>>? fileImages;
   bool isAddingImage = false;
 
   @override
-  void initState() {
-    super.initState();
-    fileImages = _getPreviouslyPickedImagePaths();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(15),
-      child: SingleChildScrollView(
-        child: isAddingImage
-            ? CoverImagePicker(
-                onBackPressed: () => setState(() {
-                      isAddingImage = false;
-                    }),
-                onFileSubmit: (List<String> path) {
-                  setState(() {
-                    isAddingImage = false;
-                  });
-                })
-            : _buildCoverSelection(),
+    return BlocProvider(
+      create: (context) => ChangeCoverPopoverBloc()
+        ..add(const ChangeCoverPopoverEvent.fetchPickedImagePaths()),
+      child: BlocBuilder<ChangeCoverPopoverBloc, ChangeCoverPopoverState>(
+        builder: (context, state) {
+          return Padding(
+            padding: const EdgeInsets.all(15),
+            child: SingleChildScrollView(
+              child: isAddingImage
+                  ? CoverImagePicker(
+                      onBackPressed: () => setState(() {
+                            isAddingImage = false;
+                          }),
+                      onFileSubmit: (List<String> path) {
+                        context.read<ChangeCoverPopoverBloc>().add(
+                            const ChangeCoverPopoverEvent
+                                .fetchPickedImagePaths());
+                        setState(() {
+                          isAddingImage = false;
+                        });
+                      })
+                  : _buildCoverSelection(),
+            ),
+          );
+        },
       ),
     );
   }
@@ -111,10 +118,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
         const SizedBox(height: 10),
         _buildColorPickerList(),
         const SizedBox(height: 10),
-        FlowyText.semibold(
-          LocaleKeys.document_plugins_cover_images.tr(),
-          color: Theme.of(context).colorScheme.tertiary,
-        ),
+        _buildImageHeader(),
         const SizedBox(height: 10),
         _buildFileImagePicker(),
         const SizedBox(height: 10),
@@ -125,6 +129,34 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
         const SizedBox(height: 10),
         _buildAbstractImagePicker(),
       ],
+    );
+  }
+
+  Widget _buildImageHeader() {
+    return BlocBuilder<ChangeCoverPopoverBloc, ChangeCoverPopoverState>(
+      builder: (context, state) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            FlowyText.semibold(
+              LocaleKeys.document_plugins_cover_images.tr(),
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
+            FlowyTextButton(
+              fillColor: Theme.of(context).cardColor,
+              hoverColor: Theme.of(context).colorScheme.secondaryContainer,
+              LocaleKeys.document_plugins_cover_clearAll.tr(),
+              fontColor: Theme.of(context).colorScheme.tertiary,
+              onPressed: () {
+                context
+                    .read<ChangeCoverPopoverBloc>()
+                    .add(const ChangeCoverPopoverEvent.clearAllImages());
+              },
+              mainAxisAlignment: MainAxisAlignment.end,
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -182,71 +214,59 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
   }
 
   Widget _buildFileImagePicker() {
-    return FutureBuilder<List<String>>(
-        future: _getPreviouslyPickedImagePaths(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            List<String> images = snapshot.data!;
-            return GridView.builder(
-              shrinkWrap: true,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                childAspectRatio: 1 / 0.65,
-                crossAxisSpacing: 7,
-                mainAxisSpacing: 7,
-              ),
-              itemCount: images.length + 1,
-              itemBuilder: (BuildContext ctx, index) {
-                if (index == 0) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withOpacity(0.15),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      borderRadius: Corners.s8Border,
-                    ),
-                    child: FlowyIconButton(
-                      iconPadding: EdgeInsets.zero,
-                      icon: Icon(
-                        Icons.add,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      width: 20,
-                      onPressed: () {
-                        setState(() {
-                          isAddingImage = true;
-                        });
-                      },
-                    ),
-                  );
-                }
-                return InkWell(
-                  onTap: () {
-                    widget.onCoverChanged(
-                      CoverSelectionType.file,
-                      images[index - 1],
-                    );
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: FileImage(File(images[index - 1])),
-                        fit: BoxFit.cover,
-                      ),
-                      borderRadius: Corners.s8Border,
-                    ),
+    return BlocBuilder<ChangeCoverPopoverBloc, ChangeCoverPopoverState>(
+        builder: (context, state) {
+      if (state is Loaded) {
+        List<String> images = state.imageNames;
+        return GridView.builder(
+          shrinkWrap: true,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            childAspectRatio: 1 / 0.65,
+            crossAxisSpacing: 7,
+            mainAxisSpacing: 7,
+          ),
+          itemCount: images.length + 1,
+          itemBuilder: (BuildContext ctx, index) {
+            if (index == 0) {
+              return Container(
+                decoration: BoxDecoration(
+                  color:
+                      Theme.of(context).colorScheme.primary.withOpacity(0.15),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.primary,
                   ),
+                  borderRadius: Corners.s8Border,
+                ),
+                child: FlowyIconButton(
+                  iconPadding: EdgeInsets.zero,
+                  icon: Icon(
+                    Icons.add,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  width: 20,
+                  onPressed: () {
+                    setState(() {
+                      isAddingImage = true;
+                    });
+                  },
+                ),
+              );
+            }
+            return ImageGridItem(
+              onImageSelect: () {
+                widget.onCoverChanged(
+                  CoverSelectionType.file,
+                  images[index - 1],
                 );
               },
+              imagePath: images[index - 1],
             );
-          } else {
-            return Container();
-          }
-        });
+          },
+        );
+      }
+      return Container();
+    });
   }
 
   List<ColorOption> _generateBackgroundColorOptions(EditorState editorState) {
@@ -257,19 +277,75 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
             ))
         .toList();
   }
+}
 
-  Future<List<String>> _getPreviouslyPickedImagePaths() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final imageNames = prefs.getStringList(kLocalImagesKey) ?? [];
-    final removeNames = [];
-    for (final name in imageNames) {
-      if (!File(name).existsSync()) {
-        removeNames.add(name);
-      }
-    }
-    imageNames.removeWhere((element) => removeNames.contains(element));
-    prefs.setStringList(kLocalImagesKey, imageNames);
-    return imageNames;
+class ImageGridItem extends StatefulWidget {
+  const ImageGridItem({
+    Key? key,
+    required this.onImageSelect,
+    required this.imagePath,
+  }) : super(key: key);
+
+  final Function() onImageSelect;
+  final String imagePath;
+
+  @override
+  State<ImageGridItem> createState() => _ImageGridItemState();
+}
+
+class _ImageGridItemState extends State<ImageGridItem> {
+  bool showDeleteButton = false;
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() {
+          showDeleteButton = true;
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          showDeleteButton = false;
+        });
+      },
+      child: Stack(
+        children: [
+          InkWell(
+            onTap: widget.onImageSelect,
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: FileImage(File(widget.imagePath)),
+                  fit: BoxFit.cover,
+                ),
+                borderRadius: Corners.s8Border,
+              ),
+            ),
+          ),
+          if (showDeleteButton)
+            Positioned(
+              right: 2,
+              top: 2,
+              child: FlowyIconButton(
+                fillColor:
+                    Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                hoverColor:
+                    Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                iconPadding: const EdgeInsets.all(5),
+                width: 28,
+                icon: svgWidget(
+                  'editor/delete',
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+                onPressed: () {
+                  context.read<ChangeCoverPopoverBloc>().add(
+                      ChangeCoverPopoverEvent.deleteImage(widget.imagePath));
+                },
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
 
