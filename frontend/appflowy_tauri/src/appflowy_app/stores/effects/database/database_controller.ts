@@ -1,7 +1,7 @@
 import { DatabaseBackendService } from './database_bd_svc';
 import { FieldController, FieldInfo } from './field/field_controller';
 import { DatabaseViewCache } from './view/database_view_cache';
-import { DatabasePB, FlowyError, GroupPB } from '@/services/backend';
+import { DatabasePB, GroupPB, FlowyError } from '@/services/backend';
 import { RowChangedReason, RowInfo } from './row/row_cache';
 import { Err, Ok } from 'ts-results';
 import { DatabaseGroupController } from './group/group_controller';
@@ -102,8 +102,8 @@ export class DatabaseController {
     return this.backendService.moveGroup(fromGroupId, toGroupId);
   };
 
-  moveField = (fieldId: string, fromIndex: number, toIndex: number) => {
-    return this.backendService.moveField(fieldId, fromIndex, toIndex);
+  moveField = (params: { fieldId: string; fromIndex: number; toIndex: number }) => {
+    return this.backendService.moveField(params);
   };
 
   private loadGroup = async () => {
