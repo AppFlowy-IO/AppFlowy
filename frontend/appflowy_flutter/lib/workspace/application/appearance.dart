@@ -311,7 +311,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
             fontFamily: fontFamily,
             fontSize: FontSizes.s11,
             fontWeight: FontWeight.w400,
-            fontColor: theme.shader3,
+            fontColor: theme.hint,
           ),
         )
       ],
