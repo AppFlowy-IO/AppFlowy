@@ -10,6 +10,8 @@ import { ClockSvg } from '$app/components/_shared/svg/ClockSvg';
 import { MoreSvg } from '$app/components/_shared/svg/MoreSvg';
 import { EditorUncheckSvg } from '$app/components/_shared/svg/EditorUncheckSvg';
 import { useCell } from '$app/components/_shared/database-hooks/useCell';
+import { CalendarData } from '$app/stores/effects/database/cell/controller_builder';
+import { DateCellDataPB } from '@/services/backend';
 
 export const DatePickerPopup = ({
   left,
@@ -29,7 +31,6 @@ export const DatePickerPopup = ({
   const { data, cellController } = useCell(cellIdentifier, cellCache, fieldController);
   const ref = useRef<HTMLDivElement>(null);
   const [adjustedTop, setAdjustedTop] = useState(-100);
-  // const [value, setValue] = useState();
   const { t } = useTranslation('');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
@@ -48,15 +49,18 @@ export const DatePickerPopup = ({
   });
 
   useEffect(() => {
-    // console.log((data as DateCellDataPB).date);
-    // setSelectedDate(new Date((data as DateCellDataPB).date));
+    const date_pb = data as DateCellDataPB | undefined;
+    if (!date_pb || !date_pb?.date.length) return;
+
+    // should be changed after we can modify date format
+    setSelectedDate(dayjs(date_pb.date, 'MMM DD, YYYY').toDate());
   }, [data]);
 
-  const onChange = (v: Date | null | (Date | null)[]) => {
+  const onChange = async (v: Date | null | (Date | null)[]) => {
     if (v instanceof Date) {
-      console.log(dayjs(v).format('YYYY-MM-DD'));
       setSelectedDate(v);
-      // void cellController?.saveCellData(new DateCellDataPB({ date: dayjs(v).format('YYYY-MM-DD') }));
+      const date = new CalendarData(dayjs(v).add(dayjs().utcOffset(), 'minutes').toDate(), false);
+      await cellController?.saveCellData(date);
     }
   };
 
