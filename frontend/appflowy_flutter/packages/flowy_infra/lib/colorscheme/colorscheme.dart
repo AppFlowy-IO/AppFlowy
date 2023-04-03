@@ -1,9 +1,9 @@
-import 'package:flowy_infra/colorscheme/lavender.dart';
+// import 'package:flowy_infra/colorscheme/lavender.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flowy_infra/theme.dart';
 import 'default_colorscheme.dart';
-import 'dandelion.dart';
+// import 'dandelion.dart';
 
 /// A map of all the built-in themes.
 ///
