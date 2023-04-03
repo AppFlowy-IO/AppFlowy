@@ -71,7 +71,7 @@ class _BuildTool {
       var line = lines[i];
       if (line.contains(excludeTagBegin)) {
         scanMode = _ScanMode.target;
-      } else if (line.contains(excludeTagBegin)) {
+      } else if (line.contains(excludeTagEnd)) {
         scanMode = _ScanMode.ignore;
       } else if (scanMode == _ScanMode.target) {
         lines[i] = _modify(line, mode: mode);
