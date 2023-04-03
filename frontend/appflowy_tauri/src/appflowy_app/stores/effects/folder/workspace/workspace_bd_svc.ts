@@ -1,24 +1,31 @@
 import { Err, Ok } from 'ts-results';
 import {
-  FolderEventCreateApp,
+  FolderEventCreateView,
   FolderEventMoveItem,
   FolderEventReadWorkspaceApps,
   FolderEventReadWorkspaces,
-} from '@/services/backend/events/flowy-folder';
-import { CreateAppPayloadPB, WorkspaceIdPB, FlowyError, MoveFolderItemPayloadPB } from '@/services/backend';
+} from '@/services/backend/events/flowy-folder2';
+import {
+  CreateViewPayloadPB,
+  FlowyError,
+  MoveFolderItemPayloadPB,
+  ViewLayoutTypePB,
+  WorkspaceIdPB,
+} from '@/services/backend';
 import assert from 'assert';
 
 export class WorkspaceBackendService {
   constructor(public readonly workspaceId: string) {}
 
   createApp = async (params: { name: string; desc?: string }) => {
-    const payload = CreateAppPayloadPB.fromObject({
-      workspace_id: this.workspaceId,
+    const payload = CreateViewPayloadPB.fromObject({
+      belong_to_id: this.workspaceId,
       name: params.name,
       desc: params.desc || '',
+      layout: ViewLayoutTypePB.Document,
     });
 
-    const result = await FolderEventCreateApp(payload);
+    const result = await FolderEventCreateView(payload);
     if (result.ok) {
       return result.val;
     } else {

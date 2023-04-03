@@ -39,8 +39,8 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
     void appObserver.subscribe({
       onAppChanged: (change) => {
         if (change.ok) {
-          const app: AppPB = change.val;
-          const updatedPages: IPage[] = app.belongings.items.map((view) => ({
+          const views = change.val;
+          const updatedPages: IPage[] = views.items.map((view) => ({
             id: view.id,
             folderId: view.app_id,
             pageType: view.layout,
