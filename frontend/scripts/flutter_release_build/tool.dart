@@ -13,9 +13,12 @@ enum _ModifyMode {
 class _BuildTool {
   const _BuildTool({
     required this.repositoryRoot,
+    required this.appVersion,
   });
 
   final String repositoryRoot;
+  final String appVersion;
+
   String get projectRoot =>
       [repositoryRoot, 'appflowy_flutter'].join(Platform.pathSeparator);
 
@@ -32,19 +35,19 @@ class _BuildTool {
 
     // Determine the appropriate command based on the OS and architecture
     if (os == 'windows') {
-      return 'cargo make --profile production-windows-x86 appflowy';
+      return 'cargo make --env APP_VERSION=$appVersion --profile production-windows-x86 appflowy';
     }
 
     if (os == 'linux') {
-      return 'cargo make --profile production-linux-x86_64 appflowy';
+      return 'cargo make --env APP_VERSION=$appVersion --profile production-linux-x86_64 appflowy';
     }
 
     if (os == 'macos') {
       if (arch == 'x86_64') {
-        return 'cargo make --profile production-mac-x86_64 appflowy';
+        return 'cargo make --env APP_VERSION=$appVersion --profile production-mac-x86_64 appflowy';
       }
       if (arch == 'arm64') {
-        return 'cargo make --profile production-mac-arm64 appflowy';
+        return 'cargo make --env APP_VERSION=$appVersion --profile production-mac-arm64 appflowy';
       }
       throw 'Unsupported CPU architecture: $arch';
     }
