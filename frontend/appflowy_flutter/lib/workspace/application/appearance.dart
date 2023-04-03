@@ -226,6 +226,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
           fontColor: theme.surface,
         ),
       ),
+      scaffoldBackgroundColor: theme.surface,
       scrollbarTheme: ScrollbarThemeData(
         thumbColor: MaterialStateProperty.all(theme.shader3),
         thickness: MaterialStateProperty.resolveWith((states) {
