@@ -1,5 +1,6 @@
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +58,11 @@ class FieldTypeCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(fieldType.title()),
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        text: FlowyText.medium(
+          fieldType.title(),
+          color: AFThemeExtension.of(context).textColor,
+        ),
         onTap: () => onSelectField(fieldType),
         leftIcon: svgWidget(
           fieldType.iconName(),
