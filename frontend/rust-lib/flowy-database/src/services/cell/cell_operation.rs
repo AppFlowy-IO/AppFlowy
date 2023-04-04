@@ -254,6 +254,7 @@ pub fn insert_date_cell(timestamp: i64, field_rev: &FieldRevision) -> CellRevisi
     time: None,
     include_time: Some(false),
     is_utc: true,
+    timezone_id: None,
   })
   .unwrap();
   let data = apply_cell_data_changeset(cell_data, None, field_rev, None).unwrap();

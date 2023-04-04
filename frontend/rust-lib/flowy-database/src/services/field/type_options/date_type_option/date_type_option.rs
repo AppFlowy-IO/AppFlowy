@@ -8,12 +8,14 @@ use crate::services::field::{
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
-use chrono::NaiveDateTime;
+use chrono::{DateTime, Local, NaiveDate, NaiveDateTime, NaiveTime, Offset, TimeZone};
+use chrono_tz::Tz;
 use database_model::{FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
+use std::str::FromStr;
 
 // Date
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
@@ -61,55 +63,37 @@ impl DateTypeOptionPB {
   fn today_desc_from_timestamp(&self, cell_data: DateCellData) -> DateCellDataPB {
     let timestamp = cell_data.timestamp.unwrap_or_default();
     let include_time = cell_data.include_time;
+    let timezone_id = cell_data.timezone_id;
 
-    let naive = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0);
-    if naive.is_none() {
-      return DateCellDataPB::default();
-    }
-    let naive = naive.unwrap();
     if timestamp == 0 {
       return DateCellDataPB::default();
     }
-    let fmt = self.date_format.format_str();
-    let date = format!("{}", naive.format_with_items(StrftimeItems::new(fmt)));
 
-    let time = if include_time {
-      let fmt = self.time_format.format_str();
-      format!("{}", naive.format_with_items(StrftimeItems::new(fmt)))
-    } else {
-      "".to_string()
-    };
-
-    DateCellDataPB {
-      date,
-      time,
-      include_time,
-      timestamp,
-    }
-  }
-
-  fn timestamp_from_utc_with_time(
-    &self,
-    naive_date: &NaiveDateTime,
-    time_str: &Option<String>,
-  ) -> FlowyResult<i64> {
-    if let Some(time_str) = time_str.as_ref() {
-      if !time_str.is_empty() {
-        let naive_time = chrono::NaiveTime::parse_from_str(time_str, self.time_format.format_str());
-
-        match naive_time {
-          Ok(naive_time) => {
-            return Ok(naive_date.date().and_time(naive_time).timestamp());
-          },
-          Err(_e) => {
-            let msg = format!("Parse {} failed", time_str);
-            return Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, &msg));
-          },
+    let naive = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0);
+    match naive {
+      None => DateCellDataPB::default(),
+      Some(naive) => {
+        let offset = match Tz::from_str(&timezone_id) {
+          Ok(timezone) => timezone.offset_from_utc_datetime(&naive).fix(),
+          Err(_) => Local::now().offset().clone(),
         };
-      }
-    }
 
-    Ok(naive_date.timestamp())
+        let date_time = DateTime::<Local>::from_utc(naive, offset);
+
+        let fmt = self.date_format.format_str();
+        let date = format!("{}", date_time.format_with_items(StrftimeItems::new(fmt)));
+        let fmt = self.time_format.format_str();
+        let time = format!("{}", date_time.format_with_items(StrftimeItems::new(fmt)));
+
+        DateCellDataPB {
+          date,
+          time,
+          include_time,
+          timestamp,
+          timezone_id,
+        }
+      },
+    }
   }
 }
 
@@ -144,11 +128,16 @@ impl CellDataChangeset for DateTypeOptionPB {
     changeset: <Self as TypeOption>::CellChangeset,
     type_cell_data: Option<TypeCellData>,
   ) -> FlowyResult<(String, <Self as TypeOption>::CellData)> {
-    let (timestamp, include_time) = match type_cell_data {
-      None => (None, false),
+    // the old data
+    let (timestamp, include_time, timezone_id) = match type_cell_data {
+      None => (None, false, "".to_owned()),
       Some(type_cell_data) => {
         let cell_data = DateCellData::from_cell_str(&type_cell_data.cell_str).unwrap_or_default();
-        (cell_data.timestamp, cell_data.include_time)
+        (
+          cell_data.timestamp,
+          cell_data.include_time,
+          cell_data.timezone_id,
+        )
       },
     };
 
@@ -156,25 +145,110 @@ impl CellDataChangeset for DateTypeOptionPB {
       None => include_time,
       Some(include_time) => include_time,
     };
-    let timestamp = match changeset.date_timestamp() {
-      None => timestamp,
-      Some(date_timestamp) => match (include_time, changeset.time) {
-        (true, Some(time)) => {
-          let time = Some(time.trim().to_uppercase());
-          let naive = NaiveDateTime::from_timestamp_opt(date_timestamp, 0);
-          if let Some(naive) = naive {
-            Some(self.timestamp_from_utc_with_time(&naive, &time)?)
-          } else {
-            Some(date_timestamp)
-          }
-        },
-        _ => Some(date_timestamp),
+    let timezone_id = match changeset.timezone_id {
+      None => timezone_id,
+      Some(ref timezone_id) => timezone_id.to_owned(),
+    };
+
+    let timestamp_datetime = match timestamp {
+      Some(timestamp) => NaiveDateTime::from_timestamp_opt(timestamp, 0),
+      None => None,
+    };
+
+    let new_date_timestamp = changeset.date_timestamp();
+
+    let timestamp = match (include_time, changeset.time) {
+      (true, Some(time_str)) => {
+        // parse the time string, it is in the local timezone
+        let parsed_time = NaiveTime::parse_from_str(&time_str, self.time_format.format_str());
+        let local_time = match parsed_time {
+          Ok(time) => Ok(time),
+          Err(_e) => {
+            let msg = format!("Parse {} failed", time_str);
+            Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, &msg))
+          },
+        }?;
+
+        match Tz::from_str(&timezone_id) {
+          Ok(timezone) => {
+            let local_date = match new_date_timestamp {
+              Some(timestamp) => {
+                let datetime = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
+                timezone.from_utc_datetime(&datetime).date_naive()
+              },
+              None => match timestamp_datetime {
+                Some(datetime) => timezone.from_utc_datetime(&datetime).date_naive(),
+                None => NaiveDate::from_num_days_from_ce_opt(0).unwrap(),
+              },
+            };
+
+            let dummy_date = NaiveDate::from_num_days_from_ce_opt(0).unwrap();
+            let local_time = timezone
+              .from_local_datetime(&NaiveDateTime::new(dummy_date, local_time))
+              .unwrap()
+              .time();
+
+            let local_datetime = NaiveDateTime::new(local_date, local_time);
+            let datetime = timezone.from_local_datetime(&local_datetime).unwrap();
+
+            Some(datetime.timestamp())
+          },
+          Err(_) => {
+            let offset = Local::now().offset().clone();
+
+            let local_date = match new_date_timestamp {
+              Some(timestamp) => {
+                let datetime = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
+                offset.from_utc_datetime(&datetime).date_naive()
+              },
+              None => match timestamp_datetime {
+                Some(datetime) => offset.from_utc_datetime(&datetime).date_naive(),
+                None => NaiveDate::from_num_days_from_ce_opt(0).unwrap(),
+              },
+            };
+
+            let dummy_date = NaiveDate::from_num_days_from_ce_opt(0).unwrap();
+            let local_time = offset
+              .from_local_datetime(&NaiveDateTime::new(dummy_date, local_time))
+              .unwrap()
+              .time();
+
+            let local_datetime = NaiveDateTime::new(local_date, local_time);
+            let datetime = offset.from_local_datetime(&local_datetime).unwrap();
+
+            Some(datetime.timestamp())
+          },
+        }
+      },
+      _ => {
+        let time = match timestamp_datetime {
+          Some(datetime) => datetime.time(),
+          None => NaiveTime::from_num_seconds_from_midnight_opt(0, 0).unwrap(),
+        };
+
+        let date = match new_date_timestamp {
+          Some(timestamp) => Some(
+            NaiveDateTime::from_timestamp_opt(timestamp, 0)
+              .unwrap()
+              .date(),
+          ),
+          None => None,
+        };
+
+        match date {
+          Some(date) => {
+            let datetime = NaiveDateTime::new(date, time);
+            Some(datetime.timestamp())
+          },
+          None => None,
+        }
       },
     };
 
     let date_cell_data = DateCellData {
       timestamp,
       include_time,
+      timezone_id,
     };
     Ok((date_cell_data.to_string(), date_cell_data))
   }

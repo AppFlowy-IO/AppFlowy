@@ -65,6 +65,7 @@ pub fn make_date_cell_string(s: &str) -> String {
     time: None,
     is_utc: true,
     include_time: Some(false),
+    timezone_id: None,
   })
   .unwrap()
 }

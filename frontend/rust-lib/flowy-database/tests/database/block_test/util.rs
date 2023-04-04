@@ -44,6 +44,7 @@ impl DatabaseRowTestBuilder {
       time: None,
       is_utc: true,
       include_time: Some(false),
+      timezone_id: None,
     })
     .unwrap();
     let date_field = self.field_rev_with_type(&FieldType::DateTime);

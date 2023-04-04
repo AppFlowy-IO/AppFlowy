@@ -47,6 +47,7 @@ atomic_refcell = "0.1.9"
 crossbeam-utils = "0.8.15"
 async-stream = "0.3.4"
 parking_lot = "0.12.1"
+chrono-tz = "0.8.1"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }

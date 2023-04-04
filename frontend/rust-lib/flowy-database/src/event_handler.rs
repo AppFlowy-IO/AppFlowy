@@ -519,6 +519,7 @@ pub(crate) async fn update_date_cell_handler(
     time: data.time,
     include_time: data.include_time,
     is_utc: data.is_utc,
+    timezone_id: data.timezone_id,
   };
 
   let editor = manager.get_database_editor(&cell_path.view_id).await?;

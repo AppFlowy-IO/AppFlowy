@@ -25,6 +25,9 @@ pub struct DateCellDataPB {
 
   #[pb(index = 4)]
   pub include_time: bool,
+
+  #[pb(index = 5)]
+  pub timezone_id: String,
 }
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
@@ -43,6 +46,9 @@ pub struct DateChangesetPB {
 
   #[pb(index = 5)]
   pub is_utc: bool,
+
+  #[pb(index = 6, one_of)]
+  pub timezone_id: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -51,6 +57,7 @@ pub struct DateCellChangeset {
   pub time: Option<String>,
   pub include_time: Option<bool>,
   pub is_utc: bool,
+  pub timezone_id: Option<String>,
 }
 
 impl DateCellChangeset {
@@ -85,6 +92,7 @@ impl ToCellChangesetString for DateCellChangeset {
 pub struct DateCellData {
   pub timestamp: Option<i64>,
   pub include_time: bool,
+  pub timezone_id: String,
 }
 
 impl<'de> serde::Deserialize<'de> for DateCellData {
@@ -110,6 +118,7 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
         Ok(DateCellData {
           timestamp: Some(value),
           include_time: false,
+          timezone_id: "".to_owned(),
         })
       }
 
@@ -126,6 +135,7 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
       {
         let mut timestamp: Option<i64> = None;
         let mut include_time: Option<bool> = None;
+        let mut timezone_id: Option<String> = None;
 
         while let Some(key) = map.next_key()? {
           match key {
@@ -135,15 +145,20 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
             "include_time" => {
               include_time = map.next_value()?;
             },
+            "timezone_id" => {
+              timezone_id = map.next_value()?;
+            },
             _ => {},
           }
         }
 
-        let include_time = include_time.unwrap_or(false);
+        let include_time = include_time.unwrap_or_default();
+        let timezone_id = timezone_id.unwrap_or_default();
 
         Ok(DateCellData {
           timestamp,
           include_time,
+          timezone_id,
         })
       }
     }

@@ -265,6 +265,7 @@ mod tests {
       time: include_time_str,
       is_utc: false,
       include_time: Some(include_time),
+      timezone_id: None,
     };
     let (cell_str, _) = type_option.apply_changeset(changeset, None).unwrap();
 
