@@ -1,13 +1,14 @@
 use bytes::Bytes;
 use collab_persistence::CollabKV;
 use database_model::BuildDatabaseContext;
-use flowy_database::entities::LayoutTypePB;
+use flowy_database::entities::DatabaseLayoutPB;
 use flowy_database::manager::{create_new_database, link_existing_database, DatabaseManager};
 use flowy_database::util::{make_default_board, make_default_calendar, make_default_grid};
 use flowy_document::editor::make_transaction_from_document_content;
 use flowy_document::DocumentManager;
 use flowy_error::FlowyError;
 
+use flowy_folder2::entities::ViewLayoutPB;
 use flowy_folder2::manager::{Folder2Manager, FolderUser};
 use flowy_folder2::view_ext::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder2::ViewLayout;
@@ -183,9 +184,9 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
     match DatabaseExtParams::from_map(ext).map(|params| params.database_id) {
       None => {
         let (build_context, layout) = match layout {
-          ViewLayout::Grid => (make_default_grid(), LayoutTypePB::Grid),
-          ViewLayout::Board => (make_default_board(), LayoutTypePB::Board),
-          ViewLayout::Calendar => (make_default_calendar(), LayoutTypePB::Calendar),
+          ViewLayout::Grid => (make_default_grid(), DatabaseLayoutPB::Grid),
+          ViewLayout::Board => (make_default_board(), DatabaseLayoutPB::Board),
+          ViewLayout::Calendar => (make_default_calendar(), DatabaseLayoutPB::Calendar),
           ViewLayout::Document => {
             return FutureResult::new(async move {
               Err(FlowyError::internal().context(format!("Can't handle {:?} layout type", layout)))
@@ -197,7 +198,7 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
         })
       },
       Some(database_id) => {
-        let layout = layout_type_from_view_layout(layout);
+        let layout = layout_type_from_view_layout(layout.into());
         FutureResult::new(async move {
           link_existing_database(&view_id, name, &database_id, layout, database_manager).await
         })
@@ -220,7 +221,7 @@ impl ViewDataProcessor for DatabaseViewDataProcessor {
   ) -> FutureResult<(), FlowyError> {
     let view_id = view_id.to_string();
     let database_manager = self.0.clone();
-    let layout = layout_type_from_view_layout(layout);
+    let layout = layout_type_from_view_layout(layout.into());
     let name = name.to_string();
     match DatabaseExtParams::from_map(ext).map(|params| params.database_id) {
       None => FutureResult::new(async move {
@@ -248,11 +249,11 @@ impl DatabaseExtParams {
   }
 }
 
-pub fn layout_type_from_view_layout(layout: ViewLayout) -> LayoutTypePB {
+pub fn layout_type_from_view_layout(layout: ViewLayoutPB) -> DatabaseLayoutPB {
   match layout {
-    ViewLayout::Grid => LayoutTypePB::Grid,
-    ViewLayout::Board => LayoutTypePB::Board,
-    ViewLayout::Calendar => LayoutTypePB::Calendar,
-    ViewLayout::Document => LayoutTypePB::Grid,
+    ViewLayoutPB::Grid => DatabaseLayoutPB::Grid,
+    ViewLayoutPB::Board => DatabaseLayoutPB::Board,
+    ViewLayoutPB::Calendar => DatabaseLayoutPB::Calendar,
+    ViewLayoutPB::Document => DatabaseLayoutPB::Grid,
   }
 }

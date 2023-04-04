@@ -1,6 +1,6 @@
 mod database_migration;
 mod database_view_migration;
-use crate::entities::LayoutTypePB;
+use crate::entities::DatabaseLayoutPB;
 use crate::manager::DatabaseUser;
 use crate::services::persistence::database_ref::DatabaseRefs;
 use crate::services::persistence::migration::database_migration::{
@@ -31,7 +31,7 @@ impl DatabaseMigration {
   pub async fn run(
     &self,
     user_id: i64,
-    get_views_fn: Fut<Vec<(String, String, LayoutTypePB)>>,
+    get_views_fn: Fut<Vec<(String, String, DatabaseLayoutPB)>>,
   ) -> FlowyResult<()> {
     let pool = self.user.db_pool()?;
 

@@ -79,7 +79,7 @@ class DatabaseController {
   final DatabaseViewBackendService _databaseViewBackendSvc;
   final FieldController fieldController;
   late DatabaseViewCache _viewCache;
-  final LayoutTypePB layoutType;
+  final DatabaseLayoutPB layoutType;
 
   // Callbacks
   DatabaseCallbacks? _databaseCallbacks;
@@ -110,7 +110,7 @@ class DatabaseController {
     _listenOnFieldsChanged();
     _listenOnGroupChanged();
     _listenOnLayoutChanged();
-    if (layoutType == LayoutTypePB.Calendar) {
+    if (layoutType == DatabaseLayoutPB.Calendar) {
       _listenOnCalendarLayoutChanged();
     }
   }

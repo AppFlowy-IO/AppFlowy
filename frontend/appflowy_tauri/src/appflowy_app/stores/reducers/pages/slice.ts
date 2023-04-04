@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ViewLayoutTypePB } from '@/services/backend';
+import { ViewLayoutPB } from '@/services/backend';
 
 export interface IPage {
   id: string;
   title: string;
-  pageType: ViewLayoutTypePB;
+  pageType: ViewLayoutPB;
   folderId: string;
 }
 

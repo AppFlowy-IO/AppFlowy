@@ -22,6 +22,18 @@ pub struct WorkspacePB {
   pub create_time: i64,
 }
 
+impl std::convert::From<(Workspace, Vec<ViewPB>)> for WorkspacePB {
+  fn from(params: (Workspace, Vec<ViewPB>)) -> Self {
+    let (workspace, views) = params;
+    WorkspacePB {
+      id: workspace.id,
+      name: workspace.name,
+      views,
+      create_time: workspace.created_at,
+    }
+  }
+}
+
 impl std::convert::From<Workspace> for WorkspacePB {
   fn from(workspace: Workspace) -> Self {
     WorkspacePB {

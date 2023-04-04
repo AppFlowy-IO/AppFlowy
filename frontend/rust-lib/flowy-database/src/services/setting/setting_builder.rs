@@ -1,5 +1,5 @@
 use crate::entities::{
-  AlterFilterParams, DatabaseSettingChangesetParams, DeleteFilterParams, LayoutTypePB,
+  AlterFilterParams, DatabaseLayoutPB, DatabaseSettingChangesetParams, DeleteFilterParams,
 };
 
 pub struct GridSettingChangesetBuilder {
@@ -7,7 +7,7 @@ pub struct GridSettingChangesetBuilder {
 }
 
 impl GridSettingChangesetBuilder {
-  pub fn new(grid_id: &str, layout_type: &LayoutTypePB) -> Self {
+  pub fn new(grid_id: &str, layout_type: &DatabaseLayoutPB) -> Self {
     let params = DatabaseSettingChangesetParams {
       view_id: grid_id.to_string(),
       layout_type: layout_type.clone().into(),

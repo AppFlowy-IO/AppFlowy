@@ -23,17 +23,17 @@ SelectionMenuItem boardViewMenuItem(DocumentBloc documentBloc) =>
       // TODO(a-wallen): Translate keywords.
       keywords: ['board', 'kanban'],
       handler: (editorState, menuService, context) async {
-        if (!documentBloc.view.hasAppId()) {
+        if (!documentBloc.view.hasParentViewId()) {
           return;
         }
 
-        final appId = documentBloc.view.appId;
+        final appId = documentBloc.view.parentViewId;
         final service = AppBackendService();
 
         final result = (await service.createView(
           appId: appId,
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-          layoutType: ViewLayoutTypePB.Board,
+          layoutType: ViewLayoutPB.Board,
         ))
             .getLeftOrNull();
 

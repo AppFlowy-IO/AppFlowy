@@ -86,7 +86,7 @@ class DatabaseViewBackendService {
   }
 
   Future<Either<LayoutSettingPB, FlowyError>> getLayoutSetting(
-      LayoutTypePB layoutType) {
+      DatabaseLayoutPB layoutType) {
     final payload = DatabaseLayoutIdPB.create()
       ..viewId = viewId
       ..layout = layoutType;

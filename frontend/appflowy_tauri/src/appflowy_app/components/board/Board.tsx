@@ -3,17 +3,14 @@ import { SearchInput } from '../_shared/SearchInput';
 import { BoardBlock } from './BoardBlock';
 import { NewBoardBlock } from './NewBoardBlock';
 import { useDatabase } from '../_shared/database-hooks/useDatabase';
-import { ViewLayoutTypePB } from '@/services/backend';
+import { ViewLayoutPB } from '@/services/backend';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { useState } from 'react';
 import { RowInfo } from '$app/stores/effects/database/row/row_cache';
 import { EditRow } from '$app/components/_shared/EditRow/EditRow';
 
 export const Board = ({ viewId }: { viewId: string }) => {
-  const { controller, rows, groups, groupByFieldId, onNewRowClick, onDragEnd } = useDatabase(
-    viewId,
-    ViewLayoutTypePB.Board
-  );
+  const { controller, rows, groups, groupByFieldId, onNewRowClick, onDragEnd } = useDatabase(viewId, ViewLayoutPB.Board);
   const [showBoardRow, setShowBoardRow] = useState(false);
   const [boardRowInfo, setBoardRowInfo] = useState<RowInfo>();
 

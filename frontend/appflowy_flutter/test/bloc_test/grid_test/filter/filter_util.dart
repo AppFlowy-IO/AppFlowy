@@ -21,7 +21,7 @@ Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
             view,
             DatabaseController(
               view: view,
-              layoutType: LayoutTypePB.Grid,
+              layoutType: DatabaseLayoutPB.Grid,
             ));
         final result = await context.gridController.open();
 

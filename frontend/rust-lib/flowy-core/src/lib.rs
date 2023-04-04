@@ -3,7 +3,7 @@ pub mod module;
 use crate::deps_resolve::*;
 
 use flowy_client_ws::{listen_on_websocket, FlowyWebSocketConnect, NetworkType};
-use flowy_database::entities::LayoutTypePB;
+use flowy_database::entities::DatabaseLayoutPB;
 use flowy_database::manager::DatabaseManager;
 use flowy_document::entities::DocumentVersionPB;
 use flowy_document::{DocumentConfig, DocumentManager};
@@ -320,7 +320,7 @@ impl UserStatusListener {
             layout_type_from_view_layout(view.layout),
           )
         })
-        .collect::<Vec<(String, String, LayoutTypePB)>>()
+        .collect::<Vec<(String, String, DatabaseLayoutPB)>>()
     });
     self
       .database_manager

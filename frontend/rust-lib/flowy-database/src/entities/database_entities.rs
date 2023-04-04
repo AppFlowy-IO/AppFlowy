@@ -1,5 +1,5 @@
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::{FieldIdPB, LayoutTypePB, RowPB};
+use crate::entities::{DatabaseLayoutPB, FieldIdPB, RowPB};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 
@@ -201,5 +201,5 @@ pub struct DatabaseLayoutIdPB {
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub layout: LayoutTypePB,
+  pub layout: DatabaseLayoutPB,
 }

@@ -23,7 +23,7 @@ void main() {
           view: context.gridView,
           databaseController: DatabaseController(
             view: context.gridView,
-            layoutType: LayoutTypePB.Grid,
+            layoutType: DatabaseLayoutPB.Grid,
           ))
         ..add(const GridEvent.initial()),
       act: (bloc) => bloc.add(const GridEvent.createRow()),
@@ -39,7 +39,7 @@ void main() {
           view: context.gridView,
           databaseController: DatabaseController(
             view: context.gridView,
-            layoutType: LayoutTypePB.Grid,
+            layoutType: DatabaseLayoutPB.Grid,
           ))
         ..add(const GridEvent.initial()),
       act: (bloc) async {

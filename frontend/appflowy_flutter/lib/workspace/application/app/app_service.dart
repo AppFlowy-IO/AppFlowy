@@ -12,7 +12,7 @@ class AppBackendService {
     required String appId,
     required String name,
     String? desc,
-    required ViewLayoutTypePB layoutType,
+    required ViewLayoutPB layoutType,
 
     /// The initial data should be the JSON of the document.
     /// Currently, only support create document with initial data.
@@ -90,7 +90,7 @@ class AppBackendService {
   }
 
   Future<List<Tuple2<ViewPB, List<ViewPB>>>> fetchViews(
-      ViewLayoutTypePB layoutType) async {
+      ViewLayoutPB layoutType) async {
     final result = <Tuple2<ViewPB, List<ViewPB>>>[];
     return FolderEventReadCurrentWorkspace().send().then((value) async {
       final workspaces = value.getLeftOrNull<WorkspaceSettingPB>();

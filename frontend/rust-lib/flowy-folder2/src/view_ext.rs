@@ -1,4 +1,4 @@
-use crate::entities::{CreateViewParams, ViewLayoutTypePB};
+use crate::entities::{CreateViewParams, ViewLayoutPB};
 use bytes::Bytes;
 use collab_folder::core::{View, ViewLayout};
 use flowy_error::FlowyError;
@@ -43,13 +43,13 @@ pub trait ViewDataProcessor {
 
 pub type ViewDataProcessorMap = Arc<HashMap<ViewLayout, Arc<dyn ViewDataProcessor + Send + Sync>>>;
 
-impl From<ViewLayoutTypePB> for ViewLayout {
-  fn from(pb: ViewLayoutTypePB) -> Self {
+impl From<ViewLayoutPB> for ViewLayout {
+  fn from(pb: ViewLayoutPB) -> Self {
     match pb {
-      ViewLayoutTypePB::Document => ViewLayout::Document,
-      ViewLayoutTypePB::Grid => ViewLayout::Grid,
-      ViewLayoutTypePB::Board => ViewLayout::Board,
-      ViewLayoutTypePB::Calendar => ViewLayout::Calendar,
+      ViewLayoutPB::Document => ViewLayout::Document,
+      ViewLayoutPB::Grid => ViewLayout::Grid,
+      ViewLayoutPB::Board => ViewLayout::Board,
+      ViewLayoutPB::Calendar => ViewLayout::Calendar,
     }
   }
 }

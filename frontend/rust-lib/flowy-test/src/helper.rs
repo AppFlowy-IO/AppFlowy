@@ -1,7 +1,6 @@
 use crate::prelude::*;
 use flowy_folder2::entities::{
-  CreateViewPayloadPB, CreateWorkspacePayloadPB, ViewLayoutTypePB, ViewPB, WorkspaceIdPB,
-  WorkspacePB,
+  CreateViewPayloadPB, CreateWorkspacePayloadPB, ViewLayoutPB, ViewPB, WorkspaceIdPB, WorkspacePB,
 };
 use flowy_folder2::event_map::FolderEvent::{CreateView, CreateWorkspace, OpenWorkspace};
 use flowy_user::{
@@ -21,7 +20,7 @@ pub struct ViewTest {
 
 impl ViewTest {
   #[allow(dead_code)]
-  pub async fn new(sdk: &FlowySDKTest, layout: ViewLayoutTypePB, data: Vec<u8>) -> Self {
+  pub async fn new(sdk: &FlowySDKTest, layout: ViewLayoutPB, data: Vec<u8>) -> Self {
     let workspace = create_workspace(sdk, "Workspace", "").await;
     open_workspace(sdk, &workspace.id).await;
     let app = create_app(sdk, "App", "AppFlowy GitHub Project", &workspace.id).await;
@@ -35,19 +34,19 @@ impl ViewTest {
   }
 
   pub async fn new_grid_view(sdk: &FlowySDKTest, data: Vec<u8>) -> Self {
-    Self::new(sdk, ViewLayoutTypePB::Grid, data).await
+    Self::new(sdk, ViewLayoutPB::Grid, data).await
   }
 
   pub async fn new_board_view(sdk: &FlowySDKTest, data: Vec<u8>) -> Self {
-    Self::new(sdk, ViewLayoutTypePB::Board, data).await
+    Self::new(sdk, ViewLayoutPB::Board, data).await
   }
 
   pub async fn new_calendar_view(sdk: &FlowySDKTest, data: Vec<u8>) -> Self {
-    Self::new(sdk, ViewLayoutTypePB::Calendar, data).await
+    Self::new(sdk, ViewLayoutPB::Calendar, data).await
   }
 
   pub async fn new_document_view(sdk: &FlowySDKTest) -> Self {
-    Self::new(sdk, ViewLayoutTypePB::Document, vec![]).await
+    Self::new(sdk, ViewLayoutPB::Document, vec![]).await
   }
 }
 
@@ -82,7 +81,7 @@ async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &s
     name: name.to_string(),
     desc: desc.to_string(),
     thumbnail: None,
-    layout: ViewLayoutTypePB::Document,
+    layout: ViewLayoutPB::Document,
     initial_data: vec![],
     ext: Default::default(),
   };
@@ -98,7 +97,7 @@ async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &s
 async fn create_view(
   sdk: &FlowySDKTest,
   app_id: &str,
-  layout: ViewLayoutTypePB,
+  layout: ViewLayoutPB,
   data: Vec<u8>,
 ) -> ViewPB {
   let payload = CreateViewPayloadPB {

@@ -2,7 +2,7 @@ import { foldersActions, IFolder } from '../../../stores/reducers/folders/slice'
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../stores/store';
 import { IPage, pagesActions } from '../../../stores/reducers/pages/slice';
-import { AppPB, ViewLayoutTypePB } from '@/services/backend';
+import { ViewLayoutPB } from '@/services/backend';
 import { AppBackendService } from '../../../stores/effects/folder/app/app_bd_svc';
 import { WorkspaceBackendService } from '../../../stores/effects/folder/workspace/workspace_bd_svc';
 import { useError } from '../../error/Error.hooks';
@@ -42,7 +42,7 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
           const views = change.val;
           const updatedPages: IPage[] = views.items.map((view) => ({
             id: view.id,
-            folderId: view.app_id,
+            folderId: view.parent_view_id,
             pageType: view.layout,
             title: view.name,
           }));
@@ -129,13 +129,13 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
     try {
       const newView = await appBackendService.createView({
         name: 'New Document 1',
-        layoutType: ViewLayoutTypePB.Document,
+        layoutType: ViewLayoutPB.Document,
       });
 
       appDispatch(
         pagesActions.addPage({
           folderId: folder.id,
-          pageType: ViewLayoutTypePB.Document,
+          pageType: ViewLayoutPB.Document,
           title: newView.name,
           id: newView.id,
         })
@@ -154,7 +154,7 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
     try {
       const newView = await appBackendService.createView({
         name: 'New Board 1',
-        layoutType: ViewLayoutTypePB.Board,
+        layoutType: ViewLayoutPB.Board,
       });
 
       setShowPages(true);
@@ -162,7 +162,7 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
       appDispatch(
         pagesActions.addPage({
           folderId: folder.id,
-          pageType: ViewLayoutTypePB.Board,
+          pageType: ViewLayoutPB.Board,
           title: newView.name,
           id: newView.id,
         })
@@ -179,7 +179,7 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
     try {
       const newView = await appBackendService.createView({
         name: 'New Grid 1',
-        layoutType: ViewLayoutTypePB.Grid,
+        layoutType: ViewLayoutPB.Grid,
       });
 
       setShowPages(true);
@@ -187,7 +187,7 @@ export const useFolderEvents = (folder: IFolder, pages: IPage[]) => {
       appDispatch(
         pagesActions.addPage({
           folderId: folder.id,
-          pageType: ViewLayoutTypePB.Grid,
+          pageType: ViewLayoutPB.Grid,
           title: newView.name,
           id: newView.id,
         })

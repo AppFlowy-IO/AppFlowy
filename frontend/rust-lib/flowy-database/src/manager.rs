@@ -1,4 +1,4 @@
-use crate::entities::LayoutTypePB;
+use crate::entities::DatabaseLayoutPB;
 use crate::services::database::{
   make_database_block_rev_manager, DatabaseEditor, DatabaseRefIndexerQuery,
   DatabaseRevisionCloudService, DatabaseRevisionMergeable, DatabaseRevisionSerde,
@@ -83,7 +83,7 @@ impl DatabaseManager {
     &self,
     user_id: i64,
     _token: &str,
-    get_views_fn: Fut<Vec<(String, String, LayoutTypePB)>>,
+    get_views_fn: Fut<Vec<(String, String, DatabaseLayoutPB)>>,
   ) -> FlowyResult<()> {
     self.migration.run(user_id, get_views_fn).await?;
     Ok(())
@@ -327,7 +327,7 @@ pub async fn link_existing_database(
   view_id: &str,
   name: String,
   database_id: &str,
-  layout: LayoutTypePB,
+  layout: DatabaseLayoutPB,
   database_manager: Arc<DatabaseManager>,
 ) -> FlowyResult<()> {
   tracing::trace!(
@@ -358,7 +358,7 @@ pub async fn link_existing_database(
 pub async fn create_new_database(
   view_id: &str,
   name: String,
-  layout: LayoutTypePB,
+  layout: DatabaseLayoutPB,
   database_manager: Arc<DatabaseManager>,
   build_context: BuildDatabaseContext,
 ) -> FlowyResult<()> {

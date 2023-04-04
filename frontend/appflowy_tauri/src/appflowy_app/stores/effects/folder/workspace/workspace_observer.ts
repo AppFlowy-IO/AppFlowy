@@ -1,13 +1,5 @@
 import { Ok, Result } from 'ts-results';
-import {
-  AppPB,
-  FolderNotification,
-  RepeatedAppPB,
-  WorkspacePB,
-  FlowyError,
-  RepeatedViewPB,
-  ViewPB,
-} from '@/services/backend';
+import { FolderNotification, WorkspacePB, FlowyError, RepeatedViewPB, ViewPB } from '@/services/backend';
 import { ChangeNotifier } from '$app/utils/change_notifier';
 import { FolderNotificationObserver } from '../notifications/observer';
 

@@ -9,7 +9,7 @@ import {
   CreateViewPayloadPB,
   FlowyError,
   MoveFolderItemPayloadPB,
-  ViewLayoutTypePB,
+  ViewLayoutPB,
   WorkspaceIdPB,
 } from '@/services/backend';
 import assert from 'assert';
@@ -22,7 +22,7 @@ export class WorkspaceBackendService {
       belong_to_id: this.workspaceId,
       name: params.name,
       desc: params.desc || '',
-      layout: ViewLayoutTypePB.Document,
+      layout: ViewLayoutPB.Document,
     });
 
     const result = await FolderEventCreateView(payload);

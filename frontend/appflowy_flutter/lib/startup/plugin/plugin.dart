@@ -52,7 +52,7 @@ abstract class PluginBuilder {
 
   PluginType get pluginType;
 
-  ViewLayoutTypePB? get layoutType => ViewLayoutTypePB.Document;
+  ViewLayoutPB? get layoutType => ViewLayoutPB.Document;
 }
 
 abstract class PluginConfig {

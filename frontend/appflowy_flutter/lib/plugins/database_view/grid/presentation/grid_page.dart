@@ -38,7 +38,7 @@ class GridPage extends StatefulWidget {
     Key? key,
   })  : databaseController = DatabaseController(
           view: view,
-          layoutType: LayoutTypePB.Grid,
+          layoutType: DatabaseLayoutPB.Grid,
         ),
         super(key: key);
 

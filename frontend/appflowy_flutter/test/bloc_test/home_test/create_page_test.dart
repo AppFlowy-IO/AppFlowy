@@ -23,7 +23,7 @@ void main() {
 
     assert(bloc.state.views.length == 1);
     assert(bloc.state.views.last.name == "Test document");
-    assert(bloc.state.views.last.layout == ViewLayoutTypePB.Document);
+    assert(bloc.state.views.last.layout == ViewLayoutPB.Document);
   });
 
   test('create a grid', () async {
@@ -36,7 +36,7 @@ void main() {
 
     assert(bloc.state.views.length == 1);
     assert(bloc.state.views.last.name == "Test grid");
-    assert(bloc.state.views.last.layout == ViewLayoutTypePB.Grid);
+    assert(bloc.state.views.last.layout == ViewLayoutPB.Grid);
   });
 
   test('create a kanban', () async {
@@ -49,7 +49,7 @@ void main() {
 
     assert(bloc.state.views.length == 1);
     assert(bloc.state.views.last.name == "Test board");
-    assert(bloc.state.views.last.layout == ViewLayoutTypePB.Board);
+    assert(bloc.state.views.last.layout == ViewLayoutPB.Board);
   });
 
   test('create a calendar', () async {
@@ -62,6 +62,6 @@ void main() {
 
     assert(bloc.state.views.length == 1);
     assert(bloc.state.views.last.name == "Test calendar");
-    assert(bloc.state.views.last.layout == ViewLayoutTypePB.Calendar);
+    assert(bloc.state.views.last.layout == ViewLayoutPB.Calendar);
   });
 }

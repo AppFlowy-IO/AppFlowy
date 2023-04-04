@@ -4,7 +4,7 @@ import {
   FolderEventMoveItem,
   FolderEventReadView,
   FolderEventUpdateView,
-  ViewLayoutTypePB,
+  ViewLayoutPB,
 } from '@/services/backend/events/flowy-folder2';
 import {
   CreateViewPayloadPB,
@@ -29,7 +29,7 @@ export class AppBackendService {
   createView = async (params: {
     name: string;
     desc?: string;
-    layoutType: ViewLayoutTypePB;
+    layoutType: ViewLayoutPB;
     /// The initial data should be the JSON of the document
     /// For example: {"document":{"type":"editor","children":[]}}
     initialData?: string;
