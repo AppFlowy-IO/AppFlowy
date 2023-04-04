@@ -7,6 +7,7 @@ import { BoardUrlCell } from '../../board/BoardUrlCell';
 
 import GridSingleSelectOptions from './GridSingleSelectOptions';
 import GridTextCell from './GridTextCell';
+import { GridCheckBox } from './GridCheckBox';
 
 export const GridCell = ({
   cellIdentifier,
@@ -27,6 +28,8 @@ export const GridCell = ({
           cellCache={cellCache}
           fieldController={fieldController}
         />
+      ) : cellIdentifier.fieldType === FieldType.Checkbox ? (
+        <GridCheckBox cellIdentifier={cellIdentifier} cellCache={cellCache} fieldController={fieldController} />
       ) : cellIdentifier.fieldType === FieldType.DateTime ? (
         <BoardDateCell
           cellIdentifier={cellIdentifier}
