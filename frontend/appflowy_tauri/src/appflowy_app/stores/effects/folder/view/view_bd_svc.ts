@@ -3,7 +3,7 @@ import {
   FolderEventDeleteView,
   FolderEventDuplicateView,
   FolderEventUpdateView,
-} from '@/services/backend/events/flowy-folder';
+} from '@/services/backend/events/flowy-folder2';
 
 export class ViewBackendService {
   constructor(public readonly viewId: string) {}

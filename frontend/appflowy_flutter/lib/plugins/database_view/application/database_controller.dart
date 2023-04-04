@@ -9,7 +9,7 @@ import 'package:appflowy_backend/protobuf/flowy-database/group_changeset.pb.dart
 import 'package:appflowy_backend/protobuf/flowy-database/row_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:collection/collection.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';

@@ -1,6 +1,5 @@
 import 'package:appflowy/workspace/application/app/app_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/app.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flowy_infra/image.dart';
@@ -50,8 +49,8 @@ void showLinkToPageMenu(
           editorState: editorState,
           layoutType: pageType,
           hintText: hintText,
-          onSelected: (appPB, viewPB) {
-            editorState.insertPage(appPB, viewPB);
+          onSelected: (viewPB, childViewPB) {
+            editorState.insertPage(viewPB, childViewPB);
           },
         ),
       ),
@@ -85,7 +84,7 @@ class LinkToPageMenu extends StatefulWidget {
   final EditorState editorState;
   final ViewLayoutTypePB layoutType;
   final String hintText;
-  final void Function(AppPB appPB, ViewPB viewPB) onSelected;
+  final void Function(ViewPB view, ViewPB childView) onSelected;
 
   @override
   State<LinkToPageMenu> createState() => _LinkToPageMenuState();
@@ -118,11 +117,11 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   }
 
   Widget _buildListWidget(BuildContext context) {
-    return FutureBuilder<List<dartz.Tuple2<AppPB, List<ViewPB>>>>(
+    return FutureBuilder<List<dartz.Tuple2<ViewPB, List<ViewPB>>>>(
       builder: (context, snapshot) {
         if (snapshot.hasData &&
             snapshot.connectionState == ConnectionState.done) {
-          final apps = snapshot.data;
+          final views = snapshot.data;
           final children = <Widget>[
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
@@ -133,18 +132,18 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
               ),
             ),
           ];
-          if (apps != null && apps.isNotEmpty) {
-            for (final app in apps) {
-              if (app.value2.isNotEmpty) {
+          if (views != null && views.isNotEmpty) {
+            for (final view in views) {
+              if (view.value2.isNotEmpty) {
                 children.add(
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: FlowyText.regular(
-                      app.value1.name,
+                      view.value1.name,
                     ),
                   ),
                 );
-                for (final value in app.value2) {
+                for (final value in view.value2) {
                   children.add(
                     FlowyButton(
                       leftIcon: svgWidget(
@@ -152,7 +151,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
                         color: Theme.of(context).iconTheme.color,
                       ),
                       text: FlowyText.regular(value.name),
-                      onTap: () => widget.onSelected(app.value1, value),
+                      onTap: () => widget.onSelected(view.value1, value),
                     ),
                   );
                 }

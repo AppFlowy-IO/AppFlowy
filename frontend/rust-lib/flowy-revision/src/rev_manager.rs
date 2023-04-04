@@ -52,7 +52,6 @@ pub trait RevisionObjectSerializer: Send + Sync {
 pub trait RevisionMergeable: Send + Sync {
   fn merge_revisions(
     &self,
-    _user_id: &str,
     object_id: &str,
     mut revisions: Vec<Revision>,
   ) -> FlowyResult<Revision> {
@@ -77,7 +76,6 @@ pub trait RevisionMergeable: Send + Sync {
 
 pub struct RevisionManager<Connection> {
   pub object_id: String,
-  user_id: String,
   rev_id_counter: Arc<RevIdCounter>,
   rev_persistence: Arc<RevisionPersistence<Connection>>,
   rev_snapshot: Arc<RevisionSnapshotController<Connection>>,
@@ -89,7 +87,6 @@ pub struct RevisionManager<Connection> {
 
 impl<Connection: 'static> RevisionManager<Connection> {
   pub fn new<Snapshot, Compress>(
-    user_id: &str,
     object_id: &str,
     rev_persistence: RevisionPersistence<Connection>,
     rev_compress: Compress,
@@ -103,7 +100,6 @@ impl<Connection: 'static> RevisionManager<Connection> {
     let rev_compress = Arc::new(rev_compress);
     let rev_persistence = Arc::new(rev_persistence);
     let rev_snapshot = RevisionSnapshotController::new(
-      user_id,
       object_id,
       snapshot_persistence,
       rev_id_counter.clone(),
@@ -121,7 +117,6 @@ impl<Connection: 'static> RevisionManager<Connection> {
     tokio::spawn(queue.run());
     Self {
       object_id: object_id.to_string(),
-      user_id: user_id.to_owned(),
       rev_id_counter,
       rev_persistence,
       rev_snapshot: Arc::new(rev_snapshot),
@@ -219,7 +214,6 @@ impl<Connection: 'static> RevisionManager<Connection> {
   pub async fn load_revisions(&self) -> FlowyResult<Vec<Revision>> {
     let revisions = RevisionLoader {
       object_id: self.object_id.clone(),
-      user_id: self.user_id.clone(),
       cloud: None,
       rev_persistence: self.rev_persistence.clone(),
     }
@@ -357,7 +351,6 @@ impl<Connection: 'static> RevisionManager<Connection> {
 
 pub struct RevisionLoader<Connection> {
   pub object_id: String,
-  pub user_id: String,
   pub cloud: Option<Arc<dyn RevisionCloudService>>,
   pub rev_persistence: Arc<RevisionPersistence<Connection>>,
 }

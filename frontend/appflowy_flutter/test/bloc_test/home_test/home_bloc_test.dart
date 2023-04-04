@@ -37,7 +37,7 @@ void main() {
     await blocResponseFuture();
 
     final app = await testContext.createTestApp();
-    final appBloc = AppBloc(app: app)..add(const AppEvent.initial());
+    final appBloc = AppBloc(view: app)..add(const AppEvent.initial());
     assert(appBloc.state.latestCreatedView == null);
 
     appBloc.add(AppEvent.createView("New document", DocumentPluginBuilder()));

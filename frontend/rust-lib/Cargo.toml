@@ -8,7 +8,8 @@ members = [
   "flowy-user",
   "flowy-test",
   "flowy-sqlite",
-  "flowy-folder",
+#  "flowy-folder",
+  "flowy-folder2",
   "flowy-notification",
   "flowy-document",
   "flowy-error",
@@ -35,3 +36,9 @@ opt-level = 3
 ## For from-scratch builds, incremental adds an extra dependency-tracking overhead. It also significantly increases
 ## the amount of IO and the size of ./target, which make caching less effective.
 incremental = false
+
+
+[patch.crates-io]
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f25ce7f" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f25ce7f" }
+collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f25ce7f" }

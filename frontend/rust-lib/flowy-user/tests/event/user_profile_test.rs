@@ -33,7 +33,7 @@ async fn user_update_with_name() {
   let sdk = FlowySDKTest::default();
   let user = sdk.init_user().await;
   let new_name = "hello_world".to_owned();
-  let request = UpdateUserProfilePayloadPB::new(&user.id).name(&new_name);
+  let request = UpdateUserProfilePayloadPB::new(user.id).name(&new_name);
   let _ = UserModuleEventBuilder::new(sdk.clone())
     .event(UpdateUserProfile)
     .payload(request)
@@ -53,7 +53,7 @@ async fn user_update_with_email() {
   let sdk = FlowySDKTest::default();
   let user = sdk.init_user().await;
   let new_email = format!("{}@gmail.com", nanoid!(6));
-  let request = UpdateUserProfilePayloadPB::new(&user.id).email(&new_email);
+  let request = UpdateUserProfilePayloadPB::new(user.id).email(&new_email);
   let _ = UserModuleEventBuilder::new(sdk.clone())
     .event(UpdateUserProfile)
     .payload(request)
@@ -72,7 +72,7 @@ async fn user_update_with_password() {
   let sdk = FlowySDKTest::default();
   let user = sdk.init_user().await;
   let new_password = "H123world!".to_owned();
-  let request = UpdateUserProfilePayloadPB::new(&user.id).password(&new_password);
+  let request = UpdateUserProfilePayloadPB::new(user.id).password(&new_password);
 
   let _ = UserModuleEventBuilder::new(sdk.clone())
     .event(UpdateUserProfile)
@@ -86,7 +86,7 @@ async fn user_update_with_invalid_email() {
   let test = FlowySDKTest::default();
   let user = test.init_user().await;
   for email in invalid_email_test_case() {
-    let request = UpdateUserProfilePayloadPB::new(&user.id).email(&email);
+    let request = UpdateUserProfilePayloadPB::new(user.id).email(&email);
     assert_eq!(
       UserModuleEventBuilder::new(test.clone())
         .event(UpdateUserProfile)
@@ -104,7 +104,7 @@ async fn user_update_with_invalid_password() {
   let test = FlowySDKTest::default();
   let user = test.init_user().await;
   for password in invalid_password_test_case() {
-    let request = UpdateUserProfilePayloadPB::new(&user.id).password(&password);
+    let request = UpdateUserProfilePayloadPB::new(user.id).password(&password);
 
     UserModuleEventBuilder::new(test.clone())
       .event(UpdateUserProfile)
@@ -118,7 +118,7 @@ async fn user_update_with_invalid_password() {
 async fn user_update_with_invalid_name() {
   let test = FlowySDKTest::default();
   let user = test.init_user().await;
-  let request = UpdateUserProfilePayloadPB::new(&user.id).name("");
+  let request = UpdateUserProfilePayloadPB::new(user.id).name("");
   UserModuleEventBuilder::new(test.clone())
     .event(UpdateUserProfile)
     .payload(request)

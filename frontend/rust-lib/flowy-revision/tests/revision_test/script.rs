@@ -28,7 +28,6 @@ pub enum RevisionScript {
 }
 
 pub struct RevisionTest {
-  user_id: String,
   object_id: String,
   configuration: RevisionPersistenceConfiguration,
   rev_manager: Arc<RevisionManager<RevisionConnectionMock>>,
@@ -40,22 +39,18 @@ impl RevisionTest {
   }
 
   pub async fn new_with_configuration(max_merge_len: i64) -> Self {
-    let user_id = nanoid!(10);
     let object_id = nanoid!(6);
     let configuration = RevisionPersistenceConfiguration::new(max_merge_len as usize, false);
     let disk_cache = RevisionDiskCacheMock::new(vec![]);
-    let persistence =
-      RevisionPersistence::new(&user_id, &object_id, disk_cache, configuration.clone());
+    let persistence = RevisionPersistence::new(&object_id, disk_cache, configuration.clone());
     let compress = RevisionMergeableMock {};
     let snapshot = RevisionSnapshotMock {};
-    let mut rev_manager =
-      RevisionManager::new(&user_id, &object_id, persistence, compress, snapshot);
+    let mut rev_manager = RevisionManager::new(&object_id, persistence, compress, snapshot);
     rev_manager
       .initialize::<RevisionObjectMockSerde>(None)
       .await
       .unwrap();
     Self {
-      user_id,
       object_id,
       configuration,
       rev_manager: Arc::new(rev_manager),
@@ -66,28 +61,18 @@ impl RevisionTest {
     let records = old_test.rev_manager.get_all_revision_records().unwrap();
     let disk_cache = RevisionDiskCacheMock::new(records);
     let configuration = old_test.configuration;
-    let persistence = RevisionPersistence::new(
-      &old_test.user_id,
-      &old_test.object_id,
-      disk_cache,
-      configuration.clone(),
-    );
+    let persistence =
+      RevisionPersistence::new(&old_test.object_id, disk_cache, configuration.clone());
 
     let compress = RevisionMergeableMock {};
     let snapshot = RevisionSnapshotMock {};
-    let mut rev_manager = RevisionManager::new(
-      &old_test.user_id,
-      &old_test.object_id,
-      persistence,
-      compress,
-      snapshot,
-    );
+    let mut rev_manager =
+      RevisionManager::new(&old_test.object_id, persistence, compress, snapshot);
     rev_manager
       .initialize::<RevisionObjectMockSerde>(None)
       .await
       .unwrap();
     Self {
-      user_id: old_test.user_id,
       object_id: old_test.object_id,
       configuration,
       rev_manager: Arc::new(rev_manager),

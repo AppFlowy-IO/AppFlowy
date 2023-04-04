@@ -6,11 +6,11 @@ import { UserBackendService } from '../../stores/effects/user/user_bd_svc';
 import { useError } from '../error/Error.hooks';
 
 export const useWorkspace = () => {
-  const appDispatch = useAppDispatch();
   const currentUser = useAppSelector((state) => state.currentUser);
-  const error = useError();
 
-  const userBackendService: UserBackendService = new UserBackendService(currentUser.id || '');
+  const appDispatch = useAppDispatch();
+  const error = useError();
+  const userBackendService: UserBackendService = new UserBackendService(currentUser.id || 0);
 
   const loadWorkspaceItems = async () => {
     try {
@@ -20,11 +20,11 @@ export const useWorkspace = () => {
       appDispatch(foldersActions.clearFolders());
       appDispatch(pagesActions.clearPages());
 
-      const apps = workspace.apps.items;
+      const apps = workspace.views;
       for (const app of apps) {
         appDispatch(foldersActions.addFolder({ id: app.id, title: app.name }));
 
-        const views = app.belongings.items;
+        const views = app.belongings;
         for (const view of views) {
           appDispatch(pagesActions.addPage({ folderId: app.id, id: view.id, pageType: view.layout, title: view.name }));
         }

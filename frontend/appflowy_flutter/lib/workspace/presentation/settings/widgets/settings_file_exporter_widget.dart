@@ -6,7 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -73,9 +73,9 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
             snapshot.connectionState == ConnectionState.done) {
           final workspaces = snapshot.data?.getLeftOrNull<WorkspaceSettingPB>();
           if (workspaces != null) {
-            final apps = workspaces.workspace.apps.items;
+            final views = workspaces.workspace.views;
             return BlocProvider<SettingsFileExporterCubit>(
-              create: (_) => SettingsFileExporterCubit(apps: apps),
+              create: (_) => SettingsFileExporterCubit(views: views),
               child: const _ExpandedList(),
             );
           }
@@ -118,7 +118,7 @@ class _ExpandedListState extends State<_ExpandedList> {
   }
 
   List<Widget> _buildChildren(BuildContext context) {
-    final apps = context.read<SettingsFileExporterCubit>().state.apps;
+    final apps = context.read<SettingsFileExporterCubit>().state.views;
     List<Widget> children = [];
     for (var i = 0; i < apps.length; i++) {
       children.add(_buildExpandedItem(context, i));
@@ -128,14 +128,14 @@ class _ExpandedListState extends State<_ExpandedList> {
 
   Widget _buildExpandedItem(BuildContext context, int index) {
     final state = context.read<SettingsFileExporterCubit>().state;
-    final apps = state.apps;
+    final apps = state.views;
     final expanded = state.expanded;
     final selectedItems = state.selectedItems;
     final isExpaned = expanded[index] == true;
     List<Widget> expandedChildren = [];
     if (isExpaned) {
       for (var i = 0; i < selectedItems[index].length; i++) {
-        final name = apps[index].belongings.items[i].name;
+        final name = apps[index].belongings[i].name;
         final checkbox = CheckboxListTile(
           value: selectedItems[index][i],
           onChanged: (value) {

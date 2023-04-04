@@ -60,16 +60,16 @@ impl DatabaseEditorTest {
 
     let editor = sdk
       .database_manager
-      .open_database_view(&test.view.id)
+      .open_database_view(&test.child_view.id)
       .await
       .unwrap();
     let field_revs = editor.get_field_revs(None).await.unwrap();
     let block_meta_revs = editor.get_block_meta_revs().await.unwrap();
-    let row_pbs = editor.get_all_row_revs(&test.view.id).await.unwrap();
+    let row_pbs = editor.get_all_row_revs(&test.child_view.id).await.unwrap();
     assert_eq!(block_meta_revs.len(), 1);
 
-    let view_id = test.view.id;
-    let app_id = test.app.id;
+    let view_id = test.child_view.id;
+    let app_id = test.parent_view.id;
     Self {
       sdk,
       app_id,

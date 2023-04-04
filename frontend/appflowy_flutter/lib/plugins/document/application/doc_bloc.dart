@@ -8,9 +8,8 @@ import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show EditorState, Document, Transaction, Node;
-import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -49,8 +48,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           emit(state.copyWith(isDeleted: false));
         },
         deletePermanently: (DeletePermanently value) async {
-          final result = await _trashService
-              .deleteViews([Tuple2(view.id, TrashType.TrashView)]);
+          final result = await _trashService.deleteViews([view.id]);
 
           final newState = result.fold(
               (l) => state.copyWith(forceClose: true), (r) => state);

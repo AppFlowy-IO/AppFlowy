@@ -888,11 +888,14 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn duplicate_database(&self, _view_id: &str) -> FlowyResult<BuildDatabaseContext> {
+  pub async fn duplicate_database<T: AsRef<str>>(
+    &self,
+    _view_id: T,
+  ) -> FlowyResult<BuildDatabaseContext> {
     let database_pad = self.database_pad.read().await;
     // let database_view_data = self
     //   .database_views
-    //   .duplicate_database_view_setting(view_id)
+    //   .duplicate_database_view(view_id.as_ref())
     //   .await?;
     let original_blocks = database_pad.get_block_meta_revs();
     let (duplicated_fields, duplicated_blocks) = database_pad.duplicate_database_block_meta().await;

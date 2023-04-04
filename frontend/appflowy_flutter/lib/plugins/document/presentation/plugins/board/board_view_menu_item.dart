@@ -1,4 +1,4 @@
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
@@ -42,15 +42,14 @@ SelectionMenuItem boardViewMenuItem(DocumentBloc documentBloc) =>
           return;
         }
 
-        final app =
-            (await service.readApp(appId: result.appId)).getLeftOrNull();
+        final app = (await service.getView(result.viewId)).getLeftOrNull();
         // We should show an error dialog.
         if (app == null) {
           return;
         }
 
-        final view =
-            (await service.getView(result.appId, result.id)).getLeftOrNull();
+        final view = (await service.getChildView(result.viewId, result.id))
+            .getLeftOrNull();
         // As this.
         if (view == null) {
           return;

@@ -11,7 +11,7 @@ import 'package:appflowy/plugins/database_view/application/database_controller.d
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:appflowy/workspace/application/app/app_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/setting_entities.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 
 import '../../util.dart';

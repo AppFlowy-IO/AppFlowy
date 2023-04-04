@@ -30,7 +30,7 @@ impl DatabaseMigration {
 
   pub async fn run(
     &self,
-    user_id: &str,
+    user_id: i64,
     get_views_fn: Fut<Vec<(String, String, LayoutTypePB)>>,
   ) -> FlowyResult<()> {
     let pool = self.user.db_pool()?;
