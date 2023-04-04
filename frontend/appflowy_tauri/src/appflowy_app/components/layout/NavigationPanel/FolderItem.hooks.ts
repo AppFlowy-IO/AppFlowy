@@ -2,7 +2,7 @@ import { foldersActions, IFolder } from '../../../stores/reducers/folders/slice'
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../stores/store';
 import { IPage, pagesActions } from '../../../stores/reducers/pages/slice';
-import { AppPB, ViewLayoutTypePB } from '../../../../services/backend';
+import { AppPB, ViewLayoutTypePB } from '@/services/backend';
 import { AppBackendService } from '../../../stores/effects/folder/app/app_bd_svc';
 import { WorkspaceBackendService } from '../../../stores/effects/folder/workspace/workspace_bd_svc';
 import { useError } from '../../error/Error.hooks';

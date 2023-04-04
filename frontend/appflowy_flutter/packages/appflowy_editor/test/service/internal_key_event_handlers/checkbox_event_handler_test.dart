@@ -47,12 +47,12 @@ void main() async {
 
       if (Platform.isWindows || Platform.isLinux) {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.enter,
+          key: LogicalKeyboardKey.enter,
           isControlPressed: true,
         );
       } else {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.enter,
+          key: LogicalKeyboardKey.enter,
           isMetaPressed: true,
         );
       }
@@ -65,12 +65,12 @@ void main() async {
 
       if (Platform.isWindows || Platform.isLinux) {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.enter,
+          key: LogicalKeyboardKey.enter,
           isControlPressed: true,
         );
       } else {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.enter,
+          key: LogicalKeyboardKey.enter,
           isMetaPressed: true,
         );
       }
@@ -145,12 +145,12 @@ void main() async {
 
       if (Platform.isWindows || Platform.isLinux) {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.enter,
+          key: LogicalKeyboardKey.enter,
           isControlPressed: true,
         );
       } else {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.enter,
+          key: LogicalKeyboardKey.enter,
           isMetaPressed: true,
         );
       }
@@ -223,12 +223,12 @@ void main() async {
 
       if (Platform.isWindows || Platform.isLinux) {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.enter,
+          key: LogicalKeyboardKey.enter,
           isControlPressed: true,
         );
       } else {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.enter,
+          key: LogicalKeyboardKey.enter,
           isMetaPressed: true,
         );
       }

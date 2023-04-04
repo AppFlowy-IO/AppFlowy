@@ -5,14 +5,14 @@ import {
   FieldType,
   TypeOptionChangesetPB,
   TypeOptionPathPB,
-} from '../../../../../services/backend/models/flowy-database/field_entities';
+} from '@/services/backend';
 import {
   DatabaseEventDeleteField,
   DatabaseEventDuplicateField,
   DatabaseEventGetTypeOption,
   DatabaseEventUpdateField,
   DatabaseEventUpdateFieldTypeOption,
-} from '../../../../../services/backend/events/flowy-database';
+} from '@/services/backend/events/flowy-database';
 
 export abstract class TypeOptionParser<T> {
   abstract fromBuffer(buffer: Uint8Array): T;

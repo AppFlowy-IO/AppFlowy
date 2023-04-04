@@ -24,6 +24,7 @@ Future<void> showImportPanel(
         title: FlowyText.semibold(
           LocaleKeys.moreAction_import.tr(),
           fontSize: 20,
+          color: Theme.of(context).colorScheme.tertiary,
         ),
         content: _ImportPanel(importCallback: callback),
         contentPadding: const EdgeInsets.symmetric(

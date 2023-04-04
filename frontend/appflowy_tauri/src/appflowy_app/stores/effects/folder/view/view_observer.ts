@@ -1,7 +1,6 @@
 import { Ok, Result } from 'ts-results';
-import { FlowyError } from '../../../../../services/backend/models/flowy-error/errors';
-import { DeletedViewPB, FolderNotification, ViewPB } from '../../../../../services/backend/models/flowy-folder';
-import { ChangeNotifier } from '../../../../utils/change_notifier';
+import { DeletedViewPB, FolderNotification, ViewPB, FlowyError } from '@/services/backend';
+import { ChangeNotifier } from '$app/utils/change_notifier';
 import { FolderNotificationObserver } from '../notifications/observer';
 
 type DeleteViewNotifyValue = Result<ViewPB, FlowyError>;

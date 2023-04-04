@@ -41,12 +41,12 @@ void main() async {
       );
       if (Platform.isWindows || Platform.isLinux) {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.arrowLeft,
+          key: LogicalKeyboardKey.arrowLeft,
           isControlPressed: true,
         );
       } else {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.arrowLeft,
+          key: LogicalKeyboardKey.arrowLeft,
           isMetaPressed: true,
         );
       }
@@ -69,12 +69,12 @@ void main() async {
       }
       if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.arrowLeft,
+          key: LogicalKeyboardKey.arrowLeft,
           isAltPressed: true,
         );
       } else {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.arrowLeft,
+          key: LogicalKeyboardKey.arrowLeft,
           isMetaPressed: true,
         );
       }
@@ -97,12 +97,12 @@ void main() async {
       );
       if (Platform.isWindows || Platform.isLinux) {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.arrowRight,
+          key: LogicalKeyboardKey.arrowRight,
           isControlPressed: true,
         );
       } else {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.arrowRight,
+          key: LogicalKeyboardKey.arrowRight,
           isMetaPressed: true,
         );
       }
@@ -124,7 +124,7 @@ void main() async {
         }
       }
       await editor.pressLogicKey(
-        LogicalKeyboardKey.arrowRight,
+        key: LogicalKeyboardKey.arrowRight,
         isAltPressed: true,
       );
       expect(
@@ -145,7 +145,7 @@ void main() async {
       );
       if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.home,
+          key: LogicalKeyboardKey.home,
         );
       }
 
@@ -168,7 +168,7 @@ void main() async {
       }
       if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.home,
+          key: LogicalKeyboardKey.home,
         );
       }
       expect(
@@ -188,7 +188,7 @@ void main() async {
       );
       if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.end,
+          key: LogicalKeyboardKey.end,
         );
       }
 
@@ -211,7 +211,7 @@ void main() async {
       }
       if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.end,
+          key: LogicalKeyboardKey.end,
         );
       }
       expect(

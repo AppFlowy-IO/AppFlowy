@@ -42,7 +42,6 @@ class PrimaryButton extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       bgColor: Theme.of(context).colorScheme.primary,
       hoverColor: Theme.of(context).colorScheme.primaryContainer,
-      downColor: Theme.of(context).colorScheme.primary,
       borderRadius: bigMode ? Corners.s12Border : Corners.s8Border,
       onPressed: onPressed,
       child: child,

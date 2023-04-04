@@ -324,6 +324,7 @@ jobs:
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_NAME }}
+
           asset_name: ${{ env.LINUX_PACKAGE_NAME }}
           asset_content_type: application/octet-stream
 
@@ -352,3 +353,12 @@ jobs:
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/appflowy_client:${{ github.ref_name }}
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/af_build_cache:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/af_build_cache:buildcache,mode=max
+
+  notify-discord:
+    runs-on: ubuntu-latest
+    needs: [build-for-linux, build-for-windows, build-for-macOS]
+    steps:
+      - name: Notify Discord
+        run: |
+          curl -H "Content-Type: application/json" -d '{"username": "release@appflowy", "content": "🎉 AppFlowy ${{ github.ref_name }} is available. https://github.com/AppFlowy-IO/AppFlowy/releases/tag/'${{ github.ref_name }}'"}' "https://discord.com/api/webhooks/${{ secrets.DISCORD }}"
+        shell: bash

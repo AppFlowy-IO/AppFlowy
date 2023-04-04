@@ -56,6 +56,22 @@ abstract class FlowyColorScheme {
   final Color main1;
   final Color main2;
   final Color shadow;
+  final Color sidebarBg;
+  final Color divider;
+  final Color topbarBg;
+  final Color icon;
+  final Color text;
+  final Color input;
+  final Color hint;
+  final Color primary;
+  final Color onPrimary;
+  //page title hover effect
+  final Color hoverBG1;
+  //action item hover effect
+  final Color hoverBG2;
+  //the text color when it is hovered
+  final Color hoverFG;
+  final Color questionBubbleBG;
 
   const FlowyColorScheme({
     required this.surface,
@@ -87,6 +103,19 @@ abstract class FlowyColorScheme {
     required this.main1,
     required this.main2,
     required this.shadow,
+    required this.sidebarBg,
+    required this.divider,
+    required this.topbarBg,
+    required this.icon,
+    required this.text,
+    required this.input,
+    required this.hint,
+    required this.primary,
+    required this.onPrimary,
+    required this.hoverBG1,
+    required this.hoverBG2,
+    required this.hoverFG,
+    required this.questionBubbleBG,
   });
 
   factory FlowyColorScheme.builtIn(String themeName, Brightness brightness) {

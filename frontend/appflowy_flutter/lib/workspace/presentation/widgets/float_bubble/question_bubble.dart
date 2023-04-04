@@ -48,6 +48,9 @@ class BubbleActionList extends StatelessWidget {
           '?',
           tooltip: LocaleKeys.questionBubble_help.tr(),
           fontWeight: FontWeight.w600,
+          fontColor: Theme.of(context).colorScheme.tertiary,
+          fillColor: Theme.of(context).colorScheme.tertiaryContainer,
+          hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
           mainAxisAlignment: MainAxisAlignment.center,
           radius: Corners.s10Border,
           onPressed: () => controller.show(),
@@ -135,7 +138,6 @@ class FlowyVersionDescription extends CustomActionCell {
           PackageInfo packageInfo = snapshot.data;
           String appName = packageInfo.appName;
           String version = packageInfo.version;
-          String buildNumber = packageInfo.buildNumber;
 
           return SizedBox(
             height: 30,
@@ -149,7 +151,7 @@ class FlowyVersionDescription extends CustomActionCell {
                     thickness: 1.0),
                 const VSpace(6),
                 FlowyText(
-                  "$appName $version.$buildNumber",
+                  "$appName $version",
                   color: Theme.of(context).hintColor,
                 ),
               ],
@@ -201,7 +203,7 @@ extension QuestionBubbleExtension on BubbleAction {
       case BubbleAction.debug:
         return '🐛';
       case BubbleAction.shortcuts:
-        return '⌨️';
+        return '📋';
     }
   }
 }

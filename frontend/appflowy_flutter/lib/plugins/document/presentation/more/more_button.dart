@@ -28,7 +28,7 @@ class DocumentMoreButton extends StatelessWidget {
       child: svgWidget(
         'editor/details',
         size: const Size(18, 18),
-        color: Theme.of(context).colorScheme.onSurface,
+        color: Theme.of(context).iconTheme.color,
       ),
     );
   }

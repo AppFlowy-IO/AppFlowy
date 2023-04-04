@@ -50,8 +50,8 @@ class ThemeSetting extends StatelessWidget {
           direction: PopoverDirection.bottomWithRightAligned,
           child: FlowyTextButton(
             currentTheme,
+            fontColor: Theme.of(context).colorScheme.onBackground,
             fillColor: Colors.transparent,
-            hoverColor: Theme.of(context).colorScheme.secondary,
             onPressed: () {},
           ),
           popupBuilder: (BuildContext context) {
@@ -107,8 +107,8 @@ class ThemeModeSetting extends StatelessWidget {
           direction: PopoverDirection.bottomWithRightAligned,
           child: FlowyTextButton(
             _themeModeLabelText(currentThemeMode),
+            fontColor: Theme.of(context).colorScheme.onBackground,
             fillColor: Colors.transparent,
-            hoverColor: Theme.of(context).colorScheme.secondary,
             onPressed: () {},
           ),
           popupBuilder: (BuildContext context) {

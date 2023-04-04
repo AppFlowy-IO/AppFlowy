@@ -159,7 +159,7 @@ script = [
 
 [tasks.create-release-archive-macos]
 script = [
-  # TODO 
+  # TODO
   # "cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/product/${VERSION}/${TARGET_OS}/Release/${PRODUCT_NAME}",
   # "tar -czf ${PRODUCT_NAME}-${TARGET_OS}-x86.tar.gz *"
 ]
@@ -169,7 +169,7 @@ script = ["""
   cd appflowy_flutter/
   flutter clean
   flutter pub get
-  flutter build ${TARGET_OS} --${BUILD_FLAG} --build-name=${APP_VERSION}
+  flutter build ${TARGET_OS} --${BUILD_FLAG}
   """]
 script_runner = "@shell"
 
