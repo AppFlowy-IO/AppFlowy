@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { FieldType } from '../../../../services/backend/models/flowy-database/field_entities';
+import { FieldType } from '@/services/backend/models/flowy-database/field_entities';
 import { gridActions } from '../../../stores/reducers/grid/slice';
 import { useAppDispatch, useAppSelector } from '../../../stores/store';
 

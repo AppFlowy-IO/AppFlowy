@@ -20,8 +20,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
   RUST_TOOLCHAIN: "1.65"
-  FLUTTER_VERSION: "3.3.9"
-  global-cache-key: "rustCacheBuild"
+  FLUTTER_VERSION: "3.7.5"
 
 jobs:
   test-on-ubuntu:
@@ -58,6 +57,10 @@ jobs:
         run: |
           cargo install --force cargo-make
           cargo install --force duckscript_cli
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: ${{ matrix.job.os }}
 
       - name: Build FlowySDK
         working-directory: frontend

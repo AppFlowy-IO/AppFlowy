@@ -302,6 +302,33 @@ void main() async {
     });
   }));
 
+  group('toolbar, number list' , (() {
+    testWidgets('Select Text, Click Toolbar and set style for number list',
+    (tester) async {
+      final editor = tester.editor..insertTextNode(singleLineText);
+      await editor.startTesting();
+
+      final numberList = Selection(
+        start: Position(path: [0],offset: 0),
+        end: Position(path: [0], offset: singleLineText.length));
+
+        await editor.updateSelection(numberList);
+        await tester.pumpAndSettle(const Duration(milliseconds: 500));
+        expect(find.byType(ToolbarWidget), findsOneWidget);
+        final numberListButton = find.byWidgetPredicate((widget) {
+          if (widget is ToolbarItemWidget) {
+            return widget.item.id == 'appflowy.toolbar.number_list';
+          }
+          return false;
+        });
+        expect(numberListButton, findsOneWidget);
+        await tester.tap(numberListButton);
+        await tester.pumpAndSettle();
+        final node = editor.nodeAtPath([0]) as TextNode;
+        expect(node.subtype, 'number-list');
+      });
+  }));
+
   group('toolbar, highlight', (() {
     testWidgets('Select Text, Click Toolbar and set style for highlighted text',
         (tester) async {

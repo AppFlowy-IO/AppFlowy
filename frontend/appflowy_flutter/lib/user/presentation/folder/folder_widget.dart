@@ -2,9 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/util/file_picker/file_picker_service.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/style_widget/text_field.dart';
-import 'package:flowy_infra_ui/widget/rounded_button.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -36,10 +34,7 @@ class _FolderWidgetState extends State<FolderWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 250,
-      child: _mapIndexToWidget(context),
-    );
+    return _mapIndexToWidget(context);
   }
 
   Widget _mapIndexToWidget(BuildContext context) {
@@ -86,37 +81,24 @@ class FolderOptionsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      shrinkWrap: true,
-      children: <Widget>[
-        Card(
-          child: ListTile(
-            title: FlowyText.medium(
-              LocaleKeys.settings_files_createNewFolder.tr(),
-            ),
-            subtitle: FlowyText.regular(
-              LocaleKeys.settings_files_createNewFolderDesc.tr(),
-            ),
-            trailing: _buildTextButton(
-              context,
-              LocaleKeys.settings_files_create.tr(),
-              onPressedCreate,
-            ),
+    return Column(
+      children: [
+        _FolderCard(
+          title: LocaleKeys.settings_files_createNewFolder.tr(),
+          subtitle: LocaleKeys.settings_files_createNewFolderDesc.tr(),
+          trailing: _buildTextButton(
+            context,
+            LocaleKeys.settings_files_create.tr(),
+            onPressedCreate,
           ),
         ),
-        Card(
-          child: ListTile(
-            title: FlowyText.medium(
-              LocaleKeys.settings_files_openFolder.tr(),
-            ),
-            subtitle: FlowyText.regular(
-              LocaleKeys.settings_files_openFolderDesc.tr(),
-            ),
-            trailing: _buildTextButton(
-              context,
-              LocaleKeys.settings_files_open.tr(),
-              onPressedOpen,
-            ),
+        _FolderCard(
+          title: LocaleKeys.settings_files_openFolder.tr(),
+          subtitle: LocaleKeys.settings_files_openFolderDesc.tr(),
+          trailing: _buildTextButton(
+            context,
+            LocaleKeys.settings_files_open.tr(),
+            onPressedOpen,
           ),
         ),
       ],
@@ -164,56 +146,55 @@ class CreateFolderWidgetState extends State<CreateFolderWidget> {
             label: const Text('Back'),
           ),
         ),
-        Card(
-          child: ListTile(
-            title: FlowyText.medium(
-              LocaleKeys.settings_files_location.tr(),
-            ),
-            subtitle: FlowyText.regular(
-              LocaleKeys.settings_files_locationDesc.tr(),
-            ),
-            trailing: SizedBox(
-              width: 100,
-              height: 36,
-              child: FlowyTextField(
-                hintText: LocaleKeys.settings_files_folderHintText.tr(),
-                onChanged: (name) {
-                  _folderName = name;
-                },
-                onSubmitted: (name) {
-                  setState(() {
-                    _folderName = name;
-                  });
-                },
+        _FolderCard(
+          title: LocaleKeys.settings_files_location.tr(),
+          subtitle: LocaleKeys.settings_files_locationDesc.tr(),
+          trailing: SizedBox(
+            width: 120,
+            child: FlowyTextField(
+              hintText: LocaleKeys.settings_files_folderHintText.tr(),
+              onChanged: (name) => _folderName = name,
+              onSubmitted: (name) => setState(
+                () => _folderName = name,
               ),
             ),
           ),
         ),
-        Card(
-          child: ListTile(
-            title: FlowyText.medium(LocaleKeys.settings_files_folderPath.tr()),
-            subtitle: FlowyText.regular(_path),
-            trailing: _buildTextButton(
-                context, LocaleKeys.settings_files_browser.tr(), () async {
+        _FolderCard(
+          title: LocaleKeys.settings_files_folderPath.tr(),
+          subtitle: _path,
+          trailing: _buildTextButton(
+            context,
+            LocaleKeys.settings_files_browser.tr(),
+            () async {
               final dir = await getIt<FilePickerService>().getDirectoryPath();
               if (dir != null) {
-                setState(() {
-                  directory = dir;
-                });
+                setState(() => directory = dir);
               }
-            }),
+            },
           ),
         ),
-        Card(
-          child: _buildTextButton(
-              context, LocaleKeys.settings_files_create.tr(), () async {
-            if (_path.isEmpty) {
-              _showToast(LocaleKeys.settings_files_locationCannotBeEmpty.tr());
-            } else {
-              await getIt<SettingsLocationCubit>().setLocation(_path);
-              await widget.onPressedCreate();
-            }
-          }),
+        const VSpace(4.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: Row(
+            children: [
+              _buildTextButton(
+                context,
+                LocaleKeys.settings_files_create.tr(),
+                () async {
+                  if (_path.isEmpty) {
+                    _showToast(
+                      LocaleKeys.settings_files_locationCannotBeEmpty.tr(),
+                    );
+                  } else {
+                    await getIt<SettingsLocationCubit>().setLocation(_path);
+                    await widget.onPressedCreate();
+                  }
+                },
+              ),
+            ],
+          ),
         )
       ],
     );
@@ -240,12 +221,70 @@ class CreateFolderWidgetState extends State<CreateFolderWidget> {
 
 Widget _buildTextButton(
     BuildContext context, String title, VoidCallback onPressed) {
-  return SizedBox(
-    width: 70,
-    height: 36,
-    child: RoundedTextButton(
-      title: title,
-      onPressed: onPressed,
-    ),
+  return FlowyTextButton(
+    title,
+    onPressed: onPressed,
+    fillColor: Theme.of(context).colorScheme.primary,
+    fontColor: Theme.of(context).colorScheme.onPrimary,
+    hoverColor: Theme.of(context).colorScheme.primaryContainer,
   );
+}
+
+class _FolderCard extends StatelessWidget {
+  const _FolderCard({
+    Key? key,
+    required this.title,
+    required this.subtitle,
+    this.trailing,
+  }) : super(key: key);
+
+  final String title;
+
+  final String subtitle;
+
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: 4.0,
+          horizontal: 16.0,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FlowyText.medium(
+                    title,
+                  ),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          subtitle,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            if (trailing != null) ...[
+              const HSpace(40),
+              trailing!,
+            ],
+          ],
+        ),
+      ),
+    );
+  }
 }

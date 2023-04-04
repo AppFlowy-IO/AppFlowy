@@ -1,15 +1,20 @@
 import {
   DatabaseEventCreateRow,
   DatabaseEventGetDatabase,
+  DatabaseEventGetDatabaseSetting,
   DatabaseEventGetFields,
   DatabaseEventGetGroup,
   DatabaseEventGetGroups,
+  DatabaseEventMoveField,
   DatabaseEventMoveGroup,
   DatabaseEventMoveGroupRow,
+  DatabaseEventMoveRow,
   DatabaseGroupIdPB,
+  MoveFieldPayloadPB,
   MoveGroupPayloadPB,
   MoveGroupRowPayloadPB,
-} from '../../../../services/backend/events/flowy-database';
+  MoveRowPayloadPB,
+} from '@/services/backend/events/flowy-database';
 import {
   GetFieldPayloadPB,
   RepeatedFieldIdPB,
@@ -17,9 +22,10 @@ import {
   DatabaseViewIdPB,
   CreateRowPayloadPB,
   ViewIdPB,
-} from '../../../../services/backend';
-import { FolderEventCloseView } from '../../../../services/backend/events/flowy-folder';
+} from '@/services/backend';
+import { FolderEventCloseView } from '@/services/backend/events/flowy-folder';
 
+/// A service that wraps the backend service
 export class DatabaseBackendService {
   viewId: string;
 
@@ -27,6 +33,7 @@ export class DatabaseBackendService {
     this.viewId = viewId;
   }
 
+  /// Open a database
   openDatabase = async () => {
     const payload = DatabaseViewIdPB.fromObject({
       value: this.viewId,
@@ -34,6 +41,7 @@ export class DatabaseBackendService {
     return DatabaseEventGetDatabase(payload);
   };
 
+  /// Close a database
   closeDatabase = async () => {
     const payload = ViewIdPB.fromObject({ value: this.viewId });
     return FolderEventCloseView(payload);
@@ -72,6 +80,15 @@ export class DatabaseBackendService {
     return DatabaseEventMoveGroupRow(payload);
   };
 
+  exchangeRow = (fromRowId: string, toRowId: string) => {
+    const payload = MoveRowPayloadPB.fromObject({
+      view_id: this.viewId,
+      from_row_id: fromRowId,
+      to_row_id: toRowId,
+    });
+    return DatabaseEventMoveRow(payload);
+  };
+
   moveGroup = (fromGroupId: string, toGroupId: string) => {
     const payload = MoveGroupPayloadPB.fromObject({
       view_id: this.viewId,
@@ -81,6 +98,7 @@ export class DatabaseBackendService {
     return DatabaseEventMoveGroup(payload);
   };
 
+  /// Get all fields in database
   getFields = async (fieldIds?: FieldIdPB[]) => {
     const payload = GetFieldPayloadPB.fromObject({ view_id: this.viewId });
 
@@ -91,9 +109,20 @@ export class DatabaseBackendService {
     return DatabaseEventGetFields(payload).then((result) => result.map((value) => value.items));
   };
 
+  /// Get a group by id
   getGroup = (groupId: string) => {
     const payload = DatabaseGroupIdPB.fromObject({ view_id: this.viewId, group_id: groupId });
     return DatabaseEventGetGroup(payload);
+  };
+
+  moveField = (params: { fieldId: string; fromIndex: number; toIndex: number }) => {
+    const payload = MoveFieldPayloadPB.fromObject({
+      view_id: this.viewId,
+      field_id: params.fieldId,
+      from_index: params.fromIndex,
+      to_index: params.toIndex,
+    });
+    return DatabaseEventMoveField(payload);
   };
 
   /// Get all groups in database
@@ -101,5 +130,10 @@ export class DatabaseBackendService {
   loadGroups = () => {
     const payload = DatabaseViewIdPB.fromObject({ value: this.viewId });
     return DatabaseEventGetGroups(payload);
+  };
+
+  getSettings = () => {
+    const payload = DatabaseViewIdPB.fromObject({ value: this.viewId });
+    return DatabaseEventGetDatabaseSetting(payload);
   };
 }

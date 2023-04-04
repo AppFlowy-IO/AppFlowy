@@ -1,6 +1,6 @@
 import { Ok, Result } from 'ts-results';
-import { AppPB, FlowyError, FolderNotification } from '../../../../../services/backend';
-import { ChangeNotifier } from '../../../../utils/change_notifier';
+import { AppPB, FlowyError, FolderNotification } from '@/services/backend';
+import { ChangeNotifier } from '$app/utils/change_notifier';
 import { FolderNotificationObserver } from '../notifications/observer';
 
 export type AppUpdateNotifyCallback = (value: Result<AppPB, FlowyError>) => void;

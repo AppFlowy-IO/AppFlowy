@@ -1,9 +1,8 @@
+import 'package:appflowy/core/frameless_window.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/widget/rounded_button.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -39,6 +38,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: const _SkipLoginMoveWindow(),
       body: Center(
         child: _renderBody(context),
       ),
@@ -54,9 +54,13 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
           logoSize: const Size.square(60),
         ),
         const VSpace(40),
-        SizedBox(
-          width: 250,
-          child: GoButton(onPressed: () => _autoRegister(context)),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GoButton(
+              onPressed: () => _autoRegister(context),
+            ),
+          ],
         ),
         const VSpace(20),
         SizedBox(
@@ -72,18 +76,15 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
             },
           ),
         ),
-        const VSpace(20),
-        SizedBox(
-          width: 400,
-          child: _buildSubscribeButtons(context),
-        ),
+        const Spacer(),
+        _buildSubscribeButtons(context),
       ],
     );
   }
 
   Row _buildSubscribeButtons(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         FlowyTextButton(
           LocaleKeys.githubStarText.tr(),
@@ -95,6 +96,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
           onPressed: () =>
               _launchURL('https://github.com/AppFlowy-IO/appflowy'),
         ),
+        const HSpace(20),
         FlowyTextButton(
           LocaleKeys.subscribeNewsletterText.tr(),
           fontWeight: FontWeight.w500,
@@ -149,19 +151,41 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
 
 class GoButton extends StatelessWidget {
   final VoidCallback onPressed;
+
   const GoButton({
-    Key? key,
+    super.key,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    return RoundedTextButton(
-      title: LocaleKeys.letsGoButtonText.tr(),
+    return FlowyTextButton(
+      LocaleKeys.letsGoButtonText.tr(),
       fontSize: FontSizes.s16,
-      height: 50,
-      borderRadius: Corners.s10Border,
+      padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 12.0),
       onPressed: onPressed,
+      fillColor: Theme.of(context).colorScheme.primary,
+      fontColor: Theme.of(context).colorScheme.onPrimary,
+      hoverColor: Theme.of(context).colorScheme.primaryContainer,
     );
   }
+}
+
+class _SkipLoginMoveWindow extends StatelessWidget
+    implements PreferredSizeWidget {
+  const _SkipLoginMoveWindow();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: const [
+        Expanded(
+          child: MoveWindowDetector(),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(55.0);
 }

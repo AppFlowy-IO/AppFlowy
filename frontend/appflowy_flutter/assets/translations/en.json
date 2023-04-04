@@ -188,10 +188,10 @@
       "exportDatabase": "Export database",
       "selectFiles": "Select the files that need to be export",
       "createNewFolder": "Create a new folder",
-      "createNewFolderDesc": "Tell us where you want to store your data ...",
+      "createNewFolderDesc": "Tell us where you want to store your data",
       "open": "Open",
       "openFolder": "Open an existing folder",
-      "openFolderDesc": "Read and write it to your existing AppFlowy folder ...",
+      "openFolderDesc": "Read and write it to your existing AppFlowy folder",
       "folderHintText": "folder name",
       "location": "Creating a new folder",
       "locationDesc": "Pick a name for your AppFlowy data folder",
@@ -326,7 +326,8 @@
     "checklist": {
       "panelTitle": "Add an item"
     },
-    "menuName": "Grid"
+    "menuName": "Grid",
+    "referencedGridPrefix": "View of"
   },
   "document": {
     "menuName": "Document",
@@ -366,6 +367,7 @@
         "changeCover": "Change Cover",
         "colors": "Colors",
         "images": "Images",
+        "clearAll": "Clear All",
         "abstract": "Abstract",
         "addCover": "Add Cover",
         "addLocalImage": "Add local image",
@@ -383,14 +385,14 @@
         "imageSavingFailed": "Image Saving Failed",
         "addIcon": "Add Icon"
       }
-
     }
   },
   "board": {
     "column": {
       "create_new_card": "New"
     },
-    "menuName": "Board"
+    "menuName": "Board",
+    "referencedBoardPrefix": "View of"
   },
   "calendar": {
     "menuName": "Calendar",

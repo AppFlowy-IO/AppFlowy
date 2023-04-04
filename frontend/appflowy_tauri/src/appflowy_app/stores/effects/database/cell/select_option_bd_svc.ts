@@ -5,13 +5,13 @@ import {
   SelectOptionCellChangesetPB,
   SelectOptionChangesetPB,
   SelectOptionPB,
-} from '../../../../../services/backend';
+} from '@/services/backend';
 import {
   DatabaseEventCreateSelectOption,
   DatabaseEventGetSelectOptionCellData,
   DatabaseEventUpdateSelectOption,
   DatabaseEventUpdateSelectOptionCell,
-} from '../../../../../services/backend/events/flowy-database';
+} from '@/services/backend/events/flowy-database';
 
 export class SelectOptionBackendService {
   constructor(public readonly viewId: string, public readonly fieldId: string) {}

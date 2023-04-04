@@ -1,9 +1,9 @@
-import { UpdateViewPayloadPB, RepeatedViewIdPB, ViewPB } from '../../../../../services/backend/models/flowy-folder/view';
+import { UpdateViewPayloadPB, RepeatedViewIdPB, ViewPB } from '@/services/backend';
 import {
   FolderEventDeleteView,
   FolderEventDuplicateView,
   FolderEventUpdateView,
-} from '../../../../../services/backend/events/flowy-folder';
+} from '@/services/backend/events/flowy-folder';
 
 export class ViewBackendService {
   constructor(public readonly viewId: string) {}
