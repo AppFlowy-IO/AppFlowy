@@ -40,6 +40,13 @@
     "markdown": "Markdown",
     "copyLink": "複製連結"
   },
+  "moreAction": {
+    "small": "小",
+    "medium": "中",
+    "large": "大",
+    "fontSize": "字體大小",
+    "import": "匯入"
+  },
   "disclosureAction": {
     "rename": "重新命名",
     "delete": "刪除",
@@ -64,6 +71,7 @@
   },
   "dialogCreatePageNameHint": "頁面名稱",
   "questionBubble": {
+    "shortcuts": "快捷鍵",
     "whatsNew": "新功能",
     "help": "幫助 & 支援",
     "debug": {
@@ -90,11 +98,21 @@
     "inlineCode": "程式碼",
     "quote": "區塊引言",
     "header": "標題",
-    "highlight": "反白"
+    "highlight": "反白",
+    "color": "顏色"
   },
   "tooltip": {
     "lightMode": "切換至亮色模式",
-    "darkMode": "切換至暗色模式"
+    "darkMode": "切換至暗色模式",
+    "openAsPage": "以頁面開啓",
+    "addNewRow": "新增列表",
+    "openMenu": "點擊開啓選單",
+    "viewDataBase": "查看資料庫",
+    "referencePage": "這個 {name} 已參照"
+  },
+  "sideBar": {
+    "closeSidebar": "關閉側邊欄",
+    "openSidebar": "開啓側邊欄"
   },
   "notifications": {
     "export": {
@@ -114,7 +132,14 @@
     "signIn": "登入",
     "signOut": "登出",
     "complete": "完成",
-    "save": "儲存"
+    "save": "儲存",
+    "generate": "產生",
+    "esc": "離開",
+    "keep": "保存",
+    "tryAgain": "再試一次",
+    "discard": "放棄變更",
+    "replace": "取代",
+    "insertBelow": "在下面插入"
   },
   "label": {
     "welcome": "歡迎！",
@@ -142,22 +167,99 @@
       "appearance": "外觀",
       "language": "語言",
       "user": "使用者",
+      "files": "檔案",
       "open": "開啟設定"
     },
     "appearance": {
       "themeMode": {
-        "label": "Theme Mode",
+        "label": "主題模式",
         "light": "亮色模式",
         "dark": "暗色模式",
-        "system": "Adapt to System"
-      }
+        "system": "系統設定"
+      },
+      "theme": "主題"
+    },
+    "files": {
+      "defaultLocation": "Appflowy 資料儲存位置",
+      "doubleTapToCopy": "雙擊以複製路徑",
+      "restoreLocation": "回復 Appflowy 預設路徑",
+      "customizeLocation": "開啓其他資料夾",
+      "restartApp": "請重新啓動以讓更動生效",
+      "exportDatabase": "匯出資料庫",
+      "selectFiles": "選擇需要匯出的檔案",
+      "createNewFolder": "建立新檔案",
+      "createNewFolderDesc": "選擇你想儲存資料的位置",
+      "open": "打開",
+      "openFolder": "開啓一個已經存在的資料夾",
+      "openFolderDesc": "讀寫已存在的 AppFlowy 資料夾",
+      "folderHintText": "資料夾名稱",
+      "location": "建立新資料夾",
+      "locationDesc": "命名 Appflowy 資料夾",
+      "browser": "瀏覽",
+      "create": "建立",
+      "folderPath": "儲存資料夾的路徑",
+      "locationCannotBeEmpty": "路徑不能爲空",
+      "pathCopiedSnackbar": "檔案儲存空間的路徑已被複製到剪貼簿！"
+    },
+    "user": {
+      "name": "名稱",
+      "icon": "圖標",
+      "selectAnIcon": "選擇圖標",
+      "pleaseInputYourOpenAIKey": "請輸入你的 OpenAI 密鑰"
     }
   },
   "grid": {
     "settings": {
       "filter": "篩選",
+      "sort": "排序",
       "sortBy": "排序方式",
-      "Properties": "內容"
+      "Properties": "內容",
+      "group": "群組",
+      "addFilter": "增加",
+      "deleteFilter": "刪除篩選器",
+      "filterBy": "以...篩選",
+      "typeAValue": "輸入一個值...",
+      "layout": "佈局"
+    },
+    "textFilter": {
+      "contains": "包含",
+      "doesNotContain": "不包含",
+      "endsWith": "以...結尾",
+      "startWith": "以...開頭",
+      "is": "是",
+      "isNot": "不是",
+      "isEmpty": "爲空",
+      "isNotEmpty": "不爲空",
+      "choicechipPrefix": {
+        "isNot": "不是",
+        "startWith": "以...開頭",
+        "endWith": "以...結尾",
+        "isEmpty": "爲空",
+        "isNotEmpty": "不爲空"
+      }
+    },
+    "checkboxFilter": {
+      "isChecked": "已核取",
+      "isUnchecked": "未核取",
+      "choicechipPrefix": {
+        "is": "是"
+      }
+    },
+    "checklistFilter": {
+      "isComplete": "已完成",
+      "isIncomplted": "未完成"
+    },
+    "singleSelectOptionFilter": {
+      "is": "是",
+      "isNot": "不是",
+      "isEmpty": "爲空",
+      "isNotEmpty": "不爲空"
+    },
+    "multiSelectOptionFilter": {
+      "contains": "包含",
+      "doesNotContain": "不包含",
+      "isEmpty": "爲空",
+      "isNotEmpty": "不爲空"
     },
     "field": {
       "hide": "隱藏",
@@ -172,6 +274,7 @@
       "singleSelectFieldName": "單選",
       "multiSelectFieldName": "多選",
       "urlFieldName": "網址",
+      "checklistFieldName": "核取列表",
       "numberFormat": "數字格式",
       "dateFormat": "日期格式",
       "includeTime": "包含時間",
@@ -186,13 +289,23 @@
       "addSelectOption": "新增選項",
       "optionTitle": "選項",
       "addOption": "新增選項",
-      "editProperty": "編輯內容"
+      "editProperty": "編輯內容",
+      "newColumn": "新欄位",
+      "deleteFieldPromptMessage": "你確定嗎？這個內容將被刪除"
+    },
+    "sort": {
+      "ascending": "升冪排序",
+      "descending": "降冪排序",
+      "deleteSort": "刪除排序",
+      "addSort": "新增排序"
     },
     "row": {
       "duplicate": "複製",
       "delete": "刪除",
       "textPlaceholder": "空",
-      "copyProperty": "已將內容複製至剪貼簿"
+      "copyProperty": "已將內容複製至剪貼簿",
+      "count": "Count",
+      "newRow": "新列表"
     },
     "selectOption": {
       "create": "建立",
@@ -210,6 +323,9 @@
       "panelTitle": "搜尋或建立選項",
       "searchOption": "搜尋選項"
     },
+    "checklist": {
+      "panelTitle": "新增物件"
+    },
     "menuName": "網格"
   },
   "document": {
@@ -217,10 +333,78 @@
     "date": {
       "timeHintTextInTwelveHour": "01:00 PM",
       "timeHintTextInTwentyFourHour": "13:00"
+    },
+    "slashMenu": {
+      "board": {
+        "selectABoardToLinkTo": "選擇要連結的看板",
+        "createANewBoard": "建立新的看板"
+      },
+      "grid": {
+        "selectAGridToLinkTo": "選擇要連結的網格",
+        "createANewGrid": "建立新網格"
+      }
+    },
+    "plugins": {
+      "referencedBoard": "已參照的看板",
+      "referencedGrid": "已參照的網格",
+      "autoGeneratorMenuItemName": "OpenAI 寫手",
+      "autoGeneratorTitleName": "OpenAI: 叫人工智慧寫下任何事情...",
+      "autoGeneratorLearnMore": "Learn more",
+      "autoGeneratorGenerate": "產生",
+      "autoGeneratorHintText": "問 OpenAI ...",
+      "autoGeneratorCantGetOpenAIKey": "無法取得 OpenAI 密鑰",
+      "smartEdit": "人工智慧助理",
+      "openAI": "OpenAI",
+      "smartEditFixSpelling": "修正拼寫",
+      "warning": "⚠️ AI 的回答可能不精確或是存在誤導",
+      "smartEditSummarize": "總結",
+      "smartEditCouldNotFetchResult": "無法取得 OpenAI 的結果",
+      "smartEditCouldNotFetchKey": "無法取得 OpenAI 密鑰",
+      "smartEditDisabled": "在設定連結 OpenAI ",
+      "discardResponse": "你確定放棄人工智慧的回覆？",
+      "cover": {
+        "changeCover": "更換封面",
+        "colors": "顏色",
+        "images": "圖片",
+        "abstract": "摘要",
+        "addCover": "新增封面",
+        "addLocalImage": "新增本機圖片",
+        "invalidImageUrl": "無效的圖片網址",
+        "failedToAddImageToGallery": "新增圖片到圖庫失敗",
+        "enterImageUrl": "輸入圖片網址",
+        "add": "Add",
+        "back": "Back",
+        "saveToGallery": "儲存到",
+        "removeIcon": "移除圖標",
+        "pasteImageUrl": "複製圖片網址",
+        "or": "或",
+        "pickFromFiles": "挑選檔案",
+        "couldNotFetchImage": "無法截取圖片",
+        "imageSavingFailed": "圖片儲存失敗",
+        "addIcon": "新增圖標"
+      }
     }
   },
-  "sideBar": {
-    "openSidebar": "Open sidebar",
-    "closeSidebar": "Close sidebar"
+  "board": {
+    "column": {
+      "create_new_card": "建立"
+    },
+    "menuName": "看板"
+  },
+  "calendar": {
+    "menuName": "日曆",
+    "defaultNewCalendarTitle": "未命名的",
+    "navigation": {
+      "today": "今天",
+      "jumpToday": "跳至今天",
+      "previousMonth": "上個月",
+      "nextMonth": "下個月"
+    },
+    "settings": {
+      "showWeekNumbers": "顯示星期",
+      "showWeekends": "顯示週末",
+      "firstDayOfWeek": "一週的第一天",
+      "layoutDateField": "排列方式"
+    }
   }
 }

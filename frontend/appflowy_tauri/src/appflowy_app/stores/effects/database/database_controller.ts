@@ -1,13 +1,13 @@
 import { DatabaseBackendService } from './database_bd_svc';
 import { FieldController, FieldInfo } from './field/field_controller';
 import { DatabaseViewCache } from './view/database_view_cache';
-import { DatabasePB, GroupPB } from '../../../../services/backend';
+import { DatabasePB, GroupPB, FlowyError } from '@/services/backend';
 import { RowChangedReason, RowInfo } from './row/row_cache';
-import { Err } from 'ts-results';
+import { Err, Ok } from 'ts-results';
 import { DatabaseGroupController } from './group/group_controller';
 import { BehaviorSubject } from 'rxjs';
 import { DatabaseGroupObserver } from './group/group_observer';
-import { Log } from '../../../utils/log';
+import { Log } from '$app/utils/log';
 
 export type DatabaseSubscriberCallbacks = {
   onViewChanged?: (data: DatabasePB) => void;
@@ -71,6 +71,20 @@ export class DatabaseController {
     }
   };
 
+  getGroupByFieldId = async () => {
+    const settingsResult = await this.backendService.getSettings();
+    if (settingsResult.ok) {
+      const settings = settingsResult.val;
+      const groupConfig = settings.group_configurations.items;
+      if (groupConfig.length === 0) {
+        return Err(new FlowyError({ msg: 'this database has no groups' }));
+      }
+      return Ok(settings.group_configurations.items[0].field_id);
+    } else {
+      return Err(settingsResult.val);
+    }
+  };
+
   createRow = () => {
     return this.backendService.createRow();
   };
@@ -79,8 +93,17 @@ export class DatabaseController {
     return this.backendService.moveGroupRow(rowId, groupId);
   };
 
+  exchangeRow = async (fromRowId: string, toRowId: string) => {
+    await this.backendService.exchangeRow(fromRowId, toRowId);
+    await this.loadGroup();
+  };
+
   moveGroup = (fromGroupId: string, toGroupId: string) => {
     return this.backendService.moveGroup(fromGroupId, toGroupId);
+  };
+
+  moveField = (params: { fieldId: string; fromIndex: number; toIndex: number }) => {
+    return this.backendService.moveField(params);
   };
 
   private loadGroup = async () => {
@@ -146,6 +169,10 @@ export class DatabaseController {
   };
 
   dispose = async () => {
+    this.groups.value.forEach((group) => {
+      void group.dispose();
+    });
+    await this.groupsObserver.unsubscribe();
     await this.backendService.closeDatabase();
     await this.fieldController.dispose();
     await this.databaseViewCache.dispose();

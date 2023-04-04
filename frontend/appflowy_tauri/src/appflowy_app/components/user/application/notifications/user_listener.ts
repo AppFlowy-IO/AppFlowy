@@ -1,5 +1,5 @@
-import { FlowyError, UserNotification, UserProfilePB } from '../../../../../services/backend';
-import { AFNotificationObserver, OnNotificationError } from '../../../../../services/backend/notifications';
+import { FlowyError, UserNotification, UserProfilePB } from '@/services/backend';
+import { AFNotificationObserver, OnNotificationError } from '@/services/backend/notifications';
 import { UserNotificationParser } from './parser';
 import { Ok, Result } from 'ts-results';
 

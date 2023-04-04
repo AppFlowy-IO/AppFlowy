@@ -1,6 +1,6 @@
 import { Ok, Result } from 'ts-results';
-import { DatabaseNotification, DatabaseFieldChangesetPB, FlowyError, FieldPB } from '../../../../../services/backend';
-import { ChangeNotifier } from '../../../../utils/change_notifier';
+import { DatabaseNotification, DatabaseFieldChangesetPB, FlowyError, FieldPB } from '@/services/backend';
+import { ChangeNotifier } from '$app/utils/change_notifier';
 import { DatabaseNotificationObserver } from '../notifications/observer';
 
 export type FieldChangesetSubscribeCallback = (value: Result<DatabaseFieldChangesetPB, FlowyError>) => void;

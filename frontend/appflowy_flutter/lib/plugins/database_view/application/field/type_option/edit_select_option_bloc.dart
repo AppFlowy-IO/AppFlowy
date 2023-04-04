@@ -1,7 +1,6 @@
 import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 import 'package:protobuf/protobuf.dart';
 import 'package:dartz/dartz.dart';
 part 'edit_select_option_bloc.freezed.dart';
@@ -25,11 +24,6 @@ class EditSelectOptionBloc
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    return super.close();
   }
 
   SelectOptionPB _updateColor(SelectOptionColorPB color) {

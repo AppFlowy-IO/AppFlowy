@@ -50,7 +50,7 @@ void _showEmojiSelectionMenu(
     );
   });
 
-  Overlay.of(context)?.insert(_emojiSelectionMenu!);
+  Overlay.of(context).insert(_emojiSelectionMenu!);
 
   editorState.service.selectionService.currentSelection
       .addListener(_dismissEmojiSelectionMenu);

@@ -20,7 +20,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
   RUST_TOOLCHAIN: "1.65"
-  FLUTTER_VERSION: "3.3.9"
+  FLUTTER_VERSION: "3.7.5"
 
 jobs:
   test-on-ubuntu:
