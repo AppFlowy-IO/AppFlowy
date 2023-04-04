@@ -98,6 +98,7 @@ class _CloseButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyIconButton(
+      hoverColor: AFThemeExtension.of(context).lightGreyHover,
       width: 24,
       onPressed: () => FlowyOverlay.pop(context),
       iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
@@ -210,10 +211,16 @@ class _CreatePropertyButtonState extends State<_CreatePropertyButton> {
         height: 40,
         decoration: _makeBoxDecoration(context),
         child: FlowyButton(
-          text: FlowyText.medium(LocaleKeys.grid_field_newColumn.tr()),
+          text: FlowyText.medium(
+            LocaleKeys.grid_field_newColumn.tr(),
+            color: AFThemeExtension.of(context).textColor,
+          ),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onTap: () {},
-          leftIcon: svgWidget("home/add"),
+          leftIcon: svgWidget(
+            "home/add",
+            color: AFThemeExtension.of(context).textColor,
+          ),
         ),
       ),
       popupBuilder: (BuildContext popOverContext) {
@@ -241,7 +248,6 @@ class _CreatePropertyButtonState extends State<_CreatePropertyButton> {
     final borderSide =
         BorderSide(color: Theme.of(context).dividerColor, width: 1.0);
     return BoxDecoration(
-      color: Theme.of(context).colorScheme.surface,
       border: Border(top: borderSide),
     );
   }
