@@ -5,6 +5,7 @@ import { CellCache } from '@/appflowy_app/stores/effects/database/cell/cell_cach
 import { FieldController } from '@/appflowy_app/stores/effects/database/field/field_controller';
 import { useCell } from '../../_shared/database-hooks/useCell';
 import { SelectOptionCellDataPB } from '@/services/backend/models/flowy-database/select_type_option';
+import { CellOptionsPopup } from '../../_shared/EditRow/CellOptionsPopup';
 
 export default function GridSingleSelectOptions({
   cellIdentifier,
@@ -21,15 +22,34 @@ export default function GridSingleSelectOptions({
 
   const [value, setValue] = useState((data as SelectOptionCellDataPB) || '');
   const [showOptionsPopup, setShowOptionsPopup] = useState(false);
+  const [changeOptionsTop, setChangeOptionsTop] = useState(0);
+  const [changeOptionsLeft, setChangeOptionsLeft] = useState(0);
+
+  const onEditOptionsClick = async (left: number, top: number) => {
+    setChangeOptionsLeft(left);
+    setChangeOptionsTop(top);
+    setShowOptionsPopup(true);
+  };
 
   useEffect(() => {
     if (data) setValue(data as SelectOptionCellDataPB);
   }, [data]);
   return (
     <>
-      <div className='flex w-full justify-start' ref={ref}>
-        <CellOptions data={data as SelectOptionCellDataPB} onEditClick={() => setShowOptionsPopup(!showOptionsPopup)} />
+      <div className='flex w-full cursor-pointer justify-start'>
+        <CellOptions data={data as SelectOptionCellDataPB} onEditClick={onEditOptionsClick} />
       </div>
+
+      {showOptionsPopup && (
+        <CellOptionsPopup
+          top={changeOptionsTop}
+          left={changeOptionsLeft}
+          cellIdentifier={cellIdentifier}
+          cellCache={cellCache}
+          fieldController={fieldController}
+          onOutsideClick={() => setShowOptionsPopup(false)}
+        />
+      )}
     </>
   );
 }
