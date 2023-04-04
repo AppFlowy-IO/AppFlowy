@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'colorscheme.dart';
 
-const _black = Color(0xff000000);
 const _white = Color(0xFFFFFFFF);
 const _lightHover = Color(0xFFe0f8ff);
 const _lightSelector = Color(0xfff2fcff);
