@@ -43,7 +43,7 @@ class TrashCell extends StatelessWidget {
           iconPadding: const EdgeInsets.all(5),
           icon: svgWidget(
             "editor/restore",
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).iconTheme.color,
           ),
         ),
         const HSpace(20),
@@ -53,7 +53,7 @@ class TrashCell extends StatelessWidget {
           iconPadding: const EdgeInsets.all(5),
           icon: svgWidget(
             "editor/delete",
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).iconTheme.color,
           ),
         ),
       ],

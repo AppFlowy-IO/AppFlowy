@@ -9,7 +9,7 @@ extension FlowyTintExtension on FlowyTint {
     ThemeMode? themeMode,
     String? theme,
   }) {
-    if (themeMode == ThemeMode.light && theme == BuiltInTheme.light) {
+    if (themeMode == ThemeMode.light && theme == BuiltInTheme.defaultTheme) {
       switch (this) {
         case FlowyTint.tint1:
           return l10n.lightLightTint1;

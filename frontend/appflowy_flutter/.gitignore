@@ -40,7 +40,7 @@ lib/generated_plugin_registrant.dart
 lib/generated/
 
 # Freezed generated files
-*.g.dart 
+*.g.dart
 *.freezed.dart
 
 # Symbolication related

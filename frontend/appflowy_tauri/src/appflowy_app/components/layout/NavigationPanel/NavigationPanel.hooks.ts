@@ -1,7 +1,7 @@
 import { useAppSelector } from '../../../stores/store';
 import { useNavigate } from 'react-router-dom';
 import { IPage } from '../../../stores/reducers/pages/slice';
-import { ViewLayoutTypePB } from '../../../../services/backend';
+import { ViewLayoutTypePB } from '@/services/backend';
 import { useState } from 'react';
 
 export const useNavigationPanelHooks = function () {

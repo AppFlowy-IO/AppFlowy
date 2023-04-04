@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/select_option/select_option_loader.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/select_type_option.pb.dart';
@@ -61,11 +59,6 @@ class SelectOptionFilterListBloc<T>
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    return super.close();
   }
 
   void _updateSelectOptions({

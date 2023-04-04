@@ -6,9 +6,9 @@ import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' show Document;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
-import 'package:styled_widget/styled_widget.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -50,13 +50,19 @@ class AddButton extends StatelessWidget {
       actions: actions,
       offset: const Offset(0, 8),
       buildChild: (controller) {
-        return FlowyIconButton(
+        return SizedBox(
           width: 22,
-          onPressed: () => controller.show(),
-          icon: svgWidget(
-            "home/add",
-            color: Theme.of(context).colorScheme.onSurface,
-          ).padding(horizontal: 3, vertical: 3),
+          child: InkWell(
+            onTap: () => controller.show(),
+            child: FlowyHover(
+              style: HoverStyle(
+                hoverColor: AFThemeExtension.of(context).greySelect,
+              ),
+              builder: (context, onHover) => const FlowySvg(
+                name: 'home/add',
+              ),
+            ),
+          ),
         );
       },
       onSelected: (action, controller) {
@@ -83,8 +89,7 @@ class AddButtonActionWrapper extends ActionCell {
   AddButtonActionWrapper({required this.pluginBuilder});
 
   @override
-  Widget? leftIcon(Color iconColor) =>
-      svgWidget(pluginBuilder.menuIcon, color: iconColor);
+  Widget? leftIcon(Color iconColor) => FlowySvg(name: pluginBuilder.menuIcon);
 
   @override
   String get name => pluginBuilder.menuName;
@@ -100,9 +105,8 @@ class ImportActionWrapper extends ActionCell {
   });
 
   @override
-  Widget? leftIcon(Color iconColor) => svgWidget(
-        'editor/import',
-        color: iconColor,
+  Widget? leftIcon(Color iconColor) => const FlowySvg(
+        name: 'editor/import',
       );
 
   @override

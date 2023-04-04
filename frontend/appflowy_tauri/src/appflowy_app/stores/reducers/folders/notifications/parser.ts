@@ -1,5 +1,5 @@
-import { FlowyError, FolderNotification } from '../../../../../services/backend';
-import { NotificationParser, OnNotificationError } from '../../../../../services/backend/notifications';
+import { FlowyError, FolderNotification } from '@/services/backend';
+import { NotificationParser, OnNotificationError } from '@/services/backend/notifications';
 import { Result } from 'ts-results';
 
 declare type FolderNotificationCallback = (ty: FolderNotification, payload: Result<Uint8Array, FlowyError>) => void;

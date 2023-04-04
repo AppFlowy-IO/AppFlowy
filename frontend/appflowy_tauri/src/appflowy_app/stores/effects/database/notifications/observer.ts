@@ -1,5 +1,5 @@
-import { DatabaseNotification, FlowyError } from '../../../../../services/backend';
-import { AFNotificationObserver } from '../../../../../services/backend/notifications';
+import { DatabaseNotification, FlowyError } from '@/services/backend';
+import { AFNotificationObserver } from '@/services/backend/notifications';
 import { DatabaseNotificationParser } from './parser';
 import { Result } from 'ts-results';
 

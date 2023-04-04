@@ -10,7 +10,7 @@ pub fn init_flowy_core() -> AppFlowyCore {
   }
   data_path.push("data");
 
-  std::env::set_var("RUST_LOG", "debug");
+  std::env::set_var("RUST_LOG", "trace");
   let server_config = get_client_server_configuration().unwrap();
   let config = AppFlowyCoreConfig::new(
     data_path.to_str().unwrap(),

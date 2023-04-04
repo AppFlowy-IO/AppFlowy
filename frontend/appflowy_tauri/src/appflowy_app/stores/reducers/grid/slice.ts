@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { nanoid } from 'nanoid';
-import { FieldType } from '../../../../services/backend/models/flowy-database/field_entities';
+import { FieldType } from '@/services/backend/models/flowy-database/field_entities';
 
 const initialState = {
   title: 'My plans on the week',

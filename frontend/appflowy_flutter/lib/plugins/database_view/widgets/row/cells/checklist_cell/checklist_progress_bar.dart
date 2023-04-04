@@ -20,7 +20,7 @@ class ChecklistProgressBar extends StatelessWidget {
       percent: percent,
       padding: EdgeInsets.zero,
       progressColor: Theme.of(context).colorScheme.primary,
-      backgroundColor: AFThemeExtension.of(context).tint9,
+      backgroundColor: AFThemeExtension.of(context).progressBarBGcolor,
       barRadius: const Radius.circular(5),
     );
   }
