@@ -2,7 +2,6 @@ import 'package:appflowy_backend/protobuf/flowy-database/format.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/number_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 import 'package:protobuf/protobuf.dart';
 import 'type_option_context.dart';
 
@@ -28,11 +27,6 @@ class NumberTypeOptionBloc
     return state.typeOption.rebuild((typeOption) {
       typeOption.format = format;
     });
-  }
-
-  @override
-  Future<void> close() async {
-    return super.close();
   }
 }
 

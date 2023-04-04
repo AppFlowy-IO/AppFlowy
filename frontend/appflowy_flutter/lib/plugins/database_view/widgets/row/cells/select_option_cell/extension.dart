@@ -106,7 +106,11 @@ class SelectOptionTag extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-            child: FlowyText.medium(name, overflow: TextOverflow.ellipsis),
+            child: FlowyText.medium(
+              name,
+              overflow: TextOverflow.ellipsis,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           if (onRemove != null)
             FlowyIconButton(
@@ -116,7 +120,7 @@ class SelectOptionTag extends StatelessWidget {
               hoverColor: Colors.transparent,
               icon: svgWidget(
                 'home/close',
-                color: Theme.of(context).iconTheme.color,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
         ],
@@ -139,6 +143,9 @@ class SelectOptionTagCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyHover(
+      style: HoverStyle(
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+      ),
       child: InkWell(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

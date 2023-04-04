@@ -2,9 +2,9 @@ import 'package:flowy_infra/colorscheme/colorscheme.dart';
 import 'package:flutter/material.dart';
 
 class BuiltInTheme {
-  static const String light = 'light';
-  static const String dandelion = 'dandelion';
-  static const String lavender = 'lavender';
+  static const String defaultTheme = 'Default';
+  static const String dandelion = 'Dandelion';
+  static const String lavender = 'Lavender';
 }
 
 class AppTheme {

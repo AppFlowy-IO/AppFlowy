@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -116,7 +117,11 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
           children: [
             Expanded(
               child: FlowyButton(
-                text: FlowyText(widget.option.data.name),
+                hoverColor: AFThemeExtension.of(context).lightGreyHover,
+                text: FlowyText(
+                  widget.option.data.name,
+                  color: AFThemeExtension.of(context).textColor,
+                ),
                 leftIcon: icon,
                 onTap: () => context
                     .read<ChecklistCellEditorBloc>()
@@ -132,6 +137,7 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
 
   Widget _disclosureButton() {
     return FlowyIconButton(
+      hoverColor: AFThemeExtension.of(context).lightGreyHover,
       width: 20,
       onPressed: () => _popoverController.show(),
       iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),

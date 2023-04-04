@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dar
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -152,11 +153,15 @@ class _InsertButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyIconButton(
       tooltipText: LocaleKeys.tooltip_addNewRow.tr(),
+      hoverColor: AFThemeExtension.of(context).lightGreyHover,
       width: 20,
       height: 30,
       onPressed: () => context.read<RowBloc>().add(const RowEvent.createRow()),
       iconPadding: const EdgeInsets.all(3),
-      icon: svgWidget("home/add"),
+      icon: svgWidget(
+        'home/add',
+        color: Theme.of(context).colorScheme.tertiary,
+      ),
     );
   }
 }
@@ -182,11 +187,15 @@ class _MenuButtonState extends State<_MenuButton> {
   Widget build(BuildContext context) {
     return FlowyIconButton(
       tooltipText: LocaleKeys.tooltip_openMenu.tr(),
+      hoverColor: AFThemeExtension.of(context).lightGreyHover,
       width: 20,
       height: 30,
       onPressed: () => widget.openMenu(),
       iconPadding: const EdgeInsets.all(3),
-      icon: svgWidget("editor/details"),
+      icon: svgWidget(
+        'editor/details',
+        color: Theme.of(context).colorScheme.tertiary,
+      ),
     );
   }
 }

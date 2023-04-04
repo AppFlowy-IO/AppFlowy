@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -115,7 +116,11 @@ class _GridPropertyCellState extends State<_GridPropertyCell> {
       triggerActions: PopoverTriggerFlags.none,
       margin: EdgeInsets.zero,
       child: FlowyButton(
-        text: FlowyText.medium(widget.fieldInfo.name),
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        text: FlowyText.medium(
+          widget.fieldInfo.name,
+          color: AFThemeExtension.of(context).textColor,
+        ),
         leftIcon: svgWidget(
           widget.fieldInfo.fieldType.iconName(),
           color: Theme.of(context).iconTheme.color,

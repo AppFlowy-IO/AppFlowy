@@ -2,7 +2,6 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 import 'package:dartz/dartz.dart';
 
 import '../../../application/row/row_cache.dart';
@@ -32,11 +31,6 @@ class RowActionSheetBloc
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    return super.close();
   }
 
   void logResult(Either<Unit, FlowyError> result) {
