@@ -326,7 +326,8 @@
     "checklist": {
       "panelTitle": "Add an item"
     },
-    "menuName": "Grid"
+    "menuName": "Grid",
+    "referencedGridPrefix": "View of"
   },
   "document": {
     "menuName": "Document",
@@ -390,7 +391,8 @@
     "column": {
       "create_new_card": "New"
     },
-    "menuName": "Board"
+    "menuName": "Board",
+    "referencedBoardPrefix": "View of"
   },
   "calendar": {
     "menuName": "Calendar",
