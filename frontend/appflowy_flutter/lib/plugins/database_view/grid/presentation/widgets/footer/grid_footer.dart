@@ -14,12 +14,15 @@ class GridAddRowButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
-      text: FlowyText.medium(LocaleKeys.grid_row_newRow.tr()),
+      text: FlowyText.medium(
+        LocaleKeys.grid_row_newRow.tr(),
+        color: Theme.of(context).colorScheme.tertiary,
+      ),
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       onTap: () => context.read<GridBloc>().add(const GridEvent.createRow()),
       leftIcon: svgWidget(
         "home/add",
-        color: Theme.of(context).iconTheme.color,
+        color: Theme.of(context).colorScheme.tertiary,
       ),
     );
   }

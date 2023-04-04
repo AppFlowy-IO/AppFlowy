@@ -12,6 +12,7 @@ const _lightShader1 = Color(0xff333333);
 const _lightShader3 = Color(0xff828282);
 const _lightShader6 = Color(0xfff2f2f2);
 const _lightMain1 = Color(0xffe21f74);
+const _lightTint9 = Color(0xffe1fbff);
 
 const _darkShader1 = Color(0xff131720);
 const _darkShader2 = Color(0xff1A202C);
@@ -48,7 +49,7 @@ class DandelionColorScheme extends FlowyColorScheme {
           tint6: const Color(0xfff5ffdc),
           tint7: const Color(0xffddffd6),
           tint8: const Color(0xffdefff1),
-          tint9: const Color(0xffe1fbff),
+          tint9: _lightTint9,
           main1: _lightMain1,
           main2: const Color.fromARGB(255, 224, 25, 111),
           shadow: _black,
@@ -63,8 +64,10 @@ class DandelionColorScheme extends FlowyColorScheme {
           onPrimary: _white,
           hoverBG1: _lightBg2,
           hoverBG2: _lightHover,
+          hoverBG3: _lightShader6,
           hoverFG: _lightShader1,
           questionBubbleBG: _lightSelector,
+          progressBarBGcolor: _lightTint9,
         );
 
   const DandelionColorScheme.dark()
@@ -86,15 +89,15 @@ class DandelionColorScheme extends FlowyColorScheme {
           bg2: _black,
           bg3: const Color(0xff4f4f4f),
           bg4: const Color(0xff2c144b),
-          tint1: const Color(0xffc3adff),
-          tint2: const Color(0xffffadf9),
-          tint3: const Color(0xffffadad),
-          tint4: const Color(0xffffcfad),
-          tint5: const Color(0xfffffead),
-          tint6: const Color(0xffe6ffa3),
-          tint7: const Color(0xffbcffad),
-          tint8: const Color(0xffadffe2),
-          tint9: const Color(0xffade4ff),
+          tint1: const Color(0xff8738F5),
+          tint2: const Color(0xffE6336E),
+          tint3: const Color(0xffFF2D9E),
+          tint4: const Color(0xffE9973E),
+          tint5: const Color(0xffFBF000),
+          tint6: const Color(0xffC0F000),
+          tint7: const Color(0xff15F74E),
+          tint8: const Color(0xff00F0E2),
+          tint9: const Color(0xff00BCF0),
           main1: _darkMain1,
           main2: const Color.fromARGB(255, 224, 25, 111),
           shadow: _black,
@@ -109,7 +112,9 @@ class DandelionColorScheme extends FlowyColorScheme {
           onPrimary: _darkShader1,
           hoverBG1: _darkMain1,
           hoverBG2: _darkMain1,
+          hoverBG3: _darkShader3,
           hoverFG: _darkShader1,
           questionBubbleBG: _darkShader3,
+          progressBarBGcolor: _darkShader3,
         );
 }

@@ -138,7 +138,7 @@ class ScrollbarState extends State<StyledScrollbar> {
         // Handle color
         var handleColor = widget.handleColor ??
             (Theme.of(context).brightness == Brightness.dark
-                ? AFThemeExtension.of(context).greyHover.withOpacity(.2)
+                ? AFThemeExtension.of(context).lightGreyHover
                 : AFThemeExtension.of(context).greyHover);
         // Track color
         var trackColor = widget.trackColor ??

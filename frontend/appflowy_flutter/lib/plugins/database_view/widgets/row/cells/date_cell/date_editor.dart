@@ -385,10 +385,7 @@ class _DateTypeOptionButton extends StatelessWidget {
               child: FlowyButton(
                 text: FlowyText.medium(title),
                 margin: GridSize.typeOptionContentInsets,
-                rightIcon: svgWidget(
-                  "grid/more",
-                  color: Theme.of(context).iconTheme.color,
-                ),
+                rightIcon: const FlowySvg(name: 'grid/more'),
               ),
             ),
           ),
