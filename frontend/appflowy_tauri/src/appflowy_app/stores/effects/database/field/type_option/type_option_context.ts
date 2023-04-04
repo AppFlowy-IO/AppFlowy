@@ -9,7 +9,7 @@ import {
   NumberTypeOptionPB,
   SingleSelectTypeOptionPB,
   URLTypeOptionPB,
-} from '../../../../../../services/backend';
+} from '@/services/backend';
 import { utf8Decoder, utf8Encoder } from '../../cell/data_parser';
 import { DatabaseFieldObserver } from '../field_observer';
 

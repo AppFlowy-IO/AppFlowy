@@ -18,5 +18,4 @@ export 'style_widget/icon_button.dart';
 export 'style_widget/scrolling/styled_scroll_bar.dart';
 export '/widget/spacing.dart';
 export 'style_widget/scrolling/styled_list.dart';
-export 'style_widget/button.dart';
 export 'style_widget/color_picker.dart';

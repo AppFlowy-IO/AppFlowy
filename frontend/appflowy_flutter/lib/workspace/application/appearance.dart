@@ -55,9 +55,9 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
       newLocale = const Locale('en');
     }
 
-    context.setLocale(newLocale);
-
     if (state.locale != newLocale) {
+      context.setLocale(newLocale);
+
       _setting.locale.languageCode = newLocale.languageCode;
       _setting.locale.countryCode = newLocale.countryCode ?? "";
       _saveAppearanceSettings();
@@ -212,14 +212,21 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
 
     return ThemeData(
       brightness: brightness,
-      textTheme:
-          _getTextTheme(fontFamily: fontFamily, fontColor: theme.shader1),
+      textTheme: _getTextTheme(fontFamily: fontFamily, fontColor: theme.text),
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: theme.main2,
         selectionHandleColor: theme.main2,
       ),
-      primaryIconTheme: IconThemeData(color: theme.hover),
-      iconTheme: IconThemeData(color: theme.shader1),
+      iconTheme: IconThemeData(color: theme.icon),
+      tooltipTheme: TooltipThemeData(
+        textStyle: _getFontStyle(
+          fontFamily: fontFamily,
+          fontSize: FontSizes.s11,
+          fontWeight: FontWeight.w400,
+          fontColor: theme.surface,
+        ),
+      ),
+      scaffoldBackgroundColor: theme.surface,
       scrollbarTheme: ScrollbarThemeData(
         thumbColor: MaterialStateProperty.all(theme.shader3),
         thickness: MaterialStateProperty.resolveWith((states) {
@@ -239,30 +246,38 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       ),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       canvasColor: theme.shader6,
-      dividerColor: theme.shader6,
-      hintColor: theme.shader3,
+      dividerColor: theme.divider,
+      hintColor: theme.hint,
+      //action item hover color
+      hoverColor: theme.hoverBG2,
       disabledColor: theme.shader4,
       highlightColor: theme.main1,
       indicatorColor: theme.main1,
       toggleableActiveColor: theme.main1,
+      cardColor: theme.input,
       colorScheme: ColorScheme(
         brightness: brightness,
-        primary: theme.main1,
-        onPrimary: _white,
+        primary: theme.primary,
+        onPrimary: theme.onPrimary,
         primaryContainer: theme.main2,
         onPrimaryContainer: _white,
-        secondary: theme.hover,
+        // page title hover color
+        secondary: theme.hoverBG1,
         onSecondary: theme.shader1,
+        // setting value hover color
         secondaryContainer: theme.selector,
-        onSecondaryContainer: theme.shader1,
+        onSecondaryContainer: theme.topbarBg,
+        tertiary: theme.shader7,
+        tertiaryContainer: theme.questionBubbleBG,
         background: theme.surface,
-        onBackground: theme.shader1,
+        onBackground: theme.text,
         surface: theme.surface,
-        onSurface: theme.shader1,
+        // text&icon color when it is hovered
+        onSurface: theme.hoverFG,
         onError: theme.shader7,
         error: theme.red,
         outline: theme.shader4,
-        surfaceVariant: theme.bg1,
+        surfaceVariant: theme.sidebarBg,
         shadow: theme.shadow,
       ),
       extensions: [
@@ -278,10 +293,12 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
           tint7: theme.tint7,
           tint8: theme.tint8,
           tint9: theme.tint9,
-          greyHover: theme.bg2,
+          textColor: theme.text,
+          greyHover: theme.hoverBG1,
           greySelect: theme.bg3,
-          lightGreyHover: theme.shader6,
+          lightGreyHover: theme.hoverBG3,
           toggleOffFill: theme.shader5,
+          progressBarBGcolor: theme.progressBarBGcolor,
           code: _getFontStyle(
             fontFamily: monospaceFontFamily,
             fontColor: theme.shader3,
@@ -295,7 +312,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
             fontFamily: fontFamily,
             fontSize: FontSizes.s11,
             fontWeight: FontWeight.w400,
-            fontColor: theme.shader3,
+            fontColor: theme.hint,
           ),
         )
       ],

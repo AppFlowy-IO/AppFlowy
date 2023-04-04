@@ -25,7 +25,7 @@ class _FilterButtonState extends State<FilterButton> {
     return BlocBuilder<GridFilterMenuBloc, GridFilterMenuState>(
       builder: (context, state) {
         final textColor = state.filters.isEmpty
-            ? null
+            ? AFThemeExtension.of(context).textColor
             : Theme.of(context).colorScheme.primary;
 
         return _wrapPopover(

@@ -1,4 +1,4 @@
-import { DateCellDataPB, FieldType, SelectOptionCellDataPB, URLCellDataPB } from '../../../../../services/backend';
+import { DateCellDataPB, FieldType, SelectOptionCellDataPB, URLCellDataPB } from '@/services/backend';
 import { CellIdentifier } from './cell_bd_svc';
 import { CellController } from './cell_controller';
 import {
@@ -23,7 +23,7 @@ export type SelectOptionCellController = CellController<SelectOptionCellDataPB, 
 export type DateCellController = CellController<DateCellDataPB, CalendarData>;
 
 export class CalendarData {
-  constructor(public readonly date: Date, public readonly time?: string) {}
+  constructor(public readonly date: Date, public readonly includeTime: boolean, public readonly time?: string) {}
 }
 
 export type URLCellController = CellController<URLCellDataPB, string>;

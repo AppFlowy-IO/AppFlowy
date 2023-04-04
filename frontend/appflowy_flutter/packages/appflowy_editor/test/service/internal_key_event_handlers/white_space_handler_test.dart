@@ -40,7 +40,7 @@ void main() async {
         await editor.updateSelection(
           Selection.single(path: [i - 1], startOffset: i),
         );
-        await editor.pressLogicKey(LogicalKeyboardKey.space);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.space);
 
         final textNode = (editor.nodeAtPath([i - 1]) as TextNode);
 
@@ -80,7 +80,7 @@ void main() async {
         await editor.updateSelection(
           Selection.single(path: [i - 1], startOffset: i),
         );
-        await editor.pressLogicKey(LogicalKeyboardKey.space);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.space);
 
         final textNode = (editor.nodeAtPath([i - 1]) as TextNode);
 
@@ -114,7 +114,7 @@ void main() async {
         final textNode = (editor.nodeAtPath([0]) as TextNode);
 
         await editor.insertText(textNode, '#' * i, 0);
-        await editor.pressLogicKey(LogicalKeyboardKey.space);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.space);
 
         expect(textNode.subtype, BuiltInAttributeKey.heading);
         // BuiltInAttributeKey.h2 ~ BuiltInAttributeKey.h6
@@ -134,7 +134,7 @@ void main() async {
           Selection.single(path: [0], startOffset: 0),
         );
         await editor.insertText(textNode, symbol, 0);
-        await editor.pressLogicKey(LogicalKeyboardKey.space);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.space);
         expect(textNode.subtype, BuiltInAttributeKey.checkbox);
         expect(textNode.attributes.check, false);
       }
@@ -152,7 +152,7 @@ void main() async {
           Selection.single(path: [0], startOffset: 0),
         );
         await editor.insertText(textNode, symbol, 0);
-        await editor.pressLogicKey(LogicalKeyboardKey.space);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.space);
         expect(textNode.subtype, BuiltInAttributeKey.checkbox);
         expect(textNode.attributes.check, true);
       }
@@ -169,7 +169,7 @@ void main() async {
           Selection.single(path: [0], startOffset: 0),
         );
         await editor.insertText(textNode, symbol, 0);
-        await editor.pressLogicKey(LogicalKeyboardKey.space);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.space);
         expect(textNode.subtype, BuiltInAttributeKey.bulletedList);
       }
     });
@@ -185,34 +185,34 @@ void main() async {
       );
 
       await editor.insertText(textNode, '>', 0);
-      await editor.pressLogicKey(LogicalKeyboardKey.space);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.space);
       expect(textNode.subtype, BuiltInAttributeKey.quote);
 
       await editor.insertText(textNode, '*', 0);
-      await editor.pressLogicKey(LogicalKeyboardKey.space);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.space);
       expect(textNode.subtype, BuiltInAttributeKey.bulletedList);
 
       await editor.insertText(textNode, '[]', 0);
-      await editor.pressLogicKey(LogicalKeyboardKey.space);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.space);
       expect(textNode.subtype, BuiltInAttributeKey.checkbox);
       expect(textNode.attributes.check, false);
 
       await editor.insertText(textNode, '1.', 0);
-      await editor.pressLogicKey(LogicalKeyboardKey.space);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.space);
       expect(textNode.subtype, BuiltInAttributeKey.numberList);
 
       await editor.insertText(textNode, '#', 0);
-      await editor.pressLogicKey(LogicalKeyboardKey.space);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.space);
       expect(textNode.subtype, BuiltInAttributeKey.heading);
 
       await editor.insertText(textNode, '[x]', 0);
-      await editor.pressLogicKey(LogicalKeyboardKey.space);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.space);
       expect(textNode.subtype, BuiltInAttributeKey.checkbox);
       expect(textNode.attributes.check, true);
 
       const insertedText = '[]AppFlowy';
       await editor.insertText(textNode, insertedText, 0);
-      await editor.pressLogicKey(LogicalKeyboardKey.space);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.space);
       expect(textNode.subtype, BuiltInAttributeKey.checkbox);
       expect(textNode.attributes.check, true);
       expect(textNode.toPlainText(), insertedText);
@@ -227,7 +227,7 @@ void main() async {
       await editor.updateSelection(
         Selection.single(path: [0], startOffset: text.length),
       );
-      await editor.pressLogicKey(LogicalKeyboardKey.space);
+      await editor.pressLogicKey(key: LogicalKeyboardKey.space);
       expect(textNode.subtype, null);
       expect(textNode.toPlainText(), text);
     });
@@ -243,7 +243,7 @@ void main() async {
 
         final textNode = editor.nodeAtPath([0]) as TextNode;
         await editor.insertText(textNode, '>', 0);
-        await editor.pressLogicKey(LogicalKeyboardKey.space);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.space);
         expect(textNode.subtype, BuiltInAttributeKey.quote);
         for (var i = 0; i < text.length; i++) {
           await editor.insertText(textNode, text[i], i);
@@ -263,7 +263,7 @@ void main() async {
         for (var i = 0; i < text.length; i++) {
           await editor.insertText(textNode, text[i], i);
         }
-        await editor.pressLogicKey(LogicalKeyboardKey.space);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.space);
         final isQuote = textNode.subtype == BuiltInAttributeKey.quote;
         expect(isQuote, false);
         expect(textNode.toPlainText(), text);
@@ -284,7 +284,7 @@ void main() async {
           Selection.single(path: [0], startOffset: 0),
         );
         await editor.insertText(textNode, '>', 0);
-        await editor.pressLogicKey(LogicalKeyboardKey.space);
+        await editor.pressLogicKey(key: LogicalKeyboardKey.space);
 
         final isQuote = textNode.subtype == BuiltInAttributeKey.quote;
         expect(isQuote, true);

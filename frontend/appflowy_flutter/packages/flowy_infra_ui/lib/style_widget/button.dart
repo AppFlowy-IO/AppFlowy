@@ -1,11 +1,9 @@
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class FlowyButton extends StatelessWidget {
   final Widget text;
@@ -177,7 +175,8 @@ class FlowyTextButton extends StatelessWidget {
       highlightElevation: 0,
       shape: RoundedRectangleBorder(borderRadius: radius ?? Corners.s6Border),
       fillColor: fillColor ?? Theme.of(context).colorScheme.secondaryContainer,
-      hoverColor: hoverColor ?? Theme.of(context).colorScheme.secondary,
+      hoverColor:
+          hoverColor ?? Theme.of(context).colorScheme.secondaryContainer,
       focusColor: Colors.transparent,
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
@@ -195,7 +194,6 @@ class FlowyTextButton extends StatelessWidget {
     if (tooltip != null) {
       child = Tooltip(
         message: tooltip!,
-        textStyle: AFThemeExtension.of(context).caption.textColor(Colors.white),
         child: child,
       );
     }
@@ -285,7 +283,6 @@ class FlowyRichTextButton extends StatelessWidget {
     if (tooltip != null) {
       child = Tooltip(
         message: tooltip!,
-        textStyle: AFThemeExtension.of(context).caption.textColor(Colors.white),
         child: child,
       );
     }

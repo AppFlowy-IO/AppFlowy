@@ -5,9 +5,10 @@ import {
   NumberTypeOptionPB,
   SelectOptionCellDataPB,
   ViewLayoutTypePB,
-} from '../../../services/backend';
-import { Log } from '../../utils/log';
+} from '@/services/backend';
+import { Log } from '$app/utils/log';
 import {
+  assert,
   assertFieldName,
   assertNumberOfFields,
   assertNumberOfRows,
@@ -16,21 +17,26 @@ import {
   createTestDatabaseView,
   editTextCell,
   findFirstFieldInfoWithFieldType,
+  makeCheckboxCellController,
+  makeDateCellController,
   makeMultiSelectCellController,
   makeSingleSelectCellController,
   makeTextCellController,
+  makeURLCellController,
   openTestDatabase,
 } from './DatabaseTestHelper';
-import { SelectOptionCellBackendService } from '../../stores/effects/database/cell/select_option_bd_svc';
-import { TypeOptionController } from '../../stores/effects/database/field/type_option/type_option_controller';
+import { SelectOptionCellBackendService } from '$app/stores/effects/database/cell/select_option_bd_svc';
+import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
 import { None, Some } from 'ts-results';
-import { RowBackendService } from '../../stores/effects/database/row/row_bd_svc';
-import { makeNumberTypeOptionContext } from '../../stores/effects/database/field/type_option/type_option_context';
+import { RowBackendService } from '$app/stores/effects/database/row/row_bd_svc';
+import { makeNumberTypeOptionContext } from '$app/stores/effects/database/field/type_option/type_option_context';
+import { CalendarData } from '$app/stores/effects/database/cell/controller_builder';
+import { DatabaseEventMoveField } from '@/services/backend/events/flowy-database';
 
 export const RunAllGridTests = () => {
   async function run() {
     await createBuildInGrid();
-    await testEditGridRow();
+    await testEditGridCell();
     await testCreateRow();
     await testDeleteRow();
     await testCreateOptionInCell();
@@ -75,7 +81,7 @@ async function createBuildInGrid() {
   await databaseController.dispose();
 }
 
-async function testEditGridRow() {
+async function testEditGridCell() {
   const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
@@ -86,6 +92,106 @@ async function testEditGridRow() {
     await editTextCell(fieldInfo.field.id, row, databaseController, cellContent);
     await assertTextCell(fieldInfo.field.id, row, databaseController, cellContent);
   }
+}
+
+async function testEditTextCell() {
+  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const databaseController = await openTestDatabase(view.id);
+  await databaseController.open().then((result) => result.unwrap());
+
+  const row = databaseController.databaseViewCache.rowInfos[0];
+  const textField = findFirstFieldInfoWithFieldType(row, FieldType.RichText).unwrap();
+  const textCellController = await makeTextCellController(textField.field.id, row, databaseController).then((result) =>
+    result.unwrap()
+  );
+
+  textCellController.subscribeChanged({
+    onCellChanged: (content) => {
+      Log.info('Receive text:', content);
+    },
+  });
+
+  await textCellController.saveCellData('hello react');
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  await databaseController.dispose();
+}
+
+async function testEditURLCell() {
+  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const databaseController = await openTestDatabase(view.id);
+  await databaseController.open().then((result) => result.unwrap());
+
+  const typeOptionController = new TypeOptionController(view.id, None, FieldType.URL);
+  await typeOptionController.initialize();
+
+  const row = databaseController.databaseViewCache.rowInfos[0];
+  const urlCellController = await makeURLCellController(typeOptionController.fieldId, row, databaseController).then(
+    (result) => result.unwrap()
+  );
+
+  urlCellController.subscribeChanged({
+    onCellChanged: (content) => {
+      const pb = content.unwrap();
+      Log.info('Receive url data:', pb.url, pb.content);
+    },
+  });
+
+  await urlCellController.saveCellData('hello react');
+  await new Promise((resolve) => setTimeout(resolve, 200));
+
+  await urlCellController.saveCellData('appflowy.io');
+  await new Promise((resolve) => setTimeout(resolve, 200));
+}
+
+async function testEditDateCell() {
+  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const databaseController = await openTestDatabase(view.id);
+  await databaseController.open().then((result) => result.unwrap());
+
+  const typeOptionController = new TypeOptionController(view.id, None, FieldType.DateTime);
+  await typeOptionController.initialize();
+
+  const row = databaseController.databaseViewCache.rowInfos[0];
+  const dateCellController = await makeDateCellController(typeOptionController.fieldId, row, databaseController).then(
+    (result) => result.unwrap()
+  );
+
+  dateCellController.subscribeChanged({
+    onCellChanged: (content) => {
+      const pb = content.unwrap();
+      Log.info('Receive date data:', pb.date, pb.time);
+    },
+  });
+
+  const date = new CalendarData(new Date(), true, '13:00');
+  await dateCellController.saveCellData(date);
+  await new Promise((resolve) => setTimeout(resolve, 200));
+}
+
+async function testCheckboxCell() {
+  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const databaseController = await openTestDatabase(view.id);
+  await databaseController.open().then((result) => result.unwrap());
+
+  const typeOptionController = new TypeOptionController(view.id, None, FieldType.Checkbox);
+  await typeOptionController.initialize();
+
+  const row = databaseController.databaseViewCache.rowInfos[0];
+  const checkboxCellController = await makeCheckboxCellController(
+    typeOptionController.fieldId,
+    row,
+    databaseController
+  ).then((result) => result.unwrap());
+
+  checkboxCellController.subscribeChanged({
+    onCellChanged: (content) => {
+      const pb = content.unwrap();
+      Log.info('Receive checkbox data:', pb);
+    },
+  });
+
+  await checkboxCellController.saveCellData('true');
+  await new Promise((resolve) => setTimeout(resolve, 200));
 }
 
 async function testCreateRow() {
@@ -129,6 +235,7 @@ async function testCreateOptionInCell() {
       const cellController = await makeSingleSelectCellController(fieldInfo.field.id, row, databaseController).then(
         (result) => result.unwrap()
       );
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       await cellController.subscribeChanged({
         onCellChanged: (value) => {
           if (value.some) {
@@ -143,6 +250,24 @@ async function testCreateOptionInCell() {
     }
   }
   await databaseController.dispose();
+}
+
+async function testMoveField() {
+  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const databaseController = await openTestDatabase(view.id);
+  await databaseController.open().then((result) => result.unwrap());
+
+  databaseController.subscribe({
+    onFieldsChanged: (value) => {
+      Log.info('Receive fields data:', value);
+    },
+  });
+
+  const fieldInfos = [...databaseController.fieldController.fieldInfos];
+  const field_id = fieldInfos[0].field.id;
+  await databaseController.moveField({ fieldId: field_id, fromIndex: 0, toIndex: 1 });
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  assert(databaseController.fieldController.fieldInfos[1].field.id === field_id);
 }
 
 async function testGetSingleSelectFieldData() {
@@ -299,9 +424,22 @@ export const TestCreateGrid = () => {
 };
 
 export const TestEditCell = () => {
-  return TestButton('Test editing cell', testEditGridRow);
+  return TestButton('Test editing cell', testEditGridCell);
 };
 
+export const TestEditTextCell = () => {
+  return TestButton('Test editing text cell', testEditTextCell);
+};
+
+export const TestEditURLCell = () => {
+  return TestButton('Test editing URL cell', testEditURLCell);
+};
+export const TestEditDateCell = () => {
+  return TestButton('Test editing date cell', testEditDateCell);
+};
+export const TestEditCheckboxCell = () => {
+  return TestButton('Test editing checkbox cell', testCheckboxCell);
+};
 export const TestCreateRow = () => {
   return TestButton('Test create row', testCreateRow);
 };
@@ -324,6 +462,9 @@ export const TestSwitchFromMultiSelectToText = () => {
   return TestButton('Test switch from multi-select to text column', testSwitchFromMultiSelectToRichText);
 };
 
+export const TestMoveField = () => {
+  return TestButton('Test move field', testMoveField);
+};
 export const TestEditField = () => {
   return TestButton('Test edit the column name', testEditField);
 };

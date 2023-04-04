@@ -61,11 +61,6 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
       listenWhen: () => !isClosed,
     );
   }
-
-  @override
-  Future<void> close() async {
-    return super.close();
-  }
 }
 
 @freezed

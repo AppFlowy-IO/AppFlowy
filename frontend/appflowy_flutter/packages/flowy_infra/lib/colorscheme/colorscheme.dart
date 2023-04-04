@@ -1,9 +1,9 @@
-import 'package:flowy_infra/colorscheme/lavender.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flowy_infra/theme.dart';
 import 'default_colorscheme.dart';
 import 'dandelion.dart';
+import 'lavender.dart';
 
 /// A map of all the built-in themes.
 ///
@@ -11,7 +11,7 @@ import 'dandelion.dart';
 /// the first is for light mode, and the second is for dark mode.
 
 const Map<String, List<FlowyColorScheme>> themeMap = {
-  BuiltInTheme.light: [
+  BuiltInTheme.defaultTheme: [
     DefaultColorScheme.light(),
     DefaultColorScheme.dark(),
   ],
@@ -56,6 +56,24 @@ abstract class FlowyColorScheme {
   final Color main1;
   final Color main2;
   final Color shadow;
+  final Color sidebarBg;
+  final Color divider;
+  final Color topbarBg;
+  final Color icon;
+  final Color text;
+  final Color input;
+  final Color hint;
+  final Color primary;
+  final Color onPrimary;
+  //page title hover effect
+  final Color hoverBG1;
+  //action item hover effect
+  final Color hoverBG2;
+  final Color hoverBG3;
+  //the text color when it is hovered
+  final Color hoverFG;
+  final Color questionBubbleBG;
+  final Color progressBarBGcolor;
 
   const FlowyColorScheme({
     required this.surface,
@@ -87,6 +105,21 @@ abstract class FlowyColorScheme {
     required this.main1,
     required this.main2,
     required this.shadow,
+    required this.sidebarBg,
+    required this.divider,
+    required this.topbarBg,
+    required this.icon,
+    required this.text,
+    required this.input,
+    required this.hint,
+    required this.primary,
+    required this.onPrimary,
+    required this.hoverBG1,
+    required this.hoverBG2,
+    required this.hoverBG3,
+    required this.hoverFG,
+    required this.questionBubbleBG,
+    required this.progressBarBGcolor,
   });
 
   factory FlowyColorScheme.builtIn(String themeName, Brightness brightness) {
