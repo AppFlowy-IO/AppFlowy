@@ -2,7 +2,6 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 import 'field_service.dart';
 
 part 'field_action_sheet_bloc.freezed.dart';
@@ -63,11 +62,6 @@ class FieldActionSheetBloc
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    return super.close();
   }
 }
 

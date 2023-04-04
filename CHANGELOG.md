@@ -1,5 +1,12 @@
 # Release Notes
 
+## Version 0.1.2 - 03/28/2023
+
+### Bug Fixes
+
+- Fix: update calendar selected range.
+- Fix: duplicate view.
+
 ## Version 0.1.1 - 03/21/2023
 
 ### New features

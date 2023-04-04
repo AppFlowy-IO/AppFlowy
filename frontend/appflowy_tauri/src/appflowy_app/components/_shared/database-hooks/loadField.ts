@@ -9,7 +9,7 @@ import {
   NumberFormat,
   SingleSelectTypeOptionPB,
   TimeFormat,
-} from '../../../../services/backend';
+} from '@/services/backend';
 import {
   makeChecklistTypeOptionContext,
   makeDateTypeOptionContext,

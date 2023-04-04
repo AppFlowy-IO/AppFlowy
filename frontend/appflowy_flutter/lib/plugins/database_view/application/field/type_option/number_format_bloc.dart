@@ -1,7 +1,6 @@
 import 'package:appflowy_backend/protobuf/flowy-database/format.pbenum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 part 'number_format_bloc.freezed.dart';
 
 class NumberFormatBloc extends Bloc<NumberFormatEvent, NumberFormatState> {
@@ -20,11 +19,6 @@ class NumberFormatBloc extends Bloc<NumberFormatEvent, NumberFormatState> {
         });
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    return super.close();
   }
 }
 

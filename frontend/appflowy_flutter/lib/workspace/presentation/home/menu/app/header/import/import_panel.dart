@@ -24,6 +24,7 @@ Future<void> showImportPanel(
         title: FlowyText.semibold(
           LocaleKeys.moreAction_import.tr(),
           fontSize: 20,
+          color: Theme.of(context).colorScheme.tertiary,
         ),
         content: _ImportPanel(importCallback: callback),
         contentPadding: const EdgeInsets.symmetric(
@@ -44,7 +45,7 @@ enum _ImportType {
       case _ImportType.markdownOrText:
         return 'Text & Markdown';
       default:
-        assert(false, 'Unsupported Type ${this}');
+        assert(false, 'Unsupported Type $this');
         return '';
     }
   }
@@ -54,7 +55,7 @@ enum _ImportType {
       case _ImportType.markdownOrText:
         return svgWidget('editor/documents');
       default:
-        assert(false, 'Unsupported Type ${this}');
+        assert(false, 'Unsupported Type $this');
         return null;
     }
   }
@@ -64,7 +65,7 @@ enum _ImportType {
       case _ImportType.markdownOrText:
         return ['md', 'txt'];
       default:
-        assert(false, 'Unsupported Type ${this}');
+        assert(false, 'Unsupported Type $this');
         return [];
     }
   }

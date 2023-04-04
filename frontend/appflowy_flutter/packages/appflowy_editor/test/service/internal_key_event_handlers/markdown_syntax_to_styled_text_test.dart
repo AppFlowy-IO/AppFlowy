@@ -441,4 +441,53 @@ void main() async {
       expect(textNode.toPlainText(), text);
     }));
   });
+
+  group('Convert single asterisk to italic', () {
+    testWidgets('Test Single Asterisk for Italics', (tester) async {
+      const text = '*Hello World';
+      final editor = tester.editor..insertTextNode(text);
+      await editor.startTesting();
+
+      await editor.updateSelection(
+        Selection.single(path: [0], startOffset: text.length),
+      );
+
+      await editor.pressLogicKey(character: '*');
+
+      final textNode = editor.nodeAtPath([0]) as TextNode;
+      final allItalic = textNode.allSatisfyItalicInSelection(
+        Selection.single(
+          path: [0],
+          startOffset: 0,
+          endOffset: text.length - 1, // delete the first *
+        ),
+      );
+      expect(allItalic, true);
+    });
+
+    testWidgets(
+        'nothing happens if there\'re more than one * precede the current position',
+        (tester) async {
+      const text = '**Hello World';
+      final editor = tester.editor..insertTextNode(text);
+      await editor.startTesting();
+
+      await editor.updateSelection(
+        Selection.single(path: [0], startOffset: text.length),
+      );
+
+      await editor.pressLogicKey(character: '*');
+      await tester.pumpAndSettle();
+
+      final textNode = editor.nodeAtPath([0]) as TextNode;
+      final allItalic = textNode.allSatisfyItalicInSelection(
+        Selection.single(
+          path: [0],
+          startOffset: 0,
+          endOffset: text.length, // insert a new *
+        ),
+      );
+      expect(allItalic, false);
+    });
+  });
 }

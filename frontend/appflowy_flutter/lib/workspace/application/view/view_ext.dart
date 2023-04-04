@@ -36,7 +36,7 @@ extension ViewExtension on ViewPB {
   Widget renderThumbnail({Color? iconColor}) {
     String thumbnail = "file_icon";
 
-    final Widget widget = svgWidget(thumbnail, color: iconColor);
+    final Widget widget = FlowySvg(name: thumbnail);
     return widget;
   }
 
