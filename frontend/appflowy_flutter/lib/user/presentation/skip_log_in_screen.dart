@@ -10,6 +10,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 
 import '../../generated/locale_keys.g.dart';
 import '../../main.dart';
@@ -76,8 +77,22 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
             },
           ),
         ),
+        const VSpace(20),
+        _buildLanguageSelector(context),
         const Spacer(),
         _buildSubscribeButtons(context),
+      ],
+    );
+  }
+
+  Row _buildLanguageSelector(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        FlowyText.medium(LocaleKeys.settings_menu_language.tr()),
+        const LanguageSelector(
+          currentLocale: Locale('en'),
+        ),
       ],
     );
   }
