@@ -1,10 +1,10 @@
-import { CreateRowPayloadPB, RowIdPB } from '../../../../../services/backend';
+import { CreateRowPayloadPB, RowIdPB } from '@/services/backend';
 import {
   DatabaseEventCreateRow,
   DatabaseEventDeleteRow,
   DatabaseEventDuplicateRow,
   DatabaseEventGetRow,
-} from '../../../../../services/backend/events/flowy-database';
+} from '@/services/backend/events/flowy-database';
 
 export class RowBackendService {
   constructor(public readonly viewId: string) {}

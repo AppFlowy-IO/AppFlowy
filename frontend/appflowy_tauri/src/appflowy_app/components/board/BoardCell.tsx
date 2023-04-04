@@ -5,6 +5,7 @@ import { FieldType } from '../../../services/backend';
 import { BoardOptionsCell } from './BoardOptionsCell';
 import { BoardDateCell } from './BoardDateCell';
 import { BoardTextCell } from './BoardTextCell';
+import { BoardUrlCell } from '$app/components/board/BoardUrlCell';
 
 export const BoardCell = ({
   cellIdentifier,
@@ -31,6 +32,12 @@ export const BoardCell = ({
           cellCache={cellCache}
           fieldController={fieldController}
         ></BoardDateCell>
+      ) : cellIdentifier.fieldType === FieldType.URL ? (
+        <BoardUrlCell
+          cellIdentifier={cellIdentifier}
+          cellCache={cellCache}
+          fieldController={fieldController}
+        ></BoardUrlCell>
       ) : (
         <BoardTextCell
           cellIdentifier={cellIdentifier}

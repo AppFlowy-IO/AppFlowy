@@ -7,7 +7,7 @@ import { IPage } from '../../../stores/reducers/pages/slice';
 import { Button } from '../../_shared/Button';
 import { usePageEvents } from './PageItem.hooks';
 import { RenamePopup } from './RenamePopup';
-import { ViewLayoutTypePB } from '../../../../services/backend';
+import { ViewLayoutTypePB } from '@/services/backend';
 import { useEffect, useRef, useState } from 'react';
 import { PAGE_ITEM_HEIGHT } from '../../_shared/constants';
 

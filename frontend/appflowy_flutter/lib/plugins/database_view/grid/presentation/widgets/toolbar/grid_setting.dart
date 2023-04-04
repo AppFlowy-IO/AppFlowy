@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_controlle
 import 'package:appflowy/plugins/database_view/application/setting/setting_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -71,9 +72,12 @@ class _SettingItem extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
         text: FlowyText.medium(
           action.title(),
-          color: action.enable() ? null : Theme.of(context).disabledColor,
+          color: action.enable()
+              ? AFThemeExtension.of(context).textColor
+              : Theme.of(context).disabledColor,
         ),
         onTap: () => onAction(action),
         leftIcon: svgWidget(

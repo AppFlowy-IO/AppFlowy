@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -211,10 +212,8 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
       controller: _popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 8),
-      child: svgWidget(
-        "editor/edit",
-        color: Theme.of(context).iconTheme.color,
-      ),
+      child: svgWidget("editor/edit",
+          color: AFThemeExtension.of(context).textColor),
       popupBuilder: (BuildContext popoverContext) {
         return URLEditorPopover(
           cellController:

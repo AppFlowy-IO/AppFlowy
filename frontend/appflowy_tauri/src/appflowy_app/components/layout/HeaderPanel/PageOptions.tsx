@@ -2,6 +2,7 @@ import { Button } from '../../_shared/Button';
 import { Details2Svg } from '../../_shared/svg/Details2Svg';
 import { usePageOptions } from './PageOptions.hooks';
 import { OptionsPopup } from './OptionsPopup';
+import { LanguageButton } from '$app/components/layout/HeaderPanel/LanguageButton';
 
 export const PageOptions = () => {
   const { showOptionsPopup, onOptionsClick, onClose, onSignOutClick } = usePageOptions();
@@ -13,7 +14,9 @@ export const PageOptions = () => {
           Share
         </Button>
 
-        <button id='option-button' className={'relative h-8 w-8'} onClick={onOptionsClick}  >
+        <LanguageButton></LanguageButton>
+
+        <button id='option-button' className={'relative h-8 w-8'} onClick={onOptionsClick}>
           <Details2Svg></Details2Svg>
         </button>
       </div>

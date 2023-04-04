@@ -38,7 +38,10 @@ class ChoiceChipButton extends StatelessWidget {
       child: FlowyButton(
         decoration: decoration,
         useIntrinsicWidth: true,
-        text: FlowyText(filterInfo.fieldInfo.name),
+        text: FlowyText(
+          filterInfo.fieldInfo.name,
+          color: AFThemeExtension.of(context).textColor,
+        ),
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         radius: const BorderRadius.all(Radius.circular(14)),
         leftIcon: svgWidget(
@@ -62,7 +65,8 @@ class _ChoicechipFilterDesc extends StatelessWidget {
   Widget build(BuildContext context) {
     final arrow = Transform.rotate(
       angle: -math.pi / 2,
-      child: svgWidget("home/arrow_left"),
+      child: svgWidget("home/arrow_left",
+          color: AFThemeExtension.of(context).textColor),
     );
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2),

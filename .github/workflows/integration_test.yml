@@ -35,7 +35,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: "stable"
-          flutter-version: "3.3.9"
+          flutter-version: "3.7.5"
           cache: true
 
       - name: Cache Cargo
@@ -56,15 +56,16 @@ jobs:
 
       - name: Setup Environment
         run: |
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
             sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
             sudo apt-get update
-            sudo apt-get install -y dart curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
+            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
             sudo apt-get install keybinder-3.0
           elif [ "$RUNNER_OS" == "Windows" ]; then
             vcpkg integrate install
-            cargo install --force duckscript_cli
           elif [ "$RUNNER_OS" == "macOS" ]; then
             echo 'do nothing'
           fi
@@ -77,17 +78,6 @@ jobs:
           cargo install cargo-make
           cargo make appflowy-flutter-deps-tools
 
-      - name: Build Test lib
-        working-directory: frontend
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            cargo make --profile production-linux-x86_64 appflowy
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            cargo make --profile production-mac-x86_64 appflowy
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            cargo make --profile production-windows-x86 appflowy
-          fi
-
       - name: Config Flutter
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
@@ -99,22 +89,27 @@ jobs:
           fi
         shell: bash
 
-      - name: Flutter Code Generation
-        working-directory: frontend/appflowy_flutter
+      - name: Build Test lib
+        working-directory: frontend
         run: |
-          flutter packages pub get
-          flutter packages pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations -s en.json
-          flutter packages pub run build_runner build --delete-conflicting-outputs
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            cargo make --profile development-linux-x86_64 appflowy-dev
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            cargo make --profile development-mac-x86_64 appflowy-dev
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            cargo make --profile development-windows-x86 appflowy-dev
+          fi
+        shell: bash
 
       - name: Run AppFlowy tests
         working-directory: frontend/appflowy_flutter
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
-            flutter test integration_test -d Linux --coverage
+            flutter test integration_test/runner.dart -d Linux --coverage
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            flutter test integration_test -d macOS --coverage
+            flutter test integration_test/runner.dart -d macOS --coverage
           elif [ "$RUNNER_OS" == "Windows" ]; then
-            flutter test integration_test -d Windows --coverage
+            flutter test integration_test/runner.dart -d Windows --coverage
           fi
         shell: bash
 
@@ -125,4 +120,3 @@ jobs:
       #     env_vars: ${{ matrix.os }}
       #     fail_ci_if_error: true
       #     verbose: true
-

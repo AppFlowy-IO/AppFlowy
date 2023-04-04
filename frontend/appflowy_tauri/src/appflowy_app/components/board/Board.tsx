@@ -4,9 +4,23 @@ import { BoardBlock } from './BoardBlock';
 import { NewBoardBlock } from './NewBoardBlock';
 import { useDatabase } from '../_shared/database-hooks/useDatabase';
 import { ViewLayoutTypePB } from '@/services/backend';
+import { DragDropContext } from 'react-beautiful-dnd';
+import { useState } from 'react';
+import { RowInfo } from '$app/stores/effects/database/row/row_cache';
+import { EditRow } from '$app/components/_shared/EditRow/EditRow';
 
 export const Board = ({ viewId }: { viewId: string }) => {
-  const { controller, rows, groups } = useDatabase(viewId, ViewLayoutTypePB.Board);
+  const { controller, rows, groups, groupByFieldId, onNewRowClick, onDragEnd } = useDatabase(
+    viewId,
+    ViewLayoutTypePB.Board
+  );
+  const [showBoardRow, setShowBoardRow] = useState(false);
+  const [boardRowInfo, setBoardRowInfo] = useState<RowInfo>();
+
+  const onOpenRow = (rowInfo: RowInfo) => {
+    setBoardRowInfo(rowInfo);
+    setShowBoardRow(true);
+  };
 
   return (
     <>
@@ -22,24 +36,35 @@ export const Board = ({ viewId }: { viewId: string }) => {
           <SearchInput />
         </div>
       </div>
-      <div className={'relative w-full flex-1 overflow-auto'}>
-        <div className={'absolute flex h-full flex-shrink-0 items-start justify-start gap-4'}>
-          {controller &&
-            groups &&
-            groups.map((group, index) => (
-              <BoardBlock
-                key={index}
-                viewId={viewId}
-                controller={controller}
-                rows={group.rows}
-                title={group.name}
-                allRows={rows}
-              />
-            ))}
-
-          <NewBoardBlock onClick={() => console.log('new block')}></NewBoardBlock>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className={'relative w-full flex-1 overflow-auto'}>
+          <div className={'absolute flex h-full flex-shrink-0 items-start justify-start gap-4'}>
+            {controller &&
+              groups &&
+              groups.map((group, index) => (
+                <BoardBlock
+                  key={group.groupId}
+                  viewId={viewId}
+                  controller={controller}
+                  group={group}
+                  allRows={rows}
+                  groupByFieldId={groupByFieldId}
+                  onNewRowClick={() => onNewRowClick(index)}
+                  onOpenRow={onOpenRow}
+                />
+              ))}
+            <NewBoardBlock onClick={() => console.log('new block')}></NewBoardBlock>
+          </div>
         </div>
-      </div>
+      </DragDropContext>
+      {controller && showBoardRow && boardRowInfo && (
+        <EditRow
+          onClose={() => setShowBoardRow(false)}
+          viewId={viewId}
+          controller={controller}
+          rowInfo={boardRowInfo}
+        ></EditRow>
+      )}
     </>
   );
 };
