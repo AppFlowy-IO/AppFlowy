@@ -53,7 +53,10 @@ class _TitleNodeWidgetState extends State<_TitleNodeWidget> {
     super.initState();
     docBloc = context.read<DocumentBloc>();
     textEditingController = TextEditingController.fromValue(
-        TextEditingValue(text: docBloc!.view.name.toString()));
+      TextEditingValue(
+        text: docBloc!.view.name.toString(),
+      ),
+    );
   }
 
   @override
@@ -68,18 +71,29 @@ class _TitleNodeWidgetState extends State<_TitleNodeWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    Color textColor = theme.colorScheme.onSurface;
     return MouseRegion(
-        child: EditableText(
-      controller: textEditingController,
-      autofocus: true,
-      focusNode: focusNode,
-      style: const TextStyle(
-          color: Colors.black, fontSize: 50.0, fontWeight: FontWeight.bold),
-      cursorColor: Colors.blue,
-      backgroundCursorColor: Colors.blue,
-      onSubmitted: (value) {
-        updateName(value);
+      child: EditableText(
+        controller: textEditingController,
+        autofocus: true,
+        focusNode: focusNode,
+        selectionColor: theme.highlightColor,
+        style: TextStyle(
+            color: textColor, fontSize: 50.0, fontWeight: FontWeight.bold),
+        cursorColor: theme.highlightColor,
+        backgroundCursorColor: theme.highlightColor,
+        onSubmitted: (value) {
+          updateName(value);
+        },
+      ),
+      onExit: (e) {
+        updateName(textEditingController.text);
+        focusNode.unfocus();
       },
-    ));
+      onHover: (e) {
+        focusNode.requestFocus();
+      },
+    );
   }
 }
