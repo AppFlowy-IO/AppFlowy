@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { CellOptions } from '../../_shared/EditRow/CellOptions';
 import { CellIdentifier } from '@/appflowy_app/stores/effects/database/cell/cell_bd_svc';
 import { CellCache } from '@/appflowy_app/stores/effects/database/cell/cell_cache';
@@ -16,11 +16,8 @@ export default function GridSingleSelectOptions({
   cellCache: CellCache;
   fieldController: FieldController;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const { data } = useCell(cellIdentifier, cellCache, fieldController);
 
-  const { data, cellController } = useCell(cellIdentifier, cellCache, fieldController);
-
-  const [value, setValue] = useState((data as SelectOptionCellDataPB) || '');
   const [showOptionsPopup, setShowOptionsPopup] = useState(false);
   const [changeOptionsTop, setChangeOptionsTop] = useState(0);
   const [changeOptionsLeft, setChangeOptionsLeft] = useState(0);
@@ -31,9 +28,6 @@ export default function GridSingleSelectOptions({
     setShowOptionsPopup(true);
   };
 
-  useEffect(() => {
-    if (data) setValue(data as SelectOptionCellDataPB);
-  }, [data]);
   return (
     <>
       <div className='flex w-full cursor-pointer justify-start'>
