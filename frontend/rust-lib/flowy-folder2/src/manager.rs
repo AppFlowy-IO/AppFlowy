@@ -64,6 +64,20 @@ impl Folder2Manager {
   }
 
   pub async fn get_current_workspace_views(&self) -> FlowyResult<Vec<View>> {
+    let workspace_id = self
+      .folder
+      .lock()
+      .as_ref()
+      .map(|folder| folder.get_current_workspace_id());
+
+    if let Some(Some(workspace_id)) = workspace_id {
+      self.get_workspace_views(&workspace_id).await
+    } else {
+      Ok(vec![])
+    }
+  }
+
+  pub async fn get_workspace_views(&self, workspace_id: &str) -> FlowyResult<Vec<View>> {
     let views = self.with_folder(vec![], |folder| {
       let trash_ids = folder
         .trash
@@ -72,30 +86,12 @@ impl Folder2Manager {
         .map(|trash| trash.id)
         .collect::<Vec<String>>();
 
-      let mut views = folder.get_views_belong_to_current_workspace();
+      let mut views = folder.get_workspace_views(workspace_id);
       views.retain(|view| !trash_ids.contains(&view.id));
       views
     });
 
     Ok(views)
-  }
-
-  pub async fn get_workspace_views<F>(
-    &self,
-    workspace_id: &str,
-    filter: F,
-  ) -> FlowyResult<Vec<View>>
-  where
-    F: Fn(&ViewLayout) -> bool,
-  {
-    Ok(self.with_folder(vec![], |folder| {
-      folder
-        .views
-        .get_views_belong_to(workspace_id)
-        .into_iter()
-        .filter(|view| filter(&view.layout))
-        .collect::<Vec<_>>()
-    }))
   }
 
   /// Called immediately after the application launched with the user sign in/sign up.
@@ -553,7 +549,7 @@ fn notify_parent_view_did_change<T: AsRef<str>>(
     // if the view's bid is equal to workspace id. Then it will fetch the current
     // workspace views. Because the the workspace is not a view stored in the views map.
     if parent_view_id == workspace_id {
-      let mut child_views = folder.get_views_belong_to_current_workspace();
+      let mut child_views = folder.get_current_workspace_views();
       child_views.retain(|view| !trash_ids.contains(&view.id));
       let repeated_view: RepeatedViewPB = child_views.into();
       send_notification(&workspace_id, FolderNotification::DidUpdateWorkspaceViews)

@@ -8,7 +8,7 @@ members = [
   "flowy-user",
   "flowy-test",
   "flowy-sqlite",
-#  "flowy-folder",
+#  "flowy-folder",r
   "flowy-folder2",
   "flowy-notification",
   "flowy-document",
@@ -37,8 +37,10 @@ opt-level = 3
 ## the amount of IO and the size of ./target, which make caching less effective.
 incremental = false
 
-
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f25ce7f" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f25ce7f" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f25ce7f" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab"  }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab"  }
+collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab" }
+#collab = { path = "../AppFlowy-Collab/collab" }
+#collab-folder = { path = "../AppFlowy-Collab/collab-folder" }
+#collab-persistence = { path = "../AppFlowy-Collab/collab-persistence" }
