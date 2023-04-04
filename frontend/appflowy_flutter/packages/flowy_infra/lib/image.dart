@@ -1,6 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:flutter/material.dart';
 
 /// For icon that needs to change color when it is on hovered
 ///
@@ -29,9 +29,17 @@ Widget svgWidget(String name, {Size? size, Color? color}) {
   if (size != null) {
     return SizedBox.fromSize(
       size: size,
-      child: SvgPicture.asset('assets/images/$name.svg', color: color),
+      child: SvgPicture.asset(
+        'assets/images/$name.svg',
+        colorFilter:
+            color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      ),
     );
   } else {
-    return SvgPicture.asset('assets/images/$name.svg', color: color);
+    return SvgPicture.asset(
+      'assets/images/$name.svg',
+      colorFilter:
+          color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+    );
   }
 }
