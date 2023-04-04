@@ -52,8 +52,7 @@ class _SliverChecklistProgressBarDelegate
   ) {
     return BlocBuilder<ChecklistCellEditorBloc, ChecklistCellEditorState>(
       builder: (context, state) {
-        return Container(
-          color: Theme.of(context).colorScheme.background,
+        return Padding(
           padding: GridSize.typeOptionContentInsets,
           child: Column(
             children: [

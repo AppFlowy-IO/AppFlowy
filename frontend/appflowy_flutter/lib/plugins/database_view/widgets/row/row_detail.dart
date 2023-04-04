@@ -299,7 +299,6 @@ class _PropertyCellState extends State<_PropertyCell> {
               child: SizedBox(
                 width: 150,
                 child: FieldCellButton(
-                  maxLines: null,
                   field: widget.cellId.fieldInfo.field,
                   onTap: () => popover.show(),
                 ),

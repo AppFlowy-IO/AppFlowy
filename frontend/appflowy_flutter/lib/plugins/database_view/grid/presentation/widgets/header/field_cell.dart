@@ -172,7 +172,7 @@ class FieldCellButton extends StatelessWidget {
       leftIcon: FlowySvg(
         name: field.fieldType.iconName(),
       ),
-      radius: BorderRadius.zero,
+      radius: BorderRadius.circular(6),
       text: FlowyText.medium(
         text,
         maxLines: maxLines,
