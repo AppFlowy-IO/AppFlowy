@@ -9,7 +9,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart'
         CreateViewPayloadPB,
         MoveFolderItemPayloadPB,
         MoveFolderItemType,
-        ViewLayoutTypePB,
+        ViewLayoutPB,
         ViewPB;
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 
@@ -26,7 +26,7 @@ class WorkspaceService {
       ..belongToId = workspaceId
       ..name = name
       ..desc = desc ?? ""
-      ..layout = ViewLayoutTypePB.Document;
+      ..layout = ViewLayoutPB.Document;
 
     return FolderEventCreateView(payload).send();
   }

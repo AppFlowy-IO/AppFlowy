@@ -261,7 +261,7 @@ class HomeScreenStackAdaptor extends HomeStackDelegate {
   @override
   void didDeleteStackWidget(ViewPB view, int? index) {
     final homeService = HomeService();
-    homeService.readApp(appId: view.appId).then((result) {
+    homeService.readApp(appId: view.parentViewId).then((result) {
       result.fold(
         (parentView) {
           final List<ViewPB> views = parentView.belongings;

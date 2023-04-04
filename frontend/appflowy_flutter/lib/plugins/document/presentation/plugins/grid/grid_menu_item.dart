@@ -23,7 +23,7 @@ SelectionMenuItem gridMenuItem = SelectionMenuItem(
       editorState,
       menuService,
       context,
-      ViewLayoutTypePB.Grid,
+      ViewLayoutPB.Grid,
     );
   },
 );

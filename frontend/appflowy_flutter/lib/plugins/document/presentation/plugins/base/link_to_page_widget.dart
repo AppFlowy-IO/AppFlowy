@@ -17,7 +17,7 @@ void showLinkToPageMenu(
   EditorState editorState,
   SelectionMenuService menuService,
   BuildContext context,
-  ViewLayoutTypePB pageType,
+  ViewLayoutPB pageType,
 ) {
   final alignment = menuService.alignment;
   final offset = menuService.offset;
@@ -27,10 +27,10 @@ void showLinkToPageMenu(
 
   String hintText = '';
   switch (pageType) {
-    case ViewLayoutTypePB.Grid:
+    case ViewLayoutPB.Grid:
       hintText = LocaleKeys.document_slashMenu_grid_selectAGridToLinkTo.tr();
       break;
-    case ViewLayoutTypePB.Board:
+    case ViewLayoutPB.Board:
       hintText = LocaleKeys.document_slashMenu_board_selectABoardToLinkTo.tr();
       break;
     default:
@@ -82,7 +82,7 @@ class LinkToPageMenu extends StatefulWidget {
   });
 
   final EditorState editorState;
-  final ViewLayoutTypePB layoutType;
+  final ViewLayoutPB layoutType;
   final String hintText;
   final void Function(ViewPB view, ViewPB childView) onSelected;
 
@@ -174,9 +174,9 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
 
   String _iconName(ViewPB viewPB) {
     switch (viewPB.layout) {
-      case ViewLayoutTypePB.Grid:
+      case ViewLayoutPB.Grid:
         return 'editor/grid';
-      case ViewLayoutTypePB.Board:
+      case ViewLayoutPB.Board:
         return 'editor/board';
       default:
         throw Exception('Unknown layout type');

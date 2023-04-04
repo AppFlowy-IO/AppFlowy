@@ -46,7 +46,7 @@ use_bunyan = ["lib-log/use_bunyan"]
 dart = [
     "flowy-user/dart",
     "flowy-net/dart",
-    "flowy-folder/dart",
+#    "flowy-folder/dart",
     "flowy-folder2/dart",
     "flowy-database/dart",
     "flowy-document/dart",
@@ -54,7 +54,7 @@ dart = [
 ts = [
     "flowy-user/ts",
     "flowy-net/ts",
-    "flowy-folder/ts",
+#    "flowy-folder/ts",
     "flowy-folder2/ts",
     "flowy-database/ts",
     "flowy-document/ts",

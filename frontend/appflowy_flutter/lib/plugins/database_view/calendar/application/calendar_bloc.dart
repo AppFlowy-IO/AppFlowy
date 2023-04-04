@@ -28,7 +28,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   CalendarBloc({required ViewPB view})
       : _databaseController = DatabaseController(
           view: view,
-          layoutType: LayoutTypePB.Calendar,
+          layoutType: DatabaseLayoutPB.Calendar,
         ),
         super(CalendarState.initial()) {
     on<CalendarEvent>(

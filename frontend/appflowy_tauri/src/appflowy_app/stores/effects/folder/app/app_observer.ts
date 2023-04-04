@@ -1,5 +1,5 @@
 import { Ok, Result } from 'ts-results';
-import { AppPB, FlowyError, FolderNotification, RepeatedViewPB } from '@/services/backend';
+import { FlowyError, FolderNotification, RepeatedViewPB } from '@/services/backend';
 import { ChangeNotifier } from '$app/utils/change_notifier';
 import { FolderNotificationObserver } from '../notifications/observer';
 

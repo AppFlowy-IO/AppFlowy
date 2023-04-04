@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  FieldType,
-  NumberFormat,
-  NumberTypeOptionPB,
-  SelectOptionCellDataPB,
-  ViewLayoutTypePB,
-} from '@/services/backend';
+import { FieldType, NumberFormat, NumberTypeOptionPB, SelectOptionCellDataPB, ViewLayoutPB } from '@/services/backend';
 import { Log } from '$app/utils/log';
 import {
   assert,
@@ -60,7 +54,7 @@ export const RunAllGridTests = () => {
 };
 
 async function createBuildInGrid() {
-  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   databaseController.subscribe({
     onViewChanged: (databasePB) => {
@@ -82,7 +76,7 @@ async function createBuildInGrid() {
 }
 
 async function testEditGridCell() {
-  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
 
@@ -95,7 +89,7 @@ async function testEditGridCell() {
 }
 
 async function testEditTextCell() {
-  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
 
@@ -117,7 +111,7 @@ async function testEditTextCell() {
 }
 
 async function testEditURLCell() {
-  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
 
@@ -144,7 +138,7 @@ async function testEditURLCell() {
 }
 
 async function testEditDateCell() {
-  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
 
@@ -169,7 +163,7 @@ async function testEditDateCell() {
 }
 
 async function testCheckboxCell() {
-  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
 
@@ -195,7 +189,7 @@ async function testCheckboxCell() {
 }
 
 async function testCreateRow() {
-  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
   await assertNumberOfRows(view.id, 3);
@@ -207,7 +201,7 @@ async function testCreateRow() {
 }
 
 async function testDeleteRow() {
-  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
 
@@ -226,7 +220,7 @@ async function testDeleteRow() {
 }
 
 async function testCreateOptionInCell() {
-  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
   for (const [index, row] of databaseController.databaseViewCache.rowInfos.entries()) {
@@ -253,7 +247,7 @@ async function testCreateOptionInCell() {
 }
 
 async function testMoveField() {
-  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
 
@@ -271,7 +265,7 @@ async function testMoveField() {
 }
 
 async function testGetSingleSelectFieldData() {
-  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
 
@@ -296,7 +290,7 @@ async function testGetSingleSelectFieldData() {
 }
 
 async function testSwitchFromSingleSelectToNumber() {
-  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
 
@@ -322,7 +316,7 @@ async function testSwitchFromSingleSelectToNumber() {
 }
 
 async function testSwitchFromMultiSelectToRichText() {
-  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
 
@@ -372,7 +366,7 @@ async function testSwitchFromMultiSelectToRichText() {
 }
 
 async function testEditField() {
-  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
   const fieldInfos = databaseController.fieldController.fieldInfos;
@@ -390,7 +384,7 @@ async function testEditField() {
 }
 
 async function testCreateNewField() {
-  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
   await assertNumberOfFields(view.id, 3);
@@ -403,7 +397,7 @@ async function testCreateNewField() {
 }
 
 async function testDeleteField() {
-  const view = await createTestDatabaseView(ViewLayoutTypePB.Grid);
+  const view = await createTestDatabaseView(ViewLayoutPB.Grid);
   const databaseController = await openTestDatabase(view.id);
   await databaseController.open().then((result) => result.unwrap());
 

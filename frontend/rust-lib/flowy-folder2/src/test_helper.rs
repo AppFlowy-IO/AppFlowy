@@ -1,4 +1,4 @@
-use crate::entities::{CreateViewParams, ViewLayoutTypePB};
+use crate::entities::{CreateViewParams, ViewLayoutPB};
 use crate::manager::Folder2Manager;
 use crate::view_ext::gen_view_id;
 use std::collections::HashMap;
@@ -12,7 +12,7 @@ impl Folder2Manager {
     ext: HashMap<String, String>,
   ) -> String {
     self
-      .create_test_view(app_id, name, ViewLayoutTypePB::Grid, ext)
+      .create_test_view(app_id, name, ViewLayoutPB::Grid, ext)
       .await
   }
 
@@ -23,7 +23,7 @@ impl Folder2Manager {
     ext: HashMap<String, String>,
   ) -> String {
     self
-      .create_test_view(app_id, name, ViewLayoutTypePB::Board, ext)
+      .create_test_view(app_id, name, ViewLayoutPB::Board, ext)
       .await
   }
 
@@ -31,7 +31,7 @@ impl Folder2Manager {
     &self,
     app_id: &str,
     name: &str,
-    layout: ViewLayoutTypePB,
+    layout: ViewLayoutPB,
     ext: HashMap<String, String>,
   ) -> String {
     let view_id = gen_view_id();

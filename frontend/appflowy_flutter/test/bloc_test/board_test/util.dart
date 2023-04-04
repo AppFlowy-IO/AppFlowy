@@ -43,7 +43,7 @@ class AppFlowyBoardTest {
             view,
             DatabaseController(
               view: view,
-              layoutType: LayoutTypePB.Board,
+              layoutType: DatabaseLayoutPB.Board,
             ),
           );
           final result = await context._boardDataController.open();

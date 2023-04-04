@@ -30,9 +30,9 @@ extension InsertPage on EditorState {
 
   String _convertPageType(ViewPB viewPB) {
     switch (viewPB.layout) {
-      case ViewLayoutTypePB.Grid:
+      case ViewLayoutPB.Grid:
         return kGridType;
-      case ViewLayoutTypePB.Board:
+      case ViewLayoutPB.Board:
         return kBoardType;
       default:
         throw Exception('Unknown layout type');

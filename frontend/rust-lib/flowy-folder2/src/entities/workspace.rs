@@ -2,7 +2,7 @@ use crate::{
   entities::parser::workspace::{WorkspaceDesc, WorkspaceIdentify, WorkspaceName},
   entities::view::ViewPB,
 };
-use collab_folder::core::{View, Workspace};
+use collab_folder::core::Workspace;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use std::convert::TryInto;
@@ -22,13 +22,13 @@ pub struct WorkspacePB {
   pub create_time: i64,
 }
 
-impl std::convert::From<(Workspace, Vec<View>)> for WorkspacePB {
-  fn from(params: (Workspace, Vec<View>)) -> Self {
+impl std::convert::From<(Workspace, Vec<ViewPB>)> for WorkspacePB {
+  fn from(params: (Workspace, Vec<ViewPB>)) -> Self {
     let (workspace, views) = params;
     WorkspacePB {
       id: workspace.id,
       name: workspace.name,
-      views: views.into_iter().map(|view| view.into()).collect(),
+      views,
       create_time: workspace.created_at,
     }
   }

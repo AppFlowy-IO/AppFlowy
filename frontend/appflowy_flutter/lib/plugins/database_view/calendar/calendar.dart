@@ -29,7 +29,7 @@ class CalendarPluginBuilder extends PluginBuilder {
   PluginType get pluginType => PluginType.calendar;
 
   @override
-  ViewLayoutTypePB? get layoutType => ViewLayoutTypePB.Calendar;
+  ViewLayoutPB? get layoutType => ViewLayoutPB.Calendar;
 }
 
 class CalendarPluginConfig implements PluginConfig {

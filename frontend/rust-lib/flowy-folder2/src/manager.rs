@@ -63,7 +63,7 @@ impl Folder2Manager {
     }
   }
 
-  pub async fn get_current_workspace_views(&self) -> FlowyResult<Vec<View>> {
+  pub async fn get_current_workspace_views(&self) -> FlowyResult<Vec<ViewPB>> {
     let workspace_id = self
       .folder
       .lock()
@@ -77,18 +77,9 @@ impl Folder2Manager {
     }
   }
 
-  pub async fn get_workspace_views(&self, workspace_id: &str) -> FlowyResult<Vec<View>> {
+  pub async fn get_workspace_views(&self, workspace_id: &str) -> FlowyResult<Vec<ViewPB>> {
     let views = self.with_folder(vec![], |folder| {
-      let trash_ids = folder
-        .trash
-        .get_all_trash()
-        .into_iter()
-        .map(|trash| trash.id)
-        .collect::<Vec<String>>();
-
-      let mut views = folder.get_workspace_views(workspace_id);
-      views.retain(|view| !trash_ids.contains(&view.id));
-      views
+      get_workspace_view_pbs(workspace_id, folder)
     });
 
     Ok(views)
@@ -528,6 +519,34 @@ fn listen_on_trash_change(mut rx: TrashChangeReceiver, folder: Folder) {
   });
 }
 
+fn get_workspace_view_pbs(workspace_id: &str, folder: &InnerFolder) -> Vec<ViewPB> {
+  let trash_ids = folder
+    .trash
+    .get_all_trash()
+    .into_iter()
+    .map(|trash| trash.id)
+    .collect::<Vec<String>>();
+
+  let mut views = folder.get_workspace_views(workspace_id);
+  views.retain(|view| !trash_ids.contains(&view.id));
+
+  views
+    .into_iter()
+    .map(|view| {
+      let mut parent_view: ViewPB = view.into();
+
+      // Get child views
+      parent_view.belongings = folder
+        .views
+        .get_views_belong_to(&parent_view.id)
+        .into_iter()
+        .map(|view| view.into())
+        .collect();
+      parent_view
+    })
+    .collect()
+}
+
 #[tracing::instrument(level = "debug", skip(folder, parent_view_ids))]
 fn notify_parent_view_did_change<T: AsRef<str>>(
   folder: Folder,
@@ -549,9 +568,7 @@ fn notify_parent_view_did_change<T: AsRef<str>>(
     // if the view's bid is equal to workspace id. Then it will fetch the current
     // workspace views. Because the the workspace is not a view stored in the views map.
     if parent_view_id == workspace_id {
-      let mut child_views = folder.get_current_workspace_views();
-      child_views.retain(|view| !trash_ids.contains(&view.id));
-      let repeated_view: RepeatedViewPB = child_views.into();
+      let repeated_view: RepeatedViewPB = get_workspace_view_pbs(&workspace_id, folder).into();
       send_notification(&workspace_id, FolderNotification::DidUpdateWorkspaceViews)
         .payload(repeated_view)
         .send();

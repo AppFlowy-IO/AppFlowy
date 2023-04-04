@@ -24,7 +24,7 @@ SelectionMenuItem boardMenuItem = SelectionMenuItem(
       editorState,
       menuService,
       context,
-      ViewLayoutTypePB.Board,
+      ViewLayoutPB.Board,
     );
   },
 );

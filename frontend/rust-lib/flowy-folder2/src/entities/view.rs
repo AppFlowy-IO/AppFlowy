@@ -1,7 +1,4 @@
-use crate::entities::parser::{
-  app::AppIdentify,
-  view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail},
-};
+use crate::entities::parser::view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail};
 use crate::view_ext::gen_view_id;
 use collab_folder::core::{View, ViewLayout};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
@@ -16,7 +13,7 @@ pub struct ViewPB {
   pub id: String,
 
   #[pb(index = 2)]
-  pub app_id: String,
+  pub parent_view_id: String,
 
   #[pb(index = 3)]
   pub name: String,
@@ -28,14 +25,14 @@ pub struct ViewPB {
   pub belongings: Vec<ViewPB>,
 
   #[pb(index = 6)]
-  pub layout: ViewLayoutTypePB,
+  pub layout: ViewLayoutPB,
 }
 
 impl std::convert::From<View> for ViewPB {
   fn from(view: View) -> Self {
     ViewPB {
       id: view.id,
-      app_id: view.bid,
+      parent_view_id: view.bid,
       name: view.name,
       create_time: view.created_at,
       belongings: Default::default(),
@@ -45,26 +42,35 @@ impl std::convert::From<View> for ViewPB {
 }
 
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone)]
-pub enum ViewLayoutTypePB {
+pub enum ViewLayoutPB {
   Document = 0,
   Grid = 3,
   Board = 4,
   Calendar = 5,
 }
 
-impl std::default::Default for ViewLayoutTypePB {
+impl std::default::Default for ViewLayoutPB {
   fn default() -> Self {
-    ViewLayoutTypePB::Grid
+    ViewLayoutPB::Grid
   }
 }
 
-impl std::convert::From<ViewLayout> for ViewLayoutTypePB {
+impl ViewLayoutPB {
+  pub fn is_database(&self) -> bool {
+    matches!(
+      self,
+      ViewLayoutPB::Grid | ViewLayoutPB::Board | ViewLayoutPB::Calendar
+    )
+  }
+}
+
+impl std::convert::From<ViewLayout> for ViewLayoutPB {
   fn from(rev: ViewLayout) -> Self {
     match rev {
-      ViewLayout::Grid => ViewLayoutTypePB::Grid,
-      ViewLayout::Board => ViewLayoutTypePB::Board,
-      ViewLayout::Document => ViewLayoutTypePB::Document,
-      ViewLayout::Calendar => ViewLayoutTypePB::Calendar,
+      ViewLayout::Grid => ViewLayoutPB::Grid,
+      ViewLayout::Board => ViewLayoutPB::Board,
+      ViewLayout::Document => ViewLayoutPB::Document,
+      ViewLayout::Calendar => ViewLayoutPB::Calendar,
     }
   }
 }
@@ -75,12 +81,8 @@ pub struct RepeatedViewPB {
   pub items: Vec<ViewPB>,
 }
 
-impl std::convert::From<Vec<View>> for RepeatedViewPB {
-  fn from(views: Vec<View>) -> Self {
-    let items = views
-      .into_iter()
-      .map(|value| value.into())
-      .collect::<Vec<ViewPB>>();
+impl std::convert::From<Vec<ViewPB>> for RepeatedViewPB {
+  fn from(items: Vec<ViewPB>) -> Self {
     RepeatedViewPB { items }
   }
 }
@@ -120,7 +122,7 @@ pub struct CreateViewPayloadPB {
   pub thumbnail: Option<String>,
 
   #[pb(index = 5)]
-  pub layout: ViewLayoutTypePB,
+  pub layout: ViewLayoutPB,
 
   #[pb(index = 6)]
   pub initial_data: Vec<u8>,
@@ -134,7 +136,7 @@ pub struct CreateViewParams {
   pub belong_to_id: String,
   pub name: String,
   pub desc: String,
-  pub layout: ViewLayoutTypePB,
+  pub layout: ViewLayoutPB,
   pub view_id: String,
   pub initial_data: Vec<u8>,
   pub ext: HashMap<String, String>,
@@ -145,7 +147,7 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
 
   fn try_into(self) -> Result<CreateViewParams, Self::Error> {
     let name = ViewName::parse(self.name)?.0;
-    let belong_to_id = AppIdentify::parse(self.belong_to_id)?.0;
+    let belong_to_id = ViewIdentify::parse(self.belong_to_id)?.0;
     let view_id = gen_view_id();
 
     Ok(CreateViewParams {
