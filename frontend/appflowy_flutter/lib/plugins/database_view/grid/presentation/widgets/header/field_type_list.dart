@@ -61,7 +61,7 @@ class FieldTypeCell extends StatelessWidget {
         onTap: () => onSelectField(fieldType),
         leftIcon: svgWidget(
           fieldType.iconName(),
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).iconTheme.color,
         ),
       ),
     );

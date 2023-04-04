@@ -103,7 +103,7 @@ class _CloseButton extends StatelessWidget {
       iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
       icon: svgWidget(
         "home/close",
-        color: Theme.of(context).colorScheme.onSurface,
+        color: Theme.of(context).iconTheme.color,
       ),
     );
   }

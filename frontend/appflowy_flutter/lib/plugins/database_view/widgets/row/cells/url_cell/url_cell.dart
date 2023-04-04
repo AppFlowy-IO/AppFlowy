@@ -213,7 +213,7 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
       offset: const Offset(0, 8),
       child: svgWidget(
         "editor/edit",
-        color: Theme.of(context).colorScheme.onSurface,
+        color: Theme.of(context).iconTheme.color,
       ),
       popupBuilder: (BuildContext popoverContext) {
         return URLEditorPopover(
@@ -246,7 +246,7 @@ class _CopyURLAccessoryState extends State<_CopyURLAccessory>
   Widget build(BuildContext context) {
     return svgWidget(
       "editor/copy",
-      color: Theme.of(context).colorScheme.onSurface,
+      color: Theme.of(context).iconTheme.color,
     );
   }
 

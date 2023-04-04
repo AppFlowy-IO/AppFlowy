@@ -48,6 +48,9 @@ class BubbleActionList extends StatelessWidget {
           '?',
           tooltip: LocaleKeys.questionBubble_help.tr(),
           fontWeight: FontWeight.w600,
+          fontColor: Theme.of(context).colorScheme.tertiary,
+          fillColor: Theme.of(context).colorScheme.tertiaryContainer,
+          hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
           mainAxisAlignment: MainAxisAlignment.center,
           radius: Corners.s10Border,
           onPressed: () => controller.show(),
@@ -200,7 +203,7 @@ extension QuestionBubbleExtension on BubbleAction {
       case BubbleAction.debug:
         return '🐛';
       case BubbleAction.shortcuts:
-        return '⌨️';
+        return '📋';
     }
   }
 }

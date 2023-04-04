@@ -98,16 +98,6 @@ export class DatabaseBackendService {
     return DatabaseEventMoveGroup(payload);
   };
 
-  moveField = (fieldId: string, fromIndex: number, toIndex: number) => {
-    const payload = MoveFieldPayloadPB.fromObject({
-      view_id: this.viewId,
-      field_id: fieldId,
-      from_index: fromIndex,
-      to_index: toIndex,
-    });
-    return DatabaseEventMoveField(payload);
-  };
-
   /// Get all fields in database
   getFields = async (fieldIds?: FieldIdPB[]) => {
     const payload = GetFieldPayloadPB.fromObject({ view_id: this.viewId });
@@ -123,6 +113,16 @@ export class DatabaseBackendService {
   getGroup = (groupId: string) => {
     const payload = DatabaseGroupIdPB.fromObject({ view_id: this.viewId, group_id: groupId });
     return DatabaseEventGetGroup(payload);
+  };
+
+  moveField = (params: { fieldId: string; fromIndex: number; toIndex: number }) => {
+    const payload = MoveFieldPayloadPB.fromObject({
+      view_id: this.viewId,
+      field_id: params.fieldId,
+      from_index: params.fromIndex,
+      to_index: params.toIndex,
+    });
+    return DatabaseEventMoveField(payload);
   };
 
   /// Get all groups in database

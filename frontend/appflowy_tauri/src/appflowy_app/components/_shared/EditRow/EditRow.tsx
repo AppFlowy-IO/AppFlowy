@@ -108,7 +108,11 @@ export const EditRow = ({
 
   const onDragEnd: OnDragEndResponder = (result) => {
     if (!result.destination?.index) return;
-    void controller.moveField(result.source.droppableId, result.source.index, result.destination.index);
+    void controller.moveField({
+      fieldId: result.source.droppableId,
+      fromIndex: result.source.index,
+      toIndex: result.destination.index,
+    });
   };
 
   return (

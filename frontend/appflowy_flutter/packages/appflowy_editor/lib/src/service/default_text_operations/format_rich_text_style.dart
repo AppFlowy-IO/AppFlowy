@@ -91,6 +91,13 @@ void formatBulletedList(EditorState editorState) {
   });
 }
 
+void formatNumberedList(EditorState editorState) {
+  formatTextNodes(editorState, {
+    BuiltInAttributeKey.subtype: BuiltInAttributeKey.numberList,
+    BuiltInAttributeKey.number: 1,
+  });
+}
+
 /// Format the current selection with the given attributes.
 ///
 /// If the selected nodes are not text nodes, this method will do nothing.
