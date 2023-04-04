@@ -65,7 +65,7 @@ export class DatabaseController {
       this.databaseViewCache.initializeWithRows(database.rows);
 
       this._callback?.onViewChanged?.(database);
-      return loadGroupResult;
+      return Ok(database.rows);
     } else {
       return Err(openDatabaseResult.val);
     }
