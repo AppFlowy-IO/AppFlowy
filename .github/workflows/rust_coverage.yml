@@ -38,15 +38,18 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: 
+            frontend/rust-lib
+            shared-lib
+          key: ${{ matrix.platform }}
+
       - name: Install prerequisites
         working-directory: frontend
         run: |
           cargo install --force cargo-make
           cargo install --force duckscript_cli
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          prefix-key: ${{ matrix.job.os }}
 
       - name: Install code-coverage tools
         working-directory: frontend

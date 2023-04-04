@@ -18,6 +18,7 @@ on:
 env:
   FLUTTER_VERSION: "3.7.5"
   RUST_TOOLCHAIN: "1.65"
+  global-cache-key: "rustBuildCache"
 
 jobs:
   build:

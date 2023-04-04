@@ -21,6 +21,7 @@ env:
   CARGO_TERM_COLOR: always
   RUST_TOOLCHAIN: "1.65"
   FLUTTER_VERSION: "3.7.5"
+  global-cache-key: "rustCacheBuild"
 
 jobs:
   test-on-ubuntu:

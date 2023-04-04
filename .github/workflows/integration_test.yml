@@ -17,6 +17,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  testCache: "intergrationCache"
 
 jobs:
   tests:
@@ -38,21 +39,15 @@ jobs:
           flutter-version: "3.7.5"
           cache: true
 
-      - name: Cache Cargo
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo
-          key: ${{ runner.os }}-cargo-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
-
       - name: Cache Rust
         id: cache-rust-target
-        uses: actions/cache@v2
+        uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            frontend/rust-lib/target
-            shared-lib/target
-          key: ${{ runner.os }}-rust-rust-lib-share-lib-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
+          workspaces: |
+            frontend/rust-lib
+            shared-lib
+          key: intergration-${{matrix.job.os}}
+          shared-key: ${{env.testCache}}
 
       - name: Setup Environment
         run: |
@@ -71,12 +66,9 @@ jobs:
           fi
         shell: bash
 
-      - if: steps.cache-cargo.outputs.cache-hit != 'true'
-        name: Rust Deps
+      - name: Rust Deps
         working-directory: frontend
-        run: |
-          cargo install cargo-make
-          cargo make appflowy-flutter-deps-tools
+        run: cargo make appflowy-flutter-deps-tools
 
       - name: Config Flutter
         run: |

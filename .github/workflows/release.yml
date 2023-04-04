@@ -266,6 +266,9 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
+          workspaces: |
+            frontend/rust-lib
+            shared-lib
           prefix-key: appflowy-lib-cache
           key: ${{ matrix.job.os }}-${{ matrix.job.target }}
 
