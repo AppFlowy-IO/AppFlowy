@@ -491,7 +491,6 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#306f27e56481eb2a998da4cb9f13763699dade76"
 dependencies = [
  "anyhow",
  "bytes",
@@ -507,9 +506,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "collab-database"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "collab",
+ "collab-derive",
+ "collab-persistence",
+ "nanoid",
+ "parking_lot 0.12.1",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "thiserror",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#306f27e56481eb2a998da4cb9f13763699dade76"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -521,7 +538,6 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#306f27e56481eb2a998da4cb9f13763699dade76"
 dependencies = [
  "anyhow",
  "collab",
@@ -539,7 +555,6 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab#306f27e56481eb2a998da4cb9f13763699dade76"
 dependencies = [
  "bincode",
  "chrono",
@@ -1173,6 +1188,7 @@ dependencies = [
  "database-model",
  "flowy-client-ws",
  "flowy-database",
+ "flowy-database2",
  "flowy-document",
  "flowy-error",
  "flowy-folder",
@@ -1234,6 +1250,40 @@ dependencies = [
  "rayon",
  "regex",
  "revision-model",
+ "rust_decimal",
+ "rusty-money",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "flowy-database2"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "chrono",
+ "collab",
+ "collab-database",
+ "collab-persistence",
+ "database-model",
+ "fancy-regex 0.10.0",
+ "flowy-codegen",
+ "flowy-derive",
+ "flowy-error",
+ "flowy-notification",
+ "flowy-task",
+ "indexmap",
+ "lazy_static",
+ "lib-dispatch",
+ "lib-infra",
+ "parking_lot 0.12.1",
+ "protobuf",
  "rust_decimal",
  "rusty-money",
  "serde",

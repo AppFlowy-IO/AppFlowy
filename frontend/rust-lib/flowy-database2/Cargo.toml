@@ -1,0 +1,40 @@
+[package]
+name = "flowy-database2"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+collab = { version = "0.1.0" }
+collab-database = { version = "0.1.0" }
+collab-persistence = { version = "0.1.0" }
+
+flowy-derive = { path = "../flowy-derive" }
+flowy-notification = { path = "../flowy-notification" }
+parking_lot = "0.12.1"
+protobuf = {version = "2.28.0"}
+flowy-error = { path = "../flowy-error", features = ["adaptor_dispatch"]}
+lib-dispatch = { path = "../lib-dispatch" }
+tokio = { version = "1.26", features = ["sync"] }
+flowy-task= { path = "../flowy-task" }
+bytes = { version = "1.4" }
+tracing = { version = "0.1", features = ["log"] }
+database-model = { path = "../../../shared-lib/database-model" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = {version = "1.0"}
+serde_repr = "0.1"
+lib-infra = { path = "../../../shared-lib/lib-infra" }
+chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
+rust_decimal = "1.28.1"
+rusty-money = {version = "0.4.1", features = ["iso"]}
+lazy_static = "1.4.0"
+indexmap = {version = "1.9.2", features = ["serde"]}
+url = { version = "2"}
+fancy-regex = "0.10.0"
+
+strum = "0.21"
+strum_macros = "0.21"
+
+[build-dependencies]
+flowy-codegen = { path = "../flowy-codegen"}

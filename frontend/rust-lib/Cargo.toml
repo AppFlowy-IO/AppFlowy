@@ -16,6 +16,7 @@ members = [
   "flowy-revision",
   "flowy-revision-persistence",
   "flowy-database",
+  "flowy-database2",
   "flowy-task",
   "flowy-client-sync",
   "flowy-derive",
@@ -38,9 +39,11 @@ opt-level = 3
 incremental = false
 
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab"  }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab"  }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab" }
-#collab = { path = "../AppFlowy-Collab/collab" }
-#collab-folder = { path = "../AppFlowy-Collab/collab-folder" }
-#collab-persistence = { path = "../AppFlowy-Collab/collab-persistence" }
+#collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab"  }
+#collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab"  }
+#collab-database= { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab"  }
+#collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab" }
+collab = { path = "../AppFlowy-Collab/collab" }
+collab-folder = { path = "../AppFlowy-Collab/collab-folder" }
+collab-database= { path = "../AppFlowy-Collab/collab-database" }
+collab-persistence = { path = "../AppFlowy-Collab/collab-persistence" }
