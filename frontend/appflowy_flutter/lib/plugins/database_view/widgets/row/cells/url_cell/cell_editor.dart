@@ -90,14 +90,15 @@ class URLEditorPopover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 200,
-      child: Padding(
-        padding: const EdgeInsets.all(6),
-        child: URLCellEditor(
-          cellController: cellController,
-          onExit: onExit,
-        ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(5),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: URLCellEditor(
+        cellController: cellController,
+        onExit: onExit,
       ),
     );
   }

@@ -216,6 +216,7 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
+      margin: EdgeInsets.zero,
       constraints: BoxConstraints.loose(const Size(300, 160)),
       controller: _popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
@@ -255,7 +256,7 @@ class _CopyURLAccessoryState extends State<_CopyURLAccessory>
   Widget build(BuildContext context) {
     return svgWidget(
       "editor/copy",
-      color: Theme.of(context).iconTheme.color,
+      color: AFThemeExtension.of(context).textColor,
     );
   }
 
