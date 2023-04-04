@@ -32,6 +32,7 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
           FlowyText.semibold(
             LocaleKeys.moreAction_fontSize.tr(),
             fontSize: 12,
+            color: Theme.of(context).colorScheme.tertiary,
           ),
           const SizedBox(
             height: 5,
@@ -43,9 +44,8 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
               _updateSelectedFontSize(_fontSizes[index].item2);
             },
             borderRadius: const BorderRadius.all(Radius.circular(5)),
-            selectedBorderColor: Theme.of(context).colorScheme.primaryContainer,
-            selectedColor: Theme.of(context).colorScheme.onSurface,
-            fillColor: Theme.of(context).colorScheme.primaryContainer,
+            selectedColor: Theme.of(context).colorScheme.tertiary,
+            fillColor: Theme.of(context).colorScheme.primary,
             color: Theme.of(context).hintColor,
             constraints: const BoxConstraints(
               minHeight: 40.0,

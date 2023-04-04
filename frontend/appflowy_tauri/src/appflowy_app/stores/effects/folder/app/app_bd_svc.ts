@@ -6,7 +6,7 @@ import {
   FolderEventReadApp,
   FolderEventUpdateApp,
   ViewLayoutTypePB,
-} from '../../../../../services/backend/events/flowy-folder';
+} from '@/services/backend/events/flowy-folder';
 import {
   AppIdPB,
   UpdateAppPayloadPB,
@@ -16,7 +16,7 @@ import {
   MoveFolderItemPayloadPB,
   MoveFolderItemType,
   FlowyError,
-} from '../../../../../services/backend';
+} from '@/services/backend';
 import { None, Result, Some } from 'ts-results';
 
 export class AppBackendService {

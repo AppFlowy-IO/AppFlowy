@@ -50,8 +50,8 @@ class ThemeSetting extends StatelessWidget {
           direction: PopoverDirection.bottomWithRightAligned,
           child: FlowyTextButton(
             currentTheme,
+            fontColor: Theme.of(context).colorScheme.onBackground,
             fillColor: Colors.transparent,
-            hoverColor: Theme.of(context).colorScheme.secondary,
             onPressed: () {},
           ),
           popupBuilder: (BuildContext context) {
@@ -59,7 +59,7 @@ class ThemeSetting extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _themeItemButton(context, BuiltInTheme.light),
+                  _themeItemButton(context, BuiltInTheme.defaultTheme),
                   _themeItemButton(context, BuiltInTheme.dandelion),
                   _themeItemButton(context, BuiltInTheme.lavender),
                 ],
@@ -107,8 +107,8 @@ class ThemeModeSetting extends StatelessWidget {
           direction: PopoverDirection.bottomWithRightAligned,
           child: FlowyTextButton(
             _themeModeLabelText(currentThemeMode),
+            fontColor: Theme.of(context).colorScheme.onBackground,
             fillColor: Colors.transparent,
-            hoverColor: Theme.of(context).colorScheme.secondary,
             onPressed: () {},
           ),
           popupBuilder: (BuildContext context) {

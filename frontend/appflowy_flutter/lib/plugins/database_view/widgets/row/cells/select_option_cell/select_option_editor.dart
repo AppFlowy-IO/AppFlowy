@@ -210,7 +210,7 @@ class _CreateOptionCell extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: SelectOptionTag(
                   name: name,
-                  color: AFThemeExtension.of(context).lightGreyHover,
+                  color: AFThemeExtension.of(context).greyHover,
                   onSelected: () => context
                       .read<SelectOptionCellEditorBloc>()
                       .add(SelectOptionEditorEvent.newOption(name)),
@@ -277,7 +277,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
             iconPadding: const EdgeInsets.symmetric(horizontal: 6.0),
             icon: svgWidget(
               "editor/details",
-              color: Theme.of(context).colorScheme.onSurface,
+              color: Theme.of(context).iconTheme.color,
             ),
           ),
         ],

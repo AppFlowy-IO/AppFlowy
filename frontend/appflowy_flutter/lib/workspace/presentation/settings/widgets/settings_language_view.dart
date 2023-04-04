@@ -47,7 +47,7 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
 
   void hoverEnterLanguage() {
     setState(() {
-      currHoverColor = Theme.of(context).colorScheme.primary;
+      currHoverColor = Theme.of(context).colorScheme.secondaryContainer;
     });
   }
 
@@ -67,6 +67,7 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
             padding: const EdgeInsets.symmetric(horizontal: 6),
             child: DropdownButton<Locale>(
               value: context.locale,
+              dropdownColor: Theme.of(context).cardColor,
               onChanged: (locale) {
                 context
                     .read<AppearanceSettingsCubit>()
@@ -80,7 +81,10 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
                   value: locale,
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
-                    child: FlowyText.medium(languageFromLocale(locale)),
+                    child: FlowyText.medium(
+                      languageFromLocale(locale),
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
                   ),
                 );
               }).toList(),

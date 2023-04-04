@@ -17,7 +17,7 @@ class RootOverlayEntry {
     bool asBarrier,
   ) {
     _entries[newState] = OverlayEntryContext(entry, newState, asBarrier);
-    Overlay.of(context)?.insert(entry);
+    Overlay.of(context).insert(entry);
   }
 
   bool contains(PopoverState oldState) {

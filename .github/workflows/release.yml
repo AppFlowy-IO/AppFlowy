@@ -3,10 +3,10 @@ name: release
 on:
   push:
     tags:
-      - '*'
+      - "*"
 
 env:
-  FLUTTER_VERSION: "3.3.9"
+  FLUTTER_VERSION: "3.7.5"
   RUST_TOOLCHAIN: "1.65"
 
 jobs:
@@ -136,7 +136,11 @@ jobs:
       fail-fast: false
       matrix:
         job:
-          - { target: x86_64-apple-darwin, os: macos-10.15, extra-build-args: "" }
+          - {
+              target: x86_64-apple-darwin,
+              os: macos-10.15,
+              extra-build-args: "",
+            }
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
@@ -172,7 +176,7 @@ jobs:
         working-directory: frontend
         run: |
           flutter config --enable-macos-desktop
-          cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-mac-x86_64 appflowy
+          dart ./scripts/flutter_release_build/build_flowy.dart . ${{ github.ref_name }}
 
       - name: Create macOS dmg
         run: |
@@ -225,9 +229,21 @@ jobs:
       fail-fast: false
       matrix:
         job:
-          - { arch: x86_64, target: x86_64-unknown-linux-gnu, os: ubuntu-20.04, extra-build-args: "", flutter_profile: production-linux-x86_64 }
+          - {
+              arch: x86_64,
+              target: x86_64-unknown-linux-gnu,
+              os: ubuntu-20.04,
+              extra-build-args: "",
+              flutter_profile: production-linux-x86_64,
+            }
           # - { arch: aarch64, target: aarch64-unknown-linux-gnu, os: ubuntu-20.04, extra-build-args: "", flutter_profile: production-linux-aarch64 }
-          - { arch: x86_64, target: x86_64-unknown-linux-gnu, os: ubuntu-18.04, extra-build-args: "", flutter_profile: production-linux-x86_64}
+          - {
+              arch: x86_64,
+              target: x86_64-unknown-linux-gnu,
+              os: ubuntu-18.04,
+              extra-build-args: "",
+              flutter_profile: production-linux-x86_64,
+            }
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
@@ -275,7 +291,7 @@ jobs:
         working-directory: frontend
         run: |
           flutter config --enable-linux-desktop
-          cargo make --env APP_VERSION=${{ github.ref_name }} --profile ${{ matrix.job.flutter_profile}} appflowy
+          dart ./scripts/flutter_release_build/build_flowy.dart . ${{ github.ref_name }}
 
       - name: Archive Assert
         working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
@@ -324,6 +340,7 @@ jobs:
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_NAME }}
+
           asset_name: ${{ env.LINUX_PACKAGE_NAME }}
           asset_content_type: application/octet-stream
 
@@ -352,3 +369,12 @@ jobs:
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/appflowy_client:${{ github.ref_name }}
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/af_build_cache:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/af_build_cache:buildcache,mode=max
+
+  notify-discord:
+    runs-on: ubuntu-latest
+    needs: [build-for-linux, build-for-windows, build-for-macOS]
+    steps:
+      - name: Notify Discord
+        run: |
+          curl -H "Content-Type: application/json" -d '{"username": "release@appflowy", "content": "🎉 AppFlowy ${{ github.ref_name }} is available. https://github.com/AppFlowy-IO/AppFlowy/releases/tag/'${{ github.ref_name }}'"}' "https://discord.com/api/webhooks/${{ secrets.DISCORD }}"
+        shell: bash

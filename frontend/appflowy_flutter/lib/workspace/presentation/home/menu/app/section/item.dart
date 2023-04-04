@@ -4,7 +4,6 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -51,7 +50,7 @@ class ViewSectionItem extends StatelessWidget {
               onTap: () => onSelected(blocContext.read<ViewBloc>().state.view),
               child: FlowyHover(
                 style: HoverStyle(
-                  hoverColor: AFThemeExtension.of(context).greySelect,
+                  hoverColor: Theme.of(context).colorScheme.secondary,
                 ),
                 // If current state.isEditing is true, the hover should not
                 // rebuild when onEnter/onExit events happened.
@@ -60,7 +59,6 @@ class ViewSectionItem extends StatelessWidget {
                   blocContext,
                   onHover,
                   state,
-                  Theme.of(context).colorScheme.onSurface,
                 ),
                 isSelected: () => state.isEditing || isSelected,
               ),
@@ -75,13 +73,12 @@ class ViewSectionItem extends StatelessWidget {
     BuildContext blocContext,
     bool onHover,
     ViewState state,
-    Color iconColor,
   ) {
     List<Widget> children = [
       SizedBox(
         width: 16,
         height: 16,
-        child: state.view.renderThumbnail(iconColor: iconColor),
+        child: state.view.renderThumbnail(),
       ),
       const HSpace(2),
       Expanded(
@@ -154,11 +151,11 @@ extension ViewDisclosureExtension on ViewDisclosureAction {
   Widget icon(Color iconColor) {
     switch (this) {
       case ViewDisclosureAction.rename:
-        return svgWidget('editor/edit', color: iconColor);
+        return const FlowySvg(name: 'editor/edit');
       case ViewDisclosureAction.delete:
-        return svgWidget('editor/delete', color: iconColor);
+        return const FlowySvg(name: 'editor/delete');
       case ViewDisclosureAction.duplicate:
-        return svgWidget('editor/copy', color: iconColor);
+        return const FlowySvg(name: 'editor/copy');
     }
   }
 }
@@ -186,7 +183,7 @@ class ViewDisclosureButton extends StatelessWidget {
           width: 26,
           icon: svgWidget(
             "editor/details",
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).iconTheme.color,
           ),
           onPressed: () {
             onEdit(true);

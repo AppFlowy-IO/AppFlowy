@@ -1,7 +1,7 @@
 import { Ok, Result } from 'ts-results';
-import { ChangeNotifier } from '../../../../utils/change_notifier';
+import { ChangeNotifier } from '$app/utils/change_notifier';
 import { DatabaseNotificationObserver } from '../notifications/observer';
-import { DatabaseNotification, FlowyError } from '../../../../../services/backend';
+import { DatabaseNotification, FlowyError } from '@/services/backend';
 
 type UpdateCellNotifiedValue = Result<void, FlowyError>;
 
