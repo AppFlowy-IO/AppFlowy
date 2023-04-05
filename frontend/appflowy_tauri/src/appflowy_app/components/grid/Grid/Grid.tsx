@@ -38,7 +38,7 @@ export const Grid = ({ viewId }: { viewId: string }) => {
                 <GridTableRows onOpenRow={onOpenRow} allRows={rows} viewId={viewId} controller={controller} />
               </table>
 
-              <GridAddRow />
+              <GridAddRow controller={controller} />
             </div>
 
             <GridTableCount />

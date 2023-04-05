@@ -1,7 +1,8 @@
-export const useGridAddRow = () => {
-  function addRow() {
-    // create a new row
-    console.log('create a new row');
+import { DatabaseController } from '@/appflowy_app/stores/effects/database/database_controller';
+
+export const useGridAddRow = (controller: DatabaseController) => {
+  async function addRow() {
+    await controller.createRow();
   }
 
   return {

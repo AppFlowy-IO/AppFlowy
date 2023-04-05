@@ -1,7 +1,8 @@
+import { DatabaseController } from '@/appflowy_app/stores/effects/database/database_controller';
 import AddSvg from '../../_shared/svg/AddSvg';
 import { useGridAddRow } from './GridAddRow.hooks';
-export const GridAddRow = () => {
-  const { addRow } = useGridAddRow();
+export const GridAddRow = ({ controller }: { controller: DatabaseController }) => {
+  const { addRow } = useGridAddRow(controller);
 
   return (
     <div>
