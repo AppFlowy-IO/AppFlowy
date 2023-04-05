@@ -52,6 +52,7 @@ class SettingsFileLocationCustomzierState
                       SnackBar(
                         content: FlowyText(
                           LocaleKeys.settings_files_pathCopiedSnackbar.tr(),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     );
