@@ -497,6 +497,12 @@ impl std::default::Default for FieldType {
   }
 }
 
+impl AsRef<str> for FieldType {
+  fn as_ref(&self) -> &str {
+    &self.type_id()
+  }
+}
+
 impl AsRef<FieldType> for FieldType {
   fn as_ref(&self) -> &FieldType {
     self

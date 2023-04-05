@@ -60,7 +60,7 @@ pub fn apply_cell_data_changeset<C: ToCellChangesetString>(
   cell_data_cache: Option<AtomicCellDataCache>,
 ) -> Result<String, FlowyError> {
   let changeset = changeset.to_cell_changeset_str();
-  let field_type: FieldType = field.field_type.into();
+  let field_type = FieldType::from(field.field_type);
 
   let type_cell_data = cell_rev.and_then(|cell_rev| match TypeCellData::try_from(cell_rev) {
     Ok(type_cell_data) => Some(type_cell_data),
@@ -78,10 +78,10 @@ pub fn apply_cell_data_changeset<C: ToCellChangesetString>(
 
 pub fn get_type_cell_protobuf<T: TryInto<TypeCellData, Error = FlowyError> + Debug>(
   data: T,
-  field_rev: &Field,
+  field: &Field,
   cell_data_cache: Option<AtomicCellDataCache>,
 ) -> (FieldType, CellProtobufBlob) {
-  let to_field_type = FieldType::from(field_rev.field_type);
+  let to_field_type = FieldType::from(field.field_type);
   match data.try_into() {
     Ok(type_cell_data) => {
       let TypeCellData {
@@ -92,7 +92,7 @@ pub fn get_type_cell_protobuf<T: TryInto<TypeCellData, Error = FlowyError> + Deb
         cell_str,
         &field_type,
         &to_field_type,
-        field_rev,
+        field,
         cell_data_cache,
       ) {
         Ok(cell_bytes) => (field_type, cell_bytes),

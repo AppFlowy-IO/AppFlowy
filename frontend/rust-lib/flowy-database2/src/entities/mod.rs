@@ -16,9 +16,11 @@ mod view_entities;
 
 #[macro_use]
 mod macros;
+mod checkbox_entities;
 
 pub use calendar_entities::*;
 pub use cell_entities::*;
+pub use checkbox_entities::*;
 pub use database_entities::*;
 pub use database_entities::*;
 pub use date_entities::*;

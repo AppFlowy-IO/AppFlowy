@@ -3,15 +3,12 @@ use crate::services::group::configuration::GroupConfigurationReader;
 use crate::services::group::controller::GroupController;
 use crate::services::group::{
   CheckboxGroupContext, CheckboxGroupController, DefaultGroupController, GroupConfigurationWriter,
-  MultiSelectGroupController, SelectOptionGroupContext, SingleSelectGroupController,
-  URLGroupContext, URLGroupController,
+  MultiSelectGroupController, MultiSelectOptionGroupContext, SingleSelectGroupController,
+  SingleSelectOptionGroupContext, URLGroupContext, URLGroupController,
 };
-use database_model::{
-  CheckboxGroupConfigurationRevision, DateGroupConfigurationRevision, FieldRevision,
-  GroupConfigurationRevision, GroupRevision, LayoutRevision, NumberGroupConfigurationRevision,
-  RowRevision, SelectOptionGroupConfigurationRevision, TextGroupConfigurationRevision,
-  URLGroupConfigurationRevision,
-};
+use collab_database::fields::Field;
+use collab_database::views::{Group, GroupSetting};
+use database_model::RowRevision;
 use flowy_error::FlowyResult;
 use std::sync::Arc;
 
@@ -28,18 +25,13 @@ use std::sync::Arc;
 ///
 #[tracing::instrument(
   level = "debug",
-  skip(
-    row_revs,
-    configuration_reader,
-    configuration_writer,
-    grouping_field_rev
-  ),
-  fields(grouping_field_id=%grouping_field_rev.id, grouping_field_type)
+  skip_all,
+  fields(grouping_field_id=%grouping_field.id, grouping_field_type)
   err
 )]
 pub async fn make_group_controller<R, W>(
   view_id: String,
-  grouping_field_rev: Arc<FieldRevision>,
+  grouping_field: Arc<Field>,
   row_revs: Vec<Arc<RowRevision>>,
   configuration_reader: R,
   configuration_writer: W,
@@ -48,7 +40,7 @@ where
   R: GroupConfigurationReader,
   W: GroupConfigurationWriter,
 {
-  let grouping_field_type: FieldType = grouping_field_rev.ty.into();
+  let grouping_field_type = FieldType::from(grouping_field.field_type);
   tracing::Span::current().record("grouping_field_type", &format!("{}", grouping_field_type));
 
   let mut group_controller: Box<dyn GroupController>;
@@ -57,56 +49,56 @@ where
 
   match grouping_field_type {
     FieldType::SingleSelect => {
-      let configuration = SelectOptionGroupContext::new(
+      let configuration = SingleSelectOptionGroupContext::new(
         view_id,
-        grouping_field_rev.clone(),
+        grouping_field.clone(),
         configuration_reader,
         configuration_writer,
       )
       .await?;
-      let controller = SingleSelectGroupController::new(&grouping_field_rev, configuration).await?;
+      let controller = SingleSelectGroupController::new(&grouping_field, configuration).await?;
       group_controller = Box::new(controller);
     },
     FieldType::MultiSelect => {
-      let configuration = SelectOptionGroupContext::new(
+      let configuration = MultiSelectOptionGroupContext::new(
         view_id,
-        grouping_field_rev.clone(),
+        grouping_field.clone(),
         configuration_reader,
         configuration_writer,
       )
       .await?;
-      let controller = MultiSelectGroupController::new(&grouping_field_rev, configuration).await?;
+      let controller = MultiSelectGroupController::new(&grouping_field, configuration).await?;
       group_controller = Box::new(controller);
     },
     FieldType::Checkbox => {
       let configuration = CheckboxGroupContext::new(
         view_id,
-        grouping_field_rev.clone(),
+        grouping_field.clone(),
         configuration_reader,
         configuration_writer,
       )
       .await?;
-      let controller = CheckboxGroupController::new(&grouping_field_rev, configuration).await?;
+      let controller = CheckboxGroupController::new(&grouping_field, configuration).await?;
       group_controller = Box::new(controller);
     },
     FieldType::URL => {
       let configuration = URLGroupContext::new(
         view_id,
-        grouping_field_rev.clone(),
+        grouping_field.clone(),
         configuration_reader,
         configuration_writer,
       )
       .await?;
-      let controller = URLGroupController::new(&grouping_field_rev, configuration).await?;
+      let controller = URLGroupController::new(&grouping_field, configuration).await?;
       group_controller = Box::new(controller);
     },
     _ => {
-      group_controller = Box::new(DefaultGroupController::new(&grouping_field_rev));
+      group_controller = Box::new(DefaultGroupController::new(&grouping_field));
     },
   }
 
   // Separates the rows into different groups
-  group_controller.fill_groups(&row_revs, &grouping_field_rev)?;
+  group_controller.fill_groups(&row_revs, &grouping_field)?;
   Ok(group_controller)
 }
 
@@ -143,67 +135,25 @@ pub fn find_grouping_field(
 ///
 /// * `field_rev`: making the group configuration for the field
 ///
-pub fn default_group_configuration(field_rev: &FieldRevision) -> GroupConfigurationRevision {
-  let field_id = field_rev.id.clone();
-  let field_type_rev = field_rev.ty;
-  let field_type: FieldType = field_rev.ty.into();
+pub fn default_group_configuration(field: &Field) -> GroupSetting {
+  let field_id = field.id.clone();
+  let field_type = FieldType::from(field.field_type);
   match field_type {
-    FieldType::RichText => GroupConfigurationRevision::new(
-      field_id,
-      field_type_rev,
-      TextGroupConfigurationRevision::default(),
-    )
-    .unwrap(),
-    FieldType::Number => GroupConfigurationRevision::new(
-      field_id,
-      field_type_rev,
-      NumberGroupConfigurationRevision::default(),
-    )
-    .unwrap(),
-    FieldType::DateTime => GroupConfigurationRevision::new(
-      field_id,
-      field_type_rev,
-      DateGroupConfigurationRevision::default(),
-    )
-    .unwrap(),
-
-    FieldType::SingleSelect => GroupConfigurationRevision::new(
-      field_id,
-      field_type_rev,
-      SelectOptionGroupConfigurationRevision::default(),
-    )
-    .unwrap(),
-    FieldType::MultiSelect => GroupConfigurationRevision::new(
-      field_id,
-      field_type_rev,
-      SelectOptionGroupConfigurationRevision::default(),
-    )
-    .unwrap(),
-    FieldType::Checklist => GroupConfigurationRevision::new(
-      field_id,
-      field_type_rev,
-      SelectOptionGroupConfigurationRevision::default(),
-    )
-    .unwrap(),
-    FieldType::Checkbox => GroupConfigurationRevision::new(
-      field_id,
-      field_type_rev,
-      CheckboxGroupConfigurationRevision::default(),
-    )
-    .unwrap(),
-    FieldType::URL => GroupConfigurationRevision::new(
-      field_id,
-      field_type_rev,
-      URLGroupConfigurationRevision::default(),
-    )
-    .unwrap(),
+    FieldType::RichText => GroupSetting::new(field_id, field.field_type, "".to_owned()),
+    FieldType::Number => GroupSetting::new(field_id, field.field_type, "".to_owned()),
+    FieldType::DateTime => GroupSetting::new(field_id, field.field_type, "".to_owned()),
+    FieldType::SingleSelect => GroupSetting::new(field_id, field.field_type, "".to_owned()),
+    FieldType::MultiSelect => GroupSetting::new(field_id, field.field_type, "".to_owned()),
+    FieldType::Checklist => GroupSetting::new(field_id, field.field_type, "".to_owned()),
+    FieldType::Checkbox => GroupSetting::new(field_id, field.field_type, "".to_owned()),
+    FieldType::URL => GroupSetting::new(field_id, field.field_type, "".to_owned()),
   }
 }
 
-pub fn make_no_status_group(field_rev: &FieldRevision) -> GroupRevision {
-  GroupRevision {
-    id: field_rev.id.clone(),
-    name: format!("No {}", field_rev.name),
+pub fn make_no_status_group(field: &Field) -> Group {
+  Group {
+    id: field.id.clone(),
+    name: format!("No {}", field.name),
     visible: true,
   }
 }

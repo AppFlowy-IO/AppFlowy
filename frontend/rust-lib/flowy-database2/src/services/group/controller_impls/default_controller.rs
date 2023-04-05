@@ -2,8 +2,9 @@ use crate::entities::{GroupChangesetPB, RowPB};
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerActions,
 };
-use crate::services::group::{Group, GroupController, MoveGroupRowContext};
-use database_model::{FieldRevision, RowRevision};
+use crate::services::group::{GroupController, GroupData, MoveGroupRowContext};
+use collab_database::fields::Field;
+use database_model::RowRevision;
 use flowy_error::FlowyResult;
 use std::sync::Arc;
 
@@ -13,21 +14,21 @@ use std::sync::Arc;
 ///
 pub struct DefaultGroupController {
   pub field_id: String,
-  pub group: Group,
+  pub group: GroupData,
 }
 
 const DEFAULT_GROUP_CONTROLLER: &str = "DefaultGroupController";
 
 impl DefaultGroupController {
-  pub fn new(field_rev: &Arc<FieldRevision>) -> Self {
-    let group = Group::new(
+  pub fn new(field: &Arc<Field>) -> Self {
+    let group = GroupData::new(
       DEFAULT_GROUP_CONTROLLER.to_owned(),
-      field_rev.id.clone(),
+      field.id.clone(),
       "".to_owned(),
       "".to_owned(),
     );
     Self {
-      field_id: field_rev.id.clone(),
+      field_id: field.id.clone(),
       group,
     }
   }
@@ -38,19 +39,15 @@ impl GroupControllerActions for DefaultGroupController {
     &self.field_id
   }
 
-  fn groups(&self) -> Vec<&Group> {
+  fn groups(&self) -> Vec<&GroupData> {
     vec![&self.group]
   }
 
-  fn get_group(&self, _group_id: &str) -> Option<(usize, Group)> {
+  fn get_group(&self, _group_id: &str) -> Option<(usize, GroupData)> {
     Some((0, self.group.clone()))
   }
 
-  fn fill_groups(
-    &mut self,
-    row_revs: &[Arc<RowRevision>],
-    _field_rev: &FieldRevision,
-  ) -> FlowyResult<()> {
+  fn fill_groups(&mut self, row_revs: &[Arc<RowRevision>], field: &Field) -> FlowyResult<()> {
     row_revs.iter().for_each(|row_rev| {
       self.group.add_row(RowPB::from(row_rev));
     });
@@ -63,9 +60,9 @@ impl GroupControllerActions for DefaultGroupController {
 
   fn did_update_group_row(
     &mut self,
-    _old_row_rev: &Option<Arc<RowRevision>>,
-    _row_rev: &RowRevision,
-    _field_rev: &FieldRevision,
+    old_row_rev: &Option<Arc<RowRevision>>,
+    row_rev: &RowRevision,
+    field: &Field,
   ) -> FlowyResult<DidUpdateGroupRowResult> {
     Ok(DidUpdateGroupRowResult {
       inserted_group: None,
@@ -76,8 +73,8 @@ impl GroupControllerActions for DefaultGroupController {
 
   fn did_delete_delete_row(
     &mut self,
-    _row_rev: &RowRevision,
-    _field_rev: &FieldRevision,
+    row_rev: &RowRevision,
+    field: &Field,
   ) -> FlowyResult<DidMoveGroupRowResult> {
     Ok(DidMoveGroupRowResult {
       deleted_group: None,
@@ -95,22 +92,13 @@ impl GroupControllerActions for DefaultGroupController {
     })
   }
 
-  fn did_update_group_field(
-    &mut self,
-    _field_rev: &FieldRevision,
-  ) -> FlowyResult<Option<GroupChangesetPB>> {
+  fn did_update_group_field(&mut self, field: &Field) -> FlowyResult<Option<GroupChangesetPB>> {
     Ok(None)
   }
 }
 
 impl GroupController for DefaultGroupController {
-  fn will_create_row(
-    &mut self,
-    _row_rev: &mut RowRevision,
-    _field_rev: &FieldRevision,
-    _group_id: &str,
-  ) {
-  }
+  fn will_create_row(&mut self, row_rev: &mut RowRevision, field: &Field, group_id: &str) {}
 
   fn did_create_row(&mut self, _row_rev: &RowPB, _group_id: &str) {}
 }

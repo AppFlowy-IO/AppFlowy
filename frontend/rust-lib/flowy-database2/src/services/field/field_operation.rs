@@ -15,7 +15,7 @@ pub async fn edit_field_type_option<T: From<TypeOptionData> + Into<TypeOptionDat
   let get_type_option = async {
     let field = editor.get_field(field_id)?;
     let field_type = FieldType::from(field.field_type);
-    field.get_type_option::<T>(&field_type.type_id())
+    field.get_type_option::<T>(field_type)
   };
 
   if let Some(mut type_option) = get_type_option.await {

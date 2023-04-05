@@ -1,18 +1,18 @@
-use crate::entities::{FieldType, GroupRowsNotificationPB, InsertedRowPB, RowPB};
-use crate::services::cell::{insert_checkbox_cell, insert_select_option_cell, insert_url_cell};
-use crate::services::field::{SelectOptionCellData, SelectOptionCellDataPB, SelectOptionPB, CHECK};
-use crate::services::group::configuration::GroupContext;
-use crate::services::group::controller::MoveGroupRowContext;
-use crate::services::group::{GeneratedGroupConfig, Group};
-use database_model::{
-  CellRevision, FieldRevision, GroupRevision, RowRevision, SelectOptionGroupConfigurationRevision,
+use crate::entities::{
+  FieldType, GroupRowsNotificationPB, InsertedRowPB, RowPB, SelectOptionCellDataPB,
 };
+use crate::services::cell::{insert_checkbox_cell, insert_select_option_cell, insert_url_cell};
+use crate::services::field::{SelectOption, CHECK};
 
-pub type SelectOptionGroupContext = GroupContext<SelectOptionGroupConfigurationRevision>;
+use crate::services::group::controller::MoveGroupRowContext;
+use crate::services::group::{GeneratedGroupConfig, GroupData};
+use collab_database::fields::Field;
+use collab_database::views::Group;
+use database_model::{CellRevision, RowRevision};
 
 pub fn add_or_remove_select_option_row(
-  group: &mut Group,
-  cell_data: &SelectOptionCellData,
+  group: &mut GroupData,
+  cell_data: &SelectOptionCellDataPB,
   row_rev: &RowRevision,
 ) -> Option<GroupRowsNotificationPB> {
   let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
@@ -46,8 +46,8 @@ pub fn add_or_remove_select_option_row(
 }
 
 pub fn remove_select_option_row(
-  group: &mut Group,
-  cell_data: &SelectOptionCellData,
+  group: &mut GroupData,
+  cell_data: &SelectOptionCellDataPB,
   row_rev: &RowRevision,
 ) -> Option<GroupRowsNotificationPB> {
   let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
@@ -66,7 +66,7 @@ pub fn remove_select_option_row(
 }
 
 pub fn move_group_row(
-  group: &mut Group,
+  group: &mut GroupData,
   context: &mut MoveGroupRowContext,
 ) -> Option<GroupRowsNotificationPB> {
   let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
@@ -138,23 +138,23 @@ pub fn move_group_row(
   }
 }
 
-pub fn make_inserted_cell_rev(group_id: &str, field_rev: &FieldRevision) -> Option<CellRevision> {
-  let field_type: FieldType = field_rev.ty.into();
+pub fn make_inserted_cell_rev(group_id: &str, field: &Field) -> Option<CellRevision> {
+  let field_type = FieldType::from(field.field_type);
   match field_type {
     FieldType::SingleSelect => {
-      let cell_rev = insert_select_option_cell(vec![group_id.to_owned()], field_rev);
+      let cell_rev = insert_select_option_cell(vec![group_id.to_owned()], field);
       Some(cell_rev)
     },
     FieldType::MultiSelect => {
-      let cell_rev = insert_select_option_cell(vec![group_id.to_owned()], field_rev);
+      let cell_rev = insert_select_option_cell(vec![group_id.to_owned()], field);
       Some(cell_rev)
     },
     FieldType::Checkbox => {
-      let cell_rev = insert_checkbox_cell(group_id == CHECK, field_rev);
+      let cell_rev = insert_checkbox_cell(group_id == CHECK, field);
       Some(cell_rev)
     },
     FieldType::URL => {
-      let cell_rev = insert_url_cell(group_id.to_owned(), field_rev);
+      let cell_rev = insert_url_cell(group_id.to_owned(), field);
       Some(cell_rev)
     },
     _ => {
@@ -165,13 +165,12 @@ pub fn make_inserted_cell_rev(group_id: &str, field_rev: &FieldRevision) -> Opti
 }
 pub fn generate_select_option_groups(
   _field_id: &str,
-  _group_ctx: &SelectOptionGroupContext,
-  options: &[SelectOptionPB],
+  options: &[SelectOption],
 ) -> Vec<GeneratedGroupConfig> {
   let groups = options
     .iter()
     .map(|option| GeneratedGroupConfig {
-      group_rev: GroupRevision::new(option.id.clone(), option.name.clone()),
+      group: Group::new(option.id.clone(), option.name.clone()),
       filter_content: option.id.clone(),
     })
     .collect();

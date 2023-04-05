@@ -1278,6 +1278,7 @@ dependencies = [
  "flowy-error",
  "flowy-notification",
  "flowy-task",
+ "futures",
  "indexmap",
  "lazy_static",
  "lib-dispatch",

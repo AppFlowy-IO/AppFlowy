@@ -1,6 +1,8 @@
-use crate::entities::{GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB, RowPB};
+use crate::entities::{
+  GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB, RowPB, URLCellDataPB,
+};
 use crate::services::cell::insert_url_cell;
-use crate::services::field::{URLCellData, URLCellDataPB, URLCellDataParser, URLTypeOptionPB};
+use crate::services::field::{URLCellData, URLCellDataParser, URLTypeOption};
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::{
@@ -9,19 +11,25 @@ use crate::services::group::controller::{
 use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroupContext,
 };
-use database_model::{
-  CellRevision, FieldRevision, GroupRevision, RowRevision, URLGroupConfigurationRevision,
-};
+use collab_database::fields::Field;
+use collab_database::views::Group;
+use database_model::{CellRevision, RowRevision};
 use flowy_error::FlowyResult;
+use serde::{Deserialize, Serialize};
+
+#[derive(Default, Serialize, Deserialize)]
+pub struct URLGroupConfiguration {
+  pub hide_empty: bool,
+}
 
 pub type URLGroupController = GenericGroupController<
-  URLGroupConfigurationRevision,
-  URLTypeOptionPB,
+  URLGroupConfiguration,
+  URLTypeOption,
   URLGroupGenerator,
   URLCellDataParser,
 >;
 
-pub type URLGroupContext = GroupContext<URLGroupConfigurationRevision>;
+pub type URLGroupContext = GroupContext<URLGroupConfiguration>;
 
 impl GroupCustomize for URLGroupController {
   type CellData = URLCellDataPB;
@@ -44,8 +52,8 @@ impl GroupCustomize for URLGroupController {
     let mut inserted_group = None;
     if self.group_ctx.get_group(&cell_data.url).is_none() {
       let cell_data: URLCellData = cell_data.clone().into();
-      let group_revision = make_group_from_url_cell(&cell_data);
-      let mut new_group = self.group_ctx.add_new_group(group_revision)?;
+      let group = make_group_from_url_cell(&cell_data);
+      let mut new_group = self.group_ctx.add_new_group(group)?;
       new_group.group.rows.push(RowPB::from(row_rev));
       inserted_group = Some(new_group);
     }
@@ -158,17 +166,12 @@ impl GroupCustomize for URLGroupController {
 }
 
 impl GroupController for URLGroupController {
-  fn will_create_row(
-    &mut self,
-    row_rev: &mut RowRevision,
-    field_rev: &FieldRevision,
-    group_id: &str,
-  ) {
+  fn will_create_row(&mut self, row_rev: &mut RowRevision, field: &Field, group_id: &str) {
     match self.group_ctx.get_group(group_id) {
       None => tracing::warn!("Can not find the group: {}", group_id),
       Some((_, group)) => {
-        let cell_rev = insert_url_cell(group.id.clone(), field_rev);
-        row_rev.cells.insert(field_rev.id.clone(), cell_rev);
+        let cell_rev = insert_url_cell(group.id.clone(), field);
+        row_rev.cells.insert(field.id.clone(), cell_rev);
       },
     }
   }
@@ -183,12 +186,12 @@ impl GroupController for URLGroupController {
 pub struct URLGroupGenerator();
 impl GroupGenerator for URLGroupGenerator {
   type Context = URLGroupContext;
-  type TypeOptionType = URLTypeOptionPB;
+  type TypeOptionType = URLTypeOption;
 
   fn generate_groups(
-    field_rev: &FieldRevision,
+    field: &Field,
     group_ctx: &Self::Context,
-    _type_option: &Option<Self::TypeOptionType>,
+    type_option: &Option<Self::TypeOptionType>,
   ) -> GeneratedGroupContext {
     // Read all the cells for the grouping field
     let cells = futures::executor::block_on(group_ctx.get_all_cells());
@@ -199,12 +202,12 @@ impl GroupGenerator for URLGroupGenerator {
       .flat_map(|value| value.into_url_field_cell_data())
       .filter(|cell| !cell.content.is_empty())
       .map(|cell| GeneratedGroupConfig {
-        group_rev: make_group_from_url_cell(&cell),
+        group: make_group_from_url_cell(&cell),
         filter_content: cell.content,
       })
       .collect();
 
-    let no_status_group = Some(make_no_status_group(field_rev));
+    let no_status_group = Some(make_no_status_group(field));
     GeneratedGroupContext {
       no_status_group,
       group_configs,
@@ -212,8 +215,8 @@ impl GroupGenerator for URLGroupGenerator {
   }
 }
 
-fn make_group_from_url_cell(cell: &URLCellData) -> GroupRevision {
+fn make_group_from_url_cell(cell: &URLCellData) -> Group {
   let group_id = cell.content.clone();
   let group_name = cell.content.clone();
-  GroupRevision::new(group_id, group_name)
+  Group::new(group_id, group_name)
 }

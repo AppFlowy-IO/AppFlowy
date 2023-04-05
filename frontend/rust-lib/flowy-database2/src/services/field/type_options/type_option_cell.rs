@@ -10,7 +10,6 @@ use crate::services::field::{
 };
 use crate::services::filter::FilterType;
 use collab_database::fields::{Field, TypeOptionData};
-use database_model::TypeOptionDataSerializer;
 use flowy_error::FlowyResult;
 use std::any::Any;
 use std::cmp::Ordering;
@@ -73,7 +72,7 @@ struct CellDataCacheKey(u64);
 impl CellDataCacheKey {
   pub fn new(field_rev: &Field, decoded_field_type: FieldType, cell_str: &str) -> Self {
     let mut hasher = DefaultHasher::new();
-    if let Some(type_option_data) = field_rev.get_any_type_option(&decoded_field_type.type_id()) {
+    if let Some(type_option_data) = field_rev.get_any_type_option(&decoded_field_type) {
       type_option_data.hash(&mut hasher);
     }
     hasher.write(field_rev.id.as_bytes());
@@ -347,7 +346,7 @@ impl<'a> TypeOptionCellExt<'a> {
     match field_type {
       FieldType::RichText => self
         .field
-        .get_type_option::<RichTextTypeOption>(&field_type.type_id())
+        .get_type_option::<RichTextTypeOption>(&field_type)
         .map(|type_option| {
           TypeOptionCellDataHandlerImpl::new_with_boxed(
             type_option,
@@ -357,7 +356,7 @@ impl<'a> TypeOptionCellExt<'a> {
         }),
       FieldType::Number => self
         .field
-        .get_type_option::<NumberTypeOption>(&field_type.type_id())
+        .get_type_option::<NumberTypeOption>(&field_type)
         .map(|type_option| {
           TypeOptionCellDataHandlerImpl::new_with_boxed(
             type_option,
@@ -367,7 +366,7 @@ impl<'a> TypeOptionCellExt<'a> {
         }),
       FieldType::DateTime => self
         .field
-        .get_type_option::<DateTypeOption>(&field_type.type_id())
+        .get_type_option::<DateTypeOption>(&field_type)
         .map(|type_option| {
           TypeOptionCellDataHandlerImpl::new_with_boxed(
             type_option,
@@ -377,7 +376,7 @@ impl<'a> TypeOptionCellExt<'a> {
         }),
       FieldType::SingleSelect => self
         .field
-        .get_type_option::<SingleSelectTypeOption>(&field_type.type_id())
+        .get_type_option::<SingleSelectTypeOption>(&field_type)
         .map(|type_option| {
           TypeOptionCellDataHandlerImpl::new_with_boxed(
             type_option,
@@ -387,7 +386,7 @@ impl<'a> TypeOptionCellExt<'a> {
         }),
       FieldType::MultiSelect => self
         .field
-        .get_type_option::<MultiSelectTypeOption>(&field_type.type_id())
+        .get_type_option::<MultiSelectTypeOption>(&field_type)
         .map(|type_option| {
           TypeOptionCellDataHandlerImpl::new_with_boxed(
             type_option,
@@ -397,7 +396,7 @@ impl<'a> TypeOptionCellExt<'a> {
         }),
       FieldType::Checkbox => self
         .field
-        .get_type_option::<CheckboxTypeOption>(&field_type.type_id())
+        .get_type_option::<CheckboxTypeOption>(&field_type)
         .map(|type_option| {
           TypeOptionCellDataHandlerImpl::new_with_boxed(
             type_option,
@@ -407,7 +406,7 @@ impl<'a> TypeOptionCellExt<'a> {
         }),
       FieldType::URL => self
         .field
-        .get_type_option::<URLTypeOption>(&field_type.type_id())
+        .get_type_option::<URLTypeOption>(&field_type)
         .map(|type_option| {
           TypeOptionCellDataHandlerImpl::new_with_boxed(
             type_option,
@@ -417,7 +416,7 @@ impl<'a> TypeOptionCellExt<'a> {
         }),
       FieldType::Checklist => self
         .field
-        .get_type_option::<ChecklistTypeOption>(&field_type.type_id())
+        .get_type_option::<ChecklistTypeOption>(&field_type)
         .map(|type_option| {
           TypeOptionCellDataHandlerImpl::new_with_boxed(
             type_option,

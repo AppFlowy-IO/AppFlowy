@@ -147,19 +147,19 @@ pub fn select_type_option_from_field_rev(
   match &field_type {
     FieldType::SingleSelect => {
       let type_option = field_rev
-        .get_type_option::<SingleSelectTypeOption>(&field_type.type_id())
+        .get_type_option::<SingleSelectTypeOption>(&field_type)
         .unwrap_or_default();
       Ok(Box::new(type_option))
     },
     FieldType::MultiSelect => {
       let type_option = field_rev
-        .get_type_option::<MultiSelectTypeOption>(&field_type.type_id())
+        .get_type_option::<MultiSelectTypeOption>(&field_type)
         .unwrap_or_default();
       Ok(Box::new(type_option))
     },
     FieldType::Checklist => {
       let type_option = field_rev
-        .get_type_option::<ChecklistTypeOption>(&field_type.type_id())
+        .get_type_option::<ChecklistTypeOption>(&field_type)
         .unwrap_or_default();
       Ok(Box::new(type_option))
     },

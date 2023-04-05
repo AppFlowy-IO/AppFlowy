@@ -1,5 +1,6 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{FieldType, RowPB};
+use crate::services::group::GroupData;
 use database_model::GroupConfigurationRevision;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
@@ -62,6 +63,19 @@ pub struct GroupPB {
 
   #[pb(index = 6)]
   pub is_visible: bool,
+}
+
+impl std::convert::From<GroupData> for GroupPB {
+  fn from(group_data: GroupData) -> Self {
+    Self {
+      field_id: group_data.field_id,
+      group_id: group_data.id,
+      desc: group_data.name,
+      rows: group_data.rows,
+      is_default: group_data.is_default,
+      is_visible: group_data.is_visible,
+    }
+  }
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]

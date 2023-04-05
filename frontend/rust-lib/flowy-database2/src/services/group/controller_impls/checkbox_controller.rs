@@ -1,27 +1,32 @@
 use crate::entities::{GroupRowsNotificationPB, InsertedRowPB, RowPB};
+use crate::services::cell::insert_checkbox_cell;
 use crate::services::field::{
-  CheckboxCellData, CheckboxCellDataParser, CheckboxTypeOptionPB, CHECK, UNCHECK,
+  CheckboxCellData, CheckboxCellDataParser, CheckboxTypeOption, CHECK, UNCHECK,
 };
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::{
   GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
 };
-
-use crate::services::cell::insert_checkbox_cell;
 use crate::services::group::{move_group_row, GeneratedGroupConfig, GeneratedGroupContext};
-use database_model::{
-  CellRevision, CheckboxGroupConfigurationRevision, FieldRevision, GroupRevision, RowRevision,
-};
+use collab_database::fields::Field;
+use collab_database::views::Group;
+use database_model::{CellRevision, RowRevision};
+use serde::{Deserialize, Serialize};
+
+#[derive(Default, Serialize, Deserialize)]
+pub struct CheckboxGroupConfiguration {
+  pub hide_empty: bool,
+}
 
 pub type CheckboxGroupController = GenericGroupController<
-  CheckboxGroupConfigurationRevision,
-  CheckboxTypeOptionPB,
+  CheckboxGroupConfiguration,
+  CheckboxTypeOption,
   CheckboxGroupGenerator,
   CheckboxCellDataParser,
 >;
 
-pub type CheckboxGroupContext = GroupContext<CheckboxGroupConfigurationRevision>;
+pub type CheckboxGroupContext = GroupContext<CheckboxGroupConfiguration>;
 
 impl GroupCustomize for CheckboxGroupController {
   type CellData = CheckboxCellData;
@@ -123,18 +128,13 @@ impl GroupCustomize for CheckboxGroupController {
 }
 
 impl GroupController for CheckboxGroupController {
-  fn will_create_row(
-    &mut self,
-    row_rev: &mut RowRevision,
-    field_rev: &FieldRevision,
-    group_id: &str,
-  ) {
+  fn will_create_row(&mut self, row_rev: &mut RowRevision, field: &Field, group_id: &str) {
     match self.group_ctx.get_group(group_id) {
       None => tracing::warn!("Can not find the group: {}", group_id),
       Some((_, group)) => {
         let is_check = group.id == CHECK;
-        let cell_rev = insert_checkbox_cell(is_check, field_rev);
-        row_rev.cells.insert(field_rev.id.clone(), cell_rev);
+        let cell_rev = insert_checkbox_cell(is_check, field);
+        row_rev.cells.insert(field.id.clone(), cell_rev);
       },
     }
   }
@@ -149,20 +149,20 @@ impl GroupController for CheckboxGroupController {
 pub struct CheckboxGroupGenerator();
 impl GroupGenerator for CheckboxGroupGenerator {
   type Context = CheckboxGroupContext;
-  type TypeOptionType = CheckboxTypeOptionPB;
+  type TypeOptionType = CheckboxTypeOption;
 
   fn generate_groups(
-    _field_rev: &FieldRevision,
-    _group_ctx: &Self::Context,
-    _type_option: &Option<Self::TypeOptionType>,
+    field: &Field,
+    group_ctx: &Self::Context,
+    type_option: &Option<Self::TypeOptionType>,
   ) -> GeneratedGroupContext {
     let check_group = GeneratedGroupConfig {
-      group_rev: GroupRevision::new(CHECK.to_string(), "".to_string()),
+      group: Group::new(CHECK.to_string(), "".to_string()),
       filter_content: CHECK.to_string(),
     };
 
     let uncheck_group = GeneratedGroupConfig {
-      group_rev: GroupRevision::new(UNCHECK.to_string(), "".to_string()),
+      group: Group::new(UNCHECK.to_string(), "".to_string()),
       filter_content: UNCHECK.to_string(),
     };
 

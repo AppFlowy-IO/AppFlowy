@@ -1,7 +1,7 @@
 use crate::entities::RowPB;
 
 #[derive(Clone, PartialEq, Debug, Eq)]
-pub struct Group {
+pub struct GroupData {
   pub id: String,
   pub field_id: String,
   pub name: String,
@@ -13,7 +13,7 @@ pub struct Group {
   pub filter_content: String,
 }
 
-impl Group {
+impl GroupData {
   pub fn new(id: String, field_id: String, name: String, filter_content: String) -> Self {
     let is_default = id == field_id;
     Self {

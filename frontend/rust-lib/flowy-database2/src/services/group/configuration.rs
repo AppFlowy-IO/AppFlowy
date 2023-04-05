@@ -1,13 +1,14 @@
 use crate::entities::{GroupChangesetPB, GroupPB, InsertedGroupPB};
 use crate::services::field::RowSingleCellData;
-use crate::services::group::{default_group_configuration, GeneratedGroupContext, Group};
-use database_model::{
-  FieldRevision, FieldTypeRevision, GroupConfigurationContentSerde, GroupConfigurationRevision,
-  GroupRevision,
-};
+use crate::services::group::{default_group_configuration, GeneratedGroupContext, GroupData};
+use collab_database::fields::Field;
+use collab_database::views::{Group, GroupSetting};
+use database_model::{FieldTypeRevision, GroupConfigurationRevision};
 use flowy_error::{FlowyError, FlowyResult};
 use indexmap::IndexMap;
 use lib_infra::future::Fut;
+use serde::de::DeserializeOwned;
+use serde::Serialize;
 use std::collections::HashMap;
 use std::fmt::Formatter;
 use std::marker::PhantomData;
@@ -23,7 +24,7 @@ pub trait GroupConfigurationWriter: Send + Sync + 'static {
     &self,
     field_id: &str,
     field_type: FieldTypeRevision,
-    group_configuration: GroupConfigurationRevision,
+    group_setting: GroupSetting,
   ) -> Fut<FlowyResult<()>>;
 }
 
@@ -45,20 +46,21 @@ impl<T> std::fmt::Display for GroupContext<T> {
 /// Each [GenericGroupController] has its own [GroupContext], the `context` has its own configuration
 /// that is restored from the disk.
 ///
-/// The `context` contains a list of [Group]s and the grouping [FieldRevision]
+/// The `context` contains a list of [GroupData]s and the grouping [Field]
 pub struct GroupContext<C> {
   pub view_id: String,
   /// The group configuration restored from the disk.
   ///
   /// Uses the [GroupConfigurationReader] to read the configuration data from disk
-  configuration: Arc<GroupConfigurationRevision>,
+  setting: Arc<GroupSetting>,
+
   configuration_phantom: PhantomData<C>,
 
   /// The grouping field
-  field_rev: Arc<FieldRevision>,
+  field_rev: Arc<Field>,
 
   /// Cache all the groups
-  groups_map: IndexMap<String, Group>,
+  groups_map: IndexMap<String, GroupData>,
 
   /// A reader that implement the [GroupConfigurationReader] trait
   ///
@@ -73,12 +75,12 @@ pub struct GroupContext<C> {
 
 impl<C> GroupContext<C>
 where
-  C: GroupConfigurationContentSerde,
+  C: Serialize + DeserializeOwned,
 {
   #[tracing::instrument(level = "trace", skip_all, err)]
   pub async fn new(
     view_id: String,
-    field_rev: Arc<FieldRevision>,
+    field_rev: Arc<Field>,
     reader: Arc<dyn GroupConfigurationReader>,
     writer: Arc<dyn GroupConfigurationWriter>,
   ) -> FlowyResult<Self> {
@@ -99,7 +101,7 @@ where
       groups_map: IndexMap::new(),
       reader,
       writer,
-      configuration,
+      setting: configuration,
       configuration_phantom: PhantomData,
     })
   }
@@ -107,24 +109,24 @@ where
   /// Returns the no `status` group
   ///
   /// We take the `id` of the `field` as the no status group id
-  pub(crate) fn get_no_status_group(&self) -> Option<&Group> {
+  pub(crate) fn get_no_status_group(&self) -> Option<&GroupData> {
     self.groups_map.get(&self.field_rev.id)
   }
 
-  pub(crate) fn get_mut_no_status_group(&mut self) -> Option<&mut Group> {
+  pub(crate) fn get_mut_no_status_group(&mut self) -> Option<&mut GroupData> {
     self.groups_map.get_mut(&self.field_rev.id)
   }
 
-  pub(crate) fn groups(&self) -> Vec<&Group> {
+  pub(crate) fn groups(&self) -> Vec<&GroupData> {
     self.groups_map.values().collect()
   }
 
-  pub(crate) fn get_mut_group(&mut self, group_id: &str) -> Option<&mut Group> {
+  pub(crate) fn get_mut_group(&mut self, group_id: &str) -> Option<&mut GroupData> {
     self.groups_map.get_mut(group_id)
   }
 
   // Returns the index and group specified by the group_id
-  pub(crate) fn get_group(&self, group_id: &str) -> Option<(usize, &Group)> {
+  pub(crate) fn get_group(&self, group_id: &str) -> Option<(usize, &GroupData)> {
     match (
       self.groups_map.get_index_of(group_id),
       self.groups_map.get(group_id),
@@ -135,7 +137,7 @@ where
   }
 
   /// Iterate mut the groups without `No status` group
-  pub(crate) fn iter_mut_status_groups(&mut self, mut each: impl FnMut(&mut Group)) {
+  pub(crate) fn iter_mut_status_groups(&mut self, mut each: impl FnMut(&mut GroupData)) {
     self.groups_map.iter_mut().for_each(|(_, group)| {
       if group.id != self.field_rev.id {
         each(group);
@@ -143,27 +145,28 @@ where
     });
   }
 
-  pub(crate) fn iter_mut_groups(&mut self, mut each: impl FnMut(&mut Group)) {
+  pub(crate) fn iter_mut_groups(&mut self, mut each: impl FnMut(&mut GroupData)) {
     self.groups_map.iter_mut().for_each(|(_, group)| {
       each(group);
     });
   }
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub(crate) fn add_new_group(&mut self, group_rev: GroupRevision) -> FlowyResult<InsertedGroupPB> {
-    let group = Group::new(
-      group_rev.id.clone(),
+  pub(crate) fn add_new_group(&mut self, group: Group) -> FlowyResult<InsertedGroupPB> {
+    let group_data = GroupData::new(
+      group.id.clone(),
       self.field_rev.id.clone(),
-      group_rev.name.clone(),
-      group_rev.id.clone(),
+      group.name.clone(),
+      group.id.clone(),
     );
-    self.groups_map.insert(group_rev.id.clone(), group);
-    let (index, group) = self.get_group(&group_rev.id).unwrap();
+    self.groups_map.insert(group.id.clone(), group_data);
+    let (index, group_data) = self.get_group(&group.id).unwrap();
     let insert_group = InsertedGroupPB {
-      group: GroupPB::from(group.clone()),
+      group: GroupPB::from(group_data.clone()),
       index: index as i32,
     };
+
     self.mut_configuration(|configuration| {
-      configuration.groups.push(group_rev);
+      configuration.groups.push(group);
       true
     })?;
 
@@ -253,15 +256,15 @@ where
     let mut filter_content_map = HashMap::new();
     group_configs.into_iter().for_each(|generate_group| {
       filter_content_map.insert(
-        generate_group.group_rev.id.clone(),
+        generate_group.group.id.clone(),
         generate_group.filter_content,
       );
-      new_groups.push(generate_group.group_rev);
+      new_groups.push(generate_group.group);
     });
 
-    let mut old_groups = self.configuration.groups.clone();
+    let mut old_groups = self.setting.groups.clone();
     // clear all the groups if grouping by a new field
-    if self.configuration.field_id != self.field_rev.id {
+    if self.setting.field_id != self.field_rev.id {
       old_groups.clear();
     }
 
@@ -317,7 +320,7 @@ where
         .get(&group_rev.id)
         .cloned()
         .unwrap_or_else(|| "".to_owned());
-      let group = Group::new(
+      let group = GroupData::new(
         group_rev.id,
         self.field_rev.id.clone(),
         group_rev.name,
@@ -330,7 +333,7 @@ where
       .into_iter()
       .flat_map(|group_rev| {
         let filter_content = filter_content_map.get(&group_rev.id)?;
-        let group = Group::new(
+        let group = GroupData::new(
           group_rev.id,
           self.field_rev.id.clone(),
           group_rev.name,
@@ -381,12 +384,12 @@ where
 
   fn mut_configuration(
     &mut self,
-    mut_configuration_fn: impl FnOnce(&mut GroupConfigurationRevision) -> bool,
+    mut_configuration_fn: impl FnOnce(&mut GroupSetting) -> bool,
   ) -> FlowyResult<()> {
-    let configuration = Arc::make_mut(&mut self.configuration);
+    let configuration = Arc::make_mut(&mut self.setting);
     let is_changed = mut_configuration_fn(configuration);
     if is_changed {
-      let configuration = (*self.configuration).clone();
+      let configuration = (*self.setting).clone();
       let writer = self.writer.clone();
       let field_id = self.field_rev.id.clone();
       let field_type = self.field_rev.ty;
@@ -408,7 +411,7 @@ where
   fn mut_group_rev(
     &mut self,
     group_id: &str,
-    mut_groups_fn: impl Fn(&mut GroupRevision),
+    mut_groups_fn: impl Fn(&mut Group),
   ) -> FlowyResult<()> {
     self.mut_configuration(|configuration| {
       match configuration
@@ -417,8 +420,8 @@ where
         .find(|group| group.id == group_id)
       {
         None => false,
-        Some(group_rev) => {
-          mut_groups_fn(group_rev);
+        Some(group) => {
+          mut_groups_fn(group);
           true
         },
       }
@@ -429,13 +432,13 @@ where
 /// Merge the new groups into old groups while keeping the order in the old groups
 ///
 fn merge_groups(
-  no_status_group: Option<GroupRevision>,
-  old_groups: Vec<GroupRevision>,
-  new_groups: Vec<GroupRevision>,
+  no_status_group: Option<Group>,
+  old_groups: Vec<Group>,
+  new_groups: Vec<Group>,
 ) -> MergeGroupResult {
   let mut merge_result = MergeGroupResult::new();
   // group_map is a helper map is used to filter out the new groups.
-  let mut new_group_map: IndexMap<String, GroupRevision> = IndexMap::new();
+  let mut new_group_map: IndexMap<String, Group> = IndexMap::new();
   new_groups.into_iter().for_each(|group_rev| {
     new_group_map.insert(group_rev.id.clone(), group_rev);
   });
@@ -463,7 +466,7 @@ fn merge_groups(
   merge_result
 }
 
-fn is_group_changed(new: &GroupRevision, old: &GroupRevision) -> bool {
+fn is_group_changed(new: &Group, old: &Group) -> bool {
   if new.name != old.name {
     return true;
   }
@@ -472,9 +475,9 @@ fn is_group_changed(new: &GroupRevision, old: &GroupRevision) -> bool {
 
 struct MergeGroupResult {
   // Contains the new groups and the updated groups
-  all_group_revs: Vec<GroupRevision>,
-  new_group_revs: Vec<GroupRevision>,
-  deleted_group_revs: Vec<GroupRevision>,
+  all_group_revs: Vec<Group>,
+  new_group_revs: Vec<Group>,
+  deleted_group_revs: Vec<Group>,
 }
 
 impl MergeGroupResult {

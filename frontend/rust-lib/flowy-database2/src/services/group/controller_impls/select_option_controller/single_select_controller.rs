@@ -1,30 +1,36 @@
-use crate::entities::{GroupRowsNotificationPB, RowPB};
+use crate::entities::{GroupRowsNotificationPB, RowPB, SelectOptionCellDataPB};
 use crate::services::cell::insert_select_option_cell;
-use crate::services::field::{
-  SelectOptionCellDataPB, SelectOptionCellDataParser, SingleSelectTypeOptionPB,
-};
+use crate::services::field::{SelectOptionCellDataParser, SingleSelectTypeOption};
 use crate::services::group::action::GroupCustomize;
+use collab_database::fields::Field;
 
 use crate::services::group::controller::{
   GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
 };
 use crate::services::group::controller_impls::select_option_controller::util::*;
-use crate::services::group::entities::Group;
+use crate::services::group::entities::GroupData;
+use crate::services::group::{make_no_status_group, GeneratedGroupContext, GroupContext};
+use database_model::RowRevision;
+use serde::{Deserialize, Serialize};
 
-use crate::services::group::{make_no_status_group, GeneratedGroupContext};
-use database_model::{FieldRevision, RowRevision, SelectOptionGroupConfigurationRevision};
+#[derive(Default, Serialize, Deserialize)]
+pub struct SingleSelectGroupConfiguration {
+  pub hide_empty: bool,
+}
+
+pub type SingleSelectOptionGroupContext = GroupContext<SingleSelectGroupConfiguration>;
 
 // SingleSelect
 pub type SingleSelectGroupController = GenericGroupController<
-  SelectOptionGroupConfigurationRevision,
-  SingleSelectTypeOptionPB,
+  SingleSelectGroupConfiguration,
+  SingleSelectTypeOption,
   SingleSelectGroupGenerator,
   SelectOptionCellDataParser,
 >;
 
 impl GroupCustomize for SingleSelectGroupController {
   type CellData = SelectOptionCellDataPB;
-  fn can_group(&self, content: &str, cell_data: &SelectOptionCellDataPB) -> bool {
+  fn can_group(&self, content: &str, cell_data: &Self::CellData) -> bool {
     cell_data
       .select_options
       .iter()
@@ -75,18 +81,13 @@ impl GroupCustomize for SingleSelectGroupController {
 }
 
 impl GroupController for SingleSelectGroupController {
-  fn will_create_row(
-    &mut self,
-    row_rev: &mut RowRevision,
-    field_rev: &FieldRevision,
-    group_id: &str,
-  ) {
-    let group: Option<&mut Group> = self.group_ctx.get_mut_group(group_id);
+  fn will_create_row(&mut self, row_rev: &mut RowRevision, field: &Field, group_id: &str) {
+    let group: Option<&mut GroupData> = self.group_ctx.get_mut_group(group_id);
     match group {
       None => {},
       Some(group) => {
-        let cell_rev = insert_select_option_cell(vec![group.id.clone()], field_rev);
-        row_rev.cells.insert(field_rev.id.clone(), cell_rev);
+        let cell_rev = insert_select_option_cell(vec![group.id.clone()], field);
+        row_rev.cells.insert(field.id.clone(), cell_rev);
       },
     }
   }
@@ -99,22 +100,20 @@ impl GroupController for SingleSelectGroupController {
 
 pub struct SingleSelectGroupGenerator();
 impl GroupGenerator for SingleSelectGroupGenerator {
-  type Context = SelectOptionGroupContext;
-  type TypeOptionType = SingleSelectTypeOptionPB;
+  type Context = SingleSelectOptionGroupContext;
+  type TypeOptionType = SingleSelectTypeOption;
   fn generate_groups(
-    field_rev: &FieldRevision,
+    field: &Field,
     group_ctx: &Self::Context,
     type_option: &Option<Self::TypeOptionType>,
   ) -> GeneratedGroupContext {
     let group_configs = match type_option {
       None => vec![],
-      Some(type_option) => {
-        generate_select_option_groups(&field_rev.id, group_ctx, &type_option.options)
-      },
+      Some(type_option) => generate_select_option_groups(&field.id, &type_option.options),
     };
 
     GeneratedGroupContext {
-      no_status_group: Some(make_no_status_group(field_rev)),
+      no_status_group: Some(make_no_status_group(field)),
       group_configs,
     }
   }

@@ -1,8 +1,9 @@
 use crate::entities::{GroupChangesetPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB};
 use crate::services::cell::DecodedCellData;
 use crate::services::group::controller::MoveGroupRowContext;
-use crate::services::group::Group;
-use database_model::{CellRevision, FieldRevision, RowRevision};
+use crate::services::group::GroupData;
+use collab_database::fields::Field;
+use database_model::{CellRevision, RowRevision};
 use flowy_error::FlowyResult;
 use std::sync::Arc;
 
@@ -73,17 +74,13 @@ pub trait GroupControllerActions: Send + Sync {
   fn field_id(&self) -> &str;
 
   /// Returns number of groups the current field has
-  fn groups(&self) -> Vec<&Group>;
+  fn groups(&self) -> Vec<&GroupData>;
 
   /// Returns the index and the group data with group_id
-  fn get_group(&self, group_id: &str) -> Option<(usize, Group)>;
+  fn get_group(&self, group_id: &str) -> Option<(usize, GroupData)>;
 
   /// Separates the rows into different groups
-  fn fill_groups(
-    &mut self,
-    row_revs: &[Arc<RowRevision>],
-    field_rev: &FieldRevision,
-  ) -> FlowyResult<()>;
+  fn fill_groups(&mut self, row_revs: &[Arc<RowRevision>], field: &Field) -> FlowyResult<()>;
 
   /// Remove the group with from_group_id and insert it to the index with to_group_id
   fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()>;
@@ -93,24 +90,21 @@ pub trait GroupControllerActions: Send + Sync {
     &mut self,
     old_row_rev: &Option<Arc<RowRevision>>,
     row_rev: &RowRevision,
-    field_rev: &FieldRevision,
+    field: &Field,
   ) -> FlowyResult<DidUpdateGroupRowResult>;
 
   /// Remove the row from the group if the row gets deleted
   fn did_delete_delete_row(
     &mut self,
     row_rev: &RowRevision,
-    field_rev: &FieldRevision,
+    field: &Field,
   ) -> FlowyResult<DidMoveGroupRowResult>;
 
   /// Move the row from one group to another group
   fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<DidMoveGroupRowResult>;
 
   /// Update the group if the corresponding field is changed
-  fn did_update_group_field(
-    &mut self,
-    field_rev: &FieldRevision,
-  ) -> FlowyResult<Option<GroupChangesetPB>>;
+  fn did_update_group_field(&mut self, field: &Field) -> FlowyResult<Option<GroupChangesetPB>>;
 }
 
 #[derive(Debug)]

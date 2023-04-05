@@ -32,6 +32,7 @@ lazy_static = "1.4.0"
 indexmap = {version = "1.9.2", features = ["serde"]}
 url = { version = "2"}
 fancy-regex = "0.10.0"
+futures = "0.3.26"
 
 strum = "0.21"
 strum_macros = "0.21"

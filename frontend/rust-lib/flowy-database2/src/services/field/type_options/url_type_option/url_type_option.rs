@@ -5,10 +5,9 @@ use crate::services::field::{
   TypeOptionTransform, URLCellData,
 };
 
-use collab_database::fields::{Field, TypeOptionData};
-
+use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use fancy_regex::Regex;
-
 use flowy_error::FlowyResult;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
@@ -28,14 +27,19 @@ impl TypeOption for URLTypeOption {
 }
 
 impl From<TypeOptionData> for URLTypeOption {
-  fn from(_: TypeOptionData) -> Self {
-    todo!()
+  fn from(data: TypeOptionData) -> Self {
+    let url = data.get_str_value("url").unwrap_or_default();
+    let content = data.get_str_value("content").unwrap_or_default();
+    Self { url, content }
   }
 }
 
 impl From<URLTypeOption> for TypeOptionData {
-  fn from(_: URLTypeOption) -> Self {
-    todo!()
+  fn from(data: URLTypeOption) -> Self {
+    TypeOptionDataBuilder::new()
+      .insert("url", data.url)
+      .insert("content", data.content)
+      .build()
   }
 }
 

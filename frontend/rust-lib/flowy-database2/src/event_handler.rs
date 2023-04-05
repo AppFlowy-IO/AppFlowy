@@ -2,7 +2,7 @@ use crate::entities::*;
 use crate::manager::DatabaseManager2;
 use database_model::FieldRevision;
 use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{AFPluginData, AFPluginState, DataResult};
 use std::sync::Arc;
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]

@@ -8,9 +8,7 @@ use crate::services::field::{
   SelectTypeOptionSharedAction, SelectedSelectOptions, TypeOption, TypeOptionCellData,
   TypeOptionCellDataCompare, TypeOptionCellDataFilter,
 };
-
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
-
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 
