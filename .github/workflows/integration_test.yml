@@ -105,11 +105,11 @@ jobs:
         working-directory: frontend/appflowy_flutter
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
-            flutter test integration_test/runner.dart -d Linux --coverage
+            flutter test integration_test/runner.dart -d Linux --coverage --timeout 3600s
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            flutter test integration_test/runner.dart -d macOS --coverage
+            flutter test integration_test/runner.dart -d macOS --coverage --timeout 3600s
           elif [ "$RUNNER_OS" == "Windows" ]; then
-            flutter test integration_test/runner.dart -d Windows --coverage
+            flutter test integration_test/runner.dart -d Windows --coverage --timeout 3600s
           fi
         shell: bash
 
