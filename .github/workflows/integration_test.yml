@@ -105,11 +105,11 @@ jobs:
         working-directory: frontend/appflowy_flutter
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
-            flutter test integration_test/runner.dart -d Linux --coverage
+            flutter test integration_test -d Linux --coverage
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            flutter test integration_test/runner.dart -d macOS --coverage
+            flutter test integration_test -d macOS --coverage
           elif [ "$RUNNER_OS" == "Windows" ]; then
-            flutter test integration_test/runner.dart -d Windows --coverage
+            flutter test integration_test -d Windows --coverage
           fi
         shell: bash
 
@@ -120,3 +120,4 @@ jobs:
       #     env_vars: ${{ matrix.os }}
       #     fail_ci_if_error: true
       #     verbose: true
+
