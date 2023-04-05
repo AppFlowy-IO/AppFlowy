@@ -1,10 +1,11 @@
 import { CellIdentifier } from '@/appflowy_app/stores/effects/database/cell/cell_bd_svc';
 import { CellCache } from '@/appflowy_app/stores/effects/database/cell/cell_cache';
 import { FieldController } from '@/appflowy_app/stores/effects/database/field/field_controller';
-import { EditCheckboxCell } from '../../_shared/EditRow/EditCheckboxCell';
 import { useCell } from '../../_shared/database-hooks/useCell';
+import { EditCellUrl } from '../../_shared/EditRow/EditCellUrl';
+import { URLCellDataPB } from '@/services/backend/models/flowy-database/url_type_option_entities';
 
-export const GridCheckBox = ({
+export const GridUrl = ({
   cellIdentifier,
   cellCache,
   fieldController,
@@ -16,8 +17,10 @@ export const GridCheckBox = ({
   const { data, cellController } = useCell(cellIdentifier, cellCache, fieldController);
 
   return (
-    <div className='flex w-full justify-start'>
-      {cellController && <EditCheckboxCell cellController={cellController} data={data as 'Yes' | 'No' | undefined} />}
-    </div>
+    <>
+      {cellController && (
+        <EditCellUrl data={data as URLCellDataPB | undefined} cellController={cellController}></EditCellUrl>
+      )}
+    </>
   );
 };

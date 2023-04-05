@@ -23,7 +23,7 @@ export const GridTableRow = ({
       {cells.map((cell, cellIndex) => {
         return (
           <td className='m-0  border border-l-0 border-shade-6 p-0 ' key={cellIndex}>
-            <div className='flex w-full justify-end'>
+            <div className='flex w-full items-center justify-end'>
               <GridCell
                 cellIdentifier={cell.cellIdentifier}
                 cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
@@ -33,7 +33,7 @@ export const GridTableRow = ({
               {cellIndex === 0 && (
                 <div
                   onClick={() => onOpenRow(row)}
-                  className='hidden h-9 w-9  cursor-pointer rounded p-2 hover:bg-slate-200 group-hover:block '
+                  className='mr-1 hidden h-9 w-9  cursor-pointer rounded p-2 hover:bg-slate-200 group-hover:block '
                 >
                   <FullView />
                 </div>
