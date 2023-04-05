@@ -210,6 +210,32 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         ? appTheme.lightTheme
         : appTheme.darkTheme;
 
+    final colorScheme = ColorScheme(
+      brightness: brightness,
+      primary: theme.primary,
+      onPrimary: theme.onPrimary,
+      primaryContainer: theme.main2,
+      onPrimaryContainer: _white,
+      // page title hover color
+      secondary: theme.hoverBG1,
+      onSecondary: theme.shader1,
+      // setting value hover color
+      secondaryContainer: theme.selector,
+      onSecondaryContainer: theme.topbarBg,
+      tertiary: theme.shader7,
+      tertiaryContainer: theme.questionBubbleBG,
+      background: theme.surface,
+      onBackground: theme.text,
+      surface: theme.surface,
+      // text&icon color when it is hovered
+      onSurface: theme.hoverFG,
+      onError: theme.shader7,
+      error: theme.red,
+      outline: theme.shader4,
+      surfaceVariant: theme.sidebarBg,
+      shadow: theme.shadow,
+    );
+
     return ThemeData(
       brightness: brightness,
       textTheme: _getTextTheme(fontFamily: fontFamily, fontColor: theme.text),
@@ -227,6 +253,10 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         ),
       ),
       scaffoldBackgroundColor: theme.surface,
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: colorScheme.primary,
+        contentTextStyle: TextStyle(color: colorScheme.onSurface),
+      ),
       scrollbarTheme: ScrollbarThemeData(
         thumbColor: MaterialStateProperty.all(theme.shader3),
         thickness: MaterialStateProperty.resolveWith((states) {
@@ -254,31 +284,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       highlightColor: theme.main1,
       indicatorColor: theme.main1,
       cardColor: theme.input,
-      colorScheme: ColorScheme(
-        brightness: brightness,
-        primary: theme.primary,
-        onPrimary: theme.onPrimary,
-        primaryContainer: theme.main2,
-        onPrimaryContainer: _white,
-        // page title hover color
-        secondary: theme.hoverBG1,
-        onSecondary: theme.shader1,
-        // setting value hover color
-        secondaryContainer: theme.selector,
-        onSecondaryContainer: theme.topbarBg,
-        tertiary: theme.shader7,
-        tertiaryContainer: theme.questionBubbleBG,
-        background: theme.surface,
-        onBackground: theme.text,
-        surface: theme.surface,
-        // text&icon color when it is hovered
-        onSurface: theme.hoverFG,
-        onError: theme.shader7,
-        error: theme.red,
-        outline: theme.shader4,
-        surfaceVariant: theme.sidebarBg,
-        shadow: theme.shadow,
-      ),
+      colorScheme: colorScheme,
       extensions: [
         AFThemeExtension(
           warning: theme.yellow,
