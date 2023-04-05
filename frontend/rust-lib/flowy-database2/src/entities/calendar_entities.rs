@@ -1,12 +1,12 @@
 use crate::entities::parser::NotEmptyStr;
-use database_model::{CalendarLayout, CalendarLayoutSetting};
+use crate::services::setting::{CalendarLayout, CalendarLayoutSetting};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
 #[derive(Debug, Clone, Eq, PartialEq, Default, ProtoBuf)]
 pub struct CalendarLayoutSettingsPB {
   #[pb(index = 1)]
-  pub layout_field_id: String,
+  pub field_id: String,
 
   #[pb(index = 2)]
   pub layout_ty: CalendarLayoutPB,
@@ -28,7 +28,7 @@ impl std::convert::From<CalendarLayoutSettingsPB> for CalendarLayoutSetting {
       first_day_of_week: pb.first_day_of_week,
       show_weekends: pb.show_weekends,
       show_week_numbers: pb.show_week_numbers,
-      layout_field_id: pb.layout_field_id,
+      field_id: pb.field_id,
     }
   }
 }
@@ -36,7 +36,7 @@ impl std::convert::From<CalendarLayoutSettingsPB> for CalendarLayoutSetting {
 impl std::convert::From<CalendarLayoutSetting> for CalendarLayoutSettingsPB {
   fn from(params: CalendarLayoutSetting) -> Self {
     CalendarLayoutSettingsPB {
-      layout_field_id: params.layout_field_id,
+      field_id: params.field_id,
       layout_ty: params.layout_ty.into(),
       first_day_of_week: params.first_day_of_week,
       show_weekends: params.show_weekends,

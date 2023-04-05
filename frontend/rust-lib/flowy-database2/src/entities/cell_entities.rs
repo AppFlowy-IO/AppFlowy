@@ -1,9 +1,7 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::FieldType;
-use database_model::{CellRevision, RowChangeset};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use std::collections::HashMap;
 
 #[derive(ProtoBuf, Default)]
 pub struct CreateSelectOptionPayloadPB {
@@ -152,22 +150,4 @@ pub struct CellChangesetPB {
 
   #[pb(index = 4)]
   pub type_cell_data: String,
-}
-
-impl std::convert::From<CellChangesetPB> for RowChangeset {
-  fn from(changeset: CellChangesetPB) -> Self {
-    let mut cell_by_field_id = HashMap::with_capacity(1);
-    let field_id = changeset.field_id;
-    let cell_rev = CellRevision {
-      type_cell_data: changeset.type_cell_data,
-    };
-    cell_by_field_id.insert(field_id, cell_rev);
-
-    RowChangeset {
-      row_id: changeset.row_id,
-      height: None,
-      visibility: None,
-      cell_by_field_id,
-    }
-  }
 }

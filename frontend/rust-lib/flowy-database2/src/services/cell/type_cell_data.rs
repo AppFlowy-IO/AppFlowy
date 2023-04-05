@@ -1,5 +1,4 @@
 use crate::entities::FieldType;
-
 use bytes::Bytes;
 use database_model::CellRevision;
 use flowy_error::{internal_error, FlowyError, FlowyResult};

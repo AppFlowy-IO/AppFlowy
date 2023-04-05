@@ -8,7 +8,7 @@ use crate::services::sort::{
 };
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row};
-use database_model::{SortCondition, SortRevision};
+use collab_database::views::{Sort, SortCondition};
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use lib_infra::future::Fut;
@@ -21,7 +21,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub trait SortDelegate: Send + Sync {
-  fn get_sort_rev(&self, sort_type: SortType) -> Fut<Option<Arc<SortRevision>>>;
+  fn get_sort_rev(&self, sort_type: SortType) -> Fut<Option<Arc<Sort>>>;
   /// Returns all the rows after applying grid's filter
   fn get_rows(&self) -> Fut<Vec<Arc<Row>>>;
   fn get_field(&self, field_id: &str) -> Fut<Option<Arc<Field>>>;
@@ -33,7 +33,7 @@ pub struct SortController {
   handler_id: String,
   delegate: Box<dyn SortDelegate>,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
-  sorts: Vec<Arc<SortRevision>>,
+  sorts: Vec<Arc<Sort>>,
   cell_data_cache: AtomicCellDataCache,
   row_index_cache: HashMap<String, usize>,
   notifier: DatabaseViewChangedNotifier,
@@ -49,7 +49,7 @@ impl SortController {
   pub fn new<T>(
     view_id: &str,
     handler_id: &str,
-    sorts: Vec<Arc<SortRevision>>,
+    sorts: Vec<Arc<Sort>>,
     delegate: T,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     cell_data_cache: AtomicCellDataCache,
@@ -222,7 +222,7 @@ impl SortController {
 fn cmp_row(
   left: &Arc<Row>,
   right: &Arc<Row>,
-  sort: &Arc<SortRevision>,
+  sort: &Arc<Sort>,
   field_revs: &[Arc<Field>],
   cell_data_cache: &AtomicCellDataCache,
 ) -> Ordering {
@@ -231,7 +231,7 @@ fn cmp_row(
     right.cells.get(&sort.field_id),
   ) {
     (Some(left_cell), Some(right_cell)) => {
-      let field_type: FieldType = sort.field_type.into();
+      let field_type = FieldType::from(sort.field_type);
       match field_revs
         .iter()
         .find(|field_rev| field_rev.id == sort.field_id)

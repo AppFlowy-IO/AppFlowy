@@ -1,4 +1,4 @@
-use database_model::{GroupRevision, SelectOptionGroupConfigurationRevision};
+use collab_database::views::Group;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -19,16 +19,6 @@ pub struct SelectOptionGroupConfigurationPB {
   hide_empty: bool,
 }
 
-impl std::convert::From<SelectOptionGroupConfigurationRevision>
-  for SelectOptionGroupConfigurationPB
-{
-  fn from(rev: SelectOptionGroupConfigurationRevision) -> Self {
-    Self {
-      hide_empty: rev.hide_empty,
-    }
-  }
-}
-
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct GroupRecordPB {
   #[pb(index = 1)]
@@ -38,8 +28,8 @@ pub struct GroupRecordPB {
   visible: bool,
 }
 
-impl std::convert::From<GroupRevision> for GroupRecordPB {
-  fn from(rev: GroupRevision) -> Self {
+impl std::convert::From<Group> for GroupRecordPB {
+  fn from(rev: Group) -> Self {
     Self {
       group_id: rev.id,
       visible: rev.visible,

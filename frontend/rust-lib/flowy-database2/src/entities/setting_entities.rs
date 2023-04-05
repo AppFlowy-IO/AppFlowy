@@ -5,7 +5,8 @@ use crate::entities::{
   DeleteGroupPayloadPB, DeleteSortParams, DeleteSortPayloadPB, InsertGroupParams,
   InsertGroupPayloadPB, RepeatedFilterPB, RepeatedGroupConfigurationPB, RepeatedSortPB,
 };
-use database_model::{CalendarLayoutSetting, LayoutRevision};
+use crate::services::setting::CalendarLayoutSetting;
+use collab_database::views::DatabaseLayout;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use std::convert::TryInto;
@@ -44,22 +45,22 @@ impl std::default::Default for DatabaseLayoutPB {
   }
 }
 
-impl std::convert::From<LayoutRevision> for DatabaseLayoutPB {
-  fn from(rev: LayoutRevision) -> Self {
+impl std::convert::From<DatabaseLayout> for DatabaseLayoutPB {
+  fn from(rev: DatabaseLayout) -> Self {
     match rev {
-      LayoutRevision::Grid => DatabaseLayoutPB::Grid,
-      LayoutRevision::Board => DatabaseLayoutPB::Board,
-      LayoutRevision::Calendar => DatabaseLayoutPB::Calendar,
+      DatabaseLayout::Grid => DatabaseLayoutPB::Grid,
+      DatabaseLayout::Board => DatabaseLayoutPB::Board,
+      DatabaseLayout::Calendar => DatabaseLayoutPB::Calendar,
     }
   }
 }
 
-impl std::convert::From<DatabaseLayoutPB> for LayoutRevision {
+impl std::convert::From<DatabaseLayoutPB> for DatabaseLayout {
   fn from(layout: DatabaseLayoutPB) -> Self {
     match layout {
-      DatabaseLayoutPB::Grid => LayoutRevision::Grid,
-      DatabaseLayoutPB::Board => LayoutRevision::Board,
-      DatabaseLayoutPB::Calendar => LayoutRevision::Calendar,
+      DatabaseLayoutPB::Grid => DatabaseLayout::Grid,
+      DatabaseLayoutPB::Board => DatabaseLayout::Board,
+      DatabaseLayoutPB::Calendar => DatabaseLayout::Calendar,
     }
   }
 }
@@ -144,7 +145,7 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
 
 pub struct DatabaseSettingChangesetParams {
   pub view_id: String,
-  pub layout_type: LayoutRevision,
+  pub layout_type: DatabaseLayout,
   pub insert_filter: Option<AlterFilterParams>,
   pub delete_filter: Option<DeleteFilterParams>,
   pub insert_group: Option<InsertGroupParams>,

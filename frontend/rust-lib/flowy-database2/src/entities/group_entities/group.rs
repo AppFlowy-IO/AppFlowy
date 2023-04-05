@@ -1,7 +1,7 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{FieldType, RowPB};
 use crate::services::group::GroupData;
-use database_model::GroupConfigurationRevision;
+use collab_database::views::GroupSetting;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use std::convert::TryInto;
@@ -16,8 +16,8 @@ pub struct GroupConfigurationPB {
   pub field_id: String,
 }
 
-impl std::convert::From<&GroupConfigurationRevision> for GroupConfigurationPB {
-  fn from(rev: &GroupConfigurationRevision) -> Self {
+impl std::convert::From<&GroupSetting> for GroupConfigurationPB {
+  fn from(rev: &GroupSetting) -> Self {
     GroupConfigurationPB {
       id: rev.id.clone(),
       field_id: rev.field_id.clone(),
@@ -90,8 +90,8 @@ impl std::convert::From<Vec<GroupConfigurationPB>> for RepeatedGroupConfiguratio
   }
 }
 
-impl std::convert::From<Vec<Arc<GroupConfigurationRevision>>> for RepeatedGroupConfigurationPB {
-  fn from(revs: Vec<Arc<GroupConfigurationRevision>>) -> Self {
+impl std::convert::From<Vec<Arc<GroupSetting>>> for RepeatedGroupConfigurationPB {
+  fn from(revs: Vec<Arc<GroupSetting>>) -> Self {
     RepeatedGroupConfigurationPB {
       items: revs.iter().map(|rev| rev.as_ref().into()).collect(),
     }
