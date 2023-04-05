@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'util/util.dart';
 
+// TODO(a-wallen) remove this if CI passes
+
 /// Integration tests for an empty board. The [TestWorkspaceService] will load
 /// a workspace from an empty board `assets/test/workspaces/board.zip` for all
 /// tests.
