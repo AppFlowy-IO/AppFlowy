@@ -1,5 +1,6 @@
 use crate::entities::{FieldType, SelectOptionCellDataPB, SelectOptionFilterPB};
 use crate::services::cell::{CellDataChangeset, FromCellString, TypeCellData};
+use collab::core::lib0_any_ext::Lib0AnyMapExtension;
 use std::cmp::{min, Ordering};
 
 use crate::services::field::{
@@ -8,7 +9,7 @@ use crate::services::field::{
   TypeOptionCellDataCompare, TypeOptionCellDataFilter,
 };
 
-use collab_database::fields::TypeOptionData;
+use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
@@ -28,14 +29,20 @@ impl TypeOption for MultiSelectTypeOption {
 }
 
 impl From<TypeOptionData> for MultiSelectTypeOption {
-  fn from(_: TypeOptionData) -> Self {
-    todo!()
+  fn from(data: TypeOptionData) -> Self {
+    data
+      .get_str_value("content")
+      .map(|s| serde_json::from_str::<MultiSelectTypeOption>(&s).unwrap_or_default())
+      .unwrap_or_default()
   }
 }
 
 impl From<MultiSelectTypeOption> for TypeOptionData {
-  fn from(_: MultiSelectTypeOption) -> Self {
-    todo!()
+  fn from(data: MultiSelectTypeOption) -> Self {
+    let content = serde_json::to_string(&data).unwrap_or_default();
+    TypeOptionDataBuilder::new()
+      .insert("content", content)
+      .build()
   }
 }
 

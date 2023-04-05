@@ -8,8 +8,9 @@ use crate::services::field::{
   TypeOptionTransform,
 };
 use bytes::Bytes;
-use collab_database::fields::{Field, TypeOptionData};
+use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 
+use collab::core::lib0_any_ext::Lib0AnyMapExtension;
 use flowy_error::{FlowyError, FlowyResult};
 use protobuf::ProtobufError;
 use serde::{Deserialize, Serialize};
@@ -20,7 +21,7 @@ use std::cmp::Ordering;
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct RichTextTypeOption {
   #[serde(default)]
-  data: String,
+  inner: String,
 }
 
 impl TypeOption for RichTextTypeOption {
@@ -31,14 +32,17 @@ impl TypeOption for RichTextTypeOption {
 }
 
 impl From<TypeOptionData> for RichTextTypeOption {
-  fn from(_: TypeOptionData) -> Self {
-    todo!()
+  fn from(data: TypeOptionData) -> Self {
+    let s = data.get_str_value("data").unwrap_or_default();
+    Self { inner: s }
   }
 }
 
 impl From<RichTextTypeOption> for TypeOptionData {
-  fn from(_: RichTextTypeOption) -> Self {
-    todo!()
+  fn from(data: RichTextTypeOption) -> Self {
+    TypeOptionDataBuilder::new()
+      .insert("data", data.inner)
+      .build()
   }
 }
 

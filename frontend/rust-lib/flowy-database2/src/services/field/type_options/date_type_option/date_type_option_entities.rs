@@ -147,8 +147,8 @@ impl std::default::Default for DateFormat {
   }
 }
 
-impl std::convert::From<i32> for DateFormat {
-  fn from(value: i32) -> Self {
+impl std::convert::From<i64> for DateFormat {
+  fn from(value: i64) -> Self {
     match value {
       0 => DateFormat::Local,
       1 => DateFormat::US,
@@ -163,8 +163,8 @@ impl std::convert::From<i32> for DateFormat {
 }
 
 impl DateFormat {
-  pub fn value(&self) -> i32 {
-    *self as i32
+  pub fn value(&self) -> i64 {
+    *self as i64
   }
   // https://docs.rs/chrono/0.4.19/chrono/format/strftime/index.html
   pub fn format_str(&self) -> &'static str {
@@ -183,8 +183,8 @@ pub enum TimeFormat {
   TwentyFourHour = 1,
 }
 
-impl std::convert::From<i32> for TimeFormat {
-  fn from(value: i32) -> Self {
+impl std::convert::From<i64> for TimeFormat {
+  fn from(value: i64) -> Self {
     match value {
       0 => TimeFormat::TwelveHour,
       1 => TimeFormat::TwentyFourHour,
@@ -197,8 +197,8 @@ impl std::convert::From<i32> for TimeFormat {
 }
 
 impl TimeFormat {
-  pub fn value(&self) -> i32 {
-    *self as i32
+  pub fn value(&self) -> i64 {
+    *self as i64
   }
 
   // https://docs.rs/chrono/0.4.19/chrono/format/strftime/index.html

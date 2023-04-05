@@ -8,7 +8,8 @@ use crate::services::field::{
 use chrono::format::strftime::StrftimeItems;
 use chrono::NaiveDateTime;
 
-use collab_database::fields::{Field, TypeOptionData};
+use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -29,14 +30,31 @@ impl TypeOption for DateTypeOption {
 }
 
 impl From<TypeOptionData> for DateTypeOption {
-  fn from(_: TypeOptionData) -> Self {
-    todo!()
+  fn from(data: TypeOptionData) -> Self {
+    let include_time = data.get_bool_value("include_time").unwrap_or(false);
+    let date_format = data
+      .get_i64_value("data_format")
+      .map(DateFormat::from)
+      .unwrap_or_default();
+    let time_format = data
+      .get_i64_value("time_format")
+      .map(TimeFormat::from)
+      .unwrap_or_default();
+    Self {
+      date_format,
+      time_format,
+      include_time,
+    }
   }
 }
 
 impl From<DateTypeOption> for TypeOptionData {
-  fn from(_: DateTypeOption) -> Self {
-    todo!()
+  fn from(data: DateTypeOption) -> Self {
+    TypeOptionDataBuilder::new()
+      .insert("data_format", data.date_format.value())
+      .insert("time_format", data.time_format.value())
+      .insert("include_time", data.include_time)
+      .build()
   }
 }
 

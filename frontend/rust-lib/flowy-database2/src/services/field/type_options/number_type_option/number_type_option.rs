@@ -5,8 +5,9 @@ use crate::services::field::{
   NumberCellData, StrCellData, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
   TypeOptionCellDataFilter, TypeOptionTransform,
 };
-use collab_database::fields::{Field, TypeOptionData};
+use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 
+use collab::core::lib0_any_ext::Lib0AnyMapExtension;
 use fancy_regex::Regex;
 use flowy_error::FlowyResult;
 use lazy_static::lazy_static;
@@ -34,14 +35,34 @@ impl TypeOption for NumberTypeOption {
 }
 
 impl From<TypeOptionData> for NumberTypeOption {
-  fn from(_: TypeOptionData) -> Self {
-    todo!()
+  fn from(data: TypeOptionData) -> Self {
+    let format = data
+      .get_i64_value("format")
+      .map(NumberFormat::from)
+      .unwrap_or_default();
+    let scale = data.get_i64_value("scale").unwrap_or_default() as u32;
+    let symbol = data.get_str_value("symbol").unwrap_or_default();
+    let sign_positive = data.get_bool_value("sign_positive").unwrap_or_default();
+    let name = data.get_str_value("name").unwrap_or_default();
+    Self {
+      format,
+      scale,
+      symbol,
+      sign_positive,
+      name,
+    }
   }
 }
 
 impl From<NumberTypeOption> for TypeOptionData {
-  fn from(_: NumberTypeOption) -> Self {
-    todo!()
+  fn from(data: NumberTypeOption) -> Self {
+    TypeOptionDataBuilder::new()
+      .insert("format", data.format.value())
+      .insert("scale", data.scale)
+      .insert("sign_positive", data.sign_positive)
+      .insert("name", data.name)
+      .insert("symbol", data.symbol)
+      .build()
   }
 }
 

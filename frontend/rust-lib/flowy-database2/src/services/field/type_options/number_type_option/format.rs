@@ -51,9 +51,59 @@ pub enum NumberFormat {
   Percent = 36,
 }
 
+impl NumberFormat {
+  pub fn value(&self) -> i64 {
+    *self as i64
+  }
+}
+
 impl std::default::Default for NumberFormat {
   fn default() -> Self {
     NumberFormat::Num
+  }
+}
+
+impl From<i64> for NumberFormat {
+  fn from(value: i64) -> Self {
+    match value {
+      0 => NumberFormat::Num,
+      1 => NumberFormat::USD,
+      2 => NumberFormat::CanadianDollar,
+      4 => NumberFormat::EUR,
+      5 => NumberFormat::Pound,
+      6 => NumberFormat::Yen,
+      7 => NumberFormat::Ruble,
+      8 => NumberFormat::Rupee,
+      9 => NumberFormat::Won,
+      10 => NumberFormat::Yuan,
+      11 => NumberFormat::Real,
+      12 => NumberFormat::Lira,
+      13 => NumberFormat::Rupiah,
+      14 => NumberFormat::Franc,
+      15 => NumberFormat::HongKongDollar,
+      16 => NumberFormat::NewZealandDollar,
+      17 => NumberFormat::Krona,
+      18 => NumberFormat::NorwegianKrone,
+      19 => NumberFormat::MexicanPeso,
+      20 => NumberFormat::Rand,
+      21 => NumberFormat::NewTaiwanDollar,
+      22 => NumberFormat::DanishKrone,
+      23 => NumberFormat::Baht,
+      24 => NumberFormat::Forint,
+      25 => NumberFormat::Koruna,
+      26 => NumberFormat::Shekel,
+      27 => NumberFormat::ChileanPeso,
+      28 => NumberFormat::PhilippinePeso,
+      29 => NumberFormat::Dirham,
+      30 => NumberFormat::ColombianPeso,
+      31 => NumberFormat::Riyal,
+      32 => NumberFormat::Ringgit,
+      33 => NumberFormat::Leu,
+      34 => NumberFormat::ArgentinePeso,
+      35 => NumberFormat::UruguayanPeso,
+      36 => NumberFormat::Percent,
+      _ => NumberFormat::Num,
+    }
   }
 }
 

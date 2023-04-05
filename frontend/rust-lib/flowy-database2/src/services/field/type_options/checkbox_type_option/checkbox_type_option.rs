@@ -6,7 +6,7 @@ use crate::services::field::{
 };
 
 use collab::core::lib0_any_ext::Lib0AnyMapExtension;
-use collab_database::fields::{Field, TypeOptionData};
+use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -61,7 +61,11 @@ impl From<TypeOptionData> for CheckboxTypeOption {
 }
 
 impl From<CheckboxTypeOption> for TypeOptionData {
-  fn from(data: CheckboxTypeOption) -> Self {}
+  fn from(data: CheckboxTypeOption) -> Self {
+    TypeOptionDataBuilder::new()
+      .insert("is_selected", data.is_selected)
+      .build()
+  }
 }
 
 impl TypeOptionCellData for CheckboxTypeOption {

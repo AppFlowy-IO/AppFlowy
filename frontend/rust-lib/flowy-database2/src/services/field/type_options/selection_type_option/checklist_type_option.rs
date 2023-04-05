@@ -6,7 +6,8 @@ use crate::services::field::{
   TypeOptionCellDataFilter,
 };
 
-use collab_database::fields::TypeOptionData;
+use collab::core::lib0_any_ext::Lib0AnyMapExtension;
+use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -26,14 +27,20 @@ impl TypeOption for ChecklistTypeOption {
 }
 
 impl From<TypeOptionData> for ChecklistTypeOption {
-  fn from(_: TypeOptionData) -> Self {
-    todo!()
+  fn from(data: TypeOptionData) -> Self {
+    data
+      .get_str_value("content")
+      .map(|s| serde_json::from_str::<ChecklistTypeOption>(&s).unwrap_or_default())
+      .unwrap_or_default()
   }
 }
 
 impl From<ChecklistTypeOption> for TypeOptionData {
-  fn from(_: ChecklistTypeOption) -> Self {
-    todo!()
+  fn from(data: ChecklistTypeOption) -> Self {
+    let content = serde_json::to_string(&data).unwrap_or_default();
+    TypeOptionDataBuilder::new()
+      .insert("content", content)
+      .build()
   }
 }
 
